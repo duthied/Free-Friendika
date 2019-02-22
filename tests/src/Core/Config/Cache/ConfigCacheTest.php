@@ -138,22 +138,7 @@ class ConfigCacheTest extends MockedTest
 	{
 		$configCache = new ConfigCache();
 
-		$this->assertEquals('!<unset>!', $configCache->get('something', 'value'));
-	}
-
-	/**
-	 * Test the has() method
-	 */
-	public function testHas()
-	{
-		$configCache = new ConfigCache();
-
-		$this->assertFalse($configCache->has('system', 'test'));
-		$this->assertFalse($configCache->has('system'));
-
-		$configCache->set('system', 'test', 'it');
-		$this->assertTrue($configCache->has('system', 'test'));
-		$this->assertTrue($configCache->has('system'));
+		$this->assertNull($configCache->get('something', 'value'));
 	}
 
 	/**
@@ -170,8 +155,6 @@ class ConfigCacheTest extends MockedTest
 				'key3' => 'value3',
 			],
 		]);
-
-		$this->assertTrue($configCache->has('system'));
 
 		$this->assertEquals([
 			'key1' => 'value1',
@@ -233,8 +216,6 @@ class ConfigCacheTest extends MockedTest
 			],
 		]);
 
-		$this->assertTrue($configCache->hasP($uid,'system'));
-
 		$this->assertEquals([
 			'key1' => 'value1',
 			'key2' => 'value2',
@@ -263,21 +244,5 @@ class ConfigCacheTest extends MockedTest
 		}
 
 		$this->assertEmpty($configCache->getAll());
-	}
-
-	/**
-	 * Test the hasP() method
-	 */
-	public function testHasP()
-	{
-		$configCache = new ConfigCache();
-		$uid = 345;
-
-		$this->assertFalse($configCache->hasP($uid, 'system', 'test'));
-		$this->assertFalse($configCache->hasP($uid, 'system'));
-
-		$configCache->setP($uid, 'system', 'test', 'it');
-		$this->assertTrue($configCache->hasP($uid, 'system', 'test'));
-		$this->assertTrue($configCache->hasP($uid, 'system'));
 	}
 }

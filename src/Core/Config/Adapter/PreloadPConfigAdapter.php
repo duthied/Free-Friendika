@@ -50,7 +50,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 		$pconfigs = DBA::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = DBA::fetch($pconfigs)) {
 			$value = $pconfig['v'];
-			if (isset($value) && $value !== '') {
+			if (isset($value)) {
 				$return[$pconfig['cat']][$pconfig['k']] = $value;
 			}
 		}
@@ -79,7 +79,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 
-			if (isset($value) && $value !== '') {
+			if (isset($value)) {
 				return $value;
 			}
 		}

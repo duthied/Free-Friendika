@@ -33,7 +33,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
 			$value = $config['v'];
-			if (isset($value) && $value !== '') {
+			if (isset($value)) {
 				$return[$config['cat']][$config['k']] = $value;
 			}
 		}
@@ -58,7 +58,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 			// manage array value
 			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
 
-			if (isset($value) && $value !== '') {
+			if (isset($value)) {
 				return $value;
 			}
 		}

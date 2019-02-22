@@ -20,19 +20,6 @@ class ConfigCacheLoaderTest extends MockedTest
 	}
 
 	/**
-	 * Test the loadConfigFiles() method with default values
-	 */
-	public function testLoadConfigFiles()
-	{
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
-		$configCache = new ConfigCache();
-
-		$configCacheLoader->loadConfigFiles($configCache);
-
-		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
-	}
-
-	/**
 	 * Test the loadConfigFiles() method with a wrong local.config.php
 	 * @expectedException \Exception
 	 * @expectedExceptionMessageRegExp /Error loading config file \w+/

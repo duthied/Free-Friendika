@@ -142,7 +142,7 @@ class ConfigurationTest extends MockedTest
 		$this->assertNull($configuration->get('test', 'it'));
 
 		/// beware that the cache returns '!<unset>!' and not null for a non existing value
-		$this->assertEquals('!<unset>!', $configuration->getCache()->get('test', 'it'));
+		$this->assertNull($configuration->getCache()->get('test', 'it'));
 
 		// with default value
 		$this->assertEquals('default', $configuration->get('test', 'it', 'default'));
@@ -165,7 +165,7 @@ class ConfigurationTest extends MockedTest
 		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(true)->twice();
 		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn($data)->once();
 		$configAdapter->shouldReceive('isLoaded')->with('test', 'not')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with('test', 'not')->andReturn('!<unset>!')->once();
+		$configAdapter->shouldReceive('get')->with('test', 'not')->andReturn(null)->once();
 
 		$configuration = new Configuration($configCache, $configAdapter);
 
@@ -179,7 +179,7 @@ class ConfigurationTest extends MockedTest
 
 		// without refresh and wrong value and default
 		$this->assertEquals('default', $configuration->get('test', 'not', 'default'));
-		$this->assertEquals('!<unset>!', $configuration->getCache()->get('test', 'not'));
+		$this->assertNull($configuration->getCache()->get('test', 'not'));
 	}
 
 	/**
@@ -195,7 +195,7 @@ class ConfigurationTest extends MockedTest
 		$configAdapter->shouldReceive('load')->andReturn([])->once();
 
 		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn('!<unset>!')->once();
+		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn(null)->once();
 
 		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(false)->once();
 		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn($data)->once();
@@ -234,7 +234,7 @@ class ConfigurationTest extends MockedTest
 
 		$this->assertTrue($configuration->delete('test', 'it'));
 		$this->assertNull($configuration->get('test', 'it'));
-		$this->assertEquals('!<unset>!', $configuration->getCache()->get('test', 'it'));
+		$this->assertNull($configuration->getCache()->get('test', 'it'));
 
 		$this->assertEmpty($configuration->getCache()->getAll());
 	}
