@@ -400,7 +400,7 @@ class Worker
 		$rest    = number_format(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 4);
 		$exec    = number_format($duration, 4);
 
-		$workerLogger->info('Performance log.', ['total' => $dbtotal, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'block' => $dblock, 'rest' => $rest, 'exec' => $exec]);
+		$logger->info('Performance log.', ['total' => $dbtotal, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'block' => $dblock, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
