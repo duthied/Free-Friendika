@@ -10,8 +10,8 @@ use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Friendica\Core\StorageManager;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Storage\IStorage;
@@ -203,7 +203,7 @@ class Photo extends BaseObject
 	 */
 	private static function getFields()
 	{
-		$allfields = DBStructure::definition(false);
+		$allfields = DBStructure::definition(self::getApp()->getBasePath(), false);
 		$fields = array_keys($allfields["photo"]["fields"]);
 		array_splice($fields, array_search("data", $fields), 1);
 		return $fields;

@@ -65,8 +65,6 @@ class PConfig
 	/**
 	 * @brief Sets a configuration value for a user
 	 *
-	 * @note  Please do not store booleans - convert to 0/1 integer values!
-	 *
 	 * @param string $uid    The user_id
 	 * @param string $cat    The category of the configuration value
 	 * @param string $key    The configuration key to set

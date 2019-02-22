@@ -28,11 +28,13 @@ interface IPConfigAdapter
 	 * Get a particular user's config variable given the category name
 	 * ($family) and a key.
 	 *
+	 * Note: Boolean variables are defined as 0/1 in the database
+	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
 	 * @param string  $key           The configuration key to query
 	 *
-	 * @return mixed Stored value or "!<unset>!" if it does not exist
+	 * @return null|mixed Stored value or null if it does not exist
 	 */
 	public function get($uid, $cat, $key);
 
@@ -59,7 +61,7 @@ interface IPConfigAdapter
 	 * @param string $cat The category of the configuration value
 	 * @param string $key The configuration key to delete
 	 *
-	 * @return bool
+	 * @return bool Operation success
 	 */
 	public function delete($uid, $cat, $key);
 

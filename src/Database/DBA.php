@@ -40,6 +40,10 @@ class DBA
 	 * @var Profiler
 	 */
 	private static $profiler;
+	/**
+	 * @var string
+	 */
+	private static $basedir;
 	private static $server_info = '';
 	private static $connection;
 	private static $driver;
@@ -55,13 +59,14 @@ class DBA
 	private static $db_name = '';
 	private static $db_charset = '';
 
-	public static function connect(IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
+	public static function connect($basedir, IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
 	{
 		if (!is_null(self::$connection) && self::connected()) {
 			return true;
 		}
 
 		// We are storing these values for being able to perform a reconnect
+		self::$basedir = $basedir;
 		self::$configCache = $configCache;
 		self::$profiler = $profiler;
 		self::$db_serveraddr = $serveraddr;
@@ -1034,7 +1039,7 @@ class DBA
 	 * This process must only be started once, since the value is cached.
 	 */
 	private static function buildRelationData() {
-		$definition = DBStructure::definition(self::$configCache->get('system', 'basepath'));
+		$definition = DBStructure::definition(self::$basedir);
 
 		foreach ($definition AS $table => $structure) {
 			foreach ($structure['fields'] AS $field => $field_struct) {

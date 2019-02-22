@@ -52,8 +52,6 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			$value = $pconfig['v'];
 			if (isset($value) && $value !== '') {
 				$return[$pconfig['cat']][$pconfig['k']] = $value;
-			} else {
-				$return[$pconfig['cat']][$pconfig['k']] = '!<unset>!';
 			}
 		}
 		DBA::close($pconfigs);
@@ -69,7 +67,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 	public function get($uid, $cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return '!<unset>!';
+			return null;
 		}
 
 		if (!$this->isLoaded($uid, $cat, $key)) {
@@ -85,7 +83,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 				return $value;
 			}
 		}
-		return '!<unset>!';
+		return null;
 	}
 
 	/**
@@ -112,9 +110,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
 
-		$result = DBA::update('pconfig', ['v' => $dbvalue], ['uid' => $uid, 'cat' => $cat, 'k' => $key], true);
-
-		return $result;
+		return DBA::update('pconfig', ['v' => $dbvalue], ['uid' => $uid, 'cat' => $cat, 'k' => $key], true);
 	}
 
 	/**
@@ -130,9 +126,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			$this->load($uid, $cat);
 		}
 
-		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
-
-		return $result;
+		return DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 	}
 
 	/**

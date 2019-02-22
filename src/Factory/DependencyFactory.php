@@ -22,16 +22,16 @@ class DependencyFactory
 	 */
 	public static function setUp($channel, $directory, $isBackend = true)
 	{
-		$basedir = BasePath::create($directory, $_SERVER);
-		$configLoader = new Cache\ConfigCacheLoader($basedir);
+		$basePath = BasePath::create($directory, $_SERVER);
+		$configLoader = new Cache\ConfigCacheLoader($basePath);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
-		Factory\DBFactory::init($configCache, $profiler, $_SERVER);
+		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
 		// needed to call PConfig::init()
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create($channel, $config);
 
-		return new App($config, $logger, $profiler, $isBackend);
+		return new App($basePath, $config, $logger, $profiler, $isBackend);
 	}
 }

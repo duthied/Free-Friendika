@@ -65,8 +65,6 @@ class Config
 	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)
 	 *
-	 * Note: Please do not store booleans - convert to 0/1 integer values!
-	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key    The configuration key to set
 	 * @param mixed  $value  The value to store

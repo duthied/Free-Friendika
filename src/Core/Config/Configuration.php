@@ -83,20 +83,19 @@ class Configuration
 		if ($this->configAdapter->isConnected() &&
 			(!$this->configAdapter->isLoaded($cat, $key) ||
 			$refresh)) {
+
 			$dbvalue = $this->configAdapter->get($cat, $key);
 
-			if ($dbvalue !== '!<unset>!') {
+			if (isset($dbvalue)) {
 				$this->configCache->set($cat, $key, $dbvalue);
 				return $dbvalue;
 			}
 		}
 
 		// use the config cache for return
-		if ($this->configCache->has($cat, $key)) {
-			return $this->configCache->get($cat, $key);
-		} else {
-			return $default_value;
-		}
+		$result = $this->configCache->get($cat, $key);
+
+		return (isset($result)) ? $result : $default_value;
 	}
 
 	/**

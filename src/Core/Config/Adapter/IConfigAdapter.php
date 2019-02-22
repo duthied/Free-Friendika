@@ -21,10 +21,12 @@ interface IConfigAdapter
 	 * Get a particular system-wide config variable given the category name
 	 * ($family) and a key.
 	 *
+	 * Note: Boolean variables are defined as 0/1 in the database
+	 *
 	 * @param string  $cat The category of the configuration value
 	 * @param string  $key The configuration key to query
 	 *
-	 * @return mixed Stored value or "!<unset>!" if it does not exist
+	 * @return null|mixed Stored value or null if it does not exist
 	 */
 	public function get($cat, $key);
 
@@ -46,9 +48,9 @@ interface IConfigAdapter
 	 * and removes it from the database.
 	 *
 	 * @param string $cat The category of the configuration value
-	 * @param string $key   The configuration key to delete
+	 * @param string $key The configuration key to delete
 	 *
-	 * @return mixed
+	 * @return bool Operation success
 	 */
 	public function delete($cat, $key);
 

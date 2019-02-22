@@ -6,8 +6,6 @@ namespace Friendica\Core\Config\Cache;
  * The Friendica config cache for the application
  * Initial, all *.config.php files are loaded into this cache with the
  * ConfigCacheLoader ( @see ConfigCacheLoader )
- *
- * Is used for further caching operations too (depending on the ConfigAdapter )
  */
 class ConfigCache implements IConfigCache, IPConfigCache
 {
@@ -37,7 +35,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 
 				foreach ($keys as $key) {
 					$value = $config[$category][$key];
-					if (isset($value) && $value !== '!<unset>!') {
+					if (isset($value)) {
 						if ($overwrite) {
 							$this->set($category, $key, $value);
 						} else {
@@ -56,20 +54,11 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	{
 		if (isset($this->config[$cat][$key])) {
 			return $this->config[$cat][$key];
-		} elseif ($key == null && isset($this->config[$cat])) {
+		} elseif (!isset($key) && isset($this->config[$cat])) {
 			return $this->config[$cat];
 		} else {
-			return '!<unset>!';
+			return null;
 		}
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function has($cat, $key = null)
-	{
-		return (isset($this->config[$cat][$key]) && $this->config[$cat][$key] !== '!<unset>!') ||
-		($key == null && isset($this->config[$cat]) && $this->config[$cat] !== '!<unset>!' && is_array($this->config[$cat]));
 	}
 
 	/**
@@ -91,9 +80,6 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function set($cat, $key, $value)
 	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($value) && preg_match("|^a:[0-9]+:{.*}$|s", $value) ? unserialize($value) : $value;
-
 		if (!isset($this->config[$cat])) {
 			$this->config[$cat] = [];
 		}
@@ -101,15 +87,6 @@ class ConfigCache implements IConfigCache, IPConfigCache
 		$this->config[$cat][$key] = $value;
 
 		return true;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function hasP($uid, $cat, $key = null)
-	{
-		return (isset($this->config[$uid][$cat][$key]) && $this->config[$uid][$cat][$key] !== '!<unset>!') ||
-			($key == null && isset($this->config[$uid][$cat]) && $this->config[$uid][$cat] !== '!<unset>!' && is_array($this->config[$uid][$cat]));
 	}
 
 	/**
@@ -142,7 +119,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 
 				foreach ($keys as $key) {
 					$value = $config[$category][$key];
-					if (isset($value) && $value !== '!<unset>!') {
+					if (isset($value)) {
 						$this->setP($uid, $category, $key, $value);
 					}
 				}
@@ -157,10 +134,10 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			return $this->config[$uid][$cat][$key];
-		} elseif ($key == null && isset($this->config[$uid][$cat])) {
+		} elseif (!isset($key) && isset($this->config[$uid][$cat])) {
 			return $this->config[$uid][$cat];
 		} else {
-			return '!<unset>!';
+			return null;
 		}
 	}
 
@@ -169,9 +146,6 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	 */
 	public function setP($uid, $cat, $key, $value)
 	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($value) && preg_match("|^a:[0-9]+:{.*}$|s", $value) ? unserialize($value) : $value;
-
 		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
 			$this->config[$uid] = [];
 		}

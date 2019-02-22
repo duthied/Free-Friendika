@@ -20,9 +20,9 @@ interface IConfigCache
 	 * Gets a value from the config cache.
 	 *
 	 * @param string $cat     Config category
-	 * @param string $key       Config key
+	 * @param string $key     Config key
 	 *
-	 * @return mixed Returns the value of the Config entry or '!<unset>!' if not set
+	 * @return null|mixed Returns the value of the Config entry or null if not set
 	 */
 	function get($cat, $key = null);
 
@@ -46,15 +46,6 @@ interface IConfigCache
 	 * @return bool true, if deleted
 	 */
 	function delete($cat, $key);
-
-	/**
-	 * Checks if a value is set in the config cache.
-	 *
-	 * @param string $cat  Config category
-	 * @param string $key  Config key
-	 * @return bool
-	 */
-	function has($cat, $key = null);
 
 	/**
 	 * Returns the whole configuration cache

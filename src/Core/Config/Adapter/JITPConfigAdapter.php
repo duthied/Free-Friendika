@@ -29,16 +29,18 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 		if (DBA::isResult($pconfigs)) {
 			while ($pconfig = DBA::fetch($pconfigs)) {
 				$key = $pconfig['k'];
-				$value = $pconfig['v'];
+				$value = $this->toConfigValue($pconfig['v']);
 
-				if (isset($value) && $value !== '') {
+				// The value was in the db, so don't check it again (unless you have to)
+				$this->in_db[$uid][$cat][$key] = true;
+
+				if (isset($value)) {
 					$return[$key] = $value;
-					$this->in_db[$uid][$cat][$key] = true;
 				}
 			}
 		} else if ($cat != 'config') {
 			// Negative caching
-			$return = "!<unset>!";
+			$return = null;
 		}
 		DBA::close($pconfigs);
 
@@ -51,22 +53,23 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 	public function get($uid, $cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return '!<unset>!';
+			return null;
 		}
+
+		// The value was in the db, so don't check it again (unless you have to)
+		$this->in_db[$uid][$cat][$key] = true;
 
 		$pconfig = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($pconfig)) {
-			// manage array value
-			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
+			$value = $this->toConfigValue($pconfig['v']);
 
-			if (isset($value) && $value !== '') {
-				$this->in_db[$uid][$cat][$key] = true;
+			if (isset($value)) {
 				return $value;
 			}
 		}
 
 		$this->in_db[$uid][$cat][$key] = false;
-		return '!<unset>!';
+		return null;
 	}
 
 	/**
@@ -118,13 +121,11 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 			return false;
 		}
 
-		if (!empty($this->in_db[$uid][$cat][$key])) {
+		if (isset($this->in_db[$uid][$cat][$key])) {
 			unset($this->in_db[$uid][$cat][$key]);
 		}
 
-		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
-
-		return $result;
+		return DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 	}
 
 	/**

@@ -205,6 +205,7 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
+	 * @param string           $basePath   The basedir of the app
 	 * @param Configuration    $config    The Configuration
 	 * @param LoggerInterface  $logger    The current app logger
 	 * @param Profiler         $profiler  The profiler of this application
@@ -212,14 +213,15 @@ class App
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct($basePath, Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		BaseObject::setApp($this);
 
 		$this->logger   = $logger;
 		$this->config   = $config;
 		$this->profiler = $profiler;
-		$this->basePath = $this->config->get('system', 'basepath');
+		$cfgBasePath = $this->config->get('system', 'basepath');
+		$this->basePath = (isset($cfgBasePath) && $cfgBasePath !== '') ? $cfgBasePath : $basePath;
 
 		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
 			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');

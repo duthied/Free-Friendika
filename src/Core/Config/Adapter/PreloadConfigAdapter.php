@@ -35,8 +35,6 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 			$value = $config['v'];
 			if (isset($value) && $value !== '') {
 				$return[$config['cat']][$config['k']] = $value;
-			} else {
-				$return[$config['cat']][$config['k']] = '!<unset>!';
 			}
 		}
 		DBA::close($configs);
@@ -52,7 +50,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 	public function get($cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return '!<unset>!';
+			return null;
 		}
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
@@ -65,7 +63,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 			}
 		}
 
-		return '!<unset>!';
+		return null;
 	}
 
 	/**
@@ -89,9 +87,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 		// manage array value
 		$dbvalue = is_array($value) ? serialize($value) : $value;
 
-		$result = DBA::update('config', ['v' => $dbvalue], ['cat' => $cat, 'k' => $key], true);
-
-		return $result;
+		return DBA::update('config', ['v' => $dbvalue], ['cat' => $cat, 'k' => $key], true);
 	}
 
 	/**
@@ -103,9 +99,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 			return false;
 		}
 
-		$result = DBA::delete('config', ['cat' => $cat, 'k' => $key]);
-
-		return $result;
+		return DBA::delete('config', ['cat' => $cat, 'k' => $key]);
 	}
 
 	/**

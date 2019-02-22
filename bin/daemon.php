@@ -144,7 +144,9 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	Factory\DBFactory::init($a->getConfigCache(), $a->getProfiler(), $_SERVER);
+	/// @todo refactoring during https://github.com/friendica/friendica/issues/6720
+	$basePath = \Friendica\Util\BasePath::create(dirname(__DIR__), $_SERVER);
+	Factory\DBFactory::init($basePath, $a->getConfigCache(), $a->getProfiler(), $_SERVER);
 }
 
 Config::set('system', 'worker_daemon_mode', true);

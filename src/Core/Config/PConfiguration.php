@@ -77,18 +77,15 @@ class PConfiguration
 				$refresh)) {
 			$dbValue = $this->configAdapter->get($uid, $cat, $key);
 
-			if ($dbValue !== '!<unset>!') {
+			if (isset($dbValue)) {
 				$this->configCache->setP($uid, $cat, $key, $dbValue);
 				return $dbValue;
 			}
 		}
 
 		// use the config cache for return
-		if ($this->configCache->hasP($uid, $cat, $key)) {
-			return $this->configCache->getP($uid, $cat, $key);
-		} else {
-			return $default_value;
-		}
+		$result = $this->configCache->getP($uid, $cat, $key);
+		return (isset($result)) ? $result : $default_value;
 	}
 
 	/**
