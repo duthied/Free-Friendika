@@ -87,9 +87,10 @@
 			if ($("#id_frio_login_bg_color").length) {
 				theme.login_bg_color = $("#id_frio_login_bg_color").val();
 			}
-
-			var share_string = JSON.stringify(theme);
-			$("#id_frio_share_string").val(share_string);
+			if (!($("#id_frio_share_string").is(":focus"))){
+				var share_string = JSON.stringify(theme);
+				$("#id_frio_share_string").val(share_string);
+			}
 		}
 
 		// interval because jquery.val does not trigger events
