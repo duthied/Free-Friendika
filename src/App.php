@@ -221,7 +221,7 @@ class App
 		$this->config   = $config;
 		$this->profiler = $profiler;
 		$cfgBasePath = $this->config->get('system', 'basepath');
-		$this->basePath = (isset($cfgBasePath) && $cfgBasePath !== '') ? $cfgBasePath : $basePath;
+		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
 
 		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
 			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');

@@ -48,8 +48,6 @@ class Config
 	 * @brief Get a particular user's config variable given the category name
 	 * ($family) and a key.
 	 *
-	 * Note: Please do not store booleans - convert to 0/1 integer values!
-	 *
 	 * @param string  $cat        The category of the configuration value
 	 * @param string  $key           The configuration key to query
 	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
@@ -66,6 +64,8 @@ class Config
 	 * @brief Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)
+	 *
+	 * Note: Please do not store booleans - convert to 0/1 integer values!
 	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key    The configuration key to set
