@@ -197,7 +197,6 @@ class App
 		$this->footerScripts[] = trim($url, '/');
 	}
 
-	public $process_id;
 	public $queue;
 	private $scheme;
 	private $hostname;
@@ -367,8 +366,6 @@ class App
 		$this->loadDefaultTimezone();
 
 		Core\L10n::init();
-
-		$this->process_id = Core\System::processID('log');
 	}
 
 	/**
