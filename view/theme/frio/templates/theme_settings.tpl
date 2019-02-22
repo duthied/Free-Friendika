@@ -60,20 +60,20 @@
 			if ($("#id_frio_background_image").length) {
 				theme.background_image = $("#id_frio_background_image").val();
 
-				var elText = theme.background_image;
-
-				if ($("#id_frio_bg_image_option_stretch").is(":checked") == true) {
-				    theme.background_image_option = "stretch";
-				}
-				if ($("#id_frio_bg_image_option_cover").is(":checked") == true) {
-				    theme.background_image_option = "cover";
-				}
-				if ($("#id_frio_bg_image_option_contain").is(":checked") == true) {
-				    theme.background_image_option = "contain";
-				}
-				if ($("#id_frio_bg_image_option_repeat").is(":checked") == true) {
-				    theme.background_image_option = "repeat";
-				}
+				if (theme.background_image.length > 0) {
+					if ($("#id_frio_bg_image_option_stretch").is(":checked") == true) {
+						theme.background_image_option = "stretch";
+					}
+					if ($("#id_frio_bg_image_option_cover").is(":checked") == true) {
+						theme.background_image_option = "cover";
+					}
+					if ($("#id_frio_bg_image_option_contain").is(":checked") == true) {
+						theme.background_image_option = "contain";
+					}
+					if ($("#id_frio_bg_image_option_repeat").is(":checked") == true) {
+						theme.background_image_option = "repeat";
+					}
+				 }
 			}
 
 			if ($("#frio_contentbg_transp").length) {
@@ -121,23 +121,23 @@
 				var elText = theme.background_image;
 				if(elText.length !== 0) {
 					$("#frio_bg_image_options").show();
-			    } else {
-				    $("#frio_bg_image_options").hide();
-			    }
+				} else {
+					$("#frio_bg_image_options").hide();
+				}
 
 				switch (theme.background_image_option) {
-				    case 'stretch':
-				        $("#id_frio_bg_image_option_stretch").prop("checked", true);
-				        break;
-				    case 'cover':
-				        $("#id_frio_bg_image_option_cover").prop("checked", true);
-				        break;
-				    case 'contain':
-				        $("#id_frio_bg_image_option_contain").prop("checked", true);
-				        break;
-				    case 'repeat':
-				        $("#id_frio_bg_image_option_repeat").prop("checked", true);
-				        break;
+					case 'stretch':
+						$("#id_frio_bg_image_option_stretch").prop("checked", true);
+						break;
+					case 'cover':
+						$("#id_frio_bg_image_option_cover").prop("checked", true);
+						break;
+					case 'contain':
+						$("#id_frio_bg_image_option_contain").prop("checked", true);
+						break;
+					case 'repeat':
+						$("#id_frio_bg_image_option_repeat").prop("checked", true);
+						break;
 				}
 			}
 
