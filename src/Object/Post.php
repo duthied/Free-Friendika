@@ -19,6 +19,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
+use Friendica\Model\User;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -781,9 +782,11 @@ class Post extends BaseObject
 	{
 		$a = self::getApp();
 
-		if (!local_user() || empty($a->profile['addr'])) {
+		if (!local_user()) {
 			return '';
 		}
+
+		$owner = User::getOwnerDataById($a->user['uid']);
 
 		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
 			return '';
@@ -795,7 +798,7 @@ class Post extends BaseObject
 			return '';
 		}
 
-		if ($item['author-addr'] != $a->profile['addr']) {
+		if ($item['author-addr'] != $owner['addr']) {
 			$text = '@' . $item['author-addr'] . ' ';
 		} else {
 			$text = '';
@@ -805,8 +808,8 @@ class Post extends BaseObject
 
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
-			if (!empty($profile['addr']) && ($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
-				($profile['addr'] != $a->profile['addr']) && !strstr($text, $profile['addr'])) {
+			if (($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
+				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}
 		}
