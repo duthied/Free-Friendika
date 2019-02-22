@@ -365,7 +365,7 @@ function localize_item(&$item)
 
 	// Only create a redirection to a magic link when logged in
 	if (!empty($item['plink']) && (local_user() || remote_user())) {
-		$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
+		$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
 	}
 }
 
@@ -625,7 +625,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];
-				$profile_link = Contact::magicLinkbyContact($author);
+				$profile_link = Contact::magicLinkByContact($author);
 
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
@@ -858,7 +858,7 @@ function item_photo_menu($item) {
 
 	$author = ['uid' => 0, 'id' => $item['author-id'],
 		'network' => $item['author-network'], 'url' => $item['author-link']];
-	$profile_link = Contact::magicLinkbyContact($author);
+	$profile_link = Contact::magicLinkByContact($author);
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
@@ -966,7 +966,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$url = Contact::magicLinkbyContact($author);
+			$url = Contact::magicLinkByContact($author);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			}
