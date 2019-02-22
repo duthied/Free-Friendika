@@ -8,6 +8,7 @@ use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Logger\WorkerLogger;
 use Friendica\Util\Network;
 
 /**
@@ -359,11 +360,10 @@ class Worker
 
 		$argc = count($argv);
 
-		// Currently deactivated, since the new logger doesn't support this
-		//$new_process_id = System::processID("wrk");
-		$new_process_id = '';
+		$logger = $a->getLogger();
+		$workerLogger = new WorkerLogger($logger, $funcname);
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
+		$workerLogger ->info("Process start.", ['process' => $mypid, 'priority' => $queue["priority"], 'id' => $queue["id"]]);
 
 		$stamp = (float)microtime(true);
 
@@ -371,24 +371,19 @@ class Worker
 		// For this reason the variables have to be initialized.
 		$a->getProfiler()->reset();
 
-		// For better logging create a new process id for every worker call
-		// But preserve the old one for the worker
-		$old_process_id = $a->process_id;
-		$a->process_id = $new_process_id;
-		$a->queue = $queue;
-
 		$up_duration = microtime(true) - self::$up_start;
 
 		// Reset global data to avoid interferences
 		unset($_SESSION);
 
+		Logger::init($workerLogger);
 		if ($method_call) {
 			call_user_func_array(sprintf('Friendica\Worker\%s::execute', $funcname), $argv);
 		} else {
 			$funcname($argv, $argc);
 		}
+		Logger::init($logger);
 
-		$a->process_id = $old_process_id;
 		unset($a->queue);
 
 		$duration = (microtime(true) - $stamp);
@@ -425,7 +420,7 @@ class Worker
 			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", Logger::DEBUG);
 		}
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds. Process PID: ".$new_process_id);
+		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds.");
 
 		$a->getProfiler()->saveLog($a->getLogger(), "ID " . $queue["id"] . ": " . $funcname);
 
