@@ -67,7 +67,6 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($config)) {
-			// manage array value
 			$value = $this->toConfigValue($config['v']);
 
 			// just return it in case it is set
@@ -91,9 +90,8 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 		// We store our setting values in a string variable.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
-		$dbvalue = (!is_array($value) ? (string)$value : $value);
-
-		$stored = $this->get($cat, $key, false);
+		$compare_value = (!is_array($value) ? (string)$value : $value);
+		$stored_value = $this->get($cat, $key, false);
 
 		if (!isset($this->in_db[$cat])) {
 			$this->in_db[$cat] = [];
@@ -102,11 +100,11 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 			$this->in_db[$cat][$key] = false;
 		}
 
-		if (isset($stored) && ($stored === $dbvalue) && $this->in_db[$cat][$key]) {
+		if (isset($stored_value) && ($stored_value === $compare_value) && $this->in_db[$cat][$key]) {
 			return true;
 		}
 
-		$dbvalue = $this->toDbValue($dbvalue);
+		$dbvalue = $this->toDbValue($value);
 
 		$result = DBA::update('config', ['v' => $dbvalue], ['cat' => $cat, 'k' => $key], true);
 

@@ -32,7 +32,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 
 		$configs = DBA::select('config', ['cat', 'v', 'k']);
 		while ($config = DBA::fetch($configs)) {
-			$value = $config['v'];
+			$value = $this->toConfigValue($config['v']);
 			if (isset($value)) {
 				$return[$config['cat']][$config['k']] = $value;
 			}
@@ -55,8 +55,7 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($config)) {
-			// manage array value
-			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
+			$value = $this->toConfigValue($config['v']);
 
 			if (isset($value)) {
 				return $value;
@@ -79,13 +78,13 @@ class PreloadConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAd
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
+		$stored_value = $this->get($cat, $key);
 
-		if ($this->get($cat, $key) === $compare_value) {
+		if (isset($stored_value) && $stored_value === $compare_value) {
 			return true;
 		}
 
-		// manage array value
-		$dbvalue = is_array($value) ? serialize($value) : $value;
+		$dbvalue = $this->toDbValue($value);
 
 		return DBA::update('config', ['v' => $dbvalue], ['cat' => $cat, 'k' => $key], true);
 	}
