@@ -49,15 +49,19 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param bool $mark if true, mark the selection of the current cat/key pair
 	 */
-	public function get($uid, $cat, $key)
+	public function get($uid, $cat, $key, $mark = true)
 	{
 		if (!$this->isConnected()) {
 			return null;
 		}
 
 		// The value was in the db, so don't check it again (unless you have to)
-		$this->in_db[$uid][$cat][$key] = true;
+		if ($mark) {
+			$this->in_db[$uid][$cat][$key] = true;
+		}
 
 		$pconfig = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($pconfig)) {
@@ -86,7 +90,7 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 		// The exception are array values.
 		$dbvalue = (!is_array($value) ? (string)$value : $value);
 
-		$stored = $this->get($uid, $cat, $key);
+		$stored = $this->get($uid, $cat, $key, false);
 
 		if (!isset($this->in_db[$uid])) {
 			$this->in_db[$uid] = [];
