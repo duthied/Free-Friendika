@@ -57,7 +57,7 @@ function theme_content(App $a)
 	$arr = [];
 
 	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));
-    $arr['share_string']     = '';
+	$arr['share_string']     = '';
 	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg');
 	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
 	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color');
