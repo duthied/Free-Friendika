@@ -366,6 +366,7 @@ class Post extends BaseObject
 			'tags'            => $tags['tags'],
 			'hashtags'        => $tags['hashtags'],
 			'mentions'        => $tags['mentions'],
+			'implicit_mentions' => $tags['implicit_mentions'],
 			'txt_cats'        => L10n::t('Categories:'),
 			'txt_folders'     => L10n::t('Filed under:'),
 			'has_cats'        => ((count($categories)) ? 'true' : ''),

@@ -293,8 +293,11 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{foreach $item.mentions as $tag}}
 				<span class="mention label btn-warning sm">{{$tag nofilter}} <i class="fa fa-user" aria-hidden="true"></i></span>
 			{{/foreach}}
-		{{/if}}
 
+			{{*foreach $item.implicit_mentions as $tag}}
+				<span class="mention label label-default sm">{{$tag nofilter}} <i class="fa fa-eye-slash" aria-hidden="true"></i></span>
+			{{/foreach*}}
+		{{/if}}
 			{{foreach $item.folders as $cat}}
 				<span class="folder label btn-danger sm p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
