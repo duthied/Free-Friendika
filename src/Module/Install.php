@@ -66,10 +66,6 @@ class Install extends BaseModule
 	{
 		$a = self::getApp();
 
-		if (!$a->getMode()->isInstall()) {
-			Core\System::httpExit(403);
-		}
-
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
 			case self::DATABASE_CONFIG:
@@ -120,10 +116,6 @@ class Install extends BaseModule
 	public static function content()
 	{
 		$a = self::getApp();
-
-		if (!$a->getMode()->isInstall()) {
-			Core\System::httpExit(403);
-		}
 
 		$output = '';
 
