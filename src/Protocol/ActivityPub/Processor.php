@@ -693,7 +693,7 @@ class Processor
 	 */
 	private static function removeImplicitMentionsFromBody($body, array $implicit_mentions)
 	{
-		if (Config::get('system', 'disable_mentions_removal')) {
+		if (Config::get('system', 'disable_implicit_mentions')) {
 			return $body;
 		}
 

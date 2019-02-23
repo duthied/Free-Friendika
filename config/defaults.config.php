@@ -135,9 +135,14 @@ return [
 		// Disables the check if a mail address is in a valid format and can be resolved via DNS.
 		'disable_email_validation' => false,
 
-		// disable_mentions_removal (Boolean)
-		// Disables the automatic removal of implicit mentions in ActivityPub postings.
-		'disable_mentions_removal' => false,
+		// disable_implicit_mentions (Boolean) since 2019.03
+		// Implicit mentions are mentions in the body of replies that are redundant in a thread-enabled system like Friendica.
+		// This config key disables the gathering of implicit mentions in incoming and outgoing posts.
+		// Also disables the default automatic removal of implicit mentions from the body of incoming posts.
+		// Also disables the default automatic addition of implicit mentions in the body of outgoing posts.
+		// Disabling implicit mentions also affects the "explicit_mentions" additional feature by limiting it
+		// to the replied-to post author mention in the comment boxes.
+		'disable_implicit_mentions' => false,
 
 		// disable_url_validation (Boolean)
 		// Disables the DNS lookup of an URL.
