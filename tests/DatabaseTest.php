@@ -47,6 +47,7 @@ abstract class DatabaseTest extends MockedTest
 		$profiler = \Mockery::mock(Profiler::class);
 
 		DBA::connect(
+			$basedir,
 			$config,
 			$profiler,
 			getenv('MYSQL_HOST'),

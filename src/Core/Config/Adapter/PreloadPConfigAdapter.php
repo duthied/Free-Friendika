@@ -49,11 +49,9 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 
 		$pconfigs = DBA::select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		while ($pconfig = DBA::fetch($pconfigs)) {
-			$value = $pconfig['v'];
-			if (isset($value) && $value !== '') {
+			$value = $this->toConfigValue($pconfig['v']);
+			if (isset($value)) {
 				$return[$pconfig['cat']][$pconfig['k']] = $value;
-			} else {
-				$return[$pconfig['cat']][$pconfig['k']] = '!<unset>!';
 			}
 		}
 		DBA::close($pconfigs);
@@ -69,7 +67,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 	public function get($uid, $cat, $key)
 	{
 		if (!$this->isConnected()) {
-			return '!<unset>!';
+			return null;
 		}
 
 		if (!$this->isLoaded($uid, $cat, $key)) {
@@ -78,14 +76,13 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 
 		$config = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($config)) {
-			// manage array value
-			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
+			$value = $this->toConfigValue($config['v']);
 
-			if (isset($value) && $value !== '') {
+			if (isset($value)) {
 				return $value;
 			}
 		}
-		return '!<unset>!';
+		return null;
 	}
 
 	/**
@@ -104,17 +101,15 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
 		$compare_value = !is_array($value) ? (string)$value : $value;
+		$stored_value = $this->get($uid, $cat, $key);
 
-		if ($this->get($uid, $cat, $key) === $compare_value) {
+		if (isset($stored_value) && $stored_value === $compare_value) {
 			return true;
 		}
 
-		// manage array value
-		$dbvalue = is_array($value) ? serialize($value) : $value;
+		$dbvalue = $this->toDbValue($value);
 
-		$result = DBA::update('pconfig', ['v' => $dbvalue], ['uid' => $uid, 'cat' => $cat, 'k' => $key], true);
-
-		return $result;
+		return DBA::update('pconfig', ['v' => $dbvalue], ['uid' => $uid, 'cat' => $cat, 'k' => $key], true);
 	}
 
 	/**
@@ -130,9 +125,7 @@ class PreloadPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfig
 			$this->load($uid, $cat);
 		}
 
-		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
-
-		return $result;
+		return DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 	}
 
 	/**

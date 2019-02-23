@@ -23,7 +23,7 @@ interface IPConfigCache
 	 * @param string $cat     Config category
 	 * @param string $key     Config key
 	 *
-	 * @return string The value of the config entry or '!<unset>!' if not set
+	 * @return null|string The value of the config entry or null if not set
 	 */
 	function getP($uid, $cat, $key = null);
 
@@ -49,17 +49,6 @@ interface IPConfigCache
 	 * @return bool true, if deleted
 	 */
 	function deleteP($uid, $cat, $key);
-
-
-	/**
-	 * Checks if a value is set in the user config cache.
-	 *
-	 * @param int    $uid  User Id
-	 * @param string $cat  Config category
-	 * @param string $key  Config key
-	 * @return bool
-	 */
-	function hasP($uid, $cat, $key = null);
 
 	/**
 	 * Returns the whole configuration cache

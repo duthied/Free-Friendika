@@ -145,7 +145,7 @@ class PConfigurationTest extends MockedTest
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->twice();
 		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn($data)->once();
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'not')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'not')->andReturn('!<unset>!')->once();
+		$configAdapter->shouldReceive('get')->with($uid, 'test', 'not')->andReturn(null)->once();
 
 		$configuration = new PConfiguration($configCache, $configAdapter);
 
@@ -173,7 +173,7 @@ class PConfigurationTest extends MockedTest
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
 
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn('!<unset>!')->once();
+		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn(null)->once();
 
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
 		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn($data)->once();

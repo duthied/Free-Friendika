@@ -34,40 +34,48 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 		$configs = DBA::select('config', ['v', 'k'], ['cat' => $cat]);
 		while ($config = DBA::fetch($configs)) {
 			$key   = $config['k'];
-			$value = $config['v'];
+			$value = $this->toConfigValue($config['v']);
 
-			if (isset($value) && $value !== '') {
+			// The value was in the db, so don't check it again (unless you have to)
+			$this->in_db[$cat][$key] = true;
+
+			// just save it in case it is set
+			if (isset($value)) {
 				$return[$key] = $value;
-				$this->in_db[$cat][$key] = true;
 			}
 		}
 		DBA::close($configs);
 
-		return [$cat => $config];
+		return [$cat => $return];
 	}
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param bool $mark if true, mark the selection of the current cat/key pair
 	 */
-	public function get($cat, $key)
+	public function get($cat, $key, $mark = true)
 	{
 		if (!$this->isConnected()) {
-			return '!<unset>!';
+			return null;
+		}
+
+		// The value got checked, so mark it to avoid checking it over and over again
+		if ($mark) {
+			$this->in_db[$cat][$key] = true;
 		}
 
 		$config = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($config)) {
-			// manage array value
-			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $config['v']) ? unserialize($config['v']) : $config['v']);
+			$value = $this->toConfigValue($config['v']);
 
-			if (isset($value) && $value !== '') {
-				$this->in_db[$cat][$key] = true;
+			// just return it in case it is set
+			if (isset($value)) {
 				return $value;
 			}
 		}
 
-		$this->in_db[$cat][$key] = false;
-		return '!<unset>!';
+		return null;
 	}
 
 	/**
@@ -82,9 +90,8 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 		// We store our setting values in a string variable.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
-		$dbvalue = (!is_array($value) ? (string)$value : $value);
-
-		$stored = $this->get($cat, $key);
+		$compare_value = (!is_array($value) ? (string)$value : $value);
+		$stored_value = $this->get($cat, $key, false);
 
 		if (!isset($this->in_db[$cat])) {
 			$this->in_db[$cat] = [];
@@ -93,12 +100,11 @@ class JITConfigAdapter extends AbstractDbaConfigAdapter implements IConfigAdapte
 			$this->in_db[$cat][$key] = false;
 		}
 
-		if (($stored === $dbvalue) && $this->in_db[$cat][$key]) {
+		if (isset($stored_value) && ($stored_value === $compare_value) && $this->in_db[$cat][$key]) {
 			return true;
 		}
 
-		// manage array value
-		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
+		$dbvalue = $this->toDbValue($value);
 
 		$result = DBA::update('config', ['v' => $dbvalue], ['cat' => $cat, 'k' => $key], true);
 

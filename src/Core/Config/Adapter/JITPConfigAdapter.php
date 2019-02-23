@@ -29,16 +29,18 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 		if (DBA::isResult($pconfigs)) {
 			while ($pconfig = DBA::fetch($pconfigs)) {
 				$key = $pconfig['k'];
-				$value = $pconfig['v'];
+				$value = $this->toConfigValue($pconfig['v']);
 
-				if (isset($value) && $value !== '') {
+				// The value was in the db, so don't check it again (unless you have to)
+				$this->in_db[$uid][$cat][$key] = true;
+
+				if (isset($value)) {
 					$return[$key] = $value;
-					$this->in_db[$uid][$cat][$key] = true;
 				}
 			}
 		} else if ($cat != 'config') {
 			// Negative caching
-			$return = "!<unset>!";
+			$return = null;
 		}
 		DBA::close($pconfigs);
 
@@ -47,26 +49,31 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 
 	/**
 	 * {@inheritdoc}
+	 *
+	 * @param bool $mark if true, mark the selection of the current cat/key pair
 	 */
-	public function get($uid, $cat, $key)
+	public function get($uid, $cat, $key, $mark = true)
 	{
 		if (!$this->isConnected()) {
-			return '!<unset>!';
+			return null;
+		}
+
+		// The value was in the db, so don't check it again (unless you have to)
+		if ($mark) {
+			$this->in_db[$uid][$cat][$key] = true;
 		}
 
 		$pconfig = DBA::selectFirst('pconfig', ['v'], ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 		if (DBA::isResult($pconfig)) {
-			// manage array value
-			$value = (preg_match("|^a:[0-9]+:{.*}$|s", $pconfig['v']) ? unserialize($pconfig['v']) : $pconfig['v']);
+			$value = $this->toConfigValue($pconfig['v']);
 
-			if (isset($value) && $value !== '') {
-				$this->in_db[$uid][$cat][$key] = true;
+			if (isset($value)) {
 				return $value;
 			}
 		}
 
 		$this->in_db[$uid][$cat][$key] = false;
-		return '!<unset>!';
+		return null;
 	}
 
 	/**
@@ -81,9 +88,8 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 		// We store our setting values in a string variable.
 		// So we have to do the conversion here so that the compare below works.
 		// The exception are array values.
-		$dbvalue = (!is_array($value) ? (string)$value : $value);
-
-		$stored = $this->get($uid, $cat, $key);
+		$compare_value = (!is_array($value) ? (string)$value : $value);
+		$stored_value = $this->get($uid, $cat, $key, false);
 
 		if (!isset($this->in_db[$uid])) {
 			$this->in_db[$uid] = [];
@@ -95,12 +101,12 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 			$this->in_db[$uid][$cat][$key] = false;
 		}
 
-		if (($stored === $dbvalue) && $this->in_db[$uid][$cat][$key]) {
+		if (isset($stored_value) && ($stored_value === $compare_value) && $this->in_db[$uid][$cat][$key]) {
 			return true;
 		}
 
 		// manage array value
-		$dbvalue = (is_array($value) ? serialize($value) : $dbvalue);
+		$dbvalue = (is_array($value) ? serialize($value) : $value);
 
 		$result = DBA::update('pconfig', ['v' => $dbvalue], ['uid' => $uid, 'cat' => $cat, 'k' => $key], true);
 
@@ -118,13 +124,11 @@ class JITPConfigAdapter extends AbstractDbaConfigAdapter implements IPConfigAdap
 			return false;
 		}
 
-		if (!empty($this->in_db[$uid][$cat][$key])) {
+		if (isset($this->in_db[$uid][$cat][$key])) {
 			unset($this->in_db[$uid][$cat][$key]);
 		}
 
-		$result = DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
-
-		return $result;
+		return DBA::delete('pconfig', ['uid' => $uid, 'cat' => $cat, 'k' => $key]);
 	}
 
 	/**

@@ -37,9 +37,6 @@ class ConfigCacheLoader
 	 */
 	public function loadConfigFiles(ConfigCache $config)
 	{
-		// Setting at least the basepath we know
-		$config->set('system', 'basepath', $this->baseDir);
-
 		$config->load($this->loadCoreConfig('defaults'));
 		$config->load($this->loadCoreConfig('settings'));
 
