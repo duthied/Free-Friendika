@@ -1336,7 +1336,7 @@ class Item extends BaseObject
 			$expire_date = time() - ($expire_interval * 86400);
 			$created_date = strtotime($item['created']);
 			if ($created_date < $expire_date) {
-				Logger::log('item-store: item created ('.date('c', $created_date).') before expiration time ('.date('c', $expire_date).'). ignored. ' . print_r($item,true), Logger::DEBUG);
+				Logger::notice('item-store: item created ('.date('c', $created_date).') before expiration time ('.date('c', $expire_date).'). ignored. ' . print_r($item,true));
 				return 0;
 			}
 		}
@@ -1354,7 +1354,7 @@ class Item extends BaseObject
 			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
 				if ($uid != 0) {
-					Logger::log("Item with uri ".$item['uri']." already existed for user ".$uid." with id ".$existing["id"]." target network ".$existing["network"]." - new network: ".$item['network']);
+					Logger::notice("Item with uri ".$item['uri']." already existed for user ".$uid." with id ".$existing["id"]." target network ".$existing["network"]." - new network: ".$item['network']);
 				}
 
 				return $existing["id"];
@@ -1405,7 +1405,7 @@ class Item extends BaseObject
 
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
-			Logger::log('No body, no title.');
+			Logger::notice('No body, no title.');
 			return 0;
 		}
 
@@ -1432,7 +1432,7 @@ class Item extends BaseObject
 		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"], 0, false, $default));
 
 		if (Contact::isBlocked($item["author-id"])) {
-			Logger::log('Contact '.$item["author-id"].' is blocked, item '.$item["uri"].' will not be stored');
+			Logger::notice('Contact '.$item["author-id"].' is blocked, item '.$item["uri"].' will not be stored');
 			return 0;
 		}
 
@@ -1442,22 +1442,21 @@ class Item extends BaseObject
 		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"], 0, false, $default));
 
 		if (Contact::isBlocked($item["owner-id"])) {
-			Logger::log('Contact '.$item["owner-id"].' is blocked, item '.$item["uri"].' will not be stored');
+			Logger::notice('Contact '.$item["owner-id"].' is blocked, item '.$item["uri"].' will not be stored');
 			return 0;
 		}
 
 		if ($item['network'] == Protocol::PHANTOM) {
-			Logger::log('Missing network. Called by: '.System::callstack(), Logger::DEBUG);
+			Logger::notice('Missing network. Called by: '.System::callstack(), Logger::DEBUG);
 
 			$item['network'] = Protocol::DFRN;
-			Logger::log("Set network to " . $item["network"] . " for " . $item["uri"], Logger::DEBUG);
+			Logger::notice("Set network to " . $item["network"] . " for " . $item["uri"], Logger::DEBUG);
 		}
 
 		// Checking if there is already an item with the same guid
-		Logger::log('Checking for an item for user '.$item['uid'].' on network '.$item['network'].' with the guid '.$item['guid'], Logger::DEBUG);
 		$condition = ['guid' => $item['guid'], 'network' => $item['network'], 'uid' => $item['uid']];
 		if (self::exists($condition)) {
-			Logger::log('found item with guid '.$item['guid'].' for user '.$item['uid'].' on network '.$item['network'], Logger::DEBUG);
+			Logger::notice('Found already existing item with guid '.$item['guid'].' for user '.$item['uid'].' on network '.$item['network']);
 			return 0;
 		}
 

@@ -942,7 +942,7 @@ class Diaspora
 
 		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 		if (DBA::isResult($person)) {
-			Logger::log("In cache " . print_r($person, true), Logger::DEBUG);
+			Logger::debug("In cache " . print_r($person, true));
 
 			// update record occasionally so it doesn't get stale
 			$d = strtotime($person["updated"]." +00:00");

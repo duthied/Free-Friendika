@@ -425,7 +425,7 @@ class DBA
 
 		if ((substr_count($sql, '?') != count($args)) && (count($args) > 0)) {
 			// Question: Should we continue or stop the query here?
-			Logger::log('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), Logger::DEBUG);
+			Logger::error('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true));
 		}
 
 		$sql = self::cleanQuery($sql);

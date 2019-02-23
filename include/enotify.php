@@ -33,8 +33,8 @@ function notification($params)
 	$a = \get_app();
 
 	// Temporary logging for finding the origin
-	if (!isset($params['language']) || !isset($params['uid'])) {
-		Logger::log('Missing parameters.' . System::callstack());
+	if (!isset($params['uid'])) {
+		Logger::notice('Missing parameters "uid".', ['params' => $params, 'callstack' => System::callstack()]);
 	}
 
 	// Ensure that the important fields are set at any time
@@ -42,7 +42,7 @@ function notification($params)
 	$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 	if (!DBA::isResult($user)) {
-		Logger::log('Unknown user ' . $params['uid']);
+		Logger::error('Unknown user', ['uid' =>  $params['uid']]);
 		return false;
 	}
 

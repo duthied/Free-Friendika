@@ -131,7 +131,7 @@ function item_post(App $a) {
 	}
 
 	if ($parent) {
-		Logger::log('mod_item: item_post parent=' . $parent);
+		Logger::info('mod_item: item_post parent=' . $toplevel_item_id);
 	}
 
 	$post_id     = intval(defaults($_REQUEST, 'post_id', 0));

@@ -289,7 +289,7 @@ class Processor
 			$item['owner-link'] = $activity['actor'];
 			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 		} else {
-			Logger::log('Ignoring actor because of thread completion.', Logger::DEBUG);
+			Logger::info('Ignoring actor because of thread completion.');
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
@@ -358,7 +358,11 @@ class Processor
 			}
 
 			$item_id = Item::insert($item);
-			Logger::log('Storing for user ' . $item['uid'] . ': ' . $item_id);
+			if ($item_id) {
+				Logger::info('Item insertion successful', ['user' => $item['uid'], 'item_id' => $item_id]);
+			} else {
+				Logger::notice('Item insertion aborted', ['user' => $item['uid']]);
+			}
 
 			if ($item['uid'] == 0) {
 				$stored = $item_id;
