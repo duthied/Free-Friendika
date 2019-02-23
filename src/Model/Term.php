@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Model/Term
+ * @file src/Model/Term.php
  */
 namespace Friendica\Model;
 
@@ -8,6 +8,15 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Strings;
 
+/**
+ * Class Term
+ *
+ * This Model class handles term table interactions.
+ * This tables stores relevant terms related to posts, photos and searches, like hashtags, mentions and
+ * user-applied categories.
+ *
+ * @package Friendica\Model
+ */
 class Term
 {
     const UNKNOWN           = 0;
@@ -18,7 +27,13 @@ class Term
     const FILE              = 5;
     const SAVEDSEARCH       = 6;
     const CONVERSATION      = 7;
+	/**
+	 * An implicit mention is a mention in a comment body that is redundant with the threading information.
+	 */
     const IMPLICIT_MENTION  = 8;
+	/**
+	 * An exclusive mention transfers the ownership of the post to the target account, usually a forum.
+	 */
     const EXCLUSIVE_MENTION = 9;
 
     const TAG_CHARACTER = [
