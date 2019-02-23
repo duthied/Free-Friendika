@@ -23,6 +23,10 @@ class Group extends BaseModule
 	{
 		$a = self::getApp();
 
+		if ($a->isAjax()) {
+			self::ajaxPost();
+		}
+
 		if (!local_user()) {
 			notice(L10n::t('Permission denied.'));
 			$a->internalRedirect();
@@ -59,6 +63,69 @@ class Group extends BaseModule
 					info(L10n::t('Group name changed.'));
 				}
 			}
+		}
+	}
+
+	public static function ajaxPost()
+	{
+		try {
+			$a = self::getApp();
+
+			if (!local_user()) {
+				throw new \Exception(L10n::t('Permission denied.'), 403);
+			}
+
+			// POST /group/123/add/123
+			// POST /group/123/remove/123
+			if ($a->argc == 4) {
+				list($group_id, $command, $contact_id) = array_slice($a->argv, 1);
+
+				if (!Model\Group::exists($group_id, local_user())) {
+					throw new \Exception(L10n::t('Unknown group.'), 404);
+				}
+
+				$contact = DBA::selectFirst('contact', ['pending', 'blocked', 'deleted'], ['id' => $contact_id, 'uid' => local_user()]);
+				if (!DBA::isResult($contact)) {
+					throw new \Exception(L10n::t('Contact not found.'), 404);
+				}
+
+				if ($contact['pending']) {
+					throw new \Exception(L10n::t('Contact is unavailable.'), 400);
+				}
+
+				if ($contact['deleted']) {
+					throw new \Exception(L10n::t('Contact is deleted.'), 410);
+				}
+
+				switch($command) {
+					case 'add':
+						if ($contact['blocked']) {
+							throw new \Exception(L10n::t('Contact is blocked, unable to add it to a group.'), 400);
+						}
+
+						if (!Model\Group::addMember($group_id, $contact_id)) {
+							throw new \Exception(L10n::t('Unable to add the contact to the group.'), 500);
+						}
+						$message = L10n::t('Contact successfully added to group.');
+						break;
+					case 'remove':
+						if (!Model\Group::removeMember($group_id, $contact_id)) {
+							throw new \Exception(L10n::t('Unable to remove the contact from the group.'), 500);
+						}
+						$message = L10n::t('Contact successfully removed from group.');
+						break;
+					default:
+						throw new \Exception(L10n::t('Unknown group command.'), 400);
+				}
+			} else {
+				throw new \Exception(L10n::t('Bad request.'), 400);
+			}
+
+			notice($message);
+			System::jsonExit(['status' => 'OK', 'message' => $message]);
+		} catch (\Exception $e) {
+			notice($e->getMessage());
+			System::jsonError($e->getCode(), ['status' => 'error', 'message' => $e->getMessage()]);
 		}
 	}
 
