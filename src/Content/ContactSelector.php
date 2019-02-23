@@ -150,7 +150,7 @@ class ContactSelector
 	{
 		$o = '';
 		$select = [
-			'EMPTY'            => '',
+			''                 => L10n::t('No answer'),
 			'Male'             => L10n::t('Male'),
 			'Female'           => L10n::t('Female'),
 			'Currently Male'   => L10n::t('Currently Male'),
@@ -190,7 +190,7 @@ class ContactSelector
 	{
 		$o = '';
 		$select = [
-			'EMPTY'         => '',
+			''              => L10n::t('No answer'),
 			'Males'         => L10n::t('Males'),
 			'Females'       => L10n::t('Females'),
 			'Gay'           => L10n::t('Gay'),
@@ -228,7 +228,7 @@ class ContactSelector
 	{
 		$o = '';
 		$select = [
-			'EMPTY'                => '',
+			''                     => L10n::t('No answer'),
 			'Single'               => L10n::t('Single'),
 			'Lonely'               => L10n::t('Lonely'),
 			'Available'            => L10n::t('Available'),
