@@ -189,13 +189,29 @@ class ProfilerTest extends MockedTest
 	}
 
 	/**
-	 * Test if no rendertime is set
+	 * Test different enable and disable states of the profiler
 	 */
-	public function testNoRenderTime()
+	public function testEnableDisable()
 	{
 		$profiler = new Profiler(true, false);
 
 		$this->assertFalse($profiler->isRendertime());
 		$this->assertEmpty($profiler->getRendertimeString());
+
+		$profiler->saveTimestamp(time(), 'network', 'test1');
+
+		$profiler->update(false, false);
+
+		$this->assertFalse($profiler->isRendertime());
+		$this->assertEmpty($profiler->getRendertimeString());
+
+		$profiler->update(true, true);
+
+		$profiler->saveTimestamp(time(), 'database', 'test2');
+
+		$this->assertTrue($profiler->isRendertime());
+		$output = $profiler->getRendertimeString();
+		$this->assertRegExp('/test1: \d+/', $output);
+		$this->assertRegExp('/test2: \d+/', $output);
 	}
 }
