@@ -8,6 +8,7 @@ use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Logger\WorkerLogger;
 use Friendica\Util\Network;
 
 /**
@@ -355,15 +356,12 @@ class Worker
 	{
 		$a = \get_app();
 
-		$mypid = getmypid();
-
 		$argc = count($argv);
 
-		// Currently deactivated, since the new logger doesn't support this
-		//$new_process_id = System::processID("wrk");
-		$new_process_id = '';
+		$logger = $a->getLogger();
+		$workerLogger = new WorkerLogger($logger, $funcname);
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
+		$workerLogger ->info("Process start.", ['priority' => $queue["priority"], 'id' => $queue["id"]]);
 
 		$stamp = (float)microtime(true);
 
@@ -371,24 +369,20 @@ class Worker
 		// For this reason the variables have to be initialized.
 		$a->getProfiler()->reset();
 
-		// For better logging create a new process id for every worker call
-		// But preserve the old one for the worker
-		$old_process_id = $a->process_id;
-		$a->process_id = $new_process_id;
-		$a->queue = $queue;
-
 		$up_duration = microtime(true) - self::$up_start;
 
 		// Reset global data to avoid interferences
 		unset($_SESSION);
 
+		// Set the workerLogger as new default logger
+		Logger::init($workerLogger);
 		if ($method_call) {
 			call_user_func_array(sprintf('Friendica\Worker\%s::execute', $funcname), $argv);
 		} else {
 			$funcname($argv, $argc);
 		}
+		Logger::init($logger);
 
-		$a->process_id = $old_process_id;
 		unset($a->queue);
 
 		$duration = (microtime(true) - $stamp);
@@ -406,7 +400,7 @@ class Worker
 		$rest    = number_format(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 4);
 		$exec    = number_format($duration, 4);
 
-		Logger::info('Performance:', ['total' => $dbtotal, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'block' => $dblock, 'rest' => $rest, 'exec' => $exec]);
+		$logger->info('Performance log.', ['total' => $dbtotal, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'block' => $dblock, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
@@ -416,23 +410,23 @@ class Worker
 		self::$lock_duration = 0;
 
 		if ($duration > 3600) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 1 hour.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 600) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 10 minutes (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 10 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 300) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 5 minutes (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 5 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 120) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 2 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		}
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds. Process PID: ".$new_process_id);
+		$workerLogger->info('Process done. ', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   number_format($duration, 4)]);
 
 		$a->getProfiler()->saveLog($a->getLogger(), "ID " . $queue["id"] . ": " . $funcname);
 
 		$cooldown = Config::get("system", "worker_cooldown", 0);
 
 		if ($cooldown > 0) {
-			Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+			$logger->info('Cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
 			sleep($cooldown);
 		}
 	}

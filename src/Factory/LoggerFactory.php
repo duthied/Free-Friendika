@@ -7,6 +7,7 @@ use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Logger\FriendicaDevelopHandler;
 use Friendica\Util\Logger\FriendicaIntrospectionProcessor;
+use Friendica\Util\Logger\WorkerLogger;
 use Friendica\Util\Profiler;
 use Monolog;
 use Psr\Log\LoggerInterface;
@@ -33,7 +34,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, [Logger::class, Profiler::class]));
+		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, [Logger::class, Profiler::class, WorkerLogger::class]));
 
 		$debugging = $config->get('system', 'debugging');
 		$stream    = $config->get('system', 'logfile');
