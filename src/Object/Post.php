@@ -805,7 +805,7 @@ class Post extends BaseObject
 			$text = '';
 		}
 
-		$terms = Term::tagArrayFromItemId($this->getId(), TERM_MENTION);
+		$terms = Term::tagArrayFromItemId($this->getId(), [Term::MENTION, Term::IMPLICIT_MENTION]);
 
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
