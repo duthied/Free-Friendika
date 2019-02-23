@@ -40,14 +40,14 @@ abstract class DatabaseTest extends MockedTest
 			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
 		}
 
-		$basedir = BasePath::create(dirname(__DIR__));
-		$configLoader = new Cache\ConfigCacheLoader($basedir);
+		$basePath = BasePath::create(dirname(__DIR__));
+		$configLoader = new Cache\ConfigCacheLoader($basePath);
 		$config = Factory\ConfigFactory::createCache($configLoader);
 
 		$profiler = \Mockery::mock(Profiler::class);
 
 		DBA::connect(
-			$basedir,
+			$basePath,
 			$config,
 			$profiler,
 			getenv('MYSQL_HOST'),

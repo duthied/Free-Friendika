@@ -43,7 +43,7 @@ class DBA
 	/**
 	 * @var string
 	 */
-	private static $basedir;
+	private static $basePath;
 	private static $server_info = '';
 	private static $connection;
 	private static $driver;
@@ -59,14 +59,14 @@ class DBA
 	private static $db_name = '';
 	private static $db_charset = '';
 
-	public static function connect($basedir, IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
+	public static function connect($basePath, IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
 	{
 		if (!is_null(self::$connection) && self::connected()) {
 			return true;
 		}
 
 		// We are storing these values for being able to perform a reconnect
-		self::$basedir = $basedir;
+		self::$basePath = $basePath;
 		self::$configCache = $configCache;
 		self::$profiler = $profiler;
 		self::$db_serveraddr = $serveraddr;
@@ -169,7 +169,7 @@ class DBA
 	public static function reconnect() {
 		self::disconnect();
 
-		$ret = self::connect(self::$basedir, self::$configCache, self::$profiler, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
+		$ret = self::connect(self::$basePath, self::$configCache, self::$profiler, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
 		return $ret;
 	}
 
@@ -1039,7 +1039,7 @@ class DBA
 	 * This process must only be started once, since the value is cached.
 	 */
 	private static function buildRelationData() {
-		$definition = DBStructure::definition(self::$basedir);
+		$definition = DBStructure::definition(self::$basePath);
 
 		foreach ($definition AS $table => $structure) {
 			foreach ($structure['fields'] AS $field => $field_struct) {
