@@ -793,11 +793,25 @@ function profChangeMember(gid,cid) {
 	});
 }
 
-function contactgroupChangeMember(gid,cid) {
+function contactgroupChangeMember(checkbox, gid, cid) {
+	let url;
+	// checkbox.checked is the checkbox state after the click
+	if (checkbox.checked) {
+		url = 'group/' + gid + '/add/' + cid;
+	} else {
+		url = 'group/' + gid + '/remove/' + cid;
+	}
 	$('body').css('cursor', 'wait');
-	$.get('contactgroup/' + gid + '/' + cid, function(data) {
-			$('body').css('cursor', 'auto');
+	$.post(url)
+	.error(function () {
+		// Restores previous state in case of error
+		checkbox.checked = !checkbox.checked;
+	})
+	.always(function() {
+		$('body').css('cursor', 'auto');
 	});
+
+	return true;
 }
 
 function checkboxhighlight(box) {
