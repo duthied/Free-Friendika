@@ -808,7 +808,7 @@ class Post extends BaseObject
 
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
-			if (($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
+			if (!empty($profile['addr']) && !empty($profile['contact-type']) && ($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
 				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}

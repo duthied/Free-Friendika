@@ -369,6 +369,8 @@ class Worker
 		// For this reason the variables have to be initialized.
 		$a->getProfiler()->reset();
 
+		$a->queue = $queue;
+
 		$up_duration = microtime(true) - self::$up_start;
 
 		// Reset global data to avoid interferences
