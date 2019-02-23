@@ -43,6 +43,18 @@ class Profiler implements ContainerInterface
 	}
 
 	/**
+	 * Updates the enabling of the current profiler
+	 *
+	 * @param bool $enabled
+	 * @param bool $renderTime
+	 */
+	public function update($enabled = false, $renderTime = false)
+	{
+		$this->enabled = $enabled;
+		$this->rendertime = $renderTime;
+	}
+
+	/**
 	 * @param bool $enabled           True, if the Profiler is enabled
 	 * @param bool $renderTime        True, if the Profiler should measure the whole rendertime including functions
 	 */
