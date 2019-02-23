@@ -94,7 +94,7 @@ class Update
 
 					// update the structure in one call
 					$retval = DBStructure::update($basePath, $verbose, true);
-					if ($retval) {
+					if (!empty($retval)) {
 						if ($sendMail) {
 							self::updateFailed(
 								DB_UPDATE_VERSION,
