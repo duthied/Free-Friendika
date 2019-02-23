@@ -410,13 +410,13 @@ class Worker
 		self::$lock_duration = 0;
 
 		if ($duration > 3600) {
-			$workerLogger->info('Longer than 1 hour.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
+			$logger->info('Longer than 1 hour.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 600) {
-			$workerLogger->info('Longer than 10 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
+			$logger->info('Longer than 10 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 300) {
-			$workerLogger->info('Longer than 5 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
+			$logger->info('Longer than 5 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 120) {
-			$workerLogger->info('Longer than 2 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
+			$logger->info('Longer than 2 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		}
 
 		$workerLogger->info('Process done. ', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   number_format($duration, 4)]);
@@ -426,7 +426,7 @@ class Worker
 		$cooldown = Config::get("system", "worker_cooldown", 0);
 
 		if ($cooldown > 0) {
-			$workerLogger->info('Cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
+			$logger->info('Cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
 			sleep($cooldown);
 		}
 	}
