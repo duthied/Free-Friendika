@@ -12,7 +12,12 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Network;
+
 function nodeinfo_wellknown(App $a) {
+	if (!Config::get('system', 'nodeinfo')) {
+		System::httpExit(404);
+	}
+
 	$nodeinfo = ['links' => [['rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
 					'href' => System::baseUrl().'/nodeinfo/1.0']]];
 
