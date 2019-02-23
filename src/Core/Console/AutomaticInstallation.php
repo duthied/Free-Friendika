@@ -146,7 +146,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->checkDB($a->getConfigCache(), $a->getProfiler(), $db_host, $db_user, $db_pass, $db_data)) {
+		if (!$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $db_host, $db_user, $db_pass, $db_data)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
