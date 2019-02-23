@@ -43,6 +43,10 @@ class Install extends BaseModule
 	{
 		$a = self::getApp();
 
+		if (!$a->getMode()->isInstall()) {
+			Core\System::httpExit(403);
+		}
+
 		// route: install/testrwrite
 		// $baseurl/install/testrwrite to test if rewrite in .htaccess is working
 		if ($a->getArgumentValue(1, '') == 'testrewrite') {
@@ -61,6 +65,10 @@ class Install extends BaseModule
 	public static function post()
 	{
 		$a = self::getApp();
+
+		if (!$a->getMode()->isInstall()) {
+			Core\System::httpExit(403);
+		}
 
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
@@ -112,6 +120,10 @@ class Install extends BaseModule
 	public static function content()
 	{
 		$a = self::getApp();
+
+		if (!$a->getMode()->isInstall()) {
+			Core\System::httpExit(403);
+		}
 
 		$output = '';
 
