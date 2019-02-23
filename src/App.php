@@ -358,10 +358,15 @@ class App
 		$this->getMode()->determine($this->basePath);
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			Core\Hook::loadHooks();
 			$loader = new ConfigCacheLoader($this->basePath);
-			Core\Hook::callAll('load_config', $loader);
 			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
+
+			$this->profiler->update(
+				$this->config->get('system', 'profiler', false),
+				$this->config->get('rendertime', 'callstack', false));
+
+			Core\Hook::loadHooks();
+			Core\Hook::callAll('load_config', $loader);
 		}
 
 		$this->loadDefaultTimezone();
