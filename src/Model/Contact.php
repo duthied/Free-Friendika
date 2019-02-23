@@ -232,6 +232,11 @@ class Contact extends BaseObject
 		}
 
 		DBA::update('user-contact', ['blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
+
+		if ($blocked) {
+			// Blocked contact can't be in any group
+			self::removeFromGroups($cid);
+		}
 	}
 
 	/**
@@ -2219,5 +2224,10 @@ class Contact extends BaseObject
 		}
 
 		return $redirect;
+	}
+
+	public static function removeFromGroups($contact_id)
+	{
+		return DBA::delete('group_member', ['contact-id' => $contact_id]);
 	}
 }
