@@ -591,6 +591,7 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
+	 * @param string       $basePath    The basepath of this call
 	 * @param IConfigCache $configCache The configuration cache
 	 * @param Profiler    $profiler    The profiler of this app
 	 * @param string $dbhost           Hostname/IP of the Friendica Database
@@ -601,9 +602,9 @@ class Installer
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB(IConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
+	public function checkDB($basePath, IConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
 	{
-		if (!DBA::connect($configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
+		if (!DBA::connect($basePath, $configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 
 			return false;
