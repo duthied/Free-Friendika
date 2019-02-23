@@ -331,4 +331,19 @@ class Strings
 
 		return $uri;
 	}
+
+
+	/**
+	 * Check if the trimmed provided string is starting with one of the provided characters
+	 *
+	 * @param string $string
+	 * @param array  $chars
+	 * @return bool
+	 */
+	public static function startsWith($string, array $chars)
+	{
+		$return = in_array(substr(trim($string), 0, 1), $chars);
+
+		return $return;
+	}
 }
