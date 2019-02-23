@@ -276,7 +276,7 @@ class Processor
 		/// @todo What to do with $activity['context']?
 
 		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
-			Logger::log('Parent ' . $item['thr-parent'] . ' not found, message will be discarded.', Logger::DEBUG);
+			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			return;
 		}
 

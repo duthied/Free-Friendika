@@ -204,6 +204,8 @@ class Term
 				$type = self::HASHTAG;
 				$term = $tag;
 				$link = '';
+
+				Logger::notice('Unknown term type', ['tag' => $tag]);
 			}
 
 			if (DBA::exists('term', ['uid' => $item['uid'], 'otype' => self::OBJECT_TYPE_POST, 'oid' => $item_id, 'term' => $term, 'type' => $type])) {
