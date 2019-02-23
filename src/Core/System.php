@@ -176,6 +176,12 @@ class System extends BaseObject
 		exit();
 	}
 
+	public static function jsonError($httpCode, $data, $content_type = 'application/json')
+	{
+		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $httpCode);
+		self::jsonExit($data, $content_type);
+	}
+
 	/**
 	 * @brief Encodes content to json.
 	 *
