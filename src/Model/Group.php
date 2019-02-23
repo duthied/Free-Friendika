@@ -17,6 +17,26 @@ use Friendica\Database\DBA;
 class Group extends BaseObject
 {
 	/**
+	 *
+	 *
+	 * @param int $group_id
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function exists($group_id, $uid = null)
+	{
+		$condition = ['id' => $group_id, 'deleted' => false];
+
+		if (isset($uid)) {
+			$condition = [
+				'uid' => $uid
+			];
+		}
+
+		return DBA::exists('group', $condition);
+	}
+
+	/**
 	 * @brief Create a new contact group
 	 *
 	 * Note: If we found a deleted group with the same name, we restore it
