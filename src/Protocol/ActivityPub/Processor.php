@@ -65,7 +65,7 @@ class Processor
 	 * @param array   $implicit_mentions List of profile URLs to skip
 	 * @return string with tags
 	 */
-	private static function constructTagString($tags, $sensitive, array $implicit_mentions)
+	private static function constructTagString(array $tags, $sensitive)
 	{
 		if (empty($tags)) {
 			return '';
@@ -73,7 +73,7 @@ class Processor
 
 		$tag_text = '';
 		foreach ($tags as $tag) {
-			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag']) && !in_array($tag['href'], $implicit_mentions)) {
+			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag'])) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
 				}
@@ -129,7 +129,7 @@ class Processor
 	 */
 	public static function updateItem($activity)
 	{
-		$item = Item::selectFirst(['uri', 'parent-uri', 'gravity'], ['uri' => $activity['id']]);
+		$item = Item::selectFirst(['uri', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
 		if (!DBA::isResult($item)) {
 			Logger::warning('Unknown item', ['uri' => $activity['id']]);
 			return;
@@ -144,20 +144,20 @@ class Processor
 		$content = self::replaceEmojis($content, $activity['emojis']);
 		$content = self::convertMentions($content);
 
-		$implicit_mentions = [];
-		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-			$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['parent-uri']]);
+		if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+			$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 			if (!DBA::isResult($parent)) {
-				Logger::warning('Unknown parent item.', ['uri' => $item['parent-uri']]);
+				Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
 				return;
 			}
 
-			$implicit_mentions = self::getImplicitMentionList($parent);
-			$content = self::removeImplicitMentionsFromBody($content, $implicit_mentions);
+			$potential_implicit_mentions = self::getImplicitMentionList($parent);
+			$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
+			$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
 		}
 
 		$item['body'] = $content;
-		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive'], $implicit_mentions);
+		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
 		Item::update($item, ['uri' => $activity['id']]);
 	}
@@ -173,7 +173,7 @@ class Processor
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_POST;
-		$item['parent-uri'] = $activity['reply-to-id'];
+		$item['thr-parent'] = $activity['reply-to-id'];
 
 		if ($activity['reply-to-id'] == $activity['id']) {
 			$item['gravity'] = GRAVITY_PARENT;
@@ -220,7 +220,7 @@ class Processor
 	{
 		$item = [];
 		$item['verb'] = $verb;
-		$item['parent-uri'] = $activity['object_id'];
+		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -275,8 +275,8 @@ class Processor
 	{
 		/// @todo What to do with $activity['context']?
 
-		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['parent-uri']])) {
-			Logger::log('Parent ' . $item['parent-uri'] . ' not found, message will be discarded.', Logger::DEBUG);
+		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
+			Logger::log('Parent ' . $item['thr-parent'] . ' not found, message will be discarded.', Logger::DEBUG);
 			return;
 		}
 
@@ -299,21 +299,20 @@ class Processor
 		$content = self::replaceEmojis($content, $activity['emojis']);
 		$content = self::convertMentions($content);
 
-		$implicit_mentions = [];
-
-		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+		if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 			$item_private = !in_array(0, $activity['item_receiver']);
-			$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['parent-uri']]);
+			$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 			if (!DBA::isResult($parent)) {
 				return;
 			}
 			if ($item_private && !$parent['private']) {
-				Logger::log('Item ' . $item['uri'] . ' is private but the parent ' . $item['parent-uri'] . ' is not. So we drop it.');
+				Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
 				return;
 			}
 
-			$implicit_mentions = self::getImplicitMentionList($parent);
-			$content = self::removeImplicitMentionsFromBody($content, $implicit_mentions);
+			$potential_implicit_mentions = self::getImplicitMentionList($parent);
+			$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
+			$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
 		}
 
 		$item['created'] = $activity['published'];
@@ -333,7 +332,7 @@ class Processor
 			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
 		}
 
-		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive'], $implicit_mentions);
+		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 		$item['app'] = $activity['generator'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 
@@ -662,10 +661,18 @@ class Processor
 	 */
 	private static function getImplicitMentionList(array $parent)
 	{
-		$parent_terms = Term::tagArrayFromItemId($parent['id'], [TERM_MENTION]);
+		if (Config::get('system', 'disable_implicit_mentions')) {
+			return [];
+		}
+
+		$parent_terms = Term::tagArrayFromItemId($parent['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
+
+		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
 
 		$implicit_mentions = [
-			$parent['author-link']
+			$parent_author['url'],
+			$parent_author['nurl'],
+			$parent_author['alias'],
 		];
 
 		if ($parent['alias']) {
@@ -688,10 +695,10 @@ class Processor
 	 * Strips from the body prepended implicit mentions
 	 *
 	 * @param string $body
-	 * @param array  $implicit_mentions List of profile URLs
+	 * @param array $potential_mentions
 	 * @return string
 	 */
-	private static function removeImplicitMentionsFromBody($body, array $implicit_mentions)
+	private static function removeImplicitMentionsFromBody($body, array $potential_mentions)
 	{
 		if (Config::get('system', 'disable_implicit_mentions')) {
 			return $body;
@@ -701,7 +708,7 @@ class Processor
 
 		// Extract one prepended mention at a time from the body
 		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#mis', $body, $matches)) {
-			if (!in_array($matches[2], $implicit_mentions) ) {
+			if (!in_array($matches[2], $potential_mentions) ) {
 				$kept_mentions[] = $matches[1];
 			}
 
@@ -712,5 +719,51 @@ class Processor
 		$kept_mentions[] = $body;
 
 		return implode('', $kept_mentions);
+	}
+
+	private static function convertImplicitMentionsInTags($activity_tags, array $potential_mentions)
+	{
+		if (Config::get('system', 'disable_implicit_mentions')) {
+			return $activity_tags;
+		}
+
+		foreach ($activity_tags as $index => $tag) {
+			if (in_array($tag['href'], $potential_mentions)) {
+				$activity_tags[$index]['name'] = preg_replace(
+					'/' . preg_quote(Term::TAG_CHARACTER[Term::MENTION], '/') . '/',
+					Term::TAG_CHARACTER[Term::IMPLICIT_MENTION],
+					$activity_tags[$index]['name'],
+					1
+				);
+			}
+		}
+
+		return $activity_tags;
+	}
+
+	public static function testImplicitMentions($item, $source)
+	{
+		$parent = Item::selectFirst(['id', 'guid', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+
+		$implicit_mentions = self::getImplicitMentionList($parent);
+		var_dump($implicit_mentions);
+
+		$object = json_decode($source, true)['object'];
+		var_dump($object);
+
+		$content = HTML::toBBCode($object['content']);
+		$content = self::convertMentions($content);
+
+		$activity = [
+			'tags' => $object['tag'],
+			'content' => $content
+		];
+
+		var_dump($activity);
+
+		$activity['content'] = Processor::removeImplicitMentionsFromBody($activity['content'], $implicit_mentions);
+		$activity['tags'] = Processor::convertImplicitMentionsInTags($activity['tags'], $implicit_mentions);
+
+		return $activity;
 	}
 }
