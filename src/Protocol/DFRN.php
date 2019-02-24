@@ -119,7 +119,9 @@ class DFRN
 			$item["entry:cid"] = defaults($item, "entry:cid", 0);
 
 			$entry = self::entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
-			$root->appendChild($entry);
+			if (isset($entry)) {
+				$root->appendChild($entry);
+			}
 		}
 
 		return trim($doc->saveXML());
@@ -323,7 +325,9 @@ class DFRN
 			}
 
 			$entry = self::entry($doc, $type, $item, $owner, true);
-			$root->appendChild($entry);
+			if (isset($entry)) {
+				$root->appendChild($entry);
+			}
 		}
 
 		$atom = trim($doc->saveXML());
@@ -390,7 +394,9 @@ class DFRN
 
 			foreach ($items as $item) {
 				$entry = self::entry($doc, $type, $item, $owner, true, 0);
-				$root->appendChild($entry);
+				if (isset($entry)) {
+					$root->appendChild($entry);
+				}
 			}
 		} else {
 			$root = self::entry($doc, $type, $item, $owner, true, 0, true);
@@ -906,7 +912,7 @@ class DFRN
 	 * @param int         $cid     Contact ID of the recipient
 	 * @param bool        $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
-	 * @return \DOMElement XML entry object
+	 * @return null|\DOMElement XML entry object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
@@ -916,7 +922,8 @@ class DFRN
 		$mentioned = [];
 
 		if (!$item['parent']) {
-			return;
+			Logger::notice('Item without parent found.', ['type' => $type, 'item' => $item]);
+			return null;
 		}
 
 		if ($item['deleted']) {
