@@ -1596,6 +1596,7 @@ class DFRN
 
 		if (empty($author['avatar'])) {
 			Logger::log('Empty author: ' . $xml);
+			$author['avatar'] = '';
 		}
 
 		if (DBA::isResult($contact_old) && !$onlyfetch) {
