@@ -36,10 +36,15 @@ class Update
 			die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
 		}
 
-		// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
-		// This is a fallback, since normally the database update will be performed by a worker job (which doesn't work for changes to the "workerqueue" table itself).
-		if (($build < DB_UPDATE_VERSION) && $via_worker) {
-			self::run($basePath);
+		if ($build < DB_UPDATE_VERSION) {
+			if ($via_worker) {
+				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
+				// This is a fallback, since normally the database update will be performed by a worker job.
+				// This worker job doesn't work for changes to the "workerqueue" table itself.
+				self::run($basePath);
+			} else {
+				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
+			}
 		}
 	}
 
