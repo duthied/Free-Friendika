@@ -505,8 +505,15 @@ class PortableContact
 		$last_updated = "";
 
 		foreach ($entries as $entry) {
-			$published = DateTimeFormat::utc($xpath->query('atom:published/text()', $entry)->item(0)->nodeValue);
-			$updated   = DateTimeFormat::utc($xpath->query('atom:updated/text()'  , $entry)->item(0)->nodeValue);
+			$published_item = $xpath->query('atom:published/text()', $entry)->item(0);
+			$updated_item   = $xpath->query('atom:updated/text()'  , $entry)->item(0);
+			$published      = isset($published_item->nodeValue) ? DateTimeFormat::utc($published_item->nodeValue) : null;
+			$updated        = isset($updated_item->nodeValue) ? DateTimeFormat::utc($updated_item->nodeValue) : null;
+
+			if (!isset($published) || !isset($updated)) {
+				Logger::notice('Invalid entry for XPath.', ['entry' => $entry, 'profile' => $profile]);
+				continue;
+			}
 
 			if ($last_updated < $published) {
 				$last_updated = $published;
