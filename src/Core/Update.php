@@ -37,9 +37,13 @@ class Update
 		}
 
 		if ($build < DB_UPDATE_VERSION) {
-			// When we cannot execute the database update via the worker, we will do it directly
-			if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
+			if ($via_worker) {
+				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
+				// This is a fallback, since normally the database update will be performed by a worker job.
+				// This worker job doesn't work for changes to the "workerqueue" table itself.
 				self::run($basePath);
+			} else {
+				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
 			}
 		}
 	}
