@@ -21,6 +21,16 @@ use Psr\Log\LogLevel;
 class LoggerFactory
 {
 	/**
+	 * A list of classes, which shouldn't get logged
+	 * @var array
+	 */
+	private static $ignoreClassList = [
+		Logger::class,
+		Profiler::class,
+		WorkerLogger::class
+	];
+
+	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
 	 * @param string        $channel The channel of the logger instance
@@ -34,7 +44,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, [Logger::class, Profiler::class, WorkerLogger::class]));
+		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, self::$ignoreClassList));
 
 		$debugging = $config->get('system', 'debugging');
 		$stream    = $config->get('system', 'logfile');
@@ -79,7 +89,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, ['Friendica\\Core\\Logger']));
+		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, self::$ignoreClassList));
 
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
 
@@ -146,6 +156,13 @@ class LoggerFactory
 			if (!is_int($loglevel)) {
 				$loglevel = LogLevel::NOTICE;
 			}
+
+			// if the stream is a file and it isn't writeable, add a null handler and return
+			if (is_file($stream) && !is_writable($stream)) {
+				$logger->pushHandler(new Monolog\Handler\NullHandler());
+				return;
+			}
+
 			$fileHandler = new Monolog\Handler\StreamHandler($stream, $loglevel);
 
 			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");

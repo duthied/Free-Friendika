@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Core\L10n;
 use Mockery\MockInterface;
 
 trait L10nMockTrait
@@ -21,7 +22,7 @@ trait L10nMockTrait
 	public function mockL10nT($input = null, $times = null, $return = null)
 	{
 		if (!isset($this->l10nMock)) {
-			$this->l10nMock = \Mockery::mock('alias:Friendica\Core\L10n');
+			$this->l10nMock = \Mockery::mock('alias:' . L10n::class);
 		}
 
 		$with = isset($input) ? $input : \Mockery::any();

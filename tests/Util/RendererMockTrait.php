@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Core\Renderer;
 use Mockery\MockInterface;
 
 trait RendererMockTrait
@@ -21,7 +22,7 @@ trait RendererMockTrait
 	public function mockGetMarkupTemplate($templateName, $return = '', $times = null)
 	{
 		if (!isset($this->rendererMock)) {
-			$this->rendererMock = \Mockery::mock('alias:Friendica\Core\Renderer');
+			$this->rendererMock = \Mockery::mock('alias:' . Renderer::class);
 		}
 
 		$this->rendererMock
@@ -42,7 +43,7 @@ trait RendererMockTrait
 	public function mockReplaceMacros($template, $args = [], $return = '', $times = null)
 	{
 		if (!isset($this->rendererMock)) {
-			$this->rendererMock = \Mockery::mock('alias:Friendica\Core\Renderer');
+			$this->rendererMock = \Mockery::mock('alias:' . Renderer::class);
 		}
 
 		$this->rendererMock

@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Util\DateTimeFormat;
 use Mockery\MockInterface;
 
 trait DateTimeFormatMockTrait
@@ -14,7 +15,7 @@ trait DateTimeFormatMockTrait
 	public function mockUtcNow($time, $times = null)
 	{
 		if (!isset($this->dtfMock)) {
-			$this->dtfMock = \Mockery::mock('alias:Friendica\Util\DateTimeFormat');
+			$this->dtfMock = \Mockery::mock('alias:'. DateTimeFormat::class);
 		}
 
 		$this->dtfMock
@@ -26,7 +27,7 @@ trait DateTimeFormatMockTrait
 	public function mockUtc($input, $time, $times = null)
 	{
 		if (!isset($this->dtfMock)) {
-			$this->dtfMock = \Mockery::mock('alias:Friendica\Util\DateTimeFormat');
+			$this->dtfMock = \Mockery::mock('alias:' . DateTimeFormat::class);
 		}
 
 		$this->dtfMock

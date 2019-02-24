@@ -26,7 +26,7 @@ trait DBStructureMockTrait
 	public function mockUpdate($args = [], $return = true, $times = null)
 	{
 		if (!isset($this->dbStructure)) {
-			$this->dbStructure = \Mockery::mock('alias:Friendica\Database\DBStructure');
+			$this->dbStructure = \Mockery::mock('alias:' . DBStructure::class);
 		}
 
 		$this->dbStructure
@@ -46,7 +46,7 @@ trait DBStructureMockTrait
 	public function mockExistsTable($tableName, $return = true, $times = null)
 	{
 		if (!isset($this->dbStructure)) {
-			$this->dbStructure = \Mockery::mock('alias:Friendica\Database\DBStructure');
+			$this->dbStructure = \Mockery::mock('alias:' . DBStructure::class);
 		}
 
 		$this->dbStructure

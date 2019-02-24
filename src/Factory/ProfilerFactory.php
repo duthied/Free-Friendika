@@ -17,9 +17,9 @@ class ProfilerFactory
 	public static function create(IConfigCache $configCache)
 	{
 		$enabled = $configCache->get('system', 'profiler');
-		$enabled = isset($enabled) && $enabled !== '!<unset>!';
+		$enabled = isset($enabled) && $enabled !== '0';
 		$renderTime = $configCache->get('rendertime', 'callstack');
-		$renderTime = isset($renderTime) && $renderTime !== '!<unset>!';
+		$renderTime = isset($renderTime) && $renderTime !== '0';
 
 		return new Profiler($enabled, $renderTime);
 	}
