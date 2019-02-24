@@ -17,13 +17,16 @@
  *    'version' => Scheme version
  *    'overwrites' => Variables which overwriting custom settings
  */
+
 use Friendica\Core\PConfig;
 
 function get_scheme_info($scheme)
 {
 	$theme = \get_app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
-	$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
+	if (empty($scheme)) {
+		$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
+	}
 
 	$info = [
 		'name' => $scheme,
