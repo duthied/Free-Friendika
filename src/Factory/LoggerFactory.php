@@ -157,12 +157,6 @@ class LoggerFactory
 				$loglevel = LogLevel::NOTICE;
 			}
 
-			// if the stream is a file and it isn't writeable, add a null handler and return
-			if (is_file($stream) && !is_writable($stream)) {
-				$logger->pushHandler(new Monolog\Handler\NullHandler());
-				return;
-			}
-
 			$fileHandler = new Monolog\Handler\StreamHandler($stream, $loglevel);
 
 			$formatter = new Monolog\Formatter\LineFormatter("%datetime% %channel% [%level_name%]: %message% %context% %extra%\n");
