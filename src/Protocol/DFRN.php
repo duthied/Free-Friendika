@@ -912,7 +912,7 @@ class DFRN
 	 * @param int         $cid     Contact ID of the recipient
 	 * @param bool        $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
-	 * @return \DOMElement XML entry object
+	 * @return null|\DOMElement XML entry object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
