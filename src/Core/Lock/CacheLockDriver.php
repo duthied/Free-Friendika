@@ -66,7 +66,7 @@ class CacheLockDriver extends AbstractLockDriver
 		$cachekey = self::getLockKey($key);
 
 		if ($force) {
-			$this->cache->delete($key);
+			$this->cache->delete($cachekey);
 		} else {
 			$this->cache->compareDelete($cachekey, getmypid());
 		}
