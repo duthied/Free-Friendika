@@ -33,11 +33,12 @@ interface ILockDriver
 	/**
 	 * Releases a lock if it was set by us
 	 *
-	 * @param string $key The Name of the lock
+	 * @param string $key   The Name of the lock
+	 * @param bool   $force Force the lock to get released
 	 *
 	 * @return void
 	 */
-	public function releaseLock($key);
+	public function releaseLock($key, $force = false);
 
 	/**
 	 * Releases all lock that were set by us

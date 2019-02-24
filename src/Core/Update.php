@@ -60,7 +60,7 @@ class Update
 		// In force mode, we release the dbupdate lock first
 		// Necessary in case of an stuck update
 		if ($force) {
-			Lock::release('dbupdate');
+			Lock::release('dbupdate', true);
 		}
 
 		$build = Config::get('system', 'build');
