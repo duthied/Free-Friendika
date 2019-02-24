@@ -31,9 +31,10 @@ Commands
 	toinnodb Convert all tables from MyISAM to InnoDB
 
 Options
-    -h|--help|-? Show help information
-    -v           Show more debug information.
-    -f|--force   Force the command in case of "update" (Ignore failed updates/running updates)
+    -h|--help|-?       Show help information
+    -v                 Show more debug information.
+    -f|--force         Force the update command (Even if the database structure matches)
+    -o|--override      Override running or stalling updates
 HELP;
 		return $help;
 	}
@@ -68,8 +69,9 @@ HELP;
 				$output = DBStructure::update($a->getBasePath(), true, false);
 				break;
 			case "update":
-				$force = $this->getOption(['f', 'force'], false);
-				$output = Update::run($a->getBasePath(), $force, true, false);
+				$force    = $this->getOption(['f', 'force'], false);
+				$override = $this->getOption(['o', 'override'], false);
+				$output = Update::run($a->getBasePath(), $force, $override,true, false);
 				break;
 			case "dumpsql":
 				ob_start();
@@ -89,5 +91,4 @@ HELP;
 
 		return 0;
 	}
-
 }

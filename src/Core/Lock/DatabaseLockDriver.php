@@ -68,9 +68,15 @@ class DatabaseLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseLock($key)
+	public function releaseLock($key, $override = false)
 	{
-		DBA::delete('locks', ['name' => $key, 'pid' => $this->pid]);
+		if ($override) {
+			$where = ['name' => $key];
+		} else {
+			$where = ['name' => $key, 'pid' => $this->pid];
+		}
+
+		DBA::delete('locks', $where);
 
 		$this->markRelease($key);
 

@@ -122,12 +122,13 @@ class Lock
 	/**
 	 * @brief Releases a lock if it was set by us
 	 *
-	 * @param string $key Name of the lock
+	 * @param string $key      Name of the lock
+	 * @param bool   $override Overrides the lock to get releases
 	 * @return void
 	 */
-	public static function release($key)
+	public static function release($key, $override = false)
 	{
-		self::getDriver()->releaseLock($key);
+		self::getDriver()->releaseLock($key, $override);
 	}
 
 	/**
