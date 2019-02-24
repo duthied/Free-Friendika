@@ -24,7 +24,7 @@ function get_scheme_info($scheme)
 {
 	$theme = \get_app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
-	if (!isset($scheme)) {
+	if (empty($scheme)) {
 		$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'scheme'));
 	}
 
