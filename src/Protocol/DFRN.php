@@ -763,31 +763,33 @@ class DFRN
 	 */
 	private static function addEntryAuthor(DOMDocument $doc, $element, $contact_url, $item)
 	{
-		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
-
 		$author = $doc->createElement($element);
-		XML::addElement($doc, $author, "name", $contact["name"]);
-		XML::addElement($doc, $author, "uri", $contact["url"]);
-		XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
 
-		/// @Todo
-		/// - Check real image type and image size
-		/// - Check which of these boths elements we should use
-		$attributes = [
+		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
+		if (!empty($contact)) {
+			XML::addElement($doc, $author, "name", $contact["name"]);
+			XML::addElement($doc, $author, "uri", $contact["url"]);
+			XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
+
+			/// @Todo
+			/// - Check real image type and image size
+			/// - Check which of these boths elements we should use
+			$attributes = [
 				"rel" => "photo",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]];
-		XML::addElement($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
 
-		$attributes = [
+			$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]];
-		XML::addElement($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
+		}
 
 		return $author;
 	}
