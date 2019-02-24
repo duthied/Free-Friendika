@@ -338,7 +338,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		PConfig::set(local_user(), 'system', 'detailled_profile', (($_POST['detailled_profile'] == 1) ? 1: 0));
+		PConfig::set(local_user(), 'system', 'detailled_profile', (($_POST['detailed_profile'] == 1) ? 1: 0));
 
 		$changes = [];
 		if ($is_default) {
@@ -535,18 +535,18 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					[User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]));
 
-		$detailled_profile = (PConfig::get(local_user(), 'system', 'detailled_profile') AND $personal_account);
+		$detailed_profile = (PConfig::get(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = Renderer::getMarkupTemplate("profile_edit.tpl");
 		$o .= Renderer::replaceMacros($tpl, [
 			'$personal_account' => $personal_account,
-			'$detailled_profile' => $detailled_profile,
+			'$detailled_profile' => $detailed_profile,
 
 			'$details' => [
-				'detailled_profile', //Name
+				'detailed_profile', //Name
 				L10n::t('Show more profile fields:'), //Label
-				$detailled_profile, //Value
+				$detailed_profile, //Value
 				'', //Help string
 				[L10n::t('No'), L10n::t('Yes')] //Off - On strings
 			],
