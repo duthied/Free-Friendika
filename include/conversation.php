@@ -365,7 +365,7 @@ function localize_item(&$item)
 
 	// Only create a redirection to a magic link when logged in
 	if (!empty($item['plink']) && (local_user() || remote_user())) {
-		$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
+		$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
 	}
 }
 
@@ -625,7 +625,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];
-				$profile_link = Contact::magicLinkbyContact($author);
+				$profile_link = Contact::magicLinkByContact($author);
 
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
@@ -660,20 +660,11 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				list($categories, $folders) = get_cats_and_terms($item);
 
-				$profile_name_e = $profile_name;
-
 				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
-					$title_e = ucfirst($item['content-warning']);
+					$title = ucfirst($item['content-warning']);
 				} else {
-					$title_e = $item['title'];
+					$title = $item['title'];
 				}
-
-				$body_e = $body;
-				$tags_e = $tags['tags'];
-				$hashtags_e = $tags['hashtags'];
-				$mentions_e = $tags['mentions'];
-				$location_e = $location;
-				$owner_name_e = $owner_name;
 
 				$tmp_item = [
 					'template' => $tpl,
@@ -684,27 +675,28 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
-					'name' => $profile_name_e,
+					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
 					'thumb' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
-					'title' => $title_e,
-					'body' => $body_e,
-					'tags' => $tags_e,
-					'hashtags' => $hashtags_e,
-					'mentions' => $mentions_e,
+					'title' => $title,
+					'body' => $body,
+					'tags' => $tags['tags'],
+					'hashtags' => $tags['hashtags'],
+					'mentions' => $tags['mentions'],
+					'implicit_mentions' => $tags['implicit_mentions'],
 					'txt_cats' => L10n::t('Categories:'),
 					'txt_folders' => L10n::t('Filed under:'),
 					'has_cats' => ((count($categories)) ? 'true' : ''),
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
-					'text' => strip_tags($body_e),
+					'text' => strip_tags($body),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? L10n::t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
-					'location' => $location_e,
+					'location' => $location,
 					'indent' => '',
-					'owner_name' => $owner_name_e,
+					'owner_name' => $owner_name,
 					'owner_url' => $owner_url,
 					'owner_photo' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'plink' => Item::getPlink($item),
@@ -858,7 +850,7 @@ function item_photo_menu($item) {
 
 	$author = ['uid' => 0, 'id' => $item['author-id'],
 		'network' => $item['author-network'], 'url' => $item['author-link']];
-	$profile_link = Contact::magicLinkbyContact($author);
+	$profile_link = Contact::magicLinkByContact($author);
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
@@ -966,7 +958,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$url = Contact::magicLinkbyContact($author);
+			$url = Contact::magicLinkByContact($author);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			}

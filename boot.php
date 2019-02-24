@@ -25,6 +25,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Term;
 use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
@@ -171,23 +172,27 @@ define('NOTIFY_SYSTEM',   32768);
 /* @}*/
 
 
-/**
- * @name Term
- *
- * Tag/term types
- * @{
- */
-define('TERM_UNKNOWN',   0);
-define('TERM_HASHTAG',   1);
-define('TERM_MENTION',   2);
-define('TERM_CATEGORY',  3);
-define('TERM_PCATEGORY', 4);
-define('TERM_FILE',      5);
-define('TERM_SAVEDSEARCH', 6);
-define('TERM_CONVERSATION', 7);
+/** @deprecated since 2019.03, use Term::UNKNOWN instead */
+define('TERM_UNKNOWN',   Term::UNKNOWN);
+/** @deprecated since 2019.03, use Term::HASHTAG instead */
+define('TERM_HASHTAG',   Term::HASHTAG);
+/** @deprecated since 2019.03, use Term::MENTION instead */
+define('TERM_MENTION',   Term::MENTION);
+/** @deprecated since 2019.03, use Term::CATEGORY instead */
+define('TERM_CATEGORY',  Term::CATEGORY);
+/** @deprecated since 2019.03, use Term::PCATEGORY instead */
+define('TERM_PCATEGORY', Term::PCATEGORY);
+/** @deprecated since 2019.03, use Term::FILE instead */
+define('TERM_FILE',      Term::FILE);
+/** @deprecated since 2019.03, use Term::SAVEDSEARCH instead */
+define('TERM_SAVEDSEARCH', Term::SAVEDSEARCH);
+/** @deprecated since 2019.03, use Term::CONVERSATION instead */
+define('TERM_CONVERSATION', Term::CONVERSATION);
 
-define('TERM_OBJ_POST',  1);
-define('TERM_OBJ_PHOTO', 2);
+/** @deprecated since 2019.03, use Term::OBJECT_TYPE_POST instead */
+define('TERM_OBJ_POST',  Term::OBJECT_TYPE_POST);
+/** @deprecated since 2019.03, use Term::OBJECT_TYPE_PHOTO instead */
+define('TERM_OBJ_PHOTO', Term::OBJECT_TYPE_PHOTO);
 
 /**
  * @name Namespaces

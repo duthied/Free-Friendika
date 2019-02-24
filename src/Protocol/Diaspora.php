@@ -942,7 +942,7 @@ class Diaspora
 
 		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
 		if (DBA::isResult($person)) {
-			Logger::log("In cache " . print_r($person, true), Logger::DEBUG);
+			Logger::debug("In cache " . print_r($person, true));
 
 			// update record occasionally so it doesn't get stale
 			$d = strtotime($person["updated"]." +00:00");
@@ -3675,7 +3675,7 @@ class Diaspora
 			&& !strstr($body, $profile['addr'])
 			&& !strstr($body, $profile_url)
 		) {
-			$body = '@[url=' . $profile_url . ']' . $profile['nick'] . '[/url] ' . $body;
+			$body = '@[url=' . $profile_url . ']' . $profile['name'] . '[/url] ' . $body;
 		}
 
 		return $body;
@@ -3776,7 +3776,7 @@ class Diaspora
 	 * @param array $item  The item that will be exported
 	 * @param array $owner the array of the item owner
 	 *
-	 * @return array The data for a comment
+	 * @return array|false The data for a comment
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function constructComment(array $item, array $owner)
@@ -3788,30 +3788,40 @@ class Diaspora
 			return $result;
 		}
 
-		$parent = Item::selectFirst(['guid', 'author-link'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
-		if (!DBA::isResult($parent)) {
+		$toplevel_item = Item::selectFirst(['guid', 'author-link'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
+		if (!DBA::isResult($toplevel_item)) {
+			Logger::error('Missing parent conversation item', ['parent' => $item["parent"]]);
 			return false;
+		}
+
+		$thread_parent_item = $toplevel_item;
+		if ($item['thr-parent'] != $item['parent-uri']) {
+			$thread_parent_item = Item::selectFirst(['guid', 'author-link'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 		}
 
 		$body = $item["body"];
 
-		if (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions')) {
-			$body = self::prependParentAuthorMention($body, $parent['author-link']);
+		if ((empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
+			&& !Config::get('system', 'disable_implicit_mentions')
+		) {
+			$body = self::prependParentAuthorMention($body, $thread_parent_item['author-link']);
 		}
 
 		$text = html_entity_decode(BBCode::toMarkdown($body));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
 
-		$comment = ["author" => self::myHandle($owner),
-				"guid" => $item["guid"],
-				"created_at" => $created,
-				"parent_guid" => $parent["guid"],
-				"text" => $text,
-				"author_signature" => ""];
+		$comment = [
+			"author"      => self::myHandle($owner),
+			"guid"        => $item["guid"],
+			"created_at"  => $created,
+			"parent_guid" => $toplevel_item["guid"],
+			"text"        => $text,
+			"author_signature" => ""
+		];
 
 		// Send the thread parent guid only if it is a threaded comment
 		if ($item['thr-parent'] != $item['parent-uri']) {
-			$comment['thread_parent_guid'] = self::getGuidFromUri($item['thr-parent'], $item['uid']);
+			$comment['thread_parent_guid'] = $thread_parent_item['guid'];
 		}
 
 		Cache::set($cachekey, $comment, Cache::QUARTER_HOUR);

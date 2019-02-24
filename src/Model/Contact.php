@@ -2189,7 +2189,7 @@ class Contact extends BaseObject
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 
-		return self::magicLinkbyContact($contact, $url);
+		return self::magicLinkByContact($contact, $url);
 	}
 
 	/**
@@ -2202,7 +2202,7 @@ class Contact extends BaseObject
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function magicLinkbyContact($contact, $url = '')
+	public static function magicLinkByContact($contact, $url = '')
 	{
 		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
