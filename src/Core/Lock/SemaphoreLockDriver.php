@@ -50,7 +50,7 @@ class SemaphoreLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseLock($key, $force = false)
+	public function releaseLock($key, $override = false)
 	{
 		if (empty(self::$semaphore[$key])) {
 			return false;

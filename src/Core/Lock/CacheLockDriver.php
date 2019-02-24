@@ -61,11 +61,11 @@ class CacheLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseLock($key, $force = false)
+	public function releaseLock($key, $override = false)
 	{
 		$cachekey = self::getLockKey($key);
 
-		if ($force) {
+		if ($override) {
 			$this->cache->delete($cachekey);
 		} else {
 			$this->cache->compareDelete($cachekey, getmypid());

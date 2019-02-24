@@ -68,9 +68,9 @@ class DatabaseLockDriver extends AbstractLockDriver
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseLock($key, $force = false)
+	public function releaseLock($key, $override = false)
 	{
-		if ($force) {
+		if ($override) {
 			$where = ['name' => $key];
 		} else {
 			$where = ['name' => $key, 'pid' => $this->pid];
