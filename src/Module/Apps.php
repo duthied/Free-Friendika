@@ -16,10 +16,8 @@ class Apps extends BaseModule
 	public static function init()
 	{
 		$privateaddons = Config::get('config', 'private_addons');
-		if ($privateaddons === "1") {
-			if (!local_user()) {
-				self::getApp()->internalRedirect();
-			};
+		if ($privateaddons === "1" && !local_user()) {
+			self::getApp()->internalRedirect();
 		}
 	}
 
