@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Core\Console;
 
+use Friendica\App\Mode;
 use Friendica\Core\Console\Config;
 
 /**
@@ -16,12 +17,12 @@ class ConfigConsoleTest extends ConsoleTest
 		parent::setUp();
 
 		\Mockery::getConfiguration()->setConstantsMap([
-			'Friendica\App\Mode' => [
+			Mode::class => [
 				'DBCONFIGAVAILABLE' => 0
 			]
 		]);
 
-		$mode = \Mockery::mock('Friendica\App\Mode');
+		$mode = \Mockery::mock(Mode::class);
 		$mode
 			->shouldReceive('has')
 			->andReturn(true);

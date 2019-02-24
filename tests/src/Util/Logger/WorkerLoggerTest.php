@@ -4,6 +4,7 @@ namespace src\Util\Logger;
 
 use Friendica\Test\MockedTest;
 use Friendica\Util\Logger\WorkerLogger;
+use Psr\Log\LoggerInterface;
 
 class WorkerLoggerTest extends MockedTest
 {
@@ -18,7 +19,7 @@ class WorkerLoggerTest extends MockedTest
 	 */
 	public function testGetWorkerIdZero()
 	{
-		$logger = \Mockery::mock('Psr\Log\LoggerInterface');
+		$logger = \Mockery::mock(LoggerInterface::class);
 		$logger
 			->shouldReceive('alert')
 			->with('id length must be greater than 0.')
@@ -31,7 +32,7 @@ class WorkerLoggerTest extends MockedTest
 	 */
 	public function testGetWorkerId()
 	{
-		$logger = \Mockery::mock('Psr\Log\LoggerInterface');
+		$logger = \Mockery::mock(LoggerInterface::class);
 		for ($i = 1; $i < 14; $i++) {
 			$workLogger = new WorkerLogger($logger, 'test', $i);
 			$uid = $workLogger->getWorkerId();
@@ -86,7 +87,7 @@ class WorkerLoggerTest extends MockedTest
 	 */
 	public function testEmergency($func, $msg, $context = [])
 	{
-		$logger = \Mockery::mock('Psr\Log\LoggerInterface');
+		$logger = \Mockery::mock(LoggerInterface::class);
 		$workLogger = new WorkerLogger($logger, 'test');
 		$testContext = $context;
 		$testContext['worker_id'] = $workLogger->getWorkerId();
@@ -104,7 +105,7 @@ class WorkerLoggerTest extends MockedTest
 	 */
 	public function testLog()
 	{
-		$logger = \Mockery::mock('Psr\Log\LoggerInterface');
+		$logger = \Mockery::mock(LoggerInterface::class);
 		$workLogger = new WorkerLogger($logger, 'test');
 		$context = $testContext = ['test' => 'it'];
 		$testContext['worker_id'] = $workLogger->getWorkerId();

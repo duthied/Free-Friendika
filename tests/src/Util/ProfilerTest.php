@@ -18,7 +18,7 @@ class ProfilerTest extends MockedTest
 	{
 		parent::setUp();
 
-		$this->logger = \Mockery::mock('Psr\Log\LoggerInterface');
+		$this->logger = \Mockery::mock(LoggerInterface::class);
 	}
 
 	/**
