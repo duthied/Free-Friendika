@@ -29,7 +29,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-15 09:33-0500\n"
-"PO-Revision-Date: 2019-02-20 05:05+0000\n"
+"PO-Revision-Date: 2019-02-20 15:30+0000\n"
 "Last-Translator: Hypolite Petovan <hypolite@mrpetovan.com>\n"
 "Language-Team: French (http://www.transifex.com/Friendica/friendica/language/fr/)\n"
 "MIME-Version: 1.0\n"
@@ -3784,7 +3784,7 @@ msgstr "Fichiers"
 
 #: mod/feedtest.php:18
 msgid "You must be logged in to use this module"
-msgstr ""
+msgstr "Vous devez être identifié pour accéder à cette fonctionnalité"
 
 #: mod/feedtest.php:45
 msgid "Source URL"
@@ -3796,7 +3796,7 @@ msgstr "- choisir -"
 
 #: mod/follow.php:46
 msgid "The contact could not be added."
-msgstr ""
+msgstr "Le contact n'a pas pu être ajouté."
 
 #: mod/follow.php:76
 msgid "You already added this contact."
@@ -3851,11 +3851,11 @@ msgstr ""
 
 #: mod/friendica.php:106
 msgid "Installed addons/apps:"
-msgstr ""
+msgstr "Add-ons/Applications installés :"
 
 #: mod/friendica.php:120
 msgid "No installed addons/apps"
-msgstr ""
+msgstr "Aucun add-on/application n'est installé"
 
 #: mod/friendica.php:125
 #, php-format
@@ -3950,7 +3950,7 @@ msgstr "Groupe vide"
 
 #: mod/group.php:255
 msgid "Remove contact from group"
-msgstr ""
+msgstr "Retirer ce contact du groupe"
 
 #: mod/group.php:273 mod/profperm.php:119
 msgid "Click on a contact to add or remove."
@@ -3958,7 +3958,7 @@ msgstr "Cliquez sur un contact pour l'ajouter ou le supprimer."
 
 #: mod/group.php:287
 msgid "Add contact to group"
-msgstr ""
+msgstr "Ajouter ce contact au groupe"
 
 #: mod/hcard.php:20
 msgid "No profile"
@@ -4216,7 +4216,7 @@ msgstr "Impossible d'honorer cette demande. (Vous l'avez peut-être déjà utili
 
 #: mod/lostpass.php:102
 msgid "Request has expired, please make a new one."
-msgstr ""
+msgstr "La requête a expiré, veuillez la renouveler."
 
 #: mod/lostpass.php:117
 msgid "Forgot your Password?"
@@ -4365,7 +4365,7 @@ msgstr "Voulez-vous vraiment supprimer ce message ?"
 
 #: mod/message.php:166
 msgid "Conversation not found."
-msgstr ""
+msgstr "Conversation inconnue."
 
 #: mod/message.php:171
 msgid "Message deleted."
@@ -4768,11 +4768,11 @@ msgstr "Cacher les demandes ignorées"
 
 #: mod/notifications.php:166 mod/notifications.php:243
 msgid "Notification type:"
-msgstr ""
+msgstr "Type de notification :"
 
 #: mod/notifications.php:169
 msgid "Suggested by:"
-msgstr ""
+msgstr "Suggéré par :"
 
 #: mod/notifications.php:181 mod/notifications.php:260
 #: src/Module/Contact.php:630
@@ -4826,7 +4826,7 @@ msgstr "Initiateur du partage"
 
 #: mod/notifications.php:223
 msgid "Subscriber"
-msgstr ""
+msgstr "Abonné∙e"
 
 #: mod/notifications.php:266 src/Model/Profile.php:543
 #: src/Module/Contact.php:88
