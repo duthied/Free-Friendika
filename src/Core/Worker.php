@@ -850,7 +850,7 @@ class Worker
 		}
 
 		if (!empty($waiting)) {
-			$priority =  array_shift(array_keys($waiting));
+			$priority = array_keys($waiting)[0];
 			Logger::info('No underassigned priority found, now taking the highest priority.', ['priority' => $priority]);
 			return $priority;
 		}
