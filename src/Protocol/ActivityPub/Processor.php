@@ -669,13 +669,16 @@ class Processor
 
 		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
 
-		$implicit_mentions = [
-			$parent_author['url'],
-			$parent_author['nurl'],
-			$parent_author['alias'],
-		];
+		$implicit_mentions = [];
+		if (empty($parent_author)) {
+			Logger::notice('Author public contact unknown.', ['author-link' => $parent['author-link'], 'item-id' => $parent['id']]);
+		} else {
+			$implicit_mentions[] = $parent_author['url'];
+			$implicit_mentions[] = $parent_author['nurl'];
+			$implicit_mentions[] = $parent_author['alias'];
+		}
 
-		if ($parent['alias']) {
+		if (!empty($parent['alias'])) {
 			$implicit_mentions[] = $parent['alias'];
 		}
 
