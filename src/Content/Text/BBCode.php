@@ -67,6 +67,7 @@ class BBCode extends BaseObject
 					$post["after"] = trim(substr($body, $pos + strlen($data[0])));
 				} else {
 					$post["text"] = trim(str_replace($data[0], "", $body));
+					$post["after"] = '';
 				}
 
 				$attacheddata = $data[2];
