@@ -850,7 +850,7 @@ function item_photo_menu($item) {
 
 	$author = ['uid' => 0, 'id' => $item['author-id'],
 		'network' => $item['author-network'], 'url' => $item['author-link']];
-	$profile_link = Contact::magicLinkByContact($author);
+	$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
@@ -865,9 +865,9 @@ function item_photo_menu($item) {
 	}
 
 	if ($sparkle) {
-		$status_link = $profile_link . '?url=status';
-		$photos_link = $profile_link . '?url=photos';
-		$profile_link = $profile_link . '?url=profile';
+		$status_link = $profile_link . '?tab=status';
+		$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+		$profile_link = $profile_link . '?=profile';
 	}
 
 	if ($cid && !$item['self']) {
