@@ -1006,7 +1006,7 @@ class Contact extends BaseObject
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self']) {
 			$sparkle = true;
-			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
+			$profile_link = System::baseUrl() . '/redir/' . $contact['id'] . '?url=' . $contact['url'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -1016,9 +1016,9 @@ class Contact extends BaseObject
 		}
 
 		if ($sparkle) {
-			$status_link = $profile_link . '?url=status';
-			$photos_link = $profile_link . '?url=photos';
-			$profile_link = $profile_link . '?url=profile';
+			$status_link = $profile_link . '?tab=status';
+			$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+			$profile_link = $profile_link . '?tab=profile';
 		}
 
 		if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && !$contact['self']) {
