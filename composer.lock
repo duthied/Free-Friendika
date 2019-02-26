@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "fabea74e511a05896a2a9b7e2367ae28",
+    "content-hash": "8897c1f6912cc9b889534a8c59deead1",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -1026,32 +1026,18 @@
         },
         {
             "name": "npm-asset/fullcalendar",
-            "version": "3.9.0",
+            "version": "3.10.0",
             "dist": {
                 "type": "tar",
-                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.9.0.tgz",
+                "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.10.0.tgz",
                 "reference": null,
-                "shasum": "b608a9989f3416f0b1d526c6bdfeeaf2ac79eda5"
-            },
-            "require": {
-                "npm-asset/jquery": ">=2,<4.0",
-                "npm-asset/moment": ">=2.20.1,<3.0.0"
+                "shasum": "cc5e87d518fd6550e142816a31dd191664847919"
             },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
                     "url": "https://fullcalendar.io/wiki/Reporting-Bugs/"
                 },
-                "npm-asset-files": [
-                    "dist/*.js",
-                    "dist/*.css",
-                    "dist/*.d.ts",
-                    "dist/locale/*.js",
-                    "README.*",
-                    "LICENSE.*",
-                    "CHANGELOG.*",
-                    "CONTRIBUTING.*"
-                ],
                 "npm-asset-main": "dist/fullcalendar.js",
                 "npm-asset-directories": [],
                 "npm-asset-repository": {
@@ -1061,7 +1047,7 @@
                 "npm-asset-scripts": {
                     "clean": "gulp clean",
                     "dist": "gulp dist",
-                    "lint": "gulp lint",
+                    "lint": "gulp lint-and-example-repos",
                     "test": "gulp test:single"
                 }
             },
@@ -1083,7 +1069,7 @@
                 "full-sized",
                 "jquery-plugin"
             ],
-            "time": "2018-03-05T03:30:23+00:00"
+            "time": "2019-01-11T02:39:12+00:00"
         },
         {
             "name": "npm-asset/imagesloaded",
@@ -3090,6 +3076,7 @@
                 "mock",
                 "xunit"
             ],
+            "abandoned": true,
             "time": "2017-06-30T09:13:00+00:00"
         },
         {
@@ -3193,7 +3180,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "https://github.com/sebastianbergmann/comparator",
+            "homepage": "http://www.github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -3295,7 +3282,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "https://github.com/sebastianbergmann/environment",
+            "homepage": "http://www.github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -3363,7 +3350,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "https://github.com/sebastianbergmann/exporter",
+            "homepage": "http://www.github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -3415,7 +3402,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "https://github.com/sebastianbergmann/global-state",
+            "homepage": "http://www.github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -3517,7 +3504,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "https://github.com/sebastianbergmann/recursion-context",
+            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {
