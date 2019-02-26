@@ -2,7 +2,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
   Friendica Core:
     Update to the translation (CS, DE, EN_US, ES, FR, PL, ZH-CN) [translation teams]
     Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
-    Update to the themes (frio, smoothy, quattro) [lxiter, MrPetovan. rabuzarus,  tobiasd]
+    Update to the themes (frio, smoothy, quattro) [lxiter, MrPetovan. nupplaphil, rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
     Enhancements to the Vagrant development VM [JeroenED]
     Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
@@ -20,10 +20,14 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Fixed several PHP warnings and errors [annando, MrPetovan, tobiasd]
     Fixed an issue when Friendica is installed in a subdirectory [rabuzarus]
     Fixed several issues in the handling of the Markdown parsing from and to d* [lxiter, MrPetovan]
+    Fixed a bug that prevented blocked contacts from being removed from groups [MrPetovan]
     Fixed a bug in the ACL with preselected items [lxiter]
     Fixed an issue with polling Events via AP [annando]
     Fixed a memory issue with the JSON-LD parser [annando]
-    General Code cleaning and restructuring [annando, JeroenED, MrPetovan]
+    Fixed an issue with the forced DB structure update [nupplaphil]
+    Fixed an issue with wrongly encoded HTML entities in URLs [annando]
+    If the node does not want to publish information, nodeinfo now returns 404 instead of non-existing entries [nupplaphil]
+    General Code cleaning and restructuring [annando, JeroenED, MrPetovan, nupplaphil]
     Switched logging engine to monolog [nupplaphil]
     Added plugable storage backend [fabrixxm]
     Added item delivery indicator to posting header [MrPetovan]
@@ -47,10 +51,12 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
       @ mentions are now stripped from the posts send to Twitter [MrPetovan]
 
   Closed Issues:
-    3218, 4496, 6087, 6232, 6274, 6292, 6375, 6378, 6382, 6384, 6403,
-    6405, 6449, 6468, 6489, 6491, 6492, 6495, 6505, 6511, 6514, 6522,
-    6529, 6533, 6544, 6545, 6551, 6553, 6558, 6552, 6561, 6570, 6575,
-    6585, 6603, 6610, 6629, 6635, 6652, 6656, 6667, 6669, 6674, 6668
+    1777, 3218, 3506, 4496, 6087, 6232, 6274, 6292, 6375, 6378, 6382,
+    6384, 6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492, 6495, 6503,
+    6505, 6511, 6514, 6522, 6529, 6533, 6544, 6545, 6551, 6553, 6558,
+    6552, 6561, 6570, 6575, 6585, 6603, 6610, 6629, 6630, 6635, 6652,
+    6656, 6658, 6667, 6668, 6669, 6674, 6676, 6677, 6679, 6691, 6711,
+    6714, 6716, 6733
 
 Version 2019.01 (2019-01-21)
   Friendica Core:
