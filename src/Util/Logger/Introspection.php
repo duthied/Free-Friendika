@@ -69,8 +69,8 @@ class Introspection implements ProcessorInterface
 		$i += $this->skipStackFramesCount;
 
 		return [
-			'file' => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
-			'line' => isset($trace[$i - 1]['line']) ? $trace[$i - 1]['line'] : null,
+			'file'     => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
+			'line'     => isset($trace[$i - 1]['line']) ? $trace[$i - 1]['line'] : null,
 			'function' => isset($trace[$i]['function']) ? $trace[$i]['function'] : null,
 		];
 	}

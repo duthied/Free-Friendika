@@ -3,6 +3,7 @@
 namespace Friendica\Util\Logger;
 
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Strings;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -17,16 +18,32 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * Translates LogLevel log levels to syslog log priorities.
+	 * @var array
 	 */
 	private $logLevels = [
-		LogLevel::DEBUG => LOG_DEBUG,
-		LogLevel::INFO => LOG_INFO,
-		LogLevel::NOTICE => LOG_NOTICE,
-		LogLevel::WARNING => LOG_WARNING,
-		LogLevel::ERROR => LOG_ERR,
-		LogLevel::CRITICAL => LOG_CRIT,
-		LogLevel::ALERT => LOG_ALERT,
+		LogLevel::DEBUG     => LOG_DEBUG,
+		LogLevel::INFO      => LOG_INFO,
+		LogLevel::NOTICE    => LOG_NOTICE,
+		LogLevel::WARNING   => LOG_WARNING,
+		LogLevel::ERROR     => LOG_ERR,
+		LogLevel::CRITICAL  => LOG_CRIT,
+		LogLevel::ALERT     => LOG_ALERT,
 		LogLevel::EMERGENCY => LOG_EMERG,
+	];
+
+	/**
+	 * Translates log priorities to string outputs
+	 * @var array
+	 */
+	private $logToString = [
+		LOG_DEBUG   => 'DEBUG',
+		LOG_INFO    => 'INFO',
+		LOG_NOTICE  => 'NOTICE',
+		LOG_WARNING => 'WARNING',
+		LOG_ERR     => 'ERROR',
+		LOG_CRIT    => 'CRITICAL',
+		LOG_ALERT   => 'ALERT',
+		LOG_EMERG   => 'EMERGENCY'
 	];
 
 	/**
@@ -64,6 +81,12 @@ class SyslogLogger implements LoggerInterface
 	private $introspection;
 
 	/**
+	 * The UID of the current call
+	 * @var string
+	 */
+	private $logUid;
+
+	/**
 	 * @param string $channel     The output channel
 	 * @param string $level       The minimum loglevel at which this logger will be triggered
 	 * @param int    $logOpts     Indicates what logging options will be used when generating a log message
@@ -71,6 +94,7 @@ class SyslogLogger implements LoggerInterface
 	 */
 	public function __construct($channel, Introspection $introspection, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
 	{
+		$this->logUid = Strings::getRandomHex(6);
 		$this->channel = $channel;
 		$this->logOpts = $logOpts;
 		$this->logFacility = $logFacility;
@@ -133,19 +157,21 @@ class SyslogLogger implements LoggerInterface
 	 */
 	private function formatLog($level, $message, $context = [])
 	{
+		$record = $this->introspection->getRecord();
+		$record = array_merge($record, ['uid' => $this->logUid]);
 		$logMessage = '';
 
 		$logMessage .= $this->channel . ' ';
-		$logMessage .= '[' . $level . ']: ';
+		$logMessage .= '[' . $this->logToString[$level] . ']: ';
 		$logMessage .= $this->psrInterpolate($message, $context) . ' ';
 		$logMessage .= @json_encode($context) . ' - ';
-		$logMessage .= @json_encode($this->introspection->getRecord());
+		$logMessage .= @json_encode($record);
 
 		return $logMessage;
 	}
 
 	/**
-	 * Simple interpolation of PSR-3 compliant replacements ( between '{' and '}' )
+	 * Simple interpolation of PSR-3 compliant replacements ( variables between '{' and '}' )
 	 * @see https://www.php-fig.org/psr/psr-3/#12-message
 	 *
 	 * @param string $message
