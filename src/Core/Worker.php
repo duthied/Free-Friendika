@@ -22,6 +22,11 @@ use Friendica\Util\Network;
  */
 class Worker
 {
+	const STATE_STARTUP    = 1;
+	const STATE_SHORT_LOOP = 2;
+	const STATE_REFETCH    = 3;
+	const STATE_LONG_LOOP  = 4;
+
 	private static $up_start;
 	private static $db_duration = 0;
 	private static $db_duration_count = 0;
@@ -29,7 +34,7 @@ class Worker
 	private static $db_duration_stat = 0;
 	private static $lock_duration = 0;
 	private static $last_update;
-	private static $mode = 0;
+	private static $state;
 
 	/**
 	 * @brief Processes the tasks that are in the workerqueue table
@@ -93,7 +98,7 @@ class Worker
 		}
 
 		$starttime = time();
-		self::$mode = 1;
+		self::$state = self::STATE_STARTUP;
 
 		// We fetch the next queue entry that is about to be executed
 		while ($r = self::workerProcess()) {
@@ -111,11 +116,13 @@ class Worker
 				if (!self::getWaitingJobForPID() && Lock::acquire('worker_process', 0)) {
 					self::findWorkerProcesses();
 					Lock::release('worker_process');
-					self::$mode = 3;
+					self::$state = self::STATE_REFETCH;
 				}
 			}
 
-			self::$mode = 4;
+			if (self::$state != self::STATE_REFETCH) {
+				self::$state = self::STATE_LONG_LOOP;
+			}
 
 			// Quit the worker once every cron interval
 			if (time() > ($starttime + Config::get('system', 'cron_interval'))) {
@@ -408,7 +415,7 @@ class Worker
 		$rest    = round(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 2);
 		$exec    = round($duration, 2);
 
-		$logger->info('Performance log.', ['mode' => self::$mode, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
+		$logger->info('Performance log.', ['state' => self::$state, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
@@ -416,7 +423,7 @@ class Worker
 		self::$db_duration_stat = 0;
 		self::$db_duration_write = 0;
 		self::$lock_duration = 0;
-		self::$mode = 2;
+		self::$state = self::STATE_SHORT_LOOP;
 
 		if ($duration > 3600) {
 			$logger->info('Longer than 1 hour.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
