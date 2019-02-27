@@ -28,6 +28,7 @@ class Worker
 	private static $db_duration_stat = 0;
 	private static $lock_duration = 0;
 	private static $last_update;
+	private static $mode = 0;
 
 	/**
 	 * @brief Processes the tasks that are in the workerqueue table
@@ -91,6 +92,7 @@ class Worker
 		}
 
 		$starttime = time();
+		self::$mode = 1;
 
 		// We fetch the next queue entry that is about to be executed
 		while ($r = self::workerProcess()) {
@@ -108,7 +110,16 @@ class Worker
 				if (!self::getWaitingJobForPID() && Lock::acquire('worker_process', 0)) {
 					self::findWorkerProcesses();
 					Lock::release('worker_process');
+					self::$mode = 3;
 				}
+			}
+
+			self::$mode = 4;
+
+			// Quit the worker once every cron interval
+			if (time() > ($starttime + Config::get('system', 'cron_interval'))) {
+				Logger::log('Process lifetime reached, quitting.', Logger::DEBUG);
+				return;
 			}
 
 			// To avoid the quitting of multiple workers only one worker at a time will execute the check
@@ -127,12 +138,6 @@ class Worker
 					return;
 				}
 				Lock::release('worker');
-			}
-
-			// Quit the worker once every 5 minutes
-			if (time() > ($starttime + 300)) {
-				Logger::log('Process lifetime reached, quitting.', Logger::DEBUG);
-				return;
 			}
 		}
 
@@ -411,15 +416,16 @@ class Worker
 		 * The execution time is the productive time.
 		 * By changing parameters like the maximum number of workers we can check the effectivness.
 		*/
-		$dbtotal = number_format(self::$db_duration - (self::$db_duration_count + self::$db_duration_write + self::$db_duration_stat), 4);
-		$dbcount = number_format(self::$db_duration_count, 4);
-		$dbstat  = number_format(self::$db_duration_stat, 4);
-		$dbwrite = number_format(self::$db_duration_write, 4);
-		$dblock  = number_format(self::$lock_duration, 4);
-		$rest    = number_format(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 4);
-		$exec    = number_format($duration, 4);
+		$dbtotal = round(self::$db_duration, 2);
+		$dbread  = round(self::$db_duration - (self::$db_duration_count + self::$db_duration_write + self::$db_duration_stat), 2);
+		$dbcount = round(self::$db_duration_count, 2);
+		$dbstat  = round(self::$db_duration_stat, 2);
+		$dbwrite = round(self::$db_duration_write, 2);
+		$dblock  = round(self::$lock_duration, 2);
+		$rest    = round(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 2);
+		$exec    = round($duration, 2);
 
-		Logger::info('Performance:', ['total' => $dbtotal, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'block' => $dblock, 'rest' => $rest, 'exec' => $exec]);
+		Logger::info('Performance:', ['mode' => self::$mode, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
@@ -427,6 +433,7 @@ class Worker
 		self::$db_duration_stat = 0;
 		self::$db_duration_write = 0;
 		self::$lock_duration = 0;
+		self::$mode = 2;
 
 		if ($duration > 3600) {
 			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", Logger::DEBUG);
