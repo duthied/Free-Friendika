@@ -216,7 +216,7 @@ return [
 
 		// logger_adapter (String)
 		// Sets the logging adapter of Friendica globally (monolog, syslog)
-		'logger_adapter' => 'syslog',
+		'logger_adapter' => 'monolog',
 
 		// max_batch_queue (Integer)
 		// Maximum number of batched queue items for a single contact before subsequent messages are discarded.
