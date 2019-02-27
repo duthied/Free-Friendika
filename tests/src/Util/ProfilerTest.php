@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Util;
+namespace Friendica\Test\src\Util;
 
 use Friendica\Test\MockedTest;
 use Friendica\Util\Profiler;

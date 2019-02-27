@@ -2,7 +2,7 @@
 /**
  * @file tests/src/Util/StringsTest.php
  */
-namespace Friendica\Test\Util;
+namespace Friendica\Test\src\Util;
 
 use Friendica\Util\Strings;
 use PHPUnit\Framework\TestCase;

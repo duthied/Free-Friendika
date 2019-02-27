@@ -3,7 +3,7 @@
  * BaseObjectTest class.
  */
 
-namespace Friendica\Test;
+namespace Friendica\Test\src;
 
 use Friendica\BaseObject;
 use Friendica\Test\Util\AppMockTrait;

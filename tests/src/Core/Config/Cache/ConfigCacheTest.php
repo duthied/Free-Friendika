@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Core\Config\Cache;
+namespace Friendica\Test\src\Core\Config\Cache;
 
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Test\MockedTest;
