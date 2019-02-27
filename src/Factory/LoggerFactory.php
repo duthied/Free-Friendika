@@ -6,7 +6,8 @@ use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Logger\FriendicaDevelopHandler;
-use Friendica\Util\Logger\FriendicaIntrospectionProcessor;
+use Friendica\Util\Logger\Introspection;
+use Friendica\Util\Logger\SyslogLogger;
 use Friendica\Util\Logger\WorkerLogger;
 use Friendica\Util\Profiler;
 use Monolog;
@@ -37,27 +38,39 @@ class LoggerFactory
 	 * @param Configuration $config  The config
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
+	 * @throws InternalServerErrorException
 	 */
 	public static function create($channel, Configuration $config)
 	{
-		$loggerTimeZone = new \DateTimeZone('UTC');
-		Monolog\Logger::setTimezone($loggerTimeZone);
+		$introspector = new Introspection(LogLevel::DEBUG, self::$ignoreClassList);
+		switch ($config->get('system', 'logger_adapter', 'monolog')) {
+			case 'syslog':
+				$level = $config->get('system', 'loglevel');
 
-		$logger = new Monolog\Logger($channel);
-		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, self::$ignoreClassList));
+				$logger = new SyslogLogger($channel, $introspector, $level);
+				break;
+			case 'monolog':
+			default:
+				$loggerTimeZone = new \DateTimeZone('UTC');
+				Monolog\Logger::setTimezone($loggerTimeZone);
 
-		$debugging = $config->get('system', 'debugging');
-		$stream    = $config->get('system', 'logfile');
-		$level     = $config->get('system', 'loglevel');
+				$logger = new Monolog\Logger($channel);
+				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
+				$logger->pushProcessor($introspector);
 
-		if ($debugging) {
-			$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
-			static::addStreamHandler($logger, $stream, $loglevel);
-		} else {
-			static::addVoidHandler($logger);
+				$debugging = $config->get('system', 'debugging');
+				$stream    = $config->get('system', 'logfile');
+				$level     = $config->get('system', 'loglevel');
+
+				if ($debugging) {
+					$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
+					static::addStreamHandler($logger, $stream, $loglevel);
+				} else {
+					static::addVoidHandler($logger);
+				}
+				break;
 		}
 
 		Logger::init($logger);
@@ -77,6 +90,7 @@ class LoggerFactory
 	 * @param Configuration $config  The config
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
+	 * @throws InternalServerErrorException
 	 */
 	public static function createDev($channel, Configuration $config)
 	{
@@ -95,7 +109,7 @@ class LoggerFactory
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, self::$ignoreClassList));
+		$logger->pushProcessor(new Introspection(LogLevel::DEBUG, self::$ignoreClassList));
 
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
 

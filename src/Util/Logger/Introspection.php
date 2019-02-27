@@ -11,7 +11,7 @@ use Monolog\Processor\ProcessorInterface;
  * Based on the class IntrospectionProcessor without the "class" information
  * @see IntrospectionProcessor
  */
-class FriendicaIntrospectionProcessor implements ProcessorInterface
+class Introspection implements ProcessorInterface
 {
 	private $level;
 
@@ -42,7 +42,22 @@ class FriendicaIntrospectionProcessor implements ProcessorInterface
 		if ($record['level'] < $this->level) {
 			return $record;
 		}
+		// we should have the call source now
+		$record['extra'] = array_merge(
+			$record['extra'],
+			$this->getRecord()
+		);
 
+		return $record;
+	}
+
+	/**
+	 * Returns the introspection record of the current call
+	 *
+	 * @return array
+	 */
+	public function getRecord()
+	{
 		$trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
 		$i = 1;
@@ -53,17 +68,11 @@ class FriendicaIntrospectionProcessor implements ProcessorInterface
 
 		$i += $this->skipStackFramesCount;
 
-		// we should have the call source now
-		$record['extra'] = array_merge(
-			$record['extra'],
-			[
-				'file'      => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
-				'line'      => isset($trace[$i - 1]['line']) ? $trace[$i - 1]['line'] : null,
-				'function'  => isset($trace[$i]['function']) ? $trace[$i]['function'] : null,
-			]
-		);
-
-		return $record;
+		return [
+			'file' => isset($trace[$i - 1]['file']) ? basename($trace[$i - 1]['file']) : null,
+			'line' => isset($trace[$i - 1]['line']) ? $trace[$i - 1]['line'] : null,
+			'function' => isset($trace[$i]['function']) ? $trace[$i]['function'] : null,
+		];
 	}
 
 	/**
