@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Util\Logger;
+namespace Friendica\Test\src\Util\Logger;
 
 use Friendica\Test\MockedTest;
 use Friendica\Util\Logger\WorkerLogger;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Core\Config;
+namespace Friendica\Test\src\Core\Config;
 
 use Friendica\Core\Config\Adapter\IConfigAdapter;
 use Friendica\Core\Config\Cache\ConfigCache;

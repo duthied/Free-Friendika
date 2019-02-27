@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Database;
+namespace Friendica\Test\src\Database;
 
 use Friendica\App;
 use Friendica\Core\Config\Cache;

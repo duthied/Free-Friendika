@@ -2,7 +2,7 @@
 /**
  * @file tests/src/Util/XmlTest.php
  */
-namespace Friendica\Test\Util;
+namespace Friendica\Test\src\Util;
 
 use Friendica\Util\XML;
 use PHPUnit\Framework\TestCase;

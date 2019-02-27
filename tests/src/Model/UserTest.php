@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\Model;
+namespace Friendica\Test\src\Model;
 
 use Friendica\Model\User;
 use Friendica\Test\MockedTest;
