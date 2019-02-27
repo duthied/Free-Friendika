@@ -13,6 +13,8 @@ use Psr\Log\LogLevel;
  */
 class SyslogLogger implements LoggerInterface
 {
+	const IDENT = 'Friendica';
+
 	/**
 	 * Translates LogLevel log levels to syslog log priorities.
 	 */
@@ -31,7 +33,7 @@ class SyslogLogger implements LoggerInterface
 	 * The standard ident of the syslog (added to each message)
 	 * @var string
 	 */
-	private $ident;
+	private $channel;
 
 	/**
 	 * Indicates what logging options will be used when generating a log message
@@ -62,7 +64,7 @@ class SyslogLogger implements LoggerInterface
 	private $introspection;
 
 	/**
-	 * @param string $channel     The channel (Syslog ident)
+	 * @param string $channel     The output channel
 	 * @param string $level    The minimum loglevel at which this logger will be triggered
 	 * @param int    $logOpts     Indicates what logging options will be used when generating a log message
 	 * @param int    $logFacility Used to specify what type of program is logging the message
@@ -71,7 +73,7 @@ class SyslogLogger implements LoggerInterface
 	 */
 	public function __construct($channel, Introspection $introspection, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
 	{
-		$this->ident = $channel;
+		$this->channel = $channel;
 		$this->logOpts = $logOpts;
 		$this->logFacility = $logFacility;
 		$this->logLevel = $this->mapLevelToPriority($level);
@@ -105,23 +107,35 @@ class SyslogLogger implements LoggerInterface
 	 */
 	private function write($priority, $message)
 	{
-		if (!openlog($this->ident, $this->logOpts, $this->logFacility)) {
-			throw new InternalServerErrorException('Can\'t open syslog for ident "' . $this->ident . '" and facility "' . $this->logFacility . '""');
+		if (!openlog(self::IDENT, $this->logOpts, $this->logFacility)) {
+			throw new InternalServerErrorException('Can\'t open syslog for ident "' . $this->channel . '" and facility "' . $this->logFacility . '""');
 		}
 
 		syslog($priority, $message);
 	}
 
+	/**
+	 * Closes the Syslog
+	 */
 	public function close()
 	{
 		closelog();
 	}
 
+	/**
+	 * Formats a log record for the syslog output
+	 *
+	 * @param int $level The loglevel/priority
+	 * @param string $message The message
+	 * @param array $context  The context of this call
+	 *
+	 * @return string the formatted syslog output
+	 */
 	private function formatLog($level, $message, $context = [])
 	{
 		$logMessage  = '';
 
-		$logMessage .= $this->ident . ' ';
+		$logMessage .= $this->channel . ' ';
 		$logMessage .= '[' . $level . ']: ';
 		$logMessage .= $message . ' ';
 		$logMessage .= json_encode($context) . ' - ';
