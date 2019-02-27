@@ -15,15 +15,11 @@ class WorkerLoggerTest extends MockedTest
 
 	/**
 	 * Test the a id with length zero
-	 * @expectedException
+	 * @expectedException \Error
 	 */
 	public function testGetWorkerIdZero()
 	{
 		$logger = \Mockery::mock(LoggerInterface::class);
-		$logger
-			->shouldReceive('alert')
-			->with('id length must be greater than 0.')
-			->once();
 		new WorkerLogger($logger, 'test', 0);
 	}
 

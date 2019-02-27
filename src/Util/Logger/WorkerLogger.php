@@ -2,6 +2,7 @@
 
 namespace Friendica\Util\Logger;
 
+use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -34,29 +35,7 @@ class WorkerLogger implements LoggerInterface
 	{
 		$this->logger = $logger;
 		$this->functionName = $functionName;
-		$this->workerId = $this->generateWorkerId($idLength);
-	}
-
-	/**
-	 * Generates an ID
-	 *
-	 * @param int $length
-	 *
-	 * @return string
-	 */
-	private function generateWorkerId($length)
-	{
-		if ($length <= 0) {
-			$this->logger->alert('id length must be greater than 0.');
-			return '';
-		}
-
-		try {
-			return substr(bin2hex(random_bytes(ceil($length / 2))), 0, $length);
-		} catch (\Exception $exception) {
-			$this->logger->alert('random_bytes threw an error', ['exception' => $exception]);
-			return '';
-		}
+		$this->workerId = Strings::getRandomHex($idLength);
 	}
 
 	/**
