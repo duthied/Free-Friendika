@@ -124,13 +124,6 @@ class Worker
 				self::$state = self::STATE_LONG_LOOP;
 			}
 
-			// Quit the worker once every cron interval
-			if (time() > ($starttime + Config::get('system', 'cron_interval'))) {
-				Logger::log('Process lifetime reached, respawning.', Logger::DEBUG);
-				self::spawnWorker();
-				return;
-			}
-
 			// To avoid the quitting of multiple workers only one worker at a time will execute the check
 			if (Lock::acquire('worker', 0)) {
 				// Count active workers and compare them with a maximum value that depends on the load
@@ -147,6 +140,13 @@ class Worker
 					return;
 				}
 				Lock::release('worker');
+			}
+
+			// Quit the worker once every cron interval
+			if (time() > ($starttime + Config::get('system', 'cron_interval'))) {
+				Logger::log('Process lifetime reached, respawning.', Logger::DEBUG);
+				self::spawnWorker();
+				return;
 			}
 		}
 
