@@ -19,6 +19,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
+use Friendica\Model\User;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -82,7 +83,7 @@ class Post extends BaseObject
 		$author = ['uid' => 0, 'id' => $this->getDataValue('author-id'),
 			'network' => $this->getDataValue('author-network'),
 			'url' => $this->getDataValue('author-link')];
-		$this->redirect_url = Contact::magicLinkbyContact($author);
+		$this->redirect_url = Contact::magicLinkByContact($author);
 		if (!$this->isToplevel()) {
 			$this->threaded = true;
 		}
@@ -223,7 +224,7 @@ class Post extends BaseObject
 			'network' => $item['author-network'], 'url' => $item['author-link']];
 
 		if (local_user() || remote_user()) {
-			$profile_link = Contact::magicLinkbyContact($author);
+			$profile_link = Contact::magicLinkByContact($author);
 		} else {
 			$profile_link = $item['author-link'];
 		}
@@ -365,6 +366,7 @@ class Post extends BaseObject
 			'tags'            => $tags['tags'],
 			'hashtags'        => $tags['hashtags'],
 			'mentions'        => $tags['mentions'],
+			'implicit_mentions' => $tags['implicit_mentions'],
 			'txt_cats'        => L10n::t('Categories:'),
 			'txt_folders'     => L10n::t('Filed under:'),
 			'has_cats'        => ((count($categories)) ? 'true' : ''),
@@ -415,6 +417,7 @@ class Post extends BaseObject
 			'dislike'         => $responses['dislike']['output'],
 			'responses'       => $responses,
 			'switchcomment'   => L10n::t('Comment'),
+			'reply_label'     => L10n::t('Reply to %s', $name_e),
 			'comment'         => $comment,
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
 			'wait'            => L10n::t('Please wait'),
@@ -449,13 +452,13 @@ class Post extends BaseObject
 			foreach ($children as $child) {
 				$result['children'][] = $child->getTemplateData($conv_responses, $thread_level + 1);
 			}
+
 			// Collapse
 			if (($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = L10n::tt('%d comment', '%d comments', $total_children);
-				$result['children'][0]['hidden_comments_num'] = $total_children;
-				$result['children'][0]['hidden_comments_text'] = L10n::tt('comment', 'comments', $total_children);
-				$result['children'][0]['hide_text'] = L10n::t('show more');
+				$result['children'][0]['show_text'] = L10n::t('Show more');
+				$result['children'][0]['hide_text'] = L10n::t('Show fewer');
 				if ($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				} else {
@@ -780,9 +783,11 @@ class Post extends BaseObject
 	{
 		$a = self::getApp();
 
-		if (!local_user() || empty($a->profile['addr'])) {
+		if (!local_user()) {
 			return '';
 		}
+
+		$owner = User::getOwnerDataById($a->user['uid']);
 
 		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
 			return '';
@@ -794,18 +799,18 @@ class Post extends BaseObject
 			return '';
 		}
 
-		if ($item['author-addr'] != $a->profile['addr']) {
+		if ($item['author-addr'] != $owner['addr']) {
 			$text = '@' . $item['author-addr'] . ' ';
 		} else {
 			$text = '';
 		}
 
-		$terms = Term::tagArrayFromItemId($this->getId(), TERM_MENTION);
+		$terms = Term::tagArrayFromItemId($this->getId(), [Term::MENTION, Term::IMPLICIT_MENTION]);
 
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
-			if (!empty($profile['addr']) && ($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
-				($profile['addr'] != $a->profile['addr']) && !strstr($text, $profile['addr'])) {
+			if (!empty($profile['addr']) && !empty($profile['contact-type']) && ($profile['contact-type'] != Contact::TYPE_COMMUNITY) &&
+				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}
 		}
@@ -944,7 +949,7 @@ class Post extends BaseObject
 						$owner = ['uid' => 0, 'id' => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
 							'url' => $this->getDataValue('owner-link')];
-						$this->owner_url = Contact::magicLinkbyContact($owner);
+						$this->owner_url = Contact::magicLinkByContact($owner);
 					}
 				}
 			}

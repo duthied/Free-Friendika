@@ -219,7 +219,7 @@ class Addon extends BaseObject
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 

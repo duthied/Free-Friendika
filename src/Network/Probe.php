@@ -156,7 +156,7 @@ class Probe
 				continue;
 			}
 
-			if (($attributes["rel"] == "lrdd") && !empty($attributes["template"])) {
+			if (!empty($attributes["rel"]) && $attributes["rel"] == "lrdd" && !empty($attributes["template"])) {
 				$type = (empty($attributes["type"]) ? '' : $attributes["type"]);
 
 				$lrdd[$type] = $attributes["template"];

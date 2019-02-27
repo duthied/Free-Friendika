@@ -5,6 +5,7 @@
  */
 namespace Friendica\Object;
 
+use Exception;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -14,7 +15,6 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Util\Network;
-use Exception;
 use Imagick;
 use ImagickPixel;
 
@@ -656,7 +656,7 @@ class Image
 
 		$stamp1 = microtime(true);
 		file_put_contents($path, $string);
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 	}
 
 	/**
@@ -802,7 +802,7 @@ class Image
 					$a = \get_app();
 					$stamp1 = microtime(true);
 					file_put_contents($tempfile, $img_str);
-					$a->saveTimestamp($stamp1, "file");
+					$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 					$data = getimagesize($tempfile);
 					unlink($tempfile);
@@ -910,7 +910,7 @@ class Image
 
 			$stamp1 = microtime(true);
 			$imagedata = @file_get_contents($url);
-			$a->saveTimestamp($stamp1, "file");
+			$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 		}
 
 		$maximagesize = Config::get('system', 'maximagesize');
@@ -924,7 +924,7 @@ class Image
 
 		$stamp1 = microtime(true);
 		file_put_contents($tempfile, $imagedata);
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$data = getimagesize($tempfile);
 

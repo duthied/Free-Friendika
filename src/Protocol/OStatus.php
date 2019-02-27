@@ -1763,19 +1763,16 @@ class OStatus
 		$verb = NAMESPACE_ACTIVITY_SCHEMA."favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
-		$as_object = $doc->createElement("activity:object");
-
 		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);
+		if (DBA::isResult($parent)) {
+			$as_object = $doc->createElement("activity:object");
 
-		if (!$parent) {
-			$parent = [];
+			XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent));
+
+			self::entryContent($doc, $as_object, $parent, $owner, "New entry");
+
+			$entry->appendChild($as_object);
 		}
-
-		XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent));
-
-		self::entryContent($doc, $as_object, $parent, $owner, "New entry");
-
-		$entry->appendChild($as_object);
 
 		self::entryFooter($doc, $entry, $item, $owner);
 

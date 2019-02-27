@@ -176,6 +176,12 @@ class System extends BaseObject
 		exit();
 	}
 
+	public static function jsonError($httpCode, $data, $content_type = 'application/json')
+	{
+		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $httpCode);
+		self::jsonExit($data, $content_type);
+	}
+
 	/**
 	 * @brief Encodes content to json.
 	 *
@@ -232,21 +238,6 @@ class System extends BaseObject
 			$prefix = substr($prefix, 0, max($size - 13, 0));
 			return uniqid($prefix);
 		}
-	}
-
-	/**
-	 * Generates a process identifier for the logging
-	 *
-	 * @param string $prefix A given prefix
-	 *
-	 * @return string a generated process identifier
-	 */
-	public static function processID($prefix)
-	{
-		// We aren't calling any other function here.
-		// Doing so could easily create an endless loop
-		$trailer = $prefix . ':' . getmypid() . ':';
-		return substr($trailer . uniqid('') . mt_rand(), 0, 26);
 	}
 
 	/**

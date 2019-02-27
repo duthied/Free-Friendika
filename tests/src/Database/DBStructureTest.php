@@ -3,7 +3,7 @@
 namespace Friendica\Test\Database;
 
 use Friendica\App;
-use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Database\DBStructure;
 use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
@@ -13,12 +13,15 @@ class DBStructureTest extends DatabaseTest
 {
 	public function setUp()
 	{
-		$basedir = BasePath::create(dirname(__DIR__) . '/../../');
-		$configLoader = new Config\ConfigCacheLoader($basedir);
-		$config = Factory\ConfigFactory::createCache($configLoader);
+		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
+		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$configCache = Factory\ConfigFactory::createCache($configLoader);
+		$profiler = Factory\ProfilerFactory::create($configCache);
+		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
+		$config = Factory\ConfigFactory::createConfig($configCache);
+		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create('test', $config);
-		$this->app = new App($config, $logger, false);
-		$this->logOutput = FActory\LoggerFactory::enableTest($this->app->getLogger());
+		$this->app = new App($basePath, $config, $logger, $profiler, false);
 
 		parent::setUp();
 	}

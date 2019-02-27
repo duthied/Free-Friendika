@@ -343,7 +343,7 @@ class Transmitter
 			$actor_profile = APContact::getByURL($item['author-link']);
 		}
 
-		$terms = Term::tagArrayFromItemId($item['id'], TERM_MENTION);
+		$terms = Term::tagArrayFromItemId($item['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
 
 		if (!$item['private']) {
 			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
@@ -807,12 +807,12 @@ class Transmitter
 	{
 		$tags = [];
 
-		$terms = Term::tagArrayFromItemId($item['id']);
+		$terms = Term::tagArrayFromItemId($item['id'], [Term::HASHTAG, Term::MENTION, Term::IMPLICIT_MENTION]);
 		foreach ($terms as $term) {
-			if ($term['type'] == TERM_HASHTAG) {
+			if ($term['type'] == Term::HASHTAG) {
 				$url = System::baseUrl() . '/search?tag=' . urlencode($term['term']);
 				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
-			} elseif ($term['type'] == TERM_MENTION) {
+			} elseif ($term['type'] == Term::MENTION || $term['type'] == Term::IMPLICIT_MENTION) {
 				$contact = Contact::getDetailsByURL($term['url']);
 				if (!empty($contact['addr'])) {
 					$mention = '@' . $contact['addr'];
@@ -1439,6 +1439,10 @@ class Transmitter
 
 	private static function prependMentions($body, array $permission_block)
 	{
+		if (Config::get('system', 'disable_implicit_mentions')) {
+			return $body;
+		}
+
 		$mentions = [];
 
 		foreach ($permission_block['to'] as $profile_url) {

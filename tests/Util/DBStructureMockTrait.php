@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Database\DBStructure;
 use Mockery\MockInterface;
 
 /**
@@ -16,6 +17,7 @@ trait DBStructureMockTrait
 
 	/**
 	 * Mocking DBStructure::update()
+	 * @see DBStructure::update();
 	 *
 	 * @param array $args The arguments for the update call
 	 * @param bool $return True, if the connect was successful, otherwise false
@@ -24,7 +26,7 @@ trait DBStructureMockTrait
 	public function mockUpdate($args = [], $return = true, $times = null)
 	{
 		if (!isset($this->dbStructure)) {
-			$this->dbStructure = \Mockery::mock('alias:Friendica\Database\DBStructure');
+			$this->dbStructure = \Mockery::mock('alias:' . DBStructure::class);
 		}
 
 		$this->dbStructure
@@ -44,7 +46,7 @@ trait DBStructureMockTrait
 	public function mockExistsTable($tableName, $return = true, $times = null)
 	{
 		if (!isset($this->dbStructure)) {
-			$this->dbStructure = \Mockery::mock('alias:Friendica\Database\DBStructure');
+			$this->dbStructure = \Mockery::mock('alias:' . DBStructure::class);
 		}
 
 		$this->dbStructure

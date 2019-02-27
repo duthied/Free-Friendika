@@ -498,7 +498,6 @@ class Notifier
 		}
 		DBA::close($delivery_contacts_stmt);
 
-
 		$url_recipients = array_filter($url_recipients);
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.

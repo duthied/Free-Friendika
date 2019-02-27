@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Config;
+namespace Friendica\Core\Config\Cache;
 
 /**
  * The interface for a user-specific config cache
@@ -8,16 +8,24 @@ namespace Friendica\Core\Config;
 interface IPConfigCache
 {
 	/**
+	 * Tries to load the specified configuration array into the user specific config array.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 *
+	 * @param int   $uid
+	 * @param array $config
+	 */
+	function loadP($uid, array $config);
+
+	/**
 	 * Retrieves a value from the user config cache
 	 *
 	 * @param int    $uid     User Id
 	 * @param string $cat     Config category
 	 * @param string $key     Config key
-	 * @param mixed  $default Default value if key isn't set
 	 *
-	 * @return string The value of the config entry
+	 * @return null|string The value of the config entry or null if not set
 	 */
-	function getP($uid, $cat, $key = null, $default = null);
+	function getP($uid, $cat, $key = null);
 
 	/**
 	 * Sets a value in the user config cache
@@ -37,8 +45,15 @@ interface IPConfigCache
 	 * @param int    $uid User Id
 	 * @param string $cat Config category
 	 * @param string $key Config key
+	 *
+	 * @return bool true, if deleted
 	 */
 	function deleteP($uid, $cat, $key);
 
+	/**
+	 * Returns the whole configuration cache
+	 *
+	 * @return array
+	 */
 	function getAll();
 }

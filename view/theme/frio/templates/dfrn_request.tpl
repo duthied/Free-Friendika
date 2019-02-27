@@ -36,12 +36,12 @@
 	<label id="dfrn-url-label" for="dfrn-url" >{{$your_address}}</label>
 	{{if $myaddr}}
 		{{$myaddr}}
-		<input type="hidden" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr|escape:'html'}}" />
+		<input type="hidden" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
 	{{else}}
-	<input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr|escape:'html'}}" />
+	<input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
 	{{/if}}
 	{{if $url}}
-		<input type="hidden" name="url" id="url" value="{{$url|escape:'html'}}" />
+		<input type="hidden" name="url" id="url" value="{{$url}}" />
 	{{/if}}
 	<div id="dfrn-request-url-end"></div>
 </div>
@@ -84,9 +84,9 @@
 
 	<div id="dfrn-request-submit-wrapper">
 		{{if $submit}}
-			<input class="btn btn-primary" type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
+			<input class="btn btn-primary" type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit}}" />
 		{{/if}}
-		<input class="btn btn-primary" type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
+		<input class="btn btn-primary" type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel}}" />
 	</div>
 </form>
 </div>

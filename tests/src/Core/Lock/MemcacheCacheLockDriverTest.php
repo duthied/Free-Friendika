@@ -13,14 +13,14 @@ class MemcacheCacheLockDriverTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'memcache_host', NULL)
+			->with('system', 'memcache_host')
 			->andReturn('localhost');
 
-		$this->configCache
+		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'memcache_port', NULL)
+			->with('system', 'memcache_port')
 			->andReturn(11211);
 
 		return new CacheLockDriver(CacheDriverFactory::create('memcache'));

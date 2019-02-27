@@ -17,25 +17,30 @@ function _resizeIframe(obj, desth) {
 }
 
 function openClose(theID) {
-	if (document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
-	} else {
-		document.getElementById(theID).style.display = "block"
+	var el = document.getElementById(theID);
+	if (el) {
+		if (window.getComputedStyle(el).display === "none") {
+			openMenu(theID);
+		} else {
+			closeMenu(theID);
+		}
 	}
 }
 
 function openMenu(theID) {
 	var el = document.getElementById(theID);
-
 	if (el) {
-		el.style.display = "block";
+		if (!el.dataset.display) {
+			el.dataset.display = 'block';
+		}
+		el.style.display = el.dataset.display;
 	}
 }
 
 function closeMenu(theID) {
-	var el = document.getElementById(theID)
-
+	var el = document.getElementById(theID);
 	if (el) {
+		el.dataset.display = window.getComputedStyle(el).display;
 		el.style.display = "none";
 	}
 }
@@ -656,12 +661,14 @@ function preview_comment(id) {
 }
 
 function showHideComments(id) {
-	if ($("#collapsed-comments-" + id).is(":visible")) {
-		$("#collapsed-comments-" + id).hide();
-		$("#hide-comments-" + id).html(window.showMore);
+	if ($('#collapsed-comments-' + id).is(':visible')) {
+		$('#collapsed-comments-' + id).slideUp();
+		$('#hide-comments-' + id).hide();
+		$('#hide-comments-total-' + id).show();
 	} else {
-		$("#collapsed-comments-" + id).show();
-		$("#hide-comments-" + id).html(window.showFewer);
+		$('#collapsed-comments-' + id).slideDown();
+		$('#hide-comments-' + id).show();
+		$('#hide-comments-total-' + id).hide();
 	}
 }
 
@@ -786,11 +793,25 @@ function profChangeMember(gid,cid) {
 	});
 }
 
-function contactgroupChangeMember(gid,cid) {
+function contactgroupChangeMember(checkbox, gid, cid) {
+	let url;
+	// checkbox.checked is the checkbox state after the click
+	if (checkbox.checked) {
+		url = 'group/' + gid + '/add/' + cid;
+	} else {
+		url = 'group/' + gid + '/remove/' + cid;
+	}
 	$('body').css('cursor', 'wait');
-	$.get('contactgroup/' + gid + '/' + cid, function(data) {
-			$('body').css('cursor', 'auto');
+	$.post(url)
+	.error(function () {
+		// Restores previous state in case of error
+		checkbox.checked = !checkbox.checked;
+	})
+	.always(function() {
+		$('body').css('cursor', 'auto');
 	});
+
+	return true;
 }
 
 function checkboxhighlight(box) {

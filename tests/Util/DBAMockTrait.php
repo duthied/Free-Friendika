@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Database\DBA;
 use Mockery\MockInterface;
 
 class DBAStub
@@ -22,7 +23,7 @@ trait DBAMockTrait
 	private function checkMock()
 	{
 		if (!isset($this->dbaMock)) {
-			$this->dbaMock = \Mockery::namedMock('Friendica\Database\DBA', 'Friendica\Test\Util\DBAStub');
+			$this->dbaMock = \Mockery::namedMock(DBA::class, DBAStub::class);
 		}
 	}
 

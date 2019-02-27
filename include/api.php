@@ -326,69 +326,7 @@ function api_call(App $a)
 
 				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
 
-				if (Config::get("system", "profiler")) {
-					$duration = microtime(true)-$a->performance["start"];
-
-					/// @TODO round() really everywhere?
-					Logger::debug(
-						API_LOG_PREFIX . 'performance',
-						[
-							'module' => 'api',
-							'action' => 'call',
-							'database_read' => round($a->performance["database"] - $a->performance["database_write"], 3),
-							'database_write' => round($a->performance["database_write"], 3),
-							'cache_read' => round($a->performance["cache"], 3),
-							'cache_write' => round($a->performance["cache_write"], 3),
-							'network_io' => round($a->performance["network"], 2),
-							'file_io' => round($a->performance["file"], 2),
-							'other_io' => round($duration - ($a->performance["database"]
-									+ $a->performance["cache"] + $a->performance["cache_write"]
-									+ $a->performance["network"] + $a->performance["file"]), 2),
-							'total' => round($duration, 2)
-						]
-					);
-
-					if (Config::get("rendertime", "callstack")) {
-						$o = "Database Read:\n";
-						foreach ($a->callstack["database"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-						$o .= "\nDatabase Write:\n";
-						foreach ($a->callstack["database_write"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-
-						$o = "Cache Read:\n";
-						foreach ($a->callstack["cache"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-						$o .= "\nCache Write:\n";
-						foreach ($a->callstack["cache_write"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-
-						$o .= "\nNetwork:\n";
-						foreach ($a->callstack["network"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-						Logger::debug(API_LOG_PREFIX . $o, ['module' => 'api', 'action' => 'call']);
-					}
-				}
+				$a->getProfiler()->saveLog($a->getLogger(), API_LOG_PREFIX . 'performance');
 
 				if (false === $return) {
 					/*
@@ -1590,8 +1528,10 @@ function api_search($type)
 
 	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
 
-	if (empty($_REQUEST['q'])) { throw new BadRequestException('q parameter is required.'); }
-	
+	if (empty($_REQUEST['q'])) {
+		throw new BadRequestException('q parameter is required.');
+	}
+
 	$searchTerm = trim(rawurldecode($_REQUEST['q']));
 
 	$data = [];
@@ -4461,6 +4401,7 @@ function api_fr_photo_delete($type)
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
+
 	// input params
 	$photo_id = defaults($_REQUEST, 'photo_id', null);
 
@@ -4469,11 +4410,12 @@ function api_fr_photo_delete($type)
 	if ($photo_id == null) {
 		throw new BadRequestException("no photo_id specified");
 	}
+
 	// check if photo is existing in database
-	$r = Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()]);
-	if (!$r) {
+	if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()])) {
 		throw new BadRequestException("photo not available");
 	}
+
 	// now we can perform on the deletion of the photo
 	$result = Photo::delete(['uid' => api_user(), 'resource-id' => $photo_id]);
 

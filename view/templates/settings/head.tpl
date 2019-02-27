@@ -1,7 +1,7 @@
 
 
 <script>
-	var ispublic = "{{$ispublic}}";
+	var ispublic = "{{$ispublic nofilter}}";
 
 
 	$(document).ready(function() {

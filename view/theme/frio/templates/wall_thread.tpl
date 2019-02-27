@@ -20,7 +20,7 @@ as the value of $top_child_total (this is done at the end of this file)
 {{/if}}
 
 {{if $item.thread_level==2 && $top_child_nr==1}}
-<div class="comment-container well well-sm"> <!--top-child-begin-->
+<div class="comment-container"> <!--top-child-begin-->
 {{/if}}
 {{* end of hacky part to count childrens *}}
 
@@ -41,12 +41,15 @@ as the value of $top_child_total (this is done at the end of this file)
 	{{if $item.thread_level<3}}
 		<div class="hide-comments-outer-wrapper">
 			<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
-				<span id="hide-comments-total-{{$item.id}}"
-					class="hide-comments-total">{{$item.num_comments}}</span>
-				<span id="hide-comments-{{$item.id}}"
-					class="hide-comments">{{$item.hide_text}}</span>
+				<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+					<i class="fa fa-caret-right" aria-hidden="true"></i>
+					{{$item.num_comments}} - {{$item.show_text}}
+				</span>
+				<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+					<i class="fa fa-caret-down" aria-hidden="true"></i>
+					{{$item.num_comments}} - {{$item.hide_text}}
+				</span>
 			</div>
-			<hr />
 		</div>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 	{{else}}
@@ -290,8 +293,11 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{foreach $item.mentions as $tag}}
 				<span class="mention label btn-warning sm">{{$tag nofilter}} <i class="fa fa-user" aria-hidden="true"></i></span>
 			{{/foreach}}
-		{{/if}}
 
+			{{*foreach $item.implicit_mentions as $tag}}
+				<span class="mention label label-default sm">{{$tag nofilter}} <i class="fa fa-eye-slash" aria-hidden="true"></i></span>
+			{{/foreach*}}
+		{{/if}}
 			{{foreach $item.folders as $cat}}
 				<span class="folder label btn-danger sm p-category">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
@@ -305,9 +311,9 @@ as the value of $top_child_total (this is done at the end of this file)
 		<!-- ./TODO -->
 
 		<!-- <hr /> -->
-		<div class="wall-item-actions">
+		<p class="wall-item-actions">
 			{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-			<div class="wall-item-actions-left pull-left">
+			<span class="wall-item-actions-left">
 				<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment}}
 				<div id="button-reply" class="pull-left">
 					<button type="button" class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
@@ -335,7 +341,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 				{{* Button to open the comment text field *}}
 				{{if $item.comment}}
-				<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="showHide('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;{{$item.switchcomment}}</button>
+				<button type="button" class="btn-link button-comments" id="comment-{{$item.id}}" title="{{$item.switchcomment}}" {{if $item.thread_level != 1}}onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});" {{else}} onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"{{/if}}><i class="fa fa-commenting" aria-hidden="true"></i>&nbsp;{{$item.switchcomment}}</button>
 				{{/if}}
 
 				{{* Button for sharing the item *}}
@@ -348,27 +354,26 @@ as the value of $top_child_total (this is done at the end of this file)
 					{{/if}}
 				{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
-			</div>
+			</span>
 
-			<div class="wall-item-actions-right pull-right">
+			<span class="wall-item-actions-right">
 				{{* Event attendance buttons *}}
-				{{if $item.isevent}}
-				<div class="vote-event">
+			{{if $item.isevent}}
+				<span class="vote-event">
 					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}},'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
 					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}},'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
 					<button type="button" class="btn btn-xs btn-default button-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}},'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
-				</div>
-				{{/if}}
+				</span>
+			{{/if}}
 
-				<div class="pull-right checkbox">
-					{{if $item.drop.pagedrop}}
+				<span class="pull-right checkbox">
+			{{if $item.drop.pagedrop}}
 					<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 					<label for="checkbox-{{$item.id}}"></label>
-				{{/if}}
-				</div>
-			</div>
-			<div class="clearfix"></div>
-		</div><!--./wall-item-actions-->
+			{{/if}}
+				</span>
+			</span>
+		</p><!--./wall-item-actions-->
 
 		<div class="wall-item-links"></div>
 
@@ -381,19 +386,16 @@ as the value of $top_child_total (this is done at the end of this file)
 			</div>
 		{{/if}}
 
-		{{if $item.thread_level!=1}}
-		</div><!--./media-body from for comments-->
-		<hr />
+		{{* Insert comment box of threaded children *}}
+		{{if $item.threaded && $item.comment && $item.indent==comment}}
+			<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" data-display="block" style="display: none;">
+				{{$item.comment nofilter}}
+			</div>
 		{{/if}}
 
-
-		{{* Insert comment box of threaded children *}}
-		{{if $item.threaded}}{{if $item.comment}}{{if $item.indent==comment}}
-		<div class="wall-item-comment-wrapper" id="item-comments-{{$item.id}}" style="display: none;">
-			{{$item.comment nofilter}}
-		</div>
-		{{/if}}{{/if}}{{/if}}
-
+		{{if $item.thread_level!=1}}
+		</div><!--./media-body from for comments-->
+		{{/if}}
 
 		{{foreach $item.children as $child}}
 			{{*
@@ -409,32 +411,21 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* Insert the comment box of the top level post at the bottom of the thread.
 			Display this comment box if there are any comments. If not hide it. In this
 			case it could be opend with the "comment" button *}}
-		{{if $item.total_comments_num}}
-			{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
-			{{/if}}{{/if}}{{/if}}
-
-			{{if $item.flatten}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}">{{$item.comment nofilter}}</div>
+		{{if $item.comment && $item.thread_level==1}}
+			{{if $item.total_comments_num}}
+			<div class="comment-fake-form" id="comment-fake-form-{{$item.id}}">
+				<textarea id="comment-fake-text-{{$item.id}}" class="comment-fake-text-empty form-control" placeholder="{{$item.reply_label}}" onFocus="commentOpenUI(this, {{$item.id}});"  rows="1"></textarea>
+			</div>
 			{{/if}}
-		{{else}}
-			{{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
-			{{/if}}{{/if}}{{/if}}
-
-			{{if $item.flatten}}
-				<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" style="display: none;">{{$item.comment nofilter}}</div>
-			{{/if}}
+			<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment nofilter}}</div>
 		{{/if}}
 	</div><!-- /media -->
 </div><!-- ./panel-body or ./wall-item-container -->
-
 
 {{if $mode == display}}
 {{else}}
 {{if $item.comment_lastcollapsed}}</div>{{/if}}
 {{/if}}
-
 
 {{* close the comment-container div if no more thread_level = 2 children are left *}}
 {{if $item.thread_level==2 && $top_child_nr==$top_child_total}}

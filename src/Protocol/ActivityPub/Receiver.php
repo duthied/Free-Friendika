@@ -62,16 +62,16 @@ class Receiver
 	{
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if (empty($http_signer)) {
-			Logger::log('Invalid HTTP signature, message will be discarded.', Logger::DEBUG);
+			Logger::warning('Invalid HTTP signature, message will be discarded.');
 			return;
 		} else {
-			Logger::log('HTTP signature is signed by ' . $http_signer, Logger::DEBUG);
+			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
 		}
 
 		$activity = json_decode($body, true);
 
 		if (empty($activity)) {
-			Logger::log('Invalid body.', Logger::DEBUG);
+			Logger::warning('Invalid body.');
 			return;
 		}
 
@@ -79,7 +79,7 @@ class Receiver
 
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor');
 
-		Logger::log('Message for user ' . $uid . ' is from actor ' . $actor, Logger::DEBUG);
+		Logger::info('Message for user ' . $uid . ' is from actor ' . $actor);
 
 		if (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);

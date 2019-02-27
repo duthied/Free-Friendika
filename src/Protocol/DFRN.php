@@ -119,7 +119,9 @@ class DFRN
 			$item["entry:cid"] = defaults($item, "entry:cid", 0);
 
 			$entry = self::entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
-			$root->appendChild($entry);
+			if (isset($entry)) {
+				$root->appendChild($entry);
+			}
 		}
 
 		return trim($doc->saveXML());
@@ -323,7 +325,9 @@ class DFRN
 			}
 
 			$entry = self::entry($doc, $type, $item, $owner, true);
-			$root->appendChild($entry);
+			if (isset($entry)) {
+				$root->appendChild($entry);
+			}
 		}
 
 		$atom = trim($doc->saveXML());
@@ -390,7 +394,9 @@ class DFRN
 
 			foreach ($items as $item) {
 				$entry = self::entry($doc, $type, $item, $owner, true, 0);
-				$root->appendChild($entry);
+				if (isset($entry)) {
+					$root->appendChild($entry);
+				}
 			}
 		} else {
 			$root = self::entry($doc, $type, $item, $owner, true, 0, true);
@@ -763,31 +769,33 @@ class DFRN
 	 */
 	private static function addEntryAuthor(DOMDocument $doc, $element, $contact_url, $item)
 	{
-		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
-
 		$author = $doc->createElement($element);
-		XML::addElement($doc, $author, "name", $contact["name"]);
-		XML::addElement($doc, $author, "uri", $contact["url"]);
-		XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
 
-		/// @Todo
-		/// - Check real image type and image size
-		/// - Check which of these boths elements we should use
-		$attributes = [
+		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
+		if (!empty($contact)) {
+			XML::addElement($doc, $author, "name", $contact["name"]);
+			XML::addElement($doc, $author, "uri", $contact["url"]);
+			XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
+
+			/// @Todo
+			/// - Check real image type and image size
+			/// - Check which of these boths elements we should use
+			$attributes = [
 				"rel" => "photo",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]];
-		XML::addElement($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
 
-		$attributes = [
+			$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]];
-		XML::addElement($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
+		}
 
 		return $author;
 	}
@@ -906,7 +914,7 @@ class DFRN
 	 * @param int         $cid     Contact ID of the recipient
 	 * @param bool        $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
-	 * @return \DOMElement XML entry object
+	 * @return null|\DOMElement XML entry object
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Find proper type-hints
@@ -916,7 +924,8 @@ class DFRN
 		$mentioned = [];
 
 		if (!$item['parent']) {
-			return;
+			Logger::notice('Item without parent found.', ['type' => $type, 'item' => $item]);
+			return null;
 		}
 
 		if ($item['deleted']) {
@@ -1546,7 +1555,7 @@ class DFRN
 			$author["network"] = $contact_old["network"];
 		} else {
 			if (!$onlyfetch) {
-				Logger::log("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml, Logger::DEBUG);
+				Logger::debug("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml);
 			}
 
 			$author["contact-unknown"] = true;
@@ -1596,6 +1605,7 @@ class DFRN
 
 		if (empty($author['avatar'])) {
 			Logger::log('Empty author: ' . $xml);
+			$author['avatar'] = '';
 		}
 
 		if (DBA::isResult($contact_old) && !$onlyfetch) {

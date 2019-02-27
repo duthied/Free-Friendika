@@ -37,9 +37,13 @@ class Update
 		}
 
 		if ($build < DB_UPDATE_VERSION) {
-			// When we cannot execute the database update via the worker, we will do it directly
-			if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
+			if ($via_worker) {
+				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
+				// This is a fallback, since normally the database update will be performed by a worker job.
+				// This worker job doesn't work for changes to the "workerqueue" table itself.
 				self::run($basePath);
+			} else {
+				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
 			}
 		}
 	}
@@ -48,19 +52,20 @@ class Update
 	 * Automatic database updates
 	 *
 	 * @param string $basePath The base path of this application
-	 * @param bool $force      Force the Update-Check even if the lock is set
+	 * @param bool $force      Force the Update-Check even if the database version doesn't match
+	 * @param bool $override   Overrides any running/stuck updates
 	 * @param bool $verbose    Run the Update-Check verbose
 	 * @param bool $sendMail   Sends a Mail to the administrator in case of success/failure
 	 *
 	 * @return string Empty string if the update is successful, error messages otherwise
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function run($basePath, $force = false, $verbose = false, $sendMail = true)
+	public static function run($basePath, $force = false, $override = false, $verbose = false, $sendMail = true)
 	{
 		// In force mode, we release the dbupdate lock first
 		// Necessary in case of an stuck update
-		if ($force) {
-			Lock::release('dbupdate');
+		if ($override) {
+			Lock::release('dbupdate', true);
 		}
 
 		$build = Config::get('system', 'build');
@@ -70,12 +75,12 @@ class Update
 			Config::set('system', 'build', $build);
 		}
 
-		if ($build != DB_UPDATE_VERSION) {
+		if ($build != DB_UPDATE_VERSION || $force) {
 			require_once 'update.php';
 
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
-			if ($stored < $current) {
+			if ($stored < $current || $force) {
 				Config::load('database');
 
 				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
@@ -94,7 +99,7 @@ class Update
 
 					// update the structure in one call
 					$retval = DBStructure::update($basePath, $verbose, true);
-					if ($retval) {
+					if (!empty($retval)) {
 						if ($sendMail) {
 							self::updateFailed(
 								DB_UPDATE_VERSION,
@@ -126,8 +131,6 @@ class Update
 					Lock::release('dbupdate');
 				}
 			}
-		} elseif ($force) {
-			DBStructure::update($basePath, $verbose, true);
 		}
 
 		return '';

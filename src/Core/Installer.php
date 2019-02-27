@@ -6,11 +6,12 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\Core\Config\ConfigCache;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 
 /**
@@ -357,6 +358,7 @@ class Installer
 	 * - mb_string
 	 * - XML
 	 * - iconv
+	 * - fileinfo
 	 * - POSIX
 	 *
 	 * @return bool false if something required failed
@@ -448,6 +450,13 @@ class Installer
 		$status = $this->checkFunction('json_encode',
 			L10n::t('JSON PHP module'),
 			L10n::t('Error: JSON PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('finfo_open',
+			L10n::t('File Information PHP module'),
+			L10n::t('Error: File Information PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
@@ -582,7 +591,9 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
-	 * @param ConfigCache $configCache The configuration cache
+	 * @param string       $basePath    The basepath of this call
+	 * @param IConfigCache $configCache The configuration cache
+	 * @param Profiler    $profiler    The profiler of this app
 	 * @param string $dbhost           Hostname/IP of the Friendica Database
 	 * @param string $dbuser           Username of the Database connection credentials
 	 * @param string $dbpass           Password of the Database connection credentials
@@ -591,9 +602,9 @@ class Installer
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB(ConfigCache $configCache, $dbhost, $dbuser, $dbpass, $dbdata)
+	public function checkDB($basePath, IConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
 	{
-		if (!DBA::connect($configCache, $dbhost, $dbuser, $dbpass, $dbdata)) {
+		if (!DBA::connect($basePath, $configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 
 			return false;

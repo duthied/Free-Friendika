@@ -10,7 +10,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Factory;
-use Friendica\Util\BasePath;
 
 // Get options
 $shortopts = 'sn';
@@ -31,12 +30,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$basedir = BasePath::create(dirname(__DIR__), $_SERVER);
-$configLoader = new Config\ConfigCacheLoader($basedir);
-$config = Factory\ConfigFactory::createCache($configLoader);
-$logger = Factory\LoggerFactory::create('worker', $config);
-
-$a = new App($config, $logger);
+$a = Factory\DependencyFactory::setUp('worker', dirname(__DIR__));
 
 // Check the database structure and possibly fixes it
 Update::check($a->getBasePath(), true);

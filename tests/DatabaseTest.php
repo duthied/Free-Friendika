@@ -5,10 +5,11 @@
 
 namespace Friendica\Test;
 
-use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Database\DBA;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
+use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
@@ -39,12 +40,16 @@ abstract class DatabaseTest extends MockedTest
 			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
 		}
 
-		$basedir = BasePath::create(dirname(__DIR__));
-		$configLoader = new Config\ConfigCacheLoader($basedir);
+		$basePath = BasePath::create(dirname(__DIR__));
+		$configLoader = new Cache\ConfigCacheLoader($basePath);
 		$config = Factory\ConfigFactory::createCache($configLoader);
 
+		$profiler = \Mockery::mock(Profiler::class);
+
 		DBA::connect(
+			$basePath,
 			$config,
+			$profiler,
 			getenv('MYSQL_HOST'),
 			getenv('MYSQL_USERNAME'),
 			getenv('MYSQL_PASSWORD'),

@@ -90,19 +90,14 @@ class ModeTest extends MockedTest
 		$this->mockConnected(true, 1);
 		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', true, 1);
 
-		$config = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$config = \Mockery::mock(Config\Configuration::class);
 		$config
 			->shouldReceive('get')
-			->with('system', 'maintenance', null)
+			->with('system', 'maintenance', null, false)
 			->andReturn(true)
 			->once();
 		// Initialize empty Config
 		Config::init($config);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\IConfigAdapter');
-		$configAdapter
-			->shouldReceive('isConnected')
-			->andReturn(false);
-		Config::setAdapter($configAdapter);
 
 		$mode = new Mode($this->root->url());
 		$mode->determine();
@@ -123,19 +118,14 @@ class ModeTest extends MockedTest
 		$this->mockConnected(true, 1);
 		$this->mockFetchFirst('SHOW TABLES LIKE \'config\'', true, 1);
 
-		$config = \Mockery::mock('Friendica\Core\Config\ConfigCache');
+		$config = \Mockery::mock(Config\Configuration::class);
 		$config
 			->shouldReceive('get')
-			->with('system', 'maintenance', null)
+			->with('system', 'maintenance', null, false)
 			->andReturn(false)
 			->once();
 		// Initialize empty Config
 		Config::init($config);
-		$configAdapter = \Mockery::mock('Friendica\Core\Config\IConfigAdapter');
-		$configAdapter
-			->shouldReceive('isConnected')
-			->andReturn(false);
-		Config::setAdapter($configAdapter);
 
 		$mode = new Mode($this->root->url());
 		$mode->determine();

@@ -1,9 +1,9 @@
 <?php
 
-namespace Friendica\Test\Core\Config;
+namespace Friendica\Test\Core\Config\Cache;
 
-use Friendica\Core\Config\ConfigCache;
-use Friendica\Core\Config\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use org\bovigo\vfs\vfsStream;
@@ -17,19 +17,6 @@ class ConfigCacheLoaderTest extends MockedTest
 		parent::setUp();
 
 		$this->setUpVfsDir();
-	}
-
-	/**
-	 * Test the loadConfigFiles() method with default values
-	 */
-	public function testLoadConfigFiles()
-	{
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
-		$configCache = new ConfigCache();
-
-		$configCacheLoader->loadConfigFiles($configCache);
-
-		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
 
 	/**
@@ -59,6 +46,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
@@ -93,6 +81,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
 			'config' . DIRECTORY_SEPARATOR .
 			'local.ini.php';
@@ -122,6 +111,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
@@ -160,6 +150,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		vfsStream::create($structure, $this->root);
 
 		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
+			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .

@@ -8,11 +8,12 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Config\ConfigCache;
-use Friendica\Core\Config\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
-use Friendica\Factory\ConfigFactory;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -53,8 +54,6 @@ class App
 	public $identities;
 	public $is_mobile = false;
 	public $is_tablet = false;
-	public $performance = [];
-	public $callstack = [];
 	public $theme_info = [];
 	public $category;
 	// Allow themes to control internal parameters
@@ -110,23 +109,28 @@ class App
 	public $mobileDetect;
 
 	/**
-	 * @var LoggerInterface The current logger of this App
-	 */
-	private $logger;
-
-	/**
-	 * @var ConfigCache The cached config
+	 * @var Configuration The config
 	 */
 	private $config;
 
 	/**
+	 * @var LoggerInterface The logger
+	 */
+	private $logger;
+
+	/**
+	 * @var Profiler The profiler of this app
+	 */
+	private $profiler;
+
+	/**
 	 * Returns the current config cache of this node
 	 *
-	 * @return ConfigCache
+	 * @return IConfigCache
 	 */
-	public function getConfig()
+	public function getConfigCache()
 	{
-		return $this->config;
+		return $this->config->getCache();
 	}
 
 	/**
@@ -137,6 +141,26 @@ class App
 	public function getBasePath()
 	{
 		return $this->basePath;
+	}
+
+	/**
+	 * The Logger of this app
+	 *
+	 * @return LoggerInterface
+	 */
+	public function getLogger()
+	{
+		return $this->logger;
+	}
+
+	/**
+	 * The profiler of this app
+	 *
+	 * @return Profiler
+	 */
+	public function getProfiler()
+	{
+		return $this->profiler;
 	}
 
 	/**
@@ -173,7 +197,6 @@ class App
 		$this->footerScripts[] = trim($url, '/');
 	}
 
-	public $process_id;
 	public $queue;
 	private $scheme;
 	private $hostname;
@@ -181,48 +204,33 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param ConfigCache      $config    The Cached Config
-	 * @param LoggerInterface  $logger    Logger of this application
+	 * @param string           $basePath   The basedir of the app
+	 * @param Configuration    $config    The Configuration
+	 * @param LoggerInterface  $logger    The current app logger
+	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(ConfigCache $config, LoggerInterface $logger, $isBackend = true)
+	public function __construct($basePath, Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
-		$this->config   = $config;
+		BaseObject::setApp($this);
+
 		$this->logger   = $logger;
-		$this->basePath = $this->config->get('system', 'basepath');
+		$this->config   = $config;
+		$this->profiler = $profiler;
+		$cfgBasePath = $this->config->get('system', 'basepath');
+		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
 
 		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
-			throw new Exception('Basepath ' . $this->basePath . ' isn\'t usable.');
+			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');
 		}
 		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);
-
-		BaseObject::setApp($this);
 
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
 
-		$this->performance['start'] = microtime(true);
-		$this->performance['database'] = 0;
-		$this->performance['database_write'] = 0;
-		$this->performance['cache'] = 0;
-		$this->performance['cache_write'] = 0;
-		$this->performance['network'] = 0;
-		$this->performance['file'] = 0;
-		$this->performance['rendering'] = 0;
-		$this->performance['parser'] = 0;
-		$this->performance['marktime'] = 0;
-		$this->performance['markstart'] = microtime(true);
-
-		$this->callstack['database'] = [];
-		$this->callstack['database_write'] = [];
-		$this->callstack['cache'] = [];
-		$this->callstack['cache_write'] = [];
-		$this->callstack['network'] = [];
-		$this->callstack['file'] = [];
-		$this->callstack['rendering'] = [];
-		$this->callstack['parser'] = [];
+		$this->profiler->reset();
 
 		$this->mode = new App\Mode($this->basePath);
 
@@ -342,60 +350,29 @@ class App
 	}
 
 	/**
-	 * Returns the Logger of the Application
-	 *
-	 * @return LoggerInterface The Logger
-	 * @throws InternalServerErrorException when the logger isn't created
-	 */
-	public function getLogger()
-	{
-		if (empty($this->logger)) {
-			throw new InternalServerErrorException('Logger of the Application is not defined');
-		}
-
-		return $this->logger;
-	}
-
-	/**
 	 * Reloads the whole app instance
 	 */
 	public function reload()
 	{
-		Core\Config::init($this->config);
-		Core\PConfig::init($this->config);
-
-		$this->loadDatabase();
-
-		$this->getMode()->determine($this->basePath);
-
 		$this->determineURLPath();
 
-		if ($this->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			$adapterType = $this->config->get('system', 'config_adapter');
-			$adapter = ConfigFactory::createConfig($adapterType, $this->config);
-			Core\Config::setAdapter($adapter);
-			$adapterP = ConfigFactory::createPConfig($adapterType, $this->config);
-			Core\PConfig::setAdapter($adapterP);
-			Core\Config::load();
-		}
-
-		// again because DB-config could change the config
 		$this->getMode()->determine($this->basePath);
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			Core\Hook::loadHooks();
 			$loader = new ConfigCacheLoader($this->basePath);
+			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
+
+			$this->profiler->update(
+				$this->config->get('system', 'profiler', false),
+				$this->config->get('rendertime', 'callstack', false));
+
+			Core\Hook::loadHooks();
 			Core\Hook::callAll('load_config', $loader);
-			$this->config->loadConfigArray($loader->loadCoreConfig('addon'), true);
 		}
 
 		$this->loadDefaultTimezone();
 
 		Core\L10n::init();
-
-		$this->process_id = Core\System::processID('log');
-
-		Core\Logger::setLogger($this->logger);
 	}
 
 	/**
@@ -424,16 +401,25 @@ class App
 	 */
 	private function determineURLPath()
 	{
+		/*
+		 * The automatic path detection in this function is currently deactivated,
+		 * see issue https://github.com/friendica/friendica/issues/6679
+		 *
+		 * The problem is that the function seems to be confused with some url.
+		 * These then confuses the detection which changes the url path.
+		 */
+
 		/* Relative script path to the web server root
 		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
 		 */
+/*
 		$relative_script_path = '';
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URL'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
-
+*/
 		$this->urlPath = $this->config->get('system', 'urlpath');
 
 		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
@@ -441,6 +427,7 @@ class App
 		 *
 		 * To get /relative/path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
+/*
 		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($_SERVER['QUERY_STRING'])) {
@@ -454,49 +441,7 @@ class App
 				$this->urlPath = $path;
 			}
 		}
-	}
-
-	public function loadDatabase()
-	{
-		if (DBA::connected()) {
-			return;
-		}
-
-		$db_host = $this->config->get('database', 'hostname');
-		$db_user = $this->config->get('database', 'username');
-		$db_pass = $this->config->get('database', 'password');
-		$db_data = $this->config->get('database', 'database');
-		$charset = $this->config->get('database', 'charset');
-
-		// Use environment variables for mysql if they are set beforehand
-		if (!empty(getenv('MYSQL_HOST'))
-			&& !empty(getenv('MYSQL_USERNAME') || !empty(getenv('MYSQL_USER')))
-			&& getenv('MYSQL_PASSWORD') !== false
-			&& !empty(getenv('MYSQL_DATABASE')))
-		{
-			$db_host = getenv('MYSQL_HOST');
-			if (!empty(getenv('MYSQL_PORT'))) {
-				$db_host .= ':' . getenv('MYSQL_PORT');
-			}
-			if (!empty(getenv('MYSQL_USERNAME'))) {
-				$db_user = getenv('MYSQL_USERNAME');
-			} else {
-				$db_user = getenv('MYSQL_USER');
-			}
-			$db_pass = (string) getenv('MYSQL_PASSWORD');
-			$db_data = getenv('MYSQL_DATABASE');
-		}
-
-		$stamp1 = microtime(true);
-
-		if (DBA::connect($this->config, $db_host, $db_user, $db_pass, $db_data, $charset)) {
-			// Loads DB_UPDATE_VERSION constant
-			Database\DBStructure::definition($this->basePath, false);
-		}
-
-		unset($db_host, $db_user, $db_pass, $db_data, $charset);
-
-		$this->saveTimestamp($stamp1, 'network');
+*/
 	}
 
 	public function getScheme()
@@ -663,8 +608,6 @@ class App
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem'         => Core\L10n::t('Delete this item?'),
-			'$showmore'        => Core\L10n::t('show more'),
-			'$showfewer'       => Core\L10n::t('show fewer'),
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
@@ -740,41 +683,6 @@ class App
 		} else {
 			return $url;
 		}
-	}
-
-	/**
-	 * Saves a timestamp for a value - f.e. a call
-	 * Necessary for profiling Friendica
-	 *
-	 * @param int $timestamp the Timestamp
-	 * @param string $value A value to profile
-	 */
-	public function saveTimestamp($timestamp, $value)
-	{
-		$profiler = $this->config->get('system', 'profiler');
-
-		if (!isset($profiler) || !$profiler) {
-			return;
-		}
-
-		$duration = (float) (microtime(true) - $timestamp);
-
-		if (!isset($this->performance[$value])) {
-			// Prevent ugly E_NOTICE
-			$this->performance[$value] = 0;
-		}
-
-		$this->performance[$value] += (float) $duration;
-		$this->performance['marktime'] += (float) $duration;
-
-		$callstack = Core\System::callstack();
-
-		if (!isset($this->callstack[$value][$callstack])) {
-			// Prevent ugly E_NOTICE
-			$this->callstack[$value][$callstack] = 0;
-		}
-
-		$this->callstack[$value][$callstack] += (float) $duration;
 	}
 
 	/**
@@ -1227,7 +1135,7 @@ class App
 		if (!$this->isBackend()) {
 			$stamp1 = microtime(true);
 			session_start();
-			$this->saveTimestamp($stamp1, 'parser');
+			$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
 			Core\L10n::setSessionVariable();
 			Core\L10n::setLangFromSession();
 		} else {

@@ -68,7 +68,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			Logger::log('normalise error:' . print_r($e, true), Logger::DEBUG);
+			Logger::log('normalise error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
 		return $normalized;
@@ -115,7 +115,7 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::log('compacting error:' . print_r($e, true), Logger::DEBUG);
+			Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);

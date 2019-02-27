@@ -388,19 +388,6 @@ function showHide(theID) {
 	}
 }
 
-function showHideComments(id) {
-	if( $('#collapsed-comments-' + id).is(':visible')) {
-		$('#collapsed-comments-' + id).slideUp();
-		$('#hide-comments-' + id).html(window.showMore);
-		$('#hide-comments-total-' + id).show();
-	}
-	else {
-		$('#collapsed-comments-' + id).slideDown();
-		$('#hide-comments-' + id).html(window.showFewer);
-		$('#hide-comments-total-' + id).hide();
-	}
-}
-
 // Show & hide event map in the network stream by button click.
 function showHideEventMap(elm) {
 	// Get the id of the map element - it should be provided through

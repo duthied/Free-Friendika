@@ -232,6 +232,11 @@ class Contact extends BaseObject
 		}
 
 		DBA::update('user-contact', ['blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
+
+		if ($blocked) {
+			// Blocked contact can't be in any group
+			self::removeFromGroups($cid);
+		}
 	}
 
 	/**
@@ -1001,7 +1006,7 @@ class Contact extends BaseObject
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self']) {
 			$sparkle = true;
-			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
+			$profile_link = System::baseUrl() . '/redir/' . $contact['id'] . '?url=' . $contact['url'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -1011,9 +1016,9 @@ class Contact extends BaseObject
 		}
 
 		if ($sparkle) {
-			$status_link = $profile_link . '?url=status';
-			$photos_link = $profile_link . '?url=photos';
-			$profile_link = $profile_link . '?url=profile';
+			$status_link = $profile_link . '?tab=status';
+			$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+			$profile_link = $profile_link . '?tab=profile';
 		}
 
 		if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && !$contact['self']) {
@@ -2184,7 +2189,7 @@ class Contact extends BaseObject
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 
-		return self::magicLinkbyContact($contact, $url);
+		return self::magicLinkByContact($contact, $url);
 	}
 
 	/**
@@ -2197,7 +2202,7 @@ class Contact extends BaseObject
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function magicLinkbyContact($contact, $url = '')
+	public static function magicLinkByContact($contact, $url = '')
 	{
 		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
@@ -2219,5 +2224,10 @@ class Contact extends BaseObject
 		}
 
 		return $redirect;
+	}
+
+	public static function removeFromGroups($contact_id)
+	{
+		return DBA::delete('group_member', ['contact-id' => $contact_id]);
 	}
 }

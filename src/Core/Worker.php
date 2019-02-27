@@ -8,6 +8,7 @@ use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Logger\WorkerLogger;
 use Friendica\Util\Network;
 
 /**
@@ -360,39 +361,19 @@ class Worker
 	{
 		$a = \get_app();
 
-		$mypid = getmypid();
-
 		$argc = count($argv);
 
-		// Currently deactivated, since the new logger doesn't support this
-		//$new_process_id = System::processID("wrk");
-		$new_process_id = '';
+		$logger = $a->getLogger();
+		$workerLogger = new WorkerLogger($logger, $funcname);
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." ".$queue["parameter"]." - Process PID: ".$new_process_id);
+		$workerLogger ->info("Process start.", ['priority' => $queue["priority"], 'id' => $queue["id"]]);
 
 		$stamp = (float)microtime(true);
 
 		// We use the callstack here to analyze the performance of executed worker entries.
 		// For this reason the variables have to be initialized.
-		if (Config::get("system", "profiler")) {
-			$a->performance["start"] = microtime(true);
-			$a->performance["database"] = 0;
-			$a->performance["database_write"] = 0;
-			$a->performance["cache"] = 0;
-			$a->performance["cache_write"] = 0;
-			$a->performance["network"] = 0;
-			$a->performance["file"] = 0;
-			$a->performance["rendering"] = 0;
-			$a->performance["parser"] = 0;
-			$a->performance["marktime"] = 0;
-			$a->performance["markstart"] = microtime(true);
-			$a->callstack = [];
-		}
+		$a->getProfiler()->reset();
 
-		// For better logging create a new process id for every worker call
-		// But preserve the old one for the worker
-		$old_process_id = $a->process_id;
-		$a->process_id = $new_process_id;
 		$a->queue = $queue;
 
 		$up_duration = microtime(true) - self::$up_start;
@@ -400,13 +381,15 @@ class Worker
 		// Reset global data to avoid interferences
 		unset($_SESSION);
 
+		// Set the workerLogger as new default logger
+		Logger::init($workerLogger);
 		if ($method_call) {
 			call_user_func_array(sprintf('Friendica\Worker\%s::execute', $funcname), $argv);
 		} else {
 			$funcname($argv, $argc);
 		}
+		Logger::init($logger);
 
-		$a->process_id = $old_process_id;
 		unset($a->queue);
 
 		$duration = (microtime(true) - $stamp);
@@ -425,7 +408,7 @@ class Worker
 		$rest    = round(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 2);
 		$exec    = round($duration, 2);
 
-		Logger::info('Performance:', ['mode' => self::$mode, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
+		$logger->info('Performance log.', ['mode' => self::$mode, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
@@ -436,92 +419,23 @@ class Worker
 		self::$mode = 2;
 
 		if ($duration > 3600) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 1 hour (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 1 hour.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 600) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 10 minutes (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 10 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 300) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 5 minutes (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 5 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		} elseif ($duration > 120) {
-			Logger::log("Prio ".$queue["priority"].": ".$queue["parameter"]." - longer than 2 minutes (".round($duration/60, 3).")", Logger::DEBUG);
+			$logger->info('Longer than 2 minutes.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   round($duration/60, 3)]);
 		}
 
-		Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - done in ".number_format($duration, 4)." seconds. Process PID: ".$new_process_id);
+		$workerLogger->info('Process done. ', ['priority' => $queue["priority"], 'id' => $queue["id"], 'duration' =>   number_format($duration, 4)]);
 
-		// Write down the performance values into the log
-		if (Config::get("system", "profiler")) {
-			$duration = microtime(true)-$a->performance["start"];
-
-			$o = '';
-			if (Config::get("rendertime", "callstack")) {
-				if (isset($a->callstack["database"])) {
-					$o .= "\nDatabase Read:\n";
-					foreach ($a->callstack["database"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["database_write"])) {
-					$o .= "\nDatabase Write:\n";
-					foreach ($a->callstack["database_write"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["dache"])) {
-					$o .= "\nCache Read:\n";
-					foreach ($a->callstack["dache"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["dache_write"])) {
-					$o .= "\nCache Write:\n";
-					foreach ($a->callstack["dache_write"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-				if (isset($a->callstack["network"])) {
-					$o .= "\nNetwork:\n";
-					foreach ($a->callstack["network"] as $func => $time) {
-						$time = round($time, 3);
-						if ($time > 0) {
-							$o .= $func.": ".$time."\n";
-						}
-					}
-				}
-			}
-
-			Logger::log(
-				"ID ".$queue["id"].": ".$funcname.": ".sprintf(
-					"DB: %s/%s, Cache: %s/%s, Net: %s, I/O: %s, Other: %s, Total: %s".$o,
-					number_format($a->performance["database"] - $a->performance["database_write"], 2),
-					number_format($a->performance["database_write"], 2),
-					number_format($a->performance["cache"], 2),
-					number_format($a->performance["cache_write"], 2),
-					number_format($a->performance["network"], 2),
-					number_format($a->performance["file"], 2),
-					number_format($duration - ($a->performance["database"]
-						+ $a->performance["cache"] + $a->performance["cache_write"]
-						+ $a->performance["network"] + $a->performance["file"]), 2),
-					number_format($duration, 2)
-				),
-				Logger::DEBUG
-			);
-		}
+		$a->getProfiler()->saveLog($a->getLogger(), "ID " . $queue["id"] . ": " . $funcname);
 
 		$cooldown = Config::get("system", "worker_cooldown", 0);
 
 		if ($cooldown > 0) {
-			Logger::log("Process ".$mypid." - Prio ".$queue["priority"]." - ID ".$queue["id"].": ".$funcname." - in cooldown for ".$cooldown." seconds");
+			$logger->info('Cooldown.', ['priority' => $queue["priority"], 'id' => $queue["id"], 'cooldown' => $cooldown]);
 			sleep($cooldown);
 		}
 	}
@@ -943,7 +857,7 @@ class Worker
 		}
 
 		if (!empty($waiting)) {
-			$priority =  array_shift(array_keys($waiting));
+			$priority = array_keys($waiting)[0];
 			Logger::info('No underassigned priority found, now taking the highest priority.', ['priority' => $priority]);
 			return $priority;
 		}

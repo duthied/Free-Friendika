@@ -375,9 +375,6 @@ header #site-location {
 header #banner {
     position: fixed;
     top: 0px;
-/*    width: 33%;
-    margin-left: 33%;
-    margin-right: 33%;*/
     left:49%;
     right: 49%;
     z-index: 1040;
@@ -393,8 +390,6 @@ header #banner {
 }
 header #banner #logo-img,
 .navbar-brand #logo-img {
-    /*mask: url('network#m1');*/
-    /*mask-image: url('img/friendica-25.png');*/
     -webkit-mask-image: url('img/friendica-25.png');
     background-color: $nav_icon_color;
     height: 25px;
@@ -1669,7 +1664,13 @@ aside .panel-body {
 
 /* wall items */
 .wall-item-container {
-    position: relative;
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 0.5em;
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.wall-item-container .media {
+    margin-top: 0;
 }
 
 /* wall items contact photo */
@@ -1914,12 +1915,13 @@ code > .hl-main {
 
 /* item social action buttons */
 .wall-item-actions {
-    margin-top: 15px;
+    display: flex;
+    margin: .5em 0;
+    justify-content: space-between;
 }
-.wall-item-actions, .wall-item-actions a, .wall-item-actions button {
+.wall-item-actions a, .wall-item-actions button {
     font-size: 13px;
     color: #555;
-    margin-bottom: 0;
 }
 .wall-item-actions .active {
     font-weight: bold;
@@ -2013,9 +2015,10 @@ code > .hl-main {
     position: relative!important;
     margin-top: 0;
 }
-.hide-comments-outer-wrapper {
-/*    text-align: center;
-    margin-top: -18px;*/
+.hide-comments-outer {
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 0.5em;
+    border-radius: 0.5em 0.5em 0 0;
 }
 .hide-comments-total {
     cursor: pointer;
@@ -2024,21 +2027,37 @@ code > .hl-main {
 /*
 * Comment Box
 */
-.thread_level_2 .wall-item-comment-wrapper {
-    padding-right: 5px;
+
+.comment-fake-form,
+.wall-item-comment-wrapper {
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 0 0 10px 10px;
 }
+
+.comment-fake-form {
+    border-color: #d9d9d9;
+}
+.comment-fake-form textarea {
+    resize: none;
+}
+
+.comment-container .wall-item-comment-wrapper {
+    margin-top: 0.5em;
+}
+
+.comment-edit-form textarea {
+    resize: vertical;
+}
+
 .comment-edit-submit-wrapper {
-    margin-bottom: 25px;
+    text-align: right;
 }
-.comment-edit-submit-wrapper a,
-.comment-edit-submit-wrapper a:hover {
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
-}
-.comment-icon-list > li > .icon,
-.comment-icon-list > li > .icon:hover {
-    color: #555;
-    background-color: transparent;
+
+.comment-icon-list {
+    display: flex;
+    justify-content: space-between;
 }
 
 /* acpopup  + textcompletion*/
@@ -2101,8 +2120,8 @@ img.acpopup-img {
 .wall-item-container.thread_level_5,
 .wall-item-container.thread_level_6,
 .wall-item-container.thread_level_7 {
-  margin-left: 15px;
-
+    margin-left: 15px;
+    margin-right: -0.5em;
 }
 /* Menubar Tabs */
 section > .tabbar-wrapper {
@@ -2291,7 +2310,7 @@ ul.dropdown-menu li:hover {
 .generic-page-wrapper, .profile_photo-content-wrapper, .videos-content-wrapper,
  .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
-.directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
+.manage-content-wrapper, .notes-content-wrapper,
 .message-content-wrapper, .apps-content-wrapper,
 #adminpage, .delegate-content-wrapper, .uexport-content-wrapper,
 .viewcontacts-content-wrapper, .dfrn_request-content-wrapper,
@@ -3595,4 +3614,12 @@ section .profile-match-wrapper {
 	.form-control {
 		font-size: 16px;
 	}
+
+    .wall-item-container.thread_level_3,
+    .wall-item-container.thread_level_4,
+    .wall-item-container.thread_level_5,
+    .wall-item-container.thread_level_6,
+    .wall-item-container.thread_level_7 {
+        margin-left: 5px;
+    }
 }

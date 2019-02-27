@@ -3,9 +3,12 @@
 // this is in the same namespace as Install for mocking 'function_exists'
 namespace Friendica\Core;
 
+use Friendica\Network\CurlResult;
+use Friendica\Object\Image;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\L10nMockTrait;
 use Friendica\Test\Util\VFSTrait;
+use Friendica\Util\Network;
 
 /**
  * @runTestsInSeparateProcesses
@@ -45,6 +48,8 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT('Error: POSIX PHP module required but not installed.', 1);
 		$this->mockL10nT('JSON PHP module', 1);
 		$this->mockL10nT('Error: JSON PHP module required but not installed.', 1);
+		$this->mockL10nT('File Information PHP module', 1);
+		$this->mockL10nT('Error: File Information PHP module required but not installed.', 1);
 	}
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
@@ -193,6 +198,17 @@ class InstallerTest extends MockedTest
 			$install->getChecks());
 
 		$this->mockFunctionL10TCalls();
+		$this->setFunctions(['finfo_open' => false]);
+		$install = new Installer();
+		$this->assertFalse($install->checkFunctions());
+		$this->assertCheckExist(10,
+			'File Information PHP module',
+			'Error: File Information PHP module required but not installed.',
+			false,
+			true,
+			$install->getChecks());
+
+		$this->mockFunctionL10TCalls();
 		$this->setFunctions([
 			'curl_init' => true,
 			'imagecreatefromjpeg' => true,
@@ -200,7 +216,8 @@ class InstallerTest extends MockedTest
 			'mb_strlen' => true,
 			'iconv_strlen' => true,
 			'posix_kill' => true,
-			'json_encode' => true
+			'json_encode' => true,
+			'finfo_open' => true,
 		]);
 		$install = new Installer();
 		$this->assertTrue($install->checkFunctions());
@@ -234,7 +251,7 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT();
 
 		// Mocking the CURL Response
-		$curlResult = \Mockery::mock('Friendica\Network\CurlResult');
+		$curlResult = \Mockery::mock(CurlResult::class);
 		$curlResult
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
@@ -246,7 +263,7 @@ class InstallerTest extends MockedTest
 			->andReturn('test Error');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock('alias:Friendica\Util\Network');
+		$networkMock = \Mockery::mock('alias:' . Network::class);
 		$networkMock
 			->shouldReceive('fetchUrlFull')
 			->with('https://test/install/testrewrite')
@@ -273,19 +290,19 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT();
 
 		// Mocking the failed CURL Response
-		$curlResultF = \Mockery::mock('Friendica\Network\CurlResult');
+		$curlResultF = \Mockery::mock(CurlResult::class);
 		$curlResultF
 			->shouldReceive('getReturnCode')
 			->andReturn('404');
 
 		// Mocking the working CURL Response
-		$curlResultW = \Mockery::mock('Friendica\Network\CurlResult');
+		$curlResultW = \Mockery::mock(CurlResult::class);
 		$curlResultW
 			->shouldReceive('getReturnCode')
 			->andReturn('204');
 
 		// Mocking the CURL Request
-		$networkMock = \Mockery::mock('alias:Friendica\Util\Network');
+		$networkMock = \Mockery::mock('alias:' . Network::class);
 		$networkMock
 			->shouldReceive('fetchUrlFull')
 			->with('https://test/install/testrewrite')
@@ -313,7 +330,7 @@ class InstallerTest extends MockedTest
 	{
 		$this->mockL10nT();
 
-		$imageMock = \Mockery::mock('alias:Friendica\Object\Image');
+		$imageMock = \Mockery::mock('alias:'. Image::class);
 		$imageMock
 			->shouldReceive('supportedTypes')
 			->andReturn(['image/gif' => 'gif']);
@@ -340,7 +357,7 @@ class InstallerTest extends MockedTest
 	{
 		$this->mockL10nT();
 
-		$imageMock = \Mockery::mock('alias:Friendica\Object\Image');
+		$imageMock = \Mockery::mock('alias:' . Image::class);
 		$imageMock
 			->shouldReceive('supportedTypes')
 			->andReturn([]);
