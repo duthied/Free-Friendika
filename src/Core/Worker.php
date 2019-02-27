@@ -416,7 +416,7 @@ class Worker
 		$rest    = round(max(0, $up_duration - (self::$db_duration + self::$lock_duration)), 2);
 		$exec    = round($duration, 2);
 
-		$logger->info('Performance log.', ['state' => self::$state, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
+		$logger->info('Performance:', ['state' => self::$state, 'count' => $dbcount, 'stat' => $dbstat, 'write' => $dbwrite, 'lock' => $dblock, 'total' => $dbtotal, 'rest' => $rest, 'exec' => $exec]);
 
 		self::$up_start = microtime(true);
 		self::$db_duration = 0;
