@@ -404,7 +404,7 @@ class Term
 	{
 		$tag_chars = [];
 		foreach ($types as $type) {
-			if (isset(self::TAG_CHARACTER[$type])) {
+			if (array_key_exists($type, self::TAG_CHARACTER)) {
 				$tag_chars[] = self::TAG_CHARACTER[$type];
 			}
 		}
