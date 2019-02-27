@@ -19,18 +19,18 @@ class SyslogLogger implements LoggerInterface
 	 * Translates LogLevel log levels to syslog log priorities.
 	 */
 	private $logLevels = [
-		LogLevel::DEBUG     => LOG_DEBUG,
-		LogLevel::INFO      => LOG_INFO,
-		LogLevel::NOTICE    => LOG_NOTICE,
-		LogLevel::WARNING   => LOG_WARNING,
-		LogLevel::ERROR     => LOG_ERR,
-		LogLevel::CRITICAL  => LOG_CRIT,
-		LogLevel::ALERT     => LOG_ALERT,
+		LogLevel::DEBUG => LOG_DEBUG,
+		LogLevel::INFO => LOG_INFO,
+		LogLevel::NOTICE => LOG_NOTICE,
+		LogLevel::WARNING => LOG_WARNING,
+		LogLevel::ERROR => LOG_ERR,
+		LogLevel::CRITICAL => LOG_CRIT,
+		LogLevel::ALERT => LOG_ALERT,
 		LogLevel::EMERGENCY => LOG_EMERG,
 	];
 
 	/**
-	 * The standard ident of the syslog (added to each message)
+	 * The channel of the current process (added to each message)
 	 * @var string
 	 */
 	private $channel;
@@ -65,11 +65,9 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * @param string $channel     The output channel
-	 * @param string $level    The minimum loglevel at which this logger will be triggered
+	 * @param string $level       The minimum loglevel at which this logger will be triggered
 	 * @param int    $logOpts     Indicates what logging options will be used when generating a log message
 	 * @param int    $logFacility Used to specify what type of program is logging the message
-	 *
-	 * @throws InternalServerErrorException if the loglevel isn't valid
 	 */
 	public function __construct($channel, Introspection $introspection, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
 	{
@@ -100,9 +98,11 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * Writes a message to the syslog
+	 * @see http://php.net/manual/en/function.syslog.php#refsect1-function.syslog-parameters
 	 *
-	 * @param int    $priority The Priority ( @see http://php.net/manual/en/function.syslog.php#refsect1-function.syslog-parameters )
-	 * @param string $message The message of the log
+	 * @param int    $priority The Priority
+	 * @param string $message  The message of the log
+	 *
 	 * @throws InternalServerErrorException if syslog cannot be used
 	 */
 	private function write($priority, $message)
@@ -125,25 +125,58 @@ class SyslogLogger implements LoggerInterface
 	/**
 	 * Formats a log record for the syslog output
 	 *
-	 * @param int $level The loglevel/priority
+	 * @param int    $level   The loglevel/priority
 	 * @param string $message The message
-	 * @param array $context  The context of this call
+	 * @param array  $context The context of this call
 	 *
 	 * @return string the formatted syslog output
 	 */
 	private function formatLog($level, $message, $context = [])
 	{
-		$logMessage  = '';
+		$logMessage = '';
 
 		$logMessage .= $this->channel . ' ';
 		$logMessage .= '[' . $level . ']: ';
-		$logMessage .= $message . ' ';
-		$logMessage .= json_encode($context) . ' - ';
-		$logMessage .= json_encode($this->introspection->getRecord());
+		$logMessage .= $this->psrInterpolate($message, $context) . ' ';
+		$logMessage .= @json_encode($context) . ' - ';
+		$logMessage .= @json_encode($this->introspection->getRecord());
 
 		return $logMessage;
 	}
 
+	/**
+	 * Simple interpolation of PSR-3 compliant replacements ( between '{' and '}' )
+	 * @see https://www.php-fig.org/psr/psr-3/#12-message
+	 *
+	 * @param string $message
+	 * @param array  $context
+	 *
+	 * @return string the interpolated message
+	 */
+	private function psrInterpolate($message, array $context = array())
+	{
+		$replace = [];
+		foreach ($context as $key => $value) {
+			// check that the value can be casted to string
+			if (!is_array($value) && (!is_object($value) || method_exists($value, '__toString'))) {
+				$replace['{' . $key . '}'] = $value;
+			} elseif (is_array($value)) {
+				$replace['{' . $key . '}'] = @json_encode($value);
+			}
+		}
+
+		return strtr($message, $replace);
+	}
+
+	/**
+	 * Adds a new entry to the syslog
+	 *
+	 * @param int    $level
+	 * @param string $message
+	 * @param array  $context
+	 *
+	 * @throws InternalServerErrorException if the syslog isn't available
+	 */
 	private function addEntry($level, $message, $context = [])
 	{
 		if ($level >= $this->logLevel) {
@@ -156,6 +189,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function emergency($message, array $context = array())
 	{
@@ -164,6 +198,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function alert($message, array $context = array())
 	{
@@ -172,6 +207,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function critical($message, array $context = array())
 	{
@@ -180,6 +216,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function error($message, array $context = array())
 	{
@@ -188,6 +225,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function warning($message, array $context = array())
 	{
@@ -196,6 +234,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function notice($message, array $context = array())
 	{
@@ -204,6 +243,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function info($message, array $context = array())
 	{
@@ -212,6 +252,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function debug($message, array $context = array())
 	{
@@ -220,6 +261,7 @@ class SyslogLogger implements LoggerInterface
 
 	/**
 	 * {@inheritdoc}
+	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
 	public function log($level, $message, array $context = array())
 	{
