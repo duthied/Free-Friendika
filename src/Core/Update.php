@@ -209,8 +209,7 @@ class Update
 	 */
 	private static function updateFailed($update_id, $error_message) {
 		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['`email` IN (%s)', $admin_mail_list]);
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))]);
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
@@ -251,8 +250,7 @@ class Update
 	private static function updateSuccessfull($from_build, $to_build)
 	{
 		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['`email` IN (%s)', $admin_mail_list]);
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))]);
 
 		if (DBA::isResult($adminlist)) {
 			// every admin could had different language
