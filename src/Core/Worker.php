@@ -143,7 +143,7 @@ class Worker
 			}
 
 			// Quit the worker once every cron interval
-			if (time() > ($starttime + Config::get('system', 'cron_interval'))) {
+			if (time() > ($starttime + (Config::get('system', 'cron_interval') * 60))) {
 				Logger::log('Process lifetime reached, respawning.', Logger::DEBUG);
 				self::spawnWorker();
 				return;
