@@ -1738,7 +1738,7 @@ function api_statuses_public_timeline($type)
 	$start = $page * $count;
 
 	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
+		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND NOT `author`.`hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
@@ -1751,7 +1751,7 @@ function api_statuses_public_timeline($type)
 
 		$r = Item::inArray($statuses);
 	} else {
-		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin` AND NOT `author`.`hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
