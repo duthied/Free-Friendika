@@ -22,10 +22,10 @@ use Friendica\Util\Network;
  */
 class Worker
 {
-	const STATE_STARTUP    = 1;
-	const STATE_SHORT_LOOP = 2;
-	const STATE_REFETCH    = 3;
-	const STATE_LONG_LOOP  = 4;
+	const STATE_STARTUP    = 1; // Worker is in startup. This takes most time.
+	const STATE_SHORT_LOOP = 2; // Worker is processing preassigned jobs, thus saving much time.
+	const STATE_REFETCH    = 3; // Worker had refetched jobs in the execution loop.
+	const STATE_LONG_LOOP  = 4; // Worker is processing the whole - long - loop.
 
 	private static $up_start;
 	private static $db_duration = 0;
@@ -144,7 +144,7 @@ class Worker
 
 			// Quit the worker once every cron interval
 			if (time() > ($starttime + (Config::get('system', 'cron_interval') * 60))) {
-				Logger::log('Process lifetime reached, respawning.', Logger::DEBUG);
+				Logger::info('Process lifetime reached, respawning.');
 				self::spawnWorker();
 				return;
 			}
