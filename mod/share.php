@@ -26,7 +26,7 @@ function share_init(App $a) {
 		$o = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
 		if ($item['title']) {
-			$o .= '[b]'.$item['title'].'[/b]'."\n";
+			$o .= '[h3]'.$item['title'].'[/h3]'."\n";
 		}
 
 		$o .= $item['body'];
