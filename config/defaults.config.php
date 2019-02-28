@@ -215,7 +215,7 @@ return [
 		'local_tags' => false,
 
 		// logger_adapter (String)
-		// Sets the logging adapter of Friendica globally (monolog, syslog)
+		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
 		'logger_adapter' => 'monolog',
 
 		// max_batch_queue (Integer)

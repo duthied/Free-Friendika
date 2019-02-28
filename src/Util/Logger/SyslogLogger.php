@@ -86,6 +86,27 @@ class SyslogLogger extends AbstractFriendicaLogger
 	}
 
 	/**
+	 * Adds a new entry to the syslog
+	 *
+	 * @param int    $level
+	 * @param string $message
+	 * @param array  $context
+	 *
+	 * @throws InternalServerErrorException if the syslog isn't available
+	 */
+	protected function addEntry($level, $message, $context = [])
+	{
+		$logLevel = $this->mapLevelToPriority($level);
+
+		if ($logLevel >= $this->logLevel) {
+			return;
+		}
+
+		$formattedLog = $this->formatLog($logLevel, $message, $context);
+		$this->write($logLevel, $formattedLog);
+	}
+
+	/**
 	 * Maps the LogLevel (@see LogLevel ) to a SysLog priority (@see http://php.net/manual/en/function.syslog.php#refsect1-function.syslog-parameters )
 	 *
 	 * @param string $level A LogLevel
@@ -104,6 +125,14 @@ class SyslogLogger extends AbstractFriendicaLogger
 	}
 
 	/**
+	 * Closes the Syslog
+	 */
+	public function close()
+	{
+		closelog();
+	}
+
+	/**
 	 * Writes a message to the syslog
 	 * @see http://php.net/manual/en/function.syslog.php#refsect1-function.syslog-parameters
 	 *
@@ -119,14 +148,6 @@ class SyslogLogger extends AbstractFriendicaLogger
 		}
 
 		syslog($priority, $message);
-	}
-
-	/**
-	 * Closes the Syslog
-	 */
-	public function close()
-	{
-		closelog();
 	}
 
 	/**
@@ -151,26 +172,5 @@ class SyslogLogger extends AbstractFriendicaLogger
 		$logMessage .= @json_encode($record);
 
 		return $logMessage;
-	}
-
-	/**
-	 * Adds a new entry to the syslog
-	 *
-	 * @param int    $level
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	protected function addEntry($level, $message, $context = [])
-	{
-		$logLevel = $this->mapLevelToPriority($level);
-
-		if ($logLevel >= $this->logLevel) {
-			return;
-		}
-
-		$formattedLog = $this->formatLog($level, $message, $context);
-		$this->write($level, $formattedLog);
 	}
 }

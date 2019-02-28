@@ -8,6 +8,7 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Introspection;
 use Friendica\Util\Logger\Monolog\FriendicaDevelopHandler;
 use Friendica\Util\Logger\Monolog\FriendicaIntrospectionProcessor;
+use Friendica\Util\Logger\StreamLogger;
 use Friendica\Util\Logger\SyslogLogger;
 use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Logger\WorkerLogger;
@@ -54,13 +55,18 @@ class LoggerFactory
 		}
 
 		$introspection = new Introspection(self::$ignoreClassList);
+		$level = $config->get('system', 'loglevel');
 
 		switch ($config->get('system', 'logger_adapter', 'monolog')) {
-			case 'syslog':
-				$level = $config->get('system', 'loglevel');
 
+			case 'syslog':
 				$logger = new SyslogLogger($channel, $introspection, $profiler, $level);
 				break;
+
+			case 'stream':
+				$logger = new StreamLogger($channel, $introspection, $profiler, $level);
+				break;
+
 			case 'monolog':
 			default:
 				$loggerTimeZone = new \DateTimeZone('UTC');
@@ -73,7 +79,6 @@ class LoggerFactory
 				$logger->pushProcessor(new FriendicaIntrospectionProcessor($introspection, LogLevel::DEBUG));
 
 				$stream = $config->get('system', 'logfile');
-				$level  = $config->get('system', 'loglevel');
 
 				$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
 				static::addStreamHandler($logger, $stream, $loglevel);

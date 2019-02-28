@@ -6,13 +6,20 @@ use Friendica\Util\Introspection;
 use Friendica\Util\Profiler;
 
 /**
- * A Logger instance for logging into a stream
+ * A Logger instance for logging into a stream (file, stdout, stderr)
  */
 class StreamLogger extends AbstractFriendicaLogger
 {
-	public function __construct($channel, Introspection $introspection, Profiler $profiler)
+	/**
+	 * The minimum loglevel at which this logger will be triggered
+	 * @var string
+	 */
+	private $logLevel;
+
+	public function __construct($channel, Introspection $introspection, Profiler $profiler, $level)
 	{
 		parent::__construct($channel, $introspection, $profiler);
+		$this->logLevel = $level;
 	}
 
 	/**
