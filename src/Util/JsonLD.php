@@ -35,7 +35,7 @@ class JsonLD
 		}
 
 		if ($recursion > 5) {
-			Logger::log('jsonld bomb detected at: ' . $url);
+			Logger::error('jsonld bomb detected at: ' . $url);
 			exit();
 		}
 
@@ -68,7 +68,9 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			Logger::log('normalise error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
+			Logger::error('normalise error');
+			// Sooner or later we should log some details as well - but currently this leads to memory issues
+			// Logger::log('normalise error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
 		return $normalized;
@@ -115,7 +117,9 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
+			Logger::error('compacting error');
+			// Sooner or later we should log some details as well - but currently this leads to memory issues
+			// Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
