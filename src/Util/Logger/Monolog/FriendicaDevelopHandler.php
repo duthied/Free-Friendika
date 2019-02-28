@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Util\Logger;
+namespace Friendica\Util\Logger\Monolog;
 
 use Monolog\Handler;
 use Monolog\Logger;

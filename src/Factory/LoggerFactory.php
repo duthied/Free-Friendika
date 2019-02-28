@@ -5,8 +5,9 @@ namespace Friendica\Factory;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\Logger\FriendicaDevelopHandler;
-use Friendica\Util\Logger\Introspection;
+use Friendica\Util\Introspection;
+use Friendica\Util\Logger\Monolog\FriendicaDevelopHandler;
+use Friendica\Util\Logger\Monolog\FriendicaIntrospectionProcessor;
 use Friendica\Util\Logger\SyslogLogger;
 use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Logger\WorkerLogger;
@@ -39,6 +40,8 @@ class LoggerFactory
 	 * @param Configuration $config  The config
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
+	 *
+	 * @throws \Exception
 	 * @throws InternalServerErrorException
 	 */
 	public static function create($channel, Configuration $config)
@@ -49,12 +52,13 @@ class LoggerFactory
 			return $logger;
 		}
 
-		$introspector = new Introspection(LogLevel::DEBUG, self::$ignoreClassList);
+		$introspection = new Introspection(self::$ignoreClassList);
+
 		switch ($config->get('system', 'logger_adapter', 'monolog')) {
 			case 'syslog':
 				$level = $config->get('system', 'loglevel');
 
-				$logger = new SyslogLogger($channel, $introspector, $level);
+				$logger = new SyslogLogger($channel, $introspection, $level);
 				break;
 			case 'monolog':
 			default:
@@ -65,7 +69,7 @@ class LoggerFactory
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-				$logger->pushProcessor($introspector);
+				$logger->pushProcessor(new FriendicaIntrospectionProcessor($introspection, LogLevel::DEBUG));
 
 				$stream = $config->get('system', 'logfile');
 				$level  = $config->get('system', 'loglevel');
@@ -107,11 +111,13 @@ class LoggerFactory
 		$loggerTimeZone = new \DateTimeZone('UTC');
 		Monolog\Logger::setTimezone($loggerTimeZone);
 
+		$introspection = new Introspection(self::$ignoreClassList);
+
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new Introspection(LogLevel::DEBUG, self::$ignoreClassList));
+		$logger->pushProcessor(new FriendicaIntrospectionProcessor($introspection, LogLevel::DEBUG));
 
 		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
 

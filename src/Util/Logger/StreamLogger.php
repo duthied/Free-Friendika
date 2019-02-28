@@ -10,10 +10,10 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
- * A Logger instance for syslogging (fast, but simple)
+ * A Logger instance for logging into a stream
  * @see http://php.net/manual/en/function.syslog.php
  */
-class SyslogLogger implements LoggerInterface
+class StreamLogger implements LoggerInterface
 {
 	const IDENT = 'Friendica';
 

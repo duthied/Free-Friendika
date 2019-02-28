@@ -1,20 +1,12 @@
 <?php
 
-namespace Friendica\Util\Logger;
-
-use Monolog\Logger;
-use Monolog\Processor\ProcessorInterface;
+namespace Friendica\Util;
 
 /**
- * Injects line/file//function where the log message came from
- *
- * Based on the class IntrospectionProcessor without the "class" information
- * @see IntrospectionProcessor
+ * Get Introspection information about the current call
  */
-class Introspection implements ProcessorInterface
+class Introspection
 {
-	private $level;
-
 	private $skipStackFramesCount;
 
 	private $skipClassesPartials;
@@ -25,30 +17,22 @@ class Introspection implements ProcessorInterface
 	];
 
 	/**
-	 * @param string|int $level The minimum logging level at which this Processor will be triggered
-	 * @param array $skipClassesPartials An array of classes to skip during logging
-	 * @param int $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
+	 * @param array $skipClassesPartials  An array of classes to skip during logging
+	 * @param int   $skipStackFramesCount If the logger should use information from other hierarchy levels of the call
 	 */
-	public function __construct($level = Logger::DEBUG, $skipClassesPartials = array(), $skipStackFramesCount = 0)
+	public function __construct($skipClassesPartials = array(), $skipStackFramesCount = 0)
 	{
-		$this->level = Logger::toMonologLevel($level);
-		$this->skipClassesPartials = array_merge(array('Monolog\\'), $skipClassesPartials);
+		$this->skipClassesPartials  = $skipClassesPartials;
 		$this->skipStackFramesCount = $skipStackFramesCount;
 	}
 
-	public function __invoke(array $record)
+	/**
+	 * Adds new classes to get skipped
+	 * @param array $classNames
+	 */
+	public function addClasses(array $classNames)
 	{
-		// return if the level is not high enough
-		if ($record['level'] < $this->level) {
-			return $record;
-		}
-		// we should have the call source now
-		$record['extra'] = array_merge(
-			$record['extra'],
-			$this->getRecord()
-		);
-
-		return $record;
+		$this->skipClassesPartials = array_merge($this->skipClassesPartials, $classNames);
 	}
 
 	/**
@@ -79,7 +63,7 @@ class Introspection implements ProcessorInterface
 	 * Checks if the current trace class or function has to be skipped
 	 *
 	 * @param array $trace The current trace array
-	 * @param int   $index The index of the current hierarchy level
+	 * @param int $index The index of the current hierarchy level
 	 * @return bool True if the class or function should get skipped, otherwise false
 	 */
 	private function isTraceClassOrSkippedFunction(array $trace, $index)
