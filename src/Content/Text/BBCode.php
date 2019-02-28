@@ -950,15 +950,19 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 3: // Diaspora
-				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
-
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
 					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
+					$headline = '<p><b>♲ <a href="' . $attributes['profile'] . '">' . $attributes['author'] . '</a>:</b></p>' . "\n";
+
+					if (!empty($attributes['posted']) && !empty($attributes['link'])) {
+						$headline = '<p><b>♲ <a href="' . $attributes['profile'] . '">' . $attributes['author'] . '</a></b> - <a href="' . $attributes['link'] . '">' . $attributes['posted'] . ' GMT</a></p>' . "\n";
+					}
+
 					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
 
-					if ($attributes['link'] != '') {
-						$text .= '<p><a href="' . $attributes['link'] . '">[l]</a></p>' . "\n";
+					if (empty($attributes['posted']) && !empty($attributes['link'])) {
+						$text .= '<p><a href="' . $attributes['link'] . '">[Source]</a></p>' . "\n";
 					}
 				}
 
