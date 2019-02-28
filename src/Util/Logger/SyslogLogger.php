@@ -4,16 +4,15 @@ namespace Friendica\Util\Logger;
 
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Introspection;
-use Friendica\Util\Strings;
+use Friendica\Util\Profiler;
 use Psr\Log\InvalidArgumentException;
-use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
  * A Logger instance for syslogging (fast, but simple)
  * @see http://php.net/manual/en/function.syslog.php
  */
-class SyslogLogger implements LoggerInterface
+class SyslogLogger extends AbstractFriendicaLogger
 {
 	const IDENT = 'Friendica';
 
@@ -48,12 +47,6 @@ class SyslogLogger implements LoggerInterface
 	];
 
 	/**
-	 * The channel of the current process (added to each message)
-	 * @var string
-	 */
-	private $channel;
-
-	/**
 	 * Indicates what logging options will be used when generating a log message
 	 * @see http://php.net/manual/en/function.openlog.php#refsect1-function.openlog-parameters
 	 *
@@ -76,34 +69,20 @@ class SyslogLogger implements LoggerInterface
 	private $logLevel;
 
 	/**
-	 * The Introspection for the current call
-	 * @var Introspection
-	 */
-	private $introspection;
-
-	/**
-	 * The UID of the current call
-	 * @var string
-	 */
-	private $logUid;
-
-	/**
-	 * @param string        $channel       The output channel
-	 * @param Introspection $introspection The introspection of the current call
+	 * {@inheritdoc}
 	 * @param string        $level         The minimum loglevel at which this logger will be triggered
 	 * @param int           $logOpts       Indicates what logging options will be used when generating a log message
 	 * @param int           $logFacility   Used to specify what type of program is logging the message
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct($channel, Introspection $introspection, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
+	public function __construct($channel, Introspection $introspection, Profiler $profiler, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
 	{
-		$this->logUid = Strings::getRandomHex(6);
-		$this->channel = $channel;
+		parent::__construct($channel, $introspection, $profiler);
 		$this->logOpts = $logOpts;
 		$this->logFacility = $logFacility;
 		$this->logLevel = $this->mapLevelToPriority($level);
-		$this->introspection = $introspection;
+		$this->introspection->addClasses(array(self::class));
 	}
 
 	/**
@@ -175,30 +154,6 @@ class SyslogLogger implements LoggerInterface
 	}
 
 	/**
-	 * Simple interpolation of PSR-3 compliant replacements ( variables between '{' and '}' )
-	 * @see https://www.php-fig.org/psr/psr-3/#12-message
-	 *
-	 * @param string $message
-	 * @param array  $context
-	 *
-	 * @return string the interpolated message
-	 */
-	private function psrInterpolate($message, array $context = array())
-	{
-		$replace = [];
-		foreach ($context as $key => $value) {
-			// check that the value can be casted to string
-			if (!is_array($value) && (!is_object($value) || method_exists($value, '__toString'))) {
-				$replace['{' . $key . '}'] = $value;
-			} elseif (is_array($value)) {
-				$replace['{' . $key . '}'] = @json_encode($value);
-			}
-		}
-
-		return strtr($message, $replace);
-	}
-
-	/**
 	 * Adds a new entry to the syslog
 	 *
 	 * @param int    $level
@@ -207,95 +162,15 @@ class SyslogLogger implements LoggerInterface
 	 *
 	 * @throws InternalServerErrorException if the syslog isn't available
 	 */
-	private function addEntry($level, $message, $context = [])
+	protected function addEntry($level, $message, $context = [])
 	{
-		if ($level >= $this->logLevel) {
+		$logLevel = $this->mapLevelToPriority($level);
+
+		if ($logLevel >= $this->logLevel) {
 			return;
 		}
 
 		$formattedLog = $this->formatLog($level, $message, $context);
 		$this->write($level, $formattedLog);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function emergency($message, array $context = array())
-	{
-		$this->addEntry(LOG_EMERG, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function alert($message, array $context = array())
-	{
-		$this->addEntry(LOG_ALERT, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function critical($message, array $context = array())
-	{
-		$this->addEntry(LOG_CRIT, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function error($message, array $context = array())
-	{
-		$this->addEntry(LOG_ERR, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function warning($message, array $context = array())
-	{
-		$this->addEntry(LOG_WARNING, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function notice($message, array $context = array())
-	{
-		$this->addEntry(LOG_NOTICE, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function info($message, array $context = array())
-	{
-		$this->addEntry(LOG_INFO, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function debug($message, array $context = array())
-	{
-		$this->addEntry(LOG_DEBUG, $message, $context);
-	}
-
-	/**
-	 * {@inheritdoc}
-	 * @throws InternalServerErrorException if the syslog isn't available
-	 */
-	public function log($level, $message, array $context = array())
-	{
-		$logLevel = $this->mapLevelToPriority($level);
-		$this->addEntry($logLevel, $message, $context);
 	}
 }

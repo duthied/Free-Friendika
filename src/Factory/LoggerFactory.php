@@ -38,13 +38,14 @@ class LoggerFactory
 	 *
 	 * @param string        $channel The channel of the logger instance
 	 * @param Configuration $config  The config
+	 * @param Profiler      $profiler The profiler of the app
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 *
 	 * @throws \Exception
 	 * @throws InternalServerErrorException
 	 */
-	public static function create($channel, Configuration $config)
+	public static function create($channel, Configuration $config, Profiler $profiler)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new VoidLogger();
@@ -58,7 +59,7 @@ class LoggerFactory
 			case 'syslog':
 				$level = $config->get('system', 'loglevel');
 
-				$logger = new SyslogLogger($channel, $introspection, $level);
+				$logger = new SyslogLogger($channel, $introspection, $profiler, $level);
 				break;
 			case 'monolog':
 			default:
