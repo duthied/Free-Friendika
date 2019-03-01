@@ -5957,7 +5957,7 @@ function api_friendica_notification($type)
 	}
 	$nm = new NotificationsManager();
 
-	$notes = $nm->getAll([], "+seen -date", 50);
+	$notes = $nm->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
 
 	if ($type == "xml") {
 		$xmlnotes = [];

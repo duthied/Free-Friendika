@@ -196,7 +196,7 @@ class ForumManager
 	 */
 	public static function countUnseenItems()
 	{
-		$r = q(
+		$r = DBA::p(
 			"SELECT `contact`.`id`, `contact`.`name`, COUNT(*) AS `count` FROM `item`
 				INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
 				WHERE `item`.`uid` = %d AND `item`.`visible` AND NOT `item`.`deleted` AND `item`.`unseen`
@@ -208,6 +208,6 @@ class ForumManager
 			intval(local_user())
 		);
 
-		return $r;
+		return DBA::toArray($r);
 	}
 }
