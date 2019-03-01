@@ -35,6 +35,11 @@ Requirements
 * Installation into a top-level domain or sub-domain (without a directory/path component in the URL) is preferred. Directory paths will not be as convenient to use and have not been thoroughly tested.
 * If your hosting provider doesn't allow Unix shell access, you might have trouble getting everything to work.
 
+Optional
+---
+
+* PHP ImageMagick extension (php-imagick) for animated GIF support.
+
 Installation procedure
 ---
 
