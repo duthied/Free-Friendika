@@ -112,19 +112,21 @@ HELP;
 
 	protected function do_move()
 	{
-		$table = null;
+		$tables = null;
 		if (count($this->args) < 1 || count($this->args) > 2) {
 			throw new CommandArgsException('Invalid arguments');
 		}
+
 		if (count($this->args) == 2) {
 			$table = strtolower($this->args[1]);
 			if (!in_array($table, ['photo', 'attach'])) {
 				throw new CommandArgsException('Invalid table');
 			}
+			$tables = [$table];
 		}
 
 		$current = StorageManager::getBackend();
-		$r = StorageManager::move($current);
+		$r = StorageManager::move($current, $tables);
 		$this->out(sprintf('Moved %d files', $r));
 	}
 }
