@@ -369,20 +369,20 @@ class Photo extends BaseObject
 		$logger = $a->getLogger();
 		$profiler = $a->getProfiler();
 
-		$isStored = DBA::p(
+		$stmtUser = DBA::p(
 			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
 			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
 		);
 
-		if (!DBA::isResult($isStored)) {
+		if (!DBA::isResult($stmtUser)) {
 			$logger->info("Can't detect user data.", ['uid' => $uid]);
 			return [];
 		} else {
-			$isStored = DBA::toArray($isStored);
+			$user = DBA::toArray($stmtUser);
 		}
 
-		$page_owner_nick  = $isStored[0]['nickname'];
+		$page_owner_nick  = $user[0]['nickname'];
 
 		/// @TODO
 		/// $default_cid      = $isStored[0]['id'];
@@ -457,18 +457,18 @@ class Photo extends BaseObject
 			return [];
 		}
 
-		$image = ["page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => $a->getBaseURL()."/photo/{$hash}-0.".$image->getExt()];
+		$image = ["page" => $a->getBaseURL() . '/photos/' . $page_owner_nick . '/image/' . $hash,
+			"full" => $a->getBaseURL() . "/photo/{$hash}-0." . $image->getExt()];
 
 		if ($width > 800 || $height > 800) {
-			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$image->getExt();
+			$image["large"] = $a->getBaseURL() . "/photo/{$hash}-0." . $image->getExt();
 		}
 
 		if ($width > 640 || $height > 640) {
 			$image->scaleDown(640);
 			$isStored = self::store($image, $uid, $visitor, $hash, $tempFile, L10n::t('Wall Photos'), 1, 0, $defperm);
 			if ($isStored) {
-				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$image->getExt();
+				$image["medium"] = $a->getBaseURL() . "/photo/{$hash}-1." . $image->getExt();
 			}
 		}
 
@@ -476,7 +476,7 @@ class Photo extends BaseObject
 			$image->scaleDown(320);
 			$isStored = self::store($image, $uid, $visitor, $hash, $tempFile, L10n::t('Wall Photos'), 2, 0, $defperm);
 			if ($isStored) {
-				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$image->getExt();
+				$image["small"] = $a->getBaseURL() . "/photo/{$hash}-2." . $image->getExt();
 			}
 		}
 
