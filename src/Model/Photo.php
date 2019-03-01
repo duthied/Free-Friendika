@@ -353,6 +353,9 @@ class Photo extends BaseObject
 
 	/**
 	 * @brief This function is used by the fromgplus addon
+	 *
+	 * Stores a photo based on image data or an URL
+	 *
 	 * @param integer $uid       user id
 	 * @param string  $imagedata optional, default empty
 	 * @param string  $url       optional, default empty
@@ -360,7 +363,7 @@ class Photo extends BaseObject
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function storePhoto($uid, $imagedata = "", $url = "")
+	public static function storeByData($uid, $imagedata = "", $url = "")
 	{
 		$a = self::getApp();
 		$logger = $a->getLogger();
