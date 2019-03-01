@@ -369,28 +369,28 @@ class Photo extends BaseObject
 		$logger = $a->getLogger();
 		$profiler = $a->getProfiler();
 
-		$r = DBA::p(
+		$isStored = DBA::p(
 			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
 			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
 		);
 
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($isStored)) {
 			$logger->info("Can't detect user data.", ['uid' => $uid]);
-			return([]);
+			return [];
 		} else {
-			$r = DBA::toArray($r);
+			$isStored = DBA::toArray($isStored);
 		}
 
-		$page_owner_nick  = $r[0]['nickname'];
+		$page_owner_nick  = $isStored[0]['nickname'];
 
 		/// @TODO
-		/// $default_cid      = $r[0]['id'];
-		/// $community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
+		/// $default_cid      = $isStored[0]['id'];
+		/// $community_page   = (($isStored[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 		if ((strlen($imagedata) == 0) && ($url == "")) {
 			$logger->info("No image data and no url provided");
-			return([]);
+			return [];
 		} elseif (strlen($imagedata) == 0) {
 			$logger->info("Uploading picture,", ['url' => $url]);
 
@@ -399,37 +399,37 @@ class Photo extends BaseObject
 			$profiler->saveTimestamp($stamp1, "file", System::callstack());
 		}
 
-		$maximagesize = Config::get('system', 'maximagesize');
+		$maxImageSize = Config::get('system', 'maximagesize');
 
-		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
-			$logger->info("Image exceeds size limit.", ['max' => $maximagesize, 'current' => strlen($imagedata)]);
-			return([]);
+		if (($maxImageSize) && (strlen($imagedata) > $maxImageSize)) {
+			$logger->info("image exceeds size limit.", ['max' => $maxImageSize, 'current' => strlen($imagedata)]);
+			return [];
 		}
 
-		$tempfile = tempnam(get_temppath(), "cache");
+		$tempFile = tempnam(get_temppath(), "cache");
 
 		$stamp1 = microtime(true);
-		file_put_contents($tempfile, $imagedata);
+		file_put_contents($tempFile, $imagedata);
 		$profiler->saveTimestamp($stamp1, "file", System::callstack());
 
-		$data = getimagesize($tempfile);
+		$data = getimagesize($tempFile);
 
 		if (!isset($data["mime"])) {
-			unlink($tempfile);
+			unlink($tempFile);
 			$logger->info("File is no picture");
-			return([]);
+			return [];
 		}
 
-		$Image = new Image($imagedata, $data["mime"]);
+		$image = new Image($imagedata, $data["mime"]);
 
-		if (!$Image->isValid()) {
-			unlink($tempfile);
+		if (!$image->isValid()) {
+			unlink($tempFile);
 			$logger->info("Picture is no valid picture");
-			return([]);
+			return [];
 		}
 
-		$Image->orient($tempfile);
-		unlink($tempfile);
+		$image->orient($tempFile);
+		unlink($tempFile);
 
 		$max_length = Config::get('system', 'max_image_length');
 		if (! $max_length) {
@@ -437,46 +437,46 @@ class Photo extends BaseObject
 		}
 
 		if ($max_length > 0) {
-			$Image->scaleDown($max_length);
+			$image->scaleDown($max_length);
 		}
 
-		$width = $Image->getWidth();
-		$height = $Image->getHeight();
+		$width = $image->getWidth();
+		$height = $image->getHeight();
 
-		$hash = Photo::newResource();
+		$hash = self::newResource();
 
 		// Pictures are always public by now
 		//$defperm = '<'.$default_cid.'>';
 		$defperm = "";
 		$visitor = 0;
 
-		$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 0, 0, $defperm);
+		$isStored = Photo::store($image, $uid, $visitor, $hash, $tempFile, L10n::t('Wall Photos'), 0, 0, $defperm);
 
-		if (!$r) {
+		if (!$isStored) {
 			$logger->info("Picture couldn't be stored");
-			return([]);
+			return [];
 		}
 
 		$image = ["page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => $a->getBaseURL()."/photo/{$hash}-0.".$Image->getExt()];
+			"full" => $a->getBaseURL()."/photo/{$hash}-0.".$image->getExt()];
 
 		if ($width > 800 || $height > 800) {
-			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$Image->getExt();
+			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$image->getExt();
 		}
 
 		if ($width > 640 || $height > 640) {
-			$Image->scaleDown(640);
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 1, 0, $defperm);
-			if ($r) {
-				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$Image->getExt();
+			$image->scaleDown(640);
+			$isStored = self::store($image, $uid, $visitor, $hash, $tempFile, L10n::t('Wall Photos'), 1, 0, $defperm);
+			if ($isStored) {
+				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$image->getExt();
 			}
 		}
 
 		if ($width > 320 || $height > 320) {
-			$Image->scaleDown(320);
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 2, 0, $defperm);
-			if ($r) {
-				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$Image->getExt();
+			$image->scaleDown(320);
+			$isStored = self::store($image, $uid, $visitor, $hash, $tempFile, L10n::t('Wall Photos'), 2, 0, $defperm);
+			if ($isStored) {
+				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$image->getExt();
 			}
 		}
 
@@ -484,24 +484,24 @@ class Photo extends BaseObject
 			$x = 0;
 			$y = 0;
 
-			$min = $Image->getWidth();
+			$min = $image->getWidth();
 			if ($min > 160) {
 				$x = ($min - 160) / 2;
 			}
 
-			if ($Image->getHeight() < $min) {
-				$min = $Image->getHeight();
+			if ($image->getHeight() < $min) {
+				$min = $image->getHeight();
 				if ($min > 160) {
 					$y = ($min - 160) / 2;
 				}
 			}
 
 			$min = 160;
-			$Image->crop(160, $x, $y, $min, $min);
+			$image->crop(160, $x, $y, $min, $min);
 
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 3, 0, $defperm);
-			if ($r) {
-				$image["thumb"] = $a->getBaseURL() . "/photo/{$hash}-3." . $Image->getExt();
+			$isStored = self::store($image, $uid, $visitor, $hash, $tempFile, L10n::t('Wall Photos'), 3, 0, $defperm);
+			if ($isStored) {
+				$image["thumb"] = $a->getBaseURL() . "/photo/{$hash}-3." . $image->getExt();
 			}
 		}
 
@@ -520,7 +520,7 @@ class Photo extends BaseObject
 			$image["preview"] = $image["medium"];
 		}
 
-		return($image);
+		return $image;
 	}
 
 	/**
