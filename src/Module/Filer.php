@@ -10,7 +10,7 @@ use Friendica\Model;
 use Friendica\Util\XML;
 
 /**
- * Shows the App menu
+ * Shows a dialog for adding tags to a file
  */
 class Filer extends BaseModule
 {
@@ -35,20 +35,18 @@ class Filer extends BaseModule
 		if ($item_id && strlen($term)) {
 			// file item
 			Model\FileTag::saveFile(local_user(), $item_id, $term);
-			$a->internalRedirect();
-			return;
-
-		} else {
-			// return filer dialog
-			$filetags = PConfig::get(local_user(), 'system', 'filetags');
-			$filetags = Model\FileTag::fileToList($filetags, 'file');
-			$filetags = explode(",", $filetags);
-
-			$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
-			return Renderer::replaceMacros($tpl, [
-				'$field' => ['term', L10n::t("Save to Folder:"), '', '', $filetags, L10n::t('- select -')],
-				'$submit' => L10n::t('Save'),
-			]);
+			info(L10n::t('Filetag %s saved to item', $term));
 		}
+
+		// return filer dialog
+		$filetags = PConfig::get(local_user(), 'system', 'filetags');
+		$filetags = Model\FileTag::fileToList($filetags, 'file');
+		$filetags = explode(",", $filetags);
+
+		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
+		return Renderer::replaceMacros($tpl, [
+			'$field' => ['term', L10n::t("Save to Folder:"), '', '', $filetags, L10n::t('- select -')],
+			'$submit' => L10n::t('Save'),
+		]);
 	}
 }
