@@ -378,6 +378,8 @@ class Photo extends BaseObject
 		if (!DBA::isResult($r)) {
 			$logger->info("Can't detect user data.", ['uid' => $uid]);
 			return([]);
+		} else {
+			$r = DBA::toArray($r);
 		}
 
 		$page_owner_nick  = $r[0]['nickname'];
