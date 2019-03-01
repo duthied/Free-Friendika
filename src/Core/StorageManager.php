@@ -110,8 +110,8 @@ class StorageManager
 	 * Copy existing data to destination storage and delete from source.
 	 * This method cannot move to legacy in-table `data` field.
 	 *
-	 * @param string  $dest    Destination storage class name
-	 * @param array   $tables  Tables to look in for resources. Optional, defaults to ['photo', 'attach']
+	 * @param string     $dest    Destination storage class name
+	 * @param array|null $tables  Tables to look in for resources. Optional, defaults to ['photo', 'attach']
 	 *
 	 * @throws \Exception
 	 * @return int Number of moved resources
