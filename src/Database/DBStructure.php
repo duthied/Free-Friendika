@@ -855,7 +855,7 @@ class DBStructure
 	 */
 	public static function getColumns($table)
 	{
-		$r = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
-		return DBA::toArray($r);
+		$stmtColumns = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
+		return DBA::toArray($stmtColumns);
 	}
 }

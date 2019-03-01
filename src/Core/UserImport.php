@@ -36,11 +36,11 @@ class UserImport
 	 */
 	private static function checkCols($table, &$arr)
 	{
-		$r = DBStructure::getColumns($table);
+		$tableColumns = DBStructure::getColumns($table);
 
 		$tcols = [];
 		// get a plain array of column names
-		foreach ($r as $tcol) {
+		foreach ($tableColumns as $tcol) {
 			$tcols[] = $tcol['Field'];
 		}
 		// remove inexistent columns

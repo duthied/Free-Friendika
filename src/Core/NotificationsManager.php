@@ -36,7 +36,7 @@ class NotificationsManager extends BaseObject
 	 *  - msg_plain: message as plain text string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function _set_extra($notes)
+	private function _set_extra(array $notes)
 	{
 		$rets = [];
 		foreach ($notes as $n) {
@@ -73,10 +73,10 @@ class NotificationsManager extends BaseObject
 
 		$dbFilter = array_merge($filter, ['uid' => local_user()]);
 
-		$r = DBA::select('notify', [], $dbFilter, $order, $params);
+		$stmtNotifies = DBA::select('notify', [], $dbFilter, $order, $params);
 
-		if (DBA::isResult($r)) {
-			return $this->_set_extra($r);
+		if (DBA::isResult($stmtNotifies)) {
+			return $this->_set_extra(DBA::toArray($stmtNotifies));
 		}
 
 		return false;
@@ -91,9 +91,9 @@ class NotificationsManager extends BaseObject
 	 */
 	public function getByID($id)
 	{
-		$r = DBA::selectFirst('notify', ['id' => $id, 'uid' => local_user()]);
-		if (DBA::isResult($r)) {
-			return $this->_set_extra($r)[0];
+		$stmtNotify = DBA::selectFirst('notify', ['id' => $id, 'uid' => local_user()]);
+		if (DBA::isResult($stmtNotify)) {
+			return $this->_set_extra([$stmtNotify])[0];
 		}
 		return null;
 	}
@@ -423,22 +423,21 @@ class NotificationsManager extends BaseObject
 		$notifs = [];
 		$sql_seen = "";
 
+		$filter = ['uid' => local_user()];
 		if ($seen === 0) {
-			$filter = ['`uid` = ? AND NOT `seen`', local_user()];
-		} else {
-			$filter = ['uid' => local_user()];
+			$filter['seen'] = false;
 		}
 
 		$params = [];
 		$params['limit'] = [$start, $limit];
 
-		$r = DBA::select('notify',
+		$stmtNotifies = DBA::select('notify',
 			['id', 'url', 'photo', 'msg', 'date', 'seen', 'verb'],
 			$filter,
 			$params);
 
-		if (DBA::isResult($r)) {
-			$notifs = $this->formatNotifs(DBA::toArray($r), $ident);
+		if (DBA::isResult($stmtNotifies)) {
+			$notifs = $this->formatNotifs(DBA::toArray($stmtNotifies), $ident);
 		}
 
 		$arr = [
@@ -561,7 +560,7 @@ class NotificationsManager extends BaseObject
 		}
 
 		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
-		$r = DBA::p(
+		$stmtNotifies = DBA::p(
 			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
@@ -578,8 +577,8 @@ class NotificationsManager extends BaseObject
 			intval($start),
 			intval($limit)
 		);
-		if (DBA::isResult($r)) {
-			$notifs = $this->formatIntros(DBA::toArray($r));
+		if (DBA::isResult($stmtNotifies)) {
+			$notifs = $this->formatIntros(DBA::toArray($stmtNotifies));
 		}
 
 		$arr = [
