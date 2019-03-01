@@ -561,7 +561,7 @@ class NotificationsManager extends BaseObject
 		}
 
 		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
-		$r = q(
+		$r = DBA::p(
 			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
@@ -579,7 +579,7 @@ class NotificationsManager extends BaseObject
 			intval($limit)
 		);
 		if (DBA::isResult($r)) {
-			$notifs = $this->formatIntros($r);
+			$notifs = $this->formatIntros(DBA::toArray($r));
 		}
 
 		$arr = [
