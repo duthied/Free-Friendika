@@ -209,7 +209,8 @@ class Update
 	 */
 	private static function updateFailed($update_id, $error_message) {
 		//send the administrators an e-mail
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))]);
+		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
@@ -219,8 +220,15 @@ class Update
 			return;
 		}
 
+		$sent = [];
+
 		// every admin could had different language
 		foreach ($adminlist as $admin) {
+			if (in_array($admin['email'], $sent)) {
+				continue;
+			}
+			$sent[] = $admin['email'];
+
 			$lang = (($admin['language'])?$admin['language']:'en');
 			L10n::pushLang($lang);
 
@@ -250,11 +258,19 @@ class Update
 	private static function updateSuccessfull($from_build, $to_build)
 	{
 		//send the administrators an e-mail
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))]);
+		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		if (DBA::isResult($adminlist)) {
+			$sent = [];
+
 			// every admin could had different language
 			foreach ($adminlist as $admin) {
+				if (in_array($admin['email'], $sent)) {
+					continue;
+				}
+				$sent[] = $admin['email'];
+
 				$lang = (($admin['language']) ? $admin['language'] : 'en');
 				L10n::pushLang($lang);
 
