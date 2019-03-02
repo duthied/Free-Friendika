@@ -1620,7 +1620,7 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
 .panel .panel-body {
     padding: 15px;
     font-size: 14px;
-	word-wrap: break-word;
+    word-wrap: break-word;
 }
 .panel .panel-body .wall-item-content {
     color: #555;
