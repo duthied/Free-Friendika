@@ -953,7 +953,7 @@ function api_account_verify_credentials($type)
 
 	// - Adding last status
 	if (!$skip_status) {
-		$last_status = api_get_last_status($user_info['pid'], api_user());
+		$last_status = api_get_last_status($user_info['pid'], $user_info['uid'], $type);
 		if ($last_status) {
 			$user_info['status'] = $last_status;
 		}
@@ -1239,36 +1239,20 @@ function api_media_upload()
 api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST);
 
 /**
- * @param string $type Return type (atom, rss, xml, json)
+ * @param string $type    Return format (atom, rss, xml, json)
  * @param int    $item_id
  * @return string
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
+ * @throws Exception
  */
 function api_status_show($type, $item_id)
 {
 	Logger::info(API_LOG_PREFIX . 'Start', ['action' => 'status_show', 'type' => $type, 'item_id' => $item_id]);
 
-	$a = \Friendica\BaseObject::getApp();
+	$status_info = [];
 
-	$user_info = api_get_user($a);
-
-	$status_info = api_get_status(['id' => $item_id]);
-	if ($status_info) {
-		if ($type == 'xml') {
-			$status_info['georss:point'] = $status_info['geo'];
-			unset($status_info['geo']);
-		}
-
-		if ($status_info) {
-			$status_info['user'] = $user_info;
-
-			// "uid" and "self" are only needed for some internal stuff, so remove it from here
-			unset($status_info['user']['uid']);
-			unset($status_info['user']['self']);
-		}
+	$item = api_get_item(['id' => $item_id]);
+	if ($item) {
+		$status_info = api_format_item($item, $type);
 	}
 
 	Logger::info(API_LOG_PREFIX . 'End', ['action' => 'get_status', 'status_info' => $status_info]);
@@ -1279,12 +1263,13 @@ function api_status_show($type, $item_id)
 /**
  * Retrieves the last public status of the provided user info
  *
- * @param int $ownerId Public contact Id
- * @param int $uid     User Id
+ * @param int    $ownerId Public contact Id
+ * @param int    $uid     User Id
+ * @param string $type    Return format (atom, rss, xml, json)
  * @return array
- * @throws InternalServerErrorException
+ * @throws Exception
  */
-function api_get_last_status($ownerId, $uid)
+function api_get_last_status($ownerId, $uid, $type = 'json')
 {
 	$condition = [
 		'owner-id' => $ownerId,
@@ -1293,7 +1278,9 @@ function api_get_last_status($ownerId, $uid)
 		'private'  => false
 	];
 
-	$status_info = api_get_status($condition);
+	$item = api_get_item($condition);
+
+	$status_info = api_format_item($item, $type);
 
 	return $status_info;
 }
@@ -1303,62 +1290,13 @@ function api_get_last_status($ownerId, $uid)
  *
  * @param array $condition Item table condition array
  * @return array
- * @throws InternalServerErrorException
+ * @throws Exception
  */
-function api_get_status(array $condition)
+function api_get_item(array $condition)
 {
-	$status_info = [];
-
 	$item = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
-	if (DBA::isResult($item)) {
-		$in_reply_to = api_in_reply_to($item);
 
-		$converted = api_convert_item($item);
-
-		$status_info = [
-			'created_at' => api_date($item['created']),
-			'id' => intval($item['id']),
-			'id_str' => (string) $item['id'],
-			'text' => $converted['text'],
-			'source' => $item['app'] ?: 'web',
-			'truncated' => false,
-			'in_reply_to_status_id' => $in_reply_to['status_id'],
-			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-			'in_reply_to_user_id' => $in_reply_to['user_id'],
-			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			'geo' => null,
-			'coordinates' => '',
-			'place' => '',
-			'contributors' => '',
-			'is_quote_status' => false,
-			'retweet_count' => 0,
-			'favorite_count' => 0,
-			'favorited' => $item['starred'] ? true : false,
-			'retweeted' => false,
-			'possibly_sensitive' => false,
-			'lang' => '',
-			'statusnet_html' => $converted['html'],
-			'statusnet_conversation_id' => $item['parent'],
-			'external_url' => System::baseUrl() . '/display/' . $item['guid'],
-		];
-
-		if (count($converted['attachments']) > 0) {
-			$status_info['attachments'] = $converted['attachments'];
-		}
-
-		if (count($converted['entities']) > 0) {
-			$status_info['entities'] = $converted['entities'];
-		}
-
-		if ($status_info['source'] == 'web') {
-			$status_info['source'] = ContactSelector::networkToName($item['network'], $item['author-link']);
-		} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status_info['source']) {
-			$status_info['source'] = trim($status_info['source'] . ' (' . ContactSelector::networkToName($item['network'], $item['author-link']) . ')');
-		}
-	}
-
-	return $status_info;
+	return $item;
 }
 
 /**
@@ -1379,14 +1317,9 @@ function api_users_show($type)
 
 	$user_info = api_get_user($a);
 
-	$lastItem = api_get_last_status($user_info['pid'], $user_info['uid']);
-	if ($lastItem) {
-		if ($type == 'xml') {
-			$lastItem['georss:point'] = $lastItem['geo'];
-			unset($lastItem['geo']);
-		}
-
-		$user_info['status'] = $lastItem;
+	$lastStatus = api_get_last_status($user_info['pid'], $user_info['uid'], $type);
+	if ($lastStatus) {
+		$user_info['status'] = $lastStatus;
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -2947,7 +2880,7 @@ function api_format_items_profiles($profile_row)
 /**
  * @brief format items to be returned by api
  *
- * @param array  $r           array of items
+ * @param array  $items       array of items
  * @param array  $user_info
  * @param bool   $filter_user filter items by $user_info
  * @param string $type        Return type (atom, rss, xml, json)
@@ -2957,14 +2890,13 @@ function api_format_items_profiles($profile_row)
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  */
-function api_format_items($r, $user_info, $filter_user = false, $type = "json")
+function api_format_items($items, $user_info, $filter_user = false, $type = "json")
 {
-	$a = \get_app();
+	$a = \Friendica\BaseObject::getApp();
 
 	$ret = [];
 
-	foreach ((array)$r as $item) {
-		localize_item($item);
+	foreach ((array)$items as $item) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 
 		// Look if the posts are matching if they should be filtered by user id
@@ -2972,98 +2904,125 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			continue;
 		}
 
-		$in_reply_to = api_in_reply_to($item);
+		$status = api_format_item($item, $type, $status_user, $owner_user);
 
-		$converted = api_convert_item($item);
-
-		if ($type == "xml") {
-			$geo = "georss:point";
-		} else {
-			$geo = "geo";
-		}
-
-		$status = [
-			'text'		=> $converted["text"],
-			'truncated' => false,
-			'created_at'=> api_date($item['created']),
-			'in_reply_to_status_id' => $in_reply_to['status_id'],
-			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-			'source'    => (($item['app']) ? $item['app'] : 'web'),
-			'id'		=> intval($item['id']),
-			'id_str'	=> (string) intval($item['id']),
-			'in_reply_to_user_id' => $in_reply_to['user_id'],
-			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			$geo => null,
-			'favorited' => $item['starred'] ? true : false,
-			'user' =>  $status_user,
-			'friendica_author' => $author_user,
-			'friendica_owner' => $owner_user,
-			'friendica_private' => $item['private'] == 1,
-			//'entities' => NULL,
-			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id' => $item['parent'],
-			'external_url' => System::baseUrl() . "/display/" . $item['guid'],
-			'friendica_activities' => api_format_items_activities($item, $type),
-		];
-
-		if (count($converted["attachments"]) > 0) {
-			$status["attachments"] = $converted["attachments"];
-		}
-
-		if (count($converted["entities"]) > 0) {
-			$status["entities"] = $converted["entities"];
-		}
-
-		if ($status["source"] == 'web') {
-			$status["source"] = ContactSelector::networkToName($item['network'], $item['author-link']);
-		} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status["source"]) {
-			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $item['author-link']).')');
-		}
-
-		if ($item["id"] == $item["parent"]) {
-			$retweeted_item = api_share_as_retweet($item);
-			if ($retweeted_item !== false) {
-				$retweeted_status = $status;
-				$status['user'] = $status['friendica_owner'];
-				try {
-					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
-				} catch (BadRequestException $e) {
-					// user not found. should be found?
-					/// @todo check if the user should be always found
-					$retweeted_status["user"] = [];
-				}
-
-				$rt_converted = api_convert_item($retweeted_item);
-
-				$retweeted_status['text'] = $rt_converted["text"];
-				$retweeted_status['statusnet_html'] = $rt_converted["html"];
-				$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
-				$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
-				$status['retweeted_status'] = $retweeted_status;
-				$status['friendica_author'] = $retweeted_status['friendica_author'];
-			}
-		}
-
-		// "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($status["user"]["uid"]);
-		unset($status["user"]["self"]);
-
-		if ($item["coord"] != "") {
-			$coords = explode(' ', $item["coord"]);
-			if (count($coords) == 2) {
-				if ($type == "json") {
-					$status["geo"] = ['type' => 'Point',
-							'coordinates' => [(float) $coords[0],
-										(float) $coords[1]]];
-				} else {// Not sure if this is the official format - if someone founds a documentation we can check
-					$status["georss:point"] = $item["coord"];
-				}
-			}
-		}
 		$ret[] = $status;
-	};
+	}
+
 	return $ret;
+}
+
+/**
+ * @param array  $item       Item record
+ * @param string $type       Return format (atom, rss, xml, json)
+ * @param array $status_user User record of the item author, can be provided by api_item_get_user()
+ * @param array $owner_user  User record of the item owner, can be provided by api_item_get_user()
+ * @return array API-formatted status
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
+ */
+function api_format_item($item, $type = "json", $status_user = null, $owner_user = null)
+{
+	$a = \Friendica\BaseObject::getApp();
+
+	if (empty($status_user) || empty($owner_user)) {
+		list($status_user, $owner_user) = api_item_get_user($a, $item);
+	}
+
+	localize_item($item);
+
+	$in_reply_to = api_in_reply_to($item);
+
+	$converted = api_convert_item($item);
+
+	if ($type == "xml") {
+		$geo = "georss:point";
+	} else {
+		$geo = "geo";
+	}
+
+	$status = [
+		'text'		=> $converted["text"],
+		'truncated' => false,
+		'created_at'=> api_date($item['created']),
+		'in_reply_to_status_id' => $in_reply_to['status_id'],
+		'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
+		'source'    => (($item['app']) ? $item['app'] : 'web'),
+		'id'		=> intval($item['id']),
+		'id_str'	=> (string) intval($item['id']),
+		'in_reply_to_user_id' => $in_reply_to['user_id'],
+		'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
+		'in_reply_to_screen_name' => $in_reply_to['screen_name'],
+		$geo => null,
+		'favorited' => $item['starred'] ? true : false,
+		'user' =>  $status_user,
+		'friendica_author' => $author_user,
+			'friendica_owner' => $owner_user,
+		'friendica_private' => $item['private'] == 1,
+		//'entities' => NULL,
+		'statusnet_html' => $converted["html"],
+		'statusnet_conversation_id' => $item['parent'],
+		'external_url' => System::baseUrl() . "/display/" . $item['guid'],
+		'friendica_activities' => api_format_items_activities($item, $type),
+	];
+
+	if (count($converted["attachments"]) > 0) {
+		$status["attachments"] = $converted["attachments"];
+	}
+
+	if (count($converted["entities"]) > 0) {
+		$status["entities"] = $converted["entities"];
+	}
+
+	if ($status["source"] == 'web') {
+		$status["source"] = ContactSelector::networkToName($item['network'], $item['author-link']);
+	} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status["source"]) {
+		$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $item['author-link']).')');
+	}
+
+	if ($item["id"] == $item["parent"]) {
+		$retweeted_item = api_share_as_retweet($item);
+		if ($retweeted_item !== false) {
+			$retweeted_status = $status;
+			$status['user'] = $status['friendica_owner'];
+			try {
+				$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
+			} catch (BadRequestException $e) {
+				// user not found. should be found?
+				/// @todo check if the user should be always found
+				$retweeted_status["user"] = [];
+			}
+
+			$rt_converted = api_convert_item($retweeted_item);
+
+			$retweeted_status['text'] = $rt_converted["text"];
+			$retweeted_status['statusnet_html'] = $rt_converted["html"];
+			$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
+			$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+			$status['retweeted_status'] = $retweeted_status;
+		$status['friendica_author'] = $retweeted_status['friendica_author'];}
+	}
+
+	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	unset($status["user"]["uid"]);
+	unset($status["user"]["self"]);
+
+	if ($item["coord"] != "") {
+		$coords = explode(' ', $item["coord"]);
+		if (count($coords) == 2) {
+			if ($type == "json") {
+				$status["geo"] = ['type' => 'Point',
+					'coordinates' => [(float) $coords[0],
+						(float) $coords[1]]];
+			} else {// Not sure if this is the official format - if someone founds a documentation we can check
+				$status["georss:point"] = $item["coord"];
+			}
+		}
+	}
+
+	return $status;
 }
 
 /**
