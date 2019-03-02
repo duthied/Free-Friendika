@@ -539,20 +539,28 @@ function networkThreadedView(App $a, $update, $parent)
 	$order = Strings::escapeTags(defaults($_GET, 'order', 'comment'));
 	$nets  =        defaults($_GET, 'nets' , '');
 
+	$allowedCids = [];
 	if ($cid) {
-		$default_permissions['allow_cid'] = [(int) $cid];
+		$allowedCids[] = (int) $cid;
+	} elseif ($nets) {
+		$condition = [
+			'uid'     => local_user(),
+			'network' => $nets,
+			'self'    => false,
+			'blocked' => false,
+			'pending' => false,
+			'archive' => false,
+			'rel'     => [Contact::SHARING, Contact::FRIEND],
+		];
+		$contactStmt = DBA::select('contact', ['id'], $condition);
+		while ($contact = DBA::fetch($contactStmt)) {
+			$allowedCids[] = (int) $contact['id'];
+		}
+		DBA::close($contactStmt);
 	}
 
-	if ($nets) {
-		$r = DBA::select('contact', ['id'], ['uid' => local_user(), 'network' => $nets], ['self' => false]);
-
-		$str = [];
-		while ($rr = DBA::fetch($r)) {
-			$str[] = (int) $rr['id'];
-		}
-		if (strlen($str)) {
-			$default_permissions['allow_cid'] = $str;
-		}
+	if (count($allowedCids)) {
+		$default_permissions['allow_cid'] = $allowedCids;
 	}
 
 	if (!$update && !$rawmode) {
