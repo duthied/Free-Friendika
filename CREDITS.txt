@@ -1,11 +1,11 @@
 23n
 Abinoam P. Marques Jr.
+Abraham Pérez Hernández
 Abrax
 Adam Clark
 Adam Jurkiewicz
 Adam Magness
 Aditoo
-Aditoo17
 AgnesElisa
 Albert
 Alberto Díaz Tormo
@@ -23,7 +23,6 @@ André Alves
 André Lohan
 Andy
 Andy Hee
-AndyHee
 Angristan
 Anthronaut
 Arian - Cazare Muncitori
@@ -93,10 +92,8 @@ greeneyedred
 Gregory Smith
 Haakon Meland Eriksen
 Hans Meine
-hauke
 Hauke
 Hauke Altmann
-Hauke Zühl
 Herbert Thielen
 hoergen
 Hubert Kościański
@@ -167,6 +164,7 @@ Pascal
 Pascal Deklerck
 Pavel Morozov
 PerigGouanvic
+Peter Liebetrau
 peturisfeld
 Philipp
 Philipp Holzer
@@ -201,6 +199,7 @@ Seth
 Silke Meyer
 Simon L'nu
 Simó Albert i Beltran
+softmetz
 soko1
 St John Karp
 Stanislav N.
@@ -233,12 +232,14 @@ Tubuntu
 Tupambae.org
 U-SOUND\mike
 ufic
+Ulf Rompe
 Unknown
 Vasudev Kamath
 Vasya Novikov
 Vinzenz Vietzke
 vislav
 vladimir N
+Vladimir Núñez
 VVelox
 Vít Šesták 'v6ak'
 Waldemar Stoczkowski
