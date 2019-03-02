@@ -1274,8 +1274,10 @@ class ApiTest extends DatabaseTest
 	 * Test the api_status_show() function.
 	 * @return void
 	 */
-	public function testApiStatusShow()
+	public function testApiStatusShowWithJson()
 	{
+		$this->markTestSkipped('This test requires an item ID');
+
 		$result = api_status_show('json');
 		$this->assertStatus($result['status']);
 	}
@@ -1286,6 +1288,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiStatusShowWithXml()
 	{
+		$this->markTestSkipped('This test requires an item ID');
+
 		$result = api_status_show('xml');
 		$this->assertXml($result, 'statuses');
 	}
@@ -1294,9 +1298,11 @@ class ApiTest extends DatabaseTest
 	 * Test the api_status_show() function with a raw result.
 	 * @return void
 	 */
-	public function testApiStatusShowWithRaw()
+	public function testApiGetLastStatus()
 	{
-		$this->assertStatus(api_status_show('raw'));
+		$user_info = api_get_user($this->app);
+
+		$this->assertStatus(api_get_last_status($user_info['pid'], $user_info['uid']));
 	}
 
 	/**
