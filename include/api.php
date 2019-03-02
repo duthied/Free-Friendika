@@ -932,7 +932,6 @@ function api_format_data($root_element, $type, $data)
  */
 function api_account_verify_credentials($type)
 {
-
 	$a = \get_app();
 
 	if (api_user() === false) {
@@ -954,13 +953,9 @@ function api_account_verify_credentials($type)
 
 	// - Adding last status
 	if (!$skip_status) {
-		$user_info["status"] = api_status_show("raw");
-		if (isset($user_info["status"])) {
-			if (!is_array($user_info["status"]) || !count($user_info["status"])) {
-				unset($user_info["status"]);
-			} else {
-				unset($user_info["status"]["user"]);
-			}
+		$last_status = api_get_last_status($user_info['pid'], api_user());
+		if ($last_status) {
+			$user_info['status'] = $last_status;
 		}
 	}
 
@@ -1244,105 +1239,126 @@ function api_media_upload()
 api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST);
 
 /**
- *
  * @param string $type Return type (atom, rss, xml, json)
- *
  * @param int    $item_id
- * @return array|string
+ * @return string
  * @throws BadRequestException
  * @throws ImagickException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  */
-function api_status_show($type, $item_id = 0)
+function api_status_show($type, $item_id)
 {
-	$a = \get_app();
+	Logger::info(API_LOG_PREFIX . 'Start', ['action' => 'status_show', 'type' => $type, 'item_id' => $item_id]);
+
+	$a = \Friendica\BaseObject::getApp();
 
 	$user_info = api_get_user($a);
 
-	Logger::log('api_status_show: user_info: '.print_r($user_info, true), Logger::DEBUG);
-
-	if (!empty($item_id)) {
-		// Get the item with the given id
-		$condition = ['id' => $item_id];
-	} else {
-		// get last public wall message
-		$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
-			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
-	}
-
-	if ($type == "raw") {
-		$condition['private'] = false;
-	}
-
-	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
-
-	if (DBA::isResult($lastwall)) {
-		$in_reply_to = api_in_reply_to($lastwall);
-
-		$converted = api_convert_item($lastwall);
-
-		if ($type == "xml") {
-			$geo = "georss:point";
-		} else {
-			$geo = "geo";
+	$status_info = api_get_status(['id' => $item_id]);
+	if ($status_info) {
+		if ($type == 'xml') {
+			$status_info['georss:point'] = $status_info['geo'];
+			unset($status_info['geo']);
 		}
 
+		if ($status_info) {
+			$status_info['user'] = $user_info;
+
+			// "uid" and "self" are only needed for some internal stuff, so remove it from here
+			unset($status_info['user']['uid']);
+			unset($status_info['user']['self']);
+		}
+	}
+
+	Logger::info(API_LOG_PREFIX . 'End', ['action' => 'get_status', 'status_info' => $status_info]);
+
+	return api_format_data('statuses', $type, ['status' => $status_info]);
+}
+
+/**
+ * Retrieves the last public status of the provided user info
+ *
+ * @param int $ownerId Public contact Id
+ * @param int $uid     User Id
+ * @return array
+ * @throws InternalServerErrorException
+ */
+function api_get_last_status($ownerId, $uid)
+{
+	$condition = [
+		'owner-id' => $ownerId,
+		'uid'      => $uid,
+		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
+		'private'  => false
+	];
+
+	$status_info = api_get_status($condition);
+
+	return $status_info;
+}
+
+/**
+ * Retrieves a single item record based on the provided condition and converts it for API use.
+ *
+ * @param array $condition Item table condition array
+ * @return array
+ * @throws InternalServerErrorException
+ */
+function api_get_status(array $condition)
+{
+	$status_info = [];
+
+	$item = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
+	if (DBA::isResult($item)) {
+		$in_reply_to = api_in_reply_to($item);
+
+		$converted = api_convert_item($item);
+
 		$status_info = [
-			'created_at' => api_date($lastwall['created']),
-			'id' => intval($lastwall['id']),
-			'id_str' => (string) $lastwall['id'],
-			'text' => $converted["text"],
-			'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
+			'created_at' => api_date($item['created']),
+			'id' => intval($item['id']),
+			'id_str' => (string) $item['id'],
+			'text' => $converted['text'],
+			'source' => $item['app'] ?: 'web',
 			'truncated' => false,
 			'in_reply_to_status_id' => $in_reply_to['status_id'],
 			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
 			'in_reply_to_user_id' => $in_reply_to['user_id'],
 			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
 			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			'user' => $user_info,
-			$geo => null,
+			'geo' => null,
 			'coordinates' => '',
 			'place' => '',
 			'contributors' => '',
 			'is_quote_status' => false,
 			'retweet_count' => 0,
 			'favorite_count' => 0,
-			'favorited' => $lastwall['starred'] ? true : false,
+			'favorited' => $item['starred'] ? true : false,
 			'retweeted' => false,
 			'possibly_sensitive' => false,
 			'lang' => '',
-			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id' => $lastwall['parent'],
-			'external_url' => System::baseUrl() . '/display/' . $lastwall['guid'],
+			'statusnet_html' => $converted['html'],
+			'statusnet_conversation_id' => $item['parent'],
+			'external_url' => System::baseUrl() . '/display/' . $item['guid'],
 		];
 
-		if (count($converted["attachments"]) > 0) {
-			$status_info["attachments"] = $converted["attachments"];
+		if (count($converted['attachments']) > 0) {
+			$status_info['attachments'] = $converted['attachments'];
 		}
 
-		if (count($converted["entities"]) > 0) {
-			$status_info["entities"] = $converted["entities"];
+		if (count($converted['entities']) > 0) {
+			$status_info['entities'] = $converted['entities'];
 		}
 
-		if ($status_info["source"] == 'web') {
-			$status_info["source"] = ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']);
-		} elseif (ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']) != $status_info["source"]) {
-			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']).')');
+		if ($status_info['source'] == 'web') {
+			$status_info['source'] = ContactSelector::networkToName($item['network'], $item['author-link']);
+		} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status_info['source']) {
+			$status_info['source'] = trim($status_info['source'] . ' (' . ContactSelector::networkToName($item['network'], $item['author-link']) . ')');
 		}
-
-		// "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($status_info["user"]["uid"]);
-		unset($status_info["user"]["self"]);
-
-		Logger::log('status_info: '.print_r($status_info, true), Logger::DEBUG);
-
-		if ($type == "raw") {
-			return $status_info;
-		}
-
-		return api_format_data("statuses", $type, ['status' => $status_info]);
 	}
+
+	return $status_info;
 }
 
 /**
@@ -1359,66 +1375,25 @@ function api_status_show($type, $item_id = 0)
  */
 function api_users_show($type)
 {
-	$a = \get_app();
+	$a = \Friendica\BaseObject::getApp();
 
 	$user_info = api_get_user($a);
 
-	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
-		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => false];
-	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
-
-	if (DBA::isResult($lastwall)) {
-		$in_reply_to = api_in_reply_to($lastwall);
-
-		$converted = api_convert_item($lastwall);
-
-		if ($type == "xml") {
-			$geo = "georss:point";
-		} else {
-			$geo = "geo";
+	$lastItem = api_get_last_status($user_info['pid'], $user_info['uid']);
+	if ($lastItem) {
+		if ($type == 'xml') {
+			$lastItem['georss:point'] = $lastItem['geo'];
+			unset($lastItem['geo']);
 		}
 
-		$user_info['status'] = [
-			'text' => $converted["text"],
-			'truncated' => false,
-			'created_at' => api_date($lastwall['created']),
-			'in_reply_to_status_id' => $in_reply_to['status_id'],
-			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-			'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
-			'id' => intval($lastwall['contact-id']),
-			'id_str' => (string) $lastwall['contact-id'],
-			'in_reply_to_user_id' => $in_reply_to['user_id'],
-			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			$geo => null,
-			'favorited' => $lastwall['starred'] ? true : false,
-			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id' => $lastwall['parent'],
-			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
-		];
-
-		if (count($converted["attachments"]) > 0) {
-			$user_info["status"]["attachments"] = $converted["attachments"];
-		}
-
-		if (count($converted["entities"]) > 0) {
-			$user_info["status"]["entities"] = $converted["entities"];
-		}
-
-		if ($user_info["status"]["source"] == 'web') {
-			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']);
-		}
-
-		if (ContactSelector::networkToName($lastwall['network'], $user_info['url']) != $user_info["status"]["source"]) {
-			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']) . ')');
-		}
+		$user_info['status'] = $lastItem;
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
-	unset($user_info["uid"]);
-	unset($user_info["self"]);
+	unset($user_info['uid']);
+	unset($user_info['self']);
 
-	return api_format_data("user", $type, ['user' => $user_info]);
+	return api_format_data('user', $type, ['user' => $user_info]);
 }
 
 /// @TODO move to top of file or somewhere better
