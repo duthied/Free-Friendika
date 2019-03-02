@@ -611,7 +611,7 @@ class Worker
 	 */
 	private static function tooMuchWorkers()
 	{
-		$queues = Config::get("system", "worker_queues", 4);
+		$queues = Config::get("system", "worker_queues", 10);
 
 		$maxqueues = $queues;
 
@@ -620,7 +620,7 @@ class Worker
 		// Decrease the number of workers at higher load
 		$load = System::currentLoad();
 		if ($load) {
-			$maxsysload = intval(Config::get("system", "maxloadavg", 50));
+			$maxsysload = intval(Config::get("system", "maxloadavg", 20));
 
 			/* Default exponent 3 causes queues to rapidly decrease as load increases.
 			 * If you have 20 max queues at idle, then you get only 5 queues at 37.1% of $maxsysload.
