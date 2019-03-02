@@ -15,6 +15,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Enhancements to the worker process of deleting items [annando]
     Enhancements to the testing process [nupplaphil]
     Enhancements to the LibreJS compatibility [tobiasd]
+    Enhancements to the federated display of postings [MrPetovan]
     Fixed several bugs with weird tagging in code blocks [lxiter]
     Fixed a bug during contact entries update [rabuzarus]
     Fixed several PHP warnings and errors [annando, MrPetovan, tobiasd]
@@ -26,10 +27,14 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Fixed a memory issue with the JSON-LD parser [annando]
     Fixed an issue with the forced DB structure update [nupplaphil]
     Fixed an issue with wrongly encoded HTML entities in URLs [annando]
+    Fixed an issue with the rotation of images in the gallery [nupplaphil]
+    Fixed issues with redirs in the photo menu of Friendica contacts [tobiasd]
+    Fixed an issue with sending out notification mails to the admin [nupplaphil]
+    Fixed an the issue, that the API was ignoring the globalsilence setting  [nupplaphil]
     If the node does not want to publish information, nodeinfo now returns 404 instead of non-existing entries [nupplaphil]
     General Code cleaning and restructuring [annando, JeroenED, MrPetovan, nupplaphil]
     Switched logging engine to monolog [nupplaphil]
-    Added plugable storage backend [fabrixxm]
+    Added plugable storage backend [fabrixxm, nupplaphil]
     Added item delivery indicator to posting header [MrPetovan]
     Added URL parameter to force a specific language [JeroenED]
     Added live preview of attachments to frio [rabuzarus]
@@ -37,6 +42,8 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
   Friendica Addons:
     Updates to the translations (CS, DE, ES, FR, NL, PL) [translation teams]
     Updated documentation [softmetz, tobiasd]
+    blogger:
+      The addon was marked as unsupported as it does currently not work (needs OAuth support) [annando]
     cookienotice:
       Added new addon to display a cookie usage notice in the browser [lxiter]
     forumdirectory:
@@ -52,11 +59,11 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
 
   Closed Issues:
     1777, 3218, 3506, 4496, 6087, 6232, 6274, 6292, 6375, 6378, 6382,
-    6384, 6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492, 6495, 6503,
-    6505, 6511, 6514, 6522, 6529, 6533, 6544, 6545, 6551, 6553, 6558,
-    6552, 6561, 6570, 6575, 6585, 6603, 6610, 6629, 6630, 6635, 6652,
-    6656, 6658, 6667, 6668, 6669, 6674, 6676, 6677, 6679, 6691, 6711,
-    6714, 6716, 6733
+    6384, 6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492, 6495, 6498,
+    6501, 6503, 6505, 6511, 6514, 6522, 6529, 6532, 6533, 6544, 6545,
+    6551, 6553, 6558, 6552, 6561, 6570, 6575, 6585, 6603, 6610, 6629,
+    6630, 6635, 6652, 6656, 6658, 6667, 6668, 6669, 6672, 6674, 6676,
+    6677, 6679, 6691, 6710, 6711, 6714, 6716, 6733, 6758, 6772
 
 Version 2019.01 (2019-01-21)
   Friendica Core:
