@@ -953,10 +953,12 @@ function api_account_verify_credentials($type)
 	// - Adding last status
 	if (!$skip_status) {
 		$user_info["status"] = api_status_show("raw");
-		if (!is_array($user_info["status"]) || !count($user_info["status"])) {
-			unset($user_info["status"]);
-		} else {
-			unset($user_info["status"]["user"]);
+		if (isset($user_info["status"])) {
+			if (!is_array($user_info["status"]) || !count($user_info["status"])) {
+				unset($user_info["status"]);
+			} else {
+				unset($user_info["status"]["user"]);
+			}
 		}
 	}
 
