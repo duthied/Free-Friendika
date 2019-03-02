@@ -223,7 +223,7 @@ class Update
 		$sent = [];
 
 		// every admin could had different language
-		foreach ($adminlist as $admin) {
+		while ($admin = DBA::fetch($adminlist)) {
 			if (in_array($admin['email'], $sent)) {
 				continue;
 			}
@@ -265,7 +265,7 @@ class Update
 			$sent = [];
 
 			// every admin could had different language
-			foreach ($adminlist as $admin) {
+			while ($admin = DBA::fetch($adminlist)) {
 				if (in_array($admin['email'], $sent)) {
 					continue;
 				}
