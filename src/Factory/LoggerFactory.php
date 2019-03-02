@@ -44,7 +44,9 @@ class LoggerFactory
 	public static function create($channel, Configuration $config)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
-			return new VoidLogger();
+			$logger = new VoidLogger();
+			Logger::init($logger);
+			return $logger;
 		}
 
 		$introspector = new Introspection(LogLevel::DEBUG, self::$ignoreClassList);
