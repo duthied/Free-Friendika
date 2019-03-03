@@ -91,7 +91,7 @@ class NotificationsManager extends BaseObject
 	 */
 	public function getByID($id)
 	{
-		$stmtNotify = DBA::selectFirst('notify', ['id' => $id, 'uid' => local_user()]);
+		$stmtNotify = DBA::selectFirst('notify', [], ['id' => $id, 'uid' => local_user()]);
 		if (DBA::isResult($stmtNotify)) {
 			return $this->_set_extra([$stmtNotify])[0];
 		}
