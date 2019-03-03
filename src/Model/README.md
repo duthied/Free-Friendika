@@ -1,4 +1,4 @@
-### Friendica\Model
+## Friendica\Model
 
 Models are the glue between the business logic of the app and the datastore(s).
 
