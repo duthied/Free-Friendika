@@ -24,6 +24,9 @@ class Crypto
 	 */
 	public static function rsaSign($data, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		openssl_sign($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 		return $sig;
 	}
@@ -37,6 +40,9 @@ class Crypto
 	 */
 	public static function rsaVerify($data, $sig, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		return openssl_verify($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 	}
 
