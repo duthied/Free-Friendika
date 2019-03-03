@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache;
-use Friendica\Core\Cache\CacheDriverFactory;
+use Friendica\Factory\CacheDriverFactory;
 use Friendica\Test\Util\DbaCacheMockTrait;
 
 /**
