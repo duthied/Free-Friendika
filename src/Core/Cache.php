@@ -4,7 +4,7 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Cache\CacheDriverFactory;
+use Friendica\Factory\CacheDriverFactory;
 
 /**
  * @brief Class for storing data for a short time
