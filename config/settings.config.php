@@ -102,6 +102,10 @@ return [
 		//  0 to use internal default (100MB)
 		'optimize_max_tablesize' => -1,
 
+		// maxloadavg (Integer)
+		// Maximum system load before delivery and poll processes are deferred.
+		'maxloadavg' => 20,
+
 		// rino_encrypt (Integer)
 		// Server-to-server private message encryption (RINO).
 		// Encryption will only be provided if this setting is set to a non zero value on both servers.

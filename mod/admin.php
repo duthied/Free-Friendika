@@ -1149,7 +1149,7 @@ function admin_page_site_post(App $a)
 	$proxyuser              = (!empty($_POST['proxyuser'])              ? Strings::escapeTags(trim($_POST['proxyuser'])) : '');
 	$proxy                  = (!empty($_POST['proxy'])                  ? Strings::escapeTags(trim($_POST['proxy']))     : '');
 	$timeout                = (!empty($_POST['timeout'])                ? intval(trim($_POST['timeout']))                : 60);
-	$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 50);
+	$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 20);
 	$maxloadavg_frontend    = (!empty($_POST['maxloadavg_frontend'])    ? intval(trim($_POST['maxloadavg_frontend']))    : 50);
 	$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
 	$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
@@ -1649,7 +1649,7 @@ function admin_page_site(App $a)
 		'$proxyuser'              => ['proxyuser', L10n::t("Proxy user"), Config::get('system', 'proxyuser'), ""],
 		'$proxy'                  => ['proxy', L10n::t("Proxy URL"), Config::get('system', 'proxy'), ""],
 		'$timeout'                => ['timeout', L10n::t("Network timeout"), Config::get('system', 'curl_timeout', 60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
-		'$maxloadavg'             => ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
+		'$maxloadavg'             => ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 20), L10n::t("Maximum system load before delivery and poll processes are deferred - default %d.", 20)],
 		'$maxloadavg_frontend'    => ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), Config::get('system', 'maxloadavg_frontend', 50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
 		'$min_memory'             => ['min_memory', L10n::t("Minimal Memory"), Config::get('system', 'min_memory', 0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
 		'$optimize_max_tablesize' => ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization. Enter -1 to disable it.")],
