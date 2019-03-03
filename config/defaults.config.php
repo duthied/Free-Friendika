@@ -214,9 +214,9 @@ return [
 		// If activated, all hashtags will point to the local server.
 		'local_tags' => false,
 
-		// logger_adapter (String)
+		// logger_config (String)
 		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
-		'logger_adapter' => 'monolog',
+		'logger_config' => 'stream',
 
 		// max_batch_queue (Integer)
 		// Maximum number of batched queue items for a single contact before subsequent messages are discarded.

@@ -2,9 +2,7 @@
 
 namespace Friendica\Util\Logger;
 
-use Friendica\Core\System;
 use Friendica\Util\Introspection;
-use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
@@ -13,9 +11,10 @@ use Psr\Log\LogLevel;
  * This class contains all necessary dependencies and calls for Friendica
  * Every new Logger should extend this class and define, how addEntry() works
  *
- * Contains:
+ * Additional information for each Logger, who extends this class:
  * - Introspection
- * - Automatic Friendica profiling
+ * - UID for each call
+ * - Channel of the current call (i.e. index, worker, daemon, ...)
  */
 abstract class AbstractFriendicaLogger implements LoggerInterface
 {
@@ -30,12 +29,6 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 * @var Introspection
 	 */
 	protected $introspection;
-
-	/**
-	 * The Profiler for the current call
-	 * @var Profiler
-	 */
-	protected $profiler;
 
 	/**
 	 * The UID of the current call
@@ -57,15 +50,13 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	/**
 	 * @param string        $channel       The output channel
 	 * @param Introspection $introspection The introspection of the current call
-	 * @param Profiler      $profiler      The profiler of the current call
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct($channel, Introspection $introspection, Profiler $profiler)
+	public function __construct($channel, Introspection $introspection)
 	{
 		$this->channel       = $channel;
 		$this->introspection = $introspection;
-		$this->profiler      = $profiler;
 		$this->logUid        = Strings::getRandomHex(6);
 	}
 
@@ -98,9 +89,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function emergency($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::EMERGENCY, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -108,9 +97,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function alert($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::ALERT, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -118,9 +105,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function critical($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::CRITICAL, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -128,9 +113,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function error($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::ERROR, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -138,9 +121,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function warning($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::WARNING, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -148,9 +129,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function notice($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::NOTICE, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -158,9 +137,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function info($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::INFO, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -168,9 +145,7 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function debug($message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry(LogLevel::DEBUG, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -178,8 +153,6 @@ abstract class AbstractFriendicaLogger implements LoggerInterface
 	 */
 	public function log($level, $message, array $context = array())
 	{
-		$stamp1 = microtime(true);
 		$this->addEntry($level, (string) $message, $context);
-		$this->profiler->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 }

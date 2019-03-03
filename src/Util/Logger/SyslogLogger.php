@@ -4,7 +4,6 @@ namespace Friendica\Util\Logger;
 
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Introspection;
-use Friendica\Util\Profiler;
 use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 
@@ -70,15 +69,15 @@ class SyslogLogger extends AbstractFriendicaLogger
 
 	/**
 	 * {@inheritdoc}
-	 * @param string        $level         The minimum loglevel at which this logger will be triggered
-	 * @param int           $logOpts       Indicates what logging options will be used when generating a log message
-	 * @param int           $logFacility   Used to specify what type of program is logging the message
+	 * @param string $level       The minimum loglevel at which this logger will be triggered
+	 * @param int    $logOpts     Indicates what logging options will be used when generating a log message
+	 * @param int    $logFacility Used to specify what type of program is logging the message
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct($channel, Introspection $introspection, Profiler $profiler, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
+	public function __construct($channel, Introspection $introspection, $level = LogLevel::NOTICE, $logOpts = LOG_PID, $logFacility = LOG_USER)
 	{
-		parent::__construct($channel, $introspection, $profiler);
+		parent::__construct($channel, $introspection);
 		$this->logOpts = $logOpts;
 		$this->logFacility = $logFacility;
 		$this->logLevel = $this->mapLevelToPriority($level);
@@ -98,7 +97,7 @@ class SyslogLogger extends AbstractFriendicaLogger
 	{
 		$logLevel = $this->mapLevelToPriority($level);
 
-		if ($logLevel >= $this->logLevel) {
+		if ($logLevel > $this->logLevel) {
 			return;
 		}
 
