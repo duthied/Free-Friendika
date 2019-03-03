@@ -36,6 +36,12 @@ class StreamLogger extends AbstractFriendicaLogger
 	private $pid;
 
 	/**
+	 * An error message
+	 * @var string
+	 */
+	private $errorMessage;
+
+	/**
 	 * Translates LogLevel log levels to integer values
 	 * @var array
 	 */
@@ -98,7 +104,7 @@ class StreamLogger extends AbstractFriendicaLogger
 	protected function addEntry($level, $message, $context = [])
 	{
 		if (!array_key_exists($level, $this->levelToInt)) {
-			throw new \InvalidArgumentException('The level "%s" is not valid', $level);
+			throw new \InvalidArgumentException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		$logLevel = $this->levelToInt[$level];
@@ -151,12 +157,14 @@ class StreamLogger extends AbstractFriendicaLogger
 		}
 
 		$this->createDir();
-		$this->stream = fopen($this->url, 'a');
+		set_error_handler([$this, 'customErrorHandler']);
+		$this->stream = fopen($this->url, 'ab');
+		restore_error_handler();
 
 		if (!is_resource($this->stream)) {
 			$this->stream = null;
 
-			throw new \UnexpectedValueException(sprintf('The stream or file "%s" could not be opened.', $this->url));
+			throw new \UnexpectedValueException(sprintf('The stream or file "%s" could not be opened: ' . $this->errorMessage, $this->url));
 		}
 	}
 
@@ -173,10 +181,18 @@ class StreamLogger extends AbstractFriendicaLogger
 		}
 
 		if (isset($dirname) && !is_dir($dirname)) {
+			set_error_handler([$this, 'customErrorHandler']);
 			$status = mkdir($dirname, 0777, true);
+			restore_error_handler();
+
 			if (!$status && !is_dir($dirname)) {
-				throw new \UnexpectedValueException(sprintf('Directory "%s" cannot get created.', $dirname));
+				throw new \UnexpectedValueException(sprintf('Directory "%s" cannot get created: ' . $this->errorMessage, $dirname));
 			}
 		}
+	}
+
+	private function customErrorHandler($code, $msg)
+	{
+		$this->errorMessage = preg_replace('{^(fopen|mkdir)\(.*?\): }', '', $msg);
 	}
 }
