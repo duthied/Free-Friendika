@@ -1209,6 +1209,16 @@ class Transmitter
 	{
 		$owner = User::getOwnerDataById($uid);
 
+		if (empty($owner)) {
+			Logger::error('No owner data found, the deletion message cannot be processed.', ['user' => $uid]);
+			return false;
+		}
+
+		if (empty($owner['uprvkey'])) {
+			Logger::error('No private key for owner found, the deletion message cannot be processed.', ['user' => $uid]);
+			return false;
+		}
+
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Delete',
