@@ -115,7 +115,6 @@ class StreamLogger extends AbstractLogger
 
 		$this->checkStream();
 
-		$this->stream = fopen($this->url, 'a');
 		$formattedLog = $this->formatLog($level, $message, $context);
 		fwrite($this->stream, $formattedLog);
 	}

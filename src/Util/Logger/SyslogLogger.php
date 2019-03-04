@@ -4,7 +4,6 @@ namespace Friendica\Util\Logger;
 
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Introspection;
-use Psr\Log\InvalidArgumentException;
 use Psr\Log\LogLevel;
 
 /**
@@ -117,7 +116,7 @@ class SyslogLogger extends AbstractLogger
 	public function mapLevelToPriority($level)
 	{
 		if (!array_key_exists($level, $this->logLevels)) {
-			throw new InvalidArgumentException('LogLevel \'' . $level . '\' isn\'t valid.');
+			throw new \InvalidArgumentException(sprintf('The level "%s" is not valid.', $level));
 		}
 
 		return $this->logLevels[$level];
@@ -146,7 +145,7 @@ class SyslogLogger extends AbstractLogger
 			throw new InternalServerErrorException('Can\'t open syslog for ident "' . $this->channel . '" and facility "' . $this->logFacility . '""');
 		}
 
-		syslog($priority, $message);
+		$this->syslogWrapper($priority, $message);
 	}
 
 	/**
@@ -171,5 +170,16 @@ class SyslogLogger extends AbstractLogger
 		$logMessage .= @json_encode($record);
 
 		return $logMessage;
+	}
+
+	/**
+	 * A syslog wrapper to make syslog functionality testable
+	 *
+	 * @param int    $level The syslog priority
+	 * @param string $entry The message to send to the syslog function
+	 */
+	protected function syslogWrapper($level, $entry)
+	{
+		syslog($level, $entry);
 	}
 }
