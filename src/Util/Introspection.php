@@ -63,7 +63,8 @@ class Introspection
 	 * Checks if the current trace class or function has to be skipped
 	 *
 	 * @param array $trace The current trace array
-	 * @param int $index The index of the current hierarchy level
+	 * @param int   $index The index of the current hierarchy level
+	 *
 	 * @return bool True if the class or function should get skipped, otherwise false
 	 */
 	private function isTraceClassOrSkippedFunction(array $trace, $index)
