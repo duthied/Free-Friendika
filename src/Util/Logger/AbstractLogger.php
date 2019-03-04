@@ -16,7 +16,7 @@ use Psr\Log\LogLevel;
  * - UID for each call
  * - Channel of the current call (i.e. index, worker, daemon, ...)
  */
-abstract class AbstractFriendicaLogger implements LoggerInterface
+abstract class AbstractLogger implements LoggerInterface
 {
 	/**
 	 * The output channel of this logger

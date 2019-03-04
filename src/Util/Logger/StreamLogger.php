@@ -9,7 +9,7 @@ use Psr\Log\LogLevel;
 /**
  * A Logger instance for logging into a stream (file, stdout, stderr)
  */
-class StreamLogger extends AbstractFriendicaLogger
+class StreamLogger extends AbstractLogger
 {
 	/**
 	 * The minimum loglevel at which this logger will be triggered

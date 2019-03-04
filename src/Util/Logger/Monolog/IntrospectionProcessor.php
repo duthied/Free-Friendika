@@ -9,7 +9,7 @@ use Monolog\Processor\ProcessorInterface;
 /**
  * Injects line/file//function where the log message came from
  */
-class FriendicaIntrospectionProcessor implements ProcessorInterface
+class IntrospectionProcessor implements ProcessorInterface
 {
 	private $level;
 

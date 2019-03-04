@@ -124,22 +124,6 @@ class StreamLoggerTest extends MockedTest
 		$this->assertLoglineNums(5, $text);
 	}
 
-
-	/**
-	 * Test if a file cannot get opened
-	 * @expectedException \UnexpectedValueException
-	 */
-	public function testNoFile()
-	{
-		$logfile = vfsStream::newFile('friendica.log')
-			->at($this->root)
-			->chmod(0);
-
-		$logger = new StreamLogger('test', $logfile->url(), $this->introspection);
-
-		$logger->emergency('not working');
-	}
-
 	/**
 	 * Test when a file isn't set
 	 * @expectedException \LogicException
@@ -153,13 +137,16 @@ class StreamLoggerTest extends MockedTest
 	}
 
 	/**
-	 * Test when a file doesn't exist
+	 * Test when a file cannot be opened
 	 * @expectedException \UnexpectedValueException
 	 * @expectedExceptionMessageRegExp /The stream or file .* could not be opened: .* /
 	 */
 	public function testWrongUrl()
 	{
-		$logger = new StreamLogger('test', 'wrongfile', $this->introspection);
+		$logfile = vfsStream::newFile('friendica.log')
+			->at($this->root)->chmod(0);
+
+		$logger = new StreamLogger('test', $logfile->url(), $this->introspection);
 
 		$logger->emergency('not working');
 	}
@@ -171,7 +158,7 @@ class StreamLoggerTest extends MockedTest
 	 */
 	public function testWrongDir()
 	{
-		$logger = new StreamLogger('test', 'a/wrong/directory/file.txt', $this->introspection);
+		$logger = new StreamLogger('test', '/a/wrong/directory/file.txt', $this->introspection);
 
 		$logger->emergency('not working');
 	}

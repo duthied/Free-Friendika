@@ -6,8 +6,8 @@ use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Introspection;
-use Friendica\Util\Logger\Monolog\FriendicaDevelopHandler;
-use Friendica\Util\Logger\Monolog\FriendicaIntrospectionProcessor;
+use Friendica\Util\Logger\Monolog\DevelopHandler;
+use Friendica\Util\Logger\Monolog\IntrospectionProcessor;
 use Friendica\Util\Logger\ProfilerLogger;
 use Friendica\Util\Logger\StreamLogger;
 use Friendica\Util\Logger\SyslogLogger;
@@ -67,7 +67,7 @@ class LoggerFactory
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-				$logger->pushProcessor(new FriendicaIntrospectionProcessor($introspection, LogLevel::DEBUG));
+				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
 
 				$stream = $config->get('system', 'logfile');
 
@@ -139,9 +139,9 @@ class LoggerFactory
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-				$logger->pushProcessor(new FriendicaIntrospectionProcessor($introspection, LogLevel::DEBUG));
+				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
 
-				$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
+				$logger->pushHandler(new DevelopHandler($developerIp));
 
 				static::addStreamHandler($logger, $stream, LogLevel::DEBUG);
 				break;

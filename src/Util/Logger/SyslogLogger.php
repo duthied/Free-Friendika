@@ -11,7 +11,7 @@ use Psr\Log\LogLevel;
  * A Logger instance for syslogging (fast, but simple)
  * @see http://php.net/manual/en/function.syslog.php
  */
-class SyslogLogger extends AbstractFriendicaLogger
+class SyslogLogger extends AbstractLogger
 {
 	const IDENT = 'Friendica';
 

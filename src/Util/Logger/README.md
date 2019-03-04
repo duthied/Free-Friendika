@@ -24,6 +24,4 @@ Each logging implementation should pe capable of printing at least the following
 -	A log message
 -	A context of the log message (f.e which user)
 
-If possible, a Logger should extend [`AbstractFriendicaLogger`](AbstractFriendicaLogger.php), because it contains additional, Friendica specific business logic for each logging call.
-
-Using AbstractFriendicaLogger makes the logger capable of adding profiling data for each log call.
+If possible, a Logger should extend [`AbstractLogger`](AbstractLogger.php), because it contains additional, Friendica specific business logic for each logging call.
