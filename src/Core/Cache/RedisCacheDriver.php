@@ -2,9 +2,8 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 use Exception;
+use Friendica\Core\Cache;
 use Redis;
 
 /**
@@ -145,7 +144,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 
 		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
-		if ($this->get($key) === $oldValue) {
+		if ($this->get($cachekey) === $oldValue) {
 			if ($ttl > 0) {
 				$result = $this->redis->multi()
 					->setex($cachekey, $ttl, $newCached)
@@ -170,7 +169,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 
 		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
-		if ($this->get($key) === $value) {
+		if ($this->get($cachekey) === $value) {
 			$result = $this->redis->multi()
 				->del($cachekey)
 				->exec();
