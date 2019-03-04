@@ -576,7 +576,7 @@ class App
 		}
 
 		// Prepend the sitename to the page title
-		$this->page['title'] = $this->config->get('config', 'sitename') . ($this->page['title'] ? ' | ' . $this->page['title'] : '');
+		$this->page['title'] = $this->config->get('config', 'sitename', '') . (!empty($this->page['title']) ? ' | ' . $this->page['title'] : '');
 
 		if (!empty(Core\Renderer::$theme['stylesheet'])) {
 			$stylesheet = Core\Renderer::$theme['stylesheet'];
