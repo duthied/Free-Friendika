@@ -2,9 +2,8 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 use Exception;
+use Friendica\Core\Cache;
 use Redis;
 
 /**
@@ -152,7 +151,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 					->exec();
 			} else {
 				$result = $this->redis->multi()
-					->set($cachekey, $newValue)
+					->set($cachekey, $newCached)
 					->exec();
 			}
 			return $result !== false;
