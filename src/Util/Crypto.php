@@ -7,6 +7,7 @@ namespace Friendica\Util;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use ASN_BASE;
 use ASNValue;
 
@@ -24,6 +25,9 @@ class Crypto
 	 */
 	public static function rsaSign($data, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			Logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		openssl_sign($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 		return $sig;
 	}
@@ -37,6 +41,9 @@ class Crypto
 	 */
 	public static function rsaVerify($data, $sig, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			Logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		return openssl_verify($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 	}
 
