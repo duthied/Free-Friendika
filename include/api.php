@@ -1294,7 +1294,7 @@ function api_get_last_status($ownerId, $uid, $type = 'json')
  */
 function api_get_item(array $condition)
 {
-	$item = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
+	$item = Item::selectFirst(Item::DISPLAY_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	return $item;
 }
