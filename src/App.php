@@ -570,13 +570,13 @@ class App
 			$interval = 40000;
 		}
 
-		// compose the page title from the sitename and the
-		// current module called
-		if (!$this->module == '') {
-			$this->page['title'] = $this->config->get('config', 'sitename') . ' (' . $this->module . ')';
-		} else {
-			$this->page['title'] = $this->config->get('config', 'sitename');
+		// Default title: current module called
+		if (empty($this->page['title']) && $this->module) {
+			$this->page['title'] = ucfirst($this->module);
 		}
+
+		// Prepend the sitename to the page title
+		$this->page['title'] = $this->config->get('config', 'sitename', '') . (!empty($this->page['title']) ? ' | ' . $this->page['title'] : '');
 
 		if (!empty(Core\Renderer::$theme['stylesheet'])) {
 			$stylesheet = Core\Renderer::$theme['stylesheet'];
