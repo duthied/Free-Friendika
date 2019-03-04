@@ -144,14 +144,14 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 
 		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
-		if ($this->get($cachekey) === $oldValue) {
+		if ($this->get($key) === $oldValue) {
 			if ($ttl > 0) {
 				$result = $this->redis->multi()
 					->setex($cachekey, $ttl, $newCached)
 					->exec();
 			} else {
 				$result = $this->redis->multi()
-					->set($cachekey, $newValue)
+					->set($cachekey, $newCached)
 					->exec();
 			}
 			return $result !== false;
@@ -169,7 +169,7 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 
 		$this->redis->watch($cachekey);
 		// If the old value isn't what we expected, somebody else changed the key meanwhile
-		if ($this->get($cachekey) === $value) {
+		if ($this->get($key) === $value) {
 			$result = $this->redis->multi()
 				->del($cachekey)
 				->exec();
