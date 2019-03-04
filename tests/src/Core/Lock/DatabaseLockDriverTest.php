@@ -104,4 +104,15 @@ class DatabaseLockDriverTest extends LockTest
 
 		parent::testReleaseAfterUnlock();
 	}
+
+	public function testReleaseWitTTL()
+	{
+		$this->mockIsLocked('test', false, $this->startTime, 1);
+		$this->mockAcquireLock('test', 10, false, $this->pid, false, $this->startTime, 1);
+		$this->mockIsLocked('test', true, $this->startTime, 1);
+		$this->mockReleaseLock('test', $this->pid, 1);
+		$this->mockIsLocked('test', false, $this->startTime, 1);
+
+		parent::testReleaseWitTTL();
+	}
 }

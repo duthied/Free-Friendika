@@ -76,11 +76,11 @@ class DatabaseLockDriver extends AbstractLockDriver
 			$where = ['name' => $key, 'pid' => $this->pid];
 		}
 
-		DBA::delete('locks', $where);
+		$return = DBA::delete('locks', $where);
 
 		$this->markRelease($key);
 
-		return;
+		return $return;
 	}
 
 	/**
@@ -88,9 +88,11 @@ class DatabaseLockDriver extends AbstractLockDriver
 	 */
 	public function releaseAll()
 	{
-		DBA::delete('locks', ['pid' => $this->pid]);
+		$return = DBA::delete('locks', ['pid' => $this->pid]);
 
 		$this->acquiredLocks = [];
+
+		return $return;
 	}
 
 	/**
