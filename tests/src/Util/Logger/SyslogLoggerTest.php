@@ -59,4 +59,15 @@ class SyslogLoggerTest extends AbstractLoggerTest
 
 		$logger->log('NOPE', 'a test');
 	}
+
+	/**
+	 * Test when the logfacility is wrong (string)
+	 * @expectedException \UnexpectedValueException
+	 * @expectedExceptionMessageRegExp /Can\'t open syslog for ident ".*" and facility ".*": .* /
+	 */
+	public function testServerException()
+	{
+		$logger = new SyslogLoggerWrapper('test', $this->introspection, LogLevel::DEBUG, null, 'a string');
+		$logger->emergency('not working');
+	}
 }

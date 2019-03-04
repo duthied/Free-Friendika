@@ -6,6 +6,9 @@ use Friendica\Util\Introspection;
 use Friendica\Util\Logger\SyslogLogger;
 use Psr\Log\LogLevel;
 
+/**
+ * Wraps the SyslogLogger for replacing the syslog call with a string field.
+ */
 class SyslogLoggerWrapper extends SyslogLogger
 {
 	private $content;
