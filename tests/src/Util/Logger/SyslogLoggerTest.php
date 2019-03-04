@@ -70,4 +70,16 @@ class SyslogLoggerTest extends AbstractLoggerTest
 		$logger = new SyslogLoggerWrapper('test', $this->introspection, LogLevel::DEBUG, null, 'a string');
 		$logger->emergency('not working');
 	}
+
+	/**
+	 * Test the close() method
+	 */
+	public function testClose()
+	{
+		$logger = new SyslogLoggerWrapper('test', $this->introspection);
+		$logger->emergency('test');
+		$logger->close();
+		// Reopened itself
+		$logger->emergency('test');
+	}
 }
