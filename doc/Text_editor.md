@@ -11,71 +11,85 @@ Creating posts
 
 Here you can find an overview of the different ways to create and edit your post.
 
-One click on "Share" text box on top of your Home or Network page, and the post editor shows up:
+One click on the Pencil & Paper icon in the top right of your Home or Network page, or the "Share" text box, and the post editor shows up.
+Below are examples of the post editor in 3 of Friendica's common themes:
 
 <figure>
-<img src="doc/img/friendica_editor.png" alt="default editor">
-<figcaption>Default post editor, with default Friendica theme (duepuntozero)</figcaption>
+<img src="doc/img/editor_frio.png" alt="frio editor">
+<figcaption>Post editor, with the <b>Frio</b> (popular default) theme.</figcaption>
+</figure>
+<p style="clear:both;"></p>
+<figure>
+<img src="doc/img/editor_vier.png" alt="vier editor" width="675">
+<figcaption>Post editor, with the <b>Vier</b> theme.</figcaption>
+</figure>
+<p style="clear:both;"></p>
+<figure>
+<img src="doc/img/editor_dpzero.png" alt="duepuntozero editor">
+<figcaption>Post editor, with the <b>Duepuntozero</b> theme.</figcaption>
 </figure>
 
-Post title is optional, you can set it clicking on "Set title".
+Post title is optional, you can set it by clicking on "Set title".
 
-Posts can optionally be in one or more categories. Write categories name separated by a comma to file your new post.
+Posts can optionally be in one or more categories. Write category names separated by a comma to file your new post.
 
 The Big Empty Textarea is where you write your new post.
-You can simply enter your text there and click "Share" button, and your new post will be public on your profile page and shared to your contact.
+You can simply enter your text there and click the "Share" button, and your new post will be public on your profile page and shared to your contact.
 
 If plain text is not so exciting to you, Friendica understands BBCode to spice up your posts: bold, italic, images, links, lists..
 See [BBCode tags reference](help/BBCode) page to see all what you can do.
 
-The icons under the text area are there to help you to write posts quickly:
+The icons under the text area are there to help you to write posts quickly, but vary depending on the theme:
 
-<img src="doc/img/camera.png" width="32" height="32" alt="editor" align="left" style="padding-bottom: 20px;"> Upload a picture from your computer. The image will be uploaded and correct bbcode tag will be added to your post.*
+With the Frio theme, the Underline, Italics and Bold buttons should be self-explanatory.
+
+<img src="doc/img/camera.png" width="32" height="32" alt="editor" align="left"> Upload a picture from your computer. The image will be uploaded and correct bbcode tag will be added to your post.*  In the Frio theme, use the <b>Browser</b> tab instead to Upload and/or attach content to your post.
 <p style="clear:both;"></p>
 
-<img src="doc/img/paper_clip.png" width="32" height="32" alt="paper_clip" align="left"> Add files from your computer. Same as picture, but for generic attachment to the post.*
+<img src="doc/img/paper_clip.png" width="32" height="32" alt="paper_clip" align="left"> This depends on the theme: For Frio, this is to attach remote content - put in a URL to embed in your post, including video or audio content.  For other themes: Add files from your computer. Same as picture, but for generic attachment to the post.*
 <p style="clear:both;"></p>
 
-<img src="doc/img/chain.png" width="32" height="32" alt="chain" align="left"> Add a web address (url). Enter an url and Friendica will add to your post a link to the url and an excerpt from the web site, if possible.
+<img src="doc/img/chain.png" width="32" height="32" alt="chain" align="left"> Add a web address (url). Enter a URL and Friendica will add to your post a link to the url and an excerpt from the web site, if possible.
 <p style="clear:both;"></p>
 
-<img src="doc/img/video.png" width="32" height="32" alt="video" align="left"> Add a video. Enter the url to a video (ogg) or to a video page on youtube or vimeo, and it will be embedded in your post with a preview. Friendica is using [HTML5](http://en.wikipedia.org/wiki/HTML5_video) for embedding content. Therefore, the supported files are depending on your browser and operating system (OS). Some filetypes are WebM, MP4 and OGG.*
+<img src="doc/img/video.png" width="32" height="32" alt="video" align="left"> Add a video. Enter the url to a video (ogg) or to a video page on youtube or vimeo, and it will be embedded in your post with a preview. (In the Frio theme, this is done with the paperclip as mentioned above.) Friendica is using [HTML5](http://en.wikipedia.org/wiki/HTML5_video) for embedding content. Therefore, the supported files are depending on your browser and operating system (OS). Some filetypes are WebM, MP4 and OGG.*
 <p style="clear:both;"></p>
 
-<img src="doc/img/mic.png" width="32" height="32" alt="mic" align="left" style="padding-bottom: 20px;"> Add an audio. Same as video, but for audio. Depending on your browser and operation system MP3, OGG and AAC are supported. Additionally, you are able to add URLs from audiohosters like Soundcloud.
+<img src="doc/img/mic.png" width="32" height="32" alt="mic" align="left"> Add an audio. Same as video, but for audio. Depending on your browser and operation system MP3, OGG and AAC are supported. Additionally, you are able to add URLs from audiohosters like Soundcloud.
 
 <p style="clear:both;"></p>
 
-<img src="doc/img/globe.png" width="32" height="32" alt="globe" align="left"> Set your geographic location. This location will be added into a Google Maps search. That's why a note like "New York" or "10004" is already enough.
+<img src="doc/img/globe.png" width="32" height="32" alt="globe" align="left"> <b>Or</b> <img src="doc/img/frio_location.png" width="32" height="32" alt="location" align="none"> Set your geographic location. This location will be added into a Google Maps search. That's why a note like "New York" or "10004" is already enough.
+<p style="clear:both;"></p>
+<br />
+
 <p style="clear:both;"></p>
 
-<i>* how to [upload](help/FAQ#upload) files</i>
-
-Those icons can change with themes. Some examples:
+These icons can change depending on the theme. Some examples:
 
 <table>
 <tr>
-    <td>Darkbubble: </td>
+    <td>Vier: </td>
+    <td><img src="doc/img/vier_icons.png" alt="vier.png" style="vertical-align:middle;"></td>
+    <td>&nbsp;</td>
+</tr>
+<tr>
+    <td>Smoothly: </td>
     <td><img src="doc/img/editor_darkbubble.png" alt="darkbubble.png" style="vertical-align:middle;"></td>
-    <td><i>(inkl. smoothly, testbubble)</i></td>
+    <td>&nbsp;</td>
 </tr>
 <tr>
     <td>Frost: </td>
     <td><img src="doc/img/editor_frost.png" alt="frost.png" style="vertical-align:middle;"> </td>
     <td>&nbsp;</td>
 </tr>
-<tr>
-    <td>Vier: </td>
-    <td><img src="doc/img/editor_vier.png" alt="vier.png" style="vertical-align:middle;"></td>
-    <td><i>(inkl. dispy)</i></td>
-</tr>
 </table>
-<p style="clear:both;">&nbsp;</p>
+<i><b>*</b> how to [upload](help/FAQ#upload) files</i>
 <p style="clear:both;">&nbsp;</p>
 
-**<img src="doc/img/lock.png" width="32" height="32" alt="lock icon"  style="vertical-align:middle;"> The lock**
+**<img src="doc/img/lock.png" width="32" height="32" alt="lock icon"  style="vertical-align:middle;"> The Lock / Permissions**
 
-The last button, the Lock, is the most important feature in Friendica. If the lock is open, your post will be public, and will shows up on your profile page when strangers visit it.
+In Frio, the Permissions tab, or in other themes, the Lock button, is the most important feature in Friendica. If the lock is open, your post will be public, and will show up on your profile page when strangers visit it.
 
 Click on it and the *Permission settings* window (aka "*Access Control Selector*" or "*ACL Selector*") pops up. There you can select who can see the post.
 
