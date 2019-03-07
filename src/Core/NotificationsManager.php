@@ -73,7 +73,7 @@ class NotificationsManager extends BaseObject
 
 		$dbFilter = array_merge($filter, ['uid' => local_user()]);
 
-		$stmtNotifies = DBA::select('notify', [], $dbFilter, $order, $params);
+		$stmtNotifies = DBA::select('notify', [], $dbFilter, $params);
 
 		if (DBA::isResult($stmtNotifies)) {
 			return $this->_set_extra(DBA::toArray($stmtNotifies));
@@ -429,6 +429,7 @@ class NotificationsManager extends BaseObject
 		}
 
 		$params = [];
+        $params['order'] = ['date' => 'DESC'];
 		$params['limit'] = [$start, $limit];
 
 		$stmtNotifies = DBA::select('notify',
