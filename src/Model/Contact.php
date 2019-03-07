@@ -1624,27 +1624,35 @@ class Contact extends BaseObject
 	/**
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
+	 * @param boolean $force   Optional forcing of network probing (otherwise we use the cached data)
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromProbe($id, $network = '')
+	public static function updateFromProbe($id, $network = '', $force = false)
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
 		  This will reliably kill your communication with Friendica contacts.
 		 */
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'batch', 'notify', 'poll', 'poco', 'network'];
+		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
+			'poll', 'request', 'confirm', 'poco', 'network', 'alias'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
 		}
 
-		$ret = Probe::uri($contact["url"], $network);
+		$uid = $contact['uid'];
+		unset($contact['uid']);
+
+		$contact['photo'] = $contact['avatar'];
+		unset($contact['avatar']);
+
+		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
 		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if (($ret["network"] != $contact["network"]) && !in_array($ret["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, $network])) {
+		if ((in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM])) && ($ret['network'] != $contact['network'])) {
 			return false;
 		}
 
@@ -1652,11 +1660,11 @@ class Contact extends BaseObject
 
 		// make sure to not overwrite existing values with blank entries
 		foreach ($ret as $key => $val) {
-			if (isset($contact[$key]) && ($contact[$key] != "") && ($val == "")) {
+			if (!isset($contact[$key])) {
+				unset($ret[$key]);
+			} elseif (($contact[$key] != '') && ($val == '')) {
 				$ret[$key] = $contact[$key];
-			}
-
-			if (isset($contact[$key]) && ($ret[$key] != $contact[$key])) {
+			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
 			}
 		}
@@ -1665,20 +1673,12 @@ class Contact extends BaseObject
 			return true;
 		}
 
-		DBA::update(
-			'contact', [
-				'url'     => $ret['url'],
-				'nurl'    => Strings::normaliseLink($ret['url']),
-				'network' => $ret['network'],
-				'addr'    => $ret['addr'],
-				'alias'   => $ret['alias'],
-				'batch'   => $ret['batch'],
-				'notify'  => $ret['notify'],
-				'poll'    => $ret['poll'],
-				'poco'    => $ret['poco']
-			],
-			['id' => $id]
-		);
+		$ret['nurl'] = Strings::normaliseLink($ret['url']);
+
+		self::updateAvatar($ret['photo'], $uid, $id, true);
+
+		unset($ret['photo']);
+		DBA::update('contact', $ret, ['id' => $id]);
 
 		// Update the corresponding gcontact entry
 		PortableContact::lastUpdated($ret["url"]);
