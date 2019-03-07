@@ -429,7 +429,7 @@ class NotificationsManager extends BaseObject
 		}
 
 		$params = [];
-        $params['order'] = ['date' => 'DESC'];
+		$params['order'] = ['date' => 'DESC'];
 		$params['limit'] = [$start, $limit];
 
 		$stmtNotifies = DBA::select('notify',
