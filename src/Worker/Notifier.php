@@ -446,7 +446,8 @@ class Notifier
 					// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
 					// Situation is that sometimes Friendica servers receive Friendica posts over the Diaspora protocol first.
 					// The conversion in Markdown reduces the formatting, so these posts should arrive after the Friendica posts.
-					if ($rr['network'] == Protocol::DIASPORA) {
+					// This is only important for high and medium priority tasks and not for Low priority jobs like deletions.
+					if (($rr['network'] == Protocol::DIASPORA) && in_array($a->queue['priority'], [PRIORITY_HIGH, PRIORITY_MEDIUM])) {
 						$deliver_options = ['priority' => $a->queue['priority'], 'dont_fork' => true];
 					} else {
 						$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
