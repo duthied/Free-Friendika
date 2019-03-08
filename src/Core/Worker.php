@@ -702,7 +702,7 @@ class Worker
 
 			$processlist .= ' ('.implode(', ', $listitem).')';
 
-			if (Config::get("system", "worker_fastlane", false) && ($queues > 0) && self::entriesExists() && ($active >= $queues)) {
+			if (Config::get("system", "worker_fastlane", false) && ($queues > 0) && ($active >= $queues) && self::entriesExists()) {
 				$top_priority = self::highestPriority();
 				$high_running = self::processWithPriorityActive($top_priority);
 
@@ -715,7 +715,7 @@ class Worker
 			Logger::log("Load: " . $load ."/" . $maxsysload . " - processes: " . $deferred . "/" . $active . "/" . $waiting_processes . $processlist . " - maximum: " . $queues . "/" . $maxqueues, Logger::DEBUG);
 
 			// Are there fewer workers running as possible? Then fork a new one.
-			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && ($entries > 1)) {
+			if (!Config::get("system", "worker_dont_fork", false) && ($queues > ($active + 1)) && self::entriesExists()) {
 				Logger::log("Active workers: ".$active."/".$queues." Fork a new worker.", Logger::DEBUG);
 				if (Config::get('system', 'worker_daemon_mode', false)) {
 					self::IPCSetJobState(true);
