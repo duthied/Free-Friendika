@@ -293,6 +293,11 @@ class Update
 		Logger::log("Database structure update successful.", Logger::TRACE);
 	}
 
+	/**
+	 * Returns the current build number of the instance
+	 *
+	 * @return int the build number
+	 */
 	private static function getBuild()
 	{
 		$build = Config::get('system', 'build');
