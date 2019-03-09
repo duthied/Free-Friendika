@@ -459,7 +459,6 @@ class Network
 	 * @param string $url The url to check the domain from
 	 *
 	 * @return boolean
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isUrlBlocked($url)
 	{
