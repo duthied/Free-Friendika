@@ -44,7 +44,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 		// It makes mobile Chrome UI match Frio's top bar color.
 		$uid = Profile::getThemeUid($a);
 		$scheme = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema'));
-		if ($scheme && ($scheme != '---')) {
+		if ($scheme && is_string($scheme) && $scheme != '---') {
 			if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {
 				$schemefile = 'view/theme/frio/scheme/' . $scheme . '.php';
 				require_once $schemefile;
