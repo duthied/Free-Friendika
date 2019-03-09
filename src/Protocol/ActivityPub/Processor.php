@@ -710,7 +710,7 @@ class Processor
 		$kept_mentions = [];
 
 		// Extract one prepended mention at a time from the body
-		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#mis', $body, $matches)) {
+		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#is', $body, $matches)) {
 			if (!in_array($matches[2], $potential_mentions) ) {
 				$kept_mentions[] = $matches[1];
 			}
