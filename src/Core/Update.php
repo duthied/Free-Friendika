@@ -68,68 +68,67 @@ class Update
 			Lock::release('dbupdate', true);
 		}
 
-		$build = Config::get('system', 'build');
+		$current = intval(DB_UPDATE_VERSION);
+		$stored = self::getBuild();
 
-		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-			$build = DB_UPDATE_VERSION - 1;
-			Config::set('system', 'build', $build);
-		}
-
-		if ($build != DB_UPDATE_VERSION || $force) {
+		if ($stored < $current || $force) {
 			require_once 'update.php';
 
-			$stored = intval($build);
-			$current = intval(DB_UPDATE_VERSION);
-			if ($stored < $current || $force) {
-				Config::load('database');
+			Config::load('database');
 
-				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
+			Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
 
-				// Compare the current structure with the defined structure
-				// If the Lock is acquired, never release it automatically to avoid double updates
-				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
+			// Compare the current structure with the defined structure
+			// If the Lock is acquired, never release it automatically to avoid double updates
+			if (Lock::acquire('dbupdate', 0, Cache::INFINITE)) {
 
-					// run the pre_update_nnnn functions in update.php
-					for ($x = $stored + 1; $x <= $current; $x++) {
-						$r = self::runUpdateFunction($x, 'pre_update');
-						if (!$r) {
-							break;
-						}
-					}
-
-					// update the structure in one call
-					$retval = DBStructure::update($basePath, $verbose, true);
-					if (!empty($retval)) {
-						if ($sendMail) {
-							self::updateFailed(
-								DB_UPDATE_VERSION,
-								$retval
-							);
-						}
-						Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
-						Lock::release('dbupdate');
-						return $retval;
-					} else {
-						Config::set('database', 'last_successful_update', $current);
-						Config::set('database', 'last_successful_update_time', time());
-						Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
-					}
-
-					// run the update_nnnn functions in update.php
-					for ($x = $stored + 1; $x <= $current; $x++) {
-						$r = self::runUpdateFunction($x, 'update');
-						if (!$r) {
-							break;
-						}
-					}
-
-					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
-					if ($sendMail) {
-						self::updateSuccessfull($stored, $current);
-					}
-
+				// recheck again in case we accidentally spawned multiple updates
+				$stored = intval(self::getBuild());
+				if ($stored >= $current) {
 					Lock::release('dbupdate');
+					return '';
 				}
+
+				// run the pre_update_nnnn functions in update.php
+				for ($x = $stored + 1; $x <= $current; $x++) {
+					$r = self::runUpdateFunction($x, 'pre_update');
+					if (!$r) {
+						break;
+					}
+				}
+
+				// update the structure in one call
+				$retval = DBStructure::update($basePath, $verbose, true);
+				if (!empty($retval)) {
+					if ($sendMail) {
+						self::updateFailed(
+							DB_UPDATE_VERSION,
+							$retval
+						);
+					}
+					Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
+					Lock::release('dbupdate');
+					return $retval;
+				} else {
+					Config::set('database', 'last_successful_update', $current);
+					Config::set('database', 'last_successful_update_time', time());
+					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
+				}
+
+				// run the update_nnnn functions in update.php
+				for ($x = $stored + 1; $x <= $current; $x++) {
+					$r = self::runUpdateFunction($x, 'update');
+					if (!$r) {
+						break;
+					}
+				}
+
+				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
+				if ($sendMail) {
+					self::updateSuccessfull($stored, $current);
+				}
+
+				Lock::release('dbupdate');
 			}
 		}
 
@@ -292,5 +291,17 @@ class Update
 
 		//try the logger
 		Logger::log("Database structure update successful.", Logger::TRACE);
+	}
+
+	private static function getBuild()
+	{
+		$build = Config::get('system', 'build');
+
+		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
+			$build = DB_UPDATE_VERSION - 1;
+			Config::set('system', 'build', $build);
+		}
+
+		return (is_int($build) ? intval($build) : DB_UPDATE_VERSION - 1);
 	}
 }
