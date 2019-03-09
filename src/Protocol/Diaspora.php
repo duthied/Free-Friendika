@@ -1135,8 +1135,11 @@ class Diaspora
 		//	Logger::log("defining user ".$contact["nick"]." as friend");
 		//}
 
-		// We don't seem to like that person
-		if ($contact["blocked"]) {
+		// Contact server is blocked
+		if (Network::isUrlBlocked($contact['url'])) {
+			return false;
+			// We don't seem to like that person
+		} elseif ($contact["blocked"]) {
 			// Maybe blocked, don't accept.
 			return false;
 			// We are following this person?
