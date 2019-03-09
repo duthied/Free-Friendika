@@ -135,6 +135,9 @@ class LoggerFactory
 		switch ($config->get('system', 'logger_config', 'stream')) {
 
 			case 'monolog':
+				$loggerTimeZone = new \DateTimeZone('UTC');
+				Monolog\Logger::setTimezone($loggerTimeZone);
+
 				$logger = new Monolog\Logger($channel);
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());

@@ -134,7 +134,7 @@ class StreamLogger extends AbstractLogger
 		$record = array_merge($record, ['uid' => $this->logUid, 'process_id' => $this->pid]);
 		$logMessage = '';
 
-		$logMessage .= DateTimeFormat::localNow() . ' ';
+		$logMessage .= DateTimeFormat::utcNow() . ' ';
 		$logMessage .= $this->channel . ' ';
 		$logMessage .= '[' . strtoupper($level) . ']: ';
 		$logMessage .= $this->psrInterpolate($message, $context) . ' ';
