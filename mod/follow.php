@@ -60,7 +60,11 @@ function follow_content(App $a)
 	}
 
 	$uid = local_user();
-	$url = Strings::escapeTags(trim($_REQUEST['url']));
+	$url = Strings::escapeTags(trim(defaults($_REQUEST, 'url', '')));
+
+	if (!$url) {
+		$a->internalRedirect($return_path);
+	}
 
 	$submit = L10n::t('Submit Request');
 
