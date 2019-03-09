@@ -40,6 +40,9 @@ class LoggerFactory
 	 */
 	public static function create($channel, Configuration $config)
 	{
+		$loggerTimeZone = new \DateTimeZone('UTC');
+		Monolog\Logger::setTimezone($loggerTimeZone);
+
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
@@ -84,6 +87,9 @@ class LoggerFactory
 		if (!isset($developerIp) || !$debugging) {
 			return null;
 		}
+
+		$loggerTimeZone = new \DateTimeZone('UTC');
+		Monolog\Logger::setTimezone($loggerTimeZone);
 
 		$logger = new Monolog\Logger($channel);
 		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
