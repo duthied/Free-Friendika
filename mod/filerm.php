@@ -12,7 +12,7 @@ function filerm_content(App $a)
 		exit();
 	}
 
-	$term = XML::unescape(trim($_GET['term']));
+	$term = XML::unescape(trim(defaults($_GET, 'term', '')));
 	$cat = XML::unescape(trim(defaults($_GET, 'cat', '')));
 
 	$category = (($cat) ? true : false);
