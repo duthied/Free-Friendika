@@ -79,7 +79,7 @@ class Update
 			if (Lock::acquire('dbupdate', 0, Cache::INFINITE)) {
 
 				// recheck again in case we accidentally spawned multiple updates
-				$stored = intval(self::getBuild());
+				$stored = self::getBuild();
 				if ($stored >= $current) {
 					Lock::release('dbupdate');
 					return '';
