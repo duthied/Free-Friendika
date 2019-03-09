@@ -25,7 +25,7 @@ class Register
 	public static function getPending()
 	{
 		$stmt = DBA::p(
-			"SELECT `register`.*, `contact`.`name`, `user`.`email`
+			"SELECT `register`.*, `contact`.`name`, `contact`.`url`, `contact`.`micro`, `user`.`email`
 			FROM `register`
 			INNER JOIN `contact` ON `register`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `register`.`uid` = `user`.`uid`"

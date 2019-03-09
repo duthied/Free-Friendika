@@ -447,7 +447,7 @@ class Image
 			return;
 		}
 
-		$ort = $exif['IFD0']['Orientation'];
+		$ort = isset($exif['IFD0']['Orientation']) ? $exif['IFD0']['Orientation'] : 1;
 
 		switch ($ort) {
 			case 1: // nothing
