@@ -24,15 +24,19 @@ class Update
 			return;
 		}
 
-		$build = self::getBuild();
-		$current = intval(DB_UPDATE_VERSION);
+		$build = Config::get('system', 'build');
+
+		if (empty($build)) {
+			Config::set('system', 'build', DB_UPDATE_VERSION - 1);
+			$build = DB_UPDATE_VERSION - 1;
+		}
 
 		// We don't support upgrading from very old versions anymore
 		if ($build < NEW_UPDATE_ROUTINE_VERSION) {
 			die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
 		}
 
-		if ($build < $current ) {
+		if ($build < DB_UPDATE_VERSION) {
 			if ($via_worker) {
 				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
 				// This is a fallback, since normally the database update will be performed by a worker job.
@@ -64,67 +68,68 @@ class Update
 			Lock::release('dbupdate', true);
 		}
 
-		$current = intval(DB_UPDATE_VERSION);
-		$stored = self::getBuild();
+		$build = Config::get('system', 'build');
 
-		if ($stored < $current || $force) {
+		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
+			$build = DB_UPDATE_VERSION - 1;
+			Config::set('system', 'build', $build);
+		}
+
+		if ($build != DB_UPDATE_VERSION || $force) {
 			require_once 'update.php';
 
-			Config::load('database');
+			$stored = intval($build);
+			$current = intval(DB_UPDATE_VERSION);
+			if ($stored < $current || $force) {
+				Config::load('database');
 
-			Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
+				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
 
-			// Compare the current structure with the defined structure
-			// If the Lock is acquired, never release it automatically to avoid double updates
-			if (Lock::acquire('dbupdate', 0, Cache::INFINITE)) {
+				// Compare the current structure with the defined structure
+				// If the Lock is acquired, never release it automatically to avoid double updates
+				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
 
-				// recheck again in case we accidentally spawned multiple updates
-				$stored = self::getBuild();
-				if ($stored >= $current) {
-					Lock::release('dbupdate');
-					return '';
-				}
-
-				// run the pre_update_nnnn functions in update.php
-				for ($x = $stored + 1; $x <= $current; $x++) {
-					$r = self::runUpdateFunction($x, 'pre_update');
-					if (!$r) {
-						break;
+					// run the pre_update_nnnn functions in update.php
+					for ($x = $stored + 1; $x <= $current; $x++) {
+						$r = self::runUpdateFunction($x, 'pre_update');
+						if (!$r) {
+							break;
+						}
 					}
-				}
 
-				// update the structure in one call
-				$retval = DBStructure::update($basePath, $verbose, true);
-				if (!empty($retval)) {
+					// update the structure in one call
+					$retval = DBStructure::update($basePath, $verbose, true);
+					if (!empty($retval)) {
+						if ($sendMail) {
+							self::updateFailed(
+								DB_UPDATE_VERSION,
+								$retval
+							);
+						}
+						Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
+						Lock::release('dbupdate');
+						return $retval;
+					} else {
+						Config::set('database', 'last_successful_update', $current);
+						Config::set('database', 'last_successful_update_time', time());
+						Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
+					}
+
+					// run the update_nnnn functions in update.php
+					for ($x = $stored + 1; $x <= $current; $x++) {
+						$r = self::runUpdateFunction($x, 'update');
+						if (!$r) {
+							break;
+						}
+					}
+
+					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
 					if ($sendMail) {
-						self::updateFailed(
-							DB_UPDATE_VERSION,
-							$retval
-						);
+						self::updateSuccessfull($stored, $current);
 					}
-					Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
+
 					Lock::release('dbupdate');
-					return $retval;
-				} else {
-					Config::set('database', 'last_successful_update', $current);
-					Config::set('database', 'last_successful_update_time', time());
-					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
 				}
-
-				// run the update_nnnn functions in update.php
-				for ($x = $stored + 1; $x <= $current; $x++) {
-					$r = self::runUpdateFunction($x, 'update');
-					if (!$r) {
-						break;
-					}
-				}
-
-				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
-				if ($sendMail) {
-					self::updateSuccessfull($stored, $current);
-				}
-
-				Lock::release('dbupdate');
 			}
 		}
 
@@ -287,22 +292,5 @@ class Update
 
 		//try the logger
 		Logger::log("Database structure update successful.", Logger::TRACE);
-	}
-
-	/**
-	 * Returns the current build number of the instance
-	 *
-	 * @return int the build number
-	 */
-	private static function getBuild()
-	{
-		$build = Config::get('system', 'build');
-
-		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-			$build = DB_UPDATE_VERSION - 1;
-			Config::set('system', 'build', $build);
-		}
-
-		return (is_int($build) ? intval($build) : DB_UPDATE_VERSION - 1);
 	}
 }
