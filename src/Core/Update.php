@@ -24,19 +24,15 @@ class Update
 			return;
 		}
 
-		$build = Config::get('system', 'build');
-
-		if (empty($build)) {
-			Config::set('system', 'build', DB_UPDATE_VERSION - 1);
-			$build = DB_UPDATE_VERSION - 1;
-		}
+		$build = self::getBuild();
+		$current = intval(DB_UPDATE_VERSION);
 
 		// We don't support upgrading from very old versions anymore
 		if ($build < NEW_UPDATE_ROUTINE_VERSION) {
 			die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
 		}
 
-		if ($build < DB_UPDATE_VERSION) {
+		if ($build < $current ) {
 			if ($via_worker) {
 				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
 				// This is a fallback, since normally the database update will be performed by a worker job.
