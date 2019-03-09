@@ -710,7 +710,7 @@ class Processor
 		$kept_mentions = [];
 
 		// Extract one prepended mention at a time from the body
-		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#mis', $body, $matches)) {
+		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#is', $body, $matches)) {
 			if (!in_array($matches[2], $potential_mentions) ) {
 				$kept_mentions[] = $matches[1];
 			}
@@ -742,31 +742,5 @@ class Processor
 		}
 
 		return $activity_tags;
-	}
-
-	public static function testImplicitMentions($item, $source)
-	{
-		$parent = Item::selectFirst(['id', 'guid', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
-
-		$implicit_mentions = self::getImplicitMentionList($parent);
-		var_dump($implicit_mentions);
-
-		$object = json_decode($source, true)['object'];
-		var_dump($object);
-
-		$content = HTML::toBBCode($object['content']);
-		$content = self::convertMentions($content);
-
-		$activity = [
-			'tags' => $object['tag'],
-			'content' => $content
-		];
-
-		var_dump($activity);
-
-		$activity['content'] = Processor::removeImplicitMentionsFromBody($activity['content'], $implicit_mentions);
-		$activity['tags'] = Processor::convertImplicitMentionsInTags($activity['tags'], $implicit_mentions);
-
-		return $activity;
 	}
 }
