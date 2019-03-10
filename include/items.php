@@ -24,7 +24,8 @@ use Friendica\Util\ParseUrl;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'mod/share.php';
+require_once __DIR__ . '/../mod/share.php';
+
 function add_page_info_data(array $data, $no_photos = false)
 {
 	Hook::callAll('page_info_data', $data);
