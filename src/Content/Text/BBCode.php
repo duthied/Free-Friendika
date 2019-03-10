@@ -1268,24 +1268,7 @@ class BBCode extends BaseObject
 
 		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 		if (!$for_plaintext) {
-			// Autolink feature (thanks to https://daringfireball.net/2010/07/improved_regex_for_matching_urls)
-			$autolink_regex = '@(?xi)
-(?<![=\'\]"/])          # Not preceded by =, \', ], ", /
-\b
-(                       # Capture 1: entire matched URL
-  https?://                 # http or https protocol
-  (?:
-    [^/.][^/]+[.][^/]+/?    # looks like domain name followed by a slash
-  )
-  (?:                       # One or more:
-    [^\s()<>]+                  # Run of non-space, non-()<>
-    |                           #   or
-    \(([^\s()<>]+|(\([^\s()<>]+\)))*\)  # balanced parens, up to 2 levels
-    |                               #   or
-    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]        # not a space or one of these punct chars
-  )*
-)@';
-			$text = preg_replace($autolink_regex, '[url]$1[/url]', $text);
+			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
 			if ($simple_html == 7) {
 				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);

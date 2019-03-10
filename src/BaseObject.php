@@ -4,7 +4,7 @@
  */
 namespace Friendica;
 
-require_once 'boot.php';
+require_once __DIR__ . '/../boot.php';
 
 use Friendica\Network\HTTPException\InternalServerErrorException;
 

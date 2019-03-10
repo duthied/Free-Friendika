@@ -346,4 +346,30 @@ class Strings
 
 		return $return;
 	}
+
+	/**
+	 * Returns the regular expression string to match URLs in a given text
+	 *
+	 * @return string
+	 * @see https://daringfireball.net/2010/07/improved_regex_for_matching_urls
+	 */
+	public static function autoLinkRegEx()
+	{
+		return '@(?xi)
+(?<![=\'\]"/])          # Not preceded by [, =, \', ], ", /
+\b
+(                       # Capture 1: entire matched URL
+  https?://                 # http or https protocol
+  (?:
+    [^/.][^/]+[.][^/]+/?    # looks like domain name followed by a slash
+  )
+  (?:                       # One or more:
+    [^\s()<>]+                  # Run of non-space, non-()<>
+    |                           #   or
+    \(([^\s()<>]+|(\([^\s()<>]+\)))*\)  # balanced parens, up to 2 levels
+    |                               #   or
+    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]        # not a space or one of these punct chars
+  )*
+)@';
+	}
 }

@@ -9,7 +9,6 @@ namespace Friendica\Content\Text;
 use Friendica\BaseObject;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
-use Michelf\MarkdownExtra;
 
 /**
  * Friendica-specific usage of Markdown
@@ -31,11 +30,18 @@ class Markdown extends BaseObject
 	public static function convert($text, $hardwrap = true) {
 		$stamp1 = microtime(true);
 
-		$MarkdownParser = new MarkdownExtra();
-		$MarkdownParser->hard_wrap = $hardwrap;
-		$MarkdownParser->code_class_prefix = 'language-';
+		$MarkdownParser = new MarkdownParser();
+		$MarkdownParser->code_class_prefix  = 'language-';
+		$MarkdownParser->hard_wrap          = $hardwrap;
+		$MarkdownParser->hashtag_protection = true;
+		$MarkdownParser->url_filter_func    = function ($url) {
+			if (strpos($url, '#') === 0) {
+				$url = ltrim($_SERVER['REQUEST_URI'], '/') . $url;
+			}
+			return  $url;
+		};
+
 		$html = $MarkdownParser->transform($text);
-		$html = preg_replace('/<a(.*?)href="#/is', '<a$1href="' . ltrim($_SERVER['REQUEST_URI'], '/') . '#', $html);
 
 		self::getApp()->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
