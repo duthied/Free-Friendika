@@ -27,6 +27,7 @@ use Friendica\Util\Map;
 use Friendica\Util\XML;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -1439,20 +1440,30 @@ class Item extends BaseObject
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
 
-		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item["author-link"], 0, false, $default));
+		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item['author-link'], 0, false, $default));
 
-		if (Contact::isBlocked($item["author-id"])) {
-			Logger::notice('Author is blocked node-wide', ['author-link' => $item["author-link"], 'item-uri' => $item["uri"]]);
+		if (Contact::isBlocked($item['author-id'])) {
+			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		if (!empty($item['author-link']) && Network::isUrlBlocked($item['author-link'])) {
+			Logger::notice('Author server is blocked', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
 			return 0;
 		}
 
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
-		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item["owner-link"], 0, false, $default));
+		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item['owner-link'], 0, false, $default));
 
-		if (Contact::isBlocked($item["owner-id"])) {
-			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item["owner-link"], 'item-uri' => $item["uri"]]);
+		if (Contact::isBlocked($item['owner-id'])) {
+			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		if (!empty($item['owner-link']) && Network::isUrlBlocked($item['owner-link'])) {
+			Logger::notice('Owner server is blocked', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
 			return 0;
 		}
 
