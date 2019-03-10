@@ -68,7 +68,7 @@ class Update
 			Lock::release('dbupdate', true);
 		}
 
-		$build = Config::get('system', 'build');
+		$build = Config::get('system', 'build', null, true);
 
 		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
 			$build = DB_UPDATE_VERSION - 1;
@@ -88,6 +88,13 @@ class Update
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
 				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
+
+					// Checks if the build changed during Lock acquiring (so no double update occurs)
+					$retryBuild = Config::get('system', 'build', null, true);
+					if ($retryBuild !== $build) {
+						Lock::release('dbupdate');
+						return '';
+					}
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
