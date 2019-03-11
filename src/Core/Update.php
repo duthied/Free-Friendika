@@ -92,6 +92,7 @@ class Update
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
 					$retryBuild = Config::get('system', 'build', null, true);
 					if ($retryBuild !== $build) {
+						Logger::debug('Update from \'' . $stored . '\' to \''. $current . '\' - already done');
 						Lock::release('dbupdate');
 						return '';
 					}
