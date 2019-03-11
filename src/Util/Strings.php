@@ -358,17 +358,17 @@ class Strings
 		return '@(?xi)
 (?<![=\'\]"/])          # Not preceded by [, =, \', ], ", /
 \b
-(                       # Capture 1: entire matched URL
-  https?://                 # http or https protocol
+(                              # Capture 1: entire matched URL
+  https?://                            # http or https protocol
   (?:
-    [^/.][^/]+[.][^/]+/?    # looks like domain name followed by a slash
+    [^/\s.][^/\s]+[.][^\s/]+/?         # looks like domain name followed by a slash
   )
-  (?:                       # One or more:
-    [^\s()<>]+                  # Run of non-space, non-()<>
-    |                           #   or
-    \(([^\s()<>]+|(\([^\s()<>]+\)))*\)  # balanced parens, up to 2 levels
-    |                               #   or
-    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]        # not a space or one of these punct chars
+  (?:                                  # One or more:
+    [^\s()<>]+                         # Run of non-space, non-()<>
+    |                                  #   or
+    \(([^\s()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
+    |                                  #   or
+    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
   )*
 )@';
 	}
