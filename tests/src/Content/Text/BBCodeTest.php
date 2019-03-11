@@ -86,6 +86,22 @@ class BBCodeTest extends MockedTest
 				'data' => 'http://example/path',
 				'assertHTML' => false
 			],
+			'bug-6857-domain-start' => [
+				'data' => "http://\nexample.com",
+				'assertHTML' => false
+			],
+			'bug-6857-domain-end' => [
+				'data' => "http://example\n.com",
+				'assertHTML' => false
+			],
+			'bug-6857-tld' => [
+				'data' => "http://example.\ncom",
+				'assertHTML' => false
+			],
+			'bug-6857-end' => [
+				'data' => "http://example.com\ntest",
+				'assertHTML' => false
+			],
 		];
 	}
 
