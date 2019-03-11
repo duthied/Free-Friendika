@@ -30,6 +30,7 @@ abstract class ConsoleTest extends MockedTest
 
 		$this->setUpVfsDir();
 		$this->mockApp($this->root);
+
 	}
 
 	/**

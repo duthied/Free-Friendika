@@ -3,6 +3,7 @@
 namespace Friendica\Test\src\Core\Console;
 
 use Friendica\Core\Console\AutomaticInstallation;
+use Friendica\Core\Installer;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\L10nMockTrait;
@@ -55,6 +56,19 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->configMock
 			->shouldReceive('get')
 			->with('config', 'php_path')
+			->andReturn(null);
+
+		$this->configMock->shouldReceive('set')
+			->with('config', 'php_path', \Mockery::any())->once();
+		$this->configMock->shouldReceive('set')
+			->with('config', 'hostname', '')->once();
+		$this->configMock->shouldReceive('set')
+			->with('system', 'basepath', \Mockery::any())->once();
+		$this->configMock->shouldReceive('set')
+			->with('system', 'urlpath' , '')->once();
+		$this->configMock->shouldReceive('set')
+			->with('system', 'ssl_policy', SSL_POLICY_NONE)->once();
+		$this->mode->shouldReceive('isInstall')
 			->andReturn(false);
 
 		$this->mockL10nT();
@@ -75,9 +89,11 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 			'$dbuser' => (($withDb) ? $this->db_user : ''),
 			'$dbpass' => (($withDb) ? $this->db_pass : ''),
 			'$dbdata' => (($withDb) ? $this->db_data : ''),
-			'$timezone' => 'Europe/Berlin',
-			'$language' => 'de',
+			'$timezone' => Installer::DEFAULT_TZ,
+			'$language' => Installer::DEFAULT_LANG,
 			'$urlpath' => '/friendica',
+			'$basepath' => '/test',
+			'$hostname' => 'friendica.local',
 			'$adminmail' => 'admin@friendica.local'
 		];
 
@@ -174,6 +190,36 @@ Could not connect to database.:
 FIN;
 
 		$this->assertEquals($finished, $txt);
+	}
+
+	/**
+	 * Test the automatic installation without any parameter
+	 */
+	public function testEmpty()
+	{
+		$this->mockConnect(true, 1);
+		$this->mockConnected(true, 1);
+		$this->mockExistsTable('user', false, 1);
+		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
+
+		$this->configMock->shouldReceive('set')
+			->with('database', 'hostname', Installer::DEFAULT_HOST)->once();
+		$this->configMock->shouldReceive('set')
+			->with('database', 'username', '')->once();
+		$this->configMock->shouldReceive('set')
+			->with('database', 'password', '')->once();
+		$this->configMock->shouldReceive('set')
+			->with('database', 'database', '')->once();
+
+		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+
+		$console = new AutomaticInstallation($this->consoleArgv);
+
+		$txt = $this->dumpExecute($console);
+
+		$this->assertFinished($txt, false, true);
+
 	}
 
 	/**

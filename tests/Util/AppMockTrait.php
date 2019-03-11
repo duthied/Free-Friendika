@@ -31,6 +31,11 @@ trait AppMockTrait
 	protected $profilerMock;
 
 	/**
+	 * @var MockInterface|App\Mode The mocked App mode
+	 */
+	protected $mode;
+
+	/**
 	 * Mock the App
 	 *
 	 * @param vfsStreamDirectory $root The root directory
@@ -38,6 +43,7 @@ trait AppMockTrait
 	public function mockApp($root)
 	{
 		$this->configMock = \Mockery::mock(Config\Cache\IConfigCache::class);
+		$this->mode = \Mockery::mock(App\Mode::class);
 		$configAdapterMock = \Mockery::mock(Config\Adapter\IConfigAdapter::class);
 		// Disable the adapter
 		$configAdapterMock->shouldReceive('isConnected')->andReturn(false);
@@ -51,6 +57,10 @@ trait AppMockTrait
 		$this->app
 			->shouldReceive('getBasePath')
 			->andReturn($root->url());
+
+		$this->app
+			->shouldReceive('getMode')
+			->andReturn($this->mode);
 
 		$this->configMock
 			->shouldReceive('has')
