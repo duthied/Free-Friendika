@@ -843,6 +843,8 @@ function item_photo_menu($item) {
 	$status_link = '';
 	$photos_link = '';
 	$posts_link = '';
+	$block_link = '';
+	$ignore_link = '';
 
 	if (local_user() && local_user() == $item['uid'] && $item['parent'] == $item['id'] && !$item['self']) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
@@ -854,6 +856,7 @@ function item_photo_menu($item) {
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
+	$pcid = Contact::getIdForURL($item['author-link'], 0, true);
 	$network = '';
 	$rel = 0;
 	$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];
@@ -868,6 +871,13 @@ function item_photo_menu($item) {
 		$status_link = $profile_link . '?tab=status';
 		$photos_link = str_replace('/profile/', '/photos/', $profile_link);
 		$profile_link = $profile_link . '?=profile';
+	}
+
+	if (!empty($pcid)) {
+		$contact_url = 'contact/' . $pcid;
+		$posts_link = 'contact/' . $pcid . '/posts';
+		$block_link = 'contact/' . $pcid . '/block';
+		$ignore_link = 'contact/' . $pcid . '/ignore';
 	}
 
 	if ($cid && !$item['self']) {
@@ -888,7 +898,9 @@ function item_photo_menu($item) {
 			L10n::t('View Photos') => $photos_link,
 			L10n::t('Network Posts') => $posts_link,
 			L10n::t('View Contact') => $contact_url,
-			L10n::t('Send PM') => $pm_url
+			L10n::t('Send PM') => $pm_url,
+			L10n::t('Block') => $block_link,
+			L10n::t('Ignore') => $ignore_link
 		];
 
 		if ($network == Protocol::DFRN) {
