@@ -352,6 +352,8 @@ class Probe
 			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
 				$data = $ap_profile;
 			}
+		} else {
+			Logger::notice('Time out detected. AP will not be probed.', ['url' => $url]);
 		}
 
 		if (!isset($data['url'])) {
