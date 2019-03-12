@@ -35,6 +35,7 @@ use DomXPath;
 class Probe
 {
 	private static $baseurl;
+	private static $istimeout;
 
 	/**
 	 * @brief Rearrange the array so that it always has the same order
@@ -124,6 +125,7 @@ class Probe
 			$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($curlResult->isTimeout()) {
 				Logger::log("Probing timeout for " . $url, Logger::DEBUG);
+				self::$istimeout = true;
 				return false;
 			}
 			$xml = $curlResult->getBody();
@@ -334,16 +336,24 @@ class Probe
 			$uid = local_user();
 		}
 
+		self::$istimeout = false;
+
 		if ($network != Protocol::ACTIVITYPUB) {
 			$data = self::detect($uri, $network, $uid);
 		} else {
 			$data = null;
 		}
 
-		$ap_profile = ActivityPub::probeProfile($uri);
+		// When the previous detection process had got a time out
+		// we could falsely detect a Friendica profile as AP profile.
+		if (!self::$istimeout) {
+			$ap_profile = ActivityPub::probeProfile($uri);
 
-		if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
-			$data = $ap_profile;
+			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
+				$data = $ap_profile;
+			}
+		} else {
+			Logger::notice('Time out detected. AP will not be probed.', ['url' => $url]);
 		}
 
 		if (!isset($data['url'])) {
@@ -756,6 +766,7 @@ class Probe
 
 		$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$data = $curlResult->getBody();
@@ -824,6 +835,7 @@ class Probe
 	{
 		$curlResult = Network::curl($noscrape_url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$content = $curlResult->getBody();
@@ -1075,6 +1087,7 @@ class Probe
 	{
 		$curlResult = Network::curl($hcard_url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$content = $curlResult->getBody();
@@ -1327,6 +1340,7 @@ class Probe
 					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
 						$curlResult = Network::curl($pubkey);
 						if ($curlResult->isTimeout()) {
+							self::$istimeout = true;
 							return false;
 						}
 						$pubkey = $curlResult->getBody();
@@ -1359,6 +1373,7 @@ class Probe
 		// Fetch all additional data from the feed
 		$curlResult = Network::curl($data["poll"]);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$feed = $curlResult->getBody();
@@ -1573,6 +1588,7 @@ class Probe
 	{
 		$curlResult = Network::curl($url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$feed = $curlResult->getBody();
