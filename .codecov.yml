@@ -2,8 +2,9 @@
 coverage:
   status:
     project:
-      target: auto
-      treshold: null
-      base: auto
+      default:
+        target: auto
+        treshold: null
+        base: auto
 
 comment: off
