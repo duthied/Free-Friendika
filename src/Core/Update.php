@@ -68,7 +68,7 @@ class Update
 			Lock::release('dbupdate', true);
 		}
 
-		$build = Config::get('system', 'build');
+		$build = Config::get('system', 'build', null, true);
 
 		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
 			$build = DB_UPDATE_VERSION - 1;
@@ -83,11 +83,19 @@ class Update
 			if ($stored < $current || $force) {
 				Config::load('database');
 
-				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
+				Logger::info('Update starting.', ['from' => $stored, 'to' => $current]);
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
 				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
+
+					// Checks if the build changed during Lock acquiring (so no double update occurs)
+					$retryBuild = Config::get('system', 'build', null, true);
+					if ($retryBuild !== $build) {
+						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
+						Lock::release('dbupdate');
+						return '';
+					}
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
@@ -106,13 +114,13 @@ class Update
 								$retval
 							);
 						}
-						Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
+						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
 						Lock::release('dbupdate');
 						return $retval;
 					} else {
 						Config::set('database', 'last_successful_update', $current);
 						Config::set('database', 'last_successful_update_time', time());
-						Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
+						Logger::info('Update finished.', ['from' => $stored, 'to' => $current]);
 					}
 
 					// run the update_nnnn functions in update.php
@@ -123,7 +131,7 @@ class Update
 						}
 					}
 
-					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
+					Logger::notice('Update success.', ['from' => $stored, 'to' => $current]);
 					if ($sendMail) {
 						self::updateSuccessfull($stored, $current);
 					}
@@ -149,7 +157,7 @@ class Update
 	{
 		$funcname = $prefix . '_' . $x;
 
-		Logger::log('Update function \'' . $funcname . '\' - start', Logger::DEBUG);
+		Logger::info('Update function start.', ['function' => $funcname]);
 
 		if (function_exists($funcname)) {
 			// There could be a lot of processes running or about to run.
@@ -170,7 +178,7 @@ class Update
 						$x,
 						L10n::t('Update %s failed. See error logs.', $x)
 					);
-					Logger::log('ERROR: Update function \'' . $funcname . '\' - failed: ' . $retval, Logger::ALL);
+					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
 					Lock::release('dbupdate_function');
 					return false;
 				} else {
@@ -182,12 +190,12 @@ class Update
 					}
 
 					Lock::release('dbupdate_function');
-					Logger::log('Update function \'' . $funcname . '\' - finished', Logger::DEBUG);
+					Logger::info('Update function finished.', ['function' => $funcname]);
 					return true;
 				}
 			}
 		} else {
-			 Logger::log('Skipping \'' . $funcname . '\' without executing', Logger::DEBUG);
+			Logger::info('Update function skipped.', ['function' => $funcname]);
 
 			Config::set('database', 'last_successful_update_function', $funcname);
 			Config::set('database', 'last_successful_update_function_time', time());
@@ -214,7 +222,7 @@ class Update
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
-			Logger::log(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), Logger::INFO);
+			Logger::warning('Cannot notify administrators .', ['update' => $update_id, 'message' => $error_message]);
 
 			// Don't continue
 			return;
@@ -252,7 +260,7 @@ class Update
 		}
 
 		//try the logger
-		Logger::log("CRITICAL: Database structure update failed: " . $error_message);
+		Logger::alert('Database structure update FAILED.', ['error' => $error_message]);
 	}
 
 	private static function updateSuccessfull($from_build, $to_build)
@@ -291,6 +299,6 @@ class Update
 		}
 
 		//try the logger
-		Logger::log("Database structure update successful.", Logger::TRACE);
+		Logger::debug('Database structure update successful.');
 	}
 }
