@@ -4,7 +4,7 @@ coverage:
     project:
       default:
         target: auto
-        treshold: null
+        threshold: null
         base: auto
 
 comment: off
