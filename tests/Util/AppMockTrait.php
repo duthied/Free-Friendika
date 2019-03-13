@@ -40,6 +40,7 @@ trait AppMockTrait
 	 *
 	 * @param vfsStreamDirectory $root The root directory
 	 * @param Config\Cache\ConfigCache $configCache
+	 * @param bool $raw If true, no config mocking will be done
 	 */
 	public function mockApp(vfsStreamDirectory $root, $configCache = null, $raw = false)
 	{
@@ -81,7 +82,7 @@ trait AppMockTrait
 		$this->app
 			->shouldReceive('getBaseUrl')
 			->andReturnUsing(function () {
-				return $this->configMock->get('system', 'url');
+				return $this->app->getConfigCache()->get('system', 'url');
 			});
 
 		BaseObject::setApp($this->app);
@@ -90,6 +91,9 @@ trait AppMockTrait
 			return;
 		}
 
+		$this->configMock
+			->shouldReceive('has')
+			->andReturn(true);
 		$this->configMock
 			->shouldReceive('get')
 			->with('database', 'hostname')
