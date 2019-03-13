@@ -15,6 +15,8 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
 /**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  * @requires PHP 7.0
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
@@ -591,26 +593,55 @@ CONF;
 	}
 
 	/**
-	 * @runTestsInSeparateProcesses
-	 * @preserveGlobalState disabled
+	 * Test the automatic installation with a wrong database connection
 	 */
 	public function testNoDatabaseConnection()
 	{
+		$configCache = new ConfigCache();
+		$configCache->set('system', 'basepath', $this->root->url());
+		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
+
+		$this->mockApp($this->root, null, true);
+
+		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) use ($configCache) {
+			if ($key !== 'basepath') {
+				return $configCache->set($cat, $key, $value);
+			} else {
+				return true;
+			}
+		});;
+		$this->configMock->shouldReceive('has')->andReturn(true);
+		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
+			return $configCache->get($cat, $key);
+		});
+
 		$this->mockConnect(false, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(false), '', 1);
-
-		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
-		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
-		$this->assertTrue(putenv('FRIENDICA_LANG=de'));
-		$this->assertTrue(putenv('FRIENDICA_URL_PATH=/friendica'));
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
 		$txt = $this->dumpExecute($console);
 
 		$this->assertStuckDB($txt);
+		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
+
+		// Assert the default values without any config
+		$this->assertEquals(Installer::DEFAULT_HOST, $configCache->get('database', 'hostname'));
+		$this->assertEmpty($configCache->get('database', 'username'));
+		$this->assertEmpty($configCache->get('database', 'password'));
+		$this->assertEmpty($configCache->get('database', 'database'));
+
+		$this->assertEmpty($configCache->get('config', 'hostname'), $configCache->get('config', 'hostname'));
+		$this->assertEmpty($configCache->get('config', 'admin_email'), $configCache->get('config', 'admin_email'));
+		$this->assertEquals(trim(shell_exec('which php')), $configCache->get('config', 'php_path'));
+
+		$this->assertEquals(Installer::DEFAULT_TZ, $configCache->get('system', 'default_timezone'));
+		$this->assertEquals(Installer::DEFAULT_LANG, $configCache->get('system', 'language'));
+		$this->assertEquals(SSL_POLICY_NONE, $configCache->get('system', 'ssl_policy'));
+		$this->assertEmpty($configCache->get('system', 'urlpath'), $configCache->get('system', 'urlpath'));
+		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
 
 	public function testGetHelp()
