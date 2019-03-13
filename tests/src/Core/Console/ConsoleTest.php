@@ -29,8 +29,6 @@ abstract class ConsoleTest extends MockedTest
 		Intercept::setUp();
 
 		$this->setUpVfsDir();
-		$this->mockApp($this->root);
-
 	}
 
 	/**

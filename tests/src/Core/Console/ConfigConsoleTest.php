@@ -16,6 +16,8 @@ class ConfigConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
+		$this->mockApp($this->root);
+
 		\Mockery::getConfiguration()->setConstantsMap([
 			Mode::class => [
 				'DBCONFIGAVAILABLE' => 0
