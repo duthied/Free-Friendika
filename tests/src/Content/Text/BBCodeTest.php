@@ -116,12 +116,11 @@ class BBCodeTest extends MockedTest
 	public function testAutoLinking($data, $assertHTML)
 	{
 		$output = BBCode::convert($data);
+		$assert = '<a href="' . $data . '" target="_blank">' . $data . '</a>';
 		if ($assertHTML) {
-			$assert = '<a href="' . $data . '" target="_blank">' . $data . '</a>';
+			$this->assertEquals($assert, $output);
 		} else {
-			$assert = $data;
+			$this->assertNotEquals($assert, $output);
 		}
-
-		$this->assertEquals($assert, $output);
 	}
 }
