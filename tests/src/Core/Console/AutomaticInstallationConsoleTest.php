@@ -4,11 +4,12 @@ namespace Friendica\Test\src\Core\Console;
 
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Console\AutomaticInstallation;
-use Friendica\Core\Installer;
+use Friendica\Core\Logger;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\L10nMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
+use Friendica\Util\Logger\VoidLogger;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
@@ -60,24 +61,28 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	/**
 	 * Creates the arguments which is asserted to be passed to 'replaceMacros()' for creating the local.config.php
 	 *
-	 * @param bool $withDb if true, DB will get saved too
+	 * @param ConfigCache $config The config cache of this test
 	 *
 	 * @return array The arguments to pass to the mock for 'replaceMacros()'
 	 */
-	private function createArgumentsForMacro($withDb)
+	private function createArgumentsForMacro(ConfigCache $config)
 	{
 		$args = [
-			'$phpath' => trim(shell_exec('which php')),
-			'$dbhost' => (($withDb) ? $this->db_host . (isset($this->db_port) ? ':' . $this->db_port : '') : ''),
-			'$dbuser' => (($withDb) ? $this->db_user : ''),
-			'$dbpass' => (($withDb) ? $this->db_pass : ''),
-			'$dbdata' => (($withDb) ? $this->db_data : ''),
-			'$timezone' => Installer::DEFAULT_TZ,
-			'$language' => Installer::DEFAULT_LANG,
-			'$urlpath' => '/friendica',
-			'$basepath' => '/test',
-			'$hostname' => 'friendica.local',
-			'$adminmail' => 'admin@friendica.local'
+			'$dbhost' => $config->get('database','hostname'),
+			'$dbuser' => $config->get('database','username'),
+			'$dbpass' => $config->get('database','password'),
+			'$dbdata' => $config->get('database','database'),
+
+			'$phpath' => $config->get('config','php_path'),
+			'$adminmail' => $config->get('config','admin_email'),
+			'$hostname' => $config->get('config','hostname'),
+
+			'$urlpath' => $config->get('system','urlpath'),
+			'$baseurl' => $config->get('system','url'),
+			'$sslpolicy' => $config->get('system','ssl_policy'),
+			'$timezone' => $config->get('system','default_timezone'),
+			'$language' => $config->get('system','language'),
+			'$basepath' => $config->get('system','basepath'),
 		];
 
 		return $args;
@@ -193,13 +198,38 @@ FIN;
 					],
 					'system' => [
 						'urlpath'     => '',
+						'url'         => '',
 						'basepath'    => '',
 						'ssl_policy'  => '',
 						'default_timezone' => '',
 						'language'    => '',
 					],
 				],
-			]
+			],
+			'normal' => [
+				'data' => [
+					'database' => [
+						'hostname'    => getenv('MYSQL_HOST'),
+						'port'        =>!empty(getenv('MYSQL_PORT')) ? getenv('MYSQL_PORT') : null,
+						'username'    => getenv('MYSQL_USERNAME'),
+						'password'    => getenv('MYSQL_PASSWORD'),
+						'database'    => getenv('MYSQL_DATABASE'),
+					],
+					'config' => [
+						'php_path'    => '',
+						'hostname'    => 'friendica.local',
+						'admin_email' => 'admin@philipp.info',
+					],
+					'system' => [
+						'urlpath'     => 'test/it',
+						'url'         => 'friendica.local/test/it',
+						'basepath'    => '',
+						'ssl_policy'  => '2',
+						'default_timezone' => 'en',
+						'language'    => 'Europe/Berlin',
+					],
+				],
+			],
 		];
 	}
 
@@ -212,8 +242,15 @@ FIN;
 		$configCache = new ConfigCache();
 		$configCache->load($data);
 		$configCache->set('system', 'basepath', $this->root->url());
+		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
 
-		$this->mockApp($this->root, $configCache);
+		$this->mockApp($this->root, null, true);
+
+		$this->configMock->shouldReceive('set');
+		$this->configMock->shouldReceive('has')->andReturn(true);
+		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
+			return $configCache->get($cat, $key);
+		});
 
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
@@ -221,17 +258,14 @@ FIN;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro($configCache), '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals(Installer::DEFAULT_LANG, $configCache->get('system', 'language'));
-		$this->assertEquals(Installer::DEFAULT_TZ, $configCache->get('system', 'default_timezone'));
-		$this->assertEquals(Installer::DEFAULT_HOST, $configCache->get('database', 'hostname'));
 		$this->assertFinished($txt, true, false);
-
+		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 	}
 
 	/**
@@ -240,10 +274,23 @@ FIN;
 	 */
 	public function testWithConfig(array $data)
 	{
+		$configCache = new ConfigCache();
+		$configCache->load($data);
+		$configCache->set('system', 'basepath', $this->root->url());
+		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
+
+		$this->mockApp($this->root, $configCache, true);
+		$this->mode->shouldReceive('isInstall')->andReturn(false);
+		Logger::init(new VoidLogger());
+
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
+
+		$conf = function ($cat, $key) use ($configCache) {
+			return $configCache->get($cat, $key);
+		};
 
 		$config = <<<CONF
 <?php
@@ -255,10 +302,10 @@ FIN;
 
 return [
 	'database' => [
-		'hostname' => '',
-		'username' => '',
-		'password' => '',
-		'database' => '',
+		'hostname' => '{$conf('database','hostname')}',
+		'username' => '{$conf('database', 'username')}',
+		'password' => '{$conf('database', 'password')}',
+		'database' => '{$conf('database', 'database')}',
 		'charset' => 'utf8mb4',
 	],
 
@@ -269,14 +316,18 @@ return [
 	// ****************************************************************
 
 	'config' => [
-		'admin_email' => '',
+		'admin_email' => '{$conf('config', 'admin_email')}',
+		'hostname' => '{$conf('config', 'hostname')}',
 		'sitename' => 'Friendica Social Network',
 		'register_policy' => \Friendica\Module\Register::OPEN,
 		'register_text' => '',
 	],
 	'system' => [
-		'default_timezone' => 'UTC',
-		'language' => 'en',
+		'basepath => '{$conf('system', 'basepath')}',
+		'urlpath => '{$conf('system', 'urlpath')}',
+		'url' => '{$conf('system', 'url')}',
+		'default_timezone' => '{$conf('system', 'default_timezone')}',
+		'language' => '{$conf('system', 'language')}',
 	],
 ];
 CONF;
@@ -293,20 +344,28 @@ CONF;
 		$this->assertFinished($txt, false, true);
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
+		$this->assertEquals($config, file_get_contents($this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')->url()));
 	}
 
 	/**
 	 * @medium
+	 * @dataProvider dataInstaller
 	 */
-	public function testWithEnvironmentAndSave()
+	public function testWithEnvironmentAndSave(array $data)
 	{
+		$configCache = new ConfigCache();
+		$configCache->set('system', 'basepath', $this->root->url());
+		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
+
+		$this->mockApp($this->root, $configCache);
+
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);
+		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro($configCache), '', 1);
 
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=admin@friendica.local'));
 		$this->assertTrue(putenv('FRIENDICA_TZ=Europe/Berlin'));
@@ -317,6 +376,8 @@ CONF;
 		$console->setOption('savedb', true);
 
 		$txt = $this->dumpExecute($console);
+
+		print_r($configCache);
 
 		$this->assertFinished($txt, true);
 	}
