@@ -86,6 +86,22 @@ class BBCodeTest extends MockedTest
 				'data' => 'http://example/path',
 				'assertHTML' => false
 			],
+			'bug-6857-domain-start' => [
+				'data' => "http://\nexample.com",
+				'assertHTML' => false
+			],
+			'bug-6857-domain-end' => [
+				'data' => "http://example\n.com",
+				'assertHTML' => false
+			],
+			'bug-6857-tld' => [
+				'data' => "http://example.\ncom",
+				'assertHTML' => false
+			],
+			'bug-6857-end' => [
+				'data' => "http://example.com\ntest",
+				'assertHTML' => false
+			],
 		];
 	}
 
@@ -100,12 +116,11 @@ class BBCodeTest extends MockedTest
 	public function testAutoLinking($data, $assertHTML)
 	{
 		$output = BBCode::convert($data);
+		$assert = '<a href="' . $data . '" target="_blank">' . $data . '</a>';
 		if ($assertHTML) {
-			$assert = '<a href="' . $data . '" target="_blank">' . $data . '</a>';
+			$this->assertEquals($assert, $output);
 		} else {
-			$assert = $data;
+			$this->assertNotEquals($assert, $output);
 		}
-
-		$this->assertEquals($assert, $output);
 	}
 }
