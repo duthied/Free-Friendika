@@ -1,6 +1,6 @@
 Version 2019.03-RC (UNRELEASED, 2019-03-xx)
   Friendica Core:
-    Update to the translation (CS, DE, EN_US, ES, FR, PL, ZH-CN) [translation teams]
+    Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, ZH-CN) [translation teams]
     Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
     Update to the themes (frio, smoothy, quattro) [lxiter, MrPetovan. nupplaphil, rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
@@ -12,10 +12,12 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Enhancements to the explicit and implicit mentioning in conversations [annando, MrPetovan]
     Enhancements to the warnings in the admin panel [tobiasd]
     Enhancements to the AP implementation [annando]
-    Enhancements to the worker process of deleting items [annando]
-    Enhancements to the testing process [nupplaphil]
+    Enhancements to the worker process [annando]
+    Enhancements to the testing process [MrPetovan, nupplaphil]
     Enhancements to the LibreJS compatibility [tobiasd]
     Enhancements to the federated display of postings [MrPetovan]
+    Enhancements to the photo menu [annando]
+    Enhancements to the probing of contacts [annando]
     Fixed several bugs with weird tagging in code blocks [lxiter]
     Fixed a bug during contact entries update [rabuzarus]
     Fixed several PHP warnings and errors [annando, MrPetovan, tobiasd]
@@ -31,6 +33,11 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Fixed issues with redirs in the photo menu of Friendica contacts [tobiasd]
     Fixed an issue with sending out notification mails to the admin [nupplaphil]
     Fixed an the issue, that the API was ignoring the globalsilence setting  [nupplaphil]
+    Fixed issues with the autolinker of URLs in postings [MrPetovan]
+    Fixed an issue resulting in multible emails after successful updates of the database [nupplaphil]
+    Fixed a timeout issue during detection process of the remote profile [annando]
+    Fixed an issue with postings from blocked servers [annando, MrPetovan]
+    Fixed an issue with the paging of stored folders [MrPetovan]
     If the node does not want to publish information, nodeinfo now returns 404 instead of non-existing entries [nupplaphil]
     General Code cleaning and restructuring [annando, JeroenED, MrPetovan, nupplaphil]
     Switched logging engine to monolog [nupplaphil]
@@ -40,8 +47,11 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Added live preview of attachments to frio [rabuzarus]
 
   Friendica Addons:
-    Updates to the translations (CS, DE, ES, FR, NL, PL) [translation teams]
+    Updates to the translations (CS, DE, EN-GB, ES, FR, NL, PL) [translation teams]
     Updated documentation [softmetz, tobiasd]
+    blackout:
+      Fix applying the translations [JeroenED, tobiasd]
+      Fixed some templating of the settings [tobiasd]
     blogger:
       The addon was marked as unsupported as it does currently not work (needs OAuth support) [annando]
     cookienotice:
@@ -58,12 +68,13 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
       @ mentions are now stripped from the posts send to Twitter [MrPetovan]
 
   Closed Issues:
-    1777, 3218, 3506, 4496, 6087, 6232, 6274, 6292, 6375, 6378, 6382,
-    6384, 6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492, 6495, 6498,
-    6501, 6503, 6505, 6511, 6514, 6522, 6529, 6532, 6533, 6544, 6545,
-    6551, 6553, 6558, 6552, 6561, 6570, 6575, 6585, 6603, 6610, 6629,
-    6630, 6635, 6652, 6656, 6658, 6667, 6668, 6669, 6672, 6674, 6676,
-    6677, 6679, 6691, 6710, 6711, 6714, 6716, 6733, 6758, 6772
+    1777, 2487, 3218, 3506, 3837, 4496, 6087, 6232, 6274, 6292, 6375,
+    6378, 6382, 6384, 6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492,
+    6495, 6498, 6501, 6503, 6505, 6511, 6514, 6522, 6529, 6532, 6533,
+    6544, 6545, 6551, 6553, 6558, 6552, 6561, 6570, 6575, 6585, 6603,
+    6610, 6629, 6630, 6633, 6635, 6652, 6656, 6658, 6667, 6668, 6669,
+    6672, 6674, 6676, 6677, 6679, 6691, 6710, 6711, 6714, 6716, 6733,
+    6758, 6772, 6785, 6788, 6800, 6805, 6812, 6819, 6822, 6823, 6840
 
 Version 2019.01 (2019-01-21)
   Friendica Core:
