@@ -453,11 +453,20 @@ function notification($params)
 		// It will be used by the system to send emails to users (like
 		// password reset, invitations and so) using one look (but without
 		// add a notification to the user, with could be inexistent)
-		$subject = $params['subject'];
+		if (!isset($params['subject'])) {
+			Logger::warning('subject isn\'t set.', ['type' => $params['type']]);
+		}
+		$subject = defaults($params, 'subject', '');
 
-		$preamble = $params['preamble'];
+		if (!isset($params['preamble'])) {
+			Logger::warning('preamble isn\'t set.', ['type' => $params['type'], 'subject' => $subject]);
+		}
+		$preamble = defaults($params, 'preamble', '');
 
-		$body =  $params['body'];
+		if (!isset($params['body'])) {
+			Logger::warning('body isn\'t set.', ['type' => $params['type'], 'subject' => $subject, 'preamble' => $preamble]);
+		}
+		$body = defaults($params, 'body', '');
 
 		$show_in_notification_page = false;
 	}
