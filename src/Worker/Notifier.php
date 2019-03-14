@@ -154,7 +154,7 @@ class Notifier
 			$parent = $items[0];
 
 			if (!self::isRemovalActivity($cmd, $owner, Protocol::ACTIVITYPUB)) {
-				$delivery_queue_count += self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->queue['created']);
+				$delivery_queue_count += self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->queue['created'], $owner);
 			}
 
 			$fields = ['network', 'author-id', 'owner-id'];
@@ -207,13 +207,13 @@ class Notifier
 			}
 
 			// Special treatment for forum posts
-			if (self::isForumPost($target_item, $owner)) {
+			if (Item::isForumPost($target_item, $owner)) {
 				$relay_to_owner = true;
 				$direct_forum_delivery = true;
 			}
 
 			// Avoid that comments in a forum thread are sent to OStatus
-			if (self::isForumPost($parent, $owner)) {
+			if (Item::isForumPost($parent, $owner)) {
 				$direct_forum_delivery = true;
 			}
 
@@ -413,7 +413,7 @@ class Notifier
 
 				// Add the relay to the list, avoid duplicates.
 				// Don't send community posts to the relay. Forum posts via the Diaspora protocol are looking ugly.
-				if (!$followup && !self::isForumPost($target_item, $owner)) {
+				if (!$followup && !Item::isForumPost($target_item, $owner)) {
 					$relay_list = Diaspora::relayList($target_id, $relay_list);
 				}
 			}
@@ -598,7 +598,7 @@ class Notifier
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function activityPubDelivery($cmd, array $target_item, array $parent, $priority, $created)
+	private static function activityPubDelivery($cmd, array $target_item, array $parent, $priority, $created, $owner)
 	{
 		$inboxes = [];
 
@@ -607,6 +607,9 @@ class Notifier
 		if ($target_item['origin']) {
 			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid);
 			Logger::log('Origin item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
+		} elseif (Item::isForumPost($target_item, $owner)) {
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($target_item, $uid, false, 0, true);
+			Logger::log('Forum item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' will be distributed.', Logger::DEBUG);
 		} elseif (!DBA::exists('conversation', ['item-uri' => $target_item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB])) {
 			Logger::log('Remote item ' . $target_item['id'] . ' with URL ' . $target_item['uri'] . ' is no AP post. It will not be distributed.', Logger::DEBUG);
 			return 0;
@@ -633,30 +636,5 @@ class Notifier
 		}
 
 		return count($inboxes);
-	}
-
-	private static function isForumPost(array $item, array $owner)
-	{
-		if (($item['author-id'] == $item['owner-id']) ||
-			($owner['id'] == $item['contact-id']) ||
-			($item['uri'] != $item['parent-uri'])) {
-			return false;
-		}
-
-		return self::isForum($item['contact-id']);
-	}
-
-	private static function isForum($contactid)
-	{
-		$fields = ['forum', 'prv'];
-		$condition = ['id' => $contactid];
-		$contact = DBA::selectFirst('contact', $fields, $condition);
-		if (!DBA::isResult($contact)) {
-			// Should never happen
-			return false;
-		}
-
-		// Is it a forum?
-		return ($contact['forum'] || $contact['prv']);
 	}
 }

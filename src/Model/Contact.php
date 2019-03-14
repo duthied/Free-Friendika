@@ -2226,8 +2226,35 @@ class Contact extends BaseObject
 		return $redirect;
 	}
 
+	/**
+	 * Remove a contact from all groups
+	 *
+	 * @param integer $contact_id
+	 *
+	 * @return boolean Success
+	 */
 	public static function removeFromGroups($contact_id)
 	{
 		return DBA::delete('group_member', ['contact-id' => $contact_id]);
+	}
+
+	/**
+	 * Is the contact a forum?
+	 *
+	 * @param integer $contactid ID of the contact
+	 *
+	 * @return boolean "true" if it is a forum
+	 */
+	public static function isForum($contactid)
+	{
+		$fields = ['forum', 'prv'];
+		$condition = ['id' => $contactid];
+		$contact = DBA::selectFirst('contact', $fields, $condition);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
+
+		// Is it a forum?
+		return ($contact['forum'] || $contact['prv']);
 	}
 }
