@@ -62,6 +62,9 @@ function follow_content(App $a)
 	$uid = local_user();
 	$url = Strings::escapeTags(trim(defaults($_REQUEST, 'url', '')));
 
+	// Issue 6874: Allow remote following from Oeertube
+	$url = str_replace('acct:', '', $url);
+
 	if (!$url) {
 		$a->internalRedirect($return_path);
 	}
