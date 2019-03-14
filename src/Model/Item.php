@@ -3592,4 +3592,31 @@ class Item extends BaseObject
 
 		return $ret;
 	}
+
+	/**
+	 * Is the given item array a post that is sent as starting post to a forum?
+	 *
+	 * @param array $item
+	 * @param array $owner
+	 *
+	 * @return boolean "true" when it is a forum post
+	 */
+	public static function isForumPost(array $item, array $owner = [])
+	{
+		if (empty($owner)) {
+			$owner = User::getOwnerDataById($item['uid']);
+			if (empty($owner)) {
+				return false;
+			}
+		}
+
+		if (($item['author-id'] == $item['owner-id']) ||
+			($owner['id'] == $item['contact-id']) ||
+			($item['uri'] != $item['parent-uri']) ||
+			$item['origin']) {
+			return false;
+		}
+
+		return Contact::isForum($item['contact-id']);
+	}
 }

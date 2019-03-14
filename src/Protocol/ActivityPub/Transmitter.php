@@ -303,15 +303,16 @@ class Transmitter
 	/**
 	 * Creates an array of permissions from an item thread
 	 *
-	 * @param array   $item
-	 * @param boolean $blindcopy
-	 * @param boolean $last_id
+	 * @param array   $item       Item array
+	 * @param boolean $blindcopy  addressing via "bcc" or "cc"?
+	 * @param integer $last_id    Last item id for adding receivers
+	 * @param boolean $forum_mode "true" means that we are sending content to a forum
 	 *
 	 * @return array with permission data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0)
+	private static function createPermissionBlockForItem($item, $blindcopy, $last_id = 0, $forum_mode = false)
 	{
 		if ($last_id == 0) {
 			$last_id = $item['id'];
@@ -399,7 +400,7 @@ class Transmitter
 						}
 					} else {
 						// Public thread parent post always are directed to the followes
-						if (!$item['private']) {
+						if (!$item['private'] && !$forum_mode) {
 							$data['cc'][] = $actor_profile['followers'];
 						}
 					}
@@ -515,18 +516,18 @@ class Transmitter
 	/**
 	 * Fetches an array of inboxes for the given item and user
 	 *
-	 * @param array   $item
-	 * @param integer $uid      User ID
-	 * @param boolean $personal fetch personal inboxes
-	 * @param integer $last_id Last item id for adding receivers
-	 *
+	 * @param array   $item       Item array
+	 * @param integer $uid        User ID
+	 * @param boolean $personal   fetch personal inboxes
+	 * @param integer $last_id    Last item id for adding receivers
+	 * @param boolean $forum_mode "true" means that we are sending content to a forum
 	 * @return array with inboxes
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0)
+	public static function fetchTargetInboxes($item, $uid, $personal = false, $last_id = 0, $forum_mode = false)
 	{
-		$permissions = self::createPermissionBlockForItem($item, true, $last_id);
+		$permissions = self::createPermissionBlockForItem($item, true, $last_id, $forum_mode);
 		if (empty($permissions)) {
 			return [];
 		}
@@ -659,7 +660,7 @@ class Transmitter
 			return false;
 		}
 
-		if ($item['wall']) {
+		if ($item['wall'] && ($item['uri'] == $item['parent-uri'])) {
 			$owner = User::getOwnerDataById($item['uid']);
 			if (($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) && ($item['author-link'] != $owner['url'])) {
 				$type = 'Announce';
@@ -697,7 +698,12 @@ class Transmitter
 
 		$data['id'] = $item['uri'] . '#' . $type;
 		$data['type'] = $type;
-		$data['actor'] = $item['owner-link'];
+
+		if (Item::isForumPost($item) && ($type != 'Announce')) {
+			$data['actor'] = $item['author-link'];
+		} else {
+			$data['actor'] = $item['owner-link'];
+		}
 
 		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
 
