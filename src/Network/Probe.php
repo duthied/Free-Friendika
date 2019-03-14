@@ -353,7 +353,7 @@ class Probe
 				$data = $ap_profile;
 			}
 		} else {
-			Logger::notice('Time out detected. AP will not be probed.', ['url' => $url]);
+			Logger::notice('Time out detected. AP will not be probed.', ['uri' => $uri]);
 		}
 
 		if (!isset($data['url'])) {
