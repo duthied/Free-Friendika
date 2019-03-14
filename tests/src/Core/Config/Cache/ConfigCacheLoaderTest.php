@@ -2,21 +2,44 @@
 
 namespace Friendica\Test\src\Core\Config\Cache;
 
+use Friendica\App;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
+use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 
 class ConfigCacheLoaderTest extends MockedTest
 {
 	use VFSTrait;
 
+	/**
+	 * @var App\Mode|MockInterface
+	 */
+	private $mode;
+
 	protected function setUp()
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
+
+		$this->mode = \Mockery::mock(App\Mode::class);
+		$this->mode->shouldReceive('isInstall')->andReturn(true);
+	}
+
+	/**
+	 * Test the loadConfigFiles() method with default values
+	 */
+	public function testLoadConfigFiles()
+	{
+		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configCache = new ConfigCache();
+
+		$configCacheLoader->loadConfigFiles($configCache);
+
+		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
 
 	/**
@@ -32,7 +55,7 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent('<?php return true;');
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
+		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
 		$configCacheLoader->loadConfigFiles($configCache);
@@ -57,7 +80,7 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
+		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
 		$configCacheLoader->loadConfigFiles($configCache);
@@ -90,7 +113,7 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
+		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
 		$configCacheLoader->loadConfigFiles($configCache);
@@ -122,7 +145,7 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root)
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
+		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
 		$configCacheLoader->loadConfigFiles($configCache);
@@ -172,7 +195,7 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url());
+		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
 
 		$conf = $configCacheLoader->loadAddonConfig('test');
 
