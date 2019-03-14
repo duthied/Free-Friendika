@@ -1266,6 +1266,9 @@ class BBCode extends BaseObject
 		// Set up the parameters for a MAIL search string
 		$MAILSearchString = $URLSearchString;
 
+		// Handle attached links or videos
+		$text = self::convertAttachment($text, $simple_html, $try_oembed);
+
 		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 		if (!$for_plaintext) {
 			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
@@ -1277,10 +1280,6 @@ class BBCode extends BaseObject
 			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
 			$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
 		}
-
-
-		// Handle attached links or videos
-		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
