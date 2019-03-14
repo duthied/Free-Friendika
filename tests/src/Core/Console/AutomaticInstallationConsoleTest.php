@@ -15,8 +15,6 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
 /**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  * @requires PHP 7.0
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
@@ -277,12 +275,11 @@ FIN;
 	 * Asserts all config entries
 	 *
 	 * @param null|array $assertion    The optional assertion array
-	 * @param boolean    $createConfig True, if a config file has to get generated
 	 * @param boolean    $saveDb       True, if the db credentials should get saved to the file
 	 * @param boolean    $default      True, if we use the default values
 	 * @param boolean    $defaultDb    True, if we use the default value for the DB
 	 */
-	public function assertConfig($assertion = null, $createConfig = true, $saveDb = false, $default = true, $defaultDb = true)
+	public function assertConfig($assertion = null, $saveDb = false, $default = true, $defaultDb = true)
 	{
 		if (!empty($assertion['database']['hostname'])) {
 			$assertion['database']['hostname'] .= (!empty($assertion['database']['port']) ? ':' . $assertion['database']['port'] : '');
@@ -293,15 +290,11 @@ FIN;
 		$this->assertConfigEntry('database', 'password', ($saveDb) ? $assertion : null);
 		$this->assertConfigEntry('database', 'database', ($saveDb) ? $assertion : null);
 
-		$this->assertConfigEntry('config', 'hostname', $assertion);
 		$this->assertConfigEntry('config', 'admin_email', $assertion);
 		$this->assertConfigEntry('config', 'php_path', trim(shell_exec('which php')));
 
 		$this->assertConfigEntry('system', 'default_timezone', $assertion, ($default) ? Installer::DEFAULT_TZ : null);
 		$this->assertConfigEntry('system', 'language', $assertion, ($default) ? Installer::DEFAULT_LANG : null);
-		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? SSL_POLICY_NONE : null);
-		$this->assertConfigEntry('system', 'urlpath', $assertion);
-		$this->assertConfigEntry('system', 'basepath', $createConfig ? $this->root->url() : $assertion);
 	}
 
 	/**
@@ -309,6 +302,8 @@ FIN;
 	 */
 	public function testEmpty()
 	{
+		$this->app->shouldReceive('getURLPath')->andReturn('')->atLeast()->once();
+
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -400,7 +395,7 @@ CONF;
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 		$this->assertEquals($config, file_get_contents($this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')->url()));
 
-		$this->assertConfig($data, false, true, false, false);
+		$this->assertConfig($data, true, false, false);
 	}
 
 	/**
@@ -410,6 +405,8 @@ CONF;
 	 */
 	public function testWithEnvironmentAndSave(array $data)
 	{
+		$this->app->shouldReceive('getURLPath')->andReturn('')->atLeast()->once();
+
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -439,7 +436,7 @@ CONF;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
-		$this->assertConfig($data, true, true, true, false);
+		$this->assertConfig($data, true, true, false);
 	}
 
 	/**
@@ -449,6 +446,8 @@ CONF;
 	 */
 	public function testWithEnvironmentWithoutSave(array $data)
 	{
+		$this->app->shouldReceive('getURLPath')->andReturn('')->atLeast()->once();
+
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -477,7 +476,7 @@ CONF;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
-		$this->assertConfig($data, true, false, true);
+		$this->assertConfig($data, false, true);
 	}
 
 	/**
@@ -486,6 +485,8 @@ CONF;
 	 */
 	public function testWithArguments(array $data)
 	{
+		$this->app->shouldReceive('getURLPath')->andReturn('')->atLeast()->once();
+
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -518,7 +519,7 @@ CONF;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true);
-		$this->assertConfig($data, true, true, true, true);
+		$this->assertConfig($data, true, true, true);
 	}
 
 	/**
@@ -526,6 +527,7 @@ CONF;
 	 */
 	public function testNoDatabaseConnection()
 	{
+		$this->app->shouldReceive('getURLPath')->andReturn('')->atLeast()->once();
 		$this->mockConnect(false, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
@@ -538,7 +540,7 @@ CONF;
 		$this->assertStuckDB($txt);
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		$this->assertConfig(null, true, false, true, false);
+		$this->assertConfig(null, false, true, false);
 	}
 
 	public function testGetHelp()
@@ -560,19 +562,17 @@ Options
     -v                      Show more debug information.
     -a                      All setup checks are required (except .htaccess)
     -f|--file <config>      prepared config file (e.g. "config/local.config.php" itself) which will override every other config option - except the environment variables)
-    -s|--savedb                 Save the DB credentials to the file (if environment variables is used)
-    -H|--dbhost <host>          The host of the mysql/mariadb database (env MYSQL_HOST)
-    -p|--dbport <port>          The port of the mysql/mariadb database (env MYSQL_PORT)
-    -d|--dbdata <database>      The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username>      The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
-    -P|--dbpass <password>      The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -U|--urlpath <url_path>     The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
-    -B|--phppath <php_path>     The path of the PHP binary (env FRIENDICA_PHP_PATH)
-    -b|--basepath <base_path>   The basepath of Friendica(env FRIENDICA_BASE_PATH)
-    -S|--sslpolicy <ssl_policy> The SSL policy of Friendica (env FRIENDICA_SSL_POLICY) 
-    -n|--hostname <hostname>    The hostname of Friendica (env FRIENDICA_PHP_HOSTNAME)  
-    -t|--tz <timezone>          The timezone of Friendica (env FRIENDICA_TZ)
-    -L|--lang <language>        The language of Friendica (env FRIENDICA_LANG)
+    -s|--savedb             Save the DB credentials to the file (if environment variables is used)
+    -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database>  The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username>  The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password>  The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
+    -u|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -b|--phppath <php_path> The path of the PHP binary (env FRIENDICA_PHP_PATH) 
+    -A|--admin <mail>       The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
+    -T|--tz <timezone>      The timezone of Friendica (env FRIENDICA_TZ)
+    -L|--lang <language>    The language of Friendica (env FRIENDICA_LANG)
  
 Environment variables
    MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
@@ -580,12 +580,9 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
-   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica') - leave empty for auto detection
-   FRIENDICA_PHP_PATH          The path of the PHP binary - leave empty for auto detection
-   FRIENDICA_BASE_PATH         The basepath of Friendica - leave empty for auto detection
+   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica')
+   FRIENDICA_PHP_PATH          The path of the PHP binary
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
-   FRIENDICA_SSL_POLICY        The SSL policy of Friendica (default is NO SSL)
-   FRIENDICA_HOSTNAME          The hostname of Friendica - leave empty for auto detection
    FRIENDICA_TZ                The timezone of Friendica
    FRIENDICA_LANG              The langauge of Friendica
    
@@ -606,6 +603,6 @@ HELP;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals($txt, $theHelp);
+		$this->assertEquals($theHelp, $txt);
 	}
 }

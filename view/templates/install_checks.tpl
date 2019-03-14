@@ -28,7 +28,7 @@
 </table>
 
 {{if $phpath}}
-	<input type="hidden" name="phpath" value="{{$phpath}}">
+	<input type="hidden" name="config-php_path" value="{{$php_path}}">
 {{/if}}
 
 {{if $passed}}
