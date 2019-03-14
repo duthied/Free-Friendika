@@ -26,12 +26,6 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	use DBStructureMockTrait;
 	use RendererMockTrait;
 
-	private $db_host;
-	private $db_port;
-	private $db_data;
-	private $db_user;
-	private $db_pass;
-
 	/**
 	 * @var vfsStreamFile Assert file without DB credentials
 	 */
@@ -40,6 +34,11 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	 * @var vfsStreamFile Assert file with DB credentials
 	 */
 	private $assertFileDb;
+
+	/**
+	 * @var ConfigCache The configuration cache to check after each test
+	 */
+	private $configCache;
 
 	public function setUp()
 	{
@@ -50,13 +49,32 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 				->removeChild('local.config.php');
 		}
 
-		$this->db_host = getenv('MYSQL_HOST');
-		$this->db_port = !empty(getenv('MYSQL_PORT')) ? getenv('MYSQL_PORT') : null;
-		$this->db_data = getenv('MYSQL_DATABASE');
-		$this->db_user = getenv('MYSQL_USERNAME') . getenv('MYSQL_USER');
-		$this->db_pass = getenv('MYSQL_PASSWORD');
-
 		$this->mockL10nT();
+
+		$this->configCache = new ConfigCache();
+		$this->configCache->set('system', 'basepath', $this->root->url());
+		$this->configCache->set('config', 'php_path', trim(shell_exec('which php')));
+
+		$this->mockApp($this->root, null, true);
+
+		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) {
+			if ($key !== 'basepath') {
+				return $this->configCache->set($cat, $key, $value);
+			} else {
+				return true;
+			}
+		});
+
+		$this->configMock->shouldReceive('has')->andReturn(true);
+		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) {
+			return $this->configCache->get($cat, $key);
+		});
+		$this->configMock->shouldReceive('load')->andReturnUsing(function ($config, $overwrite = false) {
+			return $this->configCache->load($config, $overwrite);
+		});
+
+		$this->mode->shouldReceive('isInstall')->andReturn(true);
+		Logger::init(new VoidLogger());
 	}
 
 	/**
@@ -82,9 +100,9 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 						'admin_email' => '',
 					],
 					'system' => [
+						'basepath'    => '',
 						'urlpath'     => '',
 						'url'         => '',
-						'basepath'    => '',
 						'ssl_policy'  => '',
 						'default_timezone' => '',
 						'language'    => '',
@@ -94,11 +112,11 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 			'normal' => [
 				'data' => [
 					'database' => [
-						'hostname'    => getenv('MYSQL_HOST'),
-						'port'        =>!empty(getenv('MYSQL_PORT')) ? getenv('MYSQL_PORT') : null,
-						'username'    => getenv('MYSQL_USERNAME'),
-						'password'    => getenv('MYSQL_PASSWORD'),
-						'database'    => getenv('MYSQL_DATABASE'),
+						'hostname'    => 'testhost',
+						'port'        => 3306,
+						'username'    => 'friendica',
+						'password'    => 'a password',
+						'database'    => 'database',
 					],
 					'config' => [
 						'php_path'    => '',
@@ -110,6 +128,30 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 						'url'         => 'friendica.local/test/it',
 						'basepath'    => '',
 						'ssl_policy'  => '2',
+						'default_timezone' => 'en',
+						'language'    => 'Europe/Berlin',
+					],
+				],
+			],
+			'special' => [
+				'data' => [
+					'database' => [
+						'hostname'    => 'testhost.new.domain',
+						'port'        => 3341,
+						'username'    => 'fr"§%ica',
+						'password'    => '$%\"gse',
+						'database'    => 'db',
+					],
+					'config' => [
+						'php_path'    => '',
+						'hostname'    => 'friendica.local',
+						'admin_email' => 'admin@philipp.info',
+					],
+					'system' => [
+						'urlpath'     => 'test/it',
+						'url'         => 'friendica.local/test/it',
+						'basepath'    => '',
+						'ssl_policy'  => '1',
 						'default_timezone' => 'en',
 						'language'    => 'Europe/Berlin',
 					],
@@ -211,28 +253,62 @@ FIN;
 	}
 
 	/**
+	 * Asserts one config entry
+	 *
+	 * @param string     $cat           The category to test
+	 * @param string     $key           The key to test
+	 * @param null|array $assertion     The asserted value (null = empty, or array/string)
+	 * @param string     $default_value The default value
+	 */
+	public function assertConfigEntry($cat, $key, $assertion = null, $default_value = null)
+	{
+		if (!empty($assertion[$cat][$key])) {
+			$this->assertEquals($assertion[$cat][$key], $this->configCache->get($cat, $key));
+		} elseif (!empty($assertion) && !is_array($assertion)) {
+			$this->assertEquals($assertion, $this->configCache->get($cat, $key));
+		} elseif (!empty($default_value)) {
+			$this->assertEquals($default_value, $this->configCache->get($cat, $key));
+		} else {
+			$this->assertEmpty($this->configCache->get($cat, $key), $this->configCache->get($cat, $key));
+		}
+	}
+
+	/**
+	 * Asserts all config entries
+	 *
+	 * @param null|array $assertion    The optional assertion array
+	 * @param boolean    $createConfig True, if a config file has to get generated
+	 * @param boolean    $saveDb       True, if the db credentials should get saved to the file
+	 * @param boolean    $default      True, if we use the default values
+	 * @param boolean    $defaultDb    True, if we use the default value for the DB
+	 */
+	public function assertConfig($assertion = null, $createConfig = true, $saveDb = false, $default = true, $defaultDb = true)
+	{
+		if (!empty($assertion['database']['hostname'])) {
+			$assertion['database']['hostname'] .= (!empty($assertion['database']['port']) ? ':' . $assertion['database']['port'] : '');
+		}
+
+		$this->assertConfigEntry('database', 'hostname', ($saveDb) ? $assertion : null, (!$saveDb || $defaultDb) ? Installer::DEFAULT_HOST : null);
+		$this->assertConfigEntry('database', 'username', ($saveDb) ? $assertion : null);
+		$this->assertConfigEntry('database', 'password', ($saveDb) ? $assertion : null);
+		$this->assertConfigEntry('database', 'database', ($saveDb) ? $assertion : null);
+
+		$this->assertConfigEntry('config', 'hostname', $assertion);
+		$this->assertConfigEntry('config', 'admin_email', $assertion);
+		$this->assertConfigEntry('config', 'php_path', trim(shell_exec('which php')));
+
+		$this->assertConfigEntry('system', 'default_timezone', $assertion, ($default) ? Installer::DEFAULT_TZ : null);
+		$this->assertConfigEntry('system', 'language', $assertion, ($default) ? Installer::DEFAULT_LANG : null);
+		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? SSL_POLICY_NONE : null);
+		$this->assertConfigEntry('system', 'urlpath', $assertion);
+		$this->assertConfigEntry('system', 'basepath', $createConfig ? $this->root->url() : $assertion);
+	}
+
+	/**
 	 * Test the automatic installation without any parameter/setting
 	 */
 	public function testEmpty()
 	{
-		$configCache = new ConfigCache();
-		$configCache->set('system', 'basepath', $this->root->url());
-		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
-
-		$this->mockApp($this->root, null, true);
-
-		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) use ($configCache) {
-			if ($key !== 'basepath') {
-				return $configCache->set($cat, $key, $value);
-			} else {
-				return true;
-			}
-		});;
-		$this->configMock->shouldReceive('has')->andReturn(true);
-		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
-			return $configCache->get($cat, $key);
-		});
-
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -248,21 +324,7 @@ FIN;
 		$this->assertFinished($txt, true, false);
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		// Assert the default values without any config
-		$this->assertEquals(Installer::DEFAULT_HOST, $configCache->get('database', 'hostname'));
-		$this->assertEmpty($configCache->get('database', 'username'));
-		$this->assertEmpty($configCache->get('database', 'password'));
-		$this->assertEmpty($configCache->get('database', 'database'));
-
-		$this->assertEmpty($configCache->get('config', 'hostname'), $configCache->get('config', 'hostname'));
-		$this->assertEmpty($configCache->get('config', 'admin_email'), $configCache->get('config', 'admin_email'));
-		$this->assertEquals(trim(shell_exec('which php')), $configCache->get('config', 'php_path'));
-
-		$this->assertEquals(Installer::DEFAULT_TZ, $configCache->get('system', 'default_timezone'));
-		$this->assertEquals(Installer::DEFAULT_LANG, $configCache->get('system', 'language'));
-		$this->assertEquals(SSL_POLICY_NONE, $configCache->get('system', 'ssl_policy'));
-		$this->assertEmpty($configCache->get('system', 'urlpath'), $configCache->get('system', 'urlpath'));
-		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
+		$this->assertConfig();
 	}
 
 	/**
@@ -271,22 +333,16 @@ FIN;
 	 */
 	public function testWithConfig(array $data)
 	{
-		$configCache = new ConfigCache();
-		$configCache->load($data);
-		$configCache->set('system', 'basepath', $this->root->url());
-		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
-
-		$this->mockApp($this->root, $configCache, true);
-		$this->mode->shouldReceive('isInstall')->andReturn(false);
-		Logger::init(new VoidLogger());
-
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
-		$conf = function ($cat, $key) use ($configCache) {
-			return $configCache->get($cat, $key);
+		$conf = function ($cat, $key) use ($data) {
+			if ($cat == 'database' && $key == 'hostname' && !empty($data['database']['port'])) {
+				return $data[$cat][$key] . ':' . $data['database']['port'];
+			}
+			return $data[$cat][$key];
 		};
 
 		$config = <<<CONF
@@ -299,7 +355,7 @@ FIN;
 
 return [
 	'database' => [
-		'hostname' => '{$conf('database','hostname')}',
+		'hostname' => '{$conf('database', 'hostname')}',
 		'username' => '{$conf('database', 'username')}',
 		'password' => '{$conf('database', 'password')}',
 		'database' => '{$conf('database', 'database')}',
@@ -320,11 +376,12 @@ return [
 		'register_text' => '',
 	],
 	'system' => [
-		'basepath => '{$conf('system', 'basepath')}',
-		'urlpath => '{$conf('system', 'urlpath')}',
+		'basepath' => '{$conf('system', 'basepath')}',
+		'urlpath' => '{$conf('system', 'urlpath')}',
 		'url' => '{$conf('system', 'url')}',
 		'default_timezone' => '{$conf('system', 'default_timezone')}',
 		'language' => '{$conf('system', 'language')}',
+		'ssl_policy' => '{$conf('system', 'ssl_policy')}',
 	],
 ];
 CONF;
@@ -342,6 +399,8 @@ CONF;
 
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 		$this->assertEquals($config, file_get_contents($this->root->getChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')->url()));
+
+		$this->assertConfig($data, false, true, false, false);
 	}
 
 	/**
@@ -351,24 +410,6 @@ CONF;
 	 */
 	public function testWithEnvironmentAndSave(array $data)
 	{
-		$configCache = new ConfigCache();
-		$configCache->set('system', 'basepath', $this->root->url());
-		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
-
-		$this->mockApp($this->root, null, true);
-
-		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) use ($configCache) {
-			if ($key !== 'basepath') {
-				return $configCache->set($cat, $key, $value);
-			} else {
-				return true;
-			}
-		});;
-		$this->configMock->shouldReceive('has')->andReturn(true);
-		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
-			return $configCache->get($cat, $key);
-		});
-
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -397,27 +438,8 @@ CONF;
 
 		$txt = $this->dumpExecute($console);
 
-		// Assert the default values without any config
-		$dbhost = $data['database']['hostname'] . (!empty($data['database']['port']) ? ':' . $data['database']['port'] : '');
-		$this->assertEquals($dbhost, $configCache->get('database', 'hostname'));
-		$this->assertEquals($data['database']['username'], $configCache->get('database', 'username'));
-		$this->assertEquals($data['database']['database'], $configCache->get('database', 'database'));
-		$this->assertEquals($data['database']['password'], $configCache->get('database', 'password'));
-
-		$this->assertEquals($data['config']['hostname'], $configCache->get('config', 'hostname'));
-		$this->assertEquals($data['config']['admin_email'], $configCache->get('config', 'admin_email'));
-		$this->assertEquals(trim(shell_exec('which php')), $configCache->get('config', 'php_path'));
-
-		$this->assertEquals((!empty($data['system']['default_timezone']) ? $data['system']['default_timezone'] : Installer::DEFAULT_TZ),
-			$configCache->get('system', 'default_timezone'));
-		$this->assertEquals((!empty($data['system']['language']) ? $data['system']['language'] : Installer::DEFAULT_LANG),
-			$configCache->get('system', 'language'));
-		$this->assertEquals((!empty($data['system']['ssl_policy']) ? $data['system']['ssl_policy'] : SSL_POLICY_NONE),
-			$configCache->get('system', 'ssl_policy'));
-		$this->assertEquals((!empty($data['system']['urlpath']) ? $data['system']['urlpath'] : null),
-			$configCache->get('system', 'urlpath'));
-
 		$this->assertFinished($txt, true);
+		$this->assertConfig($data, true, true, true, false);
 	}
 
 	/**
@@ -427,24 +449,6 @@ CONF;
 	 */
 	public function testWithEnvironmentWithoutSave(array $data)
 	{
-		$configCache = new ConfigCache();
-		$configCache->set('system', 'basepath', $this->root->url());
-		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
-
-		$this->mockApp($this->root, null, true);
-
-		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) use ($configCache) {
-			if ($key !== 'basepath') {
-				return $configCache->set($cat, $key, $value);
-			} else {
-				return true;
-			}
-		});;
-		$this->configMock->shouldReceive('has')->andReturn(true);
-		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
-			return $configCache->get($cat, $key);
-		});
-
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -472,25 +476,8 @@ CONF;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals(Installer::DEFAULT_HOST, $configCache->get('database', 'hostname'));
-		$this->assertEmpty($configCache->get('database', 'username'), $configCache->get('database', 'username'));
-		$this->assertEmpty($configCache->get('database', 'password'), $configCache->get('database', 'password'));
-		$this->assertEmpty($configCache->get('database', 'database'), $configCache->get('database', 'database'));
-
-		$this->assertEquals($data['config']['hostname'], $configCache->get('config', 'hostname'));
-		$this->assertEquals($data['config']['admin_email'], $configCache->get('config', 'admin_email'));
-		$this->assertEquals(trim(shell_exec('which php')), $configCache->get('config', 'php_path'));
-
-		$this->assertEquals((!empty($data['system']['default_timezone']) ? $data['system']['default_timezone'] : Installer::DEFAULT_TZ),
-			$configCache->get('system', 'default_timezone'));
-		$this->assertEquals((!empty($data['system']['language']) ? $data['system']['language'] : Installer::DEFAULT_LANG),
-			$configCache->get('system', 'language'));
-		$this->assertEquals((!empty($data['system']['ssl_policy']) ? $data['system']['ssl_policy'] : SSL_POLICY_NONE),
-			$configCache->get('system', 'ssl_policy'));
-		$this->assertEquals((!empty($data['system']['urlpath']) ? $data['system']['urlpath'] : null),
-			$configCache->get('system', 'urlpath'));
-
 		$this->assertFinished($txt, true);
+		$this->assertConfig($data, true, false, true);
 	}
 
 	/**
@@ -499,24 +486,6 @@ CONF;
 	 */
 	public function testWithArguments(array $data)
 	{
-		$configCache = new ConfigCache();
-		$configCache->set('system', 'basepath', $this->root->url());
-		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
-
-		$this->mockApp($this->root, null, true);
-
-		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) use ($configCache) {
-			if ($key !== 'basepath') {
-				return $configCache->set($cat, $key, $value);
-			} else {
-				return true;
-			}
-		});;
-		$this->configMock->shouldReceive('has')->andReturn(true);
-		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
-			return $configCache->get($cat, $key);
-		});
-
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
@@ -527,69 +496,29 @@ CONF;
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
-		if (!empty($data['database']['hostname'])) {
-			$console->setOption('dbhost', $data['database']['hostname']);
-		}
-		if (!empty($data['database']['port'])) {
-			$console->setOption('dbport', $data['database']['port']);
-		}
-		if (!empty($data['database']['username'])) {
-			$console->setOption('dbuser', $data['database']['username']);
-		}
-		if (!empty($data['database']['password'])) {
-			$console->setOption('dbpass', $data['database']['password']);
-		}
-		if (!empty($data['database']['database'])) {
-			$console->setOption('dbdata', $data['database']['database']);
-		}
-		if (!empty($data['system']['urlpath'])) {
-			$console->setOption('urlpath', $data['system']['urlpath']);
-		}
-		if (!empty($data['system']['basepath'])) {
-			$console->setOption('basepath', $data['system']['basepath']);
-		}
-		if (!empty($data['config']['php_path'])) {
-			$console->setOption('phppath', $data['config']['php_path']);
-		}
-		if (!empty($data['system']['ssl_policy'])) {
-			$console->setOption('sslpolicy', $data['system']['ssl_policy']);
-		}
-		if (!empty($data['config']['hostname'])) {
-			$console->setOption('hostname', $data['config']['hostname']);
-		}
-		if (!empty($data['config']['admin_email'])) {
-			$console->setOption('admin', $data['config']['admin_email']);
-		}
-		if (!empty($data['system']['default_timezone'])) {
-			$console->setOption('tz', $data['system']['default_timezone']);
-		}
-		if (!empty($data['system']['language'])) {
-			$console->setOption('lang', $data['system']['language']);
-		}
+		$option = function($var, $cat, $key) use ($data, $console) {
+			if (!empty($data[$cat][$key])) {
+				$console->setOption($var, $data[$cat][$key]);
+			}
+		};
+		$option('dbhost'   , 'database', 'hostname');
+		$option('dbport'   , 'database', 'port');
+		$option('dbuser'   , 'database', 'username');
+		$option('dbpass'   , 'database', 'password');
+		$option('dbdata'   , 'database', 'database');
+		$option('urlpath'  , 'system'  , 'urlpath');
+		$option('basepath' , 'system'  , 'basepath');
+		$option('phppath'  , 'config'  , 'php_path');
+		$option('sslpolicy', 'system'  , 'ssl_policy');
+		$option('hostname' , 'config'  , 'hostname');
+		$option('admin'    , 'config'  , 'admin_email');
+		$option('tz'       , 'system'  , 'default_timezone');
+		$option('lang'     , 'system'  , 'language');
 
 		$txt = $this->dumpExecute($console);
 
-		$dbhost = (!empty($data['database']['hostname'])) ? $data['database']['hostname'] : Installer::DEFAULT_HOST;
-		$dbhost .= (!empty($data['database']['port']) ? ':' . $data['database']['port'] : '');
-		$this->assertEquals($dbhost, $configCache->get('database', 'hostname'));
-		$this->assertEquals($data['database']['username'], $configCache->get('database', 'username'));
-		$this->assertEquals($data['database']['database'], $configCache->get('database', 'database'));
-		$this->assertEquals($data['database']['password'], $configCache->get('database', 'password'));
-
-		$this->assertEquals($data['config']['hostname'], $configCache->get('config', 'hostname'));
-		$this->assertEquals($data['config']['admin_email'], $configCache->get('config', 'admin_email'));
-		$this->assertEquals(trim(shell_exec('which php')), $configCache->get('config', 'php_path'));
-
-		$this->assertEquals((!empty($data['system']['default_timezone']) ? $data['system']['default_timezone'] : Installer::DEFAULT_TZ),
-			$configCache->get('system', 'default_timezone'));
-		$this->assertEquals((!empty($data['system']['language']) ? $data['system']['language'] : Installer::DEFAULT_LANG),
-			$configCache->get('system', 'language'));
-		$this->assertEquals((!empty($data['system']['ssl_policy']) ? $data['system']['ssl_policy'] : SSL_POLICY_NONE),
-			$configCache->get('system', 'ssl_policy'));
-		$this->assertEquals((!empty($data['system']['urlpath']) ? $data['system']['urlpath'] : null),
-			$configCache->get('system', 'urlpath'));
-
 		$this->assertFinished($txt, true);
+		$this->assertConfig($data, true, true, true, true);
 	}
 
 	/**
@@ -597,24 +526,6 @@ CONF;
 	 */
 	public function testNoDatabaseConnection()
 	{
-		$configCache = new ConfigCache();
-		$configCache->set('system', 'basepath', $this->root->url());
-		$configCache->set('config', 'php_path', trim(shell_exec('which php')));
-
-		$this->mockApp($this->root, null, true);
-
-		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) use ($configCache) {
-			if ($key !== 'basepath') {
-				return $configCache->set($cat, $key, $value);
-			} else {
-				return true;
-			}
-		});;
-		$this->configMock->shouldReceive('has')->andReturn(true);
-		$this->configMock->shouldReceive('get')->andReturnUsing(function ($cat, $key) use ($configCache) {
-			return $configCache->get($cat, $key);
-		});
-
 		$this->mockConnect(false, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
@@ -627,21 +538,7 @@ CONF;
 		$this->assertStuckDB($txt);
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		// Assert the default values without any config
-		$this->assertEquals(Installer::DEFAULT_HOST, $configCache->get('database', 'hostname'));
-		$this->assertEmpty($configCache->get('database', 'username'));
-		$this->assertEmpty($configCache->get('database', 'password'));
-		$this->assertEmpty($configCache->get('database', 'database'));
-
-		$this->assertEmpty($configCache->get('config', 'hostname'), $configCache->get('config', 'hostname'));
-		$this->assertEmpty($configCache->get('config', 'admin_email'), $configCache->get('config', 'admin_email'));
-		$this->assertEquals(trim(shell_exec('which php')), $configCache->get('config', 'php_path'));
-
-		$this->assertEquals(Installer::DEFAULT_TZ, $configCache->get('system', 'default_timezone'));
-		$this->assertEquals(Installer::DEFAULT_LANG, $configCache->get('system', 'language'));
-		$this->assertEquals(SSL_POLICY_NONE, $configCache->get('system', 'ssl_policy'));
-		$this->assertEmpty($configCache->get('system', 'urlpath'), $configCache->get('system', 'urlpath'));
-		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
+		$this->assertConfig(null, true, false, true, false);
 	}
 
 	public function testGetHelp()
