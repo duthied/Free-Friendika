@@ -220,7 +220,7 @@ HELP;
 		}
 
 		$php_path = null;
-		if (!$configCache->has('config', 'php_path')) {
+		if ($configCache->has('config', 'php_path')) {
 			$php_path = $configCache->get('config', 'php_path');
 		}
 
