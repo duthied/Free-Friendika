@@ -166,6 +166,16 @@ class App
 	}
 
 	/**
+	 * Returns the Mode of the Application
+	 *
+	 * @return App\Mode The Application Mode
+	 */
+	public function getMode()
+	{
+		return $this->mode;
+	}
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -208,19 +218,21 @@ class App
 	 *
 	 * @param string           $basePath   The basedir of the app
 	 * @param Configuration    $config    The Configuration
+	 * @param App\Mode         $mode      The mode of this Friendica app
 	 * @param LoggerInterface  $logger    The current app logger
 	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct($basePath, Configuration $config, App\Mode $mode, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		BaseObject::setApp($this);
 
 		$this->logger   = $logger;
 		$this->config   = $config;
 		$this->profiler = $profiler;
+		$this->mode     = $mode;
 		$cfgBasePath = $this->config->get('system', 'basepath');
 		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
 
@@ -233,8 +245,6 @@ class App
 		$this->checkFriendicaApp();
 
 		$this->profiler->reset();
-
-		$this->mode = new App\Mode($this->basePath);
 
 		$this->reload();
 
@@ -336,22 +346,6 @@ class App
 	}
 
 	/**
-	 * Returns the Mode of the Application
-	 *
-	 * @return App\Mode The Application Mode
-	 *
-	 * @throws InternalServerErrorException when the mode isn't created
-	 */
-	public function getMode()
-	{
-		if (empty($this->mode)) {
-			throw new InternalServerErrorException('Mode of the Application is not defined');
-		}
-
-		return $this->mode;
-	}
-
-	/**
 	 * Reloads the whole app instance
 	 */
 	public function reload()
@@ -369,6 +363,7 @@ class App
 				$this->config->get('rendertime', 'callstack', false));
 
 			Core\Hook::loadHooks();
+			$loader = new ConfigCacheLoader($this->basePath, $this->mode);
 			Core\Hook::callAll('load_config', $loader);
 		}
 

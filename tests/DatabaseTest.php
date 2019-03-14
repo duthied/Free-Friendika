@@ -5,6 +5,7 @@
 
 namespace Friendica\Test;
 
+use Friendica\App;
 use Friendica\Core\Config\Cache;
 use Friendica\Database\DBA;
 use Friendica\Factory;
@@ -41,7 +42,8 @@ abstract class DatabaseTest extends MockedTest
 		}
 
 		$basePath = BasePath::create(dirname(__DIR__));
-		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$mode = new App\Mode($basePath);
+		$configLoader = new Cache\ConfigCacheLoader($basePath, $mode);
 		$config = Factory\ConfigFactory::createCache($configLoader);
 
 		$profiler = \Mockery::mock(Profiler::class);

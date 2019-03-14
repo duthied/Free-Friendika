@@ -23,7 +23,8 @@ class DependencyFactory
 	public static function setUp($channel, $directory, $isBackend = true)
 	{
 		$basePath = BasePath::create($directory, $_SERVER);
-		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$mode = new App\Mode($basePath);
+		$configLoader = new Cache\ConfigCacheLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
@@ -31,8 +32,8 @@ class DependencyFactory
 		// needed to call PConfig::init()
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create($channel, $config, $profiler);
-		Factory\LoggerFactory::createDev($channel, $config);
+		Factory\LoggerFactory::createDev($channel, $config, $profiler);
 
-		return new App($basePath, $config, $logger, $profiler, $isBackend);
+		return new App($basePath, $config, $mode, $logger, $profiler, $isBackend);
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace Friendica\Core\Config\Cache;
 
+use Friendica\App;
 use Friendica\Core\Addon;
 
 /**
@@ -23,8 +24,14 @@ class ConfigCacheLoader
 	private $baseDir;
 	private $configDir;
 
-	public function __construct($baseDir)
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+
+	public function __construct($baseDir, App\Mode $mode)
 	{
+		$this->appMode = $mode;
 		$this->baseDir = $baseDir;
 		$this->configDir = $baseDir . DIRECTORY_SEPARATOR . self::SUBDIRECTORY;
 	}
@@ -34,8 +41,12 @@ class ConfigCacheLoader
 	 *
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
 	 * expected local.config.php
+	 *
+	 * @param IConfigCache The config cache to load to
+	 *
+	 * @throws \Exception
 	 */
-	public function loadConfigFiles(ConfigCache $config)
+	public function loadConfigFiles(IConfigCache $config)
 	{
 		$config->load($this->loadCoreConfig('defaults'));
 		$config->load($this->loadCoreConfig('settings'));
@@ -44,6 +55,12 @@ class ConfigCacheLoader
 		$config->load($this->loadLegacyConfig('htconfig'), true);
 
 		$config->load($this->loadCoreConfig('local'), true);
+
+		// In case of install mode, add the found basepath (because there isn't a basepath set yet
+		if ($this->appMode->isInstall()) {
+			// Setting at least the basepath we know
+			$config->set('system', 'basepath', $this->baseDir);
+		}
 	}
 
 	/**

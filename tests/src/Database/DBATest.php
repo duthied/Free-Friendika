@@ -14,14 +14,15 @@ class DBATest extends DatabaseTest
 	public function setUp()
 	{
 		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
-		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$mode = new App\Mode($basePath);
+		$configLoader = new Cache\ConfigCacheLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create('test', $config, $profiler);
-		$this->app = new App($basePath, $config, $logger, $profiler, false);
+		$this->app = new App($basePath, $config, $mode, $logger, $profiler, false);
 
 		parent::setUp();
 
