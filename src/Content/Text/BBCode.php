@@ -1180,17 +1180,18 @@ class BBCode extends BaseObject
 			return $return;
 		};
 
-		// Extracting multi-line code blocks before the whitespace processing
+		// Extracting code blocks before the whitespace processing and the autolinker
 		$codeblocks = [];
 
 		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#ism",
 			function ($matches) use (&$codeblocks) {
-				$return = $matches[0];
+				$return = '#codeblock-' . count($codeblocks) . '#';
 				if (strpos($matches[2], "\n") !== false) {
-					$return = '#codeblock-' . count($codeblocks) . '#';
-
-					$codeblocks[] =  '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+				} else {
+					$codeblocks[] = '<code>' . $matches[2] . '</code>';
 				}
+
 				return $return;
 			},
 			$text
@@ -1501,12 +1502,6 @@ class BBCode extends BaseObject
 
 		// Check for font change text
 		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
-
-		// Declare the format for [code] layout
-
-		$CodeLayout = '<code>$1</code>';
-		// Check for [code] text
-		$text = preg_replace("/\[code\](.*?)\[\/code\]/ism", "$CodeLayout", $text);
 
 		// Declare the format for [spoiler] layout
 		$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
