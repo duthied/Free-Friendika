@@ -96,14 +96,10 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 					],
 					'config' => [
 						'php_path'    => '',
-						'hostname'    => '',
 						'admin_email' => '',
 					],
 					'system' => [
-						'basepath'    => '',
 						'urlpath'     => '',
-						'url'         => '',
-						'ssl_policy'  => '',
 						'default_timezone' => '',
 						'language'    => '',
 					],
@@ -120,14 +116,10 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 					],
 					'config' => [
 						'php_path'    => '',
-						'hostname'    => 'friendica.local',
 						'admin_email' => 'admin@philipp.info',
 					],
 					'system' => [
 						'urlpath'     => 'test/it',
-						'url'         => 'friendica.local/test/it',
-						'basepath'    => '',
-						'ssl_policy'  => '2',
 						'default_timezone' => 'en',
 						'language'    => 'Europe/Berlin',
 					],
@@ -144,14 +136,10 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 					],
 					'config' => [
 						'php_path'    => '',
-						'hostname'    => 'friendica.local',
 						'admin_email' => 'admin@philipp.info',
 					],
 					'system' => [
 						'urlpath'     => 'test/it',
-						'url'         => 'friendica.local/test/it',
-						'basepath'    => '',
-						'ssl_policy'  => '1',
 						'default_timezone' => 'en',
 						'language'    => 'Europe/Berlin',
 					],
@@ -367,18 +355,14 @@ return [
 
 	'config' => [
 		'admin_email' => '{$conf('config', 'admin_email')}',
-		'hostname' => '{$conf('config', 'hostname')}',
 		'sitename' => 'Friendica Social Network',
 		'register_policy' => \Friendica\Module\Register::OPEN,
 		'register_text' => '',
 	],
 	'system' => [
-		'basepath' => '{$conf('system', 'basepath')}',
 		'urlpath' => '{$conf('system', 'urlpath')}',
-		'url' => '{$conf('system', 'url')}',
 		'default_timezone' => '{$conf('system', 'default_timezone')}',
 		'language' => '{$conf('system', 'language')}',
-		'ssl_policy' => '{$conf('system', 'ssl_policy')}',
 	],
 ];
 CONF;
@@ -424,10 +408,7 @@ CONF;
 		$this->assertTrue(putenv('MYSQL_PASSWORD=' . $data['database']['password']));
 
 		$this->assertTrue(putenv('FRIENDICA_URL_PATH='   . $data['system']['urlpath']));
-		$this->assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
 		$this->assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
-		$this->assertTrue(putenv('FRIENDICA_SSL_POLICY=' . $data['system']['ssl_policy']));
-		$this->assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
 		$this->assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
 		$this->assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
@@ -465,10 +446,7 @@ CONF;
 		$this->assertTrue(putenv('MYSQL_PASSWORD=' . $data['database']['password']));
 
 		$this->assertTrue(putenv('FRIENDICA_URL_PATH=' . $data['system']['urlpath']));
-		$this->assertTrue(putenv('FRIENDICA_BASE_PATH=' . $data['system']['basepath']));
 		$this->assertTrue(putenv('FRIENDICA_PHP_PATH=' . $data['config']['php_path']));
-		$this->assertTrue(putenv('FRIENDICA_SSL_POLICY=' . $data['system']['ssl_policy']));
-		$this->assertTrue(putenv('FRIENDICA_HOSTNAME=' . $data['config']['hostname']));
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
 		$this->assertTrue(putenv('FRIENDICA_TZ=' . $data['system']['default_timezone']));
 		$this->assertTrue(putenv('FRIENDICA_LANG=' . $data['system']['language']));
@@ -510,10 +488,7 @@ CONF;
 		$option('dbpass'   , 'database', 'password');
 		$option('dbdata'   , 'database', 'database');
 		$option('urlpath'  , 'system'  , 'urlpath');
-		$option('basepath' , 'system'  , 'basepath');
 		$option('phppath'  , 'config'  , 'php_path');
-		$option('sslpolicy', 'system'  , 'ssl_policy');
-		$option('hostname' , 'config'  , 'hostname');
 		$option('admin'    , 'config'  , 'admin_email');
 		$option('tz'       , 'system'  , 'default_timezone');
 		$option('lang'     , 'system'  , 'language');
