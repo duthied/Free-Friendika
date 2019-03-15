@@ -99,6 +99,11 @@ class Notifier
 				return;
 			}
 
+			// Issue 6167: We don't distribute image uploads
+			if ($target_item['post-type'] == Item::PT_IMAGE) {
+				return;
+			}
+
 			if (!empty($target_item['contact-uid'])) {
 				$uid = $target_item['contact-uid'];
 			} elseif (!empty($target_item['uid'])) {
