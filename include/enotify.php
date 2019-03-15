@@ -784,7 +784,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
-	$item = Item::selectFirst($fields, $condition);
+	$item = Item::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item) || in_array($item['author-id'], $contacts)) {
 		return false;
 	}
