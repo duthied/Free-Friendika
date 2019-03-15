@@ -152,7 +152,7 @@ class Transmitter
 
 		$condition = ['uid' => 0, 'contact-id' => $public_contact, 'author-id' => $public_contact,
 			'private' => false, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT],
-			'deleted' => false, 'visible' => true];
+			'deleted' => false, 'visible' => true, 'moderated' => false];
 		$count = DBA::count('item', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];

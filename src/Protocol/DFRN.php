@@ -254,7 +254,7 @@ class DFRN
 			FROM `item` USE INDEX (`uid_wall_changed`) $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
-			$sql_extra
+			AND `item`.`visible` $sql_extra
 			ORDER BY `item`.`parent` ".$sort.", `item`.`created` ASC LIMIT 0, 300",
 			intval($owner_id),
 			DBA::escape($check_date),
