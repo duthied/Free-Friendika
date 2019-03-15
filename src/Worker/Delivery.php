@@ -60,7 +60,7 @@ class Delivery extends BaseObject
 			}
 			$parent_id = intval($item['parent']);
 
-			$condition = ['id' => [$target_id, $parent_id], 'moderated' => false];
+			$condition = ['id' => [$target_id, $parent_id], 'visible' => true, 'moderated' => false];
 			$params = ['order' => ['id']];
 			$itemdata = Model\Item::select([], $condition, $params);
 
