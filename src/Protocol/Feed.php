@@ -421,7 +421,7 @@ class Feed {
 				unset($item["attach"]);
 			} else {
 				if (!empty($summary)) {
-					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . '[/abstract]' . $item["body"];
+					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];
 				}
 
 				if ($contact["fetch_further_information"] == 3) {
