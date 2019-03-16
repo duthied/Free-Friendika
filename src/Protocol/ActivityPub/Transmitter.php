@@ -20,6 +20,7 @@ use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Plaintext;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Model\Profile;
@@ -1020,7 +1021,7 @@ class Transmitter
 			return $data;
 		}
 
-		$data['summary'] = null; // Ignore by now
+		$data['summary'] = BBCode::getAbstract($item['body'], Protocol::ACTIVITYPUB);
 
 		if ($item['uri'] != $item['thr-parent']) {
 			$data['inReplyTo'] = $item['thr-parent'];
@@ -1054,6 +1055,8 @@ class Transmitter
 
 		if ($type == 'Note') {
 			$body = self::removePictures($body);
+		} elseif (($type == 'Article') && empty($data['summary'])) {
+			$data['summary'] = Plaintext::shorten(self::removePictures($body), 1000);
 		}
 
 		if ($type == 'Event') {
