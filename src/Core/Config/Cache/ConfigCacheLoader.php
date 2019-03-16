@@ -106,7 +106,26 @@ class ConfigCacheLoader
 		$config = [];
 
 		if (file_exists($filePath)) {
+			$a = new \stdClass();
+			$a->config = [];
 			include $filePath;
+
+			$htconfigAr = array_keys($a->config);
+
+			// map the legacy configuration structure to the current structure
+			foreach ($htconfigAr as $htconfig) {
+				if (isset($a->config[$htconfig]) && is_array($a->config[$htconfig])) {
+					$keys = array_keys($a->config[$htconfig]);
+
+					foreach ($keys as $key) {
+						$config[$htconfig][$key] = $a->config[$htconfig][$key];
+					}
+				} else {
+					$config['config'][$htconfig] = $a->config[$htconfig];
+				}
+			}
+
+			unset($a);
 
 			if (isset($db_host)) {
 				$config['database']['hostname'] = $db_host;
@@ -124,8 +143,8 @@ class ConfigCacheLoader
 				$config['database']['database'] = $db_data;
 				unset($db_data);
 			}
-			if (isset($a->config['system']['db_charset'])) {
-				$a->config['database']['charset'] = $config['system']['charset'];
+			if (isset($config['system']['db_charset'])) {
+				$config['database']['charset'] = $config['system']['db_charset'];
 			}
 			if (isset($pidfile)) {
 				$config['system']['pidfile'] = $pidfile;
@@ -138,22 +157,6 @@ class ConfigCacheLoader
 			if (isset($lang)) {
 				$config['system']['language'] = $lang;
 				unset($lang);
-			}
-			if (isset($admin_email)) {
-				$config['config']['admin_email'] = $admin_email;
-				unset($admin_email);
-			}
-			if (isset($admin_nickname)) {
-				$config['config']['admin_nickname'] = $admin_nickname;
-				unset($admin_nickname);
-			}
-			if (isset($php_path)) {
-				$config['config']['php_path'] = $php_path;
-				unset($php_path);
-			}
-			if (isset($max_import_size)) {
-				$config['config']['max_import_size'] = $max_import_size;
-				unset($max_import_size);
 			}
 		}
 

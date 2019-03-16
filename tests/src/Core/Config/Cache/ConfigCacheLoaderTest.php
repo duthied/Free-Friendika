@@ -131,6 +131,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$this->assertEquals('testuser', $configCache->get('database', 'username'));
 		$this->assertEquals('testpw', $configCache->get('database', 'password'));
 		$this->assertEquals('testdb', $configCache->get('database', 'database'));
+		$this->assertEquals('anotherCharset', $configCache->get('database', 'charset'));
 
 		$this->assertEquals('/var/run/friendica.pid', $configCache->get('system', 'pidfile'));
 		$this->assertEquals('Europe/Berlin', $configCache->get('system', 'default_timezone'));
@@ -141,6 +142,10 @@ class ConfigCacheLoaderTest extends MockedTest
 
 		$this->assertEquals('/another/php', $configCache->get('config', 'php_path'));
 		$this->assertEquals('999', $configCache->get('config', 'max_import_size'));
+		$this->assertEquals('666', $configCache->get('system', 'maximagesize'));
+
+		$this->assertEquals('quattro,vier,duepuntozero', $configCache->get('system', 'allowed_themes'));
+		$this->assertEquals('1', $configCache->get('system', 'no_regfullname'));
 	}
 
 	public function testLoadAddonConfig()
