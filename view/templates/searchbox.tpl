@@ -1,7 +1,7 @@
 <div id="{{$id}}" class="input-group">
         <form action="{{$action_url}}" method="get" >
                 {{strip}}
-                <input type="text" name="search" id="search-text" placeholder="{{$search_label}}" value="{{$s}}" autofocus />
+                <input type="text" name="search" id="search-text" placeholder="{{$search_label}}" value="{{$s}}" />
                 {{if $searchoption}}
 		<select name="search-option" id="search-options">
 			<option value="fulltext">{{$searchoption.0}}</option>
