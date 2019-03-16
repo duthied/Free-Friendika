@@ -356,11 +356,20 @@ class Feed {
 			if (empty($body)) {
 				$body = trim(XML::getFirstNodeValue($xpath, 'content:encoded/text()', $entry));
 			}
-			if (empty($body)) {
-				$body = trim(XML::getFirstNodeValue($xpath, 'description/text()', $entry));
+
+			$summary = trim(XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry));
+
+			if (empty($summary)) {
+				$summary = trim(XML::getFirstNodeValue($xpath, 'description/text()', $entry));
 			}
+
 			if (empty($body)) {
-				$body = trim(XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry));
+				$body = $summary;
+				$summary = '';
+			}
+
+			if ($body == $summary) {
+				$summary = '';
 			}
 
 			// remove the content of the title if it is identically to the body
@@ -411,6 +420,10 @@ class Feed {
 				$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 				unset($item["attach"]);
 			} else {
+				if (!empty($summary)) {
+					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . '[/abstract]' . $item["body"];
+				}
+
 				if ($contact["fetch_further_information"] == 3) {
 					if (!empty($tags)) {
 						$item["tag"] = $tags;
