@@ -106,7 +106,11 @@ HELP;
 			return -1;
 		}
 
-		StorageManager::setBackend($class);
+		if (!StorageManager::setBackend($class)) {
+			$this->out($class . ' is not a valid backend storage class.');
+			return -1;
+		}
+
 		return 0;
 	}
 

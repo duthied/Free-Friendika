@@ -54,12 +54,18 @@ class StorageManager
 	 * @brief Set current storage backend class
 	 *
 	 * @param string $class Backend class name
+	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function setBackend($class)
 	{
-		/// @todo Check that $class implements IStorage
+		if (!in_array('Friendica\Model\Storage\IStorage', class_implements($class))) {
+			return false;
+		}
+
 		Config::set('storage', 'class', $class);
+
+		return true;
 	}
 
 	/**
