@@ -103,47 +103,64 @@ class ConfigCacheLoader
 	{
 		$filePath = $this->baseDir  . DIRECTORY_SEPARATOR . '.' . $name . '.php';
 
+		$config = [];
+
 		if (file_exists($filePath)) {
 			$a = new \stdClass();
 			$a->config = [];
 			include $filePath;
 
+			$htConfigCategories = array_keys($a->config);
+
+			// map the legacy configuration structure to the current structure
+			foreach ($htConfigCategories as $htConfigCategory) {
+				if (is_array($a->config[$htConfigCategory])) {
+					$keys = array_keys($a->config[$htConfigCategory]);
+
+					foreach ($keys as $key) {
+						$config[$htConfigCategory][$key] = $a->config[$htConfigCategory][$key];
+					}
+				} else {
+					$config['config'][$htConfigCategory] = $a->config[$htConfigCategory];
+				}
+			}
+
+			unset($a);
+
 			if (isset($db_host)) {
-				$a->config['database']['hostname'] = $db_host;
+				$config['database']['hostname'] = $db_host;
 				unset($db_host);
 			}
 			if (isset($db_user)) {
-				$a->config['database']['username'] = $db_user;
+				$config['database']['username'] = $db_user;
 				unset($db_user);
 			}
 			if (isset($db_pass)) {
-				$a->config['database']['password'] = $db_pass;
+				$config['database']['password'] = $db_pass;
 				unset($db_pass);
 			}
 			if (isset($db_data)) {
-				$a->config['database']['database'] = $db_data;
+				$config['database']['database'] = $db_data;
 				unset($db_data);
 			}
-			if (isset($a->config['system']['db_charset'])) {
-				$a->config['database']['charset'] = $a->config['system']['charset'];
+			if (isset($config['system']['db_charset'])) {
+				$config['database']['charset'] = $config['system']['db_charset'];
 			}
 			if (isset($pidfile)) {
-				$a->config['system']['pidfile'] = $pidfile;
+				$config['system']['pidfile'] = $pidfile;
 				unset($pidfile);
 			}
 			if (isset($default_timezone)) {
-				$a->config['system']['default_timezone'] = $default_timezone;
+				$config['system']['default_timezone'] = $default_timezone;
 				unset($default_timezone);
 			}
 			if (isset($lang)) {
-				$a->config['system']['language'] = $lang;
+				$config['system']['language'] = $lang;
 				unset($lang);
 			}
-
-			return $a->config;
-		} else {
-			return [];
 		}
+
+		return $config;
 	}
 
 	/**
