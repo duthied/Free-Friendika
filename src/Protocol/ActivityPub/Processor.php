@@ -137,32 +137,11 @@ class Processor
 
 		$item['changed'] = DateTimeFormat::utcNow();
 		$item['edited'] = $activity['updated'];
-		$item['title'] = HTML::toBBCode($activity['name']);
 
-		if (!empty($activity['source'])) {
-			$content = $activity['source'];
-		} else {
-			$item['content-warning'] = HTML::toBBCode($activity['summary']);
-
-			$content = HTML::toBBCode($activity['content']);
-			$content = self::replaceEmojis($content, $activity['emojis']);
-			$content = self::convertMentions($content);
-
-			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-				$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
-				if (!DBA::isResult($parent)) {
-					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
-					return;
-				}
-
-				$potential_implicit_mentions = self::getImplicitMentionList($parent);
-				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
-				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
-			}
+		$item = self::processContent($activity, $item);
+		if (empty($item)) {
+			return;
 		}
-
-		$item['body'] = $content;
-		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
 
 		Item::update($item, ['uri' => $activity['id']]);
 	}
@@ -269,6 +248,61 @@ class Processor
 	}
 
 	/**
+	 * Process the content
+	 *
+	 * @param array $activity Activity array
+	 * @param array $item
+	 * @return array
+	 * @throws \Exception
+	 */
+	private static function processContent($activity, $item)
+	{
+		$item['title'] = HTML::toBBCode($activity['name']);
+
+		if (!empty($activity['source'])) {
+			$item['body'] = $activity['source'];
+		} else {
+			$content = HTML::toBBCode($activity['content']);
+			$content = self::replaceEmojis($content, $activity['emojis']);
+			$content = self::convertMentions($content);
+
+			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+				$item_private = !in_array(0, $activity['item_receiver']);
+				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+				if (!DBA::isResult($parent)) {
+					return false;
+				}
+				if ($item_private && !$parent['private']) {
+					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
+					return false;
+				}
+
+				$potential_implicit_mentions = self::getImplicitMentionList($parent);
+				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
+				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
+			}
+			$item['content-warning'] = HTML::toBBCode($activity['summary']);
+			$item['body'] = $content;
+
+			if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
+				$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
+			}
+		}
+
+		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
+
+		$item['location'] = $activity['location'];
+
+		if (!empty($item['latitude']) && !empty($item['longitude'])) {
+			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
+		}
+
+		$item['app'] = $activity['generator'];
+
+		return $item;
+	}
+
+	/**
 	 * Creates an item post
 	 *
 	 * @param array $activity Activity data
@@ -300,53 +334,19 @@ class Processor
 		}
 
 		$item['uri'] = $activity['id'];
-		$content = HTML::toBBCode($activity['content']);
-		$content = self::replaceEmojis($content, $activity['emojis']);
-		$content = self::convertMentions($content);
-
-		if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-			$item_private = !in_array(0, $activity['item_receiver']);
-			$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
-			if (!DBA::isResult($parent)) {
-				return;
-			}
-			if ($item_private && !$parent['private']) {
-				Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
-				return;
-			}
-
-			$potential_implicit_mentions = self::getImplicitMentionList($parent);
-			$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
-			$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
-		}
 
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
 		$item['guid'] = $activity['diaspora:guid'];
-		$item['title'] = HTML::toBBCode($activity['name']);
-		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$item['body'] = $content;
 
-		if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
-			$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
+		$item = self::processContent($activity, $item);
+		if (empty($item)) {
+			return;
 		}
 
-		$item['location'] = $activity['location'];
-
-		if (!empty($item['latitude']) && !empty($item['longitude'])) {
-			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
-		}
-
-		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
-		$item['app'] = $activity['generator'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 
 		$item = self::constructAttachList($activity['attachments'], $item);
-
-		if (!empty($activity['source'])) {
-			$item['content-warning'] = '';
-			$item['body'] = $activity['source'];
-		}
 
 		$stored = false;
 
