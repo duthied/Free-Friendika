@@ -138,22 +138,27 @@ class Processor
 		$item['changed'] = DateTimeFormat::utcNow();
 		$item['edited'] = $activity['updated'];
 		$item['title'] = HTML::toBBCode($activity['name']);
-		$item['content-warning'] = HTML::toBBCode($activity['summary']);
 
-		$content = HTML::toBBCode($activity['content']);
-		$content = self::replaceEmojis($content, $activity['emojis']);
-		$content = self::convertMentions($content);
+		if (!empty($activity['source'])) {
+			$content = $activity['source'];
+		} else {
+			$item['content-warning'] = HTML::toBBCode($activity['summary']);
 
-		if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-			$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
-			if (!DBA::isResult($parent)) {
-				Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
-				return;
+			$content = HTML::toBBCode($activity['content']);
+			$content = self::replaceEmojis($content, $activity['emojis']);
+			$content = self::convertMentions($content);
+
+			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+				$parent = Item::selectFirst(['id', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+				if (!DBA::isResult($parent)) {
+					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
+					return;
+				}
+
+				$potential_implicit_mentions = self::getImplicitMentionList($parent);
+				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
+				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
 			}
-
-			$potential_implicit_mentions = self::getImplicitMentionList($parent);
-			$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
-			$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
 		}
 
 		$item['body'] = $content;
@@ -339,6 +344,7 @@ class Processor
 		$item = self::constructAttachList($activity['attachments'], $item);
 
 		if (!empty($activity['source'])) {
+			$item['content-warning'] = '';
 			$item['body'] = $activity['source'];
 		}
 
