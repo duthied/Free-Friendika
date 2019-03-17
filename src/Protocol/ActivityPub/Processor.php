@@ -252,7 +252,7 @@ class Processor
 	 *
 	 * @param array $activity Activity array
 	 * @param array $item
-	 * @return array
+	 * @return array|bool Returns the item array or false if there was an unexpected occurrence
 	 * @throws \Exception
 	 */
 	private static function processContent($activity, $item)
