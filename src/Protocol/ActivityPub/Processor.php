@@ -48,7 +48,7 @@ class Processor
 	 *
 	 * @return string with replaced emojis
 	 */
-	public static function replaceEmojis($body, array $emojis)
+	private static function replaceEmojis($body, array $emojis)
 	{
 		foreach ($emojis as $emoji) {
 			$replace = '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
@@ -263,7 +263,11 @@ class Processor
 			$item['body'] = $activity['source'];
 		} else {
 			$content = HTML::toBBCode($activity['content']);
-			$content = self::replaceEmojis($content, $activity['emojis']);
+
+			if (!empty($activity['emojis'])) {
+				$content = self::replaceEmojis($content, $activity['emojis']);
+			}
+
 			$content = self::convertMentions($content);
 
 			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
