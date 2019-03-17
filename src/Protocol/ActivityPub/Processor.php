@@ -270,6 +270,7 @@ class Processor
 				$item_private = !in_array(0, $activity['item_receiver']);
 				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 				if (!DBA::isResult($parent)) {
+					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
 					return false;
 				}
 				if ($item_private && !$parent['private']) {
