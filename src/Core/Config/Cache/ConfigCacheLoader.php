@@ -110,18 +110,18 @@ class ConfigCacheLoader
 			$a->config = [];
 			include $filePath;
 
-			$htconfigAr = array_keys($a->config);
+			$htConfigCategories = array_keys($a->config);
 
 			// map the legacy configuration structure to the current structure
-			foreach ($htconfigAr as $htconfig) {
-				if (isset($a->config[$htconfig]) && is_array($a->config[$htconfig])) {
-					$keys = array_keys($a->config[$htconfig]);
+			foreach ($htConfigCategories as $htConfigCategory) {
+				if (is_array($a->config[$htConfigCategory])) {
+					$keys = array_keys($a->config[$htConfigCategory]);
 
 					foreach ($keys as $key) {
-						$config[$htconfig][$key] = $a->config[$htconfig][$key];
+						$config[$htConfigCategory][$key] = $a->config[$htConfigCategory][$key];
 					}
 				} else {
-					$config['config'][$htconfig] = $a->config[$htconfig];
+					$config['config'][$htConfigCategory] = $a->config[$htConfigCategory];
 				}
 			}
 

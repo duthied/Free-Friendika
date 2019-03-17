@@ -30,7 +30,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 		$categories = array_keys($config);
 
 		foreach ($categories as $category) {
-			if (isset($config[$category]) && is_array($config[$category])) {
+			if (is_array($config[$category])) {
 				$keys = array_keys($config[$category]);
 
 				foreach ($keys as $key) {
