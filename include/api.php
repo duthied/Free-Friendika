@@ -3066,7 +3066,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 				$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
 				$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
 				$status['retweeted_status'] = $retweeted_status;
-				$status['friendica_author'] = $retweeted_status['user'];
+				$status['friendica_author'] = $retweeted_status['friendica_author'];
 			}
 		}
 
