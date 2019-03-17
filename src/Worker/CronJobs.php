@@ -35,54 +35,42 @@ class CronJobs
 
 		Logger::log("Starting cronjob " . $command, Logger::DEBUG);
 
-		// Call possible post update functions
-		// see src/Database/PostUpdate.php for more details
-		if ($command == 'post_update') {
-			PostUpdate::update();
-			return;
-		}
+		switch($command) {
+			case 'post_update':
+				PostUpdate::update();
+				break;
 
-		// update nodeinfo data
-		if ($command == 'nodeinfo') {
-			nodeinfo_cron();
-			return;
-		}
+			case 'nodeinfo':
+				nodeinfo_cron();
+				break;
 
-		// Expire and remove user entries
-		if ($command == 'expire_and_remove_users') {
-			self::expireAndRemoveUsers();
-			return;
-		}
+			case 'expire_and_remove_users':
+				self::expireAndRemoveUsers();
+				break;
 
-		if ($command == 'update_contact_birthdays') {
-			Contact::updateBirthdays();
-			return;
-		}
+			case 'update_contact_birthdays':
+				Contact::updateBirthdays();
+				break;
 
-		if ($command == 'update_photo_albums') {
-			self::updatePhotoAlbums();
-			return;
-		}
+			case 'update_photo_albums':
+				self::updatePhotoAlbums();
+				break;
 
-		// Clear cache entries
-		if ($command == 'clear_cache') {
-			self::clearCache($a);
-			return;
-		}
+			case 'clear_cache':
+				self::clearCache($a);
+				break;
 
-		// Repair missing Diaspora values in contacts
-		if ($command == 'repair_diaspora') {
-			self::repairDiaspora($a);
-			return;
-		}
+			case 'repair_diaspora':
+				self::repairDiaspora($a);
+				break;
 
-		// Repair entries in the database
-		if ($command == 'repair_database') {
-			self::repairDatabase();
-			return;
-		}
+			case 'repair_database':
+				self::repairDatabase();
+				break;
 
-		Logger::log("Xronjob " . $command . " is unknown.", Logger::DEBUG);
+			default:
+				Logger::log("Xronjob " . $command . " is unknown.", Logger::DEBUG);
+		}
 
 		return;
 	}

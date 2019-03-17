@@ -23,7 +23,7 @@ class StorageManager
 
 	private static function setup()
 	{
-		if (count(self::$backends)==0) {
+		if (count(self::$backends) == 0) {
 			self::$backends = Config::get('storage', 'backends', self::$default_backends);
 		}
 	}

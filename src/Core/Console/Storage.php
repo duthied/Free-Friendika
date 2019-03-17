@@ -49,36 +49,36 @@ HELP;
 			return -1;
 		}
 
-		switch($this->args[0]) {
-		case 'list':
-			return $this->do_list();
-			break;
-		case 'set':
-			return $this->do_set();
-			break;
-		case 'move':
-			return $this->do_move();
-			break;
+		switch ($this->args[0]) {
+			case 'list':
+				return $this->doList();
+				break;
+			case 'set':
+				return $this->doSet();
+				break;
+			case 'move':
+				return $this->doMove();
+				break;
 		}
 
 		$this->out(sprintf('Invalid action "%s"', $this->args[0]));
 		return -1;
 	}
 
-	protected function do_list()
+	protected function doList()
 	{
 		$rowfmt = ' %-3s | %-20s';
 		$current = StorageManager::getBackend();
 		$this->out(sprintf($rowfmt, 'Sel', 'Name'));
 		$this->out('-----------------------');
 		$isregisterd = false;
-		foreach(StorageManager::listBackends() as $name => $class) {
+		foreach (StorageManager::listBackends() as $name => $class) {
 			$issel = ' ';
 			if ($current === $class) {
 				$issel = '*';
 				$isregisterd = true;
 			};
-			$this->out(sprintf($rowfmt, $issel , $name ));
+			$this->out(sprintf($rowfmt, $issel, $name));
 		}
 
 		if ($current === '') {
@@ -92,7 +92,7 @@ HELP;
 		return 0;
 	}
 
-	protected function do_set()
+	protected function doSet()
 	{
 		if (count($this->args) !== 2) {
 			throw new CommandArgsException('Invalid arguments');
@@ -110,7 +110,7 @@ HELP;
 		return 0;
 	}
 
-	protected function do_move()
+	protected function doMove()
 	{
 		$tables = null;
 		if (count($this->args) < 1 || count($this->args) > 2) {
