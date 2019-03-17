@@ -775,15 +775,17 @@ function api_item_get_user(App $a, $item)
 {
 	$status_user = api_get_user($a, defaults($item, 'author-id', null));
 
+	$author_user = $status_user;
+
 	$status_user["protected"] = defaults($item, 'private', 0);
 
 	if (defaults($item, 'thr-parent', '') == defaults($item, 'uri', '')) {
 		$owner_user = api_get_user($a, defaults($item, 'owner-id', null));
 	} else {
-		$owner_user = $status_user;
+		$owner_user = $author_user;
 	}
 
-	return ([$status_user, $owner_user]);
+	return ([$status_user, $author_user, $owner_user]);
 }
 
 /**
@@ -2988,7 +2990,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 
 	foreach ((array)$r as $item) {
 		localize_item($item);
-		list($status_user, $owner_user) = api_item_get_user($a, $item);
+		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 
 		// Look if the posts are matching if they should be filtered by user id
 		if ($filter_user && ($status_user["id"] != $user_info["id"])) {
@@ -3020,6 +3022,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			$geo => null,
 			'favorited' => $item['starred'] ? true : false,
 			'user' =>  $status_user,
+			'friendica_author' => $author_user,
 			'friendica_owner' => $owner_user,
 			'friendica_private' => $item['private'] == 1,
 			//'entities' => NULL,
@@ -3063,6 +3066,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 				$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
 				$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
 				$status['retweeted_status'] = $retweeted_status;
+				$status['friendica_author'] = $retweeted_status['friendica_author'];
 			}
 		}
 
