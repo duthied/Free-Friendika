@@ -654,6 +654,7 @@ Returned status object is conform to GNU Social/Twitter api.
 
 Friendica adds some addictional fields:
 
+- author: a user object, it's the author of the item. In case of a reshare for legacy reasons the "user" field doesn't show the real author. This field always contains the real author of a post.
 - owner: a user object, it's the owner of the item.
 - private: boolean, true if the item is marked as private
 - activities: map with activities related to the item. Every activity is a list of user objects.
@@ -667,6 +668,9 @@ JSON:
 [
 	{
 		// ...
+		'friendica_author' : {
+			// user object
+		},
 		'friendica_owner' : {
 			// user object
 		},
