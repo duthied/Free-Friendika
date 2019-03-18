@@ -102,6 +102,10 @@ class BBCodeTest extends MockedTest
 				'data' => "http://example.com\ntest",
 				'assertHTML' => false
 			],
+			'bug-6901' => [
+				'data' => "http://example.com<ul>",
+				'assertHTML' => false
+			],
 		];
 	}
 

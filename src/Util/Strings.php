@@ -361,7 +361,10 @@ class Strings
 (                              # Capture 1: entire matched URL
   https?://                            # http or https protocol
   (?:
-    [^/\s.][^/\s]+[.][^\s/]+/?         # looks like domain name followed by a slash
+    [^/\s`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
+    [^/\s`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
+    \.
+    [^/\s`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
   )
   (?:                                  # One or more:
     [^\s()<>]+                         # Run of non-space, non-()<>
