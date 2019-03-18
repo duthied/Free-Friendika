@@ -1021,7 +1021,7 @@ class Transmitter
 			return $data;
 		}
 
-		$data['summary'] = BBCode::convert(BBCode::getAbstract($item['body'], Protocol::ACTIVITYPUB), false, 7);
+		$data['summary'] = BBCode::toPlaintext(BBCode::getAbstract($item['body'], Protocol::ACTIVITYPUB));
 
 		if ($item['uri'] != $item['thr-parent']) {
 			$data['inReplyTo'] = $item['thr-parent'];
@@ -1056,7 +1056,7 @@ class Transmitter
 		if ($type == 'Note') {
 			$body = self::removePictures($body);
 		} elseif (($type == 'Article') && empty($data['summary'])) {
-			$data['summary'] = BBCode::convert(Plaintext::shorten(self::removePictures($body), 1000), false, 7);
+			$data['summary'] = BBCode::toPlaintext(Plaintext::shorten(self::removePictures($body), 1000));
 		}
 
 		if ($type == 'Event') {
