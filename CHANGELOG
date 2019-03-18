@@ -2,7 +2,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
   Friendica Core:
     Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, ZH-CN) [translation teams]
     Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
-    Update to the themes (frio, smoothy, quattro) [lxiter, MrPetovan. nupplaphil, rabuzarus,  tobiasd]
+    Update to the themes (duepuntozero, frio, smoothy, quattro, vier) [lxiter, MrPetovan. nupplaphil, rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
     Enhancements to the Vagrant development VM [JeroenED]
     Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
@@ -38,6 +38,10 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Fixed a timeout issue during detection process of the remote profile [annando]
     Fixed an issue with postings from blocked servers [annando, MrPetovan]
     Fixed an issue with the paging of stored folders [MrPetovan]
+    Fixed an issue with notifications about interactions with Friendica contacts [annando]
+    Fixed an issue that caused double postings of images uploaded to the gallery [annando]
+    Fixed an issue handling legacy config files [nupplaphil]
+    Fixed an issue that caused notifications about interaction with a locally deleted posting [annando]
     If the node does not want to publish information, nodeinfo now returns 404 instead of non-existing entries [nupplaphil]
     General Code cleaning and restructuring [annando, JeroenED, MrPetovan, nupplaphil]
     Switched logging engine to monolog [nupplaphil]
@@ -45,6 +49,9 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Added item delivery indicator to posting header [MrPetovan]
     Added URL parameter to force a specific language [JeroenED]
     Added live preview of attachments to frio [rabuzarus]
+    Added a "friendica_author" to the API results which holds the real author [annando]
+    Added support for AP with forum postings [annando]
+    Added a summery of articles send over AP [annando]
 
   Friendica Addons:
     Updates to the translations (CS, DE, EN-GB, ES, FR, NL, PL) [translation teams]
@@ -58,6 +65,8 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
       Added new addon to display a cookie usage notice in the browser [lxiter]
     forumdirectory:
       Fixed a theming issue with frio [rabuzarus]
+    js_upload:
+      Fixed a missing extionsion index [nupplaphil]
     mailstream:
       Fixed a curl issue [MrPetovan]
     piwik:
@@ -68,13 +77,14 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
       @ mentions are now stripped from the posts send to Twitter [MrPetovan]
 
   Closed Issues:
-    1777, 2487, 3218, 3506, 3837, 4496, 6087, 6232, 6274, 6292, 6375,
-    6378, 6382, 6384, 6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492,
-    6495, 6498, 6501, 6503, 6505, 6511, 6514, 6522, 6529, 6532, 6533,
-    6544, 6545, 6551, 6553, 6558, 6552, 6561, 6570, 6575, 6585, 6603,
-    6610, 6629, 6630, 6633, 6635, 6652, 6656, 6658, 6667, 6668, 6669,
-    6672, 6674, 6676, 6677, 6679, 6691, 6710, 6711, 6714, 6716, 6733,
-    6758, 6772, 6785, 6788, 6800, 6805, 6812, 6819, 6822, 6823, 6840
+    1777, 2487, 3218, 3506, 3837, 4496, 6087, 6161, 6167, 6205, 6232,
+    6274, 6292, 6375, 6378, 6382, 6384, 6403, 6405, 6449, 6468, 6472,
+    6489, 6491, 6492, 6495, 6498, 6501, 6503, 6505, 6511, 6514, 6521,
+    6522, 6529, 6532, 6533, 6544, 6545, 6551, 6553, 6537, 6558, 6552,
+    6561, 6570, 6575, 6585, 6603, 6610, 6629, 6630, 6633, 6635, 6652,
+    6656, 6658, 6667, 6668, 6669, 6672, 6674, 6676, 6677, 6679, 6691,
+    6710, 6711, 6714, 6716, 6733, 6758, 6772, 6785, 6788, 6800, 6805,
+    6812, 6819, 6822, 6823, 6840, 6866, 6874
 
 Version 2019.01 (2019-01-21)
   Friendica Core:
