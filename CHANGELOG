@@ -49,7 +49,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Added item delivery indicator to posting header [MrPetovan]
     Added URL parameter to force a specific language [JeroenED]
     Added live preview of attachments to frio [rabuzarus]
-    Added a "friendica_author" to the API results which holds the real author [annando]
+    Added a "friendica_author" field to the API results which holds the real author [annando]
     Added support for AP with forum postings [annando]
     Added a summery of articles send over AP [annando]
 
