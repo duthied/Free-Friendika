@@ -51,7 +51,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Added live preview of attachments to frio [rabuzarus]
     Added a "friendica_author" field to the API results which holds the real author [annando]
     Added support for AP with forum postings [annando]
-    Added a summery of articles send over AP [annando]
+    Added a summary of articles send over AP [annando]
 
   Friendica Addons:
     Updates to the translations (CS, DE, EN-GB, ES, FR, NL, PL) [translation teams]
