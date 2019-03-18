@@ -328,43 +328,79 @@ class HTTPSignature
 	 */
 	public static function fetch($request, $uid)
 	{
-		$owner = User::getOwnerDataById($uid);
+		$opts = ['accept_content' => 'application/activity+json, application/ld+json'];
+		$curlResult = self::fetchRaw($request, $uid, false, $opts);
 
-		if (!$owner) {
-			return;
+		if (empty($curlResult)) {
+			return false;
 		}
-
-		// Header data that is about to be signed.
-		$host = parse_url($request, PHP_URL_HOST);
-		$path = parse_url($request, PHP_URL_PATH);
-		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
-
-		$headers = ['Date: ' . $date, 'Host: ' . $host];
-
-		$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
-
-		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
-
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
-
-		$headers[] = 'Accept: application/activity+json, application/ld+json';
-
-		$curlResult = Network::curl($request, false, $redirects, ['header' => $headers]);
-		$return_code = $curlResult->getReturnCode();
-
-		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
 
 		$content = json_decode($curlResult->getBody(), true);
-
 		if (empty($content) || !is_array($content)) {
 			return false;
 		}
 
 		return $content;
+	}
+
+	/**
+	 * @brief Fetches raw data for a user
+	 *
+	 * @param string  $request request url
+	 * @param integer $uid     User id of the requester
+	 * @param boolean $binary  TRUE if asked to return binary results (file download) (default is "false")
+	 * @param array   $opts    (optional parameters) assoziative array with:
+	 *                         'accept_content' => supply Accept: header with 'accept_content' as the value
+	 *                         'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                         'http_auth' => username:password
+	 *                         'novalidate' => do not validate SSL certs, default is to validate using our CA list
+	 *                         'nobody' => only return the header
+	 *                         'cookiejar' => path to cookie jar file
+	 *
+	 * @return object CurlResult
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
+	{
+		if (!empty($uid)) {
+			$owner = User::getOwnerDataById($uid);
+			if (!$owner) {
+				return;
+			}
+
+			// Header data that is about to be signed.
+			$host = parse_url($request, PHP_URL_HOST);
+			$path = parse_url($request, PHP_URL_PATH);
+			$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
+
+			$headers = ['Date: ' . $date, 'Host: ' . $host];
+
+			$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
+
+			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+
+			$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
+		} else {
+			$headers = [];
+		}
+
+		if (!empty($opts['accept_content'])) {
+			$headers[] = 'Accept: ' . $opts['accept_content'];
+		}
+
+		$curl_opts = $opts;
+		$curl_opts['header'] = $headers;
+
+		$curlResult = Network::curl($request, false, $redirects, $curl_opts);
+		$return_code = $curlResult->getReturnCode();
+
+		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
+
+		return $curlResult;
 	}
 
 	/**
