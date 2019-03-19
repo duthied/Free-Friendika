@@ -1090,6 +1090,8 @@ class Profile
 	 */
 	public static function addVisitorCookieForHandle($handle)
 	{
+		$a = \get_app();
+
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($handle);
 		if (!$cid) {
