@@ -1083,34 +1083,18 @@ class Profile
 	}
 
 	/**
-	 * OpenWebAuth authentication.
+	 * Set the visitor cookies (see remote_user()) for the given handle
 	 *
-	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
-	 *
-	 * @param string $token
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @param string $handle Visitor handle
+	 * @return array Visitor contact array
 	 */
-	public static function openWebAuthInit($token)
+	public static function addVisitorCookieForHandle($handle)
 	{
-		$a = \get_app();
-
-		// Clean old OpenWebAuthToken entries.
-		OpenWebAuthToken::purge('owt', '3 MINUTE');
-
-		// Check if the token we got is the same one
-		// we have stored in the database.
-		$visitor_handle = OpenWebAuthToken::getMeta('owt', 0, $token);
-
-		if($visitor_handle === false) {
-			return;
-		}
-
 		// Try to find the public contact entry of the visitor.
-		$cid = Contact::getIdForURL($visitor_handle);
-		if(!$cid) {
-			Logger::log('owt: unable to finger ' . $visitor_handle, Logger::DEBUG);
-			return;
+		$cid = Contact::getIdForURL($handle);
+		if (!$cid) {
+			Logger::log('unable to finger ' . $handle, Logger::DEBUG);
+			return [];
 		}
 
 		$visitor = DBA::selectFirst('contact', [], ['id' => $cid]);
@@ -1133,6 +1117,43 @@ class Profile
 
 			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $visitor['url']];
 		}
+
+		$a->contact = $visitor;
+
+		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
+
+		return $visitor;
+	}
+
+	/**
+	 * OpenWebAuth authentication.
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
+	 *
+	 * @param string $token
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function openWebAuthInit($token)
+	{
+		$a = \get_app();
+
+		// Clean old OpenWebAuthToken entries.
+		OpenWebAuthToken::purge('owt', '3 MINUTE');
+
+		// Check if the token we got is the same one
+		// we have stored in the database.
+		$visitor_handle = OpenWebAuthToken::getMeta('owt', 0, $token);
+
+		if ($visitor_handle === false) {
+			return;
+		}
+
+		$visitor = self::addVisitorCookieForHandle($visitor_handle);
+		if (empty($visitor)) {
+			return;
+		}
+
 		$arr = [
 			'visitor' => $visitor,
 			'url' => $a->query_string

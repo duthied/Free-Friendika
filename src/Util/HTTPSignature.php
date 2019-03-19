@@ -488,8 +488,10 @@ class HTTPSignature
 			return false;
 		}
 
+		$hasGoodSignedContent = false;
+
 		// Check the digest when it is part of the signed data
-		if (in_array('digest', $sig_block['headers'])) {
+		if (!empty($content) && in_array('digest', $sig_block['headers'])) {
 			$digest = explode('=', $headers['digest'], 2);
 			if ($digest[0] === 'SHA-256') {
 				$hashalg = 'sha256';
@@ -503,6 +505,8 @@ class HTTPSignature
 			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
 				return false;
 			}
+
+			$hasGoodSignedContent = true;
 		}
 
 		//  Check if the signed date field is in an acceptable range
@@ -512,6 +516,7 @@ class HTTPSignature
 				Logger::log("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
 				return false;
 			}
+			$hasGoodSignedContent = true;
 		}
 
 		// Check the content-length when it is part of the signed data
@@ -519,6 +524,12 @@ class HTTPSignature
 			if (strlen($content) != $headers['content-length']) {
 				return false;
 			}
+		}
+
+		// Ensure that the authentication had been done with some content
+		// Without this check someone could authenticate with fakeable data
+		if (!$hasGoodSignedContent) {
+			return false;
 		}
 
 		return $key['url'];
