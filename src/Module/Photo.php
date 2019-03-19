@@ -45,9 +45,6 @@ class Photo extends BaseModule
 			exit;
 		}
 
-		/// @todo Add Authentication to enable fetching of non public content
-		// $requester = HTTPSignature::getSigner('', $_SERVER);
-
 		$customsize = 0;
 		$photo = false;
 		switch($a->argc) {

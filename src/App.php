@@ -12,7 +12,9 @@ use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
+use Friendica\Model\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -1141,6 +1143,13 @@ class App
 		} else {
 			$_SESSION = [];
 			Core\Worker::executeIfIdle();
+		}
+
+		if ($this->getMode()->isNormal()) {
+			$requester = HTTPSignature::getSigner('', $_SERVER);
+			if (!empty($requester)) {
+				Profile::addVisitorCookieForHandle($requester);
+			}
 		}
 
 		// ZRL
