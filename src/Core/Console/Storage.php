@@ -28,9 +28,10 @@ Synopsis
         Set current storage backend
             name        storage backend to use. see "list".
     
-    bin/console storage move [table]
+    bin/console storage move [table] [-n 5000]
         Move stored data to current storage backend.
             table       one of "photo" or "attach". default to both
+            -n          limit of processed entry batch size
 HELP;
 		return $help;
 	}
@@ -130,7 +131,17 @@ HELP;
 		}
 
 		$current = StorageManager::getBackend();
-		$r = StorageManager::move($current, $tables);
-		$this->out(sprintf('Moved %d files', $r));
+		$total = 0;
+
+		do {
+			$moved = StorageManager::move($current, $tables, $this->getOption('n', 5000));
+			if ($moved) {
+				$this->out(date('[Y-m-d H:i:s] ') . sprintf('Moved %d files', $moved));
+			}
+
+			$total += $moved;
+		} while ($moved);
+
+		$this->out(sprintf(date('[Y-m-d H:i:s] ') . 'Moved %d files total', $total));
 	}
 }
