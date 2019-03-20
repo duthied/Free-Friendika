@@ -1484,7 +1484,7 @@ class DBA
 		}
 
 		$limit_string = '';
-		if (isset($params['limit']) && is_int($params['limit'])) {
+		if (isset($params['limit']) && is_numeric($params['limit'])) {
 			$limit_string = " LIMIT " . intval($params['limit']);
 		}
 
