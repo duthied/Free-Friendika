@@ -1200,7 +1200,9 @@ function admin_page_site_post(App $a)
 	 * @var $storagebackend \Friendica\Model\Storage\IStorage
 	 */
 	$storagebackend    = Strings::escapeTags(trim(defaults($_POST, 'storagebackend', '')));
-	StorageManager::setBackend($storagebackend);
+	if (!StorageManager::setBackend($storagebackend)) {
+		info(L10n::t('Invalid storage backend setting value.'));
+	}
 
 	// save storage backend form
 	if (!is_null($storagebackend) && $storagebackend != "") {

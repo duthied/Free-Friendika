@@ -23,7 +23,7 @@ class StorageManager
 
 	private static function setup()
 	{
-		if (count(self::$backends)==0) {
+		if (count(self::$backends) == 0) {
 			self::$backends = Config::get('storage', 'backends', self::$default_backends);
 		}
 	}
@@ -54,12 +54,18 @@ class StorageManager
 	 * @brief Set current storage backend class
 	 *
 	 * @param string $class Backend class name
+	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function setBackend($class)
 	{
-		/// @todo Check that $class implements IStorage
+		if (!in_array('Friendica\Model\Storage\IStorage', class_implements($class))) {
+			return false;
+		}
+
 		Config::set('storage', 'class', $class);
+
+		return true;
 	}
 
 	/**
@@ -105,20 +111,20 @@ class StorageManager
 
 
 	/**
-	 * @brief Move resources to storage $dest
+	 * @brief Move up to 5000 resources to storage $dest
 	 *
 	 * Copy existing data to destination storage and delete from source.
 	 * This method cannot move to legacy in-table `data` field.
 	 *
-	 * @param string     $dest    Destination storage class name
-	 * @param array|null $tables  Tables to look in for resources. Optional, defaults to ['photo', 'attach']
-	 *
-	 * @throws \Exception
+	 * @param string     $destination Storage class name
+	 * @param array|null $tables      Tables to look in for resources. Optional, defaults to ['photo', 'attach']
+	 * @param int        $limit       Limit of the process batch size, defaults to 5000
 	 * @return int Number of moved resources
+	 * @throws \Exception
 	 */
-	public static function move($dest, $tables = null)
+	public static function move($destination, $tables = null, $limit = 5000)
 	{
-		if (is_null($dest) || empty($dest)) {
+		if (empty($destination)) {
 			throw new \Exception('Can\'t move to NULL storage backend');
 		}
 		
@@ -129,43 +135,42 @@ class StorageManager
 		$moved = 0;
 		foreach ($tables as $table) {
 			// Get the rows where backend class is not the destination backend class
-			$rr = DBA::select(
+			$resources = DBA::select(
 				$table, 
 				['id', 'data', 'backend-class', 'backend-ref'],
-				['`backend-class` IS NULL or `backend-class` != ?' , $dest ]
+				['`backend-class` IS NULL or `backend-class` != ?', $destination],
+				['limit' => $limit]
 			);
 
-			if (DBA::isResult($rr)) {
-				while($r = DBA::fetch($rr)) {
-					$id = $r['id'];
-					$data = $r['data'];
-					/** @var IStorage $backendClass */
-					$backendClass = $r['backend-class'];
-					$backendRef = $r['backend-ref'];
-					if (!is_null($backendClass) && $backendClass !== '') {
-						Logger::log("get data from old backend " .  $backendClass . " : " . $backendRef);
-						$data = $backendClass::get($backendRef);
-					}
-					
-					Logger::log("save data to new backend " . $dest);
-					/** @var IStorage $dest */
-					$ref = $dest::put($data);
-					Logger::log("saved data as " . $ref);
+			while ($resource = DBA::fetch($resources)) {
+				$id = $resource['id'];
+				$data = $resource['data'];
+				/** @var IStorage $backendClass */
+				$backendClass = $resource['backend-class'];
+				$backendRef = $resource['backend-ref'];
+				if (!empty($backendClass)) {
+					Logger::log("get data from old backend " . $backendClass . " : " . $backendRef);
+					$data = $backendClass::get($backendRef);
+				}
 
-					if ($ref !== '') {
-						Logger::log("update row");
-						$ru = DBA::update($table, ['backend-class' => $dest, 'backend-ref' => $ref, 'data' => ''], ['id' => $id]);
-						
-						if ($ru) {
-							if (!is_null($backendClass) && $backendClass !== '') {
-								Logger::log("delete data from old backend " . $backendClass . " : " . $backendRef);
-								$backendClass::delete($backendRef);
-							}
-							$moved++;
+				Logger::log("save data to new backend " . $destination);
+				/** @var IStorage $destination */
+				$ref = $destination::put($data);
+				Logger::log("saved data as " . $ref);
+
+				if ($ref !== '') {
+					Logger::log("update row");
+					if (DBA::update($table, ['backend-class' => $destination, 'backend-ref' => $ref, 'data' => ''], ['id' => $id])) {
+						if (!empty($backendClass)) {
+							Logger::log("delete data from old backend " . $backendClass . " : " . $backendRef);
+							$backendClass::delete($backendRef);
 						}
+						$moved++;
 					}
 				}
 			}
+
+			DBA::close($resources);
 		}
 
 		return $moved;

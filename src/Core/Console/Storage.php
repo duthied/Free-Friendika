@@ -28,9 +28,10 @@ Synopsis
         Set current storage backend
             name        storage backend to use. see "list".
     
-    bin/console storage move [table]
+    bin/console storage move [table] [-n 5000]
         Move stored data to current storage backend.
             table       one of "photo" or "attach". default to both
+            -n          limit of processed entry batch size
 HELP;
 		return $help;
 	}
@@ -49,36 +50,36 @@ HELP;
 			return -1;
 		}
 
-		switch($this->args[0]) {
-		case 'list':
-			return $this->do_list();
-			break;
-		case 'set':
-			return $this->do_set();
-			break;
-		case 'move':
-			return $this->do_move();
-			break;
+		switch ($this->args[0]) {
+			case 'list':
+				return $this->doList();
+				break;
+			case 'set':
+				return $this->doSet();
+				break;
+			case 'move':
+				return $this->doMove();
+				break;
 		}
 
 		$this->out(sprintf('Invalid action "%s"', $this->args[0]));
 		return -1;
 	}
 
-	protected function do_list()
+	protected function doList()
 	{
 		$rowfmt = ' %-3s | %-20s';
 		$current = StorageManager::getBackend();
 		$this->out(sprintf($rowfmt, 'Sel', 'Name'));
 		$this->out('-----------------------');
 		$isregisterd = false;
-		foreach(StorageManager::listBackends() as $name => $class) {
+		foreach (StorageManager::listBackends() as $name => $class) {
 			$issel = ' ';
 			if ($current === $class) {
 				$issel = '*';
 				$isregisterd = true;
 			};
-			$this->out(sprintf($rowfmt, $issel , $name ));
+			$this->out(sprintf($rowfmt, $issel, $name));
 		}
 
 		if ($current === '') {
@@ -92,7 +93,7 @@ HELP;
 		return 0;
 	}
 
-	protected function do_set()
+	protected function doSet()
 	{
 		if (count($this->args) !== 2) {
 			throw new CommandArgsException('Invalid arguments');
@@ -106,11 +107,15 @@ HELP;
 			return -1;
 		}
 
-		StorageManager::setBackend($class);
+		if (!StorageManager::setBackend($class)) {
+			$this->out($class . ' is not a valid backend storage class.');
+			return -1;
+		}
+
 		return 0;
 	}
 
-	protected function do_move()
+	protected function doMove()
 	{
 		$tables = null;
 		if (count($this->args) < 1 || count($this->args) > 2) {
@@ -126,7 +131,17 @@ HELP;
 		}
 
 		$current = StorageManager::getBackend();
-		$r = StorageManager::move($current, $tables);
-		$this->out(sprintf('Moved %d files', $r));
+		$total = 0;
+
+		do {
+			$moved = StorageManager::move($current, $tables, $this->getOption('n', 5000));
+			if ($moved) {
+				$this->out(date('[Y-m-d H:i:s] ') . sprintf('Moved %d files', $moved));
+			}
+
+			$total += $moved;
+		} while ($moved);
+
+		$this->out(sprintf(date('[Y-m-d H:i:s] ') . 'Moved %d files total', $total));
 	}
 }
