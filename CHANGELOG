@@ -1,6 +1,6 @@
 Version 2019.03-RC (UNRELEASED, 2019-03-xx)
   Friendica Core:
-    Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, ZH-CN) [translation teams]
+    Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, SV, ZH-CN) [translation teams]
     Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
     Update to the themes (duepuntozero, frio, smoothy, quattro, vier) [lxiter, MrPetovan. nupplaphil, rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
@@ -54,7 +54,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
     Added a summary of articles send over AP [annando]
 
   Friendica Addons:
-    Updates to the translations (CS, DE, EN-GB, ES, FR, NL, PL) [translation teams]
+    Updates to the translations (CS, DE, EN-GB, ES, FR, NL, PL, SV) [translation teams]
     Updated documentation [softmetz, tobiasd]
     blackout:
       Fix applying the translations [JeroenED, tobiasd]
@@ -77,14 +77,15 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
       @ mentions are now stripped from the posts send to Twitter [MrPetovan]
 
   Closed Issues:
-    1777, 2487, 3218, 3506, 3837, 4496, 6087, 6161, 6167, 6205, 6232,
-    6274, 6292, 6375, 6378, 6382, 6384, 6403, 6405, 6449, 6468, 6472,
-    6489, 6491, 6492, 6495, 6498, 6501, 6503, 6505, 6511, 6514, 6521,
-    6522, 6529, 6532, 6533, 6544, 6545, 6551, 6553, 6537, 6558, 6552,
-    6561, 6570, 6575, 6585, 6603, 6610, 6629, 6630, 6633, 6635, 6652,
-    6656, 6658, 6667, 6668, 6669, 6672, 6674, 6676, 6677, 6679, 6691,
-    6710, 6711, 6714, 6716, 6733, 6758, 6772, 6785, 6788, 6800, 6805,
-    6812, 6819, 6822, 6823, 6840, 6866, 6874
+    1777, 2487, 3218, 3506, 3837, 4496, 5884, 6087, 6161, 6167, 6205,
+    6232, 6263, 6274, 6292, 6337, 6338, 6375, 6378, 6382, 6384, 6386,
+    6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492, 6495, 6498, 6501,
+    6503, 6505, 6511, 6514, 6521, 6522, 6529, 6532, 6533, 6544, 6545,
+    6551, 6553, 6537, 6558, 6552, 6561, 6570, 6575, 6585, 6603, 6610,
+    6629, 6630, 6633, 6635, 6652, 6656, 6658, 6667, 6668, 6669, 6672,
+    6674, 6676, 6677, 6679, 6691, 6710, 6711, 6714, 6716, 6733, 6758,
+    6772, 6778, 6785, 6788, 6800, 6805, 6812, 6819, 6822, 6823, 6840,
+    6855, 6866, 6874, 6891, 6901, 6913
 
 Version 2019.01 (2019-01-21)
   Friendica Core:
