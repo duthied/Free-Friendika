@@ -1,11 +1,10 @@
 ---
 language: php
-## Friendica supports PHP version >= 5.6.1
+## Friendica officially supports PHP version >= 7.1
 php:
- - 5.6
- - 7.0
  - 7.1
  - 7.2
+ - 7.3
 
 services:
  - mysql

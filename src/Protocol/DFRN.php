@@ -14,8 +14,8 @@ use Friendica\App;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -56,6 +56,7 @@ class DFRN
 	 * @param integer $uid User id
 	 *
 	 * @return array importer
+	 * @throws \Exception
 	 */
 	public static function getImporter($cid, $uid = 0)
 	{
@@ -96,7 +97,9 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN entries
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find proper type-hints
 	 */
 	public static function entries($items, $owner)
 	{
@@ -116,7 +119,9 @@ class DFRN
 			$item["entry:cid"] = defaults($item, "entry:cid", 0);
 
 			$entry = self::entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
-			$root->appendChild($entry);
+			if (isset($entry)) {
+				$root->appendChild($entry);
+			}
 		}
 
 		return trim($doc->saveXML());
@@ -134,6 +139,8 @@ class DFRN
 	 * @param boolean $onlyheader  Output only the header without content? (Default is "no")
 	 *
 	 * @return string DFRN feed entries
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false)
 	{
@@ -171,29 +178,24 @@ class DFRN
 
 		if (! DBA::isResult($r)) {
 			Logger::log(sprintf('No contact found for nickname=%d', $owner_nick), Logger::WARNING);
-			killme();
+			exit();
 		}
 
 		$owner = $r[0];
 		$owner_id = $owner['uid'];
-		$owner_nick = $owner['nickname'];
 
 		$sql_post_table = "";
 
 		if (! $public_feed) {
-			$sql_extra = '';
 			switch ($direction) {
 				case (-1):
 					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
-					$my_id = $dfrn_id;
 					break;
 				case 0:
 					$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-					$my_id = '1:' . $dfrn_id;
 					break;
 				case 1:
 					$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-					$my_id = '0:' . $dfrn_id;
 					break;
 				default:
 					return false;
@@ -207,7 +209,7 @@ class DFRN
 
 			if (! DBA::isResult($r)) {
 				Logger::log(sprintf('No contact found for uid=%d', $owner_id), Logger::WARNING);
-				killme();
+				exit();
 			}
 
 			$contact = $r[0];
@@ -239,7 +241,6 @@ class DFRN
 				intval(TERM_CATEGORY),
 				intval($owner_id)
 			);
-			//$sql_extra .= FileTag::fileQuery('item',$category,'category');
 		}
 
 		if ($public_feed && ! $converse) {
@@ -253,7 +254,7 @@ class DFRN
 			FROM `item` USE INDEX (`uid_wall_changed`) $sql_post_table
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
-			$sql_extra
+			AND `item`.`visible` $sql_extra
 			ORDER BY `item`.`parent` ".$sort.", `item`.`created` ASC LIMIT 0, 300",
 			intval($owner_id),
 			DBA::escape($check_date),
@@ -295,12 +296,12 @@ class DFRN
 		$root = self::addHeader($doc, $owner, $author, $alternatelink, true);
 
 		/// @TODO This hook can't work anymore
-		//	Addon::callHooks('atom_feed', $atom);
+		//	\Friendica\Core\Hook::callAll('atom_feed', $atom);
 
 		if (!DBA::isResult($items) || $onlyheader) {
 			$atom = trim($doc->saveXML());
 
-			Addon::callHooks('atom_feed_end', $atom);
+			Hook::callAll('atom_feed_end', $atom);
 
 			return $atom;
 		}
@@ -324,12 +325,14 @@ class DFRN
 			}
 
 			$entry = self::entry($doc, $type, $item, $owner, true);
-			$root->appendChild($entry);
+			if (isset($entry)) {
+				$root->appendChild($entry);
+			}
 		}
 
 		$atom = trim($doc->saveXML());
 
-		Addon::callHooks('atom_feed_end', $atom);
+		Hook::callAll('atom_feed_end', $atom);
 
 		return $atom;
 	}
@@ -341,6 +344,8 @@ class DFRN
 	 * @param boolean $conversation Show the conversation. If false show the single post.
 	 *
 	 * @return string DFRN feed entry
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function itemFeed($item_id, $conversation = false)
 	{
@@ -353,7 +358,7 @@ class DFRN
 		$ret = Item::select(Item::DELIVER_FIELDLIST, $condition);
 		$items = Item::inArray($ret);
 		if (!DBA::isResult($items)) {
-			killme();
+			exit();
 		}
 
 		$item = $items[0];
@@ -361,7 +366,7 @@ class DFRN
 		if ($item['uid'] != 0) {
 			$owner = User::getOwnerDataById($item['uid']);
 			if (!$owner) {
-				killme();
+				exit();
 			}
 		} else {
 			$owner = ['uid' => 0, 'nick' => 'feed-item'];
@@ -389,7 +394,9 @@ class DFRN
 
 			foreach ($items as $item) {
 				$entry = self::entry($doc, $type, $item, $owner, true, 0);
-				$root->appendChild($entry);
+				if (isset($entry)) {
+					$root->appendChild($entry);
+				}
 			}
 		} else {
 			$root = self::entry($doc, $type, $item, $owner, true, 0, true);
@@ -406,7 +413,8 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN mail
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	public static function mail($item, $owner)
 	{
@@ -442,7 +450,8 @@ class DFRN
 	 * @param array $owner Owner record
 	 *
 	 * @return string DFRN suggestions
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	public static function fsuggest($item, $owner)
 	{
@@ -471,7 +480,8 @@ class DFRN
 	 * @param int   $uid   User ID
 	 *
 	 * @return string DFRN relocations
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
 	public static function relocate($owner, $uid)
 	{
@@ -525,16 +535,17 @@ class DFRN
 	/**
 	 * @brief Adds the header elements for the DFRN protocol
 	 *
-	 * @param object $doc           XML document
-	 * @param array  $owner         Owner record
-	 * @param string $authorelement Element name for the author
-	 * @param string $alternatelink link to profile or category
-	 * @param bool   $public        Is it a header for public posts?
+	 * @param DOMDocument $doc           XML document
+	 * @param array       $owner         Owner record
+	 * @param string      $authorelement Element name for the author
+	 * @param string      $alternatelink link to profile or category
+	 * @param bool        $public        Is it a header for public posts?
 	 *
 	 * @return object XML root object
-	 * @todo Find proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
-	private static function addHeader($doc, $owner, $authorelement, $alternatelink = "", $public = false)
+	private static function addHeader(DOMDocument $doc, $owner, $authorelement, $alternatelink = "", $public = false)
 	{
 
 		if ($alternatelink == "") {
@@ -582,14 +593,14 @@ class DFRN
 		}
 
 		// For backward compatibility we keep this element
-		if ($owner['page-flags'] == Contact::PAGE_COMMUNITY) {
+		if ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 			XML::addElement($doc, $root, "dfrn:community", 1);
 		}
 
 		// The former element is replaced by this one
 		XML::addElement($doc, $root, "dfrn:account_type", $owner["account-type"]);
 
-		/// @todo We need a way to transmit the different page flags like "Contact::PAGE_PRVGROUP"
+		/// @todo We need a way to transmit the different page flags like "User::PAGE_FLAGS_PRVGROUP"
 
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
@@ -602,15 +613,16 @@ class DFRN
 	/**
 	 * @brief Adds the author element in the header for the DFRN protocol
 	 *
-	 * @param object  $doc           XML document
-	 * @param array   $owner         Owner record
-	 * @param string  $authorelement Element name for the author
-	 * @param boolean $public        boolean
+	 * @param DOMDocument $doc           XML document
+	 * @param array       $owner         Owner record
+	 * @param string      $authorelement Element name for the author
+	 * @param boolean     $public        boolean
 	 *
-	 * @return object XML author object
-	 * @todo Find proper type-hints
+	 * @return \DOMElement XML author object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
-	private static function addAuthor($doc, $owner, $authorelement, $public)
+	private static function addAuthor(DOMDocument $doc, array $owner, $authorelement, $public)
 	{
 		// Is the profile hidden or shouldn't be published in the net? Then add the "hide" element
 		$r = q(
@@ -746,41 +758,44 @@ class DFRN
 	/**
 	 * @brief Adds the author elements in the "entry" elements of the DFRN protocol
 	 *
-	 * @param object $doc         XML document
+	 * @param DOMDocument $doc         XML document
 	 * @param string $element     Element name for the author
 	 * @param string $contact_url Link of the contact
 	 * @param array  $item        Item elements
 	 *
-	 * @return object XML author object
-	 * @todo Find proper type-hints
+	 * @return \DOMElement XML author object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
-	private static function addEntryAuthor($doc, $element, $contact_url, $item)
+	private static function addEntryAuthor(DOMDocument $doc, $element, $contact_url, $item)
 	{
-		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
-
 		$author = $doc->createElement($element);
-		XML::addElement($doc, $author, "name", $contact["name"]);
-		XML::addElement($doc, $author, "uri", $contact["url"]);
-		XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
 
-		/// @Todo
-		/// - Check real image type and image size
-		/// - Check which of these boths elements we should use
-		$attributes = [
+		$contact = Contact::getDetailsByURL($contact_url, $item["uid"]);
+		if (!empty($contact)) {
+			XML::addElement($doc, $author, "name", $contact["name"]);
+			XML::addElement($doc, $author, "uri", $contact["url"]);
+			XML::addElement($doc, $author, "dfrn:handle", $contact["addr"]);
+
+			/// @Todo
+			/// - Check real image type and image size
+			/// - Check which of these boths elements we should use
+			$attributes = [
 				"rel" => "photo",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]];
-		XML::addElement($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
 
-		$attributes = [
+			$attributes = [
 				"rel" => "avatar",
 				"type" => "image/jpeg",
 				"media:width" => 80,
 				"media:height" => 80,
 				"href" => $contact["photo"]];
-		XML::addElement($doc, $author, "link", "", $attributes);
+			XML::addElement($doc, $author, "link", "", $attributes);
+		}
 
 		return $author;
 	}
@@ -788,14 +803,15 @@ class DFRN
 	/**
 	 * @brief Adds the activity elements
 	 *
-	 * @param object $doc      XML document
-	 * @param string $element  Element name for the activity
-	 * @param string $activity activity value
+	 * @param DOMDocument $doc      XML document
+	 * @param string      $element  Element name for the activity
+	 * @param string      $activity activity value
 	 *
-	 * @return object XML activity object
-	 * @todo Find proper type-hints
+	 * @return \DOMElement XML activity object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find proper type-hints
 	 */
-	private static function createActivity($doc, $element, $activity)
+	private static function createActivity(DOMDocument $doc, $element, $activity)
 	{
 		if ($activity) {
 			$entry = $doc->createElement($element);
@@ -858,8 +874,8 @@ class DFRN
 	 * @param object $root XML root
 	 * @param array  $item Item element
 	 *
-	 * @return object XML attachment object
-	 * @todo Find proper type-hints
+	 * @return void XML attachment object
+	 * @todo  Find proper type-hints
 	 */
 	private static function getAttachment($doc, $root, $item)
 	{
@@ -890,23 +906,26 @@ class DFRN
 	/**
 	 * @brief Adds the "entry" elements for the DFRN protocol
 	 *
-	 * @param object $doc     XML document
-	 * @param string $type    "text" or "html"
-	 * @param array  $item    Item element
-	 * @param array  $owner   Owner record
-	 * @param bool   $comment Trigger the sending of the "comment" element
-	 * @param int    $cid     Contact ID of the recipient
-	 * @param bool   $single  If set, the entry is created as an XML document with a single "entry" element
+	 * @param DOMDocument $doc     XML document
+	 * @param string      $type    "text" or "html"
+	 * @param array       $item    Item element
+	 * @param array       $owner   Owner record
+	 * @param bool        $comment Trigger the sending of the "comment" element
+	 * @param int         $cid     Contact ID of the recipient
+	 * @param bool        $single  If set, the entry is created as an XML document with a single "entry" element
 	 *
-	 * @return object XML entry object
-	 * @todo Find proper type-hints
+	 * @return null|\DOMElement XML entry object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find proper type-hints
 	 */
-	private static function entry($doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
+	private static function entry(DOMDocument $doc, $type, array $item, array $owner, $comment = false, $cid = 0, $single = false)
 	{
 		$mentioned = [];
 
 		if (!$item['parent']) {
-			return;
+			Logger::notice('Item without parent found.', ['type' => $type, 'item' => $item]);
+			return null;
 		}
 
 		if ($item['deleted']) {
@@ -1155,13 +1174,14 @@ class DFRN
 	 * @param string $atom     Content that will be transmitted
 	 * @param bool   $dissolve (to be documented)
 	 *
+	 * @param bool   $legacy_transport
 	 * @return int Deliver status. Negative values mean an error.
-	 * @todo Add array type-hint for $owner, $contact
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Add array type-hint for $owner, $contact
 	 */
 	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
 	{
-		$a = \get_app();
-
 		// At first try the Diaspora transport layer
 		if (!$dissolve && !$legacy_transport) {
 			$curlResult = self::transmit($owner, $contact, $atom);
@@ -1186,7 +1206,6 @@ class DFRN
 		Logger::log("Local rino version: ". $rino, Logger::DEBUG);
 
 		$ssl_val = intval(Config::get('system', 'ssl_policy'));
-		$ssl_policy = '';
 
 		switch ($ssl_val) {
 			case SSL_POLICY_FULL:
@@ -1254,11 +1273,11 @@ class DFRN
 		$perm         = (($res->perm) ? $res->perm : null);
 		$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
 		$rino_remote_version = intval($res->rino);
-		$page         = (($owner['page-flags'] == Contact::PAGE_COMMUNITY) ? 1 : 0);
+		$page         = (($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? 1 : 0);
 
 		Logger::log("Remote rino version: ".$rino_remote_version." for ".$contact["url"], Logger::DEBUG);
 
-		if ($owner['page-flags'] == Contact::PAGE_PRVGROUP) {
+		if ($owner['page-flags'] == User::PAGE_FLAGS_PRVGROUP) {
 			$page = 2;
 		}
 
@@ -1275,7 +1294,7 @@ class DFRN
 		}
 
 		if (($contact['duplex'] && strlen($contact['pubkey']))
-			|| ($owner['page-flags'] == Contact::PAGE_COMMUNITY && strlen($contact['pubkey']))
+			|| ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY && strlen($contact['pubkey']))
 			|| ($contact['rel'] == Contact::SHARING && strlen($contact['pubkey']))
 		) {
 			openssl_public_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['pubkey']);
@@ -1304,7 +1323,7 @@ class DFRN
 			$postvars['dissolve'] = '1';
 		}
 
-		if ((($contact['rel']) && ($contact['rel'] != Contact::SHARING) && (! $contact['blocked'])) || ($owner['page-flags'] == Contact::PAGE_COMMUNITY)) {
+		if ((($contact['rel']) && ($contact['rel'] != Contact::SHARING) && (! $contact['blocked'])) || ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 			$postvars['data'] = $atom;
 			$postvars['perm'] = 'rw';
 		} else {
@@ -1339,7 +1358,7 @@ class DFRN
 
 			if ($dfrn_version >= 2.1) {
 				if (($contact['duplex'] && strlen($contact['pubkey']))
-					|| ($owner['page-flags'] == Contact::PAGE_COMMUNITY && strlen($contact['pubkey']))
+					|| ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY && strlen($contact['pubkey']))
 					|| ($contact['rel'] == Contact::SHARING && strlen($contact['pubkey']))
 				) {
 					openssl_public_encrypt($key, $postvars['key'], $contact['pubkey']);
@@ -1347,7 +1366,7 @@ class DFRN
 					openssl_private_encrypt($key, $postvars['key'], $contact['prvkey']);
 				}
 			} else {
-				if (($contact['duplex'] && strlen($contact['prvkey'])) || ($owner['page-flags'] == Contact::PAGE_COMMUNITY)) {
+				if (($contact['duplex'] && strlen($contact['prvkey'])) || ($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 					openssl_private_encrypt($key, $postvars['key'], $contact['prvkey']);
 				} else {
 					openssl_public_encrypt($key, $postvars['key'], $contact['pubkey']);
@@ -1412,16 +1431,17 @@ class DFRN
 	/**
 	 * @brief Transmits atom content to the contacts via the Diaspora transport layer
 	 *
-	 * @param array  $owner    Owner record
-	 * @param array  $contact  Contact record of the receiver
-	 * @param string $atom     Content that will be transmitted
+	 * @param array  $owner   Owner record
+	 * @param array  $contact Contact record of the receiver
+	 * @param string $atom    Content that will be transmitted
 	 *
+	 * @param bool   $public_batch
 	 * @return int Deliver status. Negative values mean an error.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function transmit($owner, $contact, $atom, $public_batch = false)
 	{
-		$a = \get_app();
-
 		if (!$public_batch) {
 			if (empty($contact['addr'])) {
 				Logger::log('Empty contact handle for ' . $contact['id'] . ' - ' . $contact['url'] . ' - trying to update it.');
@@ -1514,7 +1534,9 @@ class DFRN
 	 * @param string $xml       optional, default empty
 	 *
 	 * @return array Relevant data of the author
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function fetchauthor($xpath, $context, $importer, $element, $onlyfetch, $xml = "")
 	{
@@ -1533,7 +1555,7 @@ class DFRN
 			$author["network"] = $contact_old["network"];
 		} else {
 			if (!$onlyfetch) {
-				Logger::log("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml, Logger::DEBUG);
+				Logger::debug("Contact ".$author["link"]." wasn't found for user ".$importer["importer_uid"]." XML: ".$xml);
 			}
 
 			$author["contact-unknown"] = true;
@@ -1583,6 +1605,7 @@ class DFRN
 
 		if (empty($author['avatar'])) {
 			Logger::log('Empty author: ' . $xml);
+			$author['avatar'] = '';
 		}
 
 		if (DBA::isResult($contact_old) && !$onlyfetch) {
@@ -1684,7 +1707,6 @@ class DFRN
 
 				if (strtotime($value) < time()) {
 					$value = str_replace($bdyear, $bdyear + 1, $value);
-					$bdyear = $bdyear + 1;
 				}
 
 				$poco["bd"] = $value;
@@ -1835,7 +1857,8 @@ class DFRN
 	 * @param object $mail     mail elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
 	 * @return void
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Exception
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function processMail($xpath, $mail, $importer)
 	{
@@ -1890,12 +1913,11 @@ class DFRN
 	 * @param object $suggestion suggestion elements
 	 * @param array  $importer   Record of the importer user mixed with contact of the content
 	 * @return boolean
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
-		$a = \get_app();
-
 		Logger::log("Processing suggestions");
 
 		/// @TODO Rewrite this to one statement
@@ -1951,6 +1973,7 @@ class DFRN
 				DBA::escape($suggest["photo"]),
 				DBA::escape($suggest["request"])
 			);
+			$fid = $r[0]["id"];
 		}
 
 		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
@@ -1962,14 +1985,12 @@ class DFRN
 		 */
 		if (!DBA::isResult($fcontact)) {
 			// Database record did not get created. Quietly give up.
-			killme();
+			exit();
 		}
-
-		$fid = $r[0]["id"];
 
 		$hash = Strings::getRandomHex();
 
-		$r = q(
+		q(
 			"INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
 			VALUES(%d, %d, %d, '%s', '%s', '%s', %d)",
 			intval($suggest["uid"]),
@@ -2008,7 +2029,9 @@ class DFRN
 	 * @param object $relocation relocation elements
 	 * @param array  $importer   Record of the importer user mixed with contact of the content
 	 * @return boolean
-	 * @todo Find good type-hints for all parameter
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Find good type-hints for all parameter
 	 */
 	private static function processRelocation($xpath, $relocation, $importer)
 	{
@@ -2092,7 +2115,8 @@ class DFRN
 	 * @param array $importer  Record of the importer user mixed with contact of the content
 	 * @param int   $entrytype Is it a toplevel entry, a comment or a relayed comment?
 	 * @return mixed
-	 * @todo set proper type-hints (array?)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function updateContent($current, $item, $importer, $entrytype)
 	{
@@ -2123,14 +2147,15 @@ class DFRN
 	 * @param array $item     the new item record
 	 *
 	 * @return int Is it a toplevel entry, a comment or a relayed comment?
-	 * @todo set proper type-hints (array?)
+	 * @throws \Exception
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function getEntryType($importer, $item)
 	{
 		if ($item["parent-uri"] != $item["uri"]) {
 			$community = false;
 
-			if ($importer["page-flags"] == Contact::PAGE_COMMUNITY || $importer["page-flags"] == Contact::PAGE_PRVGROUP) {
+			if ($importer["page-flags"] == User::PAGE_FLAGS_COMMUNITY || $importer["page-flags"] == User::PAGE_FLAGS_PRVGROUP) {
 				$sql_extra = "";
 				$community = true;
 				Logger::log("possible community action");
@@ -2190,7 +2215,8 @@ class DFRN
 	 * @param array $importer  Record of the importer user mixed with contact of the content
 	 * @param int   $posted_id The record number of item record that was just posted
 	 * @return void
-	 * @todo set proper type-hints (array?)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function doPoke($item, $importer, $posted_id)
 	{
@@ -2202,6 +2228,7 @@ class DFRN
 
 		if (($xo->type == ACTIVITY_OBJ_PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
+			$Blink = '';
 			foreach ($xo->link as $l) {
 				$atts = $l->attributes();
 				switch ($atts["rel"]) {
@@ -2253,7 +2280,8 @@ class DFRN
 	 * @param bool  $is_like   Is the verb a "like"?
 	 *
 	 * @return bool Should the processing of the entries be continued?
-	 * @todo set proper type-hints (array?)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  set proper type-hints (array?)
 	 */
 	private static function processVerbs($entrytype, $importer, &$item, &$is_like)
 	{
@@ -2376,8 +2404,6 @@ class DFRN
 						$item["plink"] = $href;
 						break;
 					case "enclosure":
-						$enclosure = $href;
-
 						if (!empty($item["attach"])) {
 							$item["attach"] .= ",";
 						} else {
@@ -2398,9 +2424,11 @@ class DFRN
 	 * @param object $xpath    XPath object
 	 * @param object $entry    entry elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
-	 * @param object $xml      xml
+	 * @param string $xml      xml
 	 * @return void
-	 * @todo Add type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  Add type-hints
 	 */
 	private static function processEntry($header, $xpath, $entry, $importer, $xml)
 	{
@@ -2562,8 +2590,6 @@ class DFRN
 			}
 		}
 
-		$enclosure = "";
-
 		$links = $xpath->query("atom:link", $entry);
 		if ($links) {
 			self::parseLinks($links, $item);
@@ -2679,8 +2705,6 @@ class DFRN
 
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			$posted_id = Item::insert($item);
-			$parent = 0;
-
 			if ($posted_id) {
 				Logger::log("Reply from contact ".$item["contact-id"]." was stored with id ".$posted_id, Logger::DEBUG);
 
@@ -2741,7 +2765,8 @@ class DFRN
 	 * @param object $deletion deletion elements
 	 * @param array  $importer Record of the importer user mixed with contact of the content
 	 * @return void
-	 * @todo set proper type-hints
+	 * @throws \Exception
+	 * @todo  set proper type-hints
 	 */
 	private static function processDeletion($xpath, $deletion, $importer)
 	{
@@ -2801,7 +2826,9 @@ class DFRN
 	 * @param array  $importer     Record of the importer user mixed with contact of the content
 	 * @param bool   $sort_by_date Is used when feeds are polled
 	 * @return integer Import status
-	 * @todo set proper type-hints
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @todo  set proper type-hints
 	 */
 	public static function import($xml, $importer, $sort_by_date = false)
 	{
@@ -2861,7 +2888,7 @@ class DFRN
 				DBA::update('contact', ['contact-type' => $accounttype], ['uid' => 0, 'nurl' => $importer['nurl']]);
 			}
 			// A forum contact can either have set "forum" or "prv" - but not both
-			if ($accounttype == Contact::ACCOUNT_TYPE_COMMUNITY) {
+			if ($accounttype == User::ACCOUNT_TYPE_COMMUNITY) {
 				// It's a forum, so either set the public or private forum flag
 				$condition = ['(`forum` != ? OR `prv` != ?) AND `id` = ?', $forum, !$forum, $importer['id']];
 				DBA::update('contact', ['forum' => $forum, 'prv' => !$forum], $condition);
@@ -2938,6 +2965,7 @@ class DFRN
 	/**
 	 * @param App    $a            App
 	 * @param string $contact_nick contact nickname
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function autoRedir(App $a, $contact_nick)
 	{
@@ -3055,8 +3083,8 @@ class DFRN
 			return false;
 		}
 
-		$community_page = ($user['page-flags'] == Contact::PAGE_COMMUNITY);
-		$prvgroup = ($user['page-flags'] == Contact::PAGE_PRVGROUP);
+		$community_page = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
+		$prvgroup = ($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP);
 
 		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
 
@@ -3091,6 +3119,10 @@ class DFRN
 	 * item is assumed to be up-to-date.  If the timestamps are equal it
 	 * assumes the update has been seen before and should be ignored.
 	 *
+	 * @param $existing
+	 * @param $update
+	 * @return bool
+	 * @throws \Exception
 	 */
 	private static function isEditedTimestampNewer($existing, $update)
 	{

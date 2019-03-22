@@ -14,14 +14,17 @@ function statistics_json_init(App $a) {
 
 	if (!Config::get("system", "nodeinfo")) {
 		System::httpExit(404);
-		killme();
 	}
+
+	$registration_open =
+		intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED
+		&& ! Config::get('config', 'invitation_only');
 
 	$statistics = [
 		"name" => Config::get('config', 'sitename'),
 		"network" => FRIENDICA_PLATFORM,
 		"version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION,
-		"registrations_open" => intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED,
+		"registrations_open" => $registration_open,
 		"total_users" => Config::get('nodeinfo', 'total_users'),
 		"active_users_halfyear" => Config::get('nodeinfo', 'active_users_halfyear'),
 		"active_users_monthly" => Config::get('nodeinfo', 'active_users_monthly'),
@@ -56,5 +59,5 @@ function statistics_json_init(App $a) {
 	header("Content-Type: application/json");
 	echo json_encode($statistics, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 	Logger::log("statistics_init: printed " . print_r($statistics, true), Logger::DATA);
-	killme();
+	exit();
 }

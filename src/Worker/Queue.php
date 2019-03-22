@@ -4,9 +4,9 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
@@ -37,7 +37,7 @@ class Queue
 
 			$r = DBA::toArray(DBA::p("SELECT `id` FROM `queue` WHERE `next` < UTC_TIMESTAMP() ORDER BY `batch`, `cid`"));
 
-			Addon::callHooks('queue_predeliver', $r);
+			Hook::callAll('queue_predeliver', $r);
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $q_item) {
@@ -138,7 +138,7 @@ class Queue
 				$deliver_status = Diaspora::transmit($owner, $contact, $data, $public, true, 'Queue:' . $q_item['id'], true);
 
 				if ((($deliver_status >= 200) && ($deliver_status <= 299)) ||
-					($contact['contact-type'] == Contact::ACCOUNT_TYPE_RELAY)) {
+					($contact['contact-type'] == Contact::TYPE_RELAY)) {
 					QueueModel::removeItem($q_item['id']);
 				} else {
 					QueueModel::updateTime($q_item['id']);
@@ -148,7 +148,7 @@ class Queue
 
 			default:
 				$params = ['owner' => $owner, 'contact' => $contact, 'queue' => $q_item, 'result' => false];
-				Addon::callHooks('queue_deliver', $params);
+				Hook::callAll('queue_deliver', $params);
 
 				if ($params['result']) {
 					QueueModel::removeItem($q_item['id']);

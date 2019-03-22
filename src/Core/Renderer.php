@@ -7,8 +7,8 @@ namespace Friendica\Core;
 
 use Exception;
 use Friendica\BaseObject;
-use Friendica\Core\System;
 use Friendica\Render\FriendicaSmarty;
+use Friendica\Render\ITemplateEngine;
 
 /**
  * @brief This class handles Renderer related functions.
@@ -56,6 +56,7 @@ class Renderer extends BaseObject
 	 * @param array                  $vars key value pairs (search => replace)
 	 *
 	 * @return string substituted string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
     public static function replaceMacros($s, $vars)
     {
@@ -73,19 +74,20 @@ class Renderer extends BaseObject
             exit();
         }
 
-        $a->saveTimestamp($stamp1, "rendering");
+		$a->getProfiler()->saveTimestamp($stamp1, "rendering", System::callstack());
 
         return $output;
     }
 
-    /**
-     * @brief Load a given template $s
-     *
-     * @param string $s     Template to load.
-     * @param string $root  Optional.
-     * 
-     * @return string template.
-     */
+	/**
+	 * @brief Load a given template $s
+	 *
+	 * @param string $s    Template to load.
+	 * @param string $root Optional.
+	 *
+	 * @return string template.
+	 * @throws Exception
+	 */
     public static function getMarkupTemplate($s, $root = '')
     {
         $stamp1 = microtime(true);
@@ -96,10 +98,10 @@ class Renderer extends BaseObject
             $template = $t->getTemplateFile($s, $root);
         } catch (Exception $e) {
             echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-            killme();
+            exit();
         }
 
-        $a->saveTimestamp($stamp1, "file");
+        $a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
         return $template;
     }
@@ -129,7 +131,7 @@ class Renderer extends BaseObject
 	 * If $name is not defined, return engine defined by theme,
 	 * or default
 	 *
-	 * @return object Template Engine instance
+	 * @return ITemplateEngine Template Engine instance
 	 */
 	public static function getTemplateEngine()
 	{

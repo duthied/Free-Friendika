@@ -14,9 +14,11 @@ class Update
 	/**
 	 * @brief Function to check if the Database structure needs an update.
 	 *
+	 * @param string $basePath The base path of this application
 	 * @param boolean $via_worker boolean Is the check run via the worker?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check($via_worker)
+	public static function check($basePath, $via_worker)
 	{
 		if (!DBA::connected()) {
 			return;
@@ -35,9 +37,13 @@ class Update
 		}
 
 		if ($build < DB_UPDATE_VERSION) {
-			// When we cannot execute the database update via the worker, we will do it directly
-			if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
-				self::run();
+			if ($via_worker) {
+				// Calling the database update directly via the worker enables us to perform database changes to the workerqueue table itself.
+				// This is a fallback, since normally the database update will be performed by a worker job.
+				// This worker job doesn't work for changes to the "workerqueue" table itself.
+				self::run($basePath);
+			} else {
+				Worker::add(PRIORITY_CRITICAL, 'DBUpdate');
 			}
 		}
 	}
@@ -45,40 +51,51 @@ class Update
 	/**
 	 * Automatic database updates
 	 *
-	 * @param bool $force Force the Update-Check even if the lock is set
-	 * @param bool $verbose Run the Update-Check verbose
-	 * @param bool $sendMail Sends a Mail to the administrator in case of success/failure
+	 * @param string $basePath The base path of this application
+	 * @param bool $force      Force the Update-Check even if the database version doesn't match
+	 * @param bool $override   Overrides any running/stuck updates
+	 * @param bool $verbose    Run the Update-Check verbose
+	 * @param bool $sendMail   Sends a Mail to the administrator in case of success/failure
 	 *
 	 * @return string Empty string if the update is successful, error messages otherwise
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function run($force = false, $verbose = false, $sendMail = true)
+	public static function run($basePath, $force = false, $override = false, $verbose = false, $sendMail = true)
 	{
 		// In force mode, we release the dbupdate lock first
 		// Necessary in case of an stuck update
-		if ($force) {
-			Lock::release('dbupdate');
+		if ($override) {
+			Lock::release('dbupdate', true);
 		}
 
-		$build = Config::get('system', 'build');
+		$build = Config::get('system', 'build', null, true);
 
 		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
 			$build = DB_UPDATE_VERSION - 1;
 			Config::set('system', 'build', $build);
 		}
 
-		if ($build != DB_UPDATE_VERSION) {
+		if ($build != DB_UPDATE_VERSION || $force) {
 			require_once 'update.php';
 
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
-			if ($stored < $current) {
+			if ($stored < $current || $force) {
 				Config::load('database');
 
-				Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - starting', Logger::DEBUG);
+				Logger::info('Update starting.', ['from' => $stored, 'to' => $current]);
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
 				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
+
+					// Checks if the build changed during Lock acquiring (so no double update occurs)
+					$retryBuild = Config::get('system', 'build', null, true);
+					if ($retryBuild !== $build) {
+						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
+						Lock::release('dbupdate');
+						return '';
+					}
 
 					// run the pre_update_nnnn functions in update.php
 					for ($x = $stored + 1; $x <= $current; $x++) {
@@ -89,21 +106,21 @@ class Update
 					}
 
 					// update the structure in one call
-					$retval = DBStructure::update($verbose, true);
-					if ($retval) {
+					$retval = DBStructure::update($basePath, $verbose, true);
+					if (!empty($retval)) {
 						if ($sendMail) {
 							self::updateFailed(
 								DB_UPDATE_VERSION,
 								$retval
 							);
 						}
-						Logger::log('ERROR: Update from \'' . $stored . '\'  to \'' . $current . '\' - failed:  ' - $retval, Logger::ALL);
+						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
 						Lock::release('dbupdate');
 						return $retval;
 					} else {
 						Config::set('database', 'last_successful_update', $current);
 						Config::set('database', 'last_successful_update_time', time());
-						Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - finished', Logger::DEBUG);
+						Logger::info('Update finished.', ['from' => $stored, 'to' => $current]);
 					}
 
 					// run the update_nnnn functions in update.php
@@ -114,7 +131,7 @@ class Update
 						}
 					}
 
-					Logger::log('Update from \'' . $stored . '\'  to \'' . $current . '\' - successful', Logger::DEBUG);
+					Logger::notice('Update success.', ['from' => $stored, 'to' => $current]);
 					if ($sendMail) {
 						self::updateSuccessfull($stored, $current);
 					}
@@ -122,8 +139,6 @@ class Update
 					Lock::release('dbupdate');
 				}
 			}
-		} elseif ($force) {
-			DBStructure::update($verbose, true);
 		}
 
 		return '';
@@ -132,16 +147,17 @@ class Update
 	/**
 	 * Executes a specific update function
 	 *
-	 * @param int $x the DB version number of the function
+	 * @param int    $x      the DB version number of the function
 	 * @param string $prefix the prefix of the function (update, pre_update)
 	 *
 	 * @return bool true, if the update function worked
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function runUpdateFunction($x, $prefix)
 	{
 		$funcname = $prefix . '_' . $x;
 
-		Logger::log('Update function \'' . $funcname . '\' - start', Logger::DEBUG);
+		Logger::info('Update function start.', ['function' => $funcname]);
 
 		if (function_exists($funcname)) {
 			// There could be a lot of processes running or about to run.
@@ -162,7 +178,7 @@ class Update
 						$x,
 						L10n::t('Update %s failed. See error logs.', $x)
 					);
-					Logger::log('ERROR: Update function \'' . $funcname . '\' - failed: ' . $retval, Logger::ALL);
+					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
 					Lock::release('dbupdate_function');
 					return false;
 				} else {
@@ -174,12 +190,12 @@ class Update
 					}
 
 					Lock::release('dbupdate_function');
-					Logger::log('Update function \'' . $funcname . '\' - finished', Logger::DEBUG);
+					Logger::info('Update function finished.', ['function' => $funcname]);
 					return true;
 				}
 			}
 		} else {
-			 Logger::log('Skipping \'' . $funcname . '\' without executing', Logger::DEBUG);
+			Logger::info('Update function skipped.', ['function' => $funcname]);
 
 			Config::set('database', 'last_successful_update_function', $funcname);
 			Config::set('database', 'last_successful_update_function_time', time());
@@ -195,24 +211,32 @@ class Update
 	/**
 	 * send the email and do what is needed to do on update fails
 	 *
-	 * @param int $update_id		number of failed update
-	 * @param string $error_message	error message
+	 * @param int    $update_id     number of failed update
+	 * @param string $error_message error message
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function updateFailed($update_id, $error_message) {
 		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['`email` IN (%s)', $admin_mail_list]);
+		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		// No valid result?
 		if (!DBA::isResult($adminlist)) {
-			Logger::log(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), Logger::INFO);
+			Logger::warning('Cannot notify administrators .', ['update' => $update_id, 'message' => $error_message]);
 
 			// Don't continue
 			return;
 		}
 
+		$sent = [];
+
 		// every admin could had different language
-		foreach ($adminlist as $admin) {
+		while ($admin = DBA::fetch($adminlist)) {
+			if (in_array($admin['email'], $sent)) {
+				continue;
+			}
+			$sent[] = $admin['email'];
+
 			$lang = (($admin['language'])?$admin['language']:'en');
 			L10n::pushLang($lang);
 
@@ -236,18 +260,25 @@ class Update
 		}
 
 		//try the logger
-		Logger::log("CRITICAL: Database structure update failed: " . $error_message);
+		Logger::alert('Database structure update FAILED.', ['error' => $error_message]);
 	}
 
 	private static function updateSuccessfull($from_build, $to_build)
 	{
 		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(['Friendica\Database\DBA', 'escape'], explode(",", str_replace(" ", "", Config::get('config', 'admin_email')))))."'";
-		$adminlist = DBA::select('user', ['uid', 'language', 'email'], ['`email` IN (%s)', $admin_mail_list]);
+		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		if (DBA::isResult($adminlist)) {
+			$sent = [];
+
 			// every admin could had different language
-			foreach ($adminlist as $admin) {
+			while ($admin = DBA::fetch($adminlist)) {
+				if (in_array($admin['email'], $sent)) {
+					continue;
+				}
+				$sent[] = $admin['email'];
+
 				$lang = (($admin['language']) ? $admin['language'] : 'en');
 				L10n::pushLang($lang);
 
@@ -268,6 +299,6 @@ class Update
 		}
 
 		//try the logger
-		Logger::log("Database structure update successful.", Logger::TRACE);
+		Logger::debug('Database structure update successful.');
 	}
 }

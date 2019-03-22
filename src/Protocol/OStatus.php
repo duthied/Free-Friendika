@@ -43,13 +43,15 @@ class OStatus
 	/**
 	 * @brief Fetches author data
 	 *
-	 * @param object $xpath     The xpath object
-	 * @param object $context   The xml context of the author details
-	 * @param array  $importer  user record of the importing user
-	 * @param array  $contact   Called by reference, will contain the fetched contact
-	 * @param bool   $onlyfetch Only fetch the header without updating the contact entries
+	 * @param DOMXPath $xpath     The xpath object
+	 * @param object   $context   The xml context of the author details
+	 * @param array    $importer  user record of the importing user
+	 * @param array    $contact   Called by reference, will contain the fetched contact
+	 * @param bool     $onlyfetch Only fetch the header without updating the contact entries
 	 *
 	 * @return array Array of author related entries for the item
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function fetchAuthor(DOMXPath $xpath, $context, array $importer, array &$contact = null, $onlyfetch)
 	{
@@ -70,9 +72,9 @@ class OStatus
 		}
 		$author["author-id"] = Contact::getIdForURL($author["author-link"]);
 
-		$author["contact-id"] = $contact["id"];
+		$author['contact-id'] = defaults($contact, 'id', $author['author-id']);
 
-		$contact = null;
+		$contact = [];
 
 /*
 		This here would be better, but we would get problems with contacts from the statusnet addon
@@ -229,7 +231,7 @@ class OStatus
 
 			GContact::link($gcid, $contact["uid"], $contact["id"]);
 		} elseif ($contact["network"] != Protocol::DFRN) {
-			$contact = null;
+			$contact = [];
 		}
 
 		return $author;
@@ -242,6 +244,8 @@ class OStatus
 	 * @param array  $importer user record of the importing user
 	 *
 	 * @return array Array of author related entries for the item
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function salmonAuthor($xml, array $importer)
 	{
@@ -296,8 +300,10 @@ class OStatus
 	 * @param array  $contact  contact
 	 * @param string $hub      Called by reference, returns the fetched hub data
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function import($xml, array $importer, array &$contact = null, &$hub)
+	public static function import($xml, array $importer, array &$contact, &$hub)
 	{
 		self::process($xml, $importer, $contact, $hub);
 	}
@@ -313,6 +319,8 @@ class OStatus
 	 * @param boolean $initialize Is it the leading post so that data has to be initialized?
 	 *
 	 * @return boolean Could the XML be processed?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function process($xml, array $importer, array &$contact = null, &$hub, $stored = false, $initialize = true)
 	{
@@ -389,8 +397,6 @@ class OStatus
 		// Fetch the first author
 		$authordata = $xpath->query('//author')->item(0);
 		$author = self::fetchAuthor($xpath, $authordata, $importer, $contact, $stored);
-
-		$entry = $xpath->query('/atom:entry');
 
 		// Reverse the order of the entries
 		$entrylist = [];
@@ -520,7 +526,6 @@ class OStatus
 
 				if ($valid) {
 					$default_contact = 0;
-					$key = count(self::$itemlist);
 					for ($key = count(self::$itemlist) - 1; $key >= 0; $key--) {
 						if (empty(self::$itemlist[$key]['contact-id'])) {
 							self::$itemlist[$key]['contact-id'] = $default_contact;
@@ -556,8 +561,10 @@ class OStatus
 
 	/**
 	 * Removes notice item from database
+	 *
 	 * @param array $item item
 	 * @return void
+	 * @throws \Exception
 	 */
 	private static function deleteNotice(array $item)
 	{
@@ -575,11 +582,13 @@ class OStatus
 	/**
 	 * @brief Processes the XML for a post
 	 *
-	 * @param object $xpath    The xpath object
-	 * @param object $entry    The xml entry that is processed
-	 * @param array  $item     The item array
-	 * @param array  $importer user record of the importing user
+	 * @param DOMXPath $xpath    The xpath object
+	 * @param object   $entry    The xml entry that is processed
+	 * @param array    $item     The item array
+	 * @param array    $importer user record of the importing user
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function processPost(DOMXPath $xpath, $entry, array &$item, array $importer)
 	{
@@ -725,6 +734,7 @@ class OStatus
 	 * @param string $conversation     The link to the conversation
 	 * @param string $conversation_uri The conversation in "uri" format
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function fetchConversation($conversation, $conversation_uri)
 	{
@@ -787,6 +797,7 @@ class OStatus
 	 * @param string $conversation     conversation
 	 * @param string $conversation_uri conversation uri
 	 * @return void
+	 * @throws \Exception
 	 */
 	private static function storeConversation($xml, $conversation = '', $conversation_uri = '')
 	{
@@ -870,6 +881,7 @@ class OStatus
 	 * @param string $self The link to the self item
 	 * @param array  $item The item array
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function fetchSelf($self, array &$item)
 	{
@@ -905,6 +917,8 @@ class OStatus
 	 * @param string $related_uri The related item in "uri" format
 	 * @param array  $importer    user record of the importing user
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function fetchRelated($related, $related_uri, $importer)
 	{
@@ -1008,12 +1022,14 @@ class OStatus
 	/**
 	 * @brief Processes the XML for a repeated post
 	 *
-	 * @param object $xpath    The xpath object
-	 * @param object $entry    The xml entry that is processed
-	 * @param array  $item     The item array
-	 * @param array  $importer user record of the importing user
+	 * @param DOMXPath $xpath    The xpath object
+	 * @param object   $entry    The xml entry that is processed
+	 * @param array    $item     The item array
+	 * @param array    $importer user record of the importing user
 	 *
 	 * @return array with data from links
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function processRepeatedItem(DOMXPath $xpath, $entry, array &$item, array $importer)
 	{
@@ -1172,7 +1188,6 @@ class OStatus
 		} else {
 			return "http://".$server[0]."/notice/".$conversation[1];
 		}
-		return $href;
 	}
 
 	/**
@@ -1223,6 +1238,7 @@ class OStatus
 	 * @param string $body The body
 	 *
 	 * @return string The cleaned body
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function formatPicturePost($body)
 	{
@@ -1257,17 +1273,16 @@ class OStatus
 	/**
 	 * @brief Adds the header elements to the XML document
 	 *
-	 * @param object $doc    XML document
-	 * @param array  $owner  Contact data of the poster
-	 * @param string $filter The related feed filter (activity, posts or comments)
-	 * @param bool   $feed_mode Behave like a regular feed for users if true
+	 * @param DOMDocument $doc       XML document
+	 * @param array       $owner     Contact data of the poster
+	 * @param string      $filter    The related feed filter (activity, posts or comments)
+	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
 	 * @return object header root element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function addHeader(DOMDocument $doc, array $owner, $filter, $feed_mode = false)
 	{
-		$a = \get_app();
-
 		$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
 		$doc->appendChild($root);
 
@@ -1334,7 +1349,7 @@ class OStatus
 		$attributes = ["href" => System::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] == Contact::TYPE_COMMUNITY) {
 			$condition = ['uid' => $owner['uid'], 'self' => false, 'pending' => false,
 					'archive' => false, 'hidden' => false, 'blocked' => false];
 			$members = DBA::count('contact', $condition);
@@ -1347,10 +1362,11 @@ class OStatus
 	/**
 	 * @brief Add the link to the push hubs to the XML document
 	 *
-	 * @param object $doc  XML document
-	 * @param object $root XML root element where the hub links are added
-	 * @param object $nick nick
+	 * @param DOMDocument $doc  XML document
+	 * @param object      $root XML root element where the hub links are added
+	 * @param object      $nick nick
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function hublinks(DOMDocument $doc, $root, $nick)
 	{
@@ -1361,14 +1377,14 @@ class OStatus
 	/**
 	 * @brief Adds attachment data to the XML document
 	 *
-	 * @param object $doc  XML document
-	 * @param object $root XML root element where the hub links are added
-	 * @param array  $item Data of the item that is to be posted
+	 * @param DOMDocument $doc  XML document
+	 * @param object      $root XML root element where the hub links are added
+	 * @param array       $item Data of the item that is to be posted
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getAttachment(DOMDocument $doc, $root, $item)
 	{
-		$o = "";
 		$siteinfo = BBCode::getAttachedData($item["body"]);
 
 		switch ($siteinfo["type"]) {
@@ -1433,18 +1449,19 @@ class OStatus
 	/**
 	 * @brief Adds the author element to the XML document
 	 *
-	 * @param object $doc   XML document
-	 * @param array  $owner Contact data of the poster
-	 * @param bool   $show_profile Whether to show profile
+	 * @param DOMDocument $doc          XML document
+	 * @param array       $owner        Contact data of the poster
+	 * @param bool        $show_profile Whether to show profile
 	 *
-	 * @return object author element
+	 * @return \DOMElement author element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function addAuthor(DOMDocument $doc, array $owner, $show_profile = true)
 	{
 		$profile = DBA::selectFirst('profile', ['homepage', 'publish'], ['uid' => $owner['uid'], 'is-default' => true]);
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
-		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_GROUP);
 		} else {
 			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
@@ -1550,13 +1567,15 @@ class OStatus
 	/**
 	 * @brief Adds an entry element to the XML document
 	 *
-	 * @param object $doc       XML document
-	 * @param array  $item      Data of the item that is to be posted
-	 * @param array  $owner     Contact data of the poster
-	 * @param bool   $toplevel  optional default false
-	 * @param bool   $feed_mode Behave like a regular feed for users if true
+	 * @param DOMDocument $doc       XML document
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param bool        $toplevel  optional default false
+	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
-	 * @return object Entry element
+	 * @return \DOMElement Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function entry(DOMDocument $doc, array $item, array $owner, $toplevel = false, $feed_mode = false)
 	{
@@ -1583,10 +1602,11 @@ class OStatus
 	/**
 	 * @brief Adds a source entry to the XML document
 	 *
-	 * @param object $doc     XML document
-	 * @param array  $contact Array of the contact that is added
+	 * @param DOMDocument $doc     XML document
+	 * @param array       $contact Array of the contact that is added
 	 *
-	 * @return object Source element
+	 * @return \DOMElement Source element
+	 * @throws \Exception
 	 */
 	private static function sourceEntry(DOMDocument $doc, array $contact)
 	{
@@ -1608,6 +1628,8 @@ class OStatus
 	 * @param array  $owner Contact data of the poster
 	 *
 	 * @return array Contact array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function contactEntry($url, array $owner)
 	{
@@ -1631,7 +1653,7 @@ class OStatus
 		}
 
 		if (!DBA::isResult($r)) {
-			$contact = owner;
+			$contact = $owner;
 		}
 
 		if (!isset($contact["poll"])) {
@@ -1655,13 +1677,15 @@ class OStatus
 	/**
 	 * @brief Adds an entry element with reshared content
 	 *
-	 * @param object $doc           XML document
-	 * @param array  $item          Data of the item that is to be posted
-	 * @param array  $owner         Contact data of the poster
-	 * @param string $repeated_guid guid
-	 * @param bool   $toplevel      Is it for en entry element (false) or a feed entry (true)?
+	 * @param DOMDocument $doc           XML document
+	 * @param array       $item          Data of the item that is to be posted
+	 * @param array       $owner         Contact data of the poster
+	 * @param string      $repeated_guid guid
+	 * @param bool        $toplevel      Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return object Entry element
+	 * @return bool Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function reshareEntry(DOMDocument $doc, array $item, array $owner, $repeated_guid, $toplevel)
 	{
@@ -1669,7 +1693,7 @@ class OStatus
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		$condition = ['uid' => $owner["uid"], 'guid' => $repeated_guid, 'private' => false,
 			'network' => [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
@@ -1719,12 +1743,14 @@ class OStatus
 	/**
 	 * @brief Adds an entry element with a "like"
 	 *
-	 * @param object $doc      XML document
-	 * @param array  $item     Data of the item that is to be posted
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param DOMDocument $doc      XML document
+	 * @param array       $item     Data of the item that is to be posted
+	 * @param array       $owner    Contact data of the poster
+	 * @param bool        $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return object Entry element with "like"
+	 * @return \DOMElement Entry element with "like"
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function likeEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
@@ -1732,24 +1758,21 @@ class OStatus
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		$verb = NAMESPACE_ACTIVITY_SCHEMA."favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
-		$as_object = $doc->createElement("activity:object");
-
 		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);
+		if (DBA::isResult($parent)) {
+			$as_object = $doc->createElement("activity:object");
 
-		if (!$parent) {
-			$parent = [];
+			XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent));
+
+			self::entryContent($doc, $as_object, $parent, $owner, "New entry");
+
+			$entry->appendChild($as_object);
 		}
-
-		XML::addElement($doc, $as_object, "activity:object-type", self::constructObjecttype($parent));
-
-		self::entryContent($doc, $as_object, $parent, $owner, "New entry");
-
-		$entry->appendChild($as_object);
 
 		self::entryFooter($doc, $entry, $item, $owner);
 
@@ -1759,9 +1782,9 @@ class OStatus
 	/**
 	 * @brief Adds the person object element to the XML document
 	 *
-	 * @param object $doc     XML document
-	 * @param array  $owner   Contact data of the poster
-	 * @param array  $contact Contact data of the target
+	 * @param DOMDocument $doc     XML document
+	 * @param array       $owner   Contact data of the poster
+	 * @param array       $contact Contact data of the target
 	 *
 	 * @return object author element
 	 */
@@ -1804,12 +1827,14 @@ class OStatus
 	/**
 	 * @brief Adds a follow/unfollow entry element
 	 *
-	 * @param object $doc      XML document
-	 * @param array  $item     Data of the follow/unfollow message
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param DOMDocument $doc      XML document
+	 * @param array       $item     Data of the follow/unfollow message
+	 * @param array       $owner    Contact data of the poster
+	 * @param bool        $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return object Entry element
+	 * @return \DOMElement Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function followEntry(DOMDocument $doc, array $item, array $owner, $toplevel)
 	{
@@ -1851,7 +1876,7 @@ class OStatus
 
 		$item["body"] = sprintf($message, $owner["nick"], $contact["nick"]);
 
-		self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		self::entryContent($doc, $entry, $item, $owner, $title);
 
@@ -1866,13 +1891,15 @@ class OStatus
 	/**
 	 * @brief Adds a regular entry element
 	 *
-	 * @param object $doc       XML document
-	 * @param array  $item      Data of the item that is to be posted
-	 * @param array  $owner     Contact data of the poster
-	 * @param bool   $toplevel  Is it for en entry element (false) or a feed entry (true)?
-	 * @param bool   $feed_mode Behave like a regular feed for users if true
+	 * @param DOMDocument $doc       XML document
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param bool        $toplevel  Is it for en entry element (false) or a feed entry (true)?
+	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 *
-	 * @return object Entry element
+	 * @return \DOMElement Entry element
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function noteEntry(DOMDocument $doc, array $item, array $owner, $toplevel, $feed_mode)
 	{
@@ -1880,7 +1907,17 @@ class OStatus
 			Logger::log("OStatus entry is from author ".$owner["url"]." - not from ".$item["author-link"].". Quitting.", Logger::DEBUG);
 		}
 
-		$title = self::entryHeader($doc, $entry, $owner, $item, $toplevel);
+		if (!$toplevel) {
+			if (!empty($item['title'])) {
+				$title = BBCode::convert($item['title'], false, 7);
+			} else {
+				$title = sprintf("New note by %s", $owner["nick"]);
+			}
+		} else {
+			$title = sprintf("New comment by %s", $owner["nick"]);
+		}
+
+		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
 		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
 
@@ -1894,25 +1931,21 @@ class OStatus
 	/**
 	 * @brief Adds a header element to the XML document
 	 *
-	 * @param object $doc      XML document
-	 * @param object $entry    The entry element where the elements are added
-	 * @param array  $owner    Contact data of the poster
-	 * @param bool   $toplevel Is it for en entry element (false) or a feed entry (true)?
+	 * @param DOMDocument $doc      XML document
+	 * @param array       $owner    Contact data of the poster
+	 * @param array       $item
+	 * @param bool        $toplevel Is it for en entry element (false) or a feed entry (true)?
 	 *
-	 * @return string The title for the element
+	 * @return \DOMElement The entry element where the elements are added
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	private static function entryHeader(DOMDocument $doc, &$entry, array $owner, array $item, $toplevel)
+	private static function entryHeader(DOMDocument $doc, array $owner, array $item, $toplevel)
 	{
-		/// @todo Check if this title stuff is really needed (I guess not)
 		if (!$toplevel) {
 			$entry = $doc->createElement("entry");
-			if (!empty($item['title'])) {
-				$title = BBCode::convert($item['title'], false, 7);
-			} else {
-				$title = sprintf("New note by %s", $owner["nick"]);
-			}
 
-			if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+			if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 				$contact = self::contactEntry($item['author-link'], $owner);
 				$author = self::addAuthor($doc, $contact, false);
 				$entry->appendChild($author);
@@ -1931,26 +1964,26 @@ class OStatus
 
 			$author = self::addAuthor($doc, $owner);
 			$entry->appendChild($author);
-
-			$title = sprintf("New comment by %s", $owner["nick"]);
 		}
-		return $title;
+
+		return $entry;
 	}
 
 	/**
 	 * @brief Adds elements to the XML document
 	 *
-	 * @param object $doc       XML document
-	 * @param object $entry     Entry element where the content is added
-	 * @param array  $item      Data of the item that is to be posted
-	 * @param array  $owner     Contact data of the poster
-	 * @param string $title     Title for the post
-	 * @param string $verb      The activity verb
-	 * @param bool   $complete  Add the "status_net" element?
-	 * @param bool   $feed_mode Behave like a regular feed for users if true
+	 * @param DOMDocument $doc       XML document
+	 * @param \DOMElement $entry     Entry element where the content is added
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param string      $title     Title for the post
+	 * @param string      $verb      The activity verb
+	 * @param bool        $complete  Add the "status_net" element?
+	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function entryContent(DOMDocument $doc, $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
+	private static function entryContent(DOMDocument $doc, \DOMElement $entry, array $item, array $owner, $title, $verb = "", $complete = true, $feed_mode = false)
 	{
 		if ($verb == "") {
 			$verb = self::constructVerb($item);
@@ -1988,13 +2021,14 @@ class OStatus
 	/**
 	 * @brief Adds the elements at the foot of an entry to the XML document
 	 *
-	 * @param object $doc       XML document
-	 * @param object $entry     The entry element where the elements are added
-	 * @param array  $item      Data of the item that is to be posted
-	 * @param array  $owner     Contact data of the poster
-	 * @param bool   $complete  default true
-	 * @param bool   $feed_mode Behave like a regular feed for users if true
+	 * @param DOMDocument $doc       XML document
+	 * @param object      $entry     The entry element where the elements are added
+	 * @param array       $item      Data of the item that is to be posted
+	 * @param array       $owner     Contact data of the poster
+	 * @param bool        $complete  default true
+	 * @param bool        $feed_mode Behave like a regular feed for users if true
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function entryFooter(DOMDocument $doc, $entry, array $item, array $owner, $complete = true, $feed_mode = false)
 	{
@@ -2073,8 +2107,8 @@ class OStatus
 		foreach ($mentioned as $mention) {
 			$condition = ['uid' => $owner['uid'], 'nurl' => Strings::normaliseLink($mention)];
 			$contact = DBA::selectFirst('contact', ['forum', 'prv', 'self', 'contact-type'], $condition);
-			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) ||
-				($contact['self'] && ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY))) {
+			if ($contact["forum"] || $contact["prv"] || ($owner['contact-type'] == Contact::TYPE_COMMUNITY) ||
+				($contact['self'] && ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY))) {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
@@ -2091,7 +2125,7 @@ class OStatus
 			}
 		}
 
-		if ($owner['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
 			XML::addElement($doc, $entry, "link", "", [
 				"rel" => "mentioned",
 				"ostatus:object-type" => "http://activitystrea.ms/schema/1.0/group",
@@ -2159,6 +2193,8 @@ class OStatus
 	 * @param boolean $feed_mode   Behave like a regular feed for users if true
 	 *
 	 * @return string XML feed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function feed($owner_nick, &$last_update, $max_items = 300, $filter = 'activity', $nocache = false, $feed_mode = false)
 	{
@@ -2199,7 +2235,7 @@ class OStatus
 			$condition[] = ACTIVITY_OBJ_COMMENT;
 		}
 
-		if ($owner['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY) {
+		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 			$condition[0] .= " AND `contact-id` = ? AND `author-id` = ?";
 			$condition[] = $owner["id"];
 			$condition[] = $authorid;
@@ -2250,6 +2286,8 @@ class OStatus
 	 * @param array $owner Contact data of the poster
 	 *
 	 * @return string XML for the salmon
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function salmon(array $item, array $owner)
 	{

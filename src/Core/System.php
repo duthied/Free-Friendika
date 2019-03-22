@@ -5,8 +5,6 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Logger;
-use Friendica\Core\Renderer;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\XML;
 
@@ -27,6 +25,7 @@ class System extends BaseObject
 	 *
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
+	 * @throws InternalServerErrorException
 	 */
 	public static function baseUrl($ssl = false)
 	{
@@ -39,6 +38,7 @@ class System extends BaseObject
 	 * @param string $orig_url The url to be cleaned
 	 *
 	 * @return string The cleaned url
+	 * @throws \Exception
 	 */
 	public static function removedBaseUrl($orig_url)
 	{
@@ -59,7 +59,6 @@ class System extends BaseObject
 		array_shift($trace);
 
 		$callstack = [];
-		$counter = 0;
 		$previous = ['class' => '', 'function' => ''];
 
 		// The ignore list contains all functions that are only wrapper functions
@@ -92,6 +91,10 @@ class System extends BaseObject
 	 * Generic XML return
 	 * Outputs a basic dfrn XML status structure to STDOUT, with a <status> variable
 	 * of $st and an optional text <message> of $message and terminates the current process.
+	 *
+	 * @param        $st
+	 * @param string $message
+	 * @throws \Exception
 	 */
 	public static function xmlExit($st, $message = '')
 	{
@@ -111,7 +114,7 @@ class System extends BaseObject
 
 		echo XML::fromArray($xmldata, $xml);
 
-		killme();
+		exit();
 	}
 
 	/**
@@ -121,6 +124,7 @@ class System extends BaseObject
 	 * @param array   $description optional message
 	 *                             'title' => header title
 	 *                             'description' => optional message
+	 * @throws InternalServerErrorException
 	 */
 	public static function httpExit($val, $description = [])
 	{
@@ -172,6 +176,12 @@ class System extends BaseObject
 		exit();
 	}
 
+	public static function jsonError($httpCode, $data, $content_type = 'application/json')
+	{
+		header($_SERVER["SERVER_PROTOCOL"] . ' ' . $httpCode);
+		self::jsonExit($data, $content_type);
+	}
+
 	/**
 	 * @brief Encodes content to json.
 	 *
@@ -185,27 +195,29 @@ class System extends BaseObject
 	public static function jsonExit($x, $content_type = 'application/json') {
 		header("Content-type: $content_type");
 		echo json_encode($x);
-		killme();
+		exit();
 	}
 
 	/**
 	 * Generates a random string in the UUID format
 	 *
-	 * @param bool|string  $prefix   A given prefix (default is empty)
+	 * @param bool|string $prefix A given prefix (default is empty)
 	 * @return string a generated UUID
+	 * @throws \Exception
 	 */
 	public static function createUUID($prefix = '')
 	{
 		$guid = System::createGUID(32, $prefix);
-		return substr($guid, 0, 8). '-' . substr($guid, 8, 4) . '-' . substr($guid, 12, 4) . '-' . substr($guid, 16, 4) . '-' . substr($guid, 20, 12);
+		return substr($guid, 0, 8) . '-' . substr($guid, 8, 4) . '-' . substr($guid, 12, 4) . '-' . substr($guid, 16, 4) . '-' . substr($guid, 20, 12);
 	}
 
 	/**
 	 * Generates a GUID with the given parameters
 	 *
-	 * @param int          $size     The size of the GUID (default is 16)
-	 * @param bool|string  $prefix   A given prefix (default is empty)
+	 * @param int         $size   The size of the GUID (default is 16)
+	 * @param bool|string $prefix A given prefix (default is empty)
 	 * @return string a generated GUID
+	 * @throws \Exception
 	 */
 	public static function createGUID($size = 16, $prefix = '')
 	{
@@ -226,21 +238,6 @@ class System extends BaseObject
 			$prefix = substr($prefix, 0, max($size - 13, 0));
 			return uniqid($prefix);
 		}
-	}
-
-	/**
-	 * Generates a process identifier for the logging
-	 *
-	 * @param string $prefix A given prefix
-	 *
-	 * @return string a generated process identifier
-	 */
-	public static function processID($prefix)
-	{
-		// We aren't calling any other function here.
-		// Doing so could easily create an endless loop
-		$trailer = $prefix . ':' . getmypid() . ':';
-		return substr($trailer . uniqid('') . mt_rand(), 0, 26);
 	}
 
 	/**
@@ -278,6 +275,61 @@ class System extends BaseObject
 
 		header("Location: $url");
 		exit();
+	}
+
+	/**
+	 * @brief Returns the system user that is executing the script
+	 *
+	 * This mostly returns something like "www-data".
+	 *
+	 * @return string system username
+	 */
+	public static function getUser()
+	{
+		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
+			return '';
+		}
+
+		$processUser = posix_getpwuid(posix_geteuid());
+		return $processUser['name'];
+	}
+
+	/**
+	 * @brief Checks if a given directory is usable for the system
+	 *
+	 * @param      $directory
+	 * @param bool $check_writable
+	 *
+	 * @return boolean the directory is usable
+	 */
+	public static function isDirectoryUsable($directory, $check_writable = true)
+	{
+		if ($directory == '') {
+			Logger::log('Directory is empty. This shouldn\'t happen.', Logger::DEBUG);
+			return false;
+		}
+
+		if (!file_exists($directory)) {
+			Logger::log('Path "' . $directory . '" does not exist for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if (is_file($directory)) {
+			Logger::log('Path "' . $directory . '" is a file for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if (!is_dir($directory)) {
+			Logger::log('Path "' . $directory . '" is not a directory for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		if ($check_writable && !is_writable($directory)) {
+			Logger::log('Path "' . $directory . '" is not writable for user ' . static::getUser(), Logger::DEBUG);
+			return false;
+		}
+
+		return true;
 	}
 
 	/// @todo Move the following functions from boot.php

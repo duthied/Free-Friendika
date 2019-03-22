@@ -20,7 +20,7 @@ function bookmarklet_content(App $a)
 {
 	if (!local_user()) {
 		$o = '<h2>' . L10n::t('Login') . '</h2>';
-		$o .= Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? false : true);
+		$o .= Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? false : true);
 		return $o;
 	}
 

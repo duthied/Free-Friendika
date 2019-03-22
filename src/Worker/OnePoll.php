@@ -30,11 +30,7 @@ class OnePoll
 
 		Logger::log('Start for contact ' . $contact_id);
 
-		$manual_id  = 0;
-		$generation = 0;
-		$hub_update = false;
 		$force      = false;
-		$restart    = false;
 
 		if ($command == "force") {
 			$force = true;
@@ -45,7 +41,6 @@ class OnePoll
 			return;
 		}
 
-		$d = DateTimeFormat::utcNow();
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBA::isResult($contact)) {
@@ -143,18 +138,27 @@ class OnePoll
 		// We don't poll our followers
 		if ($contact["rel"] == Contact::FOLLOWER) {
 			Logger::log("Don't poll follower");
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
 		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
 			Logger::log('Polling is disabled');
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
 		// We don't poll AP contacts by now
 		if ($contact['network'] === Protocol::ACTIVITYPUB) {
 			Logger::log("Don't poll AP contact");
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -580,7 +584,7 @@ class OnePoll
 								$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 							}
 
-							$stored_item = Item::insert($datarray);
+							Item::insert($datarray);
 
 							switch ($mailconf['action']) {
 								case 0:
@@ -698,7 +702,8 @@ class OnePoll
 	 * @brief Updates a personal contact entry and the public contact entry
 	 *
 	 * @param array $contact The personal contact entry
-	 * @param array $fields The fields that are updated
+	 * @param array $fields  The fields that are updated
+	 * @throws \Exception
 	 */
 	private static function updateContact(array $contact, array $fields)
 	{

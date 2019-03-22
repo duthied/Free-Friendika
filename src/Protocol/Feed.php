@@ -25,13 +25,14 @@ class Feed {
 	/**
 	 * @brief Read a RSS/RDF/Atom feed and create an item entry for it
 	 *
-	 * @param string $xml The feed data
-	 * @param array $importer The user record of the importer
-	 * @param array $contact The contact record of the feed
-	 * @param string $hub Unused dummy value for compatibility reasons
-	 * @param bool $simulate If enabled, no data is imported
+	 * @param string $xml      The feed data
+	 * @param array  $importer The user record of the importer
+	 * @param array  $contact  The contact record of the feed
+	 * @param string $hub      Unused dummy value for compatibility reasons
+	 * @param bool   $simulate If enabled, no data is imported
 	 *
 	 * @return array In simulation mode it returns the header and the first item
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function import($xml, $importer, &$contact, &$hub, $simulate = false) {
 
@@ -317,7 +318,6 @@ class Feed {
 				$href = "";
 				$length = "";
 				$type = "";
-				$title = "";
 
 				foreach ($enclosure->attributes AS $attribute) {
 					if (in_array($attribute->name, ["url", "href"])) {
@@ -356,11 +356,20 @@ class Feed {
 			if (empty($body)) {
 				$body = trim(XML::getFirstNodeValue($xpath, 'content:encoded/text()', $entry));
 			}
-			if (empty($body)) {
-				$body = trim(XML::getFirstNodeValue($xpath, 'description/text()', $entry));
+
+			$summary = trim(XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry));
+
+			if (empty($summary)) {
+				$summary = trim(XML::getFirstNodeValue($xpath, 'description/text()', $entry));
 			}
+
 			if (empty($body)) {
-				$body = trim(XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry));
+				$body = $summary;
+				$summary = '';
+			}
+
+			if ($body == $summary) {
+				$summary = '';
 			}
 
 			// remove the content of the title if it is identically to the body
@@ -411,6 +420,10 @@ class Feed {
 				$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 				unset($item["attach"]);
 			} else {
+				if (!empty($summary)) {
+					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];
+				}
+
 				if ($contact["fetch_further_information"] == 3) {
 					if (!empty($tags)) {
 						$item["tag"] = $tags;

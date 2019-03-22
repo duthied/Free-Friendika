@@ -60,7 +60,7 @@ trait VFSTrait
 	protected function delConfigFile($filename)
 	{
 		if ($this->root->hasChild('config/' . $filename)) {
-			$this->root->removeChild('config/' . $filename);
+			$this->root->getChild('config')->removeChild($filename);
 		}
 	}
 }

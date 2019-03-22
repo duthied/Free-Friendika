@@ -35,6 +35,7 @@ class Conversation
 	 *
 	 * @param array $arr Item array with conversation data
 	 * @return array Item array with removed conversation data
+	 * @throws \Exception
 	 */
 	public static function insert(array $arr)
 	{
@@ -76,7 +77,7 @@ class Conversation
 				}
 				// Update structure data all the time but the source only when its from a better protocol.
 				if (empty($conversation['source']) || (!empty($old_conv['source']) &&
-					($old_conv['protocol'] < defaults($conversation, 'protocol', PARCEL_UNKNOWN)))) {
+					($old_conv['protocol'] < defaults($conversation, 'protocol', self::PARCEL_UNKNOWN)))) {
 					unset($conversation['protocol']);
 					unset($conversation['source']);
 				}

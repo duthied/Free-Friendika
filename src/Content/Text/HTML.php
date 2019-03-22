@@ -7,14 +7,11 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Content\Feature;
-use Friendica\Core\Addon;
+use Friendica\Content\Widget\ContactBlock;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -118,12 +115,13 @@ class HTML
 	/**
 	 * Made by: ike@piratenpartei.de
 	 * Originally made for the syncom project: http://wiki.piratenpartei.de/Syncom
-	 * 					https://github.com/annando/Syncom
+	 *                    https://github.com/annando/Syncom
 	 *
 	 * @brief Converter for HTML to BBCode
 	 * @param string $message
 	 * @param string $basepath
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function toBBCode($message, $basepath = '')
 	{
@@ -315,7 +313,7 @@ class HTML
 		$message = preg_replace('=\r *\r=i', "\n", $message);
 		$message = str_replace("\r", "\n", $message);
 
-		Addon::callHooks('html2bbcode', $message);
+		Hook::callAll('html2bbcode', $message);
 
 		$message = strip_tags($message);
 
@@ -714,6 +712,7 @@ class HTML
 	 * @brief Convert video HTML to BBCode tags
 	 *
 	 * @param string $s
+	 * @return string
 	 */
 	public static function toBBCodeVideo($s)
 	{
@@ -790,7 +789,9 @@ class HTML
 
 	/**
 	 * Loader for infinite scrolling
+	 *
 	 * @return string html for loader
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function scrollLoader()
 	{
@@ -804,109 +805,39 @@ class HTML
 	/**
 	 * Get html for contact block.
 	 *
-	 * @template contact_block.tpl
-	 * @hook contact_block_end (contacts=>array, output=>string)
+	 * @deprecated since version 2019.03
+	 * @see ContactBlock::getHTML()
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function contactBlock()
 	{
-		$o = '';
 		$a = \get_app();
 
-		$shown = PConfig::get($a->profile['uid'], 'system', 'display_friend_count', 24);
-		if ($shown == 0) {
-			return;
-		}
-
-		if (!is_array($a->profile) || $a->profile['hide-friends']) {
-			return $o;
-		}
-
-		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
-					AND NOT `pending` AND NOT `hidden` AND NOT `archive`
-					AND `network` IN ('%s', '%s', '%s')",
-			intval($a->profile['uid']),
-			DBA::escape(Protocol::DFRN),
-			DBA::escape(Protocol::OSTATUS),
-			DBA::escape(Protocol::DIASPORA)
-		);
-
-		if (DBA::isResult($r)) {
-			$total = intval($r[0]['total']);
-		}
-
-		if (!$total) {
-			$contacts = L10n::t('No contacts');
-			$micropro = null;
-		} else {
-			// Splitting the query in two parts makes it much faster
-			$r = q("SELECT `id` FROM `contact`
-					WHERE `uid` = %d AND NOT `self` AND NOT `blocked`
-						AND NOT `pending` AND NOT `hidden` AND NOT `archive`
-						AND `network` IN ('%s', '%s', '%s')
-					ORDER BY RAND() LIMIT %d",
-				intval($a->profile['uid']),
-				DBA::escape(Protocol::DFRN),
-				DBA::escape(Protocol::OSTATUS),
-				DBA::escape(Protocol::DIASPORA),
-				intval($shown)
-			);
-
-			if (DBA::isResult($r)) {
-				$contacts = [];
-				foreach ($r as $contact) {
-					$contacts[] = $contact["id"];
-				}
-
-				$r = q("SELECT `id`, `uid`, `addr`, `url`, `name`, `thumb`, `network` FROM `contact` WHERE `id` IN (%s)",
-					DBA::escape(implode(",", $contacts))
-				);
-
-				if (DBA::isResult($r)) {
-					$contacts = L10n::tt('%d Contact', '%d Contacts', $total);
-					$micropro = [];
-					foreach ($r as $rr) {
-						$micropro[] = self::micropro($rr, true, 'mpfriend');
-					}
-				}
-			}
-		}
-
-		$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
-		$o = Renderer::replaceMacros($tpl, [
-			'$contacts' => $contacts,
-			'$nickname' => $a->profile['nickname'],
-			'$viewcontacts' => L10n::t('View Contacts'),
-			'$micropro' => $micropro,
-		]);
-
-		$arr = ['contacts' => $r, 'output' => $o];
-
-		Addon::callHooks('contact_block_end', $arr);
-
-		return $o;
+		return ContactBlock::getHTML($a->profile);
 	}
 
 	/**
 	 * @brief Format contacts as picture links or as text links
 	 *
-	 * @param array $contact Array with contacts which contains an array with
-	 *	int 'id' => The ID of the contact
-	*	int 'uid' => The user ID of the user who owns this data
-	*	string 'name' => The name of the contact
-	*	string 'url' => The url to the profile page of the contact
-	*	string 'addr' => The webbie of the contact (e.g.) username@friendica.com
-	*	string 'network' => The network to which the contact belongs to
-	*	string 'thumb' => The contact picture
-	*	string 'click' => js code which is performed when clicking on the contact
-	* @param boolean $redirect If true try to use the redir url if it's possible
-	* @param string $class CSS class for the
-	* @param boolean $textmode If true display the contacts as text links
-	*	if false display the contacts as picture links
-
-	* @return string Formatted html
-	*/
+	 * @param array   $contact  Array with contacts which contains an array with
+	 *                          int 'id' => The ID of the contact
+	 *                          int 'uid' => The user ID of the user who owns this data
+	 *                          string 'name' => The name of the contact
+	 *                          string 'url' => The url to the profile page of the contact
+	 *                          string 'addr' => The webbie of the contact (e.g.) username@friendica.com
+	 *                          string 'network' => The network to which the contact belongs to
+	 *                          string 'thumb' => The contact picture
+	 *                          string 'click' => js code which is performed when clicking on the contact
+	 * @param boolean $redirect If true try to use the redir url if it's possible
+	 * @param string  $class    CSS class for the
+	 * @param boolean $textmode If true display the contacts as text links
+	 *                          if false display the contacts as picture links
+	 * @return string Formatted html
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
 	public static function micropro($contact, $redirect = false, $class = '', $textmode = false)
 	{
 		// Use the contact URL if no address is available
@@ -948,10 +879,10 @@ class HTML
 	 * @param string $s     Search query.
 	 * @param string $id    HTML id
 	 * @param string $url   Search url.
-	 * @param bool   $save  Show save search button.
 	 * @param bool   $aside Display the search widgit aside.
 	 *
 	 * @return string Formatted HTML.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function search($s, $id = 'search-box', $url = 'search', $aside = true)
 	{
@@ -991,6 +922,7 @@ class HTML
 	 * Replace naked text hyperlink with HTML formatted hyperlink
 	 *
 	 * @param string $s
+	 * @return string
 	 */
 	public static function toLink($s)
 	{
@@ -1007,6 +939,7 @@ class HTML
 	 * @param string $html
 	 * @param array  $reasons
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function applyContentFilter($html, array $reasons)
 	{

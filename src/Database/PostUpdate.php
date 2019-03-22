@@ -11,7 +11,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
 use Friendica\Model\PermissionSet;
-use Friendica\Database\DBA;
 
 /**
  * Post update functions
@@ -35,6 +34,9 @@ class PostUpdate
 		if (!self::update1281()) {
 			return false;
 		}
+		if (!self::update1297()) {
+			return false;
+		}
 
 		return true;
 	}
@@ -43,6 +45,7 @@ class PostUpdate
 	 * @brief Updates the "global" field in the item table
 	 *
 	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function update1194()
 	{
@@ -113,6 +116,7 @@ class PostUpdate
 	 * This field avoids cost intensive calls in the admin panel and in "nodeinfo"
 	 *
 	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function update1206()
 	{
@@ -145,6 +149,8 @@ class PostUpdate
 	 * @brief update the item related tables
 	 *
 	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function update1279()
 	{
@@ -295,6 +301,7 @@ class PostUpdate
 	 * @brief update item-uri data. Prerequisite for the next item structure update.
 	 *
 	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function update1281()
 	{
@@ -372,5 +379,41 @@ class PostUpdate
 		}
 
 		return false;
+	}
+
+	/**
+	 * Set the delivery queue count to a negative value for all items preceding the feature.
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function update1297()
+	{
+		// Was the script completed?
+		if (Config::get('system', 'post_update_version') >= 1297) {
+			return true;
+		}
+
+		$max_item_delivery_data = DBA::selectFirst('item-delivery-data', ['iid'], ['queue_count > 0 OR queue_done > 0'], ['order' => ['iid']]);
+		$max_iid = $max_item_delivery_data['iid'];
+
+		Logger::info('Start update1297 with max iid: ' . $max_iid);
+
+		$condition = ['`queue_count` = 0 AND `iid` < ?', $max_iid];
+
+		DBA::update('item-delivery-data', ['queue_count' => -1], $condition);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error ' . DBA::errorNo() . ':' . DBA::errorMessage());
+			return false;
+		}
+
+		Logger::info('Processed rows: ' . DBA::affectedRows());
+
+		Config::set('system', 'post_update_version', 1297);
+
+		Logger::info('Done');
+
+		return true;
 	}
 }

@@ -9,9 +9,10 @@ use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Addon;
+use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -20,7 +21,6 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -36,6 +36,7 @@ class Profile
 	 * @param integer User ID
 	 *
 	 * @return array Profile data
+	 * @throws \Exception
 	 */
 	public static function getByUID($uid)
 	{
@@ -102,6 +103,8 @@ class Profile
 	 * @param int     $profile      int
 	 * @param array   $profiledata  array
 	 * @param boolean $show_connect Show connect link
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function load(App $a, $nickname, $profile = 0, array $profiledata = [], $show_connect = true)
 	{
@@ -206,10 +209,11 @@ class Profile
 	 * Includes all available profile data
 	 *
 	 * @brief Get all profile data of a local user
-	 * @param string $nickname nick
-	 * @param int    $uid      uid
-	 * @param int    $profile_id  ID of the profile
+	 * @param string $nickname   nick
+	 * @param int    $uid        uid
+	 * @param int    $profile_id ID of the profile
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
 	{
@@ -265,13 +269,15 @@ class Profile
 	 * because of all the conditional logic.
 	 *
 	 * @brief Formats a profile for display in the sidebar.
-	 * @param array $profile
-	 * @param int $block
+	 * @param array   $profile
+	 * @param int     $block
 	 * @param boolean $show_connect Show connect link
 	 *
 	 * @return string HTML sidebar module
 	 *
-	 * @note Returns empty string if passed $profile is wrong type or not populated
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @note  Returns empty string if passed $profile is wrong type or not populated
 	 *
 	 * @hooks 'profile_sidebar_enter'
 	 *      array $profile - profile data
@@ -300,7 +306,7 @@ class Profile
 			$profile['network_link'] = '';
 		}
 
-		Addon::callHooks('profile_sidebar_enter', $profile);
+		Hook::callAll('profile_sidebar_enter', $profile);
 
 
 		// don't show connect link to yourself
@@ -470,9 +476,9 @@ class Profile
 
 		$contact_block = '';
 		$updated = '';
-		$contacts = 0;
+		$contact_count = 0;
 		if (!$block) {
-			$contact_block = HTML::contactBlock();
+			$contact_block = ContactBlock::getHTML($a->profile);
 
 			if (is_array($a->profile) && !$a->profile['hide-friends']) {
 				$r = q(
@@ -483,20 +489,15 @@ class Profile
 					$updated = date('c', strtotime($r[0]['updated']));
 				}
 
-				$r = q(
-					"SELECT COUNT(*) AS `total` FROM `contact`
-					WHERE `uid` = %d
-						AND NOT `self` AND NOT `blocked` AND NOT `pending`
-						AND NOT `hidden` AND NOT `archive`
-						AND `network` IN ('%s', '%s', '%s', '')",
-					intval($profile['uid']),
-					DBA::escape(Protocol::DFRN),
-					DBA::escape(Protocol::DIASPORA),
-					DBA::escape(Protocol::OSTATUS)
-				);
-				if (DBA::isResult($r)) {
-					$contacts = intval($r[0]['total']);
-				}
+				$contact_count = DBA::count('contact', [
+					'uid' => $profile['uid'],
+					'self' => false,
+					'blocked' => false,
+					'pending' => false,
+					'hidden' => false,
+					'archive' => false,
+					'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+				]);
 			}
 		}
 
@@ -540,7 +541,7 @@ class Profile
 			'$homepage' => $homepage,
 			'$about' => $about,
 			'$network' => L10n::t('Network:'),
-			'$contacts' => $contacts,
+			'$contacts' => $contact_count,
 			'$updated' => $updated,
 			'$diaspora' => $diaspora,
 			'$contact_block' => $contact_block,
@@ -548,7 +549,7 @@ class Profile
 
 		$arr = ['profile' => &$profile, 'entry' => &$o];
 
-		Addon::callHooks('profile_sidebar', $arr);
+		Hook::callAll('profile_sidebar', $arr);
 
 		return $o;
 	}
@@ -740,13 +741,7 @@ class Profile
 
 	public static function getAdvanced(App $a)
 	{
-		$o = '';
 		$uid = $a->profile['uid'];
-
-		$o .= Renderer::replaceMacros(
-			Renderer::getMarkupTemplate('section_title.tpl'),
-			['$title' => L10n::t('Profile')]
-		);
 
 		if ($a->profile['name']) {
 			$tpl = Renderer::getMarkupTemplate('profile_advanced.tpl');
@@ -760,7 +755,7 @@ class Profile
 			}
 
 			if ($a->profile['gender']) {
-				$profile['gender'] = [L10n::t('Gender:'), $a->profile['gender']];
+				$profile['gender'] = [L10n::t('Gender:'), L10n::t($a->profile['gender'])];
 			}
 
 			if (!empty($a->profile['dob']) && $a->profile['dob'] > DBA::NULL_DATE) {
@@ -784,7 +779,7 @@ class Profile
 			}
 
 			if ($a->profile['marital']) {
-				$profile['marital'] = [L10n::t('Status:'), $a->profile['marital']];
+				$profile['marital'] = [L10n::t('Status:'), L10n::t($a->profile['marital'])];
 			}
 
 			/// @TODO Maybe use x() here, plus below?
@@ -792,12 +787,12 @@ class Profile
 				$profile['marital']['with'] = $a->profile['with'];
 			}
 
-			if (strlen($a->profile['howlong']) && $a->profile['howlong'] >= DBA::NULL_DATETIME) {
+			if (strlen($a->profile['howlong']) && $a->profile['howlong'] > DBA::NULL_DATETIME) {
 				$profile['howlong'] = Temporal::getRelativeDate($a->profile['howlong'], L10n::t('for %1$d %2$s'));
 			}
 
 			if ($a->profile['sexual']) {
-				$profile['sexual'] = [L10n::t('Sexual Preference:'), $a->profile['sexual']];
+				$profile['sexual'] = [L10n::t('Sexual Preference:'), L10n::t($a->profile['sexual'])];
 			}
 
 			if ($a->profile['homepage']) {
@@ -992,7 +987,7 @@ class Profile
 		}
 
 		$arr = ['is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $tab, 'tabs' => $tabs];
-		Addon::callHooks('profile_tabs', $arr);
+		Hook::callAll('profile_tabs', $arr);
 
 		$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
@@ -1022,6 +1017,8 @@ class Profile
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/channel.php
 	 *
 	 * @param App $a Application instance.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function zrlInit(App $a)
 	{
@@ -1033,7 +1030,7 @@ class Profile
 		}
 
 		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
-		Addon::callHooks('zrl_init', $arr);
+		Hook::callAll('zrl_init', $arr);
 
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($my_url);
@@ -1086,32 +1083,20 @@ class Profile
 	}
 
 	/**
-	 * OpenWebAuth authentication.
+	 * Set the visitor cookies (see remote_user()) for the given handle
 	 *
-	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
-	 *
-	 * @param string $token
+	 * @param string $handle Visitor handle
+	 * @return array Visitor contact array
 	 */
-	public static function openWebAuthInit($token)
+	public static function addVisitorCookieForHandle($handle)
 	{
 		$a = \get_app();
 
-		// Clean old OpenWebAuthToken entries.
-		OpenWebAuthToken::purge('owt', '3 MINUTE');
-
-		// Check if the token we got is the same one
-		// we have stored in the database.
-		$visitor_handle = OpenWebAuthToken::getMeta('owt', 0, $token);
-
-		if($visitor_handle === false) {
-			return;
-		}
-
 		// Try to find the public contact entry of the visitor.
-		$cid = Contact::getIdForURL($visitor_handle);
-		if(!$cid) {
-			Logger::log('owt: unable to finger ' . $visitor_handle, Logger::DEBUG);
-			return;
+		$cid = Contact::getIdForURL($handle);
+		if (!$cid) {
+			Logger::log('unable to finger ' . $handle, Logger::DEBUG);
+			return [];
 		}
 
 		$visitor = DBA::selectFirst('contact', [], ['id' => $cid]);
@@ -1134,6 +1119,43 @@ class Profile
 
 			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $visitor['url']];
 		}
+
+		$a->contact = $visitor;
+
+		Logger::info('Authenticated visitor', ['url' => $visitor['url']]);
+
+		return $visitor;
+	}
+
+	/**
+	 * OpenWebAuth authentication.
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/zid.php
+	 *
+	 * @param string $token
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function openWebAuthInit($token)
+	{
+		$a = \get_app();
+
+		// Clean old OpenWebAuthToken entries.
+		OpenWebAuthToken::purge('owt', '3 MINUTE');
+
+		// Check if the token we got is the same one
+		// we have stored in the database.
+		$visitor_handle = OpenWebAuthToken::getMeta('owt', 0, $token);
+
+		if ($visitor_handle === false) {
+			return;
+		}
+
+		$visitor = self::addVisitorCookieForHandle($visitor_handle);
+		if (empty($visitor)) {
+			return;
+		}
+
 		$arr = [
 			'visitor' => $visitor,
 			'url' => $a->query_string
@@ -1144,7 +1166,7 @@ class Profile
 		 *   * \e array \b visitor
 		 *   * \e string \b url
 		 */
-		Addon::callHooks('magic_auth_success', $arr);
+		Hook::callAll('magic_auth_success', $arr);
 
 		$a->contact = $arr['visitor'];
 
@@ -1184,6 +1206,7 @@ class Profile
 	 * @brief Get the user ID of the page owner
 	 * @return int user ID
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @note Returns local_user instead of user ID if "always_my_theme" is set to true
 	 */
 	public static function getThemeUid(App $a)
@@ -1208,11 +1231,12 @@ class Profile
 	}
 
 	/**
-	* Stip query parameter from a string.
-	*
-	* @param string $s The input string.
-	* @return string The query parameter.
-	*/
+	 * Strip query parameter from a string.
+	 *
+	 * @param string $s The input string.
+	 * @param        $param
+	 * @return string The query parameter.
+	 */
 	public static function stripQueryParam($s, $param)
 	{
 		return preg_replace('/[\?&]' . $param . '=(.*?)(&|$)/ism', '$2', $s);

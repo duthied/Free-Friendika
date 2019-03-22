@@ -2,9 +2,9 @@
 /**
  * @file view/theme/frio/style.php
  */
+
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
-use Friendica\Model\Profile;
 
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 

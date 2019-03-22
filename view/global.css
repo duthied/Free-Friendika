@@ -90,6 +90,15 @@ span.connector {
   margin-right: 0px;
 }
 
+
+.wall-item-like-expanded,
+.wall-item-dislike-expanded,
+.wall-item-attendyes-expanded,
+.wall-item-attendno-expanded,
+.wall-item-attendmaybe-expanded {
+  margin: 0;
+}
+
 .type-link blockquote, .type-video blockquote {
   margin-left: 0px;
   max-height: 160px;
@@ -537,6 +546,7 @@ td.pendingnote > p > span {
 }
 
 /* warning message */
+.crepair-error-message,
 .warning-message {
   padding: 10px;
   margin: 5px;

@@ -6,9 +6,9 @@ namespace Friendica\Module;
 
 use Exception;
 use Friendica\BaseModule;
-use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -43,7 +43,7 @@ class Login extends BaseModule
 			$a->internalRedirect();
 		}
 
-		return self::form(defaults($_SESSION, 'return_path', null), intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED);
+		return self::form(defaults($_SESSION, 'return_path', null), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
 	public static function post()
@@ -79,6 +79,7 @@ class Login extends BaseModule
 	 *
 	 * @param string $openid_url OpenID URL string
 	 * @param bool   $remember   Whether to set the session remember flag
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function openIdAuthentication($openid_url, $remember)
 	{
@@ -112,6 +113,7 @@ class Login extends BaseModule
 	 * @param string $username User name
 	 * @param string $password Clear password
 	 * @param bool   $remember Whether to set the session remember flag
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function passwordAuthentication($username, $password, $remember)
 	{
@@ -131,7 +133,7 @@ class Login extends BaseModule
 		 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
 		 * and later addons should not interfere with an earlier one that succeeded.
 		 */
-		Addon::callHooks('authenticate', $addon_auth);
+		Hook::callAll('authenticate', $addon_auth);
 
 		try {
 			if ($addon_auth['authenticated']) {
@@ -146,7 +148,7 @@ class Login extends BaseModule
 				);
 			}
 		} catch (Exception $e) {
-			Logger::log('authenticate: failed login attempt: ' . Strings::escapeTags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
+			Logger::warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
 			info('Login failed. Please check your credentials.' . EOL);
 			$a->internalRedirect();
 		}
@@ -269,14 +271,15 @@ class Login extends BaseModule
 	/**
 	 * @brief Wrapper for adding a login box.
 	 *
-	 * @param string $return_path The path relative to the base the user should be sent
-	 *							 back to after login completes
-	 * @param bool $register If $register == true provide a registration link.
-	 *						 This will most always depend on the value of config.register_policy.
-	 * @param array $hiddens  optional
+	 * @param string $return_path  The path relative to the base the user should be sent
+	 *                             back to after login completes
+	 * @param bool   $register     If $register == true provide a registration link.
+	 *                             This will most always depend on the value of config.register_policy.
+	 * @param array  $hiddens      optional
 	 *
 	 * @return string Returns the complete html for inserting into the page
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @hooks 'login_hook' string $o
 	 */
 	public static function form($return_path = null, $register = false, $hiddens = [])
@@ -340,7 +343,7 @@ class Login extends BaseModule
 			]
 		);
 
-		Addon::callHooks('login_hook', $o);
+		Hook::callAll('login_hook', $o);
 
 		return $o;
 	}

@@ -150,20 +150,20 @@
 			{{/if}}
 
 				{{foreach $item.folders as $cat}}
-					<span class="folder label btn-danger sm">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class="folder label btn-danger sm">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 
 				{{foreach $item.categories as $cat}}
-					<span class="category label btn-success sm">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class="category label btn-success sm">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 				</div>
 				{{if $item.edited}}<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>{{/if}}
 			</div>
 			<!-- ./TODO -->
 
-			<div class="wall-item-actions">
+			<p class="wall-item-actions">
 				{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-				<div class="wall-item-actions-left pull-left">
+				<span class="wall-item-actions-left">
 					<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment}}
 					<div id="button-reply" class="pull-left">
 						<button type="button" class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
@@ -204,28 +204,27 @@
 						{{/if}}
 					{{/if}}
 					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
-				</div>
+				</span>
 
 
-				<div class="wall-item-actions-right pull-right">
+				<span class="wall-item-actions-right">
 					{{* Event attendance buttons *}}
-					{{if $item.isevent}}
-					<div class="vote-event">
+				{{if $item.isevent}}
+					<span class="vote-event">
 						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
 						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
 						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
-					</div>
-					{{/if}}
+					</span>
+				{{/if}}
 
-					<div class="pull-right checkbox">
-						{{if $item.drop.pagedrop}}
+					<span class="pull-right checkbox">
+				{{if $item.drop.pagedrop}}
 						<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 						<label for="checkbox-{{$item.id}}"></label>
-						{{/if}}
-					</div>
-				</div>
-				<div class="clearfix"></div>
-			</div><!--./wall-item-actions-->
+				{{/if}}
+					</span>
+				</span>
+			</p><!--./wall-item-actions-->
 
 					{{* Display likes, dislike and attendance stats *}}
 			{{if $item.responses}}

@@ -8,7 +8,6 @@ use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Strings;
 
@@ -64,7 +63,7 @@ function openid_content(App $a) {
 			// Successful OpenID login - but we can't match it to an existing account.
 			// New registration?
 
-			if (intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED) {
+			if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED) {
 				notice(L10n::t('Account not found and OpenID registration is not permitted on this site.') . EOL);
 				$a->internalRedirect();
 			}
@@ -94,17 +93,17 @@ function openid_content(App $a) {
 					}
 				}
 			}
-			if ($nick) {
+			if (!empty($nick)) {
 				$args .= '&nickname=' . urlencode($nick);
 			}
-			elseif ($first) {
+			elseif (!empty($first)) {
 				$args .= '&nickname=' . urlencode($first);
 			}
 
-			if ($photosq) {
+			if (!empty($photosq)) {
 				$args .= '&photo=' . urlencode($photosq);
 			}
-			elseif ($photo) {
+			elseif (!empty($photo)) {
 				$args .= '&photo=' . urlencode($photo);
 			}
 

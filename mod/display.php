@@ -19,10 +19,10 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Module\Objects;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\Strings;
-use Friendica\Module\Objects;
 
 function display_init(App $a)
 {
@@ -35,7 +35,6 @@ function display_init(App $a)
 	}
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
-	$profiledata = [];
 
 	if ($a->argc == 3) {
 		if (substr($a->argv[2], -5) == '.atom') {
@@ -96,7 +95,7 @@ function display_init(App $a)
 	}
 
 	if ($item["id"] != $item["parent"]) {
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item["parent"]]);
+		$item = Item::selectFirstForUser($item_user, $fields, ['id' => $item["parent"]]);
 	}
 
 	$profiledata = display_fetchauthor($a, $item);
@@ -157,7 +156,6 @@ function display_fetchauthor($a, $item)
 	}
 
 	if (!$skip) {
-		$author = "";
 		preg_match("/author='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
@@ -166,7 +164,6 @@ function display_fetchauthor($a, $item)
 		if (!empty($matches[1])) {
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 		}
-		$profile = "";
 		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$profiledata["url"] = $matches[1];
@@ -175,7 +172,6 @@ function display_fetchauthor($a, $item)
 		if (!empty($matches[1])) {
 			$profiledata["url"] = $matches[1];
 		}
-		$avatar = "";
 		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$profiledata["photo"] = $matches[1];
@@ -287,21 +283,24 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$is_remote_contact = false;
 	$item_uid = local_user();
 
-	$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
-	if (DBA::isResult($parent)) {
-		$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
-		$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
-		$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
-	}
+	if (isset($item_parent_uri)) {
+		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
+		if (DBA::isResult($parent)) {
+			$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
+			$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
+			$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
 
-	if ($is_remote_contact) {
-		$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
-		if (!empty($cdata['user'])) {
-			$groups = Group::getIdsByContactId($cdata['user']);
-			$remote_cid = $cdata['user'];
-			$item_uid = $parent['uid'];
+			if ($is_remote_contact) {
+				$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
+				if (!empty($cdata['user'])) {
+					$groups = Group::getIdsByContactId($cdata['user']);
+					$remote_cid = $cdata['user'];
+					$item_uid = $parent['uid'];
+				}
+			}
 		}
 	}
+
 
 	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);
 	if (DBA::isResult($page_contact)) {
@@ -426,5 +425,5 @@ function displayShowFeed($item_id, $conversation)
 	}
 	header("Content-type: application/atom+xml");
 	echo $xml;
-	killme();
+	exit();
 }

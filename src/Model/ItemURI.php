@@ -17,6 +17,7 @@ class ItemURI extends BaseObject
 	 * @param array $fields Item-uri fields
 	 *
 	 * @return integer item-uri id
+	 * @throws \Exception
 	 */
 	public static function insert($fields)
 	{
@@ -43,6 +44,7 @@ class ItemURI extends BaseObject
 	 * @param string $uri
 	 *
 	 * @return integer item-uri id
+	 * @throws \Exception
 	 */
 	public static function getIdByURI($uri)
 	{

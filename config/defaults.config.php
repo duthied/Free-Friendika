@@ -135,6 +135,15 @@ return [
 		// Disables the check if a mail address is in a valid format and can be resolved via DNS.
 		'disable_email_validation' => false,
 
+		// disable_implicit_mentions (Boolean) since 2019.03
+		// Implicit mentions are mentions in the body of replies that are redundant in a thread-enabled system like Friendica.
+		// This config key disables the gathering of implicit mentions in incoming and outgoing posts.
+		// Also disables the default automatic removal of implicit mentions from the body of incoming posts.
+		// Also disables the default automatic addition of implicit mentions in the body of outgoing posts.
+		// Disabling implicit mentions also affects the "explicit_mentions" additional feature by limiting it
+		// to the replied-to post author mention in the comment boxes.
+		'disable_implicit_mentions' => false,
+
 		// disable_url_validation (Boolean)
 		// Disables the DNS lookup of an URL.
 		'disable_url_validation' => false,
@@ -393,6 +402,14 @@ return [
 		// Number of worker tasks that are fetched in a single query.
 		'worker_fetch_limit' => 1,
 
+		// worker_jpm (Boolean)
+		// If enabled, it prints out the jobs per minute.
+		'worker_jpm' => false,
+
+		// worker_jpm_range (String)
+		// List of minutes for the jobs per minute (JPM) calculation
+		'worker_jpm_range' => '1, 10, 60',
+
 		// worker_load_exponent (Integer)
 		// Default 3, which allows only 25% of the maximum worker queues when server load reaches around 37% of maximum load.
 		// For a linear response where 25% of worker queues are allowed at 75% of maximum load, set this to 1.
@@ -421,4 +438,13 @@ return [
 		// Must be writable by the ejabberd process. if set then it will prevent the running of multiple processes.
 		'lockpath' => '',
 	],
+	'debug' => [
+		// ap_inbox_log (Boolean)
+		// Logs every call to /inbox as a JSON file in Friendica's temporary directory
+		'ap_inbox_log' => false,
+
+		// total_ap_delivery (Boolean)
+		// Deliver via AP to every possible receiver and we suppress the delivery to these contacts with other protocols
+		'total_ap_delivery' => false,
+	]
 ];

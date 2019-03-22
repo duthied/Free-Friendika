@@ -3,7 +3,7 @@
  * @file mod/tagger.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
@@ -199,11 +199,9 @@ EOT;
 
 	$arr['id'] = $post_id;
 
-	Addon::callHooks('post_local_end', $arr);
+	Hook::callAll('post_local_end', $arr);
 
 	Worker::add(PRIORITY_HIGH, "Notifier", "tag", $post_id);
 
-	killme();
-
-	return; // NOTREACHED
+	exit();
 }

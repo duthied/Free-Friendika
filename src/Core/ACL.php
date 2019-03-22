@@ -8,8 +8,6 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Protocol;
-use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
@@ -25,15 +23,16 @@ class ACL extends BaseObject
 	/**
 	 * Returns a select input tag with all the contact of the local user
 	 *
-	 * @param string $selname Name attribute of the select input tag
-	 * @param string $selclass Class attribute of the select input tag
-	 * @param array $options Available options:
-	 * - size: length of the select box
-	 * - mutual_friends: Only used for the hook
-	 * - single: Only used for the hook
-	 * - exclude: Only used for the hook
-	 * @param array $preselected Contact ID that should be already selected
+	 * @param string $selname     Name attribute of the select input tag
+	 * @param string $selclass    Class attribute of the select input tag
+	 * @param array  $options     Available options:
+	 *                            - size: length of the select box
+	 *                            - mutual_friends: Only used for the hook
+	 *                            - single: Only used for the hook
+	 *                            - exclude: Only used for the hook
+	 * @param array  $preselected Contact ID that should be already selected
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function getSuggestContactSelectHTML($selname, $selclass, array $options = [], array $preselected = [])
 	{
@@ -69,7 +68,7 @@ class ACL extends BaseObject
 
 		$x = ['options' => $options, 'size' => $size, 'single' => $single, 'mutual' => $mutual, 'exclude' => $exclude, 'networks' => $networks];
 
-		Addon::callHooks('contact_select_options', $x);
+		Hook::callAll('contact_select_options', $x);
 
 		$o = '';
 
@@ -111,7 +110,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll($a->module . '_pre_' . $selname, $arr);
 
 		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
@@ -129,7 +128,7 @@ class ACL extends BaseObject
 
 		$o .= '</select>' . PHP_EOL;
 
-		Addon::callHooks($a->module . '_post_' . $selname, $o);
+		Hook::callAll($a->module . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -143,6 +142,7 @@ class ACL extends BaseObject
 	 * @param int    $size        Length of the select box
 	 * @param int    $tabindex    Select input tag tabindex attribute
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function getMessageContactSelectHTML($selname, $selclass, array $preselected = [], $size = 4, $tabindex = null)
 	{
@@ -176,7 +176,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll($a->module . '_pre_' . $selname, $arr);
 
 		$receiverlist = [];
 
@@ -202,7 +202,7 @@ class ACL extends BaseObject
 			$o .= implode(', ', $receiverlist);
 		}
 
-		Addon::callHooks($a->module . '_post_' . $selname, $o);
+		Hook::callAll($a->module . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -217,6 +217,7 @@ class ACL extends BaseObject
 	 *
 	 * @param array $user
 	 * @return array Hash of contact id lists
+	 * @throws \Exception
 	 */
 	public static function getDefaultUserPermissions(array $user = null)
 	{
@@ -253,9 +254,10 @@ class ACL extends BaseObject
 	 * Return the full jot ACL selector HTML
 	 *
 	 * @param array $user                User array
-	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
 	 * @param bool  $show_jotnets
+	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getFullSelectorHTML(array $user, $show_jotnets = false, array $default_permissions = [])
 	{
@@ -285,22 +287,22 @@ class ACL extends BaseObject
 					$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
 				}
 
-				Addon::callHooks('jot_networks', $jotnets);
+				Hook::callAll('jot_networks', $jotnets);
 			} else {
 				$jotnets .= L10n::t('Connectors disabled, since "%s" is enabled.',
 						L10n::t('Hide your profile details from unknown viewers?'));
 			}
 		}
-
+		
 		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$showall' => L10n::t('Visible to everybody'),
 			'$show' => L10n::t('show'),
 			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', '')),
-			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', '')),
-			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', '')),
-			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', '')),
+			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', [])), // we need arrays for Javascript since we call .remove() and .push() on this values
+			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', [])),
+			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', [])),
+			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', [])),
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
@@ -322,6 +324,7 @@ class ACL extends BaseObject
 	 * @param string $search Name or part of a name or nick
 	 * @param string $mode   Search mode (e.g. "community")
 	 * @return array with the search results
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function contactAutocomplete($search, $mode)
 	{

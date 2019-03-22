@@ -2,13 +2,8 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-
 use Friendica\Core\Cache\ArrayCache;
 
-/**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
- */
 class ArrayCacheDriverTest extends MemoryCacheTest
 {
 	protected function getInstance()

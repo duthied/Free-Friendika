@@ -2,13 +2,11 @@
 
 namespace Friendica\Database;
 
-// Do not use Core\Config in this class at risk of infinite loop.
-// Please use App->getConfigVariable() instead.
-//use Friendica\Core\Config;
-
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Profiler;
 use mysqli;
 use mysqli_result;
 use mysqli_stmt;
@@ -34,6 +32,18 @@ class DBA
 
 	public static $connected = false;
 
+	/**
+	 * @var IConfigCache
+	 */
+	private static $configCache;
+	/**
+	 * @var Profiler
+	 */
+	private static $profiler;
+	/**
+	 * @var string
+	 */
+	private static $basePath;
 	private static $server_info = '';
 	private static $connection;
 	private static $driver;
@@ -49,13 +59,16 @@ class DBA
 	private static $db_name = '';
 	private static $db_charset = '';
 
-	public static function connect($serveraddr, $user, $pass, $db, $charset = null)
+	public static function connect($basePath, IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
 	{
 		if (!is_null(self::$connection) && self::connected()) {
 			return true;
 		}
 
 		// We are storing these values for being able to perform a reconnect
+		self::$basePath = $basePath;
+		self::$configCache = $configCache;
+		self::$profiler = $profiler;
 		self::$db_serveraddr = $serveraddr;
 		self::$db_user = $user;
 		self::$db_pass = $pass;
@@ -156,7 +169,7 @@ class DBA
 	public static function reconnect() {
 		self::disconnect();
 
-		$ret = self::connect(self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
+		$ret = self::connect(self::$basePath, self::$configCache, self::$profiler, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
 		return $ret;
 	}
 
@@ -195,6 +208,7 @@ class DBA
 	 * @brief Returns the selected database name
 	 *
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function databaseName() {
 		$ret = self::p("SELECT DATABASE() AS `db`");
@@ -206,11 +220,11 @@ class DBA
 	 * @brief Analyze a database query and log this if some conditions are met.
 	 *
 	 * @param string $query The database query that will be analyzed
+	 * @throws \Exception
 	 */
 	private static function logIndex($query) {
-		$a = \get_app();
 
-		if (!$a->getConfigVariable('system', 'db_log_index')) {
+		if (!self::$configCache->get('system', 'db_log_index')) {
 			return;
 		}
 
@@ -229,18 +243,18 @@ class DBA
 			return;
 		}
 
-		$watchlist = explode(',', $a->getConfigVariable('system', 'db_log_index_watch'));
-		$blacklist = explode(',', $a->getConfigVariable('system', 'db_log_index_blacklist'));
+		$watchlist = explode(',', self::$configCache->get('system', 'db_log_index_watch'));
+		$blacklist = explode(',', self::$configCache->get('system', 'db_log_index_blacklist'));
 
 		while ($row = self::fetch($r)) {
-			if ((intval($a->getConfigVariable('system', 'db_loglimit_index')) > 0)) {
+			if ((intval(self::$configCache->get('system', 'db_loglimit_index')) > 0)) {
 				$log = (in_array($row['key'], $watchlist) &&
-					($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index'))));
+					($row['rows'] >= intval(self::$configCache->get('system', 'db_loglimit_index'))));
 			} else {
 				$log = false;
 			}
 
-			if ((intval($a->getConfigVariable('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval($a->getConfigVariable('system', 'db_loglimit_index_high')))) {
+			if ((intval(self::$configCache->get('system', 'db_loglimit_index_high')) > 0) && ($row['rows'] >= intval(self::$configCache->get('system', 'db_loglimit_index_high')))) {
 				$log = true;
 			}
 
@@ -250,7 +264,7 @@ class DBA
 
 			if ($log) {
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
-				@file_put_contents($a->getConfigVariable('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
+				@file_put_contents(self::$configCache->get('system', 'db_log_index'), DateTimeFormat::utcNow()."\t".
 						$row['key']."\t".$row['rows']."\t".$row['Extra']."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
@@ -386,9 +400,9 @@ class DBA
 	 *
 	 * @param string $sql SQL statement
 	 * @return bool|object statement object or result object
+	 * @throws \Exception
 	 */
 	public static function p($sql) {
-		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -411,7 +425,7 @@ class DBA
 
 		if ((substr_count($sql, '?') != count($args)) && (count($args) > 0)) {
 			// Question: Should we continue or stop the query here?
-			Logger::log('Parameter mismatch. Query "'.$sql.'" - Parameters '.print_r($args, true), Logger::DEBUG);
+			Logger::warning('Query parameters mismatch.', ['query' => $sql, 'args' => $args, 'callstack' => System::callstack()]);
 		}
 
 		$sql = self::cleanQuery($sql);
@@ -419,7 +433,7 @@ class DBA
 
 		$orig_sql = $sql;
 
-		if ($a->getConfigValue('system', 'db_callstack')) {
+		if (self::$configCache->get('system', 'db_callstack') !== null) {
 			$sql = "/*".System::callstack()." */ ".$sql;
 		}
 
@@ -578,17 +592,17 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		$a->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
-		if ($a->getConfigValue('system', 'db_log')) {
+		if (self::$configCache->get('system', 'db_log')) {
 			$stamp2 = microtime(true);
 			$duration = (float)($stamp2 - $stamp1);
 
-			if (($duration > $a->getConfigValue('system', 'db_loglimit'))) {
+			if (($duration > self::$configCache->get('system', 'db_loglimit'))) {
 				$duration = round($duration, 3);
 				$backtrace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS);
 
-				@file_put_contents($a->getConfigValue('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
+				@file_put_contents(self::$configCache->get('system', 'db_log'), DateTimeFormat::utcNow()."\t".$duration."\t".
 						basename($backtrace[1]["file"])."\t".
 						$backtrace[1]["line"]."\t".$backtrace[2]["function"]."\t".
 						substr(self::replaceParameters($sql, $args), 0, 2000)."\n", FILE_APPEND);
@@ -604,9 +618,9 @@ class DBA
 	 *
 	 * @param string $sql SQL statement
 	 * @return boolean Was the query successfull? False is returned only if an error occurred
+	 * @throws \Exception
 	 */
 	public static function e($sql) {
-		$a = \get_app();
 
 		$stamp = microtime(true);
 
@@ -649,7 +663,7 @@ class DBA
 			self::$errorno = $errorno;
 		}
 
-		$a->saveTimestamp($stamp, "database_write");
+		self::$profiler->saveTimestamp($stamp, "database_write", System::callstack());
 
 		return $retval;
 	}
@@ -657,10 +671,11 @@ class DBA
 	/**
 	 * @brief Check if data exists
 	 *
-	 * @param string $table Table name
-	 * @param array $condition array of fields for condition
+	 * @param string $table     Table name
+	 * @param array  $condition array of fields for condition
 	 *
 	 * @return boolean Are there rows for that condition?
+	 * @throws \Exception
 	 */
 	public static function exists($table, $condition) {
 		if (empty($table)) {
@@ -700,6 +715,7 @@ class DBA
 	 * @brief Fetches the first row
 	 * @param string $sql SQL statement
 	 * @return array first row of query
+	 * @throws \Exception
 	 */
 	public static function fetchFirst($sql) {
 		$params = self::getParam(func_get_args());
@@ -770,7 +786,6 @@ class DBA
 	 * @return array current row
 	 */
 	public static function fetch($stmt) {
-		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -817,7 +832,7 @@ class DBA
 				}
 		}
 
-		$a->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		return $columns;
 	}
@@ -825,11 +840,12 @@ class DBA
 	/**
 	 * @brief Insert a row into a table
 	 *
-	 * @param string $table Table name
-	 * @param array $param parameter array
-	 * @param bool $on_duplicate_update Do an update on a duplicate entry
+	 * @param string $table               Table name
+	 * @param array  $param               parameter array
+	 * @param bool   $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successful?
+	 * @throws \Exception
 	 */
 	public static function insert($table, $param, $on_duplicate_update = false) {
 
@@ -876,6 +892,7 @@ class DBA
 	 * @param string $table Table name
 	 *
 	 * @return boolean was the lock successful?
+	 * @throws \Exception
 	 */
 	public static function lock($table) {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
@@ -908,6 +925,7 @@ class DBA
 	 * @brief Unlocks all locked tables
 	 *
 	 * @return boolean was the unlock successful?
+	 * @throws \Exception
 	 */
 	public static function unlock() {
 		// See here: https://dev.mysql.com/doc/refman/5.7/en/lock-tables-and-transactions.html
@@ -1021,7 +1039,7 @@ class DBA
 	 * This process must only be started once, since the value is cached.
 	 */
 	private static function buildRelationData() {
-		$definition = DBStructure::definition();
+		$definition = DBStructure::definition(self::$basePath);
 
 		foreach ($definition AS $table => $structure) {
 			foreach ($structure['fields'] AS $field => $field_struct) {
@@ -1037,14 +1055,15 @@ class DBA
 	/**
 	 * @brief Delete a row from a table
 	 *
-	 * @param string  $table       Table name
-	 * @param array   $conditions  Field condition(s)
-	 * @param array   $options
-	 *                - cascade: If true we delete records in other tables that depend on the one we're deleting through
+	 * @param string $table      Table name
+	 * @param array  $conditions Field condition(s)
+	 * @param array  $options
+	 *                           - cascade: If true we delete records in other tables that depend on the one we're deleting through
 	 *                           relations (default: true)
-	 * @param array   $callstack   Internal use: prevent endless loops
+	 * @param array  $callstack  Internal use: prevent endless loops
 	 *
 	 * @return boolean was the delete successful?
+	 * @throws \Exception
 	 */
 	public static function delete($table, array $conditions, array $options = [], array &$callstack = [])
 	{
@@ -1095,7 +1114,7 @@ class DBA
 			if ((count($conditions) == 1) && ($field == array_keys($conditions)[0])) {
 				foreach ($rel_def AS $rel_table => $rel_fields) {
 					foreach ($rel_fields AS $rel_field) {
-						$retval = self::delete($rel_table, [$rel_field => array_values($conditions)[0]], $options, $callstack);
+						self::delete($rel_table, [$rel_field => array_values($conditions)[0]], $options, $callstack);
 					}
 				}
 				// We quit when this key already exists in the callstack.
@@ -1203,12 +1222,13 @@ class DBA
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @param string $table Table name
-	 * @param array $fields contains the fields that are updated
-	 * @param array $condition condition array with the key values
+	 * @param string        $table      Table name
+	 * @param array         $fields     contains the fields that are updated
+	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
 	 *
 	 * @return boolean was the update successfull?
+	 * @throws \Exception
 	 */
 	public static function update($table, $fields, $condition, $old_fields = []) {
 
@@ -1270,7 +1290,8 @@ class DBA
 	 * @param array  $condition
 	 * @param array  $params
 	 * @return bool|array
-	 * @see self::select
+	 * @throws \Exception
+	 * @see   self::select
 	 */
 	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
 	{
@@ -1307,6 +1328,7 @@ class DBA
 	 * $params = array("order" => array("id", "received" => true), "limit" => 10);
 	 *
 	 * $data = DBA::select($table, $fields, $condition, $params);
+	 * @throws \Exception
 	 */
 	public static function select($table, array $fields = [], array $condition = [], array $params = [])
 	{
@@ -1336,8 +1358,8 @@ class DBA
 	/**
 	 * @brief Counts the rows from a table satisfying the provided condition
 	 *
-	 * @param string $table Table name
-	 * @param array $condition array of fields for condition
+	 * @param string $table     Table name
+	 * @param array  $condition array of fields for condition
 	 *
 	 * @return int
 	 *
@@ -1349,6 +1371,7 @@ class DBA
 	 * $condition = ["`uid` = ? AND `network` IN (?, ?)", 1, 'dfrn', 'dspr'];
 	 *
 	 * $count = DBA::count($table, $condition);
+	 * @throws \Exception
 	 */
 	public static function count($table, array $condition = [])
 	{
@@ -1461,7 +1484,7 @@ class DBA
 		}
 
 		$limit_string = '';
-		if (isset($params['limit']) && is_int($params['limit'])) {
+		if (isset($params['limit']) && is_numeric($params['limit'])) {
 			$limit_string = " LIMIT " . intval($params['limit']);
 		}
 
@@ -1476,6 +1499,7 @@ class DBA
 	 * @brief Fills an array with data from a query
 	 *
 	 * @param object $stmt statement object
+	 * @param bool   $do_close
 	 * @return array Data array
 	 */
 	public static function toArray($stmt, $do_close = true) {
@@ -1518,7 +1542,6 @@ class DBA
 	 * @return boolean was the close successful?
 	 */
 	public static function close($stmt) {
-		$a = \get_app();
 
 		$stamp1 = microtime(true);
 
@@ -1546,7 +1569,7 @@ class DBA
 				break;
 		}
 
-		$a->saveTimestamp($stamp1, 'database');
+		self::$profiler->saveTimestamp($stamp1, 'database', System::callstack());
 
 		return $ret;
 	}
@@ -1557,13 +1580,12 @@ class DBA
 	 * @return array
 	 *      'list' => List of processes, separated in their different states
 	 *      'amount' => Number of concurrent database processes
+	 * @throws \Exception
 	 */
 	public static function processlist()
 	{
 		$ret = self::p("SHOW PROCESSLIST");
 		$data = self::toArray($ret);
-
-		$s = [];
 
 		$processes = 0;
 		$states = [];

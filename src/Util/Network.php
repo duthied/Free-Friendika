@@ -4,14 +4,13 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Addon;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
-use Friendica\Core\Config;
-use Friendica\Network\CurlResult;
-use Friendica\Util\Strings;
 use DOMDocument;
 use DomXPath;
+use Friendica\Core\Config;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
+use Friendica\Network\CurlResult;
 
 class Network
 {
@@ -32,6 +31,7 @@ class Network
 	 * @param string  $cookiejar      Path to cookie jar file
 	 *
 	 * @return string The fetched content
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
@@ -56,6 +56,7 @@ class Network
 	 * @param string  $cookiejar      Path to cookie jar file
 	 *
 	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
 	{
@@ -87,11 +88,10 @@ class Network
 	 *                           'header' => header array
 	 *
 	 * @return CurlResult
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function curl($url, $binary = false, &$redirects = 0, $opts = [])
 	{
-		$ret = ['return_code' => 0, 'success' => false, 'header' => '', 'info' => '', 'body' => ''];
-
 		$stamp1 = microtime(true);
 
 		$a = \get_app();
@@ -101,6 +101,7 @@ class Network
 			return CurlResult::createErrorCurl(substr($url, 0, 200));
 		}
 
+		$parts2 = [];
 		$parts = parse_url($url);
 		$path_parts = explode('/', defaults($parts, 'path', ''));
 		foreach ($path_parts as $part) {
@@ -231,7 +232,7 @@ class Network
 
 		@curl_close($ch);
 
-		$a->saveTimestamp($stamp1, 'network');
+		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
 
 		return $curlResponse;
 	}
@@ -246,6 +247,7 @@ class Network
 	 * @param integer $timeout   The timeout in seconds, default system config value or 60 seconds
 	 *
 	 * @return CurlResult The content
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function post($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
 	{
@@ -319,7 +321,6 @@ class Network
 
 		$s = @curl_exec($ch);
 
-		$base = $s;
 		$curl_info = curl_getinfo($ch);
 
 		$curlResponse = new CurlResult($url, $s, $curl_info, curl_errno($ch), curl_error($ch));
@@ -333,7 +334,7 @@ class Network
 
 		curl_close($ch);
 
-		$a->saveTimestamp($stamp1, 'network');
+		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
 
 		Logger::log('post_url: end ' . $url, Logger::DATA);
 
@@ -348,6 +349,7 @@ class Network
 	 *
 	 * @param string $url The URL to be validated
 	 * @return string|boolean The actual working URL, false else
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isUrlValid($url)
 	{
@@ -379,6 +381,7 @@ class Network
 	 *
 	 * @param string $addr The email address
 	 * @return boolean True if it's a valid email address, false if it's not
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isEmailDomainValid($addr)
 	{
@@ -410,6 +413,7 @@ class Network
 	 *
 	 * @param string $url URL which get tested
 	 * @return boolean True if url is allowed otherwise return false
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isUrlAllowed($url)
 	{
@@ -484,7 +488,8 @@ class Network
 	 *
 	 * @param  string $email email address
 	 * @return boolean False if not allowed, true if allowed
-	 *    or if allowed list is not configured
+	 *                       or if allowed list is not configured
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isEmailDomainAllowed($email)
 	{
@@ -533,7 +538,7 @@ class Network
 		$avatar['url'] = '';
 		$avatar['success'] = false;
 
-		Addon::callHooks('avatar_lookup', $avatar);
+		Hook::callAll('avatar_lookup', $avatar);
 
 		if (! $avatar['success']) {
 			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';
@@ -598,14 +603,15 @@ class Network
 	 * This function strips tracking query params and follows redirections, either
 	 * through HTTP code or meta refresh tags. Stops after 10 redirections.
 	 *
-	 * @todo Remove the $fetchbody parameter that generates an extraneous HEAD request
+	 * @todo  Remove the $fetchbody parameter that generates an extraneous HEAD request
 	 *
-	 * @see ParseUrl::getSiteinfo
+	 * @see   ParseUrl::getSiteinfo
 	 *
 	 * @param string $url       A user-submitted URL
 	 * @param int    $depth     The current redirection recursion level (internal)
 	 * @param bool   $fetchbody Wether to fetch the body or not after the HEAD requests
 	 * @return string A canonical URL
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function finalUrl($url, $depth = 1, $fetchbody = false)
 	{
@@ -634,7 +640,7 @@ class Network
 		$http_code = $curl_info['http_code'];
 		curl_close($ch);
 
-		$a->saveTimestamp($stamp1, "network");
+		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 		if ($http_code == 0) {
 			return $url;
@@ -676,7 +682,7 @@ class Network
 		$body = curl_exec($ch);
 		curl_close($ch);
 
-		$a->saveTimestamp($stamp1, "network");
+		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 		if (trim($body) == "") {
 			return $url;

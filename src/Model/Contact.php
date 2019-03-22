@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\BaseObject;
 use Friendica\Content\Pager;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -33,56 +32,72 @@ use Friendica\Util\Strings;
 class Contact extends BaseObject
 {
 	/**
-	 * @name page/profile types
-	 *
-	 * PAGE_NORMAL is a typical personal profile account
-	 * PAGE_SOAPBOX automatically approves all friend requests as Contact::SHARING, (readonly)
-	 * PAGE_COMMUNITY automatically approves all friend requests as Contact::SHARING, but with
-	 *      write access to wall and comments (no email and not included in page owner's ACL lists)
-	 * PAGE_FREELOVE automatically approves all friend requests as full friends (Contact::FRIEND).
-	 *
-	 * @{
+	 * @deprecated since version 2019.03
+	 * @see User::PAGE_FLAGS_NORMAL
 	 */
-	const PAGE_NORMAL    = 0;
-	const PAGE_SOAPBOX   = 1;
-	const PAGE_COMMUNITY = 2;
-	const PAGE_FREELOVE  = 3;
-	const PAGE_BLOG      = 4;
-	const PAGE_PRVGROUP  = 5;
+	const PAGE_NORMAL    = User::PAGE_FLAGS_NORMAL;
+	/**
+	 * @deprecated since version 2019.03
+	 * @see User::PAGE_FLAGS_SOAPBOX
+	 */
+	const PAGE_SOAPBOX   = User::PAGE_FLAGS_SOAPBOX;
+	/**
+	 * @deprecated since version 2019.03
+	 * @see User::PAGE_FLAGS_COMMUNITY
+	 */
+	const PAGE_COMMUNITY = User::PAGE_FLAGS_COMMUNITY;
+	/**
+	 * @deprecated since version 2019.03
+	 * @see User::PAGE_FLAGS_FREELOVE
+	 */
+	const PAGE_FREELOVE  = User::PAGE_FLAGS_FREELOVE;
+	/**
+	 * @deprecated since version 2019.03
+	 * @see User::PAGE_FLAGS_BLOG
+	 */
+	const PAGE_BLOG      = User::PAGE_FLAGS_BLOG;
+	/**
+	 * @deprecated since version 2019.03
+	 * @see User::PAGE_FLAGS_PRVGROUP
+	 */
+	const PAGE_PRVGROUP  = User::PAGE_FLAGS_PRVGROUP;
 	/**
 	 * @}
 	 */
 
 	/**
-	 * @name account types
+	 * Account types
 	 *
-	 * ACCOUNT_TYPE_PERSON - the account belongs to a person
+	 * TYPE_UNKNOWN - the account has been imported from gcontact where this is the default type value
+	 *
+	 * TYPE_PERSON - the account belongs to a person
 	 *	Associated page types: PAGE_NORMAL, PAGE_SOAPBOX, PAGE_FREELOVE
 	 *
-	 * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+	 * TYPE_ORGANISATION - the account belongs to an organisation
 	 *	Associated page type: PAGE_SOAPBOX
 	 *
-	 * ACCOUNT_TYPE_NEWS - the account is a news reflector
+	 * TYPE_NEWS - the account is a news reflector
 	 *	Associated page type: PAGE_SOAPBOX
 	 *
-	 * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+	 * TYPE_COMMUNITY - the account is community forum
 	 *	Associated page types: PAGE_COMMUNITY, PAGE_PRVGROUP
 	 *
-	 * ACCOUNT_TYPE_RELAY - the account is a relay
+	 * TYPE_RELAY - the account is a relay
 	 *      This will only be assigned to contacts, not to user accounts
 	 * @{
 	 */
-	const ACCOUNT_TYPE_PERSON =       0;
-	const ACCOUNT_TYPE_ORGANISATION = 1;
-	const ACCOUNT_TYPE_NEWS =         2;
-	const ACCOUNT_TYPE_COMMUNITY =    3;
-	const ACCOUNT_TYPE_RELAY =        4;
+	const TYPE_UNKNOWN =     -1;
+	const TYPE_PERSON =       User::ACCOUNT_TYPE_PERSON;
+	const TYPE_ORGANISATION = User::ACCOUNT_TYPE_ORGANISATION;
+	const TYPE_NEWS =         User::ACCOUNT_TYPE_NEWS;
+	const TYPE_COMMUNITY =    User::ACCOUNT_TYPE_COMMUNITY;
+	const TYPE_RELAY =        User::ACCOUNT_TYPE_RELAY;
 	/**
 	 * @}
 	 */
 
 	/**
-	 * @name Contact_is
+	 * Contact_is
 	 *
 	 * Relationship types
 	 * @{
@@ -101,6 +116,8 @@ class Contact extends BaseObject
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact id a follower?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function isFollower($cid, $uid)
 	{
@@ -119,11 +136,13 @@ class Contact extends BaseObject
 
 	/**
 	 * @brief Get the basepath for a given contact link
-	 * @todo Add functionality to store this value in the contact table
+	 * @todo  Add functionality to store this value in the contact table
 	 *
 	 * @param string $url The contact link
 	 *
 	 * @return string basepath
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getBasepath($url)
 	{
@@ -137,12 +156,31 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Returns the public contact id of the given user id
+	 *
+	 * @param  integer $uid User ID
+	 *
+	 * @return integer|boolean Public contact id for given user id
+	 * @throws Exception
+	 */
+	public static function getPublicIdByUserId($uid)
+	{
+		$self = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
+		if (!DBA::isResult($self)) {
+			return false;
+		}
+		return self::getIdForURL($self['url'], 0, true);
+	}
+
+	/**
 	 * @brief Returns the contact id for the user and the public contact id for a given contact id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
 	 *
 	 * @return array with public and user's contact id
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getPublicAndUserContacID($cid, $uid)
 	{
@@ -180,6 +218,7 @@ class Contact extends BaseObject
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $blocked Is the contact blocked or unblocked?
+	 * @throws \Exception
 	 */
 	public static function setBlockedForUser($cid, $uid, $blocked)
 	{
@@ -193,6 +232,11 @@ class Contact extends BaseObject
 		}
 
 		DBA::update('user-contact', ['blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
+
+		if ($blocked) {
+			// Blocked contact can't be in any group
+			self::removeFromGroups($cid);
+		}
 	}
 
 	/**
@@ -202,6 +246,7 @@ class Contact extends BaseObject
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact id blocked for the given user?
+	 * @throws \Exception
 	 */
 	public static function isBlockedByUser($cid, $uid)
 	{
@@ -241,6 +286,7 @@ class Contact extends BaseObject
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
 	 * @param boolean $ignored Is the contact ignored or unignored?
+	 * @throws \Exception
 	 */
 	public static function setIgnoredForUser($cid, $uid, $ignored)
 	{
@@ -263,6 +309,7 @@ class Contact extends BaseObject
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact id ignored for the given user?
+	 * @throws \Exception
 	 */
 	public static function isIgnoredByUser($cid, $uid)
 	{
@@ -302,6 +349,7 @@ class Contact extends BaseObject
 	 * @param int     $cid       Either public contact id or user's contact id
 	 * @param int     $uid       User ID
 	 * @param boolean $collapsed are the contact's posts collapsed or uncollapsed?
+	 * @throws \Exception
 	 */
 	public static function setCollapsedForUser($cid, $uid, $collapsed)
 	{
@@ -320,6 +368,8 @@ class Contact extends BaseObject
 	 * @param int $uid User ID
 	 *
 	 * @return boolean is the contact id blocked for the given user?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function isCollapsedByUser($cid, $uid)
 	{
@@ -345,6 +395,7 @@ class Contact extends BaseObject
 	 *
 	 * @param int $gid
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function getByGroupId($gid)
 	{
@@ -379,6 +430,7 @@ class Contact extends BaseObject
 	 *
 	 * @param int $gid
 	 * @return int
+	 * @throws \Exception
 	 */
 	public static function getOStatusCountByGroupId($gid)
 	{
@@ -407,6 +459,7 @@ class Contact extends BaseObject
 	 *
 	 * @param int $uid
 	 * @return bool Operation success
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function createSelfFromUserId($uid)
 	{
@@ -451,8 +504,9 @@ class Contact extends BaseObject
 	/**
 	 * Updates the self-contact for the provided user id
 	 *
-	 * @param int $uid
+	 * @param int     $uid
 	 * @param boolean $update_avatar Force the avatar update
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
@@ -483,7 +537,7 @@ class Contact extends BaseObject
 			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
 			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
 
-		$avatar = DBA::selectFirst('photo', ['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
+		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {
 			if ($update_avatar) {
 				$fields['avatar-date'] = DateTimeFormat::utcNow();
@@ -513,8 +567,8 @@ class Contact extends BaseObject
 			$fields['micro'] = System::baseUrl() . '/images/person-48.jpg';
 		}
 
-		$fields['forum'] = $user['page-flags'] == self::PAGE_COMMUNITY;
-		$fields['prv'] = $user['page-flags'] == self::PAGE_PRVGROUP;
+		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
+		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];
@@ -553,6 +607,7 @@ class Contact extends BaseObject
 	 *
 	 * @param int $id contact id
 	 * @return null
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function remove($id)
 	{
@@ -566,7 +621,7 @@ class Contact extends BaseObject
 		DBA::update('contact', ['archive' => true, 'network' => Protocol::PHANTOM, 'deleted' => true], ['id' => $id]);
 
 		// Delete it in the background
-		Worker::add(PRIORITY_LOW, 'RemoveContact', $id);
+		Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $id);
 	}
 
 	/**
@@ -576,6 +631,8 @@ class Contact extends BaseObject
 	 * @param array   $contact  Contact unfriended
 	 * @param boolean $dissolve Remove the contact on the remote side
 	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function terminateFriendship(array $user, array $contact, $dissolve = false)
 	{
@@ -621,12 +678,13 @@ class Contact extends BaseObject
 	 *
 	 * @param array $contact contact to mark for archival
 	 * @return null
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function markForArchival(array $contact)
 	{
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'archive', 'self', 'term-date'];
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact['id']]);
+			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact['id']]);
 			if (!DBA::isResult($contact)) {
 				return;
 			}
@@ -669,10 +727,11 @@ class Contact extends BaseObject
 	/**
 	 * @brief Cancels the archival countdown
 	 *
-	 * @see Contact::markForArchival()
+	 * @see   Contact::markForArchival()
 	 *
 	 * @param array $contact contact to be unmarked for archival
 	 * @return null
+	 * @throws \Exception
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
@@ -688,7 +747,7 @@ class Contact extends BaseObject
 
 		if (!isset($contact['url']) && !empty($contact['id'])) {
 			$fields = ['id', 'url', 'batch'];
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact['id']]);
+			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact['id']]);
 			if (!DBA::isResult($contact)) {
 				return;
 			}
@@ -700,7 +759,7 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
 
 		if (!empty($contact['batch'])) {
-			$condition = ['batch' => $contact['batch'], 'contact-type' => self::ACCOUNT_TYPE_RELAY];
+			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			DBA::update('contact', $fields, $condition);
 		}
 	}
@@ -716,6 +775,7 @@ class Contact extends BaseObject
 	 * @param array  $default If not data was found take this data as default value
 	 *
 	 * @return array Contact data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getDetailsByURL($url, $uid = -1, array $default = [])
 	{
@@ -858,11 +918,11 @@ class Contact extends BaseObject
 	 * @param int    $uid  User id
 	 *
 	 * @return array Contact data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getDetailsByAddr($addr, $uid = -1)
 	{
-		static $cache = [];
-
 		if ($addr == '') {
 			return [];
 		}
@@ -913,17 +973,14 @@ class Contact extends BaseObject
 	 * @param array $contact contact
 	 * @param int   $uid     optional, default 0
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function photoMenu(array $contact, $uid = 0)
 	{
-		// @todo Unused, to be removed
-		$a = \get_app();
-
-		$contact_url = '';
 		$pm_url = '';
 		$status_link = '';
 		$photos_link = '';
-		$posts_link = '';
 		$contact_drop_link = '';
 		$poke_link = '';
 
@@ -949,7 +1006,7 @@ class Contact extends BaseObject
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self']) {
 			$sparkle = true;
-			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
+			$profile_link = System::baseUrl() . '/redir/' . $contact['id'] . '?url=' . $contact['url'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -959,9 +1016,9 @@ class Contact extends BaseObject
 		}
 
 		if ($sparkle) {
-			$status_link = $profile_link . '?url=status';
-			$photos_link = $profile_link . '?url=photos';
-			$profile_link = $profile_link . '?url=profile';
+			$status_link = $profile_link . '?tab=status';
+			$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+			$profile_link = $profile_link . '?tab=profile';
 		}
 
 		if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && !$contact['self']) {
@@ -1007,7 +1064,7 @@ class Contact extends BaseObject
 
 		$args = ['contact' => $contact, 'menu' => &$menu];
 
-		Addon::callHooks('contact_photo_menu', $args);
+		Hook::callAll('contact_photo_menu', $args);
 
 		$menucondensed = [];
 
@@ -1026,11 +1083,9 @@ class Contact extends BaseObject
 	 * Returns either the total number of ungrouped contacts for the given user
 	 * id or a paginated list of ungrouped contacts.
 	 *
-	 * @param int $uid   uid
-	 * @param int $start optional, default 0
-	 * @param int $count optional, default 0
-	 *
+	 * @param int $uid uid
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function getUngroupedList($uid)
 	{
@@ -1074,6 +1129,8 @@ class Contact extends BaseObject
 	 * @param boolean $in_loop   Internally used variable to prevent an endless loop
 	 *
 	 * @return integer Contact ID
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getIdForURL($url, $uid = 0, $no_update = false, $default = [], $in_loop = false)
 	{
@@ -1164,9 +1221,10 @@ class Contact extends BaseObject
 				$contact = DBA::selectFirst('contact', $fields, ['addr' => $url]);
 			}
 
+			// The link could be provided as http although we stored it as https
+			$ssl_url = str_replace('http://', 'https://', $url);
+
 			if (!DBA::isResult($contact)) {
-				// The link could be provided as http although we stored it as https
-				$ssl_url = str_replace('http://', 'https://', $url);
 				$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
 				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
@@ -1193,7 +1251,6 @@ class Contact extends BaseObject
 			$contact_id = self::getIdForURL($data["alias"], $uid, true, $default, true);
 		}
 
-		$url = $data["url"];
 		if (!$contact_id) {
 			$fields = [
 				'uid'       => $uid,
@@ -1331,6 +1388,7 @@ class Contact extends BaseObject
 	 * @param int $cid contact id
 	 *
 	 * @return boolean Is the contact blocked?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isBlocked($cid)
 	{
@@ -1356,6 +1414,7 @@ class Contact extends BaseObject
 	 * @param int $cid contact id
 	 *
 	 * @return boolean Is the contact hidden?
+	 * @throws \Exception
 	 */
 	public static function isHidden($cid)
 	{
@@ -1375,13 +1434,16 @@ class Contact extends BaseObject
 	 *
 	 * @param string $contact_url Contact URL
 	 *
+	 * @param bool   $thread_mode
+	 * @param int    $update
 	 * @return string posts in HTML
+	 * @throws \Exception
 	 */
 	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0)
 	{
 		$a = self::getApp();
 
-		$cid = Self::getIdForURL($contact_url);
+		$cid = self::getIdForURL($contact_url);
 
 		$contact = DBA::selectFirst('contact', ['contact-type', 'network'], ['id' => $cid]);
 		if (!DBA::isResult($contact)) {
@@ -1394,7 +1456,7 @@ class Contact extends BaseObject
 			$sql = "`item`.`uid` = ?";
 		}
 
-		$contact_field = ($contact["contact-type"] == self::ACCOUNT_TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+		$contact_field = ($contact["contact-type"] == self::TYPE_COMMUNITY ? 'owner-id' : 'author-id');
 
 		if ($thread_mode) {
 			$condition = ["`$contact_field` = ? AND `gravity` = ? AND " . $sql,
@@ -1442,17 +1504,17 @@ class Contact extends BaseObject
 	{
 		// There are several fields that indicate that the contact or user is a forum
 		// "page-flags" is a field in the user table,
-		// "forum" and "prv" are used in the contact table. They stand for self::PAGE_COMMUNITY and self::PAGE_PRVGROUP.
-		// "community" is used in the gcontact table and is true if the contact is self::PAGE_COMMUNITY or self::PAGE_PRVGROUP.
-		if ((isset($contact['page-flags']) && (intval($contact['page-flags']) == self::PAGE_COMMUNITY))
-			|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == self::PAGE_PRVGROUP))
+		// "forum" and "prv" are used in the contact table. They stand for User::PAGE_FLAGS_COMMUNITY and User::PAGE_FLAGS_PRVGROUP.
+		// "community" is used in the gcontact table and is true if the contact is User::PAGE_FLAGS_COMMUNITY or User::PAGE_FLAGS_PRVGROUP.
+		if ((isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_COMMUNITY))
+			|| (isset($contact['page-flags']) && (intval($contact['page-flags']) == User::PAGE_FLAGS_PRVGROUP))
 			|| (isset($contact['forum']) && intval($contact['forum']))
 			|| (isset($contact['prv']) && intval($contact['prv']))
 			|| (isset($contact['community']) && intval($contact['community']))
 		) {
-			$type = self::ACCOUNT_TYPE_COMMUNITY;
+			$type = self::TYPE_COMMUNITY;
 		} else {
-			$type = self::ACCOUNT_TYPE_PERSON;
+			$type = self::TYPE_PERSON;
 		}
 
 		// The "contact-type" (contact table) and "account-type" (user table) are more general then the chaos from above.
@@ -1465,15 +1527,15 @@ class Contact extends BaseObject
 		}
 
 		switch ($type) {
-			case self::ACCOUNT_TYPE_ORGANISATION:
+			case self::TYPE_ORGANISATION:
 				$account_type = L10n::t("Organisation");
 				break;
 
-			case self::ACCOUNT_TYPE_NEWS:
+			case self::TYPE_NEWS:
 				$account_type = L10n::t('News');
 				break;
 
-			case self::ACCOUNT_TYPE_COMMUNITY:
+			case self::TYPE_COMMUNITY:
 				$account_type = L10n::t("Forum");
 				break;
 
@@ -1490,6 +1552,7 @@ class Contact extends BaseObject
 	 *
 	 * @param int $uid
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function block($uid)
 	{
@@ -1503,6 +1566,7 @@ class Contact extends BaseObject
 	 *
 	 * @param int $uid
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function unblock($uid)
 	{
@@ -1520,6 +1584,8 @@ class Contact extends BaseObject
 	 * @param bool   $force  force picture update
 	 *
 	 * @return array Returns array of the different avatar sizes
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function updateAvatar($avatar, $uid, $cid, $force = false)
 	{
@@ -1558,25 +1624,35 @@ class Contact extends BaseObject
 	/**
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
+	 * @param boolean $force   Optional forcing of network probing (otherwise we use the cached data)
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function updateFromProbe($id, $network = '')
+	public static function updateFromProbe($id, $network = '', $force = false)
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
 		  This will reliably kill your communication with Friendica contacts.
 		 */
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'batch', 'notify', 'poll', 'poco', 'network'];
+		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
+			'poll', 'request', 'confirm', 'poco', 'network', 'alias'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
 		}
 
-		$ret = Probe::uri($contact["url"], $network);
+		$uid = $contact['uid'];
+		unset($contact['uid']);
+
+		$contact['photo'] = $contact['avatar'];
+		unset($contact['avatar']);
+
+		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
 		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if (($ret["network"] != $contact["network"]) && !in_array($ret["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, $network])) {
+		if ((in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM])) && ($ret['network'] != $contact['network'])) {
 			return false;
 		}
 
@@ -1584,11 +1660,11 @@ class Contact extends BaseObject
 
 		// make sure to not overwrite existing values with blank entries
 		foreach ($ret as $key => $val) {
-			if (isset($contact[$key]) && ($contact[$key] != "") && ($val == "")) {
+			if (!isset($contact[$key])) {
+				unset($ret[$key]);
+			} elseif (($contact[$key] != '') && ($val == '')) {
 				$ret[$key] = $contact[$key];
-			}
-
-			if (isset($contact[$key]) && ($ret[$key] != $contact[$key])) {
+			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
 			}
 		}
@@ -1597,20 +1673,12 @@ class Contact extends BaseObject
 			return true;
 		}
 
-		DBA::update(
-			'contact', [
-				'url'     => $ret['url'],
-				'nurl'    => Strings::normaliseLink($ret['url']),
-				'network' => $ret['network'],
-				'addr'    => $ret['addr'],
-				'alias'   => $ret['alias'],
-				'batch'   => $ret['batch'],
-				'notify'  => $ret['notify'],
-				'poll'    => $ret['poll'],
-				'poco'    => $ret['poco']
-			],
-			['id' => $id]
-		);
+		$ret['nurl'] = Strings::normaliseLink($ret['url']);
+
+		self::updateAvatar($ret['photo'], $uid, $id, true);
+
+		unset($ret['photo']);
+		DBA::update('contact', $ret, ['id' => $id]);
 
 		// Update the corresponding gcontact entry
 		PortableContact::lastUpdated($ret["url"]);
@@ -1634,7 +1702,9 @@ class Contact extends BaseObject
 	 * @param string $url
 	 * @param bool   $interactive
 	 * @param string $network
-	 * @return boolean|string
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function createFromProbe($uid, $url, $interactive = false, $network = '')
 	{
@@ -1705,7 +1775,7 @@ class Contact extends BaseObject
 			}
 		} elseif (Config::get('system', 'dfrn_only') && ($ret['network'] != Protocol::DFRN)) {
 			$result['message'] = L10n::t('This site is not configured to allow communications with other networks.') . EOL;
-			$result['message'] != L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
+			$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
 		}
 
@@ -1849,10 +1919,11 @@ class Contact extends BaseObject
 	/**
 	 * @brief Updated contact's SSL policy
 	 *
-	 * @param array  $contact Contact array
+	 * @param array  $contact    Contact array
 	 * @param string $new_policy New policy, valid: self,full
 	 *
 	 * @return array Contact array with updated values
+	 * @throws \Exception
 	 */
 	public static function updateSslPolicy(array $contact, $new_policy)
 	{
@@ -1951,7 +2022,7 @@ class Contact extends BaseObject
 			/// @TODO Encapsulate this into a function/method
 			$fields = ['uid', 'username', 'email', 'page-flags', 'notify-flags', 'language'];
 			$user = DBA::selectFirst('user', $fields, ['uid' => $importer['uid']]);
-			if (DBA::isResult($user) && !in_array($user['page-flags'], [self::PAGE_SOAPBOX, self::PAGE_FREELOVE, self::PAGE_COMMUNITY])) {
+			if (DBA::isResult($user) && !in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {
 				// create notification
 				$hash = Strings::getRandomHex();
 
@@ -1964,7 +2035,7 @@ class Contact extends BaseObject
 				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
 
 				if (($user['notify-flags'] & NOTIFY_INTRO) &&
-					in_array($user['page-flags'], [self::PAGE_NORMAL])) {
+					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
 
 					notification([
 						'type'         => NOTIFY_INTRO,
@@ -1982,7 +2053,7 @@ class Contact extends BaseObject
 					]);
 
 				}
-			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [self::PAGE_SOAPBOX, self::PAGE_FREELOVE, self::PAGE_COMMUNITY])) {
+			} elseif (DBA::isResult($user) && in_array($user['page-flags'], [User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE, User::PAGE_FLAGS_COMMUNITY])) {
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];
 				DBA::update('contact', ['pending' => false], $condition);
 
@@ -2056,6 +2127,7 @@ class Contact extends BaseObject
 	 * Remove the unavailable contact ids from the provided list
 	 *
 	 * @param array $contact_ids Contact id list
+	 * @throws \Exception
 	 */
 	public static function pruneUnavailable(array &$contact_ids)
 	{
@@ -2080,12 +2152,14 @@ class Contact extends BaseObject
 	/**
 	 * @brief Returns a magic link to authenticate remote visitors
 	 *
-	 * @todo check if the return is either a fully qualified URL or a relative path to Friendica basedir
+	 * @todo  check if the return is either a fully qualified URL or a relative path to Friendica basedir
 	 *
 	 * @param string $contact_url The address of the target contact profile
-	 * @param string $url An url that we will be redirected to after the authentication
+	 * @param string $url         An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
@@ -2105,26 +2179,30 @@ class Contact extends BaseObject
 	 * @brief Returns a magic link to authenticate remote visitors
 	 *
 	 * @param integer $cid The contact id of the target contact profile
-	 * @param integer $url An url that we will be redirected to after the authentication
+	 * @param string  $url An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function magicLinkbyId($cid, $url = '')
 	{
 		$contact = DBA::selectFirst('contact', ['id', 'network', 'url', 'uid'], ['id' => $cid]);
 
-		return self::magicLinkbyContact($contact, $url);
+		return self::magicLinkByContact($contact, $url);
 	}
 
 	/**
 	 * @brief Returns a magic link to authenticate remote visitors
 	 *
-	 * @param array $contact The contact array with "uid", "network" and "url"
-	 * @param string $url An url that we will be redirected to after the authentication
+	 * @param array  $contact The contact array with "uid", "network" and "url"
+	 * @param string $url     An url that we will be redirected to after the authentication
 	 *
 	 * @return string with "redir" link
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function magicLinkbyContact($contact, $url = '')
+	public static function magicLinkByContact($contact, $url = '')
 	{
 		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
@@ -2146,5 +2224,37 @@ class Contact extends BaseObject
 		}
 
 		return $redirect;
+	}
+
+	/**
+	 * Remove a contact from all groups
+	 *
+	 * @param integer $contact_id
+	 *
+	 * @return boolean Success
+	 */
+	public static function removeFromGroups($contact_id)
+	{
+		return DBA::delete('group_member', ['contact-id' => $contact_id]);
+	}
+
+	/**
+	 * Is the contact a forum?
+	 *
+	 * @param integer $contactid ID of the contact
+	 *
+	 * @return boolean "true" if it is a forum
+	 */
+	public static function isForum($contactid)
+	{
+		$fields = ['forum', 'prv'];
+		$condition = ['id' => $contactid];
+		$contact = DBA::selectFirst('contact', $fields, $condition);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
+
+		// Is it a forum?
+		return ($contact['forum'] || $contact['prv']);
 	}
 }

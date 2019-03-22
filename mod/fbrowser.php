@@ -14,22 +14,22 @@ use Friendica\Object\Image;
 
 /**
  * @param App $a
+ * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function fbrowser_content(App $a)
 {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	if ($a->argc == 1) {
-		killme();
+		exit();
 	}
 
 	$template_file = "filebrowser.tpl";
-	$mode = "";
-	if (!empty($_GET['mode'])) {
-		$mode  = "?mode=".$_GET['mode'];
-	}
+
+	$o = '';
 
 	switch ($a->argv[1]) {
 		case "image":
@@ -53,12 +53,11 @@ function fbrowser_content(App $a)
 				$albums = array_map("_map_folder1", $albums);
 			}
 
-			$album = "";
-			if ($a->argc==3) {
+			if ($a->argc == 3) {
 				$album = hex2bin($a->argv[2]);
 				$sql_extra = sprintf("AND `album` = '%s' ", DBA::escape($album));
 				$sql_extra2 = "";
-				$path[]=[$a->argv[2], $album];
+				$path[] = [$a->argv[2], $album];
 			}
 
 			$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
@@ -116,8 +115,7 @@ function fbrowser_content(App $a)
 
 				function _map_files2($rr)
 				{
-					$a = \get_app();
-					list($m1,$m2) = explode("/", $rr['filetype']);
+					list($m1, $m2) = explode("/", $rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
 
@@ -146,6 +144,6 @@ function fbrowser_content(App $a)
 		return $o;
 	} else {
 		echo $o;
-		killme();
+		exit();
 	}
 }

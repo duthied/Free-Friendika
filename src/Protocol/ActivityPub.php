@@ -4,6 +4,7 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
@@ -49,7 +50,7 @@ class ActivityPub
 	/**
 	 * Checks if the web request is done for the AP protocol
 	 *
-	 * @return is it AP?
+	 * @return bool is it AP?
 	 */
 	public static function isRequest()
 	{
@@ -63,6 +64,7 @@ class ActivityPub
 	 * @param string  $url content url
 	 * @param integer $uid User ID for the signature
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchContent($url, $uid = 0)
 	{
@@ -89,6 +91,8 @@ class ActivityPub
 	 *
 	 * @param string $url profile url
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function probeProfile($url)
 	{
@@ -128,8 +132,9 @@ class ActivityPub
 	/**
 	 * Fetches activities from the outbox of a given profile and processes it
 	 *
-	 * @param string $url
+	 * @param string  $url
 	 * @param integer $uid User ID
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchOutbox($url, $uid)
 	{

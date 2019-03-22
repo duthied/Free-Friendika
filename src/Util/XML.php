@@ -6,6 +6,7 @@ namespace Friendica\Util;
 
 use Friendica\Core\Logger;
 use DOMXPath;
+use Friendica\Core\System;
 use SimpleXMLElement;
 
 /**
@@ -135,14 +136,14 @@ class XML
 	/**
 	 * @brief Create an XML element
 	 *
-	 * @param object $doc        XML root
-	 * @param string $element    XML element name
-	 * @param string $value      XML value
-	 * @param array  $attributes array containing the attributes
+	 * @param \DOMDocument $doc        XML root
+	 * @param string       $element    XML element name
+	 * @param string       $value      XML value
+	 * @param array        $attributes array containing the attributes
 	 *
-	 * @return object XML element object
+	 * @return \DOMElement XML element object
 	 */
-	public static function createElement($doc, $element, $value = "", $attributes = [])
+	public static function createElement(\DOMDocument $doc, $element, $value = "", $attributes = [])
 	{
 		$element = $doc->createElement($element, self::escape($value));
 
@@ -157,14 +158,14 @@ class XML
 	/**
 	 * @brief Create an XML and append it to the parent object
 	 *
-	 * @param object $doc        XML root
+	 * @param \DOMDocument $doc        XML root
 	 * @param object $parent     parent object
 	 * @param string $element    XML element name
 	 * @param string $value      XML value
 	 * @param array  $attributes array containing the attributes
 	 * @return void
 	 */
-	public static function addElement($doc, $parent, $element, $value = "", $attributes = [])
+	public static function addElement(\DOMDocument $doc, $parent, $element, $value = "", $attributes = [])
 	{
 		$element = self::createElement($doc, $element, $value, $attributes);
 		$parent->appendChild($element);
@@ -230,17 +231,18 @@ class XML
 	 * (namespaces, lowercase tags, get_attribute default changed, more...)
 	 *
 	 * Examples: $array =  Xml::toArray(file_get_contents('feed.xml'));
-	 *		$array =  Xml::toArray(file_get_contents('feed.xml', true, 1, 'attribute'));
+	 *        $array =  Xml::toArray(file_get_contents('feed.xml', true, 1, 'attribute'));
 	 *
-	 * @param object  $contents       The XML text
-	 * @param boolean $namespaces     True or false include namespace information
-	 *	                              in the returned array as array elements.
-	 * @param integer $get_attributes 1 or 0. If this is 1 the function will get the attributes as well as the tag values -
-	 *	                              this results in a different array structure in the return value.
-	 * @param string  $priority       Can be 'tag' or 'attribute'. This will change the way the resulting
-	 *	                              array sturcture. For 'tag', the tags are given more importance.
+	 * @param object  $contents         The XML text
+	 * @param boolean $namespaces       True or false include namespace information
+	 *                                  in the returned array as array elements.
+	 * @param integer $get_attributes   1 or 0. If this is 1 the function will get the attributes as well as the tag values -
+	 *                                  this results in a different array structure in the return value.
+	 * @param string  $priority         Can be 'tag' or 'attribute'. This will change the way the resulting
+	 *                                  array sturcture. For 'tag', the tags are given more importance.
 	 *
 	 * @return array The parsed XML in an array form. Use print_r() to see the resulting array structure.
+	 * @throws \Exception
 	 */
 	public static function toArray($contents, $namespaces = true, $get_attributes = 1, $priority = 'attribute')
 	{
@@ -286,9 +288,6 @@ class XML
 
 		//Initializations
 		$xml_array = [];
-		$parents = [];
-		$opened_tags = [];
-		$arr = [];
 
 		$current = &$xml_array; // Reference
 
@@ -404,11 +403,11 @@ class XML
 	/**
 	 * @brief Delete a node in a XML object
 	 *
-	 * @param object $doc  XML document
+	 * @param \DOMDocument $doc  XML document
 	 * @param string $node Node name
 	 * @return void
 	 */
-	public static function deleteNode(&$doc, $node)
+	public static function deleteNode(\DOMDocument $doc, $node)
 	{
 		$xpath = new DOMXPath($doc);
 		$list = $xpath->query("//".$node);
@@ -424,16 +423,17 @@ class XML
 
 		$x = @simplexml_load_string($s);
 		if (!$x) {
-			Logger::log('libxml: parse: error: ' . $s, Logger::DATA);
+			Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
 			foreach (libxml_get_errors() as $err) {
-				Logger::log('libxml: parse: ' . $err->code." at ".$err->line.":".$err->column." : ".$err->message, Logger::DATA);
+				Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ":" . $err->column, 'message' => $err->message]);
 			}
+			Logger::debug('Erroring XML string', ['xml' => $s]);
 			libxml_clear_errors();
 		}
 		return $x;
 	}
 
-	public static function getFirstNodeValue($xpath, $element, $context = null)
+	public static function getFirstNodeValue(DOMXPath $xpath, $element, $context = null)
 	{
 		$result = $xpath->evaluate($element, $context);
 		if (!is_object($result)) {
@@ -448,7 +448,7 @@ class XML
 		return $first_item->nodeValue;
 	}
 
-	public static function getFirstAttributes($xpath, $element, $context = null)
+	public static function getFirstAttributes(DOMXPath $xpath, $element, $context = null)
 	{
 		$result = $xpath->query($element, $context);
 		if (!is_object($result)) {

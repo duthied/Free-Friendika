@@ -4,7 +4,9 @@ namespace Friendica\Test\Util;
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Render\FriendicaSmartyEngine;
+use Friendica\Util\Profiler;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStreamDirectory;
 
@@ -13,12 +15,20 @@ use org\bovigo\vfs\vfsStreamDirectory;
  */
 trait AppMockTrait
 {
-	use ConfigMockTrait;
-
 	/**
 	 * @var MockInterface|App The mocked Friendica\App
 	 */
 	protected $app;
+
+	/**
+	 * @var MockInterface|Config\Configuration The mocked Config Cache
+	 */
+	protected $configMock;
+
+	/**
+	 * @var MockInterface|Profiler The mocked profiler
+	 */
+	protected $profilerMock;
 
 	/**
 	 * Mock the App
@@ -27,7 +37,14 @@ trait AppMockTrait
 	 */
 	public function mockApp($root)
 	{
-		$this->mockConfigGet('system', 'theme', 'testtheme');
+		$this->configMock = \Mockery::mock(Config\Cache\IConfigCache::class);
+		$configAdapterMock = \Mockery::mock(Config\Adapter\IConfigAdapter::class);
+		// Disable the adapter
+		$configAdapterMock->shouldReceive('isConnected')->andReturn(false);
+
+		$config = new Config\Configuration($this->configMock, $configAdapterMock);
+		// Initialize empty Config
+		Config::init($config);
 
 		// Mocking App and most used functions
 		$this->app = \Mockery::mock(App::class);
@@ -35,22 +52,40 @@ trait AppMockTrait
 			->shouldReceive('getBasePath')
 			->andReturn($root->url());
 
-		$this->app
-			->shouldReceive('getConfigValue')
+		$this->configMock
+			->shouldReceive('has')
+			->andReturn(true);
+		$this->configMock
+			->shouldReceive('get')
 			->with('database', 'hostname')
 			->andReturn(getenv('MYSQL_HOST'));
-		$this->app
-			->shouldReceive('getConfigValue')
+		$this->configMock
+			->shouldReceive('get')
 			->with('database', 'username')
 			->andReturn(getenv('MYSQL_USERNAME'));
-		$this->app
-			->shouldReceive('getConfigValue')
+		$this->configMock
+			->shouldReceive('get')
 			->with('database', 'password')
 			->andReturn(getenv('MYSQL_PASSWORD'));
-		$this->app
-			->shouldReceive('getConfigValue')
+		$this->configMock
+			->shouldReceive('get')
 			->with('database', 'database')
 			->andReturn(getenv('MYSQL_DATABASE'));
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'hostname')
+			->andReturn('localhost');
+		$this->configMock
+			->shouldReceive('get')
+			->with('system', 'theme')
+			->andReturn('system_theme');
+
+		$this->profilerMock = \Mockery::mock(Profiler::class);
+		$this->profilerMock->shouldReceive('saveTimestamp');
+
+		$this->app
+			->shouldReceive('getConfigCache')
+			->andReturn($this->configMock);
 		$this->app
 			->shouldReceive('getTemplateEngine')
 			->andReturn(new FriendicaSmartyEngine());
@@ -58,11 +93,11 @@ trait AppMockTrait
 			->shouldReceive('getCurrentTheme')
 			->andReturn('Smarty3');
 		$this->app
-			->shouldReceive('saveTimestamp')
-			->andReturn(true);
-		$this->app
 			->shouldReceive('getBaseUrl')
 			->andReturn('http://friendica.local');
+		$this->app
+			->shouldReceive('getProfiler')
+			->andReturn($this->profilerMock);
 
 		BaseObject::setApp($this->app);
 	}

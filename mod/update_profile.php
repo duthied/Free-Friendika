@@ -8,8 +8,7 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
-
-require_once 'mod/profile.php';
+use Friendica\Module\Profile;
 
 function update_profile_content(App $a) {
 
@@ -29,7 +28,7 @@ function update_profile_content(App $a) {
 	 * on the client side and then swap the image back.
 	 */
 
-	$text = profile_content($a, $profile_uid);
+	$text = Profile::content($profile_uid);
 
 	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />".L10n::t("[Embedded content - reload page to view]")."<br />";
@@ -47,5 +46,5 @@ function update_profile_content(App $a) {
 	echo str_replace("\t", "       ", $text);
 	echo "</section>";
 	echo "</body></html>\r\n";
-	killme();
+	exit();
 }

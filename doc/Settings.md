@@ -101,6 +101,32 @@ Default is false.
 
 ### File upload
 
+#### File storage backend
+
+Set the backend used by Friendica to store uploaded file data.
+Two storage backends are avaiable with Friendica:
+
+- **Database** : Data is stored in a dedicated table in database (`storage`)
+- **Filesystem** : Data is stored as file on the filesystem.
+
+More storage backends can be avaiable from third-party addons.
+If you use those, please refer to the documentation of those addons for further information.
+
+Default value is 'Database (legacy)': it's the legacy way used to store data directly in database.
+
+Existing data can be moved to the current active backend using the ['storage move' console command](help/tools)
+
+If selected backend has configurable options, new fields are shown here.
+
+##### Filesystem: Storage base path
+
+The base path where Filesystem storage backend saves data.
+
+For maximum security, this path should be outside the folder tree served by the web server: this way files can't be downloaded bypassing the privacy checks.
+
+Default value is `storage`, that is the `storage` folder in Friendica code root folder.
+
+
 #### Maximum Image Size
 
 Maximum size in bytes of uploaded images.

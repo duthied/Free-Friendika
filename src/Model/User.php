@@ -7,7 +7,6 @@ namespace Friendica\Model;
 
 use DivineOmega\PasswordExposed;
 use Exception;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -30,10 +29,60 @@ use LightOpenID;
 class User
 {
 	/**
+	 * Page/profile types
+	 *
+	 * PAGE_FLAGS_NORMAL is a typical personal profile account
+	 * PAGE_FLAGS_SOAPBOX automatically approves all friend requests as Contact::SHARING, (readonly)
+	 * PAGE_FLAGS_COMMUNITY automatically approves all friend requests as Contact::SHARING, but with
+	 *      write access to wall and comments (no email and not included in page owner's ACL lists)
+	 * PAGE_FLAGS_FREELOVE automatically approves all friend requests as full friends (Contact::FRIEND).
+	 *
+	 * @{
+	 */
+	const PAGE_FLAGS_NORMAL    = 0;
+	const PAGE_FLAGS_SOAPBOX   = 1;
+	const PAGE_FLAGS_COMMUNITY = 2;
+	const PAGE_FLAGS_FREELOVE  = 3;
+	const PAGE_FLAGS_BLOG      = 4;
+	const PAGE_FLAGS_PRVGROUP  = 5;
+	/**
+	 * @}
+	 */
+
+	/**
+	 * Account types
+	 *
+	 * ACCOUNT_TYPE_PERSON - the account belongs to a person
+	 *	Associated page types: PAGE_FLAGS_NORMAL, PAGE_FLAGS_SOAPBOX, PAGE_FLAGS_FREELOVE
+	 *
+	 * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+	 *	Associated page type: PAGE_FLAGS_SOAPBOX
+	 *
+	 * ACCOUNT_TYPE_NEWS - the account is a news reflector
+	 *	Associated page type: PAGE_FLAGS_SOAPBOX
+	 *
+	 * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+	 *	Associated page types: PAGE_COMMUNITY, PAGE_FLAGS_PRVGROUP
+	 *
+	 * ACCOUNT_TYPE_RELAY - the account is a relay
+	 *      This will only be assigned to contacts, not to user accounts
+	 * @{
+	 */
+	const ACCOUNT_TYPE_PERSON =       0;
+	const ACCOUNT_TYPE_ORGANISATION = 1;
+	const ACCOUNT_TYPE_NEWS =         2;
+	const ACCOUNT_TYPE_COMMUNITY =    3;
+	const ACCOUNT_TYPE_RELAY =        4;
+	/**
+	 * @}
+	 */
+
+	/**
 	 * Returns true if a user record exists with the provided id
 	 *
 	 * @param  integer $uid
 	 * @return boolean
+	 * @throws Exception
 	 */
 	public static function exists($uid)
 	{
@@ -43,6 +92,7 @@ class User
 	/**
 	 * @param  integer       $uid
 	 * @return array|boolean User record if it exists, false otherwise
+	 * @throws Exception
 	 */
 	public static function getById($uid)
 	{
@@ -55,6 +105,7 @@ class User
 	 * @param string $url
 	 *
 	 * @return integer user id
+	 * @throws Exception
 	 */
 	public static function getIdForURL($url)
 	{
@@ -71,6 +122,7 @@ class User
 	 *
 	 * @param int $uid
 	 * @return boolean|array
+	 * @throws Exception
 	 */
 	public static function getOwnerDataById($uid) {
 		$r = DBA::fetchFirst("SELECT
@@ -82,7 +134,8 @@ class User
 			`user`.`spubkey`,
 			`user`.`page-flags`,
 			`user`.`account-type`,
-			`user`.`prvnets`
+			`user`.`prvnets`,
+			`user`.`account_removed`
 			FROM `contact`
 			INNER JOIN `user`
 				ON `user`.`uid` = `contact`.`uid`
@@ -115,6 +168,7 @@ class User
 	 *
 	 * @param int $nick
 	 * @return boolean|array
+	 * @throws Exception
 	 */
 	public static function getOwnerDataByNick($nick)
 	{
@@ -134,6 +188,7 @@ class User
 	 * @param string $network network name
 	 *
 	 * @return int group id
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getDefaultGroup($uid, $network = '')
 	{
@@ -364,6 +419,7 @@ class User
 	 * @param int    $uid
 	 * @param string $pasword_hashed
 	 * @return bool
+	 * @throws Exception
 	 */
 	private static function updatePasswordHashed($uid, $pasword_hashed)
 	{
@@ -385,6 +441,7 @@ class User
 	 *
 	 * @param string $nickname The nickname that should be checked
 	 * @return boolean True is the nickname is blocked on the node
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isNicknameBlocked($nickname)
 	{
@@ -422,6 +479,7 @@ class User
 	 * @return array
 	 * @throws \ErrorException
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 * @throws Exception
 	 */
 	public static function create(array $data)
@@ -430,7 +488,6 @@ class User
 		$return = ['user' => null, 'password' => ''];
 
 		$using_invites = Config::get('system', 'invitation_only');
-		$num_invites   = Config::get('system', 'number_invites');
 
 		$invite_id  = !empty($data['invite_id'])  ? Strings::escapeTags(trim($data['invite_id']))  : '';
 		$username   = !empty($data['username'])   ? Strings::escapeTags(trim($data['username']))   : '';
@@ -492,8 +549,6 @@ class User
 		if (!Network::isUrlValid($openid_url)) {
 			$openid_url = '';
 		}
-
-		$err = '';
 
 		// collapse multiple spaces in name
 		$username = preg_replace('/ +/', ' ', $username);
@@ -701,12 +756,12 @@ class User
 				}
 
 				if (!$photo_failure) {
-					DBA::update('photo', ['profile' => 1], ['resource-id' => $hash]);
+					Photo::update(['profile' => 1], ['resource-id' => $hash]);
 				}
 			}
 		}
 
-		Addon::callHooks('register_account', $uid);
+		Hook::callAll('register_account', $uid);
 
 		$return['user'] = $user;
 		return $return;
@@ -720,6 +775,7 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
@@ -755,6 +811,7 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
@@ -807,15 +864,14 @@ class User
 
 	/**
 	 * @param object $uid user to remove
-	 * @return void
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function remove($uid)
 	{
 		if (!$uid) {
 			return false;
 		}
-
-		$a = \get_app();
 
 		Logger::log('Removing user: ' . $uid);
 
@@ -836,7 +892,7 @@ class User
 		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_LOW, 'RemoveUser', $uid);
+		Worker::add(PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
 		return true;
 	}
@@ -848,18 +904,19 @@ class User
 	 * @return array All identities for this user
 	 *
 	 * Example for a return:
-	 * 	[
-	 * 		[
-	 * 			'uid' => 1,
-	 * 			'username' => 'maxmuster',
-	 * 			'nickname' => 'Max Mustermann'
-	 * 		],
-	 * 		[
-	 * 			'uid' => 2,
-	 * 			'username' => 'johndoe',
-	 * 			'nickname' => 'John Doe'
-	 * 		]
-	 * 	]
+	 *    [
+	 *        [
+	 *            'uid' => 1,
+	 *            'username' => 'maxmuster',
+	 *            'nickname' => 'Max Mustermann'
+	 *        ],
+	 *        [
+	 *            'uid' => 2,
+	 *            'username' => 'johndoe',
+	 *            'nickname' => 'John Doe'
+	 *        ]
+	 *    ]
+	 * @throws Exception
 	 */
 	public static function identities($uid)
 	{

@@ -6,11 +6,12 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\Core\Renderer;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 
 /**
@@ -47,6 +48,7 @@ class Installer
 	 * Returns the PHP path
 	 *
 	 * @return string the PHP Path
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function getPHPPath()
 	{
@@ -79,10 +81,11 @@ class Installer
 	/**
 	 * Checks the current installation environment. There are optional and mandatory checks.
 	 *
-	 * @param string $baseurl     The baseurl of Friendica
-	 * @param string $phpath      Optional path to the PHP binary
+	 * @param string $baseurl The baseurl of Friendica
+	 * @param string $phpath  Optional path to the PHP binary
 	 *
 	 * @return bool if the check succeed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function checkEnvironment($baseurl, $phpath = null)
 	{
@@ -126,18 +129,19 @@ class Installer
 	 * - Creates `config/local.config.php`
 	 * - Installs Database Structure
 	 *
-	 * @param string 	$phppath 	Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
-	 * @param string 	$urlpath 	Path based on the URL of Friendica (e.g. '/friendica')
-	 * @param string 	$dbhost 	Hostname/IP of the Friendica Database
-	 * @param string 	$dbuser 	Username of the Database connection credentials
-	 * @param string 	$dbpass 	Password of the Database connection credentials
-	 * @param string 	$dbdata 	Name of the Database
-	 * @param string 	$timezone 	Timezone of the Friendica Installaton (e.g. 'Europe/Berlin')
-	 * @param string 	$language 	2-letter ISO 639-1 code (eg. 'en')
-	 * @param string 	$adminmail 	Mail-Adress of the administrator
-	 * @param string 	$basepath   The basepath of Friendica
+	 * @param string $phppath   Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
+	 * @param string $urlpath   Path based on the URL of Friendica (e.g. '/friendica')
+	 * @param string $dbhost    Hostname/IP of the Friendica Database
+	 * @param string $dbuser    Username of the Database connection credentials
+	 * @param string $dbpass    Password of the Database connection credentials
+	 * @param string $dbdata    Name of the Database
+	 * @param string $timezone  Timezone of the Friendica Installaton (e.g. 'Europe/Berlin')
+	 * @param string $language  2-letter ISO 639-1 code (eg. 'en')
+	 * @param string $adminmail Mail-Adress of the administrator
+	 * @param string $basepath  The basepath of Friendica
 	 *
 	 * @return bool true if the config was created, otherwise false
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
 	{
@@ -166,11 +170,14 @@ class Installer
 	/***
 	 * Installs the DB-Scheme for Friendica
 	 *
+	 * @param string $basePath The base path of this application
+	 *
 	 * @return bool true if the installation was successful, otherwise false
+	 * @throws Exception
 	 */
-	public function installDatabase()
+	public function installDatabase($basePath)
 	{
-		$result = DBStructure::update(false, true, true);
+		$result = DBStructure::update($basePath, false, true, true);
 
 		if ($result) {
 			$txt = L10n::t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
@@ -212,16 +219,15 @@ class Installer
 	 * - Checks if a PHP binary is available
 	 * - Checks if it is the CLI version
 	 * - Checks if "register_argc_argv" is enabled
- 	 *
-	 * @param string $phppath Optional. The Path to the PHP-Binary
+	 *
+	 * @param string $phppath  Optional. The Path to the PHP-Binary
 	 * @param bool   $required Optional. If set to true, the PHP-Binary has to exist (Default false)
 	 *
 	 * @return bool false if something required failed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function checkPHP($phppath = null, $required = false)
 	{
-		$passed = false;
-		$passed2 = false;
 		$passed3 = false;
 
 		if (!isset($phppath)) {
@@ -352,6 +358,7 @@ class Installer
 	 * - mb_string
 	 * - XML
 	 * - iconv
+	 * - fileinfo
 	 * - POSIX
 	 *
 	 * @return bool false if something required failed
@@ -390,7 +397,7 @@ class Installer
 		$help = '';
 		$status = true;
 		try {
-			$xml = new DOMDocument();
+			new DOMDocument();
 		} catch (Exception $e) {
 			$help = L10n::t('Error, XML PHP module required but not installed.');
 			$status = false;
@@ -443,6 +450,13 @@ class Installer
 		$status = $this->checkFunction('json_encode',
 			L10n::t('JSON PHP module'),
 			L10n::t('Error: JSON PHP module required but not installed.'),
+			true
+		);
+		$returnVal = $returnVal ? $status : false;
+
+		$status = $this->checkFunction('finfo_open',
+			L10n::t('File Information PHP module'),
+			L10n::t('Error: File Information PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
@@ -507,8 +521,9 @@ class Installer
 	 *
 	 * Checks, if "url_rewrite" is enabled in the ".htaccess" file
 	 *
-	 * @param string $baseurl    The baseurl of the app
+	 * @param string $baseurl The baseurl of the app
 	 * @return bool false if something required failed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function checkHtAccess($baseurl)
 	{
@@ -576,16 +591,20 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
-	 * @param string 	$dbhost 	Hostname/IP of the Friendica Database
-	 * @param string 	$dbuser 	Username of the Database connection credentials
-	 * @param string 	$dbpass 	Password of the Database connection credentials
-	 * @param string 	$dbdata 	Name of the Database
+	 * @param string       $basePath    The basepath of this call
+	 * @param IConfigCache $configCache The configuration cache
+	 * @param Profiler    $profiler    The profiler of this app
+	 * @param string $dbhost           Hostname/IP of the Friendica Database
+	 * @param string $dbuser           Username of the Database connection credentials
+	 * @param string $dbpass           Password of the Database connection credentials
+	 * @param string $dbdata           Name of the Database
 	 *
 	 * @return bool true if the check was successful, otherwise false
+	 * @throws Exception
 	 */
-	public function checkDB($dbhost, $dbuser, $dbpass, $dbdata)
+	public function checkDB($basePath, IConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
 	{
-		if (!DBA::connect($dbhost, $dbuser, $dbpass, $dbdata)) {
+		if (!DBA::connect($basePath, $configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 
 			return false;

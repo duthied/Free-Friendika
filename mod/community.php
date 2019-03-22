@@ -14,6 +14,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 
 function community_init(App $a)
 {
@@ -44,16 +45,16 @@ function community_content(App $a, $update = 0)
 	if ($a->argc > 2) {
 		switch ($a->argv[2]) {
 			case 'person':
-				$accounttype = Contact::ACCOUNT_TYPE_PERSON;
+				$accounttype = User::ACCOUNT_TYPE_PERSON;
 				break;
 			case 'organisation':
-				$accounttype = Contact::ACCOUNT_TYPE_ORGANISATION;
+				$accounttype = User::ACCOUNT_TYPE_ORGANISATION;
 				break;
 			case 'news':
-				$accounttype = Contact::ACCOUNT_TYPE_NEWS;
+				$accounttype = User::ACCOUNT_TYPE_NEWS;
 				break;
 			case 'community':
-				$accounttype = Contact::ACCOUNT_TYPE_COMMUNITY;
+				$accounttype = User::ACCOUNT_TYPE_COMMUNITY;
 				break;
 		}
 	}
@@ -218,9 +219,9 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 		}
 
 		$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link` FROM `thread`
-			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
-			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin` $sql_accounttype
 			ORDER BY `thread`.`commented` DESC LIMIT ?, ?", $values);

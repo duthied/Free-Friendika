@@ -4,10 +4,9 @@
  */
 use Friendica\App;
 use Friendica\Core\Authentication;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 
 function manage_post(App $a) {
@@ -116,7 +115,7 @@ function manage_post(App $a) {
 	}
 
 	$ret = [];
-	Addon::callHooks('home_init',$ret);
+	Hook::callAll('home_init',$ret);
 
 	$a->internalRedirect('profile/' . $a->user['nickname'] );
 	// NOTREACHED

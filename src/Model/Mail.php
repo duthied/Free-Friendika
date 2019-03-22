@@ -25,6 +25,8 @@ class Mail
 	 * @param string  $body      message body, default empty
 	 * @param string  $subject   message subject, default empty
 	 * @param string  $replyto   reply to
+	 * @return int
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function send($recipient = 0, $body = '', $subject = '', $replyto = '')
 	{
@@ -141,7 +143,7 @@ class Mail
 					}
 					$image_uri = substr($image, strrpos($image, '/') + 1);
 					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					DBA::update('photo', ['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
+					Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}
@@ -155,12 +157,15 @@ class Mail
 	}
 
 	/**
-	 * @param string $recipient recipient, default empty
+	 * @param array  $recipient recipient, default empty
 	 * @param string $body      message body, default empty
 	 * @param string $subject   message subject, default empty
 	 * @param string $replyto   reply to, default empty
+	 * @return int
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function sendWall($recipient = '', $body = '', $subject = '', $replyto = '')
+	public static function sendWall(array $recipient = [], $body = '', $subject = '', $replyto = '')
 	{
 		if (!$recipient) {
 			return -1;

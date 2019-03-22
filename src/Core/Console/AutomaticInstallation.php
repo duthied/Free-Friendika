@@ -7,8 +7,6 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
-use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use RuntimeException;
 
 class AutomaticInstallation extends Console
@@ -102,10 +100,10 @@ HELP;
 				}
 			}
 
-			$db_host = $a->getConfigValue('database', 'hostname');
-			$db_user = $a->getConfigValue('database', 'username');
-			$db_pass = $a->getConfigValue('database', 'password');
-			$db_data = $a->getConfigValue('database', 'database');
+			$db_host = $a->getConfigCache()->get('database', 'hostname');
+			$db_user = $a->getConfigCache()->get('database', 'username');
+			$db_pass = $a->getConfigCache()->get('database', 'password');
+			$db_data = $a->getConfigCache()->get('database', 'database');
 		} else {
 			// Creating config file
 			$this->out("Creating config file...\n");
@@ -148,7 +146,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->checkDB($db_host, $db_user, $db_pass, $db_data)) {
+		if (!$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $db_host, $db_user, $db_pass, $db_data)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -160,7 +158,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->installDatabase()) {
+		if (!$installer->installDatabase($a->getBasePath())) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -185,6 +183,7 @@ HELP;
 	 * @param Installer $installer the Installer instance
 	 *
 	 * @return bool true if checks were successfully, otherwise false
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function runBasicChecks(Installer $installer)
 	{

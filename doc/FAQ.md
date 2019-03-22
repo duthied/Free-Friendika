@@ -8,6 +8,7 @@ User
 * **[Why do I getting warnings about certificates?](help/FAQ#ssl)**
 * **[How can I upload images, files, links, videos and sound files to posts?](help/FAQ#upload)**
 * **[Is it possible to have different avatars per profile?](help/FAQ#avatars)**
+* **[How can I view Friendica in a certain language?](help/FAQ#language)**
 * **[What is the difference between blocked|ignored|archived|hidden contacts?](help/FAQ#contacts)**
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
@@ -74,6 +75,33 @@ Yes.
 On your Edit/Manage Profiles page, you will find a "change profile photo" link.
 Clicking this will take you to a page where you can upload a photograph and select which profile it will be associated with.
 To avoid privacy leakage, we only display the photograph associated with your default profile as the avatar in your posts.
+
+<a name="language"></a>
+### How can I view Friendica in a certain language?
+
+You can do this by adding the `lang` parameter to the url in your url bar.
+The data in the parameter is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code.
+A question mark is required for the separation between url and parameters.
+
+Example:
+
+    https://social.example.com/profile/example 
+
+in German:
+
+    https://social.example.com/profile/example?lang=de.
+
+If the question mark is already in the url you need to do it using a ampersand.
+
+Example:
+
+    https://social.example.com/profile/example?tab=profile
+
+in German:
+
+    https://social.example.com/profile/example?tab=profile&lang=de.
+
+When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>
 ### What is the difference between blocked|ignored|archived|hidden contacts?
@@ -144,7 +172,9 @@ Friendica is using a [Twitter/GNU Social compatible API](help/api), which means 
 Here is a list of known working clients:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
+  * [Fedilab](https://gitlab.com/tom79/mastalab) (available in F-Droid and Google stores)
+  * [DiCa](https://dica.mixi.cool/)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod

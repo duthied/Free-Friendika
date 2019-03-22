@@ -23,7 +23,6 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Util\Security;
 
 function cal_init(App $a)
 {
@@ -244,7 +243,7 @@ function cal_content(App $a)
 
 		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			echo json_encode($events);
-			killme();
+			exit();
 		}
 
 		// links: array('href', 'text', 'extra css classes', 'title')
@@ -286,7 +285,7 @@ function cal_content(App $a)
 
 		if (!empty($_GET['id'])) {
 			echo $o;
-			killme();
+			exit();
 		}
 
 		return $o;
@@ -331,7 +330,7 @@ function cal_content(App $a)
 			header('Content-type: text/calendar');
 			header('content-disposition: attachment; filename="' . L10n::t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
 			echo $evexport["content"];
-			killme();
+			exit();
 		}
 
 		return;

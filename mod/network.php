@@ -12,7 +12,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -25,6 +24,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\Term;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -201,15 +201,16 @@ function saved_searches($search)
  * Return selected tab from query
  *
  * urls -> returns
- * 		'/network'					=> $no_active = 'active'
- * 		'/network?f=&order=comment'	=> $comment_active = 'active'
- * 		'/network?f=&order=post'	=> $postord_active = 'active'
- * 		'/network?f=&conv=1',		=> $conv_active = 'active'
- * 		'/network/new',				=> $new_active = 'active'
- * 		'/network?f=&star=1',		=> $starred_active = 'active'
- * 		'/network?f=&bmark=1',		=> $bookmarked_active = 'active'
+ *        '/network'                    => $no_active = 'active'
+ *        '/network?f=&order=comment'    => $comment_active = 'active'
+ *        '/network?f=&order=post'    => $postord_active = 'active'
+ *        '/network?f=&conv=1',        => $conv_active = 'active'
+ *        '/network/new',                => $new_active = 'active'
+ *        '/network?f=&star=1',        => $starred_active = 'active'
+ *        '/network?f=&bmark=1',        => $bookmarked_active = 'active'
  *
- * @return Array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
+ * @param App $a
+ * @return array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
  */
 function network_query_get_sel_tab(App $a)
 {
@@ -265,9 +266,11 @@ function network_query_get_sel_group(App $a)
 /**
  * @brief Sets the pager data and returns SQL
  *
- * @param App $a The global App
+ * @param App     $a      The global App
+ * @param Pager   $pager
  * @param integer $update Used for the automatic reloading
  * @return string SQL with the appropriate LIMIT clause
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function networkPager(App $a, Pager $pager, $update)
 {
@@ -301,6 +304,7 @@ function networkPager(App $a, Pager $pager, $update)
  * @brief Sets items as seen
  *
  * @param array $condition The array with the SQL condition
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function networkSetSeen($condition)
 {
@@ -311,7 +315,7 @@ function networkSetSeen($condition)
 	$unseen = Item::exists($condition);
 
 	if ($unseen) {
-		$r = Item::update(['unseen' => false], $condition);
+		Item::update(['unseen' => false], $condition);
 	}
 }
 
@@ -320,9 +324,13 @@ function networkSetSeen($condition)
  *
  * @param App     $a      The global App
  * @param array   $items  Items of the conversation
+ * @param Pager   $pager
  * @param string  $mode   Display mode for the conversation
  * @param integer $update Used for the automatic reloading
+ * @param string  $ordering
  * @return string HTML of the conversation
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function networkConversation(App $a, $items, Pager $pager, $mode, $update, $ordering = '')
 {
@@ -355,7 +363,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 
 	/// @TODO Is this really necessary? $a is already available to hooks
 	$arr = ['query' => $a->query_string];
-	Addon::callHooks('network_content_init', $arr);
+	Hook::callAll('network_content_init', $arr);
 
 	$flat_mode = false;
 
@@ -387,22 +395,18 @@ function network_content(App $a, $update = 0, $parent = 0)
 /**
  * @brief Get the network content in flat view
  *
- * @param Pager   $pager
  * @param App     $a      The global App
  * @param integer $update Used for the automatic reloading
  * @return string HTML of the network content in flat view
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @global Pager  $pager
  */
 function networkFlatView(App $a, $update = 0)
 {
 	global $pager;
 	// Rawmode is used for fetching new content at the end of the page
 	$rawmode = (isset($_GET['mode']) && ($_GET['mode'] == 'raw'));
-
-	if (isset($_GET['last_id'])) {
-		$last_id = intval($_GET['last_id']);
-	} else {
-		$last_id = 0;
-	}
 
 	$o = '';
 
@@ -440,14 +444,15 @@ function networkFlatView(App $a, $update = 0)
 
 	$pager = new Pager($a->query_string);
 
-	/// @TODO Figure out why this variable is unused
-	$pager_sql = networkPager($a, $pager, $update);
+	networkPager($a, $pager, $update);
+
+	$item_params = ['order' => ['id' => true]];
 
 	if (strlen($file)) {
-		$condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
-			$file, TERM_OBJ_POST, TERM_FILE, local_user()];
-		$params = ['order' => ['tid' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-		$result = DBA::select('term', ['oid'], $condition);
+		$term_condition = ["`term` = ? AND `otype` = ? AND `type` = ? AND `uid` = ?",
+			$file, Term::OBJECT_TYPE_POST, Term::FILE, local_user()];
+		$term_params = ['order' => ['tid' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+		$result = DBA::select('term', ['oid'], $term_condition, $term_params);
 
 		$posts = [];
 		while ($term = DBA::fetch($result)) {
@@ -458,18 +463,16 @@ function networkFlatView(App $a, $update = 0)
 		if (count($posts) == 0) {
 			return '';
 		}
-		$condition = ['uid' => local_user(), 'id' => $posts];
+		$item_condition = ['uid' => local_user(), 'id' => $posts];
 	} else {
-		$condition = ['uid' => local_user()];
+		$item_condition = ['uid' => local_user()];
+		$item_params['limit'] = [$pager->getStart(), $pager->getItemsPerPage()];
+
+		networkSetSeen(['unseen' => true, 'uid' => local_user()]);
 	}
 
-	$params = ['order' => ['id' => true], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
-	$result = Item::selectForUser(local_user(), [], $condition, $params);
+	$result = Item::selectForUser(local_user(), [], $item_condition, $item_params);
 	$items = Item::inArray($result);
-
-	$condition = ['unseen' => true, 'uid' => local_user()];
-	networkSetSeen($condition);
-
 	$o .= networkConversation($a, $items, $pager, 'network-new', $update);
 
 	return $o;
@@ -478,11 +481,13 @@ function networkFlatView(App $a, $update = 0)
 /**
  * @brief Get the network content in threaded view
  *
- * @global Pager   $pager
  * @param  App     $a      The global App
  * @param  integer $update Used for the automatic reloading
  * @param  integer $parent
  * @return string HTML of the network content in flat view
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @global Pager   $pager
  */
 function networkThreadedView(App $a, $update, $parent)
 {
@@ -521,7 +526,7 @@ function networkThreadedView(App $a, $update, $parent)
 				}
 			} elseif (intval($a->argv[$x])) {
 				$gid = intval($a->argv[$x]);
-				$default_permissions = ['allow_gid' => '<' . $gid . '>'];
+				$default_permissions['allow_gid'] = [$gid];
 			}
 		}
 	}
@@ -535,20 +540,28 @@ function networkThreadedView(App $a, $update, $parent)
 	$order = Strings::escapeTags(defaults($_GET, 'order', 'comment'));
 	$nets  =        defaults($_GET, 'nets' , '');
 
+	$allowedCids = [];
 	if ($cid) {
-		$default_permissions = ['allow_cid' => '<' . intval($cid) . '>'];
+		$allowedCids[] = (int) $cid;
+	} elseif ($nets) {
+		$condition = [
+			'uid'     => local_user(),
+			'network' => $nets,
+			'self'    => false,
+			'blocked' => false,
+			'pending' => false,
+			'archive' => false,
+			'rel'     => [Contact::SHARING, Contact::FRIEND],
+		];
+		$contactStmt = DBA::select('contact', ['id'], $condition);
+		while ($contact = DBA::fetch($contactStmt)) {
+			$allowedCids[] = (int) $contact['id'];
+		}
+		DBA::close($contactStmt);
 	}
 
-	if ($nets) {
-		$r = DBA::select('contact', ['id'], ['uid' => local_user(), 'network' => $nets], ['self' => false]);
-
-		$str = '';
-		while ($rr = DBA::fetch($r)) {
-			$str .= '<' . $rr['id'] . '>';
-		}
-		if (strlen($str)) {
-			$default_permissions = ['allow_cid' => $str];
-		}
+	if (count($allowedCids)) {
+		$default_permissions['allow_cid'] = $allowedCids;
 	}
 
 	if (!$update && !$rawmode) {
@@ -610,7 +623,6 @@ function networkThreadedView(App $a, $update, $parent)
 	$sql_extra3 = '';
 	$sql_table = '`thread`';
 	$sql_parent = '`iid`';
-	$sql_order = '';
 
 	if ($update) {
 		$sql_table = '`item`';
@@ -625,7 +637,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$group = DBA::selectFirst('group', ['name'], ['id' => $gid, 'uid' => local_user()]);
 		if (!DBA::isResult($group)) {
 			if ($update) {
-				killme();
+				exit();
 			}
 			notice(L10n::t('No such group') . EOL);
 			$a->internalRedirect('network/0');
@@ -941,6 +953,7 @@ function networkThreadedView(App $a, $update, $parent)
  *
  * @param App $a The global App
  * @return string Html of the networktab
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function network_tabs(App $a)
 {
@@ -1024,7 +1037,7 @@ function network_tabs(App $a)
 	}
 
 	$arr = ['tabs' => $tabs];
-	Addon::callHooks('network_tabs', $arr);
+	Hook::callAll('network_tabs', $arr);
 
 	$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
 
@@ -1040,13 +1053,17 @@ function network_tabs(App $a)
  * of the page to make the correct asynchronous call. This is obtained through the Pager that was instantiated in
  * networkThreadedView or networkFlatView.
  *
- * @global Pager  $pager
- * @param  App    $a
+ * @param App     $a
  * @param  string $htmlhead The head tag HTML string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @global Pager  $pager
  */
 function network_infinite_scroll_head(App $a, &$htmlhead)
 {
 	/// @TODO this will have to be converted to a static property of the converted Module\Network class
+	/**
+	 * @var $pager Pager
+	 */
 	global $pager;
 
 	if (PConfig::get(local_user(), 'system', 'infinite_scroll')

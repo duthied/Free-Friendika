@@ -7,9 +7,8 @@
 namespace Friendica\Content\Text;
 
 use Friendica\BaseObject;
+use Friendica\Core\System;
 use Friendica\Model\Contact;
-use Michelf\MarkdownExtra;
-use Friendica\Content\Text\HTML;
 
 /**
  * Friendica-specific usage of Markdown
@@ -26,16 +25,25 @@ class Markdown extends BaseObject
 	 * @param string $text
 	 * @param bool   $hardwrap
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function convert($text, $hardwrap = true) {
 		$stamp1 = microtime(true);
 
-		$MarkdownParser = new MarkdownExtra();
-		$MarkdownParser->hard_wrap = $hardwrap;
-		$MarkdownParser->code_class_prefix = 'language-';
+		$MarkdownParser = new MarkdownParser();
+		$MarkdownParser->code_class_prefix  = 'language-';
+		$MarkdownParser->hard_wrap          = $hardwrap;
+		$MarkdownParser->hashtag_protection = true;
+		$MarkdownParser->url_filter_func    = function ($url) {
+			if (strpos($url, '#') === 0) {
+				$url = ltrim($_SERVER['REQUEST_URI'], '/') . $url;
+			}
+			return  $url;
+		};
+
 		$html = $MarkdownParser->transform($text);
 
-		self::getApp()->saveTimestamp($stamp1, "parser");
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
 		return $html;
 	}
@@ -48,6 +56,8 @@ class Markdown extends BaseObject
 	 *                     [2] = name (optional)
 	 *                     [3] = address
 	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function diasporaMention2BBCodeCallback($match)
 	{
@@ -80,26 +90,16 @@ class Markdown extends BaseObject
 	{
 		$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
 
-		// Handles single newlines
-		$s = str_replace("\r\n", "\n", $s);
-		$s = str_replace("\n", " \n", $s);
-		$s = str_replace("\r", " \n", $s);
-
-		// Replace lonely stars in lines not starting with it with literal stars
-		$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
-
 		// The parser cannot handle paragraphs correctly
 		$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 
-		// Escaping the hash tags
-		$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
+		// Escaping hashtags that could be titles
+		$s = preg_replace('/^\#([^\s\#])/im', '\#$1', $s);
 
 		$s = self::convert($s);
 
 		$regexp = "/([@!])\{(?:([^\}]+?); ?)?([^\} ]+)\}/";
 		$s = preg_replace_callback($regexp, ['self', 'diasporaMention2BBCodeCallback'], $s);
-
-		$s = str_replace('&#35;', '#', $s);
 
 		$s = HTML::toBBCode($s);
 

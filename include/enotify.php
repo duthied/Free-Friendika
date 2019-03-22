@@ -4,15 +4,15 @@
  */
 
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Strings;
@@ -21,18 +21,20 @@ use Friendica\Util\Strings;
  * @brief Creates a notification entry and possibly sends a mail
  *
  * @param array $params Array with the elements:
- *			uid, item, parent, type, otype, verb, event,
- *			link, subject, body, to_name, to_email, source_name,
- *			source_link, activity, preamble, notify_flags,
- *			language, show_in_notification_page
+ *                      uid, item, parent, type, otype, verb, event,
+ *                      link, subject, body, to_name, to_email, source_name,
+ *                      source_link, activity, preamble, notify_flags,
+ *                      language, show_in_notification_page
+ * @return bool
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function notification($params)
 {
 	$a = \get_app();
 
 	// Temporary logging for finding the origin
-	if (!isset($params['language']) || !isset($params['uid'])) {
-		Logger::log('Missing parameters.' . System::callstack());
+	if (!isset($params['uid'])) {
+		Logger::notice('Missing parameters "uid".', ['params' => $params, 'callstack' => System::callstack()]);
 	}
 
 	// Ensure that the important fields are set at any time
@@ -40,8 +42,8 @@ function notification($params)
 	$user = DBA::selectFirst('user', $fields, ['uid' => $params['uid']]);
 
 	if (!DBA::isResult($user)) {
-		Logger::log('Unknown user ' . $params['uid']);
-		return;
+		Logger::error('Unknown user', ['uid' =>  $params['uid']]);
+		return false;
 	}
 
 	$params['notify_flags'] = defaults($params, 'notify_flags', $user['notify-flags']);
@@ -76,8 +78,8 @@ function notification($params)
 			['uid' => $params['uid']]);
 
 		// There is no need to create notifications for forum accounts
-		if (!DBA::isResult($user) || in_array($user["page-flags"], [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP])) {
-			return;
+		if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
+			return false;
 		}
 		$nickname = $user["nickname"];
 	} else {
@@ -118,6 +120,12 @@ function notification($params)
 	}
 
 	$epreamble = '';
+	$preamble  = '';
+	$subject   = '';
+	$sitelink  = '';
+	$tsitelink = '';
+	$hsitelink = '';
+	$itemlink  = '';
 
 	if ($params['type'] == NOTIFY_MAIL) {
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
@@ -126,19 +134,19 @@ function notification($params)
 		$subject = L10n::t('[Friendica:Notify] New mail received at %s', $sitename);
 
 		$preamble = L10n::t('%1$s sent you a new private message at %2$s.', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=$itemlink]'.L10n::t('a private message').'[/url]');
+		$epreamble = L10n::t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=' . $itemlink . ']'.L10n::t('a private message').'[/url]');
 
 		$sitelink = L10n::t('Please visit %s to view and/or reply to your private messages.');
 		$tsitelink = sprintf($sitelink, $siteurl.'/message/'.$params['item']['id']);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'/message/'.$params['item']['id'].'">'.$sitename.'</a>');
 	}
 
-	if ($params['type'] == NOTIFY_COMMENT) {
-		$thread = Item::selectFirstThreadForUser($params['uid'] ,['ignored'], ['iid' => $parent_id]);
-		if (DBA::isResult($thread) && $thread["ignored"]) {
-			Logger::log("Thread ".$parent_id." will be ignored", Logger::DEBUG);
+	if ($params['type'] == NOTIFY_COMMENT || $params['type'] == NOTIFY_TAGSELF) {
+		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id]);
+		if (DBA::isResult($thread) && $thread['ignored']) {
+			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
 			L10n::popLang();
-			return;
+			return false;
 		}
 
 		// Check to see if there was already a tag notify or comment notify for this post.
@@ -147,13 +155,11 @@ function notification($params)
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
 			L10n::popLang();
-			return;
+			return false;
 		}
 
 		// if it's a post figure out who's post it is.
-
 		$item = null;
-
 		if ($params['otype'] === 'item' && $parent_id) {
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id]);
 		}
@@ -162,44 +168,92 @@ function notification($params)
 		$itemlink = $item['plink'];
 
 		// "a post"
-		$dest_str = L10n::t('%1$s commented on [url=%2$s]a %3$s[/url]',
-			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-			$itemlink,
-			$item_post_type
-		);
-
-		// "George Bull's post"
-		if ($item) {
-			$dest_str = L10n::t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
-				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
+		if ($params['type'] == NOTIFY_TAGSELF) {
+			$dest_str = L10n::t('%1$s tagged you on [url=%2$s]a %3$s[/url]',
+				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
-				$item['author-name'],
 				$item_post_type
 			);
+		} else {
+			$dest_str = L10n::t('%1$s commented on [url=%2$s]a %3$s[/url]',
+				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+				$itemlink,
+				$item_post_type
+			);
+		}
+
+		// "George Bull's post"
+		if (DBA::isResult($item)) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item['author-name'],
+					$item_post_type
+				);
+			} else {
+				$dest_str = L10n::t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item['author-name'],
+					$item_post_type
+				);
+			}
 		}
 
 		// "your post"
 		if (DBA::isResult($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
-			$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
-				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-				$itemlink,
-				$item_post_type
-			);
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]your %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			} else {
+				$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			}
 		}
 
-		// Some mail softwares relies on subject field for threading.
+		// "their post"
+		if (DBA::isResult($item) && $item['author-link'] == $params['source_link']) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]their %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			} else {
+				$dest_str = L10n::t('%1$s commented on [url=%2$s]their %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			}
+		}
+
+		// Some mail software relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
 		// Before this we have the name of the replier on the subject rendering
-		// differents subjects for messages on the same thread.
+		// different subjects for messages on the same thread.
+		if ($params['type'] == NOTIFY_TAGSELF) {
+			$subject = L10n::t('[Friendica:Notify] %s tagged you', $params['source_name']);
 
-		$subject = L10n::t('[Friendica:Notify] Comment to conversation #%1$d by %2$s', $parent_id, $params['source_name']);
+			$preamble = L10n::t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
+		} else {
+			$subject = L10n::t('[Friendica:Notify] Comment to conversation #%1$d by %2$s', $parent_id, $params['source_name']);
 
-		$preamble = L10n::t('%s commented on an item/conversation you have been following.', $params['source_name']);
+			$preamble = L10n::t('%s commented on an item/conversation you have been following.', $params['source_name']);
+		}
+
 		$epreamble = $dest_str;
 
 		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
-		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
+		$hsitelink = sprintf($sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
 		$itemlink =  $params['link'];
 	}
 
@@ -208,21 +262,6 @@ function notification($params)
 
 		$preamble = L10n::t('%1$s posted to your profile wall at %2$s', $params['source_name'], $sitename);
 		$epreamble = L10n::t('%1$s posted to [url=%2$s]your wall[/url]',
-			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
-			$params['link']
-		);
-
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
-		$tsitelink = sprintf($sitelink, $siteurl);
-		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
-		$itemlink =  $params['link'];
-	}
-
-	if ($params['type'] == NOTIFY_TAGSELF) {
-		$subject = L10n::t('[Friendica:Notify] %s tagged you', $params['source_name']);
-
-		$preamble = L10n::t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s [url=%2$s]tagged you[/url].',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 			$params['link']
 		);
@@ -414,16 +453,21 @@ function notification($params)
 		// It will be used by the system to send emails to users (like
 		// password reset, invitations and so) using one look (but without
 		// add a notification to the user, with could be inexistent)
-		$subject = $params['subject'];
+		if (!isset($params['subject'])) {
+			Logger::warning('subject isn\'t set.', ['type' => $params['type']]);
+		}
+		$subject = defaults($params, 'subject', '');
 
-		$preamble = $params['preamble'];
+		if (!isset($params['preamble'])) {
+			Logger::warning('preamble isn\'t set.', ['type' => $params['type'], 'subject' => $subject]);
+		}
+		$preamble = defaults($params, 'preamble', '');
 
-		$body =  $params['body'];
+		if (!isset($params['body'])) {
+			Logger::warning('body isn\'t set.', ['type' => $params['type'], 'subject' => $subject, 'preamble' => $preamble]);
+		}
+		$body = defaults($params, 'body', '');
 
-		$sitelink = "";
-		$tsitelink = "";
-		$hsitelink = "";
-		$itemlink =  "";
 		$show_in_notification_page = false;
 	}
 
@@ -441,7 +485,7 @@ function notification($params)
 		'itemlink'  => $itemlink
 	];
 
-	Addon::callHooks('enotify', $h);
+	Hook::callAll('enotify', $h);
 
 	$subject   = $h['subject'];
 
@@ -453,6 +497,8 @@ function notification($params)
 	$tsitelink = $h['tsitelink'];
 	$hsitelink = $h['hsitelink'];
 	$itemlink  = $h['itemlink'];
+
+	$notify_id = 0;
 
 	if ($show_in_notification_page) {
 		Logger::log("adding notification entry", Logger::DEBUG);
@@ -481,11 +527,11 @@ function notification($params)
 		$datarray['otype'] = $params['otype'];
 		$datarray['abort'] = false;
 
-		Addon::callHooks('enotify_store', $datarray);
+		Hook::callAll('enotify_store', $datarray);
 
 		if ($datarray['abort']) {
 			L10n::popLang();
-			return False;
+			return false;
 		}
 
 		// create notification entry in DB
@@ -584,7 +630,7 @@ function notification($params)
 		$datarray['subject'] = $subject;
 		$datarray['headers'] = $additional_mail_header;
 
-		Addon::callHooks('enotify_mail', $datarray);
+		Hook::callAll('enotify_mail', $datarray);
 
 		// check whether sending post content in email notifications is allowed
 		// always true for SYSTEM_EMAIL
@@ -634,8 +680,7 @@ function notification($params)
 
 		L10n::popLang();
 		// use the Emailer class to send the message
-		return Emailer::send(
-			[
+		return Emailer::send([
 			'uid' => $params['uid'],
 			'fromName' => $sender_name,
 			'fromEmail' => $sender_email,
@@ -644,8 +689,8 @@ function notification($params)
 			'messageSubject' => $datarray['subject'],
 			'htmlVersion' => $email_html_body,
 			'textVersion' => $email_text_body,
-			'additionalMailHeader' => $datarray['headers']]
-		);
+			'additionalMailHeader' => $datarray['headers']
+		]);
 	}
 
 	L10n::popLang();
@@ -656,6 +701,7 @@ function notification($params)
  * @brief Checks for users who should be notified
  *
  * @param int $itemid ID of the item for which the check should be done
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_user_notification($itemid) {
 	// fetch all users in the thread
@@ -671,13 +717,15 @@ function check_user_notification($itemid) {
 /**
  * @brief Checks for item related notifications and sends them
  *
- * @param int $itemid ID of the item for which the check should be done
- * @param int $uid User ID
+ * @param int    $itemid      ID of the item for which the check should be done
+ * @param int    $uid         User ID
  * @param string $defaulttype (Optional) Forces a notification with this type.
+ * @return bool
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$notification_data = ["uid" => $uid, "profiles" => []];
-	Addon::callHooks('check_item_notification', $notification_data);
+	Hook::callAll('check_item_notification', $notification_data);
 
 	$profiles = $notification_data["profiles"];
 
@@ -736,9 +784,9 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
-	$item = Item::selectFirst($fields, $condition);
+	$item = Item::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item) || in_array($item['author-id'], $contacts)) {
-		return;
+		return false;
 	}
 
 	// Generate the notification array

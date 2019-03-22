@@ -4,9 +4,7 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 
 /**
@@ -14,6 +12,12 @@ use Friendica\Database\DBA;
  */
 class Addon extends BaseObject
 {
+	/**
+	 * The addon sub-directory
+	 * @var string
+	 */
+	const DIRECTORY = 'addon';
+
 	/**
 	 * List of the names of enabled addons
 	 *
@@ -72,11 +76,12 @@ class Addon extends BaseObject
 	 * @brief uninstalls an addon.
 	 *
 	 * @param string $addon name of the addon
-	 * @return boolean
+	 * @return void
+	 * @throws \Exception
 	 */
 	public static function uninstall($addon)
 	{
-		Logger::log("Addons: uninstalling " . $addon);
+		Logger::notice("Addon {addon}: {action}", ['action' => 'uninstall', 'addon' => $addon]);
 		DBA::delete('addon', ['name' => $addon]);
 
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
@@ -93,6 +98,7 @@ class Addon extends BaseObject
 	 *
 	 * @param string $addon name of the addon
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function install($addon)
 	{
@@ -101,12 +107,12 @@ class Addon extends BaseObject
 		if (!file_exists('addon/' . $addon . '/' . $addon . '.php')) {
 			return false;
 		}
-		Logger::log("Addons: installing " . $addon);
+		Logger::notice("Addon {addon}: {action}", ['action' => 'install', 'addon' => $addon]);
 		$t = @filemtime('addon/' . $addon . '/' . $addon . '.php');
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
 		if (function_exists($addon . '_install')) {
 			$func = $addon . '_install';
-			$func();
+			$func(self::getApp());
 
 			$addon_admin = (function_exists($addon . "_addon_admin") ? 1 : 0);
 
@@ -126,7 +132,7 @@ class Addon extends BaseObject
 			}
 			return true;
 		} else {
-			Logger::log("Addons: FAILED installing " . $addon);
+			Logger::error("Addon {addon}: {action} failed", ['action' => 'uninstall', 'addon' => $addon]);
 			return false;
 		}
 	}
@@ -156,16 +162,17 @@ class Addon extends BaseObject
 						$t = @filemtime($fname);
 						foreach ($installed as $i) {
 							if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
-								Logger::log('Reloading addon: ' . $i['name']);
+
+								Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $i['name']]);
 								@include_once($fname);
 
 								if (function_exists($addon . '_uninstall')) {
 									$func = $addon . '_uninstall';
-									$func();
+									$func(self::getApp());
 								}
 								if (function_exists($addon . '_install')) {
 									$func = $addon . '_install';
-									$func();
+									$func(self::getApp());
 								}
 								DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
 							}
@@ -191,6 +198,7 @@ class Addon extends BaseObject
 	 *   *\endcode
 	 * @param string $addon the name of the addon
 	 * @return array with the addon information
+	 * @throws \Exception
 	 */
 	public static function getInfo($addon)
 	{
@@ -211,7 +219,7 @@ class Addon extends BaseObject
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 
@@ -270,6 +278,7 @@ class Addon extends BaseObject
 	 * Saves the current enabled addon list in the system.addon config key
 	 *
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function saveEnabledList()
 	{
@@ -280,6 +289,7 @@ class Addon extends BaseObject
 	 * Returns the list of non-hidden enabled addon names
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function getVisibleList()
 	{
@@ -297,13 +307,14 @@ class Addon extends BaseObject
 	/**
 	 * Shim of Hook::register left for backward compatibility purpose.
 	 *
-	 * @see Hook::register
+	 * @see        Hook::register
 	 * @deprecated since version 2018.12
 	 * @param string $hook     the name of the hook
 	 * @param string $file     the name of the file that hooks into
 	 * @param string $function the name of the function that the hook will call
 	 * @param int    $priority A priority (defaults to 0)
 	 * @return mixed|bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function registerHook($hook, $file, $function, $priority = 0)
 	{
@@ -313,12 +324,13 @@ class Addon extends BaseObject
 	/**
 	 * Shim of Hook::unregister left for backward compatibility purpose.
 	 *
-	 * @see Hook::unregister
+	 * @see        Hook::unregister
 	 * @deprecated since version 2018.12
 	 * @param string $hook     the name of the hook
 	 * @param string $file     the name of the file that hooks into
 	 * @param string $function the name of the function that the hook called
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function unregisterHook($hook, $file, $function)
 	{
@@ -328,10 +340,11 @@ class Addon extends BaseObject
 	/**
 	 * Shim of Hook::callAll left for backward-compatibility purpose.
 	 *
-	 * @see Hook::callAll
+	 * @see        Hook::callAll
 	 * @deprecated since version 2018.12
-	 * @param string       $name  of the hook to call
+	 * @param string        $name of the hook to call
 	 * @param string|array &$data to transmit to the callback handler
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function callHooks($name, &$data = null)
 	{

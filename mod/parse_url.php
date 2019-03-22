@@ -10,8 +10,9 @@
  * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 
@@ -19,6 +20,8 @@ function parse_url_content(App $a)
 {
 	$text = null;
 	$str_tags = '';
+	$format = '';
+	$ret= ['success' => false, 'contentType' => ''];
 
 	$br = "\n";
 
@@ -41,6 +44,10 @@ function parse_url_content(App $a)
 		if (count($arr_tags)) {
 			$str_tags = $br . implode(' ', $arr_tags) . $br;
 		}
+	}
+
+	if (isset($_GET['format']) && $_GET['format'] == 'json') {
+		$format = 'json';
 	}
 
 	// Add url scheme if it is missing
@@ -73,22 +80,35 @@ function parse_url_content(App $a)
 			}
 		}
 		$type = null;
+		$content_type = '';
+		$bbcode = '';
 		if (array_key_exists('Content-Type', $hdrs)) {
 			$type = $hdrs['Content-Type'];
 		}
 		if ($type) {
 			if (stripos($type, 'image/') !== false) {
-				echo $br . '[img]' . $url . '[/img]' . $br;
-				exit();
+				$content_type = 'image';
+				$bbcode = $br . '[img]' . $url . '[/img]' . $br;
 			}
 			if (stripos($type, 'video/') !== false) {
-				echo $br . '[video]' . $url . '[/video]' . $br;
-				exit();
+				$content_type = 'video';
+				$bbcode = $br . '[video]' . $url . '[/video]' . $br;
 			}
 			if (stripos($type, 'audio/') !== false) {
-				echo $br . '[audio]' . $url . '[/audio]' . $br;
-				exit();
+				$content_type = 'audio';
+				$bbcode = $br . '[audio]' . $url . '[/audio]' . $br;
 			}
+		}
+		if (!empty($content_type)) {
+			if ($format == 'json') {
+				$ret['contentType'] = $content_type;
+				$ret['data'] = ['url' => $url];
+				$ret['success'] = true;
+				System::jsonExit($ret);
+			}
+
+			echo $bbcode;
+			exit();
 		}
 	}
 
@@ -97,7 +117,7 @@ function parse_url_content(App $a)
 
 	$arr = ['url' => $url, 'text' => ''];
 
-	Addon::callHooks('parse_link', $arr);
+	Hook::callAll('parse_link', $arr);
 
 	if (strlen($arr['text'])) {
 		echo $arr['text'];
@@ -130,6 +150,14 @@ function parse_url_content(App $a)
 		exit();
 	}
 
+	if ($format == 'json') {
+		$ret['data'] = $siteinfo;
+		$ret['contentType'] = 'attachment';
+		$ret['success'] = true;
+
+		System::jsonExit($ret);
+	}
+
 	// Format it as BBCode attachment
 	$info = add_page_info_data($siteinfo);
 
@@ -144,18 +172,18 @@ function parse_url_content(App $a)
  * Note: We have moved the function to ParseUrl.php. This function is only for
  * legacy support and will be remove in the future
  *
- * @param type $url The url of the page which should be scraped
- * @param type $no_guessing If true the parse doens't search for
- *    preview pictures
- * @param type $do_oembed The false option is used by the function fetch_oembed()
- *    to avoid endless loops
+ * @param string $url         The url of the page which should be scraped
+ * @param bool   $no_guessing If true the parse doens't search for
+ *                            preview pictures
+ * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+ *                            to avoid endless loops
  *
  * @return array which contains needed data for embedding
  *
- * @see ParseUrl::getSiteinfoCached()
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @see   ParseUrl::getSiteinfoCached()
  *
- * @todo Remove this function after all Addons has been changed to use
- *    ParseUrl::getSiteinfoCached
+ * @deprecated since version 3.6 use ParseUrl::getSiteinfoCached instead
  */
 function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true)
 {

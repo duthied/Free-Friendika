@@ -23,7 +23,6 @@ function salmon_post(App $a, $xml = '') {
 	Logger::log('new salmon ' . $xml, Logger::DATA);
 
 	$nick       = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : '');
-	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
 
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		DBA::escape($nick)
@@ -185,7 +184,7 @@ function salmon_post(App $a, $xml = '') {
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((DBA::isResult($r)) ? $r[0] : null);
+	$contact_rec = ((DBA::isResult($r)) ? $r[0] : []);
 
 	OStatus::import($data, $importer, $contact_rec, $hub);
 

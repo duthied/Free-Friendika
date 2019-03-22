@@ -47,6 +47,7 @@ Friendica Documentation and Resources
 	* [Addon Development](help/Addons)
 	* [Theme Development](help/themes)
 	* [Smarty 3 Templates](help/smarty3-templates)
+	* [Storage backend addon](help/AddonStorageBackend)
 * How To
 	* [Translate Friendica](help/translations)
 	* [Use Composer](help/Composer)

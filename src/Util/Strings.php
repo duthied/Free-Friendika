@@ -13,12 +13,13 @@ use Friendica\Core\Logger;
  */
 class Strings
 {
-    /**
-     * @brief Generates a pseudo-random string of hexadecimal characters
-     *
-     * @param int $size
-     * @return string
-     */
+	/**
+	 * @brief Generates a pseudo-random string of hexadecimal characters
+	 *
+	 * @param int $size
+	 * @return string
+	 * @throws \Exception
+	 */
     public static function getRandomHex($size = 64)
     {
         $byte_size = ceil($size / 2);
@@ -139,14 +140,15 @@ class Strings
         return $word;
     }
 
-    /**
-     * @brief Translate and format the network name of a contact
-     *
-     * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
-     * @param string $url     The contact url
-     * 
-     * @return string Formatted network name
-     */
+	/**
+	 * Translate and format the network name of a contact
+	 *
+	 * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
+	 * @param string $url     The contact url
+	 *
+	 * @return string Formatted network name
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
     public static function formatNetworkName($network, $url = '')
     {
         if ($network != '') {
@@ -240,12 +242,13 @@ class Strings
         return $s;
     }
 
-    /**
-     * @brief Decode Base64 Encoded URL and translate -_ to +/
-     * @param string $s URL to decode
-     * 
-     * @return string   Decoded URL
-     */
+	/**
+	 * @brief Decode Base64 Encoded URL and translate -_ to +/
+	 * @param string $s URL to decode
+	 *
+	 * @return string   Decoded URL
+	 * @throws \Exception
+	 */
     public static function base64UrlDecode($s)
     {
         if (is_array($s)) {
@@ -292,7 +295,7 @@ class Strings
      * 
      * @return string   normalized OpenId Identity
      */
-    function normaliseOpenID($s)
+    public static function normaliseOpenID($s)
     {
         return trim(str_replace(['http://', 'https://'], ['', ''], $s), '/');
     }
@@ -327,5 +330,49 @@ class Strings
 		}
 
 		return $uri;
+	}
+
+
+	/**
+	 * Check if the trimmed provided string is starting with one of the provided characters
+	 *
+	 * @param string $string
+	 * @param array  $chars
+	 * @return bool
+	 */
+	public static function startsWith($string, array $chars)
+	{
+		$return = in_array(substr(trim($string), 0, 1), $chars);
+
+		return $return;
+	}
+
+	/**
+	 * Returns the regular expression string to match URLs in a given text
+	 *
+	 * @return string
+	 * @see https://daringfireball.net/2010/07/improved_regex_for_matching_urls
+	 */
+	public static function autoLinkRegEx()
+	{
+		return '@(?xi)
+(?<![=\'\]"/])          # Not preceded by [, =, \', ], ", /
+\b
+(                              # Capture 1: entire matched URL
+  https?://                            # http or https protocol
+  (?:
+    [^/\s`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
+    [^/\s`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
+    \.
+    [^/\s`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
+  )
+  (?:                                  # One or more:
+    [^\s()<>]+                         # Run of non-space, non-()<>
+    |                                  #   or
+    \(([^\s()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
+    |                                  #   or
+    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
+  )*
+)@';
 	}
 }

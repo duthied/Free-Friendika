@@ -17,7 +17,7 @@ function webfinger_content(App $a)
 				"description" => L10n::t("Only logged in users are permitted to perform a probing.")
 			]
 		);
-		killme();
+		exit();
 	}
 
 	$o = '<div class="generic-page-wrapper">';

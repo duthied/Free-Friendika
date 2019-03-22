@@ -8,10 +8,6 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App;
-use Friendica\BaseObject;
-use Friendica\Core\Config;
-
 /**
  * @brief Arbitrary system configuration storage
  *
@@ -19,134 +15,79 @@ use Friendica\Core\Config;
  * If we ever would decide to return exactly the variable type as entered,
  * we will have fun with the additional features. :-)
  */
-class Config extends BaseObject
+class Config
 {
 	/**
-	 * @var Friendica\Core\Config\IConfigAdapter
+	 * @var Config\Configuration
 	 */
-	private static $adapter = null;
+	private static $config;
 
-	public static function init()
+	/**
+	 * Initialize the config
+	 *
+	 * @param Config\Configuration $config
+	 */
+	public static function init(Config\Configuration $config)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
-
-		if (self::getApp()->getConfigValue('system', 'config_adapter') == 'preload') {
-			self::$adapter = new Config\PreloadConfigAdapter();
-		} else {
-			self::$adapter = new Config\JITConfigAdapter();
-		}
+		self::$config = $config;
 	}
 
 	/**
 	 * @brief Loads all configuration values of family into a cached storage.
 	 *
-	 * All configuration values of the system are stored in global cache
-	 * which is available under the global variable $a->config
-	 *
-	 * @param string $family The category of the configuration value
+	 * @param string $cat The category of the configuration value
 	 *
 	 * @return void
 	 */
-	public static function load($family = "config")
+	public static function load($cat = "config")
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
-		}
-
-		self::$adapter->load($family);
+		self::$config->load($cat);
 	}
 
 	/**
 	 * @brief Get a particular user's config variable given the category name
 	 * ($family) and a key.
 	 *
-	 * Get a particular config value from the given category ($family)
-	 * and the $key from a cached storage in $a->config[$uid].
-	 * $instore is only used by the set_config function
-	 * to determine if the key already exists in the DB
-	 * If a key is found in the DB but doesn't exist in
-	 * local config cache, pull it into the cache so we don't have
-	 * to hit the DB again for this item.
-	 *
-	 * @param string  $family        The category of the configuration value
+	 * @param string  $cat        The category of the configuration value
 	 * @param string  $key           The configuration key to query
 	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
 	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
 	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($family, $key, $default_value = null, $refresh = false)
+	public static function get($cat, $key, $default_value = null, $refresh = false)
 	{
-		// Database isn't ready or populated yet, fallback to file config
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return self::getApp()->getConfigValue($family, $key, $default_value);
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
-		}
-
-		return self::$adapter->get($family, $key, $default_value, $refresh);
+		return self::$config->get($cat, $key, $default_value, $refresh);
 	}
 
 	/**
 	 * @brief Sets a configuration value for system config
 	 *
-	 * Stores a config value ($value) in the category ($family) under the key ($key)
-	 * for the user_id $uid.
+	 * Stores a config value ($value) in the category ($cat) under the key ($key)
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!
 	 *
-	 * @param string $family The category of the configuration value
+	 * @param string $cat The category of the configuration value
 	 * @param string $key    The configuration key to set
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
 	 */
-	public static function set($family, $key, $value)
+	public static function set($cat, $key, $value)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
-		}
-
-		return self::$adapter->set($family, $key, $value);
+		return self::$config->set($cat, $key, $value);
 	}
 
 	/**
 	 * @brief Deletes the given key from the system configuration.
 	 *
-	 * Removes the configured value from the stored cache in $a->config
-	 * and removes it from the database.
-	 *
-	 * @param string $family The category of the configuration value
+	 * @param string $cat The category of the configuration value
 	 * @param string $key    The configuration key to delete
 	 *
-	 * @return mixed
+	 * @return bool
 	 */
-	public static function delete($family, $key)
+	public static function delete($cat, $key)
 	{
-		// Database isn't ready or populated yet
-		if (!self::getApp()->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
-			return false;
-		}
-
-		if (empty(self::$adapter)) {
-			self::init();
-		}
-
-		return self::$adapter->delete($family, $key);
+		return self::$config->delete($cat, $key);
 	}
 }

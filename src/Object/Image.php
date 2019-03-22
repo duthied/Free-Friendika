@@ -5,6 +5,7 @@
  */
 namespace Friendica\Object;
 
+use Exception;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
@@ -12,10 +13,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Util\Network;
-use Exception;
 use Imagick;
 use ImagickPixel;
 
@@ -24,6 +23,7 @@ use ImagickPixel;
  */
 class Image
 {
+	/** @var Imagick|resource */
 	private $image;
 
 	/*
@@ -63,9 +63,10 @@ class Image
 
 	/**
 	 * @brief Constructor
-	 * @param object  $data data
+	 * @param string  $data
 	 * @param boolean $type optional, default null
-	 * @return object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public function __construct($data, $type = null)
 	{
@@ -126,8 +127,10 @@ class Image
 	}
 
 	/**
-	 * @param object $data data
+	 * @param string $data data
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private function loadData($data)
 	{
@@ -296,8 +299,6 @@ class Image
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
-		$dest_width = $dest_height = 0;
-
 		if ((! $width)|| (! $height)) {
 			return false;
 		}
@@ -446,7 +447,7 @@ class Image
 			return;
 		}
 
-		$ort = $exif['IFD0']['Orientation'];
+		$ort = isset($exif['IFD0']['Orientation']) ? $exif['IFD0']['Orientation'] : 1;
 
 		switch ($ort) {
 			case 1: // nothing
@@ -499,8 +500,6 @@ class Image
 
 		$width = $this->getWidth();
 		$height = $this->getHeight();
-
-		$dest_width = $dest_height = 0;
 
 		if ((!$width)|| (!$height)) {
 			return false;
@@ -643,6 +642,7 @@ class Image
 	/**
 	 * @param string $path file path
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function saveToFilePath($path)
 	{
@@ -656,7 +656,7 @@ class Image
 
 		$stamp1 = microtime(true);
 		file_put_contents($path, $string);
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 	}
 
 	/**
@@ -667,6 +667,7 @@ class Image
 	 * $data = (string) $Image;
 	 *
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function __toString() {
 		return $this->asString();
@@ -674,6 +675,7 @@ class Image
 
 	/**
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function asString()
 	{
@@ -687,8 +689,6 @@ class Image
 			$string = $this->image->getImagesBlob();
 			return $string;
 		}
-
-		$quality = false;
 
 		ob_start();
 
@@ -721,16 +721,16 @@ class Image
 	 *
 	 * @param string  $filename Image filename
 	 * @param boolean $fromcurl Check Content-Type header from curl request
-	 * @param string $header passed headers to take into account
+	 * @param string  $header   passed headers to take into account
 	 *
 	 * @return object
+	 * @throws \ImagickException
 	 */
 	public static function guessType($filename, $fromcurl = false, $header = '')
 	{
 		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), Logger::DEBUG);
 		$type = null;
 		if ($fromcurl) {
-			$a = \get_app();
 			$headers=[];
 			$h = explode("\n", $header);
 			foreach ($h as $l) {
@@ -772,6 +772,7 @@ class Image
 	/**
 	 * @param string $url url
 	 * @return object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getInfoFromURL($url)
 	{
@@ -801,7 +802,7 @@ class Image
 					$a = \get_app();
 					$stamp1 = microtime(true);
 					file_put_contents($tempfile, $img_str);
-					$a->saveTimestamp($stamp1, "file");
+					$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 					$data = getimagesize($tempfile);
 					unlink($tempfile);
@@ -828,8 +829,6 @@ class Image
 	 */
 	public static function getScalingDimensions($width, $height, $max)
 	{
-		$dest_width = $dest_height = 0;
-
 		if ((!$width) || (!$height)) {
 			return false;
 		}
@@ -876,11 +875,13 @@ class Image
 
 	/**
 	 * @brief This function is used by the fromgplus addon
-	 * @param object  $a         App
+	 * @param App     $a         App
 	 * @param integer $uid       user id
 	 * @param string  $imagedata optional, default empty
 	 * @param string  $url       optional, default empty
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function storePhoto(App $a, $uid, $imagedata = "", $url = "")
 	{
@@ -899,7 +900,7 @@ class Image
 
 		/// @TODO
 		/// $default_cid      = $r[0]['id'];
-		/// $community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
+		/// $community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 		if ((strlen($imagedata) == 0) && ($url == "")) {
 			Logger::log("No image data and no url provided", Logger::DEBUG);
@@ -909,7 +910,7 @@ class Image
 
 			$stamp1 = microtime(true);
 			$imagedata = @file_get_contents($url);
-			$a->saveTimestamp($stamp1, "file");
+			$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 		}
 
 		$maximagesize = Config::get('system', 'maximagesize');
@@ -923,7 +924,7 @@ class Image
 
 		$stamp1 = microtime(true);
 		file_put_contents($tempfile, $imagedata);
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$data = getimagesize($tempfile);
 
@@ -957,8 +958,6 @@ class Image
 		$height = $Image->getHeight();
 
 		$hash = Photo::newResource();
-
-		$smallest = 0;
 
 		// Pictures are always public by now
 		//$defperm = '<'.$default_cid.'>';

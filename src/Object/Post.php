@@ -9,6 +9,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -18,6 +19,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
+use Friendica\Model\User;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -38,8 +40,15 @@ class Post extends BaseObject
 	private $comment_box_template = 'comment_item.tpl';
 	private $toplevel = false;
 	private $writable = false;
+	/**
+	 * @var Post[]
+	 */
 	private $children = [];
 	private $parent = null;
+
+	/**
+	 * @var Thread
+	 */
 	private $thread = null;
 	private $redirect_url = null;
 	private $owner_url = '';
@@ -53,11 +62,10 @@ class Post extends BaseObject
 	 * Constructor
 	 *
 	 * @param array $data data array
+	 * @throws \Exception
 	 */
 	public function __construct(array $data)
 	{
-		$a = self::getApp();
-
 		$this->data = $data;
 		$this->setTemplate('wall');
 		$this->toplevel = $this->getId() == $this->getDataValue('parent');
@@ -75,7 +83,7 @@ class Post extends BaseObject
 		$author = ['uid' => 0, 'id' => $this->getDataValue('author-id'),
 			'network' => $this->getDataValue('author-network'),
 			'url' => $this->getDataValue('author-link')];
-		$this->redirect_url = Contact::magicLinkbyContact($author);
+		$this->redirect_url = Contact::magicLinkByContact($author);
 		if (!$this->isToplevel()) {
 			$this->threaded = true;
 		}
@@ -105,16 +113,16 @@ class Post extends BaseObject
 	/**
 	 * Get data in a form usable by a conversation template
 	 *
-	 * @param object  $conv_responses conversation responses
+	 * @param array   $conv_responses conversation responses
 	 * @param integer $thread_level   default = 1
 	 *
 	 * @return mixed The data requested on success
 	 *               false on failure
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public function getTemplateData($conv_responses, $thread_level = 1)
+	public function getTemplateData(array $conv_responses, $thread_level = 1)
 	{
-		$result = [];
-
 		$a = self::getApp();
 
 		$item = $this->getData();
@@ -131,7 +139,6 @@ class Post extends BaseObject
 				'relative' => Temporal::getRelativeDate($item['edited'])
 			];
 		}
-		$commentww = '';
 		$sparkle = '';
 		$buttons = '';
 		$dropping = false;
@@ -217,7 +224,7 @@ class Post extends BaseObject
 			'network' => $item['author-network'], 'url' => $item['author-link']];
 
 		if (local_user() || remote_user()) {
-			$profile_link = Contact::magicLinkbyContact($author);
+			$profile_link = Contact::magicLinkByContact($author);
 		} else {
 			$profile_link = $item['author-link'];
 		}
@@ -227,7 +234,7 @@ class Post extends BaseObject
 		}
 
 		$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
-		Addon::callHooks('render_location', $locate);
+		Hook::callAll('render_location', $locate);
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
@@ -245,7 +252,7 @@ class Post extends BaseObject
 			}
 		}
 
-		$responses = get_responses($conv_responses, $response_verbs, $this, $item);
+		$responses = get_responses($conv_responses, $response_verbs, $item, $this);
 
 		foreach ($response_verbs as $value => $verbs) {
 			$responses[$verbs]['output'] = !empty($conv_responses[$verbs][$item['uri']]) ? format_like($conv_responses[$verbs][$item['uri']], $conv_responses[$verbs][$item['uri'] . '-l'], $verbs, $item['uri']) : '';
@@ -359,6 +366,7 @@ class Post extends BaseObject
 			'tags'            => $tags['tags'],
 			'hashtags'        => $tags['hashtags'],
 			'mentions'        => $tags['mentions'],
+			'implicit_mentions' => $tags['implicit_mentions'],
 			'txt_cats'        => L10n::t('Categories:'),
 			'txt_folders'     => L10n::t('Filed under:'),
 			'has_cats'        => ((count($categories)) ? 'true' : ''),
@@ -392,6 +400,7 @@ class Post extends BaseObject
 			'location'        => $location_e,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
+			'owner_self'      => $item['author-link'] == defaults($_SESSION, 'my_url', null),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => $owner_name_e,
@@ -408,6 +417,7 @@ class Post extends BaseObject
 			'dislike'         => $responses['dislike']['output'],
 			'responses'       => $responses,
 			'switchcomment'   => L10n::t('Comment'),
+			'reply_label'     => L10n::t('Reply to %s', $name_e),
 			'comment'         => $comment,
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
 			'wait'            => L10n::t('Please wait'),
@@ -419,10 +429,19 @@ class Post extends BaseObject
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
 			'return'          => ($a->cmd) ? bin2hex($a->cmd) : '',
+			'delivery'        => [
+				'queue_count'       => $item['delivery_queue_count'],
+				'queue_done'        => $item['delivery_queue_done'],
+				'notifier_pending'  => L10n::t('Notifier task is pending'),
+				'delivery_pending'  => L10n::t('Delivery to remote servers is pending'),
+				'delivery_underway' => L10n::t('Delivery to remote servers is underway'),
+				'delivery_almost'   => L10n::t('Delivery to remote servers is mostly done'),
+				'delivery_done'     => L10n::t('Delivery to remote servers is done'),
+			],
 		];
 
 		$arr = ['item' => $item, 'output' => $tmp_item];
-		Addon::callHooks('display_item', $arr);
+		Hook::callAll('display_item', $arr);
 
 		$result = $arr['output'];
 
@@ -433,13 +452,13 @@ class Post extends BaseObject
 			foreach ($children as $child) {
 				$result['children'][] = $child->getTemplateData($conv_responses, $thread_level + 1);
 			}
+
 			// Collapse
 			if (($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
 				$result['children'][0]['num_comments'] = L10n::tt('%d comment', '%d comments', $total_children);
-				$result['children'][0]['hidden_comments_num'] = $total_children;
-				$result['children'][0]['hidden_comments_text'] = L10n::tt('comment', 'comments', $total_children);
-				$result['children'][0]['hide_text'] = L10n::t('show more');
+				$result['children'][0]['show_text'] = L10n::t('Show more');
+				$result['children'][0]['hide_text'] = L10n::t('Show fewer');
 				if ($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				} else {
@@ -486,9 +505,10 @@ class Post extends BaseObject
 	/**
 	 * Add a child item
 	 *
-	 * @param object $item The child item to add
+	 * @param Post $item The child item to add
 	 *
 	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function addChild(Post $item)
 	{
@@ -536,7 +556,7 @@ class Post extends BaseObject
 	/**
 	 * Get all our children
 	 *
-	 * @return object
+	 * @return Post[]
 	 */
 	public function getChildren()
 	{
@@ -546,11 +566,11 @@ class Post extends BaseObject
 	/**
 	 * Set our parent
 	 *
-	 * @param object $item The item to set as parent
+	 * @param Post $item The item to set as parent
 	 *
 	 * @return void
 	 */
-	protected function setParent($item)
+	protected function setParent(Post $item)
 	{
 		$parent = $this->getParent();
 		if ($parent) {
@@ -575,11 +595,12 @@ class Post extends BaseObject
 	/**
 	 * Remove a child
 	 *
-	 * @param object $item The child to be removed
+	 * @param Post $item The child to be removed
 	 *
 	 * @return boolean Success or failure
+	 * @throws \Exception
 	 */
-	public function removeChild($item)
+	public function removeChild(Post $item)
 	{
 		$id = $item->getId();
 		foreach ($this->getChildren() as $key => $child) {
@@ -606,28 +627,26 @@ class Post extends BaseObject
 	}
 
 	/**
-	 * Set conversation
+	 * Set conversation thread
 	 *
-	 * @param object $conv The conversation
+	 * @param Thread $thread
 	 *
 	 * @return void
 	 */
-	public function setThread($conv)
+	public function setThread(Thread $thread = null)
 	{
-		$previous_mode = ($this->thread ? $this->thread->getMode() : '');
-
-		$this->thread = $conv;
+		$this->thread = $thread;
 
 		// Set it on our children too
 		foreach ($this->getChildren() as $child) {
-			$child->setThread($conv);
+			$child->setThread($thread);
 		}
 	}
 
 	/**
 	 * Get conversation
 	 *
-	 * @return object
+	 * @return Thread
 	 */
 	public function getThread()
 	{
@@ -649,7 +668,7 @@ class Post extends BaseObject
 	/**
 	 * Get a data value
 	 *
-	 * @param object $name key
+	 * @param string $name key
 	 *
 	 * @return mixed value on success
 	 *               false on failure
@@ -667,9 +686,9 @@ class Post extends BaseObject
 	/**
 	 * Set template
 	 *
-	 * @param object $name template name
-	 *
-	 * @return void
+	 * @param string $name template name
+	 * @return bool
+	 * @throws \Exception
 	 */
 	private function setTemplate($name)
 	{
@@ -679,6 +698,8 @@ class Post extends BaseObject
 		}
 
 		$this->template = $this->available_templates[$name];
+
+		return true;
 	}
 
 	/**
@@ -753,12 +774,57 @@ class Post extends BaseObject
 	}
 
 	/**
+	 * Get default text for the comment box
+	 *
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private function getDefaultText()
+	{
+		$a = self::getApp();
+
+		if (!local_user()) {
+			return '';
+		}
+
+		$owner = User::getOwnerDataById($a->user['uid']);
+
+		if (!Feature::isEnabled(local_user(), 'explicit_mentions')) {
+			return '';
+		}
+
+		$item = Item::selectFirst(['author-addr'], ['id' => $this->getId()]);
+		if (!DBA::isResult($item) || empty($item['author-addr'])) {
+			// Should not happen
+			return '';
+		}
+
+		if ($item['author-addr'] != $owner['addr']) {
+			$text = '@' . $item['author-addr'] . ' ';
+		} else {
+			$text = '';
+		}
+
+		$terms = Term::tagArrayFromItemId($this->getId(), [Term::MENTION, Term::IMPLICIT_MENTION]);
+		foreach ($terms as $term) {
+			$profile = Contact::getDetailsByURL($term['url']);
+			if (!empty($profile['addr']) && (defaults($profile, 'contact-type', Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
+				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
+				$text .= '@' . $profile['addr'] . ' ';
+			}
+		}
+
+		return $text;
+	}
+
+	/**
 	 * Get the comment box
 	 *
 	 * @param string $indent Indent value
 	 *
 	 * @return mixed The comment box string (empty if no comment box)
 	 *               false on failure
+	 * @throws \Exception
 	 */
 	private function getCommentBox($indent)
 	{
@@ -772,7 +838,7 @@ class Post extends BaseObject
 		}
 
 		if ($conv->isWritable() && $this->isWritable()) {
-			$qc = $qcomment = null;
+			$qcomment = null;
 
 			/*
 			 * Hmmm, code depending on the presence of a particular addon?
@@ -787,6 +853,8 @@ class Post extends BaseObject
 			$uid = $conv->getProfileOwner();
 			$parent_uid = $this->getDataValue('uid');
 
+			$default_text = $this->getDefaultText();
+
 			if (!is_null($parent_uid) && ($uid != $parent_uid)) {
 				$uid = $parent_uid;
 			}
@@ -800,6 +868,7 @@ class Post extends BaseObject
 				'$id'          => $this->getId(),
 				'$parent'      => $this->getId(),
 				'$qcomment'    => $qcomment,
+				'$default'     => $default_text,
 				'$profile_uid' => $uid,
 				'$mylink'      => $a->removeBaseURL($a->contact['url']),
 				'$mytitle'     => L10n::t('This is you'),
@@ -838,6 +907,7 @@ class Post extends BaseObject
 	 * Check if we are a wall to wall item and set the relevant properties
 	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	protected function checkWallToWall()
 	{
@@ -878,7 +948,7 @@ class Post extends BaseObject
 						$owner = ['uid' => 0, 'id' => $this->getDataValue('owner-id'),
 							'network' => $this->getDataValue('owner-network'),
 							'url' => $this->getDataValue('owner-link')];
-						$this->owner_url = Contact::magicLinkbyContact($owner);
+						$this->owner_url = Contact::magicLinkByContact($owner);
 					}
 				}
 			}

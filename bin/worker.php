@@ -4,10 +4,12 @@
  * @file bin/worker.php
  * @brief Starts the background processing
  */
+
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Worker;
 use Friendica\Core\Update;
+use Friendica\Core\Worker;
+use Friendica\Factory;
 
 // Get options
 $shortopts = 'sn';
@@ -28,10 +30,10 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new App(dirname(__DIR__));
+$a = Factory\DependencyFactory::setUp('worker', dirname(__DIR__));
 
 // Check the database structure and possibly fixes it
-Update::check(true);
+Update::check($a->getBasePath(), true);
 
 // Quit when in maintenance
 if (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED)) {
@@ -44,7 +46,7 @@ $spawn = array_key_exists('s', $options) || array_key_exists('spawn', $options);
 
 if ($spawn) {
 	Worker::spawnWorker();
-	killme();
+	exit();
 }
 
 $run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);

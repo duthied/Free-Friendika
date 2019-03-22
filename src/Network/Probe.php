@@ -35,6 +35,7 @@ use DomXPath;
 class Probe
 {
 	private static $baseurl;
+	private static $istimeout;
 
 	/**
 	 * @brief Rearrange the array so that it always has the same order
@@ -97,6 +98,7 @@ class Probe
 	 * @param string $host The host part of an url
 	 *
 	 * @return array with template and type of the webfinger template for JSON or XML
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function hostMeta($host)
 	{
@@ -123,6 +125,7 @@ class Probe
 			$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($curlResult->isTimeout()) {
 				Logger::log("Probing timeout for " . $url, Logger::DEBUG);
+				self::$istimeout = true;
 				return false;
 			}
 			$xml = $curlResult->getBody();
@@ -155,7 +158,7 @@ class Probe
 				continue;
 			}
 
-			if (($attributes["rel"] == "lrdd") && !empty($attributes["template"])) {
+			if (!empty($attributes["rel"]) && $attributes["rel"] == "lrdd" && !empty($attributes["template"])) {
 				$type = (empty($attributes["type"]) ? '' : $attributes["type"]);
 
 				$lrdd[$type] = $attributes["template"];
@@ -188,6 +191,7 @@ class Probe
 	 * @param string $hcard_url Link to the hcard - is returned by reference
 	 *
 	 * @return string profile link
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function webfingerDfrn($webbie, &$hcard_url)
 	{
@@ -221,6 +225,7 @@ class Probe
 	 * @param string $uri Address that should be probed
 	 *
 	 * @return array uri data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function lrdd($uri)
 	{
@@ -315,6 +320,8 @@ class Probe
 	 * @param boolean $cache   Use cached values?
 	 *
 	 * @return array uri data
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function uri($uri, $network = '', $uid = -1, $cache = true)
 	{
@@ -329,16 +336,24 @@ class Probe
 			$uid = local_user();
 		}
 
+		self::$istimeout = false;
+
 		if ($network != Protocol::ACTIVITYPUB) {
 			$data = self::detect($uri, $network, $uid);
 		} else {
 			$data = null;
 		}
 
-		$ap_profile = ActivityPub::probeProfile($uri);
+		// When the previous detection process had got a time out
+		// we could falsely detect a Friendica profile as AP profile.
+		if (!self::$istimeout) {
+			$ap_profile = ActivityPub::probeProfile($uri);
 
-		if (!empty($ap_profile) && (defaults($data, 'network', '') != Protocol::DFRN)) {
-			$data = $ap_profile;
+			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
+				$data = $ap_profile;
+			}
+		} else {
+			Logger::notice('Time out detected. AP will not be probed.', ['uri' => $uri]);
 		}
 
 		if (!isset($data['url'])) {
@@ -412,7 +427,7 @@ class Probe
 				// This doesn't cover the case when a community isn't a community anymore
 				if (!empty($data['community']) && $data['community']) {
 					$fields['community'] = $data['community'];
-					$fields['contact-type'] = Contact::ACCOUNT_TYPE_COMMUNITY;
+					$fields['contact-type'] = Contact::TYPE_COMMUNITY;
 				}
 
 				$fieldnames = [];
@@ -527,6 +542,7 @@ class Probe
 	 * @param string $type      type
 	 *
 	 * @return array fixed webfinger data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function fixOStatus($webfinger, $lrdd, $type)
 	{
@@ -572,6 +588,7 @@ class Probe
 	 * @param integer $uid     User ID for the probe (only used for mails)
 	 *
 	 * @return array uri data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function detect($uri, $network, $uid)
 	{
@@ -740,6 +757,7 @@ class Probe
 	 * @param string $type type
 	 *
 	 * @return array webfinger data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function webfinger($url, $type)
 	{
@@ -748,6 +766,7 @@ class Probe
 
 		$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$data = $curlResult->getBody();
@@ -810,11 +829,13 @@ class Probe
 	 * @param array  $data         The already fetched data
 	 *
 	 * @return array noscrape data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
 		$curlResult = Network::curl($noscrape_url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$content = $curlResult->getBody();
@@ -926,6 +947,8 @@ class Probe
 	 * @param string $profile_link Link to the profile page
 	 *
 	 * @return array profile data
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function profile($profile_link)
 	{
@@ -976,6 +999,7 @@ class Probe
 	 * @param array $webfinger Webfinger data
 	 *
 	 * @return array DFRN data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function dfrn($webfinger)
 	{
@@ -1057,11 +1081,13 @@ class Probe
 	 * @param boolean $dfrn      Poll DFRN specific data
 	 *
 	 * @return array hcard data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
 		$curlResult = Network::curl($hcard_url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$content = $curlResult->getBody();
@@ -1181,6 +1207,7 @@ class Probe
 	 * @param array $webfinger Webfinger data
 	 *
 	 * @return array Diaspora data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function diaspora($webfinger)
 	{
@@ -1268,6 +1295,7 @@ class Probe
 	 * @param bool  $short     Short detection mode
 	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function ostatus($webfinger, $short = false)
 	{
@@ -1287,7 +1315,6 @@ class Probe
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
 
-		$pubkey = "";
 		if (is_array($webfinger["links"])) {
 			// The array is reversed to take into account the order of preference for same-rel links
 			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
@@ -1313,6 +1340,7 @@ class Probe
 					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
 						$curlResult = Network::curl($pubkey);
 						if ($curlResult->isTimeout()) {
+							self::$istimeout = true;
 							return false;
 						}
 						$pubkey = $curlResult->getBody();
@@ -1345,6 +1373,7 @@ class Probe
 		// Fetch all additional data from the feed
 		$curlResult = Network::curl($data["poll"]);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$feed = $curlResult->getBody();
@@ -1450,6 +1479,7 @@ class Probe
 	 *
 	 * @param array $webfinger Webfinger data
 	 *
+	 * @param       $addr
 	 * @return array pump.io data
 	 */
 	private static function pumpio($webfinger, $addr)
@@ -1552,11 +1582,13 @@ class Probe
 	 * @param boolean $probe Do a probe if the page contains a feed link
 	 *
 	 * @return array feed data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function feed($url, $probe = true)
 	{
 		$curlResult = Network::curl($url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$feed = $curlResult->getBody();
@@ -1614,6 +1646,7 @@ class Probe
 	 * @param integer $uid User ID
 	 *
 	 * @return array mail data
+	 * @throws \Exception
 	 */
 	private static function mail($uri, $uid)
 	{
@@ -1701,6 +1734,7 @@ class Probe
 	 * @param string $base   Another path that is hopefully complete
 	 *
 	 * @return string fixed avatar path
+	 * @throws \Exception
 	 */
 	public static function fixAvatar($avatar, $base)
 	{

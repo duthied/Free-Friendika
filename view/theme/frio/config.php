@@ -35,16 +35,16 @@ function theme_admin_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		Config::set('frio', 'scheme',           $_POST['frio_scheme']);
-		Config::set('frio', 'nav_bg',           $_POST['frio_nav_bg']);
-		Config::set('frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']);
-		Config::set('frio', 'link_color',       $_POST['frio_link_color']);
-		Config::set('frio', 'background_color', $_POST['frio_background_color']);
-		Config::set('frio', 'contentbg_transp', $_POST['frio_contentbg_transp']);
-		Config::set('frio', 'background_image', $_POST['frio_background_image']);
-		Config::set('frio', 'bg_image_option',  $_POST['frio_bg_image_option']);
-		Config::set('frio', 'login_bg_image',   $_POST['frio_login_bg_image']);
-		Config::set('frio', 'login_bg_color',   $_POST['frio_login_bg_color']);
+		Config::set('frio', 'scheme',           defaults($_POST, 'frio_scheme', ''));
+		Config::set('frio', 'nav_bg',           defaults($_POST, 'frio_nav_bg', ''));
+		Config::set('frio', 'nav_icon_color',   defaults($_POST, 'frio_nav_icon_color', ''));
+		Config::set('frio', 'link_color',       defaults($_POST, 'frio_link_color', ''));
+		Config::set('frio', 'background_color', defaults($_POST, 'frio_background_color', ''));
+		Config::set('frio', 'contentbg_transp', defaults($_POST, 'frio_contentbg_transp', ''));
+		Config::set('frio', 'background_image', defaults($_POST, 'frio_background_image', ''));
+		Config::set('frio', 'bg_image_option',  defaults($_POST, 'frio_bg_image_option', ''));
+		Config::set('frio', 'login_bg_image',   defaults($_POST, 'frio_login_bg_image', ''));
+		Config::set('frio', 'login_bg_color',   defaults($_POST, 'frio_login_bg_color', ''));
 		Config::set('frio', 'css_modified',     time());
 	}
 }

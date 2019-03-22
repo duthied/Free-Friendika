@@ -48,7 +48,7 @@ function notify_init(App $a)
 		$r = $nm->setAllSeen();
 		$j = json_encode(['result' => ($r) ? 'success' : 'fail']);
 		echo $j;
-		killme();
+		exit();
 	}
 }
 
@@ -57,6 +57,8 @@ function notify_content(App $a)
 	if (! local_user()) {
 		return Login::form();
 	}
+
+	$notif_content = '';
 
 	$nm = new NotificationsManager();
 

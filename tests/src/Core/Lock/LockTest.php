@@ -2,12 +2,20 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\BaseObject;
-use Friendica\Core\Config;
-use Friendica\Test\DatabaseTest;
+use Friendica\Test\MockedTest;
+use Friendica\Test\Util\AppMockTrait;
+use Friendica\Test\Util\VFSTrait;
 
-abstract class LockTest extends DatabaseTest
+abstract class LockTest extends MockedTest
 {
+	use VFSTrait;
+	use AppMockTrait;
+
+	/**
+	 * @var int Start time of the mock (used for time operations)
+	 */
+	protected $startTime = 1417011228;
+
 	/**
 	 * @var \Friendica\Core\Lock\ILockDriver
 	 */
@@ -17,25 +25,22 @@ abstract class LockTest extends DatabaseTest
 
 	protected function setUp()
 	{
+		// Reusable App object
+		$this->setUpVfsDir();
+		$this->mockApp($this->root);
+		$this->app
+			->shouldReceive('getHostname')
+			->andReturn('friendica.local');
+
 		parent::setUp();
 		$this->instance = $this->getInstance();
 		$this->instance->releaseAll();
-
-		// Reusable App object
-		$this->app = BaseObject::getApp();
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
 	}
 
 	protected function tearDown()
 	{
-		parent::tearDown();
 		$this->instance->releaseAll();
+		parent::tearDown();
 	}
 
 	/**
@@ -82,7 +87,7 @@ abstract class LockTest extends DatabaseTest
 		$this->assertTrue($this->instance->isLocked('bar'));
 		$this->assertTrue($this->instance->isLocked('nice'));
 
-		$this->instance->releaseAll();
+		$this->assertTrue($this->instance->releaseAll());
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
@@ -100,16 +105,28 @@ abstract class LockTest extends DatabaseTest
 		$this->assertTrue($this->instance->acquireLock('bar', 1));
 		$this->assertTrue($this->instance->acquireLock('nice', 1));
 
-		$this->instance->releaseLock('foo');
+		$this->assertTrue($this->instance->releaseLock('foo'));
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->isLocked('bar'));
 		$this->assertTrue($this->instance->isLocked('nice'));
 
-		$this->instance->releaseAll();
+		$this->assertTrue($this->instance->releaseAll());
 
 		$this->assertFalse($this->instance->isLocked('bar'));
 		$this->assertFalse($this->instance->isLocked('nice'));
+	}
+
+	/**
+	 * @small
+	 */
+	public function testReleaseWitTTL()
+	{
+		$this->assertFalse($this->instance->isLocked('test'));
+		$this->assertTrue($this->instance->acquireLock('test', 1, 10));
+		$this->assertTrue($this->instance->isLocked('test'));
+		$this->assertTrue($this->instance->releaseLock('test'));
+		$this->assertFalse($this->instance->isLocked('test'));
 	}
 
 	/**

@@ -17,7 +17,7 @@ function oexchange_init(App $a) {
 
 		$o = Renderer::replaceMacros($tpl, ['$base' => System::baseUrl()]);
 		echo $o;
-		killme();
+		exit();
 	}
 }
 

@@ -11,9 +11,9 @@ use Exception;
 use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -37,13 +37,14 @@ class BBCode extends BaseObject
 	 *
 	 * @param string $body Message body
 	 * @return array
-	 * 'type' -> Message type ("link", "video", "photo")
-	 * 'text' -> Text before the shared message
-	 * 'after' -> Text after the shared message
-	 * 'image' -> Preview image of the message
-	 * 'url' -> Url to the attached message
-	 * 'title' -> Title of the attachment
-	 * 'description' -> Description of the attachment
+	 *                     'type' -> Message type ("link", "video", "photo")
+	 *                     'text' -> Text before the shared message
+	 *                     'after' -> Text after the shared message
+	 *                     'image' -> Preview image of the message
+	 *                     'url' -> Url to the attached message
+	 *                     'title' -> Title of the attachment
+	 *                     'description' -> Description of the attachment
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getOldAttachmentData($body)
 	{
@@ -66,6 +67,7 @@ class BBCode extends BaseObject
 					$post["after"] = trim(substr($body, $pos + strlen($data[0])));
 				} else {
 					$post["text"] = trim(str_replace($data[0], "", $body));
+					$post["after"] = '';
 				}
 
 				$attacheddata = $data[2];
@@ -108,13 +110,14 @@ class BBCode extends BaseObject
 	 *
 	 * @param string $body Message body
 	 * @return array
-	 * 'type' -> Message type ("link", "video", "photo")
-	 * 'text' -> Text before the shared message
-	 * 'after' -> Text after the shared message
-	 * 'image' -> Preview image of the message
-	 * 'url' -> Url to the attached message
-	 * 'title' -> Title of the attachment
-	 * 'description' -> Description of the attachment
+	 *                     'type' -> Message type ("link", "video", "photo")
+	 *                     'text' -> Text before the shared message
+	 *                     'after' -> Text after the shared message
+	 *                     'image' -> Preview image of the message
+	 *                     'url' -> Url to the attached message
+	 *                     'title' -> Title of the attachment
+	 *                     'description' -> Description of the attachment
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getAttachmentData($body)
 	{
@@ -345,6 +348,7 @@ class BBCode extends BaseObject
 	/**
 	 * @brief Converts a BBCode text into plaintext
 	 *
+	 * @param      $text
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
 	 *
 	 * @return string
@@ -446,6 +450,7 @@ class BBCode extends BaseObject
 	 * @brief Truncates imported message body string length to max_import_size
 	 * @param string $body
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function limitBodySize($body)
 	{
@@ -532,10 +537,11 @@ class BBCode extends BaseObject
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
 	 * @brief Processes [attachment] tags
-	 * @param string $return
+	 * @param string   $return
 	 * @param bool|int $simplehtml
-	 * @param bool $tryoembed
+	 * @param bool     $tryoembed
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function convertAttachment($return, $simplehtml = false, $tryoembed = true)
 	{
@@ -777,10 +783,10 @@ class BBCode extends BaseObject
 	/**
 	 * Performs a preg_replace within the boundaries of all named BBCode tags in a text
 	 *
-	 * @param type $pattern Preg pattern string
-	 * @param type $replace Preg replace string
-	 * @param type $name    BBCode tag name
-	 * @param type $text    Text to search
+	 * @param string $pattern Preg pattern string
+	 * @param string $replace Preg replace string
+	 * @param string $name    BBCode tag name
+	 * @param string $text    Text to search
 	 * @return string
 	 */
 	public static function pregReplaceInTag($pattern, $replace, $name, $text)
@@ -930,6 +936,7 @@ class BBCode extends BaseObject
 	 * @param boolean $is_quote_share Whether there is content before the [share] block
 	 * @param integer $simplehtml     Mysterious integer value depending on the target network/formatting style
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
@@ -943,15 +950,19 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 3: // Diaspora
-				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
-
 				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
 					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
+					$headline = '<p><b>♲ <a href="' . $attributes['profile'] . '">' . $attributes['author'] . '</a>:</b></p>' . "\n";
+
+					if (!empty($attributes['posted']) && !empty($attributes['link'])) {
+						$headline = '<p><b>♲ <a href="' . $attributes['profile'] . '">' . $attributes['author'] . '</a></b> - <a href="' . $attributes['link'] . '">' . $attributes['posted'] . ' GMT</a></p>' . "\n";
+					}
+
 					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
 
-					if ($attributes['link'] != '') {
-						$text .= '<p><a href="' . $attributes['link'] . '">[l]</a></p>' . "\n";
+					if (empty($attributes['posted']) && !empty($attributes['link'])) {
+						$text .= '<p><a href="' . $attributes['link'] . '">[Source]</a></p>' . "\n";
 					}
 				}
 
@@ -1021,7 +1032,7 @@ class BBCode extends BaseObject
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->saveTimestamp($stamp1, "network");
+			$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
 				$text = "[url=" . $match[1] . "]" . $match[1] . "[/url]";
@@ -1080,7 +1091,7 @@ class BBCode extends BaseObject
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->saveTimestamp($stamp1, "network");
+			$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 			// if its a link to a picture then embed this picture
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
@@ -1142,8 +1153,9 @@ class BBCode extends BaseObject
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert($text, $try_oembed = true, $simple_html = false, $for_plaintext = false)
+	public static function convert($text, $try_oembed = true, $simple_html = 0, $for_plaintext = false)
 	{
 		$a = self::getApp();
 
@@ -1168,17 +1180,18 @@ class BBCode extends BaseObject
 			return $return;
 		};
 
-		// Extracting multi-line code blocks before the whitespace processing
+		// Extracting code blocks before the whitespace processing and the autolinker
 		$codeblocks = [];
 
-		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#ism",
 			function ($matches) use (&$codeblocks) {
-				$return = $matches[0];
+				$return = '#codeblock-' . count($codeblocks) . '#';
 				if (strpos($matches[2], "\n") !== false) {
-					$return = '#codeblock-' . count($codeblocks) . '#';
-
-					$codeblocks[] =  '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+				} else {
+					$codeblocks[] = '<code>' . $matches[2] . '</code>';
 				}
+
 				return $return;
 			},
 			$text
@@ -1254,13 +1267,12 @@ class BBCode extends BaseObject
 		// Set up the parameters for a MAIL search string
 		$MAILSearchString = $URLSearchString;
 
+		// Handle attached links or videos
+		$text = self::convertAttachment($text, $simple_html, $try_oembed);
+
 		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 		if (!$for_plaintext) {
-			// Autolink feature (thanks to http://code.seebz.net/p/autolink-php/)
-			// Currently disabled, since the function is too greedy
-			// $autolink_regex = "`([^\]\=\"']|^)(https?\://[^\s<]+[^\s<\.\)])`ism";
-			$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
-			$text = preg_replace($autolink_regex, '$1[url]$2[/url]', $text);
+			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
 			if ($simple_html == 7) {
 				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
@@ -1269,10 +1281,6 @@ class BBCode extends BaseObject
 			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
 			$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
 		}
-
-
-		// Handle attached links or videos
-		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
@@ -1286,7 +1294,7 @@ class BBCode extends BaseObject
 				$text);
 		} elseif ($simple_html == 7) {
 			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<span class="vcard"><a href="$2" class="url" title="$3"><span class="fn nickname mention">$3</span></a></span>',
+				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
 				$text);
 		} elseif (!$simple_html) {
 			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
@@ -1353,6 +1361,12 @@ class BBCode extends BaseObject
 				. XML::escape($matches[1])
 				. '</a>';
 		}, $text);
+
+		// We need no target="_blank" for local links
+		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
+		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
+		$text = preg_replace("/\[url\](".$escapedBaseUrl."[$URLSearchString]*)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
+		$text = preg_replace("/\[url\=(".$escapedBaseUrl."[$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);		
 
 		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
 		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
@@ -1488,12 +1502,6 @@ class BBCode extends BaseObject
 
 		// Check for font change text
 		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
-
-		// Declare the format for [code] layout
-
-		$CodeLayout = '<code>$1</code>';
-		// Check for [code] text
-		$text = preg_replace("/\[code\](.*?)\[\/code\]/ism", "$CodeLayout", $text);
 
 		// Declare the format for [spoiler] layout
 		$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
@@ -1676,7 +1684,7 @@ class BBCode extends BaseObject
 
 		// Replace non graphical smilies for external posts
 		if ($simple_html) {
-			$text = Smilies::replace($text, false, true);
+			$text = Smilies::replace($text);
 		}
 
 		// Unhide all [noparse] contained bbtags unspacefying them
@@ -1730,7 +1738,7 @@ class BBCode extends BaseObject
 
 		// Clean up the HTML by loading and saving the HTML with the DOM.
 		// Bad structured html can break a whole page.
-		// For performance reasons do it only with ativated item cache or at export.
+		// For performance reasons do it only with activated item cache or at export.
 		if (!$try_oembed || (get_itemcachepath() != "")) {
 			$doc = new DOMDocument();
 			$doc->preserveWhiteSpace = false;
@@ -1756,7 +1764,7 @@ class BBCode extends BaseObject
 		//$Text = str_replace('<br /><li>', '<li>', $Text);
 		//$Text = str_replace('<br /><ul', '<ul ', $Text);
 
-		Addon::callHooks('bbcode', $text);
+		Hook::callAll('bbcode', $text);
 
 		return trim($text);
 	}
@@ -1813,6 +1821,8 @@ class BBCode extends BaseObject
 	 *                     [2] = Name
 	 *                     [3] = Address
 	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function bbCodeMention2DiasporaCallback($match)
 	{
@@ -1839,6 +1849,7 @@ class BBCode extends BaseObject
 	 * @param string $text
 	 * @param bool   $for_diaspora Diaspora requires more changes than Libertree
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function toMarkdown($text, $for_diaspora = true)
 	{
@@ -1899,7 +1910,7 @@ class BBCode extends BaseObject
 		// unmask the special chars back to HTML
 		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);
 
-		$a->saveTimestamp($stamp1, "parser");
+		$a->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);
@@ -1917,7 +1928,7 @@ class BBCode extends BaseObject
 			);
 		}
 
-		Addon::callHooks('bb2diaspora', $text);
+		Hook::callAll('bb2diaspora', $text);
 
 		return $text;
 	}
@@ -1943,7 +1954,7 @@ class BBCode extends BaseObject
         $string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
 
         // ignore anything in a code block
-        $string = preg_replace('/\[code\](.*?)\[\/code\]/sm', '', $string);
+        $string = preg_replace('/\[code.*?\].*?\[\/code\]/sm', '', $string);
 
         // Force line feeds at bbtags
         $string = str_replace(['[', ']'], ["\n[", "]\n"], $string);

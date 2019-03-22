@@ -2,12 +2,13 @@
 {{else}}
 {{if $item.comment_firstcollapsed}}
 	{{if $item.thread_level<3}}
-		<div class="hide-comments-outer">
-			<span id="hide-comments-total-{{$item.id}}"
-				class="hide-comments-total">{{$item.num_comments}}</span>
-			<span id="hide-comments-{{$item.id}}"
-				class="hide-comments fakelink"
-				onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
+		<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+			<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+				{{$item.num_comments}} - {{$item.show_text}}
+			</span>
+			<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+				{{$item.num_comments}} - {{$item.hide_text}}
+			</span>
 		</div>
 		<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 	{{else}}
@@ -56,6 +57,9 @@
 			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
 			<span class="wall-item-ago">
 				{{if $item.plink}}<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="u-url" style="color: #999"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time></a>{{else}} <time class="dt-published" datetime="{{$item.localtime}}">{{$item.created}}</time> {{/if}}
+				{{if $item.owner_self}}
+					{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
+				{{/if}}
 			</span>
 			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 			<span class="wall-item-network" title="{{$item.app}}">

@@ -9,11 +9,11 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Model\Conversation;
 use Friendica\Model\Contact;
 use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\Event;
+use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
@@ -30,7 +30,7 @@ class Processor
 	 *
 	 * @param string $body
 	 *
-	 * @return converted body
+	 * @return string converted body
 	 */
 	private static function convertMentions($body)
 	{
@@ -48,7 +48,7 @@ class Processor
 	 *
 	 * @return string with replaced emojis
 	 */
-	public static function replaceEmojis($emojis, $body)
+	private static function replaceEmojis($body, array $emojis)
 	{
 		foreach ($emojis as $emoji) {
 			$replace = '[class=emoji mastodon][img=' . $emoji['href'] . ']' . $emoji['name'] . '[/img][/class]';
@@ -60,12 +60,12 @@ class Processor
 	/**
 	 * Constructs a string with tags for a given tag array
 	 *
-	 * @param array $tags
+	 * @param array   $tags
 	 * @param boolean $sensitive
-	 *
+	 * @param array   $implicit_mentions List of profile URLs to skip
 	 * @return string with tags
 	 */
-	private static function constructTagList($tags, $sensitive)
+	private static function constructTagString(array $tags, $sensitive)
 	{
 		if (empty($tags)) {
 			return '';
@@ -93,7 +93,7 @@ class Processor
 	 * @param array $attachments
 	 * @param array $item
 	 *
-	 * @return item array
+	 * @return array array
 	 */
 	private static function constructAttachList($attachments, $item)
 	{
@@ -124,18 +124,24 @@ class Processor
 	/**
 	 * Updates a message
 	 *
-	 * @param array  $activity Activity array
+	 * @param array $activity Activity array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function updateItem($activity)
 	{
-		$item = [];
+		$item = Item::selectFirst(['uri', 'thr-parent', 'gravity'], ['uri' => $activity['id']]);
+		if (!DBA::isResult($item)) {
+			Logger::warning('Unknown item', ['uri' => $activity['id']]);
+			return;
+		}
+
 		$item['changed'] = DateTimeFormat::utcNow();
 		$item['edited'] = $activity['updated'];
-		$item['title'] = HTML::toBBCode($activity['name']);
-		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
-		$item['body'] = self::convertMentions($content);
-		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
+
+		$item = self::processContent($activity, $item);
+		if (empty($item)) {
+			return;
+		}
 
 		Item::update($item, ['uri' => $activity['id']]);
 	}
@@ -143,13 +149,15 @@ class Processor
 	/**
 	 * Prepares data for a message
 	 *
-	 * @param array  $activity Activity array
+	 * @param array $activity Activity array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function createItem($activity)
 	{
 		$item = [];
 		$item['verb'] = ACTIVITY_POST;
-		$item['parent-uri'] = $activity['reply-to-id'];
+		$item['thr-parent'] = $activity['reply-to-id'];
 
 		if ($activity['reply-to-id'] == $activity['id']) {
 			$item['gravity'] = GRAVITY_PARENT;
@@ -173,6 +181,8 @@ class Processor
 	 * Delete items
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function deleteItem($activity)
 	{
@@ -187,12 +197,14 @@ class Processor
 	 *
 	 * @param array  $activity Activity array
 	 * @param string $verb     Activity verb
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function createActivity($activity, $verb)
 	{
 		$item = [];
 		$item['verb'] = $verb;
-		$item['parent-uri'] = $activity['object_id'];
+		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
@@ -206,6 +218,7 @@ class Processor
 	 *
 	 * @param array $activity Activity array
 	 * @param array $item
+	 * @throws \Exception
 	 */
 	public static function createEvent($activity, $item)
 	{
@@ -235,17 +248,79 @@ class Processor
 	}
 
 	/**
+	 * Process the content
+	 *
+	 * @param array $activity Activity array
+	 * @param array $item
+	 * @return array|bool Returns the item array or false if there was an unexpected occurrence
+	 * @throws \Exception
+	 */
+	private static function processContent($activity, $item)
+	{
+		$item['title'] = HTML::toBBCode($activity['name']);
+
+		if (!empty($activity['source'])) {
+			$item['body'] = $activity['source'];
+		} else {
+			$content = HTML::toBBCode($activity['content']);
+
+			if (!empty($activity['emojis'])) {
+				$content = self::replaceEmojis($content, $activity['emojis']);
+			}
+
+			$content = self::convertMentions($content);
+
+			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+				$item_private = !in_array(0, $activity['item_receiver']);
+				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
+				if (!DBA::isResult($parent)) {
+					Logger::warning('Unknown parent item.', ['uri' => $item['thr-parent']]);
+					return false;
+				}
+				if ($item_private && !$parent['private']) {
+					Logger::warning('Item is private but the parent is not. Dropping.', ['item-uri' => $item['uri'], 'thr-parent' => $item['thr-parent']]);
+					return false;
+				}
+
+				$potential_implicit_mentions = self::getImplicitMentionList($parent);
+				$content = self::removeImplicitMentionsFromBody($content, $potential_implicit_mentions);
+				$activity['tags'] = self::convertImplicitMentionsInTags($activity['tags'], $potential_implicit_mentions);
+			}
+			$item['content-warning'] = HTML::toBBCode($activity['summary']);
+			$item['body'] = $content;
+
+			if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
+				$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
+			}
+		}
+
+		$item['tag'] = self::constructTagString($activity['tags'], $activity['sensitive']);
+
+		$item['location'] = $activity['location'];
+
+		if (!empty($item['latitude']) && !empty($item['longitude'])) {
+			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
+		}
+
+		$item['app'] = $activity['generator'];
+
+		return $item;
+	}
+
+	/**
 	 * Creates an item post
 	 *
-	 * @param array  $activity Activity data
-	 * @param array  $item     item array
+	 * @param array $activity Activity data
+	 * @param array $item     item array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function postItem($activity, $item)
 	{
 		/// @todo What to do with $activity['context']?
 
-		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['parent-uri']])) {
-			Logger::log('Parent ' . $item['parent-uri'] . ' not found, message will be discarded.', Logger::DEBUG);
+		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
+			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			return;
 		}
 
@@ -258,52 +333,27 @@ class Processor
 			$item['owner-link'] = $activity['actor'];
 			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 		} else {
-			Logger::log('Ignoring actor because of thread completion.', Logger::DEBUG);
+			Logger::info('Ignoring actor because of thread completion.');
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
 
 		$item['uri'] = $activity['id'];
 
-		if (($item['parent-uri'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
-			$item_private = !in_array(0, $activity['item_receiver']);
-			$parent = Item::selectFirst(['private'], ['uri' => $item['parent-uri']]);
-			if (!DBA::isResult($parent)) {
-				return;
-			}
-			if ($item_private && !$parent['private']) {
-				Logger::log('Item ' . $item['uri'] . ' is private but the parent ' . $item['parent-uri'] . ' is not. So we drop it.');
-				return;
-			}
-		}
-
 		$item['created'] = $activity['published'];
 		$item['edited'] = $activity['updated'];
 		$item['guid'] = $activity['diaspora:guid'];
-		$item['title'] = HTML::toBBCode($activity['name']);
-		$item['content-warning'] = HTML::toBBCode($activity['summary']);
-		$content = self::replaceEmojis($activity['emojis'], HTML::toBBCode($activity['content']));
-		$item['body'] = self::convertMentions($content);
 
-		if (($activity['object_type'] == 'as:Video') && !empty($activity['alternate-url'])) {
-			$item['body'] .= "\n[video]" . $activity['alternate-url'] . '[/video]';
+		$item = self::processContent($activity, $item);
+		if (empty($item)) {
+			return;
 		}
 
-		$item['location'] = $activity['location'];
-
-		if (!empty($item['latitude']) && !empty($item['longitude'])) {
-			$item['coord'] = $item['latitude'] . ' ' . $item['longitude'];
-		}
-
-		$item['tag'] = self::constructTagList($activity['tags'], $activity['sensitive']);
-		$item['app'] = $activity['generator'];
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 
 		$item = self::constructAttachList($activity['attachments'], $item);
 
-		if (!empty($activity['source'])) {
-			$item['body'] = $activity['source'];
-		}
+		$stored = false;
 
 		foreach ($activity['receiver'] as $receiver) {
 			$item['uid'] = $receiver;
@@ -318,7 +368,25 @@ class Processor
 			}
 
 			$item_id = Item::insert($item);
-			Logger::log('Storing for user ' . $item['uid'] . ': ' . $item_id);
+			if ($item_id) {
+				Logger::info('Item insertion successful', ['user' => $item['uid'], 'item_id' => $item_id]);
+			} else {
+				Logger::notice('Item insertion aborted', ['user' => $item['uid']]);
+			}
+
+			if ($item['uid'] == 0) {
+				$stored = $item_id;
+			}
+		}
+
+		// Store send a follow request for every reshare - but only when the item had been stored
+		if ($stored && !$item['private'] && ($item['gravity'] == GRAVITY_PARENT) && ($item['author-link'] != $item['owner-link'])) {
+			$author = APContact::getByURL($item['owner-link'], false);
+			// We send automatic follow requests for reshared messages. (We don't need though for forum posts)
+			if ($author['type'] != 'Group') {
+				Logger::log('Send follow request for ' . $item['uri'] . ' (' . $stored . ') to ' . $item['author-link'], Logger::DEBUG);
+				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
+			}
 		}
 	}
 
@@ -327,6 +395,7 @@ class Processor
 	 *
 	 * @param $url
 	 * @param $child
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function fetchMissingActivity($url, $child)
 	{
@@ -370,6 +439,8 @@ class Processor
 	 * perform a "follow" request
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function followUser($activity)
 	{
@@ -412,6 +483,7 @@ class Processor
 	 * Update the given profile
 	 *
 	 * @param array $activity
+	 * @throws \Exception
 	 */
 	public static function updatePerson($activity)
 	{
@@ -427,6 +499,7 @@ class Processor
 	 * Delete the given profile
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function deletePerson($activity)
 	{
@@ -453,6 +526,8 @@ class Processor
 	 * Accept a follow request
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function acceptFollowUser($activity)
 	{
@@ -460,8 +535,6 @@ class Processor
 		if (empty($uid)) {
 			return;
 		}
-
-		$owner = User::getOwnerDataById($uid);
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
@@ -487,6 +560,8 @@ class Processor
 	 * Reject a follow request
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function rejectFollowUser($activity)
 	{
@@ -494,8 +569,6 @@ class Processor
 		if (empty($uid)) {
 			return;
 		}
-
-		$owner = User::getOwnerDataById($uid);
 
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
@@ -517,6 +590,8 @@ class Processor
 	 * Undo activity like "like" or "dislike"
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function undoActivity($activity)
 	{
@@ -540,6 +615,8 @@ class Processor
 	 * Activity to remove a follower
 	 *
 	 * @param array $activity
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function undoFollowUser($activity)
 	{
@@ -571,6 +648,7 @@ class Processor
 	 * Switches a contact to AP if needed
 	 *
 	 * @param integer $cid Contact ID
+	 * @throws \Exception
 	 */
 	private static function switchContact($cid)
 	{
@@ -581,5 +659,99 @@ class Processor
 
 		Logger::log('Change existing contact ' . $cid . ' from ' . $contact['network'] . ' to ActivityPub.');
 		Contact::updateFromProbe($cid, Protocol::ACTIVITYPUB);
+	}
+
+	/**
+	 * Collects implicit mentions like:
+	 * - the author of the parent item
+	 * - all the mentioned conversants in the parent item
+	 *
+	 * @param array $parent Item array with at least ['id', 'author-link', 'alias']
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function getImplicitMentionList(array $parent)
+	{
+		if (Config::get('system', 'disable_implicit_mentions')) {
+			return [];
+		}
+
+		$parent_terms = Term::tagArrayFromItemId($parent['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
+
+		$parent_author = Contact::getDetailsByURL($parent['author-link'], 0);
+
+		$implicit_mentions = [];
+		if (empty($parent_author)) {
+			Logger::notice('Author public contact unknown.', ['author-link' => $parent['author-link'], 'item-id' => $parent['id']]);
+		} else {
+			$implicit_mentions[] = $parent_author['url'];
+			$implicit_mentions[] = $parent_author['nurl'];
+			$implicit_mentions[] = $parent_author['alias'];
+		}
+
+		if (!empty($parent['alias'])) {
+			$implicit_mentions[] = $parent['alias'];
+		}
+
+		foreach ($parent_terms as $term) {
+			$contact = Contact::getDetailsByURL($term['url'], 0);
+			if (!empty($contact)) {
+				$implicit_mentions[] = $contact['url'];
+				$implicit_mentions[] = $contact['nurl'];
+				$implicit_mentions[] = $contact['alias'];
+			}
+		}
+
+		return $implicit_mentions;
+	}
+
+	/**
+	 * Strips from the body prepended implicit mentions
+	 *
+	 * @param string $body
+	 * @param array $potential_mentions
+	 * @return string
+	 */
+	private static function removeImplicitMentionsFromBody($body, array $potential_mentions)
+	{
+		if (Config::get('system', 'disable_implicit_mentions')) {
+			return $body;
+		}
+
+		$kept_mentions = [];
+
+		// Extract one prepended mention at a time from the body
+		while(preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#is', $body, $matches)) {
+			if (!in_array($matches[2], $potential_mentions) ) {
+				$kept_mentions[] = $matches[1];
+			}
+
+			$body = $matches[3];
+		}
+
+		// Re-appending the kept mentions to the body after extraction
+		$kept_mentions[] = $body;
+
+		return implode('', $kept_mentions);
+	}
+
+	private static function convertImplicitMentionsInTags($activity_tags, array $potential_mentions)
+	{
+		if (Config::get('system', 'disable_implicit_mentions')) {
+			return $activity_tags;
+		}
+
+		foreach ($activity_tags as $index => $tag) {
+			if (in_array($tag['href'], $potential_mentions)) {
+				$activity_tags[$index]['name'] = preg_replace(
+					'/' . preg_quote(Term::TAG_CHARACTER[Term::MENTION], '/') . '/',
+					Term::TAG_CHARACTER[Term::IMPLICIT_MENTION],
+					$activity_tags[$index]['name'],
+					1
+				);
+			}
+		}
+
+		return $activity_tags;
 	}
 }

@@ -20,6 +20,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
+use Friendica\Module\Register;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -28,6 +29,11 @@ use Friendica\Util\XML;
 
 class PortableContact
 {
+	const DISABLED = 0;
+	const USERS = 1;
+	const USERS_GCONTACTS = 2;
+	const USERS_GCONTACTS_FALLBACK = 3;
+
 	/**
 	 * @brief Fetch POCO data
 	 *
@@ -44,7 +50,7 @@ class PortableContact
 	 * Once the global contact is stored add (if necessary) the contact linkage which associates
 	 * the given uid, cid to the global contact entry. There can be many uid/cid combinations
 	 * pointing to the same global contact id.
-	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function loadWorker($cid, $uid = 0, $zcid = 0, $url = null)
 	{
@@ -59,12 +65,10 @@ class PortableContact
 	 * @param integer $uid  User ID
 	 * @param integer $zcid Global Contact ID
 	 * @param integer $url  POCO address that should be polled
-	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function load($cid, $uid, $zcid, $url)
 	{
-		$a = \get_app();
-
 		if ($cid) {
 			if (!$url || !$uid) {
 				$contact = DBA::selectFirst('contact', ['poco', 'uid'], ['id' => $cid]);
@@ -230,7 +234,6 @@ class PortableContact
 			$friendica = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $profile);
 			if ($friendica != $profile) {
 				$server_url = $friendica;
-				$network = Protocol::DFRN;
 			}
 		}
 
@@ -238,7 +241,6 @@ class PortableContact
 			$diaspora = preg_replace("=(https?://)(.*)/u/(.*)=ism", "$1$2", $profile);
 			if ($diaspora != $profile) {
 				$server_url = $diaspora;
-				$network = Protocol::DIASPORA;
 			}
 		}
 
@@ -246,7 +248,6 @@ class PortableContact
 			$red = preg_replace("=(https?://)(.*)/channel/(.*)=ism", "$1$2", $profile);
 			if ($red != $profile) {
 				$server_url = $red;
-				$network = Protocol::DIASPORA;
 			}
 		}
 
@@ -255,7 +256,6 @@ class PortableContact
 			$mastodon = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
 			if ($mastodon != $profile) {
 				$server_url = $mastodon;
-				$network = Protocol::OSTATUS;
 			}
 		}
 
@@ -264,7 +264,6 @@ class PortableContact
 			$ostatus = preg_replace("=(https?://)(.*)/user/(.*)=ism", "$1$2", $profile);
 			if ($ostatus != $profile) {
 				$server_url = $ostatus;
-				$network = Protocol::OSTATUS;
 			}
 		}
 
@@ -273,7 +272,6 @@ class PortableContact
 			$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
 			if ($base != $profile) {
 				$server_url = $base;
-				$network = Protocol::PHANTOM;
 			}
 		}
 
@@ -507,8 +505,15 @@ class PortableContact
 		$last_updated = "";
 
 		foreach ($entries as $entry) {
-			$published = DateTimeFormat::utc($xpath->query('atom:published/text()', $entry)->item(0)->nodeValue);
-			$updated   = DateTimeFormat::utc($xpath->query('atom:updated/text()'  , $entry)->item(0)->nodeValue);
+			$published_item = $xpath->query('atom:published/text()', $entry)->item(0);
+			$updated_item   = $xpath->query('atom:updated/text()'  , $entry)->item(0);
+			$published      = isset($published_item->nodeValue) ? DateTimeFormat::utc($published_item->nodeValue) : null;
+			$updated        = isset($updated_item->nodeValue) ? DateTimeFormat::utc($updated_item->nodeValue) : null;
+
+			if (!isset($published) || !isset($updated)) {
+				Logger::notice('Invalid entry for XPath.', ['entry' => $entry, 'profile' => $profile]);
+				continue;
+			}
 
 			if ($last_updated < $published) {
 				$last_updated = $published;
@@ -609,8 +614,6 @@ class PortableContact
 	 */
 	private static function detectPocoData(array $data)
 	{
-		$server = false;
-
 		if (!isset($data['entry'])) {
 			return false;
 		}
@@ -643,6 +646,7 @@ class PortableContact
 	 *
 	 * @param string $server_url address of the server
 	 * @return array Server data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function fetchNodeinfo($server_url)
 	{
@@ -696,6 +700,7 @@ class PortableContact
 	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
 	 * @return array Server data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function parseNodeinfo1($nodeinfo_url)
 	{
@@ -713,10 +718,10 @@ class PortableContact
 
 		$server = [];
 
-		$server['register_policy'] = REGISTER_CLOSED;
+		$server['register_policy'] = Register::CLOSED;
 
 		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
-			$server['register_policy'] = REGISTER_OPEN;
+			$server['register_policy'] = Register::OPEN;
 		}
 
 		if (is_array($nodeinfo['software'])) {
@@ -780,6 +785,7 @@ class PortableContact
 	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
 	 * @return array Server data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function parseNodeinfo2($nodeinfo_url)
 	{
@@ -796,10 +802,10 @@ class PortableContact
 
 		$server = [];
 
-		$server['register_policy'] = REGISTER_CLOSED;
+		$server['register_policy'] = Register::CLOSED;
 
 		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
-			$server['register_policy'] = REGISTER_OPEN;
+			$server['register_policy'] = Register::OPEN;
 		}
 
 		if (is_array($nodeinfo['software'])) {
@@ -1199,16 +1205,16 @@ class PortableContact
 				if (!empty($data['register_policy'])) {
 					switch ($data['register_policy']) {
 						case "REGISTER_OPEN":
-							$register_policy = REGISTER_OPEN;
+							$register_policy = Register::OPEN;
 							break;
 
 						case "REGISTER_APPROVE":
-							$register_policy = REGISTER_APPROVE;
+							$register_policy = Register::APPROVE;
 							break;
 
 						case "REGISTER_CLOSED":
 						default:
-							$register_policy = REGISTER_CLOSED;
+							$register_policy = Register::CLOSED;
 							break;
 					}
 				}
@@ -1274,11 +1280,11 @@ class PortableContact
 						}
 
 						if (!$closed && !$private and $inviteonly) {
-							$register_policy = REGISTER_APPROVE;
+							$register_policy = Register::APPROVE;
 						} elseif (!$closed && !$private) {
-							$register_policy = REGISTER_OPEN;
+							$register_policy = Register::OPEN;
 						} else {
-							$register_policy = REGISTER_CLOSED;
+							$register_policy = Register::CLOSED;
 						}
 					}
 				}
@@ -1312,9 +1318,9 @@ class PortableContact
 				}
 
 				if (!empty($data['registrations_open']) && $data['registrations_open']) {
-					$register_policy = REGISTER_OPEN;
+					$register_policy = Register::OPEN;
 				} else {
-					$register_policy = REGISTER_CLOSED;
+					$register_policy = Register::CLOSED;
 				}
 			}
 		}
@@ -1374,13 +1380,27 @@ class PortableContact
 					}
 
 					$info = defaults($data, 'info', '');
-					$register_policy = defaults($data, 'register_policy', REGISTER_CLOSED);
-					if (in_array($register_policy, ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'])) {
-						$register_policy = constant($register_policy);
-					} else {
-						Logger::log("Register policy '$register_policy' from $server_url is invalid.");
-						$register_policy = REGISTER_CLOSED; // set a default value
+
+					$register_policy = defaults($data, 'register_policy', 'REGISTER_CLOSED');
+					switch ($register_policy) {
+						case 'REGISTER_OPEN':
+							$register_policy = Register::OPEN;
+							break;
+
+						case 'REGISTER_APPROVE':
+							$register_policy = Register::APPROVE;
+							break;
+
+						default:
+							Logger::log("Register policy '$register_policy' from $server_url is invalid.");
+							// Defaulting to closed
+
+						case 'REGISTER_CLOSED':
+						case 'REGISTER_INVITATION':
+							$register_policy = Register::CLOSED;
+							break;
 					}
+
 					$platform = defaults($data, 'platform', '');
 				}
 			}
@@ -1444,6 +1464,7 @@ class PortableContact
 	 * @brief Fetch relay data from a given server url
 	 *
 	 * @param string $server_url address of the server
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function discoverRelay($server_url)
 	{
@@ -1518,6 +1539,7 @@ class PortableContact
 	/**
 	 * @brief Returns a list of all known servers
 	 * @return array List of server urls
+	 * @throws Exception
 	 */
 	public static function serverlist()
 	{
@@ -1542,6 +1564,7 @@ class PortableContact
 	 * @brief Fetch server list from remote servers and adds them when they are new.
 	 *
 	 * @param string $poco URL to the POCO endpoint
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function fetchServerlist($poco)
 	{
@@ -1634,13 +1657,11 @@ class PortableContact
 
 	public static function discoverSingleServer($id)
 	{
-		$r = q("SELECT `poco`, `nurl`, `url`, `network` FROM `gserver` WHERE `id` = %d", intval($id));
+		$server = DBA::selectFirst('gserver', ['poco', 'nurl', 'url', 'network'], ['id' => $id]);
 
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($server)) {
 			return false;
 		}
-
-		$server = $r[0];
 
 		// Discover new servers out there (Works from Friendica version 3.5.2)
 		self::fetchServerlist($server["poco"]);
@@ -1648,7 +1669,7 @@ class PortableContact
 		// Fetch all users from the other server
 		$url = $server["poco"] . "/?fields=displayName,urls,photos,updated,network,aboutMe,currentLocation,tags,gender,contactType,generation";
 
-		Logger::log("Fetch all users from the server " . $server["url"], Logger::DEBUG);
+		Logger::info("Fetch all users from the server " . $server["url"]);
 
 		$curlResult = Network::curl($url);
 
@@ -1659,7 +1680,7 @@ class PortableContact
 				self::discoverServer($data, 2);
 			}
 
-			if (Config::get('system', 'poco_discovery') > 1) {
+			if (Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS) {
 				$timeframe = Config::get('system', 'poco_discovery_since');
 
 				if ($timeframe == 0) {
@@ -1676,7 +1697,7 @@ class PortableContact
 				$curlResult = Network::curl($url);
 
 				if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
-					Logger::log("Fetch all global contacts from the server " . $server["nurl"], Logger::DEBUG);
+					Logger::info("Fetch all global contacts from the server " . $server["nurl"]);
 					$data = json_decode($curlResult->getBody(), true);
 
 					if (!empty($data)) {
@@ -1684,8 +1705,8 @@ class PortableContact
 					}
 				}
 
-				if (!$success && (Config::get('system', 'poco_discovery') > 2)) {
-					Logger::log("Fetch contacts from users of the server " . $server["nurl"], Logger::DEBUG);
+				if (!$success && !empty($data) && Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
+					Logger::info("Fetch contacts from users of the server " . $server["nurl"]);
 					self::discoverServerUsers($data, $server);
 				}
 			}

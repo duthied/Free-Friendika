@@ -52,7 +52,7 @@ function enableOnUser(){
 </script>
 
 <script>
-	var ispublic = '{{$ispublic}}';
+	var ispublic = '{{$ispublic nofilter}}';
 
 	$(document).ready(function() {
 
@@ -263,6 +263,6 @@ function enableOnUser(){
 	}
 
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 </script>

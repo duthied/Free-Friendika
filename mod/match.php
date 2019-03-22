@@ -25,6 +25,9 @@ use Friendica\Util\Proxy as ProxyUtils;
  * @param App $a App
  *
  * @return string
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @throws Exception
  */
 function match_content(App $a)
 {
@@ -72,7 +75,7 @@ function match_content(App $a)
 			$profile = $msearch->results[$i];
 
 			// Already known contact
-			if (Contact::getIdForURL($profile->url, local_user(), true)) {
+			if (!$profile || Contact::getIdForURL($profile->url, local_user(), true)) {
 				continue;
 			}
 

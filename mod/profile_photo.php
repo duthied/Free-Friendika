@@ -15,7 +15,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Object\Image;
-use Friendica\Util\Security;
 use Friendica\Util\Strings;
 
 function profile_photo_init(App $a)
@@ -73,14 +72,12 @@ function profile_photo_post(App $a)
 		$srcW = $_POST['xfinal'] - $srcX;
 		$srcH = $_POST['yfinal'] - $srcY;
 
-		$r = q("SELECT * FROM `photo` WHERE `resource-id` = '%s' AND `uid` = %d AND `scale` = %d LIMIT 1", DBA::escape($image_id),
-			DBA::escape(local_user()), intval($scale));
+		$base_image = Photo::selectFirst([], ['resource-id' => $image_id, 'uid' => local_user(), 'scale' => $scale]);
 
 		$path = 'profile/' . $a->user['nickname'];
-		if (DBA::isResult($r)) {
-			$base_image = $r[0];
+		if (DBA::isResult($base_image)) {
 
-			$Image = new Image($base_image['data'], $base_image['type']);
+			$Image = Photo::getImageForPhoto($base_image);
 			if ($Image->isValid()) {
 				$Image->crop(300, $srcX, $srcY, $srcW, $srcH);
 
@@ -112,11 +109,11 @@ function profile_photo_post(App $a)
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
 
 				if ($is_default_profile) {
-					$r = q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
+					q("UPDATE `photo` SET `profile` = 0 WHERE `profile` = 1 AND `resource-id` != '%s' AND `uid` = %d",
 						DBA::escape($base_image['resource-id']), intval(local_user())
 					);
 				} else {
-					$r = q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
+					q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
 						DBA::escape(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
 						DBA::escape(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
 						intval($_REQUEST['profile']), intval(local_user())
@@ -194,9 +191,14 @@ function profile_photo_content(App $a)
 
 		$resource_id = $a->argv[2];
 		//die(":".local_user());
+
+		$r = Photo::select([], ["resource-id" => $resource_id, "uid" => local_user()], ["order" => ["scale"=>false]]);
+
+		/*
 		$r = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' ORDER BY `scale` ASC", intval(local_user()),
 			DBA::escape($resource_id)
 		);
+		*/
 
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Permission denied.') . EOL);
@@ -213,9 +215,9 @@ function profile_photo_content(App $a)
 		// set an already uloaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
 		if (($r[0]['album'] == L10n::t('Profile Photos')) && ($havescale)) {
-			$r = q("UPDATE `photo` SET `profile`=0 WHERE `profile`=1 AND `uid`=%d", intval(local_user()));
+			q("UPDATE `photo` SET `profile`=0 WHERE `profile`=1 AND `uid`=%d", intval(local_user()));
 
-			$r = q("UPDATE `photo` SET `profile`=1 WHERE `uid` = %d AND `resource-id` = '%s'", intval(local_user()),
+			q("UPDATE `photo` SET `profile`=1 WHERE `uid` = %d AND `resource-id` = '%s'", intval(local_user()),
 				DBA::escape($resource_id)
 			);
 
@@ -230,7 +232,8 @@ function profile_photo_content(App $a)
 			$a->internalRedirect('profile/' . $a->user['nickname']);
 			return; // NOTREACHED
 		}
-		$ph = new Image($r[0]['data'], $r[0]['type']);
+		$ph = Photo::getImageForPhoto($r[0]);
+		
 		$imagecrop = profile_photo_crop_ui_head($a, $ph);
 		// go ahead as we have jus uploaded a new photo to crop
 	}
@@ -272,8 +275,6 @@ function profile_photo_content(App $a)
 		]);
 		return $o;
 	}
-
-	return; // NOTREACHED
 }
 
 function profile_photo_crop_ui_head(App $a, Image $image)

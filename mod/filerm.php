@@ -2,7 +2,6 @@
 
 use Friendica\App;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Model\FileTag;
 use Friendica\Util\XML;
 
@@ -10,10 +9,10 @@ function filerm_content(App $a)
 {
 	if (! local_user())
 	{
-		killme();
+		exit();
 	}
 
-	$term = XML::unescape(trim($_GET['term']));
+	$term = XML::unescape(trim(defaults($_GET, 'term', '')));
 	$cat = XML::unescape(trim(defaults($_GET, 'cat', '')));
 
 	$category = (($cat) ? true : false);
@@ -37,5 +36,5 @@ function filerm_content(App $a)
 	}
 
 	$a->internalRedirect('/network?f=&file=' . rawurlencode($term));
-	killme();
+	exit();
 }

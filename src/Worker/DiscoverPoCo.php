@@ -99,7 +99,7 @@ class DiscoverPoCo
 		} elseif (($mode == 1) && ($search != "") && Config::get('system', 'poco_local_search')) {
 			self::discoverDirectory($search);
 			self::gsSearchUser($search);
-		} elseif (($mode == 0) && ($search == "") && (Config::get('system', 'poco_discovery') > 0)) {
+		} elseif (($mode == 0) && ($search == "") && (Config::get('system', 'poco_discovery') != PortableContact::DISABLED)) {
 			// Query Friendica and Hubzilla servers for their users
 			PortableContact::discover();
 
@@ -267,6 +267,9 @@ class DiscoverPoCo
 	 * @brief Search for GNU Social user with gstools.org
 	 *
 	 * @param string $search User name
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function gsSearchUser($search) {
 

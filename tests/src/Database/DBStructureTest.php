@@ -1,27 +1,29 @@
 <?php
 
-namespace Friendica\Test\Database;
+namespace Friendica\Test\src\Database;
 
-use Friendica\BaseObject;
-use Friendica\Core\Config;
+use Friendica\App;
+use Friendica\Core\Config\Cache;
 use Friendica\Database\DBStructure;
+use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
+use Friendica\Util\BasePath;
 
 class DBStructureTest extends DatabaseTest
 {
 	public function setUp()
 	{
+		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
+		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$configCache = Factory\ConfigFactory::createCache($configLoader);
+		$profiler = Factory\ProfilerFactory::create($configCache);
+		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
+		$config = Factory\ConfigFactory::createConfig($configCache);
+		Factory\ConfigFactory::createPConfig($configCache);
+		$logger = Factory\LoggerFactory::create('test', $config);
+		$this->app = new App($basePath, $config, $logger, $profiler, false);
+
 		parent::setUp();
-
-		// Reusable App object
-		$this->app = BaseObject::getApp();
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
 	}
 
 	/**

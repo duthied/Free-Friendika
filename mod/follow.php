@@ -12,7 +12,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Network\Probe;
 use Friendica\Database\DBA;
-use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
 function follow_post(App $a)
@@ -61,7 +60,16 @@ function follow_content(App $a)
 	}
 
 	$uid = local_user();
-	$url = Strings::escapeTags(trim($_REQUEST['url']));
+	$url = Strings::escapeTags(trim(defaults($_REQUEST, 'url', '')));
+
+	// Issue 6874: Allow remote following from Peertube
+	if (strpos($url, 'acct:') === 0) {
+		$url = str_replace('acct:', '', $url);
+	}
+
+	if (!$url) {
+		$a->internalRedirect($return_path);
+	}
 
 	$submit = L10n::t('Submit Request');
 

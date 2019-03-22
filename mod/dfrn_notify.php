@@ -12,6 +12,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Strings;
@@ -253,7 +254,6 @@ function dfrn_notify_content(App $a) {
 		 */
 
 		$dfrn_id = Strings::escapeTags(trim($_GET['dfrn_id']));
-		$dfrn_version = (float) $_GET['dfrn_version'];
 		$rino_remote = (!empty($_GET['rino']) ? intval($_GET['rino']) : 0);
 		$type = "";
 		$last_update = "";
@@ -281,7 +281,7 @@ function dfrn_notify_content(App $a) {
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
 		if (!DBA::isResult($user)) {
 			Logger::log('User not found for nickname ' . $a->argv[1]);
-			killme();
+			exit();
 		}
 
 		$condition = [];
@@ -300,6 +300,7 @@ function dfrn_notify_content(App $a) {
 				break;
 			default:
 				$status = 1;
+				$my_id = '';
 				break;
 		}
 
@@ -313,7 +314,7 @@ function dfrn_notify_content(App $a) {
 		$importer = DFRN::getImporter($contact['id'], $user['uid']);
 		if (empty($importer)) {
 			Logger::log('No importer data found for user ' . $a->argv[1] . ' and contact ' . $dfrn_id);
-			killme();
+			exit();
 		}
 
 		Logger::log("Remote rino version: ".$rino_remote." for ".$importer["url"], Logger::DATA);
@@ -352,7 +353,7 @@ function dfrn_notify_content(App $a) {
 			$rino = $rino_remote;
 		}
 
-		if (($importer['rel'] && ($importer['rel'] != Contact::SHARING)) || ($importer['page-flags'] == Contact::PAGE_COMMUNITY)) {
+		if (($importer['rel'] && ($importer['rel'] != Contact::SHARING)) || ($importer['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 			$perm = 'rw';
 		} else {
 			$perm = 'r';
@@ -370,6 +371,6 @@ function dfrn_notify_content(App $a) {
 			. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
 			. '</dfrn_notify>' . "\r\n";
 
-		killme();
+		exit();
 	}
 }

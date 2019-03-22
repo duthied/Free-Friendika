@@ -23,6 +23,7 @@ class APContact extends BaseObject
 	 *
 	 * @param string $addr profile address (user@domain.tld)
 	 * @return string url
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function addrToUrl($addr)
 	{
@@ -63,6 +64,8 @@ class APContact extends BaseObject
 	 * @param string  $url    profile url
 	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 * @return array profile array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getByURL($url, $update = null)
 	{
@@ -189,7 +192,7 @@ class APContact extends BaseObject
 		DBA::update('apcontact', $apcontact, ['url' => $url], true);
 
 		// Update some data in the contact table with various ways to catch them all
-		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about']];
+		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about'], 'alias' => $apcontact['alias']];
 
 		// Fetch the type and match it with the contact type
 		$contact_types = array_keys(ActivityPub::ACCOUNT_TYPES, $apcontact['type']);
@@ -198,7 +201,7 @@ class APContact extends BaseObject
 			if (is_int($contact_type)) {
 				$contact_fields['contact-type'] = $contact_type;
 
-				if ($contact_fields['contact-type'] != Contact::ACCOUNT_TYPE_COMMUNITY) {
+				if ($contact_fields['contact-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
 					// Resetting the 'forum' and 'prv' field when it isn't a forum
 					$contact_fields['forum'] = false;
 					$contact_fields['prv'] = false;

@@ -42,7 +42,7 @@ class Receiver
 	/**
 	 * Checks if the web request is done for the AP protocol
 	 *
-	 * @return is it AP?
+	 * @return bool is it AP?
 	 */
 	public static function isRequest()
 	{
@@ -53,24 +53,25 @@ class Receiver
 	/**
 	 * Checks incoming message from the inbox
 	 *
-	 * @param $body
-	 * @param $header
+	 * @param         $body
+	 * @param         $header
 	 * @param integer $uid User ID
+	 * @throws \Exception
 	 */
 	public static function processInbox($body, $header, $uid)
 	{
 		$http_signer = HTTPSignature::getSigner($body, $header);
 		if (empty($http_signer)) {
-			Logger::log('Invalid HTTP signature, message will be discarded.', Logger::DEBUG);
+			Logger::warning('Invalid HTTP signature, message will be discarded.');
 			return;
 		} else {
-			Logger::log('HTTP signature is signed by ' . $http_signer, Logger::DEBUG);
+			Logger::info('Valid HTTP signature', ['signer' => $http_signer]);
 		}
 
 		$activity = json_decode($body, true);
 
 		if (empty($activity)) {
-			Logger::log('Invalid body.', Logger::DEBUG);
+			Logger::warning('Invalid body.');
 			return;
 		}
 
@@ -78,7 +79,7 @@ class Receiver
 
 		$actor = JsonLD::fetchElement($ldactivity, 'as:actor');
 
-		Logger::log('Message for user ' . $uid . ' is from actor ' . $actor, Logger::DEBUG);
+		Logger::info('Message for user ' . $uid . ' is from actor ' . $actor);
 
 		if (LDSignature::isSigned($activity)) {
 			$ld_signer = LDSignature::getSigner($activity);
@@ -114,9 +115,11 @@ class Receiver
 	 *
 	 * @param array   $activity
 	 * @param string  $object_id Object ID of the the provided object
-	 * @param integer $uid User ID
+	 * @param integer $uid       User ID
 	 *
 	 * @return string with object type
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function fetchObjectType($activity, $object_id, $uid = 0)
 	{
@@ -152,11 +155,13 @@ class Receiver
 	/**
 	 * Prepare the object array
 	 *
-	 * @param array $activity
+	 * @param array   $activity
 	 * @param integer $uid User ID
-	 * @param $trust_source
+	 * @param         $trust_source
 	 *
 	 * @return array with object data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function prepareObjectData($activity, $uid, &$trust_source)
 	{
@@ -203,7 +208,8 @@ class Receiver
 			}
 			// We had been able to retrieve the object data - so we can trust the source
 			$trust_source = true;
-		} elseif (in_array($type, ['as:Like', 'as:Dislike'])) {
+		} elseif (in_array($type, ['as:Like', 'as:Dislike']) ||
+			(($type == 'as:Follow') && in_array($object_type, self::CONTENT_TYPES))) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
 			$object_data = self::processObject($activity);
@@ -264,6 +270,7 @@ class Receiver
 	 *
 	 * @param array  $activity Array with activity data
 	 * @param string $body     The raw message
+	 * @throws \Exception
 	 */
 	private static function storeConversation($activity, $body)
 	{
@@ -290,6 +297,7 @@ class Receiver
 	 * @param string  $body
 	 * @param integer $uid          User ID
 	 * @param boolean $trust_source Do we trust the source?
+	 * @throws \Exception
 	 */
 	public static function processActivity($activity, $body = '', $uid = null, $trust_source = false)
 	{
@@ -372,21 +380,24 @@ class Receiver
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::updateItem($object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
-					ActivityPub\Processor::updatePerson($object_data, $body);
+					ActivityPub\Processor::updatePerson($object_data);
 				}
 				break;
 
 			case 'as:Delete':
 				if ($object_data['object_type'] == 'as:Tombstone') {
-					ActivityPub\Processor::deleteItem($object_data, $body);
+					ActivityPub\Processor::deleteItem($object_data);
 				} elseif (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
-					ActivityPub\Processor::deletePerson($object_data, $body);
+					ActivityPub\Processor::deletePerson($object_data);
 				}
 				break;
 
 			case 'as:Follow':
 				if (in_array($object_data['object_type'], self::ACCOUNT_TYPES)) {
 					ActivityPub\Processor::followUser($object_data);
+				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					$object_data['reply-to-id'] = $object_data['object_id'];
+					ActivityPub\Processor::createActivity($object_data, ACTIVITY_FOLLOW);
 				}
 				break;
 
@@ -428,11 +439,12 @@ class Receiver
 	/**
 	 * Fetch the receiver list from an activity array
 	 *
-	 * @param array $activity
+	 * @param array  $activity
 	 * @param string $actor
-	 * @param array $tags
+	 * @param array  $tags
 	 *
 	 * @return array with receivers (user id)
+	 * @throws \Exception
 	 */
 	private static function getReceivers($activity, $actor, $tags = [])
 	{
@@ -495,13 +507,13 @@ class Receiver
 
 				// Check if the potential receiver is following the actor
 				// Exception: The receiver is targetted via "to" or this is a comment
-				if ((($element != 'as:to') && empty($replyto)) || ($contact['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY)) {
+				if ((($element != 'as:to') && empty($replyto)) || ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
 					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
 					$condition = ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
 						'network' => $networks, 'archive' => false, 'pending' => false, 'uid' => $contact['uid']];
 
 					// Forum posts are only accepted from forum contacts
-					if ($contact['contact-type'] == Contact::ACCOUNT_TYPE_COMMUNITY) {
+					if ($contact['contact-type'] == Contact::TYPE_COMMUNITY) {
 						$condition['rel'] = [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER];
 					}
 
@@ -523,9 +535,10 @@ class Receiver
 	 * Fetch the receiver list of a given actor
 	 *
 	 * @param string $actor
-	 * @param array $tags
+	 * @param array  $tags
 	 *
 	 * @return array with receivers (user id)
+	 * @throws \Exception
 	 */
 	public static function getReceiverForActor($actor, $tags)
 	{
@@ -546,11 +559,12 @@ class Receiver
 	/**
 	 * Tests if the contact is a valid receiver for this actor
 	 *
-	 * @param array $contact
+	 * @param array  $contact
 	 * @param string $actor
-	 * @param array $tags
+	 * @param array  $tags
 	 *
-	 * @return array with receivers (user id)
+	 * @return bool with receivers (user id)
+	 * @throws \Exception
 	 */
 	private static function isValidReceiverForActor($contact, $actor, $tags)
 	{
@@ -566,7 +580,7 @@ class Receiver
 
 		// When the possible receiver isn't a community, then it is no valid receiver
 		$owner = User::getOwnerDataById($contact['uid']);
-		if (empty($owner) || ($owner['contact-type'] != Contact::ACCOUNT_TYPE_COMMUNITY)) {
+		if (empty($owner) || ($owner['contact-type'] != Contact::TYPE_COMMUNITY)) {
 			return false;
 		}
 
@@ -589,7 +603,9 @@ class Receiver
 	 *
 	 * @param integer $cid Contact ID
 	 * @param integer $uid User ID
-	 * @param string $url Profile URL
+	 * @param string  $url Profile URL
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function switchContact($cid, $uid, $url)
 	{
@@ -622,6 +638,8 @@ class Receiver
 	 *
 	 * @param $receivers
 	 * @param $actor
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function switchContacts($receivers, $actor)
 	{
@@ -645,10 +663,10 @@ class Receiver
 	/**
 	 *
 	 *
-	 * @param $object_data
+	 * @param       $object_data
 	 * @param array $activity
 	 *
-	 * @return
+	 * @return mixed
 	 */
 	private static function addActivityFields($object_data, $activity)
 	{
@@ -674,6 +692,8 @@ class Receiver
 	 * @param integer $uid          User ID for the signature that we use to fetch data
 	 *
 	 * @return array with trusted and valid object data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function fetchObject($object_id, $object = [], $trust_source = false, $uid = 0)
 	{
@@ -759,8 +779,7 @@ class Receiver
 	/**
 	 * Convert emojis from JSON-LD format into a simplified format
 	 *
-	 * @param array $tags Tags in JSON-LD format
-	 *
+	 * @param $emojis
 	 * @return array with emojis in a simplified format
 	 */
 	private static function processEmojis($emojis)
@@ -819,6 +838,7 @@ class Receiver
 	 * @param array $object
 	 *
 	 * @return array
+	 * @throws \Exception
 	 */
 	private static function processObject($object)
 	{

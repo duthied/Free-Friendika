@@ -4,8 +4,8 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Protocol\Email;
@@ -19,21 +19,22 @@ class Emailer
 	 * Send a multipart/alternative message with Text and HTML versions
 	 *
 	 * @param array $params parameters
-	 *                      fromName name of the sender
-	 *                      fromEmail			 email fo the sender
-	 *                      replyTo			     replyTo address to direct responses
-	 *                      toEmail			     destination email address
-	 *                      messageSubject	     subject of the message
-	 *                      htmlVersion		     html version of the message
-	 *                      textVersion		     text only version of the message
-	 *                      additionalMailHeader additions to the smtp mail header
+	 *                      fromName             name of the sender
+	 *                      fromEmail            email of the sender
+	 *                      replyTo              address to direct responses
+	 *                      toEmail              destination email address
+	 *                      messageSubject       subject of the message
+	 *                      htmlVersion          html version of the message
+	 *                      textVersion          text only version of the message
+	 *                      additionalMailHeader additions to the SMTP mail header
 	 *                      optional             uid user id of the destination user
 	 *
-	 * @return object
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function send($params)
 	{
-		Addon::callHooks('emailer_send_prepare', $params);
+		Hook::callAll('emailer_send_prepare', $params);
 
 		$email_textonly = false;
 		if (!empty($params['uid'])) {
@@ -88,8 +89,9 @@ class Emailer
 			'headers' => $messageHeader,
 			'parameters' => $sendmail_params
 		];
-		//echo "<pre>"; var_dump($hookdata); killme();
-		Addon::callHooks("emailer_send", $hookdata);
+
+		Hook::callAll("emailer_send", $hookdata);
+
 		$res = mail(
 			$hookdata['to'],
 			$hookdata['subject'],

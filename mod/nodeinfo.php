@@ -12,7 +12,12 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Network;
+
 function nodeinfo_wellknown(App $a) {
+	if (!Config::get('system', 'nodeinfo')) {
+		System::httpExit(404);
+	}
+
 	$nodeinfo = ['links' => [['rel' => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
 					'href' => System::baseUrl().'/nodeinfo/1.0']]];
 
@@ -24,12 +29,10 @@ function nodeinfo_wellknown(App $a) {
 function nodeinfo_init(App $a) {
 	if (!Config::get('system', 'nodeinfo')) {
 		System::httpExit(404);
-		killme();
 	}
 
 	if (($a->argc != 2) || ($a->argv[1] != '1.0')) {
 		System::httpExit(404);
-		killme();
 	}
 
 	$smtp = (function_exists('imap_open') && !Config::get('system', 'imap_disabled') && !Config::get('system', 'dfrn_only'));
@@ -61,7 +64,7 @@ function nodeinfo_init(App $a) {
 
 	$nodeinfo['usage'] = [];
 
-	$nodeinfo['openRegistrations'] = intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED;
+	$nodeinfo['openRegistrations'] = intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED;
 
 	$nodeinfo['metadata'] = ['nodeName' => Config::get('config', 'sitename')];
 
@@ -149,7 +152,6 @@ function nodeinfo_cron() {
 
 		$addon = 'statistics_json';
 		$addons = Config::get('system', 'addon');
-		$addons_arr = [];
 
 		if ($addons) {
 			$addons_arr = explode(',',str_replace(' ', '',$addons));

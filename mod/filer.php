@@ -13,7 +13,7 @@ use Friendica\Util\XML;
 function filer_content(App $a)
 {
 	if (! local_user()) {
-		killme();
+		exit();
 	}
 
 	$term = XML::unescape(trim(defaults($_GET, 'term', '')));
@@ -38,5 +38,5 @@ function filer_content(App $a)
 
 		echo $o;
 	}
-	killme();
+	exit();
 }

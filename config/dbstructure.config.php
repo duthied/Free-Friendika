@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1293);
+	define('DB_UPDATE_VERSION', 1304);
 }
 
 return [
@@ -99,6 +99,8 @@ return [
 			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
 			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
+			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -707,6 +709,8 @@ return [
 			"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => "Item id"],
 			"postopts" => ["type" => "text", "comment" => "External post connectors add their network name to this comma-separated string to identify that they should be delivered to these networks during delivery"],
 			"inform" => ["type" => "mediumtext", "comment" => "Additional receivers of the linked item"],
+			"queue_count" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Initial number of delivery recipients, used as item.delivery_queue_count"],
+			"queue_done" => ["type" => "mediumint", "not null" => "1", "default" => "0", "comment" => "Number of successful deliveries, used as item.delivery_queue_done"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["iid"],
@@ -955,6 +959,9 @@ return [
 			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
 			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
 			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
+			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
+			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -1359,7 +1366,7 @@ return [
 		"comment" => "Background tasks queue entries",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
-			"parameter" => ["type" => "mediumblob", "comment" => "Task command"],
+			"parameter" => ["type" => "mediumtext", "comment" => "Task command"],
 			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Task priority"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date"],
 			"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
@@ -1370,13 +1377,23 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"pid" => ["pid"],
-			"parameter" => ["parameter(64)"],
-			"priority_created_next_try" => ["priority", "created", "next_try"],
-			"done_priority_executed_next_try" => ["done", "priority", "executed", "next_try"],
-			"done_executed_next_try" => ["done", "executed", "next_try"],
+			"done_parameter" => ["done", "parameter(64)"],
+			"done_executed" => ["done", "executed"],
+			"done_priority_created" => ["done", "priority", "created"],
 			"done_priority_next_try" => ["done", "priority", "next_try"],
-			"done_next_try" => ["done", "next_try"]
+			"done_pid_next_try" => ["done", "pid", "next_try"],
+			"done_pid_priority_created" => ["done", "pid", "priority", "created"]
+		]
+	],
+	"storage" => [
+		"comment" => "Data stored by Database storage backend",
+		"fields" => [
+			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented image data id"],
+			"data" => ["type" => "longblob", "not null" => "1", "comment" => "file data"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"]
 		]
 	]
 ];
+

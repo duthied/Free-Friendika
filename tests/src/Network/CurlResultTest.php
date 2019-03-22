@@ -34,6 +34,8 @@ class CurlResultTest extends TestCase
 
 	/**
 	 * @small
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testRedirect()
 	{
@@ -86,6 +88,8 @@ class CurlResultTest extends TestCase
 
 	/**
 	 * @small
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
 	public function testRedirectHeader()
 	{

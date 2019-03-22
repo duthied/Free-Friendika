@@ -55,6 +55,7 @@ class Cache extends \Friendica\BaseObject
 	 * @param string $prefix Prefix of the keys (optional)
 	 *
 	 * @return array Empty if the driver doesn't support this feature
+	 * @throws \Exception
 	 */
 	public static function getAllKeys($prefix = null)
 	{
@@ -62,7 +63,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->getAllKeys($prefix);
 
-		self::getApp()->saveTimestamp($time, 'cache');
+		self::getApp()->getProfiler()->saveTimestamp($time, 'cache', System::callstack());
 
 		return $return;
 	}
@@ -73,6 +74,7 @@ class Cache extends \Friendica\BaseObject
 	 * @param string $key The key to the cached data
 	 *
 	 * @return mixed Cached $value or "null" if not found
+	 * @throws \Exception
 	 */
 	public static function get($key)
 	{
@@ -80,7 +82,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->get($key);
 
-		self::getApp()->saveTimestamp($time, 'cache');
+		self::getApp()->getProfiler()->saveTimestamp($time, 'cache', System::callstack());
 
 		return $return;
 	}
@@ -95,6 +97,7 @@ class Cache extends \Friendica\BaseObject
 	 * @param integer $duration The cache lifespan
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function set($key, $value, $duration = self::MONTH)
 	{
@@ -102,7 +105,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->set($key, $value, $duration);
 
-		self::getApp()->saveTimestamp($time, 'cache_write');
+		self::getApp()->getProfiler()->saveTimestamp($time, 'cache_write', System::callstack());
 
 		return $return;
 	}
@@ -113,6 +116,7 @@ class Cache extends \Friendica\BaseObject
 	 * @param string $key The key to the cached data
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function delete($key)
 	{
@@ -120,7 +124,7 @@ class Cache extends \Friendica\BaseObject
 
 		$return = self::getDriver()->delete($key);
 
-		self::getApp()->saveTimestamp($time, 'cache_write');
+		self::getApp()->getProfiler()->saveTimestamp($time, 'cache_write', System::callstack());
 
 		return $return;
 	}
@@ -130,7 +134,7 @@ class Cache extends \Friendica\BaseObject
 	 *
 	 * @param boolean $outdated just remove outdated values
 	 *
-	 * @return void
+	 * @return bool
 	 */
 	public static function clear($outdated = true)
 	{

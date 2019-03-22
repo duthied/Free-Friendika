@@ -52,7 +52,10 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->db_user = getenv('MYSQL_USERNAME') . getenv('MYSQL_USER');
 		$this->db_pass = getenv('MYSQL_PASSWORD');
 
-		$this->mockConfigGet('config', 'php_path', false);
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'php_path')
+			->andReturn(false);
 
 		$this->mockL10nT();
 	}
@@ -181,7 +184,7 @@ FIN;
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
-		$this->mockUpdate([false, true, true], null, 1);
+		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$config = <<<CONF
 <?php
@@ -209,7 +212,7 @@ return [
 	'config' => [
 		'admin_email' => '',
 		'sitename' => 'Friendica Social Network',
-		'register_policy' => REGISTER_OPEN,
+		'register_policy' => \Friendica\Module\Register::OPEN,
 		'register_text' => '',
 	],
 	'system' => [
@@ -241,7 +244,7 @@ CONF;
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
-		$this->mockUpdate([false, true, true], null, 1);
+		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);
@@ -267,7 +270,7 @@ CONF;
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
-		$this->mockUpdate([false, true, true], null, 1);
+		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(false), '', 1);
@@ -292,7 +295,7 @@ CONF;
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
 		$this->mockExistsTable('user', false, 1);
-		$this->mockUpdate([false, true, true], null, 1);
+		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
 		$this->mockReplaceMacros('testTemplate', $this->createArgumentsForMacro(true), '', 1);

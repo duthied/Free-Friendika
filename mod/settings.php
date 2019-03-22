@@ -8,8 +8,8 @@ use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -215,7 +215,7 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
 
-		Addon::callHooks('addon_settings_post', $_POST);
+		Hook::callAll('addon_settings_post', $_POST);
 		return;
 	}
 
@@ -297,7 +297,7 @@ function settings_post(App $a)
 			}
 		}
 
-		Addon::callHooks('connector_settings_post', $_POST);
+		Hook::callAll('connector_settings_post', $_POST);
 		return;
 	}
 
@@ -367,12 +367,12 @@ function settings_post(App $a)
 		}
 		Theme::install($theme);
 
-		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
+		q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
 				DBA::escape($theme),
 				intval(local_user())
 		);
 
-		Addon::callHooks('display_settings_post', $_POST);
+		Hook::callAll('display_settings_post', $_POST);
 		$a->internalRedirect('settings/display');
 		return; // NOTREACHED
 	}
@@ -385,7 +385,7 @@ function settings_post(App $a)
 		$a->internalRedirect('settings');
 	}
 
-	Addon::callHooks('settings_post', $_POST);
+	Hook::callAll('settings_post', $_POST);
 
 	if (!empty($_POST['password']) || !empty($_POST['confirm'])) {
 		$newpass = $_POST['password'];
@@ -474,17 +474,15 @@ function settings_post(App $a)
 	}
 
 	// Adjust the page flag if the account type doesn't fit to the page flag.
-	if (($account_type == Contact::ACCOUNT_TYPE_PERSON) && !in_array($page_flags, [Contact::PAGE_NORMAL, Contact::PAGE_SOAPBOX, Contact::PAGE_FREELOVE])) {
-		$page_flags = Contact::PAGE_NORMAL;
-	} elseif (($account_type == Contact::ACCOUNT_TYPE_ORGANISATION) && !in_array($page_flags, [Contact::PAGE_SOAPBOX])) {
-		$page_flags = Contact::PAGE_SOAPBOX;
-	} elseif (($account_type == Contact::ACCOUNT_TYPE_NEWS) && !in_array($page_flags, [Contact::PAGE_SOAPBOX])) {
-		$page_flags = Contact::PAGE_SOAPBOX;
-	} elseif (($account_type == Contact::ACCOUNT_TYPE_COMMUNITY) && !in_array($page_flags, [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP])) {
-		$page_flags = Contact::PAGE_COMMUNITY;
+	if (($account_type == User::ACCOUNT_TYPE_PERSON) && !in_array($page_flags, [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE])) {
+		$page_flags = User::PAGE_FLAGS_NORMAL;
+	} elseif (($account_type == User::ACCOUNT_TYPE_ORGANISATION) && !in_array($page_flags, [User::PAGE_FLAGS_SOAPBOX])) {
+		$page_flags = User::PAGE_FLAGS_SOAPBOX;
+	} elseif (($account_type == User::ACCOUNT_TYPE_NEWS) && !in_array($page_flags, [User::PAGE_FLAGS_SOAPBOX])) {
+		$page_flags = User::PAGE_FLAGS_SOAPBOX;
+	} elseif (($account_type == User::ACCOUNT_TYPE_COMMUNITY) && !in_array($page_flags, [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
+		$page_flags = User::PAGE_FLAGS_COMMUNITY;
 	}
-
-	$email_changed = false;
 
 	$err = '';
 
@@ -498,7 +496,6 @@ function settings_post(App $a)
 	}
 
 	if ($email != $a->user['email']) {
-		$email_changed = true;
 		//  check for the correct password
 		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
 			$err .= L10n::t('Wrong Password') . EOL;
@@ -558,7 +555,7 @@ function settings_post(App $a)
 	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
 	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
 
-	if ($page_flags == Contact::PAGE_PRVGROUP) {
+	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
 		$hidewall = 1;
 		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
 			if ($def_gid) {
@@ -611,7 +608,7 @@ function settings_post(App $a)
 	// clear session language
 	unset($_SESSION['language']);
 
-	$r = q("UPDATE `profile`
+	q("UPDATE `profile`
 		SET `publish` = %d,
 		`name` = '%s',
 		`net-publish` = %d,
@@ -743,7 +740,7 @@ function settings_content(App $a)
 			$settings_addons = L10n::t('No Addon settings configured');
 		}
 
-		Addon::callHooks('addon_settings', $settings_addons);
+		Hook::callAll('addon_settings', $settings_addons);
 
 
 		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
@@ -790,7 +787,7 @@ function settings_content(App $a)
 		}
 
 		$settings_connectors = '';
-		Addon::callHooks('connector_settings', $settings_connectors);
+		Hook::callAll('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
 			$diasp_enabled = L10n::t('Built-in support for %s connectivity is %s', L10n::t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? L10n::t('enabled') : L10n::t('disabled')));
@@ -863,7 +860,7 @@ function settings_content(App $a)
 			'$submit' => L10n::t('Save Settings'),
 		]);
 
-		Addon::callHooks('display_settings', $o);
+		Hook::callAll('display_settings', $o);
 		return $o;
 	}
 
@@ -1017,9 +1014,9 @@ function settings_content(App $a)
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
 	// This is only happening on the first visit after the update
-	if (in_array($a->user['page-flags'], [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP]) &&
-		($a->user['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY))
-		$a->user['account-type'] = Contact::ACCOUNT_TYPE_COMMUNITY;
+	if (in_array($a->user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]) &&
+		($a->user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY))
+		$a->user['account-type'] = User::ACCOUNT_TYPE_COMMUNITY;
 
 	$pageset_tpl = Renderer::getMarkupTemplate('settings/pagetypes.tpl');
 
@@ -1028,46 +1025,46 @@ function settings_content(App $a)
 		'$user' 		=> L10n::t("Personal Page Subtypes"),
 		'$community'		=> L10n::t("Community Forum Subtypes"),
 		'$account_type'		=> $a->user['account-type'],
-		'$type_person'		=> Contact::ACCOUNT_TYPE_PERSON,
-		'$type_organisation' 	=> Contact::ACCOUNT_TYPE_ORGANISATION,
-		'$type_news'		=> Contact::ACCOUNT_TYPE_NEWS,
-		'$type_community' 	=> Contact::ACCOUNT_TYPE_COMMUNITY,
+		'$type_person'		=> User::ACCOUNT_TYPE_PERSON,
+		'$type_organisation' 	=> User::ACCOUNT_TYPE_ORGANISATION,
+		'$type_news'		=> User::ACCOUNT_TYPE_NEWS,
+		'$type_community' 	=> User::ACCOUNT_TYPE_COMMUNITY,
 
-		'$account_person' 	=> ['account-type', L10n::t('Personal Page'), Contact::ACCOUNT_TYPE_PERSON,
+		'$account_person' 	=> ['account-type', L10n::t('Personal Page'), User::ACCOUNT_TYPE_PERSON,
 									L10n::t('Account for a personal profile.'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_PERSON)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_PERSON)],
 
-		'$account_organisation'	=> ['account-type', L10n::t('Organisation Page'), Contact::ACCOUNT_TYPE_ORGANISATION,
+		'$account_organisation'	=> ['account-type', L10n::t('Organisation Page'), User::ACCOUNT_TYPE_ORGANISATION,
 									L10n::t('Account for an organisation that automatically approves contact requests as "Followers".'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_ORGANISATION)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_ORGANISATION)],
 
-		'$account_news'		=> ['account-type', L10n::t('News Page'), Contact::ACCOUNT_TYPE_NEWS,
+		'$account_news'		=> ['account-type', L10n::t('News Page'), User::ACCOUNT_TYPE_NEWS,
 									L10n::t('Account for a news reflector that automatically approves contact requests as "Followers".'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_NEWS)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_NEWS)],
 
-		'$account_community' 	=> ['account-type', L10n::t('Community Forum'), Contact::ACCOUNT_TYPE_COMMUNITY,
+		'$account_community' 	=> ['account-type', L10n::t('Community Forum'), User::ACCOUNT_TYPE_COMMUNITY,
 									L10n::t('Account for community discussions.'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)],
 
-		'$page_normal'		=> ['page-flags', L10n::t('Normal Account Page'), Contact::PAGE_NORMAL,
+		'$page_normal'		=> ['page-flags', L10n::t('Normal Account Page'), User::PAGE_FLAGS_NORMAL,
 									L10n::t('Account for a regular personal profile that requires manual approval of "Friends" and "Followers".'),
-									($a->user['page-flags'] == Contact::PAGE_NORMAL)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_NORMAL)],
 
-		'$page_soapbox' 	=> ['page-flags', L10n::t('Soapbox Page'), Contact::PAGE_SOAPBOX,
+		'$page_soapbox' 	=> ['page-flags', L10n::t('Soapbox Page'), User::PAGE_FLAGS_SOAPBOX,
 									L10n::t('Account for a public profile that automatically approves contact requests as "Followers".'),
-									($a->user['page-flags'] == Contact::PAGE_SOAPBOX)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_SOAPBOX)],
 
-		'$page_community'	=> ['page-flags', L10n::t('Public Forum'), Contact::PAGE_COMMUNITY,
+		'$page_community'	=> ['page-flags', L10n::t('Public Forum'), User::PAGE_FLAGS_COMMUNITY,
 									L10n::t('Automatically approves all contact requests.'),
-									($a->user['page-flags'] == Contact::PAGE_COMMUNITY)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_COMMUNITY)],
 
-		'$page_freelove' 	=> ['page-flags', L10n::t('Automatic Friend Page'), Contact::PAGE_FREELOVE,
+		'$page_freelove' 	=> ['page-flags', L10n::t('Automatic Friend Page'), User::PAGE_FLAGS_FREELOVE,
 									L10n::t('Account for a popular profile that automatically approves contact requests as "Friends".'),
-									($a->user['page-flags'] == Contact::PAGE_FREELOVE)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_FREELOVE)],
 
-		'$page_prvgroup' 	=> ['page-flags', L10n::t('Private Forum [Experimental]'), Contact::PAGE_PRVGROUP,
+		'$page_prvgroup' 	=> ['page-flags', L10n::t('Private Forum [Experimental]'), User::PAGE_FLAGS_PRVGROUP,
 									L10n::t('Requires manual approval of contact requests.'),
-									($a->user['page-flags'] == Contact::PAGE_PRVGROUP)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_PRVGROUP)],
 
 
 	]);
@@ -1262,7 +1259,7 @@ function settings_content(App $a)
 
 	]);
 
-	Addon::callHooks('settings_form', $o);
+	Hook::callAll('settings_form', $o);
 
 	$o .= '</form>' . "\r\n";
 

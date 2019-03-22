@@ -23,7 +23,8 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	 * @param string key The Name of the lock
 	 * @return bool      Returns true if the lock is set
 	 */
-	protected function hasAcquiredLock($key) {
+	protected function hasAcquiredLock($key)
+	{
 		return isset($this->acquireLock[$key]) && $this->acquiredLocks[$key] === true;
 	}
 
@@ -32,7 +33,8 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	 *
 	 * @param string $key The Name of the lock
 	 */
-	protected function markAcquire($key) {
+	protected function markAcquire($key)
+	{
 		$this->acquiredLocks[$key] = true;
 	}
 
@@ -41,18 +43,26 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	 *
 	 * @param string $key The Name of the lock
 	 */
-	protected function markRelease($key) {
+	protected function markRelease($key)
+	{
 		unset($this->acquiredLocks[$key]);
 	}
 
 	/**
 	 * Releases all lock that were set by us
 	 *
-	 * @return void
+	 * @return boolean Was the unlock of all locks successful?
 	 */
-	public function releaseAll() {
+	public function releaseAll()
+	{
+		$return = true;
+
 		foreach ($this->acquiredLocks as $acquiredLock => $hasLock) {
-			$this->releaseLock($acquiredLock);
+			if (!$this->releaseLock($acquiredLock)) {
+				$return = false;
+			}
 		}
+
+		return $return;
 	}
 }

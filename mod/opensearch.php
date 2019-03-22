@@ -17,5 +17,5 @@ function opensearch_content(App $a) {
 
 	echo $o;
 
-	killme();
+	exit();
 }

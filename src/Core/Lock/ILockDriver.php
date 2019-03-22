@@ -33,16 +33,17 @@ interface ILockDriver
 	/**
 	 * Releases a lock if it was set by us
 	 *
-	 * @param string $key The Name of the lock
+	 * @param string $key      The Name of the lock
+	 * @param bool   $override Overrides the lock to get released
 	 *
-	 * @return void
+	 * @return boolean Was the unlock successful?
 	 */
-	public function releaseLock($key);
+	public function releaseLock($key, $override = false);
 
 	/**
 	 * Releases all lock that were set by us
 	 *
-	 * @return void
+	 * @return boolean Was the unlock of all locks successful?
 	 */
 	public function releaseAll();
 }

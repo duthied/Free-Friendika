@@ -7,9 +7,9 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Model\Profile;
+
+require_once 'boot.php';
 
 /**
  * Some functions to handle themes
@@ -51,7 +51,7 @@ class Theme
 		$a = \get_app();
 		$stamp1 = microtime(true);
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
-		$a->saveTimestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$result = preg_match("|/\*.*\*/|msU", $theme_file, $matches);
 
@@ -90,8 +90,9 @@ class Theme
 	 *
 	 * The screenshot is expected as view/theme/$theme/screenshot.[png|jpg].
 	 *
-	 * @param sring $theme The name of the theme
+	 * @param string $theme The name of the theme
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getScreenshot($theme)
 	{
@@ -148,6 +149,7 @@ class Theme
 	 * @param string $file Filename
 	 * @param string $root Full root path
 	 * @return string Path to the file or empty string if the file isn't found
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getPathForFile($file, $root = '')
 	{

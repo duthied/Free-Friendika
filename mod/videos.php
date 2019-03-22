@@ -11,10 +11,12 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\Security;
 
@@ -29,8 +31,6 @@ function videos_init(App $a)
 	}
 
 	Nav::setSelected('home');
-
-	$o = '';
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
@@ -58,41 +58,6 @@ function videos_init(App $a)
 			'$account_type' => $account_type,
 			'$pdesc' => defaults($profile, 'pdesc', ''),
 		]);
-
-		/// @TODO Old-lost code?
-		/*$sql_extra = Security::getPermissionsSQLByUserId($a->data['user']['uid']);
-
-		$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d $sql_extra order by created desc",
-			intval($a->data['user']['uid'])
-		);
-
-		if(count($albums)) {
-			$a->data['albums'] = $albums;
-
-			$albums_visible = ((intval($a->data['user']['hidewall']) && (!local_user()) && (!remote_user())) ? false : true);
-
-			if($albums_visible) {
-				$o .= '<div id="sidebar-photos-albums" class="widget">';
-				$o .= '<h3>' . '<a href="' . System::baseUrl() . '/photos/' . $a->data['user']['nickname'] . '">' . L10n::t('Photo Albums') . '</a></h3>';
-
-				$o .= '<ul>';
-				foreach($albums as $album) {
-
-					// don't show contact photos. We once translated this name, but then you could still access it under
-					// a different language setting. Now we store the name in English and check in English (and translated for legacy albums).
-
-					if((!strlen($album['album'])) || ($album['album'] === 'Contact Photos') || ($album['album'] === L10n::t('Contact Photos')))
-						continue;
-					$o .= '<li>' . '<a href="photos/' . $a->argv[1] . '/album/' . bin2hex($album['album']) . '" >' . $album['album'] . '</a></li>';
-				}
-				$o .= '</ul>';
-			}
-			if(local_user() && $a->data['user']['uid'] == local_user()) {
-				$o .= '<div id="photo-albums-upload-link"><a href="' . System::baseUrl() . '/photos/' . $a->data['user']['nickname'] . '/upload" >' .L10n::t('Upload New Photos') . '</a></div>';
-			}
-
-			$o .= '</div>';
-		}*/
 
 		// If not there, create 'aside' empty
 		if (!isset($a->page['aside'])) {
@@ -148,25 +113,15 @@ function videos_post(App $a)
 
 		$video_id = $_POST['id'];
 
-		$r = q("SELECT `id`  FROM `attach` WHERE `uid` = %d AND `id` = '%s' LIMIT 1",
-			intval(local_user()),
-			DBA::escape($video_id)
-		);
+		if (Attach::exists(['id' => $video_id, 'uid' => local_user()])) {
+			// delete the attachment
+			Attach::delete(['id' => $video_id, 'uid' => local_user()]);
 
-		if (DBA::isResult($r)) {
-			q("DELETE FROM `attach` WHERE `uid` = %d AND `id` = '%s'",
-				intval(local_user()),
-				DBA::escape($video_id)
-			);
-
-			$i = q("SELECT `id` FROM `item` WHERE `attach` like '%%attach/%s%%' AND `uid` = %d LIMIT 1",
-				DBA::escape($video_id),
-				intval(local_user())
-			);
-
-			if (DBA::isResult($i)) {
-				Item::deleteForUser(['id' => $i[0]['id']], local_user());
-			}
+			// delete items where the attach is used
+			Item::deleteForUser(['`attach` LIKE ? AND `uid` = ?',
+				'%attach/' . $video_id . '%',
+				local_user()
+			], local_user());
 		}
 
 		$a->internalRedirect('videos/' . $a->data['user']['nickname']);
@@ -207,17 +162,10 @@ function videos_content(App $a)
 	//
 	if ($a->argc > 3) {
 		$datatype = $a->argv[2];
-		$datum = $a->argv[3];
 	} elseif(($a->argc > 2) && ($a->argv[2] === 'upload')) {
 		$datatype = 'upload';
 	} else {
 		$datatype = 'summary';
-	}
-
-	if ($a->argc > 4) {
-		$cmd = $a->argv[4];
-	} else {
-		$cmd = 'view';
 	}
 
 	//
@@ -231,7 +179,7 @@ function videos_content(App $a)
 
 	$owner_uid = $a->data['user']['uid'];
 
-	$community_page = (($a->data['user']['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
+	$community_page = (($a->data['user']['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 	if ((local_user()) && (local_user() == $owner_uid)) {
 		$can_post = true;
@@ -253,7 +201,6 @@ function videos_content(App $a)
 
 			if (DBA::isResult($r)) {
 				$can_post = true;
-				$contact = $r[0];
 				$remote_contact = true;
 				$visitor = $contact_id;
 			}
@@ -283,15 +230,9 @@ function videos_content(App $a)
 			);
 
 			if (DBA::isResult($r)) {
-				$contact = $r[0];
 				$remote_contact = true;
 			}
 		}
-	}
-
-	if (!$remote_contact && local_user()) {
-		$contact_id = $_SESSION['cid'];
-		$contact = $a->contact;
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (!$remote_contact)) {

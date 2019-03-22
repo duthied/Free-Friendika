@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Core\Console;
 
+use Friendica\App\Mode;
 use Friendica\Core\Console\Config;
 
 /**
@@ -16,12 +17,12 @@ class ConfigConsoleTest extends ConsoleTest
 		parent::setUp();
 
 		\Mockery::getConfiguration()->setConstantsMap([
-			'Friendica\App\Mode' => [
+			Mode::class => [
 				'DBCONFIGAVAILABLE' => 0
 			]
 		]);
 
-		$mode = \Mockery::mock('alias:Friendica\App\Mode');
+		$mode = \Mockery::mock(Mode::class);
 		$mode
 			->shouldReceive('has')
 			->andReturn(true);
@@ -32,7 +33,17 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testSetGetKeyValue() {
-		$this->mockConfigSet('config', 'test', 'now', 1);
+		$this->configMock
+			->shouldReceive('set')
+			->with('config', 'test', 'now')
+			->andReturn(true)
+			->once();
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'test')
+			->andReturn('now')
+			->twice();
+
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
@@ -40,14 +51,24 @@ class ConfigConsoleTest extends ConsoleTest
 		$txt = $this->dumpExecute($console);
 		$this->assertEquals("config.test <= now\n", $txt);
 
-		$this->mockConfigGet('config', 'test', 'now', 1);
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'test')
+			->andReturn('now')
+			->once();
+
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
 		$this->assertEquals("config.test => now\n", $txt);
 
-		$this->mockConfigGet('config', 'test', null, 1);
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'test')
+			->andReturn(null)
+			->once();
+
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
@@ -57,7 +78,11 @@ class ConfigConsoleTest extends ConsoleTest
 
 	function testSetArrayValue() {
 		$testArray = [1, 2, 3];
-		$this->mockConfigGet('config', 'test', $testArray, 1);
+		$this->configMock
+			->shouldReceive('get')
+			->with('config', 'test')
+			->andReturn($testArray)
+			->once();
 
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'config');
@@ -81,7 +106,11 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testVerbose() {
-		$this->mockConfigGet('test', 'it', 'now', 1);
+		$this->configMock
+			->shouldReceive('get')
+			->with('test', 'it')
+			->andReturn('now')
+			->once();
 		$console = new Config($this->consoleArgv);
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');
@@ -105,7 +134,16 @@ CONF;
 	}
 
 	function testUnableToSet() {
-		$this->mockConfigSet('test', 'it', 'now', 1, false);
+		$this->configMock
+			->shouldReceive('set')
+			->with('test', 'it', 'now')
+			->andReturn(false)
+			->once();
+		$this->configMock
+			->shouldReceive('get')
+			->with('test', 'it')
+			->andReturn(NULL)
+			->once();
 		$console = new Config();
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');

@@ -10,7 +10,7 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -18,7 +18,6 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model;
-use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -194,11 +193,11 @@ class Contact extends BaseModule
 			return; // NOTREACHED
 		}
 
-		Addon::callHooks('contact_edit_post', $_POST);
+		Hook::callAll('contact_edit_post', $_POST);
 
 		$profile_id = intval(defaults($_POST, 'profile-assign', 0));
 		if ($profile_id) {
-			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user(), 'deleted' => false])) {
+			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
 				notice(L10n::t('Could not locate selected profile.') . EOL);
 				return;
 			}
@@ -310,7 +309,7 @@ class Contact extends BaseModule
 			return;
 		}
 
-		$r = DBA::update('contact', $fields, ['id' => $contact_id, 'uid' => local_user()]);
+		DBA::update('contact', $fields, ['id' => $contact_id, 'uid' => local_user()]);
 
 		// Update the entry in the contact table
 		Model\Contact::updateAvatar($data['photo'], local_user(), $contact_id, true);
@@ -470,7 +469,6 @@ class Contact extends BaseModule
 		$_SESSION['return_path'] = $a->query_string;
 
 		if (!empty($a->data['contact']) && is_array($a->data['contact'])) {
-			$contact_id = $a->data['contact']['id'];
 			$contact = $a->data['contact'];
 
 			$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
@@ -632,7 +630,6 @@ class Contact extends BaseModule
 				'$hidden'         => ['hidden', L10n::t('Hide this contact from others'), ($contact['hidden'] == 1), L10n::t('Replies/likes to your public posts <strong>may</strong> still be visible')],
 				'$notify'         => ['notify', L10n::t('Notification for new posts'), ($contact['notify_new_posts'] == 1), L10n::t('Send a notification of every new post of this contact')],
 				'$fetch_further_information' => $fetch_further_information,
-				'$ffi_keyword_blacklist' => $contact['ffi_keyword_blacklist'],
 				'$ffi_keyword_blacklist' => ['ffi_keyword_blacklist', L10n::t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], L10n::t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 				'$photo'          => $contact['photo'],
 				'$name'           => $contact['name'],
@@ -659,7 +656,7 @@ class Contact extends BaseModule
 
 			$arr = ['contact' => $contact, 'output' => $o];
 
-			Addon::callHooks('contact_edit', $arr);
+			Hook::callAll('contact_edit', $arr);
 
 			return $arr['output'];
 		}
@@ -841,12 +838,12 @@ class Contact extends BaseModule
 	 *
 	 * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
 	 *
-	 * @param App $a
-	 * @param array $contact The contact array
-	 * @param int $active_tab 1 if tab should be marked as active
+	 * @param App   $a
+	 * @param array $contact    The contact array
+	 * @param int   $active_tab 1 if tab should be marked as active
 	 *
-	 * @return string | HTML string of the contact page tabs buttons.
-
+	 * @return string HTML string of the contact page tabs buttons.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getTabsHTML($a, $contact, $active_tab)
 	{

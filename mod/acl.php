@@ -5,7 +5,7 @@
 use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -34,7 +34,7 @@ function acl_content(App $a)
 		$search = $_REQUEST['query'];
 	}
 
-	Logger::log("Searching for ".$search." - type ".$type." conversation ".$conv_id, Logger::DEBUG);
+	Logger::info('ACL {action} - {subaction}', ['module' => 'acl', 'action' => 'content', 'subaction' => 'search', 'search' => $search, 'type' => $type, 'conversation' => $conv_id]);
 
 	if ($search != '') {
 		$sql_extra = "AND `name` LIKE '%%" . DBA::escape($search) . "%%'";
@@ -305,7 +305,7 @@ function acl_content(App $a)
 		'search'   => $search,
 	];
 
-	Addon::callHooks('acl_lookup_end', $results);
+	Hook::callAll('acl_lookup_end', $results);
 
 	$o = [
 		'tot'   => $results['tot'],

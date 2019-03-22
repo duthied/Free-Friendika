@@ -28,7 +28,7 @@ function viewsrc_content(App $a)
 	if (DBA::isResult($item)) {
 		if ($a->isAjax()) {
 			echo str_replace("\n", '<br />', $item['body']);
-			killme();
+			exit();
 		} else {
 			$o .= str_replace("\n", '<br />', $item['body']);
 		}

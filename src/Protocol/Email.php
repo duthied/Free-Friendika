@@ -6,7 +6,6 @@ namespace Friendica\Protocol;
 
 use Friendica\Core\Logger;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Protocol;
 use Friendica\Model\Item;
 
 /**
@@ -18,7 +17,8 @@ class Email
 	 * @param string $mailbox  The mailbox name
 	 * @param string $username The username
 	 * @param string $password The password
-	 * @return object
+	 * @return resource
+	 * @throws \Exception
 	 */
 	public static function connect($mailbox, $username, $password)
 	{
@@ -42,9 +42,10 @@ class Email
 	}
 
 	/**
-	 * @param object $mbox       mailbox
-	 * @param string $email_addr email
+	 * @param resource $mbox       mailbox
+	 * @param string   $email_addr email
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function poll($mbox, $email_addr)
 	{
@@ -91,8 +92,8 @@ class Email
 	}
 
 	/**
-	 * @param object  $mbox mailbox
-	 * @param integer $uid  user id
+	 * @param resource $mbox mailbox
+	 * @param integer  $uid  user id
 	 * @return mixed
 	 */
 	public static function messageMeta($mbox, $uid)
@@ -102,10 +103,11 @@ class Email
 	}
 
 	/**
-	 * @param object  $mbox  mailbox
-	 * @param integer $uid   user id
-	 * @param string  $reply reply
+	 * @param resource $mbox  mailbox
+	 * @param integer  $uid   user id
+	 * @param string   $reply reply
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getMessage($mbox, $uid, $reply)
 	{
@@ -164,19 +166,17 @@ class Email
 	// At the moment - only return plain/text.
 	// Later we'll repackage inline images as data url's and make the HTML safe
 	/**
-	 * @param object  $mbox    mailbox
-	 * @param integer $uid     user id
-	 * @param object  $p       parts
-	 * @param integer $partno  part number
-	 * @param string  $subtype sub type
+	 * @param resource $mbox    mailbox
+	 * @param integer  $uid     user id
+	 * @param object   $p       parts
+	 * @param integer  $partno  part number
+	 * @param string   $subtype sub type
 	 * @return string
 	 */
 	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
-
-		//echo $partno."\n";
 
 		// DECODE DATA
 		$data = ($partno)
@@ -245,9 +245,6 @@ class Email
 			$x = "";
 			foreach ($p->parts as $partno0 => $p2) {
 				$x .=  self::messageGetPart($mbox, $uid, $p2, $partno . '.' . ($partno0+1), $subtype);  // 1.2, 1.2.1, etc.
-				//if ($x) {
-				//	return $x;
-				//}
 			}
 			return $x;
 		}
@@ -321,6 +318,8 @@ class Email
 	 *
 	 * @return void
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 * @todo This could be changed to use the Emailer class
 	 */
 	public static function send($addr, $subject, $headers, $item)
@@ -555,26 +554,6 @@ class Email
 				$nextline = ltrim(substr($nextline, 1));
 			}
 
-			$firstword = strpos($nextline.' ', ' ');
-
-			$specialchars = ((substr(trim($nextline), 0, 1) == '-') ||
-					(substr(trim($nextline), 0, 1) == '=') ||
-					(substr(trim($nextline), 0, 1) == '*') ||
-					(substr(trim($nextline), 0, 1) == '·') ||
-					(substr(trim($nextline), 0, 4) == '[url') ||
-					(substr(trim($nextline), 0, 5) == '[size') ||
-					(substr(trim($nextline), 0, 7) == 'http://') ||
-					(substr(trim($nextline), 0, 8) == 'https://'));
-
-			if (!$specialchars) {
-				$specialchars = ((substr(rtrim($line), -1) == '-') ||
-						(substr(rtrim($line), -1) == '=') ||
-						(substr(rtrim($line), -1) == '*') ||
-						(substr(rtrim($line), -1) == '·') ||
-						(substr(rtrim($line), -6) == '[/url]') ||
-						(substr(rtrim($line), -7) == '[/size]'));
-			}
-
 			if (!empty($lines[$lineno])) {
 				if (substr($lines[$lineno], -1) != ' ') {
 					$lines[$lineno] .= ' ';
@@ -621,13 +600,11 @@ class Email
 		}
 
 		$quotelevel = 0;
-		$previousquote = 0;
 		$arrbodyquoted = [];
 
 		for ($i = 0; $i < count($arrbody); $i++) {
 			$previousquote = $quotelevel;
 			$quotelevel = $arrlevel[$i];
-			$currline = $arrbody[$i];
 
 			while ($previousquote < $quotelevel) {
 				$quote = "[quote]";

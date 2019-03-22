@@ -1,3 +1,92 @@
+Version 2019.03 (2019-03-22)
+  Friendica Core:
+    Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, SV, ZH-CN) [translation teams]
+    Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
+    Update to the themes (duepuntozero, frio, smoothy, quattro, vier) [lxiter, MrPetovan, nupplaphil, rabuzarus,  tobiasd]
+    Enhancements to the API [jasonscheng]
+    Enhancements to the Vagrant development VM [JeroenED]
+    Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
+    Enhancements to the wording of notifications [MrPetovan]
+    Enhancements to the display of contacts in the profile [MrPetovan]
+    Enhancements to the handling of local links [lxiter]
+    Enhancements to the explicit and implicit mentioning in conversations [annando, MrPetovan]
+    Enhancements to the warnings in the admin panel [tobiasd]
+    Enhancements to the AP implementation [annando]
+    Enhancements to the worker process [annando]
+    Enhancements to the testing process [MrPetovan, nupplaphil]
+    Enhancements to the LibreJS compatibility [tobiasd]
+    Enhancements to the federated display of postings [MrPetovan]
+    Enhancements to the photo menu [annando]
+    Enhancements to the probing of contacts [annando]
+    Fixed several bugs with weird tagging in code blocks [lxiter]
+    Fixed a bug during contact entries update [rabuzarus]
+    Fixed several PHP warnings and errors [annando, MrPetovan, tobiasd]
+    Fixed an issue when Friendica is installed in a subdirectory [rabuzarus]
+    Fixed several issues in the handling of the Markdown parsing from and to d* [lxiter, MrPetovan]
+    Fixed a bug that prevented blocked contacts from being removed from groups [MrPetovan]
+    Fixed a bug in the ACL with preselected items [lxiter]
+    Fixed an issue with polling Events via AP [annando]
+    Fixed a memory issue with the JSON-LD parser [annando]
+    Fixed an issue with the forced DB structure update [nupplaphil]
+    Fixed an issue with wrongly encoded HTML entities in URLs [annando]
+    Fixed an issue with the rotation of images in the gallery [nupplaphil]
+    Fixed issues with redirs in the photo menu of Friendica contacts [tobiasd]
+    Fixed an issue with sending out notification mails to the admin [nupplaphil]
+    Fixed an the issue, that the API was ignoring the globalsilence setting  [nupplaphil]
+    Fixed issues with the autolinker of URLs in postings [MrPetovan]
+    Fixed an issue resulting in multible emails after successful updates of the database [nupplaphil]
+    Fixed a timeout issue during detection process of the remote profile [annando]
+    Fixed an issue with postings from blocked servers [annando, MrPetovan]
+    Fixed an issue with the paging of stored folders [MrPetovan]
+    Fixed an issue with notifications about interactions with Friendica contacts [annando]
+    Fixed an issue that caused double postings of images uploaded to the gallery [annando]
+    Fixed an issue handling legacy config files [nupplaphil]
+    Fixed an issue that caused notifications about interaction with a locally deleted posting [annando]
+    If the node does not want to publish information, nodeinfo now returns 404 instead of non-existing entries [nupplaphil]
+    General Code cleaning and restructuring [annando, JeroenED, MrPetovan, nupplaphil]
+    Switched logging engine to monolog [nupplaphil]
+    Added plugable storage backend [fabrixxm, nupplaphil]
+    Added item delivery indicator to posting header [MrPetovan]
+    Added URL parameter to force a specific language [JeroenED]
+    Added live preview of attachments to frio [rabuzarus]
+    Added a "friendica_author" field to the API results which holds the real author [annando]
+    Added support for AP with forum postings [annando]
+    Added a summary of articles send over AP [annando]
+
+  Friendica Addons:
+    Updates to the translations (CS, DE, EN-GB, ES, FR, NL, PL, SV) [translation teams]
+    Updated documentation [softmetz, tobiasd]
+    blackout:
+      Fix applying the translations [JeroenED, tobiasd]
+      Fixed some templating of the settings [tobiasd]
+    blogger:
+      The addon was marked as unsupported as it does currently not work (needs OAuth support) [annando]
+    cookienotice:
+      Added new addon to display a cookie usage notice in the browser [lxiter]
+    forumdirectory:
+      Fixed a theming issue with frio [rabuzarus]
+    js_upload:
+      Fixed a missing extionsion index [nupplaphil]
+    mailstream:
+      Fixed a curl issue [MrPetovan]
+    piwik:
+      Make it clear that Piwik is now Matomo but the addon supports both [tobiasd]
+    securemail:
+      updated the addon dependencies [MrPetovan]
+    twitter:
+      @ mentions are now stripped from the posts send to Twitter [MrPetovan]
+
+  Closed Issues:
+    1777, 2487, 3218, 3506, 3837, 4496, 5884, 6087, 6161, 6167, 6205,
+    6232, 6263, 6274, 6292, 6337, 6338, 6375, 6378, 6382, 6384, 6386,
+    6403, 6405, 6449, 6468, 6472, 6489, 6491, 6492, 6495, 6498, 6501,
+    6503, 6505, 6511, 6514, 6521, 6522, 6529, 6532, 6533, 6544, 6545,
+    6551, 6553, 6537, 6558, 6552, 6561, 6570, 6575, 6585, 6603, 6610,
+    6629, 6630, 6633, 6635, 6652, 6656, 6658, 6667, 6668, 6669, 6672,
+    6674, 6676, 6677, 6679, 6691, 6710, 6711, 6714, 6716, 6733, 6758,
+    6772, 6778, 6785, 6788, 6800, 6805, 6812, 6819, 6822, 6823, 6840,
+    6855, 6866, 6874, 6891, 6901, 6913
+
 Version 2019.01 (2019-01-21)
   Friendica Core:
     Update to the translation (CS, DE, EN-UK, EN-US, FR, NB-NO, NL, PL) [translation teams]

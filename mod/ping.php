@@ -4,12 +4,11 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
@@ -31,30 +30,31 @@ use Friendica\Util\XML;
  *
  * Expected JSON structure:
  * {
- *		"result": {
- *			"intro": 0,
- *			"mail": 0,
- *			"net": 0,
- *			"home": 0,
- *			"register": 0,
- *			"all-events": 0,
- *			"all-events-today": 0,
- *			"events": 0,
- *			"events-today": 0,
- *			"birthdays": 0,
- *			"birthdays-today": 0,
- *			"groups": [ ],
- *			"forums": [ ],
- *			"notify": 0,
- *			"notifications": [ ],
- *			"sysmsgs": {
- *				"notice": [ ],
- *				"info": [ ]
- *			}
- *		}
- *	}
+ *        "result": {
+ *            "intro": 0,
+ *            "mail": 0,
+ *            "net": 0,
+ *            "home": 0,
+ *            "register": 0,
+ *            "all-events": 0,
+ *            "all-events-today": 0,
+ *            "events": 0,
+ *            "events-today": 0,
+ *            "birthdays": 0,
+ *            "birthdays-today": 0,
+ *            "groups": [ ],
+ *            "forums": [ ],
+ *            "notify": 0,
+ *            "notifications": [ ],
+ *            "sysmsgs": {
+ *                "notice": [ ],
+ *                "info": [ ]
+ *            }
+ *        }
+ *    }
  *
  * @param App $a The Friendica App instance
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function ping_init(App $a)
 {
@@ -115,7 +115,7 @@ function ping_init(App $a)
 				header("Content-type: text/xml");
 				echo XML::fromArray($data, $xml);
 			}
-			killme();
+			exit();
 		}
 
 		$notifs = ping_get_notifications(local_user());
@@ -129,7 +129,7 @@ function ping_init(App $a)
 		if (DBA::isResult($items)) {
 			$items_unseen = Item::inArray($items);
 			$arr = ['items' => $items_unseen];
-			Addon::callHooks('network_ping', $arr);
+			Hook::callAll('network_ping', $arr);
 
 			foreach ($items_unseen as $item) {
 				if ($item['wall']) {
@@ -188,7 +188,7 @@ function ping_init(App $a)
 		);
 		$mail_count = count($mails);
 
-		if (intval(Config::get('config', 'register_policy')) === REGISTER_APPROVE && is_site_admin()) {
+		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::APPROVE && is_site_admin()) {
 			$regs = Friendica\Model\Register::getPending();
 
 			if (DBA::isResult($regs)) {
@@ -386,7 +386,7 @@ function ping_init(App $a)
 		echo XML::fromArray(["result" => $data], $xml);
 	}
 
-	killme();
+	exit();
 }
 
 /**
@@ -394,6 +394,7 @@ function ping_init(App $a)
  *
  * @param int $uid User id
  * @return array Associative array of notifications
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function ping_get_notifications($uid)
 {
@@ -480,8 +481,8 @@ function ping_get_notifications($uid)
  * @param array $notifs          Complete list of notification
  * @param array $sysmsgs         List of system notice messages
  * @param array $sysmsgs_info    List of system info messages
- * @param array $groups_unseen   List of unseen group messages
- * @param array $forums_unseen   List of unseen forum messages
+ * @param array $groups_unseen   List of unseen group items
+ * @param array $forums_unseen   List of unseen forum items
  *
  * @return array XML-transform ready data array
  */

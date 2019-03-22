@@ -28,7 +28,6 @@ function dfrn_poll_init(App $a)
 	$challenge       = defaults($_GET, 'challenge'      , '');
 	$sec             = defaults($_GET, 'sec'            , '');
 	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
-	$perm            = defaults($_GET, 'perm'           , 'r');
 	$quiet			 = !empty($_GET['quiet']);
 
 	// Possibly it is an OStatus compatible server that requests a user feed
@@ -37,7 +36,7 @@ function dfrn_poll_init(App $a)
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
 		echo OStatus::feed($nickname, $last_update, 10);
-		killme();
+		exit();
 	}
 
 	$direction = -1;
@@ -71,7 +70,7 @@ function dfrn_poll_init(App $a)
 		Logger::log('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
 		echo DFRN::feed('', $user, $last_update, 0, $hidewall);
-		killme();
+		exit();
 	}
 
 	if (($type === 'profile') && (!strlen($sec))) {
@@ -198,7 +197,7 @@ function dfrn_poll_init(App $a)
 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dfrn_poll><status>0</status><challenge>$decoded_challenge</challenge><sec>$sec</sec></dfrn_poll>";
-			killme();
+			exit();
 			// NOTREACHED
 		} else {
 			// old protocol
@@ -290,7 +289,7 @@ function dfrn_poll_post(App $a)
 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dfrn_poll><status>0</status><challenge>$decoded_challenge</challenge><sec>$sec</sec></dfrn_poll>";
-			killme();
+			exit();
 			// NOTREACHED
 		}
 	}
@@ -307,7 +306,7 @@ function dfrn_poll_post(App $a)
 	);
 
 	if (!DBA::isResult($r)) {
-		killme();
+		exit();
 	}
 
 	$type = $r[0]['type'];
@@ -319,15 +318,12 @@ function dfrn_poll_post(App $a)
 	switch ($direction) {
 		case -1:
 			$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
-			$my_id = $dfrn_id;
 			break;
 		case 0:
 			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-			$my_id = '1:' . $dfrn_id;
 			break;
 		case 1:
 			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-			$my_id = '0:' . $dfrn_id;
 			break;
 		default:
 			$a->internalRedirect();
@@ -336,7 +332,7 @@ function dfrn_poll_post(App $a)
 
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
 	if (!DBA::isResult($r)) {
-		killme();
+		exit();
 	}
 
 	$contact = $r[0];
@@ -368,7 +364,7 @@ function dfrn_poll_post(App $a)
 			<description>$text</description>
 		</reputation>
 		";
-		killme();
+		exit();
 		// NOTREACHED
 	} else {
 		// Update the writable flag if it changed
@@ -391,7 +387,7 @@ function dfrn_poll_post(App $a)
 		header("Content-type: application/atom+xml");
 		$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
-		killme();
+		exit();
 	}
 }
 
@@ -420,7 +416,7 @@ function dfrn_poll_content(App $a)
 		DBA::delete('challenge', ["`expire` < ?", time()]);
 
 		if ($type !== 'profile') {
-			$r = q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
+			q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
 				VALUES( '%s', '%s', '%s', '%s', '%s' ) ",
 				DBA::escape($hash),
 				DBA::escape($dfrn_id),
@@ -573,7 +569,7 @@ function dfrn_poll_content(App $a)
 				. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n"
 				. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
 				. '</dfrn_poll>' . "\r\n";
-			killme();
+			exit();
 			// NOTREACHED
 		}
 	}

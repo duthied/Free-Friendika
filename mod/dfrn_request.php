@@ -34,9 +34,9 @@ function dfrn_request_init(App $a)
 {
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
+		Profile::load($a, $which);
 	}
 
-	Profile::load($a, $which);
 	return;
 }
 
@@ -54,6 +54,9 @@ function dfrn_request_init(App $a)
  * in order to link our friend request with our own server cell.
  * After logging in, we click 'submit' to approve the linkage.
  *
+ * @param App $a
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function dfrn_request_post(App $a)
 {
@@ -165,7 +168,7 @@ function dfrn_request_post(App $a)
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
 					intval(local_user()),
 					DBA::escape($dfrn_url),
-					$parms['key'] // this was already escaped
+					defaults($parms, 'key', '') // Potentially missing
 				);
 				if (DBA::isResult($r)) {
 					Group::addMember(User::getDefaultGroup(local_user(), $r[0]["network"]), $r[0]['id']);
@@ -184,8 +187,8 @@ function dfrn_request_post(App $a)
 					$dfrn_request = $contact_record['request'];
 				}
 
-				if (strlen($dfrn_request) && strlen($confirm_key)) {
-					$s = Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
+				if (!empty($dfrn_request) && strlen($confirm_key)) {
+					Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
 				}
 
 				// (ignore reply, nothing we can do it failed)
@@ -227,7 +230,6 @@ function dfrn_request_post(App $a)
 	}
 
 	$nickname       = $a->profile['nickname'];
-	$notify_flags   = $a->profile['notify-flags'];
 	$uid            = $a->profile['uid'];
 	$maxreq         = intval($a->profile['maxreq']);
 	$contact_record = null;
@@ -267,8 +269,6 @@ function dfrn_request_post(App $a)
 				DBA::delete('intro', ['id' => $rr['iid']]);
 			}
 		}
-
-		$real_name = !empty($_POST['realname']) ? Strings::escapeTags(trim($_POST['realname'])) : '';
 
 		$url = trim($_POST['dfrn_url']);
 		if (!strlen($url)) {
@@ -417,7 +417,7 @@ function dfrn_request_post(App $a)
 			$hash = Strings::getRandomHex() . (string) time();   // Generate a confirm_key
 
 			if (is_array($contact_record)) {
-				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
+				q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
 					VALUES ( %d, %d, 1, %d, '%s', '%s', '%s' )",
 					intval($uid),
 					intval($contact_record['id']),
@@ -544,7 +544,7 @@ function dfrn_request_content(App $a)
 			$auto_confirm = false;
 
 			if (DBA::isResult($r)) {
-				if ($r[0]['page-flags'] != Contact::PAGE_NORMAL && $r[0]['page-flags'] != Contact::PAGE_PRVGROUP) {
+				if ($r[0]['page-flags'] != User::PAGE_FLAGS_NORMAL && $r[0]['page-flags'] != User::PAGE_FLAGS_PRVGROUP) {
 					$auto_confirm = true;
 				}
 
@@ -572,7 +572,7 @@ function dfrn_request_content(App $a)
 						'node'     => $r[0]['nickname'],
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
-						'duplex'   => (($r[0]['page-flags'] == Contact::PAGE_FREELOVE) ? 1 : 0),
+						'duplex'   => (($r[0]['page-flags'] == User::PAGE_FLAGS_FREELOVE) ? 1 : 0),
 					];
 					dfrn_confirm_post($a, $handsfree);
 				}
@@ -583,14 +583,13 @@ function dfrn_request_content(App $a)
 				// If we are auto_confirming, this record will have already been nuked
 				// in dfrn_confirm_post()
 
-				$r = q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
+				q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
 					DBA::escape($_GET['confirm_key'])
 				);
 			}
 		}
 
-		killme();
-		return; // NOTREACHED
+		exit();
 	} else {
 		// Normal web request. Display our user's introduction form.
 		if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
@@ -624,7 +623,7 @@ function dfrn_request_content(App $a)
 		 * because nobody is going to read the comments and
 		 * it doesn't matter if they know you or not.
 		 */
-		if ($a->profile['page-flags'] == Contact::PAGE_NORMAL) {
+		if ($a->profile['page-flags'] == User::PAGE_FLAGS_NORMAL) {
 			$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
 		} else {
 			$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
@@ -655,6 +654,4 @@ function dfrn_request_content(App $a)
 		]);
 		return $o;
 	}
-
-	return; // Somebody is fishing.
 }

@@ -4,8 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\Core;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
@@ -45,6 +43,10 @@ class Install extends BaseModule
 	{
 		$a = self::getApp();
 
+		if (!$a->getMode()->isInstall()) {
+			Core\System::httpExit(403);
+		}
+
 		// route: install/testrwrite
 		// $baseurl/install/testrwrite to test if rewrite in .htaccess is working
 		if ($a->getArgumentValue(1, '') == 'testrewrite') {
@@ -77,7 +79,7 @@ class Install extends BaseModule
 				$dbdata  = Strings::escapeTags(trim(defaults($_POST, 'dbdata', '')));
 
 				// If we cannot connect to the database, return to the previous step
-				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
+				if (!self::$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $dbhost, $dbuser, $dbpass, $dbdata)) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 				}
 
@@ -94,7 +96,7 @@ class Install extends BaseModule
 				$adminmail = Strings::escapeTags(trim(defaults($_POST, 'adminmail', '')));
 
 				// If we cannot connect to the database, return to the Database config wizard
-				if (!self::$installer->checkDB($dbhost, $dbuser, $dbpass, $dbdata)) {
+				if (!self::$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $dbhost, $dbuser, $dbpass, $dbdata)) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 					return;
 				}
@@ -105,7 +107,7 @@ class Install extends BaseModule
 					return;
 				}
 
-				self::$installer->installDatabase();
+				self::$installer->installDatabase($a->getBasePath());
 
 				break;
 		}
@@ -254,6 +256,7 @@ class Install extends BaseModule
 	 * @param App $a The global App
 	 *
 	 * @return string The text for the next steps
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function whatNext($a)
 	{

@@ -9,8 +9,9 @@ use Friendica\Database\DBA;
  * DBA::select, DBA::exists, DBA::insert
  * DBA::delete, DBA::update, DBA::p, DBA::e
  *
- * @param $args Query parameters (1 to N parameters of different types)
+ * @param $sql
  * @return array|bool Query array
+ * @throws Exception
  * @deprecated
  */
 function q($sql) {

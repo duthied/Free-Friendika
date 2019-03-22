@@ -13,7 +13,7 @@ use Friendica\Core\Renderer;
 
 function uimport_post(App $a)
 {
-	if ((Config::get('config', 'register_policy') != REGISTER_OPEN) && !is_site_admin()) {
+	if ((Config::get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -26,7 +26,7 @@ function uimport_post(App $a)
 
 function uimport_content(App $a)
 {
-	if ((Config::get('config', 'register_policy') != REGISTER_OPEN) && !is_site_admin()) {
+	if ((Config::get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
 		notice(L10n::t('User imports on closed servers can only be done by an administrator.') . EOL);
 		return;
 	}

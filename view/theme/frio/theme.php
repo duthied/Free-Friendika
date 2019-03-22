@@ -10,8 +10,8 @@
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -46,24 +46,24 @@ EOT;
 
 function frio_install()
 {
-	Addon::registerHook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Addon::registerHook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Addon::registerHook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Addon::registerHook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Addon::registerHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Addon::registerHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
+	Hook::register('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	Hook::register('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	Hook::register('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
+	Hook::register('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	Hook::register('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	Hook::register('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	Logger::log('installed theme frio');
 }
 
 function frio_uninstall()
 {
-	Addon::unregisterHook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Addon::unregisterHook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Addon::unregisterHook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Addon::unregisterHook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Addon::unregisterHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Addon::unregisterHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
+	Hook::unregister('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	Hook::unregister('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	Hook::unregister('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
+	Hook::unregister('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	Hook::unregister('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	Hook::unregister('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
 	Logger::log('uninstalled theme frio');
 }
@@ -246,21 +246,23 @@ function frio_remote_nav($a, &$nav)
 		$r = false;
 	}
 
+	$remoteUser = null;
 	if (DBA::isResult($r)) {
 		$nav['userinfo'] = [
 			'icon' => (DBA::isResult($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
 			'name' => $r[0]['name'],
 		];
+		$remoteUser = $r[0];
 	}
 
-	if (!local_user() && !empty($server_url)) {
+	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
 		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), '', L10n::t('End this session')];
 
 		// user menu
-		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
-		$nav['usermenu'][] = [$server_url . '/photos/' . $a->user['nickname'], L10n::t('Photos'), '', L10n::t('Your photos')];
-		$nav['usermenu'][] = [$server_url . '/videos/' . $a->user['nickname'], L10n::t('Videos'), '', L10n::t('Your videos')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], L10n::t('Photos'), '', L10n::t('Your photos')];
+		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], L10n::t('Videos'), '', L10n::t('Your videos')];
 		$nav['usermenu'][] = [$server_url . '/events/', L10n::t('Events'), '', L10n::t('Your events')];
 
 		// navbar links

@@ -19,23 +19,19 @@
 
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Addon;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Update;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
+use Friendica\Model\Term;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2019.01');
+define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
+define('FRIENDICA_VERSION',      '2019.03');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -97,18 +93,12 @@ define('SSL_POLICY_FULL',         1);
 define('SSL_POLICY_SELFSIGN',     2);
 /* @}*/
 
-/**
- * @name Register
- *
- * Registration policies
- * @{
- */
-define('REGISTER_CLOSED',        0);
-define('REGISTER_APPROVE',       1);
-define('REGISTER_OPEN',          2);
-/**
- * @}
-*/
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
+define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::APPROVE instead */
+define('REGISTER_APPROVE',       \Friendica\Module\Register::APPROVE);
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::OPEN instead */
+define('REGISTER_OPEN',          \Friendica\Module\Register::OPEN);
 
 /**
  * @name CP
@@ -182,23 +172,27 @@ define('NOTIFY_SYSTEM',   32768);
 /* @}*/
 
 
-/**
- * @name Term
- *
- * Tag/term types
- * @{
- */
-define('TERM_UNKNOWN',   0);
-define('TERM_HASHTAG',   1);
-define('TERM_MENTION',   2);
-define('TERM_CATEGORY',  3);
-define('TERM_PCATEGORY', 4);
-define('TERM_FILE',      5);
-define('TERM_SAVEDSEARCH', 6);
-define('TERM_CONVERSATION', 7);
+/** @deprecated since 2019.03, use Term::UNKNOWN instead */
+define('TERM_UNKNOWN',   Term::UNKNOWN);
+/** @deprecated since 2019.03, use Term::HASHTAG instead */
+define('TERM_HASHTAG',   Term::HASHTAG);
+/** @deprecated since 2019.03, use Term::MENTION instead */
+define('TERM_MENTION',   Term::MENTION);
+/** @deprecated since 2019.03, use Term::CATEGORY instead */
+define('TERM_CATEGORY',  Term::CATEGORY);
+/** @deprecated since 2019.03, use Term::PCATEGORY instead */
+define('TERM_PCATEGORY', Term::PCATEGORY);
+/** @deprecated since 2019.03, use Term::FILE instead */
+define('TERM_FILE',      Term::FILE);
+/** @deprecated since 2019.03, use Term::SAVEDSEARCH instead */
+define('TERM_SAVEDSEARCH', Term::SAVEDSEARCH);
+/** @deprecated since 2019.03, use Term::CONVERSATION instead */
+define('TERM_CONVERSATION', Term::CONVERSATION);
 
-define('TERM_OBJ_POST',  1);
-define('TERM_OBJ_PHOTO', 2);
+/** @deprecated since 2019.03, use Term::OBJECT_TYPE_POST instead */
+define('TERM_OBJ_POST',  Term::OBJECT_TYPE_POST);
+/** @deprecated since 2019.03, use Term::OBJECT_TYPE_PHOTO instead */
+define('TERM_OBJ_PHOTO', Term::OBJECT_TYPE_PHOTO);
 
 /**
  * @name Namespaces
@@ -653,18 +647,18 @@ function get_temppath()
 
 	$temppath = Config::get("system", "temppath");
 
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
-		return App::getRealPath($temppath);
+		return BasePath::getRealPath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath = $temppath . "/" . $a->getHostName();
@@ -673,7 +667,7 @@ function get_temppath()
 			mkdir($new_temppath);
 		}
 
-		if (App::isDirectoryUsable($new_temppath)) {
+		if (System::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
@@ -755,8 +749,8 @@ function get_itemcachepath()
 	}
 
 	$itemcache = Config::get('system', 'itemcache');
-	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
-		return App::getRealPath($itemcache);
+	if (($itemcache != "") && System::isDirectoryUsable($itemcache)) {
+		return BasePath::getRealPath($itemcache);
 	}
 
 	$temppath = get_temppath();
@@ -767,7 +761,7 @@ function get_itemcachepath()
 			mkdir($itemcache);
 		}
 
-		if (App::isDirectoryUsable($itemcache)) {
+		if (System::isDirectoryUsable($itemcache)) {
 			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
@@ -783,7 +777,7 @@ function get_itemcachepath()
 function get_spoolpath()
 {
 	$spoolpath = Config::get('system', 'spoolpath');
-	if (($spoolpath != "") && App::isDirectoryUsable($spoolpath)) {
+	if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -798,7 +792,7 @@ function get_spoolpath()
 			mkdir($spoolpath);
 		}
 
-		if (App::isDirectoryUsable($spoolpath)) {
+		if (System::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;

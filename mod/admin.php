@@ -15,6 +15,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Update;
@@ -25,13 +26,17 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Register;
 use Friendica\Model\User;
+use Friendica\Module;
 use Friendica\Module\Login;
 use Friendica\Module\Tos;
+use Friendica\Protocol\PortableContact;
 use Friendica\Util\Arrays;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Psr\Log\LogLevel;
 
 /**
  * Sets the current theme for theme settings pages.
@@ -61,7 +66,8 @@ function admin_init(App $a)
  * return the HTML for the pages of the admin panel.
  *
  * @param App $a
- *
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_post(App $a)
 {
@@ -160,6 +166,7 @@ function admin_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_content(App $a)
 {
@@ -300,8 +307,7 @@ function admin_content(App $a)
 
 	if ($a->isAjax()) {
 		echo $o;
-		killme();
-		return '';
+		exit();
 	} else {
 		return $o;
 	}
@@ -312,6 +318,7 @@ function admin_content(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_tos(App $a)
 {
@@ -334,6 +341,7 @@ function admin_page_tos(App $a)
  * @brief Process send data from Admin TOS Page
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_tos_post(App $a)
 {
@@ -366,6 +374,7 @@ function admin_page_tos_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_blocklist(App $a)
 {
@@ -406,6 +415,7 @@ function admin_page_blocklist(App $a)
  * @brief Process send data from Admin Blocklist Page
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_blocklist_post(App $a)
 {
@@ -450,6 +460,8 @@ function admin_page_blocklist_post(App $a)
  * @brief Process data send by the contact block admin page
  *
  * @param App $a
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_contactblock_post(App $a)
 {
@@ -482,6 +494,7 @@ function admin_page_contactblock_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_contactblock(App $a)
 {
@@ -534,6 +547,7 @@ function admin_page_contactblock(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_deleteitem(App $a)
 {
@@ -558,6 +572,7 @@ function admin_page_deleteitem(App $a)
  * URLs like the full /display URL to make the process more easy for the admin.
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_deleteitem_post(App $a)
 {
@@ -597,6 +612,7 @@ function admin_page_deleteitem_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_federation(App $a)
 {
@@ -783,6 +799,7 @@ function admin_page_federation(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_queue(App $a)
 {
@@ -825,7 +842,9 @@ function admin_page_queue(App $a)
  * The returned string holds the content of the page.
  *
  * @param App $a
+ * @param     $deferred
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_workerqueue(App $a, $deferred)
 {
@@ -875,6 +894,7 @@ function admin_page_workerqueue(App $a, $deferred)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_summary(App $a)
 {
@@ -897,7 +917,7 @@ function admin_page_summary(App $a)
 	}
 
 	if (Config::get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
-		DBStructure::update(false, true);
+		DBStructure::update($a->getBasePath(), false, true);
 	}
 	if (Config::get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {
 		$showwarning = true;
@@ -917,6 +937,10 @@ function admin_page_summary(App $a)
 	if (file_exists('.htconfig.php')) {
 		$showwarning = true;
 		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>.htconfig.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
+	}
+	if (file_exists('config/local.ini.php')) {
+		$showwarning = true;
+		$warningtext[] = L10n::t('Friendica\'s configuration now is stored in config/local.config.php, please copy config/local-sample.config.php and move your config from <code>config/local.ini.php</code>. See <a href="%s">the Config help page</a> for help with the transition.', $a->getBaseURL() . '/help/Config');
 	}
 
 	// Check server vitality
@@ -993,6 +1017,7 @@ function admin_page_summary(App $a)
  * @brief Process send data from Admin Site Page
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_site_post(App $a)
 {
@@ -1085,7 +1110,7 @@ function admin_page_site_post(App $a)
 	$banner           = (!empty($_POST['banner'])           ? trim($_POST['banner'])                             : false);
 	$shortcut_icon    = (!empty($_POST['shortcut_icon'])    ? Strings::escapeTags(trim($_POST['shortcut_icon'])) : '');
 	$touch_icon       = (!empty($_POST['touch_icon'])       ? Strings::escapeTags(trim($_POST['touch_icon']))    : '');
-	$info             = (!empty($_POST['info'])             ? trim($_POST['info'])                               : false);
+	$additional_info  = (!empty($_POST['additional_info'])  ? trim($_POST['additional_info'])                    : '');
 	$language         = (!empty($_POST['language'])         ? Strings::escapeTags(trim($_POST['language']))      : '');
 	$theme            = (!empty($_POST['theme'])            ? Strings::escapeTags(trim($_POST['theme']))         : '');
 	$theme_mobile     = (!empty($_POST['theme_mobile'])     ? Strings::escapeTags(trim($_POST['theme_mobile']))  : '');
@@ -1124,14 +1149,14 @@ function admin_page_site_post(App $a)
 	$proxyuser              = (!empty($_POST['proxyuser'])              ? Strings::escapeTags(trim($_POST['proxyuser'])) : '');
 	$proxy                  = (!empty($_POST['proxy'])                  ? Strings::escapeTags(trim($_POST['proxy']))     : '');
 	$timeout                = (!empty($_POST['timeout'])                ? intval(trim($_POST['timeout']))                : 60);
-	$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 50);
+	$maxloadavg             = (!empty($_POST['maxloadavg'])             ? intval(trim($_POST['maxloadavg']))             : 20);
 	$maxloadavg_frontend    = (!empty($_POST['maxloadavg_frontend'])    ? intval(trim($_POST['maxloadavg_frontend']))    : 50);
 	$min_memory             = (!empty($_POST['min_memory'])             ? intval(trim($_POST['min_memory']))             : 0);
 	$optimize_max_tablesize = (!empty($_POST['optimize_max_tablesize']) ? intval(trim($_POST['optimize_max_tablesize'])) : 100);
 	$optimize_fragmentation = (!empty($_POST['optimize_fragmentation']) ? intval(trim($_POST['optimize_fragmentation'])) : 30);
 	$poco_completion        = (!empty($_POST['poco_completion'])        ? intval(trim($_POST['poco_completion']))        : false);
 	$poco_requery_days      = (!empty($_POST['poco_requery_days'])      ? intval(trim($_POST['poco_requery_days']))      : 7);
-	$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : 0);
+	$poco_discovery         = (!empty($_POST['poco_discovery'])         ? intval(trim($_POST['poco_discovery']))         : PortableContact::DISABLED);
 	$poco_discovery_since   = (!empty($_POST['poco_discovery_since'])   ? intval(trim($_POST['poco_discovery_since']))   : 30);
 	$poco_local_search      = !empty($_POST['poco_local_search']);
 	$nodeinfo               = !empty($_POST['nodeinfo']);
@@ -1170,6 +1195,45 @@ function admin_page_site_post(App $a)
 	$relay_server_tags = (!empty($_POST['relay_server_tags']) ? Strings::escapeTags(trim($_POST['relay_server_tags']))  : '');
 	$relay_user_tags   = !empty($_POST['relay_user_tags']);
 	$active_panel      = (!empty($_POST['active_panel'])      ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
+
+	/**
+	 * @var $storagebackend \Friendica\Model\Storage\IStorage
+	 */
+	$storagebackend    = Strings::escapeTags(trim(defaults($_POST, 'storagebackend', '')));
+	if (!StorageManager::setBackend($storagebackend)) {
+		info(L10n::t('Invalid storage backend setting value.'));
+	}
+
+	// save storage backend form
+	if (!is_null($storagebackend) && $storagebackend != "") {
+		$storage_opts = $storagebackend::getOptions();
+		$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
+		$storage_opts_data = [];
+		foreach($storage_opts as $name => $info) {
+			$fieldname = $storage_form_prefix . '_' . $name;
+			switch ($info[0]) { // type
+				case 'checkbox':
+				case 'yesno':
+					$value = !empty($_POST[$fieldname]);
+					break;
+				default:
+					$value = defaults($_POST, $fieldname, '');
+			}
+			$storage_opts_data[$name] = $value;
+		}
+		unset($name);
+		unset($info);
+	
+		$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
+		if (count($storage_form_errors)) {
+			foreach($storage_form_errors as $name => $err) {
+				notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+			}
+			$a->internalRedirect('admin/site' . $active_panel);
+		}
+	}
+
+	
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1244,10 +1308,10 @@ function admin_page_site_post(App $a)
 		Config::set('system', 'banner', $banner);
 	}
 
-	if ($info == "") {
+	if (empty($additional_info)) {
 		Config::delete('config', 'info');
 	} else {
-		Config::set('config', 'info', $info);
+		Config::set('config', 'info', $additional_info);
 	}
 	Config::set('system', 'language', $language);
 	Config::set('system', 'theme', $theme);
@@ -1315,7 +1379,7 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 	if ($itemcache != '') {
-		$itemcache = App::getRealPath($itemcache);
+		$itemcache = BasePath::getRealPath($itemcache);
 	}
 
 	Config::set('system', 'itemcache', $itemcache);
@@ -1323,13 +1387,13 @@ function admin_page_site_post(App $a)
 	Config::set('system', 'max_comments', $max_comments);
 
 	if ($temppath != '') {
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 	}
 
 	Config::set('system', 'temppath', $temppath);
 
 	if ($basepath != '') {
-		$basepath = App::getRealPath($basepath);
+		$basepath = BasePath::getRealPath($basepath);
 	}
 
 	Config::set('system', 'basepath'         , $basepath);
@@ -1363,6 +1427,7 @@ function admin_page_site_post(App $a)
  *
  * @param  App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_site(App $a)
 {
@@ -1415,10 +1480,10 @@ function admin_page_site(App $a)
 	];
 
 	$poco_discovery_choices = [
-		"0" => L10n::t("Disabled"),
-		"1" => L10n::t("Users"),
-		"2" => L10n::t("Users, Global Contacts"),
-		"3" => L10n::t("Users, Global Contacts/fallback"),
+		PortableContact::DISABLED => L10n::t("Disabled"),
+		PortableContact::USERS => L10n::t("Users"),
+		PortableContact::USERS_GCONTACTS => L10n::t("Users, Global Contacts"),
+		PortableContact::USERS_GCONTACTS_FALLBACK => L10n::t("Users, Global Contacts/fallback"),
 	];
 
 	$poco_discovery_since_choices = [
@@ -1444,7 +1509,7 @@ function admin_page_site(App $a)
 		$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 	}
 
-	$info = Config::get('config', 'info');
+	$additional_info = Config::get('config', 'info');
 
 	// Automatically create temporary paths
 	get_temppath();
@@ -1454,9 +1519,9 @@ function admin_page_site(App $a)
 
 	/* Register policy */
 	$register_choices = [
-		REGISTER_CLOSED => L10n::t("Closed"),
-		REGISTER_APPROVE => L10n::t("Requires approval"),
-		REGISTER_OPEN => L10n::t("Open")
+		Module\Register::CLOSED => L10n::t("Closed"),
+		Module\Register::APPROVE => L10n::t("Requires approval"),
+		Module\Register::OPEN => L10n::t("Open")
 	];
 
 	$ssl_choices = [
@@ -1481,6 +1546,36 @@ function admin_page_site(App $a)
 	if ($optimize_max_tablesize <= 0) {
 		$optimize_max_tablesize = -1;
 	}
+
+	/* storage backend */
+	$storage_backends = StorageManager::listBackends();
+	/**
+	 * @var $storage_current_backend \Friendica\Model\Storage\IStorage
+	 */
+	$storage_current_backend = StorageManager::getBackend();
+
+	$storage_backends_choices = [
+		'' => L10n::t('Database (legacy)')
+	];
+	foreach($storage_backends as $name=>$class) {
+		$storage_backends_choices[$class] = $name;
+	}
+	unset($storage_backends);
+
+	// build storage config form,
+	$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storage_current_backend);
+	
+	$storage_form = [];
+	if (!is_null($storage_current_backend) && $storage_current_backend != "") {
+		foreach ($storage_current_backend::getOptions() as $name => $info) {
+			$type = $info[0];
+			$info[0] = $storage_form_prefix . '_' . $name;
+			$info['type'] = $type;
+			$info['field'] = 'field_' . $type . '.tpl';
+			$storage_form[$name] = $info;
+		}
+	}
+
 
 	$t = Renderer::getMarkupTemplate('admin/site.tpl');
 	return Renderer::replaceMacros($t, [
@@ -1507,7 +1602,7 @@ function admin_page_site(App $a)
 		'$banner'           => ['banner', L10n::t("Banner/Logo"), $banner, ""],
 		'$shortcut_icon'    => ['shortcut_icon', L10n::t("Shortcut icon"), Config::get('system', 'shortcut_icon'), L10n::t("Link to an icon that will be used for browsers.")],
 		'$touch_icon'       => ['touch_icon', L10n::t("Touch icon"), Config::get('system', 'touch_icon'), L10n::t("Link to an icon that will be used for tablets and mobiles.")],
-		'$info'             => ['info', L10n::t('Additional Info'), $info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
+		'$additional_info'  => ['additional_info', L10n::t('Additional Info'), $additional_info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
 		'$language'         => ['language', L10n::t("System language"), Config::get('system', 'language'), "", $lang_choices],
 		'$theme'            => ['theme', L10n::t("System theme"), Config::get('system', 'theme'), L10n::t("Default system theme - may be over-ridden by user profiles - <a href='#' id='cnftheme'>change theme settings</a>"), $theme_choices],
 		'$theme_mobile'     => ['theme_mobile', L10n::t("Mobile system theme"), Config::get('system', 'mobile-theme', '---'), L10n::t("Theme for mobile devices"), $theme_choices_mobile],
@@ -1515,6 +1610,9 @@ function admin_page_site(App $a)
 		'$force_ssl'        => ['force_ssl', L10n::t("Force SSL"), Config::get('system', 'force_ssl'), L10n::t("Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.")],
 		'$hide_help'        => ['hide_help', L10n::t("Hide help entry from navigation menu"), Config::get('system', 'hide_help'), L10n::t("Hides the menu entry for the Help pages from the navigation menu. You can still access it calling /help directly.")],
 		'$singleuser'       => ['singleuser', L10n::t("Single user instance"), Config::get('system', 'singleuser', '---'), L10n::t("Make this instance multi-user or single-user for the named user"), $user_names],
+
+		'$storagebackend'   => ['storagebackend', L10n::t("File storage backend"), $storage_current_backend, L10n::t('The backend used to store uploaded data. If you change the storage backend, you can manually move the existing files. If you do not do so, the files uploaded before the change will still be available at the old backend. Please see <a href="/help/Settings#1_2_3_1">the settings documentation</a> for more information about the choices and the moving procedure.'), $storage_backends_choices],
+		'$storageform'      => $storage_form,
 		'$maximagesize'     => ['maximagesize', L10n::t("Maximum image size"), Config::get('system', 'maximagesize'), L10n::t("Maximum size in bytes of uploaded images. Default is 0, which means no limits.")],
 		'$maximagelength'   => ['maximagelength', L10n::t("Maximum image length"), Config::get('system', 'max_image_length'), L10n::t("Maximum length in pixels of the longest side of uploaded images. Default is -1, which means no limits.")],
 		'$jpegimagequality' => ['jpegimagequality', L10n::t("JPEG image quality"), Config::get('system', 'jpeg_quality'), L10n::t("Uploaded JPEGS will be saved at this quality setting [0-100]. Default is 100, which is full quality.")],
@@ -1553,7 +1651,7 @@ function admin_page_site(App $a)
 		'$proxyuser'              => ['proxyuser', L10n::t("Proxy user"), Config::get('system', 'proxyuser'), ""],
 		'$proxy'                  => ['proxy', L10n::t("Proxy URL"), Config::get('system', 'proxy'), ""],
 		'$timeout'                => ['timeout', L10n::t("Network timeout"), Config::get('system', 'curl_timeout', 60), L10n::t("Value is in seconds. Set to 0 for unlimited \x28not recommended\x29.")],
-		'$maxloadavg'             => ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 50), L10n::t("Maximum system load before delivery and poll processes are deferred - default 50.")],
+		'$maxloadavg'             => ['maxloadavg', L10n::t("Maximum Load Average"), Config::get('system', 'maxloadavg', 20), L10n::t("Maximum system load before delivery and poll processes are deferred - default %d.", 20)],
 		'$maxloadavg_frontend'    => ['maxloadavg_frontend', L10n::t("Maximum Load Average \x28Frontend\x29"), Config::get('system', 'maxloadavg_frontend', 50), L10n::t("Maximum system load before the frontend quits service - default 50.")],
 		'$min_memory'             => ['min_memory', L10n::t("Minimal Memory"), Config::get('system', 'min_memory', 0), L10n::t("Minimal free memory in MB for the worker. Needs access to /proc/meminfo - default 0 \x28deactivated\x29.")],
 		'$optimize_max_tablesize' => ['optimize_max_tablesize', L10n::t("Maximum table size for optimization"), $optimize_max_tablesize, L10n::t("Maximum table size \x28in MB\x29 for the automatic optimization. Enter -1 to disable it.")],
@@ -1561,7 +1659,7 @@ function admin_page_site(App $a)
 
 		'$poco_completion'        => ['poco_completion', L10n::t("Periodical check of global contacts"), Config::get('system', 'poco_completion'), L10n::t("If enabled, the global contacts are checked periodically for missing or outdated data and the vitality of the contacts and servers.")],
 		'$poco_requery_days'      => ['poco_requery_days', L10n::t("Days between requery"), Config::get('system', 'poco_requery_days'), L10n::t("Number of days after which a server is requeried for his contacts.")],
-		'$poco_discovery'         => ['poco_discovery', L10n::t("Discover contacts from other servers"), (string)intval(Config::get('system', 'poco_discovery')), L10n::t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommened setting is 'Users, Global Contacts'."), $poco_discovery_choices],
+		'$poco_discovery'         => ['poco_discovery', L10n::t("Discover contacts from other servers"), (string)intval(Config::get('system', 'poco_discovery')), L10n::t("Periodically query other servers for contacts. You can choose between 'users': the users on the remote system, 'Global Contacts': active contacts that are known on the system. The fallback is meant for Redmatrix servers and older friendica servers, where global contacts weren't available. The fallback increases the server load, so the recommended setting is 'Users, Global Contacts'."), $poco_discovery_choices],
 		'$poco_discovery_since'   => ['poco_discovery_since', L10n::t("Timeframe for fetching global contacts"), (string)intval(Config::get('system', 'poco_discovery_since')), L10n::t("When the discovery is activated, this value defines the timeframe for the activity of the global contacts that are fetched from other servers."), $poco_discovery_since_choices],
 		'$poco_local_search'      => ['poco_local_search', L10n::t("Search the local directory"), Config::get('system', 'poco_local_search'), L10n::t("Search the local directory instead of the global directory. When searching locally, every search will be executed on the global directory in the background. This improves the search results when the search is repeated.")],
 
@@ -1613,7 +1711,8 @@ function admin_page_site(App $a)
  *
  * @param App $a
  * @return string
- * */
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ */
 function admin_page_dbsync(App $a)
 {
 	$o = '';
@@ -1629,7 +1728,7 @@ function admin_page_dbsync(App $a)
 	}
 
 	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
-		$retval = DBStructure::update(false, true);
+		$retval = DBStructure::update($a->getBasePath(), false, true);
 		if ($retval === '') {
 			$o .= L10n::t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
 			Config::set('database', 'last_successful_update', DB_UPDATE_VERSION);
@@ -1703,6 +1802,7 @@ function admin_page_dbsync(App $a)
  * @brief Process data send by Users admin page
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_users_post(App $a)
 {
@@ -1820,6 +1920,7 @@ function admin_page_users_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_users(App $a)
 {
@@ -1897,17 +1998,18 @@ function admin_page_users(App $a)
 	$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
 	$_setup_users = function ($e) use ($adminlist) {
 		$page_types = [
-			Contact::PAGE_NORMAL    => L10n::t('Normal Account Page'),
-			Contact::PAGE_SOAPBOX   => L10n::t('Soapbox Page'),
-			Contact::PAGE_COMMUNITY => L10n::t('Public Forum'),
-			Contact::PAGE_FREELOVE  => L10n::t('Automatic Friend Page'),
-			Contact::PAGE_PRVGROUP  => L10n::t('Private Forum')
+			User::PAGE_FLAGS_NORMAL    => L10n::t('Normal Account Page'),
+			User::PAGE_FLAGS_SOAPBOX   => L10n::t('Soapbox Page'),
+			User::PAGE_FLAGS_COMMUNITY => L10n::t('Public Forum'),
+			User::PAGE_FLAGS_FREELOVE  => L10n::t('Automatic Friend Page'),
+			User::PAGE_FLAGS_PRVGROUP  => L10n::t('Private Forum')
 		];
 		$account_types = [
-			Contact::ACCOUNT_TYPE_PERSON       => L10n::t('Personal Page'),
-			Contact::ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
-			Contact::ACCOUNT_TYPE_NEWS         => L10n::t('News Page'),
-			Contact::ACCOUNT_TYPE_COMMUNITY    => L10n::t('Community Forum')
+			User::ACCOUNT_TYPE_PERSON       => L10n::t('Personal Page'),
+			User::ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
+			User::ACCOUNT_TYPE_NEWS         => L10n::t('News Page'),
+			User::ACCOUNT_TYPE_COMMUNITY    => L10n::t('Community Forum'),
+			User::ACCOUNT_TYPE_RELAY        => L10n::t('Relay'),
 		];
 
 		$e['page_flags_raw'] = $e['page-flags'];
@@ -2018,6 +2120,7 @@ function admin_page_users(App $a)
  * @param App   $a
  * @param array $addons_admin A list of admin addon names
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_addons(App $a, array $addons_admin)
 {
@@ -2223,6 +2326,7 @@ function rebuild_theme_table($themes)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_themes(App $a)
 {
@@ -2393,6 +2497,7 @@ function admin_page_themes(App $a)
  * @brief Prosesses data send by Logs admin page
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_logs_post(App $a)
 {
@@ -2401,7 +2506,7 @@ function admin_page_logs_post(App $a)
 
 		$logfile   = (!empty($_POST['logfile']) ? Strings::escapeTags(trim($_POST['logfile'])) : '');
 		$debugging = !empty($_POST['debugging']);
-		$loglevel  = (!empty($_POST['loglevel']) ? intval(trim($_POST['loglevel'])) : 0);
+		$loglevel  = defaults($_POST, 'loglevel', LogLevel::ERROR);
 
 		Config::set('system', 'logfile', $logfile);
 		Config::set('system', 'debugging', $debugging);
@@ -2428,16 +2533,16 @@ function admin_page_logs_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_logs(App $a)
 {
 	$log_choices = [
-		Logger::WARNING => 'Warning',
-		Logger::INFO    => 'Info',
-		Logger::TRACE   => 'Trace',
-		Logger::DEBUG   => 'Debug',
-		Logger::DATA    => 'Data',
-		Logger::ALL     => 'All'
+		LogLevel::ERROR   => 'Error',
+		LogLevel::WARNING => 'Warning',
+		LogLevel::NOTICE  => 'Notice',
+		LogLevel::INFO    => 'Info',
+		LogLevel::DEBUG   => 'Debug',
 	];
 
 	if (ini_get('log_errors')) {
@@ -2484,6 +2589,7 @@ function admin_page_logs(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_viewlogs(App $a)
 {
@@ -2527,6 +2633,7 @@ function admin_page_viewlogs(App $a)
  * @brief Prosesses data send by the features admin page
  *
  * @param App $a
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_features_post(App $a)
 {
@@ -2574,6 +2681,7 @@ function admin_page_features_post(App $a)
  *
  * @param App $a
  * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function admin_page_features(App $a)
 {

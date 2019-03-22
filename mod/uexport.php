@@ -3,7 +3,7 @@
  * @file mod/uexport.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -11,7 +11,7 @@ use Friendica\Database\DBA;
 
 function uexport_init(App $a) {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	require_once("mod/settings.php");
@@ -26,14 +26,14 @@ function uexport_content(App $a) {
 		switch ($a->argv[1]) {
 			case "backup":
 				uexport_all($a);
-				killme();
+				exit();
 				break;
 			case "account":
 				uexport_account($a);
-				killme();
+				exit();
 				break;
 			default:
-				killme();
+				exit();
 		}
 	}
 
@@ -45,7 +45,7 @@ function uexport_content(App $a) {
 		['uexport/account', L10n::t('Export account'), L10n::t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
 		['uexport/backup', L10n::t('Export all'), L10n::t("Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
 	];
-	Addon::callHooks('uexport_options', $options);
+	Hook::callAll('uexport_options', $options);
 
 	$tpl = Renderer::getMarkupTemplate("uexport.tpl");
 	return Renderer::replaceMacros($tpl, [
@@ -130,12 +130,14 @@ function uexport_account($a) {
 		'group_member' => $group_member,
 	];
 
-	//echo "<pre>"; var_dump(json_encode($output)); killme();
 	echo json_encode($output, JSON_PARTIAL_OUTPUT_ON_ERROR);
 }
 
 /**
  * echoes account data and items as separated json, one per line
+ *
+ * @param App $a
+ * @throws Exception
  */
 function uexport_all(App $a) {
 
@@ -152,7 +154,6 @@ function uexport_all(App $a) {
 	// chunk the output to avoid exhausting memory
 
 	for ($x = 0; $x < $total; $x += 500) {
-		$item = [];
 		$r = q("SELECT * FROM `item` WHERE `uid` = %d LIMIT %d, %d",
 			intval(local_user()),
 			intval($x),

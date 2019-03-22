@@ -80,7 +80,7 @@
 					{{include file="field_textarea.tpl" field=$banner}}
 					{{include file="field_input.tpl" field=$shortcut_icon}}
 					{{include file="field_input.tpl" field=$touch_icon}}
-					{{include file="field_textarea.tpl" field=$info}}
+					{{include file="field_textarea.tpl" field=$additional_info}}
 					{{include file="field_select.tpl" field=$language}}
 					{{include file="field_select.tpl" field=$theme}}
 					{{include file="field_select.tpl" field=$theme_mobile}}
@@ -135,7 +135,11 @@
 					</h4>
 				</div>
 				<div id="admin-settings-upload-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-upload">
-
+					{{include file="field_select.tpl" field=$storagebackend}}
+					{{foreach from=$storageform item=$field}}
+						{{include file=$field.field field=$field}}
+					{{/foreach}}
+					<hr>
 					{{include file="field_input.tpl" field=$maximagesize}}
 					{{include file="field_input.tpl" field=$maximagelength}}
 					{{include file="field_input.tpl" field=$jpegimagequality}}

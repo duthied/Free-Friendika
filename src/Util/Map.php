@@ -4,7 +4,7 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 
 /**
  * Leaflet Map related functions
@@ -14,19 +14,19 @@ class Map {
 		$coord = trim($coord);
 		$coord = str_replace([',','/','  '],[' ',' ',' '],$coord);
 		$arr = ['lat' => trim(substr($coord,0,strpos($coord,' '))), 'lon' => trim(substr($coord,strpos($coord,' ')+1)), 'mode' => $html_mode, 'html' => ''];
-		Addon::callHooks('generate_map',$arr);
+		Hook::callAll('generate_map',$arr);
 		return ($arr['html']) ? $arr['html'] : $coord;
 	}
 
 	public static function byLocation($location, $html_mode = 0) {
 		$arr = ['location' => $location, 'mode' => $html_mode, 'html' => ''];
-		Addon::callHooks('generate_named_map',$arr);
+		Hook::callAll('generate_named_map',$arr);
 		return ($arr['html']) ? $arr['html'] : $location;
 	}
 
 	public static function getCoordinates($location) {
 		$arr = ['location' => $location, 'lat' => false, 'lon' => false];
-		Addon::callHooks('Map::getCoordinates', $arr);
+		Hook::callAll('Map::getCoordinates', $arr);
 		return $arr;
 	}
 }

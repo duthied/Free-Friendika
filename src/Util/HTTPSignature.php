@@ -5,14 +5,10 @@
  */
 namespace Friendica\Util;
 
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
-use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Model\APContact;
-use Friendica\Protocol\ActivityPub;
-use Friendica\Util\DateTimeFormat;
 
 /**
  * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
@@ -34,6 +30,7 @@ class HTTPSignature
 	 * @param $key
 	 *
 	 * @return array with verification data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function verifyMagic($key)
 	{
@@ -188,6 +185,7 @@ class HTTPSignature
 	 *   - \e string \b algorithm
 	 *   - \e array  \b headers
 	 *   - \e string \b signature
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function parseSigheader($header)
 	{
@@ -235,6 +233,7 @@ class HTTPSignature
 	 *   - \e string \b key
 	 *   - \e string \b alg
 	 *   - \e string \b data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function decryptSigheader($header, $prvkey = null)
 	{
@@ -276,11 +275,12 @@ class HTTPSignature
 	/**
 	 * @brief Transmit given data to a target for a user
 	 *
-	 * @param array $data Data that is about to be send
-	 * @param string $target The URL of the inbox
-	 * @param integer $uid User id of the sender
+	 * @param array   $data   Data that is about to be send
+	 * @param string  $target The URL of the inbox
+	 * @param integer $uid    User id of the sender
 	 *
 	 * @return boolean Was the transmission successful?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function transmit($data, $target, $uid)
 	{
@@ -320,45 +320,26 @@ class HTTPSignature
 	/**
 	 * @brief Fetches JSON data for a user
 	 *
-	 * @param string $request request url
-	 * @param integer $uid User id of the requester
+	 * @param string  $request request url
+	 * @param integer $uid     User id of the requester
 	 *
 	 * @return array JSON array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetch($request, $uid)
 	{
-		$owner = User::getOwnerDataById($uid);
+		$opts = ['accept_content' => 'application/activity+json, application/ld+json'];
+		$curlResult = self::fetchRaw($request, $uid, false, $opts);
 
-		if (!$owner) {
-			return;
+		if (empty($curlResult)) {
+			return false;
 		}
-
-		// Header data that is about to be signed.
-		$host = parse_url($request, PHP_URL_HOST);
-		$path = parse_url($request, PHP_URL_PATH);
-		$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
-
-		$headers = ['Date: ' . $date, 'Host: ' . $host];
-
-		$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
-
-		$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
-
-		$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
-
-		$headers[] = 'Accept: application/activity+json, application/ld+json';
-
-		$curlResult = Network::curl($request, false, $redirects, ['header' => $headers]);
-		$return_code = $curlResult->getReturnCode();
-
-		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
 
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
 
 		$content = json_decode($curlResult->getBody(), true);
-
 		if (empty($content) || !is_array($content)) {
 			return false;
 		}
@@ -367,12 +348,69 @@ class HTTPSignature
 	}
 
 	/**
+	 * @brief Fetches raw data for a user
+	 *
+	 * @param string  $request request url
+	 * @param integer $uid     User id of the requester
+	 * @param boolean $binary  TRUE if asked to return binary results (file download) (default is "false")
+	 * @param array   $opts    (optional parameters) assoziative array with:
+	 *                         'accept_content' => supply Accept: header with 'accept_content' as the value
+	 *                         'timeout' => int Timeout in seconds, default system config value or 60 seconds
+	 *                         'http_auth' => username:password
+	 *                         'novalidate' => do not validate SSL certs, default is to validate using our CA list
+	 *                         'nobody' => only return the header
+	 *                         'cookiejar' => path to cookie jar file
+	 *
+	 * @return object CurlResult
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function fetchRaw($request, $uid = 0, $binary = false, $opts = [])
+	{
+		if (!empty($uid)) {
+			$owner = User::getOwnerDataById($uid);
+			if (!$owner) {
+				return;
+			}
+
+			// Header data that is about to be signed.
+			$host = parse_url($request, PHP_URL_HOST);
+			$path = parse_url($request, PHP_URL_PATH);
+			$date = DateTimeFormat::utcNow(DateTimeFormat::HTTP);
+
+			$headers = ['Date: ' . $date, 'Host: ' . $host];
+
+			$signed_data = "(request-target): get " . $path . "\ndate: ". $date . "\nhost: " . $host;
+
+			$signature = base64_encode(Crypto::rsaSign($signed_data, $owner['uprvkey'], 'sha256'));
+
+			$headers[] = 'Signature: keyId="' . $owner['url'] . '#main-key' . '",algorithm="rsa-sha256",headers="(request-target) date host",signature="' . $signature . '"';
+		} else {
+			$headers = [];
+		}
+
+		if (!empty($opts['accept_content'])) {
+			$headers[] = 'Accept: ' . $opts['accept_content'];
+		}
+
+		$curl_opts = $opts;
+		$curl_opts['header'] = $headers;
+
+		$curlResult = Network::curl($request, false, $redirects, $curl_opts);
+		$return_code = $curlResult->getReturnCode();
+
+		Logger::log('Fetched for user ' . $uid . ' from ' . $request . ' returned ' . $return_code, Logger::DEBUG);
+
+		return $curlResult;
+	}
+
+	/**
 	 * @brief Gets a signer from a given HTTP request
 	 *
 	 * @param $content
 	 * @param $http_headers
 	 *
-	 * @return signer string
+	 * @return string Signer
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getSigner($content, $http_headers)
 	{
@@ -450,8 +488,10 @@ class HTTPSignature
 			return false;
 		}
 
+		$hasGoodSignedContent = false;
+
 		// Check the digest when it is part of the signed data
-		if (in_array('digest', $sig_block['headers'])) {
+		if (!empty($content) && in_array('digest', $sig_block['headers'])) {
 			$digest = explode('=', $headers['digest'], 2);
 			if ($digest[0] === 'SHA-256') {
 				$hashalg = 'sha256';
@@ -465,6 +505,8 @@ class HTTPSignature
 			if (!empty($hashalg) && base64_encode(hash($hashalg, $content, true)) != $digest[1]) {
 				return false;
 			}
+
+			$hasGoodSignedContent = true;
 		}
 
 		//  Check if the signed date field is in an acceptable range
@@ -474,6 +516,7 @@ class HTTPSignature
 				Logger::log("Header date '" . $headers['date'] . "' is with " . $diff . " seconds out of the 300 second frame. The signature is invalid.");
 				return false;
 			}
+			$hasGoodSignedContent = true;
 		}
 
 		// Check the content-length when it is part of the signed data
@@ -481,6 +524,12 @@ class HTTPSignature
 			if (strlen($content) != $headers['content-length']) {
 				return false;
 			}
+		}
+
+		// Ensure that the authentication had been done with some content
+		// Without this check someone could authenticate with fakeable data
+		if (!$hasGoodSignedContent) {
+			return false;
 		}
 
 		return $key['url'];
@@ -493,6 +542,7 @@ class HTTPSignature
 	 * @param $actor
 	 *
 	 * @return array with actor url and public key
+	 * @throws \Exception
 	 */
 	private static function fetchKey($id, $actor)
 	{

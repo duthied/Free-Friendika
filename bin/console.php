@@ -3,7 +3,9 @@
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new Friendica\App(dirname(__DIR__));
+use Friendica\Factory;
+
+$a = Factory\DependencyFactory::setUp('console', dirname(__DIR__));
 \Friendica\BaseObject::setApp($a);
 
 (new Friendica\Core\Console($argv))->execute();

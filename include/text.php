@@ -4,31 +4,14 @@
  */
 
 use Friendica\App;
-use Friendica\Content\ContactSelector;
-use Friendica\Content\Feature;
 use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
-use Friendica\Core\Config;
-use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
-use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Event;
-use Friendica\Model\Item;
-use Friendica\Render\FriendicaSmarty;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Map;
-use Friendica\Util\Proxy as ProxyUtils;
 
-use Friendica\Core\Logger;
-use Friendica\Core\Renderer;
 use Friendica\Model\FileTag;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use Friendica\Content\Text\HTML;
 
 /**
  * Turn user/group ACLs stored as angle bracketed text into arrays
@@ -139,7 +122,7 @@ function qp($s) {
  */
 function redir_private_images($a, &$item)
 {
-	$matches = false;
+	$matches = [];
 	$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
 		foreach ($matches as $mtch) {
@@ -160,6 +143,7 @@ function redir_private_images($a, &$item)
  *
  * @param string $text String with bbcode.
  * @return string Formattet HTML.
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function prepare_text($text) {
 	if (stristr($text, '[nosmile]')) {
@@ -203,7 +187,7 @@ function get_cats_and_terms($item)
 	$categories = [];
 	$folders = [];
 
-	$matches = false;
+	$matches = [];
 	$first = true;
 	$cnt = preg_match_all('/<(.*?)>/', $item['file'], $matches, PREG_SET_ORDER);
 	if ($cnt) {
@@ -224,7 +208,7 @@ function get_cats_and_terms($item)
 	}
 
 	if (local_user() == $item['uid']) {
-		$matches = false;
+		$matches = [];
 		$first = true;
 		$cnt = preg_match_all('/\[(.*?)\]/', $item['file'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
@@ -251,7 +235,7 @@ function get_cats_and_terms($item)
 /**
  * return number of bytes in size (K, M, G)
  * @param string $size_str
- * @return number
+ * @return int
  */
 function return_bytes($size_str) {
 	switch (substr ($size_str, -1)) {

@@ -5,8 +5,8 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 
@@ -18,6 +18,7 @@ class Feature
 	 * @param integer $uid     user id
 	 * @param string  $feature feature
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isEnabled($uid, $feature)
 	{
@@ -36,7 +37,7 @@ class Feature
 		}
 
 		$arr = ['uid' => $uid, 'feature' => $feature, 'enabled' => $x];
-		Addon::callHooks('isEnabled', $arr);
+		Hook::callAll('isEnabled', $arr);
 		return($arr['enabled']);
 	}
 
@@ -45,6 +46,7 @@ class Feature
 	 *
 	 * @param string $feature feature
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getDefault($feature)
 	{
@@ -69,6 +71,7 @@ class Feature
 	 * @param bool $filtered True removes any locked features
 	 *
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($filtered = true)
 	{
@@ -87,6 +90,7 @@ class Feature
 			'composition' => [
 				L10n::t('Post Composition Features'),
 				['aclautomention', L10n::t('Auto-mention Forums'), L10n::t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, Config::get('feature_lock', 'aclautomention', false)],
+				['explicit_mentions', L10n::t('Explicit Mentions'), L10n::t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, Config::get('feature_lock', 'explicit_mentions', false)],
 			],
 
 			// Network sidebar widgets
@@ -139,7 +143,7 @@ class Feature
 			}
 		}
 
-		Addon::callHooks('get', $arr);
+		Hook::callAll('get', $arr);
 		return $arr;
 	}
 }

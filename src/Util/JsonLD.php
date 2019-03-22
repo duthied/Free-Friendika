@@ -18,7 +18,8 @@ class JsonLD
 	 *
 	 * @param $url
 	 *
-	 * @return the loaded data
+	 * @return mixed the loaded data
+	 * @throws \JsonLdException
 	 */
 	public static function documentLoader($url)
 	{
@@ -34,7 +35,7 @@ class JsonLD
 		}
 
 		if ($recursion > 5) {
-			Logger::log('jsonld bomb detected at: ' . $url);
+			Logger::error('jsonld bomb detected at: ' . $url);
 			exit();
 		}
 
@@ -53,7 +54,8 @@ class JsonLD
 	 *
 	 * @param array $json
 	 *
-	 * @return normalized JSON string
+	 * @return mixed|bool normalized JSON string
+	 * @throws Exception
 	 */
 	public static function normalize($json)
 	{
@@ -66,7 +68,9 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			Logger::log('normalise error:' . print_r($e, true), Logger::DEBUG);
+			Logger::error('normalise error');
+			// Sooner or later we should log some details as well - but currently this leads to memory issues
+			// Logger::log('normalise error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
 		return $normalized;
@@ -77,7 +81,8 @@ class JsonLD
 	 *
 	 * @param array $json
 	 *
-	 * @return comacted JSON array
+	 * @return array Compacted JSON array
+	 * @throws Exception
 	 */
 	public static function compact($json)
 	{
@@ -112,7 +117,9 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			Logger::log('compacting error:' . print_r($e, true), Logger::DEBUG);
+			Logger::error('compacting error');
+			// Sooner or later we should log some details as well - but currently this leads to memory issues
+			// Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
 		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
@@ -131,7 +138,7 @@ class JsonLD
 	 * @param $element
 	 * @param $key
 	 *
-	 * @return fetched element array
+	 * @return array fetched element
 	 */
 	public static function fetchElementArray($array, $element, $key = '@id')
 	{
@@ -172,7 +179,7 @@ class JsonLD
 	 * @param $type
 	 * @param $type_value
 	 *
-	 * @return fetched element
+	 * @return string fetched element
 	 */
 	public static function fetchElement($array, $element, $key = '@id', $type = null, $type_value = null)
 	{

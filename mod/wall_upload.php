@@ -16,6 +16,7 @@ use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
+use Friendica\Model\User;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
 
@@ -39,7 +40,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			if (!DBA::isResult($r)) {
 				if ($r_json) {
 					echo json_encode(['error' => L10n::t('Invalid request.')]);
-					killme();
+					exit();
 				}
 				return;
 			}
@@ -55,7 +56,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	} else {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
-			killme();
+			exit();
 		}
 		return;
 	}
@@ -69,7 +70,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$page_owner_uid   = $r[0]['uid'];
 	$default_cid      = $r[0]['id'];
 	$page_owner_nick  = $r[0]['nickname'];
-	$community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
+	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
 	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;
@@ -104,17 +105,17 @@ function wall_upload_post(App $a, $desktopmode = true)
 	if (!$can_post) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Permission denied.')]);
-			killme();
+			exit();
 		}
 		notice(L10n::t('Permission denied.') . EOL);
-		killme();
+		exit();
 	}
 
 	if (empty($_FILES['userfile']) && empty($_FILES['media'])) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
 		}
-		killme();
+		exit();
 	}
 
 	$src = '';
@@ -164,10 +165,10 @@ function wall_upload_post(App $a, $desktopmode = true)
 	if ($src == "") {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
-			killme();
+			exit();
 		}
 		notice(L10n::t('Invalid request.').EOL);
-		killme();
+		exit();
 	}
 
 	// This is a special treatment for picture upload from Twidere
@@ -201,7 +202,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			echo  $msg. EOL;
 		}
 		@unlink($src);
-		killme();
+		exit();
 	}
 
 	$imagedata = @file_get_contents($src);
@@ -215,7 +216,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 			echo  $msg. EOL;
 		}
 		@unlink($src);
-		killme();
+		exit();
 	}
 
 	$Image->orient($src);
@@ -253,7 +254,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		} else {
 			echo  $msg. EOL;
 		}
-		killme();
+		exit();
 	}
 
 	if ($width > 640 || $height > 640) {
@@ -272,8 +273,6 @@ function wall_upload_post(App $a, $desktopmode = true)
 		}
 	}
 
-	$basename = basename($filename);
-
 	if (!$desktopmode) {
 		$r = q("SELECT `id`, `datasize`, `width`, `height`, `type` FROM `photo`
 			WHERE `resource-id` = '%s'
@@ -283,7 +282,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		if (!$r) {
 			if ($r_json) {
 				echo json_encode(['error' => '']);
-				killme();
+				exit();
 			}
 			return false;
 		}
@@ -300,7 +299,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 		if ($r_json) {
 			echo json_encode(['picture' => $picture]);
-			killme();
+			exit();
 		}
 		Logger::log("upload done", Logger::DEBUG);
 		return $picture;
@@ -310,10 +309,10 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($r_json) {
 		echo json_encode(['ok' => true]);
-		killme();
+		exit();
 	}
 
 	echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash . '][img]' . System::baseUrl() . "/photo/{$hash}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
-	killme();
+	exit();
 	// NOTREACHED
 }

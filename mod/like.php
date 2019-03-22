@@ -1,7 +1,6 @@
 <?php
 
 use Friendica\App;
-use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Util\Strings;
 
@@ -28,7 +27,7 @@ function like_content(App $a) {
 	$return_path = defaults($_REQUEST, 'return', '');
 
 	like_content_return($a, $return_path);
-	killme(); // NOTREACHED
+	exit();
 }
 
 
@@ -46,6 +45,4 @@ function like_content_return(App $a, $return_path) {
 
 		$a->internalRedirect($return_path . $rand);
 	}
-
-	killme();
 }

@@ -47,20 +47,19 @@ class DBClean {
 	 *
 	 * Values for $stage:
 	 * ------------------
-	 *  1:	Old global item entries from item table without user copy.
-	 *  2:	Items without parents.
-	 *  3:	Orphaned data from thread table.
-	 *  4:	Orphaned data from notify table.
-	 *  5:	Orphaned data from notify-threads table.
-	 *  6:	Orphaned data from sign table.
-	 *  7:	Orphaned data from term table.
-	 *  8:	Expired threads.
-	 *  9:	Old global item entries from expired threads.
-	 * 10:	Old conversations.
+	 *  1:    Old global item entries from item table without user copy.
+	 *  2:    Items without parents.
+	 *  3:    Orphaned data from thread table.
+	 *  4:    Orphaned data from notify table.
+	 *  5:    Orphaned data from notify-threads table.
+	 *  6:    Orphaned data from sign table.
+	 *  7:    Orphaned data from term table.
+	 *  8:    Expired threads.
+	 *  9:    Old global item entries from expired threads.
+	 * 10:    Old conversations.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function removeOrphans($stage) {
-		$count = 0;
-
 		// We split the deletion in many small tasks
 		$limit = Config::get('system', 'dbclean-expire-limit', 1000);
 

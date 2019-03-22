@@ -6,43 +6,52 @@
 use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Module\Register;
 
 function friendica_init(App $a)
 {
 	if (!empty($a->argv[1]) && ($a->argv[1] == "json")) {
-		$register_policies = ['REGISTER_CLOSED', 'REGISTER_APPROVE', 'REGISTER_OPEN'];
+		$register_policies = [
+			Register::CLOSED  => 'REGISTER_CLOSED',
+			Register::APPROVE => 'REGISTER_APPROVE',
+			Register::OPEN    => 'REGISTER_OPEN'
+		];
 
-		$register_policy = $register_policies[intval(Config::get('config', 'register_policy'))];
-
-		if ($register_policy == 'REGISTER_OPEN' && Config::get('config', 'invitation_only')) {
+		$register_policy_int = intval(Config::get('config', 'register_policy'));
+		if ($register_policy_int !== Register::CLOSED && Config::get('config', 'invitation_only')) {
 			$register_policy = 'REGISTER_INVITATION';
+		} else {
+			$register_policy = $register_policies[$register_policy_int];
 		}
 
-		$sql_extra = '';
-		if (!empty($a->config['admin_nickname'])) {
-			$sql_extra = sprintf(" AND `nickname` = '%s' ", DBA::escape(Config::get('config', 'admin_nickname')));
+		$condition = [];
+		$admin = false;
+		if (!empty(Config::get('config', 'admin_nickname'))) {
+			$condition['nickname'] = Config::get('config', 'admin_nickname');
 		}
 		if (!empty(Config::get('config', 'admin_email'))) {
 			$adminlist = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
-
-			$r = q("SELECT `username`, `nickname` FROM `user` WHERE `email` = '%s' $sql_extra", DBA::escape($adminlist[0]));
-			$admin = [
-				'name' => $r[0]['username'],
-				'profile'=> System::baseUrl() . '/profile/' . $r[0]['nickname'],
-			];
-		} else {
-			$admin = false;
+			$condition['email'] = $adminlist[0];
+			$administrator = DBA::selectFirst('user', ['username', 'nickname'], $condition);
+			if (DBA::isResult($administrator)) {
+				$admin = [
+					'name' => $administrator['username'],
+					'profile'=> System::baseUrl() . '/profile/' . $administrator['nickname'],
+				];
+			}
 		}
 
 		$visible_addons = Addon::getVisibleList();
 
 		Config::load('feature_lock');
 		$locked_features = [];
-		if (!empty($a->config['feature_lock'])) {
-			foreach ($a->config['feature_lock'] as $k => $v) {
+		$featureLock = Config::get('config', 'feature_lock');
+		if (isset($featureLock)) {
+			foreach ($featureLock as $k => $v) {
 				if ($k === 'config_loaded') {
 					continue;
 				}
@@ -68,7 +77,7 @@ function friendica_init(App $a)
 
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($data);
-		killme();
+		exit();
 	}
 }
 
@@ -126,7 +135,7 @@ function friendica_content(App $a)
 		$o .= '</tbody></table></div>' . PHP_EOL;
 	}
 
-	Addon::callHooks('about_hook', $o);
+	Hook::callAll('about_hook', $o);
 
 	return $o;
 }

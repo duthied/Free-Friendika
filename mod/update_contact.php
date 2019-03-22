@@ -14,7 +14,7 @@ function update_contact_content(App $a)
 	echo "<section>";
 
 	if ($_GET["force"] == 1) {
-		$text = Contact::content($a, true);
+		$text = Contact::content(true);
 	} else {
 		$text = '';
 	}
@@ -34,5 +34,5 @@ function update_contact_content(App $a)
 	echo str_replace("\t", "       ", $text);
 	echo "</section>";
 	echo "</body></html>\r\n";
-	killme();
+	exit();
 }

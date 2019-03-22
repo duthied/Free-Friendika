@@ -16,10 +16,11 @@ return [
 		'info' => '',
 
 		// register_policy (Constant)
-		// Your choices are REGISTER_OPEN, REGISTER_APPROVE, or REGISTER_CLOSED.
-		// Be certain to create your own personal account before setting REGISTER_CLOSED.
-		// REGISTER_APPROVE requires you set system.admin_email to the email address of an already registered person who can authorize and/or approve/deny the request.
-		'register_policy' => REGISTER_CLOSED,
+		// Your choices are OPEN, APPROVE, or CLOSED.
+		// Be certain to create your own personal account before setting CLOSED.
+		// APPROVE requires you set system.admin_email to the email address of an
+		// already registered person who can authorize and/or approve/deny the request.
+		'register_policy' => \Friendica\Module\Register::CLOSED,
 
 		// register_text (String)
 		// Will be displayed prominently on the registration page.
@@ -42,6 +43,10 @@ return [
 		// allowed_themes (Comma-separated list)
 		// Themes users can change to in their settings.
 		'allowed_themes' => 'quattro,vier,duepuntozero,smoothly',
+
+		// debugging (boolean)
+		// Enable/Disable Debugging (logging)
+		'debugging' => false,
 
 		// default_timezone (String)
 		// Choose a default timezone. See https://secure.php.net/manual/en/timezones.php
@@ -66,6 +71,16 @@ return [
 		// Two-letters ISO 639-1 code.
 		'language' => 'en',
 
+		// logfile (String)
+		// The logfile for storing logs.
+		// Can be a full path or a relative path to the Friendica home directory
+		'logfile' => 'friendica.log',
+
+		// loglevel (String)
+		// The loglevel for all logs.
+		// Has to be one of these values: emergency, alert, critical, error, warning, notice, info, debug
+		'loglevel' => 'notice',
+
 		// max_image_length (Integer)
 		// An alternate way of limiting picture upload sizes.
 		// Specify the maximum pixel  length that pictures are allowed to be (for non-square pictures, it will apply to the longest side).
@@ -86,6 +101,10 @@ return [
 		// -1 to disable automatic optimization.
 		//  0 to use internal default (100MB)
 		'optimize_max_tablesize' => -1,
+
+		// maxloadavg (Integer)
+		// Maximum system load before delivery and poll processes are deferred.
+		'maxloadavg' => 20,
 
 		// rino_encrypt (Integer)
 		// Server-to-server private message encryption (RINO).

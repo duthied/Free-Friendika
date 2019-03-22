@@ -2,8 +2,8 @@
 
 namespace Friendica\Core\Console;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\Update;
 
 /**
@@ -56,7 +56,7 @@ HELP;
 		}
 
 		echo L10n::t('Check for pending update actions.') . "\n";
-		Update::run(true, true, false);
+		Update::run($a->getBasePath(), true, false, true, false);
 		echo L10n::t('Done.') . "\n";
 
 		echo L10n::t('Execute pending post updates.') . "\n";

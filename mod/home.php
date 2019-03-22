@@ -3,8 +3,8 @@
  * @file mod/home.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -14,7 +14,7 @@ if(! function_exists('home_init')) {
 function home_init(App $a) {
 
 	$ret = [];
-	Addon::callHooks('home_init',$ret);
+	Hook::callAll('home_init',$ret);
 
 	if (local_user() && ($a->user['nickname'])) {
 		$a->internalRedirect('network');
@@ -48,10 +48,10 @@ function home_content(App $a) {
 		}
 	}
 
-	$login = Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 0 : 1);
+	$login = Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
 
 	$content = '';
-	Addon::callHooks("home_content",$content);
+	Hook::callAll("home_content",$content);
 
 
 	$tpl = Renderer::getMarkupTemplate('home.tpl');
@@ -61,7 +61,4 @@ function home_content(App $a) {
 		'$login' => $login,
 		'$content' => $content
 	]);
-
-	return $o;
-
 }}

@@ -7,7 +7,7 @@ namespace Friendica\Model;
 
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -48,8 +48,10 @@ class Event extends BaseObject
 		}
 
 		if ($simple) {
+			$o = '';
+
 			if (!empty($event['summary'])) {
-				$o = "<h3>" . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . "</h3>";
+				$o .= "<h3>" . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . "</h3>";
 			}
 
 			if (!empty($event['desc'])) {
@@ -148,6 +150,7 @@ class Event extends BaseObject
 	 * @brief Extract bbcode formatted event data from a string.
 	 *
 	 * @params: string $s The string which should be parsed for event data.
+	 * @param $text
 	 * @return array The array with the event information.
 	 */
 	public static function fromBBCode($text)
@@ -215,6 +218,7 @@ class Event extends BaseObject
 	 *
 	 * @param int $event_id Event ID.
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function delete($event_id)
 	{
@@ -233,16 +237,16 @@ class Event extends BaseObject
 	 *
 	 * @param array $arr Array with event data.
 	 * @return int The new event id.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function store($arr)
 	{
-		$a = self::getApp();
-
 		$event = [];
 		$event['id']        = intval(defaults($arr, 'id'       , 0));
 		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
 		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
-		$event['uri']       =        defaults($arr, 'uri'      , Item::newURI($event['uid']));
+		$event['guid']      =        defaults($arr, 'guid'     , System::createUUID());
+		$event['uri']       =        defaults($arr, 'uri'      , Item::newURI($event['uid'], $event['guid']));
 		$event['type']      =        defaults($arr, 'type'     , 'event');
 		$event['summary']   =        defaults($arr, 'summary'  , '');
 		$event['desc']      =        defaults($arr, 'desc'     , '');
@@ -311,10 +315,8 @@ class Event extends BaseObject
 				$item_id = 0;
 			}
 
-			Addon::callHooks('event_updated', $event['id']);
+			Hook::callAll('event_updated', $event['id']);
 		} else {
-			$event['guid']  = defaults($arr, 'guid', System::createUUID());
-
 			// New event. Store it.
 			DBA::insert('event', $event);
 
@@ -361,7 +363,7 @@ class Event extends BaseObject
 				$item_id = Item::insert($item_arr);
 			}
 
-			Addon::callHooks("event_created", $event['id']);
+			Hook::callAll("event_created", $event['id']);
 		}
 
 		return $item_id;
@@ -371,6 +373,7 @@ class Event extends BaseObject
 	 * @brief Create an array with translation strings used for events.
 	 *
 	 * @return array Array with translations strings.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getStrings()
 	{
@@ -414,7 +417,6 @@ class Event extends BaseObject
 			"February"  => L10n::t("February"),
 			"March"     => L10n::t("March"),
 			"April"     => L10n::t("April"),
-			"May"       => L10n::t("May"),
 			"June"      => L10n::t("June"),
 			"July"      => L10n::t("July"),
 			"August"    => L10n::t("August"),
@@ -467,6 +469,7 @@ class Event extends BaseObject
 	 * @param int    $event_id  The ID of the event in the event table
 	 * @param string $sql_extra
 	 * @return array Query result
+	 * @throws \Exception
 	 */
 	public static function getListById($owner_uid, $event_id, $sql_extra = '')
 	{
@@ -495,17 +498,18 @@ class Event extends BaseObject
 	/**
 	 * @brief Get all events in a specific time frame.
 	 *
-	 * @param int $owner_uid The User ID of the owner of the events.
-	 * @param array $event_params An associative array with
-	 *	int 'ignore' =>
-	 *	string 'start' => Start time of the timeframe.
-	 *	string 'finish' => Finish time of the timeframe.
-	 *	string 'adjust_start' =>
-	 *	string 'adjust_finish' =>
+	 * @param int    $owner_uid    The User ID of the owner of the events.
+	 * @param array  $event_params An associative array with
+	 *                             int 'ignore' =>
+	 *                             string 'start' => Start time of the timeframe.
+	 *                             string 'finish' => Finish time of the timeframe.
+	 *                             string 'adjust_start' =>
+	 *                             string 'adjust_finish' =>
 	 *
-	 * @param string $sql_extra Additional sql conditions (e.g. permission request).
+	 * @param string $sql_extra    Additional sql conditions (e.g. permission request).
 	 *
 	 * @return array Query results.
+	 * @throws \Exception
 	 */
 	public static function getListByDate($owner_uid, $event_params, $sql_extra = '')
 	{
@@ -546,6 +550,8 @@ class Event extends BaseObject
 	 *
 	 * @param array $event_result Event query array.
 	 * @return array Event array for the template.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function prepareListForTemplate(array $event_result)
 	{
@@ -627,25 +633,27 @@ class Event extends BaseObject
 	/**
 	 * @brief Format event to export format (ical/csv).
 	 *
-	 * @param array  $events   Query result for events.
-	 * @param string $format   The output format (ical/csv).
-	 * @param string $timezone The timezone of the user (not implemented yet).
+	 * @param array  $events Query result for events.
+	 * @param string $format The output format (ical/csv).
 	 *
+	 * @param        $timezone
 	 * @return string Content according to selected export format.
 	 *
-	 * @todo Implement timezone support
+	 * @todo  Implement timezone support
 	 */
-	private static function formatListForExport(array $events, $format, $timezone)
+	private static function formatListForExport(array $events, $format)
 	{
+		$o = '';
+
 		if (!count($events)) {
-			return '';
+			return $o;
 		}
 
 		switch ($format) {
 			// Format the exported data as a CSV file.
 			case "csv":
 				header("Content-type: text/csv");
-				$o = '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
+				$o .= '"Subject", "Start Date", "Start Time", "Description", "End Date", "End Time", "Location"' . PHP_EOL;
 
 				foreach ($events as $event) {
 					/// @todo The time / date entries don't include any information about the
@@ -741,6 +749,7 @@ class Event extends BaseObject
 	 * @param int $uid The user ID.
 	 *
 	 * @return array Query results.
+	 * @throws \Exception
 	 */
 	private static function getListByUserId($uid = 0)
 	{
@@ -771,33 +780,29 @@ class Event extends BaseObject
 
 	/**
 	 *
-	 * @param int $uid The user ID.
+	 * @param int    $uid    The user ID.
 	 * @param string $format Output format (ical/csv).
 	 * @return array With the results:
-	 *	bool 'success' => True if the processing was successful,<br>
-	 *	string 'format' => The output format,<br>
-	 *	string 'extension' => The file extension of the output format,<br>
-	 *	string 'content' => The formatted output content.<br>
+	 *                       bool 'success' => True if the processing was successful,<br>
+	 *                       string 'format' => The output format,<br>
+	 *                       string 'extension' => The file extension of the output format,<br>
+	 *                       string 'content' => The formatted output content.<br>
 	 *
+	 * @throws \Exception
 	 * @todo Respect authenticated users with events_by_uid().
 	 */
 	public static function exportListByUserId($uid, $format = 'ical')
 	{
 		$process = false;
 
-		$user = DBA::selectFirst('user', ['timezone'], ['uid' => $uid]);
-		if (DBA::isResult($user)) {
-			$timezone = $user['timezone'];
-		}
-
 		// Get all events which are owned by a uid (respects permissions).
 		$events = self::getListByUserId($uid);
 
 		// We have the events that are available for the requestor.
 		// Now format the output according to the requested format.
-		$res = self::formatListForExport($events, $format, $timezone);
+		$res = self::formatListForExport($events, $format);
 
-		// If there are results the precess was successfull.
+		// If there are results the precess was successful.
 		if (!empty($res)) {
 			$process = true;
 		}
@@ -831,6 +836,8 @@ class Event extends BaseObject
 	 *
 	 * @param array $item Array with item and event data.
 	 * @return string HTML output.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function getItemHTML(array $item) {
 		$same_date = false;
@@ -945,6 +952,7 @@ class Event extends BaseObject
 	 *  'name' => The name of the location,<br>
 	 * 'address' => The address of the location,<br>
 	 * 'coordinates' => Latitude‎ and longitude‎ (e.g. '48.864716,2.349014').<br>
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function locationToArray($s = '') {
 		if ($s == '') {
@@ -989,6 +997,7 @@ class Event extends BaseObject
 	 * @param array  $contact  Contact array, expects: id, uid, url, name
 	 * @param string $birthday Birthday of the contact
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function createBirthday($contact, $birthday)
 	{

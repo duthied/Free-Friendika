@@ -87,11 +87,6 @@
 {{/if}}
 <script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
 
-<script type="text/javascript">
-	window.showMore = "{{$showmore}}";
-	window.showFewer = "{{$showfewer}}";
-</script>
-
 {{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}
 {{include file="js_strings.tpl"}}

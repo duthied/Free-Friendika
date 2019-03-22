@@ -30,6 +30,7 @@ class Console extends \Asika\SimpleConsole\Console
 		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
 		'typo'                   => __NAMESPACE__ . '\Console\Typo',
 		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
+		'storage'                => __NAMESPACE__ . '\Console\Storage',
 	];
 
 	protected function getHelp()
@@ -55,6 +56,7 @@ Commands:
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
 	postupdate             Execute pending post update scripts (can last days)
+	storage                Manage storage backend
 
 Options:
 	-h|--help|-? Show help information
@@ -71,7 +73,6 @@ HELP;
 			$this->out('Options: ' . var_export($this->options, true));
 		}
 
-		$showHelp = false;
 		$subHelp = false;
 		$command = null;
 
@@ -81,7 +82,6 @@ HELP;
 			return 0;
 		} elseif ((count($this->options) === 0 || $this->getOption($this->customHelpOptions) === true || $this->getOption($this->customHelpOptions) === 1) && count($this->args) === 0
 		) {
-			$showHelp = true;
 		} elseif (count($this->args) >= 2 && $this->getArgument(0) == 'help') {
 			$command = $this->getArgument(1);
 			$subHelp = true;
@@ -121,6 +121,7 @@ HELP;
 
 		$className = $this->subConsoles[$command];
 
+		/** @var Console $subconsole */
 		$subconsole = new $className($subargs);
 
 		foreach ($this->options as $name => $value) {

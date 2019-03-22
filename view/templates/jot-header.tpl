@@ -42,7 +42,7 @@ function enableOnUser(){
 </script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
 <script>
-	var ispublic = '{{$ispublic}}';
+	var ispublic = '{{$ispublic nofilter}}';
 
 
 	$(document).ready(function() {
@@ -230,7 +230,7 @@ function enableOnUser(){
 		$("#profile-jot-text").val(currentText + data);
 	}
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 </script>
 

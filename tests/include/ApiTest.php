@@ -5,12 +5,16 @@
 
 namespace Friendica\Test;
 
-use Friendica\BaseObject;
+use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Factory;
 use Friendica\Network\HTTPException;
+use Friendica\Util\BasePath;
+use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
 
@@ -23,13 +27,26 @@ require_once __DIR__ . '/../../include/api.php';
 class ApiTest extends DatabaseTest
 {
 	/**
+	 * @var TestHandler Can handle log-outputs
+	 */
+	protected $logOutput;
+
+	/**
 	 * Create variables used by tests.
 	 */
 	public function setUp()
 	{
-		parent::setUp();
+		$basePath = BasePath::create(dirname(__DIR__) . '/../');
+		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$configCache = Factory\ConfigFactory::createCache($configLoader);
+		$profiler = Factory\ProfilerFactory::create($configCache);
+		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
+		$config = Factory\ConfigFactory::createConfig($configCache);
+		Factory\ConfigFactory::createPConfig($configCache);
+		$logger = Factory\LoggerFactory::create('test', $config);
+		$this->app = new App($basePath, $config, $logger, $profiler, false);
 
-		$this->app = BaseObject::getApp();
+		parent::setUp();
 
 		// User data that the test database is populated with
 		$this->selfUser = [
@@ -1118,7 +1135,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiStatusesUpdate()
 	{
-		$_GET['status'] = 'Status content';
+		$_GET['status'] = 'Status content #friendica';
 		$_GET['in_reply_to_status_id'] = -1;
 		$_GET['lat'] = 48;
 		$_GET['long'] = 7;
@@ -1249,6 +1266,7 @@ class ApiTest extends DatabaseTest
 		$this->assertEquals('image/png', $result['media']['image']['image_type']);
 		$this->assertEquals(1, $result['media']['image']['w']);
 		$this->assertEquals(1, $result['media']['image']['h']);
+		$this->assertNotEmpty($result['media']['image']['friendica_preview_url']);
 	}
 
 	/**
@@ -1404,6 +1422,34 @@ class ApiTest extends DatabaseTest
 		}
 	}
 
+	/**
+	 * Test the api_search() function with an q parameter contains hashtag.
+	 * @return void
+	 */
+	public function testApiSearchWithHashtag()
+	{
+		$_REQUEST['q'] = '%23friendica';
+		$result = api_search('json');
+		foreach ($result['status'] as $status) {
+			$this->assertStatus($status);
+			$this->assertContains('#friendica', $status['text'], null, true);
+		}
+	}
+
+	/**
+	 * Test the api_search() function with an exclude_replies parameter.
+	 * @return void
+	 */
+	public function testApiSearchWithExcludeReplies()
+	{
+		$_REQUEST['max_id'] = 10;
+		$_REQUEST['exclude_replies'] = true;
+		$_REQUEST['q'] = 'friendica';
+		$result = api_search('json');
+		foreach ($result['status'] as $status) {
+			$this->assertStatus($status);
+		}
+	}
 
 	/**
 	 * Test the api_search() function without an authenticated user.

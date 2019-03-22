@@ -8,8 +8,15 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use Friendica\Core\Config\Cache\ConfigCacheLoader;
+use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
+use Friendica\Model\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\HTTPSignature;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  *
@@ -29,7 +36,6 @@ class App
 	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string = '';
-	public $config = [];
 	public $page = [];
 	public $profile;
 	public $profile_uid;
@@ -50,8 +56,6 @@ class App
 	public $identities;
 	public $is_mobile = false;
 	public $is_tablet = false;
-	public $performance = [];
-	public $callstack = [];
 	public $theme_info = [];
 	public $category;
 	// Allow themes to control internal parameters
@@ -107,6 +111,61 @@ class App
 	public $mobileDetect;
 
 	/**
+	 * @var Configuration The config
+	 */
+	private $config;
+
+	/**
+	 * @var LoggerInterface The logger
+	 */
+	private $logger;
+
+	/**
+	 * @var Profiler The profiler of this app
+	 */
+	private $profiler;
+
+	/**
+	 * Returns the current config cache of this node
+	 *
+	 * @return IConfigCache
+	 */
+	public function getConfigCache()
+	{
+		return $this->config->getCache();
+	}
+
+	/**
+	 * The basepath of this app
+	 *
+	 * @return string
+	 */
+	public function getBasePath()
+	{
+		return $this->basePath;
+	}
+
+	/**
+	 * The Logger of this app
+	 *
+	 * @return LoggerInterface
+	 */
+	public function getLogger()
+	{
+		return $this->logger;
+	}
+
+	/**
+	 * The profiler of this app
+	 *
+	 * @return Profiler
+	 */
+	public function getProfiler()
+	{
+		return $this->profiler;
+	}
+
+	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -114,10 +173,11 @@ class App
 	 * @see initHead()
 	 *
 	 * @param string $path
+	 * @throws InternalServerErrorException
 	 */
 	public function registerStylesheet($path)
 	{
-		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->stylesheets[] = trim($url, '/');
 	}
@@ -130,15 +190,15 @@ class App
 	 * @see initFooter()
 	 *
 	 * @param string $path
+	 * @throws InternalServerErrorException
 	 */
 	public function registerFooterScript($path)
 	{
-		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->footerScripts[] = trim($url, '/');
 	}
 
-	public $process_id;
 	public $queue;
 	private $scheme;
 	private $hostname;
@@ -146,45 +206,35 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string $basePath  Path to the app base folder
-	 * @param bool   $isBackend Whether it is used for backend or frontend (Default true=backend)
+	 * @param string           $basePath   The basedir of the app
+	 * @param Configuration    $config    The Configuration
+	 * @param LoggerInterface  $logger    The current app logger
+	 * @param Profiler         $profiler  The profiler of this application
+	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, $isBackend = true)
+	public function __construct($basePath, Configuration $config, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
-		if (!static::isDirectoryUsable($basePath, false)) {
-			throw new Exception('Basepath ' . $basePath . ' isn\'t usable.');
-		}
-
 		BaseObject::setApp($this);
 
-		$this->basePath = rtrim($basePath, DIRECTORY_SEPARATOR);
+		$this->logger   = $logger;
+		$this->config   = $config;
+		$this->profiler = $profiler;
+		$cfgBasePath = $this->config->get('system', 'basepath');
+		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
+
+		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
+			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');
+		}
+		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);
+
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
 
-		$this->performance['start'] = microtime(true);
-		$this->performance['database'] = 0;
-		$this->performance['database_write'] = 0;
-		$this->performance['cache'] = 0;
-		$this->performance['cache_write'] = 0;
-		$this->performance['network'] = 0;
-		$this->performance['file'] = 0;
-		$this->performance['rendering'] = 0;
-		$this->performance['parser'] = 0;
-		$this->performance['marktime'] = 0;
-		$this->performance['markstart'] = microtime(true);
+		$this->profiler->reset();
 
-		$this->callstack['database'] = [];
-		$this->callstack['database_write'] = [];
-		$this->callstack['cache'] = [];
-		$this->callstack['cache_write'] = [];
-		$this->callstack['network'] = [];
-		$this->callstack['file'] = [];
-		$this->callstack['rendering'] = [];
-		$this->callstack['parser'] = [];
-
-		$this->mode = new App\Mode($basePath);
+		$this->mode = new App\Mode($this->basePath);
 
 		$this->reload();
 
@@ -215,9 +265,9 @@ class App
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
-			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
-			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
-			. $this->getBasePath());
+			. $this->basePath . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
+			. $this->basePath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
+			. $this->basePath);
 
 		if (!empty($_SERVER['QUERY_STRING']) && strpos($_SERVER['QUERY_STRING'], 'pagename=') === 0) {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
@@ -306,180 +356,25 @@ class App
 	 */
 	public function reload()
 	{
-		// The order of the following calls is important to ensure proper initialization
-		$this->loadConfigFiles();
-
-		$this->loadDatabase();
-
-		$this->getMode()->determine($this->getBasePath());
-
 		$this->determineURLPath();
 
-		Core\Config::load();
+		$this->getMode()->determine($this->basePath);
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			Core\Hook::loadHooks();
+			$loader = new ConfigCacheLoader($this->basePath);
+			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
 
-			$this->loadAddonConfig();
+			$this->profiler->update(
+				$this->config->get('system', 'profiler', false),
+				$this->config->get('rendertime', 'callstack', false));
+
+			Core\Hook::loadHooks();
+			Core\Hook::callAll('load_config', $loader);
 		}
 
 		$this->loadDefaultTimezone();
 
 		Core\L10n::init();
-
-		$this->process_id = Core\System::processID('log');
-	}
-
-	/**
-	 * Load the configuration files
-	 *
-	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
-	 * expected local.config.php
-	 */
-	private function loadConfigFiles()
-	{
-		$this->loadConfigFile($this->getBasePath() . '/config/defaults.config.php');
-		$this->loadConfigFile($this->getBasePath() . '/config/settings.config.php');
-
-		// Legacy .htconfig.php support
-		if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
-			$a = $this;
-			include $this->getBasePath() . '/.htpreconfig.php';
-		}
-
-		// Legacy .htconfig.php support
-		if (file_exists($this->getBasePath() . '/.htconfig.php')) {
-			$a = $this;
-
-			include $this->getBasePath() . '/.htconfig.php';
-
-			$this->setConfigValue('database', 'hostname', $db_host);
-			$this->setConfigValue('database', 'username', $db_user);
-			$this->setConfigValue('database', 'password', $db_pass);
-			$this->setConfigValue('database', 'database', $db_data);
-			if (isset($a->config['system']['db_charset'])) {
-				$this->setConfigValue('database', 'charset', $a->config['system']['db_charset']);
-			}
-
-			unset($db_host, $db_user, $db_pass, $db_data);
-
-			if (isset($default_timezone)) {
-				$this->setConfigValue('system', 'default_timezone', $default_timezone);
-				unset($default_timezone);
-			}
-
-			if (isset($pidfile)) {
-				$this->setConfigValue('system', 'pidfile', $pidfile);
-				unset($pidfile);
-			}
-
-			if (isset($lang)) {
-				$this->setConfigValue('system', 'language', $lang);
-				unset($lang);
-			}
-		}
-
-		if (file_exists($this->getBasePath() . '/config/local.config.php')) {
-			$this->loadConfigFile($this->getBasePath() . '/config/local.config.php', true);
-		} elseif (file_exists($this->getBasePath() . '/config/local.ini.php')) {
-			$this->loadINIConfigFile($this->getBasePath() . '/config/local.ini.php', true);
-		}
-	}
-
-	/**
-	 * Tries to load the specified legacy configuration file into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * @deprecated since version 2018.12
-	 * @param string $filepath
-	 * @param bool $overwrite Force value overwrite if the config key already exists
-	 * @throws Exception
-	 */
-	public function loadINIConfigFile($filepath, $overwrite = false)
-	{
-		if (!file_exists($filepath)) {
-			throw new Exception('Error parsing non-existent INI config file ' . $filepath);
-		}
-
-		$contents = include($filepath);
-
-		$config = parse_ini_string($contents, true, INI_SCANNER_TYPED);
-
-		if ($config === false) {
-			throw new Exception('Error parsing INI config file ' . $filepath);
-		}
-
-		$this->loadConfigArray($config, $overwrite);
-	}
-
-	/**
-	 * Tries to load the specified configuration file into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * The config format is PHP array and the template for configuration files is the following:
-	 *
-	 * <?php return [
-	 *      'section' => [
-	 *          'key' => 'value',
-	 *      ],
-	 * ];
-	 *
-	 * @param string $filepath
-	 * @param bool $overwrite Force value overwrite if the config key already exists
-	 * @throws Exception
-	 */
-	public function loadConfigFile($filepath, $overwrite = false)
-	{
-		if (!file_exists($filepath)) {
-			throw new Exception('Error loading non-existent config file ' . $filepath);
-		}
-
-		$config = include($filepath);
-
-		if (!is_array($config)) {
-			throw new Exception('Error loading config file ' . $filepath);
-		}
-
-		$this->loadConfigArray($config, $overwrite);
-	}
-
-	/**
-	 * Loads addons configuration files
-	 *
-	 * First loads all activated addons default configuration through the load_config hook, then load the local.config.php
-	 * again to overwrite potential local addon configuration.
-	 */
-	private function loadAddonConfig()
-	{
-		// Loads addons default config
-		Core\Hook::callAll('load_config');
-
-		// Load the local addon config file to overwritten default addon config values
-		if (file_exists($this->getBasePath() . '/config/addon.config.php')) {
-			$this->loadConfigFile($this->getBasePath() . '/config/addon.config.php', true);
-		} elseif (file_exists($this->getBasePath() . '/config/addon.ini.php')) {
-			$this->loadINIConfigFile($this->getBasePath() . '/config/addon.ini.php', true);
-		}
-	}
-
-	/**
-	 * Tries to load the specified configuration array into the App->config array.
-	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
-	 *
-	 * @param array $config
-	 * @param bool  $overwrite Force value overwrite if the config key already exists
-	 */
-	private function loadConfigArray(array $config, $overwrite = false)
-	{
-		foreach ($config as $category => $values) {
-			foreach ($values as $key => $value) {
-				if ($overwrite) {
-					$this->setConfigValue($category, $key, $value);
-				} else {
-					$this->setDefaultConfigValue($category, $key, $value);
-				}
-			}
-		}
 	}
 
 	/**
@@ -491,8 +386,8 @@ class App
 	 */
 	private function loadDefaultTimezone()
 	{
-		if ($this->getConfigValue('system', 'default_timezone')) {
-			$this->timezone = $this->getConfigValue('system', 'default_timezone');
+		if ($this->config->get('system', 'default_timezone')) {
+			$this->timezone = $this->config->get('system', 'default_timezone');
 		} else {
 			global $default_timezone;
 			$this->timezone = !empty($default_timezone) ? $default_timezone : 'UTC';
@@ -508,23 +403,33 @@ class App
 	 */
 	private function determineURLPath()
 	{
+		/*
+		 * The automatic path detection in this function is currently deactivated,
+		 * see issue https://github.com/friendica/friendica/issues/6679
+		 *
+		 * The problem is that the function seems to be confused with some url.
+		 * These then confuses the detection which changes the url path.
+		 */
+
 		/* Relative script path to the web server root
 		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
 		 */
+/*
 		$relative_script_path = '';
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URL'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
 		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
-
-		$this->urlPath = $this->getConfigValue('system', 'urlpath');
+*/
+		$this->urlPath = $this->config->get('system', 'urlpath');
 
 		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter
 		 *
 		 * To get /relative/path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
 		 */
+/*
 		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($_SERVER['QUERY_STRING'])) {
@@ -538,97 +443,7 @@ class App
 				$this->urlPath = $path;
 			}
 		}
-	}
-
-	public function loadDatabase()
-	{
-		if (DBA::connected()) {
-			return;
-		}
-
-		$db_host = $this->getConfigValue('database', 'hostname');
-		$db_user = $this->getConfigValue('database', 'username');
-		$db_pass = $this->getConfigValue('database', 'password');
-		$db_data = $this->getConfigValue('database', 'database');
-		$charset = $this->getConfigValue('database', 'charset');
-
-		// Use environment variables for mysql if they are set beforehand
-		if (!empty(getenv('MYSQL_HOST'))
-			&& !empty(getenv('MYSQL_USERNAME') || !empty(getenv('MYSQL_USER')))
-			&& getenv('MYSQL_PASSWORD') !== false
-			&& !empty(getenv('MYSQL_DATABASE')))
-		{
-			$db_host = getenv('MYSQL_HOST');
-			if (!empty(getenv('MYSQL_PORT'))) {
-				$db_host .= ':' . getenv('MYSQL_PORT');
-			}
-			if (!empty(getenv('MYSQL_USERNAME'))) {
-				$db_user = getenv('MYSQL_USERNAME');
-			} else {
-				$db_user = getenv('MYSQL_USER');
-			}
-			$db_pass = (string) getenv('MYSQL_PASSWORD');
-			$db_data = getenv('MYSQL_DATABASE');
-		}
-
-		$stamp1 = microtime(true);
-
-		if (DBA::connect($db_host, $db_user, $db_pass, $db_data, $charset)) {
-			// Loads DB_UPDATE_VERSION constant
-			Database\DBStructure::definition(false);
-		}
-
-		unset($db_host, $db_user, $db_pass, $db_data, $charset);
-
-		$this->saveTimestamp($stamp1, 'network');
-	}
-
-	/**
-	 * @brief Returns the base filesystem path of the App
-	 *
-	 * It first checks for the internal variable, then for DOCUMENT_ROOT and
-	 * finally for PWD
-	 *
-	 * @return string
-	 */
-	public function getBasePath()
-	{
-		$basepath = $this->basePath;
-
-		if (!$basepath) {
-			$basepath = Core\Config::get('system', 'basepath');
-		}
-
-		if (!$basepath && !empty($_SERVER['DOCUMENT_ROOT'])) {
-			$basepath = $_SERVER['DOCUMENT_ROOT'];
-		}
-
-		if (!$basepath && !empty($_SERVER['PWD'])) {
-			$basepath = $_SERVER['PWD'];
-		}
-
-		return self::getRealPath($basepath);
-	}
-
-	/**
-	 * @brief Returns a normalized file path
-	 *
-	 * This is a wrapper for the "realpath" function.
-	 * That function cannot detect the real path when some folders aren't readable.
-	 * Since this could happen with some hosters we need to handle this.
-	 *
-	 * @param string $path The path that is about to be normalized
-	 * @return string normalized path - when possible
-	 */
-	public static function getRealPath($path)
-	{
-		$normalized = realpath($path);
-
-		if (!is_bool($normalized)) {
-			return $normalized;
-		} else {
-			return $path;
-		}
+*/
 	}
 
 	public function getScheme()
@@ -649,6 +464,7 @@ class App
 	 *
 	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
+	 * @throws InternalServerErrorException
 	 */
 	public function getBaseURL($ssl = false)
 	{
@@ -673,7 +489,7 @@ class App
 			$this->hostname = Core\Config::get('config', 'hostname');
 		}
 
-		return $scheme . '://' . $this->hostname . !empty($this->getURLPath() ? '/' . $this->getURLPath() : '' );
+		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
 	}
 
 	/**
@@ -682,6 +498,7 @@ class App
 	 * Clears the baseurl cache to prevent inconsistencies
 	 *
 	 * @param string $url
+	 * @throws InternalServerErrorException
 	 */
 	public function setBaseURL($url)
 	{
@@ -704,8 +521,8 @@ class App
 				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
-				include $this->getBasePath() . '/.htpreconfig.php';
+			if (file_exists($this->basePath . '/.htpreconfig.php')) {
+				include $this->basePath . '/.htpreconfig.php';
 			}
 
 			if (Core\Config::get('config', 'hostname') != '') {
@@ -755,13 +572,13 @@ class App
 			$interval = 40000;
 		}
 
-		// compose the page title from the sitename and the
-		// current module called
-		if (!$this->module == '') {
-			$this->page['title'] = $this->config['sitename'] . ' (' . $this->module . ')';
-		} else {
-			$this->page['title'] = $this->config['sitename'];
+		// Default title: current module called
+		if (empty($this->page['title']) && $this->module) {
+			$this->page['title'] = ucfirst($this->module);
 		}
+
+		// Prepend the sitename to the page title
+		$this->page['title'] = $this->config->get('config', 'sitename', '') . (!empty($this->page['title']) ? ' | ' . $this->page['title'] : '');
 
 		if (!empty(Core\Renderer::$theme['stylesheet'])) {
 			$stylesheet = Core\Renderer::$theme['stylesheet'];
@@ -781,7 +598,7 @@ class App
 			$touch_icon = 'images/friendica-128.png';
 		}
 
-		Core\Addon::callHooks('head', $this->page['htmlhead']);
+		Core\Hook::callAll('head', $this->page['htmlhead']);
 
 		$tpl = Core\Renderer::getMarkupTemplate('head.tpl');
 		/* put the head template at the beginning of page['htmlhead']
@@ -793,8 +610,6 @@ class App
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem'         => Core\L10n::t('Delete this item?'),
-			'$showmore'        => Core\L10n::t('show more'),
-			'$showfewer'       => Core\L10n::t('show fewer'),
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
@@ -840,7 +655,7 @@ class App
 			]);
 		}
 
-		Core\Addon::callHooks('footer', $this->page['footer']);
+		Core\Hook::callAll('footer', $this->page['footer']);
 
 		$tpl = Core\Renderer::getMarkupTemplate('footer.tpl');
 		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
@@ -855,6 +670,7 @@ class App
 	 * @param string $origURL
 	 *
 	 * @return string The cleaned url
+	 * @throws InternalServerErrorException
 	 */
 	public function removeBaseURL($origURL)
 	{
@@ -872,42 +688,10 @@ class App
 	}
 
 	/**
-	 * Saves a timestamp for a value - f.e. a call
-	 * Necessary for profiling Friendica
-	 *
-	 * @param int $timestamp the Timestamp
-	 * @param string $value A value to profile
-	 */
-	public function saveTimestamp($timestamp, $value)
-	{
-		if (!isset($this->config['system']['profiler']) || !$this->config['system']['profiler']) {
-			return;
-		}
-
-		$duration = (float) (microtime(true) - $timestamp);
-
-		if (!isset($this->performance[$value])) {
-			// Prevent ugly E_NOTICE
-			$this->performance[$value] = 0;
-		}
-
-		$this->performance[$value] += (float) $duration;
-		$this->performance['marktime'] += (float) $duration;
-
-		$callstack = Core\System::callstack();
-
-		if (!isset($this->callstack[$value][$callstack])) {
-			// Prevent ugly E_NOTICE
-			$this->callstack[$value][$callstack] = 0;
-		}
-
-		$this->callstack[$value][$callstack] += (float) $duration;
-	}
-
-	/**
 	 * Returns the current UserAgent as a String
 	 *
 	 * @return string the UserAgent as a String
+	 * @throws InternalServerErrorException
 	 */
 	public function getUserAgent()
 	{
@@ -1031,6 +815,7 @@ class App
 	 * @brief Checks if the minimal memory is reached
 	 *
 	 * @return bool Is the memory limit reached?
+	 * @throws InternalServerErrorException
 	 */
 	public function isMinMemoryReached()
 	{
@@ -1075,6 +860,7 @@ class App
 	 * @brief Checks if the maximum load is reached
 	 *
 	 * @return bool Is the load reached?
+	 * @throws InternalServerErrorException
 	 */
 	public function isMaxLoadReached()
 	{
@@ -1107,6 +893,7 @@ class App
 	 *
 	 * @param string $command The command to execute
 	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
+	 * @throws InternalServerErrorException
 	 */
 	public function proc_run($command, $args)
 	{
@@ -1114,7 +901,7 @@ class App
 			return;
 		}
 
-		$cmdline = $this->getConfigValue('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
+		$cmdline = $this->config->get('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
 
 		foreach ($args as $key => $value) {
 			if (!is_null($value) && is_bool($value) && !$value) {
@@ -1132,9 +919,9 @@ class App
 		}
 
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->getBasePath());
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->basePath);
 		} else {
-			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
 		}
 		if (!is_resource($resource)) {
 			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
@@ -1144,203 +931,10 @@ class App
 	}
 
 	/**
-	 * @brief Returns the system user that is executing the script
-	 *
-	 * This mostly returns something like "www-data".
-	 *
-	 * @return string system username
-	 */
-	private static function getSystemUser()
-	{
-		if (!function_exists('posix_getpwuid') || !function_exists('posix_geteuid')) {
-			return '';
-		}
-
-		$processUser = posix_getpwuid(posix_geteuid());
-		return $processUser['name'];
-	}
-
-	/**
-	 * @brief Checks if a given directory is usable for the system
-	 *
-	 * @return boolean the directory is usable
-	 */
-	public static function isDirectoryUsable($directory, $check_writable = true)
-	{
-		if ($directory == '') {
-			Core\Logger::log('Directory is empty. This shouldn\'t happen.', Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (!file_exists($directory)) {
-			Core\Logger::log('Path "' . $directory . '" does not exist for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (is_file($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is a file for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if (!is_dir($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not a directory for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		if ($check_writable && !is_writable($directory)) {
-			Core\Logger::log('Path "' . $directory . '" is not writable for user ' . self::getSystemUser(), Core\Logger::DEBUG);
-			return false;
-		}
-
-		return true;
-	}
-
-	/**
-	 * @param string $cat     Config category
-	 * @param string $k       Config key
-	 * @param mixed  $default Default value if it isn't set
-	 *
-	 * @return string Returns the value of the Config entry
-	 */
-	public function getConfigValue($cat, $k, $default = null)
-	{
-		$return = $default;
-
-		if ($cat === 'config') {
-			if (isset($this->config[$k])) {
-				$return = $this->config[$k];
-			}
-		} else {
-			if (isset($this->config[$cat][$k])) {
-				$return = $this->config[$cat][$k];
-			}
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a default value in the config cache. Ignores already existing keys.
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Default value to set
-	 */
-	private function setDefaultConfigValue($cat, $k, $v)
-	{
-		if (!isset($this->config[$cat][$k])) {
-			$this->setConfigValue($cat, $k, $v);
-		}
-	}
-
-	/**
-	 * Sets a value in the config cache. Accepts raw output from the config table
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Value to set
-	 */
-	public function setConfigValue($cat, $k, $v)
-	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if ($cat === 'config') {
-			$this->config[$k] = $value;
-		} else {
-			if (!isset($this->config[$cat])) {
-				$this->config[$cat] = [];
-			}
-
-			$this->config[$cat][$k] = $value;
-		}
-	}
-
-	/**
-	 * Deletes a value from the config cache
-	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 */
-	public function deleteConfigValue($cat, $k)
-	{
-		if ($cat === 'config') {
-			if (isset($this->config[$k])) {
-				unset($this->config[$k]);
-			}
-		} else {
-			if (isset($this->config[$cat][$k])) {
-				unset($this->config[$cat][$k]);
-			}
-		}
-	}
-
-
-	/**
-	 * Retrieves a value from the user config cache
-	 *
-	 * @param int    $uid     User Id
-	 * @param string $cat     Config category
-	 * @param string $k       Config key
-	 * @param mixed  $default Default value if key isn't set
-	 *
-	 * @return string The value of the config entry
-	 */
-	public function getPConfigValue($uid, $cat, $k, $default = null)
-	{
-		$return = $default;
-
-		if (isset($this->config[$uid][$cat][$k])) {
-			$return = $this->config[$uid][$cat][$k];
-		}
-
-		return $return;
-	}
-
-	/**
-	 * Sets a value in the user config cache
-	 *
-	 * Accepts raw output from the pconfig table
-	 *
-	 * @param int    $uid User Id
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Value to set
-	 */
-	public function setPConfigValue($uid, $cat, $k, $v)
-	{
-		// Only arrays are serialized in database, so we have to unserialize sparingly
-		$value = is_string($v) && preg_match("|^a:[0-9]+:{.*}$|s", $v) ? unserialize($v) : $v;
-
-		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
-			$this->config[$uid] = [];
-		}
-
-		if (!isset($this->config[$uid][$cat]) || !is_array($this->config[$uid][$cat])) {
-			$this->config[$uid][$cat] = [];
-		}
-
-		$this->config[$uid][$cat][$k] = $value;
-	}
-
-	/**
-	 * Deletes a value from the user config cache
-	 *
-	 * @param int    $uid User Id
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 */
-	public function deletePConfigValue($uid, $cat, $k)
-	{
-		if (isset($this->config[$uid][$cat][$k])) {
-			unset($this->config[$uid][$cat][$k]);
-		}
-	}
-
-	/**
 	 * Generates the site's default sender email address
 	 *
 	 * @return string
+	 * @throws InternalServerErrorException
 	 */
 	public function getSenderEmailAddress()
 	{
@@ -1361,6 +955,7 @@ class App
 	 * Returns the current theme name.
 	 *
 	 * @return string the name of the current theme
+	 * @throws InternalServerErrorException
 	 */
 	public function getCurrentTheme()
 	{
@@ -1442,6 +1037,7 @@ class App
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
 	 * @return string
+	 * @throws InternalServerErrorException
 	 */
 	public function getCurrentThemeStylesheetPath()
 	{
@@ -1534,19 +1130,26 @@ class App
 			}
 
 			Core\Session::init();
-			Core\Addon::callHooks('init_1');
+			Core\Hook::callAll('init_1');
 		}
 
 		// Exclude the backend processes from the session management
 		if (!$this->isBackend()) {
 			$stamp1 = microtime(true);
 			session_start();
-			$this->saveTimestamp($stamp1, 'parser');
+			$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
 			Core\L10n::setSessionVariable();
 			Core\L10n::setLangFromSession();
 		} else {
 			$_SESSION = [];
 			Core\Worker::executeIfIdle();
+		}
+
+		if ($this->getMode()->isNormal()) {
+			$requester = HTTPSignature::getSigner('', $_SERVER);
+			if (!empty($requester)) {
+				Profile::addVisitorCookieForHandle($requester);
+			}
 		}
 
 		// ZRL
@@ -1601,7 +1204,7 @@ class App
 			$this->module = 'maintenance';
 		} else {
 			$this->checkURL();
-			Core\Update::check(false);
+			Core\Update::check($this->basePath, false);
 			Core\Addon::loadAddons();
 			Core\Hook::loadHooks();
 		}
@@ -1725,7 +1328,7 @@ class App
 			$this->page['page_title'] = $this->module;
 			$placeholder = '';
 
-			Core\Addon::callHooks($this->module . '_mod_init', $placeholder);
+			Core\Hook::callAll($this->module . '_mod_init', $placeholder);
 
 			call_user_func([$this->module_class, 'init']);
 
@@ -1749,28 +1352,28 @@ class App
 
 		if ($this->module_loaded) {
 			if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
-				Core\Addon::callHooks($this->module . '_mod_post', $_POST);
+				Core\Hook::callAll($this->module . '_mod_post', $_POST);
 				call_user_func([$this->module_class, 'post']);
 			}
 
 			if (! $this->error) {
-				Core\Addon::callHooks($this->module . '_mod_afterpost', $placeholder);
+				Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
 				call_user_func([$this->module_class, 'afterpost']);
 			}
 
 			if (! $this->error) {
 				$arr = ['content' => $content];
-				Core\Addon::callHooks($this->module . '_mod_content', $arr);
+				Core\Hook::callAll($this->module . '_mod_content', $arr);
 				$content = $arr['content'];
 				$arr = ['content' => call_user_func([$this->module_class, 'content'])];
-				Core\Addon::callHooks($this->module . '_mod_aftercontent', $arr);
+				Core\Hook::callAll($this->module . '_mod_aftercontent', $arr);
 				$content .= $arr['content'];
 			}
 		}
 
 		// initialise content region
 		if ($this->getMode()->isNormal()) {
-			Core\Addon::callHooks('page_content_top', $this->page['content']);
+			Core\Hook::callAll('page_content_top', $this->page['content']);
 		}
 
 		$this->page['content'] .= $content;
@@ -1797,7 +1400,7 @@ class App
 		}
 
 		// Report anything which needs to be communicated in the notification area (before the main body)
-		Core\Addon::callHooks('page_end', $this->page['content']);
+		Core\Hook::callAll('page_end', $this->page['content']);
 
 		// Add the navigation (menu) template
 		if ($this->module != 'install' && $this->module != 'maintenance') {
@@ -1827,14 +1430,14 @@ class App
 				// And then append it to the target
 				$target->documentElement->appendChild($item);
 			}
-		}
 
-		if (isset($_GET["mode"]) && ($_GET["mode"] == "raw")) {
-			header("Content-type: text/html; charset=utf-8");
+			if ($_GET["mode"] == "raw") {
+				header("Content-type: text/html; charset=utf-8");
 
-			echo substr($target->saveHTML(), 6, -8);
+				echo substr($target->saveHTML(), 6, -8);
 
-			exit();
+				exit();
+			}
 		}
 
 		$page    = $this->page;
@@ -1903,7 +1506,7 @@ class App
 	 * Should only be used if it isn't clear if the URL is either internal or external
 	 *
 	 * @param string $toUrl The target URL
-	 *
+	 * @throws InternalServerErrorException
 	 */
 	public function redirect($toUrl)
 	{

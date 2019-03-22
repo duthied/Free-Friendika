@@ -6,6 +6,7 @@ pconfig:
 photo:
 workerqueue:
 mail:
+item-delivery-data:
 
 # Base test config to avoid notice messages
 config:

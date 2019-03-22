@@ -5,15 +5,14 @@
 namespace Friendica\Content;
 
 use Friendica\App;
-use Friendica\Content\Feature;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 
 class Nav
 {
@@ -43,6 +42,8 @@ class Nav
 
 	/**
 	 * Set a menu item in navbar as selected
+	 *
+	 * @param string $item
 	 */
 	public static function setSelected($item)
 	{
@@ -51,6 +52,10 @@ class Nav
 
 	/**
 	 * Build page header and site navigation bars
+	 *
+	 * @param  App    $a
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function build(App $a)
 	{
@@ -74,7 +79,7 @@ class Nav
 			'$search_hint'  => L10n::t('@name, !forum, #tags, content')
 		]);
 
-		Addon::callHooks('page_header', $nav);
+		Hook::callAll('page_header', $nav);
 
 		return $nav;
 	}
@@ -105,7 +110,7 @@ class Nav
 		if (local_user() || !$privateapps) {
 			$arr = ['app_menu' => self::$app_menu];
 
-			Addon::callHooks('app_menu', $arr);
+			Hook::callAll('app_menu', $arr);
 
 			self::$app_menu = $arr['app_menu'];
 		}
@@ -115,12 +120,13 @@ class Nav
 	 * Prepares a list of navigation links
 	 *
 	 * @brief Prepares a list of navigation links
-	 * @param App $a
+	 * @param  App   $a
 	 * @return array Navigation links
-	 *	string 'sitelocation' => The webbie (username@site.com)
-	 *	array 'nav' => Array of links used in the nav menu
-	 *	string 'banner' => Formatted html link with banner image
-	 *	array 'userinfo' => Array of user information (name, icon)
+	 *    string 'sitelocation' => The webbie (username@site.com)
+	 *    array 'nav' => Array of links used in the nav menu
+	 *    string 'banner' => Formatted html link with banner image
+	 *    array 'userinfo' => Array of user information (name, icon)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getInfo(App $a)
 	{
@@ -174,7 +180,7 @@ class Nav
 			$nav['home'] = [$homelink, L10n::t('Home'), '', L10n::t('Home Page')];
 		}
 
-		if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN && !local_user() && !remote_user()) {
+		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !local_user() && !remote_user()) {
 			$nav['register'] = ['register', L10n::t('Register'), '', L10n::t('Create an account')];
 		}
 
@@ -236,7 +242,7 @@ class Nav
 			$nav['home'] = ['profile/' . $a->user['nickname'], L10n::t('Home'), '', L10n::t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
-			if (defaults($_SESSION, 'page_flags', '') != Contact::PAGE_COMMUNITY) {
+			if (defaults($_SESSION, 'page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
 				$nav['introductions'] = ['notifications/intros', L10n::t('Introductions'), '', L10n::t('Friend Requests')];
 				$nav['notifications'] = ['notifications',	L10n::t('Notifications'), '', L10n::t('Notifications')];
 				$nav['notifications']['all'] = ['notifications/system', L10n::t('See all notifications'), '', ''];
@@ -276,7 +282,7 @@ class Nav
 			$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 		}
 
-		Addon::callHooks('nav_info', $nav);
+		Hook::callAll('nav_info', $nav);
 
 		return [
 			'sitelocation' => $sitelocation,

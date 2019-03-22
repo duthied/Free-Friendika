@@ -3,10 +3,11 @@
  * BaseObjectTest class.
  */
 
-namespace Friendica\Test;
+namespace Friendica\Test\src;
 
-use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Test\Util\AppMockTrait;
+use Friendica\Test\Util\VFSTrait;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -14,32 +15,37 @@ use PHPUnit\Framework\TestCase;
  */
 class BaseObjectTest extends TestCase
 {
+	use VFSTrait;
+	use AppMockTrait;
 
 	/**
-	 * Create variables used in tests.
+	 * @var BaseObject
 	 */
-	protected function setUp()
+	private $baseObject;
+
+	/**
+	 * Test the setApp() and getApp() function.
+	 * @return void
+	 */
+	public function testGetSetApp()
 	{
-		$this->baseObject = new BaseObject();
+		$baseObject = new BaseObject();
+		$this->setUpVfsDir();
+		$this->mockApp($this->root);
+
+		$this->assertNull($baseObject->setApp($this->app));
+		$this->assertEquals($this->app, $baseObject->getApp());
 	}
 
 	/**
-	 * Test the getApp() function.
-	 * @return void
+	 * Test the getApp() function without App
+	 * @expectedException Friendica\Network\HTTPException\InternalServerErrorException
+	 * @runInSeparateProcess
+	 * @preserveGlobalState disabled
 	 */
-	public function testGetApp()
+	public function testGetAppFailed()
 	{
-		$this->assertInstanceOf(App::class, $this->baseObject->getApp());
-	}
-
-	/**
-	 * Test the setApp() function.
-	 * @return void
-	 */
-	public function testSetApp()
-	{
-		$app = new App(__DIR__ . '/../../');
-		$this->assertNull($this->baseObject->setApp($app));
-		$this->assertEquals($app, $this->baseObject->getApp());
+		$baseObject = new BaseObject();
+		$baseObject->getApp();
 	}
 }

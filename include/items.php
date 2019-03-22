@@ -5,8 +5,8 @@
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
@@ -24,10 +24,11 @@ use Friendica\Util\ParseUrl;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'mod/share.php';
+require_once __DIR__ . '/../mod/share.php';
+
 function add_page_info_data(array $data, $no_photos = false)
 {
-	Addon::callHooks('page_info_data', $data);
+	Hook::callAll('page_info_data', $data);
 
 	if (empty($data['type'])) {
 		return '';
@@ -242,26 +243,26 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false)
  * model where comments can have sub-threads. That would require some massive sorting
  * to get all the feed items into a mostly linear ordering, and might still require
  * recursion.
+ *
+ * @param       $xml
+ * @param array $importer
+ * @param array $contact
+ * @param       $hub
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0, $pass = 0)
+function consume_feed($xml, array $importer, array $contact, &$hub)
 {
 	if ($contact['network'] === Protocol::OSTATUS) {
-		if ($pass < 2) {
-			// Test - remove before flight
-			//$tempfile = tempnam(get_temppath(), "ostatus2");
-			//file_put_contents($tempfile, $xml);
-			Logger::log("Consume OStatus messages ", Logger::DEBUG);
-			OStatus::import($xml, $importer, $contact, $hub);
-		}
+		Logger::log("Consume OStatus messages ", Logger::DEBUG);
+		OStatus::import($xml, $importer, $contact, $hub);
 
 		return;
 	}
 
 	if ($contact['network'] === Protocol::FEED) {
-		if ($pass < 2) {
-			Logger::log("Consume feeds", Logger::DEBUG);
-			Feed::import($xml, $importer, $contact, $hub);
-		}
+		Logger::log("Consume feeds", Logger::DEBUG);
+		Feed::import($xml, $importer, $contact, $hub);
 
 		return;
 	}
@@ -292,8 +293,6 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 	if (empty($importer)) {
 		return;
 	}
-
-	$a = BaseObject::getApp();
 
 	$user = DBA::selectFirst('user', ['nickname'], ['uid' => $importer['uid']]);
 

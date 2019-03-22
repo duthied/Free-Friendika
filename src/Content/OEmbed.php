@@ -10,9 +10,9 @@ use DOMNode;
 use DOMText;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -51,6 +51,7 @@ class OEmbed
 	 * @param bool   $no_rich_type If set to true rich type content won't be fetched.
 	 *
 	 * @return \Friendica\Object\OEmbed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchURL($embedurl, $no_rich_type = false)
 	{
@@ -159,7 +160,7 @@ class OEmbed
 			}
 		}
 
-		Addon::callHooks('oembed_fetch_url', $embedurl, $oembed);
+		Hook::callAll('oembed_fetch_url', $embedurl, $oembed);
 
 		return $oembed;
 	}
@@ -260,6 +261,9 @@ class OEmbed
 	/**
 	 * Find <span class='oembed'>..<a href='url' rel='oembed'>..</a></span>
 	 * and replace it with [embed]url[/embed]
+	 *
+	 * @param $text
+	 * @return string
 	 */
 	public static function HTML2BBCode($text)
 	{
@@ -298,6 +302,7 @@ class OEmbed
 	 * @brief Determines if rich content OEmbed is allowed for the provided URL
 	 * @param string $url
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isAllowedURL($url)
 	{
@@ -353,19 +358,18 @@ class OEmbed
 	 * Since the iframe is automatically resized on load, there are no need for ugly
 	 * and impractical scrollbars.
 	 *
-	 * @todo This function is currently unused until someone™ adds support for a separate OEmbed domain
+	 * @todo  This function is currently unused until someone™ adds support for a separate OEmbed domain
 	 *
 	 * @param string $src Original remote URL to embed
 	 * @param string $width
 	 * @param string $height
 	 * @return string formatted HTML
 	 *
-	 * @see oembed_format_object()
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @see   oembed_format_object()
 	 */
 	private static function iframe($src, $width, $height)
 	{
-		$a = \get_app();
-
 		if (!$height || strstr($height, '%')) {
 			$height = '200';
 		}

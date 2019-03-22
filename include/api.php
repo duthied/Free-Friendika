@@ -11,9 +11,9 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\NotificationsManager;
@@ -31,6 +31,7 @@ use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Network\HTTPException\ExpectationFailedException;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
@@ -54,6 +55,8 @@ define('API_METHOD_ANY', '*');
 define('API_METHOD_GET', 'GET');
 define('API_METHOD_POST', 'POST,PUT');
 define('API_METHOD_DELETE', 'POST,DELETE');
+
+define('API_LOG_PREFIX', 'API {action} - ');
 
 $API = [];
 $called_api = [];
@@ -83,7 +86,8 @@ function api_user()
  * @brief Get source name from API client
  *
  * @return string
- * 		Client source name, default to "api" if unset/unknown
+ *        Client source name, default to "api" if unset/unknown
+ * @throws Exception
  */
 function api_source()
 {
@@ -97,9 +101,9 @@ function api_source()
 			return "Twidere";
 		}
 
-		Logger::log("Unrecognized user-agent ".$_SERVER['HTTP_USER_AGENT'], Logger::DEBUG);
+		Logger::info(API_LOG_PREFIX . 'Unrecognized user-agent', ['module' => 'api', 'action' => 'source', 'http_user_agent' => $_SERVER['HTTP_USER_AGENT']]);
 	} else {
-		Logger::log("Empty user-agent", Logger::DEBUG);
+		Logger::info(API_LOG_PREFIX . 'Empty user-agent', ['module' => 'api', 'action' => 'source']);
 	}
 
 	return "api";
@@ -110,6 +114,7 @@ function api_source()
  *
  * @param string $str Source date, as UTC
  * @return string Date in UTC formatted as "D M d H:i:s +0000 Y"
+ * @throws Exception
  */
 function api_date($str)
 {
@@ -155,15 +160,17 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *
  * @brief Login API user
  *
- * @param object $a App
- * @hook 'authenticate'
- * 		array $addon_auth
- *			'username' => username from login form
- *			'password' => password from login form
- *			'authenticated' => return status,
- *			'user_record' => return authenticated user record
- * @hook 'logged_in'
- * 		array $user	logged user record
+ * @param App $a App
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
+ * @hook  'authenticate'
+ *               array $addon_auth
+ *               'username' => username from login form
+ *               'password' => password from login form
+ *               'authenticated' => return status,
+ *               'user_record' => return authenticated user record
+ * @hook  'logged_in'
+ *               array $user    logged user record
  */
 function api_login(App $a)
 {
@@ -174,14 +181,14 @@ function api_login(App $a)
 		list($consumer, $token) = $oauth1->verify_request($request);
 		if (!is_null($token)) {
 			$oauth1->loginUser($token->uid);
-			Addon::callHooks('logged_in', $a->user);
+			Hook::callAll('logged_in', $a->user);
 			return;
 		}
 		echo __FILE__.__LINE__.__FUNCTION__ . "<pre>";
 		var_dump($consumer, $token);
 		die();
 	} catch (Exception $e) {
-		Logger::log($e);
+		Logger::warning(API_LOG_PREFIX . 'error', ['module' => 'api', 'action' => 'login', 'exception' => $e->getMessage()]);
 	}
 
 	// workaround for HTTP-auth in CGI mode
@@ -195,7 +202,7 @@ function api_login(App $a)
 	}
 
 	if (empty($_SERVER['PHP_AUTH_USER'])) {
-		Logger::log('API_login: ' . print_r($_SERVER, true), Logger::DEBUG);
+		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		throw new UnauthorizedException("This API requires login");
 	}
@@ -224,7 +231,7 @@ function api_login(App $a)
 	* Addons should never set 'authenticated' except to indicate success - as hooks may be chained
 	* and later addons should not interfere with an earlier one that succeeded.
 	*/
-	Addon::callHooks('authenticate', $addon_auth);
+	Hook::callAll('authenticate', $addon_auth);
 
 	if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
 		$record = $addon_auth['user_record'];
@@ -236,7 +243,7 @@ function api_login(App $a)
 	}
 
 	if (!DBA::isResult($record)) {
-		Logger::log('API_login failure: ' . print_r($_SERVER, true), Logger::DEBUG);
+		Logger::debug(API_LOG_PREFIX . 'failed', ['module' => 'api', 'action' => 'login', 'parameters' => $_SERVER]);
 		header('WWW-Authenticate: Basic realm="Friendica"');
 		//header('HTTP/1.0 401 Unauthorized');
 		//die('This api requires login');
@@ -247,7 +254,7 @@ function api_login(App $a)
 
 	$_SESSION["allow_api"] = true;
 
-	Addon::callHooks('logged_in', $a->user);
+	Hook::callAll('logged_in', $a->user);
 }
 
 /**
@@ -273,8 +280,9 @@ function api_check_method($method)
  *
  * @brief Main API entry point
  *
- * @param object $a App
+ * @param App $a App
  * @return string|array API call result
+ * @throws Exception
  */
 function api_call(App $a)
 {
@@ -309,76 +317,16 @@ function api_call(App $a)
 					api_login($a);
 				}
 
-				Logger::log('API call for ' . $a->user['username'] . ': ' . $a->query_string);
-				Logger::log('API parameters: ' . print_r($_REQUEST, true));
+				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username']]);
+				Logger::debug(API_LOG_PREFIX . 'parameters', ['module' => 'api', 'action' => 'call', 'parameters' => $_REQUEST]);
 
 				$stamp =  microtime(true);
 				$return = call_user_func($info['func'], $type);
 				$duration = (float) (microtime(true) - $stamp);
-				Logger::log("API call duration: " . round($duration, 2) . "\t" . $a->query_string, Logger::DEBUG);
 
-				if (Config::get("system", "profiler")) {
-					$duration = microtime(true)-$a->performance["start"];
+				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
 
-					/// @TODO round() really everywhere?
-					Logger::log(
-						parse_url($a->query_string, PHP_URL_PATH) . ": " . sprintf(
-							"Database: %s/%s, Cache %s/%s, Network: %s, I/O: %s, Other: %s, Total: %s",
-							round($a->performance["database"] - $a->performance["database_write"], 3),
-							round($a->performance["database_write"], 3),
-							round($a->performance["cache"], 3),
-							round($a->performance["cache_write"], 3),
-							round($a->performance["network"], 2),
-							round($a->performance["file"], 2),
-							round($duration - ($a->performance["database"]
-								+ $a->performance["cache"] + $a->performance["cache_write"]
-								+ $a->performance["network"] + $a->performance["file"]), 2),
-							round($duration, 2)
-						),
-						Logger::DEBUG
-					);
-
-					if (Config::get("rendertime", "callstack")) {
-						$o = "Database Read:\n";
-						foreach ($a->callstack["database"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-						$o .= "\nDatabase Write:\n";
-						foreach ($a->callstack["database_write"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-
-						$o = "Cache Read:\n";
-						foreach ($a->callstack["cache"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-						$o .= "\nCache Write:\n";
-						foreach ($a->callstack["cache_write"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-
-						$o .= "\nNetwork:\n";
-						foreach ($a->callstack["network"] as $func => $time) {
-							$time = round($time, 3);
-							if ($time > 0) {
-								$o .= $func . ": " . $time . "\n";
-							}
-						}
-						Logger::log($o, Logger::DEBUG);
-					}
-				}
+				$a->getProfiler()->saveLog($a->getLogger(), API_LOG_PREFIX . 'performance');
 
 				if (false === $return) {
 					/*
@@ -413,7 +361,7 @@ function api_call(App $a)
 			}
 		}
 
-		Logger::log('API call not implemented: ' . $a->query_string);
+		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call']);
 		throw new NotImplementedException();
 	} catch (HTTPException $e) {
 		header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
@@ -463,11 +411,15 @@ function api_error($type, $e)
 /**
  * @brief Set values for RSS template
  *
- * @param App $a
+ * @param App   $a
  * @param array $arr       Array to be passed to template
  * @param array $user_info User info
  * @return array
- * @todo find proper type-hints
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
+ * @todo  find proper type-hints
  */
 function api_rss_extra(App $a, $arr, $user_info)
 {
@@ -495,7 +447,8 @@ function api_rss_extra(App $a, $arr, $user_info)
  *
  * @param int $id Contact id
  * @return bool|string
- * 		Contact url or False if contact id is unknown
+ *                Contact url or False if contact id is unknown
+ * @throws Exception
  */
 function api_unique_id_to_nurl($id)
 {
@@ -511,8 +464,13 @@ function api_unique_id_to_nurl($id)
 /**
  * @brief Get user info array.
  *
- * @param object     $a          App
+ * @param App        $a          App
  * @param int|string $contact_id Contact ID or URL
+ * @return array|bool
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_get_user(App $a, $contact_id = null)
 {
@@ -522,7 +480,7 @@ function api_get_user(App $a, $contact_id = null)
 	$extra_query = "";
 	$url = "";
 
-	Logger::log("api_get_user: Fetching user data for user ".$contact_id, Logger::DEBUG);
+	Logger::info(API_LOG_PREFIX . 'Fetching data for user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $contact_id]);
 
 	// Searching for contact URL
 	if (!is_null($contact_id) && (intval($contact_id) == 0)) {
@@ -606,7 +564,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	Logger::log("api_get_user: user ".$user, Logger::DEBUG);
+	Logger::info(API_LOG_PREFIX . 'getting user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user]);
 
 	if (!$user) {
 		if (api_user() === false) {
@@ -618,7 +576,7 @@ function api_get_user(App $a, $contact_id = null)
 		}
 	}
 
-	Logger::log('api_user: ' . $extra_query . ', user: ' . $user);
+	Logger::info(API_LOG_PREFIX . 'found user {user}', ['module' => 'api', 'action' => 'get_user', 'user' => $user, 'extra_query' => $extra_query]);
 
 	// user info
 	$uinfo = q(
@@ -805,30 +763,36 @@ function api_get_user(App $a, $contact_id = null)
 /**
  * @brief return api-formatted array for item's author and owner
  *
- * @param object $a    App
- * @param array  $item item from db
+ * @param App   $a    App
+ * @param array $item item from db
  * @return array(array:author, array:owner)
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_item_get_user(App $a, $item)
 {
 	$status_user = api_get_user($a, defaults($item, 'author-id', null));
+
+	$author_user = $status_user;
 
 	$status_user["protected"] = defaults($item, 'private', 0);
 
 	if (defaults($item, 'thr-parent', '') == defaults($item, 'uri', '')) {
 		$owner_user = api_get_user($a, defaults($item, 'owner-id', null));
 	} else {
-		$owner_user = $status_user;
+		$owner_user = $author_user;
 	}
 
-	return ([$status_user, $owner_user]);
+	return ([$status_user, $author_user, $owner_user]);
 }
 
 /**
  * @brief walks recursively through an array with the possibility to change value and key
  *
- * @param array  $array    The array to walk through
- * @param string $callback The callback function
+ * @param array    $array    The array to walk through
+ * @param callable $callback The callback function
  *
  * @return array the transformed array
  */
@@ -930,7 +894,7 @@ function api_create_xml(array $data, $root_element)
  * @param string $type         Return type (atom, rss, xml, json)
  * @param array  $data         JSON style array
  *
- * @return (string|array) XML data or JSON data
+ * @return array|string (string|array) XML data or JSON data
  */
 function api_format_data($root_element, $type, $data)
 {
@@ -945,7 +909,6 @@ function api_format_data($root_element, $type, $data)
 			$ret = $data;
 			break;
 	}
-
 	return $ret;
 }
 
@@ -956,9 +919,16 @@ function api_format_data($root_element, $type, $data)
 /**
  * Returns an HTTP 200 OK response code and a representation of the requesting user if authentication was successful;
  * returns a 401 status code and an error message if not.
+ *
  * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/get-account-verify_credentials
  *
  * @param string $type Return type (atom, rss, xml, json)
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_account_verify_credentials($type)
 {
@@ -985,10 +955,12 @@ function api_account_verify_credentials($type)
 	// - Adding last status
 	if (!$skip_status) {
 		$user_info["status"] = api_status_show("raw");
-		if (!count($user_info["status"])) {
-			unset($user_info["status"]);
-		} else {
-			unset($user_info["status"]["user"]);
+		if (isset($user_info["status"])) {
+			if (!is_array($user_info["status"]) || !count($user_info["status"])) {
+				unset($user_info["status"]);
+			} else {
+				unset($user_info["status"]["user"]);
+			}
 		}
 	}
 
@@ -1006,6 +978,7 @@ api_register_func('api/account/verify_credentials', 'api_account_verify_credenti
  * Get data from $_POST or $_GET
  *
  * @param string $k
+ * @return null
  */
 function requestdata($k)
 {
@@ -1024,6 +997,11 @@ function requestdata($k)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_statuses_mediap($type)
 {
@@ -1071,6 +1049,12 @@ api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws TooManyRequestsException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-update
  */
 function api_statuses_update($type)
@@ -1213,6 +1197,11 @@ api_register_func('api/statuses/update_with_media', 'api_statuses_update', true,
  * Uploads an image to Friendica.
  *
  * @return array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/media/upload-media/api-reference/post-media-upload
  */
 function api_media_upload()
@@ -1242,8 +1231,9 @@ function api_media_upload()
 	$returndata["media_id_string"] = (string)$media["id"];
 	$returndata["size"] = $media["size"];
 	$returndata["image"] = ["w" => $media["width"],
-					"h" => $media["height"],
-					"image_type" => $media["type"]];
+				"h" => $media["height"],
+				"image_type" => $media["type"],
+				"friendica_preview_url" => $media["preview"]];
 
 	Logger::log("Media uploaded: " . print_r($returndata, true), Logger::DEBUG);
 
@@ -1257,7 +1247,12 @@ api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST)
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @param int    $item_id
  * @return array|string
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_status_show($type, $item_id = 0)
 {
@@ -1267,12 +1262,6 @@ function api_status_show($type, $item_id = 0)
 
 	Logger::log('api_status_show: user_info: '.print_r($user_info, true), Logger::DEBUG);
 
-	if ($type == "raw") {
-		$privacy_sql = "AND NOT `private`";
-	} else {
-		$privacy_sql = "";
-	}
-
 	if (!empty($item_id)) {
 		// Get the item with the given id
 		$condition = ['id' => $item_id];
@@ -1281,6 +1270,11 @@ function api_status_show($type, $item_id = 0)
 		$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
 			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
 	}
+
+	if ($type == "raw") {
+		$condition['private'] = false;
+	}
+
 	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
 	if (DBA::isResult($lastwall)) {
@@ -1356,6 +1350,11 @@ function api_status_show($type, $item_id = 0)
  * The author's most recent status will be returned inline.
  *
  * @param string $type Return type (atom, rss, xml, json)
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-users-show
  */
 function api_users_show($type)
@@ -1432,6 +1431,10 @@ api_register_func('api/externalprofile/show', 'api_users_show');
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-users-search
  */
 function api_users_search($type)
@@ -1480,7 +1483,11 @@ api_register_func('api/users/search', 'api_users_search');
  * @param string $type Return format: json or xml
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
  * @throws NotFoundException if the results are empty.
+ * @throws UnauthorizedException
  */
 function api_users_lookup($type)
 {
@@ -1513,52 +1520,85 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  *
  * @return array|string
  * @throws BadRequestException if the "q" parameter is missing.
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_search($type)
 {
 	$a = \get_app();
 	$user_info = api_get_user($a);
 
-	if (api_user() === false || $user_info === false) {
-		throw new ForbiddenException();
-	}
-
-	$data = [];
+	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
 
 	if (empty($_REQUEST['q'])) {
-		throw new BadRequestException("q parameter is required.");
+		throw new BadRequestException('q parameter is required.');
 	}
 
+	$searchTerm = trim(rawurldecode($_REQUEST['q']));
+
+	$data = [];
+	$data['status'] = [];
+	$count = 15;
+	$exclude_replies = !empty($_REQUEST['exclude_replies']);
 	if (!empty($_REQUEST['rpp'])) {
 		$count = $_REQUEST['rpp'];
 	} elseif (!empty($_REQUEST['count'])) {
 		$count = $_REQUEST['count'];
-	} else {
-		$count = 15;
 	}
-
+	
 	$since_id = defaults($_REQUEST, 'since_id', 0);
 	$max_id = defaults($_REQUEST, 'max_id', 0);
 	$page = (!empty($_REQUEST['page']) ? $_REQUEST['page'] - 1 : 0);
-
 	$start = $page * $count;
+	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
+	if (preg_match('/^#(\w+)$/', $searchTerm, $matches) === 1 && isset($matches[1])) {
+		$searchTerm = $matches[1];
+		$condition = ["`oid` > ?
+			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`)) 
+			AND `otype` = ? AND `type` = ? AND `term` = ?",
+			$since_id, local_user(), TERM_OBJ_POST, TERM_HASHTAG, $searchTerm];
+		if ($max_id > 0) {
+			$condition[0] .= ' AND `oid` <= ?';
+			$condition[] = $max_id;
+		}
+		$terms = DBA::select('term', ['oid'], $condition, []);
+		$itemIds = [];
+		while ($term = DBA::fetch($terms)) {
+			$itemIds[] = $term['oid'];
+		}
+		DBA::close($terms);
 
-	$condition = ["`gravity` IN (?, ?) AND `item`.`id` > ?
-		AND (`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))
-		AND `item`.`body` LIKE CONCAT('%',?,'%')",
-		GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, api_user(), $_REQUEST['q']];
+		if (empty($itemIds)) {
+			return api_format_data('statuses', $type, $data);
+		}
 
-	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
-		$condition[] = $max_id;
+		$preCondition = ['`id` IN (' . implode(', ', $itemIds) . ')'];
+		if ($exclude_replies) {
+			$preCondition[] = '`id` = `parent`';
+		}
+
+		$condition = [implode(' AND ', $preCondition)];
+	} else {
+		$condition = ["`id` > ? 
+			" . ($exclude_replies ? " AND `id` = `parent` " : ' ') . "
+			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
+			AND `body` LIKE CONCAT('%',?,'%')",
+			$since_id, api_user(), $_REQUEST['q']];
+		if ($max_id > 0) {
+			$condition[0] .= ' AND `id` <= ?';
+			$condition[] = $max_id;
+		}
 	}
 
-	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
 	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
 
-	return api_format_data("statuses", $type, $data);
+	bindComments($data['status']);
+
+	return api_format_data('statuses', $type, $data);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1568,10 +1608,16 @@ api_register_func('api/search', 'api_search', true);
 /**
  * Returns the most recent statuses posted by the user and the users they follow.
  *
- * @see https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-home_timeline
+ * @see  https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-home_timeline
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @todo Optional parameters
  * @todo Add reply info
  */
@@ -1639,6 +1685,8 @@ function api_statuses_home_timeline($type)
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
 	}
+	
+	bindComments($ret);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -1652,6 +1700,7 @@ function api_statuses_home_timeline($type)
 	return api_format_data("statuses", $type, $data);
 }
 
+
 /// @TODO move to top of file or somewhere better
 api_register_func('api/statuses/home_timeline', 'api_statuses_home_timeline', true);
 api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline', true);
@@ -1662,6 +1711,11 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_statuses_public_timeline($type)
 {
@@ -1688,7 +1742,7 @@ function api_statuses_public_timeline($type)
 	$start = $page * $count;
 
 	if ($exclude_replies && !$conversation_id) {
-		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall`",
+		$condition = ["`gravity` IN (?, ?) AND `iid` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND NOT `author`.`hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
@@ -1701,7 +1755,7 @@ function api_statuses_public_timeline($type)
 
 		$r = Item::inArray($statuses);
 	} else {
-		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin`",
+		$condition = ["`gravity` IN (?, ?) AND `id` > ? AND NOT `private` AND `wall` AND NOT `user`.`hidewall` AND `item`.`origin` AND NOT `author`.`hidden`",
 			GRAVITY_PARENT, GRAVITY_COMMENT, $since_id];
 
 		if ($max_id > 0) {
@@ -1720,6 +1774,8 @@ function api_statuses_public_timeline($type)
 	}
 
 	$ret = api_format_items($r, $user_info, false, $type);
+
+	bindComments($ret);
 
 	$data = ['status' => $ret];
 	switch ($type) {
@@ -1743,7 +1799,11 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
  *
  * @param string $type Return format: json, xml, atom, rss
  * @return array|string
+ * @throws BadRequestException
  * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_statuses_networkpublic_timeline($type)
 {
@@ -1778,6 +1838,8 @@ function api_statuses_networkpublic_timeline($type)
 
 	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
+	bindComments($ret);
+
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
@@ -1798,6 +1860,12 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/get-statuses-show-id
  */
 function api_statuses_show($type)
@@ -1871,6 +1939,12 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @todo nothing to say?
  */
 function api_conversation_show($type)
@@ -1903,7 +1977,7 @@ function api_conversation_show($type)
 		$id = intval(defaults($a->argv, 4, 0));
 	}
 
-	Logger::log('API: api_conversation_show: '.$id);
+	Logger::info(API_LOG_PREFIX . '{subaction}', ['module' => 'api', 'action' => 'conversation', 'subaction' => 'show', 'id' => $id]);
 
 	// try to fetch the item for the local user - or the public item, if there is no local one
 	$item = Item::selectFirst(['parent-uri'], ['id' => $id]);
@@ -1948,6 +2022,12 @@ api_register_func('api/statusnet/conversation', 'api_conversation_show', true);
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-retweet-id
  */
 function api_statuses_repeat($type)
@@ -2015,6 +2095,12 @@ api_register_func('api/statuses/retweet', 'api_statuses_repeat', true, API_METHO
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-destroy-id
  */
 function api_statuses_destroy($type)
@@ -2056,6 +2142,12 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see http://developer.twitter.com/doc/get/statuses/mentions
  */
 function api_statuses_mentions($type)
@@ -2123,8 +2215,12 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
  *
  * @param string $type Either "json" or "xml"
  * @return string|array
+ * @throws BadRequestException
  * @throws ForbiddenException
- * @see https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
+ * @see   https://developer.twitter.com/en/docs/tweets/timelines/api-reference/get-statuses-user_timeline
  */
 function api_statuses_user_timeline($type)
 {
@@ -2181,6 +2277,8 @@ function api_statuses_user_timeline($type)
 
 	$ret = api_format_items(Item::inArray($statuses), $user_info, true, $type);
 
+	bindComments($ret);
+
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
@@ -2202,6 +2300,12 @@ api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', tr
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://web.archive.org/web/20131019055350/https://dev.twitter.com/docs/api/1/post/favorites/create/%3Aid
  */
 function api_favorites_create_destroy($type)
@@ -2279,6 +2383,11 @@ api_register_func('api/favorites/destroy', 'api_favorites_create_destroy', true,
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_favorites($type)
 {
@@ -2295,7 +2404,7 @@ function api_favorites($type)
 
 	// in friendica starred item are private
 	// return favorites only for self
-	Logger::log('api_favorites: self:' . $user_info['self']);
+	Logger::info(API_LOG_PREFIX . 'for {self}', ['module' => 'api', 'action' => 'favorites', 'self' => $user_info['self']]);
 
 	if ($user_info['self'] == 0) {
 		$ret = [];
@@ -2326,6 +2435,8 @@ function api_favorites($type)
 		$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 	}
 
+	bindComments($ret);
+
 	$data = ['status' => $ret];
 	switch ($type) {
 		case "atom":
@@ -2348,6 +2459,7 @@ api_register_func('api/favorites', 'api_favorites', true);
  * @param array $sender
  *
  * @return array
+ * @throws InternalServerErrorException
  */
 function api_format_messages($item, $recipient, $sender)
 {
@@ -2405,6 +2517,7 @@ function api_format_messages($item, $recipient, $sender)
  * @param array $item
  *
  * @return array
+ * @throws InternalServerErrorException
  */
 function api_convert_item($item)
 {
@@ -2480,6 +2593,7 @@ function api_convert_item($item)
  * @param string $body
  *
  * @return array
+ * @throws InternalServerErrorException
  */
 function api_get_attachments(&$body)
 {
@@ -2518,6 +2632,7 @@ function api_get_attachments(&$body)
  * @param string $bbcode
  *
  * @return array
+ * @throws InternalServerErrorException
  * @todo Links at the first character of the post
  */
 function api_get_entitities(&$text, $bbcode)
@@ -2662,7 +2777,7 @@ function api_get_entitities(&$text, $bbcode)
 
 				$entities["media"][] = [
 							"id" => $start+1,
-							"id_str" => (string)$start+1,
+							"id_str" => (string) ($start + 1),
 							"indices" => [$start, $start+strlen($url)],
 							"media_url" => Strings::normaliseLink($media_url),
 							"media_url_https" => $media_url,
@@ -2728,12 +2843,16 @@ function api_contactlink_to_array($txt)
 /**
  * @brief return likes, dislikes and attend status for item
  *
- * @param array $item array
+ * @param array  $item array
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array
- * 			likes => int count,
- * 			dislikes => int count
+ *            likes => int count,
+ *            dislikes => int count
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_format_items_activities($item, $type = "json")
 {
@@ -2800,8 +2919,9 @@ function api_format_items_activities($item, $type = "json")
 /**
  * @brief return data from profiles
  *
- * @param array  $profile_row array containing data from db table 'profile'
+ * @param array $profile_row array containing data from db table 'profile'
  * @return array
+ * @throws InternalServerErrorException
  */
 function api_format_items_profiles($profile_row)
 {
@@ -2852,10 +2972,15 @@ function api_format_items_profiles($profile_row)
 /**
  * @brief format items to be returned by api
  *
- * @param array  $r array of items
+ * @param array  $r           array of items
  * @param array  $user_info
  * @param bool   $filter_user filter items by $user_info
- * @param string $type Return type (atom, rss, xml, json)
+ * @param string $type        Return type (atom, rss, xml, json)
+ * @return array
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 {
@@ -2863,9 +2988,9 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 
 	$ret = [];
 
-	foreach ($r as $item) {
+	foreach ((array)$r as $item) {
 		localize_item($item);
-		list($status_user, $owner_user) = api_item_get_user($a, $item);
+		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 
 		// Look if the posts are matching if they should be filtered by user id
 		if ($filter_user && ($status_user["id"] != $user_info["id"])) {
@@ -2897,6 +3022,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			$geo => null,
 			'favorited' => $item['starred'] ? true : false,
 			'user' =>  $status_user,
+			'friendica_author' => $author_user,
 			'friendica_owner' => $owner_user,
 			'friendica_private' => $item['private'] == 1,
 			//'entities' => NULL,
@@ -2940,6 +3066,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 				$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
 				$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
 				$status['retweeted_status'] = $retweeted_status;
+				$status['friendica_author'] = $retweeted_status['friendica_author'];
 			}
 		}
 
@@ -2970,6 +3097,7 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws Exception
  */
 function api_account_rate_limit_status($type)
 {
@@ -3045,6 +3173,11 @@ api_register_func('api/lists/subscriptions', 'api_lists_list', true);
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-ownerships
  */
 function api_lists_ownerships($type)
@@ -3089,6 +3222,11 @@ api_register_func('api/lists/ownerships', 'api_lists_ownerships', true);
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/get-lists-ownerships
  */
 function api_lists_statuses($type)
@@ -3166,7 +3304,11 @@ api_register_func('api/lists/statuses', 'api_lists_statuses', true);
  *
  * @param string $qtype Either "friends" or "followers"
  * @return boolean|array
+ * @throws BadRequestException
  * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_statuses_f($qtype)
 {
@@ -3250,12 +3392,14 @@ function api_statuses_f($qtype)
 /**
  * Returns the user's friends.
  *
- * @brief Returns the list of friends of the provided user
+ * @brief      Returns the list of friends of the provided user
  *
  * @deprecated By Twitter API in favor of friends/list
  *
  * @param string $type Either "json" or "xml"
  * @return boolean|string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
  */
 function api_statuses_friends($type)
 {
@@ -3269,12 +3413,14 @@ function api_statuses_friends($type)
 /**
  * Returns the user's followers.
  *
- * @brief Returns the list of followers of the provided user
+ * @brief      Returns the list of followers of the provided user
  *
  * @deprecated By Twitter API in favor of friends/list
  *
  * @param string $type Either "json" or "xml"
  * @return boolean|string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
  */
 function api_statuses_followers($type)
 {
@@ -3297,6 +3443,8 @@ api_register_func('api/statuses/followers', 'api_statuses_followers', true);
  * @param string $type Either "json" or "xml"
  *
  * @return boolean|string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
  */
 function api_blocks_list($type)
 {
@@ -3318,6 +3466,8 @@ api_register_func('api/blocks/list', 'api_blocks_list', true);
  * @param string $type Either "json" or "xml"
  *
  * @return boolean|string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
  */
 function api_friendships_incoming($type)
 {
@@ -3343,6 +3493,7 @@ api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws InternalServerErrorException
  */
 function api_statusnet_config($type)
 {
@@ -3352,7 +3503,7 @@ function api_statusnet_config($type)
 	$server    = $a->getHostName();
 	$logo      = System::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
-	$closed    = intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 'true' : 'false';
+	$closed    = intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
 	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
 	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
 	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';
@@ -3402,6 +3553,12 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @return array|string|void
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @todo use api_format_data() to return data
  */
 function api_ff_ids($type)
@@ -3444,6 +3601,8 @@ function api_ff_ids($type)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
  */
 function api_friends_ids($type)
@@ -3457,6 +3616,8 @@ function api_friends_ids($type)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids
  */
 function api_followers_ids($type)
@@ -3474,6 +3635,12 @@ api_register_func('api/followers/ids', 'api_followers_ids', true);
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/new-message
  */
 function api_direct_messages_new($type)
@@ -3513,7 +3680,6 @@ function api_direct_messages_new($type)
 	}
 
 	$replyto = '';
-	$sub     = '';
 	if (!empty($_REQUEST['replyto'])) {
 		$r = q(
 			'SELECT `parent-uri`, `title` FROM `mail` WHERE `uid`=%d AND `id`=%d',
@@ -3562,7 +3728,12 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
- * @see https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/delete-message
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
+ * @see   https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/delete-message
  */
 function api_direct_messages_destroy($type)
 {
@@ -3643,7 +3814,12 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
- * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy.html
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
+ * @see   https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/post-friendships-destroy.html
  */
 function api_friendships_destroy($type)
 {
@@ -3656,7 +3832,7 @@ function api_friendships_destroy($type)
 	$contact_id = defaults($_REQUEST, 'user_id');
 
 	if (empty($contact_id)) {
-		Logger::log("No user_id specified", Logger::DEBUG);
+		Logger::notice(API_LOG_PREFIX . 'No user_id specified', ['module' => 'api', 'action' => 'friendships_destroy']);
 		throw new BadRequestException("no user_id specified");
 	}
 
@@ -3664,7 +3840,7 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => 0, 'self' => false]);
 
 	if(!DBA::isResult($contact)) {
-		Logger::log("No contact found for ID" . $contact_id, Logger::DEBUG);
+		Logger::notice(API_LOG_PREFIX . 'No contact found for ID {contact}', ['module' => 'api', 'action' => 'friendships_destroy', 'contact' => $contact_id]);
 		throw new NotFoundException("no contact found to given ID");
 	}
 
@@ -3676,12 +3852,12 @@ function api_friendships_destroy($type)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		Logger::log("Not following Contact", Logger::DEBUG);
+		Logger::notice(API_LOG_PREFIX . 'Not following contact', ['module' => 'api', 'action' => 'friendships_destroy']);
 		throw new NotFoundException("Not following Contact");
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		Logger::log("Not supported", Logger::DEBUG);
+		Logger::notice(API_LOG_PREFIX . 'Not supported for {network}', ['module' => 'api', 'action' => 'friendships_destroy', 'network' => $contact['network']]);
 		throw new ExpectationFailedException("Not supported");
 	}
 
@@ -3692,7 +3868,7 @@ function api_friendships_destroy($type)
 		Contact::terminateFriendship($owner, $contact, $dissolve);
 	}
 	else {
-		Logger::log("No owner found", Logger::DEBUG);
+		Logger::notice(API_LOG_PREFIX . 'No owner {uid} found', ['module' => 'api', 'action' => 'friendships_destroy', 'uid' => $uid]);
 		throw new NotFoundException("Error Processing Request");
 	}
 
@@ -3721,6 +3897,11 @@ api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, AP
  * @param string $verbose
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_direct_messages_box($type, $box, $verbose)
 {
@@ -3826,6 +4007,8 @@ function api_direct_messages_box($type, $box, $verbose)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
  * @see https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/get-sent-message
  */
 function api_direct_messages_sentbox($type)
@@ -3840,6 +4023,8 @@ function api_direct_messages_sentbox($type)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
  * @see https://developer.twitter.com/en/docs/direct-messages/sending-and-receiving/api-reference/get-messages
  */
 function api_direct_messages_inbox($type)
@@ -3853,6 +4038,8 @@ function api_direct_messages_inbox($type)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
  */
 function api_direct_messages_all($type)
 {
@@ -3865,6 +4052,8 @@ function api_direct_messages_all($type)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
  */
 function api_direct_messages_conversation($type)
 {
@@ -3890,10 +4079,10 @@ function api_oauth_request_token()
 		$r = $oauth1->fetch_request_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=" . OAuthUtil::urlencode_rfc3986($e->getMessage());
-		killme();
+		exit();
 	}
 	echo $r;
-	killme();
+	exit();
 }
 
 /**
@@ -3909,10 +4098,10 @@ function api_oauth_access_token()
 		$r = $oauth1->fetch_access_token(OAuthRequest::from_request());
 	} catch (Exception $e) {
 		echo "error=". OAuthUtil::urlencode_rfc3986($e->getMessage());
-		killme();
+		exit();
 	}
 	echo $r;
-	killme();
+	exit();
 }
 
 /// @TODO move to top of file or somewhere better
@@ -3925,6 +4114,9 @@ api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws InternalServerErrorException
  */
 function api_fr_photoalbum_delete($type)
 {
@@ -3961,7 +4153,7 @@ function api_fr_photoalbum_delete($type)
 	}
 
 	// now let's delete all photos from the album
-	$result = DBA::delete('photo', ['uid' => api_user(), 'album' => $album]);
+	$result = Photo::delete(['uid' => api_user(), 'album' => $album]);
 
 	// return success of deletion or error message
 	if ($result) {
@@ -3977,6 +4169,9 @@ function api_fr_photoalbum_delete($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws InternalServerErrorException
  */
 function api_fr_photoalbum_update($type)
 {
@@ -3995,11 +4190,11 @@ function api_fr_photoalbum_update($type)
 		throw new BadRequestException("no new albumname specified");
 	}
 	// check if album is existing
-	if (!DBA::exists('photo', ['uid' => api_user(), 'album' => $album])) {
+	if (!Photo::exists(['uid' => api_user(), 'album' => $album])) {
 		throw new BadRequestException("album not available");
 	}
 	// now let's update all photos to the albumname
-	$result = DBA::update('photo', ['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
+	$result = Photo::update(['album' => $album_new], ['uid' => api_user(), 'album' => $album]);
 
 	// return success of updating or error message
 	if ($result) {
@@ -4016,6 +4211,8 @@ function api_fr_photoalbum_update($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws ForbiddenException
+ * @throws InternalServerErrorException
  */
 function api_fr_photos_list($type)
 {
@@ -4062,6 +4259,11 @@ function api_fr_photos_list($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
  */
 function api_fr_photo_create_update($type)
 {
@@ -4099,14 +4301,8 @@ function api_fr_photo_create_update($type)
 	} else {
 		$mode = "update";
 
-		// check if photo is existing in database
-		$r = q(
-			"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
-			intval(api_user()),
-			DBA::escape($photo_id),
-			DBA::escape($album)
-		);
-		if (!DBA::isResult($r)) {
+		// check if photo is existing in databasei
+		if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user(), 'album' => $album])) {
 			throw new BadRequestException("photo not available");
 		}
 	}
@@ -4135,47 +4331,40 @@ function api_fr_photo_create_update($type)
 
 	// now let's do the changes in update-mode
 	if ($mode == "update") {
-		$sql_extra = "";
+		$updated_fields = [];
 
 		if (!is_null($desc)) {
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`desc` = '$desc'";
+			$updated_fields['desc'] = $desc;
 		}
 
 		if (!is_null($album_new)) {
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`album` = '$album_new'";
+			$updated_fields['album'] = $album_new;
 		}
 
 		if (!is_null($allow_cid)) {
 			$allow_cid = trim($allow_cid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`allow_cid` = '$allow_cid'";
+			$updated_fields['allow_cid'] = $allow_cid;
 		}
 
 		if (!is_null($deny_cid)) {
 			$deny_cid = trim($deny_cid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`deny_cid` = '$deny_cid'";
+			$updated_fields['deny_cid'] = $deny_cid;
 		}
 
 		if (!is_null($allow_gid)) {
 			$allow_gid = trim($allow_gid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`allow_gid` = '$allow_gid'";
+			$updated_fields['allow_gid'] = $allow_gid;
 		}
 
 		if (!is_null($deny_gid)) {
 			$deny_gid = trim($deny_gid);
-			$sql_extra .= (($sql_extra != "") ? " ," : "") . "`deny_gid` = '$deny_gid'";
+			$updated_fields['deny_gid'] = $deny_gid;
 		}
 
 		$result = false;
-		if ($sql_extra != "") {
+		if (count($updated_fields) > 0) {
 			$nothingtodo = false;
-			$result = q(
-				"UPDATE `photo` SET %s, `edited`='%s' WHERE `uid` = %d AND `resource-id` = '%s' AND `album` = '%s'",
-				$sql_extra,
-				DateTimeFormat::utcNow(),   // update edited timestamp
-				intval(api_user()),
-				DBA::escape($photo_id),
-				DBA::escape($album)
-			);
+			$result = Photo::update($updated_fields, ['uid' => api_user(), 'resource-id' => $photo_id, 'album' => $album]);
 		} else {
 			$nothingtodo = true;
 		}
@@ -4209,12 +4398,16 @@ function api_fr_photo_create_update($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws InternalServerErrorException
  */
 function api_fr_photo_delete($type)
 {
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
+
 	// input params
 	$photo_id = defaults($_REQUEST, 'photo_id', null);
 
@@ -4223,17 +4416,14 @@ function api_fr_photo_delete($type)
 	if ($photo_id == null) {
 		throw new BadRequestException("no photo_id specified");
 	}
+
 	// check if photo is existing in database
-	$r = q(
-		"SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'",
-		intval(api_user()),
-		DBA::escape($photo_id)
-	);
-	if (!DBA::isResult($r)) {
+	if (!Photo::exists(['resource-id' => $photo_id, 'uid' => api_user()])) {
 		throw new BadRequestException("photo not available");
 	}
+
 	// now we can perform on the deletion of the photo
-	$result = DBA::delete('photo', ['uid' => api_user(), 'resource-id' => $photo_id]);
+	$result = Photo::delete(['uid' => api_user(), 'resource-id' => $photo_id]);
 
 	// return success of deletion or error message
 	if ($result) {
@@ -4261,6 +4451,10 @@ function api_fr_photo_delete($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
  */
 function api_fr_photo_detail($type)
 {
@@ -4289,7 +4483,12 @@ function api_fr_photo_detail($type)
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  *
  * @return string|array
- * @see https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
+ * @see   https://developer.twitter.com/en/docs/accounts-and-users/manage-account-settings/api-reference/post-account-update_profile_image
  */
 function api_account_update_profile_image($type)
 {
@@ -4343,10 +4542,10 @@ function api_account_update_profile_image($type)
 	// change specified profile or all profiles to the new resource-id
 	if ($is_default_profile) {
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
-		DBA::update('photo', ['profile' => false], $condition);
+		Photo::update(['profile' => false], $condition);
 	} else {
-		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $filetype,
-			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $filetype];
+		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext,
+			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext];
 		DBA::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
 	}
 
@@ -4385,6 +4584,11 @@ api_register_func('api/account/update_profile_image', 'api_account_update_profil
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_account_update_profile($type)
 {
@@ -4419,6 +4623,8 @@ api_register_func('api/account/update_profile', 'api_account_update_profile', tr
 /**
  *
  * @param string $acl_string
+ * @return bool
+ * @throws Exception
  */
 function check_acl_input($acl_string)
 {
@@ -4455,6 +4661,12 @@ function check_acl_input($acl_string)
  * @param integer $profile
  * @param boolean $visibility
  * @param string  $photo_id
+ * @return array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
  */
 function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $desc, $profile = 0, $visibility = false, $photo_id = null)
 {
@@ -4613,6 +4825,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
  * @param string  $deny_gid
  * @param string  $filetype
  * @param boolean $visibility
+ * @throws InternalServerErrorException
  */
 function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility = false)
 {
@@ -4665,6 +4878,12 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
  * @param string $photo_id
  *
  * @return array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws NotFoundException
+ * @throws UnauthorizedException
  */
 function prepare_photo_data($type, $scale, $photo_id)
 {
@@ -4816,7 +5035,7 @@ function api_friendica_remoteauth()
 		'sec' => $sec, 'expire' => time() + 45];
 	DBA::insert('profile_check', $fields);
 
-	Logger::log($contact['name'] . ' ' . $sec, Logger::DEBUG);
+	Logger::info(API_LOG_PREFIX . 'for contact {contact}', ['module' => 'api', 'action' => 'friendica_remoteauth', 'contact' => $contact['name'], 'hey' => $sec]);
 	$dest = ($url ? '&destination_url=' . $url : '');
 
 	System::externalRedirect(
@@ -4832,6 +5051,8 @@ api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
  *
  * @param array $item Sharer item
  * @return array|false Shared item or false if not a reshare
+ * @throws ImagickException
+ * @throws InternalServerErrorException
  */
 function api_share_as_retweet(&$item)
 {
@@ -4943,6 +5164,7 @@ function api_share_as_retweet(&$item)
  * @param string $profile
  *
  * @return string|false
+ * @throws InternalServerErrorException
  * @todo remove trailing junk from profile url
  * @todo pump.io check has to check the website
  */
@@ -5027,6 +5249,7 @@ function api_get_nick($profile)
  * @param array $item
  *
  * @return array
+ * @throws Exception
  */
 function api_in_reply_to($item)
 {
@@ -5065,7 +5288,7 @@ function api_in_reply_to($item)
 		// https://github.com/friendica/friendica/issues/1010
 		// This is a bugfix for that.
 		if (intval($in_reply_to['status_id']) == intval($item['id'])) {
-			Logger::log('this message should never appear: id: '.$item['id'].' similar to reply-to: '.$in_reply_to['status_id'], Logger::DEBUG);
+			Logger::warning(API_LOG_PREFIX . 'ID {id} is similar to reply-to {reply-to}', ['module' => 'api', 'action' => 'in_reply_to', 'id' => $item['id'], 'reply-to' => $in_reply_to['status_id']]);
 			$in_reply_to['status_id'] = null;
 			$in_reply_to['user_id'] = null;
 			$in_reply_to['status_id_str'] = null;
@@ -5082,6 +5305,7 @@ function api_in_reply_to($item)
  * @param string $text
  *
  * @return string
+ * @throws InternalServerErrorException
  */
 function api_clean_plain_items($text)
 {
@@ -5108,6 +5332,7 @@ function api_clean_plain_items($text)
  * @param string $body The original body
  *
  * @return string Cleaned body
+ * @throws InternalServerErrorException
  */
 function api_clean_attachments($body)
 {
@@ -5136,7 +5361,7 @@ function api_clean_attachments($body)
  *
  * @param array $contacts
  *
- * @return array
+ * @return void
  */
 function api_best_nickname(&$contacts)
 {
@@ -5206,6 +5431,11 @@ function api_best_nickname(&$contacts)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_group_show($type)
 {
@@ -5271,6 +5501,11 @@ api_register_func('api/friendica/group_show', 'api_friendica_group_show', true);
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_group_delete($type)
 {
@@ -5332,6 +5567,11 @@ api_register_func('api/friendica/group_delete', 'api_friendica_group_delete', tr
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-destroy
  */
 function api_lists_destroy($type)
@@ -5376,10 +5616,11 @@ api_register_func('api/lists/destroy', 'api_lists_destroy', true, API_METHOD_DEL
  * Add a new group to the database.
  *
  * @param  string $name  Group name
- * @param  int	  $uid   User ID
+ * @param  int    $uid   User ID
  * @param  array  $users List of users to add to the group
  *
  * @return array
+ * @throws BadRequestException
  */
 function group_create($name, $uid, $users = [])
 {
@@ -5449,6 +5690,11 @@ function group_create($name, $uid, $users = [])
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_group_create($type)
 {
@@ -5477,6 +5723,11 @@ api_register_func('api/friendica/group_create', 'api_friendica_group_create', tr
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-create
  */
 function api_lists_create($type)
@@ -5512,6 +5763,11 @@ api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_group_update($type)
 {
@@ -5585,6 +5841,11 @@ api_register_func('api/friendica/group_update', 'api_friendica_group_update', tr
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/create-manage-lists/api-reference/post-lists-update
  */
 function api_lists_update($type)
@@ -5632,6 +5893,10 @@ api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST)
  * @param string $type Return type (atom, rss, xml, json)
  *
  * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
  */
 function api_friendica_activity($type)
 {
@@ -5676,7 +5941,10 @@ api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activit
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
-*/
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws InternalServerErrorException
+ */
 function api_friendica_notification($type)
 {
 	$a = \get_app();
@@ -5701,7 +5969,6 @@ function api_friendica_notification($type)
 
 		$notes = $xmlnotes;
 	}
-
 	return api_format_data("notes", $type, ['note' => $notes]);
 }
 
@@ -5712,6 +5979,11 @@ function api_friendica_notification($type)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_notification_seen($type)
 {
@@ -5757,6 +6029,11 @@ api_register_func('api/friendica/notification', 'api_friendica_notification', tr
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array (success result=ok, error result=error with error message)
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_direct_messages_setseen($type)
 {
@@ -5801,11 +6078,16 @@ api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct
 /**
  * @brief search for direct_messages containing a searchstring through api
  *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ * @param string $type      Known types are 'atom', 'rss', 'xml' and 'json'
  * @param string $box
  * @return string|array (success: success=true if found and search_result contains found messages,
  *                          success=false if nothing was found, search_result='nothing found',
- * 		   error: result=error with error message)
+ *                          error: result=error with error message)
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_direct_messages_search($type, $box = "")
 {
@@ -5869,6 +6151,11 @@ api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  */
 function api_friendica_profile_show($type)
 {
@@ -5950,6 +6237,7 @@ api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', tr
  * @param  string $type Return format: json or xml
  *
  * @return string|array
+ * @throws Exception
  */
 function api_saved_searches_list($type)
 {
@@ -5974,6 +6262,42 @@ function api_saved_searches_list($type)
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
+
+/*
+ * Bind comment numbers(friendica_comments: Int) on each statuses page of *_timeline / favorites / search
+ *
+ * @brief Number of comments
+ *
+ * @param object $data [Status, Status]
+ *
+ * @return void
+ */
+function bindComments(&$data) 
+{
+	if (count($data) == 0) {
+		return;
+	}
+	
+	$ids = [];
+	$comments = [];
+	foreach ($data as $item) {
+		$ids[] = $item['id'];
+	}
+
+	$idStr = DBA::escape(implode(', ', $ids));
+	$sql = "SELECT `parent`, COUNT(*) as comments FROM `item` WHERE `parent` IN ($idStr) AND `deleted` = ? AND `gravity`= ? GROUP BY `parent`";
+	$items = DBA::p($sql, 0, GRAVITY_COMMENT);
+	$itemsData = DBA::toArray($items);
+
+	foreach ($itemsData as $item) {
+		$comments[$item['parent']] = $item['comments'];
+	}
+
+	foreach ($data as $idx => $item) {
+		$id = $item['id'];
+		$data[$idx]['friendica_comments'] = isset($comments[$id]) ? $comments[$id] : 0;
+	}
+}
 
 /*
 @TODO Maybe open to implement?

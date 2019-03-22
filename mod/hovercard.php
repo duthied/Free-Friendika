@@ -41,13 +41,12 @@ function hovercard_content()
 	if ($datatype == 'tpl') {
 		$templatecontent = get_template_content('hovercard.tpl');
 		echo $templatecontent;
-		killme();
+		exit();
 	}
 
 	// If a contact is connected the url is internally changed to 'redir/CID'. We need the pure url to search for
 	// the contact. So we strip out the contact id from the internal url and look in the contact table for
 	// the real url (nurl)
-	$cid = 0;
 	if (strpos($profileurl, 'redir/') === 0) {
 		$cid = intval(substr($profileurl, 6));
 		$remote_contact = DBA::selectFirst('contact', ['nurl'], ['id' => $cid]);
@@ -127,16 +126,19 @@ function hovercard_content()
  * @brief Get the raw content of a template file
  *
  * @param string $template The name of the template
- * @param string $root Directory of the template
+ * @param string $root     Directory of the template
  *
  * @return string|bool Output the raw content if existent, otherwise false
+ * @throws Exception
  */
 function get_template_content($template, $root = '')
 {
 	// We load the whole template system to get the filename.
 	// Maybe we can do it a little bit smarter if I get time.
-	$t = Renderer::getMarkupTemplate($template, $root);
-	$filename = $t->filename;
+	$templateEngine = Renderer::getTemplateEngine();
+	$template = $templateEngine->getTemplateFile($template, $root);
+
+	$filename = $template->filename;
 
 	// Get the content of the template file
 	if (file_exists($filename)) {

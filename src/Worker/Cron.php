@@ -133,25 +133,24 @@ class Cron
 	/**
 	 * @brief Poll contacts for unreceived messages
 	 *
-	 * @todo Currently it seems as if the following parameter aren't used at all ...
+	 * @todo  Currently it seems as if the following parameter aren't used at all ...
 	 *
-	 * @param string $parameter Parameter (force, restart, ...) for the contact polling
+	 * @param string  $parameter Parameter (force, restart, ...) for the contact polling
 	 * @param integer $generation
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pollContacts($parameter, $generation) {
 		$manual_id  = 0;
 		$generation = 0;
 		$force      = false;
-		$restart    = false;
 
 		if ($parameter == 'force') {
 			$force = true;
 		}
 		if ($parameter == 'restart') {
-			$restart = true;
 			$generation = intval($generation);
 			if (!$generation) {
-				killme();
+				exit();
 			}
 		}
 
@@ -165,8 +164,6 @@ class Cron
 		$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
 
 		Addon::reload();
-
-		$d = DateTimeFormat::utcNow();
 
 		// Only poll from those with suitable relationships,
 		// and which have a polling address and ignore Diaspora since
@@ -288,7 +285,7 @@ class Cron
 
 			Logger::log("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
 
-			Worker::add(['priority' => $priority, 'dont_fork' => true], 'OnePoll', (int)$contact['id']);
+			Worker::add(['priority' => $priority, 'dont_fork' => true, 'force_priority' => true], 'OnePoll', (int)$contact['id']);
 		}
 	}
 }
