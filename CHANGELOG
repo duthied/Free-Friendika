@@ -2,7 +2,7 @@ Version 2019.03-RC (UNRELEASED, 2019-03-xx)
   Friendica Core:
     Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, SV, ZH-CN) [translation teams]
     Update to the documentation [Aditoo17, JeroenED, m4sk1n, softmetz, tobiasd]
-    Update to the themes (duepuntozero, frio, smoothy, quattro, vier) [lxiter, MrPetovan. nupplaphil, rabuzarus,  tobiasd]
+    Update to the themes (duepuntozero, frio, smoothy, quattro, vier) [lxiter, MrPetovan, nupplaphil, rabuzarus,  tobiasd]
     Enhancements to the API [jasonscheng]
     Enhancements to the Vagrant development VM [JeroenED]
     Enhancements to the storage of gender, sexual preferences and maritial status [JeroenED]
