@@ -3,9 +3,9 @@
 namespace Friendica\Factory;
 
 use Friendica\App;
-use Friendica\Core\Config\Cache;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
+use Friendica\Util\Config;
 
 class DependencyFactory
 {
@@ -24,7 +24,7 @@ class DependencyFactory
 	{
 		$basePath = BasePath::create($directory, $_SERVER);
 		$mode = new App\Mode($basePath);
-		$configLoader = new Cache\ConfigCacheLoader($basePath, $mode);
+		$configLoader = new Config\ConfigCacheLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);

@@ -1,12 +1,12 @@
 <?php
 
-namespace Friendica\Test\src\Core\Config\Cache;
+namespace Friendica\Test\src\Util\Config;
 
 use Friendica\App;
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
+use Friendica\Util\Config\ConfigCacheLoader;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 
@@ -68,13 +68,7 @@ class ConfigCacheLoaderTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'local.config.php';
+		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('local.config.php')
 			->at($this->root->getChild('config'))
@@ -101,13 +95,7 @@ class ConfigCacheLoaderTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'local.ini.php';
+		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('local.ini.php')
 			->at($this->root->getChild('config'))
@@ -133,13 +121,7 @@ class ConfigCacheLoaderTest extends MockedTest
 	{
 		$this->delConfigFile('local.config.php');
 
-		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'.htconfig.test.php';
+		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('.htconfig.php')
 			->at($this->root)
@@ -183,13 +165,7 @@ class ConfigCacheLoaderTest extends MockedTest
 
 		vfsStream::create($structure, $this->root);
 
-		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'..' . DIRECTORY_SEPARATOR .
-			'datasets' . DIRECTORY_SEPARATOR .
-			'config' . DIRECTORY_SEPARATOR .
-			'local.config.php';
+		$file = dirname(__DIR__) . DIRECTORY_SEPARATOR;
 
 		vfsStream::newFile('test.config.php')
 			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))

@@ -6,15 +6,16 @@ use Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Adapter;
 use Friendica\Core\Config\Cache;
+use Friendica\Util\Config\ConfigCacheLoader;
 
 class ConfigFactory
 {
 	/**
-	 * @param Cache\ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
+	 * @param ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
 	 *
 	 * @return Cache\ConfigCache
 	 */
-	public static function createCache(Cache\ConfigCacheLoader $loader)
+	public static function createCache(ConfigCacheLoader $loader)
 	{
 		$configCache = new Cache\ConfigCache();
 		$loader->loadConfigFiles($configCache);

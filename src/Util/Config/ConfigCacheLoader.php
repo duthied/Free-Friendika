@@ -1,29 +1,21 @@
 <?php
 
-namespace Friendica\Core\Config\Cache;
+namespace Friendica\Util\Config;
 
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Cache\IConfigCache;
 
 /**
- * The ConfigCacheLoader loads config-files and stores them in a ConfigCache ( @see ConfigCache )
+ * The ConfigCacheLoader loads config-files and stores them in a IConfigCache ( @see IConfigCache )
  *
  * It is capable of loading the following config files:
  * - *.config.php   (current)
  * - *.ini.php      (deprecated)
  * - *.htconfig.php (deprecated)
  */
-class ConfigCacheLoader
+class ConfigCacheLoader extends ConfigCacheManager
 {
-	/**
-	 * The Sub directory of the config-files
-	 * @var string
-	 */
-	const SUBDIRECTORY = 'config';
-
-	private $baseDir;
-	private $configDir;
-
 	/**
 	 * @var App\Mode
 	 */
@@ -31,9 +23,8 @@ class ConfigCacheLoader
 
 	public function __construct($baseDir, App\Mode $mode)
 	{
+		parent::__construct($baseDir);
 		$this->appMode = $mode;
-		$this->baseDir = $baseDir;
-		$this->configDir = $baseDir . DIRECTORY_SEPARATOR . self::SUBDIRECTORY;
 	}
 
 	/**
@@ -74,10 +65,10 @@ class ConfigCacheLoader
 	 */
 	public function loadCoreConfig($name)
 	{
-		if (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php')) {
-			return $this->loadConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php');
-		} elseif (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php')) {
-			return $this->loadINIConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php');
+		if (!empty($this->getConfigFullName($name))) {
+			return $this->loadConfigFile($this->getConfigFullName($name));
+		} elseif (!empty($this->getIniFullName($name))) {
+			return $this->loadINIConfigFile($this->getIniFullName($name));
 		} else {
 			return [];
 		}
@@ -118,14 +109,11 @@ class ConfigCacheLoader
 	 */
 	private function loadLegacyConfig($name)
 	{
-		$filePath = $this->baseDir  . DIRECTORY_SEPARATOR . '.' . $name . '.php';
-
 		$config = [];
-
-		if (file_exists($filePath)) {
+		if (!empty($this->getHtConfigFullName($name))) {
 			$a = new \stdClass();
 			$a->config = [];
-			include $filePath;
+			include $this->getHtConfigFullName($name);
 
 			$htConfigCategories = array_keys($a->config);
 

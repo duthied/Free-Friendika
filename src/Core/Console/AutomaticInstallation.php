@@ -7,6 +7,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
+use Friendica\Util\Config\ConfigCacheLoader;
 use RuntimeException;
 
 class AutomaticInstallation extends Console
@@ -103,7 +104,7 @@ HELP;
 			}
 
 			//reload the config cache
-			$loader = new Config\Cache\ConfigCacheLoader($a->getBasePath(), $a->getMode());
+			$loader = new ConfigCacheLoader($a->getBasePath(), $a->getMode());
 			$loader->loadConfigFiles($configCache);
 
 		} else {

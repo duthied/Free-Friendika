@@ -3,11 +3,11 @@
 namespace Friendica\Test\src\Database;
 
 use Friendica\App;
-use Friendica\Core\Config\Cache;
 use Friendica\Database\DBStructure;
 use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\BasePath;
+use Friendica\Util\Config\ConfigCacheLoader;
 
 class DBStructureTest extends DatabaseTest
 {
@@ -15,7 +15,7 @@ class DBStructureTest extends DatabaseTest
 	{
 		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
 		$mode = new App\Mode($basePath);
-		$configLoader = new Cache\ConfigCacheLoader($basePath, $mode);
+		$configLoader = new ConfigCacheLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
