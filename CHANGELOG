@@ -1,3 +1,15 @@
+Version 2019.06 (UNRELEASED) (2019-06-?)
+  Friendica Core:
+    Update to the documentation [realkinetix]
+    Fixed the notification order [JeroenED]
+    Fixed the timezone of Friendica logs [nupplaphil]
+    General Code cleaning and restructuring [nupplaphil]
+    Added frio color scheme sharing [JeroenED]
+    Added syslog and stream Logger [nupplaphil]
+
+  Closed Issues:
+    6303, 6478
+
 Version 2019.03 (2019-03-22)
   Friendica Core:
     Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, SV, ZH-CN) [translation teams]
