@@ -355,7 +355,7 @@ class App
 		$this->getMode()->determine($this->basePath);
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			$loader = new ConfigCacheLoader($this->basePath);
+			$loader = new ConfigCacheLoader($this->basePath, $this->getMode());
 			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
 
 			$this->profiler->update(
