@@ -12,7 +12,6 @@ use Friendica\Util\Logger\ProfilerLogger;
 use Friendica\Util\Logger\StreamLogger;
 use Friendica\Util\Logger\SyslogLogger;
 use Friendica\Util\Logger\VoidLogger;
-use Friendica\Util\Logger\WorkerLogger;
 use Friendica\Util\Profiler;
 use Monolog;
 use Psr\Log\LoggerInterface;
@@ -32,7 +31,7 @@ class LoggerFactory
 	private static $ignoreClassList = [
 		Logger::class,
 		Profiler::class,
-		WorkerLogger::class
+		'Friendica\\Util\\Logger',
 	];
 
 	/**
