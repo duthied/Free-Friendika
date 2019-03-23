@@ -550,7 +550,7 @@ class Notifier
 	 */
 	private static function isRemovalActivity($cmd, $owner, $network)
 	{
-		return ($cmd == Delivery::DELETION) && $owner['account_removed'] && in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA]);
+		return ($cmd == Delivery::DELETION) && $owner['account_removed'] && in_array($network, [Protocol::ACTIVITYPUB, Protocol::DIASPORA]);
 	}
 
 	/**
