@@ -2904,7 +2904,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
 			continue;
 		}
 
-		$status = api_format_item($item, $type, $status_user, $owner_user);
+		$status = api_format_item($item, $type, $status_user, $author_user, $owner_user);
 
 		$ret[] = $status;
 	}
@@ -2916,6 +2916,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  * @param array  $item       Item record
  * @param string $type       Return format (atom, rss, xml, json)
  * @param array $status_user User record of the item author, can be provided by api_item_get_user()
+ * @param array $author_user User record of the item author, can be provided by api_item_get_user()
  * @param array $owner_user  User record of the item owner, can be provided by api_item_get_user()
  * @return array API-formatted status
  * @throws BadRequestException
@@ -2923,12 +2924,12 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  */
-function api_format_item($item, $type = "json", $status_user = null, $owner_user = null)
+function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
 {
 	$a = \Friendica\BaseObject::getApp();
 
-	if (empty($status_user) || empty($owner_user)) {
-		list($status_user, $owner_user) = api_item_get_user($a, $item);
+	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
+		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 	}
 
 	localize_item($item);
@@ -2959,7 +2960,7 @@ function api_format_item($item, $type = "json", $status_user = null, $owner_user
 		'favorited' => $item['starred'] ? true : false,
 		'user' =>  $status_user,
 		'friendica_author' => $author_user,
-			'friendica_owner' => $owner_user,
+		'friendica_owner' => $owner_user,
 		'friendica_private' => $item['private'] == 1,
 		//'entities' => NULL,
 		'statusnet_html' => $converted["html"],
