@@ -953,9 +953,9 @@ function api_account_verify_credentials($type)
 
 	// - Adding last status
 	if (!$skip_status) {
-		$last_status = api_get_last_status($user_info['pid'], $user_info['uid'], $type);
-		if ($last_status) {
-			$user_info['status'] = $last_status;
+		$item = api_get_last_status($user_info['pid'], $user_info['uid']);
+		if ($item) {
+			$user_info['status'] = api_format_item($item, $type);
 		}
 	}
 
@@ -1265,11 +1265,10 @@ function api_status_show($type, $item_id)
  *
  * @param int    $ownerId Public contact Id
  * @param int    $uid     User Id
- * @param string $type    Return format (atom, rss, xml, json)
  * @return array
  * @throws Exception
  */
-function api_get_last_status($ownerId, $uid, $type = 'json')
+function api_get_last_status($ownerId, $uid)
 {
 	$condition = [
 		'owner-id' => $ownerId,
@@ -1280,9 +1279,7 @@ function api_get_last_status($ownerId, $uid, $type = 'json')
 
 	$item = api_get_item($condition);
 
-	$status_info = api_format_item($item, $type);
-
-	return $status_info;
+	return $item;
 }
 
 /**
@@ -1317,9 +1314,9 @@ function api_users_show($type)
 
 	$user_info = api_get_user($a);
 
-	$lastStatus = api_get_last_status($user_info['pid'], $user_info['uid'], $type);
-	if ($lastStatus) {
-		$user_info['status'] = $lastStatus;
+	$item = api_get_last_status($user_info['pid'], $user_info['uid']);
+	if ($item) {
+		$user_info['status'] = api_format_item($item, $type);
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
