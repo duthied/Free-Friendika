@@ -187,7 +187,7 @@ class App
 	 */
 	public function registerStylesheet($path)
 	{
-		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->stylesheets[] = trim($url, '/');
 	}
@@ -204,7 +204,7 @@ class App
 	 */
 	public function registerFooterScript($path)
 	{
-		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->footerScripts[] = trim($url, '/');
 	}
@@ -236,10 +236,10 @@ class App
 		$cfgBasePath = $this->config->get('system', 'basepath');
 		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
 
-		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
-			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');
+		if (!Core\System::isDirectoryUsable($this->getBasePath(), false)) {
+			throw new Exception('Basepath \'' . $this->getBasePath() . '\' isn\'t usable.');
 		}
-		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);
+		$this->basePath = rtrim($this->getBasePath(), DIRECTORY_SEPARATOR);
 
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
@@ -275,9 +275,9 @@ class App
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
-			. $this->basePath . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
-			. $this->basePath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
-			. $this->basePath);
+			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
+			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
+			. $this->getBasePath());
 
 		if (!empty($_SERVER['QUERY_STRING']) && strpos($_SERVER['QUERY_STRING'], 'pagename=') === 0) {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
@@ -352,10 +352,10 @@ class App
 	{
 		$this->determineURLPath();
 
-		$this->getMode()->determine($this->basePath);
+		$this->getMode()->determine($this->getBasePath());
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			$loader = new ConfigCacheLoader($this->basePath, $this->getMode());
+			$loader = new ConfigCacheLoader($this->getBasePath(), $this->getMode());
 			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
 
 			$this->profiler->update(
@@ -363,7 +363,7 @@ class App
 				$this->config->get('rendertime', 'callstack', false));
 
 			Core\Hook::loadHooks();
-			$loader = new ConfigCacheLoader($this->basePath, $this->mode);
+			$loader = new ConfigCacheLoader($this->getBasePath(), $this->mode);
 			Core\Hook::callAll('load_config', $loader);
 		}
 
@@ -516,8 +516,8 @@ class App
 				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->basePath . '/.htpreconfig.php')) {
-				include $this->basePath . '/.htpreconfig.php';
+			if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
+				include $this->getBasePath() . '/.htpreconfig.php';
 			}
 
 			if (Core\Config::get('config', 'hostname') != '') {
@@ -914,9 +914,9 @@ class App
 		}
 
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->basePath);
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->getBasePath());
 		} else {
-			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
 		}
 		if (!is_resource($resource)) {
 			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
@@ -1199,7 +1199,7 @@ class App
 			$this->module = 'maintenance';
 		} else {
 			$this->checkURL();
-			Core\Update::check($this->basePath, false);
+			Core\Update::check($this->getBasePath(), false);
 			Core\Addon::loadAddons();
 			Core\Hook::loadHooks();
 		}
