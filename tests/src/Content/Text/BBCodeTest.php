@@ -37,6 +37,9 @@ class BBCodeTest extends MockedTest
 		$this->configMock->shouldReceive('get')
 			->with('system', 'itemcache_duration')
 			->andReturn(-1);
+		$this->configMock->shouldReceive('get')
+			->with('system', 'url')
+			->andReturn('friendica.local');
 		$this->mockL10nT();
 	}
 

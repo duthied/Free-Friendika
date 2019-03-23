@@ -24,14 +24,10 @@ class ConfigConsoleTest extends ConsoleTest
 			]
 		]);
 
-		$mode = \Mockery::mock(Mode::class);
-		$mode
+		$this->mode
 			->shouldReceive('has')
 			->andReturn(true);
 
-		$this->app
-			->shouldReceive('getMode')
-			->andReturn($mode);
 	}
 
 	function testSetGetKeyValue() {
