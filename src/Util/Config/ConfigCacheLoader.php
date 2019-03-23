@@ -57,13 +57,13 @@ class ConfigCacheLoader extends ConfigCacheManager
 	/**
 	 * Tries to load the specified core-configuration and returns the config array.
 	 *
-	 * @param string $name The name of the configuration
+	 * @param string $name The name of the configuration (default is empty, which means 'local')
 	 *
 	 * @return array The config array (empty if no config found)
 	 *
 	 * @throws \Exception if the configuration file isn't readable
 	 */
-	public function loadCoreConfig($name)
+	public function loadCoreConfig($name = '')
 	{
 		if (!empty($this->getConfigFullName($name))) {
 			return $this->loadConfigFile($this->getConfigFullName($name));
@@ -101,13 +101,13 @@ class ConfigCacheLoader extends ConfigCacheManager
 	/**
 	 * Tries to load the legacy config files (.htconfig.php, .htpreconfig.php) and returns the config array.
 	 *
-	 * @param string $name The name of the config file
+	 * @param string $name The name of the config file (default is empty, which means .htconfig.php)
 	 *
 	 * @return array The configuration array (empty if no config found)
 	 *
 	 * @deprecated since version 2018.09
 	 */
-	private function loadLegacyConfig($name)
+	private function loadLegacyConfig($name = '')
 	{
 		$config = [];
 		if (!empty($this->getHtConfigFullName($name))) {

@@ -20,18 +20,49 @@ class ConfigCacheSaver extends ConfigCacheManager
 	const INDENT = "\t";
 
 	/**
-	 * Saves a given value to the config file
+	 * The settings array to save to
+	 * @var array
+	 */
+	private $settings = [];
+
+	/**
+	 * Adds a given value to the config file
 	 * Either it replaces the current value or it will get added
 	 *
 	 * @param string $cat   The configuration category
 	 * @param string $key   The configuration key
 	 * @param string $value The new value
 	 */
-	public function saveToConfigFile($cat, $key, $value)
+	public function addConfigValue($cat, $key, $value)
 	{
-		$this->saveToLegacyConfig('htpreconfig', $cat, $key, $value);
-		$this->saveToLegacyConfig('htconfig', $cat, $key, $value);
-		$this->saveToCoreConfig('local', $cat, $key, $value);
+		$this->settings[$cat][$key] = $value;
+	}
+
+	public function reset()
+	{
+		$this->settings = [];
+	}
+
+	public function saveToConfigFile($name = '')
+	{
+		$saved = false;
+
+		if (!empty($this->getConfigFullName($name))) {
+			$this->saveConfigFile($this->getConfigFullName($name));
+			$saved = true;
+		}
+
+		if (!empty($this->getIniFullName($name))) {
+			$this->saveINIConfigFile($this->getIniFullName($name));
+			$saved = true;
+		}
+
+		if (!empty($this->getHtConfigFullName($name))) {
+			$this->saveToLegacyConfig($this->getHtConfigFullName($name));
+			$saved = true;
+		}
+
+		return $saved;
 	}
 
 	/**
