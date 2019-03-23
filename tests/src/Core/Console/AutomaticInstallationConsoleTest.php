@@ -54,6 +54,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 		$this->configCache = new ConfigCache();
 		$this->configCache->set('system', 'basepath', $this->root->url());
 		$this->configCache->set('config', 'php_path', trim(shell_exec('which php')));
+		$this->configCache->set('system', 'theme', 'smarty3');
 
 		$this->mockApp($this->root, null, true);
 
