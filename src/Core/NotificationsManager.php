@@ -108,7 +108,13 @@ class NotificationsManager extends BaseObject
 	 */
 	public function setSeen($note, $seen = true)
 	{
-		return DBA::update('notify', ['seen' => $seen], ['link' => $note['link'], 'parent' => $note['parent'], 'otype' => $note['otype'], 'uid' => local_user()]);
+		return DBA::update('notify', ['seen' => $seen], [
+			'(`link` = ? OR (`parent` != 0 AND `parent` = ? AND `otype` = ?)) AND `uid` = ?',
+			$note['link'],
+			$note['parent'],
+			$note['otype'],
+			local_user()
+		]);
 	}
 
 	/**
