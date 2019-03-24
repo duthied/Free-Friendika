@@ -33,7 +33,7 @@ class ConfigFileLoader extends ConfigFileManager
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
 	 * expected local.config.php
 	 *
-	 * @param IConfigCache The config cache to load to
+	 * @param IConfigCache $config The config cache to load to
 	 *
 	 * @throws \Exception
 	 */

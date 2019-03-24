@@ -923,6 +923,10 @@ function admin_page_summary(App $a)
 		$showwarning = true;
 		$warningtext[] = L10n::t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 	}
+	if (Config::get('system', 'update') == Update::FAILED) {
+		$showwarning = true;
+		$warningtext[] = L10n::t('The last update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear. (Some of the errors are possibly inside the logfile.)');
+	}
 
 	$last_worker_call = Config::get('system', 'last_worker_execution', false);
 	if (!$last_worker_call) {
@@ -1088,9 +1092,8 @@ function admin_page_site_post(App $a)
 
 		// update config
 		$configFileSaver = new \Friendica\Util\Config\ConfigFileSaver($a->getBasePath());
-		$configFileSaver->addConfigValue('system', 'hostname', parse_url($new_url, PHP_URL_HOST));
+		$configFileSaver->addConfigValue('config', 'hostname', parse_url($new_url, PHP_URL_HOST));
 		$configFileSaver->saveToConfigFile();
-		Config::set('system', 'hostname', parse_url($new_url, PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
 		$a->setBaseURL($new_url);
 

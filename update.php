@@ -1,5 +1,6 @@
 <?php
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -12,7 +13,6 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
-use Friendica\Util\Config\ConfigFileSaver;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -349,34 +349,15 @@ function update_1298()
 }
 
 /**
- * @see https://github.com/friendica/friendica/pull/6815
- *
+ * @see https://github.com/friendica/friendica/pull/6920
  * @return int Success
  */
-function update_1303()
+function update_1305()
 {
-	$app = \Friendica\BaseObject::getApp();
-	$configCache = $app->getConfigCache();
-	$configFileSaver = new ConfigFileSaver($app->getBasePath());
-
-	$updateConfigEntry = function($cat, $key) use ($configCache, $configFileSaver) {
-		// check if the config file differs from the whole configuration (= The db contains other values)
-		$fileConfig = $configCache->get($cat, $key);
-		if ($fileConfig === '!<unset>!') {
-			$fileConfig = null;
-		}
-		$savedConfig = Config::get($cat, $key, null, true);
-		if ($fileConfig !== $savedConfig) {
-			Logger::info('Difference in config found', ['cat' => $cat, 'key' => $key, 'file' => $fileConfig, 'saved' => $savedConfig]);
-			$configFileSaver->addConfigValue($cat, $key, $savedConfig);
-		} else {
-			Logger::info('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileConfig, 'saved' => $savedConfig]);
-		}
-	};
-
-	$configFileSaver->saveToConfigFile();
-
-	$updateConfigEntry('config', 'hostname');
-	$updateConfigEntry('system', 'basepath');
-	return Update::SUCCESS;
+	$app = BaseObject::getApp();
+	if (Update::saveConfigToFile($app->getBasePath(), $app->getMode())) {
+		return Update::SUCCESS;
+	} else {
+		return Update::FAILED;
+	}
 }

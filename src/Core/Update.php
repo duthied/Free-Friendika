@@ -2,8 +2,12 @@
 
 namespace Friendica\Core;
 
+use Friendica\App;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Util\Config\ConfigFileLoader;
+use Friendica\Util\Config\ConfigFileSaver;
 use Friendica\Util\Strings;
 
 class Update
@@ -21,6 +25,11 @@ class Update
 	public static function check($basePath, $via_worker)
 	{
 		if (!DBA::connected()) {
+			return;
+		}
+
+		// Don't check the status if the last update was failed
+		if (Config::get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
 			return;
 		}
 
@@ -101,7 +110,9 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'pre_update');
 						if (!$r) {
-							break;
+							Config::set('system', 'update', Update::FAILED);
+							Lock::release('dbupdate');
+							return $r;
 						}
 					}
 
@@ -115,6 +126,7 @@ class Update
 							);
 						}
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
+						Config::set('system', 'update', Update::FAILED);
 						Lock::release('dbupdate');
 						return $retval;
 					} else {
@@ -127,7 +139,9 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'update');
 						if (!$r) {
-							break;
+							Config::set('system', 'update', Update::FAILED);
+							Lock::release('dbupdate');
+							return $r;
 						}
 					}
 
@@ -136,6 +150,7 @@ class Update
 						self::updateSuccessfull($stored, $current);
 					}
 
+					Config::set('system', 'update', Update::SUCCESS);
 					Lock::release('dbupdate');
 				}
 			}
@@ -206,6 +221,74 @@ class Update
 
 			return true;
 		}
+	}
+
+	/**
+	 * Checks the config settings and saves given config values into the config file
+	 *
+	 * @param string   $basePath The basepath of Friendica
+	 * @param App\Mode $mode     The Application mode
+	 *
+	 * @return bool True, if something has been saved
+	 */
+	public static function saveConfigToFile($basePath, App\Mode $mode)
+	{
+		$configFileLoader = new ConfigFileLoader($basePath, $mode);
+		$configCache = new Config\Cache\ConfigCache();
+		$configFileLoader->setupCache($configCache);
+		$configFileSaver = new ConfigFileSaver($basePath);
+
+		$updated = false;
+
+		if (self::updateConfigEntry($configCache, $configFileSaver,'config', 'hostname')) {
+			$updated = true;
+		};
+		if (self::updateConfigEntry($configCache, $configFileSaver,'system', 'basepath')) {
+			$updated = true;
+		}
+
+		if (!$configFileSaver->saveToConfigFile()) {
+			Logger::alert('Config entry update failed - maybe wrong permission?');
+			return false;
+		}
+
+		DBA::delete('config', ['cat' => 'config', 'k' => 'hostname']);
+		DBA::delete('config', ['cat' => 'system', 'k' => 'basepath']);
+
+		return $updated;
+	}
+
+	/**
+	 * Adds a value to the ConfigFileSave in case it isn't already updated
+	 *
+	 * @param IConfigCache    $configCache     The cached config file
+	 * @param ConfigFileSaver $configFileSaver The config file saver
+	 * @param string          $cat             The config category
+	 * @param string          $key             The config key
+	 *
+	 * @return boolean True, if a value was updated
+	 *
+	 * @throws \Exception if DBA or Logger doesn't work
+	 */
+	private static function updateConfigEntry(IConfigCache $configCache, ConfigFileSaver $configFileSaver, $cat, $key)
+	{
+		// check if the config file differs from the whole configuration (= The db contains other values)
+		$fileConfig = $configCache->get($cat, $key);
+
+		$savedConfig = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
+
+		if (!DBA::isResult($savedConfig)) {
+			return false;
+		}
+
+		if ($fileConfig !== $savedConfig['v']) {
+			Logger::info('Difference in config found', ['cat' => $cat, 'key' => $key, 'file' => $fileConfig, 'saved' => $savedConfig['v']]);
+			$configFileSaver->addConfigValue($cat, $key, $savedConfig['v']);
+		} else {
+			Logger::info('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileConfig, 'saved' => $savedConfig['v']]);
+		}
+
+		return true;
 	}
 
 	/**

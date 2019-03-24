@@ -22,7 +22,7 @@ class DBATest extends DatabaseTest
 		$config = Factory\ConfigFactory::createConfig($configCache);
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create('test', $config, $profiler);
-		$this->app = new App($basePath, $config, $mode, $logger, $profiler, false);
+		$this->app = new App($config, $mode, $logger, $profiler, false);
 
 		parent::setUp();
 

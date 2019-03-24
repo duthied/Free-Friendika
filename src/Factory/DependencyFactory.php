@@ -34,6 +34,6 @@ class DependencyFactory
 		$logger = Factory\LoggerFactory::create($channel, $config, $profiler);
 		Factory\LoggerFactory::createDev($channel, $config, $profiler);
 
-		return new App($basePath, $config, $mode, $logger, $profiler, $isBackend);
+		return new App($config, $mode, $logger, $profiler, $isBackend);
 	}
 }

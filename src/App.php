@@ -76,11 +76,6 @@ class App
 	private $mode;
 
 	/**
-	 * @var string The App base path
-	 */
-	private $basePath;
-
-	/**
 	 * @var string The App URL path
 	 */
 	private $urlPath;
@@ -142,7 +137,7 @@ class App
 	 */
 	public function getBasePath()
 	{
-		return $this->basePath;
+		return $this->config->get('system', 'basepath');
 	}
 
 	/**
@@ -216,7 +211,6 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string           $basePath   The basedir of the app
 	 * @param Configuration    $config    The Configuration
 	 * @param App\Mode         $mode      The mode of this Friendica app
 	 * @param LoggerInterface  $logger    The current app logger
@@ -225,7 +219,7 @@ class App
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, Configuration $config, App\Mode $mode, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct(Configuration $config, App\Mode $mode, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		BaseObject::setApp($this);
 
@@ -233,13 +227,6 @@ class App
 		$this->config   = $config;
 		$this->profiler = $profiler;
 		$this->mode     = $mode;
-		$cfgBasePath = $this->config->get('system', 'basepath');
-		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
-
-		if (!Core\System::isDirectoryUsable($this->getBasePath(), false)) {
-			throw new Exception('Basepath \'' . $this->getBasePath() . '\' isn\'t usable.');
-		}
-		$this->basePath = rtrim($this->getBasePath(), DIRECTORY_SEPARATOR);
 
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();

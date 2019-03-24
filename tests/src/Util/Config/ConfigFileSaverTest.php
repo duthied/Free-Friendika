@@ -89,14 +89,22 @@ class ConfigFileSaverTest extends MockedTest
 		$configFileLoader->setupCache($configCache);
 
 		$this->assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
+		$this->assertEquals('frio', $configCache->get('system', 'theme'));
 		$this->assertNull($configCache->get('config', 'test_val'));
 		$this->assertNull($configCache->get('system', 'test_val2'));
 
-		$configFileSaver->addConfigValue('system', 'theme', 'frio');
+		// update values (system and config value)
 		$configFileSaver->addConfigValue('config', 'admin_email', 'new@mail.it');
-		$configFileSaver->addConfigValue('config', 'test_val', 'Testingwith@all.we can');
 		$configFileSaver->addConfigValue('system', 'theme', 'vier');
+
+		// insert values (system and config value)
+		$configFileSaver->addConfigValue('config', 'test_val', 'Testingwith@all.we can');
+		$configFileSaver->addConfigValue('system', 'test_val2', 'TestIt First');
+
+		// overwrite value
 		$configFileSaver->addConfigValue('system', 'test_val2', 'TestIt Now');
+
+		// save it
 		$this->assertTrue($configFileSaver->saveToConfigFile());
 
 		$newConfigCache = new ConfigCache();
@@ -135,5 +143,47 @@ class ConfigFileSaverTest extends MockedTest
 		vfsStream::newFile($fileName)
 			->at($root)
 			->setContent(file_get_contents($filePath . DIRECTORY_SEPARATOR . $fileName));
+
+		$configFileSaver = new ConfigFileSaver($this->root->url());
+
+		$configFileSaver->addConfigValue('system', 'test_val2', 'TestIt Now');
+
+		// wrong mod, so return false if nothing to write
+		$this->assertFalse($configFileSaver->saveToConfigFile());
+	}
+
+	/**
+	 * Test the saveToConfigFile() method with nothing to do
+	 * @dataProvider dataConfigFiles
+	 */
+	public function testNothingToDo($fileName, $filePath, $relativePath)
+	{
+		$this->delConfigFile('local.config.php');
+
+		if (empty($relativePath)) {
+			$root = $this->root;
+			$relativeFullName = $fileName;
+		} else {
+			$root = $this->root->getChild($relativePath);
+			$relativeFullName = $relativePath . DIRECTORY_SEPARATOR . $fileName;
+		}
+
+		vfsStream::newFile($fileName)
+			->at($root)
+			->setContent(file_get_contents($filePath . DIRECTORY_SEPARATOR . $fileName));
+
+		$configFileSaver = new ConfigFileSaver($this->root->url());
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
+		$configCache = new ConfigCache();
+		$configFileLoader->setupCache($configCache);
+
+		// save nothing
+		$this->assertTrue($configFileSaver->saveToConfigFile());
+
+		$this->assertTrue($this->root->hasChild($relativeFullName));
+		$this->assertFalse($this->root->hasChild($relativeFullName . '.old'));
+		$this->assertFalse($this->root->hasChild($relativeFullName . '.tmp'));
+
+		$this->assertEquals(file_get_contents($filePath . DIRECTORY_SEPARATOR . $fileName), file_get_contents($this->root->getChild($relativeFullName)->url()));
 	}
 }

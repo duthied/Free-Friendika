@@ -34,6 +34,17 @@ class ConfigFileSaver extends ConfigFileManager
 	 */
 	public function addConfigValue($cat, $key, $value)
 	{
+		$settingsCount = count(array_keys($this->settings));
+
+		for ($i = 0; $i < $settingsCount; $i++) {
+			// if already set, overwrite the value
+			if ($this->settings[$i]['cat'] === $cat &&
+				$this->settings[$i]['key'] === $key) {
+				$this->settings[$i] = ['cat' => $cat, 'key' => $key, 'value' => $value];
+				return;
+			}
+		}
+
 		$this->settings[] = ['cat' => $cat, 'key' => $key, 'value' => $value];
 	}
 
@@ -51,10 +62,15 @@ class ConfigFileSaver extends ConfigFileManager
 	 *
 	 * @param string $name The name of the configuration file (default is empty, which means the default name each type)
 	 *
-	 * @return bool true, if at least one configuration file was successfully updated
+	 * @return bool true, if at least one configuration file was successfully updated or nothing to do
 	 */
 	public function saveToConfigFile($name = '')
 	{
+		// If no settings et, return true
+		if (count(array_keys($this->settings)) === 0) {
+			return true;
+		}
+
 		$saved = false;
 
 		// Check for the *.config.php file inside the /config/ path
@@ -108,13 +124,22 @@ class ConfigFileSaver extends ConfigFileManager
 			return [null, null];
 		}
 
-		$reading = fopen($fullName, 'r');
+		try {
+			$reading = fopen($fullName, 'r');
+		} catch (\Exception $exception) {
+			return [null, null];
+		}
 
 		if (!$reading) {
 			return [null, null];
 		}
 
-		$writing = fopen($fullName . '.tmp', 'w');
+		try {
+			$writing = fopen($fullName . '.tmp', 'w');
+		} catch (\Exception $exception) {
+			fclose($reading);
+			return [null, null];
+		}
 
 		if (!$writing) {
 			fclose($reading);
@@ -138,11 +163,25 @@ class ConfigFileSaver extends ConfigFileManager
 		fclose($reading);
 		fclose($writing);
 
-		if (!rename($fullName, $fullName . '.old')) {
+		try {
+			$renamed = rename($fullName, $fullName . '.old');
+		} catch (\Exception $exception) {
 			return false;
 		}
 
-		if (!rename($fullName . '.tmp', $fullName)) {
+		if (!$renamed) {
+			return false;
+		}
+
+		try {
+			$renamed = rename($fullName . '.tmp', $fullName);
+		} catch (\Exception $exception) {
+			// revert the move of the current config file to have at least the old config
+			rename($fullName . '.old', $fullName);
+			return false;
+		}
+
+		if (!$renamed) {
 			// revert the move of the current config file to have at least the old config
 			rename($fullName . '.old', $fullName);
 			return false;
@@ -234,11 +273,16 @@ class ConfigFileSaver extends ConfigFileManager
 			// check for each added setting if we have to replace a config line
 			for ($i = 0; $i < $settingsCount; $i++) {
 
+				// find the category of the current setting
 				if (!$categoryFound[$i] && stristr($line, sprintf('[%s]', $this->settings[$i]['cat']))) {
 					$categoryFound[$i] = true;
+
+				// check the current value
 				} elseif ($categoryFound[$i] && preg_match_all('/^' . $this->settings[$i]['key'] . '\s*=\s*(.*?)$/', $line, $matches, PREG_SET_ORDER)) {
 					$line = $this->settings[$i]['key'] . ' = ' . $this->settings[$i]['value'] . PHP_EOL;
 					$categoryFound[$i] = false;
+
+				// If end of INI file, add the line before the INI end
 				} elseif ($categoryFound[$i] && (preg_match_all('/^\[.*?\]$/', $line) || preg_match_all('/^INI;.*$/', $line))) {
 					$categoryFound[$i] = false;
 					$newLine = $this->settings[$i]['key'] . ' = ' . $this->settings[$i]['value'] . PHP_EOL;
@@ -267,9 +311,12 @@ class ConfigFileSaver extends ConfigFileManager
 			// check for each added setting if we have to replace a config line
 			for ($i = 0; $i < $settingsCount; $i++) {
 
+				// check for a non plain config setting (use category too)
 				if ($this->settings[$i]['cat'] !== 'config' && preg_match_all('/^\$a\-\>config\[\'' . $this->settings[$i]['cat'] . '\'\]\[\'' . $this->settings[$i]['key'] . '\'\]\s*=\s\'*(.*?)\';$/', $line, $matches, PREG_SET_ORDER)) {
 					$line = '$a->config[\'' . $this->settings[$i]['cat'] . '\'][\'' . $this->settings[$i]['key'] . '\'] = \'' . $this->settings[$i]['value'] . '\';' . PHP_EOL;
 					$found[$i] = true;
+
+				// check for a plain config setting (don't use a category)
 				} elseif ($this->settings[$i]['cat'] === 'config' && preg_match_all('/^\$a\-\>config\[\'' . $this->settings[$i]['key'] . '\'\]\s*=\s\'*(.*?)\';$/', $line, $matches, PREG_SET_ORDER)) {
 					$line = '$a->config[\'' . $this->settings[$i]['key'] . '\'] = \'' . $this->settings[$i]['value'] . '\';' . PHP_EOL;
 					$found[$i] = true;
