@@ -1395,7 +1395,6 @@ function admin_page_site_post(App $a)
 
 	Config::set('system', 'temppath', $temppath);
 
-	Config::set('system', 'basepath'         , $basepath);
 	Config::set('system', 'proxy_disabled'   , $proxy_disabled);
 	Config::set('system', 'only_tag_search'  , $only_tag_search);
 
