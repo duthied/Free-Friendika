@@ -13,7 +13,7 @@ use Friendica\Core\System;
 use Friendica\Factory;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
-use Friendica\Util\Config\ConfigCacheLoader;
+use Friendica\Util\Config\ConfigFileLoader;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -38,7 +38,7 @@ class ApiTest extends DatabaseTest
 	{
 		$basePath = BasePath::create(dirname(__DIR__) . '/../');
 		$mode = new App\Mode($basePath);
-		$configLoader = new ConfigCacheLoader($basePath, $mode);
+		$configLoader = new ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);

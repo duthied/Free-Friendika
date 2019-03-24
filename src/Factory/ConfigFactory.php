@@ -6,19 +6,19 @@ use Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Adapter;
 use Friendica\Core\Config\Cache;
-use Friendica\Util\Config\ConfigCacheLoader;
+use Friendica\Util\Config\ConfigFileLoader;
 
 class ConfigFactory
 {
 	/**
-	 * @param ConfigCacheLoader $loader The Config Cache loader (INI/config/.htconfig)
+	 * @param ConfigFileLoader $loader The Config Cache loader (INI/config/.htconfig)
 	 *
 	 * @return Cache\ConfigCache
 	 */
-	public static function createCache(ConfigCacheLoader $loader)
+	public static function createCache(ConfigFileLoader $loader)
 	{
 		$configCache = new Cache\ConfigCache();
-		$loader->loadConfigFiles($configCache);
+		$loader->setupCache($configCache);
 
 		return $configCache;
 	}

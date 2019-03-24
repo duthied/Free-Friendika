@@ -1087,8 +1087,9 @@ function admin_page_site_post(App $a)
 		update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
-		$configCacheSaver = new \Friendica\Util\Config\ConfigCacheSaver($a->getBasePath());
-		$configCacheSaver->saveToConfigFile('system', 'hostname', parse_url($new_url, PHP_URL_HOST));
+		$configFileSaver = new \Friendica\Util\Config\ConfigFileSaver($a->getBasePath());
+		$configFileSaver->addConfigValue('system', 'hostname', parse_url($new_url, PHP_URL_HOST));
+		$configFileSaver->saveToConfigFile();
 		Config::set('system', 'hostname', parse_url($new_url, PHP_URL_HOST));
 		Config::set('system', 'url', $new_url);
 		$a->setBaseURL($new_url);

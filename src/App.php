@@ -13,7 +13,7 @@ use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\Config\ConfigCacheLoader;
+use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -355,7 +355,7 @@ class App
 		$this->getMode()->determine($this->getBasePath());
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			$loader = new ConfigCacheLoader($this->getBasePath(), $this->getMode());
+			$loader = new ConfigFileLoader($this->getBasePath(), $this->getMode());
 			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
 
 			$this->profiler->update(
@@ -363,7 +363,7 @@ class App
 				$this->config->get('rendertime', 'callstack', false));
 
 			Core\Hook::loadHooks();
-			$loader = new ConfigCacheLoader($this->getBasePath(), $this->mode);
+			$loader = new ConfigFileLoader($this->getBasePath(), $this->mode);
 			Core\Hook::callAll('load_config', $loader);
 		}
 

@@ -7,7 +7,7 @@ use Friendica\Database\DBStructure;
 use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\BasePath;
-use Friendica\Util\Config\ConfigCacheLoader;
+use Friendica\Util\Config\ConfigFileLoader;
 
 class DBStructureTest extends DatabaseTest
 {
@@ -15,7 +15,7 @@ class DBStructureTest extends DatabaseTest
 	{
 		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
 		$mode = new App\Mode($basePath);
-		$configLoader = new ConfigCacheLoader($basePath, $mode);
+		$configLoader = new ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);

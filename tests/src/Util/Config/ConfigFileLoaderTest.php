@@ -6,11 +6,11 @@ use Friendica\App;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\Config\ConfigCacheLoader;
+use Friendica\Util\Config\ConfigFileLoader;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 
-class ConfigCacheLoaderTest extends MockedTest
+class ConfigFileLoaderTest extends MockedTest
 {
 	use VFSTrait;
 
@@ -34,10 +34,10 @@ class ConfigCacheLoaderTest extends MockedTest
 	 */
 	public function testLoadConfigFiles()
 	{
-		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
-		$configCacheLoader->loadConfigFiles($configCache);
+		$configFileLoader->setupCache($configCache);
 
 		$this->assertEquals($this->root->url(), $configCache->get('system', 'basepath'));
 	}
@@ -55,10 +55,10 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent('<?php return true;');
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
-		$configCacheLoader->loadConfigFiles($configCache);
+		$configFileLoader->setupCache($configCache);
 	}
 
 	/**
@@ -79,10 +79,10 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
-		$configCacheLoader->loadConfigFiles($configCache);
+		$configFileLoader->setupCache($configCache);
 
 		$this->assertEquals('testhost', $configCache->get('database', 'hostname'));
 		$this->assertEquals('testuser', $configCache->get('database', 'username'));
@@ -111,10 +111,10 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
-		$configCacheLoader->loadConfigFiles($configCache);
+		$configFileLoader->setupCache($configCache);
 
 		$this->assertEquals('testhost', $configCache->get('database', 'hostname'));
 		$this->assertEquals('testuser', $configCache->get('database', 'username'));
@@ -136,16 +136,16 @@ class ConfigCacheLoaderTest extends MockedTest
 			'..' . DIRECTORY_SEPARATOR .
 			'datasets' . DIRECTORY_SEPARATOR .
 			'config' . DIRECTORY_SEPARATOR .
-			'.htconfig.test.php';
+			'.htconfig.php';
 
 		vfsStream::newFile('.htconfig.php')
 			->at($this->root)
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
 		$configCache = new ConfigCache();
 
-		$configCacheLoader->loadConfigFiles($configCache);
+		$configFileLoader->setupCache($configCache);
 
 		$this->assertEquals('testhost', $configCache->get('database', 'hostname'));
 		$this->assertEquals('testuser', $configCache->get('database', 'username'));
@@ -157,7 +157,7 @@ class ConfigCacheLoaderTest extends MockedTest
 		$this->assertEquals('Europe/Berlin', $configCache->get('system', 'default_timezone'));
 		$this->assertEquals('fr', $configCache->get('system', 'language'));
 
-		$this->assertEquals('admin@friendica.local', $configCache->get('config', 'admin_email'));
+		$this->assertEquals('admin@test.it', $configCache->get('config', 'admin_email'));
 		$this->assertEquals('Friendly admin', $configCache->get('config', 'admin_nickname'));
 
 		$this->assertEquals('/another/php', $configCache->get('config', 'php_path'));
@@ -191,9 +191,9 @@ class ConfigCacheLoaderTest extends MockedTest
 			->at($this->root->getChild('addon')->getChild('test')->getChild('config'))
 			->setContent(file_get_contents($file));
 
-		$configCacheLoader = new ConfigCacheLoader($this->root->url(), $this->mode);
+		$configFileLoader = new ConfigFileLoader($this->root->url(), $this->mode);
 
-		$conf = $configCacheLoader->loadAddonConfig('test');
+		$conf = $configFileLoader->loadAddonConfig('test');
 
 		$this->assertEquals('testhost', $conf['database']['hostname']);
 		$this->assertEquals('testuser', $conf['database']['username']);

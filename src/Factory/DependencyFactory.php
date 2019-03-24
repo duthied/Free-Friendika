@@ -24,7 +24,7 @@ class DependencyFactory
 	{
 		$basePath = BasePath::create($directory, $_SERVER);
 		$mode = new App\Mode($basePath);
-		$configLoader = new Config\ConfigCacheLoader($basePath, $mode);
+		$configLoader = new Config\ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);

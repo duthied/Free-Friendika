@@ -7,14 +7,14 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config\Cache\IConfigCache;
 
 /**
- * The ConfigCacheLoader loads config-files and stores them in a IConfigCache ( @see IConfigCache )
+ * The ConfigFileLoader loads config-files and stores them in a IConfigCache ( @see IConfigCache )
  *
  * It is capable of loading the following config files:
  * - *.config.php   (current)
  * - *.ini.php      (deprecated)
  * - *.htconfig.php (deprecated)
  */
-class ConfigCacheLoader extends ConfigCacheManager
+class ConfigFileLoader extends ConfigFileManager
 {
 	/**
 	 * @var App\Mode
@@ -28,7 +28,7 @@ class ConfigCacheLoader extends ConfigCacheManager
 	}
 
 	/**
-	 * Load the configuration files
+	 * Load the configuration files into an configuration cache
 	 *
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
 	 * expected local.config.php
@@ -37,7 +37,7 @@ class ConfigCacheLoader extends ConfigCacheManager
 	 *
 	 * @throws \Exception
 	 */
-	public function loadConfigFiles(IConfigCache $config)
+	public function setupCache(IConfigCache $config)
 	{
 		$config->load($this->loadCoreConfig('defaults'));
 		$config->load($this->loadCoreConfig('settings'));

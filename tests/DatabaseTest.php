@@ -9,7 +9,7 @@ use Friendica\App;
 use Friendica\Database\DBA;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
-use Friendica\Util\Config\ConfigCacheLoader;
+use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
@@ -43,7 +43,7 @@ abstract class DatabaseTest extends MockedTest
 
 		$basePath = BasePath::create(dirname(__DIR__));
 		$mode = new App\Mode($basePath);
-		$configLoader = new ConfigCacheLoader($basePath, $mode);
+		$configLoader = new ConfigFileLoader($basePath, $mode);
 		$config = Factory\ConfigFactory::createCache($configLoader);
 
 		$profiler = \Mockery::mock(Profiler::class);

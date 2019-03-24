@@ -2,7 +2,10 @@
 
 namespace Friendica\Util\Config;
 
-abstract class ConfigCacheManager
+/**
+ * An abstract class in case of handling with config files
+ */
+abstract class ConfigFileManager
 {
 	/**
 	 * The Sub directory of the config-files
@@ -20,7 +23,7 @@ abstract class ConfigCacheManager
 	 * The default name of the user defined ini file
 	 * @var string
 	 */
-	const CONFIG_INI      = 'ini';
+	const CONFIG_INI      = 'local';
 
 	/**
 	 * The default name of the user defined legacy config file
