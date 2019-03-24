@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1304);
+	define('DB_UPDATE_VERSION', 1305);
 }
 
 return [
@@ -1195,6 +1195,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["tid"],
+			"term_type" => ["term", "type"],
 			"oid_otype_type_term" => ["oid", "otype", "type", "term(32)"],
 			"uid_otype_type_term_global_created" => ["uid", "otype", "type", "term(32)", "global", "created"],
 			"uid_otype_type_url" => ["uid", "otype", "type", "url(64)"],
