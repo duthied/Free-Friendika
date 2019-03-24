@@ -31,6 +31,18 @@ class ApiTest extends DatabaseTest
 	 */
 	protected $logOutput;
 
+	/** @var App */
+	protected $app;
+
+	/** @var array */
+	protected $selfUser;
+	/** @var array */
+	protected $friendUser;
+	/** @var array */
+	protected $otherUser;
+
+	protected $wrongUserId;
+
 	/**
 	 * Create variables used by tests.
 	 */
@@ -1272,31 +1284,30 @@ class ApiTest extends DatabaseTest
 
 	/**
 	 * Test the api_status_show() function.
-	 * @return void
 	 */
-	public function testApiStatusShow()
+	public function testApiStatusShowWithJson()
 	{
-		$result = api_status_show('json');
+		$result = api_status_show('json', 1);
 		$this->assertStatus($result['status']);
 	}
 
 	/**
 	 * Test the api_status_show() function with an XML result.
-	 * @return void
 	 */
 	public function testApiStatusShowWithXml()
 	{
-		$result = api_status_show('xml');
+		$result = api_status_show('xml', 1);
 		$this->assertXml($result, 'statuses');
 	}
 
 	/**
-	 * Test the api_status_show() function with a raw result.
-	 * @return void
+	 * Test the api_get_last_status() function
 	 */
-	public function testApiStatusShowWithRaw()
+	public function testApiGetLastStatus()
 	{
-		$this->assertStatus(api_status_show('raw'));
+		$item = api_get_last_status($this->selfUser['id'], $this->selfUser['id']);
+
+		$this->assertNotNull($item);
 	}
 
 	/**
