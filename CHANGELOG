@@ -8,6 +8,7 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     General Code cleaning and restructuring [nupplaphil]
     Added frio color scheme sharing [JeroenED]
     Added syslog and stream Logger [nupplaphil]
+    Added storage move cronjob [MrPetovan]
 
   Closed Issues:
     6303, 6478, 6319
