@@ -123,11 +123,14 @@ class APContact extends BaseObject
 		$apcontact['following'] = JsonLD::fetchElement($compacted, 'as:following', '@id');
 		$apcontact['followers'] = JsonLD::fetchElement($compacted, 'as:followers', '@id');
 		$apcontact['inbox'] = JsonLD::fetchElement($compacted, 'ldp:inbox', '@id');
+		self::unarchiveInbox($apcontact['inbox']);
+
 		$apcontact['outbox'] = JsonLD::fetchElement($compacted, 'as:outbox', '@id');
 
 		$apcontact['sharedinbox'] = '';
 		if (!empty($compacted['as:endpoints'])) {
 			$apcontact['sharedinbox'] = JsonLD::fetchElement($compacted['as:endpoints'], 'as:sharedInbox', '@id');
+			self::unarchiveInbox($apcontact['sharedinbox']);
 		}
 
 		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername');
@@ -230,5 +233,28 @@ class APContact extends BaseObject
 		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
 
 		return $apcontact;
+	}
+
+	/**
+	 * Unarchive inboxes
+	 *
+	 * @param string $url inbox url
+	 */
+	private static function unarchiveInbox($url)
+	{
+		if (empty($url)) {
+			return;
+		}
+
+		$now = DateTimeFormat::utcNow();
+
+		if (!DBA::exists('inbox-status', ['url' => $url])) {
+			$fields = ['archive' => false, 'success' => $now,
+				'url' => $url, 'created' => $now];
+			DBA::insert('inbox-status', $fields);
+		} else {
+			$fields = ['archive' => false, 'success' => $now];
+			DBA::update('inbox-status', $fields, ['url' => $url]);
+		}
 	}
 }
