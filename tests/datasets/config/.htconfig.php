@@ -33,7 +33,7 @@ $a->config['sitename'] = "Friendica My Network";
 // must precisely match the email address of the person logged in.
 $a->config['register_policy'] = REGISTER_OPEN;
 $a->config['register_text'] = 'A register text';
-$a->config['admin_email'] = 'admin@friendica.local';
+$a->config['admin_email'] = 'admin@test.it';
 $a->config['admin_nickname'] = 'Friendly admin';
 
 // Maximum size of an imported message, 0 is unlimited
@@ -52,7 +52,7 @@ $a->config['system']['huburl'] = '[internal]';
 $a->config['system']['allowed_themes'] = 'quattro,vier,duepuntozero';
 
 // default system theme
-$a->config['system']['theme'] = 'duepuntozero';
+$a->config['system']['theme'] = 'frio';
 
 // By default allow pseudonyms
 $a->config['system']['no_regfullname'] = true;

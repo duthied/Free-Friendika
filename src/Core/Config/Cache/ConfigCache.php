@@ -5,7 +5,7 @@ namespace Friendica\Core\Config\Cache;
 /**
  * The Friendica config cache for the application
  * Initial, all *.config.php files are loaded into this cache with the
- * ConfigCacheLoader ( @see ConfigCacheLoader )
+ * ConfigFileLoader ( @see ConfigFileLoader )
  */
 class ConfigCache implements IConfigCache, IPConfigCache
 {
