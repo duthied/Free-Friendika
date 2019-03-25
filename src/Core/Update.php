@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Util\BasePath;
 use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\Config\ConfigFileSaver;
 use Friendica\Util\Strings;
@@ -235,7 +236,7 @@ class Update
 	{
 		$configFileLoader = new ConfigFileLoader($basePath, $mode);
 		$configCache = new Config\Cache\ConfigCache();
-		$configFileLoader->setupCache($configCache);
+		$configFileLoader->setupCache($configCache, true);
 		$configFileSaver = new ConfigFileSaver($basePath);
 
 		$updated = false;
@@ -243,8 +244,14 @@ class Update
 		if (self::updateConfigEntry($configCache, $configFileSaver,'config', 'hostname')) {
 			$updated = true;
 		};
-		if (self::updateConfigEntry($configCache, $configFileSaver,'system', 'basepath')) {
+
+		if (self::updateConfigEntry($configCache, $configFileSaver,'system', 'basepath', BasePath::create(dirname(__DIR__)))) {
 			$updated = true;
+		}
+
+		// In case there is nothing to do, skip the update
+		if (!$updated) {
+			return true;
 		}
 
 		if (!$configFileSaver->saveToConfigFile()) {
@@ -255,7 +262,7 @@ class Update
 		DBA::delete('config', ['cat' => 'config', 'k' => 'hostname']);
 		DBA::delete('config', ['cat' => 'system', 'k' => 'basepath']);
 
-		return $updated;
+		return true;
 	}
 
 	/**
@@ -265,12 +272,13 @@ class Update
 	 * @param ConfigFileSaver $configFileSaver The config file saver
 	 * @param string          $cat             The config category
 	 * @param string          $key             The config key
+	 * @param string          $default         A default value, if none of the settings are valid
 	 *
 	 * @return boolean True, if a value was updated
 	 *
 	 * @throws \Exception if DBA or Logger doesn't work
 	 */
-	private static function updateConfigEntry(IConfigCache $configCache, ConfigFileSaver $configFileSaver, $cat, $key)
+	private static function updateConfigEntry(IConfigCache $configCache, ConfigFileSaver $configFileSaver, $cat, $key, $default = '')
 	{
 		// check if the config file differs from the whole configuration (= The db contains other values)
 		$fileConfig = $configCache->get($cat, $key);
@@ -284,6 +292,9 @@ class Update
 		if ($fileConfig !== $savedConfig['v']) {
 			Logger::info('Difference in config found', ['cat' => $cat, 'key' => $key, 'file' => $fileConfig, 'saved' => $savedConfig['v']]);
 			$configFileSaver->addConfigValue($cat, $key, $savedConfig['v']);
+		} elseif (empty($fileConfig) && empty($savedConfig)) {
+			Logger::info('Using default for config', ['cat' => $cat, 'key' => $key, 'value' => $default]);
+			$configFileSaver->addConfigValue($cat, $key, $default);
 		} else {
 			Logger::info('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileConfig, 'saved' => $savedConfig['v']]);
 		}
