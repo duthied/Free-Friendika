@@ -245,7 +245,7 @@ class Update
 			$updated = true;
 		};
 
-		if (self::updateConfigEntry($configCache, $configFileSaver,'system', 'basepath', BasePath::create(dirname(__DIR__)))) {
+		if (self::updateConfigEntry($configCache, $configFileSaver,'system', 'basepath', BasePath::create(dirname(__DIR__) . '/../'))) {
 			$updated = true;
 		}
 
@@ -286,7 +286,7 @@ class Update
 		$savedConfig = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
 
 		if (!DBA::isResult($savedConfig)) {
-			return false;
+			$savedConfig = null;
 		}
 
 		if ($fileConfig !== $savedConfig['v']) {
@@ -297,6 +297,7 @@ class Update
 			$configFileSaver->addConfigValue($cat, $key, $default);
 		} else {
 			Logger::info('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileConfig, 'saved' => $savedConfig['v']]);
+			return false;
 		}
 
 		return true;
