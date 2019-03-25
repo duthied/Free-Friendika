@@ -9,9 +9,10 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     General Code cleaning and restructuring [nupplaphil]
     Added frio color scheme sharing [JeroenED]
     Added syslog and stream Logger [nupplaphil]
+    Added collapsible panel for connector permission fields [MrPetovan]
 
   Closed Issues:
-    6303, 6478, 6319, 6921
+    6303, 6478, 6319, 6921, 6903
 
 Version 2019.03 (2019-03-22)
   Friendica Core:
