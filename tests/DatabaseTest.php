@@ -50,7 +50,6 @@ abstract class DatabaseTest extends MockedTest
 		$profiler = \Mockery::mock(Profiler::class);
 
 		DBA::connect(
-			$basePath,
 			$config,
 			$profiler,
 			new VoidLogger(),

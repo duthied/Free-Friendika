@@ -15,6 +15,9 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
  */
 class BaseObject
 {
+	/**
+	 * @var App
+	 */
 	private static $app = null;
 
 	/**

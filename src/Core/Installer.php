@@ -6,12 +6,12 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\App;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Logger\VoidLogger;
+use Friendica\Util\BasePath;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -131,15 +131,15 @@ class Installer
 	 * - Creates `config/local.config.php`
 	 * - Installs Database Structure
 	 *
-	 * @param App          $app         The Friendica App
 	 * @param IConfigCache $configCache The config cache with all config relevant information
-	 * @param string $basepath  The basepath of Friendica
 	 *
 	 * @return bool true if the config was created, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function createConfig(App $app, IConfigCache $configCache, $basepath)
+	public function createConfig(IConfigCache $configCache)
 	{
+		$basepath = $configCache->get('system', 'basepath');
+
 		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
 			'$dbhost'    => $configCache->get('database', 'hostname'),
@@ -147,12 +147,16 @@ class Installer
 			'$dbpass'    => $configCache->get('database', 'password'),
 			'$dbdata'    => $configCache->get('database', 'database'),
 
-			'$phpath'    => $this->getPHPPath(),
+			'$phpath'    => $configCache->get('config', 'php_path'),
 			'$adminmail' => $configCache->get('config', 'admin_email'),
+			'$hostname'  => $configCache->get('config', 'hostname'),
 
+			'$urlpath'   => $configCache->get('system', 'urlpath'),
+			'$baseurl'   => $configCache->get('system', 'url'),
+			'$sslpolicy' => $configCache->get('system', 'ssl_policy'),
+			'$basepath'  => $basepath,
 			'$timezone'  => $configCache->get('system', 'default_timezone'),
 			'$language'  => $configCache->get('system', 'language'),
-			'$urlpath'   => $app->getURLPath(),
 		]);
 
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);
@@ -244,7 +248,7 @@ class Installer
 			$help .= EOL . EOL;
 			$tpl = Renderer::getMarkupTemplate('field_input.tpl');
 			$help .= Renderer::replaceMacros($tpl, [
-				'$field' => ['phpath', L10n::t('PHP executable path'), $phppath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
+				'$field' => ['config.php_path', L10n::t('PHP executable path'), $phppath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
 			]);
 			$phppath = "";
 		}
@@ -588,21 +592,20 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
-	 * @param string       $basePath    The basepath of this call
 	 * @param IConfigCache $configCache The configuration cache
 	 * @param Profiler    $profiler    The profiler of this app
 	 *
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB($basePath, IConfigCache $configCache, Profiler $profiler)
+	public function checkDB(IConfigCache $configCache, Profiler $profiler)
 	{
 		$dbhost = $configCache->get('database', 'hostname');
 		$dbuser = $configCache->get('database', 'username');
 		$dbpass = $configCache->get('database', 'password');
 		$dbdata = $configCache->get('database', 'database');
 
-		if (!DBA::connect($basePath, $configCache, $profiler, new VoidLogger(), $dbhost, $dbuser, $dbpass, $dbdata)) {
+		if (!DBA::connect($configCache, $profiler, new VoidLogger(), $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 
 			return false;
@@ -617,5 +620,19 @@ class Installer
 		}
 
 		return true;
+	}
+
+	/**
+	 * Setup the default cache for a new installation
+	 *
+	 * @param IConfigCache $configCache The configuration cache
+	 * @param string       $basePath    The determined basepath
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function setUpCache(IConfigCache $configCache, $basePath)
+	{
+		$configCache->set('config', 'php_path'  , $this->getPHPPath());
+		$configCache->set('system', 'basepath'  , $basePath);
 	}
 }
