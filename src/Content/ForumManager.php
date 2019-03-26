@@ -205,7 +205,7 @@ class ForumManager
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`
 				AND `contact`.`success_update` > `failure_update`
 				GROUP BY `contact`.`id` ",
-			intval(local_user())
+			local_user()
 		);
 
 		return DBA::toArray($stmtContacts);

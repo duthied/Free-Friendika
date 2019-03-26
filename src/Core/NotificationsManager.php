@@ -580,9 +580,9 @@ class NotificationsManager extends BaseObject
 				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
 			WHERE `intro`.`uid` = ? $sql_extra AND `intro`.`blocked` = 0
 			LIMIT ?, ?",
-			intval($_SESSION['uid']),
-			intval($start),
-			intval($limit)
+			$_SESSION['uid'],
+			$start,
+			$limit
 		);
 		if (DBA::isResult($stmtNotifies)) {
 			$notifs = $this->formatIntros(DBA::toArray($stmtNotifies));
