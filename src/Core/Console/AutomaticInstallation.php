@@ -7,6 +7,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
+use Friendica\Util\Config\ConfigFileLoader;
 use RuntimeException;
 
 class AutomaticInstallation extends Console
@@ -74,6 +75,8 @@ HELP;
 
 		$installer = new Installer();
 
+		$configCache = $a->getConfigCache();
+
 		$this->out(" Complete!\n\n");
 
 		// Check Environment
@@ -81,7 +84,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$this->runBasicChecks($installer)) {
+		if (!$this->runBasicChecks($installer, $configCache)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -100,41 +103,51 @@ HELP;
 				}
 			}
 
-			$db_host = $a->getConfigCache()->get('database', 'hostname');
-			$db_user = $a->getConfigCache()->get('database', 'username');
-			$db_pass = $a->getConfigCache()->get('database', 'password');
-			$db_data = $a->getConfigCache()->get('database', 'database');
+			//reload the config cache
+			$loader = new ConfigFileLoader($a->getBasePath(), $a->getMode());
+			$loader->setupCache($configCache);
+
 		} else {
 			// Creating config file
 			$this->out("Creating config file...\n");
 
 			$save_db = $this->getOption(['s', 'savedb'], false);
 
-			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? getenv('MYSQL_HOST') : '');
+			//$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST') ? getenv('MYSQL_HOST') : Installer::DEFAULT_HOST) : '');
+			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST')) : Installer::DEFAULT_HOST);
 			$db_port = $this->getOption(['p', 'dbport'], ($save_db) ? getenv('MYSQL_PORT') : null);
-			$db_data = $this->getOption(['d', 'dbdata'], ($save_db) ? getenv('MYSQL_DATABASE') : '');
-			$db_user = $this->getOption(['U', 'dbuser'], ($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : '');
-			$db_pass = $this->getOption(['P', 'dbpass'], ($save_db) ? getenv('MYSQL_PASSWORD') : '');
-			$url_path = $this->getOption(['u', 'urlpath'], !empty('FRIENDICA_URL_PATH') ? getenv('FRIENDICA_URL_PATH') : null);
+			$configCache->set('database', 'hostname', $db_host . (!empty($db_port) ? ':' . $db_port : ''));
+			$configCache->set('database', 'database',
+				$this->getOption(['d', 'dbdata'],
+					($save_db) ? getenv('MYSQL_DATABASE') : ''));
+			$configCache->set('database', 'username',
+				$this->getOption(['U', 'dbuser'],
+					($save_db) ? getenv('MYSQL_USER') . getenv('MYSQL_USERNAME') : ''));
+			$configCache->set('database', 'password',
+				$this->getOption(['P', 'dbpass'],
+					($save_db) ? getenv('MYSQL_PASSWORD') : ''));
 			$php_path = $this->getOption(['b', 'phppath'], !empty('FRIENDICA_PHP_PATH') ? getenv('FRIENDICA_PHP_PATH') : null);
-			$admin_mail = $this->getOption(['A', 'admin'], !empty('FRIENDICA_ADMIN_MAIL') ? getenv('FRIENDICA_ADMIN_MAIL') : '');
-			$tz = $this->getOption(['T', 'tz'], !empty('FRIENDICA_TZ') ? getenv('FRIENDICA_TZ') : '');
-			$lang = $this->getOption(['L', 'lang'], !empty('FRIENDICA_LANG') ? getenv('FRIENDICA_LANG') : '');
+			if (!empty($php_path)) {
+				$configCache->set('config', 'php_path', $php_path);
+			}
+			$configCache->set('config', 'admin_email',
+				$this->getOption(['A', 'admin'],
+					!empty(getenv('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : ''));
+			$configCache->set('system', 'default_timezone',
+				$this->getOption(['T', 'tz'],
+					!empty(getenv('FRIENDICA_TZ')) ? getenv('FRIENDICA_TZ') : Installer::DEFAULT_TZ));
+			$configCache->set('system', 'language',
+				$this->getOption(['L', 'lang'],
+					!empty(getenv('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : Installer::DEFAULT_LANG));
+
 
 			if (empty($php_path)) {
-				$php_path = $installer->getPHPPath();
+				$configCache->set('config', 'php_path', $installer->getPHPPath());
 			}
 
 			$installer->createConfig(
-				$php_path,
-				$url_path,
-				(!empty($db_port) ? $db_host . ':' . $db_port : $db_host),
-				$db_user,
-				$db_pass,
-				$db_data,
-				$tz,
-				$lang,
-				$admin_mail,
+				$a,
+				$configCache,
 				$a->getBasePath()
 			);
 		}
@@ -146,7 +159,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $db_host, $db_user, $db_pass, $db_data)) {
+		if (!$installer->checkDB($a->getBasePath(), $configCache, $a->getProfiler())) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -180,12 +193,13 @@ HELP;
 	}
 
 	/**
-	 * @param Installer $installer the Installer instance
+	 * @param Installer                 $installer   The Installer instance
+	 * @param Config\Cache\IConfigCache $configCache The config cache
 	 *
 	 * @return bool true if checks were successfully, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function runBasicChecks(Installer $installer)
+	private function runBasicChecks(Installer $installer, Config\Cache\IConfigCache $configCache)
 	{
 		$checked = true;
 
@@ -207,8 +221,8 @@ HELP;
 		}
 
 		$php_path = null;
-		if (!empty(Config::get('config', 'php_path'))) {
-			$php_path = Config::get('config', 'php_path');
+		if ($configCache->has('config', 'php_path')) {
+			$php_path = $configCache->get('config', 'php_path');
 		}
 
 		if (!$installer->checkPHP($php_path, true)) {

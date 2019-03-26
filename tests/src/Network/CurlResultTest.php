@@ -2,11 +2,20 @@
 
 namespace Friendica\Test\src\Network;
 
+use Friendica\Core\Logger;
 use Friendica\Network\CurlResult;
+use Friendica\Util\Logger\VoidLogger;
 use PHPUnit\Framework\TestCase;
 
 class CurlResultTest extends TestCase
 {
+	protected function setUp()
+	{
+		parent::setUp();
+
+		Logger::init(new VoidLogger());
+	}
+
 	/**
 	 * @small
 	 */

@@ -18,7 +18,7 @@
 
 <form id="install-form" action="{{$baseurl}}/install" method="post">
 
-	<input type="hidden" name="phpath" value="{{$phpath}}" />
+	<input type="hidden" name="config-php_path" value="{{$php_path}}" />
 	<input type="hidden" name="pass" value="3" />
 
 	{{include file="field_input.tpl" field=$dbhost}}

@@ -5,9 +5,13 @@ namespace Friendica\Factory;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\Logger\FriendicaDevelopHandler;
-use Friendica\Util\Logger\FriendicaIntrospectionProcessor;
-use Friendica\Util\Logger\WorkerLogger;
+use Friendica\Util\Introspection;
+use Friendica\Util\Logger\Monolog\DevelopHandler;
+use Friendica\Util\Logger\Monolog\IntrospectionProcessor;
+use Friendica\Util\Logger\ProfilerLogger;
+use Friendica\Util\Logger\StreamLogger;
+use Friendica\Util\Logger\SyslogLogger;
+use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Profiler;
 use Monolog;
 use Psr\Log\LoggerInterface;
@@ -27,7 +31,7 @@ class LoggerFactory
 	private static $ignoreClassList = [
 		Logger::class,
 		Profiler::class,
-		WorkerLogger::class
+		'Friendica\\Util\\Logger',
 	];
 
 	/**
@@ -35,29 +39,57 @@ class LoggerFactory
 	 *
 	 * @param string        $channel The channel of the logger instance
 	 * @param Configuration $config  The config
+	 * @param Profiler      $profiler The profiler of the app
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
+	 *
+	 * @throws \Exception
+	 * @throws InternalServerErrorException
 	 */
-	public static function create($channel, Configuration $config)
+	public static function create($channel, Configuration $config, Profiler $profiler)
 	{
-		$loggerTimeZone = new \DateTimeZone('UTC');
-		Monolog\Logger::setTimezone($loggerTimeZone);
+		if (empty($config->get('system', 'debugging', false))) {
+			$logger = new VoidLogger();
+			Logger::init($logger);
+			return $logger;
+		}
 
-		$logger = new Monolog\Logger($channel);
-		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, self::$ignoreClassList));
+		$introspection = new Introspection(self::$ignoreClassList);
+		$level = $config->get('system', 'loglevel');
+		$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
 
-		$debugging = $config->get('system', 'debugging');
-		$stream    = $config->get('system', 'logfile');
-		$level     = $config->get('system', 'loglevel');
+		switch ($config->get('system', 'logger_config', 'stream')) {
+			case 'monolog':
+				$loggerTimeZone = new \DateTimeZone('UTC');
+				Monolog\Logger::setTimezone($loggerTimeZone);
 
-		if ($debugging) {
-			$loglevel = self::mapLegacyConfigDebugLevel((string)$level);
-			static::addStreamHandler($logger, $stream, $loglevel);
-		} else {
-			static::addVoidHandler($logger);
+				$logger = new Monolog\Logger($channel);
+				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
+				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
+
+				$stream = $config->get('system', 'logfile');
+
+				static::addStreamHandler($logger, $stream, $loglevel);
+				break;
+
+			case 'syslog':
+				$logger = new SyslogLogger($channel, $introspection, $loglevel);
+				break;
+
+			case 'stream':
+			default:
+				$stream = $config->get('system', 'logfile');
+				$logger = new StreamLogger($channel, $stream, $introspection, $loglevel);
+				break;
+		}
+
+		$profiling = $config->get('system', 'profiling', false);
+
+		// In case profiling is enabled, wrap the ProfilerLogger around the current logger
+		if (isset($profiling) && $profiling !== false) {
+			$logger = new ProfilerLogger($logger, $profiler);
 		}
 
 		Logger::init($logger);
@@ -75,31 +107,63 @@ class LoggerFactory
 	 *
 	 * @param string        $channel The channel of the logger instance
 	 * @param Configuration $config  The config
+	 * @param Profiler      $profiler The profiler of the app
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
+	 *
+	 * @throws InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function createDev($channel, Configuration $config)
+	public static function createDev($channel, Configuration $config, Profiler $profiler)
 	{
 		$debugging   = $config->get('system', 'debugging');
 		$stream      = $config->get('system', 'dlogfile');
 		$developerIp = $config->get('system', 'dlogip');
 
 		if (!isset($developerIp) || !$debugging) {
-			return null;
+			$logger = new VoidLogger();
+			Logger::setDevLogger($logger);
+			return $logger;
 		}
 
 		$loggerTimeZone = new \DateTimeZone('UTC');
 		Monolog\Logger::setTimezone($loggerTimeZone);
 
-		$logger = new Monolog\Logger($channel);
-		$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
-		$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
-		$logger->pushProcessor(new Monolog\Processor\UidProcessor());
-		$logger->pushProcessor(new FriendicaIntrospectionProcessor(LogLevel::DEBUG, self::$ignoreClassList));
+		$introspection = new Introspection(self::$ignoreClassList);
 
-		$logger->pushHandler(new FriendicaDevelopHandler($developerIp));
+		switch ($config->get('system', 'logger_config', 'stream')) {
 
-		static::addStreamHandler($logger, $stream, LogLevel::DEBUG);
+			case 'monolog':
+				$loggerTimeZone = new \DateTimeZone('UTC');
+				Monolog\Logger::setTimezone($loggerTimeZone);
+
+				$logger = new Monolog\Logger($channel);
+				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
+				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
+				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
+				$logger->pushProcessor(new IntrospectionProcessor($introspection, LogLevel::DEBUG));
+
+				$logger->pushHandler(new DevelopHandler($developerIp));
+
+				static::addStreamHandler($logger, $stream, LogLevel::DEBUG);
+				break;
+
+			case 'syslog':
+				$logger = new SyslogLogger($channel, $introspection,  LogLevel::DEBUG);
+				break;
+
+			case 'stream':
+			default:
+				$logger = new StreamLogger($channel, $stream, $introspection, LogLevel::DEBUG);
+				break;
+		}
+
+		$profiling = $config->get('system', 'profiling', false);
+
+		// In case profiling is enabled, wrap the ProfilerLogger around the current logger
+		if (isset($profiling) && $profiling !== false) {
+			$logger = new ProfilerLogger($logger, $profiler);
+		}
 
 		Logger::setDevLogger($logger);
 

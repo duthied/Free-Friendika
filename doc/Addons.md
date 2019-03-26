@@ -411,6 +411,30 @@ Hook data:
     visitor => array with the contact record of the visitor
     url => the query string
 
+### jot_networks
+Called when displaying the post permission screen.
+Hook data is a list of form fields that need to be displayed along the ACL.
+Form field array structure is:
+
+- **type**: `checkbox` or `select`.
+- **field**: Standard field data structure to be used by `field_checkbox.tpl` and `field_select.tpl`.
+
+For `checkbox`, **field** is:
+  - [0] (String): Form field name; Mandatory. 
+  - [1]: (String): Form field label; Optional, default is none.
+  - [2]: (Boolean): Whether the checkbox should be checked by default; Optional, default is false.
+  - [3]: (String): Additional help text; Optional, default is none.
+  - [4]: (String): Additional HTML attributes; Optional, default is none.
+
+For `select`, **field** is:
+  - [0] (String): Form field name; Mandatory.
+  - [1] (String): Form field label; Optional, default is none.
+  - [2] (Boolean): Default value to be selected by default; Optional, default is none.
+  - [3] (String): Additional help text; Optional, default is none.
+  - [4] (Array): Associative array of options. Item key is option value, item value is option label; Mandatory. 
+
+
+
 ## Complete list of hook callbacks
 
 Here is a complete list of all hook callbacks with file locations (as of 24-Sep-2018). Please see the source for details of any hooks not documented above.

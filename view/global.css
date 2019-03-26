@@ -1,6 +1,10 @@
 /* General style rules .*/
 .pull-right { float: right }
 
+details > summary {
+  cursor: pointer;
+}
+
 /* General designing elements */
 .btn {
   outline: none;

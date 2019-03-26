@@ -1,5 +1,6 @@
 <?php
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -345,4 +346,18 @@ function update_1298()
 		Logger::notice($translateKey . " fix completed", ['action' => 'update', 'translateKey' => $translateKey, 'Success' => $success, 'Fail' => $fail ]);
 	}
 	return Update::SUCCESS;
+}
+
+/**
+ * @see https://github.com/friendica/friendica/pull/6920
+ * @return int Success
+ */
+function update_1307()
+{
+	$app = BaseObject::getApp();
+	if (Update::saveConfigToFile($app->getBasePath(), $app->getMode())) {
+		return Update::SUCCESS;
+	} else {
+		return Update::FAILED;
+	}
 }

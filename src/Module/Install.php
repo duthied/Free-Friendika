@@ -5,6 +5,7 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core;
+use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Util\Strings;
@@ -65,45 +66,48 @@ class Install extends BaseModule
 	public static function post()
 	{
 		$a = self::getApp();
+		$configCache = $a->getConfigCache();
 
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
 			case self::DATABASE_CONFIG:
-				// Nothing to do in these steps
+				self::checkSetting($configCache, $_POST, 'config', 'php_path');
 				break;
 
 			case self::SITE_SETTINGS:
-				$dbhost  = Strings::escapeTags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
-				$dbuser  = Strings::escapeTags(trim(defaults($_POST, 'dbuser', '')));
-				$dbpass  = Strings::escapeTags(trim(defaults($_POST, 'dbpass', '')));
-				$dbdata  = Strings::escapeTags(trim(defaults($_POST, 'dbdata', '')));
+				self::checkSetting($configCache, $_POST, 'config', 'php_path');
+
+				self::checkSetting($configCache, $_POST, 'database', 'hostname', Core\Installer::DEFAULT_HOST);
+				self::checkSetting($configCache, $_POST, 'database', 'username', '');
+				self::checkSetting($configCache, $_POST, 'database', 'password', '');
+				self::checkSetting($configCache, $_POST, 'database', 'database', '');
 
 				// If we cannot connect to the database, return to the previous step
-				if (!self::$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $dbhost, $dbuser, $dbpass, $dbdata)) {
+				if (!self::$installer->checkDB($a->getBasePath(), $configCache, $a->getProfiler())) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 				}
 
 				break;
 
 			case self::FINISHED:
-				$urlpath   = $a->getURLPath();
-				$dbhost    = Strings::escapeTags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
-				$dbuser    = Strings::escapeTags(trim(defaults($_POST, 'dbuser', '')));
-				$dbpass    = Strings::escapeTags(trim(defaults($_POST, 'dbpass', '')));
-				$dbdata    = Strings::escapeTags(trim(defaults($_POST, 'dbdata', '')));
-				$timezone  = Strings::escapeTags(trim(defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ)));
-				$language  = Strings::escapeTags(trim(defaults($_POST, 'language', Core\Installer::DEFAULT_LANG)));
-				$adminmail = Strings::escapeTags(trim(defaults($_POST, 'adminmail', '')));
+				self::checkSetting($configCache, $_POST, 'config', 'php_path');
+
+				self::checkSetting($configCache, $_POST, 'database', 'hostname', Core\Installer::DEFAULT_HOST);
+				self::checkSetting($configCache, $_POST, 'database', 'username', '');
+				self::checkSetting($configCache, $_POST, 'database', 'password', '');
+				self::checkSetting($configCache, $_POST, 'database', 'database', '');
+
+				self::checkSetting($configCache, $_POST, 'system', 'default_timezone', Core\Installer::DEFAULT_TZ);
+				self::checkSetting($configCache, $_POST, 'system', 'language', Core\Installer::DEFAULT_LANG);
+				self::checkSetting($configCache, $_POST, 'config', 'admin_email', '');
 
 				// If we cannot connect to the database, return to the Database config wizard
-				if (!self::$installer->checkDB($a->getBasePath(), $a->getConfigCache(), $a->getProfiler(), $dbhost, $dbuser, $dbpass, $dbdata)) {
+				if (!self::$installer->checkDB($a->getBasePath(), $configCache, $a->getProfiler())) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 					return;
 				}
 
-				$phpath = self::$installer->getPHPPath();
-
-				if (!self::$installer->createConfig($phpath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $a->getBasePath())) {
+				if (!self::$installer->createConfig($a, $configCache, $a->getBasePath())) {
 					return;
 				}
 
@@ -116,6 +120,7 @@ class Install extends BaseModule
 	public static function content()
 	{
 		$a = self::getApp();
+		$configCache = $a->getConfigCache();
 
 		$output = '';
 
@@ -123,85 +128,62 @@ class Install extends BaseModule
 
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
-				$phppath = defaults($_POST, 'phpath', null);
+				$php_path = $configCache->get('config', 'php_path');
 
-				$status = self::$installer->checkEnvironment($a->getBaseURL(), $phppath);
+				$status = self::$installer->checkEnvironment($a->getBaseURL(), $php_path);
 
 				$tpl = Renderer::getMarkupTemplate('install_checks.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
-					'$title'		=> $install_title,
-					'$pass'			=> L10n::t('System check'),
-					'$checks'		=> self::$installer->getChecks(),
-					'$passed'		=> $status,
-					'$see_install'	=> L10n::t('Please see the file "INSTALL.txt".'),
-					'$next' 		=> L10n::t('Next'),
-					'$reload' 		=> L10n::t('Check again'),
-					'$phpath' 		=> $phppath,
-					'$baseurl' 		=> $a->getBaseURL()
+					'$title'        => $install_title,
+					'$pass'         => L10n::t('System check'),
+					'$checks'       => self::$installer->getChecks(),
+					'$passed'       => $status,
+					'$see_install'  => L10n::t('Please see the file "INSTALL.txt".'),
+					'$next'         => L10n::t('Next'),
+					'$reload'       => L10n::t('Check again'),
+					'$php_path'     => $php_path,
+					'$baseurl'      => $a->getBaseURL()
 				]);
 				break;
 
 			case self::DATABASE_CONFIG:
-				$dbhost    = Strings::escapeTags(trim(defaults($_POST, 'dbhost'   , Core\Installer::DEFAULT_HOST)));
-				$dbuser    = Strings::escapeTags(trim(defaults($_POST, 'dbuser'   , ''                          )));
-				$dbpass    = Strings::escapeTags(trim(defaults($_POST, 'dbpass'   , ''                          )));
-				$dbdata    = Strings::escapeTags(trim(defaults($_POST, 'dbdata'   , ''                          )));
-				$phpath    = Strings::escapeTags(trim(defaults($_POST, 'phpath'   , ''                          )));
-				$adminmail = Strings::escapeTags(trim(defaults($_POST, 'adminmail', ''                          )));
-
 				$tpl = Renderer::getMarkupTemplate('install_db.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
-					'$title' 	=> $install_title,
-					'$pass' 	=> L10n::t('Database connection'),
-					'$info_01' 	=> L10n::t('In order to install Friendica we need to know how to connect to your database.'),
-					'$info_02' 	=> L10n::t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
-					'$info_03' 	=> L10n::t('The database you specify below should already exist. If it does not, please create it before continuing.'),
-					'checks' 	=> self::$installer->getChecks(),
-					'$dbhost' 	=> ['dbhost',
+					'$title'    => $install_title,
+					'$pass'     => L10n::t('Database connection'),
+					'$info_01'  => L10n::t('In order to install Friendica we need to know how to connect to your database.'),
+					'$info_02'  => L10n::t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
+					'$info_03'  => L10n::t('The database you specify below should already exist. If it does not, please create it before continuing.'),
+					'checks'    => self::$installer->getChecks(),
+					'$dbhost'   => ['database-hostname',
 									L10n::t('Database Server Name'),
-									$dbhost,
+									$configCache->get('database', 'hostname'),
 									'',
 									'required'],
-					'$dbuser' 	=> ['dbuser',
+					'$dbuser'   => ['database-username',
 									L10n::t('Database Login Name'),
-									$dbuser,
+									$configCache->get('database', 'username'),
 									'',
 									'required',
 									'autofocus'],
-					'$dbpass' 	=> ['dbpass',
+					'$dbpass'   => ['database-password',
 									L10n::t('Database Login Password'),
-									$dbpass,
+									$configCache->get('database', 'password'),
 									L10n::t("For security reasons the password must not be empty"),
 									'required'],
-					'$dbdata' 	=> ['dbdata',
+					'$dbdata'   => ['database-database',
 									L10n::t('Database Name'),
-									$dbdata,
+									$configCache->get('database', 'database'),
 									'',
 									'required'],
-					'$adminmail' => ['adminmail',
-									L10n::t('Site administrator email address'),
-									$adminmail,
-									L10n::t('Your account email address must match this in order to use the web admin panel.'),
-									'required',
-									'autofocus',
-									'email'],
-					'$lbl_10' 	=> L10n::t('Please select a default timezone for your website'),
-					'$baseurl' 	=> $a->getBaseURL(),
-					'$phpath' 	=> $phpath,
-					'$submit' 	=> L10n::t('Submit')
+					'$lbl_10'   => L10n::t('Please select a default timezone for your website'),
+					'$baseurl'  => $a->getBaseURL(),
+					'$php_path' => $configCache->get('config', 'php_path'),
+					'$submit'   => L10n::t('Submit')
 				]);
 				break;
 
 			case self::SITE_SETTINGS:
-				$dbhost = Strings::escapeTags(trim(defaults($_POST, 'dbhost', Core\Installer::DEFAULT_HOST)));
-				$dbuser = Strings::escapeTags(trim(defaults($_POST, 'dbuser', ''                          )));
-				$dbpass = Strings::escapeTags(trim(defaults($_POST, 'dbpass', ''                          )));
-				$dbdata = Strings::escapeTags(trim(defaults($_POST, 'dbdata', ''                          )));
-				$phpath = Strings::escapeTags(trim(defaults($_POST, 'phpath', ''                          )));
-
-				$adminmail = Strings::escapeTags(trim(defaults($_POST, 'adminmail', '')));
-
-				$timezone = defaults($_POST, 'timezone', Core\Installer::DEFAULT_TZ);
 				/* Installed langs */
 				$lang_choices = L10n::getAvailableLanguages();
 
@@ -210,16 +192,23 @@ class Install extends BaseModule
 					'$title' 		=> $install_title,
 					'$checks' 		=> self::$installer->getChecks(),
 					'$pass' 		=> L10n::t('Site settings'),
-					'$dbhost' 		=> $dbhost,
-					'$dbuser' 		=> $dbuser,
-					'$dbpass' 		=> $dbpass,
-					'$dbdata' 		=> $dbdata,
-					'$phpath' 		=> $phpath,
-					'$adminmail'	=> ['adminmail', L10n::t('Site administrator email address'), $adminmail, L10n::t('Your account email address must match this in order to use the web admin panel.'), 'required', 'autofocus', 'email'],
-					'$timezone' 	=> Temporal::getTimezoneField('timezone', L10n::t('Please select a default timezone for your website'), $timezone, ''),
-					'$language' 	=> ['language',
+					'$dbhost' 		=> $configCache->get('database', 'hostname'),
+					'$dbuser' 		=> $configCache->get('database', 'username'),
+					'$dbpass' 		=> $configCache->get('database', 'password'),
+					'$dbdata' 		=> $configCache->get('database', 'database'),
+					'$phpath' 		=> $configCache->get('config', 'php_path'),
+					'$adminmail'	=> ['config-admin_email',
+										L10n::t('Site administrator email address'),
+										$configCache->get('config', 'admin_email'),
+										L10n::t('Your account email address must match this in order to use the web admin panel.'),
+										'required', 'autofocus', 'email'],
+					'$timezone' 	=> Temporal::getTimezoneField('system-default_timezone',
+										L10n::t('Please select a default timezone for your website'),
+										$configCache->get('system', 'default_timezone'),
+									''),
+					'$language' 	=> ['system-language',
 										L10n::t('System Language:'),
-										Core\Installer::DEFAULT_LANG,
+										$configCache->get('system', 'language'),
 										L10n::t('Set the default language for your Friendica installation interface and to send emails.'),
 										$lang_choices],
 					'$baseurl' 		=> $a->getBaseURL(),
@@ -268,5 +257,25 @@ class Install extends BaseModule
 			. "</p><p>"
 			. L10n::t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
 			. "</p>";
+	}
+
+	/**
+	 * Checks the $_POST settings and updates the config Cache for it
+	 *
+	 * @param IConfigCache $configCache The current config cache
+	 * @param array        $post        The $_POST data
+	 * @param string       $cat         The category of the setting
+	 * @param string       $key         The key of the setting
+	 * @param null|string  $default     The default value
+	 */
+	private static function checkSetting(IConfigCache $configCache, array $post, $cat, $key, $default = null)
+	{
+		$configCache->set($cat, $key,
+			Strings::escapeTags(
+				trim(defaults($post, sprintf('%s-%s', $cat, $key),
+						(!isset($default) ? $configCache->get($cat, $key) : $default))
+				)
+			)
+		);
 	}
 }

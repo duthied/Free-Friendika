@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
+use Friendica\App;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -129,33 +130,28 @@ class Installer
 	 * - Creates `config/local.config.php`
 	 * - Installs Database Structure
 	 *
-	 * @param string $phppath   Path to the PHP-Binary (optional, if not set e.g. 'php' or '/usr/bin/php')
-	 * @param string $urlpath   Path based on the URL of Friendica (e.g. '/friendica')
-	 * @param string $dbhost    Hostname/IP of the Friendica Database
-	 * @param string $dbuser    Username of the Database connection credentials
-	 * @param string $dbpass    Password of the Database connection credentials
-	 * @param string $dbdata    Name of the Database
-	 * @param string $timezone  Timezone of the Friendica Installaton (e.g. 'Europe/Berlin')
-	 * @param string $language  2-letter ISO 639-1 code (eg. 'en')
-	 * @param string $adminmail Mail-Adress of the administrator
+	 * @param App          $app         The Friendica App
+	 * @param IConfigCache $configCache The config cache with all config relevant information
 	 * @param string $basepath  The basepath of Friendica
 	 *
 	 * @return bool true if the config was created, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function createConfig($phppath, $urlpath, $dbhost, $dbuser, $dbpass, $dbdata, $timezone, $language, $adminmail, $basepath)
+	public function createConfig(App $app, IConfigCache $configCache, $basepath)
 	{
 		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
-			'$phpath' => $phppath,
-			'$dbhost' => $dbhost,
-			'$dbuser' => $dbuser,
-			'$dbpass' => $dbpass,
-			'$dbdata' => $dbdata,
-			'$timezone' => $timezone,
-			'$language' => $language,
-			'$urlpath' => $urlpath,
-			'$adminmail' => $adminmail,
+			'$dbhost'    => $configCache->get('database', 'hostname'),
+			'$dbuser'    => $configCache->get('database', 'username'),
+			'$dbpass'    => $configCache->get('database', 'password'),
+			'$dbdata'    => $configCache->get('database', 'database'),
+
+			'$phpath'    => $this->getPHPPath(),
+			'$adminmail' => $configCache->get('config', 'admin_email'),
+
+			'$timezone'  => $configCache->get('system', 'default_timezone'),
+			'$language'  => $configCache->get('system', 'language'),
+			'$urlpath'   => $app->getURLPath(),
 		]);
 
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);
@@ -594,16 +590,17 @@ class Installer
 	 * @param string       $basePath    The basepath of this call
 	 * @param IConfigCache $configCache The configuration cache
 	 * @param Profiler    $profiler    The profiler of this app
-	 * @param string $dbhost           Hostname/IP of the Friendica Database
-	 * @param string $dbuser           Username of the Database connection credentials
-	 * @param string $dbpass           Password of the Database connection credentials
-	 * @param string $dbdata           Name of the Database
 	 *
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB($basePath, IConfigCache $configCache, Profiler $profiler, $dbhost, $dbuser, $dbpass, $dbdata)
+	public function checkDB($basePath, IConfigCache $configCache, Profiler $profiler)
 	{
+		$dbhost = $configCache->get('database', 'hostname');
+		$dbuser = $configCache->get('database', 'username');
+		$dbpass = $configCache->get('database', 'password');
+		$dbdata = $configCache->get('database', 'database');
+
 		if (!DBA::connect($basePath, $configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 

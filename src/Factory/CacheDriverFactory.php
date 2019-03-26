@@ -1,8 +1,10 @@
 <?php
 
-namespace Friendica\Core\Cache;
+namespace Friendica\Factory;
 
+use Friendica\Core\Cache\ICacheDriver;
 use Friendica\Core\Config;
+use Friendica\Core\Cache;
 
 /**
  * Class CacheDriverFactory
@@ -27,22 +29,22 @@ class CacheDriverFactory
 				$memcache_host = Config::get('system', 'memcache_host');
 				$memcache_port = Config::get('system', 'memcache_port');
 
-				return new MemcacheCacheDriver($memcache_host, $memcache_port);
+				return new Cache\MemcacheCacheDriver($memcache_host, $memcache_port);
 				break;
 
 			case 'memcached':
 				$memcached_hosts = Config::get('system', 'memcached_hosts');
 
-				return new MemcachedCacheDriver($memcached_hosts);
+				return new Cache\MemcachedCacheDriver($memcached_hosts);
 				break;
 			case 'redis':
 				$redis_host = Config::get('system', 'redis_host');
 				$redis_port = Config::get('system', 'redis_port');
 
-				return new RedisCacheDriver($redis_host, $redis_port);
+				return new Cache\RedisCacheDriver($redis_host, $redis_port);
 				break;
 			default:
-				return new DatabaseCacheDriver();
+				return new Cache\DatabaseCacheDriver();
 		}
 	}
 }

@@ -16,20 +16,18 @@ class ConfigConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
+		$this->mockApp($this->root);
+
 		\Mockery::getConfiguration()->setConstantsMap([
 			Mode::class => [
 				'DBCONFIGAVAILABLE' => 0
 			]
 		]);
 
-		$mode = \Mockery::mock(Mode::class);
-		$mode
+		$this->mode
 			->shouldReceive('has')
 			->andReturn(true);
 
-		$this->app
-			->shouldReceive('getMode')
-			->andReturn($mode);
 	}
 
 	function testSetGetKeyValue() {

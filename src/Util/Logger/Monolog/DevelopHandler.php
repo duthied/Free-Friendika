@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Util\Logger;
+namespace Friendica\Util\Logger\Monolog;
 
 use Monolog\Handler;
 use Monolog\Logger;
@@ -11,7 +11,7 @@ use Monolog\Logger;
  * If you want to debug only interactions from your IP or the IP of a remote server for federation debug,
  * you'll use Logger::develop() for the duration of your work, and you clean it up when you're done before submitting your PR.
  */
-class FriendicaDevelopHandler extends Handler\AbstractHandler
+class DevelopHandler extends Handler\AbstractHandler
 {
 	/**
 	 * @var string The IP of the developer who wants to debug

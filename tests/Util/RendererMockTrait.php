@@ -36,14 +36,18 @@ trait RendererMockTrait
 	 * Mocking the method 'Renderer::replaceMacros()'
 	 *
 	 * @param string $template The template to use (normally, it is the mock result of 'mockGetMarkupTemplate()'
-	 * @param array $args The arguments to pass to the macro
+	 * @param array|\Closure|null $args The arguments to pass to the macro
 	 * @param string $return the return value of the mock
 	 * @param null|int $times How often the method will get used
 	 */
-	public function mockReplaceMacros($template, $args = [], $return = '', $times = null)
+	public function mockReplaceMacros($template, $args = null, $return = '', $times = null)
 	{
 		if (!isset($this->rendererMock)) {
 			$this->rendererMock = \Mockery::mock('alias:' . Renderer::class);
+		}
+
+		if (!isset($args)) {
+			$args = [];
 		}
 
 		$this->rendererMock

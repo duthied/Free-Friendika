@@ -1112,6 +1112,7 @@ CREATE TABLE IF NOT EXISTS `term` (
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`tid`),
+	 INDEX `term_type` (`term`(64), `type`),
 	 INDEX `oid_otype_type_term` (`oid`,`otype`,`type`,`term`(32)),
 	 INDEX `uid_otype_type_term_global_created` (`uid`,`otype`,`type`,`term`(32),`global`,`created`),
 	 INDEX `uid_otype_type_url` (`uid`,`otype`,`type`,`url`(64)),

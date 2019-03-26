@@ -844,4 +844,18 @@ class DBStructure
 
 		return $retval;
 	}
+
+	/**
+	 * Returns the columns of a table
+	 *
+	 * @param string $table Table name
+	 *
+	 * @return array An array of the table columns
+	 * @throws Exception
+	 */
+	public static function getColumns($table)
+	{
+		$stmtColumns = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
+		return DBA::toArray($stmtColumns);
+	}
 }

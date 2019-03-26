@@ -36,7 +36,7 @@ class NotificationsManager extends BaseObject
 	 *  - msg_plain: message as plain text string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function _set_extra($notes)
+	private function _set_extra(array $notes)
 	{
 		$rets = [];
 		foreach ($notes as $n) {
@@ -55,50 +55,28 @@ class NotificationsManager extends BaseObject
 	 * @brief Get all notifications for local_user()
 	 *
 	 * @param array  $filter optional Array "column name"=>value: filter query by columns values
-	 * @param string $order  optional Space separated list of column to sort by.
-	 *                       Prepend name with "+" to sort ASC, "-" to sort DESC. Default to "-date"
+	 * @param array  $order  optional Array to order by
 	 * @param string $limit  optional Query limits
 	 *
-	 * @return array of results or false on errors
+	 * @return array|bool of results or false on errors
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function getAll($filter = [], $order = "-date", $limit = "")
+	public function getAll($filter = [], $order = ['date' => 'DESC'], $limit = "")
 	{
-		$filter_str = [];
-		$filter_sql = "";
-		foreach ($filter as $column => $value) {
-			$filter_str[] = sprintf("`%s` = '%s'", $column, DBA::escape($value));
-		}
-		if (count($filter_str) > 0) {
-			$filter_sql = "AND " . implode(" AND ", $filter_str);
+		$params = [];
+
+		$params['order'] = $order;
+
+		if (!empty($limit)) {
+			$params['limit'] = $limit;
 		}
 
-		$aOrder = explode(" ", $order);
-		$asOrder = [];
-		foreach ($aOrder as $o) {
-			$dir = "asc";
-			if ($o[0] === "-") {
-				$dir = "desc";
-				$o = substr($o, 1);
-			}
-			if ($o[0] === "+") {
-				$dir = "asc";
-				$o = substr($o, 1);
-			}
-			$asOrder[] = "$o $dir";
-		}
-		$order_sql = implode(", ", $asOrder);
+		$dbFilter = array_merge($filter, ['uid' => local_user()]);
 
-		if ($limit != "") {
-			$limit = " LIMIT " . $limit;
-		}
-		$r = q(
-			"SELECT * FROM `notify` WHERE `uid` = %d $filter_sql ORDER BY $order_sql $limit",
-			intval(local_user())
-		);
+		$stmtNotifies = DBA::select('notify', [], $dbFilter, $params);
 
-		if (DBA::isResult($r)) {
-			return $this->_set_extra($r);
+		if (DBA::isResult($stmtNotifies)) {
+			return $this->_set_extra(DBA::toArray($stmtNotifies));
 		}
 
 		return false;
@@ -113,13 +91,9 @@ class NotificationsManager extends BaseObject
 	 */
 	public function getByID($id)
 	{
-		$r = q(
-			"SELECT * FROM `notify` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($id),
-			intval(local_user())
-		);
-		if (DBA::isResult($r)) {
-			return $this->_set_extra($r)[0];
+		$stmtNotify = DBA::selectFirst('notify', [], ['id' => $id, 'uid' => local_user()]);
+		if (DBA::isResult($stmtNotify)) {
+			return $this->_set_extra([$stmtNotify])[0];
 		}
 		return null;
 	}
@@ -134,14 +108,13 @@ class NotificationsManager extends BaseObject
 	 */
 	public function setSeen($note, $seen = true)
 	{
-		return q(
-			"UPDATE `notify` SET `seen` = %d WHERE (`link` = '%s' OR (`parent` != 0 AND `parent` = %d AND `otype` = '%s')) AND `uid` = %d",
-			intval($seen),
-			DBA::escape($note['link']),
-			intval($note['parent']),
-			DBA::escape($note['otype']),
-			intval(local_user())
-		);
+		return DBA::update('notify', ['seen' => $seen], [
+			'(`link` = ? OR (`parent` != 0 AND `parent` = ? AND `otype` = ?)) AND `uid` = ?',
+			$note['link'],
+			$note['parent'],
+			$note['otype'],
+			local_user()
+		]);
 	}
 
 	/**
@@ -153,11 +126,7 @@ class NotificationsManager extends BaseObject
 	 */
 	public function setAllSeen($seen = true)
 	{
-		return q(
-			"UPDATE `notify` SET `seen` = %d WHERE `uid` = %d",
-			intval($seen),
-			intval(local_user())
-		);
+		return DBA::update('notify', ['seen' => $seen], ['uid' => local_user()]);
 	}
 
 	/**
@@ -460,20 +429,22 @@ class NotificationsManager extends BaseObject
 		$notifs = [];
 		$sql_seen = "";
 
+		$filter = ['uid' => local_user()];
 		if ($seen === 0) {
-			$sql_seen = " AND NOT `seen` ";
+			$filter['seen'] = false;
 		}
 
-		$r = q(
-			"SELECT `id`, `url`, `photo`, `msg`, `date`, `seen`, `verb` FROM `notify`
-				WHERE `uid` = %d $sql_seen ORDER BY `date` DESC LIMIT %d, %d ",
-			intval(local_user()),
-			intval($start),
-			intval($limit)
-		);
+		$params = [];
+		$params['order'] = ['date' => 'DESC'];
+		$params['limit'] = [$start, $limit];
 
-		if (DBA::isResult($r)) {
-			$notifs = $this->formatNotifs($r, $ident);
+		$stmtNotifies = DBA::select('notify',
+			['id', 'url', 'photo', 'msg', 'date', 'seen', 'verb'],
+			$filter,
+			$params);
+
+		if (DBA::isResult($stmtNotifies)) {
+			$notifs = $this->formatNotifs(DBA::toArray($stmtNotifies), $ident);
 		}
 
 		$arr = [
@@ -596,7 +567,7 @@ class NotificationsManager extends BaseObject
 		}
 
 		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
-		$r = q(
+		$stmtNotifies = DBA::p(
 			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
@@ -613,8 +584,8 @@ class NotificationsManager extends BaseObject
 			intval($start),
 			intval($limit)
 		);
-		if (DBA::isResult($r)) {
-			$notifs = $this->formatIntros($r);
+		if (DBA::isResult($stmtNotifies)) {
+			$notifs = $this->formatIntros(DBA::toArray($stmtNotifies));
 		}
 
 		$arr = [

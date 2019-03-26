@@ -3,7 +3,7 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\Core\Cache\CacheDriverFactory;
+use Friendica\Factory\CacheDriverFactory;
 use Friendica\Core\Lock\CacheLockDriver;
 
 /**

@@ -3,9 +3,9 @@
 namespace Friendica\Factory;
 
 use Friendica\App;
-use Friendica\Core\Config\Cache;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
+use Friendica\Util\Config;
 
 class DependencyFactory
 {
@@ -23,16 +23,17 @@ class DependencyFactory
 	public static function setUp($channel, $directory, $isBackend = true)
 	{
 		$basePath = BasePath::create($directory, $_SERVER);
-		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$mode = new App\Mode($basePath);
+		$configLoader = new Config\ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
 		// needed to call PConfig::init()
 		Factory\ConfigFactory::createPConfig($configCache);
-		$logger = Factory\LoggerFactory::create($channel, $config);
-		Factory\LoggerFactory::createDev($channel, $config);
+		$logger = Factory\LoggerFactory::create($channel, $config, $profiler);
+		Factory\LoggerFactory::createDev($channel, $config, $profiler);
 
-		return new App($basePath, $config, $logger, $profiler, $isBackend);
+		return new App($config, $mode, $logger, $profiler, $isBackend);
 	}
 }

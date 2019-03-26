@@ -22,14 +22,9 @@ abstract class ConsoleTest extends MockedTest
 	{
 		parent::setUp();
 
-		if (!getenv('MYSQL_DATABASE')) {
-			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
-		}
-
 		Intercept::setUp();
 
 		$this->setUpVfsDir();
-		$this->mockApp($this->root);
 	}
 
 	/**

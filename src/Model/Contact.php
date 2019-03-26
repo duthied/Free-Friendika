@@ -110,6 +110,16 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @param  integer       $id
+	 * @return array|boolean Contact record if it exists, false otherwise
+	 * @throws \Exception
+	 */
+	public static function getById($id)
+	{
+		return DBA::selectFirst('contact', [], ['id' => $id]);
+	}
+
+	/**
 	 * @brief Tests if the given contact is a follower
 	 *
 	 * @param int $cid Either public contact id or user's contact id
