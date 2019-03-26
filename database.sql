@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2019.03 (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1305
+-- Friendica 2019.06-dev (Dalmatian Bellflower)
+-- DB_UPDATE_VERSION 1308
 -- ------------------------------------------
 
 
@@ -480,6 +480,7 @@ CREATE TABLE IF NOT EXISTS `inbox-status` (
 	`failure` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of the last failed delivery',
 	`previous` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Previous delivery date',
 	`archive` boolean NOT NULL DEFAULT '0' COMMENT 'Is the inbox archived?',
+	`shared` boolean NOT NULL DEFAULT '0' COMMENT 'Is it a shared inbox?',
 	 PRIMARY KEY(`url`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Status of ActivityPub inboxes';
 
@@ -1112,7 +1113,7 @@ CREATE TABLE IF NOT EXISTS `term` (
 	`global` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	 PRIMARY KEY(`tid`),
-	 INDEX `term_type` (`term`(64), `type`),
+	 INDEX `term_type` (`term`(64),`type`),
 	 INDEX `oid_otype_type_term` (`oid`,`otype`,`type`,`term`(32)),
 	 INDEX `uid_otype_type_term_global_created` (`uid`,`otype`,`type`,`term`(32),`global`,`created`),
 	 INDEX `uid_otype_type_url` (`uid`,`otype`,`type`,`url`(64)),
