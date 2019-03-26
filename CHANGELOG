@@ -6,6 +6,7 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     Fixed the timezone of Friendica logs [nupplaphil]
     Fixed tag completion painfully slow [AlfredSK]
     Fixed a regression in notifications [MrPetovan]
+    Fixed an issue with smilies and code blocks [MrPetovan]
     General Code cleaning and restructuring [nupplaphil]
     Added frio color scheme sharing [JeroenED]
     Added syslog and stream Logger [nupplaphil]
