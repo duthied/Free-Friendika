@@ -352,7 +352,7 @@ function update_1298()
  * @see https://github.com/friendica/friendica/pull/6920
  * @return int Success
  */
-function update_1305()
+function update_1307()
 {
 	$app = BaseObject::getApp();
 	if (Update::saveConfigToFile($app->getBasePath(), $app->getMode())) {
