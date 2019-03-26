@@ -285,22 +285,24 @@ class Update
 
 		$savedConfig = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
 
-		if (!DBA::isResult($savedConfig)) {
-			$savedConfig = null;
-		}
-
-		if ($fileConfig !== $savedConfig['v']) {
+		// If the db contains a config value, check it
+		if (DBA::isResult($savedConfig) && $fileConfig !== $savedConfig['v']) {
 			Logger::info('Difference in config found', ['cat' => $cat, 'key' => $key, 'file' => $fileConfig, 'saved' => $savedConfig['v']]);
 			$configFileSaver->addConfigValue($cat, $key, $savedConfig['v']);
-		} elseif (empty($fileConfig) && empty($savedConfig)) {
+			return true;
+
+		// If both config values are empty, use the default value
+		} elseif (empty($fileConfig) && !DBA::isResult($savedConfig)) {
 			Logger::info('Using default for config', ['cat' => $cat, 'key' => $key, 'value' => $default]);
 			$configFileSaver->addConfigValue($cat, $key, $default);
+			return true;
+
+		// If either the file config value isn't empty or the db value is the same as the
+		// file config value, skip it
 		} else {
 			Logger::info('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileConfig, 'saved' => $savedConfig['v']]);
 			return false;
 		}
-
-		return true;
 	}
 
 	/**
