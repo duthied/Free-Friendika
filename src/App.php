@@ -724,6 +724,7 @@ class App
 			'fetch',
 			'hcard',
 			'hostxrd',
+			'manifest',
 			'nodeinfo',
 			'noscrape',
 			'p',
