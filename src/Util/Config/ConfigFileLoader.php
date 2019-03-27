@@ -1,29 +1,21 @@
 <?php
 
-namespace Friendica\Core\Config\Cache;
+namespace Friendica\Util\Config;
 
 use Friendica\App;
 use Friendica\Core\Addon;
+use Friendica\Core\Config\Cache\IConfigCache;
 
 /**
- * The ConfigCacheLoader loads config-files and stores them in a ConfigCache ( @see ConfigCache )
+ * The ConfigFileLoader loads config-files and stores them in a IConfigCache ( @see IConfigCache )
  *
  * It is capable of loading the following config files:
  * - *.config.php   (current)
  * - *.ini.php      (deprecated)
  * - *.htconfig.php (deprecated)
  */
-class ConfigCacheLoader
+class ConfigFileLoader extends ConfigFileManager
 {
-	/**
-	 * The Sub directory of the config-files
-	 * @var string
-	 */
-	const SUBDIRECTORY = 'config';
-
-	private $baseDir;
-	private $configDir;
-
 	/**
 	 * @var App\Mode
 	 */
@@ -31,22 +23,22 @@ class ConfigCacheLoader
 
 	public function __construct($baseDir, App\Mode $mode)
 	{
+		parent::__construct($baseDir);
 		$this->appMode = $mode;
-		$this->baseDir = $baseDir;
-		$this->configDir = $baseDir . DIRECTORY_SEPARATOR . self::SUBDIRECTORY;
 	}
 
 	/**
-	 * Load the configuration files
+	 * Load the configuration files into an configuration cache
 	 *
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
 	 * expected local.config.php
 	 *
-	 * @param IConfigCache The config cache to load to
+	 * @param IConfigCache $config The config cache to load to
+	 * @param bool         $raw    Setup the raw config format
 	 *
 	 * @throws \Exception
 	 */
-	public function loadConfigFiles(IConfigCache $config)
+	public function setupCache(IConfigCache $config, $raw = false)
 	{
 		$config->load($this->loadCoreConfig('defaults'));
 		$config->load($this->loadCoreConfig('settings'));
@@ -57,7 +49,7 @@ class ConfigCacheLoader
 		$config->load($this->loadCoreConfig('local'), true);
 
 		// In case of install mode, add the found basepath (because there isn't a basepath set yet
-		if ($this->appMode->isInstall()) {
+		if (!$raw && ($this->appMode->isInstall() || empty($config->get('system', 'basepath')))) {
 			// Setting at least the basepath we know
 			$config->set('system', 'basepath', $this->baseDir);
 		}
@@ -66,18 +58,18 @@ class ConfigCacheLoader
 	/**
 	 * Tries to load the specified core-configuration and returns the config array.
 	 *
-	 * @param string $name The name of the configuration
+	 * @param string $name The name of the configuration (default is empty, which means 'local')
 	 *
 	 * @return array The config array (empty if no config found)
 	 *
 	 * @throws \Exception if the configuration file isn't readable
 	 */
-	public function loadCoreConfig($name)
+	public function loadCoreConfig($name = '')
 	{
-		if (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php')) {
-			return $this->loadConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.config.php');
-		} elseif (file_exists($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php')) {
-			return $this->loadINIConfigFile($this->configDir . DIRECTORY_SEPARATOR . $name . '.ini.php');
+		if (!empty($this->getConfigFullName($name))) {
+			return $this->loadConfigFile($this->getConfigFullName($name));
+		} elseif (!empty($this->getIniFullName($name))) {
+			return $this->loadINIConfigFile($this->getIniFullName($name));
 		} else {
 			return [];
 		}
@@ -110,22 +102,19 @@ class ConfigCacheLoader
 	/**
 	 * Tries to load the legacy config files (.htconfig.php, .htpreconfig.php) and returns the config array.
 	 *
-	 * @param string $name The name of the config file
+	 * @param string $name The name of the config file (default is empty, which means .htconfig.php)
 	 *
 	 * @return array The configuration array (empty if no config found)
 	 *
 	 * @deprecated since version 2018.09
 	 */
-	private function loadLegacyConfig($name)
+	private function loadLegacyConfig($name = '')
 	{
-		$filePath = $this->baseDir  . DIRECTORY_SEPARATOR . '.' . $name . '.php';
-
 		$config = [];
-
-		if (file_exists($filePath)) {
+		if (!empty($this->getHtConfigFullName($name))) {
 			$a = new \stdClass();
 			$a->config = [];
-			include $filePath;
+			include $this->getHtConfigFullName($name);
 
 			$htConfigCategories = array_keys($a->config);
 

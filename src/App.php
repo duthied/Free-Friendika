@@ -8,12 +8,12 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Config\Cache\ConfigCacheLoader;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
@@ -74,11 +74,6 @@ class App
 	 * @var App\Mode The Mode of the Application
 	 */
 	private $mode;
-
-	/**
-	 * @var string The App base path
-	 */
-	private $basePath;
 
 	/**
 	 * @var string The App URL path
@@ -142,7 +137,7 @@ class App
 	 */
 	public function getBasePath()
 	{
-		return $this->basePath;
+		return $this->config->get('system', 'basepath');
 	}
 
 	/**
@@ -187,7 +182,7 @@ class App
 	 */
 	public function registerStylesheet($path)
 	{
-		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->stylesheets[] = trim($url, '/');
 	}
@@ -204,7 +199,7 @@ class App
 	 */
 	public function registerFooterScript($path)
 	{
-		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
+		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->footerScripts[] = trim($url, '/');
 	}
@@ -216,7 +211,6 @@ class App
 	/**
 	 * @brief App constructor.
 	 *
-	 * @param string           $basePath   The basedir of the app
 	 * @param Configuration    $config    The Configuration
 	 * @param App\Mode         $mode      The mode of this Friendica app
 	 * @param LoggerInterface  $logger    The current app logger
@@ -225,7 +219,7 @@ class App
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct($basePath, Configuration $config, App\Mode $mode, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct(Configuration $config, App\Mode $mode, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		BaseObject::setApp($this);
 
@@ -233,13 +227,6 @@ class App
 		$this->config   = $config;
 		$this->profiler = $profiler;
 		$this->mode     = $mode;
-		$cfgBasePath = $this->config->get('system', 'basepath');
-		$this->basePath = !empty($cfgBasePath) ? $cfgBasePath : $basePath;
-
-		if (!Core\System::isDirectoryUsable($this->basePath, false)) {
-			throw new Exception('Basepath \'' . $this->basePath . '\' isn\'t usable.');
-		}
-		$this->basePath = rtrim($this->basePath, DIRECTORY_SEPARATOR);
 
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
@@ -275,9 +262,9 @@ class App
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
-			. $this->basePath . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
-			. $this->basePath . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
-			. $this->basePath);
+			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'include' . PATH_SEPARATOR
+			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
+			. $this->getBasePath());
 
 		if (!empty($_SERVER['QUERY_STRING']) && strpos($_SERVER['QUERY_STRING'], 'pagename=') === 0) {
 			$this->query_string = substr($_SERVER['QUERY_STRING'], 9);
@@ -352,10 +339,10 @@ class App
 	{
 		$this->determineURLPath();
 
-		$this->getMode()->determine($this->basePath);
+		$this->getMode()->determine($this->getBasePath());
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			$loader = new ConfigCacheLoader($this->basePath, $this->getMode());
+			$loader = new ConfigFileLoader($this->getBasePath(), $this->getMode());
 			$this->config->getCache()->load($loader->loadCoreConfig('addon'), true);
 
 			$this->profiler->update(
@@ -363,7 +350,7 @@ class App
 				$this->config->get('rendertime', 'callstack', false));
 
 			Core\Hook::loadHooks();
-			$loader = new ConfigCacheLoader($this->basePath, $this->mode);
+			$loader = new ConfigFileLoader($this->getBasePath(), $this->mode);
 			Core\Hook::callAll('load_config', $loader);
 		}
 
@@ -465,14 +452,14 @@ class App
 	{
 		$scheme = $this->scheme;
 
-		if (Core\Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
+		if ($this->config->get('system', 'ssl_policy') == SSL_POLICY_FULL) {
 			$scheme = 'https';
 		}
 
 		//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
 		//	(and also the login link). Anything seen by an outsider will have it turned off.
 
-		if (Core\Config::get('system', 'ssl_policy') == SSL_POLICY_SELFSIGN) {
+		if ($this->config->get('system', 'ssl_policy') == SSL_POLICY_SELFSIGN) {
 			if ($ssl) {
 				$scheme = 'https';
 			} else {
@@ -480,8 +467,8 @@ class App
 			}
 		}
 
-		if (Core\Config::get('config', 'hostname') != '') {
-			$this->hostname = Core\Config::get('config', 'hostname');
+		if ($this->config->get('config', 'hostname') != '') {
+			$this->hostname = $this->config->get('config', 'hostname');
 		}
 
 		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
@@ -516,12 +503,12 @@ class App
 				$this->urlPath = trim($parsed['path'], '\\/');
 			}
 
-			if (file_exists($this->basePath . '/.htpreconfig.php')) {
-				include $this->basePath . '/.htpreconfig.php';
+			if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
+				include $this->getBasePath() . '/.htpreconfig.php';
 			}
 
-			if (Core\Config::get('config', 'hostname') != '') {
-				$this->hostname = Core\Config::get('config', 'hostname');
+			if ($this->config->get('config', 'hostname') != '') {
+				$this->hostname = $this->config->get('config', 'hostname');
 			}
 
 			if (!isset($this->hostname) || ($this->hostname == '')) {
@@ -532,8 +519,8 @@ class App
 
 	public function getHostName()
 	{
-		if (Core\Config::get('config', 'hostname') != '') {
-			$this->hostname = Core\Config::get('config', 'hostname');
+		if ($this->config->get('config', 'hostname') != '') {
+			$this->hostname = $this->config->get('config', 'hostname');
 		}
 
 		return $this->hostname;
@@ -583,12 +570,12 @@ class App
 
 		$this->registerStylesheet($stylesheet);
 
-		$shortcut_icon = Core\Config::get('system', 'shortcut_icon');
+		$shortcut_icon = $this->config->get('system', 'shortcut_icon');
 		if ($shortcut_icon == '') {
 			$shortcut_icon = 'images/friendica-32.png';
 		}
 
-		$touch_icon = Core\Config::get('system', 'touch_icon');
+		$touch_icon = $this->config->get('system', 'touch_icon');
 		if ($touch_icon == '') {
 			$touch_icon = 'images/friendica-128.png';
 		}
@@ -608,7 +595,7 @@ class App
 			'$update_interval' => $interval,
 			'$shortcut_icon'   => $shortcut_icon,
 			'$touch_icon'      => $touch_icon,
-			'$block_public'    => intval(Core\Config::get('system', 'block_public')),
+			'$block_public'    => intval($this->config->get('system', 'block_public')),
 			'$stylesheets'     => $this->stylesheets,
 		]) . $this->page['htmlhead'];
 	}
@@ -737,6 +724,7 @@ class App
 			'fetch',
 			'hcard',
 			'hostxrd',
+			'manifest',
 			'nodeinfo',
 			'noscrape',
 			'p',
@@ -781,13 +769,13 @@ class App
 		 *
 		if ($this->is_backend()) {
 			$process = 'backend';
-			$max_processes = Core\Config::get('system', 'max_processes_backend');
+			$max_processes = $this->config->get('system', 'max_processes_backend');
 			if (intval($max_processes) == 0) {
 				$max_processes = 5;
 			}
 		} else {
 			$process = 'frontend';
-			$max_processes = Core\Config::get('system', 'max_processes_frontend');
+			$max_processes = $this->config->get('system', 'max_processes_frontend');
 			if (intval($max_processes) == 0) {
 				$max_processes = 20;
 			}
@@ -814,7 +802,7 @@ class App
 	 */
 	public function isMinMemoryReached()
 	{
-		$min_memory = Core\Config::get('system', 'min_memory', 0);
+		$min_memory = $this->config->get('system', 'min_memory', 0);
 		if ($min_memory == 0) {
 			return false;
 		}
@@ -861,13 +849,13 @@ class App
 	{
 		if ($this->isBackend()) {
 			$process = 'backend';
-			$maxsysload = intval(Core\Config::get('system', 'maxloadavg'));
+			$maxsysload = intval($this->config->get('system', 'maxloadavg'));
 			if ($maxsysload < 1) {
 				$maxsysload = 50;
 			}
 		} else {
 			$process = 'frontend';
-			$maxsysload = intval(Core\Config::get('system', 'maxloadavg_frontend'));
+			$maxsysload = intval($this->config->get('system', 'maxloadavg_frontend'));
 			if ($maxsysload < 1) {
 				$maxsysload = 50;
 			}
@@ -914,9 +902,9 @@ class App
 		}
 
 		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->basePath);
+			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->getBasePath());
 		} else {
-			$resource = proc_open($cmdline . ' &', [], $foo, $this->basePath);
+			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
 		}
 		if (!is_resource($resource)) {
 			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
@@ -933,7 +921,7 @@ class App
 	 */
 	public function getSenderEmailAddress()
 	{
-		$sender_email = Core\Config::get('config', 'sender_email');
+		$sender_email = $this->config->get('config', 'sender_email');
 		if (empty($sender_email)) {
 			$hostname = $this->getHostName();
 			if (strpos($hostname, ':')) {
@@ -977,7 +965,7 @@ class App
 	 */
 	private function computeCurrentTheme()
 	{
-		$system_theme = Core\Config::get('system', 'theme');
+		$system_theme = $this->config->get('system', 'theme');
 		if (!$system_theme) {
 			throw new Exception(Core\L10n::t('No system theme config value set.'));
 		}
@@ -985,7 +973,7 @@ class App
 		// Sane default
 		$this->currentTheme = $system_theme;
 
-		$allowed_themes = explode(',', Core\Config::get('system', 'allowed_themes', $system_theme));
+		$allowed_themes = explode(',', $this->config->get('system', 'allowed_themes', $system_theme));
 
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
@@ -1002,7 +990,7 @@ class App
 
 		// Specific mobile theme override
 		if (($this->is_mobile || $this->is_tablet) && Core\Session::get('show-mobile', true)) {
-			$system_mobile_theme = Core\Config::get('system', 'mobile-theme');
+			$system_mobile_theme = $this->config->get('system', 'mobile-theme');
 			$user_mobile_theme = Core\Session::get('mobile-theme', $system_mobile_theme);
 
 			// --- means same mobile theme as desktop
@@ -1073,7 +1061,7 @@ class App
 	 */
 	public function checkURL()
 	{
-		$url = Core\Config::get('system', 'url');
+		$url = $this->config->get('system', 'url');
 
 		// if the url isn't set or the stored url is radically different
 		// than the currently visited url, store the current value accordingly.
@@ -1082,7 +1070,7 @@ class App
 		// We will only change the url to an ip address if there is no existing setting
 
 		if (empty($url) || (!Util\Strings::compareLink($url, $this->getBaseURL())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $this->getHostName()))) {
-			Core\Config::set('system', 'url', $this->getBaseURL());
+			$this->config->set('system', 'url', $this->getBaseURL());
 		}
 	}
 
@@ -1115,8 +1103,8 @@ class App
 
 		if (!$this->getMode()->isInstall()) {
 			// Force SSL redirection
-			if (Core\Config::get('system', 'force_ssl') && ($this->getScheme() == "http")
-				&& intval(Core\Config::get('system', 'ssl_policy')) == SSL_POLICY_FULL
+			if ($this->config->get('system', 'force_ssl') && ($this->getScheme() == "http")
+				&& intval($this->config->get('system', 'ssl_policy')) == SSL_POLICY_FULL
 				&& strpos($this->getBaseURL(), 'https://') === 0
 				&& $_SERVER['REQUEST_METHOD'] == 'GET') {
 				header('HTTP/1.1 302 Moved Temporarily');
@@ -1199,7 +1187,7 @@ class App
 			$this->module = 'maintenance';
 		} else {
 			$this->checkURL();
-			Core\Update::check($this->basePath, false);
+			Core\Update::check($this->getBasePath(), false);
 			Core\Addon::loadAddons();
 			Core\Hook::loadHooks();
 		}
@@ -1256,7 +1244,7 @@ class App
 				$this->module = "login";
 			}
 
-			$privateapps = Core\Config::get('config', 'private_addons', false);
+			$privateapps = $this->config->get('config', 'private_addons', false);
 			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
@@ -1441,7 +1429,7 @@ class App
 		header("X-Friendica-Version: " . FRIENDICA_VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
-		if (Core\Config::get('system', 'hsts') && (Core\Config::get('system', 'ssl_policy') == SSL_POLICY_FULL)) {
+		if ($this->config->get('system', 'hsts') && ($this->config->get('system', 'ssl_policy') == SSL_POLICY_FULL)) {
 			header("Strict-Transport-Security: max-age=31536000");
 		}
 

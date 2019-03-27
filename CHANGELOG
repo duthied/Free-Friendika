@@ -5,13 +5,16 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     Fixed the notification order [JeroenED]
     Fixed the timezone of Friendica logs [nupplaphil]
     Fixed tag completion painfully slow [AlfredSK]
+    Fixed a regression in notifications [MrPetovan]
+    Fixed an issue with smilies and code blocks [MrPetovan]
     General Code cleaning and restructuring [nupplaphil]
     Added frio color scheme sharing [JeroenED]
     Added syslog and stream Logger [nupplaphil]
     Added storage move cronjob [MrPetovan]
+    Added collapsible panel for connector permission fields [MrPetovan]
 
   Closed Issues:
-    6303, 6478, 6319
+    6303, 6478, 6319, 6921, 6903
 
 Version 2019.03 (2019-03-22)
   Friendica Core:

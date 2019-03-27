@@ -225,30 +225,41 @@ ACL.prototype.is_show_all = function() {
 		this.deny_gid.length==0 && this.deny_cid.length==0);
 };
 
-ACL.prototype.update_view = function(){
-	if (this.is_show_all()){
-			this.showall.addClass("selected");
-			/* jot acl */
-				$('#jot-perms-icon').removeClass('lock').addClass('unlock');
-				$('#jot-public').show();
-				$('.profile-jot-net input').attr('disabled', false);
-				if(typeof editor != 'undefined' && editor != false) {
-					$('#profile-jot-desc').html(ispublic);
-				}
+ACL.prototype.update_view = function () {
+	if (this.is_show_all()) {
+		this.showall.addClass("selected");
+		/* jot acl */
+		$('#jot-perms-icon').removeClass('lock').addClass('unlock');
+		$('#jot-public').show();
+		$('.profile-jot-net input[type=checkbox]').each(function() {
+			// Restores checkbox state if it had been saved
+			if ($(this).attr('data-checked') !== undefined) {
+				$(this).prop('checked', $(this).attr('data-checked') === 'true');
+			}
+		});
 
+		$('.profile-jot-net input').attr('disabled', false);
+		if (typeof editor != 'undefined' && editor != false) {
+			$('#profile-jot-desc').html(ispublic);
+		}
 	} else {
-			this.showall.removeClass("selected");
-			/* jot acl */
-				$('#jot-perms-icon').removeClass('unlock').addClass('lock');
-				$('#jot-public').hide();
-				$('.profile-jot-net input').attr('disabled', 'disabled');
-				$('#profile-jot-desc').html('&nbsp;');
+		this.showall.removeClass("selected");
+		/* jot acl */
+		$('#jot-perms-icon').removeClass('unlock').addClass('lock');
+		$('#jot-public').hide();
+		$('.profile-jot-net input[type=checkbox]').each(function() {
+			// Saves current checkbox state
+			$(this)
+				.attr('data-checked', $(this).prop('checked'))
+				.prop('checked', false);
+		});
+		$('.profile-jot-net input').attr('disabled', 'disabled');
+		$('#profile-jot-desc').html('&nbsp;');
 	}
-	$("#acl-list-content .acl-list-item").each(function(){
-		$(this).removeClass("groupshow grouphide");
-	});
 
-	$("#acl-list-content .acl-list-item").each(function(index, element){
+	$("#acl-list-content .acl-list-item").each(function (index, element) {
+		$(this).removeClass("groupshow grouphide");
+
 		itemid = $(element).attr('id');
 		type = itemid[0];
 		id 	 = parseInt(itemid.substr(1));
@@ -256,40 +267,40 @@ ACL.prototype.update_view = function(){
 		btshow = $(element).children(".acl-button-show").removeClass("selected");
 		bthide = $(element).children(".acl-button-hide").removeClass("selected");
 
-		switch(type){
+		switch (type) {
 			case "g":
 				var uclass = "";
-				if (this.allow_gid.indexOf(id)>=0){
+				if (this.allow_gid.indexOf(id) >= 0) {
 					btshow.addClass("selected");
 					bthide.removeClass("selected");
-					uclass="groupshow";
+					uclass = "groupshow";
 				}
-				if (this.deny_gid.indexOf(id)>=0){
+				if (this.deny_gid.indexOf(id) >= 0) {
 					btshow.removeClass("selected");
 					bthide.addClass("selected");
-					uclass="grouphide";
+					uclass = "grouphide";
 				}
 
-				$(this.group_uids[id]).each(function(i,v) {
-					if(uclass == "grouphide")
-						$("#c"+v).removeClass("groupshow");
-					if(uclass != "") {
-						var cls = $("#c"+v).attr('class');
-						if( cls == undefined)
+				$(this.group_uids[id]).each(function (i, v) {
+					if (uclass == "grouphide")
+						$("#c" + v).removeClass("groupshow");
+					if (uclass != "") {
+						var cls = $("#c" + v).attr('class');
+						if (cls == undefined)
 							return true;
 						var hiding = cls.indexOf('grouphide');
-						if(hiding == -1)
-							$("#c"+v).addClass(uclass);
+						if (hiding == -1)
+							$("#c" + v).addClass(uclass);
 					}
 				});
 
 				break;
 			case "c":
-				if (this.allow_cid.indexOf(id)>=0){
+				if (this.allow_cid.indexOf(id) >= 0) {
 					btshow.addClass("selected");
 					bthide.removeClass("selected");
 				}
-				if (this.deny_cid.indexOf(id)>=0){
+				if (this.deny_cid.indexOf(id) >= 0) {
 					btshow.removeClass("selected");
 					bthide.addClass("selected");
 				}
@@ -297,7 +308,7 @@ ACL.prototype.update_view = function(){
 
 	}.bind(this));
 
-}
+};
 
 ACL.prototype.get = function(start,count, search){
 	var postdata = {

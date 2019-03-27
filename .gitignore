@@ -1,6 +1,6 @@
 favicon.*
-.htconfig.php
-.htpreconfig.php
+/.htconfig.php
+/.htpreconfig.php
 \#*
 *.log
 *.out

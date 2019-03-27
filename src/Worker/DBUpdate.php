@@ -6,12 +6,16 @@
 namespace Friendica\Worker;
 
 use Friendica\BaseObject;
+use Friendica\Core\Config;
 use Friendica\Core\Update;
 
 class DBUpdate extends BaseObject
 {
 	public static function execute()
 	{
-		Update::run(self::getApp()->getBasePath());
+		// Just in case the last update wasn't failed
+		if (Config::get('system', 'update', Update::SUCCESS, true) != Update::FAILED) {
+			Update::run(self::getApp()->getBasePath());
+		}
 	}
 }

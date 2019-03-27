@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1305);
+	define('DB_UPDATE_VERSION', 1308);
 }
 
 return [
@@ -527,6 +527,21 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
+		]
+	],
+	"inbox-status" => [
+		"comment" => "Status of ActivityPub inboxes",
+		"fields" => [
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "URL of the inbox"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date of this entry"],
+			"success" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful delivery"],
+			"failure" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed delivery"],
+			"previous" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Previous delivery date"],
+			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is the inbox archived?"],
+			"shared" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is it a shared inbox?"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["url"]
 		]
 	],
 	"intro" => [
@@ -1195,7 +1210,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["tid"],
-			"term_type" => ["term", "type"],
+			"term_type" => ["term(64)", "type"],
 			"oid_otype_type_term" => ["oid", "otype", "type", "term(32)"],
 			"uid_otype_type_term_global_created" => ["uid", "otype", "type", "term(32)", "global", "created"],
 			"uid_otype_type_url" => ["uid", "otype", "type", "url(64)"],
