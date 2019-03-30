@@ -182,7 +182,11 @@ class App
 	 */
 	public function registerStylesheet($path)
 	{
-		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
+		if (!empty($this->getBasePath())) {
+			$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
+		} else {
+			$url = $path;
+		}
 
 		$this->stylesheets[] = trim($url, '/');
 	}
