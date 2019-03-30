@@ -233,7 +233,7 @@ class Update
 	 * Checks the config settings and saves given config values into the config file
 	 *
 	 * @param string    $basePath The basepath of Friendica
-     * @param App\Mode  $$mode    The current App mode
+	 * @param App\Mode  $mode     The current App mode
 	 *
 	 * @return bool True, if something has been saved
 	 */
@@ -314,7 +314,7 @@ class Update
 	 * @param ConfigFileSaver $configFileSaver The config file saver
 	 * @param string          $cat             The config category
 	 * @param string          $key             The config key
-     * @param bool            $allowEmpty      If true, empty values are valid (Default there has to be a variable)
+	 * @param bool            $allowEmpty      If true, empty values are valid (Default there has to be a variable)
 	 * @param string          $default         A default value, if none of the settings are valid
 	 *
 	 * @return boolean True, if a value was updated
