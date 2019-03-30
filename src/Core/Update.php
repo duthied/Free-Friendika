@@ -19,15 +19,20 @@ class Update
 	/**
 	 * @brief Function to check if the Database structure needs an update.
 	 *
-	 * @param string $basePath The base path of this application
-	 * @param boolean $via_worker boolean Is the check run via the worker?
+	 * @param string   $basePath   The base path of this application
+	 * @param boolean  $via_worker Is the check run via the worker?
+	 * @param App\Mode $mode       The current app mode
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check($basePath, $via_worker)
+	public static function check($basePath, $via_worker, App\Mode $mode)
 	{
 		if (!DBA::connected()) {
 			return;
 		}
+
+		// Check if the config files are set correctly
+		self::checkConfigFile($basePath, $mode);
 
 		// Don't check the status if the last update was failed
 		if (Config::get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
@@ -227,40 +232,77 @@ class Update
 	/**
 	 * Checks the config settings and saves given config values into the config file
 	 *
-	 * @param string   $basePath The basepath of Friendica
-	 * @param App\Mode $mode     The Application mode
+	 * @param string    $basePath The basepath of Friendica
+	 * @param App\Mode  $mode     The current App mode
 	 *
 	 * @return bool True, if something has been saved
 	 */
-	public static function saveConfigToFile($basePath, App\Mode $mode)
+	public static function checkConfigFile($basePath, App\Mode $mode)
 	{
+		if (empty($basePath)) {
+			$basePath = BasePath::create(dirname(__DIR__, 2));
+		}
+
+		$config = [
+			'config' => [
+				'hostname' => [
+					'allowEmpty' => false,
+					'default' => '',
+				],
+			],
+			'system' => [
+				'basepath' => [
+					'allowEmpty' => false,
+					'default' => $basePath,
+				],
+			]
+		];
+
 		$configFileLoader = new ConfigFileLoader($basePath, $mode);
 		$configCache = new Config\Cache\ConfigCache();
 		$configFileLoader->setupCache($configCache, true);
-		$configFileSaver = new ConfigFileSaver($basePath);
 
-		$updated = false;
-
-		if (self::updateConfigEntry($configCache, $configFileSaver,'config', 'hostname')) {
-			$updated = true;
-		};
-
-		if (self::updateConfigEntry($configCache, $configFileSaver,'system', 'basepath', BasePath::create(dirname(__DIR__) . '/../'))) {
-			$updated = true;
-		}
-
-		// In case there is nothing to do, skip the update
-		if (!$updated) {
+		// checks if something is to update, otherwise skip this function at all
+		$missingConfig = $configCache->keyDiff($config);
+		if (empty($missingConfig)) {
 			return true;
 		}
 
-		if (!$configFileSaver->saveToConfigFile()) {
-			Logger::alert('Config entry update failed - maybe wrong permission?');
-			return false;
-		}
+		// We just want one update process
+		if (Lock::acquire('config_update')) {
+			$configFileSaver = new ConfigFileSaver($basePath);
 
-		DBA::delete('config', ['cat' => 'config', 'k' => 'hostname']);
-		DBA::delete('config', ['cat' => 'system', 'k' => 'basepath']);
+			$updated = false;
+			$toDelete = [];
+
+			foreach ($missingConfig as $category => $keys) {
+				foreach ($keys as $key => $value) {
+					if (self::updateConfigEntry($configCache, $configFileSaver, $category, $key, $value['allowEmpty'], $value['default'])) {
+						$toDelete[] = ['cat' => $category, 'key' => $key];
+						$updated = true;
+					};
+				}
+			}
+
+			// In case there is nothing to do, skip the update
+			if (!$updated) {
+				Lock::release('config_update');
+				return true;
+			}
+
+			if (!$configFileSaver->saveToConfigFile()) {
+				Logger::alert('Config entry update failed - maybe wrong permission?');
+				Lock::release('config_update');
+				return false;
+			}
+
+			// After the successful save, remove the db values
+			foreach ($toDelete as $delete) {
+				DBA::delete('config', ['cat' => $delete['cat'], 'k' => $delete['key']]);
+			}
+
+			Lock::release('config_update');
+		}
 
 		return true;
 	}
@@ -272,33 +314,47 @@ class Update
 	 * @param ConfigFileSaver $configFileSaver The config file saver
 	 * @param string          $cat             The config category
 	 * @param string          $key             The config key
+	 * @param bool            $allowEmpty      If true, empty values are valid (Default there has to be a variable)
 	 * @param string          $default         A default value, if none of the settings are valid
 	 *
 	 * @return boolean True, if a value was updated
 	 *
 	 * @throws \Exception if DBA or Logger doesn't work
 	 */
-	private static function updateConfigEntry(IConfigCache $configCache, ConfigFileSaver $configFileSaver, $cat, $key, $default = '')
+	private static function updateConfigEntry(
+		IConfigCache $configCache,
+		ConfigFileSaver $configFileSaver,
+		$cat,
+		$key,
+		$allowEmpty = false,
+		$default = '')
 	{
+
 		// check if the config file differs from the whole configuration (= The db contains other values)
-		$fileConfig = $configCache->get($cat, $key);
+		$fileValue = $configCache->get($cat, $key);
+		$dbConfig  = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
 
-		$savedConfig = DBA::selectFirst('config', ['v'], ['cat' => $cat, 'k' => $key]);
-
-		if (DBA::isResult($savedConfig)) {
-			$savedValue = $savedConfig['v'];
+		if (DBA::isResult($dbConfig)) {
+			$dbValue = $dbConfig['v'];
 		} else {
-			$savedValue = null;
+			$dbValue = null;
 		}
 
 		// If the db contains a config value, check it
-		if (isset($savedValue) && $fileConfig !== $savedValue) {
-			Logger::info('Difference in config found', ['cat' => $cat, 'key' => $key, 'file' => $fileConfig, 'saved' => $savedValue]);
-			$configFileSaver->addConfigValue($cat, $key, $savedValue);
+		if ((
+				($allowEmpty && isset($dbValue)) ||
+				(!$allowEmpty && !empty($dbValue))
+			) &&
+			$fileValue !== $dbValue) {
+			Logger::info('Difference in config found', ['cat' => $cat, 'key' => $key, 'file' => $fileValue, 'db' => $dbValue]);
+			$configFileSaver->addConfigValue($cat, $key, $dbValue);
 			return true;
 
 		// If both config values are not set, use the default value
-		} elseif (!isset($fileConfig) && !isset($savedValue)) {
+		} elseif (
+			($allowEmpty && !isset($fileValue) && !isset($dbValue)) ||
+			(!$allowEmpty && empty($fileValue) && empty($dbValue) && !empty($default))) {
+
 			Logger::info('Using default for config', ['cat' => $cat, 'key' => $key, 'value' => $default]);
 			$configFileSaver->addConfigValue($cat, $key, $default);
 			return true;
@@ -306,7 +362,7 @@ class Update
 		// If either the file config value isn't empty or the db value is the same as the
 		// file config value, skip it
 		} else {
-			Logger::info('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileConfig, 'saved' => $savedValue]);
+			Logger::debug('No Difference in config found', ['cat' => $cat, 'key' => $key, 'value' => $fileValue, 'db' => $dbValue]);
 			return false;
 		}
 	}

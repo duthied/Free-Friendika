@@ -245,4 +245,34 @@ class ConfigCacheTest extends MockedTest
 
 		$this->assertEmpty($configCache->getAll());
 	}
+
+	/**
+	 * Test the keyDiff() method with result
+	 * @dataProvider dataTests
+	 */
+	public function testKeyDiffWithResult($data)
+	{
+		$configCache = new ConfigCache($data);
+
+		$diffConfig = [
+			'fakeCat' => [
+				'fakeKey' => 'value',
+			]
+		];
+
+		$this->assertEquals($diffConfig, $configCache->keyDiff($diffConfig));
+	}
+
+	/**
+	 * Test the keyDiff() method without result
+	 * @dataProvider dataTests
+	 */
+	public function testKeyDiffWithoutResult($data)
+	{
+		$configCache = new ConfigCache($data);
+
+		$diffConfig = $configCache->getAll();
+
+		$this->assertEmpty($configCache->keyDiff($diffConfig));
+	}
 }
