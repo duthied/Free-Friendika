@@ -188,4 +188,32 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	{
 		return $this->config;
 	}
+
+    /**
+     * Returns an array with missing categories/Keys
+     *
+     * @param array $config The array to check
+     *
+     * @return array
+     */
+	public function keyDiff(array $config)
+    {
+        $return = [];
+
+        $categories = array_keys($config);
+
+        foreach ($categories as $category) {
+            if (is_array($config[$category])) {
+                $keys = array_keys($config[$category]);
+
+                foreach ($keys as $key) {
+                    if (!isset($this->config[$category][$key])) {
+                        $return[$category][$key] = $config[$category][$key];
+                    }
+                }
+            }
+        }
+
+        return $return;
+    }
 }
