@@ -86,6 +86,11 @@
 					{{if $nav.manage}}<li role="menuitem"><a class="{{$nav.manage.2}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a></li>{{/if}}
 					{{if $nav.usermenu.1}}<li role="menuitem"><a class="{{$nav.usermenu.1.2}}" href="{{$nav.usermenu.1.0}}" title="{{$nav.usermenu.1.3}}">{{$nav.usermenu.1.1}}</a></li>{{/if}}
 					{{if $nav.settings}}<li role="menuitem"><a class="{{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}">{{$nav.settings.1}}</a></li>{{/if}}
+					{{if $nav.admin}}
+					<li role="menuitem">
+						<a accesskey="a" class="{{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" >{{$nav.admin.1}}</a>
+					</li>
+					{{/if}}
 					{{if $nav.logout}}<li role="menuitem"><a class="menu-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" >{{$nav.logout.1}}</a></li>{{/if}}
 				</ul>
 			</li>
