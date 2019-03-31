@@ -182,13 +182,11 @@ class App
 	 */
 	public function registerStylesheet($path)
 	{
-		if (!empty($this->getBasePath())) {
-			$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
-		} else {
-			$url = $path;
+		if (mb_strpos($path, $this->getBasePath() . DIRECTORY_SEPARATOR) == 0) {
+				$path = mb_substr($path, mb_strlen($this->getBasePath() . DIRECTORY_SEPARATOR));
 		}
 
-		$this->stylesheets[] = trim($url, '/');
+		$this->stylesheets[] = trim($path, '/');
 	}
 
 	/**
