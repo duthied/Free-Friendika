@@ -65,7 +65,7 @@ class Profile extends BaseModule
 				// Known deleted user
 				$data = [
 					'@context' => ActivityPub::CONTEXT,
-					'id' => System::baseUrl() . '/profile/' . self::$which,
+					'id' => self::getApp()->getBaseUrl() . '/profile/' . self::$which,
 					'type' => 'Tombstone',
 					'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 					'updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
