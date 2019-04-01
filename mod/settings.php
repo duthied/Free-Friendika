@@ -30,6 +30,8 @@ use Friendica\Util\Temporal;
 
 function get_theme_config_file($theme)
 {
+	$theme = Strings::sanitizeFilePathItem($theme);
+
 	$a = \get_app();
 	$base_theme = defaults($a->theme_info, 'extends');
 
@@ -877,40 +879,30 @@ function settings_content(App $a)
 			$default_mobile_theme = 'none';
 		}
 
-		$allowed_themes_str = Config::get('system', 'allowed_themes');
-		$allowed_themes_raw = explode(',', $allowed_themes_str);
-		$allowed_themes = [];
-		if (count($allowed_themes_raw)) {
-			foreach ($allowed_themes_raw as $x) {
-				if (strlen(trim($x)) && is_dir("view/theme/$x")) {
-					$allowed_themes[] = trim($x);
-				}
-			}
-		}
-
+		$allowed_themes = Theme::getAllowedList();
 
 		$themes = [];
 		$mobile_themes = ["---" => L10n::t('No special theme for mobile devices')];
-		if ($allowed_themes) {
-			foreach ($allowed_themes as $theme) {
-				$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
-				$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
-				$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
-				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
-					$theme_name = ucfirst($theme);
-					if ($is_unsupported) {
-						$theme_name = L10n::t("%s - \x28Unsupported\x29", $theme_name);
-					} elseif ($is_experimental) {
-						$theme_name = L10n::t("%s - \x28Experimental\x29", $theme_name);
-					}
-					if ($is_mobile) {
-						$mobile_themes[$theme] = $theme_name;
-					} else {
-						$themes[$theme] = $theme_name;
-					}
+		foreach ($allowed_themes as $theme) {
+			$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
+			$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
+			$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
+			if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
+				$theme_name = ucfirst($theme);
+				if ($is_unsupported) {
+					$theme_name = L10n::t('%s - (Unsupported)', $theme_name);
+				} elseif ($is_experimental) {
+					$theme_name = L10n::t('%s - (Experimental)', $theme_name);
+				}
+
+				if ($is_mobile) {
+					$mobile_themes[$theme] = $theme_name;
+				} else {
+					$themes[$theme] = $theme_name;
 				}
 			}
 		}
+
 		$theme_selected        = defaults($_SESSION, 'theme'       , $default_theme);
 		$mobile_theme_selected = defaults($_SESSION, 'mobile-theme', $default_mobile_theme);
 
