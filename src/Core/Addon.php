@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Util\Strings;
 
 /**
  * Some functions to handle addons
@@ -81,6 +82,8 @@ class Addon extends BaseObject
 	 */
 	public static function uninstall($addon)
 	{
+		$addon = Strings::sanitizeFilePathItem($addon);
+
 		Logger::notice("Addon {addon}: {action}", ['action' => 'uninstall', 'addon' => $addon]);
 		DBA::delete('addon', ['name' => $addon]);
 
@@ -102,11 +105,13 @@ class Addon extends BaseObject
 	 */
 	public static function install($addon)
 	{
-		// silently fail if addon was removed
+		$addon = Strings::sanitizeFilePathItem($addon);
 
+		// silently fail if addon was removed of if $addon is funky
 		if (!file_exists('addon/' . $addon . '/' . $addon . '.php')) {
 			return false;
 		}
+
 		Logger::notice("Addon {addon}: {action}", ['action' => 'install', 'addon' => $addon]);
 		$t = @filemtime('addon/' . $addon . '/' . $addon . '.php');
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
@@ -130,6 +135,7 @@ class Addon extends BaseObject
 			if (!self::isEnabled($addon)) {
 				self::$addons[] = $addon;
 			}
+
 			return true;
 		} else {
 			Logger::error("Addon {addon}: {action} failed", ['action' => 'uninstall', 'addon' => $addon]);
@@ -153,29 +159,26 @@ class Addon extends BaseObject
 
 			$addon_list = explode(',', $addons);
 
-			if (count($addon_list)) {
-				foreach ($addon_list as $addon) {
-					$addon = trim($addon);
-					$fname = 'addon/' . $addon . '/' . $addon . '.php';
+			foreach ($addon_list as $addon) {
+				$addon = Strings::sanitizeFilePathItem(trim($addon));
+				$fname = 'addon/' . $addon . '/' . $addon . '.php';
+				if (file_exists($fname)) {
+					$t = @filemtime($fname);
+					foreach ($installed as $i) {
+						if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
 
-					if (file_exists($fname)) {
-						$t = @filemtime($fname);
-						foreach ($installed as $i) {
-							if (($i['name'] == $addon) && ($i['timestamp'] != $t)) {
+							Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $i['name']]);
+							@include_once($fname);
 
-								Logger::notice("Addon {addon}: {action}", ['action' => 'reload', 'addon' => $i['name']]);
-								@include_once($fname);
-
-								if (function_exists($addon . '_uninstall')) {
-									$func = $addon . '_uninstall';
-									$func(self::getApp());
-								}
-								if (function_exists($addon . '_install')) {
-									$func = $addon . '_install';
-									$func(self::getApp());
-								}
-								DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
+							if (function_exists($addon . '_uninstall')) {
+								$func = $addon . '_uninstall';
+								$func(self::getApp());
 							}
+							if (function_exists($addon . '_install')) {
+								$func = $addon . '_install';
+								$func(self::getApp());
+							}
+							DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
 						}
 					}
 				}
@@ -203,6 +206,8 @@ class Addon extends BaseObject
 	public static function getInfo($addon)
 	{
 		$a = self::getApp();
+
+		$addon = Strings::sanitizeFilePathItem($addon);
 
 		$info = [
 			'name' => $addon,
