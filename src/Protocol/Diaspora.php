@@ -2629,6 +2629,54 @@ class Diaspora
 	}
 
 	/**
+	 * @brief Stores a reshare activity
+	 *
+	 * @param array   $item              Array of reshare post
+	 * @param integer $parent_message_id Id of the parent post
+	 * @param string  $guid              GUID string of reshare action
+	 * @param string  $author            Author handle
+	 */
+	private static function addReshareActivity($item, $parent_message_id, $guid, $author)
+	{
+		$parent = Item::selectFirst(['uri', 'guid'], ['id' => $parent_message_id]);
+
+		$datarray = [];
+
+		$datarray['uid'] = $item['uid'];
+		$datarray['contact-id'] = $item['contact-id'];
+		$datarray['network'] = $item['network'];
+
+		$datarray['author-link'] = $item['author-link'];
+		$datarray['author-id'] = $item['author-id'];
+
+		$datarray['owner-link'] = $datarray['author-link'];
+		$datarray['owner-id'] = $datarray['author-id'];
+
+		$datarray['guid'] = $parent['guid'] . '-' . $guid;
+		$datarray['uri'] = self::getUriFromGuid($author, $datarray['guid']);
+		$datarray['parent-uri'] = $parent['uri'];
+
+		$datarray['verb'] = $datarray['body'] = ACTIVITY2_ANNOUNCE;
+		$datarray['gravity'] = GRAVITY_ACTIVITY;
+		$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+
+		$datarray['protocol'] = $item['protocol'];
+
+		$datarray['plink'] = self::plink($author, $datarray['guid']);
+		$datarray['private'] = $item['private'];
+		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $item['created'];
+
+		$message_id = Item::insert($datarray);
+
+		if ($message_id) {
+			Logger::info('Stored reshare activity.', ['guid' => $guid, 'id' => $message_id]);
+			if ($datarray['uid'] == 0) {
+				Item::distribute($message_id);
+			}
+		}
+	}
+
+	/**
 	 * @brief Processes a reshare message
 	 *
 	 * @param array  $importer Array of the importer user
@@ -2710,6 +2758,11 @@ class Diaspora
 		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
+
+		$root_message_id = self::messageExists($importer["uid"], $root_guid);
+		if ($root_message_id) {
+			self::addReshareActivity($datarray, $root_message_id, $guid, $author);
+		}
 
 		if ($message_id) {
 			Logger::log("Stored reshare ".$datarray["guid"]." with message id ".$message_id, Logger::DEBUG);
