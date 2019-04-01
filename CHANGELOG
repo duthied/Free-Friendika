@@ -7,6 +7,7 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     Fixed tag completion painfully slow [AlfredSK]
     Fixed a regression in notifications [MrPetovan]
     Fixed an issue with smilies and code blocks [MrPetovan]
+    Fixed an AP issue with unavailable local profiles [MrPetovan]
     General Code cleaning and restructuring [nupplaphil]
     Added frio color scheme sharing [JeroenED]
     Added syslog and stream Logger [nupplaphil]
@@ -14,7 +15,7 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     Added collapsible panel for connector permission fields [MrPetovan]
 
   Closed Issues:
-    6303, 6478, 6319, 6921, 6903
+    6303, 6478, 6319, 6921, 6903, 6943
 
 Version 2019.03 (2019-03-22)
   Friendica Core:
