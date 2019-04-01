@@ -5,9 +5,11 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Util\Strings;
 
 require_once 'view/theme/frio/php/PHPColors/Color.php';
 
+$scheme = '';
 $schemecss = '';
 $schemecssfile = false;
 $scheme_modified = 0;
@@ -67,9 +69,7 @@ if (!empty($_REQUEST['scheme'])) {
 	$scheme = $_REQUEST['scheme'];
 }
 
-// Sanitize the data.
-$scheme = !empty($scheme) ? basename($scheme) : '';
-
+$scheme = Strings::sanitizeFilePathItem($scheme);
 
 if (($scheme) && ($scheme != '---')) {
 	if (file_exists('view/theme/frio/scheme/' . $scheme . '.php')) {

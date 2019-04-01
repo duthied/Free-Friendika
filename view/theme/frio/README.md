@@ -2,7 +2,7 @@
 ### A bootstrap based theme for friendica
 This Theme was started as an experiment to give the user a good looking and modern theme for friendica.
 
-I conentrated on 3 topics:
+I concentrated on 3 topics:
 
 1. A Modern, mobile friendly UI with bootstrap and awesome font
 2. Try to get a new UX for friendica (e.g. use modals where it seems to be useful)

@@ -375,4 +375,20 @@ class Strings
   )*
 )@';
 	}
+
+	/**
+	 * Ensures a single path item doesn't contain any path-traversing characters
+	 *
+	 * @see https://stackoverflow.com/a/46097713
+	 * @param string $pathItem
+	 * @return string
+	 */
+	public static function sanitizeFilePathItem($pathItem)
+	{
+		$pathItem = str_replace('/', '_', $pathItem);
+		$pathItem = str_replace('\\', '_', $pathItem);
+		$pathItem = str_replace(DIRECTORY_SEPARATOR, '_', $pathItem); // In case it does not equal the standard values
+
+		return $pathItem;
+	}
 }

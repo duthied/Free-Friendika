@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Util\Strings;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
@@ -193,6 +194,8 @@ class L10n extends BaseObject
 	 */
 	private static function loadTranslationTable($lang)
 	{
+		$lang = Strings::sanitizeFilePathItem($lang);
+
 		if ($lang === self::$lang) {
 			return;
 		}
@@ -203,7 +206,7 @@ class L10n extends BaseObject
 		// load enabled addons strings
 		$addons = DBA::select('addon', ['name'], ['installed' => true]);
 		while ($p = DBA::fetch($addons)) {
-			$name = $p['name'];
+			$name = Strings::sanitizeFilePathItem($p['name']);
 			if (file_exists("addon/$name/lang/$lang/strings.php")) {
 				include "addon/$name/lang/$lang/strings.php";
 			}

@@ -10,12 +10,14 @@ use DOMXPath;
 use Exception;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
+use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -975,8 +977,6 @@ class App
 		// Sane default
 		$this->currentTheme = $system_theme;
 
-		$allowed_themes = explode(',', $this->config->get('system', 'allowed_themes', $system_theme));
-
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
 		if ($this->profile_uid && ($this->profile_uid != local_user())) {
@@ -1007,8 +1007,9 @@ class App
 			$theme_name = $user_theme;
 		}
 
+		$theme_name = Strings::sanitizeFilePathItem($theme_name);
 		if ($theme_name
-			&& in_array($theme_name, $allowed_themes)
+			&& in_array($theme_name, Theme::getAllowedList())
 			&& (file_exists('view/theme/' . $theme_name . '/style.css')
 			|| file_exists('view/theme/' . $theme_name . '/style.php'))
 		) {
