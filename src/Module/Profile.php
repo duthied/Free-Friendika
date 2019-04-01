@@ -54,15 +54,28 @@ class Profile extends BaseModule
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
+			$data = [];
 			if (DBA::isResult($user)) {
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
+			}
+
+			if (!empty($data)) {
 				System::jsonExit($data, 'application/activity+json');
 			} elseif (DBA::exists('userd', ['username' => self::$which])) {
 				// Known deleted user
-				System::httpExit(410);
+				$data = [
+					'@context' => ActivityPub::CONTEXT,
+					'id' => System::baseUrl() . '/profile/' . self::$which,
+					'type' => 'Tombstone',
+					'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+					'updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+					'deleted' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+				];
+
+				System::jsonError(410, $data);
 			} else {
-				// Unknown user
-				System::httpExit(404);
+				// Any other case (unknown, blocked, unverified, expired, no profile, no self contact)
+				System::jsonError(404, $data);
 			}
 		}
 	}
