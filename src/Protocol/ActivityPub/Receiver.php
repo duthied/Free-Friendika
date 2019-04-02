@@ -206,6 +206,8 @@ class Receiver
 				Logger::log("Object data couldn't be processed", Logger::DEBUG);
 				return [];
 			}
+			$object_data['object_id'] = $object_id;
+
 			// We had been able to retrieve the object data - so we can trust the source
 			$trust_source = true;
 		} elseif (in_array($type, ['as:Like', 'as:Dislike']) ||
@@ -352,9 +354,31 @@ class Receiver
 
 		switch ($type) {
 			case 'as:Create':
-			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createItem($object_data);
+				}
+				break;
+
+			case 'as:Announce':
+				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
+					$profile = APContact::getByURL($object_data['actor']);
+					if ($profile['type'] == 'Person') {
+						// Reshared posts from persons appear as summary at the bottom
+						// If this isn't set, then a single reshare appears on top. This is used for groups.
+						$object_data['thread-completion'] = true;
+					}
+					ActivityPub\Processor::createItem($object_data);
+
+					// Add the bottom reshare information only for persons
+					if ($profile['type'] == 'Person') {
+						$announce_object_data = self::processObject($activity);
+						$announce_object_data['name'] = $type;
+						$announce_object_data['author'] = JsonLD::fetchElement($activity, 'as:actor');
+						$announce_object_data['object_id'] = $object_data['object_id'];
+						$announce_object_data['object_type'] = $object_data['object_type'];
+
+						ActivityPub\Processor::createActivity($announce_object_data, ACTIVITY2_ANNOUNCE);
+					}
 				}
 				break;
 
