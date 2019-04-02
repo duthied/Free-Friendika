@@ -44,8 +44,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-02-15 09:33-0500\n"
-"PO-Revision-Date: 2019-02-19 05:01+0000\n"
+"POT-Creation-Date: 2019-02-23 18:53-0500\n"
+"PO-Revision-Date: 2019-04-02 08:12+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -54,14 +54,14 @@ msgstr ""
 "Language: de\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: include/api.php:1179
+#: include/api.php:1117
 #, php-format
 msgid "Daily posting limit of %d post reached. The post was rejected."
 msgid_plural "Daily posting limit of %d posts reached. The post was rejected."
 msgstr[0] "Das tägliche Limit von %d Beitrag wurde erreicht. Die Nachricht wurde verworfen."
 msgstr[1] "Das tägliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen."
 
-#: include/api.php:1193
+#: include/api.php:1131
 #, php-format
 msgid "Weekly posting limit of %d post reached. The post was rejected."
 msgid_plural ""
@@ -69,12 +69,12 @@ msgid_plural ""
 msgstr[0] "Das wöchentliche Limit von %d Beitrag wurde erreicht. Die Nachricht wurde verworfen."
 msgstr[1] "Das wöchentliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen."
 
-#: include/api.php:1207
+#: include/api.php:1145
 #, php-format
 msgid "Monthly posting limit of %d post reached. The post was rejected."
 msgstr "Das monatliche Limit von %d Beiträgen wurde erreicht. Der Beitrag wurde verworfen."
 
-#: include/api.php:4578 mod/photos.php:93 mod/photos.php:201
+#: include/api.php:4520 mod/photos.php:93 mod/photos.php:201
 #: mod/photos.php:695 mod/photos.php:1126 mod/photos.php:1143
 #: mod/photos.php:1636 mod/profile_photo.php:85 mod/profile_photo.php:94
 #: mod/profile_photo.php:103 mod/profile_photo.php:217
@@ -171,7 +171,7 @@ msgstr "Nicht teilnehmend"
 msgid "Might attend"
 msgstr "Eventuell teilnehmend"
 
-#: include/conversation.php:649 mod/photos.php:1524 src/Object/Post.php:207
+#: include/conversation.php:649 mod/photos.php:1524 src/Object/Post.php:208
 msgid "Select"
 msgstr "Auswählen"
 
@@ -180,21 +180,21 @@ msgstr "Auswählen"
 msgid "Delete"
 msgstr "Löschen"
 
-#: include/conversation.php:684 src/Object/Post.php:380
-#: src/Object/Post.php:381
+#: include/conversation.php:684 src/Object/Post.php:381
+#: src/Object/Post.php:382
 #, php-format
 msgid "View %s's profile @ %s"
 msgstr "Das Profil von %s auf %s betrachten."
 
-#: include/conversation.php:696 src/Object/Post.php:368
+#: include/conversation.php:696 src/Object/Post.php:369
 msgid "Categories:"
 msgstr "Kategorien:"
 
-#: include/conversation.php:697 src/Object/Post.php:369
+#: include/conversation.php:697 src/Object/Post.php:370
 msgid "Filed under:"
 msgstr "Abgelegt unter:"
 
-#: include/conversation.php:704 src/Object/Post.php:394
+#: include/conversation.php:704 src/Object/Post.php:395
 #, php-format
 msgid "%s from %s"
 msgstr "%s von %s"
@@ -205,7 +205,7 @@ msgstr "Im Zusammenhang betrachten"
 
 #: include/conversation.php:721 include/conversation.php:1171
 #: mod/editpost.php:88 mod/message.php:260 mod/message.php:442
-#: mod/photos.php:1440 mod/wallmessage.php:141 src/Object/Post.php:421
+#: mod/photos.php:1440 mod/wallmessage.php:141 src/Object/Post.php:422
 msgid "Please wait"
 msgstr "Bitte warten"
 
@@ -226,7 +226,7 @@ msgid "View Status"
 msgstr "Pinnwand anschauen"
 
 #: include/conversation.php:895 include/conversation.php:911
-#: mod/allfriends.php:72 mod/directory.php:167 mod/dirfind.php:226
+#: mod/allfriends.php:72 mod/directory.php:198 mod/dirfind.php:226
 #: mod/match.php:87 mod/suggest.php:87 src/Model/Contact.php:989
 #: src/Model/Contact.php:1042 src/Model/Contact.php:1050
 msgid "View Profile"
@@ -349,7 +349,7 @@ msgstr "%s nimmt eventuell teil."
 msgid "Visible to <strong>everybody</strong>"
 msgstr "Für <strong>jedermann</strong> sichtbar"
 
-#: include/conversation.php:1111 src/Object/Post.php:883
+#: include/conversation.php:1111 src/Object/Post.php:886
 msgid "Please enter a image/video/audio/webpage URL:"
 msgstr "Bitte gib eine Bild/Video/Audio/Webseiten-URL ein:"
 
@@ -394,35 +394,35 @@ msgstr "Datei anhängen"
 msgid "attach file"
 msgstr "Datei anhängen"
 
-#: include/conversation.php:1155 src/Object/Post.php:875
+#: include/conversation.php:1155 src/Object/Post.php:878
 msgid "Bold"
 msgstr "Fett"
 
-#: include/conversation.php:1156 src/Object/Post.php:876
+#: include/conversation.php:1156 src/Object/Post.php:879
 msgid "Italic"
 msgstr "Kursiv"
 
-#: include/conversation.php:1157 src/Object/Post.php:877
+#: include/conversation.php:1157 src/Object/Post.php:880
 msgid "Underline"
 msgstr "Unterstrichen"
 
-#: include/conversation.php:1158 src/Object/Post.php:878
+#: include/conversation.php:1158 src/Object/Post.php:881
 msgid "Quote"
 msgstr "Zitat"
 
-#: include/conversation.php:1159 src/Object/Post.php:879
+#: include/conversation.php:1159 src/Object/Post.php:882
 msgid "Code"
 msgstr "Code"
 
-#: include/conversation.php:1160 src/Object/Post.php:880
+#: include/conversation.php:1160 src/Object/Post.php:883
 msgid "Image"
 msgstr "Bild"
 
-#: include/conversation.php:1161 src/Object/Post.php:881
+#: include/conversation.php:1161 src/Object/Post.php:884
 msgid "Link"
 msgstr "Link"
 
-#: include/conversation.php:1162 src/Object/Post.php:882
+#: include/conversation.php:1162 src/Object/Post.php:885
 msgid "Link or Media"
 msgstr "Link oder Mediendatei"
 
@@ -464,7 +464,7 @@ msgstr "Öffentlicher Beitrag"
 
 #: include/conversation.php:1186 mod/editpost.php:110 mod/events.php:551
 #: mod/photos.php:1458 mod/photos.php:1497 mod/photos.php:1557
-#: src/Object/Post.php:884
+#: src/Object/Post.php:887
 msgid "Preview"
 msgstr "Vorschau"
 
@@ -877,7 +877,7 @@ msgstr "Ja"
 #: mod/unfollow.php:77 mod/unfollow.php:109 mod/viewcontacts.php:56
 #: mod/wallmessage.php:19 mod/wallmessage.php:43 mod/wallmessage.php:82
 #: mod/wallmessage.php:106 mod/wall_attach.php:76 mod/wall_attach.php:79
-#: mod/wall_upload.php:107 mod/wall_upload.php:110 src/App.php:1480
+#: mod/wall_upload.php:107 mod/wall_upload.php:110 src/App.php:1390
 #: src/Module/Attach.php:42 src/Module/Contact.php:360
 #: src/Module/Register.php:193
 msgid "Permission denied."
@@ -2911,7 +2911,7 @@ msgstr "Möchtest du dieser Anwendung den Zugriff auf Deine Beiträge und Kontak
 msgid "No"
 msgstr "Nein"
 
-#: mod/apps.php:15 src/App.php:1349
+#: mod/apps.php:15 src/App.php:1259
 msgid "You must be logged in to use addons. "
 msgstr "Du musst angemeldet sein, um Addons benutzen zu können."
 
@@ -3045,7 +3045,7 @@ msgid "Access denied."
 msgstr "Zugriff verweigert."
 
 #: mod/cal.php:46 mod/dfrn_poll.php:486 mod/help.php:68
-#: mod/viewcontacts.php:34 src/App.php:1400
+#: mod/viewcontacts.php:34 src/App.php:1310
 msgid "Page not found."
 msgstr "Seite nicht gefunden."
 
@@ -3221,7 +3221,7 @@ msgstr "Kontaktdaten neu laden"
 #: mod/photos.php:1137 mod/photos.php:1412 mod/photos.php:1457
 #: mod/photos.php:1496 mod/photos.php:1556 mod/poke.php:188
 #: mod/profiles.php:562 src/Module/Contact.php:594 src/Module/Install.php:187
-#: src/Module/Install.php:222 src/Object/Post.php:874
+#: src/Module/Install.php:222 src/Object/Post.php:877
 #: view/theme/duepuntozero/config.php:72 view/theme/frio/config.php:119
 #: view/theme/quattro/config.php:74 view/theme/vier/config.php:120
 msgid "Submit"
@@ -3598,56 +3598,56 @@ msgstr "Adresse Deines Profils:"
 msgid "Submit Request"
 msgstr "Anfrage abschicken"
 
-#: mod/directory.php:154 mod/events.php:541 mod/notifications.php:253
+#: mod/directory.php:121
+msgid "No entries (some entries may be hidden)."
+msgstr "Keine Einträge (einige Einträge könnten versteckt sein)."
+
+#: mod/directory.php:128 src/Content/Widget.php:70
+#: view/theme/vier/theme.php:208
+msgid "Global Directory"
+msgstr "Weltweites Verzeichnis"
+
+#: mod/directory.php:130
+msgid "Find on this site"
+msgstr "Auf diesem Server suchen"
+
+#: mod/directory.php:132
+msgid "Results for:"
+msgstr "Ergebnisse für:"
+
+#: mod/directory.php:134
+msgid "Site Directory"
+msgstr "Verzeichnis"
+
+#: mod/directory.php:136 src/Content/Widget.php:65 src/Module/Contact.php:817
+#: view/theme/vier/theme.php:203
+msgid "Find"
+msgstr "Finde"
+
+#: mod/directory.php:185 mod/events.php:541 mod/notifications.php:253
 #: src/Model/Event.php:68 src/Model/Event.php:95 src/Model/Event.php:437
 #: src/Model/Event.php:933 src/Model/Profile.php:443
 #: src/Module/Contact.php:643
 msgid "Location:"
 msgstr "Ort:"
 
-#: mod/directory.php:159 mod/notifications.php:259 src/Model/Profile.php:446
+#: mod/directory.php:190 mod/notifications.php:259 src/Model/Profile.php:446
 #: src/Model/Profile.php:758
 msgid "Gender:"
 msgstr "Geschlecht:"
 
-#: mod/directory.php:160 src/Model/Profile.php:447 src/Model/Profile.php:782
+#: mod/directory.php:191 src/Model/Profile.php:447 src/Model/Profile.php:782
 msgid "Status:"
 msgstr "Status:"
 
-#: mod/directory.php:161 src/Model/Profile.php:448 src/Model/Profile.php:799
+#: mod/directory.php:192 src/Model/Profile.php:448 src/Model/Profile.php:799
 msgid "Homepage:"
 msgstr "Homepage:"
 
-#: mod/directory.php:162 mod/notifications.php:255 src/Model/Profile.php:449
+#: mod/directory.php:193 mod/notifications.php:255 src/Model/Profile.php:449
 #: src/Model/Profile.php:819 src/Module/Contact.php:647
 msgid "About:"
 msgstr "Über:"
-
-#: mod/directory.php:210 src/Content/Widget.php:70
-#: view/theme/vier/theme.php:208
-msgid "Global Directory"
-msgstr "Weltweites Verzeichnis"
-
-#: mod/directory.php:212
-msgid "Find on this site"
-msgstr "Auf diesem Server suchen"
-
-#: mod/directory.php:214
-msgid "Results for:"
-msgstr "Ergebnisse für:"
-
-#: mod/directory.php:216
-msgid "Site Directory"
-msgstr "Verzeichnis"
-
-#: mod/directory.php:217 src/Content/Widget.php:65 src/Module/Contact.php:817
-#: view/theme/vier/theme.php:203
-msgid "Find"
-msgstr "Finde"
-
-#: mod/directory.php:221
-msgid "No entries (some entries may be hidden)."
-msgstr "Keine Einträge (einige Einträge könnten versteckt sein)."
 
 #: mod/dirfind.php:55
 #, php-format
@@ -3785,8 +3785,8 @@ msgstr "Bilder"
 
 #: mod/fbrowser.php:45 mod/fbrowser.php:69 mod/photos.php:201
 #: mod/photos.php:1031 mod/photos.php:1126 mod/photos.php:1143
-#: mod/photos.php:1610 mod/photos.php:1625 src/Model/Photo.php:547
-#: src/Model/Photo.php:556
+#: mod/photos.php:1610 mod/photos.php:1625 src/Model/Photo.php:552
+#: src/Model/Photo.php:561
 msgid "Contact Photos"
 msgstr "Kontaktbilder"
 
@@ -3911,7 +3911,7 @@ msgstr "Gruppe nicht gefunden."
 msgid "Group name changed."
 msgstr "Gruppenname geändert."
 
-#: mod/group.php:85 mod/profperm.php:30 src/App.php:1479
+#: mod/group.php:85 mod/profperm.php:30 src/App.php:1389
 msgid "Permission denied"
 msgstr "Zugriff verweigert"
 
@@ -3988,7 +3988,7 @@ msgstr "Hilfe:"
 msgid "Help"
 msgstr "Hilfe"
 
-#: mod/help.php:65 src/App.php:1397
+#: mod/help.php:65 src/App.php:1307
 msgid "Not Found"
 msgstr "Nicht gefunden"
 
@@ -4907,7 +4907,7 @@ msgstr "Erfolg"
 msgid "failed"
 msgstr "Fehlgeschlagen"
 
-#: mod/ostatus_subscribe.php:89 src/Object/Post.php:283
+#: mod/ostatus_subscribe.php:89 src/Object/Post.php:284
 msgid "ignored"
 msgstr "Ignoriert"
 
@@ -5064,7 +5064,7 @@ msgstr "Foto bearbeiten"
 msgid "Use as profile photo"
 msgstr "Als Profilbild verwenden"
 
-#: mod/photos.php:1297 src/Object/Post.php:156
+#: mod/photos.php:1297 src/Object/Post.php:157
 msgid "Private Message"
 msgstr "Private Nachricht"
 
@@ -5109,21 +5109,21 @@ msgstr "Drehen US (rechts)"
 msgid "Rotate CCW (left)"
 msgstr "Drehen EUS (links)"
 
-#: mod/photos.php:1438 src/Object/Post.php:311
+#: mod/photos.php:1438 src/Object/Post.php:312
 msgid "I like this (toggle)"
 msgstr "Ich mag das (toggle)"
 
-#: mod/photos.php:1439 src/Object/Post.php:312
+#: mod/photos.php:1439 src/Object/Post.php:313
 msgid "I don't like this (toggle)"
 msgstr "Ich mag das nicht (toggle)"
 
 #: mod/photos.php:1454 mod/photos.php:1493 mod/photos.php:1553
-#: src/Module/Contact.php:1018 src/Object/Post.php:871
+#: src/Module/Contact.php:1018 src/Object/Post.php:874
 msgid "This is you"
 msgstr "Das bist du"
 
 #: mod/photos.php:1456 mod/photos.php:1495 mod/photos.php:1555
-#: src/Object/Post.php:417 src/Object/Post.php:873
+#: src/Object/Post.php:418 src/Object/Post.php:876
 msgid "Comment"
 msgstr "Kommentar"
 
@@ -5771,7 +5771,7 @@ msgstr "Du kannst dieses Programm nicht bearbeiten."
 msgid "Connected Apps"
 msgstr "Verbundene Programme"
 
-#: mod/settings.php:725 src/Object/Post.php:166 src/Object/Post.php:168
+#: mod/settings.php:725 src/Object/Post.php:167 src/Object/Post.php:169
 msgid "Edit"
 msgstr "Bearbeiten"
 
@@ -6680,15 +6680,15 @@ msgstr "Hochladen der Datei fehlgeschlagen."
 msgid "Wall Photos"
 msgstr "Pinnwand-Bilder"
 
-#: src/App.php:665
+#: src/App.php:610
 msgid "Delete this item?"
 msgstr "Diesen Beitrag löschen?"
 
-#: src/App.php:707
+#: src/App.php:652
 msgid "toggle mobile"
 msgstr "mobile Ansicht umschalten"
 
-#: src/App.php:1075
+#: src/App.php:985
 msgid "No system theme config value set."
 msgstr "Es wurde kein Konfigurationswert für das systemweite Theme gesetzt."
 
@@ -6777,6 +6777,11 @@ msgstr "ActivityPub"
 #: src/Content/ContactSelector.php:98
 msgid "pnut"
 msgstr "pnut"
+
+#: src/Content/ContactSelector.php:153 src/Content/ContactSelector.php:193
+#: src/Content/ContactSelector.php:231
+msgid "No answer"
+msgstr "Keine Antwort"
 
 #: src/Content/ContactSelector.php:154
 msgid "Male"
@@ -7600,29 +7605,29 @@ msgstr "Ausstehende Post-Updates ausführen"
 msgid "All pending post updates are done."
 msgstr "Alle ausstehenden Post-Updates wurden ausgeführt."
 
-#: src/Core/Installer.php:163
+#: src/Core/Installer.php:164
 msgid ""
 "The database configuration file \"config/local.config.php\" could not be "
 "written. Please use the enclosed text to create a configuration file in your"
 " web server root."
 msgstr "Die Datenbankkonfigurationsdatei \"config/local.config.php\" konnte nicht erstellt werden. Um eine Konfigurationsdatei in Ihrem Webserver-Verzeichnis zu erstellen, gehe wie folgt vor."
 
-#: src/Core/Installer.php:182
+#: src/Core/Installer.php:183
 msgid ""
 "You may need to import the file \"database.sql\" manually using phpmyadmin "
 "or mysql."
 msgstr "Möglicherweise musst du die Datei \"database.sql\" manuell mit phpmyadmin oder mysql importieren."
 
-#: src/Core/Installer.php:183 src/Module/Install.php:132
+#: src/Core/Installer.php:184 src/Module/Install.php:132
 #: src/Module/Install.php:263
 msgid "Please see the file \"INSTALL.txt\"."
 msgstr "Lies bitte die \"INSTALL.txt\"."
 
-#: src/Core/Installer.php:244
+#: src/Core/Installer.php:245
 msgid "Could not find a command line version of PHP in the web server PATH."
 msgstr "Konnte keine Kommandozeilenversion von PHP im PATH des Servers finden."
 
-#: src/Core/Installer.php:245
+#: src/Core/Installer.php:246
 msgid ""
 "If you don't have a command line version of PHP installed on your server, "
 "you will not be able to run the background processing. See <a "
@@ -7630,238 +7635,246 @@ msgid ""
 "up-the-worker'>'Setup the worker'</a>"
 msgstr "Wenn auf deinem Server keine Kommandozeilenversion von PHP installiert ist, kannst du den Hintergrundprozess nicht einrichten. Hier findest du alternative Möglichkeiten<a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-poller'>'für das Worker-Setup'</a>"
 
-#: src/Core/Installer.php:249
+#: src/Core/Installer.php:250
 msgid "PHP executable path"
 msgstr "Pfad zu PHP"
 
-#: src/Core/Installer.php:249
+#: src/Core/Installer.php:250
 msgid ""
 "Enter full path to php executable. You can leave this blank to continue the "
 "installation."
 msgstr "Gib den kompletten Pfad zur ausführbaren Datei von PHP an. Du kannst dieses Feld auch frei lassen und mit der Installation fortfahren."
 
-#: src/Core/Installer.php:254
+#: src/Core/Installer.php:255
 msgid "Command line PHP"
 msgstr "Kommandozeilen-PHP"
 
-#: src/Core/Installer.php:263
+#: src/Core/Installer.php:264
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
 msgstr "Die ausführbare Datei von PHP stimmt nicht mit der PHP cli Version überein (es könnte sich um die cgi-fgci Version handeln)"
 
-#: src/Core/Installer.php:264
+#: src/Core/Installer.php:265
 msgid "Found PHP version: "
 msgstr "Gefundene PHP Version:"
 
-#: src/Core/Installer.php:266
+#: src/Core/Installer.php:267
 msgid "PHP cli binary"
 msgstr "PHP CLI Binary"
 
-#: src/Core/Installer.php:279
+#: src/Core/Installer.php:280
 msgid ""
 "The command line version of PHP on your system does not have "
 "\"register_argc_argv\" enabled."
 msgstr "Die Kommandozeilenversion von PHP auf Deinem System hat \"register_argc_argv\" nicht aktiviert."
 
-#: src/Core/Installer.php:280
+#: src/Core/Installer.php:281
 msgid "This is required for message delivery to work."
 msgstr "Dies wird für die Auslieferung von Nachrichten benötigt."
 
-#: src/Core/Installer.php:285
+#: src/Core/Installer.php:286
 msgid "PHP register_argc_argv"
 msgstr "PHP register_argc_argv"
 
-#: src/Core/Installer.php:317
+#: src/Core/Installer.php:318
 msgid ""
 "Error: the \"openssl_pkey_new\" function on this system is not able to "
 "generate encryption keys"
 msgstr "Fehler: Die Funktion \"openssl_pkey_new\" auf diesem System ist nicht in der Lage, Verschlüsselungsschlüssel zu erzeugen"
 
-#: src/Core/Installer.php:318
+#: src/Core/Installer.php:319
 msgid ""
 "If running under Windows, please see "
 "\"http://www.php.net/manual/en/openssl.installation.php\"."
 msgstr "Wenn der Server unter Windows läuft, schau dir bitte \"http://www.php.net/manual/en/openssl.installation.php\" an."
 
-#: src/Core/Installer.php:321
+#: src/Core/Installer.php:322
 msgid "Generate encryption keys"
 msgstr "Schlüssel erzeugen"
 
-#: src/Core/Installer.php:372
+#: src/Core/Installer.php:374
 msgid ""
 "Error: Apache webserver mod-rewrite module is required but not installed."
 msgstr "Fehler: Das Apache-Modul mod-rewrite wird benötigt, es ist allerdings nicht installiert."
 
-#: src/Core/Installer.php:377
+#: src/Core/Installer.php:379
 msgid "Apache mod_rewrite module"
 msgstr "Apache mod_rewrite module"
 
-#: src/Core/Installer.php:383
+#: src/Core/Installer.php:385
 msgid "Error: PDO or MySQLi PHP module required but not installed."
 msgstr "Fehler: PDO oder MySQLi PHP Modul erforderlich, aber nicht installiert."
 
-#: src/Core/Installer.php:388
+#: src/Core/Installer.php:390
 msgid "Error: The MySQL driver for PDO is not installed."
 msgstr "Fehler: der MySQL Treiber für PDO ist nicht installiert"
 
-#: src/Core/Installer.php:392
+#: src/Core/Installer.php:394
 msgid "PDO or MySQLi PHP module"
 msgstr "PDO oder MySQLi PHP Modul"
 
-#: src/Core/Installer.php:400
+#: src/Core/Installer.php:402
 msgid "Error, XML PHP module required but not installed."
 msgstr "Fehler: XML PHP Modul erforderlich aber nicht installiert."
 
-#: src/Core/Installer.php:404
+#: src/Core/Installer.php:406
 msgid "XML PHP module"
 msgstr "XML PHP Modul"
 
-#: src/Core/Installer.php:407
+#: src/Core/Installer.php:409
 msgid "libCurl PHP module"
 msgstr "PHP: libCurl-Modul"
 
-#: src/Core/Installer.php:408
+#: src/Core/Installer.php:410
 msgid "Error: libCURL PHP module required but not installed."
 msgstr "Fehler: Das libCURL PHP Modul wird benötigt, ist aber nicht installiert."
 
-#: src/Core/Installer.php:414
+#: src/Core/Installer.php:416
 msgid "GD graphics PHP module"
 msgstr "PHP: GD-Grafikmodul"
 
-#: src/Core/Installer.php:415
+#: src/Core/Installer.php:417
 msgid ""
 "Error: GD graphics PHP module with JPEG support required but not installed."
 msgstr "Fehler: Das GD-Graphikmodul für PHP mit JPEG-Unterstützung ist nicht installiert."
 
-#: src/Core/Installer.php:421
+#: src/Core/Installer.php:423
 msgid "OpenSSL PHP module"
 msgstr "PHP: OpenSSL-Modul"
 
-#: src/Core/Installer.php:422
+#: src/Core/Installer.php:424
 msgid "Error: openssl PHP module required but not installed."
 msgstr "Fehler: Das openssl-Modul von PHP ist nicht installiert."
 
-#: src/Core/Installer.php:428
+#: src/Core/Installer.php:430
 msgid "mb_string PHP module"
 msgstr "PHP: mb_string-Modul"
 
-#: src/Core/Installer.php:429
+#: src/Core/Installer.php:431
 msgid "Error: mb_string PHP module required but not installed."
 msgstr "Fehler: mb_string PHP Module wird benötigt, ist aber nicht installiert."
 
-#: src/Core/Installer.php:435
+#: src/Core/Installer.php:437
 msgid "iconv PHP module"
 msgstr "PHP iconv Modul"
 
-#: src/Core/Installer.php:436
+#: src/Core/Installer.php:438
 msgid "Error: iconv PHP module required but not installed."
 msgstr "Fehler: Das iconv-Modul von PHP ist nicht installiert."
 
-#: src/Core/Installer.php:442
+#: src/Core/Installer.php:444
 msgid "POSIX PHP module"
 msgstr "PHP POSIX Modul"
 
-#: src/Core/Installer.php:443
+#: src/Core/Installer.php:445
 msgid "Error: POSIX PHP module required but not installed."
 msgstr "Fehler POSIX PHP Modul erforderlich, aber nicht installiert."
 
-#: src/Core/Installer.php:449
+#: src/Core/Installer.php:451
 msgid "JSON PHP module"
 msgstr "PHP JASON Modul"
 
-#: src/Core/Installer.php:450
+#: src/Core/Installer.php:452
 msgid "Error: JSON PHP module required but not installed."
 msgstr "Fehler: Das JSON PHP Modul wird benötigt, ist aber nicht installiert."
 
-#: src/Core/Installer.php:473
+#: src/Core/Installer.php:458
+msgid "File Information PHP module"
+msgstr "PHP Datei Informations-Modul"
+
+#: src/Core/Installer.php:459
+msgid "Error: File Information PHP module required but not installed."
+msgstr "Fehler: Das Datei Informations PHP Modul ist nicht installiert."
+
+#: src/Core/Installer.php:482
 msgid ""
 "The web installer needs to be able to create a file called "
 "\"local.config.php\" in the \"config\" folder of your web server and it is "
 "unable to do so."
 msgstr "Das Installationsprogramm muss in der Lage sein, eine Datei namens \"local.config.php\" im Ordner \"config\" Ihres Webservers zu erstellen, ist aber nicht in der Lage dazu."
 
-#: src/Core/Installer.php:474
+#: src/Core/Installer.php:483
 msgid ""
 "This is most often a permission setting, as the web server may not be able "
 "to write files in your folder - even if you can."
 msgstr "In den meisten Fällen ist dies ein Problem mit den Schreibrechten. Der Webserver könnte keine Schreiberlaubnis haben, selbst wenn du sie hast."
 
-#: src/Core/Installer.php:475
+#: src/Core/Installer.php:484
 msgid ""
 "At the end of this procedure, we will give you a text to save in a file "
 "named local.config.php in your Friendica \"config\" folder."
 msgstr "Am Ende dieser Prozedur bekommst du einen Text, der in der local.config.php im Friendica \"config\" Ordner gespeichert werden muss."
 
-#: src/Core/Installer.php:476
+#: src/Core/Installer.php:485
 msgid ""
 "You can alternatively skip this procedure and perform a manual installation."
 " Please see the file \"INSTALL.txt\" for instructions."
 msgstr "Alternativ kannst du diesen Schritt aber auch überspringen und die Installation manuell durchführen. Eine Anleitung dazu (Englisch) findest du in der Datei INSTALL.txt."
 
-#: src/Core/Installer.php:479
+#: src/Core/Installer.php:488
 msgid "config/local.config.php is writable"
 msgstr "config/local.config.php ist schreibbar"
 
-#: src/Core/Installer.php:499
+#: src/Core/Installer.php:508
 msgid ""
 "Friendica uses the Smarty3 template engine to render its web views. Smarty3 "
 "compiles templates to PHP to speed up rendering."
 msgstr "Friendica nutzt die Smarty3-Template-Engine, um die Webansichten zu rendern. Smarty3 kompiliert Templates zu PHP, um das Rendern zu beschleunigen."
 
-#: src/Core/Installer.php:500
+#: src/Core/Installer.php:509
 msgid ""
 "In order to store these compiled templates, the web server needs to have "
 "write access to the directory view/smarty3/ under the Friendica top level "
 "folder."
 msgstr "Um diese kompilierten Templates zu speichern, benötigt der Webserver Schreibrechte zum Verzeichnis view/smarty3/ im obersten Ordner von Friendica."
 
-#: src/Core/Installer.php:501
+#: src/Core/Installer.php:510
 msgid ""
 "Please ensure that the user that your web server runs as (e.g. www-data) has"
 " write access to this folder."
 msgstr "Bitte stelle sicher, dass der Nutzer, unter dem der Webserver läuft (z.B. www-data), Schreibrechte zu diesem Verzeichnis hat."
 
-#: src/Core/Installer.php:502
+#: src/Core/Installer.php:511
 msgid ""
 "Note: as a security measure, you should give the web server write access to "
 "view/smarty3/ only--not the template files (.tpl) that it contains."
 msgstr "Hinweis: aus Sicherheitsgründen solltest du dem Webserver nur Schreibrechte für view/smarty3/ geben -- Nicht für die darin enthaltenen Template-Dateien (.tpl)."
 
-#: src/Core/Installer.php:505
+#: src/Core/Installer.php:514
 msgid "view/smarty3 is writable"
 msgstr "view/smarty3 ist schreibbar"
 
-#: src/Core/Installer.php:534
+#: src/Core/Installer.php:543
 msgid ""
 "Url rewrite in .htaccess is not working. Make sure you copied .htaccess-dist"
 " to .htaccess."
 msgstr "Umschreiben der URLs in der .htaccess funktioniert nicht. Vergewissere dich, dass du .htaccess-dist nach.htaccess kopiert hast."
 
-#: src/Core/Installer.php:536
+#: src/Core/Installer.php:545
 msgid "Error message from Curl when fetching"
 msgstr "Fehlermeldung von Curl während des Ladens"
 
-#: src/Core/Installer.php:541
+#: src/Core/Installer.php:550
 msgid "Url rewrite is working"
 msgstr "URL rewrite funktioniert"
 
-#: src/Core/Installer.php:570
+#: src/Core/Installer.php:579
 msgid "ImageMagick PHP extension is not installed"
 msgstr "ImageMagicx PHP Erweiterung ist nicht installiert."
 
-#: src/Core/Installer.php:572
+#: src/Core/Installer.php:581
 msgid "ImageMagick PHP extension is installed"
 msgstr "ImageMagick PHP Erweiterung ist installiert"
 
-#: src/Core/Installer.php:574 tests/src/Core/InstallerTest.php:329
-#: tests/src/Core/InstallerTest.php:355
+#: src/Core/Installer.php:583 tests/src/Core/InstallerTest.php:343
+#: tests/src/Core/InstallerTest.php:369
 msgid "ImageMagick supports GIF"
 msgstr "ImageMagick unterstützt GIF"
 
-#: src/Core/Installer.php:597
+#: src/Core/Installer.php:608
 msgid "Could not connect to database."
 msgstr "Verbindung zur Datenbank gescheitert."
 
-#: src/Core/Installer.php:604
+#: src/Core/Installer.php:615
 msgid "Database already in use."
 msgstr "Die Datenbank wird bereits verwendet."
 
@@ -8440,7 +8453,7 @@ msgstr "Gruppen bearbeiten"
 msgid "activity"
 msgstr "Aktivität"
 
-#: src/Model/Item.php:3289 src/Object/Post.php:470
+#: src/Model/Item.php:3289 src/Object/Post.php:471
 msgid "comment"
 msgid_plural "comments"
 msgstr[0] "Kommentar"
@@ -9498,139 +9511,139 @@ msgstr "Angemeldete Nutzer können ihre Nutzerdaten jederzeit von den <a href=\"
 msgid "Privacy Statement"
 msgstr "Datenschutzerklärung"
 
-#: src/Object/Post.php:136
+#: src/Object/Post.php:137
 msgid "This entry was edited"
 msgstr "Dieser Beitrag wurde bearbeitet."
 
-#: src/Object/Post.php:198
+#: src/Object/Post.php:199
 msgid "Delete locally"
 msgstr "Lokal löschen"
 
-#: src/Object/Post.php:201
+#: src/Object/Post.php:202
 msgid "Delete globally"
 msgstr "Global löschen"
 
-#: src/Object/Post.php:201
+#: src/Object/Post.php:202
 msgid "Remove locally"
 msgstr "Lokal entfernen"
 
-#: src/Object/Post.php:215
+#: src/Object/Post.php:216
 msgid "save to folder"
 msgstr "In Ordner speichern"
 
-#: src/Object/Post.php:250
+#: src/Object/Post.php:251
 msgid "I will attend"
 msgstr "Ich werde teilnehmen"
 
-#: src/Object/Post.php:250
+#: src/Object/Post.php:251
 msgid "I will not attend"
 msgstr "Ich werde nicht teilnehmen"
 
-#: src/Object/Post.php:250
+#: src/Object/Post.php:251
 msgid "I might attend"
 msgstr "Ich werde eventuell teilnehmen"
 
-#: src/Object/Post.php:278
+#: src/Object/Post.php:279
 msgid "ignore thread"
 msgstr "Thread ignorieren"
 
-#: src/Object/Post.php:279
+#: src/Object/Post.php:280
 msgid "unignore thread"
 msgstr "Thread nicht mehr ignorieren"
 
-#: src/Object/Post.php:280
+#: src/Object/Post.php:281
 msgid "toggle ignore status"
 msgstr "Ignoriert-Status ein-/ausschalten"
 
-#: src/Object/Post.php:291
+#: src/Object/Post.php:292
 msgid "add star"
 msgstr "markieren"
 
-#: src/Object/Post.php:292
+#: src/Object/Post.php:293
 msgid "remove star"
 msgstr "Markierung entfernen"
 
-#: src/Object/Post.php:293
+#: src/Object/Post.php:294
 msgid "toggle star status"
 msgstr "Markierung umschalten"
 
-#: src/Object/Post.php:296
+#: src/Object/Post.php:297
 msgid "starred"
 msgstr "markiert"
 
-#: src/Object/Post.php:300
+#: src/Object/Post.php:301
 msgid "add tag"
 msgstr "Tag hinzufügen"
 
-#: src/Object/Post.php:311
+#: src/Object/Post.php:312
 msgid "like"
 msgstr "mag ich"
 
-#: src/Object/Post.php:312
+#: src/Object/Post.php:313
 msgid "dislike"
 msgstr "mag ich nicht"
 
-#: src/Object/Post.php:315
+#: src/Object/Post.php:316
 msgid "Share this"
 msgstr "Weitersagen"
 
-#: src/Object/Post.php:315
+#: src/Object/Post.php:316
 msgid "share"
 msgstr "Teilen"
 
-#: src/Object/Post.php:382
+#: src/Object/Post.php:383
 msgid "to"
 msgstr "zu"
 
-#: src/Object/Post.php:383
+#: src/Object/Post.php:384
 msgid "via"
 msgstr "via"
 
-#: src/Object/Post.php:384
+#: src/Object/Post.php:385
 msgid "Wall-to-Wall"
 msgstr "Wall-to-Wall"
 
-#: src/Object/Post.php:385
+#: src/Object/Post.php:386
 msgid "via Wall-To-Wall:"
 msgstr "via Wall-To-Wall:"
 
-#: src/Object/Post.php:418
+#: src/Object/Post.php:419
 #, php-format
 msgid "Reply to %s"
 msgstr "Antworte %s"
 
-#: src/Object/Post.php:433
+#: src/Object/Post.php:434
 msgid "Notifier task is pending"
 msgstr "Die Benachrichtigungsaufgabe ist ausstehend"
 
-#: src/Object/Post.php:434
+#: src/Object/Post.php:435
 msgid "Delivery to remote servers is pending"
 msgstr "Die Auslieferung an Remote-Server steht noch aus"
 
-#: src/Object/Post.php:435
+#: src/Object/Post.php:436
 msgid "Delivery to remote servers is underway"
 msgstr "Die Auslieferung an Remote-Server ist unterwegs"
 
-#: src/Object/Post.php:436
+#: src/Object/Post.php:437
 msgid "Delivery to remote servers is mostly done"
 msgstr "Die Zustellung an Remote-Server ist fast erledigt"
 
-#: src/Object/Post.php:437
+#: src/Object/Post.php:438
 msgid "Delivery to remote servers is done"
 msgstr "Die Zustellung an die Remote-Server ist erledigt"
 
-#: src/Object/Post.php:457
+#: src/Object/Post.php:458
 #, php-format
 msgid "%d comment"
 msgid_plural "%d comments"
 msgstr[0] "%d Kommentar"
 msgstr[1] "%d Kommentare"
 
-#: src/Object/Post.php:458
+#: src/Object/Post.php:459
 msgid "Show more"
 msgstr "Zeige mehr"
 
-#: src/Object/Post.php:459
+#: src/Object/Post.php:460
 msgid "Show fewer"
 msgstr "Zeige weniger"
 
