@@ -565,8 +565,12 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	$items = $cb['items'];
 
 	$conv_responses = [
-		'like' => ['title' => L10n::t('Likes','title')], 'dislike' => ['title' => L10n::t('Dislikes','title')],
-		'attendyes' => ['title' => L10n::t('Attending','title')], 'attendno' => ['title' => L10n::t('Not attending','title')], 'attendmaybe' => ['title' => L10n::t('Might attend','title')]
+		'like' => ['title' => L10n::t('Likes','title')],
+		'dislike' => ['title' => L10n::t('Dislikes','title')],
+		'attendyes' => ['title' => L10n::t('Attending','title')],
+		'attendno' => ['title' => L10n::t('Not attending','title')],
+		'attendmaybe' => ['title' => L10n::t('Might attend','title')],
+		'announce' => ['title' => L10n::t('Reshares','title')]
 	];
 
 	// array with html for each thread (parent+comments)
@@ -963,6 +967,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'attendmaybe':
 				$verb = ACTIVITY_ATTENDMAYBE;
 				break;
+			case 'announce':
+				$verb = ACTIVITY2_ANNOUNCE;
+				break;
 			default:
 				return;
 		}
@@ -1045,6 +1052,9 @@ function format_like($cnt, array $arr, $type, $id) {
 			case 'attendmaybe' :
 				$phrase = L10n::t('%s attends maybe.', $likers);
 				break;
+			case 'announce' :
+				$phrase = L10n::t('%s reshared this.', $likers);
+				break;
 		}
 	}
 
@@ -1083,6 +1093,10 @@ function format_like($cnt, array $arr, $type, $id) {
 			case 'attendmaybe':
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
 				$explikers = L10n::t('%s attend maybe.', $likers);
+				break;
+			case 'announce':
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $cnt);
+				$explikers = L10n::t('%s reshared this.', $likers);
 				break;
 		}
 
