@@ -238,7 +238,7 @@ class Post extends BaseObject
 		$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
 		// process action responses - e.g. like/dislike/attend/agree/whatever
-		$response_verbs = ['like', 'dislike'];
+		$response_verbs = ['like', 'dislike', 'announce'];
 
 		$isevent = false;
 		$attend = [];
