@@ -789,6 +789,46 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 }
 
 /**
+ * Fetch all comments from a query. Additionally set the newest resharer as thread owner.
+ *
+ * @param $thread_items Database statement with thread posts
+ * @return array items with parents and comments
+ */
+function conversation_fetch_comments($thread_items) {
+	$comments = [];
+	$parentlines = [];
+	$lineno = 0;
+	$actor = [];
+	$created = '';
+
+	while ($row = Item::fetch($thread_items)) {
+		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created)) {
+			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
+			$created = $row['created'];
+		}
+		if ($row['gravity'] == GRAVITY_PARENT) {
+			$parentlines[] = $lineno;
+		}
+
+		$comments[] = $row;
+		$lineno++;
+	}
+
+	DBA::close($thread_items);
+
+	if (!empty($actor)) {
+		foreach ($parentlines as $line) {
+			if (!in_array($comments[$line]['network'], [Protocol::DIASPORA]) && !$comments[$line]['origin']) {
+				$comments[$line]['owner-link'] = $actor['link'];
+				$comments[$line]['owner-avatar'] = $actor['avatar'];
+				$comments[$line]['owner-name'] = $actor['name'];
+			}
+		}
+	}
+	return $comments;
+}
+
+/**
  * @brief Add comments to top level entries that had been fetched before
  *
  * The system will fetch the comments for the local user whenever possible.
@@ -819,9 +859,10 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 		if ($block_authors) {
 			$condition[0] .= "AND NOT `author`.`hidden`";
 		}
-		$thread_items = Item::selectForUser(local_user(), [], $condition, $params);
 
-		$comments = Item::inArray($thread_items);
+		$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+
+		$comments = conversation_fetch_comments($thread_items);
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);
