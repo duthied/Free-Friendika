@@ -8,8 +8,10 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
+use FastRoute\RouteCollector;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\Hook;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
@@ -35,7 +37,6 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	public $module_loaded = false;
 	public $module_class = null;
 	public $query_string = '';
 	public $page = [];
@@ -1247,8 +1248,13 @@ class App
 				$this->module = "login";
 			}
 
+			$router = new App\Router();
+			$this->collectRoutes($router->routeCollector);
+
+			$this->module_class = $router->getModuleClass($this->cmd);
+
 			$privateapps = $this->config->get('config', 'private_addons', false);
-			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
+			if (!$this->module_class && Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
 				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
 					info(Core\L10n::t("You must be logged in to use addons. "));
@@ -1257,24 +1263,21 @@ class App
 					if (function_exists($this->module . '_module')) {
 						LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
 						$this->module_class = 'Friendica\\LegacyModule';
-						$this->module_loaded = true;
 					}
 				}
 			}
 
 			// Controller class routing
-			if (! $this->module_loaded && class_exists('Friendica\\Module\\' . ucfirst($this->module))) {
+			if (!$this->module_class && class_exists('Friendica\\Module\\' . ucfirst($this->module))) {
 				$this->module_class = 'Friendica\\Module\\' . ucfirst($this->module);
-				$this->module_loaded = true;
 			}
 
 			/* If not, next look for a 'standard' program module in the 'mod' directory
 			 * We emulate a Module class through the LegacyModule class
 			 */
-			if (! $this->module_loaded && file_exists("mod/{$this->module}.php")) {
+			if (!$this->module_class && file_exists("mod/{$this->module}.php")) {
 				LegacyModule::setModuleFile("mod/{$this->module}.php");
 				$this->module_class = 'Friendica\\LegacyModule';
-				$this->module_loaded = true;
 			}
 
 			/* The URL provided does not resolve to a valid module.
@@ -1286,7 +1289,7 @@ class App
 			 *
 			 * Otherwise we are going to emit a 404 not found.
 			 */
-			if (! $this->module_loaded) {
+			if (!$this->module_class) {
 				// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
 				if (!empty($_SERVER['QUERY_STRING']) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
 					exit();
@@ -1310,7 +1313,7 @@ class App
 		$content = '';
 
 		// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-		if ($this->module_loaded) {
+		if ($this->module_class) {
 			$this->page['page_title'] = $this->module;
 			$placeholder = '';
 
@@ -1336,7 +1339,7 @@ class App
 			$func($this);
 		}
 
-		if ($this->module_loaded) {
+		if ($this->module_class) {
 			if (! $this->error && $_SERVER['REQUEST_METHOD'] === 'POST') {
 				Core\Hook::callAll($this->module . '_mod_post', $_POST);
 				call_user_func([$this->module_class, 'post']);
@@ -1501,5 +1504,25 @@ class App
 		} else {
 			$this->internalRedirect($toUrl);
 		}
+	}
+
+	/**
+	 * @brief Static declaration of Friendica routes.
+	 *
+	 * Supports:
+	 * - Route groups
+	 * - Variable parts
+	 * Disregards:
+	 * - HTTP method other than GET
+	 * - Named parameters
+	 *
+	 * Handler must be the name of a class extending Friendica\BaseModule.
+	 *
+	 * @param RouteCollector $routeCollector
+	 * @throws InternalServerErrorException
+	 */
+	private function collectRoutes(RouteCollector $routeCollector)
+	{
+		Hook::callAll('route_collection', $routeCollector);
 	}
 }
