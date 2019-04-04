@@ -12,6 +12,7 @@ Version 2019.06 (UNRELEASED) (2019-06-?)
     Added syslog and stream Logger [nupplaphil]
     Added storage move cronjob [MrPetovan]
     Added collapsible panel for connector permission fields [MrPetovan]
+    Added rule-based router [MrPetovan]
 
   Closed Issues:
     6303, 6478, 6319, 6921, 6903
