@@ -248,6 +248,23 @@ class Transmitter
 	}
 
 	/**
+	 * @param string $username
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function getDeletedUser($username)
+	{
+		return [
+			'@context' => ActivityPub::CONTEXT,
+			'id' => System::baseUrl() . '/profile/' . $username,
+			'type' => 'Tombstone',
+			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'deleted' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+		];
+	}
+
+	/**
 	 * Returns an array with permissions of a given item array
 	 *
 	 * @param array $item

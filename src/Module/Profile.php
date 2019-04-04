@@ -63,14 +63,7 @@ class Profile extends BaseModule
 				System::jsonExit($data, 'application/activity+json');
 			} elseif (DBA::exists('userd', ['username' => self::$which])) {
 				// Known deleted user
-				$data = [
-					'@context' => ActivityPub::CONTEXT,
-					'id' => self::getApp()->getBaseUrl() . '/profile/' . self::$which,
-					'type' => 'Tombstone',
-					'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-					'updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-					'deleted' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-				];
+				$data = ActivityPub\Transmitter::getDeletedUser(self::$which);
 
 				System::jsonError(410, $data);
 			} else {
