@@ -1523,6 +1523,8 @@ class App
 	 */
 	private function collectRoutes(RouteCollector $routeCollector)
 	{
+		$routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
+
 		Hook::callAll('route_collection', $routeCollector);
 	}
 }
