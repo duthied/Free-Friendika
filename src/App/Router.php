@@ -7,12 +7,21 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
-use Friendica\Module\Itemsource;
 
+/**
+ * Wrapper for FastRoute\Router
+ *
+ * This wrapper only makes use of a subset of the router features, mainly parses a route rule to return the relevant
+ * module class.
+ *
+ * Actual routes are defined in App->collectRoutes.
+ *
+ * @package Friendica\App
+ */
 class Router
 {
 	/** @var RouteCollector */
-	public $routeCollector;
+	protected $routeCollector;
 
 	public function __construct(RouteCollector $routeCollector = null)
 	{
@@ -21,6 +30,11 @@ class Router
 		}
 
 		$this->routeCollector = $routeCollector;
+	}
+
+	public function getRouteCollector()
+	{
+		return $this->routeCollector;
 	}
 
 	public function getModuleClass($cmd)

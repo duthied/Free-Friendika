@@ -1249,7 +1249,7 @@ class App
 			}
 
 			$router = new App\Router();
-			$this->collectRoutes($router->routeCollector);
+			$this->collectRoutes($router->getRouteCollector());
 
 			$this->module_class = $router->getModuleClass($this->cmd);
 
@@ -1507,7 +1507,7 @@ class App
 	}
 
 	/**
-	 * @brief Static declaration of Friendica routes.
+	 * Static declaration of Friendica routes.
 	 *
 	 * Supports:
 	 * - Route groups
@@ -1518,6 +1518,7 @@ class App
 	 *
 	 * Handler must be the name of a class extending Friendica\BaseModule.
 	 *
+	 * @brief Static declaration of Friendica routes.
 	 * @param RouteCollector $routeCollector
 	 * @throws InternalServerErrorException
 	 */
