@@ -3223,9 +3223,9 @@ class Diaspora
 
 		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
 			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::TYPE_RELAY)) {
-				Logger::log("queue message");
-				// queue message for redelivery
-				Queue::add($contact["id"], Protocol::DIASPORA, $envelope, $public_batch, $guid);
+				Logger::info('defer message', ['log' => $logid, 'guid' => $guid, 'destination' => $dest_url]);
+				// defer message for redelivery
+				Worker::defer();
 			}
 
 			// The message could not be delivered. We mark the contact as "dead"
@@ -3263,13 +3263,12 @@ class Diaspora
 	 * @param array  $message      The message data
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $spool        Should the transmission be spooled or transmitted?
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $spool = false)
+	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "")
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3283,12 +3282,7 @@ class Diaspora
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		if ($spool) {
-			Queue::add($contact['id'], Protocol::DIASPORA, $envelope, $public_batch, $guid);
-			return true;
-		} else {
-			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
-		}
+		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
 
 		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
 
@@ -4284,7 +4278,7 @@ class Diaspora
 
 		foreach ($recips as $recip) {
 			Logger::log("Send updated profile data for user ".$uid." to contact ".$recip["id"], Logger::DEBUG);
-			self::buildAndTransmit($owner, $recip, "profile", $message, false, "", false);
+			self::buildAndTransmit($owner, $recip, "profile", $message, false);
 		}
 	}
 
