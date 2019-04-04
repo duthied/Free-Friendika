@@ -17,6 +17,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
+use Friendica\Core\Worker;
 
 class Delivery extends BaseObject
 {
@@ -321,8 +322,8 @@ class Delivery extends BaseObject
 		Logger::log('Delivery to ' . $contact['url'] . ' with guid ' . defaults($target_item, 'guid', $target_item['id']) . ' returns ' . $deliver_status);
 
 		if ($deliver_status < 0) {
-			Logger::log('Delivery failed: queuing message ' . defaults($target_item, 'guid', $target_item['id']));
-			Model\Queue::add($contact['id'], Protocol::DFRN, $atom, false, $target_item['guid']);
+			Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
+			Worker::defer();
 		}
 
 		if (($deliver_status >= 200) && ($deliver_status <= 299)) {
