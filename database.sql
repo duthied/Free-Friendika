@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.06-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1308
+-- DB_UPDATE_VERSION 1309
 -- ------------------------------------------
 
 
@@ -1026,25 +1026,6 @@ CREATE TABLE IF NOT EXISTS `push_subscriber` (
 	 PRIMARY KEY(`id`),
 	 INDEX `next_try` (`next_try`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Used for OStatus: Contains feed subscribers';
-
---
--- TABLE queue
---
-CREATE TABLE IF NOT EXISTS `queue` (
-	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`cid` int unsigned NOT NULL DEFAULT 0 COMMENT 'Message receiver',
-	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Receiver\'s network',
-	`guid` varchar(255) NOT NULL DEFAULT '' COMMENT 'Unique GUID of the message',
-	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date, when the message was created',
-	`last` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last trial',
-	`next` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'Next retrial date',
-	`retrial` tinyint NOT NULL DEFAULT 0 COMMENT 'Retrial counter',
-	`content` mediumtext COMMENT '',
-	`batch` boolean NOT NULL DEFAULT '0' COMMENT '',
-	 PRIMARY KEY(`id`),
-	 INDEX `last` (`last`),
-	 INDEX `next` (`next`)
-) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Queue for messages that couldn\'t be delivered';
 
 --
 -- TABLE register
