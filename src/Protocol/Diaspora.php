@@ -3172,8 +3172,8 @@ class Diaspora
 	 * @param bool   $public_batch Is it a public post?
 	 * @param bool   $queue_run    Is the transmission called from the queue?
 	 * @param string $guid         message guid
-	 *
 	 * @param bool   $no_queue
+	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -3263,12 +3263,13 @@ class Diaspora
 	 * @param array  $message      The message data
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
+	 * @param bool   $no_queue
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "")
+	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $no_queue = false)
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3282,7 +3283,7 @@ class Diaspora
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
+		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid, $no_queue);
 
 		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
 
@@ -4278,7 +4279,7 @@ class Diaspora
 
 		foreach ($recips as $recip) {
 			Logger::log("Send updated profile data for user ".$uid." to contact ".$recip["id"], Logger::DEBUG);
-			self::buildAndTransmit($owner, $recip, "profile", $message, false);
+			self::buildAndTransmit($owner, $recip, "profile", $message, false, '', true);
 		}
 	}
 
