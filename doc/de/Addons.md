@@ -434,11 +434,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Hook::callAll('notifier_end', $target_item);
 
-### src/Worker/Queue.php
-
-    Hook::callAll('queue_predeliver', $r);
-    Hook::callAll('queue_deliver', $params);
-
 ### src/Module/Login.php
 
     Hook::callAll('authenticate', $addon_auth);

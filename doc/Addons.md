@@ -685,11 +685,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll('notifier_end', $target_item);
 
-### src/Worker/Queue.php
-
-    Hook::callAll('queue_predeliver', $r);
-    Hook::callAll('queue_deliver', $params);
-
 ### src/Module/Login.php
 
     Hook::callAll('authenticate', $addon_auth);
