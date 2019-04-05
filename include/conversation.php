@@ -802,7 +802,7 @@ function conversation_fetch_comments($thread_items) {
 	$created = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created)) {
+		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created) && ($row['thr-parent'] == $row['parent-uri'])) {
 			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$created = $row['created'];
 		}
