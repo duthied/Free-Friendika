@@ -369,17 +369,17 @@ class Photo extends BaseObject
 		$logger = $a->getLogger();
 		$profiler = $a->getProfiler();
 
-		$stmtUser = DBA::p(
+		$userStmt = DBA::p(
 			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
 			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
 			intval($uid)
 		);
 
-		if (!DBA::isResult($stmtUser)) {
+		if (!DBA::isResult($userStmt)) {
 			$logger->info("Can't detect user data.", ['uid' => $uid]);
 			return [];
 		} else {
-			$user = DBA::toArray($stmtUser);
+			$user = DBA::toArray($userStmt);
 		}
 
 		$page_owner_nick  = $user[0]['nickname'];
@@ -402,7 +402,7 @@ class Photo extends BaseObject
 		$maxImageSize = Config::get('system', 'maximagesize');
 
 		if (($maxImageSize) && (strlen($imagedata) > $maxImageSize)) {
-			$logger->info("image exceeds size limit.", ['max' => $maxImageSize, 'current' => strlen($imagedata)]);
+			$logger->info("Image exceeds size limit.", ['max' => $maxImageSize, 'current' => strlen($imagedata)]);
 			return [];
 		}
 
