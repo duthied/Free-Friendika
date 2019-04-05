@@ -371,6 +371,7 @@ function update_1309()
 		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
 		Worker::add($deliver_options, 'Delivery', $cmd, $item['id'], $entry['cid']);
 		Logger::info('Added delivery worker', ['command' => $cmd, 'item' => $item['id'], 'contact' => $entry['cid']]);
+		DBA::delete('queue', ['id' => $entry['id']]);
 	}
 	return Update::SUCCESS;
 }
