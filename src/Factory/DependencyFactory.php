@@ -24,6 +24,7 @@ class DependencyFactory
 	{
 		$basePath = BasePath::create($directory, $_SERVER);
 		$mode = new App\Mode($basePath);
+		$router = new App\Router();
 		$configLoader = new Config\ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
@@ -34,6 +35,6 @@ class DependencyFactory
 		$logger = Factory\LoggerFactory::create($channel, $config, $profiler);
 		Factory\LoggerFactory::createDev($channel, $config, $profiler);
 
-		return new App($config, $mode, $logger, $profiler, $isBackend);
+		return new App($config, $mode, $router, $logger, $profiler, $isBackend);
 	}
 }

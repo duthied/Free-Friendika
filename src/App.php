@@ -79,6 +79,11 @@ class App
 	private $mode;
 
 	/**
+	 * @var App\Router
+	 */
+	private $router;
+
+	/**
 	 * @var string The App URL path
 	 */
 	private $urlPath;
@@ -173,6 +178,11 @@ class App
 		return $this->mode;
 	}
 
+	public function getRouter()
+	{
+		return $this->router;
+	}
+
 	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
@@ -218,20 +228,22 @@ class App
 	 *
 	 * @param Configuration    $config    The Configuration
 	 * @param App\Mode         $mode      The mode of this Friendica app
+	 * @param App\Router       $router    The router of this Friendica app
 	 * @param LoggerInterface  $logger    The current app logger
 	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(Configuration $config, App\Mode $mode, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct(Configuration $config, App\Mode $mode, App\Router $router, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		BaseObject::setApp($this);
 
-		$this->logger   = $logger;
 		$this->config   = $config;
-		$this->profiler = $profiler;
 		$this->mode     = $mode;
+		$this->router   = $router;
+		$this->profiler = $profiler;
+		$this->logger   = $logger;
 
 		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
@@ -1248,14 +1260,24 @@ class App
 				$this->module = "login";
 			}
 
-			$router = new App\Router();
-			$this->collectRoutes($router->getRouteCollector());
+			/*
+			 * ROUTING
+			 *
+			 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
+			 * post() and/or content() static methods can be respectively called to produce a data change or an output.
+			 */
 
-			$this->module_class = $router->getModuleClass($this->cmd);
+			// First we try explicit routes defined in App\Router
+			$this->router->collectRoutes();
 
-			$privateapps = $this->config->get('config', 'private_addons', false);
+			Hook::callAll('route_collection', $this->router->getRouteCollector());
+
+			$this->module_class = $this->router->getModuleClass($this->cmd);
+
+			// Then we try addon-provided modules that we wrap in the LegacyModule class
 			if (!$this->module_class && Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
 				//Check if module is an app and if public access to apps is allowed or not
+				$privateapps = $this->config->get('config', 'private_addons', false);
 				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
 					info(Core\L10n::t("You must be logged in to use addons. "));
 				} else {
@@ -1267,12 +1289,12 @@ class App
 				}
 			}
 
-			// Controller class routing
+			// Then we try name-matching a Friendica\Module class
 			if (!$this->module_class && class_exists('Friendica\\Module\\' . ucfirst($this->module))) {
 				$this->module_class = 'Friendica\\Module\\' . ucfirst($this->module);
 			}
 
-			/* If not, next look for a 'standard' program module in the 'mod' directory
+			/* Finally, we look for a 'standard' program module in the 'mod' directory
 			 * We emulate a Module class through the LegacyModule class
 			 */
 			if (!$this->module_class && file_exists("mod/{$this->module}.php")) {
@@ -1504,28 +1526,5 @@ class App
 		} else {
 			$this->internalRedirect($toUrl);
 		}
-	}
-
-	/**
-	 * Static declaration of Friendica routes.
-	 *
-	 * Supports:
-	 * - Route groups
-	 * - Variable parts
-	 * Disregards:
-	 * - HTTP method other than GET
-	 * - Named parameters
-	 *
-	 * Handler must be the name of a class extending Friendica\BaseModule.
-	 *
-	 * @brief Static declaration of Friendica routes.
-	 * @param RouteCollector $routeCollector
-	 * @throws InternalServerErrorException
-	 */
-	private function collectRoutes(RouteCollector $routeCollector)
-	{
-		$routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
-
-		Hook::callAll('route_collection', $routeCollector);
 	}
 }

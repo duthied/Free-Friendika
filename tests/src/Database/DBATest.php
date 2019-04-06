@@ -15,6 +15,7 @@ class DBATest extends DatabaseTest
 	{
 		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
 		$mode = new App\Mode($basePath);
+		$router = new App\Router();
 		$configLoader = new ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
@@ -22,7 +23,7 @@ class DBATest extends DatabaseTest
 		$config = Factory\ConfigFactory::createConfig($configCache);
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create('test', $config, $profiler);
-		$this->app = new App($config, $mode, $logger, $profiler, false);
+		$this->app = new App($config, $mode, $router, $logger, $profiler, false);
 
 		parent::setUp();
 

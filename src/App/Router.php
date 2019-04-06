@@ -7,6 +7,7 @@ use FastRoute\DataGenerator\GroupCountBased;
 use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
+use Friendica\Module;
 
 /**
  * Wrapper for FastRoute\Router
@@ -23,6 +24,25 @@ class Router
 	/** @var RouteCollector */
 	protected $routeCollector;
 
+	/**
+	 * Static declaration of Friendica routes.
+	 *
+	 * Supports:
+	 * - Route groups
+	 * - Variable parts
+	 * Disregards:
+	 * - HTTP method other than GET
+	 * - Named parameters
+	 *
+	 * Handler must be the name of a class extending Friendica\BaseModule.
+	 *
+	 * @brief Static declaration of Friendica routes.
+	 */
+	public function collectRoutes()
+	{
+		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
+	}
+
 	public function __construct(RouteCollector $routeCollector = null)
 	{
 		if (!$routeCollector) {
@@ -37,6 +57,12 @@ class Router
 		return $this->routeCollector;
 	}
 
+	/**
+	 * Returns the relevant module class name for the given page URI or NULL if no route rule matched.
+	 *
+	 * @param string $cmd The path component of the request URL without the query string
+	 * @return string|null A Friendica\BaseModule-extending class name if a route rule matched
+	 */
 	public function getModuleClass($cmd)
 	{
 		$cmd = '/' . ltrim($cmd, '/');
