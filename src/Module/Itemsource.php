@@ -37,7 +37,6 @@ class Itemsource extends \Friendica\BaseModule
 
 			$conversation = Model\Conversation::getByItemUri($item['uri']);
 
-			$guid = $item['guid'];
 			$item_id = $item['id'];
 			$item_uri = $item['uri'];
 			$source = $conversation['source'];

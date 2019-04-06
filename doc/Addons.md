@@ -433,7 +433,11 @@ For `select`, **field** is:
   - [3] (String): Additional help text; Optional, default is none.
   - [4] (Array): Associative array of options. Item key is option value, item value is option label; Mandatory. 
 
+### route_collection
+Called just before dispatching the router.
+Hook data is a `\FastRoute\RouterCollector` object that should be used to add addon routes pointing to classes.
 
+**Notice**: The class whose name is provided in the route handler must be reachable via auto-loader.
 
 ## Complete list of hook callbacks
 
@@ -610,6 +614,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('load_config');
     Hook::callAll('head');
     Hook::callAll('footer');
+    Hook::callAll('route_collection');
 
 ### src/Model/Item.php
 
