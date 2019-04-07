@@ -369,17 +369,11 @@ class Photo extends BaseObject
 		$logger = $a->getLogger();
 		$profiler = $a->getProfiler();
 
-		$userStmt = DBA::p(
-			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
-			intval($uid)
-		);
+		$user = User::getOwnerDataById($uid);
 
-		if (!DBA::isResult($userStmt)) {
+		if (!DBA::isResult($user) || !empty($user['blocked'])) {
 			$logger->info("Can't detect user data.", ['uid' => $uid]);
 			return [];
-		} else {
-			$user = DBA::toArray($userStmt);
 		}
 
 		$page_owner_nick  = $user[0]['nickname'];
