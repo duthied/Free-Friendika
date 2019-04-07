@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1308);
+	define('DB_UPDATE_VERSION', 1309);
 }
 
 return [
@@ -1116,26 +1116,6 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"next_try" => ["next_try"],
-		]
-	],
-	"queue" => [
-		"comment" => "Queue for messages that couldn't be delivered",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Message receiver"],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Receiver's network"],
-			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unique GUID of the message"],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date, when the message was created"],
-			"last" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of last trial"],
-			"next" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Next retrial date"],
-			"retrial" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
-			"content" => ["type" => "mediumtext", "comment" => ""],
-			"batch" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"last" => ["last"],
-			"next" => ["next"],
 		]
 	],
 	"register" => [

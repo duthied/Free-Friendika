@@ -47,9 +47,6 @@ class Cron
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
 		Hook::fork($a->queue['priority'], "cron");
 
-		// run queue delivery process in the background
-		Worker::add(PRIORITY_NEGLIGIBLE, "Queue");
-
 		// run the process to discover global contacts in the background
 		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
 

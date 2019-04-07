@@ -28,7 +28,6 @@ use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -3170,15 +3169,14 @@ class Diaspora
 	 * @param array  $contact      Target of the communication
 	 * @param string $envelope     The message that is to be transmitted
 	 * @param bool   $public_batch Is it a public post?
-	 * @param bool   $queue_run    Is the transmission called from the queue?
 	 * @param string $guid         message guid
-	 * @param bool   $no_queue
+	 * @param bool   $no_defer     Don't defer a failing delivery
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function transmit(array $owner, array $contact, $envelope, $public_batch, $queue_run = false, $guid = "", $no_queue = false)
+	public static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "", $no_defer = false)
 	{
 		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -3205,24 +3203,20 @@ class Diaspora
 
 		Logger::log("transmit: ".$logid."-".$guid." ".$dest_url);
 
-		if (!$queue_run && Queue::wasDelayed($contact["id"])) {
-			$return_code = 0;
-		} else {
-			if (!intval(Config::get("system", "diaspora_test"))) {
-				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
+		if (!intval(Config::get("system", "diaspora_test"))) {
+			$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
-				$return_code = $postResult->getReturnCode();
-			} else {
-				Logger::log("test_mode");
-				return 200;
-			}
+			$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+			$return_code = $postResult->getReturnCode();
+		} else {
+			Logger::log("test_mode");
+			return 200;
 		}
 
 		Logger::log("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
 		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
-			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::TYPE_RELAY)) {
+			if (!$no_defer && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::TYPE_RELAY)) {
 				Logger::info('defer message', ['log' => $logid, 'guid' => $guid, 'destination' => $dest_url]);
 				// defer message for redelivery
 				Worker::defer();
@@ -3263,13 +3257,13 @@ class Diaspora
 	 * @param array  $message      The message data
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $no_queue
+	 * @param bool   $no_defer     Don't defer a failing delivery
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $no_queue = false)
+	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $no_defer = false)
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3283,7 +3277,7 @@ class Diaspora
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid, $no_queue);
+		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid, $no_defer);
 
 		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
 

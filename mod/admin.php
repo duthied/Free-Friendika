@@ -205,7 +205,6 @@ function admin_content(App $a)
 			'tos'          => ['admin/tos/'         , L10n::t('Terms of Service')        , 'tos']]],
 		'database' => [L10n::t('Database'), [
 			'dbsync'       => ['admin/dbsync/'      , L10n::t('DB updates')              , 'dbsync'],
-			'queue'        => ['admin/queue/'       , L10n::t('Inspect Queue')           , 'queue'],
 			'deferred'     => ['admin/deferred/'    , L10n::t('Inspect Deferred Workers'), 'deferred'],
 			'workerqueue'  => ['admin/workerqueue/' , L10n::t('Inspect worker Queue')    , 'workerqueue']]],
 		'tools' => [L10n::t('Tools'), [
@@ -273,9 +272,6 @@ function admin_content(App $a)
 				break;
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
-				break;
-			case 'queue':
-				$o = admin_page_queue($a);
 				break;
 			case 'deferred':
 				$o = admin_page_workerqueue($a, true);
@@ -790,52 +786,6 @@ function admin_page_federation(App $a)
 }
 
 /**
- * @brief Admin Inspect Queue Page
- *
- * Generates a page for the admin to have a look into the current queue of
- * postings that are not deliverable. Shown are the name and url of the
- * recipient, the delivery network and the dates when the posting was generated
- * and the last time tried to deliver the posting.
- *
- * The returned string holds the content of the page.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_queue(App $a)
-{
-	// get content from the queue table
-	$entries = DBA::p("SELECT `contact`.`name`, `contact`.`nurl`,
-                `queue`.`id`, `queue`.`network`, `queue`.`created`, `queue`.`last`
-                FROM `queue` INNER JOIN `contact` ON `contact`.`id` = `queue`.`cid`
-                ORDER BY `queue`.`cid`, `queue`.`created`");
-
-	$r = [];
-	while ($entry = DBA::fetch($entries)) {
-		$entry['created'] = DateTimeFormat::local($entry['created']);
-		$entry['last'] = DateTimeFormat::local($entry['last']);
-		$r[] = $entry;
-	}
-	DBA::close($entries);
-
-	$t = Renderer::getMarkupTemplate('admin/queue.tpl');
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Inspect Queue'),
-		'$count' => count($r),
-		'id_header' => L10n::t('ID'),
-		'$to_header' => L10n::t('Recipient Name'),
-		'$url_header' => L10n::t('Recipient Profile'),
-		'$network_header' => L10n::t('Network'),
-		'$created_header' => L10n::t('Created'),
-		'$last_header' => L10n::t('Last Tried'),
-		'$info' => L10n::t('This page lists the content of the queue for outgoing postings. These are postings the initial delivery failed for. They will be resend later and eventually deleted if the delivery fails permanently.'),
-		'$entries' => $r,
-	]);
-}
-
-/**
  * @brief Admin Inspect Worker Queue Page
  *
  * Generates a page for the admin to have a look into the current queue of
@@ -977,8 +927,6 @@ function admin_page_summary(App $a)
 
 	$pending = Register::getPendingCount();
 
-	$queue = DBA::count('queue', []);
-
 	$deferred = DBA::count('workerqueue', ["`executed` <= ? AND NOT `done` AND `next_try` > ?",
 		DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
 
@@ -987,7 +935,7 @@ function admin_page_summary(App $a)
 
 	// We can do better, but this is a quick queue status
 
-	$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'deferred' => $deferred, 'workerq' => $workerqueue];
+	$queues = ['label' => L10n::t('Message queues'), 'deferred' => $deferred, 'workerq' => $workerqueue];
 
 
 	$r = q("SHOW variables LIKE 'max_allowed_packet'");
