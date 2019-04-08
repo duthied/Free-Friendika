@@ -1255,11 +1255,6 @@ class Contact extends BaseObject
 				$update_contact = true;
 			}
 
-			// Update the contact in the background if needed
-			if ($update_contact && $no_update) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
-			}
-
 			if (!$update_contact || $no_update) {
 				return $contact_id;
 			}
