@@ -8,6 +8,7 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
+use Friendica\Util\BaseURL;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -51,7 +52,7 @@ class Authentication extends BaseObject
 			$value = "";
 		}
 
-		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL), true);
+		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == BaseUrl::SSL_POLICY_FULL), true);
 	}
 
 	/**

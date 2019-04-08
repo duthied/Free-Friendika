@@ -82,17 +82,6 @@ define('MAX_IMAGE_LENGTH',        -1);
  */
 define('DEFAULT_DB_ENGINE',  'InnoDB');
 
-/**
- * @name SSL Policy
- *
- * SSL redirection policies
- * @{
- */
-define('SSL_POLICY_NONE',         0);
-define('SSL_POLICY_FULL',         1);
-define('SSL_POLICY_SELFSIGN',     2);
-/* @}*/
-
 /** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
 define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
 /** @deprecated since version 2019.03, please use \Friendica\Module\Register::APPROVE instead */

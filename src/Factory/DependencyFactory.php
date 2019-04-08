@@ -5,6 +5,7 @@ namespace Friendica\Factory;
 use Friendica\App;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Config;
 
 class DependencyFactory
@@ -34,7 +35,8 @@ class DependencyFactory
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create($channel, $config, $profiler);
 		Factory\LoggerFactory::createDev($channel, $config, $profiler);
+		$baseURL = new BaseURL($config, $_SERVER);
 
-		return new App($config, $mode, $router, $logger, $profiler, $isBackend);
+		return new App($config, $mode, $router, $baseURL, $logger, $profiler, $isBackend);
 	}
 }

@@ -8,7 +8,6 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use FastRoute\RouteCollector;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Hook;
@@ -16,6 +15,7 @@ use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
@@ -84,9 +84,9 @@ class App
 	private $router;
 
 	/**
-	 * @var string The App URL path
+	 * @var BaseURL
 	 */
-	private $urlPath;
+	private $baseURL;
 
 	/**
 	 * @var bool true, if the call is from the Friendica APP, otherwise false
@@ -178,6 +178,11 @@ class App
 		return $this->mode;
 	}
 
+	/**
+	 * Returns the router of the Application
+	 *
+	 * @return App\Router
+	 */
 	public function getRouter()
 	{
 		return $this->router;
@@ -220,8 +225,6 @@ class App
 	}
 
 	public $queue;
-	private $scheme;
-	private $hostname;
 
 	/**
 	 * @brief App constructor.
@@ -229,19 +232,21 @@ class App
 	 * @param Configuration    $config    The Configuration
 	 * @param App\Mode         $mode      The mode of this Friendica app
 	 * @param App\Router       $router    The router of this Friendica app
+	 * @param BaseURL          $baseURL   The full base URL of this Friendica app
 	 * @param LoggerInterface  $logger    The current app logger
 	 * @param Profiler         $profiler  The profiler of this application
 	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(Configuration $config, App\Mode $mode, App\Router $router, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
+	public function __construct(Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, $isBackend = true)
 	{
 		BaseObject::setApp($this);
 
 		$this->config   = $config;
 		$this->mode     = $mode;
 		$this->router   = $router;
+		$this->baseURL  = $baseURL;
 		$this->profiler = $profiler;
 		$this->logger   = $logger;
 
@@ -256,26 +261,6 @@ class App
 
 		// This has to be quite large to deal with embedded private photos
 		ini_set('pcre.backtrack_limit', 500000);
-
-		$this->scheme = 'http';
-
-		if (!empty($_SERVER['HTTPS']) ||
-			!empty($_SERVER['HTTP_FORWARDED']) && preg_match('/proto=https/', $_SERVER['HTTP_FORWARDED']) ||
-			!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] == 'https' ||
-			!empty($_SERVER['HTTP_X_FORWARDED_SSL']) && $_SERVER['HTTP_X_FORWARDED_SSL'] == 'on' ||
-			!empty($_SERVER['FRONT_END_HTTPS']) && $_SERVER['FRONT_END_HTTPS'] == 'on' ||
-			!empty($_SERVER['SERVER_PORT']) && (intval($_SERVER['SERVER_PORT']) == 443) // XXX: reasonable assumption, but isn't this hardcoding too much?
-		) {
-			$this->scheme = 'https';
-		}
-
-		if (!empty($_SERVER['SERVER_NAME'])) {
-			$this->hostname = $_SERVER['SERVER_NAME'];
-
-			if (!empty($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] != 80 && $_SERVER['SERVER_PORT'] != 443) {
-				$this->hostname .= ':' . $_SERVER['SERVER_PORT'];
-			}
-		}
 
 		set_include_path(
 			get_include_path() . PATH_SEPARATOR
@@ -354,8 +339,6 @@ class App
 	 */
 	public function reload()
 	{
-		$this->determineURLPath();
-
 		$this->getMode()->determine($this->getBasePath());
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
@@ -398,97 +381,28 @@ class App
 	}
 
 	/**
-	 * Figure out if we are running at the top of a domain or in a sub-directory and adjust accordingly
+	 * Returns the scheme of the current call
+	 * @return string
+	 *
+	 * @deprecated 2019.06 - use BaseURL->getScheme() instead
 	 */
-	private function determineURLPath()
-	{
-		/*
-		 * The automatic path detection in this function is currently deactivated,
-		 * see issue https://github.com/friendica/friendica/issues/6679
-		 *
-		 * The problem is that the function seems to be confused with some url.
-		 * These then confuses the detection which changes the url path.
-		 */
-
-		/* Relative script path to the web server root
-		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
-		 */
-/*
-		$relative_script_path = '';
-		$relative_script_path = defaults($_SERVER, 'REDIRECT_URL'       , $relative_script_path);
-		$relative_script_path = defaults($_SERVER, 'REDIRECT_URI'       , $relative_script_path);
-		$relative_script_path = defaults($_SERVER, 'REDIRECT_SCRIPT_URL', $relative_script_path);
-		$relative_script_path = defaults($_SERVER, 'SCRIPT_URL'         , $relative_script_path);
-		$relative_script_path = defaults($_SERVER, 'REQUEST_URI'        , $relative_script_path);
-*/
-		$this->urlPath = $this->config->get('system', 'urlpath');
-
-		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
-		 * QUERY_STRING gives pagename=module/parameter
-		 *
-		 * To get /relative/path/to/friendica we perform dirname() for as many levels as there are slashes in the QUERY_STRING
-		 */
-/*
-		if (!empty($relative_script_path)) {
-			// Module
-			if (!empty($_SERVER['QUERY_STRING'])) {
-				$path = trim(rdirname($relative_script_path, substr_count(trim($_SERVER['QUERY_STRING'], '/'), '/') + 1), '/');
-			} else {
-				// Root page
-				$path = trim($relative_script_path, '/');
-			}
-
-			if ($path && $path != $this->urlPath) {
-				$this->urlPath = $path;
-			}
-		}
-*/
-	}
-
 	public function getScheme()
 	{
-		return $this->scheme;
+		return $this->baseURL->getScheme();
 	}
 
 	/**
-	 * @brief Retrieves the Friendica instance base URL
+	 * Retrieves the Friendica instance base URL
 	 *
-	 * This function assembles the base URL from multiple parts:
-	 * - Protocol is determined either by the request or a combination of
-	 * system.ssl_policy and the $ssl parameter.
-	 * - Host name is determined either by system.hostname or inferred from request
-	 * - Path is inferred from SCRIPT_NAME
+	 * @param bool $ssl Whether to append http or https under BaseURL::SSL_POLICY_SELFSIGN
 	 *
-	 * Note: $ssl parameter value doesn't directly correlate with the resulting protocol
-	 *
-	 * @param bool $ssl Whether to append http or https under SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
-	 * @throws InternalServerErrorException
+	 *
+	 * @deprecated 2019.06 - use BaseURL->get($ssl) instead
 	 */
 	public function getBaseURL($ssl = false)
 	{
-		$scheme = $this->scheme;
-
-		if ($this->config->get('system', 'ssl_policy') == SSL_POLICY_FULL) {
-			$scheme = 'https';
-		}
-
-		//	Basically, we have $ssl = true on any links which can only be seen by a logged in user
-		//	(and also the login link). Anything seen by an outsider will have it turned off.
-
-		if ($this->config->get('system', 'ssl_policy') == SSL_POLICY_SELFSIGN) {
-			if ($ssl) {
-				$scheme = 'https';
-			} else {
-				$scheme = 'http';
-			}
-		}
-
-		if ($this->config->get('config', 'hostname') != '') {
-			$this->hostname = $this->config->get('config', 'hostname');
-		}
-
-		return $scheme . '://' . $this->hostname . (!empty($this->getURLPath()) ? '/' . $this->getURLPath() : '' );
+		return $this->baseURL->get($ssl);
 	}
 
 	/**
@@ -497,55 +411,36 @@ class App
 	 * Clears the baseurl cache to prevent inconsistencies
 	 *
 	 * @param string $url
-	 * @throws InternalServerErrorException
+	 *
+	 * @deprecated 2019.06 - use BaseURL->saveByURL($url) instead
 	 */
 	public function setBaseURL($url)
 	{
-		$parsed = @parse_url($url);
-		$hostname = '';
-
-		if (!empty($parsed)) {
-			if (!empty($parsed['scheme'])) {
-				$this->scheme = $parsed['scheme'];
-			}
-
-			if (!empty($parsed['host'])) {
-				$hostname = $parsed['host'];
-			}
-
-			if (!empty($parsed['port'])) {
-				$hostname .= ':' . $parsed['port'];
-			}
-			if (!empty($parsed['path'])) {
-				$this->urlPath = trim($parsed['path'], '\\/');
-			}
-
-			if (file_exists($this->getBasePath() . '/.htpreconfig.php')) {
-				include $this->getBasePath() . '/.htpreconfig.php';
-			}
-
-			if ($this->config->get('config', 'hostname') != '') {
-				$this->hostname = $this->config->get('config', 'hostname');
-			}
-
-			if (!isset($this->hostname) || ($this->hostname == '')) {
-				$this->hostname = $hostname;
-			}
-		}
+		$this->baseURL->saveByURL($url);
 	}
 
+	/**
+	 * Returns the current hostname
+	 *
+	 * @return string
+	 *
+	 * @deprecated 2019.06 - use BaseURL->getHostname() instead
+	 */
 	public function getHostName()
 	{
-		if ($this->config->get('config', 'hostname') != '') {
-			$this->hostname = $this->config->get('config', 'hostname');
-		}
-
-		return $this->hostname;
+		return $this->baseURL->getHostname();
 	}
 
+	/**
+	 * Returns the sub-path of the full URL
+	 *
+	 * @return string
+	 *
+	 * @deprecated 2019.06 - use BaseURL->getUrlPath() instead
+	 */
 	public function getURLPath()
 	{
-		return $this->urlPath;
+		return $this->baseURL->getUrlPath();
 	}
 
 	/**
@@ -1120,7 +1015,7 @@ class App
 		if (!$this->getMode()->isInstall()) {
 			// Force SSL redirection
 			if ($this->config->get('system', 'force_ssl') && ($this->getScheme() == "http")
-				&& intval($this->config->get('system', 'ssl_policy')) == SSL_POLICY_FULL
+				&& intval($this->config->get('system', 'ssl_policy')) == BaseURL::SSL_POLICY_FULL
 				&& strpos($this->getBaseURL(), 'https://') === 0
 				&& $_SERVER['REQUEST_METHOD'] == 'GET') {
 				header('HTTP/1.1 302 Moved Temporarily');
@@ -1458,7 +1353,7 @@ class App
 		header("X-Friendica-Version: " . FRIENDICA_VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
-		if ($this->config->get('system', 'hsts') && ($this->config->get('system', 'ssl_policy') == SSL_POLICY_FULL)) {
+		if ($this->config->get('system', 'hsts') && ($this->config->get('system', 'ssl_policy') == BaseUrl::SSL_POLICY_FULL)) {
 			header("Strict-Transport-Security: max-age=31536000");
 		}
 
