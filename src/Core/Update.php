@@ -27,9 +27,6 @@ class Update
 			return;
 		}
 
-		// Check if the config files are set correctly
-		self::checkBaseSettings($_SERVER);
-
 		// Don't check the status if the last update was failed
 		if (Config::get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
 			return;
@@ -223,11 +220,6 @@ class Update
 
 			return true;
 		}
-	}
-
-	public static function checkBaseSettings(array $server)
-	{
-
 	}
 
 	/**
