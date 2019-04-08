@@ -196,7 +196,6 @@ class App
 	 * @see initHead()
 	 *
 	 * @param string $path
-	 * @throws InternalServerErrorException
 	 */
 	public function registerStylesheet($path)
 	{
@@ -215,7 +214,6 @@ class App
 	 * @see initFooter()
 	 *
 	 * @param string $path
-	 * @throws InternalServerErrorException
 	 */
 	public function registerFooterScript($path)
 	{
@@ -835,7 +833,7 @@ class App
 	{
 		$sender_email = $this->config->get('config', 'sender_email');
 		if (empty($sender_email)) {
-			$hostname = $this->getHostName();
+			$hostname = $this->baseURL->getHostname();
 			if (strpos($hostname, ':')) {
 				$hostname = substr($hostname, 0, strpos($hostname, ':'));
 			}
@@ -980,7 +978,7 @@ class App
 		// and www.example.com vs example.com.
 		// We will only change the url to an ip address if there is no existing setting
 
-		if (empty($url) || (!Util\Strings::compareLink($url, $this->getBaseURL())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $this->getHostName()))) {
+		if (empty($url) || (!Util\Strings::compareLink($url, $this->getBaseURL())) && (!preg_match("/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/", $this->baseURL->getHostname()))) {
 			$this->config->set('system', 'url', $this->getBaseURL());
 		}
 	}
@@ -1014,10 +1012,7 @@ class App
 
 		if (!$this->getMode()->isInstall()) {
 			// Force SSL redirection
-			if ($this->config->get('system', 'force_ssl') && ($this->getScheme() == "http")
-				&& intval($this->config->get('system', 'ssl_policy')) == BaseURL::SSL_POLICY_FULL
-				&& strpos($this->getBaseURL(), 'https://') === 0
-				&& $_SERVER['REQUEST_METHOD'] == 'GET') {
+			if ($this->baseURL->checkRedirectHttps()) {
 				header('HTTP/1.1 302 Moved Temporarily');
 				header('Location: ' . $this->getBaseURL() . '/' . $this->query_string);
 				exit();
@@ -1353,7 +1348,7 @@ class App
 		header("X-Friendica-Version: " . FRIENDICA_VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
-		if ($this->config->get('system', 'hsts') && ($this->config->get('system', 'ssl_policy') == BaseUrl::SSL_POLICY_FULL)) {
+		if ($this->config->get('system', 'hsts') && ($this->baseURL->getSSLPolicy() == BaseUrl::SSL_POLICY_FULL)) {
 			header("Strict-Transport-Security: max-age=31536000");
 		}
 

@@ -6,7 +6,7 @@ use Friendica\Core\Config\Configuration;
 
 /**
  * A class which checks and contains the basic
- * environment for the BaseURL (url, urlpath, ssl_policy, hostname)
+ * environment for the BaseURL (url, urlpath, ssl_policy, hostname, scheme)
  */
 class BaseURL
 {
@@ -24,6 +24,11 @@ class BaseURL
 	 * SSL is optional, but preferred
 	 */
 	const SSL_POLICY_SELFSIGN = 2;
+
+	/**
+	 * Define the Default SSL scheme
+	 */
+	const DEFAULT_SSL_SCHEME = self::SSL_POLICY_SELFSIGN;
 
 	/**
 	 * The Friendica Config
@@ -114,7 +119,11 @@ class BaseURL
 	 */
 	public function get($ssl = false)
 	{
-		return (!$ssl ? $this->url : $this->returnBaseURL($ssl));
+		if ($this->sslPolicy === self::SSL_POLICY_SELFSIGN && $ssl) {
+			return Network::switchScheme($this->url);
+		}
+
+		return $this->url;
 	}
 
 	/**
@@ -184,7 +193,29 @@ class BaseURL
 			$urlPath = trim($parsed['path'], '\\/');
 		}
 
-		return $this->save($hostname, null, $urlPath);
+		$sslPolicy = null;
+		if (!empty($parsed['scheme'])) {
+			if ($parsed['scheme'] == 'https') {
+				$sslPolicy = BaseURL::SSL_POLICY_FULL;
+			}
+		}
+
+		return $this->save($hostname, $sslPolicy, $urlPath);
+	}
+
+	/**
+	 * Checks, if a redirect to the HTTPS site would be necessary
+	 *
+	 * @return bool
+	 */
+	public function checkRedirectHttps()
+	{
+		return $this->config->get('system', 'force_ssl')
+			&& ($this->getScheme() == "http")
+			&& intval($this->getSSLPolicy()) == BaseURL::SSL_POLICY_FULL
+			&& strpos($this->get(), 'https://') === 0
+			&& !empty($this->server['REQUEST_METHOD'])
+			&& $this->server['REQUEST_METHOD'] === 'GET';
 	}
 
 	/**
@@ -196,8 +227,8 @@ class BaseURL
 		$this->config = $config;
 		$this->server = $server;
 
-		$this->checkConfig();
 		$this->determineSchema();
+		$this->checkConfig();
 	}
 
 	/**
@@ -205,10 +236,10 @@ class BaseURL
 	 */
 	public function checkConfig()
 	{
-		$this->hostname  = $this->config->get('config', 'hostname', null);
-		$this->urlPath   = $this->config->get('system', 'urlpath', null);
-		$this->sslPolicy = $this->config->get('system', 'ssl_policy', null);
-		$this->url       = $this->config->get('system', 'url', null);
+		$this->hostname  = $this->config->get('config', 'hostname');
+		$this->urlPath   = $this->config->get('system', 'urlpath');
+		$this->sslPolicy = $this->config->get('system', 'ssl_policy');
+		$this->url       = $this->config->get('system', 'url');
 
 		if (empty($this->hostname)) {
 			$this->determineHostname();
@@ -224,7 +255,11 @@ class BaseURL
 		}
 
 		if (!isset($this->sslPolicy)) {
-			$this->sslPolicy = self::SSL_POLICY_NONE;
+			if ($this->scheme == 'https') {
+				$this->sslPolicy = self::SSL_POLICY_FULL;
+			} else {
+				$this->sslPolicy = self::DEFAULT_SSL_SCHEME;
+			}
 			$this->config->set('system', 'ssl_policy', $this->sslPolicy);
 		}
 
@@ -324,21 +359,5 @@ class BaseURL
 		) {
 			$this->scheme = 'https';
 		}
-	}
-
-	/**
-	 * Returns the URL based on the current used ssl setting
-	 *
-	 * @param bool $ssl true, if ssl should be used
-	 *
-	 * @return string
-	 */
-	private function returnBaseURL($ssl)
-	{
-		if ($this->sslPolicy == self::SSL_POLICY_SELFSIGN && $ssl) {
-			return Network::switchScheme($this->url);
-		}
-
-		return $this->url;
 	}
 }

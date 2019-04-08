@@ -838,7 +838,7 @@ class Network
 
 
 	/**
-	 * @brief Switch the scheme of an url between http and https
+	 * Switch the scheme of an url between http and https
 	 *
 	 * @param string $url URL
 	 *
@@ -846,15 +846,17 @@ class Network
 	 */
 	public static function switchScheme($url)
 	{
-		$parts = parse_url($url, PHP_URL_SCHEME);
-		if (!isset($parts['scheme'])) {
+		$scheme = parse_url($url, PHP_URL_SCHEME);
+		if (empty($scheme)) {
 			return $url;
 		}
-		if ($parts['scheme'] == 'http') {
+
+		if ($scheme === 'http') {
 			$url = str_replace('http://', 'https://', $url);
-		} elseif ($parts['scheme'] == 'https') {
+		} elseif ($scheme === 'https') {
 			$url = str_replace('https://', 'http://', $url);
 		}
+
 		return $url;
 	}
 }
