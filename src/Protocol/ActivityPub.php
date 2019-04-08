@@ -89,14 +89,15 @@ class ActivityPub
 	/**
 	 * Fetches a profile from the given url into an array that is compatible to Probe::uri
 	 *
-	 * @param string $url profile url
+	 * @param string  $url    profile url
+	 * @param boolean $update Update the profile
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function probeProfile($url)
+	public static function probeProfile($url, $update = true)
 	{
-		$apcontact = APContact::getByURL($url, true);
+		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
 			return false;
 		}

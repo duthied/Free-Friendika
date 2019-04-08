@@ -1115,6 +1115,81 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Have a look at all contact tables for a given profile url.
+	 * This function works as a replacement for probing the contact.
+	 *
+	 * @param string $url Contact URL
+	 *
+	 * @return array Contact array in the "probe" structure
+	*/
+	private static function getProbeDataFromDatabase($url)
+	{
+		// The link could be provided as http although we stored it as https
+		$ssl_url = str_replace('http://', 'https://', $url);
+
+		$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+			'photo', 'keywords', 'location', 'about', 'network',
+			'priority', 'batch', 'request', 'confirm', 'poco'];
+		$data = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
+
+		if (!DBA::isResult($contact)) {
+			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+			$data = DBA::selectFirst('contact', $fields, $condition);
+		}
+
+		if (DBA::isResult($data)) {
+			// For security reasons we don't fetch key data from our users
+			$data["pubkey"] = '';
+			return $data;
+		}
+
+		$fields = ['url', 'addr', 'alias', 'notify', 'name', 'nick',
+			'photo', 'keywords', 'location', 'about', 'network'];
+		$data = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
+
+		if (!DBA::isResult($contact)) {
+			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+			$data = DBA::selectFirst('contact', $fields, $condition);
+		}
+
+		if (DBA::isResult($data)) {
+			$data["pubkey"] = '';
+			$data["poll"] = '';
+			$data["priority"] = 0;
+			$data["batch"] = '';
+			$data["request"] = '';
+			$data["confirm"] = '';
+			$data["poco"] = '';
+			return $data;
+		}
+
+		$data = ActivityPub::probeProfile($url, false);
+		if (!empty($data)) {
+			return $data;
+		}
+
+		$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+			'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
+		$data = DBA::selectFirst('fcontact', $fields, ['url' => $url]);
+
+		if (!DBA::isResult($contact)) {
+			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+			$data = DBA::selectFirst('contact', $fields, $condition);
+		}
+
+		if (DBA::isResult($data)) {
+			$data["pubkey"] = '';
+			$data["keywords"] = '';
+			$data["location"] = '';
+			$data["about"] = '';
+			$data["poco"] = '';
+			return $data;
+		}
+
+		return [];
+	}
+
+	/**
 	 * @brief Fetch the contact id for a given URL and user
 	 *
 	 * First lookup in the contact table to find a record matching either `url`, `nurl`,
@@ -1187,17 +1262,9 @@ class Contact extends BaseObject
 			return 0;
 		}
 
-		// When we don't want to update, we look if some of our users already know this contact
-		if ($no_update) {
-			$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
-				'photo', 'keywords', 'location', 'about', 'network',
-				'priority', 'batch', 'request', 'confirm', 'poco'];
-			$data = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-
-			if (DBA::isResult($data)) {
-				// For security reasons we don't fetch key data from our users
-				$data["pubkey"] = '';
-			}
+		// When we don't want to update, we look if we know this contact in any way
+		if ($no_update && empty($default)) {
+			$data = self::getProbeDataFromDatabase($url);
 		} else {
 			$data = [];
 		}
@@ -1217,40 +1284,13 @@ class Contact extends BaseObject
 				return 0;
 			}
 
-			// Get data from the gcontact table
-			$fields = ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'];
-			$contact = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-			if (!DBA::isResult($contact)) {
-				$contact = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-			}
-
-			if (!DBA::isResult($contact)) {
-				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
-					'photo', 'keywords', 'location', 'about', 'network',
-					'priority', 'batch', 'request', 'confirm', 'poco'];
-				$contact = DBA::selectFirst('contact', $fields, ['addr' => $url]);
-			}
-
-			// The link could be provided as http although we stored it as https
-			$ssl_url = str_replace('http://', 'https://', $url);
-
-			if (!DBA::isResult($contact)) {
-				$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
-				$contact = DBA::selectFirst('contact', $fields, $condition);
-			}
-
-			if (!DBA::isResult($contact)) {
-				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
-					'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
-				$condition = ['url' => [$url, Strings::normaliseLink($url), $ssl_url]];
-				$contact = DBA::selectFirst('fcontact', $fields, $condition);
-			}
-
 			if (!empty($default)) {
 				$contact = $default;
+			} else {
+				$contact = self::getProbeDataFromDatabase($url);
 			}
 
-			if (!DBA::isResult($contact)) {
+			if (!empty($contact)) {
 				return 0;
 			} else {
 				$data = array_merge($data, $contact);
