@@ -1254,6 +1254,12 @@ class Contact extends BaseObject
 			if (empty($contact['avatar'])) {
 				$update_contact = true;
 			}
+
+			// Update the contact in the background if needed
+			if ($update_contact && $no_update) {
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+			}
+
 			if (!$update_contact || $no_update) {
 				return $contact_id;
 			}
@@ -1265,8 +1271,10 @@ class Contact extends BaseObject
 		// When we don't want to update, we look if we know this contact in any way
 		if ($no_update && empty($default)) {
 			$data = self::getProbeDataFromDatabase($url);
+			$background_update = true;
 		} else {
 			$data = [];
+			$background_update = false;
 		}
 
 		if (empty($data)) {
@@ -1344,6 +1352,11 @@ class Contact extends BaseObject
 			}
 
 			$contact_id = $contacts[0]["id"];
+
+			// Update in the background when we fetched the data solely from the database
+			if ($background_update) {
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+			}
 
 			// Update the newly created contact from data in the gcontact table
 			$gcontact = DBA::selectFirst('gcontact', ['location', 'about', 'keywords', 'gender'], ['nurl' => Strings::normaliseLink($data["url"])]);
