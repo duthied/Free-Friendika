@@ -1121,11 +1121,12 @@ class Contact extends BaseObject
 	 * Have a look at all contact tables for a given profile url.
 	 * This function works as a replacement for probing the contact.
 	 *
-	 * @param string $url Contact URL
+	 * @param string  $url Contact URL
+	 * @param integer $cid Contact ID
 	 *
 	 * @return array Contact array in the "probe" structure
 	*/
-	private static function getProbeDataFromDatabase($url)
+	private static function getProbeDataFromDatabase($url, $cid)
 	{
 		// The link could be provided as http although we stored it as https
 		$ssl_url = str_replace('http://', 'https://', $url);
@@ -1133,6 +1134,14 @@ class Contact extends BaseObject
 		$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
 			'photo', 'keywords', 'location', 'about', 'network',
 			'priority', 'batch', 'request', 'confirm', 'poco'];
+
+		if (!empty($cid)) {
+			$data = DBA::selectFirst('contact', $fields, ['id' => $cid]);
+			if (DBA::isResult($data)) {
+				return $data;
+			}
+		}
+
 		$data = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
 
 		if (!DBA::isResult($data)) {
@@ -1273,7 +1282,7 @@ class Contact extends BaseObject
 
 		// When we don't want to update, we look if we know this contact in any way
 		if ($no_update && empty($default)) {
-			$data = self::getProbeDataFromDatabase($url);
+			$data = self::getProbeDataFromDatabase($url, $contact_id);
 			$background_update = true;
 		} else {
 			$data = [];
@@ -1295,7 +1304,7 @@ class Contact extends BaseObject
 				return 0;
 			}
 
-			$contact = array_merge(self::getProbeDataFromDatabase($url), $default);
+			$contact = array_merge(self::getProbeDataFromDatabase($url, $contact_id), $default);
 			if (empty($contact)) {
 				return 0;
 			}
