@@ -1270,7 +1270,8 @@ class App
 			// First we try explicit routes defined in App\Router
 			$this->router->collectRoutes();
 
-			Hook::callAll('route_collection', $this->router->getRouteCollector());
+			$data = $this->router->getRouteCollector();
+			Hook::callAll('route_collection', $data);
 
 			$this->module_class = $this->router->getModuleClass($this->cmd);
 
