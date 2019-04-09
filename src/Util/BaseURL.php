@@ -139,21 +139,21 @@ class BaseURL
 	{
 		$success = true;
 
-		if (!empty($hostname)) {
+		if (!empty($hostname) && $hostname !== $this->hostname) {
 			$this->hostname  = $hostname;
 			if (!$this->config->set('config', 'hostname', $this->hostname)) {
 				$success = false;
 			}
 		}
 
-		if (isset($sslPolicy)) {
+		if (isset($sslPolicy) && $sslPolicy !== $this->sslPolicy) {
 			$this->sslPolicy = $sslPolicy;
 			if (!$this->config->set('system', 'ssl_policy', $this->sslPolicy)) {
 				$success = false;
 			}
 		}
 
-		if (isset($urlPath)) {
+		if (isset($urlPath) && $urlPath !== $this->urlPath) {
 			$this->urlPath   = $urlPath;
 			if (!$this->config->set('system', 'urlpath', $this->urlPath)) {
 				$success = false;
