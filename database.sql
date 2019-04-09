@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.06-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1309
+-- DB_UPDATE_VERSION 1310
 -- ------------------------------------------
 
 
@@ -138,6 +138,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
 	`created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`updated` datetime DEFAULT '0001-01-01 00:00:00' COMMENT 'Date of last contact update',
 	`self` boolean NOT NULL DEFAULT '0' COMMENT '1 if the contact is the user him/her self',
 	`remote_self` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`rel` tinyint unsigned NOT NULL DEFAULT 0 COMMENT 'The kind of the relation between the user and the contact',
@@ -145,7 +146,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`network` char(4) NOT NULL DEFAULT '' COMMENT 'Network protocol of the contact',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name that this contact is known by',
 	`nick` varchar(255) NOT NULL DEFAULT '' COMMENT 'Nick- and user name of the contact',
-	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`location` varchar(255) DEFAULT '' COMMENT '',
 	`about` text COMMENT '',
 	`keywords` text COMMENT 'public keywords (interests) of the contact',
 	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT '',

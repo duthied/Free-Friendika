@@ -599,7 +599,10 @@ class Contact extends BaseObject
 		}
 
 		if ($update) {
-			$fields['name-date'] = DateTimeFormat::utcNow();
+			if ($fields['name'] != $self['name']) {
+				$fields['name-date'] = DateTimeFormat::utcNow();
+			}
+			$fields['updated'] = DateTimeFormat::utcNow();
 			DBA::update('contact', $fields, ['id' => $self['id']]);
 
 			// Update the public contact as well
@@ -1115,6 +1118,90 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Have a look at all contact tables for a given profile url.
+	 * This function works as a replacement for probing the contact.
+	 *
+	 * @param string  $url Contact URL
+	 * @param integer $cid Contact ID
+	 *
+	 * @return array Contact array in the "probe" structure
+	*/
+	private static function getProbeDataFromDatabase($url, $cid)
+	{
+		// The link could be provided as http although we stored it as https
+		$ssl_url = str_replace('http://', 'https://', $url);
+
+		$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+			'photo', 'keywords', 'location', 'about', 'network',
+			'priority', 'batch', 'request', 'confirm', 'poco'];
+
+		if (!empty($cid)) {
+			$data = DBA::selectFirst('contact', $fields, ['id' => $cid]);
+			if (DBA::isResult($data)) {
+				return $data;
+			}
+		}
+
+		$data = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
+
+		if (!DBA::isResult($data)) {
+			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+			$data = DBA::selectFirst('contact', $fields, $condition);
+		}
+
+		if (DBA::isResult($data)) {
+			// For security reasons we don't fetch key data from our users
+			$data["pubkey"] = '';
+			return $data;
+		}
+
+		$fields = ['url', 'addr', 'alias', 'notify', 'name', 'nick',
+			'photo', 'keywords', 'location', 'about', 'network'];
+		$data = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
+
+		if (!DBA::isResult($data)) {
+			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+			$data = DBA::selectFirst('contact', $fields, $condition);
+		}
+
+		if (DBA::isResult($data)) {
+			$data["pubkey"] = '';
+			$data["poll"] = '';
+			$data["priority"] = 0;
+			$data["batch"] = '';
+			$data["request"] = '';
+			$data["confirm"] = '';
+			$data["poco"] = '';
+			return $data;
+		}
+
+		$data = ActivityPub::probeProfile($url, false);
+		if (!empty($data)) {
+			return $data;
+		}
+
+		$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+			'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
+		$data = DBA::selectFirst('fcontact', $fields, ['url' => $url]);
+
+		if (!DBA::isResult($data)) {
+			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
+			$data = DBA::selectFirst('contact', $fields, $condition);
+		}
+
+		if (DBA::isResult($data)) {
+			$data["pubkey"] = '';
+			$data["keywords"] = '';
+			$data["location"] = '';
+			$data["about"] = '';
+			$data["poco"] = '';
+			return $data;
+		}
+
+		return [];
+	}
+
+	/**
 	 * @brief Fetch the contact id for a given URL and user
 	 *
 	 * First lookup in the contact table to find a record matching either `url`, `nurl`,
@@ -1154,11 +1241,11 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
 		}
 
 		// Then the alias (which could be anything)
@@ -1166,19 +1253,25 @@ class Contact extends BaseObject
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], $condition);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], $condition);
 		}
 
 		if (DBA::isResult($contact)) {
 			$contact_id = $contact["id"];
 
 			// Update the contact every 7 days
-			$update_contact = ($contact['avatar-date'] < DateTimeFormat::utc('now -7 days'));
+			$update_contact = ($contact['updated'] < DateTimeFormat::utc('now -7 days'));
 
 			// We force the update if the avatar is empty
 			if (empty($contact['avatar'])) {
 				$update_contact = true;
 			}
+
+			// Update the contact in the background if needed but it is called by the frontend
+			if ($update_contact && $no_update && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+			}
+
 			if (!$update_contact || $no_update) {
 				return $contact_id;
 			}
@@ -1187,19 +1280,13 @@ class Contact extends BaseObject
 			return 0;
 		}
 
-		// When we don't want to update, we look if some of our users already know this contact
-		if ($no_update) {
-			$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
-				'photo', 'keywords', 'location', 'about', 'network',
-				'priority', 'batch', 'request', 'confirm', 'poco'];
-			$data = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-
-			if (DBA::isResult($data)) {
-				// For security reasons we don't fetch key data from our users
-				$data["pubkey"] = '';
-			}
+		// When we don't want to update, we look if we know this contact in any way
+		if ($no_update && empty($default)) {
+			$data = self::getProbeDataFromDatabase($url, $contact_id);
+			$background_update = true;
 		} else {
 			$data = [];
+			$background_update = false;
 		}
 
 		if (empty($data)) {
@@ -1217,44 +1304,16 @@ class Contact extends BaseObject
 				return 0;
 			}
 
-			// Get data from the gcontact table
-			$fields = ['name', 'nick', 'url', 'photo', 'addr', 'alias', 'network'];
-			$contact = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-			if (!DBA::isResult($contact)) {
-				$contact = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
-			}
-
-			if (!DBA::isResult($contact)) {
-				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
-					'photo', 'keywords', 'location', 'about', 'network',
-					'priority', 'batch', 'request', 'confirm', 'poco'];
-				$contact = DBA::selectFirst('contact', $fields, ['addr' => $url]);
-			}
-
-			// The link could be provided as http although we stored it as https
-			$ssl_url = str_replace('http://', 'https://', $url);
-
-			if (!DBA::isResult($contact)) {
-				$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
-				$contact = DBA::selectFirst('contact', $fields, $condition);
-			}
-
-			if (!DBA::isResult($contact)) {
-				$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
-					'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
-				$condition = ['url' => [$url, Strings::normaliseLink($url), $ssl_url]];
-				$contact = DBA::selectFirst('fcontact', $fields, $condition);
-			}
-
-			if (!empty($default)) {
-				$contact = $default;
-			}
-
-			if (!DBA::isResult($contact)) {
+			$contact = array_merge(self::getProbeDataFromDatabase($url, $contact_id), $default);
+			if (empty($contact)) {
 				return 0;
-			} else {
-				$data = array_merge($data, $contact);
 			}
+
+			$data = array_merge($data, $contact);
+		}
+
+		if (empty($data)) {
+			return 0;
 		}
 
 		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url) && !$in_loop) {
@@ -1265,26 +1324,26 @@ class Contact extends BaseObject
 			$fields = [
 				'uid'       => $uid,
 				'created'   => DateTimeFormat::utcNow(),
-				'url'       => $data["url"],
-				'nurl'      => Strings::normaliseLink($data["url"]),
-				'addr'      => $data["addr"],
-				'alias'     => $data["alias"],
-				'notify'    => $data["notify"],
-				'poll'      => $data["poll"],
-				'name'      => $data["name"],
-				'nick'      => $data["nick"],
-				'photo'     => $data["photo"],
-				'keywords'  => $data["keywords"],
-				'location'  => $data["location"],
-				'about'     => $data["about"],
-				'network'   => $data["network"],
-				'pubkey'    => $data["pubkey"],
+				'url'       => $data['url'],
+				'nurl'      => Strings::normaliseLink($data['url']),
+				'addr'      => defaults($data, 'addr', ''),
+				'alias'     => defaults($data, 'alias', ''),
+				'notify'    => defaults($data, 'notify', ''),
+				'poll'      => defaults($data, 'poll', ''),
+				'name'      => defaults($data, 'name', ''),
+				'nick'      => defaults($data, 'nick', ''),
+				'photo'     => defaults($data, 'photo', ''),
+				'keywords'  => defaults($data, 'keywords', ''),
+				'location'  => defaults($data, 'location', ''),
+				'about'     => defaults($data, 'about', ''),
+				'network'   => $data['network'],
+				'pubkey'    => defaults($data, 'pubkey', ''),
 				'rel'       => self::SHARING,
-				'priority'  => $data["priority"],
-				'batch'     => $data["batch"],
-				'request'   => $data["request"],
-				'confirm'   => $data["confirm"],
-				'poco'      => $data["poco"],
+				'priority'  => defaults($data, 'priority', 0),
+				'batch'     => defaults($data, 'batch', ''),
+				'request'   => defaults($data, 'request', ''),
+				'confirm'   => defaults($data, 'confirm', ''),
+				'poco'      => defaults($data, 'poco', ''),
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1305,17 +1364,22 @@ class Contact extends BaseObject
 
 			$contact_id = $contacts[0]["id"];
 
+			// Update in the background when we fetched the data solely from the database
+			if ($background_update) {
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+			}
+
 			// Update the newly created contact from data in the gcontact table
 			$gcontact = DBA::selectFirst('gcontact', ['location', 'about', 'keywords', 'gender'], ['nurl' => Strings::normaliseLink($data["url"])]);
 			if (DBA::isResult($gcontact)) {
 				// Only use the information when the probing hadn't fetched these values
-				if ($data['keywords'] != '') {
+				if (!empty($data['keywords'])) {
 					unset($gcontact['keywords']);
 				}
-				if ($data['location'] != '') {
+				if (!empty($data['location'])) {
 					unset($gcontact['location']);
 				}
-				if ($data['about'] != '') {
+				if (!empty($data['about'])) {
 					unset($gcontact['about']);
 				}
 				DBA::update('contact', $gcontact, ['id' => $contact_id]);
@@ -1329,7 +1393,9 @@ class Contact extends BaseObject
 			}
 		}
 
-		self::updateAvatar($data["photo"], $uid, $contact_id);
+		if (!empty($data['photo'])) {
+			self::updateAvatar($data['photo'], $uid, $contact_id);
+		}
 
 		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
@@ -1346,30 +1412,30 @@ class Contact extends BaseObject
 			'name' => $data['name'],
 			'nick' => $data['nick']];
 
-		if ($data['keywords'] != '') {
+		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
 		}
-		if ($data['location'] != '') {
+		if (!empty($data['location'])) {
 			$updated['location'] = $data['location'];
 		}
 
 		// Update the technical stuff as well - if filled
-		if ($data['notify'] != '') {
+		if (!empty($data['notify'])) {
 			$updated['notify'] = $data['notify'];
 		}
-		if ($data['poll'] != '') {
+		if (!empty($data['poll'])) {
 			$updated['poll'] = $data['poll'];
 		}
-		if ($data['batch'] != '') {
+		if (!empty($data['batch'])) {
 			$updated['batch'] = $data['batch'];
 		}
-		if ($data['request'] != '') {
+		if (!empty($data['request'])) {
 			$updated['request'] = $data['request'];
 		}
-		if ($data['confirm'] != '') {
+		if (!empty($data['confirm'])) {
 			$updated['confirm'] = $data['confirm'];
 		}
-		if ($data['poco'] != '') {
+		if (!empty($data['poco'])) {
 			$updated['poco'] = $data['poco'];
 		}
 
@@ -1385,7 +1451,7 @@ class Contact extends BaseObject
 			$updated['name-date'] = DateTimeFormat::utcNow();
 		}
 
-		$updated['avatar-date'] = DateTimeFormat::utcNow();
+		$updated['updated'] = DateTimeFormat::utcNow();
 
 		DBA::update('contact', $updated, ['id' => $contact_id], $contact);
 
@@ -1662,7 +1728,11 @@ class Contact extends BaseObject
 		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
 		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if ((in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM])) && ($ret['network'] != $contact['network'])) {
+		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
+			return false;
+		}
+
+		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT)) {
 			return false;
 		}
 
@@ -1684,6 +1754,7 @@ class Contact extends BaseObject
 		}
 
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
+		$ret['updated'] = DateTimeFormat::utcNow();
 
 		self::updateAvatar($ret['photo'], $uid, $id, true);
 
