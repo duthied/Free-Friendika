@@ -599,7 +599,10 @@ class Contact extends BaseObject
 		}
 
 		if ($update) {
-			$fields['name-date'] = DateTimeFormat::utcNow();
+			if ($fields['name'] != $self['name']) {
+				$fields['name-date'] = DateTimeFormat::utcNow();
+			}
+			$fields['updated'] = DateTimeFormat::utcNow();
 			DBA::update('contact', $fields, ['id' => $self['id']]);
 
 			// Update the public contact as well
@@ -1132,7 +1135,7 @@ class Contact extends BaseObject
 			'priority', 'batch', 'request', 'confirm', 'poco'];
 		$data = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url)]);
 
-		if (!DBA::isResult($contact)) {
+		if (!DBA::isResult($data)) {
 			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
 			$data = DBA::selectFirst('contact', $fields, $condition);
 		}
@@ -1147,7 +1150,7 @@ class Contact extends BaseObject
 			'photo', 'keywords', 'location', 'about', 'network'];
 		$data = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($url)]);
 
-		if (!DBA::isResult($contact)) {
+		if (!DBA::isResult($data)) {
 			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
 			$data = DBA::selectFirst('contact', $fields, $condition);
 		}
@@ -1172,7 +1175,7 @@ class Contact extends BaseObject
 			'photo', 'network', 'priority', 'batch', 'request', 'confirm'];
 		$data = DBA::selectFirst('fcontact', $fields, ['url' => $url]);
 
-		if (!DBA::isResult($contact)) {
+		if (!DBA::isResult($data)) {
 			$condition = ['alias' => [$url, Strings::normaliseLink($url), $ssl_url]];
 			$data = DBA::selectFirst('contact', $fields, $condition);
 		}
@@ -1229,11 +1232,11 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
 		}
 
 		// Then the alias (which could be anything)
@@ -1241,18 +1244,23 @@ class Contact extends BaseObject
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'avatar-date'], $condition);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated'], $condition);
 		}
 
 		if (DBA::isResult($contact)) {
 			$contact_id = $contact["id"];
 
 			// Update the contact every 7 days
-			$update_contact = ($contact['avatar-date'] < DateTimeFormat::utc('now -7 days'));
+			$update_contact = ($contact['updated'] < DateTimeFormat::utc('now -7 days'));
 
 			// We force the update if the avatar is empty
 			if (empty($contact['avatar'])) {
 				$update_contact = true;
+			}
+
+			// Update the contact in the background if needed but it is called by the frontend
+			if ($update_contact && $no_update) {
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
 			}
 
 			if (!$update_contact || $no_update) {
@@ -1291,13 +1299,16 @@ class Contact extends BaseObject
 				$contact = $default;
 			} else {
 				$contact = self::getProbeDataFromDatabase($url);
+				if (empty($contact)) {
+					return 0;
+				}
 			}
 
-			if (!empty($contact)) {
-				return 0;
-			} else {
-				$data = array_merge($data, $contact);
-			}
+			$data = array_merge($data, $contact);
+		}
+
+		if (empty($data)) {
+			return 0;
 		}
 
 		if (!$contact_id && ($data["alias"] != '') && ($data["alias"] != $url) && !$in_loop) {
@@ -1433,7 +1444,7 @@ class Contact extends BaseObject
 			$updated['name-date'] = DateTimeFormat::utcNow();
 		}
 
-		$updated['avatar-date'] = DateTimeFormat::utcNow();
+		$updated['updated'] = DateTimeFormat::utcNow();
 
 		DBA::update('contact', $updated, ['id' => $contact_id], $contact);
 
@@ -1732,6 +1743,7 @@ class Contact extends BaseObject
 		}
 
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
+		$ret['updated'] = DateTimeFormat::utcNow();
 
 		self::updateAvatar($ret['photo'], $uid, $id, true);
 
