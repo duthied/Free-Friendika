@@ -15,7 +15,7 @@ config:
         k: url
         v: http://localhost
     -
-        cat: system
+        cat: config
         k: hostname
         v: localhost
     -
