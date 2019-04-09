@@ -1241,11 +1241,11 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
 		}
 
 		// Then the alias (which could be anything)
@@ -1253,7 +1253,7 @@ class Contact extends BaseObject
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated'], $condition);
+			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], $condition);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -1268,7 +1268,7 @@ class Contact extends BaseObject
 			}
 
 			// Update the contact in the background if needed but it is called by the frontend
-			if ($update_contact && $no_update) {
+			if ($update_contact && $no_update && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
 			}
 
@@ -1324,26 +1324,26 @@ class Contact extends BaseObject
 			$fields = [
 				'uid'       => $uid,
 				'created'   => DateTimeFormat::utcNow(),
-				'url'       => $data["url"],
-				'nurl'      => Strings::normaliseLink($data["url"]),
-				'addr'      => $data["addr"],
-				'alias'     => $data["alias"],
-				'notify'    => $data["notify"],
-				'poll'      => $data["poll"],
-				'name'      => $data["name"],
-				'nick'      => $data["nick"],
-				'photo'     => $data["photo"],
-				'keywords'  => $data["keywords"],
-				'location'  => $data["location"],
-				'about'     => $data["about"],
-				'network'   => $data["network"],
-				'pubkey'    => $data["pubkey"],
+				'url'       => $data['url'],
+				'nurl'      => Strings::normaliseLink($data['url']),
+				'addr'      => defaults($data, 'addr', ''),
+				'alias'     => defaults($data, 'alias', ''),
+				'notify'    => defaults($data, 'notify', ''),
+				'poll'      => defaults($data, 'poll', ''),
+				'name'      => defaults($data, 'name', ''),
+				'nick'      => defaults($data, 'nick', ''),
+				'photo'     => defaults($data, 'photo', ''),
+				'keywords'  => defaults($data, 'keywords', ''),
+				'location'  => defaults($data, 'location', ''),
+				'about'     => defaults($data, 'about', ''),
+				'network'   => $data['network'],
+				'pubkey'    => defaults($data, 'pubkey', ''),
 				'rel'       => self::SHARING,
-				'priority'  => $data["priority"],
-				'batch'     => $data["batch"],
-				'request'   => $data["request"],
-				'confirm'   => $data["confirm"],
-				'poco'      => $data["poco"],
+				'priority'  => defaults($data, 'priority', 0),
+				'batch'     => defaults($data, 'batch', ''),
+				'request'   => defaults($data, 'request', ''),
+				'confirm'   => defaults($data, 'confirm', ''),
+				'poco'      => defaults($data, 'poco', ''),
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1373,13 +1373,13 @@ class Contact extends BaseObject
 			$gcontact = DBA::selectFirst('gcontact', ['location', 'about', 'keywords', 'gender'], ['nurl' => Strings::normaliseLink($data["url"])]);
 			if (DBA::isResult($gcontact)) {
 				// Only use the information when the probing hadn't fetched these values
-				if ($data['keywords'] != '') {
+				if (!empty($data['keywords'])) {
 					unset($gcontact['keywords']);
 				}
-				if ($data['location'] != '') {
+				if (!empty($data['location'])) {
 					unset($gcontact['location']);
 				}
-				if ($data['about'] != '') {
+				if (!empty($data['about'])) {
 					unset($gcontact['about']);
 				}
 				DBA::update('contact', $gcontact, ['id' => $contact_id]);
@@ -1410,30 +1410,30 @@ class Contact extends BaseObject
 			'name' => $data['name'],
 			'nick' => $data['nick']];
 
-		if ($data['keywords'] != '') {
+		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
 		}
-		if ($data['location'] != '') {
+		if (!empty($data['location'])) {
 			$updated['location'] = $data['location'];
 		}
 
 		// Update the technical stuff as well - if filled
-		if ($data['notify'] != '') {
+		if (!empty($data['notify'])) {
 			$updated['notify'] = $data['notify'];
 		}
-		if ($data['poll'] != '') {
+		if (!empty($data['poll'])) {
 			$updated['poll'] = $data['poll'];
 		}
-		if ($data['batch'] != '') {
+		if (!empty($data['batch'])) {
 			$updated['batch'] = $data['batch'];
 		}
-		if ($data['request'] != '') {
+		if (!empty($data['request'])) {
 			$updated['request'] = $data['request'];
 		}
-		if ($data['confirm'] != '') {
+		if (!empty($data['confirm'])) {
 			$updated['confirm'] = $data['confirm'];
 		}
-		if ($data['poco'] != '') {
+		if (!empty($data['poco'])) {
 			$updated['poco'] = $data['poco'];
 		}
 
@@ -1726,7 +1726,11 @@ class Contact extends BaseObject
 		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
 		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if ((in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM])) && ($ret['network'] != $contact['network'])) {
+		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
+			return false;
+		}
+
+		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT)) {
 			return false;
 		}
 
