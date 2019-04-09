@@ -1295,13 +1295,9 @@ class Contact extends BaseObject
 				return 0;
 			}
 
-			if (!empty($default)) {
-				$contact = $default;
-			} else {
-				$contact = self::getProbeDataFromDatabase($url);
-				if (empty($contact)) {
-					return 0;
-				}
+			$contact = array_merge(self::getProbeDataFromDatabase($url), $default);
+			if (empty($contact)) {
+				return 0;
 			}
 
 			$data = array_merge($data, $contact);
