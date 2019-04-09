@@ -1393,7 +1393,9 @@ class Contact extends BaseObject
 			}
 		}
 
-		self::updateAvatar($data["photo"], $uid, $contact_id);
+		if (!empty($data['photo'])) {
+			self::updateAvatar($data['photo'], $uid, $contact_id);
+		}
 
 		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
