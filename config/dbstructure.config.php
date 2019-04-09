@@ -188,7 +188,7 @@ return [
 			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network protocol of the contact"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this contact is known by"],
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Nick- and user name of the contact"],
-			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"location" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
 			"keywords" => ["type" => "text", "comment" => "public keywords (interests) of the contact"],
 			"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
