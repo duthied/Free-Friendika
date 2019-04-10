@@ -29,8 +29,8 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Return current storage backend class 
-	 * 
+	 * @brief Return current storage backend class
+	 *
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -53,7 +53,6 @@ class StorageManager
 
 	/**
 	 * @brief Set current storage backend class
-	 * If $class is an empty string, legacy db storage is used.
 	 *
 	 * @param string $class Backend class name
 	 * @return bool
@@ -61,7 +60,7 @@ class StorageManager
 	 */
 	public static function setBackend($class)
 	{
-		if ($class !== "" && !in_array('Friendica\Model\Storage\IStorage', class_implements($class))) {
+		if (!in_array('Friendica\Model\Storage\IStorage', class_implements($class))) {
 			return false;
 		}
 
