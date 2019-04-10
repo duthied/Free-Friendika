@@ -137,35 +137,54 @@ class BaseURL
 	 */
 	public function save($hostname = null, $sslPolicy = null, $urlPath = null)
 	{
-		$success = true;
+		$currHostname  = $this->hostname;
+		$currSSLPolicy = $this->sslPolicy;
+		$currURLPath   = $this->urlPath;
 
 		if (!empty($hostname) && $hostname !== $this->hostname) {
-			$this->hostname  = $hostname;
-			if (!$this->config->set('config', 'hostname', $this->hostname)) {
-				$success = false;
+			if ($this->config->set('config', 'hostname', $hostname)) {
+				$this->hostname  = $hostname;
+			} else {
+				return false;
 			}
 		}
 
 		if (isset($sslPolicy) && $sslPolicy !== $this->sslPolicy) {
-			$this->sslPolicy = $sslPolicy;
-			if (!$this->config->set('system', 'ssl_policy', $this->sslPolicy)) {
-				$success = false;
+			if ($this->config->set('system', 'ssl_policy', $sslPolicy)) {
+				$this->sslPolicy = $sslPolicy;
+			} else {
+				$this->hostname  = $currHostname;
+				$this->config->set('config', 'hostname', $this->hostname);
+				return false;
 			}
 		}
 
 		if (isset($urlPath) && $urlPath !== $this->urlPath) {
-			$this->urlPath   = $urlPath;
-			if (!$this->config->set('system', 'urlpath', $this->urlPath)) {
-				$success = false;
+			if ($this->config->set('system', 'urlpath', $urlPath)) {
+				$this->urlPath = $urlPath;
+			} else {
+				$this->hostname  = $currHostname;
+				$this->sslPolicy = $currSSLPolicy;
+				$this->config->set('config', 'hostname', $this->hostname);
+				$this->config->set('system', 'ssl_policy', $this->sslPolicy);
+				return false;
 			}
 		}
 
 		$this->determineBaseUrl();
 		if (!$this->config->set('system', 'url', $this->url)) {
-			$success = false;
+			$this->hostname  = $currHostname;
+			$this->sslPolicy = $currSSLPolicy;
+			$this->urlPath   = $currURLPath;
+			$this->determineBaseUrl();
+
+			$this->config->set('config', 'hostname', $this->hostname);
+			$this->config->set('system', 'ssl_policy', $this->sslPolicy);
+			$this->config->set('system', 'urlpath', $this->urlPath);
+			return false;
 		}
 
-		return $success;
+		return true;
 	}
 
 	/**
