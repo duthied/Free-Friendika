@@ -30,9 +30,6 @@ class Cron
 		$last = Config::get('system', 'last_cron');
 
 		$poll_interval = intval(Config::get('system', 'cron_interval'));
-		if (! $poll_interval) {
-			$poll_interval = 10;
-		}
 
 		if ($last) {
 			$next = $last + ($poll_interval * 60);
