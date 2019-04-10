@@ -1157,9 +1157,7 @@ function admin_page_site_post(App $a)
 
 	// save storage backend form
 	if (!is_null($storagebackend) && $storagebackend != "") {
-		if (!StorageManager::setBackend($storagebackend)) {
-			info(L10n::t('Invalid storage backend setting value.'));
-		} else {
+		if (StorageManager::setBackend($storagebackend)) {
 			$storage_opts = $storagebackend::getOptions();
 			$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
 			$storage_opts_data = [];
@@ -1185,6 +1183,8 @@ function admin_page_site_post(App $a)
 				}
 				$a->internalRedirect('admin/site' . $active_panel);
 			}
+		} else {
+			info(L10n::t('Invalid storage backend setting value.'));
 		}
 	}
 
