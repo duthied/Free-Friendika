@@ -248,7 +248,6 @@ class App
 		$this->profiler = $profiler;
 		$this->logger   = $logger;
 
-		$this->checkBackend($isBackend);
 		$this->checkFriendicaApp();
 
 		$this->profiler->reset();
@@ -317,6 +316,8 @@ class App
 			$this->argv = ['home'];
 			$this->module = 'home';
 		}
+
+		$this->isBackend = $isBackend || $this->checkBackend($this->module);
 
 		// Detect mobile devices
 		$mobile_detect = new MobileDetect();
@@ -623,10 +624,10 @@ class App
 	 * This isn't a perfect solution. But we need this check very early.
 	 * So we cannot wait until the modules are loaded.
 	 *
-	 * @param string $backend true, if the backend flag was set during App initialization
-	 *
+	 * @param string $module
+	 * @return bool
 	 */
-	private function checkBackend($backend) {
+	private function checkBackend($module) {
 		static $backends = [
 			'_well_known',
 			'api',
@@ -651,7 +652,7 @@ class App
 		];
 
 		// Check if current module is in backend or backend flag is set
-		$this->isBackend = (in_array($this->module, $backends) || $backend || $this->isBackend);
+		return in_array($module, $backends);
 	}
 
 	/**
