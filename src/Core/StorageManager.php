@@ -30,6 +30,7 @@ class StorageManager
 
 	/**
 	 * @brief Return current storage backend class
+	 *
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */

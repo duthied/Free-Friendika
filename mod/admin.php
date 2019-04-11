@@ -1152,40 +1152,41 @@ function admin_page_site_post(App $a)
 	 * @var $storagebackend \Friendica\Model\Storage\IStorage
 	 */
 	$storagebackend    = Strings::escapeTags(trim(defaults($_POST, 'storagebackend', '')));
-	if (!StorageManager::setBackend($storagebackend)) {
-		info(L10n::t('Invalid storage backend setting value.'));
-	}
 
 	// save storage backend form
 	if (!is_null($storagebackend) && $storagebackend != "") {
-		$storage_opts = $storagebackend::getOptions();
-		$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
-		$storage_opts_data = [];
-		foreach($storage_opts as $name => $info) {
-			$fieldname = $storage_form_prefix . '_' . $name;
-			switch ($info[0]) { // type
-				case 'checkbox':
-				case 'yesno':
-					$value = !empty($_POST[$fieldname]);
-					break;
-				default:
-					$value = defaults($_POST, $fieldname, '');
+		if (StorageManager::setBackend($storagebackend)) {
+			$storage_opts = $storagebackend::getOptions();
+			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $storagebackend);
+			$storage_opts_data = [];
+			foreach ($storage_opts as $name => $info) {
+				$fieldname = $storage_form_prefix . '_' . $name;
+				switch ($info[0]) { // type
+					case 'checkbox':
+					case 'yesno':
+						$value = !empty($_POST[$fieldname]);
+						break;
+					default:
+						$value = defaults($_POST, $fieldname, '');
+				}
+				$storage_opts_data[$name] = $value;
 			}
-			$storage_opts_data[$name] = $value;
-		}
-		unset($name);
-		unset($info);
-	
-		$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
-		if (count($storage_form_errors)) {
-			foreach($storage_form_errors as $name => $err) {
-				notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+			unset($name);
+			unset($info);
+
+			$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
+			if (count($storage_form_errors)) {
+				foreach ($storage_form_errors as $name => $err) {
+					notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+				}
+				$a->internalRedirect('admin/site' . $active_panel);
 			}
-			$a->internalRedirect('admin/site' . $active_panel);
+		} else {
+			info(L10n::t('Invalid storage backend setting value.'));
 		}
 	}
 
-	
+
 
 	// Has the directory url changed? If yes, then resubmit the existing profiles there
 	if ($global_directory != Config::get('system', 'directory') && ($global_directory != '')) {
@@ -1497,17 +1498,22 @@ function admin_page_site(App $a)
 	 */
 	$storage_current_backend = StorageManager::getBackend();
 
-	$storage_backends_choices = [
-		'' => L10n::t('Database (legacy)')
-	];
-	foreach($storage_backends as $name=>$class) {
+	$storage_backends_choices = [];
+
+	// show legacy option only if it is the current backend:
+	// once changed can't be selected anymore
+	if ($storage_current_backend == '') {
+		$storage_backends_choices[''] = L10n::t('Database (legacy)');
+	};
+
+	foreach ($storage_backends as $name => $class) {
 		$storage_backends_choices[$class] = $name;
 	}
 	unset($storage_backends);
 
 	// build storage config form,
 	$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storage_current_backend);
-	
+
 	$storage_form = [];
 	if (!is_null($storage_current_backend) && $storage_current_backend != "") {
 		foreach ($storage_current_backend::getOptions() as $name => $info) {
