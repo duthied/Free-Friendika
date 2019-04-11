@@ -22,6 +22,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
+use Friendica\Util\BaseURL;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -2009,7 +2010,7 @@ class Contact extends BaseObject
 	public static function updateSslPolicy(array $contact, $new_policy)
 	{
 		$ssl_changed = false;
-		if ((intval($new_policy) == SSL_POLICY_SELFSIGN || $new_policy === 'self') && strstr($contact['url'], 'https:')) {
+		if ((intval($new_policy) == BaseURL::SSL_POLICY_SELFSIGN || $new_policy === 'self') && strstr($contact['url'], 'https:')) {
 			$ssl_changed = true;
 			$contact['url']     = 	str_replace('https:', 'http:', $contact['url']);
 			$contact['request'] = 	str_replace('https:', 'http:', $contact['request']);
@@ -2019,7 +2020,7 @@ class Contact extends BaseObject
 			$contact['poco']    = 	str_replace('https:', 'http:', $contact['poco']);
 		}
 
-		if ((intval($new_policy) == SSL_POLICY_FULL || $new_policy === 'full') && strstr($contact['url'], 'http:')) {
+		if ((intval($new_policy) == BaseURL::SSL_POLICY_FULL || $new_policy === 'full') && strstr($contact['url'], 'http:')) {
 			$ssl_changed = true;
 			$contact['url']     = 	str_replace('http:', 'https:', $contact['url']);
 			$contact['request'] = 	str_replace('http:', 'https:', $contact['request']);

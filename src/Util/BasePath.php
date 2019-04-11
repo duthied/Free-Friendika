@@ -17,7 +17,7 @@ class BasePath
 	 *
 	 * @throws \Exception if directory isn't usable
 	 */
-	public static function create($basePath, $server = [])
+	public static function create($basePath, array $server = [])
 	{
 		if (!$basePath && !empty($server['DOCUMENT_ROOT'])) {
 			$basePath = $server['DOCUMENT_ROOT'];

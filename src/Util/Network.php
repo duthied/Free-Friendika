@@ -835,4 +835,28 @@ class Network
 			(strlen($query) ? "?".$query : '') .
 			(strlen($fragment) ? "#".$fragment : '');
 	}
+
+
+	/**
+	 * Switch the scheme of an url between http and https
+	 *
+	 * @param string $url URL
+	 *
+	 * @return string switched URL
+	 */
+	public static function switchScheme($url)
+	{
+		$scheme = parse_url($url, PHP_URL_SCHEME);
+		if (empty($scheme)) {
+			return $url;
+		}
+
+		if ($scheme === 'http') {
+			$url = str_replace('http://', 'https://', $url);
+		} elseif ($scheme === 'https') {
+			$url = str_replace('https://', 'http://', $url);
+		}
+
+		return $url;
+	}
 }

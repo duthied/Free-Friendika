@@ -11,16 +11,6 @@ namespace Friendica\Core\Config;
 class Configuration
 {
 	/**
-	 * The blacklist of configuration settings, which should not get saved to the backend
-	 * @var array
-	 */
-	private $configSaveBlacklist = [
-		'config' => [
-			'hostname' => true,
-		]
-	];
-
-	/**
 	 * @var Cache\IConfigCache
 	 */
 	private $configCache;
@@ -127,7 +117,7 @@ class Configuration
 		$cached = $this->configCache->set($cat, $key, $value);
 
 		// If there is no connected adapter, we're finished
-		if (!$this->configAdapter->isConnected() || !empty($this->configSaveBlacklist[$cat][$key])) {
+		if (!$this->configAdapter->isConnected()) {
 			return $cached;
 		}
 

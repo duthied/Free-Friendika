@@ -32,6 +32,7 @@ use Friendica\Module\Tos;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Arrays;
 use Friendica\Util\BasePath;
+use Friendica\Util\BaseURL;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -1041,9 +1042,6 @@ function admin_page_site_post(App $a)
 		update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 		// update config
-		$configFileSaver = new \Friendica\Util\Config\ConfigFileSaver($a->getBasePath());
-		$configFileSaver->addConfigValue('config', 'hostname', parse_url($new_url, PHP_URL_HOST));
-		$configFileSaver->saveToConfigFile();
 		Config::set('system', 'url', $new_url);
 		$a->setBaseURL($new_url);
 
@@ -1199,7 +1197,7 @@ function admin_page_site_post(App $a)
 		$diaspora_enabled = false;
 	}
 	if ($ssl_policy != intval(Config::get('system', 'ssl_policy'))) {
-		if ($ssl_policy == SSL_POLICY_FULL) {
+		if ($ssl_policy == BaseURL::SSL_POLICY_FULL) {
 			q("UPDATE `contact` SET
 				`url`     = REPLACE(`url`    , 'http:' , 'https:'),
 				`photo`   = REPLACE(`photo`  , 'http:' , 'https:'),
@@ -1217,7 +1215,7 @@ function admin_page_site_post(App $a)
 				`thumb`   = REPLACE(`thumb`  , 'http:' , 'https:')
 				WHERE 1 "
 			);
-		} elseif ($ssl_policy == SSL_POLICY_SELFSIGN) {
+		} elseif ($ssl_policy == BaseURL::SSL_POLICY_SELFSIGN) {
 			q("UPDATE `contact` SET
 				`url`     = REPLACE(`url`    , 'https:' , 'http:'),
 				`photo`   = REPLACE(`photo`  , 'https:' , 'http:'),
@@ -1473,9 +1471,9 @@ function admin_page_site(App $a)
 	];
 
 	$ssl_choices = [
-		SSL_POLICY_NONE => L10n::t("No SSL policy, links will track page SSL state"),
-		SSL_POLICY_FULL => L10n::t("Force all links to use SSL"),
-		SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
+		BaseURL::SSL_POLICY_NONE => L10n::t("No SSL policy, links will track page SSL state"),
+		BaseURL::SSL_POLICY_FULL => L10n::t("Force all links to use SSL"),
+		BaseURL::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
 	];
 
 	$check_git_version_choices = [

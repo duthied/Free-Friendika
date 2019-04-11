@@ -7,6 +7,7 @@ namespace Friendica\Core;
 
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
+use Friendica\Util\BaseURL;
 
 /**
  * High-level Session service class
@@ -24,7 +25,7 @@ class Session
 		ini_set('session.use_only_cookies', 1);
 		ini_set('session.cookie_httponly', 1);
 
-		if (Config::get('system', 'ssl_policy') == SSL_POLICY_FULL) {
+		if (Config::get('system', 'ssl_policy') == BaseUrl::SSL_POLICY_FULL) {
 			ini_set('session.cookie_secure', 1);
 		}
 

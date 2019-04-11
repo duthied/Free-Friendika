@@ -381,11 +381,6 @@ return [
 		// Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 		'throttle_limit_month' => 0,
 
-		// urlpath (String)
-		// If you are using a subdirectory of your domain you will need to put the relative path (from the root of your domain) here.
-		// For instance if your URL is 'http://example.com/directory/subdirectory', set urlpath to 'directory/subdirectory'.
-		'urlpath' => '',
-
 		// username_min_length (Integer)
 		// The minimum character length a username can be.
 		// This length is check once the username has been trimmed and multiple spaces have been collapsed into one.

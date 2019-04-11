@@ -29,6 +29,7 @@ use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Object\Image;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -1208,13 +1209,13 @@ class DFRN
 		$ssl_val = intval(Config::get('system', 'ssl_policy'));
 
 		switch ($ssl_val) {
-			case SSL_POLICY_FULL:
+			case BaseURL::SSL_POLICY_FULL:
 				$ssl_policy = 'full';
 				break;
-			case SSL_POLICY_SELFSIGN:
+			case BaseURL::SSL_POLICY_SELFSIGN:
 				$ssl_policy = 'self';
 				break;
-			case SSL_POLICY_NONE:
+			case BaseURL::SSL_POLICY_NONE:
 			default:
 				$ssl_policy = 'none';
 				break;
