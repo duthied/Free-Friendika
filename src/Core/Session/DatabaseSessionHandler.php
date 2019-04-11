@@ -31,7 +31,8 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 			Session::$exists = true;
 			return $session['data'];
 		}
-		Logger::log("no data for session $session_id", Logger::TRACE);
+
+		Logger::notice('no data for session', ['session_id' => $session_id, 'uri' => $_SERVER['REQUEST_URI']]);
 
 		return '';
 	}
