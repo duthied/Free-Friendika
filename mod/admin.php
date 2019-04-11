@@ -1159,17 +1159,17 @@ function admin_page_site_post(App $a)
 	if (!is_null($storagebackend) && $storagebackend != "") {
 		if (StorageManager::setBackend($storagebackend)) {
 			$storage_opts = $storagebackend::getOptions();
-			$storage_form_prefix=preg_replace('|[^a-zA-Z0-9]|' ,'', $storagebackend);
+			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $storagebackend);
 			$storage_opts_data = [];
-			foreach($storage_opts as $name => $info) {
+			foreach ($storage_opts as $name => $info) {
 				$fieldname = $storage_form_prefix . '_' . $name;
 				switch ($info[0]) { // type
-				case 'checkbox':
-				case 'yesno':
-					$value = !empty($_POST[$fieldname]);
-					break;
-				default:
-					$value = defaults($_POST, $fieldname, '');
+					case 'checkbox':
+					case 'yesno':
+						$value = !empty($_POST[$fieldname]);
+						break;
+					default:
+						$value = defaults($_POST, $fieldname, '');
 				}
 				$storage_opts_data[$name] = $value;
 			}
@@ -1178,7 +1178,7 @@ function admin_page_site_post(App $a)
 
 			$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
 			if (count($storage_form_errors)) {
-				foreach($storage_form_errors as $name => $err) {
+				foreach ($storage_form_errors as $name => $err) {
 					notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
 				}
 				$a->internalRedirect('admin/site' . $active_panel);
@@ -1508,7 +1508,7 @@ function admin_page_site(App $a)
 		$storage_backends_choices[''] = L10n::t('Database (legacy)');
 	};
 
-	foreach($storage_backends as $name=>$class) {
+	foreach ($storage_backends as $name => $class) {
 		$storage_backends_choices[$class] = $name;
 	}
 	unset($storage_backends);
