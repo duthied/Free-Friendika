@@ -1127,7 +1127,7 @@ class Contact extends BaseObject
 	 *
 	 * @return array Contact array in the "probe" structure
 	*/
-	private static function getProbeDataFromDatabase($url, $cid)
+	private static function getProbeDataFromDatabase($url, $cid = null)
 	{
 		// The link could be provided as http although we stored it as https
 		$ssl_url = str_replace('http://', 'https://', $url);
@@ -2249,12 +2249,12 @@ class Contact extends BaseObject
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
-		$cid = self::getIdForURL($contact_url, 0, true);
-		if (empty($cid)) {
+		$data = self::getProbeDataFromDatabase($contact_url);
+		if (empty($data)) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
-		return self::magicLinkbyId($cid, $url);
+		return self::magicLinkByContact($data, $contact_url);
 	}
 
 	/**
