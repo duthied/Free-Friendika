@@ -3,6 +3,7 @@
 namespace Friendica\Factory;
 
 use Friendica\App;
+use Friendica\Database\DBA;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
@@ -34,6 +35,7 @@ class DependencyFactory
 		// needed to call PConfig::init()
 		Factory\ConfigFactory::createPConfig($configCache);
 		$logger = Factory\LoggerFactory::create($channel, $config, $profiler);
+		DBA::setLogger($logger);
 		Factory\LoggerFactory::createDev($channel, $config, $profiler);
 		$baseURL = new BaseURL($config, $_SERVER);
 

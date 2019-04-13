@@ -3,7 +3,6 @@
 namespace Friendica\Database;
 
 use Friendica\Core\Config\Cache\IConfigCache;
-use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -13,6 +12,7 @@ use mysqli_stmt;
 use PDO;
 use PDOException;
 use PDOStatement;
+use Psr\Log\LoggerInterface;
 
 /**
  * @class MySQL database class
@@ -41,6 +41,10 @@ class DBA
 	 */
 	private static $profiler;
 	/**
+	 * @var LoggerInterface
+	 */
+	private static $logger;
+	/**
 	 * @var string
 	 */
 	private static $basePath;
@@ -59,7 +63,7 @@ class DBA
 	private static $db_name = '';
 	private static $db_charset = '';
 
-	public static function connect($basePath, IConfigCache $configCache, Profiler $profiler, $serveraddr, $user, $pass, $db, $charset = null)
+	public static function connect($basePath, IConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, $serveraddr, $user, $pass, $db, $charset = null)
 	{
 		if (!is_null(self::$connection) && self::connected()) {
 			return true;
@@ -69,6 +73,7 @@ class DBA
 		self::$basePath = $basePath;
 		self::$configCache = $configCache;
 		self::$profiler = $profiler;
+		self::$logger = $logger;
 		self::$db_serveraddr = $serveraddr;
 		self::$db_user = $user;
 		self::$db_pass = $pass;
@@ -144,6 +149,21 @@ class DBA
 	}
 
 	/**
+	 * Sets the logger for DBA
+	 *
+	 * @note this is necessary because if we want to load the logger configuration
+	 *       from the DB, but there's an error, we would print out an exception.
+	 *       So the logger gets updated after the logger configuration can be retrieved
+	 *       from the database
+	 *
+	 * @param LoggerInterface $logger
+	 */
+	public static function setLogger(LoggerInterface $logger)
+	{
+		self::$logger = $logger;
+	}
+
+	/**
 	 * Disconnects the current database connection
 	 */
 	public static function disconnect()
@@ -169,7 +189,7 @@ class DBA
 	public static function reconnect() {
 		self::disconnect();
 
-		$ret = self::connect(self::$basePath, self::$configCache, self::$profiler, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
+		$ret = self::connect(self::$basePath, self::$configCache, self::$profiler, self::$logger, self::$db_serveraddr, self::$db_user, self::$db_pass, self::$db_name, self::$db_charset);
 		return $ret;
 	}
 
@@ -425,7 +445,7 @@ class DBA
 
 		if ((substr_count($sql, '?') != count($args)) && (count($args) > 0)) {
 			// Question: Should we continue or stop the query here?
-			Logger::warning('Query parameters mismatch.', ['query' => $sql, 'args' => $args, 'callstack' => System::callstack()]);
+			self::$logger->warning('Query parameters mismatch.', ['query' => $sql, 'args' => $args, 'callstack' => System::callstack()]);
 		}
 
 		$sql = self::cleanQuery($sql);
@@ -565,22 +585,35 @@ class DBA
 			$error = self::$error;
 			$errorno = self::$errorno;
 
-			Logger::log('DB Error '.self::$errorno.': '.self::$error."\n".
-				System::callstack(8)."\n".self::replaceParameters($sql, $args));
+			self::$logger->error('DB Error', [
+				'code'      =>   self::$errorno,
+				'error    ' =>  self::$error,
+				'callstack' => System::callstack(8),
+				'params'     => self::replaceParameters($sql, $args),
+			]);
 
 			// On a lost connection we try to reconnect - but only once.
 			if ($errorno == 2006) {
 				if (self::$in_retrial || !self::reconnect()) {
 					// It doesn't make sense to continue when the database connection was lost
 					if (self::$in_retrial) {
-						Logger::log('Giving up retrial because of database error '.$errorno.': '.$error);
+						self::$logger->notice('Giving up retrial because of database error', [
+							'code'      =>   self::$errorno,
+							'error    ' =>  self::$error,
+						]);
 					} else {
-						Logger::log("Couldn't reconnect after database error ".$errorno.': '.$error);
+						self::$logger->notice('Couldn\'t reconnect after database error', [
+							'code'      =>   self::$errorno,
+							'error    ' =>  self::$error,
+						]);
 					}
 					exit(1);
 				} else {
 					// We try it again
-					Logger::log('Reconnected after database error '.$errorno.': '.$error);
+					self::$logger->notice('Reconnected after database error', [
+						'code'      =>   self::$errorno,
+						'error    ' =>  self::$error,
+					]);
 					self::$in_retrial = true;
 					$ret = self::p($sql, $args);
 					self::$in_retrial = false;
@@ -649,13 +682,20 @@ class DBA
 			$error = self::$error;
 			$errorno = self::$errorno;
 
-			Logger::log('DB Error '.self::$errorno.': '.self::$error."\n".
-				System::callstack(8)."\n".self::replaceParameters($sql, $params));
+			self::$logger->error('DB Error', [
+				'code'      =>   self::$errorno,
+				'error    ' =>  self::$error,
+				'callstack' => System::callstack(8),
+				'params'     => self::replaceParameters($sql, $params),
+			]);
 
 			// On a lost connection we simply quit.
 			// A reconnect like in self::p could be dangerous with modifications
 			if ($errorno == 2006) {
-				Logger::log('Giving up because of database error '.$errorno.': '.$error);
+				self::$logger->error('Giving up because of database error', [
+					'code'      =>   self::$errorno,
+					'error    ' =>  self::$error,
+				]);
 				exit(1);
 			}
 
@@ -850,7 +890,7 @@ class DBA
 	public static function insert($table, $param, $on_duplicate_update = false) {
 
 		if (empty($table) || empty($param)) {
-			Logger::log('Table and fields have to be set');
+			self::$logger->info('Table and fields have to be set');
 			return false;
 		}
 
@@ -1068,7 +1108,7 @@ class DBA
 	public static function delete($table, array $conditions, array $options = [], array &$callstack = [])
 	{
 		if (empty($table) || empty($conditions)) {
-			Logger::log('Table and conditions have to be set');
+			self::$logger->info('Table and conditions have to be set');
 			return false;
 		}
 
@@ -1154,7 +1194,7 @@ class DBA
 
 			if ((count($command['conditions']) > 1) || is_int($first_key)) {
 				$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
-				Logger::log(self::replaceParameters($sql, $conditions), Logger::DATA);
+				self::$logger->debug(self::replaceParameters($sql, $conditions));
 
 				if (!self::e($sql, $conditions)) {
 					if ($do_transaction) {
@@ -1184,7 +1224,7 @@ class DBA
 					$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
 						substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
-					Logger::log(self::replaceParameters($sql, $field_values), Logger::DATA);
+					self::$logger->debug(self::replaceParameters($sql, $field_values));
 
 					if (!self::e($sql, $field_values)) {
 						if ($do_transaction) {
@@ -1233,7 +1273,7 @@ class DBA
 	public static function update($table, $fields, $condition, $old_fields = []) {
 
 		if (empty($table) || empty($fields) || empty($condition)) {
-			Logger::log('Table, fields and condition have to be set');
+			self::$logger->info('Table, fields and condition have to be set');
 			return false;
 		}
 

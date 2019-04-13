@@ -10,6 +10,7 @@ use Friendica\Database\DBA;
 use Friendica\Factory;
 use Friendica\Util\BasePath;
 use Friendica\Util\Config\ConfigFileLoader;
+use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
@@ -52,6 +53,7 @@ abstract class DatabaseTest extends MockedTest
 			$basePath,
 			$config,
 			$profiler,
+			new VoidLogger(),
 			getenv('MYSQL_HOST'),
 			getenv('MYSQL_USERNAME'),
 			getenv('MYSQL_PASSWORD'),
