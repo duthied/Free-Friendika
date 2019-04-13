@@ -166,8 +166,6 @@ HELP;
 			}
 
 			$installer->createConfig($configCache);
-
-			return 1;
 		}
 
 		$this->out(" Complete!\n\n");

@@ -142,8 +142,6 @@ class Installer
 
 		$url = $configCache->get('system', 'url');
 
-		print_r("URL - " . $url . PHP_EOL);
-
 		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
 			'$dbhost'    => $configCache->get('database', 'hostname'),

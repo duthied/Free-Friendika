@@ -70,6 +70,9 @@ trait AppMockTrait
 			->shouldReceive('getConfigCache')
 			->andReturn($this->configMock);
 		$this->app
+			->shouldReceive('getConfig')
+			->andReturn($config);
+		$this->app
 			->shouldReceive('getTemplateEngine')
 			->andReturn(new FriendicaSmartyEngine());
 		$this->app

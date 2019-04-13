@@ -10,13 +10,12 @@ use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\L10nMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Logger\VoidLogger;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
 /**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  * @requires PHP 7.0
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
@@ -104,7 +103,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 						'basepath'    => '',
 						'urlpath'     => '',
 						'url'         => 'http://friendica.local',
-						'ssl_policy'  => '',
+						'ssl_policy'  => 0,
 						'default_timezone' => '',
 						'language'    => '',
 					],
@@ -253,7 +252,7 @@ FIN;
 		$this->assertEquals($finished, $txt);
 	}
 
-	private function assertStuckHostnam($txt)
+	private function assertStuckURL($txt)
 	{
 		$finished = <<<FIN
 Initializing setup...
@@ -270,7 +269,7 @@ Checking environment...
 
 Creating config file...
 
-The Friendica hostname has to be set during CLI installation.
+The Friendica URL has to be set during CLI installation.
 
 FIN;
 
@@ -326,7 +325,7 @@ FIN;
 		$this->assertConfigEntry('system', 'language', $assertion, ($default) ? Installer::DEFAULT_LANG : null);
 		$this->assertConfigEntry('system', 'url', $assertion);
 		$this->assertConfigEntry('system', 'urlpath', $assertion);
-		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? SSL_POLICY_NONE : null);
+		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? BaseURL::DEFAULT_SSL_SCHEME : null);
 		$this->assertConfigEntry('system', 'basepath', ($realBasepath) ? $this->root->url() : $assertion);
 	}
 
@@ -340,14 +339,14 @@ FIN;
 
 		$txt = $this->dumpExecute($console);
 
-		$this->assertStuckHostnam($txt);
+		$this->assertStuckURL($txt);
 	}
 
 	/**
 	 * Test the automatic installation without any parameter/setting
-	 * except hostname
+	 * except URL
 	 */
-	public function testEmptyWithHostname()
+	public function testEmptyWithURL()
 	{
 		$this->mockConnect(true, 1);
 		$this->mockConnected(true, 1);
@@ -355,17 +354,17 @@ FIN;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), false, '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
-		$console->setOption('n', 'friendica.local');
+		$console->setOption('url', 'http://friendica.local');
 
 		$txt = $this->dumpExecute($console);
 
 		$this->assertFinished($txt, true, false);
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		$this->assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local']], false, true, true, true);
+		$this->assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local', 'ssl_policy' => 0, 'urlPath' => '']], false, true, true, true);
 	}
 
 	/**
@@ -457,7 +456,7 @@ CONF;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), false, '', 1);
 
 		$this->assertTrue(putenv('MYSQL_HOST='     . $data['database']['hostname']));
 		$this->assertTrue(putenv('MYSQL_PORT='     . $data['database']['port']));
@@ -467,12 +466,11 @@ CONF;
 
 		$this->assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
 		$this->assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
-		$this->assertTrue(putenv('FRIENDICA_URL_PATH='   . $data['system']['urlpath']));
+		$this->assertTrue(putenv('FRIENDICA_URL='        . $data['system']['url']));
 		$this->assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
 		$this->assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
 		$this->assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
-		$this->assertTrue(putenv('FRIENDICA_SSL_POLICY=' . $data['system']['ssl_policy']));
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 		$console->setOption('savedb', true);
@@ -496,7 +494,7 @@ CONF;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), false, '', 1);
 
 		$this->assertTrue(putenv('MYSQL_HOST=' . $data['database']['hostname']));
 		$this->assertTrue(putenv('MYSQL_PORT=' . $data['database']['port']));
@@ -506,12 +504,11 @@ CONF;
 
 		$this->assertTrue(putenv('FRIENDICA_HOSTNAME='   . $data['config']['hostname']));
 		$this->assertTrue(putenv('FRIENDICA_BASE_PATH='  . $data['system']['basepath']));
-		$this->assertTrue(putenv('FRIENDICA_URL_PATH='   . $data['system']['urlpath']));
+		$this->assertTrue(putenv('FRIENDICA_URL='        . $data['system']['url']));
 		$this->assertTrue(putenv('FRIENDICA_PHP_PATH='   . $data['config']['php_path']));
 		$this->assertTrue(putenv('FRIENDICA_ADMIN_MAIL=' . $data['config']['admin_email']));
 		$this->assertTrue(putenv('FRIENDICA_TZ='         . $data['system']['default_timezone']));
 		$this->assertTrue(putenv('FRIENDICA_LANG='       . $data['system']['language']));
-		$this->assertTrue(putenv('FRIENDICA_SSL_POLICY=' . $data['system']['ssl_policy']));
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
@@ -533,7 +530,7 @@ CONF;
 		$this->mockUpdate([$this->root->url(), false, true, true], null, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), false, '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
 
@@ -547,14 +544,12 @@ CONF;
 		$option('dbuser'    , 'database', 'username');
 		$option('dbpass'    , 'database', 'password');
 		$option('dbdata'    , 'database', 'database');
-		$option('urlpath'   , 'system'  , 'urlpath');
+		$option('url'       , 'system'  , 'url');
 		$option('phppath'   , 'config'  , 'php_path');
 		$option('admin'     , 'config'  , 'admin_email');
 		$option('tz'        , 'system'  , 'default_timezone');
 		$option('lang'      , 'system'  , 'language');
-		$option('hostname'  , 'config'  , 'hostname');
 		$option('basepath'  , 'system'  , 'basepath');
-		$option('sslpolicy' , 'system'  , 'ssl_policy');
 
 		$txt = $this->dumpExecute($console);
 
@@ -570,17 +565,17 @@ CONF;
 		$this->mockConnect(false, 1);
 
 		$this->mockGetMarkupTemplate('local.config.tpl', 'testTemplate', 1);
-		$this->mockReplaceMacros('testTemplate', \Mockery::any(), '', 1);
+		$this->mockReplaceMacros('testTemplate', \Mockery::any(), false, '', 1);
 
 		$console = new AutomaticInstallation($this->consoleArgv);
-		$console->setOption('n', 'friendica.local');
+		$console->setOption('url', 'http://friendica.local');
 
 		$txt = $this->dumpExecute($console);
 
 		$this->assertStuckDB($txt);
 		$this->assertTrue($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php'));
 
-		$this->assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local']], false, true, false, true);
+		$this->assertConfig(['config' => ['hostname' => 'friendica.local'], 'system' => ['url' => 'http://friendica.local', 'ssl_policy' => 0, 'urlpath' => '']], false, true, false, true);
 	}
 
 	public function testGetHelp()
@@ -608,11 +603,9 @@ Options
     -d|--dbdata <database>      The name of the mysql/mariadb database (env MYSQL_DATABASE)
     -U|--dbuser <username>      The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
     -P|--dbpass <password>      The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -U|--urlpath <url_path>     The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -U|--url <url>              The full base URL of Friendica - f.e. 'https://friendica.local/sub' (env FRIENDICA_URL) 
     -B|--phppath <php_path>     The path of the PHP binary (env FRIENDICA_PHP_PATH)
     -b|--basepath <base_path>   The basepath of Friendica(env FRIENDICA_BASE_PATH)
-    -S|--sslpolicy <ssl_policy> The SSL policy of Friendica (env FRIENDICA_SSL_POLICY) 
-    -n|--hostname <hostname>    The hostname of Friendica (env FRIENDICA_PHP_HOSTNAME)  
     -t|--tz <timezone>          The timezone of Friendica (env FRIENDICA_TZ)
     -L|--lang <language>        The language of Friendica (env FRIENDICA_LANG)
  
@@ -622,12 +615,10 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
-   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica') - leave empty for auto detection
+   FRIENDICA_URL               The full base URL of Friendica - f.e. 'https://friendica.local/sub'
    FRIENDICA_PHP_PATH          The path of the PHP binary - leave empty for auto detection
    FRIENDICA_BASE_PATH         The basepath of Friendica - leave empty for auto detection
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
-   FRIENDICA_SSL_POLICY        The SSL policy of Friendica (default is NO SSL)
-   FRIENDICA_HOSTNAME          The hostname of Friendica - leave empty for auto detection
    FRIENDICA_TZ                The timezone of Friendica
    FRIENDICA_LANG              The langauge of Friendica
    
