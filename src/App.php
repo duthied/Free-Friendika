@@ -1302,8 +1302,9 @@ class App
 			header($_SERVER["SERVER_PROTOCOL"] . ' 403 ' . Core\L10n::t('Permission denied.'));
 		}
 
-		// Report anything which needs to be communicated in the notification area (before the main body)
-		Core\Hook::callAll('page_end', $this->page['content']);
+		if (!$this->isAjax()) {
+			Core\Hook::callAll('page_end', $this->page['content']);
+		}
 
 		// Add the navigation (menu) template
 		if ($this->module != 'install' && $this->module != 'maintenance') {
