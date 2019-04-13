@@ -16,6 +16,8 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
 /**
+ * @runTestsInSeparateProcesses
+ * @preserveGlobalState disabled
  * @requires PHP 7.0
  */
 class AutomaticInstallationConsoleTest extends ConsoleTest
