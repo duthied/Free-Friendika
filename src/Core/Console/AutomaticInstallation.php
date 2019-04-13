@@ -129,6 +129,7 @@ HELP;
 			$configCache->set('database', 'password',
 				$this->getOption(['P', 'dbpass'],
 					($save_db) ? getenv('MYSQL_PASSWORD') : ''));
+
 			$php_path = $this->getOption(['b', 'phppath'], !empty('FRIENDICA_PHP_PATH') ? getenv('FRIENDICA_PHP_PATH') : null);
 			if (!empty($php_path)) {
 				$configCache->set('config', 'php_path', $php_path);
@@ -149,10 +150,6 @@ HELP;
 			$basepath = $this->getOption(['b', 'basepath'], !empty(getenv('FRIENDICA_BASE_PATH')) ? getenv('FRIENDICA_BASE_PATH') : null);
 			if (!empty($basepath)) {
 				$configCache->set('system', 'basepath', $basepath);
-			}
-			$php_path = $this->getOption(['B', 'phppath'], !empty(getenv('FRIENDICA_PHP_PATH')) ? getenv('FRIENDICA_PHP_PATH') : null);
-			if (!empty($php_path)) {
-				$configCache->set('config', 'php_path', $php_path);
 			}
 
 			$url = $this->getOption(['U', 'url'], !empty(getenv('FRIENDICA_URL')) ? getenv('FRIENDICA_URL') : null);
