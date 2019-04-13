@@ -4,6 +4,7 @@ namespace Friendica\Factory;
 
 use Friendica\Core\Config\Cache;
 use Friendica\Database;
+use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Profiler;
 
 class DBFactory
@@ -51,7 +52,7 @@ class DBFactory
 			$db_data = $server['MYSQL_DATABASE'];
 		}
 
-		if (Database\DBA::connect($basePath, $configCache, $profiler, $db_host, $db_user, $db_pass, $db_data, $charset)) {
+		if (Database\DBA::connect($basePath, $configCache, $profiler, new VoidLogger(), $db_host, $db_user, $db_pass, $db_data, $charset)) {
 			// Loads DB_UPDATE_VERSION constant
 			Database\DBStructure::definition($basePath, false);
 		}

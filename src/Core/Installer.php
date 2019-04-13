@@ -11,6 +11,7 @@ use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
+use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -601,7 +602,7 @@ class Installer
 		$dbpass = $configCache->get('database', 'password');
 		$dbdata = $configCache->get('database', 'database');
 
-		if (!DBA::connect($basePath, $configCache, $profiler, $dbhost, $dbuser, $dbpass, $dbdata)) {
+		if (!DBA::connect($basePath, $configCache, $profiler, new VoidLogger(), $dbhost, $dbuser, $dbpass, $dbdata)) {
 			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
 
 			return false;
