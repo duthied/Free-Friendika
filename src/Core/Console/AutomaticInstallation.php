@@ -7,6 +7,8 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
+use Friendica\Util\BasePath;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Config\ConfigFileLoader;
 use RuntimeException;
 
@@ -36,11 +38,9 @@ Options
     -d|--dbdata <database>      The name of the mysql/mariadb database (env MYSQL_DATABASE)
     -U|--dbuser <username>      The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
     -P|--dbpass <password>      The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -U|--urlpath <url_path>     The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
+    -U|--url <url>              The full base URL of Friendica - f.e. 'https://friendica.local/sub' (env FRIENDICA_URL) 
     -B|--phppath <php_path>     The path of the PHP binary (env FRIENDICA_PHP_PATH)
     -b|--basepath <base_path>   The basepath of Friendica(env FRIENDICA_BASE_PATH)
-    -S|--sslpolicy <ssl_policy> The SSL policy of Friendica (env FRIENDICA_SSL_POLICY) 
-    -n|--hostname <hostname>    The hostname of Friendica (env FRIENDICA_PHP_HOSTNAME)  
     -t|--tz <timezone>          The timezone of Friendica (env FRIENDICA_TZ)
     -L|--lang <language>        The language of Friendica (env FRIENDICA_LANG)
  
@@ -50,12 +50,10 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
-   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica') - leave empty for auto detection
+   FRIENDICA_URL               The full base URL of Friendica - f.e. 'https://friendica.local/sub'
    FRIENDICA_PHP_PATH          The path of the PHP binary - leave empty for auto detection
    FRIENDICA_BASE_PATH         The basepath of Friendica - leave empty for auto detection
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
-   FRIENDICA_SSL_POLICY        The SSL policy of Friendica (default is NO SSL)
-   FRIENDICA_HOSTNAME          The hostname of Friendica - leave empty for auto detection
    FRIENDICA_TZ                The timezone of Friendica
    FRIENDICA_LANG              The langauge of Friendica
    
@@ -81,7 +79,7 @@ HELP;
 		$installer = new Installer();
 
 		$configCache = $a->getConfigCache();
-		$installer->setUpCache($configCache, dirname(__DIR__, 3), $_SERVER);
+		$installer->setUpCache($configCache, BasePath::create($a->getBasePath(), $_SERVER));
 
 		$this->out(" Complete!\n\n");
 
@@ -119,7 +117,6 @@ HELP;
 
 			$save_db = $this->getOption(['s', 'savedb'], false);
 
-			//$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST') ? getenv('MYSQL_HOST') : Installer::DEFAULT_HOST) : '');
 			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST')) : Installer::DEFAULT_HOST);
 			$db_port = $this->getOption(['p', 'dbport'], ($save_db) ? getenv('MYSQL_PORT') : null);
 			$configCache->set('database', 'hostname', $db_host . (!empty($db_port) ? ':' . $db_port : ''));
@@ -149,7 +146,6 @@ HELP;
 				$this->getOption(['L', 'lang'],
 					!empty(getenv('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : Installer::DEFAULT_LANG));
 
-			$configCache->set('system', 'urlpath', $this->getOption(['u', 'urlpath'], !empty(getenv('FRIENDICA_URL_PATH')) ? getenv('FRIENDICA_URL_PATH') : ''));
 			$basepath = $this->getOption(['b', 'basepath'], !empty(getenv('FRIENDICA_BASE_PATH')) ? getenv('FRIENDICA_BASE_PATH') : null);
 			if (!empty($basepath)) {
 				$configCache->set('system', 'basepath', $basepath);
@@ -158,20 +154,20 @@ HELP;
 			if (!empty($php_path)) {
 				$configCache->set('config', 'php_path', $php_path);
 			}
-			$ssl_policy = $this->getOption(['S', 'sslpolicy'], !empty(getenv('FRIENDICA_SSL_POLICY')) ? getenv('FRIENDICA_SSL_POLICY') : null);
-			if (!empty($ssl_policy)) {
-				$configCache->set('system', 'ssl_policy', $ssl_policy);
-			}
-			$configCache->set('config', 'hostname', $this->getOption(['n', 'hostname'], !empty(getenv('FRIENDICA_HOSTNAME')) ? getenv('FRIENDICA_HOSTNAME') : ''));
 
-			$configCache->set('system', 'url', $installer->determineBaseUrl($configCache));
+			$url = $this->getOption(['U', 'url'], !empty(getenv('FRIENDICA_URL')) ? getenv('FRIENDICA_URL') : null);
 
-			if (empty($configCache->get('config', 'hostname'))) {
-				$this->out('The Friendica hostname has to be set during CLI installation.');
+			if (empty($url)) {
+				$this->out('The Friendica URL has to be set during CLI installation.');
 				return 1;
+			} else {
+				$baseUrl = new BaseURL($a->getConfig(), []);
+				$baseUrl->saveByURL($url);
 			}
 
 			$installer->createConfig($configCache);
+
+			return 1;
 		}
 
 		$this->out(" Complete!\n\n");

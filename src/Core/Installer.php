@@ -140,6 +140,10 @@ class Installer
 	{
 		$basepath = $configCache->get('system', 'basepath');
 
+		$url = $configCache->get('system', 'url');
+
+		print_r("URL - " . $url . PHP_EOL);
+
 		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
 			'$dbhost'    => $configCache->get('database', 'hostname'),
@@ -152,12 +156,12 @@ class Installer
 			'$hostname'  => $configCache->get('config', 'hostname'),
 
 			'$urlpath'   => $configCache->get('system', 'urlpath'),
-			'$baseurl'   => $configCache->get('system', 'url'),
+			'$baseurl'   => $url,
 			'$sslpolicy' => $configCache->get('system', 'ssl_policy'),
 			'$basepath'  => $basepath,
 			'$timezone'  => $configCache->get('system', 'default_timezone'),
 			'$language'  => $configCache->get('system', 'language'),
-		]);
+		], false);
 
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);
 
