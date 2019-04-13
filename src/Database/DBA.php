@@ -692,7 +692,7 @@ class DBA
 			// On a lost connection we simply quit.
 			// A reconnect like in self::p could be dangerous with modifications
 			if ($errorno == 2006) {
-				self::$logger->error('Giving up because of database error', [
+				self::$logger->notice('Giving up because of database error', [
 					'code'  => self::$errorno,
 					'error' => self::$error,
 				]);
