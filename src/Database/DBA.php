@@ -586,10 +586,10 @@ class DBA
 			$errorno = self::$errorno;
 
 			self::$logger->error('DB Error', [
-				'code'      =>   self::$errorno,
-				'error    ' =>  self::$error,
+				'code'      => self::$errorno,
+				'error'     => self::$error,
 				'callstack' => System::callstack(8),
-				'params'     => self::replaceParameters($sql, $args),
+				'params'    => self::replaceParameters($sql, $args),
 			]);
 
 			// On a lost connection we try to reconnect - but only once.
@@ -598,21 +598,21 @@ class DBA
 					// It doesn't make sense to continue when the database connection was lost
 					if (self::$in_retrial) {
 						self::$logger->notice('Giving up retrial because of database error', [
-							'code'      =>   self::$errorno,
-							'error    ' =>  self::$error,
+							'code'  => self::$errorno,
+							'error' => self::$error,
 						]);
 					} else {
 						self::$logger->notice('Couldn\'t reconnect after database error', [
-							'code'      =>   self::$errorno,
-							'error    ' =>  self::$error,
+							'code'  => self::$errorno,
+							'error' => self::$error,
 						]);
 					}
 					exit(1);
 				} else {
 					// We try it again
 					self::$logger->notice('Reconnected after database error', [
-						'code'      =>   self::$errorno,
-						'error    ' =>  self::$error,
+						'code'  => self::$errorno,
+						'error' => self::$error,
 					]);
 					self::$in_retrial = true;
 					$ret = self::p($sql, $args);
@@ -683,18 +683,18 @@ class DBA
 			$errorno = self::$errorno;
 
 			self::$logger->error('DB Error', [
-				'code'      =>   self::$errorno,
-				'error    ' =>  self::$error,
+				'code'      => self::$errorno,
+				'error'     => self::$error,
 				'callstack' => System::callstack(8),
-				'params'     => self::replaceParameters($sql, $params),
+				'params'    => self::replaceParameters($sql, $params),
 			]);
 
 			// On a lost connection we simply quit.
 			// A reconnect like in self::p could be dangerous with modifications
 			if ($errorno == 2006) {
 				self::$logger->error('Giving up because of database error', [
-					'code'      =>   self::$errorno,
-					'error    ' =>  self::$error,
+					'code'  => self::$errorno,
+					'error' => self::$error,
 				]);
 				exit(1);
 			}
