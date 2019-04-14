@@ -8,6 +8,8 @@ use Friendica\Core;
 use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Util\BasePath;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -18,17 +20,21 @@ class Install extends BaseModule
 	 */
 	const SYSTEM_CHECK = 1;
 	/**
-	 * Step two - Database configuration
+	 * Step two - Base information
 	 */
-	const DATABASE_CONFIG = 2;
+	const BASE_CONFIG = 2;
 	/**
-	 * Step three - Adapat site settings
+	 * Step three - Database configuration
 	 */
-	const SITE_SETTINGS = 3;
+	const DATABASE_CONFIG = 3;
 	/**
-	 * Step four - All steps finished
+	 * Step four - Adapt site settings
 	 */
-	const FINISHED = 4;
+	const SITE_SETTINGS = 4;
+	/**
+	 * Step five - All steps finished
+	 */
+	const FINISHED = 5;
 
 	/**
 	 * @var int The current step of the wizard
@@ -55,11 +61,16 @@ class Install extends BaseModule
 			Core\System::httpExit(204);
 		}
 
+		self::$installer = new Core\Installer();
+
+		// get basic installation information and save them to the config cache
+		$configCache = $a->getConfigCache();
+		self::$installer->setUpCache($configCache, BasePath::create($a->getBasePath(), $_SERVER));
+
 		// We overwrite current theme css, because during install we may not have a working mod_rewrite
 		// so we may not have a css at all. Here we set a static css file for the install procedure pages
 		Renderer::$theme['stylesheet'] = $a->getBaseURL() . '/view/install/style.css';
 
-		self::$installer = new Core\Installer();
 		self::$currentWizardStep = defaults($_POST, 'pass', self::SYSTEM_CHECK);
 	}
 
@@ -70,12 +81,26 @@ class Install extends BaseModule
 
 		switch (self::$currentWizardStep) {
 			case self::SYSTEM_CHECK:
+			case self::BASE_CONFIG:
+				self::checkSetting($configCache, $_POST, 'config', 'php_path');
+				break;
+
 			case self::DATABASE_CONFIG:
 				self::checkSetting($configCache, $_POST, 'config', 'php_path');
+
+				self::checkSetting($configCache, $_POST, 'config', 'hostname');
+				self::checkSetting($configCache, $_POST, 'system', 'ssl_policy');
+				self::checkSetting($configCache, $_POST, 'system', 'basepath');
+				self::checkSetting($configCache, $_POST, 'system', 'urlpath');
 				break;
 
 			case self::SITE_SETTINGS:
 				self::checkSetting($configCache, $_POST, 'config', 'php_path');
+
+				self::checkSetting($configCache, $_POST, 'config', 'hostname');
+				self::checkSetting($configCache, $_POST, 'system', 'ssl_policy');
+				self::checkSetting($configCache, $_POST, 'system', 'basepath');
+				self::checkSetting($configCache, $_POST, 'system', 'urlpath');
 
 				self::checkSetting($configCache, $_POST, 'database', 'hostname', Core\Installer::DEFAULT_HOST);
 				self::checkSetting($configCache, $_POST, 'database', 'username', '');
@@ -83,7 +108,7 @@ class Install extends BaseModule
 				self::checkSetting($configCache, $_POST, 'database', 'database', '');
 
 				// If we cannot connect to the database, return to the previous step
-				if (!self::$installer->checkDB($a->getBasePath(), $configCache, $a->getProfiler())) {
+				if (!self::$installer->checkDB($configCache, $a->getProfiler())) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 				}
 
@@ -91,6 +116,11 @@ class Install extends BaseModule
 
 			case self::FINISHED:
 				self::checkSetting($configCache, $_POST, 'config', 'php_path');
+
+				self::checkSetting($configCache, $_POST, 'config', 'hostname');
+				self::checkSetting($configCache, $_POST, 'system', 'ssl_policy');
+				self::checkSetting($configCache, $_POST, 'system', 'basepath');
+				self::checkSetting($configCache, $_POST, 'system', 'urlpath');
 
 				self::checkSetting($configCache, $_POST, 'database', 'hostname', Core\Installer::DEFAULT_HOST);
 				self::checkSetting($configCache, $_POST, 'database', 'username', '');
@@ -102,16 +132,16 @@ class Install extends BaseModule
 				self::checkSetting($configCache, $_POST, 'config', 'admin_email', '');
 
 				// If we cannot connect to the database, return to the Database config wizard
-				if (!self::$installer->checkDB($a->getBasePath(), $configCache, $a->getProfiler())) {
+				if (!self::$installer->checkDB($configCache, $a->getProfiler())) {
 					self::$currentWizardStep = self::DATABASE_CONFIG;
 					return;
 				}
 
-				if (!self::$installer->createConfig($a, $configCache, $a->getBasePath())) {
+				if (!self::$installer->createConfig($configCache)) {
 					return;
 				}
 
-				self::$installer->installDatabase($a->getBasePath());
+				self::$installer->installDatabase($configCache->get('system', 'basepath'));
 
 				break;
 		}
@@ -134,52 +164,93 @@ class Install extends BaseModule
 
 				$tpl = Renderer::getMarkupTemplate('install_checks.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
-					'$title'        => $install_title,
-					'$pass'         => L10n::t('System check'),
-					'$checks'       => self::$installer->getChecks(),
-					'$passed'       => $status,
-					'$see_install'  => L10n::t('Please see the file "INSTALL.txt".'),
-					'$next'         => L10n::t('Next'),
-					'$reload'       => L10n::t('Check again'),
-					'$php_path'     => $php_path,
-					'$baseurl'      => $a->getBaseURL()
+					'$title'       => $install_title,
+					'$pass'        => L10n::t('System check'),
+					'$checks'      => self::$installer->getChecks(),
+					'$passed'      => $status,
+					'$see_install' => L10n::t('Please see the file "INSTALL.txt".'),
+					'$next'        => L10n::t('Next'),
+					'$reload'      => L10n::t('Check again'),
+					'$php_path'    => $php_path,
+					'$baseurl'     => $a->getBaseURL()
+				]);
+				break;
+
+			case self::BASE_CONFIG:
+				$ssl_choices = [
+					BaseUrl::SSL_POLICY_NONE     => L10n::t("No SSL policy, links will track page SSL state"),
+					BaseUrl::SSL_POLICY_FULL     => L10n::t("Force all links to use SSL"),
+					BaseUrl::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
+				];
+
+				$tpl = Renderer::getMarkupTemplate('install_base.tpl');
+				$output .= Renderer::replaceMacros($tpl, [
+					'$title'      => $install_title,
+					'$pass'       => L10n::t('Base settings'),
+					'$ssl_policy' => ['system-ssl_policy',
+						L10n::t("SSL link policy"),
+						$configCache->get('system', 'ssl_policy'),
+						L10n::t("Determines whether generated links should be forced to use SSL"),
+						$ssl_choices],
+					'$hostname'   => ['config-hostname',
+						L10n::t('Host name'),
+						$configCache->get('config', 'hostname'),
+						L10n::t('Overwrite this field in case the determinated hostname isn\'t right, otherweise leave it as is.'),
+						'required'],
+					'$basepath'   => ['system-basepath',
+						L10n::t("Base path to installation"),
+						$configCache->get('system', 'basepath'),
+						L10n::t("If the system cannot detect the correct path to your installation, enter the correct path here. This setting should only be set if you are using a restricted system and symbolic links to your webroot."),
+						'required'],
+					'$urlpath'    => ['system-urlpath',
+						L10n::t('Sub path of the URL'),
+						$configCache->get('system', 'urlpath'),
+						L10n::t('Overwrite this field in case the sub path determination isn\'t right, otherwise leave it as is. Leaving this field blank means the installation is at the base URL without sub path.'),
+						''],
+					'$baseurl'    => $a->getBaseURL(),
+					'$php_path'   => $configCache->get('config', 'php_path'),
+					'$submit'     => L10n::t('Submit'),
 				]);
 				break;
 
 			case self::DATABASE_CONFIG:
 				$tpl = Renderer::getMarkupTemplate('install_db.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
-					'$title'    => $install_title,
-					'$pass'     => L10n::t('Database connection'),
-					'$info_01'  => L10n::t('In order to install Friendica we need to know how to connect to your database.'),
-					'$info_02'  => L10n::t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
-					'$info_03'  => L10n::t('The database you specify below should already exist. If it does not, please create it before continuing.'),
-					'checks'    => self::$installer->getChecks(),
-					'$dbhost'   => ['database-hostname',
-									L10n::t('Database Server Name'),
-									$configCache->get('database', 'hostname'),
-									'',
-									'required'],
-					'$dbuser'   => ['database-username',
-									L10n::t('Database Login Name'),
-									$configCache->get('database', 'username'),
-									'',
-									'required',
-									'autofocus'],
-					'$dbpass'   => ['database-password',
-									L10n::t('Database Login Password'),
-									$configCache->get('database', 'password'),
-									L10n::t("For security reasons the password must not be empty"),
-									'required'],
-					'$dbdata'   => ['database-database',
-									L10n::t('Database Name'),
-									$configCache->get('database', 'database'),
-									'',
-									'required'],
-					'$lbl_10'   => L10n::t('Please select a default timezone for your website'),
-					'$baseurl'  => $a->getBaseURL(),
-					'$php_path' => $configCache->get('config', 'php_path'),
-					'$submit'   => L10n::t('Submit')
+					'$title'      => $install_title,
+					'$pass'       => L10n::t('Database connection'),
+					'$info_01'    => L10n::t('In order to install Friendica we need to know how to connect to your database.'),
+					'$info_02'    => L10n::t('Please contact your hosting provider or site administrator if you have questions about these settings.'),
+					'$info_03'    => L10n::t('The database you specify below should already exist. If it does not, please create it before continuing.'),
+					'checks'      => self::$installer->getChecks(),
+					'$hostname'   => $configCache->get('config', 'hostname'),
+					'$ssl_policy' => $configCache->get('system', 'ssl_policy'),
+					'$basepath'   => $configCache->get('system', 'basepath'),
+					'$urlpath'    => $configCache->get('system', 'urlpath'),
+					'$dbhost'     => ['database-hostname',
+						L10n::t('Database Server Name'),
+						$configCache->get('database', 'hostname'),
+						'',
+						'required'],
+					'$dbuser'     => ['database-username',
+						L10n::t('Database Login Name'),
+						$configCache->get('database', 'username'),
+						'',
+						'required',
+						'autofocus'],
+					'$dbpass'     => ['database-password',
+						L10n::t('Database Login Password'),
+						$configCache->get('database', 'password'),
+						L10n::t("For security reasons the password must not be empty"),
+						'required'],
+					'$dbdata'     => ['database-database',
+						L10n::t('Database Name'),
+						$configCache->get('database', 'database'),
+						'',
+						'required'],
+					'$lbl_10'     => L10n::t('Please select a default timezone for your website'),
+					'$baseurl'    => $a->getBaseURL(),
+					'$php_path'   => $configCache->get('config', 'php_path'),
+					'$submit'     => L10n::t('Submit')
 				]);
 				break;
 
@@ -189,30 +260,34 @@ class Install extends BaseModule
 
 				$tpl = Renderer::getMarkupTemplate('install_settings.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
-					'$title' 		=> $install_title,
-					'$checks' 		=> self::$installer->getChecks(),
-					'$pass' 		=> L10n::t('Site settings'),
-					'$dbhost' 		=> $configCache->get('database', 'hostname'),
-					'$dbuser' 		=> $configCache->get('database', 'username'),
-					'$dbpass' 		=> $configCache->get('database', 'password'),
-					'$dbdata' 		=> $configCache->get('database', 'database'),
-					'$phpath' 		=> $configCache->get('config', 'php_path'),
-					'$adminmail'	=> ['config-admin_email',
-										L10n::t('Site administrator email address'),
-										$configCache->get('config', 'admin_email'),
-										L10n::t('Your account email address must match this in order to use the web admin panel.'),
-										'required', 'autofocus', 'email'],
-					'$timezone' 	=> Temporal::getTimezoneField('system-default_timezone',
-										L10n::t('Please select a default timezone for your website'),
-										$configCache->get('system', 'default_timezone'),
-									''),
-					'$language' 	=> ['system-language',
-										L10n::t('System Language:'),
-										$configCache->get('system', 'language'),
-										L10n::t('Set the default language for your Friendica installation interface and to send emails.'),
-										$lang_choices],
-					'$baseurl' 		=> $a->getBaseURL(),
-					'$submit' 		=> L10n::t('Submit')
+					'$title'      => $install_title,
+					'$checks'     => self::$installer->getChecks(),
+					'$pass'       => L10n::t('Site settings'),
+					'$hostname'   => $configCache->get('config', 'hostname'),
+					'$ssl_policy' => $configCache->get('system', 'ssl_policy'),
+					'$basepath'   => $configCache->get('system', 'basepath'),
+					'$urlpath'    => $configCache->get('system', 'urlpath'),
+					'$dbhost'     => $configCache->get('database', 'hostname'),
+					'$dbuser'     => $configCache->get('database', 'username'),
+					'$dbpass'     => $configCache->get('database', 'password'),
+					'$dbdata'     => $configCache->get('database', 'database'),
+					'$adminmail'  => ['config-admin_email',
+						L10n::t('Site administrator email address'),
+						$configCache->get('config', 'admin_email'),
+						L10n::t('Your account email address must match this in order to use the web admin panel.'),
+						'required', 'autofocus', 'email'],
+					'$timezone'   => Temporal::getTimezoneField('system-default_timezone',
+						L10n::t('Please select a default timezone for your website'),
+						$configCache->get('system', 'default_timezone'),
+						''),
+					'$language'   => ['system-language',
+						L10n::t('System Language:'),
+						$configCache->get('system', 'language'),
+						L10n::t('Set the default language for your Friendica installation interface and to send emails.'),
+						$lang_choices],
+					'$baseurl'    => $a->getBaseURL(),
+					'$php_path'   => $configCache->get('config', 'php_path'),
+					'$submit'     => L10n::t('Submit')
 				]);
 				break;
 

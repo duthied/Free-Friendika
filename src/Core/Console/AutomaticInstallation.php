@@ -7,6 +7,8 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
+use Friendica\Util\BasePath;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Config\ConfigFileLoader;
 use RuntimeException;
 
@@ -30,17 +32,17 @@ Options
     -v                      Show more debug information.
     -a                      All setup checks are required (except .htaccess)
     -f|--file <config>      prepared config file (e.g. "config/local.config.php" itself) which will override every other config option - except the environment variables)
-    -s|--savedb             Save the DB credentials to the file (if environment variables is used)
-    -H|--dbhost <host>      The host of the mysql/mariadb database (env MYSQL_HOST)
-    -p|--dbport <port>      The port of the mysql/mariadb database (env MYSQL_PORT)
-    -d|--dbdata <database>  The name of the mysql/mariadb database (env MYSQL_DATABASE)
-    -U|--dbuser <username>  The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
-    -P|--dbpass <password>  The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
-    -u|--urlpath <url_path> The URL path of Friendica - f.e. '/friendica' (env FRIENDICA_URL_PATH) 
-    -b|--phppath <php_path> The path of the PHP binary (env FRIENDICA_PHP_PATH) 
-    -A|--admin <mail>       The admin email address of Friendica (env FRIENDICA_ADMIN_MAIL)
-    -T|--tz <timezone>      The timezone of Friendica (env FRIENDICA_TZ)
-    -L|--lang <language>    The language of Friendica (env FRIENDICA_LANG)
+    -s|--savedb               Save the DB credentials to the file (if environment variables is used)
+    -H|--dbhost <host>        The host of the mysql/mariadb database (env MYSQL_HOST)
+    -p|--dbport <port>        The port of the mysql/mariadb database (env MYSQL_PORT)
+    -d|--dbdata <database>    The name of the mysql/mariadb database (env MYSQL_DATABASE)
+    -U|--dbuser <username>    The username of the mysql/mariadb database login (env MYSQL_USER or MYSQL_USERNAME)
+    -P|--dbpass <password>    The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
+    -U|--url <url>            The full base URL of Friendica - f.e. 'https://friendica.local/sub' (env FRIENDICA_URL) 
+    -B|--phppath <php_path>   The path of the PHP binary (env FRIENDICA_PHP_PATH)
+    -b|--basepath <base_path> The basepath of Friendica (env FRIENDICA_BASE_PATH)
+    -t|--tz <timezone>        The timezone of Friendica (env FRIENDICA_TZ)
+    -L|--lang <language>      The language of Friendica (env FRIENDICA_LANG)
  
 Environment variables
    MYSQL_HOST                  The host of the mysql/mariadb database (mandatory if mysql and environment is used)
@@ -48,8 +50,9 @@ Environment variables
    MYSQL_USERNAME|MYSQL_USER   The username of the mysql/mariadb database login (MYSQL_USERNAME is for mysql, MYSQL_USER for mariadb)
    MYSQL_PASSWORD              The password of the mysql/mariadb database login
    MYSQL_DATABASE              The name of the mysql/mariadb database
-   FRIENDICA_URL_PATH          The URL path of Friendica (f.e. '/friendica')
-   FRIENDICA_PHP_PATH          The path of the PHP binary
+   FRIENDICA_URL               The full base URL of Friendica - f.e. 'https://friendica.local/sub'
+   FRIENDICA_PHP_PATH          The path of the PHP binary - leave empty for auto detection
+   FRIENDICA_BASE_PATH         The basepath of Friendica - leave empty for auto detection
    FRIENDICA_ADMIN_MAIL        The admin email address of Friendica (this email will be used for admin access)
    FRIENDICA_TZ                The timezone of Friendica
    FRIENDICA_LANG              The langauge of Friendica
@@ -76,6 +79,7 @@ HELP;
 		$installer = new Installer();
 
 		$configCache = $a->getConfigCache();
+		$installer->setUpCache($configCache, BasePath::create($a->getBasePath(), $_SERVER));
 
 		$this->out(" Complete!\n\n");
 
@@ -99,7 +103,7 @@ HELP;
 				// Copy config file
 				$this->out("Copying config file...\n");
 				if (!copy($a->getBasePath() . DIRECTORY_SEPARATOR . $config_file, $a->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'"  . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
 				}
 			}
 
@@ -113,7 +117,6 @@ HELP;
 
 			$save_db = $this->getOption(['s', 'savedb'], false);
 
-			//$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST') ? getenv('MYSQL_HOST') : Installer::DEFAULT_HOST) : '');
 			$db_host = $this->getOption(['H', 'dbhost'], ($save_db) ? (getenv('MYSQL_HOST')) : Installer::DEFAULT_HOST);
 			$db_port = $this->getOption(['p', 'dbport'], ($save_db) ? getenv('MYSQL_PORT') : null);
 			$configCache->set('database', 'hostname', $db_host . (!empty($db_port) ? ':' . $db_port : ''));
@@ -126,10 +129,14 @@ HELP;
 			$configCache->set('database', 'password',
 				$this->getOption(['P', 'dbpass'],
 					($save_db) ? getenv('MYSQL_PASSWORD') : ''));
+
 			$php_path = $this->getOption(['b', 'phppath'], !empty('FRIENDICA_PHP_PATH') ? getenv('FRIENDICA_PHP_PATH') : null);
 			if (!empty($php_path)) {
 				$configCache->set('config', 'php_path', $php_path);
+			} else {
+				$configCache->set('config', 'php_path', $installer->getPHPPath());
 			}
+
 			$configCache->set('config', 'admin_email',
 				$this->getOption(['A', 'admin'],
 					!empty(getenv('FRIENDICA_ADMIN_MAIL')) ? getenv('FRIENDICA_ADMIN_MAIL') : ''));
@@ -140,16 +147,22 @@ HELP;
 				$this->getOption(['L', 'lang'],
 					!empty(getenv('FRIENDICA_LANG')) ? getenv('FRIENDICA_LANG') : Installer::DEFAULT_LANG));
 
-
-			if (empty($php_path)) {
-				$configCache->set('config', 'php_path', $installer->getPHPPath());
+			$basepath = $this->getOption(['b', 'basepath'], !empty(getenv('FRIENDICA_BASE_PATH')) ? getenv('FRIENDICA_BASE_PATH') : null);
+			if (!empty($basepath)) {
+				$configCache->set('system', 'basepath', $basepath);
 			}
 
-			$installer->createConfig(
-				$a,
-				$configCache,
-				$a->getBasePath()
-			);
+			$url = $this->getOption(['U', 'url'], !empty(getenv('FRIENDICA_URL')) ? getenv('FRIENDICA_URL') : null);
+
+			if (empty($url)) {
+				$this->out('The Friendica URL has to be set during CLI installation.');
+				return 1;
+			} else {
+				$baseUrl = new BaseURL($a->getConfig(), []);
+				$baseUrl->saveByURL($url);
+			}
+
+			$installer->createConfig($configCache);
 		}
 
 		$this->out(" Complete!\n\n");
@@ -159,7 +172,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->checkDB($a->getBasePath(), $configCache, $a->getProfiler())) {
+		if (!$installer->checkDB($configCache, $a->getProfiler())) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -220,10 +233,7 @@ HELP;
 			$checked = false;
 		}
 
-		$php_path = null;
-		if ($configCache->has('config', 'php_path')) {
-			$php_path = $configCache->get('config', 'php_path');
-		}
+		$php_path = $configCache->get('config', 'php_path');
 
 		if (!$installer->checkPHP($php_path, true)) {
 			$checked = false;
