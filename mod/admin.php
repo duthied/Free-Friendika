@@ -126,9 +126,6 @@ function admin_post(App $a)
 				}
 				$return_path = 'admin/themes/' . $theme . (!empty($_GET['mode']) ? '?mode=' . $_GET['mode'] : '');
 				break;
-			case 'tos':
-				admin_page_tos_post($a);
-				break;
 			case 'features':
 				admin_page_features_post($a);
 				break;
@@ -289,9 +286,6 @@ function admin_content(App $a)
 			case 'deleteitem':
 				$o = admin_page_deleteitem($a);
 				break;
-			case 'tos':
-				$o = admin_page_tos($a);
-				break;
 			default:
 				notice(L10n::t("Item not found."));
 		}
@@ -303,57 +297,6 @@ function admin_content(App $a)
 	} else {
 		return $o;
 	}
-}
-
-/**
- * @brief Subpage to define the display of a Terms of Usage page.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_tos(App $a)
-{
-	$tos = new Tos();
-	$t = Renderer::getMarkupTemplate('admin/tos.tpl');
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Terms of Service'),
-		'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
-		'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system', 'tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.', 'https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
-		'$preview' => L10n::t('Privacy Statement Preview'),
-		'$privtext' => $tos->privacy_complete,
-		'$tostext' => ['tostext', L10n::t('The Terms of Service'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
-		'$form_security_token' => BaseModule::getFormSecurityToken("admin_tos"),
-		'$submit' => L10n::t('Save Settings'),
-	]);
-}
-
-/**
- * @brief Process send data from Admin TOS Page
- *
- * @param App $a
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_tos_post(App $a)
-{
-	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/tos', 'admin_tos');
-
-	if (empty($_POST['page_tos'])) {
-		return;
-	}
-
-	$displaytos = !empty($_POST['displaytos']);
-	$displayprivstatement = !empty($_POST['displayprivstatement']);
-	$tostext = (!empty($_POST['tostext']) ? strip_tags(trim($_POST['tostext'])) : '');
-
-	Config::set('system', 'tosdisplay', $displaytos);
-	Config::set('system', 'tosprivstatement', $displayprivstatement);
-	Config::set('system', 'tostext', $tostext);
-
-	$a->internalRedirect('admin/tos');
-
-	return; // NOTREACHED
 }
 
 /**
