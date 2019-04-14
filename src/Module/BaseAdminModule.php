@@ -7,7 +7,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
-class BaseAdminModule extends BaseModule
+abstract class BaseAdminModule extends BaseModule
 {
 	public static function post()
 	{
@@ -50,6 +50,7 @@ class BaseAdminModule extends BaseModule
 		$aside_sub = [
 			'information' => [L10n::t('Information'), [
 				'overview'     => ['admin'             , L10n::t('Overview')                , 'overview'],
+				'federation'   => ['admin/federation'  , L10n::t('Federation Statistics')   , 'federation']
 			]],
 		];
 

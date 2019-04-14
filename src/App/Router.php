@@ -120,6 +120,7 @@ class Router
 
 		$this->routeCollector->addGroup('/admin', function (RouteCollector $collector) {
 			$collector->addRoute(['GET']        , '[/]'                     , Module\Admin\Summary::class);
+			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
 		});
 	}
 
