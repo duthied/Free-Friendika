@@ -139,7 +139,7 @@ class App
 	}
 
 	/**
-	 * Returns the current config of this nodde
+	 * Returns the current config of this node
 	 *
 	 * @return Configuration
 	 */

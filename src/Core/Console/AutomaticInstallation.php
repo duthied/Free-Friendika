@@ -40,7 +40,7 @@ Options
     -P|--dbpass <password>    The password of the mysql/mariadb database login (env MYSQL_PASSWORD)
     -U|--url <url>            The full base URL of Friendica - f.e. 'https://friendica.local/sub' (env FRIENDICA_URL) 
     -B|--phppath <php_path>   The path of the PHP binary (env FRIENDICA_PHP_PATH)
-    -b|--basepath <base_path> The basepath of Friendica(env FRIENDICA_BASE_PATH)
+    -b|--basepath <base_path> The basepath of Friendica (env FRIENDICA_BASE_PATH)
     -t|--tz <timezone>        The timezone of Friendica (env FRIENDICA_TZ)
     -L|--lang <language>      The language of Friendica (env FRIENDICA_LANG)
  
