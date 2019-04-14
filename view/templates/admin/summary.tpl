@@ -1,7 +1,7 @@
 
 <div id='adminpage'>
 	<h1>{{$title}} - {{$page}}</h1>
-{{if $showwarning}}
+{{if $warningtext|count}}
 	<div id="admin-warning-message-wrapper">
 		{{foreach $warningtext as $wt}}
 		<p class="warning-message">{{$wt nofilter}}</p>

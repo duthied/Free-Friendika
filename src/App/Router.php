@@ -117,6 +117,10 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
 		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
 		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
+
+		$this->routeCollector->addGroup('/admin', function (RouteCollector $collector) {
+			$collector->addRoute(['GET']        , '[/]'                     , Module\Admin\Summary::class);
+		});
 	}
 
 	public function __construct(RouteCollector $routeCollector = null)

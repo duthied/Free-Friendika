@@ -2,7 +2,7 @@
 <div id='adminpage-summery' class="adminpage generic-page-wrapper">
 	<h1>{{$title}} - {{$page}}</h1>
 
-	{{if $showwarning}}
+	{{if $warningtext|count}}
 	<div id="admin-warning-message-wrapper" class="alert alert-warning">
 		{{foreach $warningtext as $wt}}
 		<p>{{$wt nofilter}}</p>
