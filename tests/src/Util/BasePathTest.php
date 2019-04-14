@@ -6,24 +6,60 @@ use Friendica\Util\BasePath;
 
 class BasePathTest extends MockedTest
 {
-	/**
-	 * Test the basepath determination
-	 */
-	public function testDetermineBasePath()
+	public function dataPaths()
 	{
-		$serverArr = ['DOCUMENT_ROOT' => '/invalid', 'PWD' => '/invalid2'];
-		$this->assertEquals('/valid', BasePath::create('/valid', $serverArr));
+		return [
+			'fullPath' => [
+				'server' => [],
+				'input' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+			],
+			'relative' => [
+				'server' => [],
+				'input' => 'config',
+				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+			],
+			'document_root' => [
+				'server' => [
+					'DOCUMENT_ROOT' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+				],
+				'input' => '/noooop',
+				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+			],
+			'pwd' => [
+				'server' => [
+					'PWD' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+				],
+				'input' => '/noooop',
+				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+			],
+			'no_overwrite' => [
+				'server' => [
+					'DOCUMENT_ROOT' => dirname(__DIR__, 3),
+					'PWD' => dirname(__DIR__, 3),
+				],
+				'input' => 'config',
+				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+			]
+		];
 	}
 
 	/**
-	 * Test the basepath determination with DOCUMENT_ROOT and PWD
+	 * Test the basepath determination
+	 * @dataProvider dataPaths
 	 */
-	public function testDetermineBasePathWithServer()
+	public function testDetermineBasePath(array $server, $input, $output)
 	{
-		$serverArr = ['DOCUMENT_ROOT' => '/valid'];
-		$this->assertEquals('/valid', BasePath::create('', $serverArr));
+		$this->assertEquals($output, BasePath::create($input, $server));
+	}
 
-		$serverArr = ['PWD' => '/valid_too'];
-		$this->assertEquals('/valid_too', BasePath::create('', $serverArr));
+	/**
+	 * Test the basepath determination with a complete wrong path
+	 * @expectedException \Exception
+	 * @expectedExceptionMessageRegExp /(.*) is not a valid basepath/
+	 */
+	public function testFailedBasePath()
+	{
+		BasePath::create('/now23452sgfgas', []);
 	}
 }

@@ -19,15 +19,21 @@ class BasePath
 	 */
 	public static function create($basePath, array $server = [])
 	{
-		if (!$basePath && !empty($server['DOCUMENT_ROOT'])) {
+		if ((!$basePath || !is_dir($basePath)) && !empty($server['DOCUMENT_ROOT'])) {
 			$basePath = $server['DOCUMENT_ROOT'];
 		}
 
-		if (!$basePath && !empty($server['PWD'])) {
+		if ((!$basePath || !is_dir($basePath)) && !empty($server['PWD'])) {
 			$basePath = $server['PWD'];
 		}
 
-		return self::getRealPath($basePath);
+		$basePath = self::getRealPath($basePath);
+
+		if (!is_dir($basePath)) {
+			throw new \Exception(sprintf('\'%s\' is not a valid basepath', $basePath));
+		}
+
+		return $basePath;
 	}
 
 	/**
