@@ -40,6 +40,14 @@ class BasePathTest extends MockedTest
 				],
 				'input' => 'config',
 				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+			],
+			'no_overwrite_if_invalid' => [
+				'server' => [
+					'DOCUMENT_ROOT' => '/nopopop',
+					'PWD' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
+				],
+				'input' => '/noatgawe22fafa',
+				'output' => dirname(__DIR__, 3) . DIRECTORY_SEPARATOR . 'config',
 			]
 		];
 	}
