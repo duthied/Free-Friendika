@@ -22,7 +22,7 @@ class Filer extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function rawContent()
 	{
 		$a = self::getApp();
 		$logger = $a->getLogger();
@@ -44,9 +44,11 @@ class Filer extends BaseModule
 		$filetags = explode(",", $filetags);
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
-		return Renderer::replaceMacros($tpl, [
+		echo Renderer::replaceMacros($tpl, [
 			'$field' => ['term', L10n::t("Save to Folder:"), '', '', $filetags, L10n::t('- select -')],
 			'$submit' => L10n::t('Save'),
 		]);
+
+		exit;
 	}
 }
