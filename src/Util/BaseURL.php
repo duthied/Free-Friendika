@@ -285,7 +285,7 @@ class BaseURL
 		if (empty($this->url)) {
 			$this->determineBaseUrl();
 
-			if (!empty($url)) {
+			if (!empty($this->url)) {
 				$this->config->set('system', 'url', $this->url);
 			}
 		}

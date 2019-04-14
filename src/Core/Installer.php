@@ -11,7 +11,6 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Logger\VoidLogger;
-use Friendica\Util\BasePath;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -140,8 +139,6 @@ class Installer
 	{
 		$basepath = $configCache->get('system', 'basepath');
 
-		$url = $configCache->get('system', 'url');
-
 		$tpl = Renderer::getMarkupTemplate('local.config.tpl');
 		$txt = Renderer::replaceMacros($tpl, [
 			'$dbhost'    => $configCache->get('database', 'hostname'),
@@ -154,7 +151,7 @@ class Installer
 			'$hostname'  => $configCache->get('config', 'hostname'),
 
 			'$urlpath'   => $configCache->get('system', 'urlpath'),
-			'$baseurl'   => $url,
+			'$baseurl'   => $configCache->get('system', 'url'),
 			'$sslpolicy' => $configCache->get('system', 'ssl_policy'),
 			'$basepath'  => $basepath,
 			'$timezone'  => $configCache->get('system', 'default_timezone'),

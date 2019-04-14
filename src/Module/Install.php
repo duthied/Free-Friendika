@@ -231,7 +231,7 @@ class Install extends BaseModule
 						$configCache->get('database', 'hostname'),
 						'',
 						'required'],
-					'$dbuser  '   => ['database-username',
+					'$dbuser'     => ['database-username',
 						L10n::t('Database Login Name'),
 						$configCache->get('database', 'username'),
 						'',
