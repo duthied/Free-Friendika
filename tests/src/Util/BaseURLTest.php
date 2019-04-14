@@ -179,16 +179,24 @@ class BaseURLTest extends MockedTest
 		$configMock->shouldReceive('get')->with('system', 'ssl_policy')->andReturn($input['sslPolicy']);
 		$configMock->shouldReceive('get')->with('system', 'url')->andReturn($input['url']);
 
+		// If we don't have an urlPath as an input, we assert it, we will save it to the DB for the next time
 		if (!isset($input['urlPath']) && isset($assert['urlPath'])) {
 			$configMock->shouldReceive('set')->with('system', 'urlpath', $assert['urlPath'])->once();
 		}
 
+		// If we don't have the ssl_policy as an input, we assert it, we will save it to the DB for the next time
 		if (!isset($input['sslPolicy']) && isset($assert['sslPolicy'])) {
 			$configMock->shouldReceive('set')->with('system', 'ssl_policy', $assert['sslPolicy'])->once();
 		}
 
-		if (!isset($input['hostname']) && !empty($assert['hostname'])) {
+		// If we don't have the hostname as an input, we assert it, we will save it to the DB for the next time
+		if (empty($input['hostname']) && !empty($assert['hostname'])) {
 			$configMock->shouldReceive('set')->with('config', 'hostname', $assert['hostname'])->once();
+		}
+
+		// If we don't have an URL at first, but we assert it, we will save it to the DB for the next time
+		if (empty($input['url']) && !empty($assert['url'])) {
+			$configMock->shouldReceive('set')->with('system', 'url', $assert['url'])->once();
 		}
 
 		$baseUrl = new BaseURL($configMock, $server);
