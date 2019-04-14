@@ -35,6 +35,8 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function rawContent()
 	{
+		// echo '';
+		// exit;
 	}
 
 	/**
