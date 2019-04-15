@@ -2017,44 +2017,6 @@ function admin_page_themes(App $a)
 			'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
 		]);
 	}
-
-	// reload active themes
-	if (!empty($_GET['a']) && $_GET['a'] == "r") {
-		BaseModule::checkFormSecurityTokenRedirectOnError(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
-		foreach ($themes as $th) {
-			if ($th['allowed']) {
-				Theme::uninstall($th['name']);
-				Theme::install($th['name']);
-			}
-		}
-		info("Themes reloaded");
-		$a->internalRedirect('admin/themes');
-	}
-
-	/*
-	 * List themes
-	 */
-
-	$addons = [];
-	foreach ($themes as $th) {
-		$addons[] = [$th['name'], (($th['allowed']) ? "on" : "off"), Theme::getInfo($th['name'])];
-	}
-
-	$t = Renderer::getMarkupTemplate('admin/addons.tpl');
-	return Renderer::replaceMacros($t, [
-		'$title'               => L10n::t('Administration'),
-		'$page'                => L10n::t('Themes'),
-		'$submit'              => L10n::t('Save Settings'),
-		'$reload'              => L10n::t('Reload active themes'),
-		'$baseurl'             => System::baseUrl(true),
-		'$function'            => 'themes',
-		'$addons'             => $addons,
-		'$pcount'              => count($themes),
-		'$noplugshint'         => L10n::t('No themes found on the system. They should be placed in %1$s', '<code>/view/themes</code>'),
-		'$experimental'        => L10n::t('[Experimental]'),
-		'$unsupported'         => L10n::t('[Unsupported]'),
-		'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
-	]);
 }
 
 /**

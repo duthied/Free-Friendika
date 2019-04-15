@@ -122,6 +122,8 @@ class Router
 			$collector->addRoute(['GET']        , '[/]'                     , Module\Admin\Summary::class);
 			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
 
+			$collector->addRoute(['GET', 'POST'], '/themes'                 , Module\Admin\Themes\Index::class);
+
 			$collector->addRoute(['GET', 'POST'], '/tos'                    , Module\Admin\Tos::class);
 		});
 	}

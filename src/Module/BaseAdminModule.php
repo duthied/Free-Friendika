@@ -53,6 +53,7 @@ abstract class BaseAdminModule extends BaseModule
 				'federation'   => ['admin/federation'  , L10n::t('Federation Statistics')   , 'federation']
 			]],
 			'configuration' => [L10n::t('Configuration'), [
+				'themes'       => ['admin/themes'      , L10n::t('Themes')                  , 'themes'],
 				'tos'          => ['admin/tos'         , L10n::t('Terms of Service')        , 'tos'],
 			]],
 		];
