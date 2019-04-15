@@ -34,6 +34,11 @@ class Theme
 		return $allowed_themes;
 	}
 
+	public static function setAllowedList(array $allowed_themes)
+	{
+		Config::set('system', 'allowed_themes', implode(',', $allowed_themes));
+	}
+
 	/**
 	 * @brief Parse theme comment in search of theme infos.
 	 *
@@ -133,12 +138,19 @@ class Theme
 
 		// silently fail if theme was removed or if $theme is funky
 		if (file_exists("view/theme/$theme/theme.php")) {
-			Logger::log("Addons: uninstalling theme " . $theme);
+			include_once "view/theme/$theme/theme.php";
 
-			if (function_exists("{$theme}_uninstall")) {
-				$func = "{$theme}_uninstall";
+			$func = "{$theme}_uninstall";
+			if (function_exists($func)) {
 				$func();
 			}
+		}
+
+		$allowed_themes = Theme::getAllowedList();
+		$key = array_search($theme, $allowed_themes);
+		if ($key !== false) {
+			unset($allowed_themes[$key]);
+			Theme::setAllowedList($allowed_themes);
 		}
 	}
 
@@ -151,16 +163,20 @@ class Theme
 			return false;
 		}
 
-		Logger::log("Addons: installing theme $theme");
+		try {
+			include_once "view/theme/$theme/theme.php";
 
-		include_once "view/theme/$theme/theme.php";
-
-		if (function_exists("{$theme}_install")) {
 			$func = "{$theme}_install";
-			$func();
+			if (function_exists($func)) {
+				$func();
+			}
+
+			$allowed_themes = Theme::getAllowedList();
+			$allowed_themes[] = $theme;
+			Theme::setAllowedList($allowed_themes);
+
 			return true;
-		} else {
-			Logger::log("Addons: FAILED installing theme $theme");
+		} catch (\Exception $e) {
 			return false;
 		}
 	}
