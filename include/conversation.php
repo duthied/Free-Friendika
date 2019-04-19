@@ -800,6 +800,7 @@ function conversation_fetch_comments($thread_items) {
 	$lineno = 0;
 	$actor = [];
 	$created = '';
+	$knownauthor = false;
 
 	while ($row = Item::fetch($thread_items)) {
 		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created) && ($row['thr-parent'] == $row['parent-uri'])) {
@@ -808,6 +809,11 @@ function conversation_fetch_comments($thread_items) {
 		}
 		if ($row['gravity'] == GRAVITY_PARENT) {
 			$parentlines[] = $lineno;
+
+			// We could have several parents, so it has to be done this way.
+			if (!empty($row['contact-uid']) && in_array($row['network'], Protocol::NATIVE_SUPPORT)) {
+				$knownauthor = true;
+			}
 		}
 
 		$comments[] = $row;
@@ -816,7 +822,7 @@ function conversation_fetch_comments($thread_items) {
 
 	DBA::close($thread_items);
 
-	if (!empty($actor)) {
+	if (!$knownauthor && !empty($actor)) {
 		foreach ($parentlines as $line) {
 			if (!in_array($comments[$line]['network'], [Protocol::DIASPORA]) && !$comments[$line]['origin']) {
 				$comments[$line]['owner-link'] = $actor['link'];
