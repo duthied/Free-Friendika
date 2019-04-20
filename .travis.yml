@@ -21,4 +21,5 @@ before_script:
  - mysql -utravis test < database.sql
  - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
  - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+ - echo "apc.enable_cli = 1" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 after_success: bash <(curl -s https://codecov.io/bash)
