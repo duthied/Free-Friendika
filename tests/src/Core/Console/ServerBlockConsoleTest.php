@@ -2,13 +2,13 @@
 
 namespace Friendica\Test\src\Core\Console;
 
-use Friendica\Core\Console\BlockedServers;
+use Friendica\Core\Console\ServerBlock;
 
 /**
  * @runTestsInSeparateProcesses
  * @preserveGlobalState disabled
  */
-class BlockedServersConsoleTest extends ConsoleTest
+class ServerBlockConsoleTest extends ConsoleTest
 {
 	protected $defaultBlockList = [
 		[
@@ -39,7 +39,7 @@ class BlockedServersConsoleTest extends ConsoleTest
 			->andReturn($this->defaultBlockList)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$txt = $this->dumpExecute($console);
 
 		$output = <<<CONS
@@ -79,7 +79,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$console->setArgument(2, 'I like it!');
@@ -102,7 +102,7 @@ CONS;
 		$newBlockList = $this->defaultBlockList;
 		$newBlockList[] = [
 			'domain' => 'testme.now',
-			'reason' => BlockedServers::DEFAULT_REASON,
+			'reason' => ServerBlock::DEFAULT_REASON,
 		];
 
 		$this->configMock
@@ -111,12 +111,12 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . BlockedServers::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
+		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . ServerBlock::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -147,7 +147,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$console->setArgument(2, 'Other reason');
@@ -180,7 +180,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
@@ -193,7 +193,7 @@ CONS;
 	 */
 	public function testBlockedServersWrongCommand()
 	{
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'wrongcommand');
 		$txt = $this->dumpExecute($console);
 
@@ -211,7 +211,7 @@ CONS;
 			->andReturn($this->defaultBlockList)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'not.exiting');
 		$txt = $this->dumpExecute($console);
@@ -224,7 +224,7 @@ CONS;
 	 */
 	public function testAddBlockedServerMissingArgument()
 	{
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$txt = $this->dumpExecute($console);
 
@@ -245,7 +245,7 @@ CONS;
 		$newBlockList = $this->defaultBlockList;
 		$newBlockList[] = [
 			'domain' => 'testme.now',
-			'reason' => BlockedServers::DEFAULT_REASON,
+			'reason' => ServerBlock::DEFAULT_REASON,
 		];
 
 		$this->configMock
@@ -254,7 +254,7 @@ CONS;
 			->andReturn(false)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
@@ -286,7 +286,7 @@ CONS;
 			->andReturn(false)
 			->once();
 
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
@@ -299,7 +299,7 @@ CONS;
 	 */
 	public function testRemoveBlockedServerMissingArgument()
 	{
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$txt = $this->dumpExecute($console);
 
@@ -311,16 +311,16 @@ CONS;
 	 */
 	public function testBlockedServersHelp()
 	{
-		$console = new BlockedServers($this->consoleArgv);
+		$console = new ServerBlock($this->consoleArgv);
 		$console->setOption('help', true);
 		$txt = $this->dumpExecute($console);
 
 		$help = <<<HELP
-console blockedservers - Manage blocked servers
+console serverblock - Manage blocked servers
 Usage
-	bin/console blockedservers [-h|--help|-?] [-v]
-	bin/console blockedservers add <server> <reason> [-h|--help|-?] [-v]
-	bin/console blockedservers remove <server> [-h|--help|-?] [-v]
+	bin/console serverblock [-h|--help|-?] [-v]
+	bin/console serverblock add <server> <reason> [-h|--help|-?] [-v]
+	bin/console serverblock remove <server> [-h|--help|-?] [-v]
 
 Description
 	With this tool, you can list the current blocked servers

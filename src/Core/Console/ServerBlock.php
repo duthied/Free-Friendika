@@ -14,7 +14,7 @@ use Friendica\Core\Config\Configuration;
  * With this tool, you can list the current blocked servers
  * or you can add / remove a blocked server from the list
  */
-class BlockedServers extends Console
+class ServerBlock extends Console
 {
 	const DEFAULT_REASON = 'blocked';
 
@@ -23,11 +23,11 @@ class BlockedServers extends Console
 	protected function getHelp()
 	{
 		$help = <<<HELP
-console blockedservers - Manage blocked servers
+console serverblock - Manage blocked servers
 Usage
-	bin/console blockedservers [-h|--help|-?] [-v]
-	bin/console blockedservers add <server> <reason> [-h|--help|-?] [-v]
-	bin/console blockedservers remove <server> [-h|--help|-?] [-v]
+	bin/console serverblock [-h|--help|-?] [-v]
+	bin/console serverblock add <server> <reason> [-h|--help|-?] [-v]
+	bin/console serverblock remove <server> [-h|--help|-?] [-v]
 
 Description
 	With this tool, you can list the current blocked servers

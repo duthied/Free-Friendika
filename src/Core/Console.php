@@ -13,34 +13,12 @@ class Console extends \Asika\SimpleConsole\Console
 	protected $helpOptions = [];
 	protected $customHelpOptions = ['h', 'help', '?'];
 
-	protected $subConsoles = [
-		'blockedservers'         => __NAMESPACE__ . '\Console\BlockedServers',
-		'cache'                  => __NAMESPACE__ . '\Console\Cache',
-		'config'                 => __NAMESPACE__ . '\Console\Config',
-		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
-		'docbloxerrorchecker'    => __NAMESPACE__ . '\Console\DocBloxErrorChecker',
-		'dbstructure'            => __NAMESPACE__ . '\Console\DatabaseStructure',
-		'extract'                => __NAMESPACE__ . '\Console\Extract',
-		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
-		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
-		'archivecontact'         => __NAMESPACE__ . '\Console\ArchiveContact',
-		'autoinstall'            => __NAMESPACE__ . '\Console\AutomaticInstallation',
-		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
-		'newpassword'            => __NAMESPACE__ . '\Console\NewPassword',
-		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
-		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
-		'typo'                   => __NAMESPACE__ . '\Console\Typo',
-		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
-		'storage'                => __NAMESPACE__ . '\Console\Storage',
-	];
-
 	protected function getHelp()
 	{
 		$help = <<<HELP
 Usage: bin/console [--version] [-h|--help|-?] <command> [<args>] [-v]
 
 Commands:
-	blockedservers         Manage blocked servers
 	cache                  Manage node cache
 	config                 Edit site config
 	createdoxygen          Generate Doxygen headers
@@ -58,6 +36,7 @@ Commands:
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
 	postupdate             Execute pending post update scripts (can last days)
+	serverblock            Manage blocked servers
 	storage                Manage storage backend
 
 Options:
@@ -66,6 +45,27 @@ Options:
 HELP;
 		return $help;
 	}
+
+	protected $subConsoles = [
+		'cache'                  => __NAMESPACE__ . '\Console\Cache',
+		'config'                 => __NAMESPACE__ . '\Console\Config',
+		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
+		'docbloxerrorchecker'    => __NAMESPACE__ . '\Console\DocBloxErrorChecker',
+		'dbstructure'            => __NAMESPACE__ . '\Console\DatabaseStructure',
+		'extract'                => __NAMESPACE__ . '\Console\Extract',
+		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
+		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
+		'archivecontact'         => __NAMESPACE__ . '\Console\ArchiveContact',
+		'autoinstall'            => __NAMESPACE__ . '\Console\AutomaticInstallation',
+		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
+		'newpassword'            => __NAMESPACE__ . '\Console\NewPassword',
+		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
+		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
+		'typo'                   => __NAMESPACE__ . '\Console\Typo',
+		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
+		'serverblock'            => __NAMESPACE__ . '\Console\ServerBlock',
+		'storage'                => __NAMESPACE__ . '\Console\Storage',
+	];
 
 	protected function doExecute()
 	{
