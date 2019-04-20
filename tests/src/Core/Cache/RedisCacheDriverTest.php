@@ -22,6 +22,16 @@ class RedisCacheDriverTest extends MemoryCacheTest
 			->with('system', 'redis_port')
 			->andReturn(null);
 
+		$this->configMock
+			->shouldReceive('get')
+			->with('system', 'redis_db')
+			->andReturn(3);
+
+		$this->configMock
+			->shouldReceive('get')
+			->with('system', 'redis_password')
+			->andReturn(null);
+
 		$this->cache = CacheDriverFactory::create('redis');
 		return $this->cache;
 	}
