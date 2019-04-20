@@ -8,6 +8,15 @@ use Friendica\Core\Lock\CacheLockDriver;
 
 class APCuCacheLockDriverTest extends LockTest
 {
+	protected function setUp()
+	{
+		if (!APCuCache::isAvailable()) {
+			$this->markTestSkipped('APCu is not available');
+		}
+
+		parent::setUp();
+	}
+
 	protected function getInstance()
 	{
 		return new CacheLockDriver(new APCuCache());
