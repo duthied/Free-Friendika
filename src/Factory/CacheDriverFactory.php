@@ -2,9 +2,9 @@
 
 namespace Friendica\Factory;
 
+use Friendica\Core\Cache;
 use Friendica\Core\Cache\ICacheDriver;
 use Friendica\Core\Config;
-use Friendica\Core\Cache;
 
 /**
  * Class CacheDriverFactory
@@ -40,8 +40,10 @@ class CacheDriverFactory
 			case 'redis':
 				$redis_host = Config::get('system', 'redis_host');
 				$redis_port = Config::get('system', 'redis_port');
+				$redis_pw   = Config::get('system', 'redis_password');
+				$redis_db   = Config::get('system', 'redis_db', 0);
 
-				return new Cache\RedisCacheDriver($redis_host, $redis_port);
+				return new Cache\RedisCacheDriver($redis_host, $redis_port, $redis_db, $redis_pw);
 				break;
 			default:
 				return new Cache\DatabaseCacheDriver();

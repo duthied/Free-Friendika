@@ -343,6 +343,14 @@ return [
 		// Port number of the redis daemon.
 		'redis_port' => 6379,
 
+		// redis_db (Integer)
+		// The sub-database of redis (0 - 15 possible sub-databases)
+		'redis_db' => 0,
+
+		// redis_password (String)
+		// The authentication password for the redis database
+		'redis_password' => null,
+
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',
