@@ -16,6 +16,8 @@ use Friendica\Core\Config\Configuration;
  */
 class BlockedServers extends Console
 {
+	const DEFAULT_REASON = 'blocked';
+
 	protected $helpOptions = ['h', 'help', '?'];
 
 	protected function getHelp()
@@ -97,7 +99,7 @@ HELP;
 			}
 		}
 
-		$reason = (count($this->args) === 3) ? $this->getArgument(2) : 'blocked';
+		$reason = (count($this->args) === 3) ? $this->getArgument(2) : self::DEFAULT_REASON;
 
 		$blocklist[] = [
 			'domain' => $domain,
