@@ -26,7 +26,7 @@ class BlockedServers extends Console
 console blockedservers - Manage blocked servers
 Usage
 	bin/console blockedservers [-h|--help|-?] [-v]
-	bin/console blockedservers add <server> <description> [-h|--help|-?] [-v]
+	bin/console blockedservers add <server> <reason> [-h|--help|-?] [-v]
 	bin/console blockedservers remove <server> [-h|--help|-?] [-v]
 
 Description
