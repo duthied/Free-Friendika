@@ -14,6 +14,7 @@ class Console extends \Asika\SimpleConsole\Console
 	protected $customHelpOptions = ['h', 'help', '?'];
 
 	protected $subConsoles = [
+		'blockedservers'         => __NAMESPACE__ . '\Console\BlockedServers',
 		'cache'                  => __NAMESPACE__ . '\Console\Cache',
 		'config'                 => __NAMESPACE__ . '\Console\Config',
 		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
@@ -39,6 +40,7 @@ class Console extends \Asika\SimpleConsole\Console
 Usage: bin/console [--version] [-h|--help|-?] <command> [<args>] [-v]
 
 Commands:
+	blockedservers         Manage blocked servers
 	cache                  Manage node cache
 	config                 Edit site config
 	createdoxygen          Generate Doxygen headers
