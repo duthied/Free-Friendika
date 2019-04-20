@@ -116,7 +116,44 @@ CONS;
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
 
-		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . BlockedServers::DEFAULT_REASON .'\')' . PHP_EOL, $txt);
+		$this->assertEquals('The domain \'testme.now\' is now blocked. (Reason: \'' . BlockedServers::DEFAULT_REASON . '\')' . PHP_EOL, $txt);
+	}
+
+	/**
+	 * Test blockedservers add command on existed domain
+	 */
+	public function testUpdateBlockedServer()
+	{
+		$this->configMock
+			->shouldReceive('get')
+			->with('system', 'blocklist')
+			->andReturn($this->defaultBlockList)
+			->once();
+
+		$newBlockList = [
+			[
+				'domain' => 'social.nobodyhasthe.biz',
+				'reason' => 'Illegal content',
+			],
+			[
+				'domain' => 'pod.ordoevangelistarum.com',
+				'reason' => 'Other reason',
+			]
+		];
+
+		$this->configMock
+			->shouldReceive('set')
+			->with('system', 'blocklist', $newBlockList)
+			->andReturn(true)
+			->once();
+
+		$console = new BlockedServers($this->consoleArgv);
+		$console->setArgument(0, 'add');
+		$console->setArgument(1, 'pod.ordoevangelistarum.com');
+		$console->setArgument(2, 'Other reason');
+		$txt = $this->dumpExecute($console);
+
+		$this->assertEquals('The domain \'pod.ordoevangelistarum.com\' is now updated. (Reason: \'Other reason\')' . PHP_EOL, $txt);
 	}
 
 	/**
@@ -161,6 +198,25 @@ CONS;
 		$txt = $this->dumpExecute($console);
 
 		$this->assertStringStartsWith('[Warning] Unknown command', $txt);
+	}
+
+	/**
+	 * Test blockedservers remove with not existing domain
+	 */
+	public function testRemoveBlockedServerNotExist()
+	{
+		$this->configMock
+			->shouldReceive('get')
+			->with('system', 'blocklist')
+			->andReturn($this->defaultBlockList)
+			->once();
+
+		$console = new BlockedServers($this->consoleArgv);
+		$console->setArgument(0, 'remove');
+		$console->setArgument(1, 'not.exiting');
+		$txt = $this->dumpExecute($console);
+
+		$this->assertEquals('The domain \'not.exiting\' is not blocked.' . PHP_EOL, $txt);
 	}
 
 	/**

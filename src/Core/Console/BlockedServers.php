@@ -90,24 +90,37 @@ HELP;
 		}
 
 		$domain = $this->getArgument(1);
+		$reason = (count($this->args) === 3) ? $this->getArgument(2) : self::DEFAULT_REASON;
 
-		$blocklist = $config->get('system', 'blocklist');
-		foreach ($blocklist as $blocked) {
+		$update = false;
+
+		$currBlocklist = $config->get('system', 'blocklist');
+		$newBlockList = [];
+		foreach ($currBlocklist  as $blocked) {
 			if ($blocked['domain'] === $domain) {
-				$this->out(sprintf("The domain '%s' is already blocked. (Reason: '%s')", $domain, $blocked['reason']));
-				return 1;
+				$update = true;
+				$newBlockList[] = [
+					'domain' => $domain,
+					'reason' => $reason,
+				];
+			} else {
+				$newBlockList[] = $blocked;
 			}
 		}
 
-		$reason = (count($this->args) === 3) ? $this->getArgument(2) : self::DEFAULT_REASON;
+		if (!$update) {
+			$newBlockList[] = [
+				'domain' => $domain,
+				'reason' => $reason,
+			];
+		}
 
-		$blocklist[] = [
-			'domain' => $domain,
-			'reason' => $reason,
-		];
-
-		if ($config->set('system', 'blocklist', $blocklist)) {
-			$this->out(sprintf("The domain '%s' is now blocked. (Reason: '%s')", $domain, $reason));
+		if ($config->set('system', 'blocklist', $newBlockList)) {
+			if ($update) {
+				$this->out(sprintf("The domain '%s' is now updated. (Reason: '%s')", $domain, $reason));
+			} else {
+				$this->out(sprintf("The domain '%s' is now blocked. (Reason: '%s')", $domain, $reason));
+			}
 			return 0;
 		} else {
 			$this->out(sprintf("Couldn't save '%s' as blocked server", $domain));
@@ -143,7 +156,7 @@ HELP;
 		}
 
 		if (!$found) {
-			$this->out(sprintf("Domain '%s' is not blocked.", $domain));
+			$this->out(sprintf("The domain '%s' is not blocked.", $domain));
 			return 1;
 		}
 
