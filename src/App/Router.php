@@ -129,6 +129,8 @@ class Router
 			$collector->addRoute(['GET', 'POST'], '/themes'                 , Module\Admin\Themes\Index::class);
 
 			$collector->addRoute(['GET', 'POST'], '/tos'                    , Module\Admin\Tos::class);
+
+			$collector->addRoute(['GET', 'POST'], '/users[/{action}/{uid}]' , Module\Admin\Users::class);
 		});
 	}
 
