@@ -800,20 +800,16 @@ function conversation_fetch_comments($thread_items) {
 	$lineno = 0;
 	$actor = [];
 	$created = '';
-	$knownauthor = false;
 
 	while ($row = Item::fetch($thread_items)) {
 		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created) && ($row['thr-parent'] == $row['parent-uri'])) {
 			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$created = $row['created'];
 		}
-		if ($row['gravity'] == GRAVITY_PARENT) {
-			$parentlines[] = $lineno;
 
-			// We could have several parents, so it has to be done this way.
-			if (!empty($row['contact-uid']) && in_array($row['network'], Protocol::NATIVE_SUPPORT)) {
-				$knownauthor = true;
-			}
+		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
+			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
+			$parentlines[] = $lineno;
 		}
 
 		$comments[] = $row;
@@ -822,13 +818,11 @@ function conversation_fetch_comments($thread_items) {
 
 	DBA::close($thread_items);
 
-	if (!$knownauthor && !empty($actor)) {
+	if (!empty($actor)) {
 		foreach ($parentlines as $line) {
-			if (!in_array($comments[$line]['network'], [Protocol::DIASPORA]) && !$comments[$line]['origin']) {
-				$comments[$line]['owner-link'] = $actor['link'];
-				$comments[$line]['owner-avatar'] = $actor['avatar'];
-				$comments[$line]['owner-name'] = $actor['name'];
-			}
+			$comments[$line]['owner-link'] = $actor['link'];
+			$comments[$line]['owner-avatar'] = $actor['avatar'];
+			$comments[$line]['owner-name'] = $actor['name'];
 		}
 	}
 	return $comments;
