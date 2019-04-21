@@ -45,6 +45,11 @@ class CacheDriverFactory
 
 				return new Cache\RedisCacheDriver($redis_host, $redis_port, $redis_db, $redis_pw);
 				break;
+
+			case 'apcu':
+				return new Cache\APCuCache();
+				break;
+
 			default:
 				return new Cache\DatabaseCacheDriver();
 		}
