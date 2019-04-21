@@ -10,7 +10,6 @@ use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\Markdown;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -90,17 +89,6 @@ function admin_post(App $a)
 				break;
 			case 'users':
 				admin_page_users_post($a);
-				break;
-			case 'addons':
-				if ($a->argc > 2 &&
-					is_file("addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php")) {
-					include_once "addon/" . $a->argv[2] . "/" . $a->argv[2] . ".php";
-					if (function_exists($a->argv[2] . '_addon_admin_post')) {
-						$func = $a->argv[2] . '_addon_admin_post';
-						$func($a);
-					}
-				}
-				$return_path = 'admin/addons/' . $a->argv[2];
 				break;
 			case 'themes':
 				if ($a->argc < 2) {
@@ -220,17 +208,7 @@ function admin_content(App $a)
 		]]
 	];
 
-	/* get addons admin page */
-
-	$r = q("SELECT `name` FROM `addon` WHERE `plugin_admin` = 1 ORDER BY `name`");
 	$aside_tools['addons_admin'] = [];
-	$addons_admin = [];
-	foreach ($r as $h) {
-		$addon = $h['name'];
-		$aside_tools['addons_admin'][] = ["admin/addons/" . $addon, $addon, "addon"];
-		// temp addons with admin
-		$addons_admin[] = $addon;
-	}
 
 	$t = Renderer::getMarkupTemplate('admin/aside.tpl');
 	$a->page['aside'] .= Renderer::replaceMacros($t, [
@@ -252,9 +230,6 @@ function admin_content(App $a)
 				break;
 			case 'users':
 				$o = admin_page_users($a);
-				break;
-			case 'addons':
-				$o = admin_page_addons($a, $addons_admin);
 				break;
 			case 'themes':
 				$o = admin_page_themes($a);
@@ -1666,102 +1641,6 @@ function admin_page_users(App $a)
 	]);
 	$o .= $pager->renderFull(DBA::count('user'));
 	return $o;
-}
-
-/**
- * @brief Addons admin page
- *
- * This function generates the admin panel page for managing addons on the
- * friendica node. If an addon name is given a single page showing the details
- * for this addon is generated. If no name is given, a list of available
- * addons is shown.
- *
- * The template used for displaying the list of addons and the details of the
- * addon are the same as used for the templates.
- *
- * The returned string returned hulds the HTML code of the page.
- *
- * @param App   $a
- * @param array $addons_admin A list of admin addon names
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_addons(App $a, array $addons_admin)
-{
-	/*
-	 * Single addon
-	 */
-	if ($a->argc == 3) {
-		$addon = $a->argv[2];
-		if (!is_file("addon/$addon/$addon.php")) {
-			notice(L10n::t("Item not found."));
-			return '';
-		}
-
-		if (defaults($_GET, 'a', '') == "t") {
-			BaseModule::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_themes', 't');
-
-			// Toggle addon status
-			if (Addon::isEnabled($addon)) {
-				Addon::uninstall($addon);
-				info(L10n::t("Addon %s disabled.", $addon));
-			} else {
-				Addon::install($addon);
-				info(L10n::t("Addon %s enabled.", $addon));
-			}
-
-			Addon::saveEnabledList();
-			$a->internalRedirect('admin/addons');
-			return ''; // NOTREACHED
-		}
-
-		// display addon details
-		if (Addon::isEnabled($addon)) {
-			$status = "on";
-			$action = L10n::t("Disable");
-		} else {
-			$status = "off";
-			$action = L10n::t("Enable");
-		}
-
-		$readme = null;
-		if (is_file("addon/$addon/README.md")) {
-			$readme = Markdown::convert(file_get_contents("addon/$addon/README.md"), false);
-		} elseif (is_file("addon/$addon/README")) {
-			$readme = "<pre>" . file_get_contents("addon/$addon/README") . "</pre>";
-		}
-
-		$admin_form = "";
-		if (in_array($addon, $addons_admin)) {
-			require_once "addon/$addon/$addon.php";
-			$func = $addon . '_addon_admin';
-			$func($a, $admin_form);
-		}
-
-		$t = Renderer::getMarkupTemplate('admin/addon_details.tpl');
-
-		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Addons'),
-			'$toggle' => L10n::t('Toggle'),
-			'$settings' => L10n::t('Settings'),
-			'$baseurl' => $a->getBaseURL(true),
-
-			'$addon' => $addon,
-			'$status' => $status,
-			'$action' => $action,
-			'$info' => Addon::getInfo($addon),
-			'$str_author' => L10n::t('Author: '),
-			'$str_maintainer' => L10n::t('Maintainer: '),
-
-			'$admin_form' => $admin_form,
-			'$function' => 'addons',
-			'$screenshot' => '',
-			'$readme' => $readme,
-
-			'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
-		]);
-	}
 }
 
 /**
