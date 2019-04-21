@@ -25,12 +25,12 @@ Requirements
 ---
 
 * Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-* PHP 5.6.1+ (PHP 7 is recommended for performance)
+* PHP 5.6.1+ (PHP 7.1+ is recommended for performance and official support)
   * PHP *command line* access with register_argc_argv set to true in the php.ini file
   * Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
   * The POSIX module of PHP needs to be activated (e.g. [RHEL, CentOS](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) have disabled it)
   * some form of email server or email gateway such that PHP mail() works
-* Mysql 5.5.3+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
+* Mysql 5.6+ or an equivalent alternative for MySQL (MariaDB, Percona Server etc.)
 * the ability to schedule jobs with cron (Linux/Mac) or Scheduled Tasks (Windows) (Note: other options are presented in Section 7 of this document.)
 * Installation into a top-level domain or sub-domain (without a directory/path component in the URL) is preferred. Directory paths will not be as convenient to use and have not been thoroughly tested.
 * If your hosting provider doesn't allow Unix shell access, you might have trouble getting everything to work.

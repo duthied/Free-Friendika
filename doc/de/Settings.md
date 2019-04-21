@@ -160,7 +160,7 @@ Angemeldete Nutzer des Knotens können grundsätzlich beide Seiten verwenden.
 #### Erlaubte Domains für Kontakte
 
 Kommagetrennte Liste von Domains, welche eine Freundschaft mit dieser Seite eingehen dürfen.
-Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP5.3) Standardmäßig sind alle gültigen Domains erlaubt.
+Wildcards werden akzeptiert Standardmäßig sind alle gültigen Domains erlaubt.
 
 Mit dieser Option kann man einfach geschlossene Netzwerke, z.B. im schulischen Bereich aufbauen, aus denen nicht mit dem Rest des Netzwerks kommuniziert werden soll.
 
@@ -168,7 +168,7 @@ Mit dieser Option kann man einfach geschlossene Netzwerke, z.B. im schulischen B
 
 Kommagetrennte Liste von Domains, welche bei der Registrierung als Part der Email-Adresse erlaubt sind.
 Das grenzt Leute aus, die nicht Teil der Gruppe oder Organisation sind.
-Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP5.3) Standardmäßig sind alle gültigen Email-Adressen erlaubt.
+Wildcards werden akzeptiert Standardmäßig sind alle gültigen Email-Adressen erlaubt.
 
 #### Nutzern erlauben das remote_self Flag zu setzen
 
