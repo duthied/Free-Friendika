@@ -1762,56 +1762,6 @@ function admin_page_addons(App $a, array $addons_admin)
 			'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
 		]);
 	}
-
-	/*
-	 * List addons
-	 */
-	if (!empty($_GET['a']) && $_GET['a'] == "r") {
-		BaseModule::checkFormSecurityTokenRedirectOnError($a->getBaseURL() . '/admin/addons', 'admin_themes', 't');
-		Addon::reload();
-		info("Addons reloaded");
-		$a->internalRedirect('admin/addons');
-	}
-
-	$addons = [];
-	$files = glob("addon/*/");
-	if (is_array($files)) {
-		foreach ($files as $file) {
-			if (is_dir($file)) {
-				list($tmp, $id) = array_map("trim", explode("/", $file));
-				$info = Addon::getInfo($id);
-				$show_addon = true;
-
-				// If the addon is unsupported, then only show it, when it is enabled
-				if ((strtolower($info["status"]) == "unsupported") && !Addon::isEnabled($id)) {
-					$show_addon = false;
-				}
-
-				// Override the above szenario, when the admin really wants to see outdated stuff
-				if (Config::get("system", "show_unsupported_addons")) {
-					$show_addon = true;
-				}
-
-				if ($show_addon) {
-					$addons[] = [$id, (Addon::isEnabled($id) ? "on" : "off"), $info];
-				}
-			}
-		}
-	}
-
-	$t = Renderer::getMarkupTemplate('admin/addons.tpl');
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Addons'),
-		'$submit' => L10n::t('Save Settings'),
-		'$reload' => L10n::t('Reload active addons'),
-		'$baseurl' => System::baseUrl(true),
-		'$function' => 'addons',
-		'$addons' => $addons,
-		'$pcount' => count($addons),
-		'$noplugshint' => L10n::t('There are currently no addons available on your node. You can find the official addon repository at %1$s and might find other interesting addons in the open addon registry at %2$s', 'https://github.com/friendica/friendica-addons', 'http://addons.friendi.ca'),
-		'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
-	]);
 }
 
 /**

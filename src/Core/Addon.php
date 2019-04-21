@@ -26,6 +26,29 @@ class Addon extends BaseObject
 	 */
 	private static $addons = [];
 
+	public static function getAvailableList()
+	{
+		$addons = [];
+		$files = glob('addon/*/');
+		if (is_array($files)) {
+			foreach ($files as $file) {
+				if (is_dir($file)) {
+					list($tmp, $addon) = array_map('trim', explode('/', $file));
+					$info = self::getInfo($addon);
+
+					if (Config::get('system', 'show_unsupported_addons')
+						|| strtolower($info['status']) != 'unsupported'
+						|| self::isEnabled($addon)
+					) {
+						$addons[] = [$addon, (self::isEnabled($addon) ? 'on' : 'off'), $info];
+					}
+				}
+			}
+		}
+
+		return $addons;
+	}
+
 	/**
 	 * @brief Synchronize addons:
 	 *
@@ -94,6 +117,8 @@ class Addon extends BaseObject
 		}
 
 		unset(self::$addons[array_search($addon, self::$addons)]);
+
+		Addon::saveEnabledList();
 	}
 
 	/**
@@ -136,9 +161,11 @@ class Addon extends BaseObject
 				self::$addons[] = $addon;
 			}
 
+			Addon::saveEnabledList();
+
 			return true;
 		} else {
-			Logger::error("Addon {addon}: {action} failed", ['action' => 'uninstall', 'addon' => $addon]);
+			Logger::error("Addon {addon}: {action} failed", ['action' => 'install', 'addon' => $addon]);
 			return false;
 		}
 	}
@@ -283,11 +310,10 @@ class Addon extends BaseObject
 	 * Saves the current enabled addon list in the system.addon config key
 	 *
 	 * @return boolean
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function saveEnabledList()
 	{
-		return Config::set("system", "addon", implode(", ", self::$addons));
+		return Config::set('system', 'addon', implode(', ', self::$addons));
 	}
 
 	/**
