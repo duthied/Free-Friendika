@@ -32,7 +32,7 @@ abstract class AbstractCacheDriver extends BaseObject
 	 */
 	protected function getCacheKey($key)
 	{
-		return  $this->getPrefix() . ":" . $key;
+		return $this->getPrefix() . ":" . $key;
 	}
 
 	/**
