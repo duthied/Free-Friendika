@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Module\Nodeinfo;
 
 require_once 'mod/hostxrd.php';
 require_once 'mod/nodeinfo.php';
@@ -19,7 +20,7 @@ function _well_known_init(App $a)
 				wk_social_relay();
 				break;
 			case "nodeinfo":
-				nodeinfo_wellknown($a);
+				Nodeinfo::printWellKnown($a);
 				break;
 			case "webfinger":
 				xrd_init($a);
