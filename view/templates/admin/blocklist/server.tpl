@@ -9,7 +9,7 @@
 	<p>{{$public}}</p>
 
 	<h2>{{$addtitle}}</h2>
-	<form action="{{$baseurl}}/admin/blocklist" method="post">
+	<form action="{{$baseurl}}/admin/blocklist/server" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		{{include file="field_input.tpl" field=$newdomain}}
 		{{include file="field_input.tpl" field=$newreason}}
@@ -19,7 +19,7 @@
 	{{if $entries}}
 	<h2>{{$currenttitle}}</h2>
 	<p>{{$currentintro}}</p>
-	<form action="{{$baseurl}}/admin/blocklist" method="post">
+	<form action="{{$baseurl}}/admin/blocklist/server" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		{{foreach $entries as $e}}
 			{{include file="field_input.tpl" field=$e.domain}}

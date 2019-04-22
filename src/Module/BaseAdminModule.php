@@ -61,6 +61,7 @@ abstract class BaseAdminModule extends BaseModule
 			]],
 			'tools' => [L10n::t('Tools'), [
 				'contactblock' => ['admin/blocklist/contact', L10n::t('Contact Blocklist')  , 'contactblock'],
+				'blocklist'    => ['admin/blocklist/server' , L10n::t('Server Blocklist')   , 'blocklist'],
 			]],
 		];
 
