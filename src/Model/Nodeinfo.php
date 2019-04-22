@@ -5,7 +5,6 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Database\DBA;
-use Friendica\Util\Network;
 
 /**
  * Model interaction for the nodeinfo
@@ -46,8 +45,6 @@ class Nodeinfo extends BaseObject
 			return;
 		}
 
-		$logger->info('cron_start');
-
 		$userStats = User::getStatistics();
 
 		$config->set('nodeinfo', 'total_users', $userStats['total_users']);
@@ -63,13 +60,5 @@ class Nodeinfo extends BaseObject
 		$local_comments = DBA::count('item', ["`origin` AND `id` != `parent` AND NOT `deleted` AND `uid` != 0"]);
 		$config->set('nodeinfo', 'local_comments', $local_comments);
 		$logger->debug('item statistics', ['local_comments' => $local_comments]);
-
-		// Now trying to register
-		$url = 'http://the-federation.info/register/' . $app->getHostName();
-		$logger->debug('Check registering url', ['url' => $url]);
-		$ret = Network::fetchUrl($url);
-		$logger->debug('Check registering answer', ['answer' => $ret]);
-
-		$logger->info('cron_end');
 	}
 }

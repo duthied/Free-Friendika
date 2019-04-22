@@ -21,6 +21,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 
 require_once 'mod/nodeinfo.php';
@@ -44,7 +45,14 @@ class CronJobs
 				break;
 
 			case 'nodeinfo':
+				Logger::info('cron_start');
 				Nodeinfo::update();
+				// Now trying to register
+				$url = 'http://the-federation.info/register/' . $app->getHostName();
+				Logger::debug('Check registering url', ['url' => $url]);
+				$ret = Network::fetchUrl($url);
+				Logger::debug('Check registering answer', ['answer' => $ret]);
+				Logger::info('cron_end');
 				break;
 
 			case 'expire_and_remove_users':
