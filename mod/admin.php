@@ -228,12 +228,6 @@ function admin_content(App $a)
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
 				break;
-			case 'deferred':
-				$o = admin_page_workerqueue($a, true);
-				break;
-			case 'workerqueue':
-				$o = admin_page_workerqueue($a, false);
-				break;
 			case 'deleteitem':
 				$o = admin_page_deleteitem($a);
 				break;
@@ -309,57 +303,6 @@ function admin_page_deleteitem_post(App $a)
 	info(L10n::t('Item marked for deletion.') . EOL);
 	$a->internalRedirect('admin/deleteitem');
 	return; // NOTREACHED
-}
-
-/**
- * @brief Admin Inspect Worker Queue Page
- *
- * Generates a page for the admin to have a look into the current queue of
- * worker jobs. Shown are the parameters for the job and its priority.
- *
- * The returned string holds the content of the page.
- *
- * @param App $a
- * @param     $deferred
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_workerqueue(App $a, $deferred)
-{
-	// get jobs from the workerqueue table
-	if ($deferred) {
-		$condition = ["NOT `done` AND `next_try` > ?", DateTimeFormat::utcNow()];
-		$sub_title = L10n::t('Inspect Deferred Worker Queue');
-		$info = L10n::t("This page lists the deferred worker jobs. This are jobs that couldn't be executed at the first time.");
-	} else {
-		$condition = ["NOT `done` AND `next_try` < ?", DateTimeFormat::utcNow()];
-		$sub_title = L10n::t('Inspect Worker Queue');
-		$info = L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
-	}
-
-	$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['order' => ['priority']]);
-
-	$r = [];
-	while ($entry = DBA::fetch($entries)) {
-		// fix GH-5469. ref: src/Core/Worker.php:217
-		$entry['parameter'] = Arrays::recursiveImplode(json_decode($entry['parameter'], true), ': ');
-		$entry['created'] = DateTimeFormat::local($entry['created']);
-		$r[] = $entry;
-	}
-	DBA::close($entries);
-
-	$t = Renderer::getMarkupTemplate('admin/workerqueue.tpl');
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => $sub_title,
-		'$count' => count($r),
-		'$id_header' => L10n::t('ID'),
-		'$param_header' => L10n::t('Job Parameters'),
-		'$created_header' => L10n::t('Created'),
-		'$prio_header' => L10n::t('Priority'),
-		'$info' => $info,
-		'$entries' => $r,
-	]);
 }
 
 /**

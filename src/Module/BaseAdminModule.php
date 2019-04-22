@@ -59,6 +59,10 @@ abstract class BaseAdminModule extends BaseModule
 				'features'     => ['admin/features'    , L10n::t('Additional features')     , 'features'],
 				'tos'          => ['admin/tos'         , L10n::t('Terms of Service')        , 'tos'],
 			]],
+			'database' => [L10n::t('Database'), [
+				'deferred'     => ['admin/queue/deferred', L10n::t('Inspect Deferred Workers'), 'deferred'],
+				'workerqueue'  => ['admin/queue'       , L10n::t('Inspect worker Queue')    , 'workerqueue'],
+			]],
 			'tools' => [L10n::t('Tools'), [
 				'contactblock' => ['admin/blocklist/contact', L10n::t('Contact Blocklist')  , 'contactblock'],
 				'blocklist'    => ['admin/blocklist/server' , L10n::t('Server Blocklist')   , 'blocklist'],

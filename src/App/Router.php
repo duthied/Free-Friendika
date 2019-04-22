@@ -130,6 +130,8 @@ class Router
 			$collector->addRoute(['GET', 'POST'], '/features'               , Module\Admin\Features::class);
 			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
 
+			$collector->addRoute(['GET']        , '/queue[/deferred]'       , Module\Admin\Queue::class);
+
 			$collector->addRoute(['GET', 'POST'], '/themes'                 , Module\Admin\Themes\Index::class);
 
 			$collector->addRoute(['GET', 'POST'], '/tos'                    , Module\Admin\Tos::class);
