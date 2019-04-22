@@ -48,7 +48,7 @@ class CronJobs
 				Logger::info('cron_start');
 				Nodeinfo::update();
 				// Now trying to register
-				$url = 'http://the-federation.info/register/' . $app->getHostName();
+				$url = 'http://the-federation.info/register/' . $a->getHostName();
 				Logger::debug('Check registering url', ['url' => $url]);
 				$ret = Network::fetchUrl($url);
 				Logger::debug('Check registering answer', ['answer' => $ret]);
