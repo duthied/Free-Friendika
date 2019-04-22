@@ -16,6 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\Nodeinfo;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -43,7 +44,7 @@ class CronJobs
 				break;
 
 			case 'nodeinfo':
-				nodeinfo_cron();
+				Nodeinfo::update();
 				break;
 
 			case 'expire_and_remove_users':

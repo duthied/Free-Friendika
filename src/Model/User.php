@@ -967,4 +967,51 @@ class User
 
 		return $identities;
 	}
+
+	/**
+	 * Returns statistical information about the current users of this node
+	 *
+	 * @return array
+	 *
+	 * @throws Exception
+	 */
+	public static function getStatistics()
+	{
+		$statistics = [
+			'total_users'           => 0,
+			'active_users_halfyear' => 0,
+			'active_users_monthly'  => 0,
+		];
+
+		$userStmt = DBA::p("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
+			FROM `user`
+			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid` AND `profile`.`is-default`
+			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+			WHERE (`profile`.`publish` OR `profile`.`net-publish`) AND `user`.`verified`
+				AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
+				AND NOT `user`.`account_expired`");
+
+		if (!DBA::isResult($userStmt)) {
+			return $statistics;
+		}
+
+		$halfyear = time() - (180 * 24 * 60 * 60);
+		$month = time() - (30 * 24 * 60 * 60);
+
+		while ($user = DBA::fetch($userStmt)) {
+			$statistics['total_users']++;
+
+			if ((strtotime($user['login_date']) > $halfyear) ||
+				(strtotime($user['last-item']) > $halfyear)) {
+				$statistics['active_users_halfyear']++;
+			}
+
+			if ((strtotime($user['login_date']) > $month) ||
+				(strtotime($user['last-item']) > $month)) {
+				$statistics['active_users_monthly']++;
+			}
+		}
+
+		return $statistics;
+	}
 }
