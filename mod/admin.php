@@ -111,9 +111,6 @@ function admin_post(App $a)
 				}
 				$return_path = 'admin/themes/' . $theme . (!empty($_GET['mode']) ? '?mode=' . $_GET['mode'] : '');
 				break;
-			case 'features':
-				admin_page_features_post($a);
-				break;
 			case 'logs':
 				admin_page_logs_post($a);
 				break;
@@ -227,9 +224,6 @@ function admin_content(App $a)
 				break;
 			case 'themes':
 				$o = admin_page_themes($a);
-				break;
-			case 'features':
-				$o = admin_page_features($a);
 				break;
 			case 'logs':
 				$o = admin_page_logs($a);
@@ -1670,90 +1664,6 @@ function admin_page_viewlogs(App $a)
 		'$data' => $data,
 		'$logname' => Config::get('system', 'logfile')
 	]);
-}
-
-/**
- * @brief Prosesses data send by the features admin page
- *
- * @param App $a
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_features_post(App $a)
-{
-	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
-
-	Logger::log('postvars: ' . print_r($_POST, true), Logger::DATA);
-
-	$features = Feature::get(false);
-
-	foreach ($features as $fname => $fdata) {
-		foreach (array_slice($fdata, 1) as $f) {
-			$feature = $f[0];
-			$feature_state = 'feature_' . $feature;
-			$featurelock = 'featurelock_' . $feature;
-
-			if (!empty($_POST[$feature_state])) {
-				$val = intval($_POST[$feature_state]);
-			} else {
-				$val = 0;
-			}
-			Config::set('feature', $feature, $val);
-
-			if (!empty($_POST[$featurelock])) {
-				Config::set('feature_lock', $feature, $val);
-			} else {
-				Config::delete('feature_lock', $feature);
-			}
-		}
-	}
-
-	$a->internalRedirect('admin/features');
-	return; // NOTREACHED
-}
-
-/**
- * @brief Subpage for global additional feature management
- *
- * This functin generates the subpage 'Manage Additional Features'
- * for the admin panel. At this page the admin can set preferences
- * for the user settings of the 'additional features'. If needed this
- * preferences can be locked through the admin.
- *
- * The returned string contains the HTML code of the subpage 'Manage
- * Additional Features'
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_features(App $a)
-{
-	if (($a->argc > 1) && ($a->getArgumentValue(1) === 'features')) {
-		$arr = [];
-		$features = Feature::get(false);
-
-		foreach ($features as $fname => $fdata) {
-			$arr[$fname] = [];
-			$arr[$fname][0] = $fdata[0];
-			foreach (array_slice($fdata, 1) as $f) {
-				$set = Config::get('feature', $f[0], $f[3]);
-				$arr[$fname][1][] = [
-					['feature_' . $f[0], $f[1], $set, $f[2], [L10n::t('Off'), L10n::t('On')]],
-					['featurelock_' . $f[0], L10n::t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', [L10n::t('Off'), L10n::t('On')]]
-				];
-			}
-		}
-
-		$tpl = Renderer::getMarkupTemplate('admin/settings_features.tpl');
-		$o = Renderer::replaceMacros($tpl, [
-			'$form_security_token' => BaseModule::getFormSecurityToken("admin_manage_features"),
-			'$title' => L10n::t('Manage Additional Features'),
-			'$features' => $arr,
-			'$submit' => L10n::t('Save Settings'),
-		]);
-
-		return $o;
-	}
 }
 
 function admin_page_server_vital()

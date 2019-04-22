@@ -56,6 +56,7 @@ abstract class BaseAdminModule extends BaseModule
 				'users'        => ['admin/users'       , L10n::t('Users')                   , 'users'],
 				'addons'       => ['admin/addons'      , L10n::t('Addons')                  , 'addons'],
 				'themes'       => ['admin/themes'      , L10n::t('Themes')                  , 'themes'],
+				'features'     => ['admin/features'    , L10n::t('Additional features')     , 'features'],
 				'tos'          => ['admin/tos'         , L10n::t('Terms of Service')        , 'tos'],
 			]],
 		];
