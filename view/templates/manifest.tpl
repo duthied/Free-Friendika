@@ -3,7 +3,7 @@
   "start_url": "{{$baseurl}}",
   "display": "standalone",
   "description": "A Decentralized Social Network",
-  "icons": [{
+  "icons": {
     "src": "{{$baseurl}}/{{$touch_icon}}"
-  }]
+  }
 }
