@@ -11,7 +11,7 @@
 <div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 	<p>{{$description nofilter}}</p>
-	<form action="{{$baseurl}}/admin/contactblock" method="post">
+	<form action="{{$baseurl}}/admin/blocklist/contact" method="post">
         <input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 		<h3>{{$h_contacts}}</h3>
@@ -49,7 +49,7 @@
 	</form>
 
 	<h3>{{$h_newblock}}</h3>
-	<form action="{{$baseurl}}/admin/contactblock" method="post">
+	<form action="{{$baseurl}}/admin/blocklist/contact" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		<table id="contactblock">
 			<tbody>

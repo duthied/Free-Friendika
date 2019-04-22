@@ -59,6 +59,9 @@ abstract class BaseAdminModule extends BaseModule
 				'features'     => ['admin/features'    , L10n::t('Additional features')     , 'features'],
 				'tos'          => ['admin/tos'         , L10n::t('Terms of Service')        , 'tos'],
 			]],
+			'tools' => [L10n::t('Tools'), [
+				'contactblock' => ['admin/blocklist/contact', L10n::t('Contact Blocklist')  , 'contactblock'],
+			]],
 		];
 
 		$addons_admin = [];

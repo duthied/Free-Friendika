@@ -18,7 +18,7 @@
 			</div>
 
 			<div id="admin-settings-contactblock-block-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-contactblock-block">
-				<form action="{{$baseurl}}/admin/contactblock" method="post">
+				<form action="{{$baseurl}}/admin/blocklist/contact" method="post">
 					<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 					{{include file="field_input.tpl" field=$contacturl}}
@@ -42,7 +42,7 @@
 			</div>
 
 			<div id="admin-settings-contactblock-blocked-collapse" class="panel-collapse collapse {{if count($contacts) > 0}}in{{/if}}" role="tabpanel" aria-labelledby="admin-settings-contactblock-blocked">
-				<form action="{{$baseurl}}/admin/contactblock" method="post">
+				<form action="{{$baseurl}}/admin/blocklist/contact" method="post">
 					<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 					{{if $contacts}}

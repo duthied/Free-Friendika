@@ -124,6 +124,7 @@ class Router
 			$collector->addRoute(['GET', 'POST'], '/addons'                 , Module\Admin\Addons\Index::class);
 			$collector->addRoute(['GET', 'POST'], '/addons/{addon}'         , Module\Admin\Addons\Details::class);
 
+			$collector->addRoute(['GET', 'POST'], '/blocklist/contact'      , Module\Admin\Blocklist\Contact::class);
 			$collector->addRoute(['GET', 'POST'], '/features'               , Module\Admin\Features::class);
 			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
 

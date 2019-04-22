@@ -114,9 +114,6 @@ function admin_post(App $a)
 			case 'logs':
 				admin_page_logs_post($a);
 				break;
-			case 'contactblock':
-				admin_page_contactblock_post($a);
-				break;
 			case 'blocklist':
 				admin_page_blocklist_post($a);
 				break;
@@ -240,9 +237,6 @@ function admin_content(App $a)
 			case 'workerqueue':
 				$o = admin_page_workerqueue($a, false);
 				break;
-			case 'contactblock':
-				$o = admin_page_contactblock($a);
-				break;
 			case 'blocklist':
 				$o = admin_page_blocklist($a);
 				break;
@@ -352,88 +346,6 @@ function admin_page_blocklist_post(App $a)
 	$a->internalRedirect('admin/blocklist');
 
 	return; // NOTREACHED
-}
-
-/**
- * @brief Process data send by the contact block admin page
- *
- * @param App $a
- * @throws ImagickException
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_contactblock_post(App $a)
-{
-	$contact_url = defaults($_POST, 'contact_url', '');
-	$contacts    = defaults($_POST, 'contacts', []);
-
-	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/contactblock', 'admin_contactblock');
-
-	if (!empty($_POST['page_contactblock_block'])) {
-		$contact_id = Contact::getIdForURL($contact_url);
-		if ($contact_id) {
-			Contact::block($contact_id);
-			notice(L10n::t('The contact has been blocked from the node'));
-		} else {
-			notice(L10n::t("Could not find any contact entry for this URL \x28%s\x29", $contact_url));
-		}
-	}
-	if (!empty($_POST['page_contactblock_unblock'])) {
-		foreach ($contacts as $uid) {
-			Contact::unblock($uid);
-		}
-		notice(L10n::tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
-	}
-	$a->internalRedirect('admin/contactblock');
-	return; // NOTREACHED
-}
-
-/**
- * @brief Admin panel for server-wide contact block
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_contactblock(App $a)
-{
-	$condition = ['uid' => 0, 'blocked' => true];
-
-	$total = DBA::count('contact', $condition);
-
-	$pager = new Pager($a->query_string, 30);
-
-	$statement = DBA::select('contact', [], $condition, ['limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
-
-	$contacts = DBA::toArray($statement);
-
-	$t = Renderer::getMarkupTemplate('admin/contactblock.tpl');
-	$o = Renderer::replaceMacros($t, [
-		// strings //
-		'$title'       => L10n::t('Administration'),
-		'$page'        => L10n::t('Remote Contact Blocklist'),
-		'$description' => L10n::t('This page allows you to prevent any message from a remote contact to reach your node.'),
-		'$submit'      => L10n::t('Block Remote Contact'),
-		'$select_all'  => L10n::t('select all'),
-		'$select_none' => L10n::t('select none'),
-		'$block'       => L10n::t('Block'),
-		'$unblock'     => L10n::t('Unblock'),
-		'$no_data'     => L10n::t('No remote contact is blocked from this node.'),
-
-		'$h_contacts'  => L10n::t('Blocked Remote Contacts'),
-		'$h_newblock'  => L10n::t('Block New Remote Contact'),
-		'$th_contacts' => [L10n::t('Photo'), L10n::t('Name'), L10n::t('Address'), L10n::t('Profile URL')],
-
-		'$form_security_token' => BaseModule::getFormSecurityToken("admin_contactblock"),
-
-		// values //
-		'$baseurl'    => System::baseUrl(true),
-
-		'$contacts'   => $contacts,
-		'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),
-		'$paginate'   => $pager->renderFull($total),
-		'$contacturl' => ['contact_url', L10n::t("Profile URL"), '', L10n::t("URL of the remote contact to block.")],
-	]);
-	return $o;
 }
 
 /**
