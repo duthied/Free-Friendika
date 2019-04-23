@@ -57,7 +57,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-23 18:53-0500\n"
-"PO-Revision-Date: 2019-03-25 17:27+0000\n"
+"PO-Revision-Date: 2019-04-12 08:06+0000\n"
 "Last-Translator: Waldemar Stoczkowski\n"
 "Language-Team: Polish (http://www.transifex.com/Friendica/friendica/language/pl/)\n"
 "MIME-Version: 1.0\n"
@@ -607,7 +607,7 @@ msgstr "%1$s skomentował [url=%2$s]a %3$s[/url]"
 #: include/enotify.php:188
 #, php-format
 msgid "%1$s tagged you on [url=%2$s]%3$s's %4$s[/url]"
-msgstr ""
+msgstr "%1$s otagowałem Cię [url=%2$s]%3$s's %4$s[/url]"
 
 #: include/enotify.php:195
 #, php-format
@@ -7831,7 +7831,7 @@ msgstr ""
 
 #: src/Core/Installer.php:459
 msgid "Error: File Information PHP module required but not installed."
-msgstr ""
+msgstr "Błąd: wymagane informacje o pliku Moduł PHP, ale nie jest zainstalowany."
 
 #: src/Core/Installer.php:482
 msgid ""
@@ -8691,14 +8691,14 @@ msgstr "Magazyn bazy danych nie mógł wstawić danych"
 #: src/Model/Storage/Filesystem.php:63
 #, php-format
 msgid "Filesystem storage failed to create \"%s\". Check you write permissions."
-msgstr ""
+msgstr "Nie można utworzyć magazynu systemu plików \"%s\". Sprawdź, czy masz uprawnienia do zapisu."
 
 #: src/Model/Storage/Filesystem.php:105
 #, php-format
 msgid ""
 "Filesystem storage failed to save data to \"%s\". Check your write "
 "permissions"
-msgstr ""
+msgstr "Nie udało się zapisać danych w pamięci systemu plików \"%s\". Sprawdź swoje uprawnienia do zapisu"
 
 #: src/Model/Storage/Filesystem.php:126
 msgid "Storage base path"
