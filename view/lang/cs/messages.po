@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-02-23 18:53-0500\n"
-"PO-Revision-Date: 2019-03-23 19:02+0000\n"
+"PO-Revision-Date: 2019-04-06 07:24+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -8258,7 +8258,7 @@ msgstr "\nPři aktualizaci databáze se vyskytla chyba %d:\n%s\n"
 
 #: src/Database/DBStructure.php:74
 msgid "Errors encountered performing database changes: "
-msgstr "Při vykonávání změn v databázy se vyskytly chyby: "
+msgstr "Při vykonávání změn v databázi se vyskytly chyby: "
 
 #: src/Database/DBStructure.php:263
 #, php-format
