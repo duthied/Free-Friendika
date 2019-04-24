@@ -3004,10 +3004,15 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	if (!empty($quoted_item)) {
 		$conv_quoted = api_convert_item($quoted_item);
 		$quoted_status = $status;
+		unset($quoted_status['friendica_author']);
+		unset($quoted_status['friendica_owner']);
+		unset($quoted_status['friendica_activities']);
+		unset($quoted_status['friendica_private']);
+		unset($quoted_status['statusnet_conversation_id']);
 		$quoted_status['text'] = $conv_quoted['text'];
 		$quoted_status['statusnet_html'] = $conv_quoted['html'];
 		try {
-			$quoted_status['friendica_owner'] = $quoted_status['friendica_author'] = $quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
+			$quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
 		} catch (BadRequestException $e) {
 			// user not found. should be found?
 			/// @todo check if the user should be always found
@@ -3017,9 +3022,14 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 
 	if (!empty($retweeted_item)) {
 		$retweeted_status = $status;
+		unset($retweeted_status['friendica_author']);
+		unset($retweeted_status['friendica_owner']);
+		unset($retweeted_status['friendica_activities']);
+		unset($retweeted_status['friendica_private']);
+		unset($retweeted_status['statusnet_conversation_id']);
 		$status['user'] = $status['friendica_owner'];
 		try {
-			$retweeted_status['friendica_author'] = $retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
+			$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
 		} catch (BadRequestException $e) {
 			// user not found. should be found?
 			/// @todo check if the user should be always found
@@ -3030,15 +3040,13 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 
 		$retweeted_status['text'] = $rt_converted["text"];
 		$retweeted_status['statusnet_html'] = $rt_converted["html"];
-		$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
 		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
-		$retweeted_status['friendica_owner'] = $retweeted_status['friendica_author'];
 
 		if (!empty($quoted_status)) {
 			$retweeted_status['quoted_status'] = $quoted_status;
 		}
 
-		$status['friendica_author'] = $retweeted_status['friendica_author'];
+		$status['friendica_author'] = $retweeted_status['user'];
 		$status['retweeted_status'] = $retweeted_status;
 	} elseif (!empty($quoted_status)) {
 		$root_status = api_convert_item($item);
