@@ -24,8 +24,6 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 
-require_once 'mod/nodeinfo.php';
-
 class CronJobs
 {
 	public static function execute($command = '')
