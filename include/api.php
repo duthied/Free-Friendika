@@ -3002,7 +3002,10 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	}
 
 	if (!empty($quoted_item)) {
-		$quoted_status = api_convert_item($quoted_item);
+		$conv_quoted = api_convert_item($quoted_item);
+		$quoted_status = $status;
+		$quoted_status['text'] = $conv_quoted['text'];
+		$quoted_status['statusnet_html'] = $conv_quoted['html'];
 		try {
 			$quoted_status['friendica_owner'] = $quoted_status['friendica_author'] = $quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
 		} catch (BadRequestException $e) {
