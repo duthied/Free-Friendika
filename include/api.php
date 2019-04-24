@@ -2981,14 +2981,35 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	}
 
 	$retweeted_item = [];
+	$quoted_item = [];
 
-	$announce = api_get_announce($item);
-	if (!empty($announce) && ($item['owner-id'] == $item['author-id'])) {
-		$retweeted_item = $item;
-		$item = $announce;
-		$status['friendica_owner'] = api_get_user($a, $announce['author-id']);
-	} elseif ($item["id"] == $item["parent"]) {
+	if ($item["id"] == $item["parent"]) {
+		$body = $item['body'];
 		$retweeted_item = api_share_as_retweet($item);
+		if ($body != $item['body']) {
+			$quoted_item = $retweeted_item;
+			$retweeted_item = [];
+		}
+	}
+
+	if (empty($retweeted_item) && ($item['owner-id'] == $item['author-id'])) {
+		$announce = api_get_announce($item);
+		if (!empty($announce)) {
+			$retweeted_item = $item;
+			$item = $announce;
+			$status['friendica_owner'] = api_get_user($a, $announce['author-id']);
+		}
+	}
+
+	if (!empty($quoted_item)) {
+		$quoted_status = api_convert_item($quoted_item);
+		try {
+			$quoted_status['friendica_owner'] = $quoted_status['friendica_author'] = $quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
+		} catch (BadRequestException $e) {
+			// user not found. should be found?
+			/// @todo check if the user should be always found
+			$quoted_status["user"] = [];
+		}
 	}
 
 	if (!empty($retweeted_item)) {
@@ -3009,8 +3030,19 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
 		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
 		$retweeted_status['friendica_owner'] = $retweeted_status['friendica_author'];
-		$status['retweeted_status'] = $retweeted_status;
+
+		if (!empty($quoted_status)) {
+			$retweeted_status['quoted_status'] = $quoted_status;
+		}
+
 		$status['friendica_author'] = $retweeted_status['friendica_author'];
+		$status['retweeted_status'] = $retweeted_status;
+	} elseif (!empty($quoted_status)) {
+		$root_status = api_convert_item($item);
+
+		$status['text'] = $root_status["text"];
+		$status['statusnet_html'] = $root_status["html"];
+		$status['quoted_status'] = $quoted_status;
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -5117,7 +5149,12 @@ function api_share_as_retweet(&$item)
 		$posted = $matches[1];
 	}
 
-	$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$2", $body);
+	$pre_body = trim(preg_replace("/(.*?)\[share.*?\]\s?.*?\s?\[\/share\]\s?/ism", "$1", $body));
+	if ($pre_body != '') {
+		$item['body'] = $pre_body;
+	}
+
+	$shared_body = trim(preg_replace("/(.*?)\[share.*?\]\s?(.*?)\s?\[\/share\]\s?/ism", "$2", $body));
 
 	if (($shared_body == "") || ($profile == "") || ($author == "") || ($avatar == "") || ($posted == "")) {
 		return false;
