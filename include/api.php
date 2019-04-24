@@ -2995,7 +2995,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		$retweeted_status = $status;
 		$status['user'] = $status['friendica_owner'];
 		try {
-			$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
+			$retweeted_status['friendica_author'] = $retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
 		} catch (BadRequestException $e) {
 			// user not found. should be found?
 			/// @todo check if the user should be always found
@@ -3008,6 +3008,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		$retweeted_status['statusnet_html'] = $rt_converted["html"];
 		$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
 		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+		$retweeted_status['friendica_owner'] = $retweeted_status['friendica_author'];
 		$status['retweeted_status'] = $retweeted_status;
 		$status['friendica_author'] = $retweeted_status['friendica_author'];
 	}
