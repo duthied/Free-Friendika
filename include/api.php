@@ -1590,7 +1590,7 @@ function api_statuses_home_timeline($type)
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
 	}
-	
+
 	bindComments($ret);
 
 	$data = ['status' => $ret];
@@ -2980,27 +2980,37 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $item['author-link']).')');
 	}
 
-	if ($item["id"] == $item["parent"]) {
+	$retweeted_item = [];
+
+	$announce = api_get_announce($item);
+	if (!empty($announce) && ($item['owner-id'] == $item['author-id'])) {
+		$retweeted_item = $item;
+		$item = $announce;
+		$status['friendica_owner'] = api_get_user($a, $announce['author-id']);
+	} elseif ($item["id"] == $item["parent"]) {
 		$retweeted_item = api_share_as_retweet($item);
-		if ($retweeted_item !== false) {
-			$retweeted_status = $status;
-			$status['user'] = $status['friendica_owner'];
-			try {
-				$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
-			} catch (BadRequestException $e) {
-				// user not found. should be found?
-				/// @todo check if the user should be always found
-				$retweeted_status["user"] = [];
-			}
+	}
 
-			$rt_converted = api_convert_item($retweeted_item);
+	if (!empty($retweeted_item)) {
+		$retweeted_status = $status;
+		$status['user'] = $status['friendica_owner'];
+		try {
+			$retweeted_status['friendica_author'] = $retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
+		} catch (BadRequestException $e) {
+			// user not found. should be found?
+			/// @todo check if the user should be always found
+			$retweeted_status["user"] = [];
+		}
 
-			$retweeted_status['text'] = $rt_converted["text"];
-			$retweeted_status['statusnet_html'] = $rt_converted["html"];
-			$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
-			$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
-			$status['retweeted_status'] = $retweeted_status;
-		$status['friendica_author'] = $retweeted_status['friendica_author'];}
+		$rt_converted = api_convert_item($retweeted_item);
+
+		$retweeted_status['text'] = $rt_converted["text"];
+		$retweeted_status['statusnet_html'] = $rt_converted["html"];
+		$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
+		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+		$retweeted_status['friendica_owner'] = $retweeted_status['friendica_author'];
+		$status['retweeted_status'] = $retweeted_status;
+		$status['friendica_author'] = $retweeted_status['friendica_author'];
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
@@ -4977,6 +4987,40 @@ function api_friendica_remoteauth()
 	);
 }
 api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
+
+/**
+ * Return an item with announcer data if it had been announced
+ *
+ * @param array $item Item array
+ * @return array Item array with announce data
+ */
+function api_get_announce($item)
+{
+	// Quit if the item already has got a different owner and author
+	if ($item['owner-id'] != $item['author-id']) {
+		return [];
+	}
+
+	// Don't change original or Diaspora posts
+	if ($item['origin'] || in_array($item['network'], [Protocol::DIASPORA])) {
+		return [];
+	}
+
+	// Quit if we do now the original author and it had been a post from a native network
+	if (!empty($item['contact-uid']) && in_array($item['network'], Protocol::NATIVE_SUPPORT)) {
+		return [];
+	}
+
+	$fields = ['author-id', 'author-name', 'author-link', 'author-avatar'];
+	$activity = Item::activityToIndex(ACTIVITY2_ANNOUNCE);
+	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'activity' => $activity];
+	$announce = Item::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['created' => true]]);
+	if (!DBA::isResult($announce)) {
+		return [];
+	}
+
+	return array_merge($item, $announce);
+}
 
 /**
  * @brief Return the item shared, if the item contains only the [share] tag
