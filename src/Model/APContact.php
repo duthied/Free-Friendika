@@ -133,14 +133,14 @@ class APContact extends BaseObject
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
-		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername');
-		$apcontact['name'] = JsonLD::fetchElement($compacted, 'as:name');
+		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername', '@value');
+		$apcontact['name'] = JsonLD::fetchElement($compacted, 'as:name', '@value');
 
 		if (empty($apcontact['name'])) {
 			$apcontact['name'] = $apcontact['nick'];
 		}
 
-		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary'));
+		$apcontact['about'] = HTML::toBBCode(JsonLD::fetchElement($compacted, 'as:summary', '@value'));
 
 		$apcontact['photo'] = JsonLD::fetchElement($compacted, 'as:icon', '@id');
 		if (is_array($apcontact['photo']) || !empty($compacted['as:icon']['as:url']['@id'])) {
@@ -161,7 +161,9 @@ class APContact extends BaseObject
 		unset($parts['path']);
 		$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
 
-		$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted, 'w3id:publicKey', 'w3id:publicKeyPem'));
+		if (!empty($compacted['w3id:publicKey'])) {
+			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value'));
+		}
 
 		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
 
