@@ -1,22 +1,53 @@
 Version 2019.06 (UNRELEASED) (2019-06-?)
   Friendica Core:
-    Update to the documentation [realkinetix]
-    Enhancements to the API [MrPetovan]
+    Update to the tranlation (CS, DE, ET, PL, PT-BR, SV) [translation teams]
+    Update to the documentation [nupplaphil, realkinetix]
+    Update to the themes (frio, vier) [BinkaDroid, MrPetovan, tobiasd]
+    Enhancements to the API [annando, MrPetovan]
+    Enhancements to the way reshares are handled [annando]
+    Enhancements to the redis configuration [nupplaphil]
+    Enhancements to the federation stats display in the admin panel [tobiasd]
+    Enhancements to the processing of changed storage engine [MrPetovan]
     Fixed the notification order [JeroenED]
     Fixed the timezone of Friendica logs [nupplaphil]
     Fixed tag completion painfully slow [AlfredSK]
     Fixed a regression in notifications [MrPetovan]
     Fixed an issue with smilies and code blocks [MrPetovan]
     Fixed an AP issue with unavailable local profiles [MrPetovan]
-    General Code cleaning and restructuring [nupplaphil]
+    Fixed an issue with the File to Folder feature [MrPetovan]
+    Fixed an issue with the legacy storage engine [fabrixxm]
+    Fixed an issue with the theme and addon path items [MrPetovan]
+    Fixed an issue occuring when the BasePath was not set [tobiasd]
+    Fixed an issue with additionally opened Sessions [MrPetovan]
+    Fixed an issue with legacy loglevel mapping [nupplaphil]
+    General Code cleaning and restructuring [annando, nupplaphil, tobiasd]
     Added frio color scheme sharing [JeroenED]
     Added syslog and stream Logger [nupplaphil]
     Added storage move cronjob [MrPetovan]
     Added collapsible panel for connector permission fields [MrPetovan]
     Added rule-based router [MrPetovan]
+    Added Estinian translation [Rain Hawk]
+    Added APCu caching [nupplaphil]
+    Added BlockServer command to the Friendica console [nupplaphil]
+    Removed the old queue mechanism (deferred workers are now used) [annando]
+    Removed BasePath and Hostname settings from the admin panel [nupplaphil]
+
+  Friendica Addons:
+    Update to the tranlation (ET, SV, ZH_CN) [translation teams]
+    botdetection:
+      Added a new addon for preventing access by bots [nupplaphil]
+    buffer:
+      Traces of Google+ were removed [annando]
+    curweather:
+      Fixed a problem with the display of the correct temperature unit [tobiasd]
+    fromgplus:
+      Deprecated the addon as Google+ was closed [tobiasd]
+    phpmailer:
+      Added a new addon to use external SMTP for email [M-arcus]
 
   Closed Issues:
-    6303, 6478, 6319, 6921, 6903, 6943
+    5011, 5047, 5850, 6303, 6319, 6478, 6319, 6720, 6815, 6864, 6879,
+    6903, 6921, 6927, 6936, 6941, 6943, 6947, 6948, 6952
 
 Version 2019.03 (2019-03-22)
   Friendica Core:
