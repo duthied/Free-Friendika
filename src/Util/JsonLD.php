@@ -98,7 +98,12 @@ class JsonLD
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
 			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id']];
 
-		// Workaround for Nextcloud Social
+		// Preparation for adding possibly missing content to the context
+		if (!empty($json['@context']) && is_string($json['@context'])) {
+			$json['@context'] = [$json['@context']];
+		}
+
+		// Workaround for servers with missing context
 		// See issue https://github.com/nextcloud/social/issues/330
 		if (!empty($json['@context']) && is_array($json['@context'])) {
 			$json['@context'][] = 'https://w3id.org/security/v1';
