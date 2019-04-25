@@ -89,12 +89,12 @@ class APContact extends BaseObject
 				$apcontact = DBA::selectFirst('apcontact', [], ['addr' => $url]);
 			}
 
-			if (DBA::isResult($apcontact) && ($apcontact['updated'] > $ref_update)) {
+			if (DBA::isResult($apcontact) && ($apcontact['updated'] > $ref_update) && !empty($apcontact['pubkey'])) {
 				return $apcontact;
 			}
 
 			if (!is_null($update)) {
-				return false;
+				return DBA::isResult($apcontact) ? $apcontact : false;
 			}
 		}
 
