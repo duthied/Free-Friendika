@@ -166,9 +166,6 @@ function admin_content(App $a)
 	// urls
 	if ($a->argc > 1) {
 		switch ($a->argv[1]) {
-			case 'dbsync':
-				$o = admin_page_dbsync($a);
-				break;
 			case 'deleteitem':
 				$o = admin_page_deleteitem($a);
 				break;
@@ -244,104 +241,6 @@ function admin_page_deleteitem_post(App $a)
 	info(L10n::t('Item marked for deletion.') . EOL);
 	$a->internalRedirect('admin/deleteitem');
 	return; // NOTREACHED
-}
-
-/**
- * @brief Generates admin panel subpage for DB syncronization
- *
- * This page checks if the database of friendica is in sync with the specs.
- * Should this not be the case, it attemps to sync the structure and notifies
- * the admin if the automatic process was failing.
- *
- * The returned string holds the HTML code of the page.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_dbsync(App $a)
-{
-	$o = '';
-
-	if ($a->argc > 3 && intval($a->argv[3]) && $a->argv[2] === 'mark') {
-		Config::set('database', 'update_' . intval($a->argv[3]), 'success');
-		$curr = Config::get('system', 'build');
-		if (intval($curr) == intval($a->argv[3])) {
-			Config::set('system', 'build', intval($curr) + 1);
-		}
-		info(L10n::t('Update has been marked successful') . EOL);
-		$a->internalRedirect('admin/dbsync');
-	}
-
-	if (($a->argc > 2) && (intval($a->argv[2]) || ($a->argv[2] === 'check'))) {
-		$retval = DBStructure::update($a->getBasePath(), false, true);
-		if ($retval === '') {
-			$o .= L10n::t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
-			Config::set('database', 'last_successful_update', DB_UPDATE_VERSION);
-			Config::set('database', 'last_successful_update_time', time());
-		} else {
-			$o .= L10n::t("Executing of database structure update %s failed with error: %s", DB_UPDATE_VERSION, $retval) . "<br />";
-		}
-		if ($a->argv[2] === 'check') {
-			return $o;
-		}
-	}
-
-	if ($a->argc > 2 && intval($a->argv[2])) {
-		require_once 'update.php';
-
-		$func = 'update_' . intval($a->argv[2]);
-
-		if (function_exists($func)) {
-			$retval = $func();
-
-			if ($retval === Update::FAILED) {
-				$o .= L10n::t("Executing %s failed with error: %s", $func, $retval);
-			} elseif ($retval === Update::SUCCESS) {
-				$o .= L10n::t('Update %s was successfully applied.', $func);
-				Config::set('database', $func, 'success');
-			} else {
-				$o .= L10n::t('Update %s did not return a status. Unknown if it succeeded.', $func);
-			}
-		} else {
-			$o .= L10n::t('There was no additional update function %s that needed to be called.', $func) . "<br />";
-			Config::set('database', $func, 'success');
-		}
-
-		return $o;
-	}
-
-	$failed = [];
-	$r = q("SELECT `k`, `v` FROM `config` WHERE `cat` = 'database' ");
-
-	if (DBA::isResult($r)) {
-		foreach ($r as $rr) {
-			$upd = intval(substr($rr['k'], 7));
-			if ($upd < 1139 || $rr['v'] === 'success') {
-				continue;
-			}
-			$failed[] = $upd;
-		}
-	}
-
-	if (!count($failed)) {
-		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('structure_check.tpl'), [
-			'$base' => System::baseUrl(true),
-			'$banner' => L10n::t('No failed updates.'),
-			'$check' => L10n::t('Check database structure'),
-		]);
-	} else {
-		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('failed_updates.tpl'), [
-			'$base' => System::baseUrl(true),
-			'$banner' => L10n::t('Failed Updates'),
-			'$desc' => L10n::t('This does not include updates prior to 1139, which did not return a status.'),
-			'$mark' => L10n::t("Mark success \x28if update was manually applied\x29"),
-			'$apply' => L10n::t('Attempt to execute this update step automatically'),
-			'$failed' => $failed
-		]);
-	}
-
-	return $o;
 }
 
 function admin_page_server_vital()

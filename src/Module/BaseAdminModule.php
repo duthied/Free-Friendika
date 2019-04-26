@@ -61,6 +61,7 @@ abstract class BaseAdminModule extends BaseModule
 				'tos'          => ['admin/tos'         , L10n::t('Terms of Service')        , 'tos'],
 			]],
 			'database' => [L10n::t('Database'), [
+				'dbsync'       => ['admin/dbsync'      , L10n::t('DB updates')              , 'dbsync'],
 				'deferred'     => ['admin/queue/deferred', L10n::t('Inspect Deferred Workers'), 'deferred'],
 				'workerqueue'  => ['admin/queue'       , L10n::t('Inspect worker Queue')    , 'workerqueue'],
 			]],

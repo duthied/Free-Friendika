@@ -127,6 +127,10 @@ class Router
 			$collector->addRoute(['GET', 'POST'], '/blocklist/contact'      , Module\Admin\Blocklist\Contact::class);
 			$collector->addRoute(['GET', 'POST'], '/blocklist/server'       , Module\Admin\Blocklist\Server::class);
 
+			$collector->addRoute(['GET']        , '/dbsync[/check]'         , Module\Admin\DBSync::class);
+			$collector->addRoute(['GET']        , '/dbsync/{update:\d+}'    , Module\Admin\DBSync::class);
+			$collector->addRoute(['GET']        , '/dbsync/mark/{update:\d+}', Module\Admin\DBSync::class);
+
 			$collector->addRoute(['GET', 'POST'], '/features'               , Module\Admin\Features::class);
 			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
 
