@@ -709,7 +709,7 @@ class Transmitter
 			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
 			if (DBA::isResult($conversation)) {
-				$data = json_decode($conversation['source']);
+				$data = json_decode($conversation['source'], true);
 				if (!empty($data)) {
 					return $data;
 				}

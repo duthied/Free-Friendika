@@ -165,7 +165,7 @@ class JsonLD
 		foreach ($array[$element] as $entry) {
 			if (!is_array($entry)) {
 				$elements[] = $entry;
-			} elseif (!empty($entry[$key])) {
+			} elseif (isset($entry[$key])) {
 				$elements[] = $entry[$key];
 			} elseif (!empty($entry) || !is_array($entry)) {
 				$elements[] = $entry;
