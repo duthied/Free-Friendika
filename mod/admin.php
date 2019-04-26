@@ -39,23 +39,6 @@ use Friendica\Util\Temporal;
 use Psr\Log\LogLevel;
 
 /**
- * Sets the current theme for theme settings pages.
- *
- * This needs to be done before the post() or content() methods are called.
- *
- * @param App $a
- */
-function admin_init(App $a)
-{
-	if ($a->argc > 2 && $a->argv[1] == 'themes') {
-		$theme = $a->argv[2];
-		if (is_file("view/theme/$theme/config.php")) {
-			$a->setCurrentTheme($theme);
-		}
-	}
-}
-
-/**
  * @brief Process send data from the admin panels subpages
  *
  * This function acts as relay for processing the data send from the subpages
@@ -86,30 +69,6 @@ function admin_post(App $a)
 		switch ($a->argv[1]) {
 			case 'site':
 				admin_page_site_post($a);
-				break;
-			case 'themes':
-				if ($a->argc < 2) {
-					if ($a->isAjax()) {
-						return;
-					}
-					$a->internalRedirect('admin/');
-					return;
-				}
-
-				$theme = $a->argv[2];
-				if (is_file("view/theme/$theme/config.php")) {
-					require_once "view/theme/$theme/config.php";
-
-					if (function_exists('theme_admin_post')) {
-						theme_admin_post($a);
-					}
-				}
-
-				info(L10n::t('Theme settings updated.'));
-				if ($a->isAjax()) {
-					return;
-				}
-				$return_path = 'admin/themes/' . $theme . (!empty($_GET['mode']) ? '?mode=' . $_GET['mode'] : '');
 				break;
 			case 'logs':
 				admin_page_logs_post($a);
@@ -215,9 +174,6 @@ function admin_content(App $a)
 		switch ($a->argv[1]) {
 			case 'site':
 				$o = admin_page_site($a);
-				break;
-			case 'themes':
-				$o = admin_page_themes($a);
 				break;
 			case 'logs':
 				$o = admin_page_logs($a);
@@ -1080,211 +1036,6 @@ function admin_page_dbsync(App $a)
 	}
 
 	return $o;
-}
-
-/**
- * @param array  $themes
- * @param string $th
- * @param int    $result
- */
-function toggle_theme(&$themes, $th, &$result)
-{
-	$count = count($themes);
-	for ($x = 0; $x < $count; $x++) {
-		if ($themes[$x]['name'] === $th) {
-			if ($themes[$x]['allowed']) {
-				$themes[$x]['allowed'] = 0;
-				$result = 0;
-			} else {
-				$themes[$x]['allowed'] = 1;
-				$result = 1;
-			}
-		}
-	}
-}
-
-/**
- * @param array  $themes
- * @param string $th
- * @return int
- */
-function theme_status($themes, $th)
-{
-	$count = count($themes);
-	for ($x = 0; $x < $count; $x++) {
-		if ($themes[$x]['name'] === $th) {
-			if ($themes[$x]['allowed']) {
-				return 1;
-			} else {
-				return 0;
-			}
-		}
-	}
-	return 0;
-}
-
-/**
- * @param array $themes
- * @return string
- */
-function rebuild_theme_table($themes)
-{
-	$o = '';
-	if (count($themes)) {
-		foreach ($themes as $th) {
-			if ($th['allowed']) {
-				if (strlen($o)) {
-					$o .= ',';
-				}
-				$o .= $th['name'];
-			}
-		}
-	}
-	return $o;
-}
-
-/**
- * @brief Themes admin page
- *
- * This function generates the admin panel page to control the themes available
- * on the friendica node. If the name of a theme is given as parameter a page
- * with the details for the theme is shown. Otherwise a list of available
- * themes is generated.
- *
- * The template used for displaying the list of themes and the details of the
- * themes are the same as used for the addons.
- *
- * The returned string contains the HTML code of the admin panel page.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_themes(App $a)
-{
-	$allowed_themes_str = Config::get('system', 'allowed_themes');
-	$allowed_themes_raw = explode(',', $allowed_themes_str);
-	$allowed_themes = [];
-	if (count($allowed_themes_raw)) {
-		foreach ($allowed_themes_raw as $x) {
-			if (strlen(trim($x))) {
-				$allowed_themes[] = trim($x);
-			}
-		}
-	}
-
-	$themes = [];
-	$files = glob('view/theme/*');
-	if (is_array($files)) {
-		foreach ($files as $file) {
-			$f = basename($file);
-
-			// Is there a style file?
-			$theme_files = glob('view/theme/' . $f . '/style.*');
-
-			// If not then quit
-			if (count($theme_files) == 0) {
-				continue;
-			}
-
-			$is_experimental = intval(file_exists($file . '/experimental'));
-			$is_supported = 1 - (intval(file_exists($file . '/unsupported')));
-			$is_allowed = intval(in_array($f, $allowed_themes));
-
-			if ($is_allowed || $is_supported || Config::get("system", "show_unsupported_themes")) {
-				$themes[] = ['name' => $f, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed];
-			}
-		}
-	}
-
-	if (!count($themes)) {
-		notice(L10n::t('No themes found.'));
-		return '';
-	}
-
-	/*
-	 * Single theme
-	 */
-
-	if ($a->argc == 3) {
-		$theme = $a->argv[2];
-		if (!is_dir("view/theme/$theme")) {
-			notice(L10n::t("Item not found."));
-			return '';
-		}
-
-		if (!empty($_GET['a']) && $_GET['a'] == "t") {
-			BaseModule::checkFormSecurityTokenRedirectOnError('/admin/themes', 'admin_themes', 't');
-
-			// Toggle theme status
-
-			toggle_theme($themes, $theme, $result);
-			$s = rebuild_theme_table($themes);
-			if ($result) {
-				Theme::install($theme);
-				info(sprintf('Theme %s enabled.', $theme));
-			} else {
-				Theme::uninstall($theme);
-				info(sprintf('Theme %s disabled.', $theme));
-			}
-
-			Config::set('system', 'allowed_themes', $s);
-			$a->internalRedirect('admin/themes');
-			return ''; // NOTREACHED
-		}
-
-		// display theme details
-		if (theme_status($themes, $theme)) {
-			$status = "on";
-			$action = L10n::t("Disable");
-		} else {
-			$status = "off";
-			$action = L10n::t("Enable");
-		}
-
-		$readme = null;
-
-		if (is_file("view/theme/$theme/README.md")) {
-			$readme = Markdown::convert(file_get_contents("view/theme/$theme/README.md"), false);
-		} elseif (is_file("view/theme/$theme/README")) {
-			$readme = "<pre>" . file_get_contents("view/theme/$theme/README") . "</pre>";
-		}
-
-		$admin_form = '';
-		if (is_file("view/theme/$theme/config.php")) {
-			require_once "view/theme/$theme/config.php";
-
-			if (function_exists('theme_admin')) {
-				$admin_form = theme_admin($a);
-			}
-		}
-
-		$screenshot = [Theme::getScreenshot($theme), L10n::t('Screenshot')];
-		if (!stristr($screenshot[0], $theme)) {
-			$screenshot = null;
-		}
-
-		$t = Renderer::getMarkupTemplate('admin/addon_details.tpl');
-		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Themes'),
-			'$toggle' => L10n::t('Toggle'),
-			'$settings' => L10n::t('Settings'),
-			'$baseurl' => System::baseUrl(true),
-			'$addon' => $theme . (!empty($_GET['mode']) ? '?mode=' . $_GET['mode'] : ''),
-			'$status' => $status,
-			'$action' => $action,
-			'$info' => Theme::getInfo($theme),
-			'$function' => 'themes',
-			'$admin_form' => $admin_form,
-			'$str_author' => L10n::t('Author: '),
-			'$str_maintainer' => L10n::t('Maintainer: '),
-			'$screenshot' => $screenshot,
-			'$readme' => $readme,
-
-			'$form_security_token' => BaseModule::getFormSecurityToken("admin_themes"),
-		]);
-	}
 }
 
 /**
