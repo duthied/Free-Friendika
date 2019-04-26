@@ -30,7 +30,7 @@ function theme_post(App $a)
 
 function theme_admin_post(App $a)
 {
-	if (!local_user()) {
+	if (!is_site_admin()) {
 		return;
 	}
 
