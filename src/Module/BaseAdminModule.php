@@ -90,7 +90,10 @@ abstract class BaseAdminModule extends BaseModule
 			]],
 			'diagnostics' => [L10n::t('Diagnostics'), [
 				'phpinfo'      => ['admin/phpinfo'           , L10n::t('PHP Info')          , 'phpinfo'],
+				'probe'        => ['probe'             , L10n::t('probe address')           , 'probe'],
+				'webfinger'    => ['webfinger'         , L10n::t('check webfinger')         , 'webfinger'],
 				'itemsource'   => ['admin/item/source' , L10n::t('Item Source')             , 'itemsource'],
+				'babel'        => ['babel'             , L10n::t('Babel')                   , 'babel'],
 			]],
 		];
 
