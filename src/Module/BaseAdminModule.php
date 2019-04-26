@@ -68,6 +68,10 @@ abstract class BaseAdminModule extends BaseModule
 				'contactblock' => ['admin/blocklist/contact', L10n::t('Contact Blocklist')  , 'contactblock'],
 				'blocklist'    => ['admin/blocklist/server' , L10n::t('Server Blocklist')   , 'blocklist'],
 			]],
+			'logs' => [L10n::t('Logs'), [
+				'logsconfig'   => ['admin/logs/', L10n::t('Logs')                   , 'logs'],
+				'logsview'     => ['admin/logs/view'    , L10n::t('View Logs')              , 'viewlogs'],
+			]],
 		];
 
 		$addons_admin = [];

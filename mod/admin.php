@@ -67,9 +67,6 @@ function admin_post(App $a)
 	$return_path = 'admin';
 	if ($a->argc > 1) {
 		switch ($a->argv[1]) {
-			case 'logs':
-				admin_page_logs_post($a);
-				break;
 			case 'deleteitem':
 				admin_page_deleteitem_post($a);
 				break;
@@ -169,12 +166,6 @@ function admin_content(App $a)
 	// urls
 	if ($a->argc > 1) {
 		switch ($a->argv[1]) {
-			case 'logs':
-				$o = admin_page_logs($a);
-				break;
-			case 'viewlogs':
-				$o = admin_page_viewlogs($a);
-				break;
 			case 'dbsync':
 				$o = admin_page_dbsync($a);
 				break;
@@ -351,142 +342,6 @@ function admin_page_dbsync(App $a)
 	}
 
 	return $o;
-}
-
-/**
- * @brief Prosesses data send by Logs admin page
- *
- * @param App $a
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_logs_post(App $a)
-{
-	if (!empty($_POST['page_logs'])) {
-		BaseModule::checkFormSecurityTokenRedirectOnError('/admin/logs', 'admin_logs');
-
-		$logfile   = (!empty($_POST['logfile']) ? Strings::escapeTags(trim($_POST['logfile'])) : '');
-		$debugging = !empty($_POST['debugging']);
-		$loglevel  = defaults($_POST, 'loglevel', LogLevel::ERROR);
-
-		Config::set('system', 'logfile', $logfile);
-		Config::set('system', 'debugging', $debugging);
-		Config::set('system', 'loglevel', $loglevel);
-	}
-
-	info(L10n::t("Log settings updated."));
-	$a->internalRedirect('admin/logs');
-	return; // NOTREACHED
-}
-
-/**
- * @brief Generates admin panel subpage for configuration of the logs
- *
- * This function take the view/templates/admin_logs.tpl file and generates a
- * page where admin can configure the logging of friendica.
- *
- * Displaying the log is separated from the log config as the logfile can get
- * big depending on the settings and changing settings regarding the logs can
- * thus waste bandwidth.
- *
- * The string returned contains the content of the template file with replaced
- * macros.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_logs(App $a)
-{
-	$log_choices = [
-		LogLevel::ERROR   => 'Error',
-		LogLevel::WARNING => 'Warning',
-		LogLevel::NOTICE  => 'Notice',
-		LogLevel::INFO    => 'Info',
-		LogLevel::DEBUG   => 'Debug',
-	];
-
-	if (ini_get('log_errors')) {
-		$phplogenabled = L10n::t('PHP log currently enabled.');
-	} else {
-		$phplogenabled = L10n::t('PHP log currently disabled.');
-	}
-
-	$t = Renderer::getMarkupTemplate('admin/logs.tpl');
-
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Logs'),
-		'$submit' => L10n::t('Save Settings'),
-		'$clear' => L10n::t('Clear'),
-		'$baseurl' => System::baseUrl(true),
-		'$logname' => Config::get('system', 'logfile'),
-		// name, label, value, help string, extra data...
-		'$debugging' => ['debugging', L10n::t("Enable Debugging"), Config::get('system', 'debugging'), ""],
-		'$logfile' => ['logfile', L10n::t("Log file"), Config::get('system', 'logfile'), L10n::t("Must be writable by web server. Relative to your Friendica top-level directory.")],
-		'$loglevel' => ['loglevel', L10n::t("Log level"), Config::get('system', 'loglevel'), "", $log_choices],
-		'$form_security_token' => BaseModule::getFormSecurityToken("admin_logs"),
-		'$phpheader' => L10n::t("PHP logging"),
-		'$phphint' => L10n::t("To temporarily enable logging of PHP errors and warnings you can prepend the following to the index.php file of your installation. The filename set in the 'error_log' line is relative to the friendica top-level directory and must be writeable by the web server. The option '1' for 'log_errors' and 'display_errors' is to enable these options, set to '0' to disable them."),
-		'$phplogcode' => "error_reporting(E_ERROR | E_WARNING | E_PARSE);\nini_set('error_log','php.out');\nini_set('log_errors','1');\nini_set('display_errors', '1');",
-		'$phplogenabled' => $phplogenabled,
-	]);
-}
-
-/**
- * @brief Generates admin panel subpage to view the Friendica log
- *
- * This function loads the template view/templates/admin_viewlogs.tpl to
- * display the systemlog content. The filename for the systemlog of friendica
- * is relative to the base directory and taken from the config entry 'logfile'
- * in the 'system' category.
- *
- * Displaying the log is separated from the log config as the logfile can get
- * big depending on the settings and changing settings regarding the logs can
- * thus waste bandwidth.
- *
- * The string returned contains the content of the template file with replaced
- * macros.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_viewlogs(App $a)
-{
-	$t = Renderer::getMarkupTemplate('admin/viewlogs.tpl');
-	$f = Config::get('system', 'logfile');
-	$data = '';
-
-	if (!file_exists($f)) {
-		$data = L10n::t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
-	} else {
-		$fp = fopen($f, 'r');
-		if (!$fp) {
-			$data = L10n::t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
-		} else {
-			$fstat = fstat($fp);
-			$size = $fstat['size'];
-			if ($size != 0) {
-				if ($size > 5000000 || $size < 0) {
-					$size = 5000000;
-				}
-				$seek = fseek($fp, 0 - $size, SEEK_END);
-				if ($seek === 0) {
-					$data = Strings::escapeHtml(fread($fp, $size));
-					while (!feof($fp)) {
-						$data .= Strings::escapeHtml(fread($fp, 4096));
-					}
-				}
-			}
-			fclose($fp);
-		}
-	}
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('View Logs'),
-		'$data' => $data,
-		'$logname' => Config::get('system', 'logfile')
-	]);
 }
 
 function admin_page_server_vital()

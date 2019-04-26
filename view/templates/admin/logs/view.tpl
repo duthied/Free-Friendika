@@ -1,4 +1,4 @@
-<div id='adminpage'>
+<div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 	
 	<h3>{{$logname}}</h3>

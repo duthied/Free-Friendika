@@ -1,7 +1,7 @@
 <div id='adminpage'>
     <h1>{{$title}} - {{$page}}</h1>
 	
-	<form action="{{$baseurl}}/admin/logs" method="post">
+	<form action="{{$baseurl}}/admin/logs/settings" method="post">
 	    <input type='hidden' name='form_security_token' value="{{$form_security_token}}">
 
 	    {{include file="field_checkbox.tpl" field=$debugging}}
