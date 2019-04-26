@@ -11,6 +11,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Object\Image;
+use Friendica\Util\Strings;
 
 /**
  * @param App $a
@@ -25,6 +26,12 @@ function fbrowser_content(App $a)
 
 	if ($a->argc == 1) {
 		exit();
+	}
+
+	// Needed to match the correct template in a module that uses a different theme than the user/site/default
+	$theme = Strings::sanitizeFilePathItem(defaults($_GET, 'theme', null));
+	if ($theme && is_file("view/theme/$theme/config.php")) {
+		$a->setCurrentTheme($theme);
 	}
 
 	$template_file = "filebrowser.tpl";
