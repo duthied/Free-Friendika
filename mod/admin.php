@@ -65,13 +65,6 @@ function admin_post(App $a)
 	}
 
 	$return_path = 'admin';
-	if ($a->argc > 1) {
-		switch ($a->argv[1]) {
-			case 'deleteitem':
-				admin_page_deleteitem_post($a);
-				break;
-		}
-	}
 
 	$a->internalRedirect($return_path);
 	return; // NOTREACHED
@@ -166,9 +159,6 @@ function admin_content(App $a)
 	// urls
 	if ($a->argc > 1) {
 		switch ($a->argv[1]) {
-			case 'deleteitem':
-				$o = admin_page_deleteitem($a);
-				break;
 			default:
 				notice(L10n::t("Item not found."));
 		}
@@ -180,67 +170,6 @@ function admin_content(App $a)
 	} else {
 		return $o;
 	}
-}
-
-/**
- * @brief Subpage where the admin can delete an item from their node given the GUID
- *
- * This subpage of the admin panel offers the nodes admin to delete an item from
- * the node, given the GUID or the display URL such as http://example.com/display/123456.
- * The item will then be marked as deleted in the database and processed accordingly.
- *
- * @param App $a
- * @return string
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_deleteitem(App $a)
-{
-	$t = Renderer::getMarkupTemplate('admin/deleteitem.tpl');
-
-	return Renderer::replaceMacros($t, [
-		'$title' => L10n::t('Administration'),
-		'$page' => L10n::t('Delete Item'),
-		'$submit' => L10n::t('Delete this Item'),
-		'$intro1' => L10n::t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
-		'$intro2' => L10n::t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
-		'$deleteitemguid' => ['deleteitemguid', L10n::t("GUID"), '', L10n::t("The GUID of the item you want to delete."), 'required', 'autofocus'],
-		'$baseurl' => System::baseUrl(),
-		'$form_security_token' => BaseModule::getFormSecurityToken("admin_deleteitem")
-	]);
-}
-
-/**
- * @brief Process send data from Admin Delete Item Page
- *
- * The GUID passed through the form should be only the GUID. But we also parse
- * URLs like the full /display URL to make the process more easy for the admin.
- *
- * @param App $a
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function admin_page_deleteitem_post(App $a)
-{
-	if (empty($_POST['page_deleteitem_submit'])) {
-		return;
-	}
-
-	BaseModule::checkFormSecurityTokenRedirectOnError('/admin/deleteitem/', 'admin_deleteitem');
-
-	if (!empty($_POST['page_deleteitem_submit'])) {
-		$guid = trim(Strings::escapeTags($_POST['deleteitemguid']));
-		// The GUID should not include a "/", so if there is one, we got an URL
-		// and the last part of it is most likely the GUID.
-		if (strpos($guid, '/')) {
-			$guid = substr($guid, strrpos($guid, '/') + 1);
-		}
-		// Now that we have the GUID, drop those items, which will also delete the
-		// associated threads.
-		Item::delete(['guid' => $guid]);
-	}
-
-	info(L10n::t('Item marked for deletion.') . EOL);
-	$a->internalRedirect('admin/deleteitem');
-	return; // NOTREACHED
 }
 
 function admin_page_server_vital()
