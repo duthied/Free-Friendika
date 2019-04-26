@@ -26,7 +26,7 @@ class Photo extends BaseModule
 	{
 		$a = self::getApp();
 		if ($a->argc <= 1 || $a->argc > 4) {
-			System::httpExit(400, "Bad Request");
+			System::httpExit(400);
 		}
 
 		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
