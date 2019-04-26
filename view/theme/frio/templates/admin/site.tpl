@@ -11,6 +11,11 @@
 				$(element).addClass('in');
 			window.scroll(0, $(element).offset().top - 120);
 		}
+
+		$("#cnftheme").click(function(){
+			document.location.assign("{{$baseurl}}/admin/themes/" + $("#id_theme :selected").val());
+			return false;
+		});
 	});
 </script>
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>

@@ -1,4 +1,12 @@
-<div id='adminpage'>
+<script>
+	$(function(){
+		$("#cnftheme").click(function(){
+			document.location.assign("{{$baseurl}}/admin/themes/" + $("#id_theme :selected").val());
+			return false;
+		});
+	});
+</script>
+<div id="adminpage">
 	<h1>{{$title}} - {{$page}}</h1>
 
 	<form action="{{$baseurl}}/admin/site" method="post">

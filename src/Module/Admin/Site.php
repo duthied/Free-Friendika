@@ -588,7 +588,7 @@ class Site extends BaseAdminModule
 			'$touch_icon'       => ['touch_icon', L10n::t('Touch icon'), Config::get('system', 'touch_icon'), L10n::t('Link to an icon that will be used for tablets and mobiles.')],
 			'$additional_info'  => ['additional_info', L10n::t('Additional Info'), $additional_info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', get_server())],
 			'$language'         => ['language', L10n::t('System language'), Config::get('system', 'language'), '', $lang_choices],
-			'$theme'            => ['theme', L10n::t('System theme'), Config::get('system', 'theme'), L10n::t('Default system theme - may be over-ridden by user profiles - <a href="/admin/themes">Change default theme settings</a>'), $theme_choices],
+			'$theme'            => ['theme', L10n::t('System theme'), Config::get('system', 'theme'), L10n::t('Default system theme - may be over-ridden by user profiles - <a href="/admin/themes" id="cnftheme">Change default theme settings</a>'), $theme_choices],
 			'$theme_mobile'     => ['theme_mobile', L10n::t('Mobile system theme'), Config::get('system', 'mobile-theme', '---'), L10n::t('Theme for mobile devices'), $theme_choices_mobile],
 			'$ssl_policy'       => ['ssl_policy', L10n::t('SSL link policy'), (string)intval(Config::get('system', 'ssl_policy')), L10n::t('Determines whether generated links should be forced to use SSL'), $ssl_choices],
 			'$force_ssl'        => ['force_ssl', L10n::t('Force SSL'), Config::get('system', 'force_ssl'), L10n::t('Force all Non-SSL requests to SSL - Attention: on some systems it could lead to endless loops.')],
