@@ -140,6 +140,8 @@ class Router
 			$collector->addRoute(['GET']        , '/logs/view'              , Module\Admin\Logs\View::class);
 			$collector->addRoute(['GET', 'POST'], '/logs'                   , Module\Admin\Logs\Settings::class);
 
+			$collector->addRoute(['GET']        , '/phpinfo'                , Module\Admin\PhpInfo::class);
+
 			$collector->addRoute(['GET']        , '/queue[/deferred]'       , Module\Admin\Queue::class);
 
 			$collector->addRoute(['GET', 'POST'], '/site'                   , Module\Admin\Site::class);

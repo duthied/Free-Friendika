@@ -5,6 +5,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 
 abstract class BaseAdminModule extends BaseModule
@@ -19,6 +20,19 @@ abstract class BaseAdminModule extends BaseModule
 		if (!empty($_SESSION['submanage'])) {
 			return;
 		}
+	}
+
+	public static function rawContent()
+	{
+		if (!is_site_admin()) {
+			System::httpExit(403);
+		}
+
+		if (!empty($_SESSION['submanage'])) {
+			System::httpExit(403);
+		}
+
+		return '';
 	}
 
 	public static function content()
@@ -71,10 +85,11 @@ abstract class BaseAdminModule extends BaseModule
 				'deleteitem'   => ['admin/item/delete' , L10n::t('Delete Item')             , 'deleteitem'],
 			]],
 			'logs' => [L10n::t('Logs'), [
-				'logsconfig'   => ['admin/logs/', L10n::t('Logs')                   , 'logs'],
+				'logsconfig'   => ['admin/logs/', L10n::t('Logs')                           , 'logs'],
 				'logsview'     => ['admin/logs/view'    , L10n::t('View Logs')              , 'viewlogs'],
 			]],
 			'diagnostics' => [L10n::t('Diagnostics'), [
+				'phpinfo'      => ['admin/phpinfo'           , L10n::t('PHP Info')          , 'phpinfo'],
 				'itemsource'   => ['admin/item/source' , L10n::t('Item Source')             , 'itemsource'],
 			]],
 		];
