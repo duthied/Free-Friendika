@@ -59,7 +59,7 @@ class Settings extends BaseAdminModule
 			'$clear' => L10n::t('Clear'),
 			'$baseurl' => System::baseUrl(true),
 			'$logname' => Config::get('system', 'logfile'),
-			// name, label, value, help string, extra data...
+			// see /help/smarty3-templates#1_1 on any Friendica node
 			'$debugging' => ['debugging', L10n::t("Enable Debugging"), Config::get('system', 'debugging'), ""],
 			'$logfile' => ['logfile', L10n::t("Log file"), Config::get('system', 'logfile'), L10n::t("Must be writable by web server. Relative to your Friendica top-level directory.")],
 			'$loglevel' => ['loglevel', L10n::t("Log level"), Config::get('system', 'loglevel'), "", $log_choices],
