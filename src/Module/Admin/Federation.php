@@ -84,14 +84,14 @@ class Federation extends BaseAdminModule
 			// Reformat and compact version numbers
 			if ($platform == 'Pleroma') {
 				$compacted = [];
-
 				foreach ($versionCounts as $key => $value) {
 					$version = $versionCounts[$key]['version'];
 					$parts = explode(' ', trim($version));
 					do {
 						$part = array_pop($parts);
 					} while (!empty($parts) && ((strlen($part) >= 40) || (strlen($part) <= 3)));
-
+					// only take the x.x.x part of the version, not the "release" after the dash
+					$part = array_shift(explode('-', $part));
 					if (!empty($part)) {
 						if (empty($compacted[$part])) {
 							$compacted[$part] = $versionCounts[$key]['total'];
