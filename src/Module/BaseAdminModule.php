@@ -74,6 +74,9 @@ abstract class BaseAdminModule extends BaseModule
 				'logsconfig'   => ['admin/logs/', L10n::t('Logs')                   , 'logs'],
 				'logsview'     => ['admin/logs/view'    , L10n::t('View Logs')              , 'viewlogs'],
 			]],
+			'diagnostics' => [L10n::t('Diagnostics'), [
+				'itemsource'   => ['admin/item/source' , L10n::t('Item Source')             , 'itemsource'],
+			]],
 		];
 
 		$addons_admin = [];

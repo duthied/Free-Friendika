@@ -1,5 +1,5 @@
 <h2>Item Source</h2>
-<form action="itemsource" method="get" class="panel panel-default">
+<form action="admin/item/source" method="get" class="panel panel-default">
 	<div class="panel-body">
 		<div class="form-group">
 			{{include file="field_input.tpl" field=$guid}}

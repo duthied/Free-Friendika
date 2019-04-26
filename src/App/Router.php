@@ -135,6 +135,7 @@ class Router
 			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
 
 			$collector->addRoute(['GET', 'POST'], '/item/delete'            , Module\Admin\Item\Delete::class);
+			$collector->addRoute(['GET', 'POST'], '/item/source[/{guid}]'   , Module\Admin\Item\Source::class);
 
 			$collector->addRoute(['GET']        , '/logs/view'              , Module\Admin\Logs\View::class);
 			$collector->addRoute(['GET', 'POST'], '/logs'                   , Module\Admin\Logs\Settings::class);
