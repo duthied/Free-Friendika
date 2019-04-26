@@ -133,6 +133,7 @@ class Router
 			$collector->addRoute(['GET']        , '/queue[/deferred]'       , Module\Admin\Queue::class);
 
 			$collector->addRoute(['GET', 'POST'], '/themes'                 , Module\Admin\Themes\Index::class);
+			$collector->addRoute(['GET', 'POST'], '/themes/{theme}/embed'   , Module\Admin\Themes\Embed::class);
 
 			$collector->addRoute(['GET', 'POST'], '/tos'                    , Module\Admin\Tos::class);
 
