@@ -2,6 +2,7 @@
 /**
  * @file src/Core/Addon.php
  */
+
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
@@ -313,7 +314,7 @@ class Addon extends BaseObject
 	 */
 	public static function saveEnabledList()
 	{
-		return Config::set('system', 'addon', implode(', ', self::$addons));
+		return Config::set('system', 'addon', implode(',', self::$addons));
 	}
 
 	/**
