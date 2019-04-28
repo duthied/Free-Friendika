@@ -43,7 +43,7 @@ class Federation extends BaseAdminModule
 		foreach ($platforms as $platform) {
 			// get a total count for the platform, the name and version of the
 			// highest version and the protocol tpe
-			$platformCountStmt = DBA::p('SELECT
+			$platformCount = DBA::fetchFirst('SELECT
        			COUNT(*) AS `total`,
        			SUM(`registered-users`) AS `users`,
        			ANY_VALUE(`platform`) AS `platform`,
@@ -52,11 +52,8 @@ class Federation extends BaseAdminModule
 				WHERE `platform` LIKE ?
 			  	AND `last_contact` >= `last_failure`
 				ORDER BY `version` ASC', $platform);
-			$platformCount = DBA::fetch($platformCountStmt);
 			$total += $platformCount['total'];
 			$users += $platformCount['users'];
-
-			DBA::close($platformCountStmt);
 
 			// what versions for that platform do we know at all?
 			// again only the active nodes
