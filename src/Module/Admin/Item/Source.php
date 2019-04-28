@@ -5,20 +5,21 @@ namespace Friendica\Module\Admin\Item;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model;
+use Friendica\Module\BaseAdminModule;
 
 /**
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class Source extends \Friendica\BaseModule
+class Source extends BaseAdminModule
+
 {
 	public static function content()
 	{
-		if (!is_site_admin()) {
-			return;
-		}
+		parent::content();
 
 		$a = self::getApp();
 
+		$guid = null;
 		if (!empty($a->argv[1])) {
 			$guid = $a->argv[1];
 		}
