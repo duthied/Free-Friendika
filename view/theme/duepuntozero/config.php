@@ -70,7 +70,6 @@ function clean_form(App $a, &$colorset, $user)
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl");
 	$o = Renderer::replaceMacros($t, [
 		'$submit'   => L10n::t('Submit'),
-		'$baseurl'  => System::baseUrl(),
 		'$title'    => L10n::t("Theme settings"),
 		'$colorset' => ['duepuntozero_colorset', L10n::t('Variations'), $color, '', $colorset],
 	]);

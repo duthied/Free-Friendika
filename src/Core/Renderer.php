@@ -52,22 +52,20 @@ class Renderer extends BaseObject
 	/**
 	 * @brief This is our template processor
 	 *
-	 * @param string|FriendicaSmarty $s            The string requiring macro substitution or an instance of FriendicaSmarty
-	 * @param array                  $vars         key value pairs (search => replace)
-	 * @param bool                   $overwriteURL Overwrite the base url with the system wide set base url
+	 * @param string|FriendicaSmarty $s    The string requiring macro substitution or an instance of FriendicaSmarty
+	 * @param array                  $vars Key value pairs (search => replace)
 	 *
 	 * @return string substituted string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
-	public static function replaceMacros($s, $vars, $overwriteURL = true)
+	public static function replaceMacros($s, array $vars = [])
 	{
 		$stamp1 = microtime(true);
 		$a = self::getApp();
 
-		// pass $baseurl to all templates
-		if ($overwriteURL) {
-			$vars['$baseurl'] = System::baseUrl();
-		}
+		// pass $baseurl to all templates if it isn't set
+		$vars = array_merge(['$baseurl' => $a->getBaseURL()], $vars);
+
 		$t = self::getTemplateEngine();
 
 		try {

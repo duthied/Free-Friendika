@@ -120,11 +120,9 @@ class Contact extends BaseModule
 			'$networks_widget'   => $networks_widget
 		]);
 
-		$base = $a->getBaseURL();
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
 		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(true),
-			'$base' => $base
+			'$baseurl' => $a->getBaseURL(true),
 		]);
 	}
 
@@ -809,7 +807,6 @@ class Contact extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('contacts-template.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
-			'$baseurl'    => System::baseUrl(),
 			'$header'     => L10n::t('Contacts') . (($nets) ? ' - ' . ContactSelector::networkToName($nets) : ''),
 			'$tabs'       => $t,
 			'$total'      => $total,

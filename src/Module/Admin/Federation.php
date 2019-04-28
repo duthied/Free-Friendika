@@ -5,7 +5,6 @@ namespace Friendica\Module\Admin;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\BaseAdminModule;
 
@@ -194,7 +193,6 @@ class Federation extends BaseAdminModule
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
 			'$legendtext' => L10n::t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
-			'$baseurl' => System::baseUrl(),
 		]);
 	}
 }

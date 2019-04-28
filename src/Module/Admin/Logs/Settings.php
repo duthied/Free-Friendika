@@ -5,7 +5,6 @@ namespace Friendica\Module\Admin\Logs;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
 use Psr\Log\LogLevel;
@@ -36,6 +35,8 @@ class Settings extends BaseAdminModule
 	{
 		parent::content();
 
+		$a = self::getApp();
+
 		$log_choices = [
 			LogLevel::ERROR   => 'Error',
 			LogLevel::WARNING => 'Warning',
@@ -57,7 +58,7 @@ class Settings extends BaseAdminModule
 			'$page' => L10n::t('Logs'),
 			'$submit' => L10n::t('Save Settings'),
 			'$clear' => L10n::t('Clear'),
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => $a->getBaseURL(true),
 			'$logname' => Config::get('system', 'logfile'),
 			// see /help/smarty3-templates#1_1 on any Friendica node
 			'$debugging' => ['debugging', L10n::t("Enable Debugging"), Config::get('system', 'debugging'), ""],

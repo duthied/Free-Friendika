@@ -5,7 +5,6 @@ namespace Friendica\Module\Admin\Blocklist;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
 
@@ -55,6 +54,8 @@ class Server extends BaseAdminModule
 	{
 		parent::content();
 
+		$a = self::getApp();
+
 		$blocklist = Config::get('system', 'blocklist');
 		$blocklistform = [];
 		if (is_array($blocklist)) {
@@ -83,7 +84,7 @@ class Server extends BaseAdminModule
 			'$threason' => L10n::t('Reason for the block'),
 			'$delentry' => L10n::t('Delete entry from blocklist'),
 			'$entries' => $blocklistform,
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => $a->getBaseURL(true),
 			'$confirm_delete' => L10n::t('Delete entry from blocklist?'),
 			'$form_security_token' => parent::getFormSecurityToken("admin_blocklist")
 		]);

@@ -2,11 +2,9 @@
 
 namespace Friendica\Module\Admin\Themes;
 
-use Friendica\Content\Text\Markdown;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
@@ -23,7 +21,7 @@ class Index extends BaseAdminModule
 
 		// reload active themes
 		if (!empty($_GET['action'])) {
-			parent::checkFormSecurityTokenRedirectOnError(System::baseUrl() . '/admin/themes', 'admin_themes', 't');
+			parent::checkFormSecurityTokenRedirectOnError($a->getBaseURL() . '/admin/themes', 'admin_themes', 't');
 
 			switch ($_GET['action']) {
 				case 'reload':
@@ -96,7 +94,7 @@ class Index extends BaseAdminModule
 			'$page'                => L10n::t('Themes'),
 			'$submit'              => L10n::t('Save Settings'),
 			'$reload'              => L10n::t('Reload active themes'),
-			'$baseurl'             => System::baseUrl(true),
+			'$baseurl'             => $a->getBaseURL(true),
 			'$function'            => 'themes',
 			'$addons'              => $addons,
 			'$pcount'              => count($themes),

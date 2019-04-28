@@ -104,7 +104,6 @@ function fbrowser_content(App $a)
 
 			$o =  Renderer::replaceMacros($tpl, [
 				'$type'     => 'image',
-				'$baseurl'  => System::baseUrl(),
 				'$path'     => $path,
 				'$folders'  => $albums,
 				'$files'    => $files,
@@ -134,7 +133,6 @@ function fbrowser_content(App $a)
 				$tpl = Renderer::getMarkupTemplate($template_file);
 				$o = Renderer::replaceMacros($tpl, [
 					'$type'     => 'file',
-					'$baseurl'  => System::baseUrl(),
 					'$path'     => [ [ "", L10n::t("Files")] ],
 					'$folders'  => false,
 					'$files'    => $files,

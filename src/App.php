@@ -406,8 +406,6 @@ class App
 	 * @param bool $ssl Whether to append http or https under BaseURL::SSL_POLICY_SELFSIGN
 	 *
 	 * @return string Friendica server base URL
-	 *
-	 * @deprecated 2019.06 - use BaseURL->get($ssl) instead
 	 */
 	public function getBaseURL($ssl = false)
 	{
@@ -509,7 +507,6 @@ class App
 		 * being first
 		 */
 		$this->page['htmlhead'] = Core\Renderer::replaceMacros($tpl, [
-			'$baseurl'         => $this->getBaseURL(),
 			'$local_user'      => local_user(),
 			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
 			'$delitem'         => Core\L10n::t('Delete this item?'),
@@ -562,7 +559,6 @@ class App
 
 		$tpl = Core\Renderer::getMarkupTemplate('footer.tpl');
 		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
-			'$baseurl' => $this->getBaseURL(),
 			'$footerScripts' => $this->footerScripts,
 		]) . $this->page['footer'];
 	}

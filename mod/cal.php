@@ -90,7 +90,6 @@ function cal_content(App $a)
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
-		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,
@@ -268,7 +267,6 @@ function cal_content(App $a)
 		}
 
 		$o = Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(),
 			'$tabs' => $tabs,
 			'$title' => L10n::t('Events'),
 			'$view' => L10n::t('View'),

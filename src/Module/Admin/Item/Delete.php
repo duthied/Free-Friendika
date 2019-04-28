@@ -4,7 +4,6 @@ namespace Friendica\Module\Admin\Item;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
@@ -50,7 +49,6 @@ class Delete extends BaseAdminModule
 			'$intro1' => L10n::t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
 			'$intro2' => L10n::t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
 			'$deleteitemguid' => ['deleteitemguid', L10n::t("GUID"), '', L10n::t("The GUID of the item you want to delete."), 'required', 'autofocus'],
-			'$baseurl' => System::baseUrl(),
 			'$form_security_token' => parent::getFormSecurityToken("admin_deleteitem")
 		]);
 	}

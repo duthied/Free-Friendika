@@ -6,7 +6,6 @@ use Friendica\Content\Pager;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Register;
 use Friendica\Model\User;
@@ -78,7 +77,7 @@ class Users extends BaseAdminModule
 			Thank you and welcome to %4$s.'));
 
 			$preamble = sprintf($preamble, $user['username'], Config::get('config', 'sitename'));
-			$body = sprintf($body, System::baseUrl(), $user['nickname'], $result['password'], Config::get('config', 'sitename'));
+			$body = sprintf($body, $a->getBaseURL(), $user['nickname'], $result['password'], Config::get('config', 'sitename'));
 
 			notification([
 				'type'     => SYSTEM_EMAIL,

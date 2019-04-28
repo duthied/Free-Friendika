@@ -119,7 +119,6 @@ function frio_form($arr)
 	$t = Renderer::getMarkupTemplate('theme_settings.tpl');
 	$ctx = [
 		'$submit'           => L10n::t('Submit'),
-		'$baseurl'          => System::baseUrl(),
 		'$title'            => L10n::t('Theme settings'),
 		'$scheme'           => ['frio_scheme', L10n::t('Select color scheme'), $arr['scheme'], '', $scheme_choices],
 		'$share_string'     => ['frio_share_string', L10n::t('Copy or paste schemestring'), $arr['share_string'], L10n::t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],

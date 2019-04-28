@@ -7,7 +7,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Update;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
@@ -130,7 +129,6 @@ class Summary extends BaseAdminModule
 			'$accounts' => $accounts,
 			'$pending' => [L10n::t('Pending registrations'), $pending],
 			'$version' => [L10n::t('Version'), FRIENDICA_VERSION],
-			'$baseurl' => System::baseUrl(),
 			'$platform' => FRIENDICA_PLATFORM,
 			'$codename' => FRIENDICA_CODENAME,
 			'$build' => Config::get('system', 'build'),
@@ -143,7 +141,7 @@ class Summary extends BaseAdminModule
 	private static function checkSelfHostMeta()
 	{
 		// Fetch the host-meta to check if this really is a vital server
-		return Network::curl(System::baseUrl() . '/.well-known/host-meta')->isSuccess();
+		return Network::curl(self::getApp()->getBaseURL() . '/.well-known/host-meta')->isSuccess();
 	}
 
 }

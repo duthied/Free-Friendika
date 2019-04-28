@@ -67,9 +67,7 @@ function videos_init(App $a)
 		$a->page['aside'] .= $vcard_widget;
 
 		$tpl = Renderer::getMarkupTemplate("videos_head.tpl");
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
-			'$baseurl' => System::baseUrl(),
-		]);
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl);
 	}
 
 	return;

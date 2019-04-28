@@ -7,7 +7,6 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\BaseAdminModule;
 
@@ -61,7 +60,7 @@ class Index extends BaseAdminModule
 			'$page' => L10n::t('Addons'),
 			'$submit' => L10n::t('Save Settings'),
 			'$reload' => L10n::t('Reload active addons'),
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => $a->getBaseURL(true),
 			'$function' => 'addons',
 			'$addons' => $addons,
 			'$pcount' => count($addons),

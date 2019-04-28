@@ -154,14 +154,10 @@ function poke_content(App $a)
 	$name = $contact['name'];
 	$id = $contact['id'];
 
-	$base = System::baseUrl();
-
 	$head_tpl = Renderer::getMarkupTemplate('poke_head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($head_tpl,[
 		'$baseurl' => System::baseUrl(true),
-		'$base' => $base
 	]);
-
 
 	$parent = (!empty($_GET['parent']) ? intval($_GET['parent']) : '0');
 

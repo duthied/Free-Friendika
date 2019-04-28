@@ -5,7 +5,6 @@ namespace Friendica\Module\Admin\Blocklist;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Model;
@@ -77,7 +76,7 @@ class Contact extends BaseAdminModule
 			'$form_security_token' => parent::getFormSecurityToken("admin_contactblock"),
 
 			// values //
-			'$baseurl'    => System::baseUrl(true),
+			'$baseurl'    => $a->getBaseURL(true),
 
 			'$contacts'   => $contacts,
 			'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),

@@ -144,7 +144,6 @@ class Register extends BaseModule
 			'$tostext'      => L10n::t('Terms of Service'),
 			'$showprivstatement' => Config::get('system', 'tosprivstatement'),
 			'$privstatement'=> $tos->privacy_complete,
-			'$baseurl'      => System::baseurl(),
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
 			'$explicit_content' => Config::get('system', 'explicit_content', false),
 			'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content')

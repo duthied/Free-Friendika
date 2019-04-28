@@ -3,10 +3,8 @@
 namespace Friendica\Module\Admin\Themes;
 
 use Friendica\Content\Text\Markdown;
-use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
@@ -107,7 +105,7 @@ class Details extends BaseAdminModule
 				'$page' => L10n::t('Themes'),
 				'$toggle' => L10n::t('Toggle'),
 				'$settings' => L10n::t('Settings'),
-				'$baseurl' => System::baseUrl(true),
+				'$baseurl' => $a->getBaseURL(true),
 				'$addon' => $theme,
 				'$status' => $status,
 				'$action' => $action,

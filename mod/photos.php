@@ -115,7 +115,6 @@ function photos_init(App $a) {
 				'$title'    => L10n::t('Photo Albums'),
 				'$recent'   => L10n::t('Recent Photos'),
 				'$albums'   => $ret['albums'],
-				'$baseurl'  => System::baseUrl(),
 				'$upload'   => [L10n::t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload'],
 				'$can_post' => $can_post
 			]);
