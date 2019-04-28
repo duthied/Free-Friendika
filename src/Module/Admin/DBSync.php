@@ -36,6 +36,7 @@ class DBSync extends BaseAdminModule
 
 		if ($a->argc > 2) {
 			if ($a->argv[2] === 'check') {
+				// @TODO Seems like a similar logic like Update::check()
 				$retval = DBStructure::update($a->getBasePath(), false, true);
 				if ($retval === '') {
 					$o .= L10n::t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";

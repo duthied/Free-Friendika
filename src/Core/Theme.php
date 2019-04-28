@@ -177,6 +177,7 @@ class Theme
 
 			return true;
 		} catch (\Exception $e) {
+			Logger::error('Theme installation failed', ['theme' => $theme, 'error' => $e->getMessage()]);
 			return false;
 		}
 	}
