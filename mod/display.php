@@ -36,20 +36,6 @@ function display_init(App $a)
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
 
-	if ($a->argc == 3) {
-		if (substr($a->argv[2], -5) == '.atom') {
-			$item_id = substr($a->argv[2], 0, -5);
-			displayShowFeed($item_id, false);
-		}
-	}
-
-	if ($a->argc == 4) {
-		if ($a->argv[3] == 'conversation.atom') {
-			$item_id = $a->argv[2];
-			displayShowFeed($item_id, true);
-		}
-	}
-
 	$item = null;
 	$item_user = local_user();
 
@@ -81,12 +67,20 @@ function display_init(App $a)
 		if (!DBA::isResult($item)) {
 			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
 		}
-	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
+	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
+		$item_id = $a->argv[2];
+		if (substr($item_id, -5) == '.atom') {
+			$item_id = substr($item_id, 0, -5);
+		}
+		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [0, 2], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
 		System::httpExit(404);
+	}
+
+	if ($a->argc >= 3 && $nick == 'feed-item') {
+		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
