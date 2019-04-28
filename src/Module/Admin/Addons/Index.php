@@ -2,12 +2,9 @@
 
 namespace Friendica\Module\Admin\Addons;
 
-use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
 use Friendica\Module\BaseAdminModule;
 
 class Index extends BaseAdminModule
@@ -44,12 +41,6 @@ class Index extends BaseAdminModule
 			}
 
 			$a->internalRedirect('admin/addons');
-		}
-
-		$addons_admin = [];
-		$addonsAdminStmt = DBA::select('addon', ['name'], ['plugin_admin' => 1], ['order' => ['name']]);
-		foreach (DBA::toArray($addonsAdminStmt) as $addon) {
-			$addons_admin[] = $addon['name'];
 		}
 
 		$addons = Addon::getAvailableList();

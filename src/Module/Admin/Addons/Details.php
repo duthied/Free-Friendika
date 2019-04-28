@@ -6,7 +6,6 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
 
@@ -42,13 +41,7 @@ class Details extends BaseAdminModule
 
 		$a = self::getApp();
 
-		$addons_admin = [];
-		$addonsAdminStmt = DBA::select('addon', ['name'], ['plugin_admin' => 1], ['order' => ['name']]);
-		foreach (DBA::toArray($addonsAdminStmt) as $addon) {
-			$addonName = $addon['name'];
-			// temp addons with admin
-			$addons_admin[] = $addonName;
-		}
+		$addons_admin = Addon::getAdminList();
 
 		if ($a->argc > 2) {
 			// @TODO: Replace with parameter from router
@@ -93,7 +86,7 @@ class Details extends BaseAdminModule
 			}
 
 			$admin_form = '';
-			if (in_array($addon, $addons_admin)) {
+			if (array_key_exists($addon, $addons_admin)) {
 				require_once "addon/$addon/$addon.php";
 				$func = $addon . '_addon_admin';
 				$func($a, $admin_form);

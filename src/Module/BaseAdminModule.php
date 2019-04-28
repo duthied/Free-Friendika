@@ -3,6 +3,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
@@ -97,15 +98,9 @@ abstract class BaseAdminModule extends BaseModule
 			]],
 		];
 
-		$addons_admin = [];
-		$addonsAdminStmt = DBA::select('addon', ['name'], ['plugin_admin' => 1], ['order' => ['name']]);
-		foreach (DBA::toArray($addonsAdminStmt) as $addon) {
-			$addons_admin[] = ['admin/addons/' . $addon['name'], $addon['name'], 'addon'];
-		}
-
 		$t = Renderer::getMarkupTemplate('admin/aside.tpl');
 		$a->page['aside'] .= Renderer::replaceMacros($t, [
-			'$admin' => ['addons_admin' => $addons_admin],
+			'$admin' => ['addons_admin' => Addon::getAdminList()],
 			'$subpages' => $aside_sub,
 			'$admtxt' => L10n::t('Admin'),
 			'$plugadmtxt' => L10n::t('Addon Features'),

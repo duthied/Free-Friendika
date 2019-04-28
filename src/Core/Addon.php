@@ -27,6 +27,14 @@ class Addon extends BaseObject
 	 */
 	private static $addons = [];
 
+	/**
+	 * Returns the list of available addons with their current status and info.
+	 * This list is made from scanning the addon/ folder.
+	 * Unsupported addons are excluded unless they already are enabled or system.show_unsupported_addon is set.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
 	public static function getAvailableList()
 	{
 		$addons = [];
@@ -49,6 +57,30 @@ class Addon extends BaseObject
 
 		return $addons;
 	}
+
+	/**
+	 * Returns a list of addons that can be configured at the node level.
+	 * The list is formatted for display in the admin panel aside.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getAdminList()
+	{
+		$addons_admin = [];
+		$addonsAdminStmt = DBA::select('addon', ['name'], ['plugin_admin' => 1], ['order' => ['name']]);
+		while ($addon = DBA::fetch($addonsAdminStmt)) {
+			$addons_admin[$addon['name']] = [
+				'url' => 'admin/addons/' . $addon['name'],
+				'name' => $addon['name'],
+				'class' => 'addon'
+			];
+		}
+		DBA::close($addonsAdminStmt);
+
+		return $addons_admin;
+	}
+
 
 	/**
 	 * @brief Synchronize addons:
