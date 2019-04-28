@@ -111,6 +111,20 @@ class Contact extends BaseObject
 	 */
 
 	/**
+	 * @param array $fields    Array of selected fields, empty for all
+	 * @param array $condition Array of fields for condition
+	 * @param array $params    Array of several parameters
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function select(array $fields = [], array $condition = [], array $params = [])
+	{
+		$statement = DBA::select('contact', $fields, $condition, $params);
+
+		return DBA::toArray($statement);
+	}
+
+	/**
 	 * @param  integer       $id
 	 * @return array|boolean Contact record if it exists, false otherwise
 	 * @throws \Exception

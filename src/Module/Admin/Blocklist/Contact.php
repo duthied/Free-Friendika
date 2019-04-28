@@ -52,9 +52,7 @@ class Contact extends BaseAdminModule
 
 		$pager = new Pager($a->query_string, 30);
 
-		$statement = DBA::select('contact', [], $condition, ['limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
-
-		$contacts = DBA::toArray($statement);
+		$contacts = Model\Contact::select([], $condition, ['limit' => [$pager->getStart(), $pager->getItemsPerPage()]]);
 
 		$t = Renderer::getMarkupTemplate('admin/blocklist/contact.tpl');
 		$o = Renderer::replaceMacros($t, [
