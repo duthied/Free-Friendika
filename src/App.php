@@ -88,11 +88,6 @@ class App
 	private $baseURL;
 
 	/**
-	 * @var bool true, if the call is from the Friendica APP, otherwise false
-	 */
-	private $isFriendicaApp;
-
-	/**
 	 * @var bool true, if the call is from an backend node (f.e. worker)
 	 */
 	private $isBackend;
@@ -256,8 +251,6 @@ class App
 		$this->baseURL  = $baseURL;
 		$this->profiler = $profiler;
 		$this->logger   = $logger;
-
-		$this->checkFriendicaApp();
 
 		$this->profiler->reset();
 
@@ -599,28 +592,6 @@ class App
 			FRIENDICA_VERSION . '-' .
 			DB_UPDATE_VERSION . '; ' .
 			$this->getBaseURL();
-	}
-
-	/**
-	 * Checks, if the call is from the Friendica App
-	 *
-	 * Reason:
-	 * The friendica client has problems with the GUID in the notify. this is some workaround
-	 */
-	private function checkFriendicaApp()
-	{
-		// Friendica-Client
-		$this->isFriendicaApp = isset($_SERVER['HTTP_USER_AGENT']) && $_SERVER['HTTP_USER_AGENT'] == 'Apache-HttpClient/UNAVAILABLE (java 1.4)';
-	}
-
-	/**
-	 * 	Is the call via the Friendica app? (not a "normale" call)
-	 *
-	 * @return bool true if it's from the Friendica app
-	 */
-	public function isFriendicaApp()
-	{
-		return $this->isFriendicaApp;
 	}
 
 	/**
