@@ -3,6 +3,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\System;
+use Friendica\Module\Hostxrd;
 use Friendica\Module\Nodeinfo;
 
 require_once 'mod/hostxrd.php';
@@ -13,7 +14,7 @@ function _well_known_init(App $a)
 	if ($a->argc > 1) {
 		switch ($a->argv[1]) {
 			case "host-meta":
-				hostxrd_init($a);
+				Hostxrd::printHostMeta();
 				break;
 			case "x-social-relay":
 				wk_social_relay();
