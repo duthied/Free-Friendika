@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\WellKnown;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
@@ -8,7 +8,8 @@ use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 
 /**
- * Prints the host-meta text
+ * Prints the metadata for describing this host
+ * @see https://tools.ietf.org/html/rfc6415
  */
 class HostMeta extends BaseModule
 {
@@ -16,16 +17,6 @@ class HostMeta extends BaseModule
 	{
 		parent::rawContent();
 
-		self::printHostMeta();
-	}
-
-	/**
-	 * Prints the host-meta output of this node
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function printHostMeta()
-	{
 		$app = self::getApp();
 		$config = $app->getConfig();
 

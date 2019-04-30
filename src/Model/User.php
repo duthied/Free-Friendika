@@ -91,12 +91,24 @@ class User
 
 	/**
 	 * @param  integer       $uid
+	 * @param array          $fields
 	 * @return array|boolean User record if it exists, false otherwise
 	 * @throws Exception
 	 */
-	public static function getById($uid)
+	public static function getById($uid, array $fields = [])
 	{
-		return DBA::selectFirst('user', [], ['uid' => $uid]);
+		return DBA::selectFirst('user', $fields, ['uid' => $uid]);
+	}
+
+	/**
+	 * @param  string        $nickname
+	 * @param array          $fields
+	 * @return array|boolean User record if it exists, false otherwise
+	 * @throws Exception
+	 */
+	public static function getByNickname($nickname, array $fields = [])
+	{
+		return DBA::selectFirst('user', $fields, ['nickname' => $nickname]);
 	}
 
 	/**

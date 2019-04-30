@@ -44,6 +44,14 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/amcd',                Module\AccountManagementControlDocument::class);
 		$this->routeCollector->addRoute(['GET'],         '/host-meta',           Module\HostMeta::class);
 		$this->routeCollector->addRoute(['GET'],         '/hostxrd',             Module\HostMeta::class);
+		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
+		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\WebFinger::class);
+		$this->routeCollector->addGroup('/.well-known', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/host-meta'       , Module\WellKnown\HostMeta::class);
+			$collector->addRoute(['GET'], '/nodeinfo[/1.0]'  , Module\NodeInfo::class);
+			$collector->addRoute(['GET'], '/webfinger[/xrd]' , Module\WebFinger::class);
+			$collector->addRoute(['GET'], '/x-social-relay'  , Module\WellKnown\XSocialRelay::class);
+		});
 	}
 
 	public function __construct(RouteCollector $routeCollector = null)

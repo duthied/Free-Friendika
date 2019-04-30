@@ -8,9 +8,10 @@ use Friendica\Core\Addon;
 use Friendica\Core\System;
 
 /**
- * Prints infos about the current node
+ * Standardized way of exposing metadata about a server running one of the distributed social networks.
+ * @see https://github.com/jhass/nodeinfo/blob/master/PROTOCOL.md
  */
-class Nodeinfo extends BaseModule
+class NodeInfo extends BaseModule
 {
 	/**
 	 * Prints the Nodeinfo for a well-known request
@@ -48,7 +49,7 @@ class Nodeinfo extends BaseModule
 		}
 
 		if (($app->argc != 2) || ($app->argv[1] != '1.0')) {
-			System::httpExit(404);
+			self::printWellKnown($app);
 		}
 	}
 
