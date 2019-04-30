@@ -30,9 +30,8 @@ class Hostxrd extends BaseModule
 		$config = $app->getConfig();
 
 		header("Content-type: text/xml");
-		$pubkey = $config->get('system', 'site_pubkey');
 
-		if (!$pubkey) {
+		if (!$config->get('system', 'site_pubkey', false)) {
 			$res = Crypto::newKeypair(1024);
 
 			$config->set('system','site_prvkey', $res['prvkey']);
