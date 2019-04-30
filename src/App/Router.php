@@ -42,6 +42,8 @@ class Router
 	{
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
 		$this->routeCollector->addRoute(['GET'],         '/amcd',                Module\AccountManagementControlDocument::class);
+		$this->routeCollector->addRoute(['GET'],         '/host-meta',           Module\HostMeta::class);
+		$this->routeCollector->addRoute(['GET'],         '/hostxrd',             Module\HostMeta::class);
 	}
 
 	public function __construct(RouteCollector $routeCollector = null)

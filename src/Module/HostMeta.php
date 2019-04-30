@@ -10,7 +10,7 @@ use Friendica\Util\Crypto;
 /**
  * Prints the host-meta text
  */
-class Hostxrd extends BaseModule
+class HostMeta extends BaseModule
 {
 	public static function rawContent()
 	{
