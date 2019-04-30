@@ -24,6 +24,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
@@ -141,6 +142,14 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		if ($contact['network']) {
 			$network = $contact['network'];
+		}
+
+		// an empty DFRN-ID tells us that it had been a request via AP from a Friendica contact
+		if (($network === Protocol::DFRN) && empty($dfrn_id) && !empty($contact['hub-verify'])) {
+			$apcontact = APContact::getByURL($contact['url']);
+			if (!empty($apcontact)) {
+				$network = Protocol::ACTIVITYPUB;
+			}
 		}
 
 		if ($network === Protocol::DFRN) {
