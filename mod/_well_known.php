@@ -6,7 +6,6 @@ use Friendica\Core\System;
 use Friendica\Module\Hostxrd;
 use Friendica\Module\Nodeinfo;
 
-require_once 'mod/hostxrd.php';
 require_once 'mod/xrd.php';
 
 function _well_known_init(App $a)
