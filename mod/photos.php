@@ -235,36 +235,12 @@ function photos_post(App $a)
 		}
 
 		/*
-		 * DELETE photo album and all its photos
+		 * DELETE all photos filed in a given album
 		 */
-
-		if ($_POST['dropalbum'] == L10n::t('Delete Album')) {
-			// Check if we should do HTML-based delete confirmation
-			if (!empty($_REQUEST['confirm'])) {
-				$drop_url = $a->query_string;
-
-				$extra_inputs = [
-					['name' => 'albumname', 'value' => $_POST['albumname']],
-				];
-
-				$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-					'$method' => 'post',
-					'$message' => L10n::t('Do you really want to delete this photo album and all its photos?'),
-					'$extra_inputs' => $extra_inputs,
-					'$confirm' => L10n::t('Delete Album'),
-					'$confirm_url' => $drop_url,
-					'$confirm_name' => 'dropalbum', // Needed so that confirmation will bring us back into this if statement
-					'$cancel' => L10n::t('Cancel'),
-				]);
-
-				$a->error = 1; // Set $a->error so the other module functions don't execute
-				return;
-			}
-
+		if (!empty($_POST['dropalbum'])) {
 			$res = [];
 
 			// get the list of photos we are about to delete
-
 			if ($visitor) {
 				$r = q("SELECT distinct(`resource-id`) as `rid` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `album` = '%s'",
 					intval($visitor),
@@ -282,77 +258,61 @@ function photos_post(App $a)
 				foreach ($r as $rr) {
 					$res[] = $rr['rid'];
 				}
+
+				// remove the associated photos
+				Photo::delete(['resource-id' => $res, 'uid' => $page_owner_uid]);
+
+				// find and delete the corresponding item with all the comments and likes/dislikes
+				Item::deleteForUser(['resource-id' => $res, 'uid' => $page_owner_uid], $page_owner_uid);
+
+				// Update the photo albums cache
+				Photo::clearAlbumCache($page_owner_uid);
+				notice(L10n::t('Album successfully deleted'));
 			} else {
-				$a->internalRedirect($_SESSION['photo_return']);
-				return; // NOTREACHED
+				notice(L10n::t('Album was empty.'));
+			}
+		}
+
+		$a->internalRedirect('photos/' . $a->argv[1]);
+	}
+
+	if ($a->argc > 3 && $a->argv[2] === 'image') {
+		// Check if the user has responded to a delete confirmation query for a single photo
+		if (!empty($_POST['canceled'])) {
+			$a->internalRedirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
+		}
+
+		if (!empty($_POST['delete'])) {
+			// same as above but remove single photo
+			if ($visitor) {
+				$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `resource-id` = '%s' LIMIT 1",
+					intval($visitor),
+					intval($page_owner_uid),
+					DBA::escape($a->argv[3])
+				);
+			} else {
+				$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' LIMIT 1",
+					intval(local_user()),
+					DBA::escape($a->argv[3])
+				);
 			}
 
-			// remove the associated photos
-			Photo::delete(['resource-id' => $res, 'uid' => $page_owner_uid]);
+			if (DBA::isResult($r)) {
+				Photo::delete(['uid' => $page_owner_uid, 'resource-id' => $r[0]['resource-id']]);
 
-			// find and delete the corresponding item with all the comments and likes/dislikes
-			Item::deleteForUser(['resource-id' => $res, 'uid' => $page_owner_uid], $page_owner_uid);
+				Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
 
-			// Update the photo albums cache
-			Photo::clearAlbumCache($page_owner_uid);
+				// Update the photo albums cache
+				Photo::clearAlbumCache($page_owner_uid);
+				notice('Successfully deleted the photo.');
+			} else {
+				notice('Failed to delete the photo.');
+				$a->internalRedirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
+			}
+
+			$a->internalRedirect('photos/' . $a->argv[1]);
+			return; // NOTREACHED
 		}
-
-		$a->internalRedirect('photos/' . $a->data['user']['nickname']);
-		return; // NOTREACHED
-	}
-
-
-	// Check if the user has responded to a delete confirmation query for a single photo
-	if ($a->argc > 2 && !empty($_REQUEST['canceled'])) {
-		$a->internalRedirect($_SESSION['photo_return']);
-	}
-
-	if ($a->argc > 2 && defaults($_POST, 'delete', '') === L10n::t('Delete Photo')) {
-
-		// same as above but remove single photo
-
-		// Check if we should do HTML-based delete confirmation
-		if (!empty($_REQUEST['confirm'])) {
-			$drop_url = $a->query_string;
-
-			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'post',
-				'$message' => L10n::t('Do you really want to delete this photo?'),
-				'$extra_inputs' => [],
-				'$confirm' => L10n::t('Delete Photo'),
-				'$confirm_url' => $drop_url,
-				'$confirm_name' => 'delete', // Needed so that confirmation will bring us back into this if statement
-				'$cancel' => L10n::t('Cancel'),
-			]);
-
-			$a->error = 1; // Set $a->error so the other module functions don't execute
-			return;
-		}
-
-		if ($visitor) {
-			$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `resource-id` = '%s' LIMIT 1",
-				intval($visitor),
-				intval($page_owner_uid),
-				DBA::escape($a->argv[2])
-			);
-		} else {
-			$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' LIMIT 1",
-				intval(local_user()),
-				DBA::escape($a->argv[2])
-			);
-		}
-
-		if (DBA::isResult($r)) {
-			Photo::delete(['uid' => $page_owner_uid, 'resource-id' => $r[0]['resource-id']]);
-
-			Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
-
-			// Update the photo albums cache
-			Photo::clearAlbumCache($page_owner_uid);
-		}
-
-		$a->internalRedirect('photos/' . $a->data['user']['nickname']);
-		return; // NOTREACHED
 	}
 
 	if ($a->argc > 2 && (!empty($_POST['desc']) || !empty($_POST['newtag']) || isset($_POST['albname']))) {
@@ -896,8 +856,10 @@ function photos_content(App $a)
 	// photos/name/upload/xxxxx (xxxxx is album name)
 	// photos/name/album/xxxxx
 	// photos/name/album/xxxxx/edit
+	// photos/name/album/xxxxx/drop
 	// photos/name/image/xxxxx
 	// photos/name/image/xxxxx/edit
+	// photos/name/image/xxxxx/drop
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		notice(L10n::t('Public access denied.') . EOL);
@@ -936,7 +898,8 @@ function photos_content(App $a)
 	$contact        = null;
 	$remote_contact = false;
 	$contact_id     = 0;
-	$edit           = false;
+	$edit           = '';
+	$drop           = '';
 
 	$owner_uid = $a->data['user']['uid'];
 
@@ -1121,6 +1084,24 @@ function photos_content(App $a)
 			$pager->getItemsPerPage()
 		);
 
+		if ($cmd === 'drop') {
+			$drop_url = $a->query_string;
+
+			$extra_inputs = [
+				['name' => 'albumname', 'value' => $_POST['albumname']],
+			];
+
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+				'$method' => 'post',
+				'$message' => L10n::t('Do you really want to delete this photo album and all its photos?'),
+				'$extra_inputs' => $extra_inputs,
+				'$confirm' => L10n::t('Delete Album'),
+				'$confirm_url' => $drop_url,
+				'$confirm_name' => 'dropalbum',
+				'$cancel' => L10n::t('Cancel'),
+			]);
+		}
+
 		// edit album name
 		if ($cmd === 'edit') {
 			if (($album !== L10n::t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== L10n::t('Contact Photos'))) {
@@ -1142,6 +1123,7 @@ function photos_content(App $a)
 		} else {
 			if (($album !== L10n::t('Profile Photos')) && ($album !== 'Contact Photos') && ($album !== L10n::t('Contact Photos')) && $can_post) {
 				$edit = [L10n::t('Edit Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/edit'];
+				$drop = [L10n::t('Drop Album'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '/drop'];
 			}
 		}
 
@@ -1187,6 +1169,7 @@ function photos_content(App $a)
 			'$upload' => [L10n::t('Upload New Photos'), 'photos/' . $a->data['user']['nickname'] . '/upload/' . bin2hex($album)],
 			'$order' => $order,
 			'$edit' => $edit,
+			'$drop' => $drop,
 			'$paginate' => $pager->renderFull($total),
 		]);
 
@@ -1217,6 +1200,20 @@ function photos_content(App $a)
 			return;
 		}
 
+		if ($cmd === 'drop') {
+			$drop_url = $a->query_string;
+
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+				'$method' => 'post',
+				'$message' => L10n::t('Do you really want to delete this photo?'),
+				'$extra_inputs' => [],
+				'$confirm' => L10n::t('Delete Photo'),
+				'$confirm_url' => $drop_url,
+				'$confirm_name' => 'delete',
+				'$cancel' => L10n::t('Cancel'),
+			]);
+		}
+
 		$prevlink = '';
 		$nextlink = '';
 
@@ -1225,7 +1222,7 @@ function photos_content(App $a)
 		 * The query leads to a really intense used index.
 		 * By now we hide it if someone wants to.
 		 */
-		if (!Config::get('system', 'no_count', false)) {
+		if ($cmd === 'view' && !Config::get('system', 'no_count', false)) {
 			$order_field = defaults($_GET, 'order', '');
 
 			if ($order_field === 'posted') {
@@ -1256,12 +1253,26 @@ function photos_content(App $a)
 						break;
 					}
 				}
-				$edit_suffix = ((($cmd === 'edit') && $can_post) ? '/edit' : '');
+
 				if (!is_null($prv)) {
-					$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . $edit_suffix . ($order_field === 'posted' ? '?f=&order=posted' : '');
+					$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . ($order_field === 'posted' ? '?f=&order=posted' : '');
 				}
 				if (!is_null($nxt)) {
-					$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . $edit_suffix . ($order_field === 'posted' ? '?f=&order=posted' : '');
+					$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . ($order_field === 'posted' ? '?f=&order=posted' : '');
+				}
+
+				$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
+				$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
+					'$prevlink' => $prevlink,
+					'$nextlink' => $nextlink
+				]);
+
+				if ($prevlink) {
+					$prevlink = [$prevlink, '<div class="icon prev"></div>'];
+				}
+
+				if ($nextlink) {
+					$nextlink = [$nextlink, '<div class="icon next"></div>'];
 				}
  			}
 		}
@@ -1283,33 +1294,23 @@ function photos_content(App $a)
 		$album_link = 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($ph[0]['album']);
 
 		$tools = null;
-		$lock = null;
 
 		if ($can_post && ($ph[0]['uid'] == $owner_uid)) {
-			$tools = [
-				'edit'	=> ['photos/' . $a->data['user']['nickname'] . '/image/' . $datum . (($cmd === 'edit') ? '' : '/edit'), (($cmd === 'edit') ? L10n::t('View photo') : L10n::t('Edit photo'))],
-				'profile'=>['profile_photo/use/'.$ph[0]['resource-id'], L10n::t('Use as profile photo')],
-			];
+			$tools = [];
+			if ($cmd === 'edit') {
+				$tools['view'] = ['photos/' . $a->data['user']['nickname'] . '/image/' . $datum, L10n::t('View photo')];
+			} else {
+				$tools['edit'] = ['photos/' . $a->data['user']['nickname'] . '/image/' . $datum . '/edit', L10n::t('Edit photo')];
+				$tools['delete'] = ['photos/' . $a->data['user']['nickname'] . '/image/' . $datum . '/drop', L10n::t('Delete photo')];
+				$tools['profile'] = ['profile_photo/use/'.$ph[0]['resource-id'], L10n::t('Use as profile photo')];
+			}
 
-			// lock
-			$lock = ((($ph[0]['uid'] == local_user()) && (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid'])
-					|| strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid'])))
-					? L10n::t('Private Message')
-					: Null);
-
-
-		}
-
-		if ($cmd === 'edit') {
-			$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
-			$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
-				'$prevlink' => $prevlink,
-				'$nextlink' => $nextlink
-			]);
-		}
-
-		if ($prevlink) {
-			$prevlink = [$prevlink, '<div class="icon prev"></div>'];
+			if (
+				$ph[0]['uid'] == local_user()
+				&& (strlen($ph[0]['allow_cid']) || strlen($ph[0]['allow_gid']) || strlen($ph[0]['deny_cid']) || strlen($ph[0]['deny_gid']))
+			) {
+				$tools['lock'] = L10n::t('Private Photo');
+			}
 		}
 
 		$photo = [
@@ -1322,9 +1323,7 @@ function photos_content(App $a)
 			'filename' => $hires['filename'],
 		];
 
-		if ($nextlink) {
-			$nextlink = [$nextlink, '<div class="icon next"></div>'];
-		}
+
 
 
 		// Do we have an item for this photo?
@@ -1431,7 +1430,7 @@ function photos_content(App $a)
 			$tpl = Renderer::getMarkupTemplate('photo_item.tpl');
 			$return_path = $a->cmd;
 
-			if ($can_post || Security::canWriteToUserWall($owner_uid)) {
+			if ($cmd === 'view' && ($can_post || Security::canWriteToUserWall($owner_uid))) {
 				$like_tpl = Renderer::getMarkupTemplate('like_noshare.tpl');
 				$likebuttons = Renderer::replaceMacros($like_tpl, [
 					'$id' => $link_item['id'],
@@ -1510,7 +1509,7 @@ function photos_content(App $a)
 						continue;
 					}
 
-					$profile_url = Contact::MagicLinkById($item['author-id']);
+					$profile_url = Contact::magicLinkbyId($item['author-id']);
 					if (strpos($profile_url, 'redir/') === 0) {
 						$sparkle = ' sparkle';
 					} else {
@@ -1574,7 +1573,6 @@ function photos_content(App $a)
 			'$id' => $ph[0]['id'],
 			'$album' => [$album_link, $ph[0]['album']],
 			'$tools' => $tools,
-			'$lock' => $lock,
 			'$photo' => $photo,
 			'$prevlink' => $prevlink,
 			'$nextlink' => $nextlink,
