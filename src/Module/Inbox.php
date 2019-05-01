@@ -6,12 +6,12 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Config;
 use Friendica\Core\Logger;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
-use Friendica\Core\Config;
 
 /**
  * ActivityPub Inbox
@@ -39,6 +39,7 @@ class Inbox extends BaseModule
 			Logger::log('Incoming message stored under ' . $tempfile);
 		}
 
+		// @TODO: Replace with parameter from router
 		if (!empty($a->argv[1])) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => $a->argv[1]]);
 			if (!DBA::isResult($user)) {

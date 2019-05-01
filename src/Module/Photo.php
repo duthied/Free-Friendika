@@ -25,6 +25,7 @@ class Photo extends BaseModule
 	public static function init()
 	{
 		$a = self::getApp();
+		// @TODO: Replace with parameter from router
 		if ($a->argc <= 1 || $a->argc > 4) {
 			System::httpExit(400);
 		}
@@ -47,6 +48,7 @@ class Photo extends BaseModule
 
 		$customsize = 0;
 		$photo = false;
+		// @TODO: Replace with parameter from router
 		switch($a->argc) {
 			case 4:
 				$customsize = intval($a->argv[2]);
