@@ -24,8 +24,8 @@ A frontend module should extend the [`BaseModule`](https://github.com/friendica/
 ### Routing
 
 Every module needs to be accessed within a route.
-The routing mechanism is using a PSR-7 based routing and the routes are defined inside [`Router->collectRoutes()`](https://github.com/friendica/friendica/blob/develop/src/App/Router.php).
+The routes are defined inside [`Router->collectRoutes()`](https://github.com/friendica/friendica/blob/develop/src/App/Router.php).
 
 Use the given routes as a pattern for further routes.
 
-The routing library can be found [here](https://github.com/thephpleague/route).
+The routing library and further documentation can be found [here](https://github.com/nikic/FastRoute).
