@@ -42,8 +42,6 @@ class Router
 	{
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
 		$this->routeCollector->addRoute(['GET'],         '/amcd',                Module\AccountManagementControlDocument::class);
-		$this->routeCollector->addRoute(['GET'],         '/host-meta',           Module\HostMeta::class);
-		$this->routeCollector->addRoute(['GET'],         '/hostxrd',             Module\HostMeta::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
 		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
 		$this->routeCollector->addGroup('/.well-known', function (RouteCollector $collector) {
