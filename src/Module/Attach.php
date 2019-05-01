@@ -8,8 +8,8 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Model\Attach as MAttach;
 
 /**
@@ -26,8 +26,8 @@ class Attach extends BaseModule
 		if ($a->argc != 2) {
 			System::httpExit(400); // Bad Request.
 		}
-	
 
+		// @TODO: Replace with parameter from router
 		$item_id = intval($a->argv[1]);
 		
 		// Check for existence

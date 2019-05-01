@@ -2,12 +2,9 @@
 
 namespace Friendica\Module;
 
-use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model;
-use Friendica\Protocol\ActivityPub\Processor;
-use Friendica\Protocol\Diaspora;
 
 /**
  * @author Hypolite Petovan <mrpetovan@gmail.com>
@@ -22,6 +19,7 @@ class Itemsource extends \Friendica\BaseModule
 
 		$a = self::getApp();
 
+		// @TODO: Replace with parameter from router
 		if (!empty($a->argv[1])) {
 			$guid = $a->argv[1];
 		}
