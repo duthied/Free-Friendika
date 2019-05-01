@@ -19,8 +19,8 @@ class WebFinger extends BaseModule
 			System::httpExit(
 				403,
 				[
-					"title"       => L10n::t("Public access denied."),
-					"description" => L10n::t("Only logged in users are permitted to perform a probing.")
+					'title'       => L10n::t("Public access denied."),
+					'description' => L10n::t("Only logged in users are permitted to perform a probing.")
 				]
 			);
 			exit();
@@ -41,8 +41,8 @@ class WebFinger extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('webfinger.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$addr'   => $addr,
-			'$res'    => $res,
+			'$addr' => $addr,
+			'$res'  => $res,
 		]);
 	}
 }
