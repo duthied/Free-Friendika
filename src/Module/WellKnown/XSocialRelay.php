@@ -33,7 +33,7 @@ class XSocialRelay extends BaseModule
 
 			/// @todo Check if it was better to use "strtolower" on the tags
 			foreach ($tagitems AS $tag) {
-				$systemTags[] = trim($tag, "# ");
+				$systemTags[] = trim($tag, '# ');
 			}
 
 			if ($config->get('system', 'relay_user_tags')) {

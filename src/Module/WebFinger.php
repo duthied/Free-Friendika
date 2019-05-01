@@ -19,9 +19,9 @@ class WebFinger extends BaseModule
 			System::httpExit(
 				403,
 				[
-					'title'       => L10n::t("Public access denied."),
-					'description' => L10n::t("Only logged in users are permitted to perform a probing.")
-				]
+					'title'       => L10n::t('Public access denied.'),
+					'description' => L10n::t('Only logged in users are permitted to perform a probing.'),
+				],
 			);
 			exit();
 		}
