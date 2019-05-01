@@ -15,8 +15,6 @@ class HostMeta extends BaseModule
 {
 	public static function rawContent()
 	{
-		parent::rawContent();
-
 		$app = self::getApp();
 		$config = $app->getConfig();
 
