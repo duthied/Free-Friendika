@@ -29,7 +29,7 @@ class XSocialRelay extends BaseModule
 
 		if ($scope == SR_SCOPE_TAGS) {
 			$server_tags = $config->get('system', 'relay_server_tags');
-			$tagitems = explode(",", $server_tags);
+			$tagitems = explode(',', $server_tags);
 
 			/// @todo Check if it was better to use "strtolower" on the tags
 			foreach ($tagitems AS $tag) {
@@ -47,10 +47,14 @@ class XSocialRelay extends BaseModule
 			'subscribe' => $subscribe,
 			'scope'     => $scope,
 			'tags'      => $tagList,
-			'protocols' => ['diaspora' =>
-								['receive' => $app->getBaseURL() . '/receive/public'],
-							'dfrn'     =>
-								['receive' => $app->getBaseURL() . '/dfrn_notify']]
+			'protocols' => [
+				'diaspora' => [
+					'receive' => $app->getBaseURL() . '/receive/public'
+				],
+				'dfrn'     => [
+					'receive' => $app->getBaseURL() . '/dfrn_notify'
+				]
+			]
 		];
 
 		header('Content-type: application/json; charset=utf-8');

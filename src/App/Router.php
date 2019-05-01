@@ -43,11 +43,12 @@ class Router
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
 		$this->routeCollector->addRoute(['GET'],         '/amcd',                Module\AccountManagementControlDocument::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
+		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
 		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
 		$this->routeCollector->addGroup('/.well-known', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/host-meta'       , Module\WellKnown\HostMeta::class);
 			$collector->addRoute(['GET'], '/nodeinfo[/1.0]'  , Module\NodeInfo::class);
-			$collector->addRoute(['GET'], '/webfinger'       , Module\WellKnown\WebFinger::class);
+			$collector->addRoute(['GET'], '/webfinger'       , Module\Xrd::class);
 			$collector->addRoute(['GET'], '/x-social-relay'  , Module\WellKnown\XSocialRelay::class);
 		});
 	}
