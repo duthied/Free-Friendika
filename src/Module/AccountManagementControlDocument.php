@@ -9,12 +9,10 @@ use Friendica\BaseModule;
  *
  * @see https://wiki.mozilla.org/Labs/Weave/Identity/Account_Manager/Spec/3#Contents_of_the_Account_Management_Control_Document
  */
-class AccMgmtControlDoc extends BaseModule
+class AccountManagementControlDocument extends BaseModule
 {
 	public static function rawContent()
 	{
-		parent::rawContent();
-
 		$output = [
 			'version' => 1,
 			'sessionstatus' => [
