@@ -16,10 +16,16 @@ A frontend module should extend the [`BaseModule`](https://github.com/friendica/
 
 ### Backend modules
 
-This type of modules mainly responds either with `XML` or with `JSON`. 
+This type of modules mainly responds either with encoded `XML` or with `JSON` output.
+It isn't intended to respond with human readable text.
 
-Rules for Modules:
-- 	Named like the call (i.e. https://friendica.test/contact => `Contact`)
--	Start with capitals and are **not** camelCased.
--	Directly interacting with a given request (POST or GET)
--	Extending [`BaseModule`](https://github.com/friendica/friendica/blob/develop/src/BaseModule.php).
+A frontend module should extend the [`BaseModule`](https://github.com/friendica/friendica/blob/develop/src/BaseModule.php), especially the `rawContent()` method.
+ 
+### Routing
+
+Every module needs to be accessed within a route.
+The routing mechanism is using a PSR-7 based routing and the routes are defined inside [`Router->collectRoutes()`](https://github.com/friendica/friendica/blob/develop/src/App/Router.php).
+
+Use the given routes as a pattern for further routes.
+
+The routing library can be found [here](https://github.com/thephpleague/route).
