@@ -29,7 +29,7 @@ function dfrn_notify_post(App $a) {
 
 			$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
 			if (!DBA::isResult($user)) {
-				System::httpExit(500);
+				throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 			}
 			dfrn_dispatch_private($user, $postdata);
 		} elseif (!dfrn_dispatch_public($postdata)) {

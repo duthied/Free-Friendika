@@ -50,7 +50,7 @@ function dfrn_poll_init(App $a)
 
 	if (($dfrn_id === '') && empty($_POST['dfrn_id'])) {
 		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			System::httpExit(403);
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		$user = '';
@@ -59,7 +59,7 @@ function dfrn_poll_init(App $a)
 				DBA::escape($a->argv[1])
 			);
 			if (!$r) {
-				System::httpExit(404);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 
 			$hidewall = ($r[0]['hidewall'] && !local_user());
@@ -483,7 +483,7 @@ function dfrn_poll_content(App $a)
 			// heluecht: I don't know why we don't fail immediately when the user or contact hadn't been found.
 			// Since it doesn't make sense to continue from this point on, we now fail here. This should be safe.
 			if (!DBA::isResult($r)) {
-				System::httpExit(404, ["title" => L10n::t('Page not found.')]);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 
 			// URL reply

@@ -20,12 +20,12 @@ class Outbox extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if (empty($a->argv[1])) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$owner = User::getOwnerDataByNick($a->argv[1]);
 		if (empty($owner)) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$page = defaults($_REQUEST, 'page', null);

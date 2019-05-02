@@ -153,7 +153,7 @@ abstract class BaseModule extends BaseObject
 			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 
-			System::httpExit(403);
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 	}
 }

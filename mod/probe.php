@@ -10,9 +10,9 @@ use Friendica\Network\Probe;
 function probe_content(App $a)
 {
 	if (!local_user()) {
-		System::httpExit(403, ["title" => L10n::t("Public access denied."),
-			"description" => L10n::t("Only logged in users are permitted to perform a probing.")]);
-		exit();
+		$e = new \Friendica\Network\HTTPException\ForbiddenException(L10n::t("Only logged in users are permitted to perform a probing."));
+		$e->httpdesc = L10n::t("Public access denied.");
+		throw $e;
 	}
 
 	$o = '<div class="generic-page-wrapper">';

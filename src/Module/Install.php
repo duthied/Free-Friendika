@@ -51,7 +51,7 @@ class Install extends BaseModule
 		$a = self::getApp();
 
 		if (!$a->getMode()->isInstall()) {
-			Core\System::httpExit(403);
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		// route: install/testrwrite
@@ -59,7 +59,7 @@ class Install extends BaseModule
 		// @TODO: Replace with parameter from router
 		if ($a->getArgumentValue(1, '') == 'testrewrite') {
 			// Status Code 204 means that it worked without content
-			Core\System::httpExit(204);
+			throw new \Friendica\Network\HTTPException\NoContentException();
 		}
 
 		self::$installer = new Core\Installer();

@@ -14,9 +14,8 @@ use Friendica\Database\DBA;
 
 function fetch_init(App $a)
 {
-
 	if (($a->argc != 3) || (!in_array($a->argv[1], ["post", "status_message", "reshare"]))) {
-		System::httpExit(404);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$guid = $a->argv[2];
@@ -42,13 +41,13 @@ function fetch_init(App $a)
 			}
 		}
 
-		System::httpExit(404);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	// Fetch some data from the author (We could combine both queries - but I think this is more readable)
 	$user = User::getOwnerDataById($item["uid"]);
 	if (!$user) {
-		System::httpExit(404);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$status = Diaspora::buildStatus($item, $user);

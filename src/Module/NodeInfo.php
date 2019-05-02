@@ -18,7 +18,7 @@ class NodeInfo extends BaseModule
 		$config = self::getApp()->getConfig();
 
 		if (!$config->get('system', 'nodeinfo')) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 	}
 
@@ -41,14 +41,14 @@ class NodeInfo extends BaseModule
 	 *
 	 * @param App $app
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\NotFoundException
 	 */
 	private static function printWellKnown(App $app)
 	{
 		$config = $app->getConfig();
 
 		if (!$config->get('system', 'nodeinfo')) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$nodeinfo = [

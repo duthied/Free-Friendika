@@ -17,7 +17,7 @@ function pubsubhubbub_init(App $a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
 	if (Config::get('system', 'block_public')) {
-		System::httpExit(403);
+		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 
 	// Subscription request from subscriber
@@ -44,7 +44,7 @@ function pubsubhubbub_init(App $a) {
 			$subscribe = 0;
 		} else {
 			Logger::log("Invalid hub_mode=$hub_mode, ignoring.");
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		Logger::log("$hub_mode request from " . $_SERVER['REMOTE_ADDR']);
@@ -61,7 +61,7 @@ function pubsubhubbub_init(App $a) {
 
 		if (!$nick) {
 			Logger::log('Bad hub_topic=$hub_topic, ignoring.');
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// fetch user from database given the nickname
@@ -69,13 +69,13 @@ function pubsubhubbub_init(App $a) {
 		$owner = DBA::selectFirst('user', ['uid', 'hidewall', 'nickname'], $condition);
 		if (!DBA::isResult($owner)) {
 			Logger::log('Local account not found: ' . $nick . ' - topic: ' . $hub_topic . ' - callback: ' . $hub_callback);
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// abort if user's wall is supposed to be private
 		if ($owner['hidewall']) {
 			Logger::log('Local user ' . $nick . 'has chosen to hide wall, ignoring.');
-			System::httpExit(403);
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		// get corresponding row from contact table
@@ -84,7 +84,7 @@ function pubsubhubbub_init(App $a) {
 		$contact = DBA::selectFirst('contact', ['poll'], $condition);
 		if (!DBA::isResult($contact)) {
 			Logger::log('Self contact for user ' . $owner['uid'] . ' not found.');
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// sanity check that topic URLs are the same
@@ -93,7 +93,7 @@ function pubsubhubbub_init(App $a) {
 
 		if (!Strings::compareLink($hub_topic, $contact['poll']) && !Strings::compareLink($hub_topic2, $contact['poll']) && !Strings::compareLink($hub_topic, $self)) {
 			Logger::log('Hub topic ' . $hub_topic . ' != ' . $contact['poll']);
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// do subscriber verification according to the PuSH protocol
@@ -121,19 +121,19 @@ function pubsubhubbub_init(App $a) {
 		// give up if the HTTP return code wasn't a success (2xx)
 		if ($ret < 200 || $ret > 299) {
 			Logger::log("Subscriber verification for $hub_topic at $hub_callback returned $ret, ignoring.");
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		// check that the correct hub_challenge code was echoed back
 		if (trim($body) !== $hub_challenge) {
 			Logger::log("Subscriber did not echo back hub.challenge, ignoring.");
 			Logger::log("\"$hub_challenge\" != \"".trim($body)."\"");
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		PushSubscriber::renew($owner['uid'], $nick, $subscribe, $hub_callback, $hub_topic, $hub_secret);
 
-		System::httpExit(202);
+		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
 	exit();
 }

@@ -13,7 +13,7 @@ class Statistics extends BaseModule
 		$config = self::getApp()->getConfig();
 
 		if (!$config->get("system", "nodeinfo")) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 	}
 

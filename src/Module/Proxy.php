@@ -70,7 +70,7 @@ class Proxy extends BaseModule
 		$request = self::getRequestInfo();
 
 		if (empty($request['url'])) {
-			System::httpExit(400, ['title' => L10n::t('Bad Request.')]);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		// Webserver already tried direct cache...

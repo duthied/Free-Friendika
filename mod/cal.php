@@ -31,11 +31,11 @@ function cal_init(App $a)
 	}
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	if ($a->argc < 2) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	Nav::setSelected('events');
@@ -43,7 +43,7 @@ function cal_init(App $a)
 	$nick = $a->argv[1];
 	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 	if (!DBA::isResult($user)) {
-		System::httpExit(404, ['title' => L10n::t('Page not found.')]);
+		throw new \Slim\Exception\NotFoundException();
 	}
 
 	$a->data['user'] = $user;

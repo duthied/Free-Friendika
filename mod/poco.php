@@ -22,7 +22,7 @@ function poco_init(App $a) {
 	$system_mode = false;
 
 	if (intval(Config::get('system', 'block_public')) || (Config::get('system', 'block_local_dir'))) {
-		System::httpExit(401);
+		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 
 	if ($a->argc > 1) {
@@ -31,7 +31,7 @@ function poco_init(App $a) {
 	if (empty($nickname)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
 		if (!DBA::isResult($c)) {
-			System::httpExit(401);
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 		$system_mode = true;
 	}
@@ -73,7 +73,7 @@ function poco_init(App $a) {
 			DBA::escape($nickname)
 		);
 		if (! DBA::isResult($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$user = $users[0];
@@ -371,8 +371,9 @@ function poco_init(App $a) {
 			$ret['entry'][] = [];
 		}
 	} else {
-		System::httpExit(500);
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
+
 	Logger::log("End of poco", Logger::DEBUG);
 
 	if ($format === 'xml') {
@@ -385,6 +386,6 @@ function poco_init(App $a) {
 		echo json_encode($ret);
 		exit();
 	} else {
-		System::httpExit(500);
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 }

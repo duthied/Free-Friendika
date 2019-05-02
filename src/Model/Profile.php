@@ -112,7 +112,6 @@ class Profile
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
 			Logger::log('profile error: ' . $a->query_string, Logger::DEBUG);
-			notice(L10n::t('Requested account is not available.') . EOL);
 			return;
 		}
 
@@ -129,7 +128,6 @@ class Profile
 
 		if (empty($pdata) && empty($profiledata)) {
 			Logger::log('profile error: ' . $a->query_string, Logger::DEBUG);
-			notice(L10n::t('Requested profile is not available.') . EOL);
 			return;
 		}
 

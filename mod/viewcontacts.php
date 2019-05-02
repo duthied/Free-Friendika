@@ -20,18 +20,18 @@ use Friendica\Util\Proxy as ProxyUtils;
 function viewcontacts_init(App $a)
 {
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		System::httpExit(403, ["title" => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	if ($a->argc < 2) {
-		System::httpExit(403, ["title" => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	Nav::setSelected('home');
 
 	$user = DBA::selectFirst('user', [], ['nickname' => $a->argv[1], 'blocked' => false]);
 	if (!DBA::isResult($user)) {
-		System::httpExit(404, ["title" => L10n::t('Page not found.')]);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$a->data['user'] = $user;

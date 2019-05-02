@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class MethodNotAllowedException extends HTTPException
 {
-	var $httpcode = 405;
+	protected $code = 405;
 }

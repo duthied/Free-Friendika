@@ -31,7 +31,7 @@ function hovercard_content()
 
 	// Get out if the system doesn't have public access allowed
 	if (intval(Config::get('system', 'block_public'))) {
-		System::httpExit(401);
+		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 
 	// Return the raw content of the template. We use this to make templates usable for js functions.
