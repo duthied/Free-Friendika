@@ -18,7 +18,6 @@ function viewsrc_content(App $a)
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (!$item_id) {
-		$a->error = 404;
 		notice(L10n::t('Item not found.') . EOL);
 		return;
 	}

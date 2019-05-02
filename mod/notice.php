@@ -16,7 +16,6 @@ function notice_init(App $a)
 		$nick = $r[0]['nickname'];
 		$a->internalRedirect('display/' . $nick . '/' . $id);
 	} else {
-		$a->error = 404;
 		notice(L10n::t('Item not found.') . EOL);
 	}
 
