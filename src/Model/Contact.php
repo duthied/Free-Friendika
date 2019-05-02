@@ -1782,7 +1782,7 @@ class Contact extends BaseObject
 	 * @param array $contact
 	 * @return boolean
 	 */
-	private static function isLegacyDFRNContact($contact)
+	public static function isLegacyDFRNContact($contact)
 	{
 		// Newer Friendica contacts are connected via AP, then these fields aren't set
 		return !empty($contact['dfrn-id']) || !empty($contact['issued-id']);
