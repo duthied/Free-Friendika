@@ -40,7 +40,7 @@ class Directory extends BaseModule
 
 		if (($config->get('system', 'block_public') && !local_user() && !remote_user()) ||
 			($config->get('system', 'block_local_dir') && !local_user() && !remote_user())) {
-			throw new HTTPException\ForbiddenException();
+			throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
 		}
 
 		$output = '';
