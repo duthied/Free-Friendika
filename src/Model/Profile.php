@@ -1235,4 +1235,74 @@ class Profile
 	{
 		return preg_replace('/[\?&]' . $param . '=(.*?)(&|$)/ism', '$2', $s);
 	}
+
+	/**
+	 * search for Profiles
+	 *
+	 * @param int  $start
+	 * @param int  $count
+	 * @param null $search
+	 *
+	 * @return array [ 'total' => 123, 'entries' => [...] ];
+	 *
+	 * @throws \Exception
+	 */
+	public static function searchProfiles($start = 0, $count = 100, $search = null)
+	{
+		if ($search) {
+			$search = DBA::escape($search);
+
+			$sql_extra = " AND ((`profile`.`name` LIKE '%$search%') OR
+				(`user`.`nickname` LIKE '%$search%') OR
+				(`profile`.`pdesc` LIKE '%$search%') OR
+				(`profile`.`locality` LIKE '%$search%') OR
+				(`profile`.`region` LIKE '%$search%') OR
+				(`profile`.`country-name` LIKE '%$search%') OR
+				(`profile`.`gender` LIKE '%$search%') OR
+				(`profile`.`marital` LIKE '%$search%') OR
+				(`profile`.`sexual` LIKE '%$search%') OR
+				(`profile`.`about` LIKE '%$search%') OR
+				(`profile`.`romance` LIKE '%$search%') OR
+				(`profile`.`work` LIKE '%$search%') OR
+				(`profile`.`education` LIKE '%$search%') OR
+				(`profile`.`pub_keywords` LIKE '%$search%') OR
+				(`profile`.`prv_keywords` LIKE '%$search%'))";
+		} else {
+			$sql_extra = '';
+		}
+
+		$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
+
+
+		$total = 0;
+		$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `profile`
+				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
+		if (DBA::isResult($cnt)) {
+			$total = $cnt['total'];
+		}
+
+		$order = " ORDER BY `name` ASC ";
+		$limit = $start . ',' . $count;
+
+		$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+			`contact`.`addr`, `contact`.`url` AS `profile_url` FROM `profile`
+			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
+			$sql_extra $order LIMIT $limit"
+		);
+
+		if (DBA::isResult($profiles)) {
+			return [
+				'total'   => $total,
+				'entries' => DBA::toArray($profiles),
+			];
+		} else {
+			return [
+				'total'   => $total,
+				'entries' => [],
+			];
+		}
+	}
 }
