@@ -8,18 +8,42 @@ use Friendica\Core\Addon;
 use Friendica\Core\System;
 
 /**
- * Prints infos about the current node
+ * Standardized way of exposing metadata about a server running one of the distributed social networks.
+ * @see https://github.com/jhass/nodeinfo/blob/master/PROTOCOL.md
  */
-class Nodeinfo extends BaseModule
+class NodeInfo extends BaseModule
 {
+	public static function init()
+	{
+		$config = self::getApp()->getConfig();
+
+		if (!$config->get('system', 'nodeinfo')) {
+			System::httpExit(404);
+		}
+	}
+
+	public static function rawContent()
+	{
+		$app = self::getApp();
+
+		// @TODO: Replace with parameter from router
+		// if the first argument is ".well-known", print the well-known text
+		if (($app->argc > 1) && ($app->argv[0] == '.well-known')) {
+			self::printWellKnown($app);
+		// otherwise print the nodeinfo
+		} else {
+			self::printNodeInfo($app);
+		}
+	}
+
 	/**
-	 * Prints the Nodeinfo for a well-known request
+	 * Prints the well-known nodeinfo redirect
 	 *
 	 * @param App $app
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function printWellKnown(App $app)
+	private static function printWellKnown(App $app)
 	{
 		$config = $app->getConfig();
 
@@ -38,23 +62,14 @@ class Nodeinfo extends BaseModule
 		exit;
 	}
 
-	public static function init()
+	/**
+	 * Print the nodeinfo
+	 *
+	 * @param App $app
+	 */
+	private static function printNodeInfo(App $app)
 	{
-		$app = self::getApp();
 		$config = $app->getConfig();
-
-		if (!$config->get('system', 'nodeinfo')) {
-			System::httpExit(404);
-		}
-
-		if (($app->argc != 2) || ($app->argv[1] != '1.0')) {
-			System::httpExit(404);
-		}
-	}
-
-	public static function rawContent()
-	{
-		$config = self::getApp()->getConfig();
 
 		$smtp = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
 

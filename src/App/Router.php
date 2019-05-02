@@ -42,6 +42,12 @@ class Router
 	{
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
 		$this->routeCollector->addRoute(['GET'],         '/amcd',                Module\AccountManagementControlDocument::class);
+		$this->routeCollector->addGroup('/.well-known', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/host-meta'       , Module\WellKnown\HostMeta::class);
+			$collector->addRoute(['GET'], '/nodeinfo[/1.0]'  , Module\NodeInfo::class);
+			$collector->addRoute(['GET'], '/webfinger'       , Module\Xrd::class);
+			$collector->addRoute(['GET'], '/x-social-relay'  , Module\WellKnown\XSocialRelay::class);
+		});
 		$this->routeCollector->addRoute(['GET'],         '/acctlink',            Module\Acctlink::class);
 		$this->routeCollector->addRoute(['GET'],         '/apps',                Module\Apps::class);
 		$this->routeCollector->addRoute(['GET'],         '/attach/{item:\d+}',   Module\Attach::class);
@@ -83,6 +89,7 @@ class Router
 		$this->routeCollector->addRoute(['GET', 'POST'], '/login',               Module\Login::class);
 		$this->routeCollector->addRoute(['GET'],         '/magic',               Module\Magic::class);
 		$this->routeCollector->addRoute(['GET'],         '/manifest',            Module\Manifest::class);
+		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
 		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
 		$this->routeCollector->addGroup('/oembed', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/[b2h|h2b]',                          Module\Oembed::class);
@@ -108,6 +115,8 @@ class Router
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
 		$this->routeCollector->addRoute(['GET'],         '/statistics.json',     Module\Statistics::class);
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
+		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
+		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
 	}
 
 	public function __construct(RouteCollector $routeCollector = null)
