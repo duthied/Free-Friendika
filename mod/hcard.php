@@ -18,7 +18,6 @@ function hcard_init(App $a)
 		$which = $a->argv[1];
 	} else {
 		notice(L10n::t('No profile') . EOL);
-		$a->error = 404;
 		return;
 	}
 

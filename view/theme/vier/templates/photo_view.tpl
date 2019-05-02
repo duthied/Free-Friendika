@@ -4,11 +4,22 @@
 
 <div id="photo-edit-link-wrap">
 {{if $tools}}
-<a id="photo-edit-link" href="{{$tools.edit.0}}">{{$tools.edit.1}}</a>
-|
-<a id="photo-toprofile-link" href="{{$tools.profile.0}}">{{$tools.profile.1}}</a>
+	{{if $tools.view}}
+		<a id="photo-view-link" href="{{$tools.view.0}}">{{$tools.view.1}}</a>
+	{{/if}}
+	{{if $tools.edit}}
+		<a id="photo-edit-link" href="{{$tools.edit.0}}">{{$tools.edit.1}}</a>
+	{{/if}}
+	{{if $tools.delete}}
+		| <a id="photo-edit-link" href="{{$tools.delete.0}}">{{$tools.delete.1}}</a>
+	{{/if}}
+	{{if $tools.profile}}
+		| <a id="photo-toprofile-link" href="{{$tools.profile.0}}">{{$tools.profile.1}}</a>
+	{{/if}}
+	{{if $tools.lock}}
+		| <img src="images/lock_icon.gif" class="lockview" alt="{{$tools.lock}}" onclick="lockview(event,'photo/{{$id}}');" />
+	{{/if}}
 {{/if}}
-{{if $lock}} | <img src="images/lock_icon.gif" class="lockview" alt="{{$lock}}" onclick="lockview(event,'photo/{{$id}}');" /> {{/if}}
 </div>
 
 {{if $prevlink}}<div id="photo-prev-link"><a href="{{$prevlink.0}}">{{$prevlink.1 nofilter}}</a></div>{{/if}}

@@ -19,39 +19,16 @@ function suggest_init(App $a)
 	if (! local_user()) {
 		return;
 	}
+}
 
-	if (!empty($_GET['ignore'])) {
-		// Check if we should do HTML-based delete confirmation
-		if ($_REQUEST['confirm']) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring($a->query_string);
-			$inputs = [];
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => L10n::t('Do you really want to delete this suggestion?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => L10n::t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => L10n::t('Cancel'),
-			]);
-			$a->error = 1; // Set $a->error so the other module functions don't execute
-			return;
-		}
-		// Now check how the user responded to the confirmation query
-		if (!$_REQUEST['canceled']) {
-			DBA::insert('gcign', ['uid' => local_user(), 'gcid' => $_GET['ignore']]);
-		}
+function suggest_post(App $a)
+{
+	if (!empty($_POST['ignore']) && !empty($_POST['confirm'])) {
+		DBA::insert('gcign', ['uid' => local_user(), 'gcid' => $_POST['ignore']]);
+		notice(L10n::t('Contact suggestion successfully ignored.'));
 	}
 
+	$a->internalRedirect('suggest');
 }
 
 function suggest_content(App $a)
@@ -76,11 +53,34 @@ function suggest_content(App $a)
 		return $o;
 	}
 
+
+	if (!empty($_GET['ignore'])) {
+		// <form> can't take arguments in its "action" parameter
+		// so add any arguments as hidden inputs
+		$query = explode_querystring($a->query_string);
+		$inputs = [];
+		foreach ($query['args'] as $arg) {
+			if (strpos($arg, 'confirm=') === false) {
+				$arg_parts = explode('=', $arg);
+				$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
+			}
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+			'$method' => 'post',
+			'$message' => L10n::t('Do you really want to delete this suggestion?'),
+			'$extra_inputs' => $inputs,
+			'$confirm' => L10n::t('Yes'),
+			'$confirm_url' => $query['base'],
+			'$confirm_name' => 'confirm',
+			'$cancel' => L10n::t('Cancel'),
+		]);
+	}
+
 	$id = 0;
 	$entries = [];
 
 	foreach ($r as $rr) {
-
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = [

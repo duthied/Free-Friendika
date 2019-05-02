@@ -84,33 +84,6 @@ function videos_post(App $a)
 	}
 
 	if (($a->argc == 2) && !empty($_POST['delete']) && !empty($_POST['id'])) {
-		// Check if we should do HTML-based delete confirmation
-		if (empty($_REQUEST['confirm'])) {
-			if (!empty($_REQUEST['canceled'])) {
-				$a->internalRedirect('videos/' . $a->data['user']['nickname']);
-			}
-
-			$drop_url = $a->query_string;
-
-			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'post',
-				'$message' => L10n::t('Do you really want to delete this video?'),
-				'$extra_inputs' => [
-					['name' => 'id'    , 'value' => $_POST['id']],
-					['name' => 'delete', 'value' => 'x']
-				],
-				'$confirm' => L10n::t('Delete Video'),
-				'$confirm_url' => $drop_url,
-				'$confirm_name' => 'confirm', // Needed so that confirmation will bring us back into this if statement
-				'$cancel' => L10n::t('Cancel'),
-
-			]);
-
-			$a->error = 1; // Set $a->error so the other module functions don't execute
-
-			return;
-		}
-
 		$video_id = $_POST['id'];
 
 		if (Attach::exists(['id' => $video_id, 'uid' => local_user()])) {
