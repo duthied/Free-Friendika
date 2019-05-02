@@ -39,6 +39,7 @@ class Site extends BaseAdminModule
 		}
 
 		// relocate
+		// @TODO This file could benefit from moving this feature away in a Module\Admin\Relocate class for example
 		if (!empty($_POST['relocate']) && !empty($_POST['relocate_url']) && $_POST['relocate_url'] != "") {
 			$new_url = $_POST['relocate_url'];
 			$new_url = rtrim($new_url, "/");

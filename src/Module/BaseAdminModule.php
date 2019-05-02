@@ -7,8 +7,17 @@ use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Database\DBA;
 
+/**
+ * This abstract module is meant to be extended by all modules that are reserved to administrator users.
+ *
+ * It performs a blanket permission check in all the module methods as long as the relevant `parent::method()` is
+ * called in the inheriting module.
+ *
+ * Additionally, it puts together the administration page aside with all the administration links.
+ *
+ * @package Friendica\Module
+ */
 abstract class BaseAdminModule extends BaseModule
 {
 	public static function post()
