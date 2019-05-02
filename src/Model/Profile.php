@@ -639,7 +639,6 @@ class Profile
 		}
 		$tpl = Renderer::getMarkupTemplate('birthdays_reminder.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => $total,
 			'$event_reminders' => L10n::t('Birthday Reminders'),
@@ -728,7 +727,6 @@ class Profile
 		}
 		$tpl = Renderer::getMarkupTemplate('events_reminder.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(),
 			'$classtoday' => $classtoday,
 			'$count' => count($r),
 			'$event_reminders' => L10n::t('Event Reminders'),

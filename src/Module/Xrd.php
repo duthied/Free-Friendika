@@ -178,7 +178,6 @@ class Xrd extends BaseModule
 			'$atom'        => $baseURL . '/dfrn_poll/' . $user['nickname'],
 			'$poco_url'    => $baseURL . '/poco/' . $user['nickname'],
 			'$photo'       => $baseURL . '/photo/profile/' . $user['uid'] . '.jpg',
-			'$baseurl'     => $baseURL,
 			'$salmon'      => $baseURL . '/salmon/' . $user['nickname'],
 			'$salmen'      => $baseURL . '/salmon/' . $user['nickname'] . '/mention',
 			'$subscribe'   => $baseURL . '/follow?url={uri}',

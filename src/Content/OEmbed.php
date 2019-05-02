@@ -181,7 +181,6 @@ class OEmbed
 					$tw = $th * $tr;
 					$tpl = Renderer::getMarkupTemplate('oembed_video.tpl');
 					$ret .= Renderer::replaceMacros($tpl, [
-						'$baseurl' => System::baseUrl(),
 						'$embedurl' => $oembed->embed_url,
 						'$escapedhtml' => base64_encode($oembed->html),
 						'$tw' => $tw,

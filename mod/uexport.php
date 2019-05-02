@@ -49,7 +49,6 @@ function uexport_content(App $a) {
 
 	$tpl = Renderer::getMarkupTemplate("uexport.tpl");
 	return Renderer::replaceMacros($tpl, [
-		'$baseurl' => System::baseUrl(),
 		'$title' => L10n::t('Export personal data'),
 		'$options' => $options
 	]);

@@ -1,45 +1,6 @@
 
 <script>
 	$(function(){
-
-		$("#cnftheme").click(function(){
-			$.colorbox({
-				width: 800,
-				height: '90%',
-				/*onOpen: function(){
-					var theme = $("#id_theme :selected").val();
-					$("#cnftheme").attr('href',"{{$baseurl}}/admin/themes/"+theme);
-				},*/
-                iframe: true,
-                href: "{{$baseurl}}/admin/themes/" + $("#id_theme :selected").val() + "?mode=minimal",
-				onComplete: function(){
-					$("div#fancybox-content form").submit(function(e){
-						var url = $(this).attr('action');
-						// can't get .serialize() to work...
-						var data={};
-						$(this).find("input").each(function(){
-							data[$(this).attr('name')] = $(this).val();
-						});
-						$(this).find("select").each(function(){
-							data[$(this).attr('name')] = $(this).children(":selected").val();
-						});
-						console.log(":)", url, data);
-
-						$.post(url, data, function(data) {
-							if(timer) clearTimeout(timer);
-							NavUpdate();
-							$.colorbox.close();
-						})
-
-						return false;
-					});
-
-				}
-			});
-			return false;
-		});
-	});
-	$(function(){
 		$(".collapse").on('show.bs.collapse', function(e) {
 			var id = $(e.target).attr('id');
 			$("input[name=active_panel]").val(id);
@@ -50,6 +11,11 @@
 				$(element).addClass('in');
 			window.scroll(0, $(element).offset().top - 120);
 		}
+
+		$("#cnftheme").click(function(){
+			document.location.assign("{{$baseurl}}/admin/themes/" + $("#id_theme :selected").val());
+			return false;
+		});
 	});
 </script>
 <link rel="stylesheet" href="view/theme/frio/css/mod_admin.css" type="text/css" media="screen"/>
@@ -73,9 +39,7 @@
 					</h4>
 				</div>
 				<div id="admin-settings-general-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="admin-settings-general">
-
 					{{include file="field_input.tpl" field=$sitename}}
-					{{include file="field_input.tpl" field=$hostname}}
 					{{include file="field_input.tpl" field=$sender_email}}
 					{{include file="field_textarea.tpl" field=$banner}}
 					{{include file="field_input.tpl" field=$shortcut_icon}}

@@ -1,7 +1,4 @@
-
-<link rel="stylesheet" href="{{$baseurl}}/view/theme/frio/frameworks/jRange/jquery.range.css" type="text/css" media="screen" />
 <script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js"></script>
-<script src="{{$baseurl}}/view/theme/frio/frameworks/jRange/jquery.range.js"></script>
 <script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
 
 {{include file="field_select.tpl" field=$scheme}}
@@ -17,7 +14,19 @@
 {{if $contentbg_transp}}
 <div class="form-group field input color">
 	<label for="id_{{$contentbg_transp.0}}" id="label_{{$contentbg_transp.0}}">{{$contentbg_transp.1}}</label>
-	<input type="hidden" class="form-control color slider-input" name="{{$contentbg_transp.0}}" id="{{$contentbg_transp.0}}" type="text" value="{{$contentbg_transp.2}}" aria-describedby="{{$contentbg_transp.0}}_tip">
+
+	<div class="row">
+		<div class="col-xs-9">
+			<input type="range" class="form-control color" id="{{$contentbg_transp.0}}_range" min="0" max="100" step="1" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}.value = this.value" oninput="{{$contentbg_transp.0}}.value = this.value">
+		</div>
+		<div class="col-xs-3">
+			<div class="input-group">
+				<input type="text" class="form-control input-sm" name="{{$contentbg_transp.0}}" id="{{$contentbg_transp.0}}" value="{{$contentbg_transp.2}}" onchange="{{$contentbg_transp.0}}_range.value = this.value" oninput="{{$contentbg_transp.0}}_range.value = this.value" aria-describedby="{{$contentbg_transp.0}}_tip">
+				<span class="input-group-addon image-select">%</span>
+			</div>
+		</div>
+	</div>
+
 	<span id="{{$contentbg_transp.0}}_tip" class="help-block" role="tooltip">{{$contentbg_transp.3}}</span>
 	<div id="end_{{$contentbg_transp.0}}" class="field_end"></div>
 </div>
@@ -171,25 +180,6 @@
 		if($("#id_frio_background_image").val().length != 0) {
 				$("#frio_bg_image_options").show();
 		}
-
-		$('.slider-input').jRange({
-			from: 0,
-			to: 100,
-			step: 1,
-			scale: [0,10,20,30,40,50,60,70,80,90,100],
-			format: '%s',
-			width: '100%',
-			showLabels: true,
-			theme: 'theme-frio',
-		});
-
-		// The position of the slider is wrong calculated on hidden elements.
-		// So set an event listener toggle and update the jRange value.
-		$(document).on('click', '#custom-settings-title a', function() {
-			var bgTransp = $('#frio_contentbg_transp').val();
-			$('.slider-input').jRange('setValue', bgTransp);
-		});
-
 	});
 </script>
 
@@ -197,7 +187,3 @@
 	<button type="submit" value="{{$submit}}" class="settings-submit btn btn-primary" name="frio-settings-submit">{{$submit}}</button>
 </div>
 <div class="clearfix"></div>
-
-<script type="text/javascript">
-	$(".inputRange").rangeinput();
-</script>

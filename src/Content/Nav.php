@@ -67,7 +67,6 @@ class Nav
 		$tpl = Renderer::getMarkupTemplate('nav.tpl');
 
 		$nav .= Renderer::replaceMacros($tpl, [
-			'$baseurl'      => System::baseUrl(),
 			'$sitelocation' => $nav_info['sitelocation'],
 			'$nav'          => $nav_info['nav'],
 			'$banner'       => $nav_info['banner'],

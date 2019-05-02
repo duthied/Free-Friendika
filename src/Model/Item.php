@@ -3466,9 +3466,7 @@ class Item extends BaseObject
 			if (strpos($mime, 'video') !== false) {
 				if (!$vhead) {
 					$vhead = true;
-					$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'), [
-						'$baseurl' => System::baseUrl(),
-					]);
+					$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'));
 				}
 
 				$url_parts = explode('/', $the_url);

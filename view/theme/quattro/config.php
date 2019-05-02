@@ -72,7 +72,6 @@ function quattro_form(App $a, $align, $color, $tfs, $pfs) {
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl" );
 	$o = Renderer::replaceMacros($t, [
 		'$submit'  => L10n::t('Submit'),
-		'$baseurl' => System::baseUrl(),
 		'$title'   => L10n::t("Theme settings"),
 		'$align'   => ['quattro_align', L10n::t('Alignment'), $align, '', ['left' => L10n::t('Left'), 'center' => L10n::t('Center')]],
 		'$color'   => ['quattro_color', L10n::t('Color scheme'), $color, '', $colors],

@@ -8,7 +8,6 @@ use Friendica\Content\Feature;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Database\DBA;
@@ -48,7 +47,6 @@ function editpost_content(App $a)
 
 	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-		'$baseurl' => System::baseUrl(),
 		'$ispublic' => '&nbsp;', // L10n::t('Visible to <strong>everybody</strong>'),
 		'$geotag' => $geotag,
 		'$nickname' => $a->user['nickname']
@@ -91,7 +89,6 @@ function editpost_content(App $a)
 		'$posttype' => $item['post-type'],
 		'$content' => undo_post_tagging($item['body']),
 		'$post_id' => $post_id,
-		'$baseurl' => System::baseUrl(),
 		'$defloc' => $a->user['default-location'],
 		'$visitor' => 'none',
 		'$pvisit' => 'none',

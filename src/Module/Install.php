@@ -173,15 +173,14 @@ class Install extends BaseModule
 					'$next'        => L10n::t('Next'),
 					'$reload'      => L10n::t('Check again'),
 					'$php_path'    => $php_path,
-					'$baseurl'     => $a->getBaseURL()
 				]);
 				break;
 
 			case self::BASE_CONFIG:
 				$ssl_choices = [
-					BaseUrl::SSL_POLICY_NONE     => L10n::t("No SSL policy, links will track page SSL state"),
-					BaseUrl::SSL_POLICY_FULL     => L10n::t("Force all links to use SSL"),
-					BaseUrl::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
+					BaseURL::SSL_POLICY_NONE     => L10n::t("No SSL policy, links will track page SSL state"),
+					BaseURL::SSL_POLICY_FULL     => L10n::t("Force all links to use SSL"),
+					BaseURL::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
 				];
 
 				$tpl = Renderer::getMarkupTemplate('install_base.tpl');
@@ -208,7 +207,6 @@ class Install extends BaseModule
 						$configCache->get('system', 'urlpath'),
 						L10n::t('Overwrite this field in case the sub path determination isn\'t right, otherwise leave it as is. Leaving this field blank means the installation is at the base URL without sub path.'),
 						''],
-					'$baseurl'    => $a->getBaseURL(),
 					'$php_path'   => $configCache->get('config', 'php_path'),
 					'$submit'     => L10n::t('Submit'),
 				]);
@@ -249,7 +247,6 @@ class Install extends BaseModule
 						'',
 						'required'],
 					'$lbl_10'     => L10n::t('Please select a default timezone for your website'),
-					'$baseurl'    => $a->getBaseURL(),
 					'$php_path'   => $configCache->get('config', 'php_path'),
 					'$submit'     => L10n::t('Submit')
 				]);
@@ -286,7 +283,6 @@ class Install extends BaseModule
 						$configCache->get('system', 'language'),
 						L10n::t('Set the default language for your Friendica installation interface and to send emails.'),
 						$lang_choices],
-					'$baseurl'    => $a->getBaseURL(),
 					'$php_path'   => $configCache->get('config', 'php_path'),
 					'$submit'     => L10n::t('Submit')
 				]);

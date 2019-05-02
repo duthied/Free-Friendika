@@ -22,7 +22,6 @@ class Manifest extends BaseModule
 		}
 
 		$output = Renderer::replaceMacros($tpl, [
-			'$baseurl' => $app->getBaseURL(),
 			'$touch_icon' => $touch_icon,
 			'$title' => $config->get('config', 'sitename', 'Friendica'),
 		]);

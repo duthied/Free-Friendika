@@ -117,6 +117,43 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
 		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
 		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
+
+		$this->routeCollector->addGroup('/admin', function (RouteCollector $collector) {
+			$collector->addRoute(['GET']        , '[/]'                     , Module\Admin\Summary::class);
+
+			$collector->addRoute(['GET', 'POST'], '/addons'                 , Module\Admin\Addons\Index::class);
+			$collector->addRoute(['GET', 'POST'], '/addons/{addon}'         , Module\Admin\Addons\Details::class);
+
+			$collector->addRoute(['GET', 'POST'], '/blocklist/contact'      , Module\Admin\Blocklist\Contact::class);
+			$collector->addRoute(['GET', 'POST'], '/blocklist/server'       , Module\Admin\Blocklist\Server::class);
+
+			$collector->addRoute(['GET']        , '/dbsync[/check]'         , Module\Admin\DBSync::class);
+			$collector->addRoute(['GET']        , '/dbsync/{update:\d+}'    , Module\Admin\DBSync::class);
+			$collector->addRoute(['GET']        , '/dbsync/mark/{update:\d+}', Module\Admin\DBSync::class);
+
+			$collector->addRoute(['GET', 'POST'], '/features'               , Module\Admin\Features::class);
+			$collector->addRoute(['GET']        , '/federation'             , Module\Admin\Federation::class);
+
+			$collector->addRoute(['GET', 'POST'], '/item/delete'            , Module\Admin\Item\Delete::class);
+			$collector->addRoute(['GET', 'POST'], '/item/source[/{guid}]'   , Module\Admin\Item\Source::class);
+
+			$collector->addRoute(['GET']        , '/logs/view'              , Module\Admin\Logs\View::class);
+			$collector->addRoute(['GET', 'POST'], '/logs'                   , Module\Admin\Logs\Settings::class);
+
+			$collector->addRoute(['GET']        , '/phpinfo'                , Module\Admin\PhpInfo::class);
+
+			$collector->addRoute(['GET']        , '/queue[/deferred]'       , Module\Admin\Queue::class);
+
+			$collector->addRoute(['GET', 'POST'], '/site'                   , Module\Admin\Site::class);
+
+			$collector->addRoute(['GET', 'POST'], '/themes'                 , Module\Admin\Themes\Index::class);
+			$collector->addRoute(['GET', 'POST'], '/themes/{theme}'         , Module\Admin\Themes\Details::class);
+			$collector->addRoute(['GET', 'POST'], '/themes/{theme}/embed'   , Module\Admin\Themes\Embed::class);
+
+			$collector->addRoute(['GET', 'POST'], '/tos'                    , Module\Admin\Tos::class);
+
+			$collector->addRoute(['GET', 'POST'], '/users[/{action}/{uid}]' , Module\Admin\Users::class);
+		});
 	}
 
 	public function __construct(RouteCollector $routeCollector = null)

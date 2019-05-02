@@ -223,13 +223,15 @@
 									</td>
 									<td class="text-right">
 										{{if $u.is_deletable}}
-										<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link"title="{{if $u.blocked}}{{$unblock}}{{else}}{{$block}}{{/if}}">
-											{{if $u.blocked == 0}}
-											<i class="fa fa-ban" aria-hidden="true"></i>
-											{{else}}
+											{{if $u.blocked}}
+										<a href="{{$baseurl}}/admin/users/unblock/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$unblock}}">
 											<i class="fa fa-circle-o" aria-hidden="true"></i>
-											{{/if}}
 										</a>
+											{{else}}
+										<a href="{{$baseurl}}/admin/users/block/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$block}}">
+											<i class="fa fa-ban" aria-hidden="true"></i>
+										</a>
+											{{/if}}
 										<a href="{{$baseurl}}/admin/users/delete/{{$u.uid}}?t={{$form_security_token}}" class="admin-settings-action-link" title="{{$delete}}" onclick="return confirm_delete('{{$confirm_delete}}','{{$u.name}}')">
 											<i class="fa fa-trash" aria-hidden="true"></i>
 										</a>
@@ -256,7 +258,10 @@
 							</div>
 							<div class="col-xs-9 admin-settings-footer-elements text-right">
 								<button type="submit" name="page_users_block" value="1" class="btn btn-warning">
-									<i class="fa fa-ban" aria-hidden="true"></i> {{$block}} / <i class="fa fa-circle-o" aria-hidden="true"></i> {{$unblock}}
+									<i class="fa fa-ban" aria-hidden="true"></i> {{$block}}
+								</button>
+								<button type="submit" name="page_users_unblock" value="1" class="btn btn-default">
+									<i class="fa fa-circle-o" aria-hidden="true"></i> {{$unblock}}
 								</button>
 								<button type="submit" name="page_users_delete" value="1" class="btn btn-danger" onclick="return confirm_delete('{{$confirm_delete_multi}}')">
 									<i class="fa fa-trash" aria-hidden="true"></i> {{$delete}}

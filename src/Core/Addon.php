@@ -2,6 +2,7 @@
 /**
  * @file src/Core/Addon.php
  */
+
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
@@ -25,6 +26,61 @@ class Addon extends BaseObject
 	 * @var array
 	 */
 	private static $addons = [];
+
+	/**
+	 * Returns the list of available addons with their current status and info.
+	 * This list is made from scanning the addon/ folder.
+	 * Unsupported addons are excluded unless they already are enabled or system.show_unsupported_addon is set.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getAvailableList()
+	{
+		$addons = [];
+		$files = glob('addon/*/');
+		if (is_array($files)) {
+			foreach ($files as $file) {
+				if (is_dir($file)) {
+					list($tmp, $addon) = array_map('trim', explode('/', $file));
+					$info = self::getInfo($addon);
+
+					if (Config::get('system', 'show_unsupported_addons')
+						|| strtolower($info['status']) != 'unsupported'
+						|| self::isEnabled($addon)
+					) {
+						$addons[] = [$addon, (self::isEnabled($addon) ? 'on' : 'off'), $info];
+					}
+				}
+			}
+		}
+
+		return $addons;
+	}
+
+	/**
+	 * Returns a list of addons that can be configured at the node level.
+	 * The list is formatted for display in the admin panel aside.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getAdminList()
+	{
+		$addons_admin = [];
+		$addonsAdminStmt = DBA::select('addon', ['name'], ['plugin_admin' => 1], ['order' => ['name']]);
+		while ($addon = DBA::fetch($addonsAdminStmt)) {
+			$addons_admin[$addon['name']] = [
+				'url' => 'admin/addons/' . $addon['name'],
+				'name' => $addon['name'],
+				'class' => 'addon'
+			];
+		}
+		DBA::close($addonsAdminStmt);
+
+		return $addons_admin;
+	}
+
 
 	/**
 	 * @brief Synchronize addons:
@@ -94,6 +150,8 @@ class Addon extends BaseObject
 		}
 
 		unset(self::$addons[array_search($addon, self::$addons)]);
+
+		Addon::saveEnabledList();
 	}
 
 	/**
@@ -136,9 +194,11 @@ class Addon extends BaseObject
 				self::$addons[] = $addon;
 			}
 
+			Addon::saveEnabledList();
+
 			return true;
 		} else {
-			Logger::error("Addon {addon}: {action} failed", ['action' => 'uninstall', 'addon' => $addon]);
+			Logger::error("Addon {addon}: {action} failed", ['action' => 'install', 'addon' => $addon]);
 			return false;
 		}
 	}
@@ -283,11 +343,10 @@ class Addon extends BaseObject
 	 * Saves the current enabled addon list in the system.addon config key
 	 *
 	 * @return boolean
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function saveEnabledList()
 	{
-		return Config::set("system", "addon", implode(", ", self::$addons));
+		return Config::set('system', 'addon', implode(',', self::$addons));
 	}
 
 	/**
