@@ -11,6 +11,9 @@ use Friendica\Model;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Proxy as ProxyUtils;
 
+/**
+ * This module shows all public friends of the selected contact
+ */
 class AllFriends extends BaseModule
 {
 	public static function content()
@@ -68,13 +71,13 @@ class AllFriends extends BaseModule
 			} else {
 				$connlnk = $app->getBaseURL() . '/follow/?url=' . $friend['url'];
 				$photoMenu = [
-					'profile' => [L10n::t("View Profile"), Model\Contact::magicLink($friend['url'])],
-					'follow'  => [L10n::t("Connect/Follow"), $connlnk]
+					'profile' => [L10n::t('View Profile'), Model\Contact::magicLinkbyId($friend['id'])],
+					'follow'  => [L10n::t('Connect/Follow'), $connlnk]
 				];
 			}
 
 			$entry = [
-				'url'          => Model\Contact::magicLink($friend['url']),
+				'url'          => Model\Contact::magicLinkbyId($friend['id']),
 				'itemurl'      => defaults($contactDetails, 'addr', $friend['url']),
 				'name'         => $contactDetails['name'],
 				'thumb'        => ProxyUtils::proxifyUrl($contactDetails['thumb'], false, ProxyUtils::SIZE_THUMB),
