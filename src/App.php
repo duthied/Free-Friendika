@@ -1006,10 +1006,9 @@ class App
 	{
 		// Missing DB connection: ERROR
 		if ($this->getMode()->has(App\Mode::LOCALCONFIGPRESENT) && !$this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			echo Module\Special\HTTPException::rawContent(
+			Module\Special\HTTPException::rawContent(
 				new HTTPException\InternalServerErrorException('Apologies but the website is unavailable at the moment.')
 			);
-			exit;
 		}
 
 		// Max Load Average reached: ERROR
@@ -1017,17 +1016,15 @@ class App
 			header('Retry-After: 120');
 			header('Refresh: 120; url=' . $this->getBaseURL() . "/" . $this->query_string);
 
-			echo Module\Special\HTTPException::rawContent(
+			Module\Special\HTTPException::rawContent(
 				new HTTPException\ServiceUnavaiableException('The node is currently overloaded. Please try again later.')
 			);
-			exit;
 		}
 
 		if (strstr($this->query_string, '.well-known/host-meta') && ($this->query_string != '.well-known/host-meta')) {
-			echo Module\Special\HTTPException::rawContent(
+			Module\Special\HTTPException::rawContent(
 				new HTTPException\NotFoundException()
 			);
-			exit;
 		}
 
 		if (!$this->getMode()->isInstall()) {
@@ -1078,10 +1075,9 @@ class App
 					// Someone came with an invalid parameter, maybe as a DDoS attempt
 					// We simply stop processing here
 					Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Core\Logger::DEBUG);
-					echo Module\Special\HTTPException::rawContent(
+					Module\Special\HTTPException::rawContent(
 						new HTTPException\ForbiddenException()
 					);
-					exit;
 				}
 			}
 		}
@@ -1267,8 +1263,7 @@ class App
 			Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
 			call_user_func([$this->module_class, 'afterpost']);
 		} catch(HTTPException $e) {
-			echo Module\Special\HTTPException::rawContent($e);
-			exit;
+			Module\Special\HTTPException::rawContent($e);
 		}
 
 		$content = '';
