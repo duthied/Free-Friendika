@@ -33,13 +33,6 @@ class Directory extends BaseModule
 		}
 	}
 
-	public static function post()
-	{
-		if (!empty($_POST['search'])) {
-			self::getApp()->data['search'] = $_POST['search'];
-		}
-	}
-
 	public static function content()
 	{
 		$app = self::getApp();
