@@ -33,7 +33,7 @@ class BaseObjectTest extends TestCase
 		$this->setUpVfsDir();
 		$this->mockApp($this->root);
 
-		$this->assertNull($baseObject->setApp($this->app));
+		$baseObject->setApp($this->app);
 		$this->assertEquals($this->app, $baseObject->getApp());
 	}
 
@@ -45,7 +45,6 @@ class BaseObjectTest extends TestCase
 	 */
 	public function testGetAppFailed()
 	{
-		$baseObject = new BaseObject();
-		$baseObject->getApp();
+		BaseObject::getApp();
 	}
 }
