@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 use Friendica\Core\L10n;
 use Friendica\Model\Contact;

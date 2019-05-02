@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 use Friendica\Core;
 use Friendica\Core\Update;

@@ -2,6 +2,8 @@
 
 namespace Friendica\Core;
 
+use Friendica;
+
 /**
  * Description of Console
  *
@@ -47,24 +49,24 @@ HELP;
 	}
 
 	protected $subConsoles = [
-		'cache'                  => __NAMESPACE__ . '\Console\Cache',
-		'config'                 => __NAMESPACE__ . '\Console\Config',
-		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
-		'docbloxerrorchecker'    => __NAMESPACE__ . '\Console\DocBloxErrorChecker',
-		'dbstructure'            => __NAMESPACE__ . '\Console\DatabaseStructure',
-		'extract'                => __NAMESPACE__ . '\Console\Extract',
-		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
-		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
-		'archivecontact'         => __NAMESPACE__ . '\Console\ArchiveContact',
-		'autoinstall'            => __NAMESPACE__ . '\Console\AutomaticInstallation',
-		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
-		'newpassword'            => __NAMESPACE__ . '\Console\NewPassword',
-		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
-		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
-		'typo'                   => __NAMESPACE__ . '\Console\Typo',
-		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
-		'serverblock'            => __NAMESPACE__ . '\Console\ServerBlock',
-		'storage'                => __NAMESPACE__ . '\Console\Storage',
+		'cache'                  => Friendica\Console\Cache::class,
+		'config'                 => Friendica\Console\Config::class,
+		'createdoxygen'          => Friendica\Console\CreateDoxygen::class,
+		'docbloxerrorchecker'    => Friendica\Console\DocBloxErrorChecker::class,
+		'dbstructure'            => Friendica\Console\DatabaseStructure::class,
+		'extract'                => Friendica\Console\Extract::class,
+		'globalcommunityblock'   => Friendica\Console\GlobalCommunityBlock::class,
+		'globalcommunitysilence' => Friendica\Console\GlobalCommunitySilence::class,
+		'archivecontact'         => Friendica\Console\ArchiveContact::class,
+		'autoinstall'            => Friendica\Console\AutomaticInstallation::class,
+		'maintenance'            => Friendica\Console\Maintenance::class,
+		'newpassword'            => Friendica\Console\NewPassword::class,
+		'php2po'                 => Friendica\Console\PhpToPo::class,
+		'po2php'                 => Friendica\Console\PoToPhp::class,
+		'typo'                   => Friendica\Console\Typo::class,
+		'postupdate'             => Friendica\Console\PostUpdate::class,
+		'serverblock'            => Friendica\Console\ServerBlock::class,
+		'storage'                => Friendica\Console\Storage::class,
 	];
 
 	protected function doExecute()
