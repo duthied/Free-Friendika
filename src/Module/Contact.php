@@ -46,6 +46,7 @@ class Contact extends BaseModule
 
 		$contact_id = null;
 		$contact = null;
+		// @TODO: Replace with parameter from router
 		if ($a->argc == 2 && intval($a->argv[1])
 			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
 		) {
@@ -64,6 +65,7 @@ class Contact extends BaseModule
 
 		if (DBA::isResult($contact)) {
 			if ($contact['self']) {
+				// @TODO: Replace with parameter from router
 				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
 					$a->internalRedirect('profile/' . $contact['nick']);
 				} else {

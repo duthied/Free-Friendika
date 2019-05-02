@@ -6,7 +6,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\System;
 
-class Statistics_json extends BaseModule
+class Statistics extends BaseModule
 {
 	public static function init()
 	{

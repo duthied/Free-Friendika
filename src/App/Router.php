@@ -42,15 +42,81 @@ class Router
 	{
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
 		$this->routeCollector->addRoute(['GET'],         '/amcd',                Module\AccountManagementControlDocument::class);
-		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
-		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
-		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
 		$this->routeCollector->addGroup('/.well-known', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/host-meta'       , Module\WellKnown\HostMeta::class);
 			$collector->addRoute(['GET'], '/nodeinfo[/1.0]'  , Module\NodeInfo::class);
 			$collector->addRoute(['GET'], '/webfinger'       , Module\Xrd::class);
 			$collector->addRoute(['GET'], '/x-social-relay'  , Module\WellKnown\XSocialRelay::class);
 		});
+		$this->routeCollector->addRoute(['GET'],         '/acctlink',            Module\Acctlink::class);
+		$this->routeCollector->addRoute(['GET'],         '/apps',                Module\Apps::class);
+		$this->routeCollector->addRoute(['GET'],         '/attach/{item:\d+}',   Module\Attach::class);
+		$this->routeCollector->addRoute(['GET'],         '/babel',               Module\Babel::class);
+		$this->routeCollector->addGroup('/contact', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '[/]',                                 Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}[/posts|conversations]',     Module\Contact::class);
+		});
+		$this->routeCollector->addRoute(['GET'],         '/credits',             Module\Credits::class);
+		$this->routeCollector->addGroup('/feed', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/{nickname}',                         Module\Feed::class);
+			$collector->addRoute(['GET'], '/{nickname}/posts',                   Module\Feed::class);
+			$collector->addRoute(['GET'], '/{nickname}/comments',                Module\Feed::class);
+			$collector->addRoute(['GET'], '/{nickname}/replies',                 Module\Feed::class);
+			$collector->addRoute(['GET'], '/{nickname}/activity',                Module\Feed::class);
+		});
+		$this->routeCollector->addRoute(['GET'],         '/feedtest',            Module\Feedtest::class);
+		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer::class);
+		$this->routeCollector->addRoute(['GET'],         '/followers/{owner}',   Module\Followers::class);
+		$this->routeCollector->addRoute(['GET'],         '/following/{owner}',   Module\Following::class);
+		$this->routeCollector->addGroup('/group', function (RouteCollector $collector) {
+			$collector->addRoute(['GET', 'POST'], '[/]',                         Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/{group:\d+}',                Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/none',                       Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/new',                        Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/drop/{group:\d+}',           Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/{group:\d+}/{contact:\d+}',  Module\Group::class);
+
+			$collector->addRoute(['POST'], '/{group:\d+}/add/{contact:\d+}',     Module\Group::class);
+			$collector->addRoute(['POST'], '/{group:\d+}/remove/{contact:\d+}',  Module\Group::class);
+		});
+		$this->routeCollector->addRoute(['GET'],         '/hashtag',             Module\Hashtag::class);
+		$this->routeCollector->addRoute(['GET'],         '/inbox[/{nickname}]',  Module\Inbox::class);
+		$this->routeCollector->addGroup('/install', function (RouteCollector $collector) {
+			$collector->addRoute(['GET', 'POST'], '[/]',                         Module\Install::class);
+			$collector->addRoute(['GET'],         '/testrewrite',                Module\Install::class);
+		});
+		$this->routeCollector->addRoute(['GET', 'POST'], '/localtime',           Module\Localtime::class);
+		$this->routeCollector->addRoute(['GET', 'POST'], '/login',               Module\Login::class);
+		$this->routeCollector->addRoute(['GET'],         '/magic',               Module\Magic::class);
+		$this->routeCollector->addRoute(['GET'],         '/manifest',            Module\Manifest::class);
+		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
+		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
+		$this->routeCollector->addGroup('/oembed', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/[b2h|h2b]',                          Module\Oembed::class);
+			$collector->addRoute(['GET'], '/{hash}',                             Module\Oembed::class);
+		});
+		$this->routeCollector->addRoute(['GET'],         '/outbox/{owner}',      Module\Outbox::class);
+		$this->routeCollector->addRoute(['GET'],         '/owa',                 Module\Owa::class);
+		$this->routeCollector->addGroup('/photo', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/{name}',                             Module\Photo::class);
+			$collector->addRoute(['GET'], '/{type}/{name}',                      Module\Photo::class);
+			$collector->addRoute(['GET'], '/{type}/{customize}/{name}',          Module\Photo::class);
+		});
+		$this->routeCollector->addGroup('/profile', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/{nickname}',                         Module\Profile::class);
+			$collector->addRoute(['GET'], '/{profile:\d+}/view',                 Module\Profile::class);
+		});
+		$this->routeCollector->addGroup('/proxy', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '[/]',                                 Module\Proxy::class);
+			$collector->addRoute(['GET'], '/{url}',                              Module\Proxy::class);
+			$collector->addRoute(['GET'], '/sub1/{url}',                         Module\Proxy::class);
+			$collector->addRoute(['GET'], '/sub1/sub2/{url}',                    Module\Proxy::class);
+		});
+		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
+		$this->routeCollector->addRoute(['GET'],         '/statistics.json',     Module\Statistics::class);
+		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
+		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
+		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
 	}
 
 	public function __construct(RouteCollector $routeCollector = null)
