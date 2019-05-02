@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class ExpectationFailedException extends HTTPException
 {
-	var $httpcode = 417;
+	protected $code = 417;
 }

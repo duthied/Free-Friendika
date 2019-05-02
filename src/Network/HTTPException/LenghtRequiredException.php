@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class LenghtRequiredException extends HTTPException
 {
-	var $httpcode = 411;
+	protected $code = 411;
 }

@@ -4,7 +4,7 @@ namespace Friendica\Network\HTTPException;
 
 use Friendica\Network\HTTPException;
 
-class UnsupportedMediaTypeException extends HTTPException
+class AcceptedException extends HTTPException
 {
-	protected $code = 415;
+	protected $code = 202;
 }

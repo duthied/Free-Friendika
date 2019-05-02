@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class UnauthorizedException extends HTTPException
 {
-	var $httpcode = 401;
+	protected $code = 401;
 }

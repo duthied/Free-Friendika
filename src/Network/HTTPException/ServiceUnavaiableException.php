@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class ServiceUnavaiableException extends HTTPException
 {
-	var $httpcode = 503;
+	protected $code = 503;
 }

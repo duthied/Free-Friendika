@@ -4,6 +4,7 @@ namespace Friendica\Network\HTTPException;
 
 use Friendica\Network\HTTPException;
 
-class NotFoundException extends HTTPException {
-	var $httpcode = 404;
+class NotFoundException extends HTTPException
+{
+	protected $code = 404;
 }
