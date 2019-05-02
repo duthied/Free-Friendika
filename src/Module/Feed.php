@@ -3,7 +3,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\System;
 use Friendica\Protocol\OStatus;
 
 /**
