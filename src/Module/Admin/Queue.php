@@ -39,6 +39,7 @@ class Queue extends BaseAdminModule
 			$info = L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
 		}
 
+		// @TODO Move to Model\WorkerQueue::getEntries()
 		$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['order' => ['priority']]);
 
 		$r = [];

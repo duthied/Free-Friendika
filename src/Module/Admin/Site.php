@@ -483,6 +483,7 @@ class Site extends BaseAdminModule
 		];
 
 		/* get user names to make the install a personal install of X */
+		// @TODO Move to Model\User::getNames()
 		$user_names = [];
 		$user_names['---'] = L10n::t('Multi user instance');
 

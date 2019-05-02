@@ -91,11 +91,13 @@ class Users extends BaseAdminModule
 		}
 
 		if (!empty($_POST['page_users_block'])) {
+			// @TODO Move this to Model\User:block($users);
 			DBA::update('user', ['blocked' => 1], ['uid' => $users]);
 			notice(L10n::tt('%s user blocked', '%s users blocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
+			// @TODO Move this to Model\User:unblock($users);
 			DBA::update('user', ['blocked' => 0], ['uid' => $users]);
 			notice(L10n::tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
@@ -139,7 +141,7 @@ class Users extends BaseAdminModule
 			// @TODO: Replace with parameter from router
 			$action = $a->argv[2];
 			$uid = $a->argv[3];
-			$user = DBA::selectFirst('user', ['username', 'blocked'], ['uid' => $uid]);
+			$user = User::getById($uid, ['username', 'blocked']);
 			if (!DBA::isResult($user)) {
 				notice('User not found' . EOL);
 				$a->internalRedirect('admin/users');
@@ -160,11 +162,13 @@ class Users extends BaseAdminModule
 					break;
 				case 'block':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					// @TODO Move this to Model\User:block([$uid]);
 					DBA::update('user', ['blocked' => 1], ['uid' => $uid]);
 					notice(L10n::t('User "%s" blocked', $user['username']));
 					break;
 				case 'unblock':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
+					// @TODO Move this to Model\User:unblock([$uid]);
 					DBA::update('user', ['blocked' => 0], ['uid' => $uid]);
 					notice(L10n::t('User "%s" unblocked', $user['username']));
 					break;
@@ -178,7 +182,7 @@ class Users extends BaseAdminModule
 
 		$pager = new Pager($a->query_string, 100);
 
-		/* ordering */
+		// @TODO Move below block to Model\User::getUsers($start, $count, $order = 'contact.name', $order_direction = '+')
 		$valid_orders = [
 			'contact.name',
 			'user.email',
