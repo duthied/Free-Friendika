@@ -364,7 +364,7 @@ function api_call(App $a)
 		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call']);
 		throw new NotImplementedException();
 	} catch (HTTPException $e) {
-		header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
+		header("HTTP/1.1 {$e->getCode()} {$e->httpdesc}");
 		return api_error($type, $e);
 	}
 }
@@ -384,7 +384,7 @@ function api_error($type, $e)
 	/// @TODO:  https://dev.twitter.com/overview/api/response-codes
 
 	$error = ["error" => $error,
-			"code" => $e->httpcode . " " . $e->httpdesc,
+			"code" => $e->getCode() . " " . $e->httpdesc,
 			"request" => $a->query_string];
 
 	$return = api_format_data('status', $type, ['status' => $error]);
