@@ -98,12 +98,9 @@ function search_content(App $a) {
 	}
 
 	if (Config::get('system','local_search') && !local_user() && !remote_user()) {
-		System::httpExit(403,
-				["title" => L10n::t("Public access denied."),
-					"description" => L10n::t("Only logged in users are permitted to perform a search.")]);
-		exit();
-		//notice(L10n::t('Public access denied.').EOL);
-		//return;
+		$e = new \Friendica\Network\HTTPException\ForbiddenException(L10n::t("Only logged in users are permitted to perform a search."));
+		$e->httpdesc = L10n::t("Public access denied.");
+		throw $e;
 	}
 
 	if (Config::get('system','permit_crawling') && !local_user() && !remote_user()) {
@@ -123,10 +120,7 @@ function search_content(App $a) {
 		if (!is_null($result)) {
 			$resultdata = json_decode($result);
 			if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
-				System::httpExit(429,
-						["title" => L10n::t("Too Many Requests"),
-							"description" => L10n::t("Only one search per minute is permitted for not logged in users.")]);
-				exit();
+				throw new \Friendica\Network\HTTPException\TooManyRequestsException(L10n::t("Only one search per minute is permitted for not logged in users."));
 			}
 			Cache::set("remote_search:".$remote, json_encode(["time" => time(), "accesses" => $resultdata->accesses + 1]), Cache::HOUR);
 		} else

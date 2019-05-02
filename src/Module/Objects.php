@@ -20,7 +20,7 @@ class Objects extends BaseModule
 		$a = self::getApp();
 
 		if (empty($a->argv[1])) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		if (!ActivityPub::isRequest()) {
@@ -38,7 +38,7 @@ class Objects extends BaseModule
 			// @TODO: Replace with parameter from router
 			$item = Item::selectFirst(['id', 'author-link'], ['guid' => $a->argv[1], 'private' => false]);
 			if (!DBA::isResult($item) || !strstr($item['author-link'], System::baseUrl())) {
-				System::httpExit(404);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 		}
 

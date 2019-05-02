@@ -16,7 +16,7 @@ function notice_init(App $a)
 		$nick = $r[0]['nickname'];
 		$a->internalRedirect('display/' . $nick . '/' . $id);
 	} else {
-		notice(L10n::t('Item not found.') . EOL);
+		throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('Item not found.'));
 	}
 
 	return;

@@ -400,7 +400,7 @@ class Diaspora
 				if ($no_exit) {
 					return false;
 				} else {
-					System::httpExit(400);
+					throw new \Friendica\Network\HTTPException\BadRequestException();
 				}
 			}
 
@@ -419,7 +419,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -445,7 +445,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -455,7 +455,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -465,7 +465,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -550,7 +550,7 @@ class Diaspora
 
 		if (!$base) {
 			Logger::log('unable to locate salmon data in xml');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 
@@ -588,7 +588,7 @@ class Diaspora
 
 		if (!$author_link) {
 			Logger::log('Could not retrieve author URI.');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 		// Once we have the author URI, go to the web and try to find their public key
 		// (first this will look it up locally if it is in the fcontact cache)
@@ -599,14 +599,14 @@ class Diaspora
 
 		if (!$key) {
 			Logger::log('Could not retrieve author key.');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			Logger::log('Message did not verify. Discarding.');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		Logger::log('Message verified.');

@@ -18,8 +18,7 @@ function viewsrc_content(App $a)
 	$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (!$item_id) {
-		notice(L10n::t('Item not found.') . EOL);
-		return;
+		throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('Item not found.'));
 	}
 
 	$item = Item::selectFirst(['body'], ['uid' => local_user(), 'id' => $item_id]);

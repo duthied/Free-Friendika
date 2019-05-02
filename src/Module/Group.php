@@ -137,7 +137,7 @@ class Group extends BaseModule
 		$change = false;
 
 		if (!local_user()) {
-			System::httpExit(403);
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		$a = self::getApp();
@@ -276,7 +276,7 @@ class Group extends BaseModule
 		}
 
 		if (!isset($group)) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		$groupeditor = [

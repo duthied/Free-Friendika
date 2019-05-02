@@ -17,7 +17,7 @@ use Friendica\Util\Strings;
 function follow_post(App $a)
 {
 	if (!local_user()) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	if (isset($_REQUEST['cancel'])) {

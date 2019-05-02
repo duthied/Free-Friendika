@@ -6,6 +6,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Model\Photo as MPhoto;
@@ -27,7 +28,7 @@ class Photo extends BaseModule
 		$a = self::getApp();
 		// @TODO: Replace with parameter from router
 		if ($a->argc <= 1 || $a->argc > 4) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		if (isset($_SERVER["HTTP_IF_MODIFIED_SINCE"])) {
@@ -74,9 +75,7 @@ class Photo extends BaseModule
 		}
 
 		if ($photo === false) {
-			// not using System::httpExit() because we don't want html here.
-			header($_SERVER["SERVER_PROTOCOL"] . " 404 Not Found" , true, 404);
-			exit();
+			System::httpExit('404', 'Not Found');
 		}
 
 		$cacheable = ($photo["allow_cid"] . $photo["allow_gid"] . $photo["deny_cid"] . $photo["deny_gid"] === "") && (isset($photo["cacheable"]) ? $photo["cacheable"] : true);
@@ -85,7 +84,7 @@ class Photo extends BaseModule
 
 		if (is_null($img) || !$img->isValid()) {
 			Logger::log("Invalid photo with id {$photo["id"]}.");
-			System::httpExit(500, ["description" => "Invalid photo with id {$photo["id"]}."]);
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException(L10n::t('Invalid photo with id %s.', $photo["id"]));
 		}
 
 		// if customsize is set and image is not a gif, resize it

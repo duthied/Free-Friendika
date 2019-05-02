@@ -29,7 +29,7 @@ function bookmarklet_content(App $a)
 
 	if (!strstr($referer, $page)) {
 		if (empty($_REQUEST["url"])) {
-			System::httpExit(400, ["title" => L10n::t('Bad Request')]);
+			throw new \Friendica\Network\HTTPException\BadRequestException(L10n::t('This page is missing a url parameter.'));
 		}
 
 		$content = add_page_info($_REQUEST["url"]);

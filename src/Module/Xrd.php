@@ -58,7 +58,7 @@ class Xrd extends BaseModule
 		$user = User::getByNickname($name);
 
 		if (empty($user)) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$profileURL = $app->getBaseURL() . '/profile/' . $user['nickname'];

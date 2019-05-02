@@ -38,7 +38,7 @@ class Profile extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		self::$which = filter_var($a->argv[1], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_BACKTICK);

@@ -33,7 +33,7 @@ class Feed extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		$type = null;
