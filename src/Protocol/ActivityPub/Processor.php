@@ -578,7 +578,7 @@ class Processor
 
 		self::switchContact($cid);
 
-		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING, 'pending' => true])) {
+		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING])) {
 			Contact::remove($cid);
 			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', Logger::DEBUG);
 		} else {
