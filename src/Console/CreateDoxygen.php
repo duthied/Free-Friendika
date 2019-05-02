@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 /**
  * Description of CreateDoxygen

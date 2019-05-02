@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\Core\StorageManager;

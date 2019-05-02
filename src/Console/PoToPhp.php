@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 /**
  * Read a messages.po file and create strings.php in the same directory

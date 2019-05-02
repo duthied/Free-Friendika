@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 /**
  * When I installed docblox, I had the experience that it does not generate any output at all.

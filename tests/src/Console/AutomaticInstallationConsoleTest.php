@@ -1,9 +1,9 @@
 <?php
 
-namespace Friendica\Test\src\Core\Console;
+namespace Friendica\Test\src\Console;
 
+use Friendica\Console\AutomaticInstallation;
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Console\AutomaticInstallation;
 use Friendica\Core\Installer;
 use Friendica\Core\Logger;
 use Friendica\Test\Util\DBAMockTrait;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Console;
+namespace Friendica\Console;
 
 /**
  * Extracts translation strings from the Friendica project's files to be exported

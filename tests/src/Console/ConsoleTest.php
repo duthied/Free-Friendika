@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\src\Core\Console;
+namespace Friendica\Test\src\Console;
 
 use Asika\SimpleConsole\Console;
 use Friendica\Test\MockedTest;

@@ -1,8 +1,8 @@
 <?php
 
-namespace Friendica\Test\src\Core\Console;
+namespace Friendica\Test\src\Console;
 
-use Friendica\Core\Console\ServerBlock;
+use Friendica\Console\ServerBlock;
 
 /**
  * @runTestsInSeparateProcesses

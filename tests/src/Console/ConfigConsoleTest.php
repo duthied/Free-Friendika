@@ -1,9 +1,9 @@
 <?php
 
-namespace Friendica\Test\src\Core\Console;
+namespace Friendica\Test\src\Console;
 
 use Friendica\App\Mode;
-use Friendica\Core\Console\Config;
+use Friendica\Console\Config;
 
 /**
  * @runTestsInSeparateProcesses
@@ -116,7 +116,7 @@ class ConfigConsoleTest extends ConsoleTest
 		$executable = $this->consoleArgv[0];
 		$assertion = <<<CONF
 Executable: {$executable}
-Class: Friendica\Core\Console\Config
+Class: Friendica\Console\Config
 Arguments: array (
   0 => 'test',
   1 => 'it',
