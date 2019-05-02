@@ -47,16 +47,14 @@ function photos_init(App $a) {
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
-		$user = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `blocked` = 0 LIMIT 1",
-			DBA::escape($nick)
-		);
+		$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 
 		if (!DBA::isResult($user)) {
 			return;
 		}
 
-		$a->data['user'] = $user[0];
-		$a->profile_uid = $user[0]['uid'];
+		$a->data['user'] = $user;
+		$a->profile_uid = $user['uid'];
 		$is_owner = (local_user() && (local_user() == $a->profile_uid));
 
 		$profile = Profile::getByNickname($nick, $a->profile_uid);
@@ -170,12 +168,7 @@ function photos_post(App $a)
 		}
 
 		if ($contact_id > 0) {
-			$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($page_owner_uid)
-			);
-
-			if (DBA::isResult($r)) {
+			if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $page_owner_uid, 'blocked' => false, 'pending' => false])) {
 				$can_post = true;
 				$visitor = $contact_id;
 			}
@@ -285,22 +278,18 @@ function photos_post(App $a)
 		if (!empty($_POST['delete'])) {
 			// same as above but remove single photo
 			if ($visitor) {
-				$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `contact-id` = %d AND `uid` = %d AND `resource-id` = '%s' LIMIT 1",
-					intval($visitor),
-					intval($page_owner_uid),
-					DBA::escape($a->argv[3])
-				);
+				$condition = ['contact-id' => $visitor, 'uid' => $page_owner_uid, 'resource-id' => $a->argv[3]];
+
 			} else {
-				$r = q("SELECT `id`, `resource-id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' LIMIT 1",
-					intval(local_user()),
-					DBA::escape($a->argv[3])
-				);
+				$condition = ['uid' => local_user(), 'resource-id' => $a->argv[3]];
 			}
 
-			if (DBA::isResult($r)) {
-				Photo::delete(['uid' => $page_owner_uid, 'resource-id' => $r[0]['resource-id']]);
+			$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
 
-				Item::deleteForUser(['resource-id' => $r[0]['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
+			if (DBA::isResult($photo)) {
+				Photo::delete(['uid' => $page_owner_uid, 'resource-id' => $photo['resource-id']]);
+
+				Item::deleteForUser(['resource-id' => $photo['resource-id'], 'uid' => $page_owner_uid], $page_owner_uid);
 
 				// Update the photo albums cache
 				Photo::clearAlbumCache($page_owner_uid);
@@ -453,6 +442,7 @@ function photos_post(App $a)
 				foreach ($tags as $tag) {
 					if (strpos($tag, '@') === 0) {
 						$profile = '';
+						$contact = null;
 						$name = substr($tag,1);
 
 						if ((strpos($name, '@')) || (strpos($name, 'http://'))) {
@@ -487,34 +477,26 @@ function photos_post(App $a)
 							}
 
 							if ($tagcid) {
-								$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-									intval($tagcid),
-									intval($page_owner_uid)
-								);
+								$contact = DBA::selectFirst('contact', [], ['id' => $tagcid, 'uid' => $page_owner_uid]);
 							} else {
 								$newname = str_replace('_',' ',$name);
 
 								//select someone from this user's contacts by name
-								$r = q("SELECT * FROM `contact` WHERE `name` = '%s' AND `uid` = %d LIMIT 1",
-										DBA::escape($newname),
-										intval($page_owner_uid)
-								);
-
-								if (!DBA::isResult($r)) {
+								$contact = DBA::selectFirst('contact', [], ['name' => $newname, 'uid' => $page_owner_uid]);
+								if (!DBA::isResult($contact)) {
 									//select someone by attag or nick and the name passed in
-									$r = q("SELECT * FROM `contact` WHERE `attag` = '%s' OR `nick` = '%s' AND `uid` = %d ORDER BY `attag` DESC LIMIT 1",
-											DBA::escape($name),
-											DBA::escape($name),
-											intval($page_owner_uid)
+									$contact = DBA::selectFirst('contact', [],
+										['(`attag` = ? OR `nick` = ?) AND `uid` = ?', $name, $name, $page_owner_uid],
+										['order' => ['attag' => true]]
 									);
 								}
 							}
 
-							if (DBA::isResult($r)) {
-								$newname = $r[0]['name'];
-								$profile = $r[0]['url'];
+							if (DBA::isResult($contact)) {
+								$newname = $contact['name'];
+								$profile = $contact['url'];
 
-								$notify = 'cid:' . $r[0]['id'];
+								$notify = 'cid:' . $contact['id'];
 								if (strlen($inform)) {
 									$inform .= ',';
 								}
@@ -523,8 +505,8 @@ function photos_post(App $a)
 						}
 
 						if ($profile) {
-							if (substr($notify, 0, 4) === 'cid:') {
-								$taginfo[] = [$newname, $profile, $notify, $r[0], '@[url=' . str_replace(',','%2c',$profile) . ']' . $newname . '[/url]'];
+							if (!empty($contact)) {
+								$taginfo[] = [$newname, $profile, $notify, $contact, '@[url=' . str_replace(',', '%2c', $profile) . ']' . $newname . '[/url]'];
 							} else {
 								$taginfo[] = [$newname, $profile, $notify, null, $str_tags .= '@[url=' . $profile . ']' . $newname . '[/url]'];
 							}
@@ -917,15 +899,12 @@ function photos_content(App $a)
 					}
 				}
 			}
-			if ($contact_id) {
 
-				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($owner_uid)
-				);
-				if (DBA::isResult($r)) {
+			if ($contact_id) {
+				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
+
+				if (DBA::isResult($contact)) {
 					$can_post = true;
-					$contact = $r[0];
 					$remote_contact = true;
 					$visitor = $contact_id;
 				}
@@ -946,16 +925,13 @@ function photos_content(App $a)
 				}
 			}
 		}
+
 		if ($contact_id) {
 			$groups = Group::getIdsByContactId($contact_id);
-			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($owner_uid)
-			);
-			if (DBA::isResult($r)) {
-				$contact = $r[0];
-				$remote_contact = true;
-			}
+
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
+
+			$remote_contact = DBA::isResult($contact);
 		}
 	}
 
@@ -1187,12 +1163,7 @@ function photos_content(App $a)
 		);
 
 		if (!DBA::isResult($ph)) {
-			$ph = q("SELECT `id` FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s'
-				LIMIT 1",
-				intval($owner_uid),
-				DBA::escape($datum)
-			);
-			if (DBA::isResult($ph)) {
+			if (DBA::exists('photo', ['resource-id' => $datum, 'uid' => $owner_uid])) {
 				notice(L10n::t('Permission denied. Access to this item may be restricted.'));
 			} else {
 				notice(L10n::t('Photo not available') . EOL);
@@ -1322,9 +1293,6 @@ function photos_content(App $a)
 			'album' => $hires['album'],
 			'filename' => $hires['filename'],
 		];
-
-
-
 
 		// Do we have an item for this photo?
 
