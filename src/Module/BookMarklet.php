@@ -14,13 +14,10 @@ use Friendica\Util\Strings;
  */
 class BookMarklet extends BaseModule
 {
-	public static function init()
-	{
-		$_GET['mode'] = 'minimal';
-	}
-
 	public static function content()
 	{
+		$_GET['mode'] = 'minimal';
+
 		$app = self::getApp();
 		$config = $app->getConfig();
 
