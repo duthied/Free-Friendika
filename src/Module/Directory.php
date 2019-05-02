@@ -144,10 +144,10 @@ class Directory extends BaseModule
 			$location = '';
 		}
 
-		$gender = (!empty($profile['gender']) ? L10n::t('Gender:') : false);
-		$marital = (!empty($profile['marital']) ? L10n::t('Status:') : false);
+		$gender =   (!empty($profile['gender'])   ? L10n::t('Gender:')   : false);
+		$marital =  (!empty($profile['marital'])  ? L10n::t('Status:')   : false);
 		$homepage = (!empty($profile['homepage']) ? L10n::t('Homepage:') : false);
-		$about = (!empty($profile['about']) ? L10n::t('About:') : false);
+		$about =    (!empty($profile['about'])    ? L10n::t('About:')    : false);
 
 		$location_e = $location;
 
