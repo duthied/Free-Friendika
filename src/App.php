@@ -1202,11 +1202,6 @@ class App
 			}
 		}
 
-		// Then we try name-matching a Friendica\Module class
-		if (!$this->module_class && class_exists('Friendica\\Module\\' . ucfirst($this->module))) {
-			$this->module_class = 'Friendica\\Module\\' . ucfirst($this->module);
-		}
-
 		/* Finally, we look for a 'standard' program module in the 'mod' directory
 		 * We emulate a Module class through the LegacyModule class
 		 */
