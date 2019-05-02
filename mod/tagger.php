@@ -40,14 +40,12 @@ function tagger_content(App $a) {
 	}
 
 	$owner_uid = $item['uid'];
-	$owner_nick = '';
 	$blocktags = 0;
 
-	$r = q("select `nickname`,`blocktags` from user where uid = %d limit 1",
+	$r = q("select `blocktags` from user where uid = %d limit 1",
 		intval($owner_uid)
 	);
 	if (DBA::isResult($r)) {
-		$owner_nick = $r[0]['nickname'];
 		$blocktags = $r[0]['blocktags'];
 	}
 
@@ -69,12 +67,7 @@ function tagger_content(App $a) {
 	$xterm = XML::escape($term);
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-
-	if ($owner_nick) {
-		$href = System::baseUrl() . '/display/' . $owner_nick . '/' . $item['id'];
-	} else {
-		$href = System::baseUrl() . '/display/' . $item['guid'];
-	}
+	$href = System::baseUrl() . '/display/' . $item['guid'];
 
 	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n");
 

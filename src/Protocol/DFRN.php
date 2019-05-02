@@ -359,7 +359,7 @@ class DFRN
 		$ret = Item::select(Item::DELIVER_FIELDLIST, $condition);
 		$items = Item::inArray($ret);
 		if (!DBA::isResult($items)) {
-			exit();
+			return '';
 		}
 
 		$item = $items[0];
@@ -367,7 +367,7 @@ class DFRN
 		if ($item['uid'] != 0) {
 			$owner = User::getOwnerDataById($item['uid']);
 			if (!$owner) {
-				exit();
+				return '';
 			}
 		} else {
 			$owner = ['uid' => 0, 'nick' => 'feed-item'];
@@ -400,7 +400,7 @@ class DFRN
 				}
 			}
 		} else {
-			$root = self::entry($doc, $type, $item, $owner, true, 0, true);
+			self::entry($doc, $type, $item, $owner, true, 0, true);
 		}
 
 		$atom = trim($doc->saveXML());
@@ -987,7 +987,7 @@ class DFRN
 		}
 
 		// Add conversation data. This is used for OStatus
-		$conversation_href = System::baseUrl()."/display/".$owner["nick"]."/".$item["parent"];
+		$conversation_href = System::baseUrl()."/display/".$item["parent-guid"];
 		$conversation_uri = $conversation_href;
 
 		if (isset($parent_item)) {
@@ -2212,14 +2212,13 @@ class DFRN
 	/**
 	 * @brief Send a "poke"
 	 *
-	 * @param array $item      the new item record
+	 * @param array $item      The new item record
 	 * @param array $importer  Record of the importer user mixed with contact of the content
-	 * @param int   $posted_id The record number of item record that was just posted
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function doPoke($item, $importer, $posted_id)
+	private static function doPoke(array $item, array $importer)
 	{
 		$verb = urldecode(substr($item["verb"], strpos($item["verb"], "#")+1));
 		if (!$verb) {
@@ -2244,8 +2243,6 @@ class DFRN
 			if ($Blink && Strings::compareLink($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
 				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
-				$item['id'] = $posted_id;
-
 				$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => $importer["importer_uid"]]);
 				$item["parent"] = $parent['id'];
 
@@ -2259,7 +2256,7 @@ class DFRN
 					"to_email"     => $importer["email"],
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
-					"link"         => System::baseUrl()."/display/".urlencode(Item::getGuidById($posted_id)),
+					"link"         => System::baseUrl()."/display/".urlencode($item['guid']),
 					"source_name"  => $author["name"],
 					"source_link"  => $author["url"],
 					"source_photo" => $author["thumb"],
@@ -2754,7 +2751,8 @@ class DFRN
 			}
 
 			if (stristr($item["verb"], ACTIVITY_POKE)) {
-				self::doPoke($item, $importer, $posted_id);
+				$item['id'] = $posted_id;
+				self::doPoke($item, $importer);
 			}
 		}
 	}

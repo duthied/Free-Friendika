@@ -2508,62 +2508,6 @@ class Item extends BaseObject
 			}, $item["body"]);
 	}
 
-	public static function getGuidById($id)
-	{
-		$item = self::selectFirst(['guid'], ['id' => $id]);
-		if (DBA::isResult($item)) {
-			return $item['guid'];
-		} else {
-			return '';
-		}
-	}
-
-	/**
-	 * This function is only used for the old Friendica app on Android that doesn't like paths with guid
-	 *
-	 * @param string $guid item guid
-	 * @param int    $uid  user id
-	 * @return array with id and nick of the item with the given guid
-	 * @throws \Exception
-	 */
-	public static function getIdAndNickByGuid($guid, $uid = 0)
-	{
-		$nick = "";
-		$id = 0;
-
-		if ($uid == 0) {
-			$uid = local_user();
-		}
-
-		// Does the given user have this item?
-		if ($uid) {
-			$item = self::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
-			if (DBA::isResult($item)) {
-				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
-				if (!DBA::isResult($user)) {
-					return;
-				}
-				$id = $item['id'];
-				$nick = $user['nickname'];
-			}
-		}
-
-		// Or is it anywhere on the server?
-		if ($nick == "") {
-			$condition = ["`guid` = ? AND `uid` != 0", $guid];
-			$item = self::selectFirst(['id', 'uid'], $condition);
-			if (DBA::isResult($item)) {
-				$user = DBA::selectFirst('user', ['nickname'], ['uid' => $item['uid']]);
-				if (!DBA::isResult($user)) {
-					return;
-				}
-				$id = $item['id'];
-				$nick = $user['nickname'];
-			}
-		}
-		return ["nick" => $nick, "id" => $id];
-	}
-
 	/**
 	 * look for mention tags and setup a second delivery chain for forum/community posts if appropriate
 	 *
