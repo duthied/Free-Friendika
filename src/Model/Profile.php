@@ -1273,9 +1273,9 @@ class Profile
 
 		$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
 
-
 		$total = 0;
-		$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` FROM `profile`
+		$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
 		if (DBA::isResult($cnt)) {
@@ -1286,7 +1286,8 @@ class Profile
 		$limit = $start . ',' . $count;
 
 		$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
-			`contact`.`addr`, `contact`.`url` AS `profile_url` FROM `profile`
+			`contact`.`addr`, `contact`.`url` AS `profile_url`
+			FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`

@@ -11,6 +11,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Network\HTTPException;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
@@ -46,8 +47,7 @@ class Directory extends BaseModule
 
 		if (($config->get('system', 'block_public') && !local_user() && !remote_user()) ||
 			($config->get('system', 'block_local_dir') && !local_user() && !remote_user())) {
-			notice(L10n::t('Public access denied.') . EOL);
-			return '';
+			throw new HTTPException\ForbiddenException();
 		}
 
 		$output = '';
@@ -55,11 +55,9 @@ class Directory extends BaseModule
 
 		Nav::setSelected('directory');
 
-		if (!empty($app->data['search'])) {
-			$search = Strings::escapeTags(trim($app->data['search']));
-		} else {
-			$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
-		}
+		$search = (!empty($_REQUEST['search']) ?
+			Strings::escapeTags(trim(rawurldecode($_REQUEST['search']))) :
+			'');
 
 		$gDirPath = '';
 		$dirURL = $config->get('system', 'directory');
@@ -88,17 +86,17 @@ class Directory extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('directory_header.tpl');
 
 		$output .= Renderer::replaceMacros($tpl, [
-			'$search'    => $search,
-			'$globaldir' => L10n::t('Global Directory'),
-			'$gDirPath'  => $gDirPath,
-			'$desc'      => L10n::t('Find on this site'),
-			'$contacts'  => $profiles['entries'],
-			'$finding'   => L10n::t('Results for:'),
-			'$findterm'  => (strlen($search) ? $search : ""),
-			'$title'     => L10n::t('Site Directory'),
+			'$search'     => $search,
+			'$globaldir'  => L10n::t('Global Directory'),
+			'$gDirPath'   => $gDirPath,
+			'$desc'       => L10n::t('Find on this site'),
+			'$contacts'   => $profiles['entries'],
+			'$finding'    => L10n::t('Results for:'),
+			'$findterm'   => (strlen($search) ? $search : ""),
+			'$title'      => L10n::t('Site Directory'),
 			'$search_mod' => 'directory',
-			'$submit'    => L10n::t('Find'),
-			'$paginate'  => $pager->renderFull($profiles['total']),
+			'$submit'     => L10n::t('Find'),
+			'$paginate'   => $pager->renderFull($profiles['total']),
 		]);
 
 		return $output;
@@ -153,10 +151,10 @@ class Directory extends BaseModule
 			$location = '';
 		}
 
-		$gender   = (!empty($profile['gender'])   ? L10n::t('Gender:')   : false);
-		$marital  = (!empty($profile['marital'])  ? L10n::t('Status:')   : false);
+		$gender = (!empty($profile['gender']) ? L10n::t('Gender:') : false);
+		$marital = (!empty($profile['marital']) ? L10n::t('Status:') : false);
 		$homepage = (!empty($profile['homepage']) ? L10n::t('Homepage:') : false);
-		$about    = (!empty($profile['about'])    ? L10n::t('About:')    : false);
+		$about = (!empty($profile['about']) ? L10n::t('About:') : false);
 
 		$location_e = $location;
 
