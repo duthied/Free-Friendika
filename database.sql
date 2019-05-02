@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.06-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1310
+-- DB_UPDATE_VERSION 1311
 -- ------------------------------------------
 
 
@@ -40,6 +40,7 @@ CREATE TABLE IF NOT EXISTS `apcontact` (
 	`alias` varchar(255) COMMENT '',
 	`pubkey` text COMMENT '',
 	`baseurl` varchar(255) COMMENT 'baseurl of the ap contact',
+	`generator` varchar(255) COMMENT 'Name of the contact\'s system',
 	`updated` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	 PRIMARY KEY(`url`),
 	 INDEX `addr` (`addr`(32)),

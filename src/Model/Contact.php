@@ -653,9 +653,15 @@ class Contact extends BaseObject
 		if (empty($contact['network'])) {
 			return;
 		}
-		if (($contact['network'] == Protocol::DFRN) && $dissolve) {
+
+		$protocol = $contact['network'];
+		if (($protocol == Protocol::DFRN) && !self::isLegacyDFRNContact($contact)) {
+			$protocol = Protocol::ACTIVITYPUB;
+		}
+
+		if (($protocol == Protocol::DFRN) && $dissolve) {
 			DFRN::deliver($user, $contact, 'placeholder', true);
-		} elseif (in_array($contact['network'], [Protocol::OSTATUS, Protocol::DFRN])) {
+		} elseif (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 			// create an unfollow slap
 			$item = [];
 			$item['verb'] = NAMESPACE_OSTATUS . "/unfollow";
@@ -670,9 +676,9 @@ class Contact extends BaseObject
 			if (!empty($contact['notify'])) {
 				Salmon::slapper($user, $contact['notify'], $slap);
 			}
-		} elseif ($contact['network'] == Protocol::DIASPORA) {
+		} elseif ($protocol == Protocol::DIASPORA) {
 			Diaspora::sendUnshare($user, $contact);
-		} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
+		} elseif ($protocol == Protocol::ACTIVITYPUB) {
 			ActivityPub\Transmitter::sendContactUndo($contact['url'], $contact['id'], $user['uid']);
 
 			if ($dissolve) {
@@ -1338,6 +1344,7 @@ class Contact extends BaseObject
 				'location'  => defaults($data, 'location', ''),
 				'about'     => defaults($data, 'about', ''),
 				'network'   => $data['network'],
+				'protocol'  => self::getProtocol($data['url'], $data['network']),
 				'pubkey'    => defaults($data, 'pubkey', ''),
 				'rel'       => self::SHARING,
 				'priority'  => defaults($data, 'priority', 0),
@@ -1398,7 +1405,7 @@ class Contact extends BaseObject
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey'];
+		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey', 'protocol'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
 		// This condition should always be true
@@ -1411,7 +1418,8 @@ class Contact extends BaseObject
 			'url' => $data['url'],
 			'nurl' => Strings::normaliseLink($data['url']),
 			'name' => $data['name'],
-			'nick' => $data['nick']];
+			'nick' => $data['nick'],
+			'protocol' => self::getProtocol($data['url'], $data['network'])];
 
 		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
@@ -1769,6 +1777,40 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Detects if a given contact array belongs to a legacy DFRN connection
+	 *
+	 * @param array $contact
+	 * @return boolean
+	 */
+	private static function isLegacyDFRNContact($contact)
+	{
+		// Newer Friendica contacts are connected via AP, then these fields aren't set
+		return !empty($contact['dfrn-id']) || !empty($contact['issued-id']);
+	}
+
+	/**
+	 * Detects the communication protocol for a given contact url.
+	 * This is used to detect Friendica contacts that we can communicate via AP.
+	 *
+	 * @param string $url contact url
+	 * @param string $network Network of that contact
+	 * @return string with protocol
+	 */
+	public static function getProtocol($url, $network)
+	{
+		if ($network != Protocol::DFRN) {
+			return $network;
+		}
+
+		$apcontact = APContact::getByURL($url);
+		if (!empty($apcontact) && !empty($apcontact['generator'])) {
+			return Protocol::ACTIVITYPUB;
+		} else {
+			return $network;
+		}
+	}
+
+	/**
 	 * Takes a $uid and a url/handle and adds a new contact
 	 * Currently if the contact is DFRN, interactive needs to be true, to redirect to the
 	 * dfrn_request page.
@@ -1843,7 +1885,9 @@ class Contact extends BaseObject
 			$contact = DBA::selectFirst('contact', ['id', 'rel'], $condition);
 		}
 
-		if (($ret['network'] === Protocol::DFRN) && !DBA::isResult($contact)) {
+		$protocol = self::getProtocol($url, $ret['network']);
+
+		if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
 			if ($interactive) {
 				if (strlen($a->getURLPath())) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
@@ -1862,7 +1906,7 @@ class Contact extends BaseObject
 		}
 
 		// This extra param just confuses things, remove it
-		if ($ret['network'] === Protocol::DIASPORA) {
+		if ($protocol === Protocol::DIASPORA) {
 			$ret['url'] = str_replace('?absolute=true', '', $ret['url']);
 		}
 
@@ -1885,7 +1929,7 @@ class Contact extends BaseObject
 			return $result;
 		}
 
-		if ($ret['network'] === Protocol::OSTATUS && Config::get('system', 'ostatus_disabled')) {
+		if ($protocol === Protocol::OSTATUS && Config::get('system', 'ostatus_disabled')) {
 			$result['message'] .= L10n::t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
 			$ret['notify'] = '';
 		}
@@ -1894,15 +1938,15 @@ class Contact extends BaseObject
 			$result['message'] .= L10n::t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
 		}
 
-		$writeable = ((($ret['network'] === Protocol::OSTATUS) && ($ret['notify'])) ? 1 : 0);
+		$writeable = ((($protocol === Protocol::OSTATUS) && ($ret['notify'])) ? 1 : 0);
 
-		$subhub = (($ret['network'] === Protocol::OSTATUS) ? true : false);
+		$subhub = (($protocol === Protocol::OSTATUS) ? true : false);
 
-		$hidden = (($ret['network'] === Protocol::MAIL) ? 1 : 0);
+		$hidden = (($protocol === Protocol::MAIL) ? 1 : 0);
 
-		$pending = in_array($ret['network'], [Protocol::ACTIVITYPUB]);
+		$pending = in_array($protocol, [Protocol::ACTIVITYPUB]);
 
-		if (in_array($ret['network'], [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
+		if (in_array($protocol, [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 			$writeable = 1;
 		}
 
@@ -1913,7 +1957,7 @@ class Contact extends BaseObject
 			$fields = ['rel' => $new_relation, 'subhub' => $subhub, 'readonly' => false];
 			DBA::update('contact', $fields, ['id' => $contact['id']]);
 		} else {
-			$new_relation = (in_array($ret['network'], [Protocol::MAIL]) ? self::FRIEND : self::SHARING);
+			$new_relation = (in_array($protocol, [Protocol::MAIL]) ? self::FRIEND : self::SHARING);
 
 			// create contact record
 			DBA::insert('contact', [
@@ -1930,6 +1974,7 @@ class Contact extends BaseObject
 				'name'    => $ret['name'],
 				'nick'    => $ret['nick'],
 				'network' => $ret['network'],
+				'protocol' => $protocol,
 				'pubkey'  => $ret['pubkey'],
 				'rel'     => $new_relation,
 				'priority'=> $ret['priority'],
@@ -1963,7 +2008,7 @@ class Contact extends BaseObject
 		$owner = User::getOwnerDataById($uid);
 
 		if (DBA::isResult($owner)) {
-			if (in_array($contact['network'], [Protocol::OSTATUS, Protocol::DFRN])) {
+			if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 				// create a follow slap
 				$item = [];
 				$item['verb'] = ACTIVITY_FOLLOW;
@@ -1979,10 +2024,10 @@ class Contact extends BaseObject
 				if (!empty($contact['notify'])) {
 					Salmon::slapper($owner, $contact['notify'], $slap);
 				}
-			} elseif ($contact['network'] == Protocol::DIASPORA) {
+			} elseif ($protocol == Protocol::DIASPORA) {
 				$ret = Diaspora::sendShare($a->user, $contact);
 				Logger::log('share returns: ' . $ret);
-			} elseif ($contact['network'] == Protocol::ACTIVITYPUB) {
+			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				$activity_id = ActivityPub\Transmitter::activityIDFromContact($contact_id);
 				if (empty($activity_id)) {
 					// This really should never happen
@@ -2060,13 +2105,15 @@ class Contact extends BaseObject
 		$network = $pub_contact['network'];
 
 		if (is_array($contact)) {
+			$protocol = self::getProtocol($url, $contact['network']);
+
 			if (($contact['rel'] == self::SHARING)
 				|| ($sharing && $contact['rel'] == self::FOLLOWER)) {
 				DBA::update('contact', ['rel' => self::FRIEND, 'writable' => true],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
-			if ($contact['network'] == Protocol::ACTIVITYPUB) {
+			if ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
 			}
 
@@ -2077,9 +2124,9 @@ class Contact extends BaseObject
 				return;
 			}
 			// create contact record
-			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
+			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `protocol`, `rel`,
 				`blocked`, `readonly`, `pending`, `writable`)
-				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
+				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
 				intval($importer['uid']),
 				DBA::escape(DateTimeFormat::utcNow()),
 				DBA::escape($url),
@@ -2087,6 +2134,7 @@ class Contact extends BaseObject
 				DBA::escape($name),
 				DBA::escape($nick),
 				DBA::escape($photo),
+				DBA::escape($protocol),
 				DBA::escape($network),
 				intval(self::FOLLOWER)
 			);
@@ -2140,8 +2188,9 @@ class Contact extends BaseObject
 				DBA::update('contact', ['pending' => false], $condition);
 
 				$contact = DBA::selectFirst('contact', ['url', 'network', 'hub-verify'], ['id' => $contact_record['id']]);
+				$protocol = self::getProtocol($contact['url'], $contact['network']);
 
-				if ($contact['network'] == Protocol::ACTIVITYPUB) {
+				if ($protocol == Protocol::ACTIVITYPUB) {
 					ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
 				}
 			}
