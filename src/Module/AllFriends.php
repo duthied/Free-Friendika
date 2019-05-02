@@ -71,13 +71,13 @@ class AllFriends extends BaseModule
 			} else {
 				$connlnk = $app->getBaseURL() . '/follow/?url=' . $friend['url'];
 				$photoMenu = [
-					'profile' => [L10n::t('View Profile'), Model\Contact::magicLinkbyId($friend['id'])],
+					'profile' => [L10n::t('View Profile'), Model\Contact::magicLinkbyId($friend['id'], $friend['url'])],
 					'follow'  => [L10n::t('Connect/Follow'), $connlnk]
 				];
 			}
 
 			$entry = [
-				'url'          => Model\Contact::magicLinkbyId($friend['id']),
+				'url'          => Model\Contact::magicLinkbyId($friend['id'], $friend['url']),
 				'itemurl'      => defaults($contactDetails, 'addr', $friend['url']),
 				'name'         => $contactDetails['name'],
 				'thumb'        => ProxyUtils::proxifyUrl($contactDetails['thumb'], false, ProxyUtils::SIZE_THUMB),
