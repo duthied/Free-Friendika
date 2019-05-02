@@ -52,6 +52,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/apps',                Module\Apps::class);
 		$this->routeCollector->addRoute(['GET'],         '/attach/{item:\d+}',   Module\Attach::class);
 		$this->routeCollector->addRoute(['GET'],         '/babel',               Module\Babel::class);
+		$this->routeCollector->addRoute(['GET'],         '/bookmarklet',         Module\BookMarklet::class);
 		$this->routeCollector->addGroup('/contact', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '[/]',                                 Module\Contact::class);
 			$collector->addRoute(['GET'], '/{id:\d+}[/posts|conversations]',     Module\Contact::class);
