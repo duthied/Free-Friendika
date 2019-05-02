@@ -32,6 +32,7 @@ class Group extends BaseModule
 			$a->internalRedirect();
 		}
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc == 2) && ($a->argv[1] === 'new')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group/new', 'group_edit');
 
@@ -49,6 +50,7 @@ class Group extends BaseModule
 			$a->internalRedirect('group');
 		}
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc == 2) && intval($a->argv[1])) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group', 'group_edit');
 
@@ -77,6 +79,7 @@ class Group extends BaseModule
 
 			// POST /group/123/add/123
 			// POST /group/123/remove/123
+			// @TODO: Replace with parameter from router
 			if ($a->argc == 4) {
 				list($group_id, $command, $contact_id) = array_slice($a->argv, 1);
 
@@ -142,6 +145,7 @@ class Group extends BaseModule
 		$a->page['aside'] = Model\Group::sidebarWidget('contact', 'group', 'extended', (($a->argc > 1) ? $a->argv[1] : 'everyone'));
 
 		// With no group number provided we jump to the unassigned contacts as a starting point
+		// @TODO: Replace with parameter from router
 		if ($a->argc == 1) {
 			$a->internalRedirect('group/none');
 		}
@@ -160,6 +164,7 @@ class Group extends BaseModule
 			'$submit_filter' => L10n::t('Filter'),
 		];
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc == 2) && ($a->argv[1] === 'new')) {
 			return Renderer::replaceMacros($tpl, $context + [
 				'$title' => L10n::t('Create a group of contacts/friends.'),
@@ -190,9 +195,11 @@ class Group extends BaseModule
 			];
 		}
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc == 3) && ($a->argv[1] === 'drop')) {
 			BaseModule::checkFormSecurityTokenRedirectOnError('/group', 'group_drop', 't');
 
+			// @TODO: Replace with parameter from router
 			if (intval($a->argv[2])) {
 				if (!Model\Group::exists($a->argv[2], local_user())) {
 					notice(L10n::t('Group not found.'));
@@ -208,6 +215,7 @@ class Group extends BaseModule
 			$a->internalRedirect('group');
 		}
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {
 			BaseModule::checkFormSecurityTokenForbiddenOnError('group_member_change', 't');
 
@@ -216,6 +224,7 @@ class Group extends BaseModule
 			}
 		}
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc > 1) && intval($a->argv[1])) {
 			$group = DBA::selectFirst('group', ['id', 'name'], ['id' => $a->argv[1], 'uid' => local_user(), 'deleted' => false]);
 			if (!DBA::isResult($group)) {

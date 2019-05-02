@@ -28,6 +28,7 @@ class Filer extends BaseModule
 		$logger = $a->getLogger();
 
 		$term = XML::unescape(trim(defaults($_GET, 'term', '')));
+		// @TODO: Replace with parameter from router
 		$item_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 		$logger->info('filer', ['tag' => $term, 'item' => $item_id]);

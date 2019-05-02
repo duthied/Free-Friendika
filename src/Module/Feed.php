@@ -31,11 +31,13 @@ class Feed extends BaseModule
 		$last_update = defaults($_GET, 'last_update', '');
 		$nocache     = !empty($_GET['nocache']) && local_user();
 
+		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
 			System::httpExit(400);
 		}
 
 		$type = null;
+		// @TODO: Replace with parameter from router
 		if ($a->argc > 2) {
 			$type = $a->argv[2];
 		}
@@ -53,6 +55,7 @@ class Feed extends BaseModule
 				$type = 'posts';
 		}
 
+		// @TODO: Replace with parameter from router
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml; charset=utf-8");
 		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache, true);

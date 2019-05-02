@@ -16,7 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Profile AS ProfileModel;
+use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
@@ -36,12 +36,14 @@ class Profile extends BaseModule
 	{
 		$a = self::getApp();
 
+		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
 			System::httpExit(400);
 		}
 
 		self::$which = filter_var($a->argv[1], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_BACKTICK);
 
+		// @TODO: Replace with parameter from router
 		if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 			self::$which = $a->user['nickname'];
 			self::$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);

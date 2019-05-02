@@ -19,7 +19,7 @@ use Friendica\Util\Strings;
 /**
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-abstract class Register extends BaseModule
+class Register extends BaseModule
 {
 	const CLOSED  = 0;
 	const APPROVE = 1;

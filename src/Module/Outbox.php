@@ -5,10 +5,9 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Model\User;
-use Friendica\Util\HTTPSignature;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * ActivityPub Outbox
@@ -19,6 +18,7 @@ class Outbox extends BaseModule
 	{
 		$a = self::getApp();
 
+		// @TODO: Replace with parameter from router
 		if (empty($a->argv[1])) {
 			System::httpExit(404);
 		}
