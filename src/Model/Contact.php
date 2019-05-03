@@ -2119,6 +2119,8 @@ class Contact extends BaseObject
 
 			// send email notification to owner?
 		} else {
+			$protocol = self::getProtocol($url, $network);
+
 			if (DBA::exists('contact', ['nurl' => Strings::normaliseLink($url), 'uid' => $importer['uid'], 'pending' => true])) {
 				Logger::log('ignoring duplicated connection request from pending contact ' . $url);
 				return;
