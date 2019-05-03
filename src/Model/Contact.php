@@ -2139,8 +2139,8 @@ class Contact extends BaseObject
 				DBA::escape($name),
 				DBA::escape($nick),
 				DBA::escape($photo),
-				DBA::escape($protocol),
 				DBA::escape($network),
+				DBA::escape($protocol),
 				intval(self::FOLLOWER)
 			);
 
