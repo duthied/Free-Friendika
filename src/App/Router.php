@@ -100,6 +100,7 @@ class Router
 			$collector->addRoute(['GET'], '/{nickname}/replies',                 Module\Feed::class);
 			$collector->addRoute(['GET'], '/{nickname}/activity',                Module\Feed::class);
 		});
+		$this->routeCollector->addRoute(['GET'],         '/directory',           Module\Directory::class);
 		$this->routeCollector->addRoute(['GET'],         '/feedtest',            Module\Feedtest::class);
 		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer::class);
 		$this->routeCollector->addRoute(['GET'],         '/followers/{owner}',   Module\Followers::class);
