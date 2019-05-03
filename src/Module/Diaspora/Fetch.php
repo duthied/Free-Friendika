@@ -44,10 +44,7 @@ class Fetch extends BaseModule
 
 				if (Strings::normaliseLink($host) != Strings::normaliseLink($app->getBaseURL())) {
 					$location = $host . "/fetch/" . $app->argv[1] . "/" . urlencode($guid);
-
-					header("HTTP/1.1 301 Moved Permanently");
-					header("Location:" . $location);
-					exit();
+					$app->redirect($location);
 				}
 			}
 
