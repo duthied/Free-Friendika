@@ -129,6 +129,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/magic',               Module\Magic::class);
 		$this->routeCollector->addRoute(['GET'],         '/manifest',            Module\Manifest::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
+		$this->routeCollector->addRoute(['GET'],         '/nogroup',             Module\Group::class);
 		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
 		$this->routeCollector->addGroup('/oembed', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/[b2h|h2b]',                          Module\Oembed::class);

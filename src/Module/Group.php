@@ -176,7 +176,9 @@ class Group extends BaseModule
 
 		$nogroup = false;
 
-		if (($a->argc == 2) && ($a->argv[1] === 'none')) {
+		// @TODO: Replace with parameter from router
+		if (($a->argc == 2) && ($a->argv[1] === 'none') ||
+			($a->argc == 1) && ($a->argv[0] === 'nogroup')) {
 			$id = -1;
 			$nogroup = true;
 			$group = [
