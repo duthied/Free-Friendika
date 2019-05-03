@@ -238,6 +238,28 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Returns contact details for a given contact id in combination with a user id
+	 *
+	 * @param int $cid A contact ID
+	 * @param int $uid The User ID
+	 * @param array $fields The selected fields for the contact
+	 *
+	 * @return array The contact details
+	 *
+	 * @throws \Exception
+	 */
+	public static function getContactForUser($cid, $uid, array $fields = [])
+	{
+		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => $uid]);
+
+		if (!DBA::isResult($contact)) {
+			return [];
+		} else {
+			return $contact;
+		}
+	}
+
+	/**
 	 * @brief Block contact id for user id
 	 *
 	 * @param int     $cid     Either public contact id or user's contact id
