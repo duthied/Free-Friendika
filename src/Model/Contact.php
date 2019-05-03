@@ -2105,11 +2105,14 @@ class Contact extends BaseObject
 		$network = $pub_contact['network'];
 
 		if (is_array($contact)) {
+			// Make sure that the existing contact isn't archived
+			self::unmarkForArchival($contact);
+
 			$protocol = self::getProtocol($url, $contact['network']);
 
 			if (($contact['rel'] == self::SHARING)
 				|| ($sharing && $contact['rel'] == self::FOLLOWER)) {
-				DBA::update('contact', ['rel' => self::FRIEND, 'writable' => true],
+				DBA::update('contact', ['rel' => self::FRIEND, 'writable' => true, 'pending' => false],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
