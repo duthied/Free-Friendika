@@ -653,7 +653,7 @@ class Processor
 	private static function switchContact($cid)
 	{
 		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
-		if (!DBA::isResult($contact) || ($contact['network'] == Protocol::ACTIVITYPUB)) {
+		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			return;
 		}
 
