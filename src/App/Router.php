@@ -146,10 +146,10 @@ class Router
 			$collector->addRoute(['GET'], '/{profile:\d+}/view',                 Module\Profile::class);
 		});
 		$this->routeCollector->addGroup('/proxy', function (RouteCollector $collector) {
-			$collector->addRoute(['GET'], '[/]',                                 Module\Proxy::class);
-			$collector->addRoute(['GET'], '/{url}',                              Module\Proxy::class);
-			$collector->addRoute(['GET'], '/sub1/{url}',                         Module\Proxy::class);
-			$collector->addRoute(['GET'], '/sub1/sub2/{url}',                    Module\Proxy::class);
+			$collector->addRoute(['GET'], '[/]'                                , Module\Proxy::class);
+			$collector->addRoute(['GET'], '/{url}'                             , Module\Proxy::class);
+			$collector->addRoute(['GET'], '/{sub1}/{url}'                      , Module\Proxy::class);
+			$collector->addRoute(['GET'], '/{sub1}/{sub2}/{url}'               , Module\Proxy::class);
 		});
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
 		$this->routeCollector->addRoute(['GET'],         '/statistics.json',     Module\Statistics::class);
