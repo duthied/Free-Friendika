@@ -15,7 +15,7 @@
 {{/if}}
 
 {{if $tos}}
-<p>{{$tos}}</p>
+<p>{{$tos nofilter}}</p>
 {{/if}}
 
 {{if $block_list}}
@@ -42,4 +42,4 @@
 
 {{/if}}
 
-{{$hooked}}
+{{$hooked nofilter}}
