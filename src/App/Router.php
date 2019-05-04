@@ -94,6 +94,7 @@ class Router
 			$collector->addRoute(['GET'], '/{id:\d+}[/posts|conversations]',     Module\Contact::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/credits',             Module\Credits::class);
+		$this->routeCollector->addRoute(['GET'],         '/directory',           Module\Directory::class);
 		$this->routeCollector->addGroup('/feed', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/{nickname}',                         Module\Feed::class);
 			$collector->addRoute(['GET'], '/{nickname}/posts',                   Module\Feed::class);
@@ -101,11 +102,11 @@ class Router
 			$collector->addRoute(['GET'], '/{nickname}/replies',                 Module\Feed::class);
 			$collector->addRoute(['GET'], '/{nickname}/activity',                Module\Feed::class);
 		});
-		$this->routeCollector->addRoute(['GET'],         '/directory',           Module\Directory::class);
 		$this->routeCollector->addRoute(['GET'],         '/feedtest',            Module\Feedtest::class);
 		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer::class);
 		$this->routeCollector->addRoute(['GET'],         '/followers/{owner}',   Module\Followers::class);
 		$this->routeCollector->addRoute(['GET'],         '/following/{owner}',   Module\Following::class);
+		$this->routeCollector->addRoute(['GET'],         '/friendica[/json]',    Module\Friendica::class);
 		$this->routeCollector->addGroup('/group', function (RouteCollector $collector) {
 			$collector->addRoute(['GET', 'POST'], '[/]',                         Module\Group::class);
 			$collector->addRoute(['GET', 'POST'], '/{group:\d+}',                Module\Group::class);

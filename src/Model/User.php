@@ -130,6 +130,21 @@ class User
 	}
 
 	/**
+	 * Get a user based on it's email
+	 *
+	 * @param string        $email
+	 * @param array          $fields
+	 *
+	 * @return array|boolean User record if it exists, false otherwise
+	 *
+	 * @throws Exception
+	 */
+	public static function getByEmail($email, array $fields = [])
+	{
+		return DBA::selectFirst('user', $fields, ['email' => $email]);
+	}
+
+	/**
 	 * @brief Get owner data by user id
 	 *
 	 * @param int $uid
