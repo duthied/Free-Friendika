@@ -103,6 +103,11 @@ class Router
 		});
 		$this->routeCollector->addRoute(['GET'],         '/directory',           Module\Directory::class);
 		$this->routeCollector->addRoute(['GET'],         '/feedtest',            Module\Feedtest::class);
+		$this->routeCollector->addGroup('/fetch', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '/{guid}/post',                        Module\Diaspora\Fetch::class);
+			$collector->addRoute(['GET'], '/{guid}/status_message',              Module\Diaspora\Fetch::class);
+			$collector->addRoute(['GET'], '/{guid}/reshare',                     Module\Diaspora\Fetch::class);
+		});
 		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer::class);
 		$this->routeCollector->addRoute(['GET'],         '/followers/{owner}',   Module\Followers::class);
 		$this->routeCollector->addRoute(['GET'],         '/following/{owner}',   Module\Following::class);
