@@ -4,6 +4,7 @@ namespace Friendica\Module\Diaspora;
 
 use Friendica\BaseModule;
 use Friendica\Core\Protocol;
+use Friendica\Core\System;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
@@ -44,7 +45,7 @@ class Fetch extends BaseModule
 
 				if (Strings::normaliseLink($host) != Strings::normaliseLink($app->getBaseURL())) {
 					$location = $host . "/fetch/" . $app->argv[1] . "/" . urlencode($guid);
-					$app->redirect($location);
+					System::externalRedirect($location, 301);
 				}
 			}
 

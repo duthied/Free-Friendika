@@ -223,13 +223,25 @@ class System extends BaseObject
 	 * Redirects to an external URL (fully qualified URL)
 	 * If you want to route relative to the current Friendica base, use App->internalRedirect()
 	 *
-	 * @param string $url The new Location to redirect
+	 * @param string $url  The new Location to redirect
+	 * @param int    $code The redirection code, which is used (Default is 302)
+	 *
 	 * @throws InternalServerErrorException If the URL is not fully qualified
 	 */
-	public static function externalRedirect($url)
+	public static function externalRedirect($url, $code = 302)
 	{
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
 			throw new InternalServerErrorException("'$url' is not a fully qualified URL, please use App->internalRedirect() instead");
+		}
+
+		switch ($code) {
+			case 302:
+				// this is the default code for a REDIRECT
+				// We don't need a extra header here
+				break;
+			case 301:
+				header('HTTP/1.1 301 Moved Permanently');
+				break;
 		}
 
 		header("Location: $url");
