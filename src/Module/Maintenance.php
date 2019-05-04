@@ -4,8 +4,8 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
-use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
 /**
@@ -25,13 +25,8 @@ class Maintenance extends BaseModule
 			System::externalRedirect($reason, 307);
 		}
 
-		header('HTTP/1.1 503 Service Temporarily Unavailable');
-		header('Status: 503 Service Temporarily Unavailable');
-		header('Retry-After: 600');
-
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate('maintenance.tpl'), [
-			'$sysdown' => L10n::t('System down for maintenance'),
-			'$reason' => $reason
-		]);
+		$exception = new HTTPException\ServiceUnavailableException($reason);
+		$exception->httpdesc = L10n::t('System down for maintenance');
+		throw $exception;
 	}
 }

@@ -988,7 +988,7 @@ class App
 			header('Refresh: 120; url=' . $this->getBaseURL() . "/" . $this->query_string);
 
 			Module\Special\HTTPException::rawContent(
-				new HTTPException\ServiceUnavaiableException('The node is currently overloaded. Please try again later.')
+				new HTTPException\ServiceUnavailableException('The node is currently overloaded. Please try again later.')
 			);
 		}
 

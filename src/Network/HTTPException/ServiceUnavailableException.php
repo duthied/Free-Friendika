@@ -4,7 +4,7 @@ namespace Friendica\Network\HTTPException;
 
 use Friendica\Network\HTTPException;
 
-class ServiceUnavaiableException extends HTTPException
+class ServiceUnavailableException extends HTTPException
 {
 	protected $code = 503;
 }
