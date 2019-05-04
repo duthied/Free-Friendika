@@ -242,6 +242,9 @@ class System extends BaseObject
 			case 301:
 				header('HTTP/1.1 301 Moved Permanently');
 				break;
+			case 307:
+				header('HTTP/1.1 307 Temporary Redirect');
+				break;
 		}
 
 		header("Location: $url");
