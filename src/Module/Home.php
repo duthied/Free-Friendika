@@ -12,25 +12,6 @@ use Friendica\Core\Renderer;
  */
 class Home extends BaseModule
 {
-	public static function init()
-	{
-		// currently no returned data is used
-		$ret = [];
-
-		Hook::callAll('home_init', $ret);
-
-		$app = self::getApp();
-		$config = $app->getConfig();
-
-		if (local_user() && ($app->user['nickname'])) {
-			$app->internalRedirect('network');
-		}
-
-		if (strlen($config->get('system', 'singleuser'))) {
-			$app->internalRedirect('/profile/' . $config->get('system', 'singleuser'));
-		}
-	}
-
 	public static function content()
 	{
 		if (!empty($_SESSION['theme'])) {
@@ -43,6 +24,19 @@ class Home extends BaseModule
 
 		$app = self::getApp();
 		$config = $app->getConfig();
+
+		// currently no returned data is used
+		$ret = [];
+
+		Hook::callAll('home_init', $ret);
+
+		if (local_user() && ($app->user['nickname'])) {
+			$app->internalRedirect('network');
+		}
+
+		if (strlen($config->get('system', 'singleuser'))) {
+			$app->internalRedirect('/profile/' . $config->get('system', 'singleuser'));
+		}
 
 		$customHome = '';
 		$defaultHeader = ($config->get('config', 'sitename') ? L10n::t('Welcome to %s', $config->get('config', 'sitename')) : '');
