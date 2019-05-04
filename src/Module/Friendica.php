@@ -9,6 +9,10 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model\User;
 
+/**
+ * Prints information about the current node
+ * Either in human readable form or in JSON
+ */
 class Friendica extends BaseModule
 {
 	public static function content()
