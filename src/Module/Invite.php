@@ -38,7 +38,7 @@ class Invite extends BaseModule
 		}
 
 
-		$recipients = !empty($_POST['recipients']) ? explode('\n', $_POST['recipients']) : [];
+		$recipients = !empty($_POST['recipients']) ? explode("\n", $_POST['recipients']) : [];
 		$message = !empty($_POST['message']) ? Strings::escapeTags(trim($_POST['message'])) : '';
 
 		$total = 0;
@@ -101,7 +101,7 @@ class Invite extends BaseModule
 			}
 
 		}
-		notice(L10n::tt("%d message sent.", "%d messages sent.", $total) . EOL);
+		notice(L10n::tt('%d message sent.', '%d messages sent.', $total) . EOL);
 	}
 
 	public static function content()
@@ -142,7 +142,7 @@ class Invite extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('invite.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$form_security_token' => self::getFormSecurityToken("send_invite"),
+			'$form_security_token' => self::getFormSecurityToken('send_invite'),
 			'$title'               => L10n::t('Send invitations'),
 			'$recipients'          => ['recipients', L10n::t('Enter email addresses, one per line:')],
 			'$message'             => [
