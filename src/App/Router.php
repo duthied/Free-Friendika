@@ -40,6 +40,7 @@ class Router
 	 */
 	public function collectRoutes()
 	{
+		$this->routeCollector->addRoute(['GET'],         '[/]',               Module\Home::class);
 		$this->routeCollector->addGroup('/.well-known', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/host-meta'       , Module\WellKnown\HostMeta::class);
 			$collector->addRoute(['GET'], '/nodeinfo[/1.0]'  , Module\NodeInfo::class);
@@ -118,6 +119,7 @@ class Router
 			$collector->addRoute(['POST'], '/{group:\d+}/remove/{contact:\d+}',  Module\Group::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/hashtag',             Module\Hashtag::class);
+		$this->routeCollector->addRoute(['GET'],         '/home',                Module\Home::class);
 		$this->routeCollector->addRoute(['GET'],         '/inbox[/{nickname}]',  Module\Inbox::class);
 		$this->routeCollector->addGroup('/install', function (RouteCollector $collector) {
 			$collector->addRoute(['GET', 'POST'], '[/]',                         Module\Install::class);
@@ -126,6 +128,7 @@ class Router
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/localtime',           Module\Localtime::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/login',               Module\Login::class);
+		$this->routeCollector->addRoute(['GET', 'POST'], '/logout',              Module\Logout::class);
 		$this->routeCollector->addRoute(['GET'],         '/magic',               Module\Magic::class);
 		$this->routeCollector->addRoute(['GET'],         '/manifest',            Module\Manifest::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
