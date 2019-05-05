@@ -167,10 +167,15 @@ class APContact extends BaseObject
 
 		$apcontact['manually-approve'] = (int)JsonLD::fetchElement($compacted, 'as:manuallyApprovesFollowers');
 
+		if (!empty($compacted['as:generator'])) {
+			$apcontact['baseurl'] = JsonLD::fetchElement($compacted['as:generator'], 'as:url', '@id');
+			$apcontact['generator'] = JsonLD::fetchElement($compacted['as:generator'], 'as:name', '@value');
+		}
+
 		// To-Do
 
 		// Unhandled
-		// @context, tag, attachment, image, nomadicLocations, signature, following, followers, featured, movedTo, liked
+		// tag, attachment, image, nomadicLocations, signature, featured, movedTo, liked
 
 		// Unhandled from Misskey
 		// sharedInbox, isCat
@@ -185,6 +190,9 @@ class APContact extends BaseObject
 			$apcontact['baseurl'] = Network::unparseURL($parts);
 		} else {
 			$apcontact['addr'] = null;
+		}
+
+		if (empty($apcontact['baseurl'])) {
 			$apcontact['baseurl'] = null;
 		}
 

@@ -454,7 +454,7 @@ class Processor
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
 			self::switchContact($cid);
-			DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
 			$contact = false;
@@ -463,17 +463,19 @@ class Processor
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
 			'author-link' => $activity['actor']];
 
+		$note = Strings::escapeTags(trim(defaults($activity, 'content', '')));
+
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
 
-		Contact::addRelationship($owner, $contact, $item);
+		Contact::addRelationship($owner, $contact, $item, '', false, $note);
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;
 		}
 
 		if (empty($contact)) {
-			DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
 		Logger::log('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
@@ -578,7 +580,7 @@ class Processor
 
 		self::switchContact($cid);
 
-		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING, 'pending' => true])) {
+		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING])) {
 			Contact::remove($cid);
 			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', Logger::DEBUG);
 		} else {
@@ -653,7 +655,7 @@ class Processor
 	private static function switchContact($cid)
 	{
 		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
-		if (!DBA::isResult($contact) || ($contact['network'] == Protocol::ACTIVITYPUB)) {
+		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			return;
 		}
 
