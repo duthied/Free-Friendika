@@ -76,7 +76,7 @@ class Friendica extends BaseModule
 				'<strong>' . FRIENDICA_VERSION . '</strong>',
 				$app->getBaseURL(),
 				'<strong>' . DB_UPDATE_VERSION . '</strong>',
-				'<strong>' . $config->get("system", "post_update_version") . '</strong>'),
+				'<strong>' . $config->get('system', 'post_update_version') . '</strong>'),
 			'friendica' => L10n::t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
 			'bugs'      => L10n::t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . L10n::t('the bugtracker at github') . '</a>',
 			'info'      => L10n::t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),

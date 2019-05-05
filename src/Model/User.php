@@ -130,7 +130,7 @@ class User
 	}
 
 	/**
-	 * Get a user based on it's email
+	 * Get a user based on its email
 	 *
 	 * @param string        $email
 	 * @param array          $fields
