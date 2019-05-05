@@ -139,6 +139,7 @@ class Router
 		$this->routeCollector->addRoute(['GET', 'POST'], '/logout',              Module\Logout::class);
 		$this->routeCollector->addRoute(['GET'],         '/magic',               Module\Magic::class);
 		$this->routeCollector->addRoute(['GET'],         '/manifest',            Module\Manifest::class);
+		$this->routeCollector->addRoute(['GET'],         '/modexp/{nick}',       Module\PublicRSAKey::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
 		$this->routeCollector->addRoute(['GET'],         '/nogroup',             Module\Group::class);
 		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
