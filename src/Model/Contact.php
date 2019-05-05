@@ -2373,6 +2373,10 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkByContact($contact, $url = '')
 	{
+		if (empty($contact['id']) || empty($contact['uid'])) {
+			return $url ?: $contact['url'];
+		}
+
 		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
