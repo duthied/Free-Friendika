@@ -3,7 +3,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Renderer;
+use Friendica\Util\XML;
 
 /**
  * Prints the rsd.xml
@@ -13,9 +13,43 @@ class ReallySimpleDiscovery extends BaseModule
 {
 	public static function rawContent()
 	{
-		header ('Content-Type: text/xml');
-		$tpl = Renderer::getMarkupTemplate('rsd.tpl');
-		echo Renderer::replaceMacros($tpl);
+		header('Content-Type: text/xml');
+
+		$app = self::getApp();
+		$xml = null;
+		echo XML::fromArray([
+			'rsd' => [
+				'@attributes' => [
+					'version' => '1.0',
+					'xmlns'   => 'http://archipelago.phrasewise.com/rsd',
+				],
+				'service'     => [
+					'engineName' => 'Friendica',
+					'engineLink' => 'http://friendica.com',
+					'apis'       => [
+						'api' => [
+							'@attributes' => [
+								'name'      => 'Twitter',
+								'preferred' => 'true',
+								'apiLink'   => $app->getBaseURL(),
+								'blogID'    => '',
+							],
+							'settings'    => [
+								'docs'    => [
+									'http://status.net/wiki/TwitterCompatibleAPI',
+								],
+								'setting' => [
+									'@attributes' => [
+										'name' => 'OAuth',
+									],
+									'false',
+								],
+							],
+						]
+					],
+				],
+			],
+		], $xml);
 		exit();
 	}
 }
