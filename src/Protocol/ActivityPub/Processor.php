@@ -454,7 +454,7 @@ class Processor
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
 			self::switchContact($cid);
-			DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
 			$contact = false;
@@ -475,7 +475,7 @@ class Processor
 		}
 
 		if (empty($contact)) {
-			DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
 		Logger::log('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
