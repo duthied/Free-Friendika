@@ -463,10 +463,12 @@ class Processor
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
 			'author-link' => $activity['actor']];
 
+		$note = Strings::escapeTags(trim(defaults($activity, 'content', '')));
+
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
 
-		Contact::addRelationship($owner, $contact, $item);
+		Contact::addRelationship($owner, $contact, $item, '', false, $note);
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;

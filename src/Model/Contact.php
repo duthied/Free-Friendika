@@ -2085,7 +2085,7 @@ class Contact extends BaseObject
 		return $contact;
 	}
 
-	public static function addRelationship($importer, $contact, $datarray, $item = '', $sharing = false) {
+	public static function addRelationship($importer, $contact, $datarray, $item = '', $sharing = false, $note = '') {
 		// Should always be set
 		if (empty($datarray['author-id'])) {
 			return;
@@ -2163,7 +2163,7 @@ class Contact extends BaseObject
 
 				if (is_array($contact_record)) {
 					DBA::insert('intro', ['uid' => $importer['uid'], 'contact-id' => $contact_record['id'],
-								'blocked' => false, 'knowyou' => false,
+								'blocked' => false, 'knowyou' => false, 'note' => $note,
 								'hash' => $hash, 'datetime' => DateTimeFormat::utcNow()]);
 				}
 
