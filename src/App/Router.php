@@ -164,6 +164,7 @@ class Router
 			$collector->addRoute(['GET'], '/{sub1}/{sub2}/{url}'               , Module\Proxy::class);
 		});
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
+		$this->routeCollector->addRoute(['GET'],         '/rsd.xml',             Module\ReallySimpleDiscovery::class);
 		$this->routeCollector->addRoute(['GET'],         '/statistics.json',     Module\Statistics::class);
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
 		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
