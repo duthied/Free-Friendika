@@ -1168,7 +1168,7 @@ class Contact extends BaseObject
 		// The link could be provided as http although we stored it as https
 		$ssl_url = str_replace('http://', 'https://', $url);
 
-		$fields = ['url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
+		$fields = ['id', 'uid', 'url', 'addr', 'alias', 'notify', 'poll', 'name', 'nick',
 			'photo', 'keywords', 'location', 'about', 'network',
 			'priority', 'batch', 'request', 'confirm', 'poco'];
 

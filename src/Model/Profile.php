@@ -1249,56 +1249,96 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		if ($search) {
-			$search = DBA::escape($search);
-
-			$sql_extra = " AND ((`profile`.`name` LIKE '%$search%') OR
-				(`user`.`nickname` LIKE '%$search%') OR
-				(`profile`.`pdesc` LIKE '%$search%') OR
-				(`profile`.`locality` LIKE '%$search%') OR
-				(`profile`.`region` LIKE '%$search%') OR
-				(`profile`.`country-name` LIKE '%$search%') OR
-				(`profile`.`gender` LIKE '%$search%') OR
-				(`profile`.`marital` LIKE '%$search%') OR
-				(`profile`.`sexual` LIKE '%$search%') OR
-				(`profile`.`about` LIKE '%$search%') OR
-				(`profile`.`romance` LIKE '%$search%') OR
-				(`profile`.`work` LIKE '%$search%') OR
-				(`profile`.`education` LIKE '%$search%') OR
-				(`profile`.`pub_keywords` LIKE '%$search%') OR
-				(`profile`.`prv_keywords` LIKE '%$search%'))";
-		} else {
-			$sql_extra = '';
-		}
-
 		$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
-
 		$total = 0;
-		$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+
+		if (!empty($search)) {
+			$searchTerm = '%' . $search . '%';
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` $sql_extra");
+				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
+				AND ((`profile`.`name` LIKE ?) OR
+				(`user`.`nickname` LIKE ?) OR
+				(`profile`.`pdesc` LIKE ?) OR
+				(`profile`.`locality` LIKE ?) OR
+				(`profile`.`region` LIKE ?) OR
+				(`profile`.`country-name` LIKE ?) OR
+				(`profile`.`gender` LIKE ?) OR
+				(`profile`.`marital` LIKE ?) OR
+				(`profile`.`sexual` LIKE ?) OR
+				(`profile`.`about` LIKE ?) OR
+				(`profile`.`romance` LIKE ?) OR
+				(`profile`.`work` LIKE ?) OR
+				(`profile`.`education` LIKE ?) OR
+				(`profile`.`pub_keywords` LIKE ?) OR
+				(`profile`.`prv_keywords` LIKE ?))",
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
+				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
+		} else {
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+				FROM `profile`
+				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");
+		}
+
 		if (DBA::isResult($cnt)) {
 			$total = $cnt['total'];
 		}
 
 		$order = " ORDER BY `name` ASC ";
-		$limit = $start . ',' . $count;
+		$profiles = [];
 
-		$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+		// If nothing found, don't try to select details
+		if ($total > 0) {
+			if (!empty($search)) {
+				$searchTerm = '%' . $search . '%';
+
+				$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
 			`contact`.`addr`, `contact`.`url` AS `profile_url`
 			FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
 			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
-			$sql_extra $order LIMIT $limit"
-		);
+			AND ((`profile`.`name` LIKE ?) OR
+				(`user`.`nickname` LIKE ?) OR
+				(`profile`.`pdesc` LIKE ?) OR
+				(`profile`.`locality` LIKE ?) OR
+				(`profile`.`region` LIKE ?) OR
+				(`profile`.`country-name` LIKE ?) OR
+				(`profile`.`gender` LIKE ?) OR
+				(`profile`.`marital` LIKE ?) OR
+				(`profile`.`sexual` LIKE ?) OR
+				(`profile`.`about` LIKE ?) OR
+				(`profile`.`romance` LIKE ?) OR
+				(`profile`.`work` LIKE ?) OR
+				(`profile`.`education` LIKE ?) OR
+				(`profile`.`pub_keywords` LIKE ?) OR
+				(`profile`.`prv_keywords` LIKE ?))
+			$order LIMIT ?,?",
+					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
+					$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
+					$start, $count
+				);
+			} else {
+				$profiles = DBA::p("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`, `user`.`timezone` , `user`.`page-flags`,
+			`contact`.`addr`, `contact`.`url` AS `profile_url`
+			FROM `profile`
+			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
+			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
+			$order LIMIT ?,?",
+					$start, $count
+				);
+			}
+		}
 
-		if (DBA::isResult($profiles)) {
+		if (DBA::isResult($profiles) && $total > 0) {
 			return [
 				'total'   => $total,
 				'entries' => DBA::toArray($profiles),
 			];
+
 		} else {
 			return [
 				'total'   => $total,
