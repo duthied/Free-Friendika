@@ -137,18 +137,16 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$dfrn_confirm = $contact['confirm'];
 		$aes_allow    = $contact['aes_allow'];
 
-		$network = ((strlen($contact['issued-id'])) ? Protocol::DFRN : Protocol::OSTATUS);
-
-		if ($contact['network']) {
-			$network = $contact['network'];
-		}
-
 		// an empty DFRN-ID tells us that it had been a request via AP from a Friendica contact
-		if (($network === Protocol::DFRN) && empty($dfrn_id)) {
-			$network = Contact::getProtocol($contact['url'], $contact['network']);
+		if (!empty($contact['protocol'])) {
+			$protocol = $contact['protocol'];
+		} elseif (($contact['network'] === Protocol::DFRN) && empty($dfrn_id)) {
+			$protocol = Contact::getProtocol($contact['url'], $contact['network']);
+		} else {
+			$protocol = $contact['network'];
 		}
 
-		if ($network === Protocol::DFRN) {
+		if ($protocol === Protocol::DFRN) {
 			/*
 			 * Generate a key pair for all further communications with this person.
 			 * We have a keypair for every contact, and a site key for unknown people.
@@ -296,7 +294,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				return;
 			}
 		} else {
-			DBA::update('contact', ['protocol' => $network], ['id' => $contact_id]);
+			DBA::update('contact', ['protocol' => $protocol], ['id' => $contact_id]);
 		}
 
 		/*
@@ -310,7 +308,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		Logger::log('dfrn_confirm: confirm - imported photos');
 
-		if ($network === Protocol::DFRN) {
+		if ($protocol === Protocol::DFRN) {
 			$new_relation = Contact::FOLLOWER;
 
 			if (($relation == Contact::SHARING) || ($duplex)) {
@@ -339,7 +337,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				intval($contact_id)
 			);
 		} else {
-			if ($network == Protocol::ACTIVITYPUB) {
+			if ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $uid);
 				// Setting "pending" to true on a bidirectional contact request could create a problem when it isn't accepted on the other side
 				// Then we have got a situation where - although one direction is accepted - the contact still appears as pending.
@@ -351,10 +349,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 				$pending = false;
 			}
 
-			// $network !== Protocol::DFRN
-			$network = defaults($contact, 'network', Protocol::OSTATUS);
-
-			$arr = Probe::uri($contact['url'], $network);
+			$arr = Probe::uri($contact['url'], $protocol);
 
 			$notify  = defaults($contact, 'notify' , $arr['notify']);
 			$poll    = defaults($contact, 'poll'   , $arr['poll']);
@@ -364,7 +359,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$new_relation = $contact['rel'];
 			$writable = $contact['writable'];
 
-			if (in_array($network, [Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
+			if (in_array($protocol, [Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 				if ($duplex) {
 					$new_relation = Contact::FRIEND;
 				} else {
@@ -381,7 +376,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$fields = ['name-date' => DateTimeFormat::utcNow(),
 				'uri-date' => DateTimeFormat::utcNow(), 'addr' => $addr,
 				'notify' => $notify, 'poll' => $poll, 'blocked' => false,
-				'pending' => $pending, 'network' => $network,
+				'pending' => $pending, 'protocol' => $protocol,
 				'writable' => $writable, 'hidden' => $hidden, 'rel' => $new_relation];
 			DBA::update('contact', $fields, ['id' => $contact_id]);
 		}
@@ -392,7 +387,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		// reload contact info
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
-		if ((isset($new_relation) && $new_relation == Contact::FRIEND)) {
+		if (isset($new_relation) && ($new_relation == Contact::FRIEND)) {
 			if (DBA::isResult($contact) && ($contact['network'] === Protocol::DIASPORA)) {
 				$ret = Diaspora::sendShare($user, $contact);
 				Logger::log('share returns: ' . $ret);
@@ -401,7 +396,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 
 		Group::addMember(User::getDefaultGroup($uid, $contact["network"]), $contact['id']);
 
-		if ($network == Protocol::ACTIVITYPUB && $duplex) {
+		if (($protocol == Protocol::ACTIVITYPUB) && $duplex) {
 			ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid);
 		}
 
