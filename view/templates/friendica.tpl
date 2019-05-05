@@ -1,4 +1,4 @@
-<div id="friendica" class="widget">
+<div id="friendica" class="generic-page-wrapper">
 	<h1>Friendica</h1>
 	<br>
 	<p>{{$about nofilter}}</p>
