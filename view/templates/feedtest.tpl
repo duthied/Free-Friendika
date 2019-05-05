@@ -1,4 +1,4 @@
-<div id="feedtest" class="widget">
+<div id="feedtest" class="generic-page-wrapper">
 	<h2>Feed Test</h2>
 	<form action="feedtest" method="get" class="panel panel-default">
 		<div class="panel-body">
