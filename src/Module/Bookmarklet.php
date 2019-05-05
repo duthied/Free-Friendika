@@ -12,7 +12,7 @@ use Friendica\Util\Strings;
  * Creates a bookmarklet
  * Shows either a editor browser or adds the given bookmarklet to the current user
  */
-class BookMarklet extends BaseModule
+class Bookmarklet extends BaseModule
 {
 	public static function content()
 	{
