@@ -45,7 +45,7 @@ class Item extends BaseObject
 
 	// Field list that is used to display the items
 	const DISPLAY_FIELDLIST = [
-		'uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'network', 'gravity',
+		'uid', 'id', 'parent', 'uri', 'thr-parent', 'parent-uri', 'guid', 'parent-guid', 'network', 'gravity',
 		'commented', 'created', 'edited', 'received', 'verb', 'object-type', 'postopts', 'plink',
 		'wall', 'private', 'starred', 'origin', 'title', 'body', 'file', 'attach', 'language',
 		'content-warning', 'location', 'coord', 'app', 'rendered-hash', 'rendered-html', 'object',
