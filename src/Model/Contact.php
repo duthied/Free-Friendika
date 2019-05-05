@@ -1344,7 +1344,6 @@ class Contact extends BaseObject
 				'location'  => defaults($data, 'location', ''),
 				'about'     => defaults($data, 'about', ''),
 				'network'   => $data['network'],
-				'protocol'  => self::getProtocol($data['url'], $data['network']),
 				'pubkey'    => defaults($data, 'pubkey', ''),
 				'rel'       => self::SHARING,
 				'priority'  => defaults($data, 'priority', 0),
@@ -1405,7 +1404,7 @@ class Contact extends BaseObject
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey', 'protocol'];
+		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
 		// This condition should always be true
@@ -1418,8 +1417,7 @@ class Contact extends BaseObject
 			'url' => $data['url'],
 			'nurl' => Strings::normaliseLink($data['url']),
 			'name' => $data['name'],
-			'nick' => $data['nick'],
-			'protocol' => self::getProtocol($data['url'], $data['network'])];
+			'nick' => $data['nick']];
 
 		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
@@ -2129,9 +2127,9 @@ class Contact extends BaseObject
 				return;
 			}
 			// create contact record
-			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `protocol`, `rel`,
+			q("INSERT INTO `contact` (`uid`, `created`, `url`, `nurl`, `name`, `nick`, `photo`, `network`, `rel`,
 				`blocked`, `readonly`, `pending`, `writable`)
-				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
+				VALUES (%d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, 0, 0, 1, 1)",
 				intval($importer['uid']),
 				DBA::escape(DateTimeFormat::utcNow()),
 				DBA::escape($url),
@@ -2140,7 +2138,6 @@ class Contact extends BaseObject
 				DBA::escape($nick),
 				DBA::escape($photo),
 				DBA::escape($network),
-				DBA::escape($protocol),
 				intval(self::FOLLOWER)
 			);
 
