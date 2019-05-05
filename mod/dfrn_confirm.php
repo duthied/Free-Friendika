@@ -162,11 +162,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$public_key  = $res['pubkey'];
 
 			// Save the private key. Send them the public key.
-			q("UPDATE `contact` SET `prvkey` = '%s' WHERE `id` = %d AND `uid` = %d",
-				DBA::escape($private_key),
-				intval($contact_id),
-				intval($uid)
-			);
+			$fields = ['prvkey' => $private_key, 'protocol' => Protocol::DFRN];
+			DBA::update('contact', $fields, ['id' => $contact_id]);
 
 			$params = [];
 
@@ -298,6 +295,8 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			if ($status != 0) {
 				return;
 			}
+		} else {
+			DBA::update('contact', ['protocol' => $network], ['id' => $contact_id]);
 		}
 
 		/*
