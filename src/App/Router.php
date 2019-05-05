@@ -125,6 +125,7 @@ class Router
 		});
 		$this->routeCollector->addRoute(['GET'],         '/hashtag',             Module\Hashtag::class);
 		$this->routeCollector->addRoute(['GET'],         '/home',                Module\Home::class);
+		$this->routeCollector->addRoute(['GET'],         '/help[/{doc:.+}]',     Module\Help::class);
 		$this->routeCollector->addRoute(['GET'],         '/inbox[/{nickname}]',  Module\Inbox::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/invite',              Module\Invite::class);
 		$this->routeCollector->addGroup('/install', function (RouteCollector $collector) {
