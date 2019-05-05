@@ -133,6 +133,7 @@ class Router
 			$collector->addRoute(['GET'],         '/testrewrite',                Module\Install::class);
 		});
 		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
+		$this->routeCollector->addRoute(['GET'],         '/like/{item:\d+}',     Module\Like::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/localtime',           Module\Localtime::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/login',               Module\Login::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/logout',              Module\Logout::class);
