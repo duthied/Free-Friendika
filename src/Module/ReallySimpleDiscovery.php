@@ -13,9 +13,9 @@ class ReallySimpleDiscovery extends BaseModule
 {
 	public static function rawContent()
 	{
-		header ("Content-Type: text/xml");
+		header ('Content-Type: text/xml');
 		$tpl = Renderer::getMarkupTemplate('rsd.tpl');
-		echo Renderer::replaceMacros($tpl, []);
+		echo Renderer::replaceMacros($tpl);
 		exit();
 	}
 }
