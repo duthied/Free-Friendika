@@ -125,13 +125,14 @@ class Contact extends BaseObject
 	}
 
 	/**
-	 * @param  integer       $id
+	 * @param integer $id     Contact ID
+	 * @param array   $fields Array of selected fields, empty for all
 	 * @return array|boolean Contact record if it exists, false otherwise
 	 * @throws \Exception
 	 */
-	public static function getById($id)
+	public static function getById($id, $fields = [])
 	{
-		return DBA::selectFirst('contact', [], ['id' => $id]);
+		return DBA::selectFirst('contact', $fields, ['id' => $id]);
 	}
 
 	/**
