@@ -223,6 +223,14 @@ function notifications_content(App $a)
 						'$as_fan'      => (($notif['network'] == Protocol::DIASPORA) ? L10n::t('Sharer') : L10n::t('Subscriber'))
 					]);
 
+					$contact = DBA::selectFirst('contact', ['network', 'protocol'], ['id' => $notif['contact_id']]);
+
+					if (($contact['network'] != Protocol::DFRN) || ($contact['protocol'] == Protocol::ACTIVITYPUB)) {
+						$action = 'follow_confirm';
+					} else {
+						$action = 'dfrn_confirm';
+					}
+
 					$header = $notif['name'];
 
 					if ($notif['addr'] != '') {
@@ -270,6 +278,7 @@ function notifications_content(App $a)
 						'$note'        => $notif['note'],
 						'$ignore'      => L10n::t('Ignore'),
 						'$discard'     => $discard,
+						'$action'      => $action,
 					]);
 					break;
 			}

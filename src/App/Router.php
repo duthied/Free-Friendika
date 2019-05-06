@@ -110,6 +110,7 @@ class Router
 			$collector->addRoute(['GET'], '/{guid}/reshare',                     Module\Diaspora\Fetch::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer::class);
+		$this->routeCollector->addRoute(['GET', 'POST'], '/follow_confirm',      Module\FollowConfirm::class);
 		$this->routeCollector->addRoute(['GET'],         '/followers/{owner}',   Module\Followers::class);
 		$this->routeCollector->addRoute(['GET'],         '/following/{owner}',   Module\Following::class);
 		$this->routeCollector->addGroup('/group', function (RouteCollector $collector) {

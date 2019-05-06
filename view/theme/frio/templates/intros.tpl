@@ -52,7 +52,7 @@
 		<div id="intro-approve-wrapper-{{$intro_id}}" style="display: none;">
 
 			<h3 class="heading">{{$fullname}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
-			<form class="intro-approve-form" {{if $request}}action="{{$request}}" method="get"{{else}}action="dfrn_confirm" method="post"{{/if}}>
+			<form class="intro-approve-form" {{if $request}}action="{{$request}}" method="get"{{else}}action="{{$action}}" method="post"{{/if}}>
 				{{include file="field_checkbox.tpl" field=$hidden}}
 				{{if $type != "friend_suggestion"}}
 				<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}" >
