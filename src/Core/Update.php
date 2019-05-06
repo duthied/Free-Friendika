@@ -305,6 +305,7 @@ class Update
 						'uid' => $admin['uid'],
 						'type' => SYSTEM_EMAIL,
 						'to_email' => $admin['email'],
+						'subject'  => l10n::t('[Friendica Notify] Database update'),
 						'preamble' => $preamble,
 						'body' => $preamble,
 						'language' => $lang]
