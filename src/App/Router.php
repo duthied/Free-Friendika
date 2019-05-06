@@ -92,7 +92,20 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/bookmarklet',         Module\Bookmarklet::class);
 		$this->routeCollector->addGroup('/contact', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '[/]',                                 Module\Contact::class);
-			$collector->addRoute(['GET'], '/{id:\d+}[/posts|conversations]',     Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}[/]',                        Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/archive',                   Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/block',                     Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/conversations',             Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/drop',                      Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/ignore',                    Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/posts',                     Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/update',                    Module\Contact::class);
+			$collector->addRoute(['GET'], '/{id:\d+}/updateprofile',             Module\Contact::class);
+			$collector->addRoute(['GET'], '/all',                                Module\Contact::class);
+			$collector->addRoute(['GET'], '/archived',                           Module\Contact::class);
+			$collector->addRoute(['GET'], '/blocked',                            Module\Contact::class);
+			$collector->addRoute(['GET'], '/hidden',                             Module\Contact::class);
+			$collector->addRoute(['GET'], '/ignored',                            Module\Contact::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/credits',             Module\Credits::class);
 		$this->routeCollector->addRoute(['GET'],         '/directory',           Module\Directory::class);
@@ -122,8 +135,8 @@ class Router
 			$collector->addRoute(['GET', 'POST'], '/drop/{group:\d+}',           Module\Group::class);
 			$collector->addRoute(['GET', 'POST'], '/{group:\d+}/{contact:\d+}',  Module\Group::class);
 
-			$collector->addRoute(['POST'], '/{group:\d+}/add/{contact:\d+}',     Module\Group::class);
-			$collector->addRoute(['POST'], '/{group:\d+}/remove/{contact:\d+}',  Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/{group:\d+}/add/{contact:\d+}',     Module\Group::class);
+			$collector->addRoute(['GET', 'POST'], '/{group:\d+}/remove/{contact:\d+}',  Module\Group::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/hashtag',             Module\Hashtag::class);
 		$this->routeCollector->addRoute(['GET'],         '/home',                Module\Home::class);
