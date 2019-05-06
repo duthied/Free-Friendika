@@ -105,6 +105,9 @@ blockquote {
  * mobile aside
  */
 @media screen and (max-width: 990px) {
+    body {
+        padding-top: 105px;
+    }
     aside{
         position: fixed!important;
         top: 0!important;
@@ -614,6 +617,10 @@ nav.navbar a, nav.navbar .btn-link {
 }
 .navbar-fixed-top ul.nav.navbar-nav.navbar-right {
     display: flex;
+}
+
+#friendica-logo-mask {
+    display: block;
 }
 
 

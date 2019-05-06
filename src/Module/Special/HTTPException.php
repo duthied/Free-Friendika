@@ -52,14 +52,14 @@ class HTTPException
 			$message = defaults($explanation, $e->getCode(), '');
 		}
 
-		return ['$title' => $title, '$description' => $message];
+		return ['$title' => $title, '$message' => $message, '$back' => L10n::t('Go back')];
 	}
 
 	/**
 	 * Displays a bare message page with no theming at all.
 	 *
 	 * @param \Friendica\Network\HTTPException $e
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function rawContent(\Friendica\Network\HTTPException $e)
 	{
@@ -78,7 +78,7 @@ class HTTPException
 	 *
 	 * @param \Friendica\Network\HTTPException $e
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function content(\Friendica\Network\HTTPException $e)
 	{

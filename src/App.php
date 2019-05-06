@@ -988,7 +988,7 @@ class App
 			header('Refresh: 120; url=' . $this->getBaseURL() . "/" . $this->query_string);
 
 			Module\Special\HTTPException::rawContent(
-				new HTTPException\ServiceUnavaiableException('The node is currently overloaded. Please try again later.')
+				new HTTPException\ServiceUnavailableException('The node is currently overloaded. Please try again later.')
 			);
 		}
 
@@ -1077,10 +1077,10 @@ class App
 
 		// in install mode, any url loads install module
 		// but we need "view" module for stylesheet
-		if ($this->getMode()->isInstall() && $this->module != 'view') {
-			$this->module = 'install';
-		} elseif (!$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $this->module != 'view') {
-			$this->module = 'maintenance';
+		if ($this->getMode()->isInstall() && $this->module !== 'install') {
+			$this->internalRedirect('install');
+		} elseif (!$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $this->module !== 'maintenance') {
+			$this->internalRedirect('maintenance');
 		} else {
 			$this->checkURL();
 			Core\Update::check($this->getBasePath(), false, $this->getMode());

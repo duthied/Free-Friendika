@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\Filer;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
@@ -12,7 +12,7 @@ use Friendica\Util\XML;
 /**
  * Shows a dialog for adding tags to a file
  */
-class Filer extends BaseModule
+class SaveTag extends BaseModule
 {
 	public static function init()
 	{
