@@ -8,10 +8,14 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 
+/**
+ * Process follow request confirmations
+ */
 class FollowConfirm extends BaseModule
 {
 	public static function post()
@@ -34,11 +38,11 @@ class FollowConfirm extends BaseModule
 			return;
 		}
 
-		Logger::log('Confirming follower with contact_id: ' . $cid);
+		Logger::info('Confirming follower', ['cid' => $cid]);
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'uid' => $uid]);
 		if (!DBA::isResult($contact)) {
-			Logger::log('Contact not found in DB.');
+			Logger::warning('Contact not found in DB.', ['cid' => $cid]);
 			notice(L10n::t('Contact not found.') . EOL);
 			return;
 		}
@@ -77,10 +81,10 @@ class FollowConfirm extends BaseModule
 
 		if ($new_relation == Contact::FRIEND) {
 			if ($protocol == Protocol::DIASPORA) {
-				$user = DBA::selectFirst('user', [], ['uid' => $uid]);
-				$contact = DBA::select('contact', [], ['id' => $cid]);
+				$user = User::getById($uid);
+				$contact = Contact::getById($cid);
 				$ret = Diaspora::sendShare($user, $contact);
-				Logger::log('share returns: ' . $ret);
+				Logger::info('share returns', ['return' => $ret]);
 			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $uid);
 			}
