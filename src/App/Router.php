@@ -155,6 +155,7 @@ class Router
 			$collector->addRoute(['GET'], '/{type}/{name}',                      Module\Photo::class);
 			$collector->addRoute(['GET'], '/{type}/{customize}/{name}',          Module\Photo::class);
 		});
+		$this->routeCollector->addRoute(['GET'],         '/pretheme',            Module\ThemeDetails::class);
 		$this->routeCollector->addGroup('/profile', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/{nickname}',                         Module\Profile::class);
 			$collector->addRoute(['GET'], '/{profile:\d+}/view',                 Module\Profile::class);
