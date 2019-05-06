@@ -109,7 +109,8 @@ class Router
 			$collector->addRoute(['GET'], '/{guid}/status_message',              Module\Diaspora\Fetch::class);
 			$collector->addRoute(['GET'], '/{guid}/reshare',                     Module\Diaspora\Fetch::class);
 		});
-		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer::class);
+		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer\SaveTag::class);
+		$this->routeCollector->addRoute(['GET'],         '/filerm/{id:\d+}',     Module\Filer\RemoveTag::class);
 		$this->routeCollector->addRoute(['GET'],         '/followers/{owner}',   Module\Followers::class);
 		$this->routeCollector->addRoute(['GET'],         '/following/{owner}',   Module\Following::class);
 		$this->routeCollector->addRoute(['GET'],         '/friendica[/json]',    Module\Friendica::class);
