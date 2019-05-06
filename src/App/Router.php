@@ -171,6 +171,7 @@ class Router
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
 		$this->routeCollector->addRoute(['GET'],         '/robots.txt',          Module\RobotsTxt::class);
 		$this->routeCollector->addRoute(['GET'],         '/rsd.xml',             Module\ReallySimpleDiscovery::class);
+		$this->routeCollector->addRoute(['GET'],         '/smilies[/json]',      Module\Smilies::class);
 		$this->routeCollector->addRoute(['GET'],         '/statistics.json',     Module\Statistics::class);
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
 		$this->routeCollector->addRoute(['GET'],         '/viewsrc/{item:\d+}',  Module\ItemBody::class);
