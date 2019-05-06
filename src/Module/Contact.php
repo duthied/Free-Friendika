@@ -367,6 +367,7 @@ class Contact extends BaseModule
 				return;
 			}
 
+			// @TODO: Replace with parameter from router
 			$cmd = $a->argv[2];
 
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
@@ -667,6 +668,7 @@ class Contact extends BaseModule
 		$archived = false;
 		$all = false;
 
+		// @TODO: Replace with parameter from router
 		if (($a->argc == 2) && ($a->argv[1] === 'all')) {
 			$sql_extra = '';
 			$all = true;
