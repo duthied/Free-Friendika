@@ -177,9 +177,10 @@ class Cron
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
+			DBA::escape(Protocol::ACTIVITYPUB),
 			DBA::escape(Protocol::DFRN),
 			DBA::escape(Protocol::OSTATUS),
 			DBA::escape(Protocol::DIASPORA),
