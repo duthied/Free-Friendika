@@ -3,6 +3,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Content;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
@@ -11,22 +12,10 @@ use Friendica\Core\System;
  */
 class Smilies extends BaseModule
 {
-	public static function content()
-	{
-		$smilies = \Friendica\Content\Smilies::getList();
-		$count = count(defaults($smilies, 'texts', []));
-
-		$tpl = Renderer::getMarkupTemplate('smilies.tpl');
-		return Renderer::replaceMacros($tpl, [
-			'$count'   => $count,
-			'$smilies' => $smilies,
-		]);
-	}
-
 	public static function rawContent()
 	{
 		$app = self::getApp();
-		$smilies = \Friendica\Content\Smilies::getList();
+		$smilies = Content\Smilies::getList();
 
 		if (!empty($app->argv[1]) && ($app->argv[1] === "json")) {
 			$results = [];
@@ -35,5 +24,17 @@ class Smilies extends BaseModule
 			}
 			System::jsonExit($results);
 		}
+	}
+
+	public static function content()
+	{
+		$smilies = Content\Smilies::getList();
+		$count = count(defaults($smilies, 'texts', []));
+
+		$tpl = Renderer::getMarkupTemplate('smilies.tpl');
+		return Renderer::replaceMacros($tpl, [
+			'$count'   => $count,
+			'$smilies' => $smilies,
+		]);
 	}
 }
