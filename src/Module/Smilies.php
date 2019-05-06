@@ -15,9 +15,9 @@ class Smilies extends BaseModule
 	public static function rawContent()
 	{
 		$app = self::getApp();
-		$smilies = Content\Smilies::getList();
 
 		if (!empty($app->argv[1]) && ($app->argv[1] === "json")) {
+			$smilies = Content\Smilies::getList();
 			$results = [];
 			for ($i = 0; $i < count($smilies['texts']); $i++) {
 				$results[] = ['text' => $smilies['texts'][$i], 'icon' => $smilies['icons'][$i]];
