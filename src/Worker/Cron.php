@@ -213,8 +213,8 @@ class Cron
 				$contact['priority'] = (!is_null($poll_interval) ? intval($poll_interval) : 3);
 			}
 
-			// Check Diaspora contacts or followers once a week
-			if (($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER)) {
+			// Check ActivityPub and Diaspora contacts or followers once a week
+			if (in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::DIASPORA]) || ($contact["rel"] == Contact::FOLLOWER)) {
 				$contact['priority'] = 4;
 			}
 
