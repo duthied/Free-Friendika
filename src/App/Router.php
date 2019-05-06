@@ -160,7 +160,8 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/nogroup',             Module\Group::class);
 		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
 		$this->routeCollector->addGroup('/oembed', function (RouteCollector $collector) {
-			$collector->addRoute(['GET'], '/[b2h|h2b]',                          Module\Oembed::class);
+			$collector->addRoute(['GET'], '/b2h',                                Module\Oembed::class);
+			$collector->addRoute(['GET'], '/h2b',                                Module\Oembed::class);
 			$collector->addRoute(['GET'], '/{hash}',                             Module\Oembed::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/outbox/{owner}',      Module\Outbox::class);
