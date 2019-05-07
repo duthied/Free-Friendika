@@ -43,7 +43,7 @@ function cal_init(App $a)
 	$nick = $a->argv[1];
 	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 	if (!DBA::isResult($user)) {
-		throw new \Slim\Exception\NotFoundException();
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$a->data['user'] = $user;
