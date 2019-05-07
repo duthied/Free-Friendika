@@ -177,11 +177,13 @@ class Contact extends BaseModule
 			return;
 		}
 
+		// @TODO: Replace with parameter from router
 		if ($a->argv[1] === 'batch') {
 			self::batchActions($a);
 			return;
 		}
 
+		// @TODO: Replace with parameter from router
 		$contact_id = intval($a->argv[1]);
 		if (!$contact_id) {
 			return;

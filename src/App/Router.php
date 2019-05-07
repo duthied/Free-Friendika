@@ -92,7 +92,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/bookmarklet',         Module\Bookmarklet::class);
 		$this->routeCollector->addGroup('/contact', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '[/]',                                 Module\Contact::class);
-			$collector->addRoute(['GET'], '/{id:\d+}[/]',                        Module\Contact::class);
+			$collector->addRoute(['GET', 'POST'], '/{id:\d+}[/]',                Module\Contact::class);
 			$collector->addRoute(['GET'], '/{id:\d+}/archive',                   Module\Contact::class);
 			$collector->addRoute(['GET'], '/{id:\d+}/block',                     Module\Contact::class);
 			$collector->addRoute(['GET'], '/{id:\d+}/conversations',             Module\Contact::class);
@@ -103,6 +103,7 @@ class Router
 			$collector->addRoute(['GET'], '/{id:\d+}/updateprofile',             Module\Contact::class);
 			$collector->addRoute(['GET'], '/all',                                Module\Contact::class);
 			$collector->addRoute(['GET'], '/archived',                           Module\Contact::class);
+			$collector->addRoute(['GET', 'POST'], '/batch',                      Module\Contact::class);
 			$collector->addRoute(['GET'], '/blocked',                            Module\Contact::class);
 			$collector->addRoute(['GET'], '/hidden',                             Module\Contact::class);
 			$collector->addRoute(['GET'], '/ignored',                            Module\Contact::class);
