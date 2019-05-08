@@ -149,6 +149,8 @@ class Addon extends BaseObject
 			$func();
 		}
 
+		DBA::delete('hook', ['file' => 'addon/' . $addon . '/' . $addon . '.php']);
+
 		unset(self::$addons[array_search($addon, self::$addons)]);
 
 		Addon::saveEnabledList();
