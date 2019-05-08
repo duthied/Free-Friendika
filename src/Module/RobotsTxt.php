@@ -15,6 +15,9 @@ class RobotsTxt extends BaseModule
 			'/settings/',
 			'/admin/',
 			'/message/',
+			'/search',
+			'/help',
+			'/proxy',
 		];
 
 		header('Content-Type: text/plain');
