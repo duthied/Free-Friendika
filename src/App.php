@@ -1079,7 +1079,7 @@ class App
 		// but we need "view" module for stylesheet
 		if ($this->getMode()->isInstall() && $this->module !== 'install') {
 			$this->internalRedirect('install');
-		} elseif (!$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $this->module !== 'maintenance') {
+		} elseif (!$this->getMode()->isInstall() && !$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $this->module !== 'maintenance') {
 			$this->internalRedirect('maintenance');
 		} else {
 			$this->checkURL();
