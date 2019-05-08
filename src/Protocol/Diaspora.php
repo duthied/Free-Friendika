@@ -27,6 +27,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -1841,14 +1842,7 @@ class Diaspora
 
 		$person = self::personByHandle($msg_author);
 
-		DBA::lock('mail');
-
-		if (DBA::exists('mail', ['guid' => $msg_guid, 'uid' => $importer["uid"]])) {
-			Logger::log("duplicate message already delivered.", Logger::DEBUG);
-			return false;
-		}
-
-		DBA::insert('mail', [
+		return Mail::insert([
 			'uid'        => $importer['uid'],
 			'guid'       => $msg_guid,
 			'convid'     => $conversation['id'],
@@ -1858,36 +1852,10 @@ class Diaspora
 			'contact-id' => $contact['id'],
 			'title'      => $subject,
 			'body'       => $body,
-			'seen'       => 0,
-			'reply'      => 0,
 			'uri'        => $message_uri,
 			'parent-uri' => $author . ':' . $guid,
 			'created'    => $msg_created_at
 		]);
-
-		$message_id = DBA::lastInsertId();
-
-		DBA::unlock();
-
-		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
-
-		notification([
-			"type" => NOTIFY_MAIL,
-			"notify_flags" => $importer["notify-flags"],
-			"language" => $importer["language"],
-			"to_name" => $importer["username"],
-			"to_email" => $importer["email"],
-			"uid" => $importer["uid"],
-			"item" => ["id" => $message_id, "title" => $subject, "subject" => $subject, "body" => $body],
-			"parent" => $conversation["id"],
-			"source_name" => $person["name"],
-			"source_link" => $person["url"],
-			"source_photo" => $person["photo"],
-			"verb" => ACTIVITY_POST,
-			"otype" => "mail"
-		]);
-
-		return true;
 	}
 
 	/**
@@ -2105,14 +2073,7 @@ class Diaspora
 
 		$body = self::replacePeopleGuid($body, $person["url"]);
 
-		DBA::lock('mail');
-
-		if (DBA::exists('mail', ['guid' => $guid, 'uid' => $importer["uid"]])) {
-			Logger::log("duplicate message already delivered.", Logger::DEBUG);
-			return false;
-		}
-
-		DBA::insert('mail', [
+		return Mail::insert([
 			'uid'        => $importer['uid'],
 			'guid'       => $guid,
 			'convid'     => $conversation['id'],
@@ -2122,36 +2083,11 @@ class Diaspora
 			'contact-id' => $contact['id'],
 			'title'      => $conversation['subject'],
 			'body'       => $body,
-			'seen'       => 0,
 			'reply'      => 1,
 			'uri'        => $message_uri,
 			'parent-uri' => $author.":".$conversation['guid'],
 			'created'    => $created_at
 		]);
-
-		$message_id = DBA::lastInsertId();
-
-		DBA::unlock();
-
-		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
-
-		notification([
-			"type" => NOTIFY_MAIL,
-			"notify_flags" => $importer["notify-flags"],
-			"language" => $importer["language"],
-			"to_name" => $importer["username"],
-			"to_email" => $importer["email"],
-			"uid" => $importer["uid"],
-			"item" => ["id" => $message_id, "title" => $conversation["subject"], "subject" => $conversation["subject"], "body" => $body],
-			"parent" => $conversation["id"],
-			"source_name" => $person["name"],
-			"source_link" => $person["url"],
-			"source_photo" => $person["photo"],
-			"verb" => ACTIVITY_POST,
-			"otype" => "mail"
-		]);
-
-		return true;
 	}
 
 	/**
