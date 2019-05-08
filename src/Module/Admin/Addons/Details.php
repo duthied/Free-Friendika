@@ -48,7 +48,8 @@ class Details extends BaseAdminModule
 			$addon = $a->argv[2];
 			$addon = Strings::sanitizeFilePathItem($addon);
 			if (!is_file("addon/$addon/$addon.php")) {
-				notice(L10n::t('Item not found.'));
+				notice(L10n::t('Addon not found.'));
+				Addon::uninstall($addon);
 				$a->internalRedirect('admin/addons');
 			}
 
