@@ -25,6 +25,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\Mail;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -1865,7 +1866,6 @@ class DFRN
 	{
 		Logger::log("Processing mails");
 
-		/// @TODO Rewrite this to one statement
 		$msg = [];
 		$msg["uid"] = $importer["importer_uid"];
 		$msg["from-name"] = $xpath->query("dfrn:sender/dfrn:name/text()", $mail)->item(0)->nodeValue;
@@ -1877,34 +1877,8 @@ class DFRN
 		$msg["created"] = DateTimeFormat::utc($xpath->query("dfrn:sentdate/text()", $mail)->item(0)->nodeValue);
 		$msg["title"] = $xpath->query("dfrn:subject/text()", $mail)->item(0)->nodeValue;
 		$msg["body"] = $xpath->query("dfrn:content/text()", $mail)->item(0)->nodeValue;
-		$msg["seen"] = 0;
-		$msg["replied"] = 0;
 
-		DBA::insert('mail', $msg);
-
-		$msg["id"] = DBA::lastInsertId();
-
-		// send notifications.
-		/// @TODO Arange this mess
-		$notif_params = [
-			"type" => NOTIFY_MAIL,
-			"notify_flags" => $importer["notify-flags"],
-			"language" => $importer["language"],
-			"to_name" => $importer["username"],
-			"to_email" => $importer["email"],
-			"uid" => $importer["importer_uid"],
-			"item" => $msg,
-			"parent" => $msg["parent-uri"],
-			"source_name" => $msg["from-name"],
-			"source_link" => $importer["url"],
-			"source_photo" => $importer["thumb"],
-			"verb" => ACTIVITY_POST,
-			"otype" => "mail"
-		];
-
-		notification($notif_params);
-
-		Logger::log("Mail is processed, notification was sent.");
+		Mail::insert($msg);
 	}
 
 	/**
