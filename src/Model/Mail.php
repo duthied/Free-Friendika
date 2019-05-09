@@ -29,6 +29,10 @@ class Mail
 	{
 		$user = User::getById($msg['uid']);
 
+		if (!isset($msg['reply'])) {
+			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
+		}
+
 		if (empty($msg['convid'])) {
 			$mail = DBA::selectFirst('mail', ['convid'], ["`convid` != 0 AND `parent-uri` = ?", $msg['parent-uri']]);
 			if (DBA::isResult($mail)) {
