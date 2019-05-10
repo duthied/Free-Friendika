@@ -2374,10 +2374,6 @@ class Contact extends BaseObject
 	 */
 	public static function magicLinkByContact($contact, $url = '')
 	{
-		if (empty($contact['id']) || empty($contact['uid'])) {
-			return $url ?: $contact['url'];
-		}
-
 		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
 			return $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 		}
@@ -2387,8 +2383,12 @@ class Contact extends BaseObject
 			return $url;
 		}
 
-		if ($contact['uid'] != 0) {
+		if (!empty($contact['uid'])) {
 			return self::magicLink($contact['url'], $url);
+		}
+
+		if (empty($contact['id'])) {
+			return $url ?: $contact['url'];
 		}
 
 		$redirect = 'redir/' . $contact['id'];
