@@ -89,7 +89,7 @@ class Notifier
 			$uid = $target_id;
 
 			$condition = ['uid' => $target_id, 'self' => false, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'protocol', 'batch'], $condition);
 		} else {
 			// find ancestors
 			$condition = ['id' => $target_id, 'visible' => true, 'moderated' => false];
@@ -374,7 +374,7 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'protocol', 'batch'], $condition);
 		}
 
 		$conversants = [];
@@ -388,10 +388,11 @@ class Notifier
 
 				$relay_list_stmt = DBA::p(
 					"SELECT
-       					`batch`,
-       					ANY_VALUE(`id`) AS `id`,
-       					ANY_VALUE(`name`) AS `name`,
-       					ANY_VALUE(`network`) AS `network`
+						`batch`,
+						ANY_VALUE(`id`) AS `id`,
+						ANY_VALUE(`name`) AS `name`,
+						ANY_VALUE(`network`) AS `network`,
+						ANY_VALUE(`protocol`) AS `protocol`
 					FROM `contact`
 					WHERE `network` = ?
 					AND `batch` != ''
@@ -421,7 +422,7 @@ class Notifier
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
-			$r2 = DBA::toArray(DBA::select('contact', ['id', 'url', 'name', 'network'], $condition));
+			$r2 = DBA::toArray(DBA::select('contact', ['id', 'url', 'name', 'network', 'protocol'], $condition));
 
 			$r = array_merge($r2, $relay_list);
 
@@ -429,6 +430,12 @@ class Notifier
 				foreach ($r as $rr) {
 					if (self::isRemovalActivity($cmd, $owner, $rr['network'])) {
 						Logger::log('Skipping dropping for ' . $rr['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+						continue;
+					}
+
+					if (($rr['network'] == Protocol::DFRN) && ($rr['protocol'] == Protocol::ACTIVITYPUB) &&
+						!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+						Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $rr['url']]);
 						continue;
 					}
 
@@ -463,6 +470,12 @@ class Notifier
 		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
 			if (self::isRemovalActivity($cmd, $owner, $contact['network'])) {
 				Logger::log('Skipping dropping for ' . $contact['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+				continue;
+			}
+
+			if (($contact['network'] == Protocol::DFRN) && ($contact['protocol'] == Protocol::ACTIVITYPUB) &&
+				!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+				Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $contact['url']]);
 				continue;
 			}
 
