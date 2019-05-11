@@ -212,7 +212,7 @@ class Diaspora
 	 */
 	public static function participantsForThread($thread, array $contacts)
 	{
-		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`,
+		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`, `contact`.`protocol`,
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
 				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
 				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
@@ -223,6 +223,10 @@ class Diaspora
 				$contact['network'] = $contact['fnetwork'];
 			}
 			unset($contact['fnetwork']);
+
+			if (empty($contact['protocol'])) {
+				$contact['protocol'] = $contact['network'];
+			}
 
 			if (empty($contact['batch']) && !empty($contact['fbatch'])) {
 				$contact['batch'] = $contact['fbatch'];

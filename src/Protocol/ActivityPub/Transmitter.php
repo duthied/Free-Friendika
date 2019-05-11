@@ -395,16 +395,24 @@ class Transmitter
 			foreach ($terms as $term) {
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
-					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => $networks]);
-					if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+					$contact = DBA::selectFirst('contact', ['url', 'network', 'protocol'], ['id' => $cid]);
+					if (!DBA::isResult($contact) || (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB))) {
+						continue;
+					}
+
+					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
 						$data['to'][] = $profile['url'];
 					}
 				}
 			}
 
 			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url', 'hidden'], ['id' => $receiver, 'network' => $networks]);
-				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol'], ['id' => $receiver]);
+				if (!DBA::isResult($contact) || (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB))) {
+					continue;
+				}
+
+				if (!empty($profile = APContact::getByURL($contact['url'], false))) {
 					if ($contact['hidden'] || $always_bcc) {
 						$data['bcc'][] = $profile['url'];
 					} else {
@@ -530,14 +538,18 @@ class Transmitter
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 		}
 
-		$condition = ['uid' => $uid, 'network' => $networks, 'archive' => false, 'pending' => false];
+		$condition = ['uid' => $uid, 'archive' => false, 'pending' => false];
 
 		if (!empty($uid)) {
 			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
 		}
 
-		$contacts = DBA::select('contact', ['url'], $condition);
+		$contacts = DBA::select('contact', ['url', 'network', 'protocol'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
+			if (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB)) {
+				continue;
+			}
+
 			if (Network::isUrlBlocked($contact['url'])) {
 				continue;
 			}
