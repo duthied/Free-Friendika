@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\BaseURL;
 use Friendica\Util\DateTimeFormat;
@@ -137,8 +138,8 @@ class Session
 
 		$masterUid = $user_record['uid'];
 
-		if (!empty($_SESSION['submanage'])) {
-			$user = DBA::selectFirst('user', ['uid'], ['uid' => $_SESSION['submanage']]);
+		if (self::get('submanage')) {
+			$user = DBA::selectFirst('user', ['uid'], ['uid' => self::get('submanage')]);
 			if (DBA::isResult($user)) {
 				$masterUid = $user['uid'];
 			}
@@ -154,7 +155,7 @@ class Session
 			$a->getLogger()->info('auth_identities refresh: ' . print_r($a->identities, true));
 		}
 
-		$contact = DBA::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => true]);
+		$contact = Contact::select([], ['uid' => $user_record['uid'], 'self' => true]);
 		if (DBA::isResult($contact)) {
 			$a->contact = $contact;
 			$a->cid = $contact['id'];
@@ -164,7 +165,7 @@ class Session
 		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
 
 		if ($login_initial || $login_refresh) {
-			DBA::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $_SESSION['uid']]);
+			DBA::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
 
 			// Set the login date for all identities of the user
 			DBA::update('user', ['login_date' => DateTimeFormat::utcNow()],
