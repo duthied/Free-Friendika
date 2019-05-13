@@ -90,12 +90,13 @@ class Processor
 	/**
 	 * Add attachment data to the item array
 	 *
-	 * @param array $attachments
-	 * @param array $item
+	 * @param array   $attachments
+	 * @param array   $item
+	 * @param boolean $no_images
 	 *
 	 * @return array array
 	 */
-	private static function constructAttachList($attachments, $item)
+	private static function constructAttachList($attachments, $item, $no_images)
 	{
 		if (empty($attachments)) {
 			return $item;
@@ -104,6 +105,10 @@ class Processor
 		foreach ($attachments as $attach) {
 			$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 			if ($filetype == 'image') {
+				if ($no_images) {
+					continue;
+				}
+
 				$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
 			} else {
 				if (!empty($item["attach"])) {
@@ -351,7 +356,7 @@ class Processor
 
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 
-		$item = self::constructAttachList($activity['attachments'], $item);
+		$item = self::constructAttachList($activity['attachments'], $item, !empty($activity['source']));
 
 		$stored = false;
 
