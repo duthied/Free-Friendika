@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7fc5e358b089ca47cdb5cac0e22d15d8",
+    "content-hash": "d7302553201de079b72871c0b2922ce7",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -38,6 +38,52 @@
             ],
             "description": "One file console framework to help you write build scripts.",
             "time": "2018-03-08T12:05:40+00:00"
+        },
+        {
+            "name": "bacon/bacon-qr-code",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Bacon/BaconQrCode.git",
+                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Bacon/BaconQrCode/zipball/5a91b62b9d37cee635bbf8d553f4546057250bee",
+                "reference": "5a91b62b9d37cee635bbf8d553f4546057250bee",
+                "shasum": ""
+            },
+            "require": {
+                "ext-iconv": "*",
+                "php": "^5.4|^7.0"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^4.8"
+            },
+            "suggest": {
+                "ext-gd": "to generate QR code images"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "BaconQrCode": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "http://www.dasprids.de",
+                    "role": "Developer"
+                }
+            ],
+            "description": "BaconQrCode is a QR code generator for PHP.",
+            "homepage": "https://github.com/Bacon/BaconQrCode",
+            "time": "2017-10-17T09:59:25+00:00"
         },
         {
             "name": "bower-asset/Chart-js",
@@ -1129,22 +1175,6 @@
             "require": {
                 "npm-asset/ev-emitter": ">=1.0.0,<2.0.0"
             },
-            "require-dev": {
-                "npm-asset/chalk": ">=1.1.1,<2.0.0",
-                "npm-asset/cheerio": ">=0.19.0,<0.20.0",
-                "npm-asset/gulp": ">=3.9.0,<4.0.0",
-                "npm-asset/gulp-jshint": ">=1.11.2,<2.0.0",
-                "npm-asset/gulp-json-lint": ">=0.1.0,<0.2.0",
-                "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
-                "npm-asset/gulp-replace": ">=0.5.4,<0.6.0",
-                "npm-asset/gulp-requirejs-optimize": "dev-github:metafizzy/gulp-requirejs-optimize",
-                "npm-asset/gulp-uglify": ">=1.4.2,<2.0.0",
-                "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
-                "npm-asset/highlight.js": ">=8.9.1,<9.0.0",
-                "npm-asset/marked": ">=0.3.5,<0.4.0",
-                "npm-asset/minimist": ">=1.2.0,<2.0.0",
-                "npm-asset/transfob": ">=1.0.0,<2.0.0"
-            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1190,14 +1220,6 @@
                 "reference": null,
                 "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
             },
-            "require-dev": {
-                "npm-asset/grunt": "~0.4.2",
-                "npm-asset/grunt-contrib-cssmin": "~0.9.0",
-                "npm-asset/grunt-contrib-jshint": "~0.6.3",
-                "npm-asset/grunt-contrib-less": "~0.11.0",
-                "npm-asset/grunt-contrib-uglify": "~0.4.0",
-                "npm-asset/grunt-contrib-watch": "~0.6.1"
-            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1230,32 +1252,6 @@
                 "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
                 "reference": null,
                 "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
-            },
-            "require-dev": {
-                "npm-asset/commitplease": "2.0.0",
-                "npm-asset/core-js": "0.9.17",
-                "npm-asset/grunt": "0.4.5",
-                "npm-asset/grunt-babel": "5.0.1",
-                "npm-asset/grunt-cli": "0.1.13",
-                "npm-asset/grunt-compare-size": "0.4.0",
-                "npm-asset/grunt-contrib-jshint": "0.11.2",
-                "npm-asset/grunt-contrib-uglify": "0.9.2",
-                "npm-asset/grunt-contrib-watch": "0.6.1",
-                "npm-asset/grunt-git-authors": "2.0.1",
-                "npm-asset/grunt-jscs": "2.1.0",
-                "npm-asset/grunt-jsonlint": "1.0.4",
-                "npm-asset/grunt-npmcopy": "0.1.0",
-                "npm-asset/gzip-js": "0.3.2",
-                "npm-asset/jsdom": "5.6.1",
-                "npm-asset/load-grunt-tasks": "1.0.0",
-                "npm-asset/qunit-assert-step": "1.0.3",
-                "npm-asset/qunitjs": "1.17.1",
-                "npm-asset/requirejs": "2.1.17",
-                "npm-asset/sinon": "1.10.3",
-                "npm-asset/sizzle": "2.2.1",
-                "npm-asset/strip-json-comments": "1.0.3",
-                "npm-asset/testswarm": "1.1.0",
-                "npm-asset/win-spawn": "2.0.0"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1406,12 +1402,6 @@
                 "url": "https://registry.npmjs.org/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz",
                 "reference": null,
                 "shasum": "06f0335f16e353a695e7206bf50503cb523a6ee5"
-            },
-            "require-dev": {
-                "npm-asset/grunt": "~0.4.1",
-                "npm-asset/grunt-contrib-connect": "~0.5.0",
-                "npm-asset/grunt-contrib-jshint": "~0.7.1",
-                "npm-asset/grunt-contrib-uglify": "~0.2.7"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1695,33 +1685,29 @@
         },
         {
             "name": "paragonie/random_compat",
-            "version": "v2.0.17",
+            "version": "v9.99.99",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/random_compat.git",
-                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d"
+                "reference": "84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/29af24f25bab834fcbb38ad2a69fa93b867e070d",
-                "reference": "29af24f25bab834fcbb38ad2a69fa93b867e070d",
+                "url": "https://api.github.com/repos/paragonie/random_compat/zipball/84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95",
+                "reference": "84b4dfb120c6f9b4ff7b3685f9b8f1aa365a0c95",
                 "shasum": ""
             },
             "require": {
-                "php": ">=5.2.0"
+                "php": "^7"
             },
             "require-dev": {
-                "phpunit/phpunit": "4.*|5.*"
+                "phpunit/phpunit": "4.*|5.*",
+                "vimeo/psalm": "^1"
             },
             "suggest": {
                 "ext-libsodium": "Provides a modern crypto API that can be used to generate random bytes."
             },
             "type": "library",
-            "autoload": {
-                "files": [
-                    "lib/random.php"
-                ]
-            },
             "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "MIT"
@@ -1740,7 +1726,7 @@
                 "pseudorandom",
                 "random"
             ],
-            "time": "2018-07-04T16:31:37+00:00"
+            "time": "2018-07-02T15:55:56+00:00"
         },
         {
             "name": "paragonie/sodium_compat",
@@ -1922,6 +1908,189 @@
             "description": "Identify human languages from text samples",
             "homepage": "http://pear.php.net/package/Text_LanguageDetect",
             "time": "2017-03-02T16:14:08+00:00"
+        },
+        {
+            "name": "pragmarx/google2fa",
+            "version": "v5.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antonioribeiro/google2fa.git",
+                "reference": "17c969c82f427dd916afe4be50bafc6299aef1b4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antonioribeiro/google2fa/zipball/17c969c82f427dd916afe4be50bafc6299aef1b4",
+                "reference": "17c969c82f427dd916afe4be50bafc6299aef1b4",
+                "shasum": ""
+            },
+            "require": {
+                "paragonie/constant_time_encoding": "~1.0|~2.0",
+                "paragonie/random_compat": ">=1",
+                "php": ">=5.4",
+                "symfony/polyfill-php56": "~1.2"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "~4|~5|~6"
+            },
+            "type": "library",
+            "extra": {
+                "component": "package",
+                "branch-alias": {
+                    "dev-master": "2.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PragmaRX\\Google2FA\\": "src/",
+                    "PragmaRX\\Google2FA\\Tests\\": "tests/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Antonio Carlos Ribeiro",
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "role": "Creator & Designer"
+                }
+            ],
+            "description": "A One Time Password Authentication package, compatible with Google Authenticator.",
+            "keywords": [
+                "2fa",
+                "Authentication",
+                "Two Factor Authentication",
+                "google2fa"
+            ],
+            "time": "2019-03-19T22:44:16+00:00"
+        },
+        {
+            "name": "pragmarx/random",
+            "version": "v0.2.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antonioribeiro/random.git",
+                "reference": "daf08a189c5d2d40d1a827db46364d3a741a51b7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antonioribeiro/random/zipball/daf08a189c5d2d40d1a827db46364d3a741a51b7",
+                "reference": "daf08a189c5d2d40d1a827db46364d3a741a51b7",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=7.0"
+            },
+            "require-dev": {
+                "fzaninotto/faker": "~1.7",
+                "phpunit/phpunit": "~6.4",
+                "pragmarx/trivia": "~0.1",
+                "squizlabs/php_codesniffer": "^2.3"
+            },
+            "suggest": {
+                "fzaninotto/faker": "Allows you to get dozens of randomized types",
+                "pragmarx/trivia": "For the trivia database"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PragmaRX\\Random\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Antonio Carlos Ribeiro",
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "homepage": "https://antoniocarlosribeiro.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Create random chars, numbers, strings",
+            "homepage": "https://github.com/antonioribeiro/random",
+            "keywords": [
+                "Randomize",
+                "faker",
+                "pragmarx",
+                "random",
+                "random number",
+                "random pattern",
+                "random string"
+            ],
+            "time": "2017-11-21T05:26:22+00:00"
+        },
+        {
+            "name": "pragmarx/recovery",
+            "version": "v0.1.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/antonioribeiro/recovery.git",
+                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/antonioribeiro/recovery/zipball/e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
+                "reference": "e16573a1ae5345cc3b100eec6d0296a1a15a90fe",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~7.0",
+                "pragmarx/random": "~0.1"
+            },
+            "require-dev": {
+                "phpunit/phpunit": ">=5.4.3",
+                "squizlabs/php_codesniffer": "^2.3",
+                "tightenco/collect": "^5"
+            },
+            "suggest": {
+                "tightenco/collect": "Allows to generate recovery codes as collections"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "PragmaRX\\Recovery\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Antonio Carlos Ribeiro",
+                    "email": "acr@antoniocarlosribeiro.com",
+                    "homepage": "https://antoniocarlosribeiro.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Create recovery codes for two factor auth",
+            "homepage": "https://github.com/antonioribeiro/recovery",
+            "keywords": [
+                "2fa",
+                "account recovery",
+                "auth",
+                "backup codes",
+                "google2fa",
+                "pragmarx",
+                "recovery",
+                "recovery codes",
+                "two factor auth"
+            ],
+            "time": "2017-09-19T16:58:00+00:00"
         },
         {
             "name": "psr/cache",
@@ -2215,9 +2384,159 @@
                 "templating"
             ],
             "time": "2018-09-12T20:54:16+00:00"
+        },
+        {
+            "name": "symfony/polyfill-php56",
+            "version": "v1.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-php56.git",
+                "reference": "f4dddbc5c3471e1b700a147a20ae17cdb72dbe42"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-php56/zipball/f4dddbc5c3471e1b700a147a20ae17cdb72dbe42",
+                "reference": "f4dddbc5c3471e1b700a147a20ae17cdb72dbe42",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3",
+                "symfony/polyfill-util": "~1.0"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.11-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Php56\\": ""
+                },
+                "files": [
+                    "bootstrap.php"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony polyfill backporting some PHP 5.6+ features to lower PHP versions",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compatibility",
+                "polyfill",
+                "portable",
+                "shim"
+            ],
+            "time": "2019-02-06T07:57:58+00:00"
+        },
+        {
+            "name": "symfony/polyfill-util",
+            "version": "v1.11.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/polyfill-util.git",
+                "reference": "b46c6cae28a3106735323f00a0c38eccf2328897"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/polyfill-util/zipball/b46c6cae28a3106735323f00a0c38eccf2328897",
+                "reference": "b46c6cae28a3106735323f00a0c38eccf2328897",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3.3"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.11-dev"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Symfony\\Polyfill\\Util\\": ""
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nicolas Grekas",
+                    "email": "p@tchwork.com"
+                },
+                {
+                    "name": "Symfony Community",
+                    "homepage": "https://symfony.com/contributors"
+                }
+            ],
+            "description": "Symfony utilities for portability of PHP codes",
+            "homepage": "https://symfony.com",
+            "keywords": [
+                "compat",
+                "compatibility",
+                "polyfill",
+                "shim"
+            ],
+            "time": "2019-02-08T14:16:39+00:00"
         }
     ],
     "packages-dev": [
+        {
+            "name": "dasprid/enum",
+            "version": "1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/DASPRiD/Enum.git",
+                "reference": "631ef6e638e9494b0310837fa531bedd908fc22b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/DASPRiD/Enum/zipball/631ef6e638e9494b0310837fa531bedd908fc22b",
+                "reference": "631ef6e638e9494b0310837fa531bedd908fc22b",
+                "shasum": ""
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6.4",
+                "squizlabs/php_codesniffer": "^3.1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "DASPRiD\\Enum\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "BSD-2-Clause"
+            ],
+            "authors": [
+                {
+                    "name": "Ben Scholzen 'DASPRiD'",
+                    "email": "mail@dasprids.de",
+                    "homepage": "https://dasprids.de/"
+                }
+            ],
+            "description": "PHP 7.1 enum implementation",
+            "keywords": [
+                "enum",
+                "map"
+            ],
+            "time": "2017-10-25T22:45:27+00:00"
+        },
         {
             "name": "doctrine/instantiator",
             "version": "1.0.5",
@@ -2373,12 +2692,12 @@
             "version": "v1.6.5",
             "source": {
                 "type": "git",
-                "url": "https://github.com/mikey179/vfsStream.git",
+                "url": "https://github.com/bovigo/vfsStream.git",
                 "reference": "d5fec95f541d4d71c4823bb5e30cf9b9e5b96145"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/mikey179/vfsStream/zipball/d5fec95f541d4d71c4823bb5e30cf9b9e5b96145",
+                "url": "https://api.github.com/repos/bovigo/vfsStream/zipball/d5fec95f541d4d71c4823bb5e30cf9b9e5b96145",
                 "reference": "d5fec95f541d4d71c4823bb5e30cf9b9e5b96145",
                 "shasum": ""
             },
@@ -3281,7 +3600,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "https://github.com/sebastianbergmann/comparator",
+            "homepage": "http://www.github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -3383,7 +3702,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "https://github.com/sebastianbergmann/environment",
+            "homepage": "http://www.github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -3451,7 +3770,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "https://github.com/sebastianbergmann/exporter",
+            "homepage": "http://www.github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -3503,7 +3822,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "https://github.com/sebastianbergmann/global-state",
+            "homepage": "http://www.github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -3605,7 +3924,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "https://github.com/sebastianbergmann/recursion-context",
+            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {
@@ -3869,7 +4188,7 @@
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": {
-        "php": ">=5.6.1",
+        "php": ">=7.0",
         "ext-ctype": "*",
         "ext-curl": "*",
         "ext-dom": "*",
