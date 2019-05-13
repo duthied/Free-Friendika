@@ -67,6 +67,13 @@ function settings_init(App $a)
 		],
 	];
 
+	$tabs[] = [
+		'label' => L10n::t('Two-factor authentication'),
+		'url' => 'settings/2fa',
+		'selected' => (($a->argc > 1) && ($a->argv[1] === '2fa') ? 'active' : ''),
+		'accesskey' => 'o',
+	];
+
 	$tabs[] =	[
 		'label'	=> L10n::t('Profiles'),
 		'url' 	=> 'profiles',

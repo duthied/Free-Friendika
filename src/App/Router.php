@@ -188,6 +188,14 @@ class Router
 			$collector->addRoute(['GET'], '/{sub1}/{url}'                      , Module\Proxy::class);
 			$collector->addRoute(['GET'], '/{sub1}/{sub2}/{url}'               , Module\Proxy::class);
 		});
+
+		$this->routeCollector->addGroup('/settings', function (RouteCollector $collector) {
+			$collector->addGroup('/2fa', function (RouteCollector $collector) {
+				$collector->addRoute(['GET', 'POST'], '[/]'                    , Module\Settings\TwoFactor\Index::class);
+				$collector->addRoute(['GET', 'POST'], '/recovery'              , Module\Settings\TwoFactor\Recovery::class);
+				$collector->addRoute(['GET', 'POST'], '/verify'                , Module\Settings\TwoFactor\Verify::class);
+			});
+		});
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
 		$this->routeCollector->addRoute(['GET'],         '/robots.txt',          Module\RobotsTxt::class);
 		$this->routeCollector->addRoute(['GET'],         '/rsd.xml',             Module\ReallySimpleDiscovery::class);
