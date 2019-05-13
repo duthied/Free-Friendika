@@ -149,7 +149,8 @@ class App
 	 */
 	public function getBasePath()
 	{
-		return $this->config->get('system', 'basepath');
+		// Don't use the basepath of the config table for basepath (it should always be the config-file one)
+		return $this->config->getCache()->get('system', 'basepath');
 	}
 
 	/**
