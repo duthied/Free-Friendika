@@ -34,10 +34,22 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1311);
+	define('DB_UPDATE_VERSION', 1312);
 }
 
 return [
+	"2fa_recovery_codes" => [
+		"comment" => "Two-factor authentication recovery codes",
+		"fields" => [
+			"uid" => ["type" => "int unsigned", "not null" => "1", "comment" => "User ID"],
+			"code" => ["type" => "varchar(50)", "not null" => "1", "comment" => "Recovery code string"],
+			"generated" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the code was generated"],
+			"used" => ["type" => "datetime", "comment" => "Datetime the code was used"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "code"]
+		]
+	],
 	"addon" => [
 		"comment" => "registered addons",
 		"fields" => [
