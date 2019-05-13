@@ -29,7 +29,7 @@ is self-signed).
 ## 1. Requirements
 
 - Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
-- PHP 5.6.1+ (PHP 7.1+ recommended for performance and official support).
+- PHP 7+ (PHP 7.1+ recommended for performance and official support).
 	- PHP *command line* with `register_argc_argv = true` in php.ini
 	- curl, gd (with at least jpeg support), mysql, mbstring, xml, zip and openssl extensions
 	- Some form of email server or email gateway such that PHP mail() works
