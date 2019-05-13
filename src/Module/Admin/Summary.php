@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Register;
 use Friendica\Module\BaseAdminModule;
+use Friendica\Util\Config\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 
@@ -71,6 +72,40 @@ class Summary extends BaseAdminModule
 			$well_known = $a->getBaseURL() . '/.well-known/host-meta';
 			$warningtext[] = L10n::t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
 				$well_known, $well_known, $a->getBaseURL() . '/help/Install');
+		}
+
+		// check legacy basepath settings
+		$configLoader = new ConfigFileLoader($a->getBasePath(), $a->getMode());
+		$configCache = new Config\Cache\ConfigCache();
+		$configLoader->setupCache($configCache);
+		$confBasepath = $configCache->get('system', 'basepath');
+		$currBasepath = $a->getConfig()->get('system', 'basepath');
+		if ($confBasepath !== $currBasepath || !is_dir($currBasepath)) {
+			if (is_dir($confBasepath) && Config::set('system', 'basepath', $confBasepath)) {
+				$a->getLogger()->info('Friendica\'s system.basepath was updated successfully.', [
+					'from' => $currBasepath,
+					'to'   => $confBasepath,
+				]);
+				$warningtext[] = L10n::t('Friendica\'s system.basepath was updated from \'%s\' to \'%s\'. Please remove the system.basepath from your db to avoid differences.',
+					$currBasepath,
+					$confBasepath);
+			} elseif (!is_dir($currBasepath)) {
+				$a->getLogger()->alert('Friendica\'s system.basepath is wrong.', [
+					'from' => $currBasepath,
+					'to'   => $confBasepath,
+				]);
+				$warningtext[] = L10n::t('Friendica\'s current system.basepath \'%s\' is wrong and the config file \'%s\' isn\'t used.',
+					$currBasepath,
+					$confBasepath);
+			} else {
+				$a->getLogger()->alert('Friendica\'s system.basepath is wrong.', [
+					'from' => $currBasepath,
+					'to'   => $confBasepath,
+				]);
+				$warningtext[] = L10n::t('Friendica\'s current system.basepath \'%s\' is not equal to the config file \'%s\'. Please fix your configuration.',
+					$currBasepath,
+					$confBasepath);
+			}
 		}
 
 		$accounts = [
