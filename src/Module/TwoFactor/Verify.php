@@ -56,11 +56,12 @@ class Verify extends BaseModule
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('twofactor/verify.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('twofactor_verify'),
-			'$title' => L10n::t('Two-factor authentication'),
-			'$message' => L10n::t('<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'),
+
+			'$title'            => L10n::t('Two-factor authentication'),
+			'$message'          => L10n::t('<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'),
 			'$recovery_message' => L10n::t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
-			'$verify_code' => ['verify_code', L10n::t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
-			'$verify_label' => L10n::t('Verify code and complete login'),
+			'$verify_code'      => ['verify_code', L10n::t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
+			'$verify_label'     => L10n::t('Verify code and complete login'),
 		]);
 	}
 }

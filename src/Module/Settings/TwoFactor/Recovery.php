@@ -70,17 +70,17 @@ class Recovery extends BaseSettingsModule
 		$verified = PConfig::get(local_user(), '2fa', 'verified');
 		
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/recovery.tpl'), [
-			'$form_security_token' => self::getFormSecurityToken('settings_2fa_recovery'),
+			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_recovery'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
-			'$title' => L10n::t('Two-factor recovery codes'),
-			'$help_label' => L10n::t('Help'),
-			'$message' => L10n::t('<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'),
-			'$recovery_codes' => $recoveryCodes,
-			'$password' => ['password', L10n::t('Please enter your password for verification:'), '', L10n::t('You need to provide your current password to enable or disable two-factor authentication.'), 'required', 'autofocus'],
+
+			'$title'              => L10n::t('Two-factor recovery codes'),
+			'$help_label'         => L10n::t('Help'),
+			'$message'            => L10n::t('<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'),
+			'$recovery_codes'     => $recoveryCodes,
 			'$regenerate_message' => L10n::t('When you generate new recovery codes, you must copy the new codes. Your old codes won’t work anymore.'),
-			'$regenerate_label' => L10n::t('Generate new recovery codes'),
-			'$verified' => $verified,
-			'$verify_label' => L10n::t('Next: Verification'),
+			'$regenerate_label'   => L10n::t('Generate new recovery codes'),
+			'$verified'           => $verified,
+			'$verify_label'       => L10n::t('Next: Verification'),
 		]);
 	}
 }

@@ -110,19 +110,20 @@ class Verify extends BaseSettingsModule
 </dl>', $company, $holder, $secret);
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/verify.tpl'), [
-			'$form_security_token' => self::getFormSecurityToken('settings_2fa_verify'),
+			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_verify'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
-			'$title' => L10n::t('Two-factor code verification'),
-			'$help_label' => L10n::t('Help'),
-			'$message' => L10n::t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
-			'$qrcode_image' => $qrcode_image,
-			'$qrcode_url_message' => L10n::t('<p>Or you can open the following URL in your mobile devicde:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
-			'$manual_message' => $manual_message,
-			'$company' => $company,
-			'$holder' => $holder,
-			'$secret' => $secret,
 
-			'$verify_code' => ['verify_code', L10n::t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
+			'$title'              => L10n::t('Two-factor code verification'),
+			'$help_label'         => L10n::t('Help'),
+			'$message'            => L10n::t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
+			'$qrcode_image'       => $qrcode_image,
+			'$qrcode_url_message' => L10n::t('<p>Or you can open the following URL in your mobile devicde:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
+			'$manual_message'     => $manual_message,
+			'$company'            => $company,
+			'$holder'             => $holder,
+			'$secret'             => $secret,
+
+			'$verify_code'  => ['verify_code', L10n::t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
 			'$verify_label' => L10n::t('Verify code and enable two-factor authentication'),
 		]);
 	}

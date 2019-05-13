@@ -61,11 +61,12 @@ class Recovery extends BaseModule
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('twofactor/recovery.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('twofactor_recovery'),
-			'$title' => L10n::t('Two-factor recovery'),
-			'$message' => L10n::t('<p>You can enter one of your one-time recovery codes in case you lost access to your mobile device.</p>'),
+
+			'$title'            => L10n::t('Two-factor recovery'),
+			'$message'          => L10n::t('<p>You can enter one of your one-time recovery codes in case you lost access to your mobile device.</p>'),
 			'$recovery_message' => L10n::t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
-			'$recovery_code' => ['recovery_code', L10n::t('Please enter a recovery code'), '', '', '', 'placeholder="000000-000000"'],
-			'$recovery_label' => L10n::t('Submit recovery code and complete login'),
+			'$recovery_code'    => ['recovery_code', L10n::t('Please enter a recovery code'), '', '', '', 'placeholder="000000-000000"'],
+			'$recovery_label'   => L10n::t('Submit recovery code and complete login'),
 		]);
 	}
 }

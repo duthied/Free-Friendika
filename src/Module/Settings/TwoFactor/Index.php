@@ -80,32 +80,29 @@ class Index extends BaseSettingsModule
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/index.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('settings_2fa'),
-			'$title' => L10n::t('Two-factor authentication'),
-			'$help_label' => L10n::t('Help'),
+			'$title'               => L10n::t('Two-factor authentication'),
+			'$help_label'          => L10n::t('Help'),
+			'$status_title'        => L10n::t('Status'),
+			'$message'             => L10n::t('<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'),
+			'$has_secret'          => $has_secret,
+			'$verified'            => $verified,
 
-			'$status_title' => L10n::t('Status'),
-			'$message' => L10n::t('<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'),
-
-			'$has_secret' => $has_secret,
-			'$verified' => $verified,
-
-			'$auth_app_label' => L10n::t('Authenticator app'),
-			'$app_status' => $has_secret ? $verified ? L10n::t('Configured') : L10n::t('Not Configured') : L10n::t('Disabled'),
+			'$auth_app_label'         => L10n::t('Authenticator app'),
+			'$app_status'             => $has_secret ? $verified ? L10n::t('Configured') : L10n::t('Not Configured') : L10n::t('Disabled'),
 			'$not_configured_message' => L10n::t('<p>You haven\'t finished configuring your authenticator app.</p>'),
-			'$configured_message' => L10n::t('<p>Your authenticator app is correctly configured.</p>'),
+			'$configured_message'     => L10n::t('<p>Your authenticator app is correctly configured.</p>'),
 
-			'$recovery_codes_title' => L10n::t('Recovery codes'),
+			'$recovery_codes_title'     => L10n::t('Recovery codes'),
 			'$recovery_codes_remaining' => L10n::t('Remaining valid codes'),
-			'$recovery_codes_count' => TwoFactorRecoveryCode::countValidForUser(local_user()),
-			'$recovery_codes_message' => L10n::t('<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'),
+			'$recovery_codes_count'     => TwoFactorRecoveryCode::countValidForUser(local_user()),
+			'$recovery_codes_message'   => L10n::t('<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'),
 
-			'$action_title' => L10n::t('Actions'),
-			'$password' => ['password', L10n::t('Current password:'), '', L10n::t('You need to provide your current password to change two-factor authentication settings.'), 'required', 'autofocus'],
-
-			'$enable_label' => L10n::t('Enable two-factor authentication'),
-			'$disable_label' => L10n::t('Disable two-factor authentication'),
+			'$action_title'         => L10n::t('Actions'),
+			'$password'             => ['password', L10n::t('Current password:'), '', L10n::t('You need to provide your current password to change two-factor authentication settings.'), 'required', 'autofocus'],
+			'$enable_label'         => L10n::t('Enable two-factor authentication'),
+			'$disable_label'        => L10n::t('Disable two-factor authentication'),
 			'$recovery_codes_label' => L10n::t('Show recovery codes'),
-			'$configure_label' => L10n::t('Finish app configuration'),
+			'$configure_label'      => L10n::t('Finish app configuration'),
 		]);
 	}
 }
