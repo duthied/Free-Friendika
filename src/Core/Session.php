@@ -155,7 +155,7 @@ class Session
 			$a->getLogger()->info('auth_identities refresh: ' . print_r($a->identities, true));
 		}
 
-		$contact = Contact::select([], ['uid' => $user_record['uid'], 'self' => true]);
+		$contact = DBA::selectFirst('contact', [], ['uid' => $user_record['uid'], 'self' => true]);
 		if (DBA::isResult($contact)) {
 			$a->contact = $contact;
 			$a->cid = $contact['id'];
