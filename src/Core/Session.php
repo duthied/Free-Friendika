@@ -186,6 +186,8 @@ class Session
 			}
 		}
 
+		Authentication::twoFactorCheck($user_record['uid'], $a);
+
 		if ($interactive) {
 			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
 				info(L10n::t('Welcome %s', $user_record['username']));

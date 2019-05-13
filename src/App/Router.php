@@ -47,6 +47,10 @@ class Router
 			$collector->addRoute(['GET'], '/webfinger'       , Module\Xrd::class);
 			$collector->addRoute(['GET'], '/x-social-relay'  , Module\WellKnown\XSocialRelay::class);
 		});
+		$this->routeCollector->addGroup('/2fa', function (RouteCollector $collector) {
+			$collector->addRoute(['GET', 'POST'], '[/]'                     , Module\TwoFactor\Verify::class);
+			$collector->addRoute(['GET', 'POST'], '/recovery'               , Module\TwoFactor\Recovery::class);
+		});
 		$this->routeCollector->addGroup('/admin', function (RouteCollector $collector) {
 			$collector->addRoute(['GET']        , '[/]'                     , Module\Admin\Summary::class);
 

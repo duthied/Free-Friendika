@@ -5,6 +5,7 @@
 
 namespace Friendica\Core;
 
+use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Util\BaseURL;
 
@@ -60,6 +61,27 @@ class Authentication extends BaseObject
 		self::setCookie(-3600); // make sure cookie is deleted on browser close, as a security measure
 		session_unset();
 		session_destroy();
+	}
+
+	public static function twoFactorCheck($uid, App $a)
+	{
+		// Check user setting, if 2FA disabled return
+		if (!PConfig::get($uid, '2fa', 'verified')) {
+			return;
+		}
+
+		// Check current path, if 2fa authentication module return
+		if ($a->argc > 0 && in_array($a->argv[0], ['ping', '2fa', 'view', 'help', 'logout'])) {
+			return;
+		}
+
+		// Case 1: 2FA session present and valid: return
+		if (Session::get('2fa')) {
+			return;
+		}
+
+		// Case 2: No valid 2FA session: redirect to code verification page
+		$a->internalRedirect('2fa');
 	}
 }
 
