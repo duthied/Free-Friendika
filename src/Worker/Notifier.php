@@ -76,6 +76,14 @@ class Notifier
 			}
 			$uid = $message['uid'];
 			$recipients[] = $message['contact-id'];
+
+			$mail = ActivityPub\Transmitter::ItemArrayFromMail($target_id);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($mail, §uid, true);
+			foreach ($inboxes as $inbox) {
+				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_id, 'inbox' => $inbox]);
+				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', $cmd, $target_id, $inbox, $uid);
+			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$suggest = DBA::selectFirst('fsuggest', ['uid', 'cid'], ['id' => $target_id]);
 			if (!DBA::isResult($suggest)) {
@@ -593,7 +601,7 @@ class Notifier
 
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
 		foreach ($inboxes as $inbox) {
-			Logger::log('Account removal for user ' . $self_user_id . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
+			Logger::info('Account removal via ActivityPub', ['uid' => $self_user_id, 'inbox' => $inbox]);
 			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
 				'APDelivery', Delivery::REMOVAL, '', $inbox, $self_user_id);
 		}
@@ -642,7 +650,7 @@ class Notifier
 		ActivityPub\Transmitter::createCachedActivityFromItem($target_item['id'], true);
 
 		foreach ($inboxes as $inbox) {
-			Logger::log('Deliver ' . $target_item['id'] .' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
+			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
 			Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
 					'APDelivery', $cmd, $target_item['id'], $inbox, $uid);

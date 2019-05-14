@@ -44,8 +44,10 @@ class ActivityPub
 		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
 		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
 		'diaspora' => 'https://diasporafoundation.org/ns/',
+		'litepub' => 'http://litepub.social/ns#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
+		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+		'directMessage' => 'litepub:directMessage']];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application'];
 	/**
 	 * Checks if the web request is done for the AP protocol
