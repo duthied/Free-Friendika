@@ -30,6 +30,10 @@ class APDelivery extends BaseObject
 		$success = true;
 
 		if ($cmd == Delivery::MAIL) {
+			$data = ActivityPub\Transmitter::createActivityFromMail($target_id);
+			if (!empty($data)) {
+				$success = HTTPSignature::transmit($data, $inbox, $uid);
+			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $target_id);
 		} elseif ($cmd == Delivery::RELOCATION) {

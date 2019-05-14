@@ -632,6 +632,100 @@ class Transmitter
 	}
 
 	/**
+	 * Creates an array in the structure of the item table for a given mail id
+	 *
+	 * @param integer $mail_id
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function ItemArrayFromMail($mail_id)
+	{
+		$mail = DBA::selectFirst('mail', [], ['id' => $mail_id]);
+
+		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+
+		$mail['author-link'] = $mail['owner-link'] = $mail['from-url'];
+		$mail['allow_cid'] = '<'.$mail['contact-id'].'>';
+		$mail['allow_gid'] = '';
+		$mail['deny_cid'] = '';
+		$mail['deny_gid'] = '';
+		$mail['private'] = true;
+		$mail['deleted'] = false;
+		$mail['edited'] = $mail['created'];
+		$mail['plink'] = $mail['uri'];
+		$mail['thr-parent'] = $reply['uri'];
+		$mail['gravity'] = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
+
+		$mail['event-type'] = '';
+		$mail['attach'] = '';
+
+		$mail['parent'] = 0;
+
+		return $mail;
+	}
+
+	/**
+	 * Creates an activity array for a given mail id
+	 *
+	 * @param integer $mail_id
+	 * @param boolean $object_mode Is the activity item is used inside another object?
+	 *
+	 * @return array of activity
+	 * @throws \Exception
+	 */
+	public static function createActivityFromMail($mail_id, $object_mode = false)
+	{
+		$mail = self::ItemArrayFromMail($mail_id);
+		$object = self::createNote($mail);
+
+		$object['to'] = $object['cc'];
+		unset($object['cc']);
+
+		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => 'test']];
+
+		if (!$object_mode) {
+			$data = ['@context' => ActivityPub::CONTEXT];
+		} else {
+			$data = [];
+		}
+
+		$data['id'] = $mail['uri'] . '#Create';
+		$data['type'] = 'Create';
+		$data['actor'] = $mail['author-link'];
+		$data['published'] = DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM);
+		$data['instrument'] = self::getService();
+		$data = array_merge($data, self::createPermissionBlockForItem($mail, true));
+
+		if (empty($data['to']) && !empty($data['cc'])) {
+			$data['to'] = $data['cc'];
+		}
+
+		if (empty($data['to']) && !empty($data['bcc'])) {
+			$data['to'] = $data['bcc'];
+		}
+
+		unset($data['cc']);
+		unset($data['bcc']);
+
+		$object['to'] = $data['to'];
+		unset($object['cc']);
+		unset($object['bcc']);
+
+		$data['directMessage'] = true;
+
+		$data['object'] = $object;
+
+		$owner = User::getOwnerDataById($mail['uid']);
+
+		if (!$object_mode && !empty($owner)) {
+			return LDSignature::sign($data, $owner);
+		} else {
+			return $data;
+		}
+	}
+
+	/**
 	 * Returns the activity type of a given item
 	 *
 	 * @param array $item
