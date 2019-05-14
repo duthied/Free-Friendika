@@ -1484,6 +1484,8 @@ class DBA
 						$new_values = array_merge($new_values, array_values($value));
 						$placeholders = substr(str_repeat("?, ", count($value)), 0, -2);
 						$condition_string .= "`" . $field . "` IN (" . $placeholders . ")";
+					} elseif (is_null($value)) {
+						$condition_string .= "`" . $field . "` IS NULL";
 					} else {
 						$new_values[$field] = $value;
 						$condition_string .= "`" . $field . "` = ?";

@@ -2,11 +2,12 @@
 /**
  * @file mod/manage.php
  */
+
 use Friendica\App;
-use Friendica\Core\Authentication;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 
 function manage_post(App $a) {
@@ -108,7 +109,7 @@ function manage_post(App $a) {
 		unset($_SESSION['sysmsg_info']);
 	}
 
-	Authentication::setAuthenticatedSessionForUser($r[0], true, true);
+	Session::setAuthenticatedForUser($a, $r[0], true, true);
 
 	if ($limited_id) {
 		$_SESSION['submanage'] = $original_id;

@@ -47,6 +47,10 @@ class Router
 			$collector->addRoute(['GET'], '/webfinger'       , Module\Xrd::class);
 			$collector->addRoute(['GET'], '/x-social-relay'  , Module\WellKnown\XSocialRelay::class);
 		});
+		$this->routeCollector->addGroup('/2fa', function (RouteCollector $collector) {
+			$collector->addRoute(['GET', 'POST'], '[/]'                     , Module\TwoFactor\Verify::class);
+			$collector->addRoute(['GET', 'POST'], '/recovery'               , Module\TwoFactor\Recovery::class);
+		});
 		$this->routeCollector->addGroup('/admin', function (RouteCollector $collector) {
 			$collector->addRoute(['GET']        , '[/]'                     , Module\Admin\Summary::class);
 
@@ -183,6 +187,14 @@ class Router
 			$collector->addRoute(['GET'], '/{url}'                             , Module\Proxy::class);
 			$collector->addRoute(['GET'], '/{sub1}/{url}'                      , Module\Proxy::class);
 			$collector->addRoute(['GET'], '/{sub1}/{sub2}/{url}'               , Module\Proxy::class);
+		});
+
+		$this->routeCollector->addGroup('/settings', function (RouteCollector $collector) {
+			$collector->addGroup('/2fa', function (RouteCollector $collector) {
+				$collector->addRoute(['GET', 'POST'], '[/]'                    , Module\Settings\TwoFactor\Index::class);
+				$collector->addRoute(['GET', 'POST'], '/recovery'              , Module\Settings\TwoFactor\Recovery::class);
+				$collector->addRoute(['GET', 'POST'], '/verify'                , Module\Settings\TwoFactor\Verify::class);
+			});
 		});
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
 		$this->routeCollector->addRoute(['GET'],         '/robots.txt',          Module\RobotsTxt::class);

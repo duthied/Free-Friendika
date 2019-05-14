@@ -21,35 +21,35 @@ class Help extends BaseModule
 		$text = '';
 		$filename = '';
 
-		$app = self::getApp();
-		$config = $app->getConfig();
+		$a = self::getApp();
+		$config = $a->getConfig();
 		$lang = $config->get('system', 'language');
 
 		// @TODO: Replace with parameter from router
-		if ($app->argc > 1) {
+		if ($a->argc > 1) {
 			$path = '';
 			// looping through the argv keys bigger than 0 to build
 			// a path relative to /help
-			for ($x = 1; $x < $app->argc; $x ++) {
+			for ($x = 1; $x < $a->argc; $x ++) {
 				if (strlen($path)) {
 					$path .= '/';
 				}
 
-				$path .= $app->getArgumentValue($x);
+				$path .= $a->getArgumentValue($x);
 			}
 			$title = basename($path);
 			$filename = $path;
 			$text = self::loadDocFile('doc/' . $path . '.md', $lang);
-			$app->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
+			$a->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
 		}
 
 		$home = self::loadDocFile('doc/Home.md', $lang);
 		if (!$text) {
 			$text = $home;
 			$filename = "Home";
-			$app->page['title'] = L10n::t('Help');
+			$a->page['title'] = L10n::t('Help');
 		} else {
-			$app->page['aside'] = Markdown::convert($home, false);
+			$a->page['aside'] = Markdown::convert($home, false);
 		}
 
 		if (!strlen($text)) {
@@ -85,7 +85,7 @@ class Help extends BaseModule
 
 						$idNum[$level] ++;
 						$id = implode("_", array_slice($idNum, 1, $level));
-						$href = $app->getBaseURL() . "/help/{$filename}#{$id}";
+						$href = $a->getBaseURL() . "/help/{$filename}#{$id}";
 						$toc .= "<li><a href='{$href}'>" . strip_tags($line) . "</a></li>";
 						$line = "<a name='{$id}'></a>" . $line;
 						$lastLevel = $level;
