@@ -71,7 +71,7 @@ class Authentication extends BaseObject
 		}
 
 		// Check current path, if 2fa authentication module return
-		if ($a->argc > 0 && in_array($a->argv[0], ['ping', '2fa', 'view', 'help', 'logout'])) {
+		if ($a->argc > 0 && in_array($a->argv[0], ['ping', '2fa', 'view', 'help', 'api', 'proxy', 'logout'])) {
 			return;
 		}
 
