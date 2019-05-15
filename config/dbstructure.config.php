@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1312);
+	define('DB_UPDATE_VERSION', 1313);
 }
 
 return [
@@ -241,7 +241,8 @@ return [
 			"term-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last-item" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last post"],
 			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Node-wide block status"],
+			"block_reason" => ["type" => "text", "comment" => "Node-wide block reason"],
 			"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "posts of the contact are readonly"],
 			"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a forum"],
