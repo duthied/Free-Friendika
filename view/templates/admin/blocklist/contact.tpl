@@ -25,7 +25,6 @@
 						{{$th}}
 					</th>
 					{{/foreach}}
-					<th></th>
 				</tr>
 			</thead>
 			<tbody>
@@ -33,9 +32,11 @@
 				<tr>
 					<td class="checkbox"><input type="checkbox" class="contacts_ckbx" id="id_contact_{{$contact.id}}" name="contacts[]" value="{{$contact.id}}"/></td>
 					<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname}}" title="{{$contact.nickname}}"></td>
-					<td class="name">{{$contact.name}}</td>
-					<td class="addr">{{$contact.addr}}</td>
-					<td class="addr"><a href="{{$contact.url}}" title="{{$contact.nickname}}" >{{$contact.url}}</a></td>
+					<td class="name">
+						{{$contact.name}}<br>
+						<a href="{{$contact.url}}" title="{{$contact.nickname}}">{{$contact.addr}}</a>
+					</td>
+					<td class="reason">{{if $contact.block_reason}}{{$contact.block_reason}}{{else}}N/A{{/if}}</td>
 				</tr>
 				{{/foreach}}
 			</tbody>
@@ -55,6 +56,7 @@
 			<tbody>
 				<tr>
 					<td>{{include file="field_input.tpl" field=$contacturl}}</td>
+					<td>{{include file="field_textarea.tpl" field=$contact_block_reason}}</td>
 				</tr>
 			</tbody>
 		</table>

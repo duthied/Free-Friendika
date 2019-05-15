@@ -15,18 +15,19 @@ class Contact extends BaseAdminModule
 	{
 		parent::post();
 
-		$contact_url = defaults($_POST, 'contact_url', '');
-		$contacts    = defaults($_POST, 'contacts', []);
+		$contact_url  = defaults($_POST, 'contact_url', '');
+		$block_reason = defaults($_POST, 'contact_block_reason', '');
+		$contacts     = defaults($_POST, 'contacts', []);
 
 		parent::checkFormSecurityTokenRedirectOnError('/admin/blocklist/contact', 'admin_contactblock');
 
 		if (!empty($_POST['page_contactblock_block'])) {
 			$contact_id = Model\Contact::getIdForURL($contact_url);
 			if ($contact_id) {
-				Model\Contact::block($contact_id);
+				Model\Contact::block($contact_id, $block_reason);
 				notice(L10n::t('The contact has been blocked from the node'));
 			} else {
-				notice(L10n::t("Could not find any contact entry for this URL \x28%s\x29", $contact_url));
+				notice(L10n::t('Could not find any contact entry for this URL (%s)', $contact_url));
 			}
 		}
 
@@ -34,7 +35,7 @@ class Contact extends BaseAdminModule
 			foreach ($contacts as $uid) {
 				Model\Contact::unblock($uid);
 			}
-			notice(L10n::tt("%s contact unblocked", "%s contacts unblocked", count($contacts)));
+			notice(L10n::tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
 		}
 
 		self::getApp()->internalRedirect('admin/blocklist/contact');
@@ -69,9 +70,9 @@ class Contact extends BaseAdminModule
 
 			'$h_contacts'  => L10n::t('Blocked Remote Contacts'),
 			'$h_newblock'  => L10n::t('Block New Remote Contact'),
-			'$th_contacts' => [L10n::t('Photo'), L10n::t('Name'), L10n::t('Address'), L10n::t('Profile URL')],
+			'$th_contacts' => [L10n::t('Photo'), L10n::t('Name'), L10n::t('Reason')],
 
-			'$form_security_token' => parent::getFormSecurityToken("admin_contactblock"),
+			'$form_security_token' => parent::getFormSecurityToken('admin_contactblock'),
 
 			// values //
 			'$baseurl'    => $a->getBaseURL(true),
@@ -79,7 +80,8 @@ class Contact extends BaseAdminModule
 			'$contacts'   => $contacts,
 			'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),
 			'$paginate'   => $pager->renderFull($total),
-			'$contacturl' => ['contact_url', L10n::t("Profile URL"), '', L10n::t("URL of the remote contact to block.")],
+			'$contacturl' => ['contact_url', L10n::t('Profile URL'), '', L10n::t('URL of the remote contact to block.')],
+			'$contact_block_reason' => ['contact_block_reason', L10n::t('Block Reason')],
 		]);
 		return $o;
 	}
