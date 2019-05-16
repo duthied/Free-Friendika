@@ -61,13 +61,13 @@ HELP;
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 
-		$contact_url = Contact::getIdForURL($this->getArgument(0));
-		if (!$contact_url) {
+		$contact_id = Contact::getIdForURL($this->getArgument(0));
+		if (!$contact_id) {
 			throw new \RuntimeException(L10n::t('Could not find any contact entry for this URL (%s)', $this->getArgument(0)));
 		}
 
 		$block_reason = $this->getArgument(1);
-		if(Contact::block($contact_url, $block_reason)) {
+		if(Contact::block($contact_id, $block_reason)) {
 			$this->out(L10n::t('The contact has been blocked from the node'));
 		} else {
 			throw new \RuntimeException('The contact block failed.');
