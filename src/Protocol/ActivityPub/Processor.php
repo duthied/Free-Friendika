@@ -5,6 +5,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
@@ -15,6 +16,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Event;
 use Friendica\Model\Term;
 use Friendica\Model\User;
+use Friendica\Model\Mail;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
@@ -275,7 +277,7 @@ class Processor
 
 			$content = self::convertMentions($content);
 
-			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 				$item_private = !in_array(0, $activity['item_receiver']);
 				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 				if (!DBA::isResult($parent)) {
@@ -323,8 +325,7 @@ class Processor
 	private static function postItem($activity, $item)
 	{
 		/// @todo What to do with $activity['context']?
-
-		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
+		if (empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
 			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			return;
 		}
@@ -368,6 +369,11 @@ class Processor
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
 			}
 
+			if (!empty($activity['directmessage'])) {
+				self::postMail($activity, $item);
+				continue;
+			}
+
 			if ($activity['object_type'] == 'as:Event') {
 				self::createEvent($activity, $item);
 			}
@@ -393,6 +399,69 @@ class Processor
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
 		}
+	}
+
+	/**
+	 * Creates an mail post
+	 *
+	 * @param array $activity Activity data
+	 * @param array $item     item array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function postMail($activity, $item)
+	{
+		if (($item['gravity'] != GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
+			Logger::info('Parent not found, mail will be discarded.', ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
+			return false;
+		}
+
+		Logger::info('Direct Message', $item);
+
+		$msg = [];
+		$msg['uid'] = $item['uid'];
+
+		$msg['contact-id'] = $item['contact-id'];
+
+		$contact = Contact::getById($item['contact-id'], ['name', 'url', 'photo']);
+		$msg['from-name'] = $contact['name'];
+		$msg['from-url'] = $contact['url'];
+		$msg['from-photo'] = $contact['photo'];
+
+		$msg['uri'] = $item['uri'];
+		$msg['created'] = $item['created'];
+
+		$parent = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uri' => $item['thr-parent']]);
+		if (DBA::isResult($parent)) {
+			$msg['parent-uri'] = $parent['parent-uri'];
+			$msg['title'] = $parent['title'];
+		} else {
+			$msg['parent-uri'] = $item['thr-parent'];
+
+			if (!empty($item['title'])) {
+				$msg['title'] = $item['title'];
+			} elseif (!empty($item['content-warning'])) {
+				$msg['title'] = $item['content-warning'];
+			} else {
+				// Trying to generate a title out of the body
+				$title = $item['body'];
+
+				while (preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#is', $title, $matches)) {
+					$title = $matches[3];
+				}
+
+				$title = trim(HTML::toPlaintext(BBCode::convert($title, false, 2, true), 0));
+
+				if (strlen($title) > 20) {
+					$title = substr($title, 0, 20) . '...';
+				}
+
+				$msg['title'] = $title;
+			}
+		}
+		$msg['body'] = $item['body'];
+
+                Mail::insert($msg);
 	}
 
 	/**
