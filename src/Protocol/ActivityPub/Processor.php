@@ -64,10 +64,9 @@ class Processor
 	 *
 	 * @param array   $tags
 	 * @param boolean $sensitive
-	 * @param array   $implicit_mentions List of profile URLs to skip
 	 * @return string with tags
 	 */
-	private static function constructTagString(array $tags, $sensitive)
+	private static function constructTagString(array $tags = null, $sensitive = false)
 	{
 		if (empty($tags)) {
 			return '';
