@@ -25,10 +25,11 @@ class GlobalCommunityBlock extends \Asika\SimpleConsole\Console
 		$help = <<<HELP
 console globalcommunityblock - Block remote profile from interacting with this node
 Usage
-	bin/console globalcommunityblock <profile_url> [-h|--help|-?] [-v]
+	bin/console globalcommunityblock <profile_url> [<reason>] [-h|--help|-?] [-v]
 
 Description
 	Blocks an account in such a way that no postings or comments this account writes are accepted to this node.
+	You can provide a optional reason for the block.
 
 Options
     -h|--help|-? Show help information
@@ -52,7 +53,7 @@ HELP;
 			return 0;
 		}
 
-		if (count($this->args) > 1) {
+		if (count($this->args) > 2) {
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
@@ -64,7 +65,9 @@ HELP;
 		if (!$contact_id) {
 			throw new \RuntimeException(L10n::t('Could not find any contact entry for this URL (%s)', $this->getArgument(0)));
 		}
-		if(Contact::block($contact_id)) {
+
+		$block_reason = $this->getArgument(1);
+		if(Contact::block($contact_id, $block_reason)) {
 			$this->out(L10n::t('The contact has been blocked from the node'));
 		} else {
 			throw new \RuntimeException('The contact block failed.');

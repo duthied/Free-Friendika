@@ -22,6 +22,7 @@
 					<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 
 					{{include file="field_input.tpl" field=$contacturl}}
+					{{include file="field_textarea.tpl" field=$contact_block_reason}}
 
 					<div class="admin-settings-submit-wrapper form-group pull-right">
 						<button type="submit" class="btn btn-primary" name="page_contactblock_block" value="1">{{$submit}}</button>
@@ -55,7 +56,6 @@
 										{{$th}}
 									</th>
 								{{/foreach}}
-								<th></th>
 							</tr>
 						</thead>
 						<tbody>
@@ -68,8 +68,11 @@
 										</div>
 									</td>
 									<td><img class="icon" src="{{$contact.micro}}" alt="{{$contact.nickname}}" title="{{$contact.addr}}"></td>
-									<td class="name">{{$contact.name}}</td>
-									<td class="addr" colspan="3"><a href="{{$contact.url}}" title="{{$contact.addr}}" >{{$contact.url}}</a></td>
+									<td class="name">
+										{{$contact.name}}<br>
+										<a href="{{$contact.url}}" title="{{$contact.nickname}}">{{$contact.addr}}</a>
+									</td>
+									<td class="reason">{{if $contact.block_reason}}{{$contact.block_reason}}{{else}}N/A{{/if}}</td>
 								</tr>
 							{{/foreach}}
 						</tbody>
@@ -82,7 +85,7 @@
 										<label for="contactblock-select"></label>
 									</div>
 								</td>
-								<td colspan="5">
+								<td colspan="3">
 									{{$total_contacts}}
 									<div class="admin-settings-submit-wrapper form-group pull-right">
 										<button type="submit" class="btn btn-small btn-default pull-right" name="page_contactblock_unblock" value="1">{{$unblock}}</button>

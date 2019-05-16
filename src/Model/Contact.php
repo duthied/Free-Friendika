@@ -1670,13 +1670,13 @@ class Contact extends BaseObject
 	/**
 	 * @brief Blocks a contact
 	 *
-	 * @param int $uid
+	 * @param int $cid
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function block($uid)
+	public static function block($cid, $reason = null)
 	{
-		$return = DBA::update('contact', ['blocked' => true], ['id' => $uid]);
+		$return = DBA::update('contact', ['blocked' => true, 'block_reason' => $reason], ['id' => $cid]);
 
 		return $return;
 	}
@@ -1684,13 +1684,13 @@ class Contact extends BaseObject
 	/**
 	 * @brief Unblocks a contact
 	 *
-	 * @param int $uid
+	 * @param int $cid
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function unblock($uid)
+	public static function unblock($cid)
 	{
-		$return = DBA::update('contact', ['blocked' => false], ['id' => $uid]);
+		$return = DBA::update('contact', ['blocked' => false, 'block_reason' => null], ['id' => $cid]);
 
 		return $return;
 	}
