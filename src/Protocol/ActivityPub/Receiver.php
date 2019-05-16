@@ -207,6 +207,7 @@ class Receiver
 				return [];
 			}
 			$object_data['object_id'] = $object_id;
+			$object_data['directmessage'] = JsonLD::fetchElement($activity, 'litepub:directMessage');
 
 			// We had been able to retrieve the object data - so we can trust the source
 			$trust_source = true;
@@ -934,6 +935,11 @@ class Receiver
 		}
 
 		$object_data['receiver'] = self::getReceivers($object, $object_data['actor'], $object_data['tags']);
+
+		// Test if it is an answer to a mail
+		if (DBA::exists('mail', ['uri' => $object_data['reply-to-id']])) {
+			$object_data['directmessage'] = true;
+		}
 
 		// Common object data:
 
