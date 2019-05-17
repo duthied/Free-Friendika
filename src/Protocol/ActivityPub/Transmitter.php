@@ -645,6 +645,12 @@ class Transmitter
 
 		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
+		// Making the post more compatible for Mastodon by:
+		// - Making it a note and not an article (no title)
+		// - Moving the title into the "summary" field that is used as a "content warning"
+		$mail['body'] = '[abstract]' . $mail['title'] . "[/abstract]\n".$mail['body'];
+		$mail['title'] = '';
+
 		$mail['author-link'] = $mail['owner-link'] = $mail['from-url'];
 		$mail['allow_cid'] = '<'.$mail['contact-id'].'>';
 		$mail['allow_gid'] = '';
