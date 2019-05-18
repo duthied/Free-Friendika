@@ -202,6 +202,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/smilies[/json]',      Module\Smilies::class);
 		$this->routeCollector->addRoute(['GET'],         '/statistics.json',     Module\Statistics::class);
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
+		$this->routeCollector->addRoute(['GET'],         '/view/theme/{theme:.+}',  Module\Theme::class);
 		$this->routeCollector->addRoute(['GET'],         '/viewsrc/{item:\d+}',  Module\ItemBody::class);
 		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
 		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
