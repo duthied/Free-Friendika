@@ -12,7 +12,7 @@ use Friendica\Network\HTTPException;
  */
 class Notice extends BaseModule
 {
-	public static function rawContent()
+	public static function content()
 	{
 		$a = self::getApp();
 
