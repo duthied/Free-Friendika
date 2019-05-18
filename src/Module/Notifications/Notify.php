@@ -3,6 +3,7 @@
 namespace Friendica\Module\Notifications;
 
 use Friendica\BaseModule;
+use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
 use Friendica\Network\HTTPException;
@@ -12,11 +13,7 @@ use Friendica\Network\HTTPException;
  */
 class Notify extends BaseModule
 {
-	/**
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws HTTPException\UnauthorizedException
-	 */
-	public static function rawContent()
+	public static function init()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(L10n::t('Permission denied.'));
@@ -38,6 +35,11 @@ class Notify extends BaseModule
 
 			$a->internalRedirect();
 		}
+	}
+
+	public static function rawContent()
+	{
+		$a = self::getApp();
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all') {
@@ -63,8 +65,6 @@ class Notify extends BaseModule
 		$a = self::getApp();
 
 		// @TODO: Replace with parameter from router
-		if (($a->argc > 0) && ($a->argv[0] == 'notify')) {
-			$a->internalRedirect('notifications/system');
-		}
+		$a->internalRedirect('notifications/system');
 	}
 }
