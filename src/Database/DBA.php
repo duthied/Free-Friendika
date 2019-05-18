@@ -1511,7 +1511,9 @@ class DBA
 		if (isset($params['order'])) {
 			$order_string = " ORDER BY ";
 			foreach ($params['order'] AS $fields => $order) {
-				if (!is_int($fields)) {
+				if ($order === 'RAND()') {
+					$order_string .= "RAND(), ";
+				} elseif (!is_int($fields)) {
 					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
 				} else {
 					$order_string .= "`" . $order . "`, ";
