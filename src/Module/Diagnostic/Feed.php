@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\Diagnostic;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
@@ -12,7 +12,7 @@ use Friendica\Util\Network;
 /**
  * Tests a given feed of a contact
  */
-class Feedtest extends BaseModule
+class Feed extends BaseModule
 {
 	public static function init()
 	{

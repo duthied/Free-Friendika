@@ -92,7 +92,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/allfriends/{id:\d+}', Module\AllFriends::class);
 		$this->routeCollector->addRoute(['GET'],         '/apps',                Module\Apps::class);
 		$this->routeCollector->addRoute(['GET'],         '/attach/{item:\d+}',   Module\Attach::class);
-		$this->routeCollector->addRoute(['GET'],         '/babel',               Module\Babel::class);
+		$this->routeCollector->addRoute(['GET'],         '/babel',               Module\Diagnostic\Babel::class);
 		$this->routeCollector->addRoute(['GET'],         '/bookmarklet',         Module\Bookmarklet::class);
 		$this->routeCollector->addGroup('/contact', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '[/]',                                 Module\Contact::class);
@@ -153,9 +153,9 @@ class Router
 			$collector->addRoute(['GET', 'POST'], '[/]',                         Module\Install::class);
 			$collector->addRoute(['GET'],         '/testrewrite',                Module\Install::class);
 		});
-		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Itemsource::class);
+		$this->routeCollector->addRoute(['GET', 'POST'], '/itemsource[/{guid}]', Module\Diagnostic\ItemSource::class);
 		$this->routeCollector->addRoute(['GET'],         '/like/{item:\d+}',     Module\Like::class);
-		$this->routeCollector->addRoute(['GET', 'POST'], '/localtime',           Module\Localtime::class);
+		$this->routeCollector->addRoute(['GET', 'POST'], '/localtime',           Module\Diagnostic\Localtime::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/login',               Module\Login::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/logout',              Module\Logout::class);
 		$this->routeCollector->addRoute(['GET'],         '/magic',               Module\Magic::class);
@@ -185,6 +185,7 @@ class Router
 			$collector->addRoute(['GET'], '/{type}/{customize}/{name}',          Module\Photo::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/pretheme',            Module\ThemeDetails::class);
+		$this->routeCollector->addRoute(['GET'],         '/probe',               Module\Diagnostic\Probe::class);
 		$this->routeCollector->addGroup('/profile', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/{nickname}',                         Module\Profile::class);
 			$collector->addRoute(['GET'], '/{profile:\d+}/view',                 Module\Profile::class);
@@ -213,8 +214,8 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/toggle_mobile',       Module\ToggleMobile::class);
 		$this->routeCollector->addRoute(['GET'],         '/tos',                 Module\Tos::class);
 		$this->routeCollector->addRoute(['GET'],         '/view/theme/{theme}/style.pcss',  Module\Theme::class);
-		$this->routeCollector->addRoute(['GET'],         '/viewsrc/{item:\d+}',  Module\ItemBody::class);
-		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\WebFinger::class);
+		$this->routeCollector->addRoute(['GET'],         '/viewsrc/{item:\d+}',  Module\Diagnostic\ItemBody::class);
+		$this->routeCollector->addRoute(['GET'],         '/webfinger',           Module\Diagnostic\WebFinger::class);
 		$this->routeCollector->addRoute(['GET'],         '/xrd',                 Module\Xrd::class);
 	}
 

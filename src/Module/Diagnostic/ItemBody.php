@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\Diagnostic;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;

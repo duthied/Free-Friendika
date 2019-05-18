@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\Diagnostic;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
@@ -19,8 +19,6 @@ class WebFinger extends BaseModule
 			$e->httpdesc = L10n::t("Public access denied.");
 			throw $e;
 		}
-
-		$app = self::getApp();
 
 		$addr = defaults($_GET, 'addr', '');
 		$res = '';

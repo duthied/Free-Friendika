@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\Diagnostic;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
@@ -9,7 +9,7 @@ use Friendica\Model;
 /**
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class Itemsource extends \Friendica\BaseModule
+class ItemSource extends \Friendica\BaseModule
 {
 	public static function content()
 	{
