@@ -5,8 +5,6 @@ namespace Friendica\Module\GnuSocial;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
-use Friendica\Model\Item;
-use Friendica\Model\ItemUser;
 use Friendica\Network\HTTPException;
 
 /**
