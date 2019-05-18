@@ -266,6 +266,7 @@ class Contact extends BaseModule
 		$a = self::getApp();
 
 		$nets = defaults($_GET, 'nets', '');
+		$rel  = defaults($_GET, 'rel' , '');
 
 		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
@@ -321,6 +322,7 @@ class Contact extends BaseModule
 			$findpeople_widget = '';
 			$follow_widget = '';
 			$networks_widget = '';
+			$rel_widget = '';
 		} else {
 			$vcard_widget = '';
 			$findpeople_widget = Widget::findPeople();
@@ -331,6 +333,7 @@ class Contact extends BaseModule
 			}
 
 			$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
+			$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
 		}
 
 		if ($contact['uid'] != 0) {
@@ -339,7 +342,7 @@ class Contact extends BaseModule
 			$groups_widget = null;
 		}
 
-		$a->page['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget;
+		$a->page['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget . $rel_widget;
 
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
 		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
@@ -678,6 +681,7 @@ class Contact extends BaseModule
 
 		$search = Strings::escapeTags(trim(defaults($_GET, 'search', '')));
 		$nets   = Strings::escapeTags(trim(defaults($_GET, 'nets'  , '')));
+		$rel    = Strings::escapeTags(trim(defaults($_GET, 'rel'   , '')));
 
 		$tabs = [
 			[
@@ -747,6 +751,12 @@ class Contact extends BaseModule
 			$sql_extra .= sprintf(" AND network = '%s' ", DBA::escape($nets));
 		}
 
+		switch ($rel) {
+			case 'followers': $sql_extra .= " AND `rel` IN (1, 3)"; break;
+			case 'following': $sql_extra .= " AND `rel` IN (2, 3)"; break;
+			case 'mutuals': $sql_extra .= " AND `rel` = 3"; break;
+		}
+
 		$sql_extra .=  " AND NOT `deleted` ";
 
 		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= Model\Contact::FRIEND)) ? sprintf(" AND `rel` = %d ", intval($sort_type)) : '');
@@ -775,6 +785,13 @@ class Contact extends BaseModule
 				$rr['readonly'] = Model\Contact::isIgnoredByUser($rr['id'], local_user());
 				$contacts[] = self::getContactTemplateVars($rr);
 			}
+		}
+
+		switch ($rel) {
+			case 'followers': $header = L10n::t('Followers'); break;
+			case 'following': $header = L10n::t('Following'); break;
+			case 'mutuals':   $header = L10n::t('Mutual friends'); break;
+			default:          $header = L10n::t('Contacts');
 		}
 
 		switch ($type) {
