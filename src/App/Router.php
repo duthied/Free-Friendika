@@ -164,6 +164,11 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/modexp/{nick}',       Module\PublicRSAKey::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
 		$this->routeCollector->addRoute(['GET'],         '/nogroup',             Module\Group::class);
+		$this->routeCollector->addGroup('/notify', function (RouteCollector $collector) {
+			$collector->addRoute(['GET'], '[/]',                                 Module\Notifications\Notify::class);
+			$collector->addRoute(['GET'], '/view/{id:\d+}',                      Module\Notifications\Notify::class);
+			$collector->addRoute(['GET'], '/mark/all',                           Module\Notifications\Notify::class);
+		});
 		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
 		$this->routeCollector->addGroup('/oembed', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/b2h',                                Module\Oembed::class);
