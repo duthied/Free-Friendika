@@ -440,7 +440,7 @@ class Transmitter
 								}
 							}
 						} else {
-							// Public thread parent post always are directed to the followes
+							// Public thread parent post always are directed to the followers
 							if (!$item['private'] && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
