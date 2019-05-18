@@ -4,6 +4,8 @@ namespace Friendica\Module\GnuSocial;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
+use Friendica\Database\DBA;
+use Friendica\Model\Item;
 use Friendica\Model\ItemUser;
 use Friendica\Network\HTTPException;
 
@@ -23,12 +25,12 @@ class Notice extends BaseModule
 			throw new HTTPException\NotFoundException(L10n::t('Item not found.'));
 		}
 
-		$user = ItemUser::getUserForItemId($id, ['nickname']);
+		$item = DBA::selectFirst('item', ['guid'], ['id' => $id]);
 
-		if (empty($user)) {
+		if (empty($item )) {
 			throw new HTTPException\NotFoundException(L10n::t('Item not found.'));
 		} else {
-			$a->internalRedirect('display/' . $user['nickname'] . '/' . $id);
+			$a->internalRedirect('display/' . $item['guid']);
 		}
 	}
 }
