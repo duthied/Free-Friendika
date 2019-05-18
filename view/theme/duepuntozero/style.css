@@ -386,7 +386,7 @@ div.wall-item-content-wrapper.shiny {
 	margin-bottom: 10px;
 }
 
-.group-selected, .nets-selected, .fileas-selected, .categories-selected, .forum-selected {
+.widget .selected, .group-selected, .forum-selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -2124,11 +2124,11 @@ a.mail-list-link {
 	list-style: none;
 }
 
-.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
+.nets-ul, .fileas-ul, .category-ul, .datebrowse-ul {
 	list-style-type: none;
 }
 
-.nets-ul li, .fileas-ul li, .categories-ul li, .datebrowse-ul li {
+.nets-ul li, .fileas-ul li, .category-ul li, .datebrowse-ul li {
 	margin-top: 10px;
 }
 
@@ -2139,11 +2139,11 @@ a.mail-list-link {
 	margin-left: 42px;
 }
 
-.fileas-link, .categories-link {
+.fileas-link, .category-link {
 	margin-left: 24px;
 }
 
-.fileas-all, .categories-all {
+.fileas-all, .category-all {
 	margin-left: 0px;
 }
 

@@ -61,7 +61,7 @@ function photos_init(App $a) {
 
 		$account_type = Contact::getAccountType($profile);
 
-		$tpl = Renderer::getMarkupTemplate("vcard-widget.tpl");
+		$tpl = Renderer::getMarkupTemplate("widget/vcard.tpl");
 
 		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
