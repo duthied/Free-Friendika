@@ -172,6 +172,7 @@ class Router
 		});
 		$this->routeCollector->addRoute(['GET'],         '/outbox/{owner}',      Module\Outbox::class);
 		$this->routeCollector->addRoute(['GET'],         '/owa',                 Module\Owa::class);
+		$this->routeCollector->addRoute(['GET'],         '/opensearch',          Module\OpenSearch::class);
 		$this->routeCollector->addGroup('/photo', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/{name}',                             Module\Photo::class);
 			$collector->addRoute(['GET'], '/{type}/{name}',                      Module\Photo::class);
