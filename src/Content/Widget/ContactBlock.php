@@ -52,7 +52,7 @@ class ContactBlock
 			'pending' => false,
 			'hidden' => false,
 			'archive' => false,
-			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 
 		$contacts_title = L10n::t('No contacts');

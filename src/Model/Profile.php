@@ -894,7 +894,7 @@ class Profile
 			[
 				'label' => L10n::t('Status'),
 				'url'   => $url,
-				'sel'   => !$tab && $a->argv[0] == 'profile' ? 'active' : '',
+				'sel'   => !$tab && $a->argv[0] == 'profile' && (empty($a->argv[2]) || $a->argv[2] !== 'contacts') ? 'active' : '',
 				'title' => L10n::t('Status Messages and Posts'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
@@ -969,11 +969,11 @@ class Profile
 			];
 		}
 
-		if (!$is_owner && empty($a->profile['hide-friends'])) {
+		if ($is_owner || empty($a->profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => L10n::t('Contacts'),
-				'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,
-				'sel'   => !$tab && $a->argv[0] == 'viewcontacts' ? 'active' : '',
+				'url'   => System::baseUrl() . '/profile/' . $nickname . '/contacts',
+				'sel'   => !$tab && !empty($a->argv[2]) && $a->argv[2] == 'contacts' ? 'active' : '',
 				'title' => L10n::t('Contacts'),
 				'id'    => 'viewcontacts-tab',
 				'accesskey' => 'k',
