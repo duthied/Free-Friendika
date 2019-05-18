@@ -78,7 +78,7 @@ class Notifier
 			$recipients[] = $message['contact-id'];
 
 			$mail = ActivityPub\Transmitter::ItemArrayFromMail($target_id);
-			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($mail, §uid, true);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($mail, $uid, true);
 			foreach ($inboxes as $inbox) {
 				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_id, 'inbox' => $inbox]);
 				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
@@ -441,8 +441,8 @@ class Notifier
 						continue;
 					}
 
-					if (($rr['network'] == Protocol::DFRN) && ($rr['protocol'] == Protocol::ACTIVITYPUB) &&
-						!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+					if (in_array($rr['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($rr['protocol'] == Protocol::ACTIVITYPUB) &&
+						!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
 						Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $rr['url']]);
 						continue;
 					}
@@ -481,8 +481,8 @@ class Notifier
 				continue;
 			}
 
-			if (($contact['network'] == Protocol::DFRN) && ($contact['protocol'] == Protocol::ACTIVITYPUB) &&
-				!in_array($cmd, [Delivery::MAIL, Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+			if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($contact['protocol'] == Protocol::ACTIVITYPUB) &&
+				!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
 				Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $contact['url']]);
 				continue;
 			}

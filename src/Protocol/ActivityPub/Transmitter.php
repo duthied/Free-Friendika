@@ -422,46 +422,48 @@ class Transmitter
 			}
 		}
 
-		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
-		while ($parent = Item::fetch($parents)) {
-			if ($parent['gravity'] == GRAVITY_PARENT) {
-				$profile = APContact::getByURL($parent['owner-link'], false);
-				if (!empty($profile)) {
-					if ($item['gravity'] != GRAVITY_PARENT) {
-						// Comments to forums are directed to the forum
-						// But comments to forums aren't directed to the followers collection
-						if ($profile['type'] == 'Group') {
-							$data['to'][] = $profile['url'];
+		if (!empty($item['parent'])) {
+			$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
+			while ($parent = Item::fetch($parents)) {
+				if ($parent['gravity'] == GRAVITY_PARENT) {
+					$profile = APContact::getByURL($parent['owner-link'], false);
+					if (!empty($profile)) {
+						if ($item['gravity'] != GRAVITY_PARENT) {
+							// Comments to forums are directed to the forum
+							// But comments to forums aren't directed to the followers collection
+							if ($profile['type'] == 'Group') {
+								$data['to'][] = $profile['url'];
+							} else {
+								$data['cc'][] = $profile['url'];
+								if (!$item['private']) {
+									$data['cc'][] = $actor_profile['followers'];
+								}
+							}
 						} else {
-							$data['cc'][] = $profile['url'];
-							if (!$item['private']) {
+							// Public thread parent post always are directed to the followes
+							if (!$item['private'] && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
 						}
+					}
+				}
+
+				// Don't include data from future posts
+				if ($parent['id'] >= $last_id) {
+					continue;
+				}
+
+				$profile = APContact::getByURL($parent['author-link'], false);
+				if (!empty($profile)) {
+					if (($profile['type'] == 'Group') || ($parent['uri'] == $item['thr-parent'])) {
+						$data['to'][] = $profile['url'];
 					} else {
-						// Public thread parent post always are directed to the followes
-						if (!$item['private'] && !$forum_mode) {
-							$data['cc'][] = $actor_profile['followers'];
-						}
+						$data['cc'][] = $profile['url'];
 					}
 				}
 			}
-
-			// Don't include data from future posts
-			if ($parent['id'] >= $last_id) {
-				continue;
-			}
-
-			$profile = APContact::getByURL($parent['author-link'], false);
-			if (!empty($profile)) {
-				if (($profile['type'] == 'Group') || ($parent['uri'] == $item['thr-parent'])) {
-					$data['to'][] = $profile['url'];
-				} else {
-					$data['cc'][] = $profile['url'];
-				}
-			}
+			DBA::close($parents);
 		}
-		DBA::close($parents);
 
 		$data['to'] = array_unique($data['to']);
 		$data['cc'] = array_unique($data['cc']);
