@@ -4,8 +4,8 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Logger;
 use DOMXPath;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use SimpleXMLElement;
 
@@ -465,12 +465,13 @@ class XML
 
 	/**
 	 * escape text ($str) for XML transport
+	 *
 	 * @param string $str
 	 * @return string Escaped text.
 	 */
 	public static function escape($str)
 	{
-		$buffer = htmlspecialchars($str, ENT_QUOTES, "UTF-8");
+		$buffer = htmlentities($str, ENT_QUOTES, 'UTF-8');
 		$buffer = trim($buffer);
 
 		return $buffer;
@@ -478,27 +479,30 @@ class XML
 
 	/**
 	 * undo an escape
+	 *
 	 * @param string $s xml escaped text
 	 * @return string unescaped text
 	 */
 	public static function unescape($s)
 	{
-		$ret = htmlspecialchars_decode($s, ENT_QUOTES);
+		$ret = html_entity_decode($s, ENT_QUOTES);
 		return $ret;
 	}
 
 	/**
 	 * apply escape() to all values of array $val, recursively
+	 *
 	 * @param array $val
-	 * @return array
+	 * @return array|string
 	 */
 	public static function arrayEscape($val)
 	{
 		if (is_bool($val)) {
-			return $val?"true":"false";
+			return $val ? 'true' : 'false';
 		} elseif (is_array($val)) {
 			return array_map('XML::arrayEscape', $val);
 		}
+
 		return self::escape((string) $val);
 	}
 }
