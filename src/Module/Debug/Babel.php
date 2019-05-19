@@ -7,6 +7,7 @@ use Friendica\Content\Text;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model\Item;
+use Friendica\Util\XML;
 
 /**
  * Translates input text into different formats (HTML, BBCode, Markdown)
@@ -98,10 +99,10 @@ class Babel extends BaseModule
 					$markdown = trim($_REQUEST['text']);
 					$results[] = [
 						'title'   => L10n::t('Source input (Diaspora format)'),
-						'content' => '<pre>' . $markdown . '</pre>'
+						'content' => '<pre>' . htmlspecialchars($markdown) . '</pre>'
 					];
 
-					$html = Text\Markdown::convert($markdown);
+					$html = Text\Markdown::convert(html_entity_decode($markdown,ENT_COMPAT, 'UTF-8'));
 					$results[] = [
 						'title'   => L10n::t('Markdown::convert (raw HTML)'),
 						'content' => visible_whitespace(htmlspecialchars($html))
@@ -112,7 +113,7 @@ class Babel extends BaseModule
 						'content' => $html
 					];
 
-					$bbcode = Text\Markdown::toBBCode($markdown);
+					$bbcode = Text\Markdown::toBBCode(XML::unescape($markdown));
 					$results[] = [
 						'title'   => L10n::t('Markdown::toBBCode'),
 						'content' => '<pre>' . $bbcode . '</pre>'
