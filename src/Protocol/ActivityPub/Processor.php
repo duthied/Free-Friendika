@@ -542,6 +542,13 @@ class Processor
 		self::switchContact($item['author-id']);
 
 		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
+		if ($result === false) {
+			ActivityPub\Transmitter::sendContactReject($item['author-link'], $item['author-id'], $owner['uid']);
+			return;
+		}elseif ($result === true) {
+			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $item['author-id'], $owner['uid']);
+		}
+
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;

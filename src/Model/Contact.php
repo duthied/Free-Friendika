@@ -2126,6 +2126,7 @@ class Contact extends BaseObject
 	 * @param array  $datarray An item-like array with at least the 'author-id' and 'author-url' keys for the contact. Mandatory.
 	 * @param bool   $sharing  True: Contact is now sharing with Owner; False: Contact is now following Owner (default)
 	 * @param string $note     Introduction additional message
+	 * @return bool|null True: follow request is accepted; False: relationship is rejected; Null: relationship is pending
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -2133,14 +2134,14 @@ class Contact extends BaseObject
 	{
 		// Should always be set
 		if (empty($datarray['author-id'])) {
-			return;
+			return false;
 		}
 
 		$fields = ['url', 'name', 'nick', 'photo', 'network'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
-			return;
+			return false;
 		}
 
 		$url = defaults($datarray, 'author-link', $pub_contact['url']);
@@ -2153,26 +2154,20 @@ class Contact extends BaseObject
 			// Make sure that the existing contact isn't archived
 			self::unmarkForArchival($contact);
 
-			$protocol = self::getProtocol($url, $contact['network']);
-
 			if (($contact['rel'] == self::SHARING)
 				|| ($sharing && $contact['rel'] == self::FOLLOWER)) {
 				DBA::update('contact', ['rel' => self::FRIEND, 'writable' => true, 'pending' => false],
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
-			if ($protocol == Protocol::ACTIVITYPUB) {
-				ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
-			}
-
+			return true;
 		} else {
-			$protocol = self::getProtocol($url, $network);
-
 			// send email notification to owner?
 			if (DBA::exists('contact', ['nurl' => Strings::normaliseLink($url), 'uid' => $importer['uid'], 'pending' => true])) {
 				Logger::log('ignoring duplicated connection request from pending contact ' . $url);
-				return;
+				return null;
 			}
+
 			// create contact record
 			DBA::insert('contact', [
 				'uid'      => $importer['uid'],
@@ -2237,14 +2232,11 @@ class Contact extends BaseObject
 				$condition = ['uid' => $importer['uid'], 'url' => $url, 'pending' => true];
 				DBA::update('contact', ['pending' => false], $condition);
 
-				$contact = DBA::selectFirst('contact', ['url', 'network', 'hub-verify'], ['id' => $contact_record['id']]);
-				$protocol = self::getProtocol($contact['url'], $contact['network']);
-
-				if ($protocol == Protocol::ACTIVITYPUB) {
-					ActivityPub\Transmitter::sendContactAccept($contact['url'], $contact['hub-verify'], $importer['uid']);
-				}
+				return true;
 			}
 		}
+
+		return null;
 	}
 
 	public static function removeFollower($importer, $contact, array $datarray = [], $item = "")
