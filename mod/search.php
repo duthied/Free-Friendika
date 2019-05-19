@@ -14,7 +14,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
-use Friendica\Module\DirectorySearch;
+use Friendica\Module\Directory;
 use Friendica\Util\Strings;
 
 function search_saved_searches() {
@@ -148,10 +148,10 @@ function search_content(App $a) {
 		$search = substr($search,1);
 	}
 	if (strpos($search,'@') === 0) {
-		return DirectorySearch::performSearch();
+		return Directory::performSearch();
 	}
 	if (strpos($search,'!') === 0) {
-		return DirectorySearch::performSearch();
+		return Directory::performSearch();
 	}
 
 	if (!empty($_GET['search-option']))
@@ -162,9 +162,9 @@ function search_content(App $a) {
 				$tag = true;
 				break;
 			case 'contacts':
-				return DirectorySearch::performSearch('@');
+				return Directory::performSearch('@');
 			case 'forums':
-				return DirectorySearch::performSearch('!');
+				return Directory::performSearch('!');
 		}
 
 	if (!$search)
