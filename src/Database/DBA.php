@@ -1507,6 +1507,15 @@ class DBA
 	 */
 	public static function buildParameter(array $params = [])
 	{
+		$groupby_string = '';
+		if (isset($params['group_by'])) {
+			$groupby_string = " GROUP BY ";
+			foreach ($params['group_by'] as $fields) {
+				$groupby_string .= "`" . $fields . "`, ";
+			}
+			$groupby_string = substr($groupby_string, 0, -2);
+		}
+
 		$order_string = '';
 		if (isset($params['order'])) {
 			$order_string = " ORDER BY ";
@@ -1531,7 +1540,7 @@ class DBA
 			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
 		}
 
-		return $order_string.$limit_string;
+		return $groupby_string.$order_string.$limit_string;
 	}
 
 	/**

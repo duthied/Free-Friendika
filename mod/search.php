@@ -12,12 +12,10 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Module\DirectorySearch;
 use Friendica\Util\Strings;
-
-require_once 'mod/dirfind.php';
 
 function search_saved_searches() {
 
@@ -150,10 +148,10 @@ function search_content(App $a) {
 		$search = substr($search,1);
 	}
 	if (strpos($search,'@') === 0) {
-		return dirfind_content($a);
+		return DirectorySearch::performSearch();
 	}
 	if (strpos($search,'!') === 0) {
-		return dirfind_content($a);
+		return DirectorySearch::performSearch();
 	}
 
 	if (!empty($_GET['search-option']))
@@ -164,11 +162,9 @@ function search_content(App $a) {
 				$tag = true;
 				break;
 			case 'contacts':
-				return dirfind_content($a, "@");
-				break;
+				return DirectorySearch::performSearch('@');
 			case 'forums':
-				return dirfind_content($a, "!");
-				break;
+				return DirectorySearch::performSearch('!');
 		}
 
 	if (!$search)
