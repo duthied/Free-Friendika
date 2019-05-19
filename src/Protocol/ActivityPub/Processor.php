@@ -530,7 +530,7 @@ class Processor
 			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
-			$contact = false;
+			$contact = [];
 		}
 
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
@@ -541,7 +541,7 @@ class Processor
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
 
-		Contact::addRelationship($owner, $contact, $item, '', false, $note);
+		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;

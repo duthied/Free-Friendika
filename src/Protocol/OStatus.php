@@ -417,13 +417,6 @@ class OStatus
 				$author = self::fetchAuthor($xpath, $entry, $importer, $contact, $stored);
 			}
 
-			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()', $entry);
-			if ($value != "") {
-				$nickname = $value;
-			} else {
-				$nickname = $author["author-name"];
-			}
-
 			$item = array_merge($header, $author);
 
 			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
@@ -463,7 +456,7 @@ class OStatus
 			}
 
 			if ($item["verb"] == ACTIVITY_FOLLOW) {
-				Contact::addRelationship($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item);
 				continue;
 			}
 
