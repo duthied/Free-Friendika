@@ -12,6 +12,9 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Model;
 
+/**
+ * Multi search module, which is needed for further search operations
+ */
 class DirectorySearch extends BaseModule
 {
 	public static function content()
@@ -21,7 +24,7 @@ class DirectorySearch extends BaseModule
 			return Login::form();
 		}
 
-		$a      = self::getApp();
+		$a = self::getApp();
 
 		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
@@ -86,12 +89,12 @@ class DirectorySearch extends BaseModule
 			$location    = '';
 			$about       = '';
 			$accountType = '';
-			$photo_menu = [];
+			$photo_menu  = [];
 
 			// If We already know this contact then don't show the "connect" button
 			if ($result->getCid() > 0 || $result->getPcid() > 0) {
-				$connlnk = "";
-				$conntxt = "";
+				$connLink = "";
+				$connTxt = "";
 				$contact = Model\Contact::getById(
 					($result->getCid() > 0) ? $result->getCid() : $result->getPcid()
 				);
@@ -107,11 +110,11 @@ class DirectorySearch extends BaseModule
 					$photo_menu = [];
 				}
 			} else {
-				$connlnk = $a->getBaseURL() . '/follow/?url=' . $result->getUrl();
-				$conntxt = L10n::t('Connect');
+				$connLink = $a->getBaseURL() . '/follow/?url=' . $result->getUrl();
+				$connTxt = L10n::t('Connect');
 
 				$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($result->getUrl())];
-				$photo_menu['follow']  = [L10n::t("Connect/Follow"), $connlnk];
+				$photo_menu['follow']  = [L10n::t("Connect/Follow"), $connLink];
 			}
 
 			$photo = str_replace("http:///photo/", get_server() . "/photo/", $result->getPhoto());
@@ -123,8 +126,8 @@ class DirectorySearch extends BaseModule
 				'name'         => $result->getName(),
 				'thumb'        => ProxyUtils::proxifyUrl($photo, false, ProxyUtils::SIZE_THUMB),
 				'img_hover'    => $result->getTags(),
-				'conntxt'      => $conntxt,
-				'connlnk'      => $connlnk,
+				'conntxt'      => $connTxt,
+				'connlnk'      => $connLink,
 				'photo_menu'   => $photo_menu,
 				'details'      => $location,
 				'tags'         => $result->getTags(),
