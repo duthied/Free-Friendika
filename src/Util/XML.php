@@ -471,7 +471,7 @@ class XML
 	 */
 	public static function escape($str)
 	{
-		$buffer = htmlentities($str, ENT_QUOTES, 'UTF-8');
+		$buffer = htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
 		$buffer = trim($buffer);
 
 		return $buffer;
@@ -485,7 +485,7 @@ class XML
 	 */
 	public static function unescape($s)
 	{
-		$ret = html_entity_decode($s, ENT_QUOTES);
+		$ret = htmlspecialchars_decode($s, ENT_QUOTES);
 		return $ret;
 	}
 
