@@ -18,6 +18,8 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model;
+use Friendica\Network\HTTPException\BadRequestException;
+use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -30,102 +32,6 @@ use Friendica\Util\Strings;
  */
 class Contact extends BaseModule
 {
-	public static function init()
-	{
-		$a = self::getApp();
-
-		if (!local_user()) {
-			return;
-		}
-
-		$nets = defaults($_GET, 'nets', '');
-
-		if (empty($a->page['aside'])) {
-			$a->page['aside'] = '';
-		}
-
-		$contact_id = null;
-		$contact = null;
-		// @TODO: Replace with parameter from router
-		if ($a->argc == 2 && intval($a->argv[1])
-			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
-		) {
-			$contact_id = intval($a->argv[1]);
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
-
-			if (!DBA::isResult($contact)) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0, 'deleted' => false]);
-			}
-
-			// Don't display contacts that are about to be deleted
-			if ($contact['network'] == Protocol::PHANTOM) {
-				$contact = false;
-			}
-		}
-
-		if (DBA::isResult($contact)) {
-			if ($contact['self']) {
-				// @TODO: Replace with parameter from router
-				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
-					$a->internalRedirect('profile/' . $contact['nick']);
-				} else {
-					$a->internalRedirect('profile/' . $contact['nick'] . '?tab=profile');
-				}
-			}
-
-			$a->data['contact'] = $contact;
-
-			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
-				$network_link = Strings::formatNetworkName($contact['network'], $contact['url']);
-			} else {
-				$network_link = '';
-			}
-
-			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('vcard-widget.tpl'), [
-				'$name'         => $contact['name'],
-				'$photo'        => $contact['photo'],
-				'$url'          => Model\Contact::MagicLink($contact['url']),
-				'$addr'         => defaults($contact, 'addr', ''),
-				'$network_link' => $network_link,
-				'$network'      => L10n::t('Network:'),
-				'$account_type' => Model\Contact::getAccountType($contact)
-			]);
-
-			$findpeople_widget = '';
-			$follow_widget = '';
-			$networks_widget = '';
-		} else {
-			$vcard_widget = '';
-			$networks_widget = Widget::networks('contact', $nets);
-			if (isset($_GET['add'])) {
-				$follow_widget = Widget::follow($_GET['add']);
-			} else {
-				$follow_widget = Widget::follow();
-			}
-
-			$findpeople_widget = Widget::findPeople();
-		}
-
-		if ($contact['uid'] != 0) {
-			$groups_widget = Model\Group::sidebarWidget('contact', 'group', 'full', 'everyone', $contact_id);
-		} else {
-			$groups_widget = null;
-		}
-
-		$a->page['aside'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contacts-widget-sidebar.tpl'), [
-			'$vcard_widget'      => $vcard_widget,
-			'$findpeople_widget' => $findpeople_widget,
-			'$follow_widget'     => $follow_widget,
-			'$groups_widget'     => $groups_widget,
-			'$networks_widget'   => $networks_widget
-		]);
-
-		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => $a->getBaseURL(true),
-		]);
-	}
-
 	private static function batchActions(App $a)
 	{
 		if (empty($_POST['contact_batch']) || !is_array($_POST['contact_batch'])) {
@@ -353,7 +259,93 @@ class Contact extends BaseModule
 
 	public static function content($update = 0)
 	{
+		if (!local_user()) {
+			return Login::form($_SERVER['REQUET_URI']);
+		}
+
 		$a = self::getApp();
+
+		$nets = defaults($_GET, 'nets', '');
+
+		if (empty($a->page['aside'])) {
+			$a->page['aside'] = '';
+		}
+
+		$contact_id = null;
+		$contact = null;
+		// @TODO: Replace with parameter from router
+		if ($a->argc == 2 && intval($a->argv[1])
+			|| $a->argc == 3 && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])
+		) {
+			$contact_id = intval($a->argv[1]);
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+
+			if (!DBA::isResult($contact)) {
+				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => 0, 'deleted' => false]);
+			}
+
+			// Don't display contacts that are about to be deleted
+			if ($contact['network'] == Protocol::PHANTOM) {
+				$contact = false;
+			}
+		}
+
+		if (DBA::isResult($contact)) {
+			if ($contact['self']) {
+				// @TODO: Replace with parameter from router
+				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
+					$a->internalRedirect('profile/' . $contact['nick']);
+				} else {
+					$a->internalRedirect('profile/' . $contact['nick'] . '?tab=profile');
+				}
+			}
+
+			$a->data['contact'] = $contact;
+
+			if (($contact['network'] != '') && ($contact['network'] != Protocol::DFRN)) {
+				$network_link = Strings::formatNetworkName($contact['network'], $contact['url']);
+			} else {
+				$network_link = '';
+			}
+
+			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
+				'$name'         => $contact['name'],
+				'$photo'        => $contact['photo'],
+				'$url'          => Model\Contact::magicLinkByContact($contact, $contact['url']),
+				'$addr'         => defaults($contact, 'addr', ''),
+				'$network_link' => $network_link,
+				'$network'      => L10n::t('Network:'),
+				'$account_type' => Model\Contact::getAccountType($contact)
+			]);
+
+			$findpeople_widget = '';
+			$follow_widget = '';
+			$networks_widget = '';
+		} else {
+			$vcard_widget = '';
+			$findpeople_widget = Widget::findPeople();
+			if (isset($_GET['add'])) {
+				$follow_widget = Widget::follow($_GET['add']);
+			} else {
+				$follow_widget = Widget::follow();
+			}
+
+			$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
+		}
+
+		if ($contact['uid'] != 0) {
+			$groups_widget = Model\Group::sidebarWidget('contact', 'group', 'full', 'everyone', $contact_id);
+		} else {
+			$groups_widget = null;
+		}
+
+		$a->page['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget;
+
+		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+			'$baseurl' => $a->getBaseURL(true),
+		]);
+
 		$sort_type = 0;
 		$o = '';
 		Nav::setSelected('contact');
@@ -366,7 +358,7 @@ class Contact extends BaseModule
 		if ($a->argc == 3) {
 			$contact_id = intval($a->argv[1]);
 			if (!$contact_id) {
-				return;
+				throw new BadRequestException();
 			}
 
 			// @TODO: Replace with parameter from router
@@ -374,9 +366,7 @@ class Contact extends BaseModule
 
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 			if (!DBA::isResult($orig_record)) {
-				notice(L10n::t('Could not access contact record.') . EOL);
-				$a->internalRedirect('contact');
-				return; // NOTREACHED
+				throw new NotFoundException(L10n::t('Contact not found'));
 			}
 
 			if ($cmd === 'update' && ($orig_record['uid'] != 0)) {
@@ -398,7 +388,7 @@ class Contact extends BaseModule
 				info(($blocked ? L10n::t('Contact has been blocked') : L10n::t('Contact has been unblocked')) . EOL);
 
 				$a->internalRedirect('contact/' . $contact_id);
-				return; // NOTREACHED
+				// NOTREACHED
 			}
 
 			if ($cmd === 'ignore') {
@@ -408,7 +398,7 @@ class Contact extends BaseModule
 				info(($ignored ? L10n::t('Contact has been ignored') : L10n::t('Contact has been unignored')) . EOL);
 
 				$a->internalRedirect('contact/' . $contact_id);
-				return; // NOTREACHED
+				// NOTREACHED
 			}
 
 			if ($cmd === 'archive' && ($orig_record['uid'] != 0)) {
@@ -419,7 +409,7 @@ class Contact extends BaseModule
 				}
 
 				$a->internalRedirect('contact/' . $contact_id);
-				return; // NOTREACHED
+				// NOTREACHED
 			}
 
 			if ($cmd === 'drop' && ($orig_record['uid'] != 0)) {
@@ -459,7 +449,7 @@ class Contact extends BaseModule
 				info(L10n::t('Contact has been removed.') . EOL);
 
 				$a->internalRedirect('contact');
-				return; // NOTREACHED
+				// NOTREACHED
 			}
 			if ($cmd === 'posts') {
 				return self::getPostsHTML($a, $contact_id);
@@ -664,30 +654,24 @@ class Contact extends BaseModule
 			return $arr['output'];
 		}
 
-		$blocked = false;
-		$hidden = false;
-		$ignored = false;
-		$archived = false;
-		$all = false;
-
 		// @TODO: Replace with parameter from router
-		if (($a->argc == 2) && ($a->argv[1] === 'all')) {
-			$sql_extra = '';
-			$all = true;
-		} elseif (($a->argc == 2) && ($a->argv[1] === 'blocked')) {
-			$sql_extra = " AND `blocked` = 1 ";
-			$blocked = true;
-		} elseif (($a->argc == 2) && ($a->argv[1] === 'hidden')) {
-			$sql_extra = " AND `hidden` = 1 ";
-			$hidden = true;
-		} elseif (($a->argc == 2) && ($a->argv[1] === 'ignored')) {
-			$sql_extra = " AND `readonly` = 1 ";
-			$ignored = true;
-		} elseif (($a->argc == 2) && ($a->argv[1] === 'archived')) {
-			$sql_extra = " AND `archive` = 1 ";
-			$archived = true;
-		} else {
-			$sql_extra = " AND `blocked` = 0 ";
+		$type = defaults($a->argv, 1, '');
+
+		switch ($type) {
+			case 'blocked':
+				$sql_extra = " AND `blocked` = 1";
+				break;
+			case 'hidden':
+				$sql_extra = " AND `hidden` = 1 AND `blocked` = 0";
+				break;
+			case 'ignored':
+				$sql_extra = " AND `readonly` = 1 AND `blocked` = 0";
+				break;
+			case 'archived':
+				$sql_extra = " AND `archive` = 1 AND `blocked` = 0";
+				break;
+			default:
+				$sql_extra = " AND `blocked` = 0";
 		}
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
@@ -697,33 +681,17 @@ class Contact extends BaseModule
 
 		$tabs = [
 			[
-				'label' => L10n::t('Suggestions'),
-				'url'   => 'suggest',
-				'sel'   => '',
-				'title' => L10n::t('Suggest potential friends'),
-				'id'    => 'suggestions-tab',
-				'accesskey' => 'g',
-			],
-			[
 				'label' => L10n::t('All Contacts'),
-				'url'   => 'contact/all',
-				'sel'   => ($all) ? 'active' : '',
+				'url'   => 'contact',
+				'sel'   => !$type ? 'active' : '',
 				'title' => L10n::t('Show all contacts'),
 				'id'    => 'showall-tab',
 				'accesskey' => 'l',
 			],
 			[
-				'label' => L10n::t('Unblocked'),
-				'url'   => 'contact',
-				'sel'   => ((!$all) && (!$blocked) && (!$hidden) && (!$search) && (!$nets) && (!$ignored) && (!$archived)) ? 'active' : '',
-				'title' => L10n::t('Only show unblocked contacts'),
-				'id'    => 'showunblocked-tab',
-				'accesskey' => 'o',
-			],
-			[
 				'label' => L10n::t('Blocked'),
 				'url'   => 'contact/blocked',
-				'sel'   => ($blocked) ? 'active' : '',
+				'sel'   => $type == 'blocked' ? 'active' : '',
 				'title' => L10n::t('Only show blocked contacts'),
 				'id'    => 'showblocked-tab',
 				'accesskey' => 'b',
@@ -731,7 +699,7 @@ class Contact extends BaseModule
 			[
 				'label' => L10n::t('Ignored'),
 				'url'   => 'contact/ignored',
-				'sel'   => ($ignored) ? 'active' : '',
+				'sel'   => $type == 'ignored' ? 'active' : '',
 				'title' => L10n::t('Only show ignored contacts'),
 				'id'    => 'showignored-tab',
 				'accesskey' => 'i',
@@ -739,7 +707,7 @@ class Contact extends BaseModule
 			[
 				'label' => L10n::t('Archived'),
 				'url'   => 'contact/archived',
-				'sel'   => ($archived) ? 'active' : '',
+				'sel'   => $type == 'archived' ? 'active' : '',
 				'title' => L10n::t('Only show archived contacts'),
 				'id'    => 'showarchived-tab',
 				'accesskey' => 'y',
@@ -747,7 +715,7 @@ class Contact extends BaseModule
 			[
 				'label' => L10n::t('Hidden'),
 				'url'   => 'contact/hidden',
-				'sel'   => ($hidden) ? 'active' : '',
+				'sel'   => $type == 'hidden' ? 'active' : '',
 				'title' => L10n::t('Only show hidden contacts'),
 				'id'    => 'showhidden-tab',
 				'accesskey' => 'h',
@@ -755,7 +723,7 @@ class Contact extends BaseModule
 			[
 				'label' => L10n::t('Groups'),
 				'url'   => 'group',
-				'sel'   => ($hidden) ? 'active' : '',
+				'sel'   => '',
 				'title' => L10n::t('Organize your contact groups'),
 				'id'    => 'contactgroups-tab',
 				'accesskey' => 'e',
@@ -809,9 +777,18 @@ class Contact extends BaseModule
 			}
 		}
 
+		switch ($type) {
+			case 'blocked':	 $header .= ' - ' . L10n::t('Blocked'); break;
+			case 'hidden':   $header .= ' - ' . L10n::t('Hidden'); break;
+			case 'ignored':  $header .= ' - ' . L10n::t('Ignored'); break;
+			case 'archived': $header .= ' - ' . L10n::t('Archived'); break;
+		}
+
+		$header .= $nets ? ' - ' . ContactSelector::networkToName($nets) : '';
+
 		$tpl = Renderer::getMarkupTemplate('contacts-template.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
-			'$header'     => L10n::t('Contacts') . (($nets) ? ' - ' . ContactSelector::networkToName($nets) : ''),
+			'$header'     => $header,
 			'$tabs'       => $t,
 			'$total'      => $total,
 			'$search'     => $search_hdr,

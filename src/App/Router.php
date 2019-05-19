@@ -105,7 +105,6 @@ class Router
 			$collector->addRoute(['GET'], '/{id:\d+}/posts',                     Module\Contact::class);
 			$collector->addRoute(['GET'], '/{id:\d+}/update',                    Module\Contact::class);
 			$collector->addRoute(['GET'], '/{id:\d+}/updateprofile',             Module\Contact::class);
-			$collector->addRoute(['GET'], '/all',                                Module\Contact::class);
 			$collector->addRoute(['GET'], '/archived',                           Module\Contact::class);
 			$collector->addRoute(['GET', 'POST'], '/batch',                      Module\Contact::class);
 			$collector->addRoute(['GET'], '/blocked',                            Module\Contact::class);

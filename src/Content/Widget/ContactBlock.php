@@ -26,7 +26,7 @@ class ContactBlock
 	/**
 	 * Get HTML for contact block
 	 *
-	 * @template contact_block.tpl
+	 * @template widget/contacts.tpl
 	 * @hook contact_block_end (contacts=>array, output=>string)
 	 * @return string
 	 */
@@ -102,7 +102,7 @@ class ContactBlock
 			DBA::close($contact_ids_stmt);
 		}
 
-		$tpl = Renderer::getMarkupTemplate('contact_block.tpl');
+		$tpl = Renderer::getMarkupTemplate('widget/contacts.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$contacts' => $contacts_title,
 			'$nickname' => $profile['nickname'],
