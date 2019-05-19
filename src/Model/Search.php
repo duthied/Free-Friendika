@@ -7,8 +7,8 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
-use Friendica\Object\Search\Result;
-use Friendica\Object\Search\ResultList;
+use Friendica\Object\Search\ContactResult;
+use Friendica\Object\Search\ContactResultList;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -46,7 +46,7 @@ class Search extends BaseObject
 	 *
 	 * @param string $user The user to search for
 	 *
-	 * @return ResultList|null
+	 * @return ContactResultList|null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -67,7 +67,7 @@ class Search extends BaseObject
 			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
 			$itemurl = (($contactDetails["addr"] != "") ? $contactDetails["addr"] : defaults($user_data, 'url', ''));
 
-			$result = new Result(
+			$result = new ContactResult(
 				defaults($user_data, 'name', ''),
 				defaults($user_data, 'addr', ''),
 				$itemurl,
@@ -79,7 +79,7 @@ class Search extends BaseObject
 				defaults($user_data, 'tags', '')
 			);
 
-			return new ResultList(1, 1, 1, [$result]);
+			return new ContactResultList(1, 1, 1, [$result]);
 
 		} else {
 			return null;
@@ -93,7 +93,7 @@ class Search extends BaseObject
 	 * @param string $search
 	 * @param int    $page
 	 *
-	 * @return ResultList|null
+	 * @return ContactResultList|null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function searchDirectory($search, $page = 1)
@@ -112,7 +112,7 @@ class Search extends BaseObject
 
 		$results    = json_decode($resultJson, true);
 
-		$resultList = new ResultList(
+		$resultList = new ContactResultList(
 			defaults($results, 'page', 1),
 			defaults($results, 'count', 1),
 			defaults($results, 'itemsperpage', 1)
@@ -124,7 +124,7 @@ class Search extends BaseObject
 			$contactDetails = Contact::getDetailsByURL(defaults($profile, 'profile_url', ''), local_user());
 			$itemurl = (!empty($contactDetails['addr']) ? $contactDetails['addr'] : defaults($profile, 'profile_url', ''));
 
-			$result = new Result(
+			$result = new ContactResult(
 				defaults($profile, 'name', ''),
 				defaults($profile, 'addr', ''),
 				$itemurl,
@@ -149,7 +149,7 @@ class Search extends BaseObject
 	 * @param int    $itemPage
 	 * @param bool   $community
 	 *
-	 * @return ResultList|null
+	 * @return ContactResultList|null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function searchLocal($search, $start = 0, $itemPage = 80, $community = false)
@@ -199,7 +199,7 @@ class Search extends BaseObject
 			return null;
 		}
 
-		$resultList = new ResultList($start, $itemPage, $count);
+		$resultList = new ContactResultList($start, $itemPage, $count);
 
 		while ($row = DBA::fetch($data)) {
 			if (PortableContact::alternateOStatusUrl($row["nurl"])) {
@@ -220,7 +220,7 @@ class Search extends BaseObject
 				$contact["name"] = end(explode("/", $urlparts["path"]));
 			}
 
-			$result = new Result(
+			$result = new ContactResult(
 				$contact["name"],
 				$contact["addr"],
 				$contact["addr"],

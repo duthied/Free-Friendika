@@ -5,11 +5,11 @@ namespace Friendica\Object\Search;
 use Friendica\Model\Search;
 
 /**
- * A search result
+ * A search result for contact searching
  *
- * @see Search for defails
+ * @see Search for details
  */
-class Result
+class ContactResult
 {
 	/**
 	 * @var int
@@ -18,7 +18,7 @@ class Result
 	/**
 	 * @var int
 	 */
-	private $pcid;
+	private $pCid;
 	/**
 	 * @var string
 	 */
@@ -59,9 +59,9 @@ class Result
 	/**
 	 * @return int
 	 */
-	public function getPcid()
+	public function getPCid()
 	{
-		return $this->pcid;
+		return $this->pCid;
 	}
 
 	/**
@@ -140,7 +140,7 @@ class Result
 		$this->network = $network;
 
 		$this->cid  = $cid;
-		$this->pcid = $pcid;
+		$this->pCid = $pcid;
 		$this->tags = $tags;
 	}
 }

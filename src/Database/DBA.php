@@ -1540,7 +1540,7 @@ class DBA
 			$limit_string = " LIMIT " . intval($params['limit'][0]) . ", " . intval($params['limit'][1]);
 		}
 
-		return $groupby_string.$order_string.$limit_string;
+		return $groupby_string . $order_string . $limit_string;
 	}
 
 	/**

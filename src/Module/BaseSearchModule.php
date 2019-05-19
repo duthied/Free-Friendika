@@ -7,7 +7,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Object\Search\ResultList;
+use Friendica\Object\Search\ContactResultList;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Model;
 use Friendica\Util\Strings;
@@ -72,15 +72,15 @@ class BaseSearchModule extends BaseModule
 	/**
 	 * Prints a human readable search result
 	 *
-	 * @param ResultList $results
-	 * @param Pager      $pager
-	 * @param string     $header
+	 * @param ContactResultList $results
+	 * @param Pager             $pager
+	 * @param string            $header
 	 *
 	 * @return string The result
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	protected static function printResult(ResultList $results, Pager $pager, $header = '')
+	protected static function printResult(ContactResultList $results, Pager $pager, $header = '')
 	{
 		if (empty($results) || empty($results->getResults())) {
 			info(L10n::t('No matches') . EOL);
@@ -100,11 +100,11 @@ class BaseSearchModule extends BaseModule
 			$photo_menu  = [];
 
 			// If We already know this contact then don't show the "connect" button
-			if ($result->getCid() > 0 || $result->getPcid() > 0) {
+			if ($result->getCid() > 0 || $result->getPCid() > 0) {
 				$connLink = "";
 				$connTxt = "";
 				$contact = Model\Contact::getById(
-					($result->getCid() > 0) ? $result->getCid() : $result->getPcid()
+					($result->getCid() > 0) ? $result->getCid() : $result->getPCid()
 				);
 
 				if (!empty($contact)) {
