@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module\Diagnostic;
+namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\Installer;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module\Diagnostic;
+namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
@@ -16,8 +16,8 @@ class Probe extends BaseModule
 	public static function content()
 	{
 		if (!local_user()) {
-			$e           = new HTTPException\ForbiddenException(L10n::t("Only logged in users are permitted to perform a probing."));
-			$e->httpdesc = L10n::t("Public access denied.");
+			$e           = new HTTPException\ForbiddenException(L10n::t('Only logged in users are permitted to perform a probing.'));
+			$e->httpdesc = L10n::t('Public access denied.');
 			throw $e;
 		}
 
@@ -32,10 +32,10 @@ class Probe extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('probe.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$addr' => ['addr',
-			            L10n::t('Lookup address'),
-			            $addr,
-			            '',
-			            'required'
+				L10n::t('Lookup address'),
+				$addr,
+				'',
+				'required'
 			],
 			'$res'  => $res,
 		]);

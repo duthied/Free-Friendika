@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module\Diagnostic;
+namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
@@ -15,13 +15,13 @@ class WebFinger extends BaseModule
 	public static function content()
 	{
 		if (!local_user()) {
-			$e = new \Friendica\Network\HTTPException\ForbiddenException(L10n::t("Only logged in users are permitted to perform a probing."));
-			$e->httpdesc = L10n::t("Public access denied.");
+			$e           = new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Only logged in users are permitted to perform a probing.'));
+			$e->httpdesc = L10n::t('Public access denied.');
 			throw $e;
 		}
 
 		$addr = defaults($_GET, 'addr', '');
-		$res = '';
+		$res  = '';
 
 		if (!empty($addr)) {
 			$res = Probe::lrdd($addr);
