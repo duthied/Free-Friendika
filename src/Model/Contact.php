@@ -2137,10 +2137,15 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		$fields = ['url', 'name', 'nick', 'photo', 'network'];
+		$fields = ['url', 'name', 'nick', 'photo', 'network', 'blocked'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
+			return false;
+		}
+
+		// Contact is blocked on node-level or user-level
+		if (!empty($pub_contact['blocked']) || !empty($contact['blocked'])) {
 			return false;
 		}
 
