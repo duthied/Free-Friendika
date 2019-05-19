@@ -1893,17 +1893,17 @@ class DFRN
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
-		Logger::log("Processing suggestions");
+		Logger::log('Processing suggestions');
 
 		/// @TODO Rewrite this to one statement
 		$suggest = [];
-		$suggest["uid"] = $importer["importer_uid"];
-		$suggest["cid"] = $importer["id"];
-		$suggest["url"] = $xpath->query("dfrn:url/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["name"] = $xpath->query("dfrn:name/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["photo"] = $xpath->query("dfrn:photo/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["request"] = $xpath->query("dfrn:request/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["body"] = $xpath->query("dfrn:note/text()", $suggestion)->item(0)->nodeValue;
+		$suggest['uid'] = $importer['importer_uid'];
+		$suggest['cid'] = $importer['id'];
+		$suggest['url'] = $xpath->query('dfrn:url/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['name'] = $xpath->query('dfrn:name/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['photo'] = $xpath->query('dfrn:photo/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['request'] = $xpath->query('dfrn:request/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['body'] = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
 
 		// Does our member already have a friend matching this description?
 
@@ -1914,22 +1914,19 @@ class DFRN
 		 *
 		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
 		 */
-		$condition = ['name' => $suggest["name"], 'nurl' => Strings::normaliseLink($suggest["url"]),
-			'uid' => $suggest["uid"]];
+		$condition = ['nurl' => Strings::normaliseLink($suggest['url']), 'uid' => $suggest['uid']];
 		if (DBA::exists('contact', $condition)) {
 			return false;
 		}
-
 		// Do we already have an fcontact record for this person?
 
 		$fid = 0;
-		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
-		$fcontact = DBA::selectFirst('fcontact', ['id'], $condition);
+		$fcontact = DBA::selectFirst('fcontact', ['id'], ['url' => $suggest['url']]);
 		if (DBA::isResult($fcontact)) {
-			$fid = $fcontact["id"];
+			$fid = $fcontact['id'];
 
 			// OK, we do. Do we already have an introduction for this person?
-			if (DBA::exists('intro', ['uid' => $suggest["uid"], 'fid' => $fid])) {
+			if (DBA::exists('intro', ['uid' => $suggest['uid'], 'fid' => $fid])) {
 				/*
 				 * The valid result means the friend we're about to send a friend
 				 * suggestion already has them in their contact, which means no further
@@ -1940,58 +1937,44 @@ class DFRN
 				return false;
 			}
 		}
-		if (!$fid) {
-			$r = q(
-				"INSERT INTO `fcontact` (`name`,`url`,`photo`,`request`) VALUES ('%s', '%s', '%s', '%s')",
-				DBA::escape($suggest["name"]),
-				DBA::escape($suggest["url"]),
-				DBA::escape($suggest["photo"]),
-				DBA::escape($suggest["request"])
-			);
-			$fid = $r[0]["id"];
-		}
 
-		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
-		$fcontact = DBA::selectFirst('fcontact', ['id'], $condition);
+		if (!$fid) {
+			$fields = ['name' => $suggest['name'], 'url' => $suggest['url'],
+				'photo' => $suggest['photo'], 'request' => $suggest['request']];
+			DBA::insert('fcontact', $fields);
+			$fid = DBA::lastInsertId();
+		}
 
 		/*
 		 * If no record in fcontact is found, below INSERT statement will not
 		 * link an introduction to it.
 		 */
-		if (!DBA::isResult($fcontact)) {
+		if (empty($fid)) {
 			// Database record did not get created. Quietly give up.
 			exit();
 		}
 
 		$hash = Strings::getRandomHex();
 
-		q(
-			"INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
-			VALUES(%d, %d, %d, '%s', '%s', '%s', %d)",
-			intval($suggest["uid"]),
-			intval($fid),
-			intval($suggest["cid"]),
-			DBA::escape($suggest["body"]),
-			DBA::escape($hash),
-			DBA::escape(DateTimeFormat::utcNow()),
-			intval(0)
-		);
+		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'],
+			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
+		DBA::insert('intro', $fields);
 
 		notification(
 			[
-				"type"         => NOTIFY_SUGGEST,
-				"notify_flags" => $importer["notify-flags"],
-				"language"     => $importer["language"],
-				"to_name"      => $importer["username"],
-				"to_email"     => $importer["email"],
-				"uid"          => $importer["importer_uid"],
-				"item"         => $suggest,
-				"link"         => System::baseUrl()."/notifications/intros",
-				"source_name"  => $importer["name"],
-				"source_link"  => $importer["url"],
-				"source_photo" => $importer["photo"],
-				"verb"         => ACTIVITY_REQ_FRIEND,
-				"otype"        => "intro"]
+				'type'         => NOTIFY_SUGGEST,
+				'notify_flags' => $importer['notify-flags'],
+				'language'     => $importer['language'],
+				'to_name'      => $importer['username'],
+				'to_email'     => $importer['email'],
+				'uid'          => $importer['importer_uid'],
+				'item'         => $suggest,
+				'link'         => System::baseUrl().'/notifications/intros',
+				'source_name'  => $importer['name'],
+				'source_link'  => $importer['url'],
+				'source_photo' => $importer['photo'],
+				'verb'         => ACTIVITY_REQ_FRIEND,
+				'otype'        => 'intro']
 		);
 
 		return true;
