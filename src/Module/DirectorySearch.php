@@ -6,10 +6,8 @@ use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
-use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Database\DBA;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Model;
@@ -70,7 +68,7 @@ class DirectorySearch extends BaseModule
 			$pager->setItemsPerPage(80);
 			$results = Model\Search::searchLocal($search, $pager->getStart(), $pager->getItemsPerPage(), $community);
 
-		} elseif (strlen(Config::get('system', 'directory')) && empty($results)) {
+		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
 			$results = Model\Search::searchDirectory($search, $pager->getPage());
 			$pager->setItemsPerPage($results->getItemsPage());
 		}
@@ -94,11 +92,11 @@ class DirectorySearch extends BaseModule
 			if ($result->getCid() > 0 || $result->getPcid() > 0) {
 				$connlnk = "";
 				$conntxt = "";
-				$contact = DBA::selectFirst('contact', [], [
-					'id' => ($result->getCid() > 0) ? $result->getCid() : $result->getPcid()
-				]);
+				$contact = Model\Contact::getById(
+					($result->getCid() > 0) ? $result->getCid() : $result->getPcid()
+				);
 
-				if (DBA::isResult($contact)) {
+				if (!empty($contact)) {
 					$photo_menu  = Model\Contact::photoMenu($contact);
 					$details     = Contact::getContactTemplateVars($contact);
 					$alt_text    = $details['alt_text'];
