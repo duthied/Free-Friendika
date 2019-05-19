@@ -1071,7 +1071,7 @@ class GContact
 		$r = DBA::selectFirst('gcontact', ['url'], [
 			'`network` = ? 
 			AND `last_contact` >= `last_failure`  
-			AND	`updated` > ?',
+			AND `updated` > ?',
 			Protocol::DFRN,
 			DateTimeFormat::utc('now - 1 month'),
 		], ['order' => ['RAND()']]);

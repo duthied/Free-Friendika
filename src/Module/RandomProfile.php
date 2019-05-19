@@ -7,7 +7,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 
 /**
- * Redirects to a random profile of this node
+ * Redirects to a random Friendica profile this node knows about
  */
 class RandomProfile extends BaseModule
 {
