@@ -319,7 +319,7 @@ class Delivery extends BaseObject
 			$deliver_status = DFRN::deliver($owner, $contact, $atom, false, true);
 		}
 
-		Logger::log('Delivery to ' . $contact['url'] . ' with guid ' . defaults($target_item, 'guid', $target_item['id']) . ' returns ' . $deliver_status);
+		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => defaults($target_item, 'guid', $target_item['id']), 'return' => $deliver_status]);
 
 		if ($deliver_status < 0) {
 			Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
