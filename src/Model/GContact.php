@@ -1039,11 +1039,16 @@ class GContact
 
 		$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 
-		$r = q(
-			"SELECT `nurl`, `url` FROM `gserver` WHERE `last_contact` >= `last_failure` AND `network` = '%s' AND `last_poco_query` < '%s' ORDER BY RAND() LIMIT 5",
-			DBA::escape(Protocol::OSTATUS),
-			DBA::escape($last_update)
-		);
+		$r = DBA::select('gserver', ['nurl', 'url'], [
+			'`network` = ?
+			AND `last_contact` >= `last_failure`
+			AND `last_poco_query` < ?',
+			Protocol::OSTATUS,
+			$last_update
+		], [
+			'limit' => 5,
+			'order' => ['RAND()']
+		]);
 
 		if (!DBA::isResult($r)) {
 			return;
@@ -1056,21 +1061,23 @@ class GContact
 	}
 
 	/**
-	 * @return string
+	 * Returns a random, global contact of the current node
+	 *
+	 * @return string The profile URL
 	 * @throws Exception
 	 */
 	public static function getRandomUrl()
 	{
-		$r = q(
-			"SELECT `url` FROM `gcontact` WHERE `network` = '%s'
-					AND `last_contact` >= `last_failure`
-					AND `updated` > UTC_TIMESTAMP - INTERVAL 1 MONTH
-				ORDER BY rand() LIMIT 1",
-			DBA::escape(Protocol::DFRN)
-		);
+		$r = DBA::selectFirst('gcontact', ['url'], [
+			'`network` = ? 
+			AND `last_contact` >= `last_failure`  
+			AND `updated` > ?',
+			Protocol::DFRN,
+			DateTimeFormat::utc('now - 1 month'),
+		], ['order' => ['RAND()']]);
 
 		if (DBA::isResult($r)) {
-			return dirname($r[0]['url']);
+			return $r['url'];
 		}
 
 		return '';

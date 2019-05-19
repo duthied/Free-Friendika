@@ -202,6 +202,7 @@ class Router
 				$collector->addRoute(['GET', 'POST'], '/verify'                , Module\Settings\TwoFactor\Verify::class);
 			});
 		});
+		$this->routeCollector->addRoute(['GET'],         '/randprof',            Module\RandomProfile::class);
 		$this->routeCollector->addRoute(['GET', 'POST'], '/register',            Module\Register::class);
 		$this->routeCollector->addRoute(['GET'],         '/robots.txt',          Module\RobotsTxt::class);
 		$this->routeCollector->addRoute(['GET'],         '/rsd.xml',             Module\ReallySimpleDiscovery::class);
