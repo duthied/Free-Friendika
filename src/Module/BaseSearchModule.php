@@ -10,12 +10,65 @@ use Friendica\Core\Renderer;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Model;
+use Friendica\Util\Strings;
 
 /**
  * Base class for search modules
  */
-abstract class BaseSearchModule extends BaseModule
+class BaseSearchModule extends BaseModule
 {
+	/**
+	 * Performs a search with an optional prefix
+	 *
+	 * @param string $prefix A optional prefix (e.g. @ or !) for searching
+	 *
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function performSearch($prefix = '')
+	{
+		$a      = self::getApp();
+		$config = $a->getConfig();
+
+		$community = false;
+
+		$localSearch = $config->get('system', 'poco_local_search');
+
+		$search = $prefix . Strings::escapeTags(trim(defaults($_REQUEST, 'search', '')));
+
+		if (!$search) {
+			return '';
+		}
+
+		$header = '';
+
+		if (strpos($search, '@') === 0) {
+			$search  = substr($search, 1);
+			$header  = L10n::t('People Search - %s', $search);
+			$results = Model\Search::searchUser($search);
+		}
+
+		if (strpos($search, '!') === 0) {
+			$search    = substr($search, 1);
+			$community = true;
+			$header    = L10n::t('Forum Search - %s', $search);
+		}
+
+		$pager = new Pager($a->query_string);
+
+		if ($localSearch && empty($results)) {
+			$pager->setItemsPerPage(80);
+			$results = Model\Search::searchLocal($search, $pager->getStart(), $pager->getItemsPerPage(), $community);
+
+		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
+			$results = Model\Search::searchDirectory($search, $pager->getPage());
+			$pager->setItemsPerPage($results->getItemsPage());
+		}
+
+		return self::printResult($results, $pager, $header);
+	}
+
 	/**
 	 * Prints a human readable search result
 	 *
