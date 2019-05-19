@@ -26,26 +26,29 @@ function fsuggest_post(App $a)
 		return;
 	}
 
-	$contact = DBA::selectFirst('contact', ['name', 'url', 'request', 'photo'], ['id' => $contact_id, 'uid' => local_user()]);
-	if (!DBA::isResult($contact)) {
+	// We do query the "uid" as well to ensure that it is our contact
+	if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
 		notice(L10n::t('Contact not found.') . EOL);
+		return;
+	}
+
+	$suggest_contact_id = intval($_POST['suggest']);
+	if (empty($suggest_contact_id)) {
+		return;
+	}
+
+	// We do query the "uid" as well to ensure that it is our contact
+	$contact = DBA::selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
+	if (!DBA::isResult($contact)) {
+		notice(L10n::t('Suggested contact not found.') . EOL);
 		return;
 	}
 
 	$note = Strings::escapeHtml(trim(defaults($_POST, 'note', '')));
 
-	$new_contact = intval($_POST['suggest']);
-	if (empty($new_contact)) {
-		return;
-	}
-
-	if (!DBA::exists('contact', ['id' => $new_contact])) {
-		return;
-	}
-
 	$fields = ['uid' => local_user(),'cid' => $contact_id, 'name' => $contact['name'],
 		'url' => $contact['url'], 'request' => $contact['request'],
-		'photo' => $contact['photo'], 'note' => $note, 'created' => DateTimeFormat::utcNow()];
+		'photo' => $contact['avatar'], 'note' => $note, 'created' => DateTimeFormat::utcNow()];
 	DBA::insert('fsuggest', $fields);
 
 	Worker::add(PRIORITY_HIGH, 'Notifier', 'suggest', DBA::lastInsertId());
