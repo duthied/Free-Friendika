@@ -68,9 +68,16 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			Logger::error('normalise error');
-			// Sooner or later we should log some details as well - but currently this leads to memory issues
-			// Logger::log('normalise error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
+			$messages = [];
+			$currentException = $e;
+			do {
+				$messages[] = $currentException->getMessage();
+			} while($currentException = $currentException->getPrevious());
+
+			Logger::warning('JsonLD normalize error');
+			Logger::notice('JsonLD normalize error', ['messages' => $messages]);
+			Logger::info('JsonLD normalize error', ['trace' => $e->getTraceAsString()]);
+			Logger::debug('JsonLD normalize error', ['jsonobj' => $jsonobj]);
 		}
 
 		return $normalized;
