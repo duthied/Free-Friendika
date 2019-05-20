@@ -8,11 +8,11 @@ use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
+use Friendica\Model;
+use Friendica\Network\HTTPException;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Model;
-use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
 /**
@@ -34,7 +34,7 @@ class BaseSearchModule extends BaseModule
 		$a      = self::getApp();
 		$config = $a->getConfig();
 
-		$community = false;
+		$type = Search::TYPE_ALL;
 
 		$localSearch = $config->get('system', 'poco_local_search');
 
@@ -48,13 +48,14 @@ class BaseSearchModule extends BaseModule
 
 		if (strpos($search, '@') === 0) {
 			$search  = substr($search, 1);
+			$type = Search::TYPE_PEOPLE;
 			$header  = L10n::t('People Search - %s', $search);
 			$results = Search::getContactsFromProbe($search);
 		}
 
 		if (strpos($search, '!') === 0) {
 			$search    = substr($search, 1);
-			$community = true;
+			$type = Search::TYPE_FORUM;
 			$header    = L10n::t('Forum Search - %s', $search);
 		}
 
@@ -62,10 +63,10 @@ class BaseSearchModule extends BaseModule
 
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);
-			$results = Search::getContactsFromLocalDirectory($search, $pager->getStart(), $pager->getItemsPerPage(), $community);
+			$results = Search::getContactsFromLocalDirectory($search, $pager->getStart(), $pager->getItemsPerPage(), $type);
 
 		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
-			$results = Search::getContactsFromGlobalDirectory($search, $pager->getPage());
+			$results = Search::getContactsFromGlobalDirectory($search, $pager->getPage(), $type);
 			$pager->setItemsPerPage($results->getItemsPage());
 		}
 

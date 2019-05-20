@@ -23,6 +23,10 @@ class Search extends BaseObject
 {
 	const DEFAULT_DIRECTORY = 'https://dir.friendica.social';
 
+	const TYPE_PEOPLE = 0;
+	const TYPE_FORUM  = 1;
+	const TYPE_ALL    = 2;
+
 	/**
 	 * Search a user based on his/her profile address
 	 * pattern: @username@domain.tld
@@ -71,20 +75,31 @@ class Search extends BaseObject
 
 	/**
 	 * Search in the global directory for occurrences of the search string
-	 * This is mainly based on the JSON results of https://dir.friendica.social
+	 * @see https://github.com/friendica/friendica-directory/blob/master/docs/Protocol.md#search
 	 *
 	 * @param string $search
+	 * @param int    $type specific type of searching
 	 * @param int    $page
 	 *
 	 * @return ResultList|null
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getContactsFromGlobalDirectory($search, $page = 1)
+	public static function getContactsFromGlobalDirectory($search, $type = self::TYPE_ALL, $page = 1)
 	{
 		$config = self::getApp()->getConfig();
 		$server = $config->get('system', 'directory', self::DEFAULT_DIRECTORY);
 
-		$searchUrl = $server . '/search?q=' . urlencode($search);
+		$searchUrl = $server . '/search';
+
+		switch ($type) {
+			case self::TYPE_FORUM:
+				$searchUrl .= '/forum';
+				break;
+			case self::TYPE_PEOPLE:
+				$searchUrl .= '/people';
+				break;
+		}
+		$searchUrl .= '?q=' . urlencode($search);
 
 		if ($page > 1) {
 			$searchUrl .= '&page=' . $page;
@@ -130,12 +145,12 @@ class Search extends BaseObject
 	 * @param string $search
 	 * @param int    $start
 	 * @param int    $itemPage
-	 * @param bool   $community
+	 * @param int    $type
 	 *
 	 * @return ResultList|null
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getContactsFromLocalDirectory($search, $start = 0, $itemPage = 80, $community = false)
+	public static function getContactsFromLocalDirectory($search, $start = 0, $itemPage = 80, $type = self::TYPE_ALL)
 	{
 		$config = self::getApp()->getConfig();
 
@@ -154,7 +169,7 @@ class Search extends BaseObject
 			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora,
 			$wildcard, $wildcard, $wildcard,
 			$wildcard, $wildcard, $wildcard,
-			$community,
+			($type === self::TYPE_FORUM),
 		]);
 
 		if (empty($count)) {
@@ -171,7 +186,7 @@ class Search extends BaseObject
 			Protocol::ACTIVITYPUB, Protocol::DFRN, $ostatus, $diaspora,
 			$wildcard, $wildcard, $wildcard,
 			$wildcard, $wildcard, $wildcard,
-			$community,
+			($type === self::TYPE_FORUM),
 		], [
 			'group_by' => ['nurl', 'updated'],
 			'limit' => [$start, $itemPage],
