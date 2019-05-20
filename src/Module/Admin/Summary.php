@@ -26,7 +26,7 @@ class Summary extends BaseAdminModule
 
 		// are there MyISAM tables in the DB? If so, trigger a warning message
 		$warningtext = [];
-		if (DBA::count('`information_schema`.`tables`', ['engine' => 'myisam', 'table_schema' => DBA::databaseName()])) {
+		if (DBA::count(['information_schema' => 'tables'], ['engine' => 'myisam', 'table_schema' => DBA::databaseName()])) {
 			$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 		}
 
