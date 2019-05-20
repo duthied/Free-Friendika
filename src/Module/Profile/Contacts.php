@@ -44,7 +44,7 @@ class Contacts extends BaseModule
 		$is_owner = $a->profile['profile_uid'] == local_user();
 
 		// tabs
-		$o = Profile::getTabs($a, $is_owner, $nickname);
+		$o = Profile::getTabs($a, 'contacts', $is_owner, $nickname);
 
 		if (!count($a->profile) || $a->profile['hide-friends']) {
 			notice(L10n::t('Permission denied.') . EOL);

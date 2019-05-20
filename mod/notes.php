@@ -28,7 +28,7 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	$o = Profile::getTabs($a, true);
+	$o = Profile::getTabs($a, 'notes', true);
 
 	if (!$update) {
 		$o .= '<h3>' . L10n::t('Personal Notes') . '</h3>';

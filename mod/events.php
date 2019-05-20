@@ -246,7 +246,7 @@ function events_content(App $a)
 	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
-		$tabs = Profile::getTabs($a, true);
+		$tabs = Profile::getTabs($a, 'events', true);
 	}
 
 	$mode = 'view';
