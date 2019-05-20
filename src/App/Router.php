@@ -112,6 +112,7 @@ class Router
 			$collector->addRoute(['GET'], '/ignored',                            Module\Contact::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/credits',             Module\Credits::class);
+		$this->routeCollector->addRoute(['GET'],         '/dirfind',             Module\Search\Directory::class);
 		$this->routeCollector->addRoute(['GET'],         '/directory',           Module\Directory::class);
 		$this->routeCollector->addGroup('/feed', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/{nickname}',                         Module\Feed::class);
