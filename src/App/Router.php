@@ -162,6 +162,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/maintenance',         Module\Maintenance::class);
 		$this->routeCollector->addRoute(['GET'],         '/manifest',            Module\Manifest::class);
 		$this->routeCollector->addRoute(['GET'],         '/modexp/{nick}',       Module\PublicRSAKey::class);
+		$this->routeCollector->addRoute(['GET'],         '/newmember',           Module\Welcome::class);
 		$this->routeCollector->addRoute(['GET'],         '/nodeinfo/1.0',        Module\NodeInfo::class);
 		$this->routeCollector->addRoute(['GET'],         '/nogroup',             Module\Group::class);
 		$this->routeCollector->addGroup('/notify', function (RouteCollector $collector) {
