@@ -167,7 +167,6 @@ class Router
 			$collector->addRoute(['GET'], '/view/{id:\d+}',                      Module\Notifications\Notify::class);
 			$collector->addRoute(['GET'], '/mark/all',                           Module\Notifications\Notify::class);
 		});
-		$this->routeCollector->addRoute(['GET'],         '/notice/{id:\d+}',     Module\GnuSocial\Notice::class);
 		$this->routeCollector->addRoute(['GET'],         '/objects/{guid}',      Module\Objects::class);
 		$this->routeCollector->addGroup('/oembed', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/b2h',                                Module\Oembed::class);
