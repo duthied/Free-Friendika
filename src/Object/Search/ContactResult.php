@@ -9,7 +9,7 @@ use Friendica\Model\Search;
  *
  * @see Search for details
  */
-class ContactResult
+class ContactResult implements IResult
 {
 	/**
 	 * @var int
@@ -123,14 +123,15 @@ class ContactResult
 	/**
 	 * @param string $name
 	 * @param string $addr
+	 * @param string $item
 	 * @param string $url
 	 * @param string $photo
 	 * @param string $network
 	 * @param int    $cid
-	 * @param int    $pcid
+	 * @param int    $pCid
 	 * @param string $tags
 	 */
-	public function __construct($name, $addr, $item, $url, $photo, $network, $cid = 0, $pcid = 0, $tags = '')
+	public function __construct($name, $addr, $item, $url, $photo, $network, $cid = 0, $pCid = 0, $tags = '')
 	{
 		$this->name    = $name;
 		$this->addr    = $addr;
@@ -140,7 +141,7 @@ class ContactResult
 		$this->network = $network;
 
 		$this->cid  = $cid;
-		$this->pCid = $pcid;
+		$this->pCid = $pCid;
 		$this->tags = $tags;
 	}
 }

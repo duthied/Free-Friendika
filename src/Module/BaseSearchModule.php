@@ -7,9 +7,12 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Object\Search\ContactResultList;
+use Friendica\Core\Search;
+use Friendica\Object\Search\ContactResult;
+use Friendica\Object\Search\ResultList;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Model;
+use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
 /**
@@ -23,7 +26,7 @@ class BaseSearchModule extends BaseModule
 	 * @param string $prefix A optional prefix (e.g. @ or !) for searching
 	 *
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function performSearch($prefix = '')
@@ -46,7 +49,7 @@ class BaseSearchModule extends BaseModule
 		if (strpos($search, '@') === 0) {
 			$search  = substr($search, 1);
 			$header  = L10n::t('People Search - %s', $search);
-			$results = Model\Search::searchUser($search);
+			$results = Search::getContactsFromProbe($search);
 		}
 
 		if (strpos($search, '!') === 0) {
@@ -59,10 +62,10 @@ class BaseSearchModule extends BaseModule
 
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);
-			$results = Model\Search::searchLocal($search, $pager->getStart(), $pager->getItemsPerPage(), $community);
+			$results = Search::getContactsFromLocalDirectory($search, $pager->getStart(), $pager->getItemsPerPage(), $community);
 
 		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
-			$results = Model\Search::searchDirectory($search, $pager->getPage());
+			$results = Search::getContactsFromGlobalDirectory($search, $pager->getPage());
 			$pager->setItemsPerPage($results->getItemsPage());
 		}
 
@@ -72,15 +75,15 @@ class BaseSearchModule extends BaseModule
 	/**
 	 * Prints a human readable search result
 	 *
-	 * @param ContactResultList $results
+	 * @param ResultList $results
 	 * @param Pager             $pager
 	 * @param string            $header
 	 *
 	 * @return string The result
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	protected static function printResult(ContactResultList $results, Pager $pager, $header = '')
+	protected static function printResult(ResultList $results, Pager $pager, $header = '')
 	{
 		if (empty($results) || empty($results->getResults())) {
 			info(L10n::t('No matches') . EOL);
@@ -93,58 +96,62 @@ class BaseSearchModule extends BaseModule
 		$entries = [];
 		foreach ($results->getResults() as $result) {
 
-			$alt_text    = '';
-			$location    = '';
-			$about       = '';
-			$accountType = '';
-			$photo_menu  = [];
+			// in case the result is a contact result, add a contact-specific entry
+			if ($result instanceof ContactResult) {
 
-			// If We already know this contact then don't show the "connect" button
-			if ($result->getCid() > 0 || $result->getPCid() > 0) {
-				$connLink = "";
-				$connTxt = "";
-				$contact = Model\Contact::getById(
-					($result->getCid() > 0) ? $result->getCid() : $result->getPCid()
-				);
+				$alt_text    = '';
+				$location    = '';
+				$about       = '';
+				$accountType = '';
+				$photo_menu  = [];
 
-				if (!empty($contact)) {
-					$photo_menu  = Model\Contact::photoMenu($contact);
-					$details     = Contact::getContactTemplateVars($contact);
-					$alt_text    = $details['alt_text'];
-					$location    = $contact['location'];
-					$about       = $contact['about'];
-					$accountType = Model\Contact::getAccountType($contact);
+				// If We already know this contact then don't show the "connect" button
+				if ($result->getCid() > 0 || $result->getPCid() > 0) {
+					$connLink = "";
+					$connTxt  = "";
+					$contact  = Model\Contact::getById(
+						($result->getCid() > 0) ? $result->getCid() : $result->getPCid()
+					);
+
+					if (!empty($contact)) {
+						$photo_menu  = Model\Contact::photoMenu($contact);
+						$details     = Contact::getContactTemplateVars($contact);
+						$alt_text    = $details['alt_text'];
+						$location    = $contact['location'];
+						$about       = $contact['about'];
+						$accountType = Model\Contact::getAccountType($contact);
+					} else {
+						$photo_menu = [];
+					}
 				} else {
-					$photo_menu = [];
+					$connLink = $a->getBaseURL() . '/follow/?url=' . $result->getUrl();
+					$connTxt  = L10n::t('Connect');
+
+					$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($result->getUrl())];
+					$photo_menu['follow']  = [L10n::t("Connect/Follow"), $connLink];
 				}
-			} else {
-				$connLink = $a->getBaseURL() . '/follow/?url=' . $result->getUrl();
-				$connTxt = L10n::t('Connect');
 
-				$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($result->getUrl())];
-				$photo_menu['follow']  = [L10n::t("Connect/Follow"), $connLink];
+				$photo = str_replace("http:///photo/", get_server() . "/photo/", $result->getPhoto());
+
+				$entry     = [
+					'alt_text'     => $alt_text,
+					'url'          => Model\Contact::magicLink($result->getUrl()),
+					'itemurl'      => $result->getItem(),
+					'name'         => $result->getName(),
+					'thumb'        => ProxyUtils::proxifyUrl($photo, false, ProxyUtils::SIZE_THUMB),
+					'img_hover'    => $result->getTags(),
+					'conntxt'      => $connTxt,
+					'connlnk'      => $connLink,
+					'photo_menu'   => $photo_menu,
+					'details'      => $location,
+					'tags'         => $result->getTags(),
+					'about'        => $about,
+					'account_type' => $accountType,
+					'network'      => ContactSelector::networkToName($result->getNetwork(), $result->getUrl()),
+					'id'           => ++$id,
+				];
+				$entries[] = $entry;
 			}
-
-			$photo = str_replace("http:///photo/", get_server() . "/photo/", $result->getPhoto());
-
-			$entry     = [
-				'alt_text'     => $alt_text,
-				'url'          => Model\Contact::magicLink($result->getUrl()),
-				'itemurl'      => $result->getItem(),
-				'name'         => $result->getName(),
-				'thumb'        => ProxyUtils::proxifyUrl($photo, false, ProxyUtils::SIZE_THUMB),
-				'img_hover'    => $result->getTags(),
-				'conntxt'      => $connTxt,
-				'connlnk'      => $connLink,
-				'photo_menu'   => $photo_menu,
-				'details'      => $location,
-				'tags'         => $result->getTags(),
-				'about'        => $about,
-				'account_type' => $accountType,
-				'network'      => ContactSelector::networkToName($result->getNetwork(), $result->getUrl()),
-				'id'           => ++$id,
-			];
-			$entries[] = $entry;
 		}
 
 		$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

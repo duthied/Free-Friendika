@@ -5,11 +5,11 @@ namespace Friendica\Object\Search;
 use Friendica\Model\Search;
 
 /**
- * A list of search results for contacts with metadata
+ * A list of search results with metadata
  *
  * @see Search for details
  */
-class ContactResultList
+class ResultList
 {
 	/**
 	 * Page of the result list
@@ -29,7 +29,7 @@ class ContactResultList
 	/**
 	 * Array of results
 	 *
-	 * @var ContactResult[]
+	 * @var IResult[]
 	 */
 	private $results;
 
@@ -58,7 +58,7 @@ class ContactResultList
 	}
 
 	/**
-	 * @return ContactResult[]
+	 * @return IResult[]
 	 */
 	public function getResults()
 	{
@@ -69,7 +69,7 @@ class ContactResultList
 	 * @param int             $page
 	 * @param int             $total
 	 * @param int             $itemsPage
-	 * @param ContactResult[] $results
+	 * @param IResult[] $results
 	 */
 	public function __construct($page = 0, $total = 0, $itemsPage = 0, array $results = [])
 	{
@@ -83,9 +83,9 @@ class ContactResultList
 	/**
 	 * Adds a result to the result list
 	 *
-	 * @param ContactResult $result
+	 * @param IResult $result
 	 */
-	public function addResult(ContactResult $result)
+	public function addResult(IResult $result)
 	{
 		$this->results[] = $result;
 	}
