@@ -31,7 +31,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2019.06-dev');
+define('FRIENDICA_VERSION',      '2019.06-rc');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
