@@ -143,14 +143,14 @@ class Search extends BaseObject
 	 * Search in the local database for occurrences of the search string
 	 *
 	 * @param string $search
+	 * @param int    $type
 	 * @param int    $start
 	 * @param int    $itemPage
-	 * @param int    $type
 	 *
 	 * @return ResultList|null
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function getContactsFromLocalDirectory($search, $start = 0, $itemPage = 80, $type = self::TYPE_ALL)
+	public static function getContactsFromLocalDirectory($search, $type = self::TYPE_ALL, $start = 0, $itemPage = 80)
 	{
 		$config = self::getApp()->getConfig();
 
