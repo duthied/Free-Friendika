@@ -875,6 +875,29 @@ class DBA
 	/**
 	 * @brief Insert a row into a table
 	 *
+	 * @param string/array $table Table name
+	 *
+	 * @return string formatted and sanitzed table name
+	 * @throws \Exception
+	 */
+	public static function formatTableName($table)
+	{
+		if (is_string($table)) {
+			return "`" . self::escape($table) . "`";
+		}
+
+		if (!is_array($table)) {
+			return '';
+		}
+
+		$scheme = key($table);
+
+		return "`" . self::escape($scheme) . "`.`" . self::escape($table[$scheme]) . "`";
+	}
+
+	/**
+	 * @brief Insert a row into a table
+	 *
 	 * @param string $table               Table name
 	 * @param array  $param               parameter array
 	 * @param bool   $on_duplicate_update Do an update on a duplicate entry
@@ -889,7 +912,7 @@ class DBA
 			return false;
 		}
 
-		$sql = "INSERT INTO `".self::escape($table)."` (`".implode("`, `", array_keys($param))."`) VALUES (".
+		$sql = "INSERT INTO " . self::formatTableName($table) . " (`".implode("`, `", array_keys($param))."`) VALUES (".
 			substr(str_repeat("?, ", count($param)), 0, -2).")";
 
 		if ($on_duplicate_update) {
@@ -938,7 +961,7 @@ class DBA
 			self::$connection->autocommit(false);
 		}
 
-		$success = self::e("LOCK TABLES `".self::escape($table)."` WRITE");
+		$success = self::e("LOCK TABLES " . self::formatTableName($table) ." WRITE");
 
 		if (self::$driver == 'pdo') {
 			self::$connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -1272,8 +1295,6 @@ class DBA
 			return false;
 		}
 
-		$table = self::escape($table);
-
 		$condition_string = self::buildCondition($condition);
 
 		if (is_bool($old_fields)) {
@@ -1306,7 +1327,7 @@ class DBA
 			return true;
 		}
 
-		$sql = "UPDATE `".$table."` SET `".
+		$sql = "UPDATE ". self::formatTableName($table) . " SET `".
 			implode("` = ?, `", array_keys($fields))."` = ?".$condition_string;
 
 		$params1 = array_values($fields);
@@ -1367,11 +1388,9 @@ class DBA
 	 */
 	public static function select($table, array $fields = [], array $condition = [], array $params = [])
 	{
-		if ($table == '') {
+		if (empty($table)) {
 			return false;
 		}
-
-		$table = self::escape($table);
 
 		if (count($fields) > 0) {
 			$select_fields = "`" . implode("`, `", array_values($fields)) . "`";
@@ -1383,7 +1402,7 @@ class DBA
 
 		$param_string = self::buildParameter($params);
 
-		$sql = "SELECT " . $select_fields . " FROM `" . $table . "`" . $condition_string . $param_string;
+		$sql = "SELECT " . $select_fields . " FROM " . self::formatTableName($table) . $condition_string . $param_string;
 
 		$result = self::p($sql, $condition);
 
@@ -1410,13 +1429,13 @@ class DBA
 	 */
 	public static function count($table, array $condition = [])
 	{
-		if ($table == '') {
+		if (empty($table)) {
 			return false;
 		}
 
 		$condition_string = self::buildCondition($condition);
 
-		$sql = "SELECT COUNT(*) AS `count` FROM `".$table."`".$condition_string;
+		$sql = "SELECT COUNT(*) AS `count` FROM " . self::formatTableName($table) . $condition_string;
 
 		$row = self::fetchFirst($sql, $condition);
 
