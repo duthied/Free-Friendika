@@ -52,7 +52,7 @@ class Search extends BaseObject
 			}
 
 			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
-			$itemUrl = (($contactDetails["addr"] != "") ? $contactDetails["addr"] : defaults($user_data, 'url', ''));
+			$itemUrl        = (($contactDetails["addr"] != "") ? $contactDetails["addr"] : defaults($user_data, 'url', ''));
 
 			$result = new ContactResult(
 				defaults($user_data, 'name', ''),
@@ -75,6 +75,7 @@ class Search extends BaseObject
 
 	/**
 	 * Search in the global directory for occurrences of the search string
+	 *
 	 * @see https://github.com/friendica/friendica-directory/blob/master/docs/Protocol.md#search
 	 *
 	 * @param string $search
@@ -105,10 +106,10 @@ class Search extends BaseObject
 			$searchUrl .= '&page=' . $page;
 		}
 
-		$red = 0;
-		$resultJson = Network::fetchUrl($searchUrl, false,$red, 0, 'application/json');
+		$red        = 0;
+		$resultJson = Network::fetchUrl($searchUrl, false, $red, 0, 'application/json');
 
-		$results    = json_decode($resultJson, true);
+		$results = json_decode($resultJson, true);
 
 		$resultList = new ResultList(
 			defaults($results, 'page', 1),
@@ -120,7 +121,9 @@ class Search extends BaseObject
 
 		foreach ($profiles as $profile) {
 			$contactDetails = Contact::getDetailsByURL(defaults($profile, 'profile_url', ''), local_user());
-			$itemUrl = (!empty($contactDetails['addr']) ? $contactDetails['addr'] : defaults($profile, 'profile_url', ''));
+			$itemUrl        = (!empty($contactDetails['addr']) ?
+				$contactDetails['addr'] :
+				defaults($profile, 'profile_url', ''));
 
 			$result = new ContactResult(
 				defaults($profile, 'name', ''),
@@ -189,8 +192,8 @@ class Search extends BaseObject
 			($type === self::TYPE_FORUM),
 		], [
 			'group_by' => ['nurl', 'updated'],
-			'limit' => [$start, $itemPage],
-			'order' => ['updated' => 'DESC']
+			'limit'    => [$start, $itemPage],
+			'order'    => ['updated' => 'DESC']
 		]);
 
 		if (!DBA::isResult($data)) {

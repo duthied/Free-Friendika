@@ -48,15 +48,15 @@ class BaseSearchModule extends BaseModule
 
 		if (strpos($search, '@') === 0) {
 			$search  = substr($search, 1);
-			$type = Search::TYPE_PEOPLE;
+			$type    = Search::TYPE_PEOPLE;
 			$header  = L10n::t('People Search - %s', $search);
 			$results = Search::getContactsFromProbe($search);
 		}
 
 		if (strpos($search, '!') === 0) {
-			$search    = substr($search, 1);
-			$type = Search::TYPE_FORUM;
-			$header    = L10n::t('Forum Search - %s', $search);
+			$search = substr($search, 1);
+			$type   = Search::TYPE_FORUM;
+			$header = L10n::t('Forum Search - %s', $search);
 		}
 
 		$pager = new Pager($a->query_string);
@@ -66,7 +66,7 @@ class BaseSearchModule extends BaseModule
 			$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
 
 		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
-			$results = Search::getContactsFromGlobalDirectory($search, $pager->getPage(), $type);
+			$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
 			$pager->setItemsPerPage($results->getItemsPage());
 		}
 
@@ -77,8 +77,8 @@ class BaseSearchModule extends BaseModule
 	 * Prints a human readable search result
 	 *
 	 * @param ResultList $results
-	 * @param Pager             $pager
-	 * @param string            $header
+	 * @param Pager      $pager
+	 * @param string     $header
 	 *
 	 * @return string The result
 	 * @throws HTTPException\InternalServerErrorException
@@ -93,7 +93,7 @@ class BaseSearchModule extends BaseModule
 
 		$a = self::getApp();
 
-		$id = 0;
+		$id      = 0;
 		$entries = [];
 		foreach ($results->getResults() as $result) {
 
