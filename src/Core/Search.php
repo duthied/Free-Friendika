@@ -52,7 +52,7 @@ class Search extends BaseObject
 			}
 
 			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
-			$itemUrl        = (($contactDetails["addr"] != "") ? $contactDetails["addr"] : defaults($user_data, 'url', ''));
+			$itemUrl        = defaults($contactDetails, 'addr', defaults($user_data, 'url', ''));
 
 			$result = new ContactResult(
 				defaults($user_data, 'name', ''),
@@ -121,9 +121,7 @@ class Search extends BaseObject
 
 		foreach ($profiles as $profile) {
 			$contactDetails = Contact::getDetailsByURL(defaults($profile, 'profile_url', ''), local_user());
-			$itemUrl        = (!empty($contactDetails['addr']) ?
-				$contactDetails['addr'] :
-				defaults($profile, 'profile_url', ''));
+			$itemUrl        = defaults($contactDetails, 'addr', defaults($profile, 'profile_url', ''));
 
 			$result = new ContactResult(
 				defaults($profile, 'name', ''),
