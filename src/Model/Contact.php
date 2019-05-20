@@ -2144,8 +2144,8 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		// Contact is blocked on node-level or user-level
-		if (!empty($pub_contact['blocked']) || !empty($contact['blocked'])) {
+		// Contact is blocked at node-level
+		if (self::isBlocked($datarray['author-id'])) {
 			return false;
 		}
 
@@ -2156,6 +2156,11 @@ class Contact extends BaseObject
 		$network = $pub_contact['network'];
 
 		if (!empty($contact)) {
+            // Contact is blocked at user-level
+		    if (self::isBlockedByUser($contact['id'], $importer['id'])) {
+		        return false;
+            }
+
 			// Make sure that the existing contact isn't archived
 			self::unmarkForArchival($contact);
 
