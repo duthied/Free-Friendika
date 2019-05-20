@@ -5,14 +5,20 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Network\Probe;
 use Friendica\Network\HTTPException;
+use Friendica\Network\Probe;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
+/**
+ * Specific class to perform searches for different systems. Currently:
+ * - Probe for contacts
+ * - Search in the local directory
+ * - Search in the global directory
+ */
 class Search extends BaseObject
 {
 	const DEFAULT_DIRECTORY = 'https://dir.friendica.social';
