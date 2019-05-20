@@ -82,7 +82,6 @@ class Contacts extends BaseModule
 		$contacts = [];
 
 		while ($contact = DBA::fetch($contacts_stmt)) {
-			/// @TODO This triggers an E_NOTICE if 'self' is not there
 			if ($contact['self']) {
 				continue;
 			}
