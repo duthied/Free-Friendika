@@ -355,25 +355,25 @@ class Strings
 	 */
 	public static function autoLinkRegEx()
 	{
-		return '@(?xi)
+		return '@
 (?<![=\'\]"/])          # Not preceded by [, =, \', ], ", /
 \b
 (                              # Capture 1: entire matched URL
   https?://                            # http or https protocol
   (?:
-    [^/\s`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
-    [^/\s`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
+    [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
+    [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
     \.
-    [^/\s`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
+    [^/\s\xA0`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
   )
   (?:                                  # One or more:
-    [^\s()<>]+                         # Run of non-space, non-()<>
+    [^\s\xA0()<>]+                         # Run of non-space, non-()<>
     |                                  #   or
-    \(([^\s()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
+    \(([^\s\xA0()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
     |                                  #   or
-    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
+    [^\s\xA0`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
   )*
-)@';
+)@xiu';
 	}
 
 	/**

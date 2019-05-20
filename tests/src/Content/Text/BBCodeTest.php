@@ -109,6 +109,10 @@ class BBCodeTest extends MockedTest
 				'data' => "http://example.com<ul>",
 				'assertHTML' => false
 			],
+			'bug-7150' => [
+				'data' => html_entity_decode('http://example.com&nbsp;', ENT_QUOTES, 'UTF-8'),
+				'assertHTML' => false
+			],
 		];
 	}
 
