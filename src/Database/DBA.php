@@ -288,6 +288,19 @@ class DBA
 		}
 	}
 
+	/**
+	 * Removes every not whitelisted character from the identifier string
+	 *
+	 * @param string $identifier
+	 *
+	 * @return string sanitized identifier
+	 * @throws \Exception
+	 */
+	private static function sanitizeIdentifier($identifier)
+	{
+		return preg_replace('/[^A-Za-z0-9_\-]+/', '', $identifier);
+	}
+
 	public static function escape($str) {
 		if (self::$connected) {
 			switch (self::$driver) {
@@ -883,7 +896,7 @@ class DBA
 	public static function formatTableName($table)
 	{
 		if (is_string($table)) {
-			return "`" . self::escape($table) . "`";
+			return "`" . self::sanitizeIdentifier($table) . "`";
 		}
 
 		if (!is_array($table)) {
@@ -892,7 +905,7 @@ class DBA
 
 		$scheme = key($table);
 
-		return "`" . self::escape($scheme) . "`.`" . self::escape($table[$scheme]) . "`";
+		return "`" . self::sanitizeIdentifier($scheme) . "`.`" . self::sanitizeIdentifier($table[$scheme]) . "`";
 	}
 
 	/**
@@ -1142,7 +1155,7 @@ class DBA
 
 		$callstack[$key] = true;
 
-		$table = self::escape($table);
+		$table = self::sanitizeIdentifier($table);
 
 		$commands[$key] = ['table' => $table, 'conditions' => $conditions];
 
