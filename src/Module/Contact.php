@@ -260,7 +260,7 @@ class Contact extends BaseModule
 	public static function content($update = 0)
 	{
 		if (!local_user()) {
-			return Login::form($_SERVER['REQUET_URI']);
+			return Login::form($_SERVER['REQUEST_URI']);
 		}
 
 		$a = self::getApp();
