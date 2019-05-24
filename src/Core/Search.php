@@ -33,22 +33,24 @@ class Search extends BaseObject
 	 *
 	 * @param string $user The user to search for
 	 *
-	 * @return ResultList|null
+	 * @return ResultList
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function getContactsFromProbe($user)
 	{
+		$emptyResultList = new ResultList(1, 0, 1);
+
 		if ((filter_var($user, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($user)) ||
 		    (substr(Strings::normaliseLink($user), 0, 7) == "http://")) {
 
 			$user_data = Probe::uri($user);
 			if (empty($user_data)) {
-				return null;
+				return $emptyResultList;
 			}
 
 			if (!(in_array($user_data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]))) {
-				return null;
+				return $emptyResultList;
 			}
 
 			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
@@ -67,9 +69,8 @@ class Search extends BaseObject
 			);
 
 			return new ResultList(1, 1, 1, [$result]);
-
 		} else {
-			return null;
+			return $emptyResultList;
 		}
 	}
 
@@ -82,7 +83,7 @@ class Search extends BaseObject
 	 * @param int    $type specific type of searching
 	 * @param int    $page
 	 *
-	 * @return ResultList|null
+	 * @return ResultList
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function getContactsFromGlobalDirectory($search, $type = self::TYPE_ALL, $page = 1)
@@ -113,8 +114,8 @@ class Search extends BaseObject
 
 		$resultList = new ResultList(
 			defaults($results, 'page', 1),
-			defaults($results, 'count', 1),
-			defaults($results, 'itemsperpage', 1)
+			defaults($results, 'count', 0),
+			defaults($results, 'itemsperpage', 30)
 		);
 
 		$profiles = defaults($results, 'profiles', []);
@@ -148,7 +149,7 @@ class Search extends BaseObject
 	 * @param int    $start
 	 * @param int    $itemPage
 	 *
-	 * @return ResultList|null
+	 * @return ResultList
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function getContactsFromLocalDirectory($search, $type = self::TYPE_ALL, $start = 0, $itemPage = 80)
@@ -173,8 +174,10 @@ class Search extends BaseObject
 			($type === self::TYPE_FORUM),
 		]);
 
+		$resultList = new ResultList($start, $itemPage, $count);
+
 		if (empty($count)) {
-			return null;
+			return $resultList;
 		}
 
 		$data = DBA::select('gcontact', ['nurl'], [
@@ -195,10 +198,8 @@ class Search extends BaseObject
 		]);
 
 		if (!DBA::isResult($data)) {
-			return null;
+			return $resultList;
 		}
-
-		$resultList = new ResultList($start, $itemPage, $count);
 
 		while ($row = DBA::fetch($data)) {
 			if (PortableContact::alternateOStatusUrl($row["nurl"])) {
