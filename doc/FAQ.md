@@ -128,9 +128,13 @@ However a hidden contact will appear normally in conversations and this may expo
 <a name="removed"></a>
 ### What happens when an account is removed?
 
-If you delete your account, it will be scheduled for permanent deletion in *seven days*. As soon as you activate the deletion process you won't be able to logon any more. Only the administrator of your node can halt this process prior to permanent deletion.
+If you remove your account, it will be scheduled for permanent deletion in *seven days*. 
+As soon as you activate the deletion process you won't be able to login any more. 
+Only the administrator of your node can halt this process prior to permanent deletion.
 
-After the elapsed time of seven days, all your posts, messages, photos, and personal information stored on your node will be deleted. Your node will also issue removal requests to all your contacts; this will also remove your profile from the global directory if you are listed. Your username cannot be reissued for future sign-ups for security reasons.
+After the elapsed time of seven days, all your posts, messages, photos, and personal information stored on your node will be deleted. 
+Your node will also issue removal requests to all your contacts; this will also remove your profile from the global directory if you are listed. 
+Your username cannot be reissued for future sign-ups for security reasons.
 
 <a name="hashtag"></a>
 ### Can I follow a hashtag?
