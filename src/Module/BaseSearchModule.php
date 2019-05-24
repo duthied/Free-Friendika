@@ -64,7 +64,6 @@ class BaseSearchModule extends BaseModule
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);
 			$results = Search::getContactsFromLocalDirectory($search, $type, $pager->getStart(), $pager->getItemsPerPage());
-
 		} elseif (strlen($config->get('system', 'directory')) && empty($results)) {
 			$results = Search::getContactsFromGlobalDirectory($search, $type, $pager->getPage());
 			$pager->setItemsPerPage($results->getItemsPage());
@@ -86,8 +85,8 @@ class BaseSearchModule extends BaseModule
 	 */
 	protected static function printResult(ResultList $results, Pager $pager, $header = '')
 	{
-		if (empty($results) || empty($results->getResults())) {
-			info(L10n::t('No matches') . EOL);
+		if ($results->getTotal() == 0) {
+			info(L10n::t('No matches'));
 			return '';
 		}
 
