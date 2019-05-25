@@ -361,7 +361,7 @@ function api_call(App $a)
 			}
 		}
 
-		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call']);
+		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => $a->query_string]);
 		throw new NotImplementedException();
 	} catch (HTTPException $e) {
 		header("HTTP/1.1 {$e->getCode()} {$e->httpdesc}");

@@ -1538,13 +1538,16 @@ class Transmitter
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => [
+				'id' => (string)$id,
+				'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']],
+				'object' => $owner['url']
+			],
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::debug('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1568,13 +1571,16 @@ class Transmitter
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => [
+				'id' => (string)$id,
+				'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']],
+				'object' => $owner['url']
+			],
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);

@@ -2247,13 +2247,12 @@ class DFRN
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($importer["id"]));
 			$contact = $r[0];
-			$nickname = $contact["nick"];
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
 			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
 				Logger::log("New follower");
-				Contact::addRelationship($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW)) {
@@ -2263,7 +2262,7 @@ class DFRN
 			}
 			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				Logger::log("New friend request");
-				Contact::addRelationship($importer, $contact, $item, $nickname, true);
+				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFRIEND)) {
