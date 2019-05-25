@@ -877,32 +877,35 @@ class Profile
 		return '';
 	}
 
-	public static function getTabs($a, $is_owner = false, $nickname = null)
+    /**
+     * @param App    $a
+     * @param string $current
+     * @param bool   $is_owner
+     * @param string $nickname
+     * @return string
+     * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+     */
+	public static function getTabs(App $a, string $current, bool $is_owner, string $nickname = null)
 	{
 		if (is_null($nickname)) {
 			$nickname = $a->user['nickname'];
 		}
 
-		$tab = false;
-		if (!empty($_GET['tab'])) {
-			$tab = Strings::escapeTags(trim($_GET['tab']));
-		}
-
-		$url = System::baseUrl() . '/profile/' . $nickname;
+		$baseProfileUrl = System::baseUrl() . '/profile/' . $nickname;
 
 		$tabs = [
 			[
 				'label' => L10n::t('Status'),
-				'url'   => $url,
-				'sel'   => !$tab && $a->argv[0] == 'profile' ? 'active' : '',
+				'url'   => $baseProfileUrl,
+				'sel'   => !$current ? 'active' : '',
 				'title' => L10n::t('Status Messages and Posts'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],
 			[
 				'label' => L10n::t('Profile'),
-				'url'   => $url . '/?tab=profile',
-				'sel'   => $tab == 'profile' ? 'active' : '',
+				'url'   => $baseProfileUrl . '/?tab=profile',
+				'sel'   => $current == 'profile' ? 'active' : '',
 				'title' => L10n::t('Profile Details'),
 				'id'    => 'profile-tab',
 				'accesskey' => 'r',
@@ -910,7 +913,7 @@ class Profile
 			[
 				'label' => L10n::t('Photos'),
 				'url'   => System::baseUrl() . '/photos/' . $nickname,
-				'sel'   => !$tab && $a->argv[0] == 'photos' ? 'active' : '',
+				'sel'   => $current == 'photos' ? 'active' : '',
 				'title' => L10n::t('Photo Albums'),
 				'id'    => 'photo-tab',
 				'accesskey' => 'h',
@@ -918,7 +921,7 @@ class Profile
 			[
 				'label' => L10n::t('Videos'),
 				'url'   => System::baseUrl() . '/videos/' . $nickname,
-				'sel'   => !$tab && $a->argv[0] == 'videos' ? 'active' : '',
+				'sel'   => $current == 'videos' ? 'active' : '',
 				'title' => L10n::t('Videos'),
 				'id'    => 'video-tab',
 				'accesskey' => 'v',
@@ -930,7 +933,7 @@ class Profile
 			$tabs[] = [
 				'label' => L10n::t('Events'),
 				'url'   => System::baseUrl() . '/events',
-				'sel'   => !$tab && $a->argv[0] == 'events' ? 'active' : '',
+				'sel'   => $current == 'events' ? 'active' : '',
 				'title' => L10n::t('Events and Calendar'),
 				'id'    => 'events-tab',
 				'accesskey' => 'e',
@@ -941,7 +944,7 @@ class Profile
 			$tabs[] = [
 				'label' => L10n::t('Events'),
 				'url'   => System::baseUrl() . '/cal/' . $nickname,
-				'sel'   => !$tab && $a->argv[0] == 'cal' ? 'active' : '',
+				'sel'   => $current == 'cal' ? 'active' : '',
 				'title' => L10n::t('Events and Calendar'),
 				'id'    => 'events-tab',
 				'accesskey' => 'e',
@@ -952,7 +955,7 @@ class Profile
 			$tabs[] = [
 				'label' => L10n::t('Personal Notes'),
 				'url'   => System::baseUrl() . '/notes',
-				'sel'   => !$tab && $a->argv[0] == 'notes' ? 'active' : '',
+				'sel'   => $current == 'notes' ? 'active' : '',
 				'title' => L10n::t('Only You Can See This'),
 				'id'    => 'notes-tab',
 				'accesskey' => 't',
@@ -969,18 +972,18 @@ class Profile
 			];
 		}
 
-		if (!$is_owner && empty($a->profile['hide-friends'])) {
+		if ($is_owner || empty($a->profile['hide-friends'])) {
 			$tabs[] = [
 				'label' => L10n::t('Contacts'),
-				'url'   => System::baseUrl() . '/viewcontacts/' . $nickname,
-				'sel'   => !$tab && $a->argv[0] == 'viewcontacts' ? 'active' : '',
+				'url'   => $baseProfileUrl . '/contacts',
+				'sel'   => $current == 'contacts' ? 'active' : '',
 				'title' => L10n::t('Contacts'),
 				'id'    => 'viewcontacts-tab',
 				'accesskey' => 'k',
 			];
 		}
 
-		$arr = ['is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $tab, 'tabs' => $tabs];
+		$arr = ['is_owner' => $is_owner, 'nickname' => $nickname, 'tab' => $current, 'tabs' => $tabs];
 		Hook::callAll('profile_tabs', $arr);
 
 		$tpl = Renderer::getMarkupTemplate('common_tabs.tpl');

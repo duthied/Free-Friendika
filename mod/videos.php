@@ -217,7 +217,7 @@ function videos_content(App $a)
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= Profile::getTabs($a, $_is_owner, $a->data['user']['nickname']);
+	$o .= Profile::getTabs($a, 'videos', $_is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request

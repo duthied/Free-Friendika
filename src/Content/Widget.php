@@ -121,17 +121,28 @@ class Widget
 	}
 
 	/**
-	 * @param string $type
+	 * Display a generic filter widget based on a list of options
+	 *
+	 * The options array must be the following format:
+	 * [
+	 *    [
+	 *      'ref' => {filter value},
+	 *      'name' => {option name}
+	 *    ],
+	 *    ...
+	 * ]
+	 *
+	 * @param string $type The filter query string key
 	 * @param string $title
 	 * @param string $desc
-	 * @param string $all
-	 * @param string $baseUrl
+	 * @param string $all The no filter label
+	 * @param string $baseUrl The full page request URI
 	 * @param array  $options
-	 * @param string $selected
+	 * @param string $selected The currently selected filter option value
 	 * @return string
 	 * @throws \Exception
 	 */
-	public static function filter($type, $title, $desc, $all, $baseUrl, array $options, $selected = null)
+	private static function filter($type, $title, $desc, $all, $baseUrl, array $options, $selected = null)
 	{
 		$queryString = parse_url($baseUrl, PHP_URL_QUERY);
 		$queryArray = [];
@@ -158,6 +169,37 @@ class Widget
 			'$options'   => $options,
 			'$base'      => $baseUrl,
 		]);
+	}
+
+	/**
+	 * Return networks widget
+	 *
+	 * @param string $baseurl  baseurl
+	 * @param string $selected optional, default empty
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function contactRels($baseurl, $selected = '')
+	{
+		if (!local_user()) {
+			return '';
+		}
+
+		$options = [
+			['ref' => 'followers', 'name' => L10n::t('Followers')],
+			['ref' => 'following', 'name' => L10n::t('Following')],
+			['ref' => 'mutuals', 'name' => L10n::t('Mutual friends')],
+		];
+
+		return self::filter(
+			'rel',
+			L10n::t('Relationships'),
+			'',
+			L10n::t('All Contacts'),
+			$baseurl,
+			$options,
+			$selected
+		);
 	}
 
 	/**

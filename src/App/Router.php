@@ -187,6 +187,7 @@ class Router
 		$this->routeCollector->addRoute(['GET'],         '/probe',               Module\Debug\Probe::class);
 		$this->routeCollector->addGroup('/profile', function (RouteCollector $collector) {
 			$collector->addRoute(['GET'], '/{nickname}',                         Module\Profile::class);
+			$collector->addRoute(['GET'], '/{nickname}/contacts[/{type}]',       Module\Profile\Contacts::class);
 			$collector->addRoute(['GET'], '/{profile:\d+}/view',                 Module\Profile::class);
 		});
 		$this->routeCollector->addGroup('/proxy', function (RouteCollector $collector) {
