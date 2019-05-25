@@ -21,6 +21,7 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
+use Friendica\Util\XML;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Model\Profile;
@@ -772,6 +773,8 @@ class Transmitter
 			$type = 'TentativeAccept';
 		} elseif ($item['verb'] == ACTIVITY_FOLLOW) {
 			$type = 'Follow';
+		} elseif ($item['verb'] == ACTIVITY_TAG) {
+			$type = 'Add';
 		} else {
 			$type = '';
 		}
@@ -875,6 +878,8 @@ class Transmitter
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
+		} elseif ($data['type'] == 'Add') {
+			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
 			$data = self::createAnnounce($item, $data);
 		} elseif ($data['type'] == 'Follow') {
@@ -1247,6 +1252,30 @@ class Transmitter
 		}
 
 		$data = array_merge($data, $permission_block);
+
+		return $data;
+	}
+
+	/**
+	 * Creates an an "add tag" entry
+	 *
+	 * @param array $item
+	 * @param array $data activity data
+	 *
+	 * @return array with activity data for adding tags
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function createAddTag($item, $data)
+	{
+		$object = XML::parseString($item['object'], false);
+		$target = XML::parseString($item["target"], false);
+
+		$data['diaspora:guid'] = $item['guid'];
+		$data['actor'] = $item['author-link'];
+		$data['target'] = (string)$target->id;
+		$data['summary'] = BBCode::toPlaintext($item['body']);
+		$data['object'] = ['id' => (string)$object->id, 'type' => 'tag', 'name' => (string)$object->title, 'content' => (string)$object->content];
 
 		return $data;
 	}

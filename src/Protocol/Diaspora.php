@@ -3834,7 +3834,7 @@ class Diaspora
 		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$message = self::constructLike($item, $owner);
 			$type = "like";
-		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW])) {
+		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW, ACTIVITY_TAG])) {
 			$message = self::constructComment($item, $owner);
 			$type = "comment";
 		}
