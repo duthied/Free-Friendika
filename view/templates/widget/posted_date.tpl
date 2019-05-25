@@ -1,5 +1,4 @@
 <script>
-
 function showHideDates() {
 	if( $('#posted-date-selector-drop').is(':visible')) {
 		$('#posted-date-selector-drop').hide();
@@ -10,13 +9,7 @@ function showHideDates() {
 		$('#posted-date-collapse').html(window.showFewer);
 	}
 }
-
-function dateSubmit(dateurl) {
-	window.location.href = dateurl;
-}
-
 </script>
-
 
 <div id="datebrowse-sidebar" class="widget">
 	<h3>{{$title}}</h3>
@@ -35,7 +28,7 @@ function dateSubmit(dateurl) {
 			<ul class="datebrowse-ul">
 				{{foreach $arr as $d}}
 				<li class="tool">
-					<a class="datebrowse-link" href="#" onclick="dateSubmit('{{$url}}/{{$d.1}}/{{$d.2}}'); return false;">{{$d.0}}</a>
+					<a class="datebrowse-link" href="{{$url}}/{{$d.1}}/{{$d.2}}">{{$d.0}}</a>
 				</li>
 				{{/foreach}}
 			</ul>
