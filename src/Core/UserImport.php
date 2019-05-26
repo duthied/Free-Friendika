@@ -39,14 +39,21 @@ class UserImport
 		$tableColumns = DBStructure::getColumns($table);
 
 		$tcols = [];
+		$ttype = [];
 		// get a plain array of column names
 		foreach ($tableColumns as $tcol) {
 			$tcols[] = $tcol['Field'];
+			$ttype[$tcol['Field']] = $tcol['Type'];
 		}
 		// remove inexistent columns
 		foreach ($arr as $icol => $ival) {
 			if (!in_array($icol, $tcols)) {
 				unset($arr[$icol]);
+				continue;
+			}
+
+			if ($ttype[$icol] === 'datetime') {
+				$arr[$icol] = !empty($ival) ? $ival : DBA::NULL_DATETIME;
 			}
 		}
 	}
