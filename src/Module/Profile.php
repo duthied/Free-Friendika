@@ -193,8 +193,8 @@ class Profile extends BaseModule
 			$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 			$commvisitor = $commpage && $remote_contact;
 
-			$a->page['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
-			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (!empty($category) ? XML::escape($category) : ''));
+			$a->page['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
+			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
 			$a->page['aside'] .= Widget::tagCloud();
 
 			if (Security::canWriteToUserWall($a->profile['profile_uid'])) {
