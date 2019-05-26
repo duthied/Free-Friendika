@@ -74,6 +74,23 @@ class Summary extends BaseAdminModule
 				$well_known, $well_known, $a->getBaseURL() . '/help/Install');
 		}
 
+		// Check logfile permission
+		if (Config::get('system', 'debugging')) {
+			$stream = Config::get('system', 'logfile');
+
+			if (is_file($stream) &&
+			    !is_writeable($stream)) {
+				$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+			}
+
+			$stream = Config::get('system', 'dlogfile');
+
+			if (is_file($stream) &&
+			    !is_writeable($stream)) {
+				$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+			}
+		}
+
 		// check legacy basepath settings
 		$configLoader = new ConfigFileLoader($a->getBasePath(), $a->getMode());
 		$configCache = new Config\Cache\ConfigCache();
