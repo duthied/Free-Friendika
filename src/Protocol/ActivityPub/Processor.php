@@ -201,6 +201,43 @@ class Processor
 	/**
 	 * Prepare the item array for an activity
 	 *
+	 * @param array $activity Activity array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function addTag($activity)
+	{
+		if (empty($activity['object_content']) || empty($activity['object_id'])) {
+			return;
+		}
+
+		foreach ($activity['receiver'] as $receiver) {
+			$item = Item::selectFirst(['id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			if (!DBA::isResult($item)) {
+				// We don't fetch missing content for this purpose
+				continue;
+			}
+
+			if (($item['author-link'] != $activity['actor']) && !$item['origin']) {
+				Logger::info('Not origin, not from the author, skipping update', ['id' => $item['id'], 'author' => $item['author-link'], 'actor' => $activity['actor']]);
+				continue;
+			}
+
+			// To-Do:
+			// - Check if "blocktag" is set
+			// - Check if actor is a contact
+
+			if (!stristr($item['tag'], trim($activity['object_content']))) {
+				$tag = $item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . $activity['object_id'] . ']'. $activity['object_content'] . '[/url]';
+				Item::update(['tag' => $tag], ['id' => $item['id']]);
+				Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
+			}
+		}
+	}
+
+	/**
+	 * Prepare the item array for an activity
+	 *
 	 * @param array  $activity Activity array
 	 * @param string $verb     Activity verb
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
