@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 
 function uexport_init(App $a) {
+	/// @todo Don't forget to move this global field as static field in src/Modules
 	global $dbStructure;
 
 	if (!local_user()) {
@@ -74,7 +75,7 @@ function _uexport_multirow($query) {
 			foreach ($rr as $k => $v) {
 				switch ($dbStructure[$table]['fields'][$k]['type']) {
 					case 'datetime':
-						$p[$k] = !empty($v) ? $v : DBA::NULL_DATETIME;
+						$p[$k] = $v ?? DBA::NULL_DATETIME;
 						break;
 					default:
 						$p[$k] = $v;
@@ -101,7 +102,7 @@ function _uexport_row($query) {
 			foreach ($rr as $k => $v) {
 				switch ($dbStructure[$table]['fields'][$k]['type']) {
 					case 'datetime':
-						$result[$k] = !empty($v) ? $v : DBA::NULL_DATETIME;
+						$result[$k] = $v ?? DBA::NULL_DATETIME;
 						break;
 					default:
 						$result[$k] = $v;

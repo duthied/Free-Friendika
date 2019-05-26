@@ -53,7 +53,7 @@ class UserImport
 			}
 
 			if ($ttype[$icol] === 'datetime') {
-				$arr[$icol] = !empty($ival) ? $ival : DBA::NULL_DATETIME;
+				$arr[$icol] = $ival ?? DBA::NULL_DATETIME;
 			}
 		}
 	}
