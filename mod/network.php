@@ -154,7 +154,7 @@ function network_init(App $a)
 
 	$a->page['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
 	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
-	$a->page['aside'] .= posted_date_widget('network', local_user(), false);
+	$a->page['aside'] .= Widget::postedByYear('network', local_user(), false);
 	$a->page['aside'] .= Widget::networks('network', defaults($_GET, 'nets', '') );
 	$a->page['aside'] .= saved_searches($search);
 	$a->page['aside'] .= Widget::fileAs('network', defaults($_GET, 'file', '') );

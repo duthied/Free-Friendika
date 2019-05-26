@@ -15,9 +15,12 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 class Widget
@@ -443,5 +446,75 @@ class Widget
 		}
 
 		return '';
+	}
+
+	/**
+	 * @param string $url Base page URL
+	 * @param int    $uid User ID consulting/publishing posts
+	 * @param bool   $wall True: Posted by User; False: Posted to User (network timeline)
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function postedByYear(string $url, int $uid, bool $wall)
+	{
+		$o = '';
+
+		if (!Feature::isEnabled($uid, 'archives')) {
+			return $o;
+		}
+
+		$visible_years = PConfig::get($uid, 'system', 'archive_visible_years', 5);
+
+		/* arrange the list in years */
+		$dnow = DateTimeFormat::localNow('Y-m-d');
+
+		$ret = [];
+
+		$dthen = Item::firstPostDate($uid, $wall);
+		if ($dthen) {
+			// Set the start and end date to the beginning of the month
+			$dnow = substr($dnow, 0, 8) . '01';
+			$dthen = substr($dthen, 0, 8) . '01';
+
+			/*
+			 * Starting with the current month, get the first and last days of every
+			 * month down to and including the month of the first post
+			 */
+			while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
+				$dyear = intval(substr($dnow, 0, 4));
+				$dstart = substr($dnow, 0, 8) . '01';
+				$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
+				$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
+				$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
+				$str = L10n::getDay(DateTimeFormat::utc($dnow, 'F'));
+
+				if (empty($ret[$dyear])) {
+					$ret[$dyear] = [];
+				}
+
+				$ret[$dyear][] = [$str, $end_month, $start_month];
+				$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
+			}
+		}
+
+		if (!DBA::isResult($ret)) {
+			return $o;
+		}
+
+
+		$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
+		$cutoff = array_key_exists($cutoff_year, $ret);
+
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/posted_date.tpl'),[
+			'$title' => L10n::t('Archives'),
+			'$size' => $visible_years,
+			'$cutoff_year' => $cutoff_year,
+			'$cutoff' => $cutoff,
+			'$url' => $url,
+			'$dates' => $ret,
+			'$showmore' => L10n::t('show more')
+		]);
+
+		return $o;
 	}
 }
