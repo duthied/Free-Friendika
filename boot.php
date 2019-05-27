@@ -334,6 +334,7 @@ function get_app()
  * @param array $args
  * @brief Returns a defaut value if the provided variable or array key is falsy
  * @return mixed
+ * @deprecated since version 2019.06, use native coalesce operator (??) instead
  */
 function defaults(...$args)
 {
