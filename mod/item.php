@@ -327,10 +327,9 @@ function item_post(App $a) {
 		}
 	}
 
-	if (!empty($categories))
-	{
+	if (!empty($categories)) {
 		// get the "fileas" tags for this post
-		$filedas = FileTag::fileToList($categories, 'file');
+		$filedas = FileTag::fileToArray($categories);
 	}
 
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
@@ -338,10 +337,9 @@ function item_post(App $a) {
 	$categories = FileTag::listToFile(trim(defaults($_REQUEST, 'category', '')), 'category');
 	$categories_new = $categories;
 
-	if (!empty($filedas))
-	{
+	if (!empty($filedas)) {
 		// append the fileas stuff to the new categories list
-		$categories .= FileTag::listToFile($filedas, 'file');
+		$categories .= FileTag::arrayToFile($filedas);
 	}
 
 	// get contact info for poster

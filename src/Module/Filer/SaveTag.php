@@ -41,8 +41,7 @@ class SaveTag extends BaseModule
 
 		// return filer dialog
 		$filetags = PConfig::get(local_user(), 'system', 'filetags');
-		$filetags = Model\FileTag::fileToList($filetags, 'file');
-		$filetags = explode(",", $filetags);
+		$filetags = Model\FileTag::fileToArray($filetags);
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
 		echo Renderer::replaceMacros($tpl, [

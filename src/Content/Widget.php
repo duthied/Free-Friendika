@@ -256,7 +256,7 @@ class Widget
 	 * @param string $baseurl  baseurl
 	 * @param string $selected optional, default empty
 	 * @return string|void
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function fileAs($baseurl, $selected = '')
 	{
@@ -269,15 +269,9 @@ class Widget
 			return;
 		}
 
-		$matches = [];
-		$terms = array();
-		$cnt = preg_match_all('/\[(.*?)\]/', $saved, $matches, PREG_SET_ORDER);
-		if ($cnt) {
-			foreach ($matches as $mtch)
-			{
-				$unescaped = XML::escape(FileTag::decode($mtch[1]));
-				$terms[] = ['ref' => $unescaped, 'name' => $unescaped];
-			}
+		$terms = [];
+		foreach (FileTag::fileToArray($saved) as $savedFolderName) {
+			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 
 		return self::filter(
@@ -312,15 +306,9 @@ class Widget
 			return;
 		}
 
-		$matches = [];
 		$terms = array();
-		$cnt = preg_match_all('/<(.*?)>/', $saved, $matches, PREG_SET_ORDER);
-
-		if ($cnt) {
-			foreach ($matches as $mtch) {
-				$unescaped = XML::escape(FileTag::decode($mtch[1]));
-				$terms[] = ['ref' => $unescaped, 'name' => $unescaped];
-			}
+		foreach (FileTag::fileToArray($saved, 'category') as $savedFolderName) {
+			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 
 		return self::filter(
