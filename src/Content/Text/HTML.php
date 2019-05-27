@@ -567,7 +567,13 @@ class HTML
 		return $urls;
 	}
 
-	public static function toPlaintext($html, $wraplength = 75, $compact = false)
+	/**
+	 * @param string $html
+	 * @param int    $wraplength Ensures individual lines aren't longer than this many characters. Doesn't break words.
+	 * @param bool   $compact    True: Completely strips image tags; False: Keeps image URLs
+	 * @return string
+	 */
+	public static function toPlaintext(string $html, $wraplength = 75, $compact = false)
 	{
 		$message = str_replace("\r", "", $html);
 
@@ -578,15 +584,9 @@ class HTML
 
 		@$doc->loadHTML($message);
 
-		$xpath = new DOMXPath($doc);
-		$list = $xpath->query("//pre");
-		foreach ($list as $node) {
-			$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
-		}
-
 		$message = $doc->saveHTML();
-		$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br>", " ", ""], $message);
-		$message = preg_replace('= [\s]*=i', " ", $message);
+		// Remove eventual UTF-8 BOM
+		$message = str_replace("\xC3\x82\xC2\xA0", "", $message);
 
 		// Collecting all links
 		$urls = self::collectURLs($message);
@@ -595,18 +595,6 @@ class HTML
 
 		self::tagToBBCode($doc, 'html', [], '', '');
 		self::tagToBBCode($doc, 'body', [], '', '');
-
-		// MyBB-Auszeichnungen
-		/*
-		  self::node2BBCode($doc, 'span', array('style'=>'text-decoration: underline;'), '_', '_');
-		  self::node2BBCode($doc, 'span', array('style'=>'font-style: italic;'), '/', '/');
-		  self::node2BBCode($doc, 'span', array('style'=>'font-weight: bold;'), '*', '*');
-
-		  self::node2BBCode($doc, 'strong', array(), '*', '*');
-		  self::node2BBCode($doc, 'b', array(), '*', '*');
-		  self::node2BBCode($doc, 'i', array(), '/', '/');
-		  self::node2BBCode($doc, 'u', array(), '_', '_');
-		 */
 
 		if ($compact) {
 			self::tagToBBCode($doc, 'blockquote', [], "»", "«");
@@ -621,8 +609,6 @@ class HTML
 		self::tagToBBCode($doc, 'div', [], "\r", "\r");
 		self::tagToBBCode($doc, 'p', [], "\n", "\n");
 
-		//self::node2BBCode($doc, 'ul', array(), "\n[list]", "[/list]\n");
-		//self::node2BBCode($doc, 'ol', array(), "\n[list=1]", "[/list]\n");
 		self::tagToBBCode($doc, 'li', [], "\n* ", "\n");
 
 		self::tagToBBCode($doc, 'hr', [], "\n" . str_repeat("-", 70) . "\n", "");
@@ -637,12 +623,6 @@ class HTML
 		self::tagToBBCode($doc, 'h5', [], "\n\n*", "*\n");
 		self::tagToBBCode($doc, 'h6', [], "\n\n*", "*\n");
 
-		// Problem: there is no reliable way to detect if it is a link to a tag or profile
-		//self::node2BBCode($doc, 'a', array('href'=>'/(.+)/'), ' $1 ', ' ', true);
-		//self::node2BBCode($doc, 'a', array('href'=>'/(.+)/', 'rel'=>'oembed'), ' $1 ', '', true);
-		//self::node2BBCode($doc, 'img', array('alt'=>'/(.+)/'), '$1', '');
-		//self::node2BBCode($doc, 'img', array('title'=>'/(.+)/'), '$1', '');
-		//self::node2BBCode($doc, 'img', array(), '', '');
 		if (!$compact) {
 			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], ' [img]$1', '[/img] ');
 		} else {
