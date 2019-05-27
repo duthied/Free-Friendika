@@ -1271,7 +1271,7 @@ function api_status_show($type, $item_id)
 function api_get_last_status($ownerId, $uid)
 {
 	$condition = [
-		'owner-id' => $ownerId,
+		'author-id'=> $ownerId,
 		'uid'      => $uid,
 		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
 		'private'  => false
