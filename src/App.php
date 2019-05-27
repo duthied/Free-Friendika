@@ -1038,10 +1038,11 @@ class App
 				// Valid profile links contain a path with "/profile/" and no query parameters
 				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
 					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
-					if (defaults($_SESSION, "visitor_home", "") != $_GET["zrl"]) {
-						$_SESSION['my_url'] = $_GET['zrl'];
-						$_SESSION['authenticated'] = 0;
+					if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
+						Core\Session::set('my_url', $_GET['zrl']);
+						Core\Session::set('authenticated', 0);
 					}
+
 					Model\Profile::zrlInit($this);
 				} else {
 					// Someone came with an invalid parameter, maybe as a DDoS attempt
@@ -1066,9 +1067,9 @@ class App
 			header('X-Account-Management-Status: none');
 		}
 
-		$_SESSION['sysmsg']       = defaults($_SESSION, 'sysmsg'      , []);
-		$_SESSION['sysmsg_info']  = defaults($_SESSION, 'sysmsg_info' , []);
-		$_SESSION['last_updated'] = defaults($_SESSION, 'last_updated', []);
+		$_SESSION['sysmsg']       = Core\Session::get('sysmsg', []);
+		$_SESSION['sysmsg_info']  = Core\Session::get('sysmsg_info', []);
+		$_SESSION['last_updated'] = Core\Session::get('last_updated', []);
 
 		/*
 		 * check_config() is responsible for running update scripts. These automatically

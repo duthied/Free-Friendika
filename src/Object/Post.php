@@ -15,6 +15,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -400,7 +401,7 @@ class Post extends BaseObject
 			'location'        => $location_e,
 			'indent'          => $indent,
 			'shiny'           => $shiny,
-			'owner_self'      => $item['author-link'] == defaults($_SESSION, 'my_url', null),
+			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
 			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => $owner_name_e,

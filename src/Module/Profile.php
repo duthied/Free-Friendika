@@ -11,6 +11,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact as ContactModel;
@@ -226,8 +227,10 @@ class Profile extends BaseModule
 		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups, $remote_cid);
 		$sql_extra2 = '';
 
+		$last_updated_array = Session::get('last_updated', []);
+
 		if ($update) {
-			$last_updated = (defaults($_SESSION['last_updated'], $last_updated_key, 0));
+			$last_updated = $last_updated_array[$last_updated_key] ?? 0;
 
 			// If the page user is the owner of the page we should query for unseen
 			// items. Otherwise use a timestamp of the last succesful update request.
@@ -334,7 +337,8 @@ class Profile extends BaseModule
 
 		// Set a time stamp for this page. We will make use of it when we
 		// search for new items (update routine)
-		$_SESSION['last_updated'][$last_updated_key] = time();
+		$last_updated_array[$last_updated_key] = time();
+		Session::set('last_updated', $last_updated_array);
 
 		if ($is_owner && !$update && !Config::get('theme', 'hide_eventlist')) {
 			$o .= ProfileModel::getBirthdays();

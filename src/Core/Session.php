@@ -62,13 +62,7 @@ class Session
 	 */
 	public static function get($name, $defaults = null)
 	{
-		if (isset($_SESSION)) {
-			$return = defaults($_SESSION, $name, $defaults);
-		} else {
-			$return = $defaults;
-		}
-
-		return $return;
+		return $_SESSION[$name] ?? $defaults;
 	}
 
 	/**

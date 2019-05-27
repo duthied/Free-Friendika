@@ -14,6 +14,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
@@ -910,8 +911,8 @@ function settings_content(App $a)
 			}
 		}
 
-		$theme_selected        = defaults($_SESSION, 'theme'       , $default_theme);
-		$mobile_theme_selected = defaults($_SESSION, 'mobile-theme', $default_mobile_theme);
+		$theme_selected        = Session::get('theme', $default_theme);
+		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
 
 		$nowarn_insecure = intval(PConfig::get(local_user(), 'system', 'nowarn_insecure'));
 
