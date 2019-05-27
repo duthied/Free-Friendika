@@ -140,7 +140,7 @@ function network_init(App $a)
 
 		if ($remember_tab) {
 			$net_args = array_merge($query_array, $net_args);
-			$net_queries = build_querystring($net_args);
+			$net_queries = http_build_query($net_args);
 
 			$redir_url = ($net_queries ? $net_baseurl . '?' . $net_queries : $net_baseurl);
 
