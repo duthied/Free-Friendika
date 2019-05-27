@@ -611,7 +611,7 @@ function api_get_user(App $a, $contact_id = null)
 				'name' => $contact["name"],
 				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
 				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url']),
-				'description' => $contact["about"],
+				'description' => HTML::toPlaintext(BBCode::toPlaintext($contact["about"])),
 				'profile_image_url' => $contact["micro"],
 				'profile_image_url_https' => $contact["micro"],
 				'profile_image_url_profile_size' => $contact["thumb"],
@@ -690,7 +690,7 @@ function api_get_user(App $a, $contact_id = null)
 		'name' => (($uinfo[0]['name']) ? $uinfo[0]['name'] : $uinfo[0]['nick']),
 		'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
 		'location' => $location,
-		'description' => $description,
+		'description' => HTML::toPlaintext(BBCode::toPlaintext($description)),
 		'profile_image_url' => $uinfo[0]['micro'],
 		'profile_image_url_https' => $uinfo[0]['micro'],
 		'profile_image_url_profile_size' => $uinfo[0]["thumb"],
@@ -1271,7 +1271,7 @@ function api_status_show($type, $item_id)
 function api_get_last_status($ownerId, $uid)
 {
 	$condition = [
-		'owner-id' => $ownerId,
+		'author-id'=> $ownerId,
 		'uid'      => $uid,
 		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
 		'private'  => false
