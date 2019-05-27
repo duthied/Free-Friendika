@@ -64,31 +64,29 @@ class FileTag
 	}
 
 	/**
-	 * @brief Get file tags from list
+	 * Get file tags from array
 	 *
-	 * ex. given music,video return <music><video> or [music][video]
-	 * @param string $list A comma delimited list of tags.
-	 * @param string $type Optional file type.
+	 * ex. given [music,video] return <music><video> or [music][video]
+	 *
+	 * @param array  $array A list of tags.
+	 * @param string $type  Optional file type.
 	 *
 	 * @return string       A list of file tags.
 	 */
-	public static function listToFile($list, $type = 'file')
+	public static function arrayToFile(array $array, string $type = 'file')
 	{
 		$tag_list = '';
-		if (strlen($list)) {
-			$list_array = explode(",", $list);
-			if ($type == 'file') {
-				$lbracket = '[';
-				$rbracket = ']';
-			} else {
-				$lbracket = '<';
-				$rbracket = '>';
-			}
+		if ($type == 'file') {
+			$lbracket = '[';
+			$rbracket = ']';
+		} else {
+			$lbracket = '<';
+			$rbracket = '>';
+		}
 
-			foreach ($list_array as $item) {
-				if (strlen($item)) {
-					$tag_list .= $lbracket . self::encode(trim($item)) . $rbracket;
-				}
+		foreach ($array as $item) {
+			if (strlen($item)) {
+				$tag_list .= $lbracket . self::encode(trim($item)) . $rbracket;
 			}
 		}
 
@@ -96,18 +94,19 @@ class FileTag
 	}
 
 	/**
-	 * @brief Get list from file tags
+	 * Get tag list from file tags
 	 *
-	 * ex. given <music><video>[friends], return music,video or friends
+	 * ex. given <music><video>[friends], return [music,video] or [friends]
+	 *
 	 * @param string $file File tags
 	 * @param string $type Optional file type.
 	 *
-	 * @return string       Comma delimited list of tag names.
+	 * @return array        List of tag names.
 	 */
-	public static function fileToList($file, $type = 'file')
+	public static function fileToArray(string $file, string $type = 'file')
 	{
-		$matches = false;
-		$list = '';
+		$matches = [];
+		$return = [];
 
 		if ($type == 'file') {
 			$cnt = preg_match_all('/\[(.*?)\]/', $file, $matches, PREG_SET_ORDER);
@@ -116,16 +115,44 @@ class FileTag
 		}
 
 		if ($cnt) {
-			foreach ($matches as $mtch) {
-				if (strlen($list)) {
-					$list .= ',';
-				}
-
-				$list .= self::decode($mtch[1]);
+			foreach ($matches as $match) {
+				$return[] = self::decode($match[1]);
 			}
 		}
 
-		return $list;
+		return $return;
+	}
+
+	/**
+	 * @brief      Get file tags from list
+	 *
+	 * ex. given music,video return <music><video> or [music][video]
+	 * @param string $list A comma delimited list of tags.
+	 * @param string $type Optional file type.
+	 *
+	 * @return string       A list of file tags.
+	 * @deprecated since 2019.06 use arrayToFile() instead
+	 */
+	public static function listToFile($list, $type = 'file')
+	{
+		$list_array = explode(',', $list);
+
+		return self::arrayToFile($list_array, $type);
+	}
+
+	/**
+	 * @brief      Get list from file tags
+	 *
+	 * ex. given <music><video>[friends], return music,video or friends
+	 * @param string $file File tags
+	 * @param string $type Optional file type.
+	 *
+	 * @return string       Comma delimited list of tag names.
+	 * @deprecated since 2019.06 use fileToArray() instead
+	 */
+	public static function fileToList($file, $type = 'file')
+	{
+		return implode(',', self::fileToArray($file, $type));
 	}
 
 	/**
@@ -164,21 +191,17 @@ class FileTag
 
 			// check for new tags to be added as filetags in pconfig
 			$new_tags = [];
-			$check_new_tags = explode(",", self::fileToList($file_new, $type));
-
-			foreach ($check_new_tags as $tag) {
+			foreach (self::fileToArray($file_new, $type) as $tag) {
 				if (!stristr($saved, $lbracket . self::encode($tag) . $rbracket)) {
 					$new_tags[] = $tag;
 				}
 			}
 
-			$filetags_updated .= self::listToFile(implode(",", $new_tags), $type);
+			$filetags_updated .= self::arrayToFile($new_tags, $type);
 
 			// check for deleted tags to be removed from filetags in pconfig
 			$deleted_tags = [];
-			$check_deleted_tags = explode(",", self::fileToList($file_old, $type));
-
-			foreach ($check_deleted_tags as $tag) {
+			foreach (self::fileToArray($file_old, $type) as $tag) {
 				if (!stristr($file_new, $lbracket . self::encode($tag) . $rbracket)) {
 					$deleted_tags[] = $tag;
 				}
