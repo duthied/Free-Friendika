@@ -2,20 +2,27 @@
 /**
  * @file mod/uexport.php
  */
+
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 
 function uexport_init(App $a) {
+	/// @todo Don't forget to move this global field as static field in src/Modules
+	global $dbStructure;
+
 	if (!local_user()) {
 		exit();
 	}
 
 	require_once("mod/settings.php");
 	settings_init($a);
+
+	$dbStructure = DBStructure::definition($a->getBasePath());
 }
 
 function uexport_content(App $a) {
@@ -55,13 +62,25 @@ function uexport_content(App $a) {
 }
 
 function _uexport_multirow($query) {
+	global $dbStructure;
+
+	preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
+	$table = $match[1];
+
 	$result = [];
 	$r = q($query);
 	if (DBA::isResult($r)) {
 		foreach ($r as $rr) {
 			$p = [];
 			foreach ($rr as $k => $v) {
-				$p[$k] = $v;
+				switch ($dbStructure[$table]['fields'][$k]['type']) {
+					case 'datetime':
+						$p[$k] = $v ?? DBA::NULL_DATETIME;
+						break;
+					default:
+						$p[$k] = $v;
+						break;
+				}
 			}
 			$result[] = $p;
 		}
@@ -70,12 +89,25 @@ function _uexport_multirow($query) {
 }
 
 function _uexport_row($query) {
+	global $dbStructure;
+
+	preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
+	$table = $match[1];
+
 	$result = [];
 	$r = q($query);
 	if (DBA::isResult($r)) {
+
 		foreach ($r as $rr) {
 			foreach ($rr as $k => $v) {
-				$result[$k] = $v;
+				switch ($dbStructure[$table]['fields'][$k]['type']) {
+					case 'datetime':
+						$result[$k] = $v ?? DBA::NULL_DATETIME;
+						break;
+					default:
+						$result[$k] = $v;
+						break;
+				}
 			}
 		}
 	}
