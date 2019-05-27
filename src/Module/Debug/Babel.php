@@ -159,6 +159,12 @@ class Babel extends BaseModule
 						'title'   => L10n::t('HTML::toPlaintext'),
 						'content' => '<pre>' . $text . '</pre>'
 					];
+
+					$text = Text\HTML::toPlaintext($html, 0, true);
+					$results[] = [
+						'title'   => L10n::t('HTML::toPlaintext'),
+						'content' => '<pre>' . $text . '</pre>'
+					];
 			}
 		}
 
