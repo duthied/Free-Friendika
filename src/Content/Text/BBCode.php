@@ -355,7 +355,7 @@ class BBCode extends BaseObject
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
-		$naked_text = preg_replace('/\[(.+?)\]\s*/','', $text);
+		$naked_text = preg_replace('/\[.+?\]/','', $text);
 		if (!$keep_urls) {
 			$naked_text = preg_replace('#https?\://[^\s<]+[^\s\.\)]#i', '', $naked_text);
 		}
