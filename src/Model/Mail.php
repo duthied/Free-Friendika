@@ -72,7 +72,7 @@ class Mail
 			'to_email' => $user['email'],
 			'uid' => $user['uid'],
 			'item' => $msg,
-			'parent' => $msg['parent-uri'],
+			'parent' => 0,
 			'source_name' => $msg['from-name'],
 			'source_link' => $msg['from-url'],
 			'source_photo' => $msg['from-photo'],
