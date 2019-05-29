@@ -476,7 +476,7 @@ function dfrn_request_post(App $a)
 
 function dfrn_request_content(App $a)
 {
-	if (($a->argc != 2) || (!count($a->profile))) {
+	if ($a->argc != 2 || empty($a->profile)) {
 		return "";
 	}
 
