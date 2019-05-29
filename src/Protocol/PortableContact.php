@@ -665,7 +665,7 @@ class PortableContact
 		$nodeinfo2_url = '';
 
 		foreach ($nodeinfo['links'] as $link) {
-			if (!is_array($link) || empty($link['rel'])) {
+			if (!is_array($link) || empty($link['rel']) || empty($link['href'])) {
 				Logger::log('Invalid nodeinfo format for ' . $server_url, Logger::DEBUG);
 				continue;
 			}
