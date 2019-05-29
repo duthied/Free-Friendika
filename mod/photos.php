@@ -1504,7 +1504,7 @@ function photos_content(App $a)
 						'$title' => $title_e,
 						'$body' => $body_e,
 						'$ago' => Temporal::getRelativeDate($item['created']),
-						'$indent' => (($item['parent'] != $item['item_id']) ? ' comment' : ''),
+						'$indent' => (($item['parent'] != $item['id']) ? ' comment' : ''),
 						'$drop' => $drop,
 						'$comment' => $comment
 					]);
@@ -1513,7 +1513,7 @@ function photos_content(App $a)
 						$comments .= Renderer::replaceMacros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_path,
-							'$id' => $item['item_id'],
+							'$id' => $item['id'],
 							'$parent' => $item['parent'],
 							'$profile_uid' =>  $owner_uid,
 							'$mylink' => $contact['url'],
