@@ -144,7 +144,7 @@ class Diaspora
 	 */
 	private static function getRelayContact($server_url)
 	{
-		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
+		$fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'];
 
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
