@@ -87,7 +87,7 @@ class Item extends BaseObject
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
 
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
@@ -1721,6 +1721,7 @@ class Item extends BaseObject
 		unset($item['author-link']);
 		unset($item['author-name']);
 		unset($item['author-avatar']);
+		unset($item['author-network']);
 
 		unset($item['owner-link']);
 		unset($item['owner-name']);
