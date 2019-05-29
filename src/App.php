@@ -1104,7 +1104,7 @@ class App
 
 		// Compatibility with the Android Diaspora client
 		if ($this->module == 'stream') {
-			$this->internalRedirect('network?f=&order=post');
+			$this->internalRedirect('network?order=post');
 		}
 
 		if ($this->module == 'conversations') {
@@ -1112,15 +1112,15 @@ class App
 		}
 
 		if ($this->module == 'commented') {
-			$this->internalRedirect('network?f=&order=comment');
+			$this->internalRedirect('network?order=comment');
 		}
 
 		if ($this->module == 'liked') {
-			$this->internalRedirect('network?f=&order=comment');
+			$this->internalRedirect('network?order=comment');
 		}
 
 		if ($this->module == 'activity') {
-			$this->internalRedirect('network/?f=&conv=1');
+			$this->internalRedirect('network?conv=1');
 		}
 
 		if (($this->module == 'status_messages') && ($this->cmd == 'status_messages/new')) {
