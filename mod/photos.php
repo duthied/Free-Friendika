@@ -1027,6 +1027,10 @@ function photos_content(App $a)
 
 	// Display a single photo album
 	if ($datatype === 'album') {
+		// if $datum is not a valid hex, redirect to the default page
+		if (!Strings::isHex($datum)) {
+			$a->internalRedirect();
+		}
 		$album = hex2bin($datum);
 
 		$total = 0;
