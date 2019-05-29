@@ -11,9 +11,9 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\Logger;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -24,10 +24,10 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\XML;
+use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
-use Friendica\Util\Network;
+use Friendica\Util\XML;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -82,7 +82,7 @@ class Item extends BaseObject
 			'contact-id', 'type', 'wall', 'gravity', 'extid', 'icid', 'iaid', 'psid',
 			'created', 'edited', 'commented', 'received', 'changed', 'verb',
 			'postopts', 'plink', 'resource-id', 'event-id', 'tag', 'attach', 'inform',
-			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'post-type',
+			'file', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'item_id', 'post-type',
 			'private', 'pubmail', 'moderated', 'visible', 'starred', 'bookmark',
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
