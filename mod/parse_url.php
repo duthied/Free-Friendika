@@ -9,12 +9,14 @@
  *
  * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content
  */
+
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 
 function parse_url_content(App $a)
 {
@@ -25,10 +27,14 @@ function parse_url_content(App $a)
 
 	$br = "\n";
 
-	if (!empty($_GET['binurl'])) {
+	if (!empty($_GET['binurl']) && Strings::isHex($_GET['binurl'])) {
 		$url = trim(hex2bin($_GET['binurl']));
-	} else {
+	} elseif (!empty($_GET['url'])) {
 		$url = trim($_GET['url']);
+	// fallback in case no url is valid
+	} else {
+		Logger::info('No url given');
+		exit();
 	}
 
 	if (!empty($_GET['title'])) {

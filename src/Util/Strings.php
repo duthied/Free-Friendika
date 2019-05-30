@@ -31,6 +31,18 @@ class Strings
         return $return;
     }
 
+	/**
+	 * Checks, if the given string is a valid hexadecimal code
+	 *
+	 * @param string $hexCode
+	 *
+	 * @return bool
+	 */
+    public static function isHex($hexCode)
+    {
+	    return !empty($hexCode) ? @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1) : false;
+    }
+
     /**
      * @brief This is our primary input filter.
      *
