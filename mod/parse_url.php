@@ -33,7 +33,8 @@ function parse_url_content(App $a)
 		$url = trim($_GET['url']);
 	// fallback in case no url is valid
 	} else {
-		$a->internalRedirect();
+		Logger::info('No url given');
+		exit();
 	}
 
 	if (!empty($_GET['title'])) {

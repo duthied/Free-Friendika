@@ -189,7 +189,7 @@ function photos_post(App $a)
 
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
 		if (!Strings::isHex($a->argv[3])) {
-			$a->internalRedirect();
+			$a->internalRedirect('photos/' . $a->data['user']['nickname'] . '/album');
 		}
 		$album = hex2bin($a->argv[3]);
 
@@ -1032,7 +1032,7 @@ function photos_content(App $a)
 	if ($datatype === 'album') {
 		// if $datum is not a valid hex, redirect to the default page
 		if (!Strings::isHex($datum)) {
-			$a->internalRedirect();
+			$a->internalRedirect('photos/' . $a->data['user']['nickname']. '/album');
 		}
 		$album = hex2bin($datum);
 
