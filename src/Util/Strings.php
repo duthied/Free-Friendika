@@ -40,7 +40,7 @@ class Strings
 	 */
     public static function isHex($hexCode)
     {
-	    return @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1);
+	    return !empty($hexCode) ? @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1) : false;
     }
 
     /**
