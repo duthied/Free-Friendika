@@ -186,7 +186,7 @@ function get_cats_and_terms($item)
 	$folders = [];
 	$first = true;
 
-	foreach (FileTag::fileToArray($item['file'], 'category') as $savedFolderName) {
+	foreach (FileTag::fileToArray($item['file'] ?? '', 'category') as $savedFolderName) {
 		$categories[] = [
 			'name' => $savedFolderName,
 			'url' => "#",
@@ -202,7 +202,7 @@ function get_cats_and_terms($item)
 	}
 
 	if (local_user() == $item['uid']) {
-		foreach (FileTag::fileToArray($item['file']) as $savedFolderName) {
+		foreach (FileTag::fileToArray($item['file'] ?? '') as $savedFolderName) {
 			$folders[] = [
 				'name' => $savedFolderName,
 				'url' => "#",

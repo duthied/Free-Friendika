@@ -27,12 +27,12 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
-use Friendica\Model\Attach;
 use Friendica\Model\Term;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -337,7 +337,7 @@ function item_post(App $a) {
 	$categories = FileTag::listToFile(trim(defaults($_REQUEST, 'category', '')), 'category');
 	$categories_new = $categories;
 
-	if (!empty($filedas)) {
+	if (!empty($filedas) && is_array($filedas)) {
 		// append the fileas stuff to the new categories list
 		$categories .= FileTag::arrayToFile($filedas);
 	}
