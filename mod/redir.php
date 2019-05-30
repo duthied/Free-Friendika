@@ -72,8 +72,8 @@ function redir_init(App $a) {
 			{
 				foreach ($_SESSION['remote'] as $v) {
 					if (!empty($v['uid']) && !empty($v['cid']) &&
-					    $v['uid'] === Session::get('visitor_visiting') &&
-					    $v['cid'] === Session::get('visitor_id')) {
+					    $v['uid'] == Session::get('visitor_visiting') &&
+					    $v['cid'] == Session::get('visitor_id')) {
 						// Remote user is already authenticated.
 						$target_url = defaults($url, $contact_url);
 						Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
