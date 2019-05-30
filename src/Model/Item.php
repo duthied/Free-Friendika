@@ -11,9 +11,9 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\Logger;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -24,10 +24,10 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\XML;
+use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
-use Friendica\Util\Network;
+use Friendica\Util\XML;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -87,7 +87,7 @@ class Item extends BaseObject
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
 
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
@@ -1721,6 +1721,7 @@ class Item extends BaseObject
 		unset($item['author-link']);
 		unset($item['author-name']);
 		unset($item['author-avatar']);
+		unset($item['author-network']);
 
 		unset($item['owner-link']);
 		unset($item['owner-name']);

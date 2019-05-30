@@ -121,6 +121,9 @@ function notifications_content(App $a)
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'home')) {
 		$notif_header = L10n::t('Home Notifications');
 		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
+	// fallback - redirect to main page
+	} else {
+		$a->internalRedirect('notifications');
 	}
 
 	// Set the pager
