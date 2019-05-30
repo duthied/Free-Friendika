@@ -3562,6 +3562,7 @@ class Diaspora
 		$public = ($item["private"] ? "false" : "true");
 
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
@@ -3616,6 +3617,7 @@ class Diaspora
 			$message = ["author" => $myaddr,
 					"guid" => $item["guid"],
 					"created_at" => $created,
+					"edited_at" => $edited,
 					"public" => $public,
 					"text" => $body,
 					"provider_display_name" => $item["app"],
@@ -3794,11 +3796,13 @@ class Diaspora
 
 		$text = html_entity_decode(BBCode::toMarkdown($body));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"], DateTimeFormat::ATOM);
 
 		$comment = [
 			"author"      => self::myHandle($owner),
 			"guid"        => $item["guid"],
 			"created_at"  => $created,
+			"edited_at"   => $edited,
 			"parent_guid" => $toplevel_item["guid"],
 			"text"        => $text,
 			"author_signature" => ""
