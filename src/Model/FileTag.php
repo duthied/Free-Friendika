@@ -133,7 +133,7 @@ class FileTag
 	 * @return string       A list of file tags.
 	 * @deprecated since 2019.06 use arrayToFile() instead
 	 */
-	public static function listToFile($list, $type = 'file')
+	public static function listToFile(string $list, string $type = 'file')
 	{
 		$list_array = explode(',', $list);
 
@@ -150,7 +150,7 @@ class FileTag
 	 * @return string       Comma delimited list of tag names.
 	 * @deprecated since 2019.06 use fileToArray() instead
 	 */
-	public static function fileToList($file, $type = 'file')
+	public static function fileToList(string $file, $type = 'file')
 	{
 		return implode(',', self::fileToArray($file, $type));
 	}
@@ -166,7 +166,7 @@ class FileTag
 	 * @return boolean          A value indicating success or failure.
 	 * @throws \Exception
 	 */
-	public static function updatePconfig($uid, $file_old, $file_new, $type = 'file')
+	public static function updatePconfig(int $uid, string $file_old, string $file_new, string $type = 'file')
 	{
 		if (!intval($uid)) {
 			return false;
