@@ -3110,13 +3110,12 @@ class Diaspora
 	 * @param string $envelope     The message that is to be transmitted
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $no_defer     Don't defer a failing delivery
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "", $no_defer = false)
+	private static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "")
 	{
 		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -3155,20 +3154,6 @@ class Diaspora
 
 		Logger::log("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
-		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
-			if (!$no_defer && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::TYPE_RELAY)) {
-				Logger::info('defer message', ['log' => $logid, 'guid' => $guid, 'destination' => $dest_url]);
-				// defer message for redelivery
-				Worker::defer();
-			}
-
-			// The message could not be delivered. We mark the contact as "dead"
-			Contact::markForArchival($contact);
-		} elseif (($return_code >= 200) && ($return_code <= 299)) {
-			// We successfully delivered a message, the contact is alive
-			Contact::unmarkForArchival($contact);
-		}
-
 		return $return_code ? $return_code : -1;
 	}
 
@@ -3197,13 +3182,12 @@ class Diaspora
 	 * @param array  $message      The message data
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $no_defer     Don't defer a failing delivery
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $no_defer = false)
+	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "")
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3217,7 +3201,7 @@ class Diaspora
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid, $no_defer);
+		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid);
 
 		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
 
@@ -4215,9 +4199,10 @@ class Diaspora
 
 		$message = self::createProfileData($uid);
 
+		// @ToDo Split this into single worker jobs
 		foreach ($recips as $recip) {
 			Logger::log("Send updated profile data for user ".$uid." to contact ".$recip["id"], Logger::DEBUG);
-			self::buildAndTransmit($owner, $recip, "profile", $message, false, '', true);
+			self::buildAndTransmit($owner, $recip, "profile", $message);
 		}
 	}
 
