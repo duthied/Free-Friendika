@@ -405,7 +405,7 @@ class Delivery extends BaseObject
 			// The message could not be delivered. We mark the contact as "dead"
 			Model\Contact::markForArchival($contact);
 
-			if (!empty($contact['contact-type']) && ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
+			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
 				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
 				// defer message for redelivery
 				Worker::defer();
