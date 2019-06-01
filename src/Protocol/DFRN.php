@@ -1229,7 +1229,6 @@ class DFRN
 		$curlResult = Network::curl($url);
 
 		if ($curlResult->isTimeout()) {
-			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
@@ -1237,29 +1236,24 @@ class DFRN
 
 		$curl_stat = $curlResult->getReturnCode();
 		if (empty($curl_stat)) {
-			Contact::markForArchival($contact);
 			return -3; // timed out
 		}
 
 		Logger::log('dfrn_deliver: ' . $xml, Logger::DATA);
 
 		if (empty($xml)) {
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: no valid XML returned');
 			Logger::log('dfrn_deliver: returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!is_object($res) || (intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
-			Contact::markForArchival($contact);
-
 			if (empty($res->status)) {
 				$status = 3;
 			} else {
@@ -1315,7 +1309,6 @@ class DFRN
 		if ($final_dfrn_id != $orig_id) {
 			Logger::log('dfrn_deliver: wrong dfrn_id.');
 			// did not decode properly - cannot trust this site
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
@@ -1351,7 +1344,6 @@ class DFRN
 
 				default:
 					Logger::log("rino: invalid requested version '$rino_remote_version'");
-					Contact::markForArchival($contact);
 					return -8;
 			}
 
@@ -1391,26 +1383,22 @@ class DFRN
 
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
-			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && stristr($postResult->getHeader(), 'retry-after')) {
-			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: phase 2: no valid XML returned');
 			Logger::log('dfrn_deliver: phase 2: returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
-			Contact::markForArchival($contact);
 			return -11;
 		}
 
@@ -1421,10 +1409,6 @@ class DFRN
 
 		if (!empty($res->message)) {
 			Logger::log('Delivery returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
-		}
-
-		if (($res->status >= 200) && ($res->status <= 299)) {
-			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
@@ -1454,7 +1438,6 @@ class DFRN
 
 				if (empty($contact['addr'])) {
 					Logger::log('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
-					Contact::markForArchival($contact);
 					return -21;
 				}
 			}
@@ -1462,7 +1445,6 @@ class DFRN
 			$fcontact = Diaspora::personByHandle($contact['addr']);
 			if (empty($fcontact)) {
 				Logger::log('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
-				Contact::markForArchival($contact);
 				return -22;
 			}
 			$pubkey = $fcontact['pubkey'];
@@ -1491,35 +1473,27 @@ class DFRN
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			Logger::log('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
-			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
-			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
 			Logger::log('Returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (empty($res->status)) {
-			Contact::markForArchival($contact);
 			return -23;
 		}
 
 		if (!empty($res->message)) {
 			Logger::log('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
-		}
-
-		if (($res->status >= 200) && ($res->status <= 299)) {
-			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
