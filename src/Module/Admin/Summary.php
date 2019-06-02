@@ -146,8 +146,6 @@ class Summary extends BaseAdminModule
 
 		$pending = Register::getPendingCount();
 
-		$queue = DBA::count('queue', []);
-
 		$deferred = DBA::count('workerqueue', ['`executed` <= ? AND NOT `done` AND `next_try` > ?',
 			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
 
@@ -155,7 +153,7 @@ class Summary extends BaseAdminModule
 			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
 
 		// We can do better, but this is a quick queue status
-		$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'deferred' => $deferred, 'workerq' => $workerqueue];
+		$queues = ['label' => L10n::t('Message queues'), 'deferred' => $deferred, 'workerq' => $workerqueue];
 
 		$variables = DBA::toArray(DBA::p('SHOW variables LIKE "max_allowed_packet"'));
 		$max_allowed_packet = $variables ? $variables[0]['Value'] : 0;
