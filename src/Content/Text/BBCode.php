@@ -1250,6 +1250,25 @@ class BBCode extends BaseObject
 		$text = trim($text);
 		$text = str_replace("\r\n", "\n", $text);
 
+		// Remove linefeeds inside of the table elements. See issue #6799
+		$search = ["\n[th]", "[th]\n", " [th]", "\n[/th]", "[/th]\n", "[/th] ",
+			"\n[td]", "[td]\n", " [td]", "\n[/td]", "[/td]\n", "[/td] ",
+			"\n[tr]", "[tr]\n", " [tr]", "[tr] ", "\n[/tr]", "[/tr]\n", " [/tr]", "[/tr] ",
+			"[table]\n", "[table] ", " [table]", "\n[/table]", " [/table]", "[/table] "];
+		$replace = ["[th]", "[th]", "[th]", "[/th]", "[/th]", "[/th]",
+			"[td]", "[td]", "[td]", "[/td]", "[/td]", "[/td]",
+			"[tr]", "[tr]", "[tr]", "[tr]", "[/tr]", "[/tr]", "[/tr]", "[/tr]",
+			"[table]", "[table]", "[table]", "[/table]", "[/table]", "[/table]"];
+		do {
+			$oldtext = $text;
+			$text = str_replace($search, $replace, $text);
+		} while ($oldtext != $text);
+
+		// Replace these here only once
+		$search = ["\n[table]", "[/table]\n"];
+		$replace = ["[table]", "[/table]"];
+		$text = str_replace($search, $replace, $text);
+
 		// removing multiplicated newlines
 		if (Config::get("system", "remove_multiplicated_lines")) {
 			$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
