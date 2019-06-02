@@ -993,12 +993,6 @@ class App
 			);
 		}
 
-		if (strstr($this->query_string, '.well-known/host-meta') && ($this->query_string != '.well-known/host-meta')) {
-			Module\Special\HTTPException::rawContent(
-				new HTTPException\NotFoundException()
-			);
-		}
-
 		if (!$this->getMode()->isInstall()) {
 			// Force SSL redirection
 			if ($this->baseURL->checkRedirectHttps()) {
