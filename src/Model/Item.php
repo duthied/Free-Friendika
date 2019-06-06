@@ -28,6 +28,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -1521,7 +1522,7 @@ class Item extends BaseObject
 			$allow_gid = $item['allow_gid'];
 			$deny_cid  = $item['deny_cid'];
 			$deny_gid  = $item['deny_gid'];
-			$notify_type = 'wall-new';
+			$notify_type = Delivery::POST;
 		} else {
 			// find the parent and snarf the item id and ACLs
 			// and anything else we need to inherit
@@ -1558,8 +1559,8 @@ class Item extends BaseObject
 				$allow_gid      = $parent['allow_gid'];
 				$deny_cid       = $parent['deny_cid'];
 				$deny_gid       = $parent['deny_gid'];
-				$item['wall']    = $parent['wall'];
-				$notify_type    = 'comment-new';
+				$item['wall']   = $parent['wall'];
+				$notify_type    = Delivery::COMMENT;
 
 				/*
 				 * If the parent is private, force privacy for the entire conversation
@@ -1601,6 +1602,10 @@ class Item extends BaseObject
 
 				$parent_deleted = 0;
 			}
+		}
+
+		if (stristr($item['verb'], ACTIVITY_POKE)) {
+			$notify_type = Delivery::POKE;
 		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
@@ -1881,11 +1886,13 @@ class Item extends BaseObject
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, $current_post);
 		} elseif ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin'])) {
 			if ($item['gravity'] == GRAVITY_ACTIVITY) {
-				$cmd = $item['origin'] ? 'activity-new' : 'activity-import';
+				$cmd = $item['origin'] ? Delivery::ACTIVITY : 'activity-import';
 			} elseif ($item['gravity'] == GRAVITY_COMMENT) {
-				$cmd = $item['origin'] ? 'comment-new' : 'comment-import';
+				$cmd = $item['origin'] ? Delivery::COMMENT : 'comment-import';
+			} elseif (!empty($notify_type)) {
+				$cmd = $notify_type;
 			} else {
-				$cmd = 'wall-new';
+				$cmd = Delivery::POST;
 			}
 
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $cmd, $current_post);

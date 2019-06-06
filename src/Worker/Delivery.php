@@ -26,7 +26,9 @@ class Delivery extends BaseObject
 	const RELOCATION    = 'relocate';
 	const DELETION      = 'drop';
 	const POST          = 'wall-new';
+	const POKE          = 'poke';
 	const COMMENT       = 'comment-new';
+	const ACTIVITY      = 'activity-new';
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
