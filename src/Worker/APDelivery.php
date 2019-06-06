@@ -37,6 +37,7 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $target_id);
 		} elseif ($cmd == Delivery::RELOCATION) {
+		} elseif ($cmd == Delivery::POKE) {
 		} elseif ($cmd == Delivery::REMOVAL) {
 			$success = ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {

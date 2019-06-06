@@ -40,6 +40,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 require_once 'include/items.php';
 
@@ -603,7 +604,7 @@ function item_post(App $a) {
 		$origin = $_REQUEST['origin'];
 	}
 
-	$notify_type = ($toplevel_item_id ? 'comment-new' : 'wall-new');
+	$notify_type = ($toplevel_item_id ? Delivery::COMMENT : Delivery::POST);
 
 	$uri = ($message_id ? $message_id : Item::newURI($api_source ? $profile_uid : $uid, $guid));
 

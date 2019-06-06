@@ -442,7 +442,7 @@ class Notifier
 					}
 
 					if (in_array($rr['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($rr['protocol'] == Protocol::ACTIVITYPUB) &&
-						!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+						!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
 						Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $rr['url']]);
 						continue;
 					}
@@ -482,7 +482,7 @@ class Notifier
 			}
 
 			if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($contact['protocol'] == Protocol::ACTIVITYPUB) &&
-				!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION])) {
+				!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
 				Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $contact['url']]);
 				continue;
 			}

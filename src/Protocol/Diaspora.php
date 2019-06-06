@@ -37,6 +37,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 use SimpleXMLElement;
 
 /**
@@ -2148,9 +2149,9 @@ class Diaspora
 				continue;
 			}
 			if ($comment['verb'] == ACTIVITY_POST) {
-				$cmd = $comment['self'] ? 'comment-new' : 'comment-import';
+				$cmd = $comment['self'] ? Delivery::COMMENT : 'comment-import';
 			} else {
-				$cmd = $comment['self'] ? 'like' : 'comment-import';
+				$cmd = $comment['self'] ? Delivery::ACTIVITY : 'activity-import';
 			}
 			Logger::log("Send ".$cmd." for item ".$comment['id']." to contact ".$contact_id, Logger::DEBUG);
 			Worker::add(PRIORITY_HIGH, 'Delivery', $cmd, $comment['id'], $contact_id);
