@@ -156,7 +156,7 @@ class Installer
 			'$basepath'  => $basepath,
 			'$timezone'  => $configCache->get('system', 'default_timezone'),
 			'$language'  => $configCache->get('system', 'language'),
-		], false);
+		]);
 
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);
 
