@@ -120,9 +120,21 @@ class Security extends BaseObject
 			 */
 
 			if (!$remote_verified) {
-				if (DBA::exists('contact', ['id' => $remote_user, 'uid' => $owner_id, 'blocked' => false])) {
+				$cid = 0;
+
+				if (!empty($_SESSION['remote'])) {
+					foreach ($_SESSION['remote'] as $visitor) {
+						Logger::log("this remote array entry is".$visitor);
+						if ($visitor['uid'] == $owner_id) {
+							$cid = $visitor['cid'];
+							break;
+						}
+					}
+				}
+
+				if ($cid && DBA::exists('contact', ['id' => $cid, 'uid' => $owner_id, 'blocked' => false])) {
 					$remote_verified = true;
-					$groups = Group::getIdsByContactId($remote_user);
+					$groups = Group::getIdsByContactId($cid);
 				}
 			}
 
@@ -140,9 +152,9 @@ class Security extends BaseObject
 					  AND ( allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR ( allow_cid = '' AND allow_gid = '') )
 					  )
 					",
-					intval($remote_user),
+					intval($cid),
 					DBA::escape($gs),
-					intval($remote_user),
+					intval($cid),
 					DBA::escape($gs)
 				);
 			}
