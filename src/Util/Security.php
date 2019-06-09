@@ -124,7 +124,6 @@ class Security extends BaseObject
 
 				if (!empty($_SESSION['remote'])) {
 					foreach ($_SESSION['remote'] as $visitor) {
-						Logger::log("this remote array entry is".$visitor);
 						if ($visitor['uid'] == $owner_id) {
 							$cid = $visitor['cid'];
 							break;
