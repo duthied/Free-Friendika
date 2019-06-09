@@ -122,12 +122,10 @@ class Security extends BaseObject
 			if (!$remote_verified) {
 				$cid = 0;
 
-				if (!empty($_SESSION['remote'])) {
-					foreach ($_SESSION['remote'] as $visitor) {
-						if ($visitor['uid'] == $owner_id) {
-							$cid = $visitor['cid'];
-							break;
-						}
+				foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
+					if ($visitor['uid'] == $owner_id) {
+						$cid = $visitor['cid'];
+						break;
 					}
 				}
 
