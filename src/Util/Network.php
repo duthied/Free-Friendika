@@ -243,14 +243,14 @@ class Network
 	 *
 	 * @param string  $url       URL to post
 	 * @param mixed   $params    array of POST variables
-	 * @param string  $headers   HTTP headers
+	 * @param array   $headers   HTTP headers
 	 * @param int     $redirects Recursion counter for internal use - default = 0
 	 * @param int     $timeout   The timeout in seconds, default system config value or 60 seconds
 	 *
 	 * @return CurlResult The content
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(string $url, $params, string $headers = null, int $timeout = 0, int &$redirects = 0)
+	public static function post(string $url, $params, $headers = null, int $timeout = 0, int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
