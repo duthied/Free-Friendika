@@ -117,7 +117,7 @@ class Profile
 
 		if (count($profiledata) > 0) {
 			// Add profile data to sidebar
-			$a->page['aside'] .= self::sidebar($profiledata, true, $show_connect);
+			$a->page['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
 
 			if (!DBA::isResult($user)) {
 				return;
@@ -188,7 +188,7 @@ class Profile
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
 		if (!$profiledata) {
-			$a->page['aside'] .= self::sidebar($a->profile, $block, $show_connect);
+			$a->page['aside'] .= self::sidebar($a, $a->profile, $block, $show_connect);
 		}
 
 		return;
@@ -280,10 +280,8 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar($profile, $block = 0, $show_connect = true)
+	private static function sidebar(App $a, $profile, $block = 0, $show_connect = true)
 	{
-		$a = \get_app();
-
 		$o = '';
 		$location = false;
 
