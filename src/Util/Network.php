@@ -250,7 +250,7 @@ class Network
 	 * @return CurlResult The content
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(string $url, $params, $headers = null, int $timeout = 0, int &$redirects = 0)
+	public static function post(string $url, $params, array $headers = [], int $timeout = 0, int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -286,7 +286,7 @@ class Network
 		}
 
 		if (defined('LIGHTTPD')) {
-			if (!is_array($headers)) {
+			if (empty($headers)) {
 				$headers = ['Expect:'];
 			} else {
 				if (!in_array('Expect:', $headers)) {
@@ -295,7 +295,7 @@ class Network
 			}
 		}
 
-		if ($headers) {
+		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
 

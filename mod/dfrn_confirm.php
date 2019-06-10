@@ -209,7 +209,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		 *
 		 */
 
-		$res = Network::post($dfrn_confirm, $params, null, 120)->getBody();
+		$res = Network::post($dfrn_confirm, $params, [], 120)->getBody();
 
 		Logger::log(' Confirm: received data: ' . $res, Logger::DATA);
 
