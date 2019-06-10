@@ -2355,6 +2355,9 @@ class Contact extends BaseObject
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
+		// Prevents endless loop in case only a non-public contact exists for the contact URL
+		unset($data['uid']);
+
 		return self::magicLinkByContact($data, $contact_url);
 	}
 
