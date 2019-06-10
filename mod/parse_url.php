@@ -70,9 +70,8 @@ function parse_url_content(App $a)
 
 	// Check if the URL is an image, video or audio file. If so format
 	// the URL with the corresponding BBCode media tag
-	$redirects = 0;
 	// Fetch the header of the URL
-	$curlResponse = Network::curl($url, false, $redirects, ['novalidate' => true, 'nobody' => true]);
+	$curlResponse = Network::curl($url, false, ['novalidate' => true, 'nobody' => true]);
 
 	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array

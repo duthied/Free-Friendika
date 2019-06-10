@@ -371,7 +371,7 @@ class OnePoll
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$curlResult = Network::curl($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
+			$curlResult = Network::curl($contact['poll'], false, ['cookiejar' => $cookiejar]);
 			unlink($cookiejar);
 
 			if ($curlResult->isTimeout()) {

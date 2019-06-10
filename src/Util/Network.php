@@ -25,17 +25,17 @@ class Network
 	 * @param string  $url            URL to fetch
 	 * @param bool    $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
-	 * @param int     $redirects      The recursion counter for internal use - default 0
 	 * @param int     $timeout        Timeout in seconds, default system config value or 60 seconds
 	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
 	 * @param string  $cookiejar      Path to cookie jar file
+	 * @param int     $redirects      The recursion counter for internal use - default 0
 	 *
 	 * @return string The fetched content
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchUrl(string $url, bool $binary = false, int &$redirects = 0, int $timeout = 0, string $accept_content = null, string $cookiejar = '')
+	public static function fetchUrl(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
 	{
-		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
+		$ret = self::fetchUrlFull($url, $binary, $timeout, $accept_content, $cookiejar, $redirects);
 
 		return $ret->getBody();
 	}
@@ -50,24 +50,25 @@ class Network
 	 * @param string  $url            URL to fetch
 	 * @param bool    $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
-	 * @param int     $redirects      The recursion counter for internal use - default 0
 	 * @param int     $timeout        Timeout in seconds, default system config value or 60 seconds
 	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
 	 * @param string  $cookiejar      Path to cookie jar file
+	 * @param int     $redirects      The recursion counter for internal use - default 0
 	 *
 	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchUrlFull(string $url, bool $binary = false, int &$redirects = 0, int $timeout = 0, string $accept_content = null, string $cookiejar = '')
+	public static function fetchUrlFull(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
 	{
 		return self::curl(
 			$url,
 			$binary,
-			$redirects,
-			['timeout'=>$timeout,
-			'accept_content'=>$accept_content,
-			'cookiejar'=>$cookiejar
-			]
+			[
+				'timeout'        => $timeout,
+				'accept_content' => $accept_content,
+				'cookiejar'      => $cookiejar
+			],
+			$redirects
 		);
 	}
 
@@ -77,7 +78,6 @@ class Network
 	 * @param string  $url       URL to fetch
 	 * @param bool    $binary    default false
 	 *                           TRUE if asked to return binary results (file download)
-	 * @param int     $redirects The recursion counter for internal use - default 0
 	 * @param array   $opts      (optional parameters) assoziative array with:
 	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
 	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
@@ -86,11 +86,12 @@ class Network
 	 *                           'nobody' => only return the header
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
+	 * @param int     $redirects The recursion counter for internal use - default 0
 	 *
 	 * @return CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function curl(string $url, bool $binary = false, int &$redirects = 0, array $opts = [])
+	public static function curl(string $url, bool $binary = false, array $opts = [], int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -227,7 +228,7 @@ class Network
 			$redirects++;
 			Logger::log('curl: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
 			@curl_close($ch);
-			return self::curl($curlResponse->getRedirectUrl(), $binary, $redirects, $opts);
+			return self::curl($curlResponse->getRedirectUrl(), $binary, $opts, $redirects);
 		}
 
 		@curl_close($ch);
@@ -249,7 +250,7 @@ class Network
 	 * @return CurlResult The content
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post(string $url, $params, string $headers = null, int &$redirects = 0, int $timeout = 0)
+	public static function post(string $url, $params, string $headers = null, int $timeout = 0, int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 

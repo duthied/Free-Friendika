@@ -107,8 +107,7 @@ class Search extends BaseObject
 			$searchUrl .= '&page=' . $page;
 		}
 
-		$red        = 0;
-		$resultJson = Network::fetchUrl($searchUrl, false, $red, 0, 'application/json');
+		$resultJson = Network::fetchUrl($searchUrl, false, 0, 'application/json');
 
 		$results = json_decode($resultJson, true);
 

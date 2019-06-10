@@ -1004,7 +1004,7 @@ class PortableContact
 		$server_url = str_replace("http://", "https://", $server_url);
 
 		// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-		$curlResult = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
+		$curlResult = Network::curl($server_url."/.well-known/host-meta", false, ['timeout' => 20]);
 
 		// Quit if there is a timeout.
 		// But we want to make sure to only quit if we are mostly sure that this server url fits.
@@ -1021,7 +1021,7 @@ class PortableContact
 			$server_url = str_replace("https://", "http://", $server_url);
 
 			// We set the timeout to 20 seconds since this operation should be done in no time if the server was vital
-			$curlResult = Network::curl($server_url."/.well-known/host-meta", false, $redirects, ['timeout' => 20]);
+			$curlResult = Network::curl($server_url."/.well-known/host-meta", false, ['timeout' => 20]);
 
 			// Quit if there is a timeout
 			if ($curlResult->isTimeout()) {
@@ -1624,7 +1624,7 @@ class PortableContact
 			if (!empty($accesstoken)) {
 				$api = 'https://instances.social/api/1.0/instances/list?count=0';
 				$header = ['Authorization: Bearer '.$accesstoken];
-				$curlResult = Network::curl($api, false, $redirects, ['headers' => $header]);
+				$curlResult = Network::curl($api, false, ['headers' => $header]);
 
 				if ($curlResult->isSuccess()) {
 					$servers = json_decode($curlResult->getBody(), true);

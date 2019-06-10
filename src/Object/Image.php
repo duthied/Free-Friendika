@@ -781,7 +781,7 @@ class Image
 		$data = Cache::get($url);
 
 		if (is_null($data) || !$data || !is_array($data)) {
-			$img_str = Network::fetchUrl($url, true, $redirects, 4);
+			$img_str = Network::fetchUrl($url, true, 4);
 
 			if (!$img_str) {
 				return false;

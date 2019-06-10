@@ -738,7 +738,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$curlResult = Network::curl($conversation, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = Network::curl($conversation, false, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -931,7 +931,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$curlResult = Network::curl($related, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = Network::curl($related, false, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;

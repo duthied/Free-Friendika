@@ -34,7 +34,7 @@ class APContact extends BaseObject
 
 		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 
-		$curlResult = Network::curl($webfinger, false, $redirects, ['accept_content' => 'application/jrd+json,application/json']);
+		$curlResult = Network::curl($webfinger, false, ['accept_content' => 'application/jrd+json,application/json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
