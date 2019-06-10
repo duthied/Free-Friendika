@@ -315,14 +315,37 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testEmptyPassword()
 	{
-		$confiCache = new ConfigCache([
+		$configCache = new ConfigCache([
 			'database' => [
 				'password' => '',
 				'username' => '',
 			]
 		]);
 
-		$this->assertEmpty($confiCache->get('database', 'password'));
-		$this->assertEmpty($confiCache->get('database', 'username'));
+		$this->assertEmpty($configCache->get('database', 'password'));
+		$this->assertEmpty($configCache->get('database', 'username'));
+	}
+
+	public function testWrongTypePassword()
+	{
+		$configCache = new ConfigCache([
+			'database' => [
+				'password' => new \stdClass(),
+				'username' => '',
+			]
+		]);
+
+		$this->assertNotEmpty($configCache->get('database', 'password'));
+		$this->assertEmpty($configCache->get('database', 'username'));
+
+		$configCache = new ConfigCache([
+			'database' => [
+				'password' => 23,
+				'username' => '',
+			]
+		]);
+
+		$this->assertEquals(23, $configCache->get('database', 'password'));
+		$this->assertEmpty($configCache->get('database', 'username'));
 	}
 }
