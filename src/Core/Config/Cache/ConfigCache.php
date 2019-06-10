@@ -94,7 +94,8 @@ class ConfigCache implements IConfigCache, IPConfigCache
 		}
 
 		if ($this->hidePasswordOutput &&
-			$key == 'password') {
+		    $key == 'password' &&
+		    !empty($value)) {
 			$this->config[$cat][$key] = new HiddenString($value);
 		} else {
 			$this->config[$cat][$key] = $value;

@@ -309,4 +309,20 @@ class ConfigCacheTest extends MockedTest
 		$this->assertEquals('supersecure', print_r($configCache->get('database', 'password'), true));
 		$this->assertEquals('notsecured', print_r($configCache->get('database', 'username'), true));
 	}
+
+	/**
+	 * Test a empty password
+	 */
+	public function testEmptyPassword()
+	{
+		$confiCache = new ConfigCache([
+			'database' => [
+				'password' => '',
+				'username' => '',
+			]
+		]);
+
+		$this->assertEmpty($confiCache->get('database', 'password'));
+		$this->assertEmpty($confiCache->get('database', 'username'));
+	}
 }
