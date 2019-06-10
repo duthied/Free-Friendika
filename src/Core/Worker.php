@@ -983,7 +983,7 @@ class Worker
 		}
 
 		$url = System::baseUrl()."/worker";
-		Network::fetchUrl($url, false, $redirects, 1);
+		Network::fetchUrl($url, false, 1);
 	}
 
 	/**
