@@ -6,6 +6,7 @@ use Friendica\Core\Config\Cache;
 use Friendica\Database;
 use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Profiler;
+use ParagonIE\HiddenString\HiddenString;
 
 class DBFactory
 {
@@ -45,7 +46,7 @@ class DBFactory
 			} else {
 				$db_user = $server['MYSQL_USER'];
 			}
-			$db_pass = (string) $server['MYSQL_PASSWORD'];
+			$db_pass = new HiddenString((string) $server['MYSQL_PASSWORD']);
 			$db_data = $server['MYSQL_DATABASE'];
 		}
 
