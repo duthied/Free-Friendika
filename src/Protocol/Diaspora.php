@@ -2148,13 +2148,9 @@ class Diaspora
 			if ($comment['id'] == $comment['parent']) {
 				continue;
 			}
-			if ($comment['verb'] == ACTIVITY_POST) {
-				$cmd = $comment['self'] ? Delivery::COMMENT : 'comment-import';
-			} else {
-				$cmd = $comment['self'] ? Delivery::ACTIVITY : 'activity-import';
-			}
-			Logger::log("Send ".$cmd." for item ".$comment['id']." to contact ".$contact_id, Logger::DEBUG);
-			Worker::add(PRIORITY_HIGH, 'Delivery', $cmd, $comment['id'], $contact_id);
+
+			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $contact_id]);
+			Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id);
 		}
 		DBA::close($comments);
 

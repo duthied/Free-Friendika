@@ -32,23 +32,7 @@ require_once 'include/items.php';
  *
  *		Worker::add(PRIORITY_HIGH, "Notifier", COMMAND, ITEM_ID);
  *
- * where COMMAND is one of the following:
- *
- *		activity				(in diaspora.php, dfrn_confirm.php, profiles.php)
- *		comment-import			(in diaspora.php, items.php)
- *		comment-new				(in item.php)
- *		drop					(in diaspora.php, items.php, photos.php)
- *		edit_post				(in item.php)
- *		event					(in events.php)
- *		like					(in like.php, poke.php)
- *		mail					(in message.php)
- *		suggest					(in fsuggest.php)
- *		tag						(in photos.php, poke.php, tagger.php)
- *		tgroup					(in items.php)
- *		wall-new				(in photos.php, item.php)
- *		removeme				(in Contact.php)
- * 		relocate				(in uimport.php)
- *
+ * where COMMAND is one of the constants that are defined in Worker/Delivery.php
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  */
 
@@ -199,7 +183,7 @@ class Notifier
 			}
 
 
-			if (($cmd === 'uplink') && (intval($parent['forum_mode']) == 1) && !$top_level) {
+			if (($cmd === Delivery::UPLINK) && (intval($parent['forum_mode']) == 1) && !$top_level) {
 				$relay_to_owner = true;
 			}
 
@@ -287,8 +271,8 @@ class Notifier
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink
 
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== 'uplink')) {
-					Worker::add($a->queue['priority'], 'Notifier', 'uplink', $target_id);
+				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)) {
+					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $target_id);
 				}
 
 				foreach ($items as $item) {
@@ -545,7 +529,7 @@ class Notifier
 		if (!empty($target_item)) {
 			Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
 
-			if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				ItemDeliveryData::update($target_item['id'], ['queue_count' => $delivery_queue_count]);
 			}
 

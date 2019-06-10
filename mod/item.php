@@ -604,8 +604,6 @@ function item_post(App $a) {
 		$origin = $_REQUEST['origin'];
 	}
 
-	$notify_type = ($toplevel_item_id ? Delivery::COMMENT : Delivery::POST);
-
 	$uri = ($message_id ? $message_id : Item::newURI($api_source ? $profile_uid : $uid, $guid));
 
 	// Fallback so that we alway have a parent uri
@@ -870,7 +868,7 @@ function item_post(App $a) {
 	// When we are doing some forum posting via ! we have to start the notifier manually.
 	// These kind of posts don't initiate the notifier call in the item class.
 	if ($only_to_forum) {
-		Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $post_id);
 	}
 
 	Logger::log('post_complete');

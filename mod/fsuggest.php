@@ -10,6 +10,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 function fsuggest_post(App $a)
 {
@@ -51,7 +52,7 @@ function fsuggest_post(App $a)
 		'photo' => $contact['avatar'], 'note' => $note, 'created' => DateTimeFormat::utcNow()];
 	DBA::insert('fsuggest', $fields);
 
-	Worker::add(PRIORITY_HIGH, 'Notifier', 'suggest', DBA::lastInsertId());
+	Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, DBA::lastInsertId());
 
 	info(L10n::t('Friend suggestion sent.') . EOL);
 }

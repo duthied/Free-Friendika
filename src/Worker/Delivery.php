@@ -27,8 +27,7 @@ class Delivery extends BaseObject
 	const DELETION      = 'drop';
 	const POST          = 'wall-new';
 	const POKE          = 'poke';
-	const COMMENT       = 'comment-new';
-	const ACTIVITY      = 'activity-new';
+	const UPLINK        = 'uplink';
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
@@ -319,7 +318,7 @@ class Delivery extends BaseObject
 			// We successfully delivered a message, the contact is alive
 			Model\Contact::unmarkForArchival($contact);
 
-			if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
 			}
 		} else {
@@ -400,7 +399,7 @@ class Delivery extends BaseObject
 			// We successfully delivered a message, the contact is alive
 			Model\Contact::unmarkForArchival($contact);
 
-			if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
 			}
 		} else {
@@ -411,7 +410,7 @@ class Delivery extends BaseObject
 				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
 				// defer message for redelivery
 				Worker::defer();
-			} elseif (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
 			}
 		}
@@ -439,7 +438,7 @@ class Delivery extends BaseObject
 			return;
 		}
 
-		if (!in_array($cmd, [self::POST, self::COMMENT])) {
+		if (!in_array($cmd, [self::POST, self::POKE])) {
 			return;
 		}
 
