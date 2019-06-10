@@ -251,8 +251,12 @@ class BBCode extends BaseObject
 
 			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
-					// Checking, if the link goes to a picture
-					$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+					if (!empty($item['object-type']) && ($item['object-type'] == ACTIVITY_OBJ_IMAGE)) {
+						$data = ['url' => $pictures[0][1], 'type' => 'photo'];
+					} else {
+						// Checking, if the link goes to a picture
+						$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+					}
 
 					// Workaround:
 					// Sometimes photo posts to the own album are not detected at the start.
@@ -271,14 +275,14 @@ class BBCode extends BaseObject
 						}
 
 						$post["preview"] = $pictures[0][2];
-						$post["text"] = str_replace($pictures[0][0], "", $body);
+						$post["text"] = trim(str_replace($pictures[0][0], "", $body));
 					} else {
 						$imgdata = Image::getInfoFromURL($pictures[0][1]);
 						if ($imgdata && substr($imgdata["mime"], 0, 6) == "image/") {
 							$post["type"] = "photo";
 							$post["image"] = $pictures[0][1];
 							$post["preview"] = $pictures[0][2];
-							$post["text"] = str_replace($pictures[0][0], "", $body);
+							$post["text"] = trim(str_replace($pictures[0][0], "", $body));
 						}
 					}
 				} elseif (count($pictures) > 0) {
