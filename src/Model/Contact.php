@@ -2157,7 +2157,8 @@ class Contact extends BaseObject
 
 		if (!empty($contact)) {
             // Contact is blocked at user-level
-		    if (self::isBlockedByUser($contact['id'], $importer['id'])) {
+		    if (!empty($contact['id']) && !empty($importer['id']) &&
+		        self::isBlockedByUser($contact['id'], $importer['id'])) {
 		        return false;
             }
 
