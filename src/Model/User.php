@@ -21,6 +21,7 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 use LightOpenID;
 
 /**
@@ -912,7 +913,7 @@ class User
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'removeme', $uid);
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);

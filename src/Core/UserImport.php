@@ -10,6 +10,7 @@ use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 /**
  * @brief UserImport class
@@ -278,7 +279,7 @@ class UserImport
 		}
 
 		// send relocate messages
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
 
 		info(L10n::t("Done. You can now login with your username and password"));
 		$a->internalRedirect('login');

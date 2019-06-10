@@ -21,6 +21,7 @@ use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Friendica\Worker\Delivery;
 
 function events_init(App $a)
 {
@@ -195,7 +196,7 @@ function events_post(App $a)
 	$item_id = Event::store($datarray);
 
 	if (!$cid) {
-		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item_id);
 	}
 
 	$a->internalRedirect('events');

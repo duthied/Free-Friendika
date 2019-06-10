@@ -13,6 +13,7 @@ use Friendica\Model\Item;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\Delivery;
 
 /**
  * Class to handle private messages
@@ -218,7 +219,7 @@ class Mail
 		}
 
 		if ($post_id) {
-			Worker::add(PRIORITY_HIGH, "Notifier", "mail", $post_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
 			return intval($post_id);
 		} else {
 			return -3;

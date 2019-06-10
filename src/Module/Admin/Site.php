@@ -16,6 +16,7 @@ use Friendica\Protocol\PortableContact;
 use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 require_once __DIR__ . '/../../../boot.php';
 
@@ -99,7 +100,7 @@ class Site extends BaseAdminModule
 			// send relocate
 			$usersStmt = DBA::select('user', ['uid'], ['account_removed' => false, 'account_expired' => false]);
 			while ($user = DBA::fetch($usersStmt)) {
-				Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $user['uid']);
+				Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $user['uid']);
 			}
 
 			info("Relocation started. Could take a while to complete.");

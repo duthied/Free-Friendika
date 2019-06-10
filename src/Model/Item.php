@@ -926,7 +926,7 @@ class Item extends BaseObject
 			// We only need to notfiy others when it is an original entry from us.
 			// Only call the notifier when the item has some content relevant change.
 			if ($item['origin'] && in_array('edited', array_keys($fields))) {
-				Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
+				Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item['id']);
 			}
 		}
 
@@ -1096,7 +1096,7 @@ class Item extends BaseObject
 			self::delete(['uri' => $item['uri'], 'deleted' => false], $priority);
 
 			// send the notification upstream/downstream
-			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
 		} elseif ($item['uid'] != 0) {
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
@@ -1509,7 +1509,7 @@ class Item extends BaseObject
 
 		$item['thr-parent'] = $item['parent-uri'];
 
-		$notify_type = '';
+		$notify_type = Delivery::POST;
 		$allow_cid = '';
 		$allow_gid = '';
 		$deny_cid  = '';
@@ -1522,7 +1522,6 @@ class Item extends BaseObject
 			$allow_gid = $item['allow_gid'];
 			$deny_cid  = $item['deny_cid'];
 			$deny_gid  = $item['deny_gid'];
-			$notify_type = Delivery::POST;
 		} else {
 			// find the parent and snarf the item id and ACLs
 			// and anything else we need to inherit
@@ -1560,7 +1559,6 @@ class Item extends BaseObject
 				$deny_cid       = $parent['deny_cid'];
 				$deny_gid       = $parent['deny_gid'];
 				$item['wall']   = $parent['wall'];
-				$notify_type    = Delivery::COMMENT;
 
 				/*
 				 * If the parent is private, force privacy for the entire conversation
@@ -1882,20 +1880,8 @@ class Item extends BaseObject
 
 		check_user_notification($current_post);
 
-		if ($notify) {
+		if ($notify || ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin']))) {
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, $current_post);
-		} elseif ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin'])) {
-			if ($item['gravity'] == GRAVITY_ACTIVITY) {
-				$cmd = $item['origin'] ? Delivery::ACTIVITY : 'activity-import';
-			} elseif ($item['gravity'] == GRAVITY_COMMENT) {
-				$cmd = $item['origin'] ? Delivery::COMMENT : 'comment-import';
-			} elseif (!empty($notify_type)) {
-				$cmd = $notify_type;
-			} else {
-				$cmd = Delivery::POST;
-			}
-
-			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $cmd, $current_post);
 		}
 
 		return $current_post;
@@ -2611,7 +2597,7 @@ class Item extends BaseObject
 
 		self::updateThread($item_id);
 
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', 'tgroup', $item_id);
+		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
 	}
 
 	public static function isRemoteSelf($contact, &$datarray)
