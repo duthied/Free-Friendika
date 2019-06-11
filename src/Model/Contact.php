@@ -125,6 +125,20 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * @param array $fields    Array of selected fields, empty for all
+	 * @param array $condition Array of fields for condition
+	 * @param array $params    Array of several parameters
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function selectFirst(array $fields = [], array $condition = [], array $params = [])
+	{
+		$contact = DBA::selectFirst('contact', $fields, $condition, $params);
+
+		return $contact;
+	}
+
+	/**
 	 * @param integer $id     Contact ID
 	 * @param array   $fields Array of selected fields, empty for all
 	 * @return array|boolean Contact record if it exists, false otherwise

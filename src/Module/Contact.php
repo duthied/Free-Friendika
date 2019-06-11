@@ -944,10 +944,6 @@ class Contact extends BaseModule
 
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
 
-			if (local_user() && in_array($profiledata['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
-				$profiledata['remoteconnect'] = System::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
-			}
-
 			Model\Profile::load($a, '', 0, $profiledata, true);
 			$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
 		}

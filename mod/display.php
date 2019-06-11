@@ -186,16 +186,7 @@ function display_fetchauthor($a, $item)
 
 	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
 
-	if (local_user()) {
-		if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
-			$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
-		}
-	} elseif ($profiledata["network"] == Protocol::DFRN) {
-		$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
-		$profiledata["remoteconnect"] = $connect;
-	}
-
-	return($profiledata);
+	return $profiledata;
 }
 
 function display_content(App $a, $update = false, $update_uid = 0)
