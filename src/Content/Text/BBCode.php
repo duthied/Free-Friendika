@@ -985,7 +985,7 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
-			case 9:
+			case 9: // ActivityPub
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
 				break;
 			default:
