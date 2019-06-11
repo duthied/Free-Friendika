@@ -413,7 +413,11 @@ class Photo extends BaseObject
 		$photo_failure = false;
 
 		$filename = basename($image_url);
-		$img_str = Network::fetchUrl($image_url, true);
+		if (!empty($image_url)) {
+			$img_str = Network::fetchUrl($image_url, true);
+		} else {
+			$img_str = '';
+		}
 
 		if ($quit_on_error && ($img_str == "")) {
 			return false;

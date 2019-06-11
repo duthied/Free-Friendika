@@ -152,7 +152,13 @@ class APContact extends BaseObject
 			$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
 		}
 
-		if (empty($apcontact['url']) || empty($apcontact['inbox'])) {
+		// Quit if none of the basic values are set
+		if (empty($apcontact['url']) || empty($apcontact['inbox']) || empty($apcontact['type'])) {
+			return false;
+		}
+
+		// Quit if this doesn't seem to be an account at all
+		if (!in_array($apcontact['type'], ActivityPub::ACCOUNT_TYPES)) {
 			return false;
 		}
 
@@ -228,11 +234,13 @@ class APContact extends BaseObject
 
 		DBA::update('contact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
 
-		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
-		while ($contact = DBA::fetch($contacts)) {
-			Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
+		if (!empty($apcontact['photo'])) {
+			$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
+			while ($contact = DBA::fetch($contacts)) {
+				Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
+			}
+			DBA::close($contacts);
 		}
-		DBA::close($contacts);
 
 		// Update the gcontact table
 		// These two fields don't exist in the gcontact table
