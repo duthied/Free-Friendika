@@ -102,6 +102,11 @@
 				<a class="{{$nav.login.2}}" href="{{$nav.login.0}}" title="{{$nav.login.3}}" >{{$nav.login.1}}</a>
 			</li>
 		{{/if}}
+		{{if $nav.logout}}
+			<li role="menuitem" id="nav-logout-link" class="nav-menu">
+				<a class="{{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" >{{$nav.logout.1}}</a>
+			</li>
+		{{/if}}
 
 		{{if $nav.search}}
 			<li role="search" id="nav-search-box">

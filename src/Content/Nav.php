@@ -148,9 +148,13 @@ class Nav
 		$nav['usermenu'] = [];
 		$userinfo = null;
 
-		if (local_user()) {
+		if (local_user() || remote_user()) {
 			$nav['logout'] = ['logout', L10n::t('Logout'), '', L10n::t('End this session')];
+		} else {
+			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
+		}
 
+		if (local_user()) {
 			// user menu
 			$nav['usermenu'][] = ['profile/' . $a->user['nickname'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
 			$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
@@ -165,8 +169,6 @@ class Nav
 				'icon' => (DBA::isResult($contact) ? $a->removeBaseURL($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
 			];
-		} else {
-			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
 		}
 
 		// "Home" should also take you home from an authenticated remote profile connection

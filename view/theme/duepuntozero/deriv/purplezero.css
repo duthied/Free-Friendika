@@ -10,7 +10,7 @@ section { 	background-image: url('imgpurplezero/border.jpg'); }
 div.wall-item-content-wrapper.shiny {  background-image: url('imgpurplezero/shiny.png'); }
 
 
-.nav-commlink, .nav-login-link {
+.nav-commlink, .nav-login-link, .nav-logout-link {
 	background-color: #aed3b2;
 
 }
