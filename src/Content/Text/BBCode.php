@@ -569,7 +569,7 @@ class BBCode extends BaseObject
 		}
 
 		$return = '';
-		if ($simplehtml == 7) {
+		if (in_array($simplehtml, [7, 9])) {
 			$return = self::convertUrlForOStatus($data["url"]);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
@@ -985,15 +985,8 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
+			case 9: // ActivityPub
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
-				break;
-			case 9: // Google+
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
-				$text .= '<p>' . $content . '</p>' . "\n";
-
-				if ($attributes['link'] != '') {
-					$text .= '<p>' . $attributes['link'] . '</p>';
-				}
 				break;
 			default:
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
@@ -1146,13 +1139,14 @@ class BBCode extends BaseObject
 	 * Simple HTML values meaning:
 	 * - 0: Friendica display
 	 * - 1: Unused
-	 * - 2: Used for Google+, Windows Phone push, Friendica API
+	 * - 2: Used for Windows Phone push, Friendica API
 	 * - 3: Used before converting to Markdown in bb2diaspora.php
 	 * - 4: Used for WordPress, Libertree (before Markdown), pump.io and tumblr
 	 * - 5: Unused
 	 * - 6: Unused
 	 * - 7: Used for dfrn, OStatus
 	 * - 8: Used for WP backlink text setting
+	 * - 9: ActivityPub
 	 *
 	 * @param string $text
 	 * @param bool   $try_oembed
@@ -1298,7 +1292,7 @@ class BBCode extends BaseObject
 		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 		if (!$for_plaintext) {
 			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
-			if ($simple_html == 7) {
+			if (in_array($simple_html, [7, 9])) {
 				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 			}
@@ -1310,14 +1304,14 @@ class BBCode extends BaseObject
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
 		// Remove all hashtag addresses
-		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7])) {
+		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7, 9])) {
 			$text = preg_replace("/([#@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $text);
 		} elseif ($simple_html == 3) {
 			// The ! is converted to @ since Diaspora only understands the @
 			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 				'@<a href="$2">$3</a>',
 				$text);
-		} elseif ($simple_html == 7) {
+		} elseif (in_array($simple_html, [7, 9])) {
 			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
 				$text);
@@ -1333,7 +1327,7 @@ class BBCode extends BaseObject
 		$text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
 					"[bookmark=$1]$2[/bookmark]", $text);
 
-		if (in_array($simple_html, [2, 6, 7, 8, 9])) {
+		if (in_array($simple_html, [2, 6, 7, 8])) {
 			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
 			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
 			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
