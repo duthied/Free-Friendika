@@ -1141,7 +1141,7 @@ class Transmitter
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
-		$event['content'] = BBCode::convert($item['event-desc'], false, 7);
+		$event['content'] = BBCode::convert($item['event-desc'], false, 9);
 		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
 
 		if (!$item['event-nofinish']) {
@@ -1231,7 +1231,7 @@ class Transmitter
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-			$data['content'] = BBCode::convert($body, false, 7);
+			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
