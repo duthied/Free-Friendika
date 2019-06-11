@@ -252,7 +252,9 @@ class BBCode extends BaseObject
 			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
 					if (!empty($item['object-type']) && ($item['object-type'] == ACTIVITY_OBJ_IMAGE)) {
-						$data = ['url' => $pictures[0][1], 'type' => 'photo'];
+						// Replace the preview picture with the real picture
+						$url = str_replace('-1.', '-0.', $pictures[0][2]);
+						$data = ['url' => $url, 'type' => 'photo'];
 					} else {
 						// Checking, if the link goes to a picture
 						$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
