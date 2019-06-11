@@ -436,7 +436,7 @@ class Transmitter
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
-								if (!$item['private']) {
+								if (!$item['private'] && !empty($actor_profile['followers'])) {
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
