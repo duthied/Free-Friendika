@@ -894,7 +894,7 @@ class Contact extends BaseObject
 			// If there is more than one entry we filter out the connector networks
 			if (count($r) > 1) {
 				foreach ($r as $id => $result) {
-					if ($result["network"] == Protocol::STATUSNET) {
+					if (!in_array($result["network"], Protocol::NATIVE_SUPPORT)) {
 						unset($r[$id]);
 					}
 				}
@@ -1078,7 +1078,7 @@ class Contact extends BaseObject
 			$profile_link = $profile_link . '?tab=profile';
 		}
 
-		if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && !$contact['self']) {
+		if (self::canReceivePrivateMessages($contact)) {
 			$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
@@ -2446,5 +2446,19 @@ class Contact extends BaseObject
 
 		// Is it a forum?
 		return ($contact['forum'] || $contact['prv']);
+	}
+
+	/**
+	 * Can the remote contact receive private messages?
+	 *
+	 * @param array $contact
+	 * @return bool
+	 */
+	public static function canReceivePrivateMessages(array $contact)
+	{
+		$protocol = $contact['network'] ?? $contact['protocol'] ?? Protocol::PHANTOM;
+		$self = $contact['self'] ?? false;
+
+		return in_array($protocol, [Protocol::DFRN, Protocol::DIASPORA, Protocol::ACTIVITYPUB]) && !$self;
 	}
 }
