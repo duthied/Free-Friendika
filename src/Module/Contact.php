@@ -309,6 +309,21 @@ class Contact extends BaseModule
 				$network_link = '';
 			}
 
+			$follow_link = '';
+			$unfollow_link = '';
+			if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+				if ($contact['uid'] && in_array($contact['rel'], [Model\Contact::SHARING, Model\Contact::FRIEND])) {
+					$unfollow_link = 'unfollow?url=' . urlencode($contact['url']);
+				} elseif(!$contact['pending']) {
+					$follow_link = 'follow?url=' . urlencode($contact['url']);
+				}
+			}
+
+			$wallmessage_link = '';
+			if ($contact['uid'] && Model\Contact::canReceivePrivateMessages($contact)) {
+				$wallmessage_link = 'message/new/' . $contact['id'];
+			}
+
 			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/vcard.tpl'), [
 				'$name'         => $contact['name'],
 				'$photo'        => $contact['photo'],
@@ -316,7 +331,13 @@ class Contact extends BaseModule
 				'$addr'         => defaults($contact, 'addr', ''),
 				'$network_link' => $network_link,
 				'$network'      => L10n::t('Network:'),
-				'$account_type' => Model\Contact::getAccountType($contact)
+				'$account_type' => Model\Contact::getAccountType($contact),
+				'$follow'       => L10n::t('Follow'),
+				'$follow_link'   => $follow_link,
+				'$unfollow'     => L10n::t('Unfollow'),
+				'$unfollow_link' => $unfollow_link,
+				'$wallmessage'  => L10n::t('Message'),
+				'$wallmessage_link' => $wallmessage_link,
 			]);
 
 			$findpeople_widget = '';
@@ -557,19 +578,6 @@ class Contact extends BaseModule
 				$profile_select = ContactSelector::profileAssign($contact['profile-id'], $contact['network'] !== Protocol::DFRN);
 			}
 
-			/// @todo Only show the following link with DFRN when the remote version supports it
-			$follow = '';
-			$follow_text = '';
-			if ($contact['uid'] && in_array($contact['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
-				if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-					$follow = $a->getBaseURL(true) . '/unfollow?url=' . urlencode($contact['url']);
-					$follow_text = L10n::t('Disconnect/Unfollow');
-				}
-			} elseif(!$contact['pending']) {
-				$follow = $a->getBaseURL(true) . '/follow?url=' . urlencode($contact['url']);
-				$follow_text = L10n::t('Connect/Follow');
-			}
-
 			// Load contactact related actions like hide, suggest, delete and others
 			$contact_actions = self::getContactActions($contact);
 
@@ -610,8 +618,6 @@ class Contact extends BaseModule
 				'$updpub'         => L10n::t('Update public posts'),
 				'$last_update'    => $last_update,
 				'$udnow'          => L10n::t('Update now'),
-				'$follow'         => $follow,
-				'$follow_text'    => $follow_text,
 				'$profile_select' => $profile_select,
 				'$contact_id'     => $contact['id'],
 				'$block_text'     => ($contact['blocked'] ? L10n::t('Unblock') : L10n::t('Block')),
@@ -943,10 +949,6 @@ class Contact extends BaseModule
 			$a->page['aside'] = '';
 
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
-
-			if (local_user() && in_array($profiledata['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
-				$profiledata['remoteconnect'] = System::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
-			}
 
 			Model\Profile::load($a, '', 0, $profiledata, true);
 			$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);

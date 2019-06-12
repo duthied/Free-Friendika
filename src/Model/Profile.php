@@ -18,6 +18,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -117,7 +118,7 @@ class Profile
 
 		if (count($profiledata) > 0) {
 			// Add profile data to sidebar
-			$a->page['aside'] .= self::sidebar($profiledata, true, $show_connect);
+			$a->page['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
 
 			if (!DBA::isResult($user)) {
 				return;
@@ -188,7 +189,7 @@ class Profile
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
 		if (!$profiledata) {
-			$a->page['aside'] .= self::sidebar($a->profile, $block, $show_connect);
+			$a->page['aside'] .= self::sidebar($a, $a->profile, $block, $show_connect);
 		}
 
 		return;
@@ -280,10 +281,8 @@ class Profile
 	 * @hooks 'profile_sidebar'
 	 *      array $arr
 	 */
-	private static function sidebar($profile, $block = 0, $show_connect = true)
+	private static function sidebar(App $a, $profile, $block = 0, $show_connect = true)
 	{
-		$a = \get_app();
-
 		$o = '';
 		$location = false;
 
@@ -304,126 +303,101 @@ class Profile
 
 		Hook::callAll('profile_sidebar_enter', $profile);
 
+		if (isset($profile['url'])) {
+			$profile_url = $profile['url'];
+		} else {
+			$profile_url = $a->getBaseURL() . '/profile/' . $profile['nickname'];
+		}
 
-		// don't show connect link to yourself
-		$connect = $profile['uid'] != local_user() ? L10n::t('Connect') : false;
+		$follow_link = null;
+		$unfollow_link = null;
+		$subscribe_feed_link = null;
+		$wallmessage_link = null;
 
-		// don't show connect link to authenticated visitors either
-		if (remote_user() && !empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $visitor) {
-				if ($visitor['uid'] == $profile['uid']) {
-					$connect = false;
-					break;
+
+
+		$visitor_contact = [];
+		if ($profile['uid'] && self::getMyURL()) {
+			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
+		}
+
+		$profile_contact = [];
+		if ($profile['cid'] && self::getMyURL()) {
+			$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
+		}
+
+		$profile_is_dfrn = $profile['network'] == Protocol::DFRN;
+		$profile_is_native = in_array($profile['network'], Protocol::NATIVE_SUPPORT);
+		$local_user_is_self = local_user() && local_user() == ($profile['profile_uid'] ?? 0);
+		$visitor_is_authenticated = (bool)self::getMyURL();
+		$visitor_is_following =
+			in_array($visitor_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND])
+			|| in_array($profile_contact['rel'] ?? 0, [Contact::SHARING, Contact::FRIEND]);
+		$visitor_is_followed =
+			in_array($visitor_contact['rel'] ?? 0, [Contact::SHARING, Contact::FRIEND])
+			|| in_array($profile_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
+		$visitor_base_path = self::getMyURL() ? preg_replace('=/profile/(.*)=ism', '', self::getMyURL()) : '';
+
+		if (!$local_user_is_self) {
+			if (!$visitor_is_authenticated) {
+				$follow_link = 'dfrn_request/' . $profile['nickname'];
+			} elseif ($profile_is_native) {
+				if ($visitor_is_following) {
+					$unfollow_link = $visitor_base_path . '/unfollow?url=' . urlencode($profile_url);
+				} else {
+					$follow_link =  $visitor_base_path .'/follow?url=' . urlencode($profile_url);
 				}
 			}
-		}
 
-		if (!$show_connect) {
-			$connect = false;
-		}
-
-		$profile_url = '';
-
-		// Is the local user already connected to that user?
-		if ($connect && local_user()) {
-			if (isset($profile['url'])) {
-				$profile_url = Strings::normaliseLink($profile['url']);
-			} else {
-				$profile_url = Strings::normaliseLink(System::baseUrl() . '/profile/' . $profile['nickname']);
+			if ($profile_is_dfrn) {
+				$subscribe_feed_link = 'dfrn_poll/' . $profile['nickname'];
 			}
 
-			if (DBA::exists('contact', ['pending' => false, 'uid' => local_user(), 'nurl' => $profile_url])) {
-				$connect = false;
-			}
-		}
-
-		// Is the remote user already connected to that user?
-		if ($connect && Contact::isFollower(remote_user(), $profile['uid'])) {
-			$connect = false;
-		}
-
-		if ($connect && ($profile['network'] != Protocol::DFRN) && !isset($profile['remoteconnect'])) {
-			$connect = false;
-		}
-
-		$remoteconnect = null;
-		if (isset($profile['remoteconnect'])) {
-			$remoteconnect = $profile['remoteconnect'];
-		}
-
-		if ($connect && ($profile['network'] == Protocol::DFRN) && !isset($remoteconnect)) {
-			$subscribe_feed = L10n::t('Atom feed');
-		} else {
-			$subscribe_feed = false;
-		}
-
-		$wallmessage = false;
-		$wallmessage_link = false;
-
-		// See issue https://github.com/friendica/friendica/issues/3838
-		// Either we remove the message link for remote users or we enable creating messages from remote users
-		if (remote_user() || (self::getMyURL() && !empty($profile['unkmail']) && ($profile['uid'] != local_user()))) {
-			$wallmessage = L10n::t('Message');
-
-			if (remote_user()) {
-				$r = q(
-					"SELECT `url` FROM `contact` WHERE `uid` = %d AND `id` = '%s' AND `rel` = %d",
-					intval($profile['uid']),
-					intval(remote_user()),
-					intval(Contact::FRIEND)
-				);
-			} else {
-				$r = q(
-					"SELECT `url` FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND `rel` = %d",
-					intval($profile['uid']),
-					DBA::escape(Strings::normaliseLink(self::getMyURL())),
-					intval(Contact::FRIEND)
-				);
-			}
-			if ($r) {
-				$remote_url = $r[0]['url'];
-				$message_path = preg_replace('=(.*)/profile/(.*)=ism', '$1/message/new/', $remote_url);
-				$wallmessage_link = $message_path . base64_encode(defaults($profile, 'addr', ''));
-			} else if (!empty($profile['nickname'])) {
-				$wallmessage_link = 'wallmessage/' . $profile['nickname'];
+			if (Contact::canReceivePrivateMessages($profile)) {
+				if ($visitor_is_followed || $visitor_is_following) {
+					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode(defaults($profile, 'addr', ''));
+				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
+					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
+				}
 			}
 		}
 
 		// show edit profile to yourself
-		if (!$is_contact && $profile['uid'] == local_user() && Feature::isEnabled(local_user(), 'multi_profiles')) {
-			$profile['edit'] = [System::baseUrl() . '/profiles', L10n::t('Profiles'), '', L10n::t('Manage/edit profiles')];
-			$r = q(
-				"SELECT * FROM `profile` WHERE `uid` = %d",
-				local_user()
-			);
+		if (!$is_contact && $local_user_is_self) {
+			if (Feature::isEnabled(local_user(), 'multi_profiles')) {
+				$profile['edit'] = [System::baseUrl() . '/profiles', L10n::t('Profiles'), '', L10n::t('Manage/edit profiles')];
+				$r = q(
+					"SELECT * FROM `profile` WHERE `uid` = %d",
+					local_user()
+				);
 
-			$profile['menu'] = [
-				'chg_photo' => L10n::t('Change profile photo'),
-				'cr_new' => L10n::t('Create New Profile'),
-				'entries' => [],
-			];
+				$profile['menu'] = [
+					'chg_photo' => L10n::t('Change profile photo'),
+					'cr_new' => L10n::t('Create New Profile'),
+					'entries' => [],
+				];
 
-			if (DBA::isResult($r)) {
-				foreach ($r as $rr) {
-					$profile['menu']['entries'][] = [
-						'photo' => $rr['thumb'],
-						'id' => $rr['id'],
-						'alt' => L10n::t('Profile Image'),
-						'profile_name' => $rr['profile-name'],
-						'isdefault' => $rr['is-default'],
-						'visibile_to_everybody' => L10n::t('visible to everybody'),
-						'edit_visibility' => L10n::t('Edit visibility'),
-					];
+				if (DBA::isResult($r)) {
+					foreach ($r as $rr) {
+						$profile['menu']['entries'][] = [
+							'photo' => $rr['thumb'],
+							'id' => $rr['id'],
+							'alt' => L10n::t('Profile Image'),
+							'profile_name' => $rr['profile-name'],
+							'isdefault' => $rr['is-default'],
+							'visibile_to_everybody' => L10n::t('visible to everybody'),
+							'edit_visibility' => L10n::t('Edit visibility'),
+						];
+					}
 				}
+			} else {
+				$profile['edit'] = [System::baseUrl() . '/profiles/' . $profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
+				$profile['menu'] = [
+					'chg_photo' => L10n::t('Change profile photo'),
+					'cr_new' => null,
+					'entries' => [],
+				];
 			}
-		}
-		if (!$is_contact && $profile['uid'] == local_user() && !Feature::isEnabled(local_user(), 'multi_profiles')) {
-			$profile['edit'] = [System::baseUrl() . '/profiles/' . $profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
-			$profile['menu'] = [
-				'chg_photo' => L10n::t('Change profile photo'),
-				'cr_new' => null,
-				'entries' => [],
-			];
 		}
 
 		// Fetch the account type
@@ -525,10 +499,13 @@ class Profile
 		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
 			'$xmpp' => $xmpp,
-			'$connect' => $connect,
-			'$remoteconnect' => $remoteconnect,
-			'$subscribe_feed' => $subscribe_feed,
-			'$wallmessage' => $wallmessage,
+			'$follow' => L10n::t('Follow'),
+			'$follow_link' => $follow_link,
+			'$unfollow' => L10n::t('Unfollow'),
+			'$unfollow_link' => $unfollow_link,
+			'$subscribe_feed' => L10n::t('Atom feed'),
+			'$subscribe_feed_link' => $subscribe_feed_link,
+			'$wallmessage' => L10n::t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
 			'$account_type' => $account_type,
 			'$location' => $location,
@@ -998,10 +975,7 @@ class Profile
 	 */
 	public static function getMyURL()
 	{
-		if (!empty($_SESSION['my_url'])) {
-			return $_SESSION['my_url'];
-		}
-		return null;
+		return Session::get('my_url');
 	}
 
 	/**
