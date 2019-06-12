@@ -9,6 +9,8 @@ use Friendica\BaseModule;
 use Friendica\Core\Authentication;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\System;
+use Friendica\Model\Profile;
 
 /**
  * Logout module
@@ -22,9 +24,19 @@ class Logout extends BaseModule
 	 */
 	public static function init()
 	{
+		$visitor_home = null;
+		if (remote_user()) {
+			$visitor_home = Profile::getMyURL();
+		}
+
 		Hook::callAll("logging_out");
 		Authentication::deleteSession();
-		info(L10n::t('Logged out.') . EOL);
-		self::getApp()->internalRedirect();
+
+		if ($visitor_home) {
+			System::externalRedirect($visitor_home);
+		} else {
+			info(L10n::t('Logged out.'));
+			self::getApp()->internalRedirect();
+		}
 	}
 }

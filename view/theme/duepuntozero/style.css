@@ -159,7 +159,7 @@ nav #banner #logo-text a {
 nav #banner #logo-text a:hover { text-decoration: none; }
 
 
-.nav-commlink, .nav-login-link {
+.nav-commlink, .nav-login-link, .nav-logout-link {
 	display: block;
 	height: 15px;
 	margin-top: 67px;
