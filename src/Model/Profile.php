@@ -306,7 +306,7 @@ class Profile
 		if (isset($profile['url'])) {
 			$profile_url = $profile['url'];
 		} else {
-			$profile_url = System::baseUrl() . '/profile/' . $profile['nickname'];
+			$profile_url = $a->getBaseURL() . '/profile/' . $profile['nickname'];
 		}
 
 		$follow_link = null;
