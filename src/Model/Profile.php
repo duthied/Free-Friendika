@@ -117,6 +117,11 @@ class Profile
 		}
 
 		if (count($profiledata) > 0) {
+			// Ensure to have a "nickname" field
+			if (empty($profiledata['nickname']) && !empty($profiledata['nick'])) {
+				$profiledata['nickname'] = $profiledata['nick'];
+			}
+
 			// Add profile data to sidebar
 			$a->page['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
 
@@ -317,12 +322,12 @@ class Profile
 
 
 		$visitor_contact = [];
-		if ($profile['uid'] && self::getMyURL()) {
+		if (!empty($profile['uid']) && self::getMyURL()) {
 			$visitor_contact = Contact::selectFirst(['rel'], ['uid' => $profile['uid'], 'nurl' => Strings::normaliseLink(self::getMyURL())]);
 		}
 
 		$profile_contact = [];
-		if ($profile['cid'] && self::getMyURL()) {
+		if (!empty($profile['cid']) && self::getMyURL()) {
 			$profile_contact = Contact::selectFirst(['rel'], ['id' => $profile['cid']]);
 		}
 
