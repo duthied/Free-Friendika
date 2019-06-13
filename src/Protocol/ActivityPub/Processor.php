@@ -442,8 +442,8 @@ class Processor
 	 *
 	 * @param array $activity Activity data
 	 * @param array $item     item array
+	 * @return int|bool New mail table row id or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
 	 */
 	private static function postMail($activity, $item)
 	{
@@ -497,7 +497,7 @@ class Processor
 		}
 		$msg['body'] = $item['body'];
 
-                Mail::insert($msg);
+		return Mail::insert($msg);
 	}
 
 	/**
