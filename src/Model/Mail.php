@@ -46,6 +46,8 @@ class Mail
 			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
 		}
 
+		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
+
 		DBA::lock('mail');
 
 		if (DBA::exists('mail', ['uri' => $msg['uri'], 'uid' => $msg['uid']])) {
