@@ -284,6 +284,11 @@ class Delivery extends BaseObject
 			}
 
 			DFRN::import($atom, $target_importer);
+
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
+			}
+
 			return;
 		}
 
