@@ -198,7 +198,7 @@ class Probe
 
 		$links = self::lrdd($webbie);
 		Logger::log('webfingerDfrn: '.$webbie.':'.print_r($links, true), Logger::DATA);
-		if (count($links)) {
+		if (!empty($links) && is_array($links)) {
 			foreach ($links as $link) {
 				if ($link['@attributes']['rel'] === NAMESPACE_DFRN) {
 					$profile_link = $link['@attributes']['href'];
