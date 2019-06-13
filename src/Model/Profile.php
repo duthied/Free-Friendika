@@ -343,7 +343,7 @@ class Profile
 			|| in_array($profile_contact['rel'] ?? 0, [Contact::FOLLOWER, Contact::FRIEND]);
 		$visitor_base_path = self::getMyURL() ? preg_replace('=/profile/(.*)=ism', '', self::getMyURL()) : '';
 
-		if (!$local_user_is_self) {
+		if (!$local_user_is_self && $show_connect) {
 			if (!$visitor_is_authenticated) {
 				$follow_link = 'dfrn_request/' . $profile['nickname'];
 			} elseif ($profile_is_native) {
