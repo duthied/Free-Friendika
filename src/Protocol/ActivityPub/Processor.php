@@ -142,7 +142,7 @@ class Processor
 		}
 
 		$item['changed'] = DateTimeFormat::utcNow();
-		$item['edited'] = $activity['updated'];
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
@@ -382,8 +382,8 @@ class Processor
 
 		$item['uri'] = $activity['id'];
 
-		$item['created'] = $activity['published'];
-		$item['edited'] = $activity['updated'];
+		$item['created'] = DateTimeFormat::utc($activity['published']);
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 		$item['guid'] = $activity['diaspora:guid'];
 
 		$item = self::processContent($activity, $item);
@@ -442,8 +442,8 @@ class Processor
 	 *
 	 * @param array $activity Activity data
 	 * @param array $item     item array
+	 * @return int|bool New mail table row id or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
 	 */
 	private static function postMail($activity, $item)
 	{
@@ -497,7 +497,7 @@ class Processor
 		}
 		$msg['body'] = $item['body'];
 
-                Mail::insert($msg);
+		return Mail::insert($msg);
 	}
 
 	/**
