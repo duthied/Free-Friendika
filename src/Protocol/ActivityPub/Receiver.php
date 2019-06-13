@@ -736,11 +736,11 @@ class Receiver
 	 * @param boolean $trust_source Do we trust the provided object?
 	 * @param integer $uid          User ID for the signature that we use to fetch data
 	 *
-	 * @return array with trusted and valid object data
+	 * @return array|false with trusted and valid object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchObject($object_id, $object = [], $trust_source = false, $uid = 0)
+	private static function fetchObject(string $object_id, array $object = [], bool $trust_source = false, int $uid = 0)
 	{
 		// By fetching the type we check if the object is complete.
 		$type = JsonLD::fetchElement($object, '@type');
@@ -786,6 +786,7 @@ class Receiver
 		}
 
 		Logger::log('Unhandled object type: ' . $type, Logger::DEBUG);
+		return false;
 	}
 
 	/**
