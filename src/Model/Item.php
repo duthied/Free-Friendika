@@ -2647,7 +2647,6 @@ class Item extends BaseObject
 				$datarray['author-link']   = $datarray['owner-link'];
 				$datarray['author-avatar'] = $datarray['owner-avatar'];
 
-				unset($datarray['created']);
 				unset($datarray['edited']);
 
 				unset($datarray['network']);
