@@ -45,6 +45,7 @@ class DBA
 	 */
 	private static $logger;
 	private static $server_info = '';
+	/** @var PDO|mysqli */
 	private static $connection;
 	private static $driver;
 	private static $error = false;
@@ -496,6 +497,7 @@ class DBA
 					break;
 				}
 
+				/** @var $stmt mysqli_stmt|PDOStatement */
 				if (!$stmt = self::$connection->prepare($sql)) {
 					$errorInfo = self::$connection->errorInfo();
 					self::$error = $errorInfo[2];
