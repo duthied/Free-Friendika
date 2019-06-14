@@ -123,9 +123,9 @@ class Router
 		});
 		$this->routeCollector->addRoute(['GET'],         '/feedtest',            Module\Debug\Feed::class);
 		$this->routeCollector->addGroup('/fetch', function (RouteCollector $collector) {
-			$collector->addRoute(['GET'], '/{guid}/post',                        Module\Diaspora\Fetch::class);
-			$collector->addRoute(['GET'], '/{guid}/status_message',              Module\Diaspora\Fetch::class);
-			$collector->addRoute(['GET'], '/{guid}/reshare',                     Module\Diaspora\Fetch::class);
+			$collector->addRoute(['GET'], '/post/{guid}',                        Module\Diaspora\Fetch::class);
+			$collector->addRoute(['GET'], '/status_message/{guid}',              Module\Diaspora\Fetch::class);
+			$collector->addRoute(['GET'], '/reshare/{guid}',                     Module\Diaspora\Fetch::class);
 		});
 		$this->routeCollector->addRoute(['GET'],         '/filer[/{id:\d+}]',    Module\Filer\SaveTag::class);
 		$this->routeCollector->addRoute(['GET'],         '/filerm/{id:\d+}',     Module\Filer\RemoveTag::class);
