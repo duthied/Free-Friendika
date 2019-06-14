@@ -749,7 +749,7 @@ class PortableContact
 		$friendica = false;
 		$gnusocial = false;
 
-		if (is_array($nodeinfo['protocols']['inbound'])) {
+		if (!empty($nodeinfo['protocols']['inbound']) && is_array($nodeinfo['protocols']['inbound'])) {
 			foreach ($nodeinfo['protocols']['inbound'] as $inbound) {
 				if ($inbound == 'diaspora') {
 					$diaspora = true;
