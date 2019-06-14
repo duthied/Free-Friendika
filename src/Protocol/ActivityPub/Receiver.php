@@ -194,6 +194,11 @@ class Receiver
 			return [];
 		}
 
+		if (!is_string($object_id)) {
+			Logger::info('Invalid object id', ['object' => $object_id]);
+			return [];
+		}
+
 		$object_type = self::fetchObjectType($activity, $object_id, $uid);
 
 		// Fetch the content only on activities where this matters
@@ -779,7 +784,7 @@ class Receiver
 
 		if ($type == 'as:Announce') {
 			$object_id = JsonLD::fetchElement($object, 'object', '@id');
-			if (empty($object_id)) {
+			if (empty($object_id) || !is_string($object_id)) {
 				return false;
 			}
 			return self::fetchObject($object_id, [], false, $uid);
