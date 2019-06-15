@@ -88,7 +88,7 @@ class Federation extends BaseAdminModule
 					} while (!empty($parts) && ((strlen($part) >= 40) || (strlen($part) <= 3)));
 					// only take the x.x.x part of the version, not the "release" after the dash
 					if (!empty($part) && strpos($part, '-')) {
-						$part = array_shift(explode('-', $part));
+						$part = explode('-', $part)[0];
 					}
 					if (!empty($part)) {
 						if (empty($compacted[$part])) {

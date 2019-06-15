@@ -3543,7 +3543,7 @@ class Diaspora
 		$public = ($item["private"] ? "false" : "true");
 
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
-		$edited = DateTimeFormat::utc($item["edited"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"] ?? $item["created"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
