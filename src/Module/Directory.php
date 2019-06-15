@@ -78,7 +78,7 @@ class Directory extends BaseModule
 			'$globaldir'  => L10n::t('Global Directory'),
 			'$gDirPath'   => $gDirPath,
 			'$desc'       => L10n::t('Find on this site'),
-			'$contacts'   => $profiles['entries'],
+			'$contacts'   => $entries,
 			'$finding'    => L10n::t('Results for:'),
 			'$findterm'   => (strlen($search) ? $search : ""),
 			'$title'      => L10n::t('Site Directory'),
