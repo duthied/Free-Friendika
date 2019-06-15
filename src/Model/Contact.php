@@ -1463,12 +1463,14 @@ class Contact extends BaseObject
 			return $contact_id;
 		}
 
-		$updated = ['addr' => $data['addr'],
+		$updated = [
+			'addr' => $data['addr'] ?? '',
 			'alias' => defaults($data, 'alias', ''),
 			'url' => $data['url'],
 			'nurl' => Strings::normaliseLink($data['url']),
 			'name' => $data['name'],
-			'nick' => $data['nick']];
+			'nick' => $data['nick']
+		];
 
 		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
@@ -1502,7 +1504,7 @@ class Contact extends BaseObject
 			$updated['pubkey'] = $data['pubkey'];
 		}
 
-		if (($data['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
+		if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
 			$updated['uri-date'] = DateTimeFormat::utcNow();
 		}
 		if (($data["name"] != $contact["name"]) || ($data["nick"] != $contact["nick"])) {
