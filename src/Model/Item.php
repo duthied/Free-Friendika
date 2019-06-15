@@ -1453,6 +1453,11 @@ class Item extends BaseObject
 			return 0;
 		}
 
+		if (!empty($uid) && Contact::isBlockedByUser($item['author-link'], $uid)) {
+			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
@@ -1465,6 +1470,11 @@ class Item extends BaseObject
 
 		if (!empty($item['owner-link']) && Network::isUrlBlocked($item['owner-link'])) {
 			Logger::notice('Owner server is blocked', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		if (!empty($uid) && Contact::isBlockedByUser($item['owner-link'], $uid)) {
+			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
 			return 0;
 		}
 
