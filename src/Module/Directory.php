@@ -20,19 +20,6 @@ use Friendica\Util\Strings;
  */
 class Directory extends BaseModule
 {
-	public static function init()
-	{
-		$app = self::getApp();
-
-		if (local_user()) {
-			$app->page['aside'] .= Widget::findPeople();
-			$app->page['aside'] .= Widget::follow();
-		} else {
-			unset($_SESSION['theme']);
-			unset($_SESSION['mobile-theme']);
-		}
-	}
-
 	public static function content()
 	{
 		$app = self::getApp();
@@ -41,6 +28,14 @@ class Directory extends BaseModule
 		if (($config->get('system', 'block_public') && !local_user() && !remote_user()) ||
 			($config->get('system', 'block_local_dir') && !local_user() && !remote_user())) {
 			throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
+		}
+
+		if (local_user()) {
+			$app->page['aside'] .= Widget::findPeople();
+			$app->page['aside'] .= Widget::follow();
+		} else {
+			unset($_SESSION['theme']);
+			unset($_SESSION['mobile-theme']);
 		}
 
 		$output = '';
@@ -157,7 +152,7 @@ class Directory extends BaseModule
 
 		$entry = [
 			'id'           => $contact['id'],
-			'url'          => Contact::magicLInk($profile_link),
+			'url'          => Contact::magicLink($profile_link),
 			'itemurl'      => $itemurl,
 			'thumb'        => ProxyUtils::proxifyUrl($contact[$photo_size], false, ProxyUtils::SIZE_THUMB),
 			'img_hover'    => $contact['name'],
