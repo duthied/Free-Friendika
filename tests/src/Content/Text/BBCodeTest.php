@@ -134,4 +134,47 @@ class BBCodeTest extends MockedTest
 			$this->assertNotEquals($assert, $output);
 		}
 	}
+
+	public function dataBBCodes()
+	{
+		return [
+			'bug-7271-condensed-space' => [
+				'expectedHtml' => '<ul class="listdecimal" style="list-style-type: decimal;"><li> <a href="http://example.com/" target="_blank">http://example.com/</a></li></ul>',
+				'text' => '[ol][*] http://example.com/[/ol]',
+			],
+			'bug-7271-condensed-nospace' => [
+				'expectedHtml' => '<ul class="listdecimal" style="list-style-type: decimal;"><li><a href="http://example.com/" target="_blank">http://example.com/</a></li></ul>',
+				'text' => '[ol][*]http://example.com/[/ol]',
+			],
+			'bug-7271-indented-space' => [
+				'expectedHtml' => '<ul class="listbullet" style="list-style-type: circle;"><li> <a href="http://example.com/" target="_blank">http://example.com/</a></li></ul>',
+				'text' => '[ul]
+[*] http://example.com/
+[/ul]',
+			],
+			'bug-7271-indented-nospace' => [
+				'expectedHtml' => '<ul class="listbullet" style="list-style-type: circle;"><li><a href="http://example.com/" target="_blank">http://example.com/</a></li></ul>',
+				'text' => '[ul]
+[*]http://example.com/
+[/ul]',
+			],
+		];
+	}
+
+	/**
+	 * Test convert bbcodes to HTML
+	 * @dataProvider dataBBCodes
+	 *
+	 * @param string $expectedHtml Expected HTML output
+	 * @param string $text         BBCode text
+	 * @param int    $simpleHtml   BBCode::convert method $simple_html parameter value, optional.
+	 * @param bool   $forPlaintext BBCode::convert method $for_plaintext parameter value, optional.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function testConvert($expectedHtml, $text, $simpleHtml = 0, $forPlaintext = false)
+	{
+		$actual = BBCode::convert($text, false, $simpleHtml, $forPlaintext);
+
+		$this->assertEquals($expectedHtml, $actual);
+	}
 }

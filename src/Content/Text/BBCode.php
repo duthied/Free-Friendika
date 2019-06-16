@@ -1289,6 +1289,310 @@ class BBCode extends BaseObject
 		// Handle attached links or videos
 		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
+		// leave open the posibility of [map=something]
+		// this is replaced in Item::prepareBody() which has knowledge of the item location
+		if (strpos($text, '[/map]') !== false) {
+			$text = preg_replace_callback(
+				"/\[map\](.*?)\[\/map\]/ism",
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1], $simple_html) . '</p>', $match[0]);
+				},
+				$text
+			);
+		}
+
+		if (strpos($text, '[map=') !== false) {
+			$text = preg_replace_callback(
+				"/\[map=(.*?)\]/ism",
+				function ($match) use ($simple_html) {
+					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1]), $simple_html) . '</p>', $match[0]);
+				},
+				$text
+			);
+		}
+
+		if (strpos($text, '[map]') !== false) {
+			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
+		}
+
+		// Check for headers
+		$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism", '<h1>$1</h1>', $text);
+		$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism", '<h2>$1</h2>', $text);
+		$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism", '<h3>$1</h3>', $text);
+		$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism", '<h4>$1</h4>', $text);
+		$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism", '<h5>$1</h5>', $text);
+		$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism", '<h6>$1</h6>', $text);
+
+		// Check for paragraph
+		$text = preg_replace("(\[p\](.*?)\[\/p\])ism", '<p>$1</p>', $text);
+
+		// Check for bold text
+		$text = preg_replace("(\[b\](.*?)\[\/b\])ism", '<strong>$1</strong>', $text);
+
+		// Check for Italics text
+		$text = preg_replace("(\[i\](.*?)\[\/i\])ism", '<em>$1</em>', $text);
+
+		// Check for Underline text
+		$text = preg_replace("(\[u\](.*?)\[\/u\])ism", '<u>$1</u>', $text);
+
+		// Check for strike-through text
+		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<s>$1</s>', $text);
+
+		// Check for over-line text
+		$text = preg_replace("(\[o\](.*?)\[\/o\])ism", '<span class="overline">$1</span>', $text);
+
+		// Check for colored text
+		$text = preg_replace("(\[color=(.*?)\](.*?)\[\/color\])ism", "<span style=\"color: $1;\">$2</span>", $text);
+
+		// Check for sized text
+		// [size=50] --> font-size: 50px (with the unit).
+		$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
+		$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
+
+		// Check for centered text
+		$text = preg_replace("(\[center\](.*?)\[\/center\])ism", "<div style=\"text-align:center;\">$1</div>", $text);
+
+		// Check for list text
+		$text = str_replace("[*]", "<li>", $text);
+
+		// Check for style sheet commands
+		$text = preg_replace_callback(
+			"(\[style=(.*?)\](.*?)\[\/style\])ism",
+			function ($match) {
+				return "<span style=\"" . HTML::sanitizeCSS($match[1]) . ";\">" . $match[2] . "</span>";
+			},
+			$text
+		);
+
+		// Check for CSS classes
+		$text = preg_replace_callback(
+			"(\[class=(.*?)\](.*?)\[\/class\])ism",
+			function ($match) {
+				return "<span class=\"" . HTML::sanitizeCSS($match[1]) . "\">" . $match[2] . "</span>";
+			},
+			$text
+		);
+
+		// handle nested lists
+		$endlessloop = 0;
+
+		while ((((strpos($text, "[/list]") !== false) && (strpos($text, "[list") !== false)) ||
+				((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
+				((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
+				((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
+			$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
+			$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
+			$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
+			$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism", '<ul class="listlowerroman" style="list-style-type: lower-roman;">$2</ul>', $text);
+			$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul>', $text);
+			$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul>', $text);
+			$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $text);
+			$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
+			$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
+			$text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $text);
+		}
+
+		$text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $text);
+		$text = preg_replace("/\[td\](.*?)\[\/td\]/sm", '<td>$1</td>', $text);
+		$text = preg_replace("/\[tr\](.*?)\[\/tr\]/sm", '<tr>$1</tr>', $text);
+		$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $text);
+
+		$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table border="1" >$1</table>', $text);
+		$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table border="0" >$1</table>', $text);
+
+		$text = str_replace('[hr]', '<hr />', $text);
+
+		// This is actually executed in Item::prepareBody()
+
+		$text = str_replace('[nosmile]', '', $text);
+
+		// Check for font change text
+		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
+
+		// Declare the format for [spoiler] layout
+		$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
+
+		// Check for [spoiler] text
+		// handle nested quotes
+		$endlessloop = 0;
+		while ((strpos($text, "[/spoiler]") !== false) && (strpos($text, "[spoiler]") !== false) && (++$endlessloop < 20)) {
+			$text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", "$SpoilerLayout", $text);
+		}
+
+		// Check for [spoiler=Author] text
+
+		$t_wrote = L10n::t('$1 wrote:');
+
+		// handle nested quotes
+		$endlessloop = 0;
+		while ((strpos($text, "[/spoiler]")!== false)  && (strpos($text, "[spoiler=") !== false) && (++$endlessloop < 20)) {
+			$text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
+				"<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
+				$text);
+		}
+
+		// Declare the format for [quote] layout
+		$QuoteLayout = '<blockquote>$1</blockquote>';
+
+		// Check for [quote] text
+		// handle nested quotes
+		$endlessloop = 0;
+		while ((strpos($text, "[/quote]") !== false) && (strpos($text, "[quote]") !== false) && (++$endlessloop < 20)) {
+			$text = preg_replace("/\[quote\](.*?)\[\/quote\]/ism", "$QuoteLayout", $text);
+		}
+
+		// Check for [quote=Author] text
+
+		$t_wrote = L10n::t('$1 wrote:');
+
+		// handle nested quotes
+		$endlessloop = 0;
+		while ((strpos($text, "[/quote]")!== false)  && (strpos($text, "[quote=") !== false) && (++$endlessloop < 20)) {
+			$text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
+				"<p><strong class=".'"author"'.">" . $t_wrote . "</strong></p><blockquote>$2</blockquote>",
+				$text);
+		}
+
+
+		// [img=widthxheight]image source[/img]
+		$text = preg_replace_callback(
+			"/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism",
+			function ($matches) use ($simple_html) {
+				if (strpos($matches[3], "data:image/") === 0) {
+					return $matches[0];
+				}
+
+				$matches[3] = self::proxyUrl($matches[3], $simple_html);
+				return "[img=" . $matches[1] . "x" . $matches[2] . "]" . $matches[3] . "[/img]";
+			},
+			$text
+		);
+
+		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
+		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
+
+		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
+			function ($matches) use ($simple_html) {
+				$matches[1] = self::proxyUrl($matches[1], $simple_html);
+				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
+				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
+			},
+			$text);
+
+		// Images
+		// [img]pathtoimage[/img]
+		$text = preg_replace_callback(
+			"/\[img\](.*?)\[\/img\]/ism",
+			function ($matches) use ($simple_html) {
+				if (strpos($matches[1], "data:image/") === 0) {
+					return $matches[0];
+				}
+
+				$matches[1] = self::proxyUrl($matches[1], $simple_html);
+				return "[img]" . $matches[1] . "[/img]";
+			},
+			$text
+		);
+
+		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
+		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
+
+		// Shared content
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
+
+		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
+		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
+		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
+
+		// Try to Oembed
+		if ($try_oembed) {
+			$text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4).*?)\[\/video\]/ism", '<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '" loop="true"><a href="$1">$1</a></video>', $text);
+			$text = preg_replace("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3).*?)\[\/audio\]/ism", '<audio src="$1" controls="controls"><a href="$1">$1</a></audio>', $text);
+
+			$text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", $try_oembed_callback, $text);
+			$text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $try_oembed_callback, $text);
+		} else {
+			$text = preg_replace("/\[video\](.*?)\[\/video\]/ism",
+				'<a href="$1" target="_blank">$1</a>', $text);
+			$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism",
+				'<a href="$1" target="_blank">$1</a>', $text);
+		}
+
+		// html5 video and audio
+
+
+		if ($try_oembed) {
+			$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></iframe>', $text);
+		} else {
+			$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
+		}
+
+		// Youtube extensions
+		if ($try_oembed) {
+			$text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
+			$text = preg_replace_callback("/\[youtube\](www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
+			$text = preg_replace_callback("/\[youtube\](https?:\/\/youtu.be\/.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
+		}
+
+		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/embed\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+		$text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
+
+		if ($try_oembed) {
+			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $text);
+		} else {
+			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
+				'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $text);
+		}
+
+		if ($try_oembed) {
+			$text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism", $try_oembed_callback, $text);
+			$text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism", $try_oembed_callback, $text);
+		}
+
+		$text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
+		$text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
+
+		if ($try_oembed) {
+			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
+		} else {
+			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
+				'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $text);
+		}
+
+		// oembed tag
+		$text = OEmbed::BBCode2HTML($text);
+
+		// Avoid triple linefeeds through oembed
+		$text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span><br />", $text);
+
+		// If we found an event earlier, strip out all the event code and replace with a reformatted version.
+		// Replace the event-start section with the entire formatted event. The other bbcode is stripped.
+		// Summary (e.g. title) is required, earlier revisions only required description (in addition to
+		// start which is always required). Allow desc with a missing summary for compatibility.
+
+		if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
+			$sub = Event::getHTML($ev, $simple_html);
+
+			$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
+			$text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism", '', $text);
+			$text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism", $sub, $text);
+			$text = preg_replace("/\[event\-finish\](.*?)\[\/event\-finish\]/ism", '', $text);
+			$text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/ism", '', $text);
+			$text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/ism", '', $text);
+			$text = preg_replace("/\[event\-id\](.*?)\[\/event\-id\]/ism", '', $text);
+		}
+
+		// Replace non graphical smilies for external posts
+		if ($simple_html) {
+			$text = Smilies::replace($text);
+		}
+
 		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 		if (!$for_plaintext) {
 			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
@@ -1385,7 +1689,7 @@ class BBCode extends BaseObject
 		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
 		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
 		$text = preg_replace("/\[url\](".$escapedBaseUrl."[$URLSearchString]*)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
-		$text = preg_replace("/\[url\=(".$escapedBaseUrl."[$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);		
+		$text = preg_replace("/\[url\=(".$escapedBaseUrl."[$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);
 
 		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
 		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
@@ -1402,309 +1706,6 @@ class BBCode extends BaseObject
 		// Perform MAIL Search
 		$text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);
 		$text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $text);
-
-		// leave open the posibility of [map=something]
-		// this is replaced in Item::prepareBody() which has knowledge of the item location
-
-		if (strpos($text, '[/map]') !== false) {
-			$text = preg_replace_callback(
-				"/\[map\](.*?)\[\/map\]/ism",
-				function ($match) use ($simple_html) {
-					return str_replace($match[0], '<p class="map">' . Map::byLocation($match[1], $simple_html) . '</p>', $match[0]);
-				},
-				$text
-			);
-		}
-		if (strpos($text, '[map=') !== false) {
-			$text = preg_replace_callback(
-				"/\[map=(.*?)\]/ism",
-				function ($match) use ($simple_html) {
-					return str_replace($match[0], '<p class="map">' . Map::byCoordinates(str_replace('/', ' ', $match[1]), $simple_html) . '</p>', $match[0]);
-				},
-				$text
-			);
-		}
-		if (strpos($text, '[map]') !== false) {
-			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
-		}
-
-		// Check for headers
-		$text = preg_replace("(\[h1\](.*?)\[\/h1\])ism", '<h1>$1</h1>', $text);
-		$text = preg_replace("(\[h2\](.*?)\[\/h2\])ism", '<h2>$1</h2>', $text);
-		$text = preg_replace("(\[h3\](.*?)\[\/h3\])ism", '<h3>$1</h3>', $text);
-		$text = preg_replace("(\[h4\](.*?)\[\/h4\])ism", '<h4>$1</h4>', $text);
-		$text = preg_replace("(\[h5\](.*?)\[\/h5\])ism", '<h5>$1</h5>', $text);
-		$text = preg_replace("(\[h6\](.*?)\[\/h6\])ism", '<h6>$1</h6>', $text);
-
-		// Check for paragraph
-		$text = preg_replace("(\[p\](.*?)\[\/p\])ism", '<p>$1</p>', $text);
-
-		// Check for bold text
-		$text = preg_replace("(\[b\](.*?)\[\/b\])ism", '<strong>$1</strong>', $text);
-
-		// Check for Italics text
-		$text = preg_replace("(\[i\](.*?)\[\/i\])ism", '<em>$1</em>', $text);
-
-		// Check for Underline text
-		$text = preg_replace("(\[u\](.*?)\[\/u\])ism", '<u>$1</u>', $text);
-
-		// Check for strike-through text
-		$text = preg_replace("(\[s\](.*?)\[\/s\])ism", '<s>$1</s>', $text);
-
-		// Check for over-line text
-		$text = preg_replace("(\[o\](.*?)\[\/o\])ism", '<span class="overline">$1</span>', $text);
-
-		// Check for colored text
-		$text = preg_replace("(\[color=(.*?)\](.*?)\[\/color\])ism", "<span style=\"color: $1;\">$2</span>", $text);
-
-		// Check for sized text
-		// [size=50] --> font-size: 50px (with the unit).
-		$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
-		$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
-
-		// Check for centered text
-		$text = preg_replace("(\[center\](.*?)\[\/center\])ism", "<div style=\"text-align:center;\">$1</div>", $text);
-
-		// Check for list text
-		$text = str_replace("[*]", "<li>", $text);
-
-		// Check for style sheet commands
-		$text = preg_replace_callback(
-			"(\[style=(.*?)\](.*?)\[\/style\])ism",
-			function ($match) {
-				return "<span style=\"" . HTML::sanitizeCSS($match[1]) . ";\">" . $match[2] . "</span>";
-			},
-			$text
-		);
-
-		// Check for CSS classes
-		$text = preg_replace_callback(
-			"(\[class=(.*?)\](.*?)\[\/class\])ism",
-			function ($match) {
-				return "<span class=\"" . HTML::sanitizeCSS($match[1]) . "\">" . $match[2] . "</span>";
-			},
-			$text
-		);
-
-		// handle nested lists
-		$endlessloop = 0;
-
-		while ((((strpos($text, "[/list]") !== false) && (strpos($text, "[list") !== false)) ||
-			   ((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
-			   ((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
-			   ((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
-			$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
-			$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
-			$text = preg_replace("/\[list=((?-i)i)\](.*?)\[\/list\]/ism", '<ul class="listlowerroman" style="list-style-type: lower-roman;">$2</ul>', $text);
-			$text = preg_replace("/\[list=((?-i)I)\](.*?)\[\/list\]/ism", '<ul class="listupperroman" style="list-style-type: upper-roman;">$2</ul>', $text);
-			$text = preg_replace("/\[list=((?-i)a)\](.*?)\[\/list\]/ism", '<ul class="listloweralpha" style="list-style-type: lower-alpha;">$2</ul>', $text);
-			$text = preg_replace("/\[list=((?-i)A)\](.*?)\[\/list\]/ism", '<ul class="listupperalpha" style="list-style-type: upper-alpha;">$2</ul>', $text);
-			$text = preg_replace("/\[ul\](.*?)\[\/ul\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
-			$text = preg_replace("/\[ol\](.*?)\[\/ol\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
-			$text = preg_replace("/\[li\](.*?)\[\/li\]/ism", '<li>$1</li>', $text);
-		}
-
-		$text = preg_replace("/\[th\](.*?)\[\/th\]/sm", '<th>$1</th>', $text);
-		$text = preg_replace("/\[td\](.*?)\[\/td\]/sm", '<td>$1</td>', $text);
-		$text = preg_replace("/\[tr\](.*?)\[\/tr\]/sm", '<tr>$1</tr>', $text);
-		$text = preg_replace("/\[table\](.*?)\[\/table\]/sm", '<table>$1</table>', $text);
-
-		$text = preg_replace("/\[table border=1\](.*?)\[\/table\]/sm", '<table border="1" >$1</table>', $text);
-		$text = preg_replace("/\[table border=0\](.*?)\[\/table\]/sm", '<table border="0" >$1</table>', $text);
-
-		$text = str_replace('[hr]', '<hr />', $text);
-
-		// This is actually executed in Item::prepareBody()
-
-		$text = str_replace('[nosmile]', '', $text);
-
-		// Check for font change text
-		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
-
-		// Declare the format for [spoiler] layout
-		$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
-
-		// Check for [spoiler] text
-		// handle nested quotes
-		$endlessloop = 0;
-		while ((strpos($text, "[/spoiler]") !== false) && (strpos($text, "[spoiler]") !== false) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", "$SpoilerLayout", $text);
-		}
-
-		// Check for [spoiler=Author] text
-
-		$t_wrote = L10n::t('$1 wrote:');
-
-		// handle nested quotes
-		$endlessloop = 0;
-		while ((strpos($text, "[/spoiler]")!== false)  && (strpos($text, "[spoiler=") !== false) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
-						 "<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
-						 $text);
-		}
-
-		// Declare the format for [quote] layout
-		$QuoteLayout = '<blockquote>$1</blockquote>';
-
-		// Check for [quote] text
-		// handle nested quotes
-		$endlessloop = 0;
-		while ((strpos($text, "[/quote]") !== false) && (strpos($text, "[quote]") !== false) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[quote\](.*?)\[\/quote\]/ism", "$QuoteLayout", $text);
-		}
-
-		// Check for [quote=Author] text
-
-		$t_wrote = L10n::t('$1 wrote:');
-
-		// handle nested quotes
-		$endlessloop = 0;
-		while ((strpos($text, "[/quote]")!== false)  && (strpos($text, "[quote=") !== false) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
-						 "<p><strong class=".'"author"'.">" . $t_wrote . "</strong></p><blockquote>$2</blockquote>",
-						 $text);
-		}
-
-
-		// [img=widthxheight]image source[/img]
-		$text = preg_replace_callback(
-			"/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism",
-			function ($matches) use ($simple_html) {
-				if (strpos($matches[3], "data:image/") === 0) {
-					return $matches[0];
-				}
-
-				$matches[3] = self::proxyUrl($matches[3], $simple_html);
-				return "[img=" . $matches[1] . "x" . $matches[2] . "]" . $matches[3] . "[/img]";
-			},
-			$text
-		);
-
-		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
-		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
-
-		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
-			function ($matches) use ($simple_html) {
-				$matches[1] = self::proxyUrl($matches[1], $simple_html);
-				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
-				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
-			},
-			$text);
-
-		// Images
-		// [img]pathtoimage[/img]
-		$text = preg_replace_callback(
-			"/\[img\](.*?)\[\/img\]/ism",
-			function ($matches) use ($simple_html) {
-				if (strpos($matches[1], "data:image/") === 0) {
-					return $matches[0];
-				}
-
-				$matches[1] = self::proxyUrl($matches[1], $simple_html);
-				return "[img]" . $matches[1] . "[/img]";
-			},
-			$text
-		);
-
-		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
-		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
-
-		// Shared content
-		$text = self::convertShare(
-			$text,
-			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-			}
-		);
-
-		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
-		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
-		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
-
-		// Try to Oembed
-		if ($try_oembed) {
-			$text = preg_replace("/\[video\](.*?\.(ogg|ogv|oga|ogm|webm|mp4).*?)\[\/video\]/ism", '<video src="$1" controls="controls" width="' . $a->videowidth . '" height="' . $a->videoheight . '" loop="true"><a href="$1">$1</a></video>', $text);
-			$text = preg_replace("/\[audio\](.*?\.(ogg|ogv|oga|ogm|webm|mp4|mp3).*?)\[\/audio\]/ism", '<audio src="$1" controls="controls"><a href="$1">$1</a></audio>', $text);
-
-			$text = preg_replace_callback("/\[video\](.*?)\[\/video\]/ism", $try_oembed_callback, $text);
-			$text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $try_oembed_callback, $text);
-		} else {
-			$text = preg_replace("/\[video\](.*?)\[\/video\]/ism",
-						'<a href="$1" target="_blank">$1</a>', $text);
-			$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism",
-						'<a href="$1" target="_blank">$1</a>', $text);
-		}
-
-		// html5 video and audio
-
-
-		if ($try_oembed) {
-			$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<iframe src="$1" width="' . $a->videowidth . '" height="' . $a->videoheight . '"><a href="$1">$1</a></iframe>', $text);
-		} else {
-			$text = preg_replace("/\[iframe\](.*?)\[\/iframe\]/ism", '<a href="$1">$1</a>', $text);
-		}
-
-		// Youtube extensions
-		if ($try_oembed) {
-			$text = preg_replace_callback("/\[youtube\](https?:\/\/www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
-			$text = preg_replace_callback("/\[youtube\](www.youtube.com\/watch\?v\=.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
-			$text = preg_replace_callback("/\[youtube\](https?:\/\/youtu.be\/.*?)\[\/youtube\]/ism", $try_oembed_callback, $text);
-		}
-
-		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/watch\?v\=(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
-		$text = preg_replace("/\[youtube\]https?:\/\/www.youtube.com\/embed\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
-		$text = preg_replace("/\[youtube\]https?:\/\/youtu.be\/(.*?)\[\/youtube\]/ism", '[youtube]$1[/youtube]', $text);
-
-		if ($try_oembed) {
-			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $text);
-		} else {
-			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
-						'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $text);
-		}
-
-		if ($try_oembed) {
-			$text = preg_replace_callback("/\[vimeo\](https?:\/\/player.vimeo.com\/video\/[0-9]+).*?\[\/vimeo\]/ism", $try_oembed_callback, $text);
-			$text = preg_replace_callback("/\[vimeo\](https?:\/\/vimeo.com\/[0-9]+).*?\[\/vimeo\]/ism", $try_oembed_callback, $text);
-		}
-
-		$text = preg_replace("/\[vimeo\]https?:\/\/player.vimeo.com\/video\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
-		$text = preg_replace("/\[vimeo\]https?:\/\/vimeo.com\/([0-9]+)(.*?)\[\/vimeo\]/ism", '[vimeo]$1[/vimeo]', $text);
-
-		if ($try_oembed) {
-			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
-		} else {
-			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
-						'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $text);
-		}
-
-		// oembed tag
-		$text = OEmbed::BBCode2HTML($text);
-
-		// Avoid triple linefeeds through oembed
-		$text = str_replace("<br style='clear:left'></span><br /><br />", "<br style='clear:left'></span><br />", $text);
-
-		// If we found an event earlier, strip out all the event code and replace with a reformatted version.
-		// Replace the event-start section with the entire formatted event. The other bbcode is stripped.
-		// Summary (e.g. title) is required, earlier revisions only required description (in addition to
-		// start which is always required). Allow desc with a missing summary for compatibility.
-
-		if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
-			$sub = Event::getHTML($ev, $simple_html);
-
-			$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
-			$text = preg_replace("/\[event\-description\](.*?)\[\/event\-description\]/ism", '', $text);
-			$text = preg_replace("/\[event\-start\](.*?)\[\/event\-start\]/ism", $sub, $text);
-			$text = preg_replace("/\[event\-finish\](.*?)\[\/event\-finish\]/ism", '', $text);
-			$text = preg_replace("/\[event\-location\](.*?)\[\/event\-location\]/ism", '', $text);
-			$text = preg_replace("/\[event\-adjust\](.*?)\[\/event\-adjust\]/ism", '', $text);
-			$text = preg_replace("/\[event\-id\](.*?)\[\/event\-id\]/ism", '', $text);
-		}
-
-		// Replace non graphical smilies for external posts
-		if ($simple_html) {
-			$text = Smilies::replace($text);
-		}
 
 		// Unhide all [noparse] contained bbtags unspacefying them
 		// and triming the [noparse] tag.
