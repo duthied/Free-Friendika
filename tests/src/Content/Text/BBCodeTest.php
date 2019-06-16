@@ -113,6 +113,14 @@ class BBCodeTest extends MockedTest
 				'data' => html_entity_decode('http://example.com&nbsp;', ENT_QUOTES, 'UTF-8'),
 				'assertHTML' => false
 			],
+			'bug-7271-query-string-brackets' => [
+				'data' => 'https://example.com/search?q=square+brackets+[url]',
+				'assertHTML' => true
+			],
+			'bug-7271-path-brackets' => [
+				'data' => 'http://example.com/path/to/file[3].html',
+				'assertHTML' => true
+			],
 		];
 	}
 
