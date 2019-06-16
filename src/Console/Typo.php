@@ -43,13 +43,25 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$php_path = BaseObject::getApp()->getConfigCache()->get('config', 'php_path', 'php');
+		$php_path = BaseObject::getApp()->getConfig()->get('config', 'php_path', 'php');
 
 		if ($this->getOption('v')) {
 			$this->out('Directory: src');
 		}
 
 		$Iterator = new \RecursiveDirectoryIterator('src');
+
+		foreach (new \RecursiveIteratorIterator($Iterator) as $file) {
+			if (substr($file, -4) === '.php') {
+				$this->checkFile($php_path, $file);
+			}
+		}
+
+		if ($this->getOption('v')) {
+			$this->out('Directory: tests');
+		}
+
+		$Iterator = new \RecursiveDirectoryIterator('tests');
 
 		foreach (new \RecursiveIteratorIterator($Iterator) as $file) {
 			if (substr($file, -4) === '.php') {
