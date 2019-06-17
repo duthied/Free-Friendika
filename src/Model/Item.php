@@ -1453,7 +1453,7 @@ class Item extends BaseObject
 			return 0;
 		}
 
-		if (!empty($uid) && Contact::isBlockedByUser($item['author-link'], $uid)) {
+		if (!empty($uid) && Contact::isBlockedByUser($item['author-id'], $uid)) {
 			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
 			return 0;
 		}
@@ -1473,10 +1473,25 @@ class Item extends BaseObject
 			return 0;
 		}
 
-		if (!empty($uid) && Contact::isBlockedByUser($item['owner-link'], $uid)) {
+		if (!empty($uid) && Contact::isBlockedByUser($item['owner-id'], $uid)) {
 			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
 			return 0;
 		}
+
+		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
+		if (!empty($uid) && !empty($item['causer-id']) && Contact::isBlockedByUser($item['causer-id'], $uid)) {
+			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		if (!empty($uid) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact::isIgnoredByUser($item['causer-id'], $uid)) {
+			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		// We don't store the causer, we only have it here for the checks above
+		unset($item['causer-id']);
+		unset($item['causer-link']);
 
 		if ($item['network'] == Protocol::PHANTOM) {
 			$item['network'] = Protocol::DFRN;
