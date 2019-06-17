@@ -1488,14 +1488,6 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 
-		// Shared content
-		$text = self::convertShare(
-			$text,
-			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-			}
-		);
-
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
 		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
@@ -1730,6 +1722,14 @@ class BBCode extends BaseObject
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $text);
+
+		// Shared content
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		if ($saved_image) {
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
