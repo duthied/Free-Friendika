@@ -370,12 +370,15 @@ class Processor
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-link'] = $activity['author'];
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
+		$item['owner-link'] = $activity['actor'];
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
-		if (empty($activity['thread-completion'])) {
-			$item['owner-link'] = $activity['actor'];
-			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
-		} else {
-			Logger::info('Ignoring actor because of thread completion.');
+		if (!empty($activity['thread-completion'])) {
+			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
+			$item['causer-link'] = $item['owner-link'];
+			$item['causer-id'] = $item['owner-id'];
+
+			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
