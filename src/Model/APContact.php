@@ -9,6 +9,7 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
+use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
@@ -33,13 +34,15 @@ class APContact extends BaseObject
 			return false;
 		}
 
+		$xrd_timeout = Config::get('system', 'xrd_timeout');
+
 		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 
-		$curlResult = Network::curl($webfinger, false, ['accept_content' => 'application/jrd+json,application/json']);
+		$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			$webfinger = 'http://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 
-			$curlResult = Network::curl($webfinger, false, ['accept_content' => 'application/jrd+json,application/json']);
+			$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
 
 			if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 				return false;
