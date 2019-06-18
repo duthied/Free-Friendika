@@ -22,10 +22,11 @@ class APContact extends BaseObject
 	 * Resolves the profile url from the address by using webfinger
 	 *
 	 * @param string $addr profile address (user@domain.tld)
-	 * @return string url
+	 * @param string $url profile URL. When set then we return "true" when this profile url can be found at the address
+	 * @return string|boolean url
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addrToUrl($addr)
+	private static function addrToUrl($addr, $url = null)
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
@@ -36,7 +37,13 @@ class APContact extends BaseObject
 
 		$curlResult = Network::curl($webfinger, false, ['accept_content' => 'application/jrd+json,application/json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			return false;
+			$webfinger = 'http://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
+
+			$curlResult = Network::curl($webfinger, false, ['accept_content' => 'application/jrd+json,application/json']);
+
+			if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+				return false;
+			}
 		}
 
 		$data = json_decode($curlResult->getBody(), true);
@@ -46,11 +53,15 @@ class APContact extends BaseObject
 		}
 
 		foreach ($data['links'] as $link) {
+			if (!empty($url) && !empty($link['href']) && ($link['href'] == $url)) {
+				return true;
+			}
+
 			if (empty($link['href']) || empty($link['rel']) || empty($link['type'])) {
 				continue;
 			}
 
-			if (($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
+			if (empty($url) && ($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
 				return $link['href'];
 			}
 		}
@@ -189,11 +200,13 @@ class APContact extends BaseObject
 		// Unhandled from Kroeg
 		// kroeg:blocks, updated
 
-		// Check if the address is resolvable
-		if (self::addrToUrl($apcontact['addr']) == $apcontact['url']) {
-			$parts = parse_url($apcontact['url']);
-			unset($parts['path']);
-			$apcontact['baseurl'] = Network::unparseURL($parts);
+		$parts = parse_url($apcontact['url']);
+		unset($parts['path']);
+		$baseurl = Network::unparseURL($parts);
+
+		// Check if the address is resolvable or the profile url is identical with the base url of the system
+		if (self::addrToUrl($apcontact['addr'], $apcontact['url']) || Strings::compareLink($apcontact['url'], $baseurl)) {
+			$apcontact['baseurl'] = $baseurl;
 		} else {
 			$apcontact['addr'] = null;
 		}
@@ -209,6 +222,11 @@ class APContact extends BaseObject
 		$apcontact['updated'] = DateTimeFormat::utcNow();
 
 		DBA::update('apcontact', $apcontact, ['url' => $url], true);
+
+		// We delete the old entry when the URL is changed
+		if (($url != $apcontact['url']) && DBA::exists('apcontact', ['url' => $url]) && DBA::exists('apcontact', ['url' => $apcontact['url']])) {
+			DBA::delete('apcontact', ['url' => $url]);
+		}
 
 		// Update some data in the contact table with various ways to catch them all
 		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about'], 'alias' => $apcontact['alias']];
