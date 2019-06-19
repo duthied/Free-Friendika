@@ -40,7 +40,7 @@ class APContact extends BaseObject
 
 		$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			$webfinger = Strings::normalizeLink($webfinger);
+			$webfinger = Strings::normaliseLink($webfinger);
 
 			$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
 
