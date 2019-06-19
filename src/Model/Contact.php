@@ -593,11 +593,13 @@ class Contact extends BaseObject
 			return;
 		}
 
+		$file_suffix = 'jpg';
+
 		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
 			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
-			'gender' => $profile['gender'], 'avatar' => $profile['photo'],
-			'contact-type' => $user['account-type'], 'xmpp' => $profile['xmpp']];
+			'gender' => $profile['gender'], 'contact-type' => $user['account-type'],
+			'xmpp' => $profile['xmpp']];
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);
 		if (DBA::isResult($avatar)) {
@@ -609,8 +611,6 @@ class Contact extends BaseObject
 			$types = Image::supportedTypes();
 			if (isset($types[$avatar['type']])) {
 				$file_suffix = $types[$avatar['type']];
-			} else {
-				$file_suffix = 'jpg';
 			}
 
 			// We are adding a timestamp value so that other systems won't use cached content
@@ -629,6 +629,7 @@ class Contact extends BaseObject
 			$fields['micro'] = System::baseUrl() . '/images/person-48.jpg';
 		}
 
+		$fields['avatar'] = System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 
@@ -661,8 +662,8 @@ class Contact extends BaseObject
 			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile
-			$fields = ['photo' => System::baseUrl() . '/photo/profile/' .$uid . '.jpg',
-				'thumb' => System::baseUrl() . '/photo/avatar/' . $uid .'.jpg'];
+			$fields = ['photo' => System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
+				'thumb' => System::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
 			DBA::update('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		}
 	}
@@ -1725,7 +1726,7 @@ class Contact extends BaseObject
 	 */
 	public static function updateAvatar($avatar, $uid, $cid, $force = false)
 	{
-		$contact = DBA::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid]);
+		$contact = DBA::selectFirst('contact', ['avatar', 'photo', 'thumb', 'micro', 'nurl'], ['id' => $cid, 'self' => false]);
 		if (!DBA::isResult($contact)) {
 			return false;
 		} else {
@@ -2153,7 +2154,7 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		$fields = ['url', 'name', 'nick', 'photo', 'network', 'blocked'];
+		$fields = ['url', 'name', 'nick', 'avatar', 'photo', 'network', 'blocked'];
 		$pub_contact = DBA::selectFirst('contact', $fields, ['id' => $datarray['author-id']]);
 		if (!DBA::isResult($pub_contact)) {
 			// Should never happen
@@ -2167,16 +2168,16 @@ class Contact extends BaseObject
 
 		$url = defaults($datarray, 'author-link', $pub_contact['url']);
 		$name = $pub_contact['name'];
-		$photo = $pub_contact['photo'];
+		$photo = defaults($pub_contact, 'avatar', $pub_contact["photo"]);
 		$nick = $pub_contact['nick'];
 		$network = $pub_contact['network'];
 
 		if (!empty($contact)) {
-            // Contact is blocked at user-level
-		    if (!empty($contact['id']) && !empty($importer['id']) &&
-		        self::isBlockedByUser($contact['id'], $importer['id'])) {
-		        return false;
-            }
+			// Contact is blocked at user-level
+			if (!empty($contact['id']) && !empty($importer['id']) &&
+				self::isBlockedByUser($contact['id'], $importer['id'])) {
+				return false;
+			}
 
 			// Make sure that the existing contact isn't archived
 			self::unmarkForArchival($contact);

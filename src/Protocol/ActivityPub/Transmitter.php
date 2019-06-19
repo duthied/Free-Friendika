@@ -229,11 +229,6 @@ class Transmitter
 			return [];
 		}
 
-		// On old installations and never changed contacts this might not be filled
-		if (empty($contact['avatar'])) {
-			$contact['avatar'] = $contact['photo'];
-		}
-
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = $contact['url'];
 		$data['diaspora:guid'] = $user['guid'];
@@ -254,7 +249,7 @@ class Transmitter
 			'publicKeyPem' => $user['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => System::baseUrl() . '/inbox'];
 		$data['icon'] = ['type' => 'Image',
-			'url' => $contact['avatar']];
+			'url' => $contact['photo']];
 
 		$data['generator'] = self::getService();
 
