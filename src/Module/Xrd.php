@@ -4,9 +4,11 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
+use Friendica\Database\DBA;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Model\User;
+use Friendica\Model\Photo;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Strings;
 
@@ -61,67 +63,69 @@ class Xrd extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$profileURL = $app->getBaseURL() . '/profile/' . $user['nickname'];
-		$alias = str_replace('/profile/', '/~', $profileURL);
+		$owner = User::getOwnerDataById($user['uid']);
 
-		$addr = 'acct:' . $user['nickname'] . '@' . $app->getHostName();
-		if ($app->getURLPath()) {
-			$addr .= '/' . $app->getURLPath();
+		$alias = str_replace('/profile/', '/~', $owner['url']);
+
+		$avatar = Photo::selectFirst(['type'], ['uid' => $owner['uid'], 'profile' => true]);
+
+		if (!DBA::isResult($avatar)) {
+			$avatar = ['type' => 'image/jpeg'];
 		}
 
 		if ($mode == 'xml') {
-			self::printXML($addr, $alias, $profileURL, $app->getBaseURL(), $user);
+			self::printXML($alias, $app->getBaseURL(), $user, $owner, $avatar);
 		} else {
-			self::printJSON($addr, $alias, $profileURL, $app->getBaseURL(), $user);
+			self::printJSON($alias, $app->getBaseURL(), $owner, $avatar);
 		}
 	}
 
-	private static function printJSON($uri, $alias, $orofileURL, $baseURL, $user)
+	private static function printJSON($alias, $baseURL, $owner, $avatar)
 	{
-		$salmon_key = Salmon::salmonKey($user['spubkey']);
+		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		header('Access-Control-Allow-Origin: *');
 		header('Content-type: application/json; charset=utf-8');
 
 		$json = [
-			'subject' => $uri,
+			'subject' => 'acct:' . $owner['addr'],
 			'aliases' => [
 				$alias,
-				$orofileURL,
+				$owner['url'],
 			],
 			'links'   => [
 				[
 					'rel'  => NAMESPACE_DFRN,
-					'href' => $orofileURL,
+					'href' => $owner['url'],
 				],
 				[
 					'rel'  => NAMESPACE_FEED,
 					'type' => 'application/atom+xml',
-					'href' => $baseURL . '/dfrn_poll/' . $user['nickname'],
+					'href' => $owner['notify'],
 				],
 				[
 					'rel'  => 'http://webfinger.net/rel/profile-page',
 					'type' => 'text/html',
-					'href' => $orofileURL,
+					'href' => $owner['url'],
 				],
 				[
 					'rel'  => 'self',
 					'type' => 'application/activity+json',
-					'href' => $orofileURL,
+					'href' => $owner['url'],
 				],
 				[
 					'rel'  => 'http://microformats.org/profile/hcard',
 					'type' => 'text/html',
-					'href' => $baseURL . '/hcard/' . $user['nickname'],
+					'href' => $baseURL . '/hcard/' . $owner['nickname'],
 				],
 				[
 					'rel'  => NAMESPACE_POCO,
-					'href' => $baseURL . '/poco/' . $user['nickname'],
+					'href' => $owner['poco'],
 				],
 				[
 					'rel'  => 'http://webfinger.net/rel/avatar',
-					'type' => 'image/jpeg',
-					'href' => $baseURL . '/photo/profile/' . $user['uid'] . '.jpg',
+					'type' => $avatar['type'],
+					'href' => $owner['photo'],
 				],
 				[
 					'rel'  => 'http://joindiaspora.com/seed_location',
@@ -130,15 +134,15 @@ class Xrd extends BaseModule
 				],
 				[
 					'rel'  => 'salmon',
-					'href' => $baseURL . '/salmon/' . $user['nickname'],
+					'href' => $baseURL . '/salmon/' . $owner['nickname'],
 				],
 				[
 					'rel'  => 'http://salmon-protocol.org/ns/salmon-replies',
-					'href' => $baseURL . '/salmon/' . $user['nickname'],
+					'href' => $baseURL . '/salmon/' . $owner['nickname'],
 				],
 				[
 					'rel'  => 'http://salmon-protocol.org/ns/salmon-mention',
-					'href' => $baseURL . '/salmon/' . $user['nickname'] . '/mention',
+					'href' => $baseURL . '/salmon/' . $owner['nickname'] . '/mention',
 				],
 				[
 					'rel'      => 'http://ostatus.org/schema/1.0/subscribe',
@@ -160,9 +164,9 @@ class Xrd extends BaseModule
 		exit();
 	}
 
-	private static function printXML($uri, $alias, $profileURL, $baseURL, $user)
+	private static function printXML($alias, $baseURL, $user, $owner, $avatar)
 	{
-		$salmon_key = Salmon::salmonKey($user['spubkey']);
+		$salmon_key = Salmon::salmonKey($owner['spubkey']);
 
 		header('Access-Control-Allow-Origin: *');
 		header('Content-type: text/xml');
@@ -170,16 +174,17 @@ class Xrd extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('xrd_person.tpl');
 
 		$o = Renderer::replaceMacros($tpl, [
-			'$nick'        => $user['nickname'],
-			'$accturi'     => $uri,
+			'$nick'        => $owner['nickname'],
+			'$accturi'     => 'acct:' . $owner['addr'],
 			'$alias'       => $alias,
-			'$profile_url' => $profileURL,
-			'$hcard_url'   => $baseURL . '/hcard/' . $user['nickname'],
-			'$atom'        => $baseURL . '/dfrn_poll/' . $user['nickname'],
-			'$poco_url'    => $baseURL . '/poco/' . $user['nickname'],
-			'$photo'       => $baseURL . '/photo/profile/' . $user['uid'] . '.jpg',
-			'$salmon'      => $baseURL . '/salmon/' . $user['nickname'],
-			'$salmen'      => $baseURL . '/salmon/' . $user['nickname'] . '/mention',
+			'$profile_url' => $owner['url'],
+			'$hcard_url'   => $baseURL . '/hcard/' . $owner['nickname'],
+			'$atom'        => $owner['notify'],
+			'$poco_url'    => $owner['poco'],
+			'$photo'       => $owner['photo'],
+			'$type'        => $avatar['type'],
+			'$salmon'      => $baseURL . '/salmon/' . $owner['nickname'],
+			'$salmen'      => $baseURL . '/salmon/' . $owner['nickname'] . '/mention',
 			'$subscribe'   => $baseURL . '/follow?url={uri}',
 			'$openwebauth' => $baseURL . '/owa',
 			'$modexp'      => 'data:application/magic-public-key,' . $salmon_key
