@@ -101,7 +101,7 @@ class Xrd extends BaseModule
 				[
 					'rel'  => NAMESPACE_FEED,
 					'type' => 'application/atom+xml',
-					'href' => $owner['notify'],
+					'href' => $owner['poll'],
 				],
 				[
 					'rel'  => 'http://webfinger.net/rel/profile-page',
@@ -179,7 +179,7 @@ class Xrd extends BaseModule
 			'$alias'       => $alias,
 			'$profile_url' => $owner['url'],
 			'$hcard_url'   => $baseURL . '/hcard/' . $owner['nickname'],
-			'$atom'        => $owner['notify'],
+			'$atom'        => $owner['poll'],
 			'$poco_url'    => $owner['poco'],
 			'$photo'       => $owner['photo'],
 			'$type'        => $avatar['type'],
