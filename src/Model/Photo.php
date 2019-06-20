@@ -414,7 +414,9 @@ class Photo extends BaseObject
 
 		$filename = basename($image_url);
 		if (!empty($image_url)) {
-			$img_str = Network::fetchUrl($image_url, true);
+			$ret = Network::curl($image_url, true);
+			$img_str = $ret->getBody();
+			$type = $ret->getContentType();
 		} else {
 			$img_str = '';
 		}
@@ -423,7 +425,10 @@ class Photo extends BaseObject
 			return false;
 		}
 
-		$type = Image::guessType($image_url, true);
+		if (empty($type)) {
+			$type = Image::guessType($image_url, true);
+		}
+
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);
