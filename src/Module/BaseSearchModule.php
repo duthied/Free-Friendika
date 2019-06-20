@@ -50,7 +50,10 @@ class BaseSearchModule extends BaseModule
 			$search  = substr($search, 1);
 			$type    = Search::TYPE_PEOPLE;
 			$header  = L10n::t('People Search - %s', $search);
-			$results = Search::getContactsFromProbe($search);
+
+			if (strrpos($search, '@') > 0) {
+				$results = Search::getContactsFromProbe($search);
+			}
 		}
 
 		if (strpos($search, '!') === 0) {
