@@ -140,7 +140,7 @@ function redir_private_images($a, &$item)
  * @brief Given a text string, convert from bbcode to html and add smilie icons.
  *
  * @param string $text String with bbcode.
- * @return string Formattet HTML.
+ * @return string Formatted HTML
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function prepare_text($text)
