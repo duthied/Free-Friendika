@@ -87,6 +87,8 @@ class APContact extends BaseObject
 			return false;
 		}
 
+		$fetched_contact = false;
+
 		if (empty($update)) {
 			if (is_null($update)) {
 				$ref_update = DateTimeFormat::utc('now - 1 month');
@@ -110,24 +112,28 @@ class APContact extends BaseObject
 			if (!is_null($update)) {
 				return DBA::isResult($apcontact) ? $apcontact : false;
 			}
+
+			if (DBA::isResult($apcontact)) {
+				$fetched_contact = $apcontact;
+			}
 		}
 
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
 			$url = self::addrToUrl($url);
 			if (empty($url)) {
-				return false;
+				return $fetched_contact;
 			}
 		}
 
 		$data = ActivityPub::fetchContent($url);
 		if (empty($data)) {
-			return false;
+			return $fetched_contact;
 		}
 
 		$compacted = JsonLD::compact($data);
 
 		if (empty($compacted['@id'])) {
-			return false;
+			return $fetched_contact;
 		}
 
 		$apcontact = [];
@@ -168,12 +174,12 @@ class APContact extends BaseObject
 
 		// Quit if none of the basic values are set
 		if (empty($apcontact['url']) || empty($apcontact['inbox']) || empty($apcontact['type'])) {
-			return false;
+			return $fetched_contact;
 		}
 
 		// Quit if this doesn't seem to be an account at all
 		if (!in_array($apcontact['type'], ActivityPub::ACCOUNT_TYPES)) {
-			return false;
+			return $fetched_contact;
 		}
 
 		$parts = parse_url($apcontact['url']);

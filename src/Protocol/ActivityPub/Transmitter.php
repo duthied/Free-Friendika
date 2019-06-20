@@ -1479,6 +1479,10 @@ class Transmitter
 	public static function sendActivity($activity, $target, $uid, $id = '')
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 
@@ -1515,6 +1519,10 @@ class Transmitter
 	public static function sendFollowObject($object, $target, $uid = 0)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		if (empty($uid)) {
 			// Fetch the list of administrators
@@ -1561,6 +1569,10 @@ class Transmitter
 	public static function sendContactAccept($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
@@ -1594,6 +1606,10 @@ class Transmitter
 	public static function sendContactReject($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
@@ -1627,6 +1643,10 @@ class Transmitter
 	public static function sendContactUndo($target, $cid, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$object_id = self::activityIDFromContact($cid);
 		if (empty($object_id)) {
