@@ -143,13 +143,9 @@ function redir_private_images($a, &$item)
  * @return string Formattet HTML.
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function prepare_text($text) {
-	if (stristr($text, '[nosmile]')) {
-		$s = BBCode::convert($text);
-	} else {
-		$s = Smilies::replace(BBCode::convert($text));
-	}
-
+function prepare_text($text)
+{
+	$s = BBCode::convert($text);
 	return trim($s);
 }
 
