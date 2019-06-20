@@ -1737,17 +1737,14 @@ class Contact extends BaseObject
 			$photos = Photo::importProfilePhoto($avatar, $uid, $cid, true);
 
 			if ($photos) {
-				DBA::update(
-					'contact',
-					['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()],
-					['id' => $cid]
-				);
+				$fields = ['avatar' => $avatar, 'photo' => $photos[0], 'thumb' => $photos[1], 'micro' => $photos[2], 'avatar-date' => DateTimeFormat::utcNow()];
+				DBA::update('contact', $fields, ['id' => $cid]);
 
 				// Update the public contact (contact id = 0)
 				if ($uid != 0) {
 					$pcontact = DBA::selectFirst('contact', ['id'], ['nurl' => $contact['nurl'], 'uid' => 0]);
 					if (DBA::isResult($pcontact)) {
-						self::updateAvatar($avatar, 0, $pcontact['id'], $force);
+						DBA::update('contact', $fields, ['id' => $pcontact['id']]);
 					}
 				}
 
