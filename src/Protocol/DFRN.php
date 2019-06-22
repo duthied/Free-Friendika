@@ -2928,7 +2928,7 @@ class DFRN
 			$baseurl = substr($baseurl, $domain_st + 3);
 			$nurl = Strings::normaliseLink($baseurl);
 
-			$r = DBA::selectFirst("user", ["uid"], ["nickname" => DBA::escape($contact_nick)], []);
+			$r = User::getByNickname($contact_nick, ["uid"]);
 			$contact_uid = $r["uid"];
 
 			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
