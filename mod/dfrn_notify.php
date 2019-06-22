@@ -190,13 +190,13 @@ function dfrn_dispatch_public($postdata)
 	}
 
 	// Fetch the corresponding public contact
-	$contact = Contact::getDetailsByAddr($msg['author'], 0);
-	if (!$contact) {
+	$contact_id = Contact::getIdForURL($msg['author']);
+	if (empty($contact_id)) {
 		Logger::log('Contact not found for address ' . $msg['author']);
 		System::xmlExit(3, 'Contact ' . $msg['author'] . ' not found');
 	}
 
-	$importer = DFRN::getImporter($contact['id']);
+	$importer = DFRN::getImporter($contact_id);
 
 	// This should never fail
 	if (empty($importer)) {
