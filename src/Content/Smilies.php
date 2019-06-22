@@ -213,7 +213,6 @@ class Smilies
 			return $text;
 		}
 
-		$text = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::encode', $text);
 		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $text);
 
 		if ($no_images) {
@@ -232,7 +231,6 @@ class Smilies
 		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
 		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $text);
-		$text = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $text);
 
 		return $text;
 	}
