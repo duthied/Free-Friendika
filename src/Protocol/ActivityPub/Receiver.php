@@ -222,8 +222,7 @@ class Receiver
 
 			// We had been able to retrieve the object data - so we can trust the source
 			$trust_source = true;
-		} elseif (in_array($type, ['as:Like', 'as:Dislike']) ||
-			(($type == 'as:Follow') && in_array($object_type, self::CONTENT_TYPES))) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
 			$object_data = self::processObject($activity);
