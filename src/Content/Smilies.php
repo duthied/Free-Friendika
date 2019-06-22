@@ -213,7 +213,8 @@ class Smilies
 			return $text;
 		}
 
-		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::encode', $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::encode', $text);
 
 		if ($no_images) {
 			$cleaned = ['texts' => [], 'icons' => []];
@@ -230,7 +231,8 @@ class Smilies
 		$text = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $text);
 		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
-		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::decode', $text);
 
 		return $text;
 	}
@@ -242,7 +244,7 @@ class Smilies
 	 */
 	private static function encode($m)
 	{
-		return '<code>' . Strings::base64UrlEncode($m[1]) . '</code>';
+		return '<' . $m[1] . '>' . Strings::base64UrlEncode($m[2]) . '</' . $m[1] . '>';
 	}
 
 	/**
@@ -253,7 +255,7 @@ class Smilies
 	 */
 	private static function decode($m)
 	{
-		return '<code>' . Strings::base64UrlDecode($m[1]) . '</code>';
+		return '<' . $m[1] . '>' . Strings::base64UrlDecode($m[2]) . '</' . $m[1] . '>';
 	}
 
 
