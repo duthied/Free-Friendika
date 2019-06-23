@@ -417,13 +417,6 @@ class OStatus
 				$author = self::fetchAuthor($xpath, $entry, $importer, $contact, $stored);
 			}
 
-			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()', $entry);
-			if ($value != "") {
-				$nickname = $value;
-			} else {
-				$nickname = $author["author-name"];
-			}
-
 			$item = array_merge($header, $author);
 
 			$item["uri"] = XML::getFirstNodeValue($xpath, 'atom:id/text()', $entry);
@@ -463,7 +456,7 @@ class OStatus
 			}
 
 			if ($item["verb"] == ACTIVITY_FOLLOW) {
-				Contact::addRelationship($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item);
 				continue;
 			}
 
@@ -745,7 +738,7 @@ class OStatus
 
 		self::$conv_list[$conversation] = true;
 
-		$curlResult = Network::curl($conversation, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = Network::curl($conversation, false, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -938,7 +931,7 @@ class OStatus
 		}
 
 		$stored = false;
-		$curlResult = Network::curl($related, false, $redirects, ['accept_content' => 'application/atom+xml, text/html']);
+		$curlResult = Network::curl($related, false, ['accept_content' => 'application/atom+xml, text/html']);
 
 		if (!$curlResult->isSuccess()) {
 			return;
@@ -1515,7 +1508,7 @@ class OStatus
 				$author->appendChild($urls);
 			}
 
-			XML::addElement($doc, $author, "followers", "", ["url" => System::baseUrl()."/viewcontacts/".$owner["nick"]]);
+			XML::addElement($doc, $author, "followers", "", ["url" => System::baseUrl() . "/profile/" . $owner["nick"] . "/contacts/followers"]);
 			XML::addElement($doc, $author, "statusnet:profile_info", "", ["local_id" => $owner["uid"]]);
 
 			if ($profile["publish"]) {

@@ -46,23 +46,24 @@
 			{{if $account_type}}<div class="account-type">({{$account_type}})</div>{{/if}}
 		</div>
 
+		{{if $follow_link || $unfollow_link || $wallmessage_link}}
 		<div id="profile-extra-links">
-			{{if $connect}}
+			{{if $follow_link || $unfollow_link}}
 			<div id="dfrn-request-link-button">
-				{{if $remoteconnect}}
-				<a id="dfrn-request-link" class="btn btn-primary btn-sm" href="{{$remoteconnect}}">
-					<span class=""><i class="fa fa-user-plus"></i></span>
-					<span class="">{{$connect}}</span>
+				{{if $unfollow_link}}
+				<a id="dfrn-request-link" class="btn btn-labeled btn-primary btn-sm" href="{{$unfollow_link}}">
+					<span class=""><i class="fa fa-user-times"></i></span>
+					<span class="">{{$unfollow}}</span>
 				</a>
 				{{else}}
-				<a id="dfrn-request-link" class="btn btn-labeled btn-primary btn-sm" href="dfrn_request/{{$profile.nickname}}">
+				<a id="dfrn-request-link" class="btn btn-labeled btn-primary btn-sm" href="{{$follow_link}}">
 					<span class=""><i class="fa fa-user-plus"></i></span>
-					<span class="">{{$connect}}</span>
+					<span class="">{{$follow}}</span>
 				</a>
 				{{/if}}
 			</div>
 			{{/if}}
-			{{if $wallmessage}}
+			{{if $wallmessage_link}}
 			<div id="wallmessage-link-botton">
 				<button type="button" id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="openWallMessage('{{$wallmessage_link}}')">
 					<span class=""><i class="fa fa-envelope"></i></span>
@@ -71,6 +72,7 @@
 			</div>
 			{{/if}}
 		</div>
+		{{/if}}
 
 		<div class="clear"></div>
 

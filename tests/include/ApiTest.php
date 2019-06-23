@@ -7,13 +7,14 @@ namespace Friendica\Test;
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\Config\Cache;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Factory;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
+use Friendica\Util\BaseURL;
+use Friendica\Util\Config\ConfigFileLoader;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -31,20 +32,35 @@ class ApiTest extends DatabaseTest
 	 */
 	protected $logOutput;
 
+	/** @var App */
+	protected $app;
+
+	/** @var array */
+	protected $selfUser;
+	/** @var array */
+	protected $friendUser;
+	/** @var array */
+	protected $otherUser;
+
+	protected $wrongUserId;
+
 	/**
 	 * Create variables used by tests.
 	 */
 	public function setUp()
 	{
 		$basePath = BasePath::create(dirname(__DIR__) . '/../');
-		$configLoader = new Cache\ConfigCacheLoader($basePath);
+		$mode = new App\Mode($basePath);
+		$router = new App\Router();
+		$configLoader = new ConfigFileLoader($basePath, $mode);
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
-		Factory\DBFactory::init($basePath, $configCache, $profiler, $_SERVER);
+		Factory\DBFactory::init($configCache, $profiler, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
 		Factory\ConfigFactory::createPConfig($configCache);
-		$logger = Factory\LoggerFactory::create('test', $config);
-		$this->app = new App($basePath, $config, $logger, $profiler, false);
+		$logger = Factory\LoggerFactory::create('test', $config, $profiler);
+		$baseUrl = new BaseURL($config, $_SERVER);
+		$this->app = new App($config, $mode, $router, $baseUrl, $logger, $profiler, false);
 
 		parent::setUp();
 
@@ -594,8 +610,8 @@ class ApiTest extends DatabaseTest
 	public function testApiErrorWithJson()
 	{
 		$this->assertEquals(
-			'{"status":{"error":"error_message","code":"200 Friendica\\\\Network\\\\HTTP","request":""}}',
-			api_error('json', new HTTPException('error_message'))
+			'{"status":{"error":"error_message","code":"200 OK","request":""}}',
+			api_error('json', new HTTPException\OKException('error_message'))
 		);
 	}
 
@@ -612,10 +628,10 @@ class ApiTest extends DatabaseTest
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
 				'xmlns:georss="http://www.georss.org/georss">'."\n".
 			'  <error>error_message</error>'."\n".
-			'  <code>200 Friendica\Network\HTTP</code>'."\n".
+			'  <code>200 OK</code>'."\n".
 			'  <request/>'."\n".
 			'</status>'."\n",
-			api_error('xml', new HTTPException('error_message'))
+			api_error('xml', new HTTPException\OKException('error_message'))
 		);
 	}
 
@@ -632,10 +648,10 @@ class ApiTest extends DatabaseTest
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
 				'xmlns:georss="http://www.georss.org/georss">'."\n".
 			'  <error>error_message</error>'."\n".
-			'  <code>200 Friendica\Network\HTTP</code>'."\n".
+			'  <code>200 OK</code>'."\n".
 			'  <request/>'."\n".
 			'</status>'."\n",
-			api_error('rss', new HTTPException('error_message'))
+			api_error('rss', new HTTPException\OKException('error_message'))
 		);
 	}
 
@@ -652,10 +668,10 @@ class ApiTest extends DatabaseTest
 				'xmlns:friendica="http://friendi.ca/schema/api/1/" '.
 				'xmlns:georss="http://www.georss.org/georss">'."\n".
 			'  <error>error_message</error>'."\n".
-			'  <code>200 Friendica\Network\HTTP</code>'."\n".
+			'  <code>200 OK</code>'."\n".
 			'  <request/>'."\n".
 			'</status>'."\n",
-			api_error('atom', new HTTPException('error_message'))
+			api_error('atom', new HTTPException\OKException('error_message'))
 		);
 	}
 
@@ -1271,31 +1287,30 @@ class ApiTest extends DatabaseTest
 
 	/**
 	 * Test the api_status_show() function.
-	 * @return void
 	 */
-	public function testApiStatusShow()
+	public function testApiStatusShowWithJson()
 	{
-		$result = api_status_show('json');
+		$result = api_status_show('json', 1);
 		$this->assertStatus($result['status']);
 	}
 
 	/**
 	 * Test the api_status_show() function with an XML result.
-	 * @return void
 	 */
 	public function testApiStatusShowWithXml()
 	{
-		$result = api_status_show('xml');
+		$result = api_status_show('xml', 1);
 		$this->assertXml($result, 'statuses');
 	}
 
 	/**
-	 * Test the api_status_show() function with a raw result.
-	 * @return void
+	 * Test the api_get_last_status() function
 	 */
-	public function testApiStatusShowWithRaw()
+	public function testApiGetLastStatus()
 	{
-		$this->assertStatus(api_status_show('raw'));
+		$item = api_get_last_status($this->selfUser['id'], $this->selfUser['id']);
+
+		$this->assertNotNull($item);
 	}
 
 	/**

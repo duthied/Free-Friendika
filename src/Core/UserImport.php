@@ -6,9 +6,11 @@ namespace Friendica\Core;
 
 use Friendica\App;
 use Friendica\Database\DBA;
+use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 /**
  * @brief UserImport class
@@ -35,18 +37,24 @@ class UserImport
 	 */
 	private static function checkCols($table, &$arr)
 	{
-		$query = sprintf("SHOW COLUMNS IN `%s`", DBA::escape($table));
-		Logger::log("uimport: $query", Logger::DEBUG);
-		$r = q($query);
+		$tableColumns = DBStructure::getColumns($table);
+
 		$tcols = [];
+		$ttype = [];
 		// get a plain array of column names
-		foreach ($r as $tcol) {
+		foreach ($tableColumns as $tcol) {
 			$tcols[] = $tcol['Field'];
+			$ttype[$tcol['Field']] = $tcol['Type'];
 		}
 		// remove inexistent columns
 		foreach ($arr as $icol => $ival) {
 			if (!in_array($icol, $tcols)) {
 				unset($arr[$icol]);
+				continue;
+			}
+
+			if ($ttype[$icol] === 'datetime') {
+				$arr[$icol] = $ival ?? DBA::NULL_DATETIME;
 			}
 		}
 	}
@@ -66,16 +74,12 @@ class UserImport
 		}
 
 		self::checkCols($table, $arr);
-		$cols = implode("`,`", array_map(['Friendica\Database\DBA', 'escape'], array_keys($arr)));
-		$vals = implode("','", array_map(['Friendica\Database\DBA', 'escape'], array_values($arr)));
-		$query = "INSERT INTO `$table` (`$cols`) VALUES ('$vals')";
-		Logger::log("uimport: $query", Logger::TRACE);
 
 		if (self::IMPORT_DEBUG) {
 			return true;
 		}
 
-		return q($query);
+		return DBA::insert($table, $arr);
 	}
 
 	/**
@@ -275,7 +279,7 @@ class UserImport
 		}
 
 		// send relocate messages
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
 
 		info(L10n::t("Done. You can now login with your username and password"));
 		$a->internalRedirect('login');

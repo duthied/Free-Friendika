@@ -61,21 +61,20 @@
 	{{if $about}}<dl class="about"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about nofilter}}</dd></dl>{{/if}}
 
 	{{include file="diaspora_vcard.tpl"}}
-	
+
 	<div id="profile-extra-links">
 		<ul>
-			{{if $connect}}
-				{{if $remoteconnect}}
-					<li><a id="dfrn-request-link" href="{{$remoteconnect}}">{{$connect}}</a></li>
-				{{else}}
-					<li><a id="dfrn-request-link" href="dfrn_request/{{$profile.nickname}}">{{$connect}}</a></li>
-				{{/if}}
+			{{if $unfollow_link}}
+				<li><a id="dfrn-request-link" href="{{$unfollow_link}}">{{$unfollow}}</a></li>
 			{{/if}}
-			{{if $wallmessage}}
+			{{if $follow_link}}
+				<li><a id="dfrn-request-link" href="{{$follow_link}}">{{$follow}}</a></li>
+			{{/if}}
+			{{if $wallmessage_link}}
 				<li><a id="wallmessage-link" href="{{$wallmessage_link}}">{{$wallmessage}}</a></li>
 			{{/if}}
-			{{if $subscribe_feed}}
-				<li><a id="subscribe-feed-link" href="dfrn_poll/{{$profile.nickname}}">{{$subscribe_feed}}</a></li>
+			{{if $subscribe_feed_link}}
+				<li><a id="subscribe-feed-link" href="{{$subscribe_feed_link}}">{{$subscribe_feed}}</a></li>
 			{{/if}}
 		</ul>
 	</div>

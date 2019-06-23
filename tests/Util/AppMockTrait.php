@@ -31,13 +31,20 @@ trait AppMockTrait
 	protected $profilerMock;
 
 	/**
+	 * @var MockInterface|App\Mode The mocked App mode
+	 */
+	protected $mode;
+
+	/**
 	 * Mock the App
 	 *
 	 * @param vfsStreamDirectory $root The root directory
+	 * @param bool $raw If true, no config mocking will be done
 	 */
-	public function mockApp($root)
+	public function mockApp(vfsStreamDirectory $root, $raw = false)
 	{
 		$this->configMock = \Mockery::mock(Config\Cache\IConfigCache::class);
+		$this->mode = \Mockery::mock(App\Mode::class);
 		$configAdapterMock = \Mockery::mock(Config\Adapter\IConfigAdapter::class);
 		// Disable the adapter
 		$configAdapterMock->shouldReceive('isConnected')->andReturn(false);
@@ -51,6 +58,40 @@ trait AppMockTrait
 		$this->app
 			->shouldReceive('getBasePath')
 			->andReturn($root->url());
+
+		$this->app
+			->shouldReceive('getMode')
+			->andReturn($this->mode);
+
+		$this->profilerMock = \Mockery::mock(Profiler::class);
+		$this->profilerMock->shouldReceive('saveTimestamp');
+
+		$this->app
+			->shouldReceive('getConfigCache')
+			->andReturn($this->configMock);
+		$this->app
+			->shouldReceive('getConfig')
+			->andReturn($config);
+		$this->app
+			->shouldReceive('getTemplateEngine')
+			->andReturn(new FriendicaSmartyEngine());
+		$this->app
+			->shouldReceive('getCurrentTheme')
+			->andReturn('Smarty3');
+		$this->app
+			->shouldReceive('getProfiler')
+			->andReturn($this->profilerMock);
+		$this->app
+			->shouldReceive('getBaseUrl')
+			->andReturnUsing(function () {
+				return $this->configMock->get('system', 'url');
+			});
+
+		BaseObject::setApp($this->app);
+
+		if ($raw) {
+			return;
+		}
 
 		$this->configMock
 			->shouldReceive('has')
@@ -79,26 +120,5 @@ trait AppMockTrait
 			->shouldReceive('get')
 			->with('system', 'theme')
 			->andReturn('system_theme');
-
-		$this->profilerMock = \Mockery::mock(Profiler::class);
-		$this->profilerMock->shouldReceive('saveTimestamp');
-
-		$this->app
-			->shouldReceive('getConfigCache')
-			->andReturn($this->configMock);
-		$this->app
-			->shouldReceive('getTemplateEngine')
-			->andReturn(new FriendicaSmartyEngine());
-		$this->app
-			->shouldReceive('getCurrentTheme')
-			->andReturn('Smarty3');
-		$this->app
-			->shouldReceive('getBaseUrl')
-			->andReturn('http://friendica.local');
-		$this->app
-			->shouldReceive('getProfiler')
-			->andReturn($this->profilerMock);
-
-		BaseObject::setApp($this->app);
 	}
 }

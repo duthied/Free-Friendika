@@ -44,6 +44,7 @@
 <script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js"></script>
 <script type="text/javascript" src="view/js/acl.js" ></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js" ></script>
+<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js"></script>
 <script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 

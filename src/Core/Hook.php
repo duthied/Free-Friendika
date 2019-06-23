@@ -7,6 +7,7 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\Util\Strings;
 
 /**
  * Some functions to handle hooks
@@ -215,6 +216,8 @@ class Hook extends BaseObject
 	 */
 	public static function isAddonApp($name)
 	{
+		$name = Strings::sanitizeFilePathItem($name);
+
 		if (array_key_exists('app_menu', self::$hooks)) {
 			foreach (self::$hooks['app_menu'] as $hook) {
 				if ($hook[0] == 'addon/' . $name . '/' . $name . '.php') {

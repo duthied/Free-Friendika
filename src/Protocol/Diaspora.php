@@ -27,8 +27,8 @@ use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Mail;
 use Friendica\Model\Profile;
-use Friendica\Model\Queue;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
@@ -37,6 +37,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 use SimpleXMLElement;
 
 /**
@@ -144,7 +145,7 @@ class Diaspora
 	 */
 	private static function getRelayContact($server_url)
 	{
-		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
+		$fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'];
 
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
@@ -212,7 +213,7 @@ class Diaspora
 	 */
 	public static function participantsForThread($thread, array $contacts)
 	{
-		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`,
+		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`, `contact`.`protocol`,
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
 				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
 				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
@@ -223,6 +224,10 @@ class Diaspora
 				$contact['network'] = $contact['fnetwork'];
 			}
 			unset($contact['fnetwork']);
+
+			if (empty($contact['protocol'])) {
+				$contact['protocol'] = $contact['network'];
+			}
 
 			if (empty($contact['batch']) && !empty($contact['fbatch'])) {
 				$contact['batch'] = $contact['fbatch'];
@@ -401,7 +406,7 @@ class Diaspora
 				if ($no_exit) {
 					return false;
 				} else {
-					System::httpExit(400);
+					throw new \Friendica\Network\HTTPException\BadRequestException();
 				}
 			}
 
@@ -420,7 +425,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -446,7 +451,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -456,7 +461,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -466,7 +471,7 @@ class Diaspora
 			if ($no_exit) {
 				return false;
 			} else {
-				System::httpExit(400);
+				throw new \Friendica\Network\HTTPException\BadRequestException();
 			}
 		}
 
@@ -551,7 +556,7 @@ class Diaspora
 
 		if (!$base) {
 			Logger::log('unable to locate salmon data in xml');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 
@@ -589,7 +594,7 @@ class Diaspora
 
 		if (!$author_link) {
 			Logger::log('Could not retrieve author URI.');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 		// Once we have the author URI, go to the web and try to find their public key
 		// (first this will look it up locally if it is in the fcontact cache)
@@ -600,14 +605,14 @@ class Diaspora
 
 		if (!$key) {
 			Logger::log('Could not retrieve author key.');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		$verify = Crypto::rsaVerify($signed_data, $signature, $key);
 
 		if (!$verify) {
 			Logger::log('Message did not verify. Discarding.');
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		Logger::log('Message verified.');
@@ -1842,14 +1847,7 @@ class Diaspora
 
 		$person = self::personByHandle($msg_author);
 
-		DBA::lock('mail');
-
-		if (DBA::exists('mail', ['guid' => $msg_guid, 'uid' => $importer["uid"]])) {
-			Logger::log("duplicate message already delivered.", Logger::DEBUG);
-			return false;
-		}
-
-		DBA::insert('mail', [
+		return Mail::insert([
 			'uid'        => $importer['uid'],
 			'guid'       => $msg_guid,
 			'convid'     => $conversation['id'],
@@ -1859,36 +1857,10 @@ class Diaspora
 			'contact-id' => $contact['id'],
 			'title'      => $subject,
 			'body'       => $body,
-			'seen'       => 0,
-			'reply'      => 0,
 			'uri'        => $message_uri,
 			'parent-uri' => $author . ':' . $guid,
 			'created'    => $msg_created_at
 		]);
-
-		$message_id = DBA::lastInsertId();
-
-		DBA::unlock();
-
-		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
-
-		notification([
-			"type" => NOTIFY_MAIL,
-			"notify_flags" => $importer["notify-flags"],
-			"language" => $importer["language"],
-			"to_name" => $importer["username"],
-			"to_email" => $importer["email"],
-			"uid" => $importer["uid"],
-			"item" => ["id" => $message_id, "title" => $subject, "subject" => $subject, "body" => $body],
-			"parent" => $conversation["id"],
-			"source_name" => $person["name"],
-			"source_link" => $person["url"],
-			"source_photo" => $person["photo"],
-			"verb" => ACTIVITY_POST,
-			"otype" => "mail"
-		]);
-
-		return true;
 	}
 
 	/**
@@ -2106,14 +2078,7 @@ class Diaspora
 
 		$body = self::replacePeopleGuid($body, $person["url"]);
 
-		DBA::lock('mail');
-
-		if (DBA::exists('mail', ['guid' => $guid, 'uid' => $importer["uid"]])) {
-			Logger::log("duplicate message already delivered.", Logger::DEBUG);
-			return false;
-		}
-
-		DBA::insert('mail', [
+		return Mail::insert([
 			'uid'        => $importer['uid'],
 			'guid'       => $guid,
 			'convid'     => $conversation['id'],
@@ -2123,36 +2088,11 @@ class Diaspora
 			'contact-id' => $contact['id'],
 			'title'      => $conversation['subject'],
 			'body'       => $body,
-			'seen'       => 0,
 			'reply'      => 1,
 			'uri'        => $message_uri,
 			'parent-uri' => $author.":".$conversation['guid'],
 			'created'    => $created_at
 		]);
-
-		$message_id = DBA::lastInsertId();
-
-		DBA::unlock();
-
-		DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $conversation["id"]]);
-
-		notification([
-			"type" => NOTIFY_MAIL,
-			"notify_flags" => $importer["notify-flags"],
-			"language" => $importer["language"],
-			"to_name" => $importer["username"],
-			"to_email" => $importer["email"],
-			"uid" => $importer["uid"],
-			"item" => ["id" => $message_id, "title" => $conversation["subject"], "subject" => $conversation["subject"], "body" => $body],
-			"parent" => $conversation["id"],
-			"source_name" => $person["name"],
-			"source_link" => $person["url"],
-			"source_photo" => $person["photo"],
-			"verb" => ACTIVITY_POST,
-			"otype" => "mail"
-		]);
-
-		return true;
 	}
 
 	/**
@@ -2208,13 +2148,9 @@ class Diaspora
 			if ($comment['id'] == $comment['parent']) {
 				continue;
 			}
-			if ($comment['verb'] == ACTIVITY_POST) {
-				$cmd = $comment['self'] ? 'comment-new' : 'comment-import';
-			} else {
-				$cmd = $comment['self'] ? 'like' : 'comment-import';
-			}
-			Logger::log("Send ".$cmd." for item ".$comment['id']." to contact ".$contact_id, Logger::DEBUG);
-			Worker::add(PRIORITY_HIGH, 'Delivery', $cmd, $comment['id'], $contact_id);
+
+			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $contact_id]);
+			Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id);
 		}
 		DBA::close($comments);
 
@@ -2629,6 +2565,54 @@ class Diaspora
 	}
 
 	/**
+	 * @brief Stores a reshare activity
+	 *
+	 * @param array   $item              Array of reshare post
+	 * @param integer $parent_message_id Id of the parent post
+	 * @param string  $guid              GUID string of reshare action
+	 * @param string  $author            Author handle
+	 */
+	private static function addReshareActivity($item, $parent_message_id, $guid, $author)
+	{
+		$parent = Item::selectFirst(['uri', 'guid'], ['id' => $parent_message_id]);
+
+		$datarray = [];
+
+		$datarray['uid'] = $item['uid'];
+		$datarray['contact-id'] = $item['contact-id'];
+		$datarray['network'] = $item['network'];
+
+		$datarray['author-link'] = $item['author-link'];
+		$datarray['author-id'] = $item['author-id'];
+
+		$datarray['owner-link'] = $datarray['author-link'];
+		$datarray['owner-id'] = $datarray['author-id'];
+
+		$datarray['guid'] = $parent['guid'] . '-' . $guid;
+		$datarray['uri'] = self::getUriFromGuid($author, $datarray['guid']);
+		$datarray['parent-uri'] = $parent['uri'];
+
+		$datarray['verb'] = $datarray['body'] = ACTIVITY2_ANNOUNCE;
+		$datarray['gravity'] = GRAVITY_ACTIVITY;
+		$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+
+		$datarray['protocol'] = $item['protocol'];
+
+		$datarray['plink'] = self::plink($author, $datarray['guid']);
+		$datarray['private'] = $item['private'];
+		$datarray['changed'] = $datarray['created'] = $datarray['edited'] = $item['created'];
+
+		$message_id = Item::insert($datarray);
+
+		if ($message_id) {
+			Logger::info('Stored reshare activity.', ['guid' => $guid, 'id' => $message_id]);
+			if ($datarray['uid'] == 0) {
+				Item::distribute($message_id);
+			}
+		}
+	}
+
+	/**
 	 * @brief Processes a reshare message
 	 *
 	 * @param array  $importer Array of the importer user
@@ -2710,6 +2694,11 @@ class Diaspora
 		$message_id = Item::insert($datarray);
 
 		self::sendParticipation($contact, $datarray);
+
+		$root_message_id = self::messageExists($importer["uid"], $root_guid);
+		if ($root_message_id) {
+			self::addReshareActivity($datarray, $root_message_id, $guid, $author);
+		}
 
 		if ($message_id) {
 			Logger::log("Stored reshare ".$datarray["guid"]." with message id ".$message_id, Logger::DEBUG);
@@ -3117,15 +3106,13 @@ class Diaspora
 	 * @param array  $contact      Target of the communication
 	 * @param string $envelope     The message that is to be transmitted
 	 * @param bool   $public_batch Is it a public post?
-	 * @param bool   $queue_run    Is the transmission called from the queue?
 	 * @param string $guid         message guid
 	 *
-	 * @param bool   $no_queue
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function transmit(array $owner, array $contact, $envelope, $public_batch, $queue_run = false, $guid = "", $no_queue = false)
+	private static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "")
 	{
 		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -3152,35 +3139,17 @@ class Diaspora
 
 		Logger::log("transmit: ".$logid."-".$guid." ".$dest_url);
 
-		if (!$queue_run && Queue::wasDelayed($contact["id"])) {
-			$return_code = 0;
-		} else {
-			if (!intval(Config::get("system", "diaspora_test"))) {
-				$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
+		if (!intval(Config::get("system", "diaspora_test"))) {
+			$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
-				$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
-				$return_code = $postResult->getReturnCode();
-			} else {
-				Logger::log("test_mode");
-				return 200;
-			}
+			$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
+			$return_code = $postResult->getReturnCode();
+		} else {
+			Logger::log("test_mode");
+			return 200;
 		}
 
 		Logger::log("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
-
-		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
-			if (!$no_queue && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::TYPE_RELAY)) {
-				Logger::log("queue message");
-				// queue message for redelivery
-				Queue::add($contact["id"], Protocol::DIASPORA, $envelope, $public_batch, $guid);
-			}
-
-			// The message could not be delivered. We mark the contact as "dead"
-			Contact::markForArchival($contact);
-		} elseif (($return_code >= 200) && ($return_code <= 299)) {
-			// We successfully delivered a message, the contact is alive
-			Contact::unmarkForArchival($contact);
-		}
 
 		return $return_code ? $return_code : -1;
 	}
@@ -3210,13 +3179,12 @@ class Diaspora
 	 * @param array  $message      The message data
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $spool        Should the transmission be spooled or transmitted?
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $spool = false)
+	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "")
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3230,12 +3198,7 @@ class Diaspora
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		if ($spool) {
-			Queue::add($contact['id'], Protocol::DIASPORA, $envelope, $public_batch, $guid);
-			return true;
-		} else {
-			$return_code = self::transmit($owner, $contact, $envelope, $public_batch, false, $guid);
-		}
+		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid);
 
 		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
 
@@ -3580,6 +3543,7 @@ class Diaspora
 		$public = ($item["private"] ? "false" : "true");
 
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"] ?? $item["created"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
@@ -3634,6 +3598,7 @@ class Diaspora
 			$message = ["author" => $myaddr,
 					"guid" => $item["guid"],
 					"created_at" => $created,
+					"edited_at" => $edited,
 					"public" => $public,
 					"text" => $body,
 					"provider_display_name" => $item["app"],
@@ -3812,11 +3777,13 @@ class Diaspora
 
 		$text = html_entity_decode(BBCode::toMarkdown($body));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"], DateTimeFormat::ATOM);
 
 		$comment = [
 			"author"      => self::myHandle($owner),
 			"guid"        => $item["guid"],
 			"created_at"  => $created,
+			"edited_at"   => $edited,
 			"parent_guid" => $toplevel_item["guid"],
 			"text"        => $text,
 			"author_signature" => ""
@@ -3852,7 +3819,7 @@ class Diaspora
 		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$message = self::constructLike($item, $owner);
 			$type = "like";
-		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW])) {
+		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW, ACTIVITY_TAG])) {
 			$message = self::constructComment($item, $owner);
 			$type = "comment";
 		}
@@ -4229,9 +4196,10 @@ class Diaspora
 
 		$message = self::createProfileData($uid);
 
+		// @ToDo Split this into single worker jobs
 		foreach ($recips as $recip) {
 			Logger::log("Send updated profile data for user ".$uid." to contact ".$recip["id"], Logger::DEBUG);
-			self::buildAndTransmit($owner, $recip, "profile", $message, false, "", false);
+			self::buildAndTransmit($owner, $recip, "profile", $message);
 		}
 	}
 

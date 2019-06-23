@@ -49,7 +49,7 @@ function videos_init(App $a)
 
 		$account_type = Contact::getAccountType($profile);
 
-		$tpl = Renderer::getMarkupTemplate("vcard-widget.tpl");
+		$tpl = Renderer::getMarkupTemplate("widget/vcard.tpl");
 
 		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
@@ -67,9 +67,7 @@ function videos_init(App $a)
 		$a->page['aside'] .= $vcard_widget;
 
 		$tpl = Renderer::getMarkupTemplate("videos_head.tpl");
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
-			'$baseurl' => System::baseUrl(),
-		]);
+		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl);
 	}
 
 	return;
@@ -84,33 +82,6 @@ function videos_post(App $a)
 	}
 
 	if (($a->argc == 2) && !empty($_POST['delete']) && !empty($_POST['id'])) {
-		// Check if we should do HTML-based delete confirmation
-		if (empty($_REQUEST['confirm'])) {
-			if (!empty($_REQUEST['canceled'])) {
-				$a->internalRedirect('videos/' . $a->data['user']['nickname']);
-			}
-
-			$drop_url = $a->query_string;
-
-			$a->page['content'] = Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
-				'$method' => 'post',
-				'$message' => L10n::t('Do you really want to delete this video?'),
-				'$extra_inputs' => [
-					['name' => 'id'    , 'value' => $_POST['id']],
-					['name' => 'delete', 'value' => 'x']
-				],
-				'$confirm' => L10n::t('Delete Video'),
-				'$confirm_url' => $drop_url,
-				'$confirm_name' => 'confirm', // Needed so that confirmation will bring us back into this if statement
-				'$cancel' => L10n::t('Cancel'),
-
-			]);
-
-			$a->error = 1; // Set $a->error so the other module functions don't execute
-
-			return;
-		}
-
 		$video_id = $_POST['id'];
 
 		if (Attach::exists(['id' => $video_id, 'uid' => local_user()])) {
@@ -246,7 +217,7 @@ function videos_content(App $a)
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= Profile::getTabs($a, $_is_owner, $a->data['user']['nickname']);
+	$o .= Profile::getTabs($a, 'videos', $_is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request

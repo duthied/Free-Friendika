@@ -9,15 +9,87 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\Item;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\Delivery;
 
 /**
  * Class to handle private messages
  */
 class Mail
 {
+	/**
+	 * Insert received private message
+	 *
+	 * @param array $msg
+	 * @return int|boolean Message ID or false on error
+	 */
+	public static function insert($msg)
+	{
+		$user = User::getById($msg['uid']);
+
+		if (!isset($msg['reply'])) {
+			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
+		}
+
+		if (empty($msg['convid'])) {
+			$mail = DBA::selectFirst('mail', ['convid'], ["`convid` != 0 AND `parent-uri` = ?", $msg['parent-uri']]);
+			if (DBA::isResult($mail)) {
+				$msg['convid'] = $mail['convid'];
+			}
+		}
+
+		if (empty($msg['guid'])) {
+			$host = parse_url($msg['from-url'], PHP_URL_HOST);
+			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
+		}
+
+		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
+
+		DBA::lock('mail');
+
+		if (DBA::exists('mail', ['uri' => $msg['uri'], 'uid' => $msg['uid']])) {
+			DBA::unlock();
+			Logger::info('duplicate message already delivered.');
+			return false;
+		}
+
+		DBA::insert('mail', $msg);
+
+		$msg['id'] = DBA::lastInsertId();
+
+		DBA::unlock();
+
+		if (!empty($msg['convid'])) {
+			DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $msg['convid']]);
+		}
+
+		// send notifications.
+		$notif_params = [
+			'type' => NOTIFY_MAIL,
+			'notify_flags' => $user['notify-flags'],
+			'language' => $user['language'],
+			'to_name' => $user['username'],
+			'to_email' => $user['email'],
+			'uid' => $user['uid'],
+			'item' => $msg,
+			'parent' => 0,
+			'source_name' => $msg['from-name'],
+			'source_link' => $msg['from-url'],
+			'source_photo' => $msg['from-photo'],
+			'verb' => ACTIVITY_POST,
+			'otype' => 'mail'
+		];
+
+		notification($notif_params);
+
+		Logger::info('Mail is processed, notification was sent.', ['id' => $msg['id'], 'uri' => $msg['uri']]);
+
+		return $msg['id'];
+	}
+
 	/**
 	 * Send private message
 	 *
@@ -48,7 +120,7 @@ class Mail
 		}
 
 		$guid = System::createUUID();
-		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
+		$uri = Item::newURI(local_user(), $guid);
 
 		$convid = 0;
 		$reply = false;
@@ -149,7 +221,7 @@ class Mail
 		}
 
 		if ($post_id) {
-			Worker::add(PRIORITY_HIGH, "Notifier", "mail", $post_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
 			return intval($post_id);
 		} else {
 			return -3;
@@ -176,7 +248,7 @@ class Mail
 		}
 
 		$guid = System::createUUID();
-		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
+		$uri = Item::newURI(local_user(), $guid);
 
 		$me = Probe::uri($replyto);
 

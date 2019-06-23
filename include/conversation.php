@@ -396,7 +396,7 @@ function visible_activity($item) {
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 */
-	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW];
+	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW, ACTIVITY2_ANNOUNCE];
 	foreach ($hidden_activities as $act) {
 		if (activity_match($item['verb'], $act)) {
 			return false;
@@ -565,8 +565,12 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	$items = $cb['items'];
 
 	$conv_responses = [
-		'like' => ['title' => L10n::t('Likes','title')], 'dislike' => ['title' => L10n::t('Dislikes','title')],
-		'attendyes' => ['title' => L10n::t('Attending','title')], 'attendno' => ['title' => L10n::t('Not attending','title')], 'attendmaybe' => ['title' => L10n::t('Might attend','title')]
+		'like' => ['title' => L10n::t('Likes','title')],
+		'dislike' => ['title' => L10n::t('Dislikes','title')],
+		'attendyes' => ['title' => L10n::t('Attending','title')],
+		'attendno' => ['title' => L10n::t('Not attending','title')],
+		'attendmaybe' => ['title' => L10n::t('Might attend','title')],
+		'announce' => ['title' => L10n::t('Reshares','title')]
 	];
 
 	// array with html for each thread (parent+comments)
@@ -785,6 +789,46 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 }
 
 /**
+ * Fetch all comments from a query. Additionally set the newest resharer as thread owner.
+ *
+ * @param $thread_items Database statement with thread posts
+ * @return array items with parents and comments
+ */
+function conversation_fetch_comments($thread_items) {
+	$comments = [];
+	$parentlines = [];
+	$lineno = 0;
+	$actor = [];
+	$created = '';
+
+	while ($row = Item::fetch($thread_items)) {
+		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created) && ($row['thr-parent'] == $row['parent-uri'])) {
+			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
+			$created = $row['created'];
+		}
+
+		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
+			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
+			$parentlines[] = $lineno;
+		}
+
+		$comments[] = $row;
+		$lineno++;
+	}
+
+	DBA::close($thread_items);
+
+	if (!empty($actor)) {
+		foreach ($parentlines as $line) {
+			$comments[$line]['owner-link'] = $actor['link'];
+			$comments[$line]['owner-avatar'] = $actor['avatar'];
+			$comments[$line]['owner-name'] = $actor['name'];
+		}
+	}
+	return $comments;
+}
+
+/**
  * @brief Add comments to top level entries that had been fetched before
  *
  * The system will fetch the comments for the local user whenever possible.
@@ -815,9 +859,10 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 		if ($block_authors) {
 			$condition[0] .= "AND NOT `author`.`hidden`";
 		}
-		$thread_items = Item::selectForUser(local_user(), [], $condition, $params);
 
-		$comments = Item::inArray($thread_items);
+		$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+
+		$comments = conversation_fetch_comments($thread_items);
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);
@@ -963,6 +1008,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'attendmaybe':
 				$verb = ACTIVITY_ATTENDMAYBE;
 				break;
+			case 'announce':
+				$verb = ACTIVITY2_ANNOUNCE;
+				break;
 			default:
 				return;
 		}
@@ -1045,6 +1093,9 @@ function format_like($cnt, array $arr, $type, $id) {
 			case 'attendmaybe' :
 				$phrase = L10n::t('%s attends maybe.', $likers);
 				break;
+			case 'announce' :
+				$phrase = L10n::t('%s reshared this.', $likers);
+				break;
 		}
 	}
 
@@ -1083,6 +1134,10 @@ function format_like($cnt, array $arr, $type, $id) {
 			case 'attendmaybe':
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
 				$explikers = L10n::t('%s attend maybe.', $likers);
+				break;
+			case 'announce':
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $cnt);
+				$explikers = L10n::t('%s reshared this.', $likers);
 				break;
 		}
 

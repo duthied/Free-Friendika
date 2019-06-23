@@ -22,6 +22,8 @@ if (empty($style)) {
 $stylecss = '';
 $modified = '';
 
+$style = \Friendica\Util\Strings::sanitizeFilePathItem($style);
+
 foreach (['style', $style] as $file) {
 	$stylecssfile = $THEMEPATH . DIRECTORY_SEPARATOR . $file .'.css';
 	if (file_exists($stylecssfile)) {

@@ -10,6 +10,7 @@ namespace Friendica\Network;
  */
 
 use DOMDocument;
+use DomXPath;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
@@ -18,15 +19,14 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use DomXPath;
 
 /**
  * @brief This class contain functions for probing URL
@@ -109,12 +109,11 @@ class Probe
 		$url = "http://".$host."/.well-known/host-meta";
 
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
-		$redirects = 0;
 
 		Logger::log("Probing for ".$host, Logger::DEBUG);
 		$xrd = null;
 
-		$curlResult = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$curlResult = Network::curl($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
@@ -122,7 +121,7 @@ class Probe
 		}
 
 		if (!is_object($xrd)) {
-			$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($curlResult->isTimeout()) {
 				Logger::log("Probing timeout for " . $url, Logger::DEBUG);
 				self::$istimeout = true;
@@ -199,7 +198,7 @@ class Probe
 
 		$links = self::lrdd($webbie);
 		Logger::log('webfingerDfrn: '.$webbie.':'.print_r($links, true), Logger::DATA);
-		if (count($links)) {
+		if (!empty($links) && is_array($links)) {
 			foreach ($links as $link) {
 				if ($link['@attributes']['rel'] === NAMESPACE_DFRN) {
 					$profile_link = $link['@attributes']['href'];
@@ -511,30 +510,6 @@ class Probe
 	}
 
 	/**
-	 * @brief Switch the scheme of an url between http and https
-	 *
-	 * @param string $url URL
-	 *
-	 * @return string switched URL
-	 */
-	private static function switchScheme($url)
-	{
-		$parts = parse_url($url);
-
-		if (!isset($parts['scheme'])) {
-			return $url;
-		}
-
-		if ($parts['scheme'] == 'http') {
-			$url = str_replace('http://', 'https://', $url);
-		} elseif ($parts['scheme'] == 'https') {
-			$url = str_replace('https://', 'http://', $url);
-		}
-
-		return $url;
-	}
-
-	/**
 	 * @brief Checks if a profile url should be OStatus but only provides partial information
 	 *
 	 * @param array  $webfinger Webfinger data
@@ -566,7 +541,7 @@ class Probe
 			return $webfinger;
 		}
 
-		$url = self::switchScheme($webfinger['subject']);
+		$url = Network::switchScheme($webfinger['subject']);
 		$path = str_replace('{uri}', urlencode($url), $lrdd);
 		$webfinger2 = self::webfinger($path, $type);
 
@@ -762,9 +737,8 @@ class Probe
 	private static function webfinger($url, $type)
 	{
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
-		$redirects = 0;
 
-		$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return false;

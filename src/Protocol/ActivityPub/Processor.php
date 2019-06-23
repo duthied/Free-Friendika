@@ -5,6 +5,7 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
@@ -15,6 +16,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Event;
 use Friendica\Model\Term;
 use Friendica\Model\User;
+use Friendica\Model\Mail;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\JsonLD;
@@ -62,10 +64,9 @@ class Processor
 	 *
 	 * @param array   $tags
 	 * @param boolean $sensitive
-	 * @param array   $implicit_mentions List of profile URLs to skip
 	 * @return string with tags
 	 */
-	private static function constructTagString(array $tags, $sensitive)
+	private static function constructTagString(array $tags = null, $sensitive = false)
 	{
 		if (empty($tags)) {
 			return '';
@@ -90,12 +91,13 @@ class Processor
 	/**
 	 * Add attachment data to the item array
 	 *
-	 * @param array $attachments
-	 * @param array $item
+	 * @param array   $attachments
+	 * @param array   $item
+	 * @param boolean $no_images
 	 *
 	 * @return array array
 	 */
-	private static function constructAttachList($attachments, $item)
+	private static function constructAttachList($attachments, $item, $no_images)
 	{
 		if (empty($attachments)) {
 			return $item;
@@ -104,6 +106,10 @@ class Processor
 		foreach ($attachments as $attach) {
 			$filetype = strtolower(substr($attach['mediaType'], 0, strpos($attach['mediaType'], '/')));
 			if ($filetype == 'image') {
+				if ($no_images) {
+					continue;
+				}
+
 				$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
 			} else {
 				if (!empty($item["attach"])) {
@@ -136,7 +142,7 @@ class Processor
 		}
 
 		$item['changed'] = DateTimeFormat::utcNow();
-		$item['edited'] = $activity['updated'];
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
@@ -167,7 +173,7 @@ class Processor
 			$item['object-type'] = ACTIVITY_OBJ_COMMENT;
 		}
 
-		if (($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
+		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
 			Logger::log('Parent ' . $activity['reply-to-id'] . ' not found. Try to refetch it.');
 			self::fetchMissingActivity($activity['reply-to-id'], $activity);
 		}
@@ -190,6 +196,43 @@ class Processor
 
 		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, Logger::DEBUG);
 		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
+	}
+
+	/**
+	 * Prepare the item array for an activity
+	 *
+	 * @param array $activity Activity array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function addTag($activity)
+	{
+		if (empty($activity['object_content']) || empty($activity['object_id'])) {
+			return;
+		}
+
+		foreach ($activity['receiver'] as $receiver) {
+			$item = Item::selectFirst(['id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			if (!DBA::isResult($item)) {
+				// We don't fetch missing content for this purpose
+				continue;
+			}
+
+			if (($item['author-link'] != $activity['actor']) && !$item['origin']) {
+				Logger::info('Not origin, not from the author, skipping update', ['id' => $item['id'], 'author' => $item['author-link'], 'actor' => $activity['actor']]);
+				continue;
+			}
+
+			// To-Do:
+			// - Check if "blocktag" is set
+			// - Check if actor is a contact
+
+			if (!stristr($item['tag'], trim($activity['object_content']))) {
+				$tag = $item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . $activity['object_id'] . ']'. $activity['object_content'] . '[/url]';
+				Item::update(['tag' => $tag], ['id' => $item['id']]);
+				Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
+			}
+		}
 	}
 
 	/**
@@ -270,7 +313,7 @@ class Processor
 
 			$content = self::convertMentions($content);
 
-			if (($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
+			if (empty($activity['directmessage']) && ($item['thr-parent'] != $item['uri']) && ($item['gravity'] == GRAVITY_COMMENT)) {
 				$item_private = !in_array(0, $activity['item_receiver']);
 				$parent = Item::selectFirst(['id', 'private', 'author-link', 'alias'], ['uri' => $item['thr-parent']]);
 				if (!DBA::isResult($parent)) {
@@ -318,8 +361,7 @@ class Processor
 	private static function postItem($activity, $item)
 	{
 		/// @todo What to do with $activity['context']?
-
-		if (($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
+		if (empty($activity['directmessage']) && ($item['gravity'] != GRAVITY_PARENT) && !Item::exists(['uri' => $item['thr-parent']])) {
 			Logger::info('Parent not found, message will be discarded.', ['thr-parent' => $item['thr-parent']]);
 			return;
 		}
@@ -328,20 +370,23 @@ class Processor
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-link'] = $activity['author'];
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
+		$item['owner-link'] = $activity['actor'];
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
-		if (empty($activity['thread-completion'])) {
-			$item['owner-link'] = $activity['actor'];
-			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
-		} else {
-			Logger::info('Ignoring actor because of thread completion.');
+		if (!empty($activity['thread-completion'])) {
+			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
+			$item['causer-link'] = $item['owner-link'];
+			$item['causer-id'] = $item['owner-id'];
+
+			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
 
 		$item['uri'] = $activity['id'];
 
-		$item['created'] = $activity['published'];
-		$item['edited'] = $activity['updated'];
+		$item['created'] = DateTimeFormat::utc($activity['published']);
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 		$item['guid'] = $activity['diaspora:guid'];
 
 		$item = self::processContent($activity, $item);
@@ -351,7 +396,7 @@ class Processor
 
 		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
 
-		$item = self::constructAttachList($activity['attachments'], $item);
+		$item = self::constructAttachList($activity['attachments'], $item, !empty($activity['source']));
 
 		$stored = false;
 
@@ -361,6 +406,11 @@ class Processor
 
 			if (($receiver != 0) && empty($item['contact-id'])) {
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
+			}
+
+			if (!empty($activity['directmessage'])) {
+				self::postMail($activity, $item);
+				continue;
 			}
 
 			if ($activity['object_type'] == 'as:Event') {
@@ -388,6 +438,69 @@ class Processor
 				ActivityPub\Transmitter::sendFollowObject($item['uri'], $item['author-link']);
 			}
 		}
+	}
+
+	/**
+	 * Creates an mail post
+	 *
+	 * @param array $activity Activity data
+	 * @param array $item     item array
+	 * @return int|bool New mail table row id or false on error
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function postMail($activity, $item)
+	{
+		if (($item['gravity'] != GRAVITY_PARENT) && !DBA::exists('mail', ['uri' => $item['thr-parent'], 'uid' => $item['uid']])) {
+			Logger::info('Parent not found, mail will be discarded.', ['uid' => $item['uid'], 'uri' => $item['thr-parent']]);
+			return false;
+		}
+
+		Logger::info('Direct Message', $item);
+
+		$msg = [];
+		$msg['uid'] = $item['uid'];
+
+		$msg['contact-id'] = $item['contact-id'];
+
+		$contact = Contact::getById($item['contact-id'], ['name', 'url', 'photo']);
+		$msg['from-name'] = $contact['name'];
+		$msg['from-url'] = $contact['url'];
+		$msg['from-photo'] = $contact['photo'];
+
+		$msg['uri'] = $item['uri'];
+		$msg['created'] = $item['created'];
+
+		$parent = DBA::selectFirst('mail', ['parent-uri', 'title'], ['uri' => $item['thr-parent']]);
+		if (DBA::isResult($parent)) {
+			$msg['parent-uri'] = $parent['parent-uri'];
+			$msg['title'] = $parent['title'];
+		} else {
+			$msg['parent-uri'] = $item['thr-parent'];
+
+			if (!empty($item['title'])) {
+				$msg['title'] = $item['title'];
+			} elseif (!empty($item['content-warning'])) {
+				$msg['title'] = $item['content-warning'];
+			} else {
+				// Trying to generate a title out of the body
+				$title = $item['body'];
+
+				while (preg_match('#^(@\[url=([^\]]+)].*?\[\/url]\s)(.*)#is', $title, $matches)) {
+					$title = $matches[3];
+				}
+
+				$title = trim(HTML::toPlaintext(BBCode::convert($title, false, 2, true), 0));
+
+				if (strlen($title) > 20) {
+					$title = substr($title, 0, 20) . '...';
+				}
+
+				$msg['title'] = $title;
+			}
+		}
+		$msg['body'] = $item['body'];
+
+		return Mail::insert($msg);
 	}
 
 	/**
@@ -454,26 +567,32 @@ class Processor
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (!empty($cid)) {
 			self::switchContact($cid);
-			DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
-			$contact = false;
+			$contact = [];
 		}
 
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
 			'author-link' => $activity['actor']];
 
+		$note = Strings::escapeTags(trim(defaults($activity, 'content', '')));
+
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
 
-		Contact::addRelationship($owner, $contact, $item);
+		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
+		if ($result === true) {
+			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $item['author-id'], $owner['uid']);
+		}
+
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;
 		}
 
 		if (empty($contact)) {
-			DBA::update('contact', ['hub-verify' => $activity['id']], ['id' => $cid]);
+			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 		}
 
 		Logger::log('Follow user ' . $uid . ' from contact ' . $cid . ' with id ' . $activity['id']);
@@ -578,7 +697,7 @@ class Processor
 
 		self::switchContact($cid);
 
-		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING, 'pending' => true])) {
+		if (DBA::exists('contact', ['id' => $cid, 'rel' => Contact::SHARING])) {
 			Contact::remove($cid);
 			Logger::log('Rejected contact request from contact ' . $cid . ' for user ' . $uid . ' - contact had been removed.', Logger::DEBUG);
 		} else {
@@ -653,7 +772,7 @@ class Processor
 	private static function switchContact($cid)
 	{
 		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
-		if (!DBA::isResult($contact) || ($contact['network'] == Protocol::ACTIVITYPUB)) {
+		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
 			return;
 		}
 

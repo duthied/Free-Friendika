@@ -1,7 +1,11 @@
 /* General style rules .*/
 .pull-right { float: right }
 
-/* General designing elements */
+details > summary {
+  cursor: pointer;
+}
+
+/* General design elements */
 .btn {
   outline: none;
   -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -83,7 +87,6 @@ span.connector {
 
 .wall-item-container .wall-item-content .type-link img.attachment-image,
 .type-link img.attachment-image, .type-video img.attachment-image  {
-  /* max-width: 640px; */
   max-width: 100%;
   max-height: initial;
   float: initial;
@@ -616,4 +619,23 @@ img.invalid-src:after { vertical-align: top;}
 span.emoji.mastodon img {
   height: 1.2em;
   vertical-align: middle;
+}
+
+/* Exception page */
+
+#exception {
+  overflow: hidden;
+  background-image: url('../images/friendica-404_svg_hare-bottom-light-inside.png');
+  background-position: 50px bottom;
+  background-repeat: no-repeat;
+}
+
+#exception .hare {
+  float: right;
+}
+
+@media screen and (max-width: 600px) {
+  #exception .hare {
+    display: none;
+  }
 }

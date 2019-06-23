@@ -12,10 +12,9 @@ use Friendica\Core\System;
 function hub_return($valid, $body)
 {
 	if ($valid) {
-		header($_SERVER["SERVER_PROTOCOL"] . ' 200 OK');
 		echo $body;
 	} else {
-		System::httpExit(404);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 	exit();
 }
@@ -24,7 +23,7 @@ function hub_return($valid, $body)
 
 function hub_post_return()
 {
-	System::httpExit(200);
+	throw new \Friendica\Network\HTTPException\OKException();
 }
 
 function pubsub_init(App $a)

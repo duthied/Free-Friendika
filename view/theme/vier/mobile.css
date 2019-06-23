@@ -1,4 +1,4 @@
-aside, header, #nav-events-link, #nav-search-box, #nav-admin-link, #activitiy-by-date-tab, #shared-links-tab,
+aside, header, #nav-search-box, #nav-admin-link, #nav-messages-linkmenu,  #activitiy-by-date-tab, #shared-links-tab,
 .wall-item-location {
   display: none;
 }
@@ -300,4 +300,6 @@ select:focus {
 .event-start, .event-end { width: auto; }
 .event-start .dtstart, .event-end .dtend { float: none; display: block; }
 
-
+/** prv mail **/
+.mail-conv-detail { margin-left: 0px; width: 100%; }
+#prvmail-submit, #prvmail-text, #prvmail-subject { box-sizing: border-box; width: 100%; }

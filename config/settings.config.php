@@ -74,7 +74,7 @@ return [
 		// logfile (String)
 		// The logfile for storing logs.
 		// Can be a full path or a relative path to the Friendica home directory
-		'logfile' => 'friendica.log',
+		'logfile' => 'log/friendica.log',
 
 		// loglevel (String)
 		// The loglevel for all logs.

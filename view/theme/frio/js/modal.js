@@ -93,6 +93,21 @@ $(document).ready(function(){
 		input.val(img);
 		
 	});
+
+	// Generic delegated event to open an anchor URL in a modal.
+	// Used in the hovercard.
+	document.getElementsByTagName('body')[0].addEventListener('click', function(e) {
+		var target = e.target;
+		while (target) {
+			if (target.matches && target.matches('a.add-to-modal')) {
+				addToModal(target.href);
+				e.preventDefault();
+				return false;
+			}
+
+			target = target.parentNode || null;
+		}
+	});
 });
 
 // Overwrite Dialog.show from main js to load the filebrowser into a bs modal.
@@ -120,7 +135,7 @@ Dialog.show = function(url, title) {
 Dialog._get_url = function(type, name, id) {
 	var hash = name;
 	if (id !== undefined) hash = hash + "-" + id;
-	return "fbrowser/"+type+"/?mode=none#"+hash;
+	return "fbrowser/"+type+"/?mode=none&theme=frio#"+hash;
 };
 
 // Does load the filebrowser into the jot modal.
@@ -148,7 +163,7 @@ Dialog._load = function(url) {
 	var type = $("#fb-type").attr("value");
 
 	// Try to fetch the hash form the url.
-	var match = url.match(/fbrowser\/[a-z]+\/\?mode=none(.*)/);
+	var match = url.match(/fbrowser\/[a-z]+\/.*(#.*)/);
 	if (match===null) return; //not fbrowser
 	var hash = match[1];
 

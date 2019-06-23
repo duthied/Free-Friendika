@@ -31,11 +31,11 @@ function cal_init(App $a)
 	}
 
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	if ($a->argc < 2) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	Nav::setSelected('events');
@@ -43,7 +43,7 @@ function cal_init(App $a)
 	$nick = $a->argv[1];
 	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 	if (!DBA::isResult($user)) {
-		System::httpExit(404, ['title' => L10n::t('Page not found.')]);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$a->data['user'] = $user;
@@ -59,7 +59,7 @@ function cal_init(App $a)
 
 	$account_type = Contact::getAccountType($profile);
 
-	$tpl = Renderer::getMarkupTemplate("vcard-widget.tpl");
+	$tpl = Renderer::getMarkupTemplate("widget/vcard.tpl");
 
 	$vcard_widget = Renderer::replaceMacros($tpl, [
 		'$name' => $profile['name'],
@@ -90,7 +90,6 @@ function cal_content(App $a)
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
-		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,
@@ -148,7 +147,7 @@ function cal_content(App $a)
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 
 	// get the tab navigation bar
-	$tabs = Profile::getTabs($a, false, $a->data['user']['nickname']);
+	$tabs = Profile::getTabs($a, 'cal', false, $a->data['user']['nickname']);
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {
@@ -268,7 +267,6 @@ function cal_content(App $a)
 		}
 
 		$o = Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(),
 			'$tabs' => $tabs,
 			'$title' => L10n::t('Events'),
 			'$view' => L10n::t('View'),

@@ -28,12 +28,12 @@ Requirements
 ---
 
 * Apache mit einer aktiverten mod-rewrite-Funktion und dem Eintrag "Options All", so dass du die lokale .htaccess-Datei nutzen kannst
-* PHP  5.6.1+ (PHP 7 ist aufgrund der Performance empfohlen)
+* PHP  7+ (PHP 7.1+ wird für Performance und offiziellen Support empfohlen)
   * PHP *Kommandozeilen*-Zugang mit register_argc_argv auf "true" gesetzt in der php.ini-Datei
   * Curl, GD, PDO, MySQLi, xml, zip und OpenSSL-Erweiterung
   * Das POSIX Modul muss aktiviert sein ([CentOS, RHEL](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) haben dies z.B. deaktiviert)
   * etwas in der Art eines Email-Servers oder eines Gateways wie PHP mail()
-* Mysql 5.5.3+ (oder eine äquivalente Alternative: MariaDB, Percona Server etc.)
+* Mysql 5.6+ (oder eine äquivalente Alternative: MariaDB, Percona Server etc.)
 * die Möglichkeit, wiederkehrende Aufgaben mit cron (Linux/Mac) oder "Scheduled Tasks" einzustellen (Windows) [Beachte: andere Optionen sind in Abschnitt 7 dieser Dokumentation zu finden]
 * Installation in einer Top-Level-Domain oder Subdomain (ohne eine Verzeichnis/Pfad-Komponente in der URL) wird bevorzugt. Verzeichnispfade sind für diesen Zweck nicht so günstig und wurden auch nicht ausführlich getestet.
 

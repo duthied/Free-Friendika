@@ -12,7 +12,6 @@ use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Core\Logger;
 
 /**
  * @brief Module Proxy
@@ -71,7 +70,7 @@ class Proxy extends BaseModule
 		$request = self::getRequestInfo();
 
 		if (empty($request['url'])) {
-			System::httpExit(400, ['title' => L10n::t('Bad Request.')]);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		// Webserver already tried direct cache...
@@ -159,6 +158,7 @@ class Proxy extends BaseModule
 		$sizetype = '';
 
 		// Look for filename in the arguments
+		// @TODO: Replace with parameter from router
 		if (($a->argc > 1) && !isset($_REQUEST['url'])) {
 			if (isset($a->argv[3])) {
 				$url = $a->argv[3];
@@ -169,6 +169,7 @@ class Proxy extends BaseModule
 			}
 
 			/// @TODO: Why? And what about $url in this case?
+			/// @TODO: Replace with parameter from router
 			if (isset($a->argv[3]) && ($a->argv[3] == 'thumb')) {
 				$size = 200;
 			}

@@ -32,9 +32,15 @@ class Emailer
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function send($params)
+	public static function send(array $params)
 	{
+		$params['sent'] = false;
+
 		Hook::callAll('emailer_send_prepare', $params);
+
+		if ($params['sent']) {
+			return true;
+		}
 
 		$email_textonly = false;
 		if (!empty($params['uid'])) {
@@ -87,10 +93,15 @@ class Emailer
 			'subject' => $messageSubject,
 			'body' => $multipartMessageBody,
 			'headers' => $messageHeader,
-			'parameters' => $sendmail_params
+			'parameters' => $sendmail_params,
+			'sent' => false,
 		];
 
 		Hook::callAll("emailer_send", $hookdata);
+
+		if ($hookdata['sent']) {
+			return true;
+		}
 
 		$res = mail(
 			$hookdata['to'],

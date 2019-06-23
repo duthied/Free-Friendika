@@ -259,21 +259,19 @@ class ACL extends BaseObject
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getFullSelectorHTML(array $user, $show_jotnets = false, array $default_permissions = [])
+	public static function getFullSelectorHTML(array $user = null, $show_jotnets = false, array $default_permissions = [])
 	{
 		// Defaults user permissions
 		if (empty($default_permissions)) {
 			$default_permissions = self::getDefaultUserPermissions($user);
 		}
 
-		$jotnets = '';
+		$jotnets_fields = [];
 		if ($show_jotnets) {
-			$imap_disabled = !function_exists('imap_open') || Config::get('system', 'imap_disabled');
-
 			$mail_enabled = false;
 			$pubmail_enabled = false;
 
-			if (!$imap_disabled) {
+			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
 				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
 				if (DBA::isResult($mailacct)) {
 					$mail_enabled = true;
@@ -283,17 +281,20 @@ class ACL extends BaseObject
 
 			if (empty($default_permissions['hidewall'])) {
 				if ($mail_enabled) {
-					$selected = $pubmail_enabled ? ' checked="checked"' : '';
-					$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
+					$jotnets_fields[] = [
+						'type' => 'checkbox',
+						'field' => [
+							'pubmail_enable',
+							L10n::t('Post to Email'),
+							$pubmail_enabled
+						]
+					];
 				}
 
-				Hook::callAll('jot_networks', $jotnets);
-			} else {
-				$jotnets .= L10n::t('Connectors disabled, since "%s" is enabled.',
-						L10n::t('Hide your profile details from unknown viewers?'));
+				Hook::callAll('jot_networks', $jotnets_fields);
 			}
 		}
-		
+
 		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$showall' => L10n::t('Visible to everybody'),
@@ -306,11 +307,14 @@ class ACL extends BaseObject
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
-			'$jotnets' => $jotnets,
+			'$jotnets_enabled' => empty($default_permissions['hidewall']),
+			'$jotnets_summary' => L10n::t('Connectors'),
+			'$jotnets_fields' => $jotnets_fields,
+			'$jotnets_disabled_label' => L10n::t('Connectors disabled, since "%s" is enabled.', L10n::t('Hide your profile details from unknown viewers?')),
 			'$aclModalTitle' => L10n::t('Permissions'),
 			'$aclModalDismiss' => L10n::t('Close'),
 			'$features' => [
-				'aclautomention' => Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
+				'aclautomention' => !empty($user['uid']) && Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
 			],
 		]);
 

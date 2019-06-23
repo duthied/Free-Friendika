@@ -17,9 +17,7 @@ function hcard_init(App $a)
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
 	} else {
-		notice(L10n::t('No profile') . EOL);
-		$a->error = 404;
-		return;
+		throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('No profile'));
 	}
 
 	$profile = 0;

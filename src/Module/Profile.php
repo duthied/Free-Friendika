@@ -16,7 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
-use Friendica\Model\Profile AS ProfileModel;
+use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
@@ -36,12 +36,14 @@ class Profile extends BaseModule
 	{
 		$a = self::getApp();
 
+		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		self::$which = filter_var($a->argv[1], FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH | FILTER_FLAG_STRIP_BACKTICK);
 
+		// @TODO: Replace with parameter from router
 		if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 			self::$which = $a->user['nickname'];
 			self::$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);
@@ -54,15 +56,21 @@ class Profile extends BaseModule
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
+			$data = [];
 			if (DBA::isResult($user)) {
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
+			}
+
+			if (!empty($data)) {
 				System::jsonExit($data, 'application/activity+json');
 			} elseif (DBA::exists('userd', ['username' => self::$which])) {
 				// Known deleted user
-				System::httpExit(410);
+				$data = ActivityPub\Transmitter::getDeletedUser(self::$which);
+
+				System::jsonError(410, $data);
 			} else {
-				// Unknown user
-				System::httpExit(404);
+				// Any other case (unknown, blocked, unverified, expired, no profile, no self contact)
+				System::jsonError(404, $data);
 			}
 		}
 	}
@@ -170,12 +178,9 @@ class Profile extends BaseModule
 		}
 
 		if (!$update) {
-			$tab = false;
-			if (!empty($_GET['tab'])) {
-				$tab = Strings::escapeTags(trim($_GET['tab']));
-			}
+            $tab = Strings::escapeTags(trim(defaults($_GET, 'tab', '')));
 
-			$o .= ProfileModel::getTabs($a, $is_owner, $a->profile['nickname']);
+			$o .= ProfileModel::getTabs($a, $tab, $is_owner, $a->profile['nickname']);
 
 			if ($tab === 'profile') {
 				$o .= ProfileModel::getAdvanced($a);
@@ -188,8 +193,8 @@ class Profile extends BaseModule
 			$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 			$commvisitor = $commpage && $remote_contact;
 
-			$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
-			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (!empty($category) ? XML::escape($category) : ''));
+			$a->page['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
+			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
 			$a->page['aside'] .= Widget::tagCloud();
 
 			if (Security::canWriteToUserWall($a->profile['profile_uid'])) {

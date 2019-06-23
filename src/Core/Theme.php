@@ -8,6 +8,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Model\Profile;
+use Friendica\Util\Strings;
 
 require_once 'boot.php';
 
@@ -16,6 +17,28 @@ require_once 'boot.php';
  */
 class Theme
 {
+	public static function getAllowedList()
+	{
+		$allowed_themes_str = Config::get('system', 'allowed_themes');
+		$allowed_themes_raw = explode(',', str_replace(' ', '', $allowed_themes_str));
+		$allowed_themes = [];
+		if (count($allowed_themes_raw)) {
+			foreach ($allowed_themes_raw as $theme) {
+				$theme = Strings::sanitizeFilePathItem(trim($theme));
+				if (strlen($theme) && is_dir("view/theme/$theme")) {
+					$allowed_themes[] = $theme;
+				}
+			}
+		}
+
+		return $allowed_themes;
+	}
+
+	public static function setAllowedList(array $allowed_themes)
+	{
+		Config::set('system', 'allowed_themes', implode(',', $allowed_themes));
+	}
+
 	/**
 	 * @brief Parse theme comment in search of theme infos.
 	 *
@@ -33,6 +56,8 @@ class Theme
 	 */
 	public static function getInfo($theme)
 	{
+		$theme = Strings::sanitizeFilePathItem($theme);
+
 		$info = [
 			'name' => $theme,
 			'description' => "",
@@ -96,45 +121,63 @@ class Theme
 	 */
 	public static function getScreenshot($theme)
 	{
+		$theme = Strings::sanitizeFilePathItem($theme);
+
 		$exts = ['.png', '.jpg'];
 		foreach ($exts as $ext) {
 			if (file_exists('view/theme/' . $theme . '/screenshot' . $ext)) {
-				return(System::baseUrl() . '/view/theme/' . $theme . '/screenshot' . $ext);
+				return System::baseUrl() . '/view/theme/' . $theme . '/screenshot' . $ext;
 			}
 		}
-		return(System::baseUrl() . '/images/blank.png');
+		return System::baseUrl() . '/images/blank.png';
 	}
 
-	// install and uninstall theme
 	public static function uninstall($theme)
 	{
-		Logger::log("Addons: uninstalling theme " . $theme);
+		$theme = Strings::sanitizeFilePathItem($theme);
 
-		include_once "view/theme/$theme/theme.php";
-		if (function_exists("{$theme}_uninstall")) {
+		// silently fail if theme was removed or if $theme is funky
+		if (file_exists("view/theme/$theme/theme.php")) {
+			include_once "view/theme/$theme/theme.php";
+
 			$func = "{$theme}_uninstall";
-			$func();
+			if (function_exists($func)) {
+				$func();
+			}
+		}
+
+		$allowed_themes = Theme::getAllowedList();
+		$key = array_search($theme, $allowed_themes);
+		if ($key !== false) {
+			unset($allowed_themes[$key]);
+			Theme::setAllowedList($allowed_themes);
 		}
 	}
 
 	public static function install($theme)
 	{
-		// silently fail if theme was removed
+		$theme = Strings::sanitizeFilePathItem($theme);
 
+		// silently fail if theme was removed or if $theme is funky
 		if (!file_exists("view/theme/$theme/theme.php")) {
 			return false;
 		}
 
-		Logger::log("Addons: installing theme $theme");
+		try {
+			include_once "view/theme/$theme/theme.php";
 
-		include_once "view/theme/$theme/theme.php";
-
-		if (function_exists("{$theme}_install")) {
 			$func = "{$theme}_install";
-			$func();
+			if (function_exists($func)) {
+				$func();
+			}
+
+			$allowed_themes = Theme::getAllowedList();
+			$allowed_themes[] = $theme;
+			Theme::setAllowedList($allowed_themes);
+
 			return true;
-		} else {
-			Logger::log("Addons: FAILED installing theme $theme");
+		} catch (\Exception $e) {
+			Logger::error('Theme installation failed', ['theme' => $theme, 'error' => $e->getMessage()]);
 			return false;
 		}
 	}
@@ -166,10 +209,10 @@ class Theme
 			$parent = 'NOPATH';
 		}
 		$theme = \get_app()->getCurrentTheme();
-		$thname = $theme;
+		$parent = Strings::sanitizeFilePathItem($parent);
 		$ext = substr($file, strrpos($file, '.') + 1);
 		$paths = [
-			"{$root}view/theme/$thname/$ext/$file",
+			"{$root}view/theme/$theme/$ext/$file",
 			"{$root}view/theme/$parent/$ext/$file",
 			"{$root}view/$ext/$file",
 		];
@@ -195,6 +238,8 @@ class Theme
 	 */
 	public static function getStylesheetPath($theme)
 	{
+		$theme = Strings::sanitizeFilePathItem($theme);
+
 		if (!file_exists('view/theme/' . $theme . '/style.php')) {
 			return 'view/theme/' . $theme . '/style.css';
 		}

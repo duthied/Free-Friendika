@@ -72,9 +72,7 @@ class BBCode extends BaseObject
 
 				$attacheddata = $data[2];
 
-				$URLSearchString = "^\[\]";
-
-				if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches)) {
+				if (preg_match("/\[img\](.*?)\[\/img\]/ism", $attacheddata, $matches)) {
 
 					$picturedata = Image::getInfoFromURL($matches[1]);
 
@@ -87,12 +85,12 @@ class BBCode extends BaseObject
 					}
 				}
 
-				if (preg_match("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
+				if (preg_match("/\[bookmark\=(.*?)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
 					$post["url"] = $matches[1];
 					$post["title"] = $matches[2];
 				}
 				if (!empty($post["url"]) && (in_array($post["type"], ["link", "video"]))
-					&& preg_match("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
+					&& preg_match("/\[url\=(.*?)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
 					$post["url"] = $matches[1];
 				}
 
@@ -245,14 +243,18 @@ class BBCode extends BaseObject
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 
-			$URLSearchString = "^\[\]";
+			$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
 
-			$body = preg_replace("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
-
-			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
+			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
-					// Checking, if the link goes to a picture
-					$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+					if (!empty($item['object-type']) && ($item['object-type'] == ACTIVITY_OBJ_IMAGE)) {
+						// Replace the preview picture with the real picture
+						$url = str_replace('-1.', '-0.', $pictures[0][2]);
+						$data = ['url' => $url, 'type' => 'photo'];
+					} else {
+						// Checking, if the link goes to a picture
+						$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+					}
 
 					// Workaround:
 					// Sometimes photo posts to the own album are not detected at the start.
@@ -271,14 +273,14 @@ class BBCode extends BaseObject
 						}
 
 						$post["preview"] = $pictures[0][2];
-						$post["text"] = str_replace($pictures[0][0], "", $body);
+						$post["text"] = trim(str_replace($pictures[0][0], "", $body));
 					} else {
 						$imgdata = Image::getInfoFromURL($pictures[0][1]);
 						if ($imgdata && substr($imgdata["mime"], 0, 6) == "image/") {
 							$post["type"] = "photo";
 							$post["image"] = $pictures[0][1];
 							$post["preview"] = $pictures[0][2];
-							$post["text"] = str_replace($pictures[0][0], "", $body);
+							$post["text"] = trim(str_replace($pictures[0][0], "", $body));
 						}
 					}
 				} elseif (count($pictures) > 0) {
@@ -287,7 +289,7 @@ class BBCode extends BaseObject
 					$post["image"] = $pictures[0][2];
 					$post["text"] = $body;
 				}
-			} elseif (preg_match_all("(\[img\]([$URLSearchString]*)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
+			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
 					$post["type"] = "photo";
 					$post["image"] = $pictures[0][1];
@@ -301,8 +303,8 @@ class BBCode extends BaseObject
 			}
 
 			// Test for the external links
-			preg_match_all("(\[url\]([$URLSearchString]*)\[\/url\])ism", $body, $links1, PREG_SET_ORDER);
-			preg_match_all("(\[url\=([$URLSearchString]*)\].*?\[\/url\])ism", $body, $links2, PREG_SET_ORDER);
+			preg_match_all("(\[url\](.*?)\[\/url\])ism", $body, $links1, PREG_SET_ORDER);
+			preg_match_all("(\[url\=(.*?)\].*?\[\/url\])ism", $body, $links2, PREG_SET_ORDER);
 
 			$links = array_merge($links1, $links2);
 
@@ -563,7 +565,7 @@ class BBCode extends BaseObject
 		}
 
 		$return = '';
-		if ($simplehtml == 7) {
+		if (in_array($simplehtml, [7, 9])) {
 			$return = self::convertUrlForOStatus($data["url"]);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
@@ -979,15 +981,8 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
+			case 9: // ActivityPub
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
-				break;
-			case 9: // Google+
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
-				$text .= '<p>' . $content . '</p>' . "\n";
-
-				if ($attributes['link'] != '') {
-					$text .= '<p>' . $attributes['link'] . '</p>';
-				}
 				break;
 			default:
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
@@ -1140,13 +1135,14 @@ class BBCode extends BaseObject
 	 * Simple HTML values meaning:
 	 * - 0: Friendica display
 	 * - 1: Unused
-	 * - 2: Used for Google+, Windows Phone push, Friendica API
+	 * - 2: Used for Windows Phone push, Friendica API
 	 * - 3: Used before converting to Markdown in bb2diaspora.php
 	 * - 4: Used for WordPress, Libertree (before Markdown), pump.io and tumblr
 	 * - 5: Unused
 	 * - 6: Unused
 	 * - 7: Used for dfrn, OStatus
 	 * - 8: Used for WP backlink text setting
+	 * - 9: ActivityPub
 	 *
 	 * @param string $text
 	 * @param bool   $try_oembed
@@ -1250,6 +1246,25 @@ class BBCode extends BaseObject
 		$text = trim($text);
 		$text = str_replace("\r\n", "\n", $text);
 
+		// Remove linefeeds inside of the table elements. See issue #6799
+		$search = ["\n[th]", "[th]\n", " [th]", "\n[/th]", "[/th]\n", "[/th] ",
+			"\n[td]", "[td]\n", " [td]", "\n[/td]", "[/td]\n", "[/td] ",
+			"\n[tr]", "[tr]\n", " [tr]", "[tr] ", "\n[/tr]", "[/tr]\n", " [/tr]", "[/tr] ",
+			"[table]\n", "[table] ", " [table]", "\n[/table]", " [/table]", "[/table] "];
+		$replace = ["[th]", "[th]", "[th]", "[/th]", "[/th]", "[/th]",
+			"[td]", "[td]", "[td]", "[/td]", "[/td]", "[/td]",
+			"[tr]", "[tr]", "[tr]", "[tr]", "[/tr]", "[/tr]", "[/tr]", "[/tr]",
+			"[table]", "[table]", "[table]", "[/table]", "[/table]", "[/table]"];
+		do {
+			$oldtext = $text;
+			$text = str_replace($search, $replace, $text);
+		} while ($oldtext != $text);
+
+		// Replace these here only once
+		$search = ["\n[table]", "[/table]\n"];
+		$replace = ["[table]", "[/table]"];
+		$text = str_replace($search, $replace, $text);
+
 		// removing multiplicated newlines
 		if (Config::get("system", "remove_multiplicated_lines")) {
 			$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
@@ -1262,131 +1277,11 @@ class BBCode extends BaseObject
 			} while ($oldtext != $text);
 		}
 
-		// Set up the parameters for a URL search string
-		$URLSearchString = "^\[\]";
-		// Set up the parameters for a MAIL search string
-		$MAILSearchString = $URLSearchString;
-
 		// Handle attached links or videos
 		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
-		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
-		if (!$for_plaintext) {
-			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
-			if ($simple_html == 7) {
-				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
-				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
-			}
-		} else {
-			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
-			$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
-		}
-
-		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
-
-		// Remove all hashtag addresses
-		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7])) {
-			$text = preg_replace("/([#@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $text);
-		} elseif ($simple_html == 3) {
-			// The ! is converted to @ since Diaspora only understands the @
-			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'@<a href="$2">$3</a>',
-				$text);
-		} elseif ($simple_html == 7) {
-			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
-				$text);
-		} elseif (!$simple_html) {
-			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
-				$text);
-		}
-
-		// Bookmarks in red - will be converted to bookmarks in friendica
-		$text = preg_replace("/#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $text);
-		$text = preg_replace("/#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $text);
-		$text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
-					"[bookmark=$1]$2[/bookmark]", $text);
-
-		if (in_array($simple_html, [2, 6, 7, 8, 9])) {
-			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
-			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
-		}
-
-		if ($simple_html == 5) {
-			$text = preg_replace("/[^#@!]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $text);
-		}
-
-		// Perform URL Search
-		if ($try_oembed) {
-			$text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $try_oembed_callback, $text);
-		}
-
-		if ($simple_html == 5) {
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url]$1[/url]', $text);
-		} else {
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $text);
-		}
-
-		// Handle Diaspora posts
-		$text = preg_replace_callback(
-			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
-			function ($match) {
-				return "[url=" . System::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
-			}, $text
-		);
-
-		$text = preg_replace_callback(
-			"&\[url=/people\?q\=(.*)\](.*)\[\/url\]&Usi",
-			function ($match) {
-				return "[url=" . System::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
-			}, $text
-		);
-
-		// Server independent link to posts and comments
-		// See issue: https://github.com/diaspora/diaspora_federation/issues/75
-		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
-		$text = preg_replace($expression, System::baseUrl()."/display/$1", $text);
-
-		/* Tag conversion
-		 * Supports:
-		 * - #[url=<anything>]<term>[/url]
-		 * - [url=<anything>]#<term>[/url]
-		 */
-		$text = preg_replace_callback("/(?:#\[url\=[$URLSearchString]*\]|\[url\=[$URLSearchString]*\]#)(.*?)\[\/url\]/ism", function($matches) {
-			return '#<a href="'
-				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
-				. '" class="tag" title="' . XML::escape($matches[1]) . '">'
-				. XML::escape($matches[1])
-				. '</a>';
-		}, $text);
-
-		// We need no target="_blank" for local links
-		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
-		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
-		$text = preg_replace("/\[url\](".$escapedBaseUrl."[$URLSearchString]*)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
-		$text = preg_replace("/\[url\=(".$escapedBaseUrl."[$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);		
-
-		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
-		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
-
-		// Red compatibility, though the link can't be authenticated on Friendica
-		$text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
-
-
-		// we may need to restrict this further if it picks up too many strays
-		// link acct:user@host to a webfinger profile redirector
-
-		$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . System::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
-
-		// Perform MAIL Search
-		$text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);
-		$text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $text);
-
 		// leave open the posibility of [map=something]
 		// this is replaced in Item::prepareBody() which has knowledge of the item location
-
 		if (strpos($text, '[/map]') !== false) {
 			$text = preg_replace_callback(
 				"/\[map\](.*?)\[\/map\]/ism",
@@ -1396,6 +1291,7 @@ class BBCode extends BaseObject
 				$text
 			);
 		}
+
 		if (strpos($text, '[map=') !== false) {
 			$text = preg_replace_callback(
 				"/\[map=(.*?)\]/ism",
@@ -1405,6 +1301,7 @@ class BBCode extends BaseObject
 				$text
 			);
 		}
+
 		if (strpos($text, '[map]') !== false) {
 			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
 		}
@@ -1471,9 +1368,9 @@ class BBCode extends BaseObject
 		$endlessloop = 0;
 
 		while ((((strpos($text, "[/list]") !== false) && (strpos($text, "[list") !== false)) ||
-			   ((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
-			   ((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
-			   ((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
+				((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
+				((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
+				((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
 			$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
 			$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
@@ -1521,8 +1418,8 @@ class BBCode extends BaseObject
 		$endlessloop = 0;
 		while ((strpos($text, "[/spoiler]")!== false)  && (strpos($text, "[spoiler=") !== false) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
-						 "<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
-						 $text);
+				"<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
+				$text);
 		}
 
 		// Declare the format for [quote] layout
@@ -1543,8 +1440,8 @@ class BBCode extends BaseObject
 		$endlessloop = 0;
 		while ((strpos($text, "[/quote]")!== false)  && (strpos($text, "[quote=") !== false) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
-						 "<p><strong class=".'"author"'.">" . $t_wrote . "</strong></p><blockquote>$2</blockquote>",
-						 $text);
+				"<p><strong class=".'"author"'.">" . $t_wrote . "</strong></p><blockquote>$2</blockquote>",
+				$text);
 		}
 
 
@@ -1565,7 +1462,7 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
 		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
-		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
+		$text = preg_replace_callback("/\[img\=(.*?)\](.*?)\[\/img\]/ism",
 			function ($matches) use ($simple_html) {
 				$matches[1] = self::proxyUrl($matches[1], $simple_html);
 				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
@@ -1591,14 +1488,6 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 
-		// Shared content
-		$text = self::convertShare(
-			$text,
-			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-			}
-		);
-
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
 		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
@@ -1612,9 +1501,9 @@ class BBCode extends BaseObject
 			$text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $try_oembed_callback, $text);
 		} else {
 			$text = preg_replace("/\[video\](.*?)\[\/video\]/ism",
-						'<a href="$1" target="_blank">$1</a>', $text);
+				'<a href="$1" target="_blank">$1</a>', $text);
 			$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism",
-						'<a href="$1" target="_blank">$1</a>', $text);
+				'<a href="$1" target="_blank">$1</a>', $text);
 		}
 
 		// html5 video and audio
@@ -1641,7 +1530,7 @@ class BBCode extends BaseObject
 			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $text);
 		} else {
 			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
-						'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $text);
+				'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $text);
 		}
 
 		if ($try_oembed) {
@@ -1656,7 +1545,7 @@ class BBCode extends BaseObject
 			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
 		} else {
 			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
-						'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $text);
+				'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $text);
 		}
 
 		// oembed tag
@@ -1686,6 +1575,120 @@ class BBCode extends BaseObject
 		if ($simple_html) {
 			$text = Smilies::replace($text);
 		}
+
+		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
+		if (!$for_plaintext) {
+			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
+			if (in_array($simple_html, [7, 9])) {
+				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+			}
+		} else {
+			$text = preg_replace("(\[url\](.*?)\[\/url\])ism", " $1 ", $text);
+			$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
+		}
+
+		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
+
+		// Remove all hashtag addresses
+		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7, 9])) {
+			$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
+		} elseif ($simple_html == 3) {
+			// The ! is converted to @ since Diaspora only understands the @
+			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+				'@<a href="$2">$3</a>',
+				$text);
+		} elseif (in_array($simple_html, [7, 9])) {
+			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
+				$text);
+		} elseif (!$simple_html) {
+			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+				'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
+				$text);
+		}
+
+		// Bookmarks in red - will be converted to bookmarks in friendica
+		$text = preg_replace("/#\^\[url\](.*?)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $text);
+		$text = preg_replace("/#\^\[url\=(.*?)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $text);
+		$text = preg_replace("/#\[url\=.*?\]\^\[\/url\]\[url\=(.*?)\](.*?)\[\/url\]/i",
+					"[bookmark=$1]$2[/bookmark]", $text);
+
+		if (in_array($simple_html, [2, 6, 7, 8])) {
+			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
+			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
+			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
+		}
+
+		if ($simple_html == 5) {
+			$text = preg_replace("/[^#@!]\[url\=(.*?)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $text);
+		}
+
+		// Perform URL Search
+		if ($try_oembed) {
+			$text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $try_oembed_callback, $text);
+		}
+
+		if ($simple_html == 5) {
+			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url]$1[/url]', $text);
+		} else {
+			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $text);
+		}
+
+		// Handle Diaspora posts
+		$text = preg_replace_callback(
+			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
+			function ($match) {
+				return "[url=" . System::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
+			}, $text
+		);
+
+		$text = preg_replace_callback(
+			"&\[url=/people\?q\=(.*)\](.*)\[\/url\]&Usi",
+			function ($match) {
+				return "[url=" . System::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
+			}, $text
+		);
+
+		// Server independent link to posts and comments
+		// See issue: https://github.com/diaspora/diaspora_federation/issues/75
+		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
+		$text = preg_replace($expression, System::baseUrl()."/display/$1", $text);
+
+		/* Tag conversion
+		 * Supports:
+		 * - #[url=<anything>]<term>[/url]
+		 * - [url=<anything>]#<term>[/url]
+		 */
+		$text = preg_replace_callback("/(?:#\[url\=.*?\]|\[url\=.*?\]#)(.*?)\[\/url\]/ism", function($matches) {
+			return '#<a href="'
+				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
+				. '" class="tag" title="' . XML::escape($matches[1]) . '">'
+				. XML::escape($matches[1])
+				. '</a>';
+		}, $text);
+
+		// We need no target="_blank" for local links
+		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
+		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
+		$text = preg_replace("/\[url\](".$escapedBaseUrl.".*?)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
+		$text = preg_replace("/\[url\=(".$escapedBaseUrl.".*?)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);
+
+		$text = preg_replace("/\[url\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
+		$text = preg_replace("/\[url\=(.*?)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
+
+		// Red compatibility, though the link can't be authenticated on Friendica
+		$text = preg_replace("/\[zrl\=(.*?)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
+
+
+		// we may need to restrict this further if it picks up too many strays
+		// link acct:user@host to a webfinger profile redirector
+
+		$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . System::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
+
+		// Perform MAIL Search
+		$text = preg_replace("/\[mail\](.*?)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);
+		$text = preg_replace("/\[mail\=(.*?)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $text);
 
 		// Unhide all [noparse] contained bbtags unspacefying them
 		// and triming the [noparse] tag.
@@ -1719,6 +1722,14 @@ class BBCode extends BaseObject
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $text);
+
+		// Shared content
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		if ($saved_image) {
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);

@@ -30,7 +30,7 @@ function theme_post(App $a)
 
 function theme_admin_post(App $a)
 {
-	if (!local_user()) {
+	if (!is_site_admin()) {
 		return;
 	}
 
@@ -57,6 +57,7 @@ function theme_content(App $a)
 	$arr = [];
 
 	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));
+	$arr['share_string']     = '';
 	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg');
 	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
 	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color');
@@ -76,6 +77,7 @@ function theme_admin(App $a)
 	$arr = [];
 
 	$arr['scheme']           = Config::get('frio', 'scheme', Config::get('frio', 'scheme'));
+	$arr['share_string']     = '';
 	$arr['nav_bg']           = Config::get('frio', 'nav_bg');
 	$arr['nav_icon_color']   = Config::get('frio', 'nav_icon_color');
 	$arr['link_color']       = Config::get('frio', 'link_color');
@@ -117,9 +119,9 @@ function frio_form($arr)
 	$t = Renderer::getMarkupTemplate('theme_settings.tpl');
 	$ctx = [
 		'$submit'           => L10n::t('Submit'),
-		'$baseurl'          => System::baseUrl(),
 		'$title'            => L10n::t('Theme settings'),
 		'$scheme'           => ['frio_scheme', L10n::t('Select color scheme'), $arr['scheme'], '', $scheme_choices],
+		'$share_string'     => ['frio_share_string', L10n::t('Copy or paste schemestring'), $arr['share_string'], L10n::t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
 		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', L10n::t('Navigation bar background color'), $arr['nav_bg'], '', false],
 		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
 		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', false],

@@ -27,12 +27,12 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
-use Friendica\Model\Attach;
 use Friendica\Model\Term;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
@@ -40,6 +40,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 require_once 'include/items.php';
 
@@ -327,10 +328,9 @@ function item_post(App $a) {
 		}
 	}
 
-	if (!empty($categories))
-	{
+	if (!empty($categories)) {
 		// get the "fileas" tags for this post
-		$filedas = FileTag::fileToList($categories, 'file');
+		$filedas = FileTag::fileToArray($categories);
 	}
 
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
@@ -338,10 +338,9 @@ function item_post(App $a) {
 	$categories = FileTag::listToFile(trim(defaults($_REQUEST, 'category', '')), 'category');
 	$categories_new = $categories;
 
-	if (!empty($filedas))
-	{
+	if (!empty($filedas) && is_array($filedas)) {
 		// append the fileas stuff to the new categories list
-		$categories .= FileTag::listToFile($filedas, 'file');
+		$categories .= FileTag::arrayToFile($filedas);
 	}
 
 	// get contact info for poster
@@ -604,8 +603,6 @@ function item_post(App $a) {
 	} else {
 		$origin = $_REQUEST['origin'];
 	}
-
-	$notify_type = ($toplevel_item_id ? 'comment-new' : 'wall-new');
 
 	$uri = ($message_id ? $message_id : Item::newURI($api_source ? $profile_uid : $uid, $guid));
 
@@ -871,7 +868,7 @@ function item_post(App $a) {
 	// When we are doing some forum posting via ! we have to start the notifier manually.
 	// These kind of posts don't initiate the notifier call in the item class.
 	if ($only_to_forum) {
-		Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $post_id);
 	}
 
 	Logger::log('post_complete');

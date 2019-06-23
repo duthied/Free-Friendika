@@ -5,9 +5,9 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Core\System;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
 
 /**
  * ActivityPub Followers
@@ -18,13 +18,15 @@ class Followers extends BaseModule
 	{
 		$a = self::getApp();
 
+		// @TODO: Replace with parameter from router
 		if (empty($a->argv[1])) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
+		// @TODO: Replace with parameter from router
 		$owner = User::getOwnerDataByNick($a->argv[1]);
 		if (empty($owner)) {
-			System::httpExit(404);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$page = defaults($_REQUEST, 'page', null);

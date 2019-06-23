@@ -20,11 +20,13 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	private $redis;
 
 	/**
-	 * @param string $redis_host
-	 * @param int    $redis_port
+	 * @param string  $redis_host
+	 * @param int     $redis_port
+	 * @param int     $redis_db (Default = 0, maximum is 15)
+	 * @param string? $redis_pw
 	 * @throws Exception
 	 */
-	public function __construct($redis_host, $redis_port)
+	public function __construct($redis_host, $redis_port, $redis_db = 0, $redis_pw = null)
 	{
 		if (!class_exists('Redis', false)) {
 			throw new Exception('Redis class isn\'t available');
@@ -34,6 +36,14 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 
 		if (!$this->redis->connect($redis_host, $redis_port)) {
 			throw new Exception('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
+		}
+
+		if (isset($redis_pw) && !$this->redis->auth($redis_pw)) {
+			throw new Exception('Cannot authenticate redis server at ' . $redis_host . ':' . $redis_port);
+		}
+
+		if ($redis_db !== 0 && !$this->redis->select($redis_db)) {
+			throw new Exception('Cannot switch to redis db ' . $redis_db . ' at ' . $redis_host . ':' . $redis_port);
 		}
 	}
 

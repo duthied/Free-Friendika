@@ -6,6 +6,6 @@ use Friendica\Network\HTTPException;
 
 class ImATeapotException extends HTTPException
 {
-	var $httpcode = 418;
+	protected $code = 418;
 	var $httpdesc = "I'm A Teapot";
 }

@@ -33,7 +33,7 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 $a = Factory\DependencyFactory::setUp('worker', dirname(__DIR__));
 
 // Check the database structure and possibly fixes it
-Update::check($a->getBasePath(), true);
+Update::check($a->getBasePath(), true, $a->getMode());
 
 // Quit when in maintenance
 if (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED)) {

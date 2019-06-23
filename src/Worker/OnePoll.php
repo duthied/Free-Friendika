@@ -48,20 +48,27 @@ class OnePoll
 			return;
 		}
 
+		if (($contact['network'] == Protocol::DFRN) && !Contact::isLegacyDFRNContact($contact)) {
+			$protocol = Protocol::ACTIVITYPUB;
+		} else {
+			$protocol = $contact['network'];
+		}
+
 		$importer_uid = $contact['uid'];
 
 		// Possibly switch the remote contact to AP
-		if ($contact['network'] === Protocol::OSTATUS) {
+		if ($protocol === Protocol::OSTATUS) {
 			ActivityPub\Receiver::switchContact($contact['id'], $importer_uid, $contact['url']);
 			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		}
 
+		$updated = DateTimeFormat::utcNow();
+
 		// These three networks can be able to speak AP, so we are trying to fetch AP profile data here
-		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN])) {
+		if (in_array($protocol, [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN])) {
 			$apcontact = APContact::getByURL($contact['url'], true);
 
-			$updated = DateTimeFormat::utcNow();
-			if (($contact['network'] === Protocol::ACTIVITYPUB) && empty($apcontact)) {
+			if (($protocol === Protocol::ACTIVITYPUB) && empty($apcontact)) {
 				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 				Contact::markForArchival($contact);
 				Logger::log('Contact archived');
@@ -74,9 +81,8 @@ class OnePoll
 		}
 
 		// Diaspora users, archived users and followers are only checked if they still exist.
-		if (($contact['network'] != Protocol::ACTIVITYPUB) && ($contact['archive'] || ($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER))) {
+		if (($protocol != Protocol::ACTIVITYPUB) && ($contact['archive'] || ($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER))) {
 			$last_updated = PortableContact::lastUpdated($contact["url"], true);
-			$updated = DateTimeFormat::utcNow();
 
 			if ($last_updated) {
 				Logger::log('Contact '.$contact['id'].' had last update on '.$last_updated, Logger::DEBUG);
@@ -98,10 +104,9 @@ class OnePoll
 		}
 
 		// Update the contact entry
-		if (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
-			$updated = DateTimeFormat::utcNow();
+		if (in_array($protocol, [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
 			// Currently we can't check every AP implementation, so we don't do it at all
-			if (($contact['network'] != Protocol::ACTIVITYPUB) && !PortableContact::reachable($contact['url'])) {
+			if (($protocol != Protocol::ACTIVITYPUB) && !PortableContact::reachable($contact['url'])) {
 				Logger::log("Skipping probably dead contact ".$contact['url']);
 
 				// set the last-update so we don't keep polling
@@ -140,25 +145,25 @@ class OnePoll
 			Logger::log("Don't poll follower");
 
 			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 			return;
 		}
 
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
-		if (!in_array($contact['network'], [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
+		if (!in_array($protocol, [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
 			Logger::log('Polling is disabled');
 
 			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 			return;
 		}
 
 		// We don't poll AP contacts by now
-		if ($contact['network'] === Protocol::ACTIVITYPUB) {
+		if ($protocol === Protocol::ACTIVITYPUB) {
 			Logger::log("Don't poll AP contact");
 
 			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -166,7 +171,7 @@ class OnePoll
 			Logger::log('Ignore public contacts');
 
 			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -178,7 +183,7 @@ class OnePoll
 			Logger::log('No self contact for user '.$importer_uid);
 
 			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 			return;
 		}
 
@@ -203,9 +208,9 @@ class OnePoll
 			: DateTimeFormat::utc($contact['last-update'], DateTimeFormat::ATOM)
 		);
 
-		Logger::log("poll: ({$contact['network']}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
+		Logger::log("poll: ({$protocol}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
-		if ($contact['network'] === Protocol::DFRN) {
+		if ($protocol === Protocol::DFRN) {
 			$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
 			if (intval($contact['duplex']) && $contact['dfrn-id']) {
 				$idtosend = '0:' . $orig_id;
@@ -233,7 +238,7 @@ class OnePoll
 
 			if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
 				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
+				self::updateContact($contact, ['last-update' => $updated]);
 				Contact::markForArchival($contact);
 				Logger::log('Contact archived');
 				return;
@@ -251,7 +256,7 @@ class OnePoll
 				Logger::log("$url appears to be dead - marking for death ");
 
 				// set the last-update so we don't keep polling
-				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
+				$fields = ['last-update' => $updated, 'failure_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
@@ -260,7 +265,7 @@ class OnePoll
 			if (!strstr($handshake_xml, '<')) {
 				Logger::log('response from ' . $url . ' did not contain XML.');
 
-				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
+				$fields = ['last-update' => $updated, 'failure_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
@@ -274,7 +279,7 @@ class OnePoll
 				Logger::log("$url replied status 1 - marking for death ");
 
 				// set the last-update so we don't keep polling
-				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
+				$fields = ['last-update' => $updated, 'failure_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 			} elseif ($contact['term-date'] > DBA::NULL_DATETIME) {
@@ -283,7 +288,7 @@ class OnePoll
 
 			if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 				Logger::log('Contact status is ' . $res->status);
 				return;
 			}
@@ -326,7 +331,7 @@ class OnePoll
 				Logger::log('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
 
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 				Contact::markForArchival($contact);
 				return;
 			}
@@ -337,9 +342,9 @@ class OnePoll
 
 			$xml = Network::post($contact['poll'], $postvars)->getBody();
 
-		} elseif (($contact['network'] === Protocol::OSTATUS)
-			|| ($contact['network'] === Protocol::DIASPORA)
-			|| ($contact['network'] === Protocol::FEED)) {
+		} elseif (($protocol === Protocol::OSTATUS)
+			|| ($protocol === Protocol::DIASPORA)
+			|| ($protocol === Protocol::FEED)) {
 
 			// Upgrading DB fields from an older Friendica version
 			// Will only do this once per notify-enabled OStatus contact
@@ -348,7 +353,7 @@ class OnePoll
 			$stat_writeable = ((($contact['notify']) && ($contact['rel'] == Contact::FOLLOWER || $contact['rel'] == Contact::FRIEND)) ? 1 : 0);
 
 			// Contacts from OStatus are always writable
-			if ($contact['network'] === Protocol::OSTATUS) {
+			if ($protocol === Protocol::OSTATUS) {
 				$stat_writeable = 1;
 			}
 
@@ -360,18 +365,18 @@ class OnePoll
 			// Are we allowed to import from this person?
 			if ($contact['rel'] == Contact::FOLLOWER || $contact['blocked']) {
 				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => DateTimeFormat::utcNow()], ['id' => $contact['id']]);
+				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
 				Logger::log('Contact is blocked or only a follower');
 				return;
 			}
 
 			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$curlResult = Network::curl($contact['poll'], false, $redirects, ['cookiejar' => $cookiejar]);
+			$curlResult = Network::curl($contact['poll'], false, ['cookiejar' => $cookiejar]);
 			unlink($cookiejar);
 
 			if ($curlResult->isTimeout()) {
 				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
+				self::updateContact($contact, ['last-update' => $updated]);
 				Contact::markForArchival($contact);
 				Logger::log('Contact archived');
 				return;
@@ -379,13 +384,13 @@ class OnePoll
 
 			$xml = $curlResult->getBody();
 
-		} elseif ($contact['network'] === Protocol::MAIL) {
+		} elseif ($protocol === Protocol::MAIL) {
 			Logger::log("Mail: Fetching for ".$contact['addr'], Logger::DEBUG);
 
 			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
 			if ($mail_disabled) {
 				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
+				self::updateContact($contact, ['last-update' => $updated]);
 				Contact::markForArchival($contact);
 				Logger::log('Contact archived');
 				return;
@@ -406,7 +411,7 @@ class OnePoll
 				unset($password);
 				Logger::log("Mail: Connect to " . $mailconf['user']);
 				if ($mbox) {
-					$fields = ['last_check' => DateTimeFormat::utcNow()];
+					$fields = ['last_check' => $updated];
 					DBA::update('mailacct', $fields, ['id' => $mailconf['id']]);
 					Logger::log("Mail: Connected to " . $mailconf['user']);
 				} else {
@@ -448,7 +453,7 @@ class OnePoll
 								// Only delete when mails aren't automatically moved or deleted
 								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
 									if ($meta->deleted && ! $item['deleted']) {
-										$fields = ['deleted' => true, 'changed' => DateTimeFormat::utcNow()];
+										$fields = ['deleted' => true, 'changed' => $updated];
 										Item::update($fields, ['id' => $item['id']]);
 									}
 
@@ -579,7 +584,7 @@ class OnePoll
 							if ($datarray['parent-uri'] === $datarray['uri']) {
 								$datarray['private'] = 1;
 							}
-							if (($contact['network'] === Protocol::MAIL) && !PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
+							if (($protocol === Protocol::MAIL) && !PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
 								$datarray['private'] = 1;
 								$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 							}
@@ -622,7 +627,7 @@ class OnePoll
 			if (!strstr($xml, '<')) {
 				Logger::log('post_handshake: response from ' . $url . ' did not contain XML.');
 
-				$fields = ['last-update' => DateTimeFormat::utcNow(), 'failure_update' => DateTimeFormat::utcNow()];
+				$fields = ['last-update' => $updated, 'failure_update' => $updated];
 				self::updateContact($contact, $fields);
 				Contact::markForArchival($contact);
 				return;
@@ -634,16 +639,16 @@ class OnePoll
 			consume_feed($xml, $importer, $contact, $hub);
 
 			// do it a second time for DFRN so that any children find their parents.
-			if ($contact['network'] === Protocol::DFRN) {
+			if ($protocol === Protocol::DFRN) {
 				consume_feed($xml, $importer, $contact, $hub);
 			}
 
 			$hubmode = 'subscribe';
-			if ($contact['network'] === Protocol::DFRN || $contact['blocked']) {
+			if ($protocol === Protocol::DFRN || $contact['blocked']) {
 				$hubmode = 'unsubscribe';
 			}
 
-			if (($contact['network'] === Protocol::OSTATUS ||  $contact['network'] == Protocol::FEED) && (! $contact['hub-verify'])) {
+			if (($protocol === Protocol::OSTATUS ||  $protocol == Protocol::FEED) && (! $contact['hub-verify'])) {
 				$hub_update = true;
 			}
 
@@ -651,9 +656,9 @@ class OnePoll
 				$hub_update = true;
 			}
 
-			Logger::log("Contact ".$contact['id']." returned hub: ".$hub." Network: ".$contact['network']." Relation: ".$contact['rel']." Update: ".$hub_update);
+			Logger::log("Contact ".$contact['id']." returned hub: ".$hub." Network: ".$protocol." Relation: ".$contact['rel']." Update: ".$hub_update);
 
-			if (strlen($hub) && $hub_update && (($contact['rel'] != Contact::FOLLOWER) || $contact['network'] == Protocol::FEED)) {
+			if (strlen($hub) && $hub_update && (($contact['rel'] != Contact::FOLLOWER) || $protocol == Protocol::FEED)) {
 				Logger::log('hub ' . $hubmode . ' : ' . $hub . ' contact name : ' . $contact['name'] . ' local user : ' . $importer['name']);
 				$hubs = explode(',', $hub);
 
@@ -670,19 +675,15 @@ class OnePoll
 				}
 			}
 
-			$updated = DateTimeFormat::utcNow();
-
 			self::updateContact($contact, ['last-update' => $updated, 'success_update' => $updated]);
 			DBA::update('gcontact', ['last_contact' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED])) {
-			$updated = DateTimeFormat::utcNow();
-
 			self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
 			DBA::update('gcontact', ['last_failure' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::markForArchival($contact);
 		} else {
-			self::updateContact($contact, ['last-update' => DateTimeFormat::utcNow()]);
+			self::updateContact($contact, ['last-update' => $updated]);
 		}
 
 		Logger::log('End');

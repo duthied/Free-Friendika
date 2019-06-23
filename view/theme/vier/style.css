@@ -448,7 +448,7 @@ pre code {
 	/* color: #000; */
 }
 
-.group-selected, .nets-selected, .fileas-selected, .forum-selected {
+.widget .selected, .forum-selected {
 	font-weight: bold;
 }
 
@@ -763,6 +763,7 @@ nav #nav-directory-link,
 nav #nav-apps-link,
 nav #nav-apps-link,
 nav #nav-login-link,
+nav #nav-logout-link,
 nav #nav-messages-linkmenu,
 nav #nav-notifications-linkmenu,
 nav #nav-site-linkmenu,

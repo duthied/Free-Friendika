@@ -82,4 +82,39 @@ class StringsTest extends TestCase
 			$escapedString
 		);
 	}
+
+	public function dataIsHex()
+	{
+		return [
+			'validHex' => [
+				'input' => '90913473615bf00c122ac78338492980',
+				'valid' => true,
+			],
+			'invalidHex' => [
+				'input' => '90913473615bf00c122ac7833849293',
+				'valid' => false,
+			],
+			'emptyHex' => [
+				'input' => '',
+				'valid' => false,
+			],
+			'nullHex' => [
+				'input' => null,
+				'valid' => false,
+			],
+		];
+	}
+
+	/**
+	 * Tests if the string is a valid hexadecimal value
+	 *
+	 * @param string $input
+	 * @param bool $valid
+	 *
+	 * @dataProvider dataIsHex
+	 */
+	public function testIsHex($input, $valid)
+	{
+		$this->assertEquals($valid, Strings::isHex($input));
+	}
 }

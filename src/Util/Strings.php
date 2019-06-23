@@ -31,6 +31,18 @@ class Strings
         return $return;
     }
 
+	/**
+	 * Checks, if the given string is a valid hexadecimal code
+	 *
+	 * @param string $hexCode
+	 *
+	 * @return bool
+	 */
+    public static function isHex($hexCode)
+    {
+	    return !empty($hexCode) ? @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1) : false;
+    }
+
     /**
      * @brief This is our primary input filter.
      *
@@ -355,24 +367,40 @@ class Strings
 	 */
 	public static function autoLinkRegEx()
 	{
-		return '@(?xi)
+		return '@
 (?<![=\'\]"/])          # Not preceded by [, =, \', ], ", /
 \b
 (                              # Capture 1: entire matched URL
   https?://                            # http or https protocol
   (?:
-    [^/\s`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
-    [^/\s`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
+    [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
+    [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
     \.
-    [^/\s`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
+    [^/\s\xA0`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
   )
   (?:                                  # One or more:
-    [^\s()<>]+                         # Run of non-space, non-()<>
+    [^\s\xA0()<>]+                         # Run of non-space, non-()<>
     |                                  #   or
-    \(([^\s()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
+    \(([^\s\xA0()<>]+|(\([^\s()<>]+\)))*\) # balanced parens, up to 2 levels
     |                                  #   or
-    [^\s`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
+    [^\s\xA0`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
   )*
-)@';
+)@xiu';
+	}
+
+	/**
+	 * Ensures a single path item doesn't contain any path-traversing characters
+	 *
+	 * @see https://stackoverflow.com/a/46097713
+	 * @param string $pathItem
+	 * @return string
+	 */
+	public static function sanitizeFilePathItem($pathItem)
+	{
+		$pathItem = str_replace('/', '_', $pathItem);
+		$pathItem = str_replace('\\', '_', $pathItem);
+		$pathItem = str_replace(DIRECTORY_SEPARATOR, '_', $pathItem); // In case it does not equal the standard values
+
+		return $pathItem;
 	}
 }

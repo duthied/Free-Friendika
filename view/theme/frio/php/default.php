@@ -79,7 +79,8 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 	// special minimal style for modal dialogs
 	if ($minimal) {
 ?>
-		<section class="minimal" style="margin:0px!important; padding:0px!important; float:none!important; display:block!important;">
+        <!-- <?php echo __FILE__ ?> -->
+		<section class="minimal">
 			<?php if (!empty($page['content'])) echo $page['content']; ?>
 			<div id="page-footer"></div>
 		</section>

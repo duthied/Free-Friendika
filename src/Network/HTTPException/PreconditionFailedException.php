@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class PreconditionFailedException extends HTTPException
 {
-	var $httpcode = 412;
+	protected $code = 412;
 }

@@ -19,9 +19,30 @@
 <hr style="clear:both"/>
 <div id="profile-jot-email-label">{{$emailcc}}</div><input type="text" name="emailcc" id="profile-jot-email" title="{{$emtitle}}" />
 <div id="profile-jot-email-end"></div>
-{{if $jotnets}}
-{{$jotnets nofilter}}
-{{/if}}{{/if}}
+
+	{{if $jotnets_fields}}
+		{{if $jotnets_fields|count < 3}}
+<div class="profile-jot-net">
+		{{else}}
+<details class="profile-jot-net">
+	<summary>{{$jotnets_summary}}</summary>
+		{{/if}}
+
+		{{foreach $jotnets_fields as $jotnets_field}}
+			{{if $jotnets_field.type == 'checkbox'}}
+				{{include file="field_checkbox.tpl" field=$jotnets_field.field}}
+			{{elseif $jotnets_field.type == 'select'}}
+				{{include file="field_select.tpl" field=$jotnets_field.field}}
+			{{/if}}
+		{{/foreach}}
+
+		{{if $jotnets_fields|count >= 3}}
+</details>
+		{{else}}
+</div>
+		{{/if}}
+	{{/if}}
+{{/if}}
 
 <script>
 $(document).ready(function() {

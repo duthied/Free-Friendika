@@ -7,26 +7,44 @@ Please see the sample addon 'randplace' for a working example of using some of t
 Addons work by intercepting event hooks - which must be registered.
 Modules work by intercepting specific page requests (by URL path).
 
-Addon names cannot contain spaces or other punctuation and are used as filenames and function names.
-You may supply a "friendly" name within the comment block.
-Each addon must contain both an install and an uninstall function based on the addon name.
-For instance "addon1name_install()".
-These two functions take no arguments and are usually responsible for registering (and unregistering) event hooks that your addon will require.
-The install and uninstall functions will also be called (i.e. re-installed) if the addon changes after installation.
+## Naming
+
+Addon names are used in file paths and functions names, and as such:
+- Can't contain spaces or punctuation.
+- Can't start with a number.
+
+## Metadata
+
+You can provide human-readable information about your addon in the first multi-line comment of your addon file.
+
+Here's the structure:
+
+```php
+/**
+ * Name: {Human-readable name}
+ * Description: {Short description}
+ * Version: 1.0
+ * Author: {Author1 Name}
+ * Author: {Author2 Name} <{Author profile link}>
+ * Maintainer: {Maintainer1 Name}
+ * Maintainer: {Maintainer2 Name} <{Maintainer profile link}>
+ * Status: {Unsupported|Arbitrary status}
+ */
+```
+ 
+You can also provide a longer documentation in a `README` or `README.md` file.
+The latter will be converted from Markdown to HTML in the addon detail page.
+
+## Install/Uninstall
+
+If your addon uses hooks, they have to be registered in a `<addon>_install()` function.
+This function also allows to perform arbitrary actions your addon needs to function properly.
+
+Uninstalling an addon automatically unregisters any hook it registered, but if you need to provide specific uninstallation steps, you can add them in a `<addon>_uninstall()` function.
+
+The install and uninstall functions will be called (i.e. re-installed) if the addon changes after installation.
 Therefore your uninstall should not destroy data and install should consider that data may already exist.
 Future extensions may provide for "setup" amd "remove".
-
-Addons should contain a comment block with the four following parameters:
-
-    /*
-     * Name: My Great Addon
-     * Description: This is what my addon does. It's really cool.
-     * Version: 1.0
-     * Author: John Q. Public <john@myfriendicasite.com>
-     */
-
-Please also add a README or README.md file to the addon directory.
-It will be displayed in the admin panel and should include some further information in addition to the header information.
 
 ## PHP addon hooks
 
@@ -34,20 +52,19 @@ Register your addon hooks during installation.
 
     \Friendica\Core\Hook::register($hookname, $file, $function);
 
-$hookname is a string and corresponds to a known Friendica PHP hook.
+`$hookname` is a string and corresponds to a known Friendica PHP hook.
 
-$file is a pathname relative to the top-level Friendica directory.
-This *should* be 'addon/*addon_name*/*addon_name*.php' in most cases.
+`$file` is a pathname relative to the top-level Friendica directory.
+This *should* be 'addon/*addon_name*/*addon_name*.php' in most cases and can be shortened to `__FILE__`.
 
-$function is a string and is the name of the function which will be executed when the hook is called.
+`$function` is a string and is the name of the function which will be executed when the hook is called.
 
 ### Arguments
 Your hook callback functions will be called with at least one and possibly two arguments
 
-    function myhook_function(App $a, &$b) {
+    function <addon>_<hookname>(App $a, &$b) {
 
     }
-
 
 If you wish to make changes to the calling data, you must declare them as reference variables (with `&`) during function declaration.
 
@@ -66,6 +83,12 @@ It is recommeded you call this `$a` to match its usage elsewhere.
 $b can be called anything you like.
 This is information specific to the hook currently being processed, and generally contains information that is being immediately processed or acted on that you can use, display, or alter.
 Remember to declare it with `&` if you wish to alter it.
+
+## Admin settings
+
+Your addon can provide user-specific settings via the `addon_settings` PHP hook, but it can also provide node-wide settings in the administration page of your addon.
+
+Simply declare a `<addon>_addon_admin(App $a)` function to display the form and a `<addon>_addon_admin_post(App $a)` function to process the data from the form.
 
 ## Global stylesheets
 
@@ -132,11 +155,11 @@ No additional data is provided.
 ## Modules
 
 Addons may also act as "modules" and intercept all page requests for a given URL path.
-In order for a addon to act as a module it needs to define a function "addon_name_module()" which takes no arguments and needs not do anything.
+In order for a addon to act as a module it needs to declare an empty function `<addon>_module()`.
 
-If this function exists, you will now receive all page requests for "http://my.web.site/addon_name" - with any number of URL components as additional arguments.
+If this function exists, you will now receive all page requests for `https://my.web.site/<addon>` - with any number of URL components as additional arguments.
 These are parsed into an array $a->argv, with a corresponding $a->argc indicating the number of URL components.
-So http://my.web.site/addon/arg1/arg2 would look for a module named "addon" and pass its module functions the $a App structure (which is available to many components).
+So `https://my.web.site/addon/arg1/arg2` would look for a module named "addon" and pass its module functions the $a App structure (which is available to many components).
 This will include:
 
 ```php
@@ -144,9 +167,9 @@ $a->argc = 3
 $a->argv = array(0 => 'addon', 1 => 'arg1', 2 => 'arg2');
 ```
 
-Your module functions will often contain the function addon_name_content(App $a), which defines and returns the page body content.
-They may also contain addon_name_post(App $a) which is called before the _content function and typically handles the results of POST forms.
-You may also have addon_name_init(App $a) which is called very early on and often does module initialisation.
+To display a module page, you need to declare the function `<addon>_content(App $a)`, which defines and returns the page body content.
+They may also contain `<addon>_post(App $a)` which is called before the `<addon>_content` function and typically handles the results of POST forms.
+You may also have `<addon>_init(App $a)` which is called before `<addon>_content` and should include common logic to your module.
 
 ## Templates
 
@@ -160,7 +183,7 @@ In your code, like in the function addon_name_content(), load the template file 
 ```php
 # load template file. first argument is the template name,
 # second is the addon path relative to friendica top folder
-$tpl = Renderer::getMarkupTemplate('mytemplate.tpl', 'addon/addon_name/');
+$tpl = Renderer::getMarkupTemplate('mytemplate.tpl', __DIR__);
 
 # apply template. first argument is the loaded template,
 # second an array of 'name' => 'values' to pass to template
@@ -335,6 +358,7 @@ Called from `Emailer::send()` before building the mime message.
 - **htmlVersion**: html version of the message
 - **textVersion**: text only version of the message
 - **additionalMailHeader**: additions to the smtp mail header
+- **sent**: default false, if set to true in the hook, the default mailer will be skipped.
 
 ### emailer_send
 Called before calling PHP's `mail()`.
@@ -344,6 +368,7 @@ Called before calling PHP's `mail()`.
 - **subject**
 - **body**
 - **headers**
+- **sent**: default false, if set to true in the hook, the default mailer will be skipped.
 
 ### load_config
 Called during `App` initialization to allow addons to load their own configuration file(s) with `App::loadConfigFile()`.
@@ -410,6 +435,34 @@ Hook data:
 
     visitor => array with the contact record of the visitor
     url => the query string
+
+### jot_networks
+Called when displaying the post permission screen.
+Hook data is a list of form fields that need to be displayed along the ACL.
+Form field array structure is:
+
+- **type**: `checkbox` or `select`.
+- **field**: Standard field data structure to be used by `field_checkbox.tpl` and `field_select.tpl`.
+
+For `checkbox`, **field** is:
+  - [0] (String): Form field name; Mandatory. 
+  - [1]: (String): Form field label; Optional, default is none.
+  - [2]: (Boolean): Whether the checkbox should be checked by default; Optional, default is false.
+  - [3]: (String): Additional help text; Optional, default is none.
+  - [4]: (String): Additional HTML attributes; Optional, default is none.
+
+For `select`, **field** is:
+  - [0] (String): Form field name; Mandatory.
+  - [1] (String): Form field label; Optional, default is none.
+  - [2] (Boolean): Default value to be selected by default; Optional, default is none.
+  - [3] (String): Additional help text; Optional, default is none.
+  - [4] (Array): Associative array of options. Item key is option value, item value is option label; Mandatory. 
+
+### route_collection
+Called just before dispatching the router.
+Hook data is a `\FastRoute\RouterCollector` object that should be used to add addon routes pointing to classes.
+
+**Notice**: The class whose name is provided in the route handler must be reachable via auto-loader.
 
 ## Complete list of hook callbacks
 
@@ -586,6 +639,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('load_config');
     Hook::callAll('head');
     Hook::callAll('footer');
+    Hook::callAll('route_collection');
 
 ### src/Model/Item.php
 
@@ -660,11 +714,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Worker/Notifier.php
 
     Hook::callAll('notifier_end', $target_item);
-
-### src/Worker/Queue.php
-
-    Hook::callAll('queue_predeliver', $r);
-    Hook::callAll('queue_deliver', $params);
 
 ### src/Module/Login.php
 

@@ -4,14 +4,13 @@
  */
 namespace Friendica\Core;
 
-use Friendica\BaseObject;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
  * @brief Logger functions
  */
-class Logger extends BaseObject
+class Logger
 {
 	/**
 	 * @see Logger::error()
@@ -96,13 +95,7 @@ class Logger extends BaseObject
 	 */
 	public static function emergency($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->emergency($message, $context);
-		self::getApp()->GetProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -120,13 +113,7 @@ class Logger extends BaseObject
 	 */
 	public static function alert($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->alert($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -143,13 +130,7 @@ class Logger extends BaseObject
 	 */
 	public static function critical($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->critical($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -165,14 +146,7 @@ class Logger extends BaseObject
 	 */
 	public static function error($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			echo "not set!?\n";
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->error($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -190,13 +164,7 @@ class Logger extends BaseObject
 	 */
 	public static function warning($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->warning($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -211,13 +179,7 @@ class Logger extends BaseObject
 	 */
 	public static function notice($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->notice($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -234,13 +196,7 @@ class Logger extends BaseObject
 	 */
 	public static function info($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->info($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	/**
@@ -255,13 +211,7 @@ class Logger extends BaseObject
 	 */
 	public static function debug($message, $context = [])
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->debug($message, $context);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, 'file', System::callstack());
 	}
 
 	    /**
@@ -275,13 +225,7 @@ class Logger extends BaseObject
 	 */
 	public static function log($msg, $level = LogLevel::INFO)
 	{
-		if (!isset(self::$logger)) {
-			return;
-		}
-
-		$stamp1 = microtime(true);
 		self::$logger->log($level, $msg);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 	}
 
 	/**
@@ -296,12 +240,10 @@ class Logger extends BaseObject
 	 */
 	public static function devLog($msg, $level = LogLevel::DEBUG)
 	{
-		if (!isset(self::$logger)) {
+		if (!isset(self::$devLogger)) {
 			return;
 		}
 
-		$stamp1 = microtime(true);
 		self::$devLogger->log($level, $msg);
-		self::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 	}
 }

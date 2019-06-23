@@ -7,7 +7,7 @@
 
 namespace Friendica\Core;
 
-use Friendica\Core\Cache\CacheDriverFactory;
+use Friendica\Factory\CacheDriverFactory;
 use Friendica\Core\Cache\IMemoryCacheDriver;
 
 /**

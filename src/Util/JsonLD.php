@@ -68,9 +68,16 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			Logger::error('normalise error');
-			// Sooner or later we should log some details as well - but currently this leads to memory issues
-			// Logger::log('normalise error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
+			$messages = [];
+			$currentException = $e;
+			do {
+				$messages[] = $currentException->getMessage();
+			} while($currentException = $currentException->getPrevious());
+
+			Logger::warning('JsonLD normalize error');
+			Logger::notice('JsonLD normalize error', ['messages' => $messages]);
+			Logger::info('JsonLD normalize error', ['trace' => $e->getTraceAsString()]);
+			Logger::debug('JsonLD normalize error', ['jsonobj' => $jsonobj]);
 		}
 
 		return $normalized;
@@ -96,9 +103,15 @@ class JsonLD
 			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
 			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
-			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id']];
+			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id'],
+			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id']];
 
-		// Workaround for Nextcloud Social
+		// Preparation for adding possibly missing content to the context
+		if (!empty($json['@context']) && is_string($json['@context'])) {
+			$json['@context'] = [$json['@context']];
+		}
+
+		// Workaround for servers with missing context
 		// See issue https://github.com/nextcloud/social/issues/330
 		if (!empty($json['@context']) && is_array($json['@context'])) {
 			$json['@context'][] = 'https://w3id.org/security/v1';
@@ -160,7 +173,7 @@ class JsonLD
 		foreach ($array[$element] as $entry) {
 			if (!is_array($entry)) {
 				$elements[] = $entry;
-			} elseif (!empty($entry[$key])) {
+			} elseif (isset($entry[$key])) {
 				$elements[] = $entry[$key];
 			} elseif (!empty($entry) || !is_array($entry)) {
 				$elements[] = $entry;

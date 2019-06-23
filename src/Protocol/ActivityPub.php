@@ -44,8 +44,10 @@ class ActivityPub
 		['vcard' => 'http://www.w3.org/2006/vcard/ns#',
 		'dfrn' => 'http://purl.org/macgirvin/dfrn/1.0/',
 		'diaspora' => 'https://diasporafoundation.org/ns/',
+		'litepub' => 'http://litepub.social/ns#',
 		'manuallyApprovesFollowers' => 'as:manuallyApprovesFollowers',
-		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag']];
+		'sensitive' => 'as:sensitive', 'Hashtag' => 'as:Hashtag',
+		'directMessage' => 'litepub:directMessage']];
 	const ACCOUNT_TYPES = ['Person', 'Organization', 'Service', 'Group', 'Application'];
 	/**
 	 * Checks if the web request is done for the AP protocol
@@ -72,7 +74,7 @@ class ActivityPub
 			return HTTPSignature::fetch($url, $uid);
 		}
 
-		$curlResult = Network::curl($url, false, $redirects, ['accept_content' => 'application/activity+json, application/ld+json']);
+		$curlResult = Network::curl($url, false, ['accept_content' => 'application/activity+json, application/ld+json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
 			return false;
 		}
@@ -89,14 +91,15 @@ class ActivityPub
 	/**
 	 * Fetches a profile from the given url into an array that is compatible to Probe::uri
 	 *
-	 * @param string $url profile url
+	 * @param string  $url    profile url
+	 * @param boolean $update Update the profile
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function probeProfile($url)
+	public static function probeProfile($url, $update = true)
 	{
-		$apcontact = APContact::getByURL($url, true);
+		$apcontact = APContact::getByURL($url, $update);
 		if (empty($apcontact)) {
 			return false;
 		}

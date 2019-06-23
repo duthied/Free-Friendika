@@ -19,6 +19,7 @@
  */
 
 use Friendica\Core\PConfig;
+use Friendica\Util\Strings;
 
 function get_scheme_info($scheme)
 {
@@ -27,6 +28,8 @@ function get_scheme_info($scheme)
 	if (empty($scheme)) {
 		$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));
 	}
+
+	$scheme = Strings::sanitizeFilePathItem($scheme);
 
 	$info = [
 		'name' => $scheme,

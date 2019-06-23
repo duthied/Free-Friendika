@@ -32,23 +32,7 @@ require_once 'include/items.php';
  *
  *		Worker::add(PRIORITY_HIGH, "Notifier", COMMAND, ITEM_ID);
  *
- * where COMMAND is one of the following:
- *
- *		activity				(in diaspora.php, dfrn_confirm.php, profiles.php)
- *		comment-import			(in diaspora.php, items.php)
- *		comment-new				(in item.php)
- *		drop					(in diaspora.php, items.php, photos.php)
- *		edit_post				(in item.php)
- *		event					(in events.php)
- *		like					(in like.php, poke.php)
- *		mail					(in message.php)
- *		suggest					(in fsuggest.php)
- *		tag						(in photos.php, poke.php, tagger.php)
- *		tgroup					(in items.php)
- *		wall-new				(in photos.php, item.php)
- *		removeme				(in Contact.php)
- * 		relocate				(in uimport.php)
- *
+ * where COMMAND is one of the constants that are defined in Worker/Delivery.php
  * and ITEM_ID is the id of the item in the database that needs to be sent to others.
  */
 
@@ -76,6 +60,14 @@ class Notifier
 			}
 			$uid = $message['uid'];
 			$recipients[] = $message['contact-id'];
+
+			$mail = ActivityPub\Transmitter::ItemArrayFromMail($target_id);
+			$inboxes = ActivityPub\Transmitter::fetchTargetInboxes($mail, $uid, true);
+			foreach ($inboxes as $inbox) {
+				Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_id, 'inbox' => $inbox]);
+				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
+					'APDelivery', $cmd, $target_id, $inbox, $uid);
+			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$suggest = DBA::selectFirst('fsuggest', ['uid', 'cid'], ['id' => $target_id]);
 			if (!DBA::isResult($suggest)) {
@@ -89,7 +81,7 @@ class Notifier
 			$uid = $target_id;
 
 			$condition = ['uid' => $target_id, 'self' => false, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'protocol', 'batch'], $condition);
 		} else {
 			// find ancestors
 			$condition = ['id' => $target_id, 'visible' => true, 'moderated' => false];
@@ -191,7 +183,7 @@ class Notifier
 			}
 
 
-			if (($cmd === 'uplink') && (intval($parent['forum_mode']) == 1) && !$top_level) {
+			if (($cmd === Delivery::UPLINK) && (intval($parent['forum_mode']) == 1) && !$top_level) {
 				$relay_to_owner = true;
 			}
 
@@ -279,8 +271,8 @@ class Notifier
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink
 
-				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== 'uplink')) {
-					Worker::add($a->queue['priority'], 'Notifier', 'uplink', $target_id);
+				if ((intval($parent['forum_mode']) == 1) && !$top_level && ($cmd !== Delivery::UPLINK)) {
+					Worker::add($a->queue['priority'], 'Notifier', Delivery::UPLINK, $target_id);
 				}
 
 				foreach ($items as $item) {
@@ -374,7 +366,7 @@ class Notifier
 			if (!empty($networks)) {
 				$condition['network'] = $networks;
 			}
-			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'batch'], $condition);
+			$delivery_contacts_stmt = DBA::select('contact', ['id', 'url', 'network', 'protocol', 'batch'], $condition);
 		}
 
 		$conversants = [];
@@ -388,10 +380,11 @@ class Notifier
 
 				$relay_list_stmt = DBA::p(
 					"SELECT
-       					`batch`,
-       					ANY_VALUE(`id`) AS `id`,
-       					ANY_VALUE(`name`) AS `name`,
-       					ANY_VALUE(`network`) AS `network`
+						`batch`,
+						ANY_VALUE(`id`) AS `id`,
+						ANY_VALUE(`name`) AS `name`,
+						ANY_VALUE(`network`) AS `network`,
+						ANY_VALUE(`protocol`) AS `protocol`
 					FROM `contact`
 					WHERE `network` = ?
 					AND `batch` != ''
@@ -421,7 +414,7 @@ class Notifier
 			$condition = ['network' => Protocol::DFRN, 'uid' => $owner['uid'], 'blocked' => false,
 				'pending' => false, 'archive' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]];
 
-			$r2 = DBA::toArray(DBA::select('contact', ['id', 'url', 'name', 'network'], $condition));
+			$r2 = DBA::toArray(DBA::select('contact', ['id', 'url', 'name', 'network', 'protocol'], $condition));
 
 			$r = array_merge($r2, $relay_list);
 
@@ -429,6 +422,12 @@ class Notifier
 				foreach ($r as $rr) {
 					if (self::isRemovalActivity($cmd, $owner, $rr['network'])) {
 						Logger::log('Skipping dropping for ' . $rr['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+						continue;
+					}
+
+					if (in_array($rr['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($rr['protocol'] == Protocol::ACTIVITYPUB) &&
+						!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
+						Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $rr['url']]);
 						continue;
 					}
 
@@ -463,6 +462,12 @@ class Notifier
 		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
 			if (self::isRemovalActivity($cmd, $owner, $contact['network'])) {
 				Logger::log('Skipping dropping for ' . $contact['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
+				continue;
+			}
+
+			if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($contact['protocol'] == Protocol::ACTIVITYPUB) &&
+				!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
+				Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $contact['url']]);
 				continue;
 			}
 
@@ -524,13 +529,19 @@ class Notifier
 		if (!empty($target_item)) {
 			Logger::log('Calling hooks for ' . $cmd . ' ' . $target_id, Logger::DEBUG);
 
-			if (in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
-				ItemDeliveryData::update($target_item['id'], ['queue_count' => $delivery_queue_count]);
-			}
-
 			Hook::fork($a->queue['priority'], 'notifier_normal', $target_item);
 
 			Hook::callAll('notifier_end', $target_item);
+
+			// Workaround for pure connector posts
+			if ($delivery_queue_count == 0) {
+				ItemDeliveryData::incrementQueueDone($target_item['id']);
+				$delivery_queue_count = 1;
+			}
+
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				ItemDeliveryData::update($target_item['id'], ['queue_count' => $delivery_queue_count]);
+			}
 		}
 
 		return;
@@ -550,7 +561,7 @@ class Notifier
 	 */
 	private static function isRemovalActivity($cmd, $owner, $network)
 	{
-		return ($cmd == Delivery::DELETION) && $owner['account_removed'] && in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA]);
+		return ($cmd == Delivery::DELETION) && $owner['account_removed'] && in_array($network, [Protocol::ACTIVITYPUB, Protocol::DIASPORA]);
 	}
 
 	/**
@@ -580,7 +591,7 @@ class Notifier
 
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser(0);
 		foreach ($inboxes as $inbox) {
-			Logger::log('Account removal for user ' . $self_user_id . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
+			Logger::info('Account removal via ActivityPub', ['uid' => $self_user_id, 'inbox' => $inbox]);
 			Worker::add(['priority' => PRIORITY_NEGLIGIBLE, 'created' => $created, 'dont_fork' => true],
 				'APDelivery', Delivery::REMOVAL, '', $inbox, $self_user_id);
 		}
@@ -629,7 +640,7 @@ class Notifier
 		ActivityPub\Transmitter::createCachedActivityFromItem($target_item['id'], true);
 
 		foreach ($inboxes as $inbox) {
-			Logger::log('Deliver ' . $target_item['id'] .' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
+			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
 			Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
 					'APDelivery', $cmd, $target_item['id'], $inbox, $uid);

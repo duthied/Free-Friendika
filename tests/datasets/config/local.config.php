@@ -23,5 +23,6 @@ return [
 	'system' => [
 		'default_timezone' => 'UTC',
 		'language' => 'en',
+		'theme' => 'frio',
 	],
 ];

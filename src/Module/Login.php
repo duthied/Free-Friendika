@@ -12,6 +12,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
@@ -160,7 +161,8 @@ class Login extends BaseModule
 		// if we haven't failed up this point, log them in.
 		$_SESSION['remember'] = $remember;
 		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-		Authentication::setAuthenticatedSessionForUser($record, true, true);
+
+		Session::setAuthenticatedForUser($a, $record, true, true);
 
 		if (!empty($_SESSION['return_path'])) {
 			$return_path = $_SESSION['return_path'];
@@ -210,7 +212,7 @@ class Login extends BaseModule
 
 					// Do the authentification if not done by now
 					if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-						Authentication::setAuthenticatedSessionForUser($user);
+						Session::setAuthenticatedForUser($a, $user);
 
 						if (Config::get('system', 'paranoia')) {
 							$_SESSION['addr'] = $data->ip;
@@ -263,7 +265,8 @@ class Login extends BaseModule
 					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 					$login_refresh = true;
 				}
-				Authentication::setAuthenticatedSessionForUser($user, false, false, $login_refresh);
+
+				Session::setAuthenticatedForUser($a, $user, false, false, $login_refresh);
 			}
 		}
 	}

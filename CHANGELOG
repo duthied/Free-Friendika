@@ -1,7 +1,78 @@
+Version 2019.06 (2019-06-23)
+  Friendica Core:
+    Update to the tranlation (CS, DE, EN-GB, EN-US, ET, FR, IT, PL, PT-BR, SV) [translation teams]
+    Update to the documentation [nupplaphil, realkinetix, MrPetovan]
+    Update to the themes (frio, vier) [BinkaDroid, MrPetovan, tobiasd]
+    Enhancements to the API [annando, MrPetovan]
+    Enhancements to the way reshares are handled [annando]
+    Enhancements to the redis configuration [nupplaphil]
+    Enhancements to the federation stats display in the admin panel [tobiasd]
+    Enhancements to the processing of changed storage engine [MrPetovan]
+    Enhancements to ActivityPub support [annando, MrPetovan]
+    Enhancements to code security [MrPetovan]
+    Enhancements to delivery counter [annando]
+    Fixed the notification order [JeroenED]
+    Fixed the timezone of Friendica logs [nupplaphil]
+    Fixed tag completion painfully slow [AlfredSK]
+    Fixed a regression in notifications [MrPetovan, annando]
+    Fixed an issue with smilies and code blocks [MrPetovan]
+    Fixed an AP issue with unavailable local profiles [MrPetovan]
+    Fixed an issue with the File to Folder feature [MrPetovan]
+    Fixed an issue with the legacy storage engine [fabrixxm]
+    Fixed an issue with the theme and addon path items [MrPetovan]
+    Fixed an issue occuring when the BasePath was not set [tobiasd]
+    Fixed an issue with additionally opened Sessions [MrPetovan]
+    Fixed an issue with legacy loglevel mapping [nupplaphil]
+    Fixed contact suggestions [annando]
+    Fixed an issue with frio hovercard [nupplaphil]
+	Fixed event interaction federation [annando]
+	Fixed remote image permission [deantownsley]
+    General Code cleaning and restructuring [annando, nupplaphil, tobiasd]
+    Added frio color scheme sharing [JeroenED]
+    Added syslog and stream Logger [nupplaphil]
+    Added storage move cronjob [MrPetovan]
+    Added collapsible panel for connector permission fields [MrPetovan]
+    Added rule-based router [MrPetovan]
+    Added Estonian translation [Rain Hawk]
+    Added APCu caching [nupplaphil]
+    Added BlockServer command to the Friendica console [nupplaphil]
+    Added reshare count [annando]
+    Added rule-based router [MrPetovan, nupplaphil]
+    Added themed error pages with mascot [MrPetovan, lostinlight]
+    Added contact relationship filter [MrPetovan]
+    Removed the old queue mechanism (deferred workers are now used) [annando]
+    Removed BasePath and Hostname settings from the admin panel [nupplaphil]
+    Remove support for defunct F-Droid Friendica app [MrPetovan]
+
+  Friendica Addons:
+    Update to the tranlation (ET, SV, ZH_CN) [translation teams]
+    botdetection:
+      Added a new addon for preventing access by bots [nupplaphil, annando]
+    buffer:
+      Traces of Google+ were removed [annando]
+    curweather:
+      Fixed a problem with the display of the correct temperature unit [tobiasd]
+    fromgplus:
+      Deprecated the addon as Google+ was closed [tobiasd]
+    fortunate:
+      Deprecated addon for incompatibility with latest Friendica version [MrPetovan]
+    phpmailer:
+      Added a new addon to use external SMTP for email [M-arcus, kecalcze, MrPetovan]
+	pledgie:
+      Deprecated addon as service was discontinued [M-arcus]
+    xmpp:
+      Marked addon as unsupported because of various incompatibilities with themes [MrPetovan]
+
+  Closed Issues:
+    1012, 2209, 2528, 3309, 3717, 3816, 3869, 4453, 4999, 5011, 5047, 5276, 5850, 5983, 6303, 6319, 6379, 6410, 6477,
+	6478, 6720, 6799, 6813, 6819, 6861, 6864, 6879, 6903, 6916, 6917, 6918, 6921, 6927, 6929, 6936, 6938, 6941, 6943,
+	6947, 6948, 6950, 6952, 6983, 6999, 7023, 7036, 7047, 7106, 7112, 7119, 7128, 7130, 7131, 7141, 7142, 7150, 7171,
+	7183, 7196, 7209, 7223, 7226, 7240, 7241, 7249, 7264, 7269, 7271, 7275, 7300, 7303
+
 Version 2019.04 (2019-04-28)
   Friendica Core:
     Fixed a privacy problem with postings accessed by feed [MrPetovan]
-
+	
 Version 2019.03 (2019-03-22)
   Friendica Core:
     Update to the translation (CS, DE, EN-GB, EN-US, ES, FR, IT, PL, SV, ZH-CN) [translation teams]

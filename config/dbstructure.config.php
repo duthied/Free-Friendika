@@ -34,10 +34,22 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1304);
+	define('DB_UPDATE_VERSION', 1313);
 }
 
 return [
+	"2fa_recovery_codes" => [
+		"comment" => "Two-factor authentication recovery codes",
+		"fields" => [
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User ID"],
+			"code" => ["type" => "varchar(50)", "not null" => "1", "primary" => "1", "comment" => "Recovery code string"],
+			"generated" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the code was generated"],
+			"used" => ["type" => "datetime", "comment" => "Datetime the code was used"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["uid", "code"]
+		]
+	],
 	"addon" => [
 		"comment" => "registered addons",
 		"fields" => [
@@ -74,6 +86,7 @@ return [
 			"alias" => ["type" => "varchar(255)", "comment" => ""],
 			"pubkey" => ["type" => "text", "comment" => ""],
 			"baseurl" => ["type" => "varchar(255)", "comment" => "baseurl of the ap contact"],
+			"generator" => ["type" => "varchar(255)", "comment" => "Name of the contact's system"],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
 		],
 		"indexes" => [
@@ -180,14 +193,16 @@ return [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner User id"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => "Date of last contact update"],
 			"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "1 if the contact is the user him/her self"],
 			"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"rel" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "The kind of the relation between the user and the contact"],
 			"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network protocol of the contact"],
+			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Network of the contact"],
+			"protocol" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Protocol of the contact"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Name that this contact is known by"],
 			"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Nick- and user name of the contact"],
-			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
+			"location" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
 			"keywords" => ["type" => "text", "comment" => "public keywords (interests) of the contact"],
 			"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
@@ -226,7 +241,8 @@ return [
 			"term-date" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last-item" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "date of the last post"],
 			"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
+			"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "Node-wide block status"],
+			"block_reason" => ["type" => "text", "comment" => "Node-wide block reason"],
 			"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "posts of the contact are readonly"],
 			"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "contact is a forum"],
@@ -527,6 +543,21 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["id"],
 			"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
+		]
+	],
+	"inbox-status" => [
+		"comment" => "Status of ActivityPub inboxes",
+		"fields" => [
+			"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "URL of the inbox"],
+			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Creation date of this entry"],
+			"success" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last successful delivery"],
+			"failure" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of the last failed delivery"],
+			"previous" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Previous delivery date"],
+			"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is the inbox archived?"],
+			"shared" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is it a shared inbox?"]
+		],
+		"indexes" => [
+			"PRIMARY" => ["url"]
 		]
 	],
 	"intro" => [
@@ -1103,26 +1134,6 @@ return [
 			"next_try" => ["next_try"],
 		]
 	],
-	"queue" => [
-		"comment" => "Queue for messages that couldn't be delivered",
-		"fields" => [
-			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Message receiver"],
-			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Receiver's network"],
-			"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unique GUID of the message"],
-			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date, when the message was created"],
-			"last" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Date of last trial"],
-			"next" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "Next retrial date"],
-			"retrial" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
-			"content" => ["type" => "mediumtext", "comment" => ""],
-			"batch" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-		],
-		"indexes" => [
-			"PRIMARY" => ["id"],
-			"last" => ["last"],
-			"next" => ["next"],
-		]
-	],
 	"register" => [
 		"comment" => "registrations requiring admin approval",
 		"fields" => [
@@ -1195,6 +1206,7 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["tid"],
+			"term_type" => ["term(64)", "type"],
 			"oid_otype_type_term" => ["oid", "otype", "type", "term(32)"],
 			"uid_otype_type_term_global_created" => ["uid", "otype", "type", "term(32)", "global", "created"],
 			"uid_otype_type_url" => ["uid", "otype", "type", "url(64)"],

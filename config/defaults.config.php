@@ -72,6 +72,10 @@ return [
 		// Deny public access to the local user directory.
 		'block_local_dir' => false,
 
+		// cron_interval (Integer)
+		// Minimal period in minutes between two calls of the "Cron" worker job.
+		'cron_interval' => 5,
+
 		// cache_driver (database|memcache|memcached|redis)
 		// Whether to use Memcache or Memcached or Redis to store temporary cache.
 		'cache_driver' => 'database',
@@ -214,6 +218,10 @@ return [
 		// If activated, all hashtags will point to the local server.
 		'local_tags' => false,
 
+		// logger_config (String)
+		// Sets the logging adapter of Friendica globally (monolog, syslog, stream)
+		'logger_config' => 'stream',
+
 		// max_batch_queue (Integer)
 		// Maximum number of batched queue items for a single contact before subsequent messages are discarded.
 		'max_batch_queue' => 1000,
@@ -335,6 +343,14 @@ return [
 		// Port number of the redis daemon.
 		'redis_port' => 6379,
 
+		// redis_db (Integer)
+		// The sub-database of redis (0 - 15 possible sub-databases)
+		'redis_db' => 0,
+
+		// redis_password (String)
+		// The authentication password for the redis database
+		'redis_password' => null,
+
 		// session_handler (database|cache|native)
 		// Whether to use Cache to store session data or to use PHP native session storage.
 		'session_handler' => 'database',
@@ -372,11 +388,6 @@ return [
 		// throttle_limit_month (Integer)
 		// Maximum number of posts that a user can send per month with the API. 0 to disable monthly throttling.
 		'throttle_limit_month' => 0,
-
-		// urlpath (String)
-		// If you are using a subdirectory of your domain you will need to put the relative path (from the root of your domain) here.
-		// For instance if your URL is 'http://example.com/directory/subdirectory', set urlpath to 'directory/subdirectory'.
-		'urlpath' => '',
 
 		// username_min_length (Integer)
 		// The minimum character length a username can be.

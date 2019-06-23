@@ -21,6 +21,7 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
+use Friendica\Util\XML;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Model\Profile;
@@ -188,6 +189,18 @@ class Transmitter
 	}
 
 	/**
+	 * Return the service array containing information the used software and it's url
+	 *
+	 * @return array with service data
+	 */
+	private static function getService()
+	{
+		return ['type' => 'Service',
+			'name' =>  FRIENDICA_PLATFORM . " '" . FRIENDICA_CODENAME . "' " . FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			'url' => BaseObject::getApp()->getBaseURL()];
+	}
+
+	/**
 	 * Return the ActivityPub profile of the given user
 	 *
 	 * @param integer $uid User ID
@@ -216,11 +229,6 @@ class Transmitter
 			return [];
 		}
 
-		// On old installations and never changed contacts this might not be filled
-		if (empty($contact['avatar'])) {
-			$contact['avatar'] = $contact['photo'];
-		}
-
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = $contact['url'];
 		$data['diaspora:guid'] = $user['guid'];
@@ -241,10 +249,29 @@ class Transmitter
 			'publicKeyPem' => $user['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => System::baseUrl() . '/inbox'];
 		$data['icon'] = ['type' => 'Image',
-			'url' => $contact['avatar']];
+			'url' => $contact['photo']];
+
+		$data['generator'] = self::getService();
 
 		// tags: https://kitty.town/@inmysocks/100656097926961126.json
 		return $data;
+	}
+
+	/**
+	 * @param string $username
+	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function getDeletedUser($username)
+	{
+		return [
+			'@context' => ActivityPub::CONTEXT,
+			'id' => System::baseUrl() . '/profile/' . $username,
+			'type' => 'Tombstone',
+			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+			'deleted' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
+		];
 	}
 
 	/**
@@ -364,16 +391,24 @@ class Transmitter
 			foreach ($terms as $term) {
 				$cid = Contact::getIdForURL($term['url'], $item['uid']);
 				if (!empty($cid) && in_array($cid, $receiver_list)) {
-					$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid, 'network' => $networks]);
-					if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+					$contact = DBA::selectFirst('contact', ['url', 'network', 'protocol'], ['id' => $cid]);
+					if (!DBA::isResult($contact) || (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB))) {
+						continue;
+					}
+
+					if (!empty($profile = APContact::getByURL($contact['url'], false))) {
 						$data['to'][] = $profile['url'];
 					}
 				}
 			}
 
 			foreach ($receiver_list as $receiver) {
-				$contact = DBA::selectFirst('contact', ['url', 'hidden'], ['id' => $receiver, 'network' => $networks]);
-				if (DBA::isResult($contact) && !empty($profile = APContact::getByURL($contact['url'], false))) {
+				$contact = DBA::selectFirst('contact', ['url', 'hidden', 'network', 'protocol'], ['id' => $receiver]);
+				if (!DBA::isResult($contact) || (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB))) {
+					continue;
+				}
+
+				if (!empty($profile = APContact::getByURL($contact['url'], false))) {
 					if ($contact['hidden'] || $always_bcc) {
 						$data['bcc'][] = $profile['url'];
 					} else {
@@ -383,46 +418,48 @@ class Transmitter
 			}
 		}
 
-		$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
-		while ($parent = Item::fetch($parents)) {
-			if ($parent['gravity'] == GRAVITY_PARENT) {
-				$profile = APContact::getByURL($parent['owner-link'], false);
-				if (!empty($profile)) {
-					if ($item['gravity'] != GRAVITY_PARENT) {
-						// Comments to forums are directed to the forum
-						// But comments to forums aren't directed to the followers collection
-						if ($profile['type'] == 'Group') {
-							$data['to'][] = $profile['url'];
+		if (!empty($item['parent'])) {
+			$parents = Item::select(['id', 'author-link', 'owner-link', 'gravity', 'uri'], ['parent' => $item['parent']]);
+			while ($parent = Item::fetch($parents)) {
+				if ($parent['gravity'] == GRAVITY_PARENT) {
+					$profile = APContact::getByURL($parent['owner-link'], false);
+					if (!empty($profile)) {
+						if ($item['gravity'] != GRAVITY_PARENT) {
+							// Comments to forums are directed to the forum
+							// But comments to forums aren't directed to the followers collection
+							if ($profile['type'] == 'Group') {
+								$data['to'][] = $profile['url'];
+							} else {
+								$data['cc'][] = $profile['url'];
+								if (!$item['private'] && !empty($actor_profile['followers'])) {
+									$data['cc'][] = $actor_profile['followers'];
+								}
+							}
 						} else {
-							$data['cc'][] = $profile['url'];
-							if (!$item['private']) {
+							// Public thread parent post always are directed to the followers
+							if (!$item['private'] && !$forum_mode) {
 								$data['cc'][] = $actor_profile['followers'];
 							}
 						}
+					}
+				}
+
+				// Don't include data from future posts
+				if ($parent['id'] >= $last_id) {
+					continue;
+				}
+
+				$profile = APContact::getByURL($parent['author-link'], false);
+				if (!empty($profile)) {
+					if (($profile['type'] == 'Group') || ($parent['uri'] == $item['thr-parent'])) {
+						$data['to'][] = $profile['url'];
 					} else {
-						// Public thread parent post always are directed to the followes
-						if (!$item['private'] && !$forum_mode) {
-							$data['cc'][] = $actor_profile['followers'];
-						}
+						$data['cc'][] = $profile['url'];
 					}
 				}
 			}
-
-			// Don't include data from future posts
-			if ($parent['id'] >= $last_id) {
-				continue;
-			}
-
-			$profile = APContact::getByURL($parent['author-link'], false);
-			if (!empty($profile)) {
-				if (($profile['type'] == 'Group') || ($parent['uri'] == $item['thr-parent'])) {
-					$data['to'][] = $profile['url'];
-				} else {
-					$data['cc'][] = $profile['url'];
-				}
-			}
+			DBA::close($parents);
 		}
-		DBA::close($parents);
 
 		$data['to'] = array_unique($data['to']);
 		$data['cc'] = array_unique($data['cc']);
@@ -466,6 +503,18 @@ class Transmitter
 	}
 
 	/**
+	 * Check if an inbox is archived
+	 *
+	 * @param string $url Inbox url
+	 *
+	 * @return boolean "true" if inbox is archived
+	 */
+	private static function archivedInbox($url)
+	{
+		return DBA::exists('inbox-status', ['url' => $url, 'archive' => true]);
+	}
+
+	/**
 	 * Fetches a list of inboxes of followers of a given user
 	 *
 	 * @param integer $uid      User ID
@@ -487,14 +536,18 @@ class Transmitter
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
 		}
 
-		$condition = ['uid' => $uid, 'network' => $networks, 'archive' => false, 'pending' => false];
+		$condition = ['uid' => $uid, 'archive' => false, 'pending' => false];
 
 		if (!empty($uid)) {
 			$condition['rel'] = [Contact::FOLLOWER, Contact::FRIEND];
 		}
 
-		$contacts = DBA::select('contact', ['url'], $condition);
+		$contacts = DBA::select('contact', ['url', 'network', 'protocol'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
+			if (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB)) {
+				continue;
+			}
+
 			if (Network::isUrlBlocked($contact['url'])) {
 				continue;
 			}
@@ -506,7 +559,9 @@ class Transmitter
 				} else {
 					$target = $profile['sharedinbox'];
 				}
-				$inboxes[$target] = $target;
+				if (!self::archivedInbox($target)) {
+					$inboxes[$target] = $target;
+				}
 			}
 		}
 		DBA::close($contacts);
@@ -563,13 +618,115 @@ class Transmitter
 						} else {
 							$target = $profile['sharedinbox'];
 						}
-						$inboxes[$target] = $target;
+						if (!self::archivedInbox($target)) {
+							$inboxes[$target] = $target;
+						}
 					}
 				}
 			}
 		}
 
 		return $inboxes;
+	}
+
+	/**
+	 * Creates an array in the structure of the item table for a given mail id
+	 *
+	 * @param integer $mail_id
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function ItemArrayFromMail($mail_id)
+	{
+		$mail = DBA::selectFirst('mail', [], ['id' => $mail_id]);
+
+		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
+
+		// Making the post more compatible for Mastodon by:
+		// - Making it a note and not an article (no title)
+		// - Moving the title into the "summary" field that is used as a "content warning"
+		$mail['body'] = '[abstract]' . $mail['title'] . "[/abstract]\n" . $mail['body'];
+		$mail['title'] = '';
+
+		$mail['author-link'] = $mail['owner-link'] = $mail['from-url'];
+		$mail['allow_cid'] = '<'.$mail['contact-id'].'>';
+		$mail['allow_gid'] = '';
+		$mail['deny_cid'] = '';
+		$mail['deny_gid'] = '';
+		$mail['private'] = true;
+		$mail['deleted'] = false;
+		$mail['edited'] = $mail['created'];
+		$mail['plink'] = $mail['uri'];
+		$mail['thr-parent'] = $reply['uri'];
+		$mail['gravity'] = ($mail['reply'] ? GRAVITY_COMMENT: GRAVITY_PARENT);
+
+		$mail['event-type'] = '';
+		$mail['attach'] = '';
+
+		$mail['parent'] = 0;
+
+		return $mail;
+	}
+
+	/**
+	 * Creates an activity array for a given mail id
+	 *
+	 * @param integer $mail_id
+	 * @param boolean $object_mode Is the activity item is used inside another object?
+	 *
+	 * @return array of activity
+	 * @throws \Exception
+	 */
+	public static function createActivityFromMail($mail_id, $object_mode = false)
+	{
+		$mail = self::ItemArrayFromMail($mail_id);
+		$object = self::createNote($mail);
+
+		$object['to'] = $object['cc'];
+		unset($object['cc']);
+
+		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => 'test']];
+
+		if (!$object_mode) {
+			$data = ['@context' => ActivityPub::CONTEXT];
+		} else {
+			$data = [];
+		}
+
+		$data['id'] = $mail['uri'] . '#Create';
+		$data['type'] = 'Create';
+		$data['actor'] = $mail['author-link'];
+		$data['published'] = DateTimeFormat::utc($mail['created'] . '+00:00', DateTimeFormat::ATOM);
+		$data['instrument'] = self::getService();
+		$data = array_merge($data, self::createPermissionBlockForItem($mail, true));
+
+		if (empty($data['to']) && !empty($data['cc'])) {
+			$data['to'] = $data['cc'];
+		}
+
+		if (empty($data['to']) && !empty($data['bcc'])) {
+			$data['to'] = $data['bcc'];
+		}
+
+		unset($data['cc']);
+		unset($data['bcc']);
+
+		$object['to'] = $data['to'];
+		unset($object['cc']);
+		unset($object['bcc']);
+
+		$data['directMessage'] = true;
+
+		$data['object'] = $object;
+
+		$owner = User::getOwnerDataById($mail['uid']);
+
+		if (!$object_mode && !empty($owner)) {
+			return LDSignature::sign($data, $owner);
+		} else {
+			return $data;
+		}
 	}
 
 	/**
@@ -611,6 +768,8 @@ class Transmitter
 			$type = 'TentativeAccept';
 		} elseif ($item['verb'] == ACTIVITY_FOLLOW) {
 			$type = 'Follow';
+		} elseif ($item['verb'] == ACTIVITY_TAG) {
+			$type = 'Add';
 		} else {
 			$type = '';
 		}
@@ -676,7 +835,7 @@ class Transmitter
 			$condition = ['item-uri' => $item['uri'], 'protocol' => Conversation::PARCEL_ACTIVITYPUB];
 			$conversation = DBA::selectFirst('conversation', ['source'], $condition);
 			if (DBA::isResult($conversation)) {
-				$data = json_decode($conversation['source']);
+				$data = json_decode($conversation['source'], true);
 				if (!empty($data)) {
 					return $data;
 				}
@@ -708,12 +867,14 @@ class Transmitter
 
 		$data['published'] = DateTimeFormat::utc($item['created'] . '+00:00', DateTimeFormat::ATOM);
 
-		$data['instrument'] = ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()];
+		$data['instrument'] = self::getService();
 
 		$data = array_merge($data, self::createPermissionBlockForItem($item, false));
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
+		} elseif ($data['type'] == 'Add') {
+			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
 			$data = self::createAnnounce($item, $data);
 		} elseif ($data['type'] == 'Follow') {
@@ -975,7 +1136,7 @@ class Transmitter
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
-		$event['content'] = BBCode::convert($item['event-desc'], false, 7);
+		$event['content'] = BBCode::convert($item['event-desc'], false, 9);
 		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
 
 		if (!$item['event-nofinish']) {
@@ -1065,7 +1226,7 @@ class Transmitter
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-			$data['content'] = BBCode::convert($body, false, 7);
+			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
@@ -1086,6 +1247,30 @@ class Transmitter
 		}
 
 		$data = array_merge($data, $permission_block);
+
+		return $data;
+	}
+
+	/**
+	 * Creates an an "add tag" entry
+	 *
+	 * @param array $item
+	 * @param array $data activity data
+	 *
+	 * @return array with activity data for adding tags
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function createAddTag($item, $data)
+	{
+		$object = XML::parseString($item['object'], false);
+		$target = XML::parseString($item["target"], false);
+
+		$data['diaspora:guid'] = $item['guid'];
+		$data['actor'] = $item['author-link'];
+		$data['target'] = (string)$target->id;
+		$data['summary'] = BBCode::toPlaintext($item['body']);
+		$data['object'] = ['id' => (string)$object->id, 'type' => 'tag', 'name' => (string)$object->title, 'content' => (string)$object->content];
 
 		return $data;
 	}
@@ -1166,7 +1351,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $suggestion['url'],
 			'content' => $suggestion['note'],
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -1195,7 +1380,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $owner['url'],
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -1234,7 +1419,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => $owner['url'],
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
 
@@ -1265,7 +1450,7 @@ class Transmitter
 			'actor' => $owner['url'],
 			'object' => self::getProfile($uid),
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [$profile['followers']],
 			'cc' => []];
 
@@ -1289,6 +1474,10 @@ class Transmitter
 	public static function sendActivity($activity, $target, $uid, $id = '')
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 
@@ -1301,7 +1490,7 @@ class Transmitter
 			'type' => $activity,
 			'actor' => $owner['url'],
 			'object' => $profile['url'],
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
 		Logger::log('Sending activity ' . $activity . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
@@ -1325,6 +1514,10 @@ class Transmitter
 	public static function sendFollowObject($object, $target, $uid = 0)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		if (empty($uid)) {
 			// Fetch the list of administrators
@@ -1350,7 +1543,7 @@ class Transmitter
 			'type' => 'Follow',
 			'actor' => $owner['url'],
 			'object' => $object,
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
 		Logger::log('Sending follow ' . $object . ' to ' . $target . ' for user ' . $uid, Logger::DEBUG);
@@ -1371,19 +1564,26 @@ class Transmitter
 	public static function sendContactAccept($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => [
+				'id' => (string)$id,
+				'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']],
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+				'object' => $owner['url']
+			],
+			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::debug('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1401,19 +1601,26 @@ class Transmitter
 	public static function sendContactReject($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => [
+				'id' => (string)$id,
+				'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']],
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+				'object' => $owner['url']
+			],
+			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1431,6 +1638,10 @@ class Transmitter
 	public static function sendContactUndo($target, $cid, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$object_id = self::activityIDFromContact($cid);
 		if (empty($object_id)) {
@@ -1447,7 +1658,7 @@ class Transmitter
 			'object' => ['id' => $object_id, 'type' => 'Follow',
 				'actor' => $owner['url'],
 				'object' => $profile['url']],
-			'instrument' => ['type' => 'Service', 'name' => BaseObject::getApp()->getUserAgent()],
+			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
 		Logger::log('Sending undo to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);

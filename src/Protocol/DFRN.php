@@ -25,10 +25,12 @@ use Friendica\Model\Conversation;
 use Friendica\Model\Event;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
+use Friendica\Model\Mail;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Object\Image;
+use Friendica\Util\BaseURL;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -358,7 +360,7 @@ class DFRN
 		$ret = Item::select(Item::DELIVER_FIELDLIST, $condition);
 		$items = Item::inArray($ret);
 		if (!DBA::isResult($items)) {
-			exit();
+			return '';
 		}
 
 		$item = $items[0];
@@ -366,7 +368,7 @@ class DFRN
 		if ($item['uid'] != 0) {
 			$owner = User::getOwnerDataById($item['uid']);
 			if (!$owner) {
-				exit();
+				return '';
 			}
 		} else {
 			$owner = ['uid' => 0, 'nick' => 'feed-item'];
@@ -399,7 +401,7 @@ class DFRN
 				}
 			}
 		} else {
-			$root = self::entry($doc, $type, $item, $owner, true, 0, true);
+			self::entry($doc, $type, $item, $owner, true, 0, true);
 		}
 
 		$atom = trim($doc->saveXML());
@@ -986,7 +988,7 @@ class DFRN
 		}
 
 		// Add conversation data. This is used for OStatus
-		$conversation_href = System::baseUrl()."/display/".$owner["nick"]."/".$item["parent"];
+		$conversation_href = System::baseUrl()."/display/".$item["parent-guid"];
 		$conversation_uri = $conversation_href;
 
 		if (isset($parent_item)) {
@@ -1208,13 +1210,13 @@ class DFRN
 		$ssl_val = intval(Config::get('system', 'ssl_policy'));
 
 		switch ($ssl_val) {
-			case SSL_POLICY_FULL:
+			case BaseURL::SSL_POLICY_FULL:
 				$ssl_policy = 'full';
 				break;
-			case SSL_POLICY_SELFSIGN:
+			case BaseURL::SSL_POLICY_SELFSIGN:
 				$ssl_policy = 'self';
 				break;
-			case SSL_POLICY_NONE:
+			case BaseURL::SSL_POLICY_NONE:
 			default:
 				$ssl_policy = 'none';
 				break;
@@ -1227,7 +1229,6 @@ class DFRN
 		$curlResult = Network::curl($url);
 
 		if ($curlResult->isTimeout()) {
-			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
@@ -1235,29 +1236,24 @@ class DFRN
 
 		$curl_stat = $curlResult->getReturnCode();
 		if (empty($curl_stat)) {
-			Contact::markForArchival($contact);
 			return -3; // timed out
 		}
 
 		Logger::log('dfrn_deliver: ' . $xml, Logger::DATA);
 
 		if (empty($xml)) {
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: no valid XML returned');
 			Logger::log('dfrn_deliver: returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!is_object($res) || (intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
-			Contact::markForArchival($contact);
-
 			if (empty($res->status)) {
 				$status = 3;
 			} else {
@@ -1313,7 +1309,6 @@ class DFRN
 		if ($final_dfrn_id != $orig_id) {
 			Logger::log('dfrn_deliver: wrong dfrn_id.');
 			// did not decode properly - cannot trust this site
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
@@ -1349,7 +1344,6 @@ class DFRN
 
 				default:
 					Logger::log("rino: invalid requested version '$rino_remote_version'");
-					Contact::markForArchival($contact);
 					return -8;
 			}
 
@@ -1389,26 +1383,22 @@ class DFRN
 
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
-			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && stristr($postResult->getHeader(), 'retry-after')) {
-			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: phase 2: no valid XML returned');
 			Logger::log('dfrn_deliver: phase 2: returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
-			Contact::markForArchival($contact);
 			return -11;
 		}
 
@@ -1419,10 +1409,6 @@ class DFRN
 
 		if (!empty($res->message)) {
 			Logger::log('Delivery returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
-		}
-
-		if (($res->status >= 200) && ($res->status <= 299)) {
-			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
@@ -1452,7 +1438,6 @@ class DFRN
 
 				if (empty($contact['addr'])) {
 					Logger::log('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
-					Contact::markForArchival($contact);
 					return -21;
 				}
 			}
@@ -1460,7 +1445,6 @@ class DFRN
 			$fcontact = Diaspora::personByHandle($contact['addr']);
 			if (empty($fcontact)) {
 				Logger::log('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
-				Contact::markForArchival($contact);
 				return -22;
 			}
 			$pubkey = $fcontact['pubkey'];
@@ -1489,35 +1473,27 @@ class DFRN
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			Logger::log('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
-			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
-			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
 			Logger::log('Returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (empty($res->status)) {
-			Contact::markForArchival($contact);
 			return -23;
 		}
 
 		if (!empty($res->message)) {
 			Logger::log('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
-		}
-
-		if (($res->status >= 200) && ($res->status <= 299)) {
-			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
@@ -1864,7 +1840,6 @@ class DFRN
 	{
 		Logger::log("Processing mails");
 
-		/// @TODO Rewrite this to one statement
 		$msg = [];
 		$msg["uid"] = $importer["importer_uid"];
 		$msg["from-name"] = $xpath->query("dfrn:sender/dfrn:name/text()", $mail)->item(0)->nodeValue;
@@ -1876,34 +1851,8 @@ class DFRN
 		$msg["created"] = DateTimeFormat::utc($xpath->query("dfrn:sentdate/text()", $mail)->item(0)->nodeValue);
 		$msg["title"] = $xpath->query("dfrn:subject/text()", $mail)->item(0)->nodeValue;
 		$msg["body"] = $xpath->query("dfrn:content/text()", $mail)->item(0)->nodeValue;
-		$msg["seen"] = 0;
-		$msg["replied"] = 0;
 
-		DBA::insert('mail', $msg);
-
-		$msg["id"] = DBA::lastInsertId();
-
-		// send notifications.
-		/// @TODO Arange this mess
-		$notif_params = [
-			"type" => NOTIFY_MAIL,
-			"notify_flags" => $importer["notify-flags"],
-			"language" => $importer["language"],
-			"to_name" => $importer["username"],
-			"to_email" => $importer["email"],
-			"uid" => $importer["importer_uid"],
-			"item" => $msg,
-			"parent" => $msg["parent-uri"],
-			"source_name" => $msg["from-name"],
-			"source_link" => $importer["url"],
-			"source_photo" => $importer["thumb"],
-			"verb" => ACTIVITY_POST,
-			"otype" => "mail"
-		];
-
-		notification($notif_params);
-
-		Logger::log("Mail is processed, notification was sent.");
+		Mail::insert($msg);
 	}
 
 	/**
@@ -1918,17 +1867,17 @@ class DFRN
 	 */
 	private static function processSuggestion($xpath, $suggestion, $importer)
 	{
-		Logger::log("Processing suggestions");
+		Logger::log('Processing suggestions');
 
 		/// @TODO Rewrite this to one statement
 		$suggest = [];
-		$suggest["uid"] = $importer["importer_uid"];
-		$suggest["cid"] = $importer["id"];
-		$suggest["url"] = $xpath->query("dfrn:url/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["name"] = $xpath->query("dfrn:name/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["photo"] = $xpath->query("dfrn:photo/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["request"] = $xpath->query("dfrn:request/text()", $suggestion)->item(0)->nodeValue;
-		$suggest["body"] = $xpath->query("dfrn:note/text()", $suggestion)->item(0)->nodeValue;
+		$suggest['uid'] = $importer['importer_uid'];
+		$suggest['cid'] = $importer['id'];
+		$suggest['url'] = $xpath->query('dfrn:url/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['name'] = $xpath->query('dfrn:name/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['photo'] = $xpath->query('dfrn:photo/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['request'] = $xpath->query('dfrn:request/text()', $suggestion)->item(0)->nodeValue;
+		$suggest['body'] = $xpath->query('dfrn:note/text()', $suggestion)->item(0)->nodeValue;
 
 		// Does our member already have a friend matching this description?
 
@@ -1939,22 +1888,19 @@ class DFRN
 		 *
 		 * @see https://github.com/friendica/friendica/pull/3254#discussion_r107315246
 		 */
-		$condition = ['name' => $suggest["name"], 'nurl' => Strings::normaliseLink($suggest["url"]),
-			'uid' => $suggest["uid"]];
+		$condition = ['nurl' => Strings::normaliseLink($suggest['url']), 'uid' => $suggest['uid']];
 		if (DBA::exists('contact', $condition)) {
 			return false;
 		}
-
 		// Do we already have an fcontact record for this person?
 
 		$fid = 0;
-		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
-		$fcontact = DBA::selectFirst('fcontact', ['id'], $condition);
+		$fcontact = DBA::selectFirst('fcontact', ['id'], ['url' => $suggest['url']]);
 		if (DBA::isResult($fcontact)) {
-			$fid = $fcontact["id"];
+			$fid = $fcontact['id'];
 
 			// OK, we do. Do we already have an introduction for this person?
-			if (DBA::exists('intro', ['uid' => $suggest["uid"], 'fid' => $fid])) {
+			if (DBA::exists('intro', ['uid' => $suggest['uid'], 'fid' => $fid])) {
 				/*
 				 * The valid result means the friend we're about to send a friend
 				 * suggestion already has them in their contact, which means no further
@@ -1965,58 +1911,44 @@ class DFRN
 				return false;
 			}
 		}
-		if (!$fid) {
-			$r = q(
-				"INSERT INTO `fcontact` (`name`,`url`,`photo`,`request`) VALUES ('%s', '%s', '%s', '%s')",
-				DBA::escape($suggest["name"]),
-				DBA::escape($suggest["url"]),
-				DBA::escape($suggest["photo"]),
-				DBA::escape($suggest["request"])
-			);
-			$fid = $r[0]["id"];
-		}
 
-		$condition = ['url' => $suggest["url"], 'name' => $suggest["name"], 'request' => $suggest["request"]];
-		$fcontact = DBA::selectFirst('fcontact', ['id'], $condition);
+		if (!$fid) {
+			$fields = ['name' => $suggest['name'], 'url' => $suggest['url'],
+				'photo' => $suggest['photo'], 'request' => $suggest['request']];
+			DBA::insert('fcontact', $fields);
+			$fid = DBA::lastInsertId();
+		}
 
 		/*
 		 * If no record in fcontact is found, below INSERT statement will not
 		 * link an introduction to it.
 		 */
-		if (!DBA::isResult($fcontact)) {
+		if (empty($fid)) {
 			// Database record did not get created. Quietly give up.
 			exit();
 		}
 
 		$hash = Strings::getRandomHex();
 
-		q(
-			"INSERT INTO `intro` (`uid`, `fid`, `contact-id`, `note`, `hash`, `datetime`, `blocked`)
-			VALUES(%d, %d, %d, '%s', '%s', '%s', %d)",
-			intval($suggest["uid"]),
-			intval($fid),
-			intval($suggest["cid"]),
-			DBA::escape($suggest["body"]),
-			DBA::escape($hash),
-			DBA::escape(DateTimeFormat::utcNow()),
-			intval(0)
-		);
+		$fields = ['uid' => $suggest['uid'], 'fid' => $fid, 'contact-id' => $suggest['cid'],
+			'note' => $suggest['body'], 'hash' => $hash, 'datetime' => DateTimeFormat::utcNow(), 'blocked' => false];
+		DBA::insert('intro', $fields);
 
 		notification(
 			[
-				"type"         => NOTIFY_SUGGEST,
-				"notify_flags" => $importer["notify-flags"],
-				"language"     => $importer["language"],
-				"to_name"      => $importer["username"],
-				"to_email"     => $importer["email"],
-				"uid"          => $importer["importer_uid"],
-				"item"         => $suggest,
-				"link"         => System::baseUrl()."/notifications/intros",
-				"source_name"  => $importer["name"],
-				"source_link"  => $importer["url"],
-				"source_photo" => $importer["photo"],
-				"verb"         => ACTIVITY_REQ_FRIEND,
-				"otype"        => "intro"]
+				'type'         => NOTIFY_SUGGEST,
+				'notify_flags' => $importer['notify-flags'],
+				'language'     => $importer['language'],
+				'to_name'      => $importer['username'],
+				'to_email'     => $importer['email'],
+				'uid'          => $importer['importer_uid'],
+				'item'         => $suggest,
+				'link'         => System::baseUrl().'/notifications/intros',
+				'source_name'  => $importer['name'],
+				'source_link'  => $importer['url'],
+				'source_photo' => $importer['photo'],
+				'verb'         => ACTIVITY_REQ_FRIEND,
+				'otype'        => 'intro']
 		);
 
 		return true;
@@ -2211,14 +2143,13 @@ class DFRN
 	/**
 	 * @brief Send a "poke"
 	 *
-	 * @param array $item      the new item record
+	 * @param array $item      The new item record
 	 * @param array $importer  Record of the importer user mixed with contact of the content
-	 * @param int   $posted_id The record number of item record that was just posted
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @todo  set proper type-hints (array?)
 	 */
-	private static function doPoke($item, $importer, $posted_id)
+	private static function doPoke(array $item, array $importer)
 	{
 		$verb = urldecode(substr($item["verb"], strpos($item["verb"], "#")+1));
 		if (!$verb) {
@@ -2243,8 +2174,6 @@ class DFRN
 			if ($Blink && Strings::compareLink($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
 				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
-				$item['id'] = $posted_id;
-
 				$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => $importer["importer_uid"]]);
 				$item["parent"] = $parent['id'];
 
@@ -2258,7 +2187,7 @@ class DFRN
 					"to_email"     => $importer["email"],
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
-					"link"         => System::baseUrl()."/display/".urlencode(Item::getGuidById($posted_id)),
+					"link"         => System::baseUrl()."/display/".urlencode($item['guid']),
 					"source_name"  => $author["name"],
 					"source_link"  => $author["url"],
 					"source_photo" => $author["thumb"],
@@ -2287,18 +2216,16 @@ class DFRN
 	{
 		Logger::log("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, Logger::DEBUG);
 
-		if (($entrytype == DFRN::TOP_LEVEL)) {
+		if (($entrytype == DFRN::TOP_LEVEL) && !empty($importer['id'])) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($importer["id"]));
-			$contact = $r[0];
-			$nickname = $contact["nick"];
+			$contact = Contact::select([], ['id' => $importer['id']]);
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
 			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
 				Logger::log("New follower");
-				Contact::addRelationship($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW)) {
@@ -2308,7 +2235,7 @@ class DFRN
 			}
 			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				Logger::log("New friend request");
-				Contact::addRelationship($importer, $contact, $item, $nickname, true);
+				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFRIEND)) {
@@ -2753,7 +2680,8 @@ class DFRN
 			}
 
 			if (stristr($item["verb"], ACTIVITY_POKE)) {
-				self::doPoke($item, $importer, $posted_id);
+				$item['id'] = $posted_id;
+				self::doPoke($item, $importer);
 			}
 		}
 	}
@@ -2971,7 +2899,12 @@ class DFRN
 	{
 		// prevent looping
 		if (!empty($_REQUEST['redir'])) {
-			return;
+			Logger::log('autoRedir might be looping because redirect has been redirected', Logger::DEBUG);
+			// looping prevention also appears to sometimes prevent authentication for images
+			// because browser may have multiple connections open and load an image on a connection
+			// whose session wasn't updated when a previous redirect authenticated
+			// Leaving commented in case looping reappears
+			//return;
 		}
 
 		if ((! $contact_nick) || ($contact_nick === $a->user['nickname'])) {
@@ -2995,6 +2928,9 @@ class DFRN
 			$baseurl = substr($baseurl, $domain_st + 3);
 			$nurl = Strings::normaliseLink($baseurl);
 
+			$r = User::getByNickname($contact_nick, ["uid"]);
+			$contact_uid = $r["uid"];
+
 			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
 			$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
 					AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
@@ -3003,8 +2939,18 @@ class DFRN
 				DBA::escape($baseurl),
 				DBA::escape($nurl)
 			);
-			if ((! DBA::isResult($r)) || $r[0]['id'] == remote_user()) {
+			if ((! DBA::isResult($r))) {
 				return;
+			}
+			// test if redirect authentication already succeeded
+			// Note that "contact" in the sense used in the $contact_nick argument to this function
+			// and the sense in the $remote[]["cid"] in the session are opposite.
+			// In the session variable the user currently fetching is the contact
+			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
+			foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
+				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
+					return;
+				}
 			}
 
 			$r = q("SELECT * FROM contact WHERE nick = '%s'

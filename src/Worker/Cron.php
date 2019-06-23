@@ -30,9 +30,6 @@ class Cron
 		$last = Config::get('system', 'last_cron');
 
 		$poll_interval = intval(Config::get('system', 'cron_interval'));
-		if (! $poll_interval) {
-			$poll_interval = 10;
-		}
 
 		if ($last) {
 			$next = $last + ($poll_interval * 60);
@@ -46,9 +43,6 @@ class Cron
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
 		Hook::fork($a->queue['priority'], "cron");
-
-		// run queue delivery process in the background
-		Worker::add(PRIORITY_NEGLIGIBLE, "Queue");
 
 		// run the process to discover global contacts in the background
 		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
@@ -183,9 +177,10 @@ class Cron
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
+			DBA::escape(Protocol::ACTIVITYPUB),
 			DBA::escape(Protocol::DFRN),
 			DBA::escape(Protocol::OSTATUS),
 			DBA::escape(Protocol::DIASPORA),
@@ -219,8 +214,8 @@ class Cron
 				$contact['priority'] = (!is_null($poll_interval) ? intval($poll_interval) : 3);
 			}
 
-			// Check Diaspora contacts or followers once a week
-			if (($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER)) {
+			// Check ActivityPub and Diaspora contacts or followers once a week
+			if (in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::DIASPORA]) || ($contact["rel"] == Contact::FOLLOWER)) {
 				$contact['priority'] = 4;
 			}
 

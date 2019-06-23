@@ -1,12 +1,11 @@
 favicon.*
-.htconfig.php
-.htpreconfig.php
+/.htconfig.php
+/.htpreconfig.php
 \#*
 *.log
 *.out
 *.version*
 home.html
-
 *~
 robots.txt
 
@@ -74,3 +73,6 @@ venv/
 
 #ignore filesystem storage default path
 /storage
+
+#Ignore log folder
+/log

@@ -17,7 +17,7 @@ use Friendica\Util\Strings;
 function follow_post(App $a)
 {
 	if (!local_user()) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	if (isset($_REQUEST['cancel'])) {
@@ -91,32 +91,34 @@ function follow_content(App $a)
 
 	$ret = Probe::uri($url);
 
-	if (($ret['network'] == Protocol::DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
+	$protocol = Contact::getProtocol($ret['url'], $ret['network']);
+
+	if (($protocol == Protocol::DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
 		notice(L10n::t("Diaspora support isn't enabled. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
 	}
 
-	if (($ret['network'] == Protocol::OSTATUS) && Config::get('system', 'ostatus_disabled')) {
+	if (($protocol == Protocol::OSTATUS) && Config::get('system', 'ostatus_disabled')) {
 		notice(L10n::t("OStatus support is disabled. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
 	}
 
-	if ($ret['network'] == Protocol::PHANTOM) {
+	if ($protocol == Protocol::PHANTOM) {
 		notice(L10n::t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
 	}
 
-	if ($ret['network'] == Protocol::MAIL) {
+	if ($protocol == Protocol::MAIL) {
 		$ret['url'] = $ret['addr'];
 	}
 
-	if (($ret['network'] === Protocol::DFRN) && !DBA::isResult($r)) {
+	if (($protocol === Protocol::DFRN) && !DBA::isResult($r)) {
 		$request = $ret['request'];
 		$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
 	} else {
@@ -147,7 +149,7 @@ function follow_content(App $a)
 		$gcontact_id = $r[0]['id'];
 	}
 
-	if ($ret['network'] === Protocol::DIASPORA) {
+	if ($protocol === Protocol::DIASPORA) {
 		$r[0]['location'] = '';
 		$r[0]['about'] = '';
 	}

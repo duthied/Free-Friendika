@@ -31,7 +31,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2019.04');
+define('FRIENDICA_VERSION',      '2019.06');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -81,17 +81,6 @@ define('MAX_IMAGE_LENGTH',        -1);
  * Not yet used
  */
 define('DEFAULT_DB_ENGINE',  'InnoDB');
-
-/**
- * @name SSL Policy
- *
- * SSL redirection policies
- * @{
- */
-define('SSL_POLICY_NONE',         0);
-define('SSL_POLICY_FULL',         1);
-define('SSL_POLICY_SELFSIGN',     2);
-/* @}*/
 
 /** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
 define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
@@ -204,6 +193,7 @@ define('NAMESPACE_ZOT',             'http://purl.org/zot');
 define('NAMESPACE_DFRN',            'http://purl.org/macgirvin/dfrn/1.0');
 define('NAMESPACE_THREAD',          'http://purl.org/syndication/thread/1.0');
 define('NAMESPACE_TOMB',            'http://purl.org/atompub/tombstones/1.0');
+define('NAMESPACE_ACTIVITY2',       'https://www.w3.org/ns/activitystreams#');
 define('NAMESPACE_ACTIVITY',        'http://activitystrea.ms/spec/1.0/');
 define('NAMESPACE_ACTIVITY_SCHEMA', 'http://activitystrea.ms/schema/1.0/');
 define('NAMESPACE_MEDIA',           'http://purl.org/syndication/atommedia');
@@ -246,6 +236,7 @@ define('ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite');
 define('ACTIVITY_UNFAVORITE',  NAMESPACE_ACTIVITY_SCHEMA . 'unfavorite');
 define('ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share');
 define('ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete');
+define('ACTIVITY2_ANNOUNCE',   NAMESPACE_ACTIVITY2       . 'Announce');
 
 define('ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke');
 
@@ -541,39 +532,6 @@ function is_site_admin()
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
 	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
-}
-
-/**
- * @brief Returns querystring as string from a mapped array.
- *
- * @param array  $params mapped array with query parameters
- * @param string $name   of parameter, default null
- *
- * @return string
- */
-function build_querystring($params, $name = null)
-{
-	$ret = "";
-	foreach ($params as $key => $val) {
-		if (is_array($val)) {
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name == null) {
-				$ret .= build_querystring($val, $key);
-			} else {
-				$ret .= build_querystring($val, $name . "[$key]");
-			}
-		} else {
-			$val = urlencode($val);
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name != null) {
-				/// @TODO two string concated, can be merged to one
-				$ret .= $name . "[$key]" . "=$val&";
-			} else {
-				$ret .= "$key=$val&";
-			}
-		}
-	}
-	return $ret;
 }
 
 function explode_querystring($query)

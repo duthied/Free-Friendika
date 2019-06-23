@@ -13,6 +13,7 @@ use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\Delivery;
 
 /**
  *
@@ -334,7 +335,7 @@ function update_1298()
 					DBA::update('profile', [$translateKey => $key], ['id' => $data['id']]);
 					Logger::notice('Updated contact', ['action' => 'update', 'contact' => $data['id'], "$translateKey" => $key,
 						'was' => $data[$translateKey]]);
-					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);		
+					Worker::add(PRIORITY_LOW, 'ProfileUpdate', $data['id']);
 					Contact::updateSelfFromUserID($data['id']);
 					GContact::updateForUser($data['id']);
 					$success++;
@@ -343,6 +344,28 @@ function update_1298()
 		}
 
 		Logger::notice($translateKey . " fix completed", ['action' => 'update', 'translateKey' => $translateKey, 'Success' => $success, 'Fail' => $fail ]);
+	}
+	return Update::SUCCESS;
+}
+
+function update_1309()
+{
+	$queue = DBA::select('queue', ['id', 'cid', 'guid']);
+	while ($entry = DBA::fetch($queue)) {
+		$contact = DBA::selectFirst('contact', ['uid'], ['id' => $entry['cid']]);
+		if (!DBA::isResult($contact)) {
+			continue;
+		}
+
+		$item = Item::selectFirst(['id', 'gravity'], ['uid' => $contact['uid'], 'guid' => $entry['guid']]);
+		if (!DBA::isResult($item)) {
+			continue;
+		}
+
+		$deliver_options = ['priority' => PRIORITY_MEDIUM, 'dont_fork' => true];
+		Worker::add($deliver_options, 'Delivery', Delivery::POST, $item['id'], $entry['cid']);
+		Logger::info('Added delivery worker', ['command' => $cmd, 'item' => $item['id'], 'contact' => $entry['cid']]);
+		DBA::delete('queue', ['id' => $entry['id']]);
 	}
 	return Update::SUCCESS;
 }

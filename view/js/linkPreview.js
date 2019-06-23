@@ -232,7 +232,7 @@
 			if (!isExtern) {
 				return;
 			}
-			var bbcode = '\n[video]' + json.url + '[/video]\n';
+			var bbcode = '\n[video]' + data.url + '[/video]\n';
 			addeditortext(bbcode);
 		};
 

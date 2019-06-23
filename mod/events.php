@@ -21,6 +21,7 @@ use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Friendica\Worker\Delivery;
 
 function events_init(App $a)
 {
@@ -195,7 +196,7 @@ function events_post(App $a)
 	$item_id = Event::store($datarray);
 
 	if (!$cid) {
-		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item_id);
 	}
 
 	$a->internalRedirect('events');
@@ -237,7 +238,6 @@ function events_content(App $a)
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
 	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
-		'$baseurl' => System::baseUrl(),
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
@@ -247,7 +247,7 @@ function events_content(App $a)
 	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
-		$tabs = Profile::getTabs($a, true);
+		$tabs = Profile::getTabs($a, 'events', true);
 	}
 
 	$mode = 'view';
@@ -379,7 +379,6 @@ function events_content(App $a)
 		}
 
 		$o = Renderer::replaceMacros($tpl, [
-			'$baseurl'   => System::baseUrl(),
 			'$tabs'      => $tabs,
 			'$title'     => L10n::t('Events'),
 			'$view'      => L10n::t('View'),

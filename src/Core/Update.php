@@ -2,6 +2,7 @@
 
 namespace Friendica\Core;
 
+use Friendica\App;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Util\Strings;
@@ -14,13 +15,20 @@ class Update
 	/**
 	 * @brief Function to check if the Database structure needs an update.
 	 *
-	 * @param string $basePath The base path of this application
-	 * @param boolean $via_worker boolean Is the check run via the worker?
+	 * @param string   $basePath   The base path of this application
+	 * @param boolean  $via_worker Is the check run via the worker?
+	 * @param App\Mode $mode       The current app mode
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function check($basePath, $via_worker)
+	public static function check($basePath, $via_worker, App\Mode $mode)
 	{
 		if (!DBA::connected()) {
+			return;
+		}
+
+		// Don't check the status if the last update was failed
+		if (Config::get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
 			return;
 		}
 
@@ -101,7 +109,9 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'pre_update');
 						if (!$r) {
-							break;
+							Config::set('system', 'update', Update::FAILED);
+							Lock::release('dbupdate');
+							return $r;
 						}
 					}
 
@@ -115,6 +125,7 @@ class Update
 							);
 						}
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
+						Config::set('system', 'update', Update::FAILED);
 						Lock::release('dbupdate');
 						return $retval;
 					} else {
@@ -127,7 +138,9 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'update');
 						if (!$r) {
-							break;
+							Config::set('system', 'update', Update::FAILED);
+							Lock::release('dbupdate');
+							return $r;
 						}
 					}
 
@@ -136,6 +149,7 @@ class Update
 						self::updateSuccessfull($stored, $current);
 					}
 
+					Config::set('system', 'update', Update::SUCCESS);
 					Lock::release('dbupdate');
 				}
 			}
@@ -252,6 +266,7 @@ class Update
 					'uid'      => $admin['uid'],
 					'type'     => SYSTEM_EMAIL,
 					'to_email' => $admin['email'],
+					'subject'  => l10n::t('[Friendica Notify] Database update'),
 					'preamble' => $preamble,
 					'body'     => $body,
 					'language' => $lang]
@@ -290,6 +305,7 @@ class Update
 						'uid' => $admin['uid'],
 						'type' => SYSTEM_EMAIL,
 						'to_email' => $admin['email'],
+						'subject'  => l10n::t('[Friendica Notify] Database update'),
 						'preamble' => $preamble,
 						'body' => $preamble,
 						'language' => $lang]

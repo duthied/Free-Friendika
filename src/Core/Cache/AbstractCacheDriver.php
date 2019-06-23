@@ -14,14 +14,25 @@ use Friendica\BaseObject;
 abstract class AbstractCacheDriver extends BaseObject
 {
 	/**
+	 * Returns the prefix (to avoid namespace conflicts)
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	protected function getPrefix()
+	{
+		// We fetch with the hostname as key to avoid problems with other applications
+		return self::getApp()->getHostName();
+	}
+
+	/**
 	 * @param string $key The original key
 	 * @return string        The cache key used for the cache
 	 * @throws \Exception
 	 */
 	protected function getCacheKey($key)
 	{
-		// We fetch with the hostname as key to avoid problems with other applications
-		return self::getApp()->getHostName() . ":" . $key;
+		return $this->getPrefix() . ":" . $key;
 	}
 
 	/**

@@ -139,7 +139,6 @@ function lostpass_generate_password($user)
 			'$lbl5'    => '<a href="' . System::baseUrl() . '">' . L10n::t('click here to login') . '</a>.',
 			'$lbl6'    => L10n::t('Your password may be changed from the <em>Settings</em> page after successful login.'),
 			'$newpass' => $new_password,
-			'$baseurl' => System::baseUrl()
 		]);
 
 		info("Your password has been reset." . EOL);

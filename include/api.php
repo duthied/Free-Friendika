@@ -11,7 +11,6 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -19,6 +18,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -250,7 +250,7 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	Authentication::setAuthenticatedSessionForUser($record);
+	Session::setAuthenticatedForUser($a, $record);
 
 	$_SESSION["allow_api"] = true;
 
@@ -361,10 +361,10 @@ function api_call(App $a)
 			}
 		}
 
-		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call']);
+		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => $a->query_string]);
 		throw new NotImplementedException();
 	} catch (HTTPException $e) {
-		header("HTTP/1.1 {$e->httpcode} {$e->httpdesc}");
+		header("HTTP/1.1 {$e->getCode()} {$e->httpdesc}");
 		return api_error($type, $e);
 	}
 }
@@ -384,7 +384,7 @@ function api_error($type, $e)
 	/// @TODO:  https://dev.twitter.com/overview/api/response-codes
 
 	$error = ["error" => $error,
-			"code" => $e->httpcode . " " . $e->httpdesc,
+			"code" => $e->getCode() . " " . $e->httpdesc,
 			"request" => $a->query_string];
 
 	$return = api_format_data('status', $type, ['status' => $error]);
@@ -611,7 +611,7 @@ function api_get_user(App $a, $contact_id = null)
 				'name' => $contact["name"],
 				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
 				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url']),
-				'description' => $contact["about"],
+				'description' => HTML::toPlaintext(BBCode::toPlaintext($contact["about"])),
 				'profile_image_url' => $contact["micro"],
 				'profile_image_url_https' => $contact["micro"],
 				'profile_image_url_profile_size' => $contact["thumb"],
@@ -690,7 +690,7 @@ function api_get_user(App $a, $contact_id = null)
 		'name' => (($uinfo[0]['name']) ? $uinfo[0]['name'] : $uinfo[0]['nick']),
 		'screen_name' => (($uinfo[0]['nick']) ? $uinfo[0]['nick'] : $uinfo[0]['name']),
 		'location' => $location,
-		'description' => $description,
+		'description' => HTML::toPlaintext(BBCode::toPlaintext($description)),
 		'profile_image_url' => $uinfo[0]['micro'],
 		'profile_image_url_https' => $uinfo[0]['micro'],
 		'profile_image_url_profile_size' => $uinfo[0]["thumb"],
@@ -932,7 +932,6 @@ function api_format_data($root_element, $type, $data)
  */
 function api_account_verify_credentials($type)
 {
-
 	$a = \get_app();
 
 	if (api_user() === false) {
@@ -954,13 +953,9 @@ function api_account_verify_credentials($type)
 
 	// - Adding last status
 	if (!$skip_status) {
-		$user_info["status"] = api_status_show("raw");
-		if (isset($user_info["status"])) {
-			if (!is_array($user_info["status"]) || !count($user_info["status"])) {
-				unset($user_info["status"]);
-			} else {
-				unset($user_info["status"]["user"]);
-			}
+		$item = api_get_last_status($user_info['pid'], $user_info['uid']);
+		if ($item) {
+			$user_info['status'] = api_format_item($item, $type);
 		}
 	}
 
@@ -1244,105 +1239,61 @@ function api_media_upload()
 api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST);
 
 /**
- *
- * @param string $type Return type (atom, rss, xml, json)
- *
+ * @param string $type    Return format (atom, rss, xml, json)
  * @param int    $item_id
- * @return array|string
- * @throws BadRequestException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
+ * @return string
+ * @throws Exception
  */
-function api_status_show($type, $item_id = 0)
+function api_status_show($type, $item_id)
 {
-	$a = \get_app();
+	Logger::info(API_LOG_PREFIX . 'Start', ['action' => 'status_show', 'type' => $type, 'item_id' => $item_id]);
 
-	$user_info = api_get_user($a);
+	$status_info = [];
 
-	Logger::log('api_status_show: user_info: '.print_r($user_info, true), Logger::DEBUG);
-
-	if (!empty($item_id)) {
-		// Get the item with the given id
-		$condition = ['id' => $item_id];
-	} else {
-		// get last public wall message
-		$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
-			'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+	$item = api_get_item(['id' => $item_id]);
+	if ($item) {
+		$status_info = api_format_item($item, $type);
 	}
 
-	if ($type == "raw") {
-		$condition['private'] = false;
-	}
+	Logger::info(API_LOG_PREFIX . 'End', ['action' => 'get_status', 'status_info' => $status_info]);
 
-	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
+	return api_format_data('statuses', $type, ['status' => $status_info]);
+}
 
-	if (DBA::isResult($lastwall)) {
-		$in_reply_to = api_in_reply_to($lastwall);
+/**
+ * Retrieves the last public status of the provided user info
+ *
+ * @param int    $ownerId Public contact Id
+ * @param int    $uid     User Id
+ * @return array
+ * @throws Exception
+ */
+function api_get_last_status($ownerId, $uid)
+{
+	$condition = [
+		'author-id'=> $ownerId,
+		'uid'      => $uid,
+		'gravity'  => [GRAVITY_PARENT, GRAVITY_COMMENT],
+		'private'  => false
+	];
 
-		$converted = api_convert_item($lastwall);
+	$item = api_get_item($condition);
 
-		if ($type == "xml") {
-			$geo = "georss:point";
-		} else {
-			$geo = "geo";
-		}
+	return $item;
+}
 
-		$status_info = [
-			'created_at' => api_date($lastwall['created']),
-			'id' => intval($lastwall['id']),
-			'id_str' => (string) $lastwall['id'],
-			'text' => $converted["text"],
-			'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
-			'truncated' => false,
-			'in_reply_to_status_id' => $in_reply_to['status_id'],
-			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-			'in_reply_to_user_id' => $in_reply_to['user_id'],
-			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			'user' => $user_info,
-			$geo => null,
-			'coordinates' => '',
-			'place' => '',
-			'contributors' => '',
-			'is_quote_status' => false,
-			'retweet_count' => 0,
-			'favorite_count' => 0,
-			'favorited' => $lastwall['starred'] ? true : false,
-			'retweeted' => false,
-			'possibly_sensitive' => false,
-			'lang' => '',
-			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id' => $lastwall['parent'],
-			'external_url' => System::baseUrl() . '/display/' . $lastwall['guid'],
-		];
+/**
+ * Retrieves a single item record based on the provided condition and converts it for API use.
+ *
+ * @param array $condition Item table condition array
+ * @return array
+ * @throws Exception
+ */
+function api_get_item(array $condition)
+{
+	$item = Item::selectFirst(Item::DISPLAY_FIELDLIST, $condition, ['order' => ['id' => true]]);
 
-		if (count($converted["attachments"]) > 0) {
-			$status_info["attachments"] = $converted["attachments"];
-		}
-
-		if (count($converted["entities"]) > 0) {
-			$status_info["entities"] = $converted["entities"];
-		}
-
-		if ($status_info["source"] == 'web') {
-			$status_info["source"] = ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']);
-		} elseif (ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']) != $status_info["source"]) {
-			$status_info["source"] = trim($status_info["source"].' ('.ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']).')');
-		}
-
-		// "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($status_info["user"]["uid"]);
-		unset($status_info["user"]["self"]);
-
-		Logger::log('status_info: '.print_r($status_info, true), Logger::DEBUG);
-
-		if ($type == "raw") {
-			return $status_info;
-		}
-
-		return api_format_data("statuses", $type, ['status' => $status_info]);
-	}
+	return $item;
 }
 
 /**
@@ -1359,66 +1310,20 @@ function api_status_show($type, $item_id = 0)
  */
 function api_users_show($type)
 {
-	$a = \get_app();
+	$a = \Friendica\BaseObject::getApp();
 
 	$user_info = api_get_user($a);
 
-	$condition = ['owner-id' => $user_info['pid'], 'uid' => api_user(),
-		'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'private' => false];
-	$lastwall = Item::selectFirst(Item::ITEM_FIELDLIST, $condition, ['order' => ['id' => true]]);
-
-	if (DBA::isResult($lastwall)) {
-		$in_reply_to = api_in_reply_to($lastwall);
-
-		$converted = api_convert_item($lastwall);
-
-		if ($type == "xml") {
-			$geo = "georss:point";
-		} else {
-			$geo = "geo";
-		}
-
-		$user_info['status'] = [
-			'text' => $converted["text"],
-			'truncated' => false,
-			'created_at' => api_date($lastwall['created']),
-			'in_reply_to_status_id' => $in_reply_to['status_id'],
-			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-			'source' => (($lastwall['app']) ? $lastwall['app'] : 'web'),
-			'id' => intval($lastwall['contact-id']),
-			'id_str' => (string) $lastwall['contact-id'],
-			'in_reply_to_user_id' => $in_reply_to['user_id'],
-			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			$geo => null,
-			'favorited' => $lastwall['starred'] ? true : false,
-			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id' => $lastwall['parent'],
-			'external_url' => System::baseUrl() . "/display/" . $lastwall['guid'],
-		];
-
-		if (count($converted["attachments"]) > 0) {
-			$user_info["status"]["attachments"] = $converted["attachments"];
-		}
-
-		if (count($converted["entities"]) > 0) {
-			$user_info["status"]["entities"] = $converted["entities"];
-		}
-
-		if ($user_info["status"]["source"] == 'web') {
-			$user_info["status"]["source"] = ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']);
-		}
-
-		if (ContactSelector::networkToName($lastwall['network'], $user_info['url']) != $user_info["status"]["source"]) {
-			$user_info["status"]["source"] = trim($user_info["status"]["source"] . ' (' . ContactSelector::networkToName($lastwall['network'], $lastwall['author-link']) . ')');
-		}
+	$item = api_get_last_status($user_info['pid'], $user_info['uid']);
+	if ($item) {
+		$user_info['status'] = api_format_item($item, $type);
 	}
 
 	// "uid" and "self" are only needed for some internal stuff, so remove it from here
-	unset($user_info["uid"]);
-	unset($user_info["self"]);
+	unset($user_info['uid']);
+	unset($user_info['self']);
 
-	return api_format_data("user", $type, ['user' => $user_info]);
+	return api_format_data('user', $type, ['user' => $user_info]);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1685,7 +1590,7 @@ function api_statuses_home_timeline($type)
 			Item::update(['unseen' => false], ['unseen' => true, 'id' => $idarray]);
 		}
 	}
-	
+
 	bindComments($ret);
 
 	$data = ['status' => $ret];
@@ -2972,7 +2877,7 @@ function api_format_items_profiles($profile_row)
 /**
  * @brief format items to be returned by api
  *
- * @param array  $r           array of items
+ * @param array  $items       array of items
  * @param array  $user_info
  * @param bool   $filter_user filter items by $user_info
  * @param string $type        Return type (atom, rss, xml, json)
@@ -2982,14 +2887,13 @@ function api_format_items_profiles($profile_row)
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  */
-function api_format_items($r, $user_info, $filter_user = false, $type = "json")
+function api_format_items($items, $user_info, $filter_user = false, $type = "json")
 {
-	$a = \get_app();
+	$a = \Friendica\BaseObject::getApp();
 
 	$ret = [];
 
-	foreach ((array)$r as $item) {
-		localize_item($item);
+	foreach ((array)$items as $item) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
 
 		// Look if the posts are matching if they should be filtered by user id
@@ -2997,98 +2901,179 @@ function api_format_items($r, $user_info, $filter_user = false, $type = "json")
 			continue;
 		}
 
-		$in_reply_to = api_in_reply_to($item);
+		$status = api_format_item($item, $type, $status_user, $author_user, $owner_user);
 
-		$converted = api_convert_item($item);
-
-		if ($type == "xml") {
-			$geo = "georss:point";
-		} else {
-			$geo = "geo";
-		}
-
-		$status = [
-			'text'		=> $converted["text"],
-			'truncated' => false,
-			'created_at'=> api_date($item['created']),
-			'in_reply_to_status_id' => $in_reply_to['status_id'],
-			'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
-			'source'    => (($item['app']) ? $item['app'] : 'web'),
-			'id'		=> intval($item['id']),
-			'id_str'	=> (string) intval($item['id']),
-			'in_reply_to_user_id' => $in_reply_to['user_id'],
-			'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
-			'in_reply_to_screen_name' => $in_reply_to['screen_name'],
-			$geo => null,
-			'favorited' => $item['starred'] ? true : false,
-			'user' =>  $status_user,
-			'friendica_author' => $author_user,
-			'friendica_owner' => $owner_user,
-			'friendica_private' => $item['private'] == 1,
-			//'entities' => NULL,
-			'statusnet_html' => $converted["html"],
-			'statusnet_conversation_id' => $item['parent'],
-			'external_url' => System::baseUrl() . "/display/" . $item['guid'],
-			'friendica_activities' => api_format_items_activities($item, $type),
-		];
-
-		if (count($converted["attachments"]) > 0) {
-			$status["attachments"] = $converted["attachments"];
-		}
-
-		if (count($converted["entities"]) > 0) {
-			$status["entities"] = $converted["entities"];
-		}
-
-		if ($status["source"] == 'web') {
-			$status["source"] = ContactSelector::networkToName($item['network'], $item['author-link']);
-		} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status["source"]) {
-			$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $item['author-link']).')');
-		}
-
-		if ($item["id"] == $item["parent"]) {
-			$retweeted_item = api_share_as_retweet($item);
-			if ($retweeted_item !== false) {
-				$retweeted_status = $status;
-				$status['user'] = $status['friendica_owner'];
-				try {
-					$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
-				} catch (BadRequestException $e) {
-					// user not found. should be found?
-					/// @todo check if the user should be always found
-					$retweeted_status["user"] = [];
-				}
-
-				$rt_converted = api_convert_item($retweeted_item);
-
-				$retweeted_status['text'] = $rt_converted["text"];
-				$retweeted_status['statusnet_html'] = $rt_converted["html"];
-				$retweeted_status['friendica_activities'] = api_format_items_activities($retweeted_item, $type);
-				$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
-				$status['retweeted_status'] = $retweeted_status;
-				$status['friendica_author'] = $retweeted_status['friendica_author'];
-			}
-		}
-
-		// "uid" and "self" are only needed for some internal stuff, so remove it from here
-		unset($status["user"]["uid"]);
-		unset($status["user"]["self"]);
-
-		if ($item["coord"] != "") {
-			$coords = explode(' ', $item["coord"]);
-			if (count($coords) == 2) {
-				if ($type == "json") {
-					$status["geo"] = ['type' => 'Point',
-							'coordinates' => [(float) $coords[0],
-										(float) $coords[1]]];
-				} else {// Not sure if this is the official format - if someone founds a documentation we can check
-					$status["georss:point"] = $item["coord"];
-				}
-			}
-		}
 		$ret[] = $status;
-	};
+	}
+
 	return $ret;
+}
+
+/**
+ * @param array  $item       Item record
+ * @param string $type       Return format (atom, rss, xml, json)
+ * @param array $status_user User record of the item author, can be provided by api_item_get_user()
+ * @param array $author_user User record of the item author, can be provided by api_item_get_user()
+ * @param array $owner_user  User record of the item owner, can be provided by api_item_get_user()
+ * @return array API-formatted status
+ * @throws BadRequestException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
+ */
+function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
+{
+	$a = \Friendica\BaseObject::getApp();
+
+	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
+		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
+	}
+
+	localize_item($item);
+
+	$in_reply_to = api_in_reply_to($item);
+
+	$converted = api_convert_item($item);
+
+	if ($type == "xml") {
+		$geo = "georss:point";
+	} else {
+		$geo = "geo";
+	}
+
+	$status = [
+		'text'		=> $converted["text"],
+		'truncated' => false,
+		'created_at'=> api_date($item['created']),
+		'in_reply_to_status_id' => $in_reply_to['status_id'],
+		'in_reply_to_status_id_str' => $in_reply_to['status_id_str'],
+		'source'    => (($item['app']) ? $item['app'] : 'web'),
+		'id'		=> intval($item['id']),
+		'id_str'	=> (string) intval($item['id']),
+		'in_reply_to_user_id' => $in_reply_to['user_id'],
+		'in_reply_to_user_id_str' => $in_reply_to['user_id_str'],
+		'in_reply_to_screen_name' => $in_reply_to['screen_name'],
+		$geo => null,
+		'favorited' => $item['starred'] ? true : false,
+		'user' =>  $status_user,
+		'friendica_author' => $author_user,
+		'friendica_owner' => $owner_user,
+		'friendica_private' => $item['private'] == 1,
+		//'entities' => NULL,
+		'statusnet_html' => $converted["html"],
+		'statusnet_conversation_id' => $item['parent'],
+		'external_url' => System::baseUrl() . "/display/" . $item['guid'],
+		'friendica_activities' => api_format_items_activities($item, $type),
+	];
+
+	if (count($converted["attachments"]) > 0) {
+		$status["attachments"] = $converted["attachments"];
+	}
+
+	if (count($converted["entities"]) > 0) {
+		$status["entities"] = $converted["entities"];
+	}
+
+	if ($status["source"] == 'web') {
+		$status["source"] = ContactSelector::networkToName($item['network'], $item['author-link']);
+	} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status["source"]) {
+		$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $item['author-link']).')');
+	}
+
+	$retweeted_item = [];
+	$quoted_item = [];
+
+	if ($item["id"] == $item["parent"]) {
+		$body = $item['body'];
+		$retweeted_item = api_share_as_retweet($item);
+		if ($body != $item['body']) {
+			$quoted_item = $retweeted_item;
+			$retweeted_item = [];
+		}
+	}
+
+	if (empty($retweeted_item) && ($item['owner-id'] == $item['author-id'])) {
+		$announce = api_get_announce($item);
+		if (!empty($announce)) {
+			$retweeted_item = $item;
+			$item = $announce;
+			$status['friendica_owner'] = api_get_user($a, $announce['author-id']);
+		}
+	}
+
+	if (!empty($quoted_item)) {
+		$conv_quoted = api_convert_item($quoted_item);
+		$quoted_status = $status;
+		unset($quoted_status['friendica_author']);
+		unset($quoted_status['friendica_owner']);
+		unset($quoted_status['friendica_activities']);
+		unset($quoted_status['friendica_private']);
+		unset($quoted_status['statusnet_conversation_id']);
+		$quoted_status['text'] = $conv_quoted['text'];
+		$quoted_status['statusnet_html'] = $conv_quoted['html'];
+		try {
+			$quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
+		} catch (BadRequestException $e) {
+			// user not found. should be found?
+			/// @todo check if the user should be always found
+			$quoted_status["user"] = [];
+		}
+	}
+
+	if (!empty($retweeted_item)) {
+		$retweeted_status = $status;
+		unset($retweeted_status['friendica_author']);
+		unset($retweeted_status['friendica_owner']);
+		unset($retweeted_status['friendica_activities']);
+		unset($retweeted_status['friendica_private']);
+		unset($retweeted_status['statusnet_conversation_id']);
+		$status['user'] = $status['friendica_owner'];
+		try {
+			$retweeted_status["user"] = api_get_user($a, $retweeted_item["author-id"]);
+		} catch (BadRequestException $e) {
+			// user not found. should be found?
+			/// @todo check if the user should be always found
+			$retweeted_status["user"] = [];
+		}
+
+		$rt_converted = api_convert_item($retweeted_item);
+
+		$retweeted_status['text'] = $rt_converted["text"];
+		$retweeted_status['statusnet_html'] = $rt_converted["html"];
+		$retweeted_status['created_at'] =  api_date($retweeted_item['created']);
+
+		if (!empty($quoted_status)) {
+			$retweeted_status['quoted_status'] = $quoted_status;
+		}
+
+		$status['friendica_author'] = $retweeted_status['user'];
+		$status['retweeted_status'] = $retweeted_status;
+	} elseif (!empty($quoted_status)) {
+		$root_status = api_convert_item($item);
+
+		$status['text'] = $root_status["text"];
+		$status['statusnet_html'] = $root_status["html"];
+		$status['quoted_status'] = $quoted_status;
+	}
+
+	// "uid" and "self" are only needed for some internal stuff, so remove it from here
+	unset($status["user"]["uid"]);
+	unset($status["user"]["self"]);
+
+	if ($item["coord"] != "") {
+		$coords = explode(' ', $item["coord"]);
+		if (count($coords) == 2) {
+			if ($type == "json") {
+				$status["geo"] = ['type' => 'Point',
+					'coordinates' => [(float) $coords[0],
+						(float) $coords[1]]];
+			} else {// Not sure if this is the official format - if someone founds a documentation we can check
+				$status["georss:point"] = $item["coord"];
+			}
+		}
+	}
+
+	return $status;
 }
 
 /**
@@ -5047,6 +5032,40 @@ function api_friendica_remoteauth()
 api_register_func('api/friendica/remoteauth', 'api_friendica_remoteauth', true);
 
 /**
+ * Return an item with announcer data if it had been announced
+ *
+ * @param array $item Item array
+ * @return array Item array with announce data
+ */
+function api_get_announce($item)
+{
+	// Quit if the item already has got a different owner and author
+	if ($item['owner-id'] != $item['author-id']) {
+		return [];
+	}
+
+	// Don't change original or Diaspora posts
+	if ($item['origin'] || in_array($item['network'], [Protocol::DIASPORA])) {
+		return [];
+	}
+
+	// Quit if we do now the original author and it had been a post from a native network
+	if (!empty($item['contact-uid']) && in_array($item['network'], Protocol::NATIVE_SUPPORT)) {
+		return [];
+	}
+
+	$fields = ['author-id', 'author-name', 'author-link', 'author-avatar'];
+	$activity = Item::activityToIndex(ACTIVITY2_ANNOUNCE);
+	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'activity' => $activity];
+	$announce = Item::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['created' => true]]);
+	if (!DBA::isResult($announce)) {
+		return [];
+	}
+
+	return array_merge($item, $announce);
+}
+
+/**
  * @brief Return the item shared, if the item contains only the [share] tag
  *
  * @param array $item Sharer item
@@ -5141,7 +5160,12 @@ function api_share_as_retweet(&$item)
 		$posted = $matches[1];
 	}
 
-	$shared_body = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$2", $body);
+	$pre_body = trim(preg_replace("/(.*?)\[share.*?\]\s?.*?\s?\[\/share\]\s?/ism", "$1", $body));
+	if ($pre_body != '') {
+		$item['body'] = $pre_body;
+	}
+
+	$shared_body = trim(preg_replace("/(.*?)\[share.*?\]\s?(.*?)\s?\[\/share\]\s?/ism", "$2", $body));
 
 	if (($shared_body == "") || ($profile == "") || ($author == "") || ($avatar == "") || ($posted == "")) {
 		return false;
@@ -5957,7 +5981,7 @@ function api_friendica_notification($type)
 	}
 	$nm = new NotificationsManager();
 
-	$notes = $nm->getAll([], "+seen -date", 50);
+	$notes = $nm->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
 
 	if ($type == "xml") {
 		$xmlnotes = [];

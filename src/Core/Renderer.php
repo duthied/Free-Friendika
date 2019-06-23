@@ -15,17 +15,17 @@ use Friendica\Render\ITemplateEngine;
  */
 class Renderer extends BaseObject
 {
-    /**
+	/**
 	 * @brief An array of registered template engines ('name'=>'class name')
 	 */
-    public static $template_engines = [];
+	public static $template_engines = [];
 
-    /**
+	/**
 	 * @brief An array of instanced template engines ('name'=>'instance')
 	 */
 	public static $template_engine_instance = [];
 
-    /**
+	/**
 	 * @brief An array for all theme-controllable parameters
 	 *
 	 * Mostly unimplemented yet. Only options 'template_engine' and
@@ -39,45 +39,46 @@ class Renderer extends BaseObject
 		'stylesheet' => '',
 		'template_engine' => 'smarty3',
 	];
-    
-    private static $ldelim = [
+
+	private static $ldelim = [
 		'internal' => '',
 		'smarty3' => '{{'
 	];
 	private static $rdelim = [
 		'internal' => '',
 		'smarty3' => '}}'
-    ];
+	];
 
 	/**
 	 * @brief This is our template processor
 	 *
 	 * @param string|FriendicaSmarty $s    The string requiring macro substitution or an instance of FriendicaSmarty
-	 * @param array                  $vars key value pairs (search => replace)
+	 * @param array                  $vars Key value pairs (search => replace)
 	 *
 	 * @return string substituted string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
-    public static function replaceMacros($s, $vars)
-    {
-        $stamp1 = microtime(true);
-        $a = self::getApp();
+	public static function replaceMacros($s, array $vars = [])
+	{
+		$stamp1 = microtime(true);
+		$a = self::getApp();
 
-        // pass $baseurl to all templates
-        $vars['$baseurl'] = System::baseUrl();
-        $t = self::getTemplateEngine();
+		// pass $baseurl to all templates if it isn't set
+		$vars = array_merge(['$baseurl' => $a->getBaseURL()], $vars);
 
-        try {
-            $output = $t->replaceMacros($s, $vars);
-        } catch (Exception $e) {
-            echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-            exit();
-        }
+		$t = self::getTemplateEngine();
+
+		try {
+			$output = $t->replaceMacros($s, $vars);
+		} catch (Exception $e) {
+			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
+			exit();
+		}
 
 		$a->getProfiler()->saveTimestamp($stamp1, "rendering", System::callstack());
 
-        return $output;
-    }
+		return $output;
+	}
 
 	/**
 	 * @brief Load a given template $s
@@ -88,35 +89,35 @@ class Renderer extends BaseObject
 	 * @return string template.
 	 * @throws Exception
 	 */
-    public static function getMarkupTemplate($s, $root = '')
-    {
-        $stamp1 = microtime(true);
-        $a = self::getApp();
-        $t = self::getTemplateEngine();
+	public static function getMarkupTemplate($s, $root = '')
+	{
+		$stamp1 = microtime(true);
+		$a = self::getApp();
+		$t = self::getTemplateEngine();
 
-        try {
-            $template = $t->getTemplateFile($s, $root);
-        } catch (Exception $e) {
-            echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
-            exit();
-        }
+		try {
+			$template = $t->getTemplateFile($s, $root);
+		} catch (Exception $e) {
+			echo "<pre><b>" . __FUNCTION__ . "</b>: " . $e->getMessage() . "</pre>";
+			exit();
+		}
 
-        $a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
-        return $template;
-    }
+		return $template;
+	}
 
-    /**
+	/**
 	 * @brief Register template engine class
 	 *
 	 * @param string $class
 	 */
 	public static function registerTemplateEngine($class)
 	{
-        $v = get_class_vars($class);
-        
-        if (!empty($v['name']))
-        {
+		$v = get_class_vars($class);
+
+		if (!empty($v['name']))
+		{
 			$name = $v['name'];
 			self::$template_engines[$name] = $class;
 		} else {
@@ -150,9 +151,9 @@ class Renderer extends BaseObject
 
 		echo "template engine <tt>$template_engine</tt> is not registered!\n";
 		exit();
-    }
-    
-    /**
+	}
+
+	/**
 	 * @brief Returns the active template engine.
 	 *
 	 * @return string the active template engine
@@ -172,7 +173,7 @@ class Renderer extends BaseObject
 		self::$theme['template_engine'] = $engine;
 	}
 
-    /**
+	/**
 	 * Gets the right delimiter for a template engine
 	 *
 	 * Currently:
