@@ -97,7 +97,19 @@
 	},
 	"archive": {
 		"exclude": [
-			"log", "cache", "/photo", "/proxy"
+			"/.*",
+			"/*file",
+			"!/.htaccess-dist",
+			"/tests",
+			"/*.xml",
+			"/composer.*",
+			"/log",
+			"/cache",
+			"/photo",
+			"/proxy",
+			"/addon",
+			"!/vendor",
+			"!/view/asset"
 		]
 	},
 	"require-dev": {
