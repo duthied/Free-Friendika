@@ -1080,9 +1080,11 @@ class Item extends BaseObject
 		}
 		// When the permission set will be used in photo and events as well,
 		// this query here needs to be extended.
-		if (!empty($item['psid']) && !self::exists(['psid' => $item['psid'], 'deleted' => false])) {
-			DBA::delete('permissionset', ['id' => $item['psid']], ['cascade' => false]);
-		}
+		// Currently deactivated. We need the permission set in the deletion process.
+		// This is a reminder to add the removal somewhere else.
+		//if (!empty($item['psid']) && !self::exists(['psid' => $item['psid'], 'deleted' => false])) {
+		//	DBA::delete('permissionset', ['id' => $item['psid']], ['cascade' => false]);
+		//}
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
