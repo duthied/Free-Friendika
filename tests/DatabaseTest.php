@@ -6,14 +6,13 @@
 namespace Friendica\Test;
 
 use Friendica\App\Mode;
-use Friendica\App\Router;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Database\Database;
 use Friendica\Factory\ConfigFactory;
 use Friendica\Factory\DBFactory;
 use Friendica\Factory\ProfilerFactory;
 use Friendica\Util\BasePath;
-use Friendica\Util\Config\ConfigFileLoader;
+use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;

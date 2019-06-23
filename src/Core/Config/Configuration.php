@@ -45,7 +45,7 @@ abstract class Configuration
 	/**
 	 * @brief Loads all configuration values of family into a cached storage.
 	 *
-	 * All configuration values of the system are stored in the cache ( @see IConfigCache )
+	 * All configuration values of the system are stored in the cache ( @see ConfigCache )
 	 *
 	 * @param string $cat The category of the configuration value
 	 *
@@ -59,7 +59,7 @@ abstract class Configuration
 	 *
 	 * Get a particular config value from the given category ($cat)
 	 * and the $key from a cached storage either from the $this->configAdapter
-	 * (@see IConfigAdapter ) or from the $this->configCache (@see IConfigCache ).
+	 * (@see IConfigAdapter ) or from the $this->configCache (@see ConfigCache ).
 	 *
 	 * @param string  $cat        The category of the configuration value
 	 * @param string  $key           The configuration key to query
