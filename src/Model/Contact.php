@@ -1328,7 +1328,7 @@ class Contact extends BaseObject
 
 			// Update the contact in the background if needed but it is called by the frontend
 			if ($update_contact && $no_update && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
 			}
 
 			if (!$update_contact || $no_update) {
@@ -1425,7 +1425,7 @@ class Contact extends BaseObject
 
 			// Update in the background when we fetched the data solely from the database
 			if ($background_update) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
 			}
 
 			// Update the newly created contact from data in the gcontact table
@@ -1807,6 +1807,8 @@ class Contact extends BaseObject
 			}
 		}
 
+		self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
+
 		if (!$update) {
 			return true;
 		}
@@ -1814,10 +1816,13 @@ class Contact extends BaseObject
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
 		$ret['updated'] = DateTimeFormat::utcNow();
 
-		self::updateAvatar($ret['photo'], $uid, $id, true);
-
 		unset($ret['photo']);
 		DBA::update('contact', $ret, ['id' => $id]);
+
+		// Updating all similar contacts when we are updating the public contact
+		if (($uid == 0) && in_array($ret['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			DBA::update('contact', $ret, ['self' => false, 'nurl' => $ret['nurl']]);
+		}
 
 		// Update the corresponding gcontact entry
 		PortableContact::lastUpdated($ret["url"]);

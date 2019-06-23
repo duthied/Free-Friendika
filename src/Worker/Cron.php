@@ -117,11 +117,34 @@ class Cron
 		// Poll contacts
 		self::pollContacts($parameter, $generation);
 
+		// Update contact information
+		self::updatePublicContacts();
+
 		Logger::log('cron: end');
 
 		Config::set('system', 'last_cron', time());
 
 		return;
+	}
+
+	/**
+	 * @brief Update public contacts
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function updatePublicContacts() {
+		$count = 0;
+		$last_updated = DateTimeFormat::utc('now - 1 months');
+		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
+			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
+
+		$total = DBA::count('contact', $condition);
+		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => 1000]);
+		while ($contact = DBA::fetch($contacts)) {
+			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], 'force');
+			++$count;
+		}
+		Logger::info('Initiated update for public contacts', ['interval' => $count, 'total' => $total]);
+		DBA::close($contacts);
 	}
 
 	/**
