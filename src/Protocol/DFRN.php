@@ -2899,7 +2899,7 @@ class DFRN
 	{
 		// prevent looping
 		if (!empty($_REQUEST['redir'])) {
-			Logger::log('autoRedir might be looping because is redir', Logger::DEBUG);
+			Logger::log('autoRedir might be looping because redirect has been redirected', Logger::DEBUG);
 			// looping prevention also appears to sometimes prevent authentication for images
 			// because browser may have multiple connections open and load an image on a connection
 			// whose session wasn't updated when a previous redirect authenticated
@@ -2943,8 +2943,9 @@ class DFRN
 				return;
 			}
 			// test if redirect authentication already succeeded
-			// Note that "contact" in the sense used in $contact_nick and the sense in the $remote[]["cid"]
-			// in the session are opposite.  In the session variable the user currently fetching is the contact
+			// Note that "contact" in the sense used in the $contact_nick argument to this function
+			// and the sense in the $remote[]["cid"] in the session are opposite.
+			// In the session variable the user currently fetching is the contact
 			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
 			foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
 				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
