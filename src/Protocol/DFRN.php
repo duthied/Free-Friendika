@@ -1229,7 +1229,6 @@ class DFRN
 		$curlResult = Network::curl($url);
 
 		if ($curlResult->isTimeout()) {
-			Contact::markForArchival($contact);
 			return -2; // timed out
 		}
 
@@ -1237,29 +1236,24 @@ class DFRN
 
 		$curl_stat = $curlResult->getReturnCode();
 		if (empty($curl_stat)) {
-			Contact::markForArchival($contact);
 			return -3; // timed out
 		}
 
 		Logger::log('dfrn_deliver: ' . $xml, Logger::DATA);
 
 		if (empty($xml)) {
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: no valid XML returned');
 			Logger::log('dfrn_deliver: returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!is_object($res) || (intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
-			Contact::markForArchival($contact);
-
 			if (empty($res->status)) {
 				$status = 3;
 			} else {
@@ -1315,7 +1309,6 @@ class DFRN
 		if ($final_dfrn_id != $orig_id) {
 			Logger::log('dfrn_deliver: wrong dfrn_id.');
 			// did not decode properly - cannot trust this site
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
@@ -1351,7 +1344,6 @@ class DFRN
 
 				default:
 					Logger::log("rino: invalid requested version '$rino_remote_version'");
-					Contact::markForArchival($contact);
 					return -8;
 			}
 
@@ -1391,26 +1383,22 @@ class DFRN
 
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
-			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && stristr($postResult->getHeader(), 'retry-after')) {
-			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('dfrn_deliver: phase 2: no valid XML returned');
 			Logger::log('dfrn_deliver: phase 2: returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (!isset($res->status)) {
-			Contact::markForArchival($contact);
 			return -11;
 		}
 
@@ -1421,10 +1409,6 @@ class DFRN
 
 		if (!empty($res->message)) {
 			Logger::log('Delivery returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
-		}
-
-		if (($res->status >= 200) && ($res->status <= 299)) {
-			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
@@ -1454,7 +1438,6 @@ class DFRN
 
 				if (empty($contact['addr'])) {
 					Logger::log('Unable to find contact handle for ' . $contact['id'] . ' - ' . $contact['url']);
-					Contact::markForArchival($contact);
 					return -21;
 				}
 			}
@@ -1462,7 +1445,6 @@ class DFRN
 			$fcontact = Diaspora::personByHandle($contact['addr']);
 			if (empty($fcontact)) {
 				Logger::log('Unable to find contact details for ' . $contact['id'] . ' - ' . $contact['addr']);
-				Contact::markForArchival($contact);
 				return -22;
 			}
 			$pubkey = $fcontact['pubkey'];
@@ -1491,35 +1473,27 @@ class DFRN
 		$curl_stat = $postResult->getReturnCode();
 		if (empty($curl_stat) || empty($xml)) {
 			Logger::log('Empty answer from ' . $contact['id'] . ' - ' . $dest_url);
-			Contact::markForArchival($contact);
 			return -9; // timed out
 		}
 
 		if (($curl_stat == 503) && (stristr($postResult->getHeader(), 'retry-after'))) {
-			Contact::markForArchival($contact);
 			return -10;
 		}
 
 		if (strpos($xml, '<?xml') === false) {
 			Logger::log('No valid XML returned from ' . $contact['id'] . ' - ' . $dest_url);
 			Logger::log('Returned XML: ' . $xml, Logger::DATA);
-			Contact::markForArchival($contact);
 			return 3;
 		}
 
 		$res = XML::parseString($xml);
 
 		if (empty($res->status)) {
-			Contact::markForArchival($contact);
 			return -23;
 		}
 
 		if (!empty($res->message)) {
 			Logger::log('Transmit to ' . $dest_url . ' returned status '.$res->status.' - '.$res->message, Logger::DEBUG);
-		}
-
-		if (($res->status >= 200) && ($res->status <= 299)) {
-			Contact::unmarkForArchival($contact);
 		}
 
 		return intval($res->status);
@@ -2242,18 +2216,16 @@ class DFRN
 	{
 		Logger::log("Process verb ".$item["verb"]." and object-type ".$item["object-type"]." for entrytype ".$entrytype, Logger::DEBUG);
 
-		if (($entrytype == DFRN::TOP_LEVEL)) {
+		if (($entrytype == DFRN::TOP_LEVEL) && !empty($importer['id'])) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
-			$r = q("SELECT * FROM `contact` WHERE `id` = %d", intval($importer["id"]));
-			$contact = $r[0];
-			$nickname = $contact["nick"];
+			$contact = Contact::select([], ['id' => $importer['id']]);
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
 			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
 				Logger::log("New follower");
-				Contact::addRelationship($importer, $contact, $item, $nickname);
+				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW)) {
@@ -2263,7 +2235,7 @@ class DFRN
 			}
 			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				Logger::log("New friend request");
-				Contact::addRelationship($importer, $contact, $item, $nickname, true);
+				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
 			if (activity_match($item["verb"], ACTIVITY_UNFRIEND)) {
@@ -2927,7 +2899,12 @@ class DFRN
 	{
 		// prevent looping
 		if (!empty($_REQUEST['redir'])) {
-			return;
+			Logger::log('autoRedir might be looping because redirect has been redirected', Logger::DEBUG);
+			// looping prevention also appears to sometimes prevent authentication for images
+			// because browser may have multiple connections open and load an image on a connection
+			// whose session wasn't updated when a previous redirect authenticated
+			// Leaving commented in case looping reappears
+			//return;
 		}
 
 		if ((! $contact_nick) || ($contact_nick === $a->user['nickname'])) {
@@ -2951,6 +2928,9 @@ class DFRN
 			$baseurl = substr($baseurl, $domain_st + 3);
 			$nurl = Strings::normaliseLink($baseurl);
 
+			$r = User::getByNickname($contact_nick, ["uid"]);
+			$contact_uid = $r["uid"];
+
 			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
 			$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
 					AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
@@ -2959,8 +2939,18 @@ class DFRN
 				DBA::escape($baseurl),
 				DBA::escape($nurl)
 			);
-			if ((! DBA::isResult($r)) || $r[0]['id'] == remote_user()) {
+			if ((! DBA::isResult($r))) {
 				return;
+			}
+			// test if redirect authentication already succeeded
+			// Note that "contact" in the sense used in the $contact_nick argument to this function
+			// and the sense in the $remote[]["cid"] in the session are opposite.
+			// In the session variable the user currently fetching is the contact
+			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
+			foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
+				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
+					return;
+				}
 			}
 
 			$r = q("SELECT * FROM contact WHERE nick = '%s'

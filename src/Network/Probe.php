@@ -109,12 +109,11 @@ class Probe
 		$url = "http://".$host."/.well-known/host-meta";
 
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
-		$redirects = 0;
 
 		Logger::log("Probing for ".$host, Logger::DEBUG);
 		$xrd = null;
 
-		$curlResult = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$curlResult = Network::curl($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
@@ -122,7 +121,7 @@ class Probe
 		}
 
 		if (!is_object($xrd)) {
-			$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($curlResult->isTimeout()) {
 				Logger::log("Probing timeout for " . $url, Logger::DEBUG);
 				self::$istimeout = true;
@@ -199,7 +198,7 @@ class Probe
 
 		$links = self::lrdd($webbie);
 		Logger::log('webfingerDfrn: '.$webbie.':'.print_r($links, true), Logger::DATA);
-		if (count($links)) {
+		if (!empty($links) && is_array($links)) {
 			foreach ($links as $link) {
 				if ($link['@attributes']['rel'] === NAMESPACE_DFRN) {
 					$profile_link = $link['@attributes']['href'];
@@ -738,9 +737,8 @@ class Probe
 	private static function webfinger($url, $type)
 	{
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
-		$redirects = 0;
 
-		$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
 			return false;

@@ -84,6 +84,10 @@ function display_init(App $a)
 		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
+	if ($a->argc >= 3 && $nick == 'feed-item') {
+		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
+	}
+
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
 		displayShowFeed($item["id"], false);
@@ -186,16 +190,7 @@ function display_fetchauthor($a, $item)
 
 	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
 
-	if (local_user()) {
-		if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
-			$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
-		}
-	} elseif ($profiledata["network"] == Protocol::DFRN) {
-		$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
-		$profiledata["remoteconnect"] = $connect;
-	}
-
-	return($profiledata);
+	return $profiledata;
 }
 
 function display_content(App $a, $update = false, $update_uid = 0)

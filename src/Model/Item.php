@@ -11,9 +11,9 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\Lock;
 use Friendica\Core\Logger;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -24,10 +24,11 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
-use Friendica\Util\XML;
+use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
-use Friendica\Util\Network;
+use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -87,7 +88,7 @@ class Item extends BaseObject
 			'unseen', 'deleted', 'origin', 'forum_mode', 'mention', 'global', 'network',
 			'title', 'content-warning', 'body', 'location', 'coord', 'app',
 			'rendered-hash', 'rendered-html', 'object-type', 'object', 'target-type', 'target',
-			'author-id', 'author-link', 'author-name', 'author-avatar',
+			'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 			'owner-id', 'owner-link', 'owner-name', 'owner-avatar'];
 
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
@@ -925,7 +926,7 @@ class Item extends BaseObject
 			// We only need to notfiy others when it is an original entry from us.
 			// Only call the notifier when the item has some content relevant change.
 			if ($item['origin'] && in_array('edited', array_keys($fields))) {
-				Worker::add(PRIORITY_HIGH, "Notifier", 'edit_post', $item['id']);
+				Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item['id']);
 			}
 		}
 
@@ -1079,9 +1080,11 @@ class Item extends BaseObject
 		}
 		// When the permission set will be used in photo and events as well,
 		// this query here needs to be extended.
-		if (!empty($item['psid']) && !self::exists(['psid' => $item['psid'], 'deleted' => false])) {
-			DBA::delete('permissionset', ['id' => $item['psid']], ['cascade' => false]);
-		}
+		// @todo Currently deactivated. We need the permission set in the deletion process.
+		// This is a reminder to add the removal somewhere else.
+		//if (!empty($item['psid']) && !self::exists(['psid' => $item['psid'], 'deleted' => false])) {
+		//	DBA::delete('permissionset', ['id' => $item['psid']], ['cascade' => false]);
+		//}
 
 		// If it's the parent of a comment thread, kill all the kids
 		if ($item['id'] == $item['parent']) {
@@ -1095,7 +1098,7 @@ class Item extends BaseObject
 			self::delete(['uri' => $item['uri'], 'deleted' => false], $priority);
 
 			// send the notification upstream/downstream
-			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", "drop", intval($item['id']));
+			Worker::add(['priority' => $priority, 'dont_fork' => true], "Notifier", Delivery::DELETION, intval($item['id']));
 		} elseif ($item['uid'] != 0) {
 
 			// When we delete just our local user copy of an item, we have to set a marker to hide it
@@ -1452,6 +1455,11 @@ class Item extends BaseObject
 			return 0;
 		}
 
+		if (!empty($uid) && Contact::isBlockedByUser($item['author-id'], $uid)) {
+			Logger::notice('Author is blocked by user', ['author-link' => $item['author-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
@@ -1466,6 +1474,26 @@ class Item extends BaseObject
 			Logger::notice('Owner server is blocked', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
 			return 0;
 		}
+
+		if (!empty($uid) && Contact::isBlockedByUser($item['owner-id'], $uid)) {
+			Logger::notice('Owner is blocked by user', ['owner-link' => $item['owner-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		// The causer is set during a thread completion, for example because of a reshare. It countains the responsible actor.
+		if (!empty($uid) && !empty($item['causer-id']) && Contact::isBlockedByUser($item['causer-id'], $uid)) {
+			Logger::notice('Causer is blocked by user', ['causer-link' => $item['causer-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		if (!empty($uid) && !empty($item['causer-id']) && ($item['parent-uri'] == $item['uri']) && Contact::isIgnoredByUser($item['causer-id'], $uid)) {
+			Logger::notice('Causer is ignored by user', ['causer-link' => $item['causer-link'], 'uid' => $uid, 'item-uri' => $item['uri']]);
+			return 0;
+		}
+
+		// We don't store the causer, we only have it here for the checks above
+		unset($item['causer-id']);
+		unset($item['causer-link']);
 
 		if ($item['network'] == Protocol::PHANTOM) {
 			$item['network'] = Protocol::DFRN;
@@ -1508,7 +1536,7 @@ class Item extends BaseObject
 
 		$item['thr-parent'] = $item['parent-uri'];
 
-		$notify_type = '';
+		$notify_type = Delivery::POST;
 		$allow_cid = '';
 		$allow_gid = '';
 		$deny_cid  = '';
@@ -1521,7 +1549,6 @@ class Item extends BaseObject
 			$allow_gid = $item['allow_gid'];
 			$deny_cid  = $item['deny_cid'];
 			$deny_gid  = $item['deny_gid'];
-			$notify_type = 'wall-new';
 		} else {
 			// find the parent and snarf the item id and ACLs
 			// and anything else we need to inherit
@@ -1558,8 +1585,7 @@ class Item extends BaseObject
 				$allow_gid      = $parent['allow_gid'];
 				$deny_cid       = $parent['deny_cid'];
 				$deny_gid       = $parent['deny_gid'];
-				$item['wall']    = $parent['wall'];
-				$notify_type    = 'comment-new';
+				$item['wall']   = $parent['wall'];
 
 				/*
 				 * If the parent is private, force privacy for the entire conversation
@@ -1601,6 +1627,10 @@ class Item extends BaseObject
 
 				$parent_deleted = 0;
 			}
+		}
+
+		if (stristr($item['verb'], ACTIVITY_POKE)) {
+			$notify_type = Delivery::POKE;
 		}
 
 		$item['parent-uri-id'] = ItemURI::getIdByURI($item['parent-uri']);
@@ -1721,6 +1751,7 @@ class Item extends BaseObject
 		unset($item['author-link']);
 		unset($item['author-name']);
 		unset($item['author-avatar']);
+		unset($item['author-network']);
 
 		unset($item['owner-link']);
 		unset($item['owner-name']);
@@ -1876,18 +1907,8 @@ class Item extends BaseObject
 
 		check_user_notification($current_post);
 
-		if ($notify) {
+		if ($notify || ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin']))) {
 			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $notify_type, $current_post);
-		} elseif ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin'])) {
-			if ($item['gravity'] == GRAVITY_ACTIVITY) {
-				$cmd = $item['origin'] ? 'activity-new' : 'activity-import';
-			} elseif ($item['gravity'] == GRAVITY_COMMENT) {
-				$cmd = $item['origin'] ? 'comment-new' : 'comment-import';
-			} else {
-				$cmd = 'wall-new';
-			}
-
-			Worker::add(['priority' => $priority, 'dont_fork' => true], 'Notifier', $cmd, $current_post);
 		}
 
 		return $current_post;
@@ -2603,7 +2624,7 @@ class Item extends BaseObject
 
 		self::updateThread($item_id);
 
-		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', 'tgroup', $item_id);
+		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
 	}
 
 	public static function isRemoteSelf($contact, &$datarray)
@@ -2653,7 +2674,6 @@ class Item extends BaseObject
 				$datarray['author-link']   = $datarray['owner-link'];
 				$datarray['author-avatar'] = $datarray['owner-avatar'];
 
-				unset($datarray['created']);
 				unset($datarray['edited']);
 
 				unset($datarray['network']);

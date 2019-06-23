@@ -9,6 +9,7 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
+use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
@@ -22,21 +23,30 @@ class APContact extends BaseObject
 	 * Resolves the profile url from the address by using webfinger
 	 *
 	 * @param string $addr profile address (user@domain.tld)
-	 * @return string url
+	 * @param string $url profile URL. When set then we return "true" when this profile url can be found at the address
+	 * @return string|boolean url
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function addrToUrl($addr)
+	private static function addrToUrl($addr, $url = null)
 	{
 		$addr_parts = explode('@', $addr);
 		if (count($addr_parts) != 2) {
 			return false;
 		}
 
+		$xrd_timeout = Config::get('system', 'xrd_timeout');
+
 		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 
-		$curlResult = Network::curl($webfinger, false, $redirects, ['accept_content' => 'application/jrd+json,application/json']);
+		$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
 		if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-			return false;
+			$webfinger = Strings::normaliseLink($webfinger);
+
+			$curlResult = Network::curl($webfinger, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/jrd+json,application/json']);
+
+			if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+				return false;
+			}
 		}
 
 		$data = json_decode($curlResult->getBody(), true);
@@ -46,11 +56,15 @@ class APContact extends BaseObject
 		}
 
 		foreach ($data['links'] as $link) {
+			if (!empty($url) && !empty($link['href']) && ($link['href'] == $url)) {
+				return true;
+			}
+
 			if (empty($link['href']) || empty($link['rel']) || empty($link['type'])) {
 				continue;
 			}
 
-			if (($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
+			if (empty($url) && ($link['rel'] == 'self') && ($link['type'] == 'application/activity+json')) {
 				return $link['href'];
 			}
 		}
@@ -72,6 +86,8 @@ class APContact extends BaseObject
 		if (empty($url)) {
 			return false;
 		}
+
+		$fetched_contact = false;
 
 		if (empty($update)) {
 			if (is_null($update)) {
@@ -96,24 +112,28 @@ class APContact extends BaseObject
 			if (!is_null($update)) {
 				return DBA::isResult($apcontact) ? $apcontact : false;
 			}
+
+			if (DBA::isResult($apcontact)) {
+				$fetched_contact = $apcontact;
+			}
 		}
 
 		if (empty(parse_url($url, PHP_URL_SCHEME))) {
 			$url = self::addrToUrl($url);
 			if (empty($url)) {
-				return false;
+				return $fetched_contact;
 			}
 		}
 
 		$data = ActivityPub::fetchContent($url);
 		if (empty($data)) {
-			return false;
+			return $fetched_contact;
 		}
 
 		$compacted = JsonLD::compact($data);
 
 		if (empty($compacted['@id'])) {
-			return false;
+			return $fetched_contact;
 		}
 
 		$apcontact = [];
@@ -152,8 +172,14 @@ class APContact extends BaseObject
 			$apcontact['alias'] = JsonLD::fetchElement($compacted['as:url'], 'as:href', '@id');
 		}
 
-		if (empty($apcontact['url']) || empty($apcontact['inbox'])) {
-			return false;
+		// Quit if none of the basic values are set
+		if (empty($apcontact['url']) || empty($apcontact['inbox']) || empty($apcontact['type'])) {
+			return $fetched_contact;
+		}
+
+		// Quit if this doesn't seem to be an account at all
+		if (!in_array($apcontact['type'], ActivityPub::ACCOUNT_TYPES)) {
+			return $fetched_contact;
 		}
 
 		$parts = parse_url($apcontact['url']);
@@ -183,11 +209,13 @@ class APContact extends BaseObject
 		// Unhandled from Kroeg
 		// kroeg:blocks, updated
 
-		// Check if the address is resolvable
-		if (self::addrToUrl($apcontact['addr']) == $apcontact['url']) {
-			$parts = parse_url($apcontact['url']);
-			unset($parts['path']);
-			$apcontact['baseurl'] = Network::unparseURL($parts);
+		$parts = parse_url($apcontact['url']);
+		unset($parts['path']);
+		$baseurl = Network::unparseURL($parts);
+
+		// Check if the address is resolvable or the profile url is identical with the base url of the system
+		if (self::addrToUrl($apcontact['addr'], $apcontact['url']) || Strings::compareLink($apcontact['url'], $baseurl)) {
+			$apcontact['baseurl'] = $baseurl;
 		} else {
 			$apcontact['addr'] = null;
 		}
@@ -203,6 +231,11 @@ class APContact extends BaseObject
 		$apcontact['updated'] = DateTimeFormat::utcNow();
 
 		DBA::update('apcontact', $apcontact, ['url' => $url], true);
+
+		// We delete the old entry when the URL is changed
+		if (($url != $apcontact['url']) && DBA::exists('apcontact', ['url' => $url]) && DBA::exists('apcontact', ['url' => $apcontact['url']])) {
+			DBA::delete('apcontact', ['url' => $url]);
+		}
 
 		// Update some data in the contact table with various ways to catch them all
 		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about'], 'alias' => $apcontact['alias']];
@@ -228,11 +261,13 @@ class APContact extends BaseObject
 
 		DBA::update('contact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
 
-		$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
-		while ($contact = DBA::fetch($contacts)) {
-			Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
+		if (!empty($apcontact['photo'])) {
+			$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
+			while ($contact = DBA::fetch($contacts)) {
+				Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
+			}
+			DBA::close($contacts);
 		}
-		DBA::close($contacts);
 
 		// Update the gcontact table
 		// These two fields don't exist in the gcontact table

@@ -111,7 +111,7 @@ class ForumManager
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = [
-					'url' => 'network?f=&cid=' . $contact['id'],
+					'url' => 'network?cid=' . $contact['id'],
 					'external_url' => Contact::magicLink($contact['url']),
 					'name' => $contact['name'],
 					'cid' => $contact['id'],

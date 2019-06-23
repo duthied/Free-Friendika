@@ -28,6 +28,7 @@ use Friendica\Protocol\Email;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Friendica\Worker\Delivery;
 
 function get_theme_config_file($theme)
 {
@@ -390,7 +391,7 @@ function settings_post(App $a)
 	BaseModule::checkFormSecurityTokenRedirectOnError('/settings', 'settings');
 
 	if (!empty($_POST['resend_relocate'])) {
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
 		info(L10n::t("Relocate message has been send to your contacts"));
 		$a->internalRedirect('settings');
 	}

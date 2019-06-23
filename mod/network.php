@@ -78,9 +78,7 @@ function network_init(App $a)
 
 	// convert query string to array. remove friendica args
 	$query_array = [];
-	$query_string = str_replace($a->cmd . '?', '', $a->query_string);
-	parse_str($query_string, $query_array);
-	array_shift($query_array);
+	parse_str(parse_url($a->query_string, PHP_URL_QUERY), $query_array);
 
 	// fetch last used network view and redirect if needed
 	if (!$is_a_date_query) {
@@ -100,7 +98,7 @@ function network_init(App $a)
 
 		if ($remember_tab) {
 			// redirect if current selected tab is '/network' and
-			// last selected tab is _not_ '/network?f=&order=comment'.
+			// last selected tab is _not_ '/network?order=comment'.
 			// and this isn't a date query
 
 			$tab_baseurls = [
@@ -112,12 +110,12 @@ function network_init(App $a)
 				'',     //bookmarked
 			];
 			$tab_args = [
-				'f=&order=comment', //all
-				'f=&order=post',    //postord
-				'f=&conv=1',        //conv
+				'order=comment', //all
+				'order=post',    //postord
+				'conv=1',        //conv
 				'',                 //new
-				'f=&star=1',        //starred
-				'f=&bmark=1',       //bookmarked
+				'star=1',        //starred
+				'bmark=1',       //bookmarked
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -141,7 +139,7 @@ function network_init(App $a)
 
 		if ($remember_tab) {
 			$net_args = array_merge($query_array, $net_args);
-			$net_queries = build_querystring($net_args);
+			$net_queries = http_build_query($net_args);
 
 			$redir_url = ($net_queries ? $net_baseurl . '?' . $net_queries : $net_baseurl);
 
@@ -155,7 +153,7 @@ function network_init(App $a)
 
 	$a->page['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
 	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
-	$a->page['aside'] .= posted_date_widget('network', local_user(), false);
+	$a->page['aside'] .= Widget::postedByYear('network', local_user(), false);
 	$a->page['aside'] .= Widget::networks('network', defaults($_GET, 'nets', '') );
 	$a->page['aside'] .= saved_searches($search);
 	$a->page['aside'] .= Widget::fileAs('network', defaults($_GET, 'file', '') );
@@ -203,12 +201,12 @@ function saved_searches($search)
  *
  * urls -> returns
  *        '/network'                    => $no_active = 'active'
- *        '/network?f=&order=comment'    => $comment_active = 'active'
- *        '/network?f=&order=post'    => $postord_active = 'active'
- *        '/network?f=&conv=1',        => $conv_active = 'active'
+ *        '/network?order=comment'    => $comment_active = 'active'
+ *        '/network?order=post'    => $postord_active = 'active'
+ *        '/network?conv=1',        => $conv_active = 'active'
  *        '/network/new',                => $new_active = 'active'
- *        '/network?f=&star=1',        => $starred_active = 'active'
- *        '/network?f=&bmark=1',        => $bookmarked_active = 'active'
+ *        '/network?star=1',        => $starred_active = 'active'
+ *        '/network?bmark=1',        => $bookmarked_active = 'active'
  *
  * @param App $a
  * @return array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
@@ -974,7 +972,7 @@ function network_tabs(App $a)
 	$tabs = [
 		[
 			'label'	=> L10n::t('Commented Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=comment' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
+			'url'	=> str_replace('/new', '', $cmd) . '?order=comment' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $all_active,
 			'title'	=> L10n::t('Sort by Comment Date'),
 			'id'	=> 'commented-order-tab',
@@ -982,7 +980,7 @@ function network_tabs(App $a)
 		],
 		[
 			'label'	=> L10n::t('Posted Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?f=&order=post' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
+			'url'	=> str_replace('/new', '', $cmd) . '?order=post' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $postord_active,
 			'title'	=> L10n::t('Sort by Post Date'),
 			'id'	=> 'posted-order-tab',
@@ -992,7 +990,7 @@ function network_tabs(App $a)
 
 	$tabs[] = [
 		'label'	=> L10n::t('Personal'),
-		'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+		'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
 		'sel'	=> $conv_active,
 		'title'	=> L10n::t('Posts that mention or involve you'),
 		'id'	=> 'personal-tab',
@@ -1002,7 +1000,7 @@ function network_tabs(App $a)
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
 		$tabs[] = [
 			'label'	=> L10n::t('New'),
-			'url'	=> 'network/new' . (!empty($_GET['cid']) ? '/?f=&cid=' . $_GET['cid'] : ''),
+			'url'	=> 'network/new' . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : ''),
 			'sel'	=> $new_active,
 			'title'	=> L10n::t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
@@ -1013,7 +1011,7 @@ function network_tabs(App $a)
 	if (Feature::isEnabled(local_user(), 'link_tab')) {
 		$tabs[] = [
 			'label'	=> L10n::t('Shared Links'),
-			'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
+			'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
 			'sel'	=> $bookmarked_active,
 			'title'	=> L10n::t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
@@ -1023,7 +1021,7 @@ function network_tabs(App $a)
 
 	$tabs[] = [
 		'label'	=> L10n::t('Starred'),
-		'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?f=&cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+		'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : '/?f=') . '&star=1',
 		'sel'	=> $starred_active,
 		'title'	=> L10n::t('Favourite Posts'),
 		'id'	=> 'starred-posts-tab',

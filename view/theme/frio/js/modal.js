@@ -93,6 +93,21 @@ $(document).ready(function(){
 		input.val(img);
 		
 	});
+
+	// Generic delegated event to open an anchor URL in a modal.
+	// Used in the hovercard.
+	document.getElementsByTagName('body')[0].addEventListener('click', function(e) {
+		var target = e.target;
+		while (target) {
+			if (target.matches && target.matches('a.add-to-modal')) {
+				addToModal(target.href);
+				e.preventDefault();
+				return false;
+			}
+
+			target = target.parentNode || null;
+		}
+	});
 });
 
 // Overwrite Dialog.show from main js to load the filebrowser into a bs modal.

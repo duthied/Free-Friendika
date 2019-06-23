@@ -6,7 +6,10 @@ use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\Core\Session;
+use Friendica\Network\HTTPException\ForbiddenException;
+
+require_once 'boot.php';
 
 /**
  * This abstract module is meant to be extended by all modules that are reserved to administrator users.
@@ -35,11 +38,11 @@ abstract class BaseAdminModule extends BaseModule
 	public static function rawContent()
 	{
 		if (!is_site_admin()) {
-			System::httpExit(403);
+			return '';
 		}
 
 		if (!empty($_SESSION['submanage'])) {
-			System::httpExit(403);
+			return '';
 		}
 
 		return '';
@@ -47,21 +50,18 @@ abstract class BaseAdminModule extends BaseModule
 
 	public static function content()
 	{
+		$a = self::getApp();
+
 		if (!is_site_admin()) {
-			return Login::form();
+			notice(L10n::t('Please login to continue.'));
+			Session::set('return_path', $a->query_string);
+			$a->internalRedirect('login');
 		}
 
 		if (!empty($_SESSION['submanage'])) {
-			return '';
+			throw new ForbiddenException(L10n::t('Submanaged account can\'t access the administation pages. Please log back in as the master account.'));
 		}
 
-		$a = self::getApp();
-
-		// APC deactivated, since there are problems with PHP 5.5
-		//if (function_exists("apc_delete")) {
-		// $toDelete = new APCIterator('user', APC_ITER_VALUE);
-		// apc_delete($toDelete);
-		//}
 		// Header stuff
 		$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/settings_head.tpl'), []);
 

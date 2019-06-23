@@ -13,6 +13,7 @@ use Friendica\Model\Item;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Worker\Delivery;
 
 /**
  * Class to handle private messages
@@ -45,6 +46,8 @@ class Mail
 			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
 		}
 
+		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
+
 		DBA::lock('mail');
 
 		if (DBA::exists('mail', ['uri' => $msg['uri'], 'uid' => $msg['uid']])) {
@@ -72,7 +75,7 @@ class Mail
 			'to_email' => $user['email'],
 			'uid' => $user['uid'],
 			'item' => $msg,
-			'parent' => $msg['parent-uri'],
+			'parent' => 0,
 			'source_name' => $msg['from-name'],
 			'source_link' => $msg['from-url'],
 			'source_photo' => $msg['from-photo'],
@@ -218,7 +221,7 @@ class Mail
 		}
 
 		if ($post_id) {
-			Worker::add(PRIORITY_HIGH, "Notifier", "mail", $post_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
 			return intval($post_id);
 		} else {
 			return -3;

@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 
 function tagger_content(App $a) {
 
@@ -194,7 +195,7 @@ EOT;
 
 	Hook::callAll('post_local_end', $arr);
 
-	Worker::add(PRIORITY_HIGH, "Notifier", "tag", $post_id);
+	Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $post_id);
 
 	exit();
 }

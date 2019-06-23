@@ -16,11 +16,13 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 use LightOpenID;
 
 /**
@@ -148,10 +150,11 @@ class User
 	 * @brief Get owner data by user id
 	 *
 	 * @param int $uid
+	 * @param boolean $check_valid Test if data is invalid and correct it
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataById($uid) {
+	public static function getOwnerDataById($uid, $check_valid = true) {
 		$r = DBA::fetchFirst("SELECT
 			`contact`.*,
 			`user`.`prvkey` AS `uprvkey`,
@@ -179,12 +182,34 @@ class User
 			return false;
 		}
 
-		// Check if the returned data is valid, otherwise fix it. See issue #6122
-		$url = System::baseUrl() . '/profile/' . $r['nickname'];
-		$addr = $r['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+		if (!$check_valid) {
+			return $r;
+		}
 
-		if (($addr != $r['addr']) || ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']))) {
+		// Check if the returned data is valid, otherwise fix it. See issue #6122
+
+		// Check for correct url and normalised nurl
+		$url = System::baseUrl() . '/profile/' . $r['nickname'];
+		$repair = ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']));
+
+		if (!$repair) {
+			// Check if "addr" is present and correct
+			$addr = $r['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+			$repair = ($addr != $r['addr']);
+		}
+
+		if (!$repair) {
+			// Check if the avatar field is filled and the photo directs to the correct path
+			$avatar = Photo::selectFirst(['resource-id'], ['uid' => $uid, 'profile' => true]);
+			if (DBA::isResult($avatar)) {
+				$repair = empty($r['avatar']) || !strpos($r['photo'], $avatar['resource-id']);
+			}
+		}
+
+		if ($repair) {
 			Contact::updateSelfFromUserID($uid);
+			// Return the corrected data and avoid a loop
+			$r = self::getOwnerDataById($uid, false);
 		}
 
 		return $r;
@@ -912,7 +937,7 @@ class User
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
 		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'removeme', $uid);
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);

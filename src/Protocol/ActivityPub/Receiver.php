@@ -194,6 +194,11 @@ class Receiver
 			return [];
 		}
 
+		if (!is_string($object_id)) {
+			Logger::info('Invalid object id', ['object' => $object_id]);
+			return [];
+		}
+
 		$object_type = self::fetchObjectType($activity, $object_id, $uid);
 
 		// Fetch the content only on activities where this matters
@@ -217,8 +222,7 @@ class Receiver
 
 			// We had been able to retrieve the object data - so we can trust the source
 			$trust_source = true;
-		} elseif (in_array($type, ['as:Like', 'as:Dislike']) ||
-			(($type == 'as:Follow') && in_array($object_type, self::CONTENT_TYPES))) {
+		} elseif (in_array($type, array_merge(self::ACTIVITY_TYPES, ['as:Follow'])) && in_array($object_type, self::CONTENT_TYPES)) {
 			// Create a mostly empty array out of the activity data (instead of the object).
 			// This way we later don't have to check for the existence of ech individual array element.
 			$object_data = self::processObject($activity);
@@ -226,6 +230,13 @@ class Receiver
 			$object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
 			$object_data['object_id'] = $object_id;
 			$object_data['object_type'] = ''; // Since we don't fetch the object, we don't know the type
+		} elseif (in_array($type, ['as:Add'])) {
+			$object_data = [];
+			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
+			$object_data['target_id'] = JsonLD::fetchElement($activity, 'as:target', '@id');
+			$object_data['object_id'] = JsonLD::fetchElement($activity, 'as:object', '@id');
+			$object_data['object_type'] = JsonLD::fetchElement($activity['as:object'], '@type');
+			$object_data['object_content'] = JsonLD::fetchElement($activity['as:object'], 'as:content', '@type');
 		} else {
 			$object_data = [];
 			$object_data['id'] = JsonLD::fetchElement($activity, '@id');
@@ -363,6 +374,12 @@ class Receiver
 			case 'as:Create':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					ActivityPub\Processor::createItem($object_data);
+				}
+				break;
+
+			case 'as:Add':
+				if ($object_data['object_type'] == 'as:tag') {
+					ActivityPub\Processor::addTag($object_data);
 				}
 				break;
 
@@ -723,11 +740,11 @@ class Receiver
 	 * @param boolean $trust_source Do we trust the provided object?
 	 * @param integer $uid          User ID for the signature that we use to fetch data
 	 *
-	 * @return array with trusted and valid object data
+	 * @return array|false with trusted and valid object data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function fetchObject($object_id, $object = [], $trust_source = false, $uid = 0)
+	private static function fetchObject(string $object_id, array $object = [], bool $trust_source = false, int $uid = 0)
 	{
 		// By fetching the type we check if the object is complete.
 		$type = JsonLD::fetchElement($object, '@type');
@@ -766,13 +783,14 @@ class Receiver
 
 		if ($type == 'as:Announce') {
 			$object_id = JsonLD::fetchElement($object, 'object', '@id');
-			if (empty($object_id)) {
+			if (empty($object_id) || !is_string($object_id)) {
 				return false;
 			}
 			return self::fetchObject($object_id, [], false, $uid);
 		}
 
 		Logger::log('Unhandled object type: ' . $type, Logger::DEBUG);
+		return false;
 	}
 
 	/**

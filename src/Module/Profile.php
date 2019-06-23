@@ -179,12 +179,9 @@ class Profile extends BaseModule
 		}
 
 		if (!$update) {
-			$tab = false;
-			if (!empty($_GET['tab'])) {
-				$tab = Strings::escapeTags(trim($_GET['tab']));
-			}
+            $tab = Strings::escapeTags(trim(defaults($_GET, 'tab', '')));
 
-			$o .= ProfileModel::getTabs($a, $is_owner, $a->profile['nickname']);
+			$o .= ProfileModel::getTabs($a, $tab, $is_owner, $a->profile['nickname']);
 
 			if ($tab === 'profile') {
 				$o .= ProfileModel::getAdvanced($a);
@@ -197,8 +194,8 @@ class Profile extends BaseModule
 			$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 			$commvisitor = $commpage && $remote_contact;
 
-			$a->page['aside'] .= posted_date_widget(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'], true);
-			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], (!empty($category) ? XML::escape($category) : ''));
+			$a->page['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
+			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
 			$a->page['aside'] .= Widget::tagCloud();
 
 			if (Security::canWriteToUserWall($a->profile['profile_uid'])) {

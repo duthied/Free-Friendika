@@ -16,6 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
+use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
@@ -133,8 +134,16 @@ class Photo extends BaseObject
 		if ($r === false) {
 			return false;
 		}
+		$uid = $r["uid"];
 
-		$sql_acl = Security::getPermissionsSQLByUserId($r["uid"]);
+		// This is the first place, when retrieving just a photo, that we know who owns the photo.
+		// Make sure that the requester's session is appropriately authenticated to that user
+		// otherwise permissions checks done by getPermissionsSQLByUserId() won't work correctly
+		$r = DBA::selectFirst("user", ["nickname"], ["uid" => $uid], []);
+		// this will either just return (if auth all ok) or will redirect and exit (starting over)
+		DFRN::autoRedir(self::getApp(), $r["nickname"]);
+
+		$sql_acl = Security::getPermissionsSQLByUserId($uid);
 
 		$conditions = [
 			"`resource-id` = ? AND `scale` <= ? " . $sql_acl,
@@ -413,13 +422,22 @@ class Photo extends BaseObject
 		$photo_failure = false;
 
 		$filename = basename($image_url);
-		$img_str = Network::fetchUrl($image_url, true);
+		if (!empty($image_url)) {
+			$ret = Network::curl($image_url, true);
+			$img_str = $ret->getBody();
+			$type = $ret->getContentType();
+		} else {
+			$img_str = '';
+		}
 
 		if ($quit_on_error && ($img_str == "")) {
 			return false;
 		}
 
-		$type = Image::guessType($image_url, true);
+		if (empty($type)) {
+			$type = Image::guessType($image_url, true);
+		}
+
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);

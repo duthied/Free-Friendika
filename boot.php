@@ -31,7 +31,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2019.06-dev');
+define('FRIENDICA_VERSION',      '2019.06');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -533,39 +533,6 @@ function is_site_admin()
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
 	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
-}
-
-/**
- * @brief Returns querystring as string from a mapped array.
- *
- * @param array  $params mapped array with query parameters
- * @param string $name   of parameter, default null
- *
- * @return string
- */
-function build_querystring($params, $name = null)
-{
-	$ret = "";
-	foreach ($params as $key => $val) {
-		if (is_array($val)) {
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name == null) {
-				$ret .= build_querystring($val, $key);
-			} else {
-				$ret .= build_querystring($val, $name . "[$key]");
-			}
-		} else {
-			$val = urlencode($val);
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name != null) {
-				/// @TODO two string concated, can be merged to one
-				$ret .= $name . "[$key]" . "=$val&";
-			} else {
-				$ret .= "$key=$val&";
-			}
-		}
-	}
-	return $ret;
 }
 
 function explode_querystring($query)

@@ -259,7 +259,7 @@ class ACL extends BaseObject
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getFullSelectorHTML(array $user, $show_jotnets = false, array $default_permissions = [])
+	public static function getFullSelectorHTML(array $user = null, $show_jotnets = false, array $default_permissions = [])
 	{
 		// Defaults user permissions
 		if (empty($default_permissions)) {
@@ -314,7 +314,7 @@ class ACL extends BaseObject
 			'$aclModalTitle' => L10n::t('Permissions'),
 			'$aclModalDismiss' => L10n::t('Close'),
 			'$features' => [
-				'aclautomention' => Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
+				'aclautomention' => !empty($user['uid']) && Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
 			],
 		]);
 

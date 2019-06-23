@@ -37,6 +37,9 @@ class APDelivery extends BaseObject
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$success = ActivityPub\Transmitter::sendContactSuggestion($uid, $inbox, $target_id);
 		} elseif ($cmd == Delivery::RELOCATION) {
+			// @todo Implementation pending
+		} elseif ($cmd == Delivery::POKE) {
+			// Implementation not planned
 		} elseif ($cmd == Delivery::REMOVAL) {
 			$success = ActivityPub\Transmitter::sendProfileDeletion($uid, $inbox);
 		} elseif ($cmd == Delivery::PROFILEUPDATE) {
@@ -45,7 +48,7 @@ class APDelivery extends BaseObject
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($target_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
-				if ($success && in_array($cmd, [Delivery::POST, Delivery::COMMENT])) {
+				if ($success && in_array($cmd, [Delivery::POST])) {
 					ItemDeliveryData::incrementQueueDone($target_id);
 				}
 			}

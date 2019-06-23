@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "d7302553201de079b72871c0b2922ce7",
+    "content-hash": "eb985236d64ed0b0fe1fc2e4ac6616e2",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -147,6 +147,51 @@
             ],
             "description": "Base64 encoding and decoding",
             "time": "2017-03-25T21:16:21+00:00"
+        },
+        {
+            "name": "bower-asset/dompurify",
+            "version": "1.0.10",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cure53/DOMPurify.git",
+                "reference": "b537cab466329b1b077e0e5e3c14edad2b7142f7"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cure53/DOMPurify/zipball/b537cab466329b1b077e0e5e3c14edad2b7142f7",
+                "reference": "b537cab466329b1b077e0e5e3c14edad2b7142f7",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": "src/purify.js",
+                "bower-asset-ignore": [
+                    "**/.*",
+                    "demos",
+                    "scripts",
+                    "test",
+                    "website"
+                ]
+            },
+            "license": [
+                "MPL-2.0",
+                "Apache-2.0"
+            ],
+            "description": "A DOM-only, super-fast, uber-tolerant XSS sanitizer for HTML, MathML and SVG",
+            "keywords": [
+                "cross site scripting",
+                "dom",
+                "filter",
+                "html",
+                "mathml",
+                "sanitize",
+                "sanitizer",
+                "secure",
+                "security",
+                "svg",
+                "xss"
+            ],
+            "time": "2019-02-19T13:27:01+00:00"
         },
         {
             "name": "bower-asset/perfect-scrollbar",
@@ -1175,6 +1220,22 @@
             "require": {
                 "npm-asset/ev-emitter": ">=1.0.0,<2.0.0"
             },
+            "require-dev": {
+                "npm-asset/chalk": ">=1.1.1,<2.0.0",
+                "npm-asset/cheerio": ">=0.19.0,<0.20.0",
+                "npm-asset/gulp": ">=3.9.0,<4.0.0",
+                "npm-asset/gulp-jshint": ">=1.11.2,<2.0.0",
+                "npm-asset/gulp-json-lint": ">=0.1.0,<0.2.0",
+                "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
+                "npm-asset/gulp-replace": ">=0.5.4,<0.6.0",
+                "npm-asset/gulp-requirejs-optimize": "dev-github:metafizzy/gulp-requirejs-optimize",
+                "npm-asset/gulp-uglify": ">=1.4.2,<2.0.0",
+                "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
+                "npm-asset/highlight.js": ">=8.9.1,<9.0.0",
+                "npm-asset/marked": ">=0.3.5,<0.4.0",
+                "npm-asset/minimist": ">=1.2.0,<2.0.0",
+                "npm-asset/transfob": ">=1.0.0,<2.0.0"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1220,6 +1281,14 @@
                 "reference": null,
                 "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
             },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.2",
+                "npm-asset/grunt-contrib-cssmin": "~0.9.0",
+                "npm-asset/grunt-contrib-jshint": "~0.6.3",
+                "npm-asset/grunt-contrib-less": "~0.11.0",
+                "npm-asset/grunt-contrib-uglify": "~0.4.0",
+                "npm-asset/grunt-contrib-watch": "~0.6.1"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1252,6 +1321,32 @@
                 "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
                 "reference": null,
                 "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
+            },
+            "require-dev": {
+                "npm-asset/commitplease": "2.0.0",
+                "npm-asset/core-js": "0.9.17",
+                "npm-asset/grunt": "0.4.5",
+                "npm-asset/grunt-babel": "5.0.1",
+                "npm-asset/grunt-cli": "0.1.13",
+                "npm-asset/grunt-compare-size": "0.4.0",
+                "npm-asset/grunt-contrib-jshint": "0.11.2",
+                "npm-asset/grunt-contrib-uglify": "0.9.2",
+                "npm-asset/grunt-contrib-watch": "0.6.1",
+                "npm-asset/grunt-git-authors": "2.0.1",
+                "npm-asset/grunt-jscs": "2.1.0",
+                "npm-asset/grunt-jsonlint": "1.0.4",
+                "npm-asset/grunt-npmcopy": "0.1.0",
+                "npm-asset/gzip-js": "0.3.2",
+                "npm-asset/jsdom": "5.6.1",
+                "npm-asset/load-grunt-tasks": "1.0.0",
+                "npm-asset/qunit-assert-step": "1.0.3",
+                "npm-asset/qunitjs": "1.17.1",
+                "npm-asset/requirejs": "2.1.17",
+                "npm-asset/sinon": "1.10.3",
+                "npm-asset/sizzle": "2.2.1",
+                "npm-asset/strip-json-comments": "1.0.3",
+                "npm-asset/testswarm": "1.1.0",
+                "npm-asset/win-spawn": "2.0.0"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1402,6 +1497,12 @@
                 "url": "https://registry.npmjs.org/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz",
                 "reference": null,
                 "shasum": "06f0335f16e353a695e7206bf50503cb523a6ee5"
+            },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.1",
+                "npm-asset/grunt-contrib-connect": "~0.5.0",
+                "npm-asset/grunt-contrib-jshint": "~0.7.1",
+                "npm-asset/grunt-contrib-uglify": "~0.2.7"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1622,25 +1723,24 @@
         },
         {
             "name": "paragonie/constant_time_encoding",
-            "version": "v1.0.4",
+            "version": "v2.2.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/paragonie/constant_time_encoding.git",
-                "reference": "2132f0f293d856026d7d11bd81b9f4a23a1dc1f6"
+                "reference": "55af0dc01992b4d0da7f6372e2eac097bbbaffdb"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/2132f0f293d856026d7d11bd81b9f4a23a1dc1f6",
-                "reference": "2132f0f293d856026d7d11bd81b9f4a23a1dc1f6",
+                "url": "https://api.github.com/repos/paragonie/constant_time_encoding/zipball/55af0dc01992b4d0da7f6372e2eac097bbbaffdb",
+                "reference": "55af0dc01992b4d0da7f6372e2eac097bbbaffdb",
                 "shasum": ""
             },
             "require": {
-                "php": "^5.3|^7"
+                "php": "^7"
             },
             "require-dev": {
-                "paragonie/random_compat": "^1.4|^2",
-                "phpunit/phpunit": "4.*|5.*",
-                "vimeo/psalm": "^0.3|^1"
+                "phpunit/phpunit": "^6|^7",
+                "vimeo/psalm": "^1|^2"
             },
             "type": "library",
             "autoload": {
@@ -1681,7 +1781,56 @@
                 "hex2bin",
                 "rfc4648"
             ],
-            "time": "2018-04-30T17:57:16+00:00"
+            "time": "2019-01-03T20:26:31+00:00"
+        },
+        {
+            "name": "paragonie/hidden-string",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/paragonie/hidden-string.git",
+                "reference": "0bbb00be0e33b8e1d48fa79ea35cd42d3091a936"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/paragonie/hidden-string/zipball/0bbb00be0e33b8e1d48fa79ea35cd42d3091a936",
+                "reference": "0bbb00be0e33b8e1d48fa79ea35cd42d3091a936",
+                "shasum": ""
+            },
+            "require": {
+                "paragonie/constant_time_encoding": "^2",
+                "paragonie/sodium_compat": "^1.6",
+                "php": "^7"
+            },
+            "require-dev": {
+                "phpunit/phpunit": "^6|^7",
+                "vimeo/psalm": "^1"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "ParagonIE\\HiddenString\\": "./src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MPL-2.0"
+            ],
+            "authors": [
+                {
+                    "name": "Paragon Initiative Enterprises",
+                    "email": "info@paragonie.com",
+                    "homepage": "https://paragonie.com"
+                }
+            ],
+            "description": "Encapsulate strings in an object to hide them from stack traces",
+            "homepage": "https://github.com/paragonie/hidden-string",
+            "keywords": [
+                "hidden",
+                "stack trace",
+                "string"
+            ],
+            "time": "2018-05-07T20:28:06+00:00"
         },
         {
             "name": "paragonie/random_compat",
@@ -3600,7 +3749,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "http://www.github.com/sebastianbergmann/comparator",
+            "homepage": "https://github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -3702,7 +3851,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "http://www.github.com/sebastianbergmann/environment",
+            "homepage": "https://github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -3770,7 +3919,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "http://www.github.com/sebastianbergmann/exporter",
+            "homepage": "https://github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -3822,7 +3971,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "http://www.github.com/sebastianbergmann/global-state",
+            "homepage": "https://github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -3924,7 +4073,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
+            "homepage": "https://github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {

@@ -41,6 +41,9 @@ class Fetch extends BaseModule
 			$item = Item::selectFirst(['author-link'], $condition);
 			if (empty($item)) {
 				$parts = parse_url($item["author-link"]);
+				if (empty($parts["scheme"]) || empty($parts["host"])) {
+					throw new HTTPException\InternalServerErrorException();
+				}
 				$host = $parts["scheme"] . "://" . $parts["host"];
 
 				if (Strings::normaliseLink($host) != Strings::normaliseLink($app->getBaseURL())) {

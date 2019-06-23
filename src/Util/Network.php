@@ -23,19 +23,19 @@ class Network
 	 *
 	 * @brief Curl wrapper
 	 * @param string  $url            URL to fetch
-	 * @param boolean $binary         default false
+	 * @param bool    $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
-	 * @param integer $redirects      The recursion counter for internal use - default 0
-	 * @param integer $timeout        Timeout in seconds, default system config value or 60 seconds
+	 * @param int     $timeout        Timeout in seconds, default system config value or 60 seconds
 	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
 	 * @param string  $cookiejar      Path to cookie jar file
+	 * @param int     $redirects      The recursion counter for internal use - default 0
 	 *
 	 * @return string The fetched content
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchUrl($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
+	public static function fetchUrl(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
 	{
-		$ret = self::fetchUrlFull($url, $binary, $redirects, $timeout, $accept_content, $cookiejar);
+		$ret = self::fetchUrlFull($url, $binary, $timeout, $accept_content, $cookiejar, $redirects);
 
 		return $ret->getBody();
 	}
@@ -48,26 +48,27 @@ class Network
 	 *
 	 * @brief Curl wrapper with array of return values.
 	 * @param string  $url            URL to fetch
-	 * @param boolean $binary         default false
+	 * @param bool    $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
-	 * @param integer $redirects      The recursion counter for internal use - default 0
-	 * @param integer $timeout        Timeout in seconds, default system config value or 60 seconds
+	 * @param int     $timeout        Timeout in seconds, default system config value or 60 seconds
 	 * @param string  $accept_content supply Accept: header with 'accept_content' as the value
 	 * @param string  $cookiejar      Path to cookie jar file
+	 * @param int     $redirects      The recursion counter for internal use - default 0
 	 *
 	 * @return CurlResult With all relevant information, 'body' contains the actual fetched content.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function fetchUrlFull($url, $binary = false, &$redirects = 0, $timeout = 0, $accept_content = null, $cookiejar = '')
+	public static function fetchUrlFull(string $url, bool $binary = false, int $timeout = 0, string $accept_content = '', string $cookiejar = '', int &$redirects = 0)
 	{
 		return self::curl(
 			$url,
 			$binary,
-			$redirects,
-			['timeout'=>$timeout,
-			'accept_content'=>$accept_content,
-			'cookiejar'=>$cookiejar
-			]
+			[
+				'timeout'        => $timeout,
+				'accept_content' => $accept_content,
+				'cookiejar'      => $cookiejar
+			],
+			$redirects
 		);
 	}
 
@@ -75,9 +76,8 @@ class Network
 	 * @brief fetches an URL.
 	 *
 	 * @param string  $url       URL to fetch
-	 * @param boolean $binary    default false
+	 * @param bool    $binary    default false
 	 *                           TRUE if asked to return binary results (file download)
-	 * @param int     $redirects The recursion counter for internal use - default 0
 	 * @param array   $opts      (optional parameters) assoziative array with:
 	 *                           'accept_content' => supply Accept: header with 'accept_content' as the value
 	 *                           'timeout' => int Timeout in seconds, default system config value or 60 seconds
@@ -86,11 +86,12 @@ class Network
 	 *                           'nobody' => only return the header
 	 *                           'cookiejar' => path to cookie jar file
 	 *                           'header' => header array
+	 * @param int     $redirects The recursion counter for internal use - default 0
 	 *
 	 * @return CurlResult
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function curl($url, $binary = false, &$redirects = 0, $opts = [])
+	public static function curl(string $url, bool $binary = false, array $opts = [], int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -227,7 +228,7 @@ class Network
 			$redirects++;
 			Logger::log('curl: redirect ' . $url . ' to ' . $curlResponse->getRedirectUrl());
 			@curl_close($ch);
-			return self::curl($curlResponse->getRedirectUrl(), $binary, $redirects, $opts);
+			return self::curl($curlResponse->getRedirectUrl(), $binary, $opts, $redirects);
 		}
 
 		@curl_close($ch);
@@ -242,14 +243,14 @@ class Network
 	 *
 	 * @param string  $url       URL to post
 	 * @param mixed   $params    array of POST variables
-	 * @param string  $headers   HTTP headers
-	 * @param integer $redirects Recursion counter for internal use - default = 0
-	 * @param integer $timeout   The timeout in seconds, default system config value or 60 seconds
+	 * @param array   $headers   HTTP headers
+	 * @param int     $redirects Recursion counter for internal use - default = 0
+	 * @param int     $timeout   The timeout in seconds, default system config value or 60 seconds
 	 *
 	 * @return CurlResult The content
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function post($url, $params, $headers = null, &$redirects = 0, $timeout = 0)
+	public static function post(string $url, $params, array $headers = [], int $timeout = 0, int &$redirects = 0)
 	{
 		$stamp1 = microtime(true);
 
@@ -285,7 +286,7 @@ class Network
 		}
 
 		if (defined('LIGHTTPD')) {
-			if (!is_array($headers)) {
+			if (empty($headers)) {
 				$headers = ['Expect:'];
 			} else {
 				if (!in_array('Expect:', $headers)) {
@@ -294,7 +295,7 @@ class Network
 			}
 		}
 
-		if ($headers) {
+		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
 
@@ -351,7 +352,7 @@ class Network
 	 * @return string|boolean The actual working URL, false else
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isUrlValid($url)
+	public static function isUrlValid(string $url)
 	{
 		if (Config::get('system', 'disable_url_validation')) {
 			return $url;
@@ -381,9 +382,8 @@ class Network
 	 *
 	 * @param string $addr The email address
 	 * @return boolean True if it's a valid email address, false if it's not
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEmailDomainValid($addr)
+	public static function isEmailDomainValid(string $addr)
 	{
 		if (Config::get('system', 'disable_email_validation')) {
 			return true;
@@ -413,9 +413,8 @@ class Network
 	 *
 	 * @param string $url URL which get tested
 	 * @return boolean True if url is allowed otherwise return false
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isUrlAllowed($url)
+	public static function isUrlAllowed(string $url)
 	{
 		$h = @parse_url($url);
 
@@ -460,7 +459,7 @@ class Network
 	 *
 	 * @return boolean
 	 */
-	public static function isUrlBlocked($url)
+	public static function isUrlBlocked(string $url)
 	{
 		$host = @parse_url($url, PHP_URL_HOST);
 		if (!$host) {
@@ -491,7 +490,7 @@ class Network
 	 *                       or if allowed list is not configured
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEmailDomainAllowed($email)
+	public static function isEmailDomainAllowed(string $email)
 	{
 		$domain = strtolower(substr($email, strpos($email, '@') + 1));
 		if (!$domain) {
@@ -516,7 +515,7 @@ class Network
 	 * @param array  $domain_list
 	 * @return boolean
 	 */
-	public static function isDomainAllowed($domain, array $domain_list)
+	public static function isDomainAllowed(string $domain, array $domain_list)
 	{
 		$found = false;
 
@@ -531,7 +530,7 @@ class Network
 		return $found;
 	}
 
-	public static function lookupAvatarByEmail($email)
+	public static function lookupAvatarByEmail(string $email)
 	{
 		$avatar['size'] = 300;
 		$avatar['email'] = $email;
@@ -554,7 +553,7 @@ class Network
 	 * @param string $url Any user-submitted URL that may contain tracking params
 	 * @return string The same URL stripped of tracking parameters
 	 */
-	public static function stripTrackingQueryParams($url)
+	public static function stripTrackingQueryParams(string $url)
 	{
 		$urldata = parse_url($url);
 		if (!empty($urldata["query"])) {
@@ -613,7 +612,7 @@ class Network
 	 * @return string A canonical URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function finalUrl($url, $depth = 1, $fetchbody = false)
+	public static function finalUrl(string $url, int $depth = 1, bool $fetchbody = false)
 	{
 		$a = \get_app();
 
@@ -724,7 +723,7 @@ class Network
 	 * @param string $url2
 	 * @return string The matching part
 	 */
-	public static function getUrlMatch($url1, $url2)
+	public static function getUrlMatch(string $url1, string $url2)
 	{
 		if (($url1 == "") || ($url2 == "")) {
 			return "";
@@ -812,7 +811,7 @@ class Network
 	 *
 	 * @return string The glued URL
 	 */
-	public static function unparseURL($parsed)
+	public static function unparseURL(array $parsed)
 	{
 		$get = function ($key) use ($parsed) {
 			return isset($parsed[$key]) ? $parsed[$key] : null;
@@ -844,7 +843,7 @@ class Network
 	 *
 	 * @return string switched URL
 	 */
-	public static function switchScheme($url)
+	public static function switchScheme(string $url)
 	{
 		$scheme = parse_url($url, PHP_URL_SCHEME);
 		if (empty($scheme)) {

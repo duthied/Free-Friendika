@@ -37,6 +37,7 @@ use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Worker\Delivery;
 use SimpleXMLElement;
 
 /**
@@ -144,7 +145,7 @@ class Diaspora
 	 */
 	private static function getRelayContact($server_url)
 	{
-		$fields = ['batch', 'id', 'name', 'network', 'archive', 'blocked'];
+		$fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'];
 
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
@@ -2147,13 +2148,9 @@ class Diaspora
 			if ($comment['id'] == $comment['parent']) {
 				continue;
 			}
-			if ($comment['verb'] == ACTIVITY_POST) {
-				$cmd = $comment['self'] ? 'comment-new' : 'comment-import';
-			} else {
-				$cmd = $comment['self'] ? 'like' : 'comment-import';
-			}
-			Logger::log("Send ".$cmd." for item ".$comment['id']." to contact ".$contact_id, Logger::DEBUG);
-			Worker::add(PRIORITY_HIGH, 'Delivery', $cmd, $comment['id'], $contact_id);
+
+			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $contact_id]);
+			Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id);
 		}
 		DBA::close($comments);
 
@@ -3110,13 +3107,12 @@ class Diaspora
 	 * @param string $envelope     The message that is to be transmitted
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $no_defer     Don't defer a failing delivery
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "", $no_defer = false)
+	private static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "")
 	{
 		$enabled = intval(Config::get("system", "diaspora_enabled"));
 		if (!$enabled) {
@@ -3155,20 +3151,6 @@ class Diaspora
 
 		Logger::log("transmit: ".$logid."-".$guid." to ".$dest_url." returns: ".$return_code);
 
-		if (!$return_code || (($return_code == 503) && (stristr($postResult->getHeader(), "retry-after")))) {
-			if (!$no_defer && !empty($contact['contact-type']) && ($contact['contact-type'] != Contact::TYPE_RELAY)) {
-				Logger::info('defer message', ['log' => $logid, 'guid' => $guid, 'destination' => $dest_url]);
-				// defer message for redelivery
-				Worker::defer();
-			}
-
-			// The message could not be delivered. We mark the contact as "dead"
-			Contact::markForArchival($contact);
-		} elseif (($return_code >= 200) && ($return_code <= 299)) {
-			// We successfully delivered a message, the contact is alive
-			Contact::unmarkForArchival($contact);
-		}
-
 		return $return_code ? $return_code : -1;
 	}
 
@@ -3197,13 +3179,12 @@ class Diaspora
 	 * @param array  $message      The message data
 	 * @param bool   $public_batch Is it a public post?
 	 * @param string $guid         message guid
-	 * @param bool   $no_defer     Don't defer a failing delivery
 	 *
 	 * @return int Result of the transmission
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "", $no_defer = false)
+	private static function buildAndTransmit(array $owner, array $contact, $type, $message, $public_batch = false, $guid = "")
 	{
 		$msg = self::buildPostXml($type, $message);
 
@@ -3217,7 +3198,7 @@ class Diaspora
 
 		$envelope = self::buildMessage($msg, $owner, $contact, $owner['uprvkey'], $contact['pubkey'], $public_batch);
 
-		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid, $no_defer);
+		$return_code = self::transmit($owner, $contact, $envelope, $public_batch, $guid);
 
 		Logger::log("guid: ".$guid." result ".$return_code, Logger::DEBUG);
 
@@ -3562,6 +3543,7 @@ class Diaspora
 		$public = ($item["private"] ? "false" : "true");
 
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"] ?? $item["created"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare
 		if (!$item['private'] && ($ret = self::isReshare($item["body"]))) {
@@ -3616,6 +3598,7 @@ class Diaspora
 			$message = ["author" => $myaddr,
 					"guid" => $item["guid"],
 					"created_at" => $created,
+					"edited_at" => $edited,
 					"public" => $public,
 					"text" => $body,
 					"provider_display_name" => $item["app"],
@@ -3794,11 +3777,13 @@ class Diaspora
 
 		$text = html_entity_decode(BBCode::toMarkdown($body));
 		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$edited = DateTimeFormat::utc($item["edited"], DateTimeFormat::ATOM);
 
 		$comment = [
 			"author"      => self::myHandle($owner),
 			"guid"        => $item["guid"],
 			"created_at"  => $created,
+			"edited_at"   => $edited,
 			"parent_guid" => $toplevel_item["guid"],
 			"text"        => $text,
 			"author_signature" => ""
@@ -3834,7 +3819,7 @@ class Diaspora
 		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
 			$message = self::constructLike($item, $owner);
 			$type = "like";
-		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW])) {
+		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW, ACTIVITY_TAG])) {
 			$message = self::constructComment($item, $owner);
 			$type = "comment";
 		}
@@ -4211,9 +4196,10 @@ class Diaspora
 
 		$message = self::createProfileData($uid);
 
+		// @ToDo Split this into single worker jobs
 		foreach ($recips as $recip) {
 			Logger::log("Send updated profile data for user ".$uid." to contact ".$recip["id"], Logger::DEBUG);
-			self::buildAndTransmit($owner, $recip, "profile", $message, false, '', true);
+			self::buildAndTransmit($owner, $recip, "profile", $message);
 		}
 	}
 

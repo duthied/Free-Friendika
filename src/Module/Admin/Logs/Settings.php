@@ -22,6 +22,12 @@ class Settings extends BaseAdminModule
 			$debugging = !empty($_POST['debugging']);
 			$loglevel  = defaults($_POST, 'loglevel', LogLevel::ERROR);
 
+			if (is_file($logfile) &&
+			!is_writeable($logfile)) {
+				notice(L10n::t('The logfile \'%s\' is not writable. No logging possible', $logfile));
+				return;
+			}
+
 			Config::set('system', 'logfile', $logfile);
 			Config::set('system', 'debugging', $debugging);
 			Config::set('system', 'loglevel', $loglevel);

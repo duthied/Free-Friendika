@@ -255,8 +255,6 @@ function frio_remote_nav($a, &$nav)
 	}
 
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
-		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), '', L10n::t('End this session')];
-
 		// user menu
 		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
 		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];

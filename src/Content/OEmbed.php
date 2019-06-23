@@ -83,8 +83,7 @@ class OEmbed
 
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
-				$redirects = 0;
-				$html_text = Network::fetchUrl($embedurl, false, $redirects, 15, 'text/*');
+				$html_text = Network::fetchUrl($embedurl, false, 15, 'text/*');
 				if ($html_text) {
 					$dom = @DOMDocument::loadHTML($html_text);
 					if ($dom) {

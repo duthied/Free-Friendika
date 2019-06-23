@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-05-15 08:55-0400\n"
-"PO-Revision-Date: 2019-05-16 17:26+0000\n"
+"PO-Revision-Date: 2019-05-17 14:06+0000\n"
 "Last-Translator: Aditoo\n"
 "Language-Team: Czech (http://www.transifex.com/Friendica/friendica/language/cs/)\n"
 "MIME-Version: 1.0\n"
@@ -9645,80 +9645,80 @@ msgstr "Dvoufázové ověřování úspěšně zakázáno."
 msgid ""
 "<p>Use an application on a mobile device to get two-factor authentication "
 "codes when prompted on login.</p>"
-msgstr ""
+msgstr "<p>Pomocí aplikace na mobilním zařízení získejte při přihlášení kódy pro dvoufázové ověřování.</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:90
 msgid "Authenticator app"
-msgstr ""
+msgstr "Autentizační aplikace"
 
 #: src/Module/Settings/TwoFactor/Index.php:91
 msgid "Configured"
-msgstr ""
+msgstr "Nakonfigurováno"
 
 #: src/Module/Settings/TwoFactor/Index.php:91
 msgid "Not Configured"
-msgstr ""
+msgstr "Nenakonfigurováno"
 
 #: src/Module/Settings/TwoFactor/Index.php:92
 msgid "<p>You haven't finished configuring your authenticator app.</p>"
-msgstr ""
+msgstr "<p>Nedokončil/a jste konfiguraci vaší autentizační aplikace.</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:93
 msgid "<p>Your authenticator app is correctly configured.</p>"
-msgstr ""
+msgstr "<p>Vaše autentizační aplikace je správně nakonfigurována.</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:95
 msgid "Recovery codes"
-msgstr ""
+msgstr "Záložní kódy"
 
 #: src/Module/Settings/TwoFactor/Index.php:96
 msgid "Remaining valid codes"
-msgstr ""
+msgstr "Zbývající platné kódy"
 
 #: src/Module/Settings/TwoFactor/Index.php:98
 msgid ""
 "<p>These one-use codes can replace an authenticator app code in case you "
 "have lost access to it.</p>"
-msgstr ""
+msgstr "<p>Tyto jednorázové kódy mohou nahradit kód autentizační aplikace, pokud k ní ztratíte přístup.</p>"
 
 #: src/Module/Settings/TwoFactor/Index.php:101
 msgid "Current password:"
-msgstr ""
+msgstr "Aktuální heslo:"
 
 #: src/Module/Settings/TwoFactor/Index.php:101
 msgid ""
 "You need to provide your current password to change two-factor "
 "authentication settings."
-msgstr ""
+msgstr "Pro změnu nastavení dvoufázového ověřování musíte poskytnout vaše aktuální heslo."
 
 #: src/Module/Settings/TwoFactor/Index.php:102
 msgid "Enable two-factor authentication"
-msgstr ""
+msgstr "Povolit dvoufázové ověřování"
 
 #: src/Module/Settings/TwoFactor/Index.php:103
 msgid "Disable two-factor authentication"
-msgstr ""
+msgstr "Zakázat dvoufázové ověřování"
 
 #: src/Module/Settings/TwoFactor/Index.php:104
 msgid "Show recovery codes"
-msgstr ""
+msgstr "Zobrazit záložní kódy"
 
 #: src/Module/Settings/TwoFactor/Index.php:105
 msgid "Finish app configuration"
-msgstr ""
+msgstr "Dokončit konfiguraci aplikace"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:34
 #: src/Module/Settings/TwoFactor/Verify.php:41
 msgid "Please enter your password to access this page."
-msgstr ""
+msgstr "Pro přístup k této stránce prosím zadejte své heslo."
 
 #: src/Module/Settings/TwoFactor/Recovery.php:50
 msgid "New recovery codes successfully generated."
-msgstr ""
+msgstr "Nové záložní kódy byly úspěšně vygenerovány."
 
 #: src/Module/Settings/TwoFactor/Recovery.php:76
 msgid "Two-factor recovery codes"
-msgstr ""
+msgstr "Dvoufázové záložní kódy"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:78
 msgid ""
@@ -9727,30 +9727,30 @@ msgid ""
 "codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your "
 "device and don’t have the recovery codes you will lose access to your "
 "account.</p>"
-msgstr ""
+msgstr "<p>Záložní kódy mohou být použity pro přístup k vašemu účtu, pokud ztratíte přístup k vašemu zařízení a nemůžete obdržet dvoufázové autentizační kódy.</p><p><strong>Uložte je na bezpečné místo!</strong> Pokud zratíte vaše zařízení a nemáte Záložní kódy, ztratíte přístup ke svému účtu.</p>"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:80
 msgid ""
 "When you generate new recovery codes, you must copy the new codes. Your old "
 "codes won’t work anymore."
-msgstr ""
+msgstr "Když vygenerujete nové záložní kódy, musíte si zkopírovat nové kódy. Vaše staré kódy již nebudou fungovat."
 
 #: src/Module/Settings/TwoFactor/Recovery.php:81
 msgid "Generate new recovery codes"
-msgstr ""
+msgstr "Vygenerovat nové záložní kódy"
 
 #: src/Module/Settings/TwoFactor/Recovery.php:83
 msgid "Next: Verification"
-msgstr ""
+msgstr "Další: Ověření"
 
 #: src/Module/Settings/TwoFactor/Verify.php:63
 msgid "Two-factor authentication successfully activated."
-msgstr ""
+msgstr "Dvoufázové ověření úspěšně aktivováno."
 
 #: src/Module/Settings/TwoFactor/Verify.php:67
 #: src/Module/TwoFactor/Recovery.php:46 src/Module/TwoFactor/Verify.php:41
 msgid "Invalid code, please retry."
-msgstr ""
+msgstr "Neplatný kód, prosím zkuste to znovu."
 
 #: src/Module/Settings/TwoFactor/Verify.php:96
 #, php-format
@@ -9770,33 +9770,33 @@ msgid ""
 "\t<dt>Hashing algorithm</dt>\n"
 "\t<dd>SHA-1</dd>\n"
 "</dl>"
-msgstr ""
+msgstr "<p>Nebo můžete zadat autentizační nastavení manuálně:</p>\n<dl>\n\t<dt>Vydavatel</dt>\n\t<dd>%s</dd>\n\t<dt>Jméno účtu</dt>\n\t<dd>%s</dd>\n\t<dt>Tajný klíč</dt>\n\t<dd>%s</dd>\n\t<dt>Typ</dt>\n\t<dd>Založený na čase</dd>\n\t<dt>Počet číslic</dt>\n\t<dd>6</dd>\n\t<dt>Hashovací algoritmus</dt>\n\t<dd>SHA-1</dd>\n</dl>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:116
 msgid "Two-factor code verification"
-msgstr ""
+msgstr "Ověření dvoufázového kódu"
 
 #: src/Module/Settings/TwoFactor/Verify.php:118
 msgid ""
 "<p>Please scan this QR Code with your authenticator app and submit the "
 "provided code.</p>"
-msgstr ""
+msgstr "<p>Prosím naskenujte tento QR kód vaší autentizační aplikací a zadejte poskytnutý kód.</p>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:120
 #, php-format
 msgid ""
 "<p>Or you can open the following URL in your mobile devicde:</p><p><a "
 "href=\"%s\">%s</a></p>"
-msgstr ""
+msgstr "<p>Nebo můžete otevřít na vašem mobilním zařízení následující URL: </p><p><a href=\"%s\">%s</a></p>"
 
 #: src/Module/Settings/TwoFactor/Verify.php:126
 #: src/Module/TwoFactor/Verify.php:63
 msgid "Please enter a code from your authentication app"
-msgstr ""
+msgstr "Prosím zadejte kód z vaší autentizační aplikace"
 
 #: src/Module/Settings/TwoFactor/Verify.php:127
 msgid "Verify code and enable two-factor authentication"
-msgstr ""
+msgstr "Ověřit kód a povolit dvoufázové ověřování"
 
 #: src/Module/Special/HTTPException.php:32
 msgid "Bad Request"
@@ -9899,40 +9899,40 @@ msgstr "Prohlášení o soukromí"
 #: src/Module/TwoFactor/Recovery.php:41
 #, php-format
 msgid "Remaining recovery codes: %d"
-msgstr ""
+msgstr "Zbývající záložní kódy: %d"
 
 #: src/Module/TwoFactor/Recovery.php:65
 msgid "Two-factor recovery"
-msgstr ""
+msgstr "Dvoufázové záložní kódy"
 
 #: src/Module/TwoFactor/Recovery.php:66
 msgid ""
 "<p>You can enter one of your one-time recovery codes in case you lost access"
 " to your mobile device.</p>"
-msgstr ""
+msgstr "<p>Pokud jste ztratil/a přístup k vašemu mobilnímu zařízení , můžete zadat jeden z vašich jednorázových záložních kódů.</p>"
 
 #: src/Module/TwoFactor/Recovery.php:67 src/Module/TwoFactor/Verify.php:62
 #, php-format
 msgid "Don’t have your phone? <a href=\"%s\">Enter a two-factor recovery code</a>"
-msgstr ""
+msgstr "Nemáte svůj mobil? <a href=\"%s\">Zadejte dvoufázový záložní kód</a>"
 
 #: src/Module/TwoFactor/Recovery.php:68
 msgid "Please enter a recovery code"
-msgstr ""
+msgstr "Prosím zadejte záložní kód"
 
 #: src/Module/TwoFactor/Recovery.php:69
 msgid "Submit recovery code and complete login"
-msgstr ""
+msgstr "Odeslat záložní kód a dokončit přihlášení"
 
 #: src/Module/TwoFactor/Verify.php:61
 msgid ""
 "<p>Open the two-factor authentication app on your device to get an "
 "authentication code and verify your identity.</p>"
-msgstr ""
+msgstr "<p>Otevřete na vašem zařízení aplikaci pro dvoufázové ověřování, získejte autentizační kód a ověřte svou identitu.</p>"
 
 #: src/Module/TwoFactor/Verify.php:64
 msgid "Verify code and complete login"
-msgstr ""
+msgstr "Ověřit kód a dokončit přihlášení"
 
 #: src/Object/Post.php:137
 msgid "This entry was edited"

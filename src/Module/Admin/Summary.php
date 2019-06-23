@@ -26,7 +26,7 @@ class Summary extends BaseAdminModule
 
 		// are there MyISAM tables in the DB? If so, trigger a warning message
 		$warningtext = [];
-		if (DBA::count('`information_schema`.`tables`', ['engine' => 'myisam', 'table_schema' => DBA::databaseName()])) {
+		if (DBA::count(['information_schema' => 'tables'], ['engine' => 'myisam', 'table_schema' => DBA::databaseName()])) {
 			$warningtext[] = L10n::t('Your DB still runs with MyISAM tables. You should change the engine type to InnoDB. As Friendica will use InnoDB only features in the future, you should change this! See <a href="%s">here</a> for a guide that may be helpful converting the table engines. You may also use the command <tt>php bin/console.php dbstructure toinnodb</tt> of your Friendica installation for an automatic conversion.<br />', 'https://dev.mysql.com/doc/refman/5.7/en/converting-tables-to-innodb.html');
 		}
 
@@ -72,6 +72,23 @@ class Summary extends BaseAdminModule
 			$well_known = $a->getBaseURL() . '/.well-known/host-meta';
 			$warningtext[] = L10n::t('<a href="%s">%s</a> is not reachable on your system. This is a severe configuration issue that prevents server to server communication. See <a href="%s">the installation page</a> for help.',
 				$well_known, $well_known, $a->getBaseURL() . '/help/Install');
+		}
+
+		// Check logfile permission
+		if (Config::get('system', 'debugging')) {
+			$stream = Config::get('system', 'logfile');
+
+			if (is_file($stream) &&
+			    !is_writeable($stream)) {
+				$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+			}
+
+			$stream = Config::get('system', 'dlogfile');
+
+			if (is_file($stream) &&
+			    !is_writeable($stream)) {
+				$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+			}
 		}
 
 		// check legacy basepath settings
@@ -129,8 +146,6 @@ class Summary extends BaseAdminModule
 
 		$pending = Register::getPendingCount();
 
-		$queue = DBA::count('queue', []);
-
 		$deferred = DBA::count('workerqueue', ['`executed` <= ? AND NOT `done` AND `next_try` > ?',
 			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
 
@@ -138,7 +153,7 @@ class Summary extends BaseAdminModule
 			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
 
 		// We can do better, but this is a quick queue status
-		$queues = ['label' => L10n::t('Message queues'), 'queue' => $queue, 'deferred' => $deferred, 'workerq' => $workerqueue];
+		$queues = ['label' => L10n::t('Message queues'), 'deferred' => $deferred, 'workerq' => $workerqueue];
 
 		$variables = DBA::toArray(DBA::p('SHOW variables LIKE "max_allowed_packet"'));
 		$max_allowed_packet = $variables ? $variables[0]['Value'] : 0;

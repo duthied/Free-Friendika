@@ -358,6 +358,7 @@ Called from `Emailer::send()` before building the mime message.
 - **htmlVersion**: html version of the message
 - **textVersion**: text only version of the message
 - **additionalMailHeader**: additions to the smtp mail header
+- **sent**: default false, if set to true in the hook, the default mailer will be skipped.
 
 ### emailer_send
 Called before calling PHP's `mail()`.
@@ -367,6 +368,7 @@ Called before calling PHP's `mail()`.
 - **subject**
 - **body**
 - **headers**
+- **sent**: default false, if set to true in the hook, the default mailer will be skipped.
 
 ### load_config
 Called during `App` initialization to allow addons to load their own configuration file(s) with `App::loadConfigFile()`.

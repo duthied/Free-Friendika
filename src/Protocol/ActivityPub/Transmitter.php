@@ -21,6 +21,7 @@ use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
+use Friendica\Util\XML;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
 use Friendica\Model\Profile;
@@ -228,11 +229,6 @@ class Transmitter
 			return [];
 		}
 
-		// On old installations and never changed contacts this might not be filled
-		if (empty($contact['avatar'])) {
-			$contact['avatar'] = $contact['photo'];
-		}
-
 		$data = ['@context' => ActivityPub::CONTEXT];
 		$data['id'] = $contact['url'];
 		$data['diaspora:guid'] = $user['guid'];
@@ -253,7 +249,7 @@ class Transmitter
 			'publicKeyPem' => $user['pubkey']];
 		$data['endpoints'] = ['sharedInbox' => System::baseUrl() . '/inbox'];
 		$data['icon'] = ['type' => 'Image',
-			'url' => $contact['avatar']];
+			'url' => $contact['photo']];
 
 		$data['generator'] = self::getService();
 
@@ -435,7 +431,7 @@ class Transmitter
 								$data['to'][] = $profile['url'];
 							} else {
 								$data['cc'][] = $profile['url'];
-								if (!$item['private']) {
+								if (!$item['private'] && !empty($actor_profile['followers'])) {
 									$data['cc'][] = $actor_profile['followers'];
 								}
 							}
@@ -772,6 +768,8 @@ class Transmitter
 			$type = 'TentativeAccept';
 		} elseif ($item['verb'] == ACTIVITY_FOLLOW) {
 			$type = 'Follow';
+		} elseif ($item['verb'] == ACTIVITY_TAG) {
+			$type = 'Add';
 		} else {
 			$type = '';
 		}
@@ -875,6 +873,8 @@ class Transmitter
 
 		if (in_array($data['type'], ['Create', 'Update', 'Delete'])) {
 			$data['object'] = self::createNote($item);
+		} elseif ($data['type'] == 'Add') {
+			$data = self::createAddTag($item, $data);
 		} elseif ($data['type'] == 'Announce') {
 			$data = self::createAnnounce($item, $data);
 		} elseif ($data['type'] == 'Follow') {
@@ -1136,7 +1136,7 @@ class Transmitter
 	{
 		$event = [];
 		$event['name'] = $item['event-summary'];
-		$event['content'] = BBCode::convert($item['event-desc'], false, 7);
+		$event['content'] = BBCode::convert($item['event-desc'], false, 9);
 		$event['startTime'] = DateTimeFormat::utc($item['event-start'] . '+00:00', DateTimeFormat::ATOM);
 
 		if (!$item['event-nofinish']) {
@@ -1226,7 +1226,7 @@ class Transmitter
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
 
-			$data['content'] = BBCode::convert($body, false, 7);
+			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
@@ -1247,6 +1247,30 @@ class Transmitter
 		}
 
 		$data = array_merge($data, $permission_block);
+
+		return $data;
+	}
+
+	/**
+	 * Creates an an "add tag" entry
+	 *
+	 * @param array $item
+	 * @param array $data activity data
+	 *
+	 * @return array with activity data for adding tags
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function createAddTag($item, $data)
+	{
+		$object = XML::parseString($item['object'], false);
+		$target = XML::parseString($item["target"], false);
+
+		$data['diaspora:guid'] = $item['guid'];
+		$data['actor'] = $item['author-link'];
+		$data['target'] = (string)$target->id;
+		$data['summary'] = BBCode::toPlaintext($item['body']);
+		$data['object'] = ['id' => (string)$object->id, 'type' => 'tag', 'name' => (string)$object->title, 'content' => (string)$object->content];
 
 		return $data;
 	}
@@ -1450,6 +1474,10 @@ class Transmitter
 	public static function sendActivity($activity, $target, $uid, $id = '')
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 
@@ -1486,6 +1514,10 @@ class Transmitter
 	public static function sendFollowObject($object, $target, $uid = 0)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		if (empty($uid)) {
 			// Fetch the list of administrators
@@ -1532,19 +1564,26 @@ class Transmitter
 	public static function sendContactAccept($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => [
+				'id' => (string)$id,
+				'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']],
+				'object' => $owner['url']
+			],
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::debug('Sending accept to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1562,19 +1601,26 @@ class Transmitter
 	public static function sendContactReject($target, $id, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
-			'object' => ['id' => $id, 'type' => 'Follow',
+			'object' => [
+				'id' => (string)$id,
+				'type' => 'Follow',
 				'actor' => $profile['url'],
-				'object' => $owner['url']],
+				'object' => $owner['url']
+			],
 			'instrument' => self::getService(),
 			'to' => [$profile['url']]];
 
-		Logger::log('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id, Logger::DEBUG);
+		Logger::debug('Sending reject to ' . $target . ' for user ' . $uid . ' with id ' . $id);
 
 		$signed = LDSignature::sign($data, $owner);
 		HTTPSignature::transmit($signed, $profile['inbox'], $uid);
@@ -1592,6 +1638,10 @@ class Transmitter
 	public static function sendContactUndo($target, $cid, $uid)
 	{
 		$profile = APContact::getByURL($target);
+		if (empty($profile['inbox'])) {
+			Logger::warning('No inbox found for target', ['target' => $target, 'profile' => $profile]);
+			return;
+		}
 
 		$object_id = self::activityIDFromContact($cid);
 		if (empty($object_id)) {

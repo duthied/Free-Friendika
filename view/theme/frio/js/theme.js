@@ -106,7 +106,10 @@ $(document).ready(function(){
 		delay: {
 			show: 500,
 			hide: 100
-		}
+		},
+		sanitizeFn: function (content) {
+			return DOMPurify.sanitize(content)
+		},
 	});
 
 	// initialize the bootstrap-select

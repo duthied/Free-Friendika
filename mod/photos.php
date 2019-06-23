@@ -29,8 +29,8 @@ use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Security;
-use Friendica\Util\Temporal;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 
 function photos_init(App $a) {
@@ -188,6 +188,9 @@ function photos_post(App $a)
 	}
 
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
+		if (!Strings::isHex($a->argv[3])) {
+			$a->internalRedirect('photos/' . $a->data['user']['nickname'] . '/album');
+		}
 		$album = hex2bin($a->argv[3]);
 
 		if ($album === L10n::t('Profile Photos') || $album === 'Contact Photos' || $album === L10n::t('Contact Photos')) {
@@ -315,7 +318,7 @@ function photos_post(App $a)
 		$str_group_deny    = !empty($_POST['group_deny'])    ? perms2str($_POST['group_deny'])    : '';
 		$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
 
-		$resource_id = $a->argv[2];
+		$resource_id = $a->argv[3];
 
 		if (!strlen($albname)) {
 			$albname = DateTimeFormat::localNow('Y');
@@ -418,10 +421,11 @@ function photos_post(App $a)
 
 		if ($item_id) {
 			$item = Item::selectFirst(['tag', 'inform'], ['id' => $item_id, 'uid' => $page_owner_uid]);
-		}
-		if (DBA::isResult($item)) {
-			$old_tag    = $item['tag'];
-			$old_inform = $item['inform'];
+
+			if (DBA::isResult($item)) {
+				$old_tag    = $item['tag'];
+				$old_inform = $item['inform'];
+			}
 		}
 
 		if (strlen($rawtags)) {
@@ -524,13 +528,13 @@ function photos_post(App $a)
 				}
 			}
 
-			$newtag = $old_tag;
+			$newtag = $old_tag ?? '';
 			if (strlen($newtag) && strlen($str_tags)) {
 				$newtag .= ',';
 			}
 			$newtag .= $str_tags;
 
-			$newinform = $old_inform;
+			$newinform = $old_inform ?? '';
 			if (strlen($newinform) && strlen($inform)) {
 				$newinform .= ',';
 			}
@@ -735,7 +739,7 @@ function photos_post(App $a)
 		@unlink($src);
 		$foo = 0;
 		Hook::callAll('photo_post_end',$foo);
-		exit();
+		return;
 	}
 
 	$exif = $image->orient($src);
@@ -761,7 +765,7 @@ function photos_post(App $a)
 	if (!$r) {
 		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
 		notice(L10n::t('Image upload failed.') . EOL);
-		exit();
+		return;
 	}
 
 	if ($width > 640 || $height > 640) {
@@ -950,7 +954,7 @@ function photos_content(App $a)
 
 	// tabs
 	$is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= Profile::getTabs($a, $is_owner, $a->data['user']['nickname']);
+	$o .= Profile::getTabs($a, 'photos', $is_owner, $a->data['user']['nickname']);
 
 	// Display upload form
 	if ($datatype === 'upload') {
@@ -959,7 +963,7 @@ function photos_content(App $a)
 			return;
 		}
 
-		$selname = $datum ? hex2bin($datum) : '';
+		$selname = Strings::isHex($datum) ? hex2bin($datum) : '';
 
 		$albumselect = '';
 
@@ -1026,6 +1030,10 @@ function photos_content(App $a)
 
 	// Display a single photo album
 	if ($datatype === 'album') {
+		// if $datum is not a valid hex, redirect to the default page
+		if (!Strings::isHex($datum)) {
+			$a->internalRedirect('photos/' . $a->data['user']['nickname']. '/album');
+		}
 		$album = hex2bin($datum);
 
 		$total = 0;
@@ -1503,7 +1511,7 @@ function photos_content(App $a)
 						'$title' => $title_e,
 						'$body' => $body_e,
 						'$ago' => Temporal::getRelativeDate($item['created']),
-						'$indent' => (($item['parent'] != $item['item_id']) ? ' comment' : ''),
+						'$indent' => (($item['parent'] != $item['id']) ? ' comment' : ''),
 						'$drop' => $drop,
 						'$comment' => $comment
 					]);
@@ -1512,7 +1520,7 @@ function photos_content(App $a)
 						$comments .= Renderer::replaceMacros($cmnt_tpl, [
 							'$return_path' => '',
 							'$jsreload' => $return_path,
-							'$id' => $item['item_id'],
+							'$id' => $item['id'],
 							'$parent' => $item['parent'],
 							'$profile_uid' =>  $owner_uid,
 							'$mylink' => $contact['url'],

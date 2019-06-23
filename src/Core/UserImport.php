@@ -10,6 +10,7 @@ use Friendica\Database\DBStructure;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 /**
  * @brief UserImport class
@@ -39,14 +40,21 @@ class UserImport
 		$tableColumns = DBStructure::getColumns($table);
 
 		$tcols = [];
+		$ttype = [];
 		// get a plain array of column names
 		foreach ($tableColumns as $tcol) {
 			$tcols[] = $tcol['Field'];
+			$ttype[$tcol['Field']] = $tcol['Type'];
 		}
 		// remove inexistent columns
 		foreach ($arr as $icol => $ival) {
 			if (!in_array($icol, $tcols)) {
 				unset($arr[$icol]);
+				continue;
+			}
+
+			if ($ttype[$icol] === 'datetime') {
+				$arr[$icol] = $ival ?? DBA::NULL_DATETIME;
 			}
 		}
 	}
@@ -271,7 +279,7 @@ class UserImport
 		}
 
 		// send relocate messages
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', $newuid);
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
 
 		info(L10n::t("Done. You can now login with your username and password"));
 		$a->internalRedirect('login');

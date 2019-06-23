@@ -142,7 +142,7 @@ class Processor
 		}
 
 		$item['changed'] = DateTimeFormat::utcNow();
-		$item['edited'] = $activity['updated'];
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
@@ -196,6 +196,43 @@ class Processor
 
 		Logger::log('Deleting item ' . $activity['object_id'] . ' from ' . $owner, Logger::DEBUG);
 		Item::delete(['uri' => $activity['object_id'], 'owner-id' => $owner]);
+	}
+
+	/**
+	 * Prepare the item array for an activity
+	 *
+	 * @param array $activity Activity array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function addTag($activity)
+	{
+		if (empty($activity['object_content']) || empty($activity['object_id'])) {
+			return;
+		}
+
+		foreach ($activity['receiver'] as $receiver) {
+			$item = Item::selectFirst(['id', 'tag', 'origin', 'author-link'], ['uri' => $activity['target_id'], 'uid' => $receiver]);
+			if (!DBA::isResult($item)) {
+				// We don't fetch missing content for this purpose
+				continue;
+			}
+
+			if (($item['author-link'] != $activity['actor']) && !$item['origin']) {
+				Logger::info('Not origin, not from the author, skipping update', ['id' => $item['id'], 'author' => $item['author-link'], 'actor' => $activity['actor']]);
+				continue;
+			}
+
+			// To-Do:
+			// - Check if "blocktag" is set
+			// - Check if actor is a contact
+
+			if (!stristr($item['tag'], trim($activity['object_content']))) {
+				$tag = $item['tag'] . (strlen($item['tag']) ? ',' : '') . '#[url=' . $activity['object_id'] . ']'. $activity['object_content'] . '[/url]';
+				Item::update(['tag' => $tag], ['id' => $item['id']]);
+				Logger::info('Tagged item', ['id' => $item['id'], 'tag' => $activity['object_content'], 'uri' => $activity['target_id'], 'actor' => $activity['actor']]);
+			}
+		}
 	}
 
 	/**
@@ -333,20 +370,23 @@ class Processor
 		$item['private'] = !in_array(0, $activity['receiver']);
 		$item['author-link'] = $activity['author'];
 		$item['author-id'] = Contact::getIdForURL($activity['author'], 0, true);
+		$item['owner-link'] = $activity['actor'];
+		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
-		if (empty($activity['thread-completion'])) {
-			$item['owner-link'] = $activity['actor'];
-			$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
-		} else {
-			Logger::info('Ignoring actor because of thread completion.');
+		if (!empty($activity['thread-completion'])) {
+			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
+			$item['causer-link'] = $item['owner-link'];
+			$item['causer-id'] = $item['owner-id'];
+
+			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
 		}
 
 		$item['uri'] = $activity['id'];
 
-		$item['created'] = $activity['published'];
-		$item['edited'] = $activity['updated'];
+		$item['created'] = DateTimeFormat::utc($activity['published']);
+		$item['edited'] = DateTimeFormat::utc($activity['updated']);
 		$item['guid'] = $activity['diaspora:guid'];
 
 		$item = self::processContent($activity, $item);
@@ -405,8 +445,8 @@ class Processor
 	 *
 	 * @param array $activity Activity data
 	 * @param array $item     item array
+	 * @return int|bool New mail table row id or false on error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
 	 */
 	private static function postMail($activity, $item)
 	{
@@ -460,7 +500,7 @@ class Processor
 		}
 		$msg['body'] = $item['body'];
 
-                Mail::insert($msg);
+		return Mail::insert($msg);
 	}
 
 	/**
@@ -530,7 +570,7 @@ class Processor
 			DBA::update('contact', ['hub-verify' => $activity['id'], 'protocol' => Protocol::ACTIVITYPUB], ['id' => $cid]);
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
-			$contact = false;
+			$contact = [];
 		}
 
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
@@ -541,7 +581,11 @@ class Processor
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);
 
-		Contact::addRelationship($owner, $contact, $item, '', false, $note);
+		$result = Contact::addRelationship($owner, $contact, $item, false, $note);
+		if ($result === true) {
+			ActivityPub\Transmitter::sendContactAccept($item['author-link'], $item['author-id'], $owner['uid']);
+		}
+
 		$cid = Contact::getIdForURL($activity['actor'], $uid);
 		if (empty($cid)) {
 			return;
