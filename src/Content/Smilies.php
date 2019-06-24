@@ -267,17 +267,18 @@ class Smilies
 	 * @return string HTML Output
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @todo  : Rework because it doesn't work correctly
 	 */
 	private static function pregHeart($x)
 	{
 		if (strlen($x[1]) == 1) {
 			return $x[0];
 		}
+
 		$t = '';
 		for ($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
-			$t .= '<img class="smiley" src="' . System::baseUrl() . '/images/smiley-heart.gif" alt="&lt;3" />';
+			$t .= '❤';
 		}
+
 		$r =  str_replace($x[0], $t, $x[0]);
 		return $r;
 	}

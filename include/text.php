@@ -140,16 +140,12 @@ function redir_private_images($a, &$item)
  * @brief Given a text string, convert from bbcode to html and add smilie icons.
  *
  * @param string $text String with bbcode.
- * @return string Formattet HTML.
+ * @return string Formatted HTML
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function prepare_text($text) {
-	if (stristr($text, '[nosmile]')) {
-		$s = BBCode::convert($text);
-	} else {
-		$s = Smilies::replace(BBCode::convert($text));
-	}
-
+function prepare_text($text)
+{
+	$s = BBCode::convert($text);
 	return trim($s);
 }
 

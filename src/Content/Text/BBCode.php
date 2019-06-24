@@ -1395,6 +1395,7 @@ class BBCode extends BaseObject
 
 		// This is actually executed in Item::prepareBody()
 
+		$nosmile = strpos($text, '[nosmile]') !== false;
 		$text = str_replace('[nosmile]', '', $text);
 
 		// Check for font change text
@@ -1572,7 +1573,7 @@ class BBCode extends BaseObject
 		}
 
 		// Replace non graphical smilies for external posts
-		if ($simple_html) {
+		if (!$nosmile && !$for_plaintext) {
 			$text = Smilies::replace($text);
 		}
 
