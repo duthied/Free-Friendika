@@ -2899,7 +2899,12 @@ class DFRN
 	{
 		// prevent looping
 		if (!empty($_REQUEST['redir'])) {
-			return;
+			Logger::log('autoRedir might be looping because redirect has been redirected', Logger::DEBUG);
+			// looping prevention also appears to sometimes prevent authentication for images
+			// because browser may have multiple connections open and load an image on a connection
+			// whose session wasn't updated when a previous redirect authenticated
+			// Leaving commented in case looping reappears
+			//return;
 		}
 
 		if ((! $contact_nick) || ($contact_nick === $a->user['nickname'])) {
@@ -2923,6 +2928,9 @@ class DFRN
 			$baseurl = substr($baseurl, $domain_st + 3);
 			$nurl = Strings::normaliseLink($baseurl);
 
+			$r = User::getByNickname($contact_nick, ["uid"]);
+			$contact_uid = $r["uid"];
+
 			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
 			$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
 					AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
@@ -2931,8 +2939,18 @@ class DFRN
 				DBA::escape($baseurl),
 				DBA::escape($nurl)
 			);
-			if ((! DBA::isResult($r)) || $r[0]['id'] == remote_user()) {
+			if ((! DBA::isResult($r))) {
 				return;
+			}
+			// test if redirect authentication already succeeded
+			// Note that "contact" in the sense used in the $contact_nick argument to this function
+			// and the sense in the $remote[]["cid"] in the session are opposite.
+			// In the session variable the user currently fetching is the contact
+			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
+			foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
+				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
+					return;
+				}
 			}
 
 			$r = q("SELECT * FROM contact WHERE nick = '%s'

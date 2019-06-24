@@ -84,6 +84,10 @@ function display_init(App $a)
 		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
+	if ($a->argc >= 3 && $nick == 'feed-item') {
+		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
+	}
+
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
 		displayShowFeed($item["id"], false);
