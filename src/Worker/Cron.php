@@ -133,7 +133,7 @@ class Cron
 	 */
 	private static function updatePublicContacts() {
 		$count = 0;
-		$last_updated = DateTimeFormat::utc('now - 1 months');
+		$last_updated = DateTimeFormat::utc('now - 1 week');
 		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
 			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
 

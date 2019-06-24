@@ -709,6 +709,6 @@ class OnePoll
 	private static function updateContact(array $contact, array $fields)
 	{
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
-		DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
+//		DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
 	}
 }
