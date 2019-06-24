@@ -14,9 +14,8 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
@@ -201,7 +200,7 @@ function frio_remote_nav($a, &$nav)
 	// get the homelink from $_XSESSION
 	$homelink = Model\Profile::getMyURL();
 	if (!$homelink) {
-		$homelink = defaults($_SESSION, 'visitor_home', '');
+		$homelink = Session::get('visitor_home', '');
 	}
 
 	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname

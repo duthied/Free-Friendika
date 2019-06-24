@@ -32,26 +32,21 @@ class Login extends BaseModule
 	{
 		$a = self::getApp();
 
-		if (!empty($_SESSION['theme'])) {
-			unset($_SESSION['theme']);
-		}
-
-		if (!empty($_SESSION['mobile-theme'])) {
-			unset($_SESSION['mobile-theme']);
-		}
+		Session::remove('theme');
+		Session::remove('mobile-theme');
 
 		if (local_user()) {
 			$a->internalRedirect();
 		}
 
-		return self::form(defaults($_SESSION, 'return_path', null), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
+		return self::form(Session::get('return_path'), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
 	public static function post()
 	{
-		$return_path = defaults($_SESSION, 'return_path', '');
+		$return_path = Session::get('return_path');
 		session_unset();
-		$_SESSION['return_path'] = $return_path;
+		Session::set('return_path', $return_path);
 
 		// OpenId Login
 		if (
@@ -159,17 +154,13 @@ class Login extends BaseModule
 		}
 
 		// if we haven't failed up this point, log them in.
-		$_SESSION['remember'] = $remember;
-		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
+		Session::set('remember', $remember);
+		Session::set('last_login_date', DateTimeFormat::utcNow());
 
 		Session::setAuthenticatedForUser($a, $record, true, true);
 
-		if (!empty($_SESSION['return_path'])) {
-			$return_path = $_SESSION['return_path'];
-			unset($_SESSION['return_path']);
-		} else {
-			$return_path = '';
-		}
+		$return_path = Session::get('return_path', '');
+		Session::remove('return_path');
 
 		$a->internalRedirect($return_path);
 	}

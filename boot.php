@@ -31,7 +31,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2019.06');
+define('FRIENDICA_VERSION',      '2019.09-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -334,6 +334,7 @@ function get_app()
  * @param array $args
  * @brief Returns a defaut value if the provided variable or array key is falsy
  * @return mixed
+ * @deprecated since version 2019.06, use native coalesce operator (??) instead
  */
 function defaults(...$args)
 {

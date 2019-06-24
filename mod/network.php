@@ -19,6 +19,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -852,7 +853,7 @@ function networkThreadedView(App $a, $update, $parent)
 			((time() - $_SESSION['network_last_date_timestamp']) < ($browser_update * 10))) {
 			$bottom_limit = $_SESSION['network_last_date'];
 		}
-		$_SESSION['network_last_date'] = defaults($_SESSION, 'network_last_top_limit', $top_limit);
+		$_SESSION['network_last_date'] = Session::get('network_last_top_limit', $top_limit);
 		$_SESSION['network_last_date_timestamp'] = time();
 
 		if ($last_date > $top_limit) {
