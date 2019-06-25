@@ -130,7 +130,7 @@ class Photo extends BaseObject
 	 */
 	public static function getPhoto($resourceid, $scale = 0)
 	{
-		$r = self::selectFirst(["uid","allow_cid","allow_gid","deny_cid","deny_gid"], ["resource-id" => $resourceid]);
+		$r = self::selectFirst(["uid", "allow_cid", "allow_gid", "deny_cid", "deny_gid"], ["resource-id" => $resourceid]);
 		if ($r === false) {
 			return false;
 		}
