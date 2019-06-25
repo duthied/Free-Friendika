@@ -138,12 +138,18 @@ class Cron
 			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
 
 		$total = DBA::count('contact', $condition);
-		$contacts = DBA::select('contact', ['id'], $condition, ['limit' => 1000]);
+		$oldest_date = '';
+		$oldest_id = '';
+		$contacts = DBA::select('contact', ['id', 'last-update'], $condition, ['limit' => 100, 'order' => ['last-update']]);
 		while ($contact = DBA::fetch($contacts)) {
+			if (empty($oldest_id)) {
+				$oldest_id = $contact['id'];
+				$oldest_date = $contact['last-update'];
+			}
 			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], 'force');
 			++$count;
 		}
-		Logger::info('Initiated update for public contacts', ['interval' => $count, 'total' => $total]);
+		Logger::info('Initiated update for public contacts', ['interval' => $count, 'total' => $total, 'id' => $oldest_id, 'oldest' => $oldest_date]);
 		DBA::close($contacts);
 	}
 
