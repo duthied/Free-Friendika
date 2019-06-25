@@ -130,18 +130,21 @@ class Photo extends BaseObject
 	 */
 	public static function getPhoto($resourceid, $scale = 0)
 	{
-		$r = self::selectFirst(["uid"], ["resource-id" => $resourceid]);
+		$r = self::selectFirst(["uid", "allow_cid", "allow_gid", "deny_cid", "deny_gid"], ["resource-id" => $resourceid]);
 		if ($r === false) {
 			return false;
 		}
 		$uid = $r["uid"];
 
 		// This is the first place, when retrieving just a photo, that we know who owns the photo.
-		// Make sure that the requester's session is appropriately authenticated to that user
+		// Check if the photo is public (empty allow and deny means public), if so, skip auth attempt, if not
+		// make sure that the requester's session is appropriately authenticated to that user
 		// otherwise permissions checks done by getPermissionsSQLByUserId() won't work correctly
-		$r = DBA::selectFirst("user", ["nickname"], ["uid" => $uid], []);
-		// this will either just return (if auth all ok) or will redirect and exit (starting over)
-		DFRN::autoRedir(self::getApp(), $r["nickname"]);
+		if (!empty($r["allow_cid"]) || !empty($r["allow_gid"]) || !empty($r["deny_cid"]) || !empty($r["deny_gid"])) {
+			$r = DBA::selectFirst("user", ["nickname"], ["uid" => $uid], []);
+			// this will either just return (if auth all ok) or will redirect and exit (starting over)
+			DFRN::autoRedir(self::getApp(), $r["nickname"]);
+		}
 
 		$sql_acl = Security::getPermissionsSQLByUserId($uid);
 
