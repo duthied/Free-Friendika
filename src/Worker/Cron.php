@@ -17,15 +17,9 @@ use Friendica\Util\DateTimeFormat;
 
 class Cron
 {
-	public static function execute($parameter = '', $generation = 0)
+	public static function execute()
 	{
 		$a = BaseObject::getApp();
-
-		// Poll contacts with specific parameters
-		if (!empty($parameter)) {
-			self::pollContacts($parameter, $generation);
-			return;
-		}
 
 		$last = Config::get('system', 'last_cron');
 
@@ -115,7 +109,7 @@ class Cron
 		}
 
 		// Poll contacts
-		self::pollContacts($parameter, $generation);
+		self::pollContacts();
 
 		// Update contact information
 		self::updatePublicContacts();
@@ -156,96 +150,48 @@ class Cron
 	/**
 	 * @brief Poll contacts for unreceived messages
 	 *
-	 * @todo  Currently it seems as if the following parameter aren't used at all ...
-	 *
-	 * @param string  $parameter Parameter (force, restart, ...) for the contact polling
-	 * @param integer $generation
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function pollContacts($parameter, $generation) {
-		$manual_id  = 0;
-		$generation = 0;
-		$force      = false;
-
-		if ($parameter == 'force') {
-			$force = true;
-		}
-		if ($parameter == 'restart') {
-			$generation = intval($generation);
-			if (!$generation) {
-				exit();
-			}
-		}
-
-		if (intval($parameter)) {
-			$manual_id = intval($parameter);
-			$force     = true;
-		}
-
+	private static function pollContacts() {
 		$min_poll_interval = Config::get('system', 'min_poll_interval', 1);
-
-		$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
 
 		Addon::reload();
 
-		// Only poll from those with suitable relationships,
-		// and which have a polling address and ignore Diaspora since
-		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
-
-		$abandon_days = intval(Config::get('system', 'account_abandon_days'));
-		if ($abandon_days < 1) {
-			$abandon_days = 0;
-		}
-		$abandon_sql = (($abandon_days)
-			? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
-			: ''
-		);
-
-		$contacts = q("SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
+		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
 					`contact`.`last-update`, `contact`.`priority`, `contact`.`rel`, `contact`.`subhub`
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN (?, ?, ?, ?)
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
-				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
-			DBA::escape(Protocol::ACTIVITYPUB),
-			DBA::escape(Protocol::DFRN),
-			DBA::escape(Protocol::OSTATUS),
-			DBA::escape(Protocol::DIASPORA),
-			DBA::escape(Protocol::FEED),
-			DBA::escape(Protocol::MAIL)
-		);
+					AND `contact`.`rel` != ?
+				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed`";
+
+		$parameters = [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Contact::FOLLOWER];
+
+		// Only poll from those with suitable relationships,
+		// and which have a polling address and ignore Diaspora since
+		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
+		$abandon_days = intval(Config::get('system', 'account_abandon_days'));
+		if ($abandon_days < 1) {
+			$abandon_days = 0;
+		}
+
+		if (!empty($abandon_days)) {
+			$sql .= " AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL ? DAY";
+			$parameters[] = $abandon_days;
+		}
+
+		$contacts = DBA::p($sql, $parameters);
 
 		if (!DBA::isResult($contacts)) {
 			return;
 		}
 
-		foreach ($contacts as $contact) {
-
-			if ($manual_id) {
-				$contact['last-update'] = DBA::NULL_DATETIME;
-			}
-
+		while ($contact = DBA::fetch($contacts)) {
 			// Friendica and OStatus are checked once a day
 			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
-				$contact['priority'] = 2;
-			}
-
-			if ($contact['subhub'] && in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
-				/*
-				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
-				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
-				 * This also lets us update our subscription to the hub, and add or replace hubs in case it
-				 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
-				 */
-				$poll_interval = Config::get('system', 'pushpoll_frequency');
-				$contact['priority'] = (!is_null($poll_interval) ? intval($poll_interval) : 3);
-			}
-
-			// Check ActivityPub and Diaspora contacts or followers once a week
-			if (in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::DIASPORA]) || ($contact["rel"] == Contact::FOLLOWER)) {
-				$contact['priority'] = 4;
+				$contact['priority'] = 3;
 			}
 
 			// Check archived contacts once a month
@@ -253,7 +199,7 @@ class Cron
 				$contact['priority'] = 5;
 			}
 
-			if (($contact['priority'] >= 0) && !$force) {
+			if ($contact['priority'] >= 0) {
 				$update = false;
 
 				$t = $contact['last-update'];
@@ -289,7 +235,7 @@ class Cron
 						break;
 					case 0:
 					default:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + ".$min_poll_interval." minute")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + " . $min_poll_interval . " minute")) {
 							$update = true;
 						}
 						break;
@@ -311,5 +257,6 @@ class Cron
 
 			Worker::add(['priority' => $priority, 'dont_fork' => true, 'force_priority' => true], 'OnePoll', (int)$contact['id']);
 		}
+		DBA::close($contacts);
 	}
 }
