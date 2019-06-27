@@ -14,6 +14,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Model\User;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
@@ -106,11 +107,9 @@ class OnePoll
 			return;
 		}
 
-		$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `contact`.`uid` = `user`.`uid` WHERE `user`.`uid` = %d AND `contact`.`self` = 1 LIMIT 1",
-			intval($importer_uid)
-		);
+		$importer = User::getOwnerDataById($importer_uid);
 
-		if (!DBA::isResult($r)) {
+		if (empty($importer)) {
 			Logger::log('No self contact for user '.$importer_uid);
 
 			// set the last-update so we don't keep polling
@@ -118,7 +117,6 @@ class OnePoll
 			return;
 		}
 
-		$importer = $r[0];
 		$url = '';
 		$xml = false;
 
