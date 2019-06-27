@@ -30,7 +30,7 @@ class OnePoll
 
 		Logger::log('Start for contact ' . $contact_id);
 
-		$force      = false;
+		$force = false;
 
 		if ($command == "force") {
 			$force = true;
@@ -41,6 +41,9 @@ class OnePoll
 			return;
 		}
 
+		if ($force) {
+			Contact::updateFromProbe($contact_id, true);
+		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBA::isResult($contact)) {
@@ -56,75 +59,20 @@ class OnePoll
 
 		$importer_uid = $contact['uid'];
 
+		$updated = DateTimeFormat::utcNow();
+
+		if ($importer_uid == 0) {
+			Logger::log('Ignore public contacts');
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+			return;
+		}
+
 		// Possibly switch the remote contact to AP
 		if ($protocol === Protocol::OSTATUS) {
 			ActivityPub\Receiver::switchContact($contact['id'], $importer_uid, $contact['url']);
 			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
-		}
-
-		$updated = DateTimeFormat::utcNow();
-
-		// These three networks can be able to speak AP, so we are trying to fetch AP profile data here
-		if (in_array($protocol, [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN])) {
-			$apcontact = APContact::getByURL($contact['url'], true);
-
-			if (($protocol === Protocol::ACTIVITYPUB) && empty($apcontact)) {
-				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
-				Contact::markForArchival($contact);
-				Logger::log('Contact archived');
-				return;
-			} elseif (!empty($apcontact)) {
-				$fields = ['last-update' => $updated, 'success_update' => $updated];
-				self::updateContact($contact, $fields);
-				Contact::unmarkForArchival($contact);
-			}
-		}
-
-		// Diaspora users, archived users and followers are only checked if they still exist.
-		if (($protocol != Protocol::ACTIVITYPUB) && ($contact['archive'] || ($contact["network"] == Protocol::DIASPORA) || ($contact["rel"] == Contact::FOLLOWER))) {
-			$last_updated = PortableContact::lastUpdated($contact["url"], true);
-
-			if ($last_updated) {
-				Logger::log('Contact '.$contact['id'].' had last update on '.$last_updated, Logger::DEBUG);
-
-				// The last public item can be older than the last item we got
-				if ($last_updated < $contact['last-item']) {
-					$last_updated = $contact['last-item'];
-				}
-
-				$fields = ['last-item' => DateTimeFormat::utc($last_updated), 'last-update' => $updated, 'success_update' => $updated];
-				self::updateContact($contact, $fields);
-				Contact::unmarkForArchival($contact);
-			} else {
-				self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
-				Contact::markForArchival($contact);
-				Logger::log('Contact archived');
-				return;
-			}
-		}
-
-		// Update the contact entry
-		if (in_array($protocol, [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN])) {
-			// Currently we can't check every AP implementation, so we don't do it at all
-			if (($protocol != Protocol::ACTIVITYPUB) && !PortableContact::reachable($contact['url'])) {
-				Logger::log("Skipping probably dead contact ".$contact['url']);
-
-				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => $updated]);
-				return;
-			}
-
-			if (!Contact::updateFromProbe($contact["id"])) {
-				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => $updated]);
-				Contact::markForArchival($contact);
-				Logger::log('Contact archived');
-				return;
-			} else {
-				$fields = ['last-update' => $updated, 'success_update' => $updated];
-				self::updateContact($contact, $fields);
-				Contact::unmarkForArchival($contact);
-			}
 		}
 
 		// load current friends if possible.
@@ -140,15 +88,6 @@ class OnePoll
 			}
 		}
 
-		// We don't poll our followers
-		if ($contact["rel"] == Contact::FOLLOWER) {
-			Logger::log("Don't poll follower");
-
-			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
-			return;
-		}
-
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
 		if (!in_array($protocol, [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
 			Logger::log('Polling is disabled');
@@ -161,14 +100,6 @@ class OnePoll
 		// We don't poll AP contacts by now
 		if ($protocol === Protocol::ACTIVITYPUB) {
 			Logger::log("Don't poll AP contact");
-
-			// set the last-update so we don't keep polling
-			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
-			return;
-		}
-
-		if ($importer_uid == 0) {
-			Logger::log('Ignore public contacts');
 
 			// set the last-update so we don't keep polling
 			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
