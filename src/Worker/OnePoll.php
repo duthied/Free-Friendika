@@ -11,7 +11,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
-use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -133,419 +132,19 @@ class OnePoll
 
 		Logger::log("poll: ({$protocol}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
+		$xml = '';
+
 		if ($protocol === Protocol::DFRN) {
-			$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
-			if (intval($contact['duplex']) && $contact['dfrn-id']) {
-				$idtosend = '0:' . $orig_id;
-			}
-			if (intval($contact['duplex']) && $contact['issued-id']) {
-				$idtosend = '1:' . $orig_id;
-			}
-
-			// they have permission to write to us. We already filtered this in the contact query.
-			$perm = 'rw';
-
-			// But this may be our first communication, so set the writable flag if it isn't set already.
-
-			if (!intval($contact['writable'])) {
-				$fields = ['writable' => true];
-				DBA::update('contact', $fields, ['id' => $contact['id']]);
-			}
-
-			$url = $contact['poll'] . '?dfrn_id=' . $idtosend
-				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
-				. '&type=data&last_update=' . $last_update
-				. '&perm=' . $perm;
-
-			$curlResult = Network::curl($url);
-
-			if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
-				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => $updated]);
-				Contact::markForArchival($contact);
-				Logger::log('Contact archived');
-				return;
-			}
-
-			$handshake_xml = $curlResult->getBody();
-			$html_code = $curlResult->getReturnCode();
-
-			Logger::log('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, Logger::DATA);
-
-			if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
-				// dead connection - might be a transient event, or this might
-				// mean the software was uninstalled or the domain expired.
-				// Will keep trying for one month.
-				Logger::log("$url appears to be dead - marking for death ");
-
-				// set the last-update so we don't keep polling
-				$fields = ['last-update' => $updated, 'failure_update' => $updated];
-				self::updateContact($contact, $fields);
-				Contact::markForArchival($contact);
-				return;
-			}
-
-			if (!strstr($handshake_xml, '<')) {
-				Logger::log('response from ' . $url . ' did not contain XML.');
-
-				$fields = ['last-update' => $updated, 'failure_update' => $updated];
-				self::updateContact($contact, $fields);
-				Contact::markForArchival($contact);
-				return;
-			}
-
-
-			$res = XML::parseString($handshake_xml);
-
-			if (intval($res->status) == 1) {
-				// we may not be friends anymore. Will keep trying for one month.
-				Logger::log("$url replied status 1 - marking for death ");
-
-				// set the last-update so we don't keep polling
-				$fields = ['last-update' => $updated, 'failure_update' => $updated];
-				self::updateContact($contact, $fields);
-				Contact::markForArchival($contact);
-			} elseif ($contact['term-date'] > DBA::NULL_DATETIME) {
-				Contact::unmarkForArchival($contact);
-			}
-
-			if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
-				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
-				Logger::log('Contact status is ' . $res->status);
-				return;
-			}
-
-			if (((float)$res->dfrn_version > 2.21) && ($contact['poco'] == '')) {
-				$fields = ['poco' => str_replace('/profile/', '/poco/', $contact['url'])];
-				DBA::update('contact', $fields, ['id' => $contact['id']]);
-			}
-
-			$postvars = [];
-
-			$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
-			$challenge    = hex2bin((string) $res->challenge);
-
-			$final_dfrn_id = '';
-
-			if ($contact['duplex'] && strlen($contact['prvkey'])) {
-				openssl_private_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['prvkey']);
-				openssl_private_decrypt($challenge, $postvars['challenge'], $contact['prvkey']);
-			} else {
-				openssl_public_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['pubkey']);
-				openssl_public_decrypt($challenge, $postvars['challenge'], $contact['pubkey']);
-			}
-
-			$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
-
-			if (strpos($final_dfrn_id, ':') == 1) {
-				$final_dfrn_id = substr($final_dfrn_id, 2);
-			}
-
-			// There are issues with the legacy DFRN transport layer.
-			// Since we mostly don't use it anyway, we won't dig into it deeper, but simply ignore it.
-			if (empty($final_dfrn_id) || empty($orig_id)) {
-				Logger::log('Contact has got no ID - quitting');
-				return;
-			}
-
-			if ($final_dfrn_id != $orig_id) {
-				// did not decode properly - cannot trust this site
-				Logger::log('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
-
-				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
-				Contact::markForArchival($contact);
-				return;
-			}
-
-			$postvars['dfrn_id'] = $idtosend;
-			$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
-			$postvars['perm'] = 'rw';
-
-			$xml = Network::post($contact['poll'], $postvars)->getBody();
-
+			$xml = self::pollDFRN($contact, $updated);
 		} elseif (($protocol === Protocol::OSTATUS)
 			|| ($protocol === Protocol::DIASPORA)
 			|| ($protocol === Protocol::FEED)) {
-
-			// Upgrading DB fields from an older Friendica version
-			// Will only do this once per notify-enabled OStatus contact
-			// or if relationship changes
-
-			$stat_writeable = ((($contact['notify']) && ($contact['rel'] == Contact::FOLLOWER || $contact['rel'] == Contact::FRIEND)) ? 1 : 0);
-
-			// Contacts from OStatus are always writable
-			if ($protocol === Protocol::OSTATUS) {
-				$stat_writeable = 1;
-			}
-
-			if ($stat_writeable != $contact['writable']) {
-				$fields = ['writable' => $stat_writeable];
-				DBA::update('contact', $fields, ['id' => $contact['id']]);
-			}
-
-			// Are we allowed to import from this person?
-			if ($contact['rel'] == Contact::FOLLOWER || $contact['blocked']) {
-				// set the last-update so we don't keep polling
-				DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
-				Logger::log('Contact is blocked or only a follower');
-				return;
-			}
-
-			$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
-			$curlResult = Network::curl($contact['poll'], false, ['cookiejar' => $cookiejar]);
-			unlink($cookiejar);
-
-			if ($curlResult->isTimeout()) {
-				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => $updated]);
-				Contact::markForArchival($contact);
-				Logger::log('Contact archived');
-				return;
-			}
-
-			$xml = $curlResult->getBody();
-
+			$xml = self::pollFeed($contact, $protocol, $updated);
 		} elseif ($protocol === Protocol::MAIL) {
-			Logger::log("Mail: Fetching for ".$contact['addr'], Logger::DEBUG);
-
-			$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
-			if ($mail_disabled) {
-				// set the last-update so we don't keep polling
-				self::updateContact($contact, ['last-update' => $updated]);
-				Contact::markForArchival($contact);
-				Logger::log('Contact archived');
-				return;
-			}
-
-			Logger::log("Mail: Enabled", Logger::DEBUG);
-
-			$mbox = null;
-			$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $importer_uid]);
-
-			$condition = ["`server` != '' AND `uid` = ?", $importer_uid];
-			$mailconf = DBA::selectFirst('mailacct', [], $condition);
-			if (DBA::isResult($user) && DBA::isResult($mailconf)) {
-				$mailbox = Email::constructMailboxName($mailconf);
-				$password = '';
-				openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $user['prvkey']);
-				$mbox = Email::connect($mailbox, $mailconf['user'], $password);
-				unset($password);
-				Logger::log("Mail: Connect to " . $mailconf['user']);
-				if ($mbox) {
-					$fields = ['last_check' => $updated];
-					DBA::update('mailacct', $fields, ['id' => $mailconf['id']]);
-					Logger::log("Mail: Connected to " . $mailconf['user']);
-				} else {
-					Logger::log("Mail: Connection error ".$mailconf['user']." ".print_r(imap_errors(), true));
-				}
-			}
-
-			if ($mbox) {
-				$msgs = Email::poll($mbox, $contact['addr']);
-
-				if (count($msgs)) {
-					Logger::log("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], Logger::DEBUG);
-
-					$metas = Email::messageMeta($mbox, implode(',', $msgs));
-
-					if (count($metas) != count($msgs)) {
-						Logger::log("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", Logger::DEBUG);
-					} else {
-						$msgs = array_combine($msgs, $metas);
-
-						foreach ($msgs as $msg_uid => $meta) {
-							Logger::log("Mail: Parsing mail ".$msg_uid, Logger::DATA);
-
-							$datarray = [];
-							$datarray['verb'] = ACTIVITY_POST;
-							$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
-							$datarray['network'] = Protocol::MAIL;
-							// $meta = Email::messageMeta($mbox, $msg_uid);
-
-							$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
-
-							// Have we seen it before?
-							$fields = ['deleted', 'id'];
-							$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
-							$item = Item::selectFirst($fields, $condition);
-							if (DBA::isResult($item)) {
-								Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],Logger::DEBUG);
-
-								// Only delete when mails aren't automatically moved or deleted
-								if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
-									if ($meta->deleted && ! $item['deleted']) {
-										$fields = ['deleted' => true, 'changed' => $updated];
-										Item::update($fields, ['id' => $item['id']]);
-									}
-
-								switch ($mailconf['action']) {
-									case 0:
-										Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
-										break;
-									case 1:
-										Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
-										imap_delete($mbox, $msg_uid, FT_UID);
-										break;
-									case 2:
-										Logger::log("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
-										imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-										break;
-									case 3:
-										Logger::log("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
-										imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-										if ($mailconf['movetofolder'] != "") {
-											imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
-										}
-										break;
-								}
-								continue;
-							}
-
-
-							// look for a 'references' or an 'in-reply-to' header and try to match with a parent item we have locally.
-							$raw_refs = ((property_exists($meta, 'references')) ? str_replace("\t", '', $meta->references) : '');
-							if (!trim($raw_refs)) {
-								$raw_refs = ((property_exists($meta, 'in_reply_to')) ? str_replace("\t", '', $meta->in_reply_to) : '');
-							}
-							$raw_refs = trim($raw_refs);  // Don't allow a blank reference in $refs_arr
-
-							if ($raw_refs) {
-								$refs_arr = explode(' ', $raw_refs);
-								if (count($refs_arr)) {
-									for ($x = 0; $x < count($refs_arr); $x ++) {
-										$refs_arr[$x] = Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''], $refs_arr[$x]));
-									}
-								}
-								$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];
-								$parent = Item::selectFirst(['parent-uri'], $condition);
-								if (DBA::isResult($parent)) {
-									$datarray['parent-uri'] = $parent['parent-uri'];  // Set the parent as the top-level item
-								}
-							}
-
-							// Decoding the header
-							$subject = imap_mime_header_decode($meta->subject);
-							$datarray['title'] = "";
-							foreach ($subject as $subpart) {
-								if ($subpart->charset != "default") {
-									$datarray['title'] .= iconv($subpart->charset, 'UTF-8//IGNORE', $subpart->text);
-								} else {
-									$datarray['title'] .= $subpart->text;
-								}
-							}
-							$datarray['title'] = Strings::escapeTags(trim($datarray['title']));
-
-							//$datarray['title'] = Strings::escapeTags(trim($meta->subject));
-							$datarray['created'] = DateTimeFormat::utc($meta->date);
-
-							// Is it a reply?
-							$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") ||
-								(substr(strtolower($datarray['title']), 0, 3) == "re-") ||
-								($raw_refs != ""));
-
-							// Remove Reply-signs in the subject
-							$datarray['title'] = self::RemoveReply($datarray['title']);
-
-							// If it seems to be a reply but a header couldn't be found take the last message with matching subject
-							if (empty($datarray['parent-uri']) && $reply) {
-								$condition = ['title' => $datarray['title'], 'uid' => $importer_uid, 'network' => Protocol::MAIL];
-								$params = ['order' => ['created' => true]];
-								$parent = Item::selectFirst(['parent-uri'], $condition, $params);
-								if (DBA::isResult($parent)) {
-									$datarray['parent-uri'] = $parent['parent-uri'];
-								}
-							}
-
-							if (empty($datarray['parent-uri'])) {
-								$datarray['parent-uri'] = $datarray['uri'];
-							}
-
-							$r = Email::getMessage($mbox, $msg_uid, $reply);
-							if (!$r) {
-								Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
-								continue;
-							}
-							$datarray['body'] = Strings::escapeHtml($r['body']);
-							$datarray['body'] = BBCode::limitBodySize($datarray['body']);
-
-							Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
-
-							/// @TODO Adding a gravatar for the original author would be cool
-
-							$from = imap_mime_header_decode($meta->from);
-							$fromdecoded = "";
-							foreach ($from as $frompart) {
-								if ($frompart->charset != "default") {
-									$fromdecoded .= iconv($frompart->charset, 'UTF-8//IGNORE', $frompart->text);
-								} else {
-									$fromdecoded .= $frompart->text;
-								}
-							}
-
-							$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->getHostName());
-
-							$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
-
-							if (isset($fromarr[0]->personal)) {
-								$fromname = $fromarr[0]->personal;
-							} else {
-								$fromname = $frommail;
-							}
-
-							$datarray['author-name'] = $fromname;
-							$datarray['author-link'] = "mailto:".$frommail;
-							$datarray['author-avatar'] = $contact['photo'];
-
-							$datarray['owner-name'] = $contact['name'];
-							$datarray['owner-link'] = "mailto:".$contact['addr'];
-							$datarray['owner-avatar'] = $contact['photo'];
-
-							$datarray['uid'] = $importer_uid;
-							$datarray['contact-id'] = $contact['id'];
-							if ($datarray['parent-uri'] === $datarray['uri']) {
-								$datarray['private'] = 1;
-							}
-							if (($protocol === Protocol::MAIL) && !PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
-								$datarray['private'] = 1;
-								$datarray['allow_cid'] = '<' . $contact['id'] . '>';
-							}
-
-							Item::insert($datarray);
-
-							switch ($mailconf['action']) {
-								case 0:
-									Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
-									break;
-								case 1:
-									Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
-									imap_delete($mbox, $msg_uid, FT_UID);
-									break;
-								case 2:
-									Logger::log("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
-									imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-									break;
-								case 3:
-									Logger::log("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
-									imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
-									if ($mailconf['movetofolder'] != "") {
-										imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
-									}
-									break;
-							}
-						}
-					}
-				} else {
-					Logger::log("Mail: no mails for ".$mailconf['user']);
-				}
-
-				Logger::log("Mail: closing connection for ".$mailconf['user']);
-				imap_close($mbox);
-			}
+			self::pollMail($contact, $importer_uid, $updated);
 		}
 
-		if ($xml) {
+		if (!empty($xml)) {
 			Logger::log('received xml : ' . $xml, Logger::DATA);
 			if (!strstr($xml, '<')) {
 				Logger::log('post_handshake: response from ' . $url . ' did not contain XML.');
@@ -632,6 +231,443 @@ class OnePoll
 	private static function updateContact(array $contact, array $fields)
 	{
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
-//		DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $contact['nurl']]);
+	}
+
+	/**
+	 * @brief Poll DFRN contacts
+	 *
+	 * @param  array  $contact The personal contact entry
+	 * @param  string $updated The updated date
+	 * @return string polled XML
+	 * @throws \Exception
+	 */
+	private static function pollDFRN(array $contact, $updated)
+	{
+		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
+		if (intval($contact['duplex']) && $contact['dfrn-id']) {
+			$idtosend = '0:' . $orig_id;
+		}
+		if (intval($contact['duplex']) && $contact['issued-id']) {
+			$idtosend = '1:' . $orig_id;
+		}
+
+		// they have permission to write to us. We already filtered this in the contact query.
+		$perm = 'rw';
+
+		// But this may be our first communication, so set the writable flag if it isn't set already.
+		if (!intval($contact['writable'])) {
+			$fields = ['writable' => true];
+			DBA::update('contact', $fields, ['id' => $contact['id']]);
+		}
+
+		$url = $contact['poll'] . '?dfrn_id=' . $idtosend
+			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
+			. '&type=data&last_update=' . $last_update
+			. '&perm=' . $perm;
+
+		$curlResult = Network::curl($url);
+
+		if (!$curlResult->isSuccess() && ($curlResult->getErrorNumber() == CURLE_OPERATION_TIMEDOUT)) {
+			// set the last-update so we don't keep polling
+			self::updateContact($contact, ['last-update' => $updated]);
+			Contact::markForArchival($contact);
+			Logger::log('Contact archived');
+			return false;
+		}
+
+		$handshake_xml = $curlResult->getBody();
+		$html_code = $curlResult->getReturnCode();
+
+		Logger::log('handshake with url ' . $url . ' returns xml: ' . $handshake_xml, Logger::DATA);
+
+		if (!strlen($handshake_xml) || ($html_code >= 400) || !$html_code) {
+			// dead connection - might be a transient event, or this might
+			// mean the software was uninstalled or the domain expired.
+			// Will keep trying for one month.
+			Logger::log("$url appears to be dead - marking for death ");
+
+			// set the last-update so we don't keep polling
+			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			self::updateContact($contact, $fields);
+			Contact::markForArchival($contact);
+			return false;
+		}
+
+		if (!strstr($handshake_xml, '<')) {
+			Logger::log('response from ' . $url . ' did not contain XML.');
+
+			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			self::updateContact($contact, $fields);
+			Contact::markForArchival($contact);
+			return false;
+		}
+
+		$res = XML::parseString($handshake_xml);
+
+		if (intval($res->status) == 1) {
+			// we may not be friends anymore. Will keep trying for one month.
+			Logger::log("$url replied status 1 - marking for death ");
+
+			// set the last-update so we don't keep polling
+			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			self::updateContact($contact, $fields);
+			Contact::markForArchival($contact);
+		} elseif ($contact['term-date'] > DBA::NULL_DATETIME) {
+			Contact::unmarkForArchival($contact);
+		}
+
+		if ((intval($res->status) != 0) || !strlen($res->challenge) || !strlen($res->dfrn_id)) {
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+			Logger::log('Contact status is ' . $res->status);
+			return false;
+		}
+
+		if (((float)$res->dfrn_version > 2.21) && ($contact['poco'] == '')) {
+			$fields = ['poco' => str_replace('/profile/', '/poco/', $contact['url'])];
+			DBA::update('contact', $fields, ['id' => $contact['id']]);
+		}
+
+		$postvars = [];
+
+		$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
+		$challenge    = hex2bin((string) $res->challenge);
+
+		$final_dfrn_id = '';
+
+		if ($contact['duplex'] && strlen($contact['prvkey'])) {
+			openssl_private_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['prvkey']);
+			openssl_private_decrypt($challenge, $postvars['challenge'], $contact['prvkey']);
+		} else {
+			openssl_public_decrypt($sent_dfrn_id, $final_dfrn_id, $contact['pubkey']);
+			openssl_public_decrypt($challenge, $postvars['challenge'], $contact['pubkey']);
+		}
+
+		$final_dfrn_id = substr($final_dfrn_id, 0, strpos($final_dfrn_id, '.'));
+
+		if (strpos($final_dfrn_id, ':') == 1) {
+			$final_dfrn_id = substr($final_dfrn_id, 2);
+		}
+
+		// There are issues with the legacy DFRN transport layer.
+		// Since we mostly don't use it anyway, we won't dig into it deeper, but simply ignore it.
+		if (empty($final_dfrn_id) || empty($orig_id)) {
+			Logger::log('Contact has got no ID - quitting');
+			return false;
+		}
+
+		if ($final_dfrn_id != $orig_id) {
+			// did not decode properly - cannot trust this site
+			Logger::log('ID did not decode: ' . $contact['id'] . ' orig: ' . $orig_id . ' final: ' . $final_dfrn_id);
+
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+			Contact::markForArchival($contact);
+			return false;
+		}
+
+		$postvars['dfrn_id'] = $idtosend;
+		$postvars['dfrn_version'] = DFRN_PROTOCOL_VERSION;
+		$postvars['perm'] = 'rw';
+
+		return Network::post($contact['poll'], $postvars)->getBody();
+	}
+
+	/**
+	 * @brief Poll Feed/OStatus contacts
+	 *
+	 * @param  array  $contact The personal contact entry
+	 * @param  string $protocol The used protocol of the contact
+	 * @param  string $updated The updated date
+	 * @return string polled XML
+	 * @throws \Exception
+	 */
+	private static function pollFeed(array $contact, $protocol, $updated)
+	{
+		// Upgrading DB fields from an older Friendica version
+		// Will only do this once per notify-enabled OStatus contact
+		// or if relationship changes
+
+		$stat_writeable = ((($contact['notify']) && ($contact['rel'] == Contact::FOLLOWER || $contact['rel'] == Contact::FRIEND)) ? 1 : 0);
+
+		// Contacts from OStatus are always writable
+		if ($protocol === Protocol::OSTATUS) {
+			$stat_writeable = 1;
+		}
+
+		if ($stat_writeable != $contact['writable']) {
+			$fields = ['writable' => $stat_writeable];
+			DBA::update('contact', $fields, ['id' => $contact['id']]);
+		}
+
+		// Are we allowed to import from this person?
+		if ($contact['rel'] == Contact::FOLLOWER || $contact['blocked']) {
+			// set the last-update so we don't keep polling
+			DBA::update('contact', ['last-update' => $updated], ['id' => $contact['id']]);
+			Logger::log('Contact is blocked or only a follower');
+			return false;
+		}
+
+		$cookiejar = tempnam(get_temppath(), 'cookiejar-onepoll-');
+		$curlResult = Network::curl($contact['poll'], false, ['cookiejar' => $cookiejar]);
+		unlink($cookiejar);
+
+		if ($curlResult->isTimeout()) {
+			// set the last-update so we don't keep polling
+			self::updateContact($contact, ['last-update' => $updated]);
+			Contact::markForArchival($contact);
+			Logger::log('Contact archived');
+			return false;
+		}
+
+		return $curlResult->getBody();
+	}
+
+	/**
+	 * @brief Poll Mail contacts
+	 *
+	 * @param  array   $contact      The personal contact entry
+	 * @param  integer $importer_uid The UID of the importer
+	 * @param  string  $updated      The updated date
+	 * @throws \Exception
+	 */
+	private static function pollMail(array $contact, $importer_uid, $updated)
+	{
+		Logger::log("Mail: Fetching for ".$contact['addr'], Logger::DEBUG);
+
+		$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
+		if ($mail_disabled) {
+			// set the last-update so we don't keep polling
+			self::updateContact($contact, ['last-update' => $updated]);
+			Contact::markForArchival($contact);
+			Logger::log('Contact archived');
+			return;
+		}
+
+		Logger::log("Mail: Enabled", Logger::DEBUG);
+
+		$mbox = null;
+		$user = DBA::selectFirst('user', ['prvkey'], ['uid' => $importer_uid]);
+
+		$condition = ["`server` != '' AND `uid` = ?", $importer_uid];
+		$mailconf = DBA::selectFirst('mailacct', [], $condition);
+		if (DBA::isResult($user) && DBA::isResult($mailconf)) {
+			$mailbox = Email::constructMailboxName($mailconf);
+			$password = '';
+			openssl_private_decrypt(hex2bin($mailconf['pass']), $password, $user['prvkey']);
+			$mbox = Email::connect($mailbox, $mailconf['user'], $password);
+			unset($password);
+			Logger::log("Mail: Connect to " . $mailconf['user']);
+			if ($mbox) {
+				$fields = ['last_check' => $updated];
+				DBA::update('mailacct', $fields, ['id' => $mailconf['id']]);
+				Logger::log("Mail: Connected to " . $mailconf['user']);
+			} else {
+				Logger::log("Mail: Connection error ".$mailconf['user']." ".print_r(imap_errors(), true));
+			}
+		}
+
+		if (!$mbox) {
+			return;
+		}
+
+		$msgs = Email::poll($mbox, $contact['addr']);
+
+		if (count($msgs)) {
+			Logger::log("Mail: Parsing ".count($msgs)." mails from ".$contact['addr']." for ".$mailconf['user'], Logger::DEBUG);
+
+			$metas = Email::messageMeta($mbox, implode(',', $msgs));
+
+			if (count($metas) != count($msgs)) {
+				Logger::log("for " . $mailconf['user'] . " there are ". count($msgs) . " messages but received " . count($metas) . " metas", Logger::DEBUG);
+			} else {
+				$msgs = array_combine($msgs, $metas);
+
+				foreach ($msgs as $msg_uid => $meta) {
+					Logger::log("Mail: Parsing mail ".$msg_uid, Logger::DATA);
+
+					$datarray = [];
+					$datarray['verb'] = ACTIVITY_POST;
+					$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+					$datarray['network'] = Protocol::MAIL;
+					// $meta = Email::messageMeta($mbox, $msg_uid);
+
+					$datarray['uri'] = Email::msgid2iri(trim($meta->message_id, '<>'));
+
+					// Have we seen it before?
+					$fields = ['deleted', 'id'];
+					$condition = ['uid' => $importer_uid, 'uri' => $datarray['uri']];
+					$item = Item::selectFirst($fields, $condition);
+					if (DBA::isResult($item)) {
+						Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user']." UID: ".$importer_uid." URI: ".$datarray['uri'],Logger::DEBUG);
+
+						// Only delete when mails aren't automatically moved or deleted
+						if (($mailconf['action'] != 1) && ($mailconf['action'] != 3))
+							if ($meta->deleted && ! $item['deleted']) {
+								$fields = ['deleted' => true, 'changed' => $updated];
+								Item::update($fields, ['id' => $item['id']]);
+							}
+
+						switch ($mailconf['action']) {
+							case 0:
+								Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
+								break;
+							case 1:
+								Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
+								imap_delete($mbox, $msg_uid, FT_UID);
+								break;
+							case 2:
+								Logger::log("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
+								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
+								break;
+							case 3:
+								Logger::log("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
+								imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
+								if ($mailconf['movetofolder'] != "") {
+									imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
+								}
+								break;
+						}
+						continue;
+					}
+
+					// look for a 'references' or an 'in-reply-to' header and try to match with a parent item we have locally.
+					$raw_refs = ((property_exists($meta, 'references')) ? str_replace("\t", '', $meta->references) : '');
+					if (!trim($raw_refs)) {
+						$raw_refs = ((property_exists($meta, 'in_reply_to')) ? str_replace("\t", '', $meta->in_reply_to) : '');
+					}
+					$raw_refs = trim($raw_refs);  // Don't allow a blank reference in $refs_arr
+
+					if ($raw_refs) {
+						$refs_arr = explode(' ', $raw_refs);
+						if (count($refs_arr)) {
+							for ($x = 0; $x < count($refs_arr); $x ++) {
+								$refs_arr[$x] = Email::msgid2iri(str_replace(['<', '>', ' '],['', '', ''], $refs_arr[$x]));
+							}
+						}
+						$condition = ['uri' => $refs_arr, 'uid' => $importer_uid];
+						$parent = Item::selectFirst(['parent-uri'], $condition);
+						if (DBA::isResult($parent)) {
+							$datarray['parent-uri'] = $parent['parent-uri'];  // Set the parent as the top-level item
+						}
+					}
+
+					// Decoding the header
+					$subject = imap_mime_header_decode($meta->subject);
+					$datarray['title'] = "";
+					foreach ($subject as $subpart) {
+						if ($subpart->charset != "default") {
+							$datarray['title'] .= iconv($subpart->charset, 'UTF-8//IGNORE', $subpart->text);
+						} else {
+							$datarray['title'] .= $subpart->text;
+						}
+					}
+					$datarray['title'] = Strings::escapeTags(trim($datarray['title']));
+
+					//$datarray['title'] = Strings::escapeTags(trim($meta->subject));
+					$datarray['created'] = DateTimeFormat::utc($meta->date);
+
+					// Is it a reply?
+					$reply = ((substr(strtolower($datarray['title']), 0, 3) == "re:") ||
+						(substr(strtolower($datarray['title']), 0, 3) == "re-") ||
+						($raw_refs != ""));
+
+					// Remove Reply-signs in the subject
+					$datarray['title'] = self::RemoveReply($datarray['title']);
+
+					// If it seems to be a reply but a header couldn't be found take the last message with matching subject
+					if (empty($datarray['parent-uri']) && $reply) {
+						$condition = ['title' => $datarray['title'], 'uid' => $importer_uid, 'network' => Protocol::MAIL];
+						$params = ['order' => ['created' => true]];
+						$parent = Item::selectFirst(['parent-uri'], $condition, $params);
+						if (DBA::isResult($parent)) {
+							$datarray['parent-uri'] = $parent['parent-uri'];
+						}
+					}
+
+					if (empty($datarray['parent-uri'])) {
+						$datarray['parent-uri'] = $datarray['uri'];
+					}
+
+					$r = Email::getMessage($mbox, $msg_uid, $reply);
+					if (!$r) {
+						Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
+						continue;
+					}
+					$datarray['body'] = Strings::escapeHtml($r['body']);
+					$datarray['body'] = BBCode::limitBodySize($datarray['body']);
+
+					Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
+
+					/// @TODO Adding a gravatar for the original author would be cool
+
+					$from = imap_mime_header_decode($meta->from);
+					$fromdecoded = "";
+					foreach ($from as $frompart) {
+						if ($frompart->charset != "default") {
+							$fromdecoded .= iconv($frompart->charset, 'UTF-8//IGNORE', $frompart->text);
+						} else {
+							$fromdecoded .= $frompart->text;
+						}
+					}
+
+					$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->getHostName());
+
+					$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
+
+					if (isset($fromarr[0]->personal)) {
+						$fromname = $fromarr[0]->personal;
+					} else {
+						$fromname = $frommail;
+					}
+
+					$datarray['author-name'] = $fromname;
+					$datarray['author-link'] = "mailto:".$frommail;
+					$datarray['author-avatar'] = $contact['photo'];
+
+					$datarray['owner-name'] = $contact['name'];
+					$datarray['owner-link'] = "mailto:".$contact['addr'];
+					$datarray['owner-avatar'] = $contact['photo'];
+
+					$datarray['uid'] = $importer_uid;
+					$datarray['contact-id'] = $contact['id'];
+					if ($datarray['parent-uri'] === $datarray['uri']) {
+						$datarray['private'] = 1;
+					}
+					if (!PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
+						$datarray['private'] = 1;
+						$datarray['allow_cid'] = '<' . $contact['id'] . '>';
+					}
+
+					Item::insert($datarray);
+
+					switch ($mailconf['action']) {
+						case 0:
+							Logger::log("Mail: Seen before ".$msg_uid." for ".$mailconf['user'].". Doing nothing.", Logger::DEBUG);
+							break;
+						case 1:
+							Logger::log("Mail: Deleting ".$msg_uid." for ".$mailconf['user']);
+							imap_delete($mbox, $msg_uid, FT_UID);
+							break;
+						case 2:
+							Logger::log("Mail: Mark as seen ".$msg_uid." for ".$mailconf['user']);
+							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
+							break;
+						case 3:
+							Logger::log("Mail: Moving ".$msg_uid." to ".$mailconf['movetofolder']." for ".$mailconf['user']);
+							imap_setflag_full($mbox, $msg_uid, "\\Seen", ST_UID);
+							if ($mailconf['movetofolder'] != "") {
+								imap_mail_move($mbox, $msg_uid, $mailconf['movetofolder'], FT_UID);
+							}
+							break;
+					}
+				}
+			}
+		} else {
+			Logger::log("Mail: no mails for ".$mailconf['user']);
+		}
+
+		Logger::log("Mail: closing connection for ".$mailconf['user']);
+		imap_close($mbox);
 	}
 }
