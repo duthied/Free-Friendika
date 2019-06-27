@@ -1770,6 +1770,15 @@ class Contact extends BaseObject
 			return;
 		}
 
+		// Archive or unarchive the contact. We only need to do this for the public contact.
+		// The archive/unarchive function will update the personal contacts by themselves.
+		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
+		if (!empty($fields['success_update'])) {
+			self::unmarkForArchival($contact);
+		} elseif (!empty($fields['failure_update'])) {
+			self::markForArchival($contact);
+		}
+
 		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url),
 			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
 
