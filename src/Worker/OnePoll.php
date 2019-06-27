@@ -78,14 +78,8 @@ class OnePoll
 
 		// load current friends if possible.
 		if (!empty($contact['poco']) && ($contact['success_update'] > $contact['failure_update'])) {
-			$r = q("SELECT count(*) AS total FROM glink
-				WHERE `cid` = %d AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY",
-				intval($contact['id'])
-			);
-			if (DBA::isResult($r)) {
-				if (!$r[0]['total']) {
-					PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
-				}
+			if (!DBA::exists('glink', ["`cid` = ? AND updated > UTC_TIMESTAMP() - INTERVAL 1 DAY", $contact['id']])) {
+				PortableContact::loadWorker($contact['id'], $importer_uid, 0, $contact['poco']);
 			}
 		}
 
