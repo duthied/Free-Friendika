@@ -1328,7 +1328,7 @@ class Contact extends BaseObject
 
 			// Update the contact in the background if needed but it is called by the frontend
 			if ($update_contact && $no_update && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
 			}
 
 			if (!$update_contact || $no_update) {
@@ -1425,7 +1425,7 @@ class Contact extends BaseObject
 
 			// Update in the background when we fetched the data solely from the database
 			if ($background_update) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id);
+				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
 			}
 
 			// Update the newly created contact from data in the gcontact table
@@ -1452,7 +1452,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		if (!empty($data['photo'])) {
+		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
@@ -1755,6 +1755,51 @@ class Contact extends BaseObject
 		return $data;
 	}
 
+        /**
+	 * @brief Helper function for "updateFromProbe". Updates personal and public contact
+	 *
+	 * @param array $contact The personal contact entry
+	 * @param array $fields  The fields that are updated
+	 * @throws \Exception
+	 */
+	private static function updateContact($id, $uid, $url, array $fields)
+	{
+		DBA::update('contact', $fields, ['id' => $id]);
+
+		if ($uid != 0) {
+			return;
+		}
+
+		// Archive or unarchive the contact. We only need to do this for the public contact.
+		// The archive/unarchive function will update the personal contacts by themselves.
+		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
+		if (!empty($fields['success_update'])) {
+			self::unmarkForArchival($contact);
+		} elseif (!empty($fields['failure_update'])) {
+			self::markForArchival($contact);
+		}
+
+		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url),
+			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
+
+		// These contacts are sharing with us, we don't poll them.
+		// This means that we don't set the update fields in "OnePoll.php".
+		$condition['rel'] = self::SHARING;
+		DBA::update('contact', $fields, $condition);
+
+		unset($fields['last-update']);
+		unset($fields['success_update']);
+		unset($fields['failure_update']);
+
+		if (empty($fields)) {
+			return;
+		}
+
+		// We are polling these contacts, so we mustn't set the update fields here.
+		$condition['rel'] = [self::FOLLOWER, self::FRIEND];
+		DBA::update('contact', $fields, $condition);
+	}
+
 	/**
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
@@ -1767,7 +1812,7 @@ class Contact extends BaseObject
 	{
 		/*
 		  Warning: Never ever fetch the public key via Probe::uri and write it into the contacts.
-		  This will reliably kill your communication with Friendica contacts.
+		  This will reliably kill your communication with old Friendica contacts.
 		 */
 
 		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
@@ -1785,12 +1830,14 @@ class Contact extends BaseObject
 
 		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
-		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
-			return false;
-		}
+		$updated = DateTimeFormat::utcNow();
 
-		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT)) {
+		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
+		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT) ||
+			(in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network']))) {
+			if ($force && ($uid == 0)) {
+				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'failure_update' => $updated]);
+			}
 			return false;
 		}
 
@@ -1807,17 +1854,28 @@ class Contact extends BaseObject
 			}
 		}
 
+		if ($ret['network'] != Protocol::FEED) {
+			self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
+		}
+
 		if (!$update) {
+			if ($force && ($uid == 0)) {
+				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'success_update' => $updated]);
+			}
 			return true;
 		}
 
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
-		$ret['updated'] = DateTimeFormat::utcNow();
+		$ret['updated'] = $updated;
 
-		self::updateAvatar($ret['photo'], $uid, $id, true);
+		if ($force && ($uid == 0)) {
+			$ret['last-update'] = $updated;
+			$ret['success_update'] = $updated;
+		}
 
 		unset($ret['photo']);
-		DBA::update('contact', $ret, ['id' => $id]);
+
+		self::updateContact($id, $uid, $ret['url'], $ret);
 
 		// Update the corresponding gcontact entry
 		PortableContact::lastUpdated($ret["url"]);
