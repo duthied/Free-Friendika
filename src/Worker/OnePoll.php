@@ -125,11 +125,6 @@ class OnePoll
 			$hub_update = false;
 		}
 
-		$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME)
-			? DateTimeFormat::utc('now - 7 days', DateTimeFormat::ATOM)
-			: DateTimeFormat::utc($contact['last-update'], DateTimeFormat::ATOM)
-		);
-
 		Logger::log("poll: ({$protocol}-{$contact['id']}) IMPORTER: {$importer['name']}, CONTACT: {$contact['name']}");
 
 		$xml = '';
@@ -259,6 +254,11 @@ class OnePoll
 			$fields = ['writable' => true];
 			DBA::update('contact', $fields, ['id' => $contact['id']]);
 		}
+
+		$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME)
+			? DateTimeFormat::utc('now - 7 days', DateTimeFormat::ATOM)
+			: DateTimeFormat::utc($contact['last-update'], DateTimeFormat::ATOM)
+		);
 
 		$url = $contact['poll'] . '?dfrn_id=' . $idtosend
 			. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
