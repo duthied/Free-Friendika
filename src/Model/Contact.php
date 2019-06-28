@@ -1452,7 +1452,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		if (!empty($data['photo'])) {
+		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
@@ -1854,7 +1854,9 @@ class Contact extends BaseObject
 			}
 		}
 
-		self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
+		if ($ret['network'] != Protocol::FEED) {
+			self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
+		}
 
 		if (!$update) {
 			if ($force && ($uid == 0)) {
