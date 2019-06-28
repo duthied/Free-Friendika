@@ -286,11 +286,13 @@ class Delivery extends BaseObject
 			DFRN::import($atom, $target_importer);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DFRN);
 			}
 
 			return;
 		}
+
+		$protocol = Model\ItemDeliveryData::DFRN;
 
 		// We don't have a relationship with contacts on a public post.
 		// Se we transmit with the new method and via Diaspora as a fallback
@@ -312,9 +314,16 @@ class Delivery extends BaseObject
 				return;
 			}
 		} elseif ($cmd != self::RELOCATION) {
-			$deliver_status = DFRN::deliver($owner, $contact, $atom);
+			// DFRN payload over Diaspora transport layer
+			$deliver_status = DFRN::transmit($owner, $contact, $atom);
+			if ($deliver_status < 200) {
+				// Legacy DFRN
+				$deliver_status = DFRN::deliver($owner, $contact, $atom);
+				$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
+			}
 		} else {
-			$deliver_status = DFRN::deliver($owner, $contact, $atom, false, true);
+			$deliver_status = DFRN::deliver($owner, $contact, $atom);
+			$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
 		}
 
 		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => defaults($target_item, 'guid', $target_item['id']), 'return' => $deliver_status]);
@@ -324,7 +333,7 @@ class Delivery extends BaseObject
 			Model\Contact::unmarkForArchival($contact);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
 			}
 		} else {
 			// The message could not be delivered. We mark the contact as "dead"
@@ -405,7 +414,7 @@ class Delivery extends BaseObject
 			Model\Contact::unmarkForArchival($contact);
 
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DIASPORA);
 			}
 		} else {
 			// The message could not be delivered. We mark the contact as "dead"
@@ -416,7 +425,7 @@ class Delivery extends BaseObject
 				// defer message for redelivery
 				Worker::defer();
 			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DIASPORA);
 			}
 		}
 	}

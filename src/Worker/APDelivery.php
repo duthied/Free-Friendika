@@ -49,7 +49,7 @@ class APDelivery extends BaseObject
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
 				if ($success && in_array($cmd, [Delivery::POST])) {
-					ItemDeliveryData::incrementQueueDone($target_id);
+					ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::ACTIVITYPUB);
 				}
 			}
 		}

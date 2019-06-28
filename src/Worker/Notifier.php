@@ -514,7 +514,7 @@ class Notifier
 				Logger::log('Salmon delivery of item ' . $target_id . ' to ' . $url);
 				/// @TODO Redeliver/queue these items on failure, though there is no contact record
 				Salmon::slapper($owner, $url, $slap);
-				ItemDeliveryData::incrementQueueDone($target_id);
+				ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::OSTATUS);
 			}
 		}
 
