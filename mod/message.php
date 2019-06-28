@@ -384,7 +384,7 @@ function message_content(App $a)
 
 			$from_name_e = $message['from-name'];
 			$subject_e = $message['title'];
-			$body_e = Smilies::replace(BBCode::convert($message['body']));
+			$body_e = BBCode::convert($message['body']);
 			$to_name_e = $message['name'];
 
 			$contact = Contact::getDetailsByURL($message['from-url']);

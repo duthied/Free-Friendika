@@ -13,16 +13,12 @@ use Friendica\Database\DBA;
 
 class UpdateContact
 {
-	public static function execute($contact_id)
+	public static function execute($contact_id, $command = '')
 	{
-		$success = Contact::updateFromProbe($contact_id);
-		// Update the "updated" field if the contact could be probed.
-		// We don't do this in the function above, since we don't want to
-		// update the contact whenever that function is called from anywhere.
-		if ($success) {
-			DBA::update('contact', ['updated' => DateTimeFormat::utcNow()], ['id' => $contact_id]);
-		}
+		$force = ($command == "force");
 
-		Logger::info('Updated from probe', ['id' => $contact_id, 'success' => $success]);
+		$success = Contact::updateFromProbe($contact_id, '', $force);
+
+		Logger::info('Updated from probe', ['id' => $contact_id, 'force' => $force, 'success' => $success]);
 	}
 }

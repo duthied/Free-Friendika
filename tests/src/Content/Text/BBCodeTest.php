@@ -40,6 +40,9 @@ class BBCodeTest extends MockedTest
 		$this->configMock->shouldReceive('get')
 			->with('system', 'url')
 			->andReturn('friendica.local');
+		$this->configMock->shouldReceive('get')
+			->with('system', 'no_smilies')
+			->andReturn(false);
 		$this->mockL10nT();
 	}
 
