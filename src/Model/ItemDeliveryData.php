@@ -23,6 +23,12 @@ class ItemDeliveryData
 		'queue_done'  => 'delivery_queue_done',
 	];
 
+	const ACTIVITYPUB = 1;
+	const DFRN = 2;
+	const LEGACY_DFRN = 3;
+	const DIASPORA = 4;
+	const OSTATUS = 5;
+
 	/**
 	 * Extract delivery data from the provided item fields
 	 *
@@ -53,12 +59,33 @@ class ItemDeliveryData
 	 * Avoids racing condition between multiple delivery threads.
 	 *
 	 * @param integer $item_id
+	 * @param integer $protocol
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function incrementQueueDone($item_id)
+	public static function incrementQueueDone($item_id, $protocol = 0)
 	{
-		return DBA::e('UPDATE `item-delivery-data` SET `queue_done` = `queue_done` + 1 WHERE `iid` = ?', $item_id);
+		$sql = '';
+
+		switch ($protocol) {
+			case self::ACTIVITYPUB:
+				$sql = ", `activitypub` = `activitypub` + 1";
+				break;
+			case self::DFRN:
+				$sql = ", `dfrn` = `dfrn` + 1";
+				break;
+			case self::LEGACY_DFRN:
+				$sql = ", `legacy_dfrn` = `legacy_dfrn` + 1";
+				break;
+			case self::DIASPORA:
+				$sql = ", `diaspora` = `diaspora` + 1";
+				break;
+			case self::OSTATUS:
+				$sql = ", `ostatus` = `ostatus` + 1";
+				break;
+		}
+
+		return DBA::e('UPDATE `item-delivery-data` SET `queue_done` = `queue_done` + 1' . $sql . ' WHERE `iid` = ?', $item_id);
 	}
 
 	/**

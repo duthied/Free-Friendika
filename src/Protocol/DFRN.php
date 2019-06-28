@@ -1176,23 +1176,13 @@ class DFRN
 	 * @param string $atom     Content that will be transmitted
 	 * @param bool   $dissolve (to be documented)
 	 *
-	 * @param bool   $legacy_transport
 	 * @return int Deliver status. Negative values mean an error.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 * @todo  Add array type-hint for $owner, $contact
 	 */
-	public static function deliver($owner, $contact, $atom, $dissolve = false, $legacy_transport = false)
+	public static function deliver($owner, $contact, $atom, $dissolve = false)
 	{
-		// At first try the Diaspora transport layer
-		if (!$dissolve && !$legacy_transport) {
-			$curlResult = self::transmit($owner, $contact, $atom);
-			if ($curlResult >= 200) {
-				Logger::log('Delivery via Diaspora transport layer was successful with status ' . $curlResult);
-				return $curlResult;
-			}
-		}
-
 		$idtosend = $orig_id = (($contact['dfrn-id']) ? $contact['dfrn-id'] : $contact['issued-id']);
 
 		if ($contact['duplex'] && $contact['dfrn-id']) {

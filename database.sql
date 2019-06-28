@@ -1,8 +1,19 @@
 -- ------------------------------------------
--- Friendica 2019.06-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1311
+-- Friendica 2019.09-dev (Dalmatian Bellflower)
+-- DB_UPDATE_VERSION 1314
 -- ------------------------------------------
 
+
+--
+-- TABLE 2fa_recovery_codes
+--
+CREATE TABLE IF NOT EXISTS `2fa_recovery_codes` (
+	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+	`code` varchar(50) NOT NULL COMMENT 'Recovery code string',
+	`generated` datetime NOT NULL COMMENT 'Datetime the code was generated',
+	`used` datetime COMMENT 'Datetime the code was used',
+	 PRIMARY KEY(`uid`,`code`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor authentication recovery codes';
 
 --
 -- TABLE addon
@@ -187,7 +198,8 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`term-date` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last-item` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT 'date of the last post',
 	`priority` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
-	`blocked` boolean NOT NULL DEFAULT '1' COMMENT '',
+	`blocked` boolean NOT NULL DEFAULT '1' COMMENT 'Node-wide block status',
+	`block_reason` text COMMENT 'Node-wide block reason',
 	`readonly` boolean NOT NULL DEFAULT '0' COMMENT 'posts of the contact are readonly',
 	`writable` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`forum` boolean NOT NULL DEFAULT '0' COMMENT 'contact is a forum',
@@ -662,6 +674,11 @@ CREATE TABLE IF NOT EXISTS `item-delivery-data` (
 	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
 	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
 	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
+	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
+	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
+	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
+	`diaspora` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via Diaspora',
+	`ostatus` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via OStatus',
 	 PRIMARY KEY(`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Delivery data for items';
 
