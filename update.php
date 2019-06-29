@@ -369,3 +369,8 @@ function update_1309()
 	}
 	return Update::SUCCESS;
 }
+
+function update_1315()
+{
+	DBA::delete('item-delivery-data', ['postopts' => '', 'inform' => '', 'queue_count' => 0, 'queue_done' => 0]);
+}

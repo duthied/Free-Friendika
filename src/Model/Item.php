@@ -1883,7 +1883,9 @@ class Item extends BaseObject
 			self::updateThread($parent_id);
 		}
 
-		ItemDeliveryData::insert($current_post, $delivery_data);
+		if (!empty($item['origin']) || !empty($item['wall']) || !empty($delivery_data['postopts']) || !empty($delivery_data['inform'])) {
+			ItemDeliveryData::insert($current_post, $delivery_data);
+		}
 
 		DBA::commit();
 
