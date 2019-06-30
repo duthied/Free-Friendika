@@ -26,8 +26,6 @@ class OnePoll
 {
 	public static function execute($contact_id = 0, $command = '')
 	{
-		$a = BaseObject::getApp();
-
 		Logger::log('Start for contact ' . $contact_id);
 
 		$force = false;
@@ -612,7 +610,7 @@ class OnePoll
 						}
 					}
 
-					$fromarr = imap_rfc822_parse_adrlist($fromdecoded, $a->getHostName());
+					$fromarr = imap_rfc822_parse_adrlist($fromdecoded, BaseObject::getApp()->getHostName());
 
 					$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
 
