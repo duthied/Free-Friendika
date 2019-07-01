@@ -75,7 +75,7 @@ class ContactBlock
 				'hidden' => false,
 				'archive' => false,
 				'rel' => $rel,
-				'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+				'network' => Protocol::FEDERATED,
 			], ['limit' => $shown]);
 
 			if (DBA::isResult($contact_ids_stmt)) {

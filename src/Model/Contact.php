@@ -963,7 +963,7 @@ class Contact extends BaseObject
 		}
 
 		if ((empty($profile["addr"]) || empty($profile["name"])) && (defaults($profile, "gid", 0) != 0)
-			&& in_array($profile["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])
+			&& in_array($profile["network"], Protocol::FEDERATED)
 		) {
 			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
 		}
@@ -1587,7 +1587,7 @@ class Contact extends BaseObject
 			return '';
 		}
 
-		if (in_array($contact["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (in_array($contact["network"], array_merge(Protocol::FEDERATED ,['']))) {
 			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = ?";
@@ -1779,8 +1779,7 @@ class Contact extends BaseObject
 			self::markForArchival($contact);
 		}
 
-		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url),
-			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]];
+		$condition = ['self' => false, 'nurl' => Strings::normaliseLink($url), 'network' => Protocol::FEDERATED];
 
 		// These contacts are sharing with us, we don't poll them.
 		// This means that we don't set the update fields in "OnePoll.php".
@@ -1878,7 +1877,8 @@ class Contact extends BaseObject
 		self::updateContact($id, $uid, $ret['url'], $ret);
 
 		// Update the corresponding gcontact entry
-		PortableContact::lastUpdated($ret["url"]);
+//		PortableContact::lastUpdated($ret["url"]);
+		GContact::updateFromProbe($ret['url']);
 
 		return true;
 	}

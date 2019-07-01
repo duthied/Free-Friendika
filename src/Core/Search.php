@@ -49,7 +49,7 @@ class Search extends BaseObject
 				return $emptyResultList;
 			}
 
-			if (!(in_array($user_data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA]))) {
+			if (!(in_array($user_data["network"], Protocol::FEDERATED))) {
 				return $emptyResultList;
 			}
 

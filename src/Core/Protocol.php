@@ -23,6 +23,8 @@ class Protocol
 
 	const NATIVE_SUPPORT = [self::DFRN, self::DIASPORA, self::OSTATUS, self::FEED, self::MAIL, self::ACTIVITYPUB];
 
+	const FEDERATED = [self::DFRN, self::DIASPORA, self::OSTATUS, self::ACTIVITYPUB];
+
 	// Supported through a connector
 	const DIASPORA2 = 'dspc';    // Diaspora connector
 	const LINKEDIN  = 'lnkd';    // LinkedIn

@@ -132,7 +132,7 @@ function crepair_content(App $a)
 		$remote_self_options = ['0' => L10n::t('No mirroring'), '2' => L10n::t('Mirror as my own posting')];
 	}
 
-	$update_profile = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]);
+	$update_profile = in_array($contact['network'], Protocol::FEDERATED);
 
 	$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
 

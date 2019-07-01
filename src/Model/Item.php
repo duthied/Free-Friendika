@@ -177,7 +177,7 @@ class Item extends BaseObject
 
 		// We can always comment on posts from these networks
 		if (array_key_exists('writable', $row) &&
-			in_array($row['internal-network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			in_array($row['internal-network'], Protocol::FEDERATED)) {
 			$row['writable'] = true;
 		}
 
@@ -1354,7 +1354,7 @@ class Item extends BaseObject
 		 * We have to check several networks since Friendica posts could be repeated
 		 * via OStatus (maybe Diasporsa as well)
 		 */
-		if (in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS, ""])) {
+		if (in_array($item['network'], array_merge(Protocol::FEDERATED ,['']))) {
 			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
 				trim($item['uri']), $item['uid'],
 				Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
@@ -2077,7 +2077,7 @@ class Item extends BaseObject
 
 		// Only distribute public items from native networks
 		$condition = ['id' => $itemid, 'uid' => 0,
-			'network' => [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""],
+			'network' => array_merge(Protocol::FEDERATED ,['']),
 			'visible' => true, 'deleted' => false, 'moderated' => false, 'private' => false];
 		$item = self::selectFirst(self::ITEM_FIELDLIST, $condition);
 		if (!DBA::isResult($item)) {
@@ -2233,7 +2233,7 @@ class Item extends BaseObject
 		}
 
 		// is it an entry from a connector? Only add an entry for natively connected networks
-		if (!in_array($item["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, ""])) {
+		if (!in_array($item["network"], array_merge(Protocol::FEDERATED ,['']))) {
 			return;
 		}
 

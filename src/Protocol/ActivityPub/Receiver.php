@@ -556,7 +556,7 @@ class Receiver
 				// Check if the potential receiver is following the actor
 				// Exception: The receiver is targetted via "to" or this is a comment
 				if ((($element != 'as:to') && empty($replyto)) || ($contact['contact-type'] == Contact::TYPE_COMMUNITY)) {
-					$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+					$networks = Protocol::FEDERATED;
 					$condition = ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND],
 						'network' => $networks, 'archive' => false, 'pending' => false, 'uid' => $contact['uid']];
 
@@ -591,7 +591,7 @@ class Receiver
 	public static function getReceiverForActor($actor, $tags)
 	{
 		$receivers = [];
-		$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+		$networks = Protocol::FEDERATED;
 		$condition = ['nurl' => Strings::normaliseLink($actor), 'rel' => [Contact::SHARING, Contact::FRIEND, Contact::FOLLOWER],
 			'network' => $networks, 'archive' => false, 'pending' => false];
 		$contacts = DBA::select('contact', ['uid', 'rel'], $condition);

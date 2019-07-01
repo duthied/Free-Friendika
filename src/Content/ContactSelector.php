@@ -105,7 +105,7 @@ class ContactSelector
 
 		$networkname = str_replace($search, $replace, $network);
 
-		if ((in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
+		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
 			// Create the server url out of the profile url
 			$parts = parse_url($profile);
 			unset($parts['path']);

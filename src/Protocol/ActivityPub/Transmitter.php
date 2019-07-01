@@ -358,7 +358,7 @@ class Transmitter
 
 		if (Config::get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
-			$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+			$networks = Protocol::FEDERATED;
 		} else {
 			// For now only send to these contacts:
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
@@ -530,7 +530,7 @@ class Transmitter
 
 		if (Config::get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
-			$networks = [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS];
+			$networks = Protocol::FEDERATED;
 		} else {
 			// For now only send to these contacts:
 			$networks = [Protocol::ACTIVITYPUB, Protocol::OSTATUS];
