@@ -1587,7 +1587,7 @@ class Contact extends BaseObject
 			return '';
 		}
 
-		if (in_array($contact["network"], array_merge(Protocol::FEDERATED ,['']))) {
+		if (empty($contact["network"]) || in_array($contact["network"], Protocol::FEDERATED)) {
 			$sql = "(`item`.`uid` = 0 OR (`item`.`uid` = ? AND NOT `item`.`global`))";
 		} else {
 			$sql = "`item`.`uid` = ?";
