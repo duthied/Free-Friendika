@@ -1877,7 +1877,6 @@ class Contact extends BaseObject
 		self::updateContact($id, $uid, $ret['url'], $ret);
 
 		// Update the corresponding gcontact entry
-//		PortableContact::lastUpdated($ret["url"]);
 		GContact::updateFromProbe($ret['url']);
 
 		return true;
