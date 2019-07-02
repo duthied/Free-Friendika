@@ -471,7 +471,7 @@ class Profile
 					'pending' => false,
 					'hidden' => false,
 					'archive' => false,
-					'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA],
+					'network' => Protocol::FEDERATED,
 				]);
 			}
 		}

@@ -521,7 +521,7 @@ class Contact extends BaseModule
 				$relation_text = '';
 			}
 
-			if (!in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+			if (!in_array($contact['network'], Protocol::FEDERATED)) {
 				$relation_text = '';
 			}
 
@@ -968,7 +968,7 @@ class Contact extends BaseModule
 
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
 
-			if (local_user() && in_array($profiledata['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
+			if (local_user() && in_array($profiledata['network'], Protocol::FEDERATED)) {
 				$profiledata['remoteconnect'] = System::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
 			}
 

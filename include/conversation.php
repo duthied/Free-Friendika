@@ -584,7 +584,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		if (in_array($mode, ['community', 'contacts'])) {
 			$writable = true;
 		} else {
-			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
 		}
 
 		if (!local_user()) {
@@ -872,7 +872,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	foreach ($items as $index => $item) {
 		if ($item['uid'] == 0) {
-			$items[$index]['writable'] = in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+			$items[$index]['writable'] = in_array($item['network'], Protocol::FEDERATED);
 		}
 	}
 
@@ -931,7 +931,7 @@ function item_photo_menu($item) {
 		$contact_url = 'contact/' . $cid;
 		$posts_link = 'contact/' . $cid . '/posts';
 
-		if (in_array($network, [Protocol::DFRN, Protocol::DIASPORA])) {
+		if (in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;
 		}
 	}
@@ -954,7 +954,7 @@ function item_photo_menu($item) {
 		}
 
 		if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
-			in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+			in_array($item['network'], Protocol::FEDERATED)) {
 			$menu[L10n::t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
 		}
 	} else {
