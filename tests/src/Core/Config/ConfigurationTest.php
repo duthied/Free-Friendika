@@ -2,13 +2,55 @@
 
 namespace Friendica\Test\src\Core\Config;
 
-use Friendica\Core\Config\Adapter\IConfigAdapter;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\Config\JitConfiguration;
+use Friendica\Model\Config\Config as ConfigModel;
 use Friendica\Test\MockedTest;
+use Mockery\MockInterface;
+use Mockery;
 
-class ConfigurationTest extends MockedTest
+abstract class ConfigurationTest extends MockedTest
 {
+	/** @var ConfigModel|MockInterface */
+	protected $configModel;
+
+	/** @var ConfigCache */
+	protected $configCache;
+
+	/** @var Configuration */
+	protected $testedConfig;
+
+	/**
+	 * Assert a config tree
+	 *
+	 * @param string $cat  The category to assert
+	 * @param array  $data The result data array
+	 */
+	protected function assertConfig(string $cat, array $data)
+	{
+		$result = $this->testedConfig->getCache()->getAll();
+
+		$this->assertNotEmpty($result);
+		$this->assertArrayHasKey($cat, $result);
+		$this->assertArraySubset($data, $result[$cat]);
+	}
+
+
+	protected function setUp()
+	{
+		parent::setUp();
+
+		// Create the config model
+		$this->configModel = Mockery::mock(ConfigModel::class);
+		$this->configCache = new ConfigCache();
+	}
+
+	/**
+	 * @return Configuration
+	 */
+	public abstract function getInstance();
+
 	public function dataTests()
 	{
 		return [
@@ -23,107 +65,229 @@ class ConfigurationTest extends MockedTest
 		];
 	}
 
+	public function dataConfigLoad()
+	{
+		$data = [
+			'system' => [
+				'key1' => 'value1',
+				'key2' => 'value2',
+				'key3' => 'value3',
+			],
+			'config' => [
+				'key1' => 'value1a',
+				'key4' => 'value4',
+			],
+			'other'  => [
+				'key5' => 'value5',
+				'key6' => 'value6',
+			],
+		];
+
+		return [
+			'system' => [
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'system',
+				],
+			],
+			'other'  => [
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'other',
+				],
+			],
+			'config' => [
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'config',
+				],
+			],
+			'all'    => [
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'system',
+					'config',
+					'other'
+				],
+			],
+		];
+	}
+
 	/**
 	 * Test the configuration initialization
 	 */
-	public function testSetUp()
+	public function testSetUp(array $data)
 	{
-		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->once();
+		$this->configModel->shouldReceive('isConnected')
+		                  ->andReturn(true)
+		                  ->once();
 
-		$configuration = new Configuration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$this->assertInstanceOf(ConfigCache::class, $configuration->getCache());
+		// assert config is loaded everytime
+		$this->assertConfig('config', $data['config']);
 	}
 
 	/**
 	 * Test the configuration load() method
 	 */
-	public function testCacheLoad()
+	public function testLoad(array $data, array $possibleCats, array $load)
 	{
-		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
-		// constructor loading
-		$configAdapter->shouldReceive('load')->andReturn([])->once();
-		// expected loading
-		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'it']])->once();
-		$configAdapter->shouldReceive('isLoaded')->with('testing', 'test')->andReturn(true)->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new Configuration($configCache, $configAdapter);
-		$configuration->load('testing');
+		foreach ($load as $loadedCats) {
+			$this->testedConfig->load($loadedCats);
+		}
 
-		$this->assertEquals('it', $configuration->get('testing', 'test'));
-		$this->assertEquals('it', $configuration->getCache()->get('testing', 'test'));
+		// Assert at least loaded cats are loaded
+		foreach ($load as $loadedCats) {
+			$this->assertConfig($loadedCats, $data[$loadedCats]);
+		}
+	}
+
+	public function dataDoubleLoad()
+	{
+		return [
+			'config' => [
+				'data1'  => [
+					'config' => [
+						'key1' => 'value1',
+						'key2' => 'value2',
+					],
+				],
+				'data2'  => [
+					'config' => [
+						'key1' => 'overwritten!',
+						'key3' => 'value3',
+					],
+				],
+				'expect' => [
+					'config' => [
+						// load should overwrite values everytime!
+						'key1' => 'overwritten!',
+						'key2' => 'value2',
+						'key3' => 'value3',
+					],
+				],
+			],
+			'other'  => [
+				'data1'  => [
+					'config' => [
+						'key12' => 'data4',
+						'key45' => 7,
+					],
+					'other'  => [
+						'key1' => 'value1',
+						'key2' => 'value2',
+					],
+				],
+				'data2'  => [
+					'other'  => [
+						'key1' => 'overwritten!',
+						'key3' => 'value3',
+					],
+					'config' => [
+						'key45' => 45,
+						'key52' => true,
+					]
+				],
+				'expect' => [
+					'other'  => [
+						// load should overwrite values everytime!
+						'key1' => 'overwritten!',
+						'key2' => 'value2',
+						'key3' => 'value3',
+					],
+					'config' => [
+						'key12' => 'data4',
+						'key45' => 45,
+						'key52' => true,
+					],
+				],
+			],
+		];
 	}
 
 	/**
 	 * Test the configuration load() method with overwrite
 	 */
-	public function testCacheLoadDouble()
+	public function testCacheLoadDouble(array $data1, array $data2, array $expect)
 	{
-		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(5);
-		// constructor loading
-		$configAdapter->shouldReceive('load')->andReturn([])->once();
-		// expected loading
-		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'it']])->once();
-		$configAdapter->shouldReceive('isLoaded')->with('testing', 'test')->andReturn(true)->twice();
-		// expected next loading
-		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'again']])->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new Configuration($configCache, $configAdapter);
-		$configuration->load('testing');
+		foreach ($data1 as $cat => $data) {
+			$this->testedConfig->load($cat);
+		}
 
-		$this->assertEquals('it', $configuration->get('testing', 'test'));
-		$this->assertEquals('it', $configuration->getCache()->get('testing', 'test'));
+		// Assert at least loaded cats are loaded
+		foreach ($data1 as $cat => $data) {
+			$this->assertConfig($cat, $data);
+		}
 
-		$configuration->load('testing');
-
-		$this->assertEquals('again', $configuration->get('testing', 'test'));
-		$this->assertEquals('again', $configuration->getCache()->get('testing', 'test'));
+		foreach ($data2 as $cat => $data) {
+			$this->testedConfig->load($cat);
+		}
 	}
 
 	/**
 	 * Test the configuration get() and set() methods without adapter
+	 *
 	 * @dataProvider dataTests
 	 */
 	public function testSetGetWithoutDB($data)
 	{
-		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(3);
+		$this->configModel->shouldReceive('isConnected')
+		                  ->andReturn(false)
+		                  ->times(3);
 
-		$configuration = new Configuration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$this->assertTrue($configuration->set('test', 'it', $data));
+		$this->assertTrue($this->testedConfig->set('test', 'it', $data));
 
-		$this->assertEquals($data, $configuration->get('test', 'it'));
-		$this->assertEquals($data, $configuration->getCache()->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 	}
 
 	/**
-	 * Test the configuration get() and set() methods with adapter
+	 * Test the configuration get() and set() methods with a model/db
+	 *
 	 * @dataProvider dataTests
 	 */
 	public function testSetGetWithDB($data)
 	{
-		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
-		// constructor loading
-		$configAdapter->shouldReceive('load')->andReturn([])->once();
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(true)->once();
-		$configAdapter->shouldReceive('set')->with('test', 'it', $data)->andReturn(true)->once();
+		$this->configModel->shouldReceive('set')->with('test', 'it', $data)->andReturn(true)->once();
 
-		$configuration = new Configuration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$this->assertTrue($configuration->set('test', 'it', $data));
+		$this->assertTrue($this->testedConfig->set('test', 'it', $data));
 
-		$this->assertEquals($data, $configuration->get('test', 'it'));
-		$this->assertEquals($data, $configuration->getCache()->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 	}
 
 	/**
@@ -131,145 +295,111 @@ class ConfigurationTest extends MockedTest
 	 */
 	public function testGetWrongWithoutDB()
 	{
-		$configCache = new ConfigCache();
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
-
-		$configuration = new Configuration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
 		// without refresh
-		$this->assertNull($configuration->get('test', 'it'));
+		$this->assertNull($this->testedConfig->get('test', 'it'));
 
 		/// beware that the cache returns '!<unset>!' and not null for a non existing value
-		$this->assertNull($configuration->getCache()->get('test', 'it'));
+		$this->assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
 		// with default value
-		$this->assertEquals('default', $configuration->get('test', 'it', 'default'));
+		$this->assertEquals('default', $this->testedConfig->get('test', 'it', 'default'));
 
 		// with default value and refresh
-		$this->assertEquals('default', $configuration->get('test', 'it', 'default', true));
+		$this->assertEquals('default', $this->testedConfig->get('test', 'it', 'default', true));
 	}
 
 	/**
 	 * Test the configuration get() method with refresh
+	 *
 	 * @dataProvider dataTests
 	 */
 	public function testGetWithRefresh($data)
 	{
-		$configCache = new ConfigCache(['test' => ['it' => 'now']]);
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
-		// constructor loading
-		$configAdapter->shouldReceive('load')->andReturn([])->once();
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(true)->twice();
-		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn($data)->once();
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'not')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with('test', 'not')->andReturn(null)->once();
+		$this->configCache->load(['test' => ['it' => 'now']]);
 
-		$configuration = new Configuration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
 		// without refresh
-		$this->assertEquals('now', $configuration->get('test', 'it'));
-		$this->assertEquals('now', $configuration->getCache()->get('test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->get('test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->getCache()->get('test', 'it'));
 
 		// with refresh
-		$this->assertEquals($data, $configuration->get('test', 'it', null, true));
-		$this->assertEquals($data, $configuration->getCache()->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->get('test', 'it', null, true));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 
 		// without refresh and wrong value and default
-		$this->assertEquals('default', $configuration->get('test', 'not', 'default'));
-		$this->assertNull($configuration->getCache()->get('test', 'not'));
+		$this->assertEquals('default', $this->testedConfig->get('test', 'not', 'default'));
+		$this->assertNull($this->testedConfig->getCache()->get('test', 'not'));
 	}
 
 	/**
-	 * Test the configuration get() method with different isLoaded settings
-	 * @dataProvider dataTests
-	 */
-	public function testGetWithoutLoaded($data)
-	{
-		$configCache = new ConfigCache(['test' => ['it' => 'now']]);
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
-		// constructor loading
-		$configAdapter->shouldReceive('load')->andReturn([])->once();
-
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn(null)->once();
-
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with('test', 'it')->andReturn($data)->once();
-
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(true)->once();
-
-		$configuration = new Configuration($configCache, $configAdapter);
-
-		// first run is not loaded and no data is found in the DB
-		$this->assertEquals('now', $configuration->get('test', 'it'));
-		$this->assertEquals('now', $configuration->getCache()->get('test', 'it'));
-
-		// second run is not loaded, but now data is found in the db (overwrote cache)
-		$this->assertEquals($data, $configuration->get('test', 'it'));
-		$this->assertEquals($data, $configuration->getCache()->get('test', 'it'));
-
-		// third run is loaded and therefore cache is used
-		$this->assertEquals($data, $configuration->get('test', 'it'));
-		$this->assertEquals($data, $configuration->getCache()->get('test', 'it'));
-	}
-
-	/**
-	 * Test the configuration delete() method without adapter
+	 * Test the configuration delete() method without a model/db
+	 *
 	 * @dataProvider dataTests
 	 */
 	public function testDeleteWithoutDB($data)
 	{
-		$configCache = new ConfigCache(['test' => ['it' => $data]]);
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
+		$this->configCache->load(['test' => ['it' => $data]]);
 
-		$configuration = new Configuration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$this->assertEquals($data, $configuration->get('test', 'it'));
-		$this->assertEquals($data, $configuration->getCache()->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->get('test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get('test', 'it'));
 
-		$this->assertTrue($configuration->delete('test', 'it'));
-		$this->assertNull($configuration->get('test', 'it'));
-		$this->assertNull($configuration->getCache()->get('test', 'it'));
+		$this->assertTrue($this->testedConfig->delete('test', 'it'));
+		$this->assertNull($this->testedConfig->get('test', 'it'));
+		$this->assertNull($this->testedConfig->getCache()->get('test', 'it'));
 
-		$this->assertEmpty($configuration->getCache()->getAll());
+		$this->assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 
 	/**
-	 * Test the configuration delete() method with adapter
+	 * Test the configuration delete() method with a model/db
 	 */
 	public function testDeleteWithDB()
 	{
-		$configCache = new ConfigCache(['test' => ['it' => 'now', 'quarter' => 'true']]);
-		$configAdapter = \Mockery::mock(IConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(6);
-		// constructor loading
-		$configAdapter->shouldReceive('load')->andReturn([])->once();
-		$configAdapter->shouldReceive('isLoaded')->with('test', 'it')->andReturn(true)->once();
+		$this->configCache->load(['test' => ['it' => 'now', 'quarter' => 'true']]);
 
-		$configAdapter->shouldReceive('delete')->with('test', 'it')->andReturn(false)->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with('test', 'it')
+		                  ->andReturn(false)
+		                  ->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with('test', 'second')
+		                  ->andReturn(true)
+		                  ->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with('test', 'third')
+		                  ->andReturn(false)
+		                  ->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with('test', 'quarter')
+		                  ->andReturn(true)
+		                  ->once();
 
-		$configAdapter->shouldReceive('delete')->with('test', 'second')->andReturn(true)->once();
-		$configAdapter->shouldReceive('delete')->with('test', 'third')->andReturn(false)->once();
-		$configAdapter->shouldReceive('delete')->with('test', 'quarter')->andReturn(true)->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new Configuration($configCache, $configAdapter);
+		// directly set the value to the cache
+		$this->testedConfig->getCache()->set('test', 'it', 'now');
 
-		$this->assertEquals('now', $configuration->get('test', 'it'));
-		$this->assertEquals('now', $configuration->getCache()->get('test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->get('test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->getCache()->get('test', 'it'));
 
 		// delete from cache only
-		$this->assertTrue($configuration->delete('test', 'it'));
+		$this->assertTrue($this->testedConfig->delete('test', 'it'));
 		// delete from db only
-		$this->assertTrue($configuration->delete('test', 'second'));
+		$this->assertTrue($this->testedConfig->delete('test', 'second'));
 		// no delete
-		$this->assertFalse($configuration->delete('test', 'third'));
+		$this->assertFalse($this->testedConfig->delete('test', 'third'));
 		// delete both
-		$this->assertTrue($configuration->delete('test', 'quarter'));
+		$this->assertTrue($this->testedConfig->delete('test', 'quarter'));
 
-		$this->assertEmpty($configuration->getCache()->getAll());
+		$this->assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 }
