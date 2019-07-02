@@ -867,7 +867,7 @@ class GContact
 	public static function updateFromPublicContact($cid)
 	{
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender',
-			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive',
+			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive', 'term-date',
 			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => 0, 'network' => Protocol::FEDERATED]);
 		if (!DBA::isResult($contact)) {
@@ -893,6 +893,8 @@ class GContact
 		// These fields are having different names but the same content
 		$gcontact['archived'] = $gcontact['archive'];
 		unset($gcontact['archive']);
+		$gcontact['archive_date'] = $gcontact['term-date'];
+		unset($gcontact['term-date']);
 		$gcontact['birthday'] = $gcontact['bd'];
 		unset($gcontact['bd']);
 		$gcontact['photo'] = $gcontact['avatar'];
@@ -911,9 +913,7 @@ class GContact
 			}
 		}
 
-		if ($gcontact['archived'] && (empty($old_gcontact['archive_date']) || ($old_gcontact['archive_date'] <= DBA::NULL_DATETIME))) {
-			$gcontact['archive_date'] = DateTimeFormat::utcNow();
-		} elseif (!$gcontact['archived']) {
+		if (!$gcontact['archived']) {
 			$gcontact['archive_date'] = DBA::NULL_DATETIME;
 		}
 
