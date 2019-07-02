@@ -1516,6 +1516,11 @@ class Contact extends BaseObject
 
 		DBA::update('contact', $updated, ['id' => $contact_id], $contact);
 
+		if (!$background_update && ($uid == 0)) {
+			// Update the gcontact entry
+			GContact::updateFromPublicContact($contact_id);
+		}
+
 		return $contact_id;
 	}
 
@@ -1770,6 +1775,9 @@ class Contact extends BaseObject
 			return;
 		}
 
+		// Update the corresponding gcontact entry
+		GContact::updateFromPublicContact($id);
+
 		// Archive or unarchive the contact. We only need to do this for the public contact.
 		// The archive/unarchive function will update the personal contacts by themselves.
 		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
@@ -1875,9 +1883,6 @@ class Contact extends BaseObject
 		unset($ret['photo']);
 
 		self::updateContact($id, $uid, $ret['url'], $ret);
-
-		// Update the corresponding gcontact entry
-		GContact::updateFromProbe($ret['url']);
 
 		return true;
 	}
