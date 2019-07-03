@@ -2,10 +2,9 @@
 
 namespace Friendica\Console;
 
-use Friendica\Core\Protocol;
+use Friendica\BaseObject;
 use Friendica\Database\DBA;
-use Friendica\Network\Probe;
-use Friendica\Util\Strings;
+use Friendica\Model\Contact;
 use RuntimeException;
 
 /**
@@ -47,8 +46,6 @@ HELP;
 
 	protected function doExecute()
 	{
-		$a = \get_app();
-
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
 			$this->out('Arguments: ' . var_export($this->args, true));
@@ -64,27 +61,16 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->getMode()->isInstall()) {
+		if (BaseObject::getApp()->getMode()->isInstall()) {
 			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 
-		/**
-		 * 1. make nurl from last parameter
-		 * 2. check DB (contact) if there is a contact with uid=0 and that nurl, get the ID
-		 * 3. set the flag hidden=1 for the contact entry with the found ID
-		 * */
-		$net = Probe::uri($this->getArgument(0));
-		if (in_array($net['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			throw new RuntimeException('This account seems not to exist.');
-		}
-
-		$nurl = Strings::normaliseLink($net['url']);
-		$contact = DBA::selectFirst("contact", ["id"], ["nurl" => $nurl, "uid" => 0]);
-		if (DBA::isResult($contact)) {
-			DBA::update("contact", ["hidden" => true], ["id" => $contact["id"]]);
-			$this->out('NOTICE: The account should be silenced from the global community page');
+		$contact_id = Contact::getIdForURL($this->getArgument(0));
+		if ($contact_id) {
+			DBA::update('contact', ['hidden' => true], ['id' => $contact_id]);
+			$this->out('The account has been successfully silenced from the global community page.');
 		} else {
-			throw new RuntimeException('NOTICE: Could not find any entry for this URL (' . $nurl . ')');
+			throw new RuntimeException('Could not find any public contact entry for this URL (' . $this->getArgument(0) . ')');
 		}
 
 		return 0;
