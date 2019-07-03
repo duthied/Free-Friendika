@@ -864,12 +864,38 @@ class GContact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function updateFromPublicContact($cid)
+	public static function updateFromPublicContactID($cid)
+	{
+		self::updateFromPublicContact(['id' => $cid]);
+	}
+
+	/**
+	 * @brief Updates the gcontact entry from a given public contact url
+	 *
+	 * @param string $url contact url
+	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function updateFromPublicContactURL($url)
+	{
+		self::updateFromPublicContact(['nurl' => Strings::normaliseLink($url)]);
+	}
+
+	/**
+	 * @brief Helper function for updateFromPublicContactID and updateFromPublicContactURL
+	 *
+	 * @param array $condition contact condition
+	 * @return void
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function updateFromPublicContact($condition)
 	{
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender',
 			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive', 'term-date',
 			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv'];
-		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => 0, 'network' => Protocol::FEDERATED]);
+		$contact = DBA::selectFirst('contact', $fields, array_merge($condition, ['uid' => 0, 'network' => Protocol::FEDERATED]));
 		if (!DBA::isResult($contact)) {
 			return;
 		}

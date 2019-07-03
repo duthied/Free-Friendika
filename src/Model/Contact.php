@@ -792,6 +792,7 @@ class Contact extends BaseObject
 				 */
 				DBA::update('contact', ['archive' => 1], ['id' => $contact['id']]);
 				DBA::update('contact', ['archive' => 1], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
+				GContact::updateFromPublicContactURL($contact['url']);
 			}
 		}
 	}
@@ -829,6 +830,7 @@ class Contact extends BaseObject
 		$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
+		GContact::updateFromPublicContactURL($contact['url']);
 
 		if (!empty($contact['batch'])) {
 			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
@@ -965,7 +967,7 @@ class Contact extends BaseObject
 		if ((empty($profile["addr"]) || empty($profile["name"])) && (defaults($profile, "gid", 0) != 0)
 			&& in_array($profile["network"], Protocol::FEDERATED)
 		) {
-			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
+			Worker::add(PRIORITY_LOW, "UpdateGContact", $url);
 		}
 
 		// Show contact details of Diaspora contacts only if connected
@@ -1339,10 +1341,14 @@ class Contact extends BaseObject
 			return 0;
 		}
 
-		// When we don't want to update, we look if we know this contact in any way
 		if ($no_update && empty($default)) {
+			// When we don't want to update, we look if we know this contact in any way
 			$data = self::getProbeDataFromDatabase($url, $contact_id);
 			$background_update = true;
+		} elseif ($no_update && !empty($default)) {
+			// If there are default values, take these
+			$data = $default;
+			$background_update = false;
 		} else {
 			$data = [];
 			$background_update = false;
@@ -1357,18 +1363,9 @@ class Contact extends BaseObject
 			}
 		}
 
-		// Last try in gcontact for unsupported networks
-		if (!in_array($data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::PUMPIO, Protocol::MAIL, Protocol::FEED])) {
-			if ($uid != 0) {
-				return 0;
-			}
-
-			$contact = array_merge(self::getProbeDataFromDatabase($url, $contact_id), $default);
-			if (empty($contact)) {
-				return 0;
-			}
-
-			$data = array_merge($data, $contact);
+		// Take the default values when probing failed
+		if (!empty($default) && !in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+			$data = array_merge($data, $default);
 		}
 
 		if (empty($data)) {
@@ -1518,7 +1515,7 @@ class Contact extends BaseObject
 
 		if (!$background_update && ($uid == 0)) {
 			// Update the gcontact entry
-			GContact::updateFromPublicContact($contact_id);
+			GContact::updateFromPublicContactID($contact_id);
 		}
 
 		return $contact_id;
@@ -1776,7 +1773,7 @@ class Contact extends BaseObject
 		}
 
 		// Update the corresponding gcontact entry
-		GContact::updateFromPublicContact($id);
+		GContact::updateFromPublicContactID($id);
 
 		// Archive or unarchive the contact. We only need to do this for the public contact.
 		// The archive/unarchive function will update the personal contacts by themselves.
