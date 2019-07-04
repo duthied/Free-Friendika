@@ -237,41 +237,6 @@ class APContact extends BaseObject
 			DBA::delete('apcontact', ['url' => $url]);
 		}
 
-		// Update some data in the contact table with various ways to catch them all
-		$contact_fields = ['name' => $apcontact['name'], 'about' => $apcontact['about'], 'alias' => $apcontact['alias']];
-
-		// Fetch the type and match it with the contact type
-		$contact_types = array_keys(ActivityPub::ACCOUNT_TYPES, $apcontact['type']);
-		if (!empty($contact_types)) {
-			$contact_type = array_pop($contact_types);
-			if (is_int($contact_type)) {
-				$contact_fields['contact-type'] = $contact_type;
-
-				if ($contact_fields['contact-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
-					// Resetting the 'forum' and 'prv' field when it isn't a forum
-					$contact_fields['forum'] = false;
-					$contact_fields['prv'] = false;
-				} else {
-					// Otherwise set the corresponding forum type
-					$contact_fields['forum'] = !$apcontact['manually-approve'];
-					$contact_fields['prv'] = $apcontact['manually-approve'];
-				}
-			}
-		}
-
-		DBA::update('contact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
-
-		if (!empty($apcontact['photo'])) {
-			$contacts = DBA::select('contact', ['uid', 'id'], ['nurl' => Strings::normaliseLink($url)]);
-			while ($contact = DBA::fetch($contacts)) {
-				Contact::updateAvatar($apcontact['photo'], $contact['uid'], $contact['id']);
-			}
-			DBA::close($contacts);
-		}
-
-		// Update the gcontact table
-		GContact::updateFromPublicContactURL($url);
-
 		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
 
 		return $apcontact;

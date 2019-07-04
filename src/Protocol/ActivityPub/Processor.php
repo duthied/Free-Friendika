@@ -611,8 +611,7 @@ class Processor
 		}
 
 		Logger::log('Updating profile for ' . $activity['object_id'], Logger::DEBUG);
-		APContact::getByURL($activity['object_id'], true);
-//		Contact::updateFromProbe($activity['object_id'], $network = '', $force = false)
+		Contact::updateFromProbeByURL($activity['object_id'], true);
 	}
 
 	/**
