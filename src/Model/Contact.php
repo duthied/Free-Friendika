@@ -1821,8 +1821,12 @@ class Contact extends BaseObject
 		  This will reliably kill your communication with old Friendica contacts.
 		 */
 
+		// These fields aren't updated by this routine:
+		// 'location', 'about', 'keywords', 'gender', 'xmpp', 'unsearchable', 'sensitive'];
+
 		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
-			'poll', 'request', 'confirm', 'poco', 'network', 'alias', 'baseurl'];
+			'poll', 'request', 'confirm', 'poco', 'network', 'alias', 'baseurl',
+			'forum', 'prv', 'contact-type'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1847,13 +1851,26 @@ class Contact extends BaseObject
 			return false;
 		}
 
+		if (isset($ret['account-type'])) {
+			$ret['forum'] = false;
+			$ret['prv'] = false;
+			$ret['contact-type'] = $ret['account-type'];
+			if ($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+				$apcontact = APContact::getByURL($ret['url'], false);
+				if (isset($apcontact['manually-approve'])) {
+					$ret['forum'] = (bool)!$apcontact['manually-approve'];
+					$ret['prv'] = (bool)!$ret['forum'];
+				}
+			}
+		}
+
 		$update = false;
 
 		// make sure to not overwrite existing values with blank entries
 		foreach ($ret as $key => $val) {
 			if (!array_key_exists($key, $contact)) {
 				unset($ret[$key]);
-			} elseif (($contact[$key] != '') && ($val == '')) {
+			} elseif (($contact[$key] != '') && ($val == '') && !is_bool($ret[$key])) {
 				$ret[$key] = $contact[$key];
 			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
@@ -1884,6 +1901,17 @@ class Contact extends BaseObject
 		self::updateContact($id, $uid, $ret['url'], $ret);
 
 		return true;
+	}
+
+	public static function updateFromProbeByURL($url, $force = false)
+	{
+		$id = self::getIdForURL($url);
+
+		if (empty($id)) {
+			return;
+		}
+
+		self::updateFromProbe($id, '', $force);
 	}
 
 	/**

@@ -45,8 +45,8 @@ class Probe
 	 */
 	private static function rearrangeData($data)
 	{
-		$fields = ["name", "nick", "guid", "url", "addr", "alias",
-				"photo", "community", "keywords", "location", "about",
+		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo",
+				"account-type", "community", "keywords", "location", "about",
 				"batch", "notify", "poll", "request", "confirm", "poco",
 				"priority", "network", "pubkey", "baseurl"];
 
@@ -349,6 +349,8 @@ class Probe
 
 			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
 				$data = $ap_profile;
+			} elseif (!empty($ap_profile)) {
+				$data = array_merge($ap_profile, $data);
 			}
 		} else {
 			Logger::notice('Time out detected. AP will not be probed.', ['uri' => $uri]);

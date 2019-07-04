@@ -8,6 +8,7 @@ use Friendica\Util\JsonLD;
 use Friendica\Util\Network;
 use Friendica\Core\Protocol;
 use Friendica\Model\APContact;
+use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
 
 /**
@@ -88,6 +89,31 @@ class ActivityPub
 		return $content;
 	}
 
+	private static function getAccountType($apcontact)
+	{
+		$accounttype = -1;
+
+		switch($apcontact['type']) {
+			case 'Person':
+				$accounttype = User::ACCOUNT_TYPE_PERSON;
+				break;
+			case 'Organization':
+				$accounttype = User::ACCOUNT_TYPE_ORGANISATION;
+				break;
+			case 'Service':
+				$accounttype = User::ACCOUNT_TYPE_NEWS;
+				break;
+			case 'Group':
+				$accounttype = User::ACCOUNT_TYPE_COMMUNITY;
+				break;
+			case 'Application':
+				$accounttype = User::ACCOUNT_TYPE_RELAY;
+				break;
+		}
+
+		return $accounttype;
+	}
+
 	/**
 	 * Fetches a profile from the given url into an array that is compatible to Probe::uri
 	 *
@@ -112,7 +138,8 @@ class ActivityPub
 		$profile['addr'] = $apcontact['addr'];
 		$profile['alias'] = $apcontact['alias'];
 		$profile['photo'] = $apcontact['photo'];
-		// $profile['community']
+		$profile['account-type'] = self::getAccountType($apcontact);
+		$profile['community'] = ($profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
 		// $profile['keywords']
 		// $profile['location']
 		$profile['about'] = $apcontact['about'];

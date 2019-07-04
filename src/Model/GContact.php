@@ -913,30 +913,27 @@ class GContact
 			$old_gcontact = [];
 		}
 
-		$gcontact = $contact;
+		$gcontact = [];
+
+		// These fields are identical in both contact and gcontact
+		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender',
+			'contact-type', 'network', 'addr', 'notify', 'alias', 'created', 'updated'];
+
+		foreach ($fields as $field) {
+			$gcontact[$field] = $contact[$field];
+		}
 
 		// These fields are having different names but the same content
-		$gcontact['server_url'] = $gcontact['baseurl'];
-		unset($gcontact['baseurl']);
-		$gcontact['nsfw'] = $gcontact['sensitive'];
-		unset($gcontact['sensitive']);
-		$gcontact['hide'] = $gcontact['unsearchable'];
-		unset($gcontact['unsearchable']);
-		$gcontact['archived'] = $gcontact['archive'];
-		unset($gcontact['archive']);
-		$gcontact['archive_date'] = $gcontact['term-date'];
-		unset($gcontact['term-date']);
-		$gcontact['birthday'] = $gcontact['bd'];
-		unset($gcontact['bd']);
-		$gcontact['photo'] = $gcontact['avatar'];
-		unset($gcontact['avatar']);
-		$gcontact['last_contact'] = $gcontact['success_update'];
-		unset($gcontact['success_update']);
-		$gcontact['last_failure'] = $gcontact['failure_update'];
-		unset($gcontact['failure_update']);
-		$gcontact['community'] = ($gcontact['forum'] || $gcontact['prv']);
-		unset($gcontact['forum']);
-		unset($gcontact['prv']);
+		$gcontact['server_url'] = $contact['baseurl'];
+		$gcontact['nsfw'] = $contact['sensitive'];
+		$gcontact['hide'] = $contact['unsearchable'];
+		$gcontact['archived'] = $contact['archive'];
+		$gcontact['archive_date'] = $contact['term-date'];
+		$gcontact['birthday'] = $contact['bd'];
+		$gcontact['photo'] = $contact['avatar'];
+		$gcontact['last_contact'] = $contact['success_update'];
+		$gcontact['last_failure'] = $contact['failure_update'];
+		$gcontact['community'] = ($contact['forum'] || $contact['prv']);
 
 		foreach (['last_contact', 'last_failure', 'updated'] as $field) {
 			if (!empty($old_gcontact[$field]) && ($old_gcontact[$field] >= $gcontact[$field])) {
