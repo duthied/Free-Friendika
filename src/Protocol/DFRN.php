@@ -1684,68 +1684,26 @@ class DFRN
 				Event::createBirthday($contact, $birthday);
 			}
 
-			// Get all field names
-			$fields = [];
-			foreach ($contact_old as $field => $data) {
-				$fields[$field] = $data;
-			}
+			$fields = ['name' => $contact['name'], 'nick' => $contact['nick'], 'about' => $contact['about'],
+				'location' => $contact['location'], 'addr' => $contact['addr'], 'keywords' => $contact['keywords'],
+				'bdyear' => $contact['bdyear'], 'bd' => $contact['bd'], 'hidden' => $contact['hidden'],
+				'xmpp' => $contact['xmpp'], 'name-date' => DateTimeFormat::utc($contact['name-date']),
+				'uri-date' => DateTimeFormat::utc($contact['uri-date'])];
 
-			unset($fields["id"]);
-			unset($fields["uid"]);
-			unset($fields["url"]);
-			unset($fields["avatar-date"]);
-			unset($fields["avatar"]);
-			unset($fields["name-date"]);
-			unset($fields["uri-date"]);
+			DBA::update('contact', $fields, ['id' => $contact['id'], 'network' => $contact['network']], $contact_old);
 
-			$update = false;
-			// Update check for this field has to be done differently
-			$datefields = ["name-date", "uri-date"];
-			foreach ($datefields as $field) {
-				// The date fields arrives as '2018-07-17T10:44:45Z' - the database return '2018-07-17 10:44:45'
-				// The fields have to be in the same format to be comparable, since strtotime does add timezones.
-				$contact[$field] = DateTimeFormat::utc($contact[$field]);
-
-				if (strtotime($contact[$field]) > strtotime($contact_old[$field])) {
-					Logger::log("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", Logger::DEBUG);
-					$update = true;
-				}
-			}
-
-			foreach ($fields as $field => $data) {
-				if ($contact[$field] != $contact_old[$field]) {
-					Logger::log("Difference for contact " . $contact["id"] . " in field '" . $field . "'. New value: '" . $contact[$field] . "', old value '" . $contact_old[$field] . "'", Logger::DEBUG);
-					$update = true;
-				}
-			}
-
-			if ($update) {
-				Logger::log("Update contact data for contact " . $contact["id"] . " (" . $contact["nick"] . ")", Logger::DEBUG);
-
-				q(
-					"UPDATE `contact` SET `name` = '%s', `nick` = '%s', `about` = '%s', `location` = '%s',
-					`addr` = '%s', `keywords` = '%s', `bdyear` = '%s', `bd` = '%s', `hidden` = %d,
-					`xmpp` = '%s', `name-date`  = '%s', `uri-date` = '%s'
-					WHERE `id` = %d AND `network` = '%s'",
-					DBA::escape($contact["name"]), DBA::escape($contact["nick"]), DBA::escape($contact["about"]),	DBA::escape($contact["location"]),
-					DBA::escape($contact["addr"]), DBA::escape($contact["keywords"]), DBA::escape($contact["bdyear"]),
-					DBA::escape($contact["bd"]), intval($contact["hidden"]), DBA::escape($contact["xmpp"]),
-					DBA::escape(DateTimeFormat::utc($contact["name-date"])), DBA::escape(DateTimeFormat::utc($contact["uri-date"])),
-					intval($contact["id"]),	DBA::escape($contact["network"])
-				);
-			}
-
-			Contact::updateAvatar(
-				$author['avatar'],
-				$importer['importer_uid'],
-				$contact['id'],
-				(strtotime($contact['avatar-date']) > strtotime($contact_old['avatar-date']) || ($author['avatar'] != $contact_old['avatar']))
-			);
-
-			// Update the "hidden" status in the public contact
-			// @todo Updating the contact with all fields and update the gcontact from that
+			// Update the public contact. Don't set the "hidden" value, this is used differently for public contacts
+			unset($fields['hidden']);
+			$fields['unsearchable'] = $hide;
 			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
-			DBA::update('contact', ['unsearchable' => $hide], $condition, true);
+			DBA::update('contact', $fields, $condition, true);
+
+			Contact::updateAvatar($author['avatar'], $importer['importer_uid'], $contact['id']);
+
+			$pcid = Contact::getIdForURL($contact_old['url']);
+			if (!empty($pcid)) {
+				Contact::updateAvatar($author['avatar'], 0, $pcid);
+			}
 
 			/*
 			 * The generation is a sign for the reliability of the provided data.

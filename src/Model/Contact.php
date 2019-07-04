@@ -1468,10 +1468,12 @@ class Contact extends BaseObject
 			'url' => $data['url'],
 			'nurl' => Strings::normaliseLink($data['url']),
 			'name' => $data['name'],
-			'nick' => $data['nick'],
-			'baseurl' => $data['baseurl']
+			'nick' => $data['nick']
 		];
 
+		if (!empty($data['baseurl'])) {
+			$updated['baseurl'] = $data['baseurl'];
+		}
 		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
 		}
@@ -1500,7 +1502,7 @@ class Contact extends BaseObject
 		}
 
 		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
-		if (empty($contact['pubkey'])) {
+		if (empty($contact['pubkey']) && !empty($data['pubkey'])) {
 			$updated['pubkey'] = $data['pubkey'];
 		}
 
