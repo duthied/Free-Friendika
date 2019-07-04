@@ -270,10 +270,7 @@ class APContact extends BaseObject
 		}
 
 		// Update the gcontact table
-		// These two fields don't exist in the gcontact table
-		unset($contact_fields['forum']);
-		unset($contact_fields['prv']);
-		DBA::update('gcontact', $contact_fields, ['nurl' => Strings::normaliseLink($url)]);
+		GContact::updateFromPublicContactURL($url);
 
 		Logger::log('Updated profile for ' . $url, Logger::DEBUG);
 

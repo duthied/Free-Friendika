@@ -873,20 +873,20 @@ class GContact
 	 * @brief Updates the gcontact entry from a given public contact url
 	 *
 	 * @param string $url contact url
-	 * @return void
+	 * @return integer gcontact id
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
 	public static function updateFromPublicContactURL($url)
 	{
-		self::updateFromPublicContact(['nurl' => Strings::normaliseLink($url)]);
+		return self::updateFromPublicContact(['nurl' => Strings::normaliseLink($url)]);
 	}
 
 	/**
 	 * @brief Helper function for updateFromPublicContactID and updateFromPublicContactURL
 	 *
 	 * @param array $condition contact condition
-	 * @return void
+	 * @return integer gcontact id
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -894,19 +894,18 @@ class GContact
 	{
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender',
 			'bd', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archive', 'term-date',
-			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv'];
+			'created', 'updated', 'avatar', 'success_update', 'failure_update', 'forum', 'prv',
+			'baseurl', 'sensitive', 'unsearchable'];
+
 		$contact = DBA::selectFirst('contact', $fields, array_merge($condition, ['uid' => 0, 'network' => Protocol::FEDERATED]));
 		if (!DBA::isResult($contact)) {
-			return;
+			return 0;
 		}
-
-		// These fields cannot be updated, since they don't exist in the contact table
-		// hide, nsfw, server_url
-		// "connect" does exist, but seems to contain the same as "addr"
 
 		$fields = ['name', 'nick', 'url', 'nurl', 'location', 'about', 'keywords', 'gender', 'generation',
 			'birthday', 'contact-type', 'network', 'addr', 'notify', 'alias', 'archived', 'archive_date',
-			'created', 'updated', 'photo', 'last_contact', 'last_failure', 'community', 'connect'];
+			'created', 'updated', 'photo', 'last_contact', 'last_failure', 'community', 'connect',
+			'server_url', 'nsfw', 'hide', 'id'];
 
 		$old_gcontact = DBA::selectFirst('gcontact', $fields, ['nurl' => $contact['nurl']]);
 		$do_insert = !DBA::isResult($old_gcontact);
@@ -917,6 +916,12 @@ class GContact
 		$gcontact = $contact;
 
 		// These fields are having different names but the same content
+		$gcontact['server_url'] = $gcontact['baseurl'];
+		unset($gcontact['baseurl']);
+		$gcontact['nsfw'] = $gcontact['sensitive'];
+		unset($gcontact['sensitive']);
+		$gcontact['hide'] = $gcontact['unsearchable'];
+		unset($gcontact['unsearchable']);
 		$gcontact['archived'] = $gcontact['archive'];
 		unset($gcontact['archive']);
 		$gcontact['archive_date'] = $gcontact['term-date'];
@@ -958,8 +963,10 @@ class GContact
 
 		if (!$do_insert) {
 			DBA::update('gcontact', $gcontact, ['nurl' => $contact['nurl']], $old_gcontact);
+			return $old_gcontact['id'];
 		} elseif (!$gcontact['archived']) {
 			DBA::insert('gcontact', $gcontact);
+			return DBA::lastInsertId();
 		}
 	}
 

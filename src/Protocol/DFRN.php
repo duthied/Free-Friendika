@@ -1742,6 +1742,11 @@ class DFRN
 				(strtotime($contact['avatar-date']) > strtotime($contact_old['avatar-date']) || ($author['avatar'] != $contact_old['avatar']))
 			);
 
+			// Update the "hidden" status in the public contact
+			// @todo Updating the contact with all fields and update the gcontact from that
+			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
+			DBA::update('contact', ['unsearchable' => $hide], $condition, true);
+
 			/*
 			 * The generation is a sign for the reliability of the provided data.
 			 * It is used in the socgraph.php to prevent that old contact data

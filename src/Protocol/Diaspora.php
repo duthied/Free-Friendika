@@ -2258,8 +2258,8 @@ class Diaspora
 		$fields = ['name' => $name, 'location' => $location,
 			'name-date' => DateTimeFormat::utcNow(),
 			'about' => $about, 'gender' => $gender,
-			'addr' => $author, 'nick' => $nick,
-			'keywords' => $keywords];
+			'addr' => $author, 'nick' => $nick, 'keywords' => $keywords,
+			'unsearchable' => !$searchable, 'sensitive' => $nsfw];
 
 		if (!empty($birthday)) {
 			$fields['bd'] = $birthday;

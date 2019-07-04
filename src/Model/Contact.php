@@ -1400,6 +1400,7 @@ class Contact extends BaseObject
 				'request'   => defaults($data, 'request', ''),
 				'confirm'   => defaults($data, 'confirm', ''),
 				'poco'      => defaults($data, 'poco', ''),
+				'baseurl'   => defaults($data, 'baseurl', ''),
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1453,7 +1454,7 @@ class Contact extends BaseObject
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey'];
+		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey', 'baseurl'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
 		// This condition should always be true
@@ -1467,7 +1468,8 @@ class Contact extends BaseObject
 			'url' => $data['url'],
 			'nurl' => Strings::normaliseLink($data['url']),
 			'name' => $data['name'],
-			'nick' => $data['nick']
+			'nick' => $data['nick'],
+			'baseurl' => $data['baseurl']
 		];
 
 		if (!empty($data['keywords'])) {
@@ -1820,7 +1822,7 @@ class Contact extends BaseObject
 		 */
 
 		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
-			'poll', 'request', 'confirm', 'poco', 'network', 'alias'];
+			'poll', 'request', 'confirm', 'poco', 'network', 'alias', 'baseurl'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1849,7 +1851,7 @@ class Contact extends BaseObject
 
 		// make sure to not overwrite existing values with blank entries
 		foreach ($ret as $key => $val) {
-			if (!isset($contact[$key])) {
+			if (!array_key_exists($key, $contact)) {
 				unset($ret[$key]);
 			} elseif (($contact[$key] != '') && ($val == '')) {
 				$ret[$key] = $contact[$key];
@@ -2082,6 +2084,7 @@ class Contact extends BaseObject
 				'name'    => $ret['name'],
 				'nick'    => $ret['nick'],
 				'network' => $ret['network'],
+				'baseurl' => $ret['baseurl'],
 				'protocol' => $protocol,
 				'pubkey'  => $ret['pubkey'],
 				'rel'     => $new_relation,
