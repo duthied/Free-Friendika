@@ -50,8 +50,10 @@ class JitConfiguration extends Configuration
 
 		$config = $this->configModel->load($cat);
 
-		foreach ($config[$cat] as $key => $value) {
-			$this->in_db[$cat][$key] = true;
+		if (!empty($config[$cat])) {
+			foreach ($config[$cat] as $key => $value) {
+				$this->in_db[$cat][$key] = true;
+			}
 		}
 
 		// load the whole category out of the DB into the cache

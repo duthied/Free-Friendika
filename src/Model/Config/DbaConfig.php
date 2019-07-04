@@ -11,7 +11,7 @@ abstract class DbaConfig
 
 	public function __construct(Database $dba)
 	{
-		$this->dba    = $dba;
+		$this->dba = $dba;
 	}
 
 	/**

@@ -253,6 +253,20 @@ abstract class ConfigurationTest extends MockedTest
 	}
 
 	/**
+	 * Test the configuration load without result
+	 */
+	public function testLoadWrong()
+	{
+		$this->configModel->shouldReceive('isConnected')->andReturn(true)->once();
+		$this->configModel->shouldReceive('load')->withAnyArgs()->andReturn([])->once();
+
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(ConfigCache::class, $this->testedConfig->getCache());
+
+		$this->assertEmpty($this->testedConfig->getCache()->getAll());
+	}
+
+	/**
 	 * Test the configuration get() and set() methods without adapter
 	 *
 	 * @dataProvider dataTests
