@@ -176,7 +176,6 @@ class Contact extends BaseObject
 
 	/**
 	 * @brief Get the basepath for a given contact link
-	 * @todo  Add functionality to store this value in the contact table
 	 *
 	 * @param string $url The contact link
 	 *
@@ -186,13 +185,19 @@ class Contact extends BaseObject
 	 */
 	public static function getBasepath($url)
 	{
-		$data = Probe::uri($url);
-		if (!empty($data['baseurl'])) {
-			return $data['baseurl'];
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
+		if (!empty($contact['baseurl'])) {
+			return $contact['baseurl'];
 		}
 
-		// When we can't probe the server, we use some ugly function that does some pattern matching
-		return PortableContact::detectServer($url);
+		self::updateFromProbeByURL($url, true);
+
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
+		if (!empty($contact['baseurl'])) {
+			return $contact['baseurl'];
+		}
+
+		return '';
 	}
 
 	/**

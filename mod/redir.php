@@ -85,7 +85,7 @@ function redir_init(App $a) {
 
 		// When the remote page does support OWA, then we enforce the use of it
 		$basepath = Contact::getBasepath($contact_url);
-		if ($basepath == System::baseUrl()) {
+		if (Strings::compareLink($basepath, System::baseUrl())) {
 			$use_magic = true;
 		} else {
 			$serverret = Network::curl($basepath . '/magic');
