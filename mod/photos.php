@@ -1320,6 +1320,7 @@ function photos_content(App $a)
 
 		if (DBA::isResult($linked_items)) {
 			// This is a workaround to not being forced to rewrite the while $sql_extra handling
+			// @TODO: On old photo items without a matching thread record, this sets $link_item to false
 			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
 
 			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
@@ -1538,7 +1539,7 @@ function photos_content(App $a)
 			}
 			$response_verbs = ['like'];
 			$response_verbs[] = 'dislike';
-			$responses = get_responses($conv_responses, $response_verbs, $link_item);
+			$responses = get_responses($conv_responses, $response_verbs, $link_item ?: []);
 
 			$paginate = $pager->renderFull($total);
 		}
