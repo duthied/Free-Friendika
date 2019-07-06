@@ -101,7 +101,7 @@ $nav_icon_color   = (empty($nav_icon_color)   ? '#fff'         : $nav_icon_color
 $link_color       = (empty($link_color)       ? '#6fdbe8'      : $link_color);
 $background_color = (empty($background_color) ? '#ededed'      : $background_color);
 // The background image can not be empty. So we use a dummy jpg if no image was set.
-$background_image = (empty($background_image) ? 'img/none.jpg' : $background_image);
+$background_image = (empty($background_image) ? 'img/none.png' : $background_image);
 $modified         = (empty($modified)         ? time()         : $modified);
 
 
