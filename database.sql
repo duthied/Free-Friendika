@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.09-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1314
+-- DB_UPDATE_VERSION 1316
 -- ------------------------------------------
 
 
@@ -210,6 +210,9 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`pending` boolean NOT NULL DEFAULT '1' COMMENT '',
 	`deleted` boolean NOT NULL DEFAULT '0' COMMENT 'Contact has been deleted',
 	`rating` tinyint NOT NULL DEFAULT 0 COMMENT '',
+	`unsearchable` boolean NOT NULL DEFAULT '0' COMMENT 'Contact prefers to not be searchable',
+	`sensitive` boolean NOT NULL DEFAULT '0' COMMENT 'Contact posts sensitive content',
+	`baseurl` varchar(255) DEFAULT '' COMMENT 'baseurl of the contact',
 	`reason` text COMMENT '',
 	`closeness` tinyint unsigned NOT NULL DEFAULT 99 COMMENT '',
 	`info` mediumtext COMMENT '',
@@ -372,6 +375,8 @@ CREATE TABLE IF NOT EXISTS `gcontact` (
 	`updated` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_contact` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
 	`last_failure` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`archive_date` datetime DEFAULT '0001-01-01 00:00:00' COMMENT '',
+	`archived` boolean NOT NULL DEFAULT '0' COMMENT '',
 	`location` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`about` text COMMENT '',
 	`keywords` text COMMENT 'puplic keywords (interests)',

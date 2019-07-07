@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1315);
+	define('DB_UPDATE_VERSION', 1316);
 }
 
 return [
@@ -253,6 +253,9 @@ return [
 			"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
 			"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact has been deleted"],
 			"rating" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
+			"unsearchable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact prefers to not be searchable"],
+			"sensitive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Contact posts sensitive content"],
+			"baseurl" => ["type" => "varchar(255)", "default" => "", "comment" => "baseurl of the contact"],
 			"reason" => ["type" => "text", "comment" => ""],
 			"closeness" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "99", "comment" => ""],
 			"info" => ["type" => "mediumtext", "comment" => ""],
@@ -423,6 +426,8 @@ return [
 			"updated" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_contact" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
 			"last_failure" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"archive_date" => ["type" => "datetime", "default" => DBA::NULL_DATETIME, "comment" => ""],
+			"archived" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
 			"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"about" => ["type" => "text", "comment" => ""],
 			"keywords" => ["type" => "text", "comment" => "puplic keywords (interests)"],

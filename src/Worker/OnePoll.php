@@ -191,11 +191,9 @@ class OnePoll
 			}
 
 			self::updateContact($contact, ['last-update' => $updated, 'success_update' => $updated]);
-			DBA::update('gcontact', ['last_contact' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::unmarkForArchival($contact);
 		} elseif (in_array($contact["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED])) {
 			self::updateContact($contact, ['last-update' => $updated, 'failure_update' => $updated]);
-			DBA::update('gcontact', ['last_failure' => $updated], ['nurl' => $contact['nurl']]);
 			Contact::markForArchival($contact);
 		} else {
 			self::updateContact($contact, ['last-update' => $updated]);

@@ -17,7 +17,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
@@ -46,8 +45,8 @@ class Probe
 	 */
 	private static function rearrangeData($data)
 	{
-		$fields = ["name", "nick", "guid", "url", "addr", "alias",
-				"photo", "community", "keywords", "location", "about",
+		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo",
+				"account-type", "community", "keywords", "location", "about",
 				"batch", "notify", "poll", "request", "confirm", "poco",
 				"priority", "network", "pubkey", "baseurl"];
 
@@ -350,6 +349,8 @@ class Probe
 
 			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
 				$data = $ap_profile;
+			} elseif (!empty($ap_profile)) {
+				$data = array_merge($ap_profile, $data);
 			}
 		} else {
 			Logger::notice('Time out detected. AP will not be probed.', ['uri' => $uri]);
@@ -396,114 +397,6 @@ class Probe
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
 			Cache::set('Probe::uri:' . $network . ':' . $uri, $data, Cache::DAY);
-
-			/// @todo temporary fix - we need a real contact update function that updates only changing fields
-			/// The biggest problem is the avatar picture that could have a reduced image size.
-			/// It should only be updated if the existing picture isn't existing anymore.
-			/// We only update the contact when it is no probing for a specific network.
-			if (($data['network'] != Protocol::FEED)
-				&& ($network == '')
-				&& $data['name']
-				&& $data['nick']
-				&& $data['url']
-				&& $data['addr']
-				&& $data['poll']
-			) {
-				$fields = [
-					'name' => $data['name'],
-					'nick' => $data['nick'],
-					'url' => $data['url'],
-					'addr' => $data['addr'],
-					'photo' => $data['photo'],
-					'keywords' => $data['keywords'],
-					'location' => $data['location'],
-					'about' => $data['about'],
-					'notify' => $data['notify'],
-					'network' => $data['network'],
-					'server_url' => $data['baseurl']
-				];
-
-				// This doesn't cover the case when a community isn't a community anymore
-				if (!empty($data['community']) && $data['community']) {
-					$fields['community'] = $data['community'];
-					$fields['contact-type'] = Contact::TYPE_COMMUNITY;
-				}
-
-				$fieldnames = [];
-
-				foreach ($fields as $key => $val) {
-					if (empty($val)) {
-						unset($fields[$key]);
-					} else {
-						$fieldnames[] = $key;
-					}
-				}
-
-				$fields['updated'] = DateTimeFormat::utcNow();
-
-				$condition = ['nurl' => Strings::normaliseLink($data['url'])];
-
-				$old_fields = DBA::selectFirst('gcontact', $fieldnames, $condition);
-
-				// When the gcontact doesn't exist, the value "true" will trigger an insert.
-				// In difference to the public contacts we want to have every contact
-				// in the world in our global contacts.
-				if (!$old_fields) {
-					$old_fields = true;
-
-					// These values have to be set only on insert
-					$fields['photo'] = $data['photo'];
-					$fields['created'] = DateTimeFormat::utcNow();
-				}
-
-				DBA::update('gcontact', $fields, $condition, $old_fields);
-
-				$fields = [
-					'name' => $data['name'],
-					'nick' => $data['nick'],
-					'url' => $data['url'],
-					'addr' => $data['addr'],
-					'alias' => $data['alias'],
-					'keywords' => $data['keywords'],
-					'location' => $data['location'],
-					'about' => $data['about'],
-					'batch' => $data['batch'],
-					'notify' => $data['notify'],
-					'poll' => $data['poll'],
-					'request' => $data['request'],
-					'confirm' => $data['confirm'],
-					'poco' => $data['poco'],
-					'network' => $data['network'],
-					'pubkey' => $data['pubkey'],
-					'priority' => $data['priority'],
-					'writable' => true,
-					'rel' => Contact::SHARING
-				];
-
-				$fieldnames = [];
-
-				foreach ($fields as $key => $val) {
-					if (empty($val)) {
-						unset($fields[$key]);
-					} else {
-						$fieldnames[] = $key;
-					}
-				}
-
-				$condition = ['nurl' => Strings::normaliseLink($data['url']), 'self' => false, 'uid' => 0];
-
-				// "$old_fields" will return a "false" when the contact doesn't exist.
-				// This won't trigger an insert. This is intended, since we only need
-				// public contacts for everyone we store items from.
-				// We don't need to store every contact on the planet.
-				$old_fields = DBA::selectFirst('contact', $fieldnames, $condition);
-
-				$fields['name-date'] = DateTimeFormat::utcNow();
-				$fields['uri-date'] = DateTimeFormat::utcNow();
-				$fields['success_update'] = DateTimeFormat::utcNow();
-
-				DBA::update('contact', $fields, $condition, $old_fields);
-			}
 		}
 
 		return $data;

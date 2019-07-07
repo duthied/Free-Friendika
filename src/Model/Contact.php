@@ -176,7 +176,6 @@ class Contact extends BaseObject
 
 	/**
 	 * @brief Get the basepath for a given contact link
-	 * @todo  Add functionality to store this value in the contact table
 	 *
 	 * @param string $url The contact link
 	 *
@@ -186,13 +185,19 @@ class Contact extends BaseObject
 	 */
 	public static function getBasepath($url)
 	{
-		$data = Probe::uri($url);
-		if (!empty($data['baseurl'])) {
-			return $data['baseurl'];
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
+		if (!empty($contact['baseurl'])) {
+			return $contact['baseurl'];
 		}
 
-		// When we can't probe the server, we use some ugly function that does some pattern matching
-		return PortableContact::detectServer($url);
+		self::updateFromProbeByURL($url, true);
+
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
+		if (!empty($contact['baseurl'])) {
+			return $contact['baseurl'];
+		}
+
+		return '';
 	}
 
 	/**
@@ -792,6 +797,7 @@ class Contact extends BaseObject
 				 */
 				DBA::update('contact', ['archive' => 1], ['id' => $contact['id']]);
 				DBA::update('contact', ['archive' => 1], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
+				GContact::updateFromPublicContactURL($contact['url']);
 			}
 		}
 	}
@@ -829,6 +835,7 @@ class Contact extends BaseObject
 		$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
+		GContact::updateFromPublicContactURL($contact['url']);
 
 		if (!empty($contact['batch'])) {
 			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
@@ -965,7 +972,7 @@ class Contact extends BaseObject
 		if ((empty($profile["addr"]) || empty($profile["name"])) && (defaults($profile, "gid", 0) != 0)
 			&& in_array($profile["network"], Protocol::FEDERATED)
 		) {
-			Worker::add(PRIORITY_LOW, "UpdateGContact", $profile["gid"]);
+			Worker::add(PRIORITY_LOW, "UpdateGContact", $url);
 		}
 
 		// Show contact details of Diaspora contacts only if connected
@@ -1339,10 +1346,14 @@ class Contact extends BaseObject
 			return 0;
 		}
 
-		// When we don't want to update, we look if we know this contact in any way
 		if ($no_update && empty($default)) {
+			// When we don't want to update, we look if we know this contact in any way
 			$data = self::getProbeDataFromDatabase($url, $contact_id);
 			$background_update = true;
+		} elseif ($no_update && !empty($default)) {
+			// If there are default values, take these
+			$data = $default;
+			$background_update = false;
 		} else {
 			$data = [];
 			$background_update = false;
@@ -1357,18 +1368,9 @@ class Contact extends BaseObject
 			}
 		}
 
-		// Last try in gcontact for unsupported networks
-		if (!in_array($data["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::PUMPIO, Protocol::MAIL, Protocol::FEED])) {
-			if ($uid != 0) {
-				return 0;
-			}
-
-			$contact = array_merge(self::getProbeDataFromDatabase($url, $contact_id), $default);
-			if (empty($contact)) {
-				return 0;
-			}
-
-			$data = array_merge($data, $contact);
+		// Take the default values when probing failed
+		if (!empty($default) && !in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+			$data = array_merge($data, $default);
 		}
 
 		if (empty($data)) {
@@ -1403,6 +1405,7 @@ class Contact extends BaseObject
 				'request'   => defaults($data, 'request', ''),
 				'confirm'   => defaults($data, 'confirm', ''),
 				'poco'      => defaults($data, 'poco', ''),
+				'baseurl'   => defaults($data, 'baseurl', ''),
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1456,7 +1459,7 @@ class Contact extends BaseObject
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey'];
+		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey', 'baseurl'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
 		// This condition should always be true
@@ -1473,6 +1476,9 @@ class Contact extends BaseObject
 			'nick' => $data['nick']
 		];
 
+		if (!empty($data['baseurl'])) {
+			$updated['baseurl'] = $data['baseurl'];
+		}
 		if (!empty($data['keywords'])) {
 			$updated['keywords'] = $data['keywords'];
 		}
@@ -1501,7 +1507,7 @@ class Contact extends BaseObject
 		}
 
 		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
-		if (empty($contact['pubkey'])) {
+		if (empty($contact['pubkey']) && !empty($data['pubkey'])) {
 			$updated['pubkey'] = $data['pubkey'];
 		}
 
@@ -1515,6 +1521,11 @@ class Contact extends BaseObject
 		$updated['updated'] = DateTimeFormat::utcNow();
 
 		DBA::update('contact', $updated, ['id' => $contact_id], $contact);
+
+		if (!$background_update && ($uid == 0)) {
+			// Update the gcontact entry
+			GContact::updateFromPublicContactID($contact_id);
+		}
 
 		return $contact_id;
 	}
@@ -1770,6 +1781,9 @@ class Contact extends BaseObject
 			return;
 		}
 
+		// Update the corresponding gcontact entry
+		GContact::updateFromPublicContactID($id);
+
 		// Archive or unarchive the contact. We only need to do this for the public contact.
 		// The archive/unarchive function will update the personal contacts by themselves.
 		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
@@ -1814,8 +1828,12 @@ class Contact extends BaseObject
 		  This will reliably kill your communication with old Friendica contacts.
 		 */
 
+		// These fields aren't updated by this routine:
+		// 'location', 'about', 'keywords', 'gender', 'xmpp', 'unsearchable', 'sensitive'];
+
 		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
-			'poll', 'request', 'confirm', 'poco', 'network', 'alias'];
+			'poll', 'request', 'confirm', 'poco', 'network', 'alias', 'baseurl',
+			'forum', 'prv', 'contact-type'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1840,13 +1858,26 @@ class Contact extends BaseObject
 			return false;
 		}
 
+		if (isset($ret['account-type'])) {
+			$ret['forum'] = false;
+			$ret['prv'] = false;
+			$ret['contact-type'] = $ret['account-type'];
+			if ($ret['contact-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
+				$apcontact = APContact::getByURL($ret['url'], false);
+				if (isset($apcontact['manually-approve'])) {
+					$ret['forum'] = (bool)!$apcontact['manually-approve'];
+					$ret['prv'] = (bool)!$ret['forum'];
+				}
+			}
+		}
+
 		$update = false;
 
 		// make sure to not overwrite existing values with blank entries
 		foreach ($ret as $key => $val) {
-			if (!isset($contact[$key])) {
+			if (!array_key_exists($key, $contact)) {
 				unset($ret[$key]);
-			} elseif (($contact[$key] != '') && ($val == '')) {
+			} elseif (($contact[$key] != '') && ($val == '') && !is_bool($ret[$key])) {
 				$ret[$key] = $contact[$key];
 			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
@@ -1876,10 +1907,18 @@ class Contact extends BaseObject
 
 		self::updateContact($id, $uid, $ret['url'], $ret);
 
-		// Update the corresponding gcontact entry
-		GContact::updateFromProbe($ret['url']);
-
 		return true;
+	}
+
+	public static function updateFromProbeByURL($url, $force = false)
+	{
+		$id = self::getIdForURL($url);
+
+		if (empty($id)) {
+			return;
+		}
+
+		self::updateFromProbe($id, '', $force);
 	}
 
 	/**
@@ -2080,6 +2119,7 @@ class Contact extends BaseObject
 				'name'    => $ret['name'],
 				'nick'    => $ret['nick'],
 				'network' => $ret['network'],
+				'baseurl' => $ret['baseurl'],
 				'protocol' => $protocol,
 				'pubkey'  => $ret['pubkey'],
 				'rel'     => $new_relation,
