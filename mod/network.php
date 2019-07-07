@@ -704,11 +704,11 @@ function networkThreadedView(App $a, $update, $parent)
 	}
 
 	if ($datequery) {
-		$sql_extra3 .= Strings::protectSprintf(sprintf(" AND $sql_table.created <= '%s' ",
+		$sql_extra3 .= Strings::protectSprintf(sprintf(" AND $sql_table.received <= '%s' ",
 				DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 	}
 	if ($datequery2) {
-		$sql_extra3 .= Strings::protectSprintf(sprintf(" AND $sql_table.created >= '%s' ",
+		$sql_extra3 .= Strings::protectSprintf(sprintf(" AND $sql_table.received >= '%s' ",
 				DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 	}
 
@@ -718,8 +718,8 @@ function networkThreadedView(App $a, $update, $parent)
 
 	// Normal conversation view
 	if ($order === 'post') {
-		$ordering = '`created`';
-		$order_mode = 'created';
+		$ordering = '`received`';
+		$order_mode = 'received';
 	} else {
 		$ordering = '`commented`';
 		$order_mode = 'commented';

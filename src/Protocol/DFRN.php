@@ -257,7 +257,7 @@ class DFRN
 			STRAIGHT_JOIN `contact` ON `contact`.`id` = `item`.`contact-id`
 			WHERE `item`.`uid` = %d AND `item`.`wall` AND `item`.`changed` > '%s'
 			AND `item`.`visible` $sql_extra
-			ORDER BY `item`.`parent` ".$sort.", `item`.`created` ASC LIMIT 0, 300",
+			ORDER BY `item`.`parent` ".$sort.", `item`.`received` ASC LIMIT 0, 300",
 			intval($owner_id),
 			DBA::escape($check_date),
 			DBA::escape($sort)

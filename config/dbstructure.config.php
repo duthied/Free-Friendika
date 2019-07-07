@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1316);
+	define('DB_UPDATE_VERSION', 1317);
 }
 
 return [
@@ -672,15 +672,15 @@ return [
 			"extid" => ["extid(191)"],
 			"uid_id" => ["uid", "id"],
 			"uid_contactid_id" => ["uid", "contact-id", "id"],
-			"uid_created" => ["uid", "created"],
+			"uid_received" => ["uid", "received"],
 			"uid_commented" => ["uid", "commented"],
 			"uid_unseen_contactid" => ["uid", "unseen", "contact-id"],
 			"uid_network_received" => ["uid", "network", "received"],
 			"uid_network_commented" => ["uid", "network", "commented"],
 			"uid_thrparent" => ["uid", "thr-parent(190)"],
 			"uid_parenturi" => ["uid", "parent-uri(190)"],
-			"uid_contactid_created" => ["uid", "contact-id", "created"],
-			"authorid_created" => ["author-id", "created"],
+			"uid_contactid_received" => ["uid", "contact-id", "received"],
+			"authorid_received" => ["author-id", "received"],
 			"ownerid" => ["owner-id"],
 			"contact-id" => ["contact-id"],
 			"uid_uri" => ["uid", "uri(190)"],
@@ -1256,15 +1256,15 @@ return [
 		"indexes" => [
 			"PRIMARY" => ["iid"],
 			"uid_network_commented" => ["uid", "network", "commented"],
-			"uid_network_created" => ["uid", "network", "created"],
+			"uid_network_received" => ["uid", "network", "received"],
 			"uid_contactid_commented" => ["uid", "contact-id", "commented"],
-			"uid_contactid_created" => ["uid", "contact-id", "created"],
+			"uid_contactid_received" => ["uid", "contact-id", "received"],
 			"contactid" => ["contact-id"],
 			"ownerid" => ["owner-id"],
 			"authorid" => ["author-id"],
-			"uid_created" => ["uid", "created"],
+			"uid_received" => ["uid", "received"],
 			"uid_commented" => ["uid", "commented"],
-			"uid_wall_created" => ["uid", "wall", "created"],
+			"uid_wall_received" => ["uid", "wall", "received"],
 			"private_wall_origin_commented" => ["private", "wall", "origin", "commented"],
 		]
 	],

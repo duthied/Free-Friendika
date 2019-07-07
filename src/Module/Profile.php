@@ -252,7 +252,7 @@ class Profile extends BaseModule
 					AND `item`.`wall`
 					$sql_extra4
 					$sql_extra
-				ORDER BY `item`.`created` DESC",
+				ORDER BY `item`.`received` DESC",
 				$a->profile['profile_uid'],
 				GRAVITY_ACTIVITY
 			);
@@ -276,10 +276,10 @@ class Profile extends BaseModule
 			}
 
 			if (!empty($datequery)) {
-				$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`created` <= '%s' ", DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
+				$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`received` <= '%s' ", DBA::escape(DateTimeFormat::convert($datequery, 'UTC', date_default_timezone_get()))));
 			}
 			if (!empty($datequery2)) {
-				$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`created` >= '%s' ", DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
+				$sql_extra2 .= Strings::protectSprintf(sprintf(" AND `thread`.`received` >= '%s' ", DBA::escape(DateTimeFormat::convert($datequery2, 'UTC', date_default_timezone_get()))));
 			}
 
 			// Does the profile page belong to a forum?
@@ -326,7 +326,7 @@ class Profile extends BaseModule
 					$sql_extra3
 					$sql_extra
 					$sql_extra2
-				ORDER BY `thread`.`created` DESC
+				ORDER BY `thread`.`received` DESC
 				$pager_sql",
 				$a->profile['profile_uid']
 			);
@@ -351,7 +351,7 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'created', $a->profile['profile_uid']);
+		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'received', $a->profile['profile_uid']);
 
 		if (!$update) {
 			$o .= $pager->renderMinimal(count($items));
