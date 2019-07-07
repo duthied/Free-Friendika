@@ -381,6 +381,4 @@ function update_1317()
 	DBA::update('profile', ['marital' => "Single"], ['marital' => "Available"]);
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
-	Contact::updateSelfFromUserID();
-	GContact::updateForUser();
 }
