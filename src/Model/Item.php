@@ -1650,7 +1650,7 @@ class Item extends BaseObject
 				Logger::log('duplicated item with the same guid found. '.print_r($item,true));
 				return 0;
 			}
-		} else {
+		} elseif ($item['network'] == Protocol::OSTATUS) {
 			// Check for an existing post with the same content. There seems to be a problem with OStatus.
 			$condition = ["`body` = ? AND `network` = ? AND `created` = ? AND `contact-id` = ? AND `uid` = ?",
 					$item['body'], $item['network'], $item['created'], $item['contact-id'], $item['uid']];
@@ -2905,18 +2905,10 @@ class Item extends BaseObject
 		if ($network != "") {
 			$condition[0] .= " AND `network` = ?";
 			$condition[] = $network;
-
-			/*
-			 * There is an index "uid_network_received" but not "uid_network_created"
-			 * This avoids the creation of another index just for one purpose.
-			 * And it doesn't really matter wether to look at "received" or "created"
-			 */
-			$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
-			$condition[] = $days;
-		} else {
-			$condition[0] .= " AND `created` < UTC_TIMESTAMP() - INTERVAL ? DAY";
-			$condition[] = $days;
 		}
+
+		$condition[0] .= " AND `received` < UTC_TIMESTAMP() - INTERVAL ? DAY";
+		$condition[] = $days;
 
 		$items = self::select(['file', 'resource-id', 'starred', 'type', 'id', 'post-type'], $condition);
 
@@ -2967,10 +2959,10 @@ class Item extends BaseObject
 	public static function firstPostDate($uid, $wall = false)
 	{
 		$condition = ['uid' => $uid, 'wall' => $wall, 'deleted' => false, 'visible' => true, 'moderated' => false];
-		$params = ['order' => ['created' => false]];
-		$thread = DBA::selectFirst('thread', ['created'], $condition, $params);
+		$params = ['order' => ['received' => false]];
+		$thread = DBA::selectFirst('thread', ['received'], $condition, $params);
 		if (DBA::isResult($thread)) {
-			return substr(DateTimeFormat::local($thread['created']), 0, 10);
+			return substr(DateTimeFormat::local($thread['received']), 0, 10);
 		}
 		return false;
 	}

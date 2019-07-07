@@ -186,7 +186,7 @@ function search_content(App $a) {
 		$condition = ["(`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `otype` = ? AND `type` = ? AND `term` = ?",
 			local_user(), TERM_OBJ_POST, TERM_HASHTAG, $search];
-		$params = ['order' => ['created' => true],
+		$params = ['order' => ['received' => true],
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 		$terms = DBA::select('term', ['oid'], $condition, $params);
 

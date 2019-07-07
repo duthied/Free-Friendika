@@ -394,7 +394,7 @@ class NotificationsManager extends BaseObject
 
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
-		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
+		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
 
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
@@ -485,7 +485,7 @@ class NotificationsManager extends BaseObject
 
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
-		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
+		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
 
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
@@ -527,7 +527,7 @@ class NotificationsManager extends BaseObject
 
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
-		$params = ['order' => ['created' => true], 'limit' => [$start, $limit]];
+		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if (DBA::isResult($items)) {
