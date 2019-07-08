@@ -373,6 +373,7 @@ function update_1309()
 function update_1315()
 {
 	DBA::delete('item-delivery-data', ['postopts' => '', 'inform' => '', 'queue_count' => 0, 'queue_done' => 0]);
+    return Update::Success;
 }
 
 function update_1318()
@@ -381,4 +382,5 @@ function update_1318()
 	DBA::update('profile', ['marital' => "Single"], ['marital' => "Available"]);
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
+    return Update::Success;
 }
