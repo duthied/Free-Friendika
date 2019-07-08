@@ -2219,7 +2219,7 @@ class OStatus
 		$check_date = DateTimeFormat::utc($last_update);
 		$authorid = Contact::getIdForURL($owner["url"], 0, true);
 
-		$condition = ["`uid` = ? AND `created` > ? AND NOT `deleted`
+		$condition = ["`uid` = ? AND `received` > ? AND NOT `deleted`
 			AND NOT `private` AND `visible` AND `wall` AND `parent-network` IN (?, ?)",
 			$owner["uid"], $check_date, Protocol::OSTATUS, Protocol::DFRN];
 
@@ -2234,7 +2234,7 @@ class OStatus
 			$condition[] = $authorid;
 		}
 
-		$params = ['order' => ['created' => true], 'limit' => $max_items];
+		$params = ['order' => ['received' => true], 'limit' => $max_items];
 
 		if ($filter === 'posts') {
 			$ret = Item::selectThread([], $condition, $params);

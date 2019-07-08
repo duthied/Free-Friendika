@@ -800,12 +800,12 @@ function conversation_fetch_comments($thread_items) {
 	$parentlines = [];
 	$lineno = 0;
 	$actor = [];
-	$created = '';
+	$received = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['created'] > $created) && ($row['thr-parent'] == $row['parent-uri'])) {
+		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
 			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
-			$created = $row['created'];
+			$received = $row['received'];
 		}
 
 		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
@@ -1316,7 +1316,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 function sort_item_children(array $items)
 {
 	$result = $items;
-	usort($result, 'sort_thr_created_rev');
+	usort($result, 'sort_thr_received_rev');
 	foreach ($result as $k => $i) {
 		if (isset($result[$k]['children'])) {
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
@@ -1401,13 +1401,13 @@ function smart_flatten_conversation(array $parent)
 
 /**
  * Expands a flat list of items into corresponding tree-like conversation structures,
- * sort the top-level posts either on "created" or "commented", and finally
+ * sort the top-level posts either on "received" or "commented", and finally
  * append all the items at the top level (???)
  *
  * @brief Expands a flat item list into a conversation array for display
  *
  * @param array  $item_list A list of items belonging to one or more conversations
- * @param string $order     Either on "created" or "commented"
+ * @param string $order     Either on "received" or "commented"
  * @return array
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
@@ -1439,8 +1439,8 @@ function conv_sort(array $item_list, $order)
 		}
 	}
 
-	if (stristr($order, 'created')) {
-		usort($parents, 'sort_thr_created');
+	if (stristr($order, 'received')) {
+		usort($parents, 'sort_thr_received');
 	} elseif (stristr($order, 'commented')) {
 		usort($parents, 'sort_thr_commented');
 	}
@@ -1477,27 +1477,27 @@ function conv_sort(array $item_list, $order)
 }
 
 /**
- * @brief usort() callback to sort item arrays by the created key
+ * @brief usort() callback to sort item arrays by the received key
  *
  * @param array $a
  * @param array $b
  * @return int
  */
-function sort_thr_created(array $a, array $b)
+function sort_thr_received(array $a, array $b)
 {
-	return strcmp($b['created'], $a['created']);
+	return strcmp($b['received'], $a['received']);
 }
 
 /**
- * @brief usort() callback to reverse sort item arrays by the created key
+ * @brief usort() callback to reverse sort item arrays by the received key
  *
  * @param array $a
  * @param array $b
  * @return int
  */
-function sort_thr_created_rev(array $a, array $b)
+function sort_thr_received_rev(array $a, array $b)
 {
-	return strcmp($a['created'], $b['created']);
+	return strcmp($a['received'], $b['received']);
 }
 
 /**

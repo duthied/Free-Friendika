@@ -1616,7 +1616,7 @@ class Contact extends BaseObject
 
 		$pager = new Pager($a->query_string);
 
-		$params = ['order' => ['created' => true],
+		$params = ['order' => ['received' => true],
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 
 		if ($thread_mode) {
