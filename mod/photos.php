@@ -1301,6 +1301,10 @@ function photos_content(App $a)
 			'filename' => $hires['filename'],
 		];
 
+		$map = null;
+		$link_item = [];
+		$total = 0;
+
 		// Do we have an item for this photo?
 
 		// FIXME! - replace following code to display the conversation with our normal
@@ -1313,16 +1317,12 @@ function photos_content(App $a)
 		$linked_items = q("SELECT `id` FROM `item` WHERE `resource-id` = '%s' $sql_extra LIMIT 1",
 			DBA::escape($datum)
 		);
-
-		$map = null;
-		$link_item = [];
-		$total = 0;
-
 		if (DBA::isResult($linked_items)) {
 			// This is a workaround to not being forced to rewrite the while $sql_extra handling
-			// @TODO: On old photo items without a matching thread record, this sets $link_item to false
 			$link_item = Item::selectFirst([], ['id' => $linked_items[0]['id']]);
+		}
 
+		if (!empty($link_item['parent']) && !empty($link_item['uid'])) {
 			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
 			$total = DBA::count('item', $condition);
 
@@ -1332,25 +1332,25 @@ function photos_content(App $a)
 			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
 			$items = Item::inArray($result);
 
-			if (local_user() && (local_user() == $link_item['uid'])) {
+			if (local_user() == $link_item['uid']) {
 				Item::update(['unseen' => false], ['parent' => $link_item['parent']]);
 			}
+		}
 
-			if ($link_item['coord']) {
-				$map = Map::byCoordinates($link_item['coord']);
-			}
+		if (!empty($link_item['coord'])) {
+			$map = Map::byCoordinates($link_item['coord']);
 		}
 
 		$tags = null;
 
-		if (count($linked_items) && strlen($link_item['tag'])) {
+		if (!empty($link_item['id']) && !empty($link_item['tag'])) {
 			$arr = explode(',', $link_item['tag']);
 			// parse tags and add links
 			$tag_arr = [];
 			foreach ($arr as $tag) {
 				$tag_arr[] = [
 					'name' => BBCode::convert($tag),
-					'removeurl' => '/tagrm/'.$link_item['id'] . '/' . bin2hex($tag)
+					'removeurl' => '/tagrm/' . $link_item['id'] . '/' . bin2hex($tag)
 				];
 			}
 			$tags = ['title' => L10n::t('Tags: '), 'tags' => $tag_arr];
@@ -1383,7 +1383,7 @@ function photos_content(App $a)
 				'$permissions' => L10n::t('Permissions'),
 				'$aclselect' => $aclselect_e,
 
-				'$item_id' => defaults($link_item, 'id', 0),
+				'$item_id' => $link_item['id'] ?? 0,
 				'$submit' => L10n::t('Submit'),
 				'$delete' => L10n::t('Delete Photo'),
 
@@ -1401,7 +1401,7 @@ function photos_content(App $a)
 		$paginate = '';
 		$responses = '';
 
-		if (count($linked_items)) {
+		if (!empty($link_item['id']) && !empty($link_item['uri'])) {
 			$cmnt_tpl = Renderer::getMarkupTemplate('comment_item.tpl');
 			$tpl = Renderer::getMarkupTemplate('photo_item.tpl');
 			$return_path = $a->cmd;
@@ -1539,7 +1539,7 @@ function photos_content(App $a)
 			}
 			$response_verbs = ['like'];
 			$response_verbs[] = 'dislike';
-			$responses = get_responses($conv_responses, $response_verbs, $link_item ?: []);
+			$responses = get_responses($conv_responses, $response_verbs, $link_item);
 
 			$paginate = $pager->renderFull($total);
 		}
