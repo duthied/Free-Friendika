@@ -48,6 +48,7 @@ class Probe
 		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo",
 				"account-type", "community", "keywords", "location", "about",
 				"batch", "notify", "poll", "request", "confirm", "poco",
+				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "baseurl"];
 
 		$newdata = [];

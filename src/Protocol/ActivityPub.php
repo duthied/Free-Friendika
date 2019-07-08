@@ -137,6 +137,11 @@ class ActivityPub
 		$profile['url'] = $apcontact['url'];
 		$profile['addr'] = $apcontact['addr'];
 		$profile['alias'] = $apcontact['alias'];
+		$profile['following'] = $apcontact['following'];
+		$profile['followers'] = $apcontact['followers'];
+		$profile['inbox'] = $apcontact['inbox'];
+		$profile['outbox'] = $apcontact['outbox'];
+		$profile['sharedinbox'] = $apcontact['sharedinbox'];
 		$profile['photo'] = $apcontact['photo'];
 		$profile['account-type'] = self::getAccountType($apcontact);
 		$profile['community'] = ($profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY);
