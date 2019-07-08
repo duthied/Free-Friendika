@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.09-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1318
+-- DB_UPDATE_VERSION 1316
 -- ------------------------------------------
 
 
