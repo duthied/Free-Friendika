@@ -375,7 +375,7 @@ function update_1315()
 	DBA::delete('item-delivery-data', ['postopts' => '', 'inform' => '', 'queue_count' => 0, 'queue_done' => 0]);
 }
 
-function update_1317()
+function update_1318()
 {
 	DBA::update('profile', ['marital' => "In a relation"], ['marital' => "Unavailable"]);
 	DBA::update('profile', ['marital' => "Single"], ['marital' => "Available"]);
