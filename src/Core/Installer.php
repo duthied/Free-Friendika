@@ -7,8 +7,8 @@ namespace Friendica\Core;
 use DOMDocument;
 use Exception;
 use Friendica\Core\Config\Cache\IConfigCache;
-use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\Factory\DBFactory;
 use Friendica\Object\Image;
 use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Network;
@@ -600,23 +600,18 @@ class Installer
 	 */
 	public function checkDB(IConfigCache $configCache, Profiler $profiler)
 	{
-		$dbhost = $configCache->get('database', 'hostname');
-		$dbuser = $configCache->get('database', 'username');
-		$dbpass = $configCache->get('database', 'password');
-		$dbdata = $configCache->get('database', 'database');
+		$database = DBFactory::init($configCache, $profiler, [], new VoidLogger());
 
-		if (!DBA::connect($configCache, $profiler, new VoidLogger(), $dbhost, $dbuser, $dbpass, $dbdata)) {
-			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
-
-			return false;
-		}
-
-		if (DBA::connected()) {
+		if ($database->connected()) {
 			if (DBStructure::existsTable('user')) {
 				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
 
 				return false;
 			}
+		} else {
+			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
+
+			return false;
 		}
 
 		return true;

@@ -22,7 +22,7 @@ return [
 
 		// pass (String)
 		// Database user password. Please don't use empty passwords.
-		'password' => '',
+		'password' => new \ParagonIE\HiddenString\HiddenString(''),
 
 		// base (String)
 		// Database name.
