@@ -1455,6 +1455,11 @@ class DFRN
 
 		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
+		if (empty($dest_url)) {
+			Logger::info('Empty destination', ['contact' => $contact]);
+			return -24;
+		}
+
 		$content_type = ($public_batch ? "application/magic-envelope+xml" : "application/json");
 
 		$postResult = Network::post($dest_url, $envelope, ["Content-Type: ".$content_type]);
