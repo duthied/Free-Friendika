@@ -53,6 +53,10 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 			$nav_bg = PConfig::get($uid, 'frio', 'nav_bg');
 		}
 
+		if (empty($nav_bg)) {
+            $nav_bg = Config::get('frio', 'nav_bg');
+		}
+
 		if (empty($nav_bg) || !is_string($nav_bg)) {
 			$nav_bg = "#708fa0";
 		}
