@@ -54,7 +54,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 		}
 
 		if (empty($nav_bg)) {
-            $nav_bg = Config::get('frio', 'nav_bg');
+			$nav_bg = Config::get('frio', 'nav_bg');
 		}
 
 		if (empty($nav_bg) || !is_string($nav_bg)) {
@@ -83,7 +83,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 	// special minimal style for modal dialogs
 	if ($minimal) {
 ?>
-        <!-- <?php echo __FILE__ ?> -->
+		<!-- <?php echo __FILE__ ?> -->
 		<section class="minimal">
 			<?php if (!empty($page['content'])) echo $page['content']; ?>
 			<div id="page-footer"></div>
