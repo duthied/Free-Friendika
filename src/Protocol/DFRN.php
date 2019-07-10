@@ -1456,7 +1456,7 @@ class DFRN
 		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 
 		if (empty($dest_url)) {
-			Logger::info('Empty destination', ['contact' => $contact]);
+			Logger::info('Empty destination', ['public' => $public_batch, 'contact' => $contact]);
 			return -24;
 		}
 
