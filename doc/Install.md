@@ -4,12 +4,15 @@
 We've tried very hard to ensure that Friendica will run on commodity hosting platforms - such as those used to host Wordpress blogs and Drupal websites.
 We offer a manual and an automatic installation.
 But be aware that Friendica is more than a simple web application.
+
 It is a complex communications system which more closely resembles an email server than a web server.
 For reliability and performance, messages are delivered in the background and are queued for later delivery when sites are down.
 This kind of functionality requires a bit more of the host system than the typical blog.
+
 Not every PHP/MySQL hosting provider will be able to support Friendica.
 Many will.
-But **please** review the requirements and confirm these with your hosting provider prior to installation.
+
+But **please** review the [requirements](#1_2_1) and confirm these with your hosting provider prior to installation.
 
 ## Support
 If you encounter installation issues, please let us know via the [helper](http://forum.friendi.ca/profile/helpers) or the [developer](https://forum.friendi.ca/profile/developers) forum or [file an issue](https://github.com/friendica/friendica/issues).
@@ -79,7 +82,7 @@ Make sure the folder *view/smarty3* exists and is writable by the webserver user
     mkdir view/smarty3
     chown www-data:www-data view/smarty3
     chmod 775 view/smarty3
-
+F
 Get the addons by going into your website folder.
 
     cd mywebsite
@@ -105,7 +108,7 @@ Create an empty database and note the access details (hostname, username, passwo
 
 Friendica needs the permission to create and delete fields and tables in its own database.
 
-Please check the [troubleshooting](#troubleshooting) section if running on MySQ 5.7.17 or newer.
+Please check the [troubleshooting](#1_6) section if running on MySQ 5.7.17 or newer.
 
 ### Option A: Run the installer
 
@@ -211,18 +214,18 @@ Navigate to the main Friendica directory and execute the following command:
 
 ### Prepare .htaccess file
 
-Copy `.htaccess-dist` to `.htaccess` (be careful under Windows) to have working mod-rewrite again. If you have installed Friendica into a sub directory, like /friendica/ set this path in RewriteBase accordingly.
+Copy `.htaccess-dist` to `.htaccess` (be careful under Windows) to have working mod-rewrite again. If you have installed Friendica into a sub directory, like */friendica/* set this path in `RewriteBase` accordingly.
 
 Example:
 
     cp .htacces-dist .htaccess
 
-*Note*: Do **not** rename the .htaccess-dist file as it is tracked by GIT and renaming will cause a dirty working directory.
+*Note*: Do **not** rename the `.htaccess-dist` file as it is tracked by GIT and renaming will cause a dirty working directory.
 
 ### Verify the "host-meta" page is working
 
-Friendica should respond automatically to important addresses under the /.well-known/ rewrite path.
-One critical URL would look like, for example, https://example.com/.well-known/host-meta
+Friendica should respond automatically to important addresses under the */.well-known/* rewrite path.
+One critical URL would look like, for example: https://example.com/.well-known/host-meta   
 It must be visible to the public and must respond with an XML file that is automatically customized to your site.
 
 If that URL is not working, it is possible that some other software is using the /.well-known/ path.
@@ -230,7 +233,7 @@ Other symptoms may include an error message in the Admin settings that says "hos
 This is a severe configuration issue that prevents server to server communication."
 Another common error related to host-meta is the "Invalid profile URL."
 
-Check for a .well-known directory that did not come with Friendica.
+Check for a `.well-known` directory that did not come with Friendica.
 The preferred configuration is to remove the directory, however this is not always possible.
 If there is any /.well-known/.htaccess file, it could interfere with this Friendica core requirement.
 You should remove any RewriteRules from that file, or remove that whole file if appropriate.
