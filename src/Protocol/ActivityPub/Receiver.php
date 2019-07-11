@@ -657,27 +657,14 @@ class Receiver
 	 */
 	public static function switchContact($cid, $uid, $url)
 	{
-		$profile = ActivityPub::probeProfile($url);
-		if (empty($profile)) {
-			return;
-		}
+		Contact::updateFromProbe($cid, '', true);
 
-		Logger::log('Switch contact ' . $cid . ' (' . $profile['url'] . ') for user ' . $uid . ' to ActivityPub');
-
-		$photo = defaults($profile, 'photo', null);
-		unset($profile['photo']);
-		unset($profile['baseurl']);
-		unset($profile['guid']);
-
-		$profile['nurl'] = Strings::normaliseLink($profile['url']);
-		DBA::update('contact', $profile, ['id' => $cid]);
-
-		Contact::updateAvatar($photo, $uid, $cid);
+		Logger::log('Switch contact ' . $cid . ' (' . $url . ') for user ' . $uid . ' to ActivityPub');
 
 		// Send a new follow request to be sure that the connection still exists
 		if (($uid != 0) && DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND]])) {
-			ActivityPub\Transmitter::sendActivity('Follow', $profile['url'], $uid);
-			Logger::log('Send a new follow request to ' . $profile['url'] . ' for user ' . $uid, Logger::DEBUG);
+			ActivityPub\Transmitter::sendActivity('Follow', $url, $uid);
+			Logger::log('Send a new follow request to ' . $url . ' for user ' . $uid, Logger::DEBUG);
 		}
 	}
 
