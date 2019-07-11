@@ -26,7 +26,7 @@ The account will expire after 7 days, but you can ask the server admin to keep y
 ## Prerequisites
 
 * Choose a domain name or subdomain name for your server. Put some thought into this. While changing it after installation is supported, things still might break.
-* Setup HTTPS on your host. 
+* Setup HTTPS on your domain. 
 
 ### Requirements
 
@@ -82,7 +82,7 @@ Make sure the folder *view/smarty3* exists and is writable by the webserver user
     mkdir view/smarty3
     chown www-data:www-data view/smarty3
     chmod 775 view/smarty3
-F
+
 Get the addons by going into your website folder.
 
     cd mywebsite
@@ -258,7 +258,7 @@ Example:
 
 Change "/base/directory", and "/path/to/php" as appropriate for your situation.
 
-#### cron job for Worker
+#### cron job for worker
 
 If you are using a Linux server, run "crontab -e" and add a line like the
 one shown, substituting for your unique paths and settings:
