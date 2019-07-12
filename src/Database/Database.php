@@ -162,6 +162,15 @@ class Database
 	}
 
 	/**
+	 * Sets the profiler for DBA
+	 *
+	 * @param Profiler $profiler
+	 */
+	public function setProfiler(Profiler $profiler)
+	{
+		$this->profiler = $profiler;
+	}
+	/**
 	 * Disconnects the current database connection
 	 */
 	public function disconnect()
@@ -321,6 +330,11 @@ class Database
 		} else {
 			return str_replace("'", "\\'", $str);
 		}
+	}
+
+	public function isConnected()
+	{
+		return $this->connected;
 	}
 
 	public function connected()

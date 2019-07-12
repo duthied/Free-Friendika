@@ -44,12 +44,13 @@ trait AppMockTrait
 	public function mockApp(vfsStreamDirectory $root, $raw = false)
 	{
 		$this->configMock = \Mockery::mock(Config\Cache\ConfigCache::class);
+		$this->configMock->shouldReceive('getAll')->andReturn([])->once();
 		$this->mode = \Mockery::mock(App\Mode::class);
-		$configAdapterMock = \Mockery::mock(Config\Adapter\IConfigAdapter::class);
+		$configModel= \Mockery::mock(\Friendica\Model\Config\Config::class);
 		// Disable the adapter
-		$configAdapterMock->shouldReceive('isConnected')->andReturn(false);
+		$configModel->shouldReceive('isConnected')->andReturn(false);
 
-		$config = new Config\Configuration($this->configMock, $configAdapterMock);
+		$config = new Config\JitConfiguration($this->configMock, $configModel);
 		// Initialize empty Config
 		Config::init($config);
 
