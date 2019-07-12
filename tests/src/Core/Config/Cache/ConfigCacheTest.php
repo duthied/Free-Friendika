@@ -4,6 +4,7 @@ namespace Friendica\Test\src\Core\Config\Cache;
 
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Test\MockedTest;
+use ParagonIE\HiddenString\HiddenString;
 
 class ConfigCacheTest extends MockedTest
 {
@@ -322,7 +323,8 @@ class ConfigCacheTest extends MockedTest
 			]
 		]);
 
-		$this->assertEmpty($configCache->get('database', 'password'));
+		$this->assertNotEmpty($configCache->get('database', 'password'));
+		$this->assertInstanceOf(HiddenString::class, $configCache->get('database', 'password'));
 		$this->assertEmpty($configCache->get('database', 'username'));
 	}
 
