@@ -6,7 +6,7 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Database\DBStructure;
 use Friendica\Factory\DBFactory;
 use Friendica\Object\Image;
@@ -130,12 +130,12 @@ class Installer
 	 * - Creates `config/local.config.php`
 	 * - Installs Database Structure
 	 *
-	 * @param IConfigCache $configCache The config cache with all config relevant information
+	 * @param ConfigCache $configCache The config cache with all config relevant information
 	 *
 	 * @return bool true if the config was created, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function createConfig(IConfigCache $configCache)
+	public function createConfig(ConfigCache $configCache)
 	{
 		$basepath = $configCache->get('system', 'basepath');
 
@@ -592,13 +592,13 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
-	 * @param IConfigCache $configCache The configuration cache
+	 * @param ConfigCache $configCache The configuration cache
 	 * @param Profiler    $profiler    The profiler of this app
 	 *
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB(IConfigCache $configCache, Profiler $profiler)
+	public function checkDB(ConfigCache $configCache, Profiler $profiler)
 	{
 		$database = DBFactory::init($configCache, $profiler, [], new VoidLogger());
 
@@ -620,12 +620,12 @@ class Installer
 	/**
 	 * Setup the default cache for a new installation
 	 *
-	 * @param IConfigCache $configCache The configuration cache
+	 * @param ConfigCache $configCache The configuration cache
 	 * @param string       $basePath    The determined basepath
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function setUpCache(IConfigCache $configCache, $basePath)
+	public function setUpCache(ConfigCache $configCache, $basePath)
 	{
 		$configCache->set('config', 'php_path'  , $this->getPHPPath());
 		$configCache->set('system', 'basepath'  , $basePath);

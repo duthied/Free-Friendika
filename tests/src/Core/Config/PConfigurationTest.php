@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Core\Config;
 
 use Friendica\Core\Config\Adapter\IPConfigAdapter;
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache\PConfigCache;
 use Friendica\Core\Config\PConfiguration;
 use Friendica\Test\MockedTest;
 
@@ -29,7 +29,7 @@ class PConfigurationTest extends MockedTest
 	public function testCacheLoad()
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->twice();
 		// expected loading
@@ -51,7 +51,7 @@ class PConfigurationTest extends MockedTest
 	public function testCacheLoadDouble()
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		// expected loading
@@ -77,7 +77,7 @@ class PConfigurationTest extends MockedTest
 	public function testSetGetWithoutDB($data)
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(2);
 
@@ -95,7 +95,7 @@ class PConfigurationTest extends MockedTest
 	public function testSetGetWithDB($data)
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(2);
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
@@ -114,7 +114,7 @@ class PConfigurationTest extends MockedTest
 	public function testGetWrongWithoutDB()
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(3);
 
@@ -137,7 +137,7 @@ class PConfigurationTest extends MockedTest
 	public function testGetWithRefresh($data)
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
 		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
@@ -168,7 +168,7 @@ class PConfigurationTest extends MockedTest
 	public function testGetWithoutLoaded($data)
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
 
@@ -199,7 +199,7 @@ class PConfigurationTest extends MockedTest
 	public function testDeleteWithoutDB($data)
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
 
@@ -218,7 +218,7 @@ class PConfigurationTest extends MockedTest
 	public function testDeleteWithDB()
 	{
 		$uid = 234;
-		$configCache = new ConfigCache();
+		$configCache = new PConfigCache();
 		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
 		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(6);
 		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', 'now')->andReturn(false)->once();

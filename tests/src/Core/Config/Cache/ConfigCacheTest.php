@@ -29,15 +29,11 @@ class ConfigCacheTest extends MockedTest
 		];
 	}
 
-	private function assertConfigValues($data, ConfigCache $configCache, $uid = null)
+	private function assertConfigValues($data, ConfigCache $configCache)
 	{
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
-				if (isset($uid)) {
-					$this->assertEquals($data[$cat][$key], $configCache->getP($uid, $cat, $key));
-				} else {
-					$this->assertEquals($data[$cat][$key], $configCache->get($cat, $key));
-				}
+				$this->assertEquals($data[$cat][$key], $configCache->get($cat, $key));
 			}
 		}
 	}
@@ -174,73 +170,6 @@ class ConfigCacheTest extends MockedTest
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
 				$configCache->delete($cat, $key);
-			}
-		}
-
-		$this->assertEmpty($configCache->getAll());
-	}
-
-	/**
-	 * Test the setP() and getP() methods
-	 * @dataProvider dataTests
-	 */
-	public function testSetGetP($data)
-	{
-		$configCache = new ConfigCache();
-		$uid = 345;
-
-		foreach ($data as $cat => $values) {
-			foreach ($values as $key => $value) {
-				$configCache->setP($uid, $cat, $key, $value);
-			}
-		}
-
-		$this->assertConfigValues($data, $configCache, $uid);
-	}
-
-
-	/**
-	 * Test the getP() method with a category
-	 */
-	public function testGetPCat()
-	{
-		$configCache = new ConfigCache();
-		$uid = 345;
-
-		$configCache->loadP($uid, [
-			'system' => [
-				'key1' => 'value1',
-				'key2' => 'value2',
-			],
-			'config' => [
-				'key3' => 'value3',
-			],
-		]);
-
-		$this->assertEquals([
-			'key1' => 'value1',
-			'key2' => 'value2',
-		], $configCache->get($uid, 'system'));
-	}
-
-	/**
-	 * Test the deleteP() method
-	 * @dataProvider dataTests
-	 */
-	public function testDeleteP($data)
-	{
-		$configCache = new ConfigCache();
-		$uid = 345;
-
-		foreach ($data as $cat => $values) {
-			foreach ($values as $key => $value) {
-				$configCache->setP($uid, $cat, $key, $value);
-			}
-		}
-
-		foreach ($data as $cat => $values) {
-			foreach ($values as $key => $value) {
-				$configCache->deleteP($uid, $cat, $key);
 			}
 		}
 

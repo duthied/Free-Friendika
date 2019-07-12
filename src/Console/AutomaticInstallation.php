@@ -207,12 +207,12 @@ HELP;
 
 	/**
 	 * @param Installer                 $installer   The Installer instance
-	 * @param Config\Cache\IConfigCache $configCache The config cache
+	 * @param Config\Cache\ConfigCache $configCache The config cache
 	 *
 	 * @return bool true if checks were successfully, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function runBasicChecks(Installer $installer, Config\Cache\IConfigCache $configCache)
+	private function runBasicChecks(Installer $installer, Config\Cache\ConfigCache $configCache)
 	{
 		$checked = true;
 

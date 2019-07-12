@@ -13,14 +13,14 @@ class DBFactory
 	/**
 	 * Initialize the DBA connection
 	 *
-	 * @param Cache\IConfigCache $configCache The configuration cache
-	 * @param Profiler           $profiler    The profiler
-	 * @param array              $server      The $_SERVER variables
+	 * @param Cache\ConfigCache $configCache The configuration cache
+	 * @param Profiler          $profiler    The profiler
+	 * @param array             $server      The $_SERVER variables
 	 *
 	 * @return Database\Database
 	 * @throws \Exception if connection went bad
 	 */
-	public static function init(Cache\IConfigCache $configCache, Profiler $profiler, array $server)
+	public static function init(Cache\ConfigCache $configCache, Profiler $profiler, array $server)
 	{
 		$db_host = $configCache->get('database', 'hostname');
 		$db_user = $configCache->get('database', 'username');

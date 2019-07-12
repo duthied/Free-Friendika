@@ -3,7 +3,7 @@
 // this is in the same namespace as Install for mocking 'function_exists'
 namespace Friendica\Core;
 
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Network\CurlResult;
 use Friendica\Object\Image;
 use Friendica\Test\MockedTest;
@@ -402,7 +402,7 @@ class InstallerTest extends MockedTest
 		$this->mockL10nT();
 
 		$install = new Installer();
-		$configCache = \Mockery::mock(IConfigCache::class);
+		$configCache = \Mockery::mock(ConfigCache::class);
 		$configCache->shouldReceive('set')->with('config', 'php_path', \Mockery::any())->once();
 		$configCache->shouldReceive('set')->with('system', 'basepath', '/test/')->once();
 

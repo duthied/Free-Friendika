@@ -5,7 +5,6 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core;
-use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Util\BasePath;
@@ -334,13 +333,13 @@ class Install extends BaseModule
 	/**
 	 * Checks the $_POST settings and updates the config Cache for it
 	 *
-	 * @param IConfigCache $configCache The current config cache
-	 * @param array        $post        The $_POST data
-	 * @param string       $cat         The category of the setting
-	 * @param string       $key         The key of the setting
-	 * @param null|string  $default     The default value
+	 * @param Core\Config\Cache\ConfigCache  $configCache The current config cache
+	 * @param array       $post        The $_POST data
+	 * @param string      $cat         The category of the setting
+	 * @param string      $key         The key of the setting
+	 * @param null|string $default     The default value
 	 */
-	private static function checkSetting(IConfigCache $configCache, array $post, $cat, $key, $default = null)
+	private static function checkSetting(Core\Config\Cache\ConfigCache $configCache, array $post, $cat, $key, $default = null)
 	{
 		$configCache->set($cat, $key,
 			Strings::escapeTags(

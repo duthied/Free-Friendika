@@ -2,7 +2,7 @@
 
 namespace Friendica\Database;
 
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\System;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
@@ -25,7 +25,7 @@ class Database
 	private $connected = false;
 
 	/**
-	 * @var IConfigCache
+	 * @var ConfigCache
 	 */
 	private $configCache;
 	/**
@@ -55,7 +55,7 @@ class Database
 	private $db_name;
 	private $db_charset;
 
-	public function __construct(IConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, $serveraddr, $user, HiddenString $pass, $db, $charset = null)
+	public function __construct(ConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, $serveraddr, $user, HiddenString $pass, $db, $charset = null)
 	{
 		// We are storing these values for being able to perform a reconnect
 		$this->configCache   = $configCache;
