@@ -2267,6 +2267,8 @@ class Diaspora
 
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
 
+		// @todo Update the public contact, then update the gcontact from that
+
 		$gcontact = ["url" => $contact["url"], "network" => Protocol::DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,
 					"about" => $about, "birthday" => $birthday, "gender" => $gender,

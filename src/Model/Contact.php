@@ -1307,11 +1307,13 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
+		$fields = ['id', 'avatar', 'updated', 'network'];
+		$options = ['order' => ['id']];
+		$contact = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false], $options);
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
+			$contact = DBA::selectFirst('contact', $fields, ['addr' => $url, 'uid' => $uid, 'deleted' => false], $options);
 		}
 
 		// Then the alias (which could be anything)
@@ -1319,7 +1321,7 @@ class Contact extends BaseObject
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], $condition);
+			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -1777,7 +1779,8 @@ class Contact extends BaseObject
 	{
 		DBA::update('contact', $fields, ['id' => $id]);
 
-		if ($uid != 0) {
+		// Search for duplicated contacts and get rid of them
+		if (self::handleDuplicates(Strings::normaliseLink($url), $uid, $id) || ($uid != 0)) {
 			return;
 		}
 
@@ -1813,6 +1816,55 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, $condition);
 	}
 
+        /**
+	 * @brief Helper function for "updateFromProbe". Remove duplicated contacts
+	 *
+	 * @param string  $nurl  Normalised contact url
+	 * @param integer $uid   User id
+	 * @param integer $id    Contact id of a duplicate
+	 * @throws \Exception
+	 */
+	private static function handleDuplicates($nurl, $uid, $id)
+	{
+		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false];
+		$count = DBA::count('contact', $condition);
+		if ($count <= 1) {
+			return false;
+		}
+
+		$first_contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+		if (!DBA::isResult($first_contact)) {
+			// Shouldn't happen - so we handle it
+			return false;
+		}
+
+		$first = $first_contact['id'];
+		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl, 'callstack' => System::callstack(20)]);
+		if ($uid != 0) {
+			// Don't handle non public duplicates by now
+			Logger::info('Not handling non public duplicate', ['uid' => $uid, 'nurl' => $nurl]);
+			return false;
+		}
+
+		// Find all duplicates
+		$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self` AND NOT `deleted`", $nurl, $uid, $first];
+		$duplicates = DBA::select('contact', ['id'], $condition);
+		while ($duplicate = DBA::fetch($duplicates)) {
+			$dup_id = $duplicate['id'];
+			Logger::info('Handling duplicate', ['search' => $dup_id, 'replace' => $first]);
+
+			// Search and replace
+			DBA::update('item',['author-id' => $first], ['author-id' => $dup_id]);
+			DBA::update('item',['owner-id' => $first], ['owner-id' => $dup_id]);
+			DBA::update('item',['contact-id' => $first], ['contact-id' => $dup_id]);
+
+			// Remove the duplicate
+			DBA::delete('contact', ['id' => $dup_id]);
+		}
+		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl]);
+		return true;
+	}
+
 	/**
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
@@ -1829,11 +1881,11 @@ class Contact extends BaseObject
 		 */
 
 		// These fields aren't updated by this routine:
-		// 'location', 'about', 'keywords', 'gender', 'xmpp', 'unsearchable', 'sensitive'];
+		// 'xmpp', 'sensitive'
 
-		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
-			'poll', 'request', 'confirm', 'poco', 'network', 'alias', 'baseurl',
-			'forum', 'prv', 'contact-type'];
+		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'gender',
+			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
+			'network', 'alias', 'baseurl', 'forum', 'prv', 'contact-type'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1858,7 +1910,11 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		if (isset($ret['account-type'])) {
+		if (isset($ret['hide']) && is_bool($ret['hide'])) {
+			$ret['unsearchable'] = $ret['hide'];
+		}
+
+		if (isset($ret['account-type']) && is_int($ret['account-type'])) {
 			$ret['forum'] = false;
 			$ret['prv'] = false;
 			$ret['contact-type'] = $ret['account-type'];
@@ -1873,11 +1929,12 @@ class Contact extends BaseObject
 
 		$update = false;
 
-		// make sure to not overwrite existing values with blank entries
+		// make sure to not overwrite existing values with blank entries except some technical fields
+		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
 		foreach ($ret as $key => $val) {
 			if (!array_key_exists($key, $contact)) {
 				unset($ret[$key]);
-			} elseif (($contact[$key] != '') && ($val == '') && !is_bool($ret[$key])) {
+			} elseif (($contact[$key] != '') && ($val == '') && !is_bool($ret[$key]) && !in_array($key, $keep)) {
 				$ret[$key] = $contact[$key];
 			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
@@ -1915,10 +1972,12 @@ class Contact extends BaseObject
 		$id = self::getIdForURL($url);
 
 		if (empty($id)) {
-			return;
+			return $id;
 		}
 
 		self::updateFromProbe($id, '', $force);
+
+		return $id;
 	}
 
 	/**
