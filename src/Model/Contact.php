@@ -1418,115 +1418,65 @@ class Contact extends BaseObject
 
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
 
+			// This does an insert but should most likely prevent duplicates
 			DBA::update('contact', $fields, $condition, true);
 
-			$s = DBA::select('contact', ['id'], $condition, ['order' => ['id'], 'limit' => 2]);
-			$contacts = DBA::toArray($s);
-			if (!DBA::isResult($contacts)) {
+			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+			if (!DBA::isResult($contact)) {
+				// Shouldn't happen
 				return 0;
 			}
 
-			$contact_id = $contacts[0]["id"];
-
-			// Update in the background when we fetched the data solely from the database
-			if ($background_update) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
-			}
-
-			// Update the newly created contact from data in the gcontact table
-			$gcontact = DBA::selectFirst('gcontact', ['location', 'about', 'keywords', 'gender'], ['nurl' => Strings::normaliseLink($data["url"])]);
-			if (DBA::isResult($gcontact)) {
-				// Only use the information when the probing hadn't fetched these values
-				if (!empty($data['keywords'])) {
-					unset($gcontact['keywords']);
-				}
-				if (!empty($data['location'])) {
-					unset($gcontact['location']);
-				}
-				if (!empty($data['about'])) {
-					unset($gcontact['about']);
-				}
-				DBA::update('contact', $gcontact, ['id' => $contact_id]);
-			}
-
-			if (count($contacts) > 1 && $uid == 0 && $contact_id != 0 && $data["url"] != "") {
-				$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self`",
-					Strings::normaliseLink($data["url"]), 0, $contact_id];
-				Logger::log('Deleting duplicate contact ' . json_encode($condition), Logger::DEBUG);
-				DBA::delete('contact', $condition);
-			}
+			$contact_id = $contact["id"];
 		}
 
 		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey', 'baseurl'];
-		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
+		if (in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+			if ($background_update) {
+				// Update in the background when we fetched the data solely from the database
+				Worker::add(PRIORITY_MEDIUM, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
+			} else {
+				// Else do a direct update
+				self::updateFromProbe($contact_id, '', false);
 
-		// This condition should always be true
-		if (!DBA::isResult($contact)) {
-			return $contact_id;
-		}
+				// Update the gcontact entry
+				if ($uid == 0) {
+					GContact::updateFromPublicContactID($contact_id);
+				}
+			}
+		} else {
+			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl'];
+			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
-		$updated = [
-			'addr' => $data['addr'] ?? '',
-			'alias' => defaults($data, 'alias', ''),
-			'url' => $data['url'],
-			'nurl' => Strings::normaliseLink($data['url']),
-			'name' => $data['name'],
-			'nick' => $data['nick']
-		];
+			// This condition should always be true
+			if (!DBA::isResult($contact)) {
+				return $contact_id;
+			}
 
-		if (!empty($data['baseurl'])) {
-			$updated['baseurl'] = $data['baseurl'];
-		}
-		if (!empty($data['keywords'])) {
-			$updated['keywords'] = $data['keywords'];
-		}
-		if (!empty($data['location'])) {
-			$updated['location'] = $data['location'];
-		}
+			$updated = [
+				'url' => $data['url'],
+				'nurl' => Strings::normaliseLink($data['url']),
+				'updated' => DateTimeFormat::utcNow()
+			];
 
-		// Update the technical stuff as well - if filled
-		if (!empty($data['notify'])) {
-			$updated['notify'] = $data['notify'];
-		}
-		if (!empty($data['poll'])) {
-			$updated['poll'] = $data['poll'];
-		}
-		if (!empty($data['batch'])) {
-			$updated['batch'] = $data['batch'];
-		}
-		if (!empty($data['request'])) {
-			$updated['request'] = $data['request'];
-		}
-		if (!empty($data['confirm'])) {
-			$updated['confirm'] = $data['confirm'];
-		}
-		if (!empty($data['poco'])) {
-			$updated['poco'] = $data['poco'];
-		}
+			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl'];
 
-		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
-		if (empty($contact['pubkey']) && !empty($data['pubkey'])) {
-			$updated['pubkey'] = $data['pubkey'];
-		}
+			foreach ($fields as $field) {
+				$updated[$field] = defaults($data, $field, $contact[$fields]);
+			}
 
-		if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
-			$updated['uri-date'] = DateTimeFormat::utcNow();
-		}
-		if (($data["name"] != $contact["name"]) || ($data["nick"] != $contact["nick"])) {
-			$updated['name-date'] = DateTimeFormat::utcNow();
-		}
+			if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
+				$updated['uri-date'] = DateTimeFormat::utcNow();
+			}
 
-		$updated['updated'] = DateTimeFormat::utcNow();
+			if (($data['name'] != $contact['name']) || ($data['nick'] != $contact['nick'])) {
+				$updated['name-date'] = DateTimeFormat::utcNow();
+			}
 
-		DBA::update('contact', $updated, ['id' => $contact_id], $contact);
-
-		if (!$background_update && ($uid == 0)) {
-			// Update the gcontact entry
-			GContact::updateFromPublicContactID($contact_id);
+			DBA::update('contact', $updated, ['id' => $contact_id], $contact);
 		}
 
 		return $contact_id;
@@ -1854,9 +1804,9 @@ class Contact extends BaseObject
 			Logger::info('Handling duplicate', ['search' => $dup_id, 'replace' => $first]);
 
 			// Search and replace
-			DBA::update('item',['author-id' => $first], ['author-id' => $dup_id]);
-			DBA::update('item',['owner-id' => $first], ['owner-id' => $dup_id]);
-			DBA::update('item',['contact-id' => $first], ['contact-id' => $dup_id]);
+			DBA::update('item', ['author-id' => $first], ['author-id' => $dup_id]);
+			DBA::update('item', ['owner-id' => $first], ['owner-id' => $dup_id]);
+			DBA::update('item', ['contact-id' => $first], ['contact-id' => $dup_id]);
 
 			// Remove the duplicate
 			DBA::delete('contact', ['id' => $dup_id]);
@@ -1885,7 +1835,7 @@ class Contact extends BaseObject
 
 		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'gender',
 			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
-			'network', 'alias', 'baseurl', 'forum', 'prv', 'contact-type'];
+			'network', 'alias', 'baseurl', 'forum', 'prv', 'contact-type', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1893,6 +1843,9 @@ class Contact extends BaseObject
 
 		$uid = $contact['uid'];
 		unset($contact['uid']);
+
+		$pubkey = $contact['pubkey'];
+		unset($contact['pubkey']);
 
 		$contact['photo'] = $contact['avatar'];
 		unset($contact['avatar']);
@@ -1927,6 +1880,8 @@ class Contact extends BaseObject
 			}
 		}
 
+		$new_pubkey = $ret['pubkey'];
+
 		$update = false;
 
 		// make sure to not overwrite existing values with blank entries except some technical fields
@@ -1954,6 +1909,19 @@ class Contact extends BaseObject
 
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
 		$ret['updated'] = $updated;
+
+		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
+		if (empty($pubkey) && !empty($new_pubkey)) {
+			$ret['pubkey'] = $new_pubkey;
+		}
+
+		if (($ret['addr'] != $contact['addr']) || (!empty($ret['alias']) && ($ret['alias'] != $contact['alias']))) {
+			$ret['uri-date'] = DateTimeFormat::utcNow();
+		}
+
+		if (($ret['name'] != $contact['name']) || ($ret['nick'] != $contact['nick'])) {
+			$ret['name-date'] = $updated;
+		}
 
 		if ($force && ($uid == 0)) {
 			$ret['last-update'] = $updated;

@@ -348,7 +348,7 @@ class Probe
 		if (!self::$istimeout) {
 			$ap_profile = ActivityPub::probeProfile($uri);
 
-			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
+			if (empty($data) || (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN))) {
 				$data = $ap_profile;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
