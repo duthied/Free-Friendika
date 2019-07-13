@@ -1313,7 +1313,7 @@ class Contact extends BaseObject
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', $fields, ['addr' => $url, 'uid' => $uid, 'deleted' => false], $options);
+			$contact = DBA::selectFirst('contact', $fields, ['addr' => str_replace('acct:', '', $url), 'uid' => $uid, 'deleted' => false], $options);
 		}
 
 		// Then the alias (which could be anything)
@@ -1772,6 +1772,7 @@ class Contact extends BaseObject
 	 * @param string  $nurl  Normalised contact url
 	 * @param integer $uid   User id
 	 * @param integer $id    Contact id of a duplicate
+	 * @return boolean
 	 * @throws \Exception
 	 */
 	private static function handleDuplicates($nurl, $uid, $id)
@@ -1789,7 +1790,7 @@ class Contact extends BaseObject
 		}
 
 		$first = $first_contact['id'];
-		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl, 'callstack' => System::callstack(20)]);
+		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
 		if ($uid != 0) {
 			// Don't handle non public duplicates by now
 			Logger::info('Not handling non public duplicate', ['uid' => $uid, 'nurl' => $nurl]);
@@ -1854,6 +1855,15 @@ class Contact extends BaseObject
 
 		$updated = DateTimeFormat::utcNow();
 
+		// We must not try to update relay contacts via probe. They are no real contacts.
+		// We check after the probing to be able to correct falsely detected contact types.
+		if (($contact['contact-type'] == self::TYPE_RELAY) &&
+			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
+			self::updateContact($id, $uid, $contact['url'], ['last-update' => $updated, 'success_update' => $updated]);
+			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
+			return true;
+		}
+
 		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
 		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT) ||
 			(in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network']))) {
@@ -1889,7 +1899,7 @@ class Contact extends BaseObject
 		foreach ($ret as $key => $val) {
 			if (!array_key_exists($key, $contact)) {
 				unset($ret[$key]);
-			} elseif (($contact[$key] != '') && ($val == '') && !is_bool($ret[$key]) && !in_array($key, $keep)) {
+			} elseif (($contact[$key] != '') && ($val === '') && !is_bool($ret[$key]) && !in_array($key, $keep)) {
 				$ret[$key] = $contact[$key];
 			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
