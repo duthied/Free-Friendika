@@ -1465,7 +1465,7 @@ class Contact extends BaseObject
 			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl'];
 
 			foreach ($fields as $field) {
-				$updated[$field] = defaults($data, $field, $contact[$fields]);
+				$updated[$field] = defaults($data, $field, $contact[$field]);
 			}
 
 			if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
