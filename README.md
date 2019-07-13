@@ -13,6 +13,7 @@ With Friendica, you can also fully interact with anyone on Twitter, post on Face
 
 Join today and [get your Friendica profile!](https://dir.friendica.social/servers 'Join Friendica today!')
 
+Have a look at the [installation documentation](doc/Install.md) for further information about installing and using Friendica.
 
 ### Friendica Screenshots
 
