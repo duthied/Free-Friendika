@@ -2,7 +2,7 @@
 
 namespace Friendica\Factory;
 
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Util\Profiler;
 
 class ProfilerFactory
@@ -10,11 +10,11 @@ class ProfilerFactory
 	/**
 	 * Creates a Profiler for the current execution
 	 *
-	 * @param IConfigCache     $configCache The configuration cache
+	 * @param ConfigCache     $configCache The configuration cache
 	 *
 	 * @return Profiler
 	 */
-	public static function create(IConfigCache $configCache)
+	public static function create(ConfigCache $configCache)
 	{
 		$enabled = $configCache->get('system', 'profiler');
 		$enabled = isset($enabled) && $enabled !== '0';

@@ -11,7 +11,7 @@ namespace Friendica\Core\Config;
 class Configuration
 {
 	/**
-	 * @var Cache\IConfigCache
+	 * @var Cache\ConfigCache
 	 */
 	private $configCache;
 
@@ -21,10 +21,10 @@ class Configuration
 	private $configAdapter;
 
 	/**
-	 * @param Cache\IConfigCache     $configCache   The configuration cache (based on the config-files)
+	 * @param Cache\ConfigCache     $configCache   The configuration cache (based on the config-files)
 	 * @param Adapter\IConfigAdapter $configAdapter The configuration DB-backend
 	 */
-	public function __construct(Cache\IConfigCache $configCache, Adapter\IConfigAdapter $configAdapter)
+	public function __construct(Cache\ConfigCache $configCache, Adapter\IConfigAdapter $configAdapter)
 	{
 		$this->configCache = $configCache;
 		$this->configAdapter = $configAdapter;
@@ -35,7 +35,7 @@ class Configuration
 	/**
 	 * Returns the Config Cache
 	 *
-	 * @return Cache\IConfigCache
+	 * @return Cache\ConfigCache
 	 */
 	public function getCache()
 	{

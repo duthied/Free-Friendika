@@ -3,6 +3,7 @@
 namespace Friendica\Test\src\Database;
 
 use Friendica\App;
+use Friendica\Core\Config\Cache\PConfigCache;
 use Friendica\Database\DBStructure;
 use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
@@ -22,7 +23,7 @@ class DBStructureTest extends DatabaseTest
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		$database = Factory\DBFactory::init($configCache, $profiler, $_SERVER);
 		$config = Factory\ConfigFactory::createConfig($configCache);
-		Factory\ConfigFactory::createPConfig($configCache);
+		Factory\ConfigFactory::createPConfig($configCache, new PConfigCache());
 		$logger = Factory\LoggerFactory::create('test', $database, $config, $profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$this->app = new App($database, $config, $mode, $router, $baseUrl, $logger, $profiler, false);

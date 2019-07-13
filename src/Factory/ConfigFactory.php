@@ -24,7 +24,7 @@ class ConfigFactory
 	}
 
 	/**
-	 * @param Cache\ConfigCache $configCache The config cache of this adapter
+	 * @param Cache\ConfigCache $configCache The config cache
 	 *
 	 * @return Config\Configuration
 	 */
@@ -45,12 +45,13 @@ class ConfigFactory
 	}
 
 	/**
-	 * @param Cache\ConfigCache  $configCache The config cache of this adapter
+	 * @param Cache\ConfigCache $configCache The config cache
+	 * @param Cache\PConfigCache  $pConfigCache The personal config cache
 	 * @param int                $uid         The UID of the current user
 	 *
 	 * @return Config\PConfiguration
 	 */
-	public static function createPConfig(Cache\ConfigCache $configCache, $uid = null)
+	public static function createPConfig(Cache\ConfigCache $configCache, Cache\PConfigCache $pConfigCache, $uid = null)
 	{
 		if ($configCache->get('system', 'config_adapter') === 'preload') {
 			$configAdapter = new Adapter\PreloadPConfigAdapter($uid);
@@ -58,7 +59,7 @@ class ConfigFactory
 			$configAdapter = new Adapter\JITPConfigAdapter();
 		}
 
-		$configuration = new Config\PConfiguration($configCache, $configAdapter);
+		$configuration = new Config\PConfiguration($pConfigCache, $configAdapter);
 
 		// Set the config in the static container for legacy usage
 		Core\PConfig::init($configuration);

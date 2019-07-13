@@ -4,10 +4,10 @@ namespace Friendica\Util\Config;
 
 use Friendica\App;
 use Friendica\Core\Addon;
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 
 /**
- * The ConfigFileLoader loads config-files and stores them in a IConfigCache ( @see IConfigCache )
+ * The ConfigFileLoader loads config-files and stores them in a ConfigCache ( @see ConfigCache )
  *
  * It is capable of loading the following config files:
  * - *.config.php   (current)
@@ -33,12 +33,12 @@ class ConfigFileLoader extends ConfigFileManager
 	 * First loads the default value for all the configuration keys, then the legacy configuration files, then the
 	 * expected local.config.php
 	 *
-	 * @param IConfigCache $config The config cache to load to
-	 * @param bool         $raw    Setup the raw config format
+	 * @param ConfigCache $config The config cache to load to
+	 * @param bool        $raw    Setup the raw config format
 	 *
 	 * @throws \Exception
 	 */
-	public function setupCache(IConfigCache $config, $raw = false)
+	public function setupCache(ConfigCache $config, $raw = false)
 	{
 		$config->load($this->loadCoreConfig('defaults'));
 		$config->load($this->loadCoreConfig('settings'));

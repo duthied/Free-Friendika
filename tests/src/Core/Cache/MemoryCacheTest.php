@@ -3,6 +3,8 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Logger;
+use Psr\Log\NullLogger;
 
 abstract class MemoryCacheTest extends CacheTest
 {
@@ -13,6 +15,8 @@ abstract class MemoryCacheTest extends CacheTest
 
 	protected function setUp()
 	{
+		Logger::init(new NullLogger());
+
 		parent::setUp();
 		if (!($this->instance instanceof IMemoryCacheDriver)) {
 			throw new \Exception('MemoryCacheTest unsupported');

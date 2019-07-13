@@ -9,7 +9,7 @@ use ParagonIE\HiddenString\HiddenString;
  * Initial, all *.config.php files are loaded into this cache with the
  * ConfigFileLoader ( @see ConfigFileLoader )
  */
-class ConfigCache implements IConfigCache, IPConfigCache
+class ConfigCache
 {
 	/**
 	 * @var array
@@ -22,7 +22,7 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	private $hidePasswordOutput;
 
 	/**
-	 * @param array $config    A initial config array
+	 * @param array $config             A initial config array
 	 * @param bool  $hidePasswordOutput True, if cache variables should take extra care of password values
 	 */
 	public function __construct(array $config = [], $hidePasswordOutput = true)
@@ -32,7 +32,11 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Tries to load the specified configuration array into the config array.
+	 * Doesn't overwrite previously set values by default to prevent default config files to supersede DB Config.
+	 *
+	 * @param array $config
+	 * @param bool  $overwrite Force value overwrite if the config key already exists
 	 */
 	public function load(array $config, $overwrite = false)
 	{
@@ -57,7 +61,12 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Gets a value from the config cache.
+	 *
+	 * @param string $cat Config category
+	 * @param string $key Config key
+	 *
+	 * @return null|mixed Returns the value of the Config entry or null if not set
 	 */
 	public function get($cat, $key = null)
 	{
@@ -85,7 +94,13 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Sets a value in the config cache. Accepts raw output from the config table
+	 *
+	 * @param string $cat   Config category
+	 * @param string $key   Config key
+	 * @param mixed  $value Value to set
+	 *
+	 * @return bool True, if the value is set
 	 */
 	public function set($cat, $key, $value)
 	{
@@ -104,7 +119,12 @@ class ConfigCache implements IConfigCache, IPConfigCache
 	}
 
 	/**
-	 * {@inheritdoc}
+	 * Deletes a value from the config cache.
+	 *
+	 * @param string $cat Config category
+	 * @param string $key Config key
+	 *
+	 * @return bool true, if deleted
 	 */
 	public function delete($cat, $key)
 	{
@@ -113,80 +133,6 @@ class ConfigCache implements IConfigCache, IPConfigCache
 			if (count($this->config[$cat]) == 0) {
 				unset($this->config[$cat]);
 			}
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function loadP($uid, array $config)
-	{
-		$categories = array_keys($config);
-
-		foreach ($categories as $category) {
-			if (isset($config[$category]) && is_array($config[$category])) {
-
-				$keys = array_keys($config[$category]);
-
-				foreach ($keys as $key) {
-					$value = $config[$category][$key];
-					if (isset($value)) {
-						$this->setP($uid, $category, $key, $value);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function getP($uid, $cat, $key = null)
-	{
-		if (isset($this->config[$uid][$cat][$key])) {
-			return $this->config[$uid][$cat][$key];
-		} elseif (!isset($key) && isset($this->config[$uid][$cat])) {
-			return $this->config[$uid][$cat];
-		} else {
-			return null;
-		}
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function setP($uid, $cat, $key, $value)
-	{
-		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
-			$this->config[$uid] = [];
-		}
-
-		if (!isset($this->config[$uid][$cat])) {
-			$this->config[$uid][$cat] = [];
-		}
-
-		$this->config[$uid][$cat][$key] = $value;
-
-		return true;
-	}
-
-	/**
-	 * {@inheritdoc}
-	 */
-	public function deleteP($uid, $cat, $key)
-	{
-		if (isset($this->config[$uid][$cat][$key])) {
-			unset($this->config[$uid][$cat][$key]);
-			if (count($this->config[$uid][$cat]) == 0) {
-				unset($this->config[$uid][$cat]);
-				if (count($this->config[$uid]) == 0) {
-					unset($this->config[$uid]);
-				}
-			}
-
 			return true;
 		} else {
 			return false;

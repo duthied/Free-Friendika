@@ -8,7 +8,7 @@ use Detection\MobileDetect;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Hook;
 use Friendica\Core\Theme;
@@ -131,7 +131,7 @@ class App
 	/**
 	 * Returns the current config cache of this node
 	 *
-	 * @return IConfigCache
+	 * @return ConfigCache
 	 */
 	public function getConfigCache()
 	{

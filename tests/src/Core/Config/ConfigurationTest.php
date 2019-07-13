@@ -4,7 +4,6 @@ namespace Friendica\Test\src\Core\Config;
 
 use Friendica\Core\Config\Adapter\IConfigAdapter;
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Config\Cache\IConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Test\MockedTest;
 
@@ -35,7 +34,7 @@ class ConfigurationTest extends MockedTest
 
 		$configuration = new Configuration($configCache, $configAdapter);
 
-		$this->assertInstanceOf(IConfigCache::class, $configuration->getCache());
+		$this->assertInstanceOf(ConfigCache::class, $configuration->getCache());
 	}
 
 	/**

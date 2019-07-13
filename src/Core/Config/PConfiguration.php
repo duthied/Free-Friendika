@@ -12,7 +12,7 @@ namespace Friendica\Core\Config;
 class PConfiguration
 {
 	/**
-	 * @var Cache\IPConfigCache
+	 * @var Cache\PConfigCache
 	 */
 	private $configCache;
 
@@ -22,10 +22,10 @@ class PConfiguration
 	private $configAdapter;
 
 	/**
-	 * @param Cache\IPConfigCache     $configCache   The configuration cache
+	 * @param Cache\PConfigCache     $configCache   The configuration cache
 	 * @param Adapter\IPConfigAdapter $configAdapter The configuration DB-backend
 	 */
-	public function __construct(Cache\IPConfigCache $configCache, Adapter\IPConfigAdapter $configAdapter)
+	public function __construct(Cache\PConfigCache $configCache, Adapter\IPConfigAdapter $configAdapter)
 	{
 		$this->configCache = $configCache;
 		$this->configAdapter = $configAdapter;
@@ -50,7 +50,7 @@ class PConfiguration
 		}
 
 		// load the whole category out of the DB into the cache
-		$this->configCache->loadP($uid, $this->configAdapter->load($uid, $cat));
+		$this->configCache->load($uid, $this->configAdapter->load($uid, $cat));
 	}
 
 	/**
@@ -78,13 +78,13 @@ class PConfiguration
 			$dbValue = $this->configAdapter->get($uid, $cat, $key);
 
 			if (isset($dbValue)) {
-				$this->configCache->setP($uid, $cat, $key, $dbValue);
+				$this->configCache->set($uid, $cat, $key, $dbValue);
 				return $dbValue;
 			}
 		}
 
 		// use the config cache for return
-		$result = $this->configCache->getP($uid, $cat, $key);
+		$result = $this->configCache->get($uid, $cat, $key);
 		return (isset($result)) ? $result : $default_value;
 	}
 
@@ -106,7 +106,7 @@ class PConfiguration
 	public function set($uid, $cat, $key, $value)
 	{
 		// set the cache first
-		$cached = $this->configCache->setP($uid, $cat, $key, $value);
+		$cached = $this->configCache->set($uid, $cat, $key, $value);
 
 		// If there is no connected adapter, we're finished
 		if (!$this->configAdapter->isConnected()) {
@@ -133,7 +133,7 @@ class PConfiguration
 	 */
 	public function delete($uid, $cat, $key)
 	{
-		$cacheRemoved = $this->configCache->deleteP($uid, $cat, $key);
+		$cacheRemoved = $this->configCache->delete($uid, $cat, $key);
 
 		if (!$this->configAdapter->isConnected()) {
 			return $cacheRemoved;

@@ -2,9 +2,11 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
+use Friendica\Core\Logger;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
+use Psr\Log\NullLogger;
 
 abstract class LockTest extends MockedTest
 {
@@ -31,6 +33,8 @@ abstract class LockTest extends MockedTest
 		$this->app
 			->shouldReceive('getHostname')
 			->andReturn('friendica.local');
+
+		Logger::init(new NullLogger());
 
 		parent::setUp();
 		$this->instance = $this->getInstance();

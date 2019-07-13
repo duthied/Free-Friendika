@@ -5,9 +5,10 @@ namespace Friendica\Module;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core;
-use Friendica\Core\Config\Cache\IConfigCache;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
 use Friendica\Util\Strings;
@@ -51,7 +52,7 @@ class Install extends BaseModule
 		$a = self::getApp();
 
 		if (!$a->getMode()->isInstall()) {
-			throw new \Friendica\Network\HTTPException\ForbiddenException();
+			throw new HTTPException\ForbiddenException();
 		}
 
 		// route: install/testrwrite
@@ -59,7 +60,7 @@ class Install extends BaseModule
 		// @TODO: Replace with parameter from router
 		if ($a->getArgumentValue(1, '') == 'testrewrite') {
 			// Status Code 204 means that it worked without content
-			throw new \Friendica\Network\HTTPException\NoContentException();
+			throw new HTTPException\NoContentException();
 		}
 
 		self::$installer = new Core\Installer();
@@ -77,7 +78,7 @@ class Install extends BaseModule
 
 	public static function post()
 	{
-		$a = self::getApp();
+		$a           = self::getApp();
 		$configCache = $a->getConfigCache();
 
 		switch (self::$currentWizardStep) {
@@ -150,7 +151,7 @@ class Install extends BaseModule
 
 	public static function content()
 	{
-		$a = self::getApp();
+		$a           = self::getApp();
 		$configCache = $a->getConfigCache();
 
 		$output = '';
@@ -163,7 +164,7 @@ class Install extends BaseModule
 
 				$status = self::$installer->checkEnvironment($a->getBaseURL(), $php_path);
 
-				$tpl = Renderer::getMarkupTemplate('install_checks.tpl');
+				$tpl    = Renderer::getMarkupTemplate('install_checks.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'       => $install_title,
 					'$pass'        => L10n::t('System check'),
@@ -183,7 +184,7 @@ class Install extends BaseModule
 					BaseURL::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
 				];
 
-				$tpl = Renderer::getMarkupTemplate('install_base.tpl');
+				$tpl    = Renderer::getMarkupTemplate('install_base.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'      => $install_title,
 					'$pass'       => L10n::t('Base settings'),
@@ -213,7 +214,7 @@ class Install extends BaseModule
 				break;
 
 			case self::DATABASE_CONFIG:
-				$tpl = Renderer::getMarkupTemplate('install_db.tpl');
+				$tpl    = Renderer::getMarkupTemplate('install_db.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'      => $install_title,
 					'$pass'       => L10n::t('Database connection'),
@@ -256,7 +257,7 @@ class Install extends BaseModule
 				/* Installed langs */
 				$lang_choices = L10n::getAvailableLanguages();
 
-				$tpl = Renderer::getMarkupTemplate('install_settings.tpl');
+				$tpl    = Renderer::getMarkupTemplate('install_settings.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'      => $install_title,
 					'$checks'     => self::$installer->getChecks(),
@@ -292,12 +293,12 @@ class Install extends BaseModule
 				$db_return_text = "";
 
 				if (count(self::$installer->getChecks()) == 0) {
-					$txt = '<p style="font-size: 130%;">';
-					$txt .= L10n::t('Your Friendica site database has been installed.') . EOL;
+					$txt            = '<p style="font-size: 130%;">';
+					$txt            .= L10n::t('Your Friendica site database has been installed.') . EOL;
 					$db_return_text .= $txt;
 				}
 
-				$tpl = Renderer::getMarkupTemplate('install_finished.tpl');
+				$tpl    = Renderer::getMarkupTemplate('install_finished.tpl');
 				$output .= Renderer::replaceMacros($tpl, [
 					'$title'  => $install_title,
 					'$checks' => self::$installer->getChecks(),
@@ -324,7 +325,7 @@ class Install extends BaseModule
 		$baseurl = $a->getBaseUrl();
 		return
 			L10n::t('<h1>What next</h1>')
-			. "<p>".L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
+			. "<p>" . L10n::t('IMPORTANT: You will need to [manually] setup a scheduled task for the worker.')
 			. L10n::t('Please see the file "INSTALL.txt".')
 			. "</p><p>"
 			. L10n::t('Go to your new Friendica node <a href="%s/register">registration page</a> and register as new user. Remember to use the same email you have entered as administrator email. This will allow you to enter the site admin panel.', $baseurl)
@@ -334,13 +335,13 @@ class Install extends BaseModule
 	/**
 	 * Checks the $_POST settings and updates the config Cache for it
 	 *
-	 * @param IConfigCache $configCache The current config cache
-	 * @param array        $post        The $_POST data
-	 * @param string       $cat         The category of the setting
-	 * @param string       $key         The key of the setting
-	 * @param null|string  $default     The default value
+	 * @param ConfigCache $configCache The current config cache
+	 * @param array       $post        The $_POST data
+	 * @param string      $cat         The category of the setting
+	 * @param string      $key         The key of the setting
+	 * @param null|string $default     The default value
 	 */
-	private static function checkSetting(IConfigCache $configCache, array $post, $cat, $key, $default = null)
+	private static function checkSetting(ConfigCache $configCache, array $post, $cat, $key, $default = null)
 	{
 		$configCache->set($cat, $key,
 			Strings::escapeTags(

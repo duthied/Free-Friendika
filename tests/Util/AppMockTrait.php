@@ -43,7 +43,7 @@ trait AppMockTrait
 	 */
 	public function mockApp(vfsStreamDirectory $root, $raw = false)
 	{
-		$this->configMock = \Mockery::mock(Config\Cache\IConfigCache::class);
+		$this->configMock = \Mockery::mock(Config\Cache\ConfigCache::class);
 		$this->mode = \Mockery::mock(App\Mode::class);
 		$configAdapterMock = \Mockery::mock(Config\Adapter\IConfigAdapter::class);
 		// Disable the adapter
