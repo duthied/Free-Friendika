@@ -180,20 +180,24 @@ class Diaspora
 	public static function setRelayContact($server_url, array $network_fields = [])
 	{
 		$fields = ['created' => DateTimeFormat::utcNow(),
-			'name' => 'relay', 'nick' => 'relay',
-			'url' => $server_url, 'network' => Protocol::DIASPORA,
+			'name' => 'relay', 'nick' => 'relay', 'url' => $server_url,
+			'nurl' => Strings::normaliseLink($server_url),
+			'network' => Protocol::DIASPORA, 'uid' => 0,
 			'batch' => $server_url . '/receive/public',
 			'rel' => Contact::FOLLOWER, 'blocked' => false,
-			'pending' => false, 'writable' => true];
+			'pending' => false, 'writable' => true,
+			'baseurl' => $server_url, 'contact-type' => Contact::TYPE_RELAY];
 
 		$fields = array_merge($fields, $network_fields);
 
-		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
-			'contact-type' => Contact::TYPE_RELAY];
-
-		if (DBA::exists('contact', $condition)) {
+		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url)];
+		$relay = DBA::selectFirst('contact', ['id'], $condition);
+		if (DBA::isResult($relay)) {
 			unset($fields['created']);
+			$condition = ['id' => $relay['id']];
 		}
+
+		Logger::info('Set relay contact', ['fields' => $fields, 'condition' => $condition]);
 
 		DBA::update('contact', $fields, $condition, true);
 	}
