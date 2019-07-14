@@ -16,6 +16,27 @@ $scheme_modified = 0;
 
 if ($a->module !== 'install') {
 
+	Config::load('frio');
+
+	// Load frios system config.
+	$scheme           = Config::get('frio', 'scheme', Config::get('frio', 'schema'));
+	$nav_bg           = Config::get('frio', 'nav_bg', '#708fa0');
+	$nav_icon_color   = Config::get('frio', 'nav_icon_color', '#fff');
+	$link_color       = Config::get('frio', 'link_color', '#6fdbe8');
+	$background_color = Config::get('frio', 'background_color', '#ededed');
+	$contentbg_transp = Config::get('frio', 'contentbg_transp');
+	$background_image = Config::get('frio', 'background_image', 'img/none.png');
+	$bg_image_option  = Config::get('frio', 'bg_image_option');
+	$login_bg_image   = Config::get('frio', 'login_bg_image');
+	$login_bg_color   = Config::get('frio', 'login_bg_color');
+	$modified         = Config::get('frio', 'css_modified');
+
+	// There is maybe the case that the user did never modify the theme settings.
+	// In this case we store the present time.
+	if (empty($modified)) {
+		Config::set('frio', 'css_modified', time());
+	}
+
 	// Get the UID of the profile owner.
 	$uid = defaults($_REQUEST, 'puid', 0);
 	if ($uid) {
@@ -37,27 +58,6 @@ if ($a->module !== 'install') {
 		if (empty($modified)) {
 			PConfig::set($uid, 'frio', 'css_modified', time());
 		}
-	}
-
-	Config::load('frio');
-
-	// Load frios system config.
-	$scheme           = (empty($scheme)           ? Config::get('frio', 'scheme', Config::get('frio', 'schema')) : $scheme);
-	$nav_bg           = (empty($nav_bg)           ? Config::get('frio', 'nav_bg', '#708fa0')                     : $nav_bg);
-	$nav_icon_color   = (empty($nav_icon_color)   ? Config::get('frio', 'nav_icon_color', '#fff')                : $nav_icon_color);
-	$link_color       = (empty($link_color)       ? Config::get('frio', 'link_color', '#6fdbe8')                 : $link_color);
-	$background_color = (empty($background_color) ? Config::get('frio', 'background_color', '#ededed')           : $background_color);
-	$contentbg_transp = (empty($contentbg_transp) ? Config::get('frio', 'contentbg_transp')                      : $contentbg_transp);
-	$background_image = (empty($background_image) ? Config::get('frio', 'background_image', 'img/none.png')      : $background_image);
-	$bg_image_option  = (empty($bg_image_option)  ? Config::get('frio', 'bg_image_option')                       : $bg_image_option);
-	$login_bg_image   = (empty($login_bg_image)   ? Config::get('frio', 'login_bg_image')                        : $login_bg_image);
-	$login_bg_color   = (empty($login_bg_color)   ? Config::get('frio', 'login_bg_color')                        : $login_bg_color;
-	$modified         = (empty($modified)         ? Config::get('frio', 'css_modified')                          : $modified);
-
-	// There is maybe the case that the user did never modify the theme settings.
-	// In this case we store the present time.
-	if (empty($modified)) {
-		Config::set('frio', 'css_modified', time());
 	}
 }
 
