@@ -157,6 +157,12 @@ class ConfigCacheTest extends MockedTest
 			'key1' => 'value1',
 			'key2' => 'value2',
 		], $configCache->get('system'));
+
+		// explicit null as key
+		$this->assertEquals([
+			'key1' => 'value1',
+			'key2' => 'value2',
+		], $configCache->get('system', null));
 	}
 
 	/**

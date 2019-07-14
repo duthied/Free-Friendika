@@ -62,7 +62,7 @@ class PConfigCache
 	 *
 	 * @return null|string The value of the config entry or null if not set
 	 */
-	public function get(int $uid, string $cat, $key = null)
+	public function get(int $uid, string $cat, string $key = null)
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			return $this->config[$uid][$cat][$key];
