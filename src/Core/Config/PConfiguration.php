@@ -6,7 +6,7 @@ namespace Friendica\Core\Config;
  * This class is responsible for the user-specific configuration values in Friendica
  * The values are set through the Config-DB-Table (per Config-DB-adapter @see Adapter\IPConfigAdapter )
  *
- * The configuration cache (@see Cache\IPConfigCache ) is used for temporary caching of database calls. This will
+ * The configuration cache (@see Cache\PConfigCache ) is used for temporary caching of database calls. This will
  * increase the performance.
  */
 class PConfiguration
@@ -35,7 +35,7 @@ class PConfiguration
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
 	 * All configuration values of the given user are stored with the $uid in
-	 * the cache ( @see IPConfigCache )
+	 * the cache ( @see PConfigCache )
 	 *
 	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
@@ -59,7 +59,7 @@ class PConfiguration
 	 *
 	 * Get a particular user's config value from the given category ($cat)
 	 * and the $key with the $uid from a cached storage either from the $this->configAdapter
-	 * (@see IConfigAdapter ) or from the $this->configCache (@see IConfigCache ).
+	 * (@see IConfigAdapter ) or from the $this->configCache (@see PConfigCache ).
 	 *
 	 * @param string  $uid           The user_id
 	 * @param string  $cat           The category of the configuration value

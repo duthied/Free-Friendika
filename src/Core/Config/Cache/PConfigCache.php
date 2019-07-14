@@ -20,9 +20,9 @@ class PConfigCache
 	private $hidePasswordOutput;
 
 	/**
-	 * @param bool  $hidePasswordOutput True, if cache variables should take extra care of password values
+	 * @param bool $hidePasswordOutput True, if cache variables should take extra care of password values
 	 */
-	public function __construct($hidePasswordOutput = true)
+	public function __construct(bool $hidePasswordOutput = true)
 	{
 		$this->hidePasswordOutput = $hidePasswordOutput;
 	}
@@ -34,7 +34,7 @@ class PConfigCache
 	 * @param int   $uid
 	 * @param array $config
 	 */
-	public function load($uid, array $config)
+	public function load(int $uid, array $config)
 	{
 		$categories = array_keys($config);
 
@@ -56,13 +56,13 @@ class PConfigCache
 	/**
 	 * Retrieves a value from the user config cache
 	 *
-	 * @param int    $uid     User Id
-	 * @param string $cat     Config category
-	 * @param string $key     Config key
+	 * @param int    $uid User Id
+	 * @param string $cat Config category
+	 * @param string $key Config key
 	 *
 	 * @return null|string The value of the config entry or null if not set
 	 */
-	public function get($uid, $cat, $key = null)
+	public function get(int $uid, string $cat, string $key = null)
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			return $this->config[$uid][$cat][$key];
@@ -85,7 +85,7 @@ class PConfigCache
 	 *
 	 * @return bool Set successful
 	 */
-	public function set($uid, $cat, $key, $value)
+	public function set(int $uid, string $cat, string $key, $value)
 	{
 		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
 			$this->config[$uid] = [];
@@ -98,7 +98,7 @@ class PConfigCache
 		if ($this->hidePasswordOutput &&
 		    $key == 'password' &&
 		    !empty($value) && is_string($value)) {
-			$this->config[$uid][$cat][$key] = new HiddenString((string) $value);
+			$this->config[$uid][$cat][$key] = new HiddenString((string)$value);
 		} else {
 			$this->config[$uid][$cat][$key] = $value;
 		}
@@ -116,7 +116,7 @@ class PConfigCache
 	 *
 	 * @return bool true, if deleted
 	 */
-	public function delete($uid, $cat, $key)
+	public function delete(int $uid, string $cat, string $key)
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			unset($this->config[$uid][$cat][$key]);

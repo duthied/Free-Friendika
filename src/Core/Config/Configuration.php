@@ -2,34 +2,34 @@
 
 namespace Friendica\Core\Config;
 
+use Friendica\Model;
+
 /**
  * This class is responsible for all system-wide configuration values in Friendica
  * There are two types of storage
- * - The Config-Files    (loaded into the FileCache @see Cache\IConfigCache )
- * - The Config-DB-Table (per Config-DB-adapter @see Adapter\IConfigAdapter )
+ * - The Config-Files    (loaded into the FileCache @see Cache\ConfigCache )
+ * - The Config-DB-Table (per Config-DB-model @see Model\Config\Config )
  */
-class Configuration
+abstract class Configuration
 {
 	/**
 	 * @var Cache\ConfigCache
 	 */
-	private $configCache;
+	protected $configCache;
 
 	/**
-	 * @var Adapter\IConfigAdapter
+	 * @var Model\Config\Config
 	 */
-	private $configAdapter;
+	protected $configModel;
 
 	/**
-	 * @param Cache\ConfigCache     $configCache   The configuration cache (based on the config-files)
-	 * @param Adapter\IConfigAdapter $configAdapter The configuration DB-backend
+	 * @param Cache\ConfigCache  $configCache The configuration cache (based on the config-files)
+	 * @param Model\Config\Config $configModel The configuration model
 	 */
-	public function __construct(Cache\ConfigCache $configCache, Adapter\IConfigAdapter $configAdapter)
+	public function __construct(Cache\ConfigCache $configCache, Model\Config\Config $configModel)
 	{
 		$this->configCache = $configCache;
-		$this->configAdapter = $configAdapter;
-
-		$this->load();
+		$this->configModel = $configModel;
 	}
 
 	/**
@@ -51,16 +51,7 @@ class Configuration
 	 *
 	 * @return void
 	 */
-	public function load($cat = 'config')
-	{
-		// If not connected, do nothing
-		if (!$this->configAdapter->isConnected()) {
-			return;
-		}
-
-		// load the whole category out of the DB into the cache
-		$this->configCache->load($this->configAdapter->load($cat), true);
-	}
+	abstract public function load(string $cat = 'config');
 
 	/**
 	 * @brief Get a particular user's config variable given the category name
@@ -77,26 +68,7 @@ class Configuration
 	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public function get($cat, $key, $default_value = null, $refresh = false)
-	{
-		// if the value isn't loaded or refresh is needed, load it to the cache
-		if ($this->configAdapter->isConnected() &&
-			(!$this->configAdapter->isLoaded($cat, $key) ||
-			$refresh)) {
-
-			$dbvalue = $this->configAdapter->get($cat, $key);
-
-			if (isset($dbvalue)) {
-				$this->configCache->set($cat, $key, $dbvalue);
-				unset($dbvalue);
-			}
-		}
-
-		// use the config cache for return
-		$result = $this->configCache->get($cat, $key);
-
-		return (isset($result)) ? $result : $default_value;
-	}
+	abstract public function get(string $cat, string $key, $default_value = null, bool $refresh = false);
 
 	/**
 	 * @brief Sets a configuration value for system config
@@ -111,20 +83,7 @@ class Configuration
 	 *
 	 * @return bool Operation success
 	 */
-	public function set($cat, $key, $value)
-	{
-		// set the cache first
-		$cached = $this->configCache->set($cat, $key, $value);
-
-		// If there is no connected adapter, we're finished
-		if (!$this->configAdapter->isConnected()) {
-			return $cached;
-		}
-
-		$stored = $this->configAdapter->set($cat, $key, $value);
-
-		return $cached && $stored;
-	}
+	abstract public function set(string $cat, string $key, $value);
 
 	/**
 	 * @brief Deletes the given key from the system configuration.
@@ -137,16 +96,5 @@ class Configuration
 	 *
 	 * @return bool
 	 */
-	public function delete($cat, $key)
-	{
-		$cacheRemoved = $this->configCache->delete($cat, $key);
-
-		if (!$this->configAdapter->isConnected()) {
-			return $cacheRemoved;
-		}
-
-		$storeRemoved = $this->configAdapter->delete($cat, $key);
-
-		return $cacheRemoved || $storeRemoved;
-	}
+	abstract public function delete(string $cat, string $key);
 }

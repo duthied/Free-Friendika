@@ -6,6 +6,7 @@ use Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Adapter;
 use Friendica\Core\Config\Cache;
+use Friendica\Model\Config\Config as ConfigModel;
 use Friendica\Util\Config\ConfigFileLoader;
 
 class ConfigFactory
@@ -24,19 +25,19 @@ class ConfigFactory
 	}
 
 	/**
-	 * @param Cache\ConfigCache $configCache The config cache
+	 * @param Cache\ConfigCache $configCache The config cache of this adapter
+	 * @param ConfigModel $configModel The configuration model
 	 *
 	 * @return Config\Configuration
 	 */
-	public static function createConfig(Cache\ConfigCache $configCache)
+	public static function createConfig(Cache\ConfigCache $configCache, ConfigModel $configModel)
 	{
 		if ($configCache->get('system', 'config_adapter') === 'preload') {
-			$configAdapter = new Adapter\PreloadConfigAdapter();
+			$configuration = new Config\PreloadConfiguration($configCache, $configModel);
 		} else {
-			$configAdapter = new Adapter\JITConfigAdapter();
+			$configuration = new Config\JitConfiguration($configCache, $configModel);
 		}
 
-		$configuration = new Config\Configuration($configCache, $configAdapter);
 
 		// Set the config in the static container for legacy usage
 		Core\Config::init($configuration);

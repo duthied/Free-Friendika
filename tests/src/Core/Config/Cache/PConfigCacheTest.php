@@ -79,6 +79,12 @@ class PConfigCacheTest extends MockedTest
 			'key1' => 'value1',
 			'key2' => 'value2',
 		], $configCache->get($uid, 'system'));
+
+		// test explicit cat with null as key
+		$this->assertEquals([
+			'key1' => 'value1',
+			'key2' => 'value2',
+		], $configCache->get($uid, 'system', null));
 	}
 
 	/**
@@ -113,7 +119,7 @@ class PConfigCacheTest extends MockedTest
 	 */
 	public function testKeyDiffWithResult($data)
 	{
-		$configCache = new PConfigCache($data);
+		$configCache = new PConfigCache();
 
 		$diffConfig = [
 			'fakeCat' => [

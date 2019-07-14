@@ -6,27 +6,24 @@ use Friendica\App;
 use Friendica\Core\Config\Cache\PConfigCache;
 use Friendica\Database\DBStructure;
 use Friendica\Factory;
+use Friendica\Model\Config\Config;
 use Friendica\Test\DatabaseTest;
-use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
-use Friendica\Util\Config\ConfigFileLoader;
 
 class DBStructureTest extends DatabaseTest
 {
+	/**
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
 	public function setUp()
 	{
-		$basePath = BasePath::create(dirname(__DIR__) . '/../../');
-		$mode = new App\Mode($basePath);
-		$router = new App\Router();
-		$configLoader = new ConfigFileLoader($basePath, $mode);
-		$configCache = Factory\ConfigFactory::createCache($configLoader);
-		$profiler = Factory\ProfilerFactory::create($configCache);
-		$database = Factory\DBFactory::init($configCache, $profiler, $_SERVER);
-		$config = Factory\ConfigFactory::createConfig($configCache);
-		Factory\ConfigFactory::createPConfig($configCache, new PConfigCache());
-		$logger = Factory\LoggerFactory::create('test', $database, $config, $profiler);
+		$configModel = new Config(self::$dba);
+		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
+		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache());
+		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
-		$this->app = new App($database, $config, $mode, $router, $baseUrl, $logger, $profiler, false);
+		$router = new App\Router();
+		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, false);
 
 		parent::setUp();
 	}

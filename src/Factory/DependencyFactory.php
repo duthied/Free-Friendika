@@ -31,7 +31,8 @@ class DependencyFactory
 		$configCache = Factory\ConfigFactory::createCache($configLoader);
 		$profiler = Factory\ProfilerFactory::create($configCache);
 		$database = Factory\DBFactory::init($configCache, $profiler, $_SERVER);
-		$config = Factory\ConfigFactory::createConfig($configCache);
+		$configModel = new \Friendica\Model\Config\Config($database);
+		$config = Factory\ConfigFactory::createConfig($configCache, $configModel);
 		// needed to call PConfig::init()
 		Factory\ConfigFactory::createPConfig($configCache, new PConfigCache());
 		$logger = Factory\LoggerFactory::create($channel, $database, $config, $profiler);

@@ -4207,7 +4207,7 @@ function api_fr_photos_list($type)
 	$r = q(
 		"SELECT `resource-id`, MAX(scale) AS `scale`, `album`, `filename`, `type`, MAX(`created`) AS `created`,
 		MAX(`edited`) AS `edited`, MAX(`desc`) AS `desc` FROM `photo`
-		WHERE `uid` = %d AND `album` != 'Contact Photos' GROUP BY `resource-id`",
+		WHERE `uid` = %d AND `album` != 'Contact Photos' GROUP BY `resource-id`, `album`, `filename`, `type`",
 		intval(local_user())
 	);
 	$typetoext = [
@@ -4888,7 +4888,9 @@ function prepare_photo_data($type, $scale, $photo_id)
 		"SELECT %s `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
 					`type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`,
 					MIN(`scale`) AS `minscale`, MAX(`scale`) AS `maxscale`
-			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY `resource-id`",
+			FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' %s GROUP BY 
+			       `resource-id`, `created`, `edited`, `title`, `desc`, `album`, `filename`,
+			       `type`, `height`, `width`, `datasize`, `profile`, `allow_cid`, `deny_cid`, `allow_gid`, `deny_gid`",
 		$data_sql,
 		intval(local_user()),
 		DBA::escape($photo_id),

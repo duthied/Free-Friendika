@@ -5,12 +5,15 @@
 
 namespace Friendica\Test;
 
-use Friendica\App;
-use Friendica\Database\DBA;
-use Friendica\Factory;
+use Friendica\App\Mode;
+use Friendica\App\Router;
+use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Database\Database;
+use Friendica\Factory\ConfigFactory;
+use Friendica\Factory\DBFactory;
+use Friendica\Factory\ProfilerFactory;
 use Friendica\Util\BasePath;
 use Friendica\Util\Config\ConfigFileLoader;
-use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
@@ -24,6 +27,33 @@ require_once __DIR__ . '/../boot.php';
 abstract class DatabaseTest extends MockedTest
 {
 	use TestCaseTrait;
+
+	/** @var Database */
+	protected static $dba;
+
+	/** @var BasePath */
+	protected static $basePath;
+
+	/** @var Mode */
+	protected static $mode;
+
+	/** @var ConfigCache */
+	protected static $configCache;
+
+	/** @var Profiler */
+	protected static $profiler;
+
+	public static function setUpBeforeClass()
+	{
+		parent::setUpBeforeClass();
+
+		self::$basePath = BasePath::create(dirname(__DIR__));
+		self::$mode = new Mode(self::$basePath);
+		$configLoader = new ConfigFileLoader(self::$basePath, self::$mode);
+		self::$configCache = ConfigFactory::createCache($configLoader);
+		self::$profiler = ProfilerFactory::create(self::$configCache);
+		self::$dba = DBFactory::init(self::$configCache, self::$profiler, $_SERVER);
+	}
 
 	/**
 	 * Get database connection.
@@ -42,27 +72,13 @@ abstract class DatabaseTest extends MockedTest
 			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
 		}
 
-		$basePath = BasePath::create(dirname(__DIR__));
-		$mode = new App\Mode($basePath);
-		$configLoader = new ConfigFileLoader($basePath, $mode);
-		$config = Factory\ConfigFactory::createCache($configLoader);
-
-		$profiler = \Mockery::mock(Profiler::class);
-
-		DBA::connect(
-			$config,
-			$profiler,
-			new VoidLogger(),
-			getenv('MYSQL_HOST'),
-			getenv('MYSQL_USERNAME'),
-			getenv('MYSQL_PASSWORD'),
-			getenv('MYSQL_DATABASE'));
-
-		if (!DBA::connected()) {
-			$this->markTestSkipped('Could not connect to the database.');
+		if (!self::$dba->isConnected()) {
+			if (!self::$dba->connect()) {
+				$this->markTestSkipped('Could not connect to the database.');
+			}
 		}
 
-		return $this->createDefaultDBConnection(DBA::getConnection(), getenv('MYSQL_DATABASE'));
+		return $this->createDefaultDBConnection(self::$dba->getConnection(), getenv('MYSQL_DATABASE'));
 	}
 
 	/**
