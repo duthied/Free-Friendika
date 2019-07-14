@@ -27,7 +27,6 @@ class ConfigFactory
 	/**
 	 * @param Cache\ConfigCache $configCache The config cache of this adapter
 	 * @param ConfigModel $configModel The configuration model
-	 * @param Cache\ConfigCache $configCache The config cache
 	 *
 	 * @return Config\Configuration
 	 */

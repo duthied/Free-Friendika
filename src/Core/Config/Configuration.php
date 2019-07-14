@@ -33,7 +33,9 @@ abstract class Configuration
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Returns the Config Cache
+	 *
+	 * @return Cache\ConfigCache
 	 */
 	public function getCache()
 	{
