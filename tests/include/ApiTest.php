@@ -12,9 +12,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Factory;
 use Friendica\Network\HTTPException;
-use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
-use Friendica\Util\Config\ConfigFileLoader;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -51,7 +49,7 @@ class ApiTest extends DatabaseTest
 	{
 		$configModel = new \Friendica\Model\Config\Config(self::$dba);
 		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
-		Factory\ConfigFactory::createPConfig(new Config\Cache\PConfigCache());
+		Factory\ConfigFactory::createPConfig(self::$configCache, new Config\Cache\PConfigCache());
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();

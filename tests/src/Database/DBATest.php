@@ -14,7 +14,7 @@ class DBATest extends DatabaseTest
 	{
 		$configModel = new \Friendica\Model\Config\Config(self::$dba);
 		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
-		Factory\ConfigFactory::createPConfig(new Config\Cache\PConfigCache());
+		Factory\ConfigFactory::createPConfig(self::$configCache, new Config\Cache\PConfigCache());
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();

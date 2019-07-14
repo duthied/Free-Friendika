@@ -6,16 +6,20 @@ use Friendica\App;
 use Friendica\Core\Config\Cache\PConfigCache;
 use Friendica\Database\DBStructure;
 use Friendica\Factory;
+use Friendica\Model\Config\Config;
 use Friendica\Test\DatabaseTest;
 use Friendica\Util\BaseURL;
 
 class DBStructureTest extends DatabaseTest
 {
+	/**
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
 	public function setUp()
 	{
-		$configModel = new \Friendica\Model\Config\Config(self::$dba);
+		$configModel = new Config(self::$dba);
 		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
-		Factory\ConfigFactory::createPConfig(new PConfigCache());
+		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache());
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();
