@@ -3,14 +3,19 @@
 namespace Friendica\Model\Config;
 
 
+/**
+ * The Config model backend, which is using the general DB-model backend for configs
+ */
 class Config extends DbaConfig
 {
 	/**
 	 * Loads all configuration values and returns the loaded category as an array.
 	 *
-	 * @param string $cat The category of the configuration values to load
+	 * @param string|null $cat The category of the configuration values to load
 	 *
-	 * @return array
+	 * @return array The config array
+	 *
+	 * @throws \Exception In case DB calls are invalid
 	 */
 	public function load(string $cat = null)
 	{
@@ -38,15 +43,17 @@ class Config extends DbaConfig
 	}
 
 	/**
-	 * Get a particular system-wide config variable given the category name
-	 * ($cat) and a key ($key).
+	 * Get a particular, system-wide config variable out of the DB with the
+	 * given category name ($cat) and a key ($key).
 	 *
 	 * Note: Boolean variables are defined as 0/1 in the database
 	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key The configuration key to query
 	 *
-	 * @return null|mixed Stored value or null if it does not exist
+	 * @return array|string|null Stored value or null if it does not exist
+	 *
+	 * @throws \Exception In case DB calls are invalid
 	 */
 	public function get(string $cat, string $key)
 	{
@@ -77,6 +84,8 @@ class Config extends DbaConfig
 	 * @param mixed  $value The value to store
 	 *
 	 * @return bool Operation success
+	 *
+	 * @throws \Exception In case DB calls are invalid
 	 */
 	public function set(string $cat, string $key, $value)
 	{
@@ -102,13 +111,14 @@ class Config extends DbaConfig
 	}
 
 	/**
-	 * Removes the configured value from the stored cache
-	 * and removes it from the database.
+	 * Removes the configured value from the database.
 	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key The configuration key to delete
 	 *
 	 * @return bool Operation success
+	 *
+	 * @throws \Exception In case DB calls are invalid
 	 */
 	public function delete(string $cat, string $key)
 	{

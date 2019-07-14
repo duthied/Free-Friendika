@@ -4,11 +4,18 @@ namespace Friendica\Model\Config;
 
 use Friendica\Database\Database;
 
+/**
+ * The DB-based model of (P-)Config values
+ * Encapsulates db-calls in case of config queries
+ */
 abstract class DbaConfig
 {
 	/** @var Database */
 	protected $dba;
 
+	/**
+	 * @param Database $dba The database connection of this model
+	 */
 	public function __construct(Database $dba)
 	{
 		$this->dba = $dba;

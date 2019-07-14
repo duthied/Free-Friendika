@@ -8,7 +8,6 @@ use Friendica\Factory;
 use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
 use Friendica\Util\Config;
-use Psr\Log\NullLogger;
 
 class DependencyFactory
 {
