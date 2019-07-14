@@ -5,10 +5,11 @@ namespace Friendica\Core\Config;
 use Friendica\Model;
 
 /**
- * This class is responsible for all system-wide configuration values in Friendica
- * There are two types of storage
- * - The Config-Files    (loaded into the FileCache @see Cache\ConfigCache )
- * - The Config-DB-Table (per Config-DB-model @see Model\Config\Config )
+ * This class implements the Just-In-Time configuration, which will cache
+ * config values in a cache, once they are retrieved.
+ *
+ * Default Configuration type.
+ * Provides the best performance for pages loading few configuration variables.
  */
 class JitConfiguration extends Configuration
 {
@@ -106,16 +107,7 @@ class JitConfiguration extends Configuration
 	}
 
 	/**
-	 * @brief Deletes the given key from the system configuration.
-	 *
-	 * Removes the configured value from the stored cache in $this->configCache
-	 * (@param string $cat The category of the configuration value
-	 *
-	 * @param string $key The configuration key to delete
-	 *
-	 * @return bool
-	 * @see   ConfigCache ) and removes it from the database (@see IConfigAdapter ).
-	 *
+	 * {@inheritDoc}
 	 */
 	public function delete(string $cat, string $key)
 	{

@@ -68,7 +68,7 @@ class ConfigCache
 	 *
 	 * @return null|mixed Returns the value of the Config entry or null if not set
 	 */
-	public function get(string $cat, string $key = null)
+	public function get(string $cat, $key = null)
 	{
 		if (isset($this->config[$cat][$key])) {
 			return $this->config[$cat][$key];

@@ -5,10 +5,10 @@ namespace Friendica\Core\Config;
 use Friendica\Model;
 
 /**
- * This class is responsible for all system-wide configuration values in Friendica
- * There are two types of storage
- * - The Config-Files    (loaded into the FileCache @see Cache\ConfigCache )
- * - The Config-DB-Table (per Config-DB-model @see Model\Config\Config )
+ * This class implements the preload Time configuration, which will cache
+ * all config values per call in a cache.
+ *
+ * Minimizes the number of database queries to retrieve configuration values at the cost of memory.
  */
 class PreloadConfiguration extends Configuration
 {
