@@ -25,7 +25,7 @@ class ConfigCache
 	 * @param array $config             A initial config array
 	 * @param bool  $hidePasswordOutput True, if cache variables should take extra care of password values
 	 */
-	public function __construct(array $config = [], $hidePasswordOutput = true)
+	public function __construct(array $config = [], bool $hidePasswordOutput = true)
 	{
 		$this->hidePasswordOutput = $hidePasswordOutput;
 		$this->load($config);
@@ -38,7 +38,7 @@ class ConfigCache
 	 * @param array $config
 	 * @param bool  $overwrite Force value overwrite if the config key already exists
 	 */
-	public function load(array $config, $overwrite = false)
+	public function load(array $config, bool $overwrite = false)
 	{
 		$categories = array_keys($config);
 
@@ -68,7 +68,7 @@ class ConfigCache
 	 *
 	 * @return null|mixed Returns the value of the Config entry or null if not set
 	 */
-	public function get($cat, $key = null)
+	public function get(string $cat, string $key = null)
 	{
 		if (isset($this->config[$cat][$key])) {
 			return $this->config[$cat][$key];
@@ -82,14 +82,14 @@ class ConfigCache
 	/**
 	 * Sets a default value in the config cache. Ignores already existing keys.
 	 *
-	 * @param string $cat Config category
-	 * @param string $k   Config key
-	 * @param mixed  $v   Default value to set
+	 * @param string $cat   Config category
+	 * @param string $key   Config key
+	 * @param mixed  $value Default value to set
 	 */
-	private function setDefault($cat, $k, $v)
+	private function setDefault(string $cat, string $key, $value)
 	{
-		if (!isset($this->config[$cat][$k])) {
-			$this->set($cat, $k, $v);
+		if (!isset($this->config[$cat][$key])) {
+			$this->set($cat, $key, $value);
 		}
 	}
 
@@ -102,7 +102,7 @@ class ConfigCache
 	 *
 	 * @return bool True, if the value is set
 	 */
-	public function set($cat, $key, $value)
+	public function set(string $cat, string $key, $value)
 	{
 		if (!isset($this->config[$cat])) {
 			$this->config[$cat] = [];
@@ -111,7 +111,7 @@ class ConfigCache
 		if ($this->hidePasswordOutput &&
 		    $key == 'password' &&
 		    is_string($value)) {
-			$this->config[$cat][$key] = new HiddenString((string) $value);
+			$this->config[$cat][$key] = new HiddenString((string)$value);
 		} else {
 			$this->config[$cat][$key] = $value;
 		}
@@ -126,7 +126,7 @@ class ConfigCache
 	 *
 	 * @return bool true, if deleted
 	 */
-	public function delete($cat, $key)
+	public function delete(string $cat, string $key)
 	{
 		if (isset($this->config[$cat][$key])) {
 			unset($this->config[$cat][$key]);
