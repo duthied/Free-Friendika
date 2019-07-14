@@ -113,7 +113,7 @@ class PConfigCacheTest extends MockedTest
 	 */
 	public function testKeyDiffWithResult($data)
 	{
-		$configCache = new PConfigCache($data);
+		$configCache = new PConfigCache();
 
 		$diffConfig = [
 			'fakeCat' => [
