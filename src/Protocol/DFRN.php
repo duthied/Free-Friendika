@@ -1693,13 +1693,12 @@ class DFRN
 				'location' => $contact['location'], 'addr' => $contact['addr'], 'keywords' => $contact['keywords'],
 				'bdyear' => $contact['bdyear'], 'bd' => $contact['bd'], 'hidden' => $contact['hidden'],
 				'xmpp' => $contact['xmpp'], 'name-date' => DateTimeFormat::utc($contact['name-date']),
-				'uri-date' => DateTimeFormat::utc($contact['uri-date'])];
+				'unsearchable' => $contact['hidden'], 'uri-date' => DateTimeFormat::utc($contact['uri-date'])];
 
 			DBA::update('contact', $fields, ['id' => $contact['id'], 'network' => $contact['network']], $contact_old);
 
 			// Update the public contact. Don't set the "hidden" value, this is used differently for public contacts
 			unset($fields['hidden']);
-			$fields['unsearchable'] = $hide;
 			$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($contact_old['url'])];
 			DBA::update('contact', $fields, $condition, true);
 

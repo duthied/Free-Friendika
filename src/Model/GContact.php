@@ -924,7 +924,7 @@ class GContact
 		}
 
 		// These fields are having different names but the same content
-		$gcontact['server_url'] = $contact['baseurl'];
+		$gcontact['server_url'] = $contact['baseurl'] ?? ''; // "baseurl" can be null, "server_url" not
 		$gcontact['nsfw'] = $contact['sensitive'];
 		$gcontact['hide'] = $contact['unsearchable'];
 		$gcontact['archived'] = $contact['archive'];

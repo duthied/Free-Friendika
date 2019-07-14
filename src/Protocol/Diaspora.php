@@ -180,22 +180,28 @@ class Diaspora
 	public static function setRelayContact($server_url, array $network_fields = [])
 	{
 		$fields = ['created' => DateTimeFormat::utcNow(),
-			'name' => 'relay', 'nick' => 'relay',
-			'url' => $server_url, 'network' => Protocol::DIASPORA,
+			'name' => 'relay', 'nick' => 'relay', 'url' => $server_url,
+			'nurl' => Strings::normaliseLink($server_url),
+			'network' => Protocol::DIASPORA, 'uid' => 0,
 			'batch' => $server_url . '/receive/public',
 			'rel' => Contact::FOLLOWER, 'blocked' => false,
-			'pending' => false, 'writable' => true];
+			'pending' => false, 'writable' => true,
+			'baseurl' => $server_url, 'contact-type' => Contact::TYPE_RELAY];
 
 		$fields = array_merge($fields, $network_fields);
 
-		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
-			'contact-type' => Contact::TYPE_RELAY];
-
-		if (DBA::exists('contact', $condition)) {
+		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url)];
+		$old = DBA::selectFirst('contact', [], $condition);
+		if (DBA::isResult($old)) {
 			unset($fields['created']);
-		}
+			$condition = ['id' => $old['id']];
 
-		DBA::update('contact', $fields, $condition, true);
+			Logger::info('Update relay contact', ['fields' => $fields, 'condition' => $condition]);
+			DBA::update('contact', $fields, $condition, $old);
+		} else {
+			Logger::info('Create relay contact', ['fields' => $fields]);
+			DBA::insert('contact', $fields);
+		}
 	}
 
 	/**
@@ -2266,6 +2272,8 @@ class Diaspora
 		}
 
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
+
+		// @todo Update the public contact, then update the gcontact from that
 
 		$gcontact = ["url" => $contact["url"], "network" => Protocol::DIASPORA, "generation" => 2,
 					"photo" => $image_url, "name" => $name, "location" => $location,

@@ -1307,11 +1307,13 @@ class Contact extends BaseObject
 
 		/// @todo Verify if we can't use Contact::getDetailsByUrl instead of the following
 		// We first try the nurl (http://server.tld/nick), most common case
-		$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false]);
+		$fields = ['id', 'avatar', 'updated', 'network'];
+		$options = ['order' => ['id']];
+		$contact = DBA::selectFirst('contact', $fields, ['nurl' => Strings::normaliseLink($url), 'uid' => $uid, 'deleted' => false], $options);
 
 		// Then the addr (nick@server.tld)
 		if (!DBA::isResult($contact)) {
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], ['addr' => $url, 'uid' => $uid, 'deleted' => false]);
+			$contact = DBA::selectFirst('contact', $fields, ['addr' => str_replace('acct:', '', $url), 'uid' => $uid, 'deleted' => false], $options);
 		}
 
 		// Then the alias (which could be anything)
@@ -1319,7 +1321,7 @@ class Contact extends BaseObject
 			// The link could be provided as http although we stored it as https
 			$ssl_url = str_replace('http://', 'https://', $url);
 			$condition = ['`alias` IN (?, ?, ?) AND `uid` = ? AND NOT `deleted`', $url, Strings::normaliseLink($url), $ssl_url, $uid];
-			$contact = DBA::selectFirst('contact', ['id', 'avatar', 'updated', 'network'], $condition);
+			$contact = DBA::selectFirst('contact', $fields, $condition, $options);
 		}
 
 		if (DBA::isResult($contact)) {
@@ -1416,115 +1418,74 @@ class Contact extends BaseObject
 
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
 
-			DBA::update('contact', $fields, $condition, true);
+			// Before inserting we do check if the entry does exist now.
+			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+			if (!DBA::isResult($contact)) {
+				Logger::info('Create new contact', $fields);
 
-			$s = DBA::select('contact', ['id'], $condition, ['order' => ['id'], 'limit' => 2]);
-			$contacts = DBA::toArray($s);
-			if (!DBA::isResult($contacts)) {
-				return 0;
-			}
+				DBA::insert('contact', $fields);
 
-			$contact_id = $contacts[0]["id"];
-
-			// Update in the background when we fetched the data solely from the database
-			if ($background_update) {
-				Worker::add(PRIORITY_LOW, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
-			}
-
-			// Update the newly created contact from data in the gcontact table
-			$gcontact = DBA::selectFirst('gcontact', ['location', 'about', 'keywords', 'gender'], ['nurl' => Strings::normaliseLink($data["url"])]);
-			if (DBA::isResult($gcontact)) {
-				// Only use the information when the probing hadn't fetched these values
-				if (!empty($data['keywords'])) {
-					unset($gcontact['keywords']);
+				// We intentionally aren't using lastInsertId here. There is a chance for duplicates.
+				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+				if (!DBA::isResult($contact)) {
+					Logger::info('Contact creation failed', $fields);
+					// Shouldn't happen
+					return 0;
 				}
-				if (!empty($data['location'])) {
-					unset($gcontact['location']);
-				}
-				if (!empty($data['about'])) {
-					unset($gcontact['about']);
-				}
-				DBA::update('contact', $gcontact, ['id' => $contact_id]);
+			} else {
+				Logger::info('Contact had been created before', ['id' => $contact["id"], 'url' => $url, 'contact' => $fields]);
 			}
 
-			if (count($contacts) > 1 && $uid == 0 && $contact_id != 0 && $data["url"] != "") {
-				$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self`",
-					Strings::normaliseLink($data["url"]), 0, $contact_id];
-				Logger::log('Deleting duplicate contact ' . json_encode($condition), Logger::DEBUG);
-				DBA::delete('contact', $condition);
-			}
+			$contact_id = $contact["id"];
 		}
 
 		if (!empty($data['photo']) && ($data['network'] != Protocol::FEED)) {
 			self::updateAvatar($data['photo'], $uid, $contact_id);
 		}
 
-		$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'pubkey', 'baseurl'];
-		$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
+		if (in_array($data["network"], array_merge(Protocol::NATIVE_SUPPORT, [Protocol::PUMPIO]))) {
+			if ($background_update) {
+				// Update in the background when we fetched the data solely from the database
+				Worker::add(PRIORITY_MEDIUM, "UpdateContact", $contact_id, ($uid == 0 ? 'force' : ''));
+			} else {
+				// Else do a direct update
+				self::updateFromProbe($contact_id, '', false);
 
-		// This condition should always be true
-		if (!DBA::isResult($contact)) {
-			return $contact_id;
-		}
+				// Update the gcontact entry
+				if ($uid == 0) {
+					GContact::updateFromPublicContactID($contact_id);
+				}
+			}
+		} else {
+			$fields = ['url', 'nurl', 'addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'avatar-date', 'baseurl'];
+			$contact = DBA::selectFirst('contact', $fields, ['id' => $contact_id]);
 
-		$updated = [
-			'addr' => $data['addr'] ?? '',
-			'alias' => defaults($data, 'alias', ''),
-			'url' => $data['url'],
-			'nurl' => Strings::normaliseLink($data['url']),
-			'name' => $data['name'],
-			'nick' => $data['nick']
-		];
+			// This condition should always be true
+			if (!DBA::isResult($contact)) {
+				return $contact_id;
+			}
 
-		if (!empty($data['baseurl'])) {
-			$updated['baseurl'] = $data['baseurl'];
-		}
-		if (!empty($data['keywords'])) {
-			$updated['keywords'] = $data['keywords'];
-		}
-		if (!empty($data['location'])) {
-			$updated['location'] = $data['location'];
-		}
+			$updated = [
+				'url' => $data['url'],
+				'nurl' => Strings::normaliseLink($data['url']),
+				'updated' => DateTimeFormat::utcNow()
+			];
 
-		// Update the technical stuff as well - if filled
-		if (!empty($data['notify'])) {
-			$updated['notify'] = $data['notify'];
-		}
-		if (!empty($data['poll'])) {
-			$updated['poll'] = $data['poll'];
-		}
-		if (!empty($data['batch'])) {
-			$updated['batch'] = $data['batch'];
-		}
-		if (!empty($data['request'])) {
-			$updated['request'] = $data['request'];
-		}
-		if (!empty($data['confirm'])) {
-			$updated['confirm'] = $data['confirm'];
-		}
-		if (!empty($data['poco'])) {
-			$updated['poco'] = $data['poco'];
-		}
+			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl'];
 
-		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
-		if (empty($contact['pubkey']) && !empty($data['pubkey'])) {
-			$updated['pubkey'] = $data['pubkey'];
-		}
+			foreach ($fields as $field) {
+				$updated[$field] = defaults($data, $field, $contact[$field]);
+			}
 
-		if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
-			$updated['uri-date'] = DateTimeFormat::utcNow();
-		}
-		if (($data["name"] != $contact["name"]) || ($data["nick"] != $contact["nick"])) {
-			$updated['name-date'] = DateTimeFormat::utcNow();
-		}
+			if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
+				$updated['uri-date'] = DateTimeFormat::utcNow();
+			}
 
-		$updated['updated'] = DateTimeFormat::utcNow();
+			if (($data['name'] != $contact['name']) || ($data['nick'] != $contact['nick'])) {
+				$updated['name-date'] = DateTimeFormat::utcNow();
+			}
 
-		DBA::update('contact', $updated, ['id' => $contact_id], $contact);
-
-		if (!$background_update && ($uid == 0)) {
-			// Update the gcontact entry
-			GContact::updateFromPublicContactID($contact_id);
+			DBA::update('contact', $updated, ['id' => $contact_id], $contact);
 		}
 
 		return $contact_id;
@@ -1777,7 +1738,8 @@ class Contact extends BaseObject
 	{
 		DBA::update('contact', $fields, ['id' => $id]);
 
-		if ($uid != 0) {
+		// Search for duplicated contacts and get rid of them
+		if (self::handleDuplicates(Strings::normaliseLink($url), $uid, $id) || ($uid != 0)) {
 			return;
 		}
 
@@ -1813,6 +1775,56 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, $condition);
 	}
 
+        /**
+	 * @brief Helper function for "updateFromProbe". Remove duplicated contacts
+	 *
+	 * @param string  $nurl  Normalised contact url
+	 * @param integer $uid   User id
+	 * @param integer $id    Contact id of a duplicate
+	 * @return boolean
+	 * @throws \Exception
+	 */
+	private static function handleDuplicates($nurl, $uid, $id)
+	{
+		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false];
+		$count = DBA::count('contact', $condition);
+		if ($count <= 1) {
+			return false;
+		}
+
+		$first_contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+		if (!DBA::isResult($first_contact)) {
+			// Shouldn't happen - so we handle it
+			return false;
+		}
+
+		$first = $first_contact['id'];
+		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
+		if ($uid != 0) {
+			// Don't handle non public duplicates by now
+			Logger::info('Not handling non public duplicate', ['uid' => $uid, 'nurl' => $nurl]);
+			return false;
+		}
+
+		// Find all duplicates
+		$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self` AND NOT `deleted`", $nurl, $uid, $first];
+		$duplicates = DBA::select('contact', ['id'], $condition);
+		while ($duplicate = DBA::fetch($duplicates)) {
+			$dup_id = $duplicate['id'];
+			Logger::info('Handling duplicate', ['search' => $dup_id, 'replace' => $first]);
+
+			// Search and replace
+			DBA::update('item', ['author-id' => $first], ['author-id' => $dup_id]);
+			DBA::update('item', ['owner-id' => $first], ['owner-id' => $dup_id]);
+			DBA::update('item', ['contact-id' => $first], ['contact-id' => $dup_id]);
+
+			// Remove the duplicate
+			DBA::delete('contact', ['id' => $dup_id]);
+		}
+		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl]);
+		return true;
+	}
+
 	/**
 	 * @param integer $id      contact id
 	 * @param string  $network Optional network we are probing for
@@ -1829,11 +1841,11 @@ class Contact extends BaseObject
 		 */
 
 		// These fields aren't updated by this routine:
-		// 'location', 'about', 'keywords', 'gender', 'xmpp', 'unsearchable', 'sensitive'];
+		// 'xmpp', 'sensitive'
 
-		$fields = ['avatar', 'uid', 'name', 'nick', 'url', 'addr', 'batch', 'notify',
-			'poll', 'request', 'confirm', 'poco', 'network', 'alias', 'baseurl',
-			'forum', 'prv', 'contact-type'];
+		$fields = ['uid', 'avatar', 'name', 'nick', 'location', 'keywords', 'about', 'gender',
+			'unsearchable', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco',
+			'network', 'alias', 'baseurl', 'forum', 'prv', 'contact-type', 'pubkey'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $id]);
 		if (!DBA::isResult($contact)) {
 			return false;
@@ -1842,12 +1854,24 @@ class Contact extends BaseObject
 		$uid = $contact['uid'];
 		unset($contact['uid']);
 
+		$pubkey = $contact['pubkey'];
+		unset($contact['pubkey']);
+
 		$contact['photo'] = $contact['avatar'];
 		unset($contact['avatar']);
 
 		$ret = Probe::uri($contact['url'], $network, $uid, !$force);
 
 		$updated = DateTimeFormat::utcNow();
+
+		// We must not try to update relay contacts via probe. They are no real contacts.
+		// We check after the probing to be able to correct falsely detected contact types.
+		if (($contact['contact-type'] == self::TYPE_RELAY) &&
+			(!Strings::compareLink($ret['url'], $contact['url']) || in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]))) {
+			self::updateContact($id, $uid, $contact['url'], ['last-update' => $updated, 'success_update' => $updated]);
+			Logger::info('Not updating relais', ['id' => $id, 'url' => $contact['url']]);
+			return true;
+		}
 
 		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
 		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT) ||
@@ -1858,7 +1882,11 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		if (isset($ret['account-type'])) {
+		if (isset($ret['hide']) && is_bool($ret['hide'])) {
+			$ret['unsearchable'] = $ret['hide'];
+		}
+
+		if (isset($ret['account-type']) && is_int($ret['account-type'])) {
 			$ret['forum'] = false;
 			$ret['prv'] = false;
 			$ret['contact-type'] = $ret['account-type'];
@@ -1871,13 +1899,16 @@ class Contact extends BaseObject
 			}
 		}
 
+		$new_pubkey = $ret['pubkey'];
+
 		$update = false;
 
-		// make sure to not overwrite existing values with blank entries
+		// make sure to not overwrite existing values with blank entries except some technical fields
+		$keep = ['batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'baseurl'];
 		foreach ($ret as $key => $val) {
 			if (!array_key_exists($key, $contact)) {
 				unset($ret[$key]);
-			} elseif (($contact[$key] != '') && ($val == '') && !is_bool($ret[$key])) {
+			} elseif (($contact[$key] != '') && ($val === '') && !is_bool($ret[$key]) && !in_array($key, $keep)) {
 				$ret[$key] = $contact[$key];
 			} elseif ($ret[$key] != $contact[$key]) {
 				$update = true;
@@ -1898,6 +1929,19 @@ class Contact extends BaseObject
 		$ret['nurl'] = Strings::normaliseLink($ret['url']);
 		$ret['updated'] = $updated;
 
+		// Only fill the pubkey if it had been empty before. We have to prevent identity theft.
+		if (empty($pubkey) && !empty($new_pubkey)) {
+			$ret['pubkey'] = $new_pubkey;
+		}
+
+		if (($ret['addr'] != $contact['addr']) || (!empty($ret['alias']) && ($ret['alias'] != $contact['alias']))) {
+			$ret['uri-date'] = DateTimeFormat::utcNow();
+		}
+
+		if (($ret['name'] != $contact['name']) || ($ret['nick'] != $contact['nick'])) {
+			$ret['name-date'] = $updated;
+		}
+
 		if ($force && ($uid == 0)) {
 			$ret['last-update'] = $updated;
 			$ret['success_update'] = $updated;
@@ -1915,10 +1959,12 @@ class Contact extends BaseObject
 		$id = self::getIdForURL($url);
 
 		if (empty($id)) {
-			return;
+			return $id;
 		}
 
 		self::updateFromProbe($id, '', $force);
+
+		return $id;
 	}
 
 	/**

@@ -45,8 +45,8 @@ class Probe
 	 */
 	private static function rearrangeData($data)
 	{
-		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo",
-				"account-type", "community", "keywords", "location", "about",
+		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "account-type",
+				"community", "keywords", "location", "about", "gender", "hide",
 				"batch", "notify", "poll", "request", "confirm", "poco",
 				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "baseurl"];
@@ -348,9 +348,10 @@ class Probe
 		if (!self::$istimeout) {
 			$ap_profile = ActivityPub::probeProfile($uri);
 
-			if (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN)) {
+			if (empty($data) || (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN))) {
 				$data = $ap_profile;
 			} elseif (!empty($ap_profile)) {
+				$ap_profile['batch'] = '';
 				$data = array_merge($ap_profile, $data);
 			}
 		} else {
@@ -739,7 +740,7 @@ class Probe
 		}
 
 		if (!empty($json["tags"])) {
-			$keywords = implode(" ", $json["tags"]);
+			$keywords = implode(", ", $json["tags"]);
 			if ($keywords != "") {
 				$data["keywords"] = $keywords;
 			}
@@ -752,6 +753,10 @@ class Probe
 
 		if (!empty($json["about"])) {
 			$data["about"] = $json["about"];
+		}
+
+		if (!empty($json["gender"])) {
+			$data["gender"] = $json["gender"];
 		}
 
 		if (!empty($json["key"])) {
@@ -776,6 +781,12 @@ class Probe
 
 		if (!empty($json["dfrn-poll"])) {
 			$data["poll"] = $json["dfrn-poll"];
+		}
+
+		if (isset($json["hide"])) {
+			$data["hide"] = (bool)$json["hide"];
+		} else {
+			$data["hide"] = false;
 		}
 
 		return $data;
