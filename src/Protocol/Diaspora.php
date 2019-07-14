@@ -191,15 +191,17 @@ class Diaspora
 		$fields = array_merge($fields, $network_fields);
 
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url)];
-		$relay = DBA::selectFirst('contact', ['id'], $condition);
-		if (DBA::isResult($relay)) {
+		$old = DBA::selectFirst('contact', [], $condition);
+		if (DBA::isResult($old)) {
 			unset($fields['created']);
-			$condition = ['id' => $relay['id']];
+			$condition = ['id' => $old['id']];
+
+			Logger::info('Update relay contact', ['fields' => $fields, 'condition' => $condition]);
+			DBA::update('contact', $fields, $condition, $old);
+		} else {
+			Logger::info('Create relay contact', ['fields' => $fields]);
+			DBA::insert('contact', $fields);
 		}
-
-		Logger::info('Set relay contact', ['fields' => $fields, 'condition' => $condition]);
-
-		DBA::update('contact', $fields, $condition, true);
 	}
 
 	/**

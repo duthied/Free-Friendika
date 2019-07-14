@@ -1418,13 +1418,22 @@ class Contact extends BaseObject
 
 			$condition = ['nurl' => Strings::normaliseLink($data["url"]), 'uid' => $uid, 'deleted' => false];
 
-			// This does an insert but should most likely prevent duplicates
-			DBA::update('contact', $fields, $condition, true);
-
+			// Before inserting we do check if the entry does exist now.
 			$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
 			if (!DBA::isResult($contact)) {
-				// Shouldn't happen
-				return 0;
+				Logger::info('Create new contact', $fields);
+
+				DBA::insert('contact', $fields);
+
+				// We intentionally aren't using lastInsertId here. There is a chance for duplicates.
+				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+				if (!DBA::isResult($contact)) {
+					Logger::info('Contact creation failed', $fields);
+					// Shouldn't happen
+					return 0;
+				}
+			} else {
+				Logger::info('Contact had been created before', ['id' => $contact["id"], 'url' => $url, 'contact' => $fields]);
 			}
 
 			$contact_id = $contact["id"];
