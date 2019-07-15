@@ -32,10 +32,10 @@ class JitPConfiguration extends PConfiguration
 	 * {@inheritDoc}
 	 *
 	 */
-	public function load(int $uid, string $cat = 'config')
+	public function load($uid, string $cat = 'config')
 	{
-		// If not connected, do nothing
-		if (!$this->configModel->isConnected()) {
+		// If not connected or no uid, do nothing
+		if (!is_int($uid) || !$this->configModel->isConnected()) {
 			return;
 		}
 
@@ -54,8 +54,12 @@ class JitPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(int $uid, string $cat, string $key, $default_value = null, bool $refresh = false)
+	public function get($uid, string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
+		if (!is_int($uid)) {
+			return $default_value;
+		}
+
 		// if the value isn't loaded or refresh is needed, load it to the cache
 		if ($this->configModel->isConnected() &&
 		    (empty($this->db_loaded[$uid][$cat][$key]) ||
@@ -80,8 +84,12 @@ class JitPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set(int $uid, string $cat, string $key, $value)
+	public function set($uid, string $cat, string $key, $value)
 	{
+		if (!is_int($uid)) {
+			return false;
+		}
+
 		// set the cache first
 		$cached = $this->configCache->set($uid, $cat, $key, $value);
 
@@ -100,8 +108,12 @@ class JitPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete(int $uid, string $cat, string $key)
+	public function delete($uid, string $cat, string $key)
 	{
+		if (!is_int($uid)) {
+			return false;
+		}
+
 		$cacheRemoved = $this->configCache->delete($uid, $cat, $key);
 
 		if (isset($this->db_loaded[$uid][$cat][$key])) {

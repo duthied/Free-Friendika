@@ -31,10 +31,10 @@ class PreloadPConfiguration extends PConfiguration
 	 * This loads all config values everytime load is called
 	 *
 	 */
-	public function load(int $uid, string $cat = 'config')
+	public function load($uid, string $cat = 'config')
 	{
-		// Don't load the whole configuration twice
-		if (!empty($this->config_loaded[$uid])) {
+		// Don't load the whole configuration twice or with invalid uid
+		if (!is_int($uid) || !empty($this->config_loaded[$uid])) {
 			return;
 		}
 
@@ -53,8 +53,12 @@ class PreloadPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get(int $uid, string $cat, string $key, $default_value = null, bool $refresh = false)
+	public function get($uid, string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
+		if (!is_int($uid)) {
+			return $default_value;
+		}
+
 		if (empty($this->config_loaded[$uid])) {
 			$this->load($uid);
 		} elseif ($refresh) {
@@ -75,8 +79,12 @@ class PreloadPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set(int $uid, string $cat, string $key, $value)
+	public function set($uid, string $cat, string $key, $value)
 	{
+		if (!is_int($uid)) {
+			return false;
+		}
+
 		if (empty($this->config_loaded[$uid])) {
 			$this->load($uid);
 		}
@@ -97,8 +105,12 @@ class PreloadPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete(int $uid, string $cat, string $key)
+	public function delete($uid, string $cat, string $key)
 	{
+		if (!is_int($uid)) {
+			return false;
+		}
+
 		if (empty($this->config_loaded[$uid])) {
 			$this->load($uid);
 		}

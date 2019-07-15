@@ -34,7 +34,7 @@ class PConfigCache
 	 * @param int   $uid
 	 * @param array $config
 	 */
-	public function load(int $uid, array $config)
+	public function load($uid, array $config)
 	{
 		$categories = array_keys($config);
 
@@ -62,7 +62,7 @@ class PConfigCache
 	 *
 	 * @return null|string The value of the config entry or null if not set
 	 */
-	public function get(int $uid, string $cat, string $key = null)
+	public function get($uid, string $cat, string $key = null)
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			return $this->config[$uid][$cat][$key];
@@ -85,7 +85,7 @@ class PConfigCache
 	 *
 	 * @return bool Set successful
 	 */
-	public function set(int $uid, string $cat, string $key, $value)
+	public function set($uid, string $cat, string $key, $value)
 	{
 		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
 			$this->config[$uid] = [];
@@ -116,7 +116,7 @@ class PConfigCache
 	 *
 	 * @return bool true, if deleted
 	 */
-	public function delete(int $uid, string $cat, string $key)
+	public function delete($uid, string $cat, string $key)
 	{
 		if (isset($this->config[$uid][$cat][$key])) {
 			unset($this->config[$uid][$cat][$key]);

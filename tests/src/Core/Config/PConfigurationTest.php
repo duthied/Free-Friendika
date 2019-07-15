@@ -452,4 +452,22 @@ abstract class PConfigurationTest extends MockedTest
 		$this->assertConfig($data2['uid'], 'cat1', $data2['data']['cat1']);
 		$this->assertConfig($data2['uid'], 'cat2', $data2['data']['cat2']);
 	}
+
+	/**
+	 * Test when using an invalid UID
+	 * @todo check it the clean way before using the config class
+	 */
+	public function testInvalidUid()
+	{
+		// bad UID!
+		$uid = null;
+
+		$this->testedConfig = $this->getInstance();
+
+		$this->assertNull($this->testedConfig->get($uid, 'cat1', 'cat2'));
+		$this->assertEquals('fallback!', $this->testedConfig->get($uid, 'cat1', 'cat2', 'fallback!'));
+
+		$this->assertFalse($this->testedConfig->set($uid, 'cat1', 'key1', 'doesn\'t matter!'));
+		$this->assertFalse($this->testedConfig->delete($uid, 'cat1', 'key1'));
+	}
 }
