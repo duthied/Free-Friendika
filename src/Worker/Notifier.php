@@ -557,7 +557,7 @@ class Notifier
 			return false;
 		}
 
-		// Skip DFRN when the will be (forcefully) delivered via AP
+		// Skip DFRN when the item will be (forcefully) delivered via AP
 		if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
 			return true;
 		}
