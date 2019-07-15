@@ -45,6 +45,14 @@
 				e.stopPropagation()
 			}
 		});
+		// Accessibility: enable space and enter to open a panel when focused
+		$('body').on('keyup', '[data-toggle="collapse"]:focus', function (e) {
+			if (e.key === ' ' || e.key === 'Enter') {
+				$(this).click();
+				e.preventDefault();
+				e.stopPropagation();
+			}
+		});
 
 		$('#visibility-public-panel').on('show.bs.collapse', function() {
 			$('#visibility-public').prop('checked', true);
