@@ -386,15 +386,14 @@ class Receiver
 			case 'as:Announce':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$profile = APContact::getByURL($object_data['actor']);
-					if ($profile['type'] == 'Person') {
-						// Reshared posts from persons appear as summary at the bottom
-						// If this isn't set, then a single reshare appears on top. This is used for groups.
-						$object_data['thread-completion'] = true;
-					}
+					// Reshared posts from persons appear as summary at the bottom
+					// If this isn't set, then a single reshare appears on top. This is used for groups.
+					$object_data['thread-completion'] = ($profile['type'] != 'Group');
+
 					ActivityPub\Processor::createItem($object_data);
 
 					// Add the bottom reshare information only for persons
-					if ($profile['type'] == 'Person') {
+					if ($profile['type'] != 'Group') {
 						$announce_object_data = self::processObject($activity);
 						$announce_object_data['name'] = $type;
 						$announce_object_data['author'] = JsonLD::fetchElement($activity, 'as:actor', '@id');
