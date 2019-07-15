@@ -425,14 +425,8 @@ class Notifier
 						continue;
 					}
 
-					if (in_array($rr['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($rr['protocol'] == Protocol::ACTIVITYPUB) &&
-						!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
-						Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $rr['url']]);
-						continue;
-					}
-
-					if (Config::get('debug', 'total_ap_delivery') && !empty($rr['url']) && ($rr['network'] == Protocol::DFRN) && !empty(APContact::getByURL($rr['url'], false))) {
-						Logger::log('Skipping contact ' . $rr['url'] . ' since it will be delivered via AP', Logger::DEBUG);
+					if (self::skipDFRN($rr, $target_item, $cmd)) {
+						Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN', ['url' => $rr['url']]);
 						continue;
 					}
 
@@ -465,14 +459,8 @@ class Notifier
 				continue;
 			}
 
-			if (in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($contact['protocol'] == Protocol::ACTIVITYPUB) &&
-				!in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
-				Logger::info('Contact is Friendica AP, so skipping delivery via legacy DFRN', ['url' => $contact['url']]);
-				continue;
-			}
-
-			if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
-				Logger::log('Skipping contact ' . $contact['url'] . ' since it will be delivered via AP', Logger::DEBUG);
+			if (self::skipDFRN($contact, $target_item, $cmd)) {
+				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN', ['url' => $contact['url']]);
 				continue;
 			}
 
@@ -545,6 +533,37 @@ class Notifier
 		}
 
 		return;
+	}
+
+	/**
+	 * Checks if the current delivery process needs to be transported via DFRN.
+	 *
+	 * @param array  $contact Receiver of the post
+	 * @param array  $item    The post
+	 * @param string $cmd     Notifier command
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function skipDFRN($contact, $item, $cmd)
+	{
+		// Don't skip when author or owner don't have AP profiles
+		if (empty(APContact::getByURL($item['author-link'], false)) || empty(APContact::getByURL($item['owner-link'], false))) {
+			return false;
+		}
+
+		// Don't skip DFRN delivery for these commands
+		if (in_array($cmd, [Delivery::SUGGESTION, Delivery::REMOVAL, Delivery::RELOCATION, Delivery::POKE])) {
+			return false;
+		}
+
+		// Skip DFRN when the will be (forcefully) delivered via AP
+		if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
+			return true;
+		}
+
+		// Skip DFRN delivery if the contact speaks ActivityPub
+		return in_array($contact['network'], [Protocol::DFRN, Protocol::DIASPORA]) && ($contact['protocol'] == Protocol::ACTIVITYPUB);
 	}
 
 	/**
