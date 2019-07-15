@@ -25,7 +25,7 @@ class PConfig extends DbaConfig
 		if (empty($cat)) {
 			$configs = $this->dba->select('pconfig', ['cat', 'v', 'k'], ['uid' => $uid]);
 		} else {
-			$configs = $this->dba->select('üconfig', ['cat', 'v', 'k'], ['cat' => $cat, 'uid' => $uid]);
+			$configs = $this->dba->select('pconfig', ['cat', 'v', 'k'], ['cat' => $cat, 'uid' => $uid]);
 		}
 
 		while ($config = $this->dba->fetch($configs)) {
