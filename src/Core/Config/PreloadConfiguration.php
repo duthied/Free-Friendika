@@ -5,7 +5,7 @@ namespace Friendica\Core\Config;
 use Friendica\Model;
 
 /**
- * This class implements the preload Time configuration, which will cache
+ * This class implements the preload configuration, which will cache
  * all config values per call in a cache.
  *
  * Minimizes the number of database queries to retrieve configuration values at the cost of memory.

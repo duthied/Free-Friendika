@@ -29,7 +29,6 @@ class PConfig extends DbaConfig
 		}
 
 		while ($config = $this->dba->fetch($configs)) {
-
 			$key   = $config['k'];
 			$value = $this->toConfigValue($config['v']);
 
