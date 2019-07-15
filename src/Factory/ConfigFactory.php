@@ -4,9 +4,9 @@ namespace Friendica\Factory;
 
 use Friendica\Core;
 use Friendica\Core\Config;
-use Friendica\Core\Config\Adapter;
 use Friendica\Core\Config\Cache;
 use Friendica\Model\Config\Config as ConfigModel;
+use Friendica\Model\Config\PConfig as PConfigModel;
 use Friendica\Util\Config\ConfigFileLoader;
 
 class ConfigFactory
@@ -48,19 +48,17 @@ class ConfigFactory
 	/**
 	 * @param Cache\ConfigCache $configCache The config cache
 	 * @param Cache\PConfigCache  $pConfigCache The personal config cache
-	 * @param int                $uid         The UID of the current user
+	 * @param PConfigModel $configModel The configuration model
 	 *
 	 * @return Config\PConfiguration
 	 */
-	public static function createPConfig(Cache\ConfigCache $configCache, Cache\PConfigCache $pConfigCache, $uid = null)
+	public static function createPConfig(Cache\ConfigCache $configCache, Cache\PConfigCache $pConfigCache, PConfigModel $configModel)
 	{
 		if ($configCache->get('system', 'config_adapter') === 'preload') {
-			$configAdapter = new Adapter\PreloadPConfigAdapter($uid);
+			$configuration = new Config\PreloadPConfiguration($pConfigCache, $configModel);
 		} else {
-			$configAdapter = new Adapter\JITPConfigAdapter();
+			$configuration = new Config\JitPConfiguration($pConfigCache, $configModel);
 		}
-
-		$configuration = new Config\PConfiguration($pConfigCache, $configAdapter);
 
 		// Set the config in the static container for legacy usage
 		Core\PConfig::init($configuration);

@@ -3,6 +3,7 @@ namespace Friendica\Test\src\Database;
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Config\Cache\PConfigCache;
 use Friendica\Database\DBA;
 use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
@@ -14,7 +15,8 @@ class DBATest extends DatabaseTest
 	{
 		$configModel = new \Friendica\Model\Config\Config(self::$dba);
 		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
-		Factory\ConfigFactory::createPConfig(self::$configCache, new Config\Cache\PConfigCache());
+		$pconfigModel = new \Friendica\Model\Config\PConfig(self::$dba);
+		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();

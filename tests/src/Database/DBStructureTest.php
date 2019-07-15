@@ -19,7 +19,8 @@ class DBStructureTest extends DatabaseTest
 	{
 		$configModel = new Config(self::$dba);
 		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
-		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache());
+		$pconfigModel = new \Friendica\Model\Config\PConfig(self::$dba);
+		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();

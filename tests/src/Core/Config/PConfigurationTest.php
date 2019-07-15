@@ -2,110 +2,294 @@
 
 namespace Friendica\Test\src\Core\Config;
 
-use Friendica\Core\Config\Adapter\IPConfigAdapter;
 use Friendica\Core\Config\Cache\PConfigCache;
 use Friendica\Core\Config\PConfiguration;
+use Friendica\Model\Config\PConfig as PConfigModel;
 use Friendica\Test\MockedTest;
+use Mockery;
+use Mockery\MockInterface;
 
-class PConfigurationTest extends MockedTest
+abstract class PConfigurationTest extends MockedTest
 {
+	/** @var PConfigModel|MockInterface */
+	protected $configModel;
+
+	/** @var PConfigCache */
+	protected $configCache;
+
+	/** @var PConfiguration */
+	protected $testedConfig;
+
+	/**
+	 * Assert a config tree
+	 *
+	 * @param int    $uid  The uid to assert
+	 * @param string $cat  The category to assert
+	 * @param array  $data The result data array
+	 */
+	protected function assertConfig(int $uid, string $cat, array $data)
+	{
+		$result = $this->testedConfig->getCache()->getAll();
+
+		$this->assertNotEmpty($result);
+		$this->assertArrayHasKey($uid, $result);
+		$this->assertArrayHasKey($cat, $result[$uid]);
+		$this->assertArraySubset($data, $result[$uid][$cat]);
+	}
+
+
+	protected function setUp()
+	{
+		parent::setUp();
+
+		// Create the config model
+		$this->configModel = Mockery::mock(PConfigModel::class);
+		$this->configCache = new PConfigCache();
+	}
+
+	/**
+	 * @return PConfiguration
+	 */
+	public abstract function getInstance();
+
 	public function dataTests()
 	{
 		return [
-			'string'       => ['data' => 'it'],
-			'boolTrue'     => ['data' => true],
-			'boolFalse'    => ['data' => false],
-			'integer'      => ['data' => 235],
-			'decimal'      => ['data' => 2.456],
-			'array'        => ['data' => ['1', 2, '3', true, false]],
-			'boolIntTrue'  => ['data' => 1],
-			'boolIntFalse' => ['Data' => 0],
+			'string'       => ['uid' => 1, 'data' => 'it'],
+			'boolTrue'     => ['uid' => 2, 'data' => true],
+			'boolFalse'    => ['uid' => 3, 'data' => false],
+			'integer'      => ['uid' => 4, 'data' => 235],
+			'decimal'      => ['uid' => 5, 'data' => 2.456],
+			'array'        => ['uid' => 6, 'data' => ['1', 2, '3', true, false]],
+			'boolIntTrue'  => ['uid' => 7, 'data' => 1],
+			'boolIntFalse' => ['uid' => 8, 'data' => 0],
 		];
+	}
+
+	public function dataConfigLoad()
+	{
+		$data = [
+			'system' => [
+				'key1' => 'value1',
+				'key2' => 'value2',
+				'key3' => 'value3',
+			],
+			'config' => [
+				'key1' => 'value1a',
+				'key4' => 'value4',
+			],
+			'other'  => [
+				'key5' => 'value5',
+				'key6' => 'value6',
+			],
+		];
+
+		return [
+			'system' => [
+				'uid' => 1,
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'system',
+				],
+			],
+			'other'  => [
+				'uid' => 2,
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'other',
+				],
+			],
+			'config' => [
+				'uid' => 3,
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'config',
+				],
+			],
+			'all'    => [
+				'uid' => 4,
+				'data'         => $data,
+				'possibleCats' => [
+					'system',
+					'config',
+					'other'
+				],
+				'load'         => [
+					'system',
+					'config',
+					'other'
+				],
+			],
+		];
+	}
+
+	/**
+	 * Test the configuration initialization
+	 * @dataProvider dataConfigLoad
+	 */
+	public function testSetUp(int $uid, array $data)
+	{
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
+
+		$this->assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 
 	/**
 	 * Test the configuration load() method
 	 */
-	public function testCacheLoad()
+	public function testLoad(int $uid, array $data, array $possibleCats, array $load)
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->twice();
-		// expected loading
-		$configAdapter->shouldReceive('load')
-			->with($uid, 'testing')
-			->andReturn(['testing' => ['test' => 'it']])
-			->once();
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'testing', 'test')->andReturn(true)->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
-		$configuration->load($uid, 'testing');
+		foreach ($load as $loadedCats) {
+			$this->testedConfig->load($uid, $loadedCats);
+		}
 
-		$this->assertEquals('it', $configuration->get($uid, 'testing', 'test'));
+		// Assert at least loaded cats are loaded
+		foreach ($load as $loadedCats) {
+			$this->assertConfig($uid, $loadedCats, $data[$loadedCats]);
+		}
+	}
+
+	public function dataDoubleLoad()
+	{
+		return [
+			'config' => [
+				'uid' => 1,
+				'data1'  => [
+					'config' => [
+						'key1' => 'value1',
+						'key2' => 'value2',
+					],
+				],
+				'data2'  => [
+					'config' => [
+						'key1' => 'overwritten!',
+						'key3' => 'value3',
+					],
+				],
+				'expect' => [
+					'config' => [
+						// load should overwrite values everytime!
+						'key1' => 'overwritten!',
+						'key2' => 'value2',
+						'key3' => 'value3',
+					],
+				],
+			],
+			'other'  => [
+				'uid' => 1,
+				'data1'  => [
+					'config' => [
+						'key12' => 'data4',
+						'key45' => 7,
+					],
+					'other'  => [
+						'key1' => 'value1',
+						'key2' => 'value2',
+					],
+				],
+				'data2'  => [
+					'other'  => [
+						'key1' => 'overwritten!',
+						'key3' => 'value3',
+					],
+					'config' => [
+						'key45' => 45,
+						'key52' => true,
+					]
+				],
+				'expect' => [
+					'other'  => [
+						// load should overwrite values everytime!
+						'key1' => 'overwritten!',
+						'key2' => 'value2',
+						'key3' => 'value3',
+					],
+					'config' => [
+						'key12' => 'data4',
+						'key45' => 45,
+						'key52' => true,
+					],
+				],
+			],
+		];
 	}
 
 	/**
 	 * Test the configuration load() method with overwrite
 	 */
-	public function testCacheLoadDouble()
+	public function testCacheLoadDouble(int $uid, array $data1, array $data2, array $expect)
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
-		// expected loading
-		$configAdapter->shouldReceive('load')->with($uid, 'testing')->andReturn(['testing' => ['test' => 'it']])->once();
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'testing', 'test')->andReturn(true)->twice();
-		// expected next loading
-		$configAdapter->shouldReceive('load')->andReturn(['testing' => ['test' => 'again']])->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
-		$configuration->load($uid, 'testing');
+		foreach ($data1 as $cat => $data) {
+			$this->testedConfig->load($uid, $cat);
+		}
 
-		$this->assertEquals('it', $configuration->get($uid, 'testing', 'test'));
+		// Assert at least loaded cats are loaded
+		foreach ($data1 as $cat => $data) {
+			$this->assertConfig($uid, $cat, $data);
+		}
 
-		$configuration->load($uid, 'testing');
-
-		$this->assertEquals('again', $configuration->get($uid, 'testing', 'test'));
+		foreach ($data2 as $cat => $data) {
+			$this->testedConfig->load($uid, $cat);
+		}
 	}
 
 	/**
 	 * Test the configuration get() and set() methods without adapter
+	 *
 	 * @dataProvider dataTests
 	 */
-	public function testSetGetWithoutDB($data)
+	public function testSetGetWithoutDB(int $uid, $data)
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(2);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
+		$this->assertTrue($this->testedConfig->set($uid, 'test', 'it', $data));
 
-		$this->assertTrue($configuration->set($uid, 'test', 'it', $data));
-
-		$this->assertEquals($data, $configuration->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get($uid, 'test', 'it'));
 	}
 
 	/**
-	 * Test the configuration get() and set() methods with adapter
+	 * Test the configuration get() and set() methods with a model/db
+	 *
 	 * @dataProvider dataTests
 	 */
-	public function testSetGetWithDB($data)
+	public function testSetGetWithDB(int $uid, $data)
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(2);
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
-		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', $data)->andReturn(true)->once();
+		$this->configModel->shouldReceive('set')
+		                  ->with($uid, 'test', 'it', $data)
+		                  ->andReturn(true)
+		                  ->once();
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
-		$this->assertTrue($configuration->set($uid, 'test', 'it', $data));
+		$this->assertTrue($this->testedConfig->set($uid, 'test', 'it', $data));
 
-		$this->assertEquals($data, $configuration->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get($uid, 'test', 'it'));
 	}
 
 	/**
@@ -113,135 +297,159 @@ class PConfigurationTest extends MockedTest
 	 */
 	public function testGetWrongWithoutDB()
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(3);
-
-		$configuration = new PConfiguration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
 		// without refresh
-		$this->assertNull($configuration->get($uid, 'test', 'it'));
+		$this->assertNull($this->testedConfig->get(0, 'test', 'it'));
+
+		/// beware that the cache returns '!<unset>!' and not null for a non existing value
+		$this->assertNull($this->testedConfig->getCache()->get(0, 'test', 'it'));
 
 		// with default value
-		$this->assertEquals('default', $configuration->get($uid, 'test', 'it', 'default'));
+		$this->assertEquals('default', $this->testedConfig->get(0, 'test', 'it', 'default'));
 
 		// with default value and refresh
-		$this->assertEquals('default', $configuration->get($uid, 'test', 'it', 'default', true));
+		$this->assertEquals('default', $this->testedConfig->get(0, 'test', 'it', 'default', true));
 	}
 
 	/**
 	 * Test the configuration get() method with refresh
+	 *
 	 * @dataProvider dataTests
 	 */
-	public function testGetWithRefresh($data)
+	public function testGetWithRefresh(int $uid, $data)
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(4);
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn('now')->once();
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->twice();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn($data)->once();
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'not')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'not')->andReturn(null)->once();
+		$this->configCache->load($uid, ['test' => ['it' => 'now']]);
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
 		// without refresh
-		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
-		// use the cache again
-		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->get($uid, 'test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->getCache()->get($uid, 'test', 'it'));
 
-		// with refresh (and load the second value out of the db)
-		$this->assertEquals($data, $configuration->get($uid, 'test', 'it', null, true));
+		// with refresh
+		$this->assertEquals($data, $this->testedConfig->get($uid, 'test', 'it', null, true));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get($uid, 'test', 'it'));
 
 		// without refresh and wrong value and default
-		$this->assertEquals('default', $configuration->get($uid, 'test', 'not', 'default'));
+		$this->assertEquals('default', $this->testedConfig->get($uid, 'test', 'not', 'default'));
+		$this->assertNull($this->testedConfig->getCache()->get($uid, 'test', 'not'));
 	}
 
 	/**
-	 * Test the configuration get() method with different isLoaded settings
+	 * Test the configuration delete() method without a model/db
+	 *
 	 * @dataProvider dataTests
 	 */
-	public function testGetWithoutLoaded($data)
+	public function testDeleteWithoutDB(int $uid, $data)
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(3);
+		$this->configCache->load($uid, ['test' => ['it' => $data]]);
 
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn(null)->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(false)->once();
-		$configAdapter->shouldReceive('get')->with($uid, 'test', 'it')->andReturn($data)->once();
+		$this->assertEquals($data, $this->testedConfig->get($uid, 'test', 'it'));
+		$this->assertEquals($data, $this->testedConfig->getCache()->get($uid, 'test', 'it'));
 
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
+		$this->assertTrue($this->testedConfig->delete($uid, 'test', 'it'));
+		$this->assertNull($this->testedConfig->get($uid, 'test', 'it'));
+		$this->assertNull($this->testedConfig->getCache()->get($uid, 'test', 'it'));
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
-
-		// first run is not loaded and no data is found in the DB
-		$this->assertNull($configuration->get($uid, 'test', 'it'));
-
-		// second run is not loaded, but now data is found in the db (overwrote cache)
-		$this->assertEquals($data, $configuration->get($uid,'test', 'it'));
-
-		// third run is loaded and therefore cache is used
-		$this->assertEquals($data, $configuration->get($uid,'test', 'it'));
+		$this->assertEmpty($this->testedConfig->getCache()->getAll());
 	}
 
 	/**
-	 * Test the configuration delete() method without adapter
-	 * @dataProvider dataTests
-	 */
-	public function testDeleteWithoutDB($data)
-	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(false)->times(4);
-
-		$configuration = new PConfiguration($configCache, $configAdapter);
-
-		$this->assertTrue($configuration->set($uid, 'test', 'it', $data));
-		$this->assertEquals($data, $configuration->get($uid, 'test', 'it'));
-
-		$this->assertTrue($configuration->delete($uid, 'test', 'it'));
-		$this->assertNull($configuration->get($uid, 'test', 'it'));
-	}
-
-	/**
-	 * Test the configuration delete() method with adapter
+	 * Test the configuration delete() method with a model/db
 	 */
 	public function testDeleteWithDB()
 	{
-		$uid = 234;
-		$configCache = new PConfigCache();
-		$configAdapter = \Mockery::mock(IPConfigAdapter::class);
-		$configAdapter->shouldReceive('isConnected')->andReturn(true)->times(6);
-		$configAdapter->shouldReceive('set')->with($uid, 'test', 'it', 'now')->andReturn(false)->once();
-		$configAdapter->shouldReceive('isLoaded')->with($uid, 'test', 'it')->andReturn(true)->once();
+		$this->configCache->load(0, ['test' => ['it' => 'now', 'quarter' => 'true']]);
 
-		$configAdapter->shouldReceive('delete')->with($uid, 'test', 'it')->andReturn(false)->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with(0, 'test', 'it')
+		                  ->andReturn(false)
+		                  ->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with(0, 'test', 'second')
+		                  ->andReturn(true)
+		                  ->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with(0, 'test', 'third')
+		                  ->andReturn(false)
+		                  ->once();
+		$this->configModel->shouldReceive('delete')
+		                  ->with(0, 'test', 'quarter')
+		                  ->andReturn(true)
+		                  ->once();
 
-		$configAdapter->shouldReceive('delete')->with($uid, 'test', 'second')->andReturn(true)->once();
-		$configAdapter->shouldReceive('delete')->with($uid, 'test', 'third')->andReturn(false)->once();
-		$configAdapter->shouldReceive('delete')->with($uid, 'test', 'quarter')->andReturn(true)->once();
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
-		$configuration = new PConfiguration($configCache, $configAdapter);
+		// directly set the value to the cache
+		$this->testedConfig->getCache()->set(0, 'test', 'it', 'now');
 
-		$this->assertFalse($configuration->set($uid, 'test', 'it', 'now'));
-		$this->assertEquals('now', $configuration->get($uid, 'test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->get(0, 'test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->getCache()->get(0, 'test', 'it'));
 
-		// delete from set
-		$this->assertTrue($configuration->delete($uid, 'test', 'it'));
+		// delete from cache only
+		$this->assertTrue($this->testedConfig->delete(0, 'test', 'it'));
 		// delete from db only
-		$this->assertTrue($configuration->delete($uid, 'test', 'second'));
+		$this->assertTrue($this->testedConfig->delete(0, 'test', 'second'));
 		// no delete
-		$this->assertFalse($configuration->delete($uid, 'test', 'third'));
+		$this->assertFalse($this->testedConfig->delete(0, 'test', 'third'));
 		// delete both
-		$this->assertTrue($configuration->delete($uid, 'test', 'quarter'));
+		$this->assertTrue($this->testedConfig->delete(0, 'test', 'quarter'));
+
+		$this->assertEmpty($this->testedConfig->getCache()->getAll());
+	}
+
+	public function dataMultiUid()
+	{
+		return [
+			'normal' => [
+				'data1' => [
+					'uid'  => 1,
+					'data' => [
+						'cat1' => [
+							'key1' => 'value1',
+						],
+						'cat2' => [
+							'key2' => 'value2',
+						]
+					],
+				],
+				'data2' => [
+					'uid' => 2,
+					'data' => [
+						'cat1' => [
+							'key1' => 'value1a',
+						],
+						'cat2' => [
+							'key2' => 'value2',
+						],
+					],
+				],
+			],
+		];
+	}
+
+	/**
+	 * Test if multiple uids for caching are usable without errors
+	 * @dataProvider dataMultiUid
+	 */
+	public function testMultipleUidsWithCache(array $data1, array $data2)
+	{
+		$this->configCache->load($data1['uid'], $data1['data']);
+		$this->configCache->load($data2['uid'], $data2['data']);
+
+		$this->testedConfig = $this->getInstance();
+		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
+
+		$this->assertConfig($data1['uid'], 'cat1', $data1['data']['cat1']);
+		$this->assertConfig($data1['uid'], 'cat2', $data1['data']['cat2']);
+		$this->assertConfig($data2['uid'], 'cat1', $data2['data']['cat1']);
+		$this->assertConfig($data2['uid'], 'cat2', $data2['data']['cat2']);
 	}
 }
