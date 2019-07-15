@@ -4,9 +4,11 @@ namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
+use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\Group;
@@ -50,18 +52,20 @@ class Compose extends BaseModule
 			}
 		}
 
-		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'default-location']);
+		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'hidewall', 'default-location']);
 
 		switch ($posttype) {
 			case Item::PT_PERSONAL_NOTE:
 				$compose_title = L10n::t('Compose new personal note');
 				$type = 'note';
+				$doesFederate = false;
 				$contact_allow = $a->contact['id'];
 				$group_allow = '';
 				break;
 			default:
 				$compose_title = L10n::t('Compose new post');
 				$type = 'post';
+				$doesFederate = true;
 				$contact_allow = implode(',', expand_acl($user['allow_cid']));
 				$group_allow = implode(',', expand_acl($user['allow_gid'])) ?: Group::FOLLOWERS;
 				break;
@@ -111,6 +115,32 @@ class Compose extends BaseModule
 
 		$acl = array_merge($acl_groups, $acl_contacts);
 
+		$jotnets_fields = [];
+		$mail_enabled = false;
+		$pubmail_enabled = false;
+		if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
+			$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
+			if (DBA::isResult($mailacct)) {
+				$mail_enabled = true;
+				$pubmail_enabled = !empty($mailacct['pubmail']);
+			}
+		}
+
+		if (empty($user['hidewall'])) {
+			if ($mail_enabled) {
+				$jotnets_fields[] = [
+					'type' => 'checkbox',
+					'field' => [
+						'pubmail_enable',
+						L10n::t('Post to Email'),
+						$pubmail_enabled
+					]
+				];
+			}
+
+			Hook::callAll('jot_networks', $jotnets_fields);
+		}
+
 		$jotplugins = '';
 		Hook::callAll('jot_tool', $jotplugins);
 
@@ -159,6 +189,11 @@ class Compose extends BaseModule
 			'$wait'         => L10n::t('Please wait'),
 			'$placeholdertitle' => L10n::t('Set title'),
 			'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t('Categories (comma-separated list)') : ''),
+			'$public_title'  => L10n::t('Public'),
+			'$public_desc'  => L10n::t('This post will be sent to all your followers and can be seen in the community pages and by anyone with its link.'),
+			'$custom_title' => L10n::t('Custom'),
+			'$custom_desc'  => L10n::t('This post will be sent only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t be visible in the community pages nor with its link, and can\'t be sent to connectors (Twitter, Pump.io, etc...).'),
+			'$emailcc'      => L10n::t('CC: email addresses'),
 			'$title'        => $title,
 			'$category'     => $category,
 			'$body'         => $body,
@@ -169,6 +204,8 @@ class Compose extends BaseModule
 			'$contact_deny' => $contact_deny,
 			'$group_deny'   => $group_deny,
 			'$jotplugins'   => $jotplugins,
+			'$doesFederate' => $doesFederate,
+			'$jotnets_fields'=> $jotnets_fields,
 			'$sourceapp'    => L10n::t($a->sourcename),
 			'$rand_num'     => Crypto::randomDigits(12)
 		]);

@@ -52,6 +52,14 @@
 			$contact_allow_input.prop('disabled', true);
 			$group_deny_input.prop('disabled', true);
 			$contact_deny_input.prop('disabled', true);
+
+			$('.profile-jot-net input[type=checkbox]').each(function() {
+				// Restores checkbox state if it had been saved
+				if ($(this).attr('data-checked') !== undefined) {
+					$(this).prop('checked', $(this).attr('data-checked') === 'true');
+				}
+			});
+			$('.profile-jot-net input').attr('disabled', false);
 		});
 
 		$('#visibility-custom-panel').on('show.bs.collapse', function() {
@@ -60,6 +68,14 @@
 			$contact_allow_input.prop('disabled', false);
 			$group_deny_input.prop('disabled', false);
 			$contact_deny_input.prop('disabled', false);
+
+			$('.profile-jot-net input[type=checkbox]').each(function() {
+				// Saves current checkbox state
+				$(this)
+					.attr('data-checked', $(this).prop('checked'))
+					.prop('checked', false);
+			});
+			$('.profile-jot-net input').attr('disabled', 'disabled');
 		});
 
 		if (document.querySelector('input[name="visibility"]:checked').value === 'custom') {

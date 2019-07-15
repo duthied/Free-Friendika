@@ -83,29 +83,58 @@
 			<h3>Visibility</h3>
 			<div class="panel-group" id="visibility-accordion" role="tablist" aria-multiselectable="true">
 				<div class="panel panel-success">
-					<div class="panel-heading" role="tab" id="visibility-public-heading" class="" role="button" data-toggle="collapse" data-parent="#visibility-accordion" href="#visibility-public-panel" aria-expanded="true" aria-controls="visibility-public-panel">
+					<div class="panel-heading" id="visibility-public-heading" role="button" data-toggle="collapse" data-parent="#visibility-accordion" href="#visibility-public-panel" aria-expanded="true" aria-controls="visibility-public-panel" tabindex="14">
 						<label>
 							<input type="radio" name="visibility" id="visibility-public" value="public" {{if $visibility == 'public'}}checked{{/if}} style="display:none">
-							<i class="fa fa-globe"></i> Public
+							<i class="fa fa-globe"></i> {{$public_title}}
 						</label>
 					</div>
 					<div id="visibility-public-panel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="visibility-public-heading">
 						<div class="panel-body">
-							<p>This post will be sent to all your followers and can be seen in the community pages and by anyone with its link.</p>
+							<p>{{$public_desc}}</p>
+                        {{if $doesFederate}}
+							<div class="form-group">
+								<label for="profile-jot-email" id="profile-jot-email-label">{{$emailcc}}</label>
+								<input type="text" name="emailcc" id="profile-jot-email" class="form-control" title="{{$emtitle}}" />
+							</div>
+							<div id="profile-jot-email-end"></div>
+
+                            {{if $jotnets_fields}}
+                                {{if $jotnets_fields|count < 3}}
+									<div class="profile-jot-net">
+                                {{else}}
+									<details class="profile-jot-net">
+									<summary>{{$jotnets_summary}}</summary>
+                                {{/if}}
+
+                                {{foreach $jotnets_fields as $jotnets_field}}
+                                    {{if $jotnets_field.type == 'checkbox'}}
+                                        {{include file="field_checkbox.tpl" field=$jotnets_field.field}}
+                                    {{elseif $jotnets_field.type == 'select'}}
+                                        {{include file="field_select.tpl" field=$jotnets_field.field}}
+                                    {{/if}}
+                                {{/foreach}}
+
+                                {{if $jotnets_fields|count >= 3}}
+									</details>
+                                {{else}}
+									</div>
+                                {{/if}}
+                            {{/if}}
+                        {{/if}}
 						</div>
 					</div>
 				</div>
 				<div class="panel panel-info">
-					<div class="panel-heading" role="tab" id="visibility-custom-heading"  class="collapsed" role="button" data-toggle="collapse" data-parent="#visibility-accordion" href="#visibility-custom-panel" aria-expanded="true" aria-controls="visibility-custom-panel">
+					<div class="panel-heading collapsed" id="visibility-custom-heading" role="button" data-toggle="collapse" data-parent="#visibility-accordion" href="#visibility-custom-panel" aria-expanded="true" aria-controls="visibility-custom-panel" tabindex="15">
 						<label>
 							<input type="radio" name="visibility" id="visibility-custom" value="custom" {{if $visibility == 'custom'}}checked{{/if}} style="display:none">
-							<i class="fa fa-lock"></i> Custom
+							<i class="fa fa-lock"></i> {{$custom_title}}
 						</label>
 					</div>
 					<div id="visibility-custom-panel" class="panel-collapse collapse" role="tabpanel" aria-labelledby="visibility-custom-heading">
 						<div class="panel-body">
-							<p>This post will be sent only to the people in the first box, to the exception of the people mentioned in the second box.
-								It won't be visible in the community pages nor with its link.</p>
+							<p>{{$custom_desc}}</p>
 
 							<div class="form-group">
 								<label for="acl_allow">Deliver to:</label>
