@@ -44,7 +44,6 @@ trait AppMockTrait
 	public function mockApp(vfsStreamDirectory $root, $raw = false)
 	{
 		$this->configMock = \Mockery::mock(Config\Cache\ConfigCache::class);
-		$this->configMock->shouldReceive('getAll')->andReturn([])->once();
 		$this->mode = \Mockery::mock(App\Mode::class);
 		$configModel= \Mockery::mock(\Friendica\Model\Config\Config::class);
 		// Disable the adapter
