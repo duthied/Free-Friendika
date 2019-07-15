@@ -36,6 +36,10 @@ class PConfigCache
 	 */
 	public function load($uid, array $config)
 	{
+		if (!is_int($uid)) {
+			return;
+		}
+
 		$categories = array_keys($config);
 
 		foreach ($categories as $category) {
@@ -64,6 +68,10 @@ class PConfigCache
 	 */
 	public function get($uid, string $cat, string $key = null)
 	{
+		if (!is_int($uid)) {
+			return null;
+		}
+
 		if (isset($this->config[$uid][$cat][$key])) {
 			return $this->config[$uid][$cat][$key];
 		} elseif (!isset($key) && isset($this->config[$uid][$cat])) {
@@ -87,6 +95,10 @@ class PConfigCache
 	 */
 	public function set($uid, string $cat, string $key, $value)
 	{
+		if (!is_int($uid)) {
+			return false;
+		}
+
 		if (!isset($this->config[$uid]) || !is_array($this->config[$uid])) {
 			$this->config[$uid] = [];
 		}
@@ -118,6 +130,10 @@ class PConfigCache
 	 */
 	public function delete($uid, string $cat, string $key)
 	{
+		if (!is_int($uid)) {
+			return false;
+		}
+
 		if (isset($this->config[$uid][$cat][$key])) {
 			unset($this->config[$uid][$cat][$key]);
 			if (count($this->config[$uid][$cat]) == 0) {
