@@ -13,8 +13,10 @@ use Friendica\Model;
  */
 class JitConfiguration extends Configuration
 {
-	/** @var array */
-	private $in_db;
+	/**
+	 * @var array Array of already loaded db values (even if there was no value)
+	 */
+	private $db_loaded;
 
 	/**
 	 * @param Cache\ConfigCache   $configCache The configuration cache (based on the config-files)
@@ -23,17 +25,7 @@ class JitConfiguration extends Configuration
 	public function __construct(Cache\ConfigCache $configCache, Model\Config\Config $configModel)
 	{
 		parent::__construct($configCache, $configModel);
-		$this->in_db = [];
-
-		// take the values of the given cache instead of loading them from the model again
-		$preSet = $configCache->getAll();
-		if (!empty($preSet)) {
-			foreach ($preSet as $cat => $data) {
-				foreach ($data as $key => $value) {
-					$this->in_db[$cat][$key] = true;
-				}
-			}
-		}
+		$this->db_loaded = [];
 
 		$this->load();
 	}
@@ -53,7 +45,7 @@ class JitConfiguration extends Configuration
 
 		if (!empty($config[$cat])) {
 			foreach ($config[$cat] as $key => $value) {
-				$this->in_db[$cat][$key] = true;
+				$this->db_loaded[$cat][$key] = true;
 			}
 		}
 
@@ -68,7 +60,7 @@ class JitConfiguration extends Configuration
 	{
 		// if the value isn't loaded or refresh is needed, load it to the cache
 		if ($this->configModel->isConnected() &&
-		    (empty($this->in_db[$cat][$key]) ||
+		    (empty($this->db_loaded[$cat][$key]) ||
 		     $refresh)) {
 
 			$dbvalue = $this->configModel->get($cat, $key);
@@ -76,8 +68,9 @@ class JitConfiguration extends Configuration
 			if (isset($dbvalue)) {
 				$this->configCache->set($cat, $key, $dbvalue);
 				unset($dbvalue);
-				$this->in_db[$cat][$key] = true;
 			}
+
+			$this->db_loaded[$cat][$key] = true;
 		}
 
 		// use the config cache for return
@@ -101,7 +94,7 @@ class JitConfiguration extends Configuration
 
 		$stored = $this->configModel->set($cat, $key, $value);
 
-		$this->in_db[$cat][$key] = $stored;
+		$this->db_loaded[$cat][$key] = $stored;
 
 		return $cached && $stored;
 	}
@@ -113,8 +106,8 @@ class JitConfiguration extends Configuration
 	{
 		$cacheRemoved = $this->configCache->delete($cat, $key);
 
-		if (isset($this->in_db[$cat][$key])) {
-			unset($this->in_db[$cat][$key]);
+		if (isset($this->db_loaded[$cat][$key])) {
+			unset($this->db_loaded[$cat][$key]);
 		}
 
 		if (!$this->configModel->isConnected()) {

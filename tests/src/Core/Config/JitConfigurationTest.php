@@ -114,7 +114,13 @@ class JitConfigurationTest extends ConfigurationTest
 		                  ->andReturn(['config' => []])
 		                  ->once();
 
-		// mocking one get
+		// mocking one get without result
+		$this->configModel->shouldReceive('get')
+		                  ->with('test', 'it')
+		                  ->andReturn(null)
+		                  ->once();
+
+		// mocking the data get
 		$this->configModel->shouldReceive('get')
 		                  ->with('test', 'it')
 		                  ->andReturn($data)
@@ -160,6 +166,12 @@ class JitConfigurationTest extends ConfigurationTest
 		$this->configModel->shouldReceive('load')
 		                  ->with('config')
 		                  ->andReturn(['config' => []])
+		                  ->once();
+
+		// mocking one get without result
+		$this->configModel->shouldReceive('get')
+		                  ->with('test', 'it')
+		                  ->andReturn(null)
 		                  ->once();
 
 		parent::testDeleteWithDB();
