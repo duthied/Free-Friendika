@@ -255,4 +255,21 @@ class PConfigCacheTest extends MockedTest
 		$this->assertNull($configCache->get(1, 'cat2', 'key2'));
 		$this->assertNull($configCache->get(2, 'cat1', 'key1'));
 	}
+
+	/**
+	 * Test when using an invalid UID
+	 * @todo check it the clean way before using the config class
+	 */
+	public function testInvalidUid()
+	{
+		// bad UID!
+		$uid = null;
+
+		$configCache = new PConfigCache();
+
+		$this->assertNull($configCache->get($uid, 'cat1', 'cat2'));
+
+		$this->assertFalse($configCache->set($uid, 'cat1', 'key1', 'doesn\'t matter!'));
+		$this->assertFalse($configCache->delete($uid, 'cat1', 'key1'));
+	}
 }

@@ -2,66 +2,70 @@
 
 namespace Friendica\Core\Config;
 
+use Friendica\Model;
+
 /**
  * This class is responsible for the user-specific configuration values in Friendica
- * The values are set through the Config-DB-Table (per Config-DB-adapter @see Adapter\IPConfigAdapter )
+ * The values are set through the Config-DB-Table (per Config-DB-model @see Model\Config\PConfig)
  *
  * The configuration cache (@see Cache\PConfigCache ) is used for temporary caching of database calls. This will
  * increase the performance.
  */
-class PConfiguration
+abstract class PConfiguration
 {
 	/**
 	 * @var Cache\PConfigCache
 	 */
-	private $configCache;
+	protected $configCache;
 
 	/**
-	 * @var Adapter\IPConfigAdapter
+	 * @var Model\Config\PConfig
 	 */
-	private $configAdapter;
+	protected $configModel;
 
 	/**
-	 * @param Cache\PConfigCache     $configCache   The configuration cache
-	 * @param Adapter\IPConfigAdapter $configAdapter The configuration DB-backend
+	 * @param Cache\PConfigCache   $configCache The configuration cache
+	 * @param Model\Config\PConfig $configModel The configuration model
 	 */
-	public function __construct(Cache\PConfigCache $configCache, Adapter\IPConfigAdapter $configAdapter)
+	public function __construct(Cache\PConfigCache $configCache, Model\Config\PConfig $configModel)
 	{
 		$this->configCache = $configCache;
-		$this->configAdapter = $configAdapter;
+		$this->configModel = $configModel;
 	}
 
 	/**
-	 * @brief Loads all configuration values of a user's config family into a cached storage.
+	 * Returns the Config Cache
+	 *
+	 * @return Cache\PConfigCache
+	 */
+	public function getCache()
+	{
+		return $this->configCache;
+	}
+
+	/**
+	 * Loads all configuration values of a user's config family into a cached storage.
 	 *
 	 * All configuration values of the given user are stored with the $uid in
-	 * the cache ( @see PConfigCache )
+	 * the cache ( @param int $uid The user_id
 	 *
-	 * @param string $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 *
 	 * @return void
+	 * @see PConfigCache )
+	 *
 	 */
-	public function load($uid, $cat = 'config')
-	{
-		// If not connected, do nothing
-		if (!$this->configAdapter->isConnected()) {
-			return;
-		}
-
-		// load the whole category out of the DB into the cache
-		$this->configCache->load($uid, $this->configAdapter->load($uid, $cat));
-	}
+	abstract public function load($uid, string $cat = 'config');
 
 	/**
-	 * @brief Get a particular user's config variable given the category name
+	 * Get a particular user's config variable given the category name
 	 * ($cat) and a key.
 	 *
 	 * Get a particular user's config value from the given category ($cat)
 	 * and the $key with the $uid from a cached storage either from the $this->configAdapter
 	 * (@see IConfigAdapter ) or from the $this->configCache (@see PConfigCache ).
 	 *
-	 * @param string  $uid           The user_id
+	 * @param int     $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
 	 * @param string  $key           The configuration key to query
 	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
@@ -69,78 +73,37 @@ class PConfiguration
 	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public function get($uid, $cat, $key, $default_value = null, $refresh = false)
-	{
-		// if the value isn't loaded or refresh is needed, load it to the cache
-		if ($this->configAdapter->isConnected() &&
-			(!$this->configAdapter->isLoaded($uid, $cat, $key) ||
-				$refresh)) {
-			$dbValue = $this->configAdapter->get($uid, $cat, $key);
-
-			if (isset($dbValue)) {
-				$this->configCache->set($uid, $cat, $key, $dbValue);
-				return $dbValue;
-			}
-		}
-
-		// use the config cache for return
-		$result = $this->configCache->get($uid, $cat, $key);
-		return (isset($result)) ? $result : $default_value;
-	}
+	abstract public function get($uid, string $cat, string $key, $default_value = null, bool $refresh = false);
 
 	/**
-	 * @brief Sets a configuration value for a user
+	 * Sets a configuration value for a user
 	 *
 	 * Stores a config value ($value) in the category ($family) under the key ($key)
 	 * for the user_id $uid.
 	 *
 	 * @note  Please do not store booleans - convert to 0/1 integer values!
 	 *
-	 * @param string $uid    The user_id
-	 * @param string $cat    The category of the configuration value
-	 * @param string $key    The configuration key to set
-	 * @param mixed  $value  The value to store
+	 * @param int    $uid   The user_id
+	 * @param string $cat   The category of the configuration value
+	 * @param string $key   The configuration key to set
+	 * @param mixed  $value The value to store
 	 *
 	 * @return bool Operation success
 	 */
-	public function set($uid, $cat, $key, $value)
-	{
-		// set the cache first
-		$cached = $this->configCache->set($uid, $cat, $key, $value);
-
-		// If there is no connected adapter, we're finished
-		if (!$this->configAdapter->isConnected()) {
-			return $cached;
-		}
-
-		$stored = $this->configAdapter->set($uid, $cat, $key, $value);
-
-		return $cached && $stored;
-	}
+	abstract public function set($uid, string $cat, string $key, $value);
 
 	/**
-	 * @brief Deletes the given key from the users's configuration.
+	 * Deletes the given key from the users's configuration.
 	 *
 	 * Removes the configured value from the stored cache in $this->configCache
 	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter )
-	 * with the given $uid.
+	 *  with the given $uid.
 	 *
-	 * @param string $uid The user_id
+	 * @param int $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 * @param string $key The configuration key to delete
 	 *
 	 * @return bool
 	 */
-	public function delete($uid, $cat, $key)
-	{
-		$cacheRemoved = $this->configCache->delete($uid, $cat, $key);
-
-		if (!$this->configAdapter->isConnected()) {
-			return $cacheRemoved;
-		}
-
-		$storeRemoved = $this->configAdapter->delete($uid, $cat, $key);
-
-		return $cacheRemoved || $storeRemoved;
-	}
+	abstract public function delete($uid, string $cat, string $key);
 }
