@@ -35,12 +35,12 @@ class PConfig
 	/**
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
-	 * @param string $uid The user_id
+	 * @param int    $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 *
 	 * @return void
 	 */
-	public static function load($uid, $cat)
+	public static function load(int $uid, $cat)
 	{
 		self::$config->load($uid, $cat);
 	}
@@ -49,7 +49,7 @@ class PConfig
 	 * @brief Get a particular user's config variable given the category name
 	 * ($cat) and a key.
 	 *
-	 * @param string  $uid           The user_id
+	 * @param int     $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
 	 * @param string  $key           The configuration key to query
 	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
@@ -57,7 +57,7 @@ class PConfig
 	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get($uid, $cat, $key, $default_value = null, $refresh = false)
+	public static function get(int $uid, $cat, $key, $default_value = null, $refresh = false)
 	{
 		return self::$config->get($uid, $cat, $key, $default_value, $refresh);
 	}
@@ -65,14 +65,14 @@ class PConfig
 	/**
 	 * @brief Sets a configuration value for a user
 	 *
-	 * @param string $uid    The user_id
+	 * @param int    $uid    The user_id
 	 * @param string $cat    The category of the configuration value
 	 * @param string $key    The configuration key to set
 	 * @param mixed  $value  The value to store
 	 *
 	 * @return bool Operation success
 	 */
-	public static function set($uid, $cat, $key, $value)
+	public static function set(int $uid, $cat, $key, $value)
 	{
 		return self::$config->set($uid, $cat, $key, $value);
 	}
@@ -80,13 +80,13 @@ class PConfig
 	/**
 	 * @brief Deletes the given key from the users's configuration.
 	 *
-	 * @param string $uid The user_id
+	 * @param int    $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 * @param string $key The configuration key to delete
 	 *
 	 * @return bool
 	 */
-	public static function delete($uid, $cat, $key)
+	public static function delete(int $uid, $cat, $key)
 	{
 		return self::$config->delete($uid, $cat, $key);
 	}

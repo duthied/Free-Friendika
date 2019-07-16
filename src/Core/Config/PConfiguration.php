@@ -46,16 +46,16 @@ abstract class PConfiguration
 	/**
 	 * Loads all configuration values of a user's config family into a cached storage.
 	 *
-	 * All configuration values of the given user are stored with the $uid in
-	 * the cache ( @param int $uid The user_id
+	 * All configuration values of the given user are stored with the $uid in the cache
 	 *
+	 * @param int $uid The user_id
 	 * @param string $cat The category of the configuration value
 	 *
 	 * @return void
 	 * @see PConfigCache )
 	 *
 	 */
-	abstract public function load($uid, string $cat = 'config');
+	abstract public function load(int $uid, string $cat = 'config');
 
 	/**
 	 * Get a particular user's config variable given the category name
@@ -73,7 +73,7 @@ abstract class PConfiguration
 	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	abstract public function get($uid, string $cat, string $key, $default_value = null, bool $refresh = false);
+	abstract public function get(int $uid, string $cat, string $key, $default_value = null, bool $refresh = false);
 
 	/**
 	 * Sets a configuration value for a user
@@ -90,7 +90,7 @@ abstract class PConfiguration
 	 *
 	 * @return bool Operation success
 	 */
-	abstract public function set($uid, string $cat, string $key, $value);
+	abstract public function set(int $uid, string $cat, string $key, $value);
 
 	/**
 	 * Deletes the given key from the users's configuration.
@@ -105,5 +105,5 @@ abstract class PConfiguration
 	 *
 	 * @return bool
 	 */
-	abstract public function delete($uid, string $cat, string $key);
+	abstract public function delete(int $uid, string $cat, string $key);
 }
