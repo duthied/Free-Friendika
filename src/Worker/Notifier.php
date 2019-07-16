@@ -548,7 +548,7 @@ class Notifier
 	private static function skipDFRN($contact, $item, $cmd)
 	{
 		// Don't skip when author or owner don't have AP profiles
-		if (empty(APContact::getByURL($item['author-link'], false)) || empty(APContact::getByURL($item['owner-link'], false))) {
+		if ((!empty($item['author-link']) && empty(APContact::getByURL($item['author-link'], false))) || (!empty($item['owner-link']) && empty(APContact::getByURL($item['owner-link'], false)))) {
 			return false;
 		}
 
