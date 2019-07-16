@@ -8,6 +8,7 @@ namespace Friendica\Test;
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Cache\PConfigCache;
+use Friendica\Core\L10n\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -56,7 +57,10 @@ class ApiTest extends DatabaseTest
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();
-		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, false);
+		$l10n = new L10n(L10n::detectLanguage($config->get('system', 'language')),
+			self::$dba,
+			$logger);
+		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, $l10n, false);
 
 		parent::setUp();
 
