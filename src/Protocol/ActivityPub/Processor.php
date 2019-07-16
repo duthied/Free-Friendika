@@ -373,6 +373,8 @@ class Processor
 		$item['owner-link'] = $activity['actor'];
 		$item['owner-id'] = Contact::getIdForURL($activity['actor'], 0, true);
 
+		$isForum = false;
+
 		if (!empty($activity['thread-completion'])) {
 			// Store the original actor in the "causer" fields to enable the check for ignored or blocked contacts
 			$item['causer-link'] = $item['owner-link'];
@@ -381,6 +383,9 @@ class Processor
 			Logger::info('Ignoring actor because of thread completion.', ['actor' => $item['owner-link']]);
 			$item['owner-link'] = $item['author-link'];
 			$item['owner-id'] = $item['author-id'];
+		} else {
+			$actor = APContact::getByURL($item['owner-link'], false);
+			$isForum = ($actor['type'] == 'Group');
 		}
 
 		$item['uri'] = $activity['id'];
@@ -402,7 +407,14 @@ class Processor
 
 		foreach ($activity['receiver'] as $receiver) {
 			$item['uid'] = $receiver;
-			$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
+
+			if ($isForum) {
+				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver, true);
+			}
+
+			if (empty($item['contact-id'])) {
+				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
+			}
 
 			if (($receiver != 0) && empty($item['contact-id'])) {
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
