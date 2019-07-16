@@ -167,10 +167,10 @@ class ConfigFileLoader
 	public function loadAddonConfig($name)
 	{
 		$filepath = $this->baseDir . DIRECTORY_SEPARATOR . // /var/www/html/
-		            Addon::DIRECTORY . DIRECTORY_SEPARATOR . // addon/
-		            $name . DIRECTORY_SEPARATOR . // openstreetmap/
-		            self::CONFIG_DIR . DIRECTORY_SEPARATOR . // config/
-		            $name . ".config.php";                         // openstreetmap.config.php
+					Addon::DIRECTORY . DIRECTORY_SEPARATOR . // addon/
+					$name . DIRECTORY_SEPARATOR . // openstreetmap/
+					self::CONFIG_DIR . DIRECTORY_SEPARATOR . // config/
+					$name . ".config.php";                         // openstreetmap.config.php
 
 		if (file_exists($filepath)) {
 			return $this->loadConfigFile($filepath);
