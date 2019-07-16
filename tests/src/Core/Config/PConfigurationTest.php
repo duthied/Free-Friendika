@@ -460,7 +460,7 @@ abstract class PConfigurationTest extends MockedTest
 	public function testInvalidUid()
 	{
 		// bad UID!
-		$uid = null;
+		$uid = 0;
 
 		$this->testedConfig = $this->getInstance();
 
