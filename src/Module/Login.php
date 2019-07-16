@@ -281,7 +281,7 @@ class Login extends BaseModule
 		$a = self::getApp();
 		$o = '';
 		$reg = false;
-		if ($register) {
+		if ($register && intval($a->getConfig()->get('config', 'register_policy')) !== Register::CLOSED) {
 			$reg = [
 				'title' => L10n::t('Create a New Account'),
 				'desc' => L10n::t('Register')
