@@ -711,7 +711,7 @@ function scrollToItem(elementId) {
 		return;
 	}
 
-	var $el = $(document.getElementById(elementId));
+	var $el = $('#' + elementId +  ' > .media');
 	// Test if the Item exists
 	if (!$el.length) {
 		return;

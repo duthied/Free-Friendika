@@ -70,9 +70,9 @@ as the value of $top_child_total (this is done at the end of this file)
 
 {{* Use a different div container in dependence max thread-level = 7 *}}
 {{if $item.thread_level<7}}
-<div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
+<div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.network}} thread_level_{{$item.thread_level}} {{if $item.thread_level==1}}panel-body h-entry{{else}}u-comment h-cite{{/if}}" id="item-{{$item.guid}}"><!-- wall-item-container -->
 {{else}}
-<div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.shiny}} {{$item.network}} thread_level_7 u-comment h-cite" id="item-{{$item.guid}}">
+<div class="item-{{$item.id}} wall-item-container {{$item.indent}} {{$item.network}} thread_level_7 u-comment h-cite" id="item-{{$item.guid}}">
 {{/if}}
 {{if $item.thread_level==1}}
 <span class="commented" style="display: none;">{{$item.commented}}</span>
@@ -80,7 +80,7 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="created" style="display: none;">{{$item.created_date}}</span>
 <span class="id" style="display: none;">{{$item.id}}</span>
 {{/if}}
-	<div class="media">
+	<div class="media {{$item.shiny}}">
 		{{* Put addional actions in a top-right dropdown menu *}}
 
 		<ul class="nav nav-pills preferences">
@@ -269,11 +269,6 @@ as the value of $top_child_total (this is done at the end of this file)
 
 		{{* item content *}}
 		<div class="wall-item-content {{$item.type}}" id="wall-item-content-{{$item.id}}">
-			{{* insert some space if it's an top-level post *}}
-			{{if $item.thread_level==1}}
-			<div class="wall-spacer">&nbsp;</div> <!-- use padding/margin instead-->
-			{{/if}}
-
 			{{if $item.title}}
 			<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}} p-name">{{$item.title}}</a></h4><br /></span>
 			{{/if}}
@@ -396,30 +391,22 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{if $item.thread_level!=1}}
 		</div><!--./media-body from for comments-->
 		{{/if}}
+	</div>
+	{{foreach $item.children as $child}}
+		{{include file="{{$item.template}}" item=$child}}
+	{{/foreach}}
 
-		{{foreach $item.children as $child}}
-			{{*
-			{{if $child.type == tag}}
-				{{include file="wall_item_tag.tpl" item=$child}}
-			{{else}}
-				{{include file="{{$item.template}}" item=$child}}
-			{{/if}}
-			*}}
-			{{include file="{{$item.template}}" item=$child}}
-		{{/foreach}}
-
-		{{* Insert the comment box of the top level post at the bottom of the thread.
-			Display this comment box if there are any comments. If not hide it. In this
-			case it could be opend with the "comment" button *}}
-		{{if $item.comment && $item.thread_level==1}}
-			{{if $item.total_comments_num}}
-			<div class="comment-fake-form" id="comment-fake-form-{{$item.id}}">
-				<textarea id="comment-fake-text-{{$item.id}}" class="comment-fake-text-empty form-control" placeholder="{{$item.reply_label}}" onFocus="commentOpenUI(this, {{$item.id}});"  rows="1"></textarea>
-			</div>
-			{{/if}}
-			<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment nofilter}}</div>
+	{{* Insert the comment box of the top level post at the bottom of the thread.
+		Display this comment box if there are any comments. If not hide it. In this
+		case it could be opend with the "comment" button *}}
+	{{if $item.comment && $item.thread_level==1}}
+		{{if $item.total_comments_num}}
+		<div class="comment-fake-form" id="comment-fake-form-{{$item.id}}">
+			<textarea id="comment-fake-text-{{$item.id}}" class="comment-fake-text-empty form-control" placeholder="{{$item.reply_label}}" onFocus="commentOpenUI(this, {{$item.id}});"  rows="1"></textarea>
+		</div>
 		{{/if}}
-	</div><!-- /media -->
+		<div class="wall-item-comment-wrapper well well-small" id="item-comments-{{$item.id}}" data-display="block" style="display: none">{{$item.comment nofilter}}</div>
+	{{/if}}
 </div><!-- ./panel-body or ./wall-item-container -->
 
 {{if $mode == display}}

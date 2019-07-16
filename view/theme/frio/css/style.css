@@ -1621,8 +1621,6 @@ textarea#profile-jot-text:focus + #preview_profile-jot-text {
     padding: 15px;
 }
 .panel .panel-body {
-    padding: 15px;
-    font-size: 14px;
     word-wrap: break-word;
 }
 .panel .panel-body .wall-item-content {
@@ -1668,13 +1666,19 @@ aside .panel-body {
 
 /* wall items */
 .wall-item-container {
-    background-color: rgba(0, 0, 0, 0.03);
-    padding: 0.5em;
     border-top: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.wall-item-container.panel-body {
+    padding: 0;
+    border-top: none;
+    overflow: hidden;
 }
 
 .wall-item-container .media {
     margin-top: 0;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
 /* wall items contact photo */
@@ -1738,8 +1742,8 @@ aside .panel-body {
     top: 10px;
 }
 .comment .nav-pills.preferences {
-    right: 0px;
-    top: 0px;
+    right: 5px;
+    top: 5px;
 }
 .wall-item-network {
     font-size: 13px;
@@ -1897,7 +1901,7 @@ code > .hl-main {
 }
 .wall-item-tags,
 .itemedited {
-    margin-top: 10px;
+    margin: 10px 0;
     font-size: 13px;
 }
 
@@ -1920,7 +1924,7 @@ code > .hl-main {
 /* item social action buttons */
 .wall-item-actions {
     display: flex;
-    margin: .5em 0;
+    margin: 0;
     justify-content: space-between;
 }
 .wall-item-actions a, .wall-item-actions button {
@@ -1959,6 +1963,10 @@ code > .hl-main {
 }
 .wall-item-actions .separator {
     margin: 0 .3em;
+}
+
+.wall-item-responses > div > p {
+    margin: 0;
 }
 
 /* wall item hover effects */
@@ -2008,7 +2016,6 @@ code > .hl-main {
     margin-bottom: 0;
 }
 .comment-container {
-    margin-top: 10px;
     margin-bottom: 0px;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -2125,7 +2132,6 @@ img.acpopup-img {
 .wall-item-container.thread_level_6,
 .wall-item-container.thread_level_7 {
     margin-left: 15px;
-    margin-right: -0.5em;
 }
 /* Menubar Tabs */
 section > .tabbar-wrapper {
@@ -3530,6 +3536,10 @@ section .profile-match-wrapper {
 	.panel .panel-body {
 		padding: 10px;
 	}
+
+    .toplevel_item > .wall-item-container {
+        padding: 0;
+    }
 
 	.wall-spacer {
 		height: 0px;
