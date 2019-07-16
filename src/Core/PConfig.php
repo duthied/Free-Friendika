@@ -40,7 +40,7 @@ class PConfig
 	 *
 	 * @return void
 	 */
-	public static function load(int $uid, $cat)
+	public static function load(int $uid, string $cat)
 	{
 		self::$config->load($uid, $cat);
 	}
@@ -57,7 +57,7 @@ class PConfig
 	 *
 	 * @return mixed Stored value or null if it does not exist
 	 */
-	public static function get(int $uid, $cat, $key, $default_value = null, $refresh = false)
+	public static function get(int $uid, string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
 		return self::$config->get($uid, $cat, $key, $default_value, $refresh);
 	}
@@ -72,7 +72,7 @@ class PConfig
 	 *
 	 * @return bool Operation success
 	 */
-	public static function set(int $uid, $cat, $key, $value)
+	public static function set(int $uid, string $cat, string $key, $value)
 	{
 		return self::$config->set($uid, $cat, $key, $value);
 	}
@@ -86,7 +86,7 @@ class PConfig
 	 *
 	 * @return bool
 	 */
-	public static function delete(int $uid, $cat, $key)
+	public static function delete(int $uid, string $cat, string $key)
 	{
 		return self::$config->delete($uid, $cat, $key);
 	}
