@@ -56,7 +56,7 @@ class ApiTest extends DatabaseTest
 		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();
-		$l10n = new L10n(L10n::detectLanguage($config->get('system', 'language', 'en')),
+		$l10n = new L10n(L10n::detectLanguage($config->get('system', 'language')),
 			self::$dba,
 			$logger);
 		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, $l10n, false);
