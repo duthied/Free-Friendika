@@ -5,9 +5,9 @@ namespace Friendica\Factory;
 use Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Cache;
+use Friendica\Util\ConfigFileLoader;
 use Friendica\Model\Config\Config as ConfigModel;
 use Friendica\Model\Config\PConfig as PConfigModel;
-use Friendica\Util\Config\ConfigFileLoader;
 
 class ConfigFactory
 {
