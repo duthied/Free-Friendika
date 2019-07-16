@@ -20,7 +20,7 @@ class Feature
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEnabled($uid, $feature)
+	public static function isEnabled(int $uid, $feature)
 	{
 		$x = Config::get('feature_lock', $feature, false);
 

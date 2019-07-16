@@ -30,7 +30,7 @@ class CalendarExport
 			return;
 		}
 
-		$owner_uid = $a->data['user']['uid'];
+		$owner_uid = intval($a->data['user']['uid']);
 
 		// The permission testing is a little bit tricky because we have to respect many cases.
 

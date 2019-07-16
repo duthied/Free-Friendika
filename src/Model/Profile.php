@@ -717,7 +717,7 @@ class Profile
 
 	public static function getAdvanced(App $a)
 	{
-		$uid = $a->profile['uid'];
+		$uid = intval($a->profile['uid']);
 
 		if ($a->profile['name']) {
 			$tpl = Renderer::getMarkupTemplate('profile_advanced.tpl');

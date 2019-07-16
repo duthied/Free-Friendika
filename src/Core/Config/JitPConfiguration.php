@@ -32,10 +32,10 @@ class JitPConfiguration extends PConfiguration
 	 * {@inheritDoc}
 	 *
 	 */
-	public function load($uid, string $cat = 'config')
+	public function load(int $uid, string $cat = 'config')
 	{
 		// If not connected or no uid, do nothing
-		if (!is_int($uid) || !$this->configModel->isConnected()) {
+		if (!$uid || !$this->configModel->isConnected()) {
 			return;
 		}
 
@@ -54,9 +54,9 @@ class JitPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function get($uid, string $cat, string $key, $default_value = null, bool $refresh = false)
+	public function get(int $uid, string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
-		if (!is_int($uid)) {
+		if (!$uid) {
 			return $default_value;
 		}
 
@@ -84,9 +84,9 @@ class JitPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set($uid, string $cat, string $key, $value)
+	public function set(int $uid, string $cat, string $key, $value)
 	{
-		if (!is_int($uid)) {
+		if (!$uid) {
 			return false;
 		}
 
@@ -108,9 +108,9 @@ class JitPConfiguration extends PConfiguration
 	/**
 	 * {@inheritDoc}
 	 */
-	public function delete($uid, string $cat, string $key)
+	public function delete(int $uid, string $cat, string $key)
 	{
-		if (!is_int($uid)) {
+		if (!$uid) {
 			return false;
 		}
 

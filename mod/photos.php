@@ -149,7 +149,7 @@ function photos_post(App $a)
 	$can_post  = false;
 	$visitor   = 0;
 
-	$page_owner_uid = $a->data['user']['uid'];
+	$page_owner_uid = intval($a->data['user']['uid']);
 	$community_page = $a->data['user']['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 
 	if (local_user() && (local_user() == $page_owner_uid)) {

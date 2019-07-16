@@ -110,7 +110,7 @@ function cal_content(App $a)
 	$remote_contact = false;
 	$contact_id = 0;
 
-	$owner_uid = $a->data['user']['uid'];
+	$owner_uid = intval($a->data['user']['uid']);
 	$nick = $a->data['user']['nickname'];
 
 	if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
@@ -290,14 +290,14 @@ function cal_content(App $a)
 	}
 
 	if ($mode == 'export') {
-		if (!intval($owner_uid)) {
+		if (!$owner_uid) {
 			notice(L10n::t('User not found'));
 			return;
 		}
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if ((local_user() !== intval($owner_uid)) && !Feature::isEnabled($owner_uid, "export_calendar")) {
+		if ((local_user() !== $owner_uid) && !Feature::isEnabled($owner_uid, "export_calendar")) {
 			notice(L10n::t('Permission denied.') . EOL);
 			$a->internalRedirect('cal/' . $nick);
 		}
@@ -314,7 +314,7 @@ function cal_content(App $a)
 
 			// If it the own calendar return to the events page
 			// otherwise to the profile calendar page
-			if (local_user() === intval($owner_uid)) {
+			if (local_user() === $owner_uid) {
 				$return_path = "events";
 			} else {
 				$return_path = "cal/" . $nick;

@@ -108,16 +108,6 @@ class PreloadPConfigurationTest extends PConfigurationTest
 		parent::testGetWithRefresh($uid, $data);
 	}
 
-
-	public function testGetWrongWithoutDB()
-	{
-		$this->configModel->shouldReceive('isConnected')
-		                  ->andReturn(false)
-		                  ->times(3);
-
-		parent::testGetWrongWithoutDB();
-	}
-
 	/**
 	 * @dataProvider dataTests
 	 */
@@ -138,7 +128,7 @@ class PreloadPConfigurationTest extends PConfigurationTest
 
 		// constructor loading
 		$this->configModel->shouldReceive('load')
-		                  ->with(0)
+		                  ->with(42)
 		                  ->andReturn(['config' => []])
 		                  ->once();
 

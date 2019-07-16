@@ -365,22 +365,24 @@ abstract class PConfigurationTest extends MockedTest
 	 */
 	public function testDeleteWithDB()
 	{
-		$this->configCache->load(0, ['test' => ['it' => 'now', 'quarter' => 'true']]);
+		$uid = 42;
+
+		$this->configCache->load($uid, ['test' => ['it' => 'now', 'quarter' => 'true']]);
 
 		$this->configModel->shouldReceive('delete')
-		                  ->with(0, 'test', 'it')
+		                  ->with($uid, 'test', 'it')
 		                  ->andReturn(false)
 		                  ->once();
 		$this->configModel->shouldReceive('delete')
-		                  ->with(0, 'test', 'second')
+		                  ->with($uid, 'test', 'second')
 		                  ->andReturn(true)
 		                  ->once();
 		$this->configModel->shouldReceive('delete')
-		                  ->with(0, 'test', 'third')
+		                  ->with($uid, 'test', 'third')
 		                  ->andReturn(false)
 		                  ->once();
 		$this->configModel->shouldReceive('delete')
-		                  ->with(0, 'test', 'quarter')
+		                  ->with($uid, 'test', 'quarter')
 		                  ->andReturn(true)
 		                  ->once();
 
@@ -388,19 +390,19 @@ abstract class PConfigurationTest extends MockedTest
 		$this->assertInstanceOf(PConfigCache::class, $this->testedConfig->getCache());
 
 		// directly set the value to the cache
-		$this->testedConfig->getCache()->set(0, 'test', 'it', 'now');
+		$this->testedConfig->getCache()->set($uid, 'test', 'it', 'now');
 
-		$this->assertEquals('now', $this->testedConfig->get(0, 'test', 'it'));
-		$this->assertEquals('now', $this->testedConfig->getCache()->get(0, 'test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->get($uid, 'test', 'it'));
+		$this->assertEquals('now', $this->testedConfig->getCache()->get($uid, 'test', 'it'));
 
 		// delete from cache only
-		$this->assertTrue($this->testedConfig->delete(0, 'test', 'it'));
+		$this->assertTrue($this->testedConfig->delete($uid, 'test', 'it'));
 		// delete from db only
-		$this->assertTrue($this->testedConfig->delete(0, 'test', 'second'));
+		$this->assertTrue($this->testedConfig->delete($uid, 'test', 'second'));
 		// no delete
-		$this->assertFalse($this->testedConfig->delete(0, 'test', 'third'));
+		$this->assertFalse($this->testedConfig->delete($uid, 'test', 'third'));
 		// delete both
-		$this->assertTrue($this->testedConfig->delete(0, 'test', 'quarter'));
+		$this->assertTrue($this->testedConfig->delete($uid, 'test', 'quarter'));
 
 		$this->assertEmpty($this->testedConfig->getCache()->getAll());
 	}
@@ -460,7 +462,7 @@ abstract class PConfigurationTest extends MockedTest
 	public function testInvalidUid()
 	{
 		// bad UID!
-		$uid = null;
+		$uid = 0;
 
 		$this->testedConfig = $this->getInstance();
 

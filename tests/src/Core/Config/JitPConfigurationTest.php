@@ -116,15 +116,6 @@ class JitPConfigurationTest extends PConfigurationTest
 		parent::testGetWithRefresh($uid, $data);
 	}
 
-	public function testGetWrongWithoutDB()
-	{
-		$this->configModel->shouldReceive('isConnected')
-		                  ->andReturn(false)
-		                  ->times(3);
-
-		parent::testGetWrongWithoutDB();
-	}
-
 	/**
 	 * @dataProvider dataTests
 	 */
@@ -145,7 +136,7 @@ class JitPConfigurationTest extends PConfigurationTest
 
 		// mocking one get without result
 		$this->configModel->shouldReceive('get')
-		                  ->with(0, 'test', 'it')
+		                  ->with(42, 'test', 'it')
 		                  ->andReturn(null)
 		                  ->once();
 

@@ -297,11 +297,13 @@ class Widget
 	{
 		$a = \get_app();
 
-		if (!Feature::isEnabled($a->profile['profile_uid'], 'categories')) {
+		$uid = intval($a->profile['profile_uid']);
+
+		if (!Feature::isEnabled($uid, 'categories')) {
 			return '';
 		}
 
-		$saved = PConfig::get($a->profile['profile_uid'], 'system', 'filetags');
+		$saved = PConfig::get($uid, 'system', 'filetags');
 		if (!strlen($saved)) {
 			return;
 		}
@@ -420,17 +422,19 @@ class Widget
 	{
 		$a = \get_app();
 
-		if (!$a->profile['profile_uid'] || !$a->profile['url']) {
+		$uid = intval($a->profile['profile_uid']);
+
+		if (!$uid || !$a->profile['url']) {
 			return '';
 		}
 
-		if (Feature::isEnabled($a->profile['profile_uid'], 'tagadelic')) {
+		if (Feature::isEnabled($uid, 'tagadelic')) {
 			$owner_id = Contact::getIdForURL($a->profile['url'], 0, true);
 
 			if (!$owner_id) {
 				return '';
 			}
-			return Widget\TagCloud::getHTML($a->profile['profile_uid'], $limit, $owner_id, 'wall');
+			return Widget\TagCloud::getHTML($uid, $limit, $owner_id, 'wall');
 		}
 
 		return '';
