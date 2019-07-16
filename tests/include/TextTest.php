@@ -5,6 +5,7 @@
 
 namespace Friendica\Test;
 
+use Friendica\Model\Group;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -55,8 +56,8 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclNormal()
 	{
-		$text='<1><2><3>';
-		$this->assertEquals(array(1, 2, 3), expand_acl($text));
+		$text='<1><2><3><' . Group::FOLLOWERS . '><' . Group::MUTUALS . '>';
+		$this->assertEquals(array('1', '2', '3', Group::FOLLOWERS, Group::MUTUALS), expand_acl($text));
 	}
 
 	/**
@@ -64,8 +65,8 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclBigNumber()
 	{
-		$text='<1><'.PHP_INT_MAX.'><15>';
-		$this->assertEquals(array(1, PHP_INT_MAX, 15), expand_acl($text));
+		$text='<1><' . PHP_INT_MAX . '><15>';
+		$this->assertEquals(array('1', (string)PHP_INT_MAX, '15'), expand_acl($text));
 	}
 
 	/**
@@ -76,7 +77,7 @@ class TextTest extends TestCase
 	public function testExpandAclString()
 	{
 		$text="<1><279012><tt>";
-		$this->assertEquals(array(1, 279012), expand_acl($text));
+		$this->assertEquals(array('1', '279012'), expand_acl($text));
 	}
 
 	/**
@@ -87,7 +88,7 @@ class TextTest extends TestCase
 	public function testExpandAclSpace()
 	{
 		$text="<1><279 012><32>";
-		$this->assertEquals(array(1, "279", "32"), expand_acl($text));
+		$this->assertEquals(array('1', '32'), expand_acl($text));
 	}
 
 	/**
@@ -174,7 +175,7 @@ class TextTest extends TestCase
 	public function testExpandAclEmptyMatch()
 	{
 		$text="<1><><3>";
-		$this->assertEquals(array(1,3), expand_acl($text));
+		$this->assertEquals(array('1', '3'), expand_acl($text));
 	}
 
 	/**
