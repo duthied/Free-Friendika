@@ -32,7 +32,7 @@ class InstallerTest extends MockedTest
 
 	private function mockL10nT(string $text, $times = null)
 	{
-		$this->l10nMock->shouldReceive('t')->with($text, [])->andReturn($text)->times($times);
+		$this->l10nMock->shouldReceive('t')->with($text)->andReturn($text)->times($times);
 	}
 
 	/**
