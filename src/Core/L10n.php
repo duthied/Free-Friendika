@@ -81,7 +81,7 @@ class L10n
 	 */
 	public static function t($s, ...$vars)
 	{
-		return self::$l10n->t($s, $vars);
+		return self::$l10n->t($s, ...$vars);
 	}
 
 	/**
