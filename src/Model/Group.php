@@ -8,6 +8,7 @@ use Friendica\BaseModule;
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
@@ -332,7 +333,11 @@ class Group extends BaseObject
 
 		$key = array_search(self::FOLLOWERS, $group_ids);
 		if ($key !== false) {
-			$followersStmt = Contact::select(['id'], ['uid' => $uid, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
+			$followersStmt = Contact::select(['id'], [
+				'uid' => $uid,
+				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
+				'protocol' => Protocol::NATIVE_SUPPORT,
+			]);
 
 			while($follower = DBA::fetch($followersStmt)) {
 				$return[] = $follower['id'];
@@ -343,7 +348,11 @@ class Group extends BaseObject
 
 		$key = array_search(self::MUTUALS, $group_ids);
 		if ($key !== false) {
-			$mutualsStmt = Contact::select(['id'], ['uid' => $uid, 'rel' => [Contact::FRIEND]]);
+			$mutualsStmt = Contact::select(['id'], [
+				'uid' => $uid,
+				'rel' => [Contact::FRIEND],
+				'protocol' => Protocol::NATIVE_SUPPORT,
+			]);
 
 			while($mutual = DBA::fetch($mutualsStmt)) {
 				$return[] = $mutual['id'];
