@@ -11,6 +11,7 @@
 
 <div id="settings_general_expanded" class="settings-block" style="display: none;">
 
+	{{include file="field_checkbox.tpl" field=$accept_only_sharer}}
 	{{include file="field_checkbox.tpl" field=$disable_cw}}
 	{{include file="field_checkbox.tpl" field=$no_intelligent_shortening}}
 	{{include file="field_checkbox.tpl" field=$ostatus_autofriend}}

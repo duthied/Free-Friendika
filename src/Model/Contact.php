@@ -175,6 +175,73 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * @brief Tests if the given contact url is a follower
+	 *
+	 * @param string $url Contact URL
+	 * @param int    $uid User ID
+	 *
+	 * @return boolean is the contact id a follower?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isFollowerByURL($url, $uid)
+	{
+		$cid = self::getIdForURL($url, $uid, true);
+
+		if (empty($cid)) {
+			return false;
+		}
+
+		return self::isFollower($cid, $uid);
+	}
+
+	/**
+	 * @brief Tests if the given user follow the given contact
+	 *
+	 * @param int $cid Either public contact id or user's contact id
+	 * @param int $uid User ID
+	 *
+	 * @return boolean is the contact url being followed?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isSharing($cid, $uid)
+	{
+		if (self::isBlockedByUser($cid, $uid)) {
+			return false;
+		}
+
+		$cdata = self::getPublicAndUserContacID($cid, $uid);
+		if (empty($cdata['user'])) {
+			return false;
+		}
+
+		$condition = ['id' => $cdata['user'], 'rel' => [self::SHARING, self::FRIEND]];
+		return DBA::exists('contact', $condition);
+	}
+
+	/**
+	 * @brief Tests if the given user follow the given contact url
+	 *
+	 * @param string $url Contact URL
+	 * @param int    $uid User ID
+	 *
+	 * @return boolean is the contact url being followed?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isSharingByURL($url, $uid)
+	{
+		$cid = self::getIdForURL($url, $uid, true);
+
+		if (empty($cid)) {
+			return false;
+		}
+
+		return self::isSharing($cid, $uid);
+	}
+
+	/**
 	 * @brief Get the basepath for a given contact link
 	 *
 	 * @param string $url The contact link

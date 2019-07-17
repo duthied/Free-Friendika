@@ -20,6 +20,8 @@
 				<div id="content-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="content-settings">
 					<div class="section-content-wrapper">
 
+						{{include file="field_checkbox.tpl" field=$accept_only_sharer}}
+
 						{{include file="field_checkbox.tpl" field=$disable_cw}}
 
 						{{include file="field_checkbox.tpl" field=$no_intelligent_shortening}}
