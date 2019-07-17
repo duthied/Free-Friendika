@@ -522,13 +522,17 @@ class Processor
 	 * @param $child
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchMissingActivity($url, $child)
+	public static function fetchMissingActivity($url, $child = [])
 	{
 		if (Config::get('system', 'ostatus_full_threads')) {
 			return;
 		}
 
-		$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
+		if (!empty($child['receiver'])) {
+			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
+		} else {
+			$uid = 0;
+		}
 
 		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
@@ -541,15 +545,34 @@ class Processor
 			return;
 		}
 
+		if (!empty($child['author'])) {
+			$actor = $child['author'];
+		} elseif (!empty($object['actor'])) {
+			$actor = $object['actor'];
+		} elseif (!empty($object['attributedTo'])) {
+			$actor = $object['attributedTo'];
+		} else {
+			// Shouldn't happen
+			$actor = '';
+		}
+
+		if (!empty($object['published'])) {
+			$published = $object['published'];
+		} elseif (!empty($child['published'])) {
+			$published = $child['published'];
+		} else {
+			$published = DateTimeFormat::utcNow();
+		}
+
 		$activity = [];
 		$activity['@context'] = $object['@context'];
 		unset($object['@context']);
 		$activity['id'] = $object['id'];
 		$activity['to'] = defaults($object, 'to', []);
 		$activity['cc'] = defaults($object, 'cc', []);
-		$activity['actor'] = $child['author'];
+		$activity['actor'] = $actor;
 		$activity['object'] = $object;
-		$activity['published'] = defaults($object, 'published', $child['published']);
+		$activity['published'] = $published;
 		$activity['type'] = 'Create';
 
 		$ldactivity = JsonLD::compact($activity);
