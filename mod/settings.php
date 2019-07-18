@@ -369,19 +369,19 @@ function settings_post(App $a)
 		PConfig::set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
 		PConfig::set(local_user(), 'system', 'smart_threading'         , $smart_threading);
 
-		if ($theme == $a->user['theme']) {
-			// call theme_post only if theme has not been changed
-			if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
-				require_once $themeconfigfile;
-				theme_post($a);
+		if (in_array($theme, Theme::getAllowedList())) {
+			if ($theme == $a->user['theme']) {
+				// call theme_post only if theme has not been changed
+				if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
+					require_once $themeconfigfile;
+					theme_post($a);
+				}
+			} else {
+				$a->getDatabase()->update('user', ['theme' => $theme], ['uid' => local_user()]);
 			}
+		} else {
+			notice(L10n::t('The theme you chose isn\'t available.'));
 		}
-		Theme::install($theme);
-
-		q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
-				DBA::escape($theme),
-				intval(local_user())
-		);
 
 		Hook::callAll('display_settings_post', $_POST);
 		$a->internalRedirect('settings/display');
