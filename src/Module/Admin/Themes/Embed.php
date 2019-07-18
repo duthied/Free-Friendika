@@ -77,6 +77,9 @@ class Embed extends BaseAdminModule
 				}
 			}
 
+			// Overrides normal theme style include to strip user param to show embedded theme settings
+			Renderer::$theme['stylesheet'] = 'view/theme/' . $theme . '/style.pcss';
+
 			$t = Renderer::getMarkupTemplate('admin/addons/embed.tpl');
 			return Renderer::replaceMacros($t, [
 				'$action' => '/admin/themes/' . $theme . '/embed?mode=minimal',
