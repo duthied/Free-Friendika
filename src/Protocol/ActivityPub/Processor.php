@@ -8,6 +8,7 @@ use Friendica\Database\DBA;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
