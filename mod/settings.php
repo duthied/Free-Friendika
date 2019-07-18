@@ -912,8 +912,8 @@ function settings_content(App $a)
 			}
 		}
 
-		$theme_selected        = Session::get('theme', $default_theme);
-		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
+		$theme_selected        = $a->user['theme'] ?: $default_theme;
+		$mobile_theme_selected = $a->user['mobile-theme'] ?: $default_mobile_theme;
 
 		$nowarn_insecure = intval(PConfig::get(local_user(), 'system', 'nowarn_insecure'));
 
