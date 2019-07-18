@@ -3625,20 +3625,18 @@ class Item extends BaseObject
 	{
 		$item_id = self::searchByLink($uri, $uid);
 		if (!empty($item_id)) {
-echo "a\n";
 			return $item_id;
 		}
 
-echo "b\n";
 		ActivityPub\Processor::fetchMissingActivity($uri);
+
+		/// @todo add Diaspora as well
 
 		$item_id = self::searchByLink($uri, $uid);
 		if (!empty($item_id)) {
-echo "c\n";
 			return $item_id;
 		}
 
-echo "d\n";
 		return 0;
 	}
 }
