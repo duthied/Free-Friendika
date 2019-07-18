@@ -425,6 +425,21 @@ class Processor
 				continue;
 			}
 
+			if (PConfig::get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
+
+				if ($skip && (($activity['type'] == 'as:Announce') || $isForum)) {
+					$skip = !Contact::isSharingByURL($activity['actor'], $receiver);
+				}
+
+				if ($skip) {
+					Logger::info('Skipping post', ['uid' => $receiver, 'url' => $item['uri']]);
+					continue;
+				}
+
+				Logger::info('Accepting post', ['uid' => $receiver, 'url' => $item['uri']]);
+			}
+
 			if ($activity['object_type'] == 'as:Event') {
 				self::createEvent($activity, $item);
 			}
@@ -524,10 +539,6 @@ class Processor
 	 */
 	public static function fetchMissingActivity($url, $child = [])
 	{
-		if (Config::get('system', 'ostatus_full_threads')) {
-			return;
-		}
-
 		if (!empty($child['receiver'])) {
 			$uid = ActivityPub\Receiver::getFirstUserFromReceivers($child['receiver']);
 		} else {
