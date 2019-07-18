@@ -56,15 +56,17 @@ function theme_content(App $a)
 	}
 	$arr = [];
 
-	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));
+	$node_scheme = Config::get('frio', 'scheme', Config::get('frio', 'scheme'));
+
+	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema', $node_scheme));
 	$arr['share_string']     = '';
-	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg');
-	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color');
-	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color');
-	$arr['background_color'] = PConfig::get(local_user(), 'frio', 'background_color');
-	$arr['contentbg_transp'] = PConfig::get(local_user(), 'frio', 'contentbg_transp');
-	$arr['background_image'] = PConfig::get(local_user(), 'frio', 'background_image');
-	$arr['bg_image_option']  = PConfig::get(local_user(), 'frio', 'bg_image_option');
+	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg'          , Config::get('frio', 'nav_bg'));
+	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color'  , Config::get('frio', 'nav_icon_color'));
+	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color'      , Config::get('frio', 'link_color'));
+	$arr['background_color'] = PConfig::get(local_user(), 'frio', 'background_color', Config::get('frio', 'background_color'));
+	$arr['contentbg_transp'] = PConfig::get(local_user(), 'frio', 'contentbg_transp', Config::get('frio', 'contentbg_transp'));
+	$arr['background_image'] = PConfig::get(local_user(), 'frio', 'background_image', Config::get('frio', 'background_image'));
+	$arr['bg_image_option']  = PConfig::get(local_user(), 'frio', 'bg_image_option' , Config::get('frio', 'bg_image_option'));
 
 	return frio_form($arr);
 }
