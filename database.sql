@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.09-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1318
+-- DB_UPDATE_VERSION 1319
 -- ------------------------------------------
 
 
@@ -605,15 +605,15 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `extid` (`extid`(191)),
 	 INDEX `uid_id` (`uid`,`id`),
 	 INDEX `uid_contactid_id` (`uid`,`contact-id`,`id`),
-	 INDEX `uid_created` (`uid`,`created`),
+	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
 	 INDEX `uid_unseen_contactid` (`uid`,`unseen`,`contact-id`),
 	 INDEX `uid_network_received` (`uid`,`network`,`received`),
 	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
 	 INDEX `uid_thrparent` (`uid`,`thr-parent`(190)),
 	 INDEX `uid_parenturi` (`uid`,`parent-uri`(190)),
-	 INDEX `uid_contactid_created` (`uid`,`contact-id`,`created`),
-	 INDEX `authorid_created` (`author-id`,`created`),
+	 INDEX `uid_contactid_received` (`uid`,`contact-id`,`received`),
+	 INDEX `authorid_received` (`author-id`,`received`),
 	 INDEX `ownerid` (`owner-id`),
 	 INDEX `contact-id` (`contact-id`),
 	 INDEX `uid_uri` (`uid`,`uri`(190)),
@@ -667,6 +667,7 @@ CREATE TABLE IF NOT EXISTS `item-content` (
 	 PRIMARY KEY(`id`),
 	 UNIQUE INDEX `uri-plink-hash` (`uri-plink-hash`),
 	 INDEX `uri` (`uri`(191)),
+	 INDEX `plink` (`plink`(191)),
 	 INDEX `uri-id` (`uri-id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Content for all posts';
 
@@ -1157,15 +1158,15 @@ CREATE TABLE IF NOT EXISTS `thread` (
 	`bookmark` boolean COMMENT '',
 	 PRIMARY KEY(`iid`),
 	 INDEX `uid_network_commented` (`uid`,`network`,`commented`),
-	 INDEX `uid_network_created` (`uid`,`network`,`created`),
+	 INDEX `uid_network_received` (`uid`,`network`,`received`),
 	 INDEX `uid_contactid_commented` (`uid`,`contact-id`,`commented`),
-	 INDEX `uid_contactid_created` (`uid`,`contact-id`,`created`),
+	 INDEX `uid_contactid_received` (`uid`,`contact-id`,`received`),
 	 INDEX `contactid` (`contact-id`),
 	 INDEX `ownerid` (`owner-id`),
 	 INDEX `authorid` (`author-id`),
-	 INDEX `uid_created` (`uid`,`created`),
+	 INDEX `uid_received` (`uid`,`received`),
 	 INDEX `uid_commented` (`uid`,`commented`),
-	 INDEX `uid_wall_created` (`uid`,`wall`,`created`),
+	 INDEX `uid_wall_received` (`uid`,`wall`,`received`),
 	 INDEX `private_wall_origin_commented` (`private`,`wall`,`origin`,`commented`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Thread related data';
 
