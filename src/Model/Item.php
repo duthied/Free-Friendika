@@ -29,6 +29,7 @@ use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
+use Friendica\Protocol\ActivityPub;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -3574,5 +3575,68 @@ class Item extends BaseObject
 		}
 
 		return Contact::isForum($item['contact-id']);
+	}
+
+	/**
+	 * Search item id for given URI or plink
+	 *
+	 * @param string $uri
+	 * @param integer $uid
+	 *
+	 * @return integer item id
+	 */
+	public static function searchByLink($uri, $uid = 0)
+	{
+		$ssl_uri = str_replace('http://', 'https://', $uri);
+		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
+
+		$item = DBA::selectFirst('item', ['id'], ['uri' => $uris, 'uid' => $uid]);
+		if (DBA::isResult($item)) {
+			return $item['id'];
+		}
+
+		$itemcontent = DBA::selectFirst('item-content', ['uri-id'], ['plink' => $uris]);
+		if (!DBA::isResult($itemcontent)) {
+			return 0;
+		}
+
+		$itemuri = DBA::selectFirst('item-uri', ['uri'], ['id' => $itemcontent['uri-id']]);
+		if (!DBA::isResult($itemuri)) {
+			return 0;
+		}
+
+		$item = DBA::selectFirst('item', ['id'], ['uri' => $itemuri['uri'], 'uid' => $uid]);
+		if (DBA::isResult($item)) {
+			return $item['id'];
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Fetches item for given URI or plink
+	 *
+	 * @param string $uri
+	 * @param integer $uid
+	 *
+	 * @return integer item id
+	 */
+	public static function fetchByLink($uri, $uid = 0)
+	{
+		$item_id = self::searchByLink($uri, $uid);
+		if (!empty($item_id)) {
+			return $item_id;
+		}
+
+		ActivityPub\Processor::fetchMissingActivity($uri);
+
+		/// @todo add Diaspora as well
+
+		$item_id = self::searchByLink($uri, $uid);
+		if (!empty($item_id)) {
+			return $item_id;
+		}
+
+		return 0;
 	}
 }

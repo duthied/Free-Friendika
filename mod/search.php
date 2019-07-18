@@ -18,7 +18,6 @@ use Friendica\Module\BaseSearchModule;
 use Friendica\Util\Strings;
 
 function search_saved_searches() {
-
 	$o = '';
 	$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
@@ -50,12 +49,10 @@ function search_saved_searches() {
 	}
 
 	return $o;
-
 }
 
 
 function search_init(App $a) {
-
 	$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
 	if (local_user()) {
@@ -83,13 +80,9 @@ function search_init(App $a) {
 		unset($_SESSION['theme']);
 		unset($_SESSION['mobile-theme']);
 	}
-
-
-
 }
 
 function search_content(App $a) {
-
 	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
@@ -152,6 +145,16 @@ function search_content(App $a) {
 	}
 	if (strpos($search,'!') === 0) {
 		return BaseSearchModule::performSearch();
+	}
+
+	if (parse_url($search, PHP_URL_SCHEME) != '') {
+		$id = Item::fetchByLink($search);
+		if (!empty($id)) {
+			$item = Item::selectFirst(['guid'], ['id' => $id]);
+			if (DBA::isResult($item)) {
+				$a->internalRedirect('display/' . $item['guid']);
+			}
+		}
 	}
 
 	if (!empty($_GET['search-option']))
