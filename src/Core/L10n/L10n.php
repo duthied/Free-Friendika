@@ -120,7 +120,7 @@ class L10n
 			return;
 		}
 
-		if (!$this->langSave) {
+		if (empty($this->langSave)) {
 			$this->langSave    = $this->lang;
 			$this->stringsSave = $this->strings;
 		}
@@ -140,8 +140,8 @@ class L10n
 		$this->strings = $this->stringsSave;
 		$this->lang    = $this->langSave;
 
-		unset($this->stringsSave);
-		unset($this->langSave);
+		$this->stringsSave = null;
+		$this->langSave = null;
 	}
 
 	/**
