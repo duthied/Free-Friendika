@@ -32,7 +32,10 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = Factory\DependencyFactory::setUp('daemon', dirname(__DIR__));
+$dice = new \Dice\Dice();
+$dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
+
+$a = Factory\DependencyFactory::setUp('daemon', $dice);
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");

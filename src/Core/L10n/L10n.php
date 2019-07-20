@@ -2,6 +2,7 @@
 
 namespace Friendica\Core\L10n;
 
+use Friendica\Core\Config\Configuration;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Database\Database;
@@ -52,12 +53,12 @@ class L10n
 	 */
 	private $logger;
 
-	public function __construct(string $lang, Database $dba, LoggerInterface $logger)
+	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger)
 	{
 		$this->dba    = $dba;
 		$this->logger = $logger;
 
-		$this->loadTranslationTable($lang);
+		$this->loadTranslationTable(L10n::detectLanguage($config->get('system', 'language', 'en')));
 
 		\Friendica\Core\L10n::init($this);
 	}

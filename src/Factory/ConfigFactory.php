@@ -5,9 +5,9 @@ namespace Friendica\Factory;
 use Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Cache;
-use Friendica\Util\ConfigFileLoader;
 use Friendica\Model\Config\Config as ConfigModel;
 use Friendica\Model\Config\PConfig as PConfigModel;
+use Friendica\Util\ConfigFileLoader;
 
 class ConfigFactory
 {
@@ -16,7 +16,7 @@ class ConfigFactory
 	 *
 	 * @return Cache\ConfigCache
 	 */
-	public static function createCache(ConfigFileLoader $loader)
+	public function createCache(ConfigFileLoader $loader)
 	{
 		$configCache = new Cache\ConfigCache();
 		$loader->setupCache($configCache);
@@ -26,11 +26,11 @@ class ConfigFactory
 
 	/**
 	 * @param Cache\ConfigCache $configCache The config cache of this adapter
-	 * @param ConfigModel $configModel The configuration model
+	 * @param ConfigModel       $configModel The configuration model
 	 *
 	 * @return Config\Configuration
 	 */
-	public static function createConfig(Cache\ConfigCache $configCache, ConfigModel $configModel)
+	public function createConfig(Cache\ConfigCache $configCache, ConfigModel $configModel)
 	{
 		if ($configCache->get('system', 'config_adapter') === 'preload') {
 			$configuration = new Config\PreloadConfiguration($configCache, $configModel);
@@ -46,13 +46,13 @@ class ConfigFactory
 	}
 
 	/**
-	 * @param Cache\ConfigCache $configCache The config cache
-	 * @param Cache\PConfigCache  $pConfigCache The personal config cache
-	 * @param PConfigModel $configModel The configuration model
+	 * @param Cache\ConfigCache  $configCache  The config cache
+	 * @param Cache\PConfigCache $pConfigCache The personal config cache
+	 * @param PConfigModel       $configModel  The configuration model
 	 *
 	 * @return Config\PConfiguration
 	 */
-	public static function createPConfig(Cache\ConfigCache $configCache, Cache\PConfigCache $pConfigCache, PConfigModel $configModel)
+	public function createPConfig(Cache\ConfigCache $configCache, Cache\PConfigCache $pConfigCache, PConfigModel $configModel)
 	{
 		if ($configCache->get('system', 'config_adapter') === 'preload') {
 			$configuration = new Config\PreloadPConfiguration($pConfigCache, $configModel);

@@ -17,6 +17,7 @@ use Friendica\Util\Profiler;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
+use Psr\Log\NullLogger;
 
 require_once __DIR__ . '/../boot.php';
 
@@ -46,12 +47,13 @@ abstract class DatabaseTest extends MockedTest
 	{
 		parent::setUpBeforeClass();
 
-		self::$basePath = BasePath::create(dirname(__DIR__));
-		self::$mode = new Mode(self::$basePath);
-		$configLoader = new ConfigFileLoader(self::$basePath, self::$mode);
-		self::$configCache = ConfigFactory::createCache($configLoader);
-		self::$profiler = ProfilerFactory::create(self::$configCache);
-		self::$dba = DBFactory::init(self::$configCache, self::$profiler, $_SERVER);
+		self::$basePath = new BasePath(dirname(__DIR__));
+		$configLoader = new ConfigFileLoader(self::$basePath->getPath());
+		$configFactory = new ConfigFactory();
+		self::$configCache = $configFactory->createCache($configLoader);
+		self::$profiler = new Profiler(self::$configCache);
+		self::$dba = new Database(self::$configCache, self::$profiler, new NullLogger(), $_SERVER);
+		self::$mode = new Mode(self::$basePath, self::$dba, self::$configCache);
 	}
 
 	/**

@@ -30,7 +30,10 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = Factory\DependencyFactory::setUp('worker', dirname(__DIR__));
+$dice = new \Dice\Dice();
+$dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
+
+$a = Factory\DependencyFactory::setUp('worker', $dice);
 
 // Check the database structure and possibly fixes it
 Update::check($a->getBasePath(), true, $a->getMode());

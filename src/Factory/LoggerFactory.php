@@ -48,7 +48,7 @@ class LoggerFactory
 	 * @throws \Exception
 	 * @throws InternalServerErrorException
 	 */
-	public static function create($channel, Database $database, Configuration $config, Profiler $profiler)
+	public function create($channel, Database $database, Configuration $config, Profiler $profiler)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new VoidLogger();

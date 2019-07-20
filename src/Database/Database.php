@@ -9,7 +9,6 @@ use Friendica\Util\Profiler;
 use mysqli;
 use mysqli_result;
 use mysqli_stmt;
-use ParagonIE\HiddenString\HiddenString;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -46,30 +45,42 @@ class Database
 	private $in_transaction = false;
 	private $in_retrial     = false;
 	private $relation       = [];
-	private $db_serveraddr;
-	private $db_user;
-	/**
-	 * @var HiddenString
-	 */
-	private $db_pass;
-	private $db_name;
-	private $db_charset;
 
-	public function __construct(ConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, $serveraddr, $user, HiddenString $pass, $db, $charset = null)
+	public function __construct(ConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, array $server)
 	{
 		// We are storing these values for being able to perform a reconnect
 		$this->configCache   = $configCache;
 		$this->profiler      = $profiler;
 		$this->logger        = $logger;
-		$this->db_serveraddr = $serveraddr;
-		$this->db_user       = $user;
-		$this->db_pass       = $pass;
-		$this->db_name       = $db;
-		$this->db_charset    = $charset;
 
+		$this->readServerVariables($server);
 		$this->connect();
 
 		DBA::init($this);
+	}
+
+	private function readServerVariables(array $server)
+	{
+		// Use environment variables for mysql if they are set beforehand
+		if (!empty($server['MYSQL_HOST'])
+		    && !empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER']))
+		    && $server['MYSQL_PASSWORD'] !== false
+		    && !empty($server['MYSQL_DATABASE']))
+		{
+			$db_host = $server['MYSQL_HOST'];
+			if (!empty($server['MYSQL_PORT'])) {
+				$db_host .= ':' . $server['MYSQL_PORT'];
+			}
+			$this->configCache->set('database', 'hostname', $db_host);
+			unset($db_host);
+			if (!empty($server['MYSQL_USERNAME'])) {
+				$this->configCache->set('database', 'username', $server['MYSQL_USERNAME']);
+			} else {
+				$this->configCache->set('database', 'username', $server['MYSQL_USER']);
+			}
+			$this->configCache->set('database', 'password', (string) $server['MYSQL_PASSWORD']);
+			$this->configCache->set('database', 'database', $server['MYSQL_DATABASE']);
+		}
 	}
 
 	public function connect()
@@ -79,20 +90,17 @@ class Database
 		}
 
 		$port       = 0;
-		$serveraddr = trim($this->db_serveraddr);
-
+		$serveraddr = trim($this->configCache->get('database', 'hostname'));
 		$serverdata = explode(':', $serveraddr);
 		$server     = $serverdata[0];
-
 		if (count($serverdata) > 1) {
 			$port = trim($serverdata[1]);
 		}
-
 		$server  = trim($server);
-		$user    = trim($this->db_user);
-		$pass    = trim($this->db_pass);
-		$db      = trim($this->db_name);
-		$charset = trim($this->db_charset);
+		$user    = trim($this->configCache->get('database', 'username'));
+		$pass    = trim($this->configCache->get('database', 'password'));
+		$db      = trim($this->configCache->get('database', 'database'));
+		$charset = trim($this->configCache->get('database', 'charset'));
 
 		if (!(strlen($server) && strlen($user))) {
 			return false;

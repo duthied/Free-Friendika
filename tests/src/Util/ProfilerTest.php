@@ -2,6 +2,8 @@
 
 namespace Friendica\Test\src\Util;
 
+use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Configuration;
 use Friendica\Test\MockedTest;
 use Friendica\Util\Profiler;
 use Mockery\MockInterface;
@@ -26,7 +28,12 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testSetUp()
 	{
-		$profiler = new Profiler(true, true);
+		$configCache = \Mockery::mock(ConfigCache::class);
+		$configCache->shouldReceive('get')
+		            ->withAnyArgs()
+		            ->andReturn(true)
+		            ->twice();
+		$profiler = new Profiler($configCache);
 	}
 
 	/**
@@ -96,7 +103,13 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testSaveTimestamp($timestamp, $name, array $functions)
 	{
-		$profiler = new Profiler(true, true);
+		$configCache = \Mockery::mock(ConfigCache::class);
+		$configCache->shouldReceive('get')
+		            ->withAnyArgs()
+		            ->andReturn(true)
+		            ->twice();
+
+		$profiler = new Profiler($configCache);
 
 		foreach ($functions as $function) {
 			$profiler->saveTimestamp($timestamp, $name, $function);
@@ -111,7 +124,13 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testReset($timestamp, $name, array $functions)
 	{
-		$profiler = new Profiler(true, true);
+		$configCache = \Mockery::mock(ConfigCache::class);
+		$configCache->shouldReceive('get')
+		            ->withAnyArgs()
+		            ->andReturn(true)
+		            ->twice();
+
+		$profiler = new Profiler($configCache);
 
 		$profiler->saveTimestamp($timestamp, $name);
 		$profiler->reset();
@@ -168,7 +187,13 @@ class ProfilerTest extends MockedTest
 			->shouldReceive('info')
 			->once();
 
-		$profiler = new Profiler(true, true);
+		$configCache = \Mockery::mock(ConfigCache::class);
+		$configCache->shouldReceive('get')
+		            ->withAnyArgs()
+		            ->andReturn(true)
+		            ->twice();
+
+		$profiler = new Profiler($configCache);
 
 		foreach ($data as $perf => $items) {
 			foreach ($items['functions'] as $function) {
@@ -193,19 +218,48 @@ class ProfilerTest extends MockedTest
 	 */
 	public function testEnableDisable()
 	{
-		$profiler = new Profiler(true, false);
+		$configCache = \Mockery::mock(ConfigCache::class);
+		$configCache->shouldReceive('get')
+		            ->with('system', 'profiler')
+		            ->andReturn(true)
+		            ->once();
+		$configCache->shouldReceive('get')
+		            ->with('rendertime', 'callstack')
+		            ->andReturn(false)
+		            ->once();
+
+		$profiler = new Profiler($configCache);
 
 		$this->assertFalse($profiler->isRendertime());
 		$this->assertEmpty($profiler->getRendertimeString());
 
 		$profiler->saveTimestamp(time(), 'network', 'test1');
 
-		$profiler->update(false, false);
+		$config = \Mockery::mock(Configuration::class);
+		$config->shouldReceive('get')
+		            ->with('system', 'profiler')
+		            ->andReturn(false)
+		            ->once();
+		$config->shouldReceive('get')
+		            ->with('rendertime', 'callstack')
+		            ->andReturn(false)
+		            ->once();
+
+		$profiler->update($config);
 
 		$this->assertFalse($profiler->isRendertime());
 		$this->assertEmpty($profiler->getRendertimeString());
 
-		$profiler->update(true, true);
+		$config->shouldReceive('get')
+		       ->with('system', 'profiler')
+		       ->andReturn(true)
+		       ->once();
+		$config->shouldReceive('get')
+		       ->with('rendertime', 'callstack')
+		       ->andReturn(true)
+		       ->once();
+
+		$profiler->update($config);
 
 		$profiler->saveTimestamp(time(), 'database', 'test2');
 

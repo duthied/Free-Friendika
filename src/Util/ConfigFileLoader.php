@@ -3,7 +3,6 @@
 namespace Friendica\Util;
 
 use Exception;
-use Friendica\App;
 use Friendica\Core\Addon;
 use Friendica\Core\Config\Cache\ConfigCache;
 
@@ -53,10 +52,6 @@ class ConfigFileLoader
 	const SAMPLE_END = '-sample';
 
 	/**
-	 * @var App\Mode
-	 */
-	private $appMode;
-	/**
 	 * @var string
 	 */
 	private $baseDir;
@@ -69,12 +64,11 @@ class ConfigFileLoader
 	 */
 	private $staticDir;
 
-	public function __construct($baseDir, App\Mode $mode)
+	public function __construct(string $basePath)
 	{
-		$this->baseDir   = $baseDir;
-		$this->configDir = $baseDir . DIRECTORY_SEPARATOR . self::CONFIG_DIR;
-		$this->staticDir = $baseDir . DIRECTORY_SEPARATOR . self::STATIC_DIR;
-		$this->appMode   = $mode;
+		$this->baseDir   = $basePath;
+		$this->configDir = $this->baseDir . DIRECTORY_SEPARATOR . self::CONFIG_DIR;
+		$this->staticDir = $this->baseDir . DIRECTORY_SEPARATOR . self::STATIC_DIR;
 	}
 
 	/**
@@ -102,7 +96,7 @@ class ConfigFileLoader
 		$this->loadCoreConfig($config);
 
 		// In case of install mode, add the found basepath (because there isn't a basepath set yet
-		if (!$raw && ($this->appMode->isInstall() || empty($config->get('system', 'basepath')))) {
+		if (!$raw && empty($config->get('system', 'basepath'))) {
 			// Setting at least the basepath we know
 			$config->set('system', 'basepath', $this->baseDir);
 		}

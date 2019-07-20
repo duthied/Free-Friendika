@@ -12,7 +12,9 @@ if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
 
 require __DIR__ . '/vendor/autoload.php';
 
-$a = Factory\DependencyFactory::setUp('index', __DIR__, false);
+$dice = new \Dice\Dice();
+$dice = $dice->addRules(include __DIR__ . '/static/dependencies.config.php');
+
+$a = Factory\DependencyFactory::setUp('index', $dice, false);
 
 $a->runFrontend();
-
