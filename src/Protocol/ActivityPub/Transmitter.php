@@ -1287,6 +1287,7 @@ class Transmitter
 	 */
 	private static function createAnnounce($item, $data)
 	{
+		$orig_body = $item['body'];
 		$announce = api_share_as_retweet($item);
 		if (empty($announce['plink'])) {
 			$data['type'] = 'Create';
@@ -1299,12 +1300,29 @@ class Transmitter
 		if (!empty($activity)) {
 			$ldactivity = JsonLD::compact($activity);
 			$id = JsonLD::fetchElement($ldactivity, '@id');
+			$type = str_replace('as:', '', JsonLD::fetchElement($ldactivity, '@type'));
 			if (!empty($id)) {
-				$data['object'] = $id;
+				if (empty($announce['share-pre-body'])) {
+					// Pure announce, without a quote
+					$data['type'] = 'Announce';
+					$data['object'] = $id;
+					return $data;
+				}
+
+				// Quote
+				$data['type'] = 'Create';
+				$item['body'] = trim($announce['share-pre-body']) . "\n" . $id;
+				$data['object'] = self::createNote($item);
+
+				/// @todo Finally descide how to implement this in AP. This is a possible way:
+				$data['object']['attachment'][] = ['type' => $type, 'id' => $id];
+
+				$data['object']['source']['content'] = $orig_body;
 				return $data;
 			}
 		}
 
+		$item['body'] = $orig_body;
 		$data['type'] = 'Create';
 		$data['object'] = self::createNote($item);
 		return $data;
