@@ -25,6 +25,8 @@ class Protocol
 
 	const FEDERATED = [self::DFRN, self::DIASPORA, self::OSTATUS, self::ACTIVITYPUB];
 
+	const SUPPORT_PRIVATE = [self::DFRN, self::DIASPORA, self::MAIL, self::ACTIVITYPUB, self::PUMPIO];
+
 	// Supported through a connector
 	const DIASPORA2 = 'dspc';    // Diaspora connector
 	const LINKEDIN  = 'lnkd';    // LinkedIn

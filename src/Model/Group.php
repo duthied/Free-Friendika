@@ -336,7 +336,7 @@ class Group extends BaseObject
 			$followersStmt = Contact::select(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
-				'protocol' => Protocol::NATIVE_SUPPORT,
+				'protocol' => Protocol::SUPPORT_PRIVATE,
 			]);
 
 			while($follower = DBA::fetch($followersStmt)) {
@@ -351,7 +351,7 @@ class Group extends BaseObject
 			$mutualsStmt = Contact::select(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FRIEND],
-				'protocol' => Protocol::NATIVE_SUPPORT,
+				'protocol' => Protocol::SUPPORT_PRIVATE,
 			]);
 
 			while($mutual = DBA::fetch($mutualsStmt)) {
