@@ -61,7 +61,6 @@ function acl_content(App $a)
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `success_update` >= `failure_update`
 				AND `notify` != '' $sql_extra2",
 			intval(local_user())
 		);
@@ -72,7 +71,6 @@ function acl_content(App $a)
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND (`forum` OR `prv`)
-				AND `success_update` >= `failure_update`
 				AND `notify` != '' $sql_extra2",
 			intval(local_user())
 		);
@@ -82,7 +80,6 @@ function acl_content(App $a)
 		$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
 				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `success_update` >= `failure_update`
 				AND `network` IN ('%s', '%s', '%s') $sql_extra2",
 			intval(local_user()),
 			DBA::escape(Protocol::ACTIVITYPUB),
@@ -141,7 +138,7 @@ function acl_content(App $a)
 	if ($type == '') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-				AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s', '%s'))
+				AND NOT (`network` IN ('%s', '%s'))
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
@@ -151,7 +148,7 @@ function acl_content(App $a)
 	} elseif ($type == 'c') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-				AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s'))
+				AND NOT (`network` IN ('%s'))
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
@@ -160,7 +157,7 @@ function acl_content(App $a)
 	} elseif ($type == 'f') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-				AND `success_update` >= `failure_update` AND NOT (`network` IN ('%s'))
+				AND NOT (`network` IN ('%s'))
 				AND (`forum` OR `prv`)
 				$sql_extra2
 				ORDER BY `name` ASC ",
@@ -170,7 +167,7 @@ function acl_content(App $a)
 	} elseif ($type == 'm') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `success_update` >= `failure_update` AND `network` IN ('%s', '%s', '%s')
+				AND `network` IN ('%s', '%s', '%s')
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user()),
@@ -180,7 +177,7 @@ function acl_content(App $a)
 		);
 	} elseif ($type == 'a') {
 		$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND `success_update` >= `failure_update`
+				WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND NOT `archive`
 				$sql_extra2
 				ORDER BY `name` ASC ",
 			intval(local_user())

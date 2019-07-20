@@ -43,7 +43,7 @@ class ForumManager
 			$params = ['order' => ['name']];
 		}
 
-		$condition_str = "`network` = ? AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `success_update` > `failure_update` AND ";
+		$condition_str = "`network` = ? AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND ";
 
 		if ($showprivate) {
 			$condition_str .= '(`forum` OR `prv`)';
@@ -203,7 +203,6 @@ class ForumManager
 				AND `contact`.`network`= 'dfrn' AND (`contact`.`forum` OR `contact`.`prv`)
 				AND NOT `contact`.`blocked` AND NOT `contact`.`hidden`
 				AND NOT `contact`.`pending` AND NOT `contact`.`archive`
-				AND `contact`.`success_update` > `failure_update`
 				GROUP BY `contact`.`id` ",
 			local_user()
 		);
