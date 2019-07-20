@@ -5162,17 +5162,22 @@ function api_share_as_retweet(&$item)
 		$posted = $matches[1];
 	}
 
-	$pre_body = trim(preg_replace("/(.*?)\[share.*?\]\s?.*?\s?\[\/share\]\s?/ism", "$1", $body));
+	if (!preg_match("/(.*?)\[share.*?\]\s?(.*?)\s?\[\/share\]\s?(.*?)/ism", $body, $matches)) {
+		return false;
+	}
+
+	$pre_body = trim($matches[1]);
 	if ($pre_body != '') {
 		$item['body'] = $pre_body;
 	}
 
-	$shared_body = trim(preg_replace("/(.*?)\[share.*?\]\s?(.*?)\s?\[\/share\]\s?/ism", "$2", $body));
+	$shared_body = trim($matches[2]);
 
 	if (($shared_body == "") || ($profile == "") || ($author == "") || ($avatar == "") || ($posted == "")) {
 		return false;
 	}
 
+	$reshared_item["share-pre-body"] = $pre_body;
 	$reshared_item["body"] = $shared_body;
 	$reshared_item["author-id"] = Contact::getIdForURL($profile, 0, true);
 	$reshared_item["author-name"] = $author;
