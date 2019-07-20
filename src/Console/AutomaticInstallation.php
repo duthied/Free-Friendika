@@ -79,7 +79,8 @@ HELP;
 		$installer = new Installer();
 
 		$configCache = $a->getConfigCache();
-		$installer->setUpCache($configCache, BasePath::create($a->getBasePath(), $_SERVER));
+		$basepath = new BasePath($a->getBasePath());
+		$installer->setUpCache($configCache, $basepath->getPath());
 
 		$this->out(" Complete!\n\n");
 

@@ -9,8 +9,6 @@ use Friendica\App\Mode;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Database\Database;
 use Friendica\Factory\ConfigFactory;
-use Friendica\Factory\DBFactory;
-use Friendica\Factory\ProfilerFactory;
 use Friendica\Util\BasePath;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\Profiler;

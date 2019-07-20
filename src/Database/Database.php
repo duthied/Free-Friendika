@@ -46,7 +46,7 @@ class Database
 	private $in_retrial     = false;
 	private $relation       = [];
 
-	public function __construct(ConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, array $server)
+	public function __construct(ConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, array $server = [])
 	{
 		// We are storing these values for being able to perform a reconnect
 		$this->configCache   = $configCache;

@@ -67,7 +67,8 @@ class Install extends BaseModule
 
 		// get basic installation information and save them to the config cache
 		$configCache = $a->getConfigCache();
-		self::$installer->setUpCache($configCache, BasePath::create($a->getBasePath(), $_SERVER));
+		$basePath = new BasePath($a->getBasePath());
+		self::$installer->setUpCache($configCache, $basePath->getPath());
 
 		// We overwrite current theme css, because during install we may not have a working mod_rewrite
 		// so we may not have a css at all. Here we set a static css file for the install procedure pages
