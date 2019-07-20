@@ -92,36 +92,28 @@
 					<div id="visibility-public-panel" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="visibility-public-heading">
 						<div class="panel-body">
 							<p>{{$public_desc}}</p>
-                        {{if $doesFederate}}
-							<div class="form-group">
-								<label for="profile-jot-email" id="profile-jot-email-label">{{$emailcc}}</label>
-								<input type="text" name="emailcc" id="profile-jot-email" class="form-control" title="{{$emtitle}}" />
-							</div>
-							<div id="profile-jot-email-end"></div>
-
-                            {{if $jotnets_fields}}
-                                {{if $jotnets_fields|count < 3}}
-									<div class="profile-jot-net">
-                                {{else}}
-									<details class="profile-jot-net">
-									<summary>{{$jotnets_summary}}</summary>
-                                {{/if}}
-
-                                {{foreach $jotnets_fields as $jotnets_field}}
-                                    {{if $jotnets_field.type == 'checkbox'}}
-                                        {{include file="field_checkbox.tpl" field=$jotnets_field.field}}
-                                    {{elseif $jotnets_field.type == 'select'}}
-                                        {{include file="field_select.tpl" field=$jotnets_field.field}}
-                                    {{/if}}
-                                {{/foreach}}
-
-                                {{if $jotnets_fields|count >= 3}}
-									</details>
-                                {{else}}
-									</div>
-                                {{/if}}
-                            {{/if}}
+                    {{if $doesFederate && $jotnets_fields}}
+                        {{if $jotnets_fields|count < 3}}
+							<div class="profile-jot-net">
+                        {{else}}
+							<details class="profile-jot-net">
+							<summary>{{$jotnets_summary}}</summary>
                         {{/if}}
+
+                        {{foreach $jotnets_fields as $jotnets_field}}
+                            {{if $jotnets_field.type == 'checkbox'}}
+                                {{include file="field_checkbox.tpl" field=$jotnets_field.field}}
+                            {{elseif $jotnets_field.type == 'select'}}
+                                {{include file="field_select.tpl" field=$jotnets_field.field}}
+                            {{/if}}
+                        {{/foreach}}
+
+                        {{if $jotnets_fields|count >= 3}}
+							</details>
+                        {{else}}
+							</div>
+                        {{/if}}
+                    {{/if}}
 						</div>
 					</div>
 				</div>
@@ -149,6 +141,13 @@
 					</div>
 				</div>
 			</div>
+        {{if $doesFederate}}
+			<div class="form-group">
+				<label for="profile-jot-email" id="profile-jot-email-label">{{$emailcc}}</label>
+				<input type="text" name="emailcc" id="profile-jot-email" class="form-control" title="{{$emtitle}}" />
+			</div>
+			<div id="profile-jot-email-end"></div>
+		{{/if}}
 			<div class="jotplugins">
 				{{$jotplugins nofilter}}
 			</div>
