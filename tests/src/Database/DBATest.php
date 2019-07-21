@@ -15,10 +15,12 @@ class DBATest extends DatabaseTest
 	public function setUp()
 	{
 		$configModel = new \Friendica\Model\Config\Config(self::$dba);
-		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
+		$configFactory = new Factory\ConfigFactory();
+		$config = $configFactory->createConfig(self::$configCache, $configModel);
 		$pconfigModel = new \Friendica\Model\Config\PConfig(self::$dba);
-		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
-		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
+		$configFactory->createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
+		$loggerFactory = new Factory\LoggerFactory();
+		$logger = $loggerFactory->create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();
 		$l10n = new L10n($config,
