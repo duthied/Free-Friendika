@@ -70,7 +70,7 @@
 		<div id="photo-tags">{{$tags.title}}
 			{{foreach $tags.tags as $t}}
 			<span class="category label btn-success sm">
-				<span class="p-category">{{$t.name}}</span>
+				<span class="p-category">{{$t.name nofilter}}</span>
 				{{if $t.removeurl}} <a href="{{$t.removeurl}}">(X)</a> {{/if}}
 			</span>
 			{{/foreach}}
