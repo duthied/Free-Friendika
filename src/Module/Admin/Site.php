@@ -166,7 +166,6 @@ class Site extends BaseAdminModule
 		$nodeinfo               = !empty($_POST['nodeinfo']);
 		$dfrn_only              = !empty($_POST['dfrn_only']);
 		$ostatus_disabled       = !empty($_POST['ostatus_disabled']);
-		$ostatus_full_threads   = !empty($_POST['ostatus_full_threads']);
 		$diaspora_enabled       = !empty($_POST['diaspora_enabled']);
 		$ssl_policy             = (!empty($_POST['ssl_policy'])             ? intval($_POST['ssl_policy'])                    : 0);
 		$force_ssl              = !empty($_POST['force_ssl']);
@@ -361,7 +360,6 @@ class Site extends BaseAdminModule
 		Config::set('system', 'curl_timeout'           , $timeout);
 		Config::set('system', 'dfrn_only'              , $dfrn_only);
 		Config::set('system', 'ostatus_disabled'       , $ostatus_disabled);
-		Config::set('system', 'ostatus_full_threads'   , $ostatus_full_threads);
 		Config::set('system', 'diaspora_enabled'       , $diaspora_enabled);
 
 		Config::set('config', 'private_addons'         , $private_addons);
@@ -627,7 +625,6 @@ class Site extends BaseAdminModule
 			'$community_page_style'   => ['community_page_style', L10n::t('Community pages for visitors'), Config::get('system', 'community_page_style'), L10n::t('Which community pages should be available for visitors. Local users always see both pages.'), $community_page_style_choices],
 			'$max_author_posts_community_page' => ['max_author_posts_community_page', L10n::t('Posts per user on community page'), Config::get('system', 'max_author_posts_community_page'), L10n::t('The maximum number of posts per user on the community page. (Not valid for "Global Community")')],
 			'$ostatus_disabled'       => ['ostatus_disabled', L10n::t('Disable OStatus support'), Config::get('system', 'ostatus_disabled'), L10n::t('Disable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All communications in OStatus are public, so privacy warnings will be occasionally displayed.')],
-			'$ostatus_full_threads'   => ['ostatus_full_threads', L10n::t('Only import OStatus threads from our contacts'), Config::get('system', 'ostatus_full_threads'), L10n::t('Normally we import every content from our OStatus contacts. With this option we only store threads that are started by a contact that is known on our system.')],
 			'$ostatus_not_able'       => L10n::t('OStatus support can only be enabled if threading is enabled.'),
 			'$diaspora_able'          => $diaspora_able,
 			'$diaspora_not_able'      => L10n::t('Diaspora support can\'t be enabled because Friendica was installed into a sub directory.'),

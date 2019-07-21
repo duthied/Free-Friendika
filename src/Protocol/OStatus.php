@@ -10,6 +10,7 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Lock;
@@ -19,6 +20,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
+use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
@@ -113,6 +115,8 @@ class OStatus
 		if (DBA::isResult($contact)) {
 			if ($contact['blocked']) {
 				$contact['id'] = -1;
+			} elseif (!empty(APContact::getByURL($contact['url'], false))) {
+				ActivityPub\Receiver::switchContact($contact['id'], $importer['uid'], $contact['url']);
 			}
 			$author["contact-id"] = $contact["id"];
 		}
@@ -486,10 +490,11 @@ class OStatus
 			if ($initialize && (count(self::$itemlist) > 0)) {
 				if (self::$itemlist[0]['uri'] == self::$itemlist[0]['parent-uri']) {
 					// We will import it everytime, when it is started by our contacts
-					$valid = !empty(self::$itemlist[0]['contact-id']);
+					$valid = Contact::isSharingByURL(self::$itemlist[0]['author-link'], self::$itemlist[0]['uid']);
+
 					if (!$valid) {
 						// If not, then it depends on this setting
-						$valid = !Config::get('system', 'ostatus_full_threads');
+						$valid = ((self::$itemlist[0]['uid'] == 0) || !PConfig::get(self::$itemlist[0]['uid'], 'system', 'accept_only_sharer', false));
 						if ($valid) {
 							Logger::log("Item with uri ".self::$itemlist[0]['uri']." will be imported due to the system settings.", Logger::DEBUG);
 						}
@@ -501,7 +506,7 @@ class OStatus
 						$valid = false;
 						$verbs = [ACTIVITY_POST, ACTIVITY_SHARE];
 						foreach (self::$itemlist as $item) {
-							if (!empty($item['contact-id']) && in_array($item['verb'], $verbs)) {
+							if (in_array($item['verb'], $verbs) && Contact::isSharingByURL($item['author-link'], $item['uid'])) {
 								$valid = true;
 							}
 						}
