@@ -198,32 +198,6 @@ class App
 	}
 
 	/**
-	 * Returns the router of the Application
-	 *
-	 * @return App\Router
-	 */
-	public function getRouter()
-	{
-		return $this->router;
-	}
-
-	/**
-	 * @return Database
-	 */
-	public function getDatabase()
-	{
-		return $this->database;
-	}
-
-	/**
-	 * @return L10n
-	 */
-	public function getL10n()
-	{
-		return $this->l10n;
-	}
-
-	/**
 	 * Register a stylesheet file path to be included in the <head> tag of every page.
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
@@ -270,14 +244,11 @@ class App
 	 * @param LoggerInterface  $logger    The current app logger
 	 * @param Profiler         $profiler  The profiler of this application
 	 * @param L10n             $l10n      The translator instance
-	 * @param bool             $isBackend Whether it is used for backend or frontend (Default true=backend)
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, $isBackend = true)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n)
 	{
-		BaseObject::setApp($this);
-
 		$this->database = $database;
 		$this->config   = $config;
 		$this->mode     = $mode;
@@ -354,7 +325,7 @@ class App
 			$this->module = 'home';
 		}
 
-		$this->isBackend = $isBackend || $this->checkBackend($this->module);
+		$this->isBackend = $this->isBackend || $this->checkBackend($this->module);
 
 		// Detect mobile devices
 		$mobile_detect = new MobileDetect();
@@ -375,6 +346,8 @@ class App
 	 */
 	public function reload()
 	{
+		$this->isBackend = basename($_SERVER['PHP_SELF'], '.php') !== 'index';
+
 		$this->getMode()->determine($this->getBasePath());
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {

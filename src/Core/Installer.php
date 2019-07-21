@@ -7,10 +7,9 @@ namespace Friendica\Core;
 use DOMDocument;
 use Exception;
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
-use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Network;
 use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
@@ -600,9 +599,9 @@ class Installer
 	 */
 	public function checkDB(ConfigCache $configCache, Profiler $profiler)
 	{
-		$database = new Database($configCache, $profiler, new VoidLogger());
+		DBA::reconnect();
 
-		if ($database->connected()) {
+		if (DBA::connected()) {
 			if (DBStructure::existsTable('user')) {
 				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
 

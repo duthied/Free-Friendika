@@ -378,7 +378,7 @@ function settings_post(App $a)
 					theme_post($a);
 				}
 			} else {
-				$a->getDatabase()->update('user', ['theme' => $theme], ['uid' => local_user()]);
+				DBA::update('user', ['theme' => $theme], ['uid' => local_user()]);
 			}
 		} else {
 			notice(L10n::t('The theme you chose isn\'t available.'));

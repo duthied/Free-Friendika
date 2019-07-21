@@ -32,7 +32,6 @@
  *
  */
 
-use Friendica\Factory;
 use Friendica\Util\ExAuth;
 
 if (sizeof($_SERVER["argv"]) == 0) {
@@ -54,9 +53,9 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 $dice = new \Dice\Dice();
 $dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
 
-$a = Factory\DependencyFactory::setUp('auth_ejabbered', $dice);
+$appMode = $dice->create(\Friendica\App\Mode::class);
 
-if ($a->getMode()->isNormal()) {
+if ($appMode->isNormal()) {
 	$oAuth = new ExAuth();
 	$oAuth->readStdin();
 }

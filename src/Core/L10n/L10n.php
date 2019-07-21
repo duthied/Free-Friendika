@@ -59,8 +59,6 @@ class L10n
 		$this->logger = $logger;
 
 		$this->loadTranslationTable(L10n::detectLanguage($config->get('system', 'language', 'en')));
-
-		\Friendica\Core\L10n::init($this);
 	}
 
 	/**

@@ -31,11 +31,21 @@ class WorkerLogger implements LoggerInterface
 	 * @param string $functionName The current function name of the worker
 	 * @param int $idLength The length of the generated worker ID
 	 */
-	public function __construct(LoggerInterface $logger, $functionName, $idLength = 7)
+	public function __construct(LoggerInterface $logger, $functionName = '', $idLength = 7)
 	{
 		$this->logger = $logger;
 		$this->functionName = $functionName;
 		$this->workerId = Strings::getRandomHex($idLength);
+	}
+
+	/**
+	 * Sets the function name for additional logging
+	 *
+	 * @param string $functionName
+	 */
+	public function setFunctionName(string $functionName)
+	{
+		$this->functionName = $functionName;
 	}
 
 	/**

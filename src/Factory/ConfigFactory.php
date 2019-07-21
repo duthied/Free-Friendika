@@ -2,7 +2,6 @@
 
 namespace Friendica\Factory;
 
-use Friendica\Core;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Cache;
 use Friendica\Model\Config\Config as ConfigModel;
@@ -39,9 +38,6 @@ class ConfigFactory
 		}
 
 
-		// Set the config in the static container for legacy usage
-		Core\Config::init($configuration);
-
 		return $configuration;
 	}
 
@@ -59,9 +55,6 @@ class ConfigFactory
 		} else {
 			$configuration = new Config\JitPConfiguration($pConfigCache, $configModel);
 		}
-
-		// Set the config in the static container for legacy usage
-		Core\PConfig::init($configuration);
 
 		return $configuration;
 	}

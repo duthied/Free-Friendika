@@ -11,7 +11,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Factory;
 
 // Get options
 $shortopts = 'f';
@@ -35,7 +34,8 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 $dice = new \Dice\Dice();
 $dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
 
-$a = Factory\DependencyFactory::setUp('daemon', $dice);
+\Friendica\BaseObject::setDependencyInjection($dice);
+$a = \Friendica\BaseObject::getApp();
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
@@ -147,7 +147,7 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	$a->getDatabase()->reconnect();
+	DBA::reconnect();
 }
 
 Config::set('system', 'worker_daemon_mode', true);

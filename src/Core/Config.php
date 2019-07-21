@@ -8,6 +8,9 @@
  */
 namespace Friendica\Core;
 
+use Friendica\BaseObject;
+use Friendica\Core\Config\Configuration;
+
 /**
  * @brief Arbitrary system configuration storage
  *
@@ -15,23 +18,8 @@ namespace Friendica\Core;
  * If we ever would decide to return exactly the variable type as entered,
  * we will have fun with the additional features. :-)
  */
-class Config
+class Config extends BaseObject
 {
-	/**
-	 * @var Config\Configuration
-	 */
-	private static $config;
-
-	/**
-	 * Initialize the config
-	 *
-	 * @param Config\Configuration $config
-	 */
-	public static function init(Config\Configuration $config)
-	{
-		self::$config = $config;
-	}
-
 	/**
 	 * @brief Loads all configuration values of family into a cached storage.
 	 *
@@ -41,7 +29,7 @@ class Config
 	 */
 	public static function load($cat = "config")
 	{
-		self::$config->load($cat);
+		self::getClass(Configuration::class)->load($cat);
 	}
 
 	/**
@@ -57,7 +45,7 @@ class Config
 	 */
 	public static function get($cat, $key, $default_value = null, $refresh = false)
 	{
-		return self::$config->get($cat, $key, $default_value, $refresh);
+		return self::getClass(Configuration::class)->get($cat, $key, $default_value, $refresh);
 	}
 
 	/**
@@ -75,7 +63,7 @@ class Config
 	 */
 	public static function set($cat, $key, $value)
 	{
-		return self::$config->set($cat, $key, $value);
+		return self::getClass(Configuration::class)->set($cat, $key, $value);
 	}
 
 	/**
@@ -88,6 +76,6 @@ class Config
 	 */
 	public static function delete($cat, $key)
 	{
-		return self::$config->delete($cat, $key);
+		return self::getClass(Configuration::class)->delete($cat, $key);
 	}
 }

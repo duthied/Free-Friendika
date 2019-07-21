@@ -4,13 +4,15 @@
  */
 namespace Friendica\Core;
 
+use Friendica\BaseObject;
+use Friendica\Util\Logger\WorkerLogger;
 use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
  * @brief Logger functions
  */
-class Logger
+class Logger extends BaseObject
 {
 	/**
 	 * @see Logger::error()
@@ -38,6 +40,19 @@ class Logger
 	const ALL = LogLevel::DEBUG;
 
 	/**
+	 * @var LoggerInterface The default Logger type
+	 */
+	const TYPE_LOGGER = LoggerInterface::class;
+	/**
+	 * @var WorkerLogger A specific worker logger type, which can be anabled
+	 */
+	const TYPE_WORKER = WorkerLogger::class;
+	/**
+	 * @var LoggerInterface The current logger type
+	 */
+	private static $type = self::TYPE_LOGGER;
+
+	/**
 	 * @var array the legacy loglevels
 	 * @deprecated 2019.03 use PSR-3 loglevels
 	 * @see https://github.com/php-fig/fig-standards/blob/master/accepted/PSR-3-logger-interface.md#5-psrlogloglevel
@@ -53,33 +68,24 @@ class Logger
 	];
 
 	/**
-	 * @var LoggerInterface A PSR-3 compliant logger instance
-	 */
-	private static $logger;
-
-	/**
-	 * @var LoggerInterface A PSR-3 compliant logger instance for developing only
-	 */
-	private static $devLogger;
-
-	/**
-	 * Sets the default logging handler for Friendica.
+	 * Enable additional logging for worker usage
 	 *
-	 * @param LoggerInterface $logger The Logger instance of this Application
+	 * @param string $functionName The worker function, which got called
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function init(LoggerInterface $logger)
+	public static function enableWorker(string $functionName)
 	{
-		self::$logger = $logger;
+		self::$type = self::TYPE_WORKER;
+		self::getClass(self::$type)->setFunctionName($functionName);
 	}
 
 	/**
-	 * Sets the default dev-logging handler for Friendica.
-	 *
-	 * @param LoggerInterface $logger The Logger instance of this Application
+	 * Disable additional logging for worker usage
 	 */
-	public static function setDevLogger(LoggerInterface $logger)
+	public static function disableWorker()
 	{
-		self::$devLogger = $logger;
+		self::$type = self::TYPE_LOGGER;
 	}
 
 	/**
@@ -95,7 +101,7 @@ class Logger
 	 */
 	public static function emergency($message, $context = [])
 	{
-		self::$logger->emergency($message, $context);
+		self::getClass(self::$type)->emergency($message, $context);
 	}
 
 	/**
@@ -113,7 +119,7 @@ class Logger
 	 */
 	public static function alert($message, $context = [])
 	{
-		self::$logger->alert($message, $context);
+		self::getClass(self::$type)->alert($message, $context);
 	}
 
 	/**
@@ -130,7 +136,7 @@ class Logger
 	 */
 	public static function critical($message, $context = [])
 	{
-		self::$logger->critical($message, $context);
+		self::getClass(self::$type)->critical($message, $context);
 	}
 
 	/**
@@ -146,7 +152,7 @@ class Logger
 	 */
 	public static function error($message, $context = [])
 	{
-		self::$logger->error($message, $context);
+		self::getClass(self::$type)->error($message, $context);
 	}
 
 	/**
@@ -164,7 +170,7 @@ class Logger
 	 */
 	public static function warning($message, $context = [])
 	{
-		self::$logger->warning($message, $context);
+		self::getClass(self::$type)->warning($message, $context);
 	}
 
 	/**
@@ -179,7 +185,7 @@ class Logger
 	 */
 	public static function notice($message, $context = [])
 	{
-		self::$logger->notice($message, $context);
+		self::getClass(self::$type)->notice($message, $context);
 	}
 
 	/**
@@ -196,7 +202,7 @@ class Logger
 	 */
 	public static function info($message, $context = [])
 	{
-		self::$logger->info($message, $context);
+		self::getClass(self::$type)->info($message, $context);
 	}
 
 	/**
@@ -211,7 +217,7 @@ class Logger
 	 */
 	public static function debug($message, $context = [])
 	{
-		self::$logger->debug($message, $context);
+		self::getClass(self::$type)->debug($message, $context);
 	}
 
 	    /**
@@ -225,7 +231,7 @@ class Logger
 	 */
 	public static function log($msg, $level = LogLevel::INFO)
 	{
-		self::$logger->log($level, $msg);
+		self::getClass(self::$type)->log($level, $msg);
 	}
 
 	/**
@@ -240,10 +246,6 @@ class Logger
 	 */
 	public static function devLog($msg, $level = LogLevel::DEBUG)
 	{
-		if (!isset(self::$devLogger)) {
-			return;
-		}
-
-		self::$devLogger->log($level, $msg);
+		self::getClass('$devLogger')->log($level, $msg);
 	}
 }

@@ -56,8 +56,6 @@ class Database
 		$this->readServerVariables($server);
 		$this->connect();
 
-		DBA::init($this);
-
 		if ($this->isConnected()) {
 			// Loads DB_UPDATE_VERSION constant
 			DBStructure::definition($configCache->get('system', 'basepath'), false);

@@ -9,7 +9,6 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
-use Friendica\Factory;
 
 // Get options
 $shortopts = 'sn';
@@ -33,7 +32,8 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 $dice = new \Dice\Dice();
 $dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
 
-$a = Factory\DependencyFactory::setUp('worker', $dice);
+\Friendica\BaseObject::setDependencyInjection($dice);
+$a = \Friendica\BaseObject::getApp();
 
 // Check the database structure and possibly fixes it
 Update::check($a->getBasePath(), true, $a->getMode());

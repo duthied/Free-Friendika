@@ -25,6 +25,8 @@ use Psr\Log\LogLevel;
  */
 class LoggerFactory
 {
+	const DEV_CHANNEL = 'dev';
+
 	/**
 	 * A list of classes, which shouldn't get logged
 	 *
@@ -37,9 +39,18 @@ class LoggerFactory
 	];
 
 	/**
+	 * Retrieve the channel based on the __FILE__
+	 *
+	 * @return string
+	 */
+	private function findChannel()
+	{
+		return basename($_SERVER['PHP_SELF'], '.php');
+	}
+
+	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
-	 * @param string        $channel  The channel of the logger instance
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
 	 *
@@ -48,12 +59,11 @@ class LoggerFactory
 	 * @throws \Exception
 	 * @throws InternalServerErrorException
 	 */
-	public function create($channel, Database $database, Configuration $config, Profiler $profiler)
+	public function create(Database $database, Configuration $config, Profiler $profiler)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new VoidLogger();
 			$database->setLogger($logger);
-			Logger::init($logger);
 			return $logger;
 		}
 
@@ -66,7 +76,7 @@ class LoggerFactory
 				$loggerTimeZone = new \DateTimeZone('UTC');
 				Monolog\Logger::setTimezone($loggerTimeZone);
 
-				$logger = new Monolog\Logger($channel);
+				$logger = new Monolog\Logger($this->findChannel());
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
@@ -81,7 +91,7 @@ class LoggerFactory
 				break;
 
 			case 'syslog':
-				$logger = new SyslogLogger($channel, $introspection, $loglevel);
+				$logger = new SyslogLogger($this->findChannel(), $introspection, $loglevel);
 				break;
 
 			case 'stream':
@@ -89,7 +99,7 @@ class LoggerFactory
 				$stream = $config->get('system', 'logfile');
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
-					$logger = new StreamLogger($channel, $stream, $introspection, $loglevel);
+					$logger = new StreamLogger($this->findChannel(), $stream, $introspection, $loglevel);
 				} else {
 					$logger = new VoidLogger();
 				}
@@ -104,8 +114,6 @@ class LoggerFactory
 		}
 
 		$database->setLogger($logger);
-		Logger::init($logger);
-
 		return $logger;
 	}
 
@@ -117,7 +125,6 @@ class LoggerFactory
 	 *
 	 * It should never get filled during normal usage of Friendica
 	 *
-	 * @param string        $channel  The channel of the logger instance
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
 	 *
@@ -126,7 +133,7 @@ class LoggerFactory
 	 * @throws InternalServerErrorException
 	 * @throws \Exception
 	 */
-	public static function createDev($channel, Configuration $config, Profiler $profiler)
+	public static function createDev(Configuration $config, Profiler $profiler)
 	{
 		$debugging   = $config->get('system', 'debugging');
 		$stream      = $config->get('system', 'dlogfile');
@@ -135,7 +142,6 @@ class LoggerFactory
 		if ((!isset($developerIp) || !$debugging) &&
 		    (!is_file($stream) || is_writable($stream))) {
 			$logger = new VoidLogger();
-			Logger::setDevLogger($logger);
 			return $logger;
 		}
 
@@ -150,7 +156,7 @@ class LoggerFactory
 				$loggerTimeZone = new \DateTimeZone('UTC');
 				Monolog\Logger::setTimezone($loggerTimeZone);
 
-				$logger = new Monolog\Logger($channel);
+				$logger = new Monolog\Logger(self::DEV_CHANNEL);
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
@@ -162,12 +168,12 @@ class LoggerFactory
 				break;
 
 			case 'syslog':
-				$logger = new SyslogLogger($channel, $introspection, LogLevel::DEBUG);
+				$logger = new SyslogLogger(self::DEV_CHANNEL, $introspection, LogLevel::DEBUG);
 				break;
 
 			case 'stream':
 			default:
-				$logger = new StreamLogger($channel, $stream, $introspection, LogLevel::DEBUG);
+				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, LogLevel::DEBUG);
 				break;
 		}
 
@@ -177,8 +183,6 @@ class LoggerFactory
 		if (isset($profiling) && $profiling !== false) {
 			$logger = new ProfilerLogger($logger, $profiler);
 		}
-
-		Logger::setDevLogger($logger);
 
 		return $logger;
 	}

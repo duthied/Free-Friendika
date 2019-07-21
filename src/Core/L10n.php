@@ -4,29 +4,15 @@
  */
 namespace Friendica\Core;
 
+use Friendica\BaseObject;
 use Friendica\Core\L10n\L10n as L10nClass;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
  * Localization can be referred to by the numeronym L10N (as in: "L", followed by ten more letters, and then "N").
  */
-class L10n
+class L10n extends BaseObject
 {
-	/**
-	 * @var L10nClass
-	 */
-	private static $l10n;
-
-	/**
-	 * Initializes the L10n static wrapper with the instance
-	 *
-	 * @param L10nClass $l10n The l10n class
-	 */
-	public static function init(L10nClass $l10n)
-	{
-		self::$l10n = $l10n;
-	}
-
 	/**
 	 * Returns the current language code
 	 *
@@ -34,7 +20,7 @@ class L10n
 	 */
 	public static function getCurrentLang()
 	{
-		return self::$l10n->getCurrentLang();
+		return self::getClass(L10nClass::class)->getCurrentLang();
 	}
 
 	/**
@@ -52,7 +38,7 @@ class L10n
 	 */
 	public static function pushLang($lang)
 	{
-		self::$l10n->pushLang($lang);
+		self::getClass(L10nClass::class)->pushLang($lang);
 	}
 
 	/**
@@ -60,7 +46,7 @@ class L10n
 	 */
 	public static function popLang()
 	{
-		self::$l10n->popLang();
+		self::getClass(L10nClass::class)->popLang();
 	}
 
 	/**
@@ -81,7 +67,7 @@ class L10n
 	 */
 	public static function t($s, ...$vars)
 	{
-		return self::$l10n->t($s, ...$vars);
+		return self::getClass(L10nClass::class)->t($s, ...$vars);
 	}
 
 	/**
@@ -105,7 +91,7 @@ class L10n
 	 */
 	public static function tt(string $singular, string $plural, int $count)
 	{
-		return self::$l10n->tt($singular, $plural, $count);
+		return self::getClass(L10nClass::class)->tt($singular, $plural, $count);
 	}
 
 	/**
@@ -121,7 +107,7 @@ class L10n
 	 */
 	public static function getAvailableLanguages()
 	{
-		return self::$l10n::getAvailableLanguages();
+		return L10nClass::getAvailableLanguages();
 	}
 
 	/**
@@ -132,7 +118,7 @@ class L10n
 	 */
 	public static function getDay($s)
 	{
-		return self::$l10n->getDay($s);
+		return self::getClass(L10nClass::class)->getDay($s);
 	}
 
 	/**
@@ -143,6 +129,6 @@ class L10n
 	 */
 	public static function getDayShort($s)
 	{
-		return self::$l10n->getDayShort($s);
+		return self::getClass(L10nClass::class)->getDayShort($s);
 	}
 }
