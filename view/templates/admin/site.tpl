@@ -59,7 +59,6 @@
 	{{include file="field_input.tpl" field=$max_author_posts_community_page}}
 
 	{{include file="field_checkbox.tpl" field=$ostatus_disabled}}
-	{{include file="field_checkbox.tpl" field=$ostatus_full_threads}}
 
 	{{if $diaspora_able}}
 		{{include file="field_checkbox.tpl" field=$diaspora_enabled}}
