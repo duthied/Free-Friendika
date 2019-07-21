@@ -13,9 +13,9 @@ use Friendica\Util\BasePath;
  */
 class Mode
 {
-	const LOCALCONFIGPRESENT = 1;
-	const DBAVAILABLE = 2;
-	const DBCONFIGAVAILABLE = 4;
+	const LOCALCONFIGPRESENT  = 1;
+	const DBAVAILABLE         = 2;
+	const DBCONFIGAVAILABLE   = 4;
 	const MAINTENANCEDISABLED = 8;
 
 	/***
@@ -58,7 +58,7 @@ class Mode
 	 *
 	 * @return Mode returns itself
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public function determine($basePath = null)
 	{
@@ -88,8 +88,10 @@ class Mode
 
 		$this->mode |= Mode::DBCONFIGAVAILABLE;
 
-		if ($this->configCache->get('system', 'maintenance') ||
-		    $this->database->selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])) {
+		if (!empty($this->configCache->get('system', 'maintenance')) ||
+		    // Don't use Config or Configuration here because we're possibly BEFORE initializing the Configuration,
+		    // so this could lead to a dependency circle
+		    !empty($this->database->selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])['v'])) {
 			return $this;
 		}
 

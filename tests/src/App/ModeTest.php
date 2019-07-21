@@ -125,7 +125,31 @@ class ModeTest extends MockedTest
 		                      ->andReturn(false)->once();
 		$this->databaseMock->shouldReceive('selectFirst')
 		                   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
-		                   ->andReturn(false)->once();
+		                   ->andReturn(['v' => null])->once();
+
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
+
+		$this->assertTrue($mode->isNormal());
+		$this->assertFalse($mode->isInstall());
+
+		$this->assertTrue($mode->has(Mode::DBCONFIGAVAILABLE));
+		$this->assertTrue($mode->has(Mode::MAINTENANCEDISABLED));
+	}
+
+	/**
+	 * Test explicit disabled maintenance (in case you manually disable it)
+	 */
+	public function testDisabledMaintenance()
+	{
+		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
+		$this->databaseMock->shouldReceive('fetchFirst')
+		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
+		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
+		                      ->andReturn(false)->once();
+		$this->databaseMock->shouldReceive('selectFirst')
+		                   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
+		                   ->andReturn(['v' => '0'])->once();
 
 		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 		$mode->determine();
