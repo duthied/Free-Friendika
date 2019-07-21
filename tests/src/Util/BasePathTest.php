@@ -58,7 +58,8 @@ class BasePathTest extends MockedTest
 	 */
 	public function testDetermineBasePath(array $server, $input, $output)
 	{
-		$this->assertEquals($output, BasePath::create($input, $server));
+		$basepath = new BasePath($input, $server);
+		$this->assertEquals($output, $basepath->getPath());
 	}
 
 	/**
@@ -68,6 +69,7 @@ class BasePathTest extends MockedTest
 	 */
 	public function testFailedBasePath()
 	{
-		BasePath::create('/now23452sgfgas', []);
+		$basepath = new BasePath('/now23452sgfgas', []);
+		$basepath->getPath();
 	}
 }

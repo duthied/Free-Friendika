@@ -7,8 +7,8 @@ namespace Friendica\Core;
 use DOMDocument;
 use Exception;
 use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
-use Friendica\Factory\DBFactory;
 use Friendica\Object\Image;
 use Friendica\Util\Logger\VoidLogger;
 use Friendica\Util\Network;
@@ -600,7 +600,7 @@ class Installer
 	 */
 	public function checkDB(ConfigCache $configCache, Profiler $profiler)
 	{
-		$database = DBFactory::init($configCache, $profiler, [], new VoidLogger());
+		$database = new Database($configCache, $profiler, new VoidLogger());
 
 		if ($database->connected()) {
 			if (DBStructure::existsTable('user')) {

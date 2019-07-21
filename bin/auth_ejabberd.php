@@ -51,7 +51,10 @@ chdir($directory);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = Factory\DependencyFactory::setUp('auth_ejabbered', dirname(__DIR__));
+$dice = new \Dice\Dice();
+$dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
+
+$a = Factory\DependencyFactory::setUp('auth_ejabbered', $dice);
 
 if ($a->getMode()->isNormal()) {
 	$oAuth = new ExAuth();

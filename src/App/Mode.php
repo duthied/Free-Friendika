@@ -2,8 +2,9 @@
 
 namespace Friendica\App;
 
-use Friendica\Core\Config;
-use Friendica\Database\DBA;
+use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Database\Database;
+use Friendica\Util\BasePath;
 
 /**
  * Mode of the current Friendica Node
@@ -12,9 +13,9 @@ use Friendica\Database\DBA;
  */
 class Mode
 {
-	const LOCALCONFIGPRESENT = 1;
-	const DBAVAILABLE = 2;
-	const DBCONFIGAVAILABLE = 4;
+	const LOCALCONFIGPRESENT  = 1;
+	const DBAVAILABLE         = 2;
+	const DBCONFIGAVAILABLE   = 4;
 	const MAINTENANCEDISABLED = 8;
 
 	/***
@@ -28,10 +29,22 @@ class Mode
 	 */
 	private $basepath;
 
-	public function __construct($basepath = '')
+	/**
+	 * @var Database
+	 */
+	private $database;
+
+	/**
+	 * @var ConfigCache
+	 */
+	private $configCache;
+
+	public function __construct(BasePath $basepath, Database $database, ConfigCache $configCache)
 	{
-		$this->basepath = $basepath;
-		$this->mode = 0;
+		$this->basepath    = $basepath->getPath();
+		$this->database    = $database;
+		$this->configCache = $configCache;
+		$this->mode        = 0;
 	}
 
 	/**
@@ -41,42 +54,50 @@ class Mode
 	 * - App::MODE_MAINTENANCE: The maintenance mode has been set
 	 * - App::MODE_NORMAL     : Normal run with all features enabled
 	 *
-	 * @param string $basepath the Basepath of the Application
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param string $basePath the Basepath of the Application
+	 *
+	 * @return Mode returns itself
+	 *
+	 * @throws \Exception
 	 */
-	public function determine($basepath = null)
+	public function determine($basePath = null)
 	{
-		if (!empty($basepath)) {
-			$this->basepath = $basepath;
+		if (!empty($basePath)) {
+			$this->basepath = $basePath;
 		}
 
 		$this->mode = 0;
 
 		if (!file_exists($this->basepath . '/config/local.config.php')
-			&& !file_exists($this->basepath . '/config/local.ini.php')
-			&& !file_exists($this->basepath . '/.htconfig.php')) {
-			return;
+		    && !file_exists($this->basepath . '/config/local.ini.php')
+		    && !file_exists($this->basepath . '/.htconfig.php')) {
+			return $this;
 		}
 
 		$this->mode |= Mode::LOCALCONFIGPRESENT;
 
-		if (!DBA::connected()) {
-			return;
+		if (!$this->database->connected()) {
+			return $this;
 		}
 
 		$this->mode |= Mode::DBAVAILABLE;
 
-		if (DBA::fetchFirst("SHOW TABLES LIKE 'config'") === false) {
-			return;
+		if ($this->database->fetchFirst("SHOW TABLES LIKE 'config'") === false) {
+			return $this;
 		}
 
 		$this->mode |= Mode::DBCONFIGAVAILABLE;
 
-		if (Config::get('system', 'maintenance')) {
-			return;
+		if (!empty($this->configCache->get('system', 'maintenance')) ||
+		    // Don't use Config or Configuration here because we're possibly BEFORE initializing the Configuration,
+		    // so this could lead to a dependency circle
+		    !empty($this->database->selectFirst('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])['v'])) {
+			return $this;
 		}
 
 		$this->mode |= Mode::MAINTENANCEDISABLED;
+
+		return $this;
 	}
 
 	/**
@@ -100,7 +121,7 @@ class Mode
 	public function isInstall()
 	{
 		return !$this->has(Mode::LOCALCONFIGPRESENT) ||
-			!$this->has(MODE::DBCONFIGAVAILABLE);
+		       !$this->has(MODE::DBCONFIGAVAILABLE);
 	}
 
 	/**
@@ -111,8 +132,8 @@ class Mode
 	public function isNormal()
 	{
 		return $this->has(Mode::LOCALCONFIGPRESENT) &&
-			$this->has(Mode::DBAVAILABLE) &&
-			$this->has(Mode::DBCONFIGAVAILABLE) &&
-			$this->has(Mode::MAINTENANCEDISABLED);
+		       $this->has(Mode::DBAVAILABLE) &&
+		       $this->has(Mode::DBCONFIGAVAILABLE) &&
+		       $this->has(Mode::MAINTENANCEDISABLED);
 	}
 }

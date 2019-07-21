@@ -15,7 +15,6 @@ use Friendica\Core\System;
 use Friendica\Factory;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BaseURL;
-use Friendica\Util\ConfigFileLoader;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -51,13 +50,15 @@ class ApiTest extends DatabaseTest
 	public function setUp()
 	{
 		$configModel = new \Friendica\Model\Config\Config(self::$dba);
-		$config = Factory\ConfigFactory::createConfig(self::$configCache, $configModel);
+		$configFactory = new Factory\ConfigFactory();
+		$config = $configFactory->createConfig(self::$configCache, $configModel);
 		$pconfigModel = new \Friendica\Model\Config\PConfig(self::$dba);
-		Factory\ConfigFactory::createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
-		$logger = Factory\LoggerFactory::create('test', self::$dba, $config, self::$profiler);
+		$configFactory->createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
+		$loggerFactory = new Factory\LoggerFactory();
+		$logger = $loggerFactory->create('test', self::$dba, $config, self::$profiler);
 		$baseUrl = new BaseURL($config, $_SERVER);
 		$router = new App\Router();
-		$l10n = new L10n(L10n::detectLanguage($config->get('system', 'language')),
+		$l10n = new L10n($config,
 			self::$dba,
 			$logger);
 		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, $l10n, false);

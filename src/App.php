@@ -376,12 +376,10 @@ class App
 		$this->getMode()->determine($this->getBasePath());
 
 		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			$this->profiler->update(
-				$this->config->get('system', 'profiler', false),
-				$this->config->get('rendertime', 'callstack', false));
+			$this->profiler->update($this->config);
 
 			Core\Hook::loadHooks();
-			$loader = new ConfigFileLoader($this->getBasePath(), $this->mode);
+			$loader = new ConfigFileLoader($this->getBasePath());
 			Core\Hook::callAll('load_config', $loader);
 		}
 
