@@ -91,8 +91,6 @@ class AppSpecific extends BaseSettingsModule
 
 		$appSpecificPasswords = AppSpecificPassword::getListForUser(local_user());
 
-		var_dump($appSpecificPasswords);
-
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/app_specific.tpl'), [
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_app_specific'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
