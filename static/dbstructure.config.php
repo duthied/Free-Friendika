@@ -34,10 +34,25 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1319);
+	define('DB_UPDATE_VERSION', 1320);
 }
 
 return [
+	"2fa_app_specific_password" => [
+		"comment" => "Two-factor app-specific _password",
+		"fields" => [
+			"id" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Password ID for revocation"],
+			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "relation" => ["user" => "uid"], "comment" => "User ID"],
+			"description" => ["type" => "varchar(255)", "comment" => "Description of the usage of the password"],
+			"hashed_password" => ["type" => "varchar(255)", "not null" => "1", "primary" => "1", "comment" => "Hashed password"],
+			"generated" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the password was generated"],
+			"last_used" => ["type" => "datetime", "comment" => "Datetime the password was last used"],
+		],
+		"indexes" => [
+			"PRIMARY" => ["id"],
+			"uid_description" => ["uid", "description"],
+		]
+	],
 	"2fa_recovery_codes" => [
 		"comment" => "Two-factor authentication recovery codes",
 		"fields" => [

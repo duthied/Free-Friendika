@@ -236,7 +236,7 @@ function api_login(App $a)
 	if ($addon_auth['authenticated'] && count($addon_auth['user_record'])) {
 		$record = $addon_auth['user_record'];
 	} else {
-		$user_id = User::authenticate(trim($user), trim($password));
+		$user_id = User::authenticate(trim($user), trim($password), true);
 		if ($user_id !== false) {
 			$record = DBA::selectFirst('user', [], ['uid' => $user_id]);
 		}

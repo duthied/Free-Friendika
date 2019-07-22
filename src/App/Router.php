@@ -202,6 +202,7 @@ class Router
 			$collector->addGroup('/2fa', function (RouteCollector $collector) {
 				$collector->addRoute(['GET', 'POST'], '[/]'                    , Module\Settings\TwoFactor\Index::class);
 				$collector->addRoute(['GET', 'POST'], '/recovery'              , Module\Settings\TwoFactor\Recovery::class);
+				$collector->addRoute(['GET', 'POST'], '/app_specific'          , Module\Settings\TwoFactor\AppSpecific::class);
 				$collector->addRoute(['GET', 'POST'], '/verify'                , Module\Settings\TwoFactor\Verify::class);
 			});
 		});

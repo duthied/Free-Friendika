@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Model;
+namespace Friendica\Model\TwoFactor;
 
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
@@ -13,7 +13,7 @@ use PragmaRX\Recovery\Recovery;
  *
  * @package Friendica\Model
  */
-class TwoFactorRecoveryCode extends BaseObject
+class RecoveryCode extends BaseObject
 {
     /**
      * Returns the number of code the provided users can still use to replace a TOTP code
