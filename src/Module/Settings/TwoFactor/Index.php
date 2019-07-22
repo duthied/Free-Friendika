@@ -8,6 +8,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Model\TwoFactor\RecoveryCode;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettingsModule;
@@ -56,6 +57,11 @@ class Index extends BaseSettingsModule
 						self::getApp()->internalRedirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
 					break;
+				case 'app_specific':
+					if ($has_secret) {
+						self::getApp()->internalRedirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
+					}
+					break;
 				case 'configure':
 					if (!$verified) {
 						self::getApp()->internalRedirect('settings/2fa/verify?t=' . self::getFormSecurityToken('settings_2fa_password'));
@@ -97,11 +103,17 @@ class Index extends BaseSettingsModule
 			'$recovery_codes_count'     => RecoveryCode::countValidForUser(local_user()),
 			'$recovery_codes_message'   => L10n::t('<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'),
 
+			'$app_specific_passwords_title'     => L10n::t('App-specific passwords'),
+			'$app_specific_passwords_remaining' => L10n::t('Generated app-specific passwords'),
+			'$app_specific_passwords_count'     => AppSpecificPassword::countForUser(local_user()),
+			'$app_specific_passwords_message'   => L10n::t('<p>These randomly generated passwords allow you to authenticate on apps not supporting two-factor authentication.</p>'),
+
 			'$action_title'         => L10n::t('Actions'),
 			'$password'             => ['password', L10n::t('Current password:'), '', L10n::t('You need to provide your current password to change two-factor authentication settings.'), 'required', 'autofocus'],
 			'$enable_label'         => L10n::t('Enable two-factor authentication'),
 			'$disable_label'        => L10n::t('Disable two-factor authentication'),
 			'$recovery_codes_label' => L10n::t('Show recovery codes'),
+			'$app_specific_passwords_label' => L10n::t('Manage app-specific passwords'),
 			'$configure_label'      => L10n::t('Finish app configuration'),
 		]);
 	}
