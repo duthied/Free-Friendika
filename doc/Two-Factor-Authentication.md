@@ -58,3 +58,17 @@ In this case you will have to configure your authenticator app again using the p
 When two-factor authentication is enabled, you can show your recovery codes, including the ones you've already used.
 
 You can freely regenerate a new set of fresh recovery codes, just be sure to replace the previous ones where you saved them as they won't be active anymore.
+
+## Third-party applications and API
+
+Third-party applications using the Friendica API can't accept two-factor time-based authentication codes.
+Instead, if you enabled two-factor authentication, you have to generate app-specific randomly generated long passwords to use in your apps instead of your regular account password.
+
+**Note**: Your regular password won't work at all when prompted in third-party apps if you enabled two-factor authentication.
+
+You can generate as many app-specific passwords as you want, they will be shown once to you just after you generated it.
+Just copy and paste it in your third-party app in the Friendica account password input field at this point.
+We recommend generating a single app-specific password for each separate third-party app you are using, using a meaningul description of the target app (like "Frienqa on my Fairphone 2").
+
+You can also revoke any and all app-specific password you generated this way.
+This may log you out of the third-party application(s) you used the revoked app-specific password to log in with.
