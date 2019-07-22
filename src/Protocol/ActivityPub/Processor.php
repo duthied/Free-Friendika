@@ -534,8 +534,9 @@ class Processor
 	/**
 	 * Fetches missing posts
 	 *
-	 * @param $url
-	 * @param $child
+	 * @param string $url message URL
+	 * @param array $child activity array with the child of this message
+	 * @return boolean success
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchMissingActivity($url, $child = [])
@@ -549,12 +550,12 @@ class Processor
 		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
 			Logger::log('Activity ' . $url . ' was not fetchable, aborting.');
-			return;
+			return false;
 		}
 
 		if (empty($object['id'])) {
 			Logger::log('Activity ' . $url . ' has got not id, aborting. ' . json_encode($object));
-			return;
+			return false;
 		}
 
 		if (!empty($child['author'])) {
@@ -593,6 +594,8 @@ class Processor
 
 		ActivityPub\Receiver::processActivity($ldactivity);
 		Logger::log('Activity ' . $url . ' had been fetched and processed.');
+
+		return true;
 	}
 
 	/**

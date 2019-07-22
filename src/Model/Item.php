@@ -20,6 +20,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
@@ -29,7 +30,6 @@ use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
-use Friendica\Protocol\ActivityPub;
 use Text_LanguageDetect;
 
 class Item extends BaseObject
@@ -3628,11 +3628,12 @@ class Item extends BaseObject
 			return $item_id;
 		}
 
-		ActivityPub\Processor::fetchMissingActivity($uri);
+		if (ActivityPub\Processor::fetchMissingActivity($uri)) {
+			$item_id = self::searchByLink($uri, $uid);
+		} else {
+			$item_id = Diaspora::fetchByURL($uri);
+		}
 
-		/// @todo add Diaspora as well
-
-		$item_id = self::searchByLink($uri, $uid);
 		if (!empty($item_id)) {
 			return $item_id;
 		}

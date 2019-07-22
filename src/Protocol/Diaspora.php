@@ -1415,6 +1415,39 @@ class Diaspora
 	}
 
 	/**
+	 * @brief Fetches an item with a given URL
+	 *
+	 * @param string $url the message url
+	 *
+	 * @return int the message id of the stored message or false
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function fetchByURL($url, $uid = 0)
+	{
+		// Check for Diaspora (and Friendica) typical paths
+		if (!preg_match("=(https?://.+)/(?:posts|display)/([a-zA-Z0-9-_@.:%]+[a-zA-Z0-9])=i", $url, $matches)) {
+			return false;
+		}
+
+		$guid = urldecode($matches[2]);
+
+		$item = Item::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
+		if (DBA::isResult($item)) {
+			return $item['id'];
+		}
+
+		self::storeByGuid($guid, $matches[1], $uid);
+
+		$item = Item::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
+		if (DBA::isResult($item)) {
+			return $item['id'];
+		} else {
+			return false;
+		}
+	}
+
+	/**
 	 * @brief Fetches the item record of a given guid
 	 *
 	 * @param int    $uid     The user id
