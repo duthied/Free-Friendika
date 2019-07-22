@@ -17,6 +17,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
+use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -267,17 +268,18 @@ class User
 	/**
 	 * Authenticate a user with a clear text password
 	 *
-	 * @brief Authenticate a user with a clear text password
-	 * @param mixed $user_info
+	 * @brief      Authenticate a user with a clear text password
+	 * @param mixed  $user_info
 	 * @param string $password
+	 * @param bool   $third_party
 	 * @return int|boolean
 	 * @deprecated since version 3.6
-	 * @see User::getIdFromPasswordAuthentication()
+	 * @see        User::getIdFromPasswordAuthentication()
 	 */
-	public static function authenticate($user_info, $password)
+	public static function authenticate($user_info, $password, $third_party = false)
 	{
 		try {
-			return self::getIdFromPasswordAuthentication($user_info, $password);
+			return self::getIdFromPasswordAuthentication($user_info, $password, $third_party);
 		} catch (Exception $ex) {
 			return false;
 		}
@@ -287,16 +289,22 @@ class User
 	 * Returns the user id associated with a successful password authentication
 	 *
 	 * @brief Authenticate a user with a clear text password
-	 * @param mixed $user_info
+	 * @param mixed  $user_info
 	 * @param string $password
+	 * @param bool   $third_party
 	 * @return int User Id if authentication is successful
 	 * @throws Exception
 	 */
-	public static function getIdFromPasswordAuthentication($user_info, $password)
+	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
 	{
 		$user = self::getAuthenticationInfo($user_info);
 
-		if (strpos($user['password'], '$') === false) {
+		if ($third_party && PConfig::get($user['uid'], '2fa', 'verified')) {
+			// Third-party apps can't verify two-factor authentication, we use app-specific passwords instead
+			if (AppSpecificPassword::authenticateUser($user['uid'], $password)) {
+				return $user['uid'];
+			}
+		} elseif (strpos($user['password'], '$') === false) {
 			//Legacy hash that has not been replaced by a new hash yet
 			if (self::hashPasswordLegacy($password) === $user['password']) {
 				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
