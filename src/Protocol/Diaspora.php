@@ -1425,23 +1425,21 @@ class Diaspora
 	 */
 	public static function fetchByURL($url, $uid = 0)
 	{
-		if (!preg_match("=([http|https].*)/(.*)/(.*)=ism", $url, $matches)) {
+		// Check for Diaspora (and Friendica) typical paths
+		if (!preg_match("=(https?://.+)/(?:posts|display)/([a-zA-Z0-9-_@.:%]+[a-zA-Z0-9])=i", $url, $matches)) {
 			return false;
 		}
 
-		// Check for Diaspora (and Friendica) typical path components
-		if (!in_array($matches[2], ['posts', 'display'])) {
-			return false;
-		}
+		$guid = urldecode($matches[2]);
 
-		$item = Item::selectFirst(['id'], ['guid' => $matches[3], 'uid' => $uid]);
+		$item = Item::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
 			return $item['id'];
 		}
 
-		self::storeByGuid($matches[3], $matches[1], $uid);
+		self::storeByGuid($guid, $matches[1], $uid);
 
-		$item = Item::selectFirst(['id'], ['guid' => $matches[3], 'uid' => $uid]);
+		$item = Item::selectFirst(['id'], ['guid' => $guid, 'uid' => $uid]);
 		if (DBA::isResult($item)) {
 			return $item['id'];
 		} else {
