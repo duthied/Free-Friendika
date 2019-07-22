@@ -6,7 +6,7 @@ use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Model\TwoFactorRecoveryCode;
+use Friendica\Model\TwoFactor\RecoveryCode;
 
 /**
  * // Page 1a: Recovery code verification
@@ -35,10 +35,10 @@ class Recovery extends BaseModule
 
 			$recovery_code = defaults($_POST, 'recovery_code', '');
 
-			if (TwoFactorRecoveryCode::existsForUser(local_user(), $recovery_code)) {
-				TwoFactorRecoveryCode::markUsedForUser(local_user(), $recovery_code);
+			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
+				RecoveryCode::markUsedForUser(local_user(), $recovery_code);
 				Session::set('2fa', true);
-				notice(L10n::t('Remaining recovery codes: %d', TwoFactorRecoveryCode::countValidForUser(local_user())));
+				notice(L10n::t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				// Resume normal login workflow
 				Session::setAuthenticatedForUser($a, $a->user, true, true);

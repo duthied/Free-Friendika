@@ -8,7 +8,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Model\TwoFactorRecoveryCode;
+use Friendica\Model\TwoFactor\RecoveryCode;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettingsModule;
 use Friendica\Module\Login;
@@ -42,7 +42,7 @@ class Index extends BaseSettingsModule
 					break;
 				case 'disable':
 					if ($has_secret) {
-						TwoFactorRecoveryCode::deleteForUser(local_user());
+						RecoveryCode::deleteForUser(local_user());
 						PConfig::delete(local_user(), '2fa', 'secret');
 						PConfig::delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
@@ -94,7 +94,7 @@ class Index extends BaseSettingsModule
 
 			'$recovery_codes_title'     => L10n::t('Recovery codes'),
 			'$recovery_codes_remaining' => L10n::t('Remaining valid codes'),
-			'$recovery_codes_count'     => TwoFactorRecoveryCode::countValidForUser(local_user()),
+			'$recovery_codes_count'     => RecoveryCode::countValidForUser(local_user()),
 			'$recovery_codes_message'   => L10n::t('<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'),
 
 			'$action_title'         => L10n::t('Actions'),

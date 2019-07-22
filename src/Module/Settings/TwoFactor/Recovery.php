@@ -7,7 +7,7 @@ namespace Friendica\Module\Settings\TwoFactor;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Model\TwoFactorRecoveryCode;
+use Friendica\Model\TwoFactor\RecoveryCode;
 use Friendica\Module\BaseSettingsModule;
 use Friendica\Module\Login;
 
@@ -46,7 +46,7 @@ class Recovery extends BaseSettingsModule
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/recovery', 'settings_2fa_recovery');
 
 			if ($_POST['action'] == 'regenerate') {
-				TwoFactorRecoveryCode::regenerateForUser(local_user());
+				RecoveryCode::regenerateForUser(local_user());
 				notice(L10n::t('New recovery codes successfully generated.'));
 				self::getApp()->internalRedirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
@@ -61,11 +61,11 @@ class Recovery extends BaseSettingsModule
 
 		parent::content();
 
-		if (!TwoFactorRecoveryCode::countValidForUser(local_user())) {
-			TwoFactorRecoveryCode::generateForUser(local_user());
+		if (!RecoveryCode::countValidForUser(local_user())) {
+			RecoveryCode::generateForUser(local_user());
 		}
 
-		$recoveryCodes = TwoFactorRecoveryCode::getListForUser(local_user());
+		$recoveryCodes = RecoveryCode::getListForUser(local_user());
 
 		$verified = PConfig::get(local_user(), '2fa', 'verified');
 		
