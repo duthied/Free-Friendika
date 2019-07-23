@@ -1419,7 +1419,7 @@ class Contact extends BaseObject
 			// When we don't want to update, we look if we know this contact in any way
 			$data = self::getProbeDataFromDatabase($url, $contact_id);
 			$background_update = true;
-		} elseif ($no_update && !empty($default)) {
+		} elseif ($no_update && !empty($default['network'])) {
 			// If there are default values, take these
 			$data = $default;
 			$background_update = false;
