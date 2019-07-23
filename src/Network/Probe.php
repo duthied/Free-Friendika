@@ -471,7 +471,7 @@ class Probe
 			}
 
 			if ($host == 'twitter.com') {
-				return ["network" => Protocol::TWITTER];
+				return self::twitter($uri);
 			}
 			$lrdd = self::hostMeta($host);
 
@@ -512,7 +512,7 @@ class Probe
 			$nick = substr($uri, 0, strpos($uri, '@'));
 
 			if (strpos($uri, '@twitter.com')) {
-				return ["network" => Protocol::TWITTER];
+				return self::twitter($uri);
 			}
 			$lrdd = self::hostMeta($host);
 
@@ -1409,6 +1409,37 @@ class Probe
 		}
 
 		return $data;
+	}
+
+	/**
+	 * @brief Check for twitter contact
+	 *
+	 * @param string $uri
+	 *
+	 * @return array twitter data
+	 */
+	private static function twitter($uri)
+	{
+		if (preg_match('=(.*)@twitter.com=i', $uri, $matches)) {
+			$nick = $matches[1];
+		} elseif (preg_match('=https?://twitter.com/(.*)=i', $uri, $matches)) {
+			$nick = $matches[1];
+		} else {
+			return [];
+		}
+
+		$data = [];
+		$data['url'] = 'https://twitter.com/' . $nick;
+		$data['addr'] = $nick . '@twitter.com';
+		$data['nick'] = $data['name'] = $nick;
+		$data['network'] = Protocol::TWITTER;
+		$data['baseurl'] = 'https://twitter.com';
+
+		$curlResult = Network::curl($data['url'], false);
+		if ($curlResult->isSuccess()) {
+			return $data;
+		}
+		return [];
 	}
 
 	/**

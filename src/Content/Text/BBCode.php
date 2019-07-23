@@ -905,7 +905,17 @@ class BBCode extends BaseObject
 				// We only call this so that a previously unknown contact can be added.
 				// This is important for the function "Model\Contact::getDetailsByURL()".
 				// This function then can fetch an entry from the contact table.
-				Contact::getIdForURL($attributes['profile'], 0, true);
+				$default['url'] = $attributes['profile'];
+
+				if (!empty($attributes['author'])) {
+					$default['name'] = $attributes['author'];
+				}
+
+				if (!empty($attributes['avatar'])) {
+					$default['photo'] = $attributes['avatar'];
+				}
+
+				Contact::getIdForURL($attributes['profile'], 0, true, $default);
 
 				$author_contact = Contact::getDetailsByURL($attributes['profile']);
 				$author_contact['addr'] = defaults($author_contact, 'addr' , Protocol::getAddrFromProfileUrl($attributes['profile']));
