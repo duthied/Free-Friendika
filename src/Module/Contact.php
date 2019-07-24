@@ -668,19 +668,19 @@ class Contact extends BaseModule
 
 		switch ($type) {
 			case 'blocked':
-				$sql_extra = " AND `blocked` = 1";
+				$sql_extra = " AND `blocked`";
 				break;
 			case 'hidden':
-				$sql_extra = " AND `hidden` = 1 AND `blocked` = 0";
+				$sql_extra = " AND `hidden` AND NOT `blocked`";
 				break;
 			case 'ignored':
-				$sql_extra = " AND `readonly` = 1 AND `blocked` = 0";
+				$sql_extra = " AND `readonly` AND NOT `blocked`";
 				break;
 			case 'archived':
-				$sql_extra = " AND `archive` = 1 AND `blocked` = 0";
+				$sql_extra = " AND `archive` AND NOT `blocked`";
 				break;
 			default:
-				$sql_extra = " AND `blocked` = 0";
+				$sql_extra = " AND NOT `archive` AND NOT `blocked`";
 		}
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
