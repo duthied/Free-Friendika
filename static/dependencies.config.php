@@ -25,6 +25,11 @@ use Psr\Log\LoggerInterface;
  *
  */
 return [
+	'*' => [
+		// marks all class result as shared for other creations, so there's just
+		// one instance for the whole execution
+		'shared' => true,
+	],
 	'$basepath' => [
 		'instanceOf' => Util\BasePath::class,
 		'call' => [
@@ -36,7 +41,6 @@ return [
 		]
 	],
 	Util\BasePath::class => [
-		'shared'          => true,
 		'constructParams' => [
 			dirname(__FILE__, 2),
 			$_SERVER
@@ -53,15 +57,11 @@ return [
 		'call'       => [
 			['createCache', [], Dice::CHAIN_CALL],
 		],
-		'shared'     => true,
 	],
 	App\Mode::class => [
 		'call'   => [
 			['determine', [], Dice::CHAIN_CALL],
 		],
-		// marks the result as shared for other creations, so there's just
-		// one instance for the whole execution
-		'shared' => true,
 	],
 	Config\Configuration::class => [
 		'shared' => true,
@@ -71,14 +71,12 @@ return [
 		],
 	],
 	Config\PConfiguration::class => [
-		'shared' => true,
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call' => [
 			['createPConfig', [], Dice::CHAIN_CALL],
 		]
 	],
 	Database::class => [
-		'shared' => true,
 		'constructParams' => [
 			[DICE::INSTANCE => \Psr\Log\NullLogger::class],
 			$_SERVER,
@@ -91,7 +89,6 @@ return [
 	 *   $baseURL = new Util\BaseURL($configuration, $_SERVER);
 	 */
 	Util\BaseURL::class => [
-		'shared'          => true,
 		'constructParams' => [
 			$_SERVER,
 		],
@@ -109,17 +106,15 @@ return [
 	 *    and is automatically passed as an argument with the same name
 	 */
 	LoggerInterface::class => [
-		'shared'     => true,
 		'instanceOf' => Factory\LoggerFactory::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
 	'$devLogger' => [
-		'shared'     => true,
 		'instanceOf' => Factory\LoggerFactory::class,
 		'call'       => [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
-	]
+	],
 ];
