@@ -153,7 +153,7 @@ class APContact extends BaseObject
 			self::unarchiveInbox($apcontact['sharedinbox'], true);
 		}
 
-		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername', '@value');
+		$apcontact['nick'] = JsonLD::fetchElement($compacted, 'as:preferredUsername', '@value') ?? '';
 		$apcontact['name'] = JsonLD::fetchElement($compacted, 'as:name', '@value');
 
 		if (empty($apcontact['name'])) {
@@ -185,7 +185,12 @@ class APContact extends BaseObject
 		$parts = parse_url($apcontact['url']);
 		unset($parts['scheme']);
 		unset($parts['path']);
-		$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
+
+		if (!empty($apcontact['nick'])) {
+			$apcontact['addr'] = $apcontact['nick'] . '@' . str_replace('//', '', Network::unparseURL($parts));
+		} else {
+			$apcontact['addr'] = '';
+		}
 
 		if (!empty($compacted['w3id:publicKey'])) {
 			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value'));
