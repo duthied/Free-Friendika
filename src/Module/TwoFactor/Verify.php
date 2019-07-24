@@ -16,18 +16,20 @@ use PragmaRX\Google2FA\Google2FA;
  */
 class Verify extends BaseModule
 {
+	private static $errors = [];
+
 	public static function post()
 	{
 		if (!local_user()) {
 			return;
 		}
 
-		if (defaults($_POST, 'action', null) == 'verify') {
+		if (($_POST['action'] ?? '') == 'verify') {
 			self::checkFormSecurityTokenRedirectOnError('2fa', 'twofactor_verify');
 
 			$a = self::getApp();
 
-			$code = defaults($_POST, 'verify_code', '');
+			$code = $_POST['verify_code'] ?? '';
 
 			$valid = (new Google2FA())->verifyKey(PConfig::get(local_user(), '2fa', 'secret'), $code);
 
@@ -38,7 +40,7 @@ class Verify extends BaseModule
 				// Resume normal login workflow
 				Session::setAuthenticatedForUser($a, $a->user, true, true);
 			} else {
-				notice(L10n::t('Invalid code, please retry.'));
+				self::$errors[] = L10n::t('Invalid code, please retry.');
 			}
 		}
 	}
@@ -59,6 +61,8 @@ class Verify extends BaseModule
 
 			'$title'            => L10n::t('Two-factor authentication'),
 			'$message'          => L10n::t('<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'),
+			'$errors_label'     => L10n::tt('Error', 'Errors', count(self::$errors)),
+			'$errors'           => self::$errors,
 			'$recovery_message' => L10n::t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
 			'$verify_code'      => ['verify_code', L10n::t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
 			'$verify_label'     => L10n::t('Verify code and complete login'),
