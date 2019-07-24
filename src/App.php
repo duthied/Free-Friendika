@@ -12,10 +12,12 @@ use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n\L10n;
+use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
+use Friendica\Module\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BaseURL;
 use Friendica\Util\ConfigFileLoader;
@@ -1001,231 +1003,224 @@ class App
 	 */
 	public function runFrontend()
 	{
-		// Missing DB connection: ERROR
-		if ($this->getMode()->has(App\Mode::LOCALCONFIGPRESENT) && !$this->getMode()->has(App\Mode::DBAVAILABLE)) {
-			Module\Special\HTTPException::rawContent(
-				new HTTPException\InternalServerErrorException('Apologies but the website is unavailable at the moment.')
-			);
-		}
-
-		// Max Load Average reached: ERROR
-		if ($this->isMaxProcessesReached() || $this->isMaxLoadReached()) {
-			header('Retry-After: 120');
-			header('Refresh: 120; url=' . $this->getBaseURL() . "/" . $this->query_string);
-
-			Module\Special\HTTPException::rawContent(
-				new HTTPException\ServiceUnavailableException('The node is currently overloaded. Please try again later.')
-			);
-		}
-
-		if (!$this->getMode()->isInstall()) {
-			// Force SSL redirection
-			if ($this->baseURL->checkRedirectHttps()) {
-				header('HTTP/1.1 302 Moved Temporarily');
-				header('Location: ' . $this->getBaseURL() . '/' . $this->query_string);
-				exit();
-			}
-
-			Core\Session::init();
-			Core\Hook::callAll('init_1');
-		}
-
-		// Exclude the backend processes from the session management
-		if (!$this->isBackend()) {
-			$stamp1 = microtime(true);
-			session_start();
-			$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
-			$this->l10n->setSessionVariable();
-			$this->l10n->setLangFromSession();
-		} else {
-			$_SESSION = [];
-			Core\Worker::executeIfIdle();
-		}
-
-		if ($this->getMode()->isNormal()) {
-			$requester = HTTPSignature::getSigner('', $_SERVER);
-			if (!empty($requester)) {
-				Profile::addVisitorCookieForHandle($requester);
-			}
-		}
-
-		// ZRL
-		if (!empty($_GET['zrl']) && $this->getMode()->isNormal()) {
-			$this->query_string = Model\Profile::stripZrls($this->query_string);
-			if (!local_user()) {
-				// Only continue when the given profile link seems valid
-				// Valid profile links contain a path with "/profile/" and no query parameters
-				if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
-					strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
-					if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
-						Core\Session::set('my_url', $_GET['zrl']);
-						Core\Session::set('authenticated', 0);
-					}
-
-					Model\Profile::zrlInit($this);
-				} else {
-					// Someone came with an invalid parameter, maybe as a DDoS attempt
-					// We simply stop processing here
-					Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Core\Logger::DEBUG);
-					Module\Special\HTTPException::rawContent(
-						new HTTPException\ForbiddenException()
-					);
-				}
-			}
-		}
-
-		if (!empty($_GET['owt']) && $this->getMode()->isNormal()) {
-			$token = $_GET['owt'];
-			$this->query_string = Model\Profile::stripQueryParam($this->query_string, 'owt');
-			Model\Profile::openWebAuthInit($token);
-		}
-
-		Module\Login::sessionAuth();
-
-		if (empty($_SESSION['authenticated'])) {
-			header('X-Account-Management-Status: none');
-		}
-
-		$_SESSION['sysmsg']       = Core\Session::get('sysmsg', []);
-		$_SESSION['sysmsg_info']  = Core\Session::get('sysmsg_info', []);
-		$_SESSION['last_updated'] = Core\Session::get('last_updated', []);
-
-		/*
-		 * check_config() is responsible for running update scripts. These automatically
-		 * update the DB schema whenever we push a new one out. It also checks to see if
-		 * any addons have been added or removed and reacts accordingly.
-		 */
-
-		// in install mode, any url loads install module
-		// but we need "view" module for stylesheet
-		if ($this->getMode()->isInstall() && $this->module !== 'install') {
-			$this->internalRedirect('install');
-		} elseif (!$this->getMode()->isInstall() && !$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $this->module !== 'maintenance') {
-			$this->internalRedirect('maintenance');
-		} else {
-			$this->checkURL();
-			Core\Update::check($this->getBasePath(), false, $this->getMode());
-			Core\Addon::loadAddons();
-			Core\Hook::loadHooks();
-		}
-
-		$this->page = [
-			'aside' => '',
-			'bottom' => '',
-			'content' => '',
-			'footer' => '',
-			'htmlhead' => '',
-			'nav' => '',
-			'page_title' => '',
-			'right_aside' => '',
-			'template' => '',
-			'title' => ''
-		];
-
-		// Compatibility with the Android Diaspora client
-		if ($this->module == 'stream') {
-			$this->internalRedirect('network?order=post');
-		}
-
-		if ($this->module == 'conversations') {
-			$this->internalRedirect('message');
-		}
-
-		if ($this->module == 'commented') {
-			$this->internalRedirect('network?order=comment');
-		}
-
-		if ($this->module == 'liked') {
-			$this->internalRedirect('network?order=comment');
-		}
-
-		if ($this->module == 'activity') {
-			$this->internalRedirect('network?conv=1');
-		}
-
-		if (($this->module == 'status_messages') && ($this->cmd == 'status_messages/new')) {
-			$this->internalRedirect('bookmarklet');
-		}
-
-		if (($this->module == 'user') && ($this->cmd == 'user/edit')) {
-			$this->internalRedirect('settings');
-		}
-
-		if (($this->module == 'tag_followings') && ($this->cmd == 'tag_followings/manage')) {
-			$this->internalRedirect('search');
-		}
-
-		// Compatibility with the Firefox App
-		if (($this->module == "users") && ($this->cmd == "users/sign_in")) {
-			$this->module = "login";
-		}
-
-		/*
-		 * ROUTING
-		 *
-		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
-		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
-		 */
-
-		// First we try explicit routes defined in App\Router
-		$this->router->collectRoutes();
-
-		$data = $this->router->getRouteCollector();
-		Hook::callAll('route_collection', $data);
-
-		$this->module_class = $this->router->getModuleClass($this->cmd);
-
-		// Then we try addon-provided modules that we wrap in the LegacyModule class
-		if (!$this->module_class && Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
-			//Check if module is an app and if public access to apps is allowed or not
-			$privateapps = $this->config->get('config', 'private_addons', false);
-			if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
-				info($this->l10n->t("You must be logged in to use addons. "));
-			} else {
-				include_once "addon/{$this->module}/{$this->module}.php";
-				if (function_exists($this->module . '_module')) {
-					LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
-					$this->module_class = LegacyModule::class;
-				}
-			}
-		}
-
-		/* Finally, we look for a 'standard' program module in the 'mod' directory
-		 * We emulate a Module class through the LegacyModule class
-		 */
-		if (!$this->module_class && file_exists("mod/{$this->module}.php")) {
-			LegacyModule::setModuleFile("mod/{$this->module}.php");
-			$this->module_class = LegacyModule::class;
-		}
-
-		/* The URL provided does not resolve to a valid module.
-		 *
-		 * On Dreamhost sites, quite often things go wrong for no apparent reason and they send us to '/internal_error.html'.
-		 * We don't like doing this, but as it occasionally accounts for 10-20% or more of all site traffic -
-		 * we are going to trap this and redirect back to the requested page. As long as you don't have a critical error on your page
-		 * this will often succeed and eventually do the right thing.
-		 *
-		 * Otherwise we are going to emit a 404 not found.
-		 */
-		if (!$this->module_class) {
-			// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
-			if (!empty($_SERVER['QUERY_STRING']) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
-				exit();
-			}
-
-			if (!empty($_SERVER['QUERY_STRING']) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
-				Core\Logger::log('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
-				$this->internalRedirect($_SERVER['REQUEST_URI']);
-			}
-
-			Core\Logger::log('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], Core\Logger::DEBUG);
-
-			$this->module_class = Module\PageNotFound::class;
-		}
-
-		// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-		$this->page['page_title'] = $this->module;
 		try {
+			// Missing DB connection: ERROR
+			if ($this->getMode()->has(App\Mode::LOCALCONFIGPRESENT) && !$this->getMode()->has(App\Mode::DBAVAILABLE)) {
+				throw new HTTPException\InternalServerErrorException('Apologies but the website is unavailable at the moment.');
+			}
+
+			// Max Load Average reached: ERROR
+			if ($this->isMaxProcessesReached() || $this->isMaxLoadReached()) {
+				header('Retry-After: 120');
+				header('Refresh: 120; url=' . $this->getBaseURL() . "/" . $this->query_string);
+
+				throw new HTTPException\ServiceUnavailableException('The node is currently overloaded. Please try again later.');
+			}
+
+			if (!$this->getMode()->isInstall()) {
+				// Force SSL redirection
+				if ($this->baseURL->checkRedirectHttps()) {
+					System::externalRedirect($this->getBaseURL() . '/' . $this->query_string);
+				}
+
+				Core\Session::init();
+				Core\Hook::callAll('init_1');
+			}
+
+			// Exclude the backend processes from the session management
+			if (!$this->isBackend()) {
+				$stamp1 = microtime(true);
+				session_start();
+				$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
+				$this->l10n->setSessionVariable();
+				$this->l10n->setLangFromSession();
+			} else {
+				$_SESSION = [];
+				Core\Worker::executeIfIdle();
+			}
+
+			if ($this->getMode()->isNormal()) {
+				$requester = HTTPSignature::getSigner('', $_SERVER);
+				if (!empty($requester)) {
+					Profile::addVisitorCookieForHandle($requester);
+				}
+			}
+
+			// ZRL
+			if (!empty($_GET['zrl']) && $this->getMode()->isNormal()) {
+				$this->query_string = Model\Profile::stripZrls($this->query_string);
+				if (!local_user()) {
+					// Only continue when the given profile link seems valid
+					// Valid profile links contain a path with "/profile/" and no query parameters
+					if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
+						strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
+						if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
+							Core\Session::set('my_url', $_GET['zrl']);
+							Core\Session::set('authenticated', 0);
+						}
+
+						Model\Profile::zrlInit($this);
+					} else {
+						// Someone came with an invalid parameter, maybe as a DDoS attempt
+						// We simply stop processing here
+						Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Core\Logger::DEBUG);
+						throw new HTTPException\ForbiddenException();
+					}
+				}
+			}
+
+			if (!empty($_GET['owt']) && $this->getMode()->isNormal()) {
+				$token = $_GET['owt'];
+				$this->query_string = Model\Profile::stripQueryParam($this->query_string, 'owt');
+				Model\Profile::openWebAuthInit($token);
+			}
+
+			Module\Login::sessionAuth();
+
+			if (empty($_SESSION['authenticated'])) {
+				header('X-Account-Management-Status: none');
+			}
+
+			$_SESSION['sysmsg']       = Core\Session::get('sysmsg', []);
+			$_SESSION['sysmsg_info']  = Core\Session::get('sysmsg_info', []);
+			$_SESSION['last_updated'] = Core\Session::get('last_updated', []);
+
+			/*
+			 * check_config() is responsible for running update scripts. These automatically
+			 * update the DB schema whenever we push a new one out. It also checks to see if
+			 * any addons have been added or removed and reacts accordingly.
+			 */
+
+			// in install mode, any url loads install module
+			// but we need "view" module for stylesheet
+			if ($this->getMode()->isInstall() && $this->module !== 'install') {
+				$this->internalRedirect('install');
+			} elseif (!$this->getMode()->isInstall() && !$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $this->module !== 'maintenance') {
+				$this->internalRedirect('maintenance');
+			} else {
+				$this->checkURL();
+				Core\Update::check($this->getBasePath(), false, $this->getMode());
+				Core\Addon::loadAddons();
+				Core\Hook::loadHooks();
+			}
+
+			$this->page = [
+				'aside' => '',
+				'bottom' => '',
+				'content' => '',
+				'footer' => '',
+				'htmlhead' => '',
+				'nav' => '',
+				'page_title' => '',
+				'right_aside' => '',
+				'template' => '',
+				'title' => ''
+			];
+
+			// Compatibility with the Android Diaspora client
+			if ($this->module == 'stream') {
+				$this->internalRedirect('network?order=post');
+			}
+
+			if ($this->module == 'conversations') {
+				$this->internalRedirect('message');
+			}
+
+			if ($this->module == 'commented') {
+				$this->internalRedirect('network?order=comment');
+			}
+
+			if ($this->module == 'liked') {
+				$this->internalRedirect('network?order=comment');
+			}
+
+			if ($this->module == 'activity') {
+				$this->internalRedirect('network?conv=1');
+			}
+
+			if (($this->module == 'status_messages') && ($this->cmd == 'status_messages/new')) {
+				$this->internalRedirect('bookmarklet');
+			}
+
+			if (($this->module == 'user') && ($this->cmd == 'user/edit')) {
+				$this->internalRedirect('settings');
+			}
+
+			if (($this->module == 'tag_followings') && ($this->cmd == 'tag_followings/manage')) {
+				$this->internalRedirect('search');
+			}
+
+			// Compatibility with the Firefox App
+			if (($this->module == "users") && ($this->cmd == "users/sign_in")) {
+				$this->module = "login";
+			}
+
+			/*
+			 * ROUTING
+			 *
+			 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
+			 * post() and/or content() static methods can be respectively called to produce a data change or an output.
+			 */
+
+			// First we try explicit routes defined in App\Router
+			$this->router->collectRoutes();
+
+			$data = $this->router->getRouteCollector();
+			Hook::callAll('route_collection', $data);
+
+			$this->module_class = $this->router->getModuleClass($this->cmd);
+
+			// Then we try addon-provided modules that we wrap in the LegacyModule class
+			if (!$this->module_class && Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
+				//Check if module is an app and if public access to apps is allowed or not
+				$privateapps = $this->config->get('config', 'private_addons', false);
+				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
+					info($this->l10n->t("You must be logged in to use addons. "));
+				} else {
+					include_once "addon/{$this->module}/{$this->module}.php";
+					if (function_exists($this->module . '_module')) {
+						LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
+						$this->module_class = LegacyModule::class;
+					}
+				}
+			}
+
+			/* Finally, we look for a 'standard' program module in the 'mod' directory
+			 * We emulate a Module class through the LegacyModule class
+			 */
+			if (!$this->module_class && file_exists("mod/{$this->module}.php")) {
+				LegacyModule::setModuleFile("mod/{$this->module}.php");
+				$this->module_class = LegacyModule::class;
+			}
+
+			/* The URL provided does not resolve to a valid module.
+			 *
+			 * On Dreamhost sites, quite often things go wrong for no apparent reason and they send us to '/internal_error.html'.
+			 * We don't like doing this, but as it occasionally accounts for 10-20% or more of all site traffic -
+			 * we are going to trap this and redirect back to the requested page. As long as you don't have a critical error on your page
+			 * this will often succeed and eventually do the right thing.
+			 *
+			 * Otherwise we are going to emit a 404 not found.
+			 */
+			if (!$this->module_class) {
+				// Stupid browser tried to pre-fetch our Javascript img template. Don't log the event or return anything - just quietly exit.
+				if (!empty($_SERVER['QUERY_STRING']) && preg_match('/{[0-9]}/', $_SERVER['QUERY_STRING']) !== 0) {
+					exit();
+				}
+
+				if (!empty($_SERVER['QUERY_STRING']) && ($_SERVER['QUERY_STRING'] === 'q=internal_error.html') && isset($dreamhost_error_hack)) {
+					Core\Logger::log('index.php: dreamhost_error_hack invoked. Original URI =' . $_SERVER['REQUEST_URI']);
+					$this->internalRedirect($_SERVER['REQUEST_URI']);
+				}
+
+				Core\Logger::log('index.php: page not found: ' . $_SERVER['REQUEST_URI'] . ' ADDRESS: ' . $_SERVER['REMOTE_ADDR'] . ' QUERY: ' . $_SERVER['QUERY_STRING'], Core\Logger::DEBUG);
+
+				$this->module_class = Module\PageNotFound::class;
+			}
+
+			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
+			$this->page['page_title'] = $this->module;
+
 			$placeholder = '';
 
 			Core\Hook::callAll($this->module . '_mod_init', $placeholder);
