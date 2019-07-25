@@ -7,6 +7,7 @@ namespace Friendica\Core;
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Util\BaseURL;
 
 /**
@@ -71,7 +72,7 @@ class Authentication extends BaseObject
 		}
 
 		// Check current path, if 2fa authentication module return
-		if ($a->argc > 0 && in_array($a->argv[0], ['ping', '2fa', 'view', 'help', 'api', 'proxy', 'logout'])) {
+		if ($a->argc > 0 && in_array($a->argv[0], ['2fa', 'view', 'help', 'api', 'proxy', 'logout'])) {
 			return;
 		}
 
@@ -81,7 +82,11 @@ class Authentication extends BaseObject
 		}
 
 		// Case 2: No valid 2FA session: redirect to code verification page
-		$a->internalRedirect('2fa');
+		if ($a->isAjax()) {
+			throw new ForbiddenException();
+		} else {
+			$a->internalRedirect('2fa');
+		}
 	}
 }
 
