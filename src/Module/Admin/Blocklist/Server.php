@@ -28,7 +28,7 @@ class Server extends BaseAdminModule
 				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
 			];
 			Config::set('system', 'blocklist', $blocklist);
-			info(L10n::t('Server added to blocklist.') . EOL);
+			info(L10n::t('Server domain pattern added to blocklist.') . EOL);
 		} else {
 			// Edit the entries from blocklist
 			$blocklist = [];
@@ -61,9 +61,9 @@ class Server extends BaseAdminModule
 		if (is_array($blocklist)) {
 			foreach ($blocklist as $id => $b) {
 				$blocklistform[] = [
-					'domain' => ["domain[$id]", L10n::t('Blocked domain'), $b['domain'], '', L10n::t('The blocked domain'), 'required', '', ''],
-					'reason' => ["reason[$id]", L10n::t("Reason for the block"), $b['reason'], L10n::t('The reason why you blocked this domain.') . '(' . $b['domain'] . ')', 'required', '', ''],
-					'delete' => ["delete[$id]", L10n::t("Delete domain") . ' (' . $b['domain'] . ')', false, L10n::t("Check to delete this entry from the blocklist")]
+					'domain' => ["domain[$id]", L10n::t('Blocked server domain pattern'), $b['domain'], '', 'required', '', ''],
+					'reason' => ["reason[$id]", L10n::t("Reason for the block"), $b['reason'], '', 'required', '', ''],
+					'delete' => ["delete[$id]", L10n::t("Delete server domain pattern") . ' (' . $b['domain'] . ')', false, L10n::t("Check to delete this entry from the blocklist")]
 				];
 			}
 		}
@@ -71,16 +71,22 @@ class Server extends BaseAdminModule
 		$t = Renderer::getMarkupTemplate('admin/blocklist/server.tpl');
 		return Renderer::replaceMacros($t, [
 			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Server Blocklist'),
-			'$intro' => L10n::t('This page can be used to define a black list of servers from the federated network that are not allowed to interact with your node. For all entered domains you should also give a reason why you have blocked the remote server.'),
-			'$public' => L10n::t('The list of blocked servers will be made publically available on the /friendica page so that your users and people investigating communication problems can find the reason easily.'),
+			'$page' => L10n::t('Server Domain Pattern Blocklist'),
+			'$intro' => L10n::t('This page can be used to define a blacklist of server domain patterns from the federated network that are not allowed to interact with your node. For each domain pattern you should also provide the reason why you block it.'),
+			'$public' => L10n::t('The list of blocked server domain patterns will be made publically available on the <a href="/friendica">/friendica</a> page so that your users and people investigating communication problems can find the reason easily.'),
+			'$syntax' => L10n::t('<p>The server domain pattern syntax is case-insensitive shell wildcard, comprising the following special characters:</p>
+<ul>
+	<li><code>*</code>: Any number of characters</li>
+	<li><code>?</code>: Any single character</li>
+	<li><code>[&lt;char1&gt;&lt;char2&gt;...]</code>: char1 or char2</li>
+</ul>'),
 			'$addtitle' => L10n::t('Add new entry to block list'),
-			'$newdomain' => ['newentry_domain', L10n::t('Server Domain'), '', L10n::t('The domain of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''],
-			'$newreason' => ['newentry_reason', L10n::t('Block reason'), '', L10n::t('The reason why you blocked this domain.'), 'required', '', ''],
+			'$newdomain' => ['newentry_domain', L10n::t('Server Domain Pattern'), '', L10n::t('The domain pattern of the new server to add to the block list. Do not include the protocol.'), 'required', '', ''],
+			'$newreason' => ['newentry_reason', L10n::t('Block reason'), '', L10n::t('The reason why you blocked this server domain pattern.'), 'required', '', ''],
 			'$submit' => L10n::t('Add Entry'),
 			'$savechanges' => L10n::t('Save changes to the blocklist'),
 			'$currenttitle' => L10n::t('Current Entries in the Blocklist'),
-			'$thurl' => L10n::t('Blocked domain'),
+			'$thurl' => L10n::t('Blocked server domain pattern'),
 			'$threason' => L10n::t('Reason for the block'),
 			'$delentry' => L10n::t('Delete entry from blocklist'),
 			'$entries' => $blocklistform,
