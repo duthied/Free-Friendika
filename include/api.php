@@ -27,6 +27,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
 use Friendica\Model\Photo;
+use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
@@ -6205,47 +6206,39 @@ function api_friendica_profile_show($type)
 
 	// get data of the specified profile id or all profiles of the user if not specified
 	if ($profile_id != 0) {
-		$r = q(
-			"SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d",
-			intval(api_user()),
-			intval($profile_id)
-		);
-
+		$r = Profile::get(api_user(), $profile_id);
 		// error message if specified gid is not in database
 		if (!DBA::isResult($r)) {
 			throw new BadRequestException("profile_id not available");
 		}
 	} else {
-		$r = q(
-			"SELECT * FROM `profile` WHERE `uid` = %d",
-			intval(api_user())
-		);
+		$r = Profile::get(api_user());
 	}
 	// loop through all returned profiles and retrieve data and users
 	$k = 0;
 	$profiles = [];
-	foreach ($r as $rr) {
-		$profile = api_format_items_profiles($rr);
+	if (DBA::isResult($r)) {
+		foreach ($r as $rr) {
+			$profile = api_format_items_profiles($rr);
 
-		// select all users from contact table, loop and prepare standard return for user data
-		$users = [];
-		$nurls = q(
-			"SELECT `id`, `nurl` FROM `contact` WHERE `uid`= %d AND `profile-id` = %d",
-			intval(api_user()),
-			intval($rr['id'])
-		);
+			// select all users from contact table, loop and prepare standard return for user data
+			$users = [];
+			$nurls = Contact::select(['id', 'nurl'], ['uid' => api_user(), 'profile-id' => $rr['id']]);
 
-		foreach ($nurls as $nurl) {
-			$user = api_get_user($a, $nurl['nurl']);
-			($type == "xml") ? $users[$k++ . ":user"] = $user : $users[] = $user;
-		}
-		$profile['users'] = $users;
+			if (DBA::isResult($nurls)) {
+				foreach ($nurls as $nurl) {
+					$user = api_get_user($a, $nurl['nurl']);
+					($type == "xml") ? $users[$k++ . ":user"] = $user : $users[] = $user;
+				}
+			}
+			$profile['users'] = $users;
 
-		// add prepared profile data to array for final return
-		if ($type == "xml") {
-			$profiles[$k++ . ":profile"] = $profile;
-		} else {
-			$profiles[] = $profile;
+			// add prepared profile data to array for final return
+			if ($type == "xml") {
+				$profiles[$k++ . ":profile"] = $profile;
+			} else {
+				$profiles[] = $profile;
+			}
 		}
 	}
 
@@ -6275,15 +6268,17 @@ function api_saved_searches_list($type)
 	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 
 	$result = [];
-	while ($term = $terms->fetch()) {
-		$result[] = [
-			'created_at' => api_date(time()),
-			'id' => intval($term['id']),
-			'id_str' => $term['id'],
-			'name' => $term['term'],
-			'position' => null,
-			'query' => $term['term']
-		];
+	if (DBA::isResult($terms)) {
+		while ($term = $terms->fetch()) {
+			$result[] = [
+				'created_at' => api_date(time()),
+				'id'         => intval($term['id']),
+				'id_str'     => $term['id'],
+				'name'       => $term['term'],
+				'position'   => null,
+				'query'      => $term['term']
+			];
+		}
 	}
 
 	DBA::close($terms);

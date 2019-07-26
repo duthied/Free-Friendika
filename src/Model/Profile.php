@@ -46,6 +46,25 @@ class Profile
 	}
 
 	/**
+	 * @brief Returns the profile based on a ID
+	 *
+	 * @param int $uid The User ID
+	 * @param int $id The id of the profile (optional)
+	 * @param array $fields The fields to retrieve
+	 *
+	 * @return array Array of profile data
+	 * @throws \Exception
+	 */
+	public static function get(int $uid, int $id = null, array $fields = [])
+	{
+		if (empty($id)) {
+			return DBA::select('profile', $fields, ['uid' => $uid]);
+		} else {
+			return DBA::select('profile', $fields, ['uid' => $uid, 'id' => $id]);
+		}
+	}
+
+	/**
 	 * @brief Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)
