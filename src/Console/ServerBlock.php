@@ -23,15 +23,20 @@ class ServerBlock extends Console
 	protected function getHelp()
 	{
 		$help = <<<HELP
-console serverblock - Manage blocked servers
+console serverblock - Manage blocked server domain patterns
 Usage
 	bin/console serverblock [-h|--help|-?] [-v]
-	bin/console serverblock add <server> <reason> [-h|--help|-?] [-v]
-	bin/console serverblock remove <server> [-h|--help|-?] [-v]
+	bin/console serverblock add <pattern> <reason> [-h|--help|-?] [-v]
+	bin/console serverblock remove <pattern> [-h|--help|-?] [-v]
 
 Description
-	With this tool, you can list the current blocked servers
-    or you can add / remove a blocked server from the list
+	With this tool, you can list the current blocked server domain patterns
+    or you can add / remove a blocked server domain pattern from the list.
+    
+    Patterns are case-insensitive shell wildcard comprising the following special characters:
+    - * : Any number of characters
+    - ? : Any single character
+    - [<char1><char2>...] : char1 or char2 or...
 
 Options
     -h|--help|-? Show help information
