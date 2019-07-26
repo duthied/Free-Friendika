@@ -1,34 +1,21 @@
 <?php
 namespace Friendica\Test\src\Database;
 
-use Friendica\App;
+use Dice\Dice;
+use Friendica\BaseObject;
 use Friendica\Core\Config;
-use Friendica\Core\Config\Cache\PConfigCache;
-use Friendica\Core\L10n\L10n;
 use Friendica\Database\DBA;
-use Friendica\Factory;
 use Friendica\Test\DatabaseTest;
-use Friendica\Util\BaseURL;
 
 class DBATest extends DatabaseTest
 {
 	public function setUp()
 	{
-		$configModel = new \Friendica\Model\Config\Config(self::$dba);
-		$configFactory = new Factory\ConfigFactory();
-		$config = $configFactory->createConfig(self::$configCache, $configModel);
-		$pconfigModel = new \Friendica\Model\Config\PConfig(self::$dba);
-		$configFactory->createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
-		$loggerFactory = new Factory\LoggerFactory();
-		$logger = $loggerFactory->create('test', self::$dba, $config, self::$profiler);
-		$baseUrl = new BaseURL($config, $_SERVER);
-		$router = new App\Router();
-		$l10n = new L10n($config,
-			self::$dba,
-			$logger);
-		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, $l10n, false);
-
 		parent::setUp();
+
+		$dice = new Dice();
+		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
+		BaseObject::setDependencyInjection($dice);
 
 		// Default config
 		Config::set('config', 'hostname', 'localhost');

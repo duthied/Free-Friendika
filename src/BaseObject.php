@@ -42,7 +42,7 @@ class BaseObject
 	 */
 	public static function getApp()
 	{
-		return self::$dice->create(App::class);
+		return self::getClass(App::class);
 	}
 
 	/**
@@ -54,8 +54,12 @@ class BaseObject
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	public static function getClass(string $name)
+	protected static function getClass(string $name)
 	{
+		if (empty(self::$dice)) {
+			throw new InternalServerErrorException('DICE isn\'t initialized.');
+		}
+
 		if (class_exists($name) || interface_exists($name   )) {
 			return self::$dice->create($name);
 		} else {

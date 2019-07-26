@@ -3,6 +3,8 @@
 // this is in the same namespace as Install for mocking 'function_exists'
 namespace Friendica\Core;
 
+use Dice\Dice;
+use Friendica\BaseObject;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Network\CurlResult;
 use Friendica\Object\Image;
@@ -27,7 +29,16 @@ class InstallerTest extends MockedTest
 		$this->setUpVfsDir();
 
 		$this->l10nMock = \Mockery::mock(\Friendica\Core\L10n\L10n::class);
-		L10n::init($this->l10nMock);
+
+		/** @var Dice|MockInterface $dice */
+		$dice = \Mockery::mock(Dice::class)->makePartial();
+		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
+
+		$dice->shouldReceive('create')
+		           ->with(\Friendica\Core\L10n\L10n::class)
+		           ->andReturn($this->l10nMock);
+
+		BaseObject::setDependencyInjection($dice);
 	}
 
 	private function mockL10nT(string $text, $times = null)

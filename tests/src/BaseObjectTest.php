@@ -24,20 +24,6 @@ class BaseObjectTest extends TestCase
 	private $baseObject;
 
 	/**
-	 * Test the setApp() and getApp() function.
-	 * @return void
-	 */
-	public function testGetSetApp()
-	{
-		$baseObject = new BaseObject();
-		$this->setUpVfsDir();
-		$this->mockApp($this->root);
-
-		$baseObject->setApp($this->app);
-		$this->assertEquals($this->app, $baseObject->getApp());
-	}
-
-	/**
 	 * Test the getApp() function without App
 	 * @expectedException Friendica\Network\HTTPException\InternalServerErrorException
 	 * @runInSeparateProcess

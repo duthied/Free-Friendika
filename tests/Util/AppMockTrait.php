@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\Util;
 
+use Dice\Dice;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
@@ -36,6 +37,11 @@ trait AppMockTrait
 	protected $mode;
 
 	/**
+	 * @var MockInterface|Dice The dependency injection library
+	 */
+	protected $dice;
+
+	/**
 	 * Mock the App
 	 *
 	 * @param vfsStreamDirectory $root The root directory
@@ -43,18 +49,31 @@ trait AppMockTrait
 	 */
 	public function mockApp(vfsStreamDirectory $root, $raw = false)
 	{
+		$this->dice = \Mockery::mock(Dice::class)->makePartial();
+		$this->dice = $this->dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
+
 		$this->configMock = \Mockery::mock(Config\Cache\ConfigCache::class);
+		$this->dice->shouldReceive('create')
+		           ->with(Config\Cache\ConfigCache::class)
+		           ->andReturn($this->configMock);
 		$this->mode = \Mockery::mock(App\Mode::class);
+		$this->dice->shouldReceive('create')
+		           ->with(App\Mode::class)
+		           ->andReturn($this->mode);
 		$configModel= \Mockery::mock(\Friendica\Model\Config\Config::class);
 		// Disable the adapter
 		$configModel->shouldReceive('isConnected')->andReturn(false);
 
 		$config = new Config\JitConfiguration($this->configMock, $configModel);
-		// Initialize empty Config
-		Config::init($config);
+		$this->dice->shouldReceive('create')
+		           ->with(Config\Configuration::class)
+		           ->andReturn($config);
 
 		// Mocking App and most used functions
 		$this->app = \Mockery::mock(App::class);
+		$this->dice->shouldReceive('create')
+		           ->with(App::class)
+		           ->andReturn($this->app);
 		$this->app
 			->shouldReceive('getBasePath')
 			->andReturn($root->url());
@@ -65,6 +84,9 @@ trait AppMockTrait
 
 		$this->profilerMock = \Mockery::mock(Profiler::class);
 		$this->profilerMock->shouldReceive('saveTimestamp');
+		$this->dice->shouldReceive('create')
+		           ->with(Profiler::class)
+		           ->andReturn($this->profilerMock);
 
 		$this->app
 			->shouldReceive('getConfigCache')
@@ -87,7 +109,7 @@ trait AppMockTrait
 				return $this->configMock->get('system', 'url');
 			});
 
-		BaseObject::setApp($this->app);
+		BaseObject::setDependencyInjection($this->dice);
 
 		if ($raw) {
 			return;

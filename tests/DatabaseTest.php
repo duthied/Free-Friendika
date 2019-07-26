@@ -5,19 +5,10 @@
 
 namespace Friendica\Test;
 
-use Friendica\App\Mode;
-use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Database\Database;
-use Friendica\Factory\ConfigFactory;
-use Friendica\Util\BasePath;
-use Friendica\Util\ConfigFileLoader;
-use Friendica\Util\Profiler;
+use PDO;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
-use Psr\Log\NullLogger;
-
-require_once __DIR__ . '/../boot.php';
 
 /**
  * Abstract class used by tests that need a database.
@@ -26,33 +17,11 @@ abstract class DatabaseTest extends MockedTest
 {
 	use TestCaseTrait;
 
-	/** @var Database */
-	protected static $dba;
+	// only instantiate pdo once for test clean-up/fixture load
+	static private $pdo = null;
 
-	/** @var BasePath */
-	protected static $basePath;
-
-	/** @var Mode */
-	protected static $mode;
-
-	/** @var ConfigCache */
-	protected static $configCache;
-
-	/** @var Profiler */
-	protected static $profiler;
-
-	public static function setUpBeforeClass()
-	{
-		parent::setUpBeforeClass();
-
-		self::$basePath = new BasePath(dirname(__DIR__));
-		$configLoader = new ConfigFileLoader(self::$basePath->getPath());
-		$configFactory = new ConfigFactory();
-		self::$configCache = $configFactory->createCache($configLoader);
-		self::$profiler = new Profiler(self::$configCache);
-		self::$dba = new Database(self::$configCache, self::$profiler, new NullLogger(), $_SERVER);
-		self::$mode = new Mode(self::$basePath, self::$dba, self::$configCache);
-	}
+	// only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
+	private $conn = null;
 
 	/**
 	 * Get database connection.
@@ -67,23 +36,45 @@ abstract class DatabaseTest extends MockedTest
 	 */
 	protected function getConnection()
 	{
-		if (!getenv('MYSQL_DATABASE')) {
-			$this->markTestSkipped('Please set the MYSQL_* environment variables to your test database credentials.');
-		}
+		$server = $_SERVER;
 
-		if (!self::$dba->isConnected()) {
-			if (!self::$dba->connect()) {
-				$this->markTestSkipped('Could not connect to the database.');
+		if ($this->conn === null) {
+			if (self::$pdo == null) {
+
+				if (!empty($server['MYSQL_HOST'])
+				    && !empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER']))
+				    && $server['MYSQL_PASSWORD'] !== false
+				    && !empty($server['MYSQL_DATABASE'])) {
+
+					$connect = "mysql:host=" . $server['MYSQL_HOST'] . ";dbname=" . $server['MYSQL_DATABASE'];
+
+					if (!empty($server['MYSQL_PORT'])) {
+						$connect .= ";port=" . $server['MYSQL_PORT'];
+					}
+
+					if (!empty($server['MYSQL_USERNAME'])) {
+						$db_user = $server['MYSQL_USERNAME'];
+					} else {
+						$db_user = $server['MYSQL_USER'];
+					}
+
+					$db_pass = (string)$server['MYSQL_PASSWORD'];
+
+					self::$pdo = @new PDO($connect, $db_user, $db_pass);
+					self::$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
+				}
 			}
+			$this->conn = $this->createDefaultDBConnection(self::$pdo, getenv('MYSQL_DATABASE'));
 		}
 
-		return $this->createDefaultDBConnection(self::$dba->getConnection(), getenv('MYSQL_DATABASE'));
+		return $this->conn;
 	}
 
 	/**
 	 * Get dataset to populate the database with.
+	 *
 	 * @return YamlDataSet
-	 * @see https://phpunit.de/manual/5.7/en/database.html
+	 * @see https://phtablepunit.de/manual/5.7/en/database.html
 	 */
 	protected function getDataSet()
 	{
