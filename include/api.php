@@ -2444,8 +2444,8 @@ function api_convert_item($item)
 		$statustext = trim($statustitle."\n\n".$statusbody);
 	}
 
-	if ((defaults($item, 'network', Protocol::PHANTOM) == Protocol::FEED) && (strlen($statustext)> 1000)) {
-		$statustext = substr($statustext, 0, 1000) . "... \n" . defaults($item, 'plink', '');
+	if ((defaults($item, 'network', Protocol::PHANTOM) == Protocol::FEED) && (mb_strlen($statustext)> 1000)) {
+		$statustext = mb_substr($statustext, 0, 1000) . "... \n" . defaults($item, 'plink', '');
 	}
 
 	$statushtml = BBCode::convert(api_clean_attachments($body), false);
