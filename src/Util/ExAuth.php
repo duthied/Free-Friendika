@@ -34,9 +34,13 @@
 
 namespace Friendica\Util;
 
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Exception;
+use Friendica\App;
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\PConfig\IPConfig;
+use Friendica\Database\Database;
 use Friendica\Model\User;
+use Friendica\Network\HTTPException;
 
 class ExAuth
 {
@@ -44,12 +48,43 @@ class ExAuth
 	private $host;
 
 	/**
-	 * Create the class
-	 *
+	 * @var App\Mode
 	 */
-	public function __construct()
+	private $appMode;
+	/**
+	 * @var IConfig
+	 */
+	private $config;
+	/**
+	 * @var IPConfig
+	 */
+	private $pConfig;
+	/**
+	 * @var Database
+	 */
+	private $dba;
+	/**
+	 * @var App\BaseURL
+	 */
+	private $baseURL;
+
+	/**
+	 * @param App\Mode    $appMode
+	 * @param IConfig      $config
+	 * @param IPConfig     $pConfig
+	 * @param Database    $dba
+	 * @param App\BaseURL $baseURL
+	 * @throws Exception
+	 */
+	public function __construct(App\Mode $appMode, IConfig $config, IPConfig $pConfig, Database $dba, App\BaseURL $baseURL)
 	{
-		$this->bDebug = (int) DI::config()->get('jabber', 'debug');
+		$this->appMode = $appMode;
+		$this->config  = $config;
+		$this->pConfig = $pConfig;
+		$this->dba     = $dba;
+		$this->baseURL = $baseURL;
+
+		$this->bDebug = (int)$config->get('jabber', 'debug');
 
 		openlog('auth_ejabberd', LOG_PID, LOG_USER);
 
@@ -60,14 +95,18 @@ class ExAuth
 	 * Standard input reading function, executes the auth with the provided
 	 * parameters
 	 *
-	 * @return null
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function readStdin()
 	{
+		if (!$this->appMode->isNormal()) {
+			$this->writeLog(LOG_ERR, 'The node isn\'t ready.');
+			return;
+		}
+
 		while (!feof(STDIN)) {
 			// Quit if the database connection went down
-			if (!DBA::connected()) {
+			if (!$this->dba->isConnected()) {
 				$this->writeLog(LOG_ERR, 'the database connection went down');
 				return;
 			}
@@ -123,7 +162,7 @@ class ExAuth
 	 * Check if the given username exists
 	 *
 	 * @param array $aCommand The command array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private function isUser(array $aCommand)
 	{
@@ -142,9 +181,9 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if (DI::baseUrl()->getHostname() == $aCommand[2]) {
+		if ($this->baseURL->getHostname() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal user check for ' . $sUser . '@' . $aCommand[2]);
-			$found = DBA::exists('user', ['nickname' => $sUser]);
+			$found = $this->dba->exists('user', ['nickname' => $sUser]);
 		} else {
 			$found = false;
 		}
@@ -173,7 +212,7 @@ class ExAuth
 	 * @param boolean $ssl  Should the check be done via SSL?
 	 *
 	 * @return boolean Was the user found?
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private function checkUser($host, $user, $ssl)
 	{
@@ -203,7 +242,7 @@ class ExAuth
 	 * Authenticate the given user and password
 	 *
 	 * @param array $aCommand The command array
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
 	private function auth(array $aCommand)
 	{
@@ -221,35 +260,29 @@ class ExAuth
 		// We now check if the password match
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
+		$Error = false;
 		// Does the hostname match? So we try directly
-		if (DI::baseUrl()->getHostname() == $aCommand[2]) {
-			$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
-
-			$aUser = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);
-			if (DBA::isResult($aUser)) {
-				$uid = $aUser['uid'];
-				$success = User::authenticate($aUser, $aCommand[3], true);
-				$Error = $success === false;
-			} else {
-				$this->writeLog(LOG_WARNING, 'user not found: ' . $sUser);
-				$Error = true;
-				$uid = -1;
-			}
-			if ($Error) {
+		if ($this->baseURL->getHostname() == $aCommand[2]) {
+			try {
+				$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
+				User::getIdFromPasswordAuthentication($sUser, $aCommand[3], true);
+			} catch (HTTPException\ForbiddenException $ex) {
+				// User exists, authentication failed
 				$this->writeLog(LOG_INFO, 'check against alternate password for ' . $sUser . '@' . $aCommand[2]);
-				$sPassword = DI::pConfig()->get($uid, 'xmpp', 'password', null, true);
+				$aUser = User::getByNickname($sUser, ['uid']);
+				$sPassword = $this->pConfig->get($aUser['uid'], 'xmpp', 'password', null, true);
 				$Error = ($aCommand[3] != $sPassword);
+			} catch (\Throwable $ex) {
+				// User doesn't exist and any other failure case
+				$this->writeLog(LOG_WARNING, $ex->getMessage() . ': ' . $sUser);
+				$Error = true;
 			}
 		} else {
 			$Error = true;
 		}
 
 		// If the hostnames doesn't match or there is some failure, we try to check remotely
-		if ($Error) {
-			$Error = !$this->checkCredentials($aCommand[2], $aCommand[1], $aCommand[3], true);
-		}
-
-		if ($Error) {
+		if ($Error && !$this->checkCredentials($aCommand[2], $aCommand[1], $aCommand[3], true)) {
 			$this->writeLog(LOG_WARNING, 'authentification failed for user ' . $sUser . '@' . $aCommand[2]);
 			fwrite(STDOUT, pack('nn', 2, 0));
 		} else {
@@ -297,7 +330,6 @@ class ExAuth
 	 * Set the hostname for this process
 	 *
 	 * @param string $host The hostname
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function setHost($host)
 	{
@@ -309,7 +341,7 @@ class ExAuth
 
 		$this->host = $host;
 
-		$lockpath = DI::config()->get('jabber', 'lockpath');
+		$lockpath = $this->config->get('jabber', 'lockpath');
 		if (is_null($lockpath)) {
 			$this->writeLog(LOG_INFO, 'No lockpath defined.');
 			return;

@@ -321,7 +321,8 @@ class User
 	 * @param string $password
 	 * @param bool   $third_party
 	 * @return int User Id if authentication is successful
-	 * @throws Exception
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\NotFoundException
 	 */
 	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
 	{
@@ -356,7 +357,7 @@ class User
 			return $user['uid'];
 		}
 
-		throw new Exception(DI::l10n()->t('Login failed'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Login failed'));
 	}
 
 	/**
@@ -370,7 +371,7 @@ class User
 	 *
 	 * @param mixed $user_info
 	 * @return array
-	 * @throws Exception
+	 * @throws HTTPException\NotFoundException
 	 */
 	private static function getAuthenticationInfo($user_info)
 	{
@@ -414,7 +415,7 @@ class User
 			}
 
 			if (!DBA::isResult($user)) {
-				throw new Exception(DI::l10n()->t('User not found'));
+				throw new HTTPException\NotFoundException(DI::l10n()->t('User not found'));
 			}
 		}
 
