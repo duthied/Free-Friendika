@@ -32,6 +32,8 @@
  *
  */
 
+use Friendica\App\Mode;
+use Friendica\BaseObject;
 use Friendica\Util\ExAuth;
 
 if (sizeof($_SERVER["argv"]) == 0) {
@@ -52,8 +54,9 @@ require dirname(__DIR__) . '/vendor/autoload.php';
 
 $dice = new \Dice\Dice();
 $dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
+BaseObject::setDependencyInjection($dice);
 
-$appMode = $dice->create(\Friendica\App\Mode::class);
+$appMode = $dice->create(Mode::class);
 
 if ($appMode->isNormal()) {
 	$oAuth = new ExAuth();
