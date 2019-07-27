@@ -6268,17 +6268,15 @@ function api_saved_searches_list($type)
 	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 
 	$result = [];
-	if (DBA::isResult($terms)) {
-		while ($term = $terms->fetch()) {
-			$result[] = [
-				'created_at' => api_date(time()),
-				'id'         => intval($term['id']),
-				'id_str'     => $term['id'],
-				'name'       => $term['term'],
-				'position'   => null,
-				'query'      => $term['term']
-			];
-		}
+	while ($term = $terms->fetch()) {
+		$result[] = [
+			'created_at' => api_date(time()),
+			'id' => intval($term['id']),
+			'id_str' => $term['id'],
+			'name' => $term['term'],
+			'position' => null,
+			'query' => $term['term']
+		];
 	}
 
 	DBA::close($terms);
