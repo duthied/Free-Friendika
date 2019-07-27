@@ -420,7 +420,7 @@ class DBA
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public static function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
+	public static function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return self::$database->selectToArray($table, $fields, $condition, $params);
 	}

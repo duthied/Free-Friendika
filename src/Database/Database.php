@@ -1419,7 +1419,7 @@ class Database
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
+	public function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return $this->toArray($this->select($table, $fields, $condition, $params));
 	}
