@@ -413,7 +413,7 @@ class DBA extends BaseObject
 	 */
 	public static function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
-		return self::$database->selectToArray($table, $fields, $condition, $params);
+		return self::getClass(Database::class)->selectToArray($table, $fields, $condition, $params);
 	}
 
 	/**
