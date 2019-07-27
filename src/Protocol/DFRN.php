@@ -29,6 +29,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\BaseURL;
 use Friendica\Util\Crypto;
@@ -3040,5 +3041,20 @@ class DFRN
 		$update_edited = DateTimeFormat::utc($update['edited']);
 
 		return (strcmp($existing_edited, $update_edited) < 0);
+	}
+
+	/**
+	 * Checks if the given contact url does support DFRN
+	 *
+	 * @param string  $url    profile url
+	 * @param boolean $update Update the profile
+	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isSupportedByContactUrl($url, $update = false)
+	{
+		$probe = Probe::uri($url, Protocol::DFRN, 0, !$update);
+		return $probe['network'] == Protocol::DFRN;
 	}
 }

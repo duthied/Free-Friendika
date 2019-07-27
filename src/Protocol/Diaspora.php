@@ -942,31 +942,41 @@ class Diaspora
 	 * @brief Fetches data for a given handle
 	 *
 	 * @param string $handle The handle
+	 * @param boolean $update Update the profile
 	 *
 	 * @return array the queried data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function personByHandle($handle)
+	public static function personByHandle($handle, $update = null)
 	{
-		$update = false;
-
 		$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
+		if (!DBA::isResult($person)) {
+			$urls = [$handle, str_replace('http://', 'https://', $handle), Strings::normaliseLink($handle)];
+			$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'url' => $urls]);
+		}
+
 		if (DBA::isResult($person)) {
 			Logger::debug("In cache " . print_r($person, true));
 
-			// update record occasionally so it doesn't get stale
-			$d = strtotime($person["updated"]." +00:00");
-			if ($d < strtotime("now - 14 days")) {
-				$update = true;
-			}
+			if (is_null($update)) {
+				// update record occasionally so it doesn't get stale
+				$d = strtotime($person["updated"]." +00:00");
+				if ($d < strtotime("now - 14 days")) {
+					$update = true;
+				}
 
-			if ($person["guid"] == "") {
-				$update = true;
+				if ($person["guid"] == "") {
+					$update = true;
+				}
 			}
+		} elseif (is_null($update)) {
+			$update = !DBA::isResult($person);
+		} else {
+			$person = [];
 		}
 
-		if (!DBA::isResult($person) || $update) {
+		if ($update) {
 			Logger::log("create or refresh", Logger::DEBUG);
 			$r = Probe::uri($handle, Protocol::DIASPORA);
 
@@ -975,12 +985,7 @@ class Diaspora
 			if ($r && ($r["network"] === Protocol::DIASPORA)) {
 				self::updateFContact($r);
 
-				// Fetch the updated or added contact
-				$person = DBA::selectFirst('fcontact', [], ['network' => Protocol::DIASPORA, 'addr' => $handle]);
-				if (!DBA::isResult($person)) {
-					$person = $r;
-					$person['id'] = 0;
-				}
+				$person = self::personByHandle($handle, false);
 			}
 		}
 
@@ -1115,6 +1120,20 @@ class Diaspora
 		}
 
 		return $contact;
+	}
+
+	/**
+	 * Checks if the given contact url does support ActivityPub
+	 *
+	 * @param string  $url    profile url
+	 * @param boolean $update Update the profile
+	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isSupportedByContactUrl($url, $update = null)
+	{
+		return !empty(self::personByHandle($url, $update));
 	}
 
 	/**
