@@ -117,11 +117,9 @@ class Contact extends BaseObject
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function select(array $fields = [], array $condition = [], array $params = [])
+	public static function selectToArray(array $fields = [], array $condition = [], array $params = [])
 	{
-		$statement = DBA::select('contact', $fields, $condition, $params);
-
-		return DBA::toArray($statement);
+		return DBA::selectToArray('contact', $fields, $condition, $params);
 	}
 
 	/**
