@@ -55,8 +55,7 @@ class Attach extends BaseObject
 			$fields = self::getFields();
 		}
 
-		$r = DBA::select('attach', $fields, $conditions, $params);
-		return DBA::toArray($r);
+		$r = DBA::selectToArray('attach', $fields, $conditions, $params);
 	}
 
 	/**

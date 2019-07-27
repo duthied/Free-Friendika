@@ -29,7 +29,7 @@ require_once "include/dba.php";
 class Photo extends BaseObject
 {
 	/**
-	 * @brief Select rows from the photo table
+	 * @brief Select rows from the photo table and returns them as array
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -38,16 +38,15 @@ class Photo extends BaseObject
 	 * @return boolean|array
 	 *
 	 * @throws \Exception
-	 * @see   \Friendica\Database\DBA::select
+	 * @see   \Friendica\Database\DBA::selectToArray
 	 */
-	public static function select(array $fields = [], array $conditions = [], array $params = [])
+	public static function selectToArray(array $fields = [], array $conditions = [], array $params = [])
 	{
 		if (empty($fields)) {
 			$fields = self::getFields();
 		}
 
-		$r = DBA::select("photo", $fields, $conditions, $params);
-		return DBA::toArray($r);
+		return DBA::selectToArray("photo", $fields, $conditions, $params);
 	}
 
 	/**
@@ -89,7 +88,7 @@ class Photo extends BaseObject
 		$conditions["resource-id"] = $resourceid;
 		$conditions["uid"] = $uid;
 
-		return self::select([], $conditions, $params);
+		return self::selectToArray([], $conditions, $params);
 	}
 
 	/**
@@ -350,7 +349,7 @@ class Photo extends BaseObject
 	public static function delete(array $conditions, array $options = [])
 	{
 		// get photo to delete data info
-		$photos = self::select(["backend-class","backend-ref"], $conditions);
+		$photos = self::selectToArray(["backend-class","backend-ref"], $conditions);
 
 		foreach($photos as $photo) {
 			/** @var IStorage $backend_class */
@@ -380,7 +379,7 @@ class Photo extends BaseObject
 	{
 		if (!is_null($img)) {
 			// get photo to update
-			$photos = self::select(["backend-class","backend-ref"], $conditions);
+			$photos = self::selectToArray(["backend-class","backend-ref"], $conditions);
 
 			foreach($photos as $photo) {
 				/** @var IStorage $backend_class */
