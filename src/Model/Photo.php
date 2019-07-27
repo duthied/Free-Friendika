@@ -46,7 +46,7 @@ class Photo extends BaseObject
 			$fields = self::getFields();
 		}
 
-		return DBA::selectToArray("photo", $fields, $conditions, $params);
+		return DBA::selectToArray('photo', $fields, $conditions, $params);
 	}
 
 	/**
@@ -349,7 +349,7 @@ class Photo extends BaseObject
 	public static function delete(array $conditions, array $options = [])
 	{
 		// get photo to delete data info
-		$photos = self::selectToArray(["backend-class","backend-ref"], $conditions);
+		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 		foreach($photos as $photo) {
 			/** @var IStorage $backend_class */
