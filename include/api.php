@@ -6206,13 +6206,13 @@ function api_friendica_profile_show($type)
 
 	// get data of the specified profile id or all profiles of the user if not specified
 	if ($profile_id != 0) {
-		$r = Profile::get(api_user(), $profile_id);
+		$r = Profile::select(api_user(), $profile_id);
 		// error message if specified gid is not in database
 		if (!DBA::isResult($r)) {
 			throw new BadRequestException("profile_id not available");
 		}
 	} else {
-		$r = Profile::get(api_user());
+		$r = Profile::select(api_user());
 	}
 	// loop through all returned profiles and retrieve data and users
 	$k = 0;
@@ -6268,7 +6268,7 @@ function api_saved_searches_list($type)
 	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
 
 	$result = [];
-	while ($term = $terms->fetch()) {
+	while ($term = DBA::fetch($terms)) {
 		$result[] = [
 			'created_at' => api_date(time()),
 			'id' => intval($term['id']),
