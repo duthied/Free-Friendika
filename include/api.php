@@ -6206,13 +6206,13 @@ function api_friendica_profile_show($type)
 
 	// get data of the specified profile id or all profiles of the user if not specified
 	if ($profile_id != 0) {
-		$r = Profile::select(api_user(), $profile_id);
+		$r = Profile::getById(api_user(), $profile_id);
 		// error message if specified gid is not in database
 		if (!DBA::isResult($r)) {
 			throw new BadRequestException("profile_id not available");
 		}
 	} else {
-		$r = Profile::select(api_user());
+		$r = Profile::getListByUser(api_user());
 	}
 	// loop through all returned profiles and retrieve data and users
 	$k = 0;
