@@ -41,8 +41,9 @@ class BBCodeTest extends MockedTest
 
 		$l10nMock = \Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->withAnyArgs()->andReturnUsing(function ($args) { return $args; });
-		\Friendica\Core\L10n::init($l10nMock);
-
+		$this->dice->shouldReceive('create')
+		           ->with(L10n::class)
+		           ->andReturn($l10nMock);
 	}
 
 	public function dataLinks()

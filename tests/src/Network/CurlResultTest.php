@@ -2,10 +2,13 @@
 
 namespace Friendica\Test\src\Network;
 
-use Friendica\Core\Logger;
+use Dice\Dice;
+use Friendica\BaseObject;
 use Friendica\Network\CurlResult;
-use Friendica\Util\Logger\VoidLogger;
+use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 class CurlResultTest extends TestCase
 {
@@ -13,7 +16,17 @@ class CurlResultTest extends TestCase
 	{
 		parent::setUp();
 
-		Logger::init(new VoidLogger());
+
+		/** @var Dice|MockInterface $dice */
+		$dice = \Mockery::mock(Dice::class)->makePartial();
+		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
+
+		$logger = new NullLogger();
+		$dice->shouldReceive('create')
+		           ->with(LoggerInterface::class)
+		           ->andReturn($logger);
+
+		BaseObject::setDependencyInjection($dice);
 	}
 
 	/**

@@ -46,6 +46,35 @@ class Profile
 	}
 
 	/**
+	 * @brief Returns default profile for a given user ID and ID
+	 *
+	 * @param int $uid The contact ID
+	 * @param int $id The contact owner ID
+	 * @param array $fields The selected fields
+	 *
+	 * @return array Profile data for the ID
+	 * @throws \Exception
+	 */
+	public static function getById(int $uid, int $id, array $fields = [])
+	{
+		return DBA::selectFirst('profile', $fields, ['uid' => $uid, 'id' => $id]);
+	}
+
+	/**
+	 * @brief Returns profile data for the contact owner
+	 *
+	 * @param int $uid The User ID
+	 * @param array $fields The fields to retrieve
+	 *
+	 * @return array Array of profile data
+	 * @throws \Exception
+	 */
+	public static function getListByUser(int $uid, array $fields = [])
+	{
+		return DBA::selectToArray('profile', $fields, ['uid' => $uid]);
+	}
+
+	/**
 	 * @brief Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)

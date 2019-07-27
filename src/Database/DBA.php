@@ -2,6 +2,7 @@
 
 namespace Friendica\Database;
 
+use Friendica\BaseObject;
 use mysqli;
 use mysqli_result;
 use mysqli_stmt;
@@ -13,7 +14,7 @@ use PDOStatement;
  *
  * This class is for the low level database stuff that does driver specific things.
  */
-class DBA
+class DBA extends BaseObject
 {
 	/**
 	 * Lowest possible date value
@@ -24,19 +25,9 @@ class DBA
 	 */
 	const NULL_DATETIME = '0001-01-01 00:00:00';
 
-	/**
-	 * @var Database
-	 */
-	private static $database;
-
-	public static function init(Database $database)
-	{
-		self::$database = $database;
-	}
-
 	public static function connect()
 	{
-		return self::$database->connect();
+		return self::getClass(Database::class)->connect();
 	}
 
 	/**
@@ -44,7 +35,7 @@ class DBA
 	 */
 	public static function disconnect()
 	{
-		self::$database->disconnect();
+		self::getClass(Database::class)->disconnect();
 	}
 
 	/**
@@ -52,7 +43,7 @@ class DBA
 	 */
 	public static function reconnect()
 	{
-		return self::$database->reconnect();
+		return self::getClass(Database::class)->reconnect();
 	}
 
 	/**
@@ -61,7 +52,7 @@ class DBA
 	 */
 	public static function getConnection()
 	{
-		return self::$database->getConnection();
+		return self::getClass(Database::class)->getConnection();
 	}
 
 	/**
@@ -74,7 +65,7 @@ class DBA
 	 */
 	public static function serverInfo()
 	{
-		return self::$database->serverInfo();
+		return self::getClass(Database::class)->serverInfo();
 	}
 
 	/**
@@ -85,17 +76,17 @@ class DBA
 	 */
 	public static function databaseName()
 	{
-		return self::$database->databaseName();
+		return self::getClass(Database::class)->databaseName();
 	}
 
 	public static function escape($str)
 	{
-		return self::$database->escape($str);
+		return self::getClass(Database::class)->escape($str);
 	}
 
 	public static function connected()
 	{
-		return self::$database->connected();
+		return self::getClass(Database::class)->connected();
 	}
 
 	/**
@@ -111,7 +102,7 @@ class DBA
 	 */
 	public static function anyValueFallback($sql)
 	{
-		return self::$database->anyValueFallback($sql);
+		return self::getClass(Database::class)->anyValueFallback($sql);
 	}
 
 	/**
@@ -167,7 +158,7 @@ class DBA
 	{
 		$params = self::getParam(func_get_args());
 
-		return self::$database->p($sql, $params);
+		return self::getClass(Database::class)->p($sql, $params);
 	}
 
 	/**
@@ -183,7 +174,7 @@ class DBA
 
 		$params = self::getParam(func_get_args());
 
-		return self::$database->e($sql, $params);
+		return self::getClass(Database::class)->e($sql, $params);
 	}
 
 	/**
@@ -197,7 +188,7 @@ class DBA
 	 */
 	public static function exists($table, $condition)
 	{
-		return self::$database->exists($table, $condition);
+		return self::getClass(Database::class)->exists($table, $condition);
 	}
 
 	/**
@@ -214,7 +205,7 @@ class DBA
 	{
 		$params = self::getParam(func_get_args());
 
-		return self::$database->fetchFirst($sql, $params);
+		return self::getClass(Database::class)->fetchFirst($sql, $params);
 	}
 
 	/**
@@ -224,7 +215,7 @@ class DBA
 	 */
 	public static function affectedRows()
 	{
-		return self::$database->affectedRows();
+		return self::getClass(Database::class)->affectedRows();
 	}
 
 	/**
@@ -235,7 +226,7 @@ class DBA
 	 */
 	public static function columnCount($stmt)
 	{
-		return self::$database->columnCount($stmt);
+		return self::getClass(Database::class)->columnCount($stmt);
 	}
 	/**
 	 * @brief Returns the number of rows of a statement
@@ -245,7 +236,7 @@ class DBA
 	 */
 	public static function numRows($stmt)
 	{
-		return self::$database->numRows($stmt);
+		return self::getClass(Database::class)->numRows($stmt);
 	}
 
 	/**
@@ -256,7 +247,7 @@ class DBA
 	 */
 	public static function fetch($stmt)
 	{
-		return self::$database->fetch($stmt);
+		return self::getClass(Database::class)->fetch($stmt);
 	}
 
 	/**
@@ -271,7 +262,7 @@ class DBA
 	 */
 	public static function insert($table, $param, $on_duplicate_update = false)
 	{
-		return self::$database->insert($table, $param, $on_duplicate_update);
+		return self::getClass(Database::class)->insert($table, $param, $on_duplicate_update);
 	}
 
 	/**
@@ -281,7 +272,7 @@ class DBA
 	 */
 	public static function lastInsertId()
 	{
-		return self::$database->lastInsertId();
+		return self::getClass(Database::class)->lastInsertId();
 	}
 
 	/**
@@ -296,7 +287,7 @@ class DBA
 	 */
 	public static function lock($table)
 	{
-		return self::$database->lock($table);
+		return self::getClass(Database::class)->lock($table);
 	}
 
 	/**
@@ -307,7 +298,7 @@ class DBA
 	 */
 	public static function unlock()
 	{
-		return self::$database->unlock();
+		return self::getClass(Database::class)->unlock();
 	}
 
 	/**
@@ -317,7 +308,7 @@ class DBA
 	 */
 	public static function transaction()
 	{
-		return self::$database->transaction();
+		return self::getClass(Database::class)->transaction();
 	}
 
 	/**
@@ -327,7 +318,7 @@ class DBA
 	 */
 	public static function commit()
 	{
-		return self::$database->commit();
+		return self::getClass(Database::class)->commit();
 	}
 
 	/**
@@ -337,7 +328,7 @@ class DBA
 	 */
 	public static function rollback()
 	{
-		return self::$database->rollback();
+		return self::getClass(Database::class)->rollback();
 	}
 
 	/**
@@ -354,7 +345,7 @@ class DBA
 	 */
 	public static function delete($table, array $conditions, array $options = [])
 	{
-		return self::$database->delete($table, $conditions, $options);
+		return self::getClass(Database::class)->delete($table, $conditions, $options);
 	}
 
 	/**
@@ -388,7 +379,7 @@ class DBA
 	 */
 	public static function update($table, $fields, $condition, $old_fields = [])
 	{
-		return self::$database->update($table, $fields, $condition, $old_fields);
+		return self::getClass(Database::class)->update($table, $fields, $condition, $old_fields);
 	}
 
 	/**
@@ -405,7 +396,7 @@ class DBA
 	 */
 	public static function selectFirst($table, array $fields = [], array $condition = [], $params = [])
 	{
-		return self::$database->selectFirst($table, $fields, $condition, $params);
+		return self::getClass(Database::class)->selectFirst($table, $fields, $condition, $params);
 	}
 
 	/**
@@ -422,7 +413,7 @@ class DBA
 	 */
 	public static function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
 	{
-		return self::$database->selectToArray($table, $fields, $condition, $params);
+		return self::getClass(Database::class)->selectToArray($table, $fields, $condition, $params);
 	}
 
 	/**
@@ -450,7 +441,7 @@ class DBA
 	 */
 	public static function select($table, array $fields = [], array $condition = [], array $params = [])
 	{
-		return self::$database->select($table, $fields, $condition, $params);
+		return self::getClass(Database::class)->select($table, $fields, $condition, $params);
 	}
 
 	/**
@@ -473,7 +464,7 @@ class DBA
 	 */
 	public static function count($table, array $condition = [])
 	{
-		return self::$database->count($table, $condition);
+		return self::getClass(Database::class)->count($table, $condition);
 	}
 
 	/**
@@ -605,7 +596,7 @@ class DBA
 	 */
 	public static function toArray($stmt, $do_close = true)
 	{
-		return self::$database->toArray($stmt, $do_close);
+		return self::getClass(Database::class)->toArray($stmt, $do_close);
 	}
 
 	/**
@@ -615,7 +606,7 @@ class DBA
 	 */
 	public static function errorNo()
 	{
-		return self::$database->errorNo();
+		return self::getClass(Database::class)->errorNo();
 	}
 
 	/**
@@ -625,7 +616,7 @@ class DBA
 	 */
 	public static function errorMessage()
 	{
-		return self::$database->errorMessage();
+		return self::getClass(Database::class)->errorMessage();
 	}
 
 	/**
@@ -636,7 +627,7 @@ class DBA
 	 */
 	public static function close($stmt)
 	{
-		return self::$database->close($stmt);
+		return self::getClass(Database::class)->close($stmt);
 	}
 
 	/**
@@ -649,7 +640,7 @@ class DBA
 	 */
 	public static function processlist()
 	{
-		return self::$database->processlist();
+		return self::getClass(Database::class)->processlist();
 	}
 
 	/**
@@ -661,7 +652,7 @@ class DBA
 	 */
 	public static function isResult($array)
 	{
-		return self::$database->isResult($array);
+		return self::getClass(Database::class)->isResult($array);
 	}
 
 	/**
@@ -673,6 +664,6 @@ class DBA
 	 */
 	public static function escapeArray(&$arr, $add_quotation = false)
 	{
-		return self::$database->escapeArray($arr, $add_quotation);
+		return self::getClass(Database::class)->escapeArray($arr, $add_quotation);
 	}
 }

@@ -21,29 +21,29 @@ use Psr\Log\LoggerInterface;
  */
 class Database
 {
-	private $connected = false;
+	protected $connected = false;
 
 	/**
 	 * @var ConfigCache
 	 */
-	private $configCache;
+	protected $configCache;
 	/**
 	 * @var Profiler
 	 */
-	private $profiler;
+	protected $profiler;
 	/**
 	 * @var LoggerInterface
 	 */
-	private $logger;
-	private $server_info    = '';
+	protected $logger;
+	protected $server_info    = '';
 	/** @var PDO|mysqli */
-	private $connection;
-	private $driver;
+	protected $connection;
+	protected $driver;
 	private $error          = false;
 	private $errorno        = 0;
 	private $affected_rows  = 0;
-	private $in_transaction = false;
-	private $in_retrial     = false;
+	protected $in_transaction = false;
+	protected $in_retrial     = false;
 	private $relation       = [];
 
 	public function __construct(ConfigCache $configCache, Profiler $profiler, LoggerInterface $logger, array $server = [])
@@ -55,8 +55,6 @@ class Database
 
 		$this->readServerVariables($server);
 		$this->connect();
-
-		DBA::init($this);
 
 		if ($this->isConnected()) {
 			// Loads DB_UPDATE_VERSION constant
@@ -1072,7 +1070,7 @@ class Database
 		return true;
 	}
 
-	private function performCommit()
+	protected function performCommit()
 	{
 		switch ($this->driver) {
 			case 'pdo':

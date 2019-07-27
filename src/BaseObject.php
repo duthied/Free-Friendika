@@ -6,19 +6,32 @@ namespace Friendica;
 
 require_once __DIR__ . '/../boot.php';
 
+use Dice\Dice;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 
 /**
  * Basic object
  *
  * Contains what is useful to any object
+ *
+ * Act's like a global registry for classes
  */
 class BaseObject
 {
 	/**
-	 * @var App
+	 * @var Dice The Dependency Injection library
 	 */
-	private static $app = null;
+	private static $dice;
+
+	/**
+	 * Set's the dependency injection library for a global usage
+	 *
+	 * @param Dice $dice The dependency injection library
+	 */
+	public static function setDependencyInjection(Dice $dice)
+	{
+		self::$dice = $dice;
+	}
 
 	/**
 	 * Get the app
@@ -26,26 +39,31 @@ class BaseObject
 	 * Same as get_app from boot.php
 	 *
 	 * @return App
-	 * @throws \Exception
 	 */
 	public static function getApp()
 	{
-		if (empty(self::$app)) {
-			throw new InternalServerErrorException('App isn\'t initialized.');
-		}
-
-		return self::$app;
+		return self::getClass(App::class);
 	}
 
 	/**
-	 * Set the app
+	 * Returns the initialized class based on it's name
 	 *
-	 * @param App $app App
+	 * @param string $name The name of the class
 	 *
-	 * @return void
+	 * @return object The initialized name
+	 *
+	 * @throws InternalServerErrorException
 	 */
-	public static function setApp(App $app)
+	protected static function getClass(string $name)
 	{
-		self::$app = $app;
+		if (empty(self::$dice)) {
+			throw new InternalServerErrorException('DICE isn\'t initialized.');
+		}
+
+		if (class_exists($name) || interface_exists($name   )) {
+			return self::$dice->create($name);
+		} else {
+			throw new InternalServerErrorException('Class \'' . $name . '\' isn\'t valid.');
+		}
 	}
 }

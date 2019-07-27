@@ -8,6 +8,9 @@
  */
 namespace Friendica\Core;
 
+use Friendica\BaseObject;
+use Friendica\Core\Config\PConfiguration;
+
 /**
  * @brief Management of user configuration storage
  * Note:
@@ -15,23 +18,8 @@ namespace Friendica\Core;
  * The PConfig::get() functions return boolean false for keys that are unset,
  * and this could lead to subtle bugs.
  */
-class PConfig
+class PConfig extends BaseObject
 {
-	/**
-	 * @var Config\PConfiguration
-	 */
-	private static $config;
-
-	/**
-	 * Initialize the config with only the cache
-	 *
-	 * @param Config\PConfiguration $config The configuration cache
-	 */
-	public static function init(Config\PConfiguration $config)
-	{
-		self::$config = $config;
-	}
-
 	/**
 	 * @brief Loads all configuration values of a user's config family into a cached storage.
 	 *
@@ -42,7 +30,7 @@ class PConfig
 	 */
 	public static function load(int $uid, string $cat)
 	{
-		self::$config->load($uid, $cat);
+		self::getClass(PConfiguration::class)->load($uid, $cat);
 	}
 
 	/**
@@ -59,7 +47,7 @@ class PConfig
 	 */
 	public static function get(int $uid, string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
-		return self::$config->get($uid, $cat, $key, $default_value, $refresh);
+		return self::getClass(PConfiguration::class)->get($uid, $cat, $key, $default_value, $refresh);
 	}
 
 	/**
@@ -74,7 +62,7 @@ class PConfig
 	 */
 	public static function set(int $uid, string $cat, string $key, $value)
 	{
-		return self::$config->set($uid, $cat, $key, $value);
+		return self::getClass(PConfiguration::class)->set($uid, $cat, $key, $value);
 	}
 
 	/**
@@ -88,6 +76,6 @@ class PConfig
 	 */
 	public static function delete(int $uid, string $cat, string $key)
 	{
-		return self::$config->delete($uid, $cat, $key);
+		return self::getClass(PConfiguration::class)->delete($uid, $cat, $key);
 	}
 }

@@ -5,16 +5,16 @@
 
 namespace Friendica\Test;
 
+use Dice\Dice;
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Config;
-use Friendica\Core\Config\Cache\PConfigCache;
-use Friendica\Core\L10n\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Factory;
+use Friendica\Database\Database;
 use Friendica\Network\HTTPException;
-use Friendica\Util\BaseURL;
+use Friendica\Test\Util\Database\StaticDatabase;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -32,9 +32,6 @@ class ApiTest extends DatabaseTest
 	 */
 	protected $logOutput;
 
-	/** @var App */
-	protected $app;
-
 	/** @var array */
 	protected $selfUser;
 	/** @var array */
@@ -44,26 +41,26 @@ class ApiTest extends DatabaseTest
 
 	protected $wrongUserId;
 
+	/** @var App */
+	protected $app;
+
 	/**
 	 * Create variables used by tests.
 	 */
 	public function setUp()
 	{
-		$configModel = new \Friendica\Model\Config\Config(self::$dba);
-		$configFactory = new Factory\ConfigFactory();
-		$config = $configFactory->createConfig(self::$configCache, $configModel);
-		$pconfigModel = new \Friendica\Model\Config\PConfig(self::$dba);
-		$configFactory->createPConfig(self::$configCache, new PConfigCache(), $pconfigModel);
-		$loggerFactory = new Factory\LoggerFactory();
-		$logger = $loggerFactory->create('test', self::$dba, $config, self::$profiler);
-		$baseUrl = new BaseURL($config, $_SERVER);
-		$router = new App\Router();
-		$l10n = new L10n($config,
-			self::$dba,
-			$logger);
-		$this->app = new App(self::$dba, $config, self::$mode, $router, $baseUrl, $logger, self::$profiler, $l10n, false);
+		StaticDatabase::statRollback();
+
+		$dice = new Dice();
+		$dice = $dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
+		$dice = $dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		BaseObject::setDependencyInjection($dice);
+		$this->app = BaseObject::getApp();
 
 		parent::setUp();
+
+		$this->app->argc = 1;
+		$this->app->argv = ['home'];
 
 		// User data that the test database is populated with
 		$this->selfUser = [
@@ -107,15 +104,9 @@ class ApiTest extends DatabaseTest
 		Config::set('system', 'theme', 'system_theme');
 	}
 
-	/**
-	 * Cleanup variables used by tests.
-	 */
 	protected function tearDown()
 	{
-		parent::tearDown();
-
-		$this->app->argc = 1;
-		$this->app->argv = ['home'];
+		StaticDatabase::statRollback();
 	}
 
 	/**
