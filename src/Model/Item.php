@@ -2799,7 +2799,7 @@ class Item extends BaseObject
 						 */
 						if (self::hasPermissions($photo)) {
 							if ($cid) {
-								$recips = self::enumeratePermissions($uid, $photo);
+								$recips = self::enumeratePermissions($photo);
 								if (in_array($cid, $recips)) {
 									$replace = true;
 								}
@@ -2865,8 +2865,8 @@ class Item extends BaseObject
 		}
 
 		// This is harder. Parse all the permissions and compare the resulting set.
-		$recipients1 = self::enumeratePermissions($uid, $obj1);
-		$recipients2 = self::enumeratePermissions($uid, $obj2);
+		$recipients1 = self::enumeratePermissions($obj1);
+		$recipients2 = self::enumeratePermissions($obj2);
 		sort($recipients1);
 		sort($recipients2);
 
@@ -2875,12 +2875,12 @@ class Item extends BaseObject
 	}
 
 	// returns an array of contact-ids that are allowed to see this object
-	public static function enumeratePermissions($uid, array $obj)
+	public static function enumeratePermissions(array $obj)
 	{
 		$allow_people = expand_acl($obj['allow_cid']);
-		$allow_groups = Group::expand($uid, expand_acl($obj['allow_gid']));
+		$allow_groups = Group::expand($obj['uid'], expand_acl($obj['allow_gid']));
 		$deny_people  = expand_acl($obj['deny_cid']);
-		$deny_groups  = Group::expand($uid, expand_acl($obj['deny_gid']));
+		$deny_groups  = Group::expand($obj['uid'], expand_acl($obj['deny_gid']));
 		$recipients   = array_unique(array_merge($allow_people, $allow_groups));
 		$deny         = array_unique(array_merge($deny_people, $deny_groups));
 		$recipients   = array_diff($recipients, $deny);
