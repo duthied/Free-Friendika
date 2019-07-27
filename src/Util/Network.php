@@ -472,7 +472,7 @@ class Network
 		}
 
 		foreach ($domain_blocklist as $domain_block) {
-			if (strcasecmp($domain_block['domain'], $host) === 0) {
+			if (fnmatch(strtolower($domain_block['domain']), strtolower($host))) {
 				return true;
 			}
 		}
