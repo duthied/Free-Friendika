@@ -194,4 +194,18 @@ class ActivityPub
 			ActivityPub\Receiver::processActivity($ldactivity, '', $uid, true);
 		}
 	}
+
+	/**
+	 * Checks if the given contact url does support ActivityPub
+	 *
+	 * @param string  $url    profile url
+	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
+	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isSupportedByContactUrl($url, $update = null)
+	{
+		return !empty(APContact::getByURL($url, $update));
+	}
 }

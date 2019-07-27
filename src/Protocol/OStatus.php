@@ -2302,4 +2302,19 @@ class OStatus
 
 		return trim($doc->saveXML());
 	}
+
+	/**
+	 * Checks if the given contact url does support OStatus
+	 *
+	 * @param string  $url    profile url
+	 * @param boolean $update Update the profile
+	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function isSupportedByContactUrl($url, $update = false)
+	{
+		$probe = Probe::uri($url, Protocol::OSTATUS, 0, !$update);
+		return $probe['network'] == Protocol::OSTATUS;
+	}
 }
