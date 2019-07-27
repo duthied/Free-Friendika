@@ -379,7 +379,7 @@ class Photo extends BaseObject
 	{
 		if (!is_null($img)) {
 			// get photo to update
-			$photos = self::selectToArray(["backend-class","backend-ref"], $conditions);
+			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
 				/** @var IStorage $backend_class */
