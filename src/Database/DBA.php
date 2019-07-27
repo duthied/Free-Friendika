@@ -422,7 +422,7 @@ class DBA
 	 */
 	public static function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
 	{
-		return self::$database->toArray(self::$database->select($table, $fields, $condition, $params));
+		return self::$database->selectToArray($table, $fields, $condition, $params);
 	}
 
 	/**
