@@ -6,6 +6,10 @@ use Friendica\Database\Database;
 use PDO;
 use PDOException;
 
+/**
+ * Overrides the Friendica database class for re-using the connection
+ * for different tests
+ */
 class StaticDatabase extends Database
 {
 	/**
@@ -99,13 +103,16 @@ class StaticDatabase extends Database
 	}
 
 	/**
-	 * @return ExtendedPDO
+	 * @return ExtendedPDO The global, static connection
 	 */
 	public static function getGlobConnection()
 	{
 		return self::$staticConnection;
 	}
 
+	/**
+	 * Perform a global commit for every nested transaction of the static connection
+	 */
 	public static function statCommit()
 	{
 		if (isset(self::$staticConnection)) {
@@ -115,6 +122,9 @@ class StaticDatabase extends Database
 		}
 	}
 
+	/**
+	 * Perform a global rollback for every nested transaction of the static connection
+	 */
 	public static function statRollback()
 	{
 		if (isset(self::$staticConnection)) {
