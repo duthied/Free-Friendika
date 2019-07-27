@@ -47,8 +47,12 @@ class Compose extends BaseModule
 		$posttype = $a->argv[1] ?? Item::PT_ARTICLE;
 		if (!in_array($posttype, [Item::PT_ARTICLE, Item::PT_PERSONAL_NOTE])) {
 			switch ($posttype) {
-				case 'note': $posttype = Item::PT_PERSONAL_NOTE; break;
-				default: $posttype = Item::PT_ARTICLE; break;
+				case 'note':
+					$posttype = Item::PT_PERSONAL_NOTE;
+					break;
+				default:
+					$posttype = Item::PT_ARTICLE;
+					break;
 			}
 		}
 
