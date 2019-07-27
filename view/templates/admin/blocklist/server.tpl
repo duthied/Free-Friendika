@@ -4,12 +4,12 @@
 	}
 </script>
 <div id="adminpage">
-	<h2>{{$title}} - {{$page}}</h2>
+	<h1>{{$title}} - {{$page}}</h1>
 	<p>{{$intro}}</p>
 	<p>{{$public nofilter}}</p>
 	{{$syntax nofilter}}
 
-	<h3>{{$addtitle}}</h3>
+	<h2>{{$addtitle}}</h2>
 	<form action="{{$baseurl}}/admin/blocklist/server" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
 		{{include file="field_input.tpl" field=$newdomain}}
@@ -20,7 +20,7 @@
 	</form>
 
 	{{if $entries}}
-	<h3>{{$currenttitle}}</h3>
+	<h2>{{$currenttitle}}</h2>
 	<p>{{$currentintro}}</p>
 	<form action="{{$baseurl}}/admin/blocklist/server" method="post">
 		<input type="hidden" name="form_security_token" value="{{$form_security_token}}">
