@@ -942,7 +942,7 @@ class Diaspora
 	 * @brief Fetches data for a given handle
 	 *
 	 * @param string $handle The handle
-	 * @param boolean $update Update the profile
+	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 *
 	 * @return array the queried data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1126,7 +1126,7 @@ class Diaspora
 	 * Checks if the given contact url does support ActivityPub
 	 *
 	 * @param string  $url    profile url
-	 * @param boolean $update Update the profile
+	 * @param boolean $update true = always update, false = never update, null = update when not found or outdated
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
