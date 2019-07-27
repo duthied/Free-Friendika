@@ -55,12 +55,12 @@ class Profile
 	 * @return array Array of profile data
 	 * @throws \Exception
 	 */
-	public static function get(int $uid, int $id = null, array $fields = [])
+	public static function select(int $uid, int $id = null, array $fields = [])
 	{
 		if (empty($id)) {
-			return DBA::select('profile', $fields, ['uid' => $uid]);
+			return DBA::selectToArray('profile', $fields, ['uid' => $uid]);
 		} else {
-			return DBA::select('profile', $fields, ['uid' => $uid, 'id' => $id]);
+			return DBA::selectFirst('profile', $fields, ['uid' => $uid, 'id' => $id]);
 		}
 	}
 
