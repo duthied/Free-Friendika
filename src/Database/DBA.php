@@ -409,6 +409,23 @@ class DBA
 	}
 
 	/**
+	 * @brief Select rows from a table and fills an array with the data
+	 *
+	 * @param string $table     Table name
+	 * @param array  $fields    Array of selected fields, empty for all
+	 * @param array  $condition Array of fields for condition
+	 * @param array  $params    Array of several parameters
+	 *
+	 * @return array Data array
+	 * @throws \Exception
+	 * @see   self::select
+	 */
+	public static function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
+	{
+		return self::$database->toArray(self::$database->select($table, $fields, $condition, $params));
+	}
+
+	/**
 	 * @brief Select rows from a table
 	 *
 	 * @param string $table     Table name
