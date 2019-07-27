@@ -113,14 +113,13 @@ class Group extends BaseObject
 	 */
 	public static function getIdsByContactId($cid)
 	{
-		$condition = ['contact-id' => $cid];
-		$stmt = DBA::select('group_member', ['gid'], $condition);
-
 		$return = [];
 
+		$stmt = DBA::select('group_member', ['gid'], ['contact-id' => $cid]);
 		while ($group = DBA::fetch($stmt)) {
 			$return[] = $group['gid'];
 		}
+		DBA::close($stmt);
 
 		return $return;
 	}
@@ -333,13 +332,13 @@ class Group extends BaseObject
 
 		$key = array_search(self::FOLLOWERS, $group_ids);
 		if ($key !== false) {
-			$followersStmt = Contact::select(['id'], [
+			$followers = Contact::selectToArray(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
 				'protocol' => Protocol::SUPPORT_PRIVATE,
 			]);
 
-			while($follower = DBA::fetch($followersStmt)) {
+			foreach ($followers as $follower) {
 				$return[] = $follower['id'];
 			}
 
@@ -348,13 +347,13 @@ class Group extends BaseObject
 
 		$key = array_search(self::MUTUALS, $group_ids);
 		if ($key !== false) {
-			$mutualsStmt = Contact::select(['id'], [
+			$mutuals = Contact::selectToArray(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FRIEND],
 				'protocol' => Protocol::SUPPORT_PRIVATE,
 			]);
 
-			while($mutual = DBA::fetch($mutualsStmt)) {
+			foreach ($mutuals as $mutual) {
 				$return[] = $mutual['id'];
 			}
 
@@ -365,6 +364,7 @@ class Group extends BaseObject
 		while($group_member = DBA::fetch($stmt)) {
 			$return[] = $group_member['contact-id'];
 		}
+		DBA::close($stmt);
 
 		if ($check_dead) {
 			Contact::pruneUnavailable($return);
@@ -384,8 +384,6 @@ class Group extends BaseObject
 	 */
 	public static function displayGroupSelection($uid, $gid = 0, $label = '')
 	{
-		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name']]);
-
 		$display_groups = [
 			[
 				'name' => '',
@@ -393,6 +391,8 @@ class Group extends BaseObject
 				'selected' => ''
 			]
 		];
+
+		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$display_groups[] = [
 				'name' => $group['name'],
@@ -400,7 +400,9 @@ class Group extends BaseObject
 				'selected' => $gid == $group['id'] ? 'true' : ''
 			];
 		}
-		Logger::log('groups: ' . print_r($display_groups, true));
+		DBA::close($stmt);
+
+		Logger::info('groups: ' . print_r($display_groups, true));
 
 		if ($label == '') {
 			$label = L10n::t('Default privacy group for new contacts');
@@ -442,13 +444,12 @@ class Group extends BaseObject
 			]
 		];
 
-		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
-
 		$member_of = [];
 		if ($cid) {
 			$member_of = self::getIdsByContactId($cid);
 		}
 
+		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$selected = (($group_id == $group['id']) ? ' group-selected' : '');
 
@@ -471,6 +472,7 @@ class Group extends BaseObject
 				'ismember' => in_array($group['id'], $member_of),
 			];
 		}
+		DBA::close($stmt);
 
 		// Don't show the groups on the network page when there is only one
 		if ((count($display_groups) <= 2) && ($each == 'network')) {
@@ -492,7 +494,6 @@ class Group extends BaseObject
 			'$editgroupstext' => L10n::t('Edit groups'),
 			'$form_security_token' => BaseModule::getFormSecurityToken('group_edit'),
 		]);
-
 
 		return $o;
 	}
