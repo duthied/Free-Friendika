@@ -38,7 +38,7 @@ class Attach extends BaseObject
 	}
 
 	/**
-	 * @brief Select rows from the attach table
+	 * @brief Select rows from the attach table and return them as array
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -47,16 +47,15 @@ class Attach extends BaseObject
 	 * @return boolean|array
 	 *
 	 * @throws \Exception
-	 * @see   \Friendica\Database\DBA::select
+	 * @see   \Friendica\Database\DBA::selectToArray
 	 */
-	public static function select(array $fields = [], array $conditions = [], array $params = [])
+	public static function selectToArray(array $fields = [], array $conditions = [], array $params = [])
 	{
 		if (empty($fields)) {
 			$fields = self::getFields();
 		}
 
-		$r = DBA::select('attach', $fields, $conditions, $params);
-		return DBA::toArray($r);
+		$r = DBA::selectToArray('attach', $fields, $conditions, $params);
 	}
 
 	/**
@@ -264,7 +263,7 @@ class Attach extends BaseObject
 	{
 		if (!is_null($img)) {
 			// get items to update
-			$items = self::select(['backend-class','backend-ref'], $conditions);
+			$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
 				/** @var IStorage $backend_class */
@@ -297,7 +296,7 @@ class Attach extends BaseObject
 	public static function delete(array $conditions, array $options = [])
 	{
 		// get items to delete data info
-		$items = self::select(['backend-class','backend-ref'], $conditions);
+		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
 			/** @var IStorage $backend_class */

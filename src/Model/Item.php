@@ -369,6 +369,33 @@ class Item extends BaseObject
 	}
 
 	/**
+	 * @brief Select rows from the item table and returns them as an array
+	 *
+	 * @param array $selected  Array of selected fields, empty for all
+	 * @param array $condition Array of fields for condition
+	 * @param array $params    Array of several parameters
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function selectToArray(array $fields = [], array $condition = [], $params = [])
+	{
+		$result = self::select($fields, $condition, $params);
+
+		if (is_bool($result)) {
+			return $result;
+		}
+
+		$data = [];
+		while ($row = self::fetch($result)) {
+			$data[] = $row;
+		}
+		DBA::close($result);
+
+                return $data;
+	}
+
+	/**
 	 * @brief Select rows from the item table
 	 *
 	 * @param array $selected  Array of selected fields, empty for all

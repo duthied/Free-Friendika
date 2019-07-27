@@ -2176,7 +2176,7 @@ class DFRN
 		if (($entrytype == DFRN::TOP_LEVEL) && !empty($importer['id'])) {
 			// The filling of the the "contact" variable is done for legcy reasons
 			// The functions below are partly used by ostatus.php as well - where we have this variable
-			$contact = Contact::select([], ['id' => $importer['id']]);
+			$contact = Contact::selectFirst([], ['id' => $importer['id']]);
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
