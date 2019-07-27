@@ -12,7 +12,9 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Network\HTTPException;
+use Friendica\Test\Util\Database\StaticDatabase;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -47,12 +49,15 @@ class ApiTest extends DatabaseTest
 	 */
 	public function setUp()
 	{
-		parent::setUp();
+		StaticDatabase::statRollback();
 
 		$dice = new Dice();
 		$dice = $dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
+		$dice = $dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
 		BaseObject::setDependencyInjection($dice);
 		$this->app = BaseObject::getApp();
+
+		parent::setUp();
 
 		$this->app->argc = 1;
 		$this->app->argv = ['home'];
@@ -97,6 +102,11 @@ class ApiTest extends DatabaseTest
 		Config::set('system', 'throttle_limit_week', 100);
 		Config::set('system', 'throttle_limit_month', 100);
 		Config::set('system', 'theme', 'system_theme');
+	}
+
+	protected function tearDown()
+	{
+		StaticDatabase::statRollback();
 	}
 
 	/**

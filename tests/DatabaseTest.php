@@ -5,7 +5,7 @@
 
 namespace Friendica\Test;
 
-use PDO;
+use Friendica\Test\Util\Database\StaticDatabase;
 use PHPUnit\DbUnit\DataSet\YamlDataSet;
 use PHPUnit\DbUnit\TestCaseTrait;
 use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
@@ -16,12 +16,6 @@ use PHPUnit_Extensions_Database_DB_IDatabaseConnection;
 abstract class DatabaseTest extends MockedTest
 {
 	use TestCaseTrait;
-
-	// only instantiate pdo once for test clean-up/fixture load
-	static private $pdo = null;
-
-	// only instantiate PHPUnit_Extensions_Database_DB_IDatabaseConnection once per test
-	private $conn = null;
 
 	/**
 	 * Get database connection.
@@ -36,38 +30,7 @@ abstract class DatabaseTest extends MockedTest
 	 */
 	protected function getConnection()
 	{
-		$server = $_SERVER;
-
-		if ($this->conn === null) {
-			if (self::$pdo == null) {
-
-				if (!empty($server['MYSQL_HOST'])
-				    && !empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER']))
-				    && $server['MYSQL_PASSWORD'] !== false
-				    && !empty($server['MYSQL_DATABASE'])) {
-
-					$connect = "mysql:host=" . $server['MYSQL_HOST'] . ";dbname=" . $server['MYSQL_DATABASE'];
-
-					if (!empty($server['MYSQL_PORT'])) {
-						$connect .= ";port=" . $server['MYSQL_PORT'];
-					}
-
-					if (!empty($server['MYSQL_USERNAME'])) {
-						$db_user = $server['MYSQL_USERNAME'];
-					} else {
-						$db_user = $server['MYSQL_USER'];
-					}
-
-					$db_pass = (string)$server['MYSQL_PASSWORD'];
-
-					self::$pdo = @new PDO($connect, $db_user, $db_pass);
-					self::$pdo->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-				}
-			}
-			$this->conn = $this->createDefaultDBConnection(self::$pdo, getenv('MYSQL_DATABASE'));
-		}
-
-		return $this->conn;
+		return $this->createDefaultDBConnection(StaticDatabase::getGlobConnection(), getenv('MYSQL_DATABASE'));
 	}
 
 	/**
