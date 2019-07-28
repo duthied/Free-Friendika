@@ -386,7 +386,7 @@ class Item extends BaseObject
 			return [];
 		}
 
-        return DBA::toArray($result);
+		return DBA::toArray($result);
 	}
 
 	/**
