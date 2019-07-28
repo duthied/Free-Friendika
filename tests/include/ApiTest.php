@@ -15,7 +15,6 @@ use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException;
 use Friendica\Test\Util\Database\StaticDatabase;
-use Friendica\Test\Util\Database\YamlDataSet;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -61,8 +60,7 @@ class ApiTest extends DatabaseTest
 		$dba = $dice->create(Database::class);
 
 		// Load the API dataset for the whole API
-		$ymlTester = new YamlDataSet(__DIR__ . '/../datasets/api.yml');
-		$ymlTester->load($dba);
+		$this->loadFixture(__DIR__ . '/../datasets/api.fixture.php', $dba);
 
 		$this->app = BaseObject::getApp();
 

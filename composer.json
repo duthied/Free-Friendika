@@ -118,8 +118,7 @@
 		"phpunit/php-token-stream": "^1.4.2",
 		"mikey179/vfsstream": "^1.6",
 		"mockery/mockery": "^1.2",
-		"johnkary/phpunit-speedtrap": "1.1",
-		"symfony/yaml": "^3.0"
+		"johnkary/phpunit-speedtrap": "1.1"
 	},
 	"scripts": {
 		"test": "phpunit"
