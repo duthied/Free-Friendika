@@ -9,6 +9,8 @@ use PDOException;
 /**
  * Overrides the Friendica database class for re-using the connection
  * for different tests
+ *
+ * Overrides functionality to enforce one transaction per call (for nested transactions)
  */
 class StaticDatabase extends Database
 {
@@ -29,41 +31,7 @@ class StaticDatabase extends Database
 		}
 
 		if (!isset(self::$staticConnection)) {
-
-			$port       = 0;
-			$serveraddr = trim($this->configCache->get('database', 'hostname'));
-			$serverdata = explode(':', $serveraddr);
-			$server     = $serverdata[0];
-			if (count($serverdata) > 1) {
-				$port = trim($serverdata[1]);
-			}
-			$server  = trim($server);
-			$user    = trim($this->configCache->get('database', 'username'));
-			$pass    = trim($this->configCache->get('database', 'password'));
-			$db      = trim($this->configCache->get('database', 'database'));
-			$charset = trim($this->configCache->get('database', 'charset'));
-
-			if (!(strlen($server) && strlen($user))) {
-				return false;
-			}
-
-			$connect = "mysql:host=" . $server . ";dbname=" . $db;
-
-			if ($port > 0) {
-				$connect .= ";port=" . $port;
-			}
-
-			if ($charset) {
-				$connect .= ";charset=" . $charset;
-			}
-
-
-			try {
-				self::$staticConnection = @new ExtendedPDO($connect, $user, $pass);
-				self::$staticConnection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
-			} catch (PDOException $e) {
-				/// @TODO At least log exception, don't ignore it!
-			}
+			self::statConnect($_SERVER);
 		}
 
 		$this->driver = 'pdo';
@@ -80,7 +48,7 @@ class StaticDatabase extends Database
 	 */
 	public function transaction()
 	{
-		if (!$this->connection->inTransaction() && !$this->connection->beginTransaction()) {
+		if (!$this->in_transaction && !$this->connection->beginTransaction()) {
 			return false;
 		}
 
@@ -100,6 +68,64 @@ class StaticDatabase extends Database
 		}
 		$this->in_transaction = false;
 		return true;
+	}
+
+	/**
+	 * Setup of the global, static connection
+	 * Either through explicit calling or through implicit using the Database
+	 *
+	 * @param array $server $_SERVER variables
+	 */
+	public static function statConnect(array $server)
+	{
+		// Use environment variables for mysql if they are set beforehand
+		if (!empty($server['MYSQL_HOST'])
+		    && !empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER']))
+		    && $server['MYSQL_PASSWORD'] !== false
+		    && !empty($server['MYSQL_DATABASE']))
+		{
+			$db_host = $server['MYSQL_HOST'];
+			if (!empty($server['MYSQL_PORT'])) {
+				$db_host .= ':' . $server['MYSQL_PORT'];
+			}
+
+			if (!empty($server['MYSQL_USERNAME'])) {
+				$db_user = $server['MYSQL_USERNAME'];
+			} else {
+				$db_user = $server['MYSQL_USER'];
+			}
+			$db_pw = (string) $server['MYSQL_PASSWORD'];
+			$db_data = $server['MYSQL_DATABASE'];
+		}
+
+		$port       = 0;
+		$serveraddr = trim($db_host);
+		$serverdata = explode(':', $serveraddr);
+		$server     = $serverdata[0];
+		if (count($serverdata) > 1) {
+			$port = trim($serverdata[1]);
+		}
+		$server  = trim($server);
+		$user    = trim($db_user);
+		$pass    = trim($db_pw);
+		$db      = trim($db_data);
+
+		if (!(strlen($server) && strlen($user))) {
+			return;
+		}
+
+		$connect = "mysql:host=" . $server . ";dbname=" . $db;
+
+		if ($port > 0) {
+			$connect .= ";port=" . $port;
+		}
+
+		try {
+			self::$staticConnection = @new ExtendedPDO($connect, $user, $pass);
+			self::$staticConnection->setAttribute(PDO::ATTR_AUTOCOMMIT,0);
+		} catch (PDOException $e) {
+			/// @TODO At least log exception, don't ignore it!
+		}
 	}
 
 	/**

@@ -4,20 +4,20 @@ namespace Friendica\Test\src\Database;
 
 use Dice\Dice;
 use Friendica\BaseObject;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\Test\DatabaseTest;
+use Friendica\Test\Util\Database\StaticDatabase;
 
 class DBStructureTest extends DatabaseTest
 {
-	/**
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
 		$dice = new Dice();
 		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
+		$dice = $dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
 		BaseObject::setDependencyInjection($dice);
 	}
 
