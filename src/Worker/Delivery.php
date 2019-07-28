@@ -185,19 +185,6 @@ class Delivery extends BaseObject
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				break;
 
-			case Protocol::OSTATUS:
-				// Do not send to otatus if we are not configured to send to public networks
-				if ($owner['prvnets']) {
-					break;
-				}
-				if (Config::get('system','ostatus_disabled') || Config::get('system','dfrn_only')) {
-					break;
-				}
-
-				// There is currently no code here to distribute anything to OStatus.
-				// This is done in "notifier.php" (See "url_recipients" and "push_notify")
-				break;
-
 			case Protocol::MAIL:
 				self::deliverMail($cmd, $contact, $owner, $target_item);
 				break;
@@ -374,6 +361,7 @@ class Delivery extends BaseObject
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
 		}
+
 		if ($cmd == self::MAIL) {
 			Diaspora::sendMail($target_item, $owner, $contact);
 			return;
@@ -382,6 +370,7 @@ class Delivery extends BaseObject
 		if ($cmd == self::SUGGESTION) {
 			return;
 		}
+
 		if (!$contact['pubkey'] && !$public_message) {
 			return;
 		}
