@@ -80,7 +80,7 @@ item:
         visible: 1
         contact-id: 42
         author-id: 42
-        owner-id: 45
+        owner-id: 42
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: 1
@@ -99,7 +99,7 @@ item:
         visible: 1
         contact-id: 42
         author-id: 42
-        owner-id: 45
+        owner-id: 42
         uid: 42
         verb: http://activitystrea.ms/schema/1.0/post
         unseen: 0

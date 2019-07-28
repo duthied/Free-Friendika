@@ -114,12 +114,12 @@
 		]
 	},
 	"require-dev": {
-		"phpunit/dbunit": "^2.0",
 		"phpdocumentor/reflection-docblock": "^3.0.2",
 		"phpunit/php-token-stream": "^1.4.2",
 		"mikey179/vfsstream": "^1.6",
 		"mockery/mockery": "^1.2",
-		"johnkary/phpunit-speedtrap": "1.1"
+		"johnkary/phpunit-speedtrap": "1.1",
+		"symfony/yaml": "^3.0"
 	},
 	"scripts": {
 		"test": "phpunit"
