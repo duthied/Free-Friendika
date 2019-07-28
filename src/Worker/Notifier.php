@@ -149,11 +149,18 @@ class Notifier
 				$delivery_queue_count += self::activityPubDelivery($cmd, $target_item, $parent, $a->queue['priority'], $a->queue['created'], $owner);
 			}
 
-			$fields = ['network', 'author-id', 'owner-id'];
+			$fields = ['network', 'author-id', 'author-link', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
 
 			Logger::log('GUID: ' . $target_item["guid"] . ': Parent is ' . $parent['network'] . '. Thread parent is ' . $thr_parent['network'], Logger::DEBUG);
+
+			// Only deliver threaded replies (comment to a comment) to Diaspora
+			// when the original comment author does support the Diaspora protocol.
+			if ($target_item['parent-uri'] != $target_item['thr-parent']) {
+				$diaspora_delivery = Diaspora::isSupportedByContactUrl($thr_parent['author-link']);
+				Logger::info('Threaded comment', ['diaspora_delivery' => (int)$diaspora_delivery]);
+			}
 
 			// This is IMPORTANT!!!!
 
@@ -349,9 +356,11 @@ class Notifier
 				}
 
 				// It only makes sense to distribute answers to OStatus messages to Friendica and OStatus - but not Diaspora
-				$networks = [Protocol::OSTATUS, Protocol::DFRN];
+				$networks = [Protocol::DFRN];
+			} elseif ($diaspora_delivery) {
+				$networks = [Protocol::DFRN, Protocol::DIASPORA, Protocol::MAIL];
 			} else {
-				$networks = [Protocol::OSTATUS, Protocol::DFRN, Protocol::DIASPORA, Protocol::MAIL];
+				$networks = [Protocol::DFRN, Protocol::MAIL];
 			}
 		} else {
 			$public_message = false;
