@@ -386,7 +386,13 @@ class Item extends BaseObject
 			return [];
 		}
 
-		return DBA::toArray($result);
+		$data = [];
+		while ($row = self::fetch($result)) {
+			$data[] = $row;
+		}
+		DBA::close($result);
+
+		return $data;
 	}
 
 	/**
