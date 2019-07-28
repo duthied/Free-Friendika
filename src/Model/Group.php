@@ -2,6 +2,7 @@
 /**
  * @file src/Model/Group.php
  */
+
 namespace Friendica\Model;
 
 use Friendica\BaseModule;
@@ -22,17 +23,13 @@ class Group extends BaseObject
 
 	public static function getByUserId($uid, $includesDeleted = false)
 	{
-		$DB = self::getApp()->getDatabase();
-
 		$conditions = ['uid' => $uid];
 
 		if (!$includesDeleted) {
 			$conditions['deleted'] = false;
 		}
 
-		$groupsStmt = $DB->select('group', [], $conditions);
-
-		return $DB->toArray($groupsStmt);
+		return DBA::selectToArray('group', [], $conditions);
 	}
 
 	/**
@@ -93,8 +90,8 @@ class Group extends BaseObject
 	/**
 	 * Update group information.
 	 *
-	 * @param  int    $id   Group ID
-	 * @param  string $name Group name
+	 * @param int    $id   Group ID
+	 * @param string $name Group name
 	 *
 	 * @return bool Was the update successful?
 	 * @throws \Exception
@@ -186,8 +183,9 @@ class Group extends BaseObject
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function remove($gid) {
-		if (! $gid) {
+	public static function remove($gid)
+	{
+		if (!$gid) {
 			return false;
 		}
 
@@ -231,14 +229,15 @@ class Group extends BaseObject
 	/**
 	 * @brief      Mark a group as deleted based on its name
 	 *
-	 * @deprecated Use Group::remove instead
-	 *
 	 * @param int    $uid
 	 * @param string $name
 	 * @return bool
 	 * @throws \Exception
+	 * @deprecated Use Group::remove instead
+	 *
 	 */
-	public static function removeByName($uid, $name) {
+	public static function removeByName($uid, $name)
+	{
 		$return = false;
 		if (!empty($uid) && !empty($name)) {
 			$gid = self::getIdByName($uid, $name);
@@ -296,13 +295,13 @@ class Group extends BaseObject
 	/**
 	 * @brief      Removes a contact from a group based on its name
 	 *
-	 * @deprecated Use Group::removeMember instead
-	 *
 	 * @param int    $uid
 	 * @param string $name
 	 * @param int    $cid
 	 * @return boolean
 	 * @throws \Exception
+	 * @deprecated Use Group::removeMember instead
+	 *
 	 */
 	public static function removeMemberByName($uid, $name, $cid)
 	{
@@ -361,7 +360,7 @@ class Group extends BaseObject
 		}
 
 		$stmt = DBA::select('group_member', ['contact-id'], ['gid' => $group_ids]);
-		while($group_member = DBA::fetch($stmt)) {
+		while ($group_member = DBA::fetch($stmt)) {
 			$return[] = $group_member['contact-id'];
 		}
 		DBA::close($stmt);
@@ -402,7 +401,7 @@ class Group extends BaseObject
 		}
 		DBA::close($stmt);
 
-		Logger::info('groups: ' . print_r($display_groups, true));
+		Logger::info('Got groups', $display_groups);
 
 		if ($label == '') {
 			$label = L10n::t('Default privacy group for new contacts');
