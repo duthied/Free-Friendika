@@ -1512,16 +1512,18 @@ class Database
 	public function toArray($stmt, $do_close = true)
 	{
 		if (is_bool($stmt)) {
-			return $stmt;
+			return [];
 		}
 
 		$data = [];
 		while ($row = $this->fetch($stmt)) {
 			$data[] = $row;
 		}
+
 		if ($do_close) {
 			$this->close($stmt);
 		}
+
 		return $data;
 	}
 

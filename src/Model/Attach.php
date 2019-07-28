@@ -44,7 +44,7 @@ class Attach extends BaseObject
 	 * @param array $conditions Array of fields for conditions
 	 * @param array $params     Array of several parameters
 	 *
-	 * @return boolean|array
+	 * @return array
 	 *
 	 * @throws \Exception
 	 * @see   \Friendica\Database\DBA::selectToArray
@@ -55,7 +55,7 @@ class Attach extends BaseObject
 			$fields = self::getFields();
 		}
 
-		$r = DBA::selectToArray('attach', $fields, $conditions, $params);
+		return DBA::selectToArray('attach', $fields, $conditions, $params);
 	}
 
 	/**

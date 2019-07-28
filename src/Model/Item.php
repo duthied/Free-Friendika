@@ -383,7 +383,7 @@ class Item extends BaseObject
 		$result = self::select($fields, $condition, $params);
 
 		if (is_bool($result)) {
-			return $result;
+			return [];
 		}
 
 		$data = [];
@@ -392,7 +392,7 @@ class Item extends BaseObject
 		}
 		DBA::close($result);
 
-                return $data;
+		return $data;
 	}
 
 	/**
