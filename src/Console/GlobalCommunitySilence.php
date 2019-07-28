@@ -2,8 +2,8 @@
 
 namespace Friendica\Console;
 
-use Friendica\BaseObject;
-use Friendica\Database\DBA;
+use Friendica\App;
+use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use RuntimeException;
 
@@ -23,6 +23,15 @@ use RuntimeException;
 class GlobalCommunitySilence extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var Database
+	 */
+	private $dba;
 
 	protected function getHelp()
 	{
@@ -44,6 +53,14 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, Database $dba, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->dba  =$dba;
+	}
+
 	protected function doExecute()
 	{
 		if ($this->getOption('v')) {
@@ -61,13 +78,13 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if (BaseObject::getApp()->getMode()->isInstall()) {
+		if ($this->appMode->isInstall()) {
 			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		$contact_id = Contact::getIdForURL($this->getArgument(0));
 		if ($contact_id) {
-			DBA::update('contact', ['hidden' => true], ['id' => $contact_id]);
+			$this->dba->update('contact', ['hidden' => true], ['id' => $contact_id]);
 			$this->out('The account has been successfully silenced from the global community page.');
 		} else {
 			throw new RuntimeException('Could not find any public contact entry for this URL (' . $this->getArgument(0) . ')');

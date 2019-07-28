@@ -2,6 +2,7 @@
 
 namespace Friendica\Console;
 
+use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Model\Contact;
 
@@ -19,6 +20,15 @@ use Friendica\Model\Contact;
 class GlobalCommunityBlock extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var L10n\L10n
+	 */
+	private $l10n;
 
 	protected function getHelp()
 	{
@@ -38,10 +48,16 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, L10n $l10n, $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->l10n = $l10n;
+	}
+
 	protected function doExecute()
 	{
-		$a = \get_app();
-
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
 			$this->out('Arguments: ' . var_export($this->args, true));
@@ -57,18 +73,18 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->getMode()->isInstall()) {
+		if ($this->appMode->isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		$contact_id = Contact::getIdForURL($this->getArgument(0));
 		if (!$contact_id) {
-			throw new \RuntimeException(L10n::t('Could not find any contact entry for this URL (%s)', $this->getArgument(0)));
+			throw new \RuntimeException($this->l10n->t('Could not find any contact entry for this URL (%s)', $this->getArgument(0)));
 		}
 
 		$block_reason = $this->getArgument(1);
 		if(Contact::block($contact_id, $block_reason)) {
-			$this->out(L10n::t('The contact has been blocked from the node'));
+			$this->out($this->l10n->t('The contact has been blocked from the node'));
 		} else {
 			throw new \RuntimeException('The contact block failed.');
 		}

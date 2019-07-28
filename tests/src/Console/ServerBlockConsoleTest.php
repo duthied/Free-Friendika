@@ -3,11 +3,8 @@
 namespace Friendica\Test\src\Console;
 
 use Friendica\Console\ServerBlock;
+use Friendica\Core\Config\Configuration;
 
-/**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
- */
 class ServerBlockConsoleTest extends ConsoleTest
 {
 	protected $defaultBlockList = [
@@ -25,7 +22,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
-		$this->mockApp($this->root);
+		$this->configMock = \Mockery::mock(Configuration::class);
 	}
 
 	/**
@@ -35,11 +32,11 @@ class ServerBlockConsoleTest extends ConsoleTest
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$txt = $this->dumpExecute($console);
 
 		$output = <<<CONS
@@ -63,7 +60,7 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
@@ -79,7 +76,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$console->setArgument(2, 'I like it!');
@@ -95,7 +92,7 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
@@ -111,7 +108,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
@@ -126,7 +123,7 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
@@ -147,7 +144,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$console->setArgument(2, 'Other reason');
@@ -163,7 +160,7 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
@@ -180,7 +177,7 @@ CONS;
 			->andReturn(true)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
@@ -193,7 +190,7 @@ CONS;
 	 */
 	public function testBlockedServersWrongCommand()
 	{
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'wrongcommand');
 		$txt = $this->dumpExecute($console);
 
@@ -207,11 +204,11 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'not.exiting');
 		$txt = $this->dumpExecute($console);
@@ -224,7 +221,7 @@ CONS;
 	 */
 	public function testAddBlockedServerMissingArgument()
 	{
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$txt = $this->dumpExecute($console);
 
@@ -238,7 +235,7 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
@@ -254,7 +251,7 @@ CONS;
 			->andReturn(false)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'add');
 		$console->setArgument(1, 'testme.now');
 		$txt = $this->dumpExecute($console);
@@ -269,7 +266,7 @@ CONS;
 	{
 		$this->configMock
 			->shouldReceive('get')
-			->with('system', 'blocklist')
+			->with('system', 'blocklist', [])
 			->andReturn($this->defaultBlockList)
 			->once();
 
@@ -286,7 +283,7 @@ CONS;
 			->andReturn(false)
 			->once();
 
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$console->setArgument(1, 'pod.ordoevangelistarum.com');
 		$txt = $this->dumpExecute($console);
@@ -299,7 +296,7 @@ CONS;
 	 */
 	public function testRemoveBlockedServerMissingArgument()
 	{
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'remove');
 		$txt = $this->dumpExecute($console);
 
@@ -311,7 +308,7 @@ CONS;
 	 */
 	public function testBlockedServersHelp()
 	{
-		$console = new ServerBlock($this->consoleArgv);
+		$console = new ServerBlock($this->configMock, $this->consoleArgv);
 		$console->setOption('help', true);
 		$txt = $this->dumpExecute($console);
 

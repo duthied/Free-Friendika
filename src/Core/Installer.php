@@ -7,7 +7,7 @@ namespace Friendica\Core;
 use DOMDocument;
 use Exception;
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
@@ -597,11 +597,11 @@ class Installer
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
 	 */
-	public function checkDB(ConfigCache $configCache, Profiler $profiler)
+	public function checkDB(Database $dba)
 	{
-		DBA::reconnect();
+		$dba->reconnect();
 
-		if (DBA::connected()) {
+		if ($dba->isConnected()) {
 			if (DBStructure::existsTable('user')) {
 				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
 

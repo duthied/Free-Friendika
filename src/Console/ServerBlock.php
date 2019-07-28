@@ -5,7 +5,6 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\CommandArgsException;
 use Asika\SimpleConsole\Console;
 use Console_Table;
-use Friendica\BaseObject;
 use Friendica\Core\Config\Configuration;
 
 /**
@@ -19,6 +18,11 @@ class ServerBlock extends Console
 	const DEFAULT_REASON = 'blocked';
 
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var Configuration
+	 */
+	private $config;
 
 	protected function getHelp()
 	{
@@ -45,20 +49,25 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(Configuration $config, $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->config = $config;
+	}
+
 	protected function doExecute()
 	{
-		$a = BaseObject::getApp();
-
 		if (count($this->args) == 0) {
-			$this->printBlockedServers($a->getConfig());
+			$this->printBlockedServers($this->config);
 			return 0;
 		}
 
 		switch ($this->getArgument(0)) {
 			case 'add':
-				return $this->addBlockedServer($a->getConfig());
+				return $this->addBlockedServer($this->config);
 			case 'remove':
-				return $this->removeBlockedServer($a->getConfig());
+				return $this->removeBlockedServer($this->config);
 			default:
 				throw new CommandArgsException('Unknown command.');
 				break;
@@ -74,7 +83,7 @@ HELP;
 	{
 		$table = new Console_Table();
 		$table->setHeaders(['Domain', 'Reason']);
-		$blocklist = $config->get('system', 'blocklist');
+		$blocklist = $config->get('system', 'blocklist', []);
 		foreach ($blocklist as $domain) {
 			$table->addRow($domain);
 		}
@@ -99,7 +108,7 @@ HELP;
 
 		$update = false;
 
-		$currBlocklist = $config->get('system', 'blocklist');
+		$currBlocklist = $config->get('system', 'blocklist', []);
 		$newBlockList = [];
 		foreach ($currBlocklist  as $blocked) {
 			if ($blocked['domain'] === $domain) {
@@ -150,7 +159,7 @@ HELP;
 
 		$found = false;
 
-		$currBlocklist = $config->get('system', 'blocklist');
+		$currBlocklist = $config->get('system', 'blocklist', []);
 		$newBlockList = [];
 		foreach ($currBlocklist as $blocked) {
 			if ($blocked['domain'] === $domain) {

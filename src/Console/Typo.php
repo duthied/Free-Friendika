@@ -2,7 +2,7 @@
 
 namespace Friendica\Console;
 
-use Friendica\BaseObject;
+use Friendica\Core\Config\Configuration;
 
 /**
  * Tired of chasing typos and finding them after a commit.
@@ -13,6 +13,11 @@ use Friendica\BaseObject;
 class Typo extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var Configuration
+	 */
+	private $config;
 
 	protected function getHelp()
 	{
@@ -31,6 +36,13 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(Configuration $config, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->config = $config;
+	}
+
 	protected function doExecute()
 	{
 		if ($this->getOption('v')) {
@@ -43,7 +55,7 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		$php_path = BaseObject::getApp()->getConfig()->get('config', 'php_path', 'php');
+		$php_path = $this->config->get('config', 'php_path', 'php');
 
 		if ($this->getOption('v')) {
 			$this->out('Directory: src');

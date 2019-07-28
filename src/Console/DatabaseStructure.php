@@ -2,9 +2,9 @@
 
 namespace Friendica\Console;
 
-use Friendica\Core;
+use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Update;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use RuntimeException;
 
@@ -16,6 +16,15 @@ use RuntimeException;
 class DatabaseStructure extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var Database
+	 */
+	private $dba;
+	/**
+	 * @var ConfigCache
+	 */
+	private $configCache;
 
 	protected function getHelp()
 	{
@@ -39,6 +48,14 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(Database $dba, ConfigCache $configCache, $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->dba = $dba;
+		$this->configCache = $configCache;
+	}
+
 	protected function doExecute()
 	{
 		if ($this->getOption('v')) {
@@ -56,26 +73,24 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if (!DBA::connected()) {
+		if (!$this->dba->isConnected()) {
 			throw new RuntimeException('Unable to connect to database');
 		}
 
-		Core\Config::load();
-
-		$a = get_app();
+		$basePath = $this->configCache->get('system', 'basepath');
 
 		switch ($this->getArgument(0)) {
 			case "dryrun":
-				$output = DBStructure::update($a->getBasePath(), true, false);
+				$output = DBStructure::update($basePath, true, false);
 				break;
 			case "update":
 				$force    = $this->getOption(['f', 'force'], false);
 				$override = $this->getOption(['o', 'override'], false);
-				$output = Update::run($a->getBasePath(), $force, $override,true, false);
+				$output = Update::run($basePath, $force, $override,true, false);
 				break;
 			case "dumpsql":
 				ob_start();
-				DBStructure::printStructure($a->getBasePath());
+				DBStructure::printStructure($basePath);
 				$output = ob_get_clean();
 				break;
 			case "toinnodb":

@@ -2,8 +2,9 @@
 
 namespace Friendica\Console;
 
-use Friendica\Core\L10n;
-use Friendica\Database\DBA;
+use Friendica\App;
+use Friendica\Core\L10n\L10n;
+use Friendica\Database\Database;
 use Friendica\Model\User;
 use RuntimeException;
 
@@ -19,6 +20,19 @@ use RuntimeException;
 class NewPassword extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var L10n
+	 */
+	private $l10n;
+	/**
+	 * @var Database
+	 */
+	private $dba;
 
 	protected function getHelp()
 	{
@@ -37,10 +51,17 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, L10n $l10n, Database $dba, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->l10n = $l10n;
+		$this->dba = $dba;
+	}
+
 	protected function doExecute()
 	{
-		$a = \get_app();
-
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
 			$this->out('Arguments: ' . var_export($this->args, true));
@@ -56,31 +77,31 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->getMode()->isInstall()) {
+		if ($this->appMode->isInstall()) {
 			throw new RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		$nick = $this->getArgument(0);
 
-		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nick]);
-		if (!DBA::isResult($user)) {
-			throw new RuntimeException(L10n::t('User not found'));
+		$user = $this->dba->selectFirst('user', ['uid'], ['nickname' => $nick]);
+		if (!$this->dba->isResult($user)) {
+			throw new RuntimeException($this->l10n->t('User not found'));
 		}
 
 		$password = $this->getArgument(1);
 		if (is_null($password)) {
-			$this->out(L10n::t('Enter new password: '), false);
+			$this->out($this->l10n->t('Enter new password: '), false);
 			$password = \Seld\CliPrompt\CliPrompt::hiddenPrompt(true);
 		}
 
 		try {
 			$result = User::updatePassword($user['uid'], $password);
 
-			if (!DBA::isResult($result)) {
-				throw new \Exception(L10n::t('Password update failed. Please try again.'));
+			if (!$this->dba->isResult($result)) {
+				throw new \Exception($this->l10n->t('Password update failed. Please try again.'));
 			}
 
-			$this->out(L10n::t('Password changed.'));
+			$this->out($this->l10n->t('Password changed.'));
 		} catch (\Exception $e) {
 			throw new RuntimeException($e->getMessage(), $e->getCode(), $e);
 		}

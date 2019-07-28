@@ -64,7 +64,6 @@ return [
 		],
 	],
 	Config\Configuration::class => [
-		'shared' => true,
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call' => [
 			['createConfig', [], Dice::CHAIN_CALL],

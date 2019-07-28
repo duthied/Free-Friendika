@@ -20,6 +20,11 @@ class Cache extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+
 	protected function getHelp()
 	{
 		$help = <<<HELP
@@ -54,10 +59,15 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+	}
+
 	protected function doExecute()
 	{
-		$a = \Friendica\BaseObject::getApp();
-
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);
 			$this->out('Class: ' . __CLASS__);
@@ -65,7 +75,7 @@ HELP;
 			$this->out('Options: ' . var_export($this->options, true));
 		}
 
-		if ($a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+		if (!$this->appMode->has(App\Mode::DBCONFIGAVAILABLE)) {
 			$this->out('Database isn\'t ready or populated yet, database cache won\'t be available');
 		}
 

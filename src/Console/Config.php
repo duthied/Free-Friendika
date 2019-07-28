@@ -4,7 +4,7 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
-use Friendica\Core;
+use Friendica\Core\Config\Configuration;
 use RuntimeException;
 
 /**
@@ -34,6 +34,15 @@ use RuntimeException;
 class Config extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var Configuration
+	 */
+	private $config;
 
 	protected function getHelp()
 	{
@@ -69,10 +78,16 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, Configuration $config, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->config = $config;
+	}
+
 	protected function doExecute()
 	{
-		$a = \Friendica\BaseObject::getApp();
-
 		if ($this->getOption('v')) {
 			$this->out('Executable: ' . $this->executable);
 			$this->out('Class: ' . __CLASS__);
@@ -84,7 +99,7 @@ HELP;
 			throw new CommandArgsException('Too many arguments');
 		}
 
-		if (!$a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+		if (!$this->appMode->has(App\Mode::DBCONFIGAVAILABLE)) {
 			$this->out('Database isn\'t ready or populated yet, showing file config only');
 		}
 
@@ -93,14 +108,14 @@ HELP;
 			$key = $this->getArgument(1);
 			$value = $this->getArgument(2);
 
-			if (is_array(Core\Config::get($cat, $key))) {
+			if (is_array($this->config->get($cat, $key))) {
 				throw new RuntimeException("$cat.$key is an array and can't be set using this command.");
 			}
 
-			$result = Core\Config::set($cat, $key, $value);
+			$result = $this->config->set($cat, $key, $value);
 			if ($result) {
 				$this->out("{$cat}.{$key} <= " .
-					Core\Config::get($cat, $key));
+				           $this->config->get($cat, $key));
 			} else {
 				$this->out("Unable to set {$cat}.{$key}");
 			}
@@ -109,7 +124,7 @@ HELP;
 		if (count($this->args) == 2) {
 			$cat = $this->getArgument(0);
 			$key = $this->getArgument(1);
-			$value = Core\Config::get($this->getArgument(0), $this->getArgument(1));
+			$value = $this->config->get($this->getArgument(0), $this->getArgument(1));
 
 			if (is_array($value)) {
 				foreach ($value as $k => $v) {
@@ -122,11 +137,12 @@ HELP;
 
 		if (count($this->args) == 1) {
 			$cat = $this->getArgument(0);
-			Core\Config::load($cat);
+			$this->config->load($cat);
+			$configCache = $this->config->getCache();
 
-			if ($a->getConfigCache()->get($cat) !== null) {
+			if ($configCache->get($cat) !== null) {
 				$this->out("[{$cat}]");
-				$catVal = $a->getConfigCache()->get($cat);
+				$catVal = $configCache->get($cat);
 				foreach ($catVal as $key => $value) {
 					if (is_array($value)) {
 						foreach ($value as $k => $v) {
@@ -142,13 +158,13 @@ HELP;
 		}
 
 		if (count($this->args) == 0) {
-			Core\Config::load();
+			$this->config->load();
 
-			if (Core\Config::get('system', 'config_adapter') == 'jit' && $a->getMode()->has(App\Mode::DBCONFIGAVAILABLE)) {
+			if ($this->config->get('system', 'config_adapter') == 'jit' && $this->appMode->has(App\Mode::DBCONFIGAVAILABLE)) {
 				$this->out('Warning: The JIT (Just In Time) Config adapter doesn\'t support loading the entire configuration, showing file config only');
 			}
 
-			$config = $a->getConfigCache()->getAll();
+			$config = $this->config->getCache()->getAll();
 			foreach ($config as $cat => $section) {
 				if (is_array($section)) {
 					foreach ($section as $key => $value) {

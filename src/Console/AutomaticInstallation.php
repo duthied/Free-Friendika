@@ -3,10 +3,11 @@
 namespace Friendica\Console;
 
 use Asika\SimpleConsole\Console;
-use Friendica\BaseObject;
+use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
+use Friendica\Database\Database;
 use Friendica\Util\BasePath;
 use Friendica\Util\BaseURL;
 use Friendica\Util\ConfigFileLoader;
@@ -14,6 +15,19 @@ use RuntimeException;
 
 class AutomaticInstallation extends Console
 {
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var Config\Cache\ConfigCache
+	 */
+	private $configCache;
+	/**
+	 * @var Database
+	 */
+	private $dba;
+
 	protected function getHelp()
 	{
 		return <<<HELP
@@ -69,17 +83,25 @@ Examples
 HELP;
 	}
 
+	public function __construct(App\Mode $appMode, Config\Cache\ConfigCache $configCache, Database $dba, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->configCache  =$configCache;
+		$this->dba = $dba;
+	}
+
 	protected function doExecute()
 	{
 		// Initialise the app
 		$this->out("Initializing setup...\n");
 
-		$a = BaseObject::getApp();
-
 		$installer = new Installer();
 
-		$configCache = $a->getConfigCache();
-		$basepath = new BasePath($a->getBasePath());
+		$configCache = $this->configCache;
+		$basePathConf = $configCache->get('system', 'basepath');
+		$basepath = new BasePath($basePathConf);
 		$installer->setUpCache($configCache, $basepath->getPath());
 
 		$this->out(" Complete!\n\n");
@@ -103,13 +125,13 @@ HELP;
 			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
 				// Copy config file
 				$this->out("Copying config file...\n");
-				if (!copy($a->getBasePath() . DIRECTORY_SEPARATOR . $config_file, $a->getBasePath() . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $a->getBasePath() . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
+				if (!copy($basePathConf . DIRECTORY_SEPARATOR . $config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
+					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $basePathConf . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
 				}
 			}
 
 			//reload the config cache
-			$loader = new ConfigFileLoader($a->getBasePath(), $a->getMode());
+			$loader = new ConfigFileLoader($basePathConf);
 			$loader->setupCache($configCache);
 
 		} else {
@@ -159,7 +181,7 @@ HELP;
 				$this->out('The Friendica URL has to be set during CLI installation.');
 				return 1;
 			} else {
-				$baseUrl = new BaseURL($a->getConfig(), []);
+				$baseUrl = new BaseURL($basePathConf, []);
 				$baseUrl->saveByURL($url);
 			}
 
@@ -173,7 +195,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->checkDB($configCache, $a->getProfiler())) {
+		if (!$installer->checkDB($this->dba)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -185,7 +207,7 @@ HELP;
 
 		$installer->resetChecks();
 
-		if (!$installer->installDatabase($a->getBasePath())) {
+		if (!$installer->installDatabase($basePathConf)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
 		}
@@ -194,8 +216,8 @@ HELP;
 
 		// Install theme
 		$this->out("Installing theme\n");
-		if (!empty(Config::get('system', 'theme'))) {
-			Theme::install(Config::get('system', 'theme'));
+		if (!empty($configCache->get('system', 'theme'))) {
+			Theme::install($configCache->get('system', 'theme'));
 			$this->out(" Complete\n\n");
 		} else {
 			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n\n");
