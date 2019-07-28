@@ -86,7 +86,7 @@ class Compose extends BaseModule
 		$group_deny    = $_REQUEST['group_deny']    ?? implode(',', expand_acl($user['deny_gid']));
 		$visibility    = ($contact_allow . $user['allow_gid'] . $user['deny_cid'] . $user['deny_gid']) ? 'custom' : 'public';
 
-		$acl_contacts = Contact::select(['id', 'name', 'addr', 'micro'], ['uid' => local_user(), 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
+		$acl_contacts = Contact::selectToArray(['id', 'name', 'addr', 'micro'], ['uid' => local_user(), 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
 		array_walk($acl_contacts, function (&$value) {
 			$value['type'] = 'contact';
 		});
