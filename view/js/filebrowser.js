@@ -86,7 +86,7 @@ var FileBrowser = {
 
 			var embed = "";
 			if (FileBrowser.type == "image") {
-				embed = "[url="+this.dataset.link+"][img]"+this.dataset.img+"[/img][/url]";
+				embed = "[url="+this.dataset.link+"][img="+this.dataset.img+"][/img][/url]";
 			}
 			if (FileBrowser.type=="file") {
 				// attachment links are "baseurl/attach/id"; we need id
