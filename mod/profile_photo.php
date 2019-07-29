@@ -192,14 +192,7 @@ function profile_photo_content(App $a)
 		$resource_id = $a->argv[2];
 		//die(":".local_user());
 
-		$r = Photo::select([], ["resource-id" => $resource_id, "uid" => local_user()], ["order" => ["scale"=>false]]);
-
-		/*
-		$r = q("SELECT * FROM `photo` WHERE `uid` = %d AND `resource-id` = '%s' ORDER BY `scale` ASC", intval(local_user()),
-			DBA::escape($resource_id)
-		);
-		*/
-
+		$r = Photo::selectToArray([], ["resource-id" => $resource_id, "uid" => local_user()], ["order" => ["scale" => false]]);
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Permission denied.') . EOL);
 			return;
