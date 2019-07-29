@@ -180,8 +180,8 @@ class DBA extends BaseObject
 	/**
 	 * @brief Check if data exists
 	 *
-	 * @param string $table     Table name
-	 * @param array  $condition array of fields for condition
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $condition array of fields for condition
 	 *
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
@@ -253,9 +253,9 @@ class DBA extends BaseObject
 	/**
 	 * @brief Insert a row into a table
 	 *
-	 * @param string $table               Table name
-	 * @param array  $param               parameter array
-	 * @param bool   $on_duplicate_update Do an update on a duplicate entry
+	 * @param string|array $table               Table name or array [schema => table]
+	 * @param array        $param               parameter array
+	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
@@ -280,7 +280,7 @@ class DBA extends BaseObject
 	 *
 	 * This function can be extended in the future to accept a table array as well.
 	 *
-	 * @param string $table Table name
+	 * @param string|array $table Table name or array [schema => table]
 	 *
 	 * @return boolean was the lock successful?
 	 * @throws \Exception
@@ -369,7 +369,7 @@ class DBA extends BaseObject
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @param string        $table      Table name
+	 * @param string|array  $table      Table name or array [schema => table]
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
@@ -386,10 +386,10 @@ class DBA extends BaseObject
 	 * Retrieve a single record from a table and returns it in an associative array
 	 *
 	 * @brief Retrieve a single record from a table
-	 * @param string $table
-	 * @param array  $fields
-	 * @param array  $condition
-	 * @param array  $params
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $fields
+	 * @param array        $condition
+	 * @param array        $params
 	 * @return bool|array
 	 * @throws \Exception
 	 * @see   self::select
@@ -402,10 +402,10 @@ class DBA extends BaseObject
 	/**
 	 * @brief Select rows from a table and fills an array with the data
 	 *
-	 * @param string $table     Table name
-	 * @param array  $fields    Array of selected fields, empty for all
-	 * @param array  $condition Array of fields for condition
-	 * @param array  $params    Array of several parameters
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $fields    Array of selected fields, empty for all
+	 * @param array        $condition Array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return array Data array
 	 * @throws \Exception
@@ -419,10 +419,10 @@ class DBA extends BaseObject
 	/**
 	 * @brief Select rows from a table
 	 *
-	 * @param string $table     Table name
-	 * @param array  $fields    Array of selected fields, empty for all
-	 * @param array  $condition Array of fields for condition
-	 * @param array  $params    Array of several parameters
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $fields    Array of selected fields, empty for all
+	 * @param array        $condition Array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 *
@@ -447,8 +447,8 @@ class DBA extends BaseObject
 	/**
 	 * @brief Counts the rows from a table satisfying the provided condition
 	 *
-	 * @param string $table     Table name
-	 * @param array  $condition array of fields for condition
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $condition array of fields for condition
 	 *
 	 * @return int
 	 *
@@ -465,6 +465,47 @@ class DBA extends BaseObject
 	public static function count($table, array $condition = [])
 	{
 		return self::getClass(Database::class)->count($table, $condition);
+	}
+
+	/**
+	 * Build the table query substring from one or more tables, with or without a schema.
+	 *
+	 * Expected formats:
+	 * - table
+	 * - [table1, table2, ...]
+	 * - [schema1 => table1, schema2 => table2, table3, ...]
+	 *
+	 * @param string|array $tables
+	 * @return string
+	 */
+	public static function buildTableString($tables)
+	{
+		if (is_string($tables)) {
+			$tables = [$tables];
+		}
+
+		$quotedTables = [];
+
+		foreach ($tables as $schema => $table) {
+			if (is_numeric($schema)) {
+				$quotedTables[] = self::quoteIdentifier($table);
+			} else {
+				$quotedTables[] = self::quoteIdentifier($schema) . '.' . self::quoteIdentifier($table);
+			}
+		}
+
+		return implode(', ', $quotedTables);
+	}
+
+	/**
+	 * Escape an identifier (table or field name)
+	 *
+	 * @param $identifier
+	 * @return string
+	 */
+	public static function quoteIdentifier($identifier)
+	{
+		return '`' . str_replace('`', '``', $identifier) . '`';
 	}
 
 	/**
@@ -527,12 +568,12 @@ class DBA extends BaseObject
 
 						$new_values = array_merge($new_values, array_values($value));
 						$placeholders = substr(str_repeat("?, ", count($value)), 0, -2);
-						$condition_string .= "`" . $field . "` IN (" . $placeholders . ")";
+						$condition_string .= self::quoteIdentifier($field) . " IN (" . $placeholders . ")";
 					} elseif (is_null($value)) {
-						$condition_string .= "`" . $field . "` IS NULL";
+						$condition_string .= self::quoteIdentifier($field) . " IS NULL";
 					} else {
 						$new_values[$field] = $value;
-						$condition_string .= "`" . $field . "` = ?";
+						$condition_string .= self::quoteIdentifier($field) . " = ?";
 					}
 				}
 				$condition_string = " WHERE (" . $condition_string . ")";
@@ -552,12 +593,8 @@ class DBA extends BaseObject
 	public static function buildParameter(array $params = [])
 	{
 		$groupby_string = '';
-		if (isset($params['group_by'])) {
-			$groupby_string = " GROUP BY ";
-			foreach ($params['group_by'] as $fields) {
-				$groupby_string .= "`" . $fields . "`, ";
-			}
-			$groupby_string = substr($groupby_string, 0, -2);
+		if (!empty($params['group_by'])) {
+			$groupby_string = " GROUP BY " . implode(', ', array_map(['self', 'quoteIdentifier'], $params['group_by']));
 		}
 
 		$order_string = '';
@@ -567,9 +604,9 @@ class DBA extends BaseObject
 				if ($order === 'RAND()') {
 					$order_string .= "RAND(), ";
 				} elseif (!is_int($fields)) {
-					$order_string .= "`" . $fields . "` " . ($order ? "DESC" : "ASC") . ", ";
+					$order_string .= self::quoteIdentifier($fields) . " " . ($order ? "DESC" : "ASC") . ", ";
 				} else {
-					$order_string .= "`" . $order . "`, ";
+					$order_string .= self::quoteIdentifier($order) . ", ";
 				}
 			}
 			$order_string = substr($order_string, 0, -2);
