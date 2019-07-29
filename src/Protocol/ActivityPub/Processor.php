@@ -111,7 +111,11 @@ class Processor
 					continue;
 				}
 
-				$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
+				if (empty($attach['name'])) {
+					$item['body'] .= "\n[img]" . $attach['url'] . '[/img]';
+				} else {
+					$item['body'] .= "\n[img=" . $attach['url'] . ']' . $attach['name'] . '[/img]';
+				}
 			} else {
 				if (!empty($item["attach"])) {
 					$item["attach"] .= ',';
