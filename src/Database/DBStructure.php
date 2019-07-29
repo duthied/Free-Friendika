@@ -40,16 +40,19 @@ class DBStructure
 	 */
 	public static function convertToInnoDB()
 	{
-		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-			DBA::escape(DBA::databaseName()));
+		$tables = DBA::selectToArray(
+			['information_schema' => 'tables'],
+			['table_name'],
+			['engine' => 'MyISAM', 'table_schema' => DBA::databaseName()]
+		);
 
-		if (!DBA::isResult($r)) {
+		if (!DBA::isResult($tables)) {
 			echo L10n::t('There are no tables on MyISAM.') . "\n";
 			return;
 		}
 
-		foreach ($r AS $table) {
-			$sql = sprintf("ALTER TABLE `%s` engine=InnoDB;", DBA::escape($table['TABLE_NAME']));
+		foreach ($tables AS $table) {
+			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['TABLE_NAME']) . " engine=InnoDB;";
 			echo $sql . "\n";
 
 			$result = DBA::e($sql);
@@ -817,7 +820,7 @@ class DBStructure
 	/**
 	 *    Check if a table exists
 	 *
-	 * @param string $table Table name
+	 * @param string|array $table Table name
 	 *
 	 * @return boolean Does the table exist?
 	 * @throws Exception
@@ -828,21 +831,15 @@ class DBStructure
 			return false;
 		}
 
-		$table = DBA::escape($table);
-
-		$sql = "SHOW TABLES LIKE '" . $table . "';";
-
-		$stmt = DBA::p($sql);
-
-		if (is_bool($stmt)) {
-			$retval = $stmt;
+		if (is_array($table)) {
+			$condition = ['table_schema' => key($table), 'table_name' => current($table)];
 		} else {
-			$retval = (DBA::numRows($stmt) > 0);
+			$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
 		}
 
-		DBA::close($stmt);
+		$result = DBA::exists(['information_schema' => 'tables'], $condition);
 
-		return $retval;
+		return $result;
 	}
 
 	/**

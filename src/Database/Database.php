@@ -725,8 +725,8 @@ class Database
 	/**
 	 * @brief Check if data exists
 	 *
-	 * @param string $table     Table name
-	 * @param array  $condition array of fields for condition
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $condition array of fields for condition
 	 *
 	 * @return boolean Are there rows for that condition?
 	 * @throws \Exception
@@ -906,49 +906,32 @@ class Database
 	/**
 	 * @brief Insert a row into a table
 	 *
-	 * @param string/array $table Table name
-	 *
-	 * @return string formatted and sanitzed table name
-	 * @throws \Exception
-	 */
-	public function formatTableName($table)
-	{
-		if (is_string($table)) {
-			return "`" . $this->sanitizeIdentifier($table) . "`";
-		}
-
-		if (!is_array($table)) {
-			return '';
-		}
-
-		$scheme = key($table);
-
-		return "`" . $this->sanitizeIdentifier($scheme) . "`.`" . $this->sanitizeIdentifier($table[$scheme]) . "`";
-	}
-
-	/**
-	 * @brief Insert a row into a table
-	 *
-	 * @param string $table               Table name
-	 * @param array  $param               parameter array
-	 * @param bool   $on_duplicate_update Do an update on a duplicate entry
+	 * @param string|array $table               Table name or array [schema => table]
+	 * @param array        $param               parameter array
+	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
 	public function insert($table, $param, $on_duplicate_update = false)
 	{
-
 		if (empty($table) || empty($param)) {
 			$this->logger->info('Table and fields have to be set');
 			return false;
 		}
 
-		$sql = "INSERT INTO " . $this->formatTableName($table) . " (`" . implode("`, `", array_keys($param)) . "`) VALUES (" .
-		       substr(str_repeat("?, ", count($param)), 0, -2) . ")";
+		$table_string = DBA::buildTableString($table);
+
+		$fields_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
+
+		$values_string = substr(str_repeat("?, ", count($param)), 0, -2);
+
+		$sql = "INSERT INTO " . $table_string . " (" . $fields_string . ") VALUES (" . $values_string . ")";
 
 		if ($on_duplicate_update) {
-			$sql .= " ON DUPLICATE KEY UPDATE `" . implode("` = ?, `", array_keys($param)) . "` = ?";
+			$fields_string = implode(' = ?, ', array_map([DBA::class, 'quoteIdentifier'], array_keys($param)));
+
+			$sql .= " ON DUPLICATE KEY UPDATE " . $fields_string . " = ?";
 
 			$values = array_values($param);
 			$param  = array_merge_recursive($values, $values);
@@ -980,7 +963,7 @@ class Database
 	 *
 	 * This function can be extended in the future to accept a table array as well.
 	 *
-	 * @param string $table Table name
+	 * @param string|array $table Table name or array [schema => table]
 	 *
 	 * @return boolean was the lock successful?
 	 * @throws \Exception
@@ -995,7 +978,7 @@ class Database
 			$this->connection->autocommit(false);
 		}
 
-		$success = $this->e("LOCK TABLES " . $this->formatTableName($table) . " WRITE");
+		$success = $this->e("LOCK TABLES " . DBA::buildTableString($table) . " WRITE");
 
 		if ($this->driver == 'pdo') {
 			$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
@@ -1152,6 +1135,8 @@ class Database
 	/**
 	 * @brief Delete a row from a table
 	 *
+	 * Note: this methods does NOT accept schema => table arrays because of the complex relation stuff.
+	 *
 	 * @param string $table      Table name
 	 * @param array  $conditions Field condition(s)
 	 * @param array  $options
@@ -1176,12 +1161,10 @@ class Database
 
 		// We quit when this key already exists in the callstack.
 		if (isset($callstack[$key])) {
-			return $commands;
+			return true;
 		}
 
 		$callstack[$key] = true;
-
-		$table = $this->sanitizeIdentifier($table);
 
 		$commands[$key] = ['table' => $table, 'conditions' => $conditions];
 
@@ -1250,7 +1233,7 @@ class Database
 			$condition_string = DBA::buildCondition($conditions);
 
 			if ((count($command['conditions']) > 1) || is_int($first_key)) {
-				$sql = "DELETE FROM `" . $command['table'] . "`" . $condition_string;
+				$sql = "DELETE FROM " . DBA::quoteIdentifier($command['table']) . " " . $condition_string;
 				$this->logger->debug($this->replaceParameters($sql, $conditions));
 
 				if (!$this->e($sql, $conditions)) {
@@ -1278,7 +1261,7 @@ class Database
 		foreach ($compacted AS $table => $values) {
 			foreach ($values AS $field => $field_value_list) {
 				foreach ($field_value_list AS $field_values) {
-					$sql = "DELETE FROM `" . $table . "` WHERE `" . $field . "` IN (" .
+					$sql = "DELETE FROM " . DBA::quoteIdentifier($table) . " WHERE " . DBA::quoteIdentifier($field) . " IN (" .
 					       substr(str_repeat("?, ", count($field_values)), 0, -2) . ");";
 
 					$this->logger->debug($this->replaceParameters($sql, $field_values));
@@ -1319,7 +1302,7 @@ class Database
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @param string        $table      Table name
+	 * @param string|array  $table      Table name or array [schema => table]
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
 	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
@@ -1329,11 +1312,12 @@ class Database
 	 */
 	public function update($table, $fields, $condition, $old_fields = [])
 	{
-
 		if (empty($table) || empty($fields) || empty($condition)) {
 			$this->logger->info('Table, fields and condition have to be set');
 			return false;
 		}
+
+		$table_string = DBA::buildTableString($table);
 
 		$condition_string = DBA::buildCondition($condition);
 
@@ -1367,8 +1351,9 @@ class Database
 			return true;
 		}
 
-		$sql = "UPDATE " . $this->formatTableName($table) . " SET `" .
-		       implode("` = ?, `", array_keys($fields)) . "` = ?" . $condition_string;
+		$sql = "UPDATE " . $table_string . " SET "
+			. implode(" = ?, ", array_map([DBA::class, 'quoteIdentifier'], array_keys($fields))) . " = ?"
+			. $condition_string;
 
 		$params1 = array_values($fields);
 		$params2 = array_values($condition);
@@ -1408,10 +1393,10 @@ class Database
 	/**
 	 * @brief Select rows from a table and fills an array with the data
 	 *
-	 * @param string $table     Table name
-	 * @param array  $fields    Array of selected fields, empty for all
-	 * @param array  $condition Array of fields for condition
-	 * @param array  $params    Array of several parameters
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $fields    Array of selected fields, empty for all
+	 * @param array        $condition Array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return array Data array
 	 * @throws \Exception
@@ -1425,10 +1410,10 @@ class Database
 	/**
 	 * @brief Select rows from a table
 	 *
-	 * @param string $table     Table name
-	 * @param array  $fields    Array of selected fields, empty for all
-	 * @param array  $condition Array of fields for condition
-	 * @param array  $params    Array of several parameters
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $fields    Array of selected fields, empty for all
+	 * @param array        $condition Array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 *
@@ -1452,16 +1437,18 @@ class Database
 		}
 
 		if (count($fields) > 0) {
-			$select_fields = "`" . implode("`, `", array_values($fields)) . "`";
+			$select_string = implode(', ', array_map([DBA::class, 'quoteIdentifier'], $fields));
 		} else {
-			$select_fields = "*";
+			$select_string = '*';
 		}
+
+		$table_string = DBA::buildTableString($table);
 
 		$condition_string = DBA::buildCondition($condition);
 
 		$param_string = DBA::buildParameter($params);
 
-		$sql = "SELECT " . $select_fields . " FROM " . $this->formatTableName($table) . $condition_string . $param_string;
+		$sql = "SELECT " . $select_string . " FROM " . $table_string . $condition_string . $param_string;
 
 		$result = $this->p($sql, $condition);
 
@@ -1471,8 +1458,8 @@ class Database
 	/**
 	 * @brief Counts the rows from a table satisfying the provided condition
 	 *
-	 * @param string $table     Table name
-	 * @param array  $condition array of fields for condition
+	 * @param string|array $table     Table name or array [schema => table]
+	 * @param array        $condition Array of fields for condition
 	 *
 	 * @return int
 	 *
@@ -1492,9 +1479,11 @@ class Database
 			return false;
 		}
 
+		$table_string = DBA::buildTableString($table);
+
 		$condition_string = DBA::buildCondition($condition);
 
-		$sql = "SELECT COUNT(*) AS `count` FROM " . $this->formatTableName($table) . $condition_string;
+		$sql = "SELECT COUNT(*) AS `count` FROM " . $table_string . $condition_string;
 
 		$row = $this->fetchFirst($sql, $condition);
 
