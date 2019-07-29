@@ -1034,7 +1034,7 @@ class Transmitter
 		// Simplify image codes
 		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $item['body']);
 
-		// Grab all pictures and create attachments out of them
+		// Grab all pictures without alternative descriptions and create attachments out of them
 		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures)) {
 			foreach ($pictures[1] as $picture) {
 				$imgdata = Image::getInfoFromURL($picture);
@@ -1043,6 +1043,19 @@ class Transmitter
 						'mediaType' => $imgdata['mime'],
 						'url' => $picture,
 						'name' => null];
+				}
+			}
+		}
+
+		// Grab all pictures with alternative description and create attachments out of them
+		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				$imgdata = Image::getInfoFromURL($picture[1]);
+				if ($imgdata) {
+					$attachments[] = ['type' => 'Document',
+						'mediaType' => $imgdata['mime'],
+						'url' => $picture[1],
+						'name' => $picture[2]];
 				}
 			}
 		}
