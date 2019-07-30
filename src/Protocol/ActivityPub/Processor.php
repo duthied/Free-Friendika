@@ -415,9 +415,7 @@ class Processor
 
 			if ($isForum) {
 				$item['contact-id'] = Contact::getIdForURL($activity['actor'], $receiver, true);
-			}
-
-			if (empty($item['contact-id'])) {
+			} else {
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
 			}
 
