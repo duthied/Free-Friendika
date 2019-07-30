@@ -6,7 +6,6 @@
 				<input type="hidden" name="parent" value="{{$parent}}" />
 				<input type="hidden" name="return" value="{{$return_path}}" />
 				<input type="hidden" name="jsreload" value="{{$jsreload}}" />
-				<input type="hidden" name="preview" id="comment-preview-inp-{{$id}}" value="0" />
 
 				<div class="comment-edit-photo" id="comment-edit-photo-{{$id}}">
 					<a class="comment-edit-photo-link" href="{{$mylink}}" title="{{$mytitle}}"><img class="my-comment-photo" src="{{$myphoto}}" alt="{{$mytitle}}" title="{{$mytitle}}" /></a>

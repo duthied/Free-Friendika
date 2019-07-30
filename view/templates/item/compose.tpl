@@ -3,7 +3,6 @@
 	<div id="profile-jot-wrapper">
 		<form class="comment-edit-form" data-item-id="{{$id}}" id="comment-edit-form-{{$id}}" action="compose/{{$type}}" method="post">
 		    {{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
-			<input type="hidden" name="preview" id="comment-preview-inp-{{$id}}" value="0" />
 			<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 			<input type="hidden" name="post_type" value="{{$posttype}}" />
 			<input type="hidden" name="wall" value="{{$wall}}" />

@@ -632,7 +632,6 @@ function post_comment(id) {
 	unpause();
 	commentBusy = true;
 	$('body').css('cursor', 'wait');
-	$("#comment-preview-inp-" + id).val("0");
 	$.post(
 		"item",
 		$("#comment-edit-form-" + id).serialize(),
@@ -661,11 +660,10 @@ function post_comment(id) {
 }
 
 function preview_comment(id) {
-	$("#comment-preview-inp-" + id).val("1");
 	$("#comment-edit-preview-" + id).show();
 	$.post(
 		"item",
-		$("#comment-edit-form-" + id).serialize(),
+		$("#comment-edit-form-" + id).serialize() + '&preview=1',
 		function(data) {
 			if (data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
