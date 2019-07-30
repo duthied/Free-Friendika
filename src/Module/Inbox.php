@@ -12,6 +12,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\HTTPSignature;
+use Friendica\Util\Network;
 
 /**
  * ActivityPub Inbox
@@ -22,7 +23,7 @@ class Inbox extends BaseModule
 	{
 		$a = self::getApp();
 
-		$postdata = file_get_contents('php://input');
+		$postdata = Network::postdata();
 
 		if (empty($postdata)) {
 			throw new \Friendica\Network\HTTPException\BadRequestException();

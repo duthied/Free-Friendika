@@ -10,6 +10,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Network;
 
 /**
  * @param App $a App
@@ -47,7 +48,7 @@ function receive_post(App $a)
 	Logger::log('mod-diaspora: receiving post', Logger::DEBUG);
 
 	if (empty($_POST['xml'])) {
-		$postdata = file_get_contents("php://input");
+		$postdata = Network::postdata();
 		if ($postdata == '') {
 			throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 		}

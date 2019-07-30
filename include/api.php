@@ -1267,7 +1267,7 @@ function api_media_metadata_create($type)
 
 	api_get_user($a);
 
-	$postdata = file_get_contents('php://input');
+	$postdata = Network::postdata();
 
 	if (empty($postdata)) {
 		throw new BadRequestException("No post data");

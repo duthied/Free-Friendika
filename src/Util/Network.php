@@ -343,6 +343,16 @@ class Network
 	}
 
 	/**
+	 * Return raw post data from a post request
+	 *
+	 * @return string post data
+	 */
+	public static function postdata()
+	{
+		return file_get_contents('php://input');
+	}
+
+	/**
 	 * @brief Check URL to see if it's real
 	 *
 	 * Take a URL from the wild, prepend http:// if necessary
