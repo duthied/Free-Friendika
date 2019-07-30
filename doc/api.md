@@ -401,10 +401,10 @@ Parameters are sent as JSON object:
 
 ```
 {
-  "media_id":"1234",
-  "alt_text": {
-    "text":"Here comes the description"
-  }
+	"media_id":"1234",
+	"alt_text": {
+		"text":"Here comes the description"
+	}
 }
 ```
 
