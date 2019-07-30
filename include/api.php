@@ -1158,15 +1158,16 @@ function api_statuses_update($type)
 	// To-Do: Multiple IDs
 	if (requestdata('media_ids')) {
 		$r = q(
-			"SELECT `resource-id`, `scale`, `nickname`, `type` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
+			"SELECT `resource-id`, `scale`, `nickname`, `type`, `desc` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
 			intval(requestdata('media_ids')),
 			api_user()
 		);
 		if (DBA::isResult($r)) {
 			$phototypes = Image::supportedTypes();
 			$ext = $phototypes[$r[0]['type']];
+			$description = $r[0]['desc'] ?? '';
 			$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
-			$_REQUEST['body'] .= '[img]' . System::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . '[/img][/url]';
+			$_REQUEST['body'] .= '[img=' . System::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . ']' . $description . '[/img][/url]';
 		}
 	}
 
@@ -1238,6 +1239,65 @@ function api_media_upload()
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST);
+
+/**
+ * Updates media meta data (picture descriptions)
+ *
+ * @param string $type Return type (atom, rss, xml, json)
+ *
+ * @return array|string
+ * @throws BadRequestException
+ * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws TooManyRequestsException
+ * @throws UnauthorizedException
+ * @see https://developer.twitter.com/en/docs/tweets/post-and-engage/api-reference/post-statuses-update
+ *
+ * @todo Compare the corresponding Twitter function for correct return values
+ */
+function api_media_metadata_create($type)
+{
+	$a = \get_app();
+
+	if (api_user() === false) {
+		Logger::info('no user');
+		throw new ForbiddenException();
+	}
+
+	api_get_user($a);
+
+	$postdata = Network::postdata();
+
+	if (empty($postdata)) {
+		throw new BadRequestException("No post data");
+	}
+
+	$data = json_decode($postdata, true);
+	if (empty($data)) {
+		throw new BadRequestException("Invalid post data");
+	}
+
+	if (empty($data['media_id']) || empty($data['alt_text'])) {
+		throw new BadRequestException("Missing post data values");
+	}
+
+	if (empty($data['alt_text']['text'])) {
+		throw new BadRequestException("No alt text.");
+	}
+
+	Logger::info('Updating metadata', ['media_id' => $data['media_id']]);
+
+	$condition =  ['id' => $data['media_id'], 'uid' => api_user()];
+	$photo = DBA::selectFirst('photo', ['resource-id'], $condition);
+	if (!DBA::isResult($photo)) {
+		throw new BadRequestException("Metadata not found.");
+	}
+
+	DBA::update('photo', ['desc' => $data['alt_text']['text']], ['resource-id' => $photo['resource-id']]);
+}
+
+api_register_func('api/media/metadata/create', 'api_media_metadata_create', true, API_METHOD_POST);
 
 /**
  * @param string $type    Return format (atom, rss, xml, json)

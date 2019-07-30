@@ -393,6 +393,27 @@ Object of:
 
 ---
 
+### media/metadata/create (POST,PUT; AUTH)
+
+#### Parameters
+
+Parameters are sent as JSON object:
+
+```
+{
+	"media_id":"1234",
+	"alt_text": {
+		"text":"Here comes the description"
+	}
+}
+```
+
+#### Return values
+
+None
+
+---
+
 ### oauth/request_token (*)
 
 #### Parameters

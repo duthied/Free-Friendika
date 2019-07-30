@@ -16,11 +16,12 @@ use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 
 function dfrn_notify_post(App $a) {
 	Logger::log(__function__, Logger::TRACE);
 
-	$postdata = file_get_contents('php://input');
+	$postdata = Network::postdata();
 
 	if (empty($_POST) || !empty($postdata)) {
 		$data = json_decode($postdata);

@@ -13,11 +13,12 @@ use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 
 function salmon_post(App $a, $xml = '') {
 
 	if (empty($xml)) {
-		$xml = file_get_contents('php://input');
+		$xml = Network::postdata();
 	}
 
 	Logger::log('new salmon ' . $xml, Logger::DATA);

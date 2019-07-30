@@ -7,6 +7,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Strings;
+use Friendica\Util\Network;
 use Friendica\Core\System;
 
 function hub_return($valid, $body)
@@ -83,7 +84,7 @@ function pubsub_init(App $a)
 
 function pubsub_post(App $a)
 {
-	$xml = file_get_contents('php://input');
+	$xml = Network::postdata();
 
 	Logger::log('Feed arrived from ' . $_SERVER['REMOTE_ADDR'] . ' for ' .  $a->cmd . ' with user-agent: ' . $_SERVER['HTTP_USER_AGENT']);
 	Logger::log('Data: ' . $xml, Logger::DATA);
