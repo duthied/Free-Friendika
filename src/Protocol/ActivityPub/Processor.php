@@ -419,8 +419,8 @@ class Processor
 				$item['contact-id'] = Contact::getIdForURL($activity['author'], $receiver, true);
 			}
 
-			if (($receiver != 0) && empty($item['contact-id'])) {
-				$item['contact-id'] = Contact::getIdForURL($activity['author'], 0, true);
+			if (empty($item['contact-id'])) {
+				$item['contact-id'] = $item['author-id'];
 			}
 
 			if (!empty($activity['directmessage'])) {
