@@ -1263,6 +1263,13 @@ class Item extends BaseObject
 		 */
 	}
 
+	/**
+	 * Write an item array into a spool file to be inserted later.
+	 * This command is called whenever there are issues storing an item.
+	 *
+	 * @param array $item The item fields that are to be inserted
+	 * @throws \Exception
+	 */
 	private static function spool($orig_item)
 	{
 		// Now we store the data in the spool directory
