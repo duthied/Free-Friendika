@@ -2,24 +2,28 @@
 
 namespace Friendica\Test\src\Console;
 
+use Dice\Dice;
+use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Console\AutomaticInstallation;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Installer;
 use Friendica\Core\L10n\L10n;
 use Friendica\Core\Logger;
+use Friendica\Database\Database;
 use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
+use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\BaseURL;
 use Friendica\Util\Logger\VoidLogger;
+use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
-/**
- * @requires PHP 7.0
- */
 class AutomaticInstallationConsoleTest extends ConsoleTest
 {
+	use VFSTrait;
 	use DBAMockTrait;
 	use DBStructureMockTrait;
 	use RendererMockTrait;
@@ -38,27 +42,48 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	 */
 	private $configCache;
 
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+
+	/**
+	 * @var Database
+	 */
+	private $dba;
+
+	/**
+	 * @var Dice|MockInterface
+	 */
+	private $dice;
+
 	public function setUp()
 	{
 		$this->markTestSkipped('Needs class \'Installer\' as constructing argument for console tests');
 
 		parent::setUp();
 
+		$this->setUpVfsDir();;
+
 		if ($this->root->hasChild('config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
 			$this->root->getChild('config')
 				->removeChild('local.config.php');
 		}
+		$this->dice = \Mockery::mock(Dice::class)->makePartial();
 
 		$l10nMock = \Mockery::mock(L10n::class);
 		$l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
-		\Friendica\Core\L10n::init($l10nMock);
+
+		$this->dice->shouldReceive('create')
+		           ->with(L10n::class)
+		           ->andReturn($l10nMock);
+
+		BaseObject::setDependencyInjection($this->dice);
 
 		$this->configCache = new ConfigCache();
 		$this->configCache->set('system', 'basepath', $this->root->url());
 		$this->configCache->set('config', 'php_path', trim(shell_exec('which php')));
 		$this->configCache->set('system', 'theme', 'smarty3');
-
-		$this->mockApp($this->root, true);
 
 		$this->configMock->shouldReceive('set')->andReturnUsing(function ($cat, $key, $value) {
 			if ($key !== 'basepath') {

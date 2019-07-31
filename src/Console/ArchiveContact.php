@@ -2,8 +2,9 @@
 
 namespace Friendica\Console;
 
+use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\Util\Strings;
 use RuntimeException;
 
@@ -19,6 +20,19 @@ use RuntimeException;
 class ArchiveContact extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var Database
+	 */
+	private $dba;
+	/**
+	 * @var L10n\L10n
+	 */
+	private $l10n;
 
 	protected function getHelp()
 	{
@@ -37,10 +51,17 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, Database $dba, L10n\L10n $l10n, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->dba = $dba;
+		$this->l10n = $l10n;
+	}
+
 	protected function doExecute()
 	{
-		$a = \Friendica\BaseObject::getApp();
-
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
 			$this->out('Arguments: ' . var_export($this->args, true));
@@ -56,16 +77,16 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->getMode()->isInstall()) {
+		if ($this->appMode->isInstall()) {
 			throw new RuntimeException('Friendica isn\'t properly installed yet.');
 		}
 
 		$nurl = Strings::normaliseLink($this->getArgument(0));
-		if (!DBA::exists('contact', ['nurl' => $nurl, 'archive' => false])) {
+		if (!$this->dba->exists('contact', ['nurl' => $nurl, 'archive' => false])) {
 			throw new RuntimeException(L10n::t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
 		}
-		if (DBA::update('contact', ['archive' => true], ['nurl' => $nurl])) {
-			$this->out(L10n::t('The contact entries have been archived'));
+		if ($this->dba->update('contact', ['archive' => true], ['nurl' => $nurl])) {
+			$this->out($this->l10n->t('The contact entries have been archived'));
 		} else {
 			throw new RuntimeException('The contact archival failed.');
 		}

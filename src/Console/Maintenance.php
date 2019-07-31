@@ -2,7 +2,8 @@
 
 namespace Friendica\Console;
 
-use Friendica\Core;
+use Friendica\App;
+use Friendica\Core\Config\Configuration;
 
 /**
  * @brief Sets maintenance mode for this node
@@ -12,6 +13,15 @@ use Friendica\Core;
 class Maintenance extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+	/**
+	 * @var Configuration
+	 */
+	private $config;
 
 	protected function getHelp()
 	{
@@ -42,10 +52,16 @@ HELP;
 		return $help;
 	}
 
+	public function __construct(App\Mode $appMode, Configuration $config, $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->config = $config;
+	}
+
 	protected function doExecute()
 	{
-		$a = \Friendica\BaseObject::getApp();
-
 		if ($this->getOption('v')) {
 			$this->out('Class: ' . __CLASS__);
 			$this->out('Arguments: ' . var_export($this->args, true));
@@ -61,20 +77,20 @@ HELP;
 			throw new \Asika\SimpleConsole\CommandArgsException('Too many arguments');
 		}
 
-		if ($a->getMode()->isInstall()) {
+		if ($this->appMode->isInstall()) {
 			throw new \RuntimeException('Database isn\'t ready or populated yet');
 		}
 
 		$enabled = intval($this->getArgument(0));
 
-		Core\Config::set('system', 'maintenance', $enabled);
+		$this->config->set('system', 'maintenance', $enabled);
 
 		$reason = $this->getArgument(1);
 
 		if ($enabled && $this->getArgument(1)) {
-			Core\Config::set('system', 'maintenance_reason', $this->getArgument(1));
+			$this->config->set('system', 'maintenance_reason', $this->getArgument(1));
 		} else {
-			Core\Config::set('system', 'maintenance_reason', '');
+			$this->config->set('system', 'maintenance_reason', '');
 		}
 
 		if ($enabled) {

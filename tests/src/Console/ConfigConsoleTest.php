@@ -2,21 +2,22 @@
 
 namespace Friendica\Test\src\Console;
 
+use Friendica\App;
 use Friendica\App\Mode;
 use Friendica\Console\Config;
+use Friendica\Core\Config\Configuration;
+use Mockery\MockInterface;
 
-/**
- * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
- * @requires PHP 7.0
- */
 class ConfigConsoleTest extends ConsoleTest
 {
+	/**
+	 * @var App\Mode|MockInterface $appMode
+	 */
+	private $appMode;
+
 	protected function setUp()
 	{
 		parent::setUp();
-
-		$this->mockApp($this->root);
 
 		\Mockery::getConfiguration()->setConstantsMap([
 			Mode::class => [
@@ -24,13 +25,15 @@ class ConfigConsoleTest extends ConsoleTest
 			]
 		]);
 
-		$this->mode
-			->shouldReceive('has')
-			->andReturn(true);
+		$this->appMode = \Mockery::mock(App\Mode::class);
+		$this->appMode->shouldReceive('has')
+		        ->andReturn(true);
 
+		$this->configMock = \Mockery::mock(Configuration::class);
 	}
 
-	function testSetGetKeyValue() {
+	function testSetGetKeyValue()
+	{
 		$this->configMock
 			->shouldReceive('set')
 			->with('config', 'test', 'now')
@@ -42,7 +45,7 @@ class ConfigConsoleTest extends ConsoleTest
 			->andReturn('now')
 			->twice();
 
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$console->setArgument(2, 'now');
@@ -55,7 +58,7 @@ class ConfigConsoleTest extends ConsoleTest
 			->andReturn('now')
 			->once();
 
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, [$this->consoleArgv]);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
@@ -67,7 +70,7 @@ class ConfigConsoleTest extends ConsoleTest
 			->andReturn(null)
 			->once();
 
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$txt = $this->dumpExecute($console);
@@ -82,7 +85,7 @@ class ConfigConsoleTest extends ConsoleTest
 			->andReturn($testArray)
 			->once();
 
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$console->setArgument(2, 'now');
@@ -92,7 +95,7 @@ class ConfigConsoleTest extends ConsoleTest
 	}
 
 	function testTooManyArguments() {
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'config');
 		$console->setArgument(1, 'test');
 		$console->setArgument(2, 'it');
@@ -109,7 +112,7 @@ class ConfigConsoleTest extends ConsoleTest
 			->with('test', 'it')
 			->andReturn('now')
 			->once();
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, $this->consoleArgv);
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');
 		$console->setOption('v', 1);
@@ -142,7 +145,7 @@ CONF;
 			->with('test', 'it')
 			->andReturn(NULL)
 			->once();
-		$console = new Config();
+		$console = new Config($this->appMode, $this->configMock, [$this->consoleArgv]);
 		$console->setArgument(0, 'test');
 		$console->setArgument(1, 'it');
 		$console->setArgument(2, 'now');
@@ -183,7 +186,7 @@ Options
     -v           Show more debug information.
 
 HELP;
-		$console = new Config($this->consoleArgv);
+		$console = new Config($this->appMode, $this->configMock, [$this->consoleArgv]);
 		$console->setOption('help', true);
 
 		$txt = $this->dumpExecute($console);
