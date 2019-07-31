@@ -23,6 +23,12 @@ class AutomaticInstallation extends Console
 	 * @var Config\Cache\ConfigCache
 	 */
 	private $configCache;
+
+	/**
+	 * @var Config\Configuration
+	 */
+	private $config;
+
 	/**
 	 * @var Database
 	 */
@@ -83,12 +89,13 @@ Examples
 HELP;
 	}
 
-	public function __construct(App\Mode $appMode, Config\Cache\ConfigCache $configCache, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, Config\Cache\ConfigCache $configCache, Config\Configuration $config, Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode = $appMode;
 		$this->configCache  =$configCache;
+		$this->config = $config;
 		$this->dba = $dba;
 	}
 
@@ -181,7 +188,7 @@ HELP;
 				$this->out('The Friendica URL has to be set during CLI installation.');
 				return 1;
 			} else {
-				$baseUrl = new BaseURL($basePathConf, []);
+				$baseUrl = new BaseURL($this->config, []);
 				$baseUrl->saveByURL($url);
 			}
 
@@ -216,8 +223,8 @@ HELP;
 
 		// Install theme
 		$this->out("Installing theme\n");
-		if (!empty($configCache->get('system', 'theme'))) {
-			Theme::install($configCache->get('system', 'theme'));
+		if (!empty($this->config->get('system', 'theme'))) {
+			Theme::install($this->config->get('system', 'theme'));
 			$this->out(" Complete\n\n");
 		} else {
 			$this->out(" Theme setting is empty. Please check the file 'config/local.config.php'\n\n");
