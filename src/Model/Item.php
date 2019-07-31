@@ -1234,35 +1234,18 @@ class Item extends BaseObject
 
 	private static function contactId($item)
 	{
-		$contact_id = (int)$item["contact-id"];
-
-		if (!empty($contact_id)) {
-			return $contact_id;
-		}
-		Logger::log('Missing contact-id. Called by: '.System::callstack(), Logger::DEBUG);
-		/*
-		 * First we are looking for a suitable contact that matches with the author of the post
-		 * This is done only for comments
-		 */
-		if ($item['parent-uri'] != $item['uri']) {
+		if (!empty($item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
+			return $item['author-id'];
+		} elseif (!empty($item['contact-id'])) {
+			return $item['contact-id'];
+		} else {
 			$contact_id = Contact::getIdForURL($item['author-link'], $item['uid']);
-		}
-
-		// If not present then maybe the owner was found
-		if ($contact_id == 0) {
-			$contact_id = Contact::getIdForURL($item['owner-link'], $item['uid']);
-		}
-
-		// Still missing? Then use the "self" contact of the current user
-		if ($contact_id == 0) {
-			$self = DBA::selectFirst('contact', ['id'], ['self' => true, 'uid' => $item['uid']]);
-			if (DBA::isResult($self)) {
-				$contact_id = $self["id"];
+			if (!empty($contact_id)) {
+				return $contact_id;
 			}
 		}
-		Logger::log("Contact-id was missing for post ".$item['guid']." from user id ".$item['uid']." - now set to ".$contact_id, Logger::DEBUG);
 
-		return $contact_id;
+		return $item['author-id'];
 	}
 
 	// This function will finally cover most of the preparation functionality in mod/item.php
@@ -1480,9 +1463,6 @@ class Item extends BaseObject
 
 		$item['plink'] = defaults($item, 'plink', System::baseUrl() . '/display/' . urlencode($item['guid']));
 
-		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
-		$item["contact-id"] = self::contactId($item);
-
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
 
@@ -1537,6 +1517,9 @@ class Item extends BaseObject
 		// We don't store the causer, we only have it here for the checks above
 		unset($item['causer-id']);
 		unset($item['causer-link']);
+
+		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
+		$item['contact-id'] = self::contactId($item);
 
 		if ($item['network'] == Protocol::PHANTOM) {
 			$item['network'] = Protocol::DFRN;
