@@ -1873,7 +1873,7 @@ class Item extends BaseObject
 
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
 		if (self::tagDeliver($item['uid'], $current_post)) {
-			Logger::info('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
+			Logger::notice('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
 			return 0;
 		}
 
@@ -1891,9 +1891,6 @@ class Item extends BaseObject
 				}
 			} else {
 				Logger::log('new item not found in DB, id ' . $current_post);
-				if ($user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
-					self::spool($orig_item);
-				}
 			}
 		}
 
