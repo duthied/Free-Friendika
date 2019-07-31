@@ -1875,11 +1875,11 @@ class Item extends BaseObject
 			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $diaspora_signed_text], true);
 		}
 
-		// Get the user information
-		$user = User::getById($uid);
-
 		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
 		if (self::tagDeliver($item['uid'], $current_post)) {
+			// Get the user information for the logging
+			$user = User::getById($uid);
+
 			Logger::notice('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
 			return 0;
 		}
