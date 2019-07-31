@@ -1263,6 +1263,28 @@ class Item extends BaseObject
 		 */
 	}
 
+	/**
+	 * Write an item array into a spool file to be inserted later.
+	 * This command is called whenever there are issues storing an item.
+	 *
+	 * @param array $item The item fields that are to be inserted
+	 * @throws \Exception
+	 */
+	private static function spool($orig_item)
+	{
+		// Now we store the data in the spool directory
+		// We use "microtime" to keep the arrival order and "mt_rand" to avoid duplicates
+		$file = 'item-' . round(microtime(true) * 10000) . '-' . mt_rand() . '.msg';
+
+		$spoolpath = get_spoolpath();
+		if ($spoolpath != "") {
+			$spool = $spoolpath . '/' . $file;
+
+			file_put_contents($spool, json_encode($orig_item));
+			Logger::warning("Item wasn't stored - Item was spooled into file", ['file' => $file]);
+		}
+	}
+
 	public static function insert($item, $force_parent = false, $notify = false, $dontcache = false)
 	{
 		$orig_item = $item;
@@ -1779,23 +1801,7 @@ class Item extends BaseObject
 			DBA::rollback();
 
 			// Store the data into a spool file so that we can try again later.
-
-			// At first we restore the Diaspora signature that we removed above.
-			if (isset($encoded_signature)) {
-				$item['dsprsig'] = $encoded_signature;
-			}
-
-			// Now we store the data in the spool directory
-			// We use "microtime" to keep the arrival order and "mt_rand" to avoid duplicates
-			$file = 'item-'.round(microtime(true) * 10000).'-'.mt_rand().'.msg';
-
-			$spoolpath = get_spoolpath();
-			if ($spoolpath != "") {
-				$spool = $spoolpath.'/'.$file;
-
-				file_put_contents($spool, json_encode($orig_item));
-				Logger::log("Item wasn't stored - Item was spooled into file ".$file, Logger::DEBUG);
-			}
+			self::spool($orig_item);
 			return 0;
 		}
 
@@ -1869,7 +1875,14 @@ class Item extends BaseObject
 			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $diaspora_signed_text], true);
 		}
 
-		self::tagDeliver($item['uid'], $current_post);
+		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
+		if (self::tagDeliver($item['uid'], $current_post)) {
+			// Get the user information for the logging
+			$user = User::getById($uid);
+
+			Logger::notice('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
+			return 0;
+		}
 
 		/*
 		 * current post can be deleted if is for a community page and no mention are
@@ -2547,7 +2560,7 @@ class Item extends BaseObject
 	 *
 	 * @param int $uid
 	 * @param int $item_id
-	 * @return void true if item was deleted, else false
+	 * @return boolean true if item was deleted, else false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -2557,7 +2570,7 @@ class Item extends BaseObject
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
-			return;
+			return false;
 		}
 
 		$community_page = (($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
@@ -2565,7 +2578,7 @@ class Item extends BaseObject
 
 		$item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $item_id]);
 		if (!DBA::isResult($item)) {
-			return;
+			return false;
 		}
 
 		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
@@ -2595,7 +2608,7 @@ class Item extends BaseObject
 				DBA::delete('item', ['id' => $item_id]);
 				return true;
 			}
-			return;
+			return false;
 		}
 
 		$arr = ['item' => $item, 'user' => $user];
@@ -2603,7 +2616,7 @@ class Item extends BaseObject
 		Hook::callAll('tagged', $arr);
 
 		if (!$community_page && !$prvgroup) {
-			return;
+			return false;
 		}
 
 		/*
@@ -2612,13 +2625,13 @@ class Item extends BaseObject
 		 * if the message originated elsewhere and is a top-level post
 		 */
 		if ($item['wall'] || $item['origin'] || ($item['id'] != $item['parent'])) {
-			return;
+			return false;
 		}
 
 		// now change this copy of the post to a forum head message and deliver to all the tgroup members
 		$self = DBA::selectFirst('contact', ['id', 'name', 'url', 'thumb'], ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
-			return;
+			return false;
 		}
 
 		$owner_id = Contact::getIdForURL($self['url']);
@@ -2638,6 +2651,8 @@ class Item extends BaseObject
 		self::updateThread($item_id);
 
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], 'Notifier', Delivery::POST, $item_id);
+
+		return false;
 	}
 
 	public static function isRemoteSelf($contact, &$datarray)
