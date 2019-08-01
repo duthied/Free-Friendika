@@ -16,15 +16,16 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		PConfig::set(local_user(), 'frio', 'scheme',           defaults($_POST, 'frio_scheme', ''));
-		PConfig::set(local_user(), 'frio', 'nav_bg',           defaults($_POST, 'frio_nav_bg', ''));
-		PConfig::set(local_user(), 'frio', 'nav_icon_color',   defaults($_POST, 'frio_nav_icon_color', ''));
-		PConfig::set(local_user(), 'frio', 'link_color',       defaults($_POST, 'frio_link_color', ''));
-		PConfig::set(local_user(), 'frio', 'background_color', defaults($_POST, 'frio_background_color', ''));
-		PConfig::set(local_user(), 'frio', 'contentbg_transp', defaults($_POST, 'frio_contentbg_transp', ''));
-		PConfig::set(local_user(), 'frio', 'background_image', defaults($_POST, 'frio_background_image', ''));
-		PConfig::set(local_user(), 'frio', 'bg_image_option',  defaults($_POST, 'frio_bg_image_option', ''));
+		PConfig::set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']           ?? '');
+		PConfig::set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
+		PConfig::set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
+		PConfig::set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']       ?? '');
+		PConfig::set(local_user(), 'frio', 'background_color', $_POST['frio_background_color'] ?? '');
+		PConfig::set(local_user(), 'frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
+		PConfig::set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
+		PConfig::set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
 		PConfig::set(local_user(), 'frio', 'css_modified',     time());
+		PConfig::set(local_user(), 'frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
 	}
 }
 
@@ -35,17 +36,18 @@ function theme_admin_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		Config::set('frio', 'scheme',           defaults($_POST, 'frio_scheme', ''));
-		Config::set('frio', 'nav_bg',           defaults($_POST, 'frio_nav_bg', ''));
-		Config::set('frio', 'nav_icon_color',   defaults($_POST, 'frio_nav_icon_color', ''));
-		Config::set('frio', 'link_color',       defaults($_POST, 'frio_link_color', ''));
-		Config::set('frio', 'background_color', defaults($_POST, 'frio_background_color', ''));
-		Config::set('frio', 'contentbg_transp', defaults($_POST, 'frio_contentbg_transp', ''));
-		Config::set('frio', 'background_image', defaults($_POST, 'frio_background_image', ''));
-		Config::set('frio', 'bg_image_option',  defaults($_POST, 'frio_bg_image_option', ''));
-		Config::set('frio', 'login_bg_image',   defaults($_POST, 'frio_login_bg_image', ''));
-		Config::set('frio', 'login_bg_color',   defaults($_POST, 'frio_login_bg_color', ''));
+		Config::set('frio', 'scheme',           $_POST['frio_scheme']           ?? '');
+		Config::set('frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
+		Config::set('frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
+		Config::set('frio', 'link_color',       $_POST['frio_link_color']       ?? '');
+		Config::set('frio', 'background_color', $_POST['frio_background_color'] ?? '');
+		Config::set('frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
+		Config::set('frio', 'background_image', $_POST['frio_background_image'] ?? '');
+		Config::set('frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
+		Config::set('frio', 'login_bg_image',   $_POST['frio_login_bg_image']   ?? '');
+		Config::set('frio', 'login_bg_color',   $_POST['frio_login_bg_color']   ?? '');
 		Config::set('frio', 'css_modified',     time());
+		Config::set('frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
 	}
 }
 
@@ -67,6 +69,7 @@ function theme_content(App $a)
 	$arr['contentbg_transp'] = PConfig::get(local_user(), 'frio', 'contentbg_transp', Config::get('frio', 'contentbg_transp'));
 	$arr['background_image'] = PConfig::get(local_user(), 'frio', 'background_image', Config::get('frio', 'background_image'));
 	$arr['bg_image_option']  = PConfig::get(local_user(), 'frio', 'bg_image_option' , Config::get('frio', 'bg_image_option'));
+	$arr['enable_compose']   = PConfig::get(local_user(), 'frio', 'enable_compose'  , Config::get('frio', 'enable_compose'));
 
 	return frio_form($arr);
 }
@@ -78,7 +81,7 @@ function theme_admin(App $a)
 	}
 	$arr = [];
 
-	$arr['scheme']           = Config::get('frio', 'scheme', Config::get('frio', 'scheme'));
+	$arr['scheme']           = Config::get('frio', 'scheme', Config::get('frio', 'schema'));
 	$arr['share_string']     = '';
 	$arr['nav_bg']           = Config::get('frio', 'nav_bg');
 	$arr['nav_icon_color']   = Config::get('frio', 'nav_icon_color');
@@ -89,6 +92,7 @@ function theme_admin(App $a)
 	$arr['bg_image_option']  = Config::get('frio', 'bg_image_option');
 	$arr['login_bg_image']   = Config::get('frio', 'login_bg_image');
 	$arr['login_bg_color']   = Config::get('frio', 'login_bg_color');
+	$arr['enable_compose']   = Config::get('frio', 'enable_compose');
 
 	return frio_form($arr);
 }
@@ -132,6 +136,7 @@ function frio_form($arr)
 		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', L10n::t('Set the background image'), $arr['background_image'], $background_image_help, false],
 		'$bg_image_options_title' => L10n::t('Background image style'),
 		'$bg_image_options' => Image::get_options($arr),
+		'$enable_compose'   => ['frio_enable_compose', L10n::t('Enable Compose page'), $arr['enable_compose'], L10n::t('This replaces the jot modal window for writing new posts with a link to <a href="compose">the new Compose page</a>.')],
 	];
 
 	if (array_key_exists('login_bg_image', $arr) && !array_key_exists('login_bg_image', $disable)) {

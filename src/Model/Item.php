@@ -2802,7 +2802,7 @@ class Item extends BaseObject
 									$replace = true;
 								}
 							} elseif ($item) {
-								if (self::samePermissions($item, $photo)) {
+								if (self::samePermissions($uid, $item, $photo)) {
 									$replace = true;
 								}
 							}
@@ -2852,7 +2852,7 @@ class Item extends BaseObject
 			!empty($obj['deny_cid']) || !empty($obj['deny_gid']);
 	}
 
-	private static function samePermissions($obj1, $obj2)
+	private static function samePermissions($uid, $obj1, $obj2)
 	{
 		// first part is easy. Check that these are exactly the same.
 		if (($obj1['allow_cid'] == $obj2['allow_cid'])
@@ -2873,12 +2873,12 @@ class Item extends BaseObject
 	}
 
 	// returns an array of contact-ids that are allowed to see this object
-	public static function enumeratePermissions($obj)
+	public static function enumeratePermissions(array $obj)
 	{
 		$allow_people = expand_acl($obj['allow_cid']);
-		$allow_groups = Group::expand(expand_acl($obj['allow_gid']));
+		$allow_groups = Group::expand($obj['uid'], expand_acl($obj['allow_gid']));
 		$deny_people  = expand_acl($obj['deny_cid']);
-		$deny_groups  = Group::expand(expand_acl($obj['deny_gid']));
+		$deny_groups  = Group::expand($obj['uid'], expand_acl($obj['deny_gid']));
 		$recipients   = array_unique(array_merge($allow_people, $allow_groups));
 		$deny         = array_unique(array_merge($deny_people, $deny_groups));
 		$recipients   = array_diff($recipients, $deny);
