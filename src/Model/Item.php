@@ -1471,9 +1471,6 @@ class Item extends BaseObject
 
 		$item['plink'] = defaults($item, 'plink', System::baseUrl() . '/display/' . urlencode($item['guid']));
 
-		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
-		$item["contact-id"] = self::contactId($item);
-
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
 
@@ -1528,6 +1525,9 @@ class Item extends BaseObject
 		// We don't store the causer, we only have it here for the checks above
 		unset($item['causer-id']);
 		unset($item['causer-link']);
+
+		// The contact-id should be set before "self::insert" was called - but there seems to be issues sometimes
+		$item["contact-id"] = self::contactId($item);
 
 		if ($item['network'] == Protocol::PHANTOM) {
 			$item['network'] = Protocol::DFRN;
