@@ -343,11 +343,13 @@ function api_call(App $a)
 						break;
 					case "json":
 						header("Content-Type: application/json");
-						$json = json_encode(end($return));
-						if (!empty($_GET['callback'])) {
-							$json = $_GET['callback'] . "(" . $json . ")";
+						if (!empty($return)) {
+							$json = json_encode(end($return));
+							if (!empty($_GET['callback'])) {
+								$json = $_GET['callback'] . "(" . $json . ")";
+							}
+							$return = $json;
 						}
-						$return = $json;
 						break;
 					case "rss":
 						header("Content-Type: application/rss+xml");
