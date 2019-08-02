@@ -10,6 +10,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -606,5 +607,61 @@ class Photo extends BaseObject
 	public static function newResource()
 	{
 		return System::createGUID(32, false);
+	}
+
+	/**
+	 * Generate a unique photo ID.
+	 *
+	 * @todo This function currently does have some flaws:
+	 * - Sharing a post with a form will create a photo that only the forum can see.
+	 * - Sharing a photo non public that been share non public before doesn't alter the permissions.
+	 *
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function setPermissionFromBody($body, $uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)
+	{
+		// Simplify image codes
+		$img_body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$img_body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $img_body);
+
+		// Search for images
+		if (!preg_match_all("/\[img\](.*?)\[\/img\]/", $img_body, $match)) {
+			return false;
+		}
+		$images = $match[1];
+		if (empty($images)) {
+			return false;
+		}
+
+		foreach ($images as $image) {
+			if (!stristr($image, System::baseUrl() . '/photo/')) {
+				continue;
+			}
+			$image_uri = substr($image,strrpos($image,'/') + 1);
+			$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
+			if (!strlen($image_uri)) {
+				continue;
+			}
+
+			// Ensure to only modify photos that you own
+			$srch = '<' . intval($original_contact_id) . '>';
+
+			$condition = [
+				'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
+				'resource-id' => $image_uri, 'uid' => $uid
+			];
+			if (!Photo::exists($condition)) {
+				continue;
+			}
+
+			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
+					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
+			$condition = ['resource-id' => $image_uri, 'uid' => $uid];
+			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
+			Photo::update($fields, $condition);
+		}
+
+		return true;
 	}
 }
