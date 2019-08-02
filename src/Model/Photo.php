@@ -610,7 +610,7 @@ class Photo extends BaseObject
 	}
 
 	/**
-	 * Generate a unique photo ID.
+	 * Changes photo permissions that had been embedded in a post
 	 *
 	 * @todo This function currently does have some flaws:
 	 * - Sharing a post with a form will create a photo that only the forum can see.
