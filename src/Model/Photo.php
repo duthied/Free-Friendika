@@ -613,8 +613,8 @@ class Photo extends BaseObject
 	 * Changes photo permissions that had been embedded in a post
 	 *
 	 * @todo This function currently does have some flaws:
-	 * - Sharing a post with a form will create a photo that only the forum can see.
-	 * - Sharing a photo non public that been share non public before doesn't alter the permissions.
+	 * - Sharing a post with a forum will create a photo that only the forum can see.
+	 * - Sharing a photo again that been shared non public before doesn't alter the permissions.
 	 *
 	 * @return string
 	 * @throws \Exception
