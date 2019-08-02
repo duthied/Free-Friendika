@@ -1234,7 +1234,9 @@ class Item extends BaseObject
 
 	private static function contactId($item)
 	{
-		if (!empty($item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
+		if (!empty($item['contact-id']) && DBA::exists('contact', ['self' => true, 'id' => $item['contact-id']])) {
+			return $item['contact-id'];
+		} elseif (!empty($item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
 			return $item['author-id'];
 		} elseif (!empty($item['contact-id'])) {
 			return $item['contact-id'];
