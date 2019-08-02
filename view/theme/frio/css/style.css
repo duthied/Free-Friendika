@@ -192,7 +192,6 @@ blockquote {
     background-image: none;
     text-shadow: none;
     border-radius: 3px;
-    outline: 0!important;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 600;
@@ -1314,7 +1313,8 @@ section ul.tabs {
 section #jotOpen {
     display: none;
 }
-#jotOpen {
+#jotOpen,
+#composeOpen {
     margin-top: 3px;
     float: right;
 }
@@ -1372,7 +1372,8 @@ section #jotOpen {
 #jot-text-wrap .preview textarea {
     width: 100%;
 }
-#preview_profile-jot-text {
+#preview_profile-jot-text,
+.comment-edit-form .preview {
     position: relative;
     padding: 0px 10px;
     margin-top: -2px;
@@ -1383,7 +1384,8 @@ section #jotOpen {
     background: #fff;
     color: #555;
 }
-textarea#profile-jot-text:focus + #preview_profile-jot-text {
+textarea#profile-jot-text:focus + #preview_profile-jot-text,
+textarea.comment-edit-text:focus + .comment-edit-form .preview {
     border: 2px solid #6fdbe8;
     border-top: none;
 }
@@ -3425,7 +3427,6 @@ section .profile-match-wrapper {
     background-image: none;
     text-shadow: none;
     border-radius: 3px;
-    outline: 0!important;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 600;
@@ -3444,7 +3445,6 @@ section .profile-match-wrapper {
     background-image: none;
     text-shadow: none;
     border-radius: 3px;
-    outline: 0!important;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 600;
