@@ -883,6 +883,8 @@ class Item extends BaseObject
 		// When there is no content for the "old" item table, this will count the fetched items
 		$rows = DBA::affectedRows();
 
+		$notify_items = [];
+
 		while ($item = DBA::fetch($items)) {
 			if (!empty($item['iaid']) || (!empty($content_fields['verb']) && (self::activityToIndex($content_fields['verb']) >= 0))) {
 				self::updateActivity($content_fields, ['uri-id' => $item['uri-id']]);
@@ -954,12 +956,17 @@ class Item extends BaseObject
 			// We only need to notfiy others when it is an original entry from us.
 			// Only call the notifier when the item has some content relevant change.
 			if ($item['origin'] && in_array('edited', array_keys($fields))) {
-				Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item['id']);
+				$notify_items[] = $item['id'];
 			}
 		}
 
 		DBA::close($items);
 		DBA::commit();
+
+		foreach ($notify_items as $notify_item) {
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $notify_item);
+		}
+
 		return $rows;
 	}
 
@@ -1791,6 +1798,8 @@ class Item extends BaseObject
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
 
+		$like_no_comment = Config::get('system', 'like_no_comment');
+
 		DBA::transaction();
 		$ret = DBA::insert('item', $item);
 
@@ -1833,7 +1842,6 @@ class Item extends BaseObject
 		}
 
 		Logger::log('created item '.$current_post);
-		self::updateContact($item);
 
 		if (!$parent_id || ($item['parent-uri'] === $item['uri'])) {
 			$parent_id = $current_post;
@@ -1847,7 +1855,7 @@ class Item extends BaseObject
 
 		// update the commented timestamp on the parent
 		// Only update "commented" if it is really a comment
-		if (($item['gravity'] != GRAVITY_ACTIVITY) || !Config::get("system", "like_no_comment")) {
+		if (($item['gravity'] != GRAVITY_ACTIVITY) || !$like_no_comment) {
 			DBA::update('item', ['commented' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
 		} else {
 			DBA::update('item', ['changed' => DateTimeFormat::utcNow()], ['id' => $parent_id]);
@@ -1876,32 +1884,6 @@ class Item extends BaseObject
 			DBA::insert('diaspora-interaction', ['uri-id' => $item['uri-id'], 'interaction' => $diaspora_signed_text], true);
 		}
 
-		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
-		if (self::tagDeliver($item['uid'], $current_post)) {
-			// Get the user information for the logging
-			$user = User::getById($uid);
-
-			Logger::notice('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
-			return 0;
-		}
-
-		/*
-		 * current post can be deleted if is for a community page and no mention are
-		 * in it.
-		 */
-		if (!$dontcache) {
-			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
-			if (DBA::isResult($posted_item)) {
-				if ($notify) {
-					Hook::callAll('post_local_end', $posted_item);
-				} else {
-					Hook::callAll('post_remote_end', $posted_item);
-				}
-			} else {
-				Logger::log('new item not found in DB, id ' . $current_post);
-			}
-		}
-
 		if ($item['parent-uri'] === $item['uri']) {
 			self::addThread($current_post);
 		} else {
@@ -1926,11 +1908,35 @@ class Item extends BaseObject
 			Term::insertFromFileFieldByItemId($current_post, $files);
 		}
 
+		// In that function we check if this is a forum post. Additionally we delete the item under certain circumstances
+		if (self::tagDeliver($item['uid'], $current_post)) {
+			// Get the user information for the logging
+			$user = User::getById($uid);
+
+			Logger::notice('Item had been deleted', ['id' => $current_post, 'user' => $uid, 'account-type' => $user['account-type']]);
+			return 0;
+		}
+
+		if (!$dontcache) {
+			$posted_item = self::selectFirst(self::ITEM_FIELDLIST, ['id' => $current_post]);
+			if (DBA::isResult($posted_item)) {
+				if ($notify) {
+					Hook::callAll('post_local_end', $posted_item);
+				} else {
+					Hook::callAll('post_remote_end', $posted_item);
+				}
+			} else {
+				Logger::log('new item not found in DB, id ' . $current_post);
+			}
+		}
+
 		if ($item['parent-uri'] === $item['uri']) {
 			self::addShadow($current_post);
 		} else {
 			self::addShadowPost($current_post);
 		}
+
+		self::updateContact($item);
 
 		check_user_notification($current_post);
 
