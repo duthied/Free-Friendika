@@ -803,13 +803,13 @@ function conversation_fetch_comments($thread_items) {
 	$received = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && Contact::isSharing($row['author-id'], local_user()) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
+		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
 			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$received = $row['received'];
 		}
 
 		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
-			(!Contact::isSharing($row['author-id'], local_user()) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
+			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
 			$parentlines[] = $lineno;
 		}
 
