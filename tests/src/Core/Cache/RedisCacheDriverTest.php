@@ -3,7 +3,8 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Factory\CacheDriverFactory;
+use Friendica\Core\Cache\RedisCacheDriver;
+use Friendica\Core\Config\Configuration;
 
 /**
  * @requires extension redis
@@ -12,27 +13,27 @@ class RedisCacheDriverTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
-		$this->configMock
+		$configMock = \Mockery::mock(Configuration::class);
+
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_host')
 			->andReturn('localhost');
-
-		$this->configMock
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_port')
 			->andReturn(null);
 
-		$this->configMock
+		$configMock
 			->shouldReceive('get')
-			->with('system', 'redis_db')
+			->with('system', 'redis_db', 0)
 			->andReturn(3);
-
-		$this->configMock
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_password')
 			->andReturn(null);
 
-		$this->cache = CacheDriverFactory::create('redis');
+		$this->cache = new RedisCacheDriver('localhost', $configMock);
 		return $this->cache;
 	}
 

@@ -4,6 +4,7 @@ namespace Friendica\Core\Cache;
 
 use Exception;
 use Friendica\Core\Cache;
+use Friendica\Core\Config\Configuration;
 use Redis;
 
 /**
@@ -20,19 +21,22 @@ class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
 	private $redis;
 
 	/**
-	 * @param string  $redis_host
-	 * @param int     $redis_port
-	 * @param int     $redis_db (Default = 0, maximum is 15)
-	 * @param string? $redis_pw
 	 * @throws Exception
 	 */
-	public function __construct($redis_host, $redis_port, $redis_db = 0, $redis_pw = null)
+	public function __construct(string $hostname, Configuration $config)
 	{
 		if (!class_exists('Redis', false)) {
 			throw new Exception('Redis class isn\'t available');
 		}
 
+		parent::__construct($hostname);
+
 		$this->redis = new Redis();
+
+		$redis_host = $config->get('system', 'redis_host');
+		$redis_port = $config->get('system', 'redis_port');
+		$redis_pw   = $config->get('system', 'redis_password');
+		$redis_db   = $config->get('system', 'redis_db', 0);
 
 		if (!$this->redis->connect($redis_host, $redis_port)) {
 			throw new Exception('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');

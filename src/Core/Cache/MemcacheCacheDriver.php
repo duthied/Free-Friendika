@@ -2,9 +2,9 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 use Exception;
+use Friendica\Core\Cache;
+use Friendica\Core\Config\Configuration;
 use Memcache;
 
 /**
@@ -23,17 +23,20 @@ class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDri
 	private $memcache;
 
 	/**
-	 * @param string $memcache_host
-	 * @param int    $memcache_port
 	 * @throws Exception
 	 */
-	public function __construct($memcache_host, $memcache_port)
+	public function __construct(string $hostname, Configuration $config)
 	{
 		if (!class_exists('Memcache', false)) {
 			throw new Exception('Memcache class isn\'t available');
 		}
 
+		parent::__construct($hostname);
+
 		$this->memcache = new Memcache();
+
+		$memcache_host = $config->get('system', 'memcache_host');
+		$memcache_port = $config->get('system', 'memcache_port');
 
 		if (!$this->memcache->connect($memcache_host, $memcache_port)) {
 			throw new Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');

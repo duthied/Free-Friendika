@@ -4,7 +4,9 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
-use Friendica\Core;
+use Friendica\Core\Cache\ICacheDriver;
+use Friendica\Core\Config\Configuration;
+use Friendica\Factory\CacheDriverFactory;
 use RuntimeException;
 
 /**
@@ -24,6 +26,16 @@ class Cache extends \Asika\SimpleConsole\Console
 	 * @var App\Mode
 	 */
 	private $appMode;
+
+	/**
+	 * @var string The cache driver name
+	 */
+	private $cacheDriverName;
+
+	/**
+	 * @var ICacheDriver
+	 */
+	private $cache;
 
 	protected function getHelp()
 	{
@@ -59,11 +71,13 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, array $argv = null)
+	public function __construct(App\Mode $appMode, Configuration $config, ICacheDriver $cache, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode = $appMode;
+		$this->cache = $cache;
+		$this->cacheDriverName = $config->get('system', 'cache_driver', CacheDriverFactory::DEFAULT_DRIVER);
 	}
 
 	protected function doExecute()
@@ -79,11 +93,9 @@ HELP;
 			$this->out('Database isn\'t ready or populated yet, database cache won\'t be available');
 		}
 
-		Core\Cache::init();
-
 		if ($this->getOption('v')) {
-			$this->out('Cache Driver Name: ' . Core\Cache::$driver_name);
-			$this->out('Cache Driver Class: ' . Core\Cache::$driver_class);
+			$this->out('Cache Driver Name: ' . $this->cacheDriverName);
+			$this->out('Cache Driver Class: ' . get_class($this->cache));
 		}
 
 		switch ($this->getArgument(0)) {
@@ -115,7 +127,7 @@ HELP;
 	private function executeList()
 	{
 		$prefix = $this->getArgument(1);
-		$keys = Core\Cache::getAllKeys($prefix);
+		$keys = $this->cache->getAllKeys($prefix);
 
 		if (empty($prefix)) {
 			$this->out('Listing all cache keys:');
@@ -136,7 +148,7 @@ HELP;
 	{
 		if (count($this->args) >= 2) {
 			$key = $this->getArgument(1);
-			$value = Core\Cache::get($key);
+			$value = $this->cache->get($key);
 
 			$this->out("{$key} => " . var_export($value, true));
 		} else {
@@ -149,15 +161,15 @@ HELP;
 		if (count($this->args) >= 3) {
 			$key = $this->getArgument(1);
 			$value = $this->getArgument(2);
-			$duration = intval($this->getArgument(3, Core\Cache::FIVE_MINUTES));
+			$duration = intval($this->getArgument(3, ICacheDriver::FIVE_MINUTES));
 
-			if (is_array(Core\Cache::get($key))) {
+			if (is_array($this->cache->get($key))) {
 				throw new RuntimeException("$key is an array and can't be set using this command.");
 			}
 
-			$result = Core\Cache::set($key, $value, $duration);
+			$result = $this->cache->set($key, $value, $duration);
 			if ($result) {
-				$this->out("{$key} <= " . Core\Cache::get($key));
+				$this->out("{$key} <= " . $this->cache->get($key));
 			} else {
 				$this->out("Unable to set {$key}");
 			}
@@ -168,7 +180,7 @@ HELP;
 
 	private function executeFlush()
 	{
-		$result = Core\Cache::clear();
+		$result = $this->cache->clear();
 		if ($result) {
 			$this->out('Cache successfully flushed');
 		} else {
@@ -178,7 +190,7 @@ HELP;
 
 	private function executeClear()
 	{
-		$result = Core\Cache::clear(false);
+		$result = $this->cache->clear(false);
 		if ($result) {
 			$this->out('Cache successfully cleared');
 		} else {

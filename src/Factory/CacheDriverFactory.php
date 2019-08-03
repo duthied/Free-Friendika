@@ -4,7 +4,11 @@ namespace Friendica\Factory;
 
 use Friendica\Core\Cache;
 use Friendica\Core\Cache\ICacheDriver;
-use Friendica\Core\Config;
+use Friendica\Core\Config\Configuration;
+use Friendica\Database\Database;
+use Friendica\Util\BaseURL;
+use Friendica\Util\Profiler;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class CacheDriverFactory
@@ -16,42 +20,78 @@ use Friendica\Core\Config;
 class CacheDriverFactory
 {
 	/**
+	 * @var string The default driver for caching
+	 */
+	const DEFAULT_DRIVER = 'database';
+
+	/**
+	 * @var Configuration The configuration to read parameters out of the config
+	 */
+	private $config;
+
+	/**
+	 * @var Database The database connection in case that the cache is used the dba connection
+	 */
+	private $dba;
+
+	/**
+	 * @var string The hostname, used as Prefix for Caching
+	 */
+	private $hostname;
+
+	/**
+	 * @var Profiler The optional profiler if the cached should be profiled
+	 */
+	private $profiler;
+
+	/**
+	 * @var LoggerInterface The Friendica Logger
+	 */
+	private $logger;
+
+	public function __construct(BaseURL $baseURL, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
+	{
+		$this->hostname = $baseURL->getHostname();
+		$this->config = $config;
+		$this->dba = $dba;
+		$this->profiler = $profiler;
+		$this->logger = $logger;
+	}
+
+	/**
 	 * This method creates a CacheDriver for the given cache driver name
 	 *
-	 * @param string $driver The name of the cache driver
 	 * @return ICacheDriver  The instance of the CacheDriver
 	 * @throws \Exception    The exception if something went wrong during the CacheDriver creation
 	 */
-	public static function create($driver) {
+	public function create()
+	{
+		$driver = $this->config->get('system', 'cache_driver', self::DEFAULT_DRIVER);
 
 		switch ($driver) {
 			case 'memcache':
-				$memcache_host = Config::get('system', 'memcache_host');
-				$memcache_port = Config::get('system', 'memcache_port');
-
-				return new Cache\MemcacheCacheDriver($memcache_host, $memcache_port);
+				$cache = new Cache\MemcacheCacheDriver($this->hostname, $this->config);
 				break;
-
 			case 'memcached':
-				$memcached_hosts = Config::get('system', 'memcached_hosts');
-
-				return new Cache\MemcachedCacheDriver($memcached_hosts);
+				$cache = new Cache\MemcachedCacheDriver($this->hostname, $this->config, $this->logger);
 				break;
 			case 'redis':
-				$redis_host = Config::get('system', 'redis_host');
-				$redis_port = Config::get('system', 'redis_port');
-				$redis_pw   = Config::get('system', 'redis_password');
-				$redis_db   = Config::get('system', 'redis_db', 0);
-
-				return new Cache\RedisCacheDriver($redis_host, $redis_port, $redis_db, $redis_pw);
+				$cache = new Cache\RedisCacheDriver($this->hostname, $this->config);
 				break;
-
 			case 'apcu':
-				return new Cache\APCuCache();
+				$cache = new Cache\APCuCache($this->hostname);
 				break;
-
 			default:
-				return new Cache\DatabaseCacheDriver();
+				$cache = new Cache\DatabaseCacheDriver($this->hostname, $this->dba);
+		}
+
+		$profiling = $this->config->get('system', 'profiling', false);
+
+		// In case profiling is enabled, wrap the ProfilerCache around the current cache
+		if (isset($profiling) && $profiling !== false) {
+			 return new Cache\ProfilerCache($cache, $this->profiler);
+		} else {
+			return $cache;
 		}
 	}
 }

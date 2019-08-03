@@ -18,11 +18,13 @@ class APCuCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * @throws Exception
 	 */
-	public function __construct()
+	public function __construct(string $hostname)
 	{
 		if (!self::isAvailable()) {
 			throw new Exception('APCu is not available.');
 		}
+
+		parent::__construct($hostname);
 	}
 
 	/**

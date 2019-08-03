@@ -2,8 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 /**
  * Cache Driver Interface
  *
@@ -11,6 +9,16 @@ use Friendica\Core\Cache;
  */
 interface ICacheDriver
 {
+	const MONTH        = 2592000;
+	const WEEK         = 604800;
+	const DAY          = 86400;
+	const HOUR         = 3600;
+	const HALF_HOUR    = 1800;
+	const QUARTER_HOUR = 900;
+	const FIVE_MINUTES = 300;
+	const MINUTE       = 60;
+	const INFINITE     = 0;
+
 	/**
 	 * Lists all cache keys
 	 *
@@ -38,7 +46,7 @@ interface ICacheDriver
 	 *
 	 * @return bool
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES);
+	public function set($key, $value, $ttl = self::FIVE_MINUTES);
 
 	/**
 	 * Delete a key from the cache

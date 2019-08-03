@@ -1,7 +1,6 @@
 <?php
 
 namespace Friendica\Core\Lock;
-use Friendica\BaseObject;
 
 /**
  * Class AbstractLockDriver
@@ -10,7 +9,7 @@ use Friendica\BaseObject;
  *
  * Basic class for Locking with common functions (local acquired locks, releaseAll, ..)
  */
-abstract class AbstractLockDriver extends BaseObject implements ILockDriver
+abstract class AbstractLockDriver implements ILockDriver
 {
 	/**
 	 * @var array The local acquired locks
@@ -21,6 +20,7 @@ abstract class AbstractLockDriver extends BaseObject implements ILockDriver
 	 * Check if we've locally acquired a lock
 	 *
 	 * @param string key The Name of the lock
+	 *
 	 * @return bool      Returns true if the lock is set
 	 */
 	protected function hasAcquiredLock($key)

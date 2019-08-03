@@ -1,7 +1,6 @@
 <?php
 
 namespace Friendica\Core\Cache;
-use Friendica\Core\Cache;
 
 /**
  * This interface defines methods for Memory-Caches only
@@ -20,7 +19,7 @@ interface IMemoryCacheDriver extends ICacheDriver
 	 * @param int    $ttl      The cache lifespan, must be one of the Cache constants
 	 * @return bool
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES);
+	public function add($key, $value, $ttl = ICacheDriver::FIVE_MINUTES);
 
 	/**
 	 * Compares if the old value is set and sets the new value
@@ -32,7 +31,7 @@ interface IMemoryCacheDriver extends ICacheDriver
 	 *
 	 * @return bool
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES);
+	public function compareSet($key, $oldValue, $newValue, $ttl = ICacheDriver::FIVE_MINUTES);
 
 	/**
 	 * Compares if the old value is set and removes it

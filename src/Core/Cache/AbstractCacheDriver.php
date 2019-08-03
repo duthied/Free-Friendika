@@ -1,8 +1,6 @@
 <?php
 
 namespace Friendica\Core\Cache;
-use Friendica\BaseObject;
-
 
 /**
  * Abstract class for common used functions
@@ -11,8 +9,18 @@ use Friendica\BaseObject;
  *
  * @package Friendica\Core\Cache
  */
-abstract class AbstractCacheDriver extends BaseObject
+abstract class AbstractCacheDriver implements ICacheDriver
 {
+	/**
+	 * @var string The hostname
+	 */
+	private $hostName;
+
+	public function __construct(string $hostName)
+	{
+		$this->hostName = $hostName;
+	}
+
 	/**
 	 * Returns the prefix (to avoid namespace conflicts)
 	 *
@@ -22,7 +30,7 @@ abstract class AbstractCacheDriver extends BaseObject
 	protected function getPrefix()
 	{
 		// We fetch with the hostname as key to avoid problems with other applications
-		return self::getApp()->getHostName();
+		return $this->hostName;
 	}
 
 	/**
@@ -46,7 +54,7 @@ abstract class AbstractCacheDriver extends BaseObject
 		} else {
 			// Keys are prefixed with the node hostname, let's remove it
 			array_walk($keys, function (&$value) {
-				$value = preg_replace('/^' . self::getApp()->getHostName() . ':/', '', $value);
+				$value = preg_replace('/^' . $this->hostName . ':/', '', $value);
 			});
 
 			sort($keys);
@@ -79,6 +87,5 @@ abstract class AbstractCacheDriver extends BaseObject
 
 			return $result;
 		}
-
 	}
 }

@@ -3,8 +3,6 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\IMemoryCacheDriver;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 abstract class MemoryCacheTest extends CacheTest
 {
@@ -17,11 +15,6 @@ abstract class MemoryCacheTest extends CacheTest
 	{
 		parent::setUp();
 
-		$logger = new NullLogger();
-		$this->dice->shouldReceive('create')
-		           ->with(LoggerInterface::class)
-		           ->andReturn($logger);
-
 		if (!($this->instance instanceof IMemoryCacheDriver)) {
 			throw new \Exception('MemoryCacheTest unsupported');
 		}
@@ -31,7 +24,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testCompareSet($value1, $value2) {
+	function testCompareSet($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
@@ -47,7 +41,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareSet($value1, $value2) {
+	function testNegativeCompareSet($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);
@@ -64,7 +59,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testCompareDelete($data) {
+	function testCompareDelete($data)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $data);
@@ -78,7 +74,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareDelete($data) {
+	function testNegativeCompareDelete($data)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $data);
@@ -95,7 +92,8 @@ abstract class MemoryCacheTest extends CacheTest
 	 * @small
 	 * @dataProvider dataSimple
 	 */
-	function testAdd($value1, $value2) {
+	function testAdd($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
 		$this->instance->add('value1', $value1);

@@ -8,7 +8,7 @@ class ArrayCacheDriverTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
-		$this->cache = new ArrayCache();
+		$this->cache = new ArrayCache('localhost');
 		return $this->cache;
 	}
 

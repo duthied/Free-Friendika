@@ -2,7 +2,9 @@
 
 use Dice\Dice;
 use Friendica\App;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Lock\ILockDriver;
 use Friendica\Database\Database;
 use Friendica\Factory;
 use Friendica\Util;
@@ -115,5 +117,20 @@ return [
 		'call'       => [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
+	],
+	Cache\ICacheDriver::class => [
+		'instanceOf' => Factory\CacheDriverFactory::class,
+		'call' => [
+			['create', [], Dice::CHAIN_CALL],
+		],
+	],
+	Cache\IMemoryCacheDriver::class => [
+		'instanceOf' => Cache\ICacheDriver::class,
+	],
+	ILockDriver::class => [
+		'instanceOf' => Factory\LockDriverFactory::class,
+		'call' => [
+			['create', [], Dice::CHAIN_CALL],
+		],
 	],
 ];

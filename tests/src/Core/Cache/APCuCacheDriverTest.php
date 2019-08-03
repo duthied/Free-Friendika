@@ -17,7 +17,7 @@ class APCuCacheDriverTest extends MemoryCacheTest
 
 	protected function getInstance()
 	{
-		$this->cache = new APCuCache();
+		$this->cache = new APCuCache('localhost');
 		return $this->cache;
 	}
 
