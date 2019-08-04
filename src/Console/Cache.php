@@ -26,11 +26,6 @@ class Cache extends \Asika\SimpleConsole\Console
 	private $appMode;
 
 	/**
-	 * @var string The cache driver name
-	 */
-	private $cacheDriverName;
-
-	/**
 	 * @var ICache
 	 */
 	private $cache;
