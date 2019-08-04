@@ -8,7 +8,7 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Lock\ILock;
 
 /**
@@ -26,7 +26,7 @@ class Lock extends BaseObject
 	 * @return boolean Was the lock successful?
 	 * @throws \Exception
 	 */
-	public static function acquire($key, $timeout = 120, $ttl = ICache::FIVE_MINUTES)
+	public static function acquire($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
 		return self::getClass(ILock::class)->acquireLock($key, $timeout, $ttl);
 	}
