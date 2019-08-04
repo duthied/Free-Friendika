@@ -3,14 +3,13 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
-use Friendica\Core\Cache;
 
 /**
  * APCu Cache.
  *
  * @author Philipp Holzer <admin@philipp.info>
  */
-class APCuCache extends AbstractCache implements IMemoryCache
+class APCuCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;

@@ -3,7 +3,6 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
-use Friendica\Core\Cache;
 use Friendica\Core\Config\Configuration;
 use Redis;
 
@@ -13,7 +12,7 @@ use Redis;
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
-class RedisCache extends AbstractCache implements IMemoryCache
+class RedisCache extends Cache implements IMemoryCache
 {
 	/**
 	 * @var Redis

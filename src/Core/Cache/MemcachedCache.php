@@ -3,7 +3,6 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
-use Friendica\Core\Cache;
 use Friendica\Core\Config\Configuration;
 use Memcached;
 use Psr\Log\LoggerInterface;
@@ -13,7 +12,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcachedCache extends AbstractCache implements IMemoryCache
+class MemcachedCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -36,6 +35,7 @@ class MemcachedCache extends AbstractCache implements IMemoryCache
 	 * }
 	 *
 	 * @param array $memcached_hosts
+	 *
 	 * @throws \Exception
 	 */
 	public function __construct(string $hostname, Configuration $config, LoggerInterface $logger)
@@ -75,7 +75,7 @@ class MemcachedCache extends AbstractCache implements IMemoryCache
 		if ($this->memcached->getResultCode() == Memcached::RES_SUCCESS) {
 			return $this->filterArrayKeysByPrefix($keys, $prefix);
 		} else {
-			$this->logger->debug('Memcached \'getAllKeys\' failed', ['result' =>  $this->memcached->getResultMessage()]);
+			$this->logger->debug('Memcached \'getAllKeys\' failed', ['result' => $this->memcached->getResultMessage()]);
 			return [];
 		}
 	}
@@ -85,7 +85,7 @@ class MemcachedCache extends AbstractCache implements IMemoryCache
 	 */
 	public function get($key)
 	{
-		$return = null;
+		$return   = null;
 		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
@@ -94,7 +94,7 @@ class MemcachedCache extends AbstractCache implements IMemoryCache
 		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
 			$return = $value;
 		} else {
-			$this->logger->debug('Memcached \'get\' failed', ['result' =>  $this->memcached->getResultMessage()]);
+			$this->logger->debug('Memcached \'get\' failed', ['result' => $this->memcached->getResultMessage()]);
 		}
 
 		return $return;

@@ -2,7 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
 use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
@@ -11,7 +10,7 @@ use Friendica\Util\DateTimeFormat;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class DatabaseCache extends AbstractCache implements ICache
+class DatabaseCache extends Cache implements ICache
 {
 	/**
 	 * @var Database

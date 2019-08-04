@@ -9,7 +9,7 @@ namespace Friendica\Core\Lock;
  *
  * Basic class for Locking with common functions (local acquired locks, releaseAll, ..)
  */
-abstract class AbstractLock implements ILock
+abstract class Lock implements ILock
 {
 	/**
 	 * @var array The local acquired locks

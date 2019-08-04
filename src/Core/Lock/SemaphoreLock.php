@@ -4,7 +4,7 @@ namespace Friendica\Core\Lock;
 
 use Friendica\Core\Cache;
 
-class SemaphoreLock extends AbstractLock
+class SemaphoreLock extends Lock
 {
 	private static $semaphore = [];
 

@@ -22,7 +22,7 @@ class CacheFactory
 	/**
 	 * @var string The default cache if nothing set
 	 */
-	const DEFAULT_TYPE = Cache\AbstractCache::TYPE_DATABASE;
+	const DEFAULT_TYPE = Cache\Cache::TYPE_DATABASE;
 
 	/**
 	 * @var Configuration The configuration to read parameters out of the config
@@ -73,16 +73,16 @@ class CacheFactory
 		}
 
 		switch ($type) {
-			case Cache\AbstractCache::TYPE_MEMCACHE:
+			case Cache\Cache::TYPE_MEMCACHE:
 				$cache = new Cache\MemcacheCache($this->hostname, $this->config);
 				break;
-			case Cache\AbstractCache::TYPE_MEMCACHED:
+			case Cache\Cache::TYPE_MEMCACHED:
 				$cache = new Cache\MemcachedCache($this->hostname, $this->config, $this->logger);
 				break;
-			case Cache\AbstractCache::TYPE_REDIS:
+			case Cache\Cache::TYPE_REDIS:
 				$cache = new Cache\RedisCache($this->hostname, $this->config);
 				break;
-			case Cache\AbstractCache::TYPE_APCU:
+			case Cache\Cache::TYPE_APCU:
 				$cache = new Cache\APCuCache($this->hostname);
 				break;
 			default:

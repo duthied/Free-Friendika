@@ -5,7 +5,7 @@ namespace Friendica\Core\Lock;
 use Friendica\Core\Cache;
 use Friendica\Core\Cache\IMemoryCache;
 
-class CacheLock extends AbstractLock
+class CacheLock extends Lock
 {
 	/**
 	 * @var \Friendica\Core\Cache\ICache;

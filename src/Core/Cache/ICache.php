@@ -9,16 +9,6 @@ namespace Friendica\Core\Cache;
  */
 interface ICache
 {
-	const MONTH        = 2592000;
-	const WEEK         = 604800;
-	const DAY          = 86400;
-	const HOUR         = 3600;
-	const HALF_HOUR    = 1800;
-	const QUARTER_HOUR = 900;
-	const FIVE_MINUTES = 300;
-	const MINUTE       = 60;
-	const INFINITE     = 0;
-
 	/**
 	 * Lists all cache keys
 	 *
@@ -46,7 +36,7 @@ interface ICache
 	 *
 	 * @return bool
 	 */
-	public function set($key, $value, $ttl = self::FIVE_MINUTES);
+	public function set($key, $value, $ttl = Cache::FIVE_MINUTES);
 
 	/**
 	 * Delete a key from the cache

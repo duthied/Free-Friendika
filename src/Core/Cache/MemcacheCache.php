@@ -3,7 +3,6 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
-use Friendica\Core\Cache;
 use Friendica\Core\Config\Configuration;
 use Memcache;
 
@@ -12,7 +11,7 @@ use Memcache;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcacheCache extends AbstractCache implements IMemoryCache
+class MemcacheCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -48,7 +47,7 @@ class MemcacheCache extends AbstractCache implements IMemoryCache
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		$keys = [];
+		$keys     = [];
 		$allSlabs = $this->memcache->getExtendedStats('slabs');
 		foreach ($allSlabs as $slabs) {
 			foreach (array_keys($slabs) as $slabId) {
@@ -72,7 +71,7 @@ class MemcacheCache extends AbstractCache implements IMemoryCache
 	 */
 	public function get($key)
 	{
-		$return = null;
+		$return   = null;
 		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications

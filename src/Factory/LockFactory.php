@@ -2,7 +2,7 @@
 
 namespace Friendica\Factory;
 
-use Friendica\Core\Cache\AbstractCache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Lock;
@@ -63,10 +63,10 @@ class LockFactory
 
 		try {
 			switch ($lock_type) {
-				case AbstractCache::TYPE_MEMCACHE:
-				case AbstractCache::TYPE_MEMCACHED:
-				case AbstractCache::TYPE_REDIS:
-				case AbstractCache::TYPE_APCU:
+				case Cache::TYPE_MEMCACHE:
+				case Cache::TYPE_MEMCACHED:
+				case Cache::TYPE_REDIS:
+				case Cache::TYPE_APCU:
 					$cache = $this->cacheFactory->create($lock_type);
 					if ($cache instanceof IMemoryCache) {
 						return new Lock\CacheLock($cache);
@@ -115,7 +115,7 @@ class LockFactory
 
 		// 2. Try to use Cache Locking (don't use the DB-Cache Locking because it works different!)
 		$cache_type = $this->config->get('system', 'cache_driver', 'database');
-		if ($cache_type != AbstractCache::TYPE_DATABASE) {
+		if ($cache_type != Cache::TYPE_DATABASE) {
 			try {
 				$cache = $this->cacheFactory->create($cache_type);
 				if ($cache instanceof IMemoryCache) {

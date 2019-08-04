@@ -5,6 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\Core\Cache\Cache as CacheClass;
 use Friendica\Core\Cache\ICache;
 
 /**
@@ -12,24 +13,24 @@ use Friendica\Core\Cache\ICache;
  */
 class Cache extends BaseObject
 {
-	/** @deprecated Use ICache::MONTH */
-	const MONTH        = ICache::MONTH;
-	/** @deprecated Use ICache::WEEK */
-	const WEEK         = ICache::WEEK;
-	/** @deprecated Use ICache::DAY */
-	const DAY          = ICache::DAY;
-	/** @deprecated Use ICache::HOUR */
-	const HOUR         = ICache::HOUR;
-	/** @deprecated Use ICache::HALF_HOUR */
-	const HALF_HOUR    = ICache::HALF_HOUR;
-	/** @deprecated Use ICache::QUARTER_HOUR */
-	const QUARTER_HOUR = ICache::QUARTER_HOUR;
-	/** @deprecated Use ICache::FIVE_MINUTES */
-	const FIVE_MINUTES = ICache::FIVE_MINUTES;
-	/** @deprecated Use ICache::MINUTE */
-	const MINUTE       = ICache::MINUTE;
-	/** @deprecated Use ICache::INFINITE */
-	const INFINITE     = ICache::INFINITE;
+	/** @deprecated Use CacheClass::MONTH */
+	const MONTH        = CacheClass::MONTH;
+	/** @deprecated Use CacheClass::WEEK */
+	const WEEK         = CacheClass::WEEK;
+	/** @deprecated Use CacheClass::DAY */
+	const DAY          = CacheClass::DAY;
+	/** @deprecated Use CacheClass::HOUR */
+	const HOUR         = CacheClass::HOUR;
+	/** @deprecated Use CacheClass::HALF_HOUR */
+	const HALF_HOUR    = CacheClass::HALF_HOUR;
+	/** @deprecated Use CacheClass::QUARTER_HOUR */
+	const QUARTER_HOUR = CacheClass::QUARTER_HOUR;
+	/** @deprecated Use CacheClass::FIVE_MINUTES */
+	const FIVE_MINUTES = CacheClass::FIVE_MINUTES;
+	/** @deprecated Use CacheClass::MINUTE */
+	const MINUTE       = CacheClass::MINUTE;
+	/** @deprecated Use CacheClass::INFINITE */
+	const INFINITE     = CacheClass::INFINITE;
 
 	/**
 	 * @brief Returns all the cache keys sorted alphabetically
@@ -69,7 +70,7 @@ class Cache extends BaseObject
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function set($key, $value, $duration = ICache::MONTH)
+	public static function set($key, $value, $duration = CacheClass::MONTH)
 	{
 		return self::getClass(ICache::class)->set($key, $value, $duration);
 	}

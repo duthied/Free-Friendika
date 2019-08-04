@@ -2,8 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 /**
  * Implementation of the IMemoryCache mainly for testing purpose
  *
@@ -11,7 +9,7 @@ use Friendica\Core\Cache;
  *
  * @package Friendica\Core\Cache
  */
-class ArrayCache extends AbstractCache implements IMemoryCache
+class ArrayCache extends Cache implements IMemoryCache
 {
 	use TraitCompareDelete;
 
