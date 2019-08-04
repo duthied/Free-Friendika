@@ -5,7 +5,7 @@ namespace Friendica\Test\src\Core\Lock;
 use Friendica\Core\Cache\ArrayCache;
 use Friendica\Core\Lock\CacheLockDriver;
 
-class ArrayCacheLockDriverTest extends LockTest
+class ArrayCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{

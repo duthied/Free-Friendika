@@ -4,7 +4,7 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\APCuCache;
 
-class APCuCacheDriverTest extends MemoryCacheTest
+class APCuCacheTest extends MemoryCacheTest
 {
 	protected function setUp()
 	{

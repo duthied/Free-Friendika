@@ -3,7 +3,7 @@
 namespace Friendica\Factory;
 
 use Friendica\Core\Cache;
-use Friendica\Core\Cache\ICacheDriver;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Database\Database;
 use Friendica\Util\BaseURL;
@@ -61,7 +61,7 @@ class CacheDriverFactory
 	/**
 	 * This method creates a CacheDriver for the given cache driver name
 	 *
-	 * @return ICacheDriver  The instance of the CacheDriver
+	 * @return ICache  The instance of the CacheDriver
 	 * @throws \Exception    The exception if something went wrong during the CacheDriver creation
 	 */
 	public function create()
@@ -70,19 +70,19 @@ class CacheDriverFactory
 
 		switch ($driver) {
 			case 'memcache':
-				$cache = new Cache\MemcacheCacheDriver($this->hostname, $this->config);
+				$cache = new Cache\MemcacheCache($this->hostname, $this->config);
 				break;
 			case 'memcached':
-				$cache = new Cache\MemcachedCacheDriver($this->hostname, $this->config, $this->logger);
+				$cache = new Cache\MemcachedCache($this->hostname, $this->config, $this->logger);
 				break;
 			case 'redis':
-				$cache = new Cache\RedisCacheDriver($this->hostname, $this->config);
+				$cache = new Cache\RedisCache($this->hostname, $this->config);
 				break;
 			case 'apcu':
 				$cache = new Cache\APCuCache($this->hostname);
 				break;
 			default:
-				$cache = new Cache\DatabaseCacheDriver($this->hostname, $this->dba);
+				$cache = new Cache\DatabaseCache($this->hostname, $this->dba);
 		}
 
 		$profiling = $this->config->get('system', 'profiling', false);

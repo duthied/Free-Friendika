@@ -5,11 +5,11 @@ namespace Friendica\Core\Cache;
 /**
  * Abstract class for common used functions
  *
- * Class AbstractCacheDriver
+ * Class AbstractCache
  *
  * @package Friendica\Core\Cache
  */
-abstract class AbstractCacheDriver implements ICacheDriver
+abstract class AbstractCache implements ICache
 {
 	/**
 	 * @var string The hostname

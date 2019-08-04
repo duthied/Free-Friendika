@@ -5,31 +5,31 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Cache\ICacheDriver;
+use Friendica\Core\Cache\ICache;
 
 /**
  * @brief Class for storing data for a short time
  */
 class Cache extends BaseObject
 {
-	/** @deprecated Use ICacheDriver::MONTH */
-	const MONTH        = ICacheDriver::MONTH;
-	/** @deprecated Use ICacheDriver::WEEK */
-	const WEEK         = 604800;
-	/** @deprecated Use ICacheDriver::DAY */
-	const DAY          = 86400;
-	/** @deprecated Use ICacheDriver::HOUR */
-	const HOUR         = 3600;
-	/** @deprecated Use ICacheDriver::HALF_HOUR */
-	const HALF_HOUR    = 1800;
-	/** @deprecated Use ICacheDriver::QUARTER_HOUR */
-	const QUARTER_HOUR = 900;
-	/** @deprecated Use ICacheDriver::FIVE_MINUTES */
-	const FIVE_MINUTES = 300;
-	/** @deprecated Use ICacheDriver::MINUTE */
-	const MINUTE       = 60;
-	/** @deprecated Use ICacheDriver::INFINITE */
-	const INFINITE     = 0;
+	/** @deprecated Use ICache::MONTH */
+	const MONTH        = ICache::MONTH;
+	/** @deprecated Use ICache::WEEK */
+	const WEEK         = ICache::WEEK;
+	/** @deprecated Use ICache::DAY */
+	const DAY          = ICache::DAY;
+	/** @deprecated Use ICache::HOUR */
+	const HOUR         = ICache::HOUR;
+	/** @deprecated Use ICache::HALF_HOUR */
+	const HALF_HOUR    = ICache::HALF_HOUR;
+	/** @deprecated Use ICache::QUARTER_HOUR */
+	const QUARTER_HOUR = ICache::QUARTER_HOUR;
+	/** @deprecated Use ICache::FIVE_MINUTES */
+	const FIVE_MINUTES = ICache::FIVE_MINUTES;
+	/** @deprecated Use ICache::MINUTE */
+	const MINUTE       = ICache::MINUTE;
+	/** @deprecated Use ICache::INFINITE */
+	const INFINITE     = ICache::INFINITE;
 
 	/**
 	 * @brief Returns all the cache keys sorted alphabetically
@@ -41,7 +41,7 @@ class Cache extends BaseObject
 	 */
 	public static function getAllKeys($prefix = null)
 	{
-		return self::getClass(ICacheDriver::class)->getAllKeys($prefix);
+		return self::getClass(ICache::class)->getAllKeys($prefix);
 	}
 
 	/**
@@ -54,7 +54,7 @@ class Cache extends BaseObject
 	 */
 	public static function get($key)
 	{
-		return self::getClass(ICacheDriver::class)->get($key);
+		return self::getClass(ICache::class)->get($key);
 	}
 
 	/**
@@ -69,9 +69,9 @@ class Cache extends BaseObject
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function set($key, $value, $duration = ICacheDriver::MONTH)
+	public static function set($key, $value, $duration = ICache::MONTH)
 	{
-		return self::getClass(ICacheDriver::class)->set($key, $value, $duration);
+		return self::getClass(ICache::class)->set($key, $value, $duration);
 	}
 
 	/**
@@ -84,7 +84,7 @@ class Cache extends BaseObject
 	 */
 	public static function delete($key)
 	{
-		return self::getClass(ICacheDriver::class)->delete($key);
+		return self::getClass(ICache::class)->delete($key);
 	}
 
 	/**
@@ -97,6 +97,6 @@ class Cache extends BaseObject
 	 */
 	public static function clear($outdated = true)
 	{
-		return self::getClass(ICacheDriver::class)->clear($outdated);
+		return self::getClass(ICache::class)->clear($outdated);
 	}
 }

@@ -8,8 +8,8 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Core\Cache\ICacheDriver;
-use Friendica\Core\Lock\ILockDriver;
+use Friendica\Core\Cache\ICache;
+use Friendica\Core\Lock\ILock;
 
 /**
  * This class contain Functions for preventing parallel execution of functions
@@ -26,9 +26,9 @@ class Lock extends BaseObject
 	 * @return boolean Was the lock successful?
 	 * @throws \Exception
 	 */
-	public static function acquire($key, $timeout = 120, $ttl = ICacheDriver::FIVE_MINUTES)
+	public static function acquire($key, $timeout = 120, $ttl = ICache::FIVE_MINUTES)
 	{
-		return self::getClass(ILockDriver::class)->acquireLock($key, $timeout, $ttl);
+		return self::getClass(ILock::class)->acquireLock($key, $timeout, $ttl);
 	}
 
 	/**
@@ -42,7 +42,7 @@ class Lock extends BaseObject
 	 */
 	public static function release($key, $override = false)
 	{
-		return self::getClass(ILockDriver::class)->releaseLock($key, $override);
+		return self::getClass(ILock::class)->releaseLock($key, $override);
 	}
 
 	/**
@@ -52,6 +52,6 @@ class Lock extends BaseObject
 	 */
 	public static function releaseAll()
 	{
-		self::getClass(ILockDriver::class)->releaseAll();
+		self::getClass(ILock::class)->releaseAll();
 	}
 }

@@ -6,11 +6,11 @@ use Exception;
 use Friendica\Core\Cache;
 
 /**
- * APCu Cache Driver.
+ * APCu Cache.
  *
  * @author Philipp Holzer <admin@philipp.info>
  */
-class APCuCache extends AbstractCacheDriver implements IMemoryCacheDriver
+class APCuCache extends AbstractCache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;

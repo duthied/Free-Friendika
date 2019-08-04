@@ -9,11 +9,11 @@ use Memcached;
 use Psr\Log\LoggerInterface;
 
 /**
- * Memcached Cache Driver
+ * Memcached Cache
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
+class MemcachedCache extends AbstractCache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;

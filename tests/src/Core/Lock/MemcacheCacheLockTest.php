@@ -1,14 +1,16 @@
 <?php
 
-namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\MemcacheCacheDriver;
+namespace Friendica\Test\src\Core\Lock;
+
+use Friendica\Core\Cache\MemcacheCache;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\Lock\CacheLockDriver;
 
 /**
- * @requires extension memcache
+ * @requires extension Memcache
  */
-class MemcacheCacheDriverTest extends MemoryCacheTest
+class MemcacheCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{
@@ -23,13 +25,6 @@ class MemcacheCacheDriverTest extends MemoryCacheTest
 			->with('system', 'memcache_port')
 			->andReturn(11211);
 
-		$this->cache = new MemcacheCacheDriver('localhost', $configMock);
-		return $this->cache;
-	}
-
-	public function tearDown()
-	{
-		$this->cache->clear(false);
-		parent::tearDown();
+		return new CacheLockDriver(new MemcacheCache('localhost', $configMock));
 	}
 }

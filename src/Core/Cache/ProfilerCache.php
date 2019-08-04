@@ -11,10 +11,10 @@ use Friendica\Util\Profiler;
  *
  * It is using the decorator pattern (@see
  */
-class ProfilerCache implements ICacheDriver, IMemoryCacheDriver
+class ProfilerCache implements ICache, IMemoryCache
 {
 	/**
-	 * @var ICacheDriver The original cache driver
+	 * @var ICache The original cache driver
 	 */
 	private $cache;
 
@@ -23,7 +23,7 @@ class ProfilerCache implements ICacheDriver, IMemoryCacheDriver
 	 */
 	private $profiler;
 
-	public function __construct(ICacheDriver $cache, Profiler $profiler)
+	public function __construct(ICache $cache, Profiler $profiler)
 	{
 		$this->cache    = $cache;
 		$this->profiler = $profiler;
@@ -104,7 +104,7 @@ class ProfilerCache implements ICacheDriver, IMemoryCacheDriver
 	 */
 	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
 	{
-		if ($this->cache instanceof IMemoryCacheDriver) {
+		if ($this->cache instanceof IMemoryCache) {
 			$time = microtime(true);
 
 			$return = $this->cache->add($key, $value, $ttl);
@@ -122,7 +122,7 @@ class ProfilerCache implements ICacheDriver, IMemoryCacheDriver
 	 */
 	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
 	{
-		if ($this->cache instanceof IMemoryCacheDriver) {
+		if ($this->cache instanceof IMemoryCache) {
 			$time = microtime(true);
 
 			$return = $this->cache->compareSet($key, $oldValue, $newValue, $ttl);
@@ -140,7 +140,7 @@ class ProfilerCache implements ICacheDriver, IMemoryCacheDriver
 	 */
 	public function compareDelete($key, $value)
 	{
-		if ($this->cache instanceof IMemoryCacheDriver) {
+		if ($this->cache instanceof IMemoryCache) {
 			$time = microtime(true);
 
 			$return = $this->cache->compareDelete($key, $value);

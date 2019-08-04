@@ -2,12 +2,12 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Cache\IMemoryCache;
 
 abstract class MemoryCacheTest extends CacheTest
 {
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 * @var \Friendica\Core\Cache\IMemoryCache
 	 */
 	protected $instance;
 
@@ -15,7 +15,7 @@ abstract class MemoryCacheTest extends CacheTest
 	{
 		parent::setUp();
 
-		if (!($this->instance instanceof IMemoryCacheDriver)) {
+		if (!($this->instance instanceof IMemoryCache)) {
 			throw new \Exception('MemoryCacheTest unsupported');
 		}
 	}

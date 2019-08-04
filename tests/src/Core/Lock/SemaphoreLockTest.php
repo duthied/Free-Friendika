@@ -6,9 +6,9 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Core\Config\Configuration;
-use Friendica\Core\Lock\SemaphoreLockDriver;
+use Friendica\Core\Lock\SemaphoreLock;
 
-class SemaphoreLockDriverTest extends LockTest
+class SemaphoreLockTest extends LockTest
 {
 	public function setUp()
 	{
@@ -33,7 +33,7 @@ class SemaphoreLockDriverTest extends LockTest
 
 	protected function getInstance()
 	{
-		return new SemaphoreLockDriver();
+		return new SemaphoreLock();
 	}
 
 	function testLockTTL()

@@ -4,7 +4,7 @@ namespace Friendica\Core\Lock;
 
 use Friendica\Core\Cache;
 
-class SemaphoreLockDriver extends AbstractLockDriver
+class SemaphoreLock extends AbstractLock
 {
 	private static $semaphore = [];
 

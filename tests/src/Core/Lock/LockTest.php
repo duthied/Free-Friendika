@@ -12,7 +12,7 @@ abstract class LockTest extends MockedTest
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var \Friendica\Core\Lock\ILockDriver
+	 * @var \Friendica\Core\Lock\ILock
 	 */
 	protected $instance;
 

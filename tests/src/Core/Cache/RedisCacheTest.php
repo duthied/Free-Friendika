@@ -1,16 +1,15 @@
 <?php
 
 
-namespace Friendica\Test\src\Core\Lock;
+namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\RedisCacheDriver;
+use Friendica\Core\Cache\RedisCache;
 use Friendica\Core\Config\Configuration;
-use Friendica\Core\Lock\CacheLockDriver;
 
 /**
  * @requires extension redis
  */
-class RedisCacheLockDriverTest extends LockTest
+class RedisCacheTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
@@ -34,6 +33,13 @@ class RedisCacheLockDriverTest extends LockTest
 			->with('system', 'redis_password')
 			->andReturn(null);
 
-		return new CacheLockDriver(new RedisCacheDriver('localhost', $configMock));
+		$this->cache = new RedisCache('localhost', $configMock);
+		return $this->cache;
+	}
+
+	public function tearDown()
+	{
+		$this->cache->clear(false);
+		parent::tearDown();
 	}
 }

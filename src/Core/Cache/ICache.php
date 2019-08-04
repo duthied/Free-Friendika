@@ -3,11 +3,11 @@
 namespace Friendica\Core\Cache;
 
 /**
- * Cache Driver Interface
+ * Cache Interface
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-interface ICacheDriver
+interface ICache
 {
 	const MONTH        = 2592000;
 	const WEEK         = 604800;

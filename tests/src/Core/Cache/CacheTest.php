@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\MemcachedCacheDriver;
+use Friendica\Core\Cache\MemcachedCache;
 use Friendica\Test\MockedTest;
 use Friendica\Util\PidFile;
 
@@ -14,12 +14,12 @@ abstract class CacheTest extends MockedTest
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var \Friendica\Core\Cache\ICacheDriver
+	 * @var \Friendica\Core\Cache\ICache
 	 */
 	protected $instance;
 
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 * @var \Friendica\Core\Cache\IMemoryCache
 	 */
 	protected $cache;
 
@@ -202,7 +202,7 @@ abstract class CacheTest extends MockedTest
 	 */
 	public function testGetAllKeys($value1, $value2, $value3)
 	{
-		if ($this->cache instanceof MemcachedCacheDriver) {
+		if ($this->cache instanceof MemcachedCache) {
 			$this->markTestSkipped('Memcached doesn\'t support getAllKeys anymore');
 		}
 

@@ -5,11 +5,11 @@ namespace Friendica\Core\Lock;
 use Friendica\Core\Cache;
 
 /**
- * Lock Driver Interface
+ * Lock Interface
  *
  * @author Philipp Holzer <admin@philipp.info>
  */
-interface ILockDriver
+interface ILock
 {
 	/**
 	 * Checks, if a key is currently locked to a or my process
@@ -30,7 +30,7 @@ interface ILockDriver
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock($key, $timeout = 120, $ttl = Cache\ICacheDriver::FIVE_MINUTES);
+	public function acquireLock($key, $timeout = 120, $ttl = Cache\ICache::FIVE_MINUTES);
 
 	/**
 	 * Releases a lock if it was set by us

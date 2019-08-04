@@ -3,7 +3,7 @@
 namespace Friendica\Test\Util;
 
 use Friendica\Core\Cache;
-use Friendica\Core\Lock\DatabaseLockDriver;
+use Friendica\Core\Lock\DatabaseLock;
 
 trait DbaLockMockTrait
 {
@@ -12,7 +12,6 @@ trait DbaLockMockTrait
 
 	/**
 	 * Mocking acquireLock with DBA-backend
-	 * @see DatabaseLockDriver::acquireLock()
 	 *
 	 * @param mixed    $key       The key to lock
 	 * @param int      $ttl       The TimeToLive
@@ -22,6 +21,9 @@ trait DbaLockMockTrait
 	 * @param bool     $rowExists True, if a row already exists in the lock table
 	 * @param null     $time      The current timestamp
 	 * @param null|int $times     How often the method will get used
+	 *
+	 *@see DatabaseLock::acquireLock()
+	 *
 	 */
 	public function mockAcquireLock($key, $ttl = Cache::FIVE_MINUTES, $locked = false, $pid = null, $rowExists = true, $time = null, $times = null)
 	{
@@ -55,12 +57,14 @@ trait DbaLockMockTrait
 
 	/**
 	 * Mocking isLocked with DBA-backend
-	 * @see DatabaseLockDriver::isLocked()
 	 *
 	 * @param mixed     $key    The key of the lock
 	 * @param null|bool $return True, if the key is already locked
-	 * @param null      $time      The current timestamp
+	 * @param null      $time   The current timestamp
 	 * @param null|int  $times  How often the method will get used
+	 *
+	 *@see DatabaseLock::isLocked()
+	 *
 	 */
 	public function mockIsLocked($key, $return = true, $time = null, $times = null)
 	{
@@ -76,10 +80,12 @@ trait DbaLockMockTrait
 
 	/**
 	 * Mocking releaseAll with DBA-backend
-	 * @see DatabaseLockDriver::releaseAll()
 	 *
-	 * @param null     $pid    The PID which was set
-	 * @param null|int $times  How often the method will get used
+	 * @param null     $pid   The PID which was set
+	 * @param null|int $times How often the method will get used
+	 *
+	 *@see DatabaseLock::releaseAll()
+	 *
 	 */
 	public function mockReleaseAll($pid = null, $times = null)
 	{
@@ -92,11 +98,13 @@ trait DbaLockMockTrait
 
 	/**
 	 * Mocking ReleaseLock with DBA-backend
-	 * @see DatabaseLockDriver::releaseLock()
 	 *
 	 * @param mixed    $key    The key to release
 	 * @param null|int $pid    The PID which was set
 	 * @param null|int $times  How often the method will get used
+	 *
+	 *@see DatabaseLock::releaseLock()
+	 *
 	 */
 	public function mockReleaseLock($key, $pid = null, $times = null)
 	{

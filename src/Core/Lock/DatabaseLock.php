@@ -9,7 +9,7 @@ use Friendica\Util\DateTimeFormat;
 /**
  * Locking driver that stores the locks in the database
  */
-class DatabaseLockDriver extends AbstractLockDriver
+class DatabaseLock extends AbstractLock
 {
 	/**
 	 * The current ID of the process

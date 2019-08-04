@@ -5,13 +5,13 @@ namespace Friendica\Core\Cache;
 use Friendica\Core\Cache;
 
 /**
- * Implementation of the IMemoryCacheDriver mainly for testing purpose
+ * Implementation of the IMemoryCache mainly for testing purpose
  *
  * Class ArrayCache
  *
  * @package Friendica\Core\Cache
  */
-class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
+class ArrayCache extends AbstractCache implements IMemoryCache
 {
 	use TraitCompareDelete;
 

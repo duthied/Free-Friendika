@@ -4,7 +4,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\Lock\ILockDriver;
+use Friendica\Core\Lock\ILock;
 use Friendica\Database\Database;
 use Friendica\Factory;
 use Friendica\Util;
@@ -106,30 +106,30 @@ return [
 	 *    $app = $dice->create(App::class, [], ['$channel' => 'index']);
 	 *    and is automatically passed as an argument with the same name
 	 */
-	LoggerInterface::class => [
+	LoggerInterface::class    => [
 		'instanceOf' => Factory\LoggerFactory::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	'$devLogger' => [
+	'$devLogger'              => [
 		'instanceOf' => Factory\LoggerFactory::class,
 		'call'       => [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
 	],
-	Cache\ICacheDriver::class => [
+	Cache\ICache::class       => [
 		'instanceOf' => Factory\CacheDriverFactory::class,
-		'call' => [
+		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
-	Cache\IMemoryCacheDriver::class => [
-		'instanceOf' => Cache\ICacheDriver::class,
+	Cache\IMemoryCache::class => [
+		'instanceOf' => Cache\ICache::class,
 	],
-	ILockDriver::class => [
+	ILock::class              => [
 		'instanceOf' => Factory\LockDriverFactory::class,
-		'call' => [
+		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],

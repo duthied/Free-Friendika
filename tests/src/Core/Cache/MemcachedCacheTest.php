@@ -3,14 +3,14 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\MemcachedCacheDriver;
+use Friendica\Core\Cache\MemcachedCache;
 use Friendica\Core\Config\Configuration;
 use Psr\Log\NullLogger;
 
 /**
  * @requires extension memcached
  */
-class MemcachedCacheDriverTest extends MemoryCacheTest
+class MemcachedCacheTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
@@ -23,7 +23,7 @@ class MemcachedCacheDriverTest extends MemoryCacheTest
 
 		$logger = new NullLogger();
 
-		$this->cache = new MemcachedCacheDriver('localhost', $configMock, $logger);
+		$this->cache = new MemcachedCache('localhost', $configMock, $logger);
 		return $this->cache;
 	}
 

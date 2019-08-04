@@ -2,8 +2,8 @@
 
 namespace Friendica\Factory;
 
-use Friendica\Core\Cache\ICacheDriver;
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Lock;
 use Friendica\Database\Database;
@@ -35,7 +35,7 @@ class LockDriverFactory
 	private $dba;
 
 	/**
-	 * @var ICacheDriver The memory cache driver in case we use it
+	 * @var ICache The memory cache driver in case we use it
 	 */
 	private $cacheDriver;
 
@@ -49,7 +49,7 @@ class LockDriverFactory
 	 */
 	private $logger;
 
-	public function __construct(ICacheDriver $cacheDriver, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
+	public function __construct(ICache $cacheDriver, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
 	{
 		$this->cacheDriver = $cacheDriver;
 		$this->config      = $config;
@@ -66,17 +66,17 @@ class LockDriverFactory
 				case 'memcache':
 				case 'memcached':
 				case 'redis':
-					if ($this->cacheDriver instanceof IMemoryCacheDriver) {
+					if ($this->cacheDriver instanceof IMemoryCache) {
 						return new Lock\CacheLockDriver($this->cacheDriver);
 					}
 					break;
 
 				case 'database':
-					return new Lock\DatabaseLockDriver($this->dba);
+					return new Lock\DatabaseLock($this->dba);
 					break;
 
 				case 'semaphore':
-					return new Lock\SemaphoreLockDriver();
+					return new Lock\SemaphoreLock();
 					break;
 
 				default:
@@ -96,7 +96,7 @@ class LockDriverFactory
 	 * 2. Cache Locking
 	 * 3. Database Locking
 	 *
-	 * @return Lock\ILockDriver
+	 * @return Lock\ILock
 	 */
 	private function useAutoDriver()
 	{
@@ -104,7 +104,7 @@ class LockDriverFactory
 		// 1. Try to use Semaphores for - local - locking
 		if (function_exists('sem_get')) {
 			try {
-				return new Lock\SemaphoreLockDriver();
+				return new Lock\SemaphoreLock();
 			} catch (\Exception $exception) {
 				$this->logger->debug('Using Semaphore driver for locking failed.', ['exception' => $exception]);
 			}
@@ -114,7 +114,7 @@ class LockDriverFactory
 		$cache_driver = $this->config->get('system', 'cache_driver', 'database');
 		if ($cache_driver != 'database') {
 			try {
-				if ($this->cacheDriver instanceof IMemoryCacheDriver) {
+				if ($this->cacheDriver instanceof IMemoryCache) {
 					return new Lock\CacheLockDriver($this->cacheDriver);
 				}
 			} catch (\Exception $exception) {
@@ -123,6 +123,6 @@ class LockDriverFactory
 		}
 
 		// 3. Use Database Locking as a Fallback
-		return new Lock\DatabaseLockDriver($this->dba);
+		return new Lock\DatabaseLock($this->dba);
 	}
 }

@@ -7,11 +7,11 @@ use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * Database Cache Driver
+ * Database Cache
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
+class DatabaseCache extends AbstractCache implements ICache
 {
 	/**
 	 * @var Database

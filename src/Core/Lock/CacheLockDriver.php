@@ -3,21 +3,21 @@
 namespace Friendica\Core\Lock;
 
 use Friendica\Core\Cache;
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Cache\IMemoryCache;
 
-class CacheLockDriver extends AbstractLockDriver
+class CacheLockDriver extends AbstractLock
 {
 	/**
-	 * @var \Friendica\Core\Cache\ICacheDriver;
+	 * @var \Friendica\Core\Cache\ICache;
 	 */
 	private $cache;
 
 	/**
 	 * CacheLockDriver constructor.
 	 *
-	 * @param IMemoryCacheDriver $cache The CacheDriver for this type of lock
+	 * @param IMemoryCache $cache The CacheDriver for this type of lock
 	 */
-	public function __construct(IMemoryCacheDriver $cache)
+	public function __construct(IMemoryCache $cache)
 	{
 		$this->cache = $cache;
 	}

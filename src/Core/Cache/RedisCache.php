@@ -8,12 +8,12 @@ use Friendica\Core\Config\Configuration;
 use Redis;
 
 /**
- * Redis Cache Driver. This driver is based on Memcache driver
+ * Redis Cache. This driver is based on Memcache driver
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
-class RedisCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
+class RedisCache extends AbstractCache implements IMemoryCache
 {
 	/**
 	 * @var Redis

@@ -4,7 +4,7 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
-use Friendica\Core\Cache\ICacheDriver;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Factory\CacheDriverFactory;
 use RuntimeException;
@@ -33,7 +33,7 @@ class Cache extends \Asika\SimpleConsole\Console
 	private $cacheDriverName;
 
 	/**
-	 * @var ICacheDriver
+	 * @var ICache
 	 */
 	private $cache;
 
@@ -71,7 +71,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, Configuration $config, ICacheDriver $cache, array $argv = null)
+	public function __construct(App\Mode $appMode, Configuration $config, ICache $cache, array $argv = null)
 	{
 		parent::__construct($argv);
 
@@ -161,7 +161,7 @@ HELP;
 		if (count($this->args) >= 3) {
 			$key = $this->getArgument(1);
 			$value = $this->getArgument(2);
-			$duration = intval($this->getArgument(3, ICacheDriver::FIVE_MINUTES));
+			$duration = intval($this->getArgument(3, ICache::FIVE_MINUTES));
 
 			if (is_array($this->cache->get($key))) {
 				throw new RuntimeException("$key is an array and can't be set using this command.");

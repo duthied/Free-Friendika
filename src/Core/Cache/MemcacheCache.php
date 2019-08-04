@@ -8,11 +8,11 @@ use Friendica\Core\Config\Configuration;
 use Memcache;
 
 /**
- * Memcache Cache Driver
+ * Memcache Cache
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcacheCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
+class MemcacheCache extends AbstractCache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
