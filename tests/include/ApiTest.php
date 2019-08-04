@@ -65,9 +65,24 @@ class ApiTest extends DatabaseTest
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
 
+		/** @var Configuration $config */
+		$this->config = $this->dice->create(Configuration::class);
+
+		$this->config->set('system', 'url', 'http://localhost');
+		$this->config->set('system', 'hostname', 'localhost');
+		$this->config->set('system', 'worker_dont_fork', true);
+
+		// Default config
+		$this->config->set('config', 'hostname', 'localhost');
+		$this->config->set('system', 'throttle_limit_day', 100);
+		$this->config->set('system', 'throttle_limit_week', 100);
+		$this->config->set('system', 'throttle_limit_month', 100);
+		$this->config->set('system', 'theme', 'system_theme');
+
 		// Load the API dataset for the whole API
 		$this->loadFixture(__DIR__ . '/../datasets/api.fixture.php', $dba);
 
+		/** @var App app */
 		$this->app = BaseObject::getApp();
 
 		$this->app->argc = 1;
@@ -106,20 +121,6 @@ class ApiTest extends DatabaseTest
 		$_POST   = [];
 		$_GET    = [];
 		$_SERVER = [];
-
-		/** @var Configuration $config */
-		$this->config = $this->dice->create(Configuration::class);
-
-		$this->config->set('system', 'url', 'http://localhost');
-		$this->config->set('system', 'hostname', 'localhost');
-		$this->config->set('system', 'worker_dont_fork', true);
-
-		// Default config
-		$this->config->set('config', 'hostname', 'localhost');
-		$this->config->set('system', 'throttle_limit_day', 100);
-		$this->config->set('system', 'throttle_limit_week', 100);
-		$this->config->set('system', 'throttle_limit_month', 100);
-		$this->config->set('system', 'theme', 'system_theme');
 	}
 
 	/**
@@ -450,8 +451,8 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
-		$this->configset('system', 'profiler', true);
-		$this->configset('rendertime', 'callstack', true);
+		$this->config->set('system', 'profiler', true);
+		$this->config->set('rendertime', 'callstack', true);
 		$this->app->callstack = [
 			'database'       => ['some_function' => 200],
 			'database_write' => ['some_function' => 200],

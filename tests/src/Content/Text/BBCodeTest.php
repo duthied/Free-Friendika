@@ -7,6 +7,7 @@ use Friendica\Core\L10n\L10n;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
+use Friendica\Util\BaseURL;
 
 class BBCodeTest extends MockedTest
 {
@@ -44,6 +45,12 @@ class BBCodeTest extends MockedTest
 		$this->dice->shouldReceive('create')
 		           ->with(L10n::class)
 		           ->andReturn($l10nMock);
+
+		$baseUrlMock = \Mockery::mock(BaseURL::class);
+		$baseUrlMock->shouldReceive('get')->withAnyArgs()->andReturn('friendica.local');
+		$this->dice->shouldReceive('create')
+		           ->with(BaseURL::class)
+		           ->andReturn($baseUrlMock);
 	}
 
 	public function dataLinks()

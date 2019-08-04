@@ -6,6 +6,7 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\BaseURL;
 use Friendica\Util\XML;
 
 /**
@@ -29,7 +30,7 @@ class System extends BaseObject
 	 */
 	public static function baseUrl($ssl = false)
 	{
-		return self::getApp()->getBaseURL($ssl);
+		return self::getClass(BaseURL::class)->get($ssl);
 	}
 
 	/**
