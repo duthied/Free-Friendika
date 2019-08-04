@@ -152,4 +152,9 @@ class ProfilerCache implements ICache, IMemoryCache
 			return false;
 		}
 	}
+
+	public function __toString()
+	{
+		return (string)$this->cache . ' (with profiler)';
+	}
 }

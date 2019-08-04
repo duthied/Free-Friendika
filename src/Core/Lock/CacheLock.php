@@ -5,7 +5,7 @@ namespace Friendica\Core\Lock;
 use Friendica\Core\Cache;
 use Friendica\Core\Cache\IMemoryCache;
 
-class CacheLockDriver extends AbstractLock
+class CacheLock extends AbstractLock
 {
 	/**
 	 * @var \Friendica\Core\Cache\ICache;
@@ -13,7 +13,7 @@ class CacheLockDriver extends AbstractLock
 	private $cache;
 
 	/**
-	 * CacheLockDriver constructor.
+	 * CacheLock constructor.
 	 *
 	 * @param IMemoryCache $cache The CacheDriver for this type of lock
 	 */

@@ -5,7 +5,7 @@ namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Core\Cache\RedisCache;
 use Friendica\Core\Config\Configuration;
-use Friendica\Core\Lock\CacheLockDriver;
+use Friendica\Core\Lock\CacheLock;
 
 /**
  * @requires extension redis
@@ -34,6 +34,6 @@ class RedisCacheLockTest extends LockTest
 			->with('system', 'redis_password')
 			->andReturn(null);
 
-		return new CacheLockDriver(new RedisCache('localhost', $configMock));
+		return new CacheLock(new RedisCache('localhost', $configMock));
 	}
 }

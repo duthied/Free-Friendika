@@ -5,8 +5,6 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
 use Friendica\Core\Cache\ICache;
-use Friendica\Core\Config\Configuration;
-use Friendica\Factory\CacheDriverFactory;
 use RuntimeException;
 
 /**
@@ -71,13 +69,12 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, Configuration $config, ICache $cache, array $argv = null)
+	public function __construct(App\Mode $appMode, ICache $cache, array $argv = null)
 	{
 		parent::__construct($argv);
 
 		$this->appMode = $appMode;
-		$this->cache = $cache;
-		$this->cacheDriverName = $config->get('system', 'cache_driver', CacheDriverFactory::DEFAULT_DRIVER);
+		$this->cache   = $cache;
 	}
 
 	protected function doExecute()
@@ -94,7 +91,7 @@ HELP;
 		}
 
 		if ($this->getOption('v')) {
-			$this->out('Cache Driver Name: ' . $this->cacheDriverName);
+			$this->out('Cache Driver Name: ' . (string)$this->cache);
 			$this->out('Cache Driver Class: ' . get_class($this->cache));
 		}
 
@@ -127,7 +124,7 @@ HELP;
 	private function executeList()
 	{
 		$prefix = $this->getArgument(1);
-		$keys = $this->cache->getAllKeys($prefix);
+		$keys   = $this->cache->getAllKeys($prefix);
 
 		if (empty($prefix)) {
 			$this->out('Listing all cache keys:');
@@ -147,7 +144,7 @@ HELP;
 	private function executeGet()
 	{
 		if (count($this->args) >= 2) {
-			$key = $this->getArgument(1);
+			$key   = $this->getArgument(1);
 			$value = $this->cache->get($key);
 
 			$this->out("{$key} => " . var_export($value, true));
@@ -159,8 +156,8 @@ HELP;
 	private function executeSet()
 	{
 		if (count($this->args) >= 3) {
-			$key = $this->getArgument(1);
-			$value = $this->getArgument(2);
+			$key      = $this->getArgument(1);
+			$value    = $this->getArgument(2);
 			$duration = intval($this->getArgument(3, ICache::FIVE_MINUTES));
 
 			if (is_array($this->cache->get($key))) {

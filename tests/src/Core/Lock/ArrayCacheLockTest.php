@@ -3,13 +3,13 @@
 namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Core\Cache\ArrayCache;
-use Friendica\Core\Lock\CacheLockDriver;
+use Friendica\Core\Lock\CacheLock;
 
 class ArrayCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{
-		return new CacheLockDriver(new ArrayCache('localhost'));
+		return new CacheLock(new ArrayCache('localhost'));
 	}
 
 	public function testLockTTL()

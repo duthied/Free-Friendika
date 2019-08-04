@@ -2,7 +2,7 @@
 
 namespace Friendica\Factory;
 
-use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\AbstractCache;
 use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Lock;
@@ -11,13 +11,13 @@ use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class LockDriverFactory
+ * Class LockFactory
  *
  * @package Friendica\Core\Cache
  *
  * A basic class to generate a LockDriver
  */
-class LockDriverFactory
+class LockFactory
 {
 	/**
 	 * @var string The default driver for caching
@@ -35,9 +35,9 @@ class LockDriverFactory
 	private $dba;
 
 	/**
-	 * @var ICache The memory cache driver in case we use it
+	 * @var CacheFactory The memory cache driver in case we use it
 	 */
-	private $cacheDriver;
+	private $cacheFactory;
 
 	/**
 	 * @var Profiler The optional profiler if the cached should be profiled
@@ -49,25 +49,29 @@ class LockDriverFactory
 	 */
 	private $logger;
 
-	public function __construct(ICache $cacheDriver, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
+	public function __construct(CacheFactory $cacheFactory, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
 	{
-		$this->cacheDriver = $cacheDriver;
-		$this->config      = $config;
-		$this->dba         = $dba;
-		$this->logger      = $logger;
+		$this->cacheFactory = $cacheFactory;
+		$this->config       = $config;
+		$this->dba          = $dba;
+		$this->logger       = $logger;
 	}
 
 	public function create()
 	{
-		$lock_driver = $this->config->get('system', 'lock_driver', self::DEFAULT_DRIVER);
+		$lock_type = $this->config->get('system', 'lock_driver', self::DEFAULT_DRIVER);
 
 		try {
-			switch ($lock_driver) {
-				case 'memcache':
-				case 'memcached':
-				case 'redis':
-					if ($this->cacheDriver instanceof IMemoryCache) {
-						return new Lock\CacheLockDriver($this->cacheDriver);
+			switch ($lock_type) {
+				case AbstractCache::TYPE_MEMCACHE:
+				case AbstractCache::TYPE_MEMCACHED:
+				case AbstractCache::TYPE_REDIS:
+				case AbstractCache::TYPE_APCU:
+					$cache = $this->cacheFactory->create($lock_type);
+					if ($cache instanceof IMemoryCache) {
+						return new Lock\CacheLock($cache);
+					} else {
+						throw new \Exception(sprintf('Incompatible cache driver \'%s\' for lock used', $lock_type));
 					}
 					break;
 
@@ -83,7 +87,7 @@ class LockDriverFactory
 					return self::useAutoDriver();
 			}
 		} catch (\Exception $exception) {
-			$this->logger->alert('Driver \'' . $lock_driver . '\' failed - Fallback to \'useAutoDriver()\'', ['exception' => $exception]);
+			$this->logger->alert('Driver \'' . $lock_type . '\' failed - Fallback to \'useAutoDriver()\'', ['exception' => $exception]);
 			return self::useAutoDriver();
 		}
 	}
@@ -100,7 +104,6 @@ class LockDriverFactory
 	 */
 	private function useAutoDriver()
 	{
-
 		// 1. Try to use Semaphores for - local - locking
 		if (function_exists('sem_get')) {
 			try {
@@ -111,11 +114,12 @@ class LockDriverFactory
 		}
 
 		// 2. Try to use Cache Locking (don't use the DB-Cache Locking because it works different!)
-		$cache_driver = $this->config->get('system', 'cache_driver', 'database');
-		if ($cache_driver != 'database') {
+		$cache_type = $this->config->get('system', 'cache_driver', 'database');
+		if ($cache_type != AbstractCache::TYPE_DATABASE) {
 			try {
-				if ($this->cacheDriver instanceof IMemoryCache) {
-					return new Lock\CacheLockDriver($this->cacheDriver);
+				$cache = $this->cacheFactory->create($cache_type);
+				if ($cache instanceof IMemoryCache) {
+					return new Lock\CacheLock($cache);
 				}
 			} catch (\Exception $exception) {
 				$this->logger->debug('Using Cache driver for locking failed.', ['exception' => $exception]);

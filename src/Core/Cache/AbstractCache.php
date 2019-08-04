@@ -11,6 +11,20 @@ namespace Friendica\Core\Cache;
  */
 abstract class AbstractCache implements ICache
 {
+	const TYPE_APCU      = 'apcu';
+	const TYPE_ARRAY     = 'array';
+	const TYPE_DATABASE  = 'database';
+	const TYPE_MEMCACHE  = 'memcache';
+	const TYPE_MEMCACHED = 'memcached';
+	const TYPE_REDIS     = 'redis';
+
+	/**
+	 * Force each Cache implementation to define the ToString method
+	 *
+	 * @return string
+	 */
+	abstract function __toString();
+
 	/**
 	 * @var string The hostname
 	 */

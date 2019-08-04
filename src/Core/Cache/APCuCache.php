@@ -153,4 +153,9 @@ class APCuCache extends AbstractCache implements IMemoryCache
 
 		return true;
 	}
+
+	public function __toString()
+	{
+		return self::TYPE_APCU;
+	}
 }

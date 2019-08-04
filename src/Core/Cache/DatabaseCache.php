@@ -110,4 +110,9 @@ class DatabaseCache extends AbstractCache implements ICache
 			return $this->dba->delete('cache', ['`k` IS NOT NULL ']);
 		}
 	}
+
+	public function __toString()
+	{
+		return self::TYPE_DATABASE;
+	}
 }

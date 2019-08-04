@@ -5,7 +5,7 @@ namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Core\Cache\MemcachedCache;
 use Friendica\Core\Config\Configuration;
-use Friendica\Core\Lock\CacheLockDriver;
+use Friendica\Core\Lock\CacheLock;
 use Psr\Log\NullLogger;
 
 /**
@@ -24,6 +24,6 @@ class MemcachedCacheLockTest extends LockTest
 
 		$logger = new NullLogger();
 
-		return new CacheLockDriver(new MemcachedCache('localhost', $configMock, $logger));
+		return new CacheLock(new MemcachedCache('localhost', $configMock, $logger));
 	}
 }

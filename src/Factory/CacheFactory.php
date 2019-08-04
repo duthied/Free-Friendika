@@ -11,18 +11,18 @@ use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class CacheDriverFactory
+ * Class CacheFactory
  *
  * @package Friendica\Core\Cache
  *
  * A basic class to generate a CacheDriver
  */
-class CacheDriverFactory
+class CacheFactory
 {
 	/**
-	 * @var string The default driver for caching
+	 * @var string The default cache if nothing set
 	 */
-	const DEFAULT_DRIVER = 'database';
+	const DEFAULT_TYPE = Cache\AbstractCache::TYPE_DATABASE;
 
 	/**
 	 * @var Configuration The configuration to read parameters out of the config
@@ -52,33 +52,37 @@ class CacheDriverFactory
 	public function __construct(BaseURL $baseURL, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
 	{
 		$this->hostname = $baseURL->getHostname();
-		$this->config = $config;
-		$this->dba = $dba;
+		$this->config   = $config;
+		$this->dba      = $dba;
 		$this->profiler = $profiler;
-		$this->logger = $logger;
+		$this->logger   = $logger;
 	}
 
 	/**
 	 * This method creates a CacheDriver for the given cache driver name
 	 *
+	 * @param string $type The cache type to create (default is per config)
+	 *
 	 * @return ICache  The instance of the CacheDriver
 	 * @throws \Exception    The exception if something went wrong during the CacheDriver creation
 	 */
-	public function create()
+	public function create(string $type = null)
 	{
-		$driver = $this->config->get('system', 'cache_driver', self::DEFAULT_DRIVER);
+		if (empty($type)) {
+			$type = $this->config->get('system', 'cache_driver', self::DEFAULT_TYPE);
+		}
 
-		switch ($driver) {
-			case 'memcache':
+		switch ($type) {
+			case Cache\AbstractCache::TYPE_MEMCACHE:
 				$cache = new Cache\MemcacheCache($this->hostname, $this->config);
 				break;
-			case 'memcached':
+			case Cache\AbstractCache::TYPE_MEMCACHED:
 				$cache = new Cache\MemcachedCache($this->hostname, $this->config, $this->logger);
 				break;
-			case 'redis':
+			case Cache\AbstractCache::TYPE_REDIS:
 				$cache = new Cache\RedisCache($this->hostname, $this->config);
 				break;
-			case 'apcu':
+			case Cache\AbstractCache::TYPE_APCU:
 				$cache = new Cache\APCuCache($this->hostname);
 				break;
 			default:
@@ -89,7 +93,7 @@ class CacheDriverFactory
 
 		// In case profiling is enabled, wrap the ProfilerCache around the current cache
 		if (isset($profiling) && $profiling !== false) {
-			 return new Cache\ProfilerCache($cache, $this->profiler);
+			return new Cache\ProfilerCache($cache, $this->profiler);
 		} else {
 			return $cache;
 		}

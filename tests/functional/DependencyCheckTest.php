@@ -4,8 +4,11 @@ namespace functional;
 
 use Dice\Dice;
 use Friendica\App;
+use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\Lock\ILock;
 use Friendica\Database\Database;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\BasePath;
@@ -133,6 +136,31 @@ class dependencyCheck extends TestCase
 		/** @var LoggerInterface $logger */
 		$logger = $this->dice->create('$devLogger', ['dev']);
 
-		self::assertInstanceOf(LoggerInterface::class, $logger);
+		$this->assertInstanceOf(LoggerInterface::class, $logger);
+	}
+
+	public function testCache()
+	{
+		/** @var ICache $cache */
+		$cache = $this->dice->create(ICache::class);
+
+		$this->assertInstanceOf(ICache::class, $cache);
+	}
+
+	public function testMemoryCache()
+	{
+		/** @var IMemoryCache $cache */
+		$cache = $this->dice->create(IMemoryCache::class);
+
+		// We need to check "just" ICache, because the default Cache is DB-Cache, which isn't a memorycache
+		$this->assertInstanceOf(ICache::class, $cache);
+	}
+
+	public function testLock()
+	{
+		/** @var ILock $cache */
+		$lock = $this->dice->create(ILock::class);
+
+		$this->assertInstanceOf(ILock::class, $lock);
 	}
 }

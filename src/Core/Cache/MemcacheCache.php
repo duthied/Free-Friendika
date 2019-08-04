@@ -148,4 +148,9 @@ class MemcacheCache extends AbstractCache implements IMemoryCache
 		$cachekey = $this->getCacheKey($key);
 		return $this->memcache->add($cachekey, serialize($value), MEMCACHE_COMPRESSED, $ttl);
 	}
+
+	public function __toString()
+	{
+		return self::TYPE_MEMCACHE;
+	}
 }

@@ -5,7 +5,7 @@ namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Core\Cache\MemcacheCache;
 use Friendica\Core\Config\Configuration;
-use Friendica\Core\Lock\CacheLockDriver;
+use Friendica\Core\Lock\CacheLock;
 
 /**
  * @requires extension Memcache
@@ -25,6 +25,6 @@ class MemcacheCacheLockTest extends LockTest
 			->with('system', 'memcache_port')
 			->andReturn(11211);
 
-		return new CacheLockDriver(new MemcacheCache('localhost', $configMock));
+		return new CacheLock(new MemcacheCache('localhost', $configMock));
 	}
 }

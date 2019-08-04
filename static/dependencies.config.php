@@ -119,16 +119,19 @@ return [
 		]
 	],
 	Cache\ICache::class       => [
-		'instanceOf' => Factory\CacheDriverFactory::class,
+		'instanceOf' => Factory\CacheFactory::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],
 	],
 	Cache\IMemoryCache::class => [
-		'instanceOf' => Cache\ICache::class,
+		'instanceOf' => Factory\CacheFactory::class,
+		'call'       => [
+			['create', [], Dice::CHAIN_CALL],
+		],
 	],
 	ILock::class              => [
-		'instanceOf' => Factory\LockDriverFactory::class,
+		'instanceOf' => Factory\LockFactory::class,
 		'call'       => [
 			['create', [], Dice::CHAIN_CALL],
 		],

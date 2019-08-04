@@ -192,4 +192,9 @@ class RedisCache extends AbstractCache implements IMemoryCache
 		$this->redis->unwatch();
 		return false;
 	}
+
+	public function __toString()
+	{
+		return self::TYPE_REDIS;
+	}
 }

@@ -92,4 +92,9 @@ class ArrayCache extends AbstractCache implements IMemoryCache
 			return false;
 		}
 	}
+
+	public function __toString()
+	{
+		return self::TYPE_ARRAY;
+	}
 }
