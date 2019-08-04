@@ -1102,7 +1102,11 @@ class BBCode extends BaseObject
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
 				$text = "[img]" . $match[1] . "[/img]";
 			} else {
-				$text = "[img]" . $match[2] . "[/img]";
+				if (!empty($match[3])) {
+					$text = "[img=" . $match[2] . "]" . $match[3] . "[/img]";
+				} else {
+					$text = "[img]" . $match[2] . "[/img]";
+				}
 
 				// if its not a picture then look if its a page that contains a picture link
 				$body = Network::fetchUrl($match[1]);
@@ -1120,7 +1124,11 @@ class BBCode extends BaseObject
 					}
 
 					if (strtolower($attr["name"]) == "twitter:image") {
-						$text = "[img]" . $attr["content"] . "[/img]";
+						if (!empty($match[3])) {
+							$text = "[img=" . $attr["content"] . "]" . $match[3] . "[/img]";
+						} else {
+							$text = "[img]" . $attr["content"] . "[/img]";
+						}
 					}
 				}
 			}
@@ -1132,7 +1140,8 @@ class BBCode extends BaseObject
 
 	public static function cleanPictureLinks($text)
 	{
-		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
+		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
+		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $return);
 		return $return;
 	}
 
