@@ -53,15 +53,15 @@ class Photo extends BaseModule
 		switch($a->argc) {
 			case 4:
 				$customsize = intval($a->argv[2]);
-				$uid = self::stripExtension($a->argv[3]);
+				$uid = MPhoto::stripExtension($a->argv[3]);
 				$photo = self::getAvatar($uid, $a->argv[1]);
 				break;
 			case 3:
-				$uid = self::stripExtension($a->argv[2]);
+				$uid = MPhoto::stripExtension($a->argv[2]);
 				$photo = self::getAvatar($uid, $a->argv[1]);
 				break;
 			case 2:
-				$photoid = self::stripExtension($a->argv[1]);
+				$photoid = MPhoto::stripExtension($a->argv[1]);
 				$scale = 0;
 				if (substr($photoid, -2, 1) == "-") {
 					$scale = intval(substr($photoid, -1, 1));
@@ -115,15 +115,6 @@ class Photo extends BaseModule
 		echo $img->asString();
 
 		exit();
-	}
-
-	private static function stripExtension($name)
-	{
-		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
-		foreach (Image::supportedTypes() as $m => $e) {
-			$name = str_replace("." . $e, "", $name);
-		}
-		return $name;
 	}
 
 	private static function getAvatar($uid, $type="avatar")
