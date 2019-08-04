@@ -2696,7 +2696,7 @@ function api_get_entitities(&$text, $bbcode)
 	preg_match_all("/\[img\=(.*?)\](.*?)\[\/img\]/ism", $bbcode, $images, PREG_SET_ORDER);
 	$ordered_images = [];
 	foreach ($images as $image) {
-		$start = iconv_strpos($text, Photo::getGUID($image[1]), 0, "UTF-8");
+		$start = iconv_strpos($text, $image[1], 0, "UTF-8");
 		if (!($start === false)) {
 			$ordered_images[$start] = ['url' => $image[1], 'alt' => $image[2]];
 		}
@@ -2704,7 +2704,7 @@ function api_get_entitities(&$text, $bbcode)
 
 	preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
 	foreach ($images[1] as $image) {
-		$start = iconv_strpos($text, Photo::getGUID($image), 0, "UTF-8");
+		$start = iconv_strpos($text, $image, 0, "UTF-8");
 		if (!($start === false)) {
 			$ordered_images[$start] = ['url' => $image, 'alt' => ''];
 		}
@@ -2723,7 +2723,7 @@ function api_get_entitities(&$text, $bbcode)
 			$display_url = substr($display_url, 0, 25)."…";
 		}
 
-		$start = iconv_strpos($text, Photo::getGUID($url), $offset, "UTF-8");
+		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
 			$image = Image::getInfoFromURL($url);
 			if ($image) {
