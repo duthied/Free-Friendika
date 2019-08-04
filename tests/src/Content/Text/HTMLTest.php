@@ -2,12 +2,12 @@
 
 namespace Friendica\Test\src\Content\Text;
 
-use Friendica\Content\Text\Markdown;
+use Friendica\Content\Text\HTML;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;
 
-class MarkdownTest extends MockedTest
+class HTMLTest extends MockedTest
 {
 	use VFSTrait;
 	use AppMockTrait;
@@ -19,16 +19,16 @@ class MarkdownTest extends MockedTest
 		$this->mockApp($this->root);
 	}
 
-	public function dataMarkdown()
+	public function dataHTML()
 	{
-		$inputFiles = glob(__DIR__ . '/../../../datasets/content/text/markdown/*.md');
+		$inputFiles = glob(__DIR__ . '/../../../datasets/content/text/html/*.html');
 
 		$data = [];
 
 		foreach ($inputFiles as $file) {
-			$data[str_replace('.md', '', $file)] = [
+			$data[str_replace('.html', '', $file)] = [
 				'input'    => file_get_contents($file),
-				'expected' => file_get_contents(str_replace('.md', '.html', $file))
+				'expected' => file_get_contents(str_replace('.html', '.txt', $file))
 			];
 		}
 
@@ -37,15 +37,16 @@ class MarkdownTest extends MockedTest
 
 	/**
 	 * Test convert different input Markdown text into HTML
-	 * @dataProvider dataMarkdown
+	 *
+	 * @dataProvider dataHTML
 	 *
 	 * @param string $input    The Markdown text to test
 	 * @param string $expected The expected HTML output
 	 * @throws \Exception
 	 */
-	public function testConvert($input, $expected)
+	public function testToPlaintext($input, $expected)
 	{
-		$output = Markdown::convert($input);
+		$output = HTML::toPlaintext($input, 0);
 
 		$this->assertEquals($expected, $output);
 	}
