@@ -8,8 +8,8 @@ namespace Friendica\Test;
 use Dice\Dice;
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Config;
-use Friendica\Core\PConfig;
+use Friendica\Core\Config\Configuration;
+use Friendica\Core\Config\PConfiguration;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\Database;
@@ -44,6 +44,12 @@ class ApiTest extends DatabaseTest
 	/** @var App */
 	protected $app;
 
+	/** @var Configuration */
+	protected $config;
+
+	/** @var Dice */
+	protected $dice;
+
 	/**
 	 * Create variables used by tests.
 	 */
@@ -51,13 +57,13 @@ class ApiTest extends DatabaseTest
 	{
 		parent::setUp();
 
-		$dice = new Dice();
-		$dice = $dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
-		$dice = $dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
-		BaseObject::setDependencyInjection($dice);
+		$this->dice = new Dice();
+		$this->dice = $this->dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
+		$this->dice = $this->dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		BaseObject::setDependencyInjection($this->dice);
 
 		/** @var Database $dba */
-		$dba = $dice->create(Database::class);
+		$dba = $this->dice->create(Database::class);
 
 		// Load the API dataset for the whole API
 		$this->loadFixture(__DIR__ . '/../datasets/api.fixture.php', $dba);
@@ -101,16 +107,19 @@ class ApiTest extends DatabaseTest
 		$_GET    = [];
 		$_SERVER = [];
 
-		Config::set('system', 'url', 'http://localhost');
-		Config::set('system', 'hostname', 'localhost');
-		Config::set('system', 'worker_dont_fork', true);
+		/** @var Configuration $config */
+		$this->config = $this->dice->create(Configuration::class);
+
+		$this->config->set('system', 'url', 'http://localhost');
+		$this->config->set('system', 'hostname', 'localhost');
+		$this->config->set('system', 'worker_dont_fork', true);
 
 		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
+		$this->config->set('config', 'hostname', 'localhost');
+		$this->config->set('system', 'throttle_limit_day', 100);
+		$this->config->set('system', 'throttle_limit_week', 100);
+		$this->config->set('system', 'throttle_limit_month', 100);
+		$this->config->set('system', 'theme', 'system_theme');
 	}
 
 	/**
@@ -441,8 +450,8 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
-		Config::set('system', 'profiler', true);
-		Config::set('rendertime', 'callstack', true);
+		$this->configset('system', 'profiler', true);
+		$this->configset('rendertime', 'callstack', true);
 		$this->app->callstack = [
 			'database'       => ['some_function' => 200],
 			'database_write' => ['some_function' => 200],
@@ -790,7 +799,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithFrioSchema()
 	{
-		PConfig::set($this->selfUser['id'], 'frio', 'schema', 'red');
+		$pConfig = $this->dice->create(PConfiguration::class);
+		$pConfig->set($this->selfUser['id'], 'frio', 'schema', 'red');
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);
 		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
@@ -805,10 +815,11 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithCustomFrioSchema()
 	{
-		$ret1 = PConfig::set($this->selfUser['id'], 'frio', 'schema', '---');
-		$ret2 = PConfig::set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
-		$ret3 = PConfig::set($this->selfUser['id'], 'frio', 'link_color', '#123456');
-		$ret4 = PConfig::set($this->selfUser['id'], 'frio', 'background_color', '#123456');
+		$pConfig = $this->dice->create(PConfiguration::class);
+		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
+		$pConfig->set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
+		$pConfig->set($this->selfUser['id'], 'frio', 'link_color', '#123456');
+		$pConfig->set($this->selfUser['id'], 'frio', 'background_color', '#123456');
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);
 		$this->assertEquals('123456', $user['profile_sidebar_fill_color']);
@@ -823,7 +834,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithEmptyFrioSchema()
 	{
-		PConfig::set($this->selfUser['id'], 'frio', 'schema', '---');
+		$pConfig = $this->dice->create(PConfiguration::class);
+		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);
 		$this->assertEquals('708fa0', $user['profile_sidebar_fill_color']);
