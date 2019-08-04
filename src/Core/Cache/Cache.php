@@ -29,13 +29,6 @@ abstract class Cache implements ICache
 	const INFINITE     = 0;
 
 	/**
-	 * Force each Cache implementation to define the ToString method
-	 *
-	 * @return string
-	 */
-	abstract function __toString();
-
-	/**
 	 * @var string The hostname
 	 */
 	private $hostName;

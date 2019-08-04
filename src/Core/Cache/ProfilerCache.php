@@ -152,8 +152,11 @@ class ProfilerCache implements ICache, IMemoryCache
 		}
 	}
 
-	public function __toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	public function GetName()
 	{
-		return (string)$this->cache . ' (with profiler)';
+		return $this->cache->getName() . ' (with profiler)';
 	}
 }

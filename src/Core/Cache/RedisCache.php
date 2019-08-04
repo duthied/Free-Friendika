@@ -192,7 +192,10 @@ class RedisCache extends Cache implements IMemoryCache
 		return false;
 	}
 
-	public function __toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
 	{
 		return self::TYPE_REDIS;
 	}

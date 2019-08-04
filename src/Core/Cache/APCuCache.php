@@ -153,7 +153,10 @@ class APCuCache extends Cache implements IMemoryCache
 		return true;
 	}
 
-	public function __toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
 	{
 		return self::TYPE_APCU;
 	}

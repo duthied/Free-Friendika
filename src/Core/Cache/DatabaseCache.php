@@ -110,7 +110,10 @@ class DatabaseCache extends Cache implements ICache
 		}
 	}
 
-	public function __toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
 	{
 		return self::TYPE_DATABASE;
 	}

@@ -148,7 +148,10 @@ class MemcacheCache extends Cache implements IMemoryCache
 		return $this->memcache->add($cachekey, serialize($value), MEMCACHE_COMPRESSED, $ttl);
 	}
 
-	public function __toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
 	{
 		return self::TYPE_MEMCACHE;
 	}

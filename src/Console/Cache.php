@@ -87,7 +87,7 @@ HELP;
 		}
 
 		if ($this->getOption('v')) {
-			$this->out('Cache Driver Name: ' . (string)$this->cache);
+			$this->out('Cache Driver Name: ' . $this->cache->getName());
 			$this->out('Cache Driver Class: ' . get_class($this->cache));
 		}
 

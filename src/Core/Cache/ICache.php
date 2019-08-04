@@ -54,4 +54,11 @@ interface ICache
 	 * @return bool
 	 */
 	public function clear($outdated = true);
+
+	/**
+	 * Returns the name of the current cache
+	 *
+	 * @return string
+	 */
+	public function getName();
 }

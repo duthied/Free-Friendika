@@ -91,7 +91,10 @@ class ArrayCache extends Cache implements IMemoryCache
 		}
 	}
 
-	public function __toString()
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
 	{
 		return self::TYPE_ARRAY;
 	}
