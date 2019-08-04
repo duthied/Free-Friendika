@@ -21,6 +21,7 @@ use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
+use Friendica\Util\Strings;
 
 require_once "include/dba.php";
 
@@ -663,5 +664,49 @@ class Photo extends BaseObject
 		}
 
 		return true;
+	}
+
+	/**
+	 * Strips known picture extensions from picture links
+	 *
+	 * @param string $name Picture link
+	 * @return string stripped picture link
+	 * @throws \Exception
+	 */
+	public static function stripExtension($name)
+	{
+		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
+		foreach (Image::supportedTypes() as $m => $e) {
+			$name = str_replace("." . $e, "", $name);
+		}
+		return $name;
+	}
+
+	/**
+	 * Returns the GUID from picture links
+	 *
+	 * @param string $name Picture link
+	 * @return string GUID
+	 * @throws \Exception
+	 */
+	public static function getGUID($name)
+	{
+		$a = \get_app();
+		$base = $a->getBaseURL();
+
+		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
+
+		$guid = self::stripExtension($guid);
+		if (substr($guid, -2, 1) != "-") {
+			return '';
+		}
+
+		$scale = intval(substr($guid, -1, 1));
+		if (empty($scale)) {
+			return '';
+		}
+
+		$guid = substr($guid, 0, -2);
+		return $guid;
 	}
 }

@@ -2693,19 +2693,29 @@ function api_get_entitities(&$text, $bbcode)
 		}
 	}
 
-	preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
+	preg_match_all("/\[img\=(.*?)\](.*?)\[\/img\]/ism", $bbcode, $images, PREG_SET_ORDER);
 	$ordered_images = [];
-	foreach ($images[1] as $image) {
-		//$start = strpos($text, $url, $offset);
-		$start = iconv_strpos($text, $image, 0, "UTF-8");
+	foreach ($images as $image) {
+		$start = iconv_strpos($text, Photo::getGUID($image[1]), 0, "UTF-8");
 		if (!($start === false)) {
-			$ordered_images[$start] = $image;
+			$ordered_images[$start] = ['url' => $image[1], 'alt' => $image[2]];
+		}
+	}
+
+	preg_match_all("/\[img](.*?)\[\/img\]/ism", $bbcode, $images);
+	foreach ($images[1] as $image) {
+		$start = iconv_strpos($text, Photo::getGUID($image), 0, "UTF-8");
+		if (!($start === false)) {
+			$ordered_images[$start] = ['url' => $image, 'alt' => ''];
 		}
 	}
 	//$entities["media"] = array();
 	$offset = 0;
 
-	foreach ($ordered_images as $url) {
+	foreach ($ordered_images as $image) {
+		$url = $image['url'];
+		$ext_alt_text = $image['alt'];
+
 		$display_url = str_replace(["http://www.", "https://www."], ["", ""], $url);
 		$display_url = str_replace(["http://", "https://"], ["", ""], $display_url);
 
@@ -2713,7 +2723,7 @@ function api_get_entitities(&$text, $bbcode)
 			$display_url = substr($display_url, 0, 25)."…";
 		}
 
-		$start = iconv_strpos($text, $url, $offset, "UTF-8");
+		$start = iconv_strpos($text, Photo::getGUID($url), $offset, "UTF-8");
 		if (!($start === false)) {
 			$image = Image::getInfoFromURL($url);
 			if ($image) {
@@ -2752,6 +2762,7 @@ function api_get_entitities(&$text, $bbcode)
 							"url" => $url,
 							"display_url" => $display_url,
 							"expanded_url" => $url,
+							"ext_alt_text" => $ext_alt_text,
 							"type" => "photo",
 							"sizes" => $sizes];
 			}
