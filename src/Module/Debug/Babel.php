@@ -148,6 +148,12 @@ class Babel extends BaseModule
 						'content' => htmlspecialchars($html2)
 					];
 
+					$bbcode2plain = Text\BBCode::toPlaintext($bbcode);
+					$results[] = [
+						'title'   => L10n::t('HTML::toBBCode => BBCode::toPlaintext'),
+						'content' => '<pre>' . $bbcode2plain . '</pre>'
+					];
+
 					$markdown = Text\HTML::toMarkdown($html);
 					$results[] = [
 						'title'   => L10n::t('HTML::toMarkdown'),
@@ -162,7 +168,7 @@ class Babel extends BaseModule
 
 					$text = Text\HTML::toPlaintext($html, 0, true);
 					$results[] = [
-						'title'   => L10n::t('HTML::toPlaintext'),
+						'title'   => L10n::t('HTML::toPlaintext (compact)'),
 						'content' => '<pre>' . $text . '</pre>'
 					];
 			}
