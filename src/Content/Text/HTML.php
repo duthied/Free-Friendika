@@ -56,6 +56,7 @@ class HTML
 
 		$xpath = new DOMXPath($doc);
 
+		/** @var \DOMNode[] $list */
 		$list = $xpath->query("//" . $tag);
 		foreach ($list as $node) {
 			$attr = [];
@@ -98,9 +99,12 @@ class HTML
 				$node->parentNode->insertBefore($StartCode, $node);
 
 				if ($node->hasChildNodes()) {
+					/** @var \DOMNode $child */
 					foreach ($node->childNodes as $child) {
-						$newNode = $child->cloneNode(true);
-						$node->parentNode->insertBefore($newNode, $node);
+						if (trim($child->nodeValue)) {
+							$newNode = $child->cloneNode(true);
+							$node->parentNode->insertBefore($newNode, $node);
+						}
 					}
 				}
 
@@ -559,6 +563,8 @@ class HTML
 				$ignore = false;
 			}
 
+			$ignore = $ignore || strpos($treffer[1], '#') === 0;
+
 			if (!$ignore) {
 				$urls[$treffer[1]] = $treffer[1];
 			}
@@ -582,7 +588,7 @@ class HTML
 
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
-		@$doc->loadHTML($message);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD | LIBXML_NOBLANKS);
 
 		$message = $doc->saveHTML();
 		// Remove eventual UTF-8 BOM
@@ -591,7 +597,7 @@ class HTML
 		// Collecting all links
 		$urls = self::collectURLs($message);
 
-		@$doc->loadHTML($message);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD | LIBXML_NOBLANKS);
 
 		self::tagToBBCode($doc, 'html', [], '', '');
 		self::tagToBBCode($doc, 'body', [], '', '');
