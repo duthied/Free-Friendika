@@ -57,9 +57,9 @@ class ApiTest extends DatabaseTest
 	{
 		parent::setUp();
 
-		$this->dice = new Dice();
-		$this->dice = $this->dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
-		$this->dice = $this->dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		$this->dice = (new Dice())
+			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
 		BaseObject::setDependencyInjection($this->dice);
 
 		/** @var Database $dba */

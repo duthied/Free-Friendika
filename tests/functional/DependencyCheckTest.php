@@ -32,8 +32,8 @@ class dependencyCheck extends TestCase
 
 		$this->setUpVfsDir();
 
-		$this->dice = new Dice();
-		$this->dice = $this->dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
+		$this->dice = (new Dice())
+			->addRules(include __DIR__ . '/../../static/dependencies.config.php');
 	}
 
 	/**
@@ -87,8 +87,7 @@ class dependencyCheck extends TestCase
 		]);
 
 		// create new DI-library because of shared instance rule (so the Profiler wouldn't get created twice)
-		$this->dice = new Dice(include __DIR__ . '/../../static/dependencies.config.php');
-		$profiler = $this->dice->create(Profiler::class, [$configCache]);
+		$this->dice = (new Dice())->create(Profiler::class, [$configCache]);
 
 		$this->assertInstanceOf(Profiler::class, $profiler);
 		$this->assertTrue($profiler->isRendertime());
