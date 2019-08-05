@@ -709,4 +709,22 @@ class Photo extends BaseObject
 		$guid = substr($guid, 0, -2);
 		return $guid;
 	}
+
+	/**
+	 * Tests if the picture link points to a locally stored picture
+	 *
+	 * @param string $name Picture link
+	 * @return boolean
+	 * @throws \Exception
+	 */
+	public static function isLocal($name)
+	{
+		$guid = self::getGUID($name);
+
+		if (empty($guid)) {
+			return false;
+		}
+
+		return DBA::exists('photo', ['resource-id' => $guid]);
+	}
 }
