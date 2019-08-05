@@ -189,7 +189,6 @@
 					{{include file="field_input.tpl" field=$optimize_fragmentation}}
 					{{include file="field_input.tpl" field=$abandon_days}}
 					{{include file="field_input.tpl" field=$temppath}}
-					{{include file="field_input.tpl" field=$basepath}}
 					{{include file="field_checkbox.tpl" field=$suppress_tags}}
 					{{include file="field_checkbox.tpl" field=$nodeinfo}}
 					{{include file="field_select.tpl" field=$check_new_version_url}}
