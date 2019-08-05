@@ -21,6 +21,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
+use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
@@ -238,11 +239,30 @@ class BBCode extends BaseObject
 		$plink = defaults($item, 'plink', '');
 		$post = self::getAttachmentData($body);
 
+		// Get all linked images with alternative image description
+		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				if (Photo::isLocal($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
+				}
+			}
+			if (!empty($post['images']) && !empty($post['images'][0]['description'])) {
+				$post['image_description'] = $post['images'][0]['description'];
+			}
+		}
+
+		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				if (Photo::isLocal($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => ''];
+				}
+			}
+		}
+
 		// if nothing is found, it maybe having an image.
 		if (!isset($post["type"])) {
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
-
 			$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
 
 			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
