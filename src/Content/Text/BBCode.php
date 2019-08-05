@@ -246,7 +246,7 @@ class BBCode extends BaseObject
 					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
 				}
 			}
-			if (!empty($post['images'][0]['description'])) {
+			if (!empty($post['images']) && !empty($post['images'][0]['description'])) {
 				$post['image_description'] = $post['images'][0]['description'];
 			}
 		}
