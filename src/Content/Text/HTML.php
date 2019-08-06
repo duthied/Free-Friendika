@@ -589,7 +589,7 @@ class HTML
 
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
-		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD | LIBXML_NOBLANKS);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		$message = $doc->saveHTML();
 		// Remove eventual UTF-8 BOM
@@ -598,7 +598,7 @@ class HTML
 		// Collecting all links
 		$urls = self::collectURLs($message);
 
-		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD | LIBXML_NOBLANKS);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		self::tagToBBCode($doc, 'html', [], '', '');
 		self::tagToBBCode($doc, 'body', [], '', '');
