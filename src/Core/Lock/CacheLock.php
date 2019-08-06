@@ -3,21 +3,21 @@
 namespace Friendica\Core\Lock;
 
 use Friendica\Core\Cache;
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Cache\IMemoryCache;
 
-class CacheLockDriver extends AbstractLockDriver
+class CacheLock extends Lock
 {
 	/**
-	 * @var \Friendica\Core\Cache\ICacheDriver;
+	 * @var \Friendica\Core\Cache\ICache;
 	 */
 	private $cache;
 
 	/**
-	 * CacheLockDriver constructor.
+	 * CacheLock constructor.
 	 *
-	 * @param IMemoryCacheDriver $cache The CacheDriver for this type of lock
+	 * @param IMemoryCache $cache The CacheDriver for this type of lock
 	 */
-	public function __construct(IMemoryCacheDriver $cache)
+	public function __construct(IMemoryCache $cache)
 	{
 		$this->cache = $cache;
 	}
@@ -28,7 +28,7 @@ class CacheLockDriver extends AbstractLockDriver
 	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
 		$got_lock = false;
-		$start = time();
+		$start    = time();
 
 		$cachekey = self::getLockKey($key);
 
@@ -65,8 +65,6 @@ class CacheLockDriver extends AbstractLockDriver
 	{
 		$cachekey = self::getLockKey($key);
 
-		$return = false;
-
 		if ($override) {
 			$return = $this->cache->delete($cachekey);
 		} else {
@@ -83,15 +81,17 @@ class CacheLockDriver extends AbstractLockDriver
 	public function isLocked($key)
 	{
 		$cachekey = self::getLockKey($key);
-		$lock = $this->cache->get($cachekey);
+		$lock     = $this->cache->get($cachekey);
 		return isset($lock) && ($lock !== false);
 	}
 
 	/**
-	 * @param string $key	The original key
-	 * @return string		The cache key used for the cache
+	 * @param string $key The original key
+	 *
+	 * @return string        The cache key used for the cache
 	 */
-	private static function getLockKey($key) {
+	private static function getLockKey($key)
+	{
 		return "lock:" . $key;
 	}
 }

@@ -3,26 +3,28 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\Factory\CacheDriverFactory;
-use Friendica\Core\Lock\CacheLockDriver;
+use Friendica\Core\Cache\MemcacheCache;
+use Friendica\Core\Config\Configuration;
+use Friendica\Core\Lock\CacheLock;
 
 /**
  * @requires extension Memcache
  */
-class MemcacheCacheLockDriverTest extends LockTest
+class MemcacheCacheLockTest extends LockTest
 {
 	protected function getInstance()
 	{
-		$this->configMock
+		$configMock = \Mockery::mock(Configuration::class);
+
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_host')
 			->andReturn('localhost');
-
-		$this->configMock
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_port')
 			->andReturn(11211);
 
-		return new CacheLockDriver(CacheDriverFactory::create('memcache'));
+		return new CacheLock(new MemcacheCache('localhost', $configMock));
 	}
 }

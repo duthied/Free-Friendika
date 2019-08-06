@@ -3,23 +3,16 @@
 namespace Friendica\Test\src\Core\Lock;
 
 use Friendica\Test\MockedTest;
-use Friendica\Test\Util\AppMockTrait;
-use Friendica\Test\Util\VFSTrait;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
 
 abstract class LockTest extends MockedTest
 {
-	use VFSTrait;
-	use AppMockTrait;
-
 	/**
 	 * @var int Start time of the mock (used for time operations)
 	 */
 	protected $startTime = 1417011228;
 
 	/**
-	 * @var \Friendica\Core\Lock\ILockDriver
+	 * @var \Friendica\Core\Lock\ILock
 	 */
 	protected $instance;
 
@@ -27,19 +20,8 @@ abstract class LockTest extends MockedTest
 
 	protected function setUp()
 	{
-		// Reusable App object
-		$this->setUpVfsDir();
-		$this->mockApp($this->root);
-		$this->app
-			->shouldReceive('getHostname')
-			->andReturn('friendica.local');
-
-		$logger = new NullLogger();
-		$this->dice->shouldReceive('create')
-		           ->with(LoggerInterface::class)
-		           ->andReturn($logger);
-
 		parent::setUp();
+
 		$this->instance = $this->getInstance();
 		$this->instance->releaseAll();
 	}
@@ -53,7 +35,8 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @small
 	 */
-	public function testLock() {
+	public function testLock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
@@ -63,7 +46,8 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @small
 	 */
-	public function testDoubleLock() {
+	public function testDoubleLock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
@@ -74,7 +58,8 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @small
 	 */
-	public function testReleaseLock() {
+	public function testReleaseLock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
@@ -85,7 +70,8 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @small
 	 */
-	public function testReleaseAll() {
+	public function testReleaseAll()
+	{
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->acquireLock('bar', 1));
 		$this->assertTrue($this->instance->acquireLock('nice', 1));
@@ -104,7 +90,8 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @small
 	 */
-	public function testReleaseAfterUnlock() {
+	public function testReleaseAfterUnlock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
 		$this->assertFalse($this->instance->isLocked('nice'));
@@ -139,7 +126,8 @@ abstract class LockTest extends MockedTest
 	/**
 	 * @medium
 	 */
-	function testLockTTL() {
+	function testLockTTL()
+	{
 		$this->markTestSkipped('taking too much time without mocking');
 
 		$this->assertFalse($this->instance->isLocked('foo'));

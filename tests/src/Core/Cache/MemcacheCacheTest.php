@@ -1,30 +1,30 @@
 <?php
 
-
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Factory\CacheDriverFactory;
+use Friendica\Core\Cache\MemcacheCache;
+use Friendica\Core\Config\Configuration;
 
 /**
  * @requires extension memcache
  */
-class MemcacheCacheDriverTest extends MemoryCacheTest
+class MemcacheCacheTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
-		$this->configMock
+		$configMock = \Mockery::mock(Configuration::class);
+
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_host')
 			->andReturn('localhost');
-
-		$this->configMock
+		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_port')
 			->andReturn(11211);
 
-		$this->cache = CacheDriverFactory::create('memcache');
+		$this->cache = new MemcacheCache('localhost', $configMock);
 		return $this->cache;
-
 	}
 
 	public function tearDown()

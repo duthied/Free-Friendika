@@ -1,18 +1,43 @@
 <?php
 
 namespace Friendica\Core\Cache;
-use Friendica\BaseObject;
-
 
 /**
  * Abstract class for common used functions
  *
- * Class AbstractCacheDriver
+ * Class AbstractCache
  *
  * @package Friendica\Core\Cache
  */
-abstract class AbstractCacheDriver extends BaseObject
+abstract class Cache implements ICache
 {
+	const TYPE_APCU      = 'apcu';
+	const TYPE_ARRAY     = 'array';
+	const TYPE_DATABASE  = 'database';
+	const TYPE_MEMCACHE  = 'memcache';
+	const TYPE_MEMCACHED = 'memcached';
+	const TYPE_REDIS     = 'redis';
+
+	const MONTH        = 2592000;
+	const WEEK         = 604800;
+	const DAY          = 86400;
+	const HOUR         = 3600;
+	const HALF_HOUR    = 1800;
+	const QUARTER_HOUR = 900;
+	const FIVE_MINUTES = 300;
+	const MINUTE       = 60;
+	const INFINITE     = 0;
+
+	/**
+	 * @var string The hostname
+	 */
+	private $hostName;
+
+	public function __construct(string $hostName)
+	{
+		$this->hostName = $hostName;
+	}
+
 	/**
 	 * Returns the prefix (to avoid namespace conflicts)
 	 *
@@ -22,7 +47,7 @@ abstract class AbstractCacheDriver extends BaseObject
 	protected function getPrefix()
 	{
 		// We fetch with the hostname as key to avoid problems with other applications
-		return self::getApp()->getHostName();
+		return $this->hostName;
 	}
 
 	/**
@@ -46,7 +71,7 @@ abstract class AbstractCacheDriver extends BaseObject
 		} else {
 			// Keys are prefixed with the node hostname, let's remove it
 			array_walk($keys, function (&$value) {
-				$value = preg_replace('/^' . self::getApp()->getHostName() . ':/', '', $value);
+				$value = preg_replace('/^' . $this->hostName . ':/', '', $value);
 			});
 
 			sort($keys);
@@ -79,6 +104,5 @@ abstract class AbstractCacheDriver extends BaseObject
 
 			return $result;
 		}
-
 	}
 }

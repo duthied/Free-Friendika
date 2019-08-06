@@ -2,18 +2,17 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-use Friendica\Core\Logger;
-
 use Exception;
+use Friendica\Core\Config\Configuration;
 use Memcached;
+use Psr\Log\LoggerInterface;
 
 /**
- * Memcached Cache Driver
+ * Memcached Cache
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDriver
+class MemcachedCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -24,6 +23,11 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	private $memcached;
 
 	/**
+	 * @var LoggerInterface
+	 */
+	private $logger;
+
+	/**
 	 * Due to limitations of the INI format, the expected configuration for Memcached servers is the following:
 	 * array {
 	 *   0 => "hostname, port(, weight)",
@@ -31,15 +35,22 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	 * }
 	 *
 	 * @param array $memcached_hosts
+	 *
 	 * @throws \Exception
 	 */
-	public function __construct(array $memcached_hosts)
+	public function __construct(string $hostname, Configuration $config, LoggerInterface $logger)
 	{
 		if (!class_exists('Memcached', false)) {
 			throw new Exception('Memcached class isn\'t available');
 		}
 
+		parent::__construct($hostname);
+
+		$this->logger = $logger;
+
 		$this->memcached = new Memcached();
+
+		$memcached_hosts = $config->get('system', 'memcached_hosts');
 
 		array_walk($memcached_hosts, function (&$value) {
 			if (is_string($value)) {
@@ -64,7 +75,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 		if ($this->memcached->getResultCode() == Memcached::RES_SUCCESS) {
 			return $this->filterArrayKeysByPrefix($keys, $prefix);
 		} else {
-			Logger::log('Memcached \'getAllKeys\' failed with ' . $this->memcached->getResultMessage(), Logger::ALL);
+			$this->logger->debug('Memcached \'getAllKeys\' failed', ['result' => $this->memcached->getResultMessage()]);
 			return [];
 		}
 	}
@@ -74,7 +85,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	 */
 	public function get($key)
 	{
-		$return = null;
+		$return   = null;
 		$cachekey = $this->getCacheKey($key);
 
 		// We fetch with the hostname as key to avoid problems with other applications
@@ -83,7 +94,7 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 		if ($this->memcached->getResultCode() === Memcached::RES_SUCCESS) {
 			$return = $value;
 		} else {
-			Logger::log('Memcached \'get\' failed with ' . $this->memcached->getResultMessage(), Logger::ALL);
+			$this->logger->debug('Memcached \'get\' failed', ['result' => $this->memcached->getResultMessage()]);
 		}
 
 		return $return;
@@ -139,5 +150,13 @@ class MemcachedCacheDriver extends AbstractCacheDriver implements IMemoryCacheDr
 	{
 		$cachekey = $this->getCacheKey($key);
 		return $this->memcached->add($cachekey, $value, $ttl);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return self::TYPE_MEMCACHED;
 	}
 }

@@ -7,6 +7,7 @@
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 
+use Dice\Dice;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
@@ -31,8 +32,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$dice = new \Dice\Dice();
-$dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
 
 \Friendica\BaseObject::setDependencyInjection($dice);
 $a = \Friendica\BaseObject::getApp();

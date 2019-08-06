@@ -7,116 +7,28 @@
 
 namespace Friendica\Core;
 
-use Friendica\Factory\CacheDriverFactory;
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\BaseObject;
+use Friendica\Core\Cache\Cache;
+use Friendica\Core\Lock\ILock;
 
 /**
- * @brief This class contain Functions for preventing parallel execution of functions
+ * This class contain Functions for preventing parallel execution of functions
  */
-class Lock
+class Lock extends BaseObject
 {
-	/**
-	 * @var Lock\ILockDriver;
-	 */
-	static $driver = null;
-
-	public static function init()
-	{
-		$lock_driver = Config::get('system', 'lock_driver', 'default');
-
-		try {
-			switch ($lock_driver) {
-				case 'memcache':
-				case 'memcached':
-				case 'redis':
-					$cache_driver = CacheDriverFactory::create($lock_driver);
-					if ($cache_driver instanceof IMemoryCacheDriver) {
-						self::$driver = new Lock\CacheLockDriver($cache_driver);
-					}
-					break;
-
-				case 'database':
-					self::$driver = new Lock\DatabaseLockDriver();
-					break;
-
-				case 'semaphore':
-					self::$driver = new Lock\SemaphoreLockDriver();
-					break;
-
-				default:
-					self::useAutoDriver();
-			}
-		} catch (\Exception $exception) {
-			Logger::log('Driver \'' . $lock_driver . '\' failed - Fallback to \'useAutoDriver()\'');
-			self::useAutoDriver();
-		}
-	}
-
-	/**
-	 * @brief This method tries to find the best - local - locking method for Friendica
-	 *
-	 * The following sequence will be tried:
-	 * 1. Semaphore Locking
-	 * 2. Cache Locking
-	 * 3. Database Locking
-	 *
-	 */
-	private static function useAutoDriver() {
-
-		// 1. Try to use Semaphores for - local - locking
-		if (function_exists('sem_get')) {
-			try {
-				self::$driver = new Lock\SemaphoreLockDriver();
-				return;
-			} catch (\Exception $exception) {
-				Logger::log('Using Semaphore driver for locking failed: ' . $exception->getMessage());
-			}
-		}
-
-		// 2. Try to use Cache Locking (don't use the DB-Cache Locking because it works different!)
-		$cache_driver = Config::get('system', 'cache_driver', 'database');
-		if ($cache_driver != 'database') {
-			try {
-				$lock_driver = CacheDriverFactory::create($cache_driver);
-				if ($lock_driver instanceof IMemoryCacheDriver) {
-					self::$driver = new Lock\CacheLockDriver($lock_driver);
-				}
-				return;
-			} catch (\Exception $exception) {
-				Logger::log('Using Cache driver for locking failed: ' . $exception->getMessage());
-			}
-		}
-
-		// 3. Use Database Locking as a Fallback
-		self::$driver = new Lock\DatabaseLockDriver();
-	}
-
-	/**
-	 * Returns the current cache driver
-	 *
-	 * @return Lock\ILockDriver;
-	 */
-	private static function getDriver()
-	{
-		if (self::$driver === null) {
-			self::init();
-		}
-
-		return self::$driver;
-	}
-
 	/**
 	 * @brief Acquires a lock for a given name
 	 *
-	 * @param string  $key Name of the lock
+	 * @param string  $key     Name of the lock
 	 * @param integer $timeout Seconds until we give up
-	 * @param integer $ttl The Lock lifespan, must be one of the Cache constants
+	 * @param integer $ttl     The Lock lifespan, must be one of the Cache constants
 	 *
 	 * @return boolean Was the lock successful?
+	 * @throws \Exception
 	 */
 	public static function acquire($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
 	{
-		return self::getDriver()->acquireLock($key, $timeout, $ttl);
+		return self::getClass(ILock::class)->acquireLock($key, $timeout, $ttl);
 	}
 
 	/**
@@ -124,19 +36,22 @@ class Lock
 	 *
 	 * @param string $key      Name of the lock
 	 * @param bool   $override Overrides the lock to get releases
+	 *
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function release($key, $override = false)
 	{
-		self::getDriver()->releaseLock($key, $override);
+		return self::getClass(ILock::class)->releaseLock($key, $override);
 	}
 
 	/**
 	 * @brief Releases all lock that were set by us
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function releaseAll()
 	{
-		self::getDriver()->releaseAll();
+		self::getClass(ILock::class)->releaseAll();
 	}
 }

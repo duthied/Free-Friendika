@@ -32,6 +32,7 @@
  *
  */
 
+use Dice\Dice;
 use Friendica\App\Mode;
 use Friendica\BaseObject;
 use Friendica\Util\ExAuth;
@@ -52,8 +53,7 @@ chdir($directory);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
-$dice = new \Dice\Dice();
-$dice = $dice->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
 BaseObject::setDependencyInjection($dice);
 
 $appMode = $dice->create(Mode::class);

@@ -4,50 +4,33 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Factory\CacheDriverFactory;
+use Friendica\BaseObject;
+use Friendica\Core\Cache\Cache as CacheClass;
+use Friendica\Core\Cache\ICache;
 
 /**
  * @brief Class for storing data for a short time
  */
-class Cache extends \Friendica\BaseObject
+class Cache extends BaseObject
 {
-	const MONTH        = 2592000;
-	const WEEK         = 604800;
-	const DAY          = 86400;
-	const HOUR         = 3600;
-	const HALF_HOUR    = 1800;
-	const QUARTER_HOUR = 900;
-	const FIVE_MINUTES = 300;
-	const MINUTE       = 60;
-	const INFINITE     = 0;
-
-	/**
-	 * @var Cache\ICacheDriver
-	 */
-	private static $driver       = null;
-	public  static $driver_class = null;
-	public  static $driver_name  = null;
-
-	public static function init()
-	{
-		self::$driver_name  = Config::get('system', 'cache_driver', 'database');
-		self::$driver       = CacheDriverFactory::create(self::$driver_name);
-		self::$driver_class = get_class(self::$driver);
-	}
-
-	/**
-	 * Returns the current cache driver
-	 *
-	 * @return Cache\ICacheDriver
-	 */
-	private static function getDriver()
-	{
-		if (self::$driver === null) {
-			self::init();
-		}
-
-		return self::$driver;
-	}
+	/** @deprecated Use CacheClass::MONTH */
+	const MONTH        = CacheClass::MONTH;
+	/** @deprecated Use CacheClass::WEEK */
+	const WEEK         = CacheClass::WEEK;
+	/** @deprecated Use CacheClass::DAY */
+	const DAY          = CacheClass::DAY;
+	/** @deprecated Use CacheClass::HOUR */
+	const HOUR         = CacheClass::HOUR;
+	/** @deprecated Use CacheClass::HALF_HOUR */
+	const HALF_HOUR    = CacheClass::HALF_HOUR;
+	/** @deprecated Use CacheClass::QUARTER_HOUR */
+	const QUARTER_HOUR = CacheClass::QUARTER_HOUR;
+	/** @deprecated Use CacheClass::FIVE_MINUTES */
+	const FIVE_MINUTES = CacheClass::FIVE_MINUTES;
+	/** @deprecated Use CacheClass::MINUTE */
+	const MINUTE       = CacheClass::MINUTE;
+	/** @deprecated Use CacheClass::INFINITE */
+	const INFINITE     = CacheClass::INFINITE;
 
 	/**
 	 * @brief Returns all the cache keys sorted alphabetically
@@ -59,13 +42,7 @@ class Cache extends \Friendica\BaseObject
 	 */
 	public static function getAllKeys($prefix = null)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->getAllKeys($prefix);
-
-		self::getApp()->getProfiler()->saveTimestamp($time, 'cache', System::callstack());
-
-		return $return;
+		return self::getClass(ICache::class)->getAllKeys($prefix);
 	}
 
 	/**
@@ -78,13 +55,7 @@ class Cache extends \Friendica\BaseObject
 	 */
 	public static function get($key)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->get($key);
-
-		self::getApp()->getProfiler()->saveTimestamp($time, 'cache', System::callstack());
-
-		return $return;
+		return self::getClass(ICache::class)->get($key);
 	}
 
 	/**
@@ -99,15 +70,9 @@ class Cache extends \Friendica\BaseObject
 	 * @return bool
 	 * @throws \Exception
 	 */
-	public static function set($key, $value, $duration = self::MONTH)
+	public static function set($key, $value, $duration = CacheClass::MONTH)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->set($key, $value, $duration);
-
-		self::getApp()->getProfiler()->saveTimestamp($time, 'cache_write', System::callstack());
-
-		return $return;
+		return self::getClass(ICache::class)->set($key, $value, $duration);
 	}
 
 	/**
@@ -120,13 +85,7 @@ class Cache extends \Friendica\BaseObject
 	 */
 	public static function delete($key)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->delete($key);
-
-		self::getApp()->getProfiler()->saveTimestamp($time, 'cache_write', System::callstack());
-
-		return $return;
+		return self::getClass(ICache::class)->delete($key);
 	}
 
 	/**
@@ -135,9 +94,10 @@ class Cache extends \Friendica\BaseObject
 	 * @param boolean $outdated just remove outdated values
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function clear($outdated = true)
 	{
-		return self::getDriver()->clear($outdated);
+		return self::getClass(ICache::class)->clear($outdated);
 	}
 }

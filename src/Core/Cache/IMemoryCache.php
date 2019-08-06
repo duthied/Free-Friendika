@@ -1,16 +1,15 @@
 <?php
 
 namespace Friendica\Core\Cache;
-use Friendica\Core\Cache;
 
 /**
  * This interface defines methods for Memory-Caches only
  *
- * Interface IMemoryCacheDriver
+ * Interface IMemoryCache
  *
  * @package Friendica\Core\Cache
  */
-interface IMemoryCacheDriver extends ICacheDriver
+interface IMemoryCache extends ICache
 {
 	/**
 	 * Sets a value if it's not already stored

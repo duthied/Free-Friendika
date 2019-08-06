@@ -15,9 +15,9 @@ class DBStructureTest extends DatabaseTest
 	{
 		parent::setUp();
 
-		$dice = new Dice();
-		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
-		$dice = $dice->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		$dice = (new Dice())
+			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
 		BaseObject::setDependencyInjection($dice);
 	}
 

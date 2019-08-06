@@ -4,8 +4,14 @@ namespace Friendica\Test\Util;
 
 trait DbaCacheMockTrait
 {
-	use DBAMockTrait;
-	use DateTimeFormatMockTrait;
+	/**
+	 * @var
+	 */
+	protected $dba;
+
+	public function __construct()
+	{
+	}
 
 	protected function mockDelete($key, $return = true, $times = null)
 	{

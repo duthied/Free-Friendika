@@ -2,17 +2,28 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-use Friendica\Database\DBA;
+use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * Database Cache Driver
+ * Database Cache
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
+class DatabaseCache extends Cache implements ICache
 {
+	/**
+	 * @var Database
+	 */
+	private $dba;
+
+	public function __construct(string $hostname, Database $dba)
+	{
+		parent::__construct($hostname);
+
+		$this->dba = $dba;
+	}
+
 	/**
 	 * (@inheritdoc)
 	 */
@@ -24,13 +35,13 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 			$where = ['`expires` >= ? AND `k` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
 		}
 
-		$stmt = DBA::select('cache', ['k'], $where);
+		$stmt = $this->dba->select('cache', ['k'], $where);
 
 		$keys = [];
-		while ($key = DBA::fetch($stmt)) {
+		while ($key = $this->dba->fetch($stmt)) {
 			array_push($keys, $key['k']);
 		}
-		DBA::close($stmt);
+		$this->dba->close($stmt);
 
 		return $keys;
 	}
@@ -40,9 +51,9 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	 */
 	public function get($key)
 	{
-		$cache = DBA::selectFirst('cache', ['v'], ['`k` = ? AND (`expires` >= ? OR `expires` = -1)', $key, DateTimeFormat::utcNow()]);
+		$cache = $this->dba->selectFirst('cache', ['v'], ['`k` = ? AND (`expires` >= ? OR `expires` = -1)', $key, DateTimeFormat::utcNow()]);
 
-		if (DBA::isResult($cache)) {
+		if ($this->dba->isResult($cache)) {
 			$cached = $cache['v'];
 			$value = @unserialize($cached);
 
@@ -76,7 +87,7 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 			];
 		}
 
-		return DBA::update('cache', $fields, ['k' => $key], true);
+		return $this->dba->update('cache', $fields, ['k' => $key], true);
 	}
 
 	/**
@@ -84,7 +95,7 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	 */
 	public function delete($key)
 	{
-		return DBA::delete('cache', ['k' => $key]);
+		return $this->dba->delete('cache', ['k' => $key]);
 	}
 
 	/**
@@ -93,9 +104,17 @@ class DatabaseCacheDriver extends AbstractCacheDriver implements ICacheDriver
 	public function clear($outdated = true)
 	{
 		if ($outdated) {
-			return DBA::delete('cache', ['`expires` < NOW()']);
+			return $this->dba->delete('cache', ['`expires` < NOW()']);
 		} else {
-			return DBA::delete('cache', ['`k` IS NOT NULL ']);
+			return $this->dba->delete('cache', ['`k` IS NOT NULL ']);
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return self::TYPE_DATABASE;
 	}
 }

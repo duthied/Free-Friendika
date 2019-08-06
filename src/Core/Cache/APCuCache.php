@@ -3,14 +3,13 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
-use Friendica\Core\Cache;
 
 /**
- * APCu Cache Driver.
+ * APCu Cache.
  *
  * @author Philipp Holzer <admin@philipp.info>
  */
-class APCuCache extends AbstractCacheDriver implements IMemoryCacheDriver
+class APCuCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -18,11 +17,13 @@ class APCuCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	/**
 	 * @throws Exception
 	 */
-	public function __construct()
+	public function __construct(string $hostname)
 	{
 		if (!self::isAvailable()) {
 			throw new Exception('APCu is not available.');
 		}
+
+		parent::__construct($hostname);
 	}
 
 	/**
@@ -150,5 +151,13 @@ class APCuCache extends AbstractCacheDriver implements IMemoryCacheDriver
 		}
 
 		return true;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return self::TYPE_APCU;
 	}
 }

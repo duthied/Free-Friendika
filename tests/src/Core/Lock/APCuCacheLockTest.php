@@ -2,11 +2,10 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-
 use Friendica\Core\Cache\APCuCache;
-use Friendica\Core\Lock\CacheLockDriver;
+use Friendica\Core\Lock\CacheLock;
 
-class APCuCacheLockDriverTest extends LockTest
+class APCuCacheLockTest extends LockTest
 {
 	protected function setUp()
 	{
@@ -19,6 +18,6 @@ class APCuCacheLockDriverTest extends LockTest
 
 	protected function getInstance()
 	{
-		return new CacheLockDriver(new APCuCache());
+		return new CacheLock(new APCuCache('localhost'));
 	}
 }

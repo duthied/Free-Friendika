@@ -2,14 +2,12 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 /**
- * Cache Driver Interface
+ * Cache Interface
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-interface ICacheDriver
+interface ICache
 {
 	/**
 	 * Lists all cache keys
@@ -56,4 +54,11 @@ interface ICacheDriver
 	 * @return bool
 	 */
 	public function clear($outdated = true);
+
+	/**
+	 * Returns the name of the current cache
+	 *
+	 * @return string
+	 */
+	public function getName();
 }

@@ -4,11 +4,11 @@ namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\ArrayCache;
 
-class ArrayCacheDriverTest extends MemoryCacheTest
+class ArrayCacheTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
-		$this->cache = new ArrayCache();
+		$this->cache = new ArrayCache('localhost');
 		return $this->cache;
 	}
 
