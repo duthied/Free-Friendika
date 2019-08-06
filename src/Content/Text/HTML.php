@@ -102,7 +102,7 @@ class HTML
 					/** @var \DOMNode $child */
 					foreach ($node->childNodes as $key => $child) {
 						/* Remove empty text nodes at the start or at the end of the children list */
-						if ($key > 0 && $key < count($node->childNodes) -1 || trim($child->nodeValue)) {
+						if ($key > 0 && $key < $node->childNodes->length - 1 || trim($child->nodeValue)) {
 							$newNode = $child->cloneNode(true);
 							$node->parentNode->insertBefore($newNode, $node);
 						}
