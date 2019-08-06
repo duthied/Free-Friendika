@@ -8,6 +8,11 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Term;
 
+/**
+ * Trending tags aside widget for the community pages, handles both local and global scopes
+ *
+ * @package Friendica\Content\Widget
+ */
 class TrendingTags
 {
 	/**

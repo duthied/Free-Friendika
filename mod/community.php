@@ -4,15 +4,16 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
+use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 
@@ -202,8 +203,8 @@ function community_content(App $a, $update = 0)
 		$a->page['aside'] = '';
 	}
 
-	if (\Friendica\Content\Feature::isEnabled(local_user(), 'trending_tags')) {
-		$a->page['aside'] .= \Friendica\Content\Widget\TrendingTags::getHTML($content);
+	if (Feature::isEnabled(local_user(), 'trending_tags')) {
+		$a->page['aside'] .= TrendingTags::getHTML($content);
 	}
 
 	$t = Renderer::getMarkupTemplate("community.tpl");
