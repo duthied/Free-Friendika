@@ -100,8 +100,9 @@ class HTML
 
 				if ($node->hasChildNodes()) {
 					/** @var \DOMNode $child */
-					foreach ($node->childNodes as $child) {
-						if (trim($child->nodeValue)) {
+					foreach ($node->childNodes as $key => $child) {
+						/* Remove empty text nodes at the start or at the end of the children list */
+						if ($key > 0 && $key < count($node->childNodes) -1 || trim($child->nodeValue)) {
 							$newNode = $child->cloneNode(true);
 							$node->parentNode->insertBefore($newNode, $node);
 						}
@@ -170,7 +171,7 @@ class HTML
 
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
-		@$doc->loadHTML($message);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		XML::deleteNode($doc, 'style');
 		XML::deleteNode($doc, 'head');
@@ -190,7 +191,8 @@ class HTML
 		$message = $doc->saveHTML();
 		$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br />", " ", ""], $message);
 		$message = preg_replace('= [\s]*=i', " ", $message);
-		@$doc->loadHTML($message);
+
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		self::tagToBBCode($doc, 'html', [], "", "");
 		self::tagToBBCode($doc, 'body', [], "", "");
