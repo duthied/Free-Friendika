@@ -198,6 +198,14 @@ function community_content(App $a, $update = 0)
 		$o .= $pager->renderMinimal(count($r));
 	}
 
+	if (empty($a->page['aside'])) {
+		$a->page['aside'] = '';
+	}
+
+	if (\Friendica\Content\Feature::isEnabled(local_user(), 'trending_tags')) {
+		$a->page['aside'] .= \Friendica\Content\Widget\TrendingTags::getHTML($content);
+	}
+
 	$t = Renderer::getMarkupTemplate("community.tpl");
 	return Renderer::replaceMacros($t, [
 		'$content' => $o,
