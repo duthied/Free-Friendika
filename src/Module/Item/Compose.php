@@ -171,7 +171,7 @@ class Compose extends BaseModule
 			'$posttype'     => $posttype,
 			'$type'         => $type,
 			'$wall'         => $wall,
-			'$default'      => L10n::t(''),
+			'$default'      => '',
 			'$mylink'       => $a->removeBaseURL($a->contact['url']),
 			'$mytitle'      => L10n::t('This is you'),
 			'$myphoto'      => $a->removeBaseURL($a->contact['thumb']),
