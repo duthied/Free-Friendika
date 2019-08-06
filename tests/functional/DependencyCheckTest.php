@@ -87,7 +87,7 @@ class dependencyCheck extends TestCase
 		]);
 
 		// create new DI-library because of shared instance rule (so the Profiler wouldn't get created twice)
-		$this->dice = new Dice(include __DIR__ . '/../../static/dependencies.config.php');
+		$this->dice = new Dice();
 		$profiler = $this->dice->create(Profiler::class, [$configCache]);
 
 		$this->assertInstanceOf(Profiler::class, $profiler);
