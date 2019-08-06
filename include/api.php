@@ -1157,19 +1157,21 @@ function api_statuses_update($type)
 		}
 	}
 
-	// To-Do: Multiple IDs
 	if (requestdata('media_ids')) {
-		$r = q(
-			"SELECT `resource-id`, `scale`, `nickname`, `type`, `desc` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
-			intval(requestdata('media_ids')),
-			api_user()
-		);
-		if (DBA::isResult($r)) {
-			$phototypes = Image::supportedTypes();
-			$ext = $phototypes[$r[0]['type']];
-			$description = $r[0]['desc'] ?? '';
-			$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
-			$_REQUEST['body'] .= '[img=' . System::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . ']' . $description . '[/img][/url]';
+		$ids = explode(',', requestdata('media_ids'));
+		foreach ($ids as $id) {
+			$r = q(
+				"SELECT `resource-id`, `scale`, `nickname`, `type`, `desc` FROM `photo` INNER JOIN `user` ON `user`.`uid` = `photo`.`uid` WHERE `resource-id` IN (SELECT `resource-id` FROM `photo` WHERE `id` = %d) AND `scale` > 0 AND `photo`.`uid` = %d ORDER BY `photo`.`width` DESC LIMIT 1",
+				intval($id),
+				api_user()
+			);
+			if (DBA::isResult($r)) {
+				$phototypes = Image::supportedTypes();
+				$ext = $phototypes[$r[0]['type']];
+				$description = $r[0]['desc'] ?? '';
+				$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
+				$_REQUEST['body'] .= '[img=' . System::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . ']' . $description . '[/img][/url]';
+			}
 		}
 	}
 

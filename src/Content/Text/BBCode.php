@@ -264,6 +264,7 @@ class BBCode extends BaseObject
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 			$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
+			$post["text"] = $body;
 
 			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
@@ -308,6 +309,10 @@ class BBCode extends BaseObject
 					$post["url"] = $plink;
 					$post["image"] = $pictures[0][2];
 					$post["text"] = $body;
+
+					foreach ($pictures as $picture) {
+						$post["text"] = trim(str_replace($picture[0], "", $post["text"]));
+					}
 				}
 			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
@@ -319,12 +324,16 @@ class BBCode extends BaseObject
 					$post["url"] = $plink;
 					$post["image"] = $pictures[0][1];
 					$post["text"] = $body;
+
+					foreach ($pictures as $picture) {
+						$post["text"] = trim(str_replace($picture[0], "", $post["text"]));
+					}
 				}
 			}
 
 			// Test for the external links
-			preg_match_all("(\[url\](.*?)\[\/url\])ism", $body, $links1, PREG_SET_ORDER);
-			preg_match_all("(\[url\=(.*?)\].*?\[\/url\])ism", $body, $links2, PREG_SET_ORDER);
+			preg_match_all("(\[url\](.*?)\[\/url\])ism", $post["text"], $links1, PREG_SET_ORDER);
+			preg_match_all("(\[url\=(.*?)\].*?\[\/url\])ism", $post["text"], $links2, PREG_SET_ORDER);
 
 			$links = array_merge($links1, $links2);
 
@@ -332,15 +341,14 @@ class BBCode extends BaseObject
 			// This should cover link posts via API.
 			if ((count($links) == 1) && !isset($post["preview"]) && !$has_title) {
 				$post["type"] = "link";
-				$post["text"] = trim($body);
 				$post["url"] = $links[0][1];
 			}
 
 			// Now count the number of external media links
-			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $body, $links1, PREG_SET_ORDER);
-			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $body, $links2, PREG_SET_ORDER);
-			preg_match_all("(\[video\\](.*?)\[\/video\\])ism", $body, $links3, PREG_SET_ORDER);
-			preg_match_all("(\[audio\\](.*?)\[\/audio\\])ism", $body, $links4, PREG_SET_ORDER);
+			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $post["text"], $links1, PREG_SET_ORDER);
+			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $post["text"], $links2, PREG_SET_ORDER);
+			preg_match_all("(\[video\\](.*?)\[\/video\\])ism", $post["text"], $links3, PREG_SET_ORDER);
+			preg_match_all("(\[audio\\](.*?)\[\/audio\\])ism", $post["text"], $links4, PREG_SET_ORDER);
 
 			// Add them to the other external links
 			$links = array_merge($links, $links1, $links2, $links3, $links4);
