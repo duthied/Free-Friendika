@@ -160,7 +160,7 @@ class Babel extends BaseModule
 						'content' => visible_whitespace($markdown)
 					];
 
-					$text = Text\HTML::toPlaintext($html);
+					$text = Text\HTML::toPlaintext($html, 0);
 					$results[] = [
 						'title'   => L10n::t('HTML::toPlaintext'),
 						'content' => '<pre>' . $text . '</pre>'
