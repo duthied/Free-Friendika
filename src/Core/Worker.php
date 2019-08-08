@@ -1125,7 +1125,8 @@ class Worker
 		}
 
 		$priority = PRIORITY_MEDIUM;
-		$dont_fork = Config::get("system", "worker_dont_fork", false);
+		// Don't fork from frontend tasks by default
+		$dont_fork = Config::get("system", "worker_dont_fork", false) || !\get_app()->isBackend();
 		$created = DateTimeFormat::utcNow();
 		$force_priority = false;
 
