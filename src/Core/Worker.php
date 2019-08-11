@@ -1194,6 +1194,32 @@ class Worker
 	}
 
 	/**
+	 * Returns the next retrial level for worker jobs.
+	 * This function will skip levels when jobs are older.
+	 *
+	 * @param array $queue Worker queue entry
+	 * @param integer $max_level maximum retrial level
+	 * @return integer the next retrial level value
+	 */
+	private static function getNextRetrial($queue, $max_level)
+	{
+		$created = strtotime($queue['created']);
+		$retrial_time = time() - $created;
+
+		$new_retrial = $queue['retrial'] + 1;
+		$total = 0;
+		for ($retrial = 0; $retrial <= $max_level + 1; ++$retrial) {
+			$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
+			$total += $delay;
+			if (($total < $retrial_time) && ($retrial > $queue['retrial'])) {
+				$new_retrial = $retrial;
+			}
+		}
+		Logger::info('New retrial for task', ['id' => $queue['id'], 'created' => $queue['created'], 'old' => $queue['retrial'], 'new' => $new_retrial]);
+		return $new_retrial;
+	}
+
+	/**
 	 * Defers the current worker entry
 	 */
 	public static function defer()
@@ -1208,27 +1234,30 @@ class Worker
 		$id = $queue['id'];
 		$priority = $queue['priority'];
 
-		if ($retrial > 14) {
-			Logger::log('Id ' . $id . ' had been tried 14 times. We stop now.', Logger::DEBUG);
+		$max_level = 15;
+		$new_retrial = self::getNextRetrial($queue, $max_level);
+
+		if ($new_retrial > $max_level) {
+			Logger::info('The task exceeded the maximum retry count', ['id' => $id, 'max_level' => $max_level, 'retrial' => $new_retrial]);
 			return;
 		}
 
 		// Calculate the delay until the next trial
-		$delay = (($retrial + 3) ** 4) + (rand(1, 30) * ($retrial + 1));
+		$delay = (($new_retrial + 2) ** 4) + (rand(1, 30) * ($new_retrial));
 		$next = DateTimeFormat::utc('now + ' . $delay . ' seconds');
 
-		if (($priority < PRIORITY_MEDIUM) && ($retrial > 2)) {
+		if (($priority < PRIORITY_MEDIUM) && ($new_retrial > 3)) {
 			$priority = PRIORITY_MEDIUM;
-		} elseif (($priority < PRIORITY_LOW) && ($retrial > 5)) {
+		} elseif (($priority < PRIORITY_LOW) && ($new_retrial > 6)) {
 			$priority = PRIORITY_LOW;
-		} elseif (($priority < PRIORITY_NEGLIGIBLE) && ($retrial > 7)) {
+		} elseif (($priority < PRIORITY_NEGLIGIBLE) && ($new_retrial > 8)) {
 			$priority = PRIORITY_NEGLIGIBLE;
 		}
 
-		Logger::log('Defer execution ' . $retrial . ' of id ' . $id . ' to ' . $next . ' - priority old/new: ' . $queue['priority'] . '/' . $priority, Logger::DEBUG);
+		Logger::info('Deferred task', ['id' => $id, 'retrial' => $new_retrial, 'next_execution' => $next, 'old_prio' => $queue['priority'], 'new_prio' => $priority]);
 
 		$stamp = (float)microtime(true);
-		$fields = ['retrial' => $retrial + 1, 'next_try' => $next, 'executed' => DBA::NULL_DATETIME, 'pid' => 0, 'priority' => $priority];
+		$fields = ['retrial' => $new_retrial, 'next_try' => $next, 'executed' => DBA::NULL_DATETIME, 'pid' => 0, 'priority' => $priority];
 		DBA::update('workerqueue', $fields, ['id' => $id]);
 		self::$db_duration += (microtime(true) - $stamp);
 		self::$db_duration_write += (microtime(true) - $stamp);
