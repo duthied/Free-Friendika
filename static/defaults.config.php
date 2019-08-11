@@ -427,6 +427,10 @@ return [
 		// Setting 0 would allow maximum worker queues at all times, which is not recommended.
 		'worker_load_exponent' => 3,
 
+		// worker_defer_limit (Integer)
+		// Per default the systems tries delivering for 15 times before dropping it.
+		'worker_defer_limit' => 15,
+
 		// xrd_timeout (Integer)
 		// Timeout in seconds for fetching the XRD links.
 		'xrd_timeout' => 20,
