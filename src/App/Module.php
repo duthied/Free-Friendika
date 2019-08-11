@@ -17,27 +17,6 @@ class Module
 {
 	const DEFAULT = 'home';
 	const DEFAULT_CLASS = Home::class;
-
-	/**
-	 * @var string The module name
-	 */
-	private $module;
-
-	/**
-	 * @var BaseObject The module class
-	 */
-	private $module_class;
-
-	/**
-	 * @var bool true, if the module is a backend module
-	 */
-	private $isBackend;
-
-	/**
-	 * @var bool true, if the loaded addon is private, so we have to print out not allowed
-	 */
-	private $printNotAllowedAddon;
-
 	/**
 	 * A list of modules, which are backend methods
 	 *
@@ -70,6 +49,26 @@ class Module
 		'statistics_json',
 		'xrd',
 	];
+
+	/**
+	 * @var string The module name
+	 */
+	private $module;
+
+	/**
+	 * @var BaseObject The module class
+	 */
+	private $module_class;
+
+	/**
+	 * @var bool true, if the module is a backend module
+	 */
+	private $isBackend;
+
+	/**
+	 * @var bool true, if the loaded addon is private, so we have to print out not allowed
+	 */
+	private $printNotAllowedAddon;
 
 	/**
 	 * @return string
