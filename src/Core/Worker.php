@@ -1234,7 +1234,8 @@ class Worker
 		$id = $queue['id'];
 		$priority = $queue['priority'];
 
-		$max_level = 15;
+		$max_level = Config::get('system', 'worker_defer_limit');
+
 		$new_retrial = self::getNextRetrial($queue, $max_level);
 
 		if ($new_retrial > $max_level) {
