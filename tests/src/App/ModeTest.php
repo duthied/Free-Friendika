@@ -38,20 +38,22 @@ class ModeTest extends MockedTest
 		$this->setUpVfsDir();
 
 		$this->basePathMock = \Mockery::mock(BasePath::class);
+		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
+
 		$this->databaseMock = \Mockery::mock(Database::class);
 		$this->configCacheMock = \Mockery::mock(Config\Cache\ConfigCache::class);
 	}
 
 	public function testItEmpty()
 	{
-		$mode = new Mode();
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 		$this->assertTrue($mode->isInstall());
 		$this->assertFalse($mode->isNormal());
 	}
 
 	public function testWithoutConfig()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 
 		$this->assertTrue($this->root->hasChild('config/local.config.php'));
 
@@ -59,7 +61,7 @@ class ModeTest extends MockedTest
 
 		$this->assertFalse($this->root->hasChild('config/local.config.php'));
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
 
 		$this->assertTrue($mode->isInstall());
 		$this->assertFalse($mode->isNormal());
@@ -69,11 +71,10 @@ class ModeTest extends MockedTest
 
 	public function testWithoutDatabase()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(false)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
 
 		$this->assertFalse($mode->isNormal());
 		$this->assertTrue($mode->isInstall());
@@ -84,13 +85,12 @@ class ModeTest extends MockedTest
 
 	public function testWithoutDatabaseSetup()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
 		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(false)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
 
 		$this->assertFalse($mode->isNormal());
 		$this->assertTrue($mode->isInstall());
@@ -100,15 +100,14 @@ class ModeTest extends MockedTest
 
 	public function testWithMaintenanceMode()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
 		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
 		$this->configCacheMock->shouldReceive('get')->with('system', 'maintenance')
 		                      ->andReturn(true)->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
 
 		$this->assertFalse($mode->isNormal());
 		$this->assertFalse($mode->isInstall());
@@ -119,8 +118,6 @@ class ModeTest extends MockedTest
 
 	public function testNormalMode()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
 		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
@@ -130,7 +127,8 @@ class ModeTest extends MockedTest
 		                   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
 		                   ->andReturn(['v' => null])->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
 
 		$this->assertTrue($mode->isNormal());
 		$this->assertFalse($mode->isInstall());
@@ -144,8 +142,6 @@ class ModeTest extends MockedTest
 	 */
 	public function testDisabledMaintenance()
 	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn($this->root->url())->once();
-
 		$this->databaseMock->shouldReceive('connected')->andReturn(true)->once();
 		$this->databaseMock->shouldReceive('fetchFirst')
 		                   ->with('SHOW TABLES LIKE \'config\'')->andReturn(true)->once();
@@ -155,26 +151,13 @@ class ModeTest extends MockedTest
 		                   ->with('config', ['v'], ['cat' => 'system', 'k' => 'maintenance'])
 		                   ->andReturn(['v' => '0'])->once();
 
-		$mode = (new Mode())->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode = new Mode($this->basePathMock, $this->databaseMock, $this->configCacheMock);
+		$mode->determine();
 
 		$this->assertTrue($mode->isNormal());
 		$this->assertFalse($mode->isInstall());
 
 		$this->assertTrue($mode->has(Mode::DBCONFIGAVAILABLE));
 		$this->assertTrue($mode->has(Mode::MAINTENANCEDISABLED));
-	}
-
-	/**
-	 * Test that modes are immutable
-	 */
-	public function testImmutable()
-	{
-		$this->basePathMock->shouldReceive('getPath')->andReturn(null)->once();
-
-		$mode = new Mode();
-
-		$modeNew = $mode->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
-
-		$this->assertNotSame($modeNew, $mode);
 	}
 }

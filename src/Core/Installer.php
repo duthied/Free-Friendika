@@ -11,6 +11,7 @@ use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\Object\Image;
 use Friendica\Util\Network;
+use Friendica\Util\Profiler;
 use Friendica\Util\Strings;
 
 /**
@@ -590,7 +591,8 @@ class Installer
 	/**
 	 * Checking the Database connection and if it is available for the current installation
 	 *
-	 * @param Database $dba
+	 * @param ConfigCache $configCache The configuration cache
+	 * @param Profiler    $profiler    The profiler of this app
 	 *
 	 * @return bool true if the check was successful, otherwise false
 	 * @throws Exception
