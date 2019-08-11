@@ -334,7 +334,7 @@ class Group extends BaseObject
 			$followers = Contact::selectToArray(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
-				'protocol' => Protocol::SUPPORT_PRIVATE,
+				'network' => Protocol::SUPPORT_PRIVATE,
 			]);
 
 			foreach ($followers as $follower) {
@@ -349,7 +349,7 @@ class Group extends BaseObject
 			$mutuals = Contact::selectToArray(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FRIEND],
-				'protocol' => Protocol::SUPPORT_PRIVATE,
+				'network' => Protocol::SUPPORT_PRIVATE,
 			]);
 
 			foreach ($mutuals as $mutual) {
