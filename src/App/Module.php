@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
  */
 class Module
 {
-	const DEFAULT = 'home';
+	const DEFAULT       = 'home';
 	const DEFAULT_CLASS = Home::class;
 	/**
 	 * A list of modules, which are backend methods
@@ -87,7 +87,8 @@ class Module
 	}
 
 	/**
-	 * @return bool
+	 * @return bool True, if the current module is a backend module
+	 * @see Module::BACKEND_MODULES for a list
 	 */
 	public function isBackend()
 	{
@@ -96,9 +97,9 @@ class Module
 
 	public function __construct(string $module = self::DEFAULT, string $moduleClass = self::DEFAULT_CLASS, bool $isBackend = false, bool $printNotAllowedAddon = false)
 	{
-		$this->module       = $module;
-		$this->module_class = $moduleClass;
-		$this->isBackend    = $isBackend;
+		$this->module               = $module;
+		$this->module_class         = $moduleClass;
+		$this->isBackend            = $isBackend;
 		$this->printNotAllowedAddon = $printNotAllowedAddon;
 	}
 
@@ -124,7 +125,7 @@ class Module
 			$module = "login";
 		}
 
-		$isBackend = $this->checkBackend($module, $server);
+		$isBackend = in_array($module, Module::BACKEND_MODULES);;
 
 		return new Module($module, $this->module_class, $isBackend, $this->printNotAllowedAddon);
 	}
@@ -190,16 +191,16 @@ class Module
 	/**
 	 * Run the determined module class and calls all hooks applied to
 	 *
-	 * @param Core\L10n\L10n $l10n         The L10n instance
-	 * @param App            $app          The whole Friendica app (for method arguments)
-	 * @param LoggerInterface           $logger The Friendica logger
-	 * @param string         $currentTheme The chosen theme
-	 * @param array          $server       The $_SERVER variable
-	 * @param array          $post         The $_POST variables
+	 * @param Core\L10n\L10n  $l10n         The L10n instance
+	 * @param App             $app          The whole Friendica app (for method arguments)
+	 * @param LoggerInterface $logger       The Friendica logger
+	 * @param string          $currentTheme The chosen theme
+	 * @param array           $server       The $_SERVER variable
+	 * @param array           $post         The $_POST variables
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function run(Core\L10n\L10n $l10n, App $app,  LoggerInterface $logger, string $currentTheme, array $server, array $post)
+	public function run(Core\L10n\L10n $l10n, App $app, LoggerInterface $logger, string $currentTheme, array $server, array $post)
 	{
 		if ($this->printNotAllowedAddon) {
 			info($l10n->t("You must be logged in to use addons. "));
@@ -257,23 +258,5 @@ class Module
 
 		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
 		call_user_func([$this->module_class, 'afterpost']);
-	}
-
-	/**
-	 * @brief Checks if the site is called via a backend process
-	 *
-	 * This isn't a perfect solution. But we need this check very early.
-	 * So we cannot wait until the modules are loaded.
-	 *
-	 * @param string $module The determined module
-	 * @param array  $server The $_SERVER variable
-	 *
-	 * @return bool True, if the current module is called at backend
-	 */
-	private function checkBackend($module, array $server)
-	{
-		// Check if current module is in backend or backend flag is set
-		return basename(($server['PHP_SELF'] ?? ''), '.php') !== 'index' &&
-		       in_array($module, Module::BACKEND_MODULES);
 	}
 }

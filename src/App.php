@@ -100,8 +100,6 @@ class App
 
 	/**
 	 * @var bool true, if the call is from an backend node (f.e. worker)
-	 *
-	 * @deprecated 2019.09 - use App\Module->isBackend() instead
 	 */
 	private $isBackend;
 
@@ -287,7 +285,7 @@ class App
 		$this->logger   = $logger;
 		$this->l10n     = $l10n;
 		$this->args = $args;
-		$this->isBackend = $module->isBackend();
+		$this->isBackend = $this->checkBackend($module);
 
 		$this->profiler->reset();
 
@@ -576,6 +574,29 @@ class App
 	}
 
 	/**
+	 * Checks if the site is called via a backend process
+	 *
+	 * @param Module $module The pre-loaded module (just name, not class!)
+
+	 * @return bool True, if the call is a backend call
+	 */
+	private function checkBackend(Module $module)
+	{
+		return basename(($_SERVER['PHP_SELF'] ?? ''), '.php') !== 'index' ||
+		       $module->isBackend();
+	}
+
+	/**
+	 * Returns true, if the call is from a backend node (f.e. from a worker)
+	 *
+	 * @return bool Is it a known backend?
+	 */
+	public function isBackend()
+	{
+		return $this->isBackend;
+	}
+
+	/**
 	 * @brief Checks if the maximum number of database processes is reached
 	 *
 	 * @return bool Is the limit reached?
@@ -668,7 +689,7 @@ class App
 	 */
 	public function isMaxLoadReached()
 	{
-		if ($this->isBackend) {
+		if ($this->isBackend()) {
 			$process = 'backend';
 			$maxsysload = intval($this->config->get('system', 'maxloadavg'));
 			if ($maxsysload < 1) {
