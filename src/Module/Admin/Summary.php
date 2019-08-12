@@ -146,11 +146,9 @@ class Summary extends BaseAdminModule
 
 		$pending = Register::getPendingCount();
 
-		$deferred = DBA::count('workerqueue', ['`executed` <= ? AND NOT `done` AND `next_try` > ?',
-			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
+		$deferred = DBA::count('workerqueue', ['NOT `done` AND `retrial` > ?', 0]);
 
-		$workerqueue = DBA::count('workerqueue', ['`executed` <= ? AND NOT `done` AND `next_try` < ?',
-			DBA::NULL_DATETIME, DateTimeFormat::utcNow()]);
+		$workerqueue = DBA::count('workerqueue', ['NOT `done` AND `retrial` = ?', 0]);
 
 		// We can do better, but this is a quick queue status
 		$queues = ['label' => L10n::t('Message queues'), 'deferred' => $deferred, 'workerq' => $workerqueue];

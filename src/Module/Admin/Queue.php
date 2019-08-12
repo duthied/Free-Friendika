@@ -30,17 +30,17 @@ class Queue extends BaseAdminModule
 
 		// get jobs from the workerqueue table
 		if ($deferred) {
-			$condition = ["NOT `done` AND `next_try` > ?", DateTimeFormat::utcNow()];
+			$condition = ["NOT `done` AND `retrial` > ?", 0];
 			$sub_title = L10n::t('Inspect Deferred Worker Queue');
 			$info = L10n::t("This page lists the deferred worker jobs. This are jobs that couldn't be executed at the first time.");
 		} else {
-			$condition = ["NOT `done` AND `next_try` < ?", DateTimeFormat::utcNow()];
+			$condition = ["NOT `done` AND `retrial` = ?", 0];
 			$sub_title = L10n::t('Inspect Worker Queue');
 			$info = L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
 		}
 
 		// @TODO Move to Model\WorkerQueue::getEntries()
-		$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['order' => ['priority']]);
+		$entries = DBA::select('workerqueue', ['id', 'parameter', 'created', 'priority'], $condition, ['limit' => 999, 'order' => ['created']]);
 
 		$r = [];
 		while ($entry = DBA::fetch($entries)) {
