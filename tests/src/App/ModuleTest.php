@@ -45,7 +45,6 @@ class ModuleTest extends DatabaseTest
 					'network/data/in',
 					['network', 'data', 'in'],
 					3),
-				'server' => [],
 			],
 			'withStrikeAndPoint'        => [
 				'assert' => [
@@ -57,7 +56,6 @@ class ModuleTest extends DatabaseTest
 					'with-strike.and-point/data/in',
 					['with-strike.and-point', 'data', 'in'],
 					3),
-				'server' => [],
 			],
 			'withNothing'               => [
 				'assert' => [
@@ -66,7 +64,6 @@ class ModuleTest extends DatabaseTest
 					'class'     => App\Module::DEFAULT_CLASS,
 				],
 				'args'   => new App\Arguments(),
-				'server' => []
 			],
 			'withIndex'                 => [
 				'assert' => [
@@ -75,21 +72,8 @@ class ModuleTest extends DatabaseTest
 					'class'     => App\Module::DEFAULT_CLASS,
 				],
 				'args'   => new App\Arguments(),
-				'server' => ['PHP_SELF' => 'index.php']
 			],
-			'withIndexButBackendMod'    => [
-				'assert' => [
-					'isBackend' => false,
-					'name'      => App\Module::BACKEND_MODULES[0],
-					'class'     => App\Module::DEFAULT_CLASS,
-				],
-				'args'   => new App\Arguments(App\Module::BACKEND_MODULES[0] . '/data/in',
-					App\Module::BACKEND_MODULES[0] . '/data/in',
-					[App\Module::BACKEND_MODULES[0], 'data', 'in'],
-					3),
-				'server' => ['PHP_SELF' => 'index.php']
-			],
-			'withNotIndexAndBackendMod' => [
+			'withBackendMod'    => [
 				'assert' => [
 					'isBackend' => true,
 					'name'      => App\Module::BACKEND_MODULES[0],
@@ -99,7 +83,6 @@ class ModuleTest extends DatabaseTest
 					App\Module::BACKEND_MODULES[0] . '/data/in',
 					[App\Module::BACKEND_MODULES[0], 'data', 'in'],
 					3),
-				'server' => ['PHP_SELF' => 'daemon.php']
 			],
 			'withFirefoxApp'            => [
 				'assert' => [
@@ -111,7 +94,6 @@ class ModuleTest extends DatabaseTest
 					'users/sign_in',
 					['users', 'sign_in'],
 					3),
-				'server' => ['PHP_SELF' => 'index.php'],
 			],
 		];
 	}
@@ -121,9 +103,9 @@ class ModuleTest extends DatabaseTest
 	 *
 	 * @dataProvider dataModuleName
 	 */
-	public function testModuleName(array $assert, App\Arguments $args, array $server)
+	public function testModuleName(array $assert, App\Arguments $args)
 	{
-		$module = (new App\Module())->determineModule($args, $server);
+		$module = (new App\Module())->determineModule($args);
 
 		$this->assertModule($assert, $module);
 	}

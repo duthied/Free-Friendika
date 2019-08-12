@@ -145,7 +145,7 @@ return [
 	App\Module::class => [
 		'instanceOf' => App\Module::class,
 		'call' => [
-			['determineModule', [$_SERVER], Dice::CHAIN_CALL],
+			['determineModule', [], Dice::CHAIN_CALL],
 		],
 	],
 ];

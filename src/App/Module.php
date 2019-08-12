@@ -107,11 +107,10 @@ class Module
 	 * Determines the current module based on the App arguments and the server variable
 	 *
 	 * @param Arguments $args   The Friendica arguments
-	 * @param array     $server The $_SERVER variable
 	 *
 	 * @return Module The module with the determined module
 	 */
-	public function determineModule(Arguments $args, array $server)
+	public function determineModule(Arguments $args)
 	{
 		if ($args->getArgc() > 0) {
 			$module = str_replace('.', '_', $args->get(0));
