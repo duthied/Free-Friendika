@@ -1243,6 +1243,8 @@ class Item extends BaseObject
 	{
 		if (!empty($item['contact-id']) && DBA::exists('contact', ['self' => true, 'id' => $item['contact-id']])) {
 			return $item['contact-id'];
+		} elseif (($item['gravity'] == GRAVITY_PARENT) && !empty($item['uid']) && !empty($item['contact-id']) && Contact::isSharing($item['contact-id'], $item['uid'])) {
+			return $item['contact-id'];
 		} elseif (!empty($item['uid']) && !Contact::isSharing($item['author-id'], $item['uid'])) {
 			return $item['author-id'];
 		} elseif (!empty($item['contact-id'])) {
