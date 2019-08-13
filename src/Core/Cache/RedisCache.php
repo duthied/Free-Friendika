@@ -37,8 +37,10 @@ class RedisCache extends Cache implements IMemoryCache
 		$redis_pw   = $config->get('system', 'redis_password');
 		$redis_db   = $config->get('system', 'redis_db', 0);
 
-		if (!$this->redis->connect($redis_host, $redis_port)) {
+		if (isset($redis_port) && !$this->redis->connect($redis_host, $redis_port)) {
 			throw new Exception('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
+		} elseif (!$this->redis->connect($redis_host)) {
+			throw new Exception('Expected Redis server at ' . $redis_host . ' isn\'t available');
 		}
 
 		if (isset($redis_pw) && !$this->redis->auth($redis_pw)) {
@@ -120,7 +122,7 @@ class RedisCache extends Cache implements IMemoryCache
 	public function delete($key)
 	{
 		$cachekey = $this->getCacheKey($key);
-		return ($this->redis->delete($cachekey) > 0);
+		return ($this->redis->del($cachekey) > 0);
 	}
 
 	/**
