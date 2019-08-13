@@ -108,7 +108,7 @@ Create an empty database and note the access details (hostname, username, passwo
 
 Friendica needs the permission to create and delete fields and tables in its own database.
 
-Please check the [troubleshooting](#1_6) section if running on MySQ 5.7.17 or newer.
+Please check the [troubleshooting](#1_6) section if running on MySQL 5.7.17 or newer.
 
 ### Option A: Run the installer
 
