@@ -2,6 +2,8 @@
 
 namespace Friendica\Core\Lock;
 
+use Friendica\Core\Cache\Cache;
+
 /**
  * Class AbstractLock
  *
@@ -11,6 +13,9 @@ namespace Friendica\Core\Lock;
  */
 abstract class Lock implements ILock
 {
+	const TYPE_DATABASE  = Cache::TYPE_DATABASE;
+	const TYPE_SEMAPHORE = 'semaphore';
+
 	/**
 	 * @var array The local acquired locks
 	 */
@@ -49,16 +54,14 @@ abstract class Lock implements ILock
 	}
 
 	/**
-	 * Releases all lock that were set by us
-	 *
-	 * @return boolean Was the unlock of all locks successful?
+	 * {@inheritDoc}
 	 */
-	public function releaseAll()
+	public function releaseAll($override = false)
 	{
 		$return = true;
 
 		foreach ($this->acquiredLocks as $acquiredLock => $hasLock) {
-			if (!$this->releaseLock($acquiredLock)) {
+			if (!$this->releaseLock($acquiredLock, $override)) {
 				$return = false;
 			}
 		}
