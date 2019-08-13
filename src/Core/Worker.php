@@ -186,7 +186,7 @@ class Worker
 	private static function deferredEntries()
 	{
 		$stamp = (float)microtime(true);
-		$count = DBA::count('workerqueue', ["NOT `done` AND `pid` = 0 AND `next_try` > ?", DateTimeFormat::utcNow()]);
+		$count = DBA::count('workerqueue', ["NOT `done` AND `pid` = 0 AND `retrial` > ?", 0]);
 		self::$db_duration += (microtime(true) - $stamp);
 		self::$db_duration_count += (microtime(true) - $stamp);
 		return $count;
@@ -686,10 +686,8 @@ class Worker
 					DBA::close($processes);
 				}
 				DBA::close($jobs);
-				$entries = $deferred + $waiting_processes;
 			} else {
-				$entries = self::totalEntries();
-				$waiting_processes = max(0, $entries - $deferred);
+				$waiting_processes =  self::totalEntries();
 				$stamp = (float)microtime(true);
 				$jobs = DBA::p("SELECT COUNT(*) AS `running`, `priority` FROM `process` INNER JOIN `workerqueue` ON `workerqueue`.`pid` = `process`.`pid` AND NOT `done` GROUP BY `priority` ORDER BY `priority`");
 				self::$db_duration += (microtime(true) - $stamp);
