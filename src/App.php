@@ -946,7 +946,7 @@ class App
 			}
 
 			// Exclude the backend processes from the session management
-			if (!$module->isBackend()) {
+			if (!$this->isBackend()) {
 				$stamp1 = microtime(true);
 				session_start();
 				$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
