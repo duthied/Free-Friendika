@@ -568,7 +568,7 @@ class App
 	 *
 	 * @deprecated 2019.09 - use App\Mode->isBackend() instead
 	 * @see App\Mode::isBackend()
-	 * Use BaseObject::getClass(App\Mode::class) to get these class directly per global registry
+	 * Use BaseObject::getClass(App\Mode::class) to get the global instance of Mode
 	 */
 	public function isBackend()
 	{
