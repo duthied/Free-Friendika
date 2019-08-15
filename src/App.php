@@ -9,7 +9,6 @@ use DOMDocument;
 use DOMXPath;
 use Exception;
 use Friendica\App\Arguments;
-use Friendica\App\Module;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
@@ -99,11 +98,6 @@ class App
 	private $baseURL;
 
 	/**
-	 * @var bool true, if the call is from an backend node (f.e. worker)
-	 */
-	private $isBackend;
-
-	/**
 	 * @var string The name of the current theme
 	 */
 	private $currentTheme;
@@ -147,11 +141,6 @@ class App
 	 * @var App\Arguments
 	 */
 	private $args;
-
-	/**
-	 * @var App\Module
-	 */
-	private $moduleClass;
 
 	/**
 	 * Returns the current config cache of this node
@@ -274,7 +263,7 @@ class App
 	 *
 	 * @throws Exception if the Basepath is not usable
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Module $module)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -285,7 +274,6 @@ class App
 		$this->logger   = $logger;
 		$this->l10n     = $l10n;
 		$this->args = $args;
-		$this->isBackend = $this->checkBackend($module);
 
 		$this->profiler->reset();
 
@@ -574,26 +562,17 @@ class App
 	}
 
 	/**
-	 * Checks if the site is called via a backend process
-	 *
-	 * @param Module $module The pre-loaded module (just name, not class!)
-
-	 * @return bool True, if the call is a backend call
-	 */
-	private function checkBackend(Module $module)
-	{
-		return basename(($_SERVER['PHP_SELF'] ?? ''), '.php') !== 'index' ||
-		       $module->isBackend();
-	}
-
-	/**
 	 * Returns true, if the call is from a backend node (f.e. from a worker)
 	 *
 	 * @return bool Is it a known backend?
+	 *
+	 * @deprecated 2019.09 - use App\Mode->isBackend() instead
+	 * @see App\Mode::isBackend()
+	 * Use BaseObject::getClass(App\Mode::class) to get the global instance of Mode
 	 */
 	public function isBackend()
 	{
-		return $this->isBackend;
+		return $this->mode->isBackend();
 	}
 
 	/**

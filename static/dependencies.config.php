@@ -62,6 +62,7 @@ return [
 	],
 	App\Mode::class                 => [
 		'call' => [
+			['determineBackend', [$_SERVER], Dice::CHAIN_CALL],
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],

@@ -19,14 +19,20 @@ class Mode
 	const MAINTENANCEDISABLED = 8;
 
 	/***
-	 * @var int the mode of this Application
+	 * @var int The mode of this Application
 	 *
 	 */
 	private $mode;
 
-	public function __construct(int $mode = 0)
+	/**
+	 * @var bool True, if the call is a backend call
+	 */
+	private $isBackend;
+
+	public function __construct(int $mode = 0, bool $isBackend = false)
 	{
-		$this->mode = $mode;
+		$this->mode      = $mode;
+		$this->isBackend = $isBackend;
 	}
 
 	/**
@@ -75,7 +81,23 @@ class Mode
 
 		$mode |= Mode::MAINTENANCEDISABLED;
 
-		return new Mode($mode);
+		return new Mode($mode, $this->isBackend);
+	}
+
+	/**
+	 * Checks if the site is called via a backend process
+	 *
+	 * @param Module $module The pre-loaded module (just name, not class!)
+	 * @param array $server The $_SERVER variable
+	 *
+	 * @return Mode returns the determined mode
+	 */
+	public function determineBackend(Module $module, array $server)
+	{
+		$isBackend = basename(($server['PHP_SELF'] ?? ''), '.php') !== 'index' ||
+		             $module->isBackend();
+
+		return new Mode($this->mode, $isBackend);
 	}
 
 	/**
@@ -113,5 +135,15 @@ class Mode
 		       $this->has(Mode::DBAVAILABLE) &&
 		       $this->has(Mode::DBCONFIGAVAILABLE) &&
 		       $this->has(Mode::MAINTENANCEDISABLED);
+	}
+
+	/**
+	 * Returns true, if the call is from a backend node (f.e. from a worker)
+	 *
+	 * @return bool Is it a backend call
+	 */
+	public function isBackend()
+	{
+		return $this->isBackend;
 	}
 }
