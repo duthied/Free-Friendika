@@ -16,7 +16,6 @@ use Friendica\Core\L10n\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
-use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
@@ -45,7 +44,7 @@ class App
 {
 	/** @deprecated 2019.09 - use App\Arguments->getQueryString() */
 	public $query_string = '';
-	public $page = [];
+	public $page         = [];
 	public $profile;
 	public $profile_uid;
 	public $user;
@@ -54,7 +53,7 @@ class App
 	public $contacts;
 	public $page_contact;
 	public $content;
-	public $data = [];
+	public $data         = [];
 	/** @deprecated 2019.09 - use App\Arguments->getCommand() */
 	public $cmd = '';
 	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
@@ -66,20 +65,20 @@ class App
 	public $timezone;
 	public $interactive = true;
 	public $identities;
-	public $is_mobile = false;
-	public $is_tablet = false;
-	public $theme_info = [];
+	public $is_mobile   = false;
+	public $is_tablet   = false;
+	public $theme_info  = [];
 	public $category;
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
 
-	public $sourcename = '';
-	public $videowidth = 425;
-	public $videoheight = 350;
-	public $force_max_items = 0;
+	public $sourcename              = '';
+	public $videowidth              = 425;
+	public $videoheight             = 350;
+	public $force_max_items         = 0;
 	public $theme_events_in_profile = true;
 
-	public $stylesheets = [];
+	public $stylesheets   = [];
 	public $footerScripts = [];
 
 	/**
@@ -218,9 +217,10 @@ class App
 	 * Inclusion is done in App->initHead().
 	 * The path can be absolute or relative to the Friendica installation base folder.
 	 *
+	 * @param string $path
+	 *
 	 * @see initHead()
 	 *
-	 * @param string $path
 	 */
 	public function registerStylesheet($path)
 	{
@@ -236,9 +236,10 @@ class App
 	 * Inclusion is done in App->initFooter().
 	 * The path can be absolute or relative to the Friendica installation base folder.
 	 *
+	 * @param string $path
+	 *
 	 * @see initFooter()
 	 *
-	 * @param string $path
 	 */
 	public function registerFooterScript($path)
 	{
@@ -250,35 +251,48 @@ class App
 	public $queue;
 
 	/**
-	 * @brief App constructor.
-	 *
-	 * @param Database $database The Friendica Database
-	 * @param Configuration    $config    The Configuration
-	 * @param App\Mode         $mode      The mode of this Friendica app
-	 * @param App\Router       $router    The router of this Friendica app
-	 * @param BaseURL          $baseURL   The full base URL of this Friendica app
-	 * @param LoggerInterface  $logger    The current app logger
-	 * @param Profiler         $profiler  The profiler of this application
-	 * @param L10n             $l10n      The translator instance
-	 *
-	 * @throws Exception if the Basepath is not usable
+	 * @param Database        $database     The Friendica Database
+	 * @param Configuration   $config       The Configuration
+	 * @param App\Mode        $mode         The mode of this Friendica app
+	 * @param App\Router      $router       The router of this Friendica app
+	 * @param BaseURL         $baseURL      The full base URL of this Friendica app
+	 * @param LoggerInterface $logger       The current app logger
+	 * @param Profiler        $profiler     The profiler of this application
+	 * @param L10n            $l10n         The translator instance
+	 * @param App\Arguments   $args         The Friendica Arguments of the call
+	 * @param MobileDetect    $mobileDetect A mobile detection class
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, MobileDetect $mobileDetect)
 	{
-		$this->database = $database;
-		$this->config   = $config;
-		$this->mode     = $mode;
-		$this->router   = $router;
-		$this->baseURL  = $baseURL;
-		$this->profiler = $profiler;
-		$this->logger   = $logger;
-		$this->l10n     = $l10n;
-		$this->args = $args;
+		$this->database     = $database;
+		$this->config       = $config;
+		$this->mode         = $mode;
+		$this->router       = $router;
+		$this->baseURL      = $baseURL;
+		$this->profiler     = $profiler;
+		$this->logger       = $logger;
+		$this->l10n         = $l10n;
+		$this->args         = $args;
+		$this->mobileDetect = $mobileDetect;
 
-		$this->profiler->reset();
+		$this->cmd          = $args->getCommand();
+		$this->argv         = $args->getArgv();
+		$this->argc         = $args->getArgc();
+		$this->query_string = $args->getQueryString();
 
-		$this->reload();
+		$this->is_mobile = $mobileDetect->isMobile();
+		$this->is_tablet = $mobileDetect->isTablet();
 
+		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
+
+		$this->load();
+	}
+
+	/**
+	 * Load the whole app instance
+	 */
+	public function load()
+	{
 		set_time_limit(0);
 
 		// This has to be quite large to deal with embedded private photos
@@ -290,31 +304,9 @@ class App
 			. $this->getBasePath() . DIRECTORY_SEPARATOR . 'library' . PATH_SEPARATOR
 			. $this->getBasePath());
 
-		$this->cmd = $args->getCommand();
-		$this->argv = $args->getArgv();
-		$this->argc = $args->getArgc();
-		$this->query_string = $args->getQueryString();
+		$this->profiler->reset();
 
-		// Detect mobile devices
-		$mobile_detect = new MobileDetect();
-
-		$this->mobileDetect = $mobile_detect;
-
-		$this->is_mobile = $mobile_detect->isMobile();
-		$this->is_tablet = $mobile_detect->isTablet();
-
-		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
-
-		// Register template engines
-		Core\Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
-	}
-
-	/**
-	 * Reloads the whole app instance
-	 */
-	public function reload()
-	{
-		if ($this->getMode()->has(App\Mode::DBAVAILABLE)) {
+		if ($this->mode->has(App\Mode::DBAVAILABLE)) {
 			$this->profiler->update($this->config);
 
 			Core\Hook::loadHooks();
@@ -323,6 +315,8 @@ class App
 		}
 
 		$this->loadDefaultTimezone();
+		// Register template engines
+		Core\Renderer::registerTemplateEngine('Friendica\Render\FriendicaSmartyEngine');
 	}
 
 	/**
@@ -348,6 +342,7 @@ class App
 
 	/**
 	 * Returns the scheme of the current call
+	 *
 	 * @return string
 	 *
 	 * @deprecated 2019.06 - use BaseURL->getScheme() instead
@@ -372,7 +367,7 @@ class App
 	}
 
 	/**
-	 * @brief Initializes the baseurl components
+	 * @brief      Initializes the baseurl components
 	 *
 	 * Clears the baseurl cache to prevent inconsistencies
 	 *
@@ -466,15 +461,15 @@ class App
 		 * being first
 		 */
 		$this->page['htmlhead'] = Core\Renderer::replaceMacros($tpl, [
-			'$local_user'      => local_user(),
-			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
-			'$delitem'         => $this->l10n->t('Delete this item?'),
-			'$update_interval' => $interval,
-			'$shortcut_icon'   => $shortcut_icon,
-			'$touch_icon'      => $touch_icon,
-			'$block_public'    => intval($this->config->get('system', 'block_public')),
-			'$stylesheets'     => $this->stylesheets,
-		]) . $this->page['htmlhead'];
+				'$local_user'      => local_user(),
+				'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
+				'$delitem'         => $this->l10n->t('Delete this item?'),
+				'$update_interval' => $interval,
+				'$shortcut_icon'   => $shortcut_icon,
+				'$touch_icon'      => $touch_icon,
+				'$block_public'    => intval($this->config->get('system', 'block_public')),
+				'$stylesheets'     => $this->stylesheets,
+			]) . $this->page['htmlhead'];
 	}
 
 	/**
@@ -516,10 +511,10 @@ class App
 
 		Core\Hook::callAll('footer', $this->page['footer']);
 
-		$tpl = Core\Renderer::getMarkupTemplate('footer.tpl');
+		$tpl                  = Core\Renderer::getMarkupTemplate('footer.tpl');
 		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
-			'$footerScripts' => $this->footerScripts,
-		]) . $this->page['footer'];
+				'$footerScripts' => $this->footerScripts,
+			]) . $this->page['footer'];
 	}
 
 	/**
@@ -535,7 +530,7 @@ class App
 		// Remove the hostname from the url if it is an internal link
 		$nurl = Util\Strings::normaliseLink($origURL);
 		$base = Util\Strings::normaliseLink($this->getBaseURL());
-		$url = str_replace($base . '/', '', $nurl);
+		$url  = str_replace($base . '/', '', $nurl);
 
 		// if it is an external link return the orignal value
 		if ($url == Util\Strings::normaliseLink($origURL)) {
@@ -641,8 +636,8 @@ class App
 				continue;
 			}
 			list($key, $val) = $data;
-			$meminfo[$key] = (int) trim(str_replace('kB', '', $val));
-			$meminfo[$key] = (int) ($meminfo[$key] / 1024);
+			$meminfo[$key] = (int)trim(str_replace('kB', '', $val));
+			$meminfo[$key] = (int)($meminfo[$key] / 1024);
 		}
 
 		if (!isset($meminfo['MemFree'])) {
@@ -668,14 +663,14 @@ class App
 	 */
 	public function isMaxLoadReached()
 	{
-		if ($this->isBackend()) {
-			$process = 'backend';
+		if ($this->mode->isBackend()) {
+			$process    = 'backend';
 			$maxsysload = intval($this->config->get('system', 'maxloadavg'));
 			if ($maxsysload < 1) {
 				$maxsysload = 50;
 			}
 		} else {
-			$process = 'frontend';
+			$process    = 'frontend';
 			$maxsysload = intval($this->config->get('system', 'maxloadavg_frontend'));
 			if ($maxsysload < 1) {
 				$maxsysload = 50;
@@ -685,7 +680,7 @@ class App
 		$load = Core\System::currentLoad();
 		if ($load) {
 			if (intval($load) > $maxsysload) {
-				Core\Logger::log('system: load ' . $load . ' for ' . $process . ' tasks (' . $maxsysload . ') too high.');
+				$this->logger->info('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
 				return true;
 			}
 		}
@@ -697,6 +692,7 @@ class App
 	 *
 	 * @param string $command The command to execute
 	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
+	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function proc_run($command, $args)
@@ -728,7 +724,7 @@ class App
 			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
 		}
 		if (!is_resource($resource)) {
-			Core\Logger::log('We got no resource for command ' . $cmdline, Core\Logger::DEBUG);
+			$this->logger->debug('We got no resource for command.', ['cmd' => $cmdline]);
 			return;
 		}
 		proc_close($resource);
@@ -763,7 +759,7 @@ class App
 	 */
 	public function getCurrentTheme()
 	{
-		if ($this->getMode()->isInstall()) {
+		if ($this->mode->isInstall()) {
 			return '';
 		}
 
@@ -799,8 +795,8 @@ class App
 		if ($this->profile_uid && ($this->profile_uid != local_user())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			$user = DBA::selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
-			if (DBA::isResult($user) && !Core\PConfig::get(local_user(), 'system', 'always_my_theme')) {
+			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
+			if ($this->database->isResult($user) && !Core\PConfig::get(local_user(), 'system', 'always_my_theme')) {
 				$page_theme = $user['theme'];
 			}
 		}
@@ -810,7 +806,7 @@ class App
 		// Specific mobile theme override
 		if (($this->is_mobile || $this->is_tablet) && Core\Session::get('show-mobile', true)) {
 			$system_mobile_theme = $this->config->get('system', 'mobile-theme');
-			$user_mobile_theme = Core\Session::get('mobile-theme', $system_mobile_theme);
+			$user_mobile_theme   = Core\Session::get('mobile-theme', $system_mobile_theme);
 
 			// --- means same mobile theme as desktop
 			if (!empty($user_mobile_theme) && $user_mobile_theme !== '---') {
@@ -826,9 +822,9 @@ class App
 
 		$theme_name = Strings::sanitizeFilePathItem($theme_name);
 		if ($theme_name
-			&& in_array($theme_name, Theme::getAllowedList())
-			&& (file_exists('view/theme/' . $theme_name . '/style.css')
-			|| file_exists('view/theme/' . $theme_name . '/style.php'))
+		    && in_array($theme_name, Theme::getAllowedList())
+		    && (file_exists('view/theme/' . $theme_name . '/style.css')
+		        || file_exists('view/theme/' . $theme_name . '/style.php'))
 		) {
 			$this->currentTheme = $theme_name;
 		}
@@ -860,7 +856,7 @@ class App
 	/**
 	 * @deprecated use Arguments->get() instead
 	 *
-	 * @see App\Arguments
+	 * @see        App\Arguments
 	 */
 	public function getArgumentValue($position, $default = '')
 	{
@@ -902,7 +898,7 @@ class App
 
 		try {
 			// Missing DB connection: ERROR
-			if ($this->getMode()->has(App\Mode::LOCALCONFIGPRESENT) && !$this->getMode()->has(App\Mode::DBAVAILABLE)) {
+			if ($this->mode->has(App\Mode::LOCALCONFIGPRESENT) && !$this->mode->has(App\Mode::DBAVAILABLE)) {
 				throw new HTTPException\InternalServerErrorException('Apologies but the website is unavailable at the moment.');
 			}
 
@@ -914,7 +910,7 @@ class App
 				throw new HTTPException\ServiceUnavailableException('The node is currently overloaded. Please try again later.');
 			}
 
-			if (!$this->getMode()->isInstall()) {
+			if (!$this->mode->isInstall()) {
 				// Force SSL redirection
 				if ($this->baseURL->checkRedirectHttps()) {
 					System::externalRedirect($this->baseURL->get() . '/' . $this->args->getQueryString());
@@ -925,7 +921,7 @@ class App
 			}
 
 			// Exclude the backend processes from the session management
-			if (!$this->isBackend()) {
+			if (!$this->mode->isBackend()) {
 				$stamp1 = microtime(true);
 				session_start();
 				$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
@@ -936,7 +932,7 @@ class App
 				Core\Worker::executeIfIdle();
 			}
 
-			if ($this->getMode()->isNormal()) {
+			if ($this->mode->isNormal()) {
 				$requester = HTTPSignature::getSigner('', $_SERVER);
 				if (!empty($requester)) {
 					Profile::addVisitorCookieForHandle($requester);
@@ -944,12 +940,12 @@ class App
 			}
 
 			// ZRL
-			if (!empty($_GET['zrl']) && $this->getMode()->isNormal()) {
+			if (!empty($_GET['zrl']) && $this->mode->isNormal()) {
 				if (!local_user()) {
 					// Only continue when the given profile link seems valid
 					// Valid profile links contain a path with "/profile/" and no query parameters
 					if ((parse_url($_GET['zrl'], PHP_URL_QUERY) == "") &&
-						strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
+					    strstr(parse_url($_GET['zrl'], PHP_URL_PATH), "/profile/")) {
 						if (Core\Session::get('visitor_home') != $_GET["zrl"]) {
 							Core\Session::set('my_url', $_GET['zrl']);
 							Core\Session::set('authenticated', 0);
@@ -959,13 +955,13 @@ class App
 					} else {
 						// Someone came with an invalid parameter, maybe as a DDoS attempt
 						// We simply stop processing here
-						Core\Logger::log("Invalid ZRL parameter " . $_GET['zrl'], Core\Logger::DEBUG);
+						$this->logger->debug('Invalid ZRL parameter.', ['zrl' => $_GET['zrl']]);
 						throw new HTTPException\ForbiddenException();
 					}
 				}
 			}
 
-			if (!empty($_GET['owt']) && $this->getMode()->isNormal()) {
+			if (!empty($_GET['owt']) && $this->mode->isNormal()) {
 				$token = $_GET['owt'];
 				Model\Profile::openWebAuthInit($token);
 			}
@@ -988,28 +984,28 @@ class App
 
 			// in install mode, any url loads install module
 			// but we need "view" module for stylesheet
-			if ($this->getMode()->isInstall() && $moduleName !== 'install') {
+			if ($this->mode->isInstall() && $moduleName !== 'install') {
 				$this->internalRedirect('install');
-			} elseif (!$this->getMode()->isInstall() && !$this->getMode()->has(App\Mode::MAINTENANCEDISABLED) && $moduleName !== 'maintenance') {
+			} elseif (!$this->mode->isInstall() && !$this->mode->has(App\Mode::MAINTENANCEDISABLED) && $moduleName !== 'maintenance') {
 				$this->internalRedirect('maintenance');
 			} else {
 				$this->checkURL();
-				Core\Update::check($this->getBasePath(), false, $this->getMode());
+				Core\Update::check($this->getBasePath(), false, $this->mode);
 				Core\Addon::loadAddons();
 				Core\Hook::loadHooks();
 			}
 
 			$this->page = [
-				'aside' => '',
-				'bottom' => '',
-				'content' => '',
-				'footer' => '',
-				'htmlhead' => '',
-				'nav' => '',
-				'page_title' => '',
+				'aside'       => '',
+				'bottom'      => '',
+				'content'     => '',
+				'footer'      => '',
+				'htmlhead'    => '',
+				'nav'         => '',
+				'page_title'  => '',
 				'right_aside' => '',
-				'template' => '',
-				'title' => ''
+				'template'    => '',
+				'title'       => ''
 			];
 
 			// Compatibility with the Android Diaspora client
@@ -1055,7 +1051,7 @@ class App
 			// Let the module run it's internal process (init, get, post, ...)
 			$module->run($this->l10n, $this, $this->logger, $this->getCurrentTheme(), $_SERVER, $_POST);
 
-		} catch(HTTPException $e) {
+		} catch (HTTPException $e) {
 			ModuleHTTPException::rawContent($e);
 		}
 
@@ -1067,15 +1063,15 @@ class App
 			$arr = ['content' => $content];
 			Core\Hook::callAll($moduleClass . '_mod_content', $arr);
 			$content = $arr['content'];
-			$arr = ['content' => call_user_func([$moduleClass, 'content'])];
+			$arr     = ['content' => call_user_func([$moduleClass, 'content'])];
 			Core\Hook::callAll($moduleClass . '_mod_aftercontent', $arr);
 			$content .= $arr['content'];
-		} catch(HTTPException $e) {
+		} catch (HTTPException $e) {
 			$content = ModuleHTTPException::content($e);
 		}
 
 		// initialise content region
-		if ($this->getMode()->isNormal()) {
+		if ($this->mode->isNormal()) {
 			Core\Hook::callAll('page_content_top', $this->page['content']);
 		}
 
@@ -1102,7 +1098,7 @@ class App
 		// Add the navigation (menu) template
 		if ($moduleName != 'install' && $moduleName != 'maintenance') {
 			$this->page['htmlhead'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate('nav_head.tpl'), []);
-			$this->page['nav']       = Content\Nav::build($this);
+			$this->page['nav']      = Content\Nav::build($this);
 		}
 
 		// Build the page - now that we have all the components
@@ -1184,7 +1180,7 @@ class App
 	 * If you want to redirect to a external URL, use System::externalRedirectTo()
 	 *
 	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
-	 * @param bool $ssl if true, base URL will try to get called with https:// (works just for relative paths)
+	 * @param bool   $ssl   if true, base URL will try to get called with https:// (works just for relative paths)
 	 *
 	 * @throws HTTPException\InternalServerErrorException In Case the given URL is not relative to the Friendica node
 	 */
@@ -1194,7 +1190,7 @@ class App
 			throw new HTTPException\InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
 		}
 
-		$redirectTo = $this->getBaseURL($ssl) . '/' . ltrim($toUrl, '/');
+		$redirectTo = $this->baseURL->get($ssl) . '/' . ltrim($toUrl, '/');
 		Core\System::externalRedirect($redirectTo);
 	}
 
@@ -1203,6 +1199,7 @@ class App
 	 * Should only be used if it isn't clear if the URL is either internal or external
 	 *
 	 * @param string $toUrl The target URL
+	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function redirect($toUrl)
