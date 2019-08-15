@@ -612,10 +612,10 @@ class App
 
 		$processlist = DBA::processlist();
 		if ($processlist['list'] != '') {
-			Core\Logger::log('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list'], Core\Logger::DEBUG);
+			$this->logger->debug('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list']);
 
 			if ($processlist['amount'] > $max_processes) {
-				Core\Logger::log('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.', Core\Logger::DEBUG);
+				$this->logger->debug('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.');
 				return true;
 			}
 		}
@@ -662,7 +662,7 @@ class App
 		$reached = ($free < $min_memory);
 
 		if ($reached) {
-			Core\Logger::log('Minimal memory reached: ' . $free . '/' . $meminfo['MemTotal'] . ' - limit ' . $min_memory, Core\Logger::DEBUG);
+			$this->logger->debug('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
 		}
 
 		return $reached;
