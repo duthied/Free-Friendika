@@ -356,9 +356,6 @@ class Page implements ArrayAccess
 	{
 		$moduleName = $module->getName();
 
-		// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-		$this->page['page_title'] = $moduleName;
-
 		/* Create the page content.
 		 * Calls all hooks which are including content operations
 		 *
@@ -455,7 +452,7 @@ class Page implements ArrayAccess
 		}
 
 		// Theme templates expect $a as an App instance
-		$a = $this;
+		$a = $app;
 
 		// Used as is in view/php/default.php
 		$lang = $l10n->getCurrentLang();

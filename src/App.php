@@ -889,6 +889,9 @@ class App
 				$this->internalRedirect('search');
 			}
 
+			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
+			$this->page['page_title'] = $moduleName;
+
 			// determine the module class and save it to the module instance
 			// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
 			$module = $module->determineClass($this->args, $router, $this->config);
