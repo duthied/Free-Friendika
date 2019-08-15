@@ -3,6 +3,7 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App\Mode;
+use Friendica\App\Module;
 use Friendica\Core\Config;
 use Friendica\Database\Database;
 use Friendica\Test\MockedTest;
@@ -176,5 +177,44 @@ class ModeTest extends MockedTest
 		$modeNew = $mode->determine($this->basePathMock, $this->databaseMock, $this->configCacheMock);
 
 		$this->assertNotSame($modeNew, $mode);
+	}
+
+	/**
+	 * Test if not called by index is backend
+	 */
+	public function testIsBackendNotIndex()
+	{
+		$server = ['PHP_SELF' => '/daemon.php'];
+		$module = new Module();
+
+		$mode = (new Mode())->determineBackend($module, $server);
+
+		$this->assertTrue($mode->isBackend());
+	}
+
+	/**
+	 * Test is called by index but module is backend
+	 */
+	public function testIsBackendButIndex()
+	{
+		$server = ['PHP_SELF' => '/index.php'];
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, true);
+
+		$mode = (new Mode())->determineBackend($module, $server);
+
+		$this->assertTrue($mode->isBackend());
+	}
+
+	/**
+	 * Test is called by index and module is not backend
+	 */
+	public function testIsNotBackend()
+	{
+		$server = ['PHP_SELF' => '/index.php'];
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+
+		$mode = (new Mode())->determineBackend($module, $server);
+
+		$this->assertFalse($mode->isBackend());
 	}
 }
