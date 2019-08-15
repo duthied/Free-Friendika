@@ -138,7 +138,7 @@ class DatabaseLock extends Lock
 		if (empty($prefix)) {
 			$where = ['`expires` >= ?', DateTimeFormat::utcNow()];
 		} else {
-			$where = ['`expires` >= ? AND `k` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
+			$where = ['`expires` >= ? AND `name` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
 		}
 
 		$stmt = $this->dba->select('locks', ['name'], $where);

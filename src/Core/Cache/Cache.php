@@ -84,19 +84,19 @@ abstract class Cache implements ICache
 	 * Filters the keys of an array with a given prefix
 	 * Returns the filtered keys as an new array
 	 *
-	 * @param array $array The array, which should get filtered
+	 * @param array $keys The keys, which should get filtered
 	 * @param string|null $prefix The prefix (if null, all keys will get returned)
 	 *
 	 * @return array The filtered array with just the keys
 	 */
-	protected function filterArrayKeysByPrefix($array, $prefix = null)
+	protected function filterArrayKeysByPrefix(array $keys, string $prefix = null)
 	{
 		if (empty($prefix)) {
-			return array_keys($array);
+			return $keys;
 		} else {
 			$result = [];
 
-			foreach (array_keys($array) as $key) {
+			foreach ($keys as $key) {
 				if (strpos($key, $prefix) === 0) {
 					array_push($result, $key);
 				}

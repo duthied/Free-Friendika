@@ -21,7 +21,7 @@ class ArrayCache extends Cache implements IMemoryCache
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		return $this->filterArrayKeysByPrefix($this->cachedData, $prefix);
+		return $this->filterArrayKeysByPrefix(array_keys($this->cachedData), $prefix);
 	}
 
 	/**
