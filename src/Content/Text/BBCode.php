@@ -1753,7 +1753,7 @@ class BBCode extends BaseObject
 		$text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $text);
 
 		// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
-		$allowed_src_protocols = ['http', 'redir', 'cid'];
+		$allowed_src_protocols = ['//', 'http', 'redir', 'cid'];
 		$text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
 					 '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . L10n::t('Invalid source protocol') . '">', $text);
 
@@ -1763,6 +1763,7 @@ class BBCode extends BaseObject
 
 		// Always allowed protocol even if config isn't set or not including it
 		$allowed_link_protocols[] = 'http';
+		$allowed_link_protocols[] = '//';
 		$allowed_link_protocols[] = 'redir/';
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
