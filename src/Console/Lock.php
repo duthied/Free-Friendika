@@ -32,7 +32,7 @@ class Lock extends \Asika\SimpleConsole\Console
 	protected function getHelp()
 	{
 		$help = <<<HELP
-console cache - Manage node cache
+console lock - Manage node locks
 Synopsis
 	bin/console lock list [<prefix>] [-h|--help|-?] [-v]
 	bin/console lock set <lock> [<timeout> [<ttl>]] [-h|--help|-?] [-v]
@@ -131,9 +131,9 @@ HELP;
 	private function executeDel()
 	{
 		if (count($this->args) >= 2) {
-			$lock   = $this->getArgument(1);
+			$lock = $this->getArgument(1);
 
-			if ($this->lock->releaseLock($lock, true)){
+			if ($this->lock->releaseLock($lock, true)) {
 				$this->out(sprintf('Lock \'%s\' released.', $lock));
 			} else {
 				$this->out(sprintf('Couldn\'t release Lock \'%s\'', $lock));
@@ -147,11 +147,11 @@ HELP;
 	private function executeSet()
 	{
 		if (count($this->args) >= 2) {
-			$lock      = $this->getArgument(1);
+			$lock    = $this->getArgument(1);
 			$timeout = intval($this->getArgument(2, false));
-			$ttl = intval($this->getArgument(3, false));
+			$ttl     = intval($this->getArgument(3, false));
 
-			if (is_array($this->lock->isLocked($lock))) {
+			if ($this->lock->isLocked($lock)) {
 				throw new RuntimeException(sprintf('\'%s\' is already set.', $lock));
 			}
 
@@ -166,7 +166,7 @@ HELP;
 			if ($result) {
 				$this->out(sprintf('Lock \'%s\' acquired.', $lock));
 			} else {
-				$this->out(sprintf('Unable to lock \'%s\'', $lock));
+				throw new RuntimeException(sprintf('Unable to lock \'%s\'.', $lock));
 			}
 		} else {
 			throw new CommandArgsException('Too few arguments for set.');
@@ -177,9 +177,9 @@ HELP;
 	{
 		$result = $this->lock->releaseAll(true);
 		if ($result) {
-			$this->out('Locks successfully cleared,');
+			$this->out('Locks successfully cleared.');
 		} else {
-			$this->out('Unable to clear the locks.');
+			throw new RuntimeException('Unable to clear the locks.');
 		}
 	}
 }
