@@ -68,8 +68,10 @@ class SemaphoreLock extends Lock
 
 		if (!empty(self::$semaphore[$key])) {
 			try {
-				$success = @sem_release(self::$semaphore[$key]) &&
-				           unlink(self::keyToFile($key));
+				$success = @sem_release(self::$semaphore[$key]);
+				if (file_exists(self::keyToFile($key)) && $success) {
+					$success = unlink(self::keyToFile($key));
+				}
 				unset(self::$semaphore[$key]);
 				$this->markRelease($key);
 			} catch (\Exception $exception) {
