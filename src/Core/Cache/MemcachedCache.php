@@ -94,6 +94,7 @@ class MemcachedCache extends Cache implements IMemoryCache
 	 * Special function because getAllKeys() is broken since memcached 1.4.23.
 	 *
 	 * cleaned up version of code found on Stackoverflow.com by Maduka Jayalath
+	 * @see https://stackoverflow.com/a/34724821
 	 *
 	 * @return array|int - all retrieved keys (or negative number on error)
 	 */
