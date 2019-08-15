@@ -65,8 +65,8 @@ class App
 	public $timezone;
 	public $interactive = true;
 	public $identities;
-	public $is_mobile   = false;
-	public $is_tablet   = false;
+	public $is_mobile;
+	public $is_tablet;
 	public $theme_info  = [];
 	public $category;
 	// Allow themes to control internal parameters
