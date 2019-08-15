@@ -1,9 +1,9 @@
 <?php
 namespace Friendica\Test\src\Util;
 
+use Friendica\App\BaseURL;
 use Friendica\Core\Config\Configuration;
 use Friendica\Test\MockedTest;
-use Friendica\Util\BaseURL;
 
 class BaseURLTest extends MockedTest
 {

@@ -14,7 +14,6 @@ use Friendica\Module\BaseAdminModule;
 use Friendica\Module\Register;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\BasePath;
-use Friendica\Util\BaseURL;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -246,7 +245,7 @@ class Site extends BaseAdminModule
 			$diaspora_enabled = false;
 		}
 		if ($ssl_policy != intval(Config::get('system', 'ssl_policy'))) {
-			if ($ssl_policy == BaseURL::SSL_POLICY_FULL) {
+			if ($ssl_policy == App\BaseURL::SSL_POLICY_FULL) {
 				DBA::e("UPDATE `contact` SET
 				`url`     = REPLACE(`url`    , 'http:' , 'https:'),
 				`photo`   = REPLACE(`photo`  , 'http:' , 'https:'),
@@ -264,7 +263,7 @@ class Site extends BaseAdminModule
 				`thumb`   = REPLACE(`thumb`  , 'http:' , 'https:')
 				WHERE 1 "
 				);
-			} elseif ($ssl_policy == BaseURL::SSL_POLICY_SELFSIGN) {
+			} elseif ($ssl_policy == App\BaseURL::SSL_POLICY_SELFSIGN) {
 				DBA::e("UPDATE `contact` SET
 				`url`     = REPLACE(`url`    , 'https:' , 'http:'),
 				`photo`   = REPLACE(`photo`  , 'https:' , 'http:'),
@@ -512,9 +511,9 @@ class Site extends BaseAdminModule
 		];
 
 		$ssl_choices = [
-			BaseURL::SSL_POLICY_NONE => L10n::t('No SSL policy, links will track page SSL state'),
-			BaseURL::SSL_POLICY_FULL => L10n::t('Force all links to use SSL'),
-			BaseURL::SSL_POLICY_SELFSIGN => L10n::t('Self-signed certificate, use SSL for local links only (discouraged)')
+			App\BaseURL::SSL_POLICY_NONE => L10n::t('No SSL policy, links will track page SSL state'),
+			App\BaseURL::SSL_POLICY_FULL => L10n::t('Force all links to use SSL'),
+			App\BaseURL::SSL_POLICY_SELFSIGN => L10n::t('Self-signed certificate, use SSL for local links only (discouraged)')
 		];
 
 		$check_git_version_choices = [

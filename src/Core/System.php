@@ -4,9 +4,9 @@
  */
 namespace Friendica\Core;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseObject;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\BaseURL;
 use Friendica\Util\XML;
 
 /**

@@ -8,7 +8,6 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Network\HTTPException\ForbiddenException;
-use Friendica\Util\BaseURL;
 
 /**
 * Handle Authentification, Session and Cookies
@@ -51,7 +50,7 @@ class Authentication extends BaseObject
 			$value = "";
 		}
 
-		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == BaseUrl::SSL_POLICY_FULL), true);
+		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL), true);
 	}
 
 	/**

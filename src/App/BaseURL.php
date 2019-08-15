@@ -1,8 +1,10 @@
 <?php
 
-namespace Friendica\Util;
+namespace Friendica\App;
 
 use Friendica\Core\Config\Configuration;
+use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * A class which checks and contains the basic
@@ -32,48 +34,56 @@ class BaseURL
 
 	/**
 	 * The Friendica Config
+	 *
 	 * @var Configuration
 	 */
 	private $config;
 
 	/**
 	 * The server side variables
+	 *
 	 * @var array
 	 */
 	private $server;
 
 	/**
 	 * The hostname of the Base URL
+	 *
 	 * @var string
 	 */
 	private $hostname;
 
 	/**
 	 * The SSL_POLICY of the Base URL
+	 *
 	 * @var int
 	 */
 	private $sslPolicy;
 
 	/**
 	 * The URL sub-path of the Base URL
+	 *
 	 * @var string
 	 */
 	private $urlPath;
 
 	/**
 	 * The full URL
+	 *
 	 * @var string
 	 */
 	private $url;
 
 	/**
 	 * The current scheme of this call
+	 *
 	 * @var string
 	 */
 	private $scheme;
 
 	/**
 	 * Returns the hostname of this node
+	 *
 	 * @return string
 	 */
 	public function getHostname()
@@ -83,6 +93,7 @@ class BaseURL
 
 	/**
 	 * Returns the current scheme of this call
+	 *
 	 * @return string
 	 */
 	public function getScheme()
@@ -92,6 +103,7 @@ class BaseURL
 
 	/**
 	 * Returns the SSL policy of this node
+	 *
 	 * @return int
 	 */
 	public function getSSLPolicy()
@@ -101,6 +113,7 @@ class BaseURL
 
 	/**
 	 * Returns the sub-path of this URL
+	 *
 	 * @return string
 	 */
 	public function getUrlPath()
@@ -143,7 +156,7 @@ class BaseURL
 
 		if (!empty($hostname) && $hostname !== $this->hostname) {
 			if ($this->config->set('config', 'hostname', $hostname)) {
-				$this->hostname  = $hostname;
+				$this->hostname = $hostname;
 			} else {
 				return false;
 			}
@@ -153,7 +166,7 @@ class BaseURL
 			if ($this->config->set('system', 'ssl_policy', $sslPolicy)) {
 				$this->sslPolicy = $sslPolicy;
 			} else {
-				$this->hostname  = $currHostname;
+				$this->hostname = $currHostname;
 				$this->config->set('config', 'hostname', $this->hostname);
 				return false;
 			}
@@ -229,12 +242,12 @@ class BaseURL
 	 */
 	public function checkRedirectHttps()
 	{
-		return $this->config->get('system', 'force_ssl')
-			&& ($this->getScheme() == "http")
-			&& intval($this->getSSLPolicy()) == BaseURL::SSL_POLICY_FULL
-			&& strpos($this->get(), 'https://') === 0
-			&& !empty($this->server['REQUEST_METHOD'])
-			&& $this->server['REQUEST_METHOD'] === 'GET';
+		return $this->config->get('system', 'force_ssl') &&
+		       ($this->getScheme() == "http") &&
+		       intval($this->getSSLPolicy()) == BaseURL::SSL_POLICY_FULL &&
+		       strpos($this->get(), 'https://') === 0 &&
+		       !empty($this->server['REQUEST_METHOD']) &&
+		       $this->server['REQUEST_METHOD'] === 'GET';
 	}
 
 	/**
@@ -359,7 +372,7 @@ class BaseURL
 			$scheme = 'https';
 		}
 
-		$this->url = $scheme . '://' . $this->hostname . (!empty($this->urlPath) ? '/' . $this->urlPath : '' );
+		$this->url = $scheme . '://' . $this->hostname . (!empty($this->urlPath) ? '/' . $this->urlPath : '');
 	}
 
 	/**
@@ -370,13 +383,35 @@ class BaseURL
 		$this->scheme = 'http';
 
 		if (!empty($this->server['HTTPS']) ||
-			!empty($this->server['HTTP_FORWARDED']) && preg_match('/proto=https/', $this->server['HTTP_FORWARDED']) ||
-			!empty($this->server['HTTP_X_FORWARDED_PROTO']) && $this->server['HTTP_X_FORWARDED_PROTO'] == 'https' ||
-			!empty($this->server['HTTP_X_FORWARDED_SSL']) && $this->server['HTTP_X_FORWARDED_SSL'] == 'on' ||
-			!empty($this->server['FRONT_END_HTTPS']) && $this->server['FRONT_END_HTTPS'] == 'on' ||
-			!empty($this->server['SERVER_PORT']) && (intval($this->server['SERVER_PORT']) == 443) // XXX: reasonable assumption, but isn't this hardcoding too much?
+		    !empty($this->server['HTTP_FORWARDED']) && preg_match('/proto=https/', $this->server['HTTP_FORWARDED']) ||
+		    !empty($this->server['HTTP_X_FORWARDED_PROTO']) && $this->server['HTTP_X_FORWARDED_PROTO'] == 'https' ||
+		    !empty($this->server['HTTP_X_FORWARDED_SSL']) && $this->server['HTTP_X_FORWARDED_SSL'] == 'on' ||
+		    !empty($this->server['FRONT_END_HTTPS']) && $this->server['FRONT_END_HTTPS'] == 'on' ||
+		    !empty($this->server['SERVER_PORT']) && (intval($this->server['SERVER_PORT']) == 443) // XXX: reasonable assumption, but isn't this hardcoding too much?
 		) {
 			$this->scheme = 'https';
+		}
+	}
+
+	/**
+	 * Removes the base url from an url. This avoids some mixed content problems.
+	 *
+	 * @param string $origURL
+	 *
+	 * @return string The cleaned url
+	 */
+	public function remove(string $origURL)
+	{
+		// Remove the hostname from the url if it is an internal link
+		$nurl = Strings::normaliseLink($origURL);
+		$base = Strings::normaliseLink($this->get());
+		$url  = str_replace($base . '/', '', $nurl);
+
+		// if it is an external link return the orignal value
+		if ($url == Strings::normaliseLink($origURL)) {
+			return $origURL;
+		} else {
+			return $url;
 		}
 	}
 }
