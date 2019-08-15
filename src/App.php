@@ -9,6 +9,7 @@ use DOMDocument;
 use DOMXPath;
 use Exception;
 use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
@@ -20,7 +21,6 @@ use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
-use Friendica\Util\BaseURL;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Profiler;
@@ -536,21 +536,13 @@ class App
 	 * @param string $origURL
 	 *
 	 * @return string The cleaned url
-	 * @throws HTTPException\InternalServerErrorException
+	 *
+	 * @deprecated 2019.09 - Use BaseURL->remove() instead
+	 * @see BaseURL::remove()
 	 */
 	public function removeBaseURL($origURL)
 	{
-		// Remove the hostname from the url if it is an internal link
-		$nurl = Util\Strings::normaliseLink($origURL);
-		$base = Util\Strings::normaliseLink($this->getBaseURL());
-		$url  = str_replace($base . '/', '', $nurl);
-
-		// if it is an external link return the orignal value
-		if ($url == Util\Strings::normaliseLink($origURL)) {
-			return $origURL;
-		} else {
-			return $url;
-		}
+		return $this->baseURL->remove($origURL);
 	}
 
 	/**

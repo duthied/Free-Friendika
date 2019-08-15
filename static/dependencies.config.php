@@ -85,12 +85,12 @@ return [
 		],
 	],
 	/**
-	 * Creates the Util\BaseURL
+	 * Creates the App\BaseURL
 	 *
 	 * Same as:
-	 *   $baseURL = new Util\BaseURL($configuration, $_SERVER);
+	 *   $baseURL = new App\BaseURL($configuration, $_SERVER);
 	 */
-	Util\BaseURL::class             => [
+	App\BaseURL::class             => [
 		'constructParams' => [
 			$_SERVER,
 		],

@@ -10,7 +10,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Network\HTTPException;
 use Friendica\Util\BasePath;
-use Friendica\Util\BaseURL;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
@@ -180,9 +179,9 @@ class Install extends BaseModule
 
 			case self::BASE_CONFIG:
 				$ssl_choices = [
-					BaseURL::SSL_POLICY_NONE     => L10n::t("No SSL policy, links will track page SSL state"),
-					BaseURL::SSL_POLICY_FULL     => L10n::t("Force all links to use SSL"),
-					BaseURL::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
+					App\BaseURL::SSL_POLICY_NONE     => L10n::t("No SSL policy, links will track page SSL state"),
+					App\BaseURL::SSL_POLICY_FULL     => L10n::t("Force all links to use SSL"),
+					App\BaseURL::SSL_POLICY_SELFSIGN => L10n::t("Self-signed certificate, use SSL for local links only \x28discouraged\x29")
 				];
 
 				$tpl    = Renderer::getMarkupTemplate('install_base.tpl');

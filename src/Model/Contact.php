@@ -4,6 +4,7 @@
  */
 namespace Friendica\Model;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseObject;
 use Friendica\Content\Pager;
 use Friendica\Core\Config;
@@ -22,7 +23,6 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
-use Friendica\Util\BaseURL;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;

@@ -15,7 +15,6 @@ use Friendica\Test\Util\DBAMockTrait;
 use Friendica\Test\Util\DBStructureMockTrait;
 use Friendica\Test\Util\RendererMockTrait;
 use Friendica\Test\Util\VFSTrait;
-use Friendica\Util\BaseURL;
 use Friendica\Util\Logger\VoidLogger;
 use Mockery\MockInterface;
 use org\bovigo\vfs\vfsStream;
@@ -353,7 +352,7 @@ FIN;
 		$this->assertConfigEntry('system', 'language', $assertion, ($default) ? Installer::DEFAULT_LANG : null);
 		$this->assertConfigEntry('system', 'url', $assertion);
 		$this->assertConfigEntry('system', 'urlpath', $assertion);
-		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? BaseURL::DEFAULT_SSL_SCHEME : null);
+		$this->assertConfigEntry('system', 'ssl_policy', $assertion, ($default) ? App\BaseURL::DEFAULT_SSL_SCHEME : null);
 		$this->assertConfigEntry('system', 'basepath', ($realBasepath) ? $this->root->url() : $assertion);
 	}
 

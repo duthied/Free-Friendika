@@ -9,9 +9,7 @@ use Friendica\App;
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\User;
-use Friendica\Util\BaseURL;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -30,7 +28,7 @@ class Session
 		ini_set('session.use_only_cookies', 1);
 		ini_set('session.cookie_httponly', 1);
 
-		if (Config::get('system', 'ssl_policy') == BaseURL::SSL_POLICY_FULL) {
+		if (Config::get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL) {
 			ini_set('session.cookie_secure', 1);
 		}
 
