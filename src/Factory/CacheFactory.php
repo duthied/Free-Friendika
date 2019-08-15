@@ -2,11 +2,11 @@
 
 namespace Friendica\Factory;
 
+use Friendica\App\BaseURL;
 use Friendica\Core\Cache;
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Database\Database;
-use Friendica\Util\BaseURL;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 

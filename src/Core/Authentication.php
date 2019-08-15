@@ -8,7 +8,6 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Network\HTTPException\ForbiddenException;
-use Friendica\Util\BaseURL;
 
 /**
 * Handle Authentification, Session and Cookies

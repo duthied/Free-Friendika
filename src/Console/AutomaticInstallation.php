@@ -4,12 +4,12 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\Console;
 use Friendica\App;
+use Friendica\App\BaseURL;
 use Friendica\Core\Config;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Util\BasePath;
-use Friendica\Util\BaseURL;
 use Friendica\Util\ConfigFileLoader;
 use RuntimeException;
 
