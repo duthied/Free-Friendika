@@ -53,7 +53,7 @@ class App
 	public $contacts;
 	public $page_contact;
 	public $content;
-	public $data         = [];
+	public $data = [];
 	/** @deprecated 2019.09 - use App\Arguments->getCommand() */
 	public $cmd = '';
 	/** @deprecated 2019.09 - use App\Arguments->getArgv() or Arguments->get() */
@@ -531,14 +531,14 @@ class App
 	}
 
 	/**
-	 * @brief Removes the base url from an url. This avoids some mixed content problems.
+	 * @brief      Removes the base url from an url. This avoids some mixed content problems.
 	 *
 	 * @param string $origURL
 	 *
 	 * @return string The cleaned url
 	 *
 	 * @deprecated 2019.09 - Use BaseURL->remove() instead
-	 * @see BaseURL::remove()
+	 * @see        BaseURL::remove()
 	 */
 	public function removeBaseURL($origURL)
 	{
@@ -567,7 +567,7 @@ class App
 	 * @return bool Is it a known backend?
 	 *
 	 * @deprecated 2019.09 - use App\Mode->isBackend() instead
-	 * @see App\Mode::isBackend()
+	 * @see        App\Mode::isBackend()
 	 * Use BaseObject::getClass(App\Mode::class) to get the global instance of Mode
 	 */
 	public function isBackend()
