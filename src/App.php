@@ -43,8 +43,8 @@ use Psr\Log\LoggerInterface;
 class App
 {
 	/** @deprecated 2019.09 - use App\Arguments->getQueryString() */
-	public $query_string = '';
-	public $page         = [];
+	public $query_string;
+	public $page;
 	public $profile;
 	public $profile_uid;
 	public $user;
@@ -284,6 +284,19 @@ class App
 		$this->is_tablet = $mobileDetect->isTablet();
 
 		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
+
+		$this->page = [
+			'aside'       => '',
+			'bottom'      => '',
+			'content'     => '',
+			'footer'      => '',
+			'htmlhead'    => '',
+			'nav'         => '',
+			'page_title'  => '',
+			'right_aside' => '',
+			'template'    => '',
+			'title'       => ''
+		];
 
 		$this->load();
 	}
@@ -994,19 +1007,6 @@ class App
 				Core\Addon::loadAddons();
 				Core\Hook::loadHooks();
 			}
-
-			$this->page = [
-				'aside'       => '',
-				'bottom'      => '',
-				'content'     => '',
-				'footer'      => '',
-				'htmlhead'    => '',
-				'nav'         => '',
-				'page_title'  => '',
-				'right_aside' => '',
-				'template'    => '',
-				'title'       => ''
-			];
 
 			// Compatibility with the Android Diaspora client
 			if ($moduleName == 'stream') {
