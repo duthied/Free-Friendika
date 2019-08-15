@@ -1131,7 +1131,7 @@ class App
 		header("X-Friendica-Version: " . FRIENDICA_VERSION);
 		header("Content-type: text/html; charset=utf-8");
 
-		if ($this->config->get('system', 'hsts') && ($this->baseURL->getSSLPolicy() == BaseUrl::SSL_POLICY_FULL)) {
+		if ($this->config->get('system', 'hsts') && ($this->baseURL->getSSLPolicy() == BaseURL::SSL_POLICY_FULL)) {
 			header("Strict-Transport-Security: max-age=31536000");
 		}
 

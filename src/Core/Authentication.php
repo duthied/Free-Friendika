@@ -51,7 +51,7 @@ class Authentication extends BaseObject
 			$value = "";
 		}
 
-		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == BaseUrl::SSL_POLICY_FULL), true);
+		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL), true);
 	}
 
 	/**
