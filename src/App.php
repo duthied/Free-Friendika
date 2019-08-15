@@ -5,11 +5,10 @@
 namespace Friendica;
 
 use Detection\MobileDetect;
-use DOMDocument;
-use DOMXPath;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
+use Friendica\App\Page;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
@@ -44,6 +43,9 @@ class App
 {
 	/** @deprecated 2019.09 - use App\Arguments->getQueryString() */
 	public $query_string;
+	/**
+	 * @var Page The current page environment
+	 */
 	public $page;
 	public $profile;
 	public $profile_uid;
@@ -77,9 +79,7 @@ class App
 	public $videoheight             = 350;
 	public $force_max_items         = 0;
 	public $theme_events_in_profile = true;
-
-	public $stylesheets   = [];
-	public $footerScripts = [];
+	public $queue;
 
 	/**
 	 * @var App\Mode The Mode of the Application
@@ -213,42 +213,22 @@ class App
 	}
 
 	/**
-	 * Register a stylesheet file path to be included in the <head> tag of every page.
-	 * Inclusion is done in App->initHead().
-	 * The path can be absolute or relative to the Friendica installation base folder.
-	 *
-	 * @param string $path
-	 *
-	 * @see initHead()
-	 *
+	 * @deprecated 2019.09 - use Page->registerStylesheet instead
+	 * @see Page::registerStylesheet()
 	 */
 	public function registerStylesheet($path)
 	{
-		if (mb_strpos($path, $this->getBasePath() . DIRECTORY_SEPARATOR) === 0) {
-			$path = mb_substr($path, mb_strlen($this->getBasePath() . DIRECTORY_SEPARATOR));
-		}
-
-		$this->stylesheets[] = trim($path, '/');
+		$this->page->registerStylesheet($path);
 	}
 
 	/**
-	 * Register a javascript file path to be included in the <footer> tag of every page.
-	 * Inclusion is done in App->initFooter().
-	 * The path can be absolute or relative to the Friendica installation base folder.
-	 *
-	 * @param string $path
-	 *
-	 * @see initFooter()
-	 *
+	 * @deprecated 2019.09 - use Page->registerFooterScript instead
+	 * @see Page::registerFooterScript()
 	 */
 	public function registerFooterScript($path)
 	{
-		$url = str_replace($this->getBasePath() . DIRECTORY_SEPARATOR, '', $path);
-
-		$this->footerScripts[] = trim($url, '/');
+		$this->page->registerFooterScript($path);
 	}
-
-	public $queue;
 
 	/**
 	 * @param Database        $database     The Friendica Database
@@ -262,7 +242,7 @@ class App
 	 * @param App\Arguments   $args         The Friendica Arguments of the call
 	 * @param MobileDetect    $mobileDetect A mobile detection class
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, MobileDetect $mobileDetect)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, App\Page $page, MobileDetect $mobileDetect)
 	{
 		$this->database     = $database;
 		$this->config       = $config;
@@ -280,24 +260,12 @@ class App
 		$this->argc         = $args->getArgc();
 		$this->query_string = $args->getQueryString();
 		$this->module       = $module->getName();
+		$this->page = $page;
 
 		$this->is_mobile = $mobileDetect->isMobile();
 		$this->is_tablet = $mobileDetect->isTablet();
 
 		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
-
-		$this->page = [
-			'aside'       => '',
-			'bottom'      => '',
-			'content'     => '',
-			'footer'      => '',
-			'htmlhead'    => '',
-			'nav'         => '',
-			'page_title'  => '',
-			'right_aside' => '',
-			'template'    => '',
-			'title'       => ''
-		];
 
 		$this->load();
 	}
@@ -416,119 +384,6 @@ class App
 	public function getURLPath()
 	{
 		return $this->baseURL->getUrlPath();
-	}
-
-	/**
-	 * Initializes App->page['htmlhead'].
-	 *
-	 * Includes:
-	 * - Page title
-	 * - Favicons
-	 * - Registered stylesheets (through App->registerStylesheet())
-	 * - Infinite scroll data
-	 * - head.tpl template
-	 */
-	private function initHead(App\Module $module, PConfiguration $pconfig)
-	{
-		$interval = ((local_user()) ? $pconfig->get(local_user(), 'system', 'update_interval') : 40000);
-
-		// If the update is 'deactivated' set it to the highest integer number (~24 days)
-		if ($interval < 0) {
-			$interval = 2147483647;
-		}
-
-		if ($interval < 10000) {
-			$interval = 40000;
-		}
-
-		// Default title: current module called
-		if (empty($this->page['title']) && $module->getName()) {
-			$this->page['title'] = ucfirst($module->getName());
-		}
-
-		// Prepend the sitename to the page title
-		$this->page['title'] = $this->config->get('config', 'sitename', '') . (!empty($this->page['title']) ? ' | ' . $this->page['title'] : '');
-
-		if (!empty(Core\Renderer::$theme['stylesheet'])) {
-			$stylesheet = Core\Renderer::$theme['stylesheet'];
-		} else {
-			$stylesheet = $this->getCurrentThemeStylesheetPath();
-		}
-
-		$this->registerStylesheet($stylesheet);
-
-		$shortcut_icon = $this->config->get('system', 'shortcut_icon');
-		if ($shortcut_icon == '') {
-			$shortcut_icon = 'images/friendica-32.png';
-		}
-
-		$touch_icon = $this->config->get('system', 'touch_icon');
-		if ($touch_icon == '') {
-			$touch_icon = 'images/friendica-128.png';
-		}
-
-		Core\Hook::callAll('head', $this->page['htmlhead']);
-
-		$tpl = Core\Renderer::getMarkupTemplate('head.tpl');
-		/* put the head template at the beginning of page['htmlhead']
-		 * since the code added by the modules frequently depends on it
-		 * being first
-		 */
-		$this->page['htmlhead'] = Core\Renderer::replaceMacros($tpl, [
-				'$local_user'      => local_user(),
-				'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
-				'$delitem'         => $this->l10n->t('Delete this item?'),
-				'$update_interval' => $interval,
-				'$shortcut_icon'   => $shortcut_icon,
-				'$touch_icon'      => $touch_icon,
-				'$block_public'    => intval($this->config->get('system', 'block_public')),
-				'$stylesheets'     => $this->stylesheets,
-			]) . $this->page['htmlhead'];
-	}
-
-	/**
-	 * Initializes App->page['footer'].
-	 *
-	 * Includes:
-	 * - Javascript homebase
-	 * - Mobile toggle link
-	 * - Registered footer scripts (through App->registerFooterScript())
-	 * - footer.tpl template
-	 */
-	private function initFooter()
-	{
-		// If you're just visiting, let javascript take you home
-		if (!empty($_SESSION['visitor_home'])) {
-			$homebase = $_SESSION['visitor_home'];
-		} elseif (local_user()) {
-			$homebase = 'profile/' . $this->user['nickname'];
-		}
-
-		if (isset($homebase)) {
-			$this->page['footer'] .= '<script>var homebase="' . $homebase . '";</script>' . "\n";
-		}
-
-		/*
-		 * Add a "toggle mobile" link if we're using a mobile device
-		 */
-		if ($this->is_mobile || $this->is_tablet) {
-			if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
-				$link = 'toggle_mobile?address=' . urlencode(curPageURL());
-			} else {
-				$link = 'toggle_mobile?off=1&address=' . urlencode(curPageURL());
-			}
-			$this->page['footer'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate("toggle_mobile_footer.tpl"), [
-				'$toggle_link' => $link,
-				'$toggle_text' => $this->l10n->t('toggle mobile')
-			]);
-		}
-
-		Core\Hook::callAll('footer', $this->page['footer']);
-
-		$tpl                  = Core\Renderer::getMarkupTemplate('footer.tpl');
-		$this->page['footer'] = Core\Renderer::replaceMacros($tpl, [
-				'$footerScripts' => $this->footerScripts,
-			]) . $this->page['footer'];
 	}
 
 	/**
@@ -1034,9 +889,6 @@ class App
 				$this->internalRedirect('search');
 			}
 
-			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-			$this->page['page_title'] = $moduleName;
-
 			// determine the module class and save it to the module instance
 			// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
 			$module = $module->determineClass($this->args, $router, $this->config);
@@ -1048,124 +900,7 @@ class App
 			ModuleHTTPException::rawContent($e);
 		}
 
-		$content = '';
-
-		try {
-			$moduleClass = $module->getClassName();
-
-			$arr = ['content' => $content];
-			Core\Hook::callAll($moduleClass . '_mod_content', $arr);
-			$content = $arr['content'];
-			$arr     = ['content' => call_user_func([$moduleClass, 'content'])];
-			Core\Hook::callAll($moduleClass . '_mod_aftercontent', $arr);
-			$content .= $arr['content'];
-		} catch (HTTPException $e) {
-			$content = ModuleHTTPException::content($e);
-		}
-
-		// initialise content region
-		if ($this->mode->isNormal()) {
-			Core\Hook::callAll('page_content_top', $this->page['content']);
-		}
-
-		$this->page['content'] .= $content;
-
-		/* Create the page head after setting the language
-		 * and getting any auth credentials.
-		 *
-		 * Moved initHead() and initFooter() to after
-		 * all the module functions have executed so that all
-		 * theme choices made by the modules can take effect.
-		 */
-		$this->initHead($module, $pconfig);
-
-		/* Build the page ending -- this is stuff that goes right before
-		 * the closing </body> tag
-		 */
-		$this->initFooter();
-
-		if (!$this->isAjax()) {
-			Core\Hook::callAll('page_end', $this->page['content']);
-		}
-
-		// Add the navigation (menu) template
-		if ($moduleName != 'install' && $moduleName != 'maintenance') {
-			$this->page['htmlhead'] .= Core\Renderer::replaceMacros(Core\Renderer::getMarkupTemplate('nav_head.tpl'), []);
-			$this->page['nav']      = Content\Nav::build($this);
-		}
-
-		// Build the page - now that we have all the components
-		if (isset($_GET["mode"]) && (($_GET["mode"] == "raw") || ($_GET["mode"] == "minimal"))) {
-			$doc = new DOMDocument();
-
-			$target = new DOMDocument();
-			$target->loadXML("<root></root>");
-
-			$content = mb_convert_encoding($this->page["content"], 'HTML-ENTITIES', "UTF-8");
-
-			/// @TODO one day, kill those error-surpressing @ stuff, or PHP should ban it
-			@$doc->loadHTML($content);
-
-			$xpath = new DOMXPath($doc);
-
-			$list = $xpath->query("//*[contains(@id,'tread-wrapper-')]");  /* */
-
-			foreach ($list as $item) {
-				$item = $target->importNode($item, true);
-
-				// And then append it to the target
-				$target->documentElement->appendChild($item);
-			}
-
-			if ($_GET["mode"] == "raw") {
-				header("Content-type: text/html; charset=utf-8");
-
-				echo substr($target->saveHTML(), 6, -8);
-
-				exit();
-			}
-		}
-
-		$page    = $this->page;
-		$profile = $this->profile;
-
-		header("X-Friendica-Version: " . FRIENDICA_VERSION);
-		header("Content-type: text/html; charset=utf-8");
-
-		if ($this->config->get('system', 'hsts') && ($this->baseURL->getSSLPolicy() == BaseURL::SSL_POLICY_FULL)) {
-			header("Strict-Transport-Security: max-age=31536000");
-		}
-
-		// Some security stuff
-		header('X-Content-Type-Options: nosniff');
-		header('X-XSS-Protection: 1; mode=block');
-		header('X-Permitted-Cross-Domain-Policies: none');
-		header('X-Frame-Options: sameorigin');
-
-		// Things like embedded OSM maps don't work, when this is enabled
-		// header("Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; connect-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' https: data:; media-src 'self' https:; child-src 'self' https:; object-src 'none'");
-
-		/* We use $_GET["mode"] for special page templates. So we will check if we have
-		 * to load another page template than the default one.
-		 * The page templates are located in /view/php/ or in the theme directory.
-		 */
-		if (isset($_GET["mode"])) {
-			$template = Core\Theme::getPathForFile($_GET["mode"] . '.php');
-		}
-
-		// If there is no page template use the default page template
-		if (empty($template)) {
-			$template = Core\Theme::getPathForFile("default.php");
-		}
-
-		// Theme templates expect $a as an App instance
-		$a = $this;
-
-		// Used as is in view/php/default.php
-		$lang = $this->l10n->getCurrentLang();
-
-		/// @TODO Looks unsafe (remote-inclusion), is maybe not but Core\Theme::getPathForFile() uses file_exists() but does not escape anything
-		require_once $template;
+		$this->page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->config, $pconfig);
 	}
 
 	/**
