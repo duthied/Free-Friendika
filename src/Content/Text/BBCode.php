@@ -1753,17 +1753,24 @@ class BBCode extends BaseObject
 		$text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $text);
 
 		// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
-		$allowed_src_protocols = ['http', 'redir', 'cid'];
+		$allowed_src_protocols = ['//', 'http://', 'https://', 'redir/', 'cid:'];
+
+		array_walk($allowed_src_protocols, function(&$value) { $value = preg_quote($value, '#');});
+
 		$text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
 					 '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . L10n::t('Invalid source protocol') . '">', $text);
 
 		// sanitize href attributes (only whitelisted protocols URLs)
 		// default value for backward compatibility
-		$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', ['ftp', 'mailto', 'gopher', 'cid']);
+		$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', []);
 
 		// Always allowed protocol even if config isn't set or not including it
-		$allowed_link_protocols[] = 'http';
+		$allowed_link_protocols[] = '//';
+		$allowed_link_protocols[] = 'http://';
+		$allowed_link_protocols[] = 'https://';
 		$allowed_link_protocols[] = 'redir/';
+
+		array_walk($allowed_link_protocols, function(&$value) { $value = preg_quote($value, '#');});
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $text);

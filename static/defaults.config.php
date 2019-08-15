@@ -52,8 +52,8 @@ return [
 	],
 	'system' => [
 		// allowed_link_protocols (Array)
-		// Allowed protocols in links URLs, add at your own risk. http is always allowed.
-		'allowed_link_protocols' => ['ftp', 'ftps', 'mailto', 'cid', 'gopher'],
+		// Allowed protocols in links URLs, add at your own risk. http(s) is always allowed.
+		'allowed_link_protocols' => ['ftp://', 'ftps://', 'mailto:', 'cid:', 'gopher://'],
 
 		// always_show_preview (Boolean)
 		// Only show small preview pictures.
