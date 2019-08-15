@@ -1,0 +1,185 @@
+<?php
+
+namespace Friendica\Console;
+
+use Asika\SimpleConsole\CommandArgsException;
+use Friendica\App;
+use Friendica\Core\Lock\ILock;
+use RuntimeException;
+
+/**
+ * @brief tool to access the locks from the CLI
+ *
+ * With this script you can access the locks of your node from the CLI.
+ * You can read current locks and set/remove locks.
+ *
+ * @author Philipp Holzer <admin@philipp.info>, Hypolite Petovan <hypolite@mrpetovan.com>
+ */
+class Lock extends \Asika\SimpleConsole\Console
+{
+	protected $helpOptions = ['h', 'help', '?'];
+
+	/**
+	 * @var App\Mode
+	 */
+	private $appMode;
+
+	/**
+	 * @var ILock
+	 */
+	private $lock;
+
+	protected function getHelp()
+	{
+		$help = <<<HELP
+console lock - Manage node locks
+Synopsis
+	bin/console lock list [<prefix>] [-h|--help|-?] [-v]
+	bin/console lock set <lock> [<timeout> [<ttl>]] [-h|--help|-?] [-v]
+	bin/console lock del <lock> [-h|--help|-?] [-v]
+	bin/console lock clear [-h|--help|-?] [-v]
+
+Description
+	bin/console lock list [<prefix>]
+		List all locks, optionally filtered by a prefix
+
+	bin/console lock set <lock> [<timeout> [<ttl>]]
+		Sets manually a lock, optionally with the provided TTL (time to live) with a default of five minutes.
+
+	bin/console lock del <lock>
+		Deletes a lock.
+
+	bin/console lock clear
+		Clears all locks
+
+Options
+    -h|--help|-? Show help information
+    -v           Show more debug information.
+HELP;
+		return $help;
+	}
+
+	public function __construct(App\Mode $appMode, ILock $lock, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->appMode = $appMode;
+		$this->lock    = $lock;
+	}
+
+	protected function doExecute()
+	{
+		if ($this->getOption('v')) {
+			$this->out('Executable: ' . $this->executable);
+			$this->out('Class: ' . __CLASS__);
+			$this->out('Arguments: ' . var_export($this->args, true));
+			$this->out('Options: ' . var_export($this->options, true));
+		}
+
+		if (!$this->appMode->has(App\Mode::DBCONFIGAVAILABLE)) {
+			$this->out('Database isn\'t ready or populated yet, database cache won\'t be available');
+		}
+
+		if ($this->getOption('v')) {
+			$this->out('Lock Driver Name: ' . $this->lock->getName());
+			$this->out('Lock Driver Class: ' . get_class($this->lock));
+		}
+
+		switch ($this->getArgument(0)) {
+			case 'list':
+				$this->executeList();
+				break;
+			case 'set':
+				$this->executeSet();
+				break;
+			case 'del':
+				$this->executeDel();
+				break;
+			case 'clear':
+				$this->executeClear();
+				break;
+		}
+
+		if (count($this->args) == 0) {
+			$this->out($this->getHelp());
+			return 0;
+		}
+
+		return 0;
+	}
+
+	private function executeList()
+	{
+		$prefix = $this->getArgument(1, '');
+		$keys   = $this->lock->getLocks($prefix);
+
+		if (empty($prefix)) {
+			$this->out('Listing all Locks:');
+		} else {
+			$this->out('Listing all Locks starting with "' . $prefix . '":');
+		}
+
+		$count = 0;
+		foreach ($keys as $key) {
+			$this->out($key);
+			$count++;
+		}
+
+		$this->out($count . ' locks found');
+	}
+
+	private function executeDel()
+	{
+		if (count($this->args) >= 2) {
+			$lock = $this->getArgument(1);
+
+			if ($this->lock->releaseLock($lock, true)) {
+				$this->out(sprintf('Lock \'%s\' released.', $lock));
+			} else {
+				$this->out(sprintf('Couldn\'t release Lock \'%s\'', $lock));
+			}
+
+		} else {
+			throw new CommandArgsException('Too few arguments for del.');
+		}
+	}
+
+	private function executeSet()
+	{
+		if (count($this->args) >= 2) {
+			$lock    = $this->getArgument(1);
+			$timeout = intval($this->getArgument(2, false));
+			$ttl     = intval($this->getArgument(3, false));
+
+			if ($this->lock->isLocked($lock)) {
+				throw new RuntimeException(sprintf('\'%s\' is already set.', $lock));
+			}
+
+			if (!empty($ttl) && !empty($timeout)) {
+				$result = $this->lock->acquireLock($lock, $timeout, $ttl);
+			} elseif (!empty($timeout)) {
+				$result = $this->lock->acquireLock($lock, $timeout);
+			} else {
+				$result = $this->lock->acquireLock($lock);
+			}
+
+			if ($result) {
+				$this->out(sprintf('Lock \'%s\' acquired.', $lock));
+			} else {
+				throw new RuntimeException(sprintf('Unable to lock \'%s\'.', $lock));
+			}
+		} else {
+			throw new CommandArgsException('Too few arguments for set.');
+		}
+	}
+
+	private function executeClear()
+	{
+		$result = $this->lock->releaseAll(true);
+		if ($result) {
+			$this->out('Locks successfully cleared.');
+		} else {
+			throw new RuntimeException('Unable to clear the locks.');
+		}
+	}
+}

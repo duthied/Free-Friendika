@@ -38,6 +38,7 @@ Commands:
 	archivecontact         Archive a contact when you know that it isn't existing anymore
 	help                   Show help about a command, e.g (bin/console help config)
 	autoinstall            Starts automatic installation of friendica based on values from htconfig.php
+	lock                   Edit site locks
 	maintenance            Set maintenance mode for this node
 	newpassword            Set a new password for a given user
 	php2po                 Generate a messages.po file from a strings.php file
@@ -65,6 +66,7 @@ HELP;
 		'globalcommunitysilence' => Friendica\Console\GlobalCommunitySilence::class,
 		'archivecontact'         => Friendica\Console\ArchiveContact::class,
 		'autoinstall'            => Friendica\Console\AutomaticInstallation::class,
+		'lock'                   => Friendica\Console\Lock::class,
 		'maintenance'            => Friendica\Console\Maintenance::class,
 		'newpassword'            => Friendica\Console\NewPassword::class,
 		'php2po'                 => Friendica\Console\PhpToPo::class,

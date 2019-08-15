@@ -45,7 +45,25 @@ interface ILock
 	/**
 	 * Releases all lock that were set by us
 	 *
+	 * @param bool $override Override to release all locks
+	 *
 	 * @return boolean Was the unlock of all locks successful?
 	 */
-	public function releaseAll();
+	public function releaseAll($override = false);
+
+	/**
+	 * Returns the name of the current lock
+	 *
+	 * @return string
+	 */
+	public function getName();
+
+	/**
+	 * Lists all locks
+	 *
+	 * @param string prefix optional a prefix to search
+	 *
+	 * @return array Empty if it isn't supported by the cache driver
+	 */
+	public function getLocks(string $prefix = '');
 }

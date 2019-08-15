@@ -92,9 +92,16 @@ class DatabaseLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseAll()
+	public function releaseAll($override = false)
 	{
-		$return = $this->dba->delete('locks', ['pid' => $this->pid]);
+		$success = parent::releaseAll($override);
+
+		if ($override) {
+			$where = ['1 = 1'];
+		} else {
+			$where = ['pid' => $this->pid];
+		}
+		$return = $this->dba->delete('locks', $where);
 
 		$this->acquiredLocks = [];
 
@@ -113,5 +120,35 @@ class DatabaseLock extends Lock
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return self::TYPE_DATABASE;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getLocks(string $prefix = '')
+	{
+		if (empty($prefix)) {
+			$where = ['`expires` >= ?', DateTimeFormat::utcNow()];
+		} else {
+			$where = ['`expires` >= ? AND `name` LIKE CONCAT(?, \'%\')', DateTimeFormat::utcNow(), $prefix];
+		}
+
+		$stmt = $this->dba->select('locks', ['name'], $where);
+
+		$keys = [];
+		while ($key = $this->dba->fetch($stmt)) {
+			array_push($keys, $key['name']);
+		}
+		$this->dba->close($stmt);
+
+		return $keys;
 	}
 }

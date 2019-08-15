@@ -8,6 +8,11 @@ use Friendica\Core\Cache\IMemoryCache;
 class CacheLock extends Lock
 {
 	/**
+	 * @var string The static prefix of all locks inside the cache
+	 */
+	const CACHE_PREFIX = 'lock:';
+
+	/**
 	 * @var \Friendica\Core\Cache\ICache;
 	 */
 	private $cache;
@@ -25,7 +30,7 @@ class CacheLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquireLock($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
+	public function acquireLock($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES)
 	{
 		$got_lock = false;
 		$start    = time();
@@ -86,12 +91,52 @@ class CacheLock extends Lock
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return $this->cache->getName();
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getLocks(string $prefix = '')
+	{
+		$locks = $this->cache->getAllKeys(self::CACHE_PREFIX . $prefix);
+
+		array_walk($locks, function (&$lock, $key) {
+			$lock = substr($lock, strlen(self::CACHE_PREFIX));
+		});
+
+		return $locks;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function releaseAll($override = false)
+	{
+		$success = parent::releaseAll($override);
+
+		$locks = $this->getLocks();
+
+		foreach ($locks as $lock) {
+			if (!$this->releaseLock($lock, $override)) {
+				$success = false;
+			}
+		}
+
+		return $success;
+	}
+
+	/**
 	 * @param string $key The original key
 	 *
 	 * @return string        The cache key used for the cache
 	 */
 	private static function getLockKey($key)
 	{
-		return "lock:" . $key;
+		return self::CACHE_PREFIX . $key;
 	}
 }

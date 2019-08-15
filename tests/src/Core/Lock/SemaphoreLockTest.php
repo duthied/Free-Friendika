@@ -12,8 +12,6 @@ class SemaphoreLockTest extends LockTest
 {
 	public function setUp()
 	{
-		parent::setUp();
-
 		$dice = \Mockery::mock(Dice::class)->makePartial();
 
 		$app = \Mockery::mock(App::class);
@@ -29,6 +27,8 @@ class SemaphoreLockTest extends LockTest
 
 		// @todo Because "get_temppath()" is using static methods, we have to initialize the BaseObject
 		BaseObject::setDependencyInjection($dice);
+
+		parent::setUp();
 	}
 
 	protected function getInstance()

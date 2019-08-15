@@ -2,7 +2,6 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\MemcachedCache;
 use Friendica\Test\MockedTest;
 use Friendica\Util\PidFile;
 
@@ -202,10 +201,6 @@ abstract class CacheTest extends MockedTest
 	 */
 	public function testGetAllKeys($value1, $value2, $value3)
 	{
-		if ($this->cache instanceof MemcachedCache) {
-			$this->markTestSkipped('Memcached doesn\'t support getAllKeys anymore');
-		}
-
 		$this->assertTrue($this->instance->set('value1', $value1));
 		$this->assertTrue($this->instance->set('value2', $value2));
 		$this->assertTrue($this->instance->set('test_value3', $value3));
@@ -219,5 +214,7 @@ abstract class CacheTest extends MockedTest
 		$list = $this->instance->getAllKeys('test');
 
 		$this->assertContains('test_value3', $list);
+		$this->assertNotContains('value1', $list);
+		$this->assertNotContains('value2', $list);
 	}
 }

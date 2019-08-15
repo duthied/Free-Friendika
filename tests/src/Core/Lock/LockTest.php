@@ -23,12 +23,12 @@ abstract class LockTest extends MockedTest
 		parent::setUp();
 
 		$this->instance = $this->getInstance();
-		$this->instance->releaseAll();
+		$this->instance->releaseAll(true);
 	}
 
 	protected function tearDown()
 	{
-		$this->instance->releaseAll();
+		$this->instance->releaseAll(true);
 		parent::tearDown();
 	}
 
@@ -121,6 +121,46 @@ abstract class LockTest extends MockedTest
 		$this->assertTrue($this->instance->isLocked('test'));
 		$this->assertTrue($this->instance->releaseLock('test'));
 		$this->assertFalse($this->instance->isLocked('test'));
+	}
+
+	/**
+	 * @small
+	 */
+	public function testGetLocks()
+	{
+		$this->assertTrue($this->instance->acquireLock('foo', 1));
+		$this->assertTrue($this->instance->acquireLock('bar', 1));
+		$this->assertTrue($this->instance->acquireLock('nice', 1));
+
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+		$this->assertTrue($this->instance->isLocked('nice'));
+
+		$locks = $this->instance->getLocks();
+
+		$this->assertContains('foo', $locks);
+		$this->assertContains('bar', $locks);
+		$this->assertContains('nice', $locks);
+	}
+
+	/**
+	 * @small
+	 */
+	public function testGetLocksWithPrefix()
+	{
+		$this->assertTrue($this->instance->acquireLock('foo', 1));
+		$this->assertTrue($this->instance->acquireLock('test1', 1));
+		$this->assertTrue($this->instance->acquireLock('test2', 1));
+
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('test1'));
+		$this->assertTrue($this->instance->isLocked('test2'));
+
+		$locks = $this->instance->getLocks('test');
+
+		$this->assertContains('test1', $locks);
+		$this->assertContains('test2', $locks);
+		$this->assertNotContains('foo', $locks);
 	}
 
 	/**
