@@ -262,7 +262,7 @@ class App
 	 * @param App\Arguments   $args         The Friendica Arguments of the call
 	 * @param MobileDetect    $mobileDetect A mobile detection class
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, MobileDetect $mobileDetect)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, MobileDetect $mobileDetect)
 	{
 		$this->database     = $database;
 		$this->config       = $config;
@@ -279,6 +279,7 @@ class App
 		$this->argv         = $args->getArgv();
 		$this->argc         = $args->getArgc();
 		$this->query_string = $args->getQueryString();
+		$this->module       = $module->getName();
 
 		$this->is_mobile = $mobileDetect->isMobile();
 		$this->is_tablet = $mobileDetect->isTablet();
