@@ -95,6 +95,11 @@ return [
 			$_SERVER,
 		],
 	],
+	App\Page::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
+		],
+	],
 	/**
 	 * Create a Logger, which implements the LoggerInterface
 	 *
