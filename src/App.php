@@ -260,7 +260,7 @@ class App
 		$this->argc         = $args->getArgc();
 		$this->query_string = $args->getQueryString();
 		$this->module       = $module->getName();
-		$this->page = $page;
+		$this->page         = $page;
 
 		$this->is_mobile = $mobileDetect->isMobile();
 		$this->is_tablet = $mobileDetect->isTablet();
