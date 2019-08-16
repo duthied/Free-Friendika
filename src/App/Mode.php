@@ -2,6 +2,7 @@
 
 namespace Friendica\App;
 
+use Detection\MobileDetect;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Database\Database;
 use Friendica\Util\BasePath;
@@ -29,10 +30,28 @@ class Mode
 	 */
 	private $isBackend;
 
-	public function __construct(int $mode = 0, bool $isBackend = false)
+	/**
+	 * @var bool True, if the call is a ajax call
+	 */
+	private $isAjax;
+
+	/**
+	 * @var bool True, if the call is from a mobile device
+	 */
+	private $isMobile;
+
+	/**
+	 * @var bool True, if the call is from a tablet device
+	 */
+	private $isTablet;
+
+	public function __construct(int $mode = 0, bool $isBackend = false, bool $isAjax = false, bool $isMobile = false, bool $isTablet = false)
 	{
 		$this->mode      = $mode;
 		$this->isBackend = $isBackend;
+		$this->isAjax    = $isAjax;
+		$this->isMobile  = $isMobile;
+		$this->isTablet  = $isTablet;
 	}
 
 	/**
@@ -81,23 +100,27 @@ class Mode
 
 		$mode |= Mode::MAINTENANCEDISABLED;
 
-		return new Mode($mode, $this->isBackend);
+		return new Mode($mode, $this->isBackend, $this->isAjax, $this->isMobile, $this->isTablet);
 	}
 
 	/**
 	 * Checks if the site is called via a backend process
 	 *
-	 * @param Module $module The pre-loaded module (just name, not class!)
-	 * @param array $server The $_SERVER variable
+	 * @param Module       $module       The pre-loaded module (just name, not class!)
+	 * @param array        $server       The $_SERVER variable
+	 * @param MobileDetect $mobileDetect The mobile detection library
 	 *
 	 * @return Mode returns the determined mode
 	 */
-	public function determineBackend(Module $module, array $server)
+	public function determineRunMode(Module $module, array $server, MobileDetect $mobileDetect)
 	{
 		$isBackend = basename(($server['PHP_SELF'] ?? ''), '.php') !== 'index' ||
 		             $module->isBackend();
+		$isMobile  = $mobileDetect->isMobile();
+		$isTablet  = $mobileDetect->isTablet();
+		$isAjax    = strtolower($server['HTTP_X_REQUESTED_WITH'] ?? '') == 'xmlhttprequest';
 
-		return new Mode($this->mode, $isBackend);
+		return new Mode($this->mode, $isBackend, $isAjax, $isMobile, $isTablet);
 	}
 
 	/**
@@ -145,5 +168,35 @@ class Mode
 	public function isBackend()
 	{
 		return $this->isBackend;
+	}
+
+	/**
+	 * Check if request was an AJAX (xmlhttprequest) request.
+	 *
+	 * @return bool true if it was an AJAX request
+	 */
+	public function isAjax()
+	{
+		return $this->isAjax;
+	}
+
+	/**
+	 * Check if request was a mobile request.
+	 *
+	 * @return bool true if it was an mobile request
+	 */
+	public function isMobile()
+	{
+		return $this->isMobile;
+	}
+
+	/**
+	 * Check if request was a tablet request.
+	 *
+	 * @return bool true if it was an tablet request
+	 */
+	public function isTablet()
+	{
+		return $this->isTablet;
 	}
 }

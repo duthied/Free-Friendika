@@ -4,7 +4,6 @@
  */
 namespace Friendica;
 
-use Detection\MobileDetect;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
@@ -67,7 +66,9 @@ class App
 	public $timezone;
 	public $interactive = true;
 	public $identities;
+	/** @deprecated 2019.09 - Use App\Mode->isMobile() instead */
 	public $is_mobile;
+	/** @deprecated 2019.09 - Use App\Mode->isTable() instead */
 	public $is_tablet;
 	public $theme_info  = [];
 	public $category;
@@ -87,11 +88,6 @@ class App
 	private $mode;
 
 	/**
-	 * @var App\Router
-	 */
-	private $router;
-
-	/**
 	 * @var BaseURL
 	 */
 	private $baseURL;
@@ -100,16 +96,6 @@ class App
 	 * @var string The name of the current theme
 	 */
 	private $currentTheme;
-
-	/**
-	 * @var bool check if request was an AJAX (xmlhttprequest) request
-	 */
-	private $isAjax;
-
-	/**
-	 * @var MobileDetect
-	 */
-	public $mobileDetect;
 
 	/**
 	 * @var Configuration The config
@@ -234,26 +220,22 @@ class App
 	 * @param Database        $database     The Friendica Database
 	 * @param Configuration   $config       The Configuration
 	 * @param App\Mode        $mode         The mode of this Friendica app
-	 * @param App\Router      $router       The router of this Friendica app
 	 * @param BaseURL         $baseURL      The full base URL of this Friendica app
 	 * @param LoggerInterface $logger       The current app logger
 	 * @param Profiler        $profiler     The profiler of this application
 	 * @param L10n            $l10n         The translator instance
 	 * @param App\Arguments   $args         The Friendica Arguments of the call
-	 * @param MobileDetect    $mobileDetect A mobile detection class
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, App\Page $page, MobileDetect $mobileDetect)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, App\Page $page)
 	{
 		$this->database     = $database;
 		$this->config       = $config;
 		$this->mode         = $mode;
-		$this->router       = $router;
 		$this->baseURL      = $baseURL;
 		$this->profiler     = $profiler;
 		$this->logger       = $logger;
 		$this->l10n         = $l10n;
 		$this->args         = $args;
-		$this->mobileDetect = $mobileDetect;
 
 		$this->cmd          = $args->getCommand();
 		$this->argv         = $args->getArgv();
@@ -262,10 +244,8 @@ class App
 		$this->module       = $module->getName();
 		$this->page         = $page;
 
-		$this->is_mobile = $mobileDetect->isMobile();
-		$this->is_tablet = $mobileDetect->isTablet();
-
-		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
+		$this->is_mobile = $mode->isMobile();
+		$this->is_tablet = $mode->isTablet();
 
 		$this->load();
 	}
@@ -415,20 +395,6 @@ class App
 			FRIENDICA_VERSION . '-' .
 			DB_UPDATE_VERSION . '; ' .
 			$this->getBaseURL();
-	}
-
-	/**
-	 * Returns true, if the call is from a backend node (f.e. from a worker)
-	 *
-	 * @return bool Is it a known backend?
-	 *
-	 * @deprecated 2019.09 - use App\Mode->isBackend() instead
-	 * @see        App\Mode::isBackend()
-	 * Use BaseObject::getClass(App\Mode::class) to get the global instance of Mode
-	 */
-	public function isBackend()
-	{
-		return $this->mode->isBackend();
 	}
 
 	/**
@@ -705,13 +671,12 @@ class App
 	}
 
 	/**
-	 * Check if request was an AJAX (xmlhttprequest) request.
-	 *
-	 * @return boolean true if it was an AJAX request
+	 * @deprecated 2019.09 - use App\Mode->isAjax() instead
+	 * @see App\Mode::isAjax()
 	 */
 	public function isAjax()
 	{
-		return $this->isAjax;
+		return $this->mode->isAjax();
 	}
 
 	/**
