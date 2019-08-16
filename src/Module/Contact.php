@@ -984,7 +984,7 @@ class Contact extends BaseModule
 		$dir_icon = '';
 		$alt_text = '';
 
-		if ($rr['uid']) {
+		if (!empty($rr['uid']) && !empty($rr['rel'])) {
 			switch ($rr['rel']) {
 				case Model\Contact::FRIEND:
 					$dir_icon = 'images/lrarrow.gif';
