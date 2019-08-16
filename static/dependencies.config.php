@@ -154,4 +154,9 @@ return [
 			['determineModule', [], Dice::CHAIN_CALL],
 		],
 	],
+	Friendica\Core\Process::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
+		],
+	],
 ];
