@@ -190,4 +190,13 @@ abstract class LockTest extends MockedTest
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
 	}
+
+	/**
+	 * Test if releasing a non-existing lock doesn't throw errors
+	 */
+	public function testReleaseLockWithoutLock()
+	{
+		$this->assertFalse($this->instance->isLocked('wrongLock'));
+		$this->assertFalse($this->instance->releaseLock('wrongLock'));
+	}
 }

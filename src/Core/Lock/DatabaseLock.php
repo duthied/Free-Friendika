@@ -82,7 +82,11 @@ class DatabaseLock extends Lock
 			$where = ['name' => $key, 'pid' => $this->pid];
 		}
 
-		$return = $this->dba->delete('locks', $where);
+		if ($this->dba->exists('locks', $where)) {
+			$return = $this->dba->delete('locks', $where);
+		} else {
+			$return = false;
+		}
 
 		$this->markRelease($key);
 
@@ -105,7 +109,7 @@ class DatabaseLock extends Lock
 
 		$this->acquiredLocks = [];
 
-		return $return;
+		return $return && $success;
 	}
 
 	/**
