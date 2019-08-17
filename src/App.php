@@ -70,7 +70,7 @@ class App
 	public $is_mobile;
 	/** @deprecated 2019.09 - Use App\Mode->isTable() instead */
 	public $is_tablet;
-	public $theme_info  = [];
+	public $theme_info = [];
 	public $category;
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
@@ -205,7 +205,7 @@ class App
 
 	/**
 	 * @deprecated 2019.09 - use Page->registerStylesheet instead
-	 * @see Page::registerStylesheet()
+	 * @see        Page::registerStylesheet()
 	 */
 	public function registerStylesheet($path)
 	{
@@ -214,7 +214,7 @@ class App
 
 	/**
 	 * @deprecated 2019.09 - use Page->registerFooterScript instead
-	 * @see Page::registerFooterScript()
+	 * @see        Page::registerFooterScript()
 	 */
 	public function registerFooterScript($path)
 	{
@@ -222,27 +222,27 @@ class App
 	}
 
 	/**
-	 * @param Database        $database     The Friendica Database
-	 * @param Configuration   $config       The Configuration
-	 * @param App\Mode        $mode         The mode of this Friendica app
-	 * @param BaseURL         $baseURL      The full base URL of this Friendica app
-	 * @param LoggerInterface $logger       The current app logger
-	 * @param Profiler        $profiler     The profiler of this application
-	 * @param L10n            $l10n         The translator instance
-	 * @param App\Arguments   $args         The Friendica Arguments of the call
-	 * @param Core\Process $process The process methods
+	 * @param Database        $database The Friendica Database
+	 * @param Configuration   $config   The Configuration
+	 * @param App\Mode        $mode     The mode of this Friendica app
+	 * @param BaseURL         $baseURL  The full base URL of this Friendica app
+	 * @param LoggerInterface $logger   The current app logger
+	 * @param Profiler        $profiler The profiler of this application
+	 * @param L10n            $l10n     The translator instance
+	 * @param App\Arguments   $args     The Friendica Arguments of the call
+	 * @param Core\Process    $process  The process methods
 	 */
 	public function __construct(Database $database, Configuration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, App\Page $page, Core\Process $process)
 	{
-		$this->database     = $database;
-		$this->config       = $config;
-		$this->mode         = $mode;
-		$this->baseURL      = $baseURL;
-		$this->profiler     = $profiler;
-		$this->logger       = $logger;
-		$this->l10n         = $l10n;
-		$this->args         = $args;
-		$this->process = $process;
+		$this->database = $database;
+		$this->config   = $config;
+		$this->mode     = $mode;
+		$this->baseURL  = $baseURL;
+		$this->profiler = $profiler;
+		$this->logger   = $logger;
+		$this->l10n     = $l10n;
+		$this->args     = $args;
+		$this->process  = $process;
 
 		$this->cmd          = $args->getCommand();
 		$this->argv         = $args->getArgv();
@@ -543,7 +543,7 @@ class App
 
 	/**
 	 * @deprecated 2019.09 - use App\Mode->isAjax() instead
-	 * @see App\Mode::isAjax()
+	 * @see        App\Mode::isAjax()
 	 */
 	public function isAjax()
 	{
