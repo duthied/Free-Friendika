@@ -7,7 +7,6 @@ use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Lock;
 use Friendica\Database\Database;
-use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -40,16 +39,11 @@ class LockFactory
 	private $cacheFactory;
 
 	/**
-	 * @var Profiler The optional profiler if the cached should be profiled
-	 */
-	private $profiler;
-
-	/**
 	 * @var LoggerInterface The Friendica Logger
 	 */
 	private $logger;
 
-	public function __construct(CacheFactory $cacheFactory, Configuration $config, Database $dba, Profiler $profiler, LoggerInterface $logger)
+	public function __construct(CacheFactory $cacheFactory, Configuration $config, Database $dba, LoggerInterface $logger)
 	{
 		$this->cacheFactory = $cacheFactory;
 		$this->config       = $config;

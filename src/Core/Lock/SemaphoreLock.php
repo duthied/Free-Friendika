@@ -20,27 +20,17 @@ class SemaphoreLock extends Lock
 	 */
 	private static function semaphoreKey($key)
 	{
-		$file = self::keyToFile($key);
+		$success = true;
 
-		if (!file_exists($file)) {
-			file_put_contents($file, $key);
-		}
-
-		return ftok($file, 'f');
-	}
-
-	/**
-	 * Returns the full path to the semaphore file
-	 *
-	 * @param string $key The key of the semaphore
-	 *
-	 * @return string The full path
-	 */
-	private static function keyToFile($key)
-	{
 		$temp = get_temppath();
 
-		return $temp . '/' . $key . '.sem';
+		$file = $temp . '/' . $key . '.sem';
+
+		if (!file_exists($file)) {
+			$success = !empty(file_put_contents($file, $key));
+		}
+
+		return $success ? ftok($file, 'f') : false;
 	}
 
 	/**
@@ -61,6 +51,9 @@ class SemaphoreLock extends Lock
 
 	/**
 	 * (@inheritdoc)
+	 *
+	 * @param bool $override not necessary parameter for semaphore locks since the lock lives as long as the execution
+	 *                       of the using function
 	 */
 	public function releaseLock($key, $override = false)
 	{
@@ -69,17 +62,10 @@ class SemaphoreLock extends Lock
 		if (!empty(self::$semaphore[$key])) {
 			try {
 				$success = @sem_release(self::$semaphore[$key]);
-				if (file_exists(self::keyToFile($key)) && $success) {
-					$success = unlink(self::keyToFile($key));
-				}
 				unset(self::$semaphore[$key]);
 				$this->markRelease($key);
 			} catch (\Exception $exception) {
 				$success = false;
-			}
-		} else if ($override) {
-			if ($this->acquireLock($key)) {
-				$success = $this->releaseLock($key, true);
 			}
 		}
 
@@ -107,16 +93,23 @@ class SemaphoreLock extends Lock
 	 */
 	public function getLocks(string $prefix = '')
 	{
-		$temp = get_temppath();
-		$locks = [];
-		foreach (glob(sprintf('%s/%s*.sem', $temp, $prefix)) as $lock) {
-			$lock = pathinfo($lock, PATHINFO_FILENAME);
-			if(sem_get(self::semaphoreKey($lock))) {
-				$locks[] = $lock;
-			}
-		}
+		// We can just return our own semaphore keys, since we don't know
+		// the state of other semaphores, even if the .sem files exists
+		$keys = array_keys(self::$semaphore);
 
-		return $locks;
+		if (empty($prefix)) {
+			return $keys;
+		} else {
+			$result = [];
+
+			foreach ($keys as $key) {
+				if (strpos($key, $prefix) === 0) {
+					array_push($result, $key);
+				}
+			}
+
+			return $result;
+		}
 	}
 
 	/**
@@ -124,16 +117,8 @@ class SemaphoreLock extends Lock
 	 */
 	public function releaseAll($override = false)
 	{
-		$success = parent::releaseAll($override);
-
-		$temp = get_temppath();
-		foreach (glob(sprintf('%s/*.sem', $temp)) as $lock) {
-			$lock = pathinfo($lock, PATHINFO_FILENAME);
-			if (!$this->releaseLock($lock, true)) {
-				$success = false;
-			}
-		}
-
-		return $success;
+		// Semaphores are just alive during a run, so there is no need to release
+		// You can just release your own locks
+		return parent::releaseAll($override);
 	}
 }
