@@ -984,24 +984,26 @@ class Contact extends BaseModule
 		$dir_icon = '';
 		$alt_text = '';
 
-		switch ($rr['rel']) {
-			case Model\Contact::FRIEND:
-				$dir_icon = 'images/lrarrow.gif';
-				$alt_text = L10n::t('Mutual Friendship');
-				break;
+		if (!empty($rr['uid']) && !empty($rr['rel'])) {
+			switch ($rr['rel']) {
+				case Model\Contact::FRIEND:
+					$dir_icon = 'images/lrarrow.gif';
+					$alt_text = L10n::t('Mutual Friendship');
+					break;
 
-			case Model\Contact::FOLLOWER;
-				$dir_icon = 'images/larrow.gif';
-				$alt_text = L10n::t('is a fan of yours');
-				break;
+				case Model\Contact::FOLLOWER;
+					$dir_icon = 'images/larrow.gif';
+					$alt_text = L10n::t('is a fan of yours');
+					break;
 
-			case Model\Contact::SHARING;
-				$dir_icon = 'images/rarrow.gif';
-				$alt_text = L10n::t('you are a fan of');
-				break;
+				case Model\Contact::SHARING;
+					$dir_icon = 'images/rarrow.gif';
+					$alt_text = L10n::t('you are a fan of');
+					break;
 
-			default:
-				break;
+				default:
+					break;
+			}
 		}
 
 		$url = Model\Contact::magicLink($rr['url']);
