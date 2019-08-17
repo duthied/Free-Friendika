@@ -26,8 +26,8 @@ class Index extends BaseAdminModule
 			switch ($_GET['action']) {
 				case 'reload':
 					foreach ($allowed_themes as $theme) {
-						Theme::uninstall($theme['name']);
-						Theme::install($theme['name']);
+						Theme::uninstall($theme);
+						Theme::install($theme);
 					}
 
 					info('Themes reloaded');
