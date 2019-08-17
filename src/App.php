@@ -4,7 +4,6 @@
  */
 namespace Friendica;
 
-use Detection\MobileDetect;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
@@ -67,9 +66,11 @@ class App
 	public $timezone;
 	public $interactive = true;
 	public $identities;
+	/** @deprecated 2019.09 - Use App\Mode->isMobile() instead */
 	public $is_mobile;
+	/** @deprecated 2019.09 - Use App\Mode->isTable() instead */
 	public $is_tablet;
-	public $theme_info  = [];
+	public $theme_info = [];
 	public $category;
 	// Allow themes to control internal parameters
 	// by changing App values in theme.php
@@ -87,11 +88,6 @@ class App
 	private $mode;
 
 	/**
-	 * @var App\Router
-	 */
-	private $router;
-
-	/**
 	 * @var BaseURL
 	 */
 	private $baseURL;
@@ -100,16 +96,6 @@ class App
 	 * @var string The name of the current theme
 	 */
 	private $currentTheme;
-
-	/**
-	 * @var bool check if request was an AJAX (xmlhttprequest) request
-	 */
-	private $isAjax;
-
-	/**
-	 * @var MobileDetect
-	 */
-	public $mobileDetect;
 
 	/**
 	 * @var Configuration The config
@@ -140,6 +126,11 @@ class App
 	 * @var App\Arguments
 	 */
 	private $args;
+
+	/**
+	 * @var Core\Process The process methods
+	 */
+	private $process;
 
 	/**
 	 * Returns the current config cache of this node
@@ -214,7 +205,7 @@ class App
 
 	/**
 	 * @deprecated 2019.09 - use Page->registerStylesheet instead
-	 * @see Page::registerStylesheet()
+	 * @see        Page::registerStylesheet()
 	 */
 	public function registerStylesheet($path)
 	{
@@ -223,7 +214,7 @@ class App
 
 	/**
 	 * @deprecated 2019.09 - use Page->registerFooterScript instead
-	 * @see Page::registerFooterScript()
+	 * @see        Page::registerFooterScript()
 	 */
 	public function registerFooterScript($path)
 	{
@@ -231,29 +222,27 @@ class App
 	}
 
 	/**
-	 * @param Database        $database     The Friendica Database
-	 * @param Configuration   $config       The Configuration
-	 * @param App\Mode        $mode         The mode of this Friendica app
-	 * @param App\Router      $router       The router of this Friendica app
-	 * @param BaseURL         $baseURL      The full base URL of this Friendica app
-	 * @param LoggerInterface $logger       The current app logger
-	 * @param Profiler        $profiler     The profiler of this application
-	 * @param L10n            $l10n         The translator instance
-	 * @param App\Arguments   $args         The Friendica Arguments of the call
-	 * @param MobileDetect    $mobileDetect A mobile detection class
+	 * @param Database        $database The Friendica Database
+	 * @param Configuration   $config   The Configuration
+	 * @param App\Mode        $mode     The mode of this Friendica app
+	 * @param BaseURL         $baseURL  The full base URL of this Friendica app
+	 * @param LoggerInterface $logger   The current app logger
+	 * @param Profiler        $profiler The profiler of this application
+	 * @param L10n            $l10n     The translator instance
+	 * @param App\Arguments   $args     The Friendica Arguments of the call
+	 * @param Core\Process    $process  The process methods
 	 */
-	public function __construct(Database $database, Configuration $config, App\Mode $mode, App\Router $router, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, App\Page $page, MobileDetect $mobileDetect)
+	public function __construct(Database $database, Configuration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Module $module, App\Page $page, Core\Process $process)
 	{
-		$this->database     = $database;
-		$this->config       = $config;
-		$this->mode         = $mode;
-		$this->router       = $router;
-		$this->baseURL      = $baseURL;
-		$this->profiler     = $profiler;
-		$this->logger       = $logger;
-		$this->l10n         = $l10n;
-		$this->args         = $args;
-		$this->mobileDetect = $mobileDetect;
+		$this->database = $database;
+		$this->config   = $config;
+		$this->mode     = $mode;
+		$this->baseURL  = $baseURL;
+		$this->profiler = $profiler;
+		$this->logger   = $logger;
+		$this->l10n     = $l10n;
+		$this->args     = $args;
+		$this->process  = $process;
 
 		$this->cmd          = $args->getCommand();
 		$this->argv         = $args->getArgv();
@@ -262,10 +251,8 @@ class App
 		$this->module       = $module->getName();
 		$this->page         = $page;
 
-		$this->is_mobile = $mobileDetect->isMobile();
-		$this->is_tablet = $mobileDetect->isTablet();
-
-		$this->isAjax = strtolower(defaults($_SERVER, 'HTTP_X_REQUESTED_WITH', '')) == 'xmlhttprequest';
+		$this->is_mobile = $mode->isMobile();
+		$this->is_tablet = $mode->isTablet();
 
 		$this->load();
 	}
@@ -418,177 +405,27 @@ class App
 	}
 
 	/**
-	 * Returns true, if the call is from a backend node (f.e. from a worker)
-	 *
-	 * @return bool Is it a known backend?
-	 *
-	 * @deprecated 2019.09 - use App\Mode->isBackend() instead
-	 * @see        App\Mode::isBackend()
-	 * Use BaseObject::getClass(App\Mode::class) to get the global instance of Mode
-	 */
-	public function isBackend()
-	{
-		return $this->mode->isBackend();
-	}
-
-	/**
-	 * @brief Checks if the maximum number of database processes is reached
-	 *
-	 * @return bool Is the limit reached?
+	 * @deprecated 2019.09 - use Core\Process->isMaxProcessesReached() instead
 	 */
 	public function isMaxProcessesReached()
 	{
-		// Deactivated, needs more investigating if this check really makes sense
-		return false;
-
-		/*
-		 * Commented out to suppress static analyzer issues
-		 *
-		if ($this->is_backend()) {
-			$process = 'backend';
-			$max_processes = $this->config->get('system', 'max_processes_backend');
-			if (intval($max_processes) == 0) {
-				$max_processes = 5;
-			}
-		} else {
-			$process = 'frontend';
-			$max_processes = $this->config->get('system', 'max_processes_frontend');
-			if (intval($max_processes) == 0) {
-				$max_processes = 20;
-			}
-		}
-
-		$processlist = DBA::processlist();
-		if ($processlist['list'] != '') {
-			$this->logger->debug('Processcheck: Processes: ' . $processlist['amount'] . ' - Processlist: ' . $processlist['list']);
-
-			if ($processlist['amount'] > $max_processes) {
-				$this->logger->debug('Processcheck: Maximum number of processes for ' . $process . ' tasks (' . $max_processes . ') reached.');
-				return true;
-			}
-		}
-		return false;
-		 */
+		return $this->process->isMaxProcessesReached();
 	}
 
 	/**
-	 * @brief Checks if the minimal memory is reached
-	 *
-	 * @return bool Is the memory limit reached?
-	 * @throws HTTPException\InternalServerErrorException
+	 * @deprecated 2019.09 - use Core\Process->isMinMemoryReached() instead
 	 */
 	public function isMinMemoryReached()
 	{
-		$min_memory = $this->config->get('system', 'min_memory', 0);
-		if ($min_memory == 0) {
-			return false;
-		}
-
-		if (!is_readable('/proc/meminfo')) {
-			return false;
-		}
-
-		$memdata = explode("\n", file_get_contents('/proc/meminfo'));
-
-		$meminfo = [];
-		foreach ($memdata as $line) {
-			$data = explode(':', $line);
-			if (count($data) != 2) {
-				continue;
-			}
-			list($key, $val) = $data;
-			$meminfo[$key] = (int)trim(str_replace('kB', '', $val));
-			$meminfo[$key] = (int)($meminfo[$key] / 1024);
-		}
-
-		if (!isset($meminfo['MemFree'])) {
-			return false;
-		}
-
-		$free = $meminfo['MemFree'];
-
-		$reached = ($free < $min_memory);
-
-		if ($reached) {
-			$this->logger->debug('Minimal memory reached.', ['free' => $free, 'memtotal' => $meminfo['MemTotal'], 'limit' => $min_memory]);
-		}
-
-		return $reached;
+		return $this->process->isMinMemoryReached();
 	}
 
 	/**
-	 * @brief Checks if the maximum load is reached
-	 *
-	 * @return bool Is the load reached?
-	 * @throws HTTPException\InternalServerErrorException
+	 * @deprecated 2019.09 - use Core\Process->isMaxLoadReached() instead
 	 */
 	public function isMaxLoadReached()
 	{
-		if ($this->mode->isBackend()) {
-			$process    = 'backend';
-			$maxsysload = intval($this->config->get('system', 'maxloadavg'));
-			if ($maxsysload < 1) {
-				$maxsysload = 50;
-			}
-		} else {
-			$process    = 'frontend';
-			$maxsysload = intval($this->config->get('system', 'maxloadavg_frontend'));
-			if ($maxsysload < 1) {
-				$maxsysload = 50;
-			}
-		}
-
-		$load = Core\System::currentLoad();
-		if ($load) {
-			if (intval($load) > $maxsysload) {
-				$this->logger->info('system load for process too high.', ['load' => $load, 'process' => $process, 'maxsysload' => $maxsysload]);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/**
-	 * Executes a child process with 'proc_open'
-	 *
-	 * @param string $command The command to execute
-	 * @param array  $args    Arguments to pass to the command ( [ 'key' => value, 'key2' => value2, ... ]
-	 *
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public function proc_run($command, $args)
-	{
-		if (!function_exists('proc_open')) {
-			return;
-		}
-
-		$cmdline = $this->config->get('config', 'php_path', 'php') . ' ' . escapeshellarg($command);
-
-		foreach ($args as $key => $value) {
-			if (!is_null($value) && is_bool($value) && !$value) {
-				continue;
-			}
-
-			$cmdline .= ' --' . $key;
-			if (!is_null($value) && !is_bool($value)) {
-				$cmdline .= ' ' . $value;
-			}
-		}
-
-		if ($this->isMinMemoryReached()) {
-			return;
-		}
-
-		if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-			$resource = proc_open('cmd /c start /b ' . $cmdline, [], $foo, $this->getBasePath());
-		} else {
-			$resource = proc_open($cmdline . ' &', [], $foo, $this->getBasePath());
-		}
-		if (!is_resource($resource)) {
-			$this->logger->debug('We got no resource for command.', ['cmd' => $cmdline]);
-			return;
-		}
-		proc_close($resource);
+		return $this->process->isMaxLoadReached();
 	}
 
 	/**
@@ -705,13 +542,12 @@ class App
 	}
 
 	/**
-	 * Check if request was an AJAX (xmlhttprequest) request.
-	 *
-	 * @return boolean true if it was an AJAX request
+	 * @deprecated 2019.09 - use App\Mode->isAjax() instead
+	 * @see        App\Mode::isAjax()
 	 */
 	public function isAjax()
 	{
-		return $this->isAjax;
+		return $this->mode->isAjax();
 	}
 
 	/**
@@ -764,7 +600,7 @@ class App
 			}
 
 			// Max Load Average reached: ERROR
-			if ($this->isMaxProcessesReached() || $this->isMaxLoadReached()) {
+			if ($this->process->isMaxProcessesReached() || $this->process->isMaxLoadReached()) {
 				header('Retry-After: 120');
 				header('Refresh: 120; url=' . $this->baseURL->get() . "/" . $this->args->getQueryString());
 

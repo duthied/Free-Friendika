@@ -5,6 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
+use Friendica\Core;
 use Friendica\Database\DBA;
 use Friendica\Model\Process;
 use Friendica\Util\DateTimeFormat;
@@ -1082,7 +1083,9 @@ class Worker
 
 		$args = ['no_cron' => !$do_cron];
 
-		get_app()->proc_run($command, $args);
+		$a = get_app();
+		$process = new Core\Process($a->getLogger(), $a->getMode(), $a->getConfig(), $a->getBasePath());
+		$process->run($command, $args);
 
 		// after spawning we have to remove the flag.
 		if (Config::get('system', 'worker_daemon_mode', false)) {
@@ -1124,7 +1127,7 @@ class Worker
 
 		$priority = PRIORITY_MEDIUM;
 		// Don't fork from frontend tasks by default
-		$dont_fork = Config::get("system", "worker_dont_fork", false) || !\get_app()->isBackend();
+		$dont_fork = Config::get("system", "worker_dont_fork", false) || !\get_app()->getMode()->isBackend();
 		$created = DateTimeFormat::utcNow();
 		$force_priority = false;
 

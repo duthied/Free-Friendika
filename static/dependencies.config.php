@@ -62,7 +62,7 @@ return [
 	],
 	App\Mode::class                 => [
 		'call' => [
-			['determineBackend', [$_SERVER], Dice::CHAIN_CALL],
+			['determineRunMode', [$_SERVER], Dice::CHAIN_CALL],
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],
@@ -152,6 +152,11 @@ return [
 		'instanceOf' => App\Module::class,
 		'call' => [
 			['determineModule', [], Dice::CHAIN_CALL],
+		],
+	],
+	Friendica\Core\Process::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => '$basepath'],
 		],
 	],
 ];

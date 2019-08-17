@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\App;
 
+use Detection\MobileDetect;
 use Friendica\App\Mode;
 use Friendica\App\Module;
 use Friendica\Core\Config;
@@ -186,8 +187,9 @@ class ModeTest extends MockedTest
 	{
 		$server = ['PHP_SELF' => '/daemon.php'];
 		$module = new Module();
+		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineBackend($module, $server);
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
 
 		$this->assertTrue($mode->isBackend());
 	}
@@ -199,8 +201,9 @@ class ModeTest extends MockedTest
 	{
 		$server = ['PHP_SELF' => '/index.php'];
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, true);
+		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineBackend($module, $server);
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
 
 		$this->assertTrue($mode->isBackend());
 	}
@@ -212,9 +215,77 @@ class ModeTest extends MockedTest
 	{
 		$server = ['PHP_SELF' => '/index.php'];
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineBackend($module, $server);
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
 
 		$this->assertFalse($mode->isBackend());
+	}
+
+	/**
+	 * Test if the call is an ajax call
+	 */
+	public function testIsAjax()
+	{
+		// This is the server environment variable to determine ajax calls
+		$server = [
+			'HTTP_X_REQUESTED_WITH' => 'xmlhttprequest',
+		];
+
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$mobileDetect = new MobileDetect();
+
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+
+		$this->assertTrue($mode->isAjax());
+	}
+
+	/**
+	 * Test if the call is not nan ajax call
+	 */
+	public function testIsNotAjax()
+	{
+		$server = [];
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$mobileDetect = new MobileDetect();
+
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+
+		$this->assertFalse($mode->isAjax());
+	}
+
+	/**
+	 * Test if the call is a mobile and is a tablet call
+	 */
+	public function testIsMobileIsTablet()
+	{
+		$server = [];
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$mobileDetect = \Mockery::mock(MobileDetect::class);
+		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
+		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
+
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+
+		$this->assertTrue($mode->isMobile());
+		$this->assertTrue($mode->isTablet());
+	}
+
+
+	/**
+	 * Test if the call is not a mobile and is not a tablet call
+	 */
+	public function testIsNotMobileIsNotTablet()
+	{
+		$server = [];
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$mobileDetect = \Mockery::mock(MobileDetect::class);
+		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
+		$mobileDetect->shouldReceive('isTablet')->andReturn(false);
+
+		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+
+		$this->assertFalse($mode->isMobile());
+		$this->assertFalse($mode->isTablet());
 	}
 }

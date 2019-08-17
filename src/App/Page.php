@@ -245,11 +245,12 @@ class Page implements ArrayAccess
 	 * - footer.tpl template
 	 *
 	 * @param App  $app  The Friendica App instance
+	 * @param Mode $mode The Friendica runtime mode
 	 * @param L10n $l10n The l10n instance
 	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function initFooter(App $app, L10n $l10n)
+	private function initFooter(App $app, Mode $mode, L10n $l10n)
 	{
 		// If you're just visiting, let javascript take you home
 		if (!empty($_SESSION['visitor_home'])) {
@@ -265,7 +266,7 @@ class Page implements ArrayAccess
 		/*
 		 * Add a "toggle mobile" link if we're using a mobile device
 		 */
-		if ($app->is_mobile || $app->is_tablet) {
+		if ($mode->isMobile() || $mode->isTablet()) {
 			if (isset($_SESSION['show-mobile']) && !$_SESSION['show-mobile']) {
 				$link = 'toggle_mobile?address=' . urlencode(curPageURL());
 			} else {
@@ -375,9 +376,9 @@ class Page implements ArrayAccess
 		/* Build the page ending -- this is stuff that goes right before
 		 * the closing </body> tag
 		 */
-		$this->initFooter($app, $l10n);
+		$this->initFooter($app, $mode, $l10n);
 
-		if (!$app->isAjax()) {
+		if (!$mode->isAjax()) {
 			Hook::callAll('page_end', $this->page['content']);
 		}
 
