@@ -751,8 +751,6 @@ class GContact
 			'contact-type', 'hide', 'nsfw', 'network', 'alias', 'notify', 'server_url', 'connect', 'updated', 'url'
 		], ['id' => $gcontact_id]);
 
-		// If nothing found, return false
-		// @see https://github.com/friendica/friendica/issues/7298#issuecomment-522215746
 		if (!DBA::isResult($public_contact)) {
 			return false;
 		}
