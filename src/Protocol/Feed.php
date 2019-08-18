@@ -266,6 +266,9 @@ class Feed {
 			if (empty($item["title"])) {
 				$item["title"] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
 			}
+
+			$item["title"] = mb_convert_encoding($item["title"], 'HTML-ENTITIES', "UTF-8");
+
 			$published = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 
 			if (empty($published)) {
