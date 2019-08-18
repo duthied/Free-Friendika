@@ -69,7 +69,7 @@
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
-						<li id="nav-notification" class="nav-segment hidden-xs" role="presentation">
+						<li id="nav-notification" class="nav-segment" role="presentation">
 							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i>
 								<span role="menuitem" class="sr-only">{{$nav.notifications.1}}</span>
