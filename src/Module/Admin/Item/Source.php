@@ -20,11 +20,12 @@ class Source extends BaseAdminModule
 		$a = self::getApp();
 
 		$guid = null;
-		if (!empty($a->argv[1])) {
-			$guid = $a->argv[1];
+		// @TODO: Replace with parameter from router
+		if (!empty($a->argv[3])) {
+			$guid = $a->argv[3];
 		}
 
-		$guid = defaults($_REQUEST['guid'], $guid);
+		$guid = $_REQUEST['guid'] ?? $guid;
 
 		$source = '';
 		$item_uri = '';
