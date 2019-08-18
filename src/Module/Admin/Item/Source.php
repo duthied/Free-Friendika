@@ -24,7 +24,7 @@ class Source extends BaseAdminModule
 			$guid = $a->argv[1];
 		}
 
-		$guid = defaults($_REQUEST['guid'], $guid);
+		$guid = $_REQUEST['guid'] ?? $guid;
 
 		$source = '';
 		$item_uri = '';
