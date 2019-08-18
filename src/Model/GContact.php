@@ -746,109 +746,115 @@ class GContact
 			return false;
 		}
 
-		$public_contact = q(
-			"SELECT `name`, `nick`, `photo`, `location`, `about`, `addr`, `generation`, `birthday`, `gender`, `keywords`,
-				`contact-type`, `hide`, `nsfw`, `network`, `alias`, `notify`, `server_url`, `connect`, `updated`, `url`
-			FROM `gcontact` WHERE `id` = %d LIMIT 1",
-			intval($gcontact_id)
-		);
+		$public_contact = DBA::selectFirst('gcontact', [
+			'name', 'nick', 'photo', 'location', 'about', 'addr', 'generation', 'birthday', 'gender', 'keywords',
+			'contact-type', 'hide', 'nsfw', 'network', 'alias', 'notify', 'server_url', 'connect', 'updated', 'url'
+		], ['id' => $gcontact_id]);
+
+		// If nothing found, return false
+		// @see https://github.com/friendica/friendica/issues/7298#issuecomment-522215746
+		if (!DBA::isResult($public_contact)) {
+			return false;
+		}
 
 		// Get all field names
 		$fields = [];
-		foreach ($public_contact[0] as $field => $data) {
+		foreach ($public_contact as $field => $data) {
 			$fields[$field] = $data;
 		}
 
-		unset($fields["url"]);
-		unset($fields["updated"]);
-		unset($fields["hide"]);
+		unset($fields['url']);
+		unset($fields['updated']);
+		unset($fields['hide']);
 
 		// Bugfix: We had an error in the storing of keywords which lead to the "0"
 		// This value is still transmitted via poco.
-		if (!empty($contact["keywords"]) && ($contact["keywords"] == "0")) {
-			unset($contact["keywords"]);
+		if (isset($contact['keywords']) && ($contact['keywords'] == '0')) {
+			unset($contact['keywords']);
 		}
 
-		if (!empty($public_contact[0]["keywords"]) && ($public_contact[0]["keywords"] == "0")) {
-			$public_contact[0]["keywords"] = "";
+		if (isset($public_contact['keywords']) && ($public_contact['keywords'] == '0')) {
+			$public_contact['keywords'] = '';
 		}
 
 		// assign all unassigned fields from the database entry
 		foreach ($fields as $field => $data) {
-			if (!isset($contact[$field]) || ($contact[$field] == "")) {
-				$contact[$field] = $public_contact[0][$field];
+			if (empty($contact[$field])) {
+				$contact[$field] = $public_contact[$field];
 			}
 		}
 
-		if (!isset($contact["hide"])) {
-			$contact["hide"] = $public_contact[0]["hide"];
+		if (!isset($contact['hide'])) {
+			$contact['hide'] = $public_contact['hide'];
 		}
 
-		$fields["hide"] = $public_contact[0]["hide"];
+		$fields['hide'] = $public_contact['hide'];
 
-		if ($contact["network"] == Protocol::STATUSNET) {
-			$contact["network"] = Protocol::OSTATUS;
+		if ($contact['network'] == Protocol::STATUSNET) {
+			$contact['network'] = Protocol::OSTATUS;
 		}
 
 		// Replace alternate OStatus user format with the primary one
 		self::fixAlternateContactAddress($contact);
 
-		if (!isset($contact["updated"])) {
-			$contact["updated"] = DateTimeFormat::utcNow();
+		if (!isset($contact['updated'])) {
+			$contact['updated'] = DateTimeFormat::utcNow();
 		}
 
-		if ($contact["network"] == Protocol::TWITTER) {
-			$contact["server_url"] = 'http://twitter.com';
+		if ($contact['network'] == Protocol::TWITTER) {
+			$contact['server_url'] = 'http://twitter.com';
 		}
 
-		if ($contact["server_url"] == "") {
-			$data = Probe::uri($contact["url"]);
-			if ($data["network"] != Protocol::PHANTOM) {
-				$contact["server_url"] = $data['baseurl'];
+		if (empty($contact['server_url'])) {
+			$data = Probe::uri($contact['url']);
+			if ($data['network'] != Protocol::PHANTOM) {
+				$contact['server_url'] = $data['baseurl'];
 			}
 		} else {
-			$contact["server_url"] = Strings::normaliseLink($contact["server_url"]);
+			$contact['server_url'] = Strings::normaliseLink($contact['server_url']);
 		}
 
-		if (($contact["addr"] == "") && ($contact["server_url"] != "") && ($contact["nick"] != "")) {
-			$hostname = str_replace("http://", "", $contact["server_url"]);
-			$contact["addr"] = $contact["nick"]."@".$hostname;
+		if (empty($contact['addr']) && !empty($contact['server_url']) && !empty($contact['nick'])) {
+			$hostname = str_replace('http://', '', $contact['server_url']);
+			$contact['addr'] = $contact['nick'] . '@' . $hostname;
 		}
 
 		// Check if any field changed
 		$update = false;
-		unset($fields["generation"]);
+		unset($fields['generation']);
 
-		if ((($contact["generation"] > 0) && ($contact["generation"] <= $public_contact[0]["generation"])) || ($public_contact[0]["generation"] == 0)) {
+		if ((($contact['generation'] > 0) && ($contact['generation'] <= $public_contact['generation'])) || ($public_contact['generation'] == 0)) {
 			foreach ($fields as $field => $data) {
-				if ($contact[$field] != $public_contact[0][$field]) {
-					Logger::log("Difference for contact ".$contact["url"]." in field '".$field."'. New value: '".$contact[$field]."', old value '".$public_contact[0][$field]."'", Logger::DEBUG);
+				if ($contact[$field] != $public_contact[$field]) {
+					Logger::debug('Difference found.', ['contact' => $contact["url"], 'field' => $field, 'new' => $contact[$field], 'old' => $public_contact[$field]]);
 					$update = true;
 				}
 			}
 
-			if ($contact["generation"] < $public_contact[0]["generation"]) {
-				Logger::log("Difference for contact ".$contact["url"]." in field 'generation'. new value: '".$contact["generation"]."', old value '".$public_contact[0]["generation"]."'", Logger::DEBUG);
+			if ($contact['generation'] < $public_contact['generation']) {
+				Logger::debug('Difference found.', ['contact' => $contact["url"], 'field' => 'generation', 'new' => $contact['generation'], 'old' => $public_contact['generation']]);
 				$update = true;
 			}
 		}
 
 		if ($update) {
-			Logger::log("Update gcontact for ".$contact["url"], Logger::DEBUG);
+			Logger::debug('Update gcontact.', ['contact' => $contact['url']]);
 			$condition = ['`nurl` = ? AND (`generation` = 0 OR `generation` >= ?)',
 					Strings::normaliseLink($contact["url"]), $contact["generation"]];
 			$contact["updated"] = DateTimeFormat::utc($contact["updated"]);
 
-			$updated = ['photo' => $contact['photo'], 'name' => $contact['name'],
-					'nick' => $contact['nick'], 'addr' => $contact['addr'],
-					'network' => $contact['network'], 'birthday' => $contact['birthday'],
-					'gender' => $contact['gender'], 'keywords' => $contact['keywords'],
-					'hide' => $contact['hide'], 'nsfw' => $contact['nsfw'],
-					'contact-type' => $contact['contact-type'], 'alias' => $contact['alias'],
-					'notify' => $contact['notify'], 'url' => $contact['url'],
-					'location' => $contact['location'], 'about' => $contact['about'],
-					'generation' => $contact['generation'], 'updated' => $contact['updated'],
-					'server_url' => $contact['server_url'], 'connect' => $contact['connect']];
+			$updated = [
+				'photo' => $contact['photo'], 'name' => $contact['name'],
+				'nick' => $contact['nick'], 'addr' => $contact['addr'],
+				'network' => $contact['network'], 'birthday' => $contact['birthday'],
+				'gender' => $contact['gender'], 'keywords' => $contact['keywords'],
+				'hide' => $contact['hide'], 'nsfw' => $contact['nsfw'],
+				'contact-type' => $contact['contact-type'], 'alias' => $contact['alias'],
+				'notify' => $contact['notify'], 'url' => $contact['url'],
+				'location' => $contact['location'], 'about' => $contact['about'],
+				'generation' => $contact['generation'], 'updated' => $contact['updated'],
+				'server_url' => $contact['server_url'], 'connect' => $contact['connect']
+			];
 
 			DBA::update('gcontact', $updated, $condition, $fields);
 		}
