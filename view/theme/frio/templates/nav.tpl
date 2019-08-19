@@ -140,7 +140,7 @@
 							{{/foreach}}
 							<li role="presentation" class="divider"></li>
 							{{if $nav.notifications}}
-							<li role="presentation"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
+							<li role="presentation"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
 							{{/if}}
 							{{if $nav.messages}}
 							<li role="presentation"><a role="menuitem" class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw" aria-hidden="true"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notify"></span></a></li>
@@ -199,7 +199,7 @@
 						<li role="menuitem" class="list-group-item"><a role="menuitem" class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 						{{/foreach}}
 						{{if $nav.notifications}}
-						<li role="presentation" class="list-group-item"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
+						<li role="presentation" class="list-group-item"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
 						{{/if}}
 						{{if $nav.contacts}}
 						<li role="presentation" class="list-group-item"><a role="menuitem" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i> {{$nav.contacts.1}}</a></li>
