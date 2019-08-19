@@ -145,7 +145,7 @@ If you wish to include all optional checks, use `-a` like this statement:
 
 #### B.1: Config file
 
-You can use a prepared config file like [local-sample.config.php](config/local-sample.config.php).
+You can use a prepared config file like [local-sample.config.php](/config/local-sample.config.php).
 
 Navigate to the main Friendica directory and execute the following command:
 
