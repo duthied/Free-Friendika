@@ -59,7 +59,7 @@ class Item extends BaseObject
 		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
-		'delivery_queue_count', 'delivery_queue_done'
+		'delivery_queue_count', 'delivery_queue_done', 'delivery_queue_failed'
 	];
 
 	// Field list that is used to deliver items via the protocols

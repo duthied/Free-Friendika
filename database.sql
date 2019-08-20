@@ -1,8 +1,22 @@
 -- ------------------------------------------
--- Friendica 2019.09-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1319
+-- Friendica 2019.09-rc (Dalmatian Bellflower)
+-- DB_UPDATE_VERSION 1321
 -- ------------------------------------------
 
+
+--
+-- TABLE 2fa_app_specific_password
+--
+CREATE TABLE IF NOT EXISTS `2fa_app_specific_password` (
+	`id` mediumint unsigned NOT NULL auto_increment COMMENT 'Password ID for revocation',
+	`uid` mediumint unsigned NOT NULL COMMENT 'User ID',
+	`description` varchar(255) COMMENT 'Description of the usage of the password',
+	`hashed_password` varchar(255) NOT NULL COMMENT 'Hashed password',
+	`generated` datetime NOT NULL COMMENT 'Datetime the password was generated',
+	`last_used` datetime COMMENT 'Datetime the password was last used',
+	 PRIMARY KEY(`id`),
+	 INDEX `uid_description` (`uid`,`description`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor app-specific _password';
 
 --
 -- TABLE 2fa_recovery_codes
@@ -680,6 +694,7 @@ CREATE TABLE IF NOT EXISTS `item-delivery-data` (
 	`inform` mediumtext COMMENT 'Additional receivers of the linked item',
 	`queue_count` mediumint NOT NULL DEFAULT 0 COMMENT 'Initial number of delivery recipients, used as item.delivery_queue_count',
 	`queue_done` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries, used as item.delivery_queue_done',
+	`queue_failed` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of unsuccessful deliveries, used as item.delivery_queue_failed',
 	`activitypub` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via ActivityPub',
 	`dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via DFRN',
 	`legacy_dfrn` mediumint NOT NULL DEFAULT 0 COMMENT 'Number of successful deliveries via legacy DFRN',
