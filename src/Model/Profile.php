@@ -523,6 +523,14 @@ class Profile
 			$p['address'] = BBCode::convert($p['address']);
 		}
 
+		if (isset($p['gender'])) {
+			$p['gender'] = L10n::t($p['gender']);
+		}
+
+		if (isset($p['marital'])) {
+			$p['marital'] = L10n::t($p['marital']);
+		}
+
 		if (isset($p['photo'])) {
 			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}
