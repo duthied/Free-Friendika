@@ -21,6 +21,7 @@ class ItemDeliveryData
 		// New delivery fields with virtual field name in item fields
 		'queue_count' => 'delivery_queue_count',
 		'queue_done'  => 'delivery_queue_done',
+		'queue_failed'  => 'delivery_queue_failed',
 	];
 
 	const ACTIVITYPUB = 1;
@@ -86,6 +87,20 @@ class ItemDeliveryData
 		}
 
 		return DBA::e('UPDATE `item-delivery-data` SET `queue_done` = `queue_done` + 1' . $sql . ' WHERE `iid` = ?', $item_id);
+	}
+
+	/**
+	 * Increments the queue_failed for the given item ID.
+	 *
+	 * Avoids racing condition between multiple delivery threads.
+	 *
+	 * @param integer $item_id
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function incrementQueueFailed($item_id)
+	{
+		return DBA::e('UPDATE `item-delivery-data` SET `queue_failed` = `queue_failed` + 1 WHERE `iid` = ?', $item_id);
 	}
 
 	/**

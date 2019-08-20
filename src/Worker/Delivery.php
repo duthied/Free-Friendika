@@ -327,7 +327,9 @@ class Delivery extends BaseObject
 			Model\Contact::markForArchival($contact);
 
 			Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
-			Worker::defer();
+			if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+			}
 		}
 	}
 
@@ -412,7 +414,9 @@ class Delivery extends BaseObject
 			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
 				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
 				// defer message for redelivery
-				Worker::defer();
+				if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+					Model\ItemDeliveryData::incrementQueueFailed($target_item['id'], Model\ItemDeliveryData::DIASPORA);
+				}
 			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DIASPORA);
 			}

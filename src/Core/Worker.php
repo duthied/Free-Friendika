@@ -1222,11 +1222,12 @@ class Worker
 
 	/**
 	 * Defers the current worker entry
+	 * @return boolean had the entry been deferred?
 	 */
 	public static function defer()
 	{
 		if (empty(BaseObject::getApp()->queue)) {
-			return;
+			return false;
 		}
 
 		$queue = BaseObject::getApp()->queue;
@@ -1241,7 +1242,7 @@ class Worker
 
 		if ($new_retrial > $max_level) {
 			Logger::info('The task exceeded the maximum retry count', ['id' => $id, 'max_level' => $max_level, 'retrial' => $new_retrial]);
-			return;
+			return false;
 		}
 
 		// Calculate the delay until the next trial
@@ -1263,6 +1264,8 @@ class Worker
 		DBA::update('workerqueue', $fields, ['id' => $id]);
 		self::$db_duration += (microtime(true) - $stamp);
 		self::$db_duration_write += (microtime(true) - $stamp);
+
+		return true;
 	}
 
 	/**

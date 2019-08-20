@@ -54,8 +54,8 @@ class APDelivery extends BaseObject
 			}
 		}
 
-		if (!$success) {
-			Worker::defer();
+		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
+			ItemDeliveryData::incrementQueueFailed($target_id);
 		}
 	}
 }

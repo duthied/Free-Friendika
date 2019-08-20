@@ -432,7 +432,7 @@ class Post extends BaseObject
 			'return'          => ($a->cmd) ? bin2hex($a->cmd) : '',
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
-				'queue_done'        => $item['delivery_queue_done'],
+				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future
 				'notifier_pending'  => L10n::t('Notifier task is pending'),
 				'delivery_pending'  => L10n::t('Delivery to remote servers is pending'),
 				'delivery_underway' => L10n::t('Delivery to remote servers is underway'),
