@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1321);
+	define('DB_UPDATE_VERSION', 1322);
 }
 
 return [
@@ -44,13 +44,13 @@ return [
 			"id" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Password ID for revocation"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "relation" => ["user" => "uid"], "comment" => "User ID"],
 			"description" => ["type" => "varchar(255)", "comment" => "Description of the usage of the password"],
-			"hashed_password" => ["type" => "varchar(255)", "not null" => "1", "primary" => "1", "comment" => "Hashed password"],
+			"hashed_password" => ["type" => "varchar(255)", "not null" => "1", "comment" => "Hashed password"],
 			"generated" => ["type" => "datetime", "not null" => "1", "comment" => "Datetime the password was generated"],
 			"last_used" => ["type" => "datetime", "comment" => "Datetime the password was last used"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"uid_description" => ["uid", "description"],
+			"uid_description" => ["uid", "description(190)"],
 		]
 	],
 	"2fa_recovery_codes" => [
