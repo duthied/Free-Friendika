@@ -180,7 +180,7 @@
 											" title="{{$u.account_type}}">
 										</i>
 										{{/if}}
-										{{if $u.is_admin}}<i class="fa fa-user-md text-primary" title="{{$siteadmin}}"></i>{{/if}}
+										{{if $u.is_admin}}<i class="fa fa-user-secret text-primary" title="{{$siteadmin}}"></i>{{/if}}
 										{{if $u.account_expired}}<i class="fa fa-clock-o text-warning" title="{{$accountexpired}}"></i>{{/if}}
 									</td>
 									{{/if}}
