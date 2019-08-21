@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.09-rc (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1321
+-- DB_UPDATE_VERSION 1322
 -- ------------------------------------------
 
 
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS `2fa_app_specific_password` (
 	`generated` datetime NOT NULL COMMENT 'Datetime the password was generated',
 	`last_used` datetime COMMENT 'Datetime the password was last used',
 	 PRIMARY KEY(`id`),
-	 INDEX `uid_description` (`uid`,`description`)
+	 INDEX `uid_description` (`uid`,`description`(190))
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Two-factor app-specific _password';
 
 --
