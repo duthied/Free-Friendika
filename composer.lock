@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8c88c86ebce0bbf672356d65fadc0008",
+    "content-hash": "eda94f02683bea49b3d506d770749277",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -192,6 +192,50 @@
                 "xss"
             ],
             "time": "2019-02-19T13:27:01+00:00"
+        },
+        {
+            "name": "bower-asset/fork-awesome",
+            "version": "1.1.7",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/ForkAwesome/Fork-Awesome.git",
+                "reference": "326af9c8bee0c80ff4c00cb2fadd4f1edd2a08c3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/ForkAwesome/Fork-Awesome/zipball/326af9c8bee0c80ff4c00cb2fadd4f1edd2a08c3",
+                "reference": "326af9c8bee0c80ff4c00cb2fadd4f1edd2a08c3",
+                "shasum": ""
+            },
+            "type": "bower-asset-library",
+            "extra": {
+                "bower-asset-main": [
+                    "less/fork-awesome.less",
+                    "scss/fork-awesome.scss"
+                ],
+                "bower-asset-ignore": [
+                    "*/.*",
+                    "*.json",
+                    "src",
+                    "*.yml",
+                    "Gemfile",
+                    "Gemfile.lock",
+                    "*.md"
+                ]
+            },
+            "license": [
+                "OFL-1.1",
+                "MIT",
+                "CC-BY-3.0"
+            ],
+            "description": "Fork Awesome",
+            "keywords": [
+                "awesome",
+                "font",
+                "fork",
+                "icon"
+            ],
+            "time": "2019-02-28T15:21:34+00:00"
         },
         {
             "name": "bower-asset/perfect-scrollbar",
@@ -1076,6 +1120,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/cropperjs/-/cropperjs-1.2.2.tgz",
+                "reference": null,
                 "shasum": "30dc7a7ce872155b23a33bd10ad4c76c0d613f55"
             },
             "require-dev": {
@@ -1169,6 +1214,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/ev-emitter/-/ev-emitter-1.1.1.tgz",
+                "reference": null,
                 "shasum": "8f18b0ce5c76a5d18017f71c0a795c65b9138f2a"
             },
             "type": "npm-asset-library",
@@ -1211,6 +1257,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/fullcalendar/-/fullcalendar-3.10.0.tgz",
+                "reference": null,
                 "shasum": "cc5e87d518fd6550e142816a31dd191664847919"
             },
             "type": "npm-asset-library",
@@ -1257,6 +1304,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/imagesloaded/-/imagesloaded-4.1.4.tgz",
+                "reference": null,
                 "shasum": "1376efcd162bb768c34c3727ac89cc04051f3cc7"
             },
             "require": {
@@ -1304,6 +1352,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jgrowl/-/jgrowl-1.4.6.tgz",
+                "reference": null,
                 "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
             },
             "type": "npm-asset-library",
@@ -1336,6 +1385,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
+                "reference": null,
                 "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
             },
             "type": "npm-asset-library",
@@ -1380,6 +1430,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-colorbox/-/jquery-colorbox-1.6.4.tgz",
+                "reference": null,
                 "shasum": "799452523a6c494839224ef702e807deb9c06cc5"
             },
             "require": {
@@ -1426,6 +1477,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-datetimepicker/-/jquery-datetimepicker-2.5.20.tgz",
+                "reference": null,
                 "shasum": "687d6204b90b03dc93f725f8df036e1d061f37ac"
             },
             "require": {
@@ -1483,6 +1535,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz",
+                "reference": null,
                 "shasum": "06f0335f16e353a695e7206bf50503cb523a6ee5"
             },
             "type": "npm-asset-library",
@@ -1531,6 +1584,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/moment/-/moment-2.22.2.tgz",
+                "reference": null,
                 "shasum": "3c257f9839fc0e93ff53149632239eb90783ff66"
             },
             "type": "npm-asset-library",
@@ -1647,6 +1701,7 @@
             "dist": {
                 "type": "tar",
                 "url": "https://registry.npmjs.org/typeahead.js/-/typeahead.js-0.11.1.tgz",
+                "reference": null,
                 "shasum": "4e64e671b22310a8606f4aec805924ba84b015b8"
             },
             "require": {
