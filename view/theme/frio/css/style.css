@@ -1517,11 +1517,11 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 }
 
 .fa.lock:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f023";
 }
 .fa.unlock:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f09c";
 }
 
@@ -1871,7 +1871,7 @@ code > .hl-main {
     padding: 10px 0;
 }
 .oembed.video .embed_video > div::before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     font-weight: normal;
     font-style: normal;
     display: inline-block;
@@ -2906,12 +2906,12 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     padding: 1px 10px;
 }
 .panel .section-subtitle-wrapper a.accordion-toggle:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0d7";
     padding-right: 5px;
 }
 .panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0da";
 }
 #settings-nick-wrapper {
@@ -2956,11 +2956,11 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     padding-right: 10px;
 }
 .settings-block.fakelink > h3:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0da"; /* Right Plain Pointer */
 }
 .settings-block > .fakelink > h3:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0d7"; /* Bottom Plain Pointer */
 }
 
@@ -3153,7 +3153,7 @@ section.help-content-wrapper li {
     transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
 }
 #adminpage li .icon.on:after {
-    font-family: "FontAwesome";
+    font-family: "ForkAwesome";
     content: "\f00c";
     display: inline-block;
     position: absolute;
