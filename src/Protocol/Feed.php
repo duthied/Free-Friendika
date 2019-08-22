@@ -267,7 +267,7 @@ class Feed {
 				$item["title"] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
 			}
 
-			$item["title"] = mb_convert_encoding($item["title"], 'HTML-ENTITIES', "UTF-8");
+			$item["title"] = html_entity_decode($item["title"], ENT_QUOTES, 'UTF-8');
 
 			$published = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 
