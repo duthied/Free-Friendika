@@ -419,6 +419,10 @@ class HTML
 		$link = $matches[0];
 		$url = $matches[1];
 
+		if (empty($url) || empty(parse_url($url))) {
+			return $matches[0];
+		}
+
 		$parts = array_merge($base, parse_url($url));
 		$url2 = Network::unparseURL($parts);
 
