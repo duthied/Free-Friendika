@@ -701,6 +701,8 @@ class Worker
 				DBA::close($jobs);
 			}
 
+			$waiting_processes -= $deferred;
+
 			$listitem[0] = "0:" . max(0, $idle_workers);
 
 			$processlist .= ' ('.implode(', ', $listitem).')';
