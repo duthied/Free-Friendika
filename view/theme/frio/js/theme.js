@@ -504,74 +504,10 @@ function qOrAmp(url) {
 	}
 }
 
-function contact_filter(item) {
-	// get the html content from the js template of the contact-wrapper
-	contact_tpl = unescape($(".javascript-template[rel=contact-template]").html());
-
-	var variables = {
-			id:		item.id,
-			name:		item.name,
-			username:	item.username,
-			thumb:		item.thumb,
-			img_hover:	item.img_hover,
-			edit_hover:	item.edit_hover,
-			account_type:	item.account_type,
-			photo_menu:	item.photo_menu,
-			alt_text:	item.alt_text,
-			dir_icon:	item.dir_icon,
-			sparkle:	item.sparkle,
-			itemurl:	item.itemurl,
-			url:		item.url,
-			network:	item.network,
-			tags:		item.tags,
-			details:	item.details,
-	};
-
-	// open a new jSmart instance with the template
-	var tpl = new jSmart (contact_tpl);
-
-	// replace the variable with the values
-	var html = tpl.fetch(variables);
-
-	return html;
-}
-
 function filter_replace(item) {
 
 	return item.name;
 }
-
-(function($) {
-	$.fn.contact_filter = function(backend_url, typ, autosubmit, onselect) {
-		if (typeof typ === 'undefined') {
-			typ = '';
-		}
-
-		if (typeof autosubmit === 'undefined') {
-			autosubmit = false;
-		}
-
-		// Autocomplete contacts
-		contacts = {
-			match: /(^)([^\n]+)$/,
-			index: 2,
-			search: function(term, callback) {contact_search(term, callback, backend_url, typ);},
-			replace: filter_replace,
-			template: contact_filter
-		};
-
-		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
-
-		if(autosubmit) {
-			a.on('textComplete:select', function(e,value,strategy) {submit_form(this);});
-		}
-
-		a.on('textComplete:select', function(e, value, strategy) {
-			$(".dropdown-menu.textcomplete-dropdown.media-list").show();
-		});
-	};
-})( jQuery );
 
 // current time in milliseconds, to send each request to make sure
 // we 're not getting 304 response
