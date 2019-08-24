@@ -277,7 +277,6 @@ function editpost(url) {
 	var modal = $('#jot-modal').modal();
 	url = url + " #jot-sections";
 
-	//var rand_num = random_digits(12);
 	$(".jot-nav .jot-perms-lnk").parent("li").addClass("hidden");
 
 	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
@@ -325,14 +324,6 @@ function jotreset() {
 		$(".jot-nav .jot-perms-lnk").parent("li").removeClass("hidden");
 		$("#profile-jot-form #jot-title-wrap").show();
 		$("#profile-jot-form #jot-category-wrap").show();
-
-		// the following was commented out because it is needed anymore
-		// because we changed the behavior at an other place.
-	//		var rand_num = random_digits(12);
-	//		$('#jot-title, #jot-category, #profile-jot-text').val("");
-	//		$( "#profile-jot-form input[name='type']" ).val("wall");
-	//		$( "#profile-jot-form input[name='post_id']" ).val("");
-	//		$( "#profile-jot-form input[name='post_id_random']" ).val(rand_num);
 
 		// Remove the "edit-jot" class so we can the standard behavior on close.
 		$("#jot-modal.edit-jot").removeClass("edit-jot");

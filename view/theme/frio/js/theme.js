@@ -454,11 +454,6 @@ function justifyPhotos() {
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function justifyPhotosAjax() {
-	justifiedGalleryActive = true;
-	$('#photo-album-contents').justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
-}
-
 // Load a js script to the html head.
 function loadScript(url, callback) {
 	// Check if the script is already in the html head.
@@ -483,18 +478,6 @@ function loadScript(url, callback) {
 	head.appendChild(script);
 }
 
-function random_digits(digits) {
-	var rn = "";
-	var rnd = "";
-
-	for(var i = 0; i < digits; i++) {
-		var rn = Math.round(Math.random() * (9));
-		rnd += rn;
-	}
-
-	return rnd;
-}
-
 // Does we need a ? or a & to append values to a url
 function qOrAmp(url) {
 	if(url.search('\\?') < 0) {
@@ -502,17 +485,6 @@ function qOrAmp(url) {
 	} else {
 		return '&';
 	}
-}
-
-function filter_replace(item) {
-
-	return item.name;
-}
-
-// current time in milliseconds, to send each request to make sure
-// we 're not getting 304 response
-function timeNow() {
-	return new Date().getTime();
 }
 
 String.prototype.normalizeLink = function () {
