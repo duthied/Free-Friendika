@@ -4,7 +4,7 @@
 		<button id="acl-showall" class="btn btn-block btn-default"><i class="fa fa-globe"></i> {{$showall}}</button>
 	</div>
 	<div class="form-group form-group-search">
-		<input type="text" id="acl-search" class="form-control form-search">
+		<input type="text" id="acl-search" class="form-control form-search" autocomplete="off">
 	</div>
 	<div id="acl-list">
 		<div id="acl-list-content"></div>

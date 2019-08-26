@@ -118,7 +118,6 @@
 
 		$acl_allow_input.tagsinput({
 			confirmKeys: [13, 44],
-			cancelConfirmKeysOnEmpty: true,
 			freeInput: false,
 			tagClass: function(item) {
 				switch (item.type) {
