@@ -176,54 +176,16 @@ class Contact extends BaseModule
 
 	private static function updateContactFromProbe($contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['uid', 'url', 'network'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
-		$uid = $contact['uid'];
-
-		$data = Probe::uri($contact['url'], '', 0, false);
-
-		// 'Feed' or 'Unknown' is mostly a sign of communication problems
-		if ((in_array($data['network'], [Protocol::FEED, Protocol::PHANTOM])) && ($data['network'] != $contact['network'])) {
-			return;
-		}
-
-		$updatefields = ['name', 'nick', 'url', 'addr', 'batch', 'notify', 'poll', 'request', 'confirm', 'poco', 'network', 'alias'];
-		$fields = [];
-
-		if ($data['network'] == Protocol::OSTATUS) {
-			$result = Model\Contact::createFromProbe($uid, $data['url'], false);
-
-			if ($result['success']) {
-				$fields['subhub'] = true;
-			}
-		}
-
-		foreach ($updatefields AS $field) {
-			if (!empty($data[$field])) {
-				$fields[$field] = $data[$field];
-			}
-		}
-
-		$fields['nurl'] = Strings::normaliseLink($data['url']);
-
-		if (!empty($data['priority'])) {
-			$fields['priority'] = intval($data['priority']);
-		}
-
-		if (empty($fields)) {
-			return;
-		}
-
-		DBA::update('contact', $fields, ['id' => $contact_id, 'uid' => local_user()]);
-
 		// Update the entry in the contact table
-		Model\Contact::updateAvatar($data['photo'], local_user(), $contact_id, true);
+		Model\Contact::updateFromProbe($contact_id, '', true);
 
 		// Update the entry in the gcontact table
-		Model\GContact::updateFromProbe($data['url']);
+		Model\GContact::updateFromProbe($contact['url']);
 	}
 
 	private static function blockContact($contact_id)

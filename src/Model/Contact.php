@@ -1851,13 +1851,13 @@ class Contact extends BaseObject
 	 */
 	private static function handleDuplicates($nurl, $uid, $id)
 	{
-		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false];
+		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false, 'network' => Protocol::FEDERATED];
 		$count = DBA::count('contact', $condition);
 		if ($count <= 1) {
 			return false;
 		}
 
-		$first_contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
+		$first_contact = DBA::selectFirst('contact', ['id', 'network'], $condition, ['order' => ['id']]);
 		if (!DBA::isResult($first_contact)) {
 			// Shouldn't happen - so we handle it
 			return false;
@@ -1865,26 +1865,21 @@ class Contact extends BaseObject
 
 		$first = $first_contact['id'];
 		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
-		if ($uid != 0) {
-			// Don't handle non public duplicates by now
-			Logger::info('Not handling non public duplicate', ['uid' => $uid, 'nurl' => $nurl]);
+		if (($uid != 0 && ($first_contact['network'] == Protocol::DFRN))) {
+			// Don't handle non public DFRN duplicates by now (legacy DFRN is very special because of the key handling)
+			Logger::info('Not handling non public DFRN duplicate', ['uid' => $uid, 'nurl' => $nurl]);
 			return false;
 		}
 
 		// Find all duplicates
 		$condition = ["`nurl` = ? AND `uid` = ? AND `id` != ? AND NOT `self` AND NOT `deleted`", $nurl, $uid, $first];
-		$duplicates = DBA::select('contact', ['id'], $condition);
+		$duplicates = DBA::select('contact', ['id', 'network'], $condition);
 		while ($duplicate = DBA::fetch($duplicates)) {
-			$dup_id = $duplicate['id'];
-			Logger::info('Handling duplicate', ['search' => $dup_id, 'replace' => $first]);
+			if (!in_array($duplicate['network'], Protocol::FEDERATED)) {
+				continue;
+			}
 
-			// Search and replace
-			DBA::update('item', ['author-id' => $first], ['author-id' => $dup_id]);
-			DBA::update('item', ['owner-id' => $first], ['owner-id' => $dup_id]);
-			DBA::update('item', ['contact-id' => $first], ['contact-id' => $dup_id]);
-
-			// Remove the duplicate
-			DBA::delete('contact', ['id' => $dup_id]);
+			Worker::add(PRIORITY_HIGH, 'MergeContact', $first, $duplicate['id'], $uid);
 		}
 		Logger::info('Duplicates handled', ['uid' => $uid, 'nurl' => $nurl]);
 		return true;
@@ -1985,7 +1980,7 @@ class Contact extends BaseObject
 		}
 
 		if (!$update) {
-			if ($force && ($uid == 0)) {
+			if ($force) {
 				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'success_update' => $updated]);
 			}
 			return true;
@@ -2377,7 +2372,18 @@ class Contact extends BaseObject
 		$nick = $pub_contact['nick'];
 		$network = $pub_contact['network'];
 
+		// Ensure that we don't create a new contact when there already is one
+		$cid = self::getIdForURL($url, $importer['uid']);
+		if (!empty($cid)) {
+			$contact = DBA::selectFirst('contact', [], ['id' => $cid]);
+		}
+
 		if (!empty($contact)) {
+			if (!empty($contact['pending'])) {
+				Logger::info('Pending contact request already exists.', ['url' => $url, 'uid' => $importer['uid']]);
+				return null;
+			}
+
 			// Contact is blocked at user-level
 			if (!empty($contact['id']) && !empty($importer['id']) &&
 				self::isBlockedByUser($contact['id'], $importer['id'])) {
