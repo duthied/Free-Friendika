@@ -454,11 +454,6 @@ function justifyPhotos() {
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
-function justifyPhotosAjax() {
-	justifiedGalleryActive = true;
-	$('#photo-album-contents').justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
-}
-
 // Load a js script to the html head.
 function loadScript(url, callback) {
 	// Check if the script is already in the html head.
@@ -483,18 +478,6 @@ function loadScript(url, callback) {
 	head.appendChild(script);
 }
 
-function random_digits(digits) {
-	var rn = "";
-	var rnd = "";
-
-	for(var i = 0; i < digits; i++) {
-		var rn = Math.round(Math.random() * (9));
-		rnd += rn;
-	}
-
-	return rnd;
-}
-
 // Does we need a ? or a & to append values to a url
 function qOrAmp(url) {
 	if(url.search('\\?') < 0) {
@@ -502,81 +485,6 @@ function qOrAmp(url) {
 	} else {
 		return '&';
 	}
-}
-
-function contact_filter(item) {
-	// get the html content from the js template of the contact-wrapper
-	contact_tpl = unescape($(".javascript-template[rel=contact-template]").html());
-
-	var variables = {
-			id:		item.id,
-			name:		item.name,
-			username:	item.username,
-			thumb:		item.thumb,
-			img_hover:	item.img_hover,
-			edit_hover:	item.edit_hover,
-			account_type:	item.account_type,
-			photo_menu:	item.photo_menu,
-			alt_text:	item.alt_text,
-			dir_icon:	item.dir_icon,
-			sparkle:	item.sparkle,
-			itemurl:	item.itemurl,
-			url:		item.url,
-			network:	item.network,
-			tags:		item.tags,
-			details:	item.details,
-	};
-
-	// open a new jSmart instance with the template
-	var tpl = new jSmart (contact_tpl);
-
-	// replace the variable with the values
-	var html = tpl.fetch(variables);
-
-	return html;
-}
-
-function filter_replace(item) {
-
-	return item.name;
-}
-
-(function($) {
-	$.fn.contact_filter = function(backend_url, typ, autosubmit, onselect) {
-		if (typeof typ === 'undefined') {
-			typ = '';
-		}
-
-		if (typeof autosubmit === 'undefined') {
-			autosubmit = false;
-		}
-
-		// Autocomplete contacts
-		contacts = {
-			match: /(^)([^\n]+)$/,
-			index: 2,
-			search: function(term, callback) {contact_search(term, callback, backend_url, typ);},
-			replace: filter_replace,
-			template: contact_filter
-		};
-
-		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
-
-		if(autosubmit) {
-			a.on('textComplete:select', function(e,value,strategy) {submit_form(this);});
-		}
-
-		a.on('textComplete:select', function(e, value, strategy) {
-			$(".dropdown-menu.textcomplete-dropdown.media-list").show();
-		});
-	};
-})( jQuery );
-
-// current time in milliseconds, to send each request to make sure
-// we 're not getting 304 response
-function timeNow() {
-	return new Date().getTime();
 }
 
 String.prototype.normalizeLink = function () {
