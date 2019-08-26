@@ -109,7 +109,14 @@ ACL.prototype.search = function(){
 
 ACL.prototype.on_search = function(event){
 	if (this.kp_timer) clearTimeout(this.kp_timer);
-	this.kp_timer = setTimeout( this.search.bind(this), 1000);
+
+	// Triggers an immediate search while preventing form submission
+	if (event.key === 'Enter') {
+		this.search();
+		event.preventDefault();
+	} else {
+		this.kp_timer = setTimeout( this.search.bind(this), 500);
+	}
 };
 
 ACL.prototype.on_showall = function(event){

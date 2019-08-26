@@ -1,6 +1,6 @@
 
 <div id="acl-wrapper">
-	<input id="acl-search">
+	<input id="acl-search" autocomplete="off">
 	<a id="acl-showall">{{$showall}}</a>
 	<div id="acl-list">
 		<div id="acl-list-content">
