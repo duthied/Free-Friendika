@@ -1067,6 +1067,23 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover{
     padding-left: 27px;
 }
 
+.forumlist-img {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    opacity: 0.5;
+    filter: alpha(opacity=50); /* For IE8 and earlier */
+    -webkit-transition: all 0.2s ease-in-out;
+    -moz-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    -ms-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+#forumlist-sidbar-ul li:hover a > .forumlist-img {
+    -webkit-filter: unset;
+    filter: unset;
+    opacity: unset;
+}
+
 /* help page widget */
 aside > .help-aside-wrapper p strong:first-child {
     display: block;
