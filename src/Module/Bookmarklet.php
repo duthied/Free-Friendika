@@ -42,7 +42,7 @@ class Bookmarklet extends BaseModule
 				'allow_location'   => $app->user['allow_location'],
 				'default_location' => $app->user['default-location'],
 				'nickname'         => $app->user['nickname'],
-				'lockstate'        => ((is_array($app->user) && ((strlen($app->user['allow_cid'])) || (strlen($a->user['allow_gid'])) || (strlen($app->user['deny_cid'])) || (strlen($app->user['deny_gid'])))) ? 'lock' : 'unlock'),
+				'lockstate'        => ((is_array($app->user) && ((strlen($app->user['allow_cid'])) || (strlen($app->user['allow_gid'])) || (strlen($app->user['deny_cid'])) || (strlen($app->user['deny_gid'])))) ? 'lock' : 'unlock'),
 				'default_perms'    => ACL::getDefaultUserPermissions($app->user),
 				'acl'              => ACL::getFullSelectorHTML($app->user, true),
 				'bang'             => '',
