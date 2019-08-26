@@ -29,7 +29,7 @@ Version 2019.09-dev (UNRELEASED)
     Fixed display of register links on closed nodes landing pages [MrPetovan]
     General code cleaning [annando, MrPetovan, nupplaphil]
     Removed contacts auto completion (in /contacts [MrPetovan]
-    Replaced FontAwesome by FormAwesome in frio theme [vinzv]
+    Replaced FontAwesome by ForkAwesome in frio theme [vinzv]
     Added new compose page for the frio theme [MrPetovan]
     Added new console command: lock [nupplaphil]
     Added new additional feature to show trending tags on community page [MrPetovan]
