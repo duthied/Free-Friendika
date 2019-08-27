@@ -4,12 +4,12 @@
  */
 namespace Friendica\Util;
 
+use ASN_BASE;
+use ASNValue;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
-use ASN_BASE;
-use ASNValue;
 
 /**
  * @brief Crypto class
@@ -209,8 +209,10 @@ class Crypto
 
 		$r = ASN_BASE::parseASNString($x);
 
-		$m = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
-		$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+		if (isset($r[0])) {
+			$m = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
+			$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+		}
 	}
 
 	/**
