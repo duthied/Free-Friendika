@@ -120,7 +120,6 @@ class BBCode extends BaseObject
 	 */
 	public static function getAttachmentData($body)
 	{
-		// Initialize empty data array
 		$data = [
 			'type'        => '',
 			'text'        => '',
