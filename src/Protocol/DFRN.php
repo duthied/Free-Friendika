@@ -20,6 +20,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -2905,7 +2906,7 @@ class DFRN
 			// and the sense in the $remote[]["cid"] in the session are opposite.
 			// In the session variable the user currently fetching is the contact
 			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
-			foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
+			foreach (Session::get('remote', []) as $visitor) {
 				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
 					return;
 				}
