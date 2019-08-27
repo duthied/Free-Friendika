@@ -223,7 +223,7 @@ class Diaspora
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
 				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
 				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
-				WHERE `participation`.`iid` = ?", $thread);
+				WHERE `participation`.`iid` = ? AND NOT `contact`.`archive`", $thread);
 
 		while ($contact = DBA::fetch($r)) {
 			if (!empty($contact['fnetwork'])) {

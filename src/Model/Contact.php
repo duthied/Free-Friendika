@@ -860,8 +860,8 @@ class Contact extends BaseObject
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
 				 */
-				DBA::update('contact', ['archive' => 1], ['id' => $contact['id']]);
-				DBA::update('contact', ['archive' => 1], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
+				DBA::update('contact', ['archive' => true], ['id' => $contact['id']]);
+				DBA::update('contact', ['archive' => true], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 				GContact::updateFromPublicContactURL($contact['url']);
 			}
 		}
@@ -899,7 +899,7 @@ class Contact extends BaseObject
 		// It's a miracle. Our dead contact has inexplicably come back to life.
 		$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
-		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
+		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 		GContact::updateFromPublicContactURL($contact['url']);
 
 		if (!empty($contact['batch'])) {
@@ -1554,6 +1554,45 @@ class Contact extends BaseObject
 		}
 
 		return $contact_id;
+	}
+
+	/**
+	 * @brief Checks if the contact is archived
+	 *
+	 * @param int $cid contact id
+	 *
+	 * @return boolean Is the contact archived?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function isArchived($cid)
+	{
+		if ($cid == 0) {
+			return false;
+		}
+
+		$archived = DBA::selectFirst('contact', ['archive', 'url'], ['id' => $cid]);
+		if (!DBA::isResult($archived)) {
+			return false;
+		}
+
+		if ($archived['archive']) {
+			return true;
+		}
+
+		$apcontact = APContact::getByURL($archived['url'], false);
+		if (empty($apcontact)) {
+			return false;
+		}
+
+		if (!empty($apcontact['inbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['inbox']])) {
+			return true;
+		}
+
+		if (!empty($apcontact['sharedinbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['sharedinbox']])) {
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

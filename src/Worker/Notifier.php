@@ -429,6 +429,11 @@ class Notifier
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
+					if (!empty($rr['id']) && Contact::isArchived($rr['id'])) {
+						Logger::info('Contact is archived', $rr);
+						continue;
+					}
+
 					if (self::isRemovalActivity($cmd, $owner, $rr['network'])) {
 						Logger::log('Skipping dropping for ' . $rr['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
 						continue;
@@ -463,6 +468,11 @@ class Notifier
 
 		// delivery loop
 		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
+			if (!empty($contact['id']) && Contact::isArchived($contact['id'])) {
+				Logger::info('Contact is archived', $contact);
+				continue;
+			}
+
 			if (self::isRemovalActivity($cmd, $owner, $contact['network'])) {
 				Logger::log('Skipping dropping for ' . $contact['url'] . ' since the network supports account removal commands.', Logger::DEBUG);
 				continue;
