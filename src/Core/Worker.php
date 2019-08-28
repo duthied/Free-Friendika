@@ -671,7 +671,7 @@ class Worker
 				$waiting_processes = 0;
 				// Now adding all processes with workerqueue entries
 				$stamp = (float)microtime(true);
-				$jobs = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` AND `next_try` < ? GROUP BY `priority`", DateTimeFormat::utcNow());
+				$jobs = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` GROUP BY `priority`");
 				self::$db_duration += (microtime(true) - $stamp);
 				self::$db_duration_stat += (microtime(true) - $stamp);
 				while ($entry = DBA::fetch($jobs)) {

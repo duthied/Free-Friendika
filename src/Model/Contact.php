@@ -1592,6 +1592,7 @@ class Contact extends BaseObject
 			return true;
 		}
 
+		/// @todo Add tests for Diaspora endpoints as well
 		return false;
 	}
 
