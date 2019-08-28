@@ -1795,13 +1795,19 @@ class Contact extends BaseObject
         /**
 	 * @brief Helper function for "updateFromProbe". Updates personal and public contact
 	 *
-	 * @param array $contact The personal contact entry
-	 * @param array $fields  The fields that are updated
+	 * @param integer $id      contact id
+	 * @param integer $uid     user id
+	 * @param string  $url     The profile URL of the contact
+	 * @param array   $fields  The fields that are updated
+	 *
 	 * @throws \Exception
 	 */
 	private static function updateContact($id, $uid, $url, array $fields)
 	{
-		DBA::update('contact', $fields, ['id' => $id]);
+		if (!DBA::update('contact', $fields, ['id' => $id])) {
+			Logger::info('Couldn\'t update contact.', ['id' => $id, 'fields' => $fields]);
+			return;
+		}
 
 		// Search for duplicated contacts and get rid of them
 		if (self::handleDuplicates(Strings::normaliseLink($url), $uid, $id) || ($uid != 0)) {
@@ -1814,6 +1820,11 @@ class Contact extends BaseObject
 		// Archive or unarchive the contact. We only need to do this for the public contact.
 		// The archive/unarchive function will update the personal contacts by themselves.
 		$contact = DBA::selectFirst('contact', [], ['id' => $id]);
+		if (!DBA::isResult($contact)) {
+			Logger::info('Couldn\'t select contact for archival.', ['id' => $id]);
+			return;
+		}
+
 		if (!empty($fields['success_update'])) {
 			self::unmarkForArchival($contact);
 		} elseif (!empty($fields['failure_update'])) {
