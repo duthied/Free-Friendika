@@ -137,6 +137,66 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * @brief Insert a row into the contact table
+	 *
+	 * @param array        $param               parameter array
+	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public static function insert($param, $on_duplicate_update = false)
+	{
+		$ret = DBA::insert('contact', $param, $on_duplicate_update);
+
+		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], ['id' => DBA::lastInsertId()]);
+		if (!DBA::isResult($contact)) {
+			// Shouldn't happen
+			return $ret;
+		}
+
+		// Search for duplicated contacts and get rid of them
+		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
+
+		return $ret;
+	}
+
+	/**
+	 * @param array         $fields     contains the fields that are updated
+	 * @param array         $condition  condition array with the key values
+	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
+	 *
+	 * @return boolean was the update successfull?
+	 * @throws \Exception
+	 */
+	public static function update($fields, $condition, $old_fields = [])
+	{
+		$ret = DBA::update('contact', $fields, $condition, $old_fields);
+
+		// We quit when the update affected more than one row
+		if (DBA::affectedRows() > 1) {
+			return $ret;
+		}
+
+		// Don't proceed when the command aboved queried more than one row
+		// This is not a duplicate of the test above since that only checked for affected rows
+		if (DBA::count('contact', $condition) != 1) {
+			return $ret;
+		}
+
+		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], $condition);
+		if (!DBA::isResult($contact)) {
+			// Shouldn't happen
+			return $ret;
+		}
+
+		// Search for duplicated contacts and get rid of them
+		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
+
+		return $ret;
+	}
+
+	/**
 	 * @param integer $id     Contact ID
 	 * @param array   $fields Array of selected fields, empty for all
 	 * @return array|boolean Contact record if it exists, false otherwise
