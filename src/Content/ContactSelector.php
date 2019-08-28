@@ -72,6 +72,39 @@ class ContactSelector
 	}
 
 	/**
+	 * @param string $profile Profile URL
+	 * @return string Server URL
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function getServerURLForProfile($profile)
+	{
+		$server_url = '';
+
+		// Fetch the server url from the contact table
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['nurl' => Strings::normaliseLink($profile)]);
+		if (DBA::isResult($contact) && !empty($contact['baseurl'])) {
+			$server_url = Strings::normaliseLink($contact['baseurl']);
+		}
+
+		if (empty($server_url)) {
+			// Fetch the server url from the gcontact table
+			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($profile)]);
+			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
+				$server_url = Strings::normaliseLink($gcontact['server_url']);
+			}
+		}
+
+		if (empty($server_url)) {
+			// Create the server url out of the profile url
+			$parts = parse_url($profile);
+			unset($parts['path']);
+			$server_url = Strings::normaliseLink(Network::unparseURL($parts));
+		}
+
+		return $server_url;
+	}
+
+	/**
 	 * @param string $network network
 	 * @param string $profile optional, default empty
 	 * @return string
@@ -106,16 +139,7 @@ class ContactSelector
 		$networkname = str_replace($search, $replace, $network);
 
 		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
-			// Create the server url out of the profile url
-			$parts = parse_url($profile);
-			unset($parts['path']);
-			$server_url = [Strings::normaliseLink(Network::unparseURL($parts))];
-
-			// Fetch the server url
-			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($profile)]);
-			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
-				$server_url[] = Strings::normaliseLink($gcontact['server_url']);
-			}
+			$server_url = self::getServerURLForProfile($profile);
 
 			// Now query the GServer for the platform name
 			$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
@@ -138,6 +162,69 @@ class ContactSelector
 		}
 
 		return $networkname;
+	}
+
+	/**
+	 * @param string $network network
+	 * @param string $profile optional, default empty
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function networkToIcon($network, $profile = "")
+	{
+		$nets = [
+			Protocol::DFRN      =>   'friendica',
+			Protocol::OSTATUS   =>   'gnu-social',
+			Protocol::FEED      =>   'rss',
+			Protocol::MAIL      =>   '',
+			Protocol::DIASPORA  =>   'diaspora',
+			Protocol::ZOT       =>   'hubzilla',
+			Protocol::LINKEDIN  =>   'linkedin',
+			Protocol::XMPP      =>   'xmpp',
+			Protocol::MYSPACE   =>   '',
+			Protocol::GPLUS     =>   'google-plus',
+			Protocol::PUMPIO    =>   '',
+			Protocol::TWITTER   =>   'twitter',
+			Protocol::DIASPORA2 =>   'diaspora',
+			Protocol::STATUSNET =>   'gnu-social',
+			Protocol::ACTIVITYPUB => 'activitypub',
+			Protocol::PNUT      =>   '',
+		];
+
+		$search  = array_keys($nets);
+		$replace = array_values($nets);
+
+		$networkicon = str_replace($search, $replace, $network);
+
+		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
+			$server_url = self::getServerURLForProfile($profile);
+
+			// Now query the GServer for the platform name
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
+
+			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
+				switch (strtolower($gserver['platform'])) {
+					case 'friendica':
+						$networkicon = 'friendica';
+						break;
+					case 'hubzilla':
+						$networkicon = 'hubzilla';
+						break;
+					case 'mastodon':
+						$networkicon = 'mastodon';
+						break;
+					case 'pleroma':
+						$networkicon = 'pleroma';
+						break;
+				}
+			}
+		}
+
+		if (empty($networkicon)) {
+			$networkicon = 'file-text-o';
+		}
+
+		return $networkicon;
 	}
 
 	/**

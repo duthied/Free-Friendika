@@ -677,6 +677,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'guid' => ($preview ? 'Q0' : $item['guid']),
 					'network' => $item['network'],
 					'network_name' => ContactSelector::networkToName($item['network'], $item['author-link']),
+					'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
 					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),

@@ -12,7 +12,12 @@
 			{{* Put additional actions in a top-right dropdown menu *}}
 
 			<ul class="nav nav-pills preferences">
+				{{if $item.network_icon != ""}}
+				<li><span class="wall-item-network" title="{{$item.app}}"><i class="fa fa-{{$item.network_icon}}" aria-hidden="true"></i></span></li>
+				{{else}}
 				<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
+				{{/if}}
+
 
 				{{if $item.plink || $item.star || $item.drop.dropping || $item.edpost || $item.subthread}}
 				<li class="dropdown">
