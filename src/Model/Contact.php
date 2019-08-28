@@ -1564,13 +1564,13 @@ class Contact extends BaseObject
 	 * @return boolean Is the contact archived?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isArchived($cid)
+	public static function isArchived(int $cid)
 	{
 		if ($cid == 0) {
 			return false;
 		}
 
-		$archived = DBA::selectFirst('contact', ['archive', 'url'], ['id' => $cid]);
+		$archived = DBA::selectFirst('contact', ['archive', 'url', 'batch'], ['id' => $cid]);
 		if (!DBA::isResult($archived)) {
 			return false;
 		}
@@ -1592,7 +1592,10 @@ class Contact extends BaseObject
 			return true;
 		}
 
-		/// @todo Add tests for Diaspora endpoints as well
+		if (!empty($archived['batch'])) {
+			return DBA::exists('contact', ['archive' => true, 'batch' => $archived['batch'], 'contact-type' => self::TYPE_RELAY]);
+                }
+
 		return false;
 	}
 
