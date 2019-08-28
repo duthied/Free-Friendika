@@ -203,28 +203,11 @@ class ContactSelector
 			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
 
 			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
-/*
-BlackGerman.space
-ganggo
-groundpolis
-Juick
-misskey
-mobilizon
-MounKareal
-read.as
-social-relay
-twista
-writefreely
-
-ostatus
-red
-redmatrix
-StatusNet
-*/
 				$icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',
 					'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
 					'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
-					'pleroma' => 'pleroma', 'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
+					'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
+					'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
 				$networkicon = $icons[strtolower($gserver['platform'])] ?? $networkicon;
 			}
 		}
