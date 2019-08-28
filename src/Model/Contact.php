@@ -860,8 +860,8 @@ class Contact extends BaseObject
 				 * delete, though if the owner tries to unarchive them we'll start
 				 * the whole process over again.
 				 */
-				DBA::update('contact', ['archive' => 1], ['id' => $contact['id']]);
-				DBA::update('contact', ['archive' => 1], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
+				DBA::update('contact', ['archive' => true], ['id' => $contact['id']]);
+				DBA::update('contact', ['archive' => true], ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 				GContact::updateFromPublicContactURL($contact['url']);
 			}
 		}
@@ -899,7 +899,7 @@ class Contact extends BaseObject
 		// It's a miracle. Our dead contact has inexplicably come back to life.
 		$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
-		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
+		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 		GContact::updateFromPublicContactURL($contact['url']);
 
 		if (!empty($contact['batch'])) {
@@ -1554,6 +1554,49 @@ class Contact extends BaseObject
 		}
 
 		return $contact_id;
+	}
+
+	/**
+	 * @brief Checks if the contact is archived
+	 *
+	 * @param int $cid contact id
+	 *
+	 * @return boolean Is the contact archived?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function isArchived(int $cid)
+	{
+		if ($cid == 0) {
+			return false;
+		}
+
+		$contact = DBA::selectFirst('contact', ['archive', 'url', 'batch'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
+
+		if ($contact['archive']) {
+			return true;
+		}
+
+		// Check status of ActivityPub endpoints
+		$apcontact = APContact::getByURL($contact['url'], false);
+		if (!empty($apcontact)) {
+			if (!empty($apcontact['inbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['inbox']])) {
+				return true;
+			}
+
+			if (!empty($apcontact['sharedinbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['sharedinbox']])) {
+				return true;
+			}
+		}
+
+		// Check status of Diaspora endpoints
+		if (!empty($contact['batch'])) {
+			return DBA::exists('contact', ['archive' => true, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY]);
+                }
+
+		return false;
 	}
 
 	/**

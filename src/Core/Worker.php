@@ -671,7 +671,7 @@ class Worker
 				$waiting_processes = 0;
 				// Now adding all processes with workerqueue entries
 				$stamp = (float)microtime(true);
-				$jobs = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` AND `next_try` < ? GROUP BY `priority`", DateTimeFormat::utcNow());
+				$jobs = DBA::p("SELECT COUNT(*) AS `entries`, `priority` FROM `workerqueue` WHERE NOT `done` GROUP BY `priority`");
 				self::$db_duration += (microtime(true) - $stamp);
 				self::$db_duration_stat += (microtime(true) - $stamp);
 				while ($entry = DBA::fetch($jobs)) {
@@ -1243,7 +1243,7 @@ class Worker
 		$new_retrial = self::getNextRetrial($queue, $max_level);
 
 		if ($new_retrial > $max_level) {
-			Logger::info('The task exceeded the maximum retry count', ['id' => $id, 'max_level' => $max_level, 'retrial' => $new_retrial]);
+			Logger::info('The task exceeded the maximum retry count', ['id' => $id, 'created' => $queue['created'], 'old_prio' => $queue['priority'], 'old_retrial' => $queue['retrial'], 'max_level' => $max_level, 'retrial' => $new_retrial]);
 			return false;
 		}
 
@@ -1259,7 +1259,7 @@ class Worker
 			$priority = PRIORITY_NEGLIGIBLE;
 		}
 
-		Logger::info('Deferred task', ['id' => $id, 'retrial' => $new_retrial, 'next_execution' => $next, 'old_prio' => $queue['priority'], 'new_prio' => $priority]);
+		Logger::info('Deferred task', ['id' => $id, 'retrial' => $new_retrial, 'created' => $queue['created'], 'next_execution' => $next, 'old_prio' => $queue['priority'], 'new_prio' => $priority]);
 
 		$stamp = (float)microtime(true);
 		$fields = ['retrial' => $new_retrial, 'next_try' => $next, 'executed' => DBA::NULL_DATETIME, 'pid' => 0, 'priority' => $priority];

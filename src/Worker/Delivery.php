@@ -33,7 +33,7 @@ class Delivery extends BaseObject
 
 	public static function execute($cmd, $target_id, $contact_id)
 	{
-		Logger::log('Invoked: ' . $cmd . ': ' . $target_id . ' to ' . $contact_id, Logger::DEBUG);
+		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $target_id, 'contact' => $contact_id]);
 
 		$top_level = false;
 		$followup = false;
@@ -93,6 +93,14 @@ class Delivery extends BaseObject
 				$uid = $target_item['uid'];
 			} else {
 				Logger::log('Only public users for item ' . $target_id, Logger::DEBUG);
+				return;
+			}
+
+			if (!empty($contact_id) && Model\Contact::isArchived($contact_id)) {
+				Logger::info('Contact is archived', ['id' => $contact_id, 'cmd' => $cmd, 'item' => $target_item['id']]);
+				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+					Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+				}
 				return;
 			}
 
