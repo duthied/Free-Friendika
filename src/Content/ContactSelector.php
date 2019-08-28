@@ -191,10 +191,16 @@ class ContactSelector
 			Protocol::PNUT      =>   'file-text-o', /// @todo
 		];
 
+		$platform_icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',
+			'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
+			'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
+			'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
+			'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
+
 		$search  = array_keys($nets);
 		$replace = array_values($nets);
 
-		$networkicon = str_replace($search, $replace, $network);
+		$network_icon = str_replace($search, $replace, $network);
 
 		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
 			$server_url = self::getServerURLForProfile($profile);
@@ -203,16 +209,11 @@ class ContactSelector
 			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
 
 			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
-				$icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',
-					'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
-					'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
-					'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
-					'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
-				$networkicon = $icons[strtolower($gserver['platform'])] ?? $networkicon;
+				$network_icon = $platform_icons[strtolower($gserver['platform'])] ?? $network_icon;
 			}
 		}
 
-		return $networkicon;
+		return $network_icon;
 	}
 
 	/**
