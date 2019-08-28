@@ -1,6 +1,6 @@
 Version 2019.09-dev (UNRELEASED)
   Friendica Core:
-    Update to the translations (DE, FR, NL) [translation teams]
+    Update to the translations (DE, FR, JA, NL) [translation teams]
     Update to the themes (frio, vier) [JeroenED, MrPetovan, tobiasd, vinzv]
     Update to the documentation [guzzisti, vinzv]
     Enhanced the log output of the background process [annando]
@@ -39,7 +39,7 @@ Version 2019.09-dev (UNRELEASED)
     Added fetching of postings via URL to interact with public postings [annando]
 
   Friendica Addons:
-    Update to the translation (DE, FR, NL SV) [translation teams]
+    Update to the translation (DE, FR, JA, NL SV) [translation teams]
     General code cleanup [nupplaphil, Quix0r]
     twitter:
       Enhanced handling of multi image postings [annando]
