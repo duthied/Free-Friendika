@@ -1570,30 +1570,30 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		$archived = DBA::selectFirst('contact', ['archive', 'url', 'batch'], ['id' => $cid]);
-		if (!DBA::isResult($archived)) {
+		$contact = DBA::selectFirst('contact', ['archive', 'url', 'batch'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
 			return false;
 		}
 
-		if ($archived['archive']) {
+		if ($contact['archive']) {
 			return true;
 		}
 
-		$apcontact = APContact::getByURL($archived['url'], false);
-		if (empty($apcontact)) {
-			return false;
+		// Check status of ActivityPub endpoints
+		$apcontact = APContact::getByURL($contact['url'], false);
+		if (!empty($apcontact)) {
+			if (!empty($apcontact['inbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['inbox']])) {
+				return true;
+			}
+
+			if (!empty($apcontact['sharedinbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['sharedinbox']])) {
+				return true;
+			}
 		}
 
-		if (!empty($apcontact['inbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['inbox']])) {
-			return true;
-		}
-
-		if (!empty($apcontact['sharedinbox']) && DBA::exists('inbox-status', ['archive' => true, 'url' => $apcontact['sharedinbox']])) {
-			return true;
-		}
-
-		if (!empty($archived['batch'])) {
-			return DBA::exists('contact', ['archive' => true, 'batch' => $archived['batch'], 'contact-type' => self::TYPE_RELAY]);
+		// Check status of Diaspora endpoints
+		if (!empty($contact['batch'])) {
+			return DBA::exists('contact', ['archive' => true, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY]);
                 }
 
 		return false;
