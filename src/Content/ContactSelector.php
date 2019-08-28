@@ -81,7 +81,7 @@ class ContactSelector
 		$server_url = '';
 
 		// Fetch the server url from the contact table
-		$contact = DBA::selectFirst('contact', ['baseurl'], ['nurl' => Strings::normaliseLink($profile)]);
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($profile)]);
 		if (DBA::isResult($contact) && !empty($contact['baseurl'])) {
 			$server_url = Strings::normaliseLink($contact['baseurl']);
 		}
@@ -174,21 +174,21 @@ class ContactSelector
 	{
 		$nets = [
 			Protocol::DFRN      =>   'friendica',
-			Protocol::OSTATUS   =>   'gnu-social',
+			Protocol::OSTATUS   =>   'gnu-social', // There is no generic OStatus icon
 			Protocol::FEED      =>   'rss',
-			Protocol::MAIL      =>   '',
+			Protocol::MAIL      =>   'file-text-o', /// @todo
 			Protocol::DIASPORA  =>   'diaspora',
 			Protocol::ZOT       =>   'hubzilla',
 			Protocol::LINKEDIN  =>   'linkedin',
 			Protocol::XMPP      =>   'xmpp',
-			Protocol::MYSPACE   =>   '',
+			Protocol::MYSPACE   =>   'file-text-o', /// @todo
 			Protocol::GPLUS     =>   'google-plus',
-			Protocol::PUMPIO    =>   '',
+			Protocol::PUMPIO    =>   'file-text-o', /// @todo
 			Protocol::TWITTER   =>   'twitter',
 			Protocol::DIASPORA2 =>   'diaspora',
 			Protocol::STATUSNET =>   'gnu-social',
 			Protocol::ACTIVITYPUB => 'activitypub',
-			Protocol::PNUT      =>   '',
+			Protocol::PNUT      =>   'file-text-o', /// @todo
 		];
 
 		$search  = array_keys($nets);
@@ -203,25 +203,30 @@ class ContactSelector
 			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
 
 			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
-				switch (strtolower($gserver['platform'])) {
-					case 'friendica':
-						$networkicon = 'friendica';
-						break;
-					case 'hubzilla':
-						$networkicon = 'hubzilla';
-						break;
-					case 'mastodon':
-						$networkicon = 'mastodon';
-						break;
-					case 'pleroma':
-						$networkicon = 'pleroma';
-						break;
-				}
-			}
-		}
+/*
+BlackGerman.space
+ganggo
+groundpolis
+Juick
+misskey
+mobilizon
+MounKareal
+read.as
+social-relay
+twista
+writefreely
 
-		if (empty($networkicon)) {
-			$networkicon = 'file-text-o';
+ostatus
+red
+redmatrix
+StatusNet
+*/
+				$icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',
+					'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
+					'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
+					'pleroma' => 'pleroma', 'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
+				$networkicon = $icons[strtolower($gserver['platform'])] ?? $networkicon;
+			}
 		}
 
 		return $networkicon;
