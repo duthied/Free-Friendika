@@ -71,6 +71,7 @@ class Transmitter
 		if (empty($page)) {
 			$data['first'] = System::baseUrl() . '/followers/' . $owner['nickname'] . '?page=1';
 		} else {
+			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
 			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
@@ -119,6 +120,7 @@ class Transmitter
 		if (empty($page)) {
 			$data['first'] = System::baseUrl() . '/following/' . $owner['nickname'] . '?page=1';
 		} else {
+			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
 			$contacts = DBA::select('contact', ['url'], $condition, ['limit' => [($page - 1) * 100, 100]]);
@@ -165,6 +167,7 @@ class Transmitter
 		if (empty($page)) {
 			$data['first'] = System::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=1';
 		} else {
+			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
 
 			$condition['parent-network'] = Protocol::NATIVE_SUPPORT;
