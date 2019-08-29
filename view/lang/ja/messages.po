@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-08-06 16:52+0200\n"
-"PO-Revision-Date: 2019-08-28 10:02+0000\n"
+"PO-Revision-Date: 2019-08-29 13:02+0000\n"
 "Last-Translator: Ozero Dien <rgfx0020+misc@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -2402,7 +2402,7 @@ msgstr "有効なアカウントが見つかりません。"
 
 #: mod/lostpass.php:38
 msgid "Password reset request issued. Check your email."
-msgstr "パスワードリセット要求が発行されました。あなたのメールをチェック。"
+msgstr "パスワードリセット要求が発行されました。あなたのメールをチェックしてください。"
 
 #: mod/lostpass.php:44
 #, php-format
@@ -2440,7 +2440,7 @@ msgstr "\n\t\tこのリンクをたどって本人確認を行ってください
 #: mod/lostpass.php:74
 #, php-format
 msgid "Password reset requested at %s"
-msgstr "%s要求されたパスワードのリセット"
+msgstr "パスワードのリセット要求が有りました:  %s"
 
 #: mod/lostpass.php:89
 msgid ""
@@ -2597,7 +2597,7 @@ msgstr "会話を削除"
 msgid ""
 "No secure communications available. You <strong>may</strong> be able to "
 "respond from the sender's profile page."
-msgstr "安全な通信は利用できません。送信者のプロフィールページか返信できる<strong>場合が</strong>あります。"
+msgstr "安全な通信は利用できません。送信者のプロフィールページから返信できる<strong>場合が</strong>あります。"
 
 #: mod/message.php:429
 msgid "Send Reply"
@@ -3988,7 +3988,7 @@ msgstr "デフォルトの投稿場所："
 
 #: mod/settings.php:1198
 msgid "Use Browser Location:"
-msgstr "ブラウザの場所を使用："
+msgstr "ブラウザのロケーションを使用："
 
 #: mod/settings.php:1201
 msgid "Security and Privacy Settings"
@@ -3996,7 +3996,7 @@ msgstr "セキュリティとプライバシーの設定"
 
 #: mod/settings.php:1203
 msgid "Maximum Friend Requests/Day:"
-msgstr "最大友達リクエスト/日："
+msgstr "1日あたりの友達リクエスト上限："
 
 #: mod/settings.php:1203 mod/settings.php:1232
 msgid "(to prevent spam abuse)"
@@ -4117,7 +4117,7 @@ msgstr "再配置メッセージをコンタクトに再送信する"
 #: mod/subthread.php:104
 #, php-format
 msgid "%1$s is following %2$s's %3$s"
-msgstr "%1$sは%2$sの%3$sフォローしています"
+msgstr "%1$sは%2$sの%3$s をフォローしています"
 
 #: mod/suggest.php:28
 msgid "Contact suggestion successfully ignored."
@@ -4553,7 +4553,7 @@ msgid ""
 "The database configuration file \"config/local.config.php\" could not be "
 "written. Please use the enclosed text to create a configuration file in your"
 " web server root."
-msgstr "データベース構成ファイル\"config / local.config.php \"に書き込めませんでした。同封のテキストを使用して、Webサーバーのルートに構成ファイルを作成してください。"
+msgstr "データベース構成ファイル \"config/local.config.php\" に書き込めませんでした。同封のテキストを使用して、Webサーバーのルートに構成ファイルを作成してください。"
 
 #: src/Core/Installer.php:182
 msgid ""
@@ -4568,7 +4568,7 @@ msgstr "ファイル\"INSTALL.txt \"をご覧ください。"
 
 #: src/Core/Installer.php:244
 msgid "Could not find a command line version of PHP in the web server PATH."
-msgstr "WebサーバーPATHにコマンドラインバージョンのPHPが見つかりませんでした。"
+msgstr "WebサーバーPATHに CLI版のPHPが見つかりませんでした。"
 
 #: src/Core/Installer.php:245
 msgid ""
@@ -4576,11 +4576,11 @@ msgid ""
 "you will not be able to run the background processing. See <a "
 "href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-"
 "up-the-worker'>'Setup the worker'</a>"
-msgstr "PHPのコマンドラインバージョンがサーバーにインストールされていない場合、バックグラウンド処理を実行できません。 <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'> 'ワーカーのセットアップ' </a>をご覧ください。"
+msgstr "PHP CLIがサーバーにインストールされていない場合、バックグラウンド処理を実行できません。 <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'> 'ワーカーのセットアップ' </a>をご覧ください。"
 
 #: src/Core/Installer.php:250
 msgid "PHP executable path"
-msgstr "PHP実行可能パス"
+msgstr "PHP実行可能ファイルへのPath"
 
 #: src/Core/Installer.php:250
 msgid ""
@@ -4590,7 +4590,7 @@ msgstr "php実行可能ファイルへのフルパスを入力します。これ
 
 #: src/Core/Installer.php:255
 msgid "Command line PHP"
-msgstr "コマンドラインPHP"
+msgstr "コマンドライン, CLI PHP"
 
 #: src/Core/Installer.php:264
 msgid "PHP executable is not the php cli binary (could be cgi-fgci version)"
@@ -4628,7 +4628,7 @@ msgstr "エラー：このシステムの\"openssl_pkey_new \"関数は暗号化
 msgid ""
 "If running under Windows, please see "
 "\"http://www.php.net/manual/en/openssl.installation.php\"."
-msgstr "Windowsで実行している場合は、「http：//www.php.net/manual/en/openssl.installation.php \\」を参照してください。"
+msgstr "Windowsで実行している場合は、「 http://www.php.net/manual/en/openssl.installation.php 」を参照してください。"
 
 #: src/Core/Installer.php:322
 msgid "Generate encryption keys"
@@ -4843,7 +4843,7 @@ msgstr "土曜日"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:416
 msgid "January"
-msgstr "一月"
+msgstr "1月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:417
 msgid "February"
@@ -4851,7 +4851,7 @@ msgstr "2月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:418
 msgid "March"
-msgstr "行進"
+msgstr "3月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:419
 msgid "April"
@@ -4864,7 +4864,7 @@ msgstr "5月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:420
 msgid "June"
-msgstr "六月"
+msgstr "6月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:421
 msgid "July"
@@ -4876,7 +4876,7 @@ msgstr "8月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:423
 msgid "September"
-msgstr "九月"
+msgstr "9月"
 
 #: src/Core/L10n/L10n.php:374 src/Model/Event.php:424
 msgid "October"
@@ -4900,7 +4900,7 @@ msgstr "火"
 
 #: src/Core/L10n/L10n.php:390 src/Model/Event.php:390
 msgid "Wed"
-msgstr "結婚した"
+msgstr "水"
 
 #: src/Core/L10n/L10n.php:390 src/Model/Event.php:391
 msgid "Thu"
@@ -4916,11 +4916,11 @@ msgstr "土"
 
 #: src/Core/L10n/L10n.php:390 src/Model/Event.php:387
 msgid "Sun"
-msgstr "太陽"
+msgstr "日"
 
 #: src/Core/L10n/L10n.php:394 src/Model/Event.php:403
 msgid "Jan"
-msgstr "ヤン"
+msgstr "1月"
 
 #: src/Core/L10n/L10n.php:394 src/Model/Event.php:404
 msgid "Feb"
@@ -4984,7 +4984,7 @@ msgstr "製品"
 
 #: src/Core/L10n/L10n.php:415
 msgid "prodded"
-msgstr "突っ込んだ"
+msgstr "prodされた"
 
 #: src/Core/L10n/L10n.php:416
 msgid "slap"
@@ -5041,7 +5041,7 @@ msgstr "%sが%sの投稿を高く評価しました"
 #: src/Core/NotificationsManager.php:272
 #, php-format
 msgid "%s disliked %s's post"
-msgstr "%sは%sの投稿を嫌いました"
+msgstr "%sは%sの投稿を好きではないようです"
 
 #: src/Core/NotificationsManager.php:285
 #, php-format
@@ -5051,7 +5051,7 @@ msgstr "%sは%sのイベントに参加しています"
 #: src/Core/NotificationsManager.php:298
 #, php-format
 msgid "%s is not attending %s's event"
-msgstr "%sは%sのイベントに参加していません"
+msgstr "%sは%sのイベントを欠席します"
 
 #: src/Core/NotificationsManager.php:311
 #, php-format
@@ -5061,7 +5061,7 @@ msgstr "%sは%sのイベントに参加できます"
 #: src/Core/NotificationsManager.php:344
 #, php-format
 msgid "%s is now friends with %s"
-msgstr "%s今と友達である%s"
+msgstr "%sは%sと友達になりました"
 
 #: src/Core/NotificationsManager.php:622
 msgid "Friend Suggestion"
@@ -5092,7 +5092,7 @@ msgstr "おかえりなさい%s"
 #: src/Core/Update.php:193
 #, php-format
 msgid "Update %s failed. See error logs."
-msgstr "%s更新に失敗しました。エラーログを参照してください。"
+msgstr "%sの更新に失敗しました。エラーログを参照してください。"
 
 #: src/Core/Update.php:257
 #, php-format
@@ -5163,7 +5163,7 @@ msgstr "YYYY-MM-DDまたはMM-DD"
 
 #: src/Util/Temporal.php:298
 msgid "never"
-msgstr "決して"
+msgstr "決してしない"
 
 #: src/Util/Temporal.php:305
 msgid "less than a second ago"
@@ -5179,7 +5179,7 @@ msgstr "年"
 
 #: src/Util/Temporal.php:314
 msgid "months"
-msgstr "ヶ月"
+msgstr "数ヶ月"
 
 #: src/Util/Temporal.php:315
 msgid "weeks"
@@ -5191,11 +5191,11 @@ msgstr "日々"
 
 #: src/Util/Temporal.php:317
 msgid "hour"
-msgstr "時"
+msgstr "時間"
 
 #: src/Util/Temporal.php:317
 msgid "hours"
-msgstr "営業時間"
+msgstr "時間"
 
 #: src/Util/Temporal.php:318
 msgid "minute"
@@ -5203,11 +5203,11 @@ msgstr "分"
 
 #: src/Util/Temporal.php:318
 msgid "minutes"
-msgstr "数分"
+msgstr "分"
 
 #: src/Util/Temporal.php:319
 msgid "second"
-msgstr "第二"
+msgstr "秒"
 
 #: src/Util/Temporal.php:319
 msgid "seconds"
@@ -5326,7 +5326,7 @@ msgstr "新しい"
 
 #: src/Content/Pager.php:158
 msgid "older"
-msgstr "年上の"
+msgstr "過去の"
 
 #: src/Content/Pager.php:203
 msgid "prev"
@@ -5609,7 +5609,7 @@ msgstr "見てない"
 
 #: src/Content/ContactSelector.php:251
 msgid "Swinger"
-msgstr "ウィンガー"
+msgstr "Swinger"
 
 #: src/Content/ContactSelector.php:252
 msgid "Betrayed"
@@ -5870,7 +5870,7 @@ msgstr "ディレクトリ"
 
 #: src/Content/Nav.php:231
 msgid "People directory"
-msgstr "人名簿"
+msgstr "人々の名簿"
 
 #: src/Content/Nav.php:233 src/Module/BaseAdminModule.php:75
 msgid "Information"
@@ -6283,7 +6283,7 @@ msgstr[0] "コメント"
 
 #: src/Model/Item.php:3309
 msgid "post"
-msgstr "役職"
+msgstr "投稿"
 
 #: src/Model/Item.php:3408
 #, php-format
@@ -6749,12 +6749,12 @@ msgstr "アドオンが見つかりません。"
 #: src/Module/Admin/Addons/Details.php:62 src/Module/Admin/Addons/Index.php:32
 #, php-format
 msgid "Addon %s disabled."
-msgstr "アドオン%s無効です。"
+msgstr "アドオン%sを無効にしました。"
 
 #: src/Module/Admin/Addons/Details.php:65 src/Module/Admin/Addons/Index.php:34
 #, php-format
 msgid "Addon %s enabled."
-msgstr "アドオン%s有効になりました。"
+msgstr "アドオン%sが有効になりました。"
 
 #: src/Module/Admin/Addons/Details.php:76
 #: src/Module/Admin/Themes/Details.php:60
@@ -6813,7 +6813,7 @@ msgstr "現在、ノードで使用可能なアドオンはありません。公
 #: src/Module/Admin/Blocklist/Contact.php:28
 #: src/Console/GlobalCommunityBlock.php:87
 msgid "The contact has been blocked from the node"
-msgstr "コンタクトはノードからブロックされました"
+msgstr "このコンタクトはノードからブロックされています"
 
 #: src/Module/Admin/Blocklist/Contact.php:30
 #: src/Console/GlobalCommunityBlock.php:82
@@ -7702,7 +7702,7 @@ msgid ""
 "node information and might be used, e.g. by the global directory, to filter "
 "your node from listings of nodes to join. Additionally a note about this "
 "will be shown at the user registration page."
-msgstr "これを設定して、未成年者には適さない可能性のある露骨なコンテンツにノードが主に使用されることを通知します。この情報はノード情報で公開され、たとえばグローバルディレクトリによって使用され、参加するノードのリストからノードをフィルタリングします。さらに、これに関するメモがユーザー登録ページに表示されます。"
+msgstr "これを設定して、このノードが主に未成年者には適さない可能性のある露骨なコンテンツを目的とすることを通知します。この情報はノード情報で公開され、たとえばグローバルディレクトリによって使用され、参加するノードのリストからノードをフィルタリングします。さらに、これに関するメモがユーザー登録ページに表示されます。"
 
 #: src/Module/Admin/Site.php:621
 msgid "Allow Users to set remote_self"
@@ -7770,7 +7770,7 @@ msgid ""
 "Disable built-in OStatus (StatusNet, GNU Social etc.) compatibility. All "
 "communications in OStatus are public, so privacy warnings will be "
 "occasionally displayed."
-msgstr "組み込みのOStatus（StatusNet、GNU Socialなど）の互換性を無効にします。 OStatusの通信はすべて公開されているため、プライバシーに関する警告がときどき表示されます。"
+msgstr "組み込みのOStatus（StatusNet、GNU Socialなど）互換機能を無効にします。 OStatusの通信はすべて公開されているため、プライバシーに関する警告がときどき表示されます。"
 
 #: src/Module/Admin/Site.php:628
 msgid "OStatus support can only be enabled if threading is enabled."
@@ -7788,7 +7788,7 @@ msgstr "Diasporaサポートを有効にする"
 
 #: src/Module/Admin/Site.php:631
 msgid "Provide built-in Diaspora network compatibility."
-msgstr "組み込みのDiasporaネットワーク互換性を提供します。"
+msgstr "組み込みのDiasporaネットワーク互換機能を提供します。"
 
 #: src/Module/Admin/Site.php:632
 msgid "Only allow Friendica contacts"
@@ -7915,7 +7915,7 @@ msgstr "グローバルなコンタクトを取得するための時間枠"
 msgid ""
 "When the discovery is activated, this value defines the timeframe for the "
 "activity of the global contacts that are fetched from other servers."
-msgstr "ディスカバリーがアクティブになると、この値は、他のサーバーからフェッチされるグローバルコンタクトのアクティビティの時間枠を定義します。"
+msgstr "探索がアクティベートされた際、この値は、他のサーバーからフェッチされるグローバルコンタクトのアクティビティの時間枠を定義します。"
 
 #: src/Module/Admin/Site.php:647
 msgid "Search the local directory"
@@ -7926,7 +7926,7 @@ msgid ""
 "Search the local directory instead of the global directory. When searching "
 "locally, every search will be executed on the global directory in the "
 "background. This improves the search results when the search is repeated."
-msgstr "グローバルディレクトリではなくローカルディレクトリを検索します。ローカルで検索する場合、すべての検索はバックグラウンドでグローバルディレクトリで実行されます。これにより、検索が繰り返されるときの検索結果が改善されます。"
+msgstr "グローバルディレクトリではなくローカルディレクトリを検索します。ローカルで検索する場合、すべての検索はバックグラウンドでグローバルディレクトリで実行されます。これにより、同じ検索を繰り返した場合の検索結果が改善されます。"
 
 #: src/Module/Admin/Site.php:649
 msgid "Publish server information"
@@ -7993,7 +7993,7 @@ msgstr "データベースのクリーンアップが有効になっている場
 
 #: src/Module/Admin/Site.php:656
 msgid "Lifespan of raw conversation data"
-msgstr "生の会話データの寿命"
+msgstr "Raw会話データの寿命"
 
 #: src/Module/Admin/Site.php:656
 msgid ""
@@ -8087,7 +8087,7 @@ msgstr "並列ワーカーの最大数"
 msgid ""
 "On shared hosters set this to %d. On larger systems, values of %d are great."
 " Default value is %d."
-msgstr "共有ホスティング事業者では、これを%d設定します。大規模なシステムでは、 %d値は素晴らしいです。デフォルト値は%dです。"
+msgstr "共有ホスティング事業者では、これを%dに設定します。大規模なシステムでは、 %dの値は素晴らしいでしょう。既定の値は%dです。"
 
 #: src/Module/Admin/Site.php:669
 msgid "Don't use \"proc_open\" with the worker"
@@ -8203,28 +8203,28 @@ msgid ""
 "converting the table engines. You may also use the command <tt>php "
 "bin/console.php dbstructure toinnodb</tt> of your Friendica installation for"
 " an automatic conversion.<br />"
-msgstr "DBは引き続きMyISAMテーブルで実行されます。エンジンタイプをInnoDBに変更する必要があります。 Friendicaは今後InnoDBのみの機能を使用するため、これを変更する必要があります。テーブルエンジンの変換に役立つガイドについては、<a href=\"%s\">こちら</a>をご覧ください。 Friendicaインストールの<tt> php bin / console.php dbstructure toinnodb </tt>コマンドを使用して自動変換することもできます。<br />"
+msgstr "DBは引き続きMyISAMテーブルで実行されます。エンジンタイプをInnoDBに変更する必要があります。 Friendicaは今後InnoDBのみの機能を使用するため、これを変更する必要があります。テーブルエンジンの変換に役立つガイドについては、<a href=\"%s\">こちら</a>をご覧ください。 Friendicaインストールの<tt> php bin/console.php dbstructure toinnodb </tt>コマンドを使用して自動変換することもできます。<br />"
 
 #: src/Module/Admin/Summary.php:38
 #, php-format
 msgid ""
 "There is a new version of Friendica available for download. Your current "
 "version is %1$s, upstream version is %2$s"
-msgstr "ダウンロード可能なFriendicaの新しいバージョンがあります。現在のバージョンは%1$s 、アップストリームバージョンは%2$s"
+msgstr "ダウンロード可能なFriendicaの新しいバージョンがあります。現在のバージョンは%1$s 、アップストリームバージョンは%2$sです。"
 
 #: src/Module/Admin/Summary.php:47
 msgid ""
 "The database update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear."
-msgstr "データベースの更新に失敗しました。コマンドラインから「php bin / console.php dbstructure update」を実行し、表示される可能性のあるエラーを確認してください。"
+msgstr "データベースの更新に失敗しました。コマンドラインから「php bin/console.php dbstructure update」を実行し、表示される可能性のあるエラーを確認してください。"
 
 #: src/Module/Admin/Summary.php:51
 msgid ""
 "The last update failed. Please run \"php bin/console.php dbstructure "
 "update\" from the command line and have a look at the errors that might "
 "appear. (Some of the errors are possibly inside the logfile.)"
-msgstr "最後の更新に失敗しました。コマンドラインから「php bin / console.php dbstructure update」を実行し、表示される可能性のあるエラーを確認してください。 （エラーの一部は、おそらくログファイル内にあります。）"
+msgstr "最後の更新に失敗しました。コマンドラインから「php bin/console.php dbstructure update」を実行し、表示される可能性のあるエラーを確認してください。 （エラーの一部は、おそらくログファイル内にあります。）"
 
 #: src/Module/Admin/Summary.php:56
 msgid "The worker was never executed. Please check your database structure!"
@@ -8244,7 +8244,7 @@ msgid ""
 "copy config/local-sample.config.php and move your config from "
 "<code>.htconfig.php</code>. See <a href=\"%s\">the Config help page</a> for "
 "help with the transition."
-msgstr "Friendicaの設定はconfig / local.config.phpに保存されるようになりました。config/ local-sample.config.phpをコピーし、設定を<code> .htconfig.php </code>から移動してください。移行のヘルプについては、<a href=\"%s\"> Configヘルプページ</a>をご覧ください。"
+msgstr "Friendicaの設定はconfig/local.config.phpに保存されるようになりました。config/local-sample.config.phpをコピーし、設定を<code> .htconfig.php </code>から移動してください。移行のヘルプについては、<a href=\"%s\"> Configヘルプページ</a>をご覧ください。"
 
 #: src/Module/Admin/Summary.php:67
 #, php-format
@@ -8253,7 +8253,7 @@ msgid ""
 "copy config/local-sample.config.php and move your config from "
 "<code>config/local.ini.php</code>. See <a href=\"%s\">the Config help "
 "page</a> for help with the transition."
-msgstr "Friendicaの設定はconfig / local.config.phpに保存されるようになりました。config/ local-sample.config.phpをコピーして、設定を<code> config / local.ini.php </code>から移動してください。移行のヘルプについては、<a href=\"%s\"> Configヘルプページ</a>をご覧ください。"
+msgstr "Friendicaの設定はconfig/local.config.phpに保存されるようになりました。config/ local-sample.config.phpをコピーして、設定を<code> config / local.ini.php </code>から移動してください。移行のヘルプについては、<a href=\"%s\"> Configヘルプページ</a>をご覧ください。"
 
 #: src/Module/Admin/Summary.php:73
 #, php-format
@@ -8268,25 +8268,25 @@ msgstr "システムで<a href=\"%s\"> %s </a>に到達できません。これ�
 msgid ""
 "Friendica's system.basepath was updated from '%s' to '%s'. Please remove the"
 " system.basepath from your db to avoid differences."
-msgstr "Friendicaのsystem.basepathは'から更新された%s 'から' %s '。差異を避けるために、データベースからsystem.basepathを削除してください。"
+msgstr "Friendicaのsystem.basepathは '%s' から '%s' に更新されました。差異を避けるために、データベースからsystem.basepathを削除してください。"
 
 #: src/Module/Admin/Summary.php:114
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is wrong and the config file '%s' "
 "isn't used."
-msgstr "Friendicaの現在のsystem.basepath ' %s 'は間違っており、構成ファイル ' %s 'は使用されていません。"
+msgstr "Friendicaの現在のsystem.basepath '%s' は間違っています。構成ファイル '%s'は使用されていません。"
 
 #: src/Module/Admin/Summary.php:122
 #, php-format
 msgid ""
 "Friendica's current system.basepath '%s' is not equal to the config file "
 "'%s'. Please fix your configuration."
-msgstr "Friendicaの現在のsystem.basepath ' %s 'は、構成ファイル ' %s 'と等しくありません。設定を修正してください。"
+msgstr "Friendicaの現在のsystem.basepath '%s'は、構成ファイル '%s'と等しくありません。設定を修正してください。"
 
 #: src/Module/Admin/Summary.php:129
 msgid "Normal Account"
-msgstr "通常口座"
+msgstr "通常アカウント"
 
 #: src/Module/Admin/Summary.php:130
 msgid "Automatic Follower Account"
@@ -8343,17 +8343,17 @@ msgstr "テーマ設定が更新されました。"
 #: src/Module/Admin/Themes/Details.php:71 src/Module/Admin/Themes/Index.php:47
 #, php-format
 msgid "Theme %s disabled."
-msgstr "テーマ%s無効です。"
+msgstr "テーマ%sを無効にしました。"
 
 #: src/Module/Admin/Themes/Details.php:73 src/Module/Admin/Themes/Index.php:49
 #, php-format
 msgid "Theme %s successfully enabled."
-msgstr "テーマ%s有効になりました。"
+msgstr "テーマ%sが有効になりました。"
 
 #: src/Module/Admin/Themes/Details.php:75 src/Module/Admin/Themes/Index.php:51
 #, php-format
 msgid "Theme %s failed to install."
-msgstr "テーマ%sインストールに失敗しました。"
+msgstr "テーマ%sのインストールに失敗しました。"
 
 #: src/Module/Admin/Themes/Details.php:97
 msgid "Screenshot"
@@ -8375,7 +8375,7 @@ msgstr "アクティブなテーマをリロードする"
 #: src/Module/Admin/Themes/Index.php:101
 #, php-format
 msgid "No themes found on the system. They should be placed in %1$s"
-msgstr "システムにテーマが見つかりません。 %1$s配置する必要があります"
+msgstr "システムにテーマが見つかりません。 %1$sに配置する必要があります"
 
 #: src/Module/Admin/Themes/Index.php:102
 msgid "[Experimental]"
@@ -8633,7 +8633,7 @@ msgstr "DBの更新"
 
 #: src/Module/BaseAdminModule.php:89
 msgid "Inspect Deferred Workers"
-msgstr "繰延労働者の検査"
+msgstr "非同期実行ワーカーの検査"
 
 #: src/Module/BaseAdminModule.php:90
 msgid "Inspect worker Queue"
@@ -8673,7 +8673,7 @@ msgstr "アイテムソース"
 
 #: src/Module/BaseAdminModule.php:106
 msgid "Babel"
-msgstr "バベル"
+msgstr "Babel"
 
 #: src/Module/BaseAdminModule.php:115
 msgid "Addon Features"
@@ -8780,7 +8780,7 @@ msgstr "このコンタクトへのプライベート通信は利用できませ
 
 #: src/Module/Contact.php:539
 msgid "Never"
-msgstr "決して"
+msgstr "決してしない"
 
 #: src/Module/Contact.php:542
 msgid "(Update was successful)"
@@ -8792,7 +8792,7 @@ msgstr "（更新は成功しませんでした）"
 
 #: src/Module/Contact.php:544 src/Module/Contact.php:1057
 msgid "Suggest friends"
-msgstr "友人を示唆しています"
+msgstr "友人のおすすめ"
 
 #: src/Module/Contact.php:548
 #, php-format
@@ -8840,7 +8840,7 @@ msgstr "コンタクト設定"
 
 #: src/Module/Contact.php:596
 msgid "Contact"
-msgstr "接触"
+msgstr "コンタクト"
 
 #: src/Module/Contact.php:600
 #, php-format
@@ -9508,7 +9508,7 @@ msgstr "インストール完了"
 
 #: src/Module/Install.php:328
 msgid "<h1>What next</h1>"
-msgstr "<h1>次は何</h1>"
+msgstr "<h1>次は何でしょうか</h1>"
 
 #: src/Module/Install.php:329
 msgid ""
@@ -9728,7 +9728,7 @@ msgstr "ページが見つかりません。"
 #: src/Module/Photo.php:87
 #, php-format
 msgid "Invalid photo with id %s."
-msgstr "ID %s写真が無効です。"
+msgstr "ID %s の写真が無効です。"
 
 #: src/Module/Profile/Contacts.php:23 src/Module/Profile/Contacts.php:36
 msgid "User not found."
@@ -9821,7 +9821,7 @@ msgstr "自動生成されたパスワードの場合は空のままにします
 msgid ""
 "Choose a profile nickname. This must begin with a text character. Your "
 "profile address on this site will then be \"<strong>nickname@%s</strong>\"."
-msgstr "プロフィールのニックネームを選択します。これはテキスト文字で始まる必要があります。このサイトのプロフィールアドレスは\"<strong> nickname @ %s</strong> \"になります。"
+msgstr "プロフィールのニックネームを選択します。これはテキスト文字で始まる必要があります。このサイトのプロフィールアドレスは\"<strong> nickname@%s</strong> \"になります。"
 
 #: src/Module/Register.php:133
 msgid "Choose a nickname: "
@@ -9833,7 +9833,7 @@ msgstr "このfriendicaインスタンスにプロフィールをインポート
 
 #: src/Module/Register.php:149
 msgid "Note: This node explicitly contains adult content"
-msgstr "注：このノードには、アダルトコンテンツが明示的に含まれています"
+msgstr "注：このノードには、露骨なアダルトコンテンツが含まれています"
 
 #: src/Module/Register.php:242
 msgid ""
@@ -10278,7 +10278,7 @@ msgid ""
 "Edit your <strong>default</strong> profile to your liking. Review the "
 "settings for hiding your list of friends and hiding the profile from unknown"
 " visitors."
-msgstr "お好みに合わせて<strong>デフォルト</strong>プロフィールを編集します。友達のリストを非表示にし、未知の訪問者からプロフィールを非表示にするための設定を確認します。"
+msgstr "お好みに合わせて<strong>既定の</strong>プロフィールを編集します。友達のリストを非表示にし、未知の訪問者からプロフィールを非表示にするための設定を確認します。"
 
 #: src/Module/Welcome.php:43
 msgid "Profile Keywords"
@@ -10289,7 +10289,7 @@ msgid ""
 "Set some public keywords for your default profile which describe your "
 "interests. We may be able to find other people with similar interests and "
 "suggest friendships."
-msgstr "あなたの興味を説明するいくつかの公開キーワードをデフォルトのプロフィールに設定します。同様の興味を持つ他の人を見つけ、友情を提案することができるかもしれません。"
+msgstr "あなたの興味を説明するいくつかの公開キーワードを既定のプロフィールに設定します。同様の興味を持つ他の人を見つけ、友情を提案することができるかもしれません。"
 
 #: src/Module/Welcome.php:46
 msgid "Connecting"
@@ -10326,7 +10326,7 @@ msgid ""
 "The Directory page lets you find other people in this network or other "
 "federated sites. Look for a <em>Connect</em> or <em>Follow</em> link on "
 "their profile page. Provide your own Identity Address if requested."
-msgstr "ディレクトリ ページでは、このネットワークまたは他のフェデレーションサイト内の他のユーザーを検索できます。プロフィールページで<em>接続</em>または<em>フォロー</em>リンクを探します。要求された場合、独自のIDアドレスを提供します。"
+msgstr "ディレクトリ ページでは、このネットワークまたは他のフェデレーションサイト内の他のユーザーを検索できます。プロフィールページで<em>接続</em>または<em>フォロー</em>リンクを探します。要求された場合、独自のIdentityアドレスを提供します。"
 
 #: src/Module/Welcome.php:54
 msgid "Finding New People"
@@ -10439,7 +10439,7 @@ msgstr "スターの状態を切り替える"
 
 #: src/Object/Post.php:298
 msgid "starred"
-msgstr "主演"
+msgstr "スター付き"
 
 #: src/Object/Post.php:302
 msgid "add tag"
@@ -10447,7 +10447,7 @@ msgstr "タグ付けする"
 
 #: src/Object/Post.php:313
 msgid "like"
-msgstr "のような"
+msgstr "いいね"
 
 #: src/Object/Post.php:314
 msgid "dislike"
@@ -10459,7 +10459,7 @@ msgstr "これを共有"
 
 #: src/Object/Post.php:317
 msgid "share"
-msgstr "シェア"
+msgstr "共有"
 
 #: src/Object/Post.php:385
 msgid "to"
