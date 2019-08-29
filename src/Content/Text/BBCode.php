@@ -120,7 +120,15 @@ class BBCode extends BaseObject
 	 */
 	public static function getAttachmentData($body)
 	{
-		$data = [];
+		$data = [
+			'type'        => '',
+			'text'        => '',
+			'after'       => '',
+			'image'       => null,
+			'url'         => '',
+			'title'       => '',
+			'description' => '',
+		];
 
 		if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match)) {
 			return self::getOldAttachmentData($body);

@@ -4,6 +4,7 @@ namespace Friendica\Database;
 
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\System;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Profiler;
 use mysqli;
@@ -126,7 +127,7 @@ class Database
 				$this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, false);
 				$this->connected = true;
 			} catch (PDOException $e) {
-				/// @TODO At least log exception, don't ignore it!
+				$this->connected = false;
 			}
 		}
 
@@ -483,6 +484,10 @@ class Database
 		}
 		// We are having an own error logging in the function "e"
 		$called_from_e = ($called_from['function'] == 'e');
+
+		if (!isset($this->connection)) {
+			throw new InternalServerErrorException('The Connection is empty, although connected is set true.');
+		}
 
 		switch ($this->driver) {
 			case 'pdo':

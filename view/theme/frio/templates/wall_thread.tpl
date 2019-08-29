@@ -84,8 +84,11 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* Put addional actions in a top-right dropdown menu *}}
 
 		<ul class="nav nav-pills preferences">
+			{{if $item.network_icon != ""}}
+                        <li><span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span></li>
+			{{else}}
 			<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
-
+			{{/if}}
 			{{if $item.plink || $item.drop.dropping || $item.edpost || $item.ignore || $item.tagger || $item.star || $item.filer || $item.subthread}}
 			<li class="dropdown">
 				<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuTools-{{$item.id}}" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
