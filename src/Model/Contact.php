@@ -137,7 +137,8 @@ class Contact extends BaseObject
 	}
 
 	/**
-	 * @brief Insert a row into the contact table
+	 * Insert a row into the contact table
+	 * Important: You can't use DBA::lastInsertId() after this call since it will be set to 0.
 	 *
 	 * @param array        $param               parameter array
 	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
@@ -148,43 +149,7 @@ class Contact extends BaseObject
 	public static function insert($param, $on_duplicate_update = false)
 	{
 		$ret = DBA::insert('contact', $param, $on_duplicate_update);
-
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], ['id' => DBA::lastInsertId()]);
-		if (!DBA::isResult($contact)) {
-			// Shouldn't happen
-			return $ret;
-		}
-
-		// Search for duplicated contacts and get rid of them
-		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
-
-		return $ret;
-	}
-
-	/**
-	 * @param array         $fields     contains the fields that are updated
-	 * @param array         $condition  condition array with the key values
-	 * @param array|boolean $old_fields array with the old field values that are about to be replaced (true = update on duplicate)
-	 *
-	 * @return boolean was the update successfull?
-	 * @throws \Exception
-	 */
-	public static function update($fields, $condition, $old_fields = [])
-	{
-		$ret = DBA::update('contact', $fields, $condition, $old_fields);
-
-		// We quit when the update affected more than one row
-		if (DBA::affectedRows() > 1) {
-			return $ret;
-		}
-
-		// Don't proceed when the command aboved queried more than one row
-		// This is not a duplicate of the test above since that only checked for affected rows
-		if (DBA::count('contact', $condition) != 1) {
-			return $ret;
-		}
-
-		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], $condition);
 		if (!DBA::isResult($contact)) {
 			// Shouldn't happen
 			return $ret;
@@ -1548,7 +1513,7 @@ class Contact extends BaseObject
 			if (!DBA::isResult($contact)) {
 				Logger::info('Create new contact', $fields);
 
-				DBA::insert('contact', $fields);
+				self::insert($fields);
 
 				// We intentionally aren't using lastInsertId here. There is a chance for duplicates.
 				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
@@ -1954,6 +1919,25 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, $condition);
 	}
 
+	/**
+	 * Check and remove duplicate contact entries
+	 *
+	 * @param integer $contact_id Contact ID
+	 * @throws \Exception
+	 */
+	public static function handleDuplicateByID($contact_id)
+	{
+		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], ['id' => $contact_id]);
+		if (!DBA::isResult($contact)) {
+			return $ret;
+		}
+
+		// Search for duplicated contacts and get rid of them
+		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
+
+		return $ret;
+	}
+
         /**
 	 * @brief Helper function for "updateFromProbe". Remove duplicated contacts
 	 *
@@ -2325,7 +2309,7 @@ class Contact extends BaseObject
 			$new_relation = (in_array($protocol, [Protocol::MAIL]) ? self::FRIEND : self::SHARING);
 
 			// create contact record
-			DBA::insert('contact', [
+			self::insert([
 				'uid'     => $uid,
 				'created' => DateTimeFormat::utcNow(),
 				'url'     => $ret['url'],

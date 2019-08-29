@@ -200,7 +200,7 @@ class Diaspora
 			DBA::update('contact', $fields, $condition, $old);
 		} else {
 			Logger::info('Create relay contact', ['fields' => $fields]);
-			DBA::insert('contact', $fields);
+			Contact::insert($fields);
 		}
 	}
 
