@@ -27,6 +27,7 @@ Andy
 Andy Hee
 Angristan
 Anthronaut
+Antron Samurai
 Arian - Cazare Muncitori
 Asher Pen
 Athalbert
@@ -95,11 +96,13 @@ Gert Cauwenberg
 GLComo
 greeneyedred
 Gregory Smith
+guzzisti
 Haakon Meland Eriksen
 Hans Meine
 Hauke
 Hauke Altmann
 Herbert Thielen
+hlad
 hoergen
 Hubert Kościański
 Hypolite Petovan
@@ -165,6 +168,7 @@ Oliver
 Olivier
 Olivier Mehani
 Olivier Migeot
+Ozero Dien
 Paolo Wave
 Pascal
 Pascal Deklerck
@@ -172,6 +176,7 @@ Pavel Morozov
 PerigGouanvic
 Peter Liebetrau
 peturisfeld
+Phigger Phigger
 Philipp
 Philipp Holzer
 Pierre Rudloff
@@ -194,6 +199,7 @@ Rik 4
 RJ Madsen
 Roland Häder
 Rui Andrada
+rwa
 RyDroid
 S.Krumbholz
 Sakałoŭ Alaksiej
@@ -227,6 +233,7 @@ Thomas
 Thomas Willingham
 thorsten23
 Tim Stahel
+TiMESPLiNTER
 Tino
 Tobias Diekershoff
 Tobias Hößl
@@ -245,6 +252,7 @@ ufic
 Ulf Rompe
 Unknown
 Valvin
+Valvin A
 Vasudev Kamath
 Vasya Novikov
 Vinzenz Vietzke
