@@ -1929,13 +1929,13 @@ class Contact extends BaseObject
 	{
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], ['id' => $contact_id]);
 		if (!DBA::isResult($contact)) {
-			return $ret;
+			return;
 		}
 
 		// Search for duplicated contacts and get rid of them
 		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
 
-		return $ret;
+		return;
 	}
 
         /**
