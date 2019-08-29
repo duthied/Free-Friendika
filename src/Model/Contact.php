@@ -149,14 +149,14 @@ class Contact extends BaseObject
 	public static function insert($param, $on_duplicate_update = false)
 	{
 		$ret = DBA::insert('contact', $param, $on_duplicate_update);
-		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], ['id' => DBA::lastInsertId()]);
+		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
 		if (!DBA::isResult($contact)) {
 			// Shouldn't happen
 			return $ret;
 		}
 
 		// Search for duplicated contacts and get rid of them
-		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
+		self::handleDuplicates($contact['nurl'], $contact['uid']);
 
 		return $ret;
 	}
@@ -1878,7 +1878,7 @@ class Contact extends BaseObject
 		}
 
 		// Search for duplicated contacts and get rid of them
-		if (self::handleDuplicates(Strings::normaliseLink($url), $uid, $id) || ($uid != 0)) {
+		if (self::handleDuplicates(Strings::normaliseLink($url), $uid) || ($uid != 0)) {
 			return;
 		}
 
@@ -1927,13 +1927,13 @@ class Contact extends BaseObject
 	 */
 	public static function handleDuplicateByID($contact_id)
 	{
-		$contact = DBA::selectFirst('contact', ['nurl', 'uid', 'id'], ['id' => $contact_id]);
+		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => $contact_id, 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}
 
 		// Search for duplicated contacts and get rid of them
-		self::handleDuplicates($contact['nurl'], $contact['uid'], $contact['id']);
+		self::handleDuplicates($contact['nurl'], $contact['uid']);
 
 		return;
 	}
@@ -1943,11 +1943,10 @@ class Contact extends BaseObject
 	 *
 	 * @param string  $nurl  Normalised contact url
 	 * @param integer $uid   User id
-	 * @param integer $id    Contact id of a duplicate
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	private static function handleDuplicates($nurl, $uid, $id)
+	private static function handleDuplicates($nurl, $uid)
 	{
 		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false, 'network' => Protocol::FEDERATED];
 		$count = DBA::count('contact', $condition);
@@ -1962,7 +1961,7 @@ class Contact extends BaseObject
 		}
 
 		$first = $first_contact['id'];
-		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
+		Logger::info('Found duplicates', ['count' => $count, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
 		if (($uid != 0 && ($first_contact['network'] == Protocol::DFRN))) {
 			// Don't handle non public DFRN duplicates by now (legacy DFRN is very special because of the key handling)
 			Logger::info('Not handling non public DFRN duplicate', ['uid' => $uid, 'nurl' => $nurl]);

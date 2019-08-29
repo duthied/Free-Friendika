@@ -436,8 +436,8 @@ class PostUpdate
 
 		$contacts = DBA::p("SELECT ANY_VALUE(`id`) AS `id`, ANY_VALUE(`nurl`) AS `nurl` FROM `contact`
 			WHERE EXISTS (SELECT `nurl` FROM `contact` AS `c2`
-				WHERE `c2`.`nurl` = `contact`.`nurl` AND `c2`.`id` != `contact`.`id` AND `c2`.`uid` = `contact`.`uid` AND `c2`.`network` IN (?, ?, ?))
-			AND (`network` IN (?, ?, ?) OR (`uid` = ?)) GROUP BY `nurl`, `uid`",
+				WHERE `c2`.`nurl` = `contact`.`nurl` AND `c2`.`id` != `contact`.`id` AND `c2`.`uid` = `contact`.`uid` AND `c2`.`network` IN (?, ?, ?) AND NOT `deleted`)
+			AND (`network` IN (?, ?, ?) OR (`uid` = ?)) AND NOT `deleted` GROUP BY `nurl`, `uid`",
 			Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB,
 			Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB, 0);
 
