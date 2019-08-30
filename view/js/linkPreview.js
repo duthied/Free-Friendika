@@ -52,7 +52,7 @@
 			<div class="clear"></div>\
 			<hr class="previewseparator">';
 		var text;
-		var urlRegex = /(?<!=)(https?\:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(\/+[a-z0-9_.\:\;-]*)*(\?[\&\%\|\+a-z0-9_=,\.\:\;-]*)?([\&\%\|\+&a-z0-9_=,\:\;\.-]*)([\!\#\/\&\%\|\+a-z0-9_=,\:\;\.-]*)}*/i;
+		var urlRegex = /^(?:https?\:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.\:\;-]*)*(?:\?[\&\%\|\+a-z0-9_=,\.\:\;-]*)?(?:[\&\%\|\+&a-z0-9_=,\:\;\.-]*)(?:[\!\#\/\&\%\|\+a-z0-9_=,\:\;\.-]*)}*$/i;
 		var binurl;
 		var block = false;
 		var blockTitle = false;
@@ -133,20 +133,18 @@
 				return;
 			}
 
-			if (trim(text) !== "") {
-				if (block === false && urlRegex.test(text)) {
-					binurl = bin2hex(text);
-					block = true;
+			if (trim(text) !== "" && block === false && urlRegex.test(text)) {
+				binurl = bin2hex(text);
+				block = true;
 
-					isCrawling = true;
-					$('#profile-rotator').show();
+				isCrawling = true;
+				$('#profile-rotator').show();
 
-					if (binurl in cache) {
-						isCrawling = false;
-						processContentData(cache[binurl]);
-					} else {
-						getContentData(binurl, processContentData);
-					}
+				if (binurl in cache) {
+					isCrawling = false;
+					processContentData(cache[binurl]);
+				} else {
+					getContentData(binurl, processContentData);
 				}
 			}
 		};
