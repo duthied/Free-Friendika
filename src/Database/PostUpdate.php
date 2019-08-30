@@ -37,6 +37,9 @@ class PostUpdate
 		if (!self::update1297()) {
 			return false;
 		}
+		if (!self::update1322()) {
+			return false;
+		}
 
 		return true;
 	}
@@ -411,6 +414,40 @@ class PostUpdate
 		Logger::info('Processed rows: ' . DBA::affectedRows());
 
 		Config::set('system', 'post_update_version', 1297);
+
+		Logger::info('Done');
+
+		return true;
+	}
+	/**
+	 * Remove contact duplicates
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function update1322()
+	{
+		// Was the script completed?
+		if (Config::get('system', 'post_update_version') >= 1322) {
+			return true;
+		}
+
+		Logger::info('Start');
+
+		$contacts = DBA::p("SELECT `nurl`, `uid` FROM `contact`
+			WHERE EXISTS (SELECT `nurl` FROM `contact` AS `c2`
+				WHERE `c2`.`nurl` = `contact`.`nurl` AND `c2`.`id` != `contact`.`id` AND `c2`.`uid` = `contact`.`uid` AND `c2`.`network` IN (?, ?, ?) AND NOT `deleted`)
+			AND (`network` IN (?, ?, ?) OR (`uid` = ?)) AND NOT `deleted` GROUP BY `nurl`, `uid`",
+			Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB,
+			Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB, 0);
+
+		while ($contact = DBA::fetch($contacts)) {
+			Logger::info('Remove duplicates', ['nurl' => $contact['nurl'], 'uid' => $contact['uid']]);
+			Contact::removeDuplicates($contact['nurl'], $contact['uid']);
+		}
+
+		DBA::close($contact);
+		Config::set('system', 'post_update_version', 1322);
 
 		Logger::info('Done');
 

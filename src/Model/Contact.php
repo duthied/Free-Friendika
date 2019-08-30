@@ -137,6 +137,31 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Insert a row into the contact table
+	 * Important: You can't use DBA::lastInsertId() after this call since it will be set to 0.
+	 *
+	 * @param array        $fields              field array
+	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
+	 *
+	 * @return boolean was the insert successful?
+	 * @throws \Exception
+	 */
+	public static function insert(array $fields, bool $on_duplicate_update = false)
+	{
+		$ret = DBA::insert('contact', $fields, $on_duplicate_update);
+		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
+		if (!DBA::isResult($contact)) {
+			// Shouldn't happen
+			return $ret;
+		}
+
+		// Search for duplicated contacts and get rid of them
+		self::removeDuplicates($contact['nurl'], $contact['uid']);
+
+		return $ret;
+	}
+
+	/**
 	 * @param integer $id     Contact ID
 	 * @param array   $fields Array of selected fields, empty for all
 	 * @return array|boolean Contact record if it exists, false otherwise
@@ -878,6 +903,13 @@ class Contact extends BaseObject
 	 */
 	public static function unmarkForArchival(array $contact)
 	{
+		// Always unarchive the relay contact entry
+		if (!empty($contact['batch'])) {
+			$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
+			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
+			DBA::update('contact', $fields, $condition);
+		}
+
 		$condition = ['`id` = ? AND (`term-date` > ? OR `archive`)', $contact['id'], DBA::NULL_DATETIME];
 		$exists = DBA::exists('contact', $condition);
 
@@ -901,11 +933,6 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, ['id' => $contact['id']]);
 		DBA::update('contact', $fields, ['nurl' => Strings::normaliseLink($contact['url']), 'self' => false]);
 		GContact::updateFromPublicContactURL($contact['url']);
-
-		if (!empty($contact['batch'])) {
-			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
-			DBA::update('contact', $fields, $condition);
-		}
 	}
 
 	/**
@@ -1488,7 +1515,7 @@ class Contact extends BaseObject
 			if (!DBA::isResult($contact)) {
 				Logger::info('Create new contact', $fields);
 
-				DBA::insert('contact', $fields);
+				self::insert($fields);
 
 				// We intentionally aren't using lastInsertId here. There is a chance for duplicates.
 				$contact = DBA::selectFirst('contact', ['id'], $condition, ['order' => ['id']]);
@@ -1853,7 +1880,7 @@ class Contact extends BaseObject
 		}
 
 		// Search for duplicated contacts and get rid of them
-		if (self::handleDuplicates(Strings::normaliseLink($url), $uid, $id) || ($uid != 0)) {
+		if (self::removeDuplicates(Strings::normaliseLink($url), $uid) || ($uid != 0)) {
 			return;
 		}
 
@@ -1895,15 +1922,14 @@ class Contact extends BaseObject
 	}
 
         /**
-	 * @brief Helper function for "updateFromProbe". Remove duplicated contacts
+	 * @brief Remove duplicated contacts
 	 *
 	 * @param string  $nurl  Normalised contact url
 	 * @param integer $uid   User id
-	 * @param integer $id    Contact id of a duplicate
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	private static function handleDuplicates($nurl, $uid, $id)
+	public static function removeDuplicates(string $nurl, int $uid)
 	{
 		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false, 'network' => Protocol::FEDERATED];
 		$count = DBA::count('contact', $condition);
@@ -1918,7 +1944,7 @@ class Contact extends BaseObject
 		}
 
 		$first = $first_contact['id'];
-		Logger::info('Found duplicates', ['count' => $count, 'id' => $id, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
+		Logger::info('Found duplicates', ['count' => $count, 'first' => $first, 'uid' => $uid, 'nurl' => $nurl]);
 		if (($uid != 0 && ($first_contact['network'] == Protocol::DFRN))) {
 			// Don't handle non public DFRN duplicates by now (legacy DFRN is very special because of the key handling)
 			Logger::info('Not handling non public DFRN duplicate', ['uid' => $uid, 'nurl' => $nurl]);
@@ -2265,7 +2291,7 @@ class Contact extends BaseObject
 			$new_relation = (in_array($protocol, [Protocol::MAIL]) ? self::FRIEND : self::SHARING);
 
 			// create contact record
-			DBA::insert('contact', [
+			self::insert([
 				'uid'     => $uid,
 				'created' => DateTimeFormat::utcNow(),
 				'url'     => $ret['url'],
