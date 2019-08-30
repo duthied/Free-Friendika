@@ -420,7 +420,7 @@ class PostUpdate
 		return true;
 	}
 	/**
-	 * Set the delivery queue count to a negative value for all items preceding the feature.
+	 * Remove contact duplicates
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

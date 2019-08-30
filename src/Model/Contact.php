@@ -146,7 +146,7 @@ class Contact extends BaseObject
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert($param, $on_duplicate_update = false)
+	public static function insert(array $param, bool $on_duplicate_update = false)
 	{
 		$ret = DBA::insert('contact', $param, $on_duplicate_update);
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
@@ -1927,7 +1927,7 @@ class Contact extends BaseObject
 	 * @param integer $contact_id Contact ID
 	 * @throws \Exception
 	 */
-	public static function handleDuplicateByID($contact_id)
+	public static function handleDuplicateByID(int $contact_id)
 	{
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => $contact_id, 'deleted' => false]);
 		if (!DBA::isResult($contact)) {
@@ -1948,7 +1948,7 @@ class Contact extends BaseObject
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	private static function handleDuplicates($nurl, $uid)
+	private static function handleDuplicates(string $nurl, int $uid)
 	{
 		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false, 'network' => Protocol::FEDERATED];
 		$count = DBA::count('contact', $condition);
