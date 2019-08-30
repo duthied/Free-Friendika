@@ -156,7 +156,7 @@ class Contact extends BaseObject
 		}
 
 		// Search for duplicated contacts and get rid of them
-		self::handleDuplicates($contact['nurl'], $contact['uid']);
+		self::removeDuplicates($contact['nurl'], $contact['uid']);
 
 		return $ret;
 	}
@@ -1880,7 +1880,7 @@ class Contact extends BaseObject
 		}
 
 		// Search for duplicated contacts and get rid of them
-		if (self::handleDuplicates(Strings::normaliseLink($url), $uid) || ($uid != 0)) {
+		if (self::removeDuplicates(Strings::normaliseLink($url), $uid) || ($uid != 0)) {
 			return;
 		}
 
@@ -1921,34 +1921,15 @@ class Contact extends BaseObject
 		DBA::update('contact', $fields, $condition);
 	}
 
-	/**
-	 * Check and remove duplicate contact entries
-	 *
-	 * @param integer $contact_id Contact ID
-	 * @throws \Exception
-	 */
-	public static function handleDuplicateByID(int $contact_id)
-	{
-		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => $contact_id, 'deleted' => false]);
-		if (!DBA::isResult($contact)) {
-			return;
-		}
-
-		// Search for duplicated contacts and get rid of them
-		self::handleDuplicates($contact['nurl'], $contact['uid']);
-
-		return;
-	}
-
         /**
-	 * @brief Helper function for "updateFromProbe". Remove duplicated contacts
+	 * @brief Remove duplicated contacts
 	 *
 	 * @param string  $nurl  Normalised contact url
 	 * @param integer $uid   User id
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	private static function handleDuplicates(string $nurl, int $uid)
+	public static function removeDuplicates(string $nurl, int $uid)
 	{
 		$condition = ['nurl' => $nurl, 'uid' => $uid, 'deleted' => false, 'network' => Protocol::FEDERATED];
 		$count = DBA::count('contact', $condition);

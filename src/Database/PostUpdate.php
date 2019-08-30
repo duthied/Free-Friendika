@@ -434,7 +434,7 @@ class PostUpdate
 
 		Logger::info('Start');
 
-		$contacts = DBA::p("SELECT ANY_VALUE(`id`) AS `id`, ANY_VALUE(`nurl`) AS `nurl` FROM `contact`
+		$contacts = DBA::p("SELECT `nurl`, `uid` FROM `contact`
 			WHERE EXISTS (SELECT `nurl` FROM `contact` AS `c2`
 				WHERE `c2`.`nurl` = `contact`.`nurl` AND `c2`.`id` != `contact`.`id` AND `c2`.`uid` = `contact`.`uid` AND `c2`.`network` IN (?, ?, ?) AND NOT `deleted`)
 			AND (`network` IN (?, ?, ?) OR (`uid` = ?)) AND NOT `deleted` GROUP BY `nurl`, `uid`",
@@ -442,8 +442,8 @@ class PostUpdate
 			Protocol::DIASPORA, Protocol::OSTATUS, Protocol::ACTIVITYPUB, 0);
 
 		while ($contact = DBA::fetch($contacts)) {
-			Logger::info('Remove duplicates', ['id' => $contact['id']]);
-			Contact::handleDuplicateByID($contact['id']);
+			Logger::info('Remove duplicates', ['nurl' => $contact['nurl'], 'uid' => $contact['uid']]);
+			Contact::removeDuplicates($contact['nurl'], $contact['uid']);
 		}
 
 		DBA::close($contact);
