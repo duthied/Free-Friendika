@@ -140,15 +140,15 @@ class Contact extends BaseObject
 	 * Insert a row into the contact table
 	 * Important: You can't use DBA::lastInsertId() after this call since it will be set to 0.
 	 *
-	 * @param array        $param               parameter array
+	 * @param array        $fields              field array
 	 * @param bool         $on_duplicate_update Do an update on a duplicate entry
 	 *
 	 * @return boolean was the insert successful?
 	 * @throws \Exception
 	 */
-	public static function insert(array $param, bool $on_duplicate_update = false)
+	public static function insert(array $fields, bool $on_duplicate_update = false)
 	{
-		$ret = DBA::insert('contact', $param, $on_duplicate_update);
+		$ret = DBA::insert('contact', $fields, $on_duplicate_update);
 		$contact = DBA::selectFirst('contact', ['nurl', 'uid'], ['id' => DBA::lastInsertId()]);
 		if (!DBA::isResult($contact)) {
 			// Shouldn't happen
