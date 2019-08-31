@@ -904,7 +904,7 @@ class Contact extends BaseObject
 	public static function unmarkForArchival(array $contact)
 	{
 		// Always unarchive the relay contact entry
-		if (!empty($contact['batch'])) {
+		if (!empty($contact['batch']) && !empty($contact['term-date']) && ($contact['term-date'] > DBA::NULL_DATETIME)) {
 			$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
 			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			DBA::update('contact', $fields, $condition);
