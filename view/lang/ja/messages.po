@@ -4,14 +4,14 @@
 # 
 # Translators:
 # Antron Samurai <rock_spring_fu@yahoo.co.jp>, 2018
-# Ozero Dien <rgfx0020+misc@gmail.com>, 2019
+# ozero dien <rgfx0020+misc@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-08-06 16:52+0200\n"
 "PO-Revision-Date: 2019-08-29 13:02+0000\n"
-"Last-Translator: Ozero Dien <rgfx0020+misc@gmail.com>\n"
+"Last-Translator: ozero dien <rgfx0020+misc@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
