@@ -44,14 +44,18 @@ class Search extends BaseObject
 		if ((filter_var($user, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($user)) ||
 		    (substr(Strings::normaliseLink($user), 0, 7) == "http://")) {
 
+			/// @todo Possibly use "getIdForURL" instead?
 			$user_data = Probe::uri($user);
 			if (empty($user_data)) {
 				return $emptyResultList;
 			}
 
-			if (!(in_array($user_data["network"], Protocol::FEDERATED))) {
+			if (!in_array($user_data["network"], Protocol::FEDERATED)) {
 				return $emptyResultList;
 			}
+
+			// Ensure that we do have a contact entry
+			Contact::getIdForURL(defaults($user_data, 'url', ''));
 
 			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
 			$itemUrl        = defaults($contactDetails, 'addr', defaults($user_data, 'url', ''));
@@ -63,7 +67,7 @@ class Search extends BaseObject
 				defaults($user_data, 'url', ''),
 				defaults($user_data, 'photo', ''),
 				defaults($user_data, 'network', ''),
-				defaults($contactDetails, 'cid', 0),
+				defaults($contactDetails, 'id', 0),
 				0,
 				defaults($user_data, 'tags', '')
 			);
