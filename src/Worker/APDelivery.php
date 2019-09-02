@@ -48,14 +48,13 @@ class APDelivery extends BaseObject
 			$data = ActivityPub\Transmitter::createCachedActivityFromItem($target_id);
 			if (!empty($data)) {
 				$success = HTTPSignature::transmit($data, $inbox, $uid);
-				if ($success && in_array($cmd, [Delivery::POST])) {
-					ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::ACTIVITYPUB);
-				}
 			}
 		}
 
 		if (!$success && !Worker::defer() && in_array($cmd, [Delivery::POST])) {
 			ItemDeliveryData::incrementQueueFailed($target_id);
+		} elseif ($success && in_array($cmd, [Delivery::POST])) {
+			ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::ACTIVITYPUB);
 		}
 	}
 }

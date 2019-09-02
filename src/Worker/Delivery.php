@@ -43,12 +43,14 @@ class Delivery extends BaseObject
 		if ($cmd == self::MAIL) {
 			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
 			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$uid = $target_item['uid'];
@@ -58,6 +60,7 @@ class Delivery extends BaseObject
 		} else {
 			$item = Model\Item::selectFirst(['parent'], ['id' => $target_id]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$parent_id = intval($item['parent']);
@@ -79,11 +82,13 @@ class Delivery extends BaseObject
 
 			if (empty($target_item)) {
 				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
 			if (empty($parent)) {
 				Logger::log('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
@@ -93,14 +98,13 @@ class Delivery extends BaseObject
 				$uid = $target_item['uid'];
 			} else {
 				Logger::log('Only public users for item ' . $target_id, Logger::DEBUG);
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
 			if (!empty($contact_id) && Model\Contact::isArchived($contact_id)) {
 				Logger::info('Contact is archived', ['id' => $contact_id, 'cmd' => $cmd, 'item' => $target_item['id']]);
-				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-					Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
-				}
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
@@ -160,6 +164,7 @@ class Delivery extends BaseObject
 
 		$owner = Model\User::getOwnerDataById($uid);
 		if (!DBA::isResult($owner)) {
+			self::setFailedQueue($cmd, $target_id);
 			return;
 		}
 
@@ -168,10 +173,12 @@ class Delivery extends BaseObject
 			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
 		if (!DBA::isResult($contact)) {
+			self::setFailedQueue($cmd, $target_id);
 			return;
 		}
 
 		if (Network::isUrlBlocked($contact['url'])) {
+			self::setFailedQueue($cmd, $target_id);
 			return;
 		}
 
@@ -202,6 +209,15 @@ class Delivery extends BaseObject
 		}
 
 		return;
+	}
+
+	private static function setFailedQueue($cmd, $id)
+	{
+		if (!in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			return;
+		}
+
+		Model\ItemDeliveryData::incrementQueueFailed($id);
 	}
 
 	/**
@@ -300,6 +316,10 @@ class Delivery extends BaseObject
 			// We never spool failed relay deliveries
 			if ($public_dfrn) {
 				Logger::log('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+
+				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+					Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+				}
 				return;
 			}
 
@@ -418,6 +438,11 @@ class Delivery extends BaseObject
 		} else {
 			// The message could not be delivered. We mark the contact as "dead"
 			Model\Contact::markForArchival($contact);
+
+			// When it is delivered to the public endpoint, we do mark the relay contact for archival as well
+			if ($public_message) {
+				Diaspora::markRelayForArchival($contact);
+			}
 
 			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
 				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);

@@ -1104,7 +1104,7 @@ class Worker
 	 * or: Worker::add(PRIORITY_HIGH, "Notifier", Delivery::DELETION, $drop_id);
 	 * or: Worker::add(array('priority' => PRIORITY_HIGH, 'dont_fork' => true), "CreateShadowEntry", $post_id);
 	 *
-	 * @return boolean "false" if proc_run couldn't be executed
+	 * @return boolean "false" if worker queue entry already existed or there had been an error
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @note $cmd and string args are surrounded with ""
 	 *
@@ -1154,6 +1154,7 @@ class Worker
 
 		$parameters = json_encode($args);
 		$found = DBA::exists('workerqueue', ['parameter' => $parameters, 'done' => false]);
+		$added = false;
 
 		// Quit if there was a database error - a precaution for the update process to 3.5.3
 		if (DBA::errorNo() != 0) {
@@ -1161,19 +1162,22 @@ class Worker
 		}
 
 		if (!$found) {
-			DBA::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
+			$added = DBA::insert('workerqueue', ['parameter' => $parameters, 'created' => $created, 'priority' => $priority]);
+			if (!$added) {
+				return false;
+			}
 		} elseif ($force_priority) {
 			DBA::update('workerqueue', ['priority' => $priority], ['parameter' => $parameters, 'done' => false, 'pid' => 0]);
 		}
 
 		// Should we quit and wait for the worker to be called as a cronjob?
 		if ($dont_fork) {
-			return true;
+			return $added;
 		}
 
 		// If there is a lock then we don't have to check for too much worker
 		if (!Lock::acquire('worker', 0)) {
-			return true;
+			return $added;
 		}
 
 		// If there are already enough workers running, don't fork another one
@@ -1181,19 +1185,19 @@ class Worker
 		Lock::release('worker');
 
 		if ($quit) {
-			return true;
+			return $added;
 		}
 
 		// We tell the daemon that a new job entry exists
 		if (Config::get('system', 'worker_daemon_mode', false)) {
 			// We don't have to set the IPC flag - this is done in "tooMuchWorkers"
-			return true;
+			return $added;
 		}
 
 		// Now call the worker to execute the jobs that we just added to the queue
 		self::spawnWorker();
 
-		return true;
+		return $added;
 	}
 
 	/**
