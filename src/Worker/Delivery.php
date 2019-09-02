@@ -318,7 +318,11 @@ class Delivery extends BaseObject
 				Logger::log('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
 
 				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-					Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+						Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+					} else {
+						Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+					}
 				}
 				return;
 			}
@@ -448,10 +452,10 @@ class Delivery extends BaseObject
 				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
 				// defer message for redelivery
 				if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-					Model\ItemDeliveryData::incrementQueueFailed($target_item['id'], Model\ItemDeliveryData::DIASPORA);
+					Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
 				}
 			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DIASPORA);
+				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
 			}
 		}
 	}
