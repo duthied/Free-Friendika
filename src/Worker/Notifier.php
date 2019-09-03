@@ -446,8 +446,6 @@ class Notifier
 
 					$conversants[] = $rr['id'];
 
-					$delivery_queue_count++;
-
 					Logger::log('Public delivery of item ' . $target_item["guid"] . ' (' . $target_id . ') to ' . json_encode($rr), Logger::DEBUG);
 
 					// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
@@ -459,7 +457,10 @@ class Notifier
 					} else {
 						$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
 					}
-					Worker::add($deliver_options, 'Delivery', $cmd, $target_id, (int)$rr['id']);
+
+					if (Worker::add($deliver_options, 'Delivery', $cmd, $target_id, (int)$rr['id'])) {
+						$delivery_queue_count++;
+					}
 				}
 			}
 
@@ -495,8 +496,6 @@ class Notifier
 				continue;
 			}
 
-			$delivery_queue_count++;
-
 			Logger::log('Delivery of item ' . $target_id . ' to ' . json_encode($contact), Logger::DEBUG);
 
 			// Ensure that posts with our own protocol arrives before Diaspora posts arrive.
@@ -507,7 +506,10 @@ class Notifier
 			} else {
 				$deliver_options = ['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true];
 			}
-			Worker::add($deliver_options, 'Delivery', $cmd, $target_id, (int)$contact['id']);
+
+			if (Worker::add($deliver_options, 'Delivery', $cmd, $target_id, (int)$contact['id'])) {
+				$delivery_queue_count++;
+			}
 		}
 		DBA::close($delivery_contacts_stmt);
 
@@ -515,11 +517,11 @@ class Notifier
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
 		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
-			$delivery_queue_count += count($url_recipients);
 			$slap = OStatus::salmon($target_item, $owner);
 			foreach ($url_recipients as $url) {
 				Logger::log('Salmon delivery of item ' . $target_id . ' to ' . $url);
 				/// @TODO Redeliver/queue these items on failure, though there is no contact record
+				$delivery_queue_count++;
 				Salmon::slapper($owner, $url, $slap);
 				ItemDeliveryData::incrementQueueDone($target_id, ItemDeliveryData::OSTATUS);
 			}
@@ -677,13 +679,17 @@ class Notifier
 		// Fill the item cache
 		ActivityPub\Transmitter::createCachedActivityFromItem($target_item['id'], true);
 
+		$delivery_queue_count = 0;
+
 		foreach ($inboxes as $inbox) {
 			Logger::info('Delivery via ActivityPub', ['cmd' => $cmd, 'id' => $target_item['id'], 'inbox' => $inbox]);
 
-			Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
-					'APDelivery', $cmd, $target_item['id'], $inbox, $uid);
+			if (Worker::add(['priority' => $priority, 'created' => $created, 'dont_fork' => true],
+					'APDelivery', $cmd, $target_item['id'], $inbox, $uid)) {
+				$delivery_queue_count++;
+			}
 		}
 
-		return count($inboxes);
+		return $delivery_queue_count;
 	}
 }

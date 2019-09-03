@@ -27,6 +27,7 @@ use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -46,6 +47,35 @@ use SimpleXMLElement;
  */
 class Diaspora
 {
+	/**
+	 * Mark the relay contact of the given contact for archival
+	 * This is called whenever there is a communication issue with the server.
+	 * It avoids sending stuff to servers who don't exist anymore.
+	 * The relay contact is a technical contact entry that exists once per server.
+	 *
+	 * @param array $contact of the relay contact
+	 */
+	public static function markRelayForArchival(array $contact)
+	{
+		if (!empty($contact['contact-type']) && ($contact['contact-type'] == Contact::TYPE_RELAY)) {
+			// This is already the relay contact, we don't need to fetch it
+			$relay_contact = $contact;
+		} elseif (empty($contact['baseurl'])) {
+			if (!empty($contact['batch'])) {
+				$relay_contact = DBA::selectFirst('contact', [], ['batch' => $contact['batch'], 'contact-type' => Contact::TYPE_RELAY, 'uid' => 0]);
+			} else {
+				return;
+			}
+		} else {
+			$relay_contact = self::getRelayContact($contact['baseurl'], []);
+		}
+
+		if (!empty($relay_contact)) {
+			Logger::info('Relay contact will be marked for archival', ['id' => $relay_contact['id'], 'url' => $relay_contact['url']]);
+			Contact::markForArchival($relay_contact);
+		}
+	}
+
 	/**
 	 * @brief Return a list of relay servers
 	 *
@@ -140,13 +170,12 @@ class Diaspora
 	 * @brief Return a contact for a given server address or creates a dummy entry
 	 *
 	 * @param string $server_url The url of the server
+	 * @param array $fields Fieldlist
 	 * @return array with the contact
 	 * @throws \Exception
 	 */
-	private static function getRelayContact($server_url)
+	private static function getRelayContact(string $server_url, array $fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'])
 	{
-		$fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'];
-
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
 			'contact-type' => Contact::TYPE_RELAY];
@@ -2208,7 +2237,9 @@ class Diaspora
 			}
 
 			Logger::info('Deliver participation', ['item' => $comment['id'], 'contact' => $contact_id]);
-			Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id);
+			if (Worker::add(PRIORITY_HIGH, 'Delivery', Delivery::POST, $comment['id'], $contact_id)) {
+				ItemDeliveryData::incrementQueueCount($comment['id'], 1);
+			}
 		}
 		DBA::close($comments);
 
@@ -3181,8 +3212,6 @@ class Diaspora
 
 		$logid = Strings::getRandomHex(4);
 
-		$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
-
 		// We always try to use the data from the fcontact table.
 		// This is important for transmitting data to Friendica servers.
 		if (!empty($contact['addr'])) {
@@ -3190,6 +3219,10 @@ class Diaspora
 			if (!empty($fcontact)) {
 				$dest_url = ($public_batch ? $fcontact["batch"] : $fcontact["notify"]);
 			}
+		}
+
+		if (empty($dest_url)) {
+			$dest_url = ($public_batch ? $contact["batch"] : $contact["notify"]);
 		}
 
 		if (!$dest_url) {

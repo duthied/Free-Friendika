@@ -104,6 +104,19 @@ class ItemDeliveryData
 	}
 
 	/**
+	 * Increments the queue_count for the given item ID.
+	 *
+	 * @param integer $item_id
+	 * @param integer $increment
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function incrementQueueCount(int $item_id, int $increment = 1)
+	{
+		return DBA::e('UPDATE `item-delivery-data` SET `queue_count` = `queue_count` + ? WHERE `iid` = ?', $increment, $item_id);
+	}
+
+	/**
 	 * Insert a new item delivery data entry
 	 *
 	 * @param integer $item_id
