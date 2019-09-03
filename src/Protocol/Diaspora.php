@@ -55,7 +55,7 @@ class Diaspora
 	 *
 	 * @param array $contact of the relay contact
 	 */
-	public static function markRelayForArchival($contact)
+	public static function markRelayForArchival(array $contact)
 	{
 		if (!empty($contact['contact-type']) && ($contact['contact-type'] == Contact::TYPE_RELAY)) {
 			// This is already the relay contact, we don't need to fetch it
@@ -174,7 +174,7 @@ class Diaspora
 	 * @return array with the contact
 	 * @throws \Exception
 	 */
-	private static function getRelayContact($server_url, $fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'])
+	private static function getRelayContact(string $server_url, array $fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'])
 	{
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
