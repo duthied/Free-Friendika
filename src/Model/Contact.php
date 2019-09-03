@@ -906,7 +906,7 @@ class Contact extends BaseObject
 		// Always unarchive the relay contact entry
 		if (!empty($contact['batch']) && !empty($contact['term-date']) && ($contact['term-date'] > DBA::NULL_DATETIME)) {
 			$fields = ['term-date' => DBA::NULL_DATETIME, 'archive' => false];
-			$condition = ['batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY, 'uid' => 0];
+			$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
 			DBA::update('contact', $fields, $condition);
 		}
 
@@ -1620,7 +1620,8 @@ class Contact extends BaseObject
 
 		// Check status of Diaspora endpoints
 		if (!empty($contact['batch'])) {
-			return DBA::exists('contact', ['archive' => true, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY, 'uid' => 0]);
+			$condition = ['archive' => true, 'uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => self::TYPE_RELAY];
+			return DBA::exists('contact', $condition);
                 }
 
 		return false;

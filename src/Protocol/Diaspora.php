@@ -62,7 +62,8 @@ class Diaspora
 			$relay_contact = $contact;
 		} elseif (empty($contact['baseurl'])) {
 			if (!empty($contact['batch'])) {
-				$relay_contact = DBA::selectFirst('contact', [], ['batch' => $contact['batch'], 'contact-type' => Contact::TYPE_RELAY, 'uid' => 0]);
+				$condition = ['uid' => 0, 'network' => Protocol::FEDERATED, 'batch' => $contact['batch'], 'contact-type' => Contact::TYPE_RELAY];
+				$relay_contact = DBA::selectFirst('contact', [], $condition);
 			} else {
 				return;
 			}
