@@ -211,7 +211,13 @@ class Delivery extends BaseObject
 		return;
 	}
 
-	private static function setFailedQueue($cmd, $id)
+	/**
+	 * Increased the "failed" counter in the item delivery data
+	 *
+	 * @param string  $cmd Command
+	 * @param integer $id  Item id
+	 */
+	private static function setFailedQueue(string $cmd, int $id)
 	{
 		if (!in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 			return;

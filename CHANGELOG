@@ -1,6 +1,6 @@
 Version 2019.09-dev (UNRELEASED)
   Friendica Core:
-    Update to the translations (CS, DE, FR, JA, NL) [translation teams]
+    Update to the translations (CS, DE, FR, JA, NL, PL) [translation teams]
     Update to the themes (frio, vier) [JeroenED, MrPetovan, tobiasd, vinzv]
     Update to the documentation [guzzisti, vinzv]
     Enhanced the log output of the background process [annando]
@@ -49,7 +49,7 @@ Version 2019.09-dev (UNRELEASED)
     3816, 4815, 6384, 6675, 7235, 7293, 7314, 7317, 7337, 7338, 7346,
     7350, 7367, 7383, 7396, 7397, 7401, 7406, 7408, 7426, 7428, 7456,
     7442, 7457, 7468, 7471, 7473, 7488, 7497, 7498, 7501, 7507, 7522,
-    7527, 7536, 7542, 7545
+    7527, 7536, 7542, 7545, 7576, 7586
 
 Version 2019.06 (2019-06-23)
   Friendica Core:
