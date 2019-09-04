@@ -1056,7 +1056,8 @@ class BBCode extends BaseObject
 
 	private static function removePictureLinksCallback($match)
 	{
-		$text = Cache::get($match[1]);
+		$cache_key = 'remove:' . $match[1];
+		$text = Cache::get($cache_key);
 
 		if (is_null($text)) {
 			$a = self::getApp();
@@ -1098,7 +1099,7 @@ class BBCode extends BaseObject
 					}
 				}
 			}
-			Cache::set($match[1], $text);
+			Cache::set($cache_key, $text);
 		}
 
 		return $text;
@@ -1115,58 +1116,72 @@ class BBCode extends BaseObject
 
 	private static function cleanPictureLinksCallback($match)
 	{
-		$text = Cache::get($match[1]);
+		$a = self::getApp();
 
-		if (is_null($text)) {
-			$a = self::getApp();
-
-			$stamp1 = microtime(true);
-
-			$ch = @curl_init($match[1]);
-			@curl_setopt($ch, CURLOPT_NOBODY, true);
-			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
-			@curl_exec($ch);
-			$curl_info = @curl_getinfo($ch);
-
-			$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
-
-			// if its a link to a picture then embed this picture
-			if (substr($curl_info["content_type"], 0, 6) == "image/") {
-				$text = "[img]" . $match[1] . "[/img]";
+		// When the picture link is the own photo path then we can avoid fetching the link
+		$own_photo_url = preg_quote(Strings::normaliseLink($a->getBaseURL()) . '/photos/');
+		if (preg_match('|' . $own_photo_url . '.*?/image/|', Strings::normaliseLink($match[1]))) {
+			if (!empty($match[3])) {
+				$text = "[img=" . str_replace('-1.', '-0.', $match[2]) . "]" . $match[3] . "[/img]";
 			} else {
-				if (!empty($match[3])) {
-					$text = "[img=" . $match[2] . "]" . $match[3] . "[/img]";
-				} else {
-					$text = "[img]" . $match[2] . "[/img]";
+				$text = "[img]" . str_replace('-1.', '-0.', $match[2]) . "[/img]";
+			}
+			return $text;
+		}
+
+		$cache_key = 'clean:' . $match[1];
+		$text = Cache::get($cache_key);
+		if (!is_null($text)) {
+			return $text;
+		}
+
+		// Only fetch the header, not the content
+		$stamp1 = microtime(true);
+
+		$ch = @curl_init($match[1]);
+		@curl_setopt($ch, CURLOPT_NOBODY, true);
+		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+		@curl_exec($ch);
+		$curl_info = @curl_getinfo($ch);
+
+		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
+
+		// if its a link to a picture then embed this picture
+		if (substr($curl_info["content_type"], 0, 6) == "image/") {
+			$text = "[img]" . $match[1] . "[/img]";
+		} else {
+			if (!empty($match[3])) {
+				$text = "[img=" . $match[2] . "]" . $match[3] . "[/img]";
+			} else {
+				$text = "[img]" . $match[2] . "[/img]";
+			}
+
+			// if its not a picture then look if its a page that contains a picture link
+			$body = Network::fetchUrl($match[1]);
+
+			$doc = new DOMDocument();
+			@$doc->loadHTML($body);
+			$xpath = new DOMXPath($doc);
+			$list = $xpath->query("//meta[@name]");
+			foreach ($list as $node) {
+				$attr = [];
+				if ($node->attributes->length) {
+					foreach ($node->attributes as $attribute) {
+						$attr[$attribute->name] = $attribute->value;
+					}
 				}
 
-				// if its not a picture then look if its a page that contains a picture link
-				$body = Network::fetchUrl($match[1]);
-
-				$doc = new DOMDocument();
-				@$doc->loadHTML($body);
-				$xpath = new DOMXPath($doc);
-				$list = $xpath->query("//meta[@name]");
-				foreach ($list as $node) {
-					$attr = [];
-					if ($node->attributes->length) {
-						foreach ($node->attributes as $attribute) {
-							$attr[$attribute->name] = $attribute->value;
-						}
-					}
-
-					if (strtolower($attr["name"]) == "twitter:image") {
-						if (!empty($match[3])) {
-							$text = "[img=" . $attr["content"] . "]" . $match[3] . "[/img]";
-						} else {
-							$text = "[img]" . $attr["content"] . "[/img]";
-						}
+				if (strtolower($attr["name"]) == "twitter:image") {
+					if (!empty($match[3])) {
+						$text = "[img=" . $attr["content"] . "]" . $match[3] . "[/img]";
+					} else {
+						$text = "[img]" . $attr["content"] . "[/img]";
 					}
 				}
 			}
-			Cache::set($match[1], $text);
 		}
+		Cache::set($cache_key, $text);
 
 		return $text;
 	}
