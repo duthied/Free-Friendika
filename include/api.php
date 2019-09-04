@@ -3040,6 +3040,8 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		'statusnet_conversation_id' => $item['parent'],
 		'external_url' => System::baseUrl() . "/display/" . $item['guid'],
 		'friendica_activities' => api_format_items_activities($item, $type),
+		'friendica_title' => $item['title'],
+		'friendica_html' => BBCode::convert($item['body'], false)
 	];
 
 	if (count($converted["attachments"]) > 0) {
