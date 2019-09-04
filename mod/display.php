@@ -188,7 +188,9 @@ function display_fetchauthor($a, $item)
 
 	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
 
-	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
+	if (!empty($profiledata["photo"])) {
+		$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
+	}
 
 	return $profiledata;
 }
