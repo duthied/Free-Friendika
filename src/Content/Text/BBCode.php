@@ -1404,8 +1404,14 @@ class BBCode extends BaseObject
 
 		// Check for sized text
 		// [size=50] --> font-size: 50px (with the unit).
-		$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
-		$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
+		if ($simple_html != 3) {
+			$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
+			$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
+		} else {
+			// Issue 2199: Diaspora doesn't interpret the construct above, nor the <small> or <big> element
+			$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "$2", $text);
+		}
+
 
 		// Check for centered text
 		$text = preg_replace("(\[center\](.*?)\[\/center\])ism", "<div style=\"text-align:center;\">$1</div>", $text);
