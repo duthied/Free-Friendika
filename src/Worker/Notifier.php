@@ -543,13 +543,13 @@ class Notifier
 			Hook::callAll('notifier_end', $target_item);
 
 			// Workaround for pure connector posts
-			if ($delivery_queue_count == 0) {
-				ItemDeliveryData::incrementQueueDone($target_item['id']);
-				$delivery_queue_count = 1;
-			}
-
 			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
-				ItemDeliveryData::update($target_item['id'], ['queue_count' => $delivery_queue_count]);
+				if ($delivery_queue_count == 0) {
+					ItemDeliveryData::incrementQueueDone($target_item['id']);
+					$delivery_queue_count = 1;
+				}
+
+				ItemDeliveryData::incrementQueueCount($target_item['id'], $delivery_queue_count);
 			}
 		}
 
