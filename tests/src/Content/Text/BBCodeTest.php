@@ -176,6 +176,28 @@ class BBCodeTest extends MockedTest
 [*]http://example.com/
 [/ul]',
 			],
+			'bug-2199-named-size' => [
+				'expectedHtml' => '<span style="font-size: xx-large; line-height: initial;">Test text</span>',
+				'text' => '[size=xx-large]Test text[/size]',
+				'simpleHtml' => 0,
+			],
+			'bug-2199-numeric-size' => [
+				'expectedHtml' => '<span style="font-size: 24px; line-height: initial;">Test text</span>',
+				'text' => '[size=24]Test text[/size]',
+				'simpleHtml' => 0,
+			],
+			'bug-2199-diaspora-no-named-size' => [
+				'expectedHtml' => 'Test text',
+				'text' => '[size=xx-large]Test text[/size]',
+				// Triggers the diaspora compatible output
+				'simpleHtml' => 3,
+			],
+			'bug-2199-diaspora-no-numeric-size' => [
+				'expectedHtml' => 'Test text',
+				'text' => '[size=24]Test text[/size]',
+				// Triggers the diaspora compatible output
+				'simpleHtml' => 3,
+			],
 		];
 	}
 
