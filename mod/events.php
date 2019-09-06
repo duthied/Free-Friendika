@@ -321,7 +321,7 @@ function events_content(App $a)
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
-			'event_id'      => intval(defaults($_GET, 'id', 0)),
+			'event_id'      => intval($_GET['id'] ?? 0),
 			'start'         => $start,
 			'finish'        => $finish,
 			'adjust_start'  => $adjust_start,
