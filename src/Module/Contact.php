@@ -641,8 +641,11 @@ class Contact extends BaseModule
 			case 'archived':
 				$sql_extra = " AND `archive` AND NOT `blocked`";
 				break;
+			case 'pending':
+				$sql_extra = " AND `pending` AND NOT `archive`";
+				break;
 			default:
-				$sql_extra = " AND NOT `archive` AND NOT `blocked`";
+				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
 		}
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
@@ -659,6 +662,14 @@ class Contact extends BaseModule
 				'title' => L10n::t('Show all contacts'),
 				'id'    => 'showall-tab',
 				'accesskey' => 'l',
+			],
+			[
+				'label' => L10n::t('Pending'),
+				'url'   => 'contact/pending',
+				'sel'   => $type == 'pending' ? 'active' : '',
+				'title' => L10n::t('Only show pending contacts'),
+				'id'    => 'showpending-tab',
+				'accesskey' => 'p',
 			],
 			[
 				'label' => L10n::t('Blocked'),
@@ -730,7 +741,7 @@ class Contact extends BaseModule
 		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= Model\Contact::FRIEND)) ? sprintf(" AND `rel` = %d ", intval($sort_type)) : '');
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 ",
+			WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 ",
 			intval($_SESSION['uid'])
 		);
 		if (DBA::isResult($r)) {
@@ -742,7 +753,7 @@ class Contact extends BaseModule
 
 		$contacts = [];
 
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `pending` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
+		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
 			intval($_SESSION['uid']),
 			$pager->getStart(),
 			$pager->getItemsPerPage()
@@ -763,6 +774,7 @@ class Contact extends BaseModule
 		}
 
 		switch ($type) {
+			case 'pending':	 $header .= ' - ' . L10n::t('Pending'); break;
 			case 'blocked':	 $header .= ' - ' . L10n::t('Blocked'); break;
 			case 'hidden':   $header .= ' - ' . L10n::t('Hidden'); break;
 			case 'ignored':  $header .= ' - ' . L10n::t('Ignored'); break;
@@ -974,6 +986,22 @@ class Contact extends BaseModule
 			$sparkle = ' class="sparkle" ';
 		} else {
 			$sparkle = '';
+		}
+
+		if ($rr['pending']) {
+			if (in_array($rr['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
+				$alt_text = L10n::t('Pending outgoing contact request');
+			} else {
+				$alt_text = L10n::t('Pending incoming contact request');
+				$intro = DBA::selectFirst('intro', ['blocked', 'ignore'], ['contact-id' => $rr['id']]);
+				if (DBA::isResult($intro)) {
+					if ($intro['blocked']) {
+						$alt_text = L10n::t('Blocked incoming contact request');
+					} elseif ($intro['ignore']) {
+						$alt_text = L10n::t('Ignored incoming contact request');
+					}
+				}
+			}
 		}
 
 		if ($rr['self']) {
