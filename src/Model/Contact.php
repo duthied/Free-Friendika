@@ -1175,7 +1175,7 @@ class Contact extends BaseObject
 		}
 
 		$sparkle = false;
-		if (($contact['network'] === Protocol::DFRN) && !$contact['self']) {
+		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && !$contact['pending']) {
 			$sparkle = true;
 			$profile_link = System::baseUrl() . '/redir/' . $contact['id'] . '?url=' . $contact['url'];
 		} else {
@@ -1192,11 +1192,11 @@ class Contact extends BaseObject
 			$profile_link = $profile_link . '?tab=profile';
 		}
 
-		if (self::canReceivePrivateMessages($contact)) {
+		if (self::canReceivePrivateMessages($contact) && !$contact['pending']) {
 			$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
-		if (($contact['network'] == Protocol::DFRN) && !$contact['self']) {
+		if (($contact['network'] == Protocol::DFRN) && !$contact['self'] && !$contact['pending']) {
 			$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
 		}
 
@@ -1231,6 +1231,13 @@ class Contact extends BaseObject
 				'pm'      => [L10n::t('Send PM'),       $pm_url,            false],
 				'poke'    => [L10n::t('Poke'),          $poke_link,         false],
 			];
+
+			if ($contact['pending']) {
+				$intro = DBA::selectFirst('intro', ['id'], ['contact-id' => $contact['id']]);
+				if (DBA::isResult($intro)) {
+					$menu['follow'] = [L10n::t('Approve'), 'notifications/intros/' . $intro['id'], true];
+				}
+			}
 		}
 
 		$args = ['contact' => $contact, 'menu' => &$menu];

@@ -642,7 +642,8 @@ class Contact extends BaseModule
 				$sql_extra = " AND `archive` AND NOT `blocked`";
 				break;
 			case 'pending':
-				$sql_extra = " AND `pending` AND NOT `archive`";
+				$sql_extra = " AND `pending` AND NOT `archive`
+					AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND `ignore`)";
 				break;
 			default:
 				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
@@ -993,14 +994,6 @@ class Contact extends BaseModule
 				$alt_text = L10n::t('Pending outgoing contact request');
 			} else {
 				$alt_text = L10n::t('Pending incoming contact request');
-				$intro = DBA::selectFirst('intro', ['blocked', 'ignore'], ['contact-id' => $rr['id']]);
-				if (DBA::isResult($intro)) {
-					if ($intro['blocked']) {
-						$alt_text = L10n::t('Blocked incoming contact request');
-					} elseif ($intro['ignore']) {
-						$alt_text = L10n::t('Ignored incoming contact request');
-					}
-				}
 			}
 		}
 
