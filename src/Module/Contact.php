@@ -642,8 +642,8 @@ class Contact extends BaseModule
 				$sql_extra = " AND `archive` AND NOT `blocked`";
 				break;
 			case 'pending':
-				$sql_extra = " AND `pending` AND NOT `archive`
-					AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND `ignore`)";
+				$sql_extra = sprintf(" AND `pending` AND NOT `archive` AND ((`rel` = %d)
+					OR EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND NOT `ignore`))", Model\Contact::SHARING);
 				break;
 			default:
 				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
