@@ -52,7 +52,7 @@ function notifications_post(App $a)
 				// The check for pending is in case the friendship was already approved
 				// and we just want to get rid of the pending contact
 				$condition = ['id' => $contact_id, 'uid' => local_user(),
-					'self' => false, 'pending' => true, 'rel' => Contact::FOLLOWER];
+					'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
 				if (DBA::exists('contact', $condition)) {
 					Contact::remove($contact_id);
 				}

@@ -305,7 +305,7 @@ class CronJobs
 
 		// Add intro entries for pending contacts
 		$pending_contacts = DBA::p("SELECT `uid`, `id`, `url`, `network`, `created` FROM `contact`
-			WHERE `pending` AND `rel` = ? AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)", 0); //Contact::FOLLOWER);
+			WHERE `pending` AND `rel` IN (?, ?) AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)", 0, Contact::FOLLOWER);
 		while ($contact = DBA::fetch($pending_contacts)) {
 			DBA::insert('intro', ['uid' => $contact['uid'], 'contact-id' => $contact['id'], 'blocked' => false,
 				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);
