@@ -656,6 +656,8 @@ class Photo extends BaseObject
 				continue;
 			}
 
+			/// @todo Check if $str_contact_allow does contain a public forum. Then set the permissions to public.
+
 			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
 			$condition = ['resource-id' => $image_uri, 'uid' => $uid];
