@@ -98,9 +98,14 @@ function notifications_content(App $a)
 	if ((($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		Nav::setSelected('introductions');
 
+		$id = 0;
+		if (!empty($a->argv[2]) && intval($a->argv[2]) != 0) {
+			$id = (int)$a->argv[2];
+		}
+
 		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));
 
-		$notifs = $nm->introNotifs($all, $startrec, $perpage);
+		$notifs = $nm->introNotifs($all, $startrec, $perpage, $id);
 
 	// Get the network notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'network')) {
