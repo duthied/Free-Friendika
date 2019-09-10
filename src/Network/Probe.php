@@ -394,7 +394,7 @@ class Probe
 			$data['network'] = Protocol::PHANTOM;
 		}
 
-		if (empty($data['hide']) && ($data['network'] != Protocol::DFRN)) {
+		if (!isset($data['hide']) && in_array($data['network'], Protocol::FEDERATED)) {
 			$data['hide'] = self::getHideStatus($data['url']);
 		}
 
