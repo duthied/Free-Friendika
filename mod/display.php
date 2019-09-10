@@ -332,7 +332,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
-	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink'];
+	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
 	$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 
 	if (!DBA::isResult($item)) {
@@ -372,7 +372,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 	$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 
-	//<meta name="keywords" content="">
+	if (DBA::exists('contact', ['unsearchable' => true, 'id' => [$item['contact-id'], $item['author-id'], $item['owner-id']]])) {
+		$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+	}
+
 	$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";

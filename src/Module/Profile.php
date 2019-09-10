@@ -83,11 +83,13 @@ class Profile extends BaseModule
 		if (!$update) {
 			ProfileModel::load($a, self::$which, self::$profile);
 
+			$a->page['htmlhead'] .= "\n";
+
 			$blocked   = !local_user() && !remote_user() && Config::get('system', 'block_public');
 			$userblock = !local_user() && !remote_user() && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
-				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
+				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
 			}
 
 			if (!empty($a->profile['openidserver'])) {
@@ -108,6 +110,11 @@ class Profile extends BaseModule
 			}
 
 			$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\n";
+
+			if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
+				$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+			}
+
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
