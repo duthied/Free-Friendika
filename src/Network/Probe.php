@@ -394,6 +394,10 @@ class Probe
 			$data['network'] = Protocol::PHANTOM;
 		}
 
+		if (empty($data['hide']) && ($data['network'] != Protocol::DFRN)) {
+			$data['hide'] = self::getHideStatus($data['url']);
+		}
+
 		$data = self::rearrangeData($data);
 
 		// Only store into the cache if the value seems to be valid
@@ -402,6 +406,70 @@ class Probe
 		}
 
 		return $data;
+	}
+
+
+	/**
+	 * Fetches the "hide" status from the profile
+	 *
+	 * @param string $url URL of the profile
+	 *
+	 * @return boolean "hide" status
+	 */
+	private static function getHideStatus($url)
+	{
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
+			return false;
+		}
+
+		// If the file is too large then exit
+		if (defaults($curlResult->getInfo(), 'download_content_length', 0) > 1000000) {
+			return false;
+		}
+
+		// If it isn't a HTML file then exit
+		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
+			return false;
+		}
+
+		$body = $curlResult->getBody();
+
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+
+		$xpath = new DOMXPath($doc);
+
+		$list = $xpath->query('//meta[@name]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (empty($meta_tag['content'])) {
+				continue;
+			}
+
+			$content = strtolower(trim($meta_tag['content']));
+
+			switch (strtolower(trim($meta_tag['name']))) {
+				case 'dfrn-global-visibility':
+					if ($content == 'false') {
+						return true;
+					}
+					break;
+				case 'robots':
+					if (strpos($content, 'noindex') !== false) {
+						return true;
+					}
+					break;
+			}
+		}
+
+		return false;
 	}
 
 	/**
