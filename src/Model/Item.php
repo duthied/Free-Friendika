@@ -1398,9 +1398,9 @@ class Item extends BaseObject
 		 * via OStatus (maybe Diasporsa as well)
 		 */
 		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
-			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
+			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
 				trim($item['uri']), $item['uid'],
-				Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
+				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
 			$existing = self::selectFirst(['id', 'network'], $condition);
 			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
