@@ -23,6 +23,7 @@ use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 class CronJobs
 {
@@ -301,6 +302,15 @@ class CronJobs
 		/// - remove sign entries without item
 		/// - remove children when parent got lost
 		/// - set contact-id in item when not present
+
+		// Add intro entries for pending contacts
+		$pending_contacts = DBA::p("SELECT `uid`, `id`, `url`, `network`, `created` FROM `contact`
+			WHERE `pending` AND `rel` IN (?, ?) AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)", 0, Contact::FOLLOWER);
+		while ($contact = DBA::fetch($pending_contacts)) {
+			DBA::insert('intro', ['uid' => $contact['uid'], 'contact-id' => $contact['id'], 'blocked' => false,
+				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);
+		}
+		DBA::close($pending_contacts);
 	}
 
 	/**

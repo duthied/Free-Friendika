@@ -12,9 +12,11 @@ use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
+use Friendica\Model\Contact;
 
 function notifications_post(App $a)
 {
@@ -46,13 +48,14 @@ function notifications_post(App $a)
 
 		if ($_POST['submit'] == L10n::t('Discard')) {
 			DBA::delete('intro', ['id' => $intro_id]);
-
 			if (!$fid) {
-				// The check for blocked and pending is in case the friendship was already approved
-				// and we just want to get rid of the now pointless notification
+				// The check for pending is in case the friendship was already approved
+				// and we just want to get rid of the pending contact
 				$condition = ['id' => $contact_id, 'uid' => local_user(),
-					'self' => false, 'blocked' => true, 'pending' => true];
-				DBA::delete('contact', $condition);
+					'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
+				if (DBA::exists('contact', $condition)) {
+					Contact::remove($contact_id);
+				}
 			}
 			$a->internalRedirect('notifications/intros');
 		}
