@@ -43,7 +43,7 @@ class ForumManager
 			$params = ['order' => ['name']];
 		}
 
-		$condition_str = "`network` = ? AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND ";
+		$condition_str = "`network` IN (?, ?) AND `uid` = ? AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND ";
 
 		if ($showprivate) {
 			$condition_str .= '(`forum` OR `prv`)';
@@ -58,7 +58,7 @@ class ForumManager
 		$forumlist = [];
 
 		$fields = ['id', 'url', 'name', 'micro', 'thumb'];
-		$condition = [$condition_str, Protocol::DFRN, $uid];
+		$condition = [$condition_str, Protocol::DFRN, Protocol::ACTIVITYPUB, $uid];
 		$contacts = DBA::select('contact', $fields, $condition, $params);
 		if (!$contacts) {
 			return($forumlist);
