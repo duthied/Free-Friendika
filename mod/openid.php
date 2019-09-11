@@ -13,21 +13,20 @@ use Friendica\Util\Strings;
 
 function openid_content(App $a) {
 
-	$noid = Config::get('system','no_openid');
-	if($noid)
+	if (Config::get('system','no_openid')) {
 		$a->internalRedirect();
+	}
 
 	Logger::log('mod_openid ' . print_r($_REQUEST,true), Logger::DATA);
 
-	if(!empty($_GET['openid_mode']) && !empty($_SESSION['openid'])) {
+	if (!empty($_GET['openid_mode']) && !empty($_SESSION['openid'])) {
 
 		$openid = new LightOpenID($a->getHostName());
 
-		if($openid->validate()) {
+		if ($openid->validate()) {
+			$authid = $openid->identity;
 
-			$authid = $_REQUEST['openid_identity'];
-
-			if(! strlen($authid)) {
+			if (empty($authid)) {
 				Logger::log(L10n::t('OpenID protocol error. No ID returned.') . EOL);
 				$a->internalRedirect();
 			}
@@ -37,22 +36,16 @@ function openid_content(App $a) {
 			//       mod/settings.php in 8367cad so it might have left mixed
 			//       records in the user table
 			//
-			$r = q("SELECT *
-				FROM `user`
-				WHERE ( `openid` = '%s' OR `openid` = '%s' )
-				AND `blocked` = 0 AND `account_expired` = 0
-				AND `account_removed` = 0 AND `verified` = 1
-				LIMIT 1",
-				DBA::escape($authid), DBA::escape(Strings::normaliseOpenID($authid))
-			);
-
-			if (DBA::isResult($r)) {
+			$condition = ['blocked' => false, 'account_expired' => false, 'account_removed' => false, 'verified' => true,
+				'openid' => [$authid, Strings::normaliseOpenID($authid)]];
+			$user  = DBA::selectFirst('user', [], $condition);
+			if (DBA::isResult($user)) {
 
 				// successful OpenID login
 
 				unset($_SESSION['openid']);
 
-				Session::setAuthenticatedForUser($a, $r[0],true,true);
+				Session::setAuthenticatedForUser($a, $user, true, true);
 
 				// just in case there was no return url set
 				// and we fell through
@@ -76,10 +69,10 @@ function openid_content(App $a) {
 					if ($k === 'namePerson/friendly') {
 						$nick = Strings::escapeTags(trim($v));
 					}
-					if($k === 'namePerson/first') {
+					if ($k === 'namePerson/first') {
 						$first = Strings::escapeTags(trim($v));
 					}
-					if($k === 'namePerson') {
+					if ($k === 'namePerson') {
 						$args .= '&username=' . urlencode(Strings::escapeTags(trim($v)));
 					}
 					if ($k === 'contact/email') {
@@ -95,15 +88,13 @@ function openid_content(App $a) {
 			}
 			if (!empty($nick)) {
 				$args .= '&nickname=' . urlencode($nick);
-			}
-			elseif (!empty($first)) {
+			} elseif (!empty($first)) {
 				$args .= '&nickname=' . urlencode($first);
 			}
 
 			if (!empty($photosq)) {
 				$args .= '&photo=' . urlencode($photosq);
-			}
-			elseif (!empty($photo)) {
+			} elseif (!empty($photo)) {
 				$args .= '&photo=' . urlencode($photo);
 			}
 
