@@ -10,6 +10,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
@@ -118,6 +119,8 @@ class Mail
 		if (!(count($me) && (count($contact)))) {
 			return -2;
 		}
+
+		Photo::setPermissionFromBody($body, local_user(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
 
 		$guid = System::createUUID();
 		$uri = Item::newURI(local_user(), $guid);
