@@ -656,14 +656,19 @@ class Receiver
 	 */
 	public static function switchContact($cid, $uid, $url)
 	{
-		Contact::updateFromProbe($cid, '', true);
+		if (DBA::exists('contact', ['id' => $cid, 'network' => Protocol::ACTIVITYPUB])) {
+			Logger::info('Contact is already ActivityPub', ['id' => $cid, 'uid' => $uid, 'url' => $url]);
+			return;
+		}
 
-		Logger::log('Switch contact ' . $cid . ' (' . $url . ') for user ' . $uid . ' to ActivityPub');
+		if (Contact::updateFromProbe($cid, '', true)) {
+			Logger::info('Update was successful', ['id' => $cid, 'uid' => $uid, 'url' => $url]);
+		}
 
 		// Send a new follow request to be sure that the connection still exists
-		if (($uid != 0) && DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND]])) {
+		if (($uid != 0) && DBA::exists('contact', ['id' => $cid, 'rel' => [Contact::SHARING, Contact::FRIEND], 'network' => Protocol::ACTIVITYPUB])) {
+			Logger::info('Contact had been switched to ActivityPub. Sending a new follow request.', ['uid' => $uid, 'url' => $url]);
 			ActivityPub\Transmitter::sendActivity('Follow', $url, $uid);
-			Logger::log('Send a new follow request to ' . $url . ' for user ' . $uid, Logger::DEBUG);
 		}
 	}
 
