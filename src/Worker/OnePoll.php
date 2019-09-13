@@ -301,6 +301,15 @@ class OnePoll
 
 		$res = XML::parseString($handshake_xml);
 
+		if (!is_object($res)) {
+			Logger::info('Unparseable response', ['url' => $url]);
+
+			$fields = ['last-update' => $updated, 'failure_update' => $updated];
+			self::updateContact($contact, $fields);
+			Contact::markForArchival($contact);
+			return false;
+		}
+
 		if (intval($res->status) == 1) {
 			// we may not be friends anymore. Will keep trying for one month.
 			Logger::log("$url replied status 1 - marking for death ");
