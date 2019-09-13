@@ -1475,24 +1475,22 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
 
 		// Declare the format for [spoiler] layout
-		$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
+		$SpoilerLayout = '<details class="spoiler"><summary>' . L10n::t('Click to open/close') . '</summary>$1</details>';
 
 		// Check for [spoiler] text
 		// handle nested quotes
 		$endlessloop = 0;
 		while ((strpos($text, "[/spoiler]") !== false) && (strpos($text, "[spoiler]") !== false) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", "$SpoilerLayout", $text);
+			$text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", $SpoilerLayout, $text);
 		}
 
-		// Check for [spoiler=Author] text
-
-		$t_wrote = L10n::t('$1 wrote:');
+		// Check for [spoiler=Title] text
 
 		// handle nested quotes
 		$endlessloop = 0;
 		while ((strpos($text, "[/spoiler]")!== false)  && (strpos($text, "[spoiler=") !== false) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
-				"<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
+				'<details class="spoiler"><summary>$1</summary>$2</details>',
 				$text);
 		}
 
