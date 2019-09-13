@@ -3509,37 +3509,6 @@ class Item extends BaseObject
 			}
 		}
 
-
-		// Look for spoiler.
-		$spoilersearch = '<blockquote class="spoiler">';
-
-		// Remove line breaks before the spoiler.
-		while ((strpos($s, "\n" . $spoilersearch) !== false)) {
-			$s = str_replace("\n" . $spoilersearch, $spoilersearch, $s);
-		}
-		while ((strpos($s, "<br />" . $spoilersearch) !== false)) {
-			$s = str_replace("<br />" . $spoilersearch, $spoilersearch, $s);
-		}
-
-		while ((strpos($s, $spoilersearch) !== false)) {
-			$pos = strpos($s, $spoilersearch);
-			$rnd = Strings::getRandomHex(8);
-			$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
-						'<blockquote class="spoiler" id="spoiler-' . $rnd . '" style="display: none;">';
-			$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
-		}
-
-		// Look for quote with author.
-		$authorsearch = '<blockquote class="author">';
-
-		while ((strpos($s, $authorsearch) !== false)) {
-			$pos = strpos($s, $authorsearch);
-			$rnd = Strings::getRandomHex(8);
-			$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
-						'<blockquote class="author" id="author-' . $rnd . '" style="display: block;">';
-			$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));
-		}
-
 		// Replace friendica image url size with theme preference.
 		if (!empty($a->theme_info['item_image_size'])) {
 			$ps = $a->theme_info['item_image_size'];
