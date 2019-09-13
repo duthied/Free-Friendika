@@ -18,6 +18,6 @@ Most of your content and user data will be deleted on short term.
 We then send out a notification about the account removal to all of your contacts so that they can do the same with their copy of your data.
 
 For technical reasons some of your user data is still needed to transmit this removal message.
-This last data will be deleted after a period of around seven days.
+This remaining data will be deleted after a period of around seven days.
 
-To disallow impersonation we have to save your used nickname, so that it can't be used again.
+To disallow impersonation we have to save your used nickname, so that it can't be used again to register on this node.
