@@ -360,6 +360,6 @@ class ACL extends BaseObject
 			}
 		}
 
-		return defaults($return, []);
+		return $return ?? [];
 	}
 }
