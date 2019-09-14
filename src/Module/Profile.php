@@ -57,21 +57,22 @@ class Profile extends BaseModule
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
-			$data = [];
 			if (DBA::isResult($user)) {
+				// The function returns an empty array when the account is removed, expired or blocked
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
+				if (!empty($data)) {
+					System::jsonExit($data, 'application/activity+json');
+				}
 			}
 
-			if (!empty($data)) {
-				System::jsonExit($data, 'application/activity+json');
-			} elseif (DBA::exists('userd', ['username' => self::$which])) {
+			if (DBA::exists('userd', ['username' => self::$which])) {
 				// Known deleted user
 				$data = ActivityPub\Transmitter::getDeletedUser(self::$which);
 
 				System::jsonError(410, $data);
 			} else {
 				// Any other case (unknown, blocked, unverified, expired, no profile, no self contact)
-				System::jsonError(404, $data);
+				System::jsonError(404, []);
 			}
 		}
 	}
