@@ -58,6 +58,7 @@ class Profile extends BaseModule
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
 			if (DBA::isResult($user)) {
+				// The function returns an empty array when the account is removed, expired or blocked
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
 				if (!empty($data)) {
 					System::jsonExit($data, 'application/activity+json');
