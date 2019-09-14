@@ -186,8 +186,9 @@ function acl_content(App $a)
 		// autocomplete for global contact search (e.g. navbar search)
 		$search = Strings::escapeTags(trim($_REQUEST['search']));
 		$mode = $_REQUEST['smode'];
+		$page = $_REQUEST['page'] ?? 1;
 
-		$r = ACL::contactAutocomplete($search, $mode);
+		$r = ACL::contactAutocomplete($search, $mode, $page);
 
 		$contacts = [];
 		foreach ($r as $g) {
