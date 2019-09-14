@@ -327,10 +327,11 @@ class ACL extends BaseObject
 	 * @brief Searching for global contacts for autocompletion
 	 * @param string $search Name or part of a name or nick
 	 * @param string $mode   Search mode (e.g. "community")
+	 * @param int    $page   Page number (starts at 1)
 	 * @return array with the search results
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function contactAutocomplete($search, $mode)
+	public static function contactAutocomplete($search, $mode, int $page = 1)
 	{
 		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 			return [];
@@ -349,9 +350,9 @@ class ACL extends BaseObject
 		if (Config::get('system', 'poco_local_search')) {
 			$return = GContact::searchByName($search, $mode);
 		} else {
-			$p = defaults($_GET, 'page', 1) != 1 ? '&p=' . defaults($_GET, 'page', 1) : '';
+			$p = $page > 1 ? 'p=' . $page : '';
 
-			$curlResult = Network::curl(get_server() . '/lsearch?f=' . $p . '&search=' . urlencode($search));
+			$curlResult = Network::curl(get_server() . '/lsearch?' . $p . '&search=' . urlencode($search));
 			if ($curlResult->isSuccess()) {
 				$lsearch = json_decode($curlResult->getBody(), true);
 				if (!empty($lsearch['results'])) {
