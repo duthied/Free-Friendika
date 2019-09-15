@@ -3868,7 +3868,7 @@ class Diaspora
 		// - Item is public or explicit mentions are disabled
 		// - Implicit mentions are enabled
 		if (
-			$owner['id'] != $thread_parent_item['author-id']
+			$item['author-id'] != $thread_parent_item['author-id']
 			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
 			&& !Config::get('system', 'disable_implicit_mentions')
 		) {
