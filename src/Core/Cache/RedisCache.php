@@ -37,9 +37,9 @@ class RedisCache extends Cache implements IMemoryCache
 		$redis_pw   = $config->get('system', 'redis_password');
 		$redis_db   = $config->get('system', 'redis_db', 0);
 
-		if (isset($redis_port) && !$this->redis->connect($redis_host, $redis_port)) {
+		if (isset($redis_port) && !@$this->redis->connect($redis_host, $redis_port)) {
 			throw new Exception('Expected Redis server at ' . $redis_host . ':' . $redis_port . ' isn\'t available');
-		} elseif (!$this->redis->connect($redis_host)) {
+		} elseif (!@$this->redis->connect($redis_host)) {
 			throw new Exception('Expected Redis server at ' . $redis_host . ' isn\'t available');
 		}
 

@@ -37,7 +37,7 @@ class MemcacheCache extends Cache implements IMemoryCache
 		$memcache_host = $config->get('system', 'memcache_host');
 		$memcache_port = $config->get('system', 'memcache_port');
 
-		if (!$this->memcache->connect($memcache_host, $memcache_port)) {
+		if (!@$this->memcache->connect($memcache_host, $memcache_port)) {
 			throw new Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');
 		}
 	}

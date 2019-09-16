@@ -16,15 +16,26 @@ class MemcacheCacheLockTest extends LockTest
 	{
 		$configMock = \Mockery::mock(Configuration::class);
 
+		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
+
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_host')
-			->andReturn('localhost');
+			->andReturn($host);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_port')
 			->andReturn(11211);
 
-		return new CacheLock(new MemcacheCache('localhost', $configMock));
+		$lock = null;
+
+		try {
+			$cache = new MemcacheCache($host, $configMock);
+			$lock = new CacheLock($cache);
+		} catch (\Exception $e) {
+			$this->markTestSkipped('Memcache is not available');
+		}
+
+		return $lock;
 	}
 }

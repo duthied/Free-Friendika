@@ -16,10 +16,12 @@ class RedisCacheLockTest extends LockTest
 	{
 		$configMock = \Mockery::mock(Configuration::class);
 
+		$host = $_SERVER['REDIS_HOST'] ?? 'localhost';
+
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_host')
-			->andReturn('localhost');
+			->andReturn($host);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_port')
@@ -34,6 +36,15 @@ class RedisCacheLockTest extends LockTest
 			->with('system', 'redis_password')
 			->andReturn(null);
 
-		return new CacheLock(new RedisCache('localhost', $configMock));
+		$lock = null;
+
+		try {
+			$cache = new RedisCache($host, $configMock);
+			$lock = new CacheLock($cache);
+		} catch (\Exception $e) {
+			$this->markTestSkipped('Redis is not available');
+		}
+
+		return $lock;
 	}
 }

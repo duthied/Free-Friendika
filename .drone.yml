@@ -1,0 +1,34 @@
+kind: pipeline
+name: mysql-php7.1
+
+steps:
+- name: mysql-php7.1
+  image: friendicaci/php7.1:php7.1
+  commands:
+    - NOCOVERAGE=true ./autotest.sh
+  environment:
+    MYSQL_USERNAME: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+    MYSQL_HOST: mysql
+
+services:
+- name: mysql
+  image: mysql:8.0
+  command: [ "--default-authentication-plugin=mysql_native_password" ]
+  environment:
+    MYSQL_ROOT_PASSWORD: friendica
+    MYSQL_USER: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+  tmpfs:
+    - /var/lib/mysql
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push

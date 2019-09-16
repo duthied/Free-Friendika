@@ -1,16 +1,17 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <phpunit
-	bootstrap="tests/bootstrap.php"
+	bootstrap="bootstrap.php"
 	verbose="true">
-    <testsuites>
-        <testsuite>
-            <directory>tests/</directory>
-        </testsuite>
-    </testsuites>
+	<testsuite name='friendica'>
+		<directory suffix='.php'>functional/</directory>
+		<directory suffix='.php'>include/</directory>
+		<directory suffix='.php'>src/</directory>
+		<directory suffix='.php'>./</directory>
+	</testsuite>
 	<!-- Filters for Code Coverage -->
 	<filter>
 		<whitelist>
-			<directory suffix=".php">.</directory>
+			<directory suffix=".php">..</directory>
 			<exclude>
 				<directory suffix=".php">config/</directory>
 				<directory suffix=".php">doc/</directory>
@@ -22,9 +23,6 @@
 			</exclude>
 		</whitelist>
 	</filter>
-	<logging>
-		<log type="coverage-clover" target="clover.xml" />
-	</logging>
 	<listeners>
 		<listener class="JohnKary\PHPUnit\Listener\SpeedTrapListener" />
 	</listeners>

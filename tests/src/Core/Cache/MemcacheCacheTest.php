@@ -14,16 +14,22 @@ class MemcacheCacheTest extends MemoryCacheTest
 	{
 		$configMock = \Mockery::mock(Configuration::class);
 
+		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
+
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_host')
-			->andReturn('localhost');
+			->andReturn($host);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'memcache_port')
 			->andReturn(11211);
 
-		$this->cache = new MemcacheCache('localhost', $configMock);
+		try {
+			$this->cache = new MemcacheCache($host, $configMock);
+		} catch (\Exception $e) {
+			$this->markTestSkipped('Memcache is not available');
+		}
 		return $this->cache;
 	}
 
