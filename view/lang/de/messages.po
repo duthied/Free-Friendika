@@ -45,8 +45,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2019-09-12 09:52+0200\n"
-"PO-Revision-Date: 2019-09-14 05:33+0000\n"
+"POT-Creation-Date: 2019-09-15 07:45+0200\n"
+"PO-Revision-Date: 2019-09-16 08:06+0000\n"
 "Last-Translator: Tobias Diekershoff <tobias.diekershoff@gmx.net>\n"
 "Language-Team: German (http://www.transifex.com/Friendica/friendica/language/de/)\n"
 "MIME-Version: 1.0\n"
@@ -67,12 +67,12 @@ msgstr "Möchtest du wirklich dieses Item löschen?"
 
 #: include/items.php:394 mod/api.php:109 mod/profiles.php:526
 #: mod/profiles.php:529 mod/profiles.php:551 mod/dfrn_request.php:640
-#: mod/follow.php:163 mod/message.php:150 mod/settings.php:1089
-#: mod/settings.php:1095 mod/settings.php:1102 mod/settings.php:1106
-#: mod/settings.php:1110 mod/settings.php:1114 mod/settings.php:1118
-#: mod/settings.php:1122 mod/settings.php:1142 mod/settings.php:1143
-#: mod/settings.php:1144 mod/settings.php:1145 mod/settings.php:1146
-#: mod/suggest.php:73 src/Module/Register.php:97 src/Module/Contact.php:423
+#: mod/follow.php:163 mod/message.php:150 mod/suggest.php:73
+#: mod/settings.php:1089 mod/settings.php:1095 mod/settings.php:1102
+#: mod/settings.php:1106 mod/settings.php:1110 mod/settings.php:1114
+#: mod/settings.php:1118 mod/settings.php:1122 mod/settings.php:1142
+#: mod/settings.php:1143 mod/settings.php:1144 mod/settings.php:1145
+#: mod/settings.php:1146 src/Module/Register.php:97 src/Module/Contact.php:423
 msgid "Yes"
 msgstr "Ja"
 
@@ -80,8 +80,8 @@ msgstr "Ja"
 #: mod/tagrm.php:115 mod/unfollow.php:132 mod/dfrn_request.php:650
 #: mod/editpost.php:110 mod/fbrowser.php:110 mod/fbrowser.php:139
 #: mod/follow.php:174 mod/message.php:153 mod/photos.php:1084
-#: mod/photos.php:1191 mod/settings.php:678 mod/settings.php:704
-#: mod/suggest.php:76 src/Module/Contact.php:426
+#: mod/photos.php:1191 mod/suggest.php:76 mod/settings.php:678
+#: mod/settings.php:704 src/Module/Contact.php:426
 msgid "Cancel"
 msgstr "Abbrechen"
 
@@ -98,9 +98,9 @@ msgstr "Abbrechen"
 #: mod/message.php:56 mod/message.php:101 mod/network.php:37 mod/notes.php:27
 #: mod/photos.php:178 mod/photos.php:962 mod/poke.php:141
 #: mod/profile_photo.php:32 mod/profile_photo.php:177
-#: mod/profile_photo.php:197 mod/settings.php:52 mod/settings.php:165
-#: mod/settings.php:667 mod/suggest.php:39 mod/events.php:208 mod/item.php:170
-#: mod/notifications.php:73 src/Module/Attach.php:42
+#: mod/profile_photo.php:197 mod/suggest.php:39 mod/events.php:208
+#: mod/item.php:170 mod/notifications.php:73 mod/settings.php:52
+#: mod/settings.php:165 mod/settings.php:667 src/Module/Attach.php:42
 #: src/Module/FollowConfirm.php:27 src/Module/Group.php:31
 #: src/Module/Group.php:77 src/Module/Invite.php:22 src/Module/Invite.php:110
 #: src/Module/Notifications/Notify.php:19 src/Module/Profile/Contacts.php:50
@@ -1740,7 +1740,7 @@ msgstr "Neues Profil anlegen"
 msgid "Access denied."
 msgstr "Zugriff verweigert."
 
-#: mod/cal.php:140 mod/display.php:303 src/Module/Profile.php:184
+#: mod/cal.php:140 mod/display.php:303 src/Module/Profile.php:185
 msgid "Access to this profile has been restricted."
 msgstr "Der Zugriff zu diesem Profil wurde eingeschränkt."
 
@@ -2985,6 +2985,331 @@ msgstr "Beiträge, die mit %s getaggt sind"
 msgid "Results for: %s"
 msgstr "Ergebnisse für: %s"
 
+#: mod/subthread.php:104
+#, php-format
+msgid "%1$s is following %2$s's %3$s"
+msgstr "%1$s folgt %2$s %3$s"
+
+#: mod/suggest.php:28
+msgid "Contact suggestion successfully ignored."
+msgstr "Kontaktvorschlag erfolgreich ignoriert."
+
+#: mod/suggest.php:52
+msgid ""
+"No suggestions available. If this is a new site, please try again in 24 "
+"hours."
+msgstr "Keine Vorschläge verfügbar. Falls der Server frisch aufgesetzt wurde, versuche es bitte in 24 Stunden noch einmal."
+
+#: mod/suggest.php:71
+msgid "Do you really want to delete this suggestion?"
+msgstr "Möchtest du wirklich diese Empfehlung löschen?"
+
+#: mod/suggest.php:89 mod/suggest.php:109
+msgid "Ignore/Hide"
+msgstr "Ignorieren/Verbergen"
+
+#: mod/suggest.php:119 view/theme/vier/theme.php:204 src/Content/Widget.php:69
+msgid "Friend Suggestions"
+msgstr "Kontaktvorschläge"
+
+#: mod/uexport.php:52
+msgid "Export account"
+msgstr "Account exportieren"
+
+#: mod/uexport.php:52
+msgid ""
+"Export your account info and contacts. Use this to make a backup of your "
+"account and/or to move it to another server."
+msgstr "Exportiere Deine Account-Informationen und Kontakte. Verwende dies, um ein Backup Deines Accounts anzulegen und/oder damit auf einen anderen Server umzuziehen."
+
+#: mod/uexport.php:53
+msgid "Export all"
+msgstr "Alles exportieren"
+
+#: mod/uexport.php:53
+msgid ""
+"Export your accout info, contacts and all your items as json. Could be a "
+"very big file, and could take a lot of time. Use this to make a full backup "
+"of your account (photos are not exported)"
+msgstr "Exportiere Deine Account-Informationen, Kontakte und alle Einträge als JSON Datei. Dies könnte eine sehr große Datei werden und dementsprechend viel Zeit benötigen. Verwende dies, um ein komplettes Backup Deines Accounts anzulegen (Fotos werden nicht exportiert)."
+
+#: mod/uexport.php:59 mod/settings.php:131
+#: src/Module/BaseSettingsModule.php:89
+msgid "Export personal data"
+msgstr "Persönliche Daten exportieren"
+
+#: mod/videos.php:123
+msgid "No videos selected"
+msgstr "Keine Videos  ausgewählt"
+
+#: mod/videos.php:280 src/Model/Item.php:3477
+msgid "View Video"
+msgstr "Video ansehen"
+
+#: mod/videos.php:295
+msgid "Recent Videos"
+msgstr "Neueste Videos"
+
+#: mod/videos.php:297
+msgid "Upload New Videos"
+msgstr "Neues Video hochladen"
+
+#: mod/display.php:254 mod/display.php:339
+msgid "The requested item doesn't exist or has been deleted."
+msgstr "Der angeforderte Beitrag existiert nicht oder wurde gelöscht."
+
+#: mod/display.php:417
+msgid "The feed for this item is unavailable."
+msgstr "Der Feed für diesen Beitrag ist nicht verfügbar."
+
+#: mod/events.php:118 mod/events.php:120
+msgid "Event can not end before it has started."
+msgstr "Die Veranstaltung kann nicht enden, bevor sie beginnt."
+
+#: mod/events.php:127 mod/events.php:129
+msgid "Event title and start time are required."
+msgstr "Der Veranstaltungstitel und die Anfangszeit müssen angegeben werden."
+
+#: mod/events.php:385
+msgid "Create New Event"
+msgstr "Neue Veranstaltung erstellen"
+
+#: mod/events.php:508
+msgid "Event details"
+msgstr "Veranstaltungsdetails"
+
+#: mod/events.php:509
+msgid "Starting date and Title are required."
+msgstr "Anfangszeitpunkt und Titel werden benötigt"
+
+#: mod/events.php:510 mod/events.php:515
+msgid "Event Starts:"
+msgstr "Veranstaltungsbeginn:"
+
+#: mod/events.php:523 mod/events.php:548
+msgid "Finish date/time is not known or not relevant"
+msgstr "Enddatum/-zeit ist nicht bekannt oder nicht relevant"
+
+#: mod/events.php:525 mod/events.php:530
+msgid "Event Finishes:"
+msgstr "Veranstaltungsende:"
+
+#: mod/events.php:536 mod/events.php:549
+msgid "Adjust for viewer timezone"
+msgstr "An Zeitzone des Betrachters anpassen"
+
+#: mod/events.php:538
+msgid "Description:"
+msgstr "Beschreibung"
+
+#: mod/events.php:540 mod/notifications.php:272 src/Model/Event.php:68
+#: src/Model/Event.php:95 src/Model/Event.php:437 src/Model/Event.php:933
+#: src/Model/Profile.php:447 src/Module/Directory.php:137
+#: src/Module/Contact.php:607
+msgid "Location:"
+msgstr "Ort:"
+
+#: mod/events.php:542 mod/events.php:544
+msgid "Title:"
+msgstr "Titel:"
+
+#: mod/events.php:545 mod/events.php:546
+msgid "Share this event"
+msgstr "Veranstaltung teilen"
+
+#: mod/events.php:553 src/Model/Profile.php:890
+msgid "Basic"
+msgstr "Allgemein"
+
+#: mod/events.php:554 src/Model/Profile.php:891 src/Module/Admin/Site.php:573
+#: src/Module/Contact.php:880
+msgid "Advanced"
+msgstr "Erweitert"
+
+#: mod/events.php:571
+msgid "Failed to remove event"
+msgstr "Entfernen der Veranstaltung fehlgeschlagen"
+
+#: mod/events.php:573
+msgid "Event removed"
+msgstr "Veranstaltung enfternt"
+
+#: mod/item.php:123
+msgid "Unable to locate original post."
+msgstr "Konnte den Originalbeitrag nicht finden."
+
+#: mod/item.php:323
+msgid "Empty post discarded."
+msgstr "Leerer Beitrag wurde verworfen."
+
+#: mod/item.php:803
+#, php-format
+msgid ""
+"This message was sent to you by %s, a member of the Friendica social "
+"network."
+msgstr "Diese Nachricht wurde dir von %s geschickt, einem Mitglied des Sozialen Netzwerks Friendica."
+
+#: mod/item.php:805
+#, php-format
+msgid "You may visit them online at %s"
+msgstr "Du kannst sie online unter %s besuchen"
+
+#: mod/item.php:806
+msgid ""
+"Please contact the sender by replying to this post if you do not wish to "
+"receive these messages."
+msgstr "Falls du diese Beiträge nicht erhalten möchtest, kontaktiere bitte den Autor, indem du auf diese Nachricht antwortest."
+
+#: mod/item.php:810
+#, php-format
+msgid "%s posted an update."
+msgstr "%s hat ein Update veröffentlicht."
+
+#: mod/notifications.php:40
+msgid "Invalid request identifier."
+msgstr "Invalid request identifier."
+
+#: mod/notifications.php:96 src/Content/Nav.php:249
+msgid "Notifications"
+msgstr "Benachrichtigungen"
+
+#: mod/notifications.php:115
+msgid "Network Notifications"
+msgstr "Netzwerkbenachrichtigungen"
+
+#: mod/notifications.php:120
+msgid "System Notifications"
+msgstr "Systembenachrichtigungen"
+
+#: mod/notifications.php:125
+msgid "Personal Notifications"
+msgstr "Persönliche Benachrichtigungen"
+
+#: mod/notifications.php:130
+msgid "Home Notifications"
+msgstr "Pinnwandbenachrichtigungen"
+
+#: mod/notifications.php:153
+msgid "Show unread"
+msgstr "Ungelesene anzeigen"
+
+#: mod/notifications.php:153
+msgid "Show all"
+msgstr "Alle anzeigen"
+
+#: mod/notifications.php:164
+msgid "Show Ignored Requests"
+msgstr "Zeige ignorierte Anfragen"
+
+#: mod/notifications.php:164
+msgid "Hide Ignored Requests"
+msgstr "Verberge ignorierte Anfragen"
+
+#: mod/notifications.php:177 mod/notifications.php:262
+msgid "Notification type:"
+msgstr "Art der Benachrichtigung:"
+
+#: mod/notifications.php:180
+msgid "Suggested by:"
+msgstr "Vorgeschlagen von:"
+
+#: mod/notifications.php:192 mod/notifications.php:279
+#: src/Module/Contact.php:594
+msgid "Hide this contact from others"
+msgstr "Verbirg diesen Kontakt vor Anderen"
+
+#: mod/notifications.php:194 mod/notifications.php:288
+#: src/Model/Contact.php:1238 src/Module/Admin/Users.php:286
+msgid "Approve"
+msgstr "Genehmigen"
+
+#: mod/notifications.php:214
+msgid "Claims to be known to you: "
+msgstr "Behauptet, dich zu kennen: "
+
+#: mod/notifications.php:215
+msgid "yes"
+msgstr "ja"
+
+#: mod/notifications.php:215
+msgid "no"
+msgstr "nein"
+
+#: mod/notifications.php:216 mod/notifications.php:220
+msgid "Shall your connection be bidirectional or not?"
+msgstr "Soll die Verbindung beidseitig sein oder nicht?"
+
+#: mod/notifications.php:217 mod/notifications.php:221
+#, php-format
+msgid ""
+"Accepting %s as a friend allows %s to subscribe to your posts, and you will "
+"also receive updates from them in your news feed."
+msgstr "Akzeptierst du %s als Kontakt, erlaubst du damit das Lesen deiner Beiträge und abonnierst selbst auch die Beiträge von %s."
+
+#: mod/notifications.php:218
+#, php-format
+msgid ""
+"Accepting %s as a subscriber allows them to subscribe to your posts, but you"
+" will not receive updates from them in your news feed."
+msgstr "Wenn du %s als Abonnent akzeptierst, erlaubst du damit das Lesen deiner Beiträge, wirst aber selbst die Beiträge der anderen Seite nicht erhalten."
+
+#: mod/notifications.php:222
+#, php-format
+msgid ""
+"Accepting %s as a sharer allows them to subscribe to your posts, but you "
+"will not receive updates from them in your news feed."
+msgstr "Wenn du %s als Teilender akzeptierst, erlaubst du damit das Lesen deiner Beiträge, wirst aber selbst die Beiträge der anderen Seite nicht erhalten."
+
+#: mod/notifications.php:233
+msgid "Friend"
+msgstr "Kontakt"
+
+#: mod/notifications.php:234
+msgid "Sharer"
+msgstr "Teilender"
+
+#: mod/notifications.php:234
+msgid "Subscriber"
+msgstr "Abonnent"
+
+#: mod/notifications.php:274 src/Model/Profile.php:453
+#: src/Model/Profile.php:832 src/Module/Directory.php:145
+#: src/Module/Contact.php:611
+msgid "About:"
+msgstr "Über:"
+
+#: mod/notifications.php:278 src/Model/Profile.php:450
+#: src/Model/Profile.php:771 src/Module/Directory.php:142
+msgid "Gender:"
+msgstr "Geschlecht:"
+
+#: mod/notifications.php:285 src/Model/Profile.php:558
+#: src/Module/Contact.php:295
+msgid "Network:"
+msgstr "Netzwerk:"
+
+#: mod/notifications.php:299
+msgid "No introductions."
+msgstr "Keine Kontaktanfragen."
+
+#: mod/notifications.php:333
+#, php-format
+msgid "No more %s notifications."
+msgstr "Keine weiteren %s-Benachrichtigungen"
+
+#: mod/openid.php:30
+msgid "OpenID protocol error. No ID returned."
+msgstr "OpenID Protokollfehler. Keine ID zurückgegeben."
+
+#: mod/openid.php:60
+msgid ""
+"Account not found and OpenID registration is not permitted on this site."
+msgstr "Nutzerkonto wurde nicht gefunden und OpenID-Registrierung ist auf diesem Server nicht gestattet."
+
+#: mod/openid.php:108 src/Module/Login.php:88 src/Module/Login.php:139
+msgid "Login failed."
+msgstr "Anmeldung fehlgeschlagen."
+
 #: mod/settings.php:65 src/Module/BaseSettingsModule.php:24
 msgid "Account"
 msgstr "Nutzerkonto"
@@ -3028,11 +3353,6 @@ msgstr "Delegationen"
 #: mod/settings.php:124 src/Module/BaseSettingsModule.php:82
 msgid "Connected apps"
 msgstr "Verbundene Programme"
-
-#: mod/settings.php:131 mod/uexport.php:59
-#: src/Module/BaseSettingsModule.php:89
-msgid "Export personal data"
-msgstr "Persönliche Daten exportieren"
 
 #: mod/settings.php:138 src/Module/BaseSettingsModule.php:96
 msgid "Remove account"
@@ -3605,6 +3925,13 @@ msgid ""
 "href=\"%s\">%s</a>). Your profile will be visible in public."
 msgstr "Dein Profil wird in den globalen Friendica-Verzeichnissen (z.B. <a href=\"%s\">%s</a>) veröffentlicht. Dein Profil wird öffentlich auffindbar sein."
 
+#: mod/settings.php:1095
+msgid ""
+"This setting also determines whether Friendica will inform search engines "
+"that your profile should be indexed or not. Third-party search engines may "
+"or may not respect this setting."
+msgstr "Diese Einstellung bestimmt auch, ob Friendica Suchmaschinen mitteilt, dass das Profil indiziert werden darf oder nicht. Ob sich Suchmaschinen von Drittanbietern daran halten, kann Friendica nicht beeinflussen."
+
 #: mod/settings.php:1102
 msgid "Hide your contact/friend list from viewers of your default profile?"
 msgstr "Liste der Kontakte vor Betrachtern des Standardprofils verbergen?"
@@ -3904,326 +4231,6 @@ msgstr "Wenn du dein Profil von einem anderen Server umgezogen hast und einige d
 #: mod/settings.php:1262
 msgid "Resend relocate message to contacts"
 msgstr "Umzugsbenachrichtigung erneut an Kontakte senden"
-
-#: mod/subthread.php:104
-#, php-format
-msgid "%1$s is following %2$s's %3$s"
-msgstr "%1$s folgt %2$s %3$s"
-
-#: mod/suggest.php:28
-msgid "Contact suggestion successfully ignored."
-msgstr "Kontaktvorschlag erfolgreich ignoriert."
-
-#: mod/suggest.php:52
-msgid ""
-"No suggestions available. If this is a new site, please try again in 24 "
-"hours."
-msgstr "Keine Vorschläge verfügbar. Falls der Server frisch aufgesetzt wurde, versuche es bitte in 24 Stunden noch einmal."
-
-#: mod/suggest.php:71
-msgid "Do you really want to delete this suggestion?"
-msgstr "Möchtest du wirklich diese Empfehlung löschen?"
-
-#: mod/suggest.php:89 mod/suggest.php:109
-msgid "Ignore/Hide"
-msgstr "Ignorieren/Verbergen"
-
-#: mod/suggest.php:119 view/theme/vier/theme.php:204 src/Content/Widget.php:69
-msgid "Friend Suggestions"
-msgstr "Kontaktvorschläge"
-
-#: mod/uexport.php:52
-msgid "Export account"
-msgstr "Account exportieren"
-
-#: mod/uexport.php:52
-msgid ""
-"Export your account info and contacts. Use this to make a backup of your "
-"account and/or to move it to another server."
-msgstr "Exportiere Deine Account-Informationen und Kontakte. Verwende dies, um ein Backup Deines Accounts anzulegen und/oder damit auf einen anderen Server umzuziehen."
-
-#: mod/uexport.php:53
-msgid "Export all"
-msgstr "Alles exportieren"
-
-#: mod/uexport.php:53
-msgid ""
-"Export your accout info, contacts and all your items as json. Could be a "
-"very big file, and could take a lot of time. Use this to make a full backup "
-"of your account (photos are not exported)"
-msgstr "Exportiere Deine Account-Informationen, Kontakte und alle Einträge als JSON Datei. Dies könnte eine sehr große Datei werden und dementsprechend viel Zeit benötigen. Verwende dies, um ein komplettes Backup Deines Accounts anzulegen (Fotos werden nicht exportiert)."
-
-#: mod/videos.php:123
-msgid "No videos selected"
-msgstr "Keine Videos  ausgewählt"
-
-#: mod/videos.php:280 src/Model/Item.php:3477
-msgid "View Video"
-msgstr "Video ansehen"
-
-#: mod/videos.php:295
-msgid "Recent Videos"
-msgstr "Neueste Videos"
-
-#: mod/videos.php:297
-msgid "Upload New Videos"
-msgstr "Neues Video hochladen"
-
-#: mod/display.php:254 mod/display.php:339
-msgid "The requested item doesn't exist or has been deleted."
-msgstr "Der angeforderte Beitrag existiert nicht oder wurde gelöscht."
-
-#: mod/display.php:417
-msgid "The feed for this item is unavailable."
-msgstr "Der Feed für diesen Beitrag ist nicht verfügbar."
-
-#: mod/events.php:118 mod/events.php:120
-msgid "Event can not end before it has started."
-msgstr "Die Veranstaltung kann nicht enden, bevor sie beginnt."
-
-#: mod/events.php:127 mod/events.php:129
-msgid "Event title and start time are required."
-msgstr "Der Veranstaltungstitel und die Anfangszeit müssen angegeben werden."
-
-#: mod/events.php:385
-msgid "Create New Event"
-msgstr "Neue Veranstaltung erstellen"
-
-#: mod/events.php:508
-msgid "Event details"
-msgstr "Veranstaltungsdetails"
-
-#: mod/events.php:509
-msgid "Starting date and Title are required."
-msgstr "Anfangszeitpunkt und Titel werden benötigt"
-
-#: mod/events.php:510 mod/events.php:515
-msgid "Event Starts:"
-msgstr "Veranstaltungsbeginn:"
-
-#: mod/events.php:523 mod/events.php:548
-msgid "Finish date/time is not known or not relevant"
-msgstr "Enddatum/-zeit ist nicht bekannt oder nicht relevant"
-
-#: mod/events.php:525 mod/events.php:530
-msgid "Event Finishes:"
-msgstr "Veranstaltungsende:"
-
-#: mod/events.php:536 mod/events.php:549
-msgid "Adjust for viewer timezone"
-msgstr "An Zeitzone des Betrachters anpassen"
-
-#: mod/events.php:538
-msgid "Description:"
-msgstr "Beschreibung"
-
-#: mod/events.php:540 mod/notifications.php:272 src/Model/Event.php:68
-#: src/Model/Event.php:95 src/Model/Event.php:437 src/Model/Event.php:933
-#: src/Model/Profile.php:447 src/Module/Directory.php:137
-#: src/Module/Contact.php:607
-msgid "Location:"
-msgstr "Ort:"
-
-#: mod/events.php:542 mod/events.php:544
-msgid "Title:"
-msgstr "Titel:"
-
-#: mod/events.php:545 mod/events.php:546
-msgid "Share this event"
-msgstr "Veranstaltung teilen"
-
-#: mod/events.php:553 src/Model/Profile.php:890
-msgid "Basic"
-msgstr "Allgemein"
-
-#: mod/events.php:554 src/Model/Profile.php:891 src/Module/Admin/Site.php:573
-#: src/Module/Contact.php:880
-msgid "Advanced"
-msgstr "Erweitert"
-
-#: mod/events.php:571
-msgid "Failed to remove event"
-msgstr "Entfernen der Veranstaltung fehlgeschlagen"
-
-#: mod/events.php:573
-msgid "Event removed"
-msgstr "Veranstaltung enfternt"
-
-#: mod/item.php:123
-msgid "Unable to locate original post."
-msgstr "Konnte den Originalbeitrag nicht finden."
-
-#: mod/item.php:323
-msgid "Empty post discarded."
-msgstr "Leerer Beitrag wurde verworfen."
-
-#: mod/item.php:803
-#, php-format
-msgid ""
-"This message was sent to you by %s, a member of the Friendica social "
-"network."
-msgstr "Diese Nachricht wurde dir von %s geschickt, einem Mitglied des Sozialen Netzwerks Friendica."
-
-#: mod/item.php:805
-#, php-format
-msgid "You may visit them online at %s"
-msgstr "Du kannst sie online unter %s besuchen"
-
-#: mod/item.php:806
-msgid ""
-"Please contact the sender by replying to this post if you do not wish to "
-"receive these messages."
-msgstr "Falls du diese Beiträge nicht erhalten möchtest, kontaktiere bitte den Autor, indem du auf diese Nachricht antwortest."
-
-#: mod/item.php:810
-#, php-format
-msgid "%s posted an update."
-msgstr "%s hat ein Update veröffentlicht."
-
-#: mod/notifications.php:40
-msgid "Invalid request identifier."
-msgstr "Invalid request identifier."
-
-#: mod/notifications.php:96 src/Content/Nav.php:249
-msgid "Notifications"
-msgstr "Benachrichtigungen"
-
-#: mod/notifications.php:115
-msgid "Network Notifications"
-msgstr "Netzwerkbenachrichtigungen"
-
-#: mod/notifications.php:120
-msgid "System Notifications"
-msgstr "Systembenachrichtigungen"
-
-#: mod/notifications.php:125
-msgid "Personal Notifications"
-msgstr "Persönliche Benachrichtigungen"
-
-#: mod/notifications.php:130
-msgid "Home Notifications"
-msgstr "Pinnwandbenachrichtigungen"
-
-#: mod/notifications.php:153
-msgid "Show unread"
-msgstr "Ungelesene anzeigen"
-
-#: mod/notifications.php:153
-msgid "Show all"
-msgstr "Alle anzeigen"
-
-#: mod/notifications.php:164
-msgid "Show Ignored Requests"
-msgstr "Zeige ignorierte Anfragen"
-
-#: mod/notifications.php:164
-msgid "Hide Ignored Requests"
-msgstr "Verberge ignorierte Anfragen"
-
-#: mod/notifications.php:177 mod/notifications.php:262
-msgid "Notification type:"
-msgstr "Art der Benachrichtigung:"
-
-#: mod/notifications.php:180
-msgid "Suggested by:"
-msgstr "Vorgeschlagen von:"
-
-#: mod/notifications.php:192 mod/notifications.php:279
-#: src/Module/Contact.php:594
-msgid "Hide this contact from others"
-msgstr "Verbirg diesen Kontakt vor Anderen"
-
-#: mod/notifications.php:194 mod/notifications.php:288
-#: src/Model/Contact.php:1238 src/Module/Admin/Users.php:286
-msgid "Approve"
-msgstr "Genehmigen"
-
-#: mod/notifications.php:214
-msgid "Claims to be known to you: "
-msgstr "Behauptet, dich zu kennen: "
-
-#: mod/notifications.php:215
-msgid "yes"
-msgstr "ja"
-
-#: mod/notifications.php:215
-msgid "no"
-msgstr "nein"
-
-#: mod/notifications.php:216 mod/notifications.php:220
-msgid "Shall your connection be bidirectional or not?"
-msgstr "Soll die Verbindung beidseitig sein oder nicht?"
-
-#: mod/notifications.php:217 mod/notifications.php:221
-#, php-format
-msgid ""
-"Accepting %s as a friend allows %s to subscribe to your posts, and you will "
-"also receive updates from them in your news feed."
-msgstr "Akzeptierst du %s als Kontakt, erlaubst du damit das Lesen deiner Beiträge und abonnierst selbst auch die Beiträge von %s."
-
-#: mod/notifications.php:218
-#, php-format
-msgid ""
-"Accepting %s as a subscriber allows them to subscribe to your posts, but you"
-" will not receive updates from them in your news feed."
-msgstr "Wenn du %s als Abonnent akzeptierst, erlaubst du damit das Lesen deiner Beiträge, wirst aber selbst die Beiträge der anderen Seite nicht erhalten."
-
-#: mod/notifications.php:222
-#, php-format
-msgid ""
-"Accepting %s as a sharer allows them to subscribe to your posts, but you "
-"will not receive updates from them in your news feed."
-msgstr "Wenn du %s als Teilender akzeptierst, erlaubst du damit das Lesen deiner Beiträge, wirst aber selbst die Beiträge der anderen Seite nicht erhalten."
-
-#: mod/notifications.php:233
-msgid "Friend"
-msgstr "Kontakt"
-
-#: mod/notifications.php:234
-msgid "Sharer"
-msgstr "Teilender"
-
-#: mod/notifications.php:234
-msgid "Subscriber"
-msgstr "Abonnent"
-
-#: mod/notifications.php:274 src/Model/Profile.php:453
-#: src/Model/Profile.php:832 src/Module/Directory.php:145
-#: src/Module/Contact.php:611
-msgid "About:"
-msgstr "Über:"
-
-#: mod/notifications.php:278 src/Model/Profile.php:450
-#: src/Model/Profile.php:771 src/Module/Directory.php:142
-msgid "Gender:"
-msgstr "Geschlecht:"
-
-#: mod/notifications.php:285 src/Model/Profile.php:558
-#: src/Module/Contact.php:295
-msgid "Network:"
-msgstr "Netzwerk:"
-
-#: mod/notifications.php:299
-msgid "No introductions."
-msgstr "Keine Kontaktanfragen."
-
-#: mod/notifications.php:333
-#, php-format
-msgid "No more %s notifications."
-msgstr "Keine weiteren %s-Benachrichtigungen"
-
-#: mod/openid.php:30
-msgid "OpenID protocol error. No ID returned."
-msgstr "OpenID Protokollfehler. Keine ID zurückgegeben."
-
-#: mod/openid.php:60
-msgid ""
-"Account not found and OpenID registration is not permitted on this site."
-msgstr "Nutzerkonto wurde nicht gefunden und OpenID-Registrierung ist auf diesem Server nicht gestattet."
-
-#: mod/openid.php:108 src/Module/Login.php:88 src/Module/Login.php:139
-msgid "Login failed."
-msgstr "Anmeldung fehlgeschlagen."
 
 #: view/theme/duepuntozero/config.php:55 src/Model/User.php:745
 msgid "default"
@@ -4569,31 +4576,6 @@ msgstr "Schnell-Start"
 #: src/Module/Settings/TwoFactor/Verify.php:117
 msgid "Help"
 msgstr "Hilfe"
-
-#: src/Core/ACL.php:288 src/Module/Item/Compose.php:139
-msgid "Post to Email"
-msgstr "An E-Mail senden"
-
-#: src/Core/ACL.php:300
-msgid "Visible to everybody"
-msgstr "Für jeden sichtbar"
-
-#: src/Core/ACL.php:311
-msgid "Connectors"
-msgstr "Connectoren"
-
-#: src/Core/ACL.php:313
-msgid "Hide your profile details from unknown viewers?"
-msgstr "Profil-Details vor unbekannten Betrachtern verbergen?"
-
-#: src/Core/ACL.php:313
-#, php-format
-msgid "Connectors disabled, since \"%s\" is enabled."
-msgstr "Konnektoren sind nicht verfügbar, da \"%s\" aktiv ist."
-
-#: src/Core/ACL.php:315
-msgid "Close"
-msgstr "Schließen"
 
 #: src/Core/L10n/L10n.php:370 src/Model/Event.php:397
 msgid "Tuesday"
@@ -5201,6 +5183,31 @@ msgstr "Bitte lade ein Profilbild hoch."
 msgid "Welcome back %s"
 msgstr "Willkommen zurück %s"
 
+#: src/Core/ACL.php:288 src/Module/Item/Compose.php:139
+msgid "Post to Email"
+msgstr "An E-Mail senden"
+
+#: src/Core/ACL.php:300
+msgid "Visible to everybody"
+msgstr "Für jeden sichtbar"
+
+#: src/Core/ACL.php:311
+msgid "Connectors"
+msgstr "Connectoren"
+
+#: src/Core/ACL.php:313
+msgid "Hide your profile details from unknown viewers?"
+msgstr "Profil-Details vor unbekannten Betrachtern verbergen?"
+
+#: src/Core/ACL.php:313
+#, php-format
+msgid "Connectors disabled, since \"%s\" is enabled."
+msgstr "Konnektoren sind nicht verfügbar, da \"%s\" aktiv ist."
+
+#: src/Core/ACL.php:315
+msgid "Close"
+msgstr "Schließen"
+
 #: src/Util/Temporal.php:147 src/Model/Profile.php:784
 msgid "Birthday:"
 msgstr "Geburtstag:"
@@ -5271,36 +5278,6 @@ msgstr "in %1$d %2$s"
 msgid "%1$d %2$s ago"
 msgstr "vor %1$d %2$s"
 
-#: src/Content/Text/BBCode.php:465
-msgid "view full size"
-msgstr "Volle Größe anzeigen"
-
-#: src/Content/Text/BBCode.php:899 src/Content/Text/BBCode.php:1562
-#: src/Content/Text/BBCode.php:1563
-msgid "Image/photo"
-msgstr "Bild/Foto"
-
-#: src/Content/Text/BBCode.php:1017
-#, php-format
-msgid "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
-msgstr "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
-
-#: src/Content/Text/BBCode.php:1489 src/Content/Text/BBCode.php:1511
-msgid "$1 wrote:"
-msgstr "$1 hat geschrieben:"
-
-#: src/Content/Text/BBCode.php:1565 src/Content/Text/BBCode.php:1566
-msgid "Encrypted content"
-msgstr "Verschlüsselter Inhalt"
-
-#: src/Content/Text/BBCode.php:1790
-msgid "Invalid source protocol"
-msgstr "Ungültiges Quell-Protokoll"
-
-#: src/Content/Text/BBCode.php:1805
-msgid "Invalid link protocol"
-msgstr "Ungültiges Link-Protokoll"
-
 #: src/Content/Text/HTML.php:793
 msgid "Loading more entries..."
 msgstr "lade weitere Einträge..."
@@ -5327,10 +5304,39 @@ msgstr "Volltext"
 msgid "Tags"
 msgstr "Tags"
 
-#: src/Content/Text/HTML.php:944 src/Model/Item.php:3527
-#: src/Model/Item.php:3538
+#: src/Content/Text/HTML.php:944 src/Content/Text/BBCode.php:1478
 msgid "Click to open/close"
 msgstr "Zum Öffnen/Schließen klicken"
+
+#: src/Content/Text/BBCode.php:465
+msgid "view full size"
+msgstr "Volle Größe anzeigen"
+
+#: src/Content/Text/BBCode.php:899 src/Content/Text/BBCode.php:1560
+#: src/Content/Text/BBCode.php:1561
+msgid "Image/photo"
+msgstr "Bild/Foto"
+
+#: src/Content/Text/BBCode.php:1017
+#, php-format
+msgid "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
+msgstr "<a href=\"%1$s\" target=\"_blank\">%2$s</a> %3$s"
+
+#: src/Content/Text/BBCode.php:1509
+msgid "$1 wrote:"
+msgstr "$1 hat geschrieben:"
+
+#: src/Content/Text/BBCode.php:1563 src/Content/Text/BBCode.php:1564
+msgid "Encrypted content"
+msgstr "Verschlüsselter Inhalt"
+
+#: src/Content/Text/BBCode.php:1788
+msgid "Invalid source protocol"
+msgstr "Ungültiges Quell-Protokoll"
+
+#: src/Content/Text/BBCode.php:1803
+msgid "Invalid link protocol"
+msgstr "Ungültiges Link-Protokoll"
 
 #: src/Content/Widget/CalendarExport.php:64
 msgid "Export"
@@ -6172,7 +6178,7 @@ msgstr "Veranstaltung kopieren"
 msgid "Delete event"
 msgstr "Veranstaltung löschen"
 
-#: src/Model/Event.php:626 src/Model/Item.php:3578 src/Model/Item.php:3585
+#: src/Model/Event.php:626 src/Model/Item.php:3547 src/Model/Item.php:3554
 msgid "link to source"
 msgstr "Link zum Originalbeitrag"
 
@@ -6517,37 +6523,6 @@ msgstr "Gruppenname:"
 msgid "Edit groups"
 msgstr "Gruppen bearbeiten"
 
-#: src/Model/Item.php:3313
-msgid "activity"
-msgstr "Aktivität"
-
-#: src/Model/Item.php:3315 src/Object/Post.php:474
-msgid "comment"
-msgid_plural "comments"
-msgstr[0] "Kommentar"
-msgstr[1] "Kommentare"
-
-#: src/Model/Item.php:3318
-msgid "post"
-msgstr "Beitrag"
-
-#: src/Model/Item.php:3417
-#, php-format
-msgid "Content warning: %s"
-msgstr "Inhaltswarnung: %s"
-
-#: src/Model/Item.php:3494
-msgid "bytes"
-msgstr "Byte"
-
-#: src/Model/Item.php:3572
-msgid "View on separate page"
-msgstr "Auf separater Seite ansehen"
-
-#: src/Model/Item.php:3573
-msgid "view on separate page"
-msgstr "auf separater Seite ansehen"
-
 #: src/Model/Mail.php:113 src/Model/Mail.php:250
 msgid "[no subject]"
 msgstr "[kein Betreff]"
@@ -6697,18 +6672,49 @@ msgstr "Tipps für neue Nutzer"
 msgid "OpenWebAuth: %1$s welcomes %2$s"
 msgstr "OpenWebAuth: %1$s heißt %2$s herzlich willkommen"
 
-#: src/Protocol/OStatus.php:1300 src/Module/Profile.php:118
-#: src/Module/Profile.php:121
+#: src/Model/Item.php:3313
+msgid "activity"
+msgstr "Aktivität"
+
+#: src/Model/Item.php:3315 src/Object/Post.php:474
+msgid "comment"
+msgid_plural "comments"
+msgstr[0] "Kommentar"
+msgstr[1] "Kommentare"
+
+#: src/Model/Item.php:3318
+msgid "post"
+msgstr "Beitrag"
+
+#: src/Model/Item.php:3417
+#, php-format
+msgid "Content warning: %s"
+msgstr "Inhaltswarnung: %s"
+
+#: src/Model/Item.php:3494
+msgid "bytes"
+msgstr "Byte"
+
+#: src/Model/Item.php:3541
+msgid "View on separate page"
+msgstr "Auf separater Seite ansehen"
+
+#: src/Model/Item.php:3542
+msgid "view on separate page"
+msgstr "auf separater Seite ansehen"
+
+#: src/Protocol/OStatus.php:1300 src/Module/Profile.php:119
+#: src/Module/Profile.php:122
 #, php-format
 msgid "%s's timeline"
 msgstr "Timeline von %s"
 
-#: src/Protocol/OStatus.php:1304 src/Module/Profile.php:119
+#: src/Protocol/OStatus.php:1304 src/Module/Profile.php:120
 #, php-format
 msgid "%s's posts"
 msgstr "Beiträge von %s"
 
-#: src/Protocol/OStatus.php:1307 src/Module/Profile.php:120
+#: src/Protocol/OStatus.php:1307 src/Module/Profile.php:121
 #, php-format
 msgid "%s's comments"
 msgstr "Kommentare von %s"
