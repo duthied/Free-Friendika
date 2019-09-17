@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'f';
@@ -33,6 +34,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['daemon']]);
 
 \Friendica\BaseObject::setDependencyInjection($dice);
 $a = \Friendica\BaseObject::getApp();

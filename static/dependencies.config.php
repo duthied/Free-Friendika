@@ -62,7 +62,7 @@ return [
 	],
 	App\Mode::class                 => [
 		'call' => [
-			['determineRunMode', [$_SERVER], Dice::CHAIN_CALL],
+			['determineRunMode', [true, $_SERVER], Dice::CHAIN_CALL],
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],
@@ -114,12 +114,18 @@ return [
 	 */
 	LoggerInterface::class          => [
 		'instanceOf' => Factory\LoggerFactory::class,
+		'constructParams' => [
+			'index',
+		],
 		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
+			['create', ['index'], Dice::CHAIN_CALL],
 		],
 	],
 	'$devLogger'                    => [
 		'instanceOf' => Factory\LoggerFactory::class,
+		'constructParams' => [
+			'dev',
+		],
 		'call'       => [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
