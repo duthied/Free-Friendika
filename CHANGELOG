@@ -4,7 +4,7 @@ Version 2019.09-dev (UNRELEASED)
     Update to the themes (frio, vier) [JeroenED, MrPetovan, tobiasd, vinzv]
     Update to the documentation [annando, tobiasd, guzzisti, vinzv]
     Enhanced the log output of the background process [annando]
-    Enhanced the vcard translation in the profile (JeroenED)
+    Enhanced the vcard translation in the profile [JeroenED]
     Enhanced the delivery count [annando]
     Enhanced ActivityPub envelopes [MrPetovan]
     Enhanced communication about deleted accounts via AP [annando]
