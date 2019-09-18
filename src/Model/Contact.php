@@ -668,21 +668,21 @@ class Contact extends BaseObject
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
-			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl',
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
 			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return;
 		}
 
-		$fields = ['nickname', 'page-flags', 'account-type'];
+		$fields = ['nickname', 'page-flags', 'account-type', 'hidewall'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return;
 		}
 
 		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
-			'country-name', 'gender', 'pub_keywords', 'xmpp'];
+			'country-name', 'gender', 'pub_keywords', 'xmpp', 'net-publish'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		if (!DBA::isResult($profile)) {
 			return;
@@ -727,6 +727,7 @@ class Contact extends BaseObject
 		$fields['avatar'] = System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
+		$fields['unsearchable'] = $user['hidewall'] || !$profile['net-publish'];
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];

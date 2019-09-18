@@ -227,6 +227,7 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 			$values = [$start, $itemspage];
 		}
 
+		/// @todo Use "unsearchable" here as well (instead of "hidewall")
 		$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link` FROM `thread`
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
@@ -237,9 +238,9 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 		return DBA::toArray($r);
 	} elseif ($content == 'global') {
 		if (!is_null($accounttype)) {
-			$condition = ["`uid` = ? AND `owner`.`contact-type` = ?", 0, $accounttype];
+			$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable` AND `owner`.`contact-type` = ?", 0, $accounttype];
 		} else {
-			$condition = ['uid' => 0];
+			$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable`", 0];
 		}
 
 		$r = Item::selectThreadForUser(0, ['uri'], $condition, ['order' => ['commented' => true], 'limit' => [$start, $itemspage]]);
