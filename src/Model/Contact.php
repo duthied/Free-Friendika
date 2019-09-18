@@ -727,7 +727,7 @@ class Contact extends BaseObject
 		$fields['avatar'] = System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
-		$fields['unsearchable'] = $user['hidewall'] || $profile['net-publish'];
+		$fields['unsearchable'] = $user['hidewall'] || !$profile['net-publish'];
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];
