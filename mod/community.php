@@ -237,9 +237,9 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 		return DBA::toArray($r);
 	} elseif ($content == 'global') {
 		if (!is_null($accounttype)) {
-			$condition = ["`uid` = ? AND `owner`.`contact-type` = ?", 0, $accounttype];
+			$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable` AND `owner`.`contact-type` = ?", 0, $accounttype];
 		} else {
-			$condition = ['uid' => 0];
+			$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable`", 0];
 		}
 
 		$r = Item::selectThreadForUser(0, ['uri'], $condition, ['order' => ['commented' => true], 'limit' => [$start, $itemspage]]);
