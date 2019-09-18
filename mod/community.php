@@ -227,6 +227,7 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 			$values = [$start, $itemspage];
 		}
 
+		/// @todo Use "unsearchable" here as well (instead of "hidewall")
 		$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link` FROM `thread`
 			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
 			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
