@@ -1463,7 +1463,6 @@ class Contact extends BaseObject
 
 		if (empty($data)) {
 			$data = Probe::uri($url, "", $uid);
-
 			// Ensure that there is a gserver entry
 			if (!empty($data['baseurl']) && ($data['network'] != Protocol::PHANTOM)) {
 				PortableContact::checkServer($data['baseurl']);
@@ -2022,9 +2021,8 @@ class Contact extends BaseObject
 			return true;
 		}
 
-		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT) ||
-			(in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network']))) {
+		// If Probe::uri fails the network code will be different ("feed" or "unkn")
+		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
 			if ($force && ($uid == 0)) {
 				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'failure_update' => $updated]);
 			}
@@ -2064,7 +2062,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		if ($ret['network'] != Protocol::FEED) {
+		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
 			self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
 		}
 
