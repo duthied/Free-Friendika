@@ -291,6 +291,19 @@ class Contact extends BaseObject
 	}
 
 	/**
+	 * Check if the given contact url is on the same machine
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return boolean Is it the same machine?
+	 */
+	public static function isLocal($url)
+	{
+		return Strings::compareLink(self::getBasepath($url), System::baseUrl());
+
+	}
+
+	/**
 	 * Returns the public contact id of the given user id
 	 *
 	 * @param  integer $uid User ID
@@ -2486,6 +2499,9 @@ class Contact extends BaseObject
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
+			// Ensure to always have the correct network type, independent from the connection request method
+			self::updateFromProbe($contact['id'], '', true);
+
 			return true;
 		} else {
 			// send email notification to owner?
@@ -2511,15 +2527,14 @@ class Contact extends BaseObject
 				'writable' => 1,
 			]);
 
-			$contact_record = [
-				'id' => DBA::lastInsertId(),
-				'network' => $network,
-				'name' => $name,
-				'url' => $url,
-				'photo' => $photo
-			];
+			$contact_id = DBA::lastInsertId();
 
-			Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
+			// Ensure to always have the correct network type, independent from the connection request method
+			self::updateFromProbe($contact_id, '', true);
+
+			Contact::updateAvatar($photo, $importer["uid"], $contact_id, true);
+
+			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
 			/// @TODO Encapsulate this into a function/method
 			$fields = ['uid', 'username', 'email', 'page-flags', 'notify-flags', 'language'];
