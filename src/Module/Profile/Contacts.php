@@ -36,7 +36,6 @@ class Contacts extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('User not found.'));
 		}
 
-		$a->data['user'] = $user;
 		$a->profile_uid  = $user['uid'];
 
 		Profile::load($a, $nickname);
