@@ -270,14 +270,17 @@ class Contact extends BaseObject
 	 * @param string $url The contact link
 	 *
 	 * @return string basepath
+	 * @return boolean $dont_update Don't update the contact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getBasepath($url)
+	public static function getBasepath($url, $dont_update = false)
 	{
 		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 		if (!empty($contact['baseurl'])) {
 			return $contact['baseurl'];
+		} elseif ($dont_update) {
+			return '';
 		}
 
 		self::updateFromProbeByURL($url, true);
@@ -288,6 +291,18 @@ class Contact extends BaseObject
 		}
 
 		return '';
+	}
+
+	/**
+	 * Check if the given contact url is on the same server
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return boolean Is it the same server?
+	 */
+	public static function isLocal($url)
+	{
+		return Strings::compareLink(self::getBasepath($url, true), System::baseUrl());
 	}
 
 	/**
@@ -2486,6 +2501,9 @@ class Contact extends BaseObject
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
+			// Ensure to always have the correct network type, independent from the connection request method
+			self::updateFromProbe($contact['id'], '', true);
+
 			return true;
 		} else {
 			// send email notification to owner?
@@ -2511,15 +2529,14 @@ class Contact extends BaseObject
 				'writable' => 1,
 			]);
 
-			$contact_record = [
-				'id' => DBA::lastInsertId(),
-				'network' => $network,
-				'name' => $name,
-				'url' => $url,
-				'photo' => $photo
-			];
+			$contact_id = DBA::lastInsertId();
 
-			Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
+			// Ensure to always have the correct network type, independent from the connection request method
+			self::updateFromProbe($contact_id, '', true);
+
+			Contact::updateAvatar($photo, $importer["uid"], $contact_id, true);
+
+			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
 			/// @TODO Encapsulate this into a function/method
 			$fields = ['uid', 'username', 'email', 'page-flags', 'notify-flags', 'language'];

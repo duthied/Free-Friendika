@@ -568,6 +568,11 @@ class Notifier
 	 */
 	private static function skipDFRN($contact, $item, $cmd)
 	{
+		// Use DFRN if we are on the same site
+		if (!empty($contact['url']) && Contact::isLocal($contact['url'])) {
+			return false;
+		}
+
 		// Don't skip when author or owner don't have AP profiles
 		if ((!empty($item['author-link']) && empty(APContact::getByURL($item['author-link'], false))) || (!empty($item['owner-link']) && empty(APContact::getByURL($item['owner-link'], false)))) {
 			return false;
