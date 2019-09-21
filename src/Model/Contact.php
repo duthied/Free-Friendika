@@ -270,14 +270,17 @@ class Contact extends BaseObject
 	 * @param string $url The contact link
 	 *
 	 * @return string basepath
+	 * @return boolean $dont_update Don't update the contact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getBasepath($url)
+	public static function getBasepath($url, $dont_update = false)
 	{
 		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 		if (!empty($contact['baseurl'])) {
 			return $contact['baseurl'];
+		} elseif ($dont_update) {
+			return '';
 		}
 
 		self::updateFromProbeByURL($url, true);
@@ -299,8 +302,7 @@ class Contact extends BaseObject
 	 */
 	public static function isLocal($url)
 	{
-		return Strings::compareLink(self::getBasepath($url), System::baseUrl());
-
+		return Strings::compareLink(self::getBasepath($url, true), System::baseUrl());
 	}
 
 	/**
