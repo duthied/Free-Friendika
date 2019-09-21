@@ -294,11 +294,11 @@ class Contact extends BaseObject
 	}
 
 	/**
-	 * Check if the given contact url is on the same machine
+	 * Check if the given contact url is on the same server
 	 *
 	 * @param string $url The contact link
 	 *
-	 * @return boolean Is it the same machine?
+	 * @return boolean Is it the same server?
 	 */
 	public static function isLocal($url)
 	{
