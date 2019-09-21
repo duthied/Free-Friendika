@@ -594,7 +594,7 @@ function profiles_content(App $a) {
 			'$default' => (($is_default) ? '<p id="profile-edit-default-desc">' . L10n::t('This is your <strong>public</strong> profile.<br />It <strong>may</strong> be visible to anybody using the internet.') . '</p>' : ""),
 			'$name' => ['name', L10n::t('Your Full Name:'), $r[0]['name']],
 			'$pdesc' => ['pdesc', L10n::t('Title/Description:'), $r[0]['pdesc']],
-			'$dob' => Temporal::getDateofBirthField($r[0]['dob']),
+			'$dob' => Temporal::getDateofBirthField($r[0]['dob'], $a->user['timezone']),
 			'$hide_friends' => $hide_friends,
 			'$address' => ['address', L10n::t('Street Address:'), $r[0]['address']],
 			'$locality' => ['locality', L10n::t('Locality/City:'), $r[0]['locality']],
