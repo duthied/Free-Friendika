@@ -569,7 +569,7 @@ class Notifier
 	private static function skipDFRN($contact, $item, $cmd)
 	{
 		// Use DFRN if we are on the same site
-		if (Contact::isLocal($contact['url'])) {
+		if (!empty($contact['url']) && Contact::isLocal($contact['url'])) {
 			return false;
 		}
 
