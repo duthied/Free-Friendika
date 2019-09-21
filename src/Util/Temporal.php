@@ -126,7 +126,7 @@ class Temporal
 	 * @return string Formatted HTML
 	 * @throws \Exception
 	 */
-	public static function getDateofBirthField($dob, $timezone = 'UTC')
+	public static function getDateofBirthField(string $dob, string $timezone = 'UTC')
 	{
 		list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
