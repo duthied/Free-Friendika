@@ -21,6 +21,7 @@ Version 2019.09-dev (UNRELEASED)
     Enhanced performance [annando]
     Fixed a bug in the admin panel leading to orphand options [tobiasd]
     Fixed a problem that could lead to duplicated Pleroma contacts [annando]
+    Fixed a problem with the hide profile setting [annando]
     Fixed the problem sending out the post when hitting the enter key in the ACL dialog [MrPetovan]
     Fixed a bug in HTML special character escaping of event titles [MrPetovan]
     Fixed a bug in HTML special character conversion in item titles [MrPetovan]
@@ -35,6 +36,7 @@ Version 2019.09-dev (UNRELEASED)
     Fixed a bug in the process of following Pleroma accounts [annando]
     Fixed a bug that caused notifications about locally deleted items [annando]
     Fixed the link to the source of an event [MrPetovan]
+    Fixed a problem that caused authors from twitter postings having no profile pic [annando]
     Fixed a bug in BBCode -> Markdown conversation for font size [annando]
     General code cleaning [annando, MrPetovan, nupplaphil]
     Removed contacts auto completion (in /contacts [MrPetovan]
@@ -66,7 +68,7 @@ Version 2019.09-dev (UNRELEASED)
     7367, 7383, 7396, 7397, 7401, 7406, 7408, 7426, 7428, 7456, 7442,
     7457, 7468, 7471, 7473, 7488, 7497, 7498, 7501, 7507, 7521, 7526,
     7527, 7536, 7542, 7545, 7576, 7586, 7594, 7597, 7603, 7610, 7618,
-    7629
+    7629, 7635, 7638
 
 Version 2019.06 (2019-06-23)
   Friendica Core:
