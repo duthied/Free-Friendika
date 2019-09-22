@@ -602,6 +602,9 @@ While taking pictures in the woods I had a really strange encounter...</td>
 The [abstract] element is not working with connectors where we post HTML directly, like Tumblr, Wordpress or Pump.io.
 For the native connections--that is to e.g. Friendica, Hubzilla, Diaspora or GNU Social--the full posting is used and the contacts instance will display the posting as desired.
 
+For postings that are delivered via ActivityPub, the text from the abstract is placed in the summary field.
+On Mastodon this field is used for the content warning.
+
 ## Special
 
 <table class="bbcodes">
