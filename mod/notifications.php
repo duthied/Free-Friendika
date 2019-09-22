@@ -49,11 +49,15 @@ function notifications_post(App $a)
 		if ($_POST['submit'] == L10n::t('Discard')) {
 			DBA::delete('intro', ['id' => $intro_id]);
 			if (!$fid) {
-				// The check for pending is in case the friendship was already approved
-				// and we just want to get rid of the pending contact
+				// When the contact entry had been created just for that intro, we want to get rid of it now
 				$condition = ['id' => $contact_id, 'uid' => local_user(),
 					'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
-				if (DBA::exists('contact', $condition)) {
+				$contact_pending = DBA::exists('contact', $condition);
+
+				// Remove the "pending" to stop the reappearing in any case
+				DBA::update('contact', ['pending' => false], ['id' => $contact_id]);
+
+				if ($contact_pending) {
 					Contact::remove($contact_id);
 				}
 			}
