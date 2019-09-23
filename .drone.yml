@@ -5,7 +5,12 @@ steps:
 - name: mysql-php7.1
   image: friendicaci/php7.1:php7.1.32
   commands:
-    - NOCOVERAGE=true ./autotest.sh
+      - phpenmod xdebug
+      - sleep 20
+      - ./autotest.sh
+      - wget https://codecov.io/bash -O codecov.sh
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
   environment:
     MYSQL_USERNAME: friendica
     MYSQL_PASSWORD: friendica
@@ -110,7 +115,12 @@ steps:
     - name: redis-php7.1
       image: friendicaci/php7.1:php7.1.32
       commands:
-          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh
+        - phpenmod xdebug
+        - sleep 20
+        - NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh
+        - wget https://codecov.io/bash -O codecov.sh
+        - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+        - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
       environment:
           REDIS_HOST: redis
 

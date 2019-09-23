@@ -131,7 +131,7 @@ function execute_tests {
 
     COVER=''
     if [ -z "$NOCOVERAGE" ]; then
-      COVER="--coverage-clover autotest-clover.xml --coverage-html coverage-html"
+      COVER="--coverage-clover=tests/autotest-clover.xml --coverage-html=tests/coverage-html"
     else
       echo "No coverage"
     fi
