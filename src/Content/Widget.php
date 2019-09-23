@@ -337,16 +337,9 @@ class Widget
 			return;
 		}
 
-		$cid = $zcid = 0;
+		$zcid = 0;
 
-		if (!empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $visitor) {
-				if ($visitor['uid'] == $profile_uid) {
-					$cid = $visitor['cid'];
-					break;
-				}
-			}
-		}
+		$cid = remote_user($profile_uid);
 
 		if (!$cid) {
 			if (Profile::getMyURL()) {

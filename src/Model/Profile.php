@@ -248,7 +248,7 @@ class Profile
 	 */
 	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
 	{
-		if (remote_user() && !empty($_SESSION['remote'])) {
+		if (remote_user($uid) && !empty($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $visitor) {
 				if ($visitor['uid'] == $uid) {
 					$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);

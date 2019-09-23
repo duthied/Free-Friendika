@@ -413,7 +413,7 @@ function public_contact()
  *
  * @return int|bool visitor_id or false
  */
-function remote_user()
+function remote_user($uid = 0)
 {
 	// You cannot be both local and remote.
 	// Unncommented by rabuzarus because remote authentication to local
@@ -422,13 +422,22 @@ function remote_user()
 //		return false;
 //	}
 
-	if (empty($_SESSION)) {
+	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['visitor_id'])) {
+	if (!empty($uid) && !empty($_SESSION['remote'])) {
+		foreach ($_SESSION['remote'] as $visitor) {
+			if ($visitor['uid'] == $uid) {
+				return $visitor['cid'];
+			}
+		}
+	}
+
+	if (!empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
+
 	return false;
 }
 
