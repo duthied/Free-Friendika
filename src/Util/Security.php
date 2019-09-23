@@ -33,7 +33,7 @@ class Security extends BaseObject
 			return true;
 		}
 
-		if (remote_user()) {
+		if (remote_user($owner)) {
 			// use remembered decision and avoid a DB lookup for each and every display item
 			// DO NOT use this function if there are going to be multiple owners
 			// We have a contact-id for an authenticated remote user, this block determines if the contact
@@ -44,17 +44,7 @@ class Security extends BaseObject
 			} elseif ($verified === 1) {
 				return false;
 			} else {
-				$cid = 0;
-
-				if (!empty($_SESSION['remote'])) {
-					foreach ($_SESSION['remote'] as $visitor) {
-						if ($visitor['uid'] == $owner) {
-							$cid = $visitor['cid'];
-							break;
-						}
-					}
-				}
-
+				$cid = remote_user($owner);
 				if (!$cid) {
 					return false;
 				}

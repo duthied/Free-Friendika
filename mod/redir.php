@@ -15,15 +15,15 @@ function redir_init(App $a) {
 
 	$url = defaults($_GET, 'url', '');
 	$quiet = !empty($_GET['quiet']) ? '&quiet=1' : '';
-	$con_url = defaults($_GET, 'conurl', '');
 
 	if ($a->argc > 1 && intval($a->argv[1])) {
 		$cid = intval($a->argv[1]);
-	} elseif (local_user() && !empty($con_url)) {
-		$cid = Contact::getIdForURL($con_url, local_user());
 	} else {
 		$cid = 0;
 	}
+
+	// Try magic auth before the legacy stuff
+	redir_magic($a, $cid, $url);
 
 	if (!empty($cid)) {
 		$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name', 'network', 'poll', 'issued-id', 'dfrn-id', 'duplex', 'pending'];
@@ -139,4 +139,63 @@ function redir_init(App $a) {
 
 	notice(L10n::t('Contact not found.'));
 	$a->internalRedirect();
+}
+
+function redir_magic($a, $cid, $url)
+{
+	$visitor = Profile::getMyURL();
+	if (!empty($visitor)) {
+		Logger::info('Got my url', ['visitor' => $visitor]);
+	}
+
+	if (empty(visitor) && remote_user()) {
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => remote_user()]);
+		if (!empty($contact['url'])) {
+			$visitor = $contact['url'];
+			Logger::info('Got remote user', ['visitor' => $visitor]);
+		}
+	}
+
+	if (empty(visitor) && local_user()) {
+		$contact = DBA::selectFirst('contact', ['url'], ['id' => local_user()]);
+		if (!empty($contact['url'])) {
+			$visitor = $contact['url'];
+			Logger::info('Got local user', ['visitor' => $visitor]);
+		}
+	}
+
+	$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid]);
+	if (!DBA::isResult($contact)) {
+		Logger::info('Contact not found', ['id' => $cid]);
+		// Shouldn't happen under normal conditions
+		notice(L10n::t('Contact not found.'));
+		if (!empty($url)) {
+			$a->redirect($url);
+		} else {
+			$a->internalRedirect();
+		}
+	} else {
+		$contact_url = $contact['url'];
+		$target_url = defaults($url, $contact_url);
+	}
+
+	$basepath = Contact::getBasepath($contact_url);
+
+	// We don't use magic auth when there is no visitor, we are on the same system or we visit our own stuff
+	if (empty($visitor) || Strings::compareLink($basepath, System::baseUrl()) || Strings::compareLink($contact_url, $visitor)) {
+		Logger::info('Redirecting without magic', ['target' => $target_url, 'visitor' => $visitor, 'contact' => $contact_url]);
+		$a->redirect($target_url);
+	}
+
+	// Test for magic auth on the target system
+	$serverret = Network::curl($basepath . '/magic');
+	if ($serverret->isSuccess()) {
+		$separator = strpos($target_url, '?') ? '&' : '?';
+		$target_url .= $separator . 'zrl=' . urlencode($visitor);
+
+		Logger::info('Redirecting with magic', ['target' => $target_url, 'visitor' => $visitor, 'contact' => $contact_url]);
+		$a->redirect($target_url);
+	} else {
+		Logger::info('No magic for contact', ['contact' => $contact_url]);
+	}
 }
