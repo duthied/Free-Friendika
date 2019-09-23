@@ -79,45 +79,47 @@ function execute_tests {
       mv config/local.config.php config/local.config-autotest-backup.php
     fi
 
-    if [ -n "$USEDOCKER" ]; then
-      echo "Fire up the mysql docker"
-      DOCKER_CONTAINER_ID=$(docker run \
-              -e MYSQL_ROOT_PASSWORD=friendica \
-              -e MYSQL_USER="$DATABASEUSER" \
-              -e MYSQL_PASSWORD=friendica \
-              -e MYSQL_DATABASE="$DATABASENAME" \
-              -d mysql)
-      DATABASEHOST=$(docker inspect --format="{{.NetworkSettings.IPAddress}}" "$DOCKER_CONTAINER_ID")
-    else
-      if [ -z "$DRONE" ]; then  # no need to drop the DB when we are on CI
-        if [ "mysql" != "$(mysql --version | grep -o mysql)" ]; then
-          echo "Your mysql binary is not provided by mysql"
-          echo "To use the docker container set the USEDOCKER environment variable"
-          exit 3
-        fi
-        mysql -u "$DATABASEUSER" -pfriendica -e "DROP DATABASE IF EXISTS $DATABASENAME"
-        mysql -u "$DATABASEUSER" -pfriendica -e "CREATE DATABASE $DATABASENAME DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+    if [ -z "$NOINSTALL" ]; then
+      if [ -n "$USEDOCKER" ]; then
+        echo "Fire up the mysql docker"
+        DOCKER_CONTAINER_ID=$(docker run \
+                -e MYSQL_ROOT_PASSWORD=friendica \
+                -e MYSQL_USER="$DATABASEUSER" \
+                -e MYSQL_PASSWORD=friendica \
+                -e MYSQL_DATABASE="$DATABASENAME" \
+                -d mysql)
+        DATABASEHOST=$(docker inspect --format="{{.NetworkSettings.IPAddress}}" "$DOCKER_CONTAINER_ID")
       else
-        DATABASEHOST=mysql
+        if [ -z "$DRONE" ]; then  # no need to drop the DB when we are on CI
+          if [ "mysql" != "$(mysql --version | grep -o mysql)" ]; then
+            echo "Your mysql binary is not provided by mysql"
+            echo "To use the docker container set the USEDOCKER environment variable"
+            exit 3
+          fi
+          mysql -u "$DATABASEUSER" -pfriendica -e "DROP DATABASE IF EXISTS $DATABASENAME"
+          mysql -u "$DATABASEUSER" -pfriendica -e "CREATE DATABASE $DATABASENAME DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
+        else
+          DATABASEHOST=mysql
+        fi
       fi
+
+      echo "Waiting for MySQL $DATABASEHOST initialization..."
+      if ! bin/wait-for-connection $DATABASEHOST 3306 300; then
+        echo "[ERROR] Waited 300 seconds, no response" >&2
+        exit 1
+      fi
+
+      if [ -n "$USEDOCKER" ]; then
+        echo "Initialize database..."
+        docker exec $DOCKER_CONTAINER_ID mysql -u root -pfriendica -e 'CREATE DATABASE IF NOT EXISTS $DATABASENAME;'
+      fi
+
+      export MYSQL_HOST="$DATABASEHOST"
+
+      #call installer
+      echo "Installing Friendica..."
+      "$PHP" ./bin/console.php autoinstall --dbuser="$DATABASEUSER" --dbpass=friendica --dbdata="$DATABASENAME" --dbhost="$DATABASEHOST" --url=https://friendica.local --admin=admin@friendica.local
     fi
-
-    echo "Waiting for MySQL $DATABASEHOST initialization..."
-    if ! bin/wait-for-connection $DATABASEHOST 3306 300; then
-      echo "[ERROR] Waited 300 seconds, no response" >&2
-      exit 1
-    fi
-
-    if [ -n "$USEDOCKER" ]; then
-      echo "Initialize database..."
-      docker exec $DOCKER_CONTAINER_ID mysql -u root -pfriendica -e 'CREATE DATABASE IF NOT EXISTS $DATABASENAME;'
-    fi
-
-    export MYSQL_HOST="$DATABASEHOST"
-
-    #call installer
-    echo "Installing Friendica..."
-    "$PHP" ./bin/console.php autoinstall --dbuser="$DATABASEUSER" --dbpass=friendica --dbdata="$DATABASENAME" --dbhost="$DATABASEHOST" --url=https://friendica.local --admin=admin@friendica.local
 
     #test execution
     echo "Testing..."
@@ -137,16 +139,16 @@ function execute_tests {
     # per default, there is no cache installed
     GROUP='--exclude-group=REDIS,MEMCACHE,MEMCACHED,APCU'
     if [ "$TEST_SELECTION" == "REDIS" ]; then
-      GROUP="--group REDIS"
+      GROUP="--group=REDIS"
     fi
     if [ "$TEST_SELECTION" == "MEMCACHE" ]; then
-      GROUP="--group MEMCACHE"
+      GROUP="--group=MEMCACHE"
     fi
     if [ "$TEST_SELECTION" == "MEMCACHED" ]; then
-      GROUP="--group MEMCACHED"
+      GROUP="--group=MEMCACHED"
     fi
     if [ "$TEST_SELECTION" == "APCU" ]; then
-      GROUP="--group APCU"
+      GROUP="--group=APCU"
     fi
     if [ "$TEST_SELECTION" == "NODB" ]; then
       GROUP="--exclude-group=DB,SLOWDB"

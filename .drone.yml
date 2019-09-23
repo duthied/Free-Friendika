@@ -3,7 +3,7 @@ name: mysql-php7.1
 
 steps:
 - name: mysql-php7.1
-  image: friendicaci/php7.1:php7.1
+  image: friendicaci/php7.1:php7.1.32
   commands:
     - NOCOVERAGE=true ./autotest.sh
   environment:
@@ -23,6 +23,148 @@ services:
     MYSQL_DATABASE: friendica
   tmpfs:
     - /var/lib/mysql
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mysql-php7.2
+
+steps:
+    - name: mysql-php7.2
+      image: friendicaci/php7.2:php7.2.22
+      commands:
+          - NOCOVERAGE=true ./autotest.sh
+      environment:
+          MYSQL_USERNAME: friendica
+          MYSQL_PASSWORD: friendica
+          MYSQL_DATABASE: friendica
+          MYSQL_HOST: mysql
+
+services:
+    - name: mysql
+      image: mysql:8.0
+      command: [ "--default-authentication-plugin=mysql_native_password" ]
+      environment:
+          MYSQL_ROOT_PASSWORD: friendica
+          MYSQL_USER: friendica
+          MYSQL_PASSWORD: friendica
+          MYSQL_DATABASE: friendica
+      tmpfs:
+          - /var/lib/mysql
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: mysql-php7.3
+
+steps:
+    - name: mysql-php7.3
+      image: friendicaci/php7.3:php7.3.9
+      commands:
+          - NOCOVERAGE=true ./autotest.sh
+      environment:
+          MYSQL_USERNAME: friendica
+          MYSQL_PASSWORD: friendica
+          MYSQL_DATABASE: friendica
+          MYSQL_HOST: mysql
+
+services:
+    - name: mysql
+      image: mysql:8.0
+      command: [ "--default-authentication-plugin=mysql_native_password" ]
+      environment:
+          MYSQL_ROOT_PASSWORD: friendica
+          MYSQL_USER: friendica
+          MYSQL_PASSWORD: friendica
+          MYSQL_DATABASE: friendica
+      tmpfs:
+          - /var/lib/mysql
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: redis-php7.1
+
+steps:
+    - name: redis-php7.1
+      image: friendicaci/php7.1:php7.1.32
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh
+      environment:
+          REDIS_HOST: redis
+
+services:
+    - name: redis
+      image: redis
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: redis-php7.2
+
+steps:
+    - name: redis-php7.2
+      image: friendicaci/php7.2:php7.2.22
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh
+      environment:
+        REDIS_HOST: redis
+
+services:
+    - name: redis
+      image: redis
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: redis-php7.3
+
+steps:
+    - name: redis-php7.3
+      image: friendicaci/php7.3:php7.3.9
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh
+      environment:
+        REDIS_HOST: redis
+
+services:
+    - name: redis
+      image: redis
 
 #trigger:
 #  branch:
