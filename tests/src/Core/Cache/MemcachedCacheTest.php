@@ -9,6 +9,7 @@ use Psr\Log\NullLogger;
 
 /**
  * @requires extension memcached
+ * @group MEMCACHED
  */
 class MemcachedCacheTest extends MemoryCacheTest
 {

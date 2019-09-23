@@ -10,6 +10,7 @@ use Psr\Log\NullLogger;
 
 /**
  * @requires extension memcached
+ * @group MEMCACHED
  */
 class MemcachedCacheLockTest extends LockTest
 {

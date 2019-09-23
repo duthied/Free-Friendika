@@ -7,6 +7,7 @@ use Friendica\Core\Config\Configuration;
 
 /**
  * @requires extension memcache
+ * @group MEMCACHE
  */
 class MemcacheCacheTest extends MemoryCacheTest
 {

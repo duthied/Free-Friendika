@@ -9,6 +9,7 @@ use Friendica\Core\Lock\CacheLock;
 
 /**
  * @requires extension redis
+ * @group REDIS
  */
 class RedisCacheLockTest extends LockTest
 {

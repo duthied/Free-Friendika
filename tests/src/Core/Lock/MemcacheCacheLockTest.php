@@ -9,6 +9,7 @@ use Friendica\Core\Lock\CacheLock;
 
 /**
  * @requires extension Memcache
+ * @group MEMCACHE
  */
 class MemcacheCacheLockTest extends LockTest
 {

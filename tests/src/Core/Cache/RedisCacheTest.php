@@ -8,6 +8,7 @@ use Friendica\Core\Config\Configuration;
 
 /**
  * @requires extension redis
+ * @group REDIS
  */
 class RedisCacheTest extends MemoryCacheTest
 {
