@@ -184,3 +184,160 @@ services:
 #  event:
 #    - pull_request
 #    - push
+
+---
+kind: pipeline
+name: memcache-php7.1
+
+steps:
+    - name: memcache-php7.1
+      image: friendicaci/php7.1:php7.1.32
+      commands:
+          - phpenmod xdebug
+          - sleep 20
+          - NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh
+          - wget https://codecov.io/bash -O codecov.sh
+          - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+          - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      environment:
+          MEMCACHE_HOST: memcached
+
+services:
+    - name: memcached
+      image: memcached
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcache-php7.2
+
+steps:
+    - name: memcache-php7.2
+      image: friendicaci/php7.2:php7.2.22
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh
+      environment:
+          MEMCACHE_HOST: memcached
+
+services:
+    - name: memcached
+      image: memcached
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcache-php7.3
+
+steps:
+    - name: memcache-php7.3
+      image: friendicaci/php7.3:php7.3.9
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh
+      environment:
+          MEMCACHE_HOST: memcached
+
+services:
+    - name: memcached
+      image: memcached
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+
+
+---
+kind: pipeline
+name: memcached-php7.1
+
+steps:
+    - name: memcached-php7.1
+      image: friendicaci/php7.1:php7.1.32
+      commands:
+          - phpenmod xdebug
+          - sleep 20
+          - NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh
+          - wget https://codecov.io/bash -O codecov.sh
+          - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+          - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      environment:
+          MEMCACHED_HOST: memcached
+
+services:
+    - name: memcached
+      image: memcached
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcached-php7.2
+
+steps:
+    - name: memcached-php7.2
+      image: friendicaci/php7.2:php7.2.22
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh
+      environment:
+          MEMCACHED_HOST: memcached
+
+services:
+    - name: memcached
+      image: memcached
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+---
+kind: pipeline
+name: memcached-php7.3
+
+steps:
+    - name: memcached-php7.3
+      image: friendicaci/php7.3:php7.3.9
+      commands:
+          - NOCOVERAGE=true NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh
+      environment:
+          MEMCACHED_HOST: memcached
+
+services:
+    - name: memcached
+      image: memcached
+
+#trigger:
+#  branch:
+#    - master
+#    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push

@@ -131,27 +131,27 @@ function execute_tests {
 
     COVER=''
     if [ -z "$NOCOVERAGE" ]; then
-      COVER="--coverage-clover=tests/autotest-clover.xml --coverage-html=tests/coverage-html"
+      COVER="--coverage-clover tests/autotest-clover.xml --coverage-html tests/coverage-html"
     else
       echo "No coverage"
     fi
 
     # per default, there is no cache installed
-    GROUP='--exclude-group=REDIS,MEMCACHE,MEMCACHED,APCU'
+    GROUP='--exclude-group REDIS,MEMCACHE,MEMCACHED,APCU'
     if [ "$TEST_SELECTION" == "REDIS" ]; then
-      GROUP="--group=REDIS"
+      GROUP="--group REDIS"
     fi
     if [ "$TEST_SELECTION" == "MEMCACHE" ]; then
-      GROUP="--group=MEMCACHE"
+      GROUP="--group MEMCACHE"
     fi
     if [ "$TEST_SELECTION" == "MEMCACHED" ]; then
-      GROUP="--group=MEMCACHED"
+      GROUP="--group MEMCACHED"
     fi
     if [ "$TEST_SELECTION" == "APCU" ]; then
-      GROUP="--group=APCU"
+      GROUP="--group APCU"
     fi
     if [ "$TEST_SELECTION" == "NODB" ]; then
-      GROUP="--exclude-group=DB,SLOWDB"
+      GROUP="--exclude-group DB,SLOWDB"
     fi
 
     INPUT="$BASEDIR/tests"
@@ -159,8 +159,8 @@ function execute_tests {
       INPUT="$INPUT/$1"
     fi
 
-    echo "${PHPUNIT[@]}" --configuration tests/phpunit.xml "$GROUP" "$COVER" --log-junit "autotest-results.xml" "$INPUT" "$2"
-    "${PHPUNIT[@]}" --configuration tests/phpunit.xml "$GROUP" "$COVER" --log-junit "autotest-results.xml" "$INPUT" "$2"
+    echo "${PHPUNIT[@]}" --configuration tests/phpunit.xml $GROUP $COVER --log-junit "autotest-results.xml" "$INPUT" "$2"
+    "${PHPUNIT[@]}" --configuration tests/phpunit.xml $GROUP $COVER --log-junit "autotest-results.xml" "$INPUT" "$2"
     RESULT=$?
 
     if [ -n "$DOCKER_CONTAINER_ID" ]; then
