@@ -5,6 +5,8 @@ DATABASEUSER=${MYSQL_USERNAME:-friendica}
 DATABASEHOST=${MYSQL_HOST:-localhost}
 BASEDIR=$PWD
 
+DBCONFIGS="mysql mariadb"
+
 export MYSQL_DATABASE="$DATABASENAME"
 export MYSQL_USERNAME="$DATABASEUSER"
 export MYSQL_PASSWORD="friendica"
@@ -45,6 +47,20 @@ if ! [ \( -w config -a ! -f config/local.config.php \) -o \( -f config/local.con
 	exit 1
 fi
 
+if [ "$1" ]; then
+  FOUND=0
+  for DBCONFIG in $DBCONFIGS; do
+    if [ "$1" = "$DBCONFIG" ]; then
+      FOUND=1
+      break
+    fi
+  done
+  if [ $FOUND = 0 ]; then
+    echo -e "Unknown database config name \"$1\"\n" >&2
+    exit 2
+  fi
+fi
+
 # Back up existing (dev) config if one exists and backup not already there
 if [ -f config/local.config.php ] && [ ! -f config/local.config-autotest-backup.php ]; then
   mv config/local.config.php config/local.config-autotest-backup.php
@@ -70,7 +86,8 @@ function cleanup_config {
 trap cleanup_config EXIT
 
 function execute_tests {
-    echo "Setup environment for MariaDB testing ..."
+    DB=$1
+    echo "Setup environment for $DB testing ..."
     # back to root folder
     cd "$BASEDIR"
 
@@ -80,33 +97,72 @@ function execute_tests {
     fi
 
     if [ -z "$NOINSTALL" ]; then
-      if [ -n "$USEDOCKER" ]; then
-        echo "Fire up the mysql docker"
-        DOCKER_CONTAINER_ID=$(docker run \
-                -e MYSQL_ROOT_PASSWORD=friendica \
-                -e MYSQL_USER="$DATABASEUSER" \
-                -e MYSQL_PASSWORD=friendica \
-                -e MYSQL_DATABASE="$DATABASENAME" \
-                -d mysql)
-        DATABASEHOST=$(docker inspect --format="{{.NetworkSettings.IPAddress}}" "$DOCKER_CONTAINER_ID")
-      else
-        if [ -z "$DRONE" ]; then  # no need to drop the DB when we are on CI
-          if [ "mysql" != "$(mysql --version | grep -o mysql)" ]; then
-            echo "Your mysql binary is not provided by mysql"
-            echo "To use the docker container set the USEDOCKER environment variable"
-            exit 3
-          fi
-          mysql -u "$DATABASEUSER" -pfriendica -e "DROP DATABASE IF EXISTS $DATABASENAME"
-          mysql -u "$DATABASEUSER" -pfriendica -e "CREATE DATABASE $DATABASENAME DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci"
-        else
-          DATABASEHOST=mysql
-        fi
-      fi
+      #drop database
+      if [ "$DB" == "mysql" ]; then
+          if [ -n "$USEDOCKER" ]; then
+            echo "Fire up the mysql docker"
+            DOCKER_CONTAINER_ID=$(docker run \
+                    -e MYSQL_ROOT_PASSWORD=friendica \
+                    -e MYSQL_USER="$DATABASEUSER" \
+                    -e MYSQL_PASSWORD=friendica \
+                    -e MYSQL_DATABASE="$DATABASENAME" \
+                    -d mysql)
+            DATABASEHOST=$(docker inspect --format="{{.NetworkSettings.IPAddress}}" "$DOCKER_CONTAINER_ID")
 
-      echo "Waiting for MySQL $DATABASEHOST initialization..."
-      if ! bin/wait-for-connection $DATABASEHOST 3306 300; then
-        echo "[ERROR] Waited 300 seconds, no response" >&2
-        exit 1
+          else
+            if [ -z "$DRONE" ]; then  # no need to drop the DB when we are on CI
+              if [ "mysql" != "$(mysql --version | grep -o mysql)" ]; then
+                echo "Your mysql binary is not provided by mysql"
+                echo "To use the docker container set the USEDOCKER environment variable"
+                exit 3
+              fi
+              mysql -u "$DATABASEUSER" -pfriendica -e "DROP DATABASE IF EXISTS $DATABASENAME" -h $DATABASEHOST || true
+              mysql -u "$DATABASEUSER" -pfriendica -e "CREATE DATABASE $DATABASENAME DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" -h $DATABASEHOST
+            else
+              DATABASEHOST=mysql
+            fi
+          fi
+
+          echo "Waiting for MySQL $DATABASEHOST initialization..."
+          if ! bin/wait-for-connection $DATABASEHOST 3306 300; then
+            echo "[ERROR] Waited 300 seconds, no response" >&2
+            exit 1
+          fi
+
+          echo "MySQL is up."
+      fi
+      if [ "$DB" == "mariadb" ]; then
+          if [ -n "$USEDOCKER" ]; then
+            echo "Fire up the mariadb docker"
+            DOCKER_CONTAINER_ID=$(docker run \
+                    -e MYSQL_ROOT_PASSWORD=friendica \
+                    -e MYSQL_USER="$DATABASEUSER" \
+                    -e MYSQL_PASSWORD=friendica \
+                    -e MYSQL_DATABASE="$DATABASENAME" \
+                    -d mariadb)
+            DATABASEHOST=$(docker inspect --format="{{.NetworkSettings.IPAddress}}" "$DOCKER_CONTAINER_ID")
+
+          else
+            if [ -z "$DRONE" ]; then  # no need to drop the DB when we are on CI
+              if [ "MariaDB" != "$(mysql --version | grep -o MariaDB)" ]; then
+                echo "Your mysql binary is not provided by mysql"
+                echo "To use the docker container set the USEDOCKER environment variable"
+                exit 3
+              fi
+              mysql -u "$DATABASEUSER" -pfriendica -e "DROP DATABASE IF EXISTS $DATABASENAME" -h $DATABASEHOST || true
+              mysql -u "$DATABASEUSER" -pfriendica -e "CREATE DATABASE $DATABASENAME DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci" -h $DATABASEHOST
+            else
+              DATABASEHOST=mariadb
+            fi
+          fi
+
+           echo "Waiting for MariaDB $DATABASEHOST initialization..."
+            if ! bin/wait-for-connection $DATABASEHOST 3306 300; then
+                echo "[ERROR] Waited 300 seconds, no response" >&2
+                exit 1
+            fi
+
+            echo "MariaDB is up."
       fi
 
       if [ -n "$USEDOCKER" ]; then
@@ -155,12 +211,12 @@ function execute_tests {
     fi
 
     INPUT="$BASEDIR/tests"
-    if [ -n "$1" ]; then
-      INPUT="$INPUT/$1"
+    if [ -n "$2" ]; then
+      INPUT="$INPUT/$2"
     fi
 
-    echo "${PHPUNIT[@]}" --configuration tests/phpunit.xml $GROUP $COVER --log-junit "autotest-results.xml" "$INPUT" "$2"
-    "${PHPUNIT[@]}" --configuration tests/phpunit.xml $GROUP $COVER --log-junit "autotest-results.xml" "$INPUT" "$2"
+    echo "${PHPUNIT[@]}" --configuration tests/phpunit.xml $GROUP $COVER --log-junit "autotest-results.xml" "$INPUT" "$3"
+    "${PHPUNIT[@]}" --configuration tests/phpunit.xml $GROUP $COVER --log-junit "autotest-results.xml" "$INPUT" "$3"
     RESULT=$?
 
     if [ -n "$DOCKER_CONTAINER_ID" ]; then
@@ -174,8 +230,15 @@ function execute_tests {
 #
 # Start the test execution
 #
-if [ -n "$1" ] && [ ! -f "tests/$FILENAME" ] && [ "${FILENAME:0:2}" != "--" ]; then
-  execute_tests "$FILENAME" "$2"
+if [ -z "$1" ] && [ -n "$TEST_SELECTION" ]; then
+  # run all known database configs
+  for DBCONFIG in $DBCONFIGS; do
+    execute_tests "$DBCONFIG"
+  done
 else
-  execute_tests
+  FILENAME="$2"
+  if [ -n "$2" ] && [ ! -f "tests/$FILENAME" ] && [ "${FILENAME:0:2}" != "--" ]; then
+    FILENAME="../$FILENAME"
+  fi
+  execute_tests "$1" "$FILENAME" "$3"
 fi
