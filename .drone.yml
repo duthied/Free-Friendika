@@ -5,12 +5,7 @@ steps:
 - name: mysql8.0-php7.1
   image: friendicaci/php7.1:php7.1.32
   commands:
-      - phpenmod xdebug
-      - sleep 20
-      - ./autotest.sh mysql
-      - wget https://codecov.io/bash -O codecov.sh
-      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
-      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      - NOCOVERAGE=true ./autotest.sh mysql
   environment:
     MYSQL_USERNAME: friendica
     MYSQL_PASSWORD: friendica
@@ -115,7 +110,12 @@ steps:
 - name: mariadb10.1-php7.1
   image: friendicaci/php7.1:php7.1.32
   commands:
-      - NOCOVERAGE=true ./autotest.sh mariadb
+      - phpenmod xdebug
+      - sleep 20
+      - ./autotest.sh mariadb
+      - wget https://codecov.io/bash -O codecov.sh
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
   environment:
       MYSQL_USER: friendica
       MYSQL_PASSWORD: friendica
