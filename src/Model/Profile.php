@@ -1130,7 +1130,7 @@ class Profile
 				continue;
 			}
 
-			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $visitor['url']];
+			$_SESSION['remote'][$contact['uid']] = ['cid' => $contact['id'], 'uid' => $contact['uid']];
 		}
 
 		$a->contact = $visitor;

@@ -128,7 +128,9 @@ class Session
 				continue;
 			}
 
-			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $_SESSION['my_url']];
+			/// @todo Change it to this format to save space
+			// $_SESSION['remote'][$contact['uid']] = $contact['id'];
+			$_SESSION['remote'][$contact['uid']] = ['cid' => $contact['id'], 'uid' => $contact['uid']];
 		}
 		DBA::close($remote_contacts);
 

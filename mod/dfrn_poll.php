@@ -114,7 +114,7 @@ function dfrn_poll_init(App $a)
 						$_SESSION['remote'] = [];
 					}
 
-					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
+					$_SESSION['remote'][$r[0]['uid']] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid']];
 
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
@@ -521,7 +521,7 @@ function dfrn_poll_content(App $a)
 						$_SESSION['remote'] = [];
 					}
 
-					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
+					$_SESSION['remote'][$r[0]['uid']] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid']];
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
