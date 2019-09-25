@@ -362,14 +362,8 @@ function drop_item($id, $return = '')
 	$contact_id = 0;
 
 	// check if logged in user is either the author or owner of this item
-
-	if (!empty($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $item['uid'] && $visitor['cid'] == $item['contact-id']) {
-				$contact_id = $visitor['cid'];
-				break;
-			}
-		}
+	if (remote_user($item['uid']) == $item['contact-id']) {
+		$contact_id = $item['contact-id'];
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {

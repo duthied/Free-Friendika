@@ -154,14 +154,12 @@ function photos_post(App $a)
 
 	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && remote_user($page_owner_uid)) {
+	} elseif ($community_page && !empty(remote_user($page_owner_uid))) {
 		$contact_id = remote_user($page_owner_uid);
 
-		if ($contact_id > 0) {
-			if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $page_owner_uid, 'blocked' => false, 'pending' => false])) {
-				$can_post = true;
-				$visitor = $contact_id;
-			}
+		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $page_owner_uid, 'blocked' => false, 'pending' => false])) {
+			$can_post = true;
+			$visitor = $contact_id;
 		}
 	}
 
@@ -883,50 +881,27 @@ function photos_content(App $a)
 
 	if (local_user() && (local_user() == $owner_uid)) {
 		$can_post = true;
-	} else {
-		if ($community_page && remote_user()) {
-			if (is_array($_SESSION['remote'])) {
-				foreach ($_SESSION['remote'] as $v) {
-					if ($v['uid'] == $owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
+	} elseif ($community_page && !empty(remote_user($owner_uid))) {
+		$contact_id = remote_user($owner_uid);
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
-			if ($contact_id) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
-
-				if (DBA::isResult($contact)) {
-					$can_post = true;
-					$remote_contact = true;
-					$visitor = $contact_id;
-				}
-			}
+		if (DBA::isResult($contact)) {
+			$can_post = true;
+			$remote_contact = true;
+			$visitor = $contact_id;
 		}
 	}
 
 	$groups = [];
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (remote_user() && !$visitor) {
-		$contact_id = 0;
-		if (is_array($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
+	if (!empty(remote_user($owner_uid)) && !$visitor) {
+		$contact_id = remote_user($owner_uid);
+		$groups = Group::getIdsByContactId($contact_id);
 
-		if ($contact_id) {
-			$groups = Group::getIdsByContactId($contact_id);
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
-
-			$remote_contact = DBA::isResult($contact);
-		}
+		$remote_contact = DBA::isResult($contact);
 	}
 
 	if (!$remote_contact && local_user()) {

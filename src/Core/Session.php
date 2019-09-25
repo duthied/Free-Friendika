@@ -120,7 +120,7 @@ class Session
 			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
 			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0'),
-			'remote'	=> []
+			'remote'	=> [],
 		]);
 
 		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
@@ -129,9 +129,7 @@ class Session
 				continue;
 			}
 
-			/// @todo Change it to this format to save space
-			// $_SESSION['remote'][$contact['uid']] = $contact['id'];
-			$_SESSION['remote'][$contact['uid']] = ['cid' => $contact['id'], 'uid' => $contact['uid']];
+			$_SESSION['remote'][$contact['uid']] = $contact['id'];
 		}
 		DBA::close($remote_contacts);
 
@@ -215,5 +213,35 @@ class Session
 				$a->internalRedirect(self::get('return_path'));
 			}
 		}
+	}
+
+	/**
+	 * Returns contact ID for given user ID
+	 *
+	 * @param integer $uid User ID
+	 * @return integer Contact ID of visitor for given user ID
+	 */
+	public static function getVisitorContactIDForUserID($uid)
+	{
+		if (empty($_SESSION['remote'][$uid])) {
+			return false;
+		}
+
+		return $_SESSION['remote'][$uid];
+	}
+
+	/**
+	 * Returns User ID for given contact ID of the visitor
+	 *
+	 * @param integer $cid Contact ID
+	 * @return integer User ID for given contact ID of the visitor
+	 */
+	public static function getUserIDForVisitorContactID($cid)
+	{
+		if (empty($_SESSION['remote'])) {
+			return false;
+		}
+
+		return array_search($cid, $_SESSION['remote']);
 	}
 }

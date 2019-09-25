@@ -154,44 +154,26 @@ function videos_content(App $a)
 
 	if ((local_user()) && (local_user() == $owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && remote_user()) {
-		if (!empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
+	} elseif ($community_page && !empty(remote_user($owner_uid))) {
+		$contact_id = remote_user($owner_uid);
 
-		if ($contact_id > 0) {
-			$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($owner_uid)
-			);
+		$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
+			intval($contact_id),
+			intval($owner_uid)
+		);
 
-			if (DBA::isResult($r)) {
-				$can_post = true;
-				$remote_contact = true;
-				$visitor = $contact_id;
-			}
+		if (DBA::isResult($r)) {
+			$can_post = true;
+			$remote_contact = true;
+			$visitor = $contact_id;
 		}
 	}
 
 	$groups = [];
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (remote_user() && (!$visitor)) {
-		$contact_id = 0;
-
-		if (!empty($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $v) {
-				if($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
+	if (!empty(remote_user($owner_uid)) && !$visitor) {
+		$contact_id = remote_user($owner_uid);
 
 		if ($contact_id > 0) {
 			$groups = Group::getIdsByContactId($contact_id);

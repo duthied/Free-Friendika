@@ -23,6 +23,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Term;
@@ -426,14 +427,8 @@ function remote_user($uid = null)
 		return false;
 	}
 
-	if (!is_null($uid) && !empty($_SESSION['remote'])) {
-		/// @todo replace it with this:
-		// if (!empty($_SESSION['remote'][$uid])) ...
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $uid) {
-				return $visitor['cid'];
-			}
-		}
+	if (!is_null($uid)) {
+		return Session::getVisitorContactIDForUserID($uid);
 	} elseif (is_null($uid) && !empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}

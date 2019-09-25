@@ -113,13 +113,8 @@ function cal_content(App $a)
 	$owner_uid = intval($a->data['user']['uid']);
 	$nick = $a->data['user']['nickname'];
 
-	if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $v) {
-			if ($v['uid'] == $a->profile['profile_uid']) {
-				$contact_id = $v['cid'];
-				break;
-			}
-		}
+	if (!empty(remote_user($a->profile['profile_uid']))) {
+		$contact_id = remote_user($a->profile['profile_uid']);
 	}
 
 	$groups = [];
