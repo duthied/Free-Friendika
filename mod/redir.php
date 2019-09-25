@@ -148,7 +148,8 @@ function redir_magic($a, $cid, $url)
 		Logger::info('Got my url', ['visitor' => $visitor]);
 	}
 
-	if (empty(visitor) && remote_user()) {
+	/// @todo Most likely these lines are superfluous. We will remove them in the next version
+	if (empty($visitor) && remote_user()) {
 		$contact = DBA::selectFirst('contact', ['url'], ['id' => remote_user()]);
 		if (!empty($contact['url'])) {
 			$visitor = $contact['url'];
@@ -156,7 +157,7 @@ function redir_magic($a, $cid, $url)
 		}
 	}
 
-	if (empty(visitor) && local_user()) {
+	if (empty($visitor) && local_user()) {
 		$contact = DBA::selectFirst('contact', ['url'], ['id' => local_user()]);
 		if (!empty($contact['url'])) {
 			$visitor = $contact['url'];

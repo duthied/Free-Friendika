@@ -1193,7 +1193,7 @@ class Contact extends BaseObject
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$sparkle = true;
-			$profile_link = System::baseUrl() . '/redir/' . $contact['id'] . '?url=' . $contact['url'];
+			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -2744,7 +2744,7 @@ class Contact extends BaseObject
 
 		$redirect = 'redir/' . $contact['id'];
 
-		if ($url != '') {
+		if (($url != '') && !Strings::compareLink($contact['url'], $url)) {
 			$redirect .= '?url=' . $url;
 		}
 
