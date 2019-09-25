@@ -120,9 +120,10 @@ class Session
 			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
 			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0'),
+			'remote'	=> []
 		]);
 
-		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
 		while ($contact = DBA::fetch($remote_contacts)) {
 			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
 				continue;
