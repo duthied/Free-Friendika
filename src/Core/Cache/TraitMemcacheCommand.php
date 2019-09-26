@@ -44,16 +44,14 @@ trait TraitMemcacheCommand
 
 		foreach ($lines as $line) {
 
-			if (preg_match("/STAT items:([\d]+):number ([\d]+)/", $line, $matches)) {
+			if (preg_match("/STAT items:([\d]+):number ([\d]+)/", $line, $matches) &&
+			    isset($matches[1]) &&
+			    !in_array($matches[1], $keys)) {
 
-				if (isset($matches[1])) {
-					if (!in_array($matches[1], $keys)) {
-						$slabs[] = $matches[1];
-						$string  = $this->sendMemcacheCommand("stats cachedump " . $matches[1] . " " . $matches[2]);
-						preg_match_all("/ITEM (.*?) /", $string, $matches);
-						$keys = array_merge($keys, $matches[1]);
-					}
-				}
+				$slabs[] = $matches[1];
+				$string  = $this->sendMemcacheCommand("stats cachedump " . $matches[1] . " " . $matches[2]);
+				preg_match_all("/ITEM (.*?) /", $string, $matches);
+				$keys = array_merge($keys, $matches[1]);
 			}
 		}
 
@@ -83,7 +81,7 @@ trait TraitMemcacheCommand
 		fwrite($s, $command . "\r\n");
 		$buf = '';
 
-		while ((!feof($s))) {
+		while (!feof($s)) {
 
 			$buf .= fgets($s, 256);
 
