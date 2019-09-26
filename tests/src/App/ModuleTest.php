@@ -152,7 +152,9 @@ class ModuleTest extends DatabaseTest
 		$config = \Mockery::mock(Configuration::class);
 		$config->shouldReceive('get')->with('config', 'private_addons', false)->andReturn($privAdd)->atMost()->once();
 
-		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), new App\Router(), $config);
+		$router = (new App\Router([]))->addRoutes(include __DIR__ . '/../../../static/routes.config.php');
+
+		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
 
 		$this->assertEquals($assert, $module->getClassName());
 	}
