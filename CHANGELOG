@@ -38,6 +38,9 @@ Version 2019.09-dev (UNRELEASED)
     Fixed the link to the source of an event [MrPetovan]
     Fixed a problem that caused authors from twitter postings having no profile pic [annando]
     Fixed a bug in BBCode -> Markdown conversation for font size [annando]
+    Fixed a BBCode parser problem with the audio tag [MrPetovan]
+    Fixed a session problem [annando]
+    Fixed a problem with the autoinstaller [nupplaphil]
     General code cleaning [annando, MrPetovan, nupplaphil]
     Removed contacts auto completion (in /contacts [MrPetovan]
     Replaced FontAwesome by ForkAwesome in frio theme [vinzv]
@@ -51,7 +54,7 @@ Version 2019.09-dev (UNRELEASED)
     Added opt-out flag for federated search engines and associated header information for profiles [annando]
 
   Friendica Addons:
-    Update to the translation (CS, DE, FR, JA, NL SV) [translation teams]
+    Update to the translation (CS, ES, DE, FR, JA, NL SV) [translation teams]
     General code cleanup [nupplaphil, Quix0r]
     blockbot:
       Added translations
@@ -68,7 +71,7 @@ Version 2019.09-dev (UNRELEASED)
     7367, 7383, 7396, 7397, 7401, 7406, 7408, 7426, 7428, 7456, 7442,
     7457, 7468, 7471, 7473, 7488, 7497, 7498, 7501, 7507, 7521, 7526,
     7527, 7536, 7542, 7545, 7576, 7586, 7594, 7597, 7603, 7610, 7618,
-    7629, 7635, 7638
+    7629, 7635, 7638, 7665
 
 Version 2019.06 (2019-06-23)
   Friendica Core:
