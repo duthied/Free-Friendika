@@ -21,8 +21,13 @@ services:
     MYSQL_USER: friendica
     MYSQL_PASSWORD: friendica
     MYSQL_DATABASE: friendica
-  tmpfs:
-    - /var/lib/mysql
+  volumes: 
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+- name: cache
+  temp: {}
 
 trigger:
   branch:
@@ -37,27 +42,32 @@ kind: pipeline
 name: mysql8.0-php7.2
 
 steps:
-    - name: mysql8.0-php7.2
-      image: friendicaci/php7.2:php7.2.22
-      commands:
-          - NOCOVERAGE=true ./autotest.sh mysql
-      environment:
-          MYSQL_USERNAME: friendica
-          MYSQL_PASSWORD: friendica
-          MYSQL_DATABASE: friendica
-          MYSQL_HOST: mysql
+- name: mysql8.0-php7.2
+  image: friendicaci/php7.2:php7.2.22
+  commands:
+    - NOCOVERAGE=true ./autotest.sh mysql
+  environment:
+    MYSQL_USERNAME: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+    MYSQL_HOST: mysql
 
 services:
-    - name: mysql
-      image: mysql:8.0
-      command: [ "--default-authentication-plugin=mysql_native_password" ]
-      environment:
-          MYSQL_ROOT_PASSWORD: friendica
-          MYSQL_USER: friendica
-          MYSQL_PASSWORD: friendica
-          MYSQL_DATABASE: friendica
-      tmpfs:
-          - /var/lib/mysql
+- name: mysql
+  image: mysql:8.0
+  command: [ "--default-authentication-plugin=mysql_native_password" ]
+  environment:
+    MYSQL_ROOT_PASSWORD: friendica
+    MYSQL_USER: friendica
+    MYSQL_PASSWORD: friendica
+    MYSQL_DATABASE: friendica
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
 
 trigger:
   branch:
@@ -91,8 +101,13 @@ services:
       MYSQL_USER: friendica
       MYSQL_PASSWORD: friendica
       MYSQL_DATABASE: friendica
-  tmpfs:
-      - /var/lib/mysql
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
 
 trigger:
   branch:
@@ -130,8 +145,13 @@ services:
       MYSQL_USER: friendica
       MYSQL_PASSWORD: friendica
       MYSQL_DATABASE: friendica
-  tmpfs:
-      - /var/lib/mysql
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
 
 trigger:
   branch:
@@ -164,8 +184,13 @@ services:
       MYSQL_USER: friendica
       MYSQL_PASSWORD: friendica
       MYSQL_DATABASE: friendica
-  tmpfs:
-      - /var/lib/mysql
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
 
 trigger:
   branch:
@@ -198,8 +223,13 @@ services:
       MYSQL_USER: friendica
       MYSQL_PASSWORD: friendica
       MYSQL_DATABASE: friendica
-  tmpfs:
-      - /var/lib/mysql
+  volumes:
+    - name: cache
+      path: /var/lib/mysql
+
+volumes:
+  - name: cache
+    temp: {}
 
 trigger:
   branch:
