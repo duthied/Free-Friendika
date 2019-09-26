@@ -24,14 +24,14 @@ services:
   tmpfs:
     - /var/lib/mysql
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: mysql8.0-php7.2
@@ -59,14 +59,14 @@ services:
       tmpfs:
           - /var/lib/mysql
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: mysql8.0-php7.3
@@ -94,14 +94,14 @@ services:
   tmpfs:
       - /var/lib/mysql
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: mariadb10.1-php7.1
@@ -133,14 +133,14 @@ services:
   tmpfs:
       - /var/lib/mysql
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: mariadb10.1-php7.2
@@ -167,14 +167,14 @@ services:
   tmpfs:
       - /var/lib/mysql
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: mariadb10.1-php7.3
@@ -201,14 +201,14 @@ services:
   tmpfs:
       - /var/lib/mysql
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: redis-php7.1
@@ -230,14 +230,14 @@ services:
 - name: redis
   image: redis
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: redis-php7.2
@@ -254,14 +254,14 @@ services:
 - name: redis
   image: redis
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: redis-php7.3
@@ -278,14 +278,14 @@ services:
 - name: redis
   image: redis
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 
 ---
 kind: pipeline
@@ -308,14 +308,14 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: memcache-php7.2
@@ -332,14 +332,14 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: memcache-php7.3
@@ -356,14 +356,14 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 
 
 ---
@@ -387,14 +387,14 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: memcached-php7.2
@@ -411,14 +411,14 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
 ---
 kind: pipeline
 name: memcached-php7.3
@@ -435,11 +435,11 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
-#    - master
-#    - develop
-#    - "*-rc"
-#  event:
-#    - pull_request
-#    - push
+trigger:
+  branch:
+    - master
+    - develop
+    - "*-rc"
+  event:
+    - pull_request
+    - push
