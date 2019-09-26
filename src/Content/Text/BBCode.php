@@ -1466,6 +1466,11 @@ class BBCode extends BaseObject
 
 		$text = str_replace('[hr]', '<hr />', $text);
 
+		if (!$for_plaintext) {
+			// Autolinker for isolated URLs
+			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
+		}
+
 		// This is actually executed in Item::prepareBody()
 
 		$nosmile = strpos($text, '[nosmile]') !== false;
@@ -1648,9 +1653,7 @@ class BBCode extends BaseObject
 			$text = Smilies::replace($text);
 		}
 
-		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
 		if (!$for_plaintext) {
-			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
 			if (in_array($simple_html, [7, 9])) {
 				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
 				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
