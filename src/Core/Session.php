@@ -119,19 +119,10 @@ class Session
 			'page_flags'    => $user_record['page-flags'],
 			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
-			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0'),
-			'remote'	=> [],
+			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0')
 		]);
 
-		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
-		while ($contact = DBA::fetch($remote_contacts)) {
-			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
-				continue;
-			}
-
-			$_SESSION['remote'][$contact['uid']] = $contact['id'];
-		}
-		DBA::close($remote_contacts);
+		self::setVisitorsContacts();
 
 		$member_since = strtotime($user_record['register_date']);
 		self::set('new_member', time() < ($member_since + ( 60 * 60 * 24 * 14)));
@@ -243,5 +234,25 @@ class Session
 		}
 
 		return array_search($cid, $_SESSION['remote']);
+	}
+
+	/**
+	 * Set the session variable that contains the contact IDs for the visitor's contact URL
+	 *
+	 * @param string $url Contact URL
+	 */
+	public static function setVisitorsContacts()
+	{
+		$_SESSION['remote'] = [];
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
+				continue;
+			}
+
+			$_SESSION['remote'][$contact['uid']] = $contact['id'];
+		}
+		DBA::close($remote_contacts);
 	}
 }

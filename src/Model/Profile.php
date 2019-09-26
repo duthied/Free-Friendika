@@ -1116,17 +1116,7 @@ class Profile
 		$_SESSION['visitor_home'] = $visitor['url'];
 		$_SESSION['my_url'] = $visitor['url'];
 
-		/// @todo replace this and the query for this variable with some cleaner functionality
-		$_SESSION['remote'] = [];
-
-		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => $visitor['nurl'], 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
-		while ($contact = DBA::fetch($remote_contacts)) {
-			if (($contact['uid'] == 0) || Contact::isBlockedByUser($visitor['id'], $contact['uid'])) {
-				continue;
-			}
-
-			$_SESSION['remote'][$contact['uid']] = $contact['id'];
-		}
+		Session::setVisitorsContacts();
 
 		$a->contact = $visitor;
 

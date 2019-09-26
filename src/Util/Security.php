@@ -110,14 +110,7 @@ class Security extends BaseObject
 			 */
 
 			if (!$remote_verified) {
-				$cid = 0;
-
-				foreach (\Friendica\Core\Session::get('remote', []) as $visitor) {
-					if ($visitor['uid'] == $owner_id) {
-						$cid = $visitor['cid'];
-						break;
-					}
-				}
+				$cid = \Friendica\Core\Session::getVisitorContactIDForUserID($owner_id);
 
 				if ($cid && DBA::exists('contact', ['id' => $cid, 'uid' => $owner_id, 'blocked' => false])) {
 					$remote_verified = true;

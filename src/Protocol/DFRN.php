@@ -2863,7 +2863,7 @@ class DFRN
 			// because browser may have multiple connections open and load an image on a connection
 			// whose session wasn't updated when a previous redirect authenticated
 			// Leaving commented in case looping reappears
-			//return;
+			// return;
 		}
 
 		if ((! $contact_nick) || ($contact_nick === $a->user['nickname'])) {
@@ -2906,10 +2906,8 @@ class DFRN
 			// and the sense in the $remote[]["cid"] in the session are opposite.
 			// In the session variable the user currently fetching is the contact
 			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
-			foreach (Session::get('remote', []) as $visitor) {
-				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
-					return;
-				}
+			if (Session::getVisitorContactIDForUserID($contact_uid) == $r[0]['id']) {
+				return;
 			}
 
 			$r = q("SELECT * FROM contact WHERE nick = '%s'
