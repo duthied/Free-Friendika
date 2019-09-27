@@ -88,7 +88,7 @@ function photos_init(App $a) {
 			$ret['albums'] = [];
 			foreach ($albums as $k => $album) {
 				//hide profile photos to others
-				if (!$is_owner && !remote_user() && ($album['album'] == L10n::t('Profile Photos')))
+				if (!$is_owner && !remote_user($a->profile_uid) && ($album['album'] == L10n::t('Profile Photos')))
 					continue;
 				$entry = [
 					'text'      => $album['album'],
@@ -1573,7 +1573,7 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos'))) {
+			if (!$is_owner && !remote_user($owner_uid) && ($rr['album'] == L10n::t('Profile Photos'))) {
 				continue;
 			}
 

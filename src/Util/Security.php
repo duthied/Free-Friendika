@@ -51,7 +51,7 @@ class Security extends BaseObject
 
 				$r = q("SELECT `contact`.*, `user`.`page-flags` FROM `contact` INNER JOIN `user` on `user`.`uid` = `contact`.`uid`
 					WHERE `contact`.`uid` = %d AND `contact`.`id` = %d AND `contact`.`blocked` = 0 AND `contact`.`pending` = 0
-					AND `user`.`blockwall` = 0 AND `readonly` = 0  AND ( `contact`.`rel` IN ( %d , %d ) OR `user`.`page-flags` = %d ) LIMIT 1",
+					AND `user`.`blockwall` = 0 AND `readonly` = 0  AND (`contact`.`rel` IN (%d , %d) OR `user`.`page-flags` = %d) LIMIT 1",
 					intval($owner),
 					intval($cid),
 					intval(Contact::SHARING),
@@ -75,7 +75,7 @@ class Security extends BaseObject
 	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null)
 	{
 		$local_user = local_user();
-		$remote_user = remote_user();
+		$remote_user = remote_user($owner_id);
 
 		/*
 		 * Construct permissions
@@ -83,10 +83,9 @@ class Security extends BaseObject
 		 * default permissions - anonymous user
 		 */
 		$sql = " AND allow_cid = ''
-				 AND allow_gid = ''
-				 AND deny_cid  = ''
-				 AND deny_gid  = ''
-		";
+			 AND allow_gid = ''
+			 AND deny_cid  = ''
+			 AND deny_gid  = '' ";
 
 		/*
 		 * Profile owner - everything is visible
@@ -101,6 +100,8 @@ class Security extends BaseObject
 		 * done this and passed the groups into this function.
 		 */
 		} elseif ($remote_user) {
+			$cid = \Friendica\Core\Session::getVisitorContactIDForUserID($owner_id);
+
 			/*
 			 * Authenticated visitor. Unless pre-verified,
 			 * check that the contact belongs to this $owner_id
@@ -110,8 +111,6 @@ class Security extends BaseObject
 			 */
 
 			if (!$remote_verified) {
-				$cid = \Friendica\Core\Session::getVisitorContactIDForUserID($owner_id);
-
 				if ($cid && DBA::exists('contact', ['id' => $cid, 'uid' => $owner_id, 'blocked' => false])) {
 					$remote_verified = true;
 					$groups = Group::getIdsByContactId($cid);
@@ -128,10 +127,8 @@ class Security extends BaseObject
 				}
 
 				$sql = sprintf(
-					" AND ( NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
-					  AND ( allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR ( allow_cid = '' AND allow_gid = '') )
-					  )
-					",
+					" AND (NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
+					  AND (allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR (allow_cid = '' AND allow_gid = ''))) ",
 					intval($cid),
 					DBA::escape($gs),
 					intval($cid),
@@ -141,5 +138,4 @@ class Security extends BaseObject
 		}
 		return $sql;
 	}
-
 }

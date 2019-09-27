@@ -3263,7 +3263,11 @@ class Item extends BaseObject
 	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null, $remote_cid = null)
 	{
 		$local_user = local_user();
-		$remote_user = remote_user();
+		$remote_user = remote_user($owner_id);
+
+		if (is_null($remote_cid)) {
+			$remote_cid = $remote_user;
+		}
 
 		/*
 		 * Construct permissions
