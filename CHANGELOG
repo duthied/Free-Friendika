@@ -60,6 +60,8 @@ Version 2019.09-dev (UNRELEASED)
       Added translations
       Added more bots [annando]
       Added admin panel settings [annando]
+    tumblr:
+      Changed used URLs to https adopting tumblrs change [annando]
     twitter:
       Enhanced handling of multi image postings [annando]
       Enhanced display of quoted tweets [MrPetovan]
