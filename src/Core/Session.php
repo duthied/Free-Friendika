@@ -212,7 +212,7 @@ class Session
 	 * @param integer $uid User ID
 	 * @return integer Contact ID of visitor for given user ID
 	 */
-	public static function getVisitorContactIDForUserID($uid)
+	public static function getRemoteContactID($uid)
 	{
 		if (empty($_SESSION['remote'][$uid])) {
 			return false;

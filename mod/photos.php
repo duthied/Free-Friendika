@@ -904,7 +904,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);
 
 	$o = "";
 

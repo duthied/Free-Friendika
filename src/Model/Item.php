@@ -18,6 +18,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
@@ -3263,7 +3264,7 @@ class Item extends BaseObject
 	public static function getPermissionsSQLByUserId($owner_id)
 	{
 		$local_user = local_user();
-		$remote_user = remote_user($owner_id);
+		$remote_user = Session::getRemoteContactID($owner_id);
 
 		/*
 		 * Construct permissions

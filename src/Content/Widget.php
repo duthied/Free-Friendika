@@ -11,6 +11,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
@@ -339,7 +340,7 @@ class Widget
 
 		$zcid = 0;
 
-		$cid = remote_user($profile_uid);
+		$cid = Session::getRemoteContactID($profile_uid);
 
 		if (!$cid) {
 			if (Profile::getMyURL()) {

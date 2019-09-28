@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Protocol\DFRN;
@@ -362,7 +363,7 @@ function drop_item($id, $return = '')
 	$contact_id = 0;
 
 	// check if logged in user is either the author or owner of this item
-	if (remote_user($item['uid']) == $item['contact-id']) {
+	if (Session::getRemoteContactID($item['uid']) == $item['contact-id']) {
 		$contact_id = $item['contact-id'];
 	}
 

@@ -416,19 +416,12 @@ function public_contact()
  */
 function remote_user($uid = null)
 {
-	// You cannot be both local and remote.
-	// Unncommented by rabuzarus because remote authentication to local
-	// profiles wasn't possible anymore (2018-04-12).
-//	if (local_user()) {
-//		return false;
-//	}
-
 	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
 	if (!is_null($uid)) {
-		return Session::getVisitorContactIDForUserID($uid);
+		return Session::getRemoteContactID($uid);
 	} elseif (is_null($uid) && !empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}

@@ -10,6 +10,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
+use Friendica\Core\Session;
 
 /**
  * Secures that User is allow to do requests
@@ -33,7 +34,7 @@ class Security extends BaseObject
 			return true;
 		}
 
-		if (remote_user($owner)) {
+		if (!empty(Session::getRemoteContactID($owner))) {
 			// use remembered decision and avoid a DB lookup for each and every display item
 			// DO NOT use this function if there are going to be multiple owners
 			// We have a contact-id for an authenticated remote user, this block determines if the contact
@@ -44,7 +45,7 @@ class Security extends BaseObject
 			} elseif ($verified === 1) {
 				return false;
 			} else {
-				$cid = remote_user($owner);
+				$cid = Session::getRemoteContactID($owner);
 				if (!$cid) {
 					return false;
 				}
@@ -71,11 +72,10 @@ class Security extends BaseObject
 		return false;
 	}
 
-	/// @TODO $groups should be array
-	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null)
+	public static function getPermissionsSQLByUserId($owner_id)
 	{
 		$local_user = local_user();
-		$remote_user = remote_user($owner_id);
+		$remote_contact = Session::getRemoteContactID($owner_id);
 
 		/*
 		 * Construct permissions
@@ -93,48 +93,27 @@ class Security extends BaseObject
 		if ($local_user && $local_user == $owner_id) {
 			$sql = '';
 		/*
-		 * Authenticated visitor. Unless pre-verified,
-		 * check that the contact belongs to this $owner_id
-		 * and load the groups the visitor belongs to.
-		 * If pre-verified, the caller is expected to have already
-		 * done this and passed the groups into this function.
+		 * Authenticated visitor. Load the groups the visitor belongs to.
 		 */
-		} elseif ($remote_user) {
-			$cid = \Friendica\Core\Session::getVisitorContactIDForUserID($owner_id);
+		} elseif ($remote_contact) {
+			$gs = '<<>>'; // should be impossible to match
 
-			/*
-			 * Authenticated visitor. Unless pre-verified,
-			 * check that the contact belongs to this $owner_id
-			 * and load the groups the visitor belongs to.
-			 * If pre-verified, the caller is expected to have already
-			 * done this and passed the groups into this function.
-			 */
+			$groups = Group::getIdsByContactId($remote_contact);
 
-			if (!$remote_verified) {
-				if ($cid && DBA::exists('contact', ['id' => $cid, 'uid' => $owner_id, 'blocked' => false])) {
-					$remote_verified = true;
-					$groups = Group::getIdsByContactId($cid);
+			if (is_array($groups)) {
+				foreach ($groups as $g) {
+					$gs .= '|<' . intval($g) . '>';
 				}
 			}
 
-			if ($remote_verified) {
-				$gs = '<<>>'; // should be impossible to match
-
-				if (is_array($groups)) {
-					foreach ($groups as $g) {
-						$gs .= '|<' . intval($g) . '>';
-					}
-				}
-
-				$sql = sprintf(
-					" AND (NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
-					  AND (allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR (allow_cid = '' AND allow_gid = ''))) ",
-					intval($cid),
-					DBA::escape($gs),
-					intval($cid),
-					DBA::escape($gs)
-				);
-			}
+			$sql = sprintf(
+				" AND (NOT (deny_cid REGEXP '<%d>' OR deny_gid REGEXP '%s')
+				  AND (allow_cid REGEXP '<%d>' OR allow_gid REGEXP '%s' OR (allow_cid = '' AND allow_gid = ''))) ",
+				intval($remote_contact),
+				DBA::escape($gs),
+				intval($remote_contact),
+				DBA::escape($gs)
+			);
 		}
 		return $sql;
 	}
