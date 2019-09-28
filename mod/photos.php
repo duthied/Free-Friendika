@@ -15,6 +15,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -84,7 +85,7 @@ function photos_init(App $a) {
 			$ret['albums'] = [];
 			foreach ($albums as $k => $album) {
 				//hide profile photos to others
-				if (!$is_owner && !remote_user($a->profile_uid) && ($album['album'] == L10n::t('Profile Photos')))
+				if (!$is_owner && !Session::getRemoteContactID($a->profile_uid) && ($album['album'] == L10n::t('Profile Photos')))
 					continue;
 				$entry = [
 					'text'      => $album['album'],
@@ -150,8 +151,8 @@ function photos_post(App $a)
 
 	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(remote_user($page_owner_uid))) {
-		$contact_id = remote_user($page_owner_uid);
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
 		$can_post = true;
 		$visitor = $contact_id;
 	}
@@ -874,8 +875,8 @@ function photos_content(App $a)
 
 	if (local_user() && (local_user() == $owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(remote_user($owner_uid))) {
-		$contact_id = remote_user($owner_uid);
+	} elseif ($community_page && !empty(Session::getRemoteContactID($owner_uid))) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
 		if (DBA::isResult($contact)) {
@@ -886,8 +887,8 @@ function photos_content(App $a)
 	}
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (!empty(remote_user($owner_uid)) && !$visitor) {
-		$contact_id = remote_user($owner_uid);
+	if (!empty(Session::getRemoteContactID($owner_uid)) && !$visitor) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
@@ -1563,7 +1564,7 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user($owner_uid) && ($rr['album'] == L10n::t('Profile Photos'))) {
+			if (!$is_owner && !Session::getRemoteContactID($owner_uid) && ($rr['album'] == L10n::t('Profile Photos'))) {
 				continue;
 			}
 

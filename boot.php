@@ -414,15 +414,13 @@ function public_contact()
  *
  * @return int|bool visitor_id or false
  */
-function remote_user($uid = null)
+function remote_user()
 {
 	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (!is_null($uid)) {
-		return Session::getRemoteContactID($uid);
-	} elseif (is_null($uid) && !empty($_SESSION['visitor_id'])) {
+	if (!empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
 

@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
@@ -22,7 +23,7 @@ use Friendica\Util\Security;
 
 function videos_init(App $a)
 {
-	if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		return;
 	}
 
@@ -110,7 +111,7 @@ function videos_content(App $a)
 	// videos/name/video/xxxxx/edit
 
 
-	if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
@@ -150,16 +151,16 @@ function videos_content(App $a)
 
 	if ((local_user()) && (local_user() == $owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(remote_user($owner_uid))) {
-		$contact_id = remote_user($owner_uid);
+	} elseif ($community_page && !empty(Session::getRemoteContactID($owner_uid))) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
 		$can_post = true;
 		$remote_contact = true;
 		$visitor = $contact_id;
 	}
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (!empty(remote_user($owner_uid)) && !$visitor) {
-		$contact_id = remote_user($owner_uid);
+	if (!empty(Session::getRemoteContactID($owner_uid)) && !$visitor) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
 		$remote_contact = true;
 	}
 

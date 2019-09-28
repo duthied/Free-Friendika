@@ -248,8 +248,8 @@ class Profile
 	 */
 	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
 	{
-		if (!empty(remote_user($uid))) {
-			$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => remote_user($uid)]);
+		if (!empty(Session::getRemoteContactID($uid))) {
+			$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => Session::getRemoteContactID($uid)]);
 			if (DBA::isResult($contact)) {
 				$profile_id = $contact['profile-id'];
 			}

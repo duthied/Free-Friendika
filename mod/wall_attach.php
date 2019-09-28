@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
 use Friendica\Model\User;
@@ -45,8 +46,8 @@ function wall_attach_post(App $a) {
 
 	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(remote_user($page_owner_uid))) {
-		$contact_id = remote_user($page_owner_uid);
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
 		$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
 			intval($page_owner_uid)

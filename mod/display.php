@@ -14,6 +14,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -53,7 +54,7 @@ function display_init(App $a)
 				$nick = $a->user["nickname"];
 			}
 		// Is this item private but could be visible to the remove visitor?
-		} elseif (remote_user($item['uid'])) {
+		} elseif (Session::getRemoteContactID($item['uid'])) {
 			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
 			if (DBA::isResult($item)) {
 				$item_user = $item['uid'];
@@ -225,7 +226,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
 				}
-			} elseif (remote_user($item['uid'])) {
+			} elseif (Session::getRemoteContactID($item['uid'])) {
 				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
 				if (DBA::isResult($item)) {
 					$item_id = $item["id"];
@@ -273,7 +274,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		if (DBA::isResult($parent)) {
 			$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
 			$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
-			$is_remote_contact = remote_user($a->profile['profile_uid']);
+			$is_remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
 			if ($is_remote_contact) {
 				$item_uid = $parent['uid'];
 			}

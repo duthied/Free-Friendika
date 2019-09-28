@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -74,8 +75,8 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && !empty(remote_user($page_owner_uid))) {
-		$contact_id = remote_user($page_owner_uid);
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
 
 		$r = q("SELECT `uid` FROM `contact`
 			WHERE `blocked` = 0 AND `pending` = 0

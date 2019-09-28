@@ -66,7 +66,7 @@ function redir_init(App $a) {
 			// with the local contact. Otherwise the local user would ask the local contact
 			// for authentification everytime he/she is visiting a profile page of the local
 			// contact.
-			if (($host == $remotehost) && (remote_user(Session::get('visitor_visiting')) == Session::get('visitor_id'))) {
+			if (($host == $remotehost) && (Session::getRemoteContactID(Session::get('visitor_visiting')) == Session::get('visitor_id'))) {
 				// Remote user is already authenticated.
 				$target_url = defaults($url, $contact_url);
 				Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
@@ -137,23 +137,6 @@ function redir_magic($a, $cid, $url)
 	$visitor = Profile::getMyURL();
 	if (!empty($visitor)) {
 		Logger::info('Got my url', ['visitor' => $visitor]);
-	}
-
-	/// @todo Most likely these lines are superfluous. We will remove them in the next version
-	if (empty($visitor) && remote_user()) {
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => remote_user()]);
-		if (!empty($contact['url'])) {
-			$visitor = $contact['url'];
-			Logger::info('Got remote user', ['visitor' => $visitor]);
-		}
-	}
-
-	if (empty($visitor) && local_user()) {
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => local_user()]);
-		if (!empty($contact['url'])) {
-			$visitor = $contact['url'];
-			Logger::info('Got local user', ['visitor' => $visitor]);
-		}
 	}
 
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid]);

@@ -84,8 +84,8 @@ class Profile extends BaseModule
 
 			$a->page['htmlhead'] .= "\n";
 
-			$blocked   = !local_user() && !remote_user($a->profile['profile_uid']) && Config::get('system', 'block_public');
-			$userblock = !local_user() && !remote_user($a->profile['profile_uid']) && $a->profile['hidewall'];
+			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && Config::get('system', 'block_public');
+			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
@@ -151,7 +151,7 @@ class Profile extends BaseModule
 
 		$hashtags = defaults($_GET, 'tag', '');
 
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user($a->profile['profile_uid'])) {
+		if (Config::get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
 			return Login::form();
 		}
 
@@ -164,7 +164,7 @@ class Profile extends BaseModule
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = remote_user($a->profile['profile_uid']);
+		$remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
 		$is_owner = local_user() == $a->profile['profile_uid'];
 		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . $remote_contact;
 

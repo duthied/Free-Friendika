@@ -348,8 +348,8 @@ function item_post(App $a) {
 	if (local_user() && ((local_user() == $profile_uid) || $allow_comment)) {
 		$self = true;
 		$author = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
-	} elseif (!empty(remote_user($profile_uid))) {
-		$author = DBA::selectFirst('contact', [], ['id' => remote_user($profile_uid)]);
+	} elseif (!empty(Session::getRemoteContactID($profile_uid))) {
+		$author = DBA::selectFirst('contact', [], ['id' => Session::getRemoteContactID($profile_uid)]);
 	}
 
 	if (DBA::isResult($author)) {

@@ -14,6 +14,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
@@ -109,8 +110,8 @@ function cal_content(App $a)
 	$owner_uid = intval($a->data['user']['uid']);
 	$nick = $a->data['user']['nickname'];
 
-	if (!empty(remote_user($a->profile['profile_uid']))) {
-		$contact_id = remote_user($a->profile['profile_uid']);
+	if (!empty(Session::getRemoteContactID($a->profile['profile_uid']))) {
+		$contact_id = Session::getRemoteContactID($a->profile['profile_uid']);
 	}
 
 	if ($contact_id) {
