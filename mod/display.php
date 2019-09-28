@@ -53,11 +53,17 @@ function display_init(App $a)
 			if (DBA::isResult($item)) {
 				$nick = $a->user["nickname"];
 			}
+		}
+
 		// Is this item private but could be visible to the remove visitor?
-		} elseif (Session::getRemoteContactID($item['uid'])) {
+		if (!DBA::isResult($item) && remote_user()) {
 			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
 			if (DBA::isResult($item)) {
-				$item_user = $item['uid'];
+				if (!Contact::isFollower(remote_user(), $item['uid'])) {
+					$item = null;
+				} else {
+					$item_user = $item['uid'];
+				}
 			}
 		}
 
@@ -75,10 +81,6 @@ function display_init(App $a)
 
 	if (!DBA::isResult($item)) {
 		return;
-	}
-
-	if ($a->argc >= 3 && $nick == 'feed-item') {
-		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
 	if ($a->argc >= 3 && $nick == 'feed-item') {
@@ -226,9 +228,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
 				}
-			} elseif (Session::getRemoteContactID($item['uid'])) {
+			}
+
+			if (($item_parent == 0) && remote_user()) {
 				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
-				if (DBA::isResult($item)) {
+				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
