@@ -57,7 +57,7 @@ function display_init(App $a)
 
 		// Is this item private but could be visible to the remove visitor?
 		if (!DBA::isResult($item) && remote_user()) {
-			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
+			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
 			if (DBA::isResult($item)) {
 				if (!Contact::isFollower(remote_user(), $item['uid'])) {
 					$item = null;
@@ -101,7 +101,7 @@ function display_init(App $a)
 	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(System::baseUrl()))) {
 		$nickname = str_replace(Strings::normaliseLink(System::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
 
-		if (($nickname != $a->user["nickname"])) {
+		if ($nickname != $a->user["nickname"]) {
 			$profile = DBA::fetchFirst("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
@@ -231,7 +231,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			}
 
 			if (($item_parent == 0) && remote_user()) {
-				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
+				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
@@ -285,7 +285,6 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		}
 	}
 
-
 	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);
 	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
@@ -327,7 +326,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
 	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
-	$item = Item::selectFirstForUser(local_user(), $fields, $condition);
+	$item = Item::selectFirstForUser($a->profile['profile_uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
 		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
