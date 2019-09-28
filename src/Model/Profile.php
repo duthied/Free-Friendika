@@ -215,7 +215,7 @@ class Profile
 			);
 		}
 
-		$block = ((Config::get('system', 'block_public') && !local_user() && !remote_user()) ? true : false);
+		$block = ((Config::get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
 
 		/**
 		 * @todo
@@ -448,7 +448,7 @@ class Profile
 		$about    = !empty($profile['about'])    ? L10n::t('About:')    : false;
 		$xmpp     = !empty($profile['xmpp'])     ? L10n::t('XMPP:')     : false;
 
-		if ((!empty($profile['hidewall']) || $block) && !local_user() && !remote_user()) {
+		if ((!empty($profile['hidewall']) || $block) && !Session::isAuthenticated()) {
 			$location = $gender = $marital = $homepage = $about = false;
 		}
 

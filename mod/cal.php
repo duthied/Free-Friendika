@@ -27,7 +27,7 @@ use Friendica\Util\Temporal;
 
 function cal_init(App $a)
 {
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 

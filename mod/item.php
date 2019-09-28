@@ -25,6 +25,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
@@ -45,7 +46,7 @@ use Friendica\Worker\Delivery;
 require_once 'include/items.php';
 
 function item_post(App $a) {
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return 0;
 	}
 
@@ -860,7 +861,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 
 function item_content(App $a)
 {
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 

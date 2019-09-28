@@ -3029,7 +3029,7 @@ class Item extends BaseObject
 	 */
 	public static function performLike($item_id, $verb)
 	{
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			return false;
 		}
 
@@ -3428,7 +3428,7 @@ class Item extends BaseObject
 		}
 
 		// Update the cached values if there is no "zrl=..." on the links.
-		$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
+		$update = (!Session::isAuthenticated() && ($item["uid"] == 0));
 
 		// Or update it if the current viewer is the intented viewer.
 		if (($item["uid"] == local_user()) && ($item["uid"] != 0)) {

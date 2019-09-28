@@ -149,7 +149,7 @@ class Nav
 		$nav['usermenu'] = [];
 		$userinfo = null;
 
-		if (local_user() || remote_user()) {
+		if (Session::isAuthenticated()) {
 			$nav['logout'] = ['logout', L10n::t('Logout'), '', L10n::t('End this session')];
 		} else {
 			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
@@ -182,7 +182,7 @@ class Nav
 			$nav['home'] = [$homelink, L10n::t('Home'), '', L10n::t('Home Page')];
 		}
 
-		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !local_user() && !remote_user()) {
+		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
 			$nav['register'] = ['register', L10n::t('Register'), '', L10n::t('Create an account')];
 		}
 

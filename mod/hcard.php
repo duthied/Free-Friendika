@@ -6,13 +6,14 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 
 function hcard_init(App $a)
 {
-	$blocked = Config::get('system', 'block_public') && !local_user() && !remote_user();
+	$blocked = Config::get('system', 'block_public') && !Session::isAuthenticated();
 
 	if ($a->argc > 1) {
 		$which = $a->argv[1];

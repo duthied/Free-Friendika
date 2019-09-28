@@ -23,7 +23,7 @@ use Friendica\Util\Security;
 
 function videos_init(App $a)
 {
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -111,7 +111,7 @@ function videos_content(App $a)
 	// videos/name/video/xxxxx/edit
 
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}

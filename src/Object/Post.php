@@ -219,7 +219,7 @@ class Post extends BaseObject
 		$author = ['uid' => 0, 'id' => $item['author-id'],
 			'network' => $item['author-network'], 'url' => $item['author-link']];
 
-		if (local_user() || remote_user()) {
+		if (Session::isAuthenticated()) {
 			$profile_link = Contact::magicLinkByContact($author);
 		} else {
 			$profile_link = $item['author-link'];

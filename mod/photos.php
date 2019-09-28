@@ -36,7 +36,7 @@ use Friendica\Util\XML;
 
 function photos_init(App $a) {
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -70,7 +70,7 @@ function photos_init(App $a) {
 
 		$albums = Photo::getAlbums($a->data['user']['uid']);
 
-		$albums_visible = ((intval($a->data['user']['hidewall']) && !local_user() && !remote_user()) ? false : true);
+		$albums_visible = ((intval($a->data['user']['hidewall']) && !Session::isAuthenticated()) ? false : true);
 
 		// add various encodings to the array so we can just loop through and pick them out in a template
 		$ret = ['success' => false];
@@ -829,7 +829,7 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/edit
 	// photos/name/image/xxxxx/drop
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}

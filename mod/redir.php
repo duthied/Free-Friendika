@@ -35,7 +35,7 @@ function redir_init(App $a) {
 
 		$contact_url = $contact['url'];
 
-		if ((!local_user() && !remote_user()) // Visitors (not logged in or not remotes) can't authenticate.
+		if (!Session::isAuthenticated() // Visitors (not logged in or not remotes) can't authenticate.
 			|| (!empty($a->contact['id']) && $a->contact['id'] == $cid)) // Local user is already authenticated.
 		{
 			$a->redirect(defaults($url, $contact_url));
@@ -74,17 +74,8 @@ function redir_init(App $a) {
 			}
 		}
 
-		// When the remote page does support OWA, then we enforce the use of it
-		$basepath = Contact::getBasepath($contact_url);
-		if (Strings::compareLink($basepath, System::baseUrl())) {
-			$use_magic = true;
-		} else {
-			$serverret = Network::curl($basepath . '/magic');
-			$use_magic = $serverret->isSuccess();
-		}
-
 		// Doing remote auth with dfrn.
-		if (local_user() && !$use_magic && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
+		if (local_user() && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
 			$dfrn_id = $orig_id = (($contact['issued-id']) ? $contact['issued-id'] : $contact['dfrn-id']);
 
 			if ($contact['duplex'] && $contact['issued-id']) {

@@ -21,7 +21,7 @@ class Security extends BaseObject
 	{
 		static $verified = 0;
 
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			return false;
 		}
 

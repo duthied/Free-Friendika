@@ -327,7 +327,7 @@ function drop_items(array $items)
 {
 	$uid = 0;
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 

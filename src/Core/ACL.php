@@ -11,6 +11,7 @@ use Friendica\Content\Feature;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Core\Session;
 use Friendica\Util\Network;
 
 /**
@@ -333,7 +334,7 @@ class ACL extends BaseObject
 	 */
 	public static function contactAutocomplete($search, $mode, int $page = 1)
 	{
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 			return [];
 		}
 

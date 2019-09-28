@@ -53,7 +53,7 @@ class Session
 
 	/**
 	 * Retrieves a key from the session super global or the defaults if the key is missing or the value is falsy.
-	 * 
+	 *
 	 * Handle the case where session_start() hasn't been called and the super global isn't available.
 	 *
 	 * @param string $name
@@ -254,5 +254,19 @@ class Session
 			$_SESSION['remote'][$contact['uid']] = $contact['id'];
 		}
 		DBA::close($remote_contacts);
+	}
+
+	/**
+	 * Returns if the current visitor is authenticated
+	 *
+	 * @return boolean "true" when visitor is either a local or remote user
+	 */
+	public static function isAuthenticated()
+	{
+		if (empty($_SESSION['authenticated'])) {
+			return false;
+		}
+
+		return $_SESSION['authenticated'];
 	}
 }

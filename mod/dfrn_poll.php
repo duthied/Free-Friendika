@@ -9,6 +9,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
@@ -49,7 +50,7 @@ function dfrn_poll_init(App $a)
 	$hidewall = false;
 
 	if (($dfrn_id === '') && empty($_POST['dfrn_id'])) {
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 

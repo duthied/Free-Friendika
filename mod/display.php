@@ -32,7 +32,7 @@ function display_init(App $a)
 		Objects::rawContent();
 	}
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -196,7 +196,7 @@ function display_fetchauthor($a, $item)
 
 function display_content(App $a, $update = false, $update_uid = 0)
 {
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system','block_public') && !Session::isAuthenticated()) {
 		throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
 	}
 
