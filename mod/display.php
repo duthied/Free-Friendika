@@ -53,14 +53,10 @@ function display_init(App $a)
 				$nick = $a->user["nickname"];
 			}
 		// Is this item private but could be visible to the remove visitor?
-		} elseif (remote_user()) {
+		} elseif (remote_user($item['uid'])) {
 			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
 			if (DBA::isResult($item)) {
-				if (!Contact::isFollower(remote_user(), $item['uid'])) {
-					$item = null;
-				} else {
-					$item_user = $item['uid'];
-				}
+				$item_user = $item['uid'];
 			}
 		}
 
@@ -229,9 +225,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
 				}
-			} elseif (remote_user()) {
+			} elseif (remote_user($item['uid'])) {
 				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
-				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
+				if (DBA::isResult($item)) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
@@ -269,8 +265,6 @@ function display_content(App $a, $update = false, $update_uid = 0)
 				['$alternate' => $alternate,
 					'$conversation' => $conversation]);
 
-	$groups = [];
-	$remote_cid = null;
 	$is_remote_contact = false;
 	$item_uid = local_user();
 
@@ -279,15 +273,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		if (DBA::isResult($parent)) {
 			$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
 			$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
-			$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
-
+			$is_remote_contact = remote_user($a->profile['profile_uid']);
 			if ($is_remote_contact) {
-				$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
-				if (!empty($cdata['user'])) {
-					$groups = Group::getIdsByContactId($cdata['user']);
-					$remote_cid = $cdata['user'];
-					$item_uid = $parent['uid'];
-				}
+				$item_uid = $parent['uid'];
 			}
 		}
 	}
@@ -297,6 +285,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
 	}
+
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
 	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
@@ -318,7 +307,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		];
 		$o .= status_editor($a, $x, 0, true);
 	}
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $is_remote_contact, $groups, $remote_cid);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
 
 	if (local_user() && (local_user() == $a->profile['profile_uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];

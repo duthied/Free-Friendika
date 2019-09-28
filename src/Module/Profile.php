@@ -48,8 +48,6 @@ class Profile extends BaseModule
 		if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 			self::$which = $a->user['nickname'];
 			self::$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);
-		} else {
-			DFRN::autoRedir($a, self::$which);
 		}
 	}
 
@@ -157,9 +155,6 @@ class Profile extends BaseModule
 			return Login::form();
 		}
 
-		$groups = [];
-		$remote_cid = null;
-
 		$o = '';
 
 		if ($update) {
@@ -172,14 +167,6 @@ class Profile extends BaseModule
 		$remote_contact = remote_user($a->profile['profile_uid']);
 		$is_owner = local_user() == $a->profile['profile_uid'];
 		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . $remote_contact;
-
-		if ($remote_contact) {
-			$cdata = ContactModel::getPublicAndUserContacID($remote_contact, $a->profile['profile_uid']);
-			if (!empty($cdata['user'])) {
-				$groups = Group::getIdsByContactId($cdata['user']);
-				$remote_cid = $cdata['user'];
-			}
-		}
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
 			notice(L10n::t('Access to this profile has been restricted.') . EOL);
@@ -229,7 +216,7 @@ class Profile extends BaseModule
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups, $remote_cid);
+		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
 		$sql_extra2 = '';
 
 		$last_updated_array = Session::get('last_updated', []);

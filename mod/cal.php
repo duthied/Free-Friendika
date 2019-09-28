@@ -26,10 +26,6 @@ use Friendica\Util\Temporal;
 
 function cal_init(App $a)
 {
-	if ($a->argc > 1) {
-		DFRN::autoRedir($a, $a->argv[1]);
-	}
-
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
@@ -117,9 +113,7 @@ function cal_content(App $a)
 		$contact_id = remote_user($a->profile['profile_uid']);
 	}
 
-	$groups = [];
 	if ($contact_id) {
-		$groups = Group::getIdsByContactId($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
@@ -137,7 +131,7 @@ function cal_content(App $a)
 	}
 
 	// get the permissions
-	$sql_perms = Item::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
+	$sql_perms = Item::getPermissionsSQLByUserId($owner_uid);
 	// we only want to have the events of the profile owner
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 

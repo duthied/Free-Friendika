@@ -67,21 +67,20 @@ class PermissionSet extends BaseObject
 	 *
 	 * @param integer $uid        User id whom the items belong
 	 * @param integer $contact_id Contact id of the visitor
-	 * @param array   $groups     Possibly previously fetched group ids for that contact
 	 *
 	 * @return array of permission set ids.
 	 * @throws \Exception
 	 */
-
-	static public function get($uid, $contact_id, $groups = null)
+	static public function get($uid, $contact_id)
 	{
-		if (empty($groups) && DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
+		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
 			$groups = Group::getIdsByContactId($contact_id);
 		}
 
 		if (empty($groups) || !is_array($groups)) {
 			return [];
 		}
+
 		$group_str = '<<>>'; // should be impossible to match
 
 		foreach ($groups as $g) {

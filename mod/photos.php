@@ -35,10 +35,6 @@ use Friendica\Util\XML;
 
 function photos_init(App $a) {
 
-	if ($a->argc > 1) {
-		DFRN::autoRedir($a, $a->argv[1]);
-	}
-
 	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
 		return;
 	}
@@ -156,11 +152,8 @@ function photos_post(App $a)
 		$can_post = true;
 	} elseif ($community_page && !empty(remote_user($page_owner_uid))) {
 		$contact_id = remote_user($page_owner_uid);
-
-		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $page_owner_uid, 'blocked' => false, 'pending' => false])) {
-			$can_post = true;
-			$visitor = $contact_id;
-		}
+		$can_post = true;
+		$visitor = $contact_id;
 	}
 
 	if (!$can_post) {
@@ -892,12 +885,9 @@ function photos_content(App $a)
 		}
 	}
 
-	$groups = [];
-
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
 	if (!empty(remote_user($owner_uid)) && !$visitor) {
 		$contact_id = remote_user($owner_uid);
-		$groups = Group::getIdsByContactId($contact_id);
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
@@ -914,7 +904,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact);
 
 	$o = "";
 
