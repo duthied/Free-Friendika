@@ -1074,9 +1074,7 @@ class Profile
 
 		// We need to extract the basebath from the profile url
 		// to redirect the visitors '/magic' module.
-		// Note: We should have the basepath of a contact also in the contact table.
-		$urlarr = explode('/profile/', $contact['url']);
-		$basepath = $urlarr[0];
+		$basepath = Contact::getBasepath($contact['url']);
 
 		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
 			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
