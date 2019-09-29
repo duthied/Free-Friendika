@@ -86,6 +86,7 @@ return [
 		'/{id:\d+}/updateprofile' => [Module\Contact::class, [R::GET]],
 		'/archived'               => [Module\Contact::class, [R::GET]],
 		'/batch'                  => [Module\Contact::class, [R::GET, R::POST]],
+		'/pending'                => [Module\Contact::class, [R::GET]],
 		'/blocked'                => [Module\Contact::class, [R::GET]],
 		'/hidden'                 => [Module\Contact::class, [R::GET]],
 		'/ignored'                => [Module\Contact::class, [R::GET]],
