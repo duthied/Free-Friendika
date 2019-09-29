@@ -32,15 +32,16 @@ class Magic extends BaseModule
 		$dest = defaults($_REQUEST, 'dest', '');
 		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
 		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
+		$cid  = 0;
 
 		if (!empty($addr)) {
 			$cid = Contact::getIdForURL($addr);
-		} else {
+		} elseif (!empty($dest)) {
 			$cid = Contact::getIdForURL($dest);
 		}
 
 		if (!$cid) {
-			Logger::log('No contact record found: ' . json_encode($_REQUEST), Logger::DEBUG);
+			Logger::info('No contact record found', $_REQUEST);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
 			$a->redirect($dest);
 		}
