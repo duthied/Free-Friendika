@@ -33,13 +33,10 @@ class Magic extends BaseModule
 		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
 		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
 
-		// NOTE: I guess $dest isn't just the profile url (could be also
-		// other profile pages e.g. photo). We need to find a solution
-		// to be able to redirct to other pages than the contact profile.
-		$cid = Contact::getIdForURL($dest);
-
-		if (!$cid && !empty($addr)) {
+		if (!empty($addr)) {
 			$cid = Contact::getIdForURL($addr);
+		} else {
+			$cid = Contact::getIdForURL($dest);
 		}
 
 		if (!$cid) {
