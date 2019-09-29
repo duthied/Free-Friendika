@@ -1,4 +1,4 @@
-Version 2019.09-dev (UNRELEASED)
+Version 2019.09 (2019-09-29)
   Friendica Core:
     Update to the translations (CS, DE, EN GB, EN US, FR, JA, NL, PL) [translation teams]
     Update to the themes (frio, vier) [JeroenED, MrPetovan, tobiasd, vinzv]
@@ -41,6 +41,7 @@ Version 2019.09-dev (UNRELEASED)
     Fixed a BBCode parser problem with the audio tag [MrPetovan]
     Fixed a session problem [annando]
     Fixed a problem with the autoinstaller [nupplaphil]
+    Fixed a bug with magic links redirection for non profiles [annando]
     General code cleaning [annando, MrPetovan, nupplaphil]
     Removed contacts auto completion (in /contacts [MrPetovan]
     Replaced FontAwesome by ForkAwesome in frio theme [vinzv]
@@ -73,7 +74,7 @@ Version 2019.09-dev (UNRELEASED)
     7367, 7383, 7396, 7397, 7401, 7406, 7408, 7426, 7428, 7456, 7442,
     7457, 7468, 7471, 7473, 7488, 7497, 7498, 7501, 7507, 7521, 7526,
     7527, 7536, 7542, 7545, 7576, 7586, 7594, 7597, 7603, 7610, 7618,
-    7629, 7635, 7638, 7663, 7665
+    7629, 7635, 7638, 7663, 7665, 7672
 
 Version 2019.06 (2019-06-23)
   Friendica Core:
