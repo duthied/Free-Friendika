@@ -1,10 +1,15 @@
+codecov:
+  branch: develop
+  ci:
+    - drone.friendi.ca
+    - !scrutinizer-ci.com
 
 coverage:
+  precision: 2
+  round: down
+  range: "70...100"
   status:
-    project:
-      default:
-        target: auto
-        threshold: null
-        base: auto
+    project: off
+    patch: off
 
 comment: off
