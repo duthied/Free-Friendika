@@ -157,7 +157,7 @@ function redir_magic($a, $cid, $url)
 	$serverret = Network::curl($basepath . '/magic');
 	if ($serverret->isSuccess()) {
 		$separator = strpos($target_url, '?') ? '&' : '?';
-		$target_url .= $separator . 'zrl=' . urlencode($visitor);
+		$target_url .= $separator . 'zrl=' . urlencode($visitor) . '&addr=' . urlencode($contact_url);
 
 		Logger::info('Redirecting with magic', ['target' => $target_url, 'visitor' => $visitor, 'contact' => $contact_url]);
 		$a->redirect($target_url);
