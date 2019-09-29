@@ -1214,7 +1214,7 @@ class Contact extends BaseObject
 		}
 
 		if (($contact['network'] == Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
+			$poke_link = System::baseUrl() . '/poke/?c=' . $contact['id'];
 		}
 
 		$contact_url = System::baseUrl() . '/contact/' . $contact['id'];

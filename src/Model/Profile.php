@@ -1087,7 +1087,7 @@ class Profile
 		$basepath = Contact::getBasepath($contact['url']);
 
 		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic')) {
-			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest . '&' . $addr_request;
+			$magic_path = $basepath . '/magic' . '?owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = Network::curl($basepath . '/magic');
