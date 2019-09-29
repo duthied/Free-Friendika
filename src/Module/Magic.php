@@ -100,6 +100,7 @@ class Magic extends BaseModule
 						$x = strpbrk($dest, '?&');
 						$args = (($x) ? '&owt=' . $token : '?f=&owt=' . $token);
 
+						Logger::info('Redirecting', ['path' => $dest . $args]);
 						System::externalRedirect($dest . $args);
 					}
 				}
