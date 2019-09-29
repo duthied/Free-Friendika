@@ -1186,7 +1186,7 @@ class Profile
 		if (!strlen($s)) {
 			return $s;
 		}
-		if ((!strpos($s, '/profile/')) && (!$force)) {
+		if (!strpos($s, '/profile/') && !$force) {
 			return $s;
 		}
 		if ($force && substr($s, -1, 1) !== '/') {
@@ -1243,7 +1243,7 @@ class Profile
 
 		if (!empty($search)) {
 			$searchTerm = '%' . $search . '%';
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
@@ -1265,7 +1265,7 @@ class Profile
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
 		} else {
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");
