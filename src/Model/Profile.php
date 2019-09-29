@@ -1024,6 +1024,12 @@ class Profile
 	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/channel.php
 	 *
+	 * The implementation for Friendica sadly differs in some points from the one for Hubzilla:
+	 * - Hubzilla uses the "zid" parameter, while for Friendica it had been replaced with "zrl"
+	 * - There seem to be some reverse authentication (rmagic) that isn't implemented in Friendica at all
+	 *
+	 * It would be favourable to harmonize the two implementations.
+	 *
 	 * @param App $a Application instance.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -1036,6 +1042,8 @@ class Profile
 		if (empty($my_url) || local_user()) {
 			return;
 		}
+
+		$addr = $_GET['addr'] ?? $my_url;
 
 		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
 		Hook::callAll('zrl_init', $arr);
@@ -1067,8 +1075,10 @@ class Profile
 
 		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
 
-		// Try to avoid recursion - but send them home to do a proper magic auth.
-		$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
+		// Remove the "addr" parameter from the destination. It is later added as separate parameter again.
+		$addr_request = 'addr=' . urlencode($addr);
+		$query = rtrim(str_replace($addr_request, '', $a->query_string), '?&');
+
 		// The other instance needs to know where to redirect.
 		$dest = urlencode($a->getBaseURL() . '/' . $query);
 
@@ -1076,8 +1086,8 @@ class Profile
 		// to redirect the visitors '/magic' module.
 		$basepath = Contact::getBasepath($contact['url']);
 
-		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
-			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
+		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic')) {
+			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = Network::curl($basepath . '/magic');
