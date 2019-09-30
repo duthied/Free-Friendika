@@ -6,6 +6,11 @@ Version 2019.12-dev (unreleased)
     Added drone.io as CI service [nupplaphil]
 
   Friendica Addons:
+    mailstream:
+      Support for new img format was added [mexon]
+      BB Code is now included as plaintext [mexon]
+      Logging format is enhanced [mexon]
+      ActivityPub "announce" notifications are not included [mexon]
 
   Closed Issues:
     1071, 7548, 7657, 7681
