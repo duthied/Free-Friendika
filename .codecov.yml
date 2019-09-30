@@ -2,7 +2,6 @@ codecov:
   branch: develop
   ci:
     - drone.friendi.ca
-    - !scrutinizer-ci.com
 
 coverage:
   precision: 2

@@ -129,8 +129,8 @@ steps:
       - sleep 20
       - ./autotest.sh mariadb
       - wget https://codecov.io/bash -O codecov.sh
-      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
-      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
   environment:
       MYSQL_USER: friendica
       MYSQL_PASSWORD: friendica
@@ -231,14 +231,6 @@ volumes:
   - name: cache
     temp: {}
 
-trigger:
-  branch:
-    - master
-    - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
 ---
 kind: pipeline
 name: redis-php7.1
@@ -251,8 +243,8 @@ steps:
     - sleep 20
     - NOINSTALL=true TEST_SELECTION=REDIS ./autotest.sh mysql
     - wget https://codecov.io/bash -O codecov.sh
-    - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
-    - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+    - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+    - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
   environment:
       REDIS_HOST: redis
 
@@ -308,15 +300,6 @@ services:
 - name: redis
   image: redis
 
-trigger:
-  branch:
-    - master
-    - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
-
 ---
 kind: pipeline
 name: memcache-php7.1
@@ -329,8 +312,8 @@ steps:
       - sleep 20
       - NOINSTALL=true TEST_SELECTION=MEMCACHE ./autotest.sh mysql
       - wget https://codecov.io/bash -O codecov.sh
-      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
-      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
   environment:
       MEMCACHE_HOST: memcached
 
@@ -386,16 +369,6 @@ services:
 - name: memcached
   image: memcached
 
-trigger:
-  branch:
-    - master
-    - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
-
-
 ---
 kind: pipeline
 name: memcached-php7.1
@@ -408,8 +381,8 @@ steps:
       - sleep 20
       - NOINSTALL=true TEST_SELECTION=MEMCACHED ./autotest.sh mysql
       - wget https://codecov.io/bash -O codecov.sh
-      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
-      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 2f4b253b-ca17-41d7-96e3-81623581c97d -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' = 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -P $DRONE_PULL_REQUEST -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
+      - sh -c "if [ '$DRONE_BUILD_EVENT' != 'pull_request' ]; then bash codecov.sh -B $DRONE_BRANCH -C $DRONE_COMMIT -t 5ce7d64e-07b4-4adf-8700-e2eae27e14ec -f tests/autotest-clover.xml; fi"
   environment:
       MEMCACHED_HOST: memcached
 
@@ -464,12 +437,3 @@ steps:
 services:
 - name: memcached
   image: memcached
-
-trigger:
-  branch:
-    - master
-    - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
