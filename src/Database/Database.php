@@ -1470,6 +1470,7 @@ class Database
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition Array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return int
 	 *
@@ -1483,7 +1484,7 @@ class Database
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public function count($table, array $condition = [])
+	public function count($table, array $condition = [], array $params = [])
 	{
 		if (empty($table)) {
 			return false;
@@ -1493,7 +1494,15 @@ class Database
 
 		$condition_string = DBA::buildCondition($condition);
 
-		$sql = "SELECT COUNT(*) AS `count` FROM " . $table_string . $condition_string;
+		if (empty($params['expression'])) {
+			$expression = '*';
+		} elseif (!empty($params['distinct'])) {
+			$expression = "DISTINCT " . DBA::quoteIdentifier($params['expression']);
+		} else {
+			$expression = DBA::quoteIdentifier($params['expression']);
+		}
+
+		$sql = "SELECT COUNT(" . $expression . ") AS `count` FROM " . $table_string . $condition_string;
 
 		$row = $this->fetchFirst($sql, $condition);
 

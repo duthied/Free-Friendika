@@ -12,7 +12,7 @@ use Friendica\Database\DBA;
 
 function manage_post(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		return;
 	}
 
@@ -20,20 +20,12 @@ function manage_post(App $a) {
 	$orig_record = $a->user;
 
 	if(!empty($_SESSION['submanage'])) {
-		$r = q("select * from user where uid = %d limit 1",
-			intval($_SESSION['submanage'])
-		);
-		if (DBA::isResult($r)) {
-			$uid = intval($r[0]['uid']);
-			$orig_record = $r[0];
+		$user = DBA::selectFirst('user', [], ['uid' => $_SESSION['submanage']]);
+		if (DBA::isResult($user)) {
+			$uid = intval($user['uid']);
+			$orig_record = $user;
 		}
 	}
-
-	$r = q("SELECT * FROM `manage` WHERE `uid` = %d",
-		intval($uid)
-	);
-
-	$submanage = $r;
 
 	$identity = (!empty($_POST['identity']) ? intval($_POST['identity']) : 0);
 	if (!$identity) {
@@ -43,53 +35,41 @@ function manage_post(App $a) {
 	$limited_id = 0;
 	$original_id = $uid;
 
-	if (DBA::isResult($submanage)) {
-		foreach ($submanage as $m) {
-			if ($identity == $m['mid']) {
-				$limited_id = $m['mid'];
-				break;
-			}
+	$manage = DBA::select('manage', ['mid'], ['uid' => $uid]);
+	while ($m = DBA::fetch($manage)) {
+		if ($identity == $m['mid']) {
+			$limited_id = $m['mid'];
+			break;
 		}
 	}
+	DBA::close($manage);
 
 	if ($limited_id) {
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($limited_id)
-		);
+		$user = DBA::selectFirst('user', [], ['uid' => $limited_id]);
 	} else {
 		// Check if the target user is one of our children
-		$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `parent-uid` = %d LIMIT 1",
-			intval($identity),
-			DBA::escape($orig_record['uid'])
-		);
+		$user = DBA::selectFirst('user', [], ['uid' => $identity, 'parent-uid' => $orig_record['uid']]);
 
 		// Check if the target user is one of our siblings
-		if (!DBA::isResult($r) && ($orig_record['parent-uid'] != 0)) {
-			$r = q("SELECT * FROM `user` WHERE `uid` = %d AND `parent-uid` = %d LIMIT 1",
-				intval($identity),
-				DBA::escape($orig_record['parent-uid'])
-			);
+		if (!DBA::isResult($user) && ($orig_record['parent-uid'] != 0)) {
+			$user = DBA::selectFirst('user', [], ['uid' => $identity, 'parent-uid' => $orig_record['parent-uid']]);
 		}
 
 		// Check if it's our parent
-		if (!DBA::isResult($r) && ($orig_record['parent-uid'] != 0) && ($orig_record['parent-uid'] == $identity)) {
-			$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-				intval($identity)
-			);
+		if (!DBA::isResult($user) && ($orig_record['parent-uid'] != 0) && ($orig_record['parent-uid'] == $identity)) {
+			$user = DBA::selectFirst('user', [], ['uid' => $identity]);
 		}
 
 		// Finally check if it's out own user
-		if (!DBA::isResult($r) && ($orig_record['uid'] != 0) && ($orig_record['uid'] == $identity)) {
-			$r = q("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1",
-				intval($identity)
-			);
+		if (!DBA::isResult($user) && ($orig_record['uid'] != 0) && ($orig_record['uid'] == $identity)) {
+			$user = DBA::selectFirst('user', [], ['uid' => $identity]);
 		}
+
 	}
 
-	if (!DBA::isResult($r)) {
+	if (!DBA::isResult($user)) {
 		return;
 	}
-
 	unset($_SESSION['authenticated']);
 	unset($_SESSION['uid']);
 	unset($_SESSION['visitor_id']);
@@ -109,24 +89,22 @@ function manage_post(App $a) {
 		unset($_SESSION['sysmsg_info']);
 	}
 
-	Session::setAuthenticatedForUser($a, $r[0], true, true);
+	Session::setAuthenticatedForUser($a, $user, true, true);
 
 	if ($limited_id) {
 		$_SESSION['submanage'] = $original_id;
 	}
 
 	$ret = [];
-	Hook::callAll('home_init',$ret);
+	Hook::callAll('home_init', $ret);
 
-	$a->internalRedirect('profile/' . $a->user['nickname'] );
+	$a->internalRedirect('profile/' . $a->user['nickname']);
 	// NOTREACHED
 }
 
-
-
 function manage_content(App $a) {
 
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
@@ -140,37 +118,24 @@ function manage_content(App $a) {
 	$identities = $a->identities;
 
 	//getting additinal information for each identity
-	foreach ($identities as $key=>$id) {
-		$thumb = q("SELECT `thumb` FROM `contact` WHERE `uid` = '%s' AND `self` = 1",
-			DBA::escape($id['uid'])
-		);
+	foreach ($identities as $key => $id) {
+		$thumb = DBA::selectFirst('contact', ['thumb'], ['uid' => $id['uid'] , 'self' => true]);
+		if (!DBA::isResult($thumb)) {
+			continue;
+		}
 
-		$identities[$key]['thumb'] = $thumb[0]['thumb'];
+		$identities[$key]['thumb'] = $thumb['thumb'];
 
 		$identities[$key]['selected'] = ($id['nickname'] === $a->user['nickname']);
 
-		$notifications = 0;
+		$condition = ["`uid` = ? AND `msg` != '' AND NOT (`type` IN (?, ?)) AND NOT `seen`", $id['uid'], NOTIFY_INTRO, NOTIFY_MAIL];
+		$params = ['distinct' => true, 'expression' => 'parent'];
+		$notifications = DBA::count('notify', $condition, $params);
 
-		$r = q("SELECT DISTINCT(`parent`) FROM `notify` WHERE `uid` = %d AND NOT `seen` AND NOT (`type` IN (%d, %d))",
-			intval($id['uid']), intval(NOTIFY_INTRO), intval(NOTIFY_MAIL));
+		$params = ['distinct' => true, 'expression' => 'convid'];
+		$notifications += DBA::count('mail', ['uid' => $id['uid'], 'seen' => false], $params);
 
-		if (DBA::isResult($r)) {
-			$notifications = sizeof($r);
-		}
-
-		$r = q("SELECT DISTINCT(`convid`) FROM `mail` WHERE `uid` = %d AND NOT `seen`",
-			intval($id['uid']));
-
-		if (DBA::isResult($r)) {
-			$notifications = $notifications + sizeof($r);
-		}
-
-		$r = q("SELECT COUNT(*) AS `introductions` FROM `intro` WHERE NOT `blocked` AND NOT `ignore` AND `uid` = %d",
-			intval($id['uid']));
-
-		if (DBA::isResult($r)) {
-			$notifications = $notifications + $r[0]["introductions"];
-		}
+		$notifications += DBA::count('intro', ['blocked' => false, 'ignore' => false, 'uid' => $id['uid']]);
 
 		$identities[$key]['notifications'] = $notifications;
 	}
