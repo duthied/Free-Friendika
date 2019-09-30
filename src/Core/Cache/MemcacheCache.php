@@ -15,6 +15,7 @@ class MemcacheCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
+	use TraitMemcacheCommand;
 
 	/**
 	 * @var Memcache
@@ -34,11 +35,11 @@ class MemcacheCache extends Cache implements IMemoryCache
 
 		$this->memcache = new Memcache();
 
-		$memcache_host = $config->get('system', 'memcache_host');
-		$memcache_port = $config->get('system', 'memcache_port');
+		$this->server = $config->get('system', 'memcache_host');;
+		$this->port = $config->get('system', 'memcache_port');
 
-		if (!$this->memcache->connect($memcache_host, $memcache_port)) {
-			throw new Exception('Expected Memcache server at ' . $memcache_host . ':' . $memcache_port . ' isn\'t available');
+		if (!@$this->memcache->connect($this->server, $this->port)) {
+			throw new Exception('Expected Memcache server at ' . $this->server . ':' . $this->port . ' isn\'t available');
 		}
 	}
 
@@ -47,21 +48,7 @@ class MemcacheCache extends Cache implements IMemoryCache
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		$keys     = [];
-		$allSlabs = $this->memcache->getExtendedStats('slabs');
-		foreach ($allSlabs as $slabs) {
-			foreach (array_keys($slabs) as $slabId) {
-				$cachedump = $this->memcache->getExtendedStats('cachedump', (int)$slabId);
-				foreach ($cachedump as $key => $arrVal) {
-					if (!is_array($arrVal)) {
-						continue;
-					}
-					$keys = array_merge($keys, array_keys($arrVal));
-				}
-			}
-		}
-
-		$keys = $this->getOriginalKeys($keys);
+		$keys = $this->getOriginalKeys($this->getMemcacheKeys());
 
 		return $this->filterArrayKeysByPrefix($keys, $prefix);
 	}

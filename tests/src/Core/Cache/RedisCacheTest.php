@@ -8,6 +8,7 @@ use Friendica\Core\Config\Configuration;
 
 /**
  * @requires extension redis
+ * @group REDIS
  */
 class RedisCacheTest extends MemoryCacheTest
 {
@@ -15,10 +16,12 @@ class RedisCacheTest extends MemoryCacheTest
 	{
 		$configMock = \Mockery::mock(Configuration::class);
 
+		$host = $_SERVER['REDIS_HOST'] ?? 'localhost';
+
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_host')
-			->andReturn('localhost');
+			->andReturn($host);
 		$configMock
 			->shouldReceive('get')
 			->with('system', 'redis_port')
@@ -33,7 +36,11 @@ class RedisCacheTest extends MemoryCacheTest
 			->with('system', 'redis_password')
 			->andReturn(null);
 
-		$this->cache = new RedisCache('localhost', $configMock);
+		try {
+			$this->cache = new RedisCache($host, $configMock);
+		} catch (\Exception $e) {
+			$this->markTestSkipped('Redis is not available.');
+		}
 		return $this->cache;
 	}
 
