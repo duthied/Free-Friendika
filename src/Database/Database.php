@@ -90,8 +90,11 @@ class Database
 	public function connect()
 	{
 		if (!is_null($this->connection) && $this->connected()) {
-			return true;
+			return $this->connected;
 		}
+
+		// Reset connected state
+		$this->connected = false;
 
 		$port       = 0;
 		$serveraddr = trim($this->configCache->get('database', 'hostname'));
@@ -187,19 +190,20 @@ class Database
 	 */
 	public function disconnect()
 	{
-		if (is_null($this->connection)) {
-			return;
+		if (!is_null($this->connection)) {
+			switch ($this->driver) {
+				case 'pdo':
+					$this->connection = null;
+					break;
+				case 'mysqli':
+					$this->connection->close();
+					$this->connection = null;
+					break;
+			}
 		}
 
-		switch ($this->driver) {
-			case 'pdo':
-				$this->connection = null;
-				break;
-			case 'mysqli':
-				$this->connection->close();
-				$this->connection = null;
-				break;
-		}
+		$this->driver    = null;
+		$this->connected = false;
 	}
 
 	/**
@@ -369,6 +373,7 @@ class Database
 				$connected = $this->connection->ping();
 				break;
 		}
+
 		return $connected;
 	}
 

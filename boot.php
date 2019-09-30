@@ -31,7 +31,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2019.09-rc');
+define('FRIENDICA_VERSION',      '2019.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -413,7 +413,7 @@ function public_contact()
  *
  * @return int|bool visitor_id or false
  */
-function remote_user()
+function remote_user($uid = null)
 {
 	// You cannot be both local and remote.
 	// Unncommented by rabuzarus because remote authentication to local
@@ -422,13 +422,22 @@ function remote_user()
 //		return false;
 //	}
 
-	if (empty($_SESSION)) {
+	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['visitor_id'])) {
+	if (!is_null($uid) && !empty($_SESSION['remote'])) {
+		/// @todo replace it with this:
+		// if (!empty($_SESSION['remote'][$uid])) ...
+		foreach ($_SESSION['remote'] as $visitor) {
+			if ($visitor['uid'] == $uid) {
+				return $visitor['cid'];
+			}
+		}
+	} elseif (is_null($uid) && !empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
+
 	return false;
 }
 

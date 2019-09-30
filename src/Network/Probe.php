@@ -1504,10 +1504,39 @@ class Probe
 		$data['baseurl'] = 'https://twitter.com';
 
 		$curlResult = Network::curl($data['url'], false);
-		if ($curlResult->isSuccess()) {
-			return $data;
+		if (!$curlResult->isSuccess()) {
+			return [];
 		}
-		return [];
+
+		$body = $curlResult->getBody();
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+		$xpath = new DOMXPath($doc);
+
+		$list = $xpath->query('//img[@class]');
+		foreach ($list as $node) {
+			$img_attr = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$img_attr[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (empty($img_attr['class'])) {
+				continue;
+			}
+
+			if (strpos($img_attr['class'], 'ProfileAvatar-image') !== false) {
+				if (!empty($img_attr['src'])) {
+					$data['photo'] = $img_attr['src'];
+				}
+				if (!empty($img_attr['alt'])) {
+					$data['name'] = $img_attr['alt'];
+				}
+			}
+		}
+
+		return $data;
 	}
 
 	/**

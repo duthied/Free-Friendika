@@ -154,17 +154,8 @@ function photos_post(App $a)
 
 	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && remote_user()) {
-		$contact_id = 0;
-
-		if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $page_owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
+	} elseif ($community_page && remote_user($page_owner_uid)) {
+		$contact_id = remote_user($page_owner_uid);
 
 		if ($contact_id > 0) {
 			if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $page_owner_uid, 'blocked' => false, 'pending' => false])) {

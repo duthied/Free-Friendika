@@ -544,6 +544,10 @@ class Transmitter
 
 		$contacts = DBA::select('contact', ['url', 'network', 'protocol'], $condition);
 		while ($contact = DBA::fetch($contacts)) {
+			if (Contact::isLocal($contact['url'])) {
+				continue;
+			}
+
 			if (!in_array($contact['network'], $networks) && ($contact['protocol'] != Protocol::ACTIVITYPUB)) {
 				continue;
 			}
@@ -611,6 +615,10 @@ class Transmitter
 				if ($receiver == $item_profile['followers']) {
 					$inboxes = array_merge($inboxes, self::fetchTargetInboxesforUser($uid, $personal));
 				} else {
+					if (Contact::isLocal($receiver)) {
+						continue;
+					}
+
 					$profile = APContact::getByURL($receiver, false);
 					if (!empty($profile)) {
 						if (empty($profile['sharedinbox']) || $personal || $blindcopy) {

@@ -384,3 +384,15 @@ function update_1318()
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate');
 	return Update::SUCCESS;
 }
+
+function update_1323()
+{
+	$users = DBA::select('user', ['uid']);
+	while ($user = DBA::fetch($users)) {
+		Contact::updateSelfFromUserID($user['uid']);
+	}
+	DBA::close($users);
+
+	return Update::SUCCESS;
+}
+

@@ -50,4 +50,30 @@ class HTMLTest extends MockedTest
 
 		$this->assertEquals($expected, $output);
 	}
+
+	public function dataHTMLText()
+	{
+		return [
+			'bug-7665-audio-tag' => [
+				'expectedBBCode' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
+				'html' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls="controls"><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
+			],
+		];
+	}
+
+	/**
+	 * Test convert bbcodes to HTML
+	 *
+	 * @dataProvider dataHTMLText
+	 *
+	 * @param string $expectedBBCode Expected BBCode output
+	 * @param string $html           HTML text
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function testToBBCode($expectedBBCode, $html)
+	{
+		$actual = HTML::toBBCode($html);
+
+		$this->assertEquals($expectedBBCode, $actual);
+	}
 }

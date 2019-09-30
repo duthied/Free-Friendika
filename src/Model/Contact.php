@@ -270,14 +270,17 @@ class Contact extends BaseObject
 	 * @param string $url The contact link
 	 *
 	 * @return string basepath
+	 * @return boolean $dont_update Don't update the contact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function getBasepath($url)
+	public static function getBasepath($url, $dont_update = false)
 	{
 		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 		if (!empty($contact['baseurl'])) {
 			return $contact['baseurl'];
+		} elseif ($dont_update) {
+			return '';
 		}
 
 		self::updateFromProbeByURL($url, true);
@@ -288,6 +291,18 @@ class Contact extends BaseObject
 		}
 
 		return '';
+	}
+
+	/**
+	 * Check if the given contact url is on the same server
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return boolean Is it the same server?
+	 */
+	public static function isLocal($url)
+	{
+		return Strings::compareLink(self::getBasepath($url, true), System::baseUrl());
 	}
 
 	/**
@@ -668,21 +683,21 @@ class Contact extends BaseObject
 	public static function updateSelfFromUserID($uid, $update_avatar = false)
 	{
 		$fields = ['id', 'name', 'nick', 'location', 'about', 'keywords', 'gender', 'avatar',
-			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl',
+			'xmpp', 'contact-type', 'forum', 'prv', 'avatar-date', 'url', 'nurl', 'unsearchable',
 			'photo', 'thumb', 'micro', 'addr', 'request', 'notify', 'poll', 'confirm', 'poco'];
 		$self = DBA::selectFirst('contact', $fields, ['uid' => $uid, 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return;
 		}
 
-		$fields = ['nickname', 'page-flags', 'account-type'];
+		$fields = ['nickname', 'page-flags', 'account-type', 'hidewall'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return;
 		}
 
 		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
-			'country-name', 'gender', 'pub_keywords', 'xmpp'];
+			'country-name', 'gender', 'pub_keywords', 'xmpp', 'net-publish'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		if (!DBA::isResult($profile)) {
 			return;
@@ -727,6 +742,7 @@ class Contact extends BaseObject
 		$fields['avatar'] = System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
+		$fields['unsearchable'] = $user['hidewall'] || !$profile['net-publish'];
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
 		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];
@@ -1177,7 +1193,7 @@ class Contact extends BaseObject
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$sparkle = true;
-			$profile_link = System::baseUrl() . '/redir/' . $contact['id'] . '?url=' . $contact['url'];
+			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -1462,7 +1478,6 @@ class Contact extends BaseObject
 
 		if (empty($data)) {
 			$data = Probe::uri($url, "", $uid);
-
 			// Ensure that there is a gserver entry
 			if (!empty($data['baseurl']) && ($data['network'] != Protocol::PHANTOM)) {
 				PortableContact::checkServer($data['baseurl']);
@@ -2021,9 +2036,8 @@ class Contact extends BaseObject
 			return true;
 		}
 
-		// If Probe::uri fails the network code will be different (mostly "feed" or "unkn")
-		if (!in_array($ret['network'], Protocol::NATIVE_SUPPORT) ||
-			(in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network']))) {
+		// If Probe::uri fails the network code will be different ("feed" or "unkn")
+		if (in_array($ret['network'], [Protocol::FEED, Protocol::PHANTOM]) && ($ret['network'] != $contact['network'])) {
 			if ($force && ($uid == 0)) {
 				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'failure_update' => $updated]);
 			}
@@ -2063,7 +2077,7 @@ class Contact extends BaseObject
 			}
 		}
 
-		if ($ret['network'] != Protocol::FEED) {
+		if (!empty($ret['photo']) && ($ret['network'] != Protocol::FEED)) {
 			self::updateAvatar($ret['photo'], $uid, $id, $update || $force);
 		}
 
@@ -2487,6 +2501,9 @@ class Contact extends BaseObject
 						['id' => $contact['id'], 'uid' => $importer['uid']]);
 			}
 
+			// Ensure to always have the correct network type, independent from the connection request method
+			self::updateFromProbe($contact['id'], '', true);
+
 			return true;
 		} else {
 			// send email notification to owner?
@@ -2512,15 +2529,14 @@ class Contact extends BaseObject
 				'writable' => 1,
 			]);
 
-			$contact_record = [
-				'id' => DBA::lastInsertId(),
-				'network' => $network,
-				'name' => $name,
-				'url' => $url,
-				'photo' => $photo
-			];
+			$contact_id = DBA::lastInsertId();
 
-			Contact::updateAvatar($photo, $importer["uid"], $contact_record["id"], true);
+			// Ensure to always have the correct network type, independent from the connection request method
+			self::updateFromProbe($contact_id, '', true);
+
+			Contact::updateAvatar($photo, $importer["uid"], $contact_id, true);
+
+			$contact_record = DBA::selectFirst('contact', ['id', 'network', 'name', 'url', 'photo'], ['id' => $contact_id]);
 
 			/// @TODO Encapsulate this into a function/method
 			$fields = ['uid', 'username', 'email', 'page-flags', 'notify-flags', 'language'];
@@ -2728,7 +2744,7 @@ class Contact extends BaseObject
 
 		$redirect = 'redir/' . $contact['id'];
 
-		if ($url != '') {
+		if (($url != '') && !Strings::compareLink($contact['url'], $url)) {
 			$redirect .= '?url=' . $url;
 		}
 

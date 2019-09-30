@@ -248,7 +248,7 @@ class Profile
 	 */
 	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
 	{
-		if (remote_user() && !empty($_SESSION['remote'])) {
+		if (remote_user($uid) && !empty($_SESSION['remote'])) {
 			foreach ($_SESSION['remote'] as $visitor) {
 				if ($visitor['uid'] == $uid) {
 					$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);
@@ -1124,13 +1124,13 @@ class Profile
 		/// @todo replace this and the query for this variable with some cleaner functionality
 		$_SESSION['remote'] = [];
 
-		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => $visitor['nurl'], 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => $visitor['nurl'], 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
 		while ($contact = DBA::fetch($remote_contacts)) {
 			if (($contact['uid'] == 0) || Contact::isBlockedByUser($visitor['id'], $contact['uid'])) {
 				continue;
 			}
 
-			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $visitor['url']];
+			$_SESSION['remote'][$contact['uid']] = ['cid' => $contact['id'], 'uid' => $contact['uid']];
 		}
 
 		$a->contact = $visitor;

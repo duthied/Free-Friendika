@@ -9,8 +9,10 @@ use Friendica\App;
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 /**
  * High-level Session service class
@@ -118,7 +120,20 @@ class Session
 			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
 			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0'),
+			'remote'	=> []
 		]);
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
+				continue;
+			}
+
+			/// @todo Change it to this format to save space
+			// $_SESSION['remote'][$contact['uid']] = $contact['id'];
+			$_SESSION['remote'][$contact['uid']] = ['cid' => $contact['id'], 'uid' => $contact['uid']];
+		}
+		DBA::close($remote_contacts);
 
 		$member_since = strtotime($user_record['register_date']);
 		self::set('new_member', time() < ($member_since + ( 60 * 60 * 24 * 14)));

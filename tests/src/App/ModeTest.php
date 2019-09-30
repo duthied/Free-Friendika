@@ -183,13 +183,13 @@ class ModeTest extends MockedTest
 	/**
 	 * Test if not called by index is backend
 	 */
-	public function testIsBackendNotIndex()
+	public function testIsBackendNotIsBackend()
 	{
-		$server = ['PHP_SELF' => '/daemon.php'];
+		$server = [];
 		$module = new Module();
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
 
 		$this->assertTrue($mode->isBackend());
 	}
@@ -199,11 +199,11 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsBackendButIndex()
 	{
-		$server = ['PHP_SELF' => '/index.php'];
+		$server = [];
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, true);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
 
 		$this->assertTrue($mode->isBackend());
 	}
@@ -213,11 +213,11 @@ class ModeTest extends MockedTest
 	 */
 	public function testIsNotBackend()
 	{
-		$server = ['PHP_SELF' => '/index.php'];
+		$server = [];
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
 
 		$this->assertFalse($mode->isBackend());
 	}
@@ -235,7 +235,7 @@ class ModeTest extends MockedTest
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
 
 		$this->assertTrue($mode->isAjax());
 	}
@@ -249,7 +249,7 @@ class ModeTest extends MockedTest
 		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
 		$mobileDetect = new MobileDetect();
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
 
 		$this->assertFalse($mode->isAjax());
 	}
@@ -265,7 +265,7 @@ class ModeTest extends MockedTest
 		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
 
 		$this->assertTrue($mode->isMobile());
 		$this->assertTrue($mode->isTablet());
@@ -283,7 +283,7 @@ class ModeTest extends MockedTest
 		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(false);
 
-		$mode = (new Mode())->determineRunMode($module, $server, $mobileDetect);
+		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
 
 		$this->assertFalse($mode->isMobile());
 		$this->assertFalse($mode->isTablet());

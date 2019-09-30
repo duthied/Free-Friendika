@@ -42,14 +42,32 @@ class HTML
 		return $cleaned;
 	}
 
-	private static function tagToBBCode(DOMDocument $doc, $tag, $attributes, $startbb, $endbb)
+	/**
+	 * Search all instances of a specific HTML tag node in the provided DOM document and replaces them with BBCode text nodes.
+	 *
+	 * @see HTML::tagToBBCodeSub()
+	 */
+	private static function tagToBBCode(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
 	{
 		do {
-			$done = self::tagToBBCodeSub($doc, $tag, $attributes, $startbb, $endbb);
+			$done = self::tagToBBCodeSub($doc, $tag, $attributes, $startbb, $endbb, $ignoreChildren);
 		} while ($done);
 	}
 
-	private static function tagToBBCodeSub(DOMDocument $doc, $tag, $attributes, $startbb, $endbb)
+	/**
+	 * Search the first specific HTML tag node in the provided DOM document and replaces it with BBCode text nodes.
+	 *
+	 * @param DOMDocument $doc
+	 * @param string      $tag            HTML tag name
+	 * @param array       $attributes     Array of attributes to match and optionally use the value from
+	 * @param string      $startbb        BBCode tag opening
+	 * @param string      $endbb          BBCode tag closing
+	 * @param bool        $ignoreChildren If set to false, the HTML tag children will be appended as text inside the BBCode tag
+	 *                                    Otherwise, they will be entirely ignored. Useful for simple BBCode that draw their
+	 *                                    inner value from an attribute value and disregard the tag children.
+	 * @return bool Whether a replacement was done
+	 */
+	private static function tagToBBCodeSub(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
 	{
 		$savestart = str_replace('$', '\x01', $startbb);
 		$replace = false;
@@ -98,7 +116,7 @@ class HTML
 
 				$node->parentNode->insertBefore($StartCode, $node);
 
-				if ($node->hasChildNodes()) {
+				if (!$ignoreChildren && $node->hasChildNodes()) {
 					/** @var \DOMNode $child */
 					foreach ($node->childNodes as $key => $child) {
 						/* Remove empty text nodes at the start or at the end of the children list */
@@ -296,14 +314,14 @@ class HTML
 		self::tagToBBCode($doc, 'a', ['href' => '/mailto:(.+)/'], '[mail=$1]', '[/mail]');
 		self::tagToBBCode($doc, 'a', ['href' => '/(.+)/'], '[url=$1]', '[/url]');
 
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]');
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]');
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]');
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]', true);
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]', true);
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]', true);
 
 
-		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]');
-		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]');
-		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]');
+		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]', true);
+		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]', true);
+		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]', true);
 
 		self::tagToBBCode($doc, 'key', [], '[code]', '[/code]');
 		self::tagToBBCode($doc, 'code', [], '[code]', '[/code]');

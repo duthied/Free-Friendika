@@ -580,6 +580,9 @@ F&uuml;r Verbindungen zu Netzwerken, zu denen Friendica den HTML Code postet, wi
 Bei nativen Verbindungen; das hei&szlig;t zu z.B. Friendica, Hubzilla, Diaspora oder GNU Social Kontakten; wird der ungek&uuml;rzte Beitrag &uuml;bertragen.
 Die Instanz des Kontakts k&uuml;mmert sich um die Darstellung.
 
+Wird ein Beitrag über das ActivityPub Protokoll &uuml;bermittelt, wird der Text des Abstracts f&uuml;r das "summary" (Zusammenfassung) Feld verwendet.
+Dieses Feld wird von Mastodon f&uuml;r die Inhaltswarnung (content warning) verwendet.
+
 ## Special
 
 <table class="bbcodes">
