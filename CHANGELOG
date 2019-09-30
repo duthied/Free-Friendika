@@ -1,3 +1,15 @@
+Version 2019.12-dev (unreleased)
+  Friendica Core:
+    Enhanced the manage functionality [annando]
+    Fixed some problems with the remote auth functionality [annando]
+    Added router configuration file [nupplaphil]
+    Added drone.io as CI service [nupplaphil]
+
+  Friendica Addons:
+
+  Closed Issues:
+    1071, 7548, 7657, 7681
+
 Version 2019.09 (2019-09-29)
   Friendica Core:
     Update to the translations (CS, DE, EN GB, EN US, FR, JA, NL, PL) [translation teams]
