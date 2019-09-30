@@ -1,4 +1,19 @@
 #!/usr/bin/env bash
+#
+# This script is used for autotesting the Friendica codebase with different
+# types of tests and environments.
+#
+# Currently, there are three types of autotesting possibilities:
+# - "USEDOCKER=true ./autotest.sh" will start a database docker container for testing
+# - "./autotest.sh" on the Drone CI environment will use the database container of the drone CI pipeline
+# - "./autotest.sh" on a local environment will try to use the local database instance for testing
+#
+# You can specify a database (mysql, mariadb currently) for the db backend of Friendica ("./autotest.sh mysql")
+# And you can specify some parameters for the test, like:
+# - NOCOVERAGE=true ... Don't create a coverage XML (this is only useful if you will send coverage to codecov.io)
+# - NOINSTALL=true  ... Skip the whole Friendica installation process (e.g. you just test Caching drivers)
+# - TEST_SELECTION= ... Specify which tests are used to run (based on the test-labeling)
+# - XDEBUG_CONFIG=  ... Set some XDEBUG specific environment settings for development
 
 DATABASENAME=${MYSQL_DATABASE:-test}
 DATABASEUSER=${MYSQL_USERNAME:-friendica}
