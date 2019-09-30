@@ -48,8 +48,6 @@ class Profile extends BaseModule
 		if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 			self::$which = $a->user['nickname'];
 			self::$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);
-		} else {
-			DFRN::autoRedir($a, self::$which);
 		}
 	}
 
@@ -86,8 +84,8 @@ class Profile extends BaseModule
 
 			$a->page['htmlhead'] .= "\n";
 
-			$blocked   = !local_user() && !remote_user() && Config::get('system', 'block_public');
-			$userblock = !local_user() && !remote_user() && $a->profile['hidewall'];
+			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && Config::get('system', 'block_public');
+			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
@@ -153,12 +151,9 @@ class Profile extends BaseModule
 
 		$hashtags = defaults($_GET, 'tag', '');
 
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+		if (Config::get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
 			return Login::form();
 		}
-
-		$groups = [];
-		$remote_cid = null;
 
 		$o = '';
 
@@ -169,17 +164,9 @@ class Profile extends BaseModule
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = ContactModel::isFollower(remote_user(), $a->profile['profile_uid']);
+		$remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
 		$is_owner = local_user() == $a->profile['profile_uid'];
-		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . remote_user();
-
-		if ($remote_contact) {
-			$cdata = ContactModel::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
-			if (!empty($cdata['user'])) {
-				$groups = Group::getIdsByContactId($cdata['user']);
-				$remote_cid = $cdata['user'];
-			}
-		}
+		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
 			notice(L10n::t('Access to this profile has been restricted.') . EOL);
@@ -229,7 +216,7 @@ class Profile extends BaseModule
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups, $remote_cid);
+		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
 		$sql_extra2 = '';
 
 		$last_updated_array = Session::get('last_updated', []);

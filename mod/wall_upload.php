@@ -12,6 +12,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -74,33 +75,20 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ((local_user()) && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} else {
-		if ($community_page && remote_user()) {
-			$contact_id = 0;
-			if (is_array($_SESSION['remote'])) {
-				foreach ($_SESSION['remote'] as $v) {
-					if ($v['uid'] == $page_owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
 
-			if ($contact_id) {
-				$r = q("SELECT `uid` FROM `contact`
-					WHERE `blocked` = 0 AND `pending` = 0
-					AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($page_owner_uid)
-				);
-				if (DBA::isResult($r)) {
-					$can_post = true;
-					$visitor = $contact_id;
-				}
-			}
+		$r = q("SELECT `uid` FROM `contact`
+			WHERE `blocked` = 0 AND `pending` = 0
+			AND `id` = %d AND `uid` = %d LIMIT 1",
+			intval($contact_id),
+			intval($page_owner_uid)
+		);
+		if (DBA::isResult($r)) {
+			$can_post = true;
+			$visitor = $contact_id;
 		}
 	}
-
 
 	if (!$can_post) {
 		if ($r_json) {

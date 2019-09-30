@@ -35,7 +35,7 @@ function redir_init(App $a) {
 
 		$contact_url = $contact['url'];
 
-		if ((!local_user() && !remote_user()) // Visitors (not logged in or not remotes) can't authenticate.
+		if (!Session::isAuthenticated() // Visitors (not logged in or not remotes) can't authenticate.
 			|| (!empty($a->contact['id']) && $a->contact['id'] == $cid)) // Local user is already authenticated.
 		{
 			$a->redirect(defaults($url, $contact_url));
@@ -66,34 +66,16 @@ function redir_init(App $a) {
 			// with the local contact. Otherwise the local user would ask the local contact
 			// for authentification everytime he/she is visiting a profile page of the local
 			// contact.
-			if ($host == $remotehost
-				&& !empty($_SESSION['remote'])
-				&& is_array($_SESSION['remote']))
-			{
-				foreach ($_SESSION['remote'] as $v) {
-					if (!empty($v['uid']) && !empty($v['cid']) &&
-					    $v['uid'] == Session::get('visitor_visiting') &&
-					    $v['cid'] == Session::get('visitor_id')) {
-						// Remote user is already authenticated.
-						$target_url = defaults($url, $contact_url);
-						Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
-						$a->redirect($target_url);
-					}
-				}
+			if (($host == $remotehost) && (Session::getRemoteContactID(Session::get('visitor_visiting')) == Session::get('visitor_id'))) {
+				// Remote user is already authenticated.
+				$target_url = defaults($url, $contact_url);
+				Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
+				$a->redirect($target_url);
 			}
 		}
 
-		// When the remote page does support OWA, then we enforce the use of it
-		$basepath = Contact::getBasepath($contact_url);
-		if (Strings::compareLink($basepath, System::baseUrl())) {
-			$use_magic = true;
-		} else {
-			$serverret = Network::curl($basepath . '/magic');
-			$use_magic = $serverret->isSuccess();
-		}
-
 		// Doing remote auth with dfrn.
-		if (local_user() && !$use_magic && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
+		if (local_user() && (!empty($contact['dfrn-id']) || !empty($contact['issued-id'])) && empty($contact['pending'])) {
 			$dfrn_id = $orig_id = (($contact['issued-id']) ? $contact['issued-id'] : $contact['dfrn-id']);
 
 			if ($contact['duplex'] && $contact['issued-id']) {
@@ -146,23 +128,6 @@ function redir_magic($a, $cid, $url)
 	$visitor = Profile::getMyURL();
 	if (!empty($visitor)) {
 		Logger::info('Got my url', ['visitor' => $visitor]);
-	}
-
-	/// @todo Most likely these lines are superfluous. We will remove them in the next version
-	if (empty($visitor) && remote_user()) {
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => remote_user()]);
-		if (!empty($contact['url'])) {
-			$visitor = $contact['url'];
-			Logger::info('Got remote user', ['visitor' => $visitor]);
-		}
-	}
-
-	if (empty($visitor) && local_user()) {
-		$contact = DBA::selectFirst('contact', ['url'], ['id' => local_user()]);
-		if (!empty($contact['url'])) {
-			$visitor = $contact['url'];
-			Logger::info('Got local user', ['visitor' => $visitor]);
-		}
 	}
 
 	$contact = DBA::selectFirst('contact', ['url'], ['id' => $cid]);

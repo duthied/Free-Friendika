@@ -13,6 +13,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
@@ -1213,7 +1214,7 @@ class Contact extends BaseObject
 		}
 
 		if (($contact['network'] == Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$poke_link = System::baseUrl() . '/poke/?f=&c=' . $contact['id'];
+			$poke_link = System::baseUrl() . '/poke/?c=' . $contact['id'];
 		}
 
 		$contact_url = System::baseUrl() . '/contact/' . $contact['id'];
@@ -2679,7 +2680,7 @@ class Contact extends BaseObject
 	 */
 	public static function magicLink($contact_url, $url = '')
 	{
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			return $url ?: $contact_url; // Equivalent to: ($url != '') ? $url : $contact_url;
 		}
 
@@ -2725,7 +2726,7 @@ class Contact extends BaseObject
 	{
 		$destination = $url ?: $contact['url']; // Equivalent to ($url != '') ? $url : $contact['url'];
 
-		if ((!local_user() && !remote_user()) || ($contact['network'] != Protocol::DFRN)) {
+		if (!Session::isAuthenticated() || ($contact['network'] != Protocol::DFRN)) {
 			return $destination;
 		}
 

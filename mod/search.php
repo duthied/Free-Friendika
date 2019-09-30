@@ -11,6 +11,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\Core\Session;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -83,18 +84,18 @@ function search_init(App $a) {
 }
 
 function search_content(App $a) {
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system','block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
 
-	if (Config::get('system','local_search') && !local_user() && !remote_user()) {
+	if (Config::get('system','local_search') && !Session::isAuthenticated()) {
 		$e = new \Friendica\Network\HTTPException\ForbiddenException(L10n::t("Only logged in users are permitted to perform a search."));
 		$e->httpdesc = L10n::t("Public access denied.");
 		throw $e;
 	}
 
-	if (Config::get('system','permit_crawling') && !local_user() && !remote_user()) {
+	if (Config::get('system','permit_crawling') && !Session::isAuthenticated()) {
 		// Default values:
 		// 10 requests are "free", after the 11th only a call per minute is allowed
 

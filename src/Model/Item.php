@@ -18,6 +18,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
@@ -3028,7 +3029,7 @@ class Item extends BaseObject
 	 */
 	public static function performLike($item_id, $verb)
 	{
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			return false;
 		}
 
@@ -3260,10 +3261,10 @@ class Item extends BaseObject
 		}
 	}
 
-	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null, $remote_cid = null)
+	public static function getPermissionsSQLByUserId($owner_id)
 	{
 		$local_user = local_user();
-		$remote_user = remote_user();
+		$remote_user = Session::getRemoteContactID($owner_id);
 
 		/*
 		 * Construct permissions
@@ -3283,7 +3284,7 @@ class Item extends BaseObject
 			 * If pre-verified, the caller is expected to have already
 			 * done this and passed the groups into this function.
 			 */
-			$set = PermissionSet::get($owner_id, $remote_cid, $groups);
+			$set = PermissionSet::get($owner_id, $remote_user);
 
 			if (!empty($set)) {
 				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
@@ -3427,7 +3428,7 @@ class Item extends BaseObject
 		}
 
 		// Update the cached values if there is no "zrl=..." on the links.
-		$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
+		$update = (!Session::isAuthenticated() && ($item["uid"] == 0));
 
 		// Or update it if the current viewer is the intented viewer.
 		if (($item["uid"] == local_user()) && ($item["uid"] != 0)) {

@@ -4,6 +4,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Model\Item;
+use Friendica\Core\Session;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
@@ -14,7 +15,7 @@ class Like extends BaseModule
 {
 	public static function rawContent()
 	{
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 

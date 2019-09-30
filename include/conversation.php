@@ -365,7 +365,7 @@ function localize_item(&$item)
 		'network' => $item['author-network'], 'url' => $item['author-link']];
 
 	// Only create a redirection to a magic link when logged in
-	if (!empty($item['plink']) && (local_user() || remote_user())) {
+	if (!empty($item['plink']) && Session::isAuthenticated()) {
 		$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
 	}
 }

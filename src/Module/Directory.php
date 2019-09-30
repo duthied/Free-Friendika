@@ -8,6 +8,7 @@ use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
 use Friendica\Core\Renderer;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -25,8 +26,8 @@ class Directory extends BaseModule
 		$app = self::getApp();
 		$config = $app->getConfig();
 
-		if (($config->get('system', 'block_public') && !local_user() && !remote_user()) ||
-			($config->get('system', 'block_local_dir') && !local_user() && !remote_user())) {
+		if (($config->get('system', 'block_public') && !Session::isAuthenticated()) ||
+			($config->get('system', 'block_local_dir') && !Session::isAuthenticated())) {
 			throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
 		}
 

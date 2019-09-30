@@ -1608,7 +1608,7 @@ class Diaspora
 		}
 
 		if (self::isRedmatrix($contact["url"])) {
-			return $contact["url"] . "/?f=&mid=" . $guid;
+			return $contact["url"] . "/?mid=" . $guid;
 		}
 
 		if ($parent_guid != '') {

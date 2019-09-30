@@ -29,7 +29,7 @@ function community_content(App $a, $update = 0)
 {
 	$o = '';
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}

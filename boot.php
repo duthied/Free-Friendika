@@ -23,6 +23,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Term;
@@ -413,28 +414,13 @@ function public_contact()
  *
  * @return int|bool visitor_id or false
  */
-function remote_user($uid = null)
+function remote_user()
 {
-	// You cannot be both local and remote.
-	// Unncommented by rabuzarus because remote authentication to local
-	// profiles wasn't possible anymore (2018-04-12).
-//	if (local_user()) {
-//		return false;
-//	}
-
 	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (!is_null($uid) && !empty($_SESSION['remote'])) {
-		/// @todo replace it with this:
-		// if (!empty($_SESSION['remote'][$uid])) ...
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $uid) {
-				return $visitor['cid'];
-			}
-		}
-	} elseif (is_null($uid) && !empty($_SESSION['visitor_id'])) {
+	if (!empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
 

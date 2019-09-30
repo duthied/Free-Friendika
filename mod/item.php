@@ -25,6 +25,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
@@ -45,7 +46,7 @@ use Friendica\Worker\Delivery;
 require_once __DIR__ . '/../include/items.php';
 
 function item_post(App $a) {
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return 0;
 	}
 
@@ -348,18 +349,8 @@ function item_post(App $a) {
 	if (local_user() && ((local_user() == $profile_uid) || $allow_comment)) {
 		$self = true;
 		$author = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
-	} elseif (remote_user()) {
-		if (!empty($_SESSION['remote']) && is_array($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $profile_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
-		if ($contact_id) {
-			$author = DBA::selectFirst('contact', [], ['id' => $contact_id]);
-		}
+	} elseif (!empty(Session::getRemoteContactID($profile_uid))) {
+		$author = DBA::selectFirst('contact', [], ['id' => Session::getRemoteContactID($profile_uid)]);
 	}
 
 	if (DBA::isResult($author)) {
@@ -870,7 +861,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 
 function item_content(App $a)
 {
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 

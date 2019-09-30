@@ -15,7 +15,7 @@ use Friendica\Util\XML;
 
 function subthread_content(App $a) {
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 

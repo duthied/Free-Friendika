@@ -15,6 +15,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -35,11 +36,7 @@ use Friendica\Util\XML;
 
 function photos_init(App $a) {
 
-	if ($a->argc > 1) {
-		DFRN::autoRedir($a, $a->argv[1]);
-	}
-
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -73,7 +70,7 @@ function photos_init(App $a) {
 
 		$albums = Photo::getAlbums($a->data['user']['uid']);
 
-		$albums_visible = ((intval($a->data['user']['hidewall']) && !local_user() && !remote_user()) ? false : true);
+		$albums_visible = ((intval($a->data['user']['hidewall']) && !Session::isAuthenticated()) ? false : true);
 
 		// add various encodings to the array so we can just loop through and pick them out in a template
 		$ret = ['success' => false];
@@ -88,7 +85,7 @@ function photos_init(App $a) {
 			$ret['albums'] = [];
 			foreach ($albums as $k => $album) {
 				//hide profile photos to others
-				if (!$is_owner && !remote_user() && ($album['album'] == L10n::t('Profile Photos')))
+				if (!$is_owner && !Session::getRemoteContactID($a->profile_uid) && ($album['album'] == L10n::t('Profile Photos')))
 					continue;
 				$entry = [
 					'text'      => $album['album'],
@@ -154,15 +151,10 @@ function photos_post(App $a)
 
 	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && remote_user($page_owner_uid)) {
-		$contact_id = remote_user($page_owner_uid);
-
-		if ($contact_id > 0) {
-			if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $page_owner_uid, 'blocked' => false, 'pending' => false])) {
-				$can_post = true;
-				$visitor = $contact_id;
-			}
-		}
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
+		$can_post = true;
+		$visitor = $contact_id;
 	}
 
 	if (!$can_post) {
@@ -837,7 +829,7 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/edit
 	// photos/name/image/xxxxx/drop
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
@@ -883,50 +875,24 @@ function photos_content(App $a)
 
 	if (local_user() && (local_user() == $owner_uid)) {
 		$can_post = true;
-	} else {
-		if ($community_page && remote_user()) {
-			if (is_array($_SESSION['remote'])) {
-				foreach ($_SESSION['remote'] as $v) {
-					if ($v['uid'] == $owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
+	} elseif ($community_page && !empty(Session::getRemoteContactID($owner_uid))) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
-			if ($contact_id) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
-
-				if (DBA::isResult($contact)) {
-					$can_post = true;
-					$remote_contact = true;
-					$visitor = $contact_id;
-				}
-			}
+		if (DBA::isResult($contact)) {
+			$can_post = true;
+			$remote_contact = true;
+			$visitor = $contact_id;
 		}
 	}
 
-	$groups = [];
-
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (remote_user() && !$visitor) {
-		$contact_id = 0;
-		if (is_array($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
+	if (!empty(Session::getRemoteContactID($owner_uid)) && !$visitor) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
 
-		if ($contact_id) {
-			$groups = Group::getIdsByContactId($contact_id);
+		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
 
-			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $owner_uid, 'blocked' => false, 'pending' => false]);
-
-			$remote_contact = DBA::isResult($contact);
-		}
+		$remote_contact = DBA::isResult($contact);
 	}
 
 	if (!$remote_contact && local_user()) {
@@ -939,7 +905,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);
 
 	$o = "";
 
@@ -1598,7 +1564,7 @@ function photos_content(App $a)
 		$twist = false;
 		foreach ($r as $rr) {
 			//hide profile photos to others
-			if (!$is_owner && !remote_user() && ($rr['album'] == L10n::t('Profile Photos'))) {
+			if (!$is_owner && !Session::getRemoteContactID($owner_uid) && ($rr['album'] == L10n::t('Profile Photos'))) {
 				continue;
 			}
 
