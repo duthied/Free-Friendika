@@ -111,17 +111,14 @@ function dfrn_poll_init(App $a)
 
 				if ((int)$xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
-					if (empty($_SESSION['remote'])) {
-						$_SESSION['remote'] = [];
-					}
-
-					$_SESSION['remote'][$r[0]['uid']] = $r[0]['id'];
-
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_handle'] = $r[0]['addr'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					$_SESSION['my_url'] = $r[0]['url'];
+
+					Session::setVisitorsContacts();
+
 					if (!$quiet) {
 						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
@@ -518,16 +515,13 @@ function dfrn_poll_content(App $a)
 
 				if (((int) $xml->status == 0) && ($xml->challenge == $hash) && ($xml->sec == $sec)) {
 					$_SESSION['authenticated'] = 1;
-					if (empty($_SESSION['remote'])) {
-						$_SESSION['remote'] = [];
-					}
-
-					$_SESSION['remote'][$r[0]['uid']] = $r[0]['id'];
-
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					$_SESSION['my_url'] = $r[0]['url'];
+
+					Session::setVisitorsContacts();
+
 					if (!$quiet) {
 						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
