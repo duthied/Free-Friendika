@@ -1,3 +1,20 @@
+Version 2019.12-dev (unreleased)
+  Friendica Core:
+    Enhanced the manage functionality [annando]
+    Fixed some problems with the remote auth functionality [annando]
+    Added router configuration file [nupplaphil]
+    Added drone.io as CI service [nupplaphil]
+
+  Friendica Addons:
+    mailstream:
+      Support for new img format was added [mexon]
+      BB Code is now included as plaintext [mexon]
+      Logging format is enhanced [mexon]
+      ActivityPub "announce" notifications are not included [mexon]
+
+  Closed Issues:
+    1071, 7548, 7657, 7681
+
 Version 2019.09 (2019-09-29)
   Friendica Core:
     Update to the translations (CS, DE, EN GB, EN US, FR, JA, NL, PL) [translation teams]
