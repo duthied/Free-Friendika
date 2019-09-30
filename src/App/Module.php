@@ -150,13 +150,6 @@ class Module
 		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
 		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
 		 **/
-
-		// First we try explicit routes defined in App\Router
-		$router->collectRoutes();
-
-		$data = $router->getRouteCollector();
-		Core\Hook::callAll('route_collection', $data);
-
 		$module_class = $router->getModuleClass($args->getCommand());
 
 		// Then we try addon-provided modules that we wrap in the LegacyModule class

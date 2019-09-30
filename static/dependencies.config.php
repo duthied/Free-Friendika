@@ -165,4 +165,12 @@ return [
 			[Dice::INSTANCE => '$basepath'],
 		],
 	],
+	App\Router::class => [
+		'constructParams' => [
+			$_SERVER, null
+		],
+		'call' => [
+			['addRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
+		],
+	],
 ];

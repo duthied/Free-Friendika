@@ -4,7 +4,6 @@ namespace Friendica;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 
 /**
  * All modules in Friendica should extend BaseModule, although not all modules

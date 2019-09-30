@@ -3,13 +3,14 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App\Router;
+use Friendica\Module;
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase
 {
 	public function testGetModuleClass()
 	{
-		$router = new Router();
+		$router = new Router(['GET']);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute(['GET'], '/', 'IndexModuleClassName');
@@ -38,5 +39,63 @@ class RouterTest extends TestCase
 		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable/123abc'));
 
 		$this->assertNull($router->getModuleClass('/unsupported'));
+	}
+
+	public function dataRoutes()
+	{
+		return [
+			'default' => [
+				'routes' => [
+					'/'       => [Module\Home::class, [Router::GET]],
+					'/group'  => [
+						'/route' => [Module\Friendica::class, [Router::GET]],
+					],
+
+
+					'/group2' => [
+						'/group3' => [
+							'/route' => [Module\Xrd::class, [Router::GET]],
+						],
+					],
+					'/post' => [
+						'/it' => [Module\NodeInfo::class, [Router::POST]],
+					],
+					'/double' => [Module\Profile::class, [Router::GET, Router::POST]]
+				],
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataRoutes
+	 */
+	public function testGetRoutes(array $routes)
+	{
+		$router = (new Router([
+			'REQUEST_METHOD' => Router::GET
+		]))->addRoutes($routes);
+
+		$this->assertEquals(Module\Home::class, $router->getModuleClass('/'));
+		$this->assertEquals(Module\Friendica::class, $router->getModuleClass('/group/route'));
+		$this->assertEquals(Module\Xrd::class, $router->getModuleClass('/group2/group3/route'));
+		$this->assertNull($router->getModuleClass('/post/it'));
+		$this->assertEquals(Module\Profile::class, $router->getModuleClass('/double'));
+	}
+
+	/**
+	 * @dataProvider dataRoutes
+	 */
+	public function testPostRouter(array $routes)
+	{
+		$router = (new Router([
+			'REQUEST_METHOD' => Router::POST
+		]))->addRoutes($routes);
+
+		// Don't find GET
+		$this->assertNull($router->getModuleClass('/'));
+		$this->assertNull($router->getModuleClass('/group/route'));
+		$this->assertNull($router->getModuleClass('/group2/group3/route'));
+		$this->assertEquals(Module\NodeInfo::class, $router->getModuleClass('/post/it'));
+		$this->assertEquals(Module\Profile::class, $router->getModuleClass('/double'));
 	}
 }
