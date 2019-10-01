@@ -230,7 +230,7 @@ class CurlResult
 	 *
 	 * @return string|bool the Curl headers, "false" when field isn't found
 	 */
-	public function getHeader($field = '')
+	public function getHeader(string $field = '')
 	{
 		if (empty($field)) {
 			return $this->header;
@@ -241,11 +241,34 @@ class CurlResult
 			$parts = explode(':', $line);
 			$headerfield = array_shift($parts);
 			if (strtolower(trim($field)) == strtolower(trim($headerfield))) {
-				return implode(':', $parts);
+				return trim(implode(':', $parts));
 			}
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns the Curl headers as an associated array
+	 *
+	 * @return array associated header array
+	 */
+	public function getHeaderArray()
+	{
+		$headers = [];
+
+		$lines = explode("\n", $this->header);
+		foreach ($lines as $line) {
+			$parts = explode(':', $line);
+			$headerfield = strtolower(trim(array_shift($parts)));
+			$headerdata = trim(implode(':', $parts));
+
+			if (!empty($headerdata)) {
+				$headers[$headerfield] = $headerdata;
+			}
+		}
+
+		return $headers;
 	}
 
 	/**
