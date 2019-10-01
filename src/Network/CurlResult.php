@@ -228,7 +228,7 @@ class CurlResult
 	 *
 	 * @param string $field optional header field. Return all fields if empty
 	 *
-	 * @return string|bool the Curl headers, "false" when field isn't found
+	 * @return string the Curl headers or the specified content of the header variable
 	 */
 	public function getHeader(string $field = '')
 	{
@@ -245,7 +245,7 @@ class CurlResult
 			}
 		}
 
-		return false;
+		return '';
 	}
 
 	/**
