@@ -236,16 +236,29 @@ class CurlResult
 			return $this->header;
 		}
 
-		$lines = explode("\n", $this->header);
-		foreach ($lines as $line) {
-			$parts = explode(':', $line);
-			$headerfield = array_shift($parts);
-			if (strtolower(trim($field)) == strtolower(trim($headerfield))) {
-				return trim(implode(':', $parts));
-			}
-		}
+		$field = strtolower(trim($field));
 
-		return '';
+		$headers = self::getHeaderArray();
+
+		if (isset($headers[$field])) {
+			return $headers[$field];
+		}
+	}
+
+	/**
+	 * Check if a specified header exists
+	 *
+	 * @param string $field header field
+	 *
+	 * @return boolean "true" if header exists
+	 */
+	public function headerExists(string $field)
+	{
+		$field = strtolower(trim($field));
+
+		$headers = self::getHeaderArray();
+
+		return array_key_exists($field, $headers);
 	}
 
 	/**
