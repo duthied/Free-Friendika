@@ -37,9 +37,9 @@ sudo apt-get install -y apache2
 sudo a2enmod rewrite actions ssl
 sudo cp /vagrant/bin/dev/vagrant_vhost.sh /usr/local/bin/vhost
 sudo chmod guo+x /usr/local/bin/vhost
-    sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
-    sudo a2dissite 000-default
-    sudo service apache2 restart
+sudo vhost -s 192.168.22.10.xip.io -d /var/www -p /etc/ssl/xip.io -c xip.io -a friendica.local
+sudo a2dissite 000-default
+sudo service apache2 restart
 
 #Install php
 echo ">>> Installing PHP7"
@@ -48,9 +48,9 @@ sudo systemctl restart apache2
 
 #Install mysql
 echo ">>> Installing Mysql"
-sudo debconf-set-selections <<< "mysql-server mysql-server/root_password password root"
-sudo debconf-set-selections <<< "mysql-server mysql-server/root_password_again password root"
-sudo apt-get install -qq mysql-server
+sudo debconf-set-selections <<< "mariadb-server mariadb-server/root_password password root"
+sudo debconf-set-selections <<< "mariadb-server mariadb-server/root_password_again password root"
+sudo apt-get install -qq mariadb-server
 # enable remote access
 # setting the mysql bind-address to allow connections from everywhere
 sed -i "s/bind-address.*/bind-address = 0.0.0.0/" /etc/mysql/my.cnf
