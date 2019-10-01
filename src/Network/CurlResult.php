@@ -226,11 +226,26 @@ class CurlResult
 	/**
 	 * Returns the Curl headers
 	 *
-	 * @return string the Curl headers
+	 * @param string $field optional header field. Return all fields if empty
+	 *
+	 * @return string|bool the Curl headers, "false" when field isn't found
 	 */
-	public function getHeader()
+	public function getHeader($field = '')
 	{
-		return $this->header;
+		if (empty($field)) {
+			return $this->header;
+		}
+
+		$lines = explode("\n", $this->header);
+		foreach ($lines as $line) {
+			$parts = explode(':', $line);
+			$headerfield = array_shift($parts);
+			if (strtolower(trim($field)) == strtolower(trim($headerfield))) {
+				return implode(':', $parts);
+			}
+		}
+
+		return false;
 	}
 
 	/**
