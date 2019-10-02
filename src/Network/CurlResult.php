@@ -134,6 +134,7 @@ class CurlResult
 
 		$this->body = substr($result, strlen($header));
 		$this->header = $header;
+		$this->header_fields = []; // Is filled on demand
 	}
 
 	private function checkSuccess()
