@@ -720,7 +720,7 @@ class PortableContact
 
 		$server['register_policy'] = Register::CLOSED;
 
-		if (is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
+		if (isset($nodeinfo['openRegistrations']) && is_bool($nodeinfo['openRegistrations']) && $nodeinfo['openRegistrations']) {
 			$server['register_policy'] = Register::OPEN;
 		}
 

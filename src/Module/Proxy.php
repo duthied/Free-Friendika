@@ -287,14 +287,13 @@ class Proxy extends BaseModule
 	}
 
 	/**
-	 * @brief Output a blank image, without cache headers, in case of errors
+	 * In case of an error just stop. We don't return content to avoid caching problems
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function responseError()
 	{
-		header('Content-type: image/png');
-		echo file_get_contents('images/blank.png');
-		exit();
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 
 	/**
