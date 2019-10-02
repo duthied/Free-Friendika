@@ -238,7 +238,7 @@ class CurlResult
 
 		$field = strtolower(trim($field));
 
-		$headers = self::getHeaderArray();
+		$headers = $this->getHeaderArray();
 
 		if (isset($headers[$field])) {
 			return $headers[$field];
@@ -256,7 +256,7 @@ class CurlResult
 	{
 		$field = strtolower(trim($field));
 
-		$headers = self::getHeaderArray();
+		$headers = $this->getHeaderArray();
 
 		return array_key_exists($field, $headers);
 	}
