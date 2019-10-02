@@ -27,6 +27,11 @@ class CurlResult
 	private $header;
 
 	/**
+	 * @var array the HTTP headers of the Curl call
+	 */
+	private $header_fields;
+
+	/**
 	 * @var boolean true (if HTTP 2xx result) or false
 	 */
 	private $isSuccess;
@@ -268,20 +273,21 @@ class CurlResult
 	 */
 	public function getHeaderArray()
 	{
-		$headers = [];
+		if (!empty($this->header_fields)) {
+			return $this->header_fields;
+		}
 
-		$lines = explode("\n", $this->header);
+		$this->header_fields = [];
+
+		$lines = explode("\n", trim($this->header));
 		foreach ($lines as $line) {
 			$parts = explode(':', $line);
 			$headerfield = strtolower(trim(array_shift($parts)));
 			$headerdata = trim(implode(':', $parts));
-
-			if (!empty($headerdata)) {
-				$headers[$headerfield] = $headerdata;
-			}
+			$this->header_fields[$headerfield] = $headerdata;
 		}
 
-		return $headers;
+		return $this->header_fields;
 	}
 
 	/**
