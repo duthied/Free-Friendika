@@ -249,6 +249,8 @@ class CurlResult
 		if (isset($headers[$field])) {
 			return $headers[$field];
 		}
+
+		return '';
 	}
 
 	/**
