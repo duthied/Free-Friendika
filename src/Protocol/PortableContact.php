@@ -18,6 +18,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Module\Register;
@@ -215,7 +216,7 @@ class PortableContact
 	public static function reachable($profile, $server = "", $network = "", $force = false)
 	{
 		if ($server == "") {
-			$server = self::detectServer($profile);
+			$server = Contact::getBasepath($profile);
 		}
 
 		if ($server == "") {
@@ -223,78 +224,6 @@ class PortableContact
 		}
 
 		return self::checkServer($server, $network, $force);
-	}
-
-	public static function detectServer($profile)
-	{
-		// Try to detect the server path based upon some known standard paths
-		$server_url = "";
-
-		if ($server_url == "") {
-			$friendica = preg_replace("=(https?://)(.*)/profile/(.*)=ism", "$1$2", $profile);
-			if ($friendica != $profile) {
-				$server_url = $friendica;
-			}
-		}
-
-		if ($server_url == "") {
-			$diaspora = preg_replace("=(https?://)(.*)/u/(.*)=ism", "$1$2", $profile);
-			if ($diaspora != $profile) {
-				$server_url = $diaspora;
-			}
-		}
-
-		if ($server_url == "") {
-			$red = preg_replace("=(https?://)(.*)/channel/(.*)=ism", "$1$2", $profile);
-			if ($red != $profile) {
-				$server_url = $red;
-			}
-		}
-
-		// Mastodon
-		if ($server_url == "") {
-			$mastodon = preg_replace("=(https?://)(.*)/users/(.*)=ism", "$1$2", $profile);
-			if ($mastodon != $profile) {
-				$server_url = $mastodon;
-			}
-		}
-
-		// Numeric OStatus variant
-		if ($server_url == "") {
-			$ostatus = preg_replace("=(https?://)(.*)/user/(.*)=ism", "$1$2", $profile);
-			if ($ostatus != $profile) {
-				$server_url = $ostatus;
-			}
-		}
-
-		// Wild guess
-		if ($server_url == "") {
-			$base = preg_replace("=(https?://)(.*?)/(.*)=ism", "$1$2", $profile);
-			if ($base != $profile) {
-				$server_url = $base;
-			}
-		}
-
-		if ($server_url == "") {
-			return "";
-		}
-
-		$r = q(
-			"SELECT `id` FROM `gserver` WHERE `nurl` = '%s' AND `last_contact` > `last_failure`",
-			DBA::escape(Strings::normaliseLink($server_url))
-		);
-
-		if (DBA::isResult($r)) {
-			return $server_url;
-		}
-
-		// Fetch the host-meta to check if this really is a server
-		$curlResult = Network::curl($server_url."/.well-known/host-meta");
-		if (!$curlResult->isSuccess()) {
-			return "";
-		}
-
-		return $server_url;
 	}
 
 	public static function alternateOStatusUrl($url)
@@ -321,7 +250,7 @@ class PortableContact
 
 		$server_url = '';
 		if ($force) {
-			$server_url = Strings::normaliseLink(self::detectServer($profile));
+			$server_url = Strings::normaliseLink(Contact::getBasepath($profile));
 		}
 
 		if (($server_url == '') && ($gcontacts[0]["server_url"] != "")) {
@@ -329,7 +258,7 @@ class PortableContact
 		}
 
 		if (!$force && (($server_url == '') || ($gcontacts[0]["server_url"] == $gcontacts[0]["nurl"]))) {
-			$server_url = Strings::normaliseLink(self::detectServer($profile));
+			$server_url = Strings::normaliseLink(Contact::getBasepath($profile));
 		}
 
 		if (!in_array($gcontacts[0]["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::FEED, Protocol::OSTATUS, ""])) {

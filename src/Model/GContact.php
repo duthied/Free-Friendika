@@ -222,7 +222,7 @@ class GContact
 
 		if (!isset($gcontact['server_url'])) {
 			// We check the server url to be sure that it is a real one
-			$server_url = PortableContact::detectServer($gcontact['url']);
+			$server_url = Contact::getBasepath($gcontact['url']);
 
 			// We are now sure that it is a correct URL. So we use it in the future
 			if ($server_url != "") {
