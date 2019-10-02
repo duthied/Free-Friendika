@@ -258,7 +258,7 @@ class CurlResult
 	 *
 	 * @return boolean "true" if header exists
 	 */
-	public function headerExists(string $field)
+	public function inHeader(string $field)
 	{
 		$field = strtolower(trim($field));
 
