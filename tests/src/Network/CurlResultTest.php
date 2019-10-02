@@ -134,4 +134,59 @@ class CurlResultTest extends TestCase
 		$this->assertSame('https://test.local/test/it?key=value', $curlResult->getUrl());
 		$this->assertSame('https://test.other/some/?key=value', $curlResult->getRedirectUrl());
 	}
+
+	/**
+	 * @small
+	 */
+	public function testInHeader()
+	{
+		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.head');
+		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
+
+		$curlResult = new CurlResult('https://test.local', $header . $body, [
+			'http_code' => 200,
+			'content_type' => 'text/html; charset=utf-8',
+			'url' => 'https://test.local'
+		]);
+		$this->assertTrue($curlResult->inHeader('vary'));
+		$this->assertFalse($curlResult->inHeader('wrongHeader'));
+	}
+
+	 /**
+	 * @small
+	 */
+	public function testGetHeaderArray()
+	{
+		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.head');
+		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
+
+		$curlResult = new CurlResult('https://test.local', $header . $body, [
+			'http_code' => 200,
+			'content_type' => 'text/html; charset=utf-8',
+			'url' => 'https://test.local'
+		]);
+
+		$headers = $curlResult->getHeaderArray();
+
+		$this->assertNotEmpty($headers);
+		$this->assertArrayHasKey('vary', $headers);
+	}
+
+	 /**
+	 * @small
+	 */
+	public function testGetHeaderWithParam()
+	{
+		$header = file_get_contents(__DIR__ . '/../../datasets/curl/about.head');
+		$body = file_get_contents(__DIR__ . '/../../datasets/curl/about.body');
+
+		$curlResult = new CurlResult('https://test.local', $header . $body, [
+			'http_code' => 200,
+			'content_type' => 'text/html; charset=utf-8',
+			'url' => 'https://test.local'
+		]);
+
+		$this->assertNotEmpty($curlResult->getHeader());
+		$this->assertEmpty($curlResult->getHeader('wrongHeader'));
+	}
 }
