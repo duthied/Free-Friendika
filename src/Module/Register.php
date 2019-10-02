@@ -114,7 +114,7 @@ class Register extends BaseModule
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => Config::get('system', 'invitation_only'),
 			'$permonly'     => intval(Config::get('config', 'register_policy')) === self::APPROVE,
-			'$permonlybox'  => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node')],
+			'$permonlybox'  => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node'), "required"],
 			'$invite_desc'  => L10n::t('Membership on this site is by invitation only.'),
 			'$invite_label' => L10n::t('Your invitation code: '),
 			'$invite_id'    => $invite_id,
