@@ -187,6 +187,6 @@ class CurlResultTest extends TestCase
 		]);
 
 		$this->assertNotEmpty($curlResult->getHeader());
-		$this->assertEmpty('vary', $curlResult->getHeader('wrongHeader'));
+		$this->assertEmpty($curlResult->getHeader('wrongHeader'));
 	}
 }
