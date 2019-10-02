@@ -177,6 +177,7 @@ Field parameter:
 1. Label for the input box,
 2. Current text for the box,
 3. Help text for the input box.
+4. if set to "required" modern browser will check that this input box is filled when submitting the form,
 
 ### field_yesno.tpl
 
