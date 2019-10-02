@@ -11,6 +11,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\GContact;
+use Friendica\Model\Contact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
@@ -175,7 +176,7 @@ class DiscoverPoCo
 				continue;
 			}
 
-			$server_url = PortableContact::detectServer($user["url"]);
+			$server_url = Contact::getBasepath($user["url"]);
 			$force_update = false;
 
 			if ($user["server_url"] != "") {
@@ -234,7 +235,7 @@ class DiscoverPoCo
 					continue;
 				}
 
-				$server_url = PortableContact::detectServer($jj->url);
+				$server_url = Contact::getBasepath($jj->url);
 				if ($server_url != '') {
 					if (!PortableContact::checkServer($server_url)) {
 						Logger::log("Friendica server ".$server_url." doesn't answer.", Logger::DEBUG);
