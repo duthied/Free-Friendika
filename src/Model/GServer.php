@@ -27,14 +27,13 @@ class GServer
 	 * Detect server data (type, protocol, version number, ...)
 	 * The detected data is then updated or inserted in the gserver table.
 	 *
-	 * @param string  $url   Server url
+	 * @param string $url Server url
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
 	public static function detect($url)
 	{
 		/// @Todo:
-		// - poco endpoint
 		// - Pleroma version number
 
 		$serverdata = [];
@@ -97,6 +96,8 @@ class GServer
 			$serverdata = $nodeinfo;
 		}
 
+		$serverdata = self::checkPoCo($url, $serverdata);
+
 		// We can't detect the network type. Possibly it is some system that we don't know yet
 		if (empty($serverdata['network'])) {
 			$serverdata['network'] = Protocol::PHANTOM;
@@ -105,13 +106,18 @@ class GServer
 		$serverdata['url'] = $url;
 		$serverdata['nurl'] = Strings::normaliseLink($url);
 
-		// When we don't have the registered users, we simply count what we know
-		if (empty($serverdata['registered-users'])) {
-			$gcontacts = DBA::count('gcontact', ['server_url' => [$url, $serverdata['nurl']]]);
-			$apcontacts = DBA::count('apcontact', ['baseurl' => [$url, $serverdata['nurl']]]);
-			$contacts = DBA::count('contact', ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
-			$serverdata['registered-users'] = max($gcontacts, $apcontacts, $contacts);
+		// We take the highest number that we do find
+		$registeredUsers = $serverdata['registered-users'] ?? 0;
+
+		// On an active server there has to be at least a single user
+		if (($serverdata['network'] != Protocol::PHANTOM) && ($registeredUsers == 0)) {
+			$registeredUsers = 1;
 		}
+
+		$gcontacts = DBA::count('gcontact', ['server_url' => [$url, $serverdata['nurl']]]);
+		$apcontacts = DBA::count('apcontact', ['baseurl' => [$url, $serverdata['nurl']]]);
+		$contacts = DBA::count('contact', ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
+		$serverdata['registered-users'] = max($gcontacts, $apcontacts, $contacts, $registeredUsers);
 
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
 
@@ -432,6 +438,29 @@ class GServer
 					$serverdata['register_policy'] = Register::CLOSED;
 					break;
 			}
+		}
+
+		return $serverdata;
+	}
+
+	private static function checkPoCo($url, $serverdata)
+	{
+		$curlResult = Network::curl($url. '/poco');
+		if (!$curlResult->isSuccess()) {
+			return $serverdata;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $serverdata;
+		}
+
+		if (!empty($data['totalResults'])) {
+			$registeredUsers = $serverdata['registered-users'] ?? 0;
+			$serverdata['registered-users'] = max($data['totalResults'], $registeredUsers);
+			$serverdata['poco'] = $url . '/poco';
+		} else {
+			$serverdata['poco'] = '';
 		}
 
 		return $serverdata;
