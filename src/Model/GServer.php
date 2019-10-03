@@ -80,7 +80,7 @@ class GServer
 			}
 
 			// the "siteinfo.json" is some specific endpoint of Hubzilla and Red
-			if (empty($serverdata['network']) || (($serverdata['network'] == Protocol::DIASPORA) && ($serverdata['platform'] != 'diaspora'))) {
+			if (empty($serverdata['network']) || ($serverdata['network'] == Protocol::ZOT)) {
 				$serverdata = self::fetchSiteinfo($url, $serverdata);
 			}
 
@@ -102,6 +102,14 @@ class GServer
 
 		$serverdata['url'] = $url;
 		$serverdata['nurl'] = Strings::normaliseLink($url);
+
+		// When we don't have the registered users, we simply count what we know
+		if (empty($serverdata['registered-users'])) {
+			$gcontacts = DBA::count('gcontact', ['server_url' => [$url, $serverdata['nurl']]]);
+			$apcontacts = DBA::count('apcontact', ['baseurl' => [$url, $serverdata['nurl']]]);
+			$contacts = DBA::count('contact', ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
+			$serverdata['registered-users'] = max($gcontacts, $apcontacts, $contacts);
+		}
 
 		$fields = array_keys($serverdata);
 		$old_data = DBA::selectFirst('gserver', $fields, ['nurl' => Strings::normaliseLink($url)]);
@@ -554,6 +562,10 @@ die('Möööp');
 
 					$attr[$attribute->name] = $attribute->value;
 				}
+
+				if (empty($attr['name']) || empty($attr['content'])) {
+					continue;
+				}
 			}
 //print_r($attr);
 			if ($attr['name'] == 'description') {
@@ -610,6 +622,10 @@ die('as');
 
 					$attr[$attribute->name] = $attribute->value;
 				}
+
+				if (empty($attr['property']) || empty($attr['content'])) {
+					continue;
+				}
 			}
 //print_r($attr);
 
@@ -627,15 +643,21 @@ die('as');
 //				$serverdata['network'] = Protocol::ACTIVITYPUB;
 //			}
 
-			if (($attr['property'] == 'og:platform') && in_array($attr['content'], ['PeerTube'])) {
-die('Peertube');
-//				$serverdata['platform'] = $attr['content'];
-//				$serverdata['network'] = Protocol::ACTIVITYPUB;
+			if ($attr['property'] == 'og:platform') {
+				$serverdata['platform'] = $attr['content'];
+
+				if (in_array($attr['content'], ['PeerTube'])) {
+					$serverdata['network'] = Protocol::ACTIVITYPUB;
+				}
 			}
 
-			if (($attr['property'] == 'generator') && in_array($attr['content'], ['hubzilla'])) {
+			if ($attr['property'] == 'generator') {
 				$serverdata['platform'] = $attr['content'];
-				$serverdata['network'] = Protocol::DIASPORA;
+
+				if (in_array($attr['content'], ['hubzilla'])) {
+					// We later check which compatible protocol modules are loaded.
+					$serverdata['network'] = Protocol::ZOT;
+				}
 			}
 		}
 
