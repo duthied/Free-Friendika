@@ -54,7 +54,7 @@ class GServer
 		}
 
 		// If that didn't work out well, we use some protocol specific endpoints
-		if (empty($nodeinfo) || ($nodeinfo['network'] == Protocol::DFRN)) {
+		if (empty($nodeinfo) || empty($nodeinfo['network']) || ($nodeinfo['network'] == Protocol::DFRN)) {
 			// Fetch the landing page, possibly it reveals some data
 			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout]);
 			if ($curlResult->isSuccess()) {
@@ -101,6 +101,14 @@ class GServer
 		// We can't detect the network type. Possibly it is some system that we don't know yet
 		if (empty($serverdata['network'])) {
 			$serverdata['network'] = Protocol::PHANTOM;
+		}
+
+		// Check host-meta for phantom networks.
+		// Although this is not needed, it is a good indicator for a living system,
+		// since most systems had implemented it.
+		if (($serverdata['network'] == Protocol::PHANTOM) && !self::validHostMeta($url)) {
+			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+			return false;
 		}
 
 		$serverdata['url'] = $url;
@@ -443,6 +451,39 @@ class GServer
 		return $serverdata;
 	}
 
+	private static function validHostMeta($url)
+	{
+		$xrd_timeout = Config::get('system', 'xrd_timeout');
+		$curlResult = Network::curl($url . '/.well-known/host-meta', false, ['timeout' => $xrd_timeout]);
+		if (!$curlResult->isSuccess()) {
+			return false;
+		}
+
+		$xrd = XML::parseString($curlResult->getBody(), false);
+		if (!is_object($xrd)) {
+			return false;
+		}
+
+		$elements = XML::elementToArray($xrd);
+		if (empty($elements) || empty($elements['xrd']) || empty($elements['xrd']['link'])) {
+			return false;
+		}
+
+		$valid = false;
+		foreach ($elements['xrd']['link'] as $link) {
+			if (empty($link['rel']) || empty($link['type']) || empty($link['template'])) {
+				continue;
+			}
+
+			if ($link['type'] == 'application/xrd+xml') {
+				// When the webfinger host is the same like the system host, it should be ok.
+				$valid = (parse_url($url, PHP_URL_HOST) == parse_url($link['template'], PHP_URL_HOST));
+			}
+		}
+
+		return $valid;
+	}
+
 	private static function checkPoCo($url, $serverdata)
 	{
 		$curlResult = Network::curl($url. '/poco');
@@ -519,9 +560,15 @@ class GServer
 			$serverdata['registered-users'] = $data['stats']['user_count'];
 		}
 
+		if (!empty($serverdata['version']) && preg_match('/.*?\(compatible;\s(.*)\s(.*)\)/ism', $serverdata['version'], $matches)) {
+			$serverdata['platform'] = $matches[1];
+			$serverdata['version'] = $matches[2];
+print_r($serverdata);
+		}
+
 		if (!empty($serverdata['version']) && strstr($serverdata['version'], 'Pleroma')) {
 			$serverdata['platform'] = 'pleroma';
-			$serverdata['version'] = trim(str_replace('Pleroma', '', $serverdata['version'])); // 2.7.2 (compatible; Pleroma 1.0.0-1225-gf31ad554-develop)
+			$serverdata['version'] = trim(str_replace('Pleroma', '', $serverdata['version']));
 		}
 
 		return $serverdata;
