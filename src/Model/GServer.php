@@ -42,7 +42,7 @@ class GServer
 	{
 		/// @Todo:
 		// - Update Check
-		// - poco
+		// - poco endpoint
 		// - Pleroma version number
 
 //		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($url)]);
@@ -57,6 +57,10 @@ class GServer
 		}
 
 		$nodeinfo = self::fetchNodeinfo($url, $curlResult);
+
+		if (empty($nodeinfo)) {
+			$nodeinfo = self::fetchStatistics($url);
+		}
 
 		if (empty($nodeinfo) || ($nodeinfo['network'] == Protocol::DFRN)) {
 			// Fetch the landing page, possibly it reveals some data
@@ -79,9 +83,13 @@ class GServer
 				$serverdata = self::detectMastodonAlikes($url, $serverdata);
 			}
 
-			// the "siteinfo.json" is some specific endpoint of Hubzilla and Red
+			// the 'siteinfo.json' is some specific endpoint of Hubzilla and Red
 			if (empty($serverdata['network']) || ($serverdata['network'] == Protocol::ZOT)) {
 				$serverdata = self::fetchSiteinfo($url, $serverdata);
+			}
+
+			if (empty($serverdata['network'])) {
+				$serverdata = self::detectHubzilla($url, $serverdata);
 			}
 
 			if (empty($serverdata['network'])) {
@@ -120,6 +128,56 @@ die('Möööp');
 		} else {
 			$serverdata['last_contact'] = DateTimeFormat::utcNow();
 			DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']], $old_data);
+		}
+
+		return $serverdata;
+	}
+
+	private static function fetchStatistics($url)
+	{
+		$curlResult = Network::curl($url . '/statistics.json');
+		if (!$curlResult->isSuccess()) {
+			return [];
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return [];
+		}
+
+		$serverdata = [];
+
+		if (!empty($data['version'])) {
+			$serverdata['version'] = $data['version'];
+			// Version numbers on statistics.json are presented with additional info, e.g.:
+			// 0.6.3.0-p1702cc1c, 0.6.99.0-p1b9ab160 or 3.4.3-2-1191.
+			$serverdata['version'] = preg_replace('=(.+)-(.{4,})=ism', '$1', $serverdata['version']);
+		}
+
+		if (!empty($data['name'])) {
+			$serverdata['site_name'] = $data['name'];
+		}
+
+		if (!empty($data['network'])) {
+			$serverdata['platform'] = $data['network'];
+
+			if ($serverdata['platform'] == 'Diaspora') {
+				$serverdata['network'] = Protocol::DIASPORA;
+			} elseif ($serverdata['platform'] == 'Friendica') {
+				$serverdata['network'] = Protocol::DFRN;
+			} elseif ($serverdata['platform'] == 'redmatrix') {
+				$serverdata['network'] = Protocol::ZOT;
+			} else {
+				print_r($serverdata);
+				die('aaa');
+			}
+		}
+
+
+		if (!empty($data['registrations_open'])) {
+			$serverdata['register_policy'] = Register::OPEN;
+		} else {
+			$serverdata['register_policy'] = Register::CLOSED;
 		}
 
 		return $serverdata;
@@ -240,6 +298,8 @@ die('Möööp');
 				$server['network'] = Protocol::OSTATUS;
 			} elseif (!empty($protocols['gnusocial'])) {
 				$server['network'] = Protocol::OSTATUS;
+			} elseif (!empty($protocols['zot'])) {
+				$server['network'] = Protocol::ZOT;
 			} else {
 				print_r($protocols);
 				die('Protocol 1');
@@ -318,6 +378,8 @@ die('Möööp');
 				$server['network'] = Protocol::OSTATUS;
 			} elseif (!empty($protocols['gnusocial'])) {
 				$server['network'] = Protocol::OSTATUS;
+			} elseif (!empty($protocols['zot'])) {
+				$server['network'] = Protocol::ZOT;
 			} else {
 				print_r($protocols);
 				die('Protocol 2');
@@ -370,15 +432,15 @@ die('Möööp');
 
 		if (!empty($data['register_policy'])) {
 			switch ($data['register_policy']) {
-				case "REGISTER_OPEN":
+				case 'REGISTER_OPEN':
 					$serverdata['register_policy'] = Register::OPEN;
 					break;
 
-				case "REGISTER_APPROVE":
+				case 'REGISTER_APPROVE':
 					$serverdata['register_policy'] = Register::APPROVE;
 					break;
 
-				case "REGISTER_CLOSED":
+				case 'REGISTER_CLOSED':
 				default:
 					$serverdata['register_policy'] = Register::CLOSED;
 					break;
@@ -423,28 +485,30 @@ die('Möööp');
 			return $serverdata;
 		}
 
-		if (isset($data['version'])) {
+		if (!empty($data['version'])) {
 			$serverdata['platform'] = 'mastodon';
 			$serverdata['version'] = defaults($data, 'version', '');
-			if (!empty($data['title'])) {
-				$serverdata['site_name'] = $data['title'];
-			}
-			if (!empty($data['description'])) {
-				$serverdata['info'] = trim($data['description']);
-			}
 			$serverdata['network'] = Protocol::ACTIVITYPUB;
+		}
+
+		if (!empty($data['title'])) {
+			$serverdata['site_name'] = $data['title'];
+		}
+
+		if (!empty($data['description'])) {
+			$serverdata['info'] = trim($data['description']);
 		}
 
 		if (!empty($data['stats']['user_count'])) {
 			$serverdata['registered-users'] = $data['stats']['user_count'];
 		}
 
-		if (strstr($serverdata['version'], 'Pleroma')) {
+		if (!empty($serverdata['version']) && strstr($serverdata['version'], 'Pleroma')) {
 			$serverdata['platform'] = 'pleroma';
 			$serverdata['version'] = trim(str_replace('Pleroma', '', $serverdata['version'])); // 2.7.2 (compatible; Pleroma 1.0.0-1225-gf31ad554-develop)
 		}
 
-		if (strstr($serverdata['version'], 'Pixelfed')) {
+		if (!empty($serverdata['version']) && strstr($serverdata['version'], 'Pixelfed')) {
 			print_r($serverdata);
 			die();
 //			$serverdata['platform'] = 'pixelfed';
@@ -453,6 +517,104 @@ die('Möööp');
 
 		return $serverdata;
 	}
+
+	private static function detectHubzilla($url, $serverdata)
+	{
+		$curlResult = Network::curl($url . '/api/statusnet/config.json');
+		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
+			return $serverdata;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $serverdata;
+		}
+
+		if (!empty($data['site']['name'])) {
+			$serverdata['site_name'] = $data['site']['name'];
+		}
+
+		if (!empty($data['site']['platform'])) {
+print_r($data);
+die('1');
+			$serverdata['platform'] = $data['site']['platform']['PLATFORM_NAME'];
+			$serverdata['version'] = $data['site']['platform']['STD_VERSION'];
+			$serverdata['network'] = Protocol::ZOT;
+		}
+
+		if (isset($data['site']['BlaBlaNet'])) {
+print_r($data);
+die('2');
+			$serverdata['platform'] = $data['site']['BlaBlaNet']['PLATFORM_NAME'];
+			$serverdata['version'] = $data['site']['BlaBlaNet']['STD_VERSION'];
+			$serverdata['network'] = Protocol::ZOT;
+		}
+
+		if (isset($data['site']['hubzilla'])) {
+print_r($data);
+die('3');
+			$serverdata['platform'] = $data['site']['hubzilla']['PLATFORM_NAME'];
+			$serverdata['version'] = $data['site']['hubzilla']['RED_VERSION'];
+			$serverdata['network'] = Protocol::ZOT;
+		}
+
+		if (isset($data['site']['redmatrix'])) {
+			if (isset($data['site']['redmatrix']['PLATFORM_NAME'])) {
+				$serverdata['platform'] = $data['site']['redmatrix']['PLATFORM_NAME'];
+			} elseif (isset($data['site']['redmatrix']['RED_PLATFORM'])) {
+				$serverdata['platform'] = $data['site']['redmatrix']['RED_PLATFORM'];
+			}
+
+			$serverdata['version'] = $data['site']['redmatrix']['RED_VERSION'];
+			$serverdata['network'] = Protocol::ZOT;
+		}
+
+		if (isset($data['site']['friendica'])) {
+print_r($data);
+print_r($serverdata);
+die('5');
+			$serverdata['platform'] = $data['site']['friendica']['FRIENDICA_PLATFORM'];
+			$serverdata['version'] = $data['site']['friendica']['FRIENDICA_VERSION'];
+			$serverdata['network'] = Protocol::DFRN;
+		}
+
+		$private = false;
+		$inviteonly = false;
+		$closed = false;
+
+		if (!empty($data['site']['closed'])) {
+			$closed = self::toBoolean($data['site']['closed']);
+		}
+
+		if (!empty($data['site']['private'])) {
+			$private = self::toBoolean($data['site']['private']);
+		}
+
+		if (!empty($data['site']['inviteonly'])) {
+			$inviteonly = self::toBoolean($data['site']['inviteonly']);
+		}
+
+		if (!$closed && !$private and $inviteonly) {
+			$register_policy = Register::APPROVE;
+		} elseif (!$closed && !$private) {
+			$register_policy = Register::OPEN;
+		} else {
+			$register_policy = Register::CLOSED;
+		}
+
+		return $serverdata;
+	}
+
+	private static function toBoolean($val)
+	{
+		if (($val == 'true') || ($val == 1)) {
+			return true;
+		} elseif (($val == 'false') || ($val == 0)) {
+			return false;
+		}
+
+		return $val;
+        }
 
 	private static function detectGNUSocial($url, $serverdata)
 	{
