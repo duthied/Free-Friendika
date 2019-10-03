@@ -33,9 +33,6 @@ class GServer
 	 */
 	public static function detect($url)
 	{
-		/// @Todo:
-		// - Pleroma version number
-
 		$serverdata = [];
 
 		// When a nodeinfo is present, we don't need to dig further
@@ -135,8 +132,6 @@ class GServer
 		} else {
 			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
 		}
-
-		print_r($serverdata);
 
 		return $ret;
 	}
@@ -563,7 +558,6 @@ class GServer
 		if (!empty($serverdata['version']) && preg_match('/.*?\(compatible;\s(.*)\s(.*)\)/ism', $serverdata['version'], $matches)) {
 			$serverdata['platform'] = $matches[1];
 			$serverdata['version'] = $matches[2];
-print_r($serverdata);
 		}
 
 		if (!empty($serverdata['version']) && strstr($serverdata['version'], 'Pleroma')) {
@@ -764,7 +758,7 @@ print_r($serverdata);
 					continue;
 				}
 			}
-//print_r($attr);
+
 			if ($attr['name'] == 'description') {
 				$serverdata['info'] = $attr['content'];
 			}
@@ -814,7 +808,6 @@ print_r($serverdata);
 					continue;
 				}
 			}
-//print_r($attr);
 
 			if ($attr['property'] == 'og:site_name') {
 				$serverdata['site_name'] = $attr['content'];
@@ -859,9 +852,6 @@ print_r($serverdata);
 			$serverdata['platform'] = 'friendica';
 			$serverdata['network'] = $network = Protocol::DFRN;
 			$serverdata['version'] = $curlResult->getHeader('x-friendica-version');
-
-		} else {
-//print_r($curlResult->getHeaderArray());
 		}
 		return $serverdata;
 	}
