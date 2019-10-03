@@ -17,12 +17,55 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Core\Logger;
+use Friendica\Protocol\PortableContact;
+use Friendica\Protocol\Diaspora;
 
 /**
  * @brief This class handles GServer related functions
  */
 class GServer
 {
+	public static function check($server_url, $force = false)
+	{
+		// Unify the server address
+		$server_url = trim($server_url, '/');
+		$server_url = str_replace('/index.php', '', $server_url);
+
+		if ($server_url == '') {
+			return false;
+		}
+
+		$gserver = DBA::selectFirst('gserver', [], ['nurl' => Strings::normaliseLink($server_url)]);
+		if (DBA::isResult($gserver)) {
+			if ($gserver['created'] <= DBA::NULL_DATETIME) {
+				$fields = ['created' => DateTimeFormat::utcNow()];
+				$condition = ['nurl' => Strings::normaliseLink($server_url)];
+				DBA::update('gserver', $fields, $condition);
+			}
+
+			$last_contact = $gserver["last_contact"];
+			$last_failure = $gserver["last_failure"];
+
+			// See discussion under https://forum.friendi.ca/display/0b6b25a8135aabc37a5a0f5684081633
+			// It can happen that a zero date is in the database, but storing it again is forbidden.
+			if ($last_contact < DBA::NULL_DATETIME) {
+				$last_contact = DBA::NULL_DATETIME;
+			}
+
+			if ($last_failure < DBA::NULL_DATETIME) {
+				$last_failure = DBA::NULL_DATETIME;
+			}
+
+			if (!$force && !PortableContact::updateNeeded($gserver['created'], '', $last_failure, $last_contact)) {
+				Logger::info('Use cached data', ['server' => $server_url]);
+				return ($last_contact >= $last_failure);
+			}
+		}
+		Logger::info('Server is outdated or unknown. Start discovery.', ['Server' => $server_url, 'Force' => $force, 'Created' => $gserver['created'], 'Failure' => $last_failure, 'Contact' => $last_contact]);
+
+		return self::detect($server_url);
+	}
+
 	/**
 	 * Detect server data (type, protocol, version number, ...)
 	 * The detected data is then updated or inserted in the gserver table.
@@ -133,7 +176,84 @@ class GServer
 			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
 		}
 
+		if (in_array($serverdata['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
+                        self::discoverRelay($url);
+                }
+
 		return $ret;
+	}
+
+	/**
+	 * @brief Fetch relay data from a given server url
+	 *
+	 * @param string $server_url address of the server
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function discoverRelay($server_url)
+	{
+		Logger::info('Discover relay data', ['server' => $server_url]);
+
+		$curlResult = Network::curl($server_url . '/.well-known/x-social-relay');
+		if (!$curlResult->isSuccess()) {
+			return;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (!is_array($data)) {
+			return;
+		}
+
+		$gserver = DBA::selectFirst('gserver', ['id', 'relay-subscribe', 'relay-scope'], ['nurl' => Strings::normaliseLink($server_url)]);
+		if (!DBA::isResult($gserver)) {
+			return;
+		}
+
+		if (($gserver['relay-subscribe'] != $data['subscribe']) || ($gserver['relay-scope'] != $data['scope'])) {
+			$fields = ['relay-subscribe' => $data['subscribe'], 'relay-scope' => $data['scope']];
+			DBA::update('gserver', $fields, ['id' => $gserver['id']]);
+		}
+
+		DBA::delete('gserver-tag', ['gserver-id' => $gserver['id']]);
+
+		if ($data['scope'] == 'tags') {
+			// Avoid duplicates
+			$tags = [];
+			foreach ($data['tags'] as $tag) {
+				$tag = mb_strtolower($tag);
+				if (strlen($tag) < 100) {
+					$tags[$tag] = $tag;
+				}
+			}
+
+			foreach ($tags as $tag) {
+				DBA::insert('gserver-tag', ['gserver-id' => $gserver['id'], 'tag' => $tag], true);
+			}
+		}
+
+		// Create or update the relay contact
+		$fields = [];
+		if (isset($data['protocols'])) {
+			if (isset($data['protocols']['diaspora'])) {
+				$fields['network'] = Protocol::DIASPORA;
+
+				if (isset($data['protocols']['diaspora']['receive'])) {
+					$fields['batch'] = $data['protocols']['diaspora']['receive'];
+				} elseif (is_string($data['protocols']['diaspora'])) {
+					$fields['batch'] = $data['protocols']['diaspora'];
+				}
+			}
+
+			if (isset($data['protocols']['dfrn'])) {
+				$fields['network'] = Protocol::DFRN;
+
+				if (isset($data['protocols']['dfrn']['receive'])) {
+					$fields['batch'] = $data['protocols']['dfrn']['receive'];
+				} elseif (is_string($data['protocols']['dfrn'])) {
+					$fields['batch'] = $data['protocols']['dfrn'];
+				}
+			}
+		}
+		Diaspora::setRelayContact($server_url, $fields);
 	}
 
 	private static function fetchStatistics($url)
