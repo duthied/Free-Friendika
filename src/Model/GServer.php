@@ -19,6 +19,7 @@ use Friendica\Util\XML;
 use Friendica\Core\Logger;
 use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Diaspora;
+use Friendica\Network\Probe;
 
 /**
  * @brief This class handles GServer related functions
@@ -145,6 +146,11 @@ class GServer
 			$serverdata['network'] = Protocol::PHANTOM;
 		}
 
+		// When we hadn't been able to detect the network type, we use the hint from the parameter
+		if (($serverdata['network'] == Protocol::PHANTOM) && !empty($network)) {
+			$serverdata['network'] = $network;
+		}
+
 		// Check host-meta for phantom networks.
 		// Although this is not needed, it is a good indicator for a living system,
 		// since most systems had implemented it.
@@ -164,21 +170,32 @@ class GServer
 			$registeredUsers = 1;
 		}
 
-		$gcontacts = DBA::count('gcontact', ['server_url' => [$url, $serverdata['nurl']]]);
-		$apcontacts = DBA::count('apcontact', ['baseurl' => [$url, $serverdata['nurl']]]);
-		$contacts = DBA::count('contact', ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
-		$serverdata['registered-users'] = max($gcontacts, $apcontacts, $contacts, $registeredUsers);
+		if ($serverdata['network'] != Protocol::PHANTOM) {
+			$gcontacts = DBA::count('gcontact', ['server_url' => [$url, $serverdata['nurl']]]);
+			$apcontacts = DBA::count('apcontact', ['baseurl' => [$url, $serverdata['nurl']]]);
+			$contacts = DBA::count('contact', ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
+			$serverdata['registered-users'] = max($gcontacts, $apcontacts, $contacts, $registeredUsers);
+		} else {
+			$serverdata['registered-users'] = $registeredUsers;
+			$serverdata = self::detectNetworkViaContacts($url, $serverdata);
+		}
 
 		$serverdata['last_contact'] = DateTimeFormat::utcNow();
 
-		if (!DBA::exists('gserver', ['nurl' => Strings::normaliseLink($url)])) {
+		$gserver = DBA::selectFirst('gserver', ['network'], ['nurl' => Strings::normaliseLink($url)]);
+		if (!DBA::isResult($gserver)) {
 			$serverdata['created'] = DateTimeFormat::utcNow();
 			$ret = DBA::insert('gserver', $serverdata);
 		} else {
+			// Don't override the network with "unknown" when there had been a valid entry before
+			if (($serverdata['network'] == Protocol::PHANTOM) && !empty($gserver['network'])) {
+				unset($serverdata['network']);
+			}
+
 			$ret = DBA::update('gserver', $serverdata, ['nurl' => $serverdata['nurl']]);
 		}
 
-		if (in_array($serverdata['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
+		if (!empty($serverdata['network']) && in_array($serverdata['network'], [Protocol::DFRN, Protocol::DIASPORA])) {
                         self::discoverRelay($url);
                 }
 
@@ -599,6 +616,46 @@ class GServer
 		}
 
 		return $valid;
+	}
+
+	private static function detectNetworkViaContacts($url, $serverdata)
+	{
+		$contacts = '';
+		$fields = ['nurl', 'url'];
+
+		$gcontacts = DBA::select('gcontact', $fields, ['server_url' => [$url, $serverdata['nurl']]]);
+		while ($gcontact = DBA::fetch($gcontacts)) {
+			$contacts[$gcontact['nurl']] = $gcontact['url'];
+		}
+		DBA::close($gcontacts);
+
+		$apcontacts = DBA::select('apcontact', $fields, ['baseurl' => [$url, $serverdata['nurl']]]);
+		while ($gcontact = DBA::fetch($gcontacts)) {
+			$contacts[$apcontact['nurl']] = $apcontact['url'];
+		}
+		DBA::close($apcontacts);
+
+		$pcontacts = DBA::select('contact', $fields, ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
+		while ($gcontact = DBA::fetch($gcontacts)) {
+			$contacts[$pcontact['nurl']] = $pcontact['url'];
+		}
+		DBA::close($pcontacts);
+
+		if (empty($contacts)) {
+			return $serverdata;
+		}
+
+		foreach ($contacts as $contact) {
+			$probed = Probe::uri($contact);
+			if (in_array($probed['network'], Protocol::FEDERATED)) {
+				$serverdata['network'] = $probed['network'];
+				break;
+			}
+		}
+
+		$serverdata['registered-users'] = max($serverdata['registered-users'], count($contacts));
+
+		return $serverdata;
 	}
 
 	private static function checkPoCo($url, $serverdata)
