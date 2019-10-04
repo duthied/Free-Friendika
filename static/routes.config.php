@@ -188,6 +188,10 @@ return [
 		'/{sub1}/{sub2}/{url}' => [Module\Proxy::class, [R::GET]],
 	],
 
+	'/search' => [
+		'/acl'                 => [Module\Search\Acl::class, [R::GET, R::POST]],
+	],
+
 	'/settings' => [
 		'/2fa' => [
 			'[/]'           => [Module\Settings\TwoFactor\Index::class,       [R::GET, R::POST]],
