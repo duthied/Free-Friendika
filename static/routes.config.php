@@ -69,7 +69,7 @@ return [
 	'/allfriends/{id:\d+}' => [Module\AllFriends::class,   [R::GET]],
 	'/apps'                => [Module\Apps::class,         [R::GET]],
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
-	'/babel'               => [Module\Debug\Babel::class,  [R::GET]],
+	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
 
