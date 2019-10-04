@@ -2,7 +2,7 @@
 
 /**
  * @file src/Model/GServer.php
- * @brief This file includes the GServer class to handle with servers
+ * This file includes the GServer class to handle with servers
  */
 namespace Friendica\Model;
 
@@ -22,11 +22,20 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Network\Probe;
 
 /**
- * @brief This class handles GServer related functions
+ * This class handles GServer related functions
  */
 class GServer
 {
-	public static function check($server_url, $network = '', $force = false)
+	/**
+	 * Checks the state of the given server.
+	 *
+	 * @param string  $server_url URL of the given server
+	 * @param string  $network    Network value that is used, when detection failed
+	 * @param boolean $force      Force an update.
+	 *
+	 * @return boolean "true" if server seems vital
+	 */
+	public static function check(string $server_url, string $network = '', bool $force = false)
 	{
 		// Unify the server address
 		$server_url = trim($server_url, '/');
@@ -73,11 +82,12 @@ class GServer
 	 * Detect server data (type, protocol, version number, ...)
 	 * The detected data is then updated or inserted in the gserver table.
 	 *
-	 * @param string $url Server url
+	 * @param string  $url     URL of the given server
+	 * @param string  $network Network value that is used, when detection failed
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
-	public static function detect($url, $network = '')
+	public static function detect(string $url, string $network = '')
 	{
 		$serverdata = [];
 
@@ -203,12 +213,12 @@ class GServer
 	}
 
 	/**
-	 * @brief Fetch relay data from a given server url
+	 * Fetch relay data from a given server url
 	 *
 	 * @param string $server_url address of the server
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function discoverRelay($server_url)
+	private static function discoverRelay(string $server_url)
 	{
 		Logger::info('Discover relay data', ['server' => $server_url]);
 
@@ -275,7 +285,14 @@ class GServer
 		Diaspora::setRelayContact($server_url, $fields);
 	}
 
-	private static function fetchStatistics($url)
+	/**
+	 * Fetch server data from '/statistics.json' on the given server
+	 *
+	 * @param string $url URL of the given server
+	 *
+	 * @return array server data
+	 */
+	private static function fetchStatistics(string $url)
 	{
 		$curlResult = Network::curl($url . '/statistics.json');
 		if (!$curlResult->isSuccess()) {
@@ -325,13 +342,13 @@ class GServer
 	}
 
 	/**
-	 * @brief Detect server type by using the nodeinfo data
+	 * Detect server type by using the nodeinfo data
 	 *
 	 * @param string $url address of the server
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo($url, $curlResult)
+	private static function fetchNodeinfo(string $url, $curlResult)
 	{
 		$nodeinfo = json_decode($curlResult->getBody(), true);
 
@@ -374,13 +391,13 @@ class GServer
 	}
 
 	/**
-	 * @brief Parses Nodeinfo 1
+	 * Parses Nodeinfo 1
 	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo1($nodeinfo_url)
+	private static function parseNodeinfo1(string $nodeinfo_url)
 	{
 		$curlResult = Network::curl($nodeinfo_url);
 
@@ -452,13 +469,13 @@ class GServer
 	}
 
 	/**
-	 * @brief Parses Nodeinfo 2
+	 * Parses Nodeinfo 2
 	 *
 	 * @param string $nodeinfo_url address of the nodeinfo path
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function parseNodeinfo2($nodeinfo_url)
+	private static function parseNodeinfo2(string $nodeinfo_url)
 	{
 		$curlResult = Network::curl($nodeinfo_url);
 		if (!$curlResult->isSuccess()) {
@@ -528,7 +545,15 @@ class GServer
 		return $server;
 	}
 
-	private static function fetchSiteinfo($url, $serverdata)
+	/**
+	 * Fetch server information from a "siteinfo.json" file on the given server
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function fetchSiteinfo(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url . '/siteinfo.json');
 		if (!$curlResult->isSuccess()) {
@@ -585,7 +610,14 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function validHostMeta($url)
+	/**
+	 * Checks if the server contains a valid host meta file
+	 *
+	 * @param string $url URL of the given server
+	 *
+	 * @return boolean "true" if the server seems to be vital
+	 */
+	private static function validHostMeta(string $url)
 	{
 		$xrd_timeout = Config::get('system', 'xrd_timeout');
 		$curlResult = Network::curl($url . '/.well-known/host-meta', false, ['timeout' => $xrd_timeout]);
@@ -618,7 +650,15 @@ class GServer
 		return $valid;
 	}
 
-	private static function detectNetworkViaContacts($url, $serverdata)
+	/**
+	 * Detect the network of the given server via their known contacts
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectNetworkViaContacts(string $url, array $serverdata)
 	{
 		$contacts = '';
 		$fields = ['nurl', 'url'];
@@ -658,7 +698,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function checkPoCo($url, $serverdata)
+	/**
+	 * Checks if the given server does have a "poco" endpoint
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function checkPoCo(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url. '/poco');
 		if (!$curlResult->isSuccess()) {
@@ -681,7 +729,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function detectNextcloud($url, $serverdata)
+	/**
+	 * Detects the version number of a given server when it was a NextCloud installation
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectNextcloud(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url . '/status.php');
 
@@ -703,7 +759,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function detectMastodonAlikes($url, $serverdata)
+	/**
+	 * Detects data from a given server url if it was a mastodon alike system
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectMastodonAlikes(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url . '/api/v1/instance');
 
@@ -747,7 +811,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function detectHubzilla($url, $serverdata)
+	/**
+	 * Detects data from typical Hubzilla endpoints
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectHubzilla(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url . '/api/statusnet/config.json');
 		if (!$curlResult->isSuccess() || ($curlResult->getBody() == '')) {
@@ -813,6 +885,13 @@ class GServer
 		return $serverdata;
 	}
 
+	/**
+	 * Converts input value to a boolean value
+	 *
+	 * @param string|integer $val
+	 *
+	 * @return boolean
+	 */
 	private static function toBoolean($val)
 	{
 		if (($val == 'true') || ($val == 1)) {
@@ -824,7 +903,15 @@ class GServer
 		return $val;
         }
 
-	private static function detectGNUSocial($url, $serverdata)
+	/**
+	 * Detect if the URL belongs to a GNU Social server
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectGNUSocial(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url . '/api/statusnet/version.json');
 
@@ -852,7 +939,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function detectFriendica($url, $serverdata)
+	/**
+	 * Detect if the URL belongs to a Friendica server
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function detectFriendica(string $url, array $serverdata)
 	{
 		$curlResult = Network::curl($url . '/friendica/json');
 		if (!$curlResult->isSuccess()) {
@@ -908,7 +1003,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function analyseRootBody($curlResult, $serverdata)
+	/**
+	 * Analyses the landing page of a given server for hints about type and system of that server
+	 *
+	 * @param object $curlResult result of curl execution
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function analyseRootBody($curlResult, array $serverdata)
 	{
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
@@ -1017,7 +1120,15 @@ class GServer
 		return $serverdata;
 	}
 
-	private static function analyseRootHeader($curlResult, $serverdata)
+	/**
+	 * Analyses the header data of a given server for hints about type and system of that server
+	 *
+	 * @param object $curlResult result of curl execution
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	private static function analyseRootHeader($curlResult, array $serverdata)
 	{
 		if ($curlResult->getHeader('server') == 'Mastodon') {
 			$serverdata['platform'] = 'mastodon';
