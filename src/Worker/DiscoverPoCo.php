@@ -187,7 +187,7 @@ class DiscoverPoCo
 				$server_url = $user["server_url"];
 			}
 
-			if ((($server_url == "") && ($user["network"] == Protocol::FEED)) || $force_update || GServer::check($server_url)) {
+			if ((($server_url == "") && ($user["network"] == Protocol::FEED)) || $force_update || GServer::check($server_url, $user["network"])) {
 				Logger::log('Check profile '.$user["url"]);
 				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "check_profile", $user["url"]);
 

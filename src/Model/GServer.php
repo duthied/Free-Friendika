@@ -25,7 +25,7 @@ use Friendica\Protocol\Diaspora;
  */
 class GServer
 {
-	public static function check($server_url, $force = false)
+	public static function check($server_url, $network = '', $force = false)
 	{
 		// Unify the server address
 		$server_url = trim($server_url, '/');
@@ -57,13 +57,15 @@ class GServer
 			}
 
 			if (!$force && !PortableContact::updateNeeded($gserver['created'], '', $last_failure, $last_contact)) {
-				Logger::info('Use cached data', ['server' => $server_url]);
+				Logger::info('No update needed', ['server' => $server_url]);
 				return ($last_contact >= $last_failure);
 			}
+			Logger::info('Server is outdated. Start discovery.', ['Server' => $server_url, 'Force' => $force, 'Created' => $gserver['created'], 'Failure' => $last_failure, 'Contact' => $last_contact]);
+		} else {
+			Logger::info('Server is unknown. Start discovery.', ['Server' => $server_url]);
 		}
-		Logger::info('Server is outdated or unknown. Start discovery.', ['Server' => $server_url, 'Force' => $force, 'Created' => $gserver['created'], 'Failure' => $last_failure, 'Contact' => $last_contact]);
 
-		return self::detect($server_url);
+		return self::detect($server_url, $network);
 	}
 
 	/**
@@ -74,7 +76,7 @@ class GServer
 	 *
 	 * @return boolean 'true' if server could be detected
 	 */
-	public static function detect($url)
+	public static function detect($url, $network = '')
 	{
 		$serverdata = [];
 

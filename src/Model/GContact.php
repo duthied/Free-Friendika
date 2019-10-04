@@ -231,7 +231,7 @@ class GContact
 		}
 
 		// The server URL doesn't seem to be valid, so we don't store it.
-		if (!GServer::check($gcontact['server_url'])) {
+		if (!GServer::check($gcontact['server_url'], $gcontact['network'])) {
 			$gcontact['server_url'] = "";
 		}
 

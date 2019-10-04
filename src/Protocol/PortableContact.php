@@ -224,7 +224,7 @@ class PortableContact
 			return true;
 		}
 
-		return GServer::check($server, $force);
+		return GServer::check($server, $network, $force);
 	}
 
 	public static function alternateOStatusUrl($url)
@@ -268,7 +268,7 @@ class PortableContact
 		}
 
 		if ($server_url != "") {
-			if (!GServer::check($server_url, $force)) {
+			if (!GServer::check($server_url, $gcontacts[0]["network"], $force)) {
 				if ($force) {
 					$fields = ['last_failure' => DateTimeFormat::utcNow()];
 					DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($profile)]);
@@ -705,7 +705,7 @@ class PortableContact
 			return true;
 		} else {
 			// If the server hadn't replied correctly, then force a sanity check
-			GServer::check($server["url"], true);
+			GServer::check($server["url"], $server["network"], true);
 
 			// If we couldn't reach the server, we will try it some time later
 			$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
@@ -740,7 +740,7 @@ class PortableContact
 
 		if (DBA::isResult($gservers)) {
 			foreach ($gservers as $gserver) {
-				if (!GServer::check($gserver['url'])) {
+				if (!GServer::check($gserver['url'], $gserver['network'])) {
 					// The server is not reachable? Okay, then we will try it later
 					$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
 					DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
