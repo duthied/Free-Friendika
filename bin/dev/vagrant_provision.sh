@@ -76,6 +76,9 @@ debconf-set-selections <<< "postfix postfix/main_mailer_type string 'Local Only'
 sudo apt-get install -y postfix mailutils libmailutils-dev
 sudo echo -e "friendica1:	vagrant\nfriendica2:	vagrant\nfriendica3:	vagrant\nfriendica4:	vagrant\nfriendica5:	vagrant" >> /etc/aliases && sudo newaliases
 
+# Friendica needs git for fetching some dependencies
+sudo apt-get install -y git
+
 #make the vagrant directory the docroot
 sudo rm -rf /var/www/
 sudo ln -fs /vagrant /var/www
@@ -83,7 +86,7 @@ sudo ln -fs /vagrant /var/www
 # install deps with composer
 sudo apt install unzip
 cd /var/www
-php bin/composer.phar install
+sudo -u www-data php bin/composer.phar install
 
 # initial config file for friendica in vagrant
 cp /vagrant/mods/local.config.vagrant.php /vagrant/config/local.config.php
