@@ -116,45 +116,55 @@ class Acl extends BaseModule
 		$sql_extra2 .= ' ' . Widget::unavailableNetworks();
 
 		$contact_count = 0;
-		if ($type == self::TYPE_MENTION_CONTACT_GROUP || $type == self::TYPE_MENTION_CONTACT) {
-			// autocomplete for editor mentions
-			$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
-				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `notify` != '' $sql_extra2",
-				intval(local_user())
-			);
-			$contact_count = (int) $r[0]['c'];
-		} elseif ($type == self::TYPE_MENTION_FORUM) {
-			// autocomplete for editor mentions of forums
-			$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
-				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND (`forum` OR `prv`)
-				AND `notify` != '' $sql_extra2",
-				intval(local_user())
-			);
-			$contact_count = (int) $r[0]['c'];
-		} elseif ($type == self::TYPE_PRIVATE_MESSAGE) {
-			// autocomplete for Private Messages
-			$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
-				AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `network` IN ('%s', '%s', '%s') $sql_extra2",
-				intval(local_user()),
-				DBA::escape(Protocol::ACTIVITYPUB),
-				DBA::escape(Protocol::DFRN),
-				DBA::escape(Protocol::DIASPORA)
-			);
-			$contact_count = (int) $r[0]['c'];
-		} elseif ($type == self::TYPE_ANY_CONTACT) {
-			// autocomplete for Contacts
-			$r = q("SELECT COUNT(*) AS c FROM `contact`
-				WHERE `uid` = %d AND NOT `self`
-				AND NOT `pending` AND NOT `deleted` $sql_extra2",
-				intval(local_user())
-			);
-			$contact_count = (int) $r[0]['c'];
+		switch ($type) {
+			case self::TYPE_MENTION_CONTACT_GROUP:
+			case self::TYPE_MENTION_CONTACT:
+				// autocomplete for editor mentions
+				$r = q("SELECT COUNT(*) AS c FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
+					AND NOT `blocked` AND NOT `pending` AND NOT `archive`
+					AND `notify` != '' $sql_extra2",
+					intval(local_user())
+				);
+				$contact_count = (int) $r[0]['c'];
+				break;
+
+			case self::TYPE_MENTION_FORUM:
+				// autocomplete for editor mentions of forums
+				$r = q("SELECT COUNT(*) AS c FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
+					AND NOT `blocked` AND NOT `pending` AND NOT `archive`
+					AND (`forum` OR `prv`)
+					AND `notify` != '' $sql_extra2",
+					intval(local_user())
+				);
+				$contact_count = (int) $r[0]['c'];
+				break;
+
+			case self::TYPE_PRIVATE_MESSAGE:
+				// autocomplete for Private Messages
+				$r = q("SELECT COUNT(*) AS c FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
+					AND NOT `blocked` AND NOT `pending` AND NOT `archive`
+					AND `network` IN ('%s', '%s', '%s') $sql_extra2",
+					intval(local_user()),
+					DBA::escape(Protocol::ACTIVITYPUB),
+					DBA::escape(Protocol::DFRN),
+					DBA::escape(Protocol::DIASPORA)
+				);
+				$contact_count = (int) $r[0]['c'];
+				break;
+
+			case self::TYPE_ANY_CONTACT:
+			default:
+				// autocomplete for Contacts
+				$r = q("SELECT COUNT(*) AS c FROM `contact`
+					WHERE `uid` = %d AND NOT `self`
+					AND NOT `pending` AND NOT `deleted` $sql_extra2",
+					intval(local_user())
+				);
+				$contact_count = (int) $r[0]['c'];
+				break;
 		}
 
 		$tot = $group_count + $contact_count;
@@ -195,53 +205,64 @@ class Acl extends BaseModule
 		}
 
 		$r = [];
-		if ($type == self::TYPE_MENTION_CONTACT_GROUP) {
-			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-				AND NOT (`network` IN ('%s', '%s'))
-				$sql_extra2
-				ORDER BY `name`",
-				intval(local_user()),
-				DBA::escape(Protocol::OSTATUS),
-				DBA::escape(Protocol::STATUSNET)
-			);
-		} elseif ($type == self::TYPE_MENTION_CONTACT) {
-			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-				AND NOT (`network` IN ('%s'))
-				$sql_extra2
-				ORDER BY `name`",
-				intval(local_user()),
-				DBA::escape(Protocol::STATUSNET)
-			);
-		} elseif ($type == self::TYPE_MENTION_FORUM) {
-			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
-				AND NOT (`network` IN ('%s'))
-				AND (`forum` OR `prv`)
-				$sql_extra2
-				ORDER BY `name`",
-				intval(local_user()),
-				DBA::escape(Protocol::STATUSNET)
-			);
-		} elseif ($type == self::TYPE_PRIVATE_MESSAGE) {
-			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
-				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
-				AND `network` IN ('%s', '%s', '%s')
-				$sql_extra2
-				ORDER BY `name`",
-				intval(local_user()),
-				DBA::escape(Protocol::ACTIVITYPUB),
-				DBA::escape(Protocol::DFRN),
-				DBA::escape(Protocol::DIASPORA)
-			);
-		} elseif ($type == self::TYPE_ANY_CONTACT) {
-			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
-				WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND NOT `archive`
-				$sql_extra2
-				ORDER BY `name`",
-				intval(local_user())
-			);
+		switch ($type) {
+			case self::TYPE_MENTION_CONTACT_GROUP:
+				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+					AND NOT (`network` IN ('%s', '%s'))
+					$sql_extra2
+					ORDER BY `name`",
+					intval(local_user()),
+					DBA::escape(Protocol::OSTATUS),
+					DBA::escape(Protocol::STATUSNET)
+				);
+				break;
+
+			case self::TYPE_MENTION_CONTACT:
+				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+					AND NOT (`network` IN ('%s'))
+					$sql_extra2
+					ORDER BY `name`",
+					intval(local_user()),
+					DBA::escape(Protocol::STATUSNET)
+				);
+				break;
+
+			case self::TYPE_MENTION_FORUM:
+				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+					AND NOT (`network` IN ('%s'))
+					AND (`forum` OR `prv`)
+					$sql_extra2
+					ORDER BY `name`",
+					intval(local_user()),
+					DBA::escape(Protocol::STATUSNET)
+				);
+				break;
+
+			case self::TYPE_PRIVATE_MESSAGE:
+				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
+					WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
+					AND `network` IN ('%s', '%s', '%s')
+					$sql_extra2
+					ORDER BY `name`",
+					intval(local_user()),
+					DBA::escape(Protocol::ACTIVITYPUB),
+					DBA::escape(Protocol::DFRN),
+					DBA::escape(Protocol::DIASPORA)
+				);
+				break;
+
+			case self::TYPE_ANY_CONTACT:
+			default:
+				$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
+					WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND NOT `archive`
+					$sql_extra2
+					ORDER BY `name`",
+					intval(local_user())
+				);
+				break;
 		}
 
 		if (DBA::isResult($r)) {
