@@ -33,7 +33,7 @@ class GServer
 	 * @param string  $network    Network value that is used, when detection failed
 	 * @param boolean $force      Force an update.
 	 *
-	 * @return boolean "true" if server seems vital
+	 * @return boolean 'true' if server seems vital
 	 */
 	public static function check(string $server_url, string $network = '', bool $force = false)
 	{
@@ -53,8 +53,8 @@ class GServer
 				DBA::update('gserver', $fields, $condition);
 			}
 
-			$last_contact = $gserver["last_contact"];
-			$last_failure = $gserver["last_failure"];
+			$last_contact = $gserver['last_contact'];
+			$last_failure = $gserver['last_failure'];
 
 			// See discussion under https://forum.friendi.ca/display/0b6b25a8135aabc37a5a0f5684081633
 			// It can happen that a zero date is in the database, but storing it again is forbidden.
@@ -197,7 +197,7 @@ class GServer
 			$serverdata['created'] = DateTimeFormat::utcNow();
 			$ret = DBA::insert('gserver', $serverdata);
 		} else {
-			// Don't override the network with "unknown" when there had been a valid entry before
+			// Don't override the network with 'unknown' when there had been a valid entry before
 			if (($serverdata['network'] == Protocol::PHANTOM) && !empty($gserver['network'])) {
 				unset($serverdata['network']);
 			}
@@ -546,7 +546,7 @@ class GServer
 	}
 
 	/**
-	 * Fetch server information from a "siteinfo.json" file on the given server
+	 * Fetch server information from a 'siteinfo.json' file on the given server
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
@@ -615,7 +615,7 @@ class GServer
 	 *
 	 * @param string $url URL of the given server
 	 *
-	 * @return boolean "true" if the server seems to be vital
+	 * @return boolean 'true' if the server seems to be vital
 	 */
 	private static function validHostMeta(string $url)
 	{
@@ -699,7 +699,9 @@ class GServer
 	}
 
 	/**
-	 * Checks if the given server does have a "poco" endpoint
+	 * Checks if the given server does have a '/poco' endpoint.
+	 * This is used for the 'PortableContact' functionality,
+	 * which is used by both Friendica and Hubzilla.
 	 *
 	 * @param string $url        URL of the given server
 	 * @param array  $serverdata array with server data
