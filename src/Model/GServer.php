@@ -402,13 +402,13 @@ class GServer
 		$curlResult = Network::curl($nodeinfo_url);
 
 		if (!$curlResult->isSuccess()) {
-			return false;
+			return [];
 		}
 
 		$nodeinfo = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($nodeinfo)) {
-			return false;
+			return [];
 		}
 
 		$server = [];
@@ -461,8 +461,8 @@ class GServer
 			}
 		}
 
-		if (!$server) {
-			return false;
+		if (empty($server)) {
+			return [];
 		}
 
 		return $server;
@@ -479,13 +479,13 @@ class GServer
 	{
 		$curlResult = Network::curl($nodeinfo_url);
 		if (!$curlResult->isSuccess()) {
-			return false;
+			return [];
 		}
 
 		$nodeinfo = json_decode($curlResult->getBody(), true);
 
 		if (!is_array($nodeinfo)) {
-			return false;
+			return [];
 		}
 
 		$server = [];
@@ -539,7 +539,7 @@ class GServer
 		}
 
 		if (empty($server)) {
-			return false;
+			return [];
 		}
 
 		return $server;
