@@ -4,18 +4,15 @@ namespace Friendica\Module\Search;
 
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;
-use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 
@@ -32,10 +29,53 @@ class Acl extends BaseModule
 			throw new HTTPException\UnauthorizedException(L10n::t('You must be logged in to use this module.'));
 		}
 
+		$type = $_REQUEST['type'] ?? '';
+
+		if ($type === 'x') {
+			$o = self::globalContactSearch();
+		} else {
+			$o = self::regularContactSearch($type);
+		}
+
+		echo json_encode($o);
+		exit;
+	}
+
+	private static function globalContactSearch()
+	{
+		// autocomplete for global contact search (e.g. navbar search)
+		$search = Strings::escapeTags(trim($_REQUEST['search']));
+		$mode = $_REQUEST['smode'];
+		$page = $_REQUEST['page'] ?? 1;
+
+		$r = Search::searchGlobalContact($search, $mode, $page);
+
+		$contacts = [];
+		foreach ($r as $g) {
+			$contacts[] = [
+				'photo'   => ProxyUtils::proxifyUrl($g['photo'], false, ProxyUtils::SIZE_MICRO),
+				'name'    => htmlspecialchars($g['name']),
+				'nick'    => $g['addr'] ?: $g['url'],
+				'network' => $g['network'],
+				'link'    => $g['url'],
+				'forum'   => !empty($g['community']) ? 1 : 0,
+			];
+		}
+
+		$o = [
+			'start' => ($page - 1) * 20,
+			'count' => 1000,
+			'items' => $contacts,
+		];
+
+		return $o;
+	}
+
+	private static function regularContactSearch(string $type)
+	{
 		$start   = $_REQUEST['start']        ?? 0;
 		$count   = $_REQUEST['count']        ?? 100;
 		$search  = $_REQUEST['search']       ?? '';
-		$type    = $_REQUEST['type']         ?? '';
 		$conv_id = $_REQUEST['conversation'] ?? null;
 
 		// For use with jquery.textcomplete for private mail completion
@@ -194,32 +234,6 @@ class Acl extends BaseModule
 				ORDER BY `name`",
 				intval(local_user())
 			);
-		} elseif ($type == 'x') {
-			// autocomplete for global contact search (e.g. navbar search)
-			$search = Strings::escapeTags(trim($_REQUEST['search']));
-			$mode = $_REQUEST['smode'];
-			$page = $_REQUEST['page'] ?? 1;
-
-			$r = self::contactAutocomplete($search, $mode, $page);
-
-			$contacts = [];
-			foreach ($r as $g) {
-				$contacts[] = [
-					'photo'   => ProxyUtils::proxifyUrl($g['photo'], false, ProxyUtils::SIZE_MICRO),
-					'name'    => htmlspecialchars($g['name']),
-					'nick'    => $g['addr'] ?: $g['url'],
-					'network' => $g['network'],
-					'link'    => $g['url'],
-					'forum'   => !empty($g['community']) ? 1 : 0,
-				];
-			}
-			$o = [
-				'start' => $start,
-				'count' => $count,
-				'items' => $contacts,
-			];
-			echo json_encode($o);
-			exit;
 		}
 
 		if (DBA::isResult($r)) {
@@ -324,51 +338,6 @@ class Acl extends BaseModule
 			'items' => $results['items'],
 		];
 
-		echo json_encode($o);
-		exit;
-	}
-
-
-	/**
-	 * Searching for global contacts for autocompletion
-	 *
-	 * @brief Searching for global contacts for autocompletion
-	 * @param string $search Name or part of a name or nick
-	 * @param string $mode   Search mode (e.g. "community")
-	 * @param int    $page   Page number (starts at 1)
-	 * @return array with the search results
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	private static function contactAutocomplete($search, $mode, int $page = 1)
-	{
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
-			return [];
-		}
-
-		// don't search if search term has less than 2 characters
-		if (!$search || mb_strlen($search) < 2) {
-			return [];
-		}
-
-		if (substr($search, 0, 1) === '@') {
-			$search = substr($search, 1);
-		}
-
-		// check if searching in the local global contact table is enabled
-		if (Config::get('system', 'poco_local_search')) {
-			$return = GContact::searchByName($search, $mode);
-		} else {
-			$p = $page > 1 ? 'p=' . $page : '';
-
-			$curlResult = Network::curl(get_server() . '/lsearch?' . $p . '&search=' . urlencode($search));
-			if ($curlResult->isSuccess()) {
-				$lsearch = json_decode($curlResult->getBody(), true);
-				if (!empty($lsearch['results'])) {
-					$return = $lsearch['results'];
-				}
-			}
-		}
-
-		return $return ?? [];
+		return $o;
 	}
 }
