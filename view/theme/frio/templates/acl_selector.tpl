@@ -54,7 +54,7 @@
 $(document).ready(function() {
 	if(typeof acl=="undefined"){
 		acl = new ACL(
-			baseurl+"/acl",
+			baseurl + '/search/acl',
 			[ {{$allowcid nofilter}},{{$allowgid nofilter}},{{$denycid nofilter}},{{$denygid nofilter}} ],
 			{{$features.aclautomention}},
 			{{if $APP->is_mobile}}true{{else}}false{{/if}}

@@ -69,7 +69,7 @@ return [
 	'/allfriends/{id:\d+}' => [Module\AllFriends::class,   [R::GET]],
 	'/apps'                => [Module\Apps::class,         [R::GET]],
 	'/attach/{item:\d+}'   => [Module\Attach::class,       [R::GET]],
-	'/babel'               => [Module\Debug\Babel::class,  [R::GET]],
+	'/babel'               => [Module\Debug\Babel::class,  [R::GET, R::POST]],
 	'/bookmarklet'         => [Module\Bookmarklet::class,  [R::GET]],
 	'/compose[/{type}]'    => [Module\Item\Compose::class, [R::GET, R::POST]],
 
@@ -186,6 +186,10 @@ return [
 		'/{url}'               => [Module\Proxy::class, [R::GET]],
 		'/{sub1}/{url}'        => [Module\Proxy::class, [R::GET]],
 		'/{sub1}/{sub2}/{url}' => [Module\Proxy::class, [R::GET]],
+	],
+
+	'/search' => [
+		'/acl'                 => [Module\Search\Acl::class, [R::GET, R::POST]],
 	],
 
 	'/settings' => [
