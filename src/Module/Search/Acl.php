@@ -23,15 +23,23 @@ use Friendica\Util\Strings;
  */
 class Acl extends BaseModule
 {
+	const TYPE_GLOBAL_CONTACT = 'x';
+	const TYPE_MENTION_CONTACT = 'c';
+	const TYPE_MENTION_GROUP = 'g';
+	const TYPE_MENTION_CONTACT_GROUP = '';
+	const TYPE_MENTION_FORUM = 'f';
+	const TYPE_PRIVATE_MESSAGE = 'm';
+	const TYPE_ANY_CONTACT = 'a';
+
 	public static function rawContent()
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(L10n::t('You must be logged in to use this module.'));
 		}
 
-		$type = $_REQUEST['type'] ?? '';
+		$type = $_REQUEST['type'] ?? self::TYPE_MENTION_CONTACT_GROUP;
 
-		if ($type === 'x') {
+		if ($type === self::TYPE_GLOBAL_CONTACT) {
 			$o = self::globalContactSearch();
 		} else {
 			$o = self::regularContactSearch($type);
@@ -81,7 +89,7 @@ class Acl extends BaseModule
 		// For use with jquery.textcomplete for private mail completion
 		if (!empty($_REQUEST['query'])) {
 			if (!$type) {
-				$type = 'm';
+				$type = self::TYPE_PRIVATE_MESSAGE;
 			}
 			$search = $_REQUEST['query'];
 		}
@@ -98,7 +106,7 @@ class Acl extends BaseModule
 
 		// count groups and contacts
 		$group_count = 0;
-		if ($type == '' || $type == 'g') {
+		if ($type == self::TYPE_MENTION_CONTACT_GROUP || $type == self::TYPE_MENTION_GROUP) {
 			$r = q("SELECT COUNT(*) AS g FROM `group` WHERE NOT `deleted` AND `uid` = %d $sql_extra",
 				intval(local_user())
 			);
@@ -108,7 +116,7 @@ class Acl extends BaseModule
 		$sql_extra2 .= ' ' . Widget::unavailableNetworks();
 
 		$contact_count = 0;
-		if ($type == '' || $type == 'c') {
+		if ($type == self::TYPE_MENTION_CONTACT_GROUP || $type == self::TYPE_MENTION_CONTACT) {
 			// autocomplete for editor mentions
 			$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
@@ -117,7 +125,7 @@ class Acl extends BaseModule
 				intval(local_user())
 			);
 			$contact_count = (int) $r[0]['c'];
-		} elseif ($type == 'f') {
+		} elseif ($type == self::TYPE_MENTION_FORUM) {
 			// autocomplete for editor mentions of forums
 			$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
@@ -127,7 +135,7 @@ class Acl extends BaseModule
 				intval(local_user())
 			);
 			$contact_count = (int) $r[0]['c'];
-		} elseif ($type == 'm') {
+		} elseif ($type == self::TYPE_PRIVATE_MESSAGE) {
 			// autocomplete for Private Messages
 			$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted`
@@ -139,7 +147,7 @@ class Acl extends BaseModule
 				DBA::escape(Protocol::DIASPORA)
 			);
 			$contact_count = (int) $r[0]['c'];
-		} elseif ($type == 'a') {
+		} elseif ($type == self::TYPE_ANY_CONTACT) {
 			// autocomplete for Contacts
 			$r = q("SELECT COUNT(*) AS c FROM `contact`
 				WHERE `uid` = %d AND NOT `self`
@@ -154,7 +162,7 @@ class Acl extends BaseModule
 		$groups = [];
 		$contacts = [];
 
-		if ($type == '' || $type == 'g') {
+		if ($type == self::TYPE_MENTION_CONTACT_GROUP || $type == self::TYPE_MENTION_GROUP) {
 			/// @todo We should cache this query.
 			// This can be done when we can delete cache entries via wildcard
 			$r = q("SELECT `group`.`id`, `group`.`name`, GROUP_CONCAT(DISTINCT `group_member`.`contact-id` SEPARATOR ',') AS uids
@@ -187,7 +195,7 @@ class Acl extends BaseModule
 		}
 
 		$r = [];
-		if ($type == '') {
+		if ($type == self::TYPE_MENTION_CONTACT_GROUP) {
 			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv`, (`prv` OR `forum`) AS `frm` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 				AND NOT (`network` IN ('%s', '%s'))
@@ -197,7 +205,7 @@ class Acl extends BaseModule
 				DBA::escape(Protocol::OSTATUS),
 				DBA::escape(Protocol::STATUSNET)
 			);
-		} elseif ($type == 'c') {
+		} elseif ($type == self::TYPE_MENTION_CONTACT) {
 			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 				AND NOT (`network` IN ('%s'))
@@ -206,7 +214,7 @@ class Acl extends BaseModule
 				intval(local_user()),
 				DBA::escape(Protocol::STATUSNET)
 			);
-		} elseif ($type == 'f') {
+		} elseif ($type == self::TYPE_MENTION_FORUM) {
 			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
 				AND NOT (`network` IN ('%s'))
@@ -216,7 +224,7 @@ class Acl extends BaseModule
 				intval(local_user()),
 				DBA::escape(Protocol::STATUSNET)
 			);
-		} elseif ($type == 'm') {
+		} elseif ($type == self::TYPE_PRIVATE_MESSAGE) {
 			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr` FROM `contact`
 				WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `blocked` AND NOT `pending` AND NOT `archive`
 				AND `network` IN ('%s', '%s', '%s')
@@ -227,7 +235,7 @@ class Acl extends BaseModule
 				DBA::escape(Protocol::DFRN),
 				DBA::escape(Protocol::DIASPORA)
 			);
-		} elseif ($type == 'a') {
+		} elseif ($type == self::TYPE_ANY_CONTACT) {
 			$r = q("SELECT `id`, `name`, `nick`, `micro`, `network`, `url`, `attag`, `addr`, `forum`, `prv` FROM `contact`
 				WHERE `uid` = %d AND NOT `deleted` AND NOT `pending` AND NOT `archive`
 				$sql_extra2
