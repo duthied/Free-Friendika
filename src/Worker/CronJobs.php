@@ -16,11 +16,11 @@ use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\GServer;
 use Friendica\Model\Nodeinfo;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -254,7 +254,7 @@ class CronJobs
 				return;
 			}
 
-			if (!PortableContact::reachable($contact["url"])) {
+			if (!GServer::reachable($contact["url"])) {
 				continue;
 			}
 

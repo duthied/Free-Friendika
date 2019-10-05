@@ -57,7 +57,7 @@ class GProbe {
 		}
 		if (DBA::isResult($r)) {
 			// Check for accessibility and do a poco discovery
-			if (PortableContact::lastUpdated($r[0]['url'], true) && ($r[0]["network"] == Protocol::DFRN)) {
+			if (GContact::updateFromProbe($r[0]['url'], true) && ($r[0]["network"] == Protocol::DFRN)) {
 				PortableContact::loadWorker(0, 0, $r[0]['id'], str_replace('/profile/', '/poco/', $r[0]['url']));
 			}
 		}
