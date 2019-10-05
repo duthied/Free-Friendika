@@ -23,13 +23,13 @@ use Friendica\Util\Strings;
  */
 class Acl extends BaseModule
 {
-	const TYPE_GLOBAL_CONTACT = 'x';
-	const TYPE_MENTION_CONTACT = 'c';
-	const TYPE_MENTION_GROUP = 'g';
+	const TYPE_GLOBAL_CONTACT        = 'x';
+	const TYPE_MENTION_CONTACT       = 'c';
+	const TYPE_MENTION_GROUP         = 'g';
 	const TYPE_MENTION_CONTACT_GROUP = '';
-	const TYPE_MENTION_FORUM = 'f';
-	const TYPE_PRIVATE_MESSAGE = 'm';
-	const TYPE_ANY_CONTACT = 'a';
+	const TYPE_MENTION_FORUM         = 'f';
+	const TYPE_PRIVATE_MESSAGE       = 'm';
+	const TYPE_ANY_CONTACT           = 'a';
 
 	public static function rawContent()
 	{

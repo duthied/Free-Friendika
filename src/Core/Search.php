@@ -247,8 +247,6 @@ class Search extends BaseObject
 		return $resultList;
 	}
 
-
-
 	/**
 	 * Searching for global contacts for autocompletion
 	 *
