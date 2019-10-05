@@ -9,6 +9,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\PushSubscriber;
+use Friendica\Model\GServer;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
 
@@ -30,7 +31,7 @@ class PubSubPublish
 			return;
 		}
 
-		/// @todo Check server status with PortableContact::checkServer()
+		/// @todo Check server status with GServer::check()
 		// Before this can be done we need a way to safely detect the server url.
 
 		Logger::log("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], Logger::DEBUG);

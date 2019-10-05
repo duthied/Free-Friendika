@@ -231,7 +231,7 @@ class GContact
 		}
 
 		// The server URL doesn't seem to be valid, so we don't store it.
-		if (!PortableContact::checkServer($gcontact['server_url'], $gcontact['network'])) {
+		if (!GServer::check($gcontact['server_url'], $gcontact['network'])) {
 			$gcontact['server_url'] = "";
 		}
 
@@ -541,7 +541,7 @@ class GContact
 				$j = json_decode($x);
 				if (!empty($j->entries)) {
 					foreach ($j->entries as $entry) {
-						PortableContact::checkServer($entry->url);
+						GServer::check($entry->url);
 
 						$url = $entry->url . '/poco';
 						if (!in_array($url, $done)) {
