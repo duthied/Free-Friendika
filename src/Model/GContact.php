@@ -862,6 +862,7 @@ class GContact
 
 		return $gcontact_id;
 	}
+
 	/**
 	 * Set the last date that the contact had posted something
 	 *
