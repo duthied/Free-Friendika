@@ -184,14 +184,13 @@ class Delivery extends BaseObject
 
 		// Transmit via Diaspora if the thread had started as Diaspora post
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
-		if (isset($parent) && ($parent['network'] == Protocol::DIASPORA) && ($contact['network'] == Protocol::DFRN)) {
+		if (isset($parent) && ($parent['network'] == Protocol::DIASPORA)) {
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
-		Logger::log("Delivering " . $cmd . " followup=$followup - via network " . $contact['network']);
+		Logger::notice('Delivering', ['cmd' => $cmd, 'target' => $target_id, 'followup' => $followup, 'network' => $contact['network']]);
 
 		switch ($contact['network']) {
-
 			case Protocol::DFRN:
 				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				break;
@@ -396,7 +395,7 @@ class Delivery extends BaseObject
 			$loc = $contact['addr'];
 		}
 
-		Logger::log('Deliver ' . defaults($target_item, 'guid', $target_item['id']) . ' via Diaspora to ' . $loc);
+		Logger::notice('Deliver via Diaspora', ['target' => $target_item['id'], 'guid' => $target_item['guid'], 'to' => $loc]);
 
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
