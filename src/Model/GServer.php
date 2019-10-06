@@ -130,25 +130,36 @@ class GServer
 		}
 
 		// If that didn't work out well, we use some protocol specific endpoints
-		if (empty($nodeinfo) || empty($nodeinfo['network']) || ($nodeinfo['network'] == Protocol::DFRN)) {
+		// For Friendica and Zot based networks we have to dive deeper to reveal more details
+		if (empty($nodeinfo['network']) || in_array($nodeinfo['network'], [Protocol::DFRN, Protocol::ZOT])) {
 			// Fetch the landing page, possibly it reveals some data
-			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout]);
-			if ($curlResult->isSuccess()) {
-				$serverdata = self::analyseRootHeader($curlResult, $serverdata);
-				$serverdata = self::analyseRootBody($curlResult, $serverdata);
-			}
+			if (empty($nodeinfo['network'])) {
+				$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout]);
+				if ($curlResult->isSuccess()) {
+					$serverdata = self::analyseRootHeader($curlResult, $serverdata);
+					$serverdata = self::analyseRootBody($curlResult, $serverdata, $url);
+				}
 
-			if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
-				DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
-				return false;
-			}
-
-			if (empty($serverdata['network']) || ($serverdata['network'] == Protocol::DFRN)) {
-				$serverdata = self::detectFriendica($url, $serverdata);
+				if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+					DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+					return false;
+				}
 			}
 
 			if (empty($serverdata['network']) || ($serverdata['network'] == Protocol::ACTIVITYPUB)) {
 				$serverdata = self::detectMastodonAlikes($url, $serverdata);
+			}
+
+			// All following checks are done for systems that always have got a "host-meta" endpoint.
+			// With this check we don't have to waste time and ressources for dead systems.
+			// Also this hopefully prevents us from receiving abuse messages.
+			if (empty($serverdata['network']) && !self::validHostMeta($url)) {
+				DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
+				return false;
+			}
+
+			if (empty($serverdata['network']) || in_array($serverdata['network'], [Protocol::DFRN, Protocol::ACTIVITYPUB])) {
+				$serverdata = self::detectFriendica($url, $serverdata);
 			}
 
 			// the 'siteinfo.json' is some specific endpoint of Hubzilla and Red
@@ -182,14 +193,6 @@ class GServer
 		// When we hadn't been able to detect the network type, we use the hint from the parameter
 		if (($serverdata['network'] == Protocol::PHANTOM) && !empty($network)) {
 			$serverdata['network'] = $network;
-		}
-
-		// Check host-meta for phantom networks.
-		// Although this is not needed, it is a good indicator for a living system,
-		// since most systems had implemented it.
-		if (($serverdata['network'] == Protocol::PHANTOM) && !self::validHostMeta($url)) {
-			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
-			return false;
 		}
 
 		$serverdata['url'] = $url;
@@ -660,11 +663,16 @@ class GServer
 
 		$valid = false;
 		foreach ($elements['xrd']['link'] as $link) {
-			if (empty($link['rel']) || empty($link['type']) || empty($link['template'])) {
+			// When there is more than a single "link" element, the array looks slightly different
+			if (!empty($link['@attributes'])) {
+				$link = $link['@attributes'];
+			}
+
+			if (empty($link['rel']) || empty($link['template'])) {
 				continue;
 			}
 
-			if ($link['type'] == 'application/xrd+xml') {
+			if ($link['rel'] == 'lrdd') {
 				// When the webfinger host is the same like the system host, it should be ok.
 				$valid = (parse_url($url, PHP_URL_HOST) == parse_url($link['template'], PHP_URL_HOST));
 			}
@@ -683,7 +691,7 @@ class GServer
 	 */
 	private static function detectNetworkViaContacts(string $url, array $serverdata)
 	{
-		$contacts = '';
+		$contacts = [];
 
 		$gcontacts = DBA::select('gcontact', ['url', 'nurl'], ['server_url' => [$url, $serverdata['nurl']]]);
 		while ($gcontact = DBA::fetch($gcontacts)) {
@@ -937,25 +945,25 @@ class GServer
 	 */
 	private static function detectGNUSocial(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url . '/api/statusnet/version.json');
-
-		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
-			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
-			$serverdata['platform'] = 'StatusNet';
-			// Remove junk that some GNU Social servers return
-			$serverdata['version'] = str_replace(chr(239).chr(187).chr(191), '', $curlResult->getBody());
-			$serverdata['version'] = trim($serverdata['version'], '"');
-			$serverdata['network'] = Protocol::OSTATUS;
-		}
-
 		// Test for GNU Social
 		$curlResult = Network::curl($url . '/api/gnusocial/version.json');
-
 		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
 			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
-			$serverdata['platform'] = 'GNU Social';
+			$serverdata['platform'] = 'gnusocial';
 			// Remove junk that some GNU Social servers return
 			$serverdata['version'] = str_replace(chr(239) . chr(187) . chr(191), '', $curlResult->getBody());
+			$serverdata['version'] = trim($serverdata['version'], '"');
+			$serverdata['network'] = Protocol::OSTATUS;
+			return $serverdata;
+		}
+
+		// Test for Statusnet
+		$curlResult = Network::curl($url . '/api/statusnet/version.json');
+		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
+			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
+			$serverdata['platform'] = 'statusnet';
+			// Remove junk that some GNU Social servers return
+			$serverdata['version'] = str_replace(chr(239).chr(187).chr(191), '', $curlResult->getBody());
 			$serverdata['version'] = trim($serverdata['version'], '"');
 			$serverdata['network'] = Protocol::OSTATUS;
 		}
@@ -1032,10 +1040,11 @@ class GServer
 	 *
 	 * @param object $curlResult result of curl execution
 	 * @param array  $serverdata array with server data
+	 * @param string $url        Server URL
 	 *
 	 * @return array server data
 	 */
-	private static function analyseRootBody($curlResult, array $serverdata)
+	private static function analyseRootBody($curlResult, array $serverdata, string $url)
 	{
 		$doc = new DOMDocument();
 		@$doc->loadHTML($curlResult->getBody());
@@ -1085,7 +1094,13 @@ class GServer
 					if (in_array($version_part[0], ['WordPress'])) {
 						$serverdata['platform'] = $version_part[0];
 						$serverdata['version'] = $version_part[1];
-						$serverdata['network'] = Protocol::ACTIVITYPUB;
+
+						// We still do need a reliable test if some AP plugin is activated
+						if (DBA::exists('apcontact', ['baseurl' => $url])) {
+							$serverdata['network'] = Protocol::ACTIVITYPUB;
+						} else {
+							$serverdata['network'] = Protocol::FEED;
+						}
 					}
 					if (in_array($version_part[0], ['Friendika', 'Friendica'])) {
 						$serverdata['platform'] = $version_part[0];
