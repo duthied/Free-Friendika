@@ -27,6 +27,29 @@ use Friendica\Network\Probe;
 class GServer
 {
 	/**
+	 * Checks if the given server is reachable
+	 *
+	 * @param string  $profile URL of the given profile
+	 * @param string  $server  URL of the given server (If empty, taken from profile)
+	 * @param string  $network Network value that is used, when detection failed
+	 * @param boolean $force   Force an update.
+	 *
+	 * @return boolean 'true' if server seems vital
+	 */
+	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false)
+	{
+		if ($server == '') {
+			$server = Contact::getBasepath($profile);
+		}
+
+		if ($server == '') {
+			return true;
+		}
+
+		return self::check($server, $network, $force);
+	}
+
+	/**
 	 * Checks the state of the given server.
 	 *
 	 * @param string  $server_url URL of the given server
@@ -661,21 +684,20 @@ class GServer
 	private static function detectNetworkViaContacts(string $url, array $serverdata)
 	{
 		$contacts = '';
-		$fields = ['nurl', 'url'];
 
-		$gcontacts = DBA::select('gcontact', $fields, ['server_url' => [$url, $serverdata['nurl']]]);
+		$gcontacts = DBA::select('gcontact', ['url', 'nurl'], ['server_url' => [$url, $serverdata['nurl']]]);
 		while ($gcontact = DBA::fetch($gcontacts)) {
 			$contacts[$gcontact['nurl']] = $gcontact['url'];
 		}
 		DBA::close($gcontacts);
 
-		$apcontacts = DBA::select('apcontact', $fields, ['baseurl' => [$url, $serverdata['nurl']]]);
+		$apcontacts = DBA::select('apcontact', ['url'], ['baseurl' => [$url, $serverdata['nurl']]]);
 		while ($gcontact = DBA::fetch($gcontacts)) {
-			$contacts[$apcontact['nurl']] = $apcontact['url'];
+			$contacts[Strings::normaliseLink($apcontact['url'])] = $apcontact['url'];
 		}
 		DBA::close($apcontacts);
 
-		$pcontacts = DBA::select('contact', $fields, ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
+		$pcontacts = DBA::select('contact', ['url', 'nurl'], ['uid' => 0, 'baseurl' => [$url, $serverdata['nurl']]]);
 		while ($gcontact = DBA::fetch($gcontacts)) {
 			$contacts[$pcontact['nurl']] = $pcontact['url'];
 		}

@@ -64,7 +64,7 @@ class DiscoverPoCo
 
 		if ($mode == 8) {
 			if ($param1 != "") {
-				PortableContact::lastUpdated($param1, true);
+				GContact::updateFromProbe($param1, true);
 			}
 		} elseif ($mode == 7) {
 			if (!empty($param4)) {
@@ -232,7 +232,7 @@ class DiscoverPoCo
 						continue;
 					}
 					// Update the contact
-					PortableContact::lastUpdated($jj->url);
+					GContact::updateFromProbe($jj->url);
 					continue;
 				}
 
