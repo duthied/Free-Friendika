@@ -20,6 +20,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Diaspora;
@@ -189,10 +190,9 @@ class Profile
 		$a->page['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
 
 		if (!$profiledata && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
-			$_SESSION['theme'] = $a->profile['theme'];
+			$a->setCurrentTheme($a->profile['theme']);
+			$a->setCurrentMobileTheme($a->profile['mobile-theme']);
 		}
-
-		$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
 
 		/*
 		* load/reload current theme info
