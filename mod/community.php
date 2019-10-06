@@ -17,14 +17,6 @@ use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 
-function community_init(App $a)
-{
-	if (!local_user()) {
-		unset($_SESSION['theme']);
-		unset($_SESSION['mobile-theme']);
-	}
-}
-
 function community_content(App $a, $update = 0)
 {
 	$o = '';

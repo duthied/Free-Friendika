@@ -34,9 +34,6 @@ class Directory extends BaseModule
 		if (local_user()) {
 			$app->page['aside'] .= Widget::findPeople();
 			$app->page['aside'] .= Widget::follow();
-		} else {
-			unset($_SESSION['theme']);
-			unset($_SESSION['mobile-theme']);
 		}
 
 		$output = '';
