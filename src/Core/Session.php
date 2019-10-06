@@ -100,6 +100,14 @@ class Session
 	}
 
 	/**
+	 * Clears the current session array
+	 */
+	public static function clear()
+	{
+		$_SESSION = [];
+	}
+
+	/**
 	 * @brief Sets the provided user's authenticated session
 	 *
 	 * @param App   $a
@@ -107,6 +115,7 @@ class Session
 	 * @param bool  $login_initial
 	 * @param bool  $interactive
 	 * @param bool  $login_refresh
+	 * @throws \Friendica\Network\HTTPException\ForbiddenException
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function setAuthenticatedForUser(App $a, array $user_record, $login_initial = false, $interactive = false, $login_refresh = false)

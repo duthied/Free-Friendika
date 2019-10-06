@@ -70,24 +70,8 @@ function manage_post(App $a) {
 	if (!DBA::isResult($user)) {
 		return;
 	}
-	unset($_SESSION['authenticated']);
-	unset($_SESSION['uid']);
-	unset($_SESSION['visitor_id']);
-	unset($_SESSION['administrator']);
-	unset($_SESSION['cid']);
-	unset($_SESSION['theme']);
-	unset($_SESSION['mobile-theme']);
-	unset($_SESSION['page_flags']);
-	unset($_SESSION['return_path']);
-	if (!empty($_SESSION['submanage'])) {
-		unset($_SESSION['submanage']);
-	}
-	if (!empty($_SESSION['sysmsg'])) {
-		unset($_SESSION['sysmsg']);
-	}
-	if (!empty($_SESSION['sysmsg_info'])) {
-		unset($_SESSION['sysmsg_info']);
-	}
+
+	Session::clear();
 
 	Session::setAuthenticatedForUser($a, $user, true, true);
 
