@@ -587,7 +587,11 @@ class App
 	 *
 	 * This probably should change to limit the size of this monster method.
 	 *
-	 * @param App\Module $module The determined module
+	 * @param App\Module     $module The determined module
+	 * @param App\Router     $router
+	 * @param PConfiguration $pconfig
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public function runFrontend(App\Module $module, App\Router $router, PConfiguration $pconfig)
 	{
@@ -733,8 +737,7 @@ class App
 			$module = $module->determineClass($this->args, $router, $this->config);
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->l10n, $this, $this->logger, $this->getCurrentTheme(), $_SERVER, $_POST);
-
+			$module->run($this->l10n, $this, $this->logger, $_SERVER, $_POST);
 		} catch (HTTPException $e) {
 			ModuleHTTPException::rawContent($e);
 		}

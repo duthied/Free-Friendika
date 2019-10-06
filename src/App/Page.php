@@ -364,6 +364,18 @@ class Page implements ArrayAccess
 		 */
 		$this->initContent($module, $mode);
 
+		// Load current theme info after module has been initialized as theme could have been set in module
+		$currentTheme = $app->getCurrentTheme();
+		$theme_info_file = 'view/theme/' . $currentTheme . '/theme.php';
+		if (file_exists($theme_info_file)) {
+			require_once $theme_info_file;
+		}
+
+		if (function_exists(str_replace('-', '_', $currentTheme) . '_init')) {
+			$func = str_replace('-', '_', $currentTheme) . '_init';
+			$func($app);
+		}
+
 		/* Create the page head after setting the language
 		 * and getting any auth credentials.
 		 *
