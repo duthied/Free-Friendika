@@ -8,6 +8,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
+use Friendica\Core\Logger;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
 use Friendica\Util\HTTPSignature;
@@ -92,7 +93,8 @@ class Proxy extends BaseModule
 		$img_str = $fetchResult->getBody();
 
 		// If there is an error then return a blank image
-		if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || (!$img_str)) {
+		if ((substr($fetchResult->getReturnCode(), 0, 1) == '4') || empty($img_str)) {
+			Logger::info('Error fetching image', ['image' => $request['url'], 'return' => $fetchResult->getReturnCode(), 'empty' => empty($img_str)]);
 			self::responseError();
 			// stop.
 		}
@@ -104,6 +106,7 @@ class Proxy extends BaseModule
 
 		$image = new Image($img_str, $mime);
 		if (!$image->isValid()) {
+			Logger::info('The image is invalid', ['image' => $request['url'], 'mime' => $mime]);
 			self::responseError();
 			// stop.
 		}
@@ -305,6 +308,7 @@ class Proxy extends BaseModule
 	private static function responseImageHttpCache(Image $img)
 	{
 		if (is_null($img) || !$img->isValid()) {
+			Logger::info('The cached image is invalid');
 			self::responseError();
 			// stop.
 		}
