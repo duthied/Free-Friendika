@@ -259,6 +259,14 @@ class Register extends BaseModule
 				$a->internalRedirect();
 			}
 
+			// Check if the note to the admin is actually filled out
+			if (empty($_POST['permonlybox'])) {
+				\notice(L10n::t('You have to leave a request note for the admin.')
+					. L10n::t('Your registration can not be processed.') . EOL);
+
+				$a->internalRedirect('register/');
+			}
+
 			Model\Register::createForApproval($user['uid'], Config::get('system', 'language'), $_POST['permonlybox']);
 
 			// invite system
