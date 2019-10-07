@@ -2,6 +2,7 @@
 
 namespace Friendica\Module;
 
+use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
@@ -63,7 +64,9 @@ class BaseSearchModule extends BaseModule
 			$header = L10n::t('Forum Search - %s', $search);
 		}
 
-		$pager = new Pager(self::getArgs()->getQueryString());
+		/** @var Arguments $args */
+		$args = self::getClass(Arguments::class);
+		$pager = new Pager($args->getQueryString());
 
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);

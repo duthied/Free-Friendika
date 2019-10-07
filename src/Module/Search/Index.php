@@ -2,6 +2,7 @@
 
 namespace Friendica\Module\Search;
 
+use Friendica\App\Arguments;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
@@ -125,7 +126,9 @@ class Index extends BaseSearchModule
 		// OR your own posts if you are a logged in member
 		// No items will be shown if the member has a blocked profile wall.
 
-		$pager = new Pager(self::getArgs()->getQueryString());
+		/** @var Arguments $args */
+		$args = self::getClass(Arguments::class);
+		$pager = new Pager($args->getQueryString());
 
 		if ($tag) {
 			Logger::info('Start tag search for "' . $search . '"');

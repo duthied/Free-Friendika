@@ -155,12 +155,4 @@ abstract class BaseModule extends BaseObject
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 	}
-
-	/**
-	 * @return App\Arguments
-	 */
-	protected static function getArgs()
-	{
-		return self::getApp()->getArgs();
-	}
 }

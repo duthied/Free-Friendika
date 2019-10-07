@@ -2,6 +2,7 @@
 
 namespace Friendica\Module\Search;
 
+use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
@@ -11,8 +12,11 @@ class Saved extends BaseModule
 {
 	public static function rawContent()
 	{
-		$action = self::getArgs()->get(2, 'none');
-		$search = Strings::escapeTags(trim(rawurldecode(self::getArgs()->get(3, ''))));
+		/** @var Arguments $args */
+		$args = self::getClass(Arguments::class);
+
+		$action = $args->get(2, 'none');
+		$search = Strings::escapeTags(trim(rawurldecode($args->get(3, ''))));
 
 		$return_url = $_GET['return_url'] ?? 'search?q=' . urlencode($search);
 
