@@ -102,6 +102,14 @@ class Delivery extends BaseObject
 				return;
 			}
 
+			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
+			$thr_parent = Model\Item::selectFirst(['network'], $condition);
+			if (!DBA::isResult($thr_parent)) {
+				// Shouldn't happen. But when this does, we just take the parent as thread parent.
+				// That's totally okay for what we use this variable here.
+				$thr_parent = $parent;
+			}
+
 			if (!empty($contact_id) && Model\Contact::isArchived($contact_id)) {
 				Logger::info('Contact is archived', ['id' => $contact_id, 'cmd' => $cmd, 'item' => $target_item['id']]);
 				self::setFailedQueue($cmd, $target_id);
@@ -182,9 +190,10 @@ class Delivery extends BaseObject
 			return;
 		}
 
-		// Transmit via Diaspora if the thread had started as Diaspora post
+		// Transmit via Diaspora if the thread had started as Diaspora post.
+		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
-		if (isset($parent) && ($parent['network'] == Protocol::DIASPORA)) {
+		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network']])) {
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
