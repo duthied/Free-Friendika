@@ -131,7 +131,7 @@ class Index extends BaseSearchModule
 		$pager = new Pager($args->getQueryString());
 
 		if ($tag) {
-			Logger::info('Start tag search for "' . $search . '"');
+			Logger::info('Start tag search.', ['q' => $search]);
 
 			$condition = [
 				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
@@ -159,7 +159,7 @@ class Index extends BaseSearchModule
 				$r = [];
 			}
 		} else {
-			Logger::info('Start fulltext search for "' . $search . '"');
+			Logger::info('Start fulltext search.', ['q' => $search]);
 
 			$condition = [
 				"(`uid` = 0 OR (`uid` = ? AND NOT `global`))
@@ -189,12 +189,11 @@ class Index extends BaseSearchModule
 			'$title' => $title
 		]);
 
-		Logger::info('Start Conversation for "' . $search . '"');
+		Logger::info('Start Conversation.', ['q' => $search]);
+
 		$o .= conversation(self::getApp(), $r, $pager, 'search', false, false, 'commented', local_user());
 
 		$o .= $pager->renderMinimal(count($r));
-
-		Logger::info('Done "'.$search.'"');
 
 		return $o;
 	}
