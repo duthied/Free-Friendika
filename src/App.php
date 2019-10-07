@@ -133,6 +133,16 @@ class App
 	private $process;
 
 	/**
+	 * Returns the arguments of the query
+	 *
+	 * @return Arguments
+	 */
+	public function getArgs()
+	{
+		return $this->args;
+	}
+
+	/**
 	 * Returns the current config cache of this node
 	 *
 	 * @return ConfigCache

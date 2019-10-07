@@ -120,7 +120,7 @@ abstract class BaseModule extends BaseObject
 		$a = \get_app();
 
 		$x = explode('.', $hash);
-		if (time() > (IntVal($x[0]) + $max_livetime)) {
+		if (time() > (intval($x[0]) + $max_livetime)) {
 			return false;
 		}
 
@@ -154,5 +154,13 @@ abstract class BaseModule extends BaseObject
 
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
+	}
+
+	/**
+	 * @return App\Arguments
+	 */
+	protected static function getArgs()
+	{
+		return self::getApp()->getArgs();
 	}
 }
