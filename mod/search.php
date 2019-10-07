@@ -18,64 +18,16 @@ use Friendica\Model\Item;
 use Friendica\Module\BaseSearchModule;
 use Friendica\Util\Strings;
 
-function search_saved_searches() {
-	$o = '';
-	$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
-
-	$r = q("SELECT `id`,`term` FROM `search` WHERE `uid` = %d",
-		intval(local_user())
-	);
-
-	if (DBA::isResult($r)) {
-		$saved = [];
-		foreach ($r as $rr) {
-			$saved[] = [
-				'id'		=> $rr['id'],
-				'term'		=> $rr['term'],
-				'encodedterm'	=> urlencode($rr['term']),
-				'delete'	=> L10n::t('Remove term'),
-				'selected'	=> ($search==$rr['term']),
-			];
-		}
-
-
-		$tpl = Renderer::getMarkupTemplate("saved_searches_aside.tpl");
-
-		$o .= Renderer::replaceMacros($tpl, [
-			'$title'	=> L10n::t('Saved Searches'),
-			'$add'		=> '',
-			'$searchbox'	=> '',
-			'$saved' 	=> $saved,
-		]);
-	}
-
-	return $o;
-}
-
-
 function search_init(App $a) {
 	$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
 
 	if (local_user()) {
-		if (!empty($_GET['save']) && $search) {
-			$r = q("SELECT * FROM `search` WHERE `uid` = %d AND `term` = '%s' LIMIT 1",
-				intval(local_user()),
-				DBA::escape($search)
-			);
-			if (!DBA::isResult($r)) {
-				DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
-			}
-		}
-		if (!empty($_GET['remove']) && $search) {
-			DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
-		}
-
 		/// @todo Check if there is a case at all that "aside" is prefilled here
 		if (!isset($a->page['aside'])) {
 			$a->page['aside'] = '';
 		}
 
-		$a->page['aside'] .= search_saved_searches();
+		$a->page['aside'] .= \Friendica\Content\Widget\SavedSearches::getHTML('search?q=' . $search, $search);
 	}
 }
 
