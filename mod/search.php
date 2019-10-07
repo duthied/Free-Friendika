@@ -19,7 +19,7 @@ use Friendica\Module\BaseSearchModule;
 use Friendica\Util\Strings;
 
 function search_init(App $a) {
-	$search = (!empty($_GET['search']) ? Strings::escapeTags(trim(rawurldecode($_GET['search']))) : '');
+	$search = (!empty($_GET['q']) ? Strings::escapeTags(trim(rawurldecode($_GET['q']))) : '');
 
 	if (local_user()) {
 		/// @todo Check if there is a case at all that "aside" is prefilled here
@@ -69,7 +69,7 @@ function search_content(App $a) {
 
 	Nav::setSelected('search');
 
-	$search = (!empty($_REQUEST['search']) ? Strings::escapeTags(trim(rawurldecode($_REQUEST['search']))) : '');
+	$search = (!empty($_REQUEST['q']) ? Strings::escapeTags(trim(rawurldecode($_REQUEST['q']))) : '');
 
 	$tag = false;
 	if (!empty($_GET['tag'])) {
@@ -82,7 +82,7 @@ function search_content(App $a) {
 		'name' => "search-header",
 		'$title' => L10n::t("Search"),
 		'$title_size' => 3,
-		'$content' => HTML::search($search,'search-box','search', false)
+		'$content' => HTML::search($search,'search-box',false)
 	]);
 
 	if (strpos($search,'#') === 0) {
