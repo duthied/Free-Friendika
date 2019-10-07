@@ -893,9 +893,9 @@ class HTML
 	 * @param bool   $aside Display the search widgit aside.
 	 *
 	 * @return string Formatted HTML.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function search($s, $id = 'search-box', $url = 'search', $aside = true)
+	public static function search($s, $id = 'search-box', $aside = true)
 	{
 		$mode = 'text';
 
@@ -905,24 +905,25 @@ class HTML
 		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
 
 		$values = [
-				'$s' => $s,
-				'$id' => $id,
-				'$action_url' => $url,
-				'$search_label' => L10n::t('Search'),
-				'$save_label' => $save_label,
-				'$savedsearch' => 'savedsearch',
-				'$search_hint' => L10n::t('@name, !forum, #tags, content'),
-				'$mode' => $mode
-			];
+			'$s'            => $s,
+			'$q'            => urlencode($s),
+			'$id'           => $id,
+			'$search_label' => L10n::t('Search'),
+			'$save_label'   => $save_label,
+			'$search_hint'  => L10n::t('@name, !forum, #tags, content'),
+			'$mode'         => $mode,
+			'$return_url'   => urlencode('search?q=' . $s),
+		];
 
 		if (!$aside) {
-			$values['$searchoption'] = [
-						L10n::t("Full Text"),
-						L10n::t("Tags"),
-						L10n::t("Contacts")];
+			$values['$search_options'] = [
+				'fulltext' => L10n::t('Full Text'),
+				'tags'     => L10n::t('Tags'),
+				'contacts' => L10n::t('Contacts')
+			];
 
 			if (Config::get('system', 'poco_local_search')) {
-				$values['$searchoption'][] = L10n::t("Forums");
+				$values['$searchoption']['forums'] = L10n::t('Forums');
 			}
 		}
 

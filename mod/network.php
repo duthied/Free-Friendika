@@ -40,22 +40,6 @@ function network_init(App $a)
 
 	Hook::add('head', __FILE__, 'network_infinite_scroll_head');
 
-	$search = (!empty($_GET['search']) ? Strings::escapeHtml($_GET['search']) : '');
-
-	if (($search != '') && !empty($_GET['submit'])) {
-		$a->internalRedirect('search?search=' . urlencode($search));
-	}
-
-	if (!empty($_GET['save'])) {
-		$exists = DBA::exists('search', ['uid' => local_user(), 'term' => $search]);
-		if (!$exists) {
-			DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
-		}
-	}
-	if (!empty($_GET['remove'])) {
-		DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
-	}
-
 	$is_a_date_query = false;
 
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
@@ -155,45 +139,8 @@ function network_init(App $a)
 	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
 	$a->page['aside'] .= Widget::postedByYear('network', local_user(), false);
 	$a->page['aside'] .= Widget::networks('network', defaults($_GET, 'nets', '') );
-	$a->page['aside'] .= saved_searches($search);
+	$a->page['aside'] .= Widget\SavedSearches::getHTML($a->query_string);
 	$a->page['aside'] .= Widget::fileAs('network', defaults($_GET, 'file', '') );
-}
-
-function saved_searches($search)
-{
-	$srchurl = '/network?f='
-		. (!empty($_GET['cid'])   ? '&cid='   . rawurlencode($_GET['cid'])   : '')
-		. (!empty($_GET['star'])  ? '&star='  . rawurlencode($_GET['star'])  : '')
-		. (!empty($_GET['bmark']) ? '&bmark=' . rawurlencode($_GET['bmark']) : '')
-		. (!empty($_GET['conv'])  ? '&conv='  . rawurlencode($_GET['conv'])  : '')
-		. (!empty($_GET['nets'])  ? '&nets='  . rawurlencode($_GET['nets'])  : '')
-		. (!empty($_GET['cmin'])  ? '&cmin='  . rawurlencode($_GET['cmin'])  : '')
-		. (!empty($_GET['cmax'])  ? '&cmax='  . rawurlencode($_GET['cmax'])  : '')
-		. (!empty($_GET['file'])  ? '&file='  . rawurlencode($_GET['file'])  : '');
-	;
-
-	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
-	$saved = [];
-
-	while ($rr = DBA::fetch($terms)) {
-		$saved[] = [
-			'id'          => $rr['id'],
-			'term'        => $rr['term'],
-			'encodedterm' => urlencode($rr['term']),
-			'delete'      => L10n::t('Remove term'),
-			'selected'    => ($search == $rr['term']),
-		];
-	}
-
-	$tpl = Renderer::getMarkupTemplate('saved_searches_aside.tpl');
-	$o = Renderer::replaceMacros($tpl, [
-		'$title'     => L10n::t('Saved Searches'),
-		'$add'       => L10n::t('add'),
-		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl),
-		'$saved'     => $saved,
-	]);
-
-	return $o;
 }
 
 /**
