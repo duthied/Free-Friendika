@@ -61,13 +61,6 @@ class Register extends BaseModule
 			}
 		}
 
-		if (!empty($_SESSION['theme'])) {
-			unset($_SESSION['theme']);
-		}
-		if (!empty($_SESSION['mobile-theme'])) {
-			unset($_SESSION['mobile-theme']);
-		}
-
 		$username   = defaults($_REQUEST, 'username'  , '');
 		$email      = defaults($_REQUEST, 'email'     , '');
 		$openid_url = defaults($_REQUEST, 'openid_url', '');

@@ -138,7 +138,7 @@ class Module
 	 *
 	 * @return Module The determined module of this call
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public function determineClass(Arguments $args, Router $router, Core\Config\Configuration $config)
 	{
@@ -186,13 +186,12 @@ class Module
 	 * @param Core\L10n\L10n  $l10n         The L10n instance
 	 * @param App             $app          The whole Friendica app (for method arguments)
 	 * @param LoggerInterface $logger       The Friendica logger
-	 * @param string          $currentTheme The chosen theme
 	 * @param array           $server       The $_SERVER variable
 	 * @param array           $post         The $_POST variables
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function run(Core\L10n\L10n $l10n, App $app, LoggerInterface $logger, string $currentTheme, array $server, array $post)
+	public function run(Core\L10n\L10n $l10n, App $app, LoggerInterface $logger, array $server, array $post)
 	{
 		if ($this->printNotAllowedAddon) {
 			info($l10n->t("You must be logged in to use addons. "));
@@ -231,17 +230,6 @@ class Module
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
 		call_user_func([$this->module_class, 'rawContent']);
-
-		// Load current theme info after module has been initialized as theme could have been set in module
-		$theme_info_file = 'view/theme/' . $currentTheme . '/theme.php';
-		if (file_exists($theme_info_file)) {
-			require_once $theme_info_file;
-		}
-
-		if (function_exists(str_replace('-', '_', $currentTheme) . '_init')) {
-			$func = str_replace('-', '_', $currentTheme) . '_init';
-			$func($app);
-		}
 
 		if ($server['REQUEST_METHOD'] === 'POST') {
 			Core\Hook::callAll($this->module . '_mod_post', $post);

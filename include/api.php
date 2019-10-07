@@ -162,6 +162,7 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  * @brief Login API user
  *
  * @param App $a App
+ * @throws ForbiddenException
  * @throws InternalServerErrorException
  * @throws UnauthorizedException
  * @hook  'authenticate'
@@ -170,8 +171,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
  *               'password' => password from login form
  *               'authenticated' => return status,
  *               'user_record' => return authenticated user record
- * @hook  'logged_in'
- *               array $user    logged user record
  */
 function api_login(App $a)
 {
@@ -182,7 +181,7 @@ function api_login(App $a)
 		list($consumer, $token) = $oauth1->verify_request($request);
 		if (!is_null($token)) {
 			$oauth1->loginUser($token->uid);
-			Hook::callAll('logged_in', $a->user);
+			Session::set('allow_api', true);
 			return;
 		}
 		echo __FILE__.__LINE__.__FUNCTION__ . "<pre>";

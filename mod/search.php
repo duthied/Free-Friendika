@@ -76,10 +76,6 @@ function search_init(App $a) {
 		}
 
 		$a->page['aside'] .= search_saved_searches();
-
-	} else {
-		unset($_SESSION['theme']);
-		unset($_SESSION['mobile-theme']);
 	}
 }
 

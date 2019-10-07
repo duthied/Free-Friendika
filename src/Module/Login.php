@@ -32,9 +32,6 @@ class Login extends BaseModule
 	{
 		$a = self::getApp();
 
-		Session::remove('theme');
-		Session::remove('mobile-theme');
-
 		if (local_user()) {
 			$a->internalRedirect();
 		}

@@ -92,10 +92,10 @@ class App
 	 */
 	private $baseURL;
 
-	/**
-	 * @var string The name of the current theme
-	 */
+	/** @var string The name of the current theme */
 	private $currentTheme;
+	/** @var string The name of the current mobile theme */
+	private $currentMobileTheme;
 
 	/**
 	 * @var Configuration The config
@@ -450,15 +450,25 @@ class App
 	}
 
 	/**
-	 * Returns the current theme name.
+	 * Returns the current theme name. May be overriden by the mobile theme name.
 	 *
-	 * @return string the name of the current theme
-	 * @throws HTTPException\InternalServerErrorException
+	 * @return string
+	 * @throws Exception
 	 */
 	public function getCurrentTheme()
 	{
 		if ($this->mode->isInstall()) {
 			return '';
+		}
+
+		// Specific mobile theme override
+		if (($this->mode->isMobile() || $this->mode->isTablet()) && Core\Session::get('show-mobile', true)) {
+			$user_mobile_theme = $this->getCurrentMobileTheme();
+
+			// --- means same mobile theme as desktop
+			if (!empty($user_mobile_theme) && $user_mobile_theme !== '---') {
+				return $user_mobile_theme;
+			}
 		}
 
 		if (!$this->currentTheme) {
@@ -468,13 +478,37 @@ class App
 		return $this->currentTheme;
 	}
 
+	/**
+	 * Returns the current mobile theme name.
+	 *
+	 * @return string
+	 * @throws Exception
+	 */
+	public function getCurrentMobileTheme()
+	{
+		if ($this->mode->isInstall()) {
+			return '';
+		}
+
+		if (is_null($this->currentMobileTheme)) {
+			$this->computeCurrentMobileTheme();
+		}
+
+		return $this->currentMobileTheme;
+	}
+
 	public function setCurrentTheme($theme)
 	{
 		$this->currentTheme = $theme;
 	}
 
+	public function setCurrentMobileTheme($theme)
+	{
+		$this->currentMobileTheme = $theme;
+	}
+
 	/**
-	 * Computes the current theme name based on the node settings, the user settings and the device type
+	 * Computes the current theme name based on the node settings, the page owner settings and the user settings
 	 *
 	 * @throws Exception
 	 */
@@ -486,7 +520,7 @@ class App
 		}
 
 		// Sane default
-		$this->currentTheme = $system_theme;
+		$this->setCurrentTheme($system_theme);
 
 		$page_theme = null;
 		// Find the theme that belongs to the user whose stuff we are looking at
@@ -499,24 +533,7 @@ class App
 			}
 		}
 
-		$user_theme = Core\Session::get('theme', $system_theme);
-
-		// Specific mobile theme override
-		if (($this->is_mobile || $this->is_tablet) && Core\Session::get('show-mobile', true)) {
-			$system_mobile_theme = $this->config->get('system', 'mobile-theme');
-			$user_mobile_theme   = Core\Session::get('mobile-theme', $system_mobile_theme);
-
-			// --- means same mobile theme as desktop
-			if (!empty($user_mobile_theme) && $user_mobile_theme !== '---') {
-				$user_theme = $user_mobile_theme;
-			}
-		}
-
-		if ($page_theme) {
-			$theme_name = $page_theme;
-		} else {
-			$theme_name = $user_theme;
-		}
+		$theme_name = $page_theme ?: Core\Session::get('theme', $system_theme);
 
 		$theme_name = Strings::sanitizeFilePathItem($theme_name);
 		if ($theme_name
@@ -524,7 +541,40 @@ class App
 		    && (file_exists('view/theme/' . $theme_name . '/style.css')
 		        || file_exists('view/theme/' . $theme_name . '/style.php'))
 		) {
-			$this->currentTheme = $theme_name;
+			$this->setCurrentTheme($theme_name);
+		}
+	}
+
+	/**
+	 * Computes the current mobile theme name based on the node settings, the page owner settings and the user settings
+	 */
+	private function computeCurrentMobileTheme()
+	{
+		$system_mobile_theme = $this->config->get('system', 'mobile-theme', '');
+
+		// Sane default
+		$this->setCurrentMobileTheme($system_mobile_theme);
+
+		$page_mobile_theme = null;
+		// Find the theme that belongs to the user whose stuff we are looking at
+		if ($this->profile_uid && ($this->profile_uid != local_user())) {
+			// Allow folks to override user themes and always use their own on their own site.
+			// This works only if the user is on the same server
+			if (!Core\PConfig::get(local_user(), 'system', 'always_my_theme')) {
+				$page_mobile_theme = Core\PConfig::get($this->profile_uid, 'system', 'mobile-theme');
+			}
+		}
+
+		$mobile_theme_name = $page_mobile_theme ?: Core\Session::get('mobile-theme', $system_mobile_theme);
+
+		$mobile_theme_name = Strings::sanitizeFilePathItem($mobile_theme_name);
+		if ($mobile_theme_name == '---'
+			||
+			in_array($mobile_theme_name, Theme::getAllowedList())
+			&& (file_exists('view/theme/' . $mobile_theme_name . '/style.css')
+				|| file_exists('view/theme/' . $mobile_theme_name . '/style.php'))
+		) {
+			$this->setCurrentMobileTheme($mobile_theme_name);
 		}
 	}
 
@@ -534,7 +584,7 @@ class App
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
 	 * @return string
-	 * @throws HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
 	public function getCurrentThemeStylesheetPath()
 	{
@@ -587,7 +637,11 @@ class App
 	 *
 	 * This probably should change to limit the size of this monster method.
 	 *
-	 * @param App\Module $module The determined module
+	 * @param App\Module     $module The determined module
+	 * @param App\Router     $router
+	 * @param PConfiguration $pconfig
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public function runFrontend(App\Module $module, App\Router $router, PConfiguration $pconfig)
 	{
@@ -733,8 +787,7 @@ class App
 			$module = $module->determineClass($this->args, $router, $this->config);
 
 			// Let the module run it's internal process (init, get, post, ...)
-			$module->run($this->l10n, $this, $this->logger, $this->getCurrentTheme(), $_SERVER, $_POST);
-
+			$module->run($this->l10n, $this, $this->logger, $_SERVER, $_POST);
 		} catch (HTTPException $e) {
 			ModuleHTTPException::rawContent($e);
 		}
