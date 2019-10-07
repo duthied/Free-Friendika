@@ -102,6 +102,14 @@ class Delivery extends BaseObject
 				return;
 			}
 
+			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
+			$thr_parent = Model\Item::selectFirst(['network'], $condition);
+			if (!DBA::isResult($thr_parent)) {
+				// Shouldn't happen. But when this does, we just take the parent as thread parent.
+				// That's totally okay for what we use this variable here.
+				$thr_parent = $parent;
+			}
+
 			if (!empty($contact_id) && Model\Contact::isArchived($contact_id)) {
 				Logger::info('Contact is archived', ['id' => $contact_id, 'cmd' => $cmd, 'item' => $target_item['id']]);
 				self::setFailedQueue($cmd, $target_id);
@@ -182,16 +190,16 @@ class Delivery extends BaseObject
 			return;
 		}
 
-		// Transmit via Diaspora if the thread had started as Diaspora post
+		// Transmit via Diaspora if the thread had started as Diaspora post.
+		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
-		if (isset($parent) && ($parent['network'] == Protocol::DIASPORA) && ($contact['network'] == Protocol::DFRN)) {
+		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network']])) {
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
-		Logger::log("Delivering " . $cmd . " followup=$followup - via network " . $contact['network']);
+		Logger::notice('Delivering', ['cmd' => $cmd, 'target' => $target_id, 'followup' => $followup, 'network' => $contact['network']]);
 
 		switch ($contact['network']) {
-
 			case Protocol::DFRN:
 				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				break;
@@ -396,7 +404,7 @@ class Delivery extends BaseObject
 			$loc = $contact['addr'];
 		}
 
-		Logger::log('Deliver ' . defaults($target_item, 'guid', $target_item['id']) . ' via Diaspora to ' . $loc);
+		Logger::notice('Deliver via Diaspora', ['target' => $target_item['id'], 'guid' => $target_item['guid'], 'to' => $loc]);
 
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
