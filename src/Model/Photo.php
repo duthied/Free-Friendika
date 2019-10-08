@@ -690,7 +690,7 @@ class Photo extends BaseObject
 		}
 
 		$scale = intval(substr($guid, -1, 1));
-		if (empty($scale)) {
+		if (!is_numeric($scale)) {
 			return '';
 		}
 
