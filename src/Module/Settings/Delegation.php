@@ -29,17 +29,11 @@ class Delegation extends BaseSettingsModule
 		$parent_password = $_POST['parent_password'] ?? '';
 
 		if ($parent_uid != 0) {
-			$user = DBA::selectFirst('user', ['nickname'], ['uid' => $parent_uid]);
-			if (!DBA::isResult($user)) {
-				notice(L10n::t('Parent user not found.'));
-				return;
-			}
-
 			try {
-				User::getIdFromPasswordAuthentication($user['nickname'], $parent_password);
+				User::getIdFromPasswordAuthentication($parent_uid, $parent_password);
 				info(L10n::t('Delegation successfully granted.'));
-			} catch (\Throwable $ex) {
-				notice(L10n::t('Parent user password doesn\'t match.'));
+			} catch (\Exception $ex) {
+				notice(L10n::t('Parent user not found, unavailable or password doesn\'t match.'));
 				return;
 			}
 		} else {
