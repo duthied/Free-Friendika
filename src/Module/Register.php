@@ -196,7 +196,7 @@ class Register extends BaseModule
 
 		$arr['blocked'] = $blocked;
 		$arr['verified'] = $verified;
-		$arr['language'] = L10nClass::detectLanguage($a->getConfig()->get('system', 'language'));
+		$arr['language'] = L10nClass::detectLanguage($_SERVER, $_GET, $a->getConfig()->get('system', 'language'));
 
 		try {
 			$result = Model\User::create($arr);
