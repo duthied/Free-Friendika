@@ -2,6 +2,7 @@
 
 namespace Friendica\Module;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
@@ -207,8 +208,10 @@ class Register extends BaseModule
 
 		$user = $result['user'];
 
+		$base_url = self::getClass(BaseURL::class)->get();
+
 		if ($netpublish && intval(Config::get('config', 'register_policy')) !== self::APPROVE) {
-			$url = $a->getBaseUrl() . '/profile/' . $user['nickname'];
+			$url = $base_url . '/profile/' . $user['nickname'];
 			Worker::add(PRIORITY_LOW, 'Directory', $url);
 		}
 
@@ -227,7 +230,7 @@ class Register extends BaseModule
 				$res = Model\User::sendRegisterOpenEmail(
 					$user,
 					Config::get('config', 'sitename'),
-					$a->getBaseUrl(),
+					$base_url,
 					$result['password']
 				);
 
@@ -239,7 +242,6 @@ class Register extends BaseModule
 						L10n::t('Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.',
 							$user['email'],
 							$result['password'])
-						. EOL
 					);
 				}
 			} else {
@@ -283,9 +285,9 @@ class Register extends BaseModule
 					'source_name'  => $user['username'],
 					'source_mail'  => $user['email'],
 					'source_nick'  => $user['nickname'],
-					'source_link'  => $a->getBaseUrl() . '/admin/users/',
-					'link'         => $a->getBaseUrl() . '/admin/users/',
-					'source_photo' => $a->getBaseUrl() . '/photo/avatar/' . $user['uid'] . '.jpg',
+					'source_link'  => $base_url . '/admin/users/',
+					'link'         => $base_url . '/admin/users/',
+					'source_photo' => $base_url . '/photo/avatar/' . $user['uid'] . '.jpg',
 					'to_email'     => $admin['email'],
 					'uid'          => $admin['uid'],
 					'language'     => defaults($admin, 'language', 'en'),
@@ -298,7 +300,7 @@ class Register extends BaseModule
 			Model\User::sendRegisterPendingEmail(
 				$user,
 				Config::get('config', 'sitename'),
-				$a->getBaseURL(),
+				$base_url,
 				$result['password']
 			);
 
