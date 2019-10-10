@@ -202,6 +202,7 @@ return [
 			'/app_specific' => [Module\Settings\TwoFactor\AppSpecific::class, [R::GET, R::POST]],
 			'/verify'       => [Module\Settings\TwoFactor\Verify::class,      [R::GET, R::POST]],
 		],
+		'/delegation[/{action}/{user_id}]' => [Module\Settings\Delegation::class,       [R::GET, R::POST]],
 	],
 
 	'/randprof'                      => [Module\RandomProfile::class,         [R::GET]],
