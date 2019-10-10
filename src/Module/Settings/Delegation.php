@@ -62,7 +62,7 @@ class Delegation extends BaseSettingsModule
 				self::getApp()->internalRedirect('settings/delegation');
 			}
 
-			$user = DBA::selectFirst('user', ['nickname'], ['uid' => $user_id]);
+			$user = User::getById($user_id, ['nickname']);
 			if (DBA::isResult($user)) {
 				$condition = [
 					'uid' => local_user(),
@@ -126,7 +126,7 @@ class Delegation extends BaseSettingsModule
 
 		$parent_user = null;
 		$parent_password = null;
-		$user = DBA::selectFirst('user', ['parent-uid', 'email'], ['uid' => local_user()]);
+		$user = User::getById(local_user(), ['parent-uid', 'email']);
 		if (DBA::isResult($user) && !DBA::exists('user', ['parent-uid' => local_user()])) {
 			$parent_uid = $user['parent-uid'];
 			$parents = [0 => L10n::t('No parent user')];
