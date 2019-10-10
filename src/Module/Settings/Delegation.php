@@ -15,6 +15,9 @@ use Friendica\Module\BaseSettingsModule;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
+/**
+ * Account delegation settings module
+ */
 class Delegation extends BaseSettingsModule
 {
 	public static function post()
@@ -54,8 +57,10 @@ class Delegation extends BaseSettingsModule
 		/** @var Arguments $args */
 		$args = self::getClass(Arguments::class);
 
+		// @TODO Replace with router-provided arguments
 		$action = $args->get(2);
 		$user_id = $args->get(3);
+
 		if ($action === 'add' && $user_id) {
 			if (Session::get('submanage')) {
 				notice(L10n::t('Delegated administrators can view but not change delegation permissions.'));
