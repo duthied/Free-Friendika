@@ -260,7 +260,7 @@ class Nav
 				$nav['manage'] = ['manage', L10n::t('Manage'), '', L10n::t('Manage other pages')];
 			}
 
-			$nav['delegations'] = ['delegate', L10n::t('Delegations'), '', L10n::t('Delegate Page Management')];
+			$nav['delegations'] = ['settings/delegation', L10n::t('Delegations'), '', L10n::t('Delegate Page Management')];
 
 			$nav['settings'] = ['settings', L10n::t('Settings'), '', L10n::t('Account settings')];
 

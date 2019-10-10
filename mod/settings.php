@@ -115,8 +115,8 @@ function settings_init(App $a)
 
 	$tabs[] =	[
 		'label'	=> L10n::t('Delegations'),
-		'url' 	=> 'delegate',
-		'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
+		'url' 	=> 'settings/delegation',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'delegation')?'active':''),
 		'accesskey' => 'd',
 	];
 
