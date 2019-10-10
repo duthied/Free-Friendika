@@ -4,6 +4,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n\L10n;
 use Friendica\Core\Lock\ILock;
 use Friendica\Database\Database;
 use Friendica\Factory;
@@ -171,6 +172,11 @@ return [
 		],
 		'call' => [
 			['addRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
+		],
+	],
+	L10n::class => [
+		'constructParams' => [
+			$_SERVER, $_GET
 		],
 	],
 ];
