@@ -3,6 +3,7 @@
 /**
  * @file src/Model/Register.php
  */
+
 namespace Friendica\Model;
 
 use Friendica\Database\DBA;
@@ -83,7 +84,7 @@ class Register
 	 */
 	public static function createForInvitation()
 	{
-		$code = Strings::getRandomName(8) . srand(1000, 9999);
+		$code = Strings::getRandomName(8) . random_int(1000, 9999);
 
 		$fields = [
 			'hash' => $code,

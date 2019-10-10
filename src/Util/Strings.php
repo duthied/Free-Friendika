@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file src/Util/Strings.php
  */
@@ -13,13 +14,13 @@ use Friendica\Core\Logger;
  */
 class Strings
 {
-	/**
-	 * @brief Generates a pseudo-random string of hexadecimal characters
-	 *
-	 * @param int $size
-	 * @return string
-	 * @throws \Exception
-	 */
+    /**
+     * @brief Generates a pseudo-random string of hexadecimal characters
+     *
+     * @param int $size
+     * @return string
+     * @throws \Exception
+     */
     public static function getRandomHex($size = 64)
     {
         $byte_size = ceil($size / 2);
@@ -31,16 +32,16 @@ class Strings
         return $return;
     }
 
-	/**
-	 * Checks, if the given string is a valid hexadecimal code
-	 *
-	 * @param string $hexCode
-	 *
-	 * @return bool
-	 */
+    /**
+     * Checks, if the given string is a valid hexadecimal code
+     *
+     * @param string $hexCode
+     *
+     * @return bool
+     */
     public static function isHex($hexCode)
     {
-	    return !empty($hexCode) ? @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1) : false;
+        return !empty($hexCode) ? @preg_match("/^[a-f0-9]{2,}$/i", $hexCode) && !(strlen($hexCode) & 1) : false;
     }
 
     /**
@@ -62,19 +63,19 @@ class Strings
      * @brief Use this on "body" or "content" input where angle chars shouldn't be removed,
      * and allow them to be safely displayed.
      * @param string $string
-     * 
+     *
      * @return string
      */
     public static function escapeHtml($string)
     {
-        return htmlspecialchars($string, ENT_COMPAT, 'UTF-8', false);
+        return htmlentities($string, ENT_QUOTES | ENT_HTML5, "UTF-8", false);
     }
 
     /**
      * @brief Generate a string that's random, but usually pronounceable. Used to generate initial passwords
-     * 
+     *
      * @param int $len  length
-     * 
+     *
      * @return string
      */
     public static function getRandomName($len)
@@ -85,40 +86,44 @@ class Strings
 
         $vowels = ['a', 'a', 'ai', 'au', 'e', 'e', 'e', 'ee', 'ea', 'i', 'ie', 'o', 'ou', 'u'];
 
-        if (mt_rand(0, 5) == 4) {
+        if (random_int(0, 5) == 4) {
             $vowels[] = 'y';
         }
 
         $cons = [
-                'b', 'bl', 'br',
-                'c', 'ch', 'cl', 'cr',
-                'd', 'dr',
-                'f', 'fl', 'fr',
-                'g', 'gh', 'gl', 'gr',
-                'h',
-                'j',
-                'k', 'kh', 'kl', 'kr',
-                'l',
-                'm',
-                'n',
-                'p', 'ph', 'pl', 'pr',
-                'qu',
-                'r', 'rh',
-                's' ,'sc', 'sh', 'sm', 'sp', 'st',
-                't', 'th', 'tr',
-                'v',
-                'w', 'wh',
-                'x',
-                'z', 'zh'
-            ];
+            'b', 'bl', 'br',
+            'c', 'ch', 'cl', 'cr',
+            'd', 'dr',
+            'f', 'fl', 'fr',
+            'g', 'gh', 'gl', 'gr',
+            'h',
+            'j',
+            'k', 'kh', 'kl', 'kr',
+            'l',
+            'm',
+            'n',
+            'p', 'ph', 'pl', 'pr',
+            'qu',
+            'r', 'rh',
+            's', 'sc', 'sh', 'sm', 'sp', 'st',
+            't', 'th', 'tr',
+            'v',
+            'w', 'wh',
+            'x',
+            'z', 'zh'
+        ];
 
-        $midcons = ['ck', 'ct', 'gn', 'ld', 'lf', 'lm', 'lt', 'mb', 'mm', 'mn', 'mp',
-                    'nd', 'ng', 'nk', 'nt', 'rn', 'rp', 'rt'];
+        $midcons = [
+            'ck', 'ct', 'gn', 'ld', 'lf', 'lm', 'lt', 'mb', 'mm', 'mn', 'mp',
+            'nd', 'ng', 'nk', 'nt', 'rn', 'rp', 'rt'
+        ];
 
-        $noend = ['bl', 'br', 'cl', 'cr', 'dr', 'fl', 'fr', 'gl', 'gr',
-                    'kh', 'kl', 'kr', 'mn', 'pl', 'pr', 'rh', 'tr', 'qu', 'wh', 'q'];
+        $noend = [
+            'bl', 'br', 'cl', 'cr', 'dr', 'fl', 'fr', 'gl', 'gr',
+            'kh', 'kl', 'kr', 'mn', 'pl', 'pr', 'rh', 'tr', 'qu', 'wh', 'q'
+        ];
 
-        $start = mt_rand(0, 2);
+        $start = random_int(0, 2);
         if ($start == 0) {
             $table = $vowels;
         } else {
@@ -127,8 +132,8 @@ class Strings
 
         $word = '';
 
-        for ($x = 0; $x < $len; $x ++) {
-            $r = mt_rand(0, count($table) - 1);
+        for ($x = 0; $x < $len; $x++) {
+            $r = random_int(0, count($table) - 1);
             $word .= $table[$r];
 
             if ($table == $vowels) {
@@ -136,7 +141,6 @@ class Strings
             } else {
                 $table = $vowels;
             }
-
         }
 
         $word = substr($word, 0, $len);
@@ -152,20 +156,20 @@ class Strings
         return $word;
     }
 
-	/**
-	 * Translate and format the network name of a contact
-	 *
-	 * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
-	 * @param string $url     The contact url
-	 *
-	 * @return string Formatted network name
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
+    /**
+     * Translate and format the network name of a contact
+     *
+     * @param string $network Network name of the contact (e.g. dfrn, rss and so on)
+     * @param string $url     The contact url
+     *
+     * @return string Formatted network name
+     * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+     */
     public static function formatNetworkName($network, $url = '')
     {
         if ($network != '') {
             if ($url != '') {
-                $network_name = '<a href="' . $url  .'">' . ContactSelector::networkToName($network, $url) . '</a>';
+                $network_name = '<a href="' . $url . '">' . ContactSelector::networkToName($network, $url) . '</a>';
             } else {
                 $network_name = ContactSelector::networkToName($network);
             }
@@ -176,11 +180,11 @@ class Strings
 
     /**
      * @brief Remove indentation from a text
-     * 
+     *
      * @param string $text  String to be transformed.
      * @param string $chr   Optional. Indentation tag. Default tab (\t).
      * @param int    $count Optional. Default null.
-     * 
+     *
      * @return string       Transformed string.
      */
     public static function deindent($text, $chr = "[\t ]", $count = NULL)
@@ -206,10 +210,10 @@ class Strings
 
     /**
      * @brief Get byte size returned in a Data Measurement (KB, MB, GB)
-     * 
+     *
      * @param int $bytes    The number of bytes to be measured
      * @param int $precision    Optional. Default 2.
-     * 
+     *
      * @return string   Size with measured units.
      */
     public static function formatBytes($bytes, $precision = 2)
@@ -225,9 +229,9 @@ class Strings
 
     /**
      * @brief Protect percent characters in sprintf calls
-     * 
+     *
      * @param string $s String to transform.
-     * 
+     *
      * @return string   Transformed string.
      */
     public static function protectSprintf($s)
@@ -237,10 +241,10 @@ class Strings
 
     /**
      * @brief Base64 Encode URL and translate +/ to -_ Optionally strip padding.
-     * 
+     *
      * @param string $s                 URL to encode
      * @param boolean $strip_padding    Optional. Default false
-     * 
+     *
      * @return string   Encoded URL
      */
     public static function base64UrlEncode($s, $strip_padding = false)
@@ -254,13 +258,13 @@ class Strings
         return $s;
     }
 
-	/**
-	 * @brief Decode Base64 Encoded URL and translate -_ to +/
-	 * @param string $s URL to decode
-	 *
-	 * @return string   Decoded URL
-	 * @throws \Exception
-	 */
+    /**
+     * @brief Decode Base64 Encoded URL and translate -_ to +/
+     * @param string $s URL to decode
+     *
+     * @return string   Decoded URL
+     * @throws \Exception
+     */
     public static function base64UrlDecode($s)
     {
         if (is_array($s)) {
@@ -291,7 +295,7 @@ class Strings
      * @brief Normalize url
      *
      * @param string $url   URL to be normalized.
-     * 
+     *
      * @return string   Normalized URL.
      */
     public static function normaliseLink($url)
@@ -302,9 +306,9 @@ class Strings
 
     /**
      * @brief Normalize OpenID identity
-     * 
+     *
      * @param string $s OpenID Identity
-     * 
+     *
      * @return string   normalized OpenId Identity
      */
     public static function normaliseOpenID($s)
@@ -329,51 +333,51 @@ class Strings
     }
 
 
-	/**
-	 * Ensures the provided URI has its query string punctuation in order.
-	 *
-	 * @param string $uri
-	 * @return string
-	 */
-	public static function ensureQueryParameter($uri)
-	{
-		if (strpos($uri, '?') === false && ($pos = strpos($uri, '&')) !== false) {
-			$uri = substr($uri, 0, $pos) . '?' . substr($uri, $pos + 1);
-		}
+    /**
+     * Ensures the provided URI has its query string punctuation in order.
+     *
+     * @param string $uri
+     * @return string
+     */
+    public static function ensureQueryParameter($uri)
+    {
+        if (strpos($uri, '?') === false && ($pos = strpos($uri, '&')) !== false) {
+            $uri = substr($uri, 0, $pos) . '?' . substr($uri, $pos + 1);
+        }
 
-		return $uri;
-	}
+        return $uri;
+    }
 
 
-	/**
-	 * Check if the trimmed provided string is starting with one of the provided characters
-	 *
-	 * @param string $string
-	 * @param array  $chars
-	 * @return bool
-	 */
-	public static function startsWith($string, array $chars)
-	{
-		$return = in_array(substr(trim($string), 0, 1), $chars);
+    /**
+     * Check if the trimmed provided string is starting with one of the provided characters
+     *
+     * @param string $string
+     * @param array  $chars
+     * @return bool
+     */
+    public static function startsWith($string, array $chars)
+    {
+        $return = in_array(substr(trim($string), 0, 1), $chars);
 
-		return $return;
-	}
+        return $return;
+    }
 
-	/**
-	 * Returns the regular expression string to match URLs in a given text
-	 *
-	 * @return string
-	 * @see https://daringfireball.net/2010/07/improved_regex_for_matching_urls
-	 */
-	public static function autoLinkRegEx()
-	{
-		return '@
+    /**
+     * Returns the regular expression string to match URLs in a given text
+     *
+     * @return string
+     * @see https://daringfireball.net/2010/07/improved_regex_for_matching_urls
+     */
+    public static function autoLinkRegEx()
+    {
+        return '@
 (?<![=\'\]"/])          # Not preceded by [, =, \', ], ", /
 \b
 (                              # Capture 1: entire matched URL
   https?://                            # http or https protocol
   (?:
-    [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a . 
+    [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’.]    # Domain can\'t start with a .
     [^/\s\xA0`!()\[\]{};:\'",<>?«»“”‘’]+    # Domain can\'t end with a .
     \.
     [^/\s\xA0`!()\[\]{};:\'".,<>?«»“”‘’]+/? # Followed by a slash
@@ -386,21 +390,21 @@ class Strings
     [^\s\xA0`!()\[\]{};:\'".,<>?«»“”‘’]    # not a space or one of these punct chars
   )*
 )@xiu';
-	}
+    }
 
-	/**
-	 * Ensures a single path item doesn't contain any path-traversing characters
-	 *
-	 * @see https://stackoverflow.com/a/46097713
-	 * @param string $pathItem
-	 * @return string
-	 */
-	public static function sanitizeFilePathItem($pathItem)
-	{
-		$pathItem = str_replace('/', '_', $pathItem);
-		$pathItem = str_replace('\\', '_', $pathItem);
-		$pathItem = str_replace(DIRECTORY_SEPARATOR, '_', $pathItem); // In case it does not equal the standard values
+    /**
+     * Ensures a single path item doesn't contain any path-traversing characters
+     *
+     * @see https://stackoverflow.com/a/46097713
+     * @param string $pathItem
+     * @return string
+     */
+    public static function sanitizeFilePathItem($pathItem)
+    {
+        $pathItem = str_replace('/', '_', $pathItem);
+        $pathItem = str_replace('\\', '_', $pathItem);
+        $pathItem = str_replace(DIRECTORY_SEPARATOR, '_', $pathItem); // In case it does not equal the standard values
 
-		return $pathItem;
-	}
+        return $pathItem;
+    }
 }
