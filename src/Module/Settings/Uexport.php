@@ -1,6 +1,6 @@
 <?php
 /**
- * @file mod/uexport.php
+ * @file src/Modules/Settings/Uexport.php
  */
 
 namespace Friendica\Module\Settings;
