@@ -29,7 +29,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	private static function genToken()
 	{
-		return bin2hex(random_bytes(16));
+		return Friendica\Util\Strings::getRandomHex(32);
 	}
 
 	/**

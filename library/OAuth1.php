@@ -528,7 +528,7 @@ class OAuthRequest
    */
   private static function generate_nonce()
   {
-    return bin2hex(random_bytes(16));
+    return Friendica\Util\Strings::getRandomHex(32);
   }
 }
 
