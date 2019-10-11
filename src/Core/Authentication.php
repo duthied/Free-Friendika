@@ -27,7 +27,7 @@ class Authentication extends BaseObject
 	{
 		return hash_hmac(
 			"sha256",
-			hash_hmac("sha256", $user["password"], $user["privkey"]),
+			hash_hmac("sha256", $user["password"], $user["prvkey"]),
 			Config::get("system", "site_prvkey")
 		);
 	}
