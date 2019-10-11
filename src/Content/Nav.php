@@ -29,7 +29,7 @@ class Nav
 		'directory' => null,
 		'settings'  => null,
 		'contacts'  => null,
-		'manage'    => null,
+		'delegation'=> null,
 		'events'    => null,
 		'register'  => null
 	];
@@ -257,10 +257,8 @@ class Nav
 			$nav['messages']['new'] = ['message/new', L10n::t('New Message'), '', L10n::t('New Message')];
 
 			if (is_array($a->identities) && count($a->identities) > 1) {
-				$nav['manage'] = ['manage', L10n::t('Manage'), '', L10n::t('Manage other pages')];
+				$nav['delegation'] = ['delegation', L10n::t('Delegation'), '', L10n::t('Manage other pages')];
 			}
-
-			$nav['delegations'] = ['settings/delegation', L10n::t('Delegations'), '', L10n::t('Delegate Page Management')];
 
 			$nav['settings'] = ['settings', L10n::t('Settings'), '', L10n::t('Account settings')];
 

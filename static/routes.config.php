@@ -92,6 +92,7 @@ return [
 		'/ignored'                => [Module\Contact::class, [R::GET]],
 	],
 	'/credits'   => [Module\Credits::class,          [R::GET]],
+	'/delegation'=> [Module\Delegation::class,       [R::GET, R::POST]],
 	'/dirfind'   => [Module\Search\Directory::class, [R::GET]],
 	'/directory' => [Module\Directory::class,        [R::GET]],
 
