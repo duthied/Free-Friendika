@@ -86,7 +86,7 @@ class Strings
 
         $vowels = ['a', 'a', 'ai', 'au', 'e', 'e', 'e', 'ee', 'ea', 'i', 'ie', 'o', 'ou', 'u'];
 
-        if (random_int(0, 5) == 4) {
+        if (mt_rand(0, 5) == 4) {
             $vowels[] = 'y';
         }
 
@@ -123,7 +123,7 @@ class Strings
             'kh', 'kl', 'kr', 'mn', 'pl', 'pr', 'rh', 'tr', 'qu', 'wh', 'q'
         ];
 
-        $start = random_int(0, 2);
+        $start = mt_rand(0, 2);
         if ($start == 0) {
             $table = $vowels;
         } else {
@@ -133,7 +133,7 @@ class Strings
         $word = '';
 
         for ($x = 0; $x < $len; $x++) {
-            $r = random_int(0, count($table) - 1);
+            $r = mt_rand(0, count($table) - 1);
             $word .= $table[$r];
 
             if ($table == $vowels) {
