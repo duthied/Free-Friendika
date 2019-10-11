@@ -27,6 +27,9 @@ class Uexport extends BaseSettingsModule
 	 * 1. The profile data that can be used by uimport to resettle
 	 *    to a different Friendica instance
 	 * 2. The entire data-set, profile plus postings
+	 *
+	 * If there is an action required through the URL / path, react
+	 * accordingly and export the requested data.
 	 **/
 	public static function content()
 	{
