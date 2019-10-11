@@ -121,7 +121,6 @@ class Uexport extends BaseSettingsModule
 
 	private function uexport_account($a) {
 
-		echo "<p>in uexport_account</p>";
 		$user = SELF::uexport_row(
 			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()))
 		);
