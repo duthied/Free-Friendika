@@ -87,8 +87,8 @@ class BaseSettingsModule extends BaseModule
 
 		$tabs[] = [
 			'label' => L10n::t('Export personal data'),
-			'url' => 'uexport',
-			'selected' => (($a->argc == 1) && ($a->argv[0] === 'uexport') ? 'active' : ''),
+			'url' => 'settings/uexport',
+			'selected' => (($a->argc > 1) && ($a->argv[1] === 'uexport') ? 'active' : ''),
 			'accesskey' => 'e',
 		];
 
