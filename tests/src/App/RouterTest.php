@@ -4,13 +4,15 @@ namespace Friendica\Test\src\App;
 
 use Friendica\App\Router;
 use Friendica\Module;
+use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NotFoundException;
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase
 {
 	public function testGetModuleClass()
 	{
-		$router = new Router(['GET']);
+		$router = new Router(['REQUEST_METHOD' => 'GET']);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute(['GET'], '/', 'IndexModuleClassName');
@@ -22,23 +24,70 @@ class RouterTest extends TestCase
 		$routeCollector->addRoute(['POST', 'PUT', 'PATCH', 'DELETE', 'HEAD'], '/unsupported', 'UnsupportedMethodModuleClassName');
 
 		$this->assertEquals('IndexModuleClassName', $router->getModuleClass('/'));
-
 		$this->assertEquals('TestModuleClassName', $router->getModuleClass('/test'));
-		$this->assertNull($router->getModuleClass('/tes'));
-
 		$this->assertEquals('TestSubModuleClassName', $router->getModuleClass('/test/sub'));
-
 		$this->assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional'));
 		$this->assertEquals('OptionalModuleClassName', $router->getModuleClass('/optional/option'));
-		$this->assertNull($router->getModuleClass('/optional/opt'));
-
 		$this->assertEquals('VariableModuleClassName', $router->getModuleClass('/variable/123abc'));
-		$this->assertNull($router->getModuleClass('/variable'));
-
 		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable'));
 		$this->assertEquals('OptionalVariableModuleClassName', $router->getModuleClass('/optionalvariable/123abc'));
+	}
 
-		$this->assertNull($router->getModuleClass('/unsupported'));
+	public function testGetModuleClassNotFound()
+	{
+		$this->expectException(NotFoundException::class);
+
+		$router = new Router(['REQUEST_METHOD' => 'GET']);
+
+		$router->getModuleClass('/unsupported');
+	}
+
+	public function testGetModuleClassNotFoundTypo()
+	{
+		$this->expectException(NotFoundException::class);
+
+		$router = new Router(['REQUEST_METHOD' => 'GET']);
+
+		$routeCollector = $router->getRouteCollector();
+		$routeCollector->addRoute(['GET'], '/test', 'TestModuleClassName');
+
+		$router->getModuleClass('/tes');
+	}
+
+	public function testGetModuleClassNotFoundOptional()
+	{
+		$this->expectException(NotFoundException::class);
+
+		$router = new Router(['REQUEST_METHOD' => 'GET']);
+
+		$routeCollector = $router->getRouteCollector();
+		$routeCollector->addRoute(['GET'], '/optional[/option]', 'OptionalModuleClassName');
+
+		$router->getModuleClass('/optional/opt');
+	}
+
+	public function testGetModuleClassNotFoundVariable()
+	{
+		$this->expectException(NotFoundException::class);
+
+		$router = new Router(['REQUEST_METHOD' => 'GET']);
+
+		$routeCollector = $router->getRouteCollector();
+		$routeCollector->addRoute(['GET'], '/variable/{var}', 'VariableModuleClassName');
+
+		$router->getModuleClass('/variable');
+	}
+
+	public function testGetModuleClassMethodNotAllowed()
+	{
+		$this->expectException(MethodNotAllowedException::class);
+
+		$router = new Router(['REQUEST_METHOD' => 'POST']);
+
+		$routeCollector = $router->getRouteCollector();
+		$routeCollector->addRoute(['GET'], '/test', 'TestModuleClassName');
+
+		$router->getModuleClass('/test');
 	}
 
 	public function dataRoutes()
