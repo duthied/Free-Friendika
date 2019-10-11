@@ -190,13 +190,10 @@ class Login extends BaseModule
 					]
 				);
 				if (DBA::isResult($user)) {
-					// Time safe comparision of the two hashes.
-					$validSession = hash_equals(
+					if (!hash_equals(
 						Authentication::getCookieHashForUser($user),
 						$data->hash
-					);
-
-					if (!$validSession) {
+					)) {
 						Logger::log("Hash for user " . $data->uid . " doesn't fit.");
 						Authentication::deleteSession();
 						$a->internalRedirect();
