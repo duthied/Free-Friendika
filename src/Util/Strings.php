@@ -68,7 +68,7 @@ class Strings
      */
     public static function escapeHtml($string)
     {
-        return htmlentities($string, ENT_QUOTES | ENT_HTML5, "UTF-8", false);
+        return htmlentities($string, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
     }
 
     /**
