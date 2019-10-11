@@ -42,11 +42,11 @@ class Uexport extends BaseSettingsModule
 			header('Content-Disposition: attachment; filename="' . $a->user['nickname'] . '.' . $action . '"');
 			switch ($action) {
 				case "backup":
-					SELF::uexport_all($a);
+					self::uexport_all($a);
 					exit();
 					break;
 				case "account":
-					SELF::uexport_account($a);
+					self::uexport_account($a);
 					exit();
 					break;
 				default:
@@ -125,35 +125,35 @@ class Uexport extends BaseSettingsModule
 
 	private function uexport_account($a) {
 
-		$user = SELF::uexport_row(
+		$user = self::uexport_row(
 			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()))
 		);
 
-		$contact = SELF::uexport_multirow(
+		$contact = self::uexport_multirow(
 			sprintf("SELECT * FROM `contact` WHERE `uid` = %d ", intval(local_user()))
 		);
 
 
-		$profile = SELF::uexport_multirow(
+		$profile = self::uexport_multirow(
 			sprintf("SELECT * FROM `profile` WHERE `uid` = %d ", intval(local_user()))
 		);
 
-		$photo = SELF::uexport_multirow(
+		$photo = self::uexport_multirow(
 			sprintf("SELECT * FROM `photo` WHERE uid = %d AND profile = 1", intval(local_user()))
 		);
 		foreach ($photo as &$p) {
 			$p['data'] = bin2hex($p['data']);
 		}
 
-		$pconfig = SELF::uexport_multirow(
+		$pconfig = self::uexport_multirow(
 			sprintf("SELECT * FROM `pconfig` WHERE uid = %d", intval(local_user()))
 		);
 
-		$group = SELF::uexport_multirow(
+		$group = self::uexport_multirow(
 			sprintf("SELECT * FROM `group` WHERE uid = %d", intval(local_user()))
 		);
 
-		$group_member = SELF::uexport_multirow(
+		$group_member = self::uexport_multirow(
 			sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", intval(local_user()))
 		);
 
@@ -181,7 +181,7 @@ class Uexport extends BaseSettingsModule
 	 */
 	private function uexport_all(App $a) {
 
-		SELF::uexport_account($a);
+		self::uexport_account($a);
 		echo "\n";
 
 		$total = 0;
