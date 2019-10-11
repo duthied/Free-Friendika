@@ -86,6 +86,8 @@ var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
 
+const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
+
 $(function() {
 	$.ajaxSetup({cache: false});
 
