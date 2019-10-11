@@ -1,7 +1,9 @@
 <?php
+
 /**
  * @file src/Module/Login.php
  */
+
 namespace Friendica\Module;
 
 use Exception;
@@ -48,10 +50,8 @@ class Login extends BaseModule
 		// OpenId Login
 		if (
 			empty($_POST['password'])
-			&& (
-				!empty($_POST['openid_url'])
-				|| !empty($_POST['username'])
-			)
+			&& (!empty($_POST['openid_url'])
+				|| !empty($_POST['username']))
 		) {
 			$openid_url = trim(defaults($_POST, 'openid_url', $_POST['username']));
 
@@ -136,7 +136,9 @@ class Login extends BaseModule
 					throw new Exception(L10n::t('Login failed.'));
 				}
 			} else {
-				$record = DBA::selectFirst('user', [],
+				$record = DBA::selectFirst(
+					'user',
+					[],
 					['uid' => User::getIdFromPasswordAuthentication($username, $password)]
 				);
 			}
@@ -176,7 +178,9 @@ class Login extends BaseModule
 			$data = json_decode($_COOKIE["Friendica"]);
 			if (isset($data->uid)) {
 
-				$user = DBA::selectFirst('user', [],
+				$user = DBA::selectFirst(
+					'user',
+					[],
 					[
 						'uid'             => $data->uid,
 						'blocked'         => false,
@@ -186,7 +190,10 @@ class Login extends BaseModule
 					]
 				);
 				if (DBA::isResult($user)) {
-					if ($data->hash != Authentication::getCookieHashForUser($user)) {
+					if (!hash_equals(
+						Authentication::getCookieHashForUser($user),
+						$data->hash
+					)) {
 						Logger::log("Hash for user " . $data->uid . " doesn't fit.");
 						Authentication::deleteSession();
 						$a->internalRedirect();
@@ -229,7 +236,9 @@ class Login extends BaseModule
 					$a->internalRedirect();
 				}
 
-				$user = DBA::selectFirst('user', [],
+				$user = DBA::selectFirst(
+					'user',
+					[],
 					[
 						'uid'             => $_SESSION['uid'],
 						'blocked'         => false,
@@ -312,12 +321,12 @@ class Login extends BaseModule
 				'$logout'       => L10n::t('Logout'),
 				'$login'        => L10n::t('Login'),
 
-				'$lname'        => ['username', L10n::t('Nickname or Email: ') , '', ''],
+				'$lname'        => ['username', L10n::t('Nickname or Email: '), '', ''],
 				'$lpassword'    => ['password', L10n::t('Password: '), '', ''],
 				'$lremember'    => ['remember', L10n::t('Remember me'), 0,  ''],
 
 				'$openid'       => !$noid,
-				'$lopenid'      => ['openid_url', L10n::t('Or login using OpenID: '),'',''],
+				'$lopenid'      => ['openid_url', L10n::t('Or login using OpenID: '), '', ''],
 
 				'$hiddens'      => $hiddens,
 
