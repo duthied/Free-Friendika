@@ -78,7 +78,7 @@ class StringsTest extends TestCase
 
 		$this->assertEquals('[submit type="button" onclick="alert(\'failed!\');" /]', $validstring);
 		$this->assertEquals(
-			'&lt;submit type&equals;&quot;button&quot; onclick&equals;&quot;alert&lpar;&apos;failed&excl;&apos;&rpar;&semi;&quot; &sol;&gt;',
+			"&lt;submit type=&quot;button&quot; onclick=&quot;alert('failed!');&quot; /&gt;",
 			$escapedString
 		);
 	}
