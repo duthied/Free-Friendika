@@ -11,7 +11,7 @@
     {{/if}}
 		<input type="submit" name="submit" id="search-submit" value="{{$search_label}}"/>
     {{if $s}}
-	    <a href="search/saved/add/{{$q}}?return_url={{$return_url}}">{{$save_label}}</a>
+	    <a href="search/saved/add?term={{$q}}&amp;return_url={{$return_url}}">{{$save_label}}</a>
     {{/if}}
 {{/strip}}
 	</form>
