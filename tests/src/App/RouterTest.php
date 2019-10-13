@@ -126,18 +126,6 @@ class RouterTest extends TestCase
 
 		$router->getModuleClass('/test');
 	}
-	
-	public function testGetPostModuleClassMethodNotAllowed()
-	{
-		$this->expectException(MethodNotAllowedException::class);
-
-		$router = new Router(['REQUEST_METHOD' => 'PUT']);
-
-		$routeCollector = $router->getRouteCollector();
-		$routeCollector->addRoute([Router::GET, Router::POST], '/test', 'TestModuleClassName');
-
-		$router->getModuleClass('/test');
-	}
 
 	public function dataRoutes()
 	{
