@@ -191,8 +191,8 @@ return [
 	'/search' => [
 		'[/]'                  => [Module\Search\Index::class, [R::GET]],
 		'/acl'                 => [Module\Search\Acl::class,   [R::GET, R::POST]],
-		'/saved/add/{term}'    => [Module\Search\Saved::class, [R::GET]],
-		'/saved/remove/{term}' => [Module\Search\Saved::class, [R::GET]],
+		'/saved/add'           => [Module\Search\Saved::class, [R::GET]],
+		'/saved/remove'        => [Module\Search\Saved::class, [R::GET]],
 	],
 
 	'/settings' => [

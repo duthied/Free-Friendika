@@ -2312,7 +2312,7 @@ ul.dropdown-menu li:hover {
 .search-content-wrapper > .section-title-wrapper {
     display: none;
 }
-#navbar-button > #search-save-form > #search-save {
+#navbar-button > #search-save {
     margin-top: 3px;
 }
 /* Section-Content-Wrapper */

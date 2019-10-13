@@ -10,17 +10,17 @@ use Friendica\Util\Strings;
 
 class Saved extends BaseModule
 {
-	public static function rawContent()
+	public static function init()
 	{
 		/** @var Arguments $args */
 		$args = self::getClass(Arguments::class);
 
 		$action = $args->get(2, 'none');
-		$search = Strings::escapeTags(trim(rawurldecode($args->get(3, ''))));
+		$search = Strings::escapeTags(trim(rawurldecode($_GET['term'] ?? '')));
 
 		$return_url = $_GET['return_url'] ?? 'search?q=' . urlencode($search);
 
-		if (local_user()) {
+		if (local_user() && $search) {
 			switch ($action) {
 				case 'add':
 					$fields = ['uid' => local_user(), 'term' => $search];

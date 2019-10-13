@@ -5,7 +5,7 @@
         {{foreach $saved as $search}}
 			<li class="tool {{if $search.selected}}selected{{/if}}">
 				<a href="search?q={{$search.encodedterm}}" class="label">{{$search.term}}</a>
-				<a href="search/saved/remove/{{$search.encodedterm}}?return_url={{$return_url}}" class="action icon s10 delete" title="{{$search.delete}}" onclick="return confirmDelete();"></a>
+				<a href="search/saved/remove?term={{$search.encodedterm}}&amp;return_url={{$return_url}}" class="action icon s10 delete" title="{{$search.delete}}" onclick="return confirmDelete();"></a>
 			</li>
         {{/foreach}}
 	</ul>

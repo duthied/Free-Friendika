@@ -912,7 +912,7 @@ class HTML
 			'$save_label'   => $save_label,
 			'$search_hint'  => L10n::t('@name, !forum, #tags, content'),
 			'$mode'         => $mode,
-			'$return_url'   => urlencode('search?q=' . $s),
+			'$return_url'   => urlencode('search?q=' . urlencode($s)),
 		];
 
 		if (!$aside) {

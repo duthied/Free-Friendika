@@ -169,7 +169,7 @@ $(document).ready(function(){
 	}
 
 	// move the "Save the search" button to the second navbar
-	$(".search-content-wrapper #search-save-form ").appendTo("#topbar-second > .container > #navbar-button");
+	$(".search-content-wrapper #search-save").appendTo("#topbar-second > .container > #navbar-button");
 
 	// append the vcard-short-info to the second nav after passing the element
 	// with .fn (vcard username). Use scrollspy to get the scroll position.
