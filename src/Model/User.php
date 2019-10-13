@@ -412,6 +412,7 @@ class User
 	 *
 	 * @param string $password
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function isPasswordExposed($password)
 	{
@@ -420,9 +421,20 @@ class User
 			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
 		]);
 
-		$PasswordExposedCHecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
+		try {
+			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
-		return $PasswordExposedCHecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+		} catch (\Exception $e) {
+			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
+				'code' => $e->getCode(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return false;
+		}
 	}
 
 	/**

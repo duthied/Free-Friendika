@@ -64,7 +64,6 @@ class Logger extends BaseObject
 		self::TRACE => 'Trace',
 		self::DEBUG => 'Debug',
 		self::DATA => 'Data',
-		self::ALL => 'All',
 	];
 
 	/**
