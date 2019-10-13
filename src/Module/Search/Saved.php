@@ -10,7 +10,7 @@ use Friendica\Util\Strings;
 
 class Saved extends BaseModule
 {
-	public static function rawContent()
+	public static function init()
 	{
 		/** @var Arguments $args */
 		$args = self::getClass(Arguments::class);
