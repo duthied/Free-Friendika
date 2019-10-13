@@ -7,7 +7,10 @@ use Friendica\BaseObject;
 use Friendica\Core;
 use Friendica\LegacyModule;
 use Friendica\Module\Home;
-use Friendica\Module\PageNotFound;
+use Friendica\Module\HTTPException\MethodNotAllowed;
+use Friendica\Module\HTTPException\PageNotFound;
+use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NotFoundException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -144,38 +147,43 @@ class Module
 	{
 		$printNotAllowedAddon = false;
 
+		$module_class = null;
 		/**
 		 * ROUTING
 		 *
 		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
 		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
 		 **/
-		$module_class = $router->getModuleClass($args->getCommand());
-
-		// Then we try addon-provided modules that we wrap in the LegacyModule class
-		if (!$module_class && Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
-			//Check if module is an app and if public access to apps is allowed or not
-			$privateapps = $config->get('config', 'private_addons', false);
-			if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
-				$printNotAllowedAddon = true;
-			} else {
-				include_once "addon/{$this->module}/{$this->module}.php";
-				if (function_exists($this->module . '_module')) {
-					LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
-					$module_class = LegacyModule::class;
+		try {
+			$module_class = $router->getModuleClass($args->getCommand());
+		} catch (MethodNotAllowedException $e) {
+			$module_class = MethodNotAllowed::class;
+		} catch (NotFoundException $e) {
+			// Then we try addon-provided modules that we wrap in the LegacyModule class
+			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
+				//Check if module is an app and if public access to apps is allowed or not
+				$privateapps = $config->get('config', 'private_addons', false);
+				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
+					$printNotAllowedAddon = true;
+				} else {
+					include_once "addon/{$this->module}/{$this->module}.php";
+					if (function_exists($this->module . '_module')) {
+						LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
+						$module_class = LegacyModule::class;
+					}
 				}
 			}
-		}
 
-		/* Finally, we look for a 'standard' program module in the 'mod' directory
-		 * We emulate a Module class through the LegacyModule class
-		 */
-		if (!$module_class && file_exists("mod/{$this->module}.php")) {
-			LegacyModule::setModuleFile("mod/{$this->module}.php");
-			$module_class = LegacyModule::class;
-		}
+			/* Finally, we look for a 'standard' program module in the 'mod' directory
+			 * We emulate a Module class through the LegacyModule class
+			 */
+			if (!$module_class && file_exists("mod/{$this->module}.php")) {
+				LegacyModule::setModuleFile("mod/{$this->module}.php");
+				$module_class = LegacyModule::class;
+			}
 
-		$module_class = !isset($module_class) ? PageNotFound::class : $module_class;
+			$module_class = $module_class ?: PageNotFound::class;
+		}
 
 		return new Module($this->module, $module_class, $this->isBackend, $printNotAllowedAddon);
 	}

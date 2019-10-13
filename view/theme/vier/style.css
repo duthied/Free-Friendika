@@ -725,7 +725,7 @@ nav .nav-menu:hover {
 	text-decoration: none;
 }
 
-.manage-notify {
+.delegation-notify {
 	 background-color: #F80;
 	-moz-border-radius: 5px 5px 5px 5px;
 	-webkit-border-radius: 5px 5px 5px 5px;
@@ -2923,12 +2923,12 @@ a.mail-list-link {
 	margin: 0px;
 }
 
-#identity-manage-desc {
+#identity-delegation-desc {
 	margin-top:15px;
 	margin-bottom: 15px;
 }
 
-#identity-manage-choose {
+#identity-delegation-choose {
 	margin-bottom: 15px;
 }
 

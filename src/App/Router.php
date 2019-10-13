@@ -8,7 +8,8 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use Friendica\Core\Hook;
-use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Core\L10n;
+use Friendica\Network\HTTPException;
 
 /**
  * Wrapper for FastRoute\Router
@@ -57,7 +58,7 @@ class Router
 	 *
 	 * @return self The router instance with the loaded routes
 	 *
-	 * @throws InternalServerErrorException In case of invalid configs
+	 * @throws HTTPException\InternalServerErrorException In case of invalid configs
 	 */
 	public function addRoutes(array $routes)
 	{
@@ -71,7 +72,7 @@ class Router
 			} elseif ($this->isRoute($config)) {
 				$routeCollector->addRoute($config[1], $route, $config[0]);
 			} else {
-				throw new InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
+				throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
 			}
 		}
 
@@ -96,7 +97,7 @@ class Router
 				} elseif ($this->isRoute($config)) {
 					$routeCollector->addRoute($config[1], $route, $config[0]);
 				}else {
-					throw new InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
+					throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
 				}
 			}
 		});
@@ -155,7 +156,11 @@ class Router
 	 *
 	 * @param string $cmd The path component of the request URL without the query string
 	 *
-	 * @return string|null A Friendica\BaseModule-extending class name if a route rule matched
+	 * @return string A Friendica\BaseModule-extending class name if a route rule matched
+	 *
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws HTTPException\MethodNotAllowedException    If a rule matched but the method didn't
+	 * @throws HTTPException\NotFoundException            If no rule matched
 	 */
 	public function getModuleClass($cmd)
 	{
@@ -171,6 +176,10 @@ class Router
 		$routeInfo  = $dispatcher->dispatch($this->httpMethod, $cmd);
 		if ($routeInfo[0] === Dispatcher::FOUND) {
 			$moduleClass = $routeInfo[1];
+		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
+			throw new HTTPException\MethodNotAllowedException(L10n::t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+		} else {
+			throw new HTTPException\NotFoundException(L10n::t('Page not found.'));
 		}
 
 		return $moduleClass;

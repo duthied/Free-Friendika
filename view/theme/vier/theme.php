@@ -104,7 +104,7 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (empty($a->page['aside']) && in_array($a->argv[0], ["community", "events", "help", "manage", "notifications",
+	if (empty($a->page['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"])) {
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}

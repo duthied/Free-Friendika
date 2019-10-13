@@ -5,7 +5,7 @@ namespace Friendica\Test\src\App;
 use Friendica\App;
 use Friendica\Core\Config\Configuration;
 use Friendica\LegacyModule;
-use Friendica\Module\PageNotFound;
+use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\WellKnown\HostMeta;
 use Friendica\Test\DatabaseTest;
 
@@ -166,7 +166,7 @@ class ModuleTest extends DatabaseTest
 	{
 		$module = new App\Module();
 
-		$moduleNew = $module->determineModule(new App\Arguments(), []);
+		$moduleNew = $module->determineModule(new App\Arguments());
 
 		$this->assertNotSame($moduleNew, $module);
 	}

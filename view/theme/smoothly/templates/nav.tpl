@@ -45,7 +45,7 @@
 			{{if $nav.profiles}}<li><a id="nav-profiles-link" class="nav-commlink nav-sep {{$nav.profiles.2}}" href="{{$nav.profiles.0}}">{{$nav.profiles.1}}</a></li>{{/if}}
 			{{if $nav.settings}}<li><a id="nav-settings-link" class="nav-commlink {{$nav.settings.2}}" href="{{$nav.settings.0}}">{{$nav.settings.1}}</a></li>{{/if}}
 			
-			{{if $nav.manage}}<li><a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}}" href="{{$nav.manage.0}}">{{$nav.manage.1}}</a></li>{{/if}}
+			{{if $nav.delegation}}<li><a id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}}" href="{{$nav.delegation.0}}">{{$nav.delegation.1}}</a></li>{{/if}}
 		
 			{{if $nav.admin}}<li><a id="nav-admin-link" class="nav-commlink {{$nav.admin.2}}" href="{{$nav.admin.0}}">{{$nav.admin.1}}</a></li>{{/if}}
 			

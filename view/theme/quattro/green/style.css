@@ -2136,7 +2136,7 @@ ul.tabs li .active {
 .identity-match-photo {
   position: relative;
 }
-.identity-match-photo .manage-notify {
+.identity-match-photo .delegation-notify {
   background-color: #19AEFF;
   border-radius: 5px;
   font-size: 10px;
