@@ -229,6 +229,9 @@ function item_post(App $a) {
 		$body .= $att_bbcode;
 	}
 
+	// Convert links with empty descriptions to links without an explicit description
+	$body = preg_replace('(\[url=(.*?)\]\[\/url\])ism', '[url]$1[/url]', $body);
+
 	if (!empty($orig_post)) {
 		$str_group_allow   = $orig_post['allow_gid'];
 		$str_contact_allow = $orig_post['allow_cid'];
