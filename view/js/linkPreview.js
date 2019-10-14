@@ -52,7 +52,6 @@
 			<div class="clear"></div>\
 			<hr class="previewseparator">';
 		var text;
-		var urlRegex = /^(?:https?\:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.\:\;-]*)*(?:\?[\&\%\|\+a-z0-9_=,\.\:\;-]*)?(?:[\&\%\|\+&a-z0-9_=,\:\;\.-]*)(?:[\!\#\/\&\%\|\+a-z0-9_=,\:\;\.-]*)}*$/i;
 		var binurl;
 		var block = false;
 		var blockTitle = false;

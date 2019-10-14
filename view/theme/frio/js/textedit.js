@@ -76,45 +76,10 @@ function commentLinkDropper(event) {
 	}
 }
 
-
-function insertFormatting(BBcode, id) {
-	var tmpStr = $("#comment-edit-text-" + id).val();
-	if (tmpStr == '') {
-		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		closeMenu("comment-fake-form-" + id);
-		openMenu("item-comments-" + id);
-	}
-
-	textarea = document.getElementById("comment-edit-text-" + id);
-	if (document.selection) {
-		textarea.focus();
-		selected = document.selection.createRange();
-		selected.text = "[" + BBcode + "]" + selected.text + "[/" + BBcode + "]";
-	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
-		var start = textarea.selectionStart;
-		var end = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, start) + "[" + BBcode + "]" + textarea.value.substring(start, end) + "[/" + BBcode + "]" + textarea.value.substring(end, textarea.value.length);
-	}
-
-	$(textarea).trigger('change');
-
-	return true;
-}
-
-function insertFormattingToPost(BBcode) {
+function insertFormattingToPost(BBCode) {
 	textarea = document.getElementById("profile-jot-text");
-	if (document.selection) {
-		textarea.focus();
-		selected = document.selection.createRange();
-		selected.text = "[" + BBcode + "]" + selected.text + "[/" + BBcode + "]";
-	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
-		var start = textarea.selectionStart;
-		var end = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, start) + "[" + BBcode + "]" + textarea.value.substring(start, end) + "[/" + BBcode + "]" + textarea.value.substring(end, textarea.value.length);
-	}
 
-	$(textarea).trigger('change');
+	insertBBCodeInTextarea(BBCode, textarea);
 
 	return true;
 }
