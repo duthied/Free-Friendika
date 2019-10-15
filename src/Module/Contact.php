@@ -103,7 +103,7 @@ class Contact extends BaseModule
 
 		Hook::callAll('contact_edit_post', $_POST);
 
-		$profile_id = intval(defaults($_POST, 'profile-assign', 0));
+		$profile_id = intval($_POST['profile-assign'] ?? 0);
 		if ($profile_id) {
 			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
 				notice(L10n::t('Could not locate selected profile.') . EOL);
@@ -115,16 +115,16 @@ class Contact extends BaseModule
 
 		$notify = !empty($_POST['notify']);
 
-		$fetch_further_information = intval(defaults($_POST, 'fetch_further_information', 0));
+		$fetch_further_information = intval($_POST['fetch_further_information'] ?? 0);
 
-		$ffi_keyword_blacklist = Strings::escapeHtml(trim(defaults($_POST, 'ffi_keyword_blacklist', '')));
+		$ffi_keyword_blacklist = Strings::escapeHtml(trim($_POST['ffi_keyword_blacklist'] ?? ''));
 
-		$priority = intval(defaults($_POST, 'poll', 0));
+		$priority = intval($_POST['poll'] ?? 0);
 		if ($priority > 5 || $priority < 0) {
 			$priority = 0;
 		}
 
-		$info = Strings::escapeHtml(trim(defaults($_POST, 'info', '')));
+		$info = Strings::escapeHtml(trim($_POST['info'] ?? ''));
 
 		$r = DBA::update('contact', [
 			'profile-id' => $profile_id,
@@ -188,21 +188,42 @@ class Contact extends BaseModule
 		Model\GContact::updateFromProbe($contact['url']);
 	}
 
+	/**
+	 * Toggles the blocked status of a contact identified by id.
+	 *
+	 * @param $contact_id
+	 * @throws \Exception
+	 */
 	private static function blockContact($contact_id)
 	{
 		$blocked = !Model\Contact::isBlockedByUser($contact_id, local_user());
 		Model\Contact::setBlockedForUser($contact_id, local_user(), $blocked);
 	}
 
+	/**
+	 * Toggles the ignored status of a contact identified by id.
+	 *
+	 * @param $contact_id
+	 * @throws \Exception
+	 */
 	private static function ignoreContact($contact_id)
 	{
 		$ignored = !Model\Contact::isIgnoredByUser($contact_id, local_user());
 		Model\Contact::setIgnoredForUser($contact_id, local_user(), $ignored);
 	}
 
+	/**
+	 * Toggles the archived status of a contact identified by id.
+	 * If the current status isn't provided, this will always archive the contact.
+	 *
+	 * @param $contact_id
+	 * @param $orig_record
+	 * @return bool
+	 * @throws \Exception
+	 */
 	private static function archiveContact($contact_id, $orig_record)
 	{
-		$archived = (defaults($orig_record, 'archive', '') ? 0 : 1);
+		$archived = empty($orig_record['archive']);
 		$r = DBA::update('contact', ['archive' => $archived], ['id' => $contact_id, 'uid' => local_user()]);
 
 		return DBA::isResult($r);
@@ -227,8 +248,8 @@ class Contact extends BaseModule
 
 		$a = self::getApp();
 
-		$nets = defaults($_GET, 'nets', '');
-		$rel  = defaults($_GET, 'rel' , '');
+		$nets = $_GET['nets'] ?? '';
+		$rel  = $_GET['rel']  ?? '';
 
 		if (empty($a->page['aside'])) {
 			$a->page['aside'] = '';
@@ -290,7 +311,7 @@ class Contact extends BaseModule
 				'$name'         => $contact['name'],
 				'$photo'        => $contact['photo'],
 				'$url'          => Model\Contact::magicLinkByContact($contact, $contact['url']),
-				'$addr'         => defaults($contact, 'addr', ''),
+				'$addr'         => $contact['addr'] ?? '',
 				'$network_link' => $network_link,
 				'$network'      => L10n::t('Network:'),
 				'$account_type' => Model\Contact::getAccountType($contact),
@@ -626,7 +647,7 @@ class Contact extends BaseModule
 		}
 
 		// @TODO: Replace with parameter from router
-		$type = defaults($a->argv, 1, '');
+		$type = $a->argv[1] ?? '';
 
 		switch ($type) {
 			case 'blocked':
@@ -651,9 +672,9 @@ class Contact extends BaseModule
 
 		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
 
-		$search = Strings::escapeTags(trim(defaults($_GET, 'search', '')));
-		$nets   = Strings::escapeTags(trim(defaults($_GET, 'nets'  , '')));
-		$rel    = Strings::escapeTags(trim(defaults($_GET, 'rel'   , '')));
+		$search = Strings::escapeTags(trim($_GET['search'] ?? ''));
+		$nets   = Strings::escapeTags(trim($_GET['nets']   ?? ''));
+		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
 
 		$tabs = [
 			[
@@ -1016,7 +1037,7 @@ class Contact extends BaseModule
 			'username'  => $rr['name'],
 			'account_type' => Model\Contact::getAccountType($rr),
 			'sparkle'   => $sparkle,
-			'itemurl'   => defaults($rr, 'addr', $rr['url']),
+			'itemurl'   => ($rr['addr'] ?? '') ?: $rr['url'],
 			'url'       => $url,
 			'network'   => ContactSelector::networkToName($rr['network'], $rr['url']),
 			'nick'      => $rr['nick'],

@@ -53,7 +53,7 @@ class Details extends BaseAdminModule
 				$a->internalRedirect('admin/addons');
 			}
 
-			if (defaults($_GET, 'action', '') == 'toggle') {
+			if (($_GET['action'] ?? '') == 'toggle') {
 				parent::checkFormSecurityTokenRedirectOnError('/admin/addons', 'admin_themes', 't');
 
 				// Toggle addon status

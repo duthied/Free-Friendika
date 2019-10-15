@@ -27,7 +27,7 @@ class Feed extends BaseModule
 	{
 		$a = self::getApp();
 
-		$last_update = defaults($_GET, 'last_update', '');
+		$last_update = $_GET['last_update'] ?? '';
 		$nocache     = !empty($_GET['nocache']) && local_user();
 
 		// @TODO: Replace with parameter from router

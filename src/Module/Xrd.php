@@ -28,7 +28,7 @@ class Xrd extends BaseModule
 			}
 
 			$uri = urldecode(Strings::escapeTags(trim($_GET['uri'])));
-			if (defaults($_SERVER, 'HTTP_ACCEPT', '') == 'application/jrd+json') {
+			if (($_SERVER['HTTP_ACCEPT'] ?? '') == 'application/jrd+json') {
 				$mode = 'json';
 			} else {
 				$mode = 'xml';
@@ -39,7 +39,7 @@ class Xrd extends BaseModule
 			}
 
 			$uri = urldecode(Strings::escapeTags(trim($_GET['resource'])));
-			if (defaults($_SERVER, 'HTTP_ACCEPT', '') == 'application/xrd+xml') {
+			if (($_SERVER['HTTP_ACCEPT'] ?? '') == 'application/xrd+xml') {
 				$mode = 'xml';
 			} else {
 				$mode = 'json';

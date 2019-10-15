@@ -102,7 +102,7 @@ class Profile extends BaseModule
 
 			// site block
 			if (!$blocked && !$userblock) {
-				$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], defaults($a->profile, 'pub_keywords', ''));
+				$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $a->profile['pub_keywords'] ?? '');
 				if (strlen($keywords)) {
 					$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\n";
 				}
@@ -146,10 +146,10 @@ class Profile extends BaseModule
 		}
 
 		if (empty($category)) {
-			$category = defaults($_GET, 'category', '');
+			$category = $_GET['category'] ?? '';
 		}
 
-		$hashtags = defaults($_GET, 'tag', '');
+		$hashtags = $_GET['tag'] ?? '';
 
 		if (Config::get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
 			return Login::form();
@@ -174,7 +174,7 @@ class Profile extends BaseModule
 		}
 
 		if (!$update) {
-            $tab = Strings::escapeTags(trim(defaults($_GET, 'tab', '')));
+            $tab = Strings::escapeTags(trim($_GET['tab'] ?? ''));
 
 			$o .= ProfileModel::getTabs($a, $tab, $is_owner, $a->profile['nickname']);
 

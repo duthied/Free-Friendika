@@ -29,7 +29,7 @@ class Smilies extends BaseModule
 	public static function content()
 	{
 		$smilies = Content\Smilies::getList();
-		$count = count(defaults($smilies, 'texts', []));
+		$count = count($smilies['texts'] ?? []);
 
 		$tpl = Renderer::getMarkupTemplate('smilies.tpl');
 		return Renderer::replaceMacros($tpl, [

@@ -12,7 +12,7 @@ class Localtime extends BaseModule
 {
 	public static function post()
 	{
-		$time = defaults($_REQUEST, 'time', 'now');
+		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 
 		$bd_format = L10n::t('l F d, Y \@ g:i A');
 
@@ -25,7 +25,7 @@ class Localtime extends BaseModule
 	{
 		$app = self::getApp();
 
-		$time = defaults($_REQUEST, 'time', 'now');
+		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 
 		$output  = '<h3>' . L10n::t('Time Conversion') . '</h3>';
 		$output .= '<p>' . L10n::t('Friendica provides this service for sharing events with other networks and friends in unknown timezones.') . '</p>';
@@ -41,7 +41,7 @@ class Localtime extends BaseModule
 
 		$output .= '<form action ="' . $app->getBaseURL() . '/localtime?time=' . $time . '" method="post" >';
 		$output .= '<p>' . L10n::t('Please select your timezone:') . '</p>';
-		$output .= Temporal::getTimezoneSelect(defaults($_REQUEST, 'timezone', Installer::DEFAULT_TZ));
+		$output .= Temporal::getTimezoneSelect(($_REQUEST['timezone'] ?? '') ?: Installer::DEFAULT_TZ);
 		$output .= '<input type="submit" name="submit" value="' . L10n::t('Submit') . '" /></form>';
 
 		return $output;

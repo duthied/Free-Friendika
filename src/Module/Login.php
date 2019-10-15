@@ -53,7 +53,7 @@ class Login extends BaseModule
 			&& (!empty($_POST['openid_url'])
 				|| !empty($_POST['username']))
 		) {
-			$openid_url = trim(defaults($_POST, 'openid_url', $_POST['username']));
+			$openid_url = trim(($_POST['openid_url'] ?? '') ?: $_POST['username']);
 
 			self::openIdAuthentication($openid_url, !empty($_POST['remember']));
 		}

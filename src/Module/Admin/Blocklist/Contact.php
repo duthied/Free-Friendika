@@ -15,9 +15,9 @@ class Contact extends BaseAdminModule
 	{
 		parent::post();
 
-		$contact_url  = defaults($_POST, 'contact_url', '');
-		$block_reason = defaults($_POST, 'contact_block_reason', '');
-		$contacts     = defaults($_POST, 'contacts', []);
+		$contact_url  = $_POST['contact_url'] ?? '';
+		$block_reason = $_POST['contact_block_reason'] ?? '';
+		$contacts     = $_POST['contacts'] ?? [];
 
 		parent::checkFormSecurityTokenRedirectOnError('/admin/blocklist/contact', 'admin_contactblock');
 

@@ -27,7 +27,7 @@ class Bookmarklet extends BaseModule
 			return $output;
 		}
 
-		$referer = Strings::normaliseLink(defaults($_SERVER, 'HTTP_REFERER', ''));
+		$referer = Strings::normaliseLink($_SERVER['HTTP_REFERER'] ?? '');
 		$page = Strings::normaliseLink($app->getBaseURL() . "/bookmarklet");
 
 		if (!strstr($referer, $page)) {
@@ -48,7 +48,7 @@ class Bookmarklet extends BaseModule
 				'bang'             => '',
 				'visitor'          => 'block',
 				'profile_uid'      => local_user(),
-				'title'            => trim(defaults($_REQUEST, 'title', ''), '*'),
+				'title'            => trim($_REQUEST['title'] ?? '', '*'),
 				'content'          => $content
 			];
 			$output = status_editor($app, $x, 0, false);

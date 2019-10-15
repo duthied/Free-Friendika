@@ -26,7 +26,7 @@ class Index extends BaseAdminModule
 					break;
 
 				case 'toggle' :
-					$addon = defaults($_GET, 'addon', '');
+					$addon = $_GET['addon'] ?? '';
 					if (Addon::isEnabled($addon)) {
 						Addon::uninstall($addon);
 						info(L10n::t('Addon %s disabled.', $addon));

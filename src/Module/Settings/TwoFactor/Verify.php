@@ -49,12 +49,12 @@ class Verify extends BaseSettingsModule
 			return;
 		}
 
-		if (defaults($_POST, 'action', null) == 'verify') {
+		if (($_POST['action'] ?? '') == 'verify') {
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/verify', 'settings_2fa_verify');
 
 			$google2fa = new Google2FA();
 
-			$valid = $google2fa->verifyKey(PConfig::get(local_user(), '2fa', 'secret'), defaults($_POST, 'verify_code', ''));
+			$valid = $google2fa->verifyKey(PConfig::get(local_user(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
 
 			if ($valid) {
 				PConfig::set(local_user(), '2fa', 'verified', true);
