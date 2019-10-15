@@ -59,7 +59,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 	 * since we are operating on behalf of our registered user to approve a friendship.
 	 */
 	if (empty($_POST['source_url'])) {
-		$uid = defaults($handsfree, 'uid', local_user());
+		$uid = ($handsfree['uid'] ?? 0) ?: local_user();
 		if (!$uid) {
 			notice(L10n::t('Permission denied.') . EOL);
 			return;
@@ -78,13 +78,13 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			$intro_id = $handsfree['intro_id'];
 			$duplex   = $handsfree['duplex'];
 			$cid      = 0;
-			$hidden   = intval(defaults($handsfree, 'hidden'  , 0));
+			$hidden   = intval($handsfree['hidden'] ?? 0);
 		} else {
-			$dfrn_id  = Strings::escapeTags(trim(defaults($_POST, 'dfrn_id'   , '')));
-			$intro_id =      intval(defaults($_POST, 'intro_id'  , 0));
-			$duplex   =      intval(defaults($_POST, 'duplex'    , 0));
-			$cid      =      intval(defaults($_POST, 'contact_id', 0));
-			$hidden   =      intval(defaults($_POST, 'hidden'    , 0));
+			$dfrn_id  = Strings::escapeTags(trim($_POST['dfrn_id'] ?? ''));
+			$intro_id = intval($_POST['intro_id']   ?? 0);
+			$duplex   = intval($_POST['duplex']     ?? 0);
+			$cid      = intval($_POST['contact_id'] ?? 0);
+			$hidden   = intval($_POST['hidden']     ?? 0);
 		}
 
 		/*
@@ -347,12 +347,12 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 	 */
 	if (!empty($_POST['source_url'])) {
 		// We are processing an external confirmation to an introduction created by our user.
-		$public_key =         defaults($_POST, 'public_key', '');
-		$dfrn_id    = hex2bin(defaults($_POST, 'dfrn_id'   , ''));
-		$source_url = hex2bin(defaults($_POST, 'source_url', ''));
-		$aes_key    =         defaults($_POST, 'aes_key'   , '');
-		$duplex     =  intval(defaults($_POST, 'duplex'    , 0));
-		$page       =  intval(defaults($_POST, 'page'      , 0));
+		$public_key =         $_POST['public_key'] ?? '';
+		$dfrn_id    = hex2bin($_POST['dfrn_id']    ?? '');
+		$source_url = hex2bin($_POST['source_url'] ?? '');
+		$aes_key    =         $_POST['aes_key']    ?? '';
+		$duplex     =  intval($_POST['duplex']     ?? 0);
+		$page       =  intval($_POST['page']       ?? 0);
 
 		$forum = (($page == 1) ? 1 : 0);
 		$prv   = (($page == 2) ? 1 : 0);

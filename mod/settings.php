@@ -35,7 +35,7 @@ function get_theme_config_file($theme)
 	$theme = Strings::sanitizeFilePathItem($theme);
 
 	$a = \get_app();
-	$base_theme = defaults($a->theme_info, 'extends');
+	$base_theme = $a->theme_info['extends'] ?? '';
 
 	if (file_exists("view/theme/$theme/config.php")) {
 		return "view/theme/$theme/config.php";
@@ -180,11 +180,11 @@ function settings_post(App $a)
 	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && !empty($_POST['submit'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
-		$name     = defaults($_POST, 'name'    , '');
-		$key      = defaults($_POST, 'key'     , '');
-		$secret   = defaults($_POST, 'secret'  , '');
-		$redirect = defaults($_POST, 'redirect', '');
-		$icon     = defaults($_POST, 'icon'    , '');
+		$name     = $_POST['name']     ?? '';
+		$key      = $_POST['key']      ?? '';
+		$secret   = $_POST['secret']   ?? '';
+		$redirect = $_POST['redirect'] ?? '';
+		$icon     = $_POST['icon']     ?? '';
 
 		if ($name == "" || $key == "" || $secret == "") {
 			notice(L10n::t("Missing some important data!"));
@@ -241,24 +241,21 @@ function settings_post(App $a)
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			PConfig::set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (!empty($_POST['imap-submit'])) {
+			$mail_server       =                 $_POST['mail_server']       ?? '';
+			$mail_port         =                 $_POST['mail_port']         ?? '';
+			$mail_ssl          = strtolower(trim($_POST['mail_ssl']          ?? ''));
+			$mail_user         =                 $_POST['mail_user']         ?? '';
+			$mail_pass         =            trim($_POST['mail_pass']         ?? '');
+			$mail_action       =            trim($_POST['mail_action']       ?? '');
+			$mail_movetofolder =            trim($_POST['mail_movetofolder'] ?? '');
+			$mail_replyto      =                 $_POST['mail_replyto']      ?? '';
+			$mail_pubmail      =                 $_POST['mail_pubmail']      ?? '';
 
-			$mail_server       = defaults($_POST, 'mail_server', '');
-			$mail_port         = defaults($_POST, 'mail_port', '');
-			$mail_ssl          = (!empty($_POST['mail_ssl']) ? strtolower(trim($_POST['mail_ssl'])) : '');
-			$mail_user         = defaults($_POST, 'mail_user', '');
-			$mail_pass         = (!empty($_POST['mail_pass']) ? trim($_POST['mail_pass']) : '');
-			$mail_action       = (!empty($_POST['mail_action']) ? trim($_POST['mail_action']) : '');
-			$mail_movetofolder = (!empty($_POST['mail_movetofolder']) ? trim($_POST['mail_movetofolder']) : '');
-			$mail_replyto      = defaults($_POST, 'mail_replyto', '');
-			$mail_pubmail      = defaults($_POST, 'mail_pubmail', '');
-
-
-			$mail_disabled = ((function_exists('imap_open') && (!Config::get('system', 'imap_disabled'))) ? 0 : 1);
-			if (Config::get('system', 'dfrn_only')) {
-				$mail_disabled = 1;
-			}
-
-			if (!$mail_disabled) {
+			if (
+				!Config::get('system', 'dfrn_only')
+				&& function_exists('imap_open')
+				&& !Config::get('system', 'imap_disabled')
+			) {
 				$failed = false;
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())

@@ -13,7 +13,7 @@ use Friendica\Util\Strings;
 
 function redir_init(App $a) {
 
-	$url = defaults($_GET, 'url', '');
+	$url = $_GET['url'] ?? '';
 	$quiet = !empty($_GET['quiet']) ? '&quiet=1' : '';
 
 	if ($a->argc > 1 && intval($a->argv[1])) {
@@ -38,7 +38,7 @@ function redir_init(App $a) {
 		if (!Session::isAuthenticated() // Visitors (not logged in or not remotes) can't authenticate.
 			|| (!empty($a->contact['id']) && $a->contact['id'] == $cid)) // Local user is already authenticated.
 		{
-			$a->redirect(defaults($url, $contact_url));
+			$a->redirect($url ?: $contact_url);
 		}
 
 		if ($contact['uid'] == 0 && local_user()) {
@@ -52,7 +52,7 @@ function redir_init(App $a) {
 
 			if (!empty($a->contact['id']) && $a->contact['id'] == $cid) {
 				// Local user is already authenticated.
-				$target_url = defaults($url, $contact_url);
+				$target_url = $url ?: $contact_url;
 				Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
 				$a->redirect($target_url);
 			}
@@ -68,7 +68,7 @@ function redir_init(App $a) {
 			// contact.
 			if (($host == $remotehost) && (Session::getRemoteContactID(Session::get('visitor_visiting')) == Session::get('visitor_id'))) {
 				// Remote user is already authenticated.
-				$target_url = defaults($url, $contact_url);
+				$target_url = $url ?: $contact_url;
 				Logger::log($contact['name'] . " is already authenticated. Redirecting to " . $target_url, Logger::DEBUG);
 				$a->redirect($target_url);
 			}
@@ -101,7 +101,7 @@ function redir_init(App $a) {
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest . $quiet);
 		}
 
-		$url = defaults($url, $contact_url);
+		$url = $url ?: $contact_url;
 	}
 
 	// If we don't have a connected contact, redirect with
@@ -142,7 +142,7 @@ function redir_magic($a, $cid, $url)
 		}
 	} else {
 		$contact_url = $contact['url'];
-		$target_url = defaults($url, $contact_url);
+		$target_url = $url ?: $contact_url;
 	}
 
 	$basepath = Contact::getBasepath($contact_url);

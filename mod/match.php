@@ -66,7 +66,7 @@ function match_content(App $a)
 
 	$msearch = json_decode($msearch_json);
 
-	$start = defaults($_GET, 'start', 0);
+	$start = $_GET['start'] ?? 0;
 	$entries = [];
 	$paginate = '';
 
@@ -92,11 +92,11 @@ function match_content(App $a)
 
 			$entry = [
 				'url'          => Contact::magicLink($profile->url),
-				'itemurl'      => defaults($contact_details, 'addr', $profile->url),
+				'itemurl'      => $contact_details['addr'] ?? $profile->url,
 				'name'         => $profile->name,
-				'details'      => defaults($contact_details, 'location', ''),
-				'tags'         => defaults($contact_details, 'keywords', ''),
-				'about'        => defaults($contact_details, 'about', ''),
+				'details'      => $contact_details['location'] ?? '',
+				'tags'         => $contact_details['keywords'] ?? '',
+				'about'        => $contact_details['about'] ?? '',
 				'account_type' => Contact::getAccountType($contact_details),
 				'thumb'        => ProxyUtils::proxifyUrl($profile->photo, false, ProxyUtils::SIZE_THUMB),
 				'conntxt'      => L10n::t('Connect'),
