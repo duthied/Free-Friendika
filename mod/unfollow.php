@@ -25,7 +25,7 @@ function unfollow_post(App $a)
 	}
 
 	$uid = local_user();
-	$url = Strings::escapeTags(trim(defaults($_REQUEST, 'url', '')));
+	$url = Strings::escapeTags(trim($_REQUEST['url'] ?? ''));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
 		$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),

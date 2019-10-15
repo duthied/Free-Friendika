@@ -36,7 +36,7 @@ function poco_init(App $a) {
 		$system_mode = true;
 	}
 
-	$format = defaults($_GET, 'format', 'json');
+	$format = ($_GET['format'] ?? '') ?: 'json';
 
 	$justme = false;
 	$global = false;

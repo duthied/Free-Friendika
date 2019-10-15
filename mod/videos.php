@@ -51,9 +51,9 @@ function videos_init(App $a)
 		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
-			'$addr' => defaults($profile, 'addr', ''),
+			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$pdesc' => defaults($profile, 'pdesc', ''),
+			'$pdesc' => $profile['pdesc'] ?? '',
 		]);
 
 		// If not there, create 'aside' empty

@@ -44,7 +44,7 @@ function user_allow($hash)
 		$user,
 		Config::get('config', 'sitename'),
 		$a->getBaseUrl(),
-		defaults($register, 'password', 'Sent in a previous email')
+		($register['password'] ?? '') ?: 'Sent in a previous email'
 	);
 
 	L10n::popLang();

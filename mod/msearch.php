@@ -6,9 +6,9 @@ use Friendica\Database\DBA;
 
 function msearch_post(App $a)
 {
-	$search = defaults($_POST, 's', '');
-	$perpage  = intval(defaults($_POST, 'n', 80));
-	$page     = intval(defaults($_POST, 'p', 1));
+	$search = $_POST['s'] ?? '';
+	$perpage  = intval(($_POST['n'] ?? 0) ?: 80);
+	$page     = intval(($_POST['p'] ?? 0) ?: 1);
 	$startrec = ($page - 1) * $perpage;
 
 	$total = 0;
