@@ -20,7 +20,7 @@ class Settings extends BaseAdminModule
 
 			$logfile   = (!empty($_POST['logfile']) ? Strings::escapeTags(trim($_POST['logfile'])) : '');
 			$debugging = !empty($_POST['debugging']);
-			$loglevel  = defaults($_POST, 'loglevel', LogLevel::ERROR);
+			$loglevel  = ($_POST['loglevel'] ?? '') ?: LogLevel::ERROR;
 
 			if (is_file($logfile) &&
 			!is_writeable($logfile)) {

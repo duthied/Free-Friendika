@@ -28,8 +28,8 @@ class Magic extends BaseModule
 
 		Logger::log('args: ' . print_r($_REQUEST, true), Logger::DATA);
 
-		$addr = defaults($_REQUEST, 'addr', '');
-		$dest = defaults($_REQUEST, 'dest', '');
+		$addr = $_REQUEST['addr'] ?? '';
+		$dest = $_REQUEST['dest'] ?? '';
 		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
 		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
 		$cid  = 0;

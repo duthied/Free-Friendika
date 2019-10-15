@@ -275,8 +275,8 @@ class Acl extends BaseModule
 					'id'      => intval($g['id']),
 					'network' => $g['network'],
 					'link'    => $g['url'],
-					'nick'    => htmlentities(defaults($g, 'attag', $g['nick'])),
-					'addr'    => htmlentities(defaults($g, 'addr', $g['url'])),
+					'nick'    => htmlentities(($g['attag'] ?? '') ?: $g['nick']),
+					'addr'    => htmlentities(($g['addr'] ?? '') ?: $g['url']),
 					'forum'   => !empty($g['forum']) || !empty($g['prv']) ? 1 : 0,
 				];
 				if ($entry['forum']) {
@@ -336,8 +336,8 @@ class Acl extends BaseModule
 						'id'      => intval($contact['cid']),
 						'network' => $contact['network'],
 						'link'    => $contact['url'],
-						'nick'    => htmlentities(defaults($contact, 'nick', $contact['addr'])),
-						'addr'    => htmlentities(defaults($contact, 'addr', $contact['url'])),
+						'nick'    => htmlentities(($contact['nick'] ?? '') ?: $contact['addr']),
+						'addr'    => htmlentities(($contact['addr'] ?? '') ?: $contact['url']),
 						'forum'   => $contact['forum']
 					];
 				}

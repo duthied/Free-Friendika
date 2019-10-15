@@ -36,7 +36,7 @@ class Like extends BaseModule
 
 		// Decide how to return. If we were called with a 'return' argument,
 		// then redirect back to the calling page. If not, just quietly end
-		$returnPath = defaults($_REQUEST, 'return', '');
+		$returnPath = $_REQUEST['return'] ?? '';
 
 		if (!empty($returnPath)) {
 			$rand = '_=' . time();

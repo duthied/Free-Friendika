@@ -28,7 +28,7 @@ class Outbox extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$page = defaults($_REQUEST, 'page', null);
+		$page = $_REQUEST['page'] ?? null;
 
 		/// @todo Add Authentication to enable fetching of non public content
 		// $requester = HTTPSignature::getSigner('', $_SERVER);

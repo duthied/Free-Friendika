@@ -29,7 +29,7 @@ class Followers extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
-		$page = defaults($_REQUEST, 'page', null);
+		$page = $_REQUEST['page'] ?? null;
 
 		$followers = ActivityPub\Transmitter::getFollowers($owner, $page);
 

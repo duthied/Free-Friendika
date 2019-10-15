@@ -28,10 +28,10 @@ class FollowConfirm extends BaseModule
 			return;
 		}
 
-		$intro_id = intval(defaults($_POST, 'intro_id'  , 0));
-		$duplex   = intval(defaults($_POST, 'duplex'    , 0));
-		$cid      = intval(defaults($_POST, 'contact_id', 0));
-		$hidden   = intval(defaults($_POST, 'hidden'    , 0));
+		$intro_id = intval($_POST['intro_id']   ?? 0);
+		$duplex   = intval($_POST['duplex']     ?? 0);
+		$cid      = intval($_POST['contact_id'] ?? 0);
+		$hidden   = intval($_POST['hidden']     ?? 0);
 
 		if (empty($cid)) {
 			notice(L10n::t('No given contact.') . EOL);

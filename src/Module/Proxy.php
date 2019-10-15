@@ -210,7 +210,7 @@ class Proxy extends BaseModule
 			$url = base64_decode(strtr($url, '-_', '+/'), true);
 
 		} else {
-			$url = defaults($_REQUEST, 'url', '');
+			$url = $_REQUEST['url'] ?? '';
 		}
 
 		return [

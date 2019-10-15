@@ -21,7 +21,7 @@ class Probe extends BaseModule
 			throw $e;
 		}
 
-		$addr = defaults($_GET, 'addr', '');
+		$addr = $_GET['addr'] ?? '';
 		$res  = '';
 
 		if (!empty($addr)) {

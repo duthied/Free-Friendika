@@ -28,7 +28,7 @@ class Contacts extends BaseModule
 
 		//@TODO: Get value from router parameters
 		$nickname = $a->argv[1];
-		$type = defaults($a->argv, 3, 'all');
+		$type = ($a->argv[3] ?? '') ?: 'all';
 
 		Nav::setSelected('home');
 
