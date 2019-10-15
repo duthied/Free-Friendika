@@ -10,5 +10,5 @@
 </div>
 
 <div id="profile-listing-profiles">
-	{{$profiles}}
+	{{$profiles nofilter}}
 </div>

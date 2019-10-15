@@ -1,3 +1,21 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/matches#Polyfill
+if (!Element.prototype.matches) {
+	Element.prototype.matches =
+		Element.prototype.matchesSelector ||
+		Element.prototype.mozMatchesSelector ||
+		Element.prototype.msMatchesSelector ||
+		Element.prototype.oMatchesSelector ||
+		Element.prototype.webkitMatchesSelector ||
+		function(s) {
+			var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+				i = matches.length;
+			while (--i >= 0 && matches.item(i) !== this) {}
+			return i > -1;
+		};
+}
+
 function resizeIframe(obj) {
 	_resizeIframe(obj, 0);
 }
@@ -16,25 +34,30 @@ function _resizeIframe(obj, desth) {
 }
 
 function openClose(theID) {
-	if (document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
-	} else {
-		document.getElementById(theID).style.display = "block"
+	var el = document.getElementById(theID);
+	if (el) {
+		if (window.getComputedStyle(el).display === "none") {
+			openMenu(theID);
+		} else {
+			closeMenu(theID);
+		}
 	}
 }
 
 function openMenu(theID) {
 	var el = document.getElementById(theID);
-
 	if (el) {
-		el.style.display = "block";
+		if (!el.dataset.display) {
+			el.dataset.display = 'block';
+		}
+		el.style.display = el.dataset.display;
 	}
 }
 
 function closeMenu(theID) {
-	var el = document.getElementById(theID)
-
+	var el = document.getElementById(theID);
 	if (el) {
+		el.dataset.display = window.getComputedStyle(el).display;
 		el.style.display = "none";
 	}
 }
@@ -390,7 +413,7 @@ function NavUpdate() {
 				$('nav').trigger('nav-update', data.result);
 
 				// start live update
-				['network', 'profile', 'community', 'notes', 'display', 'contacts'].forEach(function (src) {
+				['network', 'profile', 'community', 'notes', 'display', 'contact'].forEach(function (src) {
 					if ($('#live-' + src).length) {
 						liveUpdate(src);
 					}
@@ -443,7 +466,7 @@ function updateConvItems(data) {
 		$('body').css('cursor', 'auto');
 	}
 	/* autocomplete @nicknames */
-	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
+	$(".comment-edit-form  textarea").editor_autocomplete(baseurl + '/search/acl');
 	/* autocomplete bbcode */
 	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 }
@@ -609,7 +632,6 @@ function post_comment(id) {
 	unpause();
 	commentBusy = true;
 	$('body').css('cursor', 'wait');
-	$("#comment-preview-inp-" + id).val("0");
 	$.post(
 		"item",
 		$("#comment-edit-form-" + id).serialize(),
@@ -638,11 +660,10 @@ function post_comment(id) {
 }
 
 function preview_comment(id) {
-	$("#comment-preview-inp-" + id).val("1");
 	$("#comment-edit-preview-" + id).show();
 	$.post(
 		"item",
-		$("#comment-edit-form-" + id).serialize(),
+		$("#comment-edit-form-" + id).serialize() + '&preview=1',
 		function(data) {
 			if (data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
@@ -655,12 +676,14 @@ function preview_comment(id) {
 }
 
 function showHideComments(id) {
-	if ($("#collapsed-comments-" + id).is(":visible")) {
-		$("#collapsed-comments-" + id).hide();
-		$("#hide-comments-" + id).html(window.showMore);
+	if ($('#collapsed-comments-' + id).is(':visible')) {
+		$('#collapsed-comments-' + id).slideUp();
+		$('#hide-comments-' + id).hide();
+		$('#hide-comments-total-' + id).show();
 	} else {
-		$("#collapsed-comments-" + id).show();
-		$("#hide-comments-" + id).html(window.showFewer);
+		$('#collapsed-comments-' + id).slideDown();
+		$('#hide-comments-' + id).show();
+		$('#hide-comments-total-' + id).hide();
 	}
 }
 
@@ -785,11 +808,25 @@ function profChangeMember(gid,cid) {
 	});
 }
 
-function contactgroupChangeMember(gid,cid) {
+function contactgroupChangeMember(checkbox, gid, cid) {
+	let url;
+	// checkbox.checked is the checkbox state after the click
+	if (checkbox.checked) {
+		url = 'group/' + gid + '/add/' + cid;
+	} else {
+		url = 'group/' + gid + '/remove/' + cid;
+	}
 	$('body').css('cursor', 'wait');
-	$.get('contactgroup/' + gid + '/' + cid, function(data) {
-			$('body').css('cursor', 'auto');
+	$.post(url)
+	.error(function () {
+		// Restores previous state in case of error
+		checkbox.checked = !checkbox.checked;
+	})
+	.always(function() {
+		$('body').css('cursor', 'auto');
 	});
+
+	return true;
 }
 
 function checkboxhighlight(box) {
@@ -922,3 +959,4 @@ var Dialog = {
 		};
 	}
 }
+// @license-end

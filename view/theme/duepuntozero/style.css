@@ -159,7 +159,7 @@ nav #banner #logo-text a {
 nav #banner #logo-text a:hover { text-decoration: none; }
 
 
-.nav-commlink, .nav-login-link {
+.nav-commlink, .nav-login-link, .nav-logout-link {
 	display: block;
 	height: 15px;
 	margin-top: 67px;
@@ -386,7 +386,7 @@ div.wall-item-content-wrapper.shiny {
 	margin-bottom: 10px;
 }
 
-.group-selected, .nets-selected, .fileas-selected, .categories-selected, .forum-selected {
+.widget .selected, .group-selected, .forum-selected {
 	padding: 3px;
 	-moz-border-radius: 3px;
 	border-radius: 3px;
@@ -680,10 +680,6 @@ input#dfrn-url {
 	clear: both;
 }
 
-
-#viewcontacts {
-	margin-top: 15px;
-}
 #profile-edit-default-desc {
 	color: #FF0000;
 	border: 1px solid #FF8888;
@@ -2124,11 +2120,11 @@ a.mail-list-link {
 	list-style: none;
 }
 
-.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul {
+.nets-ul, .fileas-ul, .category-ul, .datebrowse-ul {
 	list-style-type: none;
 }
 
-.nets-ul li, .fileas-ul li, .categories-ul li, .datebrowse-ul li {
+.nets-ul li, .fileas-ul li, .category-ul li, .datebrowse-ul li {
 	margin-top: 10px;
 }
 
@@ -2139,11 +2135,11 @@ a.mail-list-link {
 	margin-left: 42px;
 }
 
-.fileas-link, .categories-link {
+.fileas-link, .category-link {
 	margin-left: 24px;
 }
 
-.fileas-all, .categories-all {
+.fileas-all, .category-all {
 	margin-left: 0px;
 }
 
@@ -2728,12 +2724,12 @@ aside input[type='text'] {
 	margin: 10px;
 }
 
-#identity-manage-desc {
+#identity-delegation-desc {
 	margin-top:15px;
 	margin-bottom: 15px;
 }
 
-#identity-manage-choose {
+#identity-delegation-choose {
 	margin-bottom: 15px;
 }
 
@@ -3386,7 +3382,7 @@ div.jGrowl div.info {
 }
 
 /* notifications popup menu */
-.manage-notify {
+.delegation-notify {
   font-size: 10px;
   padding: 1px 3px;
   top: 0px;
@@ -3507,6 +3503,7 @@ div.jGrowl div.info {
 		width: 100%;
 		padding: 0.5em;
 		height: auto;
+		box-sizing: border-box;
 	}
 	aside:before {
 		content: ">>";

@@ -7,10 +7,12 @@
  * This script was taken from http://php.net/manual/en/function.pcntl-fork.php
  */
 
-use Friendica\App;
+use Dice\Dice;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'f';
@@ -29,10 +31,13 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
-require_once "boot.php";
-require_once "include/dba.php";
+require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new App(dirname(__DIR__));
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['daemon']]);
+
+\Friendica\BaseObject::setDependencyInjection($dice);
+$a = \Friendica\BaseObject::getApp();
 
 if ($a->getMode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
@@ -41,9 +46,14 @@ if ($a->getMode()->isInstall()) {
 Config::load();
 
 if (empty(Config::get('system', 'pidfile'))) {
-	die('Please set system.pidfile in config/local.ini.php. For example:'."\n".
-		'[system]'."\n".
-		'pidfile = /path/to/daemon.pid'."\n");
+	die(<<<TXT
+Please set system.pidfile in config/local.config.php. For example:
+    
+    'system' => [ 
+        'pidfile' => '/path/to/daemon.pid',
+    ],
+TXT
+    );
 }
 
 $pidfile = Config::get('system', 'pidfile');
@@ -97,7 +107,7 @@ if ($mode == "stop") {
 
 	unlink($pidfile);
 
-	logger("Worker daemon process $pid was killed.", LOGGER_DEBUG);
+	Logger::notice("Worker daemon process was killed", ["pid" => $pid]);
 
 	Config::set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
@@ -107,7 +117,7 @@ if (!empty($pid) && posix_kill($pid, 0)) {
 	die("Daemon process $pid is already running.\n");
 }
 
-logger('Starting worker daemon.', LOGGER_DEBUG);
+Logger::notice('Starting worker daemon.', ["pid" => $pid]);
 
 if (!$foreground) {
 	echo "Starting worker daemon.\n";
@@ -139,7 +149,7 @@ if (!$foreground) {
 	file_put_contents($pidfile, $pid);
 
 	// We lose the database connection upon forking
-	$a->loadDatabase();
+	DBA::reconnect();
 }
 
 Config::set('system', 'worker_daemon_mode', true);
@@ -155,7 +165,7 @@ $last_cron = 0;
 // Now running as a daemon.
 while (true) {
 	if (!$do_cron && ($last_cron + $wait_interval) < time()) {
-		logger('Forcing cron worker call.', LOGGER_DEBUG);
+		Logger::info('Forcing cron worker call.', ["pid" => $pid]);
 		$do_cron = true;
 	}
 
@@ -169,7 +179,7 @@ while (true) {
 		$last_cron = time();
 	}
 
-	logger("Sleeping", LOGGER_DEBUG);
+	Logger::info("Sleeping", ["pid" => $pid]);
 	$start = time();
 	do {
 		$seconds = (time() - $start);
@@ -186,10 +196,10 @@ while (true) {
 
 	if ($timeout) {
 		$do_cron = true;
-		logger("Woke up after $wait_interval seconds.", LOGGER_DEBUG);
+		Logger::info("Woke up after $wait_interval seconds.", ["pid" => $pid, 'sleep' => $wait_interval]);
 	} else {
 		$do_cron = false;
-		logger("Worker jobs are calling to be forked.", LOGGER_DEBUG);
+		Logger::info("Worker jobs are calling to be forked.", ["pid" => $pid]);
 	}
 }
 

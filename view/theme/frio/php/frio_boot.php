@@ -22,7 +22,7 @@ function load_page(App $a)
 		require 'view/theme/frio/none.php';
 	} else {
 		$template = 'view/theme/' . $a->getCurrentTheme() . '/'
-			. ((x($a->page, 'template')) ? $a->page['template'] : 'default' ) . '.php';
+			. defaults($a->page, 'template', 'default' ) . '.php';
 		if (file_exists($template)) {
 			require_once $template;
 		} else {

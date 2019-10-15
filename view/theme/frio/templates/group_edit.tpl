@@ -1,4 +1,3 @@
-
 {{* This template is for the "group" module. It provides the user the possibility to
     modify a specific contact group (remove contact group, edit contact group name,
     add or remove contacts to the contact group.
@@ -13,7 +12,7 @@
 		<button type="button" id="group-rename" class="btn btn-clear" onclick="showHide('group-edit-wrapper'); showHide('group-edit-header'); return false;" title="{{$edit_name}}" data-toggle="tooltip">
 			<i class="fa fa-pencil" aria-hidden="true"></i>
 		</button>
-		{{if $drop}}{{$drop}}{{/if}}
+		{{if $drop}}{{$drop nofilter}}{{/if}}
 	</div>
 	{{/if}}
 
@@ -32,8 +31,8 @@
 				{{include file="field_input.tpl" field=$gname label=false}}
 				</div>
 				<div id="group-edit-submit-wrapper" class="form-group pull-right">
-					<button class="btn btn-primary btn-small" type="submit" name="submit" value="{{$submit|escape:'html'}}">
-						{{$submit|escape:'html'}}
+					<button class="btn btn-primary btn-small" type="submit" name="submit" value="{{$submit}}">
+						{{$submit}}
 					</button>
 				</div>
 			</form>

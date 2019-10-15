@@ -6,8 +6,9 @@ Updating Friendica
 ## Using a Friendica archive
 
 If you installed Friendica in the ``path/to/friendica`` folder:
+
 1. Unpack the new Friendica archive in ``path/to/friendica_new``.
-2. Copy ``config/local.ini.php``, ``photo/`` and ``proxy/`` from ``path/to/friendica`` to ``path/to/friendica_new``.
+2. Copy ``config/local.config.php``, ``photo/`` and ``proxy/`` from ``path/to/friendica`` to ``path/to/friendica_new``.
 3. Rename the ``path/to/friendica`` folder to ``path/to/friendica_old``.
 4. Rename the ``path/to/friendica_new`` folder to ``path/to/friendica``.
 5. Check your site. Note: it may go into maintenance mode to update the database schema.
@@ -21,7 +22,7 @@ You can get the latest changes at any time with
 
     cd path/to/friendica
     git pull
-    bin/composer.phar install
+    bin/composer.phar install --no-dev
 
 The addon tree has to be updated separately like so:
 

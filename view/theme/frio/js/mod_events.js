@@ -82,6 +82,9 @@ $(document).ready(function() {
 				trigger: "hover",
 				placement: "auto",
 				template: '<div class="popover hovercard event-card"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
+				sanitizeFn: function (content) {
+					return DOMPurify.sanitize(content)
+				},
 			});
 
 		}

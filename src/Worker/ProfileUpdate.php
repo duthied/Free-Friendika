@@ -7,9 +7,10 @@
 namespace Friendica\Worker;
 
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
+use Friendica\Core\Worker;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Core\Worker;
 
 class ProfileUpdate {
 	public static function execute($uid = 0) {
@@ -22,7 +23,7 @@ class ProfileUpdate {
 		$inboxes = ActivityPub\Transmitter::fetchTargetInboxesforUser($uid);
 
 		foreach ($inboxes as $inbox) {
-			logger('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', LOGGER_DEBUG);
+			Logger::log('Profile update for user ' . $uid . ' to ' . $inbox .' via ActivityPub', Logger::DEBUG);
 			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 				'APDelivery', Delivery::PROFILEUPDATE, '', $inbox, $uid);
 		}

@@ -11,20 +11,25 @@ use Exception;
 use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
+use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
 class BBCode extends BaseObject
 {
@@ -33,13 +38,14 @@ class BBCode extends BaseObject
 	 *
 	 * @param string $body Message body
 	 * @return array
-	 * 'type' -> Message type ("link", "video", "photo")
-	 * 'text' -> Text before the shared message
-	 * 'after' -> Text after the shared message
-	 * 'image' -> Preview image of the message
-	 * 'url' -> Url to the attached message
-	 * 'title' -> Title of the attachment
-	 * 'description' -> Description of the attachment
+	 *                     'type' -> Message type ("link", "video", "photo")
+	 *                     'text' -> Text before the shared message
+	 *                     'after' -> Text after the shared message
+	 *                     'image' -> Preview image of the message
+	 *                     'url' -> Url to the attached message
+	 *                     'title' -> Title of the attachment
+	 *                     'description' -> Description of the attachment
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getOldAttachmentData($body)
 	{
@@ -62,13 +68,12 @@ class BBCode extends BaseObject
 					$post["after"] = trim(substr($body, $pos + strlen($data[0])));
 				} else {
 					$post["text"] = trim(str_replace($data[0], "", $body));
+					$post["after"] = '';
 				}
 
 				$attacheddata = $data[2];
 
-				$URLSearchString = "^\[\]";
-
-				if (preg_match("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $attacheddata, $matches)) {
+				if (preg_match("/\[img\](.*?)\[\/img\]/ism", $attacheddata, $matches)) {
 
 					$picturedata = Image::getInfoFromURL($matches[1]);
 
@@ -81,12 +86,12 @@ class BBCode extends BaseObject
 					}
 				}
 
-				if (preg_match("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
+				if (preg_match("/\[bookmark\=(.*?)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
 					$post["url"] = $matches[1];
 					$post["title"] = $matches[2];
 				}
 				if (!empty($post["url"]) && (in_array($post["type"], ["link", "video"]))
-					&& preg_match("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
+					&& preg_match("/\[url\=(.*?)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
 					$post["url"] = $matches[1];
 				}
 
@@ -104,17 +109,26 @@ class BBCode extends BaseObject
 	 *
 	 * @param string $body Message body
 	 * @return array
-	 * 'type' -> Message type ("link", "video", "photo")
-	 * 'text' -> Text before the shared message
-	 * 'after' -> Text after the shared message
-	 * 'image' -> Preview image of the message
-	 * 'url' -> Url to the attached message
-	 * 'title' -> Title of the attachment
-	 * 'description' -> Description of the attachment
+	 *                     'type' -> Message type ("link", "video", "photo")
+	 *                     'text' -> Text before the shared message
+	 *                     'after' -> Text after the shared message
+	 *                     'image' -> Preview image of the message
+	 *                     'url' -> Url to the attached message
+	 *                     'title' -> Title of the attachment
+	 *                     'description' -> Description of the attachment
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getAttachmentData($body)
 	{
-		$data = [];
+		$data = [
+			'type'        => '',
+			'text'        => '',
+			'after'       => '',
+			'image'       => null,
+			'url'         => '',
+			'title'       => '',
+			'description' => '',
+		];
 
 		if (!preg_match("/(.*)\[attachment(.*?)\](.*?)\[\/attachment\](.*)/ism", $body, $match)) {
 			return self::getOldAttachmentData($body);
@@ -126,12 +140,12 @@ class BBCode extends BaseObject
 
 		$type = "";
 		preg_match("/type='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$type = strtolower($matches[1]);
 		}
 
 		preg_match('/type="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$type = strtolower($matches[1]);
 		}
 
@@ -149,12 +163,12 @@ class BBCode extends BaseObject
 
 		$url = "";
 		preg_match("/url='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$url = $matches[1];
 		}
 
 		preg_match('/url="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$url = $matches[1];
 		}
 
@@ -164,12 +178,12 @@ class BBCode extends BaseObject
 
 		$title = "";
 		preg_match("/title='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$title = $matches[1];
 		}
 
 		preg_match('/title="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$title = $matches[1];
 		}
 
@@ -182,12 +196,12 @@ class BBCode extends BaseObject
 
 		$image = "";
 		preg_match("/image='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$image = $matches[1];
 		}
 
 		preg_match('/image="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$image = $matches[1];
 		}
 
@@ -197,12 +211,12 @@ class BBCode extends BaseObject
 
 		$preview = "";
 		preg_match("/preview='(.*?)'/ism", $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$preview = $matches[1];
 		}
 
 		preg_match('/preview="(.*?)"/ism', $attributes, $matches);
-		if (x($matches, 1)) {
+		if (!empty($matches[1])) {
 			$preview = $matches[1];
 		}
 
@@ -230,22 +244,46 @@ class BBCode extends BaseObject
 		*/
 
 		$has_title = !empty($item['title']);
-		$plink = (!empty($item['plink']) ? $item['plink'] : '');
+		$plink = defaults($item, 'plink', '');
 		$post = self::getAttachmentData($body);
+
+		// Get all linked images with alternative image description
+		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				if (Photo::isLocal($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => $picture[2]];
+				}
+			}
+			if (!empty($post['images']) && !empty($post['images'][0]['description'])) {
+				$post['image_description'] = $post['images'][0]['description'];
+			}
+		}
+
+		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
+			foreach ($pictures as $picture) {
+				if (Photo::isLocal($picture[1])) {
+					$post['images'][] = ['url' => str_replace('-1.', '-0.', $picture[1]), 'description' => ''];
+				}
+			}
+		}
 
 		// if nothing is found, it maybe having an image.
 		if (!isset($post["type"])) {
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+			$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
+			$post["text"] = $body;
 
-			$URLSearchString = "^\[\]";
-
-			$body = preg_replace("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
-
-			if (preg_match_all("(\[url=([$URLSearchString]*)\]\s*\[img\]([$URLSearchString]*)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
+			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
-					// Checking, if the link goes to a picture
-					$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+					if (!empty($item['object-type']) && ($item['object-type'] == ACTIVITY_OBJ_IMAGE)) {
+						// Replace the preview picture with the real picture
+						$url = str_replace('-1.', '-0.', $pictures[0][2]);
+						$data = ['url' => $url, 'type' => 'photo'];
+					} else {
+						// Checking, if the link goes to a picture
+						$data = ParseUrl::getSiteinfoCached($pictures[0][1], true);
+					}
 
 					// Workaround:
 					// Sometimes photo posts to the own album are not detected at the start.
@@ -264,14 +302,14 @@ class BBCode extends BaseObject
 						}
 
 						$post["preview"] = $pictures[0][2];
-						$post["text"] = str_replace($pictures[0][0], "", $body);
+						$post["text"] = trim(str_replace($pictures[0][0], "", $body));
 					} else {
 						$imgdata = Image::getInfoFromURL($pictures[0][1]);
 						if ($imgdata && substr($imgdata["mime"], 0, 6) == "image/") {
 							$post["type"] = "photo";
 							$post["image"] = $pictures[0][1];
 							$post["preview"] = $pictures[0][2];
-							$post["text"] = str_replace($pictures[0][0], "", $body);
+							$post["text"] = trim(str_replace($pictures[0][0], "", $body));
 						}
 					}
 				} elseif (count($pictures) > 0) {
@@ -279,8 +317,12 @@ class BBCode extends BaseObject
 					$post["url"] = $plink;
 					$post["image"] = $pictures[0][2];
 					$post["text"] = $body;
+
+					foreach ($pictures as $picture) {
+						$post["text"] = trim(str_replace($picture[0], "", $post["text"]));
+					}
 				}
-			} elseif (preg_match_all("(\[img\]([$URLSearchString]*)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
+			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
 					$post["type"] = "photo";
 					$post["image"] = $pictures[0][1];
@@ -290,12 +332,16 @@ class BBCode extends BaseObject
 					$post["url"] = $plink;
 					$post["image"] = $pictures[0][1];
 					$post["text"] = $body;
+
+					foreach ($pictures as $picture) {
+						$post["text"] = trim(str_replace($picture[0], "", $post["text"]));
+					}
 				}
 			}
 
 			// Test for the external links
-			preg_match_all("(\[url\]([$URLSearchString]*)\[\/url\])ism", $body, $links1, PREG_SET_ORDER);
-			preg_match_all("(\[url\=([$URLSearchString]*)\].*?\[\/url\])ism", $body, $links2, PREG_SET_ORDER);
+			preg_match_all("(\[url\](.*?)\[\/url\])ism", $post["text"], $links1, PREG_SET_ORDER);
+			preg_match_all("(\[url\=(.*?)\].*?\[\/url\])ism", $post["text"], $links2, PREG_SET_ORDER);
 
 			$links = array_merge($links1, $links2);
 
@@ -303,15 +349,14 @@ class BBCode extends BaseObject
 			// This should cover link posts via API.
 			if ((count($links) == 1) && !isset($post["preview"]) && !$has_title) {
 				$post["type"] = "link";
-				$post["text"] = trim($body);
 				$post["url"] = $links[0][1];
 			}
 
 			// Now count the number of external media links
-			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $body, $links1, PREG_SET_ORDER);
-			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $body, $links2, PREG_SET_ORDER);
-			preg_match_all("(\[video\\](.*?)\[\/video\\])ism", $body, $links3, PREG_SET_ORDER);
-			preg_match_all("(\[audio\\](.*?)\[\/audio\\])ism", $body, $links4, PREG_SET_ORDER);
+			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $post["text"], $links1, PREG_SET_ORDER);
+			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $post["text"], $links2, PREG_SET_ORDER);
+			preg_match_all("(\[video\\](.*?)\[\/video\\])ism", $post["text"], $links3, PREG_SET_ORDER);
+			preg_match_all("(\[audio\\](.*?)\[\/audio\\])ism", $post["text"], $links4, PREG_SET_ORDER);
 
 			// Add them to the other external links
 			$links = array_merge($links, $links1, $links2, $links3, $links4);
@@ -341,16 +386,14 @@ class BBCode extends BaseObject
 	/**
 	 * @brief Converts a BBCode text into plaintext
 	 *
+	 * @param      $text
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
 	 *
 	 * @return string
 	 */
 	public static function toPlaintext($text, $keep_urls = true)
 	{
-		$naked_text = preg_replace('/\[(.+?)\]\s*/','', $text);
-		if (!$keep_urls) {
-			$naked_text = preg_replace('#https?\://[^\s<]+[^\s\.\)]#i', '', $naked_text);
-		}
+		$naked_text = HTML::toPlaintext(BBCode::convert($text, false, 0, true), 0, !$keep_urls);
 
 		return $naked_text;
 	}
@@ -379,7 +422,7 @@ class BBCode extends BaseObject
 		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
 		if ($c) {
 			foreach ($matches as $mtch) {
-				logger('scale_external_image: ' . $mtch[1]);
+				Logger::log('scale_external_image: ' . $mtch[1]);
 
 				$hostname = str_replace('www.', '', substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3));
 				if (stristr($mtch[1], $hostname)) {
@@ -414,7 +457,7 @@ class BBCode extends BaseObject
 							$Image->scaleDown(640);
 							$new_width = $Image->getWidth();
 							$new_height = $Image->getHeight();
-							logger('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], LOGGER_DEBUG);
+							Logger::log('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], Logger::DEBUG);
 							$s = str_replace(
 								$mtch[0],
 								'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
@@ -423,7 +466,7 @@ class BBCode extends BaseObject
 									: ''),
 								$s
 							);
-							logger('scale_external_images: new string: ' . $s, LOGGER_DEBUG);
+							Logger::log('scale_external_images: new string: ' . $s, Logger::DEBUG);
 						}
 					}
 				}
@@ -442,6 +485,7 @@ class BBCode extends BaseObject
 	 * @brief Truncates imported message body string length to max_import_size
 	 * @param string $body
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function limitBodySize($body)
 	{
@@ -451,7 +495,7 @@ class BBCode extends BaseObject
 		// than the maximum, then don't waste time looking for the images
 		if ($maxlen && (strlen($body) > $maxlen)) {
 
-			logger('the total body length exceeds the limit', LOGGER_DEBUG);
+			Logger::log('the total body length exceeds the limit', Logger::DEBUG);
 
 			$orig_body = $body;
 			$new_body = '';
@@ -471,7 +515,7 @@ class BBCode extends BaseObject
 
 					if (($textlen + $img_start) > $maxlen) {
 						if ($textlen < $maxlen) {
-							logger('the limit happens before an embedded image', LOGGER_DEBUG);
+							Logger::log('the limit happens before an embedded image', Logger::DEBUG);
 							$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 							$textlen = $maxlen;
 						}
@@ -485,7 +529,7 @@ class BBCode extends BaseObject
 
 					if (($textlen + $img_end) > $maxlen) {
 						if ($textlen < $maxlen) {
-							logger('the limit happens before the end of a non-embedded image', LOGGER_DEBUG);
+							Logger::log('the limit happens before the end of a non-embedded image', Logger::DEBUG);
 							$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 							$textlen = $maxlen;
 						}
@@ -508,11 +552,11 @@ class BBCode extends BaseObject
 
 			if (($textlen + strlen($orig_body)) > $maxlen) {
 				if ($textlen < $maxlen) {
-					logger('the limit happens after the end of the last image', LOGGER_DEBUG);
+					Logger::log('the limit happens after the end of the last image', Logger::DEBUG);
 					$new_body = $new_body . substr($orig_body, 0, $maxlen - $textlen);
 				}
 			} else {
-				logger('the text size with embedded images extracted did not violate the limit', LOGGER_DEBUG);
+				Logger::log('the text size with embedded images extracted did not violate the limit', Logger::DEBUG);
 				$new_body = $new_body . $orig_body;
 			}
 
@@ -528,10 +572,11 @@ class BBCode extends BaseObject
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
 	 * @brief Processes [attachment] tags
-	 * @param string $return
+	 * @param string   $return
 	 * @param bool|int $simplehtml
-	 * @param bool $tryoembed
+	 * @param bool     $tryoembed
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function convertAttachment($return, $simplehtml = false, $tryoembed = true)
 	{
@@ -553,7 +598,7 @@ class BBCode extends BaseObject
 		}
 
 		$return = '';
-		if ($simplehtml == 7) {
+		if (in_array($simplehtml, [7, 9])) {
 			$return = self::convertUrlForOStatus($data["url"]);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
@@ -622,7 +667,7 @@ class BBCode extends BaseObject
 			$data["title"] = $data["url"];
 		}
 
-		if (($data["text"] == "") && ($data["title"] != "") && ($data["url"] == "")) {
+		if (empty($data["text"]) && !empty($data["title"]) && empty($data["url"])) {
 			return $data["title"] . $data["after"];
 		}
 
@@ -773,10 +818,10 @@ class BBCode extends BaseObject
 	/**
 	 * Performs a preg_replace within the boundaries of all named BBCode tags in a text
 	 *
-	 * @param type $pattern Preg pattern string
-	 * @param type $replace Preg replace string
-	 * @param type $name    BBCode tag name
-	 * @param type $text    Text to search
+	 * @param string $pattern Preg pattern string
+	 * @param string $replace Preg replace string
+	 * @param string $name    BBCode tag name
+	 * @param string $text    Text to search
 	 * @return string
 	 */
 	public static function pregReplaceInTag($pattern, $replace, $name, $text)
@@ -893,7 +938,17 @@ class BBCode extends BaseObject
 				// We only call this so that a previously unknown contact can be added.
 				// This is important for the function "Model\Contact::getDetailsByURL()".
 				// This function then can fetch an entry from the contact table.
-				Contact::getIdForURL($attributes['profile'], 0, true);
+				$default['url'] = $attributes['profile'];
+
+				if (!empty($attributes['author'])) {
+					$default['name'] = $attributes['author'];
+				}
+
+				if (!empty($attributes['avatar'])) {
+					$default['photo'] = $attributes['avatar'];
+				}
+
+				Contact::getIdForURL($attributes['profile'], 0, true, $default);
 
 				$author_contact = Contact::getDetailsByURL($attributes['profile']);
 				$author_contact['addr'] = defaults($author_contact, 'addr' , Protocol::getAddrFromProfileUrl($attributes['profile']));
@@ -926,6 +981,7 @@ class BBCode extends BaseObject
 	 * @param boolean $is_quote_share Whether there is content before the [share] block
 	 * @param integer $simplehtml     Mysterious integer value depending on the target network/formatting style
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function convertShareCallback(array $attributes, array $author_contact, $content, $is_quote_share, $simplehtml)
 	{
@@ -939,15 +995,19 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 3: // Diaspora
-				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . $mention . ':</b></p>' . "\n";
-
-				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0) {
+				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0) {
 					$text = ($is_quote_share? '<hr />' : '') . '<p><a href="' . $attributes['link'] . '">' . $attributes['link'] . '</a></p>' . "\n";
 				} else {
+					$headline = '<p><b>♲ <a href="' . $attributes['profile'] . '">' . $attributes['author'] . '</a>:</b></p>' . "\n";
+
+					if (!empty($attributes['posted']) && !empty($attributes['link'])) {
+						$headline = '<p><b>♲ <a href="' . $attributes['profile'] . '">' . $attributes['author'] . '</a></b> - <a href="' . $attributes['link'] . '">' . $attributes['posted'] . ' GMT</a></p>' . "\n";
+					}
+
 					$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote>' . trim($content) . '</blockquote>' . "\n";
 
-					if ($attributes['link'] != '') {
-						$text .= '<p><a href="' . $attributes['link'] . '">[l]</a></p>' . "\n";
+					if (empty($attributes['posted']) && !empty($attributes['link'])) {
+						$text .= '<p><a href="' . $attributes['link'] . '">[Source]</a></p>' . "\n";
 					}
 				}
 
@@ -964,19 +1024,12 @@ class BBCode extends BaseObject
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n" . $content;
 				break;
 			case 7: // statusnet/GNU Social
+			case 9: // ActivityPub
 				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' @' . $author_contact['addr'] . ': ' . $content . '</p>' . "\n";
-				break;
-			case 9: // Google+
-				$text = ($is_quote_share? '<br />' : '') . '<p>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8') . ' ' . $author_contact['addr'] . ': </p>' . "\n";
-				$text .= '<p>' . $content . '</p>' . "\n";
-
-				if ($attributes['link'] != '') {
-					$text .= '<p>' . $attributes['link'] . '</p>';
-				}
 				break;
 			default:
 				// Transforms quoted tweets in rich attachments to avoid nested tweets
-				if (stripos(normalise_link($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
+				if (stripos(Strings::normaliseLink($attributes['link']), 'http://twitter.com/') === 0 && OEmbed::isAllowedURL($attributes['link'])) {
 					try {
 						$text = ($is_quote_share? '<br />' : '') . OEmbed::getHTML($attributes['link']);
 					} catch (Exception $e) {
@@ -985,8 +1038,8 @@ class BBCode extends BaseObject
 				} else {
 					$text = ($is_quote_share? "\n" : '');
 
-					$tpl = get_markup_template('shared_content.tpl');
-					$text .= replace_macros($tpl, [
+					$tpl = Renderer::getMarkupTemplate('shared_content.tpl');
+					$text .= Renderer::replaceMacros($tpl, [
 						'$profile' => $attributes['profile'],
 						'$avatar'  => $attributes['avatar'],
 						'$author'  => $attributes['author'],
@@ -1003,7 +1056,8 @@ class BBCode extends BaseObject
 
 	private static function removePictureLinksCallback($match)
 	{
-		$text = Cache::get($match[1]);
+		$cache_key = 'remove:' . $match[1];
+		$text = Cache::get($cache_key);
 
 		if (is_null($text)) {
 			$a = self::getApp();
@@ -1017,7 +1071,7 @@ class BBCode extends BaseObject
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->saveTimestamp($stamp1, "network");
+			$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 			if (substr($curl_info["content_type"], 0, 6) == "image/") {
 				$text = "[url=" . $match[1] . "]" . $match[1] . "[/url]";
@@ -1045,7 +1099,7 @@ class BBCode extends BaseObject
 					}
 				}
 			}
-			Cache::set($match[1], $text);
+			Cache::set($cache_key, $text);
 		}
 
 		return $text;
@@ -1062,57 +1116,80 @@ class BBCode extends BaseObject
 
 	private static function cleanPictureLinksCallback($match)
 	{
-		$text = Cache::get($match[1]);
+		$a = self::getApp();
 
-		if (is_null($text)) {
-			$a = self::getApp();
+		// When the picture link is the own photo path then we can avoid fetching the link
+		$own_photo_url = preg_quote(Strings::normaliseLink($a->getBaseURL()) . '/photos/');
+		if (preg_match('|' . $own_photo_url . '.*?/image/|', Strings::normaliseLink($match[1]))) {
+			if (!empty($match[3])) {
+				$text = "[img=" . str_replace('-1.', '-0.', $match[2]) . "]" . $match[3] . "[/img]";
+			} else {
+				$text = "[img]" . str_replace('-1.', '-0.', $match[2]) . "[/img]";
+			}
+			return $text;
+		}
 
-			$stamp1 = microtime(true);
+		$cache_key = 'clean:' . $match[1];
+		$text = Cache::get($cache_key);
+		if (!is_null($text)) {
+			return $text;
+		}
 
-			$ch = @curl_init($match[1]);
-			@curl_setopt($ch, CURLOPT_NOBODY, true);
-			@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
-			@curl_exec($ch);
-			$curl_info = @curl_getinfo($ch);
+		// Only fetch the header, not the content
+		$stamp1 = microtime(true);
 
-			$a->saveTimestamp($stamp1, "network");
+		$ch = @curl_init($match[1]);
+		@curl_setopt($ch, CURLOPT_NOBODY, true);
+		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
+		@curl_exec($ch);
+		$curl_info = @curl_getinfo($ch);
 
-			// if its a link to a picture then embed this picture
-			if (substr($curl_info["content_type"], 0, 6) == "image/") {
-				$text = "[img]" . $match[1] . "[/img]";
+		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
+
+		// if its a link to a picture then embed this picture
+		if (substr($curl_info["content_type"], 0, 6) == "image/") {
+			$text = "[img]" . $match[1] . "[/img]";
+		} else {
+			if (!empty($match[3])) {
+				$text = "[img=" . $match[2] . "]" . $match[3] . "[/img]";
 			} else {
 				$text = "[img]" . $match[2] . "[/img]";
+			}
 
-				// if its not a picture then look if its a page that contains a picture link
-				$body = Network::fetchUrl($match[1]);
+			// if its not a picture then look if its a page that contains a picture link
+			$body = Network::fetchUrl($match[1]);
 
-				$doc = new DOMDocument();
-				@$doc->loadHTML($body);
-				$xpath = new DOMXPath($doc);
-				$list = $xpath->query("//meta[@name]");
-				foreach ($list as $node) {
-					$attr = [];
-					if ($node->attributes->length) {
-						foreach ($node->attributes as $attribute) {
-							$attr[$attribute->name] = $attribute->value;
-						}
+			$doc = new DOMDocument();
+			@$doc->loadHTML($body);
+			$xpath = new DOMXPath($doc);
+			$list = $xpath->query("//meta[@name]");
+			foreach ($list as $node) {
+				$attr = [];
+				if ($node->attributes->length) {
+					foreach ($node->attributes as $attribute) {
+						$attr[$attribute->name] = $attribute->value;
 					}
+				}
 
-					if (strtolower($attr["name"]) == "twitter:image") {
+				if (strtolower($attr["name"]) == "twitter:image") {
+					if (!empty($match[3])) {
+						$text = "[img=" . $attr["content"] . "]" . $match[3] . "[/img]";
+					} else {
 						$text = "[img]" . $attr["content"] . "[/img]";
 					}
 				}
 			}
-			Cache::set($match[1], $text);
 		}
+		Cache::set($cache_key, $text);
 
 		return $text;
 	}
 
 	public static function cleanPictureLinks($text)
 	{
-		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
+		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img=(.*)\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $text);
+		$return = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::cleanPictureLinksCallback', $return);
 		return $return;
 	}
 
@@ -1125,21 +1202,23 @@ class BBCode extends BaseObject
 	 * Simple HTML values meaning:
 	 * - 0: Friendica display
 	 * - 1: Unused
-	 * - 2: Used for Google+, Windows Phone push, Friendica API
+	 * - 2: Used for Windows Phone push, Friendica API
 	 * - 3: Used before converting to Markdown in bb2diaspora.php
 	 * - 4: Used for WordPress, Libertree (before Markdown), pump.io and tumblr
 	 * - 5: Unused
 	 * - 6: Unused
 	 * - 7: Used for dfrn, OStatus
 	 * - 8: Used for WP backlink text setting
+	 * - 9: ActivityPub
 	 *
 	 * @param string $text
 	 * @param bool   $try_oembed
 	 * @param int    $simple_html
 	 * @param bool   $for_plaintext
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function convert($text, $try_oembed = true, $simple_html = false, $for_plaintext = false)
+	public static function convert($text, $try_oembed = true, $simple_html = 0, $for_plaintext = false)
 	{
 		$a = self::getApp();
 
@@ -1164,17 +1243,18 @@ class BBCode extends BaseObject
 			return $return;
 		};
 
-		// Extracting multi-line code blocks before the whitespace processing
+		// Extracting code blocks before the whitespace processing and the autolinker
 		$codeblocks = [];
 
-		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#is",
+		$text = preg_replace_callback("#\[code(?:=([^\]]*))?\](.*?)\[\/code\]#ism",
 			function ($matches) use (&$codeblocks) {
-				$return = $matches[0];
+				$return = '#codeblock-' . count($codeblocks) . '#';
 				if (strpos($matches[2], "\n") !== false) {
-					$return = '#codeblock-' . count($codeblocks) . '#';
-
-					$codeblocks[] =  '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+				} else {
+					$codeblocks[] = '<code>' . $matches[2] . '</code>';
 				}
+
 				return $return;
 			},
 			$text
@@ -1233,6 +1313,25 @@ class BBCode extends BaseObject
 		$text = trim($text);
 		$text = str_replace("\r\n", "\n", $text);
 
+		// Remove linefeeds inside of the table elements. See issue #6799
+		$search = ["\n[th]", "[th]\n", " [th]", "\n[/th]", "[/th]\n", "[/th] ",
+			"\n[td]", "[td]\n", " [td]", "\n[/td]", "[/td]\n", "[/td] ",
+			"\n[tr]", "[tr]\n", " [tr]", "[tr] ", "\n[/tr]", "[/tr]\n", " [/tr]", "[/tr] ",
+			"[table]\n", "[table] ", " [table]", "\n[/table]", " [/table]", "[/table] "];
+		$replace = ["[th]", "[th]", "[th]", "[/th]", "[/th]", "[/th]",
+			"[td]", "[td]", "[td]", "[/td]", "[/td]", "[/td]",
+			"[tr]", "[tr]", "[tr]", "[tr]", "[/tr]", "[/tr]", "[/tr]", "[/tr]",
+			"[table]", "[table]", "[table]", "[/table]", "[/table]", "[/table]"];
+		do {
+			$oldtext = $text;
+			$text = str_replace($search, $replace, $text);
+		} while ($oldtext != $text);
+
+		// Replace these here only once
+		$search = ["\n[table]", "[/table]\n"];
+		$replace = ["[table]", "[/table]"];
+		$text = str_replace($search, $replace, $text);
+
 		// removing multiplicated newlines
 		if (Config::get("system", "remove_multiplicated_lines")) {
 			$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
@@ -1245,124 +1344,11 @@ class BBCode extends BaseObject
 			} while ($oldtext != $text);
 		}
 
-		// Set up the parameters for a URL search string
-		$URLSearchString = "^\[\]";
-		// Set up the parameters for a MAIL search string
-		$MAILSearchString = $URLSearchString;
-
-		// if the HTML is used to generate plain text, then don't do this search, but replace all URL of that kind to text
-		if (!$for_plaintext) {
-			// Autolink feature (thanks to http://code.seebz.net/p/autolink-php/)
-			// Currently disabled, since the function is too greedy
-			// $autolink_regex = "`([^\]\=\"']|^)(https?\://[^\s<]+[^\s<\.\)])`ism";
-			$autolink_regex = "/([^\]\='".'"'."]|^)(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\%\$\!\+\,]+)/ism";
-			$text = preg_replace($autolink_regex, '$1[url]$2[/url]', $text);
-			if ($simple_html == 7) {
-				$text = preg_replace_callback("/\[url\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
-				$text = preg_replace_callback("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
-			}
-		} else {
-			$text = preg_replace("(\[url\]([$URLSearchString]*)\[\/url\])ism", " $1 ", $text);
-			$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
-		}
-
-
 		// Handle attached links or videos
 		$text = self::convertAttachment($text, $simple_html, $try_oembed);
 
-		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
-
-		// Remove all hashtag addresses
-		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7])) {
-			$text = preg_replace("/([#@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '$1$3', $text);
-		} elseif ($simple_html == 3) {
-			// The ! is converted to @ since Diaspora only understands the @
-			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'@<a href="$2">$3</a>',
-				$text);
-		} elseif ($simple_html == 7) {
-			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<span class="vcard"><a href="$2" class="url" title="$3"><span class="fn nickname mention">$3</span></a></span>',
-				$text);
-		} elseif (!$simple_html) {
-			$text = preg_replace("/([@!])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-				'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
-				$text);
-		}
-
-		// Bookmarks in red - will be converted to bookmarks in friendica
-		$text = preg_replace("/#\^\[url\]([$URLSearchString]*)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $text);
-		$text = preg_replace("/#\^\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $text);
-		$text = preg_replace("/#\[url\=[$URLSearchString]*\]\^\[\/url\]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/i",
-					"[bookmark=$1]$2[/bookmark]", $text);
-
-		if (in_array($simple_html, [2, 6, 7, 8, 9])) {
-			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
-			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
-		}
-
-		if ($simple_html == 5) {
-			$text = preg_replace("/[^#@!]\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $text);
-		}
-
-		// Perform URL Search
-		if ($try_oembed) {
-			$text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $try_oembed_callback, $text);
-		}
-
-		if ($simple_html == 5) {
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url]$1[/url]', $text);
-		} else {
-			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $text);
-		}
-
-		// Handle Diaspora posts
-		$text = preg_replace_callback(
-			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
-			function ($match) {
-				return "[url=" . System::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
-			}, $text
-		);
-
-		$text = preg_replace_callback(
-			"&\[url=/people\?q\=(.*)\](.*)\[\/url\]&Usi",
-			function ($match) {
-				return "[url=" . System::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
-			}, $text
-		);
-
-		// Server independent link to posts and comments
-		// See issue: https://github.com/diaspora/diaspora_federation/issues/75
-		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
-		$text = preg_replace($expression, System::baseUrl()."/display/$1", $text);
-
-		$text = preg_replace("/([#])\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-					'$1<a href="' . System::baseUrl() . '/search?tag=$3" class="tag" title="$3">$3</a>', $text);
-
-		$text = preg_replace("/\[url\=([$URLSearchString]*)\]#(.*?)\[\/url\]/ism",
-					'#<a href="' . System::baseUrl() . '/search?tag=$2" class="tag" title="$2">$2</a>', $text);
-
-		$text = preg_replace("/\[url\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
-		$text = preg_replace("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
-		//$Text = preg_replace("/\[url\=([$URLSearchString]*)\]([$URLSearchString]*)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $Text);
-
-		// Red compatibility, though the link can't be authenticated on Friendica
-		$text = preg_replace("/\[zrl\=([$URLSearchString]*)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
-
-
-		// we may need to restrict this further if it picks up too many strays
-		// link acct:user@host to a webfinger profile redirector
-
-		$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . System::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
-
-		// Perform MAIL Search
-		$text = preg_replace("/\[mail\]([$MAILSearchString]*)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);
-		$text = preg_replace("/\[mail\=([$MAILSearchString]*)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $text);
-
 		// leave open the posibility of [map=something]
-		// this is replaced in prepare_body() which has knowledge of the item location
-
+		// this is replaced in Item::prepareBody() which has knowledge of the item location
 		if (strpos($text, '[/map]') !== false) {
 			$text = preg_replace_callback(
 				"/\[map\](.*?)\[\/map\]/ism",
@@ -1372,6 +1358,7 @@ class BBCode extends BaseObject
 				$text
 			);
 		}
+
 		if (strpos($text, '[map=') !== false) {
 			$text = preg_replace_callback(
 				"/\[map=(.*?)\]/ism",
@@ -1381,6 +1368,7 @@ class BBCode extends BaseObject
 				$text
 			);
 		}
+
 		if (strpos($text, '[map]') !== false) {
 			$text = preg_replace("/\[map\]/", '<p class="map"></p>', $text);
 		}
@@ -1416,8 +1404,14 @@ class BBCode extends BaseObject
 
 		// Check for sized text
 		// [size=50] --> font-size: 50px (with the unit).
-		$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
-		$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
+		if ($simple_html != 3) {
+			$text = preg_replace("(\[size=(\d*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1px; line-height: initial;\">$2</span>", $text);
+			$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "<span style=\"font-size: $1; line-height: initial;\">$2</span>", $text);
+		} else {
+			// Issue 2199: Diaspora doesn't interpret the construct above, nor the <small> or <big> element
+			$text = preg_replace("(\[size=(.*?)\](.*?)\[\/size\])ism", "$2", $text);
+		}
+
 
 		// Check for centered text
 		$text = preg_replace("(\[center\](.*?)\[\/center\])ism", "<div style=\"text-align:center;\">$1</div>", $text);
@@ -1447,9 +1441,9 @@ class BBCode extends BaseObject
 		$endlessloop = 0;
 
 		while ((((strpos($text, "[/list]") !== false) && (strpos($text, "[list") !== false)) ||
-			   ((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
-			   ((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
-			   ((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
+				((strpos($text, "[/ol]") !== false) && (strpos($text, "[ol]") !== false)) ||
+				((strpos($text, "[/ul]") !== false) && (strpos($text, "[ul]") !== false)) ||
+				((strpos($text, "[/li]") !== false) && (strpos($text, "[li]") !== false))) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[list\](.*?)\[\/list\]/ism", '<ul class="listbullet" style="list-style-type: circle;">$1</ul>', $text);
 			$text = preg_replace("/\[list=\](.*?)\[\/list\]/ism", '<ul class="listnone" style="list-style-type: none;">$1</ul>', $text);
 			$text = preg_replace("/\[list=1\](.*?)\[\/list\]/ism", '<ul class="listdecimal" style="list-style-type: decimal;">$1</ul>', $text);
@@ -1472,39 +1466,37 @@ class BBCode extends BaseObject
 
 		$text = str_replace('[hr]', '<hr />', $text);
 
-		// This is actually executed in prepare_body()
+		if (!$for_plaintext) {
+			// Autolinker for isolated URLs
+			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
+		}
 
+		// This is actually executed in Item::prepareBody()
+
+		$nosmile = strpos($text, '[nosmile]') !== false;
 		$text = str_replace('[nosmile]', '', $text);
 
 		// Check for font change text
 		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
 
-		// Declare the format for [code] layout
-
-		$CodeLayout = '<code>$1</code>';
-		// Check for [code] text
-		$text = preg_replace("/\[code\](.*?)\[\/code\]/ism", "$CodeLayout", $text);
-
 		// Declare the format for [spoiler] layout
-		$SpoilerLayout = '<blockquote class="spoiler">$1</blockquote>';
+		$SpoilerLayout = '<details class="spoiler"><summary>' . L10n::t('Click to open/close') . '</summary>$1</details>';
 
 		// Check for [spoiler] text
 		// handle nested quotes
 		$endlessloop = 0;
 		while ((strpos($text, "[/spoiler]") !== false) && (strpos($text, "[spoiler]") !== false) && (++$endlessloop < 20)) {
-			$text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", "$SpoilerLayout", $text);
+			$text = preg_replace("/\[spoiler\](.*?)\[\/spoiler\]/ism", $SpoilerLayout, $text);
 		}
 
-		// Check for [spoiler=Author] text
-
-		$t_wrote = L10n::t('$1 wrote:');
+		// Check for [spoiler=Title] text
 
 		// handle nested quotes
 		$endlessloop = 0;
 		while ((strpos($text, "[/spoiler]")!== false)  && (strpos($text, "[spoiler=") !== false) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[spoiler=[\"\']*(.*?)[\"\']*\](.*?)\[\/spoiler\]/ism",
-						 "<br /><strong class=".'"spoiler"'.">" . $t_wrote . "</strong><blockquote class=".'"spoiler"'.">$2</blockquote>",
-						 $text);
+				'<details class="spoiler"><summary>$1</summary>$2</details>',
+				$text);
 		}
 
 		// Declare the format for [quote] layout
@@ -1525,8 +1517,8 @@ class BBCode extends BaseObject
 		$endlessloop = 0;
 		while ((strpos($text, "[/quote]")!== false)  && (strpos($text, "[quote=") !== false) && (++$endlessloop < 20)) {
 			$text = preg_replace("/\[quote=[\"\']*(.*?)[\"\']*\](.*?)\[\/quote\]/ism",
-						 "<p><strong class=".'"author"'.">" . $t_wrote . "</strong></p><blockquote>$2</blockquote>",
-						 $text);
+				"<p><strong class=".'"author"'.">" . $t_wrote . "</strong></p><blockquote>$2</blockquote>",
+				$text);
 		}
 
 
@@ -1547,7 +1539,7 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '<img src="$3" style="width: $1px;" >', $text);
 		$text = preg_replace("/\[zmg\=([0-9]*)x([0-9]*)\](.*?)\[\/zmg\]/ism", '<img class="zrl" src="$3" style="width: $1px;" >', $text);
 
-		$text = preg_replace_callback("/\[img\=([$URLSearchString]*)\](.*?)\[\/img\]/ism",
+		$text = preg_replace_callback("/\[img\=(.*?)\](.*?)\[\/img\]/ism",
 			function ($matches) use ($simple_html) {
 				$matches[1] = self::proxyUrl($matches[1], $simple_html);
 				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
@@ -1573,14 +1565,6 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 
-		// Shared content
-		$text = self::convertShare(
-			$text,
-			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
-				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
-			}
-		);
-
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
 		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
@@ -1594,9 +1578,9 @@ class BBCode extends BaseObject
 			$text = preg_replace_callback("/\[audio\](.*?)\[\/audio\]/ism", $try_oembed_callback, $text);
 		} else {
 			$text = preg_replace("/\[video\](.*?)\[\/video\]/ism",
-						'<a href="$1" target="_blank">$1</a>', $text);
+				'<a href="$1" target="_blank">$1</a>', $text);
 			$text = preg_replace("/\[audio\](.*?)\[\/audio\]/ism",
-						'<a href="$1" target="_blank">$1</a>', $text);
+				'<a href="$1" target="_blank">$1</a>', $text);
 		}
 
 		// html5 video and audio
@@ -1623,7 +1607,7 @@ class BBCode extends BaseObject
 			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://www.youtube.com/embed/$1" frameborder="0" ></iframe>', $text);
 		} else {
 			$text = preg_replace("/\[youtube\]([A-Za-z0-9\-_=]+)(.*?)\[\/youtube\]/ism",
-						'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $text);
+				'<a href="https://www.youtube.com/watch?v=$1" target="_blank">https://www.youtube.com/watch?v=$1</a>', $text);
 		}
 
 		if ($try_oembed) {
@@ -1638,7 +1622,7 @@ class BBCode extends BaseObject
 			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism", '<iframe width="' . $a->videowidth . '" height="' . $a->videoheight . '" src="https://player.vimeo.com/video/$1" frameborder="0" ></iframe>', $text);
 		} else {
 			$text = preg_replace("/\[vimeo\]([0-9]+)(.*?)\[\/vimeo\]/ism",
-						'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $text);
+				'<a href="https://vimeo.com/$1" target="_blank">https://vimeo.com/$1</a>', $text);
 		}
 
 		// oembed tag
@@ -1652,7 +1636,7 @@ class BBCode extends BaseObject
 		// Summary (e.g. title) is required, earlier revisions only required description (in addition to
 		// start which is always required). Allow desc with a missing summary for compatibility.
 
-		if ((x($ev, 'desc') || x($ev, 'summary')) && x($ev, 'start')) {
+		if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
 			$sub = Event::getHTML($ev, $simple_html);
 
 			$text = preg_replace("/\[event\-summary\](.*?)\[\/event\-summary\]/ism", '', $text);
@@ -1665,9 +1649,121 @@ class BBCode extends BaseObject
 		}
 
 		// Replace non graphical smilies for external posts
-		if ($simple_html) {
-			$text = Smilies::replace($text, false, true);
+		if (!$nosmile && !$for_plaintext) {
+			$text = Smilies::replace($text);
 		}
+
+		if (!$for_plaintext) {
+			if (in_array($simple_html, [7, 9])) {
+				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+			}
+		} else {
+			$text = preg_replace("(\[url\](.*?)\[\/url\])ism", " $1 ", $text);
+			$text = preg_replace_callback("&\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]&Usi", 'self::removePictureLinksCallback', $text);
+		}
+
+		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
+
+		// Remove all hashtag addresses
+		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7, 9])) {
+			$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
+		} elseif ($simple_html == 3) {
+			// The ! is converted to @ since Diaspora only understands the @
+			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+				'@<a href="$2">$3</a>',
+				$text);
+		} elseif (in_array($simple_html, [7, 9])) {
+			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+				'$1<span class="vcard"><a href="$2" class="url u-url mention" title="$3"><span class="fn nickname mention">$3</span></a></span>',
+				$text);
+		} elseif (!$simple_html) {
+			$text = preg_replace("/([@!])\[url\=(.*?)\](.*?)\[\/url\]/ism",
+				'$1<a href="$2" class="userinfo mention" title="$3">$3</a>',
+				$text);
+		}
+
+		// Bookmarks in red - will be converted to bookmarks in friendica
+		$text = preg_replace("/#\^\[url\](.*?)\[\/url\]/ism", '[bookmark=$1]$1[/bookmark]', $text);
+		$text = preg_replace("/#\^\[url\=(.*?)\](.*?)\[\/url\]/ism", '[bookmark=$1]$2[/bookmark]', $text);
+		$text = preg_replace("/#\[url\=.*?\]\^\[\/url\]\[url\=(.*?)\](.*?)\[\/url\]/i",
+					"[bookmark=$1]$2[/bookmark]", $text);
+
+		if (in_array($simple_html, [2, 6, 7, 8])) {
+			$text = preg_replace_callback("/([^#@!])\[url\=([^\]]*)\](.*?)\[\/url\]/ism", "self::expandLinksCallback", $text);
+			//$Text = preg_replace("/[^#@!]\[url\=([^\]]*)\](.*?)\[\/url\]/ism", ' $2 [url]$1[/url]', $Text);
+			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", ' $2 [url]$1[/url]',$text);
+		}
+
+		if ($simple_html == 5) {
+			$text = preg_replace("/[^#@!]\[url\=(.*?)\](.*?)\[\/url\]/ism", '[url]$1[/url]', $text);
+		}
+
+		// Perform URL Search
+		if ($try_oembed) {
+			$text = preg_replace_callback("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $try_oembed_callback, $text);
+		}
+
+		if ($simple_html == 5) {
+			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url]$1[/url]', $text);
+		} else {
+			$text = preg_replace("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $text);
+		}
+
+		// Handle Diaspora posts
+		$text = preg_replace_callback(
+			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
+			function ($match) {
+				return "[url=" . System::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
+			}, $text
+		);
+
+		$text = preg_replace_callback(
+			"&\[url=/people\?q\=(.*)\](.*)\[\/url\]&Usi",
+			function ($match) {
+				return "[url=" . System::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
+			}, $text
+		);
+
+		// Server independent link to posts and comments
+		// See issue: https://github.com/diaspora/diaspora_federation/issues/75
+		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
+		$text = preg_replace($expression, System::baseUrl()."/display/$1", $text);
+
+		/* Tag conversion
+		 * Supports:
+		 * - #[url=<anything>]<term>[/url]
+		 * - [url=<anything>]#<term>[/url]
+		 */
+		$text = preg_replace_callback("/(?:#\[url\=.*?\]|\[url\=.*?\]#)(.*?)\[\/url\]/ism", function($matches) {
+			return '#<a href="'
+				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
+				. '" class="tag" title="' . XML::escape($matches[1]) . '">'
+				. XML::escape($matches[1])
+				. '</a>';
+		}, $text);
+
+		// We need no target="_blank" for local links
+		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
+		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
+		$text = preg_replace("/\[url\](".$escapedBaseUrl.".*?)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
+		$text = preg_replace("/\[url\=(".$escapedBaseUrl.".*?)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);
+
+		$text = preg_replace("/\[url\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$1</a>', $text);
+		$text = preg_replace("/\[url\=(.*?)\](.*?)\[\/url\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
+
+		// Red compatibility, though the link can't be authenticated on Friendica
+		$text = preg_replace("/\[zrl\=(.*?)\](.*?)\[\/zrl\]/ism", '<a href="$1" target="_blank">$2</a>', $text);
+
+
+		// we may need to restrict this further if it picks up too many strays
+		// link acct:user@host to a webfinger profile redirector
+
+		$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . System::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
+
+		// Perform MAIL Search
+		$text = preg_replace("/\[mail\](.*?)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);
+		$text = preg_replace("/\[mail\=(.*?)\](.*?)\[\/mail\]/", '<a href="mailto:$1">$2</a>', $text);
 
 		// Unhide all [noparse] contained bbtags unspacefying them
 		// and triming the [noparse] tag.
@@ -1687,20 +1783,35 @@ class BBCode extends BaseObject
 		$text = preg_replace('/\<([^>]*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism', '<$1$2=$3&$4>', $text);
 
 		// sanitizes src attributes (http and redir URLs for displaying in a web page, cid used for inline images in emails)
-		$allowed_src_protocols = ['http', 'redir', 'cid'];
+		$allowed_src_protocols = ['//', 'http://', 'https://', 'redir/', 'cid:'];
+
+		array_walk($allowed_src_protocols, function(&$value) { $value = preg_quote($value, '#');});
+
 		$text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
 					 '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . L10n::t('Invalid source protocol') . '">', $text);
 
 		// sanitize href attributes (only whitelisted protocols URLs)
 		// default value for backward compatibility
-		$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', ['ftp', 'mailto', 'gopher', 'cid']);
+		$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', []);
 
 		// Always allowed protocol even if config isn't set or not including it
-		$allowed_link_protocols[] = 'http';
+		$allowed_link_protocols[] = '//';
+		$allowed_link_protocols[] = 'http://';
+		$allowed_link_protocols[] = 'https://';
 		$allowed_link_protocols[] = 'redir/';
+
+		array_walk($allowed_link_protocols, function(&$value) { $value = preg_quote($value, '#');});
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
 		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $text);
+
+		// Shared content
+		$text = self::convertShare(
+			$text,
+			function (array $attributes, array $author_contact, $content, $is_quote_share) use ($simple_html) {
+				return self::convertShareCallback($attributes, $author_contact, $content, $is_quote_share, $simple_html);
+			}
+		);
 
 		if ($saved_image) {
 			$text = self::interpolateSavedImagesIntoItemBody($text, $saved_image);
@@ -1720,7 +1831,7 @@ class BBCode extends BaseObject
 
 		// Clean up the HTML by loading and saving the HTML with the DOM.
 		// Bad structured html can break a whole page.
-		// For performance reasons do it only with ativated item cache or at export.
+		// For performance reasons do it only with activated item cache or at export.
 		if (!$try_oembed || (get_itemcachepath() != "")) {
 			$doc = new DOMDocument();
 			$doc->preserveWhiteSpace = false;
@@ -1746,7 +1857,7 @@ class BBCode extends BaseObject
 		//$Text = str_replace('<br /><li>', '<li>', $Text);
 		//$Text = str_replace('<br /><ul', '<ul ', $Text);
 
-		Addon::callHooks('bbcode', $text);
+		Hook::callAll('bbcode', $text);
 
 		return trim($text);
 	}
@@ -1799,7 +1910,12 @@ class BBCode extends BaseObject
 	 * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
 	 *
 	 * @param array $match Matching values for the callback
+	 *                     [1] = Mention type (! or @)
+	 *                     [2] = Name
+	 *                     [3] = Address
 	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function bbCodeMention2DiasporaCallback($match)
 	{
@@ -1813,7 +1929,7 @@ class BBCode extends BaseObject
 			return $match[0];
 		}
 
-		$mention = '@{' . $match[2] . '; ' . $contact['addr'] . '}';
+		$mention = $match[1] . '{' . $match[2] . '; ' . $contact['addr'] . '}';
 		return $mention;
 	}
 
@@ -1826,6 +1942,7 @@ class BBCode extends BaseObject
 	 * @param string $text
 	 * @param bool   $for_diaspora Diaspora requires more changes than Libertree
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function toMarkdown($text, $for_diaspora = true)
 	{
@@ -1886,7 +2003,7 @@ class BBCode extends BaseObject
 		// unmask the special chars back to HTML
 		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);
 
-		$a->saveTimestamp($stamp1, "parser");
+		$a->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);
@@ -1898,14 +2015,88 @@ class BBCode extends BaseObject
 		if ($for_diaspora) {
 			$url_search_string = "^\[\]";
 			$text = preg_replace_callback(
-				"/([@]\[(.*?)\])\(([$url_search_string]*?)\)/ism",
+				"/([@!])\[(.*?)\]\(([$url_search_string]*?)\)/ism",
 				['self', 'bbCodeMention2DiasporaCallback'],
 				$text
 			);
 		}
 
-		Addon::callHooks('bb2diaspora', $text);
+		Hook::callAll('bb2diaspora', $text);
 
 		return $text;
 	}
+
+	/**
+     * @brief Pull out all #hashtags and @person tags from $string.
+     *
+     * We also get @person@domain.com - which would make
+     * the regex quite complicated as tags can also
+     * end a sentence. So we'll run through our results
+     * and strip the period from any tags which end with one.
+     * Returns array of tags found, or empty array.
+     *
+     * @param string $string Post content
+     * 
+     * @return array List of tag and person names
+     */
+    public static function getTags($string)
+    {
+        $ret = [];
+
+        // Convert hashtag links to hashtags
+        $string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
+
+        // ignore anything in a code block
+        $string = preg_replace('/\[code.*?\].*?\[\/code\]/sm', '', $string);
+
+        // Force line feeds at bbtags
+        $string = str_replace(['[', ']'], ["\n[", "]\n"], $string);
+
+        // ignore anything in a bbtag
+        $string = preg_replace('/\[(.*?)\]/sm', '', $string);
+
+        // Match full names against @tags including the space between first and last
+        // We will look these up afterward to see if they are full names or not recognisable.
+
+        if (preg_match_all('/(@[^ \x0D\x0A,:?]+ [^ \x0D\x0A@,:?]+)([ \x0D\x0A@,:?]|$)/', $string, $matches)) {
+            foreach ($matches[1] as $match) {
+                if (strstr($match, ']')) {
+                    // we might be inside a bbcode color tag - leave it alone
+                    continue;
+                }
+
+                if (substr($match, -1, 1) === '.') {
+                    $ret[] = substr($match, 0, -1);
+                } else {
+                    $ret[] = $match;
+                }
+            }
+        }
+
+        // Otherwise pull out single word tags. These can be @nickname, @first_last
+        // and #hash tags.
+
+        if (preg_match_all('/([!#@][^\^ \x0D\x0A,;:?]+)([ \x0D\x0A,;:?]|$)/', $string, $matches)) {
+            foreach ($matches[1] as $match) {
+                if (strstr($match, ']')) {
+                    // we might be inside a bbcode color tag - leave it alone
+                    continue;
+                }
+                if (substr($match, -1, 1) === '.') {
+                    $match = substr($match,0,-1);
+                }
+                // ignore strictly numeric tags like #1
+                if ((strpos($match, '#') === 0) && ctype_digit(substr($match, 1))) {
+                    continue;
+                }
+                // try not to catch url fragments
+                if (strpos($string, $match) && preg_match('/[a-zA-z0-9\/]/', substr($string, strpos($string, $match) - 1, 1))) {
+                    continue;
+                }
+                $ret[] = $match;
+            }
+        }
+
+        return $ret;
+    }
 }

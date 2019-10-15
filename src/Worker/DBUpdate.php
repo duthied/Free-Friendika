@@ -5,18 +5,17 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Config;
+use Friendica\Core\Update;
 
-class DBUpdate
+class DBUpdate extends BaseObject
 {
 	public static function execute()
 	{
-		$a = \Friendica\BaseObject::getApp();
-
-		// We are deleting the latest dbupdate entry.
-		// This is done to avoid endless loops because the update was interupted.
-		Config::delete('database', 'dbupdate_'.DB_UPDATE_VERSION);
-
-		update_db($a);
+		// Just in case the last update wasn't failed
+		if (Config::get('system', 'update', Update::SUCCESS, true) != Update::FAILED) {
+			Update::run(self::getApp()->getBasePath());
+		}
 	}
 }

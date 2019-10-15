@@ -7,15 +7,16 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
-
-require_once 'include/items.php';
 
 function dfrn_poll_init(App $a)
 {
@@ -28,8 +29,7 @@ function dfrn_poll_init(App $a)
 	$challenge       = defaults($_GET, 'challenge'      , '');
 	$sec             = defaults($_GET, 'sec'            , '');
 	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
-	$perm            = defaults($_GET, 'perm'           , 'r');
-	$quiet			 = x($_GET, 'quiet');
+	$quiet			 = !empty($_GET['quiet']);
 
 	// Possibly it is an OStatus compatible server that requests a user feed
 	$user_agent = defaults($_SERVER, 'HTTP_USER_AGENT', '');
@@ -37,7 +37,7 @@ function dfrn_poll_init(App $a)
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
 		echo OStatus::feed($nickname, $last_update, 10);
-		killme();
+		exit();
 	}
 
 	$direction = -1;
@@ -49,9 +49,9 @@ function dfrn_poll_init(App $a)
 
 	$hidewall = false;
 
-	if (($dfrn_id === '') && (!x($_POST, 'dfrn_id'))) {
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			System::httpExit(403);
+	if (($dfrn_id === '') && empty($_POST['dfrn_id'])) {
+		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		$user = '';
@@ -60,7 +60,7 @@ function dfrn_poll_init(App $a)
 				DBA::escape($a->argv[1])
 			);
 			if (!$r) {
-				System::httpExit(404);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 
 			$hidewall = ($r[0]['hidewall'] && !local_user());
@@ -68,10 +68,10 @@ function dfrn_poll_init(App $a)
 			$user = $r[0]['nickname'];
 		}
 
-		logger('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
+		Logger::log('dfrn_poll: public feed request from ' . $_SERVER['REMOTE_ADDR'] . ' for ' . $user);
 		header("Content-type: application/atom+xml");
 		echo DFRN::feed('', $user, $last_update, 0, $hidewall);
-		killme();
+		exit();
 	}
 
 	if (($type === 'profile') && (!strlen($sec))) {
@@ -104,24 +104,21 @@ function dfrn_poll_init(App $a)
 		if (DBA::isResult($r)) {
 			$s = Network::fetchUrl($r[0]['poll'] . '?dfrn_id=' . $my_id . '&type=profile-check');
 
-			logger("dfrn_poll: old profile returns " . $s, LOGGER_DATA);
+			Logger::log("dfrn_poll: old profile returns " . $s, Logger::DATA);
 
 			if (strlen($s)) {
 				$xml = XML::parseString($s);
 
 				if ((int)$xml->status === 1) {
 					$_SESSION['authenticated'] = 1;
-					if (!x($_SESSION, 'remote')) {
-						$_SESSION['remote'] = [];
-					}
-
-					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
-
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_handle'] = $r[0]['addr'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					$_SESSION['my_url'] = $r[0]['url'];
+
+					Session::setVisitorsContacts();
+
 					if (!$quiet) {
 						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
@@ -191,14 +188,14 @@ function dfrn_poll_init(App $a)
 			}
 
 			if ($final_dfrn_id != $orig_id) {
-				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
+				Logger::log('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, Logger::DEBUG);
 				// did not decode properly - cannot trust this site
 				System::xmlExit(3, 'Bad decryption');
 			}
 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dfrn_poll><status>0</status><challenge>$decoded_challenge</challenge><sec>$sec</sec></dfrn_poll>";
-			killme();
+			exit();
 			// NOTREACHED
 		} else {
 			// old protocol
@@ -228,17 +225,17 @@ function dfrn_poll_init(App $a)
 
 function dfrn_poll_post(App $a)
 {
-	$dfrn_id      = x($_POST,'dfrn_id')      ? $_POST['dfrn_id']              : '';
-	$challenge    = x($_POST,'challenge')    ? $_POST['challenge']            : '';
-	$url          = x($_POST,'url')          ? $_POST['url']                  : '';
-	$sec          = x($_POST,'sec')          ? $_POST['sec']                  : '';
-	$ptype        = x($_POST,'type')         ? $_POST['type']                 : '';
-	$dfrn_version = x($_POST,'dfrn_version') ? (float) $_POST['dfrn_version'] : 2.0;
-	$perm         = x($_POST,'perm')         ? $_POST['perm']                 : 'r';
+	$dfrn_id      = defaults($_POST, 'dfrn_id'  , '');
+	$challenge    = defaults($_POST, 'challenge', '');
+	$url          = defaults($_POST, 'url'      , '');
+	$sec          = defaults($_POST, 'sec'      , '');
+	$ptype        = defaults($_POST, 'type'     , '');
+	$perm         = defaults($_POST, 'perm'     , 'r');
+	$dfrn_version = !empty($_POST['dfrn_version']) ? (float) $_POST['dfrn_version'] : 2.0;
 
 	if ($ptype === 'profile-check') {
 		if (strlen($challenge) && strlen($sec)) {
-			logger('dfrn_poll: POST: profile-check');
+			Logger::log('dfrn_poll: POST: profile-check');
 
 			DBA::delete('profile_check', ["`expire` < ?", time()]);
 			$r = q("SELECT * FROM `profile_check` WHERE `sec` = '%s' ORDER BY `expire` DESC LIMIT 1",
@@ -283,14 +280,14 @@ function dfrn_poll_post(App $a)
 			}
 
 			if ($final_dfrn_id != $orig_id) {
-				logger('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, LOGGER_DEBUG);
+				Logger::log('profile_check: ' . $final_dfrn_id . ' != ' . $orig_id, Logger::DEBUG);
 				// did not decode properly - cannot trust this site
 				System::xmlExit(3, 'Bad decryption');
 			}
 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?><dfrn_poll><status>0</status><challenge>$decoded_challenge</challenge><sec>$sec</sec></dfrn_poll>";
-			killme();
+			exit();
 			// NOTREACHED
 		}
 	}
@@ -307,7 +304,7 @@ function dfrn_poll_post(App $a)
 	);
 
 	if (!DBA::isResult($r)) {
-		killme();
+		exit();
 	}
 
 	$type = $r[0]['type'];
@@ -319,15 +316,12 @@ function dfrn_poll_post(App $a)
 	switch ($direction) {
 		case -1:
 			$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
-			$my_id = $dfrn_id;
 			break;
 		case 0:
 			$sql_extra = sprintf(" AND `issued-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-			$my_id = '1:' . $dfrn_id;
 			break;
 		case 1:
 			$sql_extra = sprintf(" AND `dfrn-id` = '%s' AND `duplex` = 1 ", DBA::escape($dfrn_id));
-			$my_id = '0:' . $dfrn_id;
 			break;
 		default:
 			$a->internalRedirect();
@@ -336,7 +330,7 @@ function dfrn_poll_post(App $a)
 
 	$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 $sql_extra LIMIT 1");
 	if (!DBA::isResult($r)) {
-		killme();
+		exit();
 	}
 
 	$contact = $r[0];
@@ -368,11 +362,11 @@ function dfrn_poll_post(App $a)
 			<description>$text</description>
 		</reputation>
 		";
-		killme();
+		exit();
 		// NOTREACHED
 	} else {
 		// Update the writable flag if it changed
-		logger('dfrn_poll: post request feed: ' . print_r($_POST, true), LOGGER_DATA);
+		Logger::log('dfrn_poll: post request feed: ' . print_r($_POST, true), Logger::DATA);
 		if ($dfrn_version >= 2.21) {
 			if ($perm === 'rw') {
 				$writable = 1;
@@ -391,20 +385,19 @@ function dfrn_poll_post(App $a)
 		header("Content-type: application/atom+xml");
 		$o = DFRN::feed($dfrn_id, $a->argv[1], $last_update, $direction);
 		echo $o;
-		killme();
+		exit();
 	}
 }
 
 function dfrn_poll_content(App $a)
 {
-	$dfrn_id         = x($_GET,'dfrn_id')         ? $_GET['dfrn_id']              : '';
-	$type            = x($_GET,'type')            ? $_GET['type']                 : 'data';
-	$last_update     = x($_GET,'last_update')     ? $_GET['last_update']          : '';
-	$destination_url = x($_GET,'destination_url') ? $_GET['destination_url']      : '';
-	$sec             = x($_GET,'sec')             ? $_GET['sec']                  : '';
-	$dfrn_version    = x($_GET,'dfrn_version')    ? (float) $_GET['dfrn_version'] : 2.0;
-	$perm            = x($_GET,'perm')            ? $_GET['perm']                 : 'r';
-	$quiet           = x($_GET,'quiet')           ? true                          : false;
+	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
+	$type            = defaults($_GET, 'type'           , 'data');
+	$last_update     = defaults($_GET, 'last_update'    , '');
+	$destination_url = defaults($_GET, 'destination_url', '');
+	$sec             = defaults($_GET, 'sec'            , '');
+	$dfrn_version    = !empty($_GET['dfrn_version'])    ? (float) $_GET['dfrn_version'] : 2.0;
+	$quiet           = !empty($_GET['quiet']);
 
 	$direction = -1;
 	if (strpos($dfrn_id, ':') == 1) {
@@ -414,14 +407,14 @@ function dfrn_poll_content(App $a)
 
 	if ($dfrn_id != '') {
 		// initial communication from external contact
-		$hash = random_string();
+		$hash = Strings::getRandomHex();
 
 		$status = 0;
 
 		DBA::delete('challenge', ["`expire` < ?", time()]);
 
 		if ($type !== 'profile') {
-			$r = q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
+			q("INSERT INTO `challenge` ( `challenge`, `dfrn-id`, `expire` , `type`, `last_update` )
 				VALUES( '%s', '%s', '%s', '%s', '%s' ) ",
 				DBA::escape($hash),
 				DBA::escape($dfrn_id),
@@ -435,7 +428,7 @@ function dfrn_poll_content(App $a)
 		switch ($direction) {
 			case -1:
 				if ($type === 'profile') {
-					$sql_extra = sprintf(" AND ( `dfrn-id` = '%s' OR `issued-id` = '%s' ) ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
+					$sql_extra = sprintf(" AND (`dfrn-id` = '%s' OR `issued-id` = '%s') ", DBA::escape($dfrn_id), DBA::escape($dfrn_id));
 				} else {
 					$sql_extra = sprintf(" AND `issued-id` = '%s' ", DBA::escape($dfrn_id));
 				}
@@ -488,7 +481,7 @@ function dfrn_poll_content(App $a)
 			// heluecht: I don't know why we don't fail immediately when the user or contact hadn't been found.
 			// Since it doesn't make sense to continue from this point on, we now fail here. This should be safe.
 			if (!DBA::isResult($r)) {
-				System::httpExit(404, ["title" => L10n::t('Page not found.')]);
+				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 
 			// URL reply
@@ -510,27 +503,25 @@ function dfrn_poll_content(App $a)
 				])->getBody();
 			}
 
-			logger("dfrn_poll: sec profile: " . $s, LOGGER_DATA);
+			Logger::log("dfrn_poll: sec profile: " . $s, Logger::DATA);
 
 			if (strlen($s) && strstr($s, '<?xml')) {
 				$xml = XML::parseString($s);
 
-				logger('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), LOGGER_DATA);
+				Logger::log('dfrn_poll: profile: parsed xml: ' . print_r($xml, true), Logger::DATA);
 
-				logger('dfrn_poll: secure profile: challenge: ' . $xml->challenge . ' expecting ' . $hash);
-				logger('dfrn_poll: secure profile: sec: ' . $xml->sec . ' expecting ' . $sec);
+				Logger::log('dfrn_poll: secure profile: challenge: ' . $xml->challenge . ' expecting ' . $hash);
+				Logger::log('dfrn_poll: secure profile: sec: ' . $xml->sec . ' expecting ' . $sec);
 
 				if (((int) $xml->status == 0) && ($xml->challenge == $hash) && ($xml->sec == $sec)) {
 					$_SESSION['authenticated'] = 1;
-					if (!x($_SESSION, 'remote')) {
-						$_SESSION['remote'] = [];
-					}
-
-					$_SESSION['remote'][] = ['cid' => $r[0]['id'], 'uid' => $r[0]['uid'], 'url' => $r[0]['url']];
 					$_SESSION['visitor_id'] = $r[0]['id'];
 					$_SESSION['visitor_home'] = $r[0]['url'];
 					$_SESSION['visitor_visiting'] = $r[0]['uid'];
 					$_SESSION['my_url'] = $r[0]['url'];
+
+					Session::setVisitorsContacts();
+
 					if (!$quiet) {
 						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
@@ -560,7 +551,7 @@ function dfrn_poll_content(App $a)
 					break;
 				default:
 					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');
-					System::externalRedirect($destination_url . $appendix);
+					$a->redirect($destination_url . $appendix);
 					break;
 			}
 			// NOTREACHED
@@ -574,7 +565,7 @@ function dfrn_poll_content(App $a)
 				. "\t" . '<dfrn_id>' . $encrypted_id . '</dfrn_id>' . "\r\n"
 				. "\t" . '<challenge>' . $challenge . '</challenge>' . "\r\n"
 				. '</dfrn_poll>' . "\r\n";
-			killme();
+			exit();
 			// NOTREACHED
 		}
 	}

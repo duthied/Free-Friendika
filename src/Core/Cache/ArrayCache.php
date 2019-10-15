@@ -2,17 +2,14 @@
 
 namespace Friendica\Core\Cache;
 
-
-use Friendica\Core\Cache;
-
 /**
- * Implementation of the IMemoryCacheDriver mainly for testing purpose
+ * Implementation of the IMemoryCache mainly for testing purpose
  *
  * Class ArrayCache
  *
  * @package Friendica\Core\Cache
  */
-class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
+class ArrayCache extends Cache implements IMemoryCache
 {
 	use TraitCompareDelete;
 
@@ -24,7 +21,7 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		return $this->filterArrayKeysByPrefix($this->cachedData, $prefix);
+		return $this->filterArrayKeysByPrefix(array_keys($this->cachedData), $prefix);
 	}
 
 	/**
@@ -92,5 +89,13 @@ class ArrayCache extends AbstractCacheDriver implements IMemoryCacheDriver
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public function getName()
+	{
+		return self::TYPE_ARRAY;
 	}
 }

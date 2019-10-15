@@ -3,7 +3,7 @@
  * @file tests/src/Util/Arrays.php
  * @author Roland Haeder<https://f.haeder.net/profile/roland>
  */
-namespace Friendica\Test\Util;
+namespace Friendica\Test\src\Util;
 
 use Friendica\Util\Arrays;
 use PHPUnit\Framework\TestCase;

@@ -1,24 +1,27 @@
 <?php
+
 /**
  * @file src/Module/Login.php
  */
+
 namespace Friendica\Module;
 
 use Exception;
 use Friendica\BaseModule;
-use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use LightOpenID;
-
-require_once 'boot.php';
-require_once 'include/text.php';
 
 /**
  * Login module
@@ -31,41 +34,31 @@ class Login extends BaseModule
 	{
 		$a = self::getApp();
 
-		if (x($_SESSION, 'theme')) {
-			unset($_SESSION['theme']);
-		}
-
-		if (x($_SESSION, 'mobile-theme')) {
-			unset($_SESSION['mobile-theme']);
-		}
-
 		if (local_user()) {
 			$a->internalRedirect();
 		}
 
-		return self::form($_SESSION['return_path'], intval(Config::get('config', 'register_policy')) !== REGISTER_CLOSED);
+		return self::form(Session::get('return_path'), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
 	public static function post()
 	{
-		$return_path = $_SESSION['return_path'];
+		$return_path = Session::get('return_path');
 		session_unset();
-		$_SESSION['return_path'] = $return_path;
-		
+		Session::set('return_path', $return_path);
+
 		// OpenId Login
 		if (
 			empty($_POST['password'])
-			&& (
-				!empty($_POST['openid_url'])
-				|| !empty($_POST['username'])
-			)
+			&& (!empty($_POST['openid_url'])
+				|| !empty($_POST['username']))
 		) {
 			$openid_url = trim(defaults($_POST, 'openid_url', $_POST['username']));
 
 			self::openIdAuthentication($openid_url, !empty($_POST['remember']));
 		}
 
-		if (x($_POST, 'auth-params') && $_POST['auth-params'] === 'login') {
+		if (!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
 			self::passwordAuthentication(
 				trim($_POST['username']),
 				trim($_POST['password']),
@@ -79,6 +72,7 @@ class Login extends BaseModule
 	 *
 	 * @param string $openid_url OpenID URL string
 	 * @param bool   $remember   Whether to set the session remember flag
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function openIdAuthentication($openid_url, $remember)
 	{
@@ -112,6 +106,7 @@ class Login extends BaseModule
 	 * @param string $username User name
 	 * @param string $password Clear password
 	 * @param bool   $remember Whether to set the session remember flag
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function passwordAuthentication($username, $password, $remember)
 	{
@@ -131,7 +126,7 @@ class Login extends BaseModule
 		 * Addons should never set 'authenticated' except to indicate success - as hooks may be chained
 		 * and later addons should not interfere with an earlier one that succeeded.
 		 */
-		Addon::callHooks('authenticate', $addon_auth);
+		Hook::callAll('authenticate', $addon_auth);
 
 		try {
 			if ($addon_auth['authenticated']) {
@@ -141,12 +136,14 @@ class Login extends BaseModule
 					throw new Exception(L10n::t('Login failed.'));
 				}
 			} else {
-				$record = DBA::selectFirst('user', [],
+				$record = DBA::selectFirst(
+					'user',
+					[],
 					['uid' => User::getIdFromPasswordAuthentication($username, $password)]
 				);
 			}
 		} catch (Exception $e) {
-			logger('authenticate: failed login attempt: ' . notags($username) . ' from IP ' . $_SERVER['REMOTE_ADDR']);
+			Logger::warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
 			info('Login failed. Please check your credentials.' . EOL);
 			$a->internalRedirect();
 		}
@@ -156,16 +153,13 @@ class Login extends BaseModule
 		}
 
 		// if we haven't failed up this point, log them in.
-		$_SESSION['remember'] = $remember;
-		$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-		Authentication::setAuthenticatedSessionForUser($record, true, true);
+		Session::set('remember', $remember);
+		Session::set('last_login_date', DateTimeFormat::utcNow());
 
-		if (x($_SESSION, 'return_path')) {
-			$return_path = $_SESSION['return_path'];
-			unset($_SESSION['return_path']);
-		} else {
-			$return_path = '';
-		}
+		Session::setAuthenticatedForUser($a, $record, true, true);
+
+		$return_path = Session::get('return_path', '');
+		Session::remove('return_path');
 
 		$a->internalRedirect($return_path);
 	}
@@ -184,7 +178,9 @@ class Login extends BaseModule
 			$data = json_decode($_COOKIE["Friendica"]);
 			if (isset($data->uid)) {
 
-				$user = DBA::selectFirst('user', [],
+				$user = DBA::selectFirst(
+					'user',
+					[],
 					[
 						'uid'             => $data->uid,
 						'blocked'         => false,
@@ -194,8 +190,11 @@ class Login extends BaseModule
 					]
 				);
 				if (DBA::isResult($user)) {
-					if ($data->hash != Authentication::getCookieHashForUser($user)) {
-						logger("Hash for user " . $data->uid . " doesn't fit.");
+					if (!hash_equals(
+						Authentication::getCookieHashForUser($user),
+						$data->hash
+					)) {
+						Logger::log("Hash for user " . $data->uid . " doesn't fit.");
 						Authentication::deleteSession();
 						$a->internalRedirect();
 					}
@@ -208,7 +207,7 @@ class Login extends BaseModule
 
 					// Do the authentification if not done by now
 					if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-						Authentication::setAuthenticatedSessionForUser($user);
+						Session::setAuthenticatedForUser($a, $user);
 
 						if (Config::get('system', 'paranoia')) {
 							$_SESSION['addr'] = $data->ip;
@@ -218,26 +217,28 @@ class Login extends BaseModule
 			}
 		}
 
-		if (isset($_SESSION) && x($_SESSION, 'authenticated')) {
-			if (x($_SESSION, 'visitor_id') && !x($_SESSION, 'uid')) {
+		if (!empty($_SESSION['authenticated'])) {
+			if (!empty($_SESSION['visitor_id']) && empty($_SESSION['uid'])) {
 				$contact = DBA::selectFirst('contact', [], ['id' => $_SESSION['visitor_id']]);
 				if (DBA::isResult($contact)) {
 					self::getApp()->contact = $contact;
 				}
 			}
 
-			if (x($_SESSION, 'uid')) {
+			if (!empty($_SESSION['uid'])) {
 				// already logged in user returning
 				$check = Config::get('system', 'paranoia');
 				// extra paranoia - if the IP changed, log them out
 				if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
-					logger('Session address changed. Paranoid setting in effect, blocking session. ' .
+					Logger::log('Session address changed. Paranoid setting in effect, blocking session. ' .
 						$_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
 					Authentication::deleteSession();
 					$a->internalRedirect();
 				}
 
-				$user = DBA::selectFirst('user', [],
+				$user = DBA::selectFirst(
+					'user',
+					[],
 					[
 						'uid'             => $_SESSION['uid'],
 						'blocked'         => false,
@@ -261,7 +262,8 @@ class Login extends BaseModule
 					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
 					$login_refresh = true;
 				}
-				Authentication::setAuthenticatedSessionForUser($user, false, false, $login_refresh);
+
+				Session::setAuthenticatedForUser($a, $user, false, false, $login_refresh);
 			}
 		}
 	}
@@ -269,14 +271,15 @@ class Login extends BaseModule
 	/**
 	 * @brief Wrapper for adding a login box.
 	 *
-	 * @param string $return_path The path relative to the base the user should be sent
-	 *							 back to after login completes
-	 * @param bool $register If $register == true provide a registration link.
-	 *						 This will most always depend on the value of config.register_policy.
-	 * @param array $hiddens  optional
+	 * @param string $return_path  The path relative to the base the user should be sent
+	 *                             back to after login completes
+	 * @param bool   $register     If $register == true provide a registration link.
+	 *                             This will most always depend on the value of config.register_policy.
+	 * @param array  $hiddens      optional
 	 *
 	 * @return string Returns the complete html for inserting into the page
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @hooks 'login_hook' string $o
 	 */
 	public static function form($return_path = null, $register = false, $hiddens = [])
@@ -284,7 +287,7 @@ class Login extends BaseModule
 		$a = self::getApp();
 		$o = '';
 		$reg = false;
-		if ($register) {
+		if ($register && intval($a->getConfig()->get('config', 'register_policy')) !== Register::CLOSED) {
 			$reg = [
 				'title' => L10n::t('Create a New Account'),
 				'desc' => L10n::t('Register')
@@ -298,32 +301,32 @@ class Login extends BaseModule
 		}
 
 		if (local_user()) {
-			$tpl = get_markup_template('logout.tpl');
+			$tpl = Renderer::getMarkupTemplate('logout.tpl');
 		} else {
-			$a->page['htmlhead'] .= replace_macros(
-				get_markup_template('login_head.tpl'),
+			$a->page['htmlhead'] .= Renderer::replaceMacros(
+				Renderer::getMarkupTemplate('login_head.tpl'),
 				[
 					'$baseurl' => $a->getBaseURL(true)
 				]
 			);
 
-			$tpl = get_markup_template('login.tpl');
+			$tpl = Renderer::getMarkupTemplate('login.tpl');
 			$_SESSION['return_path'] = $return_path;
 		}
 
-		$o .= replace_macros(
+		$o .= Renderer::replaceMacros(
 			$tpl,
 			[
 				'$dest_url'     => self::getApp()->getBaseURL(true) . '/login',
 				'$logout'       => L10n::t('Logout'),
 				'$login'        => L10n::t('Login'),
 
-				'$lname'        => ['username', L10n::t('Nickname or Email: ') , '', ''],
+				'$lname'        => ['username', L10n::t('Nickname or Email: '), '', ''],
 				'$lpassword'    => ['password', L10n::t('Password: '), '', ''],
 				'$lremember'    => ['remember', L10n::t('Remember me'), 0,  ''],
 
 				'$openid'       => !$noid,
-				'$lopenid'      => ['openid_url', L10n::t('Or login using OpenID: '),'',''],
+				'$lopenid'      => ['openid_url', L10n::t('Or login using OpenID: '), '', ''],
 
 				'$hiddens'      => $hiddens,
 
@@ -340,7 +343,7 @@ class Login extends BaseModule
 			]
 		);
 
-		Addon::callHooks('login_hook', $o);
+		Hook::callAll('login_hook', $o);
 
 		return $o;
 	}

@@ -58,7 +58,7 @@ $(document).ready(function() {
 	var eventPerms = document.getElementById('event-edit-form');
 
 	acl = new ACL(
-		baseurl + "/acl",
+		baseurl + '/search/acl',
 		[
 			JSON.parse(eventPerms.dataset.allow_cid),
 			JSON.parse(eventPerms.dataset.allow_gid),

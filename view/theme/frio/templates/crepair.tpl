@@ -2,11 +2,11 @@
 <div id="crepair" class="generic-page-wrapper">
 	{{include file="section_title.tpl"}}
 
-	{{$tab_str}}
+	{{$tab_str nofilter}}
 
-	<div class="crepair-error-message">{{$warning}}</div><br>
+	<div class="crepair-error-message">{{$warning nofilter}}</div><br>
 	<div class="crepair-return">
-		{{$info}}<br>
+		{{$info nofilter}}<br>
 		<!-- <a href="{{$returnaddr}}">{{$return}}</a> -->
 	</div>
 	<br />
@@ -29,6 +29,8 @@
 
 		{{include file="field_input.tpl" field=$url}}
 
+		{{include file="field_input.tpl" field=$alias}}
+
 		{{include file="field_input.tpl" field=$request}}
 
 		{{include file="field_input.tpl" field=$confirm}}
@@ -46,7 +48,7 @@
 		{{/if}}
 
 		<div class="pull-right settings-submit-wrapper" >
-			<button type="submit" name="submit" class="btn btn-primary" value="{{$lbl_submit|escape:'html'}}">{{$lbl_submit|escape:'html'}}</button>
+			<button type="submit" name="submit" class="btn btn-primary" value="{{$lbl_submit}}">{{$lbl_submit}}</button>
 		</div>
 		<div class="clear"></div>
 

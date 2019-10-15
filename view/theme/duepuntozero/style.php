@@ -10,12 +10,12 @@ if (file_exists("$THEMEPATH/style.css")) {
 	echo file_get_contents("$THEMEPATH/style.css");
 }
 
-$uid = Profile::getThemeUid();
+$uid = defaults($_REQUEST, 'puid', 0);
 
 $s_colorset = Config::get('duepuntozero', 'colorset');
 $colorset = PConfig::get($uid, 'duepuntozero', 'colorset');
 
-if (!x($colorset)) {
+if (empty($colorset)) {
 	$colorset = $s_colorset;
 }
 

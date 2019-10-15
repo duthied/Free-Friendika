@@ -8,13 +8,10 @@ namespace Friendica\Util;
 
 use DateTime;
 use DateTimeZone;
-use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-
-require_once 'boot.php';
-require_once 'include/text.php';
 
 /**
  * @brief Temporal class
@@ -101,12 +98,13 @@ class Temporal
 	 * arguments follow convention as other field_* template array:
 	 * 'name', 'label', $value, 'help'
 	 *
-	 * @param string $name Name of the selector
-	 * @param string $label Label for the selector
+	 * @param string $name    Name of the selector
+	 * @param string $label   Label for the selector
 	 * @param string $current Timezone
-	 * @param string $help Help text
+	 * @param string $help    Help text
 	 *
 	 * @return string Parsed HTML
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getTimezoneField($name = 'timezone', $label = '', $current = 'America/Los_Angeles', $help = '')
 	{
@@ -114,8 +112,8 @@ class Temporal
 		$options = str_replace('<select id="timezone_select" name="timezone">', '', $options);
 		$options = str_replace('</select>', '', $options);
 
-		$tpl = get_markup_template('field_select_raw.tpl');
-		return replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('field_select_raw.tpl');
+		return Renderer::replaceMacros($tpl, [
 			'$field' => [$name, $label, $current, $help, $options],
 		]);
 	}
@@ -124,12 +122,12 @@ class Temporal
 	 * @brief Wrapper for date selector, tailored for use in birthday fields.
 	 *
 	 * @param string $dob Date of Birth
+	 * @param string $timezone
 	 * @return string Formatted HTML
+	 * @throws \Exception
 	 */
-	public static function getDateofBirthField($dob)
+	public static function getDateofBirthField(string $dob, string $timezone = 'UTC')
 	{
-		$a = get_app();
-
 		list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
 		if ($dob < '0000-01-01') {
@@ -138,10 +136,10 @@ class Temporal
 			$value = DateTimeFormat::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
 		}
 
-		$age = (intval($value) ? self::getAgeByTimezone($value, $a->user["timezone"], $a->user["timezone"]) : "");
+		$age = (intval($value) ? self::getAgeByTimezone($value, $timezone, $timezone) : "");
 
-		$tpl = get_markup_template("field_input.tpl");
-		$o = replace_macros($tpl,
+		$tpl = Renderer::getMarkupTemplate("field_input.tpl");
+		$o = Renderer::replaceMacros($tpl,
 			[
 			'$field' => [
 				'dob',
@@ -159,12 +157,13 @@ class Temporal
 	/**
 	 * @brief Returns a date selector
 	 *
-	 * @param string $min     Unix timestamp of minimum date
-	 * @param string $max     Unix timestap of maximum date
-	 * @param string $default Unix timestamp of default date
-	 * @param string $id      ID and name of datetimepicker (defaults to "datetimepicker")
+	 * @param DateTime $min     Minimum date
+	 * @param DateTime $max     Maximum date
+	 * @param DateTime $default Default date
+	 * @param string   $id      ID and name of datetimepicker (defaults to "datetimepicker")
 	 *
 	 * @return string Parsed HTML output.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getDateField($min, $max, $default, $id = 'datepicker')
 	{
@@ -179,6 +178,7 @@ class Temporal
 	 * @param string $id ID and name of datetimepicker (defaults to "timepicker")
 	 *
 	 * @return string Parsed HTML output.
+	 * @throws \Exception
 	 */
 	public static function getTimeField($h, $m, $id = 'timepicker')
 	{
@@ -191,6 +191,7 @@ class Temporal
 	 * @param DateTime $minDate     Minimum date
 	 * @param DateTime $maxDate     Maximum date
 	 * @param DateTime $defaultDate Default date
+	 * @param          $label
 	 * @param string   $id          Id and name of datetimepicker (defaults to "datetimepicker")
 	 * @param bool     $pickdate    true to show date picker (default)
 	 * @param bool     $picktime    true to show time picker (default)
@@ -200,7 +201,8 @@ class Temporal
 	 *
 	 * @return string Parsed HTML output.
 	 *
-	 * @todo Once browser support is better this could probably be replaced with
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  Once browser support is better this could probably be replaced with
 	 * native HTML5 date picker.
 	 */
 	public static function getDateTimeField(
@@ -246,8 +248,8 @@ class Temporal
 
 		$readable_format = str_replace(['Y', 'm', 'd', 'H', 'i'], ['yyyy', 'mm', 'dd', 'HH', 'MM'], $dateformat);
 
-		$tpl = get_markup_template('field_datetime.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('field_datetime.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$field' => [
 				$id,
 				$label,
@@ -350,11 +352,12 @@ class Temporal
 	 * and become a year older. If you wish me happy birthday on January 1
 	 * (San Bruno time), you'll be a day late.
 	 *
-	 * @param string $dob Date of Birth
-	 * @param string $owner_tz (optional) Timezone of the person of interest
+	 * @param string $dob       Date of Birth
+	 * @param string $owner_tz  (optional) Timezone of the person of interest
 	 * @param string $viewer_tz (optional) Timezone of the person viewing
 	 *
 	 * @return int Age in years
+	 * @throws \Exception
 	 */
 	public static function getAgeByTimezone($dob, $owner_tz = '', $viewer_tz = '')
 	{
@@ -406,6 +409,7 @@ class Temporal
 	 * @param int $m Month (1=January, 12=December)
 	 *
 	 * @return string day 0 = Sunday through 6 = Saturday
+	 * @throws \Exception
 	 */
 	private static function getFirstDayInMonth($y, $m)
 	{
@@ -422,14 +426,15 @@ class Temporal
 	 * altering td class.
 	 * Months count from 1.
 	 *
-	 * @param int    $y Year
-	 * @param int    $m Month
+	 * @param int    $y     Year
+	 * @param int    $m     Month
 	 * @param array  $links (default null)
 	 * @param string $class
 	 *
 	 * @return string
 	 *
-	 * @todo Provide (prev, next) links, define class variations for different size calendars
+	 * @throws \Exception
+	 * @todo  Provide (prev, next) links, define class variations for different size calendars
 	 */
 	public static function getCalendarTable($y = 0, $m = 0, $links = null, $class = '')
 	{
@@ -462,11 +467,11 @@ class Temporal
 			$tddate = intval(DateTimeFormat::localNow('j'));
 		}
 
-		$str_month = day_translate($mtab[$m]);
+		$str_month = L10n::getDay($mtab[$m]);
 		$o = '<table class="calendar' . $class . '">';
 		$o .= "<caption>$str_month $y</caption><tr>";
 		for ($a = 0; $a < 7; $a ++) {
-			$o .= '<th>' . mb_substr(day_translate($dn[$a]), 0, 3, 'UTF-8') . '</th>';
+			$o .= '<th>' . mb_substr(L10n::getDay($dn[$a]), 0, 3, 'UTF-8') . '</th>';
 		}
 
 		$o .= '</tr><tr>';
@@ -480,7 +485,7 @@ class Temporal
 			$o .= "<td $today>";
 			$day = str_replace(' ', '&nbsp;', sprintf('%2.2d', $d));
 			if ($started) {
-				if (x($links, $d) !== false) {
+				if (isset($links[$d])) {
 					$o .= "<a href=\"{$links[$d]}\">$day</a>";
 				} else {
 					$o .= $day;

@@ -2,6 +2,9 @@
 
 namespace Friendica\Core;
 
+use Dice\Dice;
+use Friendica;
+
 /**
  * Description of Console
  *
@@ -13,24 +16,10 @@ class Console extends \Asika\SimpleConsole\Console
 	protected $helpOptions = [];
 	protected $customHelpOptions = ['h', 'help', '?'];
 
-	protected $subConsoles = [
-		'cache'                  => __NAMESPACE__ . '\Console\Cache',
-		'config'                 => __NAMESPACE__ . '\Console\Config',
-		'createdoxygen'          => __NAMESPACE__ . '\Console\CreateDoxygen',
-		'docbloxerrorchecker'    => __NAMESPACE__ . '\Console\DocBloxErrorChecker',
-		'dbstructure'            => __NAMESPACE__ . '\Console\DatabaseStructure',
-		'extract'                => __NAMESPACE__ . '\Console\Extract',
-		'globalcommunityblock'   => __NAMESPACE__ . '\Console\GlobalCommunityBlock',
-		'globalcommunitysilence' => __NAMESPACE__ . '\Console\GlobalCommunitySilence',
-		'archivecontact'         => __NAMESPACE__ . '\Console\ArchiveContact',
-		'autoinstall'            => __NAMESPACE__ . '\Console\AutomaticInstallation',
-		'maintenance'            => __NAMESPACE__ . '\Console\Maintenance',
-		'newpassword'            => __NAMESPACE__ . '\Console\NewPassword',
-		'php2po'                 => __NAMESPACE__ . '\Console\PhpToPo',
-		'po2php'                 => __NAMESPACE__ . '\Console\PoToPhp',
-		'typo'                   => __NAMESPACE__ . '\Console\Typo',
-		'postupdate'             => __NAMESPACE__ . '\Console\PostUpdate',
-	];
+	/**
+	 * @var Dice The DI library
+	 */
+	protected $dice;
 
 	protected function getHelp()
 	{
@@ -49,18 +38,56 @@ Commands:
 	archivecontact         Archive a contact when you know that it isn't existing anymore
 	help                   Show help about a command, e.g (bin/console help config)
 	autoinstall            Starts automatic installation of friendica based on values from htconfig.php
+	lock                   Edit site locks
 	maintenance            Set maintenance mode for this node
 	newpassword            Set a new password for a given user
 	php2po                 Generate a messages.po file from a strings.php file
 	po2php                 Generate a strings.php file from a messages.po file
 	typo                   Checks for parse errors in Friendica files
 	postupdate             Execute pending post update scripts (can last days)
+	serverblock            Manage blocked servers
+	storage                Manage storage backend
 
 Options:
 	-h|--help|-? Show help information
 	-v           Show more debug information.
 HELP;
 		return $help;
+	}
+
+	protected $subConsoles = [
+		'cache'                  => Friendica\Console\Cache::class,
+		'config'                 => Friendica\Console\Config::class,
+		'createdoxygen'          => Friendica\Console\CreateDoxygen::class,
+		'docbloxerrorchecker'    => Friendica\Console\DocBloxErrorChecker::class,
+		'dbstructure'            => Friendica\Console\DatabaseStructure::class,
+		'extract'                => Friendica\Console\Extract::class,
+		'globalcommunityblock'   => Friendica\Console\GlobalCommunityBlock::class,
+		'globalcommunitysilence' => Friendica\Console\GlobalCommunitySilence::class,
+		'archivecontact'         => Friendica\Console\ArchiveContact::class,
+		'autoinstall'            => Friendica\Console\AutomaticInstallation::class,
+		'lock'                   => Friendica\Console\Lock::class,
+		'maintenance'            => Friendica\Console\Maintenance::class,
+		'newpassword'            => Friendica\Console\NewPassword::class,
+		'php2po'                 => Friendica\Console\PhpToPo::class,
+		'po2php'                 => Friendica\Console\PoToPhp::class,
+		'typo'                   => Friendica\Console\Typo::class,
+		'postupdate'             => Friendica\Console\PostUpdate::class,
+		'serverblock'            => Friendica\Console\ServerBlock::class,
+		'storage'                => Friendica\Console\Storage::class,
+	];
+
+	/**
+	 * CliInput Friendica constructor.
+	 *
+	 * @param Dice $dice The DI library
+	 * @param array $argv
+	 */
+	public function __construct(Dice $dice, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->dice = $dice;
 	}
 
 	protected function doExecute()
@@ -71,7 +98,6 @@ HELP;
 			$this->out('Options: ' . var_export($this->options, true));
 		}
 
-		$showHelp = false;
 		$subHelp = false;
 		$command = null;
 
@@ -81,7 +107,6 @@ HELP;
 			return 0;
 		} elseif ((count($this->options) === 0 || $this->getOption($this->customHelpOptions) === true || $this->getOption($this->customHelpOptions) === 1) && count($this->args) === 0
 		) {
-			$showHelp = true;
 		} elseif (count($this->args) >= 2 && $this->getArgument(0) == 'help') {
 			$command = $this->getArgument(1);
 			$subHelp = true;
@@ -121,7 +146,10 @@ HELP;
 
 		$className = $this->subConsoles[$command];
 
-		$subconsole = new $className($subargs);
+		Friendica\BaseObject::setDependencyInjection($this->dice);
+
+		/** @var Console $subconsole */
+		$subconsole = $this->dice->create($className, [$subargs]);
 
 		foreach ($this->options as $name => $value) {
 			$subconsole->setOption($name, $value);

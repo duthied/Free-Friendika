@@ -2,9 +2,7 @@
 
 namespace Friendica\Util;
 
-use Friendica\Util\JsonLD;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Protocol\ActivityPub;
+use Friendica\Core\Logger;
 use Friendica\Model\APContact;
 
 /**
@@ -26,7 +24,7 @@ class LDSignature
 		}
 
 		$actor = JsonLD::fetchElement($data, 'actor', 'id');
-		if (empty($actor)) {
+		if (empty($actor) || !is_string($actor)) {
 			return false;
 		}
 
@@ -40,7 +38,7 @@ class LDSignature
 		$dhash = self::hash(self::signableData($data));
 
 		$x = Crypto::rsaVerify($ohash . $dhash, base64_decode($data['signature']['signatureValue']), $pubkey);
-		logger('LD-verify: ' . intval($x));
+		Logger::log('LD-verify: ' . intval($x));
 
 		if (empty($x)) {
 			return false;
@@ -53,7 +51,7 @@ class LDSignature
 	{
 		$options = [
 			'type' => 'RsaSignature2017',
-			'nonce' => random_string(64),
+			'nonce' => Strings::getRandomHex(64),
 			'creator' => $owner['url'] . '#main-key',
 			'created' => DateTimeFormat::utcNow(DateTimeFormat::ATOM)
 		];

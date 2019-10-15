@@ -7,9 +7,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-
-require_once 'include/dba.php';
-require_once 'include/text.php';
+use Friendica\Util\Strings;
 
 /**
  * Hashtag module.
@@ -21,7 +19,7 @@ class Hashtag extends BaseModule
 	{
 		$result = [];
 
-		$t = escape_tags($_REQUEST['t']);
+		$t = Strings::escapeHtml($_REQUEST['t']);
 		if (empty($t)) {
 			System::jsonExit($result);
 		}

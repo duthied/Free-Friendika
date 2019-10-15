@@ -12,7 +12,7 @@ Die zweite Zahl steht für die Anzahl der Aufgaben, die die Worker noch vor sich
 Die Worker arbeiten Hintergrundprozesse ab.
 Die Aufgaben der Worker sind priorisiert und werden anhand dieser Prioritäten abgearbeitet.
 
-Desweiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
+Des weiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
 Sowie eine Liste der derzeit aktivierten Addons.
 Diese Liste ist verlinkt, so dass du schnellen Zugriff auf die Informationsseiten der einzelnen Addons hast.
 Abschließend findest du auf der Startseite des Admin Panels die installierte Version von Friendica.
@@ -47,7 +47,7 @@ Mehr Informationen zum Übersetzungsprozess von Friendica findest du [auf dieser
 
 Hier kann das Theme bestimmt werden, welches standardmäßig zum Anzeigen der Seite verwendet werden soll.
 Nutzer können in ihren Einstellungen andere Themes wählen.
-Derzeit ist das "duepunto zero" Theme das vorausgewählte Theme.
+Derzeit ist das "vier" Theme das vorausgewählte Theme.
 
 Für mobile Geräte kannst du ein spezielles Theme wählen, wenn das Standardtheme ungeeignet für mobile Geräte sein sollte.
 Das `vier` Theme z.B. unterstützt kleine Anzeigen und benötigt kein zusätzliches mobiles Theme.
@@ -66,7 +66,7 @@ Dabei kannst du zwischen den folgenden Optionen wählen:
 ##### Einladungen
 
 Zusätzlich zu den oben genannten Möglichkeiten, kann die Registrierung eines neuen Nutzerkontos an eine Einladung durch einen bestehenden Nutzer gekoppelt werden.
-Hierzu muss in der [config/local.ini.php](/help/Config) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
+Hierzu muss in der [config/local.config.php](/help/Config) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
 
 #### Namen auf Vollständigkeit überprüfen
 
@@ -91,6 +91,32 @@ Wenn du die Erstellung weiterer Accounts blockieren willst, dann setze die Einst
 Standardmäßig ist hier "false" gesetzt.
 
 ### Datei hochladen
+
+#### Datenspeicher Backend
+
+Legt das Datenspeicher Backend fest, mit dem Friendica hoch geladene Daten speichert.
+Zwei Speicher Backends sind standardmäßig bei Friendica verfügbar:
+
+- **Database** : Die Daten werden in einer speziellen Tabelle in der Datenbank (`storage`) gespeichert.
+- **Filesystem** : Die Daten werden als Dateien im Dateisystem gespeichert.
+
+Weitere Speicher Backends können als Addons von Drittanbietern verfügbar sein.
+Falls ein solches verwendet wird, sei an dieser Stelle nur auf deren Dokumentation für weitere Informationen verwiesen.
+
+Die Grundeinstellung ist 'Datenbank (legacy)': Dies ist die alte Methode von Friendica Daten direkt in der Datenbank abzulegen.
+
+Bestehende Daten können zum aktuell ausgewählten Backend verschoben werden.
+Hierfür kann der ['storage move'](help/tools) Befehl der Friendica Konsole verwendet werden.
+
+Sollte das ausgewählte Speicher Backand zusätzliche Konfigurationsparameter besitzen, werden nach der Auswahl des Backends hier weitere Felder angezeigt.
+
+##### Dateipfad zum Speicher
+
+Der Basispfad unter dem das Filesystem Datenspeicher Backend die Daten speichern soll.
+
+Um zu verhindern, dass Daten unter Umgehung der Privatsphären-Einstellungen herunter geladen werden, sollte dieser Pfad außerhalb der Verzeichnisstruktur des Webservers liegen.
+
+Die Grundeinstellung ist `storage`, das ist das `storage` Unterverzeichnis innerhalb des Friendica Verzeichnisses.
 
 #### Maximale Bildgröße
 
@@ -134,7 +160,7 @@ Angemeldete Nutzer des Knotens können grundsätzlich beide Seiten verwenden.
 #### Erlaubte Domains für Kontakte
 
 Kommagetrennte Liste von Domains, welche eine Freundschaft mit dieser Seite eingehen dürfen.
-Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP5.3) Standardmäßig sind alle gültigen Domains erlaubt.
+Wildcards werden akzeptiert Standardmäßig sind alle gültigen Domains erlaubt.
 
 Mit dieser Option kann man einfach geschlossene Netzwerke, z.B. im schulischen Bereich aufbauen, aus denen nicht mit dem Rest des Netzwerks kommuniziert werden soll.
 
@@ -142,7 +168,7 @@ Mit dieser Option kann man einfach geschlossene Netzwerke, z.B. im schulischen B
 
 Kommagetrennte Liste von Domains, welche bei der Registrierung als Part der Email-Adresse erlaubt sind.
 Das grenzt Leute aus, die nicht Teil der Gruppe oder Organisation sind.
-Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP5.3) Standardmäßig sind alle gültigen Email-Adressen erlaubt.
+Wildcards werden akzeptiert Standardmäßig sind alle gültigen Email-Adressen erlaubt.
 
 #### Nutzern erlauben das remote_self Flag zu setzen
 
@@ -313,7 +339,7 @@ Du solltest deshalb einen Dienst zur [log rotation](https://en.wikipedia.org/wik
 **Bekannte Probleme**: Der Dateiname `friendica.log` kann bei speziellen Server Konfigurationen zu Problemen führen (siehe [issue 2209](https://github.com/friendica/friendica/issues/2209)).
 
 Normalerweise werden Fehler- und Warnmeldungen von PHP unterdrückt.
-Wenn du sie aktivieren willst, musst du folgendes in der `config/local.ini.php` Datei eintragen um die Meldungen in die Datei `php.out` zu speichern
+Wenn du sie aktivieren willst, musst du folgendes in der `config/local.config.php` Datei eintragen um die Meldungen in die Datei `php.out` zu speichern
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE );
 	ini_set('error_log','php.out');
@@ -347,18 +373,21 @@ Dies sind die Datenbank Einstellungen, die Administrator Accounts, der PHP Pfad 
 
 Mit den folgenden Einstellungen kannst du die Zugriffsdaten für den Datenbank Server festlegen.
 
-    $db_host = 'your.db.host';
-    $db_user = 'db_username';
-    $db_pass = 'db_password';
-    $db_data = 'database_name';
+	'database' => [
+		'hostname' => 'localhost',
+		'username' => 'mysqlusername',
+		'password' => 'mysqlpassword',
+		'database' => 'mysqldatabasename',
+		'charset' => 'utf8mb4',
+	],
 
 Sollten alle der folgenden Environment-Variablen gesetzt sein, wird Friendica diese anstatt der vorher konfigurierten Werte nutzen.
 
-    MYSQL_HOST
-    MYSQL_PORT
-    MYSQL_USERNAME
-    MYSQL_PASSWORD
-    MYSQL_DATABASE
+	MYSQL_HOST
+	MYSQL_PORT
+	MYSQL_USERNAME
+	MYSQL_PASSWORD
+	MYSQL_DATABASE
 
 ## Administratoren
 
@@ -367,16 +396,18 @@ Normalerweise trifft dies auf den ersten Account zu, der nach der Installation a
 Die Liste der E-Mail Adressen kann aber einfach erweitert werden.
 Mit keiner der angegebenen E-Mail Adressen können weitere Accounts registriert werden.
 
-    [config]
-    admin_email = you@example.com, buddy@example.com
+	'config' => [
+		'admin_email' => 'you@example.com, buddy@example.com',
+	],
 
 ## PHP Pfad
 
 Einige Prozesse von Friendica laufen im Hintergrund.
 Für diese Prozesse muss der Pfad zu der PHP Version gesetzt sein, die verwendet werden soll.
 
-    [config]
-    php_path = {{$phpath}}
+	'config' => [
+		'php_path' => '/usr/bin/php',
+	],
 
 ## Unterverzeichnis Konfiguration
 
@@ -384,10 +415,11 @@ Man kann Friendica in ein Unterverzeichnis des Webservers installieren.
 Wir raten allerdings dringen davon ab, da es die Interoperabilität mit anderen Netzwerken (z.B. Diaspora, GNU Social, Hubzilla) verhindert.
 Mal angenommen, du hast ein Unterverzeichnis tests und willst Friendica in ein weiteres Unterverzeichnis installieren, dann lautet die Konfiguration hierfür:
 
-    [system]
-    urlpath = tests/friendica
+	'system' => [
+		'urlpath' => 'tests/friendica',
+	],
 
 ## Weitere Ausnahmen
 
-Es gibt noch einige experimentelle Einstellungen, die nur in der ``config/local.ini.php`` Datei konfiguriert werden können.
-Im [Konfigurationswerte, die nur in der config/local.ini.php gesetzt werden können (EN)](help/Config) Artikel kannst du mehr darüber erfahren.
+Es gibt noch einige experimentelle Einstellungen, die nur in der ``config/local.config.php`` Datei konfiguriert werden können.
+Im [Konfigurationswerte, die nur in der config/local.config.php gesetzt werden können (EN)](help/Config) Artikel kannst du mehr darüber erfahren.

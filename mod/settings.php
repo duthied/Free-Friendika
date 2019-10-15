@@ -8,10 +8,13 @@ use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
@@ -23,11 +26,15 @@ use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Protocol\Email;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Friendica\Worker\Delivery;
 
 function get_theme_config_file($theme)
 {
-	$a = get_app();
+	$theme = Strings::sanitizeFilePathItem($theme);
+
+	$a = \get_app();
 	$base_theme = defaults($a->theme_info, 'extends');
 
 	if (file_exists("view/theme/$theme/config.php")) {
@@ -48,8 +55,8 @@ function settings_init(App $a)
 
 	// These lines provide the javascript needed by the acl selector
 
-	$tpl = get_markup_template('settings/head.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => L10n::t('everybody')
 	]);
 
@@ -60,6 +67,13 @@ function settings_init(App $a)
 			'selected'	=>  (($a->argc == 1) && ($a->argv[0] === 'settings')?'active':''),
 			'accesskey' => 'o',
 		],
+	];
+
+	$tabs[] = [
+		'label' => L10n::t('Two-factor authentication'),
+		'url' => 'settings/2fa',
+		'selected' => (($a->argc > 1) && ($a->argv[1] === '2fa') ? 'active' : ''),
+		'accesskey' => 'o',
 	];
 
 	$tabs[] =	[
@@ -101,8 +115,8 @@ function settings_init(App $a)
 
 	$tabs[] =	[
 		'label'	=> L10n::t('Delegations'),
-		'url' 	=> 'delegate',
-		'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
+		'url' 	=> 'settings/delegation',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'delegation')?'active':''),
 		'accesskey' => 'd',
 	];
 
@@ -128,8 +142,8 @@ function settings_init(App $a)
 	];
 
 
-	$tabtpl = get_markup_template("generic_links_widget.tpl");
-	$a->page['aside'] = replace_macros($tabtpl, [
+	$tabtpl = Renderer::getMarkupTemplate("generic_links_widget.tpl");
+	$a->page['aside'] = Renderer::replaceMacros($tabtpl, [
 		'$title' => L10n::t('Settings'),
 		'$class' => 'settings-widget',
 		'$items' => $tabs,
@@ -143,18 +157,18 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		return;
 	}
 
-	if (count($a->user) && x($a->user, 'uid') && $a->user['uid'] != local_user()) {
+	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	$old_page_flags = $a->user['page-flags'];
 
-	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && x($_POST, 'remove')) {
+	if (($a->argc > 1) && ($a->argv[1] === 'oauth') && !empty($_POST['remove'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
 		$key = $_POST['remove'];
@@ -163,7 +177,7 @@ function settings_post(App $a)
 		return;
 	}
 
-	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && x($_POST, 'submit')) {
+	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && !empty($_POST['submit'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
 		$name     = defaults($_POST, 'name'    , '');
@@ -212,30 +226,31 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] == 'addon')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/addon', 'settings_addon');
 
-		Addon::callHooks('addon_settings_post', $_POST);
+		Hook::callAll('addon_settings_post', $_POST);
 		return;
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] == 'connectors')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
 
-		if (x($_POST, 'general-submit')) {
+		if (!empty($_POST['general-submit'])) {
+			PConfig::set(local_user(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
 			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
 			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
 			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			PConfig::set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
-		} elseif (x($_POST, 'imap-submit')) {
+		} elseif (!empty($_POST['imap-submit'])) {
 
-			$mail_server       = ((x($_POST, 'mail_server')) ? $_POST['mail_server'] : '');
-			$mail_port         = ((x($_POST, 'mail_port')) ? $_POST['mail_port'] : '');
-			$mail_ssl          = ((x($_POST, 'mail_ssl')) ? strtolower(trim($_POST['mail_ssl'])) : '');
-			$mail_user         = ((x($_POST, 'mail_user')) ? $_POST['mail_user'] : '');
-			$mail_pass         = ((x($_POST, 'mail_pass')) ? trim($_POST['mail_pass']) : '');
-			$mail_action       = ((x($_POST, 'mail_action')) ? trim($_POST['mail_action']) : '');
-			$mail_movetofolder = ((x($_POST, 'mail_movetofolder')) ? trim($_POST['mail_movetofolder']) : '');
-			$mail_replyto      = ((x($_POST, 'mail_replyto')) ? $_POST['mail_replyto'] : '');
-			$mail_pubmail      = ((x($_POST, 'mail_pubmail')) ? $_POST['mail_pubmail'] : '');
+			$mail_server       = defaults($_POST, 'mail_server', '');
+			$mail_port         = defaults($_POST, 'mail_port', '');
+			$mail_ssl          = (!empty($_POST['mail_ssl']) ? strtolower(trim($_POST['mail_ssl'])) : '');
+			$mail_user         = defaults($_POST, 'mail_user', '');
+			$mail_pass         = (!empty($_POST['mail_pass']) ? trim($_POST['mail_pass']) : '');
+			$mail_action       = (!empty($_POST['mail_action']) ? trim($_POST['mail_action']) : '');
+			$mail_movetofolder = (!empty($_POST['mail_movetofolder']) ? trim($_POST['mail_movetofolder']) : '');
+			$mail_replyto      = defaults($_POST, 'mail_replyto', '');
+			$mail_pubmail      = defaults($_POST, 'mail_pubmail', '');
 
 
 			$mail_disabled = ((function_exists('imap_open') && (!Config::get('system', 'imap_disabled'))) ? 0 : 1);
@@ -269,7 +284,7 @@ function settings_post(App $a)
 					intval($mail_pubmail),
 					intval(local_user())
 				);
-				logger("mail: updating mailaccount. Response: ".print_r($r, true));
+				Logger::log("mail: updating mailaccount. Response: ".print_r($r, true));
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
 				);
@@ -294,7 +309,7 @@ function settings_post(App $a)
 			}
 		}
 
-		Addon::callHooks('connector_settings_post', $_POST);
+		Hook::callAll('connector_settings_post', $_POST);
 		return;
 	}
 
@@ -312,17 +327,17 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
-		$theme             = x($_POST, 'theme')             ? notags(trim($_POST['theme']))        : $a->user['theme'];
-		$mobile_theme      = x($_POST, 'mobile_theme')      ? notags(trim($_POST['mobile_theme'])) : '';
-		$nosmile           = x($_POST, 'nosmile')           ? intval($_POST['nosmile'])            : 0;
-		$first_day_of_week = x($_POST, 'first_day_of_week') ? intval($_POST['first_day_of_week'])  : 0;
-		$noinfo            = x($_POST, 'noinfo')            ? intval($_POST['noinfo'])             : 0;
-		$infinite_scroll   = x($_POST, 'infinite_scroll')   ? intval($_POST['infinite_scroll'])    : 0;
-		$no_auto_update    = x($_POST, 'no_auto_update')    ? intval($_POST['no_auto_update'])     : 0;
-		$bandwidth_saver   = x($_POST, 'bandwidth_saver')   ? intval($_POST['bandwidth_saver'])    : 0;
-		$smart_threading   = x($_POST, 'smart_threading')   ? intval($_POST['smart_threading'])    : 0;
-		$nowarn_insecure   = x($_POST, 'nowarn_insecure')   ? intval($_POST['nowarn_insecure'])    : 0;
-		$browser_update    = x($_POST, 'browser_update')    ? intval($_POST['browser_update'])     : 0;
+		$theme             = !empty($_POST['theme'])             ? Strings::escapeTags(trim($_POST['theme']))        : $a->user['theme'];
+		$mobile_theme      = !empty($_POST['mobile_theme'])      ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
+		$nosmile           = !empty($_POST['nosmile'])           ? intval($_POST['nosmile'])            : 0;
+		$first_day_of_week = !empty($_POST['first_day_of_week']) ? intval($_POST['first_day_of_week'])  : 0;
+		$noinfo            = !empty($_POST['noinfo'])            ? intval($_POST['noinfo'])             : 0;
+		$infinite_scroll   = !empty($_POST['infinite_scroll'])   ? intval($_POST['infinite_scroll'])    : 0;
+		$no_auto_update    = !empty($_POST['no_auto_update'])    ? intval($_POST['no_auto_update'])     : 0;
+		$bandwidth_saver   = !empty($_POST['bandwidth_saver'])   ? intval($_POST['bandwidth_saver'])    : 0;
+		$smart_threading   = !empty($_POST['smart_threading'])   ? intval($_POST['smart_threading'])    : 0;
+		$nowarn_insecure   = !empty($_POST['nowarn_insecure'])   ? intval($_POST['nowarn_insecure'])    : 0;
+		$browser_update    = !empty($_POST['browser_update'])    ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
 			if ($browser_update < 10000) {
@@ -330,11 +345,11 @@ function settings_post(App $a)
 			}
 		}
 
-		$itemspage_network = x($_POST, 'itemspage_network')  ? intval($_POST['itemspage_network'])  : 40;
+		$itemspage_network = !empty($_POST['itemspage_network'])  ? intval($_POST['itemspage_network'])  : 40;
 		if ($itemspage_network > 100) {
 			$itemspage_network = 100;
 		}
-		$itemspage_mobile_network = x($_POST, 'itemspage_mobile_network') ? intval($_POST['itemspage_mobile_network']) : 20;
+		$itemspage_mobile_network = !empty($_POST['itemspage_mobile_network']) ? intval($_POST['itemspage_mobile_network']) : 20;
 		if ($itemspage_mobile_network > 100) {
 			$itemspage_mobile_network = 100;
 		}
@@ -355,100 +370,88 @@ function settings_post(App $a)
 		PConfig::set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
 		PConfig::set(local_user(), 'system', 'smart_threading'         , $smart_threading);
 
-		if ($theme == $a->user['theme']) {
-			// call theme_post only if theme has not been changed
-			if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
-				require_once $themeconfigfile;
-				theme_post($a);
+		if (in_array($theme, Theme::getAllowedList())) {
+			if ($theme == $a->user['theme']) {
+				// call theme_post only if theme has not been changed
+				if (($themeconfigfile = get_theme_config_file($theme)) !== null) {
+					require_once $themeconfigfile;
+					theme_post($a);
+				}
+			} else {
+				DBA::update('user', ['theme' => $theme], ['uid' => local_user()]);
 			}
+		} else {
+			notice(L10n::t('The theme you chose isn\'t available.'));
 		}
-		Theme::install($theme);
 
-		$r = q("UPDATE `user` SET `theme` = '%s' WHERE `uid` = %d",
-				DBA::escape($theme),
-				intval(local_user())
-		);
-
-		Addon::callHooks('display_settings_post', $_POST);
+		Hook::callAll('display_settings_post', $_POST);
 		$a->internalRedirect('settings/display');
 		return; // NOTREACHED
 	}
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/settings', 'settings');
 
-	if (x($_POST,'resend_relocate')) {
-		Worker::add(PRIORITY_HIGH, 'Notifier', 'relocate', local_user());
+	if (!empty($_POST['resend_relocate'])) {
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
 		info(L10n::t("Relocate message has been send to your contacts"));
 		$a->internalRedirect('settings');
 	}
 
-	Addon::callHooks('settings_post', $_POST);
+	Hook::callAll('settings_post', $_POST);
 
-	if (x($_POST, 'password') || x($_POST, 'confirm')) {
+	if (!empty($_POST['password']) || !empty($_POST['confirm'])) {
 		$newpass = $_POST['password'];
 		$confirm = $_POST['confirm'];
 
-		$err = false;
-		if ($newpass != $confirm) {
-			notice(L10n::t('Passwords do not match. Password unchanged.') . EOL);
-			$err = true;
-		}
-
-		if (!x($newpass) || !x($confirm)) {
-			notice(L10n::t('Empty passwords are not allowed. Password unchanged.') . EOL);
-			$err = true;
-		}
-
-		if (!Config::get('system', 'disable_password_exposed', false) && User::isPasswordExposed($newpass)) {
-			notice(L10n::t('The new password has been exposed in a public data dump, please choose another.') . EOL);
-			$err = true;
-		}
-
-		//  check if the old password was supplied correctly before changing it to the new value
-		if (!User::authenticate(intval(local_user()), $_POST['opassword'])) {
-			notice(L10n::t('Wrong password.') . EOL);
-			$err = true;
-		}
-
-		if (!$err) {
-			$result = User::updatePassword(local_user(), $newpass);
-			if (DBA::isResult($result)) {
-				info(L10n::t('Password changed.') . EOL);
-			} else {
-				notice(L10n::t('Password update failed. Please try again.') . EOL);
+		try {
+			if ($newpass != $confirm) {
+				throw new Exception(L10n::t('Passwords do not match.'));
 			}
+
+			//  check if the old password was supplied correctly before changing it to the new value
+			User::getIdFromPasswordAuthentication(local_user(), $_POST['opassword']);
+
+			$result = User::updatePassword(local_user(), $newpass);
+			if (!DBA::isResult($result)) {
+				throw new Exception(L10n::t('Password update failed. Please try again.'));
+			}
+
+			info(L10n::t('Password changed.'));
+		} catch (Exception $e) {
+			notice($e->getMessage());
+			notice(L10n::t('Password unchanged.'));
 		}
 	}
 
-	$username         = ((x($_POST, 'username'))   ? notags(trim($_POST['username']))     : '');
-	$email            = ((x($_POST, 'email'))      ? notags(trim($_POST['email']))        : '');
-	$timezone         = ((x($_POST, 'timezone'))   ? notags(trim($_POST['timezone']))     : '');
-	$language         = ((x($_POST, 'language'))   ? notags(trim($_POST['language']))     : '');
+	$username         = (!empty($_POST['username'])   ? Strings::escapeTags(trim($_POST['username']))     : '');
+	$email            = (!empty($_POST['email'])      ? Strings::escapeTags(trim($_POST['email']))        : '');
+	$timezone         = (!empty($_POST['timezone'])   ? Strings::escapeTags(trim($_POST['timezone']))     : '');
+	$language         = (!empty($_POST['language'])   ? Strings::escapeTags(trim($_POST['language']))     : '');
 
-	$defloc           = ((x($_POST, 'defloc'))     ? notags(trim($_POST['defloc']))       : '');
-	$openid           = ((x($_POST, 'openid_url')) ? notags(trim($_POST['openid_url']))   : '');
-	$maxreq           = ((x($_POST, 'maxreq'))     ? intval($_POST['maxreq'])             : 0);
-	$expire           = ((x($_POST, 'expire'))     ? intval($_POST['expire'])             : 0);
-	$def_gid          = ((x($_POST, 'group-selection')) ? intval($_POST['group-selection']) : 0);
+	$defloc           = (!empty($_POST['defloc'])     ? Strings::escapeTags(trim($_POST['defloc']))       : '');
+	$openid           = (!empty($_POST['openid_url']) ? Strings::escapeTags(trim($_POST['openid_url']))   : '');
+	$maxreq           = (!empty($_POST['maxreq'])     ? intval($_POST['maxreq'])             : 0);
+	$expire           = (!empty($_POST['expire'])     ? intval($_POST['expire'])             : 0);
+	$def_gid          = (!empty($_POST['group-selection']) ? intval($_POST['group-selection']) : 0);
 
 
-	$expire_items     = ((x($_POST, 'expire_items')) ? intval($_POST['expire_items'])	 : 0);
-	$expire_notes     = ((x($_POST, 'expire_notes')) ? intval($_POST['expire_notes'])	 : 0);
-	$expire_starred   = ((x($_POST, 'expire_starred')) ? intval($_POST['expire_starred']) : 0);
-	$expire_photos    = ((x($_POST, 'expire_photos'))? intval($_POST['expire_photos'])	 : 0);
-	$expire_network_only    = ((x($_POST, 'expire_network_only'))? intval($_POST['expire_network_only'])	 : 0);
+	$expire_items     = (!empty($_POST['expire_items']) ? intval($_POST['expire_items'])	 : 0);
+	$expire_notes     = (!empty($_POST['expire_notes']) ? intval($_POST['expire_notes'])	 : 0);
+	$expire_starred   = (!empty($_POST['expire_starred']) ? intval($_POST['expire_starred']) : 0);
+	$expire_photos    = (!empty($_POST['expire_photos'])? intval($_POST['expire_photos'])	 : 0);
+	$expire_network_only    = (!empty($_POST['expire_network_only'])? intval($_POST['expire_network_only'])	 : 0);
 
-	$allow_location   = (((x($_POST, 'allow_location')) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
-	$publish          = (((x($_POST, 'profile_in_directory')) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
-	$net_publish      = (((x($_POST, 'profile_in_netdirectory')) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
-	$old_visibility   = (((x($_POST, 'visibility')) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
-	$account_type     = (((x($_POST, 'account-type')) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
-	$page_flags       = (((x($_POST, 'page-flags')) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
-	$blockwall        = (((x($_POST, 'blockwall')) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
-	$blocktags        = (((x($_POST, 'blocktags')) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
-	$unkmail          = (((x($_POST, 'unkmail')) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
-	$cntunkmail       = ((x($_POST, 'cntunkmail')) ? intval($_POST['cntunkmail']) : 0);
-	$suggestme        = ((x($_POST, 'suggestme')) ? intval($_POST['suggestme'])  : 0);
+	$allow_location   = ((!empty($_POST['allow_location']) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
+	$publish          = ((!empty($_POST['profile_in_directory']) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
+	$net_publish      = ((!empty($_POST['profile_in_netdirectory']) && (intval($_POST['profile_in_netdirectory']) == 1)) ? 1: 0);
+	$old_visibility   = ((!empty($_POST['visibility']) && (intval($_POST['visibility']) == 1)) ? 1 : 0);
+	$account_type     = ((!empty($_POST['account-type']) && (intval($_POST['account-type']))) ? intval($_POST['account-type']) : 0);
+	$page_flags       = ((!empty($_POST['page-flags']) && (intval($_POST['page-flags']))) ? intval($_POST['page-flags']) : 0);
+	$blockwall        = ((!empty($_POST['blockwall']) && (intval($_POST['blockwall']) == 1)) ? 0: 1); // this setting is inverted!
+	$blocktags        = ((!empty($_POST['blocktags']) && (intval($_POST['blocktags']) == 1)) ? 0: 1); // this setting is inverted!
+	$unkmail          = ((!empty($_POST['unkmail']) && (intval($_POST['unkmail']) == 1)) ? 1: 0);
+	$cntunkmail       = (!empty($_POST['cntunkmail']) ? intval($_POST['cntunkmail']) : 0);
+	$suggestme        = (!empty($_POST['suggestme']) ? intval($_POST['suggestme'])  : 0);
 	$hide_friends     = (($_POST['hide-friends'] == 1) ? 1: 0);
 	$hidewall         = (($_POST['hidewall'] == 1) ? 1: 0);
 
@@ -457,43 +460,41 @@ function settings_post(App $a)
 
 	$notify = 0;
 
-	if (x($_POST, 'notify1')) {
+	if (!empty($_POST['notify1'])) {
 		$notify += intval($_POST['notify1']);
 	}
-	if (x($_POST, 'notify2')) {
+	if (!empty($_POST['notify2'])) {
 		$notify += intval($_POST['notify2']);
 	}
-	if (x($_POST, 'notify3')) {
+	if (!empty($_POST['notify3'])) {
 		$notify += intval($_POST['notify3']);
 	}
-	if (x($_POST, 'notify4')) {
+	if (!empty($_POST['notify4'])) {
 		$notify += intval($_POST['notify4']);
 	}
-	if (x($_POST, 'notify5')) {
+	if (!empty($_POST['notify5'])) {
 		$notify += intval($_POST['notify5']);
 	}
-	if (x($_POST, 'notify6')) {
+	if (!empty($_POST['notify6'])) {
 		$notify += intval($_POST['notify6']);
 	}
-	if (x($_POST, 'notify7')) {
+	if (!empty($_POST['notify7'])) {
 		$notify += intval($_POST['notify7']);
 	}
-	if (x($_POST, 'notify8')) {
+	if (!empty($_POST['notify8'])) {
 		$notify += intval($_POST['notify8']);
 	}
 
 	// Adjust the page flag if the account type doesn't fit to the page flag.
-	if (($account_type == Contact::ACCOUNT_TYPE_PERSON) && !in_array($page_flags, [Contact::PAGE_NORMAL, Contact::PAGE_SOAPBOX, Contact::PAGE_FREELOVE])) {
-		$page_flags = Contact::PAGE_NORMAL;
-	} elseif (($account_type == Contact::ACCOUNT_TYPE_ORGANISATION) && !in_array($page_flags, [Contact::PAGE_SOAPBOX])) {
-		$page_flags = Contact::PAGE_SOAPBOX;
-	} elseif (($account_type == Contact::ACCOUNT_TYPE_NEWS) && !in_array($page_flags, [Contact::PAGE_SOAPBOX])) {
-		$page_flags = Contact::PAGE_SOAPBOX;
-	} elseif (($account_type == Contact::ACCOUNT_TYPE_COMMUNITY) && !in_array($page_flags, [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP])) {
-		$page_flags = Contact::PAGE_COMMUNITY;
+	if (($account_type == User::ACCOUNT_TYPE_PERSON) && !in_array($page_flags, [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_SOAPBOX, User::PAGE_FLAGS_FREELOVE])) {
+		$page_flags = User::PAGE_FLAGS_NORMAL;
+	} elseif (($account_type == User::ACCOUNT_TYPE_ORGANISATION) && !in_array($page_flags, [User::PAGE_FLAGS_SOAPBOX])) {
+		$page_flags = User::PAGE_FLAGS_SOAPBOX;
+	} elseif (($account_type == User::ACCOUNT_TYPE_NEWS) && !in_array($page_flags, [User::PAGE_FLAGS_SOAPBOX])) {
+		$page_flags = User::PAGE_FLAGS_SOAPBOX;
+	} elseif (($account_type == User::ACCOUNT_TYPE_COMMUNITY) && !in_array($page_flags, [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
+		$page_flags = User::PAGE_FLAGS_COMMUNITY;
 	}
-
-	$email_changed = false;
 
 	$err = '';
 
@@ -507,14 +508,13 @@ function settings_post(App $a)
 	}
 
 	if ($email != $a->user['email']) {
-		$email_changed = true;
 		//  check for the correct password
 		if (!User::authenticate(intval(local_user()), $_POST['mpassword'])) {
 			$err .= L10n::t('Wrong Password') . EOL;
 			$email = $a->user['email'];
 		}
 		//  check the email is valid
-		if (!valid_email($email)) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			$err .= L10n::t('Invalid email.');
 		}
 		//  ensure new email is not the admin mail
@@ -542,12 +542,12 @@ function settings_post(App $a)
 	$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
 
 	$openidserver = $a->user['openidserver'];
-	//$openid = normalise_openid($openid);
+	//$openid = Strings::normaliseOpenID($openid);
 
 	// If openid has changed or if there's an openid but no openidserver, try and discover it.
 	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
 		if (Network::isUrlValid($openid)) {
-			logger('updating openidserver');
+			Logger::log('updating openidserver');
 			$open_id_obj = new LightOpenID($a->getHostName());
 			$open_id_obj->identity = $openid;
 			$openidserver = $open_id_obj->discover($open_id_obj->identity);
@@ -567,7 +567,7 @@ function settings_post(App $a)
 	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
 	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
 
-	if ($page_flags == Contact::PAGE_PRVGROUP) {
+	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
 		$hidewall = 1;
 		if (!$str_contact_allow && !$str_group_allow && !$str_contact_deny && !$str_group_deny) {
 			if ($def_gid) {
@@ -620,7 +620,7 @@ function settings_post(App $a)
 	// clear session language
 	unset($_SESSION['language']);
 
-	$r = q("UPDATE `profile`
+	q("UPDATE `profile`
 		SET `publish` = %d,
 		`name` = '%s',
 		`net-publish` = %d,
@@ -663,15 +663,15 @@ function settings_content(App $a)
 		return Login::form();
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'oauth')) {
 		if (($a->argc > 2) && ($a->argv[2] === 'add')) {
-			$tpl = get_markup_template('settings/oauth_edit.tpl');
-			$o .= replace_macros($tpl, [
+			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
+			$o .= Renderer::replaceMacros($tpl, [
 				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
 				'$submit'	=> L10n::t('Save Settings'),
@@ -696,8 +696,8 @@ function settings_content(App $a)
 			}
 			$app = $r[0];
 
-			$tpl = get_markup_template('settings/oauth_edit.tpl');
-			$o .= replace_macros($tpl, [
+			$tpl = Renderer::getMarkupTemplate('settings/oauth_edit.tpl');
+			$o .= Renderer::replaceMacros($tpl, [
 				'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 				'$title'	=> L10n::t('Add application'),
 				'$submit'	=> L10n::t('Update'),
@@ -728,8 +728,8 @@ function settings_content(App $a)
 				local_user());
 
 
-		$tpl = get_markup_template('settings/oauth.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
 			'$baseurl'	=> $a->getBaseURL(true),
 			'$title'	=> L10n::t('Connected Apps'),
@@ -752,11 +752,11 @@ function settings_content(App $a)
 			$settings_addons = L10n::t('No Addon settings configured');
 		}
 
-		Addon::callHooks('addon_settings', $settings_addons);
+		Hook::callAll('addon_settings', $settings_addons);
 
 
-		$tpl = get_markup_template('settings/addons.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/addons.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_addon"),
 			'$title'	=> L10n::t('Addon Settings'),
 			'$settings_addons' => $settings_addons
@@ -776,8 +776,8 @@ function settings_content(App $a)
 			}
 		}
 
-		$tpl = get_markup_template('settings/features.tpl');
-		$o .= replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/features.tpl');
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_features"),
 			'$title'               => L10n::t('Additional Features'),
 			'$features'            => $arr,
@@ -787,19 +787,20 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
+		$accept_only_sharer        = intval(PConfig::get(local_user(), 'system', 'accept_only_sharer'));
 		$disable_cw                = intval(PConfig::get(local_user(), 'system', 'disable_cw'));
 		$no_intelligent_shortening = intval(PConfig::get(local_user(), 'system', 'no_intelligent_shortening'));
 		$ostatus_autofriend        = intval(PConfig::get(local_user(), 'system', 'ostatus_autofriend'));
 		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');
 		$legacy_contact            = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
 
-		if (x($legacy_contact)) {
+		if (!empty($legacy_contact)) {
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
 			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
 
 		$settings_connectors = '';
-		Addon::callHooks('connector_settings', $settings_connectors);
+		Hook::callAll('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
 			$diasp_enabled = L10n::t('Built-in support for %s connectivity is %s', L10n::t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? L10n::t('enabled') : L10n::t('disabled')));
@@ -832,11 +833,11 @@ function settings_content(App $a)
 		$mail_chk          = ((DBA::isResult($r)) ? $r[0]['last_check'] : DBA::NULL_DATETIME);
 
 
-		$tpl = get_markup_template('settings/connectors.tpl');
+		$tpl = Renderer::getMarkupTemplate('settings/connectors.tpl');
 
 		$mail_disabled_message = (($mail_disabled) ? L10n::t('Email access is disabled on this site.') : '');
 
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_connectors"),
 
 			'$title'	=> L10n::t('Social Networks'),
@@ -845,6 +846,7 @@ function settings_content(App $a)
 			'$ostat_enabled' => $ostat_enabled,
 
 			'$general_settings' => L10n::t('General Social Media Settings'),
+			'$accept_only_sharer' => ['accept_only_sharer', L10n::t('Accept only top level posts by contacts you follow'), $accept_only_sharer, L10n::t('The system does an auto completion of threads when a comment arrives. This has got the side effect that you can receive posts that had been started by a non-follower but had been commented by someone you follow. This setting deactivates this behaviour. When activated, you strictly only will receive posts from people you really do follow.')],
 			'$disable_cw' => ['disable_cw', L10n::t('Disable Content Warning'), $disable_cw, L10n::t('Users on networks like Mastodon or Pleroma are able to set a content warning field which collapse their post by default. This disables the automatic collapsing and sets the content warning as the post title. Doesn\'t affect any other content filtering you eventually set up.')],
 			'$no_intelligent_shortening' => ['no_intelligent_shortening', L10n::t('Disable intelligent shortening'), $no_intelligent_shortening, L10n::t('Normally the system tries to find the best link to add to shortened posts. If this option is enabled then every shortened post will always point to the original friendica post.')],
 			'$ostatus_autofriend' => ['snautofollow', L10n::t("Automatically follow any GNU Social \x28OStatus\x29 followers/mentioners"), $ostatus_autofriend, L10n::t('If you receive a message from an unknown OStatus user, this option decides what to do. If it is checked, a new contact will be created for every unknown user.')],
@@ -872,7 +874,7 @@ function settings_content(App $a)
 			'$submit' => L10n::t('Save Settings'),
 		]);
 
-		Addon::callHooks('display_settings', $o);
+		Hook::callAll('display_settings', $o);
 		return $o;
 	}
 
@@ -889,42 +891,32 @@ function settings_content(App $a)
 			$default_mobile_theme = 'none';
 		}
 
-		$allowed_themes_str = Config::get('system', 'allowed_themes');
-		$allowed_themes_raw = explode(',', $allowed_themes_str);
-		$allowed_themes = [];
-		if (count($allowed_themes_raw)) {
-			foreach ($allowed_themes_raw as $x) {
-				if (strlen(trim($x)) && is_dir("view/theme/$x")) {
-					$allowed_themes[] = trim($x);
-				}
-			}
-		}
-
+		$allowed_themes = Theme::getAllowedList();
 
 		$themes = [];
 		$mobile_themes = ["---" => L10n::t('No special theme for mobile devices')];
-		if ($allowed_themes) {
-			foreach ($allowed_themes as $theme) {
-				$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
-				$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
-				$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
-				if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
-					$theme_name = ucfirst($theme);
-					if ($is_unsupported) {
-						$theme_name = L10n::t("%s - \x28Unsupported\x29", $theme_name);
-					} elseif ($is_experimental) {
-						$theme_name = L10n::t("%s - \x28Experimental\x29", $theme_name);
-					}
-					if ($is_mobile) {
-						$mobile_themes[$theme] = $theme_name;
-					} else {
-						$themes[$theme] = $theme_name;
-					}
+		foreach ($allowed_themes as $theme) {
+			$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
+			$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
+			$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
+			if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
+				$theme_name = ucfirst($theme);
+				if ($is_unsupported) {
+					$theme_name = L10n::t('%s - (Unsupported)', $theme_name);
+				} elseif ($is_experimental) {
+					$theme_name = L10n::t('%s - (Experimental)', $theme_name);
+				}
+
+				if ($is_mobile) {
+					$mobile_themes[$theme] = $theme_name;
+				} else {
+					$themes[$theme] = $theme_name;
 				}
 			}
 		}
-		$theme_selected        = defaults($_SESSION, 'theme'       , $default_theme);
-		$mobile_theme_selected = defaults($_SESSION, 'mobile-theme', $default_mobile_theme);
+
+		$theme_selected        = $a->user['theme'] ?: $default_theme;
+		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
 
 		$nowarn_insecure = intval(PConfig::get(local_user(), 'system', 'nowarn_insecure'));
 
@@ -954,8 +946,8 @@ function settings_content(App $a)
 			$theme_config = theme_content($a);
 		}
 
-		$tpl = get_markup_template('settings/display.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('settings/display.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$ptitle' 	=> L10n::t('Display Settings'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_display"),
 			'$submit' 	=> L10n::t('Save Settings'),
@@ -1026,57 +1018,57 @@ function settings_content(App $a)
 
 	// Set the account type to "Community" when the page is a community page but the account type doesn't fit
 	// This is only happening on the first visit after the update
-	if (in_array($a->user['page-flags'], [Contact::PAGE_COMMUNITY, Contact::PAGE_PRVGROUP]) &&
-		($a->user['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY))
-		$a->user['account-type'] = Contact::ACCOUNT_TYPE_COMMUNITY;
+	if (in_array($a->user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]) &&
+		($a->user['account-type'] != User::ACCOUNT_TYPE_COMMUNITY))
+		$a->user['account-type'] = User::ACCOUNT_TYPE_COMMUNITY;
 
-	$pageset_tpl = get_markup_template('settings/pagetypes.tpl');
+	$pageset_tpl = Renderer::getMarkupTemplate('settings/pagetypes.tpl');
 
-	$pagetype = replace_macros($pageset_tpl, [
+	$pagetype = Renderer::replaceMacros($pageset_tpl, [
 		'$account_types'	=> L10n::t("Account Types"),
 		'$user' 		=> L10n::t("Personal Page Subtypes"),
 		'$community'		=> L10n::t("Community Forum Subtypes"),
 		'$account_type'		=> $a->user['account-type'],
-		'$type_person'		=> Contact::ACCOUNT_TYPE_PERSON,
-		'$type_organisation' 	=> Contact::ACCOUNT_TYPE_ORGANISATION,
-		'$type_news'		=> Contact::ACCOUNT_TYPE_NEWS,
-		'$type_community' 	=> Contact::ACCOUNT_TYPE_COMMUNITY,
+		'$type_person'		=> User::ACCOUNT_TYPE_PERSON,
+		'$type_organisation' 	=> User::ACCOUNT_TYPE_ORGANISATION,
+		'$type_news'		=> User::ACCOUNT_TYPE_NEWS,
+		'$type_community' 	=> User::ACCOUNT_TYPE_COMMUNITY,
 
-		'$account_person' 	=> ['account-type', L10n::t('Personal Page'), Contact::ACCOUNT_TYPE_PERSON,
+		'$account_person' 	=> ['account-type', L10n::t('Personal Page'), User::ACCOUNT_TYPE_PERSON,
 									L10n::t('Account for a personal profile.'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_PERSON)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_PERSON)],
 
-		'$account_organisation'	=> ['account-type', L10n::t('Organisation Page'), Contact::ACCOUNT_TYPE_ORGANISATION,
+		'$account_organisation'	=> ['account-type', L10n::t('Organisation Page'), User::ACCOUNT_TYPE_ORGANISATION,
 									L10n::t('Account for an organisation that automatically approves contact requests as "Followers".'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_ORGANISATION)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_ORGANISATION)],
 
-		'$account_news'		=> ['account-type', L10n::t('News Page'), Contact::ACCOUNT_TYPE_NEWS,
+		'$account_news'		=> ['account-type', L10n::t('News Page'), User::ACCOUNT_TYPE_NEWS,
 									L10n::t('Account for a news reflector that automatically approves contact requests as "Followers".'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_NEWS)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_NEWS)],
 
-		'$account_community' 	=> ['account-type', L10n::t('Community Forum'), Contact::ACCOUNT_TYPE_COMMUNITY,
+		'$account_community' 	=> ['account-type', L10n::t('Community Forum'), User::ACCOUNT_TYPE_COMMUNITY,
 									L10n::t('Account for community discussions.'),
-									($a->user['account-type'] == Contact::ACCOUNT_TYPE_COMMUNITY)],
+									($a->user['account-type'] == User::ACCOUNT_TYPE_COMMUNITY)],
 
-		'$page_normal'		=> ['page-flags', L10n::t('Normal Account Page'), Contact::PAGE_NORMAL,
+		'$page_normal'		=> ['page-flags', L10n::t('Normal Account Page'), User::PAGE_FLAGS_NORMAL,
 									L10n::t('Account for a regular personal profile that requires manual approval of "Friends" and "Followers".'),
-									($a->user['page-flags'] == Contact::PAGE_NORMAL)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_NORMAL)],
 
-		'$page_soapbox' 	=> ['page-flags', L10n::t('Soapbox Page'), Contact::PAGE_SOAPBOX,
+		'$page_soapbox' 	=> ['page-flags', L10n::t('Soapbox Page'), User::PAGE_FLAGS_SOAPBOX,
 									L10n::t('Account for a public profile that automatically approves contact requests as "Followers".'),
-									($a->user['page-flags'] == Contact::PAGE_SOAPBOX)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_SOAPBOX)],
 
-		'$page_community'	=> ['page-flags', L10n::t('Public Forum'), Contact::PAGE_COMMUNITY,
+		'$page_community'	=> ['page-flags', L10n::t('Public Forum'), User::PAGE_FLAGS_COMMUNITY,
 									L10n::t('Automatically approves all contact requests.'),
-									($a->user['page-flags'] == Contact::PAGE_COMMUNITY)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_COMMUNITY)],
 
-		'$page_freelove' 	=> ['page-flags', L10n::t('Automatic Friend Page'), Contact::PAGE_FREELOVE,
+		'$page_freelove' 	=> ['page-flags', L10n::t('Automatic Friend Page'), User::PAGE_FLAGS_FREELOVE,
 									L10n::t('Account for a popular profile that automatically approves contact requests as "Friends".'),
-									($a->user['page-flags'] == Contact::PAGE_FREELOVE)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_FREELOVE)],
 
-		'$page_prvgroup' 	=> ['page-flags', L10n::t('Private Forum [Experimental]'), Contact::PAGE_PRVGROUP,
+		'$page_prvgroup' 	=> ['page-flags', L10n::t('Private Forum [Experimental]'), User::PAGE_FLAGS_PRVGROUP,
 									L10n::t('Requires manual approval of contact requests.'),
-									($a->user['page-flags'] == Contact::PAGE_PRVGROUP)],
+									($a->user['page-flags'] == User::PAGE_FLAGS_PRVGROUP)],
 
 
 	]);
@@ -1089,44 +1081,44 @@ function settings_content(App $a)
 		$openid_field = ['openid_url', L10n::t('OpenID:'), $openid, L10n::t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url"];
 	}
 
-	$opt_tpl = get_markup_template("field_yesno.tpl");
+	$opt_tpl = Renderer::getMarkupTemplate("field_yesno.tpl");
 	if (Config::get('system', 'publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
-		$profile_in_dir = replace_macros($opt_tpl, [
+		$profile_in_dir = Renderer::replaceMacros($opt_tpl, [
 			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	}
 
 	if (strlen(Config::get('system', 'directory'))) {
-		$profile_in_net_dir = replace_macros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory')), [L10n::t('No'), L10n::t('Yes')]]
+		$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
+			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory'))	. " " . L10n::t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting."), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';
 	}
 
-	$hide_friends = replace_macros($opt_tpl, [
+	$hide_friends = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['hide-friends', L10n::t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], L10n::t('Your contact list won\'t be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$hide_wall = replace_macros($opt_tpl, [
+	$hide_wall = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['hidewall', L10n::t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], L10n::t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$blockwall = replace_macros($opt_tpl, [
+	$blockwall = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['blockwall', L10n::t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), L10n::t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$blocktags = replace_macros($opt_tpl, [
+	$blocktags = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['blocktags', L10n::t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), L10n::t('Your contacts can add additional tags to your posts.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$suggestme = replace_macros($opt_tpl, [
+	$suggestme = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['suggestme', L10n::t('Allow us to suggest you as a potential friend to new members?'), $suggestme, L10n::t('If you like, Friendica may suggest new members to add you as a contact.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
-	$unkmail = replace_macros($opt_tpl, [
+	$unkmail = Renderer::replaceMacros($opt_tpl, [
 		'$field' => ['unkmail', L10n::t('Permit unknown people to send you private mail?'), $unkmail, L10n::t('Friendica network users may send you private messages even if they are not in your contact list.'), [L10n::t('No'), L10n::t('Yes')]],
 	]);
 
@@ -1134,14 +1126,14 @@ function settings_content(App $a)
 		info(L10n::t('Profile is <strong>not published</strong>.') . EOL);
 	}
 
-	$tpl_addr = get_markup_template('settings/nick_set.tpl');
+	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 
-	$prof_addr = replace_macros($tpl_addr,[
+	$prof_addr = Renderer::replaceMacros($tpl_addr,[
 		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLPath(), System::baseUrl() . '/profile/' . $nickname),
 		'$basepath' => $a->getHostName()
 	]);
 
-	$stpl = get_markup_template('settings/settings.tpl');
+	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
 
 	$expire_arr = [
 		'days' => ['expire',  L10n::t("Automatically expire posts after this many days:"), $expire, L10n::t('If empty, posts will not expire. Expired posts will be deleted')],
@@ -1180,7 +1172,7 @@ function settings_content(App $a)
 	$lang_choices = L10n::getAvailableLanguages();
 
 	/// @TODO Fix indending (or so)
-	$o .= replace_macros($stpl, [
+	$o .= Renderer::replaceMacros($stpl, [
 		'$ptitle' 	=> L10n::t('Account Settings'),
 
 		'$submit' 	=> L10n::t('Save Settings'),
@@ -1190,7 +1182,7 @@ function settings_content(App $a)
 		'$nickname_block' => $prof_addr,
 
 		'$h_pass' 	=> L10n::t('Password Settings'),
-		'$password1'=> ['password', L10n::t('New Password:'), '', ''],
+		'$password1'=> ['password', L10n::t('New Password:'), '', L10n::t('Allowed characters are a-z, A-Z, 0-9 and special characters except white spaces, accentuated letters and colon (:).')],
 		'$password2'=> ['confirm', L10n::t('Confirm:'), '', L10n::t('Leave password fields blank unless changing')],
 		'$password3'=> ['opassword', L10n::t('Current Password:'), '', L10n::t('Your current password to confirm the changes')],
 		'$password4'=> ['mpassword', L10n::t('Password:'), '', L10n::t('Your current password to confirm the changes')],
@@ -1271,7 +1263,7 @@ function settings_content(App $a)
 
 	]);
 
-	Addon::callHooks('settings_form', $o);
+	Hook::callAll('settings_form', $o);
 
 	$o .= '</form>' . "\r\n";
 

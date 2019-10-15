@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file src/Content/Text/HTML.php
  */
@@ -8,8 +7,15 @@ namespace Friendica\Content\Text;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Core\Addon;
+use Friendica\Content\Widget\ContactBlock;
+use Friendica\Core\Hook;
+use Friendica\Core\L10n;
+use Friendica\Core\Config;
+use Friendica\Core\Renderer;
+use Friendica\Model\Contact;
 use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use League\HTMLToMarkdown\HtmlConverter;
 
@@ -36,20 +42,39 @@ class HTML
 		return $cleaned;
 	}
 
-	private static function tagToBBCode(DOMDocument $doc, $tag, $attributes, $startbb, $endbb)
+	/**
+	 * Search all instances of a specific HTML tag node in the provided DOM document and replaces them with BBCode text nodes.
+	 *
+	 * @see HTML::tagToBBCodeSub()
+	 */
+	private static function tagToBBCode(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
 	{
 		do {
-			$done = self::tagToBBCodeSub($doc, $tag, $attributes, $startbb, $endbb);
+			$done = self::tagToBBCodeSub($doc, $tag, $attributes, $startbb, $endbb, $ignoreChildren);
 		} while ($done);
 	}
 
-	private static function tagToBBCodeSub(DOMDocument $doc, $tag, $attributes, $startbb, $endbb)
+	/**
+	 * Search the first specific HTML tag node in the provided DOM document and replaces it with BBCode text nodes.
+	 *
+	 * @param DOMDocument $doc
+	 * @param string      $tag            HTML tag name
+	 * @param array       $attributes     Array of attributes to match and optionally use the value from
+	 * @param string      $startbb        BBCode tag opening
+	 * @param string      $endbb          BBCode tag closing
+	 * @param bool        $ignoreChildren If set to false, the HTML tag children will be appended as text inside the BBCode tag
+	 *                                    Otherwise, they will be entirely ignored. Useful for simple BBCode that draw their
+	 *                                    inner value from an attribute value and disregard the tag children.
+	 * @return bool Whether a replacement was done
+	 */
+	private static function tagToBBCodeSub(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
 	{
 		$savestart = str_replace('$', '\x01', $startbb);
 		$replace = false;
 
 		$xpath = new DOMXPath($doc);
 
+		/** @var \DOMNode[] $list */
 		$list = $xpath->query("//" . $tag);
 		foreach ($list as $node) {
 			$attr = [];
@@ -91,10 +116,14 @@ class HTML
 
 				$node->parentNode->insertBefore($StartCode, $node);
 
-				if ($node->hasChildNodes()) {
-					foreach ($node->childNodes as $child) {
-						$newNode = $child->cloneNode(true);
-						$node->parentNode->insertBefore($newNode, $node);
+				if (!$ignoreChildren && $node->hasChildNodes()) {
+					/** @var \DOMNode $child */
+					foreach ($node->childNodes as $key => $child) {
+						/* Remove empty text nodes at the start or at the end of the children list */
+						if ($key > 0 && $key < $node->childNodes->length - 1 || $child->nodeName != '#text' || trim($child->nodeValue)) {
+							$newNode = $child->cloneNode(true);
+							$node->parentNode->insertBefore($newNode, $node);
+						}
 					}
 				}
 
@@ -109,12 +138,13 @@ class HTML
 	/**
 	 * Made by: ike@piratenpartei.de
 	 * Originally made for the syncom project: http://wiki.piratenpartei.de/Syncom
-	 * 					https://github.com/annando/Syncom
+	 *                    https://github.com/annando/Syncom
 	 *
 	 * @brief Converter for HTML to BBCode
 	 * @param string $message
 	 * @param string $basepath
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function toBBCode($message, $basepath = '')
 	{
@@ -140,12 +170,14 @@ class HTML
 
 		$message = str_replace(
 			[
-			"<li><p>",
-			"</p></li>",
-			], [
-			"<li>",
-			"</li>",
-			], $message
+				"<li><p>",
+				"</p></li>",
+			],
+			[
+				"<li>",
+				"</li>",
+			],
+			$message
 		);
 
 		// remove namespaces
@@ -157,7 +189,7 @@ class HTML
 
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
-		@$doc->loadHTML($message);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		XML::deleteNode($doc, 'style');
 		XML::deleteNode($doc, 'head');
@@ -169,13 +201,16 @@ class HTML
 		$xpath = new DomXPath($doc);
 		$list = $xpath->query("//pre");
 		foreach ($list as $node) {
-			$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
+			// Ensure to escape unescaped & - they will otherwise raise a warning
+			$safe_value = preg_replace('/&(?!\w+;)/', '&amp;', $node->nodeValue);
+			$node->nodeValue = str_replace("\n", "\r", $safe_value);
 		}
 
 		$message = $doc->saveHTML();
 		$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br />", " ", ""], $message);
 		$message = preg_replace('= [\s]*=i', " ", $message);
-		@$doc->loadHTML($message);
+
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		self::tagToBBCode($doc, 'html', [], "", "");
 		self::tagToBBCode($doc, 'body', [], "", "");
@@ -184,8 +219,13 @@ class HTML
 		self::tagToBBCode($doc, 'p', ['class' => 'MsoNormal', 'style' => 'margin-left:35.4pt'], '[quote]', '[/quote]');
 
 		// Outlook-Quote - Variant 2
-		self::tagToBBCode($doc, 'div', ['style' => 'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'],
-			'[quote]', '[/quote]');
+		self::tagToBBCode(
+			$doc,
+			'div',
+			['style' => 'border:none;border-left:solid blue 1.5pt;padding:0cm 0cm 0cm 4.0pt'],
+			'[quote]',
+			'[/quote]'
+		);
 
 		// MyBB-Stuff
 		self::tagToBBCode($doc, 'span', ['style' => 'text-decoration: underline;'], '[u]', '[/u]');
@@ -274,14 +314,14 @@ class HTML
 		self::tagToBBCode($doc, 'a', ['href' => '/mailto:(.+)/'], '[mail=$1]', '[/mail]');
 		self::tagToBBCode($doc, 'a', ['href' => '/(.+)/'], '[url=$1]', '[/url]');
 
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1',
-			'[/img]');
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]');
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]', true);
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]', true);
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]', true);
 
 
-		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]');
-		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]');
-		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]');
+		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]', true);
+		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]', true);
+		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]', true);
 
 		self::tagToBBCode($doc, 'key', [], '[code]', '[/code]');
 		self::tagToBBCode($doc, 'code', [], '[code]', '[/code]');
@@ -298,7 +338,7 @@ class HTML
 		$message = preg_replace('=\r *\r=i', "\n", $message);
 		$message = str_replace("\r", "\n", $message);
 
-		Addon::callHooks('html2bbcode', $message);
+		Hook::callAll('html2bbcode', $message);
 
 		$message = strip_tags($message);
 
@@ -344,12 +384,15 @@ class HTML
 				"[/",
 				"[list]",
 				"[list=1]",
-				"[*]"], $message
+				"[*]"],
+				$message
 			);
 		} while ($message != $oldmessage);
 
 		$message = str_replace(
-			['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'], ['[b]', '[/b]', '[i]', '[/i]'], $message
+			['[b][b]', '[/b][/b]', '[i][i]', '[/i][/i]'],
+			['[b]', '[/b]', '[i]', '[/i]'],
+			$message
 		);
 
 		// Handling Yahoo style of mails
@@ -394,6 +437,10 @@ class HTML
 		$link = $matches[0];
 		$url = $matches[1];
 
+		if (empty($url) || empty(parse_url($url))) {
+			return $matches[0];
+		}
+
 		$parts = array_merge($base, parse_url($url));
 		$url2 = Network::unparseURL($parts);
 
@@ -424,7 +471,8 @@ class HTML
 
 		foreach ($matches as $match) {
 			$body = preg_replace_callback(
-				$match, function ($match) use ($basepath) {
+				$match,
+				function ($match) use ($basepath) {
 					return self::qualifyURLsSub($match, $basepath);
 				},
 				$body
@@ -540,6 +588,8 @@ class HTML
 				$ignore = false;
 			}
 
+			$ignore = $ignore || strpos($treffer[1], '#') === 0;
+
 			if (!$ignore) {
 				$urls[$treffer[1]] = $treffer[1];
 			}
@@ -548,7 +598,13 @@ class HTML
 		return $urls;
 	}
 
-	public static function toPlaintext($html, $wraplength = 75, $compact = false)
+	/**
+	 * @param string $html
+	 * @param int    $wraplength Ensures individual lines aren't longer than this many characters. Doesn't break words.
+	 * @param bool   $compact    True: Completely strips image tags; False: Keeps image URLs
+	 * @return string
+	 */
+	public static function toPlaintext(string $html, $wraplength = 75, $compact = false)
 	{
 		$message = str_replace("\r", "", $html);
 
@@ -557,37 +613,19 @@ class HTML
 
 		$message = mb_convert_encoding($message, 'HTML-ENTITIES', "UTF-8");
 
-		@$doc->loadHTML($message);
-
-		$xpath = new DOMXPath($doc);
-		$list = $xpath->query("//pre");
-		foreach ($list as $node) {
-			$node->nodeValue = str_replace("\n", "\r", $node->nodeValue);
-		}
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		$message = $doc->saveHTML();
-		$message = str_replace(["\n<", ">\n", "\r", "\n", "\xC3\x82\xC2\xA0"], ["<", ">", "<br>", " ", ""], $message);
-		$message = preg_replace('= [\s]*=i', " ", $message);
+		// Remove eventual UTF-8 BOM
+		$message = str_replace("\xC3\x82\xC2\xA0", "", $message);
 
 		// Collecting all links
 		$urls = self::collectURLs($message);
 
-		@$doc->loadHTML($message);
+		@$doc->loadHTML($message, LIBXML_HTML_NODEFDTD);
 
 		self::tagToBBCode($doc, 'html', [], '', '');
 		self::tagToBBCode($doc, 'body', [], '', '');
-
-		// MyBB-Auszeichnungen
-		/*
-		  self::node2BBCode($doc, 'span', array('style'=>'text-decoration: underline;'), '_', '_');
-		  self::node2BBCode($doc, 'span', array('style'=>'font-style: italic;'), '/', '/');
-		  self::node2BBCode($doc, 'span', array('style'=>'font-weight: bold;'), '*', '*');
-
-		  self::node2BBCode($doc, 'strong', array(), '*', '*');
-		  self::node2BBCode($doc, 'b', array(), '*', '*');
-		  self::node2BBCode($doc, 'i', array(), '/', '/');
-		  self::node2BBCode($doc, 'u', array(), '_', '_');
-		 */
 
 		if ($compact) {
 			self::tagToBBCode($doc, 'blockquote', [], "»", "«");
@@ -602,8 +640,6 @@ class HTML
 		self::tagToBBCode($doc, 'div', [], "\r", "\r");
 		self::tagToBBCode($doc, 'p', [], "\n", "\n");
 
-		//self::node2BBCode($doc, 'ul', array(), "\n[list]", "[/list]\n");
-		//self::node2BBCode($doc, 'ol', array(), "\n[list=1]", "[/list]\n");
 		self::tagToBBCode($doc, 'li', [], "\n* ", "\n");
 
 		self::tagToBBCode($doc, 'hr', [], "\n" . str_repeat("-", 70) . "\n", "");
@@ -618,12 +654,6 @@ class HTML
 		self::tagToBBCode($doc, 'h5', [], "\n\n*", "*\n");
 		self::tagToBBCode($doc, 'h6', [], "\n\n*", "*\n");
 
-		// Problem: there is no reliable way to detect if it is a link to a tag or profile
-		//self::node2BBCode($doc, 'a', array('href'=>'/(.+)/'), ' $1 ', ' ', true);
-		//self::node2BBCode($doc, 'a', array('href'=>'/(.+)/', 'rel'=>'oembed'), ' $1 ', '', true);
-		//self::node2BBCode($doc, 'img', array('alt'=>'/(.+)/'), '$1', '');
-		//self::node2BBCode($doc, 'img', array('title'=>'/(.+)/'), '$1', '');
-		//self::node2BBCode($doc, 'img', array(), '', '');
 		if (!$compact) {
 			self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], ' [img]$1', '[/img] ');
 		} else {
@@ -687,5 +717,264 @@ class HTML
 		$markdown = $converter->convert($html);
 
 		return $markdown;
+	}
+
+	/**
+	 * @brief Convert video HTML to BBCode tags
+	 *
+	 * @param string $s
+	 * @return string
+	 */
+	public static function toBBCodeVideo($s)
+	{
+		$s = preg_replace(
+			'#<object[^>]+>(.*?)https?://www.youtube.com/((?:v|cp)/[A-Za-z0-9\-_=]+)(.*?)</object>#ism',
+			'[youtube]$2[/youtube]',
+			$s
+		);
+	
+		$s = preg_replace(
+			'#<iframe[^>](.*?)https?://www.youtube.com/embed/([A-Za-z0-9\-_=]+)(.*?)</iframe>#ism',
+			'[youtube]$2[/youtube]',
+			$s
+		);
+	
+		$s = preg_replace(
+			'#<iframe[^>](.*?)https?://player.vimeo.com/video/([0-9]+)(.*?)</iframe>#ism',
+			'[vimeo]$2[/vimeo]',
+			$s
+		);
+	
+		return $s;
+	}
+	
+	/**
+	 * transform link href and img src from relative to absolute
+	 *
+	 * @param string $text
+	 * @param string $base base url
+	 * @return string
+	 */
+	public static function relToAbs($text, $base)
+	{
+		if (empty($base)) {
+			return $text;
+		}
+	
+		$base = rtrim($base, '/');
+	
+		$base2 = $base . "/";
+	
+		// Replace links
+		$pattern = "/<a([^>]*) href=\"(?!http|https|\/)([^\"]*)\"/";
+		$replace = "<a\${1} href=\"" . $base2 . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+		$pattern = "/<a([^>]*) href=\"(?!http|https)([^\"]*)\"/";
+		$replace = "<a\${1} href=\"" . $base . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+		// Replace images
+		$pattern = "/<img([^>]*) src=\"(?!http|https|\/)([^\"]*)\"/";
+		$replace = "<img\${1} src=\"" . $base2 . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+		$pattern = "/<img([^>]*) src=\"(?!http|https)([^\"]*)\"/";
+		$replace = "<img\${1} src=\"" . $base . "\${2}\"";
+		$text = preg_replace($pattern, $replace, $text);
+	
+	
+		// Done
+		return $text;
+	}
+
+	/**
+	 * return div element with class 'clear'
+	 * @return string
+	 * @deprecated
+	 */
+	public static function clearDiv()
+	{
+		return '<div class="clear"></div>';
+	}
+
+	/**
+	 * Loader for infinite scrolling
+	 *
+	 * @return string html for loader
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function scrollLoader()
+	{
+		$tpl = Renderer::getMarkupTemplate("scroll_loader.tpl");
+		return Renderer::replaceMacros($tpl, [
+			'wait' => L10n::t('Loading more entries...'),
+			'end' => L10n::t('The end')
+		]);
+	}
+
+	/**
+	 * Get html for contact block.
+	 *
+	 * @deprecated since version 2019.03
+	 * @see ContactBlock::getHTML()
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function contactBlock()
+	{
+		$a = \get_app();
+
+		return ContactBlock::getHTML($a->profile);
+	}
+
+	/**
+	 * @brief Format contacts as picture links or as text links
+	 *
+	 * @param array   $contact  Array with contacts which contains an array with
+	 *                          int 'id' => The ID of the contact
+	 *                          int 'uid' => The user ID of the user who owns this data
+	 *                          string 'name' => The name of the contact
+	 *                          string 'url' => The url to the profile page of the contact
+	 *                          string 'addr' => The webbie of the contact (e.g.) username@friendica.com
+	 *                          string 'network' => The network to which the contact belongs to
+	 *                          string 'thumb' => The contact picture
+	 *                          string 'click' => js code which is performed when clicking on the contact
+	 * @param boolean $redirect If true try to use the redir url if it's possible
+	 * @param string  $class    CSS class for the
+	 * @param boolean $textmode If true display the contacts as text links
+	 *                          if false display the contacts as picture links
+	 * @return string Formatted html
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function micropro($contact, $redirect = false, $class = '', $textmode = false)
+	{
+		// Use the contact URL if no address is available
+		if (empty($contact['addr'])) {
+			$contact["addr"] = $contact["url"];
+		}
+
+		$url = $contact['url'];
+		$sparkle = '';
+		$redir = false;
+
+		if ($redirect) {
+			$url = Contact::magicLink($contact['url']);
+			if (strpos($url, 'redir/') === 0) {
+				$sparkle = ' sparkle';
+			}
+		}
+
+		// If there is some js available we don't need the url
+		if (!empty($contact['click'])) {
+			$url = '';
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'), [
+			'$click' => defaults($contact, 'click', ''),
+			'$class' => $class,
+			'$url' => $url,
+			'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'$name' => $contact['name'],
+			'title' => $contact['name'] . ' [' . $contact['addr'] . ']',
+			'$parkle' => $sparkle,
+			'$redir' => $redir
+		]);
+	}
+
+	/**
+	 * Search box.
+	 *
+	 * @param string $s     Search query.
+	 * @param string $id    HTML id
+	 * @param string $url   Search url.
+	 * @param bool   $aside Display the search widgit aside.
+	 *
+	 * @return string Formatted HTML.
+	 * @throws \Exception
+	 */
+	public static function search($s, $id = 'search-box', $aside = true)
+	{
+		$mode = 'text';
+
+		if (strpos($s, '#') === 0) {
+			$mode = 'tag';
+		}
+		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
+
+		$values = [
+			'$s'            => $s,
+			'$q'            => urlencode($s),
+			'$id'           => $id,
+			'$search_label' => L10n::t('Search'),
+			'$save_label'   => $save_label,
+			'$search_hint'  => L10n::t('@name, !forum, #tags, content'),
+			'$mode'         => $mode,
+			'$return_url'   => urlencode('search?q=' . urlencode($s)),
+		];
+
+		if (!$aside) {
+			$values['$search_options'] = [
+				'fulltext' => L10n::t('Full Text'),
+				'tags'     => L10n::t('Tags'),
+				'contacts' => L10n::t('Contacts')
+			];
+
+			if (Config::get('system', 'poco_local_search')) {
+				$values['$searchoption']['forums'] = L10n::t('Forums');
+			}
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('searchbox.tpl'), $values);
+	}
+
+	/**
+	 * Replace naked text hyperlink with HTML formatted hyperlink
+	 *
+	 * @param string $s
+	 * @return string
+	 */
+	public static function toLink($s)
+	{
+		$s = preg_replace("/(https?\:\/\/[a-zA-Z0-9\:\/\-\?\&\;\.\=\_\~\#\'\%\$\!\+]*)/", ' <a href="$1" target="_blank">$1</a>', $s);
+		$s = preg_replace("/\<(.*?)(src|href)=(.*?)\&amp\;(.*?)\>/ism", '<$1$2=$3&$4>', $s);
+		return $s;
+	}
+
+	/**
+	 * Given a HTML text and a set of filtering reasons, adds a content hiding header with the provided reasons
+	 *
+	 * Reasons are expected to have been translated already.
+	 *
+	 * @param string $html
+	 * @param array  $reasons
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function applyContentFilter($html, array $reasons)
+	{
+		if (count($reasons)) {
+			$tpl = Renderer::getMarkupTemplate('wall/content_filter.tpl');
+			$html = Renderer::replaceMacros($tpl, [
+				'$reasons'   => $reasons,
+				'$rnd'       => Strings::getRandomHex(8),
+				'$openclose' => L10n::t('Click to open/close'),
+				'$html'      => $html
+			]);
+		}
+
+		return $html;
+	}
+
+	/**
+	 * replace html amp entity with amp char
+	 * @param string $s
+	 * @return string
+	 */
+	public static function unamp($s)
+	{
+		return str_replace('&amp;', '&', $s);
 	}
 }

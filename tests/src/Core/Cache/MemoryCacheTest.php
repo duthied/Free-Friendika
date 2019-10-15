@@ -2,108 +2,111 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\IMemoryCacheDriver;
+use Friendica\Core\Cache\IMemoryCache;
 
 abstract class MemoryCacheTest extends CacheTest
 {
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 * @var \Friendica\Core\Cache\IMemoryCache
 	 */
 	protected $instance;
 
 	protected function setUp()
 	{
 		parent::setUp();
-		if (!($this->instance instanceof IMemoryCacheDriver)) {
+
+		if (!($this->instance instanceof IMemoryCache)) {
 			throw new \Exception('MemoryCacheTest unsupported');
 		}
 	}
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
 	 */
-	function testCompareSet() {
+	function testCompareSet($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
-		$value = 'foobar';
-		$this->instance->add('value1', $value);
+		$this->instance->add('value1', $value1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
+		$this->assertEquals($value1, $received, 'Value received from cache not equal to the original');
 
-		$newValue = 'ipsum lorum';
-		$this->instance->compareSet('value1', $value, $newValue);
+		$this->instance->compareSet('value1', $value1, $value2);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($newValue, $received, 'Value not overwritten by compareSet');
+		$this->assertEquals($value2, $received, 'Value not overwritten by compareSet');
 	}
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareSet() {
+	function testNegativeCompareSet($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
-		$value = 'foobar';
-		$this->instance->add('value1', $value);
+		$this->instance->add('value1', $value1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
+		$this->assertEquals($value1, $received, 'Value received from cache not equal to the original');
 
-		$newValue = 'ipsum lorum';
-		$this->instance->compareSet('value1', 'wrong', $newValue);
+		$this->instance->compareSet('value1', 'wrong', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertNotEquals($newValue, $received, 'Value was wrongly overwritten by compareSet');
-		$this->assertEquals($value, $received, 'Value was wrongly overwritten by any other value');
+		$this->assertNotEquals($value2, $received, 'Value was wrongly overwritten by compareSet');
+		$this->assertEquals($value1, $received, 'Value was wrongly overwritten by any other value');
 	}
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
 	 */
-	function testCompareDelete() {
+	function testCompareDelete($data)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
-		$value = 'foobar';
-		$this->instance->add('value1', $value);
+		$this->instance->add('value1', $data);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
-		$this->instance->compareDelete('value1', $value);
+		$this->assertEquals($data, $received, 'Value received from cache not equal to the original');
+		$this->instance->compareDelete('value1', $data);
 		$this->assertNull($this->instance->get('value1'), 'Value was not deleted by compareDelete');
 	}
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
 	 */
-	function testNegativeCompareDelete() {
+	function testNegativeCompareDelete($data)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
-		$value = 'foobar';
-		$this->instance->add('value1', $value);
+		$this->instance->add('value1', $data);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
+		$this->assertEquals($data, $received, 'Value received from cache not equal to the original');
 		$this->instance->compareDelete('value1', 'wrong');
 		$this->assertNotNull($this->instance->get('value1'), 'Value was wrongly compareDeleted');
 
-		$this->instance->compareDelete('value1', $value);
+		$this->instance->compareDelete('value1', $data);
 		$this->assertNull($this->instance->get('value1'), 'Value was wrongly NOT deleted by compareDelete');
 	}
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
 	 */
-	function testAdd() {
+	function testAdd($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
-		$value = 'foobar';
-		$this->instance->add('value1', $value);
+		$this->instance->add('value1', $value1);
 
-		$newValue = 'ipsum lorum';
-		$this->instance->add('value1', $newValue);
+		$this->instance->add('value1', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertNotEquals($newValue, $received, 'Value was wrongly overwritten by add');
-		$this->assertEquals($value, $received, 'Value was wrongly overwritten by any other value');
+		$this->assertNotEquals($value2, $received, 'Value was wrongly overwritten by add');
+		$this->assertEquals($value1, $received, 'Value was wrongly overwritten by any other value');
 
 		$this->instance->delete('value1');
-		$this->instance->add('value1', $newValue);
+		$this->instance->add('value1', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($newValue, $received, 'Value was not overwritten by add');
-		$this->assertNotEquals($value, $received, 'Value was not overwritten by any other value');
+		$this->assertEquals($value2, $received, 'Value was not overwritten by add');
+		$this->assertNotEquals($value1, $received, 'Value was not overwritten by any other value');
 	}
 }

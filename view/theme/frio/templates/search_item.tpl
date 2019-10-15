@@ -12,7 +12,11 @@
 			{{* Put additional actions in a top-right dropdown menu *}}
 
 			<ul class="nav nav-pills preferences">
+				{{if $item.network_icon != ""}}
+				<li><span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span></li>
+				{{else}}
 				<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
+				{{/if}}
 
 				{{if $item.plink || $item.star || $item.drop.dropping || $item.edpost || $item.subthread}}
 				<li class="dropdown">
@@ -99,7 +103,7 @@
 
 						{{if $item.location}}
 						<div id="wall-item-location-{{$item.id}}" class="wall-item-location">
-							<small><span class="location">({{$item.location}})</span></small>
+							<small><span class="location">({{$item.location nofilter}})</span></small>
 						</div>
 						{{/if}}
 					</div>
@@ -112,7 +116,7 @@
 				<h5 class="media-heading">
 					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span>{{$item.name}}</span></a>
 					<p class="text-muted"><small>
-						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location}}){{/if}}</small>
+						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}</small>
 					</p>
 				</h5>
 			</div>
@@ -132,7 +136,7 @@
 				<span class="wall-item-title" id="wall-item-title-{{$item.id}}"><h4 class="media-heading"><a href="{{$item.plink.href}}" class="{{$item.sparkle}}">{{$item.title}}</a></h4><br /></span>
 				{{/if}}
 
-				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body}}</div>
+				<div class="wall-item-body" id="wall-item-body-{{$item.id}}">{{$item.body nofilter}}</div>
 			</div>
 
 			<!-- TODO -->
@@ -141,29 +145,29 @@
 				<div class="wall-item-tags">
 			{{if !$item.suppress_tags}}
 				{{foreach $item.hashtags as $tag}}
-					<span class="tag label btn-info sm">{{$tag}} <i class="fa fa-bolt" aria-hidden="true"></i></span>
+					<span class="tag label btn-info sm">{{$tag nofilter}} <i class="fa fa-bolt" aria-hidden="true"></i></span>
 				{{/foreach}}
 
 				{{foreach $item.mentions as $tag}}
-					<span class="mention label btn-warning sm">{{$tag}} <i class="fa fa-user" aria-hidden="true"></i></span>
+					<span class="mention label btn-warning sm">{{$tag nofilter}} <i class="fa fa-user" aria-hidden="true"></i></span>
 				{{/foreach}}
 			{{/if}}
 
 				{{foreach $item.folders as $cat}}
-					<span class="folder label btn-danger sm">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class="folder label btn-danger sm">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 
 				{{foreach $item.categories as $cat}}
-					<span class="category label btn-success sm">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+					<span class="category label btn-success sm">{{$cat.name}}{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 				{{/foreach}}
 				</div>
 				{{if $item.edited}}<div class="itemedited text-muted">{{$item.edited['label']}} (<span title="{{$item.edited['date']}}">{{$item.edited['relative']}}</span>)</div>{{/if}}
 			</div>
 			<!-- ./TODO -->
 
-			<div class="wall-item-actions">
+			<p class="wall-item-actions">
 				{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
-				<div class="wall-item-actions-left pull-left">
+				<span class="wall-item-actions-left">
 					<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment}}
 					<div id="button-reply" class="pull-left">
 						<button type="button" class="btn-link" id="comment-{{$item.id}}" onclick="openClose('item-comments-{{$item.id}}'); commentExpand({{$item.id}});"><i class="fa fa-reply" title="{{$item.switchcomment}}"></i> </span>
@@ -204,34 +208,33 @@
 						{{/if}}
 					{{/if}}
 					<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
-				</div>
+				</span>
 
 
-				<div class="wall-item-actions-right pull-right">
+				<span class="wall-item-actions-right">
 					{{* Event attendance buttons *}}
-					{{if $item.isevent}}
-					<div class="vote-event">
+				{{if $item.isevent}}
+					<span class="vote-event">
 						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendyes.self}} active" aria-pressed="true{{/if}}" id="attendyes-{{$item.id}}" title="{{$item.attend.0}}" onclick="doLikeAction({{$item.id}}, 'attendyes');"><i class="fa fa-check" aria-hidden="true"><span class="sr-only">{{$item.attend.0}}</span></i></button>
 						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendno.self}} active" aria-pressed="true{{/if}}" id="attendno-{{$item.id}}" title="{{$item.attend.1}}" onclick="doLikeAction({{$item.id}}, 'attendno');"><i class="fa fa-times" aria-hidden="true"><span class="sr-only">{{$item.attend.1}}</span></i></button>
 						<button type="button" class="btn btn-defaultbutton-event{{if $item.responses.attendmaybe.self}} active" aria-pressed="true{{/if}}" id="attendmaybe-{{$item.id}}" title="{{$item.attend.2}}" onclick="doLikeAction({{$item.id}}, 'attendmaybe');"><i class="fa fa-question" aria-hidden="true"><span class="sr-only">{{$item.attend.2}}</span></i></button>
-					</div>
-					{{/if}}
+					</span>
+				{{/if}}
 
-					<div class="pull-right checkbox">
-						{{if $item.drop.pagedrop}}
+					<span class="pull-right checkbox">
+				{{if $item.drop.pagedrop}}
 						<input type="checkbox" title="{{$item.drop.select}}" name="itemselected[]" id="checkbox-{{$item.id}}" class="item-select" value="{{$item.id}}" />
 						<label for="checkbox-{{$item.id}}"></label>
-						{{/if}}
-					</div>
-				</div>
-				<div class="clearfix"></div>
-			</div><!--./wall-item-actions-->
+				{{/if}}
+					</span>
+				</span>
+			</p><!--./wall-item-actions-->
 
 					{{* Display likes, dislike and attendance stats *}}
 			{{if $item.responses}}
 			<div class="wall-item-responses">
 				{{foreach $item.responses as $verb=>$response}}
-				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output}}</div>
+				<div class="wall-item-{{$verb}}" id="wall-item-{{$verb}}-{{$item.id}}">{{$response.output nofilter}}</div>
 				{{/foreach}}
 			</div>
 			{{/if}}

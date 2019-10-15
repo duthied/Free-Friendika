@@ -7,18 +7,17 @@ namespace Friendica\Worker;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\Item;
-use Friendica\Model\Queue;
-use Friendica\Model\User;
+use Friendica\Model;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
-
-require_once 'include/items.php';
+use Friendica\Util\Strings;
+use Friendica\Util\Network;
+use Friendica\Core\Worker;
 
 class Delivery extends BaseObject
 {
@@ -27,13 +26,14 @@ class Delivery extends BaseObject
 	const RELOCATION    = 'relocate';
 	const DELETION      = 'drop';
 	const POST          = 'wall-new';
-	const COMMENT       = 'comment-new';
+	const POKE          = 'poke';
+	const UPLINK        = 'uplink';
 	const REMOVAL       = 'removeme';
 	const PROFILEUPDATE = 'profileupdate';
 
-	public static function execute($cmd, $item_id, $contact_id)
+	public static function execute($cmd, $target_id, $contact_id)
 	{
-		logger('Invoked: ' . $cmd . ': ' . $item_id . ' to ' . $contact_id, LOGGER_DEBUG);
+		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $target_id, 'contact' => $contact_id]);
 
 		$top_level = false;
 		$followup = false;
@@ -41,36 +41,39 @@ class Delivery extends BaseObject
 
 		$items = [];
 		if ($cmd == self::MAIL) {
-			$target_item = DBA::selectFirst('mail', [], ['id' => $item_id]);
+			$target_item = DBA::selectFirst('mail', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::SUGGESTION) {
-			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $item_id]);
+			$target_item = DBA::selectFirst('fsuggest', [], ['id' => $target_id]);
 			if (!DBA::isResult($target_item)) {
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$uid = $target_item['uid'];
 		} elseif ($cmd == self::RELOCATION) {
-			$uid = $item_id;
+			$uid = $target_id;
 			$target_item = [];
 		} else {
-			$item = Item::selectFirst(['parent'], ['id' => $item_id]);
+			$item = Model\Item::selectFirst(['parent'], ['id' => $target_id]);
 			if (!DBA::isResult($item) || empty($item['parent'])) {
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 			$parent_id = intval($item['parent']);
 
-			$condition = ['id' => [$item_id, $parent_id], 'moderated' => false];
+			$condition = ['id' => [$target_id, $parent_id], 'visible' => true, 'moderated' => false];
 			$params = ['order' => ['id']];
-			$itemdata = Item::select([], $condition, $params);
+			$itemdata = Model\Item::select([], $condition, $params);
 
-			while ($item = Item::fetch($itemdata)) {
+			while ($item = Model\Item::fetch($itemdata)) {
 				if ($item['id'] == $parent_id) {
 					$parent = $item;
 				}
-				if ($item['id'] == $item_id) {
+				if ($item['id'] == $target_id) {
 					$target_item = $item;
 				}
 				$items[] = $item;
@@ -78,16 +81,40 @@ class Delivery extends BaseObject
 			DBA::close($itemdata);
 
 			if (empty($target_item)) {
-				logger('Item ' . $item_id . "wasn't found. Quitting here.");
+				Logger::log('Item ' . $target_id . "wasn't found. Quitting here.");
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
 			if (empty($parent)) {
-				logger('Parent ' . $parent_id . ' for item ' . $item_id . "wasn't found. Quitting here.");
+				Logger::log('Parent ' . $parent_id . ' for item ' . $target_id . "wasn't found. Quitting here.");
+				self::setFailedQueue($cmd, $target_id);
 				return;
 			}
 
-			$uid = $target_item['contact-uid'];
+			if (!empty($target_item['contact-uid'])) {
+				$uid = $target_item['contact-uid'];
+			} elseif (!empty($target_item['uid'])) {
+				$uid = $target_item['uid'];
+			} else {
+				Logger::log('Only public users for item ' . $target_id, Logger::DEBUG);
+				self::setFailedQueue($cmd, $target_id);
+				return;
+			}
+
+			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
+			$thr_parent = Model\Item::selectFirst(['network'], $condition);
+			if (!DBA::isResult($thr_parent)) {
+				// Shouldn't happen. But when this does, we just take the parent as thread parent.
+				// That's totally okay for what we use this variable here.
+				$thr_parent = $parent;
+			}
+
+			if (!empty($contact_id) && Model\Contact::isArchived($contact_id)) {
+				Logger::info('Contact is archived', ['id' => $contact_id, 'cmd' => $cmd, 'item' => $target_item['id']]);
+				self::setFailedQueue($cmd, $target_id);
+				return;
+			}
 
 			// avoid race condition with deleting entries
 			if ($items[0]['deleted']) {
@@ -99,8 +126,8 @@ class Delivery extends BaseObject
 			// When commenting too fast after delivery, a post wasn't recognized as top level post.
 			// The count then showed more than one entry. The additional check should help.
 			// The check for the "count" should be superfluous, but I'm not totally sure by now, so we keep it.
-			if ((($parent['id'] == $item_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
-				logger('Top level post');
+			if ((($parent['id'] == $target_id) || (count($items) == 1)) && ($parent['uri'] === $parent['parent-uri'])) {
+				Logger::log('Top level post');
 				$top_level = true;
 			}
 
@@ -125,7 +152,7 @@ class Delivery extends BaseObject
 			 */
 
 			if (!$top_level && ($parent['wall'] == 0) && stristr($target_item['uri'], $localhost)) {
-				logger('Followup ' . $target_item["guid"], LOGGER_DEBUG);
+				Logger::log('Followup ' . $target_item["guid"], Logger::DEBUG);
 				// local followup to remote post
 				$followup = true;
 			}
@@ -140,11 +167,12 @@ class Delivery extends BaseObject
 		}
 
 		if (empty($items)) {
-			logger('No delivery data for  ' . $cmd . ' - Item ID: ' .$item_id . ' - Contact ID: ' . $contact_id);
+			Logger::log('No delivery data for  ' . $cmd . ' - Item ID: ' .$target_id . ' - Contact ID: ' . $contact_id);
 		}
 
-		$owner = User::getOwnerDataById($uid);
+		$owner = Model\User::getOwnerDataById($uid);
 		if (!DBA::isResult($owner)) {
+			self::setFailedQueue($cmd, $target_id);
 			return;
 		}
 
@@ -153,38 +181,31 @@ class Delivery extends BaseObject
 			['id' => $contact_id, 'blocked' => false, 'pending' => false, 'self' => false]
 		);
 		if (!DBA::isResult($contact)) {
+			self::setFailedQueue($cmd, $target_id);
 			return;
 		}
 
-		// Transmit via Diaspora if the thread had started as Diaspora post
+		if (Network::isUrlBlocked($contact['url'])) {
+			self::setFailedQueue($cmd, $target_id);
+			return;
+		}
+
+		// Transmit via Diaspora if the thread had started as Diaspora post.
+		// Also transmit via Diaspora if this is a direct answer to a Diaspora comment.
 		// This is done since the uri wouldn't match (Diaspora doesn't transmit it)
-		if (isset($parent) && ($parent['network'] == Protocol::DIASPORA) && ($contact['network'] == Protocol::DFRN)) {
+		if (!empty($parent) && !empty($thr_parent) && in_array(Protocol::DIASPORA, [$parent['network'], $thr_parent['network']])) {
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
-		logger("Delivering " . $cmd . " followup=$followup - via network " . $contact['network']);
+		Logger::notice('Delivering', ['cmd' => $cmd, 'target' => $target_id, 'followup' => $followup, 'network' => $contact['network']]);
 
 		switch ($contact['network']) {
-
 			case Protocol::DFRN:
 				self::deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 				break;
 
 			case Protocol::DIASPORA:
 				self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
-				break;
-
-			case Protocol::OSTATUS:
-				// Do not send to otatus if we are not configured to send to public networks
-				if ($owner['prvnets']) {
-					break;
-				}
-				if (Config::get('system','ostatus_disabled') || Config::get('system','dfrn_only')) {
-					break;
-				}
-
-				// There is currently no code here to distribute anything to OStatus.
-				// This is done in "notifier.php" (See "url_recipients" and "push_notify")
 				break;
 
 			case Protocol::MAIL:
@@ -199,6 +220,21 @@ class Delivery extends BaseObject
 	}
 
 	/**
+	 * Increased the "failed" counter in the item delivery data
+	 *
+	 * @param string  $cmd Command
+	 * @param integer $id  Item id
+	 */
+	private static function setFailedQueue(string $cmd, int $id)
+	{
+		if (!in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+			return;
+		}
+
+		Model\ItemDeliveryData::incrementQueueFailed($id);
+	}
+
+	/**
 	 * @brief Deliver content via DFRN
 	 *
 	 * @param string  $cmd            Command
@@ -209,14 +245,16 @@ class Delivery extends BaseObject
 	 * @param boolean $public_message Is the content public?
 	 * @param boolean $top_level      Is it a thread starter?
 	 * @param boolean $followup       Is it an answer to a remote post?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		logger('Deliver ' . $target_item["guid"] . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
+		Logger::log('Deliver ' . defaults($target_item, 'guid', $target_item['id']) . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
 
 		if ($cmd == self::MAIL) {
 			$item = $target_item;
-			$item['body'] = Item::fixPrivatePhotos($item['body'], $owner['uid'], null, $item['contact-id']);
+			$item['body'] = Model\Item::fixPrivatePhotos($item['body'], $owner['uid'], null, $item['contact-id']);
 			$atom = DFRN::mail($item, $owner);
 		} elseif ($cmd == self::SUGGESTION) {
 			$item = $target_item;
@@ -240,14 +278,14 @@ class Delivery extends BaseObject
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		logger('Notifier entry: ' . $contact["url"] . ' ' . $target_item["guid"] . ' entry: ' . $atom, LOGGER_DATA);
+		Logger::log('Notifier entry: ' . $contact["url"] . ' ' . defaults($target_item, 'guid', $target_item['id']) . ' entry: ' . $atom, Logger::DATA);
 
 		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
 
 		// perform local delivery if we are on the same site
 
-		if (link_compare($basepath, System::baseUrl())) {
-			$condition = ['nurl' => normalise_link($contact['url']), 'self' => true];
+		if (Strings::compareLink($basepath, System::baseUrl())) {
+			$condition = ['nurl' => Strings::normaliseLink($contact['url']), 'self' => true];
 			$target_self = DBA::selectFirst('contact', ['uid'], $condition);
 			if (!DBA::isResult($target_self)) {
 				return;
@@ -255,10 +293,10 @@ class Delivery extends BaseObject
 			$target_uid = $target_self['uid'];
 
 			// Check if the user has got this contact
-			$cid = Contact::getIdForURL($owner['url'], $target_uid);
+			$cid = Model\Contact::getIdForURL($owner['url'], $target_uid);
 			if (!$cid) {
 				// Otherwise there should be a public contact
-				$cid = Contact::getIdForURL($owner['url']);
+				$cid = Model\Contact::getIdForURL($owner['url']);
 				if (!$cid) {
 					return;
 				}
@@ -271,20 +309,35 @@ class Delivery extends BaseObject
 			}
 
 			DFRN::import($atom, $target_importer);
+
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DFRN);
+			}
+
 			return;
 		}
+
+		$protocol = Model\ItemDeliveryData::DFRN;
 
 		// We don't have a relationship with contacts on a public post.
 		// Se we transmit with the new method and via Diaspora as a fallback
 		if (!empty($items) && (($items[0]['uid'] == 0) || ($contact['uid'] == 0))) {
 			// Transmit in public if it's a relay post
-			$public_dfrn = ($contact['contact-type'] == Contact::ACCOUNT_TYPE_RELAY);
+			$public_dfrn = ($contact['contact-type'] == Model\Contact::TYPE_RELAY);
 
 			$deliver_status = DFRN::transmit($owner, $contact, $atom, $public_dfrn);
 
 			// We never spool failed relay deliveries
 			if ($public_dfrn) {
-				logger('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+				Logger::log('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+
+				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+						Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+					} else {
+						Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+					}
+				}
 				return;
 			}
 
@@ -294,28 +347,35 @@ class Delivery extends BaseObject
 				return;
 			}
 		} elseif ($cmd != self::RELOCATION) {
-			$deliver_status = DFRN::deliver($owner, $contact, $atom);
+			// DFRN payload over Diaspora transport layer
+			$deliver_status = DFRN::transmit($owner, $contact, $atom);
+			if ($deliver_status < 200) {
+				// Legacy DFRN
+				$deliver_status = DFRN::deliver($owner, $contact, $atom);
+				$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
+			}
 		} else {
-			$deliver_status = DFRN::deliver($owner, $contact, $atom, false, true);
+			$deliver_status = DFRN::deliver($owner, $contact, $atom);
+			$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
 		}
 
-		logger('Delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
-
-		if ($deliver_status < 0) {
-			logger('Delivery failed: queuing message ' . $target_item["guid"] );
-			Queue::add($contact['id'], Protocol::DFRN, $atom, false, $target_item['guid']);
-		}
+		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => defaults($target_item, 'guid', $target_item['id']), 'return' => $deliver_status]);
 
 		if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 			// We successfully delivered a message, the contact is alive
-			Contact::unmarkForArchival($contact);
+			Model\Contact::unmarkForArchival($contact);
+
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], $protocol);
+			}
 		} else {
 			// The message could not be delivered. We mark the contact as "dead"
-			Contact::markForArchival($contact);
+			Model\Contact::markForArchival($contact);
 
-			// Transmit via Diaspora when all other methods (legacy DFRN and new one) are failing.
-			// This is a fallback for systems that don't know the new methods.
-			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
+			Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
+			if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+			}
 		}
 	}
 
@@ -330,11 +390,13 @@ class Delivery extends BaseObject
 	 * @param boolean $public_message Is the content public?
 	 * @param boolean $top_level      Is it a thread starter?
 	 * @param boolean $followup       Is it an answer to a remote post?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
 		// We don't treat Forum posts as "wall-to-wall" to be able to post them via Diaspora
-		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != Contact::ACCOUNT_TYPE_COMMUNITY);
+		$walltowall = $top_level && ($owner['id'] != $items[0]['contact-id']) & ($owner['account-type'] != Model\User::ACCOUNT_TYPE_COMMUNITY);
 
 		if ($public_message) {
 			$loc = 'public batch ' . $contact['batch'];
@@ -342,11 +404,12 @@ class Delivery extends BaseObject
 			$loc = $contact['addr'];
 		}
 
-		logger('Deliver ' . $target_item["guid"] . ' via Diaspora to ' . $loc);
+		Logger::notice('Deliver via Diaspora', ['target' => $target_item['id'], 'guid' => $target_item['guid'], 'to' => $loc]);
 
 		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
 			return;
 		}
+
 		if ($cmd == self::MAIL) {
 			Diaspora::sendMail($target_item, $owner, $contact);
 			return;
@@ -355,35 +418,60 @@ class Delivery extends BaseObject
 		if ($cmd == self::SUGGESTION) {
 			return;
 		}
+
 		if (!$contact['pubkey'] && !$public_message) {
 			return;
 		}
-		if (($target_item['deleted']) && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
+
+		if ($cmd == self::RELOCATION) {
+			$deliver_status = Diaspora::sendAccountMigration($owner, $contact, $owner['uid']);
+		} elseif ($target_item['deleted'] && (($target_item['uri'] === $target_item['parent-uri']) || $followup)) {
 			// top-level retraction
-			logger('diaspora retract: ' . $loc);
-			Diaspora::sendRetraction($target_item, $owner, $contact, $public_message);
-			return;
-		} elseif ($cmd == self::RELOCATION) {
-			Diaspora::sendAccountMigration($owner, $contact, $owner['uid']);
-			return;
+			Logger::log('diaspora retract: ' . $loc);
+			$deliver_status = Diaspora::sendRetraction($target_item, $owner, $contact, $public_message);
 		} elseif ($followup) {
 			// send comments and likes to owner to relay
-			logger('diaspora followup: ' . $loc);
-			Diaspora::sendFollowup($target_item, $owner, $contact, $public_message);
-			return;
+			Logger::log('diaspora followup: ' . $loc);
+			$deliver_status = Diaspora::sendFollowup($target_item, $owner, $contact, $public_message);
 		} elseif ($target_item['uri'] !== $target_item['parent-uri']) {
 			// we are the relay - send comments, likes and relayable_retractions to our conversants
-			logger('diaspora relay: ' . $loc);
-			Diaspora::sendRelay($target_item, $owner, $contact, $public_message);
-			return;
+			Logger::log('diaspora relay: ' . $loc);
+			$deliver_status = Diaspora::sendRelay($target_item, $owner, $contact, $public_message);
 		} elseif ($top_level && !$walltowall) {
 			// currently no workable solution for sending walltowall
-			logger('diaspora status: ' . $loc);
-			Diaspora::sendStatus($target_item, $owner, $contact, $public_message);
+			Logger::log('diaspora status: ' . $loc);
+			$deliver_status = Diaspora::sendStatus($target_item, $owner, $contact, $public_message);
+		} else {
+			Logger::log('Unknown mode ' . $cmd . ' for ' . $loc);
 			return;
 		}
 
-		logger('Unknown mode ' . $cmd . ' for ' . $loc);
+		if (($deliver_status >= 200) && ($deliver_status <= 299)) {
+			// We successfully delivered a message, the contact is alive
+			Model\Contact::unmarkForArchival($contact);
+
+			if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::DIASPORA);
+			}
+		} else {
+			// The message could not be delivered. We mark the contact as "dead"
+			Model\Contact::markForArchival($contact);
+
+			// When it is delivered to the public endpoint, we do mark the relay contact for archival as well
+			if ($public_message) {
+				Diaspora::markRelayForArchival($contact);
+			}
+
+			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
+				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
+				// defer message for redelivery
+				if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+					Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+				}
+			} elseif (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
+				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+			}
+		}
 	}
 
 	/**
@@ -393,6 +481,8 @@ class Delivery extends BaseObject
 	 * @param array  $contact     Contact record of the receiver
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function deliverMail($cmd, $contact, $owner, $target_item)
 	{
@@ -406,7 +496,7 @@ class Delivery extends BaseObject
 			return;
 		}
 
-		if (!in_array($cmd, [self::POST, self::COMMENT])) {
+		if (!in_array($cmd, [self::POST, self::POKE])) {
 			return;
 		}
 
@@ -415,7 +505,7 @@ class Delivery extends BaseObject
 			return;
 		}
 
-		logger('Deliver ' . $target_item["guid"] . ' via mail to ' . $contact['addr']);
+		Logger::log('Deliver ' . $target_item["guid"] . ' via mail to ' . $contact['addr']);
 
 		$reply_to = '';
 		$mailacct = DBA::selectFirst('mailacct', ['reply_to'], ['uid' => $owner['uid']]);
@@ -427,7 +517,7 @@ class Delivery extends BaseObject
 
 		// only expose our real email address to true friends
 
-		if (($contact['rel'] == Contact::FRIEND) && !$contact['blocked']) {
+		if (($contact['rel'] == Model\Contact::FRIEND) && !$contact['blocked']) {
 			if ($reply_to) {
 				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $reply_to.'>' . "\n";
 				$headers .= 'Sender: ' . $local_user['email'] . "\n";
@@ -452,13 +542,13 @@ class Delivery extends BaseObject
 
 			if (empty($target_item['title'])) {
 				$condition = ['uri' => $target_item['parent-uri'], 'uid' => $owner['uid']];
-				$title = Item::selectFirst(['title'], $condition);
+				$title = Model\Item::selectFirst(['title'], $condition);
 
 				if (DBA::isResult($title) && ($title['title'] != '')) {
 					$subject = $title['title'];
 				} else {
 					$condition = ['parent-uri' => $target_item['parent-uri'], 'uid' => $owner['uid']];
-					$title = Item::selectFirst(['title'], $condition);
+					$title = Model\Item::selectFirst(['title'], $condition);
 
 					if (DBA::isResult($title) && ($title['title'] != '')) {
 						$subject = $title['title'];

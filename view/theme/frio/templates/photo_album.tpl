@@ -16,6 +16,12 @@
 			<i class="fa fa-pencil"></i>
 		</button>
 		{{/if}}
+		{{if $drop}}
+		<span class="icon-padding"> </span>
+		<button id="album-drop-link" class="btn-link page-action faded-icon" type="button" data-modal-url="{{$drop.1}}" title="{{$drop.0}}" data-toggle="tooltip">
+			<i class="fa fa-trash"></i>
+		</button>
+		{{/if}}
 
 		{{if ! $noorder}}
 		<span class="icon-padding"> </span>
@@ -37,7 +43,7 @@
 	</div>
 	<div class="photo-album-end"></div>
 
-	{{$paginate}}
+	{{$paginate nofilter}}
 </div>
 
 <script type="text/javascript">$(document).ready(function() { loadingPage = false; justifyPhotos(); });</script>

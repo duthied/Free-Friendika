@@ -43,9 +43,9 @@
 	<h3>{{$plugadmtxt}}</h3>
 	<ul role="menu">
 		{{foreach $admin.addons_admin as $name => $item}}
-		<li role="menuitem" class="{{$item.2}}">
-			<a href="{{$item.0}}" {{if $item.accesskey}}accesskey="{{$item.accesskey}}"{{/if}}>
-				{{$item.1}}
+		<li role="menuitem" class="{{$item.class}}">
+			<a href="{{$item.url}}" {{if $item.accesskey}}accesskey="{{$item.accesskey}}"{{/if}}>
+				{{$item.name}}
 			</a>
 		</li>
 		{{/foreach}}

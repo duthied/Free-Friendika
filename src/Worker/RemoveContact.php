@@ -9,8 +9,6 @@ use Friendica\Database\DBA;
 use Friendica\Core\Protocol;
 use Friendica\Model\Item;
 
-require_once 'include/dba.php';
-
 class RemoveContact {
 	public static function execute($id) {
 

@@ -5,17 +5,15 @@
 namespace Friendica\Content;
 
 use Friendica\App;
-use Friendica\Content\Feature;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
-
-require_once 'boot.php';
-require_once 'include/text.php';
+use Friendica\Model\User;
 
 class Nav
 {
@@ -31,7 +29,7 @@ class Nav
 		'directory' => null,
 		'settings'  => null,
 		'contacts'  => null,
-		'manage'    => null,
+		'delegation'=> null,
 		'events'    => null,
 		'register'  => null
 	];
@@ -45,6 +43,8 @@ class Nav
 
 	/**
 	 * Set a menu item in navbar as selected
+	 *
+	 * @param string $item
 	 */
 	public static function setSelected($item)
 	{
@@ -53,18 +53,21 @@ class Nav
 
 	/**
 	 * Build page header and site navigation bars
+	 *
+	 * @param  App    $a
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function build(App $a)
 	{
 		// Placeholder div for popup panel
-		$nav = '<div id="panel" style="display: none;"></div>' ;
+		$nav = '<div id="panel" style="display: none;"></div>';
 
 		$nav_info = self::getInfo($a);
 
-		$tpl = get_markup_template('nav.tpl');
+		$tpl = Renderer::getMarkupTemplate('nav.tpl');
 
-		$nav .= replace_macros($tpl, [
-			'$baseurl'      => System::baseUrl(),
+		$nav .= Renderer::replaceMacros($tpl, [
 			'$sitelocation' => $nav_info['sitelocation'],
 			'$nav'          => $nav_info['nav'],
 			'$banner'       => $nav_info['banner'],
@@ -76,7 +79,7 @@ class Nav
 			'$search_hint'  => L10n::t('@name, !forum, #tags, content')
 		]);
 
-		Addon::callHooks('page_header', $nav);
+		Hook::callAll('page_header', $nav);
 
 		return $nav;
 	}
@@ -107,7 +110,7 @@ class Nav
 		if (local_user() || !$privateapps) {
 			$arr = ['app_menu' => self::$app_menu];
 
-			Addon::callHooks('app_menu', $arr);
+			Hook::callAll('app_menu', $arr);
 
 			self::$app_menu = $arr['app_menu'];
 		}
@@ -117,12 +120,13 @@ class Nav
 	 * Prepares a list of navigation links
 	 *
 	 * @brief Prepares a list of navigation links
-	 * @param App $a
+	 * @param  App   $a
 	 * @return array Navigation links
-	 *	string 'sitelocation' => The webbie (username@site.com)
-	 *	array 'nav' => Array of links used in the nav menu
-	 *	string 'banner' => Formatted html link with banner image
-	 *	array 'userinfo' => Array of user information (name, icon)
+	 *    string 'sitelocation' => The webbie (username@site.com)
+	 *    array 'nav' => Array of links used in the nav menu
+	 *    string 'banner' => Formatted html link with banner image
+	 *    array 'userinfo' => Array of user information (name, icon)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getInfo(App $a)
 	{
@@ -145,9 +149,13 @@ class Nav
 		$nav['usermenu'] = [];
 		$userinfo = null;
 
-		if (local_user()) {
+		if (Session::isAuthenticated()) {
 			$nav['logout'] = ['logout', L10n::t('Logout'), '', L10n::t('End this session')];
+		} else {
+			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
+		}
 
+		if (local_user()) {
 			// user menu
 			$nav['usermenu'][] = ['profile/' . $a->user['nickname'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
 			$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
@@ -162,21 +170,19 @@ class Nav
 				'icon' => (DBA::isResult($contact) ? $a->removeBaseURL($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
 			];
-		} else {
-			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
 		}
 
 		// "Home" should also take you home from an authenticated remote profile connection
 		$homelink = Profile::getMyURL();
 		if (! $homelink) {
-			$homelink = ((x($_SESSION, 'visitor_home')) ? $_SESSION['visitor_home'] : '');
+			$homelink = Session::get('visitor_home', '');
 		}
 
 		if (($a->module != 'home') && (! (local_user()))) {
 			$nav['home'] = [$homelink, L10n::t('Home'), '', L10n::t('Home Page')];
 		}
 
-		if (intval(Config::get('config', 'register_policy')) === REGISTER_OPEN && !local_user() && !remote_user()) {
+		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
 			$nav['register'] = ['register', L10n::t('Register'), '', L10n::t('Create an account')];
 		}
 
@@ -233,12 +239,12 @@ class Nav
 		// The following nav links are only show to logged in users
 		if (local_user()) {
 			$nav['network'] = ['network', L10n::t('Network'), '', L10n::t('Conversations from your friends')];
-			$nav['net_reset'] = ['network/0?f=&order=comment&nets=all', L10n::t('Network Reset'), '', L10n::t('Load Network page with no filters')];
+			$nav['net_reset'] = ['network/?f=', L10n::t('Network Reset'), '', L10n::t('Load Network page with no filters')];
 
 			$nav['home'] = ['profile/' . $a->user['nickname'], L10n::t('Home'), '', L10n::t('Your posts and conversations')];
 
 			// Don't show notifications for public communities
-			if (defaults($_SESSION, 'page_flags', '') != Contact::PAGE_COMMUNITY) {
+			if (Session::get('page_flags', '') != User::PAGE_FLAGS_COMMUNITY) {
 				$nav['introductions'] = ['notifications/intros', L10n::t('Introductions'), '', L10n::t('Friend Requests')];
 				$nav['notifications'] = ['notifications',	L10n::t('Notifications'), '', L10n::t('Notifications')];
 				$nav['notifications']['all'] = ['notifications/system', L10n::t('See all notifications'), '', ''];
@@ -251,10 +257,8 @@ class Nav
 			$nav['messages']['new'] = ['message/new', L10n::t('New Message'), '', L10n::t('New Message')];
 
 			if (is_array($a->identities) && count($a->identities) > 1) {
-				$nav['manage'] = ['manage', L10n::t('Manage'), '', L10n::t('Manage other pages')];
+				$nav['delegation'] = ['delegation', L10n::t('Delegation'), '', L10n::t('Manage other pages')];
 			}
-
-			$nav['delegations'] = ['delegate', L10n::t('Delegations'), '', L10n::t('Delegate Page Management')];
 
 			$nav['settings'] = ['settings', L10n::t('Settings'), '', L10n::t('Account settings')];
 
@@ -278,7 +282,7 @@ class Nav
 			$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 		}
 
-		Addon::callHooks('nav_info', $nav);
+		Hook::callAll('nav_info', $nav);
 
 		return [
 			'sitelocation' => $sitelocation,

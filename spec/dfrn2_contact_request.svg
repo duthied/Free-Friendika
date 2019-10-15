@@ -38,7 +38,7 @@ text { font:12px Dialog; }
 <text x="904" y="1084" style="font:13px Open Sans">where self = 0 to look if this contact is already there (if </text>
 <text x="904" y="1107" style="font:13px Open Sans">issued-id or rel is already available return here because it </text>
 <text x="904" y="1130" style="font:13px Open Sans">seems that we are already connected)</text>
-<text x="904" y="1176" style="font:13px Open Sans">- create a issued-id with $issued_id = random_string();</text>
+<text x="904" y="1176" style="font:13px Open Sans">- create a issued-id with $issued_id = Strings::getRandomHex();</text>
 <text x="904" y="1222" style="font:13px Open Sans">- if we already found a contact record above update the </text>
 <text x="904" y="1245" style="font:13px Open Sans">issued-id with the one we have created</text>
 <text x="904" y="1291" style="font:13px Open Sans">- otherwise if Bob is not already in the contact table scrape </text>
@@ -80,7 +80,7 @@ text { font:12px Dialog; }
 <text x="149" y="1721" style="font:13px Open Sans">($_POST['localconfirm'] == 1)</text>
 <text x="149" y="1744" style="font:13px Open Sans">-----------------------------------------------------------------------</text>
 <text x="149" y="1767" style="font:13px Open Sans">- if(local_user() &amp;&amp; ($a-&gt;user['nickname'] == $a-</text>
-<text x="149" y="1790" style="font:13px Open Sans">&gt;argv[1]) &amp;&amp; (x($_POST,'dfrn_url')))</text>
+<text x="149" y="1790" style="font:13px Open Sans">&gt;argv[1]) &amp;&amp; !empty($_POST['dfrn_url']))</text>
 <text x="149" y="1813" style="font:13px Open Sans">-&gt;</text>
 <text x="149" y="1859" style="font:13px Open Sans">- $confirm_key comes from $_POST</text>
 <text x="149" y="1905" style="font:13px Open Sans">- get data for contact Karen (contact table) by </text>
@@ -104,7 +104,7 @@ text { font:12px Dialog; }
 <path d="M866,2206 C861.5820313,2206 858,2209.5820313 858,2214 L858,2444 C858,2448.4179688 861.5820313,2452 866,2452 L1434,2452 C1438.4179688,2452 1442,2448.4179688 1442,2444 L1442,2214 C1442,2209.5820313 1438.4179688,2206 1434,2206 Z" style="fill:rgb(255,255,3);stroke:none" clip-path="url(#clip14)" />
 <text x="871" y="2228" style="font:13px Open Sans">http://karenhomepage.com/dfrn_request?confirm_key=”ABC123”</text>
 <text x="871" y="2274" style="font:13px Open Sans">dfrn_request_content() -</text>
-<text x="871" y="2297" style="font:13px Open Sans">(elseif((x($_GET,'confirm_key')) &amp;&amp; strlen($_GET['confirm_key'])) )</text>
+<text x="871" y="2297" style="font:13px Open Sans">elseif (!empty($_GET['confirm_key']))</text>
 <text x="871" y="2320" style="font:13px Open Sans">----------------------------------------------------------------------------------------------</text>
 <text x="871" y="2366" style="font:13px Open Sans">- select the intro by confirm_key (intro table) -&gt; get contact id</text>
 <text x="871" y="2389" style="font:13px Open Sans">- use the intro contact id to get the contact in the contact table</text>

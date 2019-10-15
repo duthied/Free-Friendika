@@ -3,10 +3,11 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 
 function duepuntozero_init(App $a) {
 
-$a->setActiveTemplateEngine('smarty3');
+Renderer::setActiveTemplateEngine('smarty3');
 
     $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
     if (!$colorset)

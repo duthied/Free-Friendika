@@ -17,38 +17,24 @@
  * easily as email does today.
  */
 
-require_once __DIR__ . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
-
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Addon;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
-use Friendica\Database\DBStructure;
 use Friendica\Model\Contact;
-use Friendica\Model\Conversation;
+use Friendica\Model\Term;
+use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/text.php';
-
 define('FRIENDICA_PLATFORM',     'Friendica');
-define('FRIENDICA_CODENAME',     'The Tazmans Flax-lily');
-define('FRIENDICA_VERSION',      '2018.12-dev');
+define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
+define('FRIENDICA_VERSION',      '2019.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
-
-/**
- * @brief Constants for the database update check
- */
-const DB_UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
-const DB_UPDATE_SUCCESSFUL = 1;  // Database check was successful
-const DB_UPDATE_FAILED = 2;      // Database check failed
 
 /**
  * @brief Constant with a HTML line break.
@@ -63,13 +49,13 @@ define('EOL',                    "<br />\r\n");
  * @brief Image storage quality.
  *
  * Lower numbers save space at cost of image detail.
- * For ease of upgrade, please do not change here. Set [system] jpegquality = n in config/local.ini.php,
+ * For ease of upgrade, please do not change here. Set system.jpegquality = n in config/local.config.php,
  * where n is between 1 and 100, and with very poor results below about 50
  */
 define('JPEG_QUALITY',            100);
 
 /**
- * [system] png_quality = n where is between 0 (uncompressed) to 9
+ * system.png_quality = n where is between 0 (uncompressed) to 9
  */
 define('PNG_QUALITY',             8);
 
@@ -80,10 +66,12 @@ define('PNG_QUALITY',             8);
  * this length (on the longest side, the other side will be scaled appropriately).
  * Modify this value using
  *
- * [system]
- * max_image_length = n;
+ * 'system' => [
+ *      'max_image_length' => 'n',
+ *      ...
+ * ],
  *
- * in config/local.ini.php
+ * in config/local.config.php
  *
  * If you don't want to set a maximum length, set to -1. The default value is
  * defined by 'MAX_IMAGE_LENGTH' below.
@@ -95,55 +83,12 @@ define('MAX_IMAGE_LENGTH',        -1);
  */
 define('DEFAULT_DB_ENGINE',  'InnoDB');
 
-/**
- * @name SSL Policy
- *
- * SSL redirection policies
- * @{
- */
-define('SSL_POLICY_NONE',         0);
-define('SSL_POLICY_FULL',         1);
-define('SSL_POLICY_SELFSIGN',     2);
-/* @}*/
-
-/**
- * @name Logger
- *
- * log levels
- * @{
- */
-define('LOGGER_WARNING',         0);
-define('LOGGER_INFO',            1);
-define('LOGGER_TRACE',           2);
-define('LOGGER_DEBUG',           3);
-define('LOGGER_DATA',            4);
-define('LOGGER_ALL',             5);
-/* @}*/
-
-/**
- * @name Register
- *
- * Registration policies
- * @{
- */
-define('REGISTER_CLOSED',        0);
-define('REGISTER_APPROVE',       1);
-define('REGISTER_OPEN',          2);
-/**
- * @}
-*/
-
-/**
- * @name Update
- *
- * DB update return values
- * @{
- */
-define('UPDATE_SUCCESS', 0);
-define('UPDATE_FAILED',  1);
-/**
- * @}
- */
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::CLOSED instead */
+define('REGISTER_CLOSED',        \Friendica\Module\Register::CLOSED);
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::APPROVE instead */
+define('REGISTER_APPROVE',       \Friendica\Module\Register::APPROVE);
+/** @deprecated since version 2019.03, please use \Friendica\Module\Register::OPEN instead */
+define('REGISTER_OPEN',          \Friendica\Module\Register::OPEN);
 
 /**
  * @name CP
@@ -199,41 +144,45 @@ define('MAX_LIKERS',    75);
  * Email notification options
  * @{
  */
-define('NOTIFY_INTRO',    0x0001);
-define('NOTIFY_CONFIRM',  0x0002);
-define('NOTIFY_WALL',     0x0004);
-define('NOTIFY_COMMENT',  0x0008);
-define('NOTIFY_MAIL',     0x0010);
-define('NOTIFY_SUGGEST',  0x0020);
-define('NOTIFY_PROFILE',  0x0040);
-define('NOTIFY_TAGSELF',  0x0080);
-define('NOTIFY_TAGSHARE', 0x0100);
-define('NOTIFY_POKE',     0x0200);
-define('NOTIFY_SHARE',    0x0400);
+define('NOTIFY_INTRO',        1);
+define('NOTIFY_CONFIRM',      2);
+define('NOTIFY_WALL',         4);
+define('NOTIFY_COMMENT',      8);
+define('NOTIFY_MAIL',        16);
+define('NOTIFY_SUGGEST',     32);
+define('NOTIFY_PROFILE',     64);
+define('NOTIFY_TAGSELF',    128);
+define('NOTIFY_TAGSHARE',   256);
+define('NOTIFY_POKE',       512);
+define('NOTIFY_SHARE',     1024);
 
-define('SYSTEM_EMAIL',    0x4000);
+define('SYSTEM_EMAIL',    16384);
 
-define('NOTIFY_SYSTEM',   0x8000);
+define('NOTIFY_SYSTEM',   32768);
 /* @}*/
 
 
-/**
- * @name Term
- *
- * Tag/term types
- * @{
- */
-define('TERM_UNKNOWN',   0);
-define('TERM_HASHTAG',   1);
-define('TERM_MENTION',   2);
-define('TERM_CATEGORY',  3);
-define('TERM_PCATEGORY', 4);
-define('TERM_FILE',      5);
-define('TERM_SAVEDSEARCH', 6);
-define('TERM_CONVERSATION', 7);
+/** @deprecated since 2019.03, use Term::UNKNOWN instead */
+define('TERM_UNKNOWN',   Term::UNKNOWN);
+/** @deprecated since 2019.03, use Term::HASHTAG instead */
+define('TERM_HASHTAG',   Term::HASHTAG);
+/** @deprecated since 2019.03, use Term::MENTION instead */
+define('TERM_MENTION',   Term::MENTION);
+/** @deprecated since 2019.03, use Term::CATEGORY instead */
+define('TERM_CATEGORY',  Term::CATEGORY);
+/** @deprecated since 2019.03, use Term::PCATEGORY instead */
+define('TERM_PCATEGORY', Term::PCATEGORY);
+/** @deprecated since 2019.03, use Term::FILE instead */
+define('TERM_FILE',      Term::FILE);
+/** @deprecated since 2019.03, use Term::SAVEDSEARCH instead */
+define('TERM_SAVEDSEARCH', Term::SAVEDSEARCH);
+/** @deprecated since 2019.03, use Term::CONVERSATION instead */
+define('TERM_CONVERSATION', Term::CONVERSATION);
 
-define('TERM_OBJ_POST',  1);
-define('TERM_OBJ_PHOTO', 2);
+/** @deprecated since 2019.03, use Term::OBJECT_TYPE_POST instead */
+define('TERM_OBJ_POST',  Term::OBJECT_TYPE_POST);
+/** @deprecated since 2019.03, use Term::OBJECT_TYPE_PHOTO instead */
+define('TERM_OBJ_PHOTO', Term::OBJECT_TYPE_PHOTO);
 
 /**
  * @name Namespaces
@@ -245,6 +194,7 @@ define('NAMESPACE_ZOT',             'http://purl.org/zot');
 define('NAMESPACE_DFRN',            'http://purl.org/macgirvin/dfrn/1.0');
 define('NAMESPACE_THREAD',          'http://purl.org/syndication/thread/1.0');
 define('NAMESPACE_TOMB',            'http://purl.org/atompub/tombstones/1.0');
+define('NAMESPACE_ACTIVITY2',       'https://www.w3.org/ns/activitystreams#');
 define('NAMESPACE_ACTIVITY',        'http://activitystrea.ms/spec/1.0/');
 define('NAMESPACE_ACTIVITY_SCHEMA', 'http://activitystrea.ms/schema/1.0/');
 define('NAMESPACE_MEDIA',           'http://purl.org/syndication/atommedia');
@@ -287,6 +237,7 @@ define('ACTIVITY_FAVORITE',    NAMESPACE_ACTIVITY_SCHEMA . 'favorite');
 define('ACTIVITY_UNFAVORITE',  NAMESPACE_ACTIVITY_SCHEMA . 'unfavorite');
 define('ACTIVITY_SHARE',       NAMESPACE_ACTIVITY_SCHEMA . 'share');
 define('ACTIVITY_DELETE',      NAMESPACE_ACTIVITY_SCHEMA . 'delete');
+define('ACTIVITY2_ANNOUNCE',   NAMESPACE_ACTIVITY2       . 'Announce');
 
 define('ACTIVITY_POKE',        NAMESPACE_ZOT . '/activity/poke');
 
@@ -362,46 +313,13 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
  *
  * Useful in functions which require it but don't get it passed to them
  *
+ * @deprecated since version 2018.09
+ * @see BaseObject::getApp()
  * @return App
  */
 function get_app()
 {
 	return BaseObject::getApp();
-}
-
-/**
- * @brief Multi-purpose function to check variable state.
- *
- * Usage: x($var) or $x($array, 'key')
- *
- * returns false if variable/key is not set
- * if variable is set, returns 1 if has 'non-zero' value, otherwise returns 0.
- * e.g. x('') or x(0) returns 0;
- *
- * @param string|array $s variable to check
- * @param string       $k key inside the array to check
- *
- * @return bool|int
- */
-function x($s, $k = null)
-{
-	if ($k != null) {
-		if ((is_array($s)) && (array_key_exists($k, $s))) {
-			if ($s[$k]) {
-				return (int) 1;
-			}
-			return (int) 0;
-		}
-		return false;
-	} else {
-		if (isset($s)) {
-			if ($s) {
-				return (int) 1;
-			}
-			return (int) 0;
-		}
-		return false;
-	}
 }
 
 /**
@@ -414,13 +332,13 @@ function x($s, $k = null)
  * - defaults($var, $default)
  * - defaults($array, 'key', $default)
  *
+ * @param array $args
  * @brief Returns a defaut value if the provided variable or array key is falsy
- * @see x()
  * @return mixed
+ * @deprecated since version 2019.06, use native coalesce operator (??) instead
  */
-function defaults() {
-	$args = func_get_args();
-
+function defaults(...$args)
+{
 	if (count($args) < 2) {
 		throw new BadFunctionCallException('defaults() requires at least 2 parameters');
 	}
@@ -431,156 +349,18 @@ function defaults() {
 		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
 	}
 
-	$default = array_pop($args);
+	// The default value always is the last argument
+	$return = array_pop($args);
 
-	if (call_user_func_array('x', $args)) {
-		if (count($args) === 1) {
-			$return = $args[0];
-		} else {
-			$return = $args[0][$args[1]];
-		}
-	} else {
-		$return = $default;
+	if (count($args) == 2 && is_array($args[0]) && !empty($args[0][$args[1]])) {
+		$return = $args[0][$args[1]];
+	}
+
+	if (count($args) == 1 && !empty($args[0])) {
+		$return = $args[0];
 	}
 
 	return $return;
-}
-
-/**
- * @brief Function to check if request was an AJAX (xmlhttprequest) request.
- *
- * @param boolean $via_worker boolean Is the check run via the worker?
- */
-function check_db($via_worker)
-{
-	$build = Config::get('system', 'build');
-
-	if (empty($build)) {
-		Config::set('system', 'build', DB_UPDATE_VERSION - 1);
-		$build = DB_UPDATE_VERSION - 1;
-	}
-
-	// We don't support upgrading from very old versions anymore
-	if ($build < NEW_UPDATE_ROUTINE_VERSION) {
-		die('You try to update from a version prior to database version 1170. The direct upgrade path is not supported. Please update to version 3.5.4 before updating to this version.');
-	}
-
-	if ($build < DB_UPDATE_VERSION) {
-		// When we cannot execute the database update via the worker, we will do it directly
-		if (!Worker::add(PRIORITY_CRITICAL, 'DBUpdate') && $via_worker) {
-			update_db();
-		}
-	}
-}
-
-/**
- * @brief Automatic database updates
- * @param object $a App
- */
-function update_db()
-{
-	$build = Config::get('system', 'build');
-
-	if (empty($build) || ($build > DB_UPDATE_VERSION)) {
-		$build = DB_UPDATE_VERSION - 1;
-		Config::set('system', 'build', $build);
-	}
-
-	if ($build != DB_UPDATE_VERSION) {
-		require_once 'update.php';
-
-		$stored = intval($build);
-		$current = intval(DB_UPDATE_VERSION);
-		if ($stored < $current) {
-			Config::load('database');
-
-			// Compare the current structure with the defined structure
-			$t = Config::get('database', 'dbupdate_' . DB_UPDATE_VERSION);
-			if (!is_null($t)) {
-				return;
-			}
-
-			// run the pre_update_nnnn functions in update.php
-			for ($x = $stored + 1; $x <= $current; $x++) {
-				$r = run_update_function($x, 'pre_update');
-				if (!$r) {
-					break;
-				}
-			}
-
-			Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, time());
-
-			// update the structure in one call
-			$retval = DBStructure::update(false, true);
-			if ($retval) {
-				DBStructure::updateFail(
-					DB_UPDATE_VERSION,
-					$retval
-				);
-				return;
-			} else {
-				Config::set('database', 'dbupdate_' . DB_UPDATE_VERSION, 'success');
-			}
-
-			// run the update_nnnn functions in update.php
-			for ($x = $stored + 1; $x <= $current; $x++) {
-				$r = run_update_function($x, 'update');
-				if (!$r) {
-					break;
-				}
-			}
-		}
-	}
-
-	return;
-}
-
-function run_update_function($x, $prefix)
-{
-	$funcname = $prefix . '_' . $x;
-
-	if (function_exists($funcname)) {
-		// There could be a lot of processes running or about to run.
-		// We want exactly one process to run the update command.
-		// So store the fact that we're taking responsibility
-		// after first checking to see if somebody else already has.
-		// If the update fails or times-out completely you may need to
-		// delete the config entry to try again.
-
-		$t = Config::get('database', $funcname);
-		if (!is_null($t)) {
-			return false;
-		}
-		Config::set('database', $funcname, time());
-
-		// call the specific update
-		$retval = $funcname();
-
-		if ($retval) {
-			//send the administrator an e-mail
-			DBStructure::updateFail(
-				$x,
-				L10n::t('Update %s failed. See error logs.', $x)
-			);
-			return false;
-		} else {
-			Config::set('database', $funcname, 'success');
-
-			if ($prefix == 'update') {
-				Config::set('system', 'build', $x);
-			}
-
-			return true;
-		}
-	} else {
-		Config::set('database', $funcname, 'success');
-
-		if ($prefix == 'update') {
-			Config::set('system', 'build', $x);
-		}
-
-		return true;
-	}
 }
 
 /**
@@ -614,15 +394,15 @@ function public_contact()
 {
 	static $public_contact_id = false;
 
-	if (!$public_contact_id && x($_SESSION, 'authenticated')) {
-		if (x($_SESSION, 'my_address')) {
+	if (!$public_contact_id && !empty($_SESSION['authenticated'])) {
+		if (!empty($_SESSION['my_address'])) {
 			// Local user
 			$public_contact_id = intval(Contact::getIdForURL($_SESSION['my_address'], 0, true));
-		} elseif (x($_SESSION, 'visitor_home')) {
+		} elseif (!empty($_SESSION['visitor_home'])) {
 			// Remote user
 			$public_contact_id = intval(Contact::getIdForURL($_SESSION['visitor_home'], 0, true));
 		}
-	} elseif (!x($_SESSION, 'authenticated')) {
+	} elseif (empty($_SESSION['authenticated'])) {
 		$public_contact_id = false;
 	}
 
@@ -636,20 +416,14 @@ function public_contact()
  */
 function remote_user()
 {
-	// You cannot be both local and remote.
-	// Unncommented by rabuzarus because remote authentication to local
-	// profiles wasn't possible anymore (2018-04-12).
-//	if (local_user()) {
-//		return false;
-//	}
-
-	if (empty($_SESSION)) {
+	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (x($_SESSION, 'authenticated') && x($_SESSION, 'visitor_id')) {
+	if (!empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
+
 	return false;
 }
 
@@ -666,8 +440,8 @@ function notice($s)
 		return;
 	}
 
-	$a = get_app();
-	if (!x($_SESSION, 'sysmsg')) {
+	$a = \get_app();
+	if (empty($_SESSION['sysmsg'])) {
 		$_SESSION['sysmsg'] = [];
 	}
 	if ($a->interactive) {
@@ -684,13 +458,13 @@ function notice($s)
  */
 function info($s)
 {
-	$a = get_app();
+	$a = \get_app();
 
 	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
 		return;
 	}
 
-	if (!x($_SESSION, 'sysmsg_info')) {
+	if (empty($_SESSION['sysmsg_info'])) {
 		$_SESSION['sysmsg_info'] = [];
 	}
 	if ($a->interactive) {
@@ -747,46 +521,13 @@ function feed_birthday($uid, $tz)
  */
 function is_site_admin()
 {
-	$a = get_app();
+	$a = \get_app();
 
 	$admin_email = Config::get('config', 'admin_email');
 
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
-	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
-}
-
-/**
- * @brief Returns querystring as string from a mapped array.
- *
- * @param array  $params mapped array with query parameters
- * @param string $name   of parameter, default null
- *
- * @return string
- */
-function build_querystring($params, $name = null)
-{
-	$ret = "";
-	foreach ($params as $key => $val) {
-		if (is_array($val)) {
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name == null) {
-				$ret .= build_querystring($val, $key);
-			} else {
-				$ret .= build_querystring($val, $name . "[$key]");
-			}
-		} else {
-			$val = urlencode($val);
-			/// @TODO maybe not compare against null, use is_null()
-			if ($name != null) {
-				/// @TODO two string concated, can be merged to one
-				$ret .= $name . "[$key]" . "=$val&";
-			} else {
-				$ret .= "$key=$val&";
-			}
-		}
-	}
-	return $ret;
+	return local_user() && $admin_email && in_array($a->user['email'] ?? '', $adminlist);
 }
 
 function explode_querystring($query)
@@ -843,16 +584,6 @@ function curPageURL()
 	return $pageURL;
 }
 
-function random_digits($digits)
-{
-	$rn = '';
-	for ($i = 0; $i < $digits; $i++) {
-		/// @TODO Avoid rand/mt_rand, when it comes to cryptography, they are generating predictable (seedable) numbers.
-		$rn .= rand(0, 9);
-	}
-	return $rn;
-}
-
 function get_server()
 {
 	$server = Config::get("system", "directory");
@@ -866,22 +597,22 @@ function get_server()
 
 function get_temppath()
 {
-	$a = get_app();
+	$a = \get_app();
 
 	$temppath = Config::get("system", "temppath");
 
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
-		return App::getRealPath($temppath);
+		return BasePath::getRealPath($temppath);
 	}
 
 	// We don't have a working preconfigured temp path, so we take the system path.
 	$temppath = sys_get_temp_dir();
 
 	// Check if it is usable
-	if (($temppath != "") && App::isDirectoryUsable($temppath)) {
+	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// Always store the real path, not the path through symlinks
-		$temppath = App::getRealPath($temppath);
+		$temppath = BasePath::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
 		$new_temppath = $temppath . "/" . $a->getHostName();
@@ -890,7 +621,7 @@ function get_temppath()
 			mkdir($new_temppath);
 		}
 
-		if (App::isDirectoryUsable($new_temppath)) {
+		if (System::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "temppath", $new_temppath);
 			return $new_temppath;
@@ -972,8 +703,8 @@ function get_itemcachepath()
 	}
 
 	$itemcache = Config::get('system', 'itemcache');
-	if (($itemcache != "") && App::isDirectoryUsable($itemcache)) {
-		return App::getRealPath($itemcache);
+	if (($itemcache != "") && System::isDirectoryUsable($itemcache)) {
+		return BasePath::getRealPath($itemcache);
 	}
 
 	$temppath = get_temppath();
@@ -984,7 +715,7 @@ function get_itemcachepath()
 			mkdir($itemcache);
 		}
 
-		if (App::isDirectoryUsable($itemcache)) {
+		if (System::isDirectoryUsable($itemcache)) {
 			Config::set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
@@ -1000,7 +731,7 @@ function get_itemcachepath()
 function get_spoolpath()
 {
 	$spoolpath = Config::get('system', 'spoolpath');
-	if (($spoolpath != "") && App::isDirectoryUsable($spoolpath)) {
+	if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;
 	}
@@ -1015,7 +746,7 @@ function get_spoolpath()
 			mkdir($spoolpath);
 		}
 
-		if (App::isDirectoryUsable($spoolpath)) {
+		if (System::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
 			Config::set("system", "spoolpath", $spoolpath);
 			return $spoolpath;
@@ -1068,4 +799,23 @@ function validate_include(&$file)
 
 	// Simply return flag
 	return $valid;
+}
+
+/**
+ * PHP 5 compatible dirname() with count parameter
+ *
+ * @see http://php.net/manual/en/function.dirname.php#113193
+ *
+ * @deprecated with PHP 7
+ * @param string $path
+ * @param int    $levels
+ * @return string
+ */
+function rdirname($path, $levels = 1)
+{
+	if ($levels > 1) {
+		return dirname(rdirname($path, --$levels));
+	} else {
+		return dirname($path);
+	}
 }

@@ -9,6 +9,8 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -17,9 +19,9 @@ use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
-
-require_once 'include/items.php';
+use Friendica\Worker\Delivery;
 
 function events_init(App $a)
 {
@@ -47,7 +49,7 @@ function events_init(App $a)
 function events_post(App $a)
 {
 
-	logger('post: ' . print_r($_REQUEST, true), LOGGER_DATA);
+	Logger::log('post: ' . print_r($_REQUEST, true), Logger::DATA);
 
 	if (!local_user()) {
 		return;
@@ -57,8 +59,8 @@ function events_post(App $a)
 	$cid = !empty($_POST['cid']) ? intval($_POST['cid']) : 0;
 	$uid = local_user();
 
-	$start_text  = escape_tags(defaults($_REQUEST, 'start_text', ''));
-	$finish_text = escape_tags(defaults($_REQUEST, 'finish_text', ''));
+	$start_text  = Strings::escapeHtml(defaults($_REQUEST, 'start_text', ''));
+	$finish_text = Strings::escapeHtml(defaults($_REQUEST, 'finish_text', ''));
 
 	$adjust   = intval(defaults($_POST, 'adjust', 0));
 	$nofinish = intval(defaults($_POST, 'nofinish', 0));
@@ -94,19 +96,29 @@ function events_post(App $a)
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	$summary  = escape_tags(trim(defaults($_POST, 'summary', '')));
-	$desc     = escape_tags(trim(defaults($_POST, 'desc', '')));
-	$location = escape_tags(trim(defaults($_POST, 'location', '')));
+	$summary  = trim(defaults($_POST, 'summary' , ''));
+	$desc     = trim(defaults($_POST, 'desc'    , ''));
+	$location = trim(defaults($_POST, 'location', ''));
 	$type     = 'event';
 
-	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
-	$onerror_path = "events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
+	$params = [
+		'summary'     => $summary,
+		'description' => $desc,
+		'location'    => $location,
+		'start'       => $start_text,
+		'finish'      => $finish_text,
+		'adjust'      => $adjust,
+		'nofinish'    => $nofinish,
+	];
+
+	$action = ($event_id == '') ? 'new' : 'event/' . $event_id;
+	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
 		notice(L10n::t('Event can not end before it has started.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event can not end before it has started.');
-			killme();
+			exit();
 		}
 		$a->internalRedirect($onerror_path);
 	}
@@ -115,7 +127,7 @@ function events_post(App $a)
 		notice(L10n::t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event title and start time are required.');
-			killme();
+			exit();
 		}
 		$a->internalRedirect($onerror_path);
 	}
@@ -134,10 +146,10 @@ function events_post(App $a)
 
 
 	if ($share) {
-		$str_group_allow   = !empty($_POST['group_allow'])   ? perms2str($_POST['group_allow'])   : '';
-		$str_contact_allow = !empty($_POST['contact_allow']) ? perms2str($_POST['contact_allow']) : '';
-		$str_group_deny    = !empty($_POST['group_deny'])    ? perms2str($_POST['group_deny'])    : '';
-		$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
+		$str_group_allow   = perms2str(defaults($_POST, 'group_allow'  , ''));
+		$str_contact_allow = perms2str(defaults($_POST, 'contact_allow', ''));
+		$str_group_deny    = perms2str(defaults($_POST, 'group_deny'   , ''));
+		$str_contact_deny  = perms2str(defaults($_POST, 'contact_deny' , ''));
 
 		// Undo the pseudo-contact of self, since there are real contacts now
 		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {
@@ -178,13 +190,13 @@ function events_post(App $a)
 	if (intval($_REQUEST['preview'])) {
 		$html = Event::getHTML($datarray);
 		echo $html;
-		killme();
+		exit();
 	}
 
 	$item_id = Event::store($datarray);
 
 	if (!$cid) {
-		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item_id);
 	}
 
 	$a->internalRedirect('events');
@@ -202,14 +214,14 @@ function events_content(App $a)
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
-		$r = q("UPDATE `event` SET `ignore` = 1 WHERE `id` = %d AND `uid` = %d",
+		q("UPDATE `event` SET `ignore` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
-		$r = q("UPDATE `event` SET `ignore` = 0 WHERE `id` = %d AND `uid` = %d",
+		q("UPDATE `event` SET `ignore` = 0 WHERE `id` = %d AND `uid` = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
@@ -224,9 +236,8 @@ function events_content(App $a)
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
-	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, [
-		'$baseurl' => System::baseUrl(),
+	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
@@ -236,7 +247,7 @@ function events_content(App $a)
 	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
-		$tabs = Profile::getTabs($a, true);
+		$tabs = Profile::getTabs($a, 'events', true);
 	}
 
 	$mode = 'view';
@@ -289,21 +300,6 @@ function events_content(App $a)
 			$y = 2100;
 		}
 
-		$nextyear = $y;
-		$nextmonth = $m + 1;
-		if ($nextmonth > 12) {
-			$nextmonth = 1;
-			$nextyear ++;
-		}
-
-		$prevyear = $y;
-		if ($m > 1) {
-			$prevmonth = $m - 1;
-		} else {
-			$prevmonth = 12;
-			$prevyear --;
-		}
-
 		$dim    = Temporal::getDaysInMonth($y, $m);
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
@@ -325,7 +321,7 @@ function events_content(App $a)
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
-			'event_id'      => intval(defaults($_GET, 'id', 0)),
+			'event_id'      => intval($_GET['id'] ?? 0),
 			'start'         => $start,
 			'finish'        => $finish,
 			'adjust_start'  => $adjust_start,
@@ -361,14 +357,15 @@ function events_content(App $a)
 		}
 
 		if ($a->argc > 1 && $a->argv[1] === 'json') {
+			header('Content-Type: application/json');
 			echo json_encode($events);
-			killme();
+			exit();
 		}
 
 		if (!empty($_GET['id'])) {
-			$tpl = get_markup_template("event.tpl");
+			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
-			$tpl = get_markup_template("events_js.tpl");
+			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
@@ -381,8 +378,7 @@ function events_content(App $a)
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, [
-			'$baseurl'   => System::baseUrl(),
+		$o = Renderer::replaceMacros($tpl, [
 			'$tabs'      => $tabs,
 			'$title'     => L10n::t('Events'),
 			'$view'      => L10n::t('View'),
@@ -402,7 +398,7 @@ function events_content(App $a)
 
 		if (!empty($_GET['id'])) {
 			echo $o;
-			killme();
+			exit();
 		}
 
 		return $o;
@@ -496,9 +492,9 @@ function events_content(App $a)
 			$uri = '';
 		}
 
-		$tpl = get_markup_template('event_form.tpl');
+		$tpl = Renderer::getMarkupTemplate('event_form.tpl');
 
-		$o .= replace_macros($tpl, [
+		$o .= Renderer::replaceMacros($tpl, [
 			'$post' => System::baseUrl() . '/events',
 			'$eid'  => $eid,
 			'$cid'  => $cid,
@@ -514,7 +510,7 @@ function events_content(App $a)
 			'$s_text' => L10n::t('Event Starts:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
 			'$s_dsel' => Temporal::getDateTimeField(
 				new DateTime(),
-				DateTime::createFromFormat('Y', $syear+5),
+				DateTime::createFromFormat('Y', intval($syear) + 5),
 				DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"),
 				L10n::t('Event Starts:'),
 				'start_text',
@@ -529,7 +525,7 @@ function events_content(App $a)
 			'$f_text' => L10n::t('Event Finishes:'),
 			'$f_dsel' => Temporal::getDateTimeField(
 				new DateTime(),
-				DateTime::createFromFormat('Y', $fyear+5),
+				DateTime::createFromFormat('Y', intval($fyear) + 5),
 				DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"),
 				L10n::t('Event Finishes:'),
 				'finish_text',

@@ -17,13 +17,7 @@ function notes_init(App $a)
 		return;
 	}
 
-	$profile = 0;
-
-	$which = $a->user['nickname'];
-
 	Nav::setSelected('home');
-
-	//Profile::load($a, $which, $profile);
 }
 
 
@@ -34,9 +28,7 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	require_once 'include/conversation.php';
-
-	$o = Profile::getTabs($a, true);
+	$o = Profile::getTabs($a, 'notes', true);
 
 	if (!$update) {
 		$o .= '<h3>' . L10n::t('Personal Notes') . '</h3>';
@@ -59,7 +51,7 @@ function notes_content(App $a, $update = false)
 	}
 
 	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
-		'wall' => false, 'contact-id'=> $a->contact['id']];
+		'contact-id'=> $a->contact['id']];
 
 	$pager = new Pager($a->query_string, 40);
 
@@ -70,7 +62,7 @@ function notes_content(App $a, $update = false)
 	$count = 0;
 
 	if (DBA::isResult($r)) {
-		$notes = DBA::toArray($r);
+		$notes = Item::inArray($r);
 
 		$count = count($notes);
 

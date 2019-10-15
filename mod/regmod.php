@@ -13,11 +13,9 @@ use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 
-require_once 'include/enotify.php';
-
 function user_allow($hash)
 {
-	$a = get_app();
+	$a = \get_app();
 
 	$register = Register::getByHash($hash);
 	if (!DBA::isResult($register)) {
@@ -84,7 +82,7 @@ function regmod_content(App $a)
 {
 	if (!local_user()) {
 		info(L10n::t('Please login.') . EOL);
-		return Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === REGISTER_CLOSED ? 0 : 1);
+		return Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
 	}
 
 	if (!is_site_admin() || !empty($_SESSION['submanage'])) {

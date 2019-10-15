@@ -69,6 +69,10 @@ table.bbcodes > * > tr > th {
   <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Immagine/foto"></td>
 </tr>
 <tr>
+  <td>[img=https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg]The Friendica Logo[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="The Friendica Logo"></td>
+</tr>
+<tr>
   <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]<br>
 <br>Note: provided height is simply discarded.</td>
   <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" style="width: 64px;"></td>
@@ -597,6 +601,9 @@ While taking pictures in the woods I had a really strange encounter...</td>
 
 The [abstract] element is not working with connectors where we post HTML directly, like Tumblr, Wordpress or Pump.io.
 For the native connections--that is to e.g. Friendica, Hubzilla, Diaspora or GNU Social--the full posting is used and the contacts instance will display the posting as desired.
+
+For postings that are delivered via ActivityPub, the text from the abstract is placed in the summary field.
+On Mastodon this field is used for the content warning.
 
 ## Special
 

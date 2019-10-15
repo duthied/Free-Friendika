@@ -1,0 +1,23 @@
+INPUT = README.md index.php boot.php update.php bin/ mod/ include/ view/ src/ VERSION
+RECURSIVE = YES
+PROJECT_NAME = "Friendica"
+PROJECT_LOGO = images/friendica-64.jpg
+EXCLUDE = .htconfig.php config/ library/ doc/ .git/ log/ addon/ report/ privacy_image_cache/ photo/ proxy/ local/
+EXCLUDE_PATTERNS = *smarty3* strings.php *.log *.out *test*
+OUTPUT_DIRECTORY = doc
+GENERATE_HTML = YES
+HTML_OUTPUT = html/
+HTML_FILE_EXTENSION = .html
+GENERATE_LATEX = NO
+EXTRACT_ALL = YES
+EXTRACT_PRIVATE = YES
+GENERATE_TODOLIST = YES
+USE_MDFILE_AS_MAINPAGE = README.md
+REFERENCED_BY_RELATION = YES
+GENERATE_TREEVIEW = YES
+ALIASES += "license=@par License:\n"
+ALIASES += "fixme=\xrefitem fixme \"Fixme\" \"Fixme List\""
+ALIASES += "FIXME=\fixme"
+ALIASES += "TODO=\todo"
+ALIASES += "BUG=\bug"
+ALIASES += "hooks=\xrefitem hooks \"Hooks\" \"Hooks List\""

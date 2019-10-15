@@ -4,7 +4,7 @@
  */
 namespace Friendica\Render;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 
 /**
  * Smarty implementation of the Friendica template engine interface
@@ -17,9 +17,9 @@ class FriendicaSmartyEngine implements ITemplateEngine
 
 	public function __construct()
 	{
-		if (!is_writable('view/smarty3/')) {
+		if (!is_writable(__DIR__ . '/../../view/smarty3/')) {
 			echo "<b>ERROR:</b> folder <tt>view/smarty3/</tt> must be writable by webserver.";
-			killme();
+			exit();
 		}
 	}
 
@@ -32,14 +32,14 @@ class FriendicaSmartyEngine implements ITemplateEngine
 			$s = new FriendicaSmarty();
 		}
 
-		$r['$APP'] = get_app();
+		$r['$APP'] = \get_app();
 
 		// "middleware": inject variables into templates
 		$arr = [
 			"template" => basename($s->filename),
 			"vars" => $r
 		];
-		Addon::callHooks("template_vars", $arr);
+		Hook::callAll("template_vars", $arr);
 		$r = $arr['vars'];
 
 		foreach ($r as $key => $value) {
@@ -54,7 +54,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 
 	public function getTemplateFile($file, $root = '')
 	{
-		$a = get_app();
+		$a = \get_app();
 		$template = new FriendicaSmarty();
 
 		// Make sure $root ends with a slash /
@@ -67,7 +67,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 
 		if (file_exists("{$root}view/theme/$theme/$filename")) {
 			$template_file = "{$root}view/theme/$theme/$filename";
-		} elseif (x($a->theme_info, 'extends') && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename))) {
+		} elseif (!empty($a->theme_info['extends']) && file_exists(sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename))) {
 			$template_file = sprintf('%sview/theme/%s}/%s', $root, $a->theme_info['extends'], $filename);
 		} elseif (file_exists("{$root}/$filename")) {
 			$template_file = "{$root}/$filename";

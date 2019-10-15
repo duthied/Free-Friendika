@@ -1,14 +1,14 @@
 
 {{* custom content from hook will replace everything. *}}
 {{if $content != '' }}
-	{{$content}}
+	{{$content nofilter}}
 {{else}}
 
 	{{if $customhome != false }}
 		{{include file="$customhome"}}
 	{{else}}
-		{{$defaultheader}}
+		<h1>{{$defaultheader nofilter}}</h1>
 	{{/if}}
 
-	{{$login}}
+	{{$login nofilter}}
 {{/if}}

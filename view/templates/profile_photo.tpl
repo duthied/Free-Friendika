@@ -17,11 +17,11 @@
 </select>
 
 <div id="profile-photo-submit-wrapper">
-<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit|escape:'html'}}">
+<input type="submit" name="submit" id="profile-photo-submit" value="{{$submit}}">
 </div>
 
 </form>
 
 <div id="profile-photo-link-select-wrapper">
-{{$select}}
+{{$select nofilter}}
 </div>

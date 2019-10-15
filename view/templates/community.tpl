@@ -4,4 +4,4 @@
 <p class="hint">{{$global_community_hint}}</p>
 {{/if}}
 
-{{$content}}
+{{$content nofilter}}

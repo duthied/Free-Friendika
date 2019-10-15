@@ -39,8 +39,6 @@ use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
 
-require_once 'include/dba.php';
-
 class ExAuth
 {
 	private $bDebug;
@@ -49,7 +47,6 @@ class ExAuth
 	/**
 	 * @brief Create the class
 	 *
-	 * @param boolean $bDebug Debug mode
 	 */
 	public function __construct()
 	{
@@ -65,6 +62,7 @@ class ExAuth
 	 * parameters
 	 *
 	 * @return null
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function readStdin()
 	{
@@ -121,10 +119,11 @@ class ExAuth
 	 * @brief Check if the given username exists
 	 *
 	 * @param array $aCommand The command array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function isUser(array $aCommand)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// Check if there is a username
 		if (!isset($aCommand[1])) {
@@ -167,11 +166,12 @@ class ExAuth
 	/**
 	 * @brief Check remote user existance via HTTP(S)
 	 *
-	 * @param string $host The hostname
-	 * @param string $user Username
-	 * @param boolean $ssl Should the check be done via SSL?
+	 * @param string  $host The hostname
+	 * @param string  $user Username
+	 * @param boolean $ssl  Should the check be done via SSL?
 	 *
 	 * @return boolean Was the user found?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function checkUser($host, $user, $ssl)
 	{
@@ -201,10 +201,11 @@ class ExAuth
 	 * @brief Authenticate the given user and password
 	 *
 	 * @param array $aCommand The command array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function auth(array $aCommand)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// check user authentication
 		if (sizeof($aCommand) != 4) {
@@ -227,7 +228,7 @@ class ExAuth
 			$aUser = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);
 			if (DBA::isResult($aUser)) {
 				$uid = $aUser['uid'];
-				$success = User::authenticate($aUser, $aCommand[3]);
+				$success = User::authenticate($aUser, $aCommand[3], true);
 				$Error = $success === false;
 			} else {
 				$this->writeLog(LOG_WARNING, 'user not found: ' . $sUser);
@@ -296,6 +297,7 @@ class ExAuth
 	 * @brief Set the hostname for this process
 	 *
 	 * @param string $host The hostname
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function setHost($host)
 	{

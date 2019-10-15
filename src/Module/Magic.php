@@ -5,11 +5,13 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Core\System;
 use Friendica\Util\HTTPSignature;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * Magic Auth (remote authentication) module.
@@ -22,40 +24,38 @@ class Magic extends BaseModule
 	{
 		$a = self::getApp();
 		$ret = ['success' => false, 'url' => '', 'message' => ''];
-		logger('magic mdule: invoked', LOGGER_DEBUG);
+		Logger::log('magic mdule: invoked', Logger::DEBUG);
 
-		logger('args: ' . print_r($_REQUEST, true), LOGGER_DATA);
+		Logger::log('args: ' . print_r($_REQUEST, true), Logger::DATA);
 
-		$addr = ((x($_REQUEST, 'addr')) ? $_REQUEST['addr'] : '');
-		$dest = ((x($_REQUEST, 'dest')) ? $_REQUEST['dest'] : '');
-		$test = ((x($_REQUEST, 'test')) ? intval($_REQUEST['test']) : 0);
-		$owa  = ((x($_REQUEST, 'owa'))  ? intval($_REQUEST['owa'])  : 0);
+		$addr = defaults($_REQUEST, 'addr', '');
+		$dest = defaults($_REQUEST, 'dest', '');
+		$test = (!empty($_REQUEST['test']) ? intval($_REQUEST['test']) : 0);
+		$owa  = (!empty($_REQUEST['owa'])  ? intval($_REQUEST['owa'])  : 0);
+		$cid  = 0;
 
-		// NOTE: I guess $dest isn't just the profile url (could be also
-		// other profile pages e.g. photo). We need to find a solution
-		// to be able to redirct to other pages than the contact profile.
-		$cid = Contact::getIdForURL($dest);
-
-		if (!$cid && !empty($addr)) {
+		if (!empty($addr)) {
 			$cid = Contact::getIdForURL($addr);
+		} elseif (!empty($dest)) {
+			$cid = Contact::getIdForURL($dest);
 		}
 
 		if (!$cid) {
-			logger('No contact record found: ' . print_r($_REQUEST, true), LOGGER_DEBUG);
+			Logger::info('No contact record found', $_REQUEST);
 			// @TODO Finding a more elegant possibility to redirect to either internal or external URL
 			$a->redirect($dest);
 		}
 		$contact = DBA::selectFirst('contact', ['id', 'nurl', 'url'], ['id' => $cid]);
 
 		// Redirect if the contact is already authenticated on this site.
-		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], normalise_link(self::getApp()->getBaseURL())) !== false) {
+		if (!empty($a->contact) && array_key_exists('id', $a->contact) && strpos($contact['nurl'], Strings::normaliseLink(self::getApp()->getBaseURL())) !== false) {
 			if ($test) {
 				$ret['success'] = true;
 				$ret['message'] .= 'Local site - you are already authenticated.' . EOL;
 				return $ret;
 			}
 
-			logger('Contact is already authenticated', LOGGER_DEBUG);
+			Logger::log('Contact is already authenticated', Logger::DEBUG);
 			System::externalRedirect($dest);
 		}
 
@@ -72,8 +72,8 @@ class Magic extends BaseModule
 				$basepath = $exp[0];
 
 				$headers = [];
-				$headers['Accept'] = 'application/x-dfrn+json';
-				$headers['X-Open-Web-Auth'] = random_string();
+				$headers['Accept'] = 'application/x-dfrn+json, application/x-zot+json';
+				$headers['X-Open-Web-Auth'] = Strings::getRandomHex();
 
 				// Create a header that is signed with the local users private key.
 				$headers = HTTPSignature::createSig(
@@ -83,7 +83,7 @@ class Magic extends BaseModule
 				);
 
 				// Try to get an authentication token from the other instance.
-				$curlResult = Network::curl($basepath . '/owa', false, $redirects, ['headers' => $headers]);
+				$curlResult = Network::curl($basepath . '/owa', false, ['headers' => $headers]);
 
 				if ($curlResult->isSuccess()) {
 					$j = json_decode($curlResult->getBody(), true);
@@ -93,13 +93,13 @@ class Magic extends BaseModule
 						if ($j['encrypted_token']) {
 							// The token is encrypted. If the local user is really the one the other instance
 							// thinks he/she is, the token can be decrypted with the local users public key.
-							openssl_private_decrypt(base64url_decode($j['encrypted_token']), $token, $user['prvkey']);
+							openssl_private_decrypt(Strings::base64UrlDecode($j['encrypted_token']), $token, $user['prvkey']);
 						} else {
 							$token = $j['token'];
 						}
-						$x = strpbrk($dest, '?&');
-						$args = (($x) ? '&owt=' . $token : '?f=&owt=' . $token);
+						$args = (strpbrk($dest, '?&') ? '&' : '?') . 'owt=' . $token;
 
+						Logger::info('Redirecting', ['path' => $dest . $args]);
 						System::externalRedirect($dest . $args);
 					}
 				}

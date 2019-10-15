@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
 /**
  * @brief Friendica people autocomplete
  *
@@ -286,32 +287,6 @@ function string2bb(element) {
 })( jQuery );
 
 (function( $ ) {
-	$.fn.contact_autocomplete = function(backend_url, typ, autosubmit, onselect) {
-		if(typeof typ === 'undefined') typ = '';
-		if(typeof autosubmit === 'undefined') autosubmit = false;
-
-		// Autocomplete contacts
-		contacts = {
-			match: /(^)([^\n]+)$/,
-			index: 2,
-			search: function(term, callback) { contact_search(term, callback, backend_url, typ); },
-			replace: basic_replace,
-			template: contact_format,
-		};
-
-		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'acpopup', zIndex:10000});
-
-		if(autosubmit)
-			a.on('textComplete:select', function(e,value,strategy) { submit_form(this); });
-
-		if(typeof onselect !== 'undefined')
-			a.on('textComplete:select', function(e, value, strategy) { onselect(value); });
-	};
-})( jQuery );
-
-
-(function( $ ) {
 	$.fn.name_autocomplete = function(backend_url, typ, autosubmit, onselect) {
 		if(typeof typ === 'undefined') typ = '';
 		if(typeof autosubmit === 'undefined') autosubmit = false;
@@ -518,4 +493,4 @@ ACPopup.prototype.onkey = function(event){
 		this.close();
 	}
 }
-
+// @license-end

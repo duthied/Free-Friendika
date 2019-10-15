@@ -1,7 +1,7 @@
 
 {{include file="section_title.tpl"}}
 
-{{$tab_str}}
+{{$tab_str nofilter}}
 
 <div id="viewcontact_wrapper-{{$id}}">
 {{foreach $contacts as $contact}}
@@ -11,4 +11,4 @@
 <div class="clear"></div>
 <div id="view-contact-end"></div>
 
-{{$paginate}}
+{{$paginate nofilter}}

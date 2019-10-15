@@ -10,18 +10,18 @@ use DOMNode;
 use DOMText;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Addon;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Proxy as ProxyUtils;
-
-require_once 'include/dba.php';
+use Friendica\Util\Strings;
 
 /**
  * Handles all OEmbed content fetching and replacement
@@ -51,16 +51,17 @@ class OEmbed
 	 * @param bool   $no_rich_type If set to true rich type content won't be fetched.
 	 *
 	 * @return \Friendica\Object\OEmbed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchURL($embedurl, $no_rich_type = false)
 	{
 		$embedurl = trim($embedurl, '\'"');
 
-		$a = get_app();
+		$a = \get_app();
 
 		$cache_key = 'oembed:' . $a->videowidth . ':' . $embedurl;
 
-		$condition = ['url' => normalise_link($embedurl), 'maxwidth' => $a->videowidth];
+		$condition = ['url' => Strings::normaliseLink($embedurl), 'maxwidth' => $a->videowidth];
 		$oembed_record = DBA::selectFirst('oembed', ['content'], $condition);
 		if (DBA::isResult($oembed_record)) {
 			$json_string = $oembed_record['content'];
@@ -82,8 +83,7 @@ class OEmbed
 
 			if (!in_array($ext, $noexts)) {
 				// try oembed autodiscovery
-				$redirects = 0;
-				$html_text = Network::fetchUrl($embedurl, false, $redirects, 15, 'text/*');
+				$html_text = Network::fetchUrl($embedurl, false, 15, 'text/*');
 				if ($html_text) {
 					$dom = @DOMDocument::loadHTML($html_text);
 					if ($dom) {
@@ -115,7 +115,7 @@ class OEmbed
 
 			if (!empty($oembed->type) && $oembed->type != 'error') {
 				DBA::insert('oembed', [
-					'url' => normalise_link($embedurl),
+					'url' => Strings::normaliseLink($embedurl),
 					'maxwidth' => $a->videowidth,
 					'content' => $json_string,
 					'created' => DateTimeFormat::utcNow()
@@ -159,7 +159,7 @@ class OEmbed
 			}
 		}
 
-		Addon::callHooks('oembed_fetch_url', $embedurl, $oembed);
+		Hook::callAll('oembed_fetch_url', $embedurl, $oembed);
 
 		return $oembed;
 	}
@@ -178,9 +178,8 @@ class OEmbed
 
 					$th = 120;
 					$tw = $th * $tr;
-					$tpl = get_markup_template('oembed_video.tpl');
-					$ret .= replace_macros($tpl, [
-						'$baseurl' => System::baseUrl(),
+					$tpl = Renderer::getMarkupTemplate('oembed_video.tpl');
+					$ret .= Renderer::replaceMacros($tpl, [
 						'$embedurl' => $oembed->embed_url,
 						'$escapedhtml' => base64_encode($oembed->html),
 						'$tw' => $tw,
@@ -245,8 +244,7 @@ class OEmbed
 
 		$ret .= '</div>';
 
-		$ret = str_replace("\n", "", $ret);
-		return mb_convert_encoding($ret, 'HTML-ENTITIES', mb_detect_encoding($ret));
+		return str_replace("\n", "", $ret);
 	}
 
 	public static function BBCode2HTML($text)
@@ -261,6 +259,9 @@ class OEmbed
 	/**
 	 * Find <span class='oembed'>..<a href='url' rel='oembed'>..</a></span>
 	 * and replace it with [embed]url[/embed]
+	 *
+	 * @param $text
+	 * @return string
 	 */
 	public static function HTML2BBCode($text)
 	{
@@ -299,6 +300,7 @@ class OEmbed
 	 * @brief Determines if rich content OEmbed is allowed for the provided URL
 	 * @param string $url
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isAllowedURL($url)
 	{
@@ -307,12 +309,12 @@ class OEmbed
 		}
 
 		$domain = parse_url($url, PHP_URL_HOST);
-		if (!x($domain)) {
+		if (empty($domain)) {
 			return false;
 		}
 
 		$str_allowed = Config::get('system', 'allowed_oembed', '');
-		if (!x($str_allowed)) {
+		if (empty($str_allowed)) {
 			return false;
 		}
 
@@ -333,7 +335,7 @@ class OEmbed
 			throw new Exception('OEmbed failed for URL: ' . $url);
 		}
 
-		if (x($title)) {
+		if (!empty($title)) {
 			$o->title = $title;
 		}
 
@@ -354,25 +356,24 @@ class OEmbed
 	 * Since the iframe is automatically resized on load, there are no need for ugly
 	 * and impractical scrollbars.
 	 *
-	 * @todo This function is currently unused until someone™ adds support for a separate OEmbed domain
+	 * @todo  This function is currently unused until someone™ adds support for a separate OEmbed domain
 	 *
 	 * @param string $src Original remote URL to embed
 	 * @param string $width
 	 * @param string $height
 	 * @return string formatted HTML
 	 *
-	 * @see oembed_format_object()
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @see   oembed_format_object()
 	 */
 	private static function iframe($src, $width, $height)
 	{
-		$a = get_app();
-
 		if (!$height || strstr($height, '%')) {
 			$height = '200';
 		}
 		$width = '100%';
 
-		$src = System::baseUrl() . '/oembed/' . base64url_encode($src);
+		$src = System::baseUrl() . '/oembed/' . Strings::base64UrlEncode($src);
 		return '<iframe onload="resizeIframe(this);" class="embed_rich" height="' . $height . '" width="' . $width . '" src="' . $src . '" allowfullscreen scrolling="no" frameborder="no">' . L10n::t('Embedded content') . '</iframe>';
 	}
 

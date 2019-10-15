@@ -12,7 +12,8 @@
 					</span>
 				</div>
 				<div class="event-card-content media-body">
-					<div class="event-title event-card-title summary event-summary">{{$title}}</div>
+					<div class="event-title event-card-title summary event-summary">{{$title nofilter}}</div>
+
 					{{* If there is a map, we insert a button for showing/hiding the map *}}
 					{{if $location.map}}<button id="event-map-btn-{{$id}}" class="event-map-btn btn-link fakelink nav nav-pills preferences" data-map-id="event-location-map-{{$id}}" data-show-label="{{$show_map_label}}" data-hide-label="{{$hide_map_label}}">{{$map_btn_label}}</button>{{/if}}
 					<div class="event-property">
@@ -22,14 +23,14 @@
 						</span>
 						{{if $location.name}}
 						<span role="presentation" aria-hidden="true"> · </span>
-						<span class="event-location event-card-location">{{$location.name}}</span>
+						<span class="event-location event-card-location">{{$location.name nofilter}}</span>
 						{{/if}}
 					</div>
 					<div class="event-card-profile-name profile-entry-name">
 						<a href="{{$author_link}}" class="userinfo">{{$author_name}}</a>
 					</div>
 					{{if $location.map}}
-					<div id="event-location-map-{{$id}}" class="event-location-map">{{$location.map}}</div>
+					<div id="event-location-map-{{$id}}" class="event-location-map">{{$location.map nofilter}}</div>
 					{{/if}}
 				</div>
 				<div class="clearfix"></div>
@@ -41,7 +42,7 @@
 	{{* The content of the event description *}}
 	{{if $description}}
 	<div class="description event-description">
-		{{$description}}
+		{{$description nofilter}}
 	</div>
 	{{/if}}
 </div>

@@ -2,8 +2,6 @@
 
 namespace Friendica\Core\Cache;
 
-use Friendica\Core\Cache;
-
 /**
  * Trait TraitCompareSetDelete
  *

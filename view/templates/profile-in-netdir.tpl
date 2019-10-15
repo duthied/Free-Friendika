@@ -1,6 +1,6 @@
 
 <p id="profile-in-directory">
-{{$desc}}
+{{$desc nofilter}}
 </p>
 
 		<div id="profile-in-netdir-yes-wrapper">

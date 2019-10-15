@@ -9,8 +9,6 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
-require_once 'boot.php';
-
 class ItemURI extends BaseObject
 {
 	/**
@@ -19,14 +17,18 @@ class ItemURI extends BaseObject
 	 * @param array $fields Item-uri fields
 	 *
 	 * @return integer item-uri id
+	 * @throws \Exception
 	 */
 	public static function insert($fields)
 	{
-		if (!DBA::exists('item-uri', ['uri' => $fields['uri']])) {
+		// If the URI gets too long we only take the first parts and hope for best
+		$uri = substr($fields['uri'], 0, 255);
+
+		if (!DBA::exists('item-uri', ['uri' => $uri])) {
 			DBA::insert('item-uri', $fields, true);
 		}
 
-		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $fields['uri']]);
+		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri)) {
 			// This shouldn't happen
@@ -42,9 +44,13 @@ class ItemURI extends BaseObject
 	 * @param string $uri
 	 *
 	 * @return integer item-uri id
+	 * @throws \Exception
 	 */
 	public static function getIdByURI($uri)
 	{
+		// If the URI gets too long we only take the first parts and hope for best
+		$uri = substr($uri, 0, 255);
+
 		$itemuri = DBA::selectFirst('item-uri', ['id'], ['uri' => $uri]);
 
 		if (!DBA::isResult($itemuri)) {

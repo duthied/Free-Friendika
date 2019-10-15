@@ -34,8 +34,8 @@
 				{{/if}}
 			{{/if}}
 			{{if $app.my}}
-			<a href="{{$baseurl}}/settings/oauth/edit/{{$app.client_id}}" class="btn" title="{{$edit|escape:'html'}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;</a>
-			<a href="{{$baseurl}}/settings/oauth/delete/{{$app.client_id}}?t={{$form_security_token}}" class="btn" title="{{$delete|escape:'html'}}"><i class="fa fa-trash" aria-hidden="true"></i></a>
+			<a href="{{$baseurl}}/settings/oauth/edit/{{$app.client_id}}" class="btn" title="{{$edit}}"><i class="fa fa-pencil-square-o" aria-hidden="true"></i>&nbsp;</a>
+			<a href="{{$baseurl}}/settings/oauth/delete/{{$app.client_id}}?t={{$form_security_token}}" class="btn" title="{{$delete}}"><i class="fa fa-trash" aria-hidden="true"></i></a>
 			{{/if}}
 		</div>
 		{{/foreach}}

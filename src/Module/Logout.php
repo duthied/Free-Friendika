@@ -2,15 +2,16 @@
 /**
  * @file src/Module/Logout.php
  */
+
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Addon;
 use Friendica\Core\Authentication;
+use Friendica\Core\Cache;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
-
-require_once 'boot.php';
+use Friendica\Model\Profile;
 
 /**
  * Logout module
@@ -24,9 +25,20 @@ class Logout extends BaseModule
 	 */
 	public static function init()
 	{
-		Addon::callHooks("logging_out");
+		$visitor_home = null;
+		if (remote_user()) {
+			$visitor_home = Profile::getMyURL();
+			Cache::delete('zrlInit:' . $visitor_home);
+		}
+
+		Hook::callAll("logging_out");
 		Authentication::deleteSession();
-		info(L10n::t('Logged out.') . EOL);
-		self::getApp()->internalRedirect();
+
+		if ($visitor_home) {
+			System::externalRedirect($visitor_home);
+		} else {
+			info(L10n::t('Logged out.'));
+			self::getApp()->internalRedirect();
+		}
 	}
 }

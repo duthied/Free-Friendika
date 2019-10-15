@@ -42,6 +42,19 @@ class OEmbed
 		}
 
 		foreach ($properties as $key => $value) {
+			if (in_array($key, ['thumbnail_width', 'thumbnail_height', 'width', 'height'])) {
+				// These values should be numbers, so ensure that they really are numbers.
+				$value = (int)$value;
+			} elseif (is_array($value)) {
+				// Ignoring arrays.
+			} elseif ($key != 'html') {
+				// Avoid being able to inject some ugly stuff through these fields.
+				$value = htmlentities($value);
+			} else {
+				/// @todo Add a way to sanitize the html as well, possibly with an <iframe>?
+				$value = mb_convert_encoding($value, 'HTML-ENTITIES', mb_detect_encoding($value));
+			}
+
 			if (property_exists(__CLASS__, $key)) {
 				$this->{$key} = $value;
 			}

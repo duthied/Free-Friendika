@@ -1077,8 +1077,7 @@ class Mimetype
 			if (array_key_exists($ext, $mime_types)) {
 				return $mime_types[$ext];
 			}
-		} else {
-			return 'application/octet-stream';
 		}
+		return 'application/octet-stream';
 	}
 }

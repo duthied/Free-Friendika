@@ -4,11 +4,9 @@ namespace Friendica\Core\Session;
 
 use Friendica\BaseObject;
 use Friendica\Core\Cache;
+use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use SessionHandlerInterface;
-
-require_once 'boot.php';
-require_once 'include/text.php';
 
 /**
  * SessionHandler using Friendica Cache
@@ -33,7 +31,9 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			Session::$exists = true;
 			return $data;
 		}
-		logger("no data for session $session_id", LOGGER_TRACE);
+
+		Logger::notice('no data for session', ['session_id' => $session_id, 'uri' => $_SERVER['REQUEST_URI']]);
+
 		return '';
 	}
 
@@ -47,6 +47,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 	 * @param  string $session_id   Session ID with format: [a-z0-9]{26}
 	 * @param  string $session_data Serialized session data
 	 * @return boolean Returns false if parameters are missing, true otherwise
+	 * @throws \Exception
 	 */
 	public function write($session_id, $session_data)
 	{

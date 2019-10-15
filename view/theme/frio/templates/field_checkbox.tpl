@@ -5,7 +5,7 @@
 			<label for="id_{{$field.0}}">
 				{{$field.1}}
 				{{if $field.3}}
-				<span class="help-block" id="{{$field.0}}_tip" role="tooltip">{{$field.3}}</span>
+				<span class="help-block" id="{{$field.0}}_tip" role="tooltip">{{$field.3 nofilter}}</span>
 				{{/if}}
 			</label>
 	</div>

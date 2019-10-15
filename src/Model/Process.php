@@ -8,8 +8,6 @@ use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
-
 /**
  * @brief functions for interacting with a process
  */
@@ -21,6 +19,7 @@ class Process extends BaseObject
 	 * @param string $command
 	 * @param string $pid
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function insert($command, $pid = null)
 	{
@@ -46,6 +45,7 @@ class Process extends BaseObject
 	 *
 	 * @param string $pid
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function deleteByPid($pid = null)
 	{

@@ -4,29 +4,24 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
+use Friendica\Content\Widget\TrendingTags;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Item;
-
-function community_init(App $a)
-{
-	if (!local_user()) {
-		unset($_SESSION['theme']);
-		unset($_SESSION['mobile-theme']);
-	}
-}
+use Friendica\Model\User;
 
 function community_content(App $a, $update = 0)
 {
 	$o = '';
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
@@ -43,16 +38,16 @@ function community_content(App $a, $update = 0)
 	if ($a->argc > 2) {
 		switch ($a->argv[2]) {
 			case 'person':
-				$accounttype = Contact::ACCOUNT_TYPE_PERSON;
+				$accounttype = User::ACCOUNT_TYPE_PERSON;
 				break;
 			case 'organisation':
-				$accounttype = Contact::ACCOUNT_TYPE_ORGANISATION;
+				$accounttype = User::ACCOUNT_TYPE_ORGANISATION;
 				break;
 			case 'news':
-				$accounttype = Contact::ACCOUNT_TYPE_NEWS;
+				$accounttype = User::ACCOUNT_TYPE_NEWS;
 				break;
 			case 'community':
-				$accounttype = Contact::ACCOUNT_TYPE_COMMUNITY;
+				$accounttype = User::ACCOUNT_TYPE_COMMUNITY;
 				break;
 		}
 	}
@@ -92,8 +87,6 @@ function community_content(App $a, $update = 0)
 		}
 	}
 
-	require_once 'include/conversation.php';
-
 	if (!$update) {
 		$tabs = [];
 
@@ -119,8 +112,8 @@ function community_content(App $a, $update = 0)
 			];
 		}
 
-		$tab_tpl = get_markup_template('common_tabs.tpl');
-		$o .= replace_macros($tab_tpl, ['$tabs' => $tabs]);
+		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
+		$o .= Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
 
 		Nav::setSelected('community');
 
@@ -198,8 +191,16 @@ function community_content(App $a, $update = 0)
 		$o .= $pager->renderMinimal(count($r));
 	}
 
-	$t = get_markup_template("community.tpl");
-	return replace_macros($t, [
+	if (empty($a->page['aside'])) {
+		$a->page['aside'] = '';
+	}
+
+	if (Feature::isEnabled(local_user(), 'trending_tags')) {
+		$a->page['aside'] .= TrendingTags::getHTML($content);
+	}
+
+	$t = Renderer::getMarkupTemplate("community.tpl");
+	return Renderer::replaceMacros($t, [
 		'$content' => $o,
 		'$header' => '',
 		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),
@@ -218,19 +219,20 @@ function community_getitems($start, $itemspage, $content, $accounttype)
 			$values = [$start, $itemspage];
 		}
 
+		/// @todo Use "unsearchable" here as well (instead of "hidewall")
 		$r = DBA::p("SELECT `item`.`uri`, `author`.`url` AS `author-link` FROM `thread`
-			INNER JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
-			INNER JOIN `item` ON `item`.`id` = `thread`.`iid`
-			INNER JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
+			STRAIGHT_JOIN `user` ON `user`.`uid` = `thread`.`uid` AND NOT `user`.`hidewall`
+			STRAIGHT_JOIN `item` ON `item`.`id` = `thread`.`iid`
+			STRAIGHT_JOIN `contact` AS `author` ON `author`.`id`=`item`.`author-id`
 			WHERE `thread`.`visible` AND NOT `thread`.`deleted` AND NOT `thread`.`moderated`
 			AND NOT `thread`.`private` AND `thread`.`wall` AND `thread`.`origin` $sql_accounttype
 			ORDER BY `thread`.`commented` DESC LIMIT ?, ?", $values);
 		return DBA::toArray($r);
 	} elseif ($content == 'global') {
 		if (!is_null($accounttype)) {
-			$condition = ["`uid` = ? AND `owner`.`contact-type` = ?", 0, $accounttype];
+			$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable` AND `owner`.`contact-type` = ?", 0, $accounttype];
 		} else {
-			$condition = ['uid' => 0];
+			$condition = ["`uid` = ? AND NOT `author`.`unsearchable` AND NOT `owner`.`unsearchable`", 0];
 		}
 
 		$r = Item::selectThreadForUser(0, ['uri'], $condition, ['order' => ['commented' => true], 'limit' => [$start, $itemspage]]);

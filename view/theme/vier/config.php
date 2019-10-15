@@ -7,7 +7,10 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
+
+require_once __DIR__ . '/theme.php';
 
 function theme_content(App $a)
 {
@@ -70,8 +73,8 @@ function theme_admin(App $a) {
 	if ($helperlist == "")
 		$helperlist = "https://forum.friendi.ca/profile/helpers";
 
-	$t = get_markup_template("theme_admin_settings.tpl");
-	$o = replace_macros($t, [
+	$t = Renderer::getMarkupTemplate("theme_admin_settings.tpl");
+	$o = Renderer::replaceMacros($t, [
 		'$helperlist' => ['vier_helperlist', L10n::t('Comma separated list of helper forums'), $helperlist, '', ''],
 		]);
 
@@ -114,10 +117,9 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 
 	$show_or_not = ['0' => L10n::t("don't show"), '1' => L10n::t("show"),];
 
-	$t = get_markup_template("theme_settings.tpl");
-	$o = replace_macros($t, [
+	$t = Renderer::getMarkupTemplate("theme_settings.tpl");
+	$o = Renderer::replaceMacros($t, [
 		'$submit' => L10n::t('Submit'),
-		'$baseurl' => System::baseUrl(),
 		'$title' => L10n::t("Theme settings"),
 		'$style' => ['vier_style', L10n::t('Set style'), $style, '', $styles],
 		'$show_pages' => ['vier_show_pages', L10n::t('Community Pages'), $show_pages, '', $show_or_not],

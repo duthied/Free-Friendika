@@ -3,30 +3,32 @@
  * @file mod/subthread.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Security;
-
-require_once 'include/items.php';
+use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
 function subthread_content(App $a) {
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 
 	$activity = ACTIVITY_FOLLOW;
 
-	$item_id = (($a->argc > 1) ? notags(trim($a->argv[1])) : 0);
+	$item_id = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : 0);
 
 	$condition = ["`parent` = ? OR `parent-uri` = ? AND `parent` = `id`", $item_id, $item_id];
 	$item = Item::selectFirst([], $condition);
 
 	if (empty($item_id) || !DBA::isResult($item)) {
-		logger('subthread: no item ' . $item_id);
+		Logger::log('subthread: no item ' . $item_id);
 		return;
 	}
 
@@ -62,7 +64,7 @@ function subthread_content(App $a) {
 	}
 
 	if (!$owner) {
-		logger('like: no owner');
+		Logger::log('like: no owner');
 		return;
 	}
 
@@ -86,7 +88,7 @@ function subthread_content(App $a) {
 
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
 	$objtype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
-	$link = xmlify('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . '" />' . "\n") ;
+	$link = XML::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $item['guid'] . '" />' . "\n");
 	$body = $item['body'];
 
 	$obj = <<< EOT
@@ -127,7 +129,7 @@ EOT;
 
 	$ulink = '[url=' . $contact['url'] . ']' . $contact['name'] . '[/url]';
 	$alink = '[url=' . $item['author-link'] . ']' . $item['author-name'] . '[/url]';
-	$plink = '[url=' . System::baseUrl() . '/display/' . $owner['nickname'] . '/' . $item['id'] . ']' . $post_type . '[/url]';
+	$plink = '[url=' . System::baseUrl() . '/display/' . $item['guid'] . ']' . $post_type . '[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink );
 
 	$arr['verb'] = $activity;
@@ -148,8 +150,8 @@ EOT;
 
 	$arr['id'] = $post_id;
 
-	Addon::callHooks('post_local_end', $arr);
+	Hook::callAll('post_local_end', $arr);
 
-	killme();
+	exit();
 
 }

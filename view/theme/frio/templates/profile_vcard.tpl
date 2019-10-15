@@ -25,7 +25,11 @@
 	<div id="vcard-short-info-wrapper" style="display: none;">
 		<div id="vcard-short-info" class="media" style="display: none">
 			<div id="vcard-short-photo-wrapper" class="pull-left">
-				<img class="media-object" src="{{$profile.photo}}" alt="{{$profile.name}}" />
+				{{if $profile.picdate}}
+				<img class="media-object" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}"></a>
+				{{else}}
+				<img class="media-object" src="{{$profile.photo}}" alt="{{$profile.name}}"></a>
+				{{/if}}
 			</div>
 
 			<div id="vcard-short-desc" class="media-body">
@@ -39,28 +43,31 @@
 		<div class="profile-header">
 			<h3 class="fn p-name">{{$profile.name}}</h3>
 
-			{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
+			{{if $profile.addr}}<div class="p-addr">{{include file="sub/punct_wrap.tpl" text=$profile.addr}}</div>{{/if}}
 
 			{{if $profile.pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
+
+			{{if $account_type}}<div class="account-type">({{$account_type}})</div>{{/if}}
 		</div>
 
+		{{if $follow_link || $unfollow_link || $wallmessage_link}}
 		<div id="profile-extra-links">
-			{{if $connect}}
+			{{if $follow_link || $unfollow_link}}
 			<div id="dfrn-request-link-button">
-				{{if $remoteconnect}}
-				<a id="dfrn-request-link" class="btn btn-primary btn-sm" href="{{$remoteconnect}}">
-					<span class=""><i class="fa fa-user-plus"></i></span>
-					<span class="">{{$connect}}</span>
+				{{if $unfollow_link}}
+				<a id="dfrn-request-link" class="btn btn-labeled btn-primary btn-sm" href="{{$unfollow_link}}">
+					<span class=""><i class="fa fa-user-times"></i></span>
+					<span class="">{{$unfollow}}</span>
 				</a>
 				{{else}}
-				<a id="dfrn-request-link" class="btn btn-labeled btn-primary btn-sm" href="dfrn_request/{{$profile.nickname}}">
+				<a id="dfrn-request-link" class="btn btn-labeled btn-primary btn-sm" href="{{$follow_link}}">
 					<span class=""><i class="fa fa-user-plus"></i></span>
-					<span class="">{{$connect}}</span>
+					<span class="">{{$follow}}</span>
 				</a>
 				{{/if}}
 			</div>
 			{{/if}}
-			{{if $wallmessage}}
+			{{if $wallmessage_link}}
 			<div id="wallmessage-link-botton">
 				<button type="button" id="wallmessage-link" class="btn btn-labeled btn-primary btn-sm" onclick="openWallMessage('{{$wallmessage_link}}')">
 					<span class=""><i class="fa fa-envelope"></i></span>
@@ -69,6 +76,7 @@
 			</div>
 			{{/if}}
 		</div>
+		{{/if}}
 
 		<div class="clear"></div>
 
@@ -76,7 +84,7 @@
 		<div class="location detail">
 			<span class="location-label icon"><i class="fa fa-map-marker"></i></span>
 			<span class="adr">
-				{{if $profile.address}}<span class="street-address p-street-address">{{$profile.address}}</span>{{/if}}
+				{{if $profile.address}}<span class="street-address p-street-address">{{$profile.address nofilter}}</span>{{/if}}
 				<span class="city-state-zip">
 					<span class="locality p-locality">{{$profile.locality}}</span>{{if $profile.locality}}, {{/if}}
 					<span class="region p-region">{{$profile.region}}</span>
@@ -90,7 +98,7 @@
 		{{if $profile.xmpp}}
 		<div class="xmpp">
 			<span class="xmpp-label icon"><i class="fa fa-comments"></i></span>
-			<span class="xmpp-data">{{$profile.xmpp}}</span>
+			<span class="xmpp-data"><a href="xmpp:{{$profile.xmpp}}" rel="me" target="_blank">{{include file="sub/punct_wrap.tpl" text=$profile.xmpp}}</a></span>
 		</div>
 		{{/if}}
 
@@ -117,11 +125,11 @@
 		{{if $homepage}}
 		<div class="homepage detail">
 			<span class="homepage-label icon"><i class="fa fa-external-link-square"></i></span>
-			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank">{{$profile.homepage}}</a></span>
+			<span class="homepage-url u-url"><a href="{{$profile.homepage}}" rel="me" target="_blank">{{include file="sub/punct_wrap.tpl" text=$profile.homepage}}</a></span>
 		</div>
 		{{/if}}
 
-		{{if $about}}<dl class="about"  style="display:none;"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about}}</dd></dl>{{/if}}
+		{{if $about}}<dl class="about"  style="display:none;"><dt class="about-label">{{$about}}</dt><dd class="x-network">{{$profile.about nofilter}}</dd></dl>{{/if}}
 
 		{{include file="diaspora_vcard.tpl"}}
 	</div>
@@ -129,6 +137,6 @@
 
 {{if $contact_block}}
 <div class="widget" id="widget-contacts">
-	{{$contact_block}}
+	{{$contact_block nofilter}}
 </div>
 {{/if}}

@@ -1,36 +1,14 @@
 codecov:
   branch: develop
-
-comment: off
+  ci:
+    - drone.friendi.ca
 
 coverage:
+  precision: 2
+  round: down
+  range: "70...100"
   status:
-    patch:
-      default: off
-      source:
-        target: 80%
-        flags: source
-      backend:
-        target: 80%
-        flags: backend
-    project:
-      default: off
-      source:
-        flags: source
-      backend:
-        flags: backend
+    project: off
+    patch: off
 
-flags:
-  source:
-    paths:
-      - src/
-  backend:
-    paths:
-      - mod/
-      - include/
-  binary:
-    paths:
-      - bin/
-  tests:
-    paths:
-      - tests/
+comment: off

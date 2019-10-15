@@ -3,7 +3,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\System;
 use Friendica\Protocol\OStatus;
 
 /**
@@ -28,14 +27,16 @@ class Feed extends BaseModule
 	{
 		$a = self::getApp();
 
-		$last_update = x($_GET, 'last_update') ? $_GET['last_update'] : '';
-		$nocache     = x($_GET, 'nocache') && local_user();
+		$last_update = defaults($_GET, 'last_update', '');
+		$nocache     = !empty($_GET['nocache']) && local_user();
 
+		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
-			System::httpExit(400);
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		$type = null;
+		// @TODO: Replace with parameter from router
 		if ($a->argc > 2) {
 			$type = $a->argv[2];
 		}
@@ -44,6 +45,7 @@ class Feed extends BaseModule
 			case 'posts':
 			case 'comments':
 			case 'activity':
+				// Correct type names, no change needed
 				break;
 			case 'replies':
 				$type = 'comments';
@@ -52,9 +54,10 @@ class Feed extends BaseModule
 				$type = 'posts';
 		}
 
+		// @TODO: Replace with parameter from router
 		$nickname = $a->argv[1];
-		header("Content-type: application/atom+xml");
-		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache);
-		killme();
+		header("Content-type: application/atom+xml; charset=utf-8");
+		echo OStatus::feed($nickname, $last_update, 10, $type, $nocache, true);
+		exit();
 	}
 }

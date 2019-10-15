@@ -6,6 +6,7 @@
 
 namespace Friendica\Util;
 
+use Friendica\Core\Logger;
 use DateTime;
 use DateTimeZone;
 use Exception;
@@ -17,6 +18,7 @@ class DateTimeFormat
 {
 	const ATOM = 'Y-m-d\TH:i:s\Z';
 	const MYSQL = 'Y-m-d H:i:s';
+	const HTTP = 'D, d M Y H:i:s \G\M\T';
 
 	/**
 	 * convert() shorthand for UTC.
@@ -24,6 +26,7 @@ class DateTimeFormat
 	 * @param string $time   A date/time string
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function utc($time, $format = self::MYSQL)
 	{
@@ -36,6 +39,7 @@ class DateTimeFormat
 	 * @param string $time   A date/time string
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function local($time, $format = self::MYSQL)
 	{
@@ -45,8 +49,10 @@ class DateTimeFormat
 	/**
 	 * convert() shorthand for timezoned now.
 	 *
+	 * @param        $timezone
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function timezoneNow($timezone, $format = self::MYSQL)
 	{
@@ -58,6 +64,7 @@ class DateTimeFormat
 	 *
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function localNow($format = self::MYSQL)
 	{
@@ -69,6 +76,7 @@ class DateTimeFormat
 	 *
 	 * @param string $format DateTime format string or Temporal constant
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function utcNow($format = self::MYSQL)
 	{
@@ -82,9 +90,10 @@ class DateTimeFormat
 	 * @param string $tz_to   Destination timezone
 	 * @param string $tz_from Source timezone
 	 * @param string $format  Output format recognised from php's DateTime class
-	 *   http://www.php.net/manual/en/datetime.format.php
+	 *                        http://www.php.net/manual/en/datetime.format.php
 	 *
 	 * @return string Formatted date according to given format
+	 * @throws Exception
 	 */
 	public static function convert($s = 'now', $tz_to = 'UTC', $tz_from = 'UTC', $format = self::MYSQL)
 	{
@@ -125,7 +134,7 @@ class DateTimeFormat
 		try {
 			$d = new DateTime($s, $from_obj);
 		} catch (Exception $e) {
-			logger('DateTimeFormat::convert: exception: ' . $e->getMessage());
+			Logger::log('DateTimeFormat::convert: exception: ' . $e->getMessage());
 			$d = new DateTime('now', $from_obj);
 		}
 

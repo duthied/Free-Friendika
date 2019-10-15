@@ -2,65 +2,96 @@
 
 namespace Friendica\Test\src\Core\Cache;
 
-use Friendica\Core\Cache\MemcachedCacheDriver;
-use Friendica\Core\Config;
-use Friendica\Test\DatabaseTest;
-use Friendica\Util\DateTimeFormat;
+use Friendica\Test\MockedTest;
+use Friendica\Util\PidFile;
 
-abstract class CacheTest extends DatabaseTest
+abstract class CacheTest extends MockedTest
 {
 	/**
-	 * @var \Friendica\Core\Cache\ICacheDriver
+	 * @var int Start time of the mock (used for time operations)
+	 */
+	protected $startTime = 1417011228;
+
+	/**
+	 * @var \Friendica\Core\Cache\ICache
 	 */
 	protected $instance;
 
 	/**
-	 * @var \Friendica\Core\Cache\IMemoryCacheDriver
+	 * @var \Friendica\Core\Cache\IMemoryCache
 	 */
 	protected $cache;
 
+	/**
+	 * Dataset for test setting different types in the cache
+	 *
+	 * @return array
+	 */
+	public function dataTypesInCache()
+	{
+		return [
+			'string'    => ['data' => 'foobar'],
+			'integer'   => ['data' => 1],
+			'boolTrue'  => ['data' => true],
+			'boolFalse' => ['data' => false],
+			'float'     => ['data' => 4.6634234],
+			'array'     => ['data' => ['1', '2', '3', '4', '5']],
+			'object'    => ['data' => new PidFile()],
+			'null'      => ['data' => null],
+		];
+	}
+
+	/**
+	 * Dataset for simple value sets/gets
+	 *
+	 * @return array
+	 */
+	public function dataSimple()
+	{
+		return [
+			'string' => [
+				'value1' => 'foobar',
+				'value2' => 'ipsum lorum',
+				'value3' => 'test',
+				'value4' => 'lasttest',
+			],
+		];
+	}
 
 	abstract protected function getInstance();
 
 	protected function setUp()
 	{
 		parent::setUp();
+
 		$this->instance = $this->getInstance();
-
-		// Reusable App object
-		$this->app = \Friendica\BaseObject::getApp();
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
 
 		$this->instance->clear(false);
 	}
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
+	 *
+	 * @param mixed $value1 a first
+	 * @param mixed $value2 a second
 	 */
-	function testSimple() {
+	function testSimple($value1, $value2)
+	{
 		$this->assertNull($this->instance->get('value1'));
 
-		$value = 'foobar';
-		$this->instance->set('value1', $value);
+		$this->instance->set('value1', $value1);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value received from cache not equal to the original');
+		$this->assertEquals($value1, $received, 'Value received from cache not equal to the original');
 
-		$value = 'ipsum lorum';
-		$this->instance->set('value1', $value);
+		$this->instance->set('value1', $value2);
 		$received = $this->instance->get('value1');
-		$this->assertEquals($value, $received, 'Value not overwritten by second set');
+		$this->assertEquals($value2, $received, 'Value not overwritten by second set');
 
-		$value2 = 'foobar';
-		$this->instance->set('value2', $value2);
+		$this->instance->set('value2', $value1);
 		$received2 = $this->instance->get('value2');
-		$this->assertEquals($value, $received, 'Value changed while setting other variable');
-		$this->assertEquals($value2, $received2, 'Second value not equal to original');
+		$this->assertEquals($value2, $received, 'Value changed while setting other variable');
+		$this->assertEquals($value1, $received2, 'Second value not equal to original');
 
 		$this->assertNull($this->instance->get('not_set'), 'Unset value not equal to null');
 
@@ -70,19 +101,26 @@ abstract class CacheTest extends DatabaseTest
 
 	/**
 	 * @small
+	 * @dataProvider dataSimple
+	 *
+	 * @param mixed $value1 a first
+	 * @param mixed $value2 a second
+	 * @param mixed $value3 a third
+	 * @param mixed $value4 a fourth
 	 */
-	function testClear() {
+	function testClear($value1, $value2, $value3, $value4)
+	{
 		$value = 'ipsum lorum';
-		$this->instance->set('1_value1', $value . '1');
-		$this->instance->set('1_value2', $value . '2');
-		$this->instance->set('2_value1', $value . '3');
-		$this->instance->set('3_value1', $value . '4');
+		$this->instance->set('1_value1', $value1);
+		$this->instance->set('1_value2', $value2);
+		$this->instance->set('2_value1', $value3);
+		$this->instance->set('3_value1', $value4);
 
 		$this->assertEquals([
-			'1_value1' => 'ipsum lorum1',
-			'1_value2' => 'ipsum lorum2',
-			'2_value1' => 'ipsum lorum3',
-			'3_value1' => 'ipsum lorum4',
+			'1_value1' => $value1,
+			'1_value2' => $value2,
+			'2_value1' => $value3,
+			'3_value1' => $value4,
 		], [
 			'1_value1' => $this->instance->get('1_value1'),
 			'1_value2' => $this->instance->get('1_value2'),
@@ -93,10 +131,10 @@ abstract class CacheTest extends DatabaseTest
 		$this->assertTrue($this->instance->clear());
 
 		$this->assertEquals([
-			'1_value1' => 'ipsum lorum1',
-			'1_value2' => 'ipsum lorum2',
-			'2_value1' => 'ipsum lorum3',
-			'3_value1' => 'ipsum lorum4',
+			'1_value1' => $value1,
+			'1_value2' => $value2,
+			'2_value1' => $value3,
+			'3_value1' => $value4,
 		], [
 			'1_value1' => $this->instance->get('1_value1'),
 			'1_value2' => $this->instance->get('1_value2'),
@@ -122,7 +160,10 @@ abstract class CacheTest extends DatabaseTest
 	/**
 	 * @medium
 	 */
-	function testTTL() {
+	function testTTL()
+	{
+		$this->markTestSkipped('taking too much time without mocking');
+
 		$this->assertNull($this->instance->get('value1'));
 
 		$value = 'foobar';
@@ -137,67 +178,32 @@ abstract class CacheTest extends DatabaseTest
 
 	/**
 	 * @small
+	 *
+	 * @param $data mixed the data to store in the cache
+	 *
+	 * @dataProvider dataTypesInCache
 	 */
-	function testDifferentTypesInCache() {
-		// String test
-		$value = "foobar";
-		$this->instance->set('stringVal', $value);
-		$received = $this->instance->get('stringVal');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		// Integer test
-		$value = 1;
-		$this->instance->set('intVal', $value);
-		$received = $this->instance->get('intVal');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		// Boolean test
-		$value = true;
-		$this->instance->set('boolValTrue', $value);
-		$received = $this->instance->get('boolValTrue');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		$value = false;
-		$this->instance->set('boolValFalse', $value);
-		$received = $this->instance->get('boolValFalse');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		// float
-		$value = 4.6634234;
-		$this->instance->set('decVal', $value);
-		$received = $this->instance->get('decVal');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		// array
-		$value = array('1', '2', '3', '4', '5');
-		$this->instance->set('arrayVal', $value);
-		$received = $this->instance->get('arrayVal');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		// object
-		$value = new DateTimeFormat();
-		$this->instance->set('objVal', $value);
-		$received = $this->instance->get('objVal');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
-
-		// null
-		$value = null;
-		$this->instance->set('objVal', $value);
-		$received = $this->instance->get('objVal');
-		$this->assertEquals($value, $received, 'Value type changed from ' . gettype($value) . ' to ' . gettype($received));
+	function testDifferentTypesInCache($data)
+	{
+		$this->instance->set('val', $data);
+		$received = $this->instance->get('val');
+		$this->assertEquals($data, $received, 'Value type changed from ' . gettype($data) . ' to ' . gettype($received));
 	}
 
 	/**
 	 * @small
+	 *
+	 * @param mixed $value1 a first
+	 * @param mixed $value2 a second
+	 * @param mixed $value3 a third
+	 *
+	 * @dataProvider dataSimple
 	 */
-	public function testGetAllKeys() {
-		if ($this->cache instanceof MemcachedCacheDriver) {
-			$this->markTestSkipped('Memcached doesn\'t support getAllKeys anymore');
-		}
-
-		$this->assertTrue($this->instance->set('value1', 'test'));
-		$this->assertTrue($this->instance->set('value2', 'test'));
-		$this->assertTrue($this->instance->set('test_value3', 'test'));
+	public function testGetAllKeys($value1, $value2, $value3)
+	{
+		$this->assertTrue($this->instance->set('value1', $value1));
+		$this->assertTrue($this->instance->set('value2', $value2));
+		$this->assertTrue($this->instance->set('test_value3', $value3));
 
 		$list = $this->instance->getAllKeys();
 
@@ -208,5 +214,7 @@ abstract class CacheTest extends DatabaseTest
 		$list = $this->instance->getAllKeys('test');
 
 		$this->assertContains('test_value3', $list);
+		$this->assertNotContains('value1', $list);
+		$this->assertNotContains('value2', $list);
 	}
 }

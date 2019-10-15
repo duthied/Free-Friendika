@@ -5,6 +5,7 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Cache;
+use Friendica\Core\Logger;
 use Exception;
 
 /**
@@ -17,7 +18,8 @@ class JsonLD
 	 *
 	 * @param $url
 	 *
-	 * @return the loaded data
+	 * @return mixed the loaded data
+	 * @throws \JsonLdException
 	 */
 	public static function documentLoader($url)
 	{
@@ -33,7 +35,7 @@ class JsonLD
 		}
 
 		if ($recursion > 5) {
-			logger('jsonld bomb detected at: ' . $url);
+			Logger::error('jsonld bomb detected at: ' . $url);
 			exit();
 		}
 
@@ -52,7 +54,8 @@ class JsonLD
 	 *
 	 * @param array $json
 	 *
-	 * @return normalized JSON string
+	 * @return mixed|bool normalized JSON string
+	 * @throws Exception
 	 */
 	public static function normalize($json)
 	{
@@ -65,7 +68,16 @@ class JsonLD
 		}
 		catch (Exception $e) {
 			$normalized = false;
-			logger('normalise error:' . print_r($e, true), LOGGER_DEBUG);
+			$messages = [];
+			$currentException = $e;
+			do {
+				$messages[] = $currentException->getMessage();
+			} while($currentException = $currentException->getPrevious());
+
+			Logger::warning('JsonLD normalize error');
+			Logger::notice('JsonLD normalize error', ['messages' => $messages]);
+			Logger::info('JsonLD normalize error', ['trace' => $e->getTraceAsString()]);
+			Logger::debug('JsonLD normalize error', ['jsonobj' => $jsonobj]);
 		}
 
 		return $normalized;
@@ -76,7 +88,8 @@ class JsonLD
 	 *
 	 * @param array $json
 	 *
-	 * @return comacted JSON array
+	 * @return array Compacted JSON array
+	 * @throws Exception
 	 */
 	public static function compact($json)
 	{
@@ -84,24 +97,51 @@ class JsonLD
 
 		$context = (object)['as' => 'https://www.w3.org/ns/activitystreams#',
 			'w3id' => 'https://w3id.org/security#',
+			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id'],
 			'vcard' => (object)['@id' => 'http://www.w3.org/2006/vcard/ns#', '@type' => '@id'],
-			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
+			'dfrn' => (object)['@id' => 'http://purl.org/macgirvin/dfrn/1.0/', '@type' => '@id'],
 			'diaspora' => (object)['@id' => 'https://diasporafoundation.org/ns/', '@type' => '@id'],
+			'ostatus' => (object)['@id' => 'http://ostatus.org#', '@type' => '@id'],
 			'dc' => (object)['@id' => 'http://purl.org/dc/terms/', '@type' => '@id'],
-			'ldp' => (object)['@id' => 'http://www.w3.org/ns/ldp#', '@type' => '@id']];
+			'toot' => (object)['@id' => 'http://joinmastodon.org/ns#', '@type' => '@id'],
+			'litepub' => (object)['@id' => 'http://litepub.social/ns#', '@type' => '@id']];
+
+		// Preparation for adding possibly missing content to the context
+		if (!empty($json['@context']) && is_string($json['@context'])) {
+			$json['@context'] = [$json['@context']];
+		}
+
+		// Workaround for servers with missing context
+		// See issue https://github.com/nextcloud/social/issues/330
+		if (!empty($json['@context']) && is_array($json['@context'])) {
+			$json['@context'][] = 'https://w3id.org/security/v1';
+		}
+
+		// Trying to avoid memory problems with large content fields
+		if (!empty($json['object']['source']['content'])) {
+			$content = $json['object']['source']['content'];
+			$json['object']['source']['content'] = '';
+		}
 
 		$jsonobj = json_decode(json_encode($json, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
-
 
 		try {
 			$compacted = jsonld_compact($jsonobj, $context);
 		}
 		catch (Exception $e) {
 			$compacted = false;
-			logger('compacting error:' . print_r($e, true), LOGGER_DEBUG);
+			Logger::error('compacting error');
+			// Sooner or later we should log some details as well - but currently this leads to memory issues
+			// Logger::log('compacting error:' . substr(print_r($e, true), 0, 10000), Logger::DEBUG);
 		}
 
-		return json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+		$json = json_decode(json_encode($compacted, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE), true);
+
+		if (isset($json['as:object']['as:source']['as:content']) && !empty($content)) {
+			$json['as:object']['as:source']['as:content'] = $content;
+		}
+
+		return $json;
 	}
 
 	/**
@@ -111,7 +151,7 @@ class JsonLD
 	 * @param $element
 	 * @param $key
 	 *
-	 * @return fetched element array
+	 * @return array fetched element
 	 */
 	public static function fetchElementArray($array, $element, $key = '@id')
 	{
@@ -133,7 +173,7 @@ class JsonLD
 		foreach ($array[$element] as $entry) {
 			if (!is_array($entry)) {
 				$elements[] = $entry;
-			} elseif (!empty($entry[$key])) {
+			} elseif (isset($entry[$key])) {
 				$elements[] = $entry[$key];
 			} elseif (!empty($entry) || !is_array($entry)) {
 				$elements[] = $entry;
@@ -152,7 +192,7 @@ class JsonLD
 	 * @param $type
 	 * @param $type_value
 	 *
-	 * @return fetched element
+	 * @return string fetched element
 	 */
 	public static function fetchElement($array, $element, $key = '@id', $type = null, $type_value = null)
 	{

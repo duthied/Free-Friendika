@@ -5,11 +5,7 @@
 namespace Friendica\Core;
 
 use Friendica\BaseObject;
-use Friendica\Database\DBA;
-use Friendica\Core\System;
-
-require_once 'boot.php';
-require_once 'include/dba.php';
+use Friendica\Core\L10n\L10n as L10nClass;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
@@ -18,115 +14,13 @@ require_once 'include/dba.php';
 class L10n extends BaseObject
 {
 	/**
-	 * A string indicating the current language used for translation:
-	 * - Two-letter ISO 639-1 code.
-	 * - Two-letter ISO 639-1 code + dash + Two-letter ISO 3166-1 alpha-2 country code.
-	 * @var string
-	 */
-	private static $lang = '';
-	/**
-	 * A language code saved for later after pushLang() has been called.
-	 *
-	 * @var string
-	 */
-	private static $langSave = '';
-
-	/**
-	 * An array of translation strings whose key is the neutral english message.
-	 *
-	 * @var array
-	 */
-	private static $strings = [];
-	/**
-	 * An array of translation strings saved for later after pushLang() has been called.
-	 *
-	 * @var array
-	 */
-	private static $stringsSave = [];
-
-	/**
-	 * Detects the language and sets the translation table
-	 */
-	public static function init()
-	{
-		$lang = self::detectLanguage();
-		self::loadTranslationTable($lang);
-	}
-
-	/**
 	 * Returns the current language code
 	 *
 	 * @return string Language code
 	 */
 	public static function getCurrentLang()
 	{
-		return self::$lang;
-	}
-
-	/**
-	 * Sets the language session variable
-	 */
-	public static function setSessionVariable()
-	{
-		if (!empty($_SESSION['authenticated']) && empty($_SESSION['language'])) {
-			$_SESSION['language'] = self::$lang;
-			// we haven't loaded user data yet, but we need user language
-			if (!empty($_SESSION['uid'])) {
-				$user = DBA::selectFirst('user', ['language'], ['uid' => $_SESSION['uid']]);
-				if (DBA::isResult($user)) {
-					$_SESSION['language'] = $user['language'];
-				}
-			}
-		}
-	}
-
-	public static function setLangFromSession()
-	{
-		if (!empty($_SESSION['language']) && $_SESSION['language'] !== self::$lang) {
-			self::loadTranslationTable($_SESSION['language']);
-		}
-	}
-
-	/**
-	 * @brief Returns the preferred language from the HTTP_ACCEPT_LANGUAGE header
-	 * @return string The two-letter language code
-	 */
-	public static function detectLanguage()
-	{
-		$lang_list = [];
-
-		if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-			// break up string into pieces (languages and q factors)
-			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
-
-			if (count($lang_parse[1])) {
-				// go through the list of prefered languages and add a generic language
-				// for sub-linguas (e.g. de-ch will add de) if not already in array
-				for ($i = 0; $i < count($lang_parse[1]); $i++) {
-					$lang_list[] = strtolower($lang_parse[1][$i]);
-					if (strlen($lang_parse[1][$i])>3) {
-						$dashpos = strpos($lang_parse[1][$i], '-');
-						if (!in_array(substr($lang_parse[1][$i], 0, $dashpos), $lang_list)) {
-							$lang_list[] = strtolower(substr($lang_parse[1][$i], 0, $dashpos));
-						}
-					}
-				}
-			}
-		}
-
-		// check if we have translations for the preferred languages and pick the 1st that has
-		foreach ($lang_list as $lang) {
-			if ($lang === 'en' || (file_exists("view/lang/$lang") && is_dir("view/lang/$lang"))) {
-				$preferred = $lang;
-				break;
-			}
-		}
-		if (isset($preferred)) {
-			return $preferred;
-		}
-
-		// in case none matches, get the system wide configured language, or fall back to English
-		return Config::get('system', 'language', 'en');
+		return self::getClass(L10nClass::class)->getCurrentLang();
 	}
 
 	/**
@@ -137,26 +31,15 @@ class L10n extends BaseObject
 	 *
 	 * If called repeatedly, it won't save the translation strings again, just load the new ones.
 	 *
-	 * @see popLang()
-	 * @brief Stores the current language strings and load a different language.
 	 * @param string $lang Language code
+	 *
+	 * @throws \Exception
+	 * @see   popLang()
+	 * @brief Stores the current language strings and load a different language.
 	 */
 	public static function pushLang($lang)
 	{
-		if (!self::$lang) {
-			self::init();
-		}
-
-		if ($lang === self::$lang) {
-			return;
-		}
-
-		if (!self::$langSave) {
-			self::$langSave = self::$lang;
-			self::$stringsSave = self::$strings;
-		}
-
-		self::loadTranslationTable($lang);
+		self::getClass(L10nClass::class)->pushLang($lang);
 	}
 
 	/**
@@ -164,52 +47,7 @@ class L10n extends BaseObject
 	 */
 	public static function popLang()
 	{
-		if (!self::$langSave) {
-			return;
-		}
-
-		self::$strings = self::$stringsSave;
-		self::$lang = self::$langSave;
-
-		self::$stringsSave = [];
-		self::$langSave = '';
-	}
-
-	/**
-	 * Loads string translation table
-	 *
-	 * First addon strings are loaded, then globals
-	 *
-	 * Uses an App object shim since all the strings files refer to $a->strings
-	 *
-	 * @param string $lang language code to load
-	 */
-	private static function loadTranslationTable($lang)
-	{
-		if ($lang === self::$lang) {
-			return;
-		}
-
-		$a = new \stdClass();
-		$a->strings = [];
-
-		// load enabled addons strings
-		$addons = DBA::select('addon', ['name'], ['installed' => true]);
-		while ($p = DBA::fetch($addons)) {
-			$name = $p['name'];
-			if (file_exists("addon/$name/lang/$lang/strings.php")) {
-				include "addon/$name/lang/$lang/strings.php";
-			}
-		}
-
-		if (file_exists("view/lang/$lang/strings.php")) {
-			include "view/lang/$lang/strings.php";
-		}
-
-		self::$lang = $lang;
-		self::$strings = $a->strings;
-
-		unset($a);
+		self::getClass(L10nClass::class)->popLang();
 	}
 
 	/**
@@ -226,28 +64,12 @@ class L10n extends BaseObject
 	 *
 	 * @param string $s
 	 * @param array  $vars Variables to interpolate in the translation string
+	 *
 	 * @return string
 	 */
 	public static function t($s, ...$vars)
 	{
-		if (empty($s)) {
-			return '';
-		}
-
-		if (!self::$lang) {
-			self::init();
-		}
-
-		if (!empty(self::$strings[$s])) {
-			$t = self::$strings[$s];
-			$s = is_array($t) ? $t[0] : $t;
-		}
-
-		if (count($vars) > 0) {
-			$s = sprintf($s, ...$vars);
-		}
-
-		return $s;
+		return self::getClass(L10nClass::class)->t($s, ...$vars);
 	}
 
 	/**
@@ -265,55 +87,14 @@ class L10n extends BaseObject
 	 *
 	 * @param string $singular
 	 * @param string $plural
-	 * @param int $count
+	 * @param int    $count
+	 *
 	 * @return string
+	 * @throws \Exception
 	 */
-	public static function tt($singular, $plural, $count)
+	public static function tt(string $singular, string $plural, int $count)
 	{
-		if (!is_numeric($count)) {
-			logger('Non numeric count called by ' . System::callstack(20));
-		}
-
-		if (!self::$lang) {
-			self::init();
-		}
-
-		if (!empty(self::$strings[$singular])) {
-			$t = self::$strings[$singular];
-			if (is_array($t)) {
-				$plural_function = 'string_plural_select_' . str_replace('-', '_', self::$lang);
-				if (function_exists($plural_function)) {
-					$i = $plural_function($count);
-				} else {
-					$i = self::stringPluralSelectDefault($count);
-				}
-
-				// for some languages there is only a single array item
-				if (!isset($t[$i])) {
-					$s = $t[0];
-				} else {
-					$s = $t[$i];
-				}
-			} else {
-				$s = $t;
-			}
-		} elseif (self::stringPluralSelectDefault($count)) {
-			$s = $plural;
-		} else {
-			$s = $singular;
-		}
-
-		$s = @sprintf($s, $count);
-
-		return $s;
-	}
-
-	/**
-	 * Provide a fallback which will not collide with a function defined in any language file
-	 */
-	private static function stringPluralSelectDefault($n)
-	{
-		return $n != 1;
+		return self::getClass(L10nClass::class)->tt($singular, $plural, $count);
 	}
 
 	/**
@@ -329,19 +110,42 @@ class L10n extends BaseObject
 	 */
 	public static function getAvailableLanguages()
 	{
-		$langs = [];
-		$strings_file_paths = glob('view/lang/*/strings.php');
+		return L10nClass::getAvailableLanguages();
+	}
 
-		if (is_array($strings_file_paths) && count($strings_file_paths)) {
-			if (!in_array('view/lang/en/strings.php', $strings_file_paths)) {
-				$strings_file_paths[] = 'view/lang/en/strings.php';
-			}
-			asort($strings_file_paths);
-			foreach ($strings_file_paths as $strings_file_path) {
-				$path_array = explode('/', $strings_file_path);
-				$langs[$path_array[2]] = $path_array[2];
-			}
-		}
-		return $langs;
+	/**
+	 * @brief Translate days and months names.
+	 *
+	 * @param string $s String with day or month name.
+	 *
+	 * @return string Translated string.
+	 */
+	public static function getDay($s)
+	{
+		return self::getClass(L10nClass::class)->getDay($s);
+	}
+
+	/**
+	 * @brief Translate short days and months names.
+	 *
+	 * @param string $s String with short day or month name.
+	 *
+	 * @return string Translated string.
+	 */
+	public static function getDayShort($s)
+	{
+		return self::getClass(L10nClass::class)->getDayShort($s);
+	}
+
+	/**
+	 * Load poke verbs
+	 *
+	 * @return array index is present tense verb
+	 *                 value is array containing past tense verb, translation of present, translation of past
+	 * @hook poke_verbs pokes array
+	 */
+	public static function getPokeVerbs()
+	{
+		return self::getClass(L10nClass::class)->getPokeVerbs();
 	}
 }

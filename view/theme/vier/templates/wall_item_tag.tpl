@@ -30,14 +30,14 @@
 				<!-- <a href="{{$item.profile_url}}" target="redir" title="{{$item.linktitle}}" class="contact-photo-link" id="wall-item-photo-link-{{$item.id}}"></a> -->
 					<img src="{{$item.thumb}}" class="contact-photo{{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 				<ul role="menu" aria-haspopup="true" class="contact-menu menu-popup" id="wall-item-photo-menu-{{$item.id}}">
-				{{$item.item_photo_menu}}
+				{{$item.item_photo_menu nofilter}}
 				</ul>
 				
 			</div>
-			<div class="wall-item-location">{{$item.location}}</div>	
+			<div class="wall-item-location">{{$item.location nofilter}}</div>
 		</div>
 		<div class="wall-item-content">
-			{{$item.ago}} {{$item.body}} 
+			{{$item.ago}} {{$item.body nofilter}}
 		</div>
 			<div class="wall-item-tools">
 				{{if $item.drop.pagedrop}}
@@ -59,9 +59,9 @@
 
 {{* top thread comment box *}}
 {{if $item.threaded}}{{if $item.comment}}{{if $item.thread_level==1}}
-<div class="wall-item-comment-wrapper" >{{$item.comment}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
 {{/if}}{{/if}}{{/if}}
 
 {{if $item.flatten}}
-<div class="wall-item-comment-wrapper" >{{$item.comment}}</div>
+<div class="wall-item-comment-wrapper" >{{$item.comment nofilter}}</div>
 {{/if}}

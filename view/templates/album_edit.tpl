@@ -4,12 +4,11 @@
 
 
 <label id="photo-album-edit-name-label" for="photo-album-edit-name" >{{$nametext}}</label>
-<input type="text" size="64" name="albumname" value="{{$album|escape:'html'}}" >
+<input type="text" size="64" name="albumname" value="{{$album}}" >
 
 <div id="photo-album-edit-name-end"></div>
 
-<input id="photo-album-edit-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
-<input id="photo-album-edit-drop" type="submit" name="dropalbum" value="{{$dropsubmit|escape:'html'}}" onclick="return confirmDelete();" />
+<input id="photo-album-edit-submit" type="submit" name="submit" value="{{$submit}}" />
 
 </form>
 </div>

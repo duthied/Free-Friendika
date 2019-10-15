@@ -15,6 +15,6 @@ Remember the link at the top of this page will bring you back here.
 
 Once you've added some groups, <a href="help/Quick-Start-andfinally">move on to the next section</a>.
 
-<iframe src="http://dir.friendica.social/directory" width="950" height="600"></iframe>
+<iframe src="https://dir.friendica.social/forum" width="950" height="600"></iframe>
 
 

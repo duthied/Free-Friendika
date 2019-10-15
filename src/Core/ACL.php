@@ -8,10 +8,10 @@ namespace Friendica\Core;
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Core\Session;
 use Friendica\Util\Network;
 
 /**
@@ -24,15 +24,16 @@ class ACL extends BaseObject
 	/**
 	 * Returns a select input tag with all the contact of the local user
 	 *
-	 * @param string $selname Name attribute of the select input tag
-	 * @param string $selclass Class attribute of the select input tag
-	 * @param array $options Available options:
-	 * - size: length of the select box
-	 * - mutual_friends: Only used for the hook
-	 * - single: Only used for the hook
-	 * - exclude: Only used for the hook
-	 * @param array $preselected Contact ID that should be already selected
+	 * @param string $selname     Name attribute of the select input tag
+	 * @param string $selclass    Class attribute of the select input tag
+	 * @param array  $options     Available options:
+	 *                            - size: length of the select box
+	 *                            - mutual_friends: Only used for the hook
+	 *                            - single: Only used for the hook
+	 *                            - exclude: Only used for the hook
+	 * @param array  $preselected Contact ID that should be already selected
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function getSuggestContactSelectHTML($selname, $selclass, array $options = [], array $preselected = [])
 	{
@@ -68,7 +69,7 @@ class ACL extends BaseObject
 
 		$x = ['options' => $options, 'size' => $size, 'single' => $single, 'mutual' => $mutual, 'exclude' => $exclude, 'networks' => $networks];
 
-		Addon::callHooks('contact_select_options', $x);
+		Hook::callAll('contact_select_options', $x);
 
 		$o = '';
 
@@ -100,7 +101,7 @@ class ACL extends BaseObject
 		}
 
 		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
-			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);
@@ -110,7 +111,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll($a->module . '_pre_' . $selname, $arr);
 
 		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
@@ -128,7 +129,7 @@ class ACL extends BaseObject
 
 		$o .= '</select>' . PHP_EOL;
 
-		Addon::callHooks($a->module . '_post_' . $selname, $o);
+		Hook::callAll($a->module . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -142,6 +143,7 @@ class ACL extends BaseObject
 	 * @param int    $size        Length of the select box
 	 * @param int    $tabindex    Select input tag tabindex attribute
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function getMessageContactSelectHTML($selname, $selclass, array $preselected = [], $size = 4, $tabindex = null)
 	{
@@ -165,7 +167,7 @@ class ACL extends BaseObject
 		$o .= "<select name=\"$selname\" id=\"$selclass\" class=\"$selclass\" size=\"$size\"$tabindex_attr$hidepreselected>\r\n";
 
 		$stmt = DBA::p("SELECT `id`, `name`, `url`, `network` FROM `contact`
-			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND `notify` != ''
+			WHERE `uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != ''
 			$sql_extra
 			ORDER BY `name` ASC ", intval(local_user())
 		);
@@ -175,7 +177,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Addon::callHooks($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll($a->module . '_pre_' . $selname, $arr);
 
 		$receiverlist = [];
 
@@ -201,7 +203,7 @@ class ACL extends BaseObject
 			$o .= implode(', ', $receiverlist);
 		}
 
-		Addon::callHooks($a->module . '_post_' . $selname, $o);
+		Hook::callAll($a->module . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -216,6 +218,7 @@ class ACL extends BaseObject
 	 *
 	 * @param array $user
 	 * @return array Hash of contact id lists
+	 * @throws \Exception
 	 */
 	public static function getDefaultUserPermissions(array $user = null)
 	{
@@ -252,25 +255,24 @@ class ACL extends BaseObject
 	 * Return the full jot ACL selector HTML
 	 *
 	 * @param array $user                User array
-	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
 	 * @param bool  $show_jotnets
+	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getFullSelectorHTML(array $user, $show_jotnets = false, array $default_permissions = [])
+	public static function getFullSelectorHTML(array $user = null, $show_jotnets = false, array $default_permissions = [])
 	{
 		// Defaults user permissions
 		if (empty($default_permissions)) {
 			$default_permissions = self::getDefaultUserPermissions($user);
 		}
 
-		$jotnets = '';
+		$jotnets_fields = [];
 		if ($show_jotnets) {
-			$imap_disabled = !function_exists('imap_open') || Config::get('system', 'imap_disabled');
-
 			$mail_enabled = false;
 			$pubmail_enabled = false;
 
-			if (!$imap_disabled) {
+			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
 				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
 				if (DBA::isResult($mailacct)) {
 					$mail_enabled = true;
@@ -280,78 +282,43 @@ class ACL extends BaseObject
 
 			if (empty($default_permissions['hidewall'])) {
 				if ($mail_enabled) {
-					$selected = $pubmail_enabled ? ' checked="checked"' : '';
-					$jotnets .= '<div class="profile-jot-net"><input type="checkbox" name="pubmail_enable"' . $selected . ' value="1" /> ' . L10n::t("Post to Email") . '</div>';
+					$jotnets_fields[] = [
+						'type' => 'checkbox',
+						'field' => [
+							'pubmail_enable',
+							L10n::t('Post to Email'),
+							$pubmail_enabled
+						]
+					];
 				}
 
-				Addon::callHooks('jot_networks', $jotnets);
-			} else {
-				$jotnets .= L10n::t('Connectors disabled, since "%s" is enabled.',
-						L10n::t('Hide your profile details from unknown viewers?'));
+				Hook::callAll('jot_networks', $jotnets_fields);
 			}
 		}
 
-		$tpl = get_markup_template('acl_selector.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$showall' => L10n::t('Visible to everybody'),
 			'$show' => L10n::t('show'),
 			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', '')),
-			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', '')),
-			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', '')),
-			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', '')),
+			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', [])), // we need arrays for Javascript since we call .remove() and .push() on this values
+			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', [])),
+			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', [])),
+			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', [])),
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
-			'$jotnets' => $jotnets,
+			'$jotnets_enabled' => empty($default_permissions['hidewall']),
+			'$jotnets_summary' => L10n::t('Connectors'),
+			'$jotnets_fields' => $jotnets_fields,
+			'$jotnets_disabled_label' => L10n::t('Connectors disabled, since "%s" is enabled.', L10n::t('Hide your profile details from unknown viewers?')),
 			'$aclModalTitle' => L10n::t('Permissions'),
 			'$aclModalDismiss' => L10n::t('Close'),
 			'$features' => [
-				'aclautomention' => Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
+				'aclautomention' => !empty($user['uid']) && Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
 			],
 		]);
 
 		return $o;
-	}
-
-	/**
-	 * Searching for global contacts for autocompletion
-	 *
-	 * @brief Searching for global contacts for autocompletion
-	 * @param string $search Name or part of a name or nick
-	 * @param string $mode   Search mode (e.g. "community")
-	 * @return array with the search results
-	 */
-	public static function contactAutocomplete($search, $mode)
-	{
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			return [];
-		}
-
-		// don't search if search term has less than 2 characters
-		if (!$search || mb_strlen($search) < 2) {
-			return [];
-		}
-
-		if (substr($search, 0, 1) === '@') {
-			$search = substr($search, 1);
-		}
-
-		// check if searching in the local global contact table is enabled
-		if (Config::get('system', 'poco_local_search')) {
-			$return = GContact::searchByName($search, $mode);
-		} else {
-			$p = defaults($_GET, 'page', 1) != 1 ? '&p=' . defaults($_GET, 'page', 1) : '';
-
-			$curlResult = Network::curl(get_server() . '/lsearch?f=' . $p . '&search=' . urlencode($search));
-			if ($curlResult->isSuccess()) {
-				$lsearch = json_decode($curlResult->getBody(), true);
-				if (!empty($lsearch['results'])) {
-					$return = $lsearch['results'];
-				}
-			}
-		}
-
-		return defaults($return, []);
 	}
 }

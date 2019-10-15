@@ -33,6 +33,10 @@ body {
     /*color: #555;*/
     font-family: 'Open Sans',sans-serif;
 }
+body.minimal {
+    padding: 15px;
+}
+
 body a {
     /*color: #555;*/
     /*color: #6fdbe8;*/
@@ -101,6 +105,9 @@ blockquote {
  * mobile aside
  */
 @media screen and (max-width: 990px) {
+    body {
+        padding-top: 105px;
+    }
     aside{
         position: fixed!important;
         top: 0!important;
@@ -130,6 +137,7 @@ blockquote {
 /*
 * standard page elements
 */
+
 #back-to-top {
     display: none;
     cursor: pointer;
@@ -184,7 +192,6 @@ blockquote {
     background-image: none;
     text-shadow: none;
     border-radius: 3px;
-    outline: 0!important;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 600;
@@ -366,9 +373,6 @@ header #site-location {
 header #banner {
     position: fixed;
     top: 0px;
-/*    width: 33%;
-    margin-left: 33%;
-    margin-right: 33%;*/
     left:49%;
     right: 49%;
     z-index: 1040;
@@ -384,8 +388,6 @@ header #banner {
 }
 header #banner #logo-img,
 .navbar-brand #logo-img {
-    /*mask: url('network#m1');*/
-    /*mask-image: url('img/friendica-25.png');*/
     -webkit-mask-image: url('img/friendica-25.png');
     background-color: $nav_icon_color;
     height: 25px;
@@ -614,6 +616,10 @@ nav.navbar a, nav.navbar .btn-link {
 }
 .navbar-fixed-top ul.nav.navbar-nav.navbar-right {
     display: flex;
+}
+
+#friendica-logo-mask {
+    display: block;
 }
 
 
@@ -1061,6 +1067,23 @@ aside > #datebrowse-sidebar .posted-date-selector-months > ul > li:hover{
     padding-left: 27px;
 }
 
+.forumlist-img {
+    -webkit-filter: grayscale(100%);
+    filter: grayscale(100%);
+    opacity: 0.5;
+    filter: alpha(opacity=50); /* For IE8 and earlier */
+    -webkit-transition: all 0.2s ease-in-out;
+    -moz-transition: all 0.2s ease-in-out;
+    -o-transition: all 0.2s ease-in-out;
+    -ms-transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease-in-out;
+}
+#forumlist-sidbar-ul li:hover a > .forumlist-img {
+    -webkit-filter: unset;
+    filter: unset;
+    opacity: unset;
+}
+
 /* help page widget */
 aside > .help-aside-wrapper p strong:first-child {
     display: block;
@@ -1126,7 +1149,9 @@ aside .vcard .p-addr {
     white-space: nowrap;
     padding-bottom: 2px;
 }
-
+aside .vcard .title {
+    margin-top: 10px;
+}
 aside .vcard .detail {
     display: table;
     padding: 5px 0;
@@ -1141,6 +1166,7 @@ aside .vcard .icon {
 }
 #profile-extra-links {
     overflow: auto;
+    margin-bottom: 10px;
 }
 aside .vcard #dfrn-request-link-button,
 aside .vcard #wallmessage-link-botton {
@@ -1304,7 +1330,8 @@ section ul.tabs {
 section #jotOpen {
     display: none;
 }
-#jotOpen {
+#jotOpen,
+#composeOpen {
     margin-top: 3px;
     float: right;
 }
@@ -1313,6 +1340,29 @@ section #jotOpen {
 }
 .jothidden {
     /*display: none;*/
+}
+.modal #jot-sections {
+    max-height: calc(100vh - 22px);
+}
+@media (min-width: 768px) {
+    .modal #jot-sections {
+        max-height: calc(100vh - 62px);
+    }
+}
+#jot-modal #jot-sections,
+#jot-modal #jot-modal-body,
+#jot-modal #profile-jot-form,
+#jot-modal #profile-jot-wrapper,
+#jot-modal #jot-text-wrap,
+#jot-modal #jot-preview-content,
+#jot-modal #tread-wrapper--1,
+#jot-modal #item-Q0,
+#jot-modal #profile-jot-acl-wrapper,
+#jot-modal #acl-wrapper {
+    overflow: hidden;
+    display: flex;
+    flex: auto;
+    flex-direction: column;
 }
 #jot-modal .modal-header a, #jot-modal .modal-header .btn-link,
 #profile-jot-submit-wrapper a, #profile-jot-submit-wrapper .btn-link {
@@ -1330,6 +1380,71 @@ section #jotOpen {
 }
 #jot-text-wrap textarea {
     min-height: 100px;
+    overflow-y: auto !important;
+    overflow-y: overlay !important;
+}
+/*#jot-attachment-preview {
+    display: none;
+}*/
+#jot-text-wrap .preview textarea {
+    width: 100%;
+}
+#preview_profile-jot-text,
+.comment-edit-form .preview {
+    position: relative;
+    padding: 0px 10px;
+    margin-top: -2px;
+    border: 2px solid #ededed;
+    border-top: none;
+    box-shadow: none;
+    border-radius: 0 0 4px 4px;
+    background: #fff;
+    color: #555;
+}
+textarea#profile-jot-text:focus + #preview_profile-jot-text,
+textarea.comment-edit-text:focus + .comment-edit-form .preview {
+    border: 2px solid #6fdbe8;
+    border-top: none;
+}
+.preview hr.previewseparator {
+    margin-top: 0px;
+    border-color: #D2D2D2;
+}
+#previewImgBtn_profile-jot-text,
+.closePreview  {
+    position: absolute;
+    top: 15px;
+}
+.closePreview {
+    right: 15px;
+    z-index: 1;
+}
+.previewImgBtn {
+    left: 15px;
+}
+.preview button.previewActionBtn {
+    display:block;
+    height: 25px;
+    width: 25px;
+    border-radius: 50%;
+    color: #fff;
+    border: 2px solid #fff;
+    box-shadow: 0 0 3px gray;
+    background: #777;
+    text-align: center;
+    line-height: 2px;
+    text-decoration: none;
+    padding: 0 0 1px 1px;
+    opacity: 0.7;
+}
+.preview button.previewActionBtn:hover {
+    opacity: 1;
+}
+.preview .closePreview button.previewActionBtn {
+    font-size: 25px;
+}
+#previewInputTitle_profile-jot-text {
+    width: 100%;
 }
 #profile-jot-wrapper button#profile-jot-submit {
     margin-top: 5px;
@@ -1337,7 +1452,10 @@ section #jotOpen {
 #profile-jot-wrapper #character-counter {
     padding: 10px 15px;
 }
-
+.modal .wall-item-container.preview {
+    overflow-y: auto;
+    overflow-y: overlay;
+}
 /* ACL */
 /*#jot-modal-body {
     height: auto;
@@ -1345,7 +1463,7 @@ section #jotOpen {
     overflow-y: hidden;
 }*/
 #acl-search {
-    margin-top: 20px;
+    /*margin-top: 20px;*/
     /*padding: 8px;*/
     /*border: 1px solid #ccc;*/
     width: 100%;
@@ -1353,7 +1471,6 @@ section #jotOpen {
 #acl-list {
     display: block;
     border: 1px solid #ccc;
-    overflow: auto;
     clear: both;
     min-height: 62px;
     margin-top: 20px;
@@ -1361,10 +1478,10 @@ section #jotOpen {
     -webkit-border-radius: 4px;
     -moz-border-radius: 4px;
     border-radius: 4px;
+    overflow-y: auto;
 }
 #acl-list-content {
-    overflow-y: auto;
-    max-height: calc(100vh - 330px);
+    overflow-y: hidden;
     height: auto !important;
 }
 .acl-list-item {
@@ -1417,11 +1534,11 @@ section #jotOpen {
 }
 
 .fa.lock:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f023";
 }
 .fa.unlock:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f09c";
 }
 
@@ -1523,8 +1640,7 @@ section #jotOpen {
     padding: 15px;
 }
 .panel .panel-body {
-    padding: 15px;
-    font-size: 14px;
+    word-wrap: break-word;
 }
 .panel .panel-body .wall-item-content {
     color: #555;
@@ -1538,11 +1654,11 @@ aside .panel-body {
 }
 
 /* Thread hover effects */
-.wall-item-container .wall-item-content a,
-.wall-item-container a,
-.wall-item-container .fakelink,
-.toplevel_item .fakelink,
-.toplevel_item .wall-item-container .wall-item-responses a {
+.desktop-view .wall-item-container .wall-item-content a,
+.desktop-view .wall-item-container a,
+.desktop-view .wall-item-container .fakelink,
+.desktop-view .toplevel_item .fakelink,
+.desktop-view .toplevel_item .wall-item-container .wall-item-responses a {
     color: #555;
     -webkit-transition: all 0.25s ease-in-out;
     -moz-transition: all 0.25s ease-in-out;
@@ -1569,7 +1685,19 @@ aside .panel-body {
 
 /* wall items */
 .wall-item-container {
-    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+}
+
+.wall-item-container.panel-body {
+    padding: 0;
+    border-top: none;
+    overflow: hidden;
+}
+
+.wall-item-container .media {
+    margin-top: 0;
+    padding: 10px;
+    background-color: rgba(0, 0, 0, 0.03);
 }
 
 /* wall items contact photo */
@@ -1633,8 +1761,8 @@ aside .panel-body {
     top: 10px;
 }
 .comment .nav-pills.preferences {
-    right: 0px;
-    top: 0px;
+    right: 5px;
+    top: 5px;
 }
 .wall-item-network {
     font-size: 13px;
@@ -1760,7 +1888,7 @@ code > .hl-main {
     padding: 10px 0;
 }
 .oembed.video .embed_video > div::before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     font-weight: normal;
     font-style: normal;
     display: inline-block;
@@ -1792,7 +1920,7 @@ code > .hl-main {
 }
 .wall-item-tags,
 .itemedited {
-    margin-top: 10px;
+    margin: 10px 0;
     font-size: 13px;
 }
 
@@ -1807,15 +1935,20 @@ code > .hl-main {
 .wall-item-bottom .label a {
     color: #fff;
 }
+.wall-item-tags .category,
+.wall-item-tags .folder {
+    margin-right: 3px;
+}
 
 /* item social action buttons */
 .wall-item-actions {
-    margin-top: 15px;
+    display: flex;
+    margin: 0;
+    justify-content: space-between;
 }
-.wall-item-actions, .wall-item-actions a, .wall-item-actions button {
+.wall-item-actions a, .wall-item-actions button {
     font-size: 13px;
     color: #555;
-    margin-bottom: 0;
 }
 .wall-item-actions .active {
     font-weight: bold;
@@ -1849,6 +1982,10 @@ code > .hl-main {
 }
 .wall-item-actions .separator {
     margin: 0 .3em;
+}
+
+.wall-item-responses > div > p {
+    margin: 0;
 }
 
 /* wall item hover effects */
@@ -1898,7 +2035,6 @@ code > .hl-main {
     margin-bottom: 0;
 }
 .comment-container {
-    margin-top: 10px;
     margin-bottom: 0px;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -1909,9 +2045,10 @@ code > .hl-main {
     position: relative!important;
     margin-top: 0;
 }
-.hide-comments-outer-wrapper {
-/*    text-align: center;
-    margin-top: -18px;*/
+.hide-comments-outer {
+    background-color: rgba(0, 0, 0, 0.03);
+    padding: 0.5em;
+    border-radius: 0.5em 0.5em 0 0;
 }
 .hide-comments-total {
     cursor: pointer;
@@ -1920,21 +2057,37 @@ code > .hl-main {
 /*
 * Comment Box
 */
-.thread_level_2 .wall-item-comment-wrapper {
-    padding-right: 5px;
+
+.comment-fake-form,
+.wall-item-comment-wrapper {
+    padding: 10px;
+    border-top: 1px solid rgba(255, 255, 255, 0.8);
+    background-color: rgba(0, 0, 0, 0.03);
+    border-radius: 0 0 10px 10px;
 }
+
+.comment-fake-form {
+    border-color: #d9d9d9;
+}
+.comment-fake-form textarea {
+    resize: none;
+}
+
+.comment-container .wall-item-comment-wrapper {
+    margin-top: 0.5em;
+}
+
+.comment-edit-form textarea {
+    resize: vertical;
+}
+
 .comment-edit-submit-wrapper {
-    margin-bottom: 25px;
+    text-align: right;
 }
-.comment-edit-submit-wrapper a,
-.comment-edit-submit-wrapper a:hover {
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
-}
-.comment-icon-list > li > .icon,
-.comment-icon-list > li > .icon:hover {
-    color: #555;
-    background-color: transparent;
+
+.comment-icon-list {
+    display: flex;
+    justify-content: space-between;
 }
 
 /* acpopup  + textcompletion*/
@@ -1997,8 +2150,7 @@ img.acpopup-img {
 .wall-item-container.thread_level_5,
 .wall-item-container.thread_level_6,
 .wall-item-container.thread_level_7 {
-  margin-left: 15px;
-
+    margin-left: 15px;
 }
 /* Menubar Tabs */
 section > .tabbar-wrapper {
@@ -2078,13 +2230,14 @@ ul.dropdown-menu li:hover {
 }
 
 /* Notificaiotn badges */
-.nav-notify .show {
-    display: block;
+#mail-update-li.show {
+    display: inline-block!important;
 }
 
 /* Media Classes */
 .media .time,
 .media .shared-time,
+.media .delivery,
 .media .location,
 .media .location a {
     font-size: 11px;
@@ -2159,7 +2312,7 @@ ul.dropdown-menu li:hover {
 .search-content-wrapper > .section-title-wrapper {
     display: none;
 }
-#navbar-button > #search-save-form > #search-save {
+#navbar-button > #search-save {
     margin-top: 3px;
 }
 /* Section-Content-Wrapper */
@@ -2186,10 +2339,10 @@ ul.dropdown-menu li:hover {
 .generic-page-wrapper, .profile_photo-content-wrapper, .videos-content-wrapper,
  .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper,
 .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper,
-.directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper,
+.delegation-content-wrapper, .notes-content-wrapper,
 .message-content-wrapper, .apps-content-wrapper,
 #adminpage, .delegate-content-wrapper, .uexport-content-wrapper,
-.viewcontacts-content-wrapper, .dfrn_request-content-wrapper,
+.dfrn_request-content-wrapper,
 .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper,
 .profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper,
 .fsuggest-content-wrapper {
@@ -2770,12 +2923,12 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     padding: 1px 10px;
 }
 .panel .section-subtitle-wrapper a.accordion-toggle:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0d7";
     padding-right: 5px;
 }
 .panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0da";
 }
 #settings-nick-wrapper {
@@ -2820,11 +2973,11 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
     padding-right: 10px;
 }
 .settings-block.fakelink > h3:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0da"; /* Right Plain Pointer */
 }
 .settings-block > .fakelink > h3:before {
-    font-family: FontAwesome;
+    font-family: ForkAwesome;
     content: "\f0d7"; /* Bottom Plain Pointer */
 }
 
@@ -3017,7 +3170,7 @@ section.help-content-wrapper li {
     transition: border 0.15s ease-in-out, color 0.15s ease-in-out;
 }
 #adminpage li .icon.on:after {
-    font-family: "FontAwesome";
+    font-family: "ForkAwesome";
     content: "\f00c";
     display: inline-block;
     position: absolute;
@@ -3060,7 +3213,33 @@ section.help-content-wrapper li {
     pointer-events: none;
 }
 
-/* Register Page*/
+/* Manage Page */
+#identity-selector-wrapper {
+    width: auto;
+    height: auto;
+    margin-top: 20px;
+}
+#identity-selector-wrapper .identity-match-photo {
+    width: auto;
+    float: none;
+}
+#identity-selector-wrapper .identity-match-photo button {
+    position: relative;
+}
+#identity-selector-wrapper .identity-match-photo .badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+}
+#identity-selector-wrapper .identity-match-name {
+    text-align: center;
+}
+#identity-selector-wrapper .identity-match-details {
+    width: auto;
+    float: none;
+}
+
+/* Register Page */
 #register-openid-wrapper, #register-name-wrapper, #register-invite-wrapper, #profile-publish-wrapper {
     margin-top: 20px;
 }
@@ -3088,53 +3267,6 @@ main .nav-tabs>li.active>a:hover {
 /*
  * Framework overwrite
  */
-
-/* jRange */
-.theme-frio .back-bar {
-    height: 5px !important;
-    border-radius: 2px;
-    background-color: #eeeeee;
-    background-color: #e7e7e7;
-    background-image: -moz-linear-gradient(top, #eeeeee, #dddddd);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#eeeeee), to(#dddddd));
-    background-image: -webkit-linear-gradient(top, #eeeeee, #dddddd);
-    background-image: -o-linear-gradient(top, #eeeeee, #dddddd);
-    background-image: linear-gradient(to bottom, #eeeeee, #dddddd);
-    background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeeeeee', endColorstr='#ffdddddd', GradientType=0);
-}
-.theme-frio .back-bar .selected-bar {
-    border-radius: 2px;
-    background-color: $link_color;
-/*    background-image: -moz-linear-gradient(top, #bdfade, #76fabc);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#bdfade), to(#76fabc));
-    background-image: -webkit-linear-gradient(top, #bdfade, #76fabc);
-    background-image: -o-linear-gradient(top, #bdfade, #76fabc);
-    background-image: linear-gradient(to bottom, #bdfade, #76fabc);
-    background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffbdfade', endColorstr='#ff76fabc', GradientType=0);*/
-}
-.theme-frio .back-bar .pointer {
-    width: 14px !important;
-    height: 14px !important;
-    top: -5px;
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
-    box-sizing: border-box;
-    border-radius: 10px;
-    border: 1px solid #AAA;
-    background-color: #e7e7e7 !important;
-    background-image: -moz-linear-gradient(top, #eeeeee, #dddddd);
-    background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#eeeeee), to(#dddddd));
-    background-image: -webkit-linear-gradient(top, #eeeeee, #dddddd);
-    background-image: -o-linear-gradient(top, #eeeeee, #dddddd);
-    background-image: linear-gradient(to bottom, #eeeeee, #dddddd);
-    background-repeat: repeat-x;
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffeeeeee', endColorstr='#ffdddddd', GradientType=0);
-}
-.theme-frio .back-bar .pointer-label {
-    color: #999;
-}
 
 /* textcomplete for contact filtering*/
 #contact-list ul.dropdown-menu.textcomplete-dropdown.media-list {
@@ -3312,7 +3444,6 @@ section .profile-match-wrapper {
     background-image: none;
     text-shadow: none;
     border-radius: 3px;
-    outline: 0!important;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 600;
@@ -3331,7 +3462,6 @@ section .profile-match-wrapper {
     background-image: none;
     text-shadow: none;
     border-radius: 3px;
-    outline: 0!important;
     margin-bottom: 0;
     font-size: 14px;
     font-weight: 600;
@@ -3402,8 +3532,11 @@ section .profile-match-wrapper {
 	body {
 		padding-top: 95px;
 	}
+    body.minimal {
+        padding: 15px;
+    }
 
-	#friendica-logo-mask {
+    #friendica-logo-mask {
 		display: none;
 	}
 
@@ -3421,6 +3554,10 @@ section .profile-match-wrapper {
 		padding: 10px;
 	}
 
+    .toplevel_item > .wall-item-container {
+        padding: 0;
+    }
+
 	.wall-spacer {
 		height: 0px;
 	}
@@ -3437,7 +3574,7 @@ section .profile-match-wrapper {
 		right: 10px;
 	}
 
-	.generic-page-wrapper, .profile_photo-content-wrapper, .videos-content-wrapper, .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper, .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper, .directory-content-wrapper, .manage-content-wrapper, .notes-content-wrapper, .message-content-wrapper, .apps-content-wrapper, #adminpage, .delegate-content-wrapper, .uexport-content-wrapper, .viewcontacts-content-wrapper, .dfrn_request-content-wrapper, .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper, .profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper, .fsuggest-content-wrapper {
+	.generic-page-wrapper, .profile_photo-content-wrapper, .videos-content-wrapper, .suggest-content-wrapper, .common-content-wrapper, .help-content-wrapper, .allfriends-content-wrapper, .match-content-wrapper, .dirfind-content-wrapper, .directory-content-wrapper, .delegation-content-wrapper, .notes-content-wrapper, .message-content-wrapper, .apps-content-wrapper, #adminpage, .delegate-content-wrapper, .uexport-content-wrapper, .dfrn_request-content-wrapper, .friendica-content-wrapper, .credits-content-wrapper, .nogroup-content-wrapper, .profperm-content-wrapper, .invite-content-wrapper, .tos-content-wrapper, .fsuggest-content-wrapper {
 		border-radius: 0;
 		padding: 10px;
 	}
@@ -3464,4 +3601,12 @@ section .profile-match-wrapper {
 	.form-control {
 		font-size: 16px;
 	}
+
+    .wall-item-container.thread_level_3,
+    .wall-item-container.thread_level_4,
+    .wall-item-container.thread_level_5,
+    .wall-item-container.thread_level_6,
+    .wall-item-container.thread_level_7 {
+        margin-left: 5px;
+    }
 }

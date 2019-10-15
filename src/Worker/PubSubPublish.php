@@ -5,14 +5,13 @@
 
 namespace Friendica\Worker;
 
-use Friendica\BaseObject;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\PushSubscriber;
+use Friendica\Model\GServer;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
-
-require_once 'include/items.php';
 
 class PubSubPublish
 {
@@ -27,17 +26,15 @@ class PubSubPublish
 
 	private static function publish($id)
 	{
-		$a = BaseObject::getApp();
-
 		$subscriber = DBA::selectFirst('push_subscriber', [], ['id' => $id]);
 		if (!DBA::isResult($subscriber)) {
 			return;
 		}
 
-		/// @todo Check server status with PortableContact::checkServer()
+		/// @todo Check server status with GServer::check()
 		// Before this can be done we need a way to safely detect the server url.
 
-		logger("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], LOGGER_DEBUG);
+		Logger::log("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], Logger::DEBUG);
 
 		$last_update = $subscriber['last_update'];
 		$params = OStatus::feed($subscriber['nickname'], $last_update);
@@ -54,19 +51,17 @@ class PubSubPublish
 					$subscriber['topic']),
 				"X-Hub-Signature: sha1=" . $hmac_sig];
 
-		logger('POST ' . print_r($headers, true) . "\n" . $params, LOGGER_DATA);
+		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, Logger::DATA);
 
 		$postResult = Network::post($subscriber['callback_url'], $params, $headers);
 		$ret = $postResult->getReturnCode();
 
-		$condition = ['id' => $subscriber['id']];
-
 		if ($ret >= 200 && $ret <= 299) {
-			logger('Successfully pushed to ' . $subscriber['callback_url']);
+			Logger::log('Successfully pushed to ' . $subscriber['callback_url']);
 
 			PushSubscriber::reset($subscriber['id'], $last_update);
 		} else {
-			logger('Delivery error when pushing to ' . $subscriber['callback_url'] . ' HTTP: ' . $ret);
+			Logger::log('Delivery error when pushing to ' . $subscriber['callback_url'] . ' HTTP: ' . $ret);
 
 			PushSubscriber::delay($subscriber['id']);
 		}

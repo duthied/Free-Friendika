@@ -4,9 +4,11 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Core\Logger;
 use Friendica\Network\Probe;
 use Friendica\Util\Crypto;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
@@ -20,12 +22,13 @@ class Salmon
 	 * @param string $uri     Uniform Resource Identifier
 	 * @param string $keyhash encoded key
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getKey($uri, $keyhash)
 	{
 		$ret = [];
 
-		logger('Fetching salmon key for '.$uri);
+		Logger::log('Fetching salmon key for '.$uri);
 
 		$arr = Probe::lrdd($uri);
 
@@ -50,14 +53,14 @@ class Salmon
 					} else {
 						$ret[$x] = substr($ret[$x], 5);
 					}
-				} elseif (normalise_link($ret[$x]) == 'http://') {
+				} elseif (Strings::normaliseLink($ret[$x]) == 'http://') {
 					$ret[$x] = Network::fetchUrl($ret[$x]);
 				}
 			}
 		}
 
 
-		logger('Key located: ' . print_r($ret, true));
+		Logger::log('Key located: ' . print_r($ret, true));
 
 		if (count($ret) == 1) {
 			// We only found one one key so we don't care if the hash matches.
@@ -69,7 +72,7 @@ class Salmon
 			return $ret[0];
 		} else {
 			foreach ($ret as $a) {
-				$hash = base64url_encode(hash('sha256', $a));
+				$hash = Strings::base64UrlEncode(hash('sha256', $a));
 				if ($hash == $keyhash) {
 					return $a;
 				}
@@ -84,6 +87,7 @@ class Salmon
 	 * @param string $url   url
 	 * @param string $slap  slap
 	 * @return integer
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function slapper($owner, $url, $slap)
 	{
@@ -94,31 +98,31 @@ class Salmon
 		}
 
 		if (! $owner['sprvkey']) {
-			logger(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
+			Logger::log(sprintf("user '%s' (%d) does not have a salmon private key. Send failed.",
 			$owner['username'], $owner['uid']));
 			return;
 		}
 
-		logger('slapper called for '.$url.'. Data: ' . $slap);
+		Logger::log('slapper called for '.$url.'. Data: ' . $slap);
 
 		// create a magic envelope
 
-		$data      = base64url_encode($slap);
+		$data      = Strings::base64UrlEncode($slap);
 		$data_type = 'application/atom+xml';
 		$encoding  = 'base64url';
 		$algorithm = 'RSA-SHA256';
-		$keyhash   = base64url_encode(hash('sha256', self::salmonKey($owner['spubkey'])), true);
+		$keyhash   = Strings::base64UrlEncode(hash('sha256', self::salmonKey($owner['spubkey'])), true);
 
-		$precomputed = '.' . base64url_encode($data_type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($algorithm);
+		$precomputed = '.' . Strings::base64UrlEncode($data_type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($algorithm);
 
 		// GNU Social format
-		$signature   = base64url_encode(Crypto::rsaSign($data . $precomputed, $owner['sprvkey']));
+		$signature   = Strings::base64UrlEncode(Crypto::rsaSign($data . $precomputed, $owner['sprvkey']));
 
 		// Compliant format
-		$signature2  = base64url_encode(Crypto::rsaSign(str_replace('=', '', $data . $precomputed), $owner['sprvkey']));
+		$signature2  = Strings::base64UrlEncode(Crypto::rsaSign(str_replace('=', '', $data . $precomputed), $owner['sprvkey']));
 
 		// Old Status.net format
-		$signature3  = base64url_encode(Crypto::rsaSign($data, $owner['sprvkey']));
+		$signature3  = Strings::base64UrlEncode(Crypto::rsaSign($data, $owner['sprvkey']));
 
 		// At first try the non compliant method that works for GNU Social
 		$xmldata = ["me:env" => ["me:data" => $data,
@@ -143,7 +147,7 @@ class Salmon
 		// check for success, e.g. 2xx
 
 		if ($return_code > 299) {
-			logger('GNU Social salmon failed. Falling back to compliant mode');
+			Logger::log('GNU Social salmon failed. Falling back to compliant mode');
 
 			// Now try the compliant mode that normally isn't used for GNU Social
 			$xmldata = ["me:env" => ["me:data" => $data,
@@ -166,7 +170,7 @@ class Salmon
 		}
 
 		if ($return_code > 299) {
-			logger('compliant salmon failed. Falling back to old status.net');
+			Logger::log('compliant salmon failed. Falling back to old status.net');
 
 			// Last try. This will most likely fail as well.
 			$xmldata = ["me:env" => ["me:data" => $data,
@@ -187,7 +191,7 @@ class Salmon
 			$return_code = $postResult->getReturnCode();
 		}
 
-		logger('slapper for '.$url.' returned ' . $return_code);
+		Logger::log('slapper for '.$url.' returned ' . $return_code);
 
 		if (! $return_code) {
 			return -1;
@@ -203,10 +207,11 @@ class Salmon
 	/**
 	 * @param string $pubkey public key
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function salmonKey($pubkey)
 	{
 		Crypto::pemToMe($pubkey, $m, $e);
-		return 'RSA' . '.' . base64url_encode($m, true) . '.' . base64url_encode($e, true);
+		return 'RSA' . '.' . Strings::base64UrlEncode($m, true) . '.' . Strings::base64UrlEncode($e, true);
 	}
 }

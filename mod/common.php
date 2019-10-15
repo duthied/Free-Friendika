@@ -7,13 +7,12 @@ use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
 use Friendica\Util\Proxy as ProxyUtils;
-
-
-require_once 'include/dba.php';
+use Friendica\Util\Strings;
 
 function common_content(App $a)
 {
@@ -48,13 +47,13 @@ function common_content(App $a)
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['self' => true, 'uid' => $uid]);
 
 		if (DBA::isResult($contact)) {
-			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
-				'$name'  => htmlentities($contact['name']),
+			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate("widget/vcard.tpl"), [
+				'$name'  => $contact['name'],
 				'$photo' => $contact['photo'],
 				'url'    => 'contact/' . $cid
 			]);
 
-			if (!x($a->page, 'aside')) {
+			if (empty($a->page['aside'])) {
 				$a->page['aside'] = '';
 			}
 			$a->page['aside'] .= $vcard_widget;
@@ -66,11 +65,11 @@ function common_content(App $a)
 	}
 
 	if (!$cid && Model\Profile::getMyURL()) {
-		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => normalise_link(Model\Profile::getMyURL()), 'uid' => $uid]);
+		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => Strings::normaliseLink(Model\Profile::getMyURL()), 'uid' => $uid]);
 		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
 		} else {
-			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Model\Profile::getMyURL())]);
+			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(Model\Profile::getMyURL())]);
 			if (DBA::isResult($gcontact)) {
 				$zcid = $gcontact['id'];
 			}
@@ -118,11 +117,11 @@ function common_content(App $a)
 		$photo_menu = Model\Contact::photoMenu($common_friend);
 
 		$entry = [
-			'url'          => $common_friend['url'],
+			'url'          => Model\Contact::magicLink($common_friend['url']),
 			'itemurl'      => defaults($contact_details, 'addr', $common_friend['url']),
 			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
-			'img_hover'    => htmlentities($contact_details['name']),
+			'img_hover'    => $contact_details['name'],
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
@@ -142,9 +141,9 @@ function common_content(App $a)
 		$title = L10n::t('Common Friends');
 	}
 
-	$tpl = get_markup_template('viewcontact_template.tpl');
+	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl, [
+	$o .= Renderer::replaceMacros($tpl, [
 		'$title'    => $title,
 		'$tab_str'  => $tab_str,
 		'$contacts' => $entries,

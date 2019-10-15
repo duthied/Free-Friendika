@@ -392,7 +392,7 @@ class Color {
             $hsl['L'] = ($hsl['L'] < 0) ? 0:$hsl['L']/100;
         } else {
             // We need to find out how much to darken
-            $hsl['L'] = $hsl['L']/2 ;
+            $hsl['L'] = $hsl['L']/2;
         }
 
         return $hsl;

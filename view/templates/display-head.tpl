@@ -6,8 +6,8 @@
 {{/if}}
 <script>
 $(document).ready(function() {
-	$(".comment-edit-wrapper textarea").editor_autocomplete(baseurl+"/acl");
+	$(".comment-edit-wrapper textarea").editor_autocomplete(baseurl + '/search/acl');
 	// make auto-complete work in more places
-	$(".wall-item-comment-wrapper textarea").editor_autocomplete(baseurl+"/acl");
+	$(".wall-item-comment-wrapper textarea").editor_autocomplete(baseurl + '/search/acl');
 });
 </script>

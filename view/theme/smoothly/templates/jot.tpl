@@ -26,7 +26,7 @@
 		<div id="jot-text-wrap">
 			<img id="profile-jot-text-loading" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" /><br>
 			<textarea rows="5" cols="80" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">
-			{{if $content}}{{$content}}{{/if}}
+			{{if $content}}{{$content nofilter}}{{/if}}
 			</textarea>
 		</div>
 
@@ -61,7 +61,7 @@
 	</div>
 
 	<div id="profile-jot-plugin-wrapper" style="display: none;">
-	{{$jotplugins}}
+	{{$jotplugins nofilter}}
 	</div>
 	<div id="profile-jot-tools-end"></div>
 
@@ -69,11 +69,11 @@
 
         <div style="display: none;">
             <div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
-                {{$acl}}
+                {{$acl nofilter}}
                 <hr style="clear:both"/>
                 <div id="profile-jot-email-label">{{$emailcc}}</div><input type="text" name="emailcc" id="profile-jot-email" title="{{$emtitle}}" />
                 <div id="profile-jot-email-end"></div>
-                {{$jotnets}}
+                {{$jotnets nofilter}}
             </div>
         </div>
 

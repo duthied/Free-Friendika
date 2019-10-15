@@ -8,8 +8,6 @@ namespace Friendica\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
-require_once 'include/dba.php';
-
 class RemoveUser {
 	public static function execute($uid)
 	{
@@ -24,7 +22,7 @@ class RemoveUser {
 		do {
 			$items = Item::select(['id'], $condition, ['limit' => 100]);
 			while ($item = Item::fetch($items)) {
-				Item::deleteById($item['id'], PRIORITY_LOW);
+				Item::deleteById($item['id'], PRIORITY_NEGLIGIBLE);
 			}
 			DBA::close($items);
 		} while (Item::exists($condition));

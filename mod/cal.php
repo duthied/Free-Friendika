@@ -12,7 +12,9 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
@@ -22,20 +24,15 @@ use Friendica\Model\Profile;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
-use Friendica\Util\Security;
 
 function cal_init(App $a)
 {
-	if ($a->argc > 1) {
-		DFRN::autoRedir($a, $a->argv[1]);
-	}
-
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	if ($a->argc < 2) {
-		System::httpExit(403, ['title' => L10n::t('Access denied.')]);
+		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
 	}
 
 	Nav::setSelected('events');
@@ -43,7 +40,7 @@ function cal_init(App $a)
 	$nick = $a->argv[1];
 	$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'blocked' => false]);
 	if (!DBA::isResult($user)) {
-		System::httpExit(404, ['title' => L10n::t('Page not found.')]);
+		throw new \Friendica\Network\HTTPException\NotFoundException();
 	}
 
 	$a->data['user'] = $user;
@@ -59,9 +56,9 @@ function cal_init(App $a)
 
 	$account_type = Contact::getAccountType($profile);
 
-	$tpl = get_markup_template("vcard-widget.tpl");
+	$tpl = Renderer::getMarkupTemplate("widget/vcard.tpl");
 
-	$vcard_widget = replace_macros($tpl, [
+	$vcard_widget = Renderer::replaceMacros($tpl, [
 		'$name' => $profile['name'],
 		'$photo' => $profile['photo'],
 		'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
@@ -71,7 +68,7 @@ function cal_init(App $a)
 
 	$cal_widget = Widget\CalendarExport::getHTML();
 
-	if (!x($a->page, 'aside')) {
+	if (empty($a->page['aside'])) {
 		$a->page['aside'] = '';
 	}
 
@@ -88,9 +85,8 @@ function cal_content(App $a)
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
-	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, [
-		'$baseurl' => System::baseUrl(),
+	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,
@@ -99,7 +95,7 @@ function cal_content(App $a)
 	$mode = 'view';
 	$y = 0;
 	$m = 0;
-	$ignored = (x($_REQUEST, 'ignored') ? intval($_REQUEST['ignored']) : 0);
+	$ignored = (!empty($_REQUEST['ignored']) ? intval($_REQUEST['ignored']) : 0);
 
 	$format = 'ical';
 	if ($a->argc == 4 && $a->argv[2] == 'export') {
@@ -111,21 +107,14 @@ function cal_content(App $a)
 	$remote_contact = false;
 	$contact_id = 0;
 
-	$owner_uid = $a->data['user']['uid'];
+	$owner_uid = intval($a->data['user']['uid']);
 	$nick = $a->data['user']['nickname'];
 
-	if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $v) {
-			if ($v['uid'] == $a->profile['profile_uid']) {
-				$contact_id = $v['cid'];
-				break;
-			}
-		}
+	if (!empty(Session::getRemoteContactID($a->profile['profile_uid']))) {
+		$contact_id = Session::getRemoteContactID($a->profile['profile_uid']);
 	}
 
-	$groups = [];
 	if ($contact_id) {
-		$groups = Group::getIdsByContactId($contact_id);
 		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 			intval($contact_id),
 			intval($a->profile['profile_uid'])
@@ -143,12 +132,12 @@ function cal_content(App $a)
 	}
 
 	// get the permissions
-	$sql_perms = Item::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
+	$sql_perms = Item::getPermissionsSQLByUserId($owner_uid);
 	// we only want to have the events of the profile owner
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 
 	// get the tab navigation bar
-	$tabs = Profile::getTabs($a, false, $a->data['user']['nickname']);
+	$tabs = Profile::getTabs($a, 'cal', false, $a->data['user']['nickname']);
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {
@@ -194,11 +183,11 @@ function cal_content(App $a)
 
 
 		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
-			if (x($_GET, 'start')) {
+			if (!empty($_GET['start'])) {
 				$start = $_GET['start'];
 			}
 
-			if (x($_GET, 'end')) {
+			if (!empty($_GET['end'])) {
 				$finish = $_GET['end'];
 			}
 		}
@@ -232,7 +221,7 @@ function cal_content(App $a)
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
-				if (!x($links, $j)) {
+				if (empty($links[$j])) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}
@@ -243,17 +232,17 @@ function cal_content(App $a)
 
 		if (!empty($a->argv[2]) && ($a->argv[2] === 'json')) {
 			echo json_encode($events);
-			killme();
+			exit();
 		}
 
 		// links: array('href', 'text', 'extra css classes', 'title')
-		if (x($_GET, 'id')) {
-			$tpl = get_markup_template("event.tpl");
+		if (!empty($_GET['id'])) {
+			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
 //			if (Config::get('experimentals','new_calendar')==1){
-			$tpl = get_markup_template("events_js.tpl");
+			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 //			} else {
-//				$tpl = get_markup_template("events.tpl");
+//				$tpl = Renderer::getMarkupTemplate("events.tpl");
 //			}
 		}
 
@@ -267,8 +256,7 @@ function cal_content(App $a)
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, [
-			'$baseurl' => System::baseUrl(),
+		$o = Renderer::replaceMacros($tpl, [
 			'$tabs' => $tabs,
 			'$title' => L10n::t('Events'),
 			'$view' => L10n::t('View'),
@@ -283,23 +271,23 @@ function cal_content(App $a)
 			"list" => L10n::t("list"),
 		]);
 
-		if (x($_GET, 'id')) {
+		if (!empty($_GET['id'])) {
 			echo $o;
-			killme();
+			exit();
 		}
 
 		return $o;
 	}
 
 	if ($mode == 'export') {
-		if (!intval($owner_uid)) {
+		if (!$owner_uid) {
 			notice(L10n::t('User not found'));
 			return;
 		}
 
 		// Test permissions
 		// Respect the export feature setting for all other /cal pages if it's not the own profile
-		if ((local_user() !== intval($owner_uid)) && !Feature::isEnabled($owner_uid, "export_calendar")) {
+		if ((local_user() !== $owner_uid) && !Feature::isEnabled($owner_uid, "export_calendar")) {
 			notice(L10n::t('Permission denied.') . EOL);
 			$a->internalRedirect('cal/' . $nick);
 		}
@@ -316,7 +304,7 @@ function cal_content(App $a)
 
 			// If it the own calendar return to the events page
 			// otherwise to the profile calendar page
-			if (local_user() === intval($owner_uid)) {
+			if (local_user() === $owner_uid) {
 				$return_path = "events";
 			} else {
 				$return_path = "cal/" . $nick;
@@ -330,7 +318,7 @@ function cal_content(App $a)
 			header('Content-type: text/calendar');
 			header('content-disposition: attachment; filename="' . L10n::t('calendar') . '-' . $nick . '.' . $evexport["extension"] . '"');
 			echo $evexport["content"];
-			killme();
+			exit();
 		}
 
 		return;

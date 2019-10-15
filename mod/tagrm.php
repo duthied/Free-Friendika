@@ -9,6 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
+use Friendica\Util\Strings;
 
 function tagrm_post(App $a)
 {
@@ -16,13 +17,13 @@ function tagrm_post(App $a)
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
-	if (x($_POST,'submit') && ($_POST['submit'] === L10n::t('Cancel'))) {
+	if (!empty($_POST['submit']) && ($_POST['submit'] === L10n::t('Cancel'))) {
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 
 	$tags = [];
 	foreach (defaults($_POST, 'tag', []) as $tag) {
-		$tags[] = hex2bin(notags(trim($tag)));
+		$tags[] = hex2bin(Strings::escapeTags(trim($tag)));
 	}
 
 	$item_id = defaults($_POST,'item', 0);
@@ -35,8 +36,10 @@ function tagrm_post(App $a)
 
 /**
  * Updates tags from an item
+ *
  * @param $item_id
  * @param $tags array
+ * @throws Exception
  */
 function update_tags($item_id, $tags){
 	if (empty($item_id) || empty($tags)){
@@ -73,7 +76,7 @@ function tagrm_content(App $a)
 	}
 
 	if ($a->argc == 3) {
-		update_tags($a->argv[1], [notags(trim(hex2bin($a->argv[2])))]);
+		update_tags($a->argv[1], [Strings::escapeTags(trim(hex2bin($a->argv[2])))]);
 		$a->internalRedirect($_SESSION['photo_return']);
 	}
 

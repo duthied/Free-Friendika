@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class NonAcceptableException extends HTTPException
 {
-	var $httpcode = 406;
+	protected $code = 406;
 }

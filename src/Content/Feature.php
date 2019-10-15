@@ -5,8 +5,8 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 
@@ -18,8 +18,9 @@ class Feature
 	 * @param integer $uid     user id
 	 * @param string  $feature feature
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function isEnabled($uid, $feature)
+	public static function isEnabled(int $uid, $feature)
 	{
 		$x = Config::get('feature_lock', $feature, false);
 
@@ -36,7 +37,7 @@ class Feature
 		}
 
 		$arr = ['uid' => $uid, 'feature' => $feature, 'enabled' => $x];
-		Addon::callHooks('isEnabled', $arr);
+		Hook::callAll('isEnabled', $arr);
 		return($arr['enabled']);
 	}
 
@@ -45,6 +46,7 @@ class Feature
 	 *
 	 * @param string $feature feature
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function getDefault($feature)
 	{
@@ -69,6 +71,7 @@ class Feature
 	 * @param bool $filtered True removes any locked features
 	 *
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function get($filtered = true)
 	{
@@ -81,29 +84,26 @@ class Feature
 				['multi_profiles',  L10n::t('Multiple Profiles'),      L10n::t('Ability to create multiple profiles'), false, Config::get('feature_lock', 'multi_profiles', false)],
 				['photo_location',  L10n::t('Photo Location'),         L10n::t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, Config::get('feature_lock', 'photo_location', false)],
 				['export_calendar', L10n::t('Export Public Calendar'), L10n::t('Ability for visitors to download the public calendar'), false, Config::get('feature_lock', 'export_calendar', false)],
+				['trending_tags',   L10n::t('Trending Tags'),          L10n::t('Show a community page widget with a list of the most popular tags in recent public posts.'), false, Config::get('feature_lock', 'trending_tags', false)],
 			],
 
 			// Post composition
 			'composition' => [
 				L10n::t('Post Composition Features'),
-				['preview',        L10n::t('Post Preview'),        L10n::t('Allow previewing posts and comments before publishing them'), false, Config::get('feature_lock', 'preview', false)],
 				['aclautomention', L10n::t('Auto-mention Forums'), L10n::t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, Config::get('feature_lock', 'aclautomention', false)],
+				['explicit_mentions', L10n::t('Explicit Mentions'), L10n::t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, Config::get('feature_lock', 'explicit_mentions', false)],
 			],
 
 			// Network sidebar widgets
 			'widgets' => [
 				L10n::t('Network Sidebar'),
 				['archives',         L10n::t('Archives'), L10n::t('Ability to select posts by date ranges'), false, Config::get('feature_lock', 'archives', false)],
-				['forumlist_widget', L10n::t('List Forums'),    L10n::t('Enable widget to display the forums your are connected with'), true, Config::get('feature_lock', 'forumlist_widget', false)],
-				['groups',           L10n::t('Group Filter'),   L10n::t('Enable widget to display Network posts only from selected group'), false, Config::get('feature_lock', 'groups', false)],
-				['networks',         L10n::t('Network Filter'), L10n::t('Enable widget to display Network posts only from selected network'), false, Config::get('feature_lock', 'networks', false)],
-				['savedsearch',      L10n::t('Saved Searches'), L10n::t('Save search terms for re-use'), false, Config::get('feature_lock', 'savedsearch', false)],
+				['networks',         L10n::t('Protocol Filter'), L10n::t('Enable widget to display Network posts only from selected protocols'), false, Config::get('feature_lock', 'networks', false)],
 			],
 
 			// Network tabs
 			'net_tabs' => [
 				L10n::t('Network Tabs'),
-				['personal_tab', L10n::t('Network Personal Tab'),     L10n::t('Enable tab to display only Network posts that you\'ve interacted on'), false, Config::get('feature_lock', 'personal_tab', false)],
 				['new_tab',      L10n::t('Network New Tab'),          L10n::t("Enable tab to display only new Network posts \x28from the last 12 hours\x29"), false, Config::get('feature_lock', 'new_tab', false)],
 				['link_tab',     L10n::t('Network Shared Links Tab'), L10n::t('Enable tab to display only Network posts with links in them'), false, Config::get('feature_lock', 'link_tab', false)],
 			],
@@ -111,14 +111,7 @@ class Feature
 			// Item tools
 			'tools' => [
 				L10n::t('Post/Comment Tools'),
-				['multi_delete', L10n::t('Multiple Deletion'),       L10n::t('Select and delete multiple posts/comments at once'), false, Config::get('feature_lock', 'multi_delete', false)],
-				['edit_posts',   L10n::t('Edit Sent Posts'),         L10n::t('Edit and correct posts and comments after sending'), false, Config::get('feature_lock', 'edit_posts', false)],
-				['commtag',      L10n::t('Tagging'),                 L10n::t('Ability to tag existing posts'), false, Config::get('feature_lock', 'commtag', false)],
 				['categories',   L10n::t('Post Categories'),         L10n::t('Add categories to your posts'), false, Config::get('feature_lock', 'categories', false)],
-				['filing',       L10n::t('Saved Folders'),           L10n::t('Ability to file posts under folders'), false, Config::get('feature_lock', 'filing', false)],
-				['dislike',      L10n::t('Dislike Posts'),           L10n::t('Ability to dislike posts/comments'), false, Config::get('feature_lock', 'dislike', false)],
-				['star_posts',   L10n::t('Star Posts'),              L10n::t('Ability to mark special posts with a star indicator'), false, Config::get('feature_lock', 'star_posts', false)],
-				['ignore_posts', L10n::t('Mute Post Notifications'), L10n::t('Ability to mute notifications for a thread'), false, Config::get('feature_lock', 'ignore_posts', false)],
 			],
 
 			// Advanced Profile Settings
@@ -151,7 +144,7 @@ class Feature
 			}
 		}
 
-		Addon::callHooks('get', $arr);
+		Hook::callAll('get', $arr);
 		return $arr;
 	}
 }

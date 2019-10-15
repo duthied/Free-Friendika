@@ -4,10 +4,13 @@
  */
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
+use Friendica\Util\Strings;
 
 function wallmessage_post(App $a) {
 
@@ -17,10 +20,10 @@ function wallmessage_post(App $a) {
 		return;
 	}
 
-	$subject   = ((x($_REQUEST,'subject'))   ? notags(trim($_REQUEST['subject']))   : '');
-	$body      = ((x($_REQUEST,'body'))      ? escape_tags(trim($_REQUEST['body'])) : '');
+	$subject   = (!empty($_REQUEST['subject'])   ? Strings::escapeTags(trim($_REQUEST['subject']))   : '');
+	$body      = (!empty($_REQUEST['body'])      ? Strings::escapeHtml(trim($_REQUEST['body'])) : '');
 
-	$recipient = (($a->argc > 1) ? notags($a->argv[1]) : '');
+	$recipient = (($a->argc > 1) ? Strings::escapeTags($a->argv[1]) : '');
 	if ((! $recipient) || (! $body)) {
 		return;
 	}
@@ -30,7 +33,7 @@ function wallmessage_post(App $a) {
 	);
 
 	if (! DBA::isResult($r)) {
-		logger('wallmessage: no recipient');
+		Logger::log('wallmessage: no recipient');
 		return;
 	}
 
@@ -93,7 +96,7 @@ function wallmessage_content(App $a) {
 
 	if (! DBA::isResult($r)) {
 		notice(L10n::t('No recipient.') . EOL);
-		logger('wallmessage: no recipient');
+		Logger::log('wallmessage: no recipient');
 		return;
 	}
 
@@ -113,29 +116,29 @@ function wallmessage_content(App $a) {
 		return;
 	}
 
-	$tpl = get_markup_template('wallmsg-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('wallmsg-header.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => L10n::t('Please enter a link URL:')
 	]);
 
-	$tpl = get_markup_template('wallmessage.tpl');
-	$o = replace_macros($tpl, [
-		'$header' => L10n::t('Send Private Message'),
-		'$subheader' => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
-		'$to' => L10n::t('To:'),
-		'$subject' => L10n::t('Subject:'),
-		'$recipname' => $user['username'],
-		'$nickname' => $user['nickname'],
-		'$subjtxt' => ((x($_REQUEST, 'subject')) ? strip_tags($_REQUEST['subject']) : ''),
-		'$text' => ((x($_REQUEST, 'body')) ? escape_tags(htmlspecialchars($_REQUEST['body'])) : ''),
-		'$readonly' => '',
-		'$yourmessage' => L10n::t('Your message:'),
-		'$parent' => '',
-		'$upload' => L10n::t('Upload photo'),
-		'$insert' => L10n::t('Insert web link'),
-		'$wait' => L10n::t('Please wait')
+	$tpl = Renderer::getMarkupTemplate('wallmessage.tpl');
+	$o = Renderer::replaceMacros($tpl, [
+		'$header'     => L10n::t('Send Private Message'),
+		'$subheader'  => L10n::t('If you wish for %s to respond, please check that the privacy settings on your site allow private mail from unknown senders.', $user['username']),
+		'$to'         => L10n::t('To:'),
+		'$subject'    => L10n::t('Subject:'),
+		'$recipname'  => $user['username'],
+		'$nickname'   => $user['nickname'],
+		'$subjtxt'    => defaults($_REQUEST, 'subject', ''),
+		'$text'       => defaults($_REQUEST, 'body', ''),
+		'$readonly'   => '',
+		'$yourmessage'=> L10n::t('Your message:'),
+		'$parent'     => '',
+		'$upload'     => L10n::t('Upload photo'),
+		'$insert'     => L10n::t('Insert web link'),
+		'$wait'       => L10n::t('Please wait')
 	]);
 
 	return $o;

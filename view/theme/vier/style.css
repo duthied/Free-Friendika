@@ -365,10 +365,12 @@ pre code {
 	box-shadow: 0px 5px 10px rgba(0, 0, 0, 0.7);
 }
 
+.desktop-view { display: none; }
+
 /* some settings for different form-factors */
 @media (min-width: 601px) {
-	a.mobile-view { display: none };
-	a.desktop-view { display: initial };
+	.mobile-view { display: none!important; }
+	.desktop-view { display: initial; }
 }
 
 /* tool */
@@ -446,7 +448,7 @@ pre code {
 	/* color: #000; */
 }
 
-.group-selected, .nets-selected, .fileas-selected, .forum-selected {
+.widget .selected, .forum-selected {
 	font-weight: bold;
 }
 
@@ -685,8 +687,11 @@ nav .nav-menu img {
 	margin-right: 4px;
 }
 
-nav .nav-menu-icon .nav-notify {
+nav .nav-menu > a > .nav-notify,
+nav .nav-menu-icon > a > .nav-notify {
+	position: absolute;
 	top: 3px;
+	right: -5px;
 }
 nav .nav-menu-label {
 	margin: 3px 5px 0px;
@@ -720,7 +725,7 @@ nav .nav-menu:hover {
 	text-decoration: none;
 }
 
-.manage-notify {
+.delegation-notify {
 	 background-color: #F80;
 	-moz-border-radius: 5px 5px 5px 5px;
 	-webkit-border-radius: 5px 5px 5px 5px;
@@ -738,33 +743,28 @@ nav .nav-menu:hover {
 
 nav .nav-notify {
 	display: none;
-	position: absolute;
- /*  background-color: #36c; */
-	 background-color: #F80;
-	/* background-color: #19aeff; */
+	background-color: #F80;
 	-moz-border-radius: 5px 5px 5px 5px;
 	-webkit-border-radius: 5px 5px 5px 5px;
 	border-radius: 5px 5px 5px 5px;
 	font-size: 10px;
 	padding: 1px 3px;
-	top: 0px;
-	/* right: -10px; */
-	right: -5px;
 	min-width: 15px;
-	/* text-align: right; */
 	text-align: center;
 	color: white;
 }
-
 nav .nav-notify.show {
-	display: block;
+	display: inline-block;
 }
+
 nav #nav-help-link,
 nav #nav-search-link,
 nav #nav-directory-link,
 nav #nav-apps-link,
 nav #nav-apps-link,
 nav #nav-login-link,
+nav #nav-logout-link,
+nav #nav-messages-linkmenu,
 nav #nav-notifications-linkmenu,
 nav #nav-site-linkmenu,
 nav #nav-contacts-linkmenu,
@@ -843,10 +843,6 @@ nav #nav-user-linkmenu {
 	/* border-bottom: 1px solid #364E59; */
 	/* margin: 0px 0px 2px 0px;
 	padding: 5px 10px; */
-}
-
-#mail-update {
-	top: 56px;
 }
 
 .notify-unseen {background-color: #FFF; }
@@ -2927,12 +2923,12 @@ a.mail-list-link {
 	margin: 0px;
 }
 
-#identity-manage-desc {
+#identity-delegation-desc {
 	margin-top:15px;
 	margin-bottom: 15px;
 }
 
-#identity-manage-choose {
+#identity-delegation-choose {
 	margin-bottom: 15px;
 }
 

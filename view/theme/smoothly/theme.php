@@ -11,10 +11,11 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
 function smoothly_init(App $a) {
-	$a->setActiveTemplateEngine('smarty3');
+	Renderer::setActiveTemplateEngine('smarty3');
 
 	$cssFile = null;
 	$ssl_state = null;
@@ -106,12 +107,12 @@ if (! function_exists('_js_in_foot')) {
 	function _js_in_foot() {
 		/** @purpose insert stuff in bottom of page
 		*/
-		$a = get_app();
+		$a = \get_app();
 		$ssl_state = null;
 		$baseurl = System::baseUrl($ssl_state);
 		$bottom['$baseurl'] = $baseurl;
-		$tpl = get_markup_template('bottom.tpl');
+		$tpl = Renderer::getMarkupTemplate('bottom.tpl');
 
-		return $a->page['bottom'] = replace_macros($tpl, $bottom);
+		return $a->page['bottom'] = Renderer::replaceMacros($tpl, $bottom);
 	}
 }

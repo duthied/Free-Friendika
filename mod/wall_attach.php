@@ -6,15 +6,15 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Mimetype;
+use Friendica\Model\Attach;
+use Friendica\Model\User;
+use Friendica\Util\Strings;
 
 function wall_attach_post(App $a) {
 
-	$r_json = (x($_GET,'response') && $_GET['response']=='json');
+	$r_json = (!empty($_GET['response']) && $_GET['response']=='json');
 
 	if ($a->argc > 1) {
 		$nick = $a->argv[1];
@@ -25,70 +25,53 @@ function wall_attach_post(App $a) {
 		if (! DBA::isResult($r)) {
 			if ($r_json) {
 				echo json_encode(['error' => L10n::t('Invalid request.')]);
-				killme();
+				exit();
 			}
 			return;
 		}
 	} else {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
-			killme();
+			exit();
 		}
 
 		return;
 	}
 
 	$can_post  = false;
-	$visitor   = 0;
 
 	$page_owner_uid   = $r[0]['uid'];
 	$page_owner_cid   = $r[0]['id'];
-	$page_owner_nick  = $r[0]['nickname'];
-	$community_page   = (($r[0]['page-flags'] == Contact::PAGE_COMMUNITY) ? true : false);
+	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $page_owner_uid)) {
+	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} else {
-		if ($community_page && remote_user()) {
-			$contact_id = 0;
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
+		$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
+			intval($contact_id),
+			intval($page_owner_uid)
+		);
 
-			if (is_array($_SESSION['remote'])) {
-				foreach ($_SESSION['remote'] as $v) {
-					if ($v['uid'] == $page_owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
-
-			if ($contact_id > 0) {
-				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($page_owner_uid)
-				);
-
-				if (DBA::isResult($r)) {
-					$can_post = true;
-					$visitor = $contact_id;
-				}
-			}
+		if (DBA::isResult($r)) {
+			$can_post = true;
 		}
 	}
 
-	if (! $can_post) {
+	if (!$can_post) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Permission denied.')]);
-			killme();
+			exit();
 		}
 		notice(L10n::t('Permission denied.') . EOL );
-		killme();
+		exit();
 	}
 
-	if (! x($_FILES,'userfile')) {
+	if (empty($_FILES['userfile'])) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Invalid request.')]);
 		}
-		killme();
+		exit();
 	}
 
 	$src      = $_FILES['userfile']['tmp_name'];
@@ -111,68 +94,43 @@ function wall_attach_post(App $a) {
 			notice($msg . EOL);
 		}
 		@unlink($src);
-		killme();
+		exit();
 	}
 
 	if ($maxfilesize && $filesize > $maxfilesize) {
-		$msg = L10n::t('File exceeds size limit of %s', formatBytes($maxfilesize));
+		$msg = L10n::t('File exceeds size limit of %s', Strings::formatBytes($maxfilesize));
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {
-			echo $msg . EOL ;
+			echo $msg . EOL;
 		}
 		@unlink($src);
-		killme();
+		exit();
 	}
 
-	$filedata = @file_get_contents($src);
-	$mimetype = Mimetype::getContentType($filename);
-	$hash = System::createGUID(64);
-	$created = DateTimeFormat::utcNow();
-
-	$fields = ['uid' => $page_owner_uid, 'hash' => $hash, 'filename' => $filename, 'filetype' => $mimetype,
-		'filesize' => $filesize, 'data' => $filedata, 'created' => $created, 'edited' => $created,
-		'allow_cid' => '<' . $page_owner_cid . '>', 'allow_gid' => '','deny_cid' => '', 'deny_gid' => ''];
-
-	$r = DBA::insert('attach', $fields);
+	$newid = Attach::storeFile($src, $page_owner_uid, $filename, '<' . $page_owner_cid . '>');
 
 	@unlink($src);
 
-	if (! $r) {
+	if ($newid === false) {
 		$msg =  L10n::t('File upload failed.');
 		if ($r_json) {
 			echo json_encode(['error' => $msg]);
 		} else {
-			echo $msg . EOL ;
+			echo $msg . EOL;
 		}
-		killme();
-	}
-
-	$r = q("SELECT `id` FROM `attach` WHERE `uid` = %d AND `created` = '%s' AND `hash` = '%s' LIMIT 1",
-		intval($page_owner_uid),
-		DBA::escape($created),
-		DBA::escape($hash)
-	);
-
-	if (! DBA::isResult($r)) {
-		$msg = L10n::t('File upload failed.');
-		if ($r_json) {
-			echo json_encode(['error' => $msg]);
-		} else {
-			echo $msg . EOL ;
-		}
-		killme();
+		exit();
 	}
 
 	if ($r_json) {
-		echo json_encode(['ok' => true]);
-		killme();
+		echo json_encode(['ok' => true, 'id' => $newid]);
+		exit();
 	}
 
 	$lf = "\n";
 
-	echo  $lf . $lf . '[attachment]' . $r[0]['id'] . '[/attachment]' . $lf;
+	echo  $lf . $lf . '[attachment]' . $newid . '[/attachment]' . $lf;
 
-	killme();
+	exit();
 	// NOTREACHED
 }

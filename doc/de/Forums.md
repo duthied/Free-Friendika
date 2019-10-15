@@ -38,7 +38,7 @@ Du musst das nicht machen, die Alternative ist allerdings, Dich immer wieder aus
 Und das kann umständlich sein, wenn Du mehrere verschiedene Foren/Identitäten verwaltest.
 
 Du kannst ebenso jemanden wählen, der Dein Forum verwaltet. 
-Mach das, indem Du die [Delegations-Setup-Seite](/delegate) besuchst. 
+Mach das, indem Du die [Delegations-Setup-Seite](/settings/delegation) besuchst. 
 Dort wird Dir eine Liste an "Potentiellen Bevollmächtigen" angezeigt. 
 Die Auswahl einer oder mehrerer Personen gibt diesen die Möglichkeit, Dein Forum zu verwalten. 
 Sie können Kontakte, Profile und alle Inhalte Deines Accounts/deiner Seite bearbeiten. 

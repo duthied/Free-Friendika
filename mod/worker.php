@@ -5,6 +5,7 @@
  */
 
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
@@ -15,6 +16,9 @@ function worker_init()
 	if (!Config::get("system", "frontend_worker")) {
 		return;
 	}
+
+	// Ensure that all "strtotime" operations do run timezone independent
+	date_default_timezone_set('UTC');
 
 	// We don't need the following lines if we can execute background jobs.
 	// So we just wake up the worker if it sleeps.
@@ -33,7 +37,7 @@ function worker_init()
 
 	Worker::startProcess();
 
-	logger("Front end worker started: ".getmypid());
+	Logger::log("Front end worker started: ".getmypid());
 
 	Worker::callWorker();
 
@@ -55,7 +59,7 @@ function worker_init()
 
 	Worker::endProcess();
 
-	logger("Front end worker ended: ".getmypid());
+	Logger::log("Front end worker ended: ".getmypid());
 
-	killme();
+	exit();
 }

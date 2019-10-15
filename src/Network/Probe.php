@@ -10,23 +10,22 @@ namespace Friendica\Network;
  */
 
 use DOMDocument;
+use DomXPath;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
-use DomXPath;
-
-require_once 'include/dba.php';
 
 /**
  * @brief This class contain functions for probing URL
@@ -35,6 +34,7 @@ require_once 'include/dba.php';
 class Probe
 {
 	private static $baseurl;
+	private static $istimeout;
 
 	/**
 	 * @brief Rearrange the array so that it always has the same order
@@ -45,9 +45,10 @@ class Probe
 	 */
 	private static function rearrangeData($data)
 	{
-		$fields = ["name", "nick", "guid", "url", "addr", "alias",
-				"photo", "community", "keywords", "location", "about",
+		$fields = ["name", "nick", "guid", "url", "addr", "alias", "photo", "account-type",
+				"community", "keywords", "location", "about", "gender", "hide",
 				"batch", "notify", "poll", "request", "confirm", "poco",
+				"following", "followers", "inbox", "outbox", "sharedinbox",
 				"priority", "network", "pubkey", "baseurl"];
 
 		$newdata = [];
@@ -74,7 +75,7 @@ class Probe
 	 */
 	private static function ownHost($host)
 	{
-		$own_host = get_app()->getHostName();
+		$own_host = \get_app()->getHostName();
 
 		$parts = parse_url($host);
 
@@ -97,6 +98,7 @@ class Probe
 	 * @param string $host The host part of an url
 	 *
 	 * @return array with template and type of the webfinger template for JSON or XML
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function hostMeta($host)
 	{
@@ -107,12 +109,11 @@ class Probe
 		$url = "http://".$host."/.well-known/host-meta";
 
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
-		$redirects = 0;
 
-		logger("Probing for ".$host, LOGGER_DEBUG);
+		Logger::log("Probing for ".$host, Logger::DEBUG);
 		$xrd = null;
 
-		$curlResult = Network::curl($ssl_url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$curlResult = Network::curl($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
@@ -120,9 +121,10 @@ class Probe
 		}
 
 		if (!is_object($xrd)) {
-			$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($curlResult->isTimeout()) {
-				logger("Probing timeout for " . $url, LOGGER_DEBUG);
+				Logger::log("Probing timeout for " . $url, Logger::DEBUG);
+				self::$istimeout = true;
 				return false;
 			}
 			$xml = $curlResult->getBody();
@@ -130,13 +132,13 @@ class Probe
 			$host_url = 'http://'.$host;
 		}
 		if (!is_object($xrd)) {
-			logger("No xrd object found for ".$host, LOGGER_DEBUG);
+			Logger::log("No xrd object found for ".$host, Logger::DEBUG);
 			return [];
 		}
 
 		$links = XML::elementToArray($xrd);
 		if (!isset($links["xrd"]["link"])) {
-			logger("No xrd data found for ".$host, LOGGER_DEBUG);
+			Logger::log("No xrd data found for ".$host, Logger::DEBUG);
 			return [];
 		}
 
@@ -155,16 +157,16 @@ class Probe
 				continue;
 			}
 
-			if (($attributes["rel"] == "lrdd") && !empty($attributes["template"])) {
+			if (!empty($attributes["rel"]) && $attributes["rel"] == "lrdd" && !empty($attributes["template"])) {
 				$type = (empty($attributes["type"]) ? '' : $attributes["type"]);
 
 				$lrdd[$type] = $attributes["template"];
 			}
 		}
 
-		self::$baseurl = "http://".$host;
+		self::$baseurl = $host_url;
 
-		logger("Probing successful for ".$host, LOGGER_DEBUG);
+		Logger::log("Probing successful for ".$host, Logger::DEBUG);
 
 		return $lrdd;
 	}
@@ -188,14 +190,15 @@ class Probe
 	 * @param string $hcard_url Link to the hcard - is returned by reference
 	 *
 	 * @return string profile link
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function webfingerDfrn($webbie, &$hcard_url)
 	{
 		$profile_link = '';
 
 		$links = self::lrdd($webbie);
-		logger('webfingerDfrn: '.$webbie.':'.print_r($links, true), LOGGER_DATA);
-		if (count($links)) {
+		Logger::log('webfingerDfrn: '.$webbie.':'.print_r($links, true), Logger::DATA);
+		if (!empty($links) && is_array($links)) {
 			foreach ($links as $link) {
 				if ($link['@attributes']['rel'] === NAMESPACE_DFRN) {
 					$profile_link = $link['@attributes']['href'];
@@ -221,6 +224,7 @@ class Probe
 	 * @param string $uri Address that should be probed
 	 *
 	 * @return array uri data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function lrdd($uri)
 	{
@@ -253,7 +257,7 @@ class Probe
 		}
 
 		if (!$lrdd) {
-			logger("No lrdd data found for ".$uri, LOGGER_DEBUG);
+			Logger::log("No lrdd data found for ".$uri, Logger::DEBUG);
 			return [];
 		}
 
@@ -285,7 +289,7 @@ class Probe
 		}
 
 		if (!is_array($webfinger["links"])) {
-			logger("No webfinger links found for ".$uri, LOGGER_DEBUG);
+			Logger::log("No webfinger links found for ".$uri, Logger::DEBUG);
 			return false;
 		}
 
@@ -315,11 +319,13 @@ class Probe
 	 * @param boolean $cache   Use cached values?
 	 *
 	 * @return array uri data
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function uri($uri, $network = "", $uid = -1, $cache = true)
+	public static function uri($uri, $network = '', $uid = -1, $cache = true)
 	{
 		if ($cache) {
-			$result = Cache::get("Probe::uri:".$network.":".$uri);
+			$result = Cache::get('Probe::uri:' . $network . ':' . $uri);
 			if (!is_null($result)) {
 				return $result;
 			}
@@ -329,40 +335,51 @@ class Probe
 			$uid = local_user();
 		}
 
+		self::$istimeout = false;
+
 		if ($network != Protocol::ACTIVITYPUB) {
 			$data = self::detect($uri, $network, $uid);
 		} else {
 			$data = null;
 		}
 
-		$ap_profile = ActivityPub::probeProfile($uri);
+		// When the previous detection process had got a time out
+		// we could falsely detect a Friendica profile as AP profile.
+		if (!self::$istimeout) {
+			$ap_profile = ActivityPub::probeProfile($uri);
 
-		if (!empty($ap_profile) && (defaults($data, 'network', '') != Protocol::DFRN)) {
-			$data = $ap_profile;
-		}
-
-		if (!isset($data["url"])) {
-			$data["url"] = $uri;
-		}
-
-		if (x($data, "photo")) {
-			$data["baseurl"] = Network::getUrlMatch(normalise_link(defaults($data, "baseurl", "")), normalise_link($data["photo"]));
+			if (empty($data) || (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN))) {
+				$data = $ap_profile;
+			} elseif (!empty($ap_profile)) {
+				$ap_profile['batch'] = '';
+				$data = array_merge($ap_profile, $data);
+			}
 		} else {
-			$data["photo"] = System::baseUrl().'/images/person-300.jpg';
+			Logger::notice('Time out detected. AP will not be probed.', ['uri' => $uri]);
 		}
 
-		if (empty($data["name"])) {
-			if (!empty($data["nick"])) {
-				$data["name"] = $data["nick"];
+		if (!isset($data['url'])) {
+			$data['url'] = $uri;
+		}
+
+		if (!empty($data['photo'])) {
+			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink(defaults($data, 'baseurl', '')), Strings::normaliseLink($data['photo']));
+		} else {
+			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
+		}
+
+		if (empty($data['name'])) {
+			if (!empty($data['nick'])) {
+				$data['name'] = $data['nick'];
 			}
 
-			if (!x($data, "name")) {
-				$data["name"] = $data["url"];
+			if (empty($data['name'])) {
+				$data['name'] = $data['url'];
 			}
 		}
 
-		if (empty($data["nick"])) {
-			$data["nick"] = strtolower($data["name"]);
+		if (empty($data['nick'])) {
+			$data['nick'] = strtolower($data['name']);
 
 			if (strpos($data['nick'], ' ')) {
 				$data['nick'] = trim(substr($data['nick'], 0, strpos($data['nick'], ' ')));
@@ -370,149 +387,89 @@ class Probe
 		}
 
 		if (!empty(self::$baseurl)) {
-			$data["baseurl"] = self::$baseurl;
+			$data['baseurl'] = self::$baseurl;
 		}
 
-		if (empty($data["network"])) {
-			$data["network"] = Protocol::PHANTOM;
+		if (empty($data['network'])) {
+			$data['network'] = Protocol::PHANTOM;
+		}
+
+		if (!isset($data['hide']) && in_array($data['network'], Protocol::FEDERATED)) {
+			$data['hide'] = self::getHideStatus($data['url']);
 		}
 
 		$data = self::rearrangeData($data);
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			Cache::set("Probe::uri:".$network.":".$uri, $data, Cache::DAY);
-
-			/// @todo temporary fix - we need a real contact update function that updates only changing fields
-			/// The biggest problem is the avatar picture that could have a reduced image size.
-			/// It should only be updated if the existing picture isn't existing anymore.
-			/// We only update the contact when it is no probing for a specific network.
-			if (($data['network'] != Protocol::FEED)
-				&& ($network == "")
-				&& $data["name"]
-				&& $data["nick"]
-				&& $data["url"]
-				&& $data["addr"]
-				&& $data["poll"]
-			) {
-				$fields = ['name' => $data['name'],
-						'nick' => $data['nick'],
-						'url' => $data['url'],
-						'addr' => $data['addr'],
-						'photo' => $data['photo'],
-						'keywords' => $data['keywords'],
-						'location' => $data['location'],
-						'about' => $data['about'],
-						'notify' => $data['notify'],
-						'network' => $data['network'],
-						'server_url' => $data['baseurl']];
-
-				// This doesn't cover the case when a community isn't a community anymore
-				if (!empty($data['community']) && $data['community']) {
-					$fields['community'] = $data['community'];
-					$fields['contact-type'] = Contact::ACCOUNT_TYPE_COMMUNITY;
-				}
-
-				$fieldnames = [];
-
-				foreach ($fields as $key => $val) {
-					if (empty($val)) {
-						unset($fields[$key]);
-					} else {
-						$fieldnames[] = $key;
-					}
-				}
-
-				$fields['updated'] = DateTimeFormat::utcNow();
-
-				$condition = ['nurl' => normalise_link($data["url"])];
-
-				$old_fields = DBA::selectFirst('gcontact', $fieldnames, $condition);
-
-				// When the gcontact doesn't exist, the value "true" will trigger an insert.
-				// In difference to the public contacts we want to have every contact
-				// in the world in our global contacts.
-				if (!$old_fields) {
-					$old_fields = true;
-
-					// These values have to be set only on insert
-					$fields['photo'] = $data['photo'];
-					$fields['created'] = DateTimeFormat::utcNow();
-				}
-
-				DBA::update('gcontact', $fields, $condition, $old_fields);
-
-				$fields = ['name' => $data['name'],
-						'nick' => $data['nick'],
-						'url' => $data['url'],
-						'addr' => $data['addr'],
-						'alias' => $data['alias'],
-						'keywords' => $data['keywords'],
-						'location' => $data['location'],
-						'about' => $data['about'],
-						'batch' => $data['batch'],
-						'notify' => $data['notify'],
-						'poll' => $data['poll'],
-						'request' => $data['request'],
-						'confirm' => $data['confirm'],
-						'poco' => $data['poco'],
-						'network' => $data['network'],
-						'pubkey' => $data['pubkey'],
-						'priority' => $data['priority'],
-						'writable' => true,
-						'rel' => Contact::SHARING];
-
-				$fieldnames = [];
-
-				foreach ($fields as $key => $val) {
-					if (empty($val)) {
-						unset($fields[$key]);
-					} else {
-						$fieldnames[] = $key;
-					}
-				}
-
-				$condition = ['nurl' => normalise_link($data["url"]), 'self' => false, 'uid' => 0];
-
-				// "$old_fields" will return a "false" when the contact doesn't exist.
-				// This won't trigger an insert. This is intended, since we only need
-				// public contacts for everyone we store items from.
-				// We don't need to store every contact on the planet.
-				$old_fields = DBA::selectFirst('contact', $fieldnames, $condition);
-
-				$fields['name-date'] = DateTimeFormat::utcNow();
-				$fields['uri-date'] = DateTimeFormat::utcNow();
-				$fields['success_update'] = DateTimeFormat::utcNow();
-
-				DBA::update('contact', $fields, $condition, $old_fields);
-			}
+			Cache::set('Probe::uri:' . $network . ':' . $uri, $data, Cache::DAY);
 		}
 
 		return $data;
 	}
 
+
 	/**
-	 * @brief Switch the scheme of an url between http and https
+	 * Fetches the "hide" status from the profile
 	 *
-	 * @param string $url URL
+	 * @param string $url URL of the profile
 	 *
-	 * @return string switched URL
+	 * @return boolean "hide" status
 	 */
-	private static function switchScheme($url)
+	private static function getHideStatus($url)
 	{
-		$parts = parse_url($url);
-
-		if (!isset($parts['scheme'])) {
-			return $url;
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
+			return false;
 		}
 
-		if ($parts['scheme'] == 'http') {
-			$url = str_replace('http://', 'https://', $url);
-		} elseif ($parts['scheme'] == 'https') {
-			$url = str_replace('https://', 'http://', $url);
+		// If the file is too large then exit
+		if (defaults($curlResult->getInfo(), 'download_content_length', 0) > 1000000) {
+			return false;
 		}
 
-		return $url;
+		// If it isn't a HTML file then exit
+		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
+			return false;
+		}
+
+		$body = $curlResult->getBody();
+
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+
+		$xpath = new DOMXPath($doc);
+
+		$list = $xpath->query('//meta[@name]');
+		foreach ($list as $node) {
+			$meta_tag = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$meta_tag[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (empty($meta_tag['content'])) {
+				continue;
+			}
+
+			$content = strtolower(trim($meta_tag['content']));
+
+			switch (strtolower(trim($meta_tag['name']))) {
+				case 'dfrn-global-visibility':
+					if ($content == 'false') {
+						return true;
+					}
+					break;
+				case 'robots':
+					if (strpos($content, 'noindex') !== false) {
+						return true;
+					}
+					break;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -523,6 +480,7 @@ class Probe
 	 * @param string $type      type
 	 *
 	 * @return array fixed webfinger data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function fixOStatus($webfinger, $lrdd, $type)
 	{
@@ -546,7 +504,7 @@ class Probe
 			return $webfinger;
 		}
 
-		$url = self::switchScheme($webfinger['subject']);
+		$url = Network::switchScheme($webfinger['subject']);
 		$path = str_replace('{uri}', urlencode($url), $lrdd);
 		$webfinger2 = self::webfinger($path, $type);
 
@@ -568,19 +526,20 @@ class Probe
 	 * @param integer $uid     User ID for the probe (only used for mails)
 	 *
 	 * @return array uri data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function detect($uri, $network, $uid)
 	{
 		$parts = parse_url($uri);
 
-		if (!empty($parts["scheme"]) && !empty($parts["host"]) && !empty($parts["path"])) {
+		if (!empty($parts["scheme"]) && !empty($parts["host"])) {
 			$host = $parts["host"];
 			if (!empty($parts["port"])) {
 				$host .= ':'.$parts["port"];
 			}
 
 			if ($host == 'twitter.com') {
-				return ["network" => Protocol::TWITTER];
+				return self::twitter($uri);
 			}
 			$lrdd = self::hostMeta($host);
 
@@ -588,14 +547,14 @@ class Probe
 				return [];
 			}
 
-			$path_parts = explode("/", trim($parts["path"], "/"));
+			$path_parts = explode("/", trim(defaults($parts, 'path', ''), "/"));
 
 			while (!$lrdd && (sizeof($path_parts) > 1)) {
 				$host .= "/".array_shift($path_parts);
 				$lrdd = self::hostMeta($host);
 			}
 			if (!$lrdd) {
-				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
+				Logger::log('No XRD data was found for '.$uri, Logger::DEBUG);
 				return self::feed($uri);
 			}
 			$nick = array_pop($path_parts);
@@ -621,7 +580,7 @@ class Probe
 			$nick = substr($uri, 0, strpos($uri, '@'));
 
 			if (strpos($uri, '@twitter.com')) {
-				return ["network" => Protocol::TWITTER];
+				return self::twitter($uri);
 			}
 			$lrdd = self::hostMeta($host);
 
@@ -630,12 +589,12 @@ class Probe
 			}
 
 			if (!$lrdd) {
-				logger('No XRD data was found for '.$uri, LOGGER_DEBUG);
+				Logger::log('No XRD data was found for '.$uri, Logger::DEBUG);
 				return self::mail($uri, $uid);
 			}
 			$addr = $uri;
 		} else {
-			logger("Uri ".$uri." was not detectable", LOGGER_DEBUG);
+			Logger::log("Uri ".$uri." was not detectable", Logger::DEBUG);
 			return false;
 		}
 
@@ -680,7 +639,7 @@ class Probe
 
 		$result = false;
 
-		logger("Probing ".$uri, LOGGER_DEBUG);
+		Logger::log("Probing ".$uri, Logger::DEBUG);
 
 		if (in_array($network, ["", Protocol::DFRN])) {
 			$result = self::dfrn($webfinger);
@@ -716,7 +675,7 @@ class Probe
 			$result["url"] = $uri;
 		}
 
-		logger($uri." is ".$result["network"], LOGGER_DEBUG);
+		Logger::log($uri." is ".$result["network"], Logger::DEBUG);
 
 		if (empty($result["baseurl"])) {
 			$pos = strpos($result["url"], $host);
@@ -736,14 +695,15 @@ class Probe
 	 * @param string $type type
 	 *
 	 * @return array webfinger data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function webfinger($url, $type)
 	{
 		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
-		$redirects = 0;
 
-		$curlResult = Network::curl($url, false, $redirects, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
+		$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$data = $curlResult->getBody();
@@ -751,7 +711,7 @@ class Probe
 		$webfinger = json_decode($data, true);
 		if (is_array($webfinger)) {
 			if (!isset($webfinger["links"])) {
-				logger("No json webfinger links for ".$url, LOGGER_DEBUG);
+				Logger::log("No json webfinger links for ".$url, Logger::DEBUG);
 				return false;
 			}
 			return $webfinger;
@@ -760,13 +720,13 @@ class Probe
 		// If it is not JSON, maybe it is XML
 		$xrd = XML::parseString($data, false);
 		if (!is_object($xrd)) {
-			logger("No webfinger data retrievable for ".$url, LOGGER_DEBUG);
+			Logger::log("No webfinger data retrievable for ".$url, Logger::DEBUG);
 			return false;
 		}
 
 		$xrd_arr = XML::elementToArray($xrd);
 		if (!isset($xrd_arr["xrd"]["link"])) {
-			logger("No XML webfinger links for ".$url, LOGGER_DEBUG);
+			Logger::log("No XML webfinger links for ".$url, Logger::DEBUG);
 			return false;
 		}
 
@@ -806,22 +766,24 @@ class Probe
 	 * @param array  $data         The already fetched data
 	 *
 	 * @return array noscrape data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function pollNoscrape($noscrape_url, $data)
 	{
 		$curlResult = Network::curl($noscrape_url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$content = $curlResult->getBody();
 		if (!$content) {
-			logger("Empty body for ".$noscrape_url, LOGGER_DEBUG);
+			Logger::log("Empty body for ".$noscrape_url, Logger::DEBUG);
 			return false;
 		}
 
 		$json = json_decode($content, true);
 		if (!is_array($json)) {
-			logger("No json data for ".$noscrape_url, LOGGER_DEBUG);
+			Logger::log("No json data for ".$noscrape_url, Logger::DEBUG);
 			return false;
 		}
 
@@ -846,7 +808,7 @@ class Probe
 		}
 
 		if (!empty($json["tags"])) {
-			$keywords = implode(" ", $json["tags"]);
+			$keywords = implode(", ", $json["tags"]);
 			if ($keywords != "") {
 				$data["keywords"] = $keywords;
 			}
@@ -859,6 +821,10 @@ class Probe
 
 		if (!empty($json["about"])) {
 			$data["about"] = $json["about"];
+		}
+
+		if (!empty($json["gender"])) {
+			$data["gender"] = $json["gender"];
 		}
 
 		if (!empty($json["key"])) {
@@ -883,6 +849,12 @@ class Probe
 
 		if (!empty($json["dfrn-poll"])) {
 			$data["poll"] = $json["dfrn-poll"];
+		}
+
+		if (isset($json["hide"])) {
+			$data["hide"] = (bool)$json["hide"];
+		} else {
+			$data["hide"] = false;
 		}
 
 		return $data;
@@ -922,12 +894,14 @@ class Probe
 	 * @param string $profile_link Link to the profile page
 	 *
 	 * @return array profile data
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public static function profile($profile_link)
 	{
 		$data = [];
 
-		logger("Check profile ".$profile_link, LOGGER_DEBUG);
+		Logger::log("Check profile ".$profile_link, Logger::DEBUG);
 
 		// Fetch data via noscrape - this is faster
 		$noscrape_url = str_replace(["/hcard/", "/profile/"], "/noscrape/", $profile_link);
@@ -961,7 +935,7 @@ class Probe
 		$prof_data["fn"]           = defaults($data, 'name'   , null);
 		$prof_data["key"]          = defaults($data, 'pubkey' , null);
 
-		logger("Result for profile ".$profile_link.": ".print_r($prof_data, true), LOGGER_DEBUG);
+		Logger::log("Result for profile ".$profile_link.": ".print_r($prof_data, true), Logger::DEBUG);
 
 		return $prof_data;
 	}
@@ -972,12 +946,15 @@ class Probe
 	 * @param array $webfinger Webfinger data
 	 *
 	 * @return array DFRN data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function dfrn($webfinger)
 	{
 		$hcard_url = "";
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == NAMESPACE_DFRN) && !empty($link["href"])) {
 				$data["network"] = Protocol::DFRN;
 			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
@@ -1008,7 +985,7 @@ class Probe
 			foreach ($webfinger["aliases"] as $alias) {
 				if (empty($data["url"]) && !strstr($alias, "@")) {
 					$data["url"] = $alias;
-				} elseif (!strstr($alias, "@") && normalise_link($alias) != normalise_link($data["url"])) {
+				} elseif (!strstr($alias, "@") && Strings::normaliseLink($alias) != Strings::normaliseLink($data["url"])) {
 					$data["alias"] = $alias;
 				} elseif (substr($alias, 0, 5) == 'acct:') {
 					$data["addr"] = substr($alias, 5);
@@ -1051,11 +1028,13 @@ class Probe
 	 * @param boolean $dfrn      Poll DFRN specific data
 	 *
 	 * @return array hcard data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function pollHcard($hcard_url, $data, $dfrn = false)
 	{
 		$curlResult = Network::curl($hcard_url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$content = $curlResult->getBody();
@@ -1175,12 +1154,15 @@ class Probe
 	 * @param array $webfinger Webfinger data
 	 *
 	 * @return array Diaspora data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function diaspora($webfinger)
 	{
 		$hcard_url = "";
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
 				$hcard_url = $link["href"];
 			} elseif (($link["rel"] == "http://joindiaspora.com/seed_location") && !empty($link["href"])) {
@@ -1211,7 +1193,7 @@ class Probe
 
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				if (normalise_link($alias) != normalise_link($data["url"]) && ! strstr($alias, "@")) {
+				if (Strings::normaliseLink($alias) != Strings::normaliseLink($data["url"]) && ! strstr($alias, "@")) {
 					$data["alias"] = $alias;
 				} elseif (substr($alias, 0, 5) == 'acct:') {
 					$data["addr"] = substr($alias, 5);
@@ -1260,6 +1242,7 @@ class Probe
 	 * @param bool  $short     Short detection mode
 	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function ostatus($webfinger, $short = false)
 	{
@@ -1267,21 +1250,22 @@ class Probe
 
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
-				if (strstr($alias, "@") && !strstr(normalise_link($alias), "http://")) {
+				if (strstr($alias, "@") && !strstr(Strings::normaliseLink($alias), "http://")) {
 					$data["addr"] = str_replace('acct:', '', $alias);
 				}
 			}
 		}
 
 		if (!empty($webfinger["subject"]) && strstr($webfinger["subject"], "@")
-			&& !strstr(normalise_link($webfinger["subject"]), "http://")
+			&& !strstr(Strings::normaliseLink($webfinger["subject"]), "http://")
 		) {
 			$data["addr"] = str_replace('acct:', '', $webfinger["subject"]);
 		}
 
-		$pubkey = "";
 		if (is_array($webfinger["links"])) {
-			foreach ($webfinger["links"] as $link) {
+			// The array is reversed to take into account the order of preference for same-rel links
+			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+			foreach (array_reverse($webfinger["links"]) as $link) {
 				if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 					&& (defaults($link, "type", "") == "text/html")
 					&& ($link["href"] != "")
@@ -1300,19 +1284,20 @@ class Probe
 						} else {
 							$pubkey = substr($pubkey, 5);
 						}
-					} elseif (normalise_link($pubkey) == 'http://') {
+					} elseif (Strings::normaliseLink($pubkey) == 'http://') {
 						$curlResult = Network::curl($pubkey);
 						if ($curlResult->isTimeout()) {
+							self::$istimeout = true;
 							return false;
 						}
-						$pubkey = $curlResult['body'];
+						$pubkey = $curlResult->getBody();
 					}
 
 					$key = explode(".", $pubkey);
 
 					if (sizeof($key) >= 3) {
-						$m = base64url_decode($key[1]);
-						$e = base64url_decode($key[2]);
+						$m = Strings::base64UrlDecode($key[1]);
+						$e = Strings::base64UrlDecode($key[2]);
 						$data["pubkey"] = Crypto::meToPem($m, $e);
 					}
 				}
@@ -1335,6 +1320,7 @@ class Probe
 		// Fetch all additional data from the feed
 		$curlResult = Network::curl($data["poll"]);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$feed = $curlResult->getBody();
@@ -1440,12 +1426,15 @@ class Probe
 	 *
 	 * @param array $webfinger Webfinger data
 	 *
+	 * @param       $addr
 	 * @return array pump.io data
 	 */
 	private static function pumpio($webfinger, $addr)
 	{
 		$data = [];
-		foreach ($webfinger["links"] as $link) {
+		// The array is reversed to take into account the order of preference for same-rel links
+		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
+		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
 				&& (defaults($link, "type", "") == "text/html")
 				&& ($link["href"] != "")
@@ -1484,6 +1473,66 @@ class Probe
 			$name = trim(str_replace($addr, '', $data['name']));
 			if ($name != '') {
 				$data['name'] = $name;
+			}
+		}
+
+		return $data;
+	}
+
+	/**
+	 * @brief Check for twitter contact
+	 *
+	 * @param string $uri
+	 *
+	 * @return array twitter data
+	 */
+	private static function twitter($uri)
+	{
+		if (preg_match('=(.*)@twitter.com=i', $uri, $matches)) {
+			$nick = $matches[1];
+		} elseif (preg_match('=https?://twitter.com/(.*)=i', $uri, $matches)) {
+			$nick = $matches[1];
+		} else {
+			return [];
+		}
+
+		$data = [];
+		$data['url'] = 'https://twitter.com/' . $nick;
+		$data['addr'] = $nick . '@twitter.com';
+		$data['nick'] = $data['name'] = $nick;
+		$data['network'] = Protocol::TWITTER;
+		$data['baseurl'] = 'https://twitter.com';
+
+		$curlResult = Network::curl($data['url'], false);
+		if (!$curlResult->isSuccess()) {
+			return [];
+		}
+
+		$body = $curlResult->getBody();
+		$doc = new DOMDocument();
+		@$doc->loadHTML($body);
+		$xpath = new DOMXPath($doc);
+
+		$list = $xpath->query('//img[@class]');
+		foreach ($list as $node) {
+			$img_attr = [];
+			if ($node->attributes->length) {
+				foreach ($node->attributes as $attribute) {
+					$img_attr[$attribute->name] = $attribute->value;
+				}
+			}
+
+			if (empty($img_attr['class'])) {
+				continue;
+			}
+
+			if (strpos($img_attr['class'], 'ProfileAvatar-image') !== false) {
+				if (!empty($img_attr['src'])) {
+					$data['photo'] = $img_attr['src'];
+				}
+				if (!empty($img_attr['alt'])) {
+					$data['name'] = $img_attr['alt'];
+				}
 			}
 		}
 
@@ -1540,11 +1589,13 @@ class Probe
 	 * @param boolean $probe Do a probe if the page contains a feed link
 	 *
 	 * @return array feed data
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	private static function feed($url, $probe = true)
 	{
 		$curlResult = Network::curl($url);
 		if ($curlResult->isTimeout()) {
+			self::$istimeout = true;
 			return false;
 		}
 		$feed = $curlResult->getBody();
@@ -1602,6 +1653,7 @@ class Probe
 	 * @param integer $uid User ID
 	 *
 	 * @return array mail data
+	 * @throws \Exception
 	 */
 	private static function mail($uri, $uid)
 	{
@@ -1632,7 +1684,7 @@ class Probe
 		}
 
 		$msgs = Email::poll($mbox, $uri);
-		logger('searching '.$uri.', '.count($msgs).' messages found.', LOGGER_DEBUG);
+		Logger::log('searching '.$uri.', '.count($msgs).' messages found.', Logger::DEBUG);
 
 		if (!count($msgs)) {
 			return false;
@@ -1647,8 +1699,8 @@ class Probe
 		$data["nick"]    = $data["name"];
 		$data["photo"]   = Network::lookupAvatarByEmail($uri);
 		$data["url"]     = 'mailto:'.$uri;
-		$data["notify"]  = 'smtp '.random_string();
-		$data["poll"]    = 'email '.random_string();
+		$data["notify"]  = 'smtp ' . Strings::getRandomHex();
+		$data["poll"]    = 'email ' . Strings::getRandomHex();
 
 		$x = Email::messageMeta($mbox, $msgs[0]);
 		if (stristr($x[0]->from, $uri)) {
@@ -1672,7 +1724,7 @@ class Probe
 						}
 					}
 
-					$data["name"] = notags($data["name"]);
+					$data["name"] = Strings::escapeTags($data["name"]);
 				}
 			}
 		}
@@ -1689,6 +1741,7 @@ class Probe
 	 * @param string $base   Another path that is hopefully complete
 	 *
 	 * @return string fixed avatar path
+	 * @throws \Exception
 	 */
 	public static function fixAvatar($avatar, $base)
 	{
@@ -1714,7 +1767,7 @@ class Probe
 
 		$fixed = $scheme.$host.$port.$path.$query.$fragment;
 
-		logger('Base: '.$base.' - Avatar: '.$avatar.' - Fixed: '.$fixed, LOGGER_DATA);
+		Logger::log('Base: '.$base.' - Avatar: '.$avatar.' - Fixed: '.$fixed, Logger::DATA);
 
 		return $fixed;
 	}

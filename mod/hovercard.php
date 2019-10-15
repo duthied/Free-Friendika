@@ -10,11 +10,13 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function hovercard_init(App $a)
 {
@@ -29,7 +31,7 @@ function hovercard_content()
 
 	// Get out if the system doesn't have public access allowed
 	if (intval(Config::get('system', 'block_public'))) {
-		System::httpExit(401);
+		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 
 	// Return the raw content of the template. We use this to make templates usable for js functions.
@@ -39,13 +41,12 @@ function hovercard_content()
 	if ($datatype == 'tpl') {
 		$templatecontent = get_template_content('hovercard.tpl');
 		echo $templatecontent;
-		killme();
+		exit();
 	}
 
 	// If a contact is connected the url is internally changed to 'redir/CID'. We need the pure url to search for
 	// the contact. So we strip out the contact id from the internal url and look in the contact table for
 	// the real url (nurl)
-	$cid = 0;
 	if (strpos($profileurl, 'redir/') === 0) {
 		$cid = intval(substr($profileurl, 6));
 		$remote_contact = DBA::selectFirst('contact', ['nurl'], ['id' => $cid]);
@@ -54,7 +55,7 @@ function hovercard_content()
 
 	$contact = [];
 	// if it's the url containing https it should be converted to http
-	$nurl = normalise_link(GContact::cleanContactUrl($profileurl));
+	$nurl = Strings::normaliseLink(GContact::cleanContactUrl($profileurl));
 	if (!$nurl) {
 		return;
 	}
@@ -72,12 +73,12 @@ function hovercard_content()
 
 	// Feeds url could have been destroyed through "cleanContactUrl", so we now use the original url
 	if (!count($contact) && local_user()) {
-		$nurl = normalise_link($profileurl);
+		$nurl = Strings::normaliseLink($profileurl);
 		$contact = Contact::getDetailsByURL($nurl, local_user());
 	}
 
 	if (!count($contact)) {
-		$nurl = normalise_link($profileurl);
+		$nurl = Strings::normaliseLink($profileurl);
 		$contact = Contact::getDetailsByURL($nurl);
 	}
 
@@ -94,24 +95,24 @@ function hovercard_content()
 
 	// Move the contact data to the profile array so we can deliver it to
 	$profile = [
-		'name'     => $contact['name'],
-		'nick'     => $contact['nick'],
-		'addr'     => defaults($contact, 'addr', $contact['url']),
-		'thumb'    => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
-		'url'      => Contact::magicLink($contact['url']),
-		'nurl'     => $contact['nurl'], // We additionally store the nurl as identifier
-		'location' => $contact['location'],
-		'gender'   => $contact['gender'],
-		'about'    => $contact['about'],
-		'network'  => format_network_name($contact['network'], $contact['url']),
-		'tags'     => $contact['keywords'],
-		'bd'       => $contact['birthday'] <= '0001-01-01' ? '' : $contact['birthday'],
+		'name'         => $contact['name'],
+		'nick'         => $contact['nick'],
+		'addr'         => defaults($contact, 'addr', $contact['url']),
+		'thumb'        => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
+		'url'          => Contact::magicLink($contact['url']),
+		'nurl'         => $contact['nurl'], // We additionally store the nurl as identifier
+		'location'     => $contact['location'],
+		'gender'       => $contact['gender'],
+		'about'        => $contact['about'],
+		'network_link' => Strings::formatNetworkName($contact['network'], $contact['url']),
+		'tags'         => $contact['keywords'],
+		'bd'           => $contact['birthday'] <= DBA::NULL_DATE ? '' : $contact['birthday'],
 		'account_type' => Contact::getAccountType($contact),
-		'actions'  => $actions,
+		'actions'      => $actions,
 	];
 	if ($datatype == 'html') {
-		$tpl = get_markup_template('hovercard.tpl');
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate('hovercard.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$profile' => $profile,
 		]);
 
@@ -125,16 +126,19 @@ function hovercard_content()
  * @brief Get the raw content of a template file
  *
  * @param string $template The name of the template
- * @param string $root Directory of the template
+ * @param string $root     Directory of the template
  *
  * @return string|bool Output the raw content if existent, otherwise false
+ * @throws Exception
  */
 function get_template_content($template, $root = '')
 {
 	// We load the whole template system to get the filename.
 	// Maybe we can do it a little bit smarter if I get time.
-	$t = get_markup_template($template, $root);
-	$filename = $t->filename;
+	$templateEngine = Renderer::getTemplateEngine();
+	$template = $templateEngine->getTemplateFile($template, $root);
+
+	$filename = $template->filename;
 
 	// Get the content of the template file
 	if (file_exists($filename)) {

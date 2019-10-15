@@ -5,7 +5,7 @@
 	<div id="contact-edit-wrapper" >
 
 		{{* Insert Tab-Nav *}}
-		{{$tab_str}}
+		{{$tab_str nofilter}}
 
 
 		<div id="contact-edit-content-wrapper">
@@ -45,10 +45,8 @@
 						{{if $poll_enabled}}
 							<li><div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
 							{{if $poll_interval}}
-								<form id="contact-edit-poll-form" action="/contact/{{$contact_id}}" method="post"> 
-									<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
-									<input class="btn btn-primary" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
-								</form>
+								<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval nofilter}}
+								<input class="btn btn-primary" type="submit" name="submit" value="{{$submit}}" />
 							{{/if}}
 							</li>
 						{{/if}}
@@ -59,11 +57,6 @@
 						{{if $pending}}<li><div id="pending-message">{{$pending}}</div></li>{{/if}}
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
-					</ul>
-
-					<ul>
-						<!-- <li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li> -->
-						{{if $follow}}<li><div id="contact-edit-follow"><a href="{{$follow}}">{{$follow_text}}</a></div></li>{{/if}}
 					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
 
@@ -90,7 +83,7 @@
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<hr class="profile-separator">
 									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$location_label}}</div>
-									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$location}}</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$location nofilter}}</div>
 								</div>
 								{{/if}}
 
@@ -114,7 +107,7 @@
 								<div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
 									<hr class="profile-separator">
 									<div class="col-lg-4 col-md-4 col-sm-4 col-xs-12 text-muted">{{$about_label}}</div>
-									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$about}}</div>
+									<div class="col-lg-8 col-md-8 col-sm-8 col-xs-12">{{$about nofilter}}</div>
 								</div>
 								{{/if}}
 							</div>
@@ -144,7 +137,7 @@
 								{{include file="field_checkbox.tpl" field=$hidden}}
 
 								<div class="form-group pull-right settings-submit-wrapper" >
-									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>
 							</div>
@@ -167,7 +160,7 @@
 								{{include file="field_textarea.tpl" field=$cinfo}}
 
 								<div class="form-group pull-right settings-submit-wrapper" >
-									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>
 								{{if $reason}}
@@ -195,13 +188,13 @@
 										<p>{{$lbl_vis2}}</p>
 									</div>
 									<div class="form-group">
-									{{$profile_select}}
+									{{$profile_select nofilter}}
 									</div>
 									<div class="clear"></div>
 								{{/if}}
 
 								<div class="form-group pull-right settings-submit-wrapper" >
-									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 								</div>
 								<div class="clear"></div>
 							</div>

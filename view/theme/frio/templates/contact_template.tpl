@@ -9,7 +9,7 @@
 					<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
 				</div>
 
-				{{* For very small displays we use a drobdown menu for contact relating actions *}}
+				{{* For very small displays we use a dropdown menu for contact relating actions *}}
 				<button type="button" class="btn btn-link dropdown-toggle visible-xs" id="contact-photo-menu-button-{{$contact.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 					<div class="contact-photo-image-wrapper visible-xs">
@@ -188,7 +188,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 				{/if}
 				{if $photo_menu.edit}
 				<a class="contact-action-link btn-link" href="{$photo_menu.edit.1}" data-toggle="tooltip" title="{$photo_menu.edit.0}">
-					<i class="fa fa-pencil" aria-hidden="true"></i>
+					<i class="fa fa-user" aria-hidden="true"></i>
 				</a>
 				{/if}
 				{if $photo_menu.drop}

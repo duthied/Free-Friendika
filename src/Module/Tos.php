@@ -11,6 +11,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Content\Text\BBCode;
 
@@ -52,6 +53,7 @@ class Tos extends BaseModule
 			self::getApp()->internalRedirect('profile/' . Config::get('system','singleuser'));
 		}
 	}
+
 	/**
 	 * @brief generate the content of the /tos page
 	 *
@@ -62,11 +64,12 @@ class Tos extends BaseModule
 	 *     This privacy statement has fixed text, so it can be translated easily.
 	 *
 	 * @return string
-	 **/
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
 	public static function content() {
-		$tpl = get_markup_template('tos.tpl');
+		$tpl = Renderer::getMarkupTemplate('tos.tpl');
 		if (Config::get('system', 'tosdisplay')) {
-			return replace_macros($tpl, [
+			return Renderer::replaceMacros($tpl, [
 				'$title' => L10n::t('Terms of Service'),
 				'$tostext' => BBCode::convert(Config::get('system', 'tostext')),
 				'$displayprivstatement' => Config::get('system', 'tosprivstatement'),

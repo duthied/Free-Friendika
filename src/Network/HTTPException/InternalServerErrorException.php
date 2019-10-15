@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class InternalServerErrorException extends HTTPException
 {
-	var $httpcode = 500;
+	protected $code = 500;
 }

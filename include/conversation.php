@@ -8,11 +8,14 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -24,7 +27,9 @@ use Friendica\Object\Thread;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
+use Friendica\Util\Strings;
 use Friendica\Util\XML;
+use Friendica\Util\Crypto;
 
 function item_extract_images($body) {
 
@@ -113,6 +118,10 @@ function item_redir_and_replace_images($body, $images, $cid) {
 
 /**
  * Render actions localized
+ *
+ * @param $item
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function localize_item(&$item)
 {
@@ -168,6 +177,7 @@ function localize_item(&$item)
 
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
+		$bodyverb = '';
 		if (activity_match($item['verb'], ACTIVITY_LIKE)) {
 			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
 		} elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
@@ -193,7 +203,7 @@ function localize_item(&$item)
 		$xmlhead="<"."?xml version='1.0' encoding='UTF-8' ?".">";
 
 		$obj = XML::parseString($xmlhead.$item['object']);
-		$links = XML::parseString($xmlhead."<links>".unxmlify($obj->link)."</links>");
+		$links = XML::parseString($xmlhead."<links>".XML::unescape($obj->link)."</links>");
 
 		$Bname = $obj->title;
 		$Blink = "";
@@ -201,8 +211,8 @@ function localize_item(&$item)
 		foreach ($links->link as $l) {
 			$atts = $l->attributes();
 			switch ($atts['rel']) {
-				case "alternate": $Blink = $atts['href'];
-				case "photo": $Bphoto = $atts['href'];
+				case "alternate": $Blink = $atts['href']; break;
+				case "photo": $Bphoto = $atts['href']; break;
 			}
 		}
 
@@ -355,14 +365,16 @@ function localize_item(&$item)
 		'network' => $item['author-network'], 'url' => $item['author-link']];
 
 	// Only create a redirection to a magic link when logged in
-	if (!empty($item['plink']) && (local_user() || remote_user())) {
-		$item['plink'] = Contact::magicLinkbyContact($author, $item['plink']);
+	if (!empty($item['plink']) && Session::isAuthenticated()) {
+		$item['plink'] = Contact::magicLinkByContact($author, $item['plink']);
 	}
 }
 
 /**
  * Count the total of comments on this item and its desendants
  * @TODO proper type-hint + doc-tag
+ * @param $item
+ * @return int
  */
 function count_descendants($item) {
 	$total = count($item['children']);
@@ -385,7 +397,7 @@ function visible_activity($item) {
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 */
-	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW, ACTIVITY2_ANNOUNCE];
 	foreach ($hidden_activities as $act) {
 		if (activity_match($item['verb'], $act)) {
 			return false;
@@ -432,7 +444,17 @@ function conv_get_blocklist()
  * The $mode parameter decides between the various renderings and also
  * figures out how to determine page owner and other contextual items
  * that are based on unique features of the calling module.
- *
+ * @param App    $a
+ * @param array  $items
+ * @param Pager  $pager
+ * @param        $mode
+ * @param        $update
+ * @param bool   $preview
+ * @param string $order
+ * @param int    $uid
+ * @return string
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation(App $a, array $items, Pager $pager, $mode, $update, $preview = false, $order = 'commented', $uid = 0)
 {
@@ -458,17 +480,17 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				. "<script> var profile_uid = " . $_SESSION['uid']
 				. "; var netargs = '" . substr($a->cmd, 8)
 				. '?f='
-				. ((x($_GET, 'cid'))    ? '&cid='    . $_GET['cid']    : '')
-				. ((x($_GET, 'search')) ? '&search=' . $_GET['search'] : '')
-				. ((x($_GET, 'star'))   ? '&star='   . $_GET['star']   : '')
-				. ((x($_GET, 'order'))  ? '&order='  . $_GET['order']  : '')
-				. ((x($_GET, 'bmark'))  ? '&bmark='  . $_GET['bmark']  : '')
-				. ((x($_GET, 'liked'))  ? '&liked='  . $_GET['liked']  : '')
-				. ((x($_GET, 'conv'))   ? '&conv='   . $_GET['conv']   : '')
-				. ((x($_GET, 'nets'))   ? '&nets='   . $_GET['nets']   : '')
-				. ((x($_GET, 'cmin'))   ? '&cmin='   . $_GET['cmin']   : '')
-				. ((x($_GET, 'cmax'))   ? '&cmax='   . $_GET['cmax']   : '')
-				. ((x($_GET, 'file'))   ? '&file='   . $_GET['file']   : '')
+				. (!empty($_GET['cid'])    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
+				. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
+				. (!empty($_GET['star'])   ? '&star='   . rawurlencode($_GET['star'])   : '')
+				. (!empty($_GET['order'])  ? '&order='  . rawurlencode($_GET['order'])  : '')
+				. (!empty($_GET['bmark'])  ? '&bmark='  . rawurlencode($_GET['bmark'])  : '')
+				. (!empty($_GET['liked'])  ? '&liked='  . rawurlencode($_GET['liked'])  : '')
+				. (!empty($_GET['conv'])   ? '&conv='   . rawurlencode($_GET['conv'])   : '')
+				. (!empty($_GET['nets'])   ? '&nets='   . rawurlencode($_GET['nets'])   : '')
+				. (!empty($_GET['cmin'])   ? '&cmin='   . rawurlencode($_GET['cmin'])   : '')
+				. (!empty($_GET['cmax'])   ? '&cmax='   . rawurlencode($_GET['cmax'])   : '')
+				. (!empty($_GET['file'])   ? '&file='   . rawurlencode($_GET['file'])   : '')
 
 				. "'; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
@@ -478,8 +500,8 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 		if (!$update) {
 			$tab = 'posts';
-			if (x($_GET, 'tab')) {
-				$tab = notags(trim($_GET['tab']));
+			if (!empty($_GET['tab'])) {
+				$tab = Strings::escapeTags(trim($_GET['tab']));
 			}
 			if ($tab === 'posts') {
 				/*
@@ -493,7 +515,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 			}
 		}
 	} elseif ($mode === 'notes') {
-		$items = conversation_add_children($items, false, $order, $uid);
+		$items = conversation_add_children($items, false, $order, local_user());
 		$profile_owner = local_user();
 
 		if (!$update) {
@@ -507,7 +529,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 		if (!$update) {
 			$live_update_div = '<div id="live-display"></div>' . "\r\n"
-				. "<script> var profile_uid = " . defaults($_SESSION, 'uid', 0) . ";"
+				. "<script> var profile_uid = " . Session::get('uid', 0) . ";"
 				. " var profile_page = 1; </script>";
 		}
 	} elseif ($mode === 'community') {
@@ -520,7 +542,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				."/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
 	} elseif ($mode === 'contacts') {
-		$items = conversation_add_children($items, true, $order, $uid);
+		$items = conversation_add_children($items, false, $order, $uid);
 		$profile_owner = 0;
 
 		if (!$update) {
@@ -539,26 +561,30 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	}
 
 	$cb = ['items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview];
-	Addon::callHooks('conversation_start',$cb);
+	Hook::callAll('conversation_start',$cb);
 
 	$items = $cb['items'];
 
 	$conv_responses = [
-		'like' => ['title' => L10n::t('Likes','title')], 'dislike' => ['title' => L10n::t('Dislikes','title')],
-		'attendyes' => ['title' => L10n::t('Attending','title')], 'attendno' => ['title' => L10n::t('Not attending','title')], 'attendmaybe' => ['title' => L10n::t('Might attend','title')]
+		'like' => ['title' => L10n::t('Likes','title')],
+		'dislike' => ['title' => L10n::t('Dislikes','title')],
+		'attendyes' => ['title' => L10n::t('Attending','title')],
+		'attendno' => ['title' => L10n::t('Not attending','title')],
+		'attendmaybe' => ['title' => L10n::t('Might attend','title')],
+		'announce' => ['title' => L10n::t('Reshares','title')]
 	];
 
 	// array with html for each thread (parent+comments)
 	$threads = [];
 	$threadsid = -1;
 
-	$page_template = get_markup_template("conversation.tpl");
+	$page_template = Renderer::getMarkupTemplate("conversation.tpl");
 
 	if (!empty($items)) {
 		if (in_array($mode, ['community', 'contacts'])) {
 			$writable = true;
 		} else {
-			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+			$writable = ($items[0]['uid'] == 0) && in_array($items[0]['network'], Protocol::FEDERATED);
 		}
 
 		if (!local_user()) {
@@ -604,14 +630,14 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				$author = ['uid' => 0, 'id' => $item['author-id'],
 					'network' => $item['author-network'], 'url' => $item['author-link']];
-				$profile_link = Contact::magicLinkbyContact($author);
+				$profile_link = Contact::magicLinkByContact($author);
 
 				if (strpos($profile_link, 'redir/') === 0) {
 					$sparkle = ' sparkle';
 				}
 
 				$locate = ['location' => $item['location'], 'coord' => $item['coord'], 'html' => ''];
-				Addon::callHooks('render_location',$locate);
+				Hook::callAll('render_location',$locate);
 
 				$location = ((strlen($locate['html'])) ? $locate['html'] : render_location_dummy($locate));
 
@@ -635,24 +661,15 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				$lock = false;
 				$likebuttons = false;
 
-				$body = prepare_body($item, true, $preview);
+				$body = Item::prepareBody($item, true, $preview);
 
 				list($categories, $folders) = get_cats_and_terms($item);
 
-				$profile_name_e = $profile_name;
-
 				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
-					$title_e = ucfirst($item['content-warning']);
+					$title = ucfirst($item['content-warning']);
 				} else {
-					$title_e = $item['title'];
+					$title = $item['title'];
 				}
-
-				$body_e = $body;
-				$tags_e = $tags['tags'];
-				$hashtags_e = $tags['hashtags'];
-				$mentions_e = $tags['mentions'];
-				$location_e = $location;
-				$owner_name_e = $owner_name;
 
 				$tmp_item = [
 					'template' => $tpl,
@@ -660,33 +677,35 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'guid' => ($preview ? 'Q0' : $item['guid']),
 					'network' => $item['network'],
 					'network_name' => ContactSelector::networkToName($item['network'], $item['author-link']),
+					'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
 					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
-					'name' => $profile_name_e,
+					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
 					'thumb' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
-					'title' => $title_e,
-					'body' => $body_e,
-					'tags' => $tags_e,
-					'hashtags' => $hashtags_e,
-					'mentions' => $mentions_e,
+					'title' => $title,
+					'body' => $body,
+					'tags' => $tags['tags'],
+					'hashtags' => $tags['hashtags'],
+					'mentions' => $tags['mentions'],
+					'implicit_mentions' => $tags['implicit_mentions'],
 					'txt_cats' => L10n::t('Categories:'),
 					'txt_folders' => L10n::t('Filed under:'),
 					'has_cats' => ((count($categories)) ? 'true' : ''),
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
-					'text' => strip_tags($body_e),
+					'text' => strip_tags($body),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
 					'ago' => (($item['app']) ? L10n::t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
-					'location' => $location_e,
+					'location' => $location,
 					'indent' => '',
-					'owner_name' => $owner_name_e,
+					'owner_name' => $owner_name,
 					'owner_url' => $owner_url,
 					'owner_photo' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
-					'plink' => get_plink($item),
+					'plink' => Item::getPlink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
 					'star' => $star,
@@ -702,7 +721,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				];
 
 				$arr = ['item' => $item, 'output' => $tmp_item];
-				Addon::callHooks('display_item', $arr);
+				Hook::callAll('display_item', $arr);
 
 				$threads[$threadsid]['id'] = $item['id'];
 				$threads[$threadsid]['network'] = $item['network'];
@@ -711,7 +730,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 			}
 		} else {
 			// Normal View
-			$page_template = get_markup_template("threaded_conversation.tpl");
+			$page_template = Renderer::getMarkupTemplate("threaded_conversation.tpl");
 
 			$conv = new Thread($mode, $preview, $writable);
 
@@ -739,7 +758,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				/// @todo Check if this call is needed or not
 				$arr = ['item' => $item];
-				Addon::callHooks('display_item', $arr);
+				Hook::callAll('display_item', $arr);
 
 				$item['pagedrop'] = $page_dropping;
 
@@ -751,13 +770,13 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 			$threads = $conv->getTemplateData($conv_responses);
 			if (!$threads) {
-				logger('[ERROR] conversation : Failed to get template data.', LOGGER_DEBUG);
+				Logger::log('[ERROR] conversation : Failed to get template data.', Logger::DEBUG);
 				$threads = [];
 			}
 		}
 	}
 
-	$o = replace_macros($page_template, [
+	$o = Renderer::replaceMacros($page_template, [
 		'$baseurl' => System::baseUrl($ssl_state),
 		'$return_path' => $a->query_string,
 		'$live_update' => $live_update_div,
@@ -765,10 +784,50 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		'$mode' => $mode,
 		'$user' => $a->user,
 		'$threads' => $threads,
-		'$dropping' => ($page_dropping && Feature::isEnabled(local_user(), 'multi_delete') ? L10n::t('Delete Selected Items') : False),
+		'$dropping' => ($page_dropping ? L10n::t('Delete Selected Items') : False),
 	]);
 
 	return $o;
+}
+
+/**
+ * Fetch all comments from a query. Additionally set the newest resharer as thread owner.
+ *
+ * @param $thread_items Database statement with thread posts
+ * @return array items with parents and comments
+ */
+function conversation_fetch_comments($thread_items) {
+	$comments = [];
+	$parentlines = [];
+	$lineno = 0;
+	$actor = [];
+	$received = '';
+
+	while ($row = Item::fetch($thread_items)) {
+		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
+			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
+			$received = $row['received'];
+		}
+
+		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
+			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
+			$parentlines[] = $lineno;
+		}
+
+		$comments[] = $row;
+		$lineno++;
+	}
+
+	DBA::close($thread_items);
+
+	if (!empty($actor)) {
+		foreach ($parentlines as $line) {
+			$comments[$line]['owner-link'] = $actor['link'];
+			$comments[$line]['owner-avatar'] = $actor['avatar'];
+			$comments[$line]['owner-name'] = $actor['name'];
+		}
+	}
+	return $comments;
 }
 
 /**
@@ -779,7 +838,11 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
  *
  * @param array $parents Parent items
  *
+ * @param       $block_authors
+ * @param       $order
+ * @param       $uid
  * @return array items with parents and comments
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation_add_children(array $parents, $block_authors, $order, $uid) {
 	$max_comments = Config::get('system', 'max_comments', 100);
@@ -794,13 +857,14 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	foreach ($parents AS $parent) {
 		$condition = ["`item`.`parent-uri` = ? AND `item`.`uid` IN (0, ?) ",
-			$parent['uri'], local_user()];
+			$parent['uri'], $uid];
 		if ($block_authors) {
 			$condition[0] .= "AND NOT `author`.`hidden`";
 		}
-		$thread_items = Item::selectForUser(local_user(), [], $condition, $params);
 
-		$comments = Item::inArray($thread_items);
+		$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
+
+		$comments = conversation_fetch_comments($thread_items);
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);
@@ -809,7 +873,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 	foreach ($items as $index => $item) {
 		if ($item['uid'] == 0) {
-			$items[$index]['writable'] = in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::DFRN]);
+			$items[$index]['writable'] = in_array($item['network'], Protocol::FEDERATED);
 		}
 	}
 
@@ -826,6 +890,8 @@ function item_photo_menu($item) {
 	$status_link = '';
 	$photos_link = '';
 	$posts_link = '';
+	$block_link = '';
+	$ignore_link = '';
 
 	if (local_user() && local_user() == $item['uid'] && $item['parent'] == $item['id'] && !$item['self']) {
 		$sub_link = 'javascript:dosubthread(' . $item['id'] . '); return false;';
@@ -833,13 +899,14 @@ function item_photo_menu($item) {
 
 	$author = ['uid' => 0, 'id' => $item['author-id'],
 		'network' => $item['author-network'], 'url' => $item['author-link']];
-	$profile_link = Contact::magicLinkbyContact($author);
+	$profile_link = Contact::magicLinkByContact($author, $item['author-link']);
 	$sparkle = (strpos($profile_link, 'redir/') === 0);
 
 	$cid = 0;
+	$pcid = Contact::getIdForURL($item['author-link'], 0, true);
 	$network = '';
 	$rel = 0;
-	$condition = ['uid' => local_user(), 'nurl' => normalise_link($item['author-link'])];
+	$condition = ['uid' => local_user(), 'nurl' => Strings::normaliseLink($item['author-link'])];
 	$contact = DBA::selectFirst('contact', ['id', 'network', 'rel'], $condition);
 	if (DBA::isResult($contact)) {
 		$cid = $contact['id'];
@@ -848,9 +915,16 @@ function item_photo_menu($item) {
 	}
 
 	if ($sparkle) {
-		$status_link = $profile_link . '?url=status';
-		$photos_link = $profile_link . '?url=photos';
-		$profile_link = $profile_link . '?url=profile';
+		$status_link = $profile_link . '?tab=status';
+		$photos_link = str_replace('/profile/', '/photos/', $profile_link);
+		$profile_link = $profile_link . '?=profile';
+	}
+
+	if (!empty($pcid)) {
+		$contact_url = 'contact/' . $pcid;
+		$posts_link = 'contact/' . $pcid . '/posts';
+		$block_link = 'contact/' . $pcid . '/block';
+		$ignore_link = 'contact/' . $pcid . '/ignore';
 	}
 
 	if ($cid && !$item['self']) {
@@ -858,7 +932,7 @@ function item_photo_menu($item) {
 		$contact_url = 'contact/' . $cid;
 		$posts_link = 'contact/' . $cid . '/posts';
 
-		if (in_array($network, [Protocol::DFRN, Protocol::DIASPORA])) {
+		if (in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA])) {
 			$pm_url = 'message/new/' . $cid;
 		}
 	}
@@ -871,7 +945,9 @@ function item_photo_menu($item) {
 			L10n::t('View Photos') => $photos_link,
 			L10n::t('Network Posts') => $posts_link,
 			L10n::t('View Contact') => $contact_url,
-			L10n::t('Send PM') => $pm_url
+			L10n::t('Send PM') => $pm_url,
+			L10n::t('Block') => $block_link,
+			L10n::t('Ignore') => $ignore_link
 		];
 
 		if ($network == Protocol::DFRN) {
@@ -879,7 +955,7 @@ function item_photo_menu($item) {
 		}
 
 		if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
-			in_array($item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::OSTATUS, Protocol::DIASPORA])) {
+			in_array($item['network'], Protocol::FEDERATED)) {
 			$menu[L10n::t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
 		}
 	} else {
@@ -888,7 +964,7 @@ function item_photo_menu($item) {
 
 	$args = ['item' => $item, 'menu' => $menu];
 
-	Addon::callHooks('item_photo_menu', $args);
+	Hook::callAll('item_photo_menu', $args);
 
 	$menu = $args['menu'];
 
@@ -908,13 +984,14 @@ function item_photo_menu($item) {
  * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
  * Increments the count of each matching activity and adds a link to the author as needed.
  *
- * @param array $item
+ * @param array  $item
  * @param array &$conv_responses (already created with builtin activity structure)
  * @return void
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function builtin_activity_puller($item, &$conv_responses) {
 	foreach ($conv_responses as $mode => $v) {
-		$url = '';
 		$sparkle = '';
 
 		switch ($mode) {
@@ -933,6 +1010,9 @@ function builtin_activity_puller($item, &$conv_responses) {
 			case 'attendmaybe':
 				$verb = ACTIVITY_ATTENDMAYBE;
 				break;
+			case 'announce':
+				$verb = ACTIVITY2_ANNOUNCE;
+				break;
 			default:
 				return;
 		}
@@ -940,14 +1020,14 @@ function builtin_activity_puller($item, &$conv_responses) {
 		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
-			$url = Contact::magicLinkbyContact($author);
+			$url = Contact::magicLinkByContact($author);
 			if (strpos($url, 'redir/') === 0) {
 				$sparkle = ' class="sparkle" ';
 			}
 
 			$url = '<a href="'. $url . '"'. $sparkle .'>' . htmlentities($item['author-name']) . '</a>';
 
-			if (!x($item, 'thr-parent')) {
+			if (empty($item['thr-parent'])) {
 				$item['thr-parent'] = $item['parent-uri'];
 			}
 
@@ -981,15 +1061,18 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 /**
  * Format the vote text for a profile item
- * @param int $cnt = number of people who vote the item
- * @param array $arr = array of pre-linked names of likers/dislikers
+ *
+ * @param int    $cnt  = number of people who vote the item
+ * @param array  $arr  = array of pre-linked names of likers/dislikers
  * @param string $type = one of 'like, 'dislike', 'attendyes', 'attendno', 'attendmaybe'
- * @param int $id  = item id
+ * @param int    $id   = item id
  * @return string formatted text
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function format_like($cnt, array $arr, $type, $id) {
 	$o = '';
 	$expanded = '';
+	$phrase = '';
 
 	if ($cnt == 1) {
 		$likers = $arr[0];
@@ -1012,28 +1095,27 @@ function format_like($cnt, array $arr, $type, $id) {
 			case 'attendmaybe' :
 				$phrase = L10n::t('%s attends maybe.', $likers);
 				break;
+			case 'announce' :
+				$phrase = L10n::t('%s reshared this.', $likers);
+				break;
 		}
 	}
 
 	if ($cnt > 1) {
 		$total = count($arr);
-		if ($total >= MAX_LIKERS) {
-			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
-		}
 		if ($total < MAX_LIKERS) {
 			$last = L10n::t('and') . ' ' . $arr[count($arr)-1];
 			$arr2 = array_slice($arr, 0, -1);
-			$str = implode(', ', $arr2) . ' ' . $last;
+			$likers = implode(', ', $arr2) . ' ' . $last;
+		} else  {
+			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
+			$likers = implode(', ', $arr);
+			$likers .= L10n::t('and %d other people', $total - MAX_LIKERS);
 		}
-		if ($total >= MAX_LIKERS) {
-			$str = implode(', ', $arr);
-			$str .= L10n::t('and %d other people', $total - MAX_LIKERS);
-		}
-
-		$likers = $str;
 
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
 
+		$explikers = '';
 		switch ($type) {
 			case 'like':
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> like this', $spanatts, $cnt);
@@ -1055,13 +1137,16 @@ function format_like($cnt, array $arr, $type, $id) {
 				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
 				$explikers = L10n::t('%s attend maybe.', $likers);
 				break;
+			case 'announce':
+				$phrase = L10n::t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $cnt);
+				$explikers = L10n::t('%s reshared this.', $likers);
+				break;
 		}
 
-		$expanded .= "\t" . '<div class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</div>';
+		$expanded .= "\t" . '<p class="wall-item-' . $type . '-expanded" id="' . $type . 'list-' . $id . '" style="display: none;" >' . $explikers . EOL . '</p>';
 	}
 
-	$phrase .= EOL ;
-	$o .= replace_macros(get_markup_template('voting_fakelink.tpl'), [
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('voting_fakelink.tpl'), [
 		'$phrase' => $phrase,
 		'$type' => $type,
 		'$id' => $id
@@ -1075,10 +1160,10 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 {
 	$o = '';
 
-	$geotag = x($x, 'allow_location') ? replace_macros(get_markup_template('jot_geotag.tpl'), []) : '';
+	$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
 
-	$tpl = get_markup_template('jot-header.tpl');
-	$a->page['htmlhead'] .= replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$newpost'   => 'true',
 		'$baseurl'   => System::baseUrl(true),
 		'$geotag'    => $geotag,
@@ -1092,11 +1177,11 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	]);
 
 	$jotplugins = '';
-	Addon::callHooks('jot_tool', $jotplugins);
+	Hook::callAll('jot_tool', $jotplugins);
 
 	// Private/public post links for the non-JS ACL form
 	$private_post = 1;
-	if (x($_REQUEST, 'public')) {
+	if (!empty($_REQUEST['public'])) {
 		$private_post = 0;
 	}
 
@@ -1116,10 +1201,10 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		$public_post_link = '&public=1';
 	}
 
-	// $tpl = replace_macros($tpl,array('$jotplugins' => $jotplugins));
-	$tpl = get_markup_template("jot.tpl");
+	// $tpl = Renderer::replaceMacros($tpl,array('$jotplugins' => $jotplugins));
+	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
-	$o .= replace_macros($tpl,[
+	$o .= Renderer::replaceMacros($tpl,[
 		'$new_post' => L10n::t('New Post'),
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
@@ -1159,12 +1244,12 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$lockstate'    => $x['lockstate'],
 		'$bang'         => $x['bang'],
 		'$profile_uid'  => $x['profile_uid'],
-		'$preview'      => Feature::isEnabled($x['profile_uid'], 'preview') ? L10n::t('Preview') : '',
+		'$preview'      => L10n::t('Preview'),
 		'$jotplugins'   => $jotplugins,
 		'$notes_cid'    => $notes_cid,
 		'$sourceapp'    => L10n::t($a->sourcename),
 		'$cancel'       => L10n::t('Cancel'),
-		'$rand_num'     => random_digits(12),
+		'$rand_num'     => Crypto::randomDigits(12),
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],
@@ -1194,8 +1279,8 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
  *
  * @param array $item_list
  * @param array $parent
- * @param bool $recursive
- * @return type
+ * @param bool  $recursive
+ * @return array
  */
 function get_item_children(array &$item_list, array $parent, $recursive = true)
 {
@@ -1232,7 +1317,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 function sort_item_children(array $items)
 {
 	$result = $items;
-	usort($result, 'sort_thr_created_rev');
+	usort($result, 'sort_thr_received_rev');
 	foreach ($result as $k => $i) {
 		if (isset($result[$k]['children'])) {
 			$result[$k]['children'] = sort_item_children($result[$k]['children']);
@@ -1317,14 +1402,15 @@ function smart_flatten_conversation(array $parent)
 
 /**
  * Expands a flat list of items into corresponding tree-like conversation structures,
- * sort the top-level posts either on "created" or "commented", and finally
+ * sort the top-level posts either on "received" or "commented", and finally
  * append all the items at the top level (???)
  *
  * @brief Expands a flat item list into a conversation array for display
  *
  * @param array  $item_list A list of items belonging to one or more conversations
- * @param string $order     Either on "created" or "commented"
+ * @param string $order     Either on "received" or "commented"
  * @return array
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conv_sort(array $item_list, $order)
 {
@@ -1354,8 +1440,8 @@ function conv_sort(array $item_list, $order)
 		}
 	}
 
-	if (stristr($order, 'created')) {
-		usort($parents, 'sort_thr_created');
+	if (stristr($order, 'received')) {
+		usort($parents, 'sort_thr_received');
 	} elseif (stristr($order, 'commented')) {
 		usort($parents, 'sort_thr_commented');
 	}
@@ -1392,27 +1478,27 @@ function conv_sort(array $item_list, $order)
 }
 
 /**
- * @brief usort() callback to sort item arrays by the created key
+ * @brief usort() callback to sort item arrays by the received key
  *
  * @param array $a
  * @param array $b
  * @return int
  */
-function sort_thr_created(array $a, array $b)
+function sort_thr_received(array $a, array $b)
 {
-	return strcmp($b['created'], $a['created']);
+	return strcmp($b['received'], $a['received']);
 }
 
 /**
- * @brief usort() callback to reverse sort item arrays by the created key
+ * @brief usort() callback to reverse sort item arrays by the received key
  *
  * @param array $a
  * @param array $b
  * @return int
  */
-function sort_thr_created_rev(array $a, array $b)
+function sort_thr_received_rev(array $a, array $b)
 {
-	return strcmp($a['created'], $b['created']);
+	return strcmp($a['received'], $b['received']);
 }
 
 /**
@@ -1420,7 +1506,7 @@ function sort_thr_created_rev(array $a, array $b)
  *
  * @param array $a
  * @param array $b
- * @return type
+ * @return int
  */
 function sort_thr_commented(array $a, array $b)
 {
@@ -1428,16 +1514,16 @@ function sort_thr_commented(array $a, array $b)
 }
 
 function render_location_dummy(array $item) {
-	if (x($item, 'location') && !empty($item['location'])) {
+	if (!empty($item['location']) && !empty($item['location'])) {
 		return $item['location'];
 	}
 
-	if (x($item, 'coord') && !empty($item['coord'])) {
+	if (!empty($item['coord']) && !empty($item['coord'])) {
 		return $item['coord'];
 	}
 }
 
-function get_responses(array $conv_responses, array $response_verbs, $ob, array $item) {
+function get_responses(array $conv_responses, array $response_verbs, array $item, Post $ob = null) {
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
@@ -1468,6 +1554,7 @@ function get_responses(array $conv_responses, array $response_verbs, $ob, array 
 
 function get_response_button_text($v, $count)
 {
+	$return = '';
 	switch ($v) {
 		case 'like':
 			$return = L10n::tt('Like', 'Likes', $count);

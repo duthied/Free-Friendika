@@ -13,7 +13,7 @@ require_once "mod/network.php";
 function update_network_content(App $a)
 {
 	if (!isset($_GET['p']) || !isset($_GET['item'])) {
-		killme();
+		exit();
 	}
 
 	$profile_uid = intval($_GET['p']);
@@ -44,5 +44,5 @@ function update_network_content(App $a)
 	echo str_replace("\t", "       ", $text);
 	echo "</section>";
 	echo "</body></html>\r\n";
-	killme();
+	exit();
 }

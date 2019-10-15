@@ -14,7 +14,7 @@
 		{{if $notif_content}}
 		<ul class="notif-network-list media-list">
 		{{foreach $notif_content as $notification}}
-			<li>{{$notification}}</li>
+			<li>{{$notification nofilter}}</li>
 		{{/foreach}}
 		</ul>
 		{{/if}}
@@ -26,5 +26,5 @@
 	</div>
 
 	{{* The pager *}}
-	{{$notif_paginate}}
+	{{$notif_paginate nofilter}}
 </div>

@@ -1,27 +1,26 @@
 <?php
 
 use Friendica\App;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 
 function ignored_init(App $a)
 {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	if ($a->argc > 1) {
 		$message_id = intval($a->argv[1]);
 	}
 
-	if (!$message_id) {
-		killme();
+	if (empty($message_id)) {
+		exit();
 	}
 
 	$thread = Item::selectFirstThreadForUser(local_user(), ['uid', 'ignored'], ['iid' => $message_id]);
 	if (!DBA::isResult($thread)) {
-		killme();
+		exit();
 	}
 
 	// Numeric values are needed for the json output further below
@@ -49,5 +48,5 @@ function ignored_init(App $a)
 	// the json doesn't really matter, it will either be 0 or 1
 
 	echo json_encode($ignored);
-	killme();
+	exit();
 }

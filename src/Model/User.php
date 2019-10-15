@@ -1,40 +1,93 @@
 <?php
+
 /**
  * @file src/Model/User.php
  * @brief This file includes the User class with user related database functions
  */
+
 namespace Friendica\Model;
 
 use DivineOmega\PasswordExposed;
 use Exception;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Model\Photo;
+use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 use LightOpenID;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/enotify.php';
-require_once 'include/text.php';
 /**
  * @brief This class handles User related functions
  */
 class User
 {
 	/**
+	 * Page/profile types
+	 *
+	 * PAGE_FLAGS_NORMAL is a typical personal profile account
+	 * PAGE_FLAGS_SOAPBOX automatically approves all friend requests as Contact::SHARING, (readonly)
+	 * PAGE_FLAGS_COMMUNITY automatically approves all friend requests as Contact::SHARING, but with
+	 *      write access to wall and comments (no email and not included in page owner's ACL lists)
+	 * PAGE_FLAGS_FREELOVE automatically approves all friend requests as full friends (Contact::FRIEND).
+	 *
+	 * @{
+	 */
+	const PAGE_FLAGS_NORMAL    = 0;
+	const PAGE_FLAGS_SOAPBOX   = 1;
+	const PAGE_FLAGS_COMMUNITY = 2;
+	const PAGE_FLAGS_FREELOVE  = 3;
+	const PAGE_FLAGS_BLOG      = 4;
+	const PAGE_FLAGS_PRVGROUP  = 5;
+	/**
+	 * @}
+	 */
+
+	/**
+	 * Account types
+	 *
+	 * ACCOUNT_TYPE_PERSON - the account belongs to a person
+	 *	Associated page types: PAGE_FLAGS_NORMAL, PAGE_FLAGS_SOAPBOX, PAGE_FLAGS_FREELOVE
+	 *
+	 * ACCOUNT_TYPE_ORGANISATION - the account belongs to an organisation
+	 *	Associated page type: PAGE_FLAGS_SOAPBOX
+	 *
+	 * ACCOUNT_TYPE_NEWS - the account is a news reflector
+	 *	Associated page type: PAGE_FLAGS_SOAPBOX
+	 *
+	 * ACCOUNT_TYPE_COMMUNITY - the account is community forum
+	 *	Associated page types: PAGE_COMMUNITY, PAGE_FLAGS_PRVGROUP
+	 *
+	 * ACCOUNT_TYPE_RELAY - the account is a relay
+	 *      This will only be assigned to contacts, not to user accounts
+	 * @{
+	 */
+	const ACCOUNT_TYPE_PERSON =       0;
+	const ACCOUNT_TYPE_ORGANISATION = 1;
+	const ACCOUNT_TYPE_NEWS =         2;
+	const ACCOUNT_TYPE_COMMUNITY =    3;
+	const ACCOUNT_TYPE_RELAY =        4;
+	/**
+	 * @}
+	 */
+
+	/**
 	 * Returns true if a user record exists with the provided id
 	 *
 	 * @param  integer $uid
 	 * @return boolean
+	 * @throws Exception
 	 */
 	public static function exists($uid)
 	{
@@ -43,11 +96,24 @@ class User
 
 	/**
 	 * @param  integer       $uid
+	 * @param array          $fields
 	 * @return array|boolean User record if it exists, false otherwise
+	 * @throws Exception
 	 */
-	public static function getById($uid)
+	public static function getById($uid, array $fields = [])
 	{
-		return DBA::selectFirst('user', [], ['uid' => $uid]);
+		return DBA::selectFirst('user', $fields, ['uid' => $uid]);
+	}
+
+	/**
+	 * @param  string        $nickname
+	 * @param array          $fields
+	 * @return array|boolean User record if it exists, false otherwise
+	 * @throws Exception
+	 */
+	public static function getByNickname($nickname, array $fields = [])
+	{
+		return DBA::selectFirst('user', $fields, ['nickname' => $nickname]);
 	}
 
 	/**
@@ -56,10 +122,11 @@ class User
 	 * @param string $url
 	 *
 	 * @return integer user id
+	 * @throws Exception
 	 */
 	public static function getIdForURL($url)
 	{
-		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => normalise_link($url), 'self' => true]);
+		$self = DBA::selectFirst('contact', ['uid'], ['nurl' => Strings::normaliseLink($url), 'self' => true]);
 		if (!DBA::isResult($self)) {
 			return false;
 		} else {
@@ -68,13 +135,32 @@ class User
 	}
 
 	/**
+	 * Get a user based on its email
+	 *
+	 * @param string        $email
+	 * @param array          $fields
+	 *
+	 * @return array|boolean User record if it exists, false otherwise
+	 *
+	 * @throws Exception
+	 */
+	public static function getByEmail($email, array $fields = [])
+	{
+		return DBA::selectFirst('user', $fields, ['email' => $email]);
+	}
+
+	/**
 	 * @brief Get owner data by user id
 	 *
 	 * @param int $uid
+	 * @param boolean $check_valid Test if data is invalid and correct it
 	 * @return boolean|array
+	 * @throws Exception
 	 */
-	public static function getOwnerDataById($uid) {
-		$r = DBA::fetchFirst("SELECT
+	public static function getOwnerDataById($uid, $check_valid = true)
+	{
+		$r = DBA::fetchFirst(
+			"SELECT
 			`contact`.*,
 			`user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`,
@@ -83,7 +169,8 @@ class User
 			`user`.`spubkey`,
 			`user`.`page-flags`,
 			`user`.`account-type`,
-			`user`.`prvnets`
+			`user`.`prvnets`,
+			`user`.`account_removed`
 			FROM `contact`
 			INNER JOIN `user`
 				ON `user`.`uid` = `contact`.`uid`
@@ -95,6 +182,41 @@ class User
 		if (!DBA::isResult($r)) {
 			return false;
 		}
+
+		if (empty($r['nickname'])) {
+			return false;
+		}
+
+		if (!$check_valid) {
+			return $r;
+		}
+
+		// Check if the returned data is valid, otherwise fix it. See issue #6122
+
+		// Check for correct url and normalised nurl
+		$url = System::baseUrl() . '/profile/' . $r['nickname'];
+		$repair = ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']));
+
+		if (!$repair) {
+			// Check if "addr" is present and correct
+			$addr = $r['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+			$repair = ($addr != $r['addr']);
+		}
+
+		if (!$repair) {
+			// Check if the avatar field is filled and the photo directs to the correct path
+			$avatar = Photo::selectFirst(['resource-id'], ['uid' => $uid, 'profile' => true]);
+			if (DBA::isResult($avatar)) {
+				$repair = empty($r['avatar']) || !strpos($r['photo'], $avatar['resource-id']);
+			}
+		}
+
+		if ($repair) {
+			Contact::updateSelfFromUserID($uid);
+			// Return the corrected data and avoid a loop
+			$r = self::getOwnerDataById($uid, false);
+		}
+
 		return $r;
 	}
 
@@ -103,6 +225,7 @@ class User
 	 *
 	 * @param int $nick
 	 * @return boolean|array
+	 * @throws Exception
 	 */
 	public static function getOwnerDataByNick($nick)
 	{
@@ -122,6 +245,7 @@ class User
 	 * @param string $network network name
 	 *
 	 * @return int group id
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getDefaultGroup($uid, $network = '')
 	{
@@ -148,17 +272,18 @@ class User
 	/**
 	 * Authenticate a user with a clear text password
 	 *
-	 * @brief Authenticate a user with a clear text password
-	 * @param mixed $user_info
+	 * @brief      Authenticate a user with a clear text password
+	 * @param mixed  $user_info
 	 * @param string $password
+	 * @param bool   $third_party
 	 * @return int|boolean
 	 * @deprecated since version 3.6
-	 * @see User::getIdFromPasswordAuthentication()
+	 * @see        User::getIdFromPasswordAuthentication()
 	 */
-	public static function authenticate($user_info, $password)
+	public static function authenticate($user_info, $password, $third_party = false)
 	{
 		try {
-			return self::getIdFromPasswordAuthentication($user_info, $password);
+			return self::getIdFromPasswordAuthentication($user_info, $password, $third_party);
 		} catch (Exception $ex) {
 			return false;
 		}
@@ -168,19 +293,25 @@ class User
 	 * Returns the user id associated with a successful password authentication
 	 *
 	 * @brief Authenticate a user with a clear text password
-	 * @param mixed $user_info
+	 * @param mixed  $user_info
 	 * @param string $password
+	 * @param bool   $third_party
 	 * @return int User Id if authentication is successful
 	 * @throws Exception
 	 */
-	public static function getIdFromPasswordAuthentication($user_info, $password)
+	public static function getIdFromPasswordAuthentication($user_info, $password, $third_party = false)
 	{
 		$user = self::getAuthenticationInfo($user_info);
 
-		if (strpos($user['password'], '$') === false) {
+		if ($third_party && PConfig::get($user['uid'], '2fa', 'verified')) {
+			// Third-party apps can't verify two-factor authentication, we use app-specific passwords instead
+			if (AppSpecificPassword::authenticateUser($user['uid'], $password)) {
+				return $user['uid'];
+			}
+		} elseif (strpos($user['password'], '$') === false) {
 			//Legacy hash that has not been replaced by a new hash yet
 			if (self::hashPasswordLegacy($password) === $user['password']) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 
 				return $user['uid'];
 			}
@@ -188,14 +319,14 @@ class User
 			//Legacy hash that has been double-hashed and not replaced by a new hash yet
 			//Warning: `legacy_password` is not necessary in sync with the content of `password`
 			if (password_verify(self::hashPasswordLegacy($password), $user['password'])) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 
 				return $user['uid'];
 			}
 		} elseif (password_verify($password, $user['password'])) {
 			//New password hash
 			if (password_needs_rehash($user['password'], PASSWORD_DEFAULT)) {
-				self::updatePassword($user['uid'], $password);
+				self::updatePasswordHashed($user['uid'], self::hashPassword($password));
 			}
 
 			return $user['uid'];
@@ -228,7 +359,8 @@ class User
 				$user = $user_info;
 			}
 
-			if (!isset($user['uid'])
+			if (
+				!isset($user['uid'])
 				|| !isset($user['password'])
 				|| !isset($user['legacy_password'])
 			) {
@@ -236,7 +368,9 @@ class User
 			}
 		} elseif (is_int($user_info) || is_string($user_info)) {
 			if (is_int($user_info)) {
-				$user = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'],
+				$user = DBA::selectFirst(
+					'user',
+					['uid', 'password', 'legacy_password'],
 					[
 						'uid' => $user_info,
 						'blocked' => 0,
@@ -247,9 +381,11 @@ class User
 				);
 			} else {
 				$fields = ['uid', 'password', 'legacy_password'];
-				$condition = ["(`email` = ? OR `username` = ? OR `nickname` = ?)
+				$condition = [
+					"(`email` = ? OR `username` = ? OR `nickname` = ?)
 					AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified`",
-					$user_info, $user_info, $user_info];
+					$user_info, $user_info, $user_info
+				];
 				$user = DBA::selectFirst('user', $fields, $condition);
 			}
 
@@ -268,7 +404,7 @@ class User
 	 */
 	public static function generateNewPassword()
 	{
-		return autoname(6) . mt_rand(100, 9999);
+		return ucfirst(Strings::getRandomName(8)) . random_int(1000, 9999);
 	}
 
 	/**
@@ -276,6 +412,7 @@ class User
 	 *
 	 * @param string $password
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function isPasswordExposed($password)
 	{
@@ -284,9 +421,20 @@ class User
 			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
 		]);
 
-		$PasswordExposedCHecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
+		try {
+			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
-		return $PasswordExposedCHecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+		} catch (\Exception $e) {
+			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
+				'code' => $e->getCode(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return false;
+		}
 	}
 
 	/**
@@ -305,6 +453,7 @@ class User
 	 *
 	 * @param string $password
 	 * @return string
+	 * @throws Exception
 	 */
 	public static function hashPassword($password)
 	{
@@ -321,9 +470,26 @@ class User
 	 * @param int    $uid
 	 * @param string $password
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function updatePassword($uid, $password)
 	{
+		$password = trim($password);
+
+		if (empty($password)) {
+			throw new Exception(L10n::t('Empty passwords are not allowed.'));
+		}
+
+		if (!Config::get('system', 'disable_password_exposed', false) && self::isPasswordExposed($password)) {
+			throw new Exception(L10n::t('The new password has been exposed in a public data dump, please choose another.'));
+		}
+
+		$allowed_characters = '!"#$%&\'()*+,-./;<=>?@[\]^_`{|}~';
+
+		if (!preg_match('/^[a-z0-9' . preg_quote($allowed_characters, '/') . ']+$/i', $password)) {
+			throw new Exception(L10n::t('The password can\'t contain accentuated letters, white spaces or colons (:)'));
+		}
+
 		return self::updatePasswordHashed($uid, self::hashPassword($password));
 	}
 
@@ -334,6 +500,7 @@ class User
 	 * @param int    $uid
 	 * @param string $pasword_hashed
 	 * @return bool
+	 * @throws Exception
 	 */
 	private static function updatePasswordHashed($uid, $pasword_hashed)
 	{
@@ -355,6 +522,7 @@ class User
 	 *
 	 * @param string $nickname The nickname that should be checked
 	 * @return boolean True is the nickname is blocked on the node
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function isNicknameBlocked($nickname)
 	{
@@ -388,33 +556,35 @@ class User
 	 * - Create self-contact
 	 * - Create profile image
 	 *
-	 * @param array $data
-	 * @return string
-	 * @throw Exception
+	 * @param  array $data
+	 * @return array
+	 * @throws \ErrorException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 * @throws Exception
 	 */
 	public static function create(array $data)
 	{
-		$a = get_app();
+		$a = \get_app();
 		$return = ['user' => null, 'password' => ''];
 
 		$using_invites = Config::get('system', 'invitation_only');
-		$num_invites   = Config::get('system', 'number_invites');
 
-		$invite_id  = !empty($data['invite_id'])  ? notags(trim($data['invite_id']))  : '';
-		$username   = !empty($data['username'])   ? notags(trim($data['username']))   : '';
-		$nickname   = !empty($data['nickname'])   ? notags(trim($data['nickname']))   : '';
-		$email      = !empty($data['email'])      ? notags(trim($data['email']))      : '';
-		$openid_url = !empty($data['openid_url']) ? notags(trim($data['openid_url'])) : '';
-		$photo      = !empty($data['photo'])      ? notags(trim($data['photo']))      : '';
+		$invite_id  = !empty($data['invite_id'])  ? Strings::escapeTags(trim($data['invite_id']))  : '';
+		$username   = !empty($data['username'])   ? Strings::escapeTags(trim($data['username']))   : '';
+		$nickname   = !empty($data['nickname'])   ? Strings::escapeTags(trim($data['nickname']))   : '';
+		$email      = !empty($data['email'])      ? Strings::escapeTags(trim($data['email']))      : '';
+		$openid_url = !empty($data['openid_url']) ? Strings::escapeTags(trim($data['openid_url'])) : '';
+		$photo      = !empty($data['photo'])      ? Strings::escapeTags(trim($data['photo']))      : '';
 		$password   = !empty($data['password'])   ? trim($data['password'])           : '';
 		$password1  = !empty($data['password1'])  ? trim($data['password1'])          : '';
 		$confirm    = !empty($data['confirm'])    ? trim($data['confirm'])            : '';
-		$blocked    = !empty($data['blocked'])    ? intval($data['blocked'])          : 0;
-		$verified   = !empty($data['verified'])   ? intval($data['verified'])         : 0;
-		$language   = !empty($data['language'])   ? notags(trim($data['language']))   : 'en';
+		$blocked    = !empty($data['blocked']);
+		$verified   = !empty($data['verified']);
+		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
 
-		$publish = !empty($data['profile_publish_reg']) && intval($data['profile_publish_reg']) ? 1 : 0;
-		$netpublish = strlen(Config::get('system', 'directory')) ? $publish : 0;
+		$publish = !empty($data['profile_publish_reg']);
+		$netpublish = $publish && Config::get('system', 'directory');
 
 		if ($password1 != $confirm) {
 			throw new Exception(L10n::t('Passwords do not match. Password unchanged.'));
@@ -461,8 +631,6 @@ class User
 			$openid_url = '';
 		}
 
-		$err = '';
-
 		// collapse multiple spaces in name
 		$username = preg_replace('/ +/', ' ', $username);
 
@@ -470,7 +638,7 @@ class User
 		$username_max_length = max(1, min(64, intval(Config::get('system', 'username_max_length', 48))));
 
 		if ($username_min_length > $username_max_length) {
-			logger(L10n::t('system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values.', $username_min_length, $username_max_length), LOGGER_WARNING);
+			Logger::log(L10n::t('system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values.', $username_min_length, $username_max_length), Logger::WARNING);
 			$tmp = $username_min_length;
 			$username_min_length = $username_max_length;
 			$username_max_length = $tmp;
@@ -497,7 +665,7 @@ class User
 			throw new Exception(L10n::t('Your email domain is not among those allowed on this site.'));
 		}
 
-		if (!valid_email($email) || !Network::isEmailDomainValid($email)) {
+		if (!filter_var($email, FILTER_VALIDATE_EMAIL) || !Network::isEmailDomainValid($email)) {
 			throw new Exception(L10n::t('Not a valid email address.'));
 		}
 		if (self::isNicknameBlocked($nickname)) {
@@ -524,7 +692,8 @@ class User
 		}
 
 		// Check existing and deleted accounts for this nickname.
-		if (DBA::exists('user', ['nickname' => $nickname])
+		if (
+			DBA::exists('user', ['nickname' => $nickname])
 			|| DBA::exists('userd', ['username' => $nickname])
 		) {
 			throw new Exception(L10n::t('Nickname is already registered. Please choose another.'));
@@ -669,12 +838,12 @@ class User
 				}
 
 				if (!$photo_failure) {
-					DBA::update('photo', ['profile' => 1], ['resource-id' => $hash]);
+					Photo::update(['profile' => 1], ['resource-id' => $hash]);
 				}
 			}
 		}
 
-		Addon::callHooks('register_account', $uid);
+		Hook::callAll('register_account', $uid);
 
 		$return['user'] = $user;
 		return $return;
@@ -688,10 +857,12 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
-		$body = deindent(L10n::t('
+		$body = Strings::deindent(L10n::t(
+			'
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
 
@@ -701,7 +872,11 @@ class User
 			Login Name:		%4$s
 			Password:		%5$s
 		',
-			$user['username'], $sitename, $siteurl, $user['nickname'], $password
+			$user['username'],
+			$sitename,
+			$siteurl,
+			$user['nickname'],
+			$password
 		));
 
 		return notification([
@@ -723,16 +898,20 @@ class User
 	 * @param string $siteurl
 	 * @param string $password Plaintext password
 	 * @return NULL|boolean from notification() and email() inherited
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
-		$preamble = deindent(L10n::t('
-			Dear %1$s,
+		$preamble = Strings::deindent(L10n::t(
+			'
+				Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
-		',
-			$preamble, $user['username'], $sitename
+			',
+			$user['username'],
+			$sitename
 		));
-		$body = deindent(L10n::t('
+		$body = Strings::deindent(L10n::t(
+			'
 			The login details are as follows:
 
 			Site Location:	%3$s
@@ -759,7 +938,11 @@ class User
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
 			Thank you and welcome to %2$s.',
-			$user['email'], $sitename, $siteurl, $user['username'], $password
+			$user['nickname'],
+			$sitename,
+			$siteurl,
+			$user['username'],
+			$password
 		));
 
 		return notification([
@@ -775,41 +958,166 @@ class User
 
 	/**
 	 * @param object $uid user to remove
-	 * @return void
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function remove($uid)
 	{
 		if (!$uid) {
-			return;
+			return false;
 		}
 
-		$a = get_app();
-
-		logger('Removing user: ' . $uid);
+		Logger::log('Removing user: ' . $uid);
 
 		$user = DBA::selectFirst('user', [], ['uid' => $uid]);
 
-		Addon::callHooks('remove_user', $user);
+		Hook::callAll('remove_user', $user);
 
 		// save username (actually the nickname as it is guaranteed
 		// unique), so it cannot be re-registered in the future.
 		DBA::insert('userd', ['username' => $user['nickname']]);
 
 		// The user and related data will be deleted in "cron_expire_and_remove_users" (cronjobs.php)
-		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc(DateTimeFormat::utcNow() . " + 7 day")], ['uid' => $uid]);
-		Worker::add(PRIORITY_HIGH, "Notifier", "removeme", $uid);
+		DBA::update('user', ['account_removed' => true, 'account_expires_on' => DateTimeFormat::utc('now + 7 day')], ['uid' => $uid]);
+		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::REMOVAL, $uid);
 
 		// Send an update to the directory
 		$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-		Worker::add(PRIORITY_LOW, "Directory", $self['url']);
+		Worker::add(PRIORITY_LOW, 'Directory', $self['url']);
 
 		// Remove the user relevant data
-		Worker::add(PRIORITY_LOW, "RemoveUser", $uid);
+		Worker::add(PRIORITY_NEGLIGIBLE, 'RemoveUser', $uid);
 
-		if ($uid == local_user()) {
-			unset($_SESSION['authenticated']);
-			unset($_SESSION['uid']);
-			$a->internalRedirect();
+		return true;
+	}
+
+	/**
+	 * Return all identities to a user
+	 *
+	 * @param int $uid The user id
+	 * @return array All identities for this user
+	 *
+	 * Example for a return:
+	 *    [
+	 *        [
+	 *            'uid' => 1,
+	 *            'username' => 'maxmuster',
+	 *            'nickname' => 'Max Mustermann'
+	 *        ],
+	 *        [
+	 *            'uid' => 2,
+	 *            'username' => 'johndoe',
+	 *            'nickname' => 'John Doe'
+	 *        ]
+	 *    ]
+	 * @throws Exception
+	 */
+	public static function identities($uid)
+	{
+		$identities = [];
+
+		$user = DBA::selectFirst('user', ['uid', 'nickname', 'username', 'parent-uid'], ['uid' => $uid]);
+		if (!DBA::isResult($user)) {
+			return $identities;
 		}
+
+		if ($user['parent-uid'] == 0) {
+			// First add our own entry
+			$identities = [[
+				'uid' => $user['uid'],
+				'username' => $user['username'],
+				'nickname' => $user['nickname']
+			]];
+
+			// Then add all the children
+			$r = DBA::select(
+				'user',
+				['uid', 'username', 'nickname'],
+				['parent-uid' => $user['uid'], 'account_removed' => false]
+			);
+			if (DBA::isResult($r)) {
+				$identities = array_merge($identities, DBA::toArray($r));
+			}
+		} else {
+			// First entry is our parent
+			$r = DBA::select(
+				'user',
+				['uid', 'username', 'nickname'],
+				['uid' => $user['parent-uid'], 'account_removed' => false]
+			);
+			if (DBA::isResult($r)) {
+				$identities = DBA::toArray($r);
+			}
+
+			// Then add all siblings
+			$r = DBA::select(
+				'user',
+				['uid', 'username', 'nickname'],
+				['parent-uid' => $user['parent-uid'], 'account_removed' => false]
+			);
+			if (DBA::isResult($r)) {
+				$identities = array_merge($identities, DBA::toArray($r));
+			}
+		}
+
+		$r = DBA::p(
+			"SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
+			FROM `manage`
+			INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
+			WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
+			$user['uid']
+		);
+		if (DBA::isResult($r)) {
+			$identities = array_merge($identities, DBA::toArray($r));
+		}
+
+		return $identities;
+	}
+
+	/**
+	 * Returns statistical information about the current users of this node
+	 *
+	 * @return array
+	 *
+	 * @throws Exception
+	 */
+	public static function getStatistics()
+	{
+		$statistics = [
+			'total_users'           => 0,
+			'active_users_halfyear' => 0,
+			'active_users_monthly'  => 0,
+		];
+
+		$userStmt = DBA::p("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
+			FROM `user`
+			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid` AND `profile`.`is-default`
+			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
+			WHERE (`profile`.`publish` OR `profile`.`net-publish`) AND `user`.`verified`
+				AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
+				AND NOT `user`.`account_expired`");
+
+		if (!DBA::isResult($userStmt)) {
+			return $statistics;
+		}
+
+		$halfyear = time() - (180 * 24 * 60 * 60);
+		$month = time() - (30 * 24 * 60 * 60);
+
+		while ($user = DBA::fetch($userStmt)) {
+			$statistics['total_users']++;
+
+			if ((strtotime($user['login_date']) > $halfyear) || (strtotime($user['last-item']) > $halfyear)
+			) {
+				$statistics['active_users_halfyear']++;
+			}
+
+			if ((strtotime($user['login_date']) > $month) || (strtotime($user['last-item']) > $month)
+			) {
+				$statistics['active_users_monthly']++;
+			}
+		}
+
+		return $statistics;
 	}
 }

@@ -11,10 +11,6 @@ use Friendica\Content\Text;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 
-require_once 'boot.php';
-require_once 'include/items.php';
-require_once 'include/text.php';
-
 class ItemContent extends BaseObject
 {
 	/**
@@ -26,9 +22,10 @@ class ItemContent extends BaseObject
 	 * @param int    $htmlmode       This controls the behavior of the BBCode conversion
 	 * @param string $target_network Name of the network where the post should go to.
 	 *
-	 * @see \Friendica\Content\Text\BBCode::getAttachedData
-	 *
 	 * @return array Same array structure than \Friendica\Content\Text\BBCode::getAttachedData
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
+	 *
 	 */
 	public static function getPlaintextPost($item, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = '')
 	{

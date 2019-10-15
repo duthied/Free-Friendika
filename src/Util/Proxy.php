@@ -2,7 +2,6 @@
 
 namespace Friendica\Util;
 
-use Friendica\BaseModule;
 use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\System;
@@ -59,6 +58,7 @@ class Proxy
 	 * @param string $size      One of the ProxyUtils::SIZE_* constants
 	 *
 	 * @return string The proxyfied URL or relative path
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function proxifyUrl($url, $writemode = false, $size = '')
 	{
@@ -76,7 +76,7 @@ class Proxy
 
 		// Only continue if it isn't a local image and the isn't deactivated
 		if (self::isLocalImage($url)) {
-			$url = str_replace(normalise_link(System::baseUrl()) . '/', System::baseUrl() . '/', $url);
+			$url = str_replace(Strings::normaliseLink(System::baseUrl()) . '/', System::baseUrl() . '/', $url);
 			return $url;
 		}
 
@@ -137,10 +137,11 @@ class Proxy
 	 * @param string $html Un-proxified HTML code
 	 *
 	 * @return string Proxified HTML code
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function proxifyHtml($html)
 	{
-		$html = str_replace(normalise_link(System::baseUrl()) . '/', System::baseUrl() . '/', $html);
+		$html = str_replace(Strings::normaliseLink(System::baseUrl()) . '/', System::baseUrl() . '/', $html);
 
 		return preg_replace_callback('/(<img [^>]*src *= *["\'])([^"\']+)(["\'][^>]*>)/siU', 'self::replaceUrl', $html);
 	}
@@ -150,6 +151,7 @@ class Proxy
 	 *
 	 * @param string $url
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function isLocalImage($url)
 	{
@@ -162,8 +164,8 @@ class Proxy
 		}
 
 		// links normalised - bug #431
-		$baseurl = normalise_link(System::baseUrl());
-		$url = normalise_link($url);
+		$baseurl = Strings::normaliseLink(System::baseUrl());
+		$url = Strings::normaliseLink($url);
 
 		return (substr($url, 0, strlen($baseurl)) == $baseurl);
 	}
@@ -189,6 +191,7 @@ class Proxy
 	 *
 	 * @param array $matches Matches from preg_replace_callback()
 	 * @return string Proxified HTML image tag
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function replaceUrl(array $matches)
 	{

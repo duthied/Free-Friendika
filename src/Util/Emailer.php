@@ -4,8 +4,9 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Protocol\Email;
 
@@ -18,24 +19,31 @@ class Emailer
 	 * Send a multipart/alternative message with Text and HTML versions
 	 *
 	 * @param array $params parameters
-	 *                      fromName name of the sender
-	 *                      fromEmail			 email fo the sender
-	 *                      replyTo			     replyTo address to direct responses
-	 *                      toEmail			     destination email address
-	 *                      messageSubject	     subject of the message
-	 *                      htmlVersion		     html version of the message
-	 *                      textVersion		     text only version of the message
-	 *                      additionalMailHeader additions to the smtp mail header
+	 *                      fromName             name of the sender
+	 *                      fromEmail            email of the sender
+	 *                      replyTo              address to direct responses
+	 *                      toEmail              destination email address
+	 *                      messageSubject       subject of the message
+	 *                      htmlVersion          html version of the message
+	 *                      textVersion          text only version of the message
+	 *                      additionalMailHeader additions to the SMTP mail header
 	 *                      optional             uid user id of the destination user
 	 *
-	 * @return object
+	 * @return bool
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function send($params)
+	public static function send(array $params)
 	{
-		Addon::callHooks('emailer_send_prepare', $params);
+		$params['sent'] = false;
+
+		Hook::callAll('emailer_send_prepare', $params);
+
+		if ($params['sent']) {
+			return true;
+		}
 
 		$email_textonly = false;
-		if (x($params, "uid")) {
+		if (!empty($params['uid'])) {
 			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
 		}
 
@@ -85,10 +93,16 @@ class Emailer
 			'subject' => $messageSubject,
 			'body' => $multipartMessageBody,
 			'headers' => $messageHeader,
-			'parameters' => $sendmail_params
+			'parameters' => $sendmail_params,
+			'sent' => false,
 		];
-		//echo "<pre>"; var_dump($hookdata); killme();
-		Addon::callHooks("emailer_send", $hookdata);
+
+		Hook::callAll("emailer_send", $hookdata);
+
+		if ($hookdata['sent']) {
+			return true;
+		}
+
 		$res = mail(
 			$hookdata['to'],
 			$hookdata['subject'],
@@ -96,8 +110,8 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		logger("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, LOGGER_DEBUG);
-		logger("return value " . (($res)?"true":"false"), LOGGER_DEBUG);
+		Logger::log("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, Logger::DEBUG);
+		Logger::log("return value " . (($res)?"true":"false"), Logger::DEBUG);
 		return $res;
 	}
 }

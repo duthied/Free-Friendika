@@ -8,9 +8,7 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Content\Feature;
 use Friendica\Core\L10n;
-
-require_once 'boot.php';
-require_once 'include/text.php';
+use Friendica\Core\Renderer;
 
 /**
  * TagCloud widget
@@ -23,15 +21,16 @@ class CalendarExport
 	 * @brief Get the events widget.
 	 *
 	 * @return string Formated HTML of the calendar widget.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getHTML() {
-		$a = get_app();
+		$a = \get_app();
 
 		if (empty($a->data['user'])) {
 			return;
 		}
 
-		$owner_uid = $a->data['user']['uid'];
+		$owner_uid = intval($a->data['user']['uid']);
 
 		// The permission testing is a little bit tricky because we have to respect many cases.
 
@@ -60,8 +59,8 @@ class CalendarExport
 		// of the profile page it should be the personal /events page. So we can use $a->user.
 		$user = defaults($a->data['user'], 'nickname', $a->user['nickname']);
 
-		$tpl = get_markup_template("events_aside.tpl");
-		$return = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate("widget/events.tpl");
+		$return = Renderer::replaceMacros($tpl, [
 			'$etitle'      => L10n::t("Export"),
 			'$export_ical' => L10n::t("Export calendar as ical"),
 			'$export_csv'  => L10n::t("Export calendar as csv"),

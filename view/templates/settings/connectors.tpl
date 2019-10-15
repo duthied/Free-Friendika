@@ -11,10 +11,11 @@
 
 <div id="settings_general_expanded" class="settings-block" style="display: none;">
 
+	{{include file="field_checkbox.tpl" field=$accept_only_sharer}}
 	{{include file="field_checkbox.tpl" field=$disable_cw}}
 	{{include file="field_checkbox.tpl" field=$no_intelligent_shortening}}
 	{{include file="field_checkbox.tpl" field=$ostatus_autofriend}}
-	{{$default_group}}
+	{{$default_group nofilter}}
 	{{include file="field_input.tpl" field=$legacy_contact}}
 
 	<p><a href="{{$repair_ostatus_url}}">{{$repair_ostatus_text}}</a></p>
@@ -23,7 +24,7 @@
 </div>
 <div class="clear"></div>
 
-{{$settings_connectors}}
+{{$settings_connectors nofilter}}
 
 {{if $mail_disabled}}
 
@@ -35,7 +36,7 @@
 	<span class="fakelink" onclick="openClose('settings_mail_expanded'); openClose('settings_mail_inflated');">
 		<img class="connector" src="images/mail.png" /><h3 class="settings-heading connector">{{$h_imap}}</h3>
 	</span>
-	<p>{{$imap_desc}}</p>
+	<p>{{$imap_desc nofilter}}</p>
 	{{include file="field_custom.tpl" field=$imap_lastcheck}}
 	{{include file="field_input.tpl" field=$mail_server}}
 	{{include file="field_input.tpl" field=$mail_port}}
@@ -48,7 +49,7 @@
 	{{include file="field_input.tpl" field=$mail_movetofolder}}
 
 	<div class="settings-submit-wrapper" >
-		<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+		<input type="submit" id="imap-submit" name="imap-submit" class="settings-submit" value="{{$submit}}" />
 	</div>
 	</div>
 {{/if}}

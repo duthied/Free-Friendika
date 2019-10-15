@@ -2,14 +2,17 @@
 
 namespace Friendica\Test\src\Core\Lock;
 
-use Friendica\BaseObject;
-use Friendica\Core\Config;
-use Friendica\Test\DatabaseTest;
+use Friendica\Test\MockedTest;
 
-abstract class LockTest extends DatabaseTest
+abstract class LockTest extends MockedTest
 {
 	/**
-	 * @var \Friendica\Core\Lock\ILockDriver
+	 * @var int Start time of the mock (used for time operations)
+	 */
+	protected $startTime = 1417011228;
+
+	/**
+	 * @var \Friendica\Core\Lock\ILock
 	 */
 	protected $instance;
 
@@ -18,30 +21,22 @@ abstract class LockTest extends DatabaseTest
 	protected function setUp()
 	{
 		parent::setUp();
+
 		$this->instance = $this->getInstance();
-		$this->instance->releaseAll();
-
-		// Reusable App object
-		$this->app = BaseObject::getApp();
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
+		$this->instance->releaseAll(true);
 	}
 
 	protected function tearDown()
 	{
+		$this->instance->releaseAll(true);
 		parent::tearDown();
-		$this->instance->releaseAll();
 	}
 
 	/**
 	 * @small
 	 */
-	public function testLock() {
+	public function testLock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
@@ -51,7 +46,8 @@ abstract class LockTest extends DatabaseTest
 	/**
 	 * @small
 	 */
-	public function testDoubleLock() {
+	public function testDoubleLock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
@@ -62,7 +58,8 @@ abstract class LockTest extends DatabaseTest
 	/**
 	 * @small
 	 */
-	public function testReleaseLock() {
+	public function testReleaseLock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
@@ -73,7 +70,8 @@ abstract class LockTest extends DatabaseTest
 	/**
 	 * @small
 	 */
-	public function testReleaseAll() {
+	public function testReleaseAll()
+	{
 		$this->assertTrue($this->instance->acquireLock('foo', 1));
 		$this->assertTrue($this->instance->acquireLock('bar', 1));
 		$this->assertTrue($this->instance->acquireLock('nice', 1));
@@ -82,7 +80,7 @@ abstract class LockTest extends DatabaseTest
 		$this->assertTrue($this->instance->isLocked('bar'));
 		$this->assertTrue($this->instance->isLocked('nice'));
 
-		$this->instance->releaseAll();
+		$this->assertTrue($this->instance->releaseAll());
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
@@ -92,7 +90,8 @@ abstract class LockTest extends DatabaseTest
 	/**
 	 * @small
 	 */
-	public function testReleaseAfterUnlock() {
+	public function testReleaseAfterUnlock()
+	{
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
 		$this->assertFalse($this->instance->isLocked('nice'));
@@ -100,22 +99,77 @@ abstract class LockTest extends DatabaseTest
 		$this->assertTrue($this->instance->acquireLock('bar', 1));
 		$this->assertTrue($this->instance->acquireLock('nice', 1));
 
-		$this->instance->releaseLock('foo');
+		$this->assertTrue($this->instance->releaseLock('foo'));
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->isLocked('bar'));
 		$this->assertTrue($this->instance->isLocked('nice'));
 
-		$this->instance->releaseAll();
+		$this->assertTrue($this->instance->releaseAll());
 
 		$this->assertFalse($this->instance->isLocked('bar'));
 		$this->assertFalse($this->instance->isLocked('nice'));
+	}
+
+	/**
+	 * @small
+	 */
+	public function testReleaseWitTTL()
+	{
+		$this->assertFalse($this->instance->isLocked('test'));
+		$this->assertTrue($this->instance->acquireLock('test', 1, 10));
+		$this->assertTrue($this->instance->isLocked('test'));
+		$this->assertTrue($this->instance->releaseLock('test'));
+		$this->assertFalse($this->instance->isLocked('test'));
+	}
+
+	/**
+	 * @small
+	 */
+	public function testGetLocks()
+	{
+		$this->assertTrue($this->instance->acquireLock('foo', 1));
+		$this->assertTrue($this->instance->acquireLock('bar', 1));
+		$this->assertTrue($this->instance->acquireLock('nice', 1));
+
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('bar'));
+		$this->assertTrue($this->instance->isLocked('nice'));
+
+		$locks = $this->instance->getLocks();
+
+		$this->assertContains('foo', $locks);
+		$this->assertContains('bar', $locks);
+		$this->assertContains('nice', $locks);
+	}
+
+	/**
+	 * @small
+	 */
+	public function testGetLocksWithPrefix()
+	{
+		$this->assertTrue($this->instance->acquireLock('foo', 1));
+		$this->assertTrue($this->instance->acquireLock('test1', 1));
+		$this->assertTrue($this->instance->acquireLock('test2', 1));
+
+		$this->assertTrue($this->instance->isLocked('foo'));
+		$this->assertTrue($this->instance->isLocked('test1'));
+		$this->assertTrue($this->instance->isLocked('test2'));
+
+		$locks = $this->instance->getLocks('test');
+
+		$this->assertContains('test1', $locks);
+		$this->assertContains('test2', $locks);
+		$this->assertNotContains('foo', $locks);
 	}
 
 	/**
 	 * @medium
 	 */
-	function testLockTTL() {
+	function testLockTTL()
+	{
+		$this->markTestSkipped('taking too much time without mocking');
+
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
 
@@ -135,5 +189,14 @@ abstract class LockTest extends DatabaseTest
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertFalse($this->instance->isLocked('bar'));
+	}
+
+	/**
+	 * Test if releasing a non-existing lock doesn't throw errors
+	 */
+	public function testReleaseLockWithoutLock()
+	{
+		$this->assertFalse($this->instance->isLocked('wrongLock'));
+		$this->assertFalse($this->instance->releaseLock('wrongLock'));
 	}
 }

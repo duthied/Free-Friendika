@@ -18,8 +18,10 @@
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="{{$baseurl}}/manifest" />
 <script>
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 // Prevents links to switch to Safari in a home screen app - see https://gist.github.com/irae/1042167
-(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
+(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace("{{$baseurl}}/", "").replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
+// |license-end
 </script>
 
 <link rel="search"
@@ -42,18 +44,51 @@
 <script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js"></script>
 <script type="text/javascript" src="view/js/acl.js" ></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js" ></script>
+<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js"></script>
 <script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 
-	var updateInterval = {{$update_interval}};
+	// Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
+    jQuery.fn.putCursorAtEnd = function() {
+        return this.each(function() {
+            // Cache references
+            var $el = $(this),
+                el = this;
+
+            // Only focus if input isn't already
+            if (!$el.is(":focus")) {
+                $el.focus();
+            }
+
+            // If this function exists... (IE 9+)
+            if (el.setSelectionRange) {
+                // Double the length because Opera is inconsistent about whether a carriage return is one character or two.
+                var len = $el.val().length * 2;
+
+                // Timeout seems to be required for Blink
+                setTimeout(function() {
+                    el.setSelectionRange(len, len);
+                }, 1);
+            } else {
+                // As a fallback, replace the contents with itself
+                // Doesn't work in Chrome, but Chrome supports setSelectionRange
+                $el.val($el.val());
+            }
+
+            // Scroll to the bottom, in case we're in a tall textarea
+            // (Necessary for Firefox and Chrome)
+            this.scrollTop = 999999;
+        });
+    };
+
+    var updateInterval = {{$update_interval}};
 	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {
-		$("#comment-edit-text-" + id).value = "";
+		$("#comment-edit-text-" + id).putCursorAtEnd();
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		$("#comment-edit-text-" + id).focus();
 		$("#mod-cmnt-wrap-" + id).show();
 		openMenu("comment-edit-submit-wrapper-" + id);
 		return true;
@@ -110,9 +145,6 @@
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
 		$(obj).val("");
 	}
-
-	window.showMore = "{{$showmore}}";
-	window.showFewer = "{{$showfewer}}";
 
 	function showHideCommentBox(id) {
 		if ($("#comment-edit-form-" + id).is(":visible")) {

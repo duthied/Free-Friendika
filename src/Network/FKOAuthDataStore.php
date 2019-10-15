@@ -10,6 +10,7 @@
 namespace Friendica\Network;
 
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use OAuthConsumer;
 use OAuthDataStore;
@@ -17,8 +18,6 @@ use OAuthToken;
 
 define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
-
-require_once 'include/dba.php';
 
 /**
  * @brief OAuthDataStore class
@@ -30,16 +29,17 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	private static function genToken()
 	{
-		return md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid())));
+		return Friendica\Util\Strings::getRandomHex(32);
 	}
 
 	/**
 	 * @param string $consumer_key key
 	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function lookup_consumer($consumer_key)
 	{
-		logger(__function__ . ":" . $consumer_key);
+		Logger::log(__function__ . ":" . $consumer_key);
 
 		$s = DBA::select('clients', ['client_id', 'pw', 'redirect_uri'], ['client_id' => $consumer_key]);
 		$r = DBA::toArray($s);
@@ -56,10 +56,11 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $token_type type
 	 * @param string $token      token
 	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function lookup_token($consumer, $token_type, $token)
 	{
-		logger(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token);
+		Logger::log(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token);
 
 		$s = DBA::select('tokens', ['id', 'secret', 'scope', 'expires', 'uid'], ['client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token]);
 		$r = DBA::toArray($s);
@@ -81,6 +82,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $nonce     nonce
 	 * @param string $timestamp timestamp
 	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function lookup_nonce($consumer, $token, $nonce, $timestamp)
 	{
@@ -96,10 +98,11 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $consumer consumer
 	 * @param string $callback optional, default null
 	 * @return mixed
+	 * @throws \Exception
 	 */
 	public function new_request_token($consumer, $callback = null)
 	{
-		logger(__function__ . ":" . $consumer . ", " . $callback);
+		Logger::log(__function__ . ":" . $consumer . ", " . $callback);
 		$key = self::genToken();
 		$sec = self::genToken();
 
@@ -116,7 +119,8 @@ class FKOAuthDataStore extends OAuthDataStore
 				'secret' => $sec,
 				'client_id' => $k,
 				'scope' => 'request',
-				'expires' => time() + REQUEST_TOKEN_DURATION]
+				'expires' => time() + REQUEST_TOKEN_DURATION
+			]
 		);
 
 		if (!$r) {
@@ -131,10 +135,11 @@ class FKOAuthDataStore extends OAuthDataStore
 	 * @param string $consumer consumer
 	 * @param string $verifier optional, defult null
 	 * @return object
+	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function new_access_token($token, $consumer, $verifier = null)
 	{
-		logger(__function__ . ":" . $token . ", " . $consumer . ", " . $verifier);
+		Logger::log(__function__ . ":" . $token . ", " . $consumer . ", " . $verifier);
 
 		// return a new access token attached to this consumer
 		// for the user associated with this token if the request token
@@ -145,7 +150,7 @@ class FKOAuthDataStore extends OAuthDataStore
 
 		// get user for this verifier
 		$uverifier = Config::get("oauth", $verifier);
-		logger(__function__ . ":" . $verifier . "," . $uverifier);
+		Logger::log(__function__ . ":" . $verifier . "," . $uverifier);
 
 		if (is_null($verifier) || ($uverifier !== false)) {
 			$key = self::genToken();
@@ -158,7 +163,8 @@ class FKOAuthDataStore extends OAuthDataStore
 					'client_id' => $consumer->key,
 					'scope' => 'access',
 					'expires' => time() + ACCESS_TOKEN_DURATION,
-					'uid' => $uverifier]
+					'uid' => $uverifier
+				]
 			);
 
 			if ($r) {

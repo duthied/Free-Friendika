@@ -4,71 +4,73 @@ Account - Basics
 * [Zur Startseite der Hilfe](help)
 
 
-**Registrierung**
+## Registrierung
 
-Nicht alle Friendica-Knoten bieten die Möglichkeit zur Registrierung. 
-Wenn die Registrierung möglich ist, wird ein "Registrieren"-Link unter dem Login-Feld auf der Startseite angezeigt, der zur Registrierungsseite führt. 
-Die Stärke unseres Netzwerks ist, dass die verschiedenen Knoten komplett kompatibel zueinander sind. 
-Wenn der Knoten, den Du besuchst, keine Registrierung anbietet, oder wenn Du glaubst, dass Dir eine andere Seite möglicherweise besser gefällt, dann kannst Du hier eine <a href="https://dir.friendica.social/servers">Liste von öffentlichen Servern (Knoten)</a> finden und den Knoten heraus suchen, der am Besten zu Deinen Anforderungen passt.
+Viele, aber nicht alle Friendica-Knoten (Server) bieten die Möglichkeit zur Registrierung an.
+Falls der Friendica-Knoten, den Du besuchst, keine Registrierung anbietet, oder Du glaubst, dass Dir ein anderer Knoten möglicherweise besser gefällt, dann findest Du hier eine [Liste von öffentlichen Friendica-Knoten](https://dir.friendica.social/servers), aus der Du Dir eine netten Knoten heraussuchen kannst.
 
-Wenn Du Deinen eigenen Server aufsetzen willst, kannst Du das ebenfalls machen.
-Besuche <a href="http://friendi.ca">die Friendica-Webseite</a>, um den Code mit den Installationsanleitungen herunterzuladen.
-Es ist ein einfacher Installationsprozess, den jeder mit ein wenig Erfahrungen im Webseiten-Hosting oder mit grundlegenden Linux-Erfahrungen einfach handhaben kann.
+Auf der Startseite des Knotens wird unter dem Login-Feld ein "Registrieren"-Link angezeigt. 
+Dieser Link führt dann direkt auf das Registrierungsformular. 
 
+### OpenID
 
-*OpenID*
+Falls du keine [OpenID-Adresse](https://de.wikipedia.org/wiki/OpenID">OpenID-Adresse) hast, kannst du diesen Punkt ignorieren.
 
-Das erste Feld auf der Registrierungsseite ist für eine OpenID-Adresse.
-Wenn Du keine OpenID-Adresse hast oder nicht wünschst, diese zu nutzen, dann lasse das Feld frei.
-Wenn Du einen OpenID-Account hast und diesen nutzen willst, gib die Adresse in das Feld ein und klicke auf "Registrieren".
+Solltest du eine OpenID Adresse haben, kannst Du sie im ersten Feld eintragen und "Registrieren" klicken. 
 Friendica wird versuchen, so viele Informationen wie möglich von Deinem OpenID-Provider zu übernehmen, um diese in Dein Profil auf dieser Seite einzutragen.
 
 
-*Dein vollständiger Name*
+### Dein vollständiger Name
 
-Bitte trage Deinen vollständigen Namen **so ein, wie Du ihn im System anzeigen lassen willst**.
-Viele Leute nutzen ihren richtigen Namen hierfür, allerdings besteht für dich keine Pflicht, das auch so zu machen.
+Bitte trage bei "vollständiger Name" Deinen **gewünschten Namen** ein, wie er über deinen Beiträgen angezeigt werden soll.
+Du kannst deinen echten Namen eintragen, kannst Dir aber auch einen Namen ausdenken. Einen Zwang zu dem sogenannten Klarnamen gibt es nicht.
 
 
-*Email-Adresse*
+
+### Email-Adresse
 
 Bitte trage eine richtige Email-Adresse ein.
-Deine Email-Adresse wird **niemals** veröffentlicht.
-Wir benötigen diese, um Dir Account-Informationen und die Login-Daten zu schicken.
-Du erhältst zudem von Zeit zu Zeit Benachrichtigungen über eingegangene Nachrichten oder Punkte, die Deine Aufmerksamkeit benötigen.
-Du hast aber auch die Möglichkeit, diese Nachrichten in Deinen Account-Einstellungen komplett abzuschalten.
-
-Du musst nicht Deine Haupt-Email-Adresse sein, jedoch wird eine funktionierende Adresse benötigt.
-Ohne dieses kannst Du weder Dein Initialpasswort erhalten, noch Dein Passwort zurücksetzen.
 Dies ist die einzige persönliche Information, die korrekt sein muss.
- 
+Deine Email-Adresse wird **niemals** veröffentlicht.
 
-*Spitzname/Nickname*
+Wir benötigen diese, um Dir Account-Informationen, das Initialpasswort und die Login-Daten zu schicken. Oder z.B. Dein Passwort zurückzusetzen. 
 
-Der Spitzname wird benötigt, um eine Webadresse für viele Deiner persönlichen Seiten zu erstellen. 
+Du erhältst zudem von Zeit zu Zeit Benachrichtigungen über eingegangene Nachrichten oder Punkte, die Deine Aufmerksamkeit benötigen.
+Diese Nachrichten sind in den Einstellungen jederzeit an- oder abschaltbar.
+
+### Spitzname/Nickname
+
+Der Spitzname wird benötigt, um eine Webadresse (Profiladresse) für viele Deiner persönlichen Seiten zu erstellen. 
 Auch wird dieser wie eine Email-Adresse genutzt, wenn eine Verbindung zu anderen Personen hergestellt werden soll. 
-Durch die Art, wie der Spitzname genutzt wird, gibt es bestimmte Einschränkungen. Er darf nur US-ASCII-Textzeichen und Nummern enthalten und er muss zudem mit einem Buchstaben beginnen. 
-Er muss außerdem einzigartig im System sein. 
-Dieser Spitzname wird an vielen Stellen genutzt, um Deinen Account zu identifizieren, und kann daher später nicht mehr geändert werden.
+Durch die Art, wie der Spitzname genutzt wird, gibt es bestimmte Einschränkungen: 
+
+* **er muss mit einem Buchstaben beginnen**
+* **er darf nur US-ASCII-Textzeichen und Nummern enthalten**
+* **er muss einzigartig auf diesem Friendica-Knoten sein**
+* **er kann später nicht mehr geändert werden**
+
+Dieser Spitzname wird an vielen Stellen genutzt, um Deinen Account zu identifizieren, daher ist es nicht möglich ihn später zu ändern. 
 
 
-*Verzeichnis-Eintrag*
+### Verzeichnis-Eintrag
 
-Das Registrierungsformular erlaubt es dir, direkt auszuwählen, ob Du im Onlineverzeichnis aufgelistet wirst oder nicht. 
-Das ist wie ein Telefonbuch und Du kannst entscheiden, nicht aufgeführt zu werden. 
-Wir bitten dich, "Ja" zu wählen, so dass dich andere Leute (Freunde, Familie etc.) finden können. 
-Wenn Du "Nein" wählst, wirst Du hauptsächlich unsichtbar sein und nur wenige Möglichkeiten zur Interaktion haben. 
+Das Registrierungsformular erlaubt es dir, direkt auszuwählen, ob Du im [Onlineverzeichnis](https://dir.friendica.social/) (Friendica Directory) aufgelistet wirst oder nicht. 
+Das ist wie ein Telefonbuch und Du entscheidest, ob du darin eingetragen werden möchtest, oder nicht. 
+
+* Wir bitten dich, "Ja" zu wählen, damit Andere Dich finden können, so wie Du sie finden kannst
+* Wählst Du "Nein", bist Du für Andere *nicht einfach auffindbar* 
+
 Was auch immer Du wählst, kann jederzeit nach dem Login in Deinen Account-Einstellungen geändert werden.
 
 
-*Registrierung*
+### Registrierung
 
 Sobald Du die nötigen Informationen eingegeben hast, klicke auf "Registrieren". 
 Eine Email mit den Registrierungsdetails und Deinem Initialpasswort wird an die hinterlegte Email-Adresse geschickt. 
 Bitte prüfe den Posteingang (inkl. dem Spam-Ordner).
 
 
-**Login-Seite**
+## Login-Seite
 
 Gib auf der "Login"-Seite die Informationen ein, die Du mit der oben genannten Email erhalten hast. 
 Du kannst entweder Deinen Spitznamen oder die Email-Adresse als Login-Namen nutzen.
@@ -83,29 +85,40 @@ Das Passwort muss genau so geschrieben werden, wie es in der Email steht; Groß-
 Falls Du Schwierigkeiten beim Login hast, prüfe bitte, ob z. B. Deine Feststelltaste aktiv ist.
 
 
-**Passwort ändern**
+### Passwort ändern
 
 Besuche nach Deinem ersten Login bitte die Einstellungsseite und wechsle das Passwort in eines, dass Du Dir merken kannst.
 
 
-**Der Anfang**
+## Die ersten Schritte 
+
+### Persönliche Daten exportieren
+
+Du solltest dir als erstes Deinen neu erstellen [Account exportieren](uexport) unter Einstellungen/Persönliche Daten exportieren und an einem sicheren Ort verwahren.
+In diesem Export (JSON-Datei) sind enthalten
+
+* Deine Identität, die mit kryptographischen Schlüsseln ausgestattet ist
+* Deine Kontakte 
+
+Dies ist z.B. dann nützlich wenn du mit deinem Account auf einen anderen Friendica Knoten umziehen willst, oder musst. 
+
+### Hilfe für Neulinge
 
 Ein ['Tipp für neue Mitglieder'](newmember)-Link zeigt sich in den ersten beiden Wochen auf Deiner Startseite, um Dir erste Informationen zum Start zu bieten.
 
 
-**Persönliche Daten exportieren**
-
-Du kannst eine Kopie Deiner persönlichen Daten in einer JSON-Datei exportieren.
-Gehe hierzu in Deinen Einstellungen auf "Persönliche Daten exportieren".
-
-Dies ist z.B. dann nützlich wenn du mit deinem Account auf einen anderen Friendica Knoten umziehen möchstest.
-Ein Grund hierfür könnte sein, dass der Server auf dem dieser Friendica Knoten läuft dauerhaft wegen eines Hardware Problems ausfällt. 
-
-**Schau Dir ebenfalls folgende Seiten an**
+## Schau Dir ebenfalls folgende Seiten an
 
 * [Profile](help/Profiles)
 
 * [Gruppen und Privatssphäre](help/Groups-and-Privacy)
 
 * [Account löschen](help/Remove-Account)
+
+### Der eigene Friendica-Knoten
+Wenn Du Deinen eigenen Friendica-Knoten auf einem Server aufsetzen willst, kannst Du das ebenfalls machen.
+Besuche die [Friendica-Webseite](https://friendi.ca), um den Code mit den Installationsanleitungen herunterzuladen.
+Es ist ein einfacher Installationsprozess, den jeder mit ein wenig technischen Erfahrungen im Webseiten-Hosting oder mit grundlegenden Linux-Erfahrungen handhaben kann.
+
+
 

@@ -22,11 +22,12 @@ class LegacyModule extends BaseModule
 	 * The only method that needs to be called, with the module/addon file name.
 	 *
 	 * @param string $file_path
+	 * @throws \Exception
 	 */
 	public static function setModuleFile($file_path)
 	{
 		if (!is_readable($file_path)) {
-			throw new Exception(Core\L10n::t('Legacy module file not found: %s', $file_path));
+			throw new \Exception(Core\L10n::t('Legacy module file not found: %s', $file_path));
 		}
 
 		self::$moduleName = basename($file_path, '.php');
@@ -59,13 +60,15 @@ class LegacyModule extends BaseModule
 	 *
 	 * @param string $function_suffix
 	 * @return string
+	 * @throws \Exception
 	 */
 	private static function runModuleFunction($function_suffix)
 	{
 		$function_name = static::$moduleName . '_' . $function_suffix;
 
 		if (\function_exists($function_name)) {
-			return $function_name(self::getApp());
+			$a = self::getApp();
+			return $function_name($a);
 		} else {
 			return parent::{$function_suffix}();
 		}

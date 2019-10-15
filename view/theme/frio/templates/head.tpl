@@ -15,7 +15,7 @@
 
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap-theme.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/font-awesome/css/font-awesome.min.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/asset/fork-awesome/css/fork-awesome.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/frameworks/jasny/css/jasny-bootstrap.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-select/css/bootstrap-select.min.css" type="text/css" media="screen"/>
 <link rel="stylesheet" href="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.css" type="text/css" media="screen"/>
@@ -40,7 +40,7 @@
 <link rel="manifest" href="{{$baseurl}}/manifest" />
 <script type="text/javascript">
 // Prevents links to switch to Safari in a home screen app - see https://gist.github.com/irae/1042167
-(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
+(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace("{{$baseurl}}/", "").replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
 </script>
 
 <link rel="search"
@@ -65,6 +65,7 @@
 <script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js"></script>
 <script type="text/javascript" src="view/js/acl.js"></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js"></script>
+<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js"></script>
 <script type="text/javascript" src="view/js/main.js"></script>
 
 <script type="text/javascript" src="view/theme/frio/frameworks/bootstrap/js/bootstrap.min.js"></script>
@@ -86,11 +87,6 @@
 <script type="text/javascript" src="view/theme/frio/js/hovercard.js"></script>
 {{/if}}
 <script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
-
-<script type="text/javascript">
-	window.showMore = "{{$showmore}}";
-	window.showFewer = "{{$showfewer}}";
-</script>
 
 {{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}

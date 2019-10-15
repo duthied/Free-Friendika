@@ -99,7 +99,7 @@ var FileBrowser = {
 		// Click on album link
 		$(".fbrowser").on("click", ".folders a, .path a", function(e) {
 			e.preventDefault();
-			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none";
+			var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + this.dataset.folder + "?mode=none&theme=frio";
 			FileBrowser.folder = this.dataset.folder;
 
 			FileBrowser.loadContent(url);
@@ -111,7 +111,7 @@ var FileBrowser = {
 
 			var embed = "";
 			if (FileBrowser.type === "image") {
-				embed = "[url=" + this.dataset.link + "][img]" + this.dataset.img + "[/img][/url]";
+				embed = "[url=" + this.dataset.link + "][img=" + this.dataset.img + "][/img][/url]";
 			}
 			if (FileBrowser.type === "file") {
 				// attachment links are "baseurl/attach/id"; we need id
@@ -134,7 +134,7 @@ var FileBrowser = {
 
 			console.log(FileBrowser.event, this.dataset.filename, embed, FileBrowser.id);
 
-			parent.$("body").trigger(FileBrowser.event, [
+			$("body").trigger(FileBrowser.event, [
 				this.dataset.filename,
 				embed,
 				FileBrowser.id,
@@ -152,7 +152,7 @@ var FileBrowser = {
 			e.preventDefault();
 			FileBrowser.type = this.getAttribute("data-mode");
 			$(".fbrowser").removeClass().addClass("fbrowser " + FileBrowser.type);
-			url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none";
+			url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
 
 			FileBrowser.loadContent(url);
 		});
@@ -179,13 +179,11 @@ var FileBrowser = {
 							$(".error span").html(response['error']);
 							$(".error").removeClass('hidden');
 							$(".fbrowser .profile-rotator-wrapper").hide();
+							$(".fbrowser-content").show();
 							return;
 						}
 
-//						location = baseurl + "/fbrowser/image/?mode=none"+location['hash'];
-//						location.reload(true);
-
-						var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + FileBrowser.folder + "?mode=none";
+						var url = baseurl + "/fbrowser/" + FileBrowser.type + "/" + FileBrowser.folder + "?mode=none&theme=frio";
 						// load new content to fbrowser window
 						FileBrowser.loadContent(url);
 					}
@@ -209,13 +207,11 @@ var FileBrowser = {
 							$(".error span").html(response['error']);
 							$(".error").removeClass('hidden');
 							$('#profile-rotator').hide();
+							$(".fbrowser-content").show();
 							return;
 						}
 
-//						location = baseurl + "/fbrowser/file/?mode=none"+location['hash'];
-//						location.reload(true);
-
-						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none";
+						var url = baseurl + "/fbrowser/" + FileBrowser.type + "?mode=none&theme=frio";
 						// Load new content to fbrowser window
 						FileBrowser.loadContent(url);
 					}

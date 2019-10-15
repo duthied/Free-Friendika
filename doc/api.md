@@ -379,6 +379,39 @@ Friendica doesn't allow showing the friends of other users.
 
 * media: image data
 
+#### Return values
+
+Object of:
+
+* media_id: a media identifier (integer)
+* media_id_string: a media identifier (string)
+* size: size in byte
+* image.w: image width
+* image.h: image height
+* image.image_type: image mime type
+* image.friendica_preview_url: image preview url
+
+---
+
+### media/metadata/create (POST,PUT; AUTH)
+
+#### Parameters
+
+Parameters are sent as JSON object:
+
+```
+{
+	"media_id":"1234",
+	"alt_text": {
+		"text":"Here comes the description"
+	}
+}
+```
+
+#### Return values
+
+None
+
 ---
 
 ### oauth/request_token (*)
@@ -642,9 +675,11 @@ Returned status object is conform to GNU Social/Twitter api.
 
 Friendica adds some addictional fields:
 
+- author: a user object, it's the author of the item. In case of a reshare for legacy reasons the "user" field doesn't show the real author. This field always contains the real author of a post.
 - owner: a user object, it's the owner of the item.
 - private: boolean, true if the item is marked as private
 - activities: map with activities related to the item. Every activity is a list of user objects.
+- comments: comment numbers
 
 This properties are prefixed with "friendica_" in JSON responses and namespaced under "http://friendi.ca/schema/api/1/" in XML responses
 
@@ -654,6 +689,9 @@ JSON:
 [
 	{
 		// ...
+		'friendica_author' : {
+			// user object
+		},
 		'friendica_owner' : {
 			// user object
 		},
@@ -669,7 +707,8 @@ JSON:
 			'attendyes': [],
 			'attendno': [],
 			'attendmaybe': []
-		}
+		},
+		'friendica_comments': 12
 	},
 	// ...
 ]
@@ -695,6 +734,7 @@ XML:
 		<friendica:attendno/>
 		<friendica:attendmaybe/>
 	</friendica:activities>	
+	<friendica:comments>21</friendica:comments>
 	</status>
 	<!-- ... -->
 </statuses>
@@ -744,6 +784,7 @@ Friendica doesn't allow showing followers of other users.
 * count: alias for the rpp parameter
 * since_id: returns statuses with ids greater than the given id
 * max_id: returns statuses with ids lower or equal to the given id
+* exclude_replies: don't show replies (default: false)
 
 #### Unsupported parameters
 

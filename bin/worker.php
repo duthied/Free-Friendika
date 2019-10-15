@@ -4,9 +4,14 @@
  * @file bin/worker.php
  * @brief Starts the background processing
  */
+
+use Dice\Dice;
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Config;
+use Friendica\Core\Update;
 use Friendica\Core\Worker;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'sn';
@@ -25,12 +30,16 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 	chdir($directory);
 }
 
-require_once "boot.php";
+require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new App(dirname(__DIR__));
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['worker']]);
+
+BaseObject::setDependencyInjection($dice);
+$a = BaseObject::getApp();
 
 // Check the database structure and possibly fixes it
-check_db(true);
+Update::check($a->getBasePath(), true, $a->getMode());
 
 // Quit when in maintenance
 if (!$a->getMode()->has(App\Mode::MAINTENANCEDISABLED)) {
@@ -43,7 +52,7 @@ $spawn = array_key_exists('s', $options) || array_key_exists('spawn', $options);
 
 if ($spawn) {
 	Worker::spawnWorker();
-	killme();
+	exit();
 }
 
 $run_cron = !array_key_exists('n', $options) && !array_key_exists('no_cron', $options);

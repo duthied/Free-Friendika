@@ -69,9 +69,9 @@
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
-						<li id="nav-notification" class="nav-segment hidden-xs" role="presentation">
+						<li id="nav-notification" class="nav-segment" role="presentation">
 							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-								<i class="fa fa-exclamation-circle fa-lg" aria-hidden="true"></i>
+								<i class="fa fa-bell fa-lg" aria-hidden="true"></i>
 								<span role="menuitem" class="sr-only">{{$nav.notifications.1}}</span>
 								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
 							</a>
@@ -109,7 +109,7 @@
 							<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
 								<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 								<div class="form-group form-group-search">
-									<input accesskey="s" id="nav-search-input-field" class="form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
+									<input accesskey="s" id="nav-search-input-field" class="form-control form-search" type="text" name="q" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
 									<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
 								</div>
 							</form>
@@ -140,7 +140,7 @@
 							{{/foreach}}
 							<li role="presentation" class="divider"></li>
 							{{if $nav.notifications}}
-							<li role="presentation"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
+							<li role="presentation"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
 							{{/if}}
 							{{if $nav.messages}}
 							<li role="presentation"><a role="menuitem" class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw" aria-hidden="true"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notify"></span></a></li>
@@ -149,13 +149,13 @@
 							{{if $nav.contacts}}
 							<li role="presentation"><a role="menuitem" id="nav-menu-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i> {{$nav.contacts.1}}</a><span id="intro-update-li" class="nav-intro-badge badge nav-notify"></span></li>
 							{{/if}}
-							{{if $nav.manage}}
-							<li role="presentation"><a role="menuitem" id="nav-manage-link" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.manage.1}}</a></li>
+							{{if $nav.delegation}}
+							<li role="presentation"><a role="menuitem" id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}"><i class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>
 							{{/if}}
 							<li role="presentation"><a role="menuitem" id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}" title="{{$nav.directory.3}}"><i class="fa fa-sitemap fa-fw" aria-hidden="true"></i>{{$nav.directory.1}}</a></li>
 							<li role="presentation" class="divider"></li>
 							{{if $nav.apps}}
-							<li role="presentation"><a role="menuitem" id="nav-apps-link" class="nav-link {{$nav.apps.2}} {{$sel.manage}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" ><i class="fa fa-puzzle-piece fa-fw" aria-hidden="true"></i> {{$nav.apps.1}}</a>
+							<li role="presentation"><a role="menuitem" id="nav-apps-link" class="nav-link {{$nav.apps.2}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" ><i class="fa fa-puzzle-piece fa-fw" aria-hidden="true"></i> {{$nav.apps.1}}</a>
 							<li role="presentation" class="divider"></li>
 							{{/if}}
 							{{if $nav.help}}
@@ -199,7 +199,7 @@
 						<li role="menuitem" class="list-group-item"><a role="menuitem" class="{{$usermenu.2}}" href="{{$usermenu.0}}" title="{{$usermenu.3}}">{{$usermenu.1}}</a></li>
 						{{/foreach}}
 						{{if $nav.notifications}}
-						<li role="presentation" class="list-group-item"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-exclamation-circle fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
+						<li role="presentation" class="list-group-item"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
 						{{/if}}
 						{{if $nav.contacts}}
 						<li role="presentation" class="list-group-item"><a role="menuitem" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i> {{$nav.contacts.1}}</a></li>
@@ -207,8 +207,8 @@
 						{{if $nav.messages}}
 						<li role="presentation" class="list-group-item"><a role="menuitem" class="nav-link {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw" aria-hidden="true"></i> {{$nav.messages.1}}</a></li>
 						{{/if}}
-						{{if $nav.manage}}
-						<li role="presentation" class="list-group-item"><a role="menuitem" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}"><i class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.manage.1}}</a></li>
+						{{if $nav.delegation}}
+						<li role="presentation" class="list-group-item"><a role="menuitem" class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}"><i class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>
 						{{/if}}
 						{{if $nav.settings}}
 						<li role="presentation" class="list-group-item"><a role="menuitem" class="nav-link {{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}"><i class="fa fa-cog fa-fw" aria-hidden="true"></i> {{$nav.settings.1}}</a></li>
@@ -265,7 +265,7 @@
 	<form class="navbar-form" role="search" method="get" action="{{$nav.search.0}}">
 		<!-- <img class="hidden-xs" src="{{$nav.userinfo.icon}}" alt="{{$nav.userinfo.name}}" style="max-width:33px; max-height:33px; min-width:33px; min-height:33px; width:33px; height:33px;"> -->
 		<div class="form-group form-group-search">
-			<input id="nav-search-input-field-mobile" class="form-control form-search" type="text" name="search" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
+			<input id="nav-search-input-field-mobile" class="form-control form-search" type="text" name="q" data-toggle="tooltip" title="{{$search_hint}}" placeholder="{{$nav.search.1}}">
 			<button class="btn btn-default btn-sm form-button-search" type="submit">{{$nav.search.1}}</button>
 		</div>
 	</form>

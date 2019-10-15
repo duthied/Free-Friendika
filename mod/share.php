@@ -8,7 +8,7 @@ function share_init(App $a) {
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
 
 	if (!$post_id || !local_user()) {
-		killme();
+		exit();
 	}
 
 	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
@@ -16,7 +16,7 @@ function share_init(App $a) {
 	$item = Item::selectFirst($fields, ['id' => $post_id]);
 
 	if (!DBA::isResult($item) || $item['private'] == 1) {
-		killme();
+		exit();
 	}
 
 	if (strpos($item['body'], "[/share]") !== false) {
@@ -26,7 +26,7 @@ function share_init(App $a) {
 		$o = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
 		if ($item['title']) {
-			$o .= '[b]'.$item['title'].'[/b]'."\n";
+			$o .= '[h3]'.$item['title'].'[/h3]'."\n";
 		}
 
 		$o .= $item['body'];
@@ -34,7 +34,7 @@ function share_init(App $a) {
 	}
 
 	echo $o;
-	killme();
+	exit();
 }
 
 /// @TODO Rewrite to handle over whole record array

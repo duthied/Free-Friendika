@@ -7,8 +7,6 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 
-require_once 'include/dba.php';
-
 /**
  * @brief functions for interacting with the permission set of an object (item, photo, event, ...)
  */
@@ -18,7 +16,8 @@ class PermissionSet extends BaseObject
 	 * Fetch the id of a given permission set. Generate a new one when needed
 	 *
 	 * @param array $postarray The array from an item, picture or event post
-	 * @return id
+	 * @return int id
+	 * @throws \Exception
 	 */
 	public static function fetchIDForPost(&$postarray)
 	{
@@ -68,20 +67,20 @@ class PermissionSet extends BaseObject
 	 *
 	 * @param integer $uid        User id whom the items belong
 	 * @param integer $contact_id Contact id of the visitor
-	 * @param array   $groups     Possibly previously fetched group ids for that contact
 	 *
 	 * @return array of permission set ids.
+	 * @throws \Exception
 	 */
-
-	static public function get($uid, $contact_id, $groups = null)
+	static public function get($uid, $contact_id)
 	{
-		if (empty($groups) && DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
+		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
 			$groups = Group::getIdsByContactId($contact_id);
 		}
 
 		if (empty($groups) || !is_array($groups)) {
 			return [];
 		}
+
 		$group_str = '<<>>'; // should be impossible to match
 
 		foreach ($groups as $g) {
@@ -90,11 +89,9 @@ class PermissionSet extends BaseObject
 
 		$contact_str = '<' . $contact_id . '>';
 
-		$condition = ["`uid` = ? AND (`allow_cid` = '' OR`allow_cid` REGEXP ?)
-			AND (`deny_cid` = '' OR NOT `deny_cid` REGEXP ?)
-			AND (`allow_gid` = '' OR `allow_gid` REGEXP ?)
-			AND (`deny_gid` = '' OR NOT `deny_gid` REGEXP ?)",
-			$uid, $contact_str, $contact_str, $group_str, $group_str];
+		$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
+			AND (allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
+			$uid, $contact_str, $group_str, $contact_str, $group_str];
 
 		$ret = DBA::select('permissionset', ['id'], $condition);
 		$set = [];

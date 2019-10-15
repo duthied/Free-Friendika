@@ -21,7 +21,7 @@
 			<h3 class="panel-title">{{$result.title}}</h3>
 		</div>
 		<div class="panel-body">
-			{{$result.content}}
+			{{$result.content nofilter}}
 		</div>
 	</div>
 	{{/foreach}}

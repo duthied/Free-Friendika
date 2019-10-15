@@ -3,7 +3,7 @@
 namespace Friendica;
 
 use Friendica\Core\L10n;
-use Friendica\Core\System;
+use Friendica\Core\Logger;
 
 /**
  * All modules in Friendica should extend BaseModule, although not all modules
@@ -34,6 +34,8 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function rawContent()
 	{
+		// echo '';
+		// exit;
 	}
 
 	/**
@@ -87,7 +89,7 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function getFormSecurityToken($typename = '')
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		$timestamp = time();
 		$sec_hash = hash('whirlpool', $a->user['guid'] . $a->user['prvkey'] . session_id() . $timestamp . $typename);
@@ -115,10 +117,10 @@ abstract class BaseModule extends BaseObject
 
 		$max_livetime = 10800; // 3 hours
 
-		$a = get_app();
+		$a = \get_app();
 
 		$x = explode('.', $hash);
-		if (time() > (IntVal($x[0]) + $max_livetime)) {
+		if (time() > (intval($x[0]) + $max_livetime)) {
 			return false;
 		}
 
@@ -135,9 +137,9 @@ abstract class BaseModule extends BaseObject
 	public static function checkFormSecurityTokenRedirectOnError($err_redirect, $typename = '', $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
-			$a = get_app();
-			logger('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
-			logger('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
+			$a = \get_app();
+			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
+			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
 			$a->internalRedirect($err_redirect);
 		}
@@ -146,11 +148,11 @@ abstract class BaseModule extends BaseObject
 	public static function checkFormSecurityTokenForbiddenOnError($typename = '', $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
-			$a = get_app();
-			logger('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
-			logger('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), LOGGER_DATA);
-			header('HTTP/1.1 403 Forbidden');
-			killme();
+			$a = \get_app();
+			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
+			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
+
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 	}
 }

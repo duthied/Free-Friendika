@@ -20,7 +20,7 @@ Orange - #fec01d
 /* For general iPad layouts */
 #body {
 	-moz-background-clip: border;
-	-moz-background-origin: pdading;
+	-moz-background-origin: padding;
 	-moz-background-size: auto auto;
 	background-attachment: scroll;
 	background-color: transparent;
@@ -962,10 +962,9 @@ li.widget-list {
 	top: 1px;
 }
 
-.group-selected,
-.nets-selected,
-.fileas-selected,
-.categories-selected {
+
+.widget .selected,
+.group-selected {
 	padding-bottom: 0px;
 	padding-left: 2px;
 	padding-right: 2px;
@@ -1006,13 +1005,13 @@ ul .sidebar-group-li .icon {
 	width: 12px;
 }
 
-.nets-ul, .fileas-ul, .categories-ul, .datebrowse-ul  {
+.nets-ul, .fileas-ul, .category-ul, .datebrowse-ul  {
 	list-style-type: none;
 }
 
 .nets-ul li,
 .fileas-ul li,
-.categories-ul li,
+.category-ul li,
 .datebrowse-link {
 }
 
@@ -1029,12 +1028,12 @@ ul .sidebar-group-li .icon {
 }
 
 .fileas-link,
-.categories-link {
+.category-link {
 	margin-left: 0px;
 }
 
 .fileas-all,
-.categories-all {
+.category-all {
 	margin-left: 0px;
 }
 
@@ -2835,10 +2834,6 @@ margin-left: 0px;
 	clear: both;
 }
 
-#viewcontacts {
-	margin-top: 15px;
-}
-
 .contact-entry-wrapper .contact-entry-photo-wrapper {
 	float: left;
 	margin-right: 10px;
@@ -4292,7 +4287,7 @@ a.active {
 }
 
 /* notifications popup menu */
-.manage-notify {
+.delegation-notify {
 	font-size: 10px;
 	padding: 1px 3px;
 	top: 0px;
@@ -4627,7 +4622,7 @@ hr.line-dots {
 
 #birthday-notice {}
 #nav-notifications-template {}
-#categories-sidebar {}
+#category-sidebar {}
 #nets-desc {}
 #status-tab {}
 #page-footer {}

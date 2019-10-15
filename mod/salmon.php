@@ -3,6 +3,7 @@
  * @file mod/salmon.php
  */
 use Friendica\App;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -11,25 +12,24 @@ use Friendica\Model\Contact;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
-
-require_once 'include/items.php';
+use Friendica\Util\Strings;
+use Friendica\Util\Network;
 
 function salmon_post(App $a, $xml = '') {
 
 	if (empty($xml)) {
-		$xml = file_get_contents('php://input');
+		$xml = Network::postdata();
 	}
 
-	logger('new salmon ' . $xml, LOGGER_DATA);
+	Logger::log('new salmon ' . $xml, Logger::DATA);
 
-	$nick       = (($a->argc > 1) ? notags(trim($a->argv[1])) : '');
-	$mentions   = (($a->argc > 2 && $a->argv[2] === 'mention') ? true : false);
+	$nick       = (($a->argc > 1) ? Strings::escapeTags(trim($a->argv[1])) : '');
 
 	$r = q("SELECT * FROM `user` WHERE `nickname` = '%s' AND `account_expired` = 0 AND `account_removed` = 0 LIMIT 1",
 		DBA::escape($nick)
 	);
 	if (! DBA::isResult($r)) {
-		System::httpExit(500);
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 
 	$importer = $r[0];
@@ -49,14 +49,14 @@ function salmon_post(App $a, $xml = '') {
 		$base = $dom;
 
 	if (empty($base)) {
-		logger('unable to locate salmon data in xml ');
-		System::httpExit(400);
+		Logger::log('unable to locate salmon data in xml ');
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	// Stash the signature away for now. We have to find their key or it won't be good for anything.
 
 
-	$signature = base64url_decode($base->sig);
+	$signature = Strings::base64UrlDecode($base->sig);
 
 	// unpack the  data
 
@@ -75,39 +75,39 @@ function salmon_post(App $a, $xml = '') {
 
 	$stnet_signed_data = $data;
 
-	$signed_data = $data  . '.' . base64url_encode($type) . '.' . base64url_encode($encoding) . '.' . base64url_encode($alg);
+	$signed_data = $data  . '.' . Strings::base64UrlEncode($type) . '.' . Strings::base64UrlEncode($encoding) . '.' . Strings::base64UrlEncode($alg);
 
 	$compliant_format = str_replace('=', '', $signed_data);
 
 
 	// decode the data
-	$data = base64url_decode($data);
+	$data = Strings::base64UrlDecode($data);
 
 	$author = OStatus::salmonAuthor($data, $importer);
 	$author_link = $author["author-link"];
 
 	if(! $author_link) {
-		logger('Could not retrieve author URI.');
-		System::httpExit(400);
+		Logger::log('Could not retrieve author URI.');
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	// Once we have the author URI, go to the web and try to find their public key
 
-	logger('Fetching key for ' . $author_link);
+	Logger::log('Fetching key for ' . $author_link);
 
 	$key = Salmon::getKey($author_link, $keyhash);
 
 	if(! $key) {
-		logger('Could not retrieve author key.');
-		System::httpExit(400);
+		Logger::log('Could not retrieve author key.');
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
 	$key_info = explode('.',$key);
 
-	$m = base64url_decode($key_info[1]);
-	$e = base64url_decode($key_info[2]);
+	$m = Strings::base64UrlDecode($key_info[1]);
+	$e = Strings::base64UrlDecode($key_info[2]);
 
-	logger('key details: ' . print_r($key_info,true), LOGGER_DEBUG);
+	Logger::log('key details: ' . print_r($key_info,true), Logger::DEBUG);
 
 	$pubkey = Crypto::meToPem($m, $e);
 
@@ -118,23 +118,23 @@ function salmon_post(App $a, $xml = '') {
 	$mode = 1;
 
 	if (! $verify) {
-		logger('message did not verify using protocol. Trying compliant format.');
+		Logger::log('message did not verify using protocol. Trying compliant format.');
 		$verify = Crypto::rsaVerify($compliant_format, $signature, $pubkey);
 		$mode = 2;
 	}
 
 	if (! $verify) {
-		logger('message did not verify using padding. Trying old statusnet format.');
+		Logger::log('message did not verify using padding. Trying old statusnet format.');
 		$verify = Crypto::rsaVerify($stnet_signed_data, $signature, $pubkey);
 		$mode = 3;
 	}
 
 	if (! $verify) {
-		logger('Message did not verify. Discarding.');
-		System::httpExit(400);
+		Logger::log('Message did not verify. Discarding.');
+		throw new \Friendica\Network\HTTPException\BadRequestException();
 	}
 
-	logger('Message verified with mode '.$mode);
+	Logger::log('Message verified with mode '.$mode);
 
 
 	/*
@@ -148,14 +148,14 @@ function salmon_post(App $a, $xml = '') {
 						AND `uid` = %d LIMIT 1",
 		DBA::escape(Protocol::OSTATUS),
 		DBA::escape(Protocol::DFRN),
-		DBA::escape(normalise_link($author_link)),
+		DBA::escape(Strings::normaliseLink($author_link)),
 		DBA::escape($author_link),
-		DBA::escape(normalise_link($author_link)),
+		DBA::escape(Strings::normaliseLink($author_link)),
 		intval($importer['uid'])
 	);
 
 	if (!DBA::isResult($r)) {
-		logger('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
+		Logger::log('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
 
 		if (PConfig::get($importer['uid'], 'system', 'ostatus_autofriend')) {
 			$result = Contact::createFromProbe($importer['uid'], $author_link);
@@ -177,17 +177,16 @@ function salmon_post(App $a, $xml = '') {
 
 	//if((DBA::isResult($r)) && (($r[0]['readonly']) || ($r[0]['rel'] == Contact::FOLLOWER) || ($r[0]['blocked']))) {
 	if (DBA::isResult($r) && $r[0]['blocked']) {
-		logger('Ignoring this author.');
-		System::httpExit(202);
-		// NOTREACHED
+		Logger::log('Ignoring this author.');
+		throw new \Friendica\Network\HTTPException\AcceptedException();
 	}
 
 	// Placeholder for hub discovery.
 	$hub = '';
 
-	$contact_rec = ((DBA::isResult($r)) ? $r[0] : null);
+	$contact_rec = ((DBA::isResult($r)) ? $r[0] : []);
 
 	OStatus::import($data, $importer, $contact_rec, $hub);
 
-	System::httpExit(200);
+	throw new \Friendica\Network\HTTPException\OKException();
 }

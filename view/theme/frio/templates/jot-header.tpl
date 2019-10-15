@@ -1,5 +1,7 @@
 
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/linkPreview.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/jot.js"></script>
 
 <script type="text/javascript">
 	var editor = false;
@@ -13,7 +15,7 @@
 			$("#jot-category").show();
 			$("#jot-category").addClass("jot-category-ex");
 			$("#jot-profile-jot-wrapper").show();
-			$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+			$("#profile-jot-text").editor_autocomplete(baseurl + '/search/acl');
 			$("#profile-jot-text").bbco_autocomplete('bbcode');
 			$("a#jot-perms-icon").colorbox({
 				'inline' : true,
@@ -38,7 +40,8 @@
 </script>
 
 <script type="text/javascript">
-	var ispublic = '{{$ispublic}}';
+	var ispublic = '{{$ispublic nofilter}}';
+	aStr.linkurl = '{{$linkurl}}';
 
 
 	$(document).ready(function() {
@@ -126,24 +129,6 @@
 		}
 	}
 
-	function jotGetLink() {
-		var currentText = $("#profile-jot-text").val();
-		var noAttachment = '';
-		reply = prompt("{{$linkurl}}");
-		if(reply && reply.length) {
-			reply = bin2hex(reply);
-			$('#profile-rotator').show();
-			if (currentText.includes("[attachment") && currentText.includes("[/attachment]")) {
-				noAttachment = '&noAttachment=1';
-			}
-			$.get('parse_url?binurl=' + reply + noAttachment, function(data) {
-				addeditortext(data);
-				$('#profile-rotator').hide();
-			});
-			autosize.update($("#profile-jot-text"));
-		}
-	}
-
 	function jotVideoURL() {
 		reply = prompt("{{$vidurl}}");
 		if(reply && reply.length) {
@@ -157,7 +142,6 @@
 			addeditortext('[audio]' + reply + '[/audio]');
 		}
 	}
-
 
 	function jotGetLocation() {
 		reply = prompt("{{$whereareu}}", $('#jot-location').val());
@@ -226,7 +210,6 @@
 	}
 
 	function itemFiler(id) {
-
 		var bordercolor = $("input").css("border-color");
 
 		$.get('filer/', function(data){
@@ -275,7 +258,7 @@
 		autosize.update($("#profile-jot-text"));
 	}
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 	function jotShow() {
 		var modal = $('#jot-modal').modal();
@@ -290,6 +273,9 @@
 			.find('#jot-modal-content')
 			.append(jotcache)
 			.modal.show;
+
+		// Jot attachment live preview.
+		linkPreview = $('#profile-jot-text').linkPreview();
 	}
 
 	// Activate the jot text section in the jot modal

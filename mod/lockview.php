@@ -3,9 +3,10 @@
  * @file mod/lockview.php
  */
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
+use Friendica\Model\Group;
 use Friendica\Model\Item;
 
 function lockview_content(App $a)
@@ -19,11 +20,11 @@ function lockview_content(App $a)
 	}
 
 	if (!$item_id) {
-		killme();
+		exit();
 	}
 
 	if (!in_array($type, ['item','photo','event'])) {
-		killme();
+		exit();
 	}
 
 	$fields = ['uid', 'allow_cid', 'allow_gid', 'deny_cid', 'deny_gid'];
@@ -37,14 +38,14 @@ function lockview_content(App $a)
 	}
 
 	if (!DBA::isResult($item)) {
-		killme();
+		exit();
 	}
 
-	Addon::callHooks('lockview_content', $item);
+	Hook::callAll('lockview_content', $item);
 
 	if ($item['uid'] != local_user()) {
 		echo L10n::t('Remote privacy information not available.') . '<br />';
-		killme();
+		exit();
 	}
 
 	if (isset($item['private'])
@@ -55,7 +56,7 @@ function lockview_content(App $a)
 		&& empty($item['deny_gid']))
 	{
 		echo L10n::t('Remote privacy information not available.') . '<br />';
-		killme();
+		exit();
 	}
 
 	$allowed_users  = expand_acl($item['allow_cid']);
@@ -67,6 +68,19 @@ function lockview_content(App $a)
 	$l = [];
 
 	if (count($allowed_groups)) {
+		$key = array_search(Group::FOLLOWERS, $allowed_groups);
+		if ($key !== false) {
+			$l[] = '<b>' . L10n::t('Followers') . '</b>';
+			unset($allowed_groups[$key]);
+		}
+
+		$key = array_search(Group::MUTUALS, $allowed_groups);
+		if ($key !== false) {
+			$l[] = '<b>' . L10n::t('Mutuals') . '</b>';
+			unset($allowed_groups[$key]);
+		}
+
+
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			DBA::escape(implode(', ', $allowed_groups))
 		);
@@ -89,6 +103,18 @@ function lockview_content(App $a)
 	}
 
 	if (count($deny_groups)) {
+		$key = array_search(Group::FOLLOWERS, $deny_groups);
+		if ($key !== false) {
+			$l[] = '<b><strike>' . L10n::t('Followers') . '</strike></b>';
+			unset($deny_groups[$key]);
+		}
+
+		$key = array_search(Group::MUTUALS, $deny_groups);
+		if ($key !== false) {
+			$l[] = '<b><strike>' . L10n::t('Mutuals') . '</strike></b>';
+			unset($deny_groups[$key]);
+		}
+
 		$r = q("SELECT `name` FROM `group` WHERE `id` IN ( %s )",
 			DBA::escape(implode(', ', $deny_groups))
 		);
@@ -111,6 +137,6 @@ function lockview_content(App $a)
 	}
 
 	echo $o . implode(', ', $l);
-	killme();
+	exit();
 
 }

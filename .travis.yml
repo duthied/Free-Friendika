@@ -1,11 +1,10 @@
 ---
 language: php
-## Friendica supports PHP version >= 5.6.1
+## Friendica officially supports PHP version >= 7.1
 php:
- - 5.6
- - 7.0
  - 7.1
  - 7.2
+ - 7.3
 
 services:
  - mysql
@@ -17,9 +16,14 @@ env:
 install:
  - composer install
 before_script:
- - cp config/local-sample.ini.php config/local.ini.php
+ - cp config/local-sample.config.php config/local.config.php
  - mysql -e 'CREATE DATABASE IF NOT EXISTS test;'
  - mysql -utravis test < database.sql
- - echo "extension=redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
- - echo "extension=memcached.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-after_success: bash <(curl -s https://codecov.io/bash)
+ - pecl channel-update pecl.php.net
+ - pecl config-set preferred_state beta
+ - if [[ $TRAVIS_PHP_VERSION != "7.1" ]]; then echo yes | pecl upgrade apcu; fi
+ - if [[ $TRAVIS_PHP_VERSION != "7.1" ]]; then phpenv config-add .travis/apcu.ini; fi
+ - phpenv config-add .travis/redis.ini
+ - phpenv config-add .travis/memcached.ini
+
+script: vendor/bin/phpunit --configuration tests/phpunit.xml

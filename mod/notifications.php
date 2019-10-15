@@ -11,9 +11,12 @@ use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
+use Friendica\Model\Contact;
 
 function notifications_post(App $a)
 {
@@ -45,13 +48,18 @@ function notifications_post(App $a)
 
 		if ($_POST['submit'] == L10n::t('Discard')) {
 			DBA::delete('intro', ['id' => $intro_id]);
-
 			if (!$fid) {
-				// The check for blocked and pending is in case the friendship was already approved
-				// and we just want to get rid of the now pointless notification
+				// When the contact entry had been created just for that intro, we want to get rid of it now
 				$condition = ['id' => $contact_id, 'uid' => local_user(),
-					'self' => false, 'blocked' => true, 'pending' => true];
-				DBA::delete('contact', $condition);
+					'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
+				$contact_pending = DBA::exists('contact', $condition);
+
+				// Remove the "pending" to stop the reappearing in any case
+				DBA::update('contact', ['pending' => false], ['id' => $contact_id]);
+
+				if ($contact_pending) {
+					Contact::remove($contact_id);
+				}
 			}
 			$a->internalRedirect('notifications/intros');
 		}
@@ -91,13 +99,20 @@ function notifications_content(App $a)
 
 	$notif_header = L10n::t('Notifications');
 
+	$all = false;
+
 	// Get introductions
 	if ((($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		Nav::setSelected('introductions');
 
+		$id = 0;
+		if (!empty($a->argv[2]) && intval($a->argv[2]) != 0) {
+			$id = (int)$a->argv[2];
+		}
+
 		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));
 
-		$notifs = $nm->introNotifs($all, $startrec, $perpage);
+		$notifs = $nm->introNotifs($all, $startrec, $perpage, $id);
 
 	// Get the network notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'network')) {
@@ -118,6 +133,9 @@ function notifications_content(App $a)
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'home')) {
 		$notif_header = L10n::t('Home Notifications');
 		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
+	// fallback - redirect to main page
+	} else {
+		$a->internalRedirect('notifications');
 	}
 
 	// Set the pager
@@ -132,7 +150,7 @@ function notifications_content(App $a)
 		System::jsonExit($notifs);
 	}
 
-	$notif_tpl = get_markup_template('notifications.tpl');
+	$notif_tpl = Renderer::getMarkupTemplate('notifications.tpl');
 
 	$notif_show_lnk = [
 		'href' => ($show ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all' ),
@@ -141,8 +159,8 @@ function notifications_content(App $a)
 
 	// Process the data for template creation
 	if (defaults($notifs, 'ident', '') === 'introductions') {
-		$sugg = get_markup_template('suggestions.tpl');
-		$tpl = get_markup_template('intros.tpl');
+		$sugg = Renderer::getMarkupTemplate('suggestions.tpl');
+		$tpl = Renderer::getMarkupTemplate('intros.tpl');
 
 		// The link to switch between ignored and normal connection requests
 		$notif_show_lnk = [
@@ -158,7 +176,7 @@ function notifications_content(App $a)
 			// We have to distinguish between these two because they use different data.
 			switch ($notif['label']) {
 				case 'friend_suggestion':
-					$notif_content[] = replace_macros($sugg, [
+					$notif_content[] = Renderer::replaceMacros($sugg, [
 						'$type'       => $notif['label'],
 						'$str_notifytype' => L10n::t('Notification type:'),
 						'$notify_type'=> $notif['notify_type'],
@@ -208,8 +226,8 @@ function notifications_content(App $a)
 						$helptext3 = L10n::t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notif['name']);
 					}
 
-					$dfrn_tpl = get_markup_template('netfriend.tpl');
-					$dfrn_text = replace_macros($dfrn_tpl, [
+					$dfrn_tpl = Renderer::getMarkupTemplate('netfriend.tpl');
+					$dfrn_text = Renderer::replaceMacros($dfrn_tpl, [
 						'$intro_id'    => $notif['intro_id'],
 						'$friend_selected' => $friend_selected,
 						'$fan_selected'=> $fan_selected,
@@ -219,6 +237,14 @@ function notifications_content(App $a)
 						'$as_friend'   => L10n::t('Friend'),
 						'$as_fan'      => (($notif['network'] == Protocol::DIASPORA) ? L10n::t('Sharer') : L10n::t('Subscriber'))
 					]);
+
+					$contact = DBA::selectFirst('contact', ['network', 'protocol'], ['id' => $notif['contact_id']]);
+
+					if (($contact['network'] != Protocol::DFRN) || ($contact['protocol'] == Protocol::ACTIVITYPUB)) {
+						$action = 'follow_confirm';
+					} else {
+						$action = 'dfrn_confirm';
+					}
 
 					$header = $notif['name'];
 
@@ -234,9 +260,9 @@ function notifications_content(App $a)
 						$discard = '';
 					}
 
-					$notif_content[] = replace_macros($tpl, [
+					$notif_content[] = Renderer::replaceMacros($tpl, [
 						'$type'        => $notif['label'],
-						'$header'      => htmlentities($header),
+						'$header'      => $header,
 						'$str_notifytype' => L10n::t('Notification type:'),
 						'$notify_type' => $notif['notify_type'],
 						'$dfrn_text'   => $dfrn_text,
@@ -267,6 +293,7 @@ function notifications_content(App $a)
 						'$note'        => $notif['note'],
 						'$ignore'      => L10n::t('Ignore'),
 						'$discard'     => $discard,
+						'$action'      => $action,
 					]);
 					break;
 			}
@@ -293,9 +320,9 @@ function notifications_content(App $a)
 				'notify'      => 'notify.tpl',
 			];
 
-			$tpl_notif = get_markup_template($notification_templates[$notif['label']]);
+			$tpl_notif = Renderer::getMarkupTemplate($notification_templates[$notif['label']]);
 
-			$notif_content[] = replace_macros($tpl_notif, [
+			$notif_content[] = Renderer::replaceMacros($tpl_notif, [
 				'$item_label' => $notif['label'],
 				'$item_link'  => $notif['link'],
 				'$item_image' => $notif['image'],
@@ -310,7 +337,7 @@ function notifications_content(App $a)
 		$notif_nocontent = L10n::t('No more %s notifications.', $notifs['ident']);
 	}
 
-	$o .= replace_macros($notif_tpl, [
+	$o .= Renderer::replaceMacros($notif_tpl, [
 		'$notif_header'    => $notif_header,
 		'$tabs'            => $tabs,
 		'$notif_content'   => $notif_content,

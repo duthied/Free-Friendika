@@ -32,8 +32,11 @@
  *
  */
 
-use Friendica\App;
+use Dice\Dice;
+use Friendica\App\Mode;
+use Friendica\BaseObject;
 use Friendica\Util\ExAuth;
+use Psr\Log\LoggerInterface;
 
 if (sizeof($_SERVER["argv"]) == 0) {
 	die();
@@ -49,12 +52,16 @@ $directory = realpath($directory . DIRECTORY_SEPARATOR . "..");
 
 chdir($directory);
 
-require_once "boot.php";
-require_once "include/dba.php";
+require dirname(__DIR__) . '/vendor/autoload.php';
 
-$a = new App(dirname(__DIR__));
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['auth_ejabberd']]);
 
-if ($a->getMode()->isNormal()) {
+BaseObject::setDependencyInjection($dice);
+
+$appMode = $dice->create(Mode::class);
+
+if ($appMode->isNormal()) {
 	$oAuth = new ExAuth();
 	$oAuth->readStdin();
 }

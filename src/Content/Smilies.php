@@ -14,11 +14,11 @@
  */
 namespace Friendica\Content;
 
-use Friendica\App;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Util\Strings;
 
 /**
  * This class contains functions to handle smiles
@@ -55,10 +55,11 @@ class Smilies
 	 * Get an array of all smilies, both internal and from addons.
 	 *
 	 * @return array
-	 *	'texts' => smilie shortcut
-	 *	'icons' => icon in html
+	 *    'texts' => smilie shortcut
+	 *    'icons' => icon in html
 	 *
-	 * @hook smilie ('texts' => smilies texts array, 'icons' => smilies html array)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @hook  smilie ('texts' => smilies texts array, 'icons' => smilies html array)
 	 */
 	public static function getList()
 	{
@@ -140,7 +141,7 @@ class Smilies
 		];
 
 		$params = ['texts' => $texts, 'icons' => $icons];
-		Addon::callHooks('smilie', $params);
+		Hook::callAll('smilie', $params);
 
 		return $params;
 	}
@@ -182,6 +183,7 @@ class Smilies
 	 * @param boolean $no_images Only replace emoticons without images
 	 *
 	 * @return string HTML Output of the Smilie
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function replace($s, $no_images = false)
 	{
@@ -201,6 +203,7 @@ class Smilies
 	 * @param array  $smilies   An string replacement array with the following structure: ['texts' => [], 'icons' => []]
 	 * @param bool   $no_images Only replace shortcodes without image replacement (e.g. Unicode characters)
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function replaceFromArray($text, array $smilies, $no_images = false)
 	{
@@ -210,8 +213,8 @@ class Smilies
 			return $text;
 		}
 
-		$text = preg_replace_callback('/<pre>(.*?)<\/pre>/ism'  , 'self::encode', $text);
-		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::encode', $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::encode', $text);
 
 		if ($no_images) {
 			$cleaned = ['texts' => [], 'icons' => []];
@@ -228,8 +231,8 @@ class Smilies
 		$text = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $text);
 		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
-		$text = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $text);
-		$text = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::decode', $text);
 
 		return $text;
 	}
@@ -241,17 +244,18 @@ class Smilies
 	 */
 	private static function encode($m)
 	{
-		return(str_replace($m[1], base64url_encode($m[1]), $m[0]));
+		return '<' . $m[1] . '>' . Strings::base64UrlEncode($m[2]) . '</' . $m[1] . '>';
 	}
 
 	/**
 	 * @param string $m string
 	 *
 	 * @return string base64 decoded string
+	 * @throws \Exception
 	 */
 	private static function decode($m)
 	{
-		return(str_replace($m[1], base64url_decode($m[1]), $m[0]));
+		return '<' . $m[1] . '>' . Strings::base64UrlDecode($m[2]) . '</' . $m[1] . '>';
 	}
 
 
@@ -262,17 +266,19 @@ class Smilies
 	 *
 	 * @return string HTML Output
 	 *
-	 * @todo: Rework because it doesn't work correctly
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pregHeart($x)
 	{
 		if (strlen($x[1]) == 1) {
 			return $x[0];
 		}
+
 		$t = '';
 		for ($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
-			$t .= '<img class="smiley" src="' . System::baseUrl() . '/images/smiley-heart.gif" alt="&lt;3" />';
+			$t .= '❤';
 		}
+
 		$r =  str_replace($x[0], $t, $x[0]);
 		return $r;
 	}

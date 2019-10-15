@@ -5,11 +5,10 @@
 
 namespace Friendica\Model;
 
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
-
-require_once "include/dba.php";
 
 class Conversation
 {
@@ -36,6 +35,7 @@ class Conversation
 	 *
 	 * @param array $arr Item array with conversation data
 	 * @return array Item array with removed conversation data
+	 * @throws \Exception
 	 */
 	public static function insert(array $arr)
 	{
@@ -77,18 +77,18 @@ class Conversation
 				}
 				// Update structure data all the time but the source only when its from a better protocol.
 				if (empty($conversation['source']) || (!empty($old_conv['source']) &&
-					($old_conv['protocol'] < defaults($conversation, 'protocol', PARCEL_UNKNOWN)))) {
+					($old_conv['protocol'] < defaults($conversation, 'protocol', self::PARCEL_UNKNOWN)))) {
 					unset($conversation['protocol']);
 					unset($conversation['source']);
 				}
 				if (!DBA::update('conversation', $conversation, ['item-uri' => $conversation['item-uri']], $old_conv)) {
-					logger('Conversation: update for ' . $conversation['item-uri'] . ' from ' . $old_conv['protocol'] . ' to ' . $conversation['protocol'] . ' failed',
-						LOGGER_DEBUG);
+					Logger::log('Conversation: update for ' . $conversation['item-uri'] . ' from ' . $old_conv['protocol'] . ' to ' . $conversation['protocol'] . ' failed',
+						Logger::DEBUG);
 				}
 			} else {
 				if (!DBA::insert('conversation', $conversation, true)) {
-					logger('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
-						LOGGER_DEBUG);
+					Logger::log('Conversation: insert for ' . $conversation['item-uri'] . ' (protocol ' . $conversation['protocol'] . ') failed',
+						Logger::DEBUG);
 				}
 			}
 		}

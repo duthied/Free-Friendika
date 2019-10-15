@@ -4,12 +4,12 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 /**
  * @brief ContactSelector class
@@ -19,6 +19,8 @@ class ContactSelector
 	/**
 	 * @param string $current     current
 	 * @param string $foreign_net network
+	 * @return string
+	 * @throws \Exception
 	 */
 	public static function profileAssign($current, $foreign_net)
 	{
@@ -70,14 +72,48 @@ class ContactSelector
 	}
 
 	/**
+	 * @param string $profile Profile URL
+	 * @return string Server URL
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function getServerURLForProfile($profile)
+	{
+		$server_url = '';
+
+		// Fetch the server url from the contact table
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($profile)]);
+		if (DBA::isResult($contact) && !empty($contact['baseurl'])) {
+			$server_url = Strings::normaliseLink($contact['baseurl']);
+		}
+
+		if (empty($server_url)) {
+			// Fetch the server url from the gcontact table
+			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($profile)]);
+			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
+				$server_url = Strings::normaliseLink($gcontact['server_url']);
+			}
+		}
+
+		if (empty($server_url)) {
+			// Create the server url out of the profile url
+			$parts = parse_url($profile);
+			unset($parts['path']);
+			$server_url = Strings::normaliseLink(Network::unparseURL($parts));
+		}
+
+		return $server_url;
+	}
+
+	/**
 	 * @param string $network network
 	 * @param string $profile optional, default empty
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function networkToName($network, $profile = "")
 	{
 		$nets = [
-			Protocol::DFRN      =>   L10n::t('Friendica'),
+			Protocol::DFRN      =>   L10n::t('DFRN'),
 			Protocol::OSTATUS   =>   L10n::t('OStatus'),
 			Protocol::FEED      =>   L10n::t('RSS/Atom'),
 			Protocol::MAIL      =>   L10n::t('Email'),
@@ -95,24 +131,15 @@ class ContactSelector
 			Protocol::PNUT      =>   L10n::t('pnut'),
 		];
 
-		Addon::callHooks('network_to_name', $nets);
+		Hook::callAll('network_to_name', $nets);
 
 		$search  = array_keys($nets);
 		$replace = array_values($nets);
 
 		$networkname = str_replace($search, $replace, $network);
 
-		if ((in_array($network, [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) && ($profile != "")) {
-			// Create the server url out of the profile url
-			$parts = parse_url($profile);
-			unset($parts['path']);
-			$server_url = [normalise_link(Network::unparseURL($parts))];
-
-			// Fetch the server url
-			$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => normalise_link($profile)]);
-			if (!empty($gcontact) && !empty($gcontact['server_url'])) {
-				$server_url[] = normalise_link($gcontact['server_url']);
-			}
+		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
+			$server_url = self::getServerURLForProfile($profile);
 
 			// Now query the GServer for the platform name
 			$gserver = DBA::selectFirst('gserver', ['platform', 'network'], ['nurl' => $server_url]);
@@ -138,21 +165,91 @@ class ContactSelector
 	}
 
 	/**
+	 * @param string $network network
+	 * @param string $profile optional, default empty
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function networkToIcon($network, $profile = "")
+	{
+		$nets = [
+			Protocol::DFRN      =>   'friendica',
+			Protocol::OSTATUS   =>   'gnu-social', // There is no generic OStatus icon
+			Protocol::FEED      =>   'rss',
+			Protocol::MAIL      =>   'file-text-o', /// @todo
+			Protocol::DIASPORA  =>   'diaspora',
+			Protocol::ZOT       =>   'hubzilla',
+			Protocol::LINKEDIN  =>   'linkedin',
+			Protocol::XMPP      =>   'xmpp',
+			Protocol::MYSPACE   =>   'file-text-o', /// @todo
+			Protocol::GPLUS     =>   'google-plus',
+			Protocol::PUMPIO    =>   'file-text-o', /// @todo
+			Protocol::TWITTER   =>   'twitter',
+			Protocol::DIASPORA2 =>   'diaspora',
+			Protocol::STATUSNET =>   'gnu-social',
+			Protocol::ACTIVITYPUB => 'activitypub',
+			Protocol::PNUT      =>   'file-text-o', /// @todo
+		];
+
+		$platform_icons = ['diaspora' => 'diaspora', 'friendica' => 'friendica', 'friendika' => 'friendica',
+			'GNU Social' => 'gnu-social', 'gnusocial' => 'gnu-social', 'hubzilla' => 'hubzilla',
+			'mastodon' => 'mastodon', 'peertube' => 'peertube', 'pixelfed' => 'pixelfed',
+			'pleroma' => 'pleroma', 'red' => 'hubzilla', 'redmatrix' => 'hubzilla',
+			'socialhome' => 'social-home', 'wordpress' => 'wordpress'];
+
+		$search  = array_keys($nets);
+		$replace = array_values($nets);
+
+		$network_icon = str_replace($search, $replace, $network);
+
+		if ((in_array($network, Protocol::FEDERATED)) && ($profile != "")) {
+			$server_url = self::getServerURLForProfile($profile);
+
+			// Now query the GServer for the platform name
+			$gserver = DBA::selectFirst('gserver', ['platform'], ['nurl' => $server_url]);
+
+			if (DBA::isResult($gserver) && !empty($gserver['platform'])) {
+				$network_icon = $platform_icons[strtolower($gserver['platform'])] ?? $network_icon;
+			}
+		}
+
+		return $network_icon;
+	}
+
+	/**
 	 * @param string $current optional, default empty
 	 * @param string $suffix  optionsl, default empty
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function gender($current = "", $suffix = "")
 	{
 		$o = '';
-		$select = ['', L10n::t('Male'), L10n::t('Female'), L10n::t('Currently Male'), L10n::t('Currently Female'), L10n::t('Mostly Male'), L10n::t('Mostly Female'), L10n::t('Transgender'), L10n::t('Intersex'), L10n::t('Transsexual'), L10n::t('Hermaphrodite'), L10n::t('Neuter'), L10n::t('Non-specific'), L10n::t('Other'), L10n::t('Undecided')];
+		$select = [
+			''                 => L10n::t('No answer'),
+			'Male'             => L10n::t('Male'),
+			'Female'           => L10n::t('Female'),
+			'Currently Male'   => L10n::t('Currently Male'),
+			'Currently Female' => L10n::t('Currently Female'),
+			'Mostly Male'      => L10n::t('Mostly Male'),
+			'Mostly Female'    => L10n::t('Mostly Female'),
+			'Transgender'      => L10n::t('Transgender'),
+			'Intersex'         => L10n::t('Intersex'),
+			'Transsexual'      => L10n::t('Transsexual'),
+			'Hermaphrodite'    => L10n::t('Hermaphrodite'),
+			'Neuter'           => L10n::t('Neuter'),
+			'Non-specific'     => L10n::t('Non-specific'),
+			'Other'            => L10n::t('Other'),
+			'Undecided'        => L10n::t('Undecided'),
+		];
 
-		Addon::callHooks('gender_selector', $select);
+		Hook::callAll('gender_selector', $select);
 
 		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
-		foreach ($select as $selection) {
+		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($selection == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$selection\" $selected >$selection</option>";
+				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
+				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
 		$o .= '</select>';
@@ -162,20 +259,36 @@ class ContactSelector
 	/**
 	 * @param string $current optional, default empty
 	 * @param string $suffix  optionsl, default empty
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function sexualPreference($current = "", $suffix = "")
 	{
 		$o = '';
-		$select = ['', L10n::t('Males'), L10n::t('Females'), L10n::t('Gay'), L10n::t('Lesbian'), L10n::t('No Preference'), L10n::t('Bisexual'), L10n::t('Autosexual'), L10n::t('Abstinent'), L10n::t('Virgin'), L10n::t('Deviant'), L10n::t('Fetish'), L10n::t('Oodles'), L10n::t('Nonsexual')];
+		$select = [
+			''              => L10n::t('No answer'),
+			'Males'         => L10n::t('Males'),
+			'Females'       => L10n::t('Females'),
+			'Gay'           => L10n::t('Gay'),
+			'Lesbian'       => L10n::t('Lesbian'),
+			'No Preference' => L10n::t('No Preference'),
+			'Bisexual'      => L10n::t('Bisexual'),
+			'Autosexual'    => L10n::t('Autosexual'),
+			'Abstinent'     => L10n::t('Abstinent'),
+			'Virgin'        => L10n::t('Virgin'),
+			'Deviant'       => L10n::t('Deviant'),
+			'Fetish'        => L10n::t('Fetish'),
+			'Oodles'        => L10n::t('Oodles'),
+			'Nonsexual'     => L10n::t('Nonsexual'),
+		];
 
-
-		Addon::callHooks('sexpref_selector', $select);
+		Hook::callAll('sexpref_selector', $select);
 
 		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
-		foreach ($select as $selection) {
+		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($selection == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$selection\" $selected >$selection</option>";
+				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
+				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
 		$o .= '</select>';
@@ -184,19 +297,53 @@ class ContactSelector
 
 	/**
 	 * @param string $current optional, default empty
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function maritalStatus($current = "")
 	{
 		$o = '';
-		$select = ['', L10n::t('Single'), L10n::t('Lonely'), L10n::t('Available'), L10n::t('Unavailable'), L10n::t('Has crush'), L10n::t('Infatuated'), L10n::t('Dating'), L10n::t('Unfaithful'), L10n::t('Sex Addict'), L10n::t('Friends'), L10n::t('Friends/Benefits'), L10n::t('Casual'), L10n::t('Engaged'), L10n::t('Married'), L10n::t('Imaginarily married'), L10n::t('Partners'), L10n::t('Cohabiting'), L10n::t('Common law'), L10n::t('Happy'), L10n::t('Not looking'), L10n::t('Swinger'), L10n::t('Betrayed'), L10n::t('Separated'), L10n::t('Unstable'), L10n::t('Divorced'), L10n::t('Imaginarily divorced'), L10n::t('Widowed'), L10n::t('Uncertain'), L10n::t('It\'s complicated'), L10n::t('Don\'t care'), L10n::t('Ask me')];
+		$select = [
+			''                     => L10n::t('No answer'),
+			'Single'               => L10n::t('Single'),
+			'Lonely'               => L10n::t('Lonely'),
+			'In a relation'        => L10n::t('In a relation'),
+			'Has crush'            => L10n::t('Has crush'),
+			'Infatuated'           => L10n::t('Infatuated'),
+			'Dating'               => L10n::t('Dating'),
+			'Unfaithful'           => L10n::t('Unfaithful'),
+			'Sex Addict'           => L10n::t('Sex Addict'),
+			'Friends'              => L10n::t('Friends'),
+			'Friends/Benefits'     => L10n::t('Friends/Benefits'),
+			'Casual'               => L10n::t('Casual'),
+			'Engaged'              => L10n::t('Engaged'),
+			'Married'              => L10n::t('Married'),
+			'Imaginarily married'  => L10n::t('Imaginarily married'),
+			'Partners'             => L10n::t('Partners'),
+			'Cohabiting'           => L10n::t('Cohabiting'),
+			'Common law'           => L10n::t('Common law'),
+			'Happy'                => L10n::t('Happy'),
+			'Not looking'          => L10n::t('Not looking'),
+			'Swinger'              => L10n::t('Swinger'),
+			'Betrayed'             => L10n::t('Betrayed'),
+			'Separated'            => L10n::t('Separated'),
+			'Unstable'             => L10n::t('Unstable'),
+			'Divorced'             => L10n::t('Divorced'),
+			'Imaginarily divorced' => L10n::t('Imaginarily divorced'),
+			'Widowed'              => L10n::t('Widowed'),
+			'Uncertain'            => L10n::t('Uncertain'),
+			'It\'s complicated'    => L10n::t('It\'s complicated'),
+			'Don\'t care'          => L10n::t('Don\'t care'),
+			'Ask me'               => L10n::t('Ask me'),
+		];
 
-		Addon::callHooks('marital_selector', $select);
+		Hook::callAll('marital_selector', $select);
 
 		$o .= '<select name="marital" id="marital-select" size="1" >';
-		foreach ($select as $selection) {
+		foreach ($select as $neutral => $selection) {
 			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($selection == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$selection\" $selected >$selection</option>";
+				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
+				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
 			}
 		}
 		$o .= '</select>';

@@ -1,19 +1,13 @@
-	<!--
-		This is the template used by mod/fbrowser.php
-	-->
-<style>
-	#buglink_wrapper{display:none;} /* hide buglink. only in this page */
-</style>
-{{*<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>*}}
-{{*<script type="text/javascript" src="view/theme/frio/js/filebrowser.js"></script>*}}
-
+<!--
+	This is the template used by mod/fbrowser.php
+-->
 <div class="fbrowser {{$type}}">
 	<div class="fbrowser-content">
 		<input id="fb-nickname" type="hidden" name="type" value="{{$nickname}}" />
 		<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
 
 		<div class="error hidden">
-			<span></span> <button type="button" class="btn btn-link" class="close" aria-label="Close">X</a>
+			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</a>
 		</div>
 
 		{{* The breadcrumb navigation *}}

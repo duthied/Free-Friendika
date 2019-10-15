@@ -4,7 +4,7 @@
 <form  action="{{$baseurl}}/index.php?q=install" method="post">
 <table>
 {{foreach $checks as $check}}
-	<tr><td>{{$check.title}} </td><td>
+	<tr><td>{{$check.title nofilter}} </td><td>
 	{{if $check.status}}
 		<img src="{{$baseurl}}/view/install/green.png" alt="Ok">
 	{{else}}
@@ -17,7 +17,7 @@
 	</td><td>{{if $check.required}}(required){{/if}}</td></tr>
 	{{if $check.help}}
 	<tr><td class="help" colspan="3">
-		<blockquote>{{$check.help}}</blockquote>
+		<blockquote>{{$check.help nofilter}}</blockquote>
 		{{if $check.error_msg}}
 		<div class="error_header"><b>{{$check.error_msg.head}}</br><a href="{{$check.error_msg.url}}">{{$check.error_msg.url}}</a></b></div>
 		<blockquote>{{$check.error_msg.msg}}</blockquote>
@@ -28,14 +28,14 @@
 </table>
 
 {{if $phpath}}
-	<input type="hidden" name="phpath" value="{{$phpath|escape:'html'}}">
+	<input type="hidden" name="config-php_path" value="{{$php_path}}">
 {{/if}}
 
 {{if $passed}}
 	<input type="hidden" name="pass" value="2">
-	<input type="submit" value="{{$next|escape:'html'}}">
+	<input type="submit" value="{{$next}}">
 {{else}}
 	<input type="hidden" name="pass" value="1">
-	<input type="submit" value="{{$reload|escape:'html'}}">
+	<input type="submit" value="{{$reload}}">
 {{/if}}
 </form>

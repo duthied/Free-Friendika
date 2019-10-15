@@ -4,12 +4,23 @@
  * Friendica
  */
 
-use Friendica\App;
+use Dice\Dice;
 
-require_once 'boot.php';
+if (!file_exists(__DIR__ . '/vendor/autoload.php')) {
+	die('Vendor path not found. Please execute "bin/composer.phar --no-dev install" on the command line in the web root.');
+}
 
-// We assume that the index.php is called by a frontend process
-// The value is set to "true" by default in App
-$a = new App(__DIR__, false);
+require __DIR__ . '/vendor/autoload.php';
 
-$a->runFrontend();
+$dice = (new Dice())->addRules(include __DIR__ . '/static/dependencies.config.php');
+$dice = $dice->addRule(Friendica\App\Mode::class, ['call' => [['determineRunMode', [false, $_SERVER], Dice::CHAIN_CALL]]]);
+
+\Friendica\BaseObject::setDependencyInjection($dice);
+
+$a = \Friendica\BaseObject::getApp();
+
+$a->runFrontend(
+	$dice->create(\Friendica\App\Module::class),
+	$dice->create(\Friendica\App\Router::class),
+	$dice->create(\Friendica\Core\Config\PConfiguration::class)
+);

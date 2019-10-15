@@ -1,27 +1,24 @@
 <?php
 
-namespace Friendica\Test\Database;
+namespace Friendica\Test\src\Database;
 
+use Dice\Dice;
 use Friendica\BaseObject;
-use Friendica\Core\Config;
+use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\Test\DatabaseTest;
+use Friendica\Test\Util\Database\StaticDatabase;
 
 class DBStructureTest extends DatabaseTest
 {
-	public function setUp()
+	protected function setUp()
 	{
 		parent::setUp();
 
-		// Reusable App object
-		$this->app = BaseObject::getApp();
-
-		// Default config
-		Config::set('config', 'hostname', 'localhost');
-		Config::set('system', 'throttle_limit_day', 100);
-		Config::set('system', 'throttle_limit_week', 100);
-		Config::set('system', 'throttle_limit_month', 100);
-		Config::set('system', 'theme', 'system_theme');
+		$dice = (new Dice())
+			->addRules(include __DIR__ . '/../../../static/dependencies.config.php')
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+		BaseObject::setDependencyInjection($dice);
 	}
 
 	/**

@@ -6,15 +6,17 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Util\Strings;
 
 function unfollow_post(App $a)
 {
-	$return_path = 'contacts';
+	$base_return_path = 'contact';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
@@ -23,26 +25,26 @@ function unfollow_post(App $a)
 	}
 
 	$uid = local_user();
-	$url = notags(trim(defaults($_REQUEST, 'url', '')));
+	$url = Strings::escapeTags(trim(defaults($_REQUEST, 'url', '')));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
-		$uid, Contact::SHARING, Contact::FRIEND, normalise_link($url),
-		normalise_link($url), $url];
+		$uid, Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
+		Strings::normaliseLink($url), $url];
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		$a->internalRedirect($return_path);
+		$a->internalRedirect($base_return_path);
 		// NOTREACHED
 	}
 
 	if (!empty($_REQUEST['cancel'])) {
-		$a->internalRedirect($return_path . '/' . $contact['id']);
+		$a->internalRedirect($base_return_path . '/' . $contact['id']);
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		$a->internalRedirect($return_path . '/' . $contact['id']);
+		$a->internalRedirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
 
@@ -56,10 +58,10 @@ function unfollow_post(App $a)
 	// Sharing-only contacts get deleted as there no relationship any more
 	if ($dissolve) {
 		Contact::remove($contact['id']);
-		$return_path = 'contacts';
+		$return_path = $base_return_path;
 	} else {
 		DBA::update('contact', ['rel' => Contact::FOLLOWER], ['id' => $contact['id']]);
-		$return_path = 'contact/' . $contact['id'];
+		$return_path = $base_return_path . '/' . $contact['id'];
 	}
 
 	info(L10n::t('Contact unfollowed'));
@@ -69,7 +71,7 @@ function unfollow_post(App $a)
 
 function unfollow_content(App $a)
 {
-	$return_path = 'contacts';
+	$base_return_path = 'contact';
 
 	if (!local_user()) {
 		notice(L10n::t('Permission denied.'));
@@ -78,44 +80,42 @@ function unfollow_content(App $a)
 	}
 
 	$uid = local_user();
-	$url = notags(trim($_REQUEST['url']));
+	$url = Strings::escapeTags(trim($_REQUEST['url']));
 
 	$condition = ["`uid` = ? AND (`rel` = ? OR `rel` = ?) AND (`nurl` = ? OR `alias` = ? OR `alias` = ?)",
-		local_user(), Contact::SHARING, Contact::FRIEND, normalise_link($url),
-		normalise_link($url), $url];
+		local_user(), Contact::SHARING, Contact::FRIEND, Strings::normaliseLink($url),
+		Strings::normaliseLink($url), $url];
 
 	$contact = DBA::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
 
 	if (!DBA::isResult($contact)) {
 		notice(L10n::t("You aren't following this contact."));
-		$a->internalRedirect($return_path);
+		$a->internalRedirect($base_return_path);
 		// NOTREACHED
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 		notice(L10n::t('Unfollowing is currently not supported by your network.'));
-		$a->internalRedirect('contact/' . $contact['id']);
+		$a->internalRedirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
 
 	$request = System::baseUrl() . '/unfollow';
-	$tpl = get_markup_template('auto_request.tpl');
+	$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 
 	$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 
 	if (!DBA::isResult($self)) {
 		notice(L10n::t('Permission denied.'));
-		$a->internalRedirect($return_path);
+		$a->internalRedirect($base_return_path);
 		// NOTREACHED
 	}
 
 	// Makes the connection request for friendica contacts easier
 	$_SESSION['fastlane'] = $contact['url'];
 
-	$header = L10n::t('Disconnect/Unfollow');
-
-	$o = replace_macros($tpl, [
-		'$header'        => htmlentities($header),
+	$o = Renderer::replaceMacros($tpl, [
+		'$header'        => L10n::t('Disconnect/Unfollow'),
 		'$desc'          => '',
 		'$pls_answer'    => '',
 		'$does_know_you' => '',
@@ -144,7 +144,7 @@ function unfollow_content(App $a)
 	$a->page['aside'] = '';
 	Profile::load($a, '', 0, Contact::getDetailsByURL($contact['url']));
 
-	$o .= replace_macros(get_markup_template('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);
 
 	// Show last public posts
 	$o .= Contact::getPostsFromUrl($contact['url']);

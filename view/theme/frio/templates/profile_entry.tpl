@@ -8,7 +8,7 @@
 		<a href="profiles/{{$id}}" class="profile-listing-edit-link" >{{$profile_name}}</a>
 	</div>
 	<div class="profile-listing-cell">
-		{{$visible}}
+		{{$visible nofilter}}
 	</div>
 </div>
 <div class="profile-listing-end"></div>

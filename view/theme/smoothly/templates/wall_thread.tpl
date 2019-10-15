@@ -1,8 +1,12 @@
 
 {{if $item.comment_firstcollapsed}}
-	<div class="hide-comments-outer">
-		<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">{{$item.num_comments}}</span>
-		<span id="hide-comments-{{$item.id}}" class="hide-comments fakelink" onclick="showHideComments({{$item.id}});">{{$item.hide_text}}</span>
+	<div class="hide-comments-outer fakelink" onclick="showHideComments({{$item.id}});">
+		<span id="hide-comments-total-{{$item.id}}" class="hide-comments-total">
+			{{$item.num_comments}} - {{$item.show_text}}
+		</span>
+		<span id="hide-comments-{{$item.id}}" class="hide-comments" style="display: none">
+			{{$item.num_comments}} - {{$item.hide_text}}
+		</span>
 	</div>
 	<div id="collapsed-comments-{{$item.id}}" class="collapsed-comments" style="display: none;">
 {{/if}}
@@ -27,13 +31,13 @@
 				<span onclick="openClose('wall-item-photo-menu-{{$item.id}}');" class="fakelink wall-item-photo-menu-button" id="wall-item-photo-menu-button-{{$item.id}}">menu</span>
                 <div class="wall-item-photo-menu" id="wall-item-photo-menu-{{$item.id}}">
                     <ul>
-                        {{$item.item_photo_menu}}
+                        {{$item.item_photo_menu nofilter}}
                     </ul>
                 </div>
 
 			</div>
 			<div class="wall-item-photo-end"></div>
-			<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{if $item.location}}<span class="icon globe"></span>{{$item.location}} {{/if}}</div>
+			<div class="wall-item-location" id="wall-item-location-{{$item.id}}">{{if $item.location}}<span class="icon globe"></span>{{$item.location nofilter}} {{/if}}</div>
 		</div>
 		<div class="wall-item-lock-wrapper">
 			{{if $item.lock}}
@@ -58,7 +62,7 @@
 		</div>
 			<div class="wall-item-title p-name" id="wall-item-title-{{$item.id}}">{{$item.title}}</div>
 			<div class="wall-item-title-end"></div>
-			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body}}</span>
+			<div class="wall-item-body" id="wall-item-body-{{$item.id}}" ><span class="e-content">{{$item.body nofilter}}</span>
 				<div class="body-tag">
 				{{if !$item.suppress_tags}}
 					{{foreach $item.tags as $tag}}
@@ -136,13 +140,13 @@
 
 	</div>
 	<div class="wall-item-wrapper-end"></div>
-	<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like}}</div>
-	<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike}}</div>
+	<div class="wall-item-like" id="wall-item-like-{{$item.id}}">{{$item.like nofilter}}</div>
+	<div class="wall-item-dislike" id="wall-item-dislike-{{$item.id}}">{{$item.dislike nofilter}}</div>
 
 	{{if $item.threaded}}
 	{{if $item.comment}}
         <div class="wall-item-comment-wrapper {{$item.indent}} {{$item.shiny}}" >
-		{{$item.comment}}
+		{{$item.comment nofilter}}
 	</div>
 	{{/if}}
 	{{/if}}
@@ -156,7 +160,7 @@
 
 {{if $item.flatten}}
 <div class="wall-item-comment-wrapper" >
-	{{$item.comment}}
+	{{$item.comment nofilter}}
 </div>
 {{/if}}
 </div>

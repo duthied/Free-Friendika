@@ -181,13 +181,13 @@ Next take the default.php file found in the /view direcotry and exchange the asi
 So the central part of the file now looks like this:
 
     <body>
-        <?php if(x($page,'nav')) echo $page['nav']; ?>
-        <aside><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></aside>
-        <section><?php if(x($page,'content')) echo $page['content']; ?>
+        <?php if(!empty($page['nav'])) echo $page['nav']; ?>
+        <aside><?php if(!empty($page['right_aside'])) echo $page['right_aside']; ?></aside>
+        <section><?php if(!empty($page['content'])) echo $page['content']; ?>
                 <div id="page-footer"></div>
         </section>
-        <right_aside><?php if(x($page,'aside')) echo $page['aside']; ?></right_aside>
-        <footer><?php if(x($page,'footer')) echo $page['footer']; ?></footer>
+        <right_aside><?php if(!empty($page['aside'])) echo $page['aside']; ?></right_aside>
+        <footer><?php if(!empty($page['footer'])) echo $page['footer']; ?></footer>
     </body>
 
 Finally we need a style.css file, inheriting the definitions from the parent theme and containing out changes for the new theme.

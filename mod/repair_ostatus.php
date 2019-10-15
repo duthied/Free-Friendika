@@ -22,7 +22,7 @@ function repair_ostatus_content(App $a) {
 
 	$uid = local_user();
 
-	$a = get_app();
+	$a = \get_app();
 
 	$counter = intval($_REQUEST['counter']);
 
@@ -57,7 +57,7 @@ function repair_ostatus_content(App $a) {
 
 	$o .= "<p>".L10n::t("Keep this window open until done.")."</p>";
 
-	$result = Contact::createFromProbe($uid, $r[0]["url"], true);
+	Contact::createFromProbe($uid, $r[0]["url"], true);
 
 	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
 

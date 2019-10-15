@@ -3,6 +3,8 @@
 namespace Friendica\Content;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
+use Friendica\Util\Strings;
 
 /**
  * The Pager has two very different output, Minimal and Full, see renderMinimal() and renderFull() for more details.
@@ -63,7 +65,7 @@ class Pager
 	/**
 	 * Returns the current page number
 	 *
-	 * @return type
+	 * @return int
 	 */
 	public function getPage()
 	{
@@ -81,7 +83,7 @@ class Pager
 	 */
 	public function getBaseQueryString()
 	{
-		return $this->baseQueryString;
+		return Strings::ensureQueryParameter($this->baseQueryString);
 	}
 
 	/**
@@ -122,21 +124,6 @@ class Pager
 	}
 
 	/**
-	 * Ensures the provided URI has its query string punctuation in order.
-	 *
-	 * @param string $uri
-	 * @return string
-	 */
-	private function ensureQueryParameter($uri)
-	{
-		if (strpos($uri, '?') === false && ($pos = strpos($uri, '&')) !== false) {
-			$uri = substr($uri, 0, $pos) . '?' . substr($uri, $pos + 1);
-		}
-
-		return $uri;
-	}
-
-	/**
 	 * @brief Minimal pager (newer/older)
 	 *
 	 * This mode is intended for reverse chronological pages and presents only two links, newer (previous) and older (next).
@@ -153,6 +140,7 @@ class Pager
 	 *
 	 * @param integer $itemCount The number of displayed items on the page
 	 * @return string HTML string of the pager
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function renderMinimal($itemCount)
 	{
@@ -161,19 +149,19 @@ class Pager
 		$data = [
 			'class' => 'pager',
 			'prev'  => [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
 				'text'  => L10n::t('newer'),
 				'class' => 'previous' . ($this->getPage() == 1 ? ' disabled' : '')
 			],
 			'next'  => [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
 				'text'  => L10n::t('older'),
-				'class' =>  'next' . ($displayedItemCount <= 0 ? ' disabled' : '')
+				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')
 			]
 		];
 
-		$tpl = get_markup_template('paginate.tpl');
-		return replace_macros($tpl, ['pager' => $data]);
+		$tpl = Renderer::getMarkupTemplate('paginate.tpl');
+		return Renderer::replaceMacros($tpl, ['pager' => $data]);
 	}
 
 	/**
@@ -195,6 +183,7 @@ class Pager
 	 *
 	 * @param integer $itemCount The total number of items including those note displayed on the page
 	 * @return string HTML string of the pager
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function renderFull($itemCount)
 	{
@@ -205,12 +194,12 @@ class Pager
 		$data['class'] = 'pagination';
 		if ($totalItemCount > $this->getItemsPerPage()) {
 			$data['first'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=1'),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=1'),
 				'text'  => L10n::t('first'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 			$data['prev'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
 				'text'  => L10n::t('prev'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
@@ -237,7 +226,7 @@ class Pager
 					];
 				} else {
 					$pages[$i] = [
-						'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . $i),
+						'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $i),
 						'text'  => $i,
 						'class' => 'n'
 					];
@@ -253,7 +242,7 @@ class Pager
 					];
 				} else {
 					$pages[$i] = [
-						'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . $i),
+						'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $i),
 						'text'  => $i,
 						'class' => 'n'
 					];
@@ -265,18 +254,18 @@ class Pager
 			$lastpage = (($numpages > intval($numpages)) ? intval($numpages)+1 : $numpages);
 
 			$data['next'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
 				'text'  => L10n::t('next'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 			$data['last'] = [
-				'url'   => $this->ensureQueryParameter($this->baseQueryString . '&page=' . $lastpage),
+				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $lastpage),
 				'text'  => L10n::t('last'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 		}
 
-		$tpl = get_markup_template('paginate.tpl');
-		return replace_macros($tpl, ['pager' => $data]);
+		$tpl = Renderer::getMarkupTemplate('paginate.tpl');
+		return Renderer::replaceMacros($tpl, ['pager' => $data]);
 	}
 }

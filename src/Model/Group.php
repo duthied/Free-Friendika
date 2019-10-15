@@ -2,36 +2,68 @@
 /**
  * @file src/Model/Group.php
  */
+
 namespace Friendica\Model;
 
 use Friendica\BaseModule;
 use Friendica\BaseObject;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-use Friendica\Util\Security;
-
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/text.php';
 
 /**
  * @brief functions for interacting with the group database table
  */
 class Group extends BaseObject
 {
+	const FOLLOWERS = '~';
+	const MUTUALS = '&';
+
+	public static function getByUserId($uid, $includesDeleted = false)
+	{
+		$conditions = ['uid' => $uid];
+
+		if (!$includesDeleted) {
+			$conditions['deleted'] = false;
+		}
+
+		return DBA::selectToArray('group', [], $conditions);
+	}
+
+	/**
+	 * @param int $group_id
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function exists($group_id, $uid = null)
+	{
+		$condition = ['id' => $group_id, 'deleted' => false];
+
+		if (isset($uid)) {
+			$condition = [
+				'uid' => $uid
+			];
+		}
+
+		return DBA::exists('group', $condition);
+	}
+
 	/**
 	 * @brief Create a new contact group
 	 *
 	 * Note: If we found a deleted group with the same name, we restore it
 	 *
-	 * @param int $uid
+	 * @param int    $uid
 	 * @param string $name
 	 * @return boolean
+	 * @throws \Exception
 	 */
 	public static function create($uid, $name)
 	{
 		$return = false;
-		if (x($uid) && x($name)) {
+		if (!empty($uid) && !empty($name)) {
 			$gid = self::getIdByName($uid, $name); // check for dupes
 			if ($gid !== false) {
 				// This could be a problem.
@@ -58,10 +90,11 @@ class Group extends BaseObject
 	/**
 	 * Update group information.
 	 *
-	 * @param  int	  $id   Group ID
-	 * @param  string $name Group name
+	 * @param int    $id   Group ID
+	 * @param string $name Group name
 	 *
 	 * @return bool Was the update successful?
+	 * @throws \Exception
 	 */
 	public static function update($id, $name)
 	{
@@ -73,17 +106,17 @@ class Group extends BaseObject
 	 *
 	 * @param int $cid
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function getIdsByContactId($cid)
 	{
-		$condition = ['contact-id' => $cid];
-		$stmt = DBA::select('group_member', ['gid'], $condition);
-
 		$return = [];
 
+		$stmt = DBA::select('group_member', ['gid'], ['contact-id' => $cid]);
 		while ($group = DBA::fetch($stmt)) {
 			$return[] = $group['gid'];
 		}
+		DBA::close($stmt);
 
 		return $return;
 	}
@@ -94,9 +127,10 @@ class Group extends BaseObject
 	 * Count unread items of each groups of the local user
 	 *
 	 * @return array
-	 * 	'id' => group id
-	 * 	'name' => group name
-	 * 	'count' => counted unseen group items
+	 *    'id' => group id
+	 *    'name' => group name
+	 *    'count' => counted unseen group items
+	 * @throws \Exception
 	 */
 	public static function countUnseen()
 	{
@@ -123,9 +157,10 @@ class Group extends BaseObject
 	 *
 	 * Returns false if no group has been found.
 	 *
-	 * @param int $uid
+	 * @param int    $uid
 	 * @param string $name
 	 * @return int|boolean
+	 * @throws \Exception
 	 */
 	public static function getIdByName($uid, $name)
 	{
@@ -146,9 +181,11 @@ class Group extends BaseObject
 	 *
 	 * @param int $gid
 	 * @return boolean
+	 * @throws \Exception
 	 */
-	public static function remove($gid) {
-		if (! $gid) {
+	public static function remove($gid)
+	{
+		if (!$gid) {
 			return false;
 		}
 
@@ -190,17 +227,19 @@ class Group extends BaseObject
 	}
 
 	/**
-	 * @brief Mark a group as deleted based on its name
+	 * @brief      Mark a group as deleted based on its name
 	 *
-	 * @deprecated Use Group::remove instead
-	 *
-	 * @param int $uid
+	 * @param int    $uid
 	 * @param string $name
 	 * @return bool
+	 * @throws \Exception
+	 * @deprecated Use Group::remove instead
+	 *
 	 */
-	public static function removeByName($uid, $name) {
+	public static function removeByName($uid, $name)
+	{
 		$return = false;
-		if (x($uid) && x($name)) {
+		if (!empty($uid) && !empty($name)) {
 			$gid = self::getIdByName($uid, $name);
 
 			$return = self::remove($gid);
@@ -215,6 +254,7 @@ class Group extends BaseObject
 	 * @param int $gid
 	 * @param int $cid
 	 * @return boolean
+	 * @throws \Exception
 	 */
 	public static function addMember($gid, $cid)
 	{
@@ -239,6 +279,7 @@ class Group extends BaseObject
 	 * @param int $gid
 	 * @param int $cid
 	 * @return boolean
+	 * @throws \Exception
 	 */
 	public static function removeMember($gid, $cid)
 	{
@@ -252,14 +293,15 @@ class Group extends BaseObject
 	}
 
 	/**
-	 * @brief Removes a contact from a group based on its name
+	 * @brief      Removes a contact from a group based on its name
 	 *
+	 * @param int    $uid
+	 * @param string $name
+	 * @param int    $cid
+	 * @return boolean
+	 * @throws \Exception
 	 * @deprecated Use Group::removeMember instead
 	 *
-	 * @param int $uid
-	 * @param string $name
-	 * @param int $cid
-	 * @return boolean
 	 */
 	public static function removeMemberByName($uid, $name, $cid)
 	{
@@ -273,22 +315,55 @@ class Group extends BaseObject
 	/**
 	 * @brief Returns the combined list of contact ids from a group id list
 	 *
-	 * @param array $group_ids
+	 * @param int     $uid
+	 * @param array   $group_ids
 	 * @param boolean $check_dead
 	 * @return array
+	 * @throws \Exception
 	 */
-	public static function expand($group_ids, $check_dead = false)
+	public static function expand($uid, array $group_ids, $check_dead = false)
 	{
 		if (!is_array($group_ids) || !count($group_ids)) {
 			return [];
 		}
 
-		$stmt = DBA::select('group_member', ['contact-id'], ['gid' => $group_ids]);
-
 		$return = [];
-		while($group_member = DBA::fetch($stmt)) {
+
+		$key = array_search(self::FOLLOWERS, $group_ids);
+		if ($key !== false) {
+			$followers = Contact::selectToArray(['id'], [
+				'uid' => $uid,
+				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
+				'network' => Protocol::SUPPORT_PRIVATE,
+			]);
+
+			foreach ($followers as $follower) {
+				$return[] = $follower['id'];
+			}
+
+			unset($group_ids[$key]);
+		}
+
+		$key = array_search(self::MUTUALS, $group_ids);
+		if ($key !== false) {
+			$mutuals = Contact::selectToArray(['id'], [
+				'uid' => $uid,
+				'rel' => [Contact::FRIEND],
+				'network' => Protocol::SUPPORT_PRIVATE,
+			]);
+
+			foreach ($mutuals as $mutual) {
+				$return[] = $mutual['id'];
+			}
+
+			unset($group_ids[$key]);
+		}
+
+		$stmt = DBA::select('group_member', ['contact-id'], ['gid' => $group_ids]);
+		while ($group_member = DBA::fetch($stmt)) {
 			$return[] = $group_member['contact-id'];
 		}
+		DBA::close($stmt);
 
 		if ($check_dead) {
 			Contact::pruneUnavailable($return);
@@ -300,17 +375,14 @@ class Group extends BaseObject
 	/**
 	 * @brief Returns a templated group selection list
 	 *
-	 * @param int $uid
-	 * @param int $gid An optional pre-selected group
+	 * @param int    $uid
+	 * @param int    $gid   An optional pre-selected group
 	 * @param string $label An optional label of the list
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function displayGroupSelection($uid, $gid = 0, $label = '')
 	{
-		$o = '';
-
-		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name']]);
-
 		$display_groups = [
 			[
 				'name' => '',
@@ -318,6 +390,8 @@ class Group extends BaseObject
 				'selected' => ''
 			]
 		];
+
+		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => $uid], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$display_groups[] = [
 				'name' => $group['name'],
@@ -325,13 +399,15 @@ class Group extends BaseObject
 				'selected' => $gid == $group['id'] ? 'true' : ''
 			];
 		}
-		logger('groups: ' . print_r($display_groups, true));
+		DBA::close($stmt);
+
+		Logger::info('Got groups', $display_groups);
 
 		if ($label == '') {
 			$label = L10n::t('Default privacy group for new contacts');
 		}
 
-		$o = replace_macros(get_markup_template('group_selection.tpl'), [
+		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('group_selection.tpl'), [
 			'$label' => $label,
 			'$groups' => $display_groups
 		]);
@@ -344,17 +420,16 @@ class Group extends BaseObject
 	 * @param string $every
 	 * @param string $each
 	 * @param string $editmode
-	 * 	'standard' => include link 'Edit groups'
-	 * 	'extended' => include link 'Create new group'
-	 * 	'full' => include link 'Create new group' and provide for each group a link to edit this group
-	 * @param int $group_id
-	 * @param int $cid
+	 *    'standard' => include link 'Edit groups'
+	 *    'extended' => include link 'Create new group'
+	 *    'full' => include link 'Create new group' and provide for each group a link to edit this group
+	 * @param string $group_id
+	 * @param int    $cid
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function sidebarWidget($every = 'contact', $each = 'group', $editmode = 'standard', $group_id = '', $cid = 0)
 	{
-		$o = '';
-
 		if (!local_user()) {
 			return '';
 		}
@@ -368,13 +443,12 @@ class Group extends BaseObject
 			]
 		];
 
-		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
-
 		$member_of = [];
 		if ($cid) {
 			$member_of = self::getIdsByContactId($cid);
 		}
 
+		$stmt = DBA::select('group', [], ['deleted' => 0, 'uid' => local_user()], ['order' => ['name']]);
 		while ($group = DBA::fetch($stmt)) {
 			$selected = (($group_id == $group['id']) ? ' group-selected' : '');
 
@@ -397,9 +471,15 @@ class Group extends BaseObject
 				'ismember' => in_array($group['id'], $member_of),
 			];
 		}
+		DBA::close($stmt);
 
-		$tpl = get_markup_template('group_side.tpl');
-		$o = replace_macros($tpl, [
+		// Don't show the groups on the network page when there is only one
+		if ((count($display_groups) <= 2) && ($each == 'network')) {
+			return '';
+		}
+
+		$tpl = Renderer::getMarkupTemplate('group_side.tpl');
+		$o = Renderer::replaceMacros($tpl, [
 			'$add' => L10n::t('add'),
 			'$title' => L10n::t('Groups'),
 			'$groups' => $display_groups,
@@ -413,7 +493,6 @@ class Group extends BaseObject
 			'$editgroupstext' => L10n::t('Edit groups'),
 			'$form_security_token' => BaseModule::getFormSecurityToken('group_edit'),
 		]);
-
 
 		return $o;
 	}

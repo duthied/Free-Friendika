@@ -6,13 +6,15 @@
 namespace Friendica\Model;
 
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
+use Friendica\Model\Item;
+use Friendica\Model\Photo;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
-
-require_once 'include/dba.php';
+use Friendica\Worker\Delivery;
 
 /**
  * Class to handle private messages
@@ -20,16 +22,88 @@ require_once 'include/dba.php';
 class Mail
 {
 	/**
+	 * Insert received private message
+	 *
+	 * @param array $msg
+	 * @return int|boolean Message ID or false on error
+	 */
+	public static function insert($msg)
+	{
+		$user = User::getById($msg['uid']);
+
+		if (!isset($msg['reply'])) {
+			$msg['reply'] = DBA::exists('mail', ['parent-uri' => $msg['parent-uri']]);
+		}
+
+		if (empty($msg['convid'])) {
+			$mail = DBA::selectFirst('mail', ['convid'], ["`convid` != 0 AND `parent-uri` = ?", $msg['parent-uri']]);
+			if (DBA::isResult($mail)) {
+				$msg['convid'] = $mail['convid'];
+			}
+		}
+
+		if (empty($msg['guid'])) {
+			$host = parse_url($msg['from-url'], PHP_URL_HOST);
+			$msg['guid'] = Item::guidFromUri($msg['uri'], $host);
+		}
+
+		$msg['created'] = (!empty($msg['created']) ? DateTimeFormat::utc($msg['created']) : DateTimeFormat::utcNow());
+
+		DBA::lock('mail');
+
+		if (DBA::exists('mail', ['uri' => $msg['uri'], 'uid' => $msg['uid']])) {
+			DBA::unlock();
+			Logger::info('duplicate message already delivered.');
+			return false;
+		}
+
+		DBA::insert('mail', $msg);
+
+		$msg['id'] = DBA::lastInsertId();
+
+		DBA::unlock();
+
+		if (!empty($msg['convid'])) {
+			DBA::update('conv', ['updated' => DateTimeFormat::utcNow()], ['id' => $msg['convid']]);
+		}
+
+		// send notifications.
+		$notif_params = [
+			'type' => NOTIFY_MAIL,
+			'notify_flags' => $user['notify-flags'],
+			'language' => $user['language'],
+			'to_name' => $user['username'],
+			'to_email' => $user['email'],
+			'uid' => $user['uid'],
+			'item' => $msg,
+			'parent' => 0,
+			'source_name' => $msg['from-name'],
+			'source_link' => $msg['from-url'],
+			'source_photo' => $msg['from-photo'],
+			'verb' => ACTIVITY_POST,
+			'otype' => 'mail'
+		];
+
+		notification($notif_params);
+
+		Logger::info('Mail is processed, notification was sent.', ['id' => $msg['id'], 'uri' => $msg['uri']]);
+
+		return $msg['id'];
+	}
+
+	/**
 	 * Send private message
 	 *
 	 * @param integer $recipient recipient id, default 0
 	 * @param string  $body      message body, default empty
 	 * @param string  $subject   message subject, default empty
 	 * @param string  $replyto   reply to
+	 * @return int
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function send($recipient = 0, $body = '', $subject = '', $replyto = '')
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$recipient) {
 			return -1;
@@ -46,8 +120,10 @@ class Mail
 			return -2;
 		}
 
+		Photo::setPermissionFromBody($body, local_user(), $me['id'],  '<' . $contact['id'] . '>', '', '', '');
+
 		$guid = System::createUUID();
-		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
+		$uri = Item::newURI(local_user(), $guid);
 
 		$convid = 0;
 		$reply = false;
@@ -87,7 +163,7 @@ class Mail
 		}
 
 		if (!$convid) {
-			logger('send message: conversation not found.');
+			Logger::log('send message: conversation not found.');
 			return -4;
 		}
 
@@ -142,13 +218,13 @@ class Mail
 					}
 					$image_uri = substr($image, strrpos($image, '/') + 1);
 					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					DBA::update('photo', ['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
+					Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}
 
 		if ($post_id) {
-			Worker::add(PRIORITY_HIGH, "Notifier", "mail", $post_id);
+			Worker::add(PRIORITY_HIGH, "Notifier", Delivery::MAIL, $post_id);
 			return intval($post_id);
 		} else {
 			return -3;
@@ -156,12 +232,15 @@ class Mail
 	}
 
 	/**
-	 * @param string $recipient recipient, default empty
+	 * @param array  $recipient recipient, default empty
 	 * @param string $body      message body, default empty
 	 * @param string $subject   message subject, default empty
 	 * @param string $replyto   reply to, default empty
+	 * @return int
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
-	public static function sendWall($recipient = '', $body = '', $subject = '', $replyto = '')
+	public static function sendWall(array $recipient = [], $body = '', $subject = '', $replyto = '')
 	{
 		if (!$recipient) {
 			return -1;
@@ -172,7 +251,7 @@ class Mail
 		}
 
 		$guid = System::createUUID();
-		$uri = 'urn:X-dfrn:' . System::baseUrl() . ':' . local_user() . ':' . $guid;
+		$uri = Item::newURI(local_user(), $guid);
 
 		$me = Probe::uri($replyto);
 
@@ -200,7 +279,7 @@ class Mail
 		}
 
 		if (!$convid) {
-			logger('send message: conversation not found.');
+			Logger::log('send message: conversation not found.');
 			return -4;
 		}
 

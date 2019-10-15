@@ -8,11 +8,10 @@ namespace Friendica\Util;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Content\OEmbed;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\Object\Image;
-
-require_once 'include/dba.php';
 
 /**
  * @brief Class with methods for extracting certain content from an url
@@ -23,10 +22,10 @@ class ParseUrl
 	 * @brief Search for chached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool $no_guessing If true the parse doens't search for
-	 *                          preview pictures
-	 * @param bool $do_oembed   The false option is used by the function fetch_oembed()
-	 *                          to avoid endless loops
+	 * @param bool   $no_guessing If true the parse doens't search for
+	 *                            preview pictures
+	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+	 *                            to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url' => The url of the parsed page
@@ -38,7 +37,8 @@ class ParseUrl
 	 *    array'images' = Array of preview pictures
 	 *    string 'keywords' => The tags which belong to the content
 	 *
-	 * @see ParseUrl::getSiteinfo() for more information about scraping
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
 	public static function getSiteinfoCached($url, $no_guessing = false, $do_oembed = true)
@@ -48,7 +48,7 @@ class ParseUrl
 		}
 
 		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
-			['url' => normalise_link($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
+			['url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
 		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
@@ -60,7 +60,7 @@ class ParseUrl
 		DBA::insert(
 			'parsed_url',
 			[
-				'url' => normalise_link($url), 'guessing' => !$no_guessing,
+				'url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing,
 				'oembed' => $do_oembed, 'content' => serialize($data),
 				'created' => DateTimeFormat::utcNow()
 			],
@@ -69,6 +69,7 @@ class ParseUrl
 
 		return $data;
 	}
+
 	/**
 	 * @brief Parse a page for embeddable content information
 	 *
@@ -80,11 +81,11 @@ class ParseUrl
 	 * \<meta name="description" content="An awesome description"\>
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool $no_guessing If true the parse doens't search for
-	 *                          preview pictures
-	 * @param bool $do_oembed   The false option is used by the function fetch_oembed()
-	 *                          to avoid endless loops
-	 * @param int $count       Internal counter to avoid endless loops
+	 * @param bool   $no_guessing If true the parse doens't search for
+	 *                            preview pictures
+	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+	 *                            to avoid endless loops
+	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url' => The url of the parsed page
@@ -96,7 +97,8 @@ class ParseUrl
 	 *    array'images' = Array of preview pictures
 	 *    string 'keywords' => The tags which belong to the content
 	 *
-	 * @todo https://developers.google.com/+/plugins/snippet/
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  https://developers.google.com/+/plugins/snippet/
 	 * @verbatim
 	 * <meta itemprop="name" content="Awesome title">
 	 * <meta itemprop="description" content="An awesome description">
@@ -111,8 +113,6 @@ class ParseUrl
 	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
 	{
-		$a = get_app();
-
 		$siteinfo = [];
 
 		// Check if the URL does contain a scheme
@@ -123,7 +123,7 @@ class ParseUrl
 		}
 
 		if ($count > 10) {
-			logger('Endless loop detected for ' . $url, LOGGER_DEBUG);
+			Logger::log('Endless loop detected for ' . $url, Logger::DEBUG);
 			return $siteinfo;
 		}
 
@@ -182,12 +182,11 @@ class ParseUrl
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 
-		if ($charset == '') {
-			$charset = 'utf-8';
-		}
+		if ($charset && strtoupper($charset) != 'UTF-8') {
+			// See https://github.com/friendica/friendica/issues/5470#issuecomment-418351211
+			$charset = str_ireplace('latin-1', 'latin1', $charset);
 
-		if (($charset != '') && (strtoupper($charset) != 'UTF-8')) {
-			logger('detected charset ' . $charset, LOGGER_DEBUG);
+			Logger::log('detected charset ' . $charset, Logger::DEBUG);
 			$body = iconv($charset, 'UTF-8//TRANSLIT', $body);
 		}
 
@@ -421,9 +420,9 @@ class ParseUrl
 			}
 		}
 
-		logger('Siteinfo for ' . $url . ' ' . print_r($siteinfo, true), LOGGER_DEBUG);
+		Logger::log('Siteinfo for ' . $url . ' ' . print_r($siteinfo, true), Logger::DEBUG);
 
-		Addon::callHooks('getsiteinfo', $siteinfo);
+		Hook::callAll('getsiteinfo', $siteinfo);
 
 		return $siteinfo;
 	}

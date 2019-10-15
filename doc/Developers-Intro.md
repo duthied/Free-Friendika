@@ -111,10 +111,10 @@ If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` ca
 ### Code documentation
 
 If you are interested in having the documentation of the Friendica code outside of the code files, you can use [Doxygen](http://doxygen.org) to generate it.
-The configuration file for Doxygen is located in the `util` directory of the project sources.
+The configuration file for Doxygen is located in the base directory of the project sources.
 Run
 
-	$> doxygen util/Doxyfile
+	$> doxygen Doxyfile
 
 to generate the files which will be located in the `doc/html` subdirectory in the Friendica directory.
 You can browse these files with any browser.

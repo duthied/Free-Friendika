@@ -7,6 +7,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Content\Text\HTML;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
 
@@ -133,7 +134,7 @@ function profperm_content(App $a) {
 	foreach($members as $member) {
 		if ($member['url']) {
 			$member['click'] = 'profChangeMember(' . $profile['id'] . ',' . $member['id'] . '); return true;';
-			$o .= micropro($member,true,'mpprof', $textmode);
+			$o .= HTML::micropro($member,true,'mpprof', $textmode);
 		}
 	}
 	$o .= '</div><div id="prof-members-end"></div>';
@@ -155,7 +156,7 @@ function profperm_content(App $a) {
 			foreach($r as $member) {
 				if (!in_array($member['id'],$ingroup)) {
 					$member['click'] = 'profChangeMember(' . $profile['id'] . ',' . $member['id'] . '); return true;';
-					$o .= micropro($member,true,'mpprof',$textmode);
+					$o .= HTML::micropro($member,true,'mpprof',$textmode);
 				}
 			}
 		}
@@ -164,7 +165,7 @@ function profperm_content(App $a) {
 
 	if (!empty($change)) {
 		echo $o;
-		killme();
+		exit();
 	}
 	$o .= '</div>';
 	return $o;

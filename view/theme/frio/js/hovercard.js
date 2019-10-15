@@ -55,7 +55,7 @@ $(document).ready(function(){
 					var hctrigger = 'manual';
 			};
 
-			// Timeoute until the hover-card does appear
+			// Timeout until the hover-card does appear
 			setTimeout(function(){
 				if(targetElement.is(":hover") && parseInt(targetElement.attr('data-awaiting-hover-card'),10) == timeNow) {
 					if($('.hovercard').length == 0) {	// no card if there already is one open
@@ -81,6 +81,9 @@ $(document).ready(function(){
 									template: '<div class="popover hovercard" data-card-created="' + timeNow + '"><div class="arrow"></div><div class="popover-content hovercard-content"></div></div>',
 									content: data,
 									container: "body",
+									sanitizeFn: function (content) {
+										return DOMPurify.sanitize(content)
+									},
 								}).popover('show');
 							}
 						});

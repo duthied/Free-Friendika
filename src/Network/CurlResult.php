@@ -2,8 +2,9 @@
 
 namespace Friendica\Network;
 
-
+use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\Network;
 
 /**
  * A content class for Curl call results
@@ -24,6 +25,11 @@ class CurlResult
 	 * @var string the HTTP headers of the Curl call
 	 */
 	private $header;
+
+	/**
+	 * @var array the HTTP headers of the Curl call
+	 */
+	private $header_fields;
 
 	/**
 	 * @var boolean true (if HTTP 2xx result) or false
@@ -76,6 +82,7 @@ class CurlResult
 	 * @param string $url optional URL
 	 *
 	 * @return CurlResult a CURL with error response
+	 * @throws InternalServerErrorException
 	 */
 	public static function createErrorCurl($url = '')
 	{
@@ -104,7 +111,7 @@ class CurlResult
 		$this->errorNumber = $errorNumber;
 		$this->error = $error;
 
-		logger($url . ': ' . $this->returnCode . " " . $result, LOGGER_DATA);
+		Logger::log($url . ': ' . $this->returnCode . " " . $result, Logger::DATA);
 
 		$this->parseBodyHeader($result);
 		$this->checkSuccess();
@@ -127,15 +134,21 @@ class CurlResult
 
 		$this->body = substr($result, strlen($header));
 		$this->header = $header;
+		$this->header_fields = []; // Is filled on demand
 	}
 
 	private function checkSuccess()
 	{
 		$this->isSuccess = ($this->returnCode >= 200 && $this->returnCode <= 299) || $this->errorNumber == 0;
 
+		// Everything higher or equal 400 is not a success
+		if ($this->returnCode >= 400) {
+			$this->isSuccess = false;
+		}
+
 		if (!$this->isSuccess) {
-			logger('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, LOGGER_INFO);
-			logger('debug: ' . print_r($this->info, true), LOGGER_DATA);
+			Logger::log('error: ' . $this->url . ': ' . $this->returnCode . ' - ' . $this->error, Logger::INFO);
+			Logger::log('debug: ' . print_r($this->info, true), Logger::DATA);
 		}
 
 		if (!$this->isSuccess && $this->errorNumber == CURLE_OPERATION_TIMEDOUT) {
@@ -154,30 +167,34 @@ class CurlResult
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$new_location_info = (!array_key_exists('redirect_url', $this->info) ? '' : @parse_url($this->info['redirect_url']));
-			$old_location_info = (!array_key_exists('url', $this->info) ? '' : @parse_url($this->info['url']));
-
-			$this->redirectUrl = $new_location_info;
-
-			if (empty($new_location_info['path']) && !empty($new_location_info['host'])) {
-				$this->redirectUrl = $new_location_info['scheme'] . '://' . $new_location_info['host'] . $old_location_info['path'];
+			$redirect_parts = parse_url(defaults($this->info, 'redirect_url', ''));
+			if (empty($redirect_parts)) {
+				$redirect_parts = [];
 			}
-
-			$matches = [];
 
 			if (preg_match('/(Location:|URI:)(.*?)\n/i', $this->header, $matches)) {
-				$this->redirectUrl = trim(array_pop($matches));
-			}
-			if (strpos($this->redirectUrl, '/') === 0) {
-				$this->redirectUrl = $old_location_info["scheme"] . "://" . $old_location_info["host"] . $this->redirectUrl;
-			}
-			$old_location_query = @parse_url($this->url, PHP_URL_QUERY);
-
-			if ($old_location_query != '') {
-				$this->redirectUrl .= '?' . $old_location_query;
+				$redirect_parts2 = parse_url(trim(array_pop($matches)));
+				if (!empty($redirect_parts2)) {
+					$redirect_parts = array_merge($redirect_parts, $redirect_parts2);
+				}
 			}
 
-			$this->isRedirectUrl = filter_var($this->redirectUrl, FILTER_VALIDATE_URL) !== false;
+			$parts = parse_url(defaults($this->info, 'url', ''));
+			if (empty($parts)) {
+				$parts = [];
+			}
+
+			/// @todo Checking the corresponding RFC which parts of a redirect can be ommitted.
+			$components = ['scheme', 'host', 'path', 'query', 'fragment'];
+			foreach ($components as $component) {
+				if (empty($redirect_parts[$component]) && !empty($parts[$component])) {
+					$redirect_parts[$component] = $parts[$component];
+				}
+			}
+
+			$this->redirectUrl = Network::unparseURL($redirect_parts);
+
+			$this->isRedirectUrl = true;
 		} else {
 			$this->isRedirectUrl = false;
 		}
@@ -215,11 +232,65 @@ class CurlResult
 	/**
 	 * Returns the Curl headers
 	 *
-	 * @return string the Curl headers
+	 * @param string $field optional header field. Return all fields if empty
+	 *
+	 * @return string the Curl headers or the specified content of the header variable
 	 */
-	public function getHeader()
+	public function getHeader(string $field = '')
 	{
-		return $this->header;
+		if (empty($field)) {
+			return $this->header;
+		}
+
+		$field = strtolower(trim($field));
+
+		$headers = $this->getHeaderArray();
+
+		if (isset($headers[$field])) {
+			return $headers[$field];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Check if a specified header exists
+	 *
+	 * @param string $field header field
+	 *
+	 * @return boolean "true" if header exists
+	 */
+	public function inHeader(string $field)
+	{
+		$field = strtolower(trim($field));
+
+		$headers = $this->getHeaderArray();
+
+		return array_key_exists($field, $headers);
+	}
+
+	/**
+	 * Returns the Curl headers as an associated array
+	 *
+	 * @return array associated header array
+	 */
+	public function getHeaderArray()
+	{
+		if (!empty($this->header_fields)) {
+			return $this->header_fields;
+		}
+
+		$this->header_fields = [];
+
+		$lines = explode("\n", trim($this->header));
+		foreach ($lines as $line) {
+			$parts = explode(':', $line);
+			$headerfield = strtolower(trim(array_shift($parts)));
+			$headerdata = trim(implode(':', $parts));
+			$this->header_fields[$headerfield] = $headerdata;
+		}
+
+		return $this->header_fields;
 	}
 
 	/**

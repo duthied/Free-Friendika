@@ -6,29 +6,18 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
+use Friendica\Util\Strings;
 
 function crepair_init(App $a)
 {
 	if (!local_user()) {
 		return;
-	}
-
-	$contact = null;
-	if (($a->argc == 2) && intval($a->argv[1])) {
-		$contact = DBA::selectFirst('contact', [], ['uid' => local_user(), 'id' => $a->argv[1]]);
-	}
-
-	if (!x($a->page, 'aside')) {
-		$a->page['aside'] = '';
-	}
-
-	if (DBA::isResult($contact)) {
-		$a->data['contact'] = $contact;
-		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 	}
 }
 
@@ -52,6 +41,7 @@ function crepair_post(App $a)
 	$name        = defaults($_POST, 'name'       , $contact['name']);
 	$nick        = defaults($_POST, 'nick'       , '');
 	$url         = defaults($_POST, 'url'        , '');
+	$alias       = defaults($_POST, 'alias'      , '');
 	$request     = defaults($_POST, 'request'    , '');
 	$confirm     = defaults($_POST, 'confirm'    , '');
 	$notify      = defaults($_POST, 'notify'     , '');
@@ -59,26 +49,28 @@ function crepair_post(App $a)
 	$attag       = defaults($_POST, 'attag'      , '');
 	$photo       = defaults($_POST, 'photo'      , '');
 	$remote_self = defaults($_POST, 'remote_self', false);
-	$nurl        = normalise_link($url);
+	$nurl        = Strings::normaliseLink($url);
 
-	$r = q("UPDATE `contact` SET `name` = '%s', `nick` = '%s', `url` = '%s', `nurl` = '%s', `request` = '%s', `confirm` = '%s', `notify` = '%s', `poll` = '%s', `attag` = '%s' , `remote_self` = %d
-		WHERE `id` = %d AND `uid` = %d",
-		DBA::escape($name),
-		DBA::escape($nick),
-		DBA::escape($url),
-		DBA::escape($nurl),
-		DBA::escape($request),
-		DBA::escape($confirm),
-		DBA::escape($notify),
-		DBA::escape($poll),
-		DBA::escape($attag),
-		intval($remote_self),
-		intval($contact['id']),
-		local_user()
+	$r = DBA::update(
+		'contact',
+		[
+			'name'        => $name,
+			'nick'        => $nick,
+			'url'         => $url,
+			'nurl'        => $nurl,
+			'alias'       => $alias,
+			'request'     => $request,
+			'confirm'     => $confirm,
+			'notify'      => $notify,
+			'poll'        => $poll,
+			'attag'       => $attag,
+			'remote_self' => $remote_self,
+		],
+		['id' => $contact['id'], 'uid' => local_user()]
 	);
 
 	if ($photo) {
-		logger('mod-crepair: updating photo from ' . $photo);
+		Logger::log('mod-crepair: updating photo from ' . $photo);
 
 		Model\Contact::updateAvatar($photo, local_user(), $contact['id']);
 	}
@@ -111,6 +103,15 @@ function crepair_content(App $a)
 		return;
 	}
 
+	if (empty($a->page['aside'])) {
+		$a->page['aside'] = '';
+	}
+
+	if (DBA::isResult($contact)) {
+		$a->data['contact'] = $contact;
+		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
+	}
+
 	$warning = L10n::t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
 	$info = L10n::t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
 
@@ -131,12 +132,12 @@ function crepair_content(App $a)
 		$remote_self_options = ['0' => L10n::t('No mirroring'), '2' => L10n::t('Mirror as my own posting')];
 	}
 
-	$update_profile = in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS]);
+	$update_profile = in_array($contact['network'], Protocol::FEDERATED);
 
 	$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
 
-	$tpl = get_markup_template('crepair.tpl');
-	$o = replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate('crepair.tpl');
+	$o = Renderer::replaceMacros($tpl, [
 		'$tab_str'        => $tab_str,
 		'$warning'        => $warning,
 		'$info'           => $info,
@@ -155,10 +156,11 @@ function crepair_content(App $a)
 			$remote_self_options
 		],
 
-		'$name'		=> ['name', L10n::t('Name') , htmlentities($contact['name'])],
-		'$nick'		=> ['nick', L10n::t('Account Nickname'), htmlentities($contact['nick'])],
+		'$name'		=> ['name', L10n::t('Name') , $contact['name']],
+		'$nick'		=> ['nick', L10n::t('Account Nickname'), $contact['nick']],
 		'$attag'	=> ['attag', L10n::t('@Tagname - overrides Name/Nickname'), $contact['attag']],
 		'$url'		=> ['url', L10n::t('Account URL'), $contact['url']],
+		'$alias'	=> ['alias', L10n::t('Account URL Alias'), $contact['alias']],
 		'$request'	=> ['request', L10n::t('Friend Request URL'), $contact['request']],
 		'confirm'	=> ['confirm', L10n::t('Friend Confirm URL'), $contact['confirm']],
 		'notify'	=> ['notify', L10n::t('Notification Endpoint URL'), $contact['notify']],

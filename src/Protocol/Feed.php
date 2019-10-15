@@ -9,15 +9,13 @@ namespace Friendica\Protocol;
 use DOMDocument;
 use DOMXPath;
 use Friendica\Content\Text\HTML;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
-
-require_once 'include/dba.php';
-require_once 'include/items.php';
 
 /**
  * @brief This class contain functions to import feeds
@@ -27,25 +25,26 @@ class Feed {
 	/**
 	 * @brief Read a RSS/RDF/Atom feed and create an item entry for it
 	 *
-	 * @param string $xml The feed data
-	 * @param array $importer The user record of the importer
-	 * @param array $contact The contact record of the feed
-	 * @param string $hub Unused dummy value for compatibility reasons
-	 * @param bool $simulate If enabled, no data is imported
+	 * @param string $xml      The feed data
+	 * @param array  $importer The user record of the importer
+	 * @param array  $contact  The contact record of the feed
+	 * @param string $hub      Unused dummy value for compatibility reasons
+	 * @param bool   $simulate If enabled, no data is imported
 	 *
 	 * @return array In simulation mode it returns the header and the first item
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function import($xml, $importer, &$contact, &$hub, $simulate = false) {
 
-		$a = get_app();
+		$a = \get_app();
 
 		if (!$simulate) {
-			logger("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], LOGGER_DEBUG);
+			Logger::log("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], Logger::DEBUG);
 		} else {
-			logger("Test Atom/RSS feed", LOGGER_DEBUG);
+			Logger::log("Test Atom/RSS feed", Logger::DEBUG);
 		}
 		if (empty($xml)) {
-			logger('XML is empty.', LOGGER_DEBUG);
+			Logger::log('XML is empty.', Logger::DEBUG);
 			return;
 		}
 
@@ -122,7 +121,13 @@ class Feed {
 				$author["author-name"] = $value;
 			}
 			if ($simulate) {
-				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:uri/text()');
+				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:id/text()');
+
+				// See https://tools.ietf.org/html/rfc4287#section-3.2.2
+				$value = XML::getFirstNodeValue($xpath, 'atom:author/atom:uri/text()');
+				if ($value != "") {
+					$author["author-link"] = $value;
+				}
 
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:preferredUsername/text()');
 				if ($value != "") {
@@ -199,7 +204,7 @@ class Feed {
 		$header["contact-id"] = $contact["id"];
 
 		if (!is_object($entries)) {
-			logger("There are no entries in this feed.", LOGGER_DEBUG);
+			Logger::log("There are no entries in this feed.", Logger::DEBUG);
 			return;
 		}
 
@@ -248,7 +253,7 @@ class Feed {
 					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
 				$previous = Item::selectFirst(['id'], $condition);
 				if (DBA::isResult($previous)) {
-					logger("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], LOGGER_DEBUG);
+					Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], Logger::DEBUG);
 					continue;
 				}
 			}
@@ -261,6 +266,9 @@ class Feed {
 			if (empty($item["title"])) {
 				$item["title"] = XML::getFirstNodeValue($xpath, 'rss:title/text()', $entry);
 			}
+
+			$item["title"] = html_entity_decode($item["title"], ENT_QUOTES, 'UTF-8');
+
 			$published = XML::getFirstNodeValue($xpath, 'atom:published/text()', $entry);
 
 			if (empty($published)) {
@@ -313,7 +321,6 @@ class Feed {
 				$href = "";
 				$length = "";
 				$type = "";
-				$title = "";
 
 				foreach ($enclosure->attributes AS $attribute) {
 					if (in_array($attribute->name, ["url", "href"])) {
@@ -343,7 +350,7 @@ class Feed {
 					$tags .= ', ';
 				}
 
-				$taglink = "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+				$taglink = "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
 				$tags .= $taglink;
 			}
 
@@ -352,11 +359,20 @@ class Feed {
 			if (empty($body)) {
 				$body = trim(XML::getFirstNodeValue($xpath, 'content:encoded/text()', $entry));
 			}
-			if (empty($body)) {
-				$body = trim(XML::getFirstNodeValue($xpath, 'description/text()', $entry));
+
+			$summary = trim(XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry));
+
+			if (empty($summary)) {
+				$summary = trim(XML::getFirstNodeValue($xpath, 'description/text()', $entry));
 			}
+
 			if (empty($body)) {
-				$body = trim(XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry));
+				$body = $summary;
+				$summary = '';
+			}
+
+			if ($body == $summary) {
+				$summary = '';
 			}
 
 			// remove the content of the title if it is identically to the body
@@ -407,6 +423,10 @@ class Feed {
 				$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
 				unset($item["attach"]);
 			} else {
+				if (!empty($summary)) {
+					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];
+				}
+
 				if ($contact["fetch_further_information"] == 3) {
 					if (!empty($tags)) {
 						$item["tag"] = $tags;
@@ -423,7 +443,7 @@ class Feed {
 			}
 
 			if (!$simulate) {
-				logger("Stored feed: ".print_r($item, true), LOGGER_DEBUG);
+				Logger::log("Stored feed: ".print_r($item, true), Logger::DEBUG);
 
 				$notify = Item::isRemoteSelf($contact, $item);
 
@@ -440,7 +460,7 @@ class Feed {
 
 				$id = Item::insert($item, false, $notify);
 
-				logger("Feed for contact ".$contact["url"]." stored under id ".$id);
+				Logger::log("Feed for contact ".$contact["url"]." stored under id ".$id);
 			} else {
 				$items[] = $item;
 			}

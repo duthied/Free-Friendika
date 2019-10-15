@@ -26,12 +26,12 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 
 {{if $theme_config}}
 <h2>{{$stitle}}</h2>
-{{$theme_config}}
+{{$theme_config nofilter}}
 {{/if}}
 
 </form>

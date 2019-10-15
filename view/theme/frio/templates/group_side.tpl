@@ -28,7 +28,7 @@
 							<input type="checkbox"
 								id="sidebar-group-checkbox-{{$group.id}}"
 								class="{{if $group.selected}}ticked{{else}}unticked {{/if}} action"
-								onclick="contactgroupChangeMember('{{$group.id}}','{{$group.cid}}');return true;"
+								onclick="return contactgroupChangeMember(this, '{{$group.id}}','{{$group.cid}}');"
 								{{if $group.ismember}}checked="checked"{{/if}}
 								aria-checked="{{if $group.ismember}}true{{else}}false{{/if}}"
 							/>

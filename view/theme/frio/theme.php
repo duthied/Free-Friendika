@@ -10,34 +10,27 @@
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
-use Friendica\Core\System;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model;
 use Friendica\Module;
-
-$frio = 'view/theme/frio';
-
-global $frio;
+use Friendica\Util\Strings;
 
 function frio_init(App $a)
 {
+	global $frio;
+	$frio = 'view/theme/frio';
+
 	// disable the events module link in the profile tab
 	$a->theme_events_in_profile = false;
 	$a->videowidth = 622;
 
-	$a->setActiveTemplateEngine('smarty3');
-
-	$baseurl = System::baseUrl();
-
-	$style = PConfig::get(local_user(), 'frio', 'style');
-
-	$frio = 'view/theme/frio';
-
-	global $frio;
+	Renderer::setActiveTemplateEngine('smarty3');
 
 	// if the device is a mobile device set js is_mobile
 	// variable so the js scripts can use this information
@@ -49,33 +42,37 @@ function frio_init(App $a)
 EOT;
 	}
 
-	if ($style == '') {
-		$style = Config::get('frio', 'style');
-	}
+	$enable_compose = \Friendica\Core\PConfig::get(local_user(), 'frio', 'enable_compose');
+	$compose = $enable_compose === '1' || $enable_compose === null && Config::get('frio', 'enable_compose') ? 1 : 0;
+	$a->page['htmlhead'] .= <<< HTML
+		<script type="text/javascript">
+			var compose = $compose;
+		</script>
+HTML;
 }
 
 function frio_install()
 {
-	Addon::registerHook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Addon::registerHook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Addon::registerHook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Addon::registerHook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Addon::registerHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Addon::registerHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
+	Hook::register('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	Hook::register('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	Hook::register('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
+	Hook::register('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	Hook::register('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	Hook::register('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	logger('installed theme frio');
+	Logger::log('installed theme frio');
 }
 
 function frio_uninstall()
 {
-	Addon::unregisterHook('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
-	Addon::unregisterHook('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
-	Addon::unregisterHook('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
-	Addon::unregisterHook('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
-	Addon::unregisterHook('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
-	Addon::unregisterHook('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
+	Hook::unregister('prepare_body_final', 'view/theme/frio/theme.php', 'frio_item_photo_links');
+	Hook::unregister('item_photo_menu', 'view/theme/frio/theme.php', 'frio_item_photo_menu');
+	Hook::unregister('contact_photo_menu', 'view/theme/frio/theme.php', 'frio_contact_photo_menu');
+	Hook::unregister('nav_info', 'view/theme/frio/theme.php', 'frio_remote_nav');
+	Hook::unregister('acl_lookup_end', 'view/theme/frio/theme.php', 'frio_acl_lookup');
+	Hook::unregister('display_item', 'view/theme/frio/theme.php', 'frio_display_item');
 
-	logger('uninstalled theme frio');
+	Logger::log('uninstalled theme frio');
 }
 
 /**
@@ -211,7 +208,7 @@ function frio_remote_nav($a, &$nav)
 	// get the homelink from $_XSESSION
 	$homelink = Model\Profile::getMyURL();
 	if (!$homelink) {
-		$homelink = defaults($_SESSION, 'visitor_home', '');
+		$homelink = Session::get('visitor_home', '');
 	}
 
 	// split up the url in it's parts (protocol,domain/directory, /profile/, nickname
@@ -256,21 +253,21 @@ function frio_remote_nav($a, &$nav)
 		$r = false;
 	}
 
+	$remoteUser = null;
 	if (DBA::isResult($r)) {
 		$nav['userinfo'] = [
 			'icon' => (DBA::isResult($r) ? $r[0]['photo'] : 'images/person-48.jpg'),
 			'name' => $r[0]['name'],
 		];
+		$remoteUser = $r[0];
 	}
 
-	if (!local_user() && !empty($server_url)) {
-		$nav['logout'] = [$server_url . '/logout', L10n::t('Logout'), '', L10n::t('End this session')];
-
+	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
 		// user menu
-		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $a->user['nickname'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
-		$nav['usermenu'][] = [$server_url . '/photos/' . $a->user['nickname'], L10n::t('Photos'), '', L10n::t('Your photos')];
-		$nav['usermenu'][] = [$server_url . '/videos/' . $a->user['nickname'], L10n::t('Videos'), '', L10n::t('Your videos')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], L10n::t('Photos'), '', L10n::t('Your photos')];
+		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], L10n::t('Videos'), '', L10n::t('Your videos')];
 		$nav['usermenu'][] = [$server_url . '/events/', L10n::t('Events'), '', L10n::t('Your events')];
 
 		// navbar links
@@ -298,7 +295,7 @@ function frio_remote_nav($a, &$nav)
  */
 function frio_acl_lookup(App $a, &$results)
 {
-	$nets = x($_GET, 'nets') ? notags(trim($_GET['nets'])) : '';
+	$nets = !empty($_GET['nets']) ? Strings::escapeTags(trim($_GET['nets'])) : '';
 
 	// we introduce a new search type, r should do the same query like it's
 	// done in /src/Module/Contact.php for connections
@@ -308,7 +305,7 @@ function frio_acl_lookup(App $a, &$results)
 
 	$sql_extra = '';
 	if ($results['search']) {
-		$search_txt = DBA::escape(protect_sprintf(preg_quote($results['search'])));
+		$search_txt = DBA::escape(Strings::protectSprintf(preg_quote($results['search'])));
 		$sql_extra .= " AND (`attag` LIKE '%%" . $search_txt . "%%' OR `name` LIKE '%%" . $search_txt . "%%' OR `nick` LIKE '%%" . $search_txt . "%%') ";
 	}
 
@@ -318,14 +315,14 @@ function frio_acl_lookup(App $a, &$results)
 
 	$total = 0;
 	$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-		WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
+		WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra ", intval($_SESSION['uid']));
 	if (DBA::isResult($r)) {
 		$total = $r[0]['total'];
 	}
 
 	$sql_extra3 = Widget::unavailableNetworks();
 
-	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT %d, %d ",
+	$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND NOT `self` AND NOT `deleted` AND NOT `pending` $sql_extra $sql_extra3 ORDER BY `name` ASC LIMIT %d, %d ",
 		intval($_SESSION['uid']), intval($results['start']), intval($results['count'])
 	);
 

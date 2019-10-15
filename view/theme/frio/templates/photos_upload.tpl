@@ -9,7 +9,7 @@
 			<label id="photos-upload-text" for="photos-upload-newalbum" >{{$newalbum}}</label>
 
 			<input id="photos-upload-album-select" class="form-control" placeholder="{{$existalbumtext}}" list="dl-photo-upload" type="text" name="album" size="4">
-			<datalist id="dl-photo-upload">{{$albumselect}}</datalist>
+			<datalist id="dl-photo-upload">{{$albumselect  nofilter}}</datalist>
 		</div>
 		<div id="photos-upload-end" class="clearfix"></div>
 
@@ -28,7 +28,7 @@
 
 			<div id="photos-upload-spacer"></div>
 
-			{{$alt_uploader}}
+			{{$alt_uploader nofilter}}
 		{{/if}}
 
 
@@ -43,9 +43,9 @@
 						<i id="jot-perms-icon" class="fa {{$lockstate}}"></i> 
 					</button>
 
-					{{$default_upload_submit}}
+					{{$default_upload_submit nofilter}}
 				</div>
-				{{$default_upload_box}}
+				{{$default_upload_box nofilter}}
 			</div>
 			<div class="clearfix"></div>
 		{{/if}}
@@ -63,7 +63,7 @@
 						<h4 id="modal-title" class="modal-title">{{$permissions}}</h4>
 					</div>
 					<div id="photos-upload-permissions-wrapper" class="modal-body">
-						{{$aclselect}}
+						{{$aclselect nofilter}}
 					</div>
 				</div>
 			</div>

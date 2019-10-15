@@ -9,7 +9,6 @@ class SystemTest extends TestCase
 {
 	private function assertGuid($guid, $length, $prefix = '')
 	{
-		print $guid;
 		$length -= strlen($prefix);
 		$this->assertRegExp("/^" . $prefix . "[a-z0-9]{" . $length . "}?$/", $guid);
 	}

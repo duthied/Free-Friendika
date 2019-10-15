@@ -5,12 +5,15 @@
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Protocol\DFRN;
@@ -19,15 +22,14 @@ use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'include/text.php';
-require_once 'mod/share.php';
-require_once 'include/enotify.php';
+require_once __DIR__ . '/../mod/share.php';
 
 function add_page_info_data(array $data, $no_photos = false)
 {
-	Addon::callHooks('page_info_data', $data);
+	Hook::callAll('page_info_data', $data);
 
 	if (empty($data['type'])) {
 		return '';
@@ -94,7 +96,7 @@ function add_page_info_data(array $data, $no_photos = false)
 			/// @TODO make a positive list of allowed characters
 			$hashtag = str_replace([" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"],
 						["", "", "", "", "", "", "", "", "", "", "", ""], $keyword);
-			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url] ";
+			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url] ";
 		}
 	}
 
@@ -109,7 +111,7 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 		$data["images"][0]["src"] = $photo;
 	}
 
-	logger('fetch page info for ' . $url . ' ' . print_r($data, true), LOGGER_DEBUG);
+	Logger::log('fetch page info for ' . $url . ' ' . print_r($data, true), Logger::DEBUG);
 
 	if (!$keywords && isset($data["keywords"])) {
 		unset($data["keywords"]);
@@ -145,7 +147,7 @@ function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blackl
 				$tags .= ", ";
 			}
 
-			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
 		}
 	}
 
@@ -167,7 +169,7 @@ function add_page_info($url, $no_photos = false, $photo = "", $keywords = false,
 
 function add_page_info_to_body($body, $texturl = false, $no_photos = false)
 {
-	logger('add_page_info_to_body: fetch page info for body ' . $body, LOGGER_DEBUG);
+	Logger::log('add_page_info_to_body: fetch page info for body ' . $body, Logger::DEBUG);
 
 	$URLSearchString = "^\[\]";
 
@@ -203,8 +205,7 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false)
 			$body = $removedlink;
 		}
 
-		$url = str_replace(['/', '.'], ['\/', '\.'], $matches[1]);
-		$removedlink = preg_replace("/\[url\=" . $url . "\](.*?)\[\/url\]/ism", '', $body);
+		$removedlink = preg_replace("/\[url\=" . preg_quote($matches[1], '/') . "\](.*?)\[\/url\]/ism", '', $body);
 		if (($removedlink == "") || strstr($body, $removedlink)) {
 			$body = $removedlink;
 		}
@@ -243,35 +244,35 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false)
  * model where comments can have sub-threads. That would require some massive sorting
  * to get all the feed items into a mostly linear ordering, and might still require
  * recursion.
+ *
+ * @param       $xml
+ * @param array $importer
+ * @param array $contact
+ * @param       $hub
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function consume_feed($xml, array $importer, array $contact, &$hub, $datedir = 0, $pass = 0)
+function consume_feed($xml, array $importer, array $contact, &$hub)
 {
 	if ($contact['network'] === Protocol::OSTATUS) {
-		if ($pass < 2) {
-			// Test - remove before flight
-			//$tempfile = tempnam(get_temppath(), "ostatus2");
-			//file_put_contents($tempfile, $xml);
-			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			OStatus::import($xml, $importer, $contact, $hub);
-		}
+		Logger::log("Consume OStatus messages ", Logger::DEBUG);
+		OStatus::import($xml, $importer, $contact, $hub);
 
 		return;
 	}
 
 	if ($contact['network'] === Protocol::FEED) {
-		if ($pass < 2) {
-			logger("Consume feeds", LOGGER_DEBUG);
-			Feed::import($xml, $importer, $contact, $hub);
-		}
+		Logger::log("Consume feeds", Logger::DEBUG);
+		Feed::import($xml, $importer, $contact, $hub);
 
 		return;
 	}
 
 	if ($contact['network'] === Protocol::DFRN) {
-		logger("Consume DFRN messages", LOGGER_DEBUG);
+		Logger::log("Consume DFRN messages", Logger::DEBUG);
 		$dfrn_importer = DFRN::getImporter($contact["id"], $importer["uid"]);
 		if (!empty($dfrn_importer)) {
-			logger("Now import the DFRN feed");
+			Logger::log("Now import the DFRN feed");
 			DFRN::import($xml, $dfrn_importer, true);
 			return;
 		}
@@ -294,8 +295,6 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 		return;
 	}
 
-	$a = BaseObject::getApp();
-
 	$user = DBA::selectFirst('user', ['nickname'], ['uid' => $importer['uid']]);
 
 	// No user, no nickname, we quit
@@ -306,11 +305,11 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 	$push_url = System::baseUrl() . '/pubsub/' . $user['nickname'] . '/' . $contact['id'];
 
 	// Use a single verify token, even if multiple hubs
-	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : random_string());
+	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : Strings::getRandomHex());
 
 	$params= 'hub.mode=' . $hubmode . '&hub.callback=' . urlencode($push_url) . '&hub.topic=' . urlencode($contact['poll']) . '&hub.verify=async&hub.verify_token=' . $verify_token;
 
-	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
+	Logger::log('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
 	if (!strlen($contact['hub-verify']) || ($contact['hub-verify'] != $verify_token)) {
 		DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
@@ -318,7 +317,7 @@ function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'sub
 
 	$postResult = Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), LOGGER_DEBUG);
+	Logger::log('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), Logger::DEBUG);
 
 	return;
 
@@ -328,7 +327,7 @@ function drop_items(array $items)
 {
 	$uid = 0;
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 
@@ -343,13 +342,13 @@ function drop_items(array $items)
 	}
 }
 
-function drop_item($id)
+function drop_item($id, $return = '')
 {
 	$a = BaseObject::getApp();
 
 	// locate item to be deleted
 
-	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted'];
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'];
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
@@ -364,14 +363,8 @@ function drop_item($id)
 	$contact_id = 0;
 
 	// check if logged in user is either the author or owner of this item
-
-	if (!empty($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $item['uid'] && $visitor['cid'] == $item['contact-id']) {
-				$contact_id = $visitor['cid'];
-				break;
-			}
-		}
+	if (Session::getRemoteContactID($item['uid']) == $item['contact-id']) {
+		$contact_id = $item['contact-id'];
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {
@@ -389,7 +382,7 @@ function drop_item($id)
 				}
 			}
 
-			return replace_macros(get_markup_template('confirm.tpl'), [
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => L10n::t('Do you really want to delete this item?'),
 				'$extra_inputs' => $inputs,
@@ -404,91 +397,47 @@ function drop_item($id)
 			$a->internalRedirect('display/' . $item['guid']);
 		}
 
+		$is_comment = ($item['gravity'] == GRAVITY_COMMENT) ? true : false;
+		$parentitem = null;
+		if (!empty($item['parent'])){
+			$fields = ['guid'];
+			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
+		}
+
 		// delete the item
 		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		$a->internalRedirect('network');
-		//NOTREACHED
+		$return_url = hex2bin($return);
+
+		// removes update_* from return_url to ignore Ajax refresh
+		$return_url = str_replace("update_", "", $return_url);
+
+		// Check if delete a comment
+		if ($is_comment) {
+			// Return to parent guid
+			if (!empty($parentitem)) {
+				$a->internalRedirect('display/' . $parentitem['guid']);
+				//NOTREACHED
+			}
+			// In case something goes wrong
+			else {
+				$a->internalRedirect('network');
+				//NOTREACHED
+			}
+		}
+		else {
+			// if unknown location or deleting top level post called from display
+			if (empty($return_url) || strpos($return_url, 'display') !== false) {
+				$a->internalRedirect('network');
+				//NOTREACHED
+			} else {
+				$a->internalRedirect($return_url);
+				//NOTREACHED
+			}
+		}
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
 		$a->internalRedirect('display/' . $item['guid']);
 		//NOTREACHED
 	}
-}
-
-/* arrange the list in years */
-function list_post_dates($uid, $wall)
-{
-	$dnow = DateTimeFormat::localNow('Y-m-d');
-
-	$dthen = Item::firstPostDate($uid, $wall);
-	if (!$dthen) {
-		return [];
-	}
-
-	// Set the start and end date to the beginning of the month
-	$dnow = substr($dnow, 0, 8) . '01';
-	$dthen = substr($dthen, 0, 8) . '01';
-
-	$ret = [];
-
-	/*
-	 * Starting with the current month, get the first and last days of every
-	 * month down to and including the month of the first post
-	 */
-	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
-		$dyear = intval(substr($dnow, 0, 4));
-		$dstart = substr($dnow, 0, 8) . '01';
-		$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
-		$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
-		$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
-		$str = day_translate(DateTimeFormat::utc($dnow, 'F'));
-
-		if (empty($ret[$dyear])) {
-			$ret[$dyear] = [];
-		}
-
-		$ret[$dyear][] = [$str, $end_month, $start_month];
-		$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
-	}
-	return $ret;
-}
-
-function posted_date_widget($url, $uid, $wall)
-{
-	$o = '';
-
-	if (!Feature::isEnabled($uid, 'archives')) {
-		return $o;
-	}
-
-	// For former Facebook folks that left because of "timeline"
-	/*
-	 * @TODO old-lost code?
-	if ($wall && intval(PConfig::get($uid, 'system', 'no_wall_archive_widget')))
-		return $o;
-	*/
-
-	$visible_years = PConfig::get($uid, 'system', 'archive_visible_years', 5);
-
-	$ret = list_post_dates($uid, $wall);
-
-	if (!DBA::isResult($ret)) {
-		return $o;
-	}
-
-	$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
-	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
-
-	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[
-		'$title' => L10n::t('Archives'),
-		'$size' => $visible_years,
-		'$cutoff_year' => $cutoff_year,
-		'$cutoff' => $cutoff,
-		'$url' => $url,
-		'$dates' => $ret,
-		'$showmore' => L10n::t('show more')
-
-	]);
-	return $o;
 }

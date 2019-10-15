@@ -10,40 +10,36 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Module\Objects;
+use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
+use Friendica\Util\Strings;
 
 function display_init(App $a)
 {
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (ActivityPub::isRequest()) {
+		Objects::rawContent();
+	}
+
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
 	$nick = (($a->argc > 1) ? $a->argv[1] : '');
-	$profiledata = [];
-
-	if ($a->argc == 3) {
-		if (substr($a->argv[2], -5) == '.atom') {
-			$item_id = substr($a->argv[2], 0, -5);
-			displayShowFeed($item_id, false);
-		}
-	}
-
-	if ($a->argc == 4) {
-		if ($a->argv[3] == 'conversation.atom') {
-			$item_id = $a->argv[2];
-			displayShowFeed($item_id, true);
-		}
-	}
 
 	$item = null;
+	$item_user = local_user();
 
 	$fields = ['id', 'parent', 'author-id', 'body', 'uid', 'guid'];
 
@@ -59,39 +55,53 @@ function display_init(App $a)
 			}
 		}
 
+		// Is this item private but could be visible to the remove visitor?
+		if (!DBA::isResult($item) && remote_user()) {
+			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
+			if (DBA::isResult($item)) {
+				if (!Contact::isFollower(remote_user(), $item['uid'])) {
+					$item = null;
+				} else {
+					$item_user = $item['uid'];
+				}
+			}
+		}
+
 		// Is it an item with uid=0?
 		if (!DBA::isResult($item)) {
 			$item = Item::selectFirstForUser(local_user(), $fields, ['guid' => $a->argv[1], 'private' => [0, 2], 'uid' => 0]);
 		}
-	} elseif (($a->argc == 3) && ($nick == 'feed-item')) {
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $a->argv[2], 'private' => [0, 2], 'uid' => 0]);
+	} elseif ($a->argc >= 3 && $nick == 'feed-item') {
+		$item_id = $a->argv[2];
+		if (substr($item_id, -5) == '.atom') {
+			$item_id = substr($item_id, 0, -5);
+		}
+		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item_id, 'private' => [0, 2], 'uid' => 0]);
 	}
 
 	if (!DBA::isResult($item)) {
-		$a->error = 404;
-		notice(L10n::t('Item not found.') . EOL);
 		return;
 	}
 
+	if ($a->argc >= 3 && $nick == 'feed-item') {
+		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
+	}
+
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
-		logger('Directly serving XML for id '.$item["id"], LOGGER_DEBUG);
+		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
 		displayShowFeed($item["id"], false);
 	}
 
-	if (ActivityPub::isRequest()) {
-		$a->internalRedirect(str_replace('display/', 'objects/', $a->query_string));
-	}
-
 	if ($item["id"] != $item["parent"]) {
-		$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $item["parent"]]);
+		$item = Item::selectFirstForUser($item_user, $fields, ['id' => $item["parent"]]);
 	}
 
 	$profiledata = display_fetchauthor($a, $item);
 
-	if (strstr(normalise_link($profiledata["url"]), normalise_link(System::baseUrl()))) {
-		$nickname = str_replace(normalise_link(System::baseUrl())."/profile/", "", normalise_link($profiledata["url"]));
+	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(System::baseUrl()))) {
+		$nickname = str_replace(Strings::normaliseLink(System::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
 
-		if (($nickname != $a->user["nickname"])) {
+		if ($nickname != $a->user["nickname"]) {
 			$profile = DBA::fetchFirst("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
@@ -144,7 +154,6 @@ function display_fetchauthor($a, $item)
 	}
 
 	if (!$skip) {
-		$author = "";
 		preg_match("/author='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
@@ -153,7 +162,6 @@ function display_fetchauthor($a, $item)
 		if (!empty($matches[1])) {
 			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
 		}
-		$profile = "";
 		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$profiledata["url"] = $matches[1];
@@ -162,7 +170,6 @@ function display_fetchauthor($a, $item)
 		if (!empty($matches[1])) {
 			$profiledata["url"] = $matches[1];
 		}
-		$avatar = "";
 		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$profiledata["photo"] = $matches[1];
@@ -180,28 +187,18 @@ function display_fetchauthor($a, $item)
 
 	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
 
-	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
-
-	if (local_user()) {
-		if (in_array($profiledata["network"], [Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS])) {
-			$profiledata["remoteconnect"] = System::baseUrl()."/follow?url=".urlencode($profiledata["url"]);
-		}
-	} elseif ($profiledata["network"] == Protocol::DFRN) {
-		$connect = str_replace("/profile/", "/dfrn_request/", $profiledata["url"]);
-		$profiledata["remoteconnect"] = $connect;
+	if (!empty($profiledata["photo"])) {
+		$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
 	}
 
-	return($profiledata);
+	return $profiledata;
 }
 
 function display_content(App $a, $update = false, $update_uid = 0)
 {
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
-		notice(L10n::t('Public access denied.') . EOL);
-		return;
+	if (Config::get('system','block_public') && !Session::isAuthenticated()) {
+		throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
 	}
-
-	require_once 'include/conversation.php';
 
 	$o = '';
 
@@ -221,12 +218,21 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 		if ($a->argc == 2) {
 			$item_parent = 0;
-			$fields = ['id', 'parent', 'parent-uri'];
+			$fields = ['id', 'parent', 'parent-uri', 'uid'];
 
 			if (local_user()) {
 				$condition = ['guid' => $a->argv[1], 'uid' => local_user()];
 				$item = Item::selectFirstForUser(local_user(), $fields, $condition);
 				if (DBA::isResult($item)) {
+					$item_id = $item["id"];
+					$item_parent = $item["parent"];
+					$item_parent_uri = $item['parent-uri'];
+				}
+			}
+
+			if (($item_parent == 0) && remote_user()) {
+				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
+				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
@@ -246,9 +252,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (!$item_id) {
-		$a->error = 404;
-		notice(L10n::t('Item not found.').EOL);
-		return;
+		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
@@ -262,39 +266,22 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$conversation = '';
 	}
 
-	$a->page['htmlhead'] .= replace_macros(get_markup_template('display-head.tpl'),
+	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
 				['$alternate' => $alternate,
 					'$conversation' => $conversation]);
 
-	$groups = [];
-
-	$contact = null;
 	$is_remote_contact = false;
+	$item_uid = local_user();
 
-	$contact_id = 0;
-
-	if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $v) {
-			if ($v['uid'] == $a->profile['uid']) {
-				$contact_id = $v['cid'];
-				break;
+	if (isset($item_parent_uri)) {
+		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
+		if (DBA::isResult($parent)) {
+			$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
+			$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
+			$is_remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
+			if ($is_remote_contact) {
+				$item_uid = $parent['uid'];
 			}
-		}
-	}
-
-	if ($contact_id) {
-		$groups = Group::getIdsByContactId($contact_id);
-		$remote_contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => $a->profile['uid']]);
-		if (DBA::isResult($remote_contact)) {
-			$contact = $remote_contact;
-			$is_remote_contact = true;
-		}
-	}
-
-	if (!$is_remote_contact) {
-		if (local_user()) {
-			$contact_id = $_SESSION['cid'];
-			$contact = $a->contact;
 		}
 	}
 
@@ -302,11 +289,11 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
 	}
+
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
-	if (x($a->profile, 'hidewall') && !$is_owner && !$is_remote_contact) {
-		notice(L10n::t('Access to this profile has been restricted.') . EOL);
-		return;
+	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
+		throw new HTTPException\ForbiddenException(L10n::t('Access to this profile has been restricted.'));
 	}
 
 	// We need the editor here to be able to reshare an item.
@@ -324,10 +311,9 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		];
 		$o .= status_editor($a, $x, 0, true);
 	}
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
 
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid'], $is_remote_contact, $groups);
-
-	if (local_user() && (local_user() == $a->profile['uid'])) {
+	if (local_user() && (local_user() == $a->profile['profile_uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
 		$unseen = Item::exists($condition);
 	} else {
@@ -338,13 +324,12 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		return '';
 	}
 
-	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, local_user()];
-	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink'];
-	$item = Item::selectFirstForUser(local_user(), $fields, $condition);
+	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
+	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
+	$item = Item::selectFirstForUser($a->profile['profile_uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
-		notice(L10n::t('Item not found.') . EOL);
-		return $o;
+		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
 	$item['uri'] = $item['parent-uri'];
@@ -358,7 +343,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
 	}
 
-	$o .= conversation($a, [$item], new Pager($a->query_string), 'display', $update_uid, false, 'commented', local_user());
+	$o .= conversation($a, [$item], new Pager($a->query_string), 'display', $update_uid, false, 'commented', $item_uid);
 
 	// Preparing the meta header
 	$description = trim(HTML::toPlaintext(BBCode::convert($item["body"], false), 0, true));
@@ -380,7 +365,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 	$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 
-	//<meta name="keywords" content="">
+	if (DBA::exists('contact', ['unsearchable' => true, 'id' => [$item['contact-id'], $item['author-id'], $item['owner-id']]])) {
+		$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+	}
+
 	$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
@@ -419,9 +407,9 @@ function displayShowFeed($item_id, $conversation)
 {
 	$xml = DFRN::itemFeed($item_id, $conversation);
 	if ($xml == '') {
-		System::httpExit(500);
+		throw new HTTPException\InternalServerErrorException(L10n::t('The feed for this item is unavailable.'));
 	}
 	header("Content-type: application/atom+xml");
 	echo $xml;
-	killme();
+	exit();
 }

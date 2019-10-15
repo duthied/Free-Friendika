@@ -1,15 +1,15 @@
 
-{{$default}}
+{{$default nofilter}}
 
 <h1>{{$banner}}</h1>
 
 <div id="profile-edit-links">
 <ul>
-<li><a href="profile_photo" id="profile-photo_upload-link" title="{{$profpic|escape:'html'}}">{{$profpic}}</a></li>
-<li><a href="profile/{{$profile_id}}/view?tab=profile" id="profile-edit-view-link" title="{{$viewprof|escape:'html'}}">{{$viewprof}}</a></li>
-<li><a href="{{$profile_clone_link}}" id="profile-edit-clone-link" title="{{$cr_prof|escape:'html'}}">{{$cl_prof}}</a></li>
+<li><a href="profile_photo" id="profile-photo_upload-link" title="{{$profpic}}">{{$profpic}}</a></li>
+<li><a href="profile/{{$profile_id}}/view?tab=profile" id="profile-edit-view-link" title="{{$viewprof}}">{{$viewprof}}</a></li>
+<li><a href="{{$profile_clone_link}}" id="profile-edit-clone-link" title="{{$cr_prof}}">{{$cl_prof}}</a></li>
 <li></li>
-<li><a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof|escape:'html'}}" {{$disabled}} >{{$del_prof}}</a></li>
+<li><a href="{{$profile_drop_link}}" id="profile-edit-drop-link" title="{{$del_prof}}" {{$disabled}} >{{$del_prof}}</a></li>
 
 </ul>
 </div>
@@ -25,35 +25,35 @@
 {{include file="field_yesno.tpl" field=$details}}
 <div id="profile-edit-profile-name-wrapper" >
 <label id="profile-edit-profile-name-label" for="profile-edit-profile-name" >{{$profile_name.1}} </label>
-<input type="text" size="32" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name.2|escape:'html'}}" /><div class="required">*</div>
+<input type="text" size="32" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name.2}}" /><div class="required">*</div>
 </div>
 <div id="profile-edit-profile-name-end"></div>
 
 <div id="profile-edit-name-wrapper" >
 <label id="profile-edit-name-label" for="profile-edit-name" >{{$name.1}} </label>
-<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name.2|escape:'html'}}" />
+<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name.2}}" />
 </div>
 <div id="profile-edit-name-end"></div>
 
 <div id="profile-edit-pdesc-wrapper" >
 <label id="profile-edit-pdesc-label" for="profile-edit-pdesc" >{{$pdesc.1}} </label>
-<input type="text" size="32" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc.1|escape:'html'}}" />
+<input type="text" size="32" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc.1}}" />
 </div>
 <div id="profile-edit-pdesc-end"></div>
 
 
 <div id="profile-edit-gender-wrapper" >
 <label id="profile-edit-gender-label" for="gender-select" >{{$lbl_gender}} </label>
-{{$gender}}
+{{$gender nofilter}}
 </div>
 <div id="profile-edit-gender-end"></div>
 
 <div id="profile-edit-dob-wrapper" >
-{{$dob}}
+{{$dob nofilter}}
 </div>
 <div id="profile-edit-dob-end"></div>
 
-{{$hide_friends}}
+{{$hide_friends nofilter}}
 
 <div class="profile-edit-submit-wrapper" >
 <input type="submit" name="submit" class="profile-edit-submit-button" value="{{$submit}}" />
@@ -63,20 +63,20 @@
 
 <div id="profile-edit-address-wrapper" >
 <label id="profile-edit-address-label" for="profile-edit-address" >{{$address.1}} </label>
-<input type="text" size="32" name="address" id="profile-edit-address" value="{{$address.2|escape:'html'}}" />
+<input type="text" size="32" name="address" id="profile-edit-address" value="{{$address.2}}" />
 </div>
 <div id="profile-edit-address-end"></div>
 
 <div id="profile-edit-locality-wrapper" >
 <label id="profile-edit-locality-label" for="profile-edit-locality" >{{$locality.1}} </label>
-<input type="text" size="32" name="locality" id="profile-edit-locality" value="{{$locality.2|escape:'html'}}" />
+<input type="text" size="32" name="locality" id="profile-edit-locality" value="{{$locality.2}}" />
 </div>
 <div id="profile-edit-locality-end"></div>
 
 
 <div id="profile-edit-postal-code-wrapper" >
 <label id="profile-edit-postal-code-label" for="profile-edit-postal-code" >{{$postal_code.1}} </label>
-<input type="text" size="32" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code.2|escape:'html'}}" />
+<input type="text" size="32" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code.2}}" />
 </div>
 <div id="profile-edit-postal-code-end"></div>
 
@@ -100,7 +100,7 @@
 
 <div id="profile-edit-hometown-wrapper" >
 <label id="profile-edit-hometown-label" for="profile-edit-hometown" >{{$hometown.1}} </label>
-<input type="text" size="32" name="hometown" id="profile-edit-hometown" value="{{$hometown.2|escape:'html'}}" />
+<input type="text" size="32" name="hometown" id="profile-edit-hometown" value="{{$hometown.2}}" />
 </div>
 <div id="profile-edit-hometown-end"></div>
 
@@ -110,19 +110,19 @@
 <div class="profile-edit-submit-end"></div>
 
 <div id="profile-edit-marital-wrapper" >
-<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital}} </label>
-{{$marital}}
+<label id="profile-edit-marital-label" for="profile-edit-marital" >{{$lbl_marital nofilter}} </label>
+{{$marital nofilter}}
 </div>
 <label id="profile-edit-with-label" for="profile-edit-with" > {{$with.1}} </label>
 <input type="text" size="32" name="with" id="profile-edit-with" title="{{$with.3}}" value="{{$with.2}}" />
 <label id="profile-edit-howlong-label" for="profile-edit-howlong" > {{$howlong.1}} </label>
-<input type="text" size="32" name="howlong" id="profile-edit-howlong" title="{{$howlong.1}}" value="{{$howlong.1|escape:'html'}}" />
+<input type="text" size="32" name="howlong" id="profile-edit-howlong" title="{{$howlong.1}}" value="{{$howlong.1}}" />
 
 <div id="profile-edit-marital-end"></div>
 
 <div id="profile-edit-sexual-wrapper" >
 <label id="profile-edit-sexual-label" for="sexual-select" >{{$lbl_sexual}} </label>
-{{$sexual}}
+{{$sexual nofilter}}
 </div>
 <div id="profile-edit-sexual-end"></div>
 
@@ -130,38 +130,38 @@
 
 <div id="profile-edit-homepage-wrapper" >
 <label id="profile-edit-homepage-label" for="profile-edit-homepage" >{{$homepage.1}} </label>
-<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage.2|escape:'html'}}" />
+<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage.2}}" />
 </div>
 <div id="profile-edit-homepage-end"></div>
 
 <div id="profile-edit-xmpp-wrapper" >
 <label id="profile-edit-xmpp-label" for="profile-edit-xmpp" >{{$xmpp.1}} </label>
-<input type="text" size="32" name="xmpp" id="profile-edit-xmpp" title="{{$lbl_ex2}}" value="{{$xmpp.2|escape:'html'}}" />
+<input type="text" size="32" name="xmpp" id="profile-edit-xmpp" title="{{$lbl_ex2}}" value="{{$xmpp.2}}" />
 </div><div id="profile-edit-xmpp-desc">{{$xmpp.3}}</div>
 <div id="profile-edit-xmpp-end"></div>
 
 
 <div id="profile-edit-politic-wrapper" >
 <label id="profile-edit-politic-label" for="profile-edit-politic" >{{$politic.1}} </label>
-<input type="text" size="32" name="politic" id="profile-edit-politic" value="{{$politic.2|escape:'html'}}" />
+<input type="text" size="32" name="politic" id="profile-edit-politic" value="{{$politic.2}}" />
 </div>
 <div id="profile-edit-politic-end"></div>
 
 <div id="profile-edit-religion-wrapper" >
 <label id="profile-edit-religion-label" for="profile-edit-religion" >{{$religion.1}} </label>
-<input type="text" size="32" name="religion" id="profile-edit-religion" value="{{$religion.2|escape:'html'}}" />
+<input type="text" size="32" name="religion" id="profile-edit-religion" value="{{$religion.2}}" />
 </div>
 <div id="profile-edit-religion-end"></div>
 
 <div id="profile-edit-pubkeywords-wrapper" >
 <label id="profile-edit-pubkeywords-label" for="profile-edit-pubkeywords" >{{$pub_keywords.1}} </label>
-<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords.2|escape:'html'}}" />
+<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords.2}}" />
 </div><div id="profile-edit-pubkeywords-desc">{{$pub_keywords.3}}</div>
 <div id="profile-edit-pubkeywords-end"></div>
 
 <div id="profile-edit-prvkeywords-wrapper" >
 <label id="profile-edit-prvkeywords-label" for="profile-edit-prvkeywords" >{{$prv_keywords.1}} </label>
-<input type="text" size="32" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords.2|escape:'html'}}" />
+<input type="text" size="32" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords.2}}" />
 </div><div id="profile-edit-prvkeywords-desc">{{$prv_keywords.3}}</div>
 <div id="profile-edit-prvkeywords-end"></div>
 
@@ -330,60 +330,60 @@
 {{/if}}
 <div id="profile-edit-profile-name-wrapper" >
 <label id="profile-edit-profile-name-label" for="profile-edit-profile-name" >{{$profile_name.1}} </label>
-<input type="text" size="32" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name.2|escape:'html'}}" /><div class="required">*</div>
+<input type="text" size="32" name="profile_name" id="profile-edit-profile-name" value="{{$profile_name.2}}" /><div class="required">*</div>
 </div>
 <div id="profile-edit-profile-name-end"></div>
 
 <div id="profile-edit-name-wrapper" >
 <label id="profile-edit-name-label" for="profile-edit-name" >{{$name.1}} </label>
-<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name.2|escape:'html'}}" />
+<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name.2}}" />
 </div>
 <div id="profile-edit-name-end"></div>
 
 {{if $personal_account}}
 <div id="profile-edit-gender-wrapper" >
 <label id="profile-edit-gender-label" for="gender-select" >{{$lbl_gender}} </label>
-{{$gender}}
+{{$gender nofilter}}
 </div>
 <div id="profile-edit-gender-end"></div>
 
 <div id="profile-edit-dob-wrapper" >
-{{$dob}}
+{{$dob nofilter}}
 </div>
 <div id="profile-edit-dob-end"></div>
 {{/if}}
 
 <div id="profile-edit-homepage-wrapper" >
 <label id="profile-edit-homepage-label" for="profile-edit-homepage" >{{$homepage.1}} </label>
-<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage.2|escape:'html'}}" />
+<input type="url" size="32" name="homepage" id="profile-edit-homepage" value="{{$homepage.2}}" />
 </div>
 <div id="profile-edit-homepage-end"></div>
 
 <div id="profile-edit-xmpp-wrapper" >
 <label id="profile-edit-xmpp-label" for="profile-edit-xmpp" >{{$xmpp.1}} </label>
-<input type="text" size="32" name="xmpp" id="profile-edit-xmpp" title="{{$lbl_ex2}}" value="{{$xmpp.2|escape:'html'}}" />
+<input type="text" size="32" name="xmpp" id="profile-edit-xmpp" title="{{$lbl_ex2}}" value="{{$xmpp.2}}" />
 </div><div id="profile-edit-xmpp-desc">{{$xmpp.3}}</div>
 <div id="profile-edit-xmpp-end"></div>
 
 
-{{$hide_friends}}
+{{$hide_friends nofilter}}
 
 <div id="profile-edit-address-wrapper" >
 <label id="profile-edit-address-label" for="profile-edit-address" >{{$address.1}} </label>
-<input type="text" size="32" name="address" id="profile-edit-address" value="{{$address.2|escape:'html'}}" />
+<input type="text" size="32" name="address" id="profile-edit-address" value="{{$address.2}}" />
 </div>
 <div id="profile-edit-address-end"></div>
 
 <div id="profile-edit-locality-wrapper" >
 <label id="profile-edit-locality-label" for="profile-edit-locality" >{{$locality.1}} </label>
-<input type="text" size="32" name="locality" id="profile-edit-locality" value="{{$locality.2|escape:'html'}}" />
+<input type="text" size="32" name="locality" id="profile-edit-locality" value="{{$locality.2}}" />
 </div>
 <div id="profile-edit-locality-end"></div>
 
 
 <div id="profile-edit-postal-code-wrapper" >
 <label id="profile-edit-postal-code-label" for="profile-edit-postal-code" >{{$postal_code.1}} </label>
-<input type="text" size="32" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code.2|escape:'html'}}" />
+<input type="text" size="32" name="postal_code" id="profile-edit-postal-code" value="{{$postal_code.2}}" />
 </div>
 <div id="profile-edit-postal-code-end"></div>
 
@@ -407,13 +407,13 @@
 
 <div id="profile-edit-pubkeywords-wrapper" >
 <label id="profile-edit-pubkeywords-label" for="profile-edit-pubkeywords" >{{$pub_keywords.1}} </label>
-<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords.2|escape:'html'}}" />
+<input type="text" size="32" name="pub_keywords" id="profile-edit-pubkeywords" title="{{$lbl_ex2}}" value="{{$pub_keywords.2}}" />
 </div><div id="profile-edit-pubkeywords-desc">{{$pub_keywords.3}}</div>
 <div id="profile-edit-pubkeywords-end"></div>
 
 <div id="profile-edit-prvkeywords-wrapper" >
 <label id="profile-edit-prvkeywords-label" for="profile-edit-prvkeywords" >{{$prv_keywords.1}} </label>
-<input type="text" size="32" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords.2|escape:'html'}}" />
+<input type="text" size="32" name="prv_keywords" id="profile-edit-prvkeywords" title="{{$lbl_ex2}}" value="{{$prv_keywords.2}}" />
 </div><div id="profile-edit-prvkeywords-desc">{{$prv_keywords.3}}</div>
 <div id="profile-edit-prvkeywords-end"></div>
 
