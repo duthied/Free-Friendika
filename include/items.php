@@ -42,7 +42,7 @@ function add_page_info_data(array $data, $no_photos = false)
 		$data["type"] = "link";
 	}
 
-	$data["title"] = defaults($data, "title", "");
+	$data["title"] = $data["title"] ?? '';
 
 	if ((($data["type"] != "link") && ($data["type"] != "video") && ($data["type"] != "photo")) || ($data["title"] == $data["url"])) {
 		return "";

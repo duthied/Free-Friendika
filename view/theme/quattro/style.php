@@ -6,7 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Model\Profile;
 
-$uid = defaults($_REQUEST, 'puid', 0);
+$uid = $_REQUEST['puid'] ?? 0;
 
 $color = false;
 $quattro_align = false;

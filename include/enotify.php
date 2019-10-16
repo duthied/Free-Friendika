@@ -46,10 +46,10 @@ function notification($params)
 		return false;
 	}
 
-	$params['notify_flags'] = defaults($params, 'notify_flags', $user['notify-flags']);
-	$params['language']     = defaults($params, 'language'    , $user['language']);
-	$params['to_name']      = defaults($params, 'to_name'     , $user['username']);
-	$params['to_email']     = defaults($params, 'to_email'    , $user['email']);
+	$params['notify_flags'] = ($params['notify_flags'] ?? '') ?: $user['notify-flags'];
+	$params['language']     = ($params['language']     ?? '') ?: $user['language'];
+	$params['to_name']      = ($params['to_name']      ?? '') ?: $user['username'];
+	$params['to_email']     = ($params['to_email']     ?? '') ?: $user['email'];
 
 	// from here on everything is in the recipients language
 	L10n::pushLang($params['language']);
@@ -456,17 +456,17 @@ function notification($params)
 		if (!isset($params['subject'])) {
 			Logger::warning('subject isn\'t set.', ['type' => $params['type']]);
 		}
-		$subject = defaults($params, 'subject', '');
+		$subject = $params['subject'] ?? '';
 
 		if (!isset($params['preamble'])) {
 			Logger::warning('preamble isn\'t set.', ['type' => $params['type'], 'subject' => $subject]);
 		}
-		$preamble = defaults($params, 'preamble', '');
+		$preamble = $params['preamble'] ?? '';
 
 		if (!isset($params['body'])) {
 			Logger::warning('body isn\'t set.', ['type' => $params['type'], 'subject' => $subject, 'preamble' => $preamble]);
 		}
-		$body = defaults($params, 'body', '');
+		$body = $params['body'] ?? '';
 
 		$show_in_notification_page = false;
 	}
@@ -613,11 +613,11 @@ function notification($params)
 		$datarray['siteurl'] = $siteurl;
 		$datarray['type'] = $params['type'];
 		$datarray['parent'] = $parent_id;
-		$datarray['source_name'] = defaults($params, 'source_name', '');
-		$datarray['source_link'] = defaults($params, 'source_link', '');
-		$datarray['source_photo'] = defaults($params, 'source_photo', '');
+		$datarray['source_name'] = $params['source_name'] ?? '';
+		$datarray['source_link'] = $params['source_link'] ?? '';
+		$datarray['source_photo'] = $params['source_photo'] ?? '';
 		$datarray['uid'] = $params['uid'];
-		$datarray['username'] = defaults($params, 'to_name', '');
+		$datarray['username'] = $params['to_name'] ?? '';
 		$datarray['hsitelink'] = $hsitelink;
 		$datarray['tsitelink'] = $tsitelink;
 		$datarray['hitemlink'] = '<a href="'.$itemlink.'">'.$itemlink.'</a>';
