@@ -338,12 +338,12 @@ class BaseURL
 		/* Relative script path to the web server root
 		 * Not all of those $_SERVER properties can be present, so we do by inverse priority order
 		 */
-		$relative_script_path = '';
-		$relative_script_path = defaults($this->server, 'REDIRECT_URL', $relative_script_path);
-		$relative_script_path = defaults($this->server, 'REDIRECT_URI', $relative_script_path);
-		$relative_script_path = defaults($this->server, 'REDIRECT_SCRIPT_URL', $relative_script_path);
-		$relative_script_path = defaults($this->server, 'SCRIPT_URL', $relative_script_path);
-		$relative_script_path = defaults($this->server, 'REQUEST_URI', $relative_script_path);
+		$relative_script_path =
+			($this->server['REDIRECT_URL']        ?? '' ) ?:
+			($this->server['REDIRECT_URI']        ?? '' ) ?:
+			($this->server['REDIRECT_SCRIPT_URL'] ?? '' ) ?:
+			($this->server['SCRIPT_URL']          ?? '' ) ?:
+			 $this->server['REQUEST_URI']         ?? '';
 
 		/* $relative_script_path gives /relative/path/to/friendica/module/parameter
 		 * QUERY_STRING gives pagename=module/parameter

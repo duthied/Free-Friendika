@@ -805,7 +805,7 @@ class Post extends BaseObject
 		$terms = Term::tagArrayFromItemId($this->getId(), [Term::MENTION, Term::IMPLICIT_MENTION]);
 		foreach ($terms as $term) {
 			$profile = Contact::getDetailsByURL($term['url']);
-			if (!empty($profile['addr']) && (defaults($profile, 'contact-type', Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
+			if (!empty($profile['addr']) && ((($profile['contact-type'] ?? '') ?: Contact::TYPE_UNKNOWN) != Contact::TYPE_COMMUNITY) &&
 				($profile['addr'] != $owner['addr']) && !strstr($text, $profile['addr'])) {
 				$text .= '@' . $profile['addr'] . ' ';
 			}

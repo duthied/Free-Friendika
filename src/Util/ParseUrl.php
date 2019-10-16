@@ -141,7 +141,7 @@ class ParseUrl
 		}
 
 		// If the file is too large then exit
-		if (defaults($curlResult->getInfo(), 'download_content_length', 0) > 1000000) {
+		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
 			return $siteinfo;
 		}
 

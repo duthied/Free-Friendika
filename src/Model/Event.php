@@ -242,30 +242,30 @@ class Event extends BaseObject
 	public static function store($arr)
 	{
 		$event = [];
-		$event['id']        = intval(defaults($arr, 'id'       , 0));
-		$event['uid']       = intval(defaults($arr, 'uid'      , 0));
-		$event['cid']       = intval(defaults($arr, 'cid'      , 0));
-		$event['guid']      =        defaults($arr, 'guid'     , System::createUUID());
-		$event['uri']       =        defaults($arr, 'uri'      , Item::newURI($event['uid'], $event['guid']));
-		$event['type']      =        defaults($arr, 'type'     , 'event');
-		$event['summary']   =        defaults($arr, 'summary'  , '');
-		$event['desc']      =        defaults($arr, 'desc'     , '');
-		$event['location']  =        defaults($arr, 'location' , '');
-		$event['allow_cid'] =        defaults($arr, 'allow_cid', '');
-		$event['allow_gid'] =        defaults($arr, 'allow_gid', '');
-		$event['deny_cid']  =        defaults($arr, 'deny_cid' , '');
-		$event['deny_gid']  =        defaults($arr, 'deny_gid' , '');
-		$event['adjust']    = intval(defaults($arr, 'adjust'   , 0));
-		$event['nofinish']  = intval(defaults($arr, 'nofinish' , !empty($event['start']) && empty($event['finish'])));
+		$event['id']        = intval($arr['id']        ?? 0);
+		$event['uid']       = intval($arr['uid']       ?? 0);
+		$event['cid']       = intval($arr['cid']       ?? 0);
+		$event['guid']      =       ($arr['guid']      ?? '') ?: System::createUUID();
+		$event['uri']       =       ($arr['uri']       ?? '') ?: Item::newURI($event['uid'], $event['guid']);
+		$event['type']      =       ($arr['type']      ?? '') ?: 'event';
+		$event['summary']   =        $arr['summary']   ?? '';
+		$event['desc']      =        $arr['desc']      ?? '';
+		$event['location']  =        $arr['location']  ?? '';
+		$event['allow_cid'] =        $arr['allow_cid'] ?? '';
+		$event['allow_gid'] =        $arr['allow_gid'] ?? '';
+		$event['deny_cid']  =        $arr['deny_cid']  ?? '';
+		$event['deny_gid']  =        $arr['deny_gid']  ?? '';
+		$event['adjust']    = intval($arr['adjust']    ?? 0);
+		$event['nofinish']  = intval(!empty($arr['nofinish'] || !empty($event['start']) && empty($event['finish'])));
 
-		$event['created']   = DateTimeFormat::utc(defaults($arr, 'created'  , 'now'));
-		$event['edited']    = DateTimeFormat::utc(defaults($arr, 'edited'   , 'now'));
-		$event['start']     = DateTimeFormat::utc(defaults($arr, 'start'    , DBA::NULL_DATETIME));
-		$event['finish']    = DateTimeFormat::utc(defaults($arr, 'finish'   , DBA::NULL_DATETIME));
+		$event['created']   = DateTimeFormat::utc(($arr['created'] ?? '') ?: 'now');
+		$event['edited']    = DateTimeFormat::utc(($arr['edited']  ?? '') ?: 'now');
+		$event['start']     = DateTimeFormat::utc(($arr['start']   ?? '') ?: DBA::NULL_DATETIME);
+		$event['finish']    = DateTimeFormat::utc(($arr['finish']  ?? '') ?: DBA::NULL_DATETIME);
 		if ($event['finish'] < DBA::NULL_DATETIME) {
 			$event['finish'] = DBA::NULL_DATETIME;
 		}
-		$private = intval(defaults($arr, 'private', 0));
+		$private = intval($arr['private'] ?? 0);
 
 		$conditions = ['uid' => $event['uid']];
 		if ($event['cid']) {
@@ -333,7 +333,7 @@ class Event extends BaseObject
 				$item_arr['uri']           = $event['uri'];
 				$item_arr['parent-uri']    = $event['uri'];
 				$item_arr['guid']          = $event['guid'];
-				$item_arr['plink']         = defaults($arr, 'plink', '');
+				$item_arr['plink']         = $arr['plink'] ?? '';
 				$item_arr['post-type']     = Item::PT_EVENT;
 				$item_arr['wall']          = $event['cid'] ? 0 : 1;
 				$item_arr['contact-id']    = $contact['id'];

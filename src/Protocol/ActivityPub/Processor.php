@@ -75,7 +75,7 @@ class Processor
 
 		$tag_text = '';
 		foreach ($tags as $tag) {
-			if (in_array(defaults($tag, 'type', ''), ['Mention', 'Hashtag'])) {
+			if (in_array($tag['type'] ?? '', ['Mention', 'Hashtag'])) {
 				if (!empty($tag_text)) {
 					$tag_text .= ',';
 				}
@@ -125,7 +125,7 @@ class Processor
 				if (!isset($attach['length'])) {
 					$attach['length'] = "0";
 				}
-				$item["attach"] .= '[attach]href="'.$attach['url'].'" length="'.$attach['length'].'" type="'.$attach['mediaType'].'" title="'.defaults($attach, 'name', '').'"[/attach]';
+				$item["attach"] .= '[attach]href="'.$attach['url'].'" length="'.$attach['length'].'" type="'.$attach['mediaType'].'" title="'.($attach['name'] ?? '') .'"[/attach]';
 			}
 		}
 
@@ -183,7 +183,7 @@ class Processor
 			self::fetchMissingActivity($activity['reply-to-id'], $activity);
 		}
 
-		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:comment', '');
+		$item['diaspora_signed_text'] = $activity['diaspora:comment'] ?? '';
 
 		self::postItem($activity, $item);
 	}
@@ -256,7 +256,7 @@ class Processor
 		$item['gravity'] = GRAVITY_ACTIVITY;
 		$item['object-type'] = ACTIVITY_OBJ_NOTE;
 
-		$item['diaspora_signed_text'] = defaults($activity, 'diaspora:like', '');
+		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
 
 		self::postItem($activity, $item);
 	}
@@ -404,7 +404,7 @@ class Processor
 			return;
 		}
 
-		$item['plink'] = defaults($activity, 'alternate-url', $item['uri']);
+		$item['plink'] = $activity['alternate-url'] ?? $item['uri'];
 
 		$item = self::constructAttachList($activity['attachments'], $item, !empty($activity['source']));
 
@@ -583,8 +583,8 @@ class Processor
 		$activity['@context'] = $object['@context'];
 		unset($object['@context']);
 		$activity['id'] = $object['id'];
-		$activity['to'] = defaults($object, 'to', []);
-		$activity['cc'] = defaults($object, 'cc', []);
+		$activity['to'] = $object['to'] ?? [];
+		$activity['cc'] = $object['cc'] ?? [];
 		$activity['actor'] = $actor;
 		$activity['object'] = $object;
 		$activity['published'] = $published;
@@ -628,7 +628,7 @@ class Processor
 		$item = ['author-id' => Contact::getIdForURL($activity['actor']),
 			'author-link' => $activity['actor']];
 
-		$note = Strings::escapeTags(trim(defaults($activity, 'content', '')));
+		$note = Strings::escapeTags(trim($activity['content'] ?? ''));
 
 		// Ensure that the contact has got the right network type
 		self::switchContact($item['author-id']);

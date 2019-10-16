@@ -39,7 +39,7 @@ class Conversation
 	 */
 	public static function insert(array $arr)
 	{
-		if (in_array(defaults($arr, 'network', Protocol::PHANTOM),
+		if (in_array(($arr['network'] ?? '') ?: Protocol::PHANTOM,
 			[Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::TWITTER]) && !empty($arr['uri'])) {
 			$conversation = ['item-uri' => $arr['uri'], 'received' => DateTimeFormat::utcNow()];
 
@@ -76,8 +76,13 @@ class Conversation
 					unset($old_conv['source']);
 				}
 				// Update structure data all the time but the source only when its from a better protocol.
-				if (empty($conversation['source']) || (!empty($old_conv['source']) &&
-					($old_conv['protocol'] < defaults($conversation, 'protocol', self::PARCEL_UNKNOWN)))) {
+				if (
+					empty($conversation['source'])
+					|| (
+						!empty($old_conv['source'])
+						&& ($old_conv['protocol'] < (($conversation['protocol'] ?? '') ?: self::PARCEL_UNKNOWN))
+					)
+				) {
 					unset($conversation['protocol']);
 					unset($conversation['source']);
 				}

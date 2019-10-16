@@ -74,7 +74,7 @@ class OStatus
 		}
 		$author["author-id"] = Contact::getIdForURL($author["author-link"]);
 
-		$author['contact-id'] = defaults($contact, 'id', $author['author-id']);
+		$author['contact-id'] = ($contact['id'] ?? 0) ?: $author['author-id'];
 
 		$contact = [];
 
@@ -1131,7 +1131,7 @@ class OStatus
 							if (!isset($attribute['length'])) {
 								$attribute['length'] = "0";
 							}
-							$item["attach"] .= '[attach]href="'.$attribute['href'].'" length="'.$attribute['length'].'" type="'.$attribute['type'].'" title="'.defaults($attribute, 'title', '').'"[/attach]';
+							$item["attach"] .= '[attach]href="'.$attribute['href'].'" length="'.$attribute['length'].'" type="'.$attribute['type'].'" title="'.($attribute['title'] ?? '') .'"[/attach]';
 						}
 						break;
 					case "related":
@@ -1403,7 +1403,8 @@ class OStatus
 						"href" => $siteinfo["url"],
 						"type" => "text/html; charset=UTF-8",
 						"length" => "",
-						"title" => defaults($siteinfo, "title", $siteinfo["url"])];
+						"title" => ($siteinfo["title"] ?? '') ?: $siteinfo["url"],
+				];
 				XML::addElement($doc, $root, "link", "", $attributes);
 				break;
 			default:

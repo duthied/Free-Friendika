@@ -22,10 +22,10 @@ class PermissionSet extends BaseObject
 	public static function fetchIDForPost(&$postarray)
 	{
 		$condition = ['uid' => $postarray['uid'],
-			'allow_cid' => self::sortPermissions(defaults($postarray, 'allow_cid', '')),
-			'allow_gid' => self::sortPermissions(defaults($postarray, 'allow_gid', '')),
-			'deny_cid' => self::sortPermissions(defaults($postarray, 'deny_cid', '')),
-			'deny_gid' => self::sortPermissions(defaults($postarray, 'deny_gid', ''))];
+			'allow_cid' => self::sortPermissions($postarray['allow_cid'] ?? ''),
+			'allow_gid' => self::sortPermissions($postarray['allow_gid'] ?? ''),
+			'deny_cid'  => self::sortPermissions($postarray['deny_cid']  ?? ''),
+			'deny_gid'  => self::sortPermissions($postarray['deny_gid']  ?? '')];
 
 		$set = DBA::selectFirst('permissionset', ['id'], $condition);
 

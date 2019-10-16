@@ -421,7 +421,7 @@ class DBStructure
 				}
 
 				if (isset($database[$name]["table_status"]["Comment"])) {
-					$structurecomment = defaults($structure, "comment", "");
+					$structurecomment = $structure["comment"] ?? '';
 					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
 						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
@@ -465,7 +465,7 @@ class DBStructure
 				// Compare the field structure field by field
 				foreach ($structure["fields"] AS $fieldname => $parameters) {
 					// Compare the field definition
-					$field_definition = defaults($database[$name]["fields"], $fieldname, ['Collation' => '']);
+					$field_definition = ($database[$name]["fields"][$fieldname] ?? '') ?: ['Collation' => ''];
 
 					// Define the default collation if not given
 					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {

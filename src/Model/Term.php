@@ -210,7 +210,7 @@ class Term
 	{
 		$profile_base = System::baseUrl();
 		$profile_data = parse_url($profile_base);
-		$profile_path = defaults($profile_data, 'path', '');
+		$profile_path = $profile_data['path'] ?? '';
 		$profile_base_friendica = $profile_data['host'] . $profile_path . '/profile/';
 		$profile_base_diaspora = $profile_data['host'] . $profile_path . '/u/';
 

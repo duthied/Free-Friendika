@@ -79,7 +79,7 @@ class Profiler implements ContainerInterface
 			return;
 		}
 
-		$duration = (float) (microtime(true) - $timestamp);
+		$duration = floatval(microtime(true) - $timestamp);
 
 		if (!isset($this->performance[$value])) {
 			// Prevent ugly E_NOTICE

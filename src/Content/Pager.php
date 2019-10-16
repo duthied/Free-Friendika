@@ -39,7 +39,7 @@ class Pager
 	{
 		$this->setQueryString($queryString);
 		$this->setItemsPerPage($itemsPerPage);
-		$this->setPage(defaults($_GET, 'page', 1));
+		$this->setPage(($_GET['page'] ?? 0) ?: 1);
 	}
 
 	/**

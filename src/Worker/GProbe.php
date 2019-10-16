@@ -35,7 +35,7 @@ class GProbe {
 			$result = Cache::get("gprobe:".$urlparts["host"]);
 			if (!is_null($result)) {
 				if (in_array($result["network"], [Protocol::FEED, Protocol::PHANTOM])) {
-					Logger::log("DDoS attempt detected for ".$urlparts["host"]." by ".defaults($_SERVER, "REMOTE_ADDR", '').". server data: ".print_r($_SERVER, true), Logger::DEBUG);
+					Logger::debug("DDoS attempt detected for " . $urlparts["host"] . " by " . ($_SERVER["REMOTE_ADDR"] ?? ''), ['$_SERVER' => $_SERVER]);
 					return;
 				}
 			}
