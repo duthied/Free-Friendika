@@ -717,8 +717,8 @@ class DBStructure
 	 * @todo You cannot rename a primary key if "auto increment" is set
 	 *
 	 * @param string $table            Table name
-	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ] )
-	 *                                 Syntax for Primary Key: [ $col1, $col2, ...] )
+	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ]
+	 *                                 Syntax for Primary Key: [ $col1, $col2, ...]
 	 * @param int    $type             The type of renaming (Default is Column)
 	 *
 	 * @return boolean Was the renaming successful?

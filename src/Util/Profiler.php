@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  * A class to store profiling data
  * It can handle different logging data for specific functions or global performance measures
  *
- * It stores the data as log entries (@see LoggerInterface )
+ * It stores the data as log entries (@see LoggerInterface)
  */
 class Profiler implements ContainerInterface
 {

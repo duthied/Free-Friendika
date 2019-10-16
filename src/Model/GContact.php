@@ -255,7 +255,7 @@ class GContact
 			WHERE `glink`.`cid` = %d AND `glink`.`uid` = %d AND
 			((`gcontact`.`last_contact` >= `gcontact`.`last_failure`) OR
 			(`gcontact`.`updated` >= `gcontact`.`last_failure`))
-			AND `gcontact`.`nurl` IN (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d ) ",
+			AND `gcontact`.`nurl` IN (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 and id != %d) ",
 			intval($cid),
 			intval($uid),
 			intval($uid),
@@ -281,7 +281,7 @@ class GContact
 			"SELECT count(*) as `total`
 			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 			where `glink`.`zcid` = %d
-			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 ) ",
+			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0) ",
 			intval($zcid),
 			intval($uid)
 		);
@@ -353,7 +353,7 @@ class GContact
 			"SELECT `gcontact`.*
 			FROM `glink` INNER JOIN `gcontact` on `glink`.`gcid` = `gcontact`.`id`
 			where `glink`.`zcid` = %d
-			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0 )
+			and `gcontact`.`nurl` in (select nurl from contact where uid = %d and self = 0 and blocked = 0 and hidden = 0)
 			$sql_extra limit %d, %d",
 			intval($zcid),
 			intval($uid),
