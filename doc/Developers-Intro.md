@@ -81,6 +81,7 @@ Here's a few primers if you are new to Friendica or to the PSR-2 coding standard
 * No closing PHP tag
 * No trailing spaces
 * Array declarations use the new square brackets syntax
+* Quoting style is single quotes by default, except for needed string interpolation, SQL query strings by convention and comments that should stay in natural language.
 
 Don't worry, you don't have to know by heart the PSR-2 coding standards to start contributing to Friendica.
 There are a few tools you can use to check or fix your files before you commit.
