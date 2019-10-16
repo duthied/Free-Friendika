@@ -57,8 +57,8 @@ class ActivityPub
 	 */
 	public static function isRequest()
 	{
-		return stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json') ||
-			stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/ld+json');
+		return stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
+			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json');
 	}
 
 	/**

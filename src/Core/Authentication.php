@@ -49,7 +49,7 @@ class Authentication extends BaseObject
 			$value = json_encode([
 				"uid" => $user["uid"],
 				"hash" => self::getCookieHashForUser($user),
-				"ip" => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0')
+				"ip" => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
 			]);
 		} else {
 			$value = "";

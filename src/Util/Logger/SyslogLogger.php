@@ -111,7 +111,7 @@ class SyslogLogger extends AbstractLogger
 	}
 
 	/**
-	 * Maps the LogLevel (@see LogLevel ) to a SysLog priority (@see http://php.net/manual/en/function.syslog.php#refsect1-function.syslog-parameters )
+	 * Maps the LogLevel (@see LogLevel) to a SysLog priority (@see http://php.net/manual/en/function.syslog.php#refsect1-function.syslog-parameters)
 	 *
 	 * @param string $level A LogLevel
 	 *

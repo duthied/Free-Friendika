@@ -60,7 +60,7 @@ class BaseObject
 			throw new InternalServerErrorException('DICE isn\'t initialized.');
 		}
 
-		if (class_exists($name) || interface_exists($name   )) {
+		if (class_exists($name) || interface_exists($name)) {
 			return self::$dice->create($name);
 		} else {
 			throw new InternalServerErrorException('Class \'' . $name . '\' isn\'t valid.');

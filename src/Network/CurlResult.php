@@ -167,7 +167,7 @@ class CurlResult
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$redirect_parts = parse_url(defaults($this->info, 'redirect_url', ''));
+			$redirect_parts = parse_url($this->info['redirect_url'] ?? '');
 			if (empty($redirect_parts)) {
 				$redirect_parts = [];
 			}
@@ -179,7 +179,7 @@ class CurlResult
 				}
 			}
 
-			$parts = parse_url(defaults($this->info, 'url', ''));
+			$parts = parse_url($this->info['url'] ?? '');
 			if (empty($parts)) {
 				$parts = [];
 			}

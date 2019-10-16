@@ -90,7 +90,7 @@ class Profile
 			$location .= $profile['locality'];
 		}
 
-		if (!empty($profile['region']) && (defaults($profile, 'locality', '') != $profile['region'])) {
+		if (!empty($profile['region']) && (($profile['locality'] ?? '') != $profile['region'])) {
 			if ($location) {
 				$location .= ', ';
 			}
@@ -322,7 +322,7 @@ class Profile
 			return $o;
 		}
 
-		$profile['picdate'] = urlencode(defaults($profile, 'picdate', ''));
+		$profile['picdate'] = urlencode($profile['picdate'] ?? '');
 
 		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
 			$profile['network_link'] = Strings::formatNetworkName($profile['network'], $profile['url']);
@@ -384,7 +384,7 @@ class Profile
 
 			if (Contact::canReceivePrivateMessages($profile)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode(defaults($profile, 'addr', ''));
+					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode($profile['addr'] ?? '');
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
@@ -460,14 +460,14 @@ class Profile
 			$diaspora = [
 				'guid' => $profile['guid'],
 				'podloc' => System::baseUrl(),
-				'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
+				'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false'),
 				'nickname' => $profile['nickname'],
 				'fullname' => $profile['name'],
 				'firstname' => $firstname,
 				'lastname' => $lastname,
-				'photo300' => defaults($profile, 'contact_photo', ''),
-				'photo100' => defaults($profile, 'contact_thumb', ''),
-				'photo50' => defaults($profile, 'contact_micro', ''),
+				'photo300' => $profile['contact_photo'] ?? '',
+				'photo100' => $profile['contact_thumb'] ?? '',
+				'photo50' => $profile['contact_micro'] ?? '',
 			];
 		} else {
 			$diaspora = false;
@@ -530,7 +530,7 @@ class Profile
 			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}
 
-		$p['url'] = Contact::magicLink(defaults($p, 'url', $profile_url));
+		$p['url'] = Contact::magicLink(($p['url'] ?? '') ?: $profile_url);
 
 		$tpl = Renderer::getMarkupTemplate('profile_vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [

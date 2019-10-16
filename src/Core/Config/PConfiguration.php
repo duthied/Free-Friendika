@@ -8,7 +8,7 @@ use Friendica\Model;
  * This class is responsible for the user-specific configuration values in Friendica
  * The values are set through the Config-DB-Table (per Config-DB-model @see Model\Config\PConfig)
  *
- * The configuration cache (@see Cache\PConfigCache ) is used for temporary caching of database calls. This will
+ * The configuration cache (@see Cache\PConfigCache) is used for temporary caching of database calls. This will
  * increase the performance.
  */
 abstract class PConfiguration
@@ -52,7 +52,7 @@ abstract class PConfiguration
 	 * @param string $cat The category of the configuration value
 	 *
 	 * @return void
-	 * @see PConfigCache )
+	 * @see PConfigCache
 	 *
 	 */
 	abstract public function load(int $uid, string $cat = 'config');
@@ -63,7 +63,7 @@ abstract class PConfiguration
 	 *
 	 * Get a particular user's config value from the given category ($cat)
 	 * and the $key with the $uid from a cached storage either from the $this->configAdapter
-	 * (@see IConfigAdapter ) or from the $this->configCache (@see PConfigCache ).
+	 * (@see IConfigAdapter) or from the $this->configCache (@see PConfigCache).
 	 *
 	 * @param int     $uid           The user_id
 	 * @param string  $cat           The category of the configuration value
@@ -96,7 +96,7 @@ abstract class PConfiguration
 	 * Deletes the given key from the users's configuration.
 	 *
 	 * Removes the configured value from the stored cache in $this->configCache
-	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter )
+	 * (@see ConfigCache) and removes it from the database (@see IConfigAdapter)
 	 *  with the given $uid.
 	 *
 	 * @param int $uid The user_id

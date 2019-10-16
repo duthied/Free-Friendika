@@ -119,8 +119,8 @@ class DFRN
 		foreach ($items as $item) {
 			// These values aren't sent when sending from the queue.
 			/// @todo Check if we can set these values from the queue or if they are needed at all.
-			$item["entry:comment-allow"] = defaults($item, "entry:comment-allow", true);
-			$item["entry:cid"] = defaults($item, "entry:cid", 0);
+			$item["entry:comment-allow"] = ($item["entry:comment-allow"] ?? '') ?: true;
+			$item["entry:cid"] = $item["entry:cid"] ?? 0;
 
 			$entry = self::entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
 			if (isset($entry)) {
@@ -1259,7 +1259,7 @@ class DFRN
 		$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
 		$challenge    = hex2bin((string) $res->challenge);
 		$perm         = (($res->perm) ? $res->perm : null);
-		$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
+		$dfrn_version = floatval($res->dfrn_version ?: 2.0);
 		$rino_remote_version = intval($res->rino);
 		$page         = (($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? 1 : 0);
 
@@ -2019,8 +2019,8 @@ class DFRN
 				return false;
 			}
 
-			$fields = ['title' => defaults($item, 'title', ''), 'body' => defaults($item, 'body', ''),
-					'tag' => defaults($item, 'tag', ''), 'changed' => DateTimeFormat::utcNow(),
+			$fields = ['title' => $item['title'] ?? '', 'body' => $item['body'] ?? '',
+					'tag' => $item['tag'] ?? '', 'changed' => DateTimeFormat::utcNow(),
 					'edited' => DateTimeFormat::utc($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];

@@ -872,8 +872,8 @@ class HTML
 			$url = '';
 		}
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'), [
-			'$click' => defaults($contact, 'click', ''),
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate($textmode ? 'micropro_txt.tpl' : 'micropro_img.tpl'), [
+			'$click' => $contact['click'] ?? '',
 			'$class' => $class,
 			'$url' => $url,
 			'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),

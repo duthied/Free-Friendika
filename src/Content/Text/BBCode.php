@@ -244,7 +244,7 @@ class BBCode extends BaseObject
 		*/
 
 		$has_title = !empty($item['title']);
-		$plink = defaults($item, 'plink', '');
+		$plink = $item['plink'] ?? '';
 		$post = self::getAttachmentData($body);
 
 		// Get all linked images with alternative image description
@@ -610,7 +610,7 @@ class BBCode extends BaseObject
 					throw new Exception('OEmbed is disabled for this attachment.');
 				}
 			} catch (Exception $e) {
-				$data['title'] = defaults($data, 'title', $data['url']);
+				$data['title'] = ($data['title'] ?? '') ?: $data['url'];
 
 				if ($simplehtml != 4) {
 					$return = sprintf('<div class="type-%s">', $data['type']);
@@ -645,7 +645,7 @@ class BBCode extends BaseObject
 			}
 		}
 
-		return trim(defaults($data, 'text', '') . ' ' . $return . ' ' . defaults($data, 'after', ''));
+		return trim(($data['text'] ?? '') . ' ' . $return . ' ' . ($data['after'] ?? ''));
 	}
 
 	public static function removeShareInformation($Text, $plaintext = false, $nolink = false)
@@ -655,10 +655,10 @@ class BBCode extends BaseObject
 		if (!$data) {
 			return $Text;
 		} elseif ($nolink) {
-			return $data['text'] . defaults($data, 'after', '');
+			return $data['text'] . ($data['after'] ?? '');
 		}
 
-		$title = htmlentities(defaults($data, 'title', ''), ENT_QUOTES, 'UTF-8', false);
+		$title = htmlentities($data['title'] ?? '', ENT_QUOTES, 'UTF-8', false);
 		$text = htmlentities($data['text'], ENT_QUOTES, 'UTF-8', false);
 		if ($plaintext || (($title != '') && strstr($text, $title))) {
 			$data['title'] = $data['url'];
@@ -941,7 +941,7 @@ class BBCode extends BaseObject
 				$attributes = [];
 				foreach(['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
 					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
-					$attributes[$field] = html_entity_decode(defaults($matches, 2, ''), ENT_QUOTES, 'UTF-8');
+					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
 				// We only call this so that a previously unknown contact can be added.
@@ -960,11 +960,11 @@ class BBCode extends BaseObject
 				Contact::getIdForURL($attributes['profile'], 0, true, $default);
 
 				$author_contact = Contact::getDetailsByURL($attributes['profile']);
-				$author_contact['addr'] = defaults($author_contact, 'addr' , Protocol::getAddrFromProfileUrl($attributes['profile']));
+				$author_contact['addr'] = ($author_contact['addr']  ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
-				$attributes['author']   = defaults($author_contact, 'name' , $attributes['author']);
-				$attributes['avatar']   = defaults($author_contact, 'micro', $attributes['avatar']);
-				$attributes['profile']  = defaults($author_contact, 'url'  , $attributes['profile']);
+				$attributes['author']   = ($author_contact['name']  ?? '') ?: $attributes['author'];
+				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];
+				$attributes['profile']  = ($author_contact['url']   ?? '') ?: $attributes['profile'];
 
 				if ($attributes['avatar']) {
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
@@ -1241,7 +1241,7 @@ class BBCode extends BaseObject
 		$try_oembed_callback = function ($match)
 		{
 			$url = $match[1];
-			$title = defaults($match, 2, null);
+			$title = $match[2] ?? null;
 
 			try {
 				$return = OEmbed::getHTML($url, $title);

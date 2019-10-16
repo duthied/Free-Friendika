@@ -46,8 +46,8 @@ class Receiver
 	 */
 	public static function isRequest()
 	{
-		return stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/activity+json') ||
-			stristr(defaults($_SERVER, 'HTTP_ACCEPT', ''), 'application/ld+json');
+		return stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/activity+json') ||
+			stristr($_SERVER['HTTP_ACCEPT'] ?? '', 'application/ld+json');
 	}
 
 	/**
@@ -260,7 +260,7 @@ class Receiver
 		$object_data['type'] = $type;
 		$object_data['actor'] = $actor;
 		$object_data['item_receiver'] = $receivers;
-		$object_data['receiver'] = array_merge(defaults($object_data, 'receiver', []), $receivers);
+		$object_data['receiver'] = array_merge($object_data['receiver'] ?? [], $receivers);
 
 		Logger::log('Processing ' . $object_data['type'] . ' ' . $object_data['object_type'] . ' ' . $object_data['id'], Logger::DEBUG);
 
@@ -301,9 +301,9 @@ class Receiver
 		$conversation = [
 			'protocol' => Conversation::PARCEL_ACTIVITYPUB,
 			'item-uri' => $activity['id'],
-			'reply-to-uri' => defaults($activity, 'reply-to-id', ''),
-			'conversation-href' => defaults($activity, 'context', ''),
-			'conversation-uri' => defaults($activity, 'conversation', ''),
+			'reply-to-uri' => $activity['reply-to-id'] ?? '',
+			'conversation-href' => $activity['context'] ?? '',
+			'conversation-uri' => $activity['conversation'] ?? '',
 			'source' => $body,
 			'received' => DateTimeFormat::utcNow()];
 
@@ -508,7 +508,7 @@ class Receiver
 
 		if (!empty($actor)) {
 			$profile = APContact::getByURL($actor);
-			$followers = defaults($profile, 'followers', '');
+			$followers = $profile['followers'] ?? '';
 
 			Logger::log('Actor: ' . $actor . ' - Followers: ' . $followers, Logger::DEBUG);
 		} else {
