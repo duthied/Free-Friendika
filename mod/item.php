@@ -230,7 +230,7 @@ function item_post(App $a) {
 	}
 
 	// Convert links with empty descriptions to links without an explicit description
-	$body = preg_replace('(\[url=(.*?)\]\[\/url\])ism', '[url]$1[/url]', $body);
+	$body = preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $body);
 
 	if (!empty($orig_post)) {
 		$str_group_allow   = $orig_post['allow_gid'];
