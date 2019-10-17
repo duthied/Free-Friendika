@@ -278,7 +278,7 @@ class Delivery extends BaseObject
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		Logger::debug('Notifier entry: ' . $contact["url"] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom, Logger::DATA);
+		Logger::debug('Notifier entry: ' . $contact["url"] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
 
 		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
 
@@ -329,7 +329,7 @@ class Delivery extends BaseObject
 
 			// We never spool failed relay deliveries
 			if ($public_dfrn) {
-				Logger::log('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+				Logger::info('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
 
 				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
