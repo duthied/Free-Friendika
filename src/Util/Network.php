@@ -284,17 +284,7 @@ class Network
 			$curl_time = Config::get('system', 'curl_timeout', 60);
 			curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 		}
-/*
-//		if (defined('LIGHTTPD')) {
-			if (empty($headers)) {
-				$headers = ['Expect:'];
-			} else {
-				if (!in_array('Expect:', $headers)) {
-					array_push($headers, 'Expect:');
-				}
-			}
-//		}
-*/
+
 		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
@@ -336,8 +326,8 @@ class Network
 		curl_close($ch);
 
 		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
-Logger::info('Blubb', ['code' => $curlResponse->getReturnCode()]);
-		// Some servers don't like the "Expect" header, so we remove it when needed
+
+		// Very old versions of Lighttpd don't like the "Expect" header, so we remove it when needed
 		if ($curlResponse->getReturnCode() == 417) {
 			$redirects++;
 
