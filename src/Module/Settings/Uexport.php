@@ -34,25 +34,8 @@ class Uexport extends BaseSettingsModule
 	public static function content()
 	{
 		parent::content();
-		$args = self::getClass(Arguments::class);
-		if ($args->getArgc() == 3) {
-			// @TODO Replace with router-provided arguments
-			$action = $args->get(2);
-			header("Content-type: application/json");
-			header('Content-Disposition: attachment; filename="' . $a->user['nickname'] . '.' . $action . '"');
-			switch ($action) {
-				case "backup":
-					self::uexport_all($a);
-					exit();
-					break;
-				case "account":
-					self::uexport_account($a);
-					exit();
-					break;
-				default:
-					exit();
-			}
-		}
+
+		self::rawContent();
 
 		/**
 		 * options shown on "Export personal data" page
@@ -70,8 +53,36 @@ class Uexport extends BaseSettingsModule
 			'$options' => $options
 		]);
 	}
-	private function uexport_multirow($query) {
-		global $dbStructure;
+	/**
+	 * raw content generated for the different choices made
+	 * by the user. At the moment this returns a JSON file
+	 * to the browser which then offers a save / open dialog
+	 * to the user.
+	 **/
+	public static function rawContent() {
+		$args = self::getClass(Arguments::class);
+		if ($args->getArgc() == 3) {
+			// @TODO Replace with router-provided arguments
+			$action = $args->get(2);
+			$user = self::getApp()->user;
+			header("Content-type: application/json");
+			header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
+			switch ($action) {
+				case "backup":
+					self::exportAll(self::getApp());
+					exit();
+					break;
+				case "account":
+					self::exportAccount(self::getApp());
+					exit();
+					break;
+				default:
+					exit();
+			}
+		}
+	}
+	private static function exportMultiRow(string $query) {
+		$dbStructure = DBStructure::definition(self::getApp()->getBasePath(), false);
 
 		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
 		$table = $match[1];
@@ -97,8 +108,8 @@ class Uexport extends BaseSettingsModule
 		return $result;
 	}
 
-	private function uexport_row($query) {
-		global $dbStructure;
+	private static function exportRow(string $query) {
+		$dbStructure = DBStructure::definition(self::getApp()->getBasePath(), false);
 
 		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
 		$table = $match[1];
@@ -123,37 +134,37 @@ class Uexport extends BaseSettingsModule
 		return $result;
 	}
 
-	private function uexport_account($a) {
+	private static function exportAccount(App $a) {
 
-		$user = self::uexport_row(
+		$user = self::exportRow(
 			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()))
 		);
 
-		$contact = self::uexport_multirow(
+		$contact = self::exportMultiRow(
 			sprintf("SELECT * FROM `contact` WHERE `uid` = %d ", intval(local_user()))
 		);
 
 
-		$profile = self::uexport_multirow(
+		$profile = self::exportMultiRow(
 			sprintf("SELECT * FROM `profile` WHERE `uid` = %d ", intval(local_user()))
 		);
 
-		$photo = self::uexport_multirow(
+		$photo = self::exportMultiRow(
 			sprintf("SELECT * FROM `photo` WHERE uid = %d AND profile = 1", intval(local_user()))
 		);
 		foreach ($photo as &$p) {
 			$p['data'] = bin2hex($p['data']);
 		}
 
-		$pconfig = self::uexport_multirow(
+		$pconfig = self::exportMultiRow(
 			sprintf("SELECT * FROM `pconfig` WHERE uid = %d", intval(local_user()))
 		);
 
-		$group = self::uexport_multirow(
+		$group = self::exportMultiRow(
 			sprintf("SELECT * FROM `group` WHERE uid = %d", intval(local_user()))
 		);
 
-		$group_member = self::uexport_multirow(
+		$group_member = self::exportMultiRow(
 			sprintf("SELECT `group_member`.`gid`, `group_member`.`contact-id` FROM `group_member` INNER JOIN `group` ON `group`.`id` = `group_member`.`gid` WHERE `group`.`uid` = %d", intval(local_user()))
 		);
 
@@ -179,18 +190,12 @@ class Uexport extends BaseSettingsModule
 	 * @param App $a
 	 * @throws Exception
 	 */
-	private function uexport_all(App $a) {
+	private static function exportAll(App $a) {
 
-		self::uexport_account($a);
+		self::exportAccount($a);
 		echo "\n";
 
-		$total = 0;
-		$r = q("SELECT count(*) as `total` FROM `item` WHERE `uid` = %d ",
-			intval(local_user())
-		);
-		if (DBA::isResult($r)) {
-			$total = $r[0]['total'];
-		}
+		$total = DBA::count('item', ['uid' => local_user()]);
 		// chunk the output to avoid exhausting memory
 
 		for ($x = 0; $x < $total; $x += 500) {
