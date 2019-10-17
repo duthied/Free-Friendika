@@ -12,9 +12,11 @@ use Friendica\Core\L10n;
 use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
+use Friendica\Model\Contact;
 
 function notifications_post(App $a)
 {
@@ -46,13 +48,18 @@ function notifications_post(App $a)
 
 		if ($_POST['submit'] == L10n::t('Discard')) {
 			DBA::delete('intro', ['id' => $intro_id]);
-
 			if (!$fid) {
-				// The check for blocked and pending is in case the friendship was already approved
-				// and we just want to get rid of the now pointless notification
+				// When the contact entry had been created just for that intro, we want to get rid of it now
 				$condition = ['id' => $contact_id, 'uid' => local_user(),
-					'self' => false, 'blocked' => true, 'pending' => true];
-				DBA::delete('contact', $condition);
+					'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
+				$contact_pending = DBA::exists('contact', $condition);
+
+				// Remove the "pending" to stop the reappearing in any case
+				DBA::update('contact', ['pending' => false], ['id' => $contact_id]);
+
+				if ($contact_pending) {
+					Contact::remove($contact_id);
+				}
 			}
 			$a->internalRedirect('notifications/intros');
 		}
@@ -71,8 +78,8 @@ function notifications_content(App $a)
 		return Login::form();
 	}
 
-	$page = defaults($_REQUEST, 'page', 1);
-	$show = defaults($_REQUEST, 'show', 0);
+	$page = ($_REQUEST['page'] ?? 0) ?: 1;
+	$show =  $_REQUEST['show'] ?? 0;
 
 	Nav::setSelected('notifications');
 
@@ -98,9 +105,14 @@ function notifications_content(App $a)
 	if ((($a->argc > 1) && ($a->argv[1] == 'intros')) || (($a->argc == 1))) {
 		Nav::setSelected('introductions');
 
+		$id = 0;
+		if (!empty($a->argv[2]) && intval($a->argv[2]) != 0) {
+			$id = (int)$a->argv[2];
+		}
+
 		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));
 
-		$notifs = $nm->introNotifs($all, $startrec, $perpage);
+		$notifs = $nm->introNotifs($all, $startrec, $perpage, $id);
 
 	// Get the network notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'network')) {
@@ -146,7 +158,7 @@ function notifications_content(App $a)
 	];
 
 	// Process the data for template creation
-	if (defaults($notifs, 'ident', '') === 'introductions') {
+	if (($notifs['ident'] ?? '') == 'introductions') {
 		$sugg = Renderer::getMarkupTemplate('suggestions.tpl');
 		$tpl = Renderer::getMarkupTemplate('intros.tpl');
 

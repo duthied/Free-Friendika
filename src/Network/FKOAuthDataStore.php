@@ -29,7 +29,7 @@ class FKOAuthDataStore extends OAuthDataStore
 	 */
 	private static function genToken()
 	{
-		return md5(base64_encode(pack('N6', mt_rand(), mt_rand(), mt_rand(), mt_rand(), mt_rand(), uniqid())));
+		return Friendica\Util\Strings::getRandomHex(32);
 	}
 
 	/**
@@ -119,7 +119,8 @@ class FKOAuthDataStore extends OAuthDataStore
 				'secret' => $sec,
 				'client_id' => $k,
 				'scope' => 'request',
-				'expires' => time() + REQUEST_TOKEN_DURATION]
+				'expires' => time() + REQUEST_TOKEN_DURATION
+			]
 		);
 
 		if (!$r) {
@@ -162,7 +163,8 @@ class FKOAuthDataStore extends OAuthDataStore
 					'client_id' => $consumer->key,
 					'scope' => 'access',
 					'expires' => time() + ACCESS_TOKEN_DURATION,
-					'uid' => $uverifier]
+					'uid' => $uverifier
+				]
 			);
 
 			if ($r) {

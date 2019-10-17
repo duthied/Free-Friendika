@@ -44,7 +44,7 @@
 
 
 
-	{{if $nav.manage}}<a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a>{{/if}}
+	{{if $nav.delegation}}<a id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}">{{$nav.delegation.1}}</a>{{/if}}
 
 
 		{{if $nav.notifications}}

@@ -176,22 +176,51 @@ class BBCodeTest extends MockedTest
 [*]http://example.com/
 [/ul]',
 			],
+			'bug-2199-named-size' => [
+				'expectedHtml' => '<span style="font-size: xx-large; line-height: initial;">Test text</span>',
+				'text' => '[size=xx-large]Test text[/size]',
+			],
+			'bug-2199-numeric-size' => [
+				'expectedHtml' => '<span style="font-size: 24px; line-height: initial;">Test text</span>',
+				'text' => '[size=24]Test text[/size]',
+			],
+			'bug-2199-diaspora-no-named-size' => [
+				'expectedHtml' => 'Test text',
+				'text' => '[size=xx-large]Test text[/size]',
+				'try_oembed' => false,
+				// Triggers the diaspora compatible output
+				'simpleHtml' => 3,
+			],
+			'bug-2199-diaspora-no-numeric-size' => [
+				'expectedHtml' => 'Test text',
+				'text' => '[size=24]Test text[/size]',
+				'try_oembed' => false,
+				// Triggers the diaspora compatible output
+				'simpleHtml' => 3,
+			],
+			'bug-7665-audio-tag' => [
+				'expectedHtml' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls="controls"><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
+				'text' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
+				'try_oembed' => true,
+			],
 		];
 	}
 
 	/**
 	 * Test convert bbcodes to HTML
+	 *
 	 * @dataProvider dataBBCodes
 	 *
 	 * @param string $expectedHtml Expected HTML output
 	 * @param string $text         BBCode text
+	 * @param bool   $try_oembed   Whether to convert multimedia BBCode tag
 	 * @param int    $simpleHtml   BBCode::convert method $simple_html parameter value, optional.
 	 * @param bool   $forPlaintext BBCode::convert method $for_plaintext parameter value, optional.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function testConvert($expectedHtml, $text, $simpleHtml = 0, $forPlaintext = false)
+	public function testConvert($expectedHtml, $text, $try_oembed = false, $simpleHtml = 0, $forPlaintext = false)
 	{
-		$actual = BBCode::convert($text, false, $simpleHtml, $forPlaintext);
+		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
 		$this->assertEquals($expectedHtml, $actual);
 	}

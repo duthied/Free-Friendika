@@ -16,13 +16,14 @@ use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\GServer;
 use Friendica\Model\Nodeinfo;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
-use Friendica\Protocol\PortableContact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 class CronJobs
 {
@@ -253,7 +254,7 @@ class CronJobs
 				return;
 			}
 
-			if (!PortableContact::reachable($contact["url"])) {
+			if (!GServer::reachable($contact["url"])) {
 				continue;
 			}
 
@@ -301,6 +302,18 @@ class CronJobs
 		/// - remove sign entries without item
 		/// - remove children when parent got lost
 		/// - set contact-id in item when not present
+
+		// Add intro entries for pending contacts
+		// We don't do this for DFRN entries since such revived contact requests seem to mostly fail.
+		$pending_contacts = DBA::p("SELECT `uid`, `id`, `url`, `network`, `created` FROM `contact`
+			WHERE `pending` AND `rel` IN (?, ?) AND `network` != ?
+				AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)",
+			0, Contact::FOLLOWER, Protocol::DFRN);
+		while ($contact = DBA::fetch($pending_contacts)) {
+			DBA::insert('intro', ['uid' => $contact['uid'], 'contact-id' => $contact['id'], 'blocked' => false,
+				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);
+		}
+		DBA::close($pending_contacts);
 	}
 
 	/**

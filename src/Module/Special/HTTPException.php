@@ -36,7 +36,7 @@ class HTTPException
 			500 => L10n::t('Internal Server Error'),
 			503 => L10n::t('Service Unavailable'),
 		];
-		$title = defaults($titles, $e->getCode(), 'Error ' . $e->getCode());
+		$title = ($titles[$e->getCode()] ?? '') ?: 'Error ' . $e->getCode();
 
 		if (empty($message)) {
 			// Explanations are taken from https://en.wikipedia.org/wiki/List_of_HTTP_status_codes
@@ -49,7 +49,7 @@ class HTTPException
 				503 => L10n::t('The server is currently unavailable (because it is overloaded or down for maintenance). Please try again later.'),
 			];
 
-			$message = defaults($explanation, $e->getCode(), '');
+			$message = $explanation[$e->getCode()] ?? '';
 		}
 
 		return ['$title' => $title, '$message' => $message, '$back' => L10n::t('Go back')];

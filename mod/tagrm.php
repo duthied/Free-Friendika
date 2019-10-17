@@ -22,11 +22,11 @@ function tagrm_post(App $a)
 	}
 
 	$tags = [];
-	foreach (defaults($_POST, 'tag', []) as $tag) {
+	foreach ($_POST['tag'] ?? [] as $tag) {
 		$tags[] = hex2bin(Strings::escapeTags(trim($tag)));
 	}
 
-	$item_id = defaults($_POST,'item', 0);
+	$item_id = $_POST['item'] ?? 0;
 	update_tags($item_id, $tags);
 	info(L10n::t('Tag(s) removed') . EOL);
 

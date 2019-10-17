@@ -6,6 +6,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Module\BaseSearchModule;
 use Friendica\Module\Login;
+use Friendica\Util\Strings;
 
 /**
  * Directory search module
@@ -19,6 +20,8 @@ class Directory extends BaseSearchModule
 			return Login::form();
 		}
 
+		$search = Strings::escapeTags(trim(rawurldecode($_REQUEST['search'] ?? '')));
+
 		$a = self::getApp();
 
 		if (empty($a->page['aside'])) {
@@ -28,6 +31,6 @@ class Directory extends BaseSearchModule
 		$a->page['aside'] .= Widget::findPeople();
 		$a->page['aside'] .= Widget::follow();
 
-		return self::performSearch();
+		return self::performSearch($search);
 	}
 }

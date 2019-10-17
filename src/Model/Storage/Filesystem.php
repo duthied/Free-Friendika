@@ -132,7 +132,7 @@ class Filesystem implements IStorage
 	
 	public static function saveOptions($data)
 	{
-		$storagepath = defaults($data, 'storagepath', '');
+		$storagepath = $data['storagepath'] ?? '';
 		if ($storagepath === '' || !is_dir($storagepath)) {
 			return [
 				'storagepath' => L10n::t('Enter a valid existing folder')

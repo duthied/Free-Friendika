@@ -20,6 +20,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Diaspora;
@@ -89,7 +90,7 @@ class Profile
 			$location .= $profile['locality'];
 		}
 
-		if (!empty($profile['region']) && (defaults($profile, 'locality', '') != $profile['region'])) {
+		if (!empty($profile['region']) && (($profile['locality'] ?? '') != $profile['region'])) {
 			if ($location) {
 				$location .= ', ';
 			}
@@ -189,10 +190,9 @@ class Profile
 		$a->page['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
 
 		if (!$profiledata && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
-			$_SESSION['theme'] = $a->profile['theme'];
+			$a->setCurrentTheme($a->profile['theme']);
+			$a->setCurrentMobileTheme($a->profile['mobile-theme']);
 		}
-
-		$_SESSION['mobile-theme'] = $a->profile['mobile-theme'];
 
 		/*
 		* load/reload current theme info
@@ -215,7 +215,7 @@ class Profile
 			);
 		}
 
-		$block = ((Config::get('system', 'block_public') && !local_user() && !remote_user()) ? true : false);
+		$block = ((Config::get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
 
 		/**
 		 * @todo
@@ -248,15 +248,10 @@ class Profile
 	 */
 	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
 	{
-		if (remote_user() && !empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $visitor) {
-				if ($visitor['uid'] == $uid) {
-					$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => $visitor['cid']]);
-					if (DBA::isResult($contact)) {
-						$profile_id = $contact['profile-id'];
-					}
-					break;
-				}
+		if (!empty(Session::getRemoteContactID($uid))) {
+			$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => Session::getRemoteContactID($uid)]);
+			if (DBA::isResult($contact)) {
+				$profile_id = $contact['profile-id'];
 			}
 		}
 
@@ -327,7 +322,7 @@ class Profile
 			return $o;
 		}
 
-		$profile['picdate'] = urlencode(defaults($profile, 'picdate', ''));
+		$profile['picdate'] = urlencode($profile['picdate'] ?? '');
 
 		if (($profile['network'] != '') && ($profile['network'] != Protocol::DFRN)) {
 			$profile['network_link'] = Strings::formatNetworkName($profile['network'], $profile['url']);
@@ -389,7 +384,7 @@ class Profile
 
 			if (Contact::canReceivePrivateMessages($profile)) {
 				if ($visitor_is_followed || $visitor_is_following) {
-					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode(defaults($profile, 'addr', ''));
+					$wallmessage_link = $visitor_base_path . '/message/new/' . base64_encode($profile['addr'] ?? '');
 				} elseif ($visitor_is_authenticated && !empty($profile['unkmail'])) {
 					$wallmessage_link = 'wallmessage/' . $profile['nickname'];
 				}
@@ -453,7 +448,7 @@ class Profile
 		$about    = !empty($profile['about'])    ? L10n::t('About:')    : false;
 		$xmpp     = !empty($profile['xmpp'])     ? L10n::t('XMPP:')     : false;
 
-		if ((!empty($profile['hidewall']) || $block) && !local_user() && !remote_user()) {
+		if ((!empty($profile['hidewall']) || $block) && !Session::isAuthenticated()) {
 			$location = $gender = $marital = $homepage = $about = false;
 		}
 
@@ -465,14 +460,14 @@ class Profile
 			$diaspora = [
 				'guid' => $profile['guid'],
 				'podloc' => System::baseUrl(),
-				'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false' ),
+				'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false'),
 				'nickname' => $profile['nickname'],
 				'fullname' => $profile['name'],
 				'firstname' => $firstname,
 				'lastname' => $lastname,
-				'photo300' => defaults($profile, 'contact_photo', ''),
-				'photo100' => defaults($profile, 'contact_thumb', ''),
-				'photo50' => defaults($profile, 'contact_micro', ''),
+				'photo300' => $profile['contact_photo'] ?? '',
+				'photo100' => $profile['contact_thumb'] ?? '',
+				'photo50' => $profile['contact_micro'] ?? '',
 			];
 		} else {
 			$diaspora = false;
@@ -535,7 +530,7 @@ class Profile
 			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}
 
-		$p['url'] = Contact::magicLink(defaults($p, 'url', $profile_url));
+		$p['url'] = Contact::magicLink(($p['url'] ?? '') ?: $profile_url);
 
 		$tpl = Renderer::getMarkupTemplate('profile_vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
@@ -1029,6 +1024,12 @@ class Profile
 	 *
 	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/channel.php
 	 *
+	 * The implementation for Friendica sadly differs in some points from the one for Hubzilla:
+	 * - Hubzilla uses the "zid" parameter, while for Friendica it had been replaced with "zrl"
+	 * - There seem to be some reverse authentication (rmagic) that isn't implemented in Friendica at all
+	 *
+	 * It would be favourable to harmonize the two implementations.
+	 *
 	 * @param App $a Application instance.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
@@ -1041,6 +1042,8 @@ class Profile
 		if (empty($my_url) || local_user()) {
 			return;
 		}
+
+		$addr = $_GET['addr'] ?? $my_url;
 
 		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
 		Hook::callAll('zrl_init', $arr);
@@ -1072,19 +1075,19 @@ class Profile
 
 		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
 
-		// Try to avoid recursion - but send them home to do a proper magic auth.
-		$query = str_replace(array('?zrl=', '&zid='), array('?rzrl=', '&rzrl='), $a->query_string);
+		// Remove the "addr" parameter from the destination. It is later added as separate parameter again.
+		$addr_request = 'addr=' . urlencode($addr);
+		$query = rtrim(str_replace($addr_request, '', $a->query_string), '?&');
+
 		// The other instance needs to know where to redirect.
 		$dest = urlencode($a->getBaseURL() . '/' . $query);
 
 		// We need to extract the basebath from the profile url
 		// to redirect the visitors '/magic' module.
-		// Note: We should have the basepath of a contact also in the contact table.
-		$urlarr = explode('/profile/', $contact['url']);
-		$basepath = $urlarr[0];
+		$basepath = Contact::getBasepath($contact['url']);
 
-		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic') && !strstr($dest, '/rmagic')) {
-			$magic_path = $basepath . '/magic' . '?f=&owa=1&dest=' . $dest;
+		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic')) {
+			$magic_path = $basepath . '/magic' . '?owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
 			$serverret = Network::curl($basepath . '/magic');
@@ -1121,17 +1124,7 @@ class Profile
 		$_SESSION['visitor_home'] = $visitor['url'];
 		$_SESSION['my_url'] = $visitor['url'];
 
-		/// @todo replace this and the query for this variable with some cleaner functionality
-		$_SESSION['remote'] = [];
-
-		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => $visitor['nurl'], 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
-		while ($contact = DBA::fetch($remote_contacts)) {
-			if (($contact['uid'] == 0) || Contact::isBlockedByUser($visitor['id'], $contact['uid'])) {
-				continue;
-			}
-
-			$_SESSION['remote'][] = ['cid' => $contact['id'], 'uid' => $contact['uid'], 'url' => $visitor['url']];
-		}
+		Session::setVisitorsContacts();
 
 		$a->contact = $visitor;
 
@@ -1193,7 +1186,7 @@ class Profile
 		if (!strlen($s)) {
 			return $s;
 		}
-		if ((!strpos($s, '/profile/')) && (!$force)) {
+		if (!strpos($s, '/profile/') && !$force) {
 			return $s;
 		}
 		if ($force && substr($s, -1, 1) !== '/') {
@@ -1250,7 +1243,7 @@ class Profile
 
 		if (!empty($search)) {
 			$searchTerm = '%' . $search . '%';
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
@@ -1272,7 +1265,7 @@ class Profile
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm);
 		} else {
-			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total` 
+			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");

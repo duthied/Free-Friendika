@@ -23,6 +23,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Term;
@@ -31,7 +32,7 @@ use Friendica\Util\DateTimeFormat;
 
 define('FRIENDICA_PLATFORM',     'Friendica');
 define('FRIENDICA_CODENAME',     'Dalmatian Bellflower');
-define('FRIENDICA_VERSION',      '2019.09-rc');
+define('FRIENDICA_VERSION',      '2019.12-dev');
 define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
@@ -322,47 +323,6 @@ function get_app()
 }
 
 /**
- * Return the provided variable value if it exists and is truthy or the provided
- * default value instead.
- *
- * Works with initialized variables and potentially uninitialized array keys
- *
- * Usages:
- * - defaults($var, $default)
- * - defaults($array, 'key', $default)
- *
- * @param array $args
- * @brief Returns a defaut value if the provided variable or array key is falsy
- * @return mixed
- * @deprecated since version 2019.06, use native coalesce operator (??) instead
- */
-function defaults(...$args)
-{
-	if (count($args) < 2) {
-		throw new BadFunctionCallException('defaults() requires at least 2 parameters');
-	}
-	if (count($args) > 3) {
-		throw new BadFunctionCallException('defaults() cannot use more than 3 parameters');
-	}
-	if (count($args) === 3 && is_null($args[1])) {
-		throw new BadFunctionCallException('defaults($arr, $key, $def) $key is null');
-	}
-
-	// The default value always is the last argument
-	$return = array_pop($args);
-
-	if (count($args) == 2 && is_array($args[0]) && !empty($args[0][$args[1]])) {
-		$return = $args[0][$args[1]];
-	}
-
-	if (count($args) == 1 && !empty($args[0])) {
-		$return = $args[0];
-	}
-
-	return $return;
-}
-
-/**
  * @brief Used to end the current process, after saving session state.
  * @deprecated
  */
@@ -415,20 +375,14 @@ function public_contact()
  */
 function remote_user()
 {
-	// You cannot be both local and remote.
-	// Unncommented by rabuzarus because remote authentication to local
-	// profiles wasn't possible anymore (2018-04-12).
-//	if (local_user()) {
-//		return false;
-//	}
-
-	if (empty($_SESSION)) {
+	if (empty($_SESSION['authenticated'])) {
 		return false;
 	}
 
-	if (!empty($_SESSION['authenticated']) && !empty($_SESSION['visitor_id'])) {
+	if (!empty($_SESSION['visitor_id'])) {
 		return intval($_SESSION['visitor_id']);
 	}
+
 	return false;
 }
 
@@ -532,7 +486,7 @@ function is_site_admin()
 
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
-	return local_user() && $admin_email && in_array(defaults($a->user, 'email', ''), $adminlist);
+	return local_user() && $admin_email && in_array($a->user['email'] ?? '', $adminlist);
 }
 
 function explode_querystring($query)

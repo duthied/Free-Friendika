@@ -118,7 +118,7 @@ function common_content(App $a)
 
 		$entry = [
 			'url'          => Model\Contact::magicLink($common_friend['url']),
-			'itemurl'      => defaults($contact_details, 'addr', $common_friend['url']),
+			'itemurl'      => ($contact_details['addr'] ?? '') ?: $common_friend['url'],
 			'name'         => $contact_details['name'],
 			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 			'img_hover'    => $contact_details['name'],

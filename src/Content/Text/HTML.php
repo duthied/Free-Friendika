@@ -42,14 +42,32 @@ class HTML
 		return $cleaned;
 	}
 
-	private static function tagToBBCode(DOMDocument $doc, $tag, $attributes, $startbb, $endbb)
+	/**
+	 * Search all instances of a specific HTML tag node in the provided DOM document and replaces them with BBCode text nodes.
+	 *
+	 * @see HTML::tagToBBCodeSub()
+	 */
+	private static function tagToBBCode(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
 	{
 		do {
-			$done = self::tagToBBCodeSub($doc, $tag, $attributes, $startbb, $endbb);
+			$done = self::tagToBBCodeSub($doc, $tag, $attributes, $startbb, $endbb, $ignoreChildren);
 		} while ($done);
 	}
 
-	private static function tagToBBCodeSub(DOMDocument $doc, $tag, $attributes, $startbb, $endbb)
+	/**
+	 * Search the first specific HTML tag node in the provided DOM document and replaces it with BBCode text nodes.
+	 *
+	 * @param DOMDocument $doc
+	 * @param string      $tag            HTML tag name
+	 * @param array       $attributes     Array of attributes to match and optionally use the value from
+	 * @param string      $startbb        BBCode tag opening
+	 * @param string      $endbb          BBCode tag closing
+	 * @param bool        $ignoreChildren If set to false, the HTML tag children will be appended as text inside the BBCode tag
+	 *                                    Otherwise, they will be entirely ignored. Useful for simple BBCode that draw their
+	 *                                    inner value from an attribute value and disregard the tag children.
+	 * @return bool Whether a replacement was done
+	 */
+	private static function tagToBBCodeSub(DOMDocument $doc, string $tag, array $attributes, string $startbb, string $endbb, bool $ignoreChildren = false)
 	{
 		$savestart = str_replace('$', '\x01', $startbb);
 		$replace = false;
@@ -98,7 +116,7 @@ class HTML
 
 				$node->parentNode->insertBefore($StartCode, $node);
 
-				if ($node->hasChildNodes()) {
+				if (!$ignoreChildren && $node->hasChildNodes()) {
 					/** @var \DOMNode $child */
 					foreach ($node->childNodes as $key => $child) {
 						/* Remove empty text nodes at the start or at the end of the children list */
@@ -296,14 +314,14 @@ class HTML
 		self::tagToBBCode($doc, 'a', ['href' => '/mailto:(.+)/'], '[mail=$1]', '[/mail]');
 		self::tagToBBCode($doc, 'a', ['href' => '/(.+)/'], '[url=$1]', '[/url]');
 
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]');
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]');
-		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]');
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'alt' => '/(.+)/'], '[img=$1]$2', '[/img]', true);
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/', 'width' => '/(\d+)/', 'height' => '/(\d+)/'], '[img=$2x$3]$1', '[/img]', true);
+		self::tagToBBCode($doc, 'img', ['src' => '/(.+)/'], '[img]$1', '[/img]', true);
 
 
-		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]');
-		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]');
-		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]');
+		self::tagToBBCode($doc, 'video', ['src' => '/(.+)/'], '[video]$1', '[/video]', true);
+		self::tagToBBCode($doc, 'audio', ['src' => '/(.+)/'], '[audio]$1', '[/audio]', true);
+		self::tagToBBCode($doc, 'iframe', ['src' => '/(.+)/'], '[iframe]$1', '[/iframe]', true);
 
 		self::tagToBBCode($doc, 'key', [], '[code]', '[/code]');
 		self::tagToBBCode($doc, 'code', [], '[code]', '[/code]');
@@ -854,8 +872,8 @@ class HTML
 			$url = '';
 		}
 
-		return Renderer::replaceMacros(Renderer::getMarkupTemplate(($textmode)?'micropro_txt.tpl':'micropro_img.tpl'), [
-			'$click' => defaults($contact, 'click', ''),
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate($textmode ? 'micropro_txt.tpl' : 'micropro_img.tpl'), [
+			'$click' => $contact['click'] ?? '',
 			'$class' => $class,
 			'$url' => $url,
 			'$photo' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
@@ -875,9 +893,9 @@ class HTML
 	 * @param bool   $aside Display the search widgit aside.
 	 *
 	 * @return string Formatted HTML.
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function search($s, $id = 'search-box', $url = 'search', $aside = true)
+	public static function search($s, $id = 'search-box', $aside = true)
 	{
 		$mode = 'text';
 
@@ -887,24 +905,25 @@ class HTML
 		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
 
 		$values = [
-				'$s' => $s,
-				'$id' => $id,
-				'$action_url' => $url,
-				'$search_label' => L10n::t('Search'),
-				'$save_label' => $save_label,
-				'$savedsearch' => 'savedsearch',
-				'$search_hint' => L10n::t('@name, !forum, #tags, content'),
-				'$mode' => $mode
-			];
+			'$s'            => $s,
+			'$q'            => urlencode($s),
+			'$id'           => $id,
+			'$search_label' => L10n::t('Search'),
+			'$save_label'   => $save_label,
+			'$search_hint'  => L10n::t('@name, !forum, #tags, content'),
+			'$mode'         => $mode,
+			'$return_url'   => urlencode('search?q=' . urlencode($s)),
+		];
 
 		if (!$aside) {
-			$values['$searchoption'] = [
-						L10n::t("Full Text"),
-						L10n::t("Tags"),
-						L10n::t("Contacts")];
+			$values['$search_options'] = [
+				'fulltext' => L10n::t('Full Text'),
+				'tags'     => L10n::t('Tags'),
+				'contacts' => L10n::t('Contacts')
+			];
 
 			if (Config::get('system', 'poco_local_search')) {
-				$values['$searchoption'][] = L10n::t("Forums");
+				$values['$searchoption']['forums'] = L10n::t('Forums');
 			}
 		}
 

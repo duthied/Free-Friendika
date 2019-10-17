@@ -11,6 +11,8 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\GContact;
+use Friendica\Model\Contact;
+use Friendica\Model\GServer;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
@@ -62,7 +64,7 @@ class DiscoverPoCo
 
 		if ($mode == 8) {
 			if ($param1 != "") {
-				PortableContact::lastUpdated($param1, true);
+				GContact::updateFromProbe($param1, true);
 			}
 		} elseif ($mode == 7) {
 			if (!empty($param4)) {
@@ -85,7 +87,7 @@ class DiscoverPoCo
 				return;
 			}
 			$result = "Checking server ".$server_url." - ";
-			$ret = PortableContact::checkServer($server_url);
+			$ret = GServer::check($server_url);
 			if ($ret) {
 				$result .= "success";
 			} else {
@@ -175,7 +177,7 @@ class DiscoverPoCo
 				continue;
 			}
 
-			$server_url = PortableContact::detectServer($user["url"]);
+			$server_url = Contact::getBasepath($user["url"]);
 			$force_update = false;
 
 			if ($user["server_url"] != "") {
@@ -185,7 +187,7 @@ class DiscoverPoCo
 				$server_url = $user["server_url"];
 			}
 
-			if ((($server_url == "") && ($user["network"] == Protocol::FEED)) || $force_update || PortableContact::checkServer($server_url, $user["network"])) {
+			if ((($server_url == "") && ($user["network"] == Protocol::FEED)) || $force_update || GServer::check($server_url, $user["network"])) {
 				Logger::log('Check profile '.$user["url"]);
 				Worker::add(PRIORITY_LOW, "DiscoverPoCo", "check_profile", $user["url"]);
 
@@ -230,13 +232,13 @@ class DiscoverPoCo
 						continue;
 					}
 					// Update the contact
-					PortableContact::lastUpdated($jj->url);
+					GContact::updateFromProbe($jj->url);
 					continue;
 				}
 
-				$server_url = PortableContact::detectServer($jj->url);
+				$server_url = Contact::getBasepath($jj->url);
 				if ($server_url != '') {
-					if (!PortableContact::checkServer($server_url)) {
+					if (!GServer::check($server_url)) {
 						Logger::log("Friendica server ".$server_url." doesn't answer.", Logger::DEBUG);
 						continue;
 					}

@@ -1,8 +1,10 @@
 <?php
+
 /**
  * @file src/Model/User.php
  * @brief This file includes the User class with user related database functions
  */
+
 namespace Friendica\Model;
 
 use DivineOmega\PasswordExposed;
@@ -155,8 +157,10 @@ class User
 	 * @return boolean|array
 	 * @throws Exception
 	 */
-	public static function getOwnerDataById($uid, $check_valid = true) {
-		$r = DBA::fetchFirst("SELECT
+	public static function getOwnerDataById($uid, $check_valid = true)
+	{
+		$r = DBA::fetchFirst(
+			"SELECT
 			`contact`.*,
 			`user`.`prvkey` AS `uprvkey`,
 			`user`.`timezone`,
@@ -355,7 +359,8 @@ class User
 				$user = $user_info;
 			}
 
-			if (!isset($user['uid'])
+			if (
+				!isset($user['uid'])
 				|| !isset($user['password'])
 				|| !isset($user['legacy_password'])
 			) {
@@ -363,7 +368,9 @@ class User
 			}
 		} elseif (is_int($user_info) || is_string($user_info)) {
 			if (is_int($user_info)) {
-				$user = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'],
+				$user = DBA::selectFirst(
+					'user',
+					['uid', 'password', 'legacy_password'],
 					[
 						'uid' => $user_info,
 						'blocked' => 0,
@@ -374,9 +381,11 @@ class User
 				);
 			} else {
 				$fields = ['uid', 'password', 'legacy_password'];
-				$condition = ["(`email` = ? OR `username` = ? OR `nickname` = ?)
+				$condition = [
+					"(`email` = ? OR `username` = ? OR `nickname` = ?)
 					AND NOT `blocked` AND NOT `account_expired` AND NOT `account_removed` AND `verified`",
-					$user_info, $user_info, $user_info];
+					$user_info, $user_info, $user_info
+				];
 				$user = DBA::selectFirst('user', $fields, $condition);
 			}
 
@@ -395,7 +404,7 @@ class User
 	 */
 	public static function generateNewPassword()
 	{
-		return ucfirst(Strings::getRandomName(8)) . mt_rand(1000, 9999);
+		return ucfirst(Strings::getRandomName(8)) . random_int(1000, 9999);
 	}
 
 	/**
@@ -403,6 +412,7 @@ class User
 	 *
 	 * @param string $password
 	 * @return bool
+	 * @throws Exception
 	 */
 	public static function isPasswordExposed($password)
 	{
@@ -411,9 +421,20 @@ class User
 			'cacheDirectory' => get_temppath() . '/password-exposed-cache/',
 		]);
 
-		$PasswordExposedCHecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
+		try {
+			$passwordExposedChecker = new PasswordExposed\PasswordExposedChecker(null, $cache);
 
-		return $PasswordExposedCHecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+			return $passwordExposedChecker->passwordExposed($password) === PasswordExposed\PasswordStatus::EXPOSED;
+		} catch (\Exception $e) {
+			Logger::error('Password Exposed Exception: ' . $e->getMessage(), [
+				'code' => $e->getCode(),
+				'file' => $e->getFile(),
+				'line' => $e->getLine(),
+				'trace' => $e->getTraceAsString()
+			]);
+
+			return false;
+		}
 	}
 
 	/**
@@ -671,7 +692,8 @@ class User
 		}
 
 		// Check existing and deleted accounts for this nickname.
-		if (DBA::exists('user', ['nickname' => $nickname])
+		if (
+			DBA::exists('user', ['nickname' => $nickname])
 			|| DBA::exists('userd', ['username' => $nickname])
 		) {
 			throw new Exception(L10n::t('Nickname is already registered. Please choose another.'));
@@ -839,7 +861,8 @@ class User
 	 */
 	public static function sendRegisterPendingEmail($user, $sitename, $siteurl, $password)
 	{
-		$body = Strings::deindent(L10n::t('
+		$body = Strings::deindent(L10n::t(
+			'
 			Dear %1$s,
 				Thank you for registering at %2$s. Your account is pending for approval by the administrator.
 
@@ -849,7 +872,11 @@ class User
 			Login Name:		%4$s
 			Password:		%5$s
 		',
-			$user['username'], $sitename, $siteurl, $user['nickname'], $password
+			$user['username'],
+			$sitename,
+			$siteurl,
+			$user['nickname'],
+			$password
 		));
 
 		return notification([
@@ -875,13 +902,16 @@ class User
 	 */
 	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
 	{
-		$preamble = Strings::deindent(L10n::t('
-			Dear %1$s,
+		$preamble = Strings::deindent(L10n::t(
+			'
+				Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
-		',
-			$user['username'], $sitename
+			',
+			$user['username'],
+			$sitename
 		));
-		$body = Strings::deindent(L10n::t('
+		$body = Strings::deindent(L10n::t(
+			'
 			The login details are as follows:
 
 			Site Location:	%3$s
@@ -908,7 +938,11 @@ class User
 			If you ever want to delete your account, you can do so at %3$s/removeme
 
 			Thank you and welcome to %2$s.',
-			$user['nickname'], $sitename, $siteurl, $user['username'], $password
+			$user['nickname'],
+			$sitename,
+			$siteurl,
+			$user['username'],
+			$password
 		));
 
 		return notification([
@@ -989,33 +1023,45 @@ class User
 
 		if ($user['parent-uid'] == 0) {
 			// First add our own entry
-			$identities = [['uid' => $user['uid'],
+			$identities = [[
+				'uid' => $user['uid'],
 				'username' => $user['username'],
-				'nickname' => $user['nickname']]];
+				'nickname' => $user['nickname']
+			]];
 
 			// Then add all the children
-			$r = DBA::select('user', ['uid', 'username', 'nickname'],
-				['parent-uid' => $user['uid'], 'account_removed' => false]);
+			$r = DBA::select(
+				'user',
+				['uid', 'username', 'nickname'],
+				['parent-uid' => $user['uid'], 'account_removed' => false]
+			);
 			if (DBA::isResult($r)) {
 				$identities = array_merge($identities, DBA::toArray($r));
 			}
 		} else {
 			// First entry is our parent
-			$r = DBA::select('user', ['uid', 'username', 'nickname'],
-				['uid' => $user['parent-uid'], 'account_removed' => false]);
+			$r = DBA::select(
+				'user',
+				['uid', 'username', 'nickname'],
+				['uid' => $user['parent-uid'], 'account_removed' => false]
+			);
 			if (DBA::isResult($r)) {
 				$identities = DBA::toArray($r);
 			}
 
 			// Then add all siblings
-			$r = DBA::select('user', ['uid', 'username', 'nickname'],
-				['parent-uid' => $user['parent-uid'], 'account_removed' => false]);
+			$r = DBA::select(
+				'user',
+				['uid', 'username', 'nickname'],
+				['parent-uid' => $user['parent-uid'], 'account_removed' => false]
+			);
 			if (DBA::isResult($r)) {
 				$identities = array_merge($identities, DBA::toArray($r));
 			}
 		}
 
-		$r = DBA::p("SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
+		$r = DBA::p(
+			"SELECT `user`.`uid`, `user`.`username`, `user`.`nickname`
 			FROM `manage`
 			INNER JOIN `user` ON `manage`.`mid` = `user`.`uid`
 			WHERE `user`.`account_removed` = 0 AND `manage`.`uid` = ?",
@@ -1061,13 +1107,13 @@ class User
 		while ($user = DBA::fetch($userStmt)) {
 			$statistics['total_users']++;
 
-			if ((strtotime($user['login_date']) > $halfyear) ||
-				(strtotime($user['last-item']) > $halfyear)) {
+			if ((strtotime($user['login_date']) > $halfyear) || (strtotime($user['last-item']) > $halfyear)
+			) {
 				$statistics['active_users_halfyear']++;
 			}
 
-			if ((strtotime($user['login_date']) > $month) ||
-				(strtotime($user['last-item']) > $month)) {
+			if ((strtotime($user['login_date']) > $month) || (strtotime($user['last-item']) > $month)
+			) {
 				$statistics['active_users_monthly']++;
 			}
 		}

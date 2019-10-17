@@ -122,13 +122,12 @@ class Temporal
 	 * @brief Wrapper for date selector, tailored for use in birthday fields.
 	 *
 	 * @param string $dob Date of Birth
+	 * @param string $timezone
 	 * @return string Formatted HTML
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function getDateofBirthField($dob)
+	public static function getDateofBirthField(string $dob, string $timezone = 'UTC')
 	{
-		$a = \get_app();
-
 		list($year, $month, $day) = sscanf($dob, '%4d-%2d-%2d');
 
 		if ($dob < '0000-01-01') {
@@ -137,7 +136,7 @@ class Temporal
 			$value = DateTimeFormat::utc(($year > 1000) ? $dob : '1000-' . $month . '-' . $day, 'Y-m-d');
 		}
 
-		$age = (intval($value) ? self::getAgeByTimezone($value, $a->user["timezone"], $a->user["timezone"]) : "");
+		$age = (intval($value) ? self::getAgeByTimezone($value, $timezone, $timezone) : "");
 
 		$tpl = Renderer::getMarkupTemplate("field_input.tpl");
 		$o = Renderer::replaceMacros($tpl,

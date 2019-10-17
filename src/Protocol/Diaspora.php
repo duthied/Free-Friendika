@@ -55,7 +55,7 @@ class Diaspora
 	 *
 	 * @param array $contact of the relay contact
 	 */
-	public static function markRelayForArchival($contact)
+	public static function markRelayForArchival(array $contact)
 	{
 		if (!empty($contact['contact-type']) && ($contact['contact-type'] == Contact::TYPE_RELAY)) {
 			// This is already the relay contact, we don't need to fetch it
@@ -175,7 +175,7 @@ class Diaspora
 	 * @return array with the contact
 	 * @throws \Exception
 	 */
-	private static function getRelayContact($server_url, $fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'])
+	private static function getRelayContact(string $server_url, array $fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'])
 	{
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
@@ -1608,7 +1608,7 @@ class Diaspora
 		}
 
 		if (self::isRedmatrix($contact["url"])) {
-			return $contact["url"] . "/?f=&mid=" . $guid;
+			return $contact["url"] . "/?mid=" . $guid;
 		}
 
 		if ($parent_guid != '') {
@@ -3850,7 +3850,7 @@ class Diaspora
 			return $result;
 		}
 
-		$toplevel_item = Item::selectFirst(['guid', 'author-link'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
+		$toplevel_item = Item::selectFirst(['guid', 'author-id', 'author-link'], ['id' => $item["parent"], 'parent' => $item["parent"]]);
 		if (!DBA::isResult($toplevel_item)) {
 			Logger::error('Missing parent conversation item', ['parent' => $item["parent"]]);
 			return false;
@@ -3858,12 +3858,18 @@ class Diaspora
 
 		$thread_parent_item = $toplevel_item;
 		if ($item['thr-parent'] != $item['parent-uri']) {
-			$thread_parent_item = Item::selectFirst(['guid', 'author-link'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
+			$thread_parent_item = Item::selectFirst(['guid', 'author-id', 'author-link'], ['uri' => $item['thr-parent'], 'uid' => $item['uid']]);
 		}
 
 		$body = $item["body"];
 
-		if ((empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
+		// The replied to autor mention is prepended for clarity if:
+		// - Item replied isn't yours
+		// - Item is public or explicit mentions are disabled
+		// - Implicit mentions are enabled
+		if (
+			$item['author-id'] != $thread_parent_item['author-id']
+			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
 			&& !Config::get('system', 'disable_implicit_mentions')
 		) {
 			$body = self::prependParentAuthorMention($body, $thread_parent_item['author-link']);

@@ -449,6 +449,7 @@ class DBA extends BaseObject
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return int
 	 *
@@ -462,9 +463,9 @@ class DBA extends BaseObject
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public static function count($table, array $condition = [])
+	public static function count($table, array $condition = [], array $params = [])
 	{
-		return self::getClass(Database::class)->count($table, $condition);
+		return self::getClass(Database::class)->count($table, $condition, $params);
 	}
 
 	/**

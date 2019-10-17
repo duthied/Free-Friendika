@@ -1,20 +1,18 @@
 <div id="{{$id}}" class="input-group">
-        <form action="{{$action_url}}" method="get" >
-                {{strip}}
-                <input type="text" name="search" id="search-text" placeholder="{{$search_label}}" value="{{$s}}" />
-                {{if $searchoption}}
+	<form action="search" method="get">
+{{strip}}
+		<input type="text" name="q" id="search-text" placeholder="{{$search_label}}" value="{{$s}}">
+    {{if $search_options}}
 		<select name="search-option" id="search-options">
-			<option value="fulltext">{{$searchoption.0}}</option>
-			<option value="tags">{{$searchoption.1}}</option>
-			<option value="contacts">{{$searchoption.2}}</option>
-			{{if $searchoption.3}}<option value="forums">{{$searchoption.3}}</option>{{/if}}
+		{{foreach $search_options as $value => $label}}
+			<option value="{{$value}}">{{$label}}</option>
+		{{/foreach}}
 		</select>
-		{{/if}}
-
-                <input type="submit" name="submit" id="search-submit" value="{{$search_label}}" />
-                {{if $savedsearch}}
-                <input type="submit" name="save" id="search-save" value="{{$save_label}}" />
-                {{/if}}
-                {{/strip}}
-        </form>
+    {{/if}}
+		<input type="submit" name="submit" id="search-submit" value="{{$search_label}}"/>
+    {{if $s}}
+	    <a href="search/saved/add?term={{$q}}&amp;return_url={{$return_url}}">{{$save_label}}</a>
+    {{/if}}
+{{/strip}}
+	</form>
 </div>

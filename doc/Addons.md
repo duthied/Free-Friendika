@@ -533,7 +533,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
     Hook::callAll("parse_link", $arr);
 
-### mod/manage.php
+### src/Module/Delegation.php
 
     Hook::callAll('home_init', $ret);
 

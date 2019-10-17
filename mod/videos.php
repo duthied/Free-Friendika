@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
@@ -22,11 +23,7 @@ use Friendica\Util\Security;
 
 function videos_init(App $a)
 {
-	if ($a->argc > 1) {
-		DFRN::autoRedir($a, $a->argv[1]);
-	}
-
-	if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -54,9 +51,9 @@ function videos_init(App $a)
 		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
-			'$addr' => defaults($profile, 'addr', ''),
+			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$pdesc' => defaults($profile, 'pdesc', ''),
+			'$pdesc' => $profile['pdesc'] ?? '',
 		]);
 
 		// If not there, create 'aside' empty
@@ -114,7 +111,7 @@ function videos_content(App $a)
 	// videos/name/video/xxxxx/edit
 
 
-	if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(L10n::t('Public access denied.') . EOL);
 		return;
 	}
@@ -154,64 +151,25 @@ function videos_content(App $a)
 
 	if ((local_user()) && (local_user() == $owner_uid)) {
 		$can_post = true;
-	} elseif ($community_page && remote_user()) {
-		if (!empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
-
-		if ($contact_id > 0) {
-			$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($owner_uid)
-			);
-
-			if (DBA::isResult($r)) {
-				$can_post = true;
-				$remote_contact = true;
-				$visitor = $contact_id;
-			}
-		}
+	} elseif ($community_page && !empty(Session::getRemoteContactID($owner_uid))) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
+		$can_post = true;
+		$remote_contact = true;
+		$visitor = $contact_id;
 	}
-
-	$groups = [];
 
 	// perhaps they're visiting - but not a community page, so they wouldn't have write access
-	if (remote_user() && (!$visitor)) {
-		$contact_id = 0;
-
-		if (!empty($_SESSION['remote'])) {
-			foreach($_SESSION['remote'] as $v) {
-				if($v['uid'] == $owner_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
-
-		if ($contact_id > 0) {
-			$groups = Group::getIdsByContactId($contact_id);
-			$r = q("SELECT * FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-				intval($contact_id),
-				intval($owner_uid)
-			);
-
-			if (DBA::isResult($r)) {
-				$remote_contact = true;
-			}
-		}
+	if (!empty(Session::getRemoteContactID($owner_uid)) && !$visitor) {
+		$contact_id = Session::getRemoteContactID($owner_uid);
+		$remote_contact = true;
 	}
 
-	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && (!$remote_contact)) {
+	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
 		notice(L10n::t('Access to this item is restricted.') . EOL);
 		return;
 	}
 
-	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid, $remote_contact, $groups);
+	$sql_extra = Security::getPermissionsSQLByUserId($owner_uid);
 
 	$o = "";
 

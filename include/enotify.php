@@ -46,10 +46,10 @@ function notification($params)
 		return false;
 	}
 
-	$params['notify_flags'] = defaults($params, 'notify_flags', $user['notify-flags']);
-	$params['language']     = defaults($params, 'language'    , $user['language']);
-	$params['to_name']      = defaults($params, 'to_name'     , $user['username']);
-	$params['to_email']     = defaults($params, 'to_email'    , $user['email']);
+	$params['notify_flags'] = ($params['notify_flags'] ?? '') ?: $user['notify-flags'];
+	$params['language']     = ($params['language']     ?? '') ?: $user['language'];
+	$params['to_name']      = ($params['to_name']      ?? '') ?: $user['username'];
+	$params['to_email']     = ($params['to_email']     ?? '') ?: $user['email'];
 
 	// from here on everything is in the recipients language
 	L10n::pushLang($params['language']);
@@ -142,7 +142,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_COMMENT || $params['type'] == NOTIFY_TAGSELF) {
-		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id]);
+		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id, 'deleted' => false]);
 		if (DBA::isResult($thread) && $thread['ignored']) {
 			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
 			L10n::popLang();
@@ -161,7 +161,7 @@ function notification($params)
 		// if it's a post figure out who's post it is.
 		$item = null;
 		if ($params['otype'] === 'item' && $parent_id) {
-			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id]);
+			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
 		}
 
 		$item_post_type = Item::postType($item);
@@ -456,17 +456,17 @@ function notification($params)
 		if (!isset($params['subject'])) {
 			Logger::warning('subject isn\'t set.', ['type' => $params['type']]);
 		}
-		$subject = defaults($params, 'subject', '');
+		$subject = $params['subject'] ?? '';
 
 		if (!isset($params['preamble'])) {
 			Logger::warning('preamble isn\'t set.', ['type' => $params['type'], 'subject' => $subject]);
 		}
-		$preamble = defaults($params, 'preamble', '');
+		$preamble = $params['preamble'] ?? '';
 
 		if (!isset($params['body'])) {
 			Logger::warning('body isn\'t set.', ['type' => $params['type'], 'subject' => $subject, 'preamble' => $preamble]);
 		}
-		$body = defaults($params, 'body', '');
+		$body = $params['body'] ?? '';
 
 		$show_in_notification_page = false;
 	}
@@ -613,11 +613,11 @@ function notification($params)
 		$datarray['siteurl'] = $siteurl;
 		$datarray['type'] = $params['type'];
 		$datarray['parent'] = $parent_id;
-		$datarray['source_name'] = defaults($params, 'source_name', '');
-		$datarray['source_link'] = defaults($params, 'source_link', '');
-		$datarray['source_photo'] = defaults($params, 'source_photo', '');
+		$datarray['source_name'] = $params['source_name'] ?? '';
+		$datarray['source_link'] = $params['source_link'] ?? '';
+		$datarray['source_photo'] = $params['source_photo'] ?? '';
 		$datarray['uid'] = $params['uid'];
-		$datarray['username'] = defaults($params, 'to_name', '');
+		$datarray['username'] = $params['to_name'] ?? '';
 		$datarray['hsitelink'] = $hsitelink;
 		$datarray['tsitelink'] = $tsitelink;
 		$datarray['hitemlink'] = '<a href="'.$itemlink.'">'.$itemlink.'</a>';
@@ -783,7 +783,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$fields = ['id', 'mention', 'tag', 'parent', 'title', 'body',
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
-	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT]];
+	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'deleted' => false];
 	$item = Item::selectFirstForUser($uid, $fields, $condition);
 	if (!DBA::isResult($item) || in_array($item['author-id'], $contacts)) {
 		return false;
@@ -840,7 +840,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	// Is it a post that the user had started?
 	$fields = ['ignored', 'mention'];
-	$thread = Item::selectFirstThreadForUser($params['uid'], $fields, ['iid' => $item["parent"]]);
+	$thread = Item::selectFirstThreadForUser($params['uid'], $fields, ['iid' => $item["parent"], 'deleted' => false]);
 
 	if ($thread['mention'] && !$thread['ignored'] && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
@@ -848,7 +848,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	}
 
 	// And now we check for participation of one of our contacts in the thread
-	$condition = ['parent' => $item["parent"], 'author-id' => $contacts];
+	$condition = ['parent' => $item["parent"], 'author-id' => $contacts, 'deleted' => false];
 
 	if (!$thread['ignored'] && !isset($params["type"]) && Item::exists($condition)) {
 		$params["type"] = NOTIFY_COMMENT;

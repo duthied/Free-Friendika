@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Protocol\DFRN;
@@ -41,7 +42,7 @@ function add_page_info_data(array $data, $no_photos = false)
 		$data["type"] = "link";
 	}
 
-	$data["title"] = defaults($data, "title", "");
+	$data["title"] = $data["title"] ?? '';
 
 	if ((($data["type"] != "link") && ($data["type"] != "video") && ($data["type"] != "photo")) || ($data["title"] == $data["url"])) {
 		return "";
@@ -326,7 +327,7 @@ function drop_items(array $items)
 {
 	$uid = 0;
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 
@@ -362,14 +363,8 @@ function drop_item($id, $return = '')
 	$contact_id = 0;
 
 	// check if logged in user is either the author or owner of this item
-
-	if (!empty($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $item['uid'] && $visitor['cid'] == $item['contact-id']) {
-				$contact_id = $visitor['cid'];
-				break;
-			}
-		}
+	if (Session::getRemoteContactID($item['uid']) == $item['contact-id']) {
+		$contact_id = $item['contact-id'];
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {

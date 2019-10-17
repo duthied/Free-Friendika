@@ -11,6 +11,7 @@ use Friendica\Content\Feature;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Core\Session;
 use Friendica\Util\Network;
 
 /**
@@ -40,12 +41,12 @@ class ACL extends BaseObject
 
 		$networks = null;
 
-		$size = defaults($options, 'size', 4);
+		$size = ($options['size'] ?? 0) ?: 4;
 		$mutual = !empty($options['mutual_friends']);
 		$single = !empty($options['single']) && empty($options['multiple']);
-		$exclude = defaults($options, 'exclude', false);
+		$exclude = $options['exclude'] ?? false;
 
-		switch (defaults($options, 'networks', Protocol::PHANTOM)) {
+		switch (($options['networks'] ?? '') ?: Protocol::PHANTOM) {
 			case 'DFRN_ONLY':
 				$networks = [Protocol::DFRN];
 				break;
@@ -225,13 +226,13 @@ class ACL extends BaseObject
 
 		$acl_regex = '/<([0-9]+)>/i';
 
-		preg_match_all($acl_regex, defaults($user, 'allow_cid', ''), $matches);
+		preg_match_all($acl_regex, $user['allow_cid'] ?? '', $matches);
 		$allow_cid = $matches[1];
-		preg_match_all($acl_regex, defaults($user, 'allow_gid', ''), $matches);
+		preg_match_all($acl_regex, $user['allow_gid'] ?? '', $matches);
 		$allow_gid = $matches[1];
-		preg_match_all($acl_regex, defaults($user, 'deny_cid', ''), $matches);
+		preg_match_all($acl_regex, $user['deny_cid'] ?? '', $matches);
 		$deny_cid = $matches[1];
-		preg_match_all($acl_regex, defaults($user, 'deny_gid', ''), $matches);
+		preg_match_all($acl_regex, $user['deny_gid'] ?? '', $matches);
 		$deny_gid = $matches[1];
 
 		// Reformats the ACL data so that it is accepted by the JS frontend
@@ -300,10 +301,10 @@ class ACL extends BaseObject
 			'$showall' => L10n::t('Visible to everybody'),
 			'$show' => L10n::t('show'),
 			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode(defaults($default_permissions, 'allow_cid', [])), // we need arrays for Javascript since we call .remove() and .push() on this values
-			'$allowgid' => json_encode(defaults($default_permissions, 'allow_gid', [])),
-			'$denycid' => json_encode(defaults($default_permissions, 'deny_cid', [])),
-			'$denygid' => json_encode(defaults($default_permissions, 'deny_gid', [])),
+			'$allowcid' => json_encode(($default_permissions['allow_cid'] ?? '') ?: []), // We need arrays for
+			'$allowgid' => json_encode(($default_permissions['allow_gid'] ?? '') ?: []), // Javascript since we
+			'$denycid'  => json_encode(($default_permissions['deny_cid']  ?? '') ?: []), // call .remove() and
+			'$denygid'  => json_encode(($default_permissions['deny_gid']  ?? '') ?: []), // .push() on these values
 			'$networks' => $show_jotnets,
 			'$emailcc' => L10n::t('CC: email addresses'),
 			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
@@ -319,47 +320,5 @@ class ACL extends BaseObject
 		]);
 
 		return $o;
-	}
-
-	/**
-	 * Searching for global contacts for autocompletion
-	 *
-	 * @brief Searching for global contacts for autocompletion
-	 * @param string $search Name or part of a name or nick
-	 * @param string $mode   Search mode (e.g. "community")
-	 * @return array with the search results
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function contactAutocomplete($search, $mode)
-	{
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
-			return [];
-		}
-
-		// don't search if search term has less than 2 characters
-		if (!$search || mb_strlen($search) < 2) {
-			return [];
-		}
-
-		if (substr($search, 0, 1) === '@') {
-			$search = substr($search, 1);
-		}
-
-		// check if searching in the local global contact table is enabled
-		if (Config::get('system', 'poco_local_search')) {
-			$return = GContact::searchByName($search, $mode);
-		} else {
-			$p = defaults($_GET, 'page', 1) != 1 ? '&p=' . defaults($_GET, 'page', 1) : '';
-
-			$curlResult = Network::curl(get_server() . '/lsearch?f=' . $p . '&search=' . urlencode($search));
-			if ($curlResult->isSuccess()) {
-				$lsearch = json_decode($curlResult->getBody(), true);
-				if (!empty($lsearch['results'])) {
-					$return = $lsearch['results'];
-				}
-			}
-		}
-
-		return defaults($return, []);
 	}
 }

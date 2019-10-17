@@ -11,6 +11,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
@@ -337,16 +338,9 @@ class Widget
 			return;
 		}
 
-		$cid = $zcid = 0;
+		$zcid = 0;
 
-		if (!empty($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $visitor) {
-				if ($visitor['uid'] == $profile_uid) {
-					$cid = $visitor['cid'];
-					break;
-				}
-			}
-		}
+		$cid = Session::getRemoteContactID($profile_uid);
 
 		if (!$cid) {
 			if (Profile::getMyURL()) {

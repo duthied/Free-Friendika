@@ -4,6 +4,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Model\Item;
+use Friendica\Core\Session;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
@@ -14,7 +15,7 @@ class Like extends BaseModule
 {
 	public static function rawContent()
 	{
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 
@@ -35,7 +36,7 @@ class Like extends BaseModule
 
 		// Decide how to return. If we were called with a 'return' argument,
 		// then redirect back to the calling page. If not, just quietly end
-		$returnPath = defaults($_REQUEST, 'return', '');
+		$returnPath = $_REQUEST['return'] ?? '';
 
 		if (!empty($returnPath)) {
 			$rand = '_=' . time();

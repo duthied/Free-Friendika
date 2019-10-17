@@ -136,7 +136,7 @@ class Renderer extends BaseObject
 	 */
 	public static function getTemplateEngine()
 	{
-		$template_engine = defaults(self::$theme, 'template_engine', 'smarty3');
+		$template_engine = (self::$theme['template_engine'] ?? '') ?: 'smarty3';
 
 		if (isset(self::$template_engines[$template_engine])) {
 			if (isset(self::$template_engine_instance[$template_engine])) {

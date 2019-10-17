@@ -129,16 +129,13 @@ HELP;
 		$config_file = $this->getOption(['f', 'file']);
 
 		if (!empty($config_file)) {
-			if ($config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
-				// Copy config file
-				$this->out("Copying config file...\n");
-				if (!copy($basePathConf . DIRECTORY_SEPARATOR . $config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
-					throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $basePathConf . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
-				}
+
+			if (!file_exists($config_file)) {
+				throw new RuntimeException("ERROR: Config file does not exist.\n");
 			}
 
 			//reload the config cache
-			$loader = new ConfigFileLoader($basePathConf);
+			$loader = new ConfigFileLoader($config_file);
 			$loader->setupCache($configCache);
 
 		} else {
@@ -195,7 +192,7 @@ HELP;
 			$installer->createConfig($configCache);
 		}
 
-		$this->out(" Complete!\n\n");
+		$this->out("Complete!\n\n");
 
 		// Check database connection
 		$this->out("Checking database...\n");
@@ -217,6 +214,14 @@ HELP;
 		if (!$installer->installDatabase($basePathConf)) {
 			$errorMessage = $this->extractErrors($installer->getChecks());
 			throw new RuntimeException($errorMessage);
+		}
+
+		if (!empty($config_file) && $config_file != 'config' . DIRECTORY_SEPARATOR . 'local.config.php') {
+			// Copy config file
+			$this->out("Copying config file...\n");
+			if (!copy($basePathConf . DIRECTORY_SEPARATOR . $config_file, $basePathConf . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php')) {
+				throw new RuntimeException("ERROR: Saving config file failed. Please copy '$config_file' to '" . $basePathConf . "'" . DIRECTORY_SEPARATOR . "config" . DIRECTORY_SEPARATOR . "local.config.php' manually.\n");
+			}
 		}
 
 		$this->out(" Complete!\n\n");

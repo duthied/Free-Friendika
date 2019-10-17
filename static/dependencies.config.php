@@ -4,6 +4,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\L10n\L10n;
 use Friendica\Core\Lock\ILock;
 use Friendica\Database\Database;
 use Friendica\Factory;
@@ -62,7 +63,7 @@ return [
 	],
 	App\Mode::class                 => [
 		'call' => [
-			['determineRunMode', [$_SERVER], Dice::CHAIN_CALL],
+			['determineRunMode', [true, $_SERVER], Dice::CHAIN_CALL],
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],
@@ -114,12 +115,18 @@ return [
 	 */
 	LoggerInterface::class          => [
 		'instanceOf' => Factory\LoggerFactory::class,
+		'constructParams' => [
+			'index',
+		],
 		'call'       => [
-			['create', [], Dice::CHAIN_CALL],
+			['create', ['index'], Dice::CHAIN_CALL],
 		],
 	],
 	'$devLogger'                    => [
 		'instanceOf' => Factory\LoggerFactory::class,
+		'constructParams' => [
+			'dev',
+		],
 		'call'       => [
 			['createDev', [], Dice::CHAIN_CALL],
 		]
@@ -157,6 +164,19 @@ return [
 	Friendica\Core\Process::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
+		],
+	],
+	App\Router::class => [
+		'constructParams' => [
+			$_SERVER, null
+		],
+		'call' => [
+			['addRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
+		],
+	],
+	L10n::class => [
+		'constructParams' => [
+			$_SERVER, $_GET
 		],
 	],
 ];

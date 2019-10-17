@@ -24,7 +24,7 @@
 			var textlen = $(this).val().length;
 			$('#character-counter').text(textlen);
 		});
-		$textarea.editor_autocomplete(baseurl+"/acl");
+		$textarea.editor_autocomplete(baseurl + '/search/acl');
 		$textarea.bbco_autocomplete('bbcode');
 
 		let $acl_allow_input = $('#acl_allow');

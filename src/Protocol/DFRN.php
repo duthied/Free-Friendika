@@ -119,8 +119,8 @@ class DFRN
 		foreach ($items as $item) {
 			// These values aren't sent when sending from the queue.
 			/// @todo Check if we can set these values from the queue or if they are needed at all.
-			$item["entry:comment-allow"] = defaults($item, "entry:comment-allow", true);
-			$item["entry:cid"] = defaults($item, "entry:cid", 0);
+			$item["entry:comment-allow"] = ($item["entry:comment-allow"] ?? '') ?: true;
+			$item["entry:cid"] = $item["entry:cid"] ?? 0;
 
 			$entry = self::entry($doc, "text", $item, $owner, $item["entry:comment-allow"], $item["entry:cid"]);
 			if (isset($entry)) {
@@ -1259,7 +1259,7 @@ class DFRN
 		$sent_dfrn_id = hex2bin((string) $res->dfrn_id);
 		$challenge    = hex2bin((string) $res->challenge);
 		$perm         = (($res->perm) ? $res->perm : null);
-		$dfrn_version = (float) (($res->dfrn_version) ? $res->dfrn_version : 2.0);
+		$dfrn_version = floatval($res->dfrn_version ?: 2.0);
 		$rino_remote_version = intval($res->rino);
 		$page         = (($owner['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? 1 : 0);
 
@@ -2019,8 +2019,8 @@ class DFRN
 				return false;
 			}
 
-			$fields = ['title' => defaults($item, 'title', ''), 'body' => defaults($item, 'body', ''),
-					'tag' => defaults($item, 'tag', ''), 'changed' => DateTimeFormat::utcNow(),
+			$fields = ['title' => $item['title'] ?? '', 'body' => $item['body'] ?? '',
+					'tag' => $item['tag'] ?? '', 'changed' => DateTimeFormat::utcNow(),
 					'edited' => DateTimeFormat::utc($item["edited"])];
 
 			$condition = ["`uri` = ? AND `uid` IN (0, ?)", $item["uri"], $importer["importer_uid"]];
@@ -2847,115 +2847,6 @@ class DFRN
 		}
 		Logger::log("Import done for user " . $importer["importer_uid"] . " from contact " . $importer["id"], Logger::DEBUG);
 		return 200;
-	}
-
-	/**
-	 * @param App    $a            App
-	 * @param string $contact_nick contact nickname
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function autoRedir(App $a, $contact_nick)
-	{
-		// prevent looping
-		if (!empty($_REQUEST['redir'])) {
-			Logger::log('autoRedir might be looping because redirect has been redirected', Logger::DEBUG);
-			// looping prevention also appears to sometimes prevent authentication for images
-			// because browser may have multiple connections open and load an image on a connection
-			// whose session wasn't updated when a previous redirect authenticated
-			// Leaving commented in case looping reappears
-			//return;
-		}
-
-		if ((! $contact_nick) || ($contact_nick === $a->user['nickname'])) {
-			return;
-		}
-
-		if (local_user()) {
-			// We need to find out if $contact_nick is a user on this hub, and if so, if I
-			// am a contact of that user. However, that user may have other contacts with the
-			// same nickname as me on other hubs or other networks. Exclude these by requiring
-			// that the contact have a local URL. I will be the only person with my nickname at
-			// this URL, so if a result is found, then I am a contact of the $contact_nick user.
-			//
-			// We also have to make sure that I'm a legitimate contact--I'm not blocked or pending.
-
-			$baseurl = System::baseUrl();
-			$domain_st = strpos($baseurl, "://");
-			if ($domain_st === false) {
-				return;
-			}
-			$baseurl = substr($baseurl, $domain_st + 3);
-			$nurl = Strings::normaliseLink($baseurl);
-
-			$r = User::getByNickname($contact_nick, ["uid"]);
-			$contact_uid = $r["uid"];
-
-			/// @todo Why is there a query for "url" *and* "nurl"? Especially this normalising is strange.
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = (SELECT `uid` FROM `user` WHERE `nickname` = '%s' LIMIT 1)
-					AND `nick` = '%s' AND NOT `self` AND (`url` LIKE '%%%s%%' OR `nurl` LIKE '%%%s%%') AND NOT `blocked` AND NOT `pending` LIMIT 1",
-				DBA::escape($contact_nick),
-				DBA::escape($a->user['nickname']),
-				DBA::escape($baseurl),
-				DBA::escape($nurl)
-			);
-			if ((! DBA::isResult($r))) {
-				return;
-			}
-			// test if redirect authentication already succeeded
-			// Note that "contact" in the sense used in the $contact_nick argument to this function
-			// and the sense in the $remote[]["cid"] in the session are opposite.
-			// In the session variable the user currently fetching is the contact
-			// while $contact_nick is the nick of tho user who owns the stuff being fetched.
-			foreach (Session::get('remote', []) as $visitor) {
-				if ($visitor['uid'] == $contact_uid && $visitor['cid'] == $r[0]['id']) {
-					return;
-				}
-			}
-
-			$r = q("SELECT * FROM contact WHERE nick = '%s'
-					AND network = '%s' AND uid = %d  AND url LIKE '%%%s%%' LIMIT 1",
-				DBA::escape($contact_nick),
-				DBA::escape(Protocol::DFRN),
-				intval(local_user()),
-				DBA::escape($baseurl)
-			);
-			if (! DBA::isResult($r)) {
-				return;
-			}
-
-			$cid = $r[0]['id'];
-
-			$dfrn_id = (($r[0]['issued-id']) ? $r[0]['issued-id'] : $r[0]['dfrn-id']);
-
-			if ($r[0]['duplex'] && $r[0]['issued-id']) {
-				$orig_id = $r[0]['issued-id'];
-				$dfrn_id = '1:' . $orig_id;
-			}
-			if ($r[0]['duplex'] && $r[0]['dfrn-id']) {
-				$orig_id = $r[0]['dfrn-id'];
-				$dfrn_id = '0:' . $orig_id;
-			}
-
-			// ensure that we've got a valid ID. There may be some edge cases with forums and non-duplex mode
-			// that may have triggered some of the "went to {profile/intro} and got an RSS feed" issues
-
-			if (strlen($dfrn_id) < 3) {
-				return;
-			}
-
-			$sec = Strings::getRandomHex();
-
-			DBA::insert('profile_check', ['uid' => local_user(), 'cid' => $cid, 'dfrn_id' => $dfrn_id, 'sec' => $sec, 'expire' => time() + 45]);
-
-			$url = curPageURL();
-
-			Logger::log('auto_redir: ' . $r[0]['name'] . ' ' . $sec, Logger::DEBUG);
-			$dest = (($url) ? '&destination_url=' . $url : '');
-			System::externalRedirect($r[0]['poll'] . '?dfrn_id=' . $dfrn_id
-				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION . '&type=profile&sec=' . $sec . $dest);
-		}
-
-		return;
 	}
 
 	/**

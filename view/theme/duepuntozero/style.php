@@ -10,7 +10,7 @@ if (file_exists("$THEMEPATH/style.css")) {
 	echo file_get_contents("$THEMEPATH/style.css");
 }
 
-$uid = defaults($_REQUEST, 'puid', 0);
+$uid = $_REQUEST['puid'] ?? 0;
 
 $s_colorset = Config::get('duepuntozero', 'colorset');
 $colorset = PConfig::get($uid, 'duepuntozero', 'colorset');

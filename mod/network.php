@@ -40,22 +40,6 @@ function network_init(App $a)
 
 	Hook::add('head', __FILE__, 'network_infinite_scroll_head');
 
-	$search = (!empty($_GET['search']) ? Strings::escapeHtml($_GET['search']) : '');
-
-	if (($search != '') && !empty($_GET['submit'])) {
-		$a->internalRedirect('search?search=' . urlencode($search));
-	}
-
-	if (!empty($_GET['save'])) {
-		$exists = DBA::exists('search', ['uid' => local_user(), 'term' => $search]);
-		if (!$exists) {
-			DBA::insert('search', ['uid' => local_user(), 'term' => $search]);
-		}
-	}
-	if (!empty($_GET['remove'])) {
-		DBA::delete('search', ['uid' => local_user(), 'term' => $search]);
-	}
-
 	$is_a_date_query = false;
 
 	$group_id = (($a->argc > 1 && is_numeric($a->argv[1])) ? intval($a->argv[1]) : 0);
@@ -82,7 +66,7 @@ function network_init(App $a)
 
 	// fetch last used network view and redirect if needed
 	if (!$is_a_date_query) {
-		$sel_nets = defaults($_GET, 'nets', '');
+		$sel_nets = $_GET['nets'] ?? '';
 		$sel_tabs = network_query_get_sel_tab($a);
 		$sel_groups = network_query_get_sel_group($a);
 		$last_sel_tabs = PConfig::get(local_user(), 'network.view', 'tab.selected');
@@ -154,46 +138,9 @@ function network_init(App $a)
 	$a->page['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
 	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
 	$a->page['aside'] .= Widget::postedByYear('network', local_user(), false);
-	$a->page['aside'] .= Widget::networks('network', defaults($_GET, 'nets', '') );
-	$a->page['aside'] .= saved_searches($search);
-	$a->page['aside'] .= Widget::fileAs('network', defaults($_GET, 'file', '') );
-}
-
-function saved_searches($search)
-{
-	$srchurl = '/network?f='
-		. (!empty($_GET['cid'])   ? '&cid='   . rawurlencode($_GET['cid'])   : '')
-		. (!empty($_GET['star'])  ? '&star='  . rawurlencode($_GET['star'])  : '')
-		. (!empty($_GET['bmark']) ? '&bmark=' . rawurlencode($_GET['bmark']) : '')
-		. (!empty($_GET['conv'])  ? '&conv='  . rawurlencode($_GET['conv'])  : '')
-		. (!empty($_GET['nets'])  ? '&nets='  . rawurlencode($_GET['nets'])  : '')
-		. (!empty($_GET['cmin'])  ? '&cmin='  . rawurlencode($_GET['cmin'])  : '')
-		. (!empty($_GET['cmax'])  ? '&cmax='  . rawurlencode($_GET['cmax'])  : '')
-		. (!empty($_GET['file'])  ? '&file='  . rawurlencode($_GET['file'])  : '');
-	;
-
-	$terms = DBA::select('search', ['id', 'term'], ['uid' => local_user()]);
-	$saved = [];
-
-	while ($rr = DBA::fetch($terms)) {
-		$saved[] = [
-			'id'          => $rr['id'],
-			'term'        => $rr['term'],
-			'encodedterm' => urlencode($rr['term']),
-			'delete'      => L10n::t('Remove term'),
-			'selected'    => ($search == $rr['term']),
-		];
-	}
-
-	$tpl = Renderer::getMarkupTemplate('saved_searches_aside.tpl');
-	$o = Renderer::replaceMacros($tpl, [
-		'$title'     => L10n::t('Saved Searches'),
-		'$add'       => L10n::t('add'),
-		'$searchbox' => HTML::search($search, 'netsearch-box', $srchurl),
-		'$saved'     => $saved,
-	]);
-
-	return $o;
+	$a->page['aside'] .= Widget::networks('network', $_GET['nets'] ?? '');
+	$a->page['aside'] .= Widget\SavedSearches::getHTML($a->query_string);
+	$a->page['aside'] .= Widget::fileAs('network', $_GET['file'] ?? '');
 }
 
 /**
@@ -409,7 +356,7 @@ function networkFlatView(App $a, $update = 0)
 
 	$o = '';
 
-	$file = defaults($_GET, 'file', '');
+	$file = $_GET['file'] ?? '';
 
 	if (!$update && !$rawmode) {
 		$tabs = network_tabs($a);
@@ -532,12 +479,12 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$o = '';
 
-	$cid   = intval(defaults($_GET, 'cid'  , 0));
-	$star  = intval(defaults($_GET, 'star' , 0));
-	$bmark = intval(defaults($_GET, 'bmark', 0));
-	$conv  = intval(defaults($_GET, 'conv' , 0));
-	$order = Strings::escapeTags(defaults($_GET, 'order', 'comment'));
-	$nets  =        defaults($_GET, 'nets' , '');
+	$cid   = intval($_GET['cid']   ?? 0);
+	$star  = intval($_GET['star']  ?? 0);
+	$bmark = intval($_GET['bmark'] ?? 0);
+	$conv  = intval($_GET['conv']  ?? 0);
+	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'comment');
+	$nets  =        $_GET['nets']  ?? '';
 
 	$allowedCids = [];
 	if ($cid) {
@@ -676,7 +623,7 @@ function networkThreadedView(App $a, $update, $parent)
 			$entries[0] = [
 				'id' => 'network',
 				'name' => $contact['name'],
-				'itemurl' => defaults($contact, 'addr', $contact['nurl']),
+				'itemurl' => ($contact['addr'] ?? '') ?: $contact['nurl'],
 				'thumb' => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
 				'details' => $contact['location'],
 			];
@@ -1066,7 +1013,7 @@ function network_infinite_scroll_head(App $a, &$htmlhead)
 	global $pager;
 
 	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
-		&& defaults($_GET, 'mode', '') != 'minimal'
+		&& ($_GET['mode'] ?? '') != 'minimal'
 	) {
 		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');
 		$htmlhead .= Renderer::replaceMacros($tpl, [

@@ -78,7 +78,7 @@ class AllFriends extends BaseModule
 
 			$entry = [
 				'url'          => Model\Contact::magicLinkbyId($friend['id'], $friend['url']),
-				'itemurl'      => defaults($contactDetails, 'addr', $friend['url']),
+				'itemurl'      => ($contactDetails['addr'] ?? '') ?: $friend['url'],
 				'name'         => $contactDetails['name'],
 				'thumb'        => ProxyUtils::proxifyUrl($contactDetails['thumb'], false, ProxyUtils::SIZE_THUMB),
 				'img_hover'    => $contactDetails['name'],

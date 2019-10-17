@@ -62,7 +62,7 @@
 	{{if $nav.contacts}}<a id="nav-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}" >{{$nav.contacts.1}}</a>{{/if}}
 
 
-	{{if $nav.manage}}<a id="nav-manage-link" class="nav-link {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a>{{/if}}
+	{{if $nav.delegation}}<a id="nav-delegation-link" class="nav-link {{$nav.delegation.2}} {{$sel.delegation}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}">{{$nav.delegation.1}}</a>{{/if}}
 	</span>
 	<span id="nav-end"></span>
 	<span id="banner">{{$banner nofilter}}</span>

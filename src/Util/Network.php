@@ -104,7 +104,7 @@ class Network
 
 		$parts2 = [];
 		$parts = parse_url($url);
-		$path_parts = explode('/', defaults($parts, 'path', ''));
+		$path_parts = explode('/', $parts['path'] ?? '');
 		foreach ($path_parts as $part) {
 			if (strlen($part) <> mb_strlen($part)) {
 				$parts2[] = rawurlencode($part);
@@ -395,7 +395,7 @@ Logger::info('Blubb', ['code' => $curlResponse->getReturnCode()]);
 		/// @TODO Really suppress function outcomes? Why not find them + debug them?
 		$h = @parse_url($url);
 
-		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP))) {
 			return $url;
 		}
 
@@ -421,7 +421,7 @@ Logger::info('Blubb', ['code' => $curlResponse->getReturnCode()]);
 		$h = substr($addr, strpos($addr, '@') + 1);
 
 		// Concerning the @ see here: https://stackoverflow.com/questions/36280957/dns-get-record-a-temporary-server-error-occurred
-		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
 			return true;
 		}
 		if ($h && @dns_get_record($h, DNS_CNAME + DNS_MX)) {
@@ -816,8 +816,8 @@ Logger::info('Blubb', ['code' => $curlResponse->getReturnCode()]);
 		$i = 0;
 		$path = "";
 		do {
-			$path1 = defaults($pathparts1, $i, '');
-			$path2 = defaults($pathparts2, $i, '');
+			$path1 = $pathparts1[$i] ?? '';
+			$path2 = $pathparts2[$i] ?? '';
 
 			if ($path1 == $path2) {
 				$path .= $path1."/";

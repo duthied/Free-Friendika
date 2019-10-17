@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module;
+namespace Friendica\Module\HTTPException;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;

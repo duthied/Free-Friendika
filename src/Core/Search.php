@@ -5,6 +5,7 @@ namespace Friendica\Core;
 use Friendica\BaseObject;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
 use Friendica\Network\Probe;
 use Friendica\Object\Search\ContactResult;
@@ -44,28 +45,31 @@ class Search extends BaseObject
 		if ((filter_var($user, FILTER_VALIDATE_EMAIL) && Network::isEmailDomainValid($user)) ||
 		    (substr(Strings::normaliseLink($user), 0, 7) == "http://")) {
 
+			/// @todo Possibly use "getIdForURL" instead?
 			$user_data = Probe::uri($user);
 			if (empty($user_data)) {
 				return $emptyResultList;
 			}
 
-			if (!(in_array($user_data["network"], Protocol::FEDERATED))) {
+			if (!in_array($user_data["network"], Protocol::FEDERATED)) {
 				return $emptyResultList;
 			}
 
-			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
-			$itemUrl        = defaults($contactDetails, 'addr', defaults($user_data, 'url', ''));
+			// Ensure that we do have a contact entry
+			Contact::getIdForURL($user_data['url'] ?? '');
+
+			$contactDetails = Contact::getDetailsByURL($user_data['url'] ?? '', local_user());
 
 			$result = new ContactResult(
-				defaults($user_data, 'name', ''),
-				defaults($user_data, 'addr', ''),
-				$itemUrl,
-				defaults($user_data, 'url', ''),
-				defaults($user_data, 'photo', ''),
-				defaults($user_data, 'network', ''),
-				defaults($contactDetails, 'cid', 0),
+				$user_data['name'] ?? '',
+				$user_data['addr'] ?? '',
+				($contactDetails['addr'] ?? '') ?: ($user_data['url'] ?? ''),
+				$user_data['url'] ?? '',
+				$user_data['photo'] ?? '',
+				$user_data['network'] ?? '',
+				$contactDetails['id'] ?? 0,
 				0,
-				defaults($user_data, 'tags', '')
+				$user_data['tags'] ?? ''
 			);
 
 			return new ResultList(1, 1, 1, [$result]);
@@ -112,27 +116,28 @@ class Search extends BaseObject
 		$results = json_decode($resultJson, true);
 
 		$resultList = new ResultList(
-			defaults($results, 'page', 1),
-			defaults($results, 'count', 0),
-			defaults($results, 'itemsperpage', 30)
+			($results['page']         ?? 0) ?: 1,
+			 $results['count']        ?? 0,
+			($results['itemsperpage'] ?? 0) ?: 30
 		);
 
-		$profiles = defaults($results, 'profiles', []);
+		$profiles = $results['profiles'] ?? [];
 
 		foreach ($profiles as $profile) {
-			$contactDetails = Contact::getDetailsByURL(defaults($profile, 'profile_url', ''), local_user());
-			$itemUrl        = defaults($contactDetails, 'addr', defaults($profile, 'profile_url', ''));
+			$profile_url = $profile['profile_url'] ?? '';
+			$contactDetails = Contact::getDetailsByURL($profile_url, local_user());
 
 			$result = new ContactResult(
-				defaults($profile, 'name', ''),
-				defaults($profile, 'addr', ''),
-				$itemUrl,
-				defaults($profile, 'profile_url', ''),
-				defaults($profile, 'photo', ''),
+				$profile['name'] ?? '',
+				$profile['addr'] ?? '',
+				($contactDetails['addr'] ?? '') ?: $profile_url,
+				$profile_url,
+				$profile['photo'] ?? '',
 				Protocol::DFRN,
-				defaults($contactDetails, 'cid', 0),
+				$contactDetails['cid'] ?? 0,
 				0,
-				defaults($profile, 'tags', ''));
+				$profile['tags'] ?? ''
+			);
 
 			$resultList->addResult($result);
 		}
@@ -240,5 +245,47 @@ class Search extends BaseObject
 		Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
 
 		return $resultList;
+	}
+
+	/**
+	 * Searching for global contacts for autocompletion
+	 *
+	 * @brief Searching for global contacts for autocompletion
+	 * @param string $search Name or part of a name or nick
+	 * @param string $mode   Search mode (e.g. "community")
+	 * @param int    $page   Page number (starts at 1)
+	 * @return array with the search results
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	public static function searchGlobalContact($search, $mode, int $page = 1)
+	{
+		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+			return [];
+		}
+
+		// don't search if search term has less than 2 characters
+		if (!$search || mb_strlen($search) < 2) {
+			return [];
+		}
+
+		if (substr($search, 0, 1) === '@') {
+			$search = substr($search, 1);
+		}
+
+		// check if searching in the local global contact table is enabled
+		if (Config::get('system', 'poco_local_search')) {
+			$return = GContact::searchByName($search, $mode);
+		} else {
+			$p = $page > 1 ? 'p=' . $page : '';
+			$curlResult = Network::curl(get_server() . '/search/people?' . $p . '&q=' . urlencode($search), false, ['accept_content' => 'application/json']);
+			if ($curlResult->isSuccess()) {
+				$searchResult = json_decode($curlResult->getBody(), true);
+				if (!empty($searchResult['profiles'])) {
+					$return = $searchResult['profiles'];
+				}
+			}
+		}
+
+		return $return ?? [];
 	}
 }

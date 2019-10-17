@@ -2,6 +2,7 @@
 
 namespace Friendica\Module;
 
+use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
@@ -61,19 +62,12 @@ class Register extends BaseModule
 			}
 		}
 
-		if (!empty($_SESSION['theme'])) {
-			unset($_SESSION['theme']);
-		}
-		if (!empty($_SESSION['mobile-theme'])) {
-			unset($_SESSION['mobile-theme']);
-		}
-
-		$username   = defaults($_REQUEST, 'username'  , '');
-		$email      = defaults($_REQUEST, 'email'     , '');
-		$openid_url = defaults($_REQUEST, 'openid_url', '');
-		$nickname   = defaults($_REQUEST, 'nickname'  , '');
-		$photo      = defaults($_REQUEST, 'photo'     , '');
-		$invite_id  = defaults($_REQUEST, 'invite_id' , '');
+		$username   = $_REQUEST['username']   ?? '';
+		$email      = $_REQUEST['email']      ?? '';
+		$openid_url = $_REQUEST['openid_url'] ?? '';
+		$nickname   = $_REQUEST['nickname']   ?? '';
+		$photo      = $_REQUEST['photo']      ?? '';
+		$invite_id  = $_REQUEST['invite_id']  ?? '';
 
 		if (Config::get('system', 'no_openid')) {
 			$fillwith = '';
@@ -114,7 +108,7 @@ class Register extends BaseModule
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => Config::get('system', 'invitation_only'),
 			'$permonly'     => intval(Config::get('config', 'register_policy')) === self::APPROVE,
-			'$permonlybox'  => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node')],
+			'$permonlybox'  => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node'), 'required'],
 			'$invite_desc'  => L10n::t('Membership on this site is by invitation only.'),
 			'$invite_label' => L10n::t('Your invitation code: '),
 			'$invite_id'    => $invite_id,
@@ -203,7 +197,7 @@ class Register extends BaseModule
 
 		$arr['blocked'] = $blocked;
 		$arr['verified'] = $verified;
-		$arr['language'] = L10nClass::detectLanguage($a->getConfig()->get('system', 'language'));
+		$arr['language'] = L10nClass::detectLanguage($_SERVER, $_GET, $a->getConfig()->get('system', 'language'));
 
 		try {
 			$result = Model\User::create($arr);
@@ -214,8 +208,10 @@ class Register extends BaseModule
 
 		$user = $result['user'];
 
+		$base_url = self::getClass(BaseURL::class)->get();
+
 		if ($netpublish && intval(Config::get('config', 'register_policy')) !== self::APPROVE) {
-			$url = $a->getBaseUrl() . '/profile/' . $user['nickname'];
+			$url = $base_url . '/profile/' . $user['nickname'];
 			Worker::add(PRIORITY_LOW, 'Directory', $url);
 		}
 
@@ -234,7 +230,7 @@ class Register extends BaseModule
 				$res = Model\User::sendRegisterOpenEmail(
 					$user,
 					Config::get('config', 'sitename'),
-					$a->getBaseUrl(),
+					$base_url,
 					$result['password']
 				);
 
@@ -246,7 +242,6 @@ class Register extends BaseModule
 						L10n::t('Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.',
 							$user['email'],
 							$result['password'])
-						. EOL
 					);
 				}
 			} else {
@@ -257,6 +252,14 @@ class Register extends BaseModule
 			if (!strlen(Config::get('config', 'admin_email'))) {
 				\notice(L10n::t('Your registration can not be processed.') . EOL);
 				$a->internalRedirect();
+			}
+
+			// Check if the note to the admin is actually filled out
+			if (empty($_POST['permonlybox'])) {
+				\notice(L10n::t('You have to leave a request note for the admin.')
+					. L10n::t('Your registration can not be processed.') . EOL);
+
+				$a->internalRedirect('register/');
 			}
 
 			Model\Register::createForApproval($user['uid'], Config::get('system', 'language'), $_POST['permonlybox']);
@@ -282,12 +285,12 @@ class Register extends BaseModule
 					'source_name'  => $user['username'],
 					'source_mail'  => $user['email'],
 					'source_nick'  => $user['nickname'],
-					'source_link'  => $a->getBaseUrl() . '/admin/users/',
-					'link'         => $a->getBaseUrl() . '/admin/users/',
-					'source_photo' => $a->getBaseUrl() . '/photo/avatar/' . $user['uid'] . '.jpg',
+					'source_link'  => $base_url . '/admin/users/',
+					'link'         => $base_url . '/admin/users/',
+					'source_photo' => $base_url . '/photo/avatar/' . $user['uid'] . '.jpg',
 					'to_email'     => $admin['email'],
 					'uid'          => $admin['uid'],
-					'language'     => defaults($admin, 'language', 'en'),
+					'language'     => ($admin['language'] ?? '') ?: 'en',
 					'show_in_notification_page' => false
 				]);
 			}
@@ -297,7 +300,7 @@ class Register extends BaseModule
 			Model\User::sendRegisterPendingEmail(
 				$user,
 				Config::get('config', 'sitename'),
-				$a->getBaseURL(),
+				$base_url,
 				$result['password']
 			);
 

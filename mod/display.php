@@ -14,6 +14,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -31,7 +32,7 @@ function display_init(App $a)
 		Objects::rawContent();
 	}
 
-	if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -52,9 +53,11 @@ function display_init(App $a)
 			if (DBA::isResult($item)) {
 				$nick = $a->user["nickname"];
 			}
+		}
+
 		// Is this item private but could be visible to the remove visitor?
-		} elseif (remote_user()) {
-			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
+		if (!DBA::isResult($item) && remote_user()) {
+			$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
 			if (DBA::isResult($item)) {
 				if (!Contact::isFollower(remote_user(), $item['uid'])) {
 					$item = null;
@@ -84,10 +87,6 @@ function display_init(App $a)
 		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
 	}
 
-	if ($a->argc >= 3 && $nick == 'feed-item') {
-		displayShowFeed($item['id'], $a->argc > 3 && $a->argv[3] == 'conversation.atom');
-	}
-
 	if (!empty($_SERVER['HTTP_ACCEPT']) && strstr($_SERVER['HTTP_ACCEPT'], 'application/atom+xml')) {
 		Logger::log('Directly serving XML for id '.$item["id"], Logger::DEBUG);
 		displayShowFeed($item["id"], false);
@@ -102,7 +101,7 @@ function display_init(App $a)
 	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(System::baseUrl()))) {
 		$nickname = str_replace(Strings::normaliseLink(System::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
 
-		if (($nickname != $a->user["nickname"])) {
+		if ($nickname != $a->user["nickname"]) {
 			$profile = DBA::fetchFirst("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
@@ -188,14 +187,16 @@ function display_fetchauthor($a, $item)
 
 	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
 
-	$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
+	if (!empty($profiledata["photo"])) {
+		$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
+	}
 
 	return $profiledata;
 }
 
 function display_content(App $a, $update = false, $update_uid = 0)
 {
-	if (Config::get('system','block_public') && !local_user() && !remote_user()) {
+	if (Config::get('system','block_public') && !Session::isAuthenticated()) {
 		throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
 	}
 
@@ -227,8 +228,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 					$item_parent = $item["parent"];
 					$item_parent_uri = $item['parent-uri'];
 				}
-			} elseif (remote_user()) {
-				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1]);
+			}
+
+			if (($item_parent == 0) && remote_user()) {
+				$item = Item::selectFirst($fields, ['guid' => $a->argv[1], 'private' => 1, 'origin' => true]);
 				if (DBA::isResult($item) && Contact::isFollower(remote_user(), $item['uid'])) {
 					$item_id = $item["id"];
 					$item_parent = $item["parent"];
@@ -267,34 +270,26 @@ function display_content(App $a, $update = false, $update_uid = 0)
 				['$alternate' => $alternate,
 					'$conversation' => $conversation]);
 
-	$groups = [];
-	$remote_cid = null;
 	$is_remote_contact = false;
 	$item_uid = local_user();
 
 	if (isset($item_parent_uri)) {
 		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
 		if (DBA::isResult($parent)) {
-			$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
-			$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
-			$is_remote_contact = Contact::isFollower(remote_user(), $a->profile['profile_uid']);
-
+			$a->profile['uid'] = ($a->profile['uid'] ?? 0) ?: $parent['uid'];
+			$a->profile['profile_uid'] = ($a->profile['profile_uid'] ?? 0) ?: $parent['uid'];
+			$is_remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
 			if ($is_remote_contact) {
-				$cdata = Contact::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
-				if (!empty($cdata['user'])) {
-					$groups = Group::getIdsByContactId($cdata['user']);
-					$remote_cid = $cdata['user'];
-					$item_uid = $parent['uid'];
-				}
+				$item_uid = $parent['uid'];
 			}
 		}
 	}
-
 
 	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);
 	if (DBA::isResult($page_contact)) {
 		$a->page_contact = $page_contact;
 	}
+
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
 	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
@@ -316,7 +311,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		];
 		$o .= status_editor($a, $x, 0, true);
 	}
-	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $is_remote_contact, $groups, $remote_cid);
+	$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
 
 	if (local_user() && (local_user() == $a->profile['profile_uid'])) {
 		$condition = ['parent-uri' => $item_parent_uri, 'uid' => local_user(), 'unseen' => true];
@@ -330,8 +325,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	$condition = ["`id` = ? AND `item`.`uid` IN (0, ?) " . $sql_extra, $item_id, $item_uid];
-	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink'];
-	$item = Item::selectFirstForUser(local_user(), $fields, $condition);
+	$fields = ['parent-uri', 'body', 'title', 'author-name', 'author-avatar', 'plink', 'author-id', 'owner-id', 'contact-id'];
+	$item = Item::selectFirstForUser($a->profile['profile_uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
 		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
@@ -370,7 +365,10 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 	$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 
-	//<meta name="keywords" content="">
+	if (DBA::exists('contact', ['unsearchable' => true, 'id' => [$item['contact-id'], $item['author-id'], $item['owner-id']]])) {
+		$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+	}
+
 	$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
 	$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";

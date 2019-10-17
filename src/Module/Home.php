@@ -14,14 +14,6 @@ class Home extends BaseModule
 {
 	public static function content()
 	{
-		if (!empty($_SESSION['theme'])) {
-			unset($_SESSION['theme']);
-		}
-
-		if (!empty($_SESSION['mobile-theme'])) {
-			unset($_SESSION['mobile-theme']);
-		}
-
 		$app = self::getApp();
 		$config = $app->getConfig();
 

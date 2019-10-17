@@ -25,7 +25,7 @@ class Babel extends BaseModule
 
 		$results = [];
 		if (!empty($_REQUEST['text'])) {
-			switch (defaults($_REQUEST, 'type', 'bbcode')) {
+			switch (($_REQUEST['type'] ?? '') ?: 'bbcode') {
 				case 'bbcode':
 					$bbcode = trim($_REQUEST['text']);
 					$results[] = [
@@ -176,10 +176,10 @@ class Babel extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('babel.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$text'          => ['text', L10n::t('Source text'), defaults($_REQUEST, 'text', ''), ''],
-			'$type_bbcode'   => ['type', L10n::t('BBCode'), 'bbcode', '', defaults($_REQUEST, 'type', 'bbcode') == 'bbcode'],
-			'$type_markdown' => ['type', L10n::t('Markdown'), 'markdown', '', defaults($_REQUEST, 'type', 'bbcode') == 'markdown'],
-			'$type_html'     => ['type', L10n::t('HTML'), 'html', '', defaults($_REQUEST, 'type', 'bbcode') == 'html'],
+			'$text'          => ['text', L10n::t('Source text'), $_REQUEST['text'] ?? '', ''],
+			'$type_bbcode'   => ['type', L10n::t('BBCode'), 'bbcode', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'bbcode'],
+			'$type_markdown' => ['type', L10n::t('Markdown'), 'markdown', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'markdown'],
+			'$type_html'     => ['type', L10n::t('HTML'), 'html', '', (($_REQUEST['type'] ?? '') ?: 'bbcode') == 'html'],
 			'$results'       => $results
 		]);
 

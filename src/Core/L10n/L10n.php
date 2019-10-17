@@ -53,12 +53,12 @@ class L10n
 	 */
 	private $logger;
 
-	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger)
+	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger, array $server, array $get)
 	{
 		$this->dba    = $dba;
 		$this->logger = $logger;
 
-		$this->loadTranslationTable(L10n::detectLanguage($config->get('system', 'language', 'en')));
+		$this->loadTranslationTable(L10n::detectLanguage($server, $get, $config->get('system', 'language', 'en')));
 	}
 
 	/**
@@ -140,7 +140,7 @@ class L10n
 		$this->lang    = $this->langSave;
 
 		$this->stringsSave = null;
-		$this->langSave = null;
+		$this->langSave    = null;
 	}
 
 	/**
@@ -158,6 +158,11 @@ class L10n
 	{
 		$lang = Strings::sanitizeFilePathItem($lang);
 
+		// Don't override the language setting with empty languages
+		if (empty($lang)) {
+			return;
+		}
+
 		$a          = new \stdClass();
 		$a->strings = [];
 
@@ -166,12 +171,12 @@ class L10n
 		while ($p = $this->dba->fetch($addons)) {
 			$name = Strings::sanitizeFilePathItem($p['name']);
 			if (file_exists("addon/$name/lang/$lang/strings.php")) {
-				include "addon/$name/lang/$lang/strings.php";
+				include __DIR__ . "/../../../addon/$name/lang/$lang/strings.php";
 			}
 		}
 
-		if (file_exists("view/lang/$lang/strings.php")) {
-			include "view/lang/$lang/strings.php";
+		if (file_exists(__DIR__ . "/../../../view/lang/$lang/strings.php")) {
+			include __DIR__ . "/../../../view/lang/$lang/strings.php";
 		}
 
 		$this->lang    = $lang;
@@ -184,49 +189,78 @@ class L10n
 	 * @brief Returns the preferred language from the HTTP_ACCEPT_LANGUAGE header
 	 *
 	 * @param string $sysLang The default fallback language
+	 * @param array  $server  The $_SERVER array
+	 * @param array  $get     The $_GET array
 	 *
 	 * @return string The two-letter language code
 	 */
-	public static function detectLanguage(string $sysLang = 'en')
+	public static function detectLanguage(array $server, array $get, string $sysLang = 'en')
 	{
-		$lang_list = [];
+		$lang_variable = $server['HTTP_ACCEPT_LANGUAGE'] ?? null;
 
-		if (!empty($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
-			// break up string into pieces (languages and q factors)
-			preg_match_all('/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i', $_SERVER['HTTP_ACCEPT_LANGUAGE'], $lang_parse);
+		$acceptedLanguages = preg_split('/,\s*/', $lang_variable);
 
-			if (count($lang_parse[1])) {
-				// go through the list of prefered languages and add a generic language
-				// for sub-linguas (e.g. de-ch will add de) if not already in array
-				for ($i = 0; $i < count($lang_parse[1]); $i++) {
-					$lang_list[] = strtolower($lang_parse[1][$i]);
-					if (strlen($lang_parse[1][$i]) > 3) {
-						$dashpos = strpos($lang_parse[1][$i], '-');
-						if (!in_array(substr($lang_parse[1][$i], 0, $dashpos), $lang_list)) {
-							$lang_list[] = strtolower(substr($lang_parse[1][$i], 0, $dashpos));
-						}
+		if (empty($acceptedLanguages)) {
+			$acceptedLanguages = [];
+		}
+
+		// Add get as absolute quality accepted language (except this language isn't valid)
+		if (!empty($get['lang'])) {
+			$acceptedLanguages[] = $get['lang'];
+		}
+
+		// return the sys language in case there's nothing to do
+		if (empty($acceptedLanguages)) {
+			return $sysLang;
+		}
+
+		// Set the syslang as default fallback
+		$current_lang = $sysLang;
+		// start with quality zero (every guessed language is more acceptable ..)
+		$current_q = 0;
+
+		foreach ($acceptedLanguages as $acceptedLanguage) {
+			$res = preg_match(
+				'/^([a-z]{1,8}(?:-[a-z]{1,8})*)(?:;\s*q=(0(?:\.[0-9]{1,3})?|1(?:\.0{1,3})?))?$/i',
+				$acceptedLanguage,
+				$matches
+			);
+
+			// Invalid language? -> skip
+			if (!$res) {
+				continue;
+			}
+
+			// split language codes based on it's "-"
+			$lang_code = explode('-', $matches[1]);
+
+			// determine the quality of the guess
+			if (isset($matches[2])) {
+				$lang_quality = (float)$matches[2];
+			} else {
+				// fallback so without a quality parameter, it's probably the best
+				$lang_quality = 1;
+			}
+
+			// loop through each part of the code-parts
+			while (count($lang_code)) {
+				// try to mix them so we can get double-code parts too
+				$match_lang = strtolower(join('-', $lang_code));
+				if (file_exists(__DIR__ . "/../../../view/lang/$match_lang") &&
+				    is_dir(__DIR__ . "/../../../view/lang/$match_lang")) {
+					if ($lang_quality > $current_q) {
+						$current_lang = $match_lang;
+						$current_q    = $lang_quality;
+						break;
 					}
 				}
+
+				// remove the most right code-part
+				array_pop($lang_code);
 			}
 		}
 
-		if (isset($_GET['lang'])) {
-			$lang_list = [$_GET['lang']];
-		}
-
-		// check if we have translations for the preferred languages and pick the 1st that has
-		foreach ($lang_list as $lang) {
-			if ($lang === 'en' || (file_exists("view/lang/$lang") && is_dir("view/lang/$lang"))) {
-				$preferred = $lang;
-				break;
-			}
-		}
-		if (isset($preferred)) {
-			return $preferred;
-		}
-
-		// in case none matches, get the system wide configured language, or fall back to English
-		return $sysLang;
+		return $current_lang;
 	}
 
 	/**

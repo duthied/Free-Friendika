@@ -48,8 +48,6 @@ class Profile extends BaseModule
 		if (local_user() && $a->argc > 2 && $a->argv[2] === 'view') {
 			self::$which = $a->user['nickname'];
 			self::$profile = filter_var($a->argv[1], FILTER_SANITIZE_NUMBER_INT);
-		} else {
-			DFRN::autoRedir($a, self::$which);
 		}
 	}
 
@@ -57,21 +55,22 @@ class Profile extends BaseModule
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
-			$data = [];
 			if (DBA::isResult($user)) {
+				// The function returns an empty array when the account is removed, expired or blocked
 				$data = ActivityPub\Transmitter::getProfile($user['uid']);
+				if (!empty($data)) {
+					System::jsonExit($data, 'application/activity+json');
+				}
 			}
 
-			if (!empty($data)) {
-				System::jsonExit($data, 'application/activity+json');
-			} elseif (DBA::exists('userd', ['username' => self::$which])) {
+			if (DBA::exists('userd', ['username' => self::$which])) {
 				// Known deleted user
 				$data = ActivityPub\Transmitter::getDeletedUser(self::$which);
 
 				System::jsonError(410, $data);
 			} else {
 				// Any other case (unknown, blocked, unverified, expired, no profile, no self contact)
-				System::jsonError(404, $data);
+				System::jsonError(404, []);
 			}
 		}
 	}
@@ -83,11 +82,13 @@ class Profile extends BaseModule
 		if (!$update) {
 			ProfileModel::load($a, self::$which, self::$profile);
 
-			$blocked   = !local_user() && !remote_user() && Config::get('system', 'block_public');
-			$userblock = !local_user() && !remote_user() && $a->profile['hidewall'];
+			$a->page['htmlhead'] .= "\n";
+
+			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && Config::get('system', 'block_public');
+			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
-				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
+				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
 			}
 
 			if (!empty($a->profile['openidserver'])) {
@@ -101,13 +102,18 @@ class Profile extends BaseModule
 
 			// site block
 			if (!$blocked && !$userblock) {
-				$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], defaults($a->profile, 'pub_keywords', ''));
+				$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $a->profile['pub_keywords'] ?? '');
 				if (strlen($keywords)) {
 					$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\n";
 				}
 			}
 
 			$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\n";
+
+			if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
+				$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+			}
+
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
@@ -140,17 +146,14 @@ class Profile extends BaseModule
 		}
 
 		if (empty($category)) {
-			$category = defaults($_GET, 'category', '');
+			$category = $_GET['category'] ?? '';
 		}
 
-		$hashtags = defaults($_GET, 'tag', '');
+		$hashtags = $_GET['tag'] ?? '';
 
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+		if (Config::get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
 			return Login::form();
 		}
-
-		$groups = [];
-		$remote_cid = null;
 
 		$o = '';
 
@@ -161,17 +164,9 @@ class Profile extends BaseModule
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = ContactModel::isFollower(remote_user(), $a->profile['profile_uid']);
+		$remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
 		$is_owner = local_user() == $a->profile['profile_uid'];
-		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . remote_user();
-
-		if ($remote_contact) {
-			$cdata = ContactModel::getPublicAndUserContacID(remote_user(), $a->profile['profile_uid']);
-			if (!empty($cdata['user'])) {
-				$groups = Group::getIdsByContactId($cdata['user']);
-				$remote_cid = $cdata['user'];
-			}
-		}
+		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
 			notice(L10n::t('Access to this profile has been restricted.') . EOL);
@@ -179,7 +174,7 @@ class Profile extends BaseModule
 		}
 
 		if (!$update) {
-            $tab = Strings::escapeTags(trim(defaults($_GET, 'tab', '')));
+            $tab = Strings::escapeTags(trim($_GET['tab'] ?? ''));
 
 			$o .= ProfileModel::getTabs($a, $tab, $is_owner, $a->profile['nickname']);
 
@@ -221,7 +216,7 @@ class Profile extends BaseModule
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid'], $remote_contact, $groups, $remote_cid);
+		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
 		$sql_extra2 = '';
 
 		$last_updated_array = Session::get('last_updated', []);

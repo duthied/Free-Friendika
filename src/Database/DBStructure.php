@@ -12,7 +12,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'include/dba.php';
+require_once __DIR__ . '/../../include/dba.php';
 
 /**
  * @brief This class contain functions for the database management
@@ -421,7 +421,7 @@ class DBStructure
 				}
 
 				if (isset($database[$name]["table_status"]["Comment"])) {
-					$structurecomment = defaults($structure, "comment", "");
+					$structurecomment = $structure["comment"] ?? '';
 					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
 						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
@@ -465,7 +465,7 @@ class DBStructure
 				// Compare the field structure field by field
 				foreach ($structure["fields"] AS $fieldname => $parameters) {
 					// Compare the field definition
-					$field_definition = defaults($database[$name]["fields"], $fieldname, ['Collation' => '']);
+					$field_definition = ($database[$name]["fields"][$fieldname] ?? '') ?: ['Collation' => ''];
 
 					// Define the default collation if not given
 					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {
@@ -717,8 +717,8 @@ class DBStructure
 	 * @todo You cannot rename a primary key if "auto increment" is set
 	 *
 	 * @param string $table            Table name
-	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ] )
-	 *                                 Syntax for Primary Key: [ $col1, $col2, ...] )
+	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ]
+	 *                                 Syntax for Primary Key: [ $col1, $col2, ...]
 	 * @param int    $type             The type of renaming (Default is Column)
 	 *
 	 * @return boolean Was the renaming successful?

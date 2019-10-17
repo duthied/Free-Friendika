@@ -35,7 +35,7 @@ function get_theme_config_file($theme)
 	$theme = Strings::sanitizeFilePathItem($theme);
 
 	$a = \get_app();
-	$base_theme = defaults($a->theme_info, 'extends');
+	$base_theme = $a->theme_info['extends'] ?? '';
 
 	if (file_exists("view/theme/$theme/config.php")) {
 		return "view/theme/$theme/config.php";
@@ -115,8 +115,8 @@ function settings_init(App $a)
 
 	$tabs[] =	[
 		'label'	=> L10n::t('Delegations'),
-		'url' 	=> 'delegate',
-		'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'delegate')?'active':''),
+		'url' 	=> 'settings/delegation',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'delegation')?'active':''),
 		'accesskey' => 'd',
 	];
 
@@ -180,11 +180,11 @@ function settings_post(App $a)
 	if (($a->argc > 2) && ($a->argv[1] === 'oauth')  && ($a->argv[2] === 'edit'||($a->argv[2] === 'add')) && !empty($_POST['submit'])) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth');
 
-		$name     = defaults($_POST, 'name'    , '');
-		$key      = defaults($_POST, 'key'     , '');
-		$secret   = defaults($_POST, 'secret'  , '');
-		$redirect = defaults($_POST, 'redirect', '');
-		$icon     = defaults($_POST, 'icon'    , '');
+		$name     = $_POST['name']     ?? '';
+		$key      = $_POST['key']      ?? '';
+		$secret   = $_POST['secret']   ?? '';
+		$redirect = $_POST['redirect'] ?? '';
+		$icon     = $_POST['icon']     ?? '';
 
 		if ($name == "" || $key == "" || $secret == "") {
 			notice(L10n::t("Missing some important data!"));
@@ -241,24 +241,21 @@ function settings_post(App $a)
 			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
 			PConfig::set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (!empty($_POST['imap-submit'])) {
+			$mail_server       =                 $_POST['mail_server']       ?? '';
+			$mail_port         =                 $_POST['mail_port']         ?? '';
+			$mail_ssl          = strtolower(trim($_POST['mail_ssl']          ?? ''));
+			$mail_user         =                 $_POST['mail_user']         ?? '';
+			$mail_pass         =            trim($_POST['mail_pass']         ?? '');
+			$mail_action       =            trim($_POST['mail_action']       ?? '');
+			$mail_movetofolder =            trim($_POST['mail_movetofolder'] ?? '');
+			$mail_replyto      =                 $_POST['mail_replyto']      ?? '';
+			$mail_pubmail      =                 $_POST['mail_pubmail']      ?? '';
 
-			$mail_server       = defaults($_POST, 'mail_server', '');
-			$mail_port         = defaults($_POST, 'mail_port', '');
-			$mail_ssl          = (!empty($_POST['mail_ssl']) ? strtolower(trim($_POST['mail_ssl'])) : '');
-			$mail_user         = defaults($_POST, 'mail_user', '');
-			$mail_pass         = (!empty($_POST['mail_pass']) ? trim($_POST['mail_pass']) : '');
-			$mail_action       = (!empty($_POST['mail_action']) ? trim($_POST['mail_action']) : '');
-			$mail_movetofolder = (!empty($_POST['mail_movetofolder']) ? trim($_POST['mail_movetofolder']) : '');
-			$mail_replyto      = defaults($_POST, 'mail_replyto', '');
-			$mail_pubmail      = defaults($_POST, 'mail_pubmail', '');
-
-
-			$mail_disabled = ((function_exists('imap_open') && (!Config::get('system', 'imap_disabled'))) ? 0 : 1);
-			if (Config::get('system', 'dfrn_only')) {
-				$mail_disabled = 1;
-			}
-
-			if (!$mail_disabled) {
+			if (
+				!Config::get('system', 'dfrn_only')
+				&& function_exists('imap_open')
+				&& !Config::get('system', 'imap_disabled')
+			) {
 				$failed = false;
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
 					intval(local_user())
@@ -1092,7 +1089,7 @@ function settings_content(App $a)
 
 	if (strlen(Config::get('system', 'directory'))) {
 		$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory')), [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_netdirectory', L10n::t('Publish your default profile in the global social directory?'), $profile['net-publish'], L10n::t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory'))	. " " . L10n::t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting."), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';

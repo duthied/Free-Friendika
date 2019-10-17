@@ -13,7 +13,7 @@ use Psr\Log\LoggerInterface;
  * A class to store profiling data
  * It can handle different logging data for specific functions or global performance measures
  *
- * It stores the data as log entries (@see LoggerInterface )
+ * It stores the data as log entries (@see LoggerInterface)
  */
 class Profiler implements ContainerInterface
 {
@@ -79,7 +79,7 @@ class Profiler implements ContainerInterface
 			return;
 		}
 
-		$duration = (float) (microtime(true) - $timestamp);
+		$duration = floatval(microtime(true) - $timestamp);
 
 		if (!isset($this->performance[$value])) {
 			// Prevent ugly E_NOTICE

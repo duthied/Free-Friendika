@@ -36,7 +36,7 @@ class Index extends BaseAdminModule
 					break;
 
 				case 'toggle' :
-					$theme = defaults($_GET, 'addon', '');
+					$theme = $_GET['addon'] ?? '';
 					if ($theme) {
 						$theme = Strings::sanitizeFilePathItem($theme);
 						if (!is_dir("view/theme/$theme")) {

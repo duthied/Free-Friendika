@@ -4,12 +4,10 @@
  */
 namespace Friendica\Network;
 
-use Friendica\Core\Hook;
+use Friendica\BaseObject;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
-use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
-use Friendica\Util\DateTimeFormat;
 use OAuthServer;
 use OAuthSignatureMethod_HMAC_SHA1;
 use OAuthSignatureMethod_PLAINTEXT;
@@ -32,12 +30,13 @@ class FKOAuth1 extends OAuthServer
 	/**
 	 * @param string $uid user id
 	 * @return void
+	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public function loginUser($uid)
 	{
 		Logger::log("FKOAuth1::loginUser $uid");
-		$a = \get_app();
+		$a = BaseObject::getApp();
 		$record = DBA::selectFirst('user', [], ['uid' => $uid, 'blocked' => 0, 'account_expired' => 0, 'account_removed' => 0, 'verified' => 1]);
 
 		if (!DBA::isResult($record)) {
@@ -45,31 +44,7 @@ class FKOAuth1 extends OAuthServer
 			header('HTTP/1.0 401 Unauthorized');
 			die('This api requires login');
 		}
-		$_SESSION['uid'] = $record['uid'];
-		$_SESSION['theme'] = $record['theme'];
-		$_SESSION['mobile-theme'] = PConfig::get($record['uid'], 'system', 'mobile_theme');
-		$_SESSION['authenticated'] = 1;
-		$_SESSION['page_flags'] = $record['page-flags'];
-		$_SESSION['my_url'] = System::baseUrl() . '/profile/' . $record['nickname'];
-		$_SESSION['addr'] = $_SERVER['REMOTE_ADDR'];
-		$_SESSION["allow_api"] = true;
 
-		$a->user = $record;
-
-		if (strlen($a->user['timezone'])) {
-			date_default_timezone_set($a->user['timezone']);
-			$a->timezone = $a->user['timezone'];
-		}
-
-		$contact = DBA::selectFirst('contact', [], ['uid' => $_SESSION['uid'], 'self' => 1]);
-		if (DBA::isResult($contact)) {
-			$a->contact = $contact;
-			$a->cid = $contact['id'];
-			$_SESSION['cid'] = $a->cid;
-		}
-
-		DBA::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $_SESSION['uid']]);
-
-		Hook::callAll('logged_in', $a->user);
+		Session::setAuthenticatedForUser($a, $record, true);
 	}
 }

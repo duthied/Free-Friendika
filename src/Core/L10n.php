@@ -31,10 +31,11 @@ class L10n extends BaseObject
 	 *
 	 * If called repeatedly, it won't save the translation strings again, just load the new ones.
 	 *
+	 * @param string $lang Language code
+	 *
+	 * @throws \Exception
 	 * @see   popLang()
 	 * @brief Stores the current language strings and load a different language.
-	 * @param string $lang Language code
-	 * @throws \Exception
 	 */
 	public static function pushLang($lang)
 	{
@@ -63,6 +64,7 @@ class L10n extends BaseObject
 	 *
 	 * @param string $s
 	 * @param array  $vars Variables to interpolate in the translation string
+	 *
 	 * @return string
 	 */
 	public static function t($s, ...$vars)
@@ -86,6 +88,7 @@ class L10n extends BaseObject
 	 * @param string $singular
 	 * @param string $plural
 	 * @param int    $count
+	 *
 	 * @return string
 	 * @throws \Exception
 	 */
@@ -114,6 +117,7 @@ class L10n extends BaseObject
 	 * @brief Translate days and months names.
 	 *
 	 * @param string $s String with day or month name.
+	 *
 	 * @return string Translated string.
 	 */
 	public static function getDay($s)
@@ -125,10 +129,23 @@ class L10n extends BaseObject
 	 * @brief Translate short days and months names.
 	 *
 	 * @param string $s String with short day or month name.
+	 *
 	 * @return string Translated string.
 	 */
 	public static function getDayShort($s)
 	{
 		return self::getClass(L10nClass::class)->getDayShort($s);
+	}
+
+	/**
+	 * Load poke verbs
+	 *
+	 * @return array index is present tense verb
+	 *                 value is array containing past tense verb, translation of present, translation of past
+	 * @hook poke_verbs pokes array
+	 */
+	public static function getPokeVerbs()
+	{
+		return self::getClass(L10nClass::class)->getPokeVerbs();
 	}
 }

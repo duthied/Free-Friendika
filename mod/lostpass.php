@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file mod/lostpass.php
  */
@@ -27,7 +28,7 @@ function lostpass_post(App $a)
 		$a->internalRedirect();
 	}
 
-	$pwdreset_token = Strings::getRandomName(12) . mt_rand(1000, 9999);
+	$pwdreset_token = Strings::getRandomName(12) . random_int(1000, 9999);
 
 	$fields = [
 		'pwdreset' => $pwdreset_token,

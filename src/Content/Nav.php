@@ -29,7 +29,7 @@ class Nav
 		'directory' => null,
 		'settings'  => null,
 		'contacts'  => null,
-		'manage'    => null,
+		'delegation'=> null,
 		'events'    => null,
 		'register'  => null
 	];
@@ -149,7 +149,7 @@ class Nav
 		$nav['usermenu'] = [];
 		$userinfo = null;
 
-		if (local_user() || remote_user()) {
+		if (Session::isAuthenticated()) {
 			$nav['logout'] = ['logout', L10n::t('Logout'), '', L10n::t('End this session')];
 		} else {
 			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
@@ -182,7 +182,7 @@ class Nav
 			$nav['home'] = [$homelink, L10n::t('Home'), '', L10n::t('Home Page')];
 		}
 
-		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !local_user() && !remote_user()) {
+		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
 			$nav['register'] = ['register', L10n::t('Register'), '', L10n::t('Create an account')];
 		}
 
@@ -257,10 +257,8 @@ class Nav
 			$nav['messages']['new'] = ['message/new', L10n::t('New Message'), '', L10n::t('New Message')];
 
 			if (is_array($a->identities) && count($a->identities) > 1) {
-				$nav['manage'] = ['manage', L10n::t('Manage'), '', L10n::t('Manage other pages')];
+				$nav['delegation'] = ['delegation', L10n::t('Delegation'), '', L10n::t('Manage other pages')];
 			}
-
-			$nav['delegations'] = ['delegate', L10n::t('Delegations'), '', L10n::t('Delegate Page Management')];
 
 			$nav['settings'] = ['settings', L10n::t('Settings'), '', L10n::t('Account settings')];
 

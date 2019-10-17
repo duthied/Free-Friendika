@@ -86,6 +86,8 @@ var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
 
+const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
+
 $(function() {
 	$.ajaxSetup({cache: false});
 
@@ -404,6 +406,61 @@ $(function() {
 	}
 });
 
+/**
+ * Inserts a BBCode tag in the comment textarea identified by id
+ *
+ * @param {string} BBCode
+ * @param {int} id
+ * @returns {boolean}
+ */
+function insertFormatting(BBCode, id) {
+	let textarea = document.getElementById('comment-edit-text-' + id);
+
+	if (textarea.value === '') {
+		$(textarea)
+			.addClass("comment-edit-text-full")
+			.removeClass("comment-edit-text-empty");
+		closeMenu("comment-fake-form-" + id);
+		openMenu("item-comments-" + id);
+	}
+
+	insertBBCodeInTextarea(BBCode, textarea);
+
+	return true;
+}
+
+/**
+ * Inserts a BBCode tag in the provided textarea element, wrapping the currently selected text.
+ * For URL BBCode, it discriminates between link text and non-link text to determine where to insert the selected text.
+ *
+ * @param {string} BBCode
+ * @param {HTMLTextAreaElement} textarea
+ */
+function insertBBCodeInTextarea(BBCode, textarea) {
+	let selectionStart = textarea.selectionStart;
+	let selectionEnd = textarea.selectionEnd;
+	let selectedText = textarea.value.substring(selectionStart, selectionEnd);
+	let openingTag = '[' + BBCode + ']';
+	let closingTag = '[/' + BBCode + ']';
+	let cursorPosition = selectionStart + openingTag.length + selectedText.length;
+
+	if (BBCode === 'url') {
+		if (urlRegex.test(selectedText)) {
+			openingTag = '[' + BBCode + '=' + selectedText + ']';
+			selectedText = '';
+			cursorPosition = selectionStart + openingTag.length;
+		} else {
+			openingTag = '[' + BBCode + '=]';
+			cursorPosition = selectionStart + openingTag.length - 1;
+		}
+	}
+
+	textarea.value = textarea.value.substring(0, selectionStart) + openingTag + selectedText + closingTag + textarea.value.substring(selectionEnd, textarea.value.length);
+	textarea.setSelectionRange(cursorPosition, cursorPosition);
+	textarea.dispatchEvent(new Event('change'));
+	textarea.focus();
+}
+
 function NavUpdate() {
 	if (!stopped) {
 		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&f=&uid=' + localUser : '');
@@ -466,7 +523,7 @@ function updateConvItems(data) {
 		$('body').css('cursor', 'auto');
 	}
 	/* autocomplete @nicknames */
-	$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
+	$(".comment-edit-form  textarea").editor_autocomplete(baseurl + '/search/acl');
 	/* autocomplete bbcode */
 	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 }

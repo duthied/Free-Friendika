@@ -7,8 +7,8 @@ use Friendica\Model;
 /**
  * This class is responsible for all system-wide configuration values in Friendica
  * There are two types of storage
- * - The Config-Files    (loaded into the FileCache @see Cache\ConfigCache )
- * - The Config-DB-Table (per Config-DB-model @see Model\Config\Config )
+ * - The Config-Files    (loaded into the FileCache @see Cache\ConfigCache)
+ * - The Config-DB-Table (per Config-DB-model @see Model\Config\Config)
  */
 abstract class Configuration
 {
@@ -59,7 +59,7 @@ abstract class Configuration
 	 *
 	 * Get a particular config value from the given category ($cat)
 	 * and the $key from a cached storage either from the $this->configAdapter
-	 * (@see IConfigAdapter ) or from the $this->configCache (@see ConfigCache ).
+	 * (@see IConfigAdapter) or from the $this->configCache (@see ConfigCache).
 	 *
 	 * @param string  $cat        The category of the configuration value
 	 * @param string  $key           The configuration key to query
@@ -89,7 +89,7 @@ abstract class Configuration
 	 * @brief Deletes the given key from the system configuration.
 	 *
 	 * Removes the configured value from the stored cache in $this->configCache
-	 * (@see ConfigCache ) and removes it from the database (@see IConfigAdapter ).
+	 * (@see ConfigCache) and removes it from the database (@see IConfigAdapter).
 	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key    The configuration key to delete

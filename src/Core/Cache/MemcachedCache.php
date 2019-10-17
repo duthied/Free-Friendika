@@ -16,6 +16,7 @@ class MemcachedCache extends Cache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
+	use TraitMemcacheCommand;
 
 	/**
 	 * @var \Memcached
@@ -26,17 +27,6 @@ class MemcachedCache extends Cache implements IMemoryCache
 	 * @var LoggerInterface
 	 */
 	private $logger;
-
-	/**
-	 * @var string First server address
-	 */
-
-	private $firstServer;
-
-	/**
-	 * @var int First server port
-	 */
-	private $firstPort;
 
 	/**
 	 * Due to limitations of the INI format, the expected configuration for Memcached servers is the following:
@@ -69,8 +59,8 @@ class MemcachedCache extends Cache implements IMemoryCache
 			}
 		});
 
-		$this->firstServer = $memcached_hosts[0][0] ?? 'localhost';
-		$this->firstPort   = $memcached_hosts[0][1] ?? 11211;
+		$this->server = $memcached_hosts[0][0] ?? 'localhost';
+		$this->port = $memcached_hosts[0][1] ?? 11211;
 
 		$this->memcached->addServers($memcached_hosts);
 
@@ -84,95 +74,9 @@ class MemcachedCache extends Cache implements IMemoryCache
 	 */
 	public function getAllKeys($prefix = null)
 	{
-		$keys = $this->getOriginalKeys($this->getMemcachedKeys());
+		$keys = $this->getOriginalKeys($this->getMemcacheKeys());
 
 		return $this->filterArrayKeysByPrefix($keys, $prefix);
-	}
-
-	/**
-	 * Get all memcached keys.
-	 * Special function because getAllKeys() is broken since memcached 1.4.23.
-	 *
-	 * cleaned up version of code found on Stackoverflow.com by Maduka Jayalath
-	 * @see https://stackoverflow.com/a/34724821
-	 *
-	 * @return array|int - all retrieved keys (or negative number on error)
-	 */
-	private function getMemcachedKeys()
-	{
-		$mem = @fsockopen($this->firstServer, $this->firstPort);
-		if ($mem === false) {
-			return -1;
-		}
-
-		// retrieve distinct slab
-		$r = @fwrite($mem, 'stats items' . chr(10));
-		if ($r === false) {
-			return -2;
-		}
-
-		$slab = [];
-		while (($l = @fgets($mem, 1024)) !== false) {
-			// finished?
-			$l = trim($l);
-			if ($l == 'END') {
-				break;
-			}
-
-			$m = [];
-			// <STAT items:22:evicted_nonzero 0>
-			$r = preg_match('/^STAT\sitems\:(\d+)\:/', $l, $m);
-			if ($r != 1) {
-				return -3;
-			}
-			$a_slab = $m[1];
-
-			if (!array_key_exists($a_slab, $slab)) {
-				$slab[$a_slab] = [];
-			}
-		}
-
-		reset($slab);
-		foreach ($slab as $a_slab_key => &$a_slab) {
-			$r = @fwrite($mem, 'stats cachedump ' . $a_slab_key . ' 100' . chr(10));
-			if ($r === false) {
-				return -4;
-			}
-
-			while (($l = @fgets($mem, 1024)) !== false) {
-				// finished?
-				$l = trim($l);
-				if ($l == 'END') {
-					break;
-				}
-
-				$m = [];
-				// ITEM 42 [118 b; 1354717302 s]
-				$r = preg_match('/^ITEM\s([^\s]+)\s/', $l, $m);
-				if ($r != 1) {
-					return -5;
-				}
-				$a_key = $m[1];
-
-				$a_slab[] = $a_key;
-			}
-		}
-
-		// close the connection
-		@fclose($mem);
-		unset($mem);
-
-		$keys = [];
-		reset($slab);
-		foreach ($slab AS &$a_slab) {
-			reset($a_slab);
-			foreach ($a_slab AS &$a_key) {
-				$keys[] = $a_key;
-			}
-		}
-		unset($slab);
-
-		return $keys;
 	}
 
 	/**

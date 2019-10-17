@@ -27,6 +27,11 @@ class CurlResult
 	private $header;
 
 	/**
+	 * @var array the HTTP headers of the Curl call
+	 */
+	private $header_fields;
+
+	/**
 	 * @var boolean true (if HTTP 2xx result) or false
 	 */
 	private $isSuccess;
@@ -129,6 +134,7 @@ class CurlResult
 
 		$this->body = substr($result, strlen($header));
 		$this->header = $header;
+		$this->header_fields = []; // Is filled on demand
 	}
 
 	private function checkSuccess()
@@ -161,7 +167,7 @@ class CurlResult
 		}
 
 		if ($this->returnCode == 301 || $this->returnCode == 302 || $this->returnCode == 303 || $this->returnCode== 307) {
-			$redirect_parts = parse_url(defaults($this->info, 'redirect_url', ''));
+			$redirect_parts = parse_url($this->info['redirect_url'] ?? '');
 			if (empty($redirect_parts)) {
 				$redirect_parts = [];
 			}
@@ -173,7 +179,7 @@ class CurlResult
 				}
 			}
 
-			$parts = parse_url(defaults($this->info, 'url', ''));
+			$parts = parse_url($this->info['url'] ?? '');
 			if (empty($parts)) {
 				$parts = [];
 			}
@@ -226,11 +232,65 @@ class CurlResult
 	/**
 	 * Returns the Curl headers
 	 *
-	 * @return string the Curl headers
+	 * @param string $field optional header field. Return all fields if empty
+	 *
+	 * @return string the Curl headers or the specified content of the header variable
 	 */
-	public function getHeader()
+	public function getHeader(string $field = '')
 	{
-		return $this->header;
+		if (empty($field)) {
+			return $this->header;
+		}
+
+		$field = strtolower(trim($field));
+
+		$headers = $this->getHeaderArray();
+
+		if (isset($headers[$field])) {
+			return $headers[$field];
+		}
+
+		return '';
+	}
+
+	/**
+	 * Check if a specified header exists
+	 *
+	 * @param string $field header field
+	 *
+	 * @return boolean "true" if header exists
+	 */
+	public function inHeader(string $field)
+	{
+		$field = strtolower(trim($field));
+
+		$headers = $this->getHeaderArray();
+
+		return array_key_exists($field, $headers);
+	}
+
+	/**
+	 * Returns the Curl headers as an associated array
+	 *
+	 * @return array associated header array
+	 */
+	public function getHeaderArray()
+	{
+		if (!empty($this->header_fields)) {
+			return $this->header_fields;
+		}
+
+		$this->header_fields = [];
+
+		$lines = explode("\n", trim($this->header));
+		foreach ($lines as $line) {
+			$parts = explode(':', $line);
+			$headerfield = strtolower(trim(array_shift($parts)));
+			$headerdata = trim(implode(':', $parts));
+			$this->header_fields[$headerfield] = $headerdata;
+		}
+
+		return $this->header_fields;
 	}
 
 	/**

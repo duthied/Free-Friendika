@@ -9,8 +9,10 @@ use Friendica\App;
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 
 /**
  * High-level Session service class
@@ -51,7 +53,7 @@ class Session
 
 	/**
 	 * Retrieves a key from the session super global or the defaults if the key is missing or the value is falsy.
-	 * 
+	 *
 	 * Handle the case where session_start() hasn't been called and the super global isn't available.
 	 *
 	 * @param string $name
@@ -98,6 +100,14 @@ class Session
 	}
 
 	/**
+	 * Clears the current session array
+	 */
+	public static function clear()
+	{
+		$_SESSION = [];
+	}
+
+	/**
 	 * @brief Sets the provided user's authenticated session
 	 *
 	 * @param App   $a
@@ -105,6 +115,7 @@ class Session
 	 * @param bool  $login_initial
 	 * @param bool  $interactive
 	 * @param bool  $login_refresh
+	 * @throws \Friendica\Network\HTTPException\ForbiddenException
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function setAuthenticatedForUser(App $a, array $user_record, $login_initial = false, $interactive = false, $login_refresh = false)
@@ -117,8 +128,10 @@ class Session
 			'page_flags'    => $user_record['page-flags'],
 			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
-			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0'),
+			'addr'          => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
 		]);
+
+		self::setVisitorsContacts();
 
 		$member_since = strtotime($user_record['register_date']);
 		self::set('new_member', time() < ($member_since + ( 60 * 60 * 24 * 14)));
@@ -200,5 +213,69 @@ class Session
 				$a->internalRedirect(self::get('return_path'));
 			}
 		}
+	}
+
+	/**
+	 * Returns contact ID for given user ID
+	 *
+	 * @param integer $uid User ID
+	 * @return integer Contact ID of visitor for given user ID
+	 */
+	public static function getRemoteContactID($uid)
+	{
+		if (empty($_SESSION['remote'][$uid])) {
+			return false;
+		}
+
+		return $_SESSION['remote'][$uid];
+	}
+
+	/**
+	 * Returns User ID for given contact ID of the visitor
+	 *
+	 * @param integer $cid Contact ID
+	 * @return integer User ID for given contact ID of the visitor
+	 */
+	public static function getUserIDForVisitorContactID($cid)
+	{
+		if (empty($_SESSION['remote'])) {
+			return false;
+		}
+
+		return array_search($cid, $_SESSION['remote']);
+	}
+
+	/**
+	 * Set the session variable that contains the contact IDs for the visitor's contact URL
+	 *
+	 * @param string $url Contact URL
+	 */
+	public static function setVisitorsContacts()
+	{
+		$_SESSION['remote'] = [];
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		while ($contact = DBA::fetch($remote_contacts)) {
+			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
+				continue;
+			}
+
+			$_SESSION['remote'][$contact['uid']] = $contact['id'];
+		}
+		DBA::close($remote_contacts);
+	}
+
+	/**
+	 * Returns if the current visitor is authenticated
+	 *
+	 * @return boolean "true" when visitor is either a local or remote user
+	 */
+	public static function isAuthenticated()
+	{
+		if (empty($_SESSION['authenticated'])) {
+			return false;
+		}
+
+		return $_SESSION['authenticated'];
 	}
 }

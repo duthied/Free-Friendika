@@ -256,7 +256,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Hook::callAll("parse_link", $arr);
 
-### mod/manage.php
+### src/Module/Delegation.php
 
     Hook::callAll('home_init', $ret);
 

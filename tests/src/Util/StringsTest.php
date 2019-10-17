@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
  */
 class StringsTest extends TestCase
 {
-    /**
+	/**
 	 * randomnames should be random, even length
 	 */
 	public function testRandomEven()
@@ -64,9 +64,9 @@ class StringsTest extends TestCase
 
 		$randomname2 = Strings::getRandomName(1);
 		$this->assertEquals(1, strlen($randomname2));
-    }
-    
-    /**
+	}
+
+	/**
 	 * test, that tags are escaped
 	 */
 	public function testEscapeHtml()

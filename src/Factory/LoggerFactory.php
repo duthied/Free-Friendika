@@ -38,19 +38,17 @@ class LoggerFactory
 		'Friendica\\Util\\Logger',
 	];
 
-	/**
-	 * Retrieve the channel based on the __FILE__
-	 *
-	 * @return string
-	 */
-	private function findChannel()
+	private $channel;
+
+	public function __construct(string $channel)
 	{
-		return basename($_SERVER['PHP_SELF'], '.php');
+		$this->channel = $channel;
 	}
 
 	/**
 	 * Creates a new PSR-3 compliant logger instances
 	 *
+	 * @param Database      $database The Friendica Database instance
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
 	 *
@@ -59,7 +57,7 @@ class LoggerFactory
 	 * @throws \Exception
 	 * @throws InternalServerErrorException
 	 */
-	public function create(Database $database, Configuration $config, Profiler $profiler)
+	public function create( Database $database, Configuration $config, Profiler $profiler)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new VoidLogger();
@@ -76,7 +74,7 @@ class LoggerFactory
 				$loggerTimeZone = new \DateTimeZone('UTC');
 				Monolog\Logger::setTimezone($loggerTimeZone);
 
-				$logger = new Monolog\Logger($this->findChannel());
+				$logger = new Monolog\Logger($this->channel);
 				$logger->pushProcessor(new Monolog\Processor\PsrLogMessageProcessor());
 				$logger->pushProcessor(new Monolog\Processor\ProcessIdProcessor());
 				$logger->pushProcessor(new Monolog\Processor\UidProcessor());
@@ -91,7 +89,7 @@ class LoggerFactory
 				break;
 
 			case 'syslog':
-				$logger = new SyslogLogger($this->findChannel(), $introspection, $loglevel);
+				$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
 				break;
 
 			case 'stream':
@@ -99,7 +97,7 @@ class LoggerFactory
 				$stream = $config->get('system', 'logfile');
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
-					$logger = new StreamLogger($this->findChannel(), $stream, $introspection, $loglevel);
+					$logger = new StreamLogger($this->channel, $stream, $introspection, $loglevel);
 				} else {
 					$logger = new VoidLogger();
 				}

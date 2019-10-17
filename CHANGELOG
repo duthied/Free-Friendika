@@ -1,24 +1,44 @@
-Version 2019.09-dev (UNRELEASED)
+Version 2019.12-dev (unreleased)
   Friendica Core:
-    Update to the translations (CS, DE, FR, JA, NL) [translation teams]
+    Enhanced the manage functionality [annando]
+    Fixed some problems with the remote auth functionality [annando]
+    Added router configuration file [nupplaphil]
+    Added drone.io as CI service [nupplaphil]
+
+  Friendica Addons:
+    mailstream:
+      Support for new img format was added [mexon]
+      BB Code is now included as plaintext [mexon]
+      Logging format is enhanced [mexon]
+      ActivityPub "announce" notifications are not included [mexon]
+
+  Closed Issues:
+    1071, 7548, 7657, 7681
+
+Version 2019.09 (2019-09-29)
+  Friendica Core:
+    Update to the translations (CS, DE, EN GB, EN US, FR, JA, NL, PL) [translation teams]
     Update to the themes (frio, vier) [JeroenED, MrPetovan, tobiasd, vinzv]
-    Update to the documentation [guzzisti, vinzv]
+    Update to the documentation [annando, tobiasd, guzzisti, vinzv]
     Enhanced the log output of the background process [annando]
-    Enhanced the vcard translation in the profile (JeroenED)
+    Enhanced the vcard translation in the profile [JeroenED]
     Enhanced the delivery count [annando]
     Enhanced ActivityPub envelopes [MrPetovan]
+    Enhanced communication about deleted accounts via AP [annando]
     Enhanced the following process [annando]
     Enhanced the tests [nupplaphil]
-    Enhanced the frontend worker [annando]
+    Enhanced the front-end worker [annando]
     Enhanced the img format to allow alternative texts [annando]
     Enhanced the detection of supported protocols for contacts [annando]
-    Enhanced the reshare of items [annando]
+    Enhanced the re-share of items [annando]
     Enhanced 2FA process [MrPetovan]
     Enhanced server wide theme settings [MrPetovan]
     Enhanced config loading process [MrPetovan, nupplaphil]
     Enhanced handling of emoticons [MrPetovan]
-    Fixed a bug in the admin panel leading to orphand options [tobiasd]
+    Enhanced performance [annando]
+    Fixed a bug in the admin panel leading to orphaned options [tobiasd]
     Fixed a problem that could lead to duplicated Pleroma contacts [annando]
+    Fixed a problem with the hide profile setting [annando]
     Fixed the problem sending out the post when hitting the enter key in the ACL dialog [MrPetovan]
     Fixed a bug in HTML special character escaping of event titles [MrPetovan]
     Fixed a bug in HTML special character conversion in item titles [MrPetovan]
@@ -26,7 +46,19 @@ Version 2019.09-dev (UNRELEASED)
     Fixed a bug that prevented the display of images in some postings from diaspora* [MrPetovan]
     Fixed a bug in setting the permissions on uploaded images [annando]
     Fixed a bug that lead to potentially unwanted importing threads started by contacts of contacts [annando]
+    Fixed implicit self mentions [MrPetovan]
     Fixed display of register links on closed nodes landing pages [MrPetovan]
+    Fixed the display of [spoiler] tags [MrPetovan]
+    Fixed an issue with photo permissions in private mails [annando]
+    Fixed a bug in the process of following Pleroma accounts [annando]
+    Fixed a bug that caused notifications about locally deleted items [annando]
+    Fixed the link to the source of an event [MrPetovan]
+    Fixed a problem that caused authors from twitter postings having no profile pic [annando]
+    Fixed a bug in BBCode -> Markdown conversation for font size [annando]
+    Fixed a BBCode parser problem with the audio tag [MrPetovan]
+    Fixed a session problem [annando]
+    Fixed a problem with the auto-installer [nupplaphil]
+    Fixed a bug with magic links redirection for non profiles [annando]
     General code cleaning [annando, MrPetovan, nupplaphil]
     Removed contacts auto completion (in /contacts [MrPetovan]
     Replaced FontAwesome by ForkAwesome in frio theme [vinzv]
@@ -37,19 +69,29 @@ Version 2019.09-dev (UNRELEASED)
     Added support of wildcards to server block lists [MrPetovan]
     Added app specific passwords when using 2FA [MrPetovan]
     Added fetching of postings via URL to interact with public postings [annando]
+    Added opt-out flag for federated search engines and associated header information for profiles [annando]
 
   Friendica Addons:
-    Update to the translation (CS, DE, FR, JA, NL SV) [translation teams]
+    Update to the translation (CS, DE, EN GB, EN US, ES, FR, JA, NL SV) [translation teams]
     General code cleanup [nupplaphil, Quix0r]
+    blockbot:
+      Added translations
+      Added more bots [annando]
+      Added admin panel settings [annando]
+    tumblr:
+      Changed used URLs to https adopting tumblrs change [annando]
     twitter:
       Enhanced handling of multi image postings [annando]
+      Enhanced display of quoted tweets [MrPetovan]
       Added alternative text support for images [annando]
 
   Closed Issues:
-    3816, 4815, 6384, 6675, 7235, 7293, 7314, 7317, 7337, 7338, 7346,
-    7350, 7367, 7383, 7396, 7397, 7401, 7406, 7408, 7426, 7428, 7456,
-    7442, 7457, 7468, 7471, 7473, 7488, 7497, 7498, 7501, 7507, 7522,
-    7527, 7536, 7542, 7545
+     870, 1605, 2199, 3239, 3816, 4117, 4815, 5721, 6384, 6521, 6553,
+    6675, 7212, 7235, 7285, 7293, 7314, 7317, 7337, 7338, 7346, 7350,
+    7367, 7383, 7396, 7397, 7401, 7406, 7408, 7426, 7428, 7456, 7442,
+    7457, 7468, 7471, 7473, 7488, 7497, 7498, 7501, 7507, 7521, 7526,
+    7527, 7536, 7542, 7545, 7576, 7586, 7594, 7597, 7603, 7610, 7618,
+    7629, 7635, 7638, 7663, 7665, 7672
 
 Version 2019.06 (2019-06-23)
   Friendica Core:

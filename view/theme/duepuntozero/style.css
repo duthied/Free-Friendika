@@ -2724,12 +2724,12 @@ aside input[type='text'] {
 	margin: 10px;
 }
 
-#identity-manage-desc {
+#identity-delegation-desc {
 	margin-top:15px;
 	margin-bottom: 15px;
 }
 
-#identity-manage-choose {
+#identity-delegation-choose {
 	margin-bottom: 15px;
 }
 
@@ -3382,7 +3382,7 @@ div.jGrowl div.info {
 }
 
 /* notifications popup menu */
-.manage-notify {
+.delegation-notify {
   font-size: 10px;
   padding: 1px 3px;
   top: 0px;

@@ -67,7 +67,7 @@ class Database
 	{
 		// Use environment variables for mysql if they are set beforehand
 		if (!empty($server['MYSQL_HOST'])
-		    && !empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER']))
+		    && (!empty($server['MYSQL_USERNAME'] || !empty($server['MYSQL_USER'])))
 		    && $server['MYSQL_PASSWORD'] !== false
 		    && !empty($server['MYSQL_DATABASE']))
 		{
@@ -90,8 +90,11 @@ class Database
 	public function connect()
 	{
 		if (!is_null($this->connection) && $this->connected()) {
-			return true;
+			return $this->connected;
 		}
+
+		// Reset connected state
+		$this->connected = false;
 
 		$port       = 0;
 		$serveraddr = trim($this->configCache->get('database', 'hostname'));
@@ -187,19 +190,20 @@ class Database
 	 */
 	public function disconnect()
 	{
-		if (is_null($this->connection)) {
-			return;
+		if (!is_null($this->connection)) {
+			switch ($this->driver) {
+				case 'pdo':
+					$this->connection = null;
+					break;
+				case 'mysqli':
+					$this->connection->close();
+					$this->connection = null;
+					break;
+			}
 		}
 
-		switch ($this->driver) {
-			case 'pdo':
-				$this->connection = null;
-				break;
-			case 'mysqli':
-				$this->connection->close();
-				$this->connection = null;
-				break;
-		}
+		$this->driver    = null;
+		$this->connected = false;
 	}
 
 	/**
@@ -369,6 +373,7 @@ class Database
 				$connected = $this->connection->ping();
 				break;
 		}
+
 		return $connected;
 	}
 
@@ -1465,6 +1470,7 @@ class Database
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition Array of fields for condition
+	 * @param array        $params    Array of several parameters
 	 *
 	 * @return int
 	 *
@@ -1478,7 +1484,7 @@ class Database
 	 * $count = DBA::count($table, $condition);
 	 * @throws \Exception
 	 */
-	public function count($table, array $condition = [])
+	public function count($table, array $condition = [], array $params = [])
 	{
 		if (empty($table)) {
 			return false;
@@ -1488,7 +1494,15 @@ class Database
 
 		$condition_string = DBA::buildCondition($condition);
 
-		$sql = "SELECT COUNT(*) AS `count` FROM " . $table_string . $condition_string;
+		if (empty($params['expression'])) {
+			$expression = '*';
+		} elseif (!empty($params['distinct'])) {
+			$expression = "DISTINCT " . DBA::quoteIdentifier($params['expression']);
+		} else {
+			$expression = DBA::quoteIdentifier($params['expression']);
+		}
+
+		$sql = "SELECT COUNT(" . $expression . ") AS `count` FROM " . $table_string . $condition_string;
 
 		$row = $this->fetchFirst($sql, $condition);
 

@@ -26,7 +26,7 @@ function dfrn_notify_post(App $a) {
 	if (empty($_POST) || !empty($postdata)) {
 		$data = json_decode($postdata);
 		if (is_object($data)) {
-			$nick = defaults($a->argv, 1, '');
+			$nick = $a->argv[1] ?? '';
 
 			$user = DBA::selectFirst('user', [], ['nickname' => $nick, 'account_expired' => false, 'account_removed' => false]);
 			if (!DBA::isResult($user)) {
@@ -42,8 +42,8 @@ function dfrn_notify_post(App $a) {
 	$dfrn_id      = (!empty($_POST['dfrn_id'])      ? Strings::escapeTags(trim($_POST['dfrn_id']))   : '');
 	$dfrn_version = (!empty($_POST['dfrn_version']) ? (float) $_POST['dfrn_version']    : 2.0);
 	$challenge    = (!empty($_POST['challenge'])    ? Strings::escapeTags(trim($_POST['challenge'])) : '');
-	$data         = defaults($_POST, 'data', '');
-	$key          = defaults($_POST, 'key', '');
+	$data         = $_POST['data'] ?? '';
+	$key          = $_POST['key'] ?? '';
 	$rino_remote  = (!empty($_POST['rino'])         ? intval($_POST['rino'])            :  0);
 	$dissolve     = (!empty($_POST['dissolve'])     ? intval($_POST['dissolve'])        :  0);
 	$perm         = (!empty($_POST['perm'])         ? Strings::escapeTags(trim($_POST['perm']))      : 'r');

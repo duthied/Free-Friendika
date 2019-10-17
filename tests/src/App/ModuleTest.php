@@ -5,7 +5,7 @@ namespace Friendica\Test\src\App;
 use Friendica\App;
 use Friendica\Core\Config\Configuration;
 use Friendica\LegacyModule;
-use Friendica\Module\PageNotFound;
+use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\WellKnown\HostMeta;
 use Friendica\Test\DatabaseTest;
 
@@ -152,7 +152,9 @@ class ModuleTest extends DatabaseTest
 		$config = \Mockery::mock(Configuration::class);
 		$config->shouldReceive('get')->with('config', 'private_addons', false)->andReturn($privAdd)->atMost()->once();
 
-		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), new App\Router(), $config);
+		$router = (new App\Router([]))->addRoutes(include __DIR__ . '/../../../static/routes.config.php');
+
+		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
 
 		$this->assertEquals($assert, $module->getClassName());
 	}
@@ -164,7 +166,7 @@ class ModuleTest extends DatabaseTest
 	{
 		$module = new App\Module();
 
-		$moduleNew = $module->determineModule(new App\Arguments(), []);
+		$moduleNew = $module->determineModule(new App\Arguments());
 
 		$this->assertNotSame($moduleNew, $module);
 	}

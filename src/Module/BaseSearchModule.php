@@ -2,6 +2,7 @@
 
 namespace Friendica\Module;
 
+use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
@@ -23,13 +24,14 @@ class BaseSearchModule extends BaseModule
 	/**
 	 * Performs a search with an optional prefix
 	 *
+	 * @param string $search Search query
 	 * @param string $prefix A optional prefix (e.g. @ or !) for searching
 	 *
 	 * @return string
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function performSearch($prefix = '')
+	public static function performSearch($search, $prefix = '')
 	{
 		$a      = self::getApp();
 		$config = $a->getConfig();
@@ -38,7 +40,7 @@ class BaseSearchModule extends BaseModule
 
 		$localSearch = $config->get('system', 'poco_local_search');
 
-		$search = $prefix . Strings::escapeTags(trim(defaults($_REQUEST, 'search', '')));
+		$search = $prefix . $search;
 
 		if (!$search) {
 			return '';
@@ -62,7 +64,9 @@ class BaseSearchModule extends BaseModule
 			$header = L10n::t('Forum Search - %s', $search);
 		}
 
-		$pager = new Pager($a->query_string);
+		/** @var Arguments $args */
+		$args = self::getClass(Arguments::class);
+		$pager = new Pager($args->getQueryString());
 
 		if ($localSearch && empty($results)) {
 			$pager->setItemsPerPage(80);

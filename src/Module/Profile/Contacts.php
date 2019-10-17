@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
@@ -19,7 +20,7 @@ class Contacts extends BaseModule
 {
 	public static function content()
 	{
-		if (Config::get('system', 'block_public') && !local_user() && !remote_user()) {
+		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('User not found.'));
 		}
 
@@ -27,7 +28,7 @@ class Contacts extends BaseModule
 
 		//@TODO: Get value from router parameters
 		$nickname = $a->argv[1];
-		$type = defaults($a->argv, 3, 'all');
+		$type = ($a->argv[3] ?? '') ?: 'all';
 
 		Nav::setSelected('home');
 
@@ -36,7 +37,6 @@ class Contacts extends BaseModule
 			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('User not found.'));
 		}
 
-		$a->data['user'] = $user;
 		$a->profile_uid  = $user['uid'];
 
 		Profile::load($a, $nickname);

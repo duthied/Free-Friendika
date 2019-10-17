@@ -19,7 +19,7 @@ function initEditor(callback) {
 		$("#profile-jot-text-loading").show();
 		$("#profile-jot-text-loading").hide();
 		$("#profile-jot-text").css({ 'height': 200, 'color': '#000' });
-		$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+		$("#profile-jot-text").editor_autocomplete(baseurl + '/search/acl');
 		$("#profile-jot-text").bbco_autocomplete('bbcode');
 		$("a#jot-perms-icon").colorbox(colorbox_options);
 		$(".jothidden").show();

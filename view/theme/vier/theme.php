@@ -29,7 +29,7 @@ function vier_init(App $a)
 
 	Renderer::setActiveTemplateEngine('smarty3');
 
-	if (!empty($a->argv[0]) && $a->argv[0] . defaults($a->argv, 1, '') === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
+	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . $a->user['nickname']) || $a->argv[0] === 'network' && local_user()) {
 		vier_community_info();
 
 		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
@@ -45,29 +45,6 @@ function vier_init(App $a)
 	$a->page['htmlhead'] .= <<< EOT
 <link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
 <script type="text/javascript">
-
-function insertFormatting(BBcode, id) {
-	var tmpStr = $("#comment-edit-text-" + id).val();
-	if (tmpStr == "") {
-		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		openMenu("comment-edit-submit-wrapper-" + id);
-	}
-
-	textarea = document.getElementById("comment-edit-text-" +id);
-	if (document.selection) {
-		textarea.focus();
-		selected = document.selection.createRange();
-		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
-	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
-		var start = textarea.selectionStart;
-		var end = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
-	}
-
-	return true;
-}
-
 function showThread(id) {
 	$("#collapsed-comments-" + id).show()
 	$("#collapsed-comments-" + id + " .collapsed-comments").show()
@@ -104,7 +81,7 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (empty($a->page['aside']) && in_array($a->argv[0], ["community", "events", "help", "manage", "notifications",
+	if (empty($a->page['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"])) {
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}
@@ -214,7 +191,7 @@ function vier_community_info()
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-		$cid = defaults($_GET, 'cid', null);
+		$cid = $_GET['cid'] ?? null;
 
 		//sort by last updated item
 		$lastitem = true;

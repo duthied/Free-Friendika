@@ -22,10 +22,10 @@ class PermissionSet extends BaseObject
 	public static function fetchIDForPost(&$postarray)
 	{
 		$condition = ['uid' => $postarray['uid'],
-			'allow_cid' => self::sortPermissions(defaults($postarray, 'allow_cid', '')),
-			'allow_gid' => self::sortPermissions(defaults($postarray, 'allow_gid', '')),
-			'deny_cid' => self::sortPermissions(defaults($postarray, 'deny_cid', '')),
-			'deny_gid' => self::sortPermissions(defaults($postarray, 'deny_gid', ''))];
+			'allow_cid' => self::sortPermissions($postarray['allow_cid'] ?? ''),
+			'allow_gid' => self::sortPermissions($postarray['allow_gid'] ?? ''),
+			'deny_cid'  => self::sortPermissions($postarray['deny_cid']  ?? ''),
+			'deny_gid'  => self::sortPermissions($postarray['deny_gid']  ?? '')];
 
 		$set = DBA::selectFirst('permissionset', ['id'], $condition);
 
@@ -67,21 +67,20 @@ class PermissionSet extends BaseObject
 	 *
 	 * @param integer $uid        User id whom the items belong
 	 * @param integer $contact_id Contact id of the visitor
-	 * @param array   $groups     Possibly previously fetched group ids for that contact
 	 *
 	 * @return array of permission set ids.
 	 * @throws \Exception
 	 */
-
-	static public function get($uid, $contact_id, $groups = null)
+	static public function get($uid, $contact_id)
 	{
-		if (empty($groups) && DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
+		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
 			$groups = Group::getIdsByContactId($contact_id);
 		}
 
 		if (empty($groups) || !is_array($groups)) {
 			return [];
 		}
+
 		$group_str = '<<>>'; // should be impossible to match
 
 		foreach ($groups as $g) {
@@ -90,11 +89,9 @@ class PermissionSet extends BaseObject
 
 		$contact_str = '<' . $contact_id . '>';
 
-		$condition = ["`uid` = ? AND (`allow_cid` = '' OR`allow_cid` REGEXP ?)
-			AND (`deny_cid` = '' OR NOT `deny_cid` REGEXP ?)
-			AND (`allow_gid` = '' OR `allow_gid` REGEXP ?)
-			AND (`deny_gid` = '' OR NOT `deny_gid` REGEXP ?)",
-			$uid, $contact_str, $contact_str, $group_str, $group_str];
+		$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
+			AND (allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
+			$uid, $contact_str, $group_str, $contact_str, $group_str];
 
 		$ret = DBA::select('permissionset', ['id'], $condition);
 		$set = [];

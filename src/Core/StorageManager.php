@@ -48,7 +48,7 @@ class StorageManager
 	public static function getByName($name)
 	{
 		self::setup();
-		return defaults(self::$backends, $name, '');
+		return self::$backends[$name] ?? '';
 	}
 
 	/**

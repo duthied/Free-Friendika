@@ -18,6 +18,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
@@ -1312,11 +1313,11 @@ class Item extends BaseObject
 				$priority = $notify;
 			}
 		} else {
-			$item['network'] = trim(defaults($item, 'network', Protocol::PHANTOM));
+			$item['network'] = trim(($item['network'] ?? '') ?: Protocol::PHANTOM);
 		}
 
 		$item['guid'] = self::guid($item, $notify);
-		$item['uri'] = Strings::escapeTags(trim(defaults($item, 'uri', self::newURI($item['uid'], $item['guid']))));
+		$item['uri'] = Strings::escapeTags(trim(($item['uri'] ?? '') ?: self::newURI($item['uid'], $item['guid'])));
 
 		// Store URI data
 		$item['uri-id'] = ItemURI::insert(['uri' => $item['uri'], 'guid' => $item['guid']]);
@@ -1398,9 +1399,9 @@ class Item extends BaseObject
 		 * via OStatus (maybe Diasporsa as well)
 		 */
 		if (empty($item['network']) || in_array($item['network'], Protocol::FEDERATED)) {
-			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?)",
+			$condition = ["`uri` = ? AND `uid` = ? AND `network` IN (?, ?, ?, ?)",
 				trim($item['uri']), $item['uid'],
-				Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
+				Protocol::ACTIVITYPUB, Protocol::DIASPORA, Protocol::DFRN, Protocol::OSTATUS];
 			$existing = self::selectFirst(['id', 'network'], $condition);
 			if (DBA::isResult($existing)) {
 				// We only log the entries with a different user id than 0. Otherwise we would have too many false positives
@@ -1418,47 +1419,47 @@ class Item extends BaseObject
 			}
 		}
 
-		$item['wall']          = intval(defaults($item, 'wall', 0));
-		$item['extid']         = trim(defaults($item, 'extid', ''));
-		$item['author-name']   = trim(defaults($item, 'author-name', ''));
-		$item['author-link']   = trim(defaults($item, 'author-link', ''));
-		$item['author-avatar'] = trim(defaults($item, 'author-avatar', ''));
-		$item['owner-name']    = trim(defaults($item, 'owner-name', ''));
-		$item['owner-link']    = trim(defaults($item, 'owner-link', ''));
-		$item['owner-avatar']  = trim(defaults($item, 'owner-avatar', ''));
+		$item['wall']          = intval($item['wall'] ?? 0);
+		$item['extid']         = trim($item['extid'] ?? '');
+		$item['author-name']   = trim($item['author-name'] ?? '');
+		$item['author-link']   = trim($item['author-link'] ?? '');
+		$item['author-avatar'] = trim($item['author-avatar'] ?? '');
+		$item['owner-name']    = trim($item['owner-name'] ?? '');
+		$item['owner-link']    = trim($item['owner-link'] ?? '');
+		$item['owner-avatar']  = trim($item['owner-avatar'] ?? '');
 		$item['received']      = (isset($item['received'])  ? DateTimeFormat::utc($item['received'])  : DateTimeFormat::utcNow());
 		$item['created']       = (isset($item['created'])   ? DateTimeFormat::utc($item['created'])   : $item['received']);
 		$item['edited']        = (isset($item['edited'])    ? DateTimeFormat::utc($item['edited'])    : $item['created']);
 		$item['changed']       = (isset($item['changed'])   ? DateTimeFormat::utc($item['changed'])   : $item['created']);
 		$item['commented']     = (isset($item['commented']) ? DateTimeFormat::utc($item['commented']) : $item['created']);
-		$item['title']         = trim(defaults($item, 'title', ''));
-		$item['location']      = trim(defaults($item, 'location', ''));
-		$item['coord']         = trim(defaults($item, 'coord', ''));
+		$item['title']         = trim($item['title'] ?? '');
+		$item['location']      = trim($item['location'] ?? '');
+		$item['coord']         = trim($item['coord'] ?? '');
 		$item['visible']       = (isset($item['visible']) ? intval($item['visible']) : 1);
 		$item['deleted']       = 0;
-		$item['parent-uri']    = trim(defaults($item, 'parent-uri', $item['uri']));
-		$item['post-type']     = defaults($item, 'post-type', self::PT_ARTICLE);
-		$item['verb']          = trim(defaults($item, 'verb', ''));
-		$item['object-type']   = trim(defaults($item, 'object-type', ''));
-		$item['object']        = trim(defaults($item, 'object', ''));
-		$item['target-type']   = trim(defaults($item, 'target-type', ''));
-		$item['target']        = trim(defaults($item, 'target', ''));
-		$item['plink']         = trim(defaults($item, 'plink', ''));
-		$item['allow_cid']     = trim(defaults($item, 'allow_cid', ''));
-		$item['allow_gid']     = trim(defaults($item, 'allow_gid', ''));
-		$item['deny_cid']      = trim(defaults($item, 'deny_cid', ''));
-		$item['deny_gid']      = trim(defaults($item, 'deny_gid', ''));
-		$item['private']       = intval(defaults($item, 'private', 0));
-		$item['body']          = trim(defaults($item, 'body', ''));
-		$item['tag']           = trim(defaults($item, 'tag', ''));
-		$item['attach']        = trim(defaults($item, 'attach', ''));
-		$item['app']           = trim(defaults($item, 'app', ''));
-		$item['origin']        = intval(defaults($item, 'origin', 0));
-		$item['postopts']      = trim(defaults($item, 'postopts', ''));
-		$item['resource-id']   = trim(defaults($item, 'resource-id', ''));
-		$item['event-id']      = intval(defaults($item, 'event-id', 0));
-		$item['inform']        = trim(defaults($item, 'inform', ''));
-		$item['file']          = trim(defaults($item, 'file', ''));
+		$item['parent-uri']    = trim(($item['parent-uri'] ?? '') ?: $item['uri']);
+		$item['post-type']     = ($item['post-type'] ?? '') ?: self::PT_ARTICLE;
+		$item['verb']          = trim($item['verb'] ?? '');
+		$item['object-type']   = trim($item['object-type'] ?? '');
+		$item['object']        = trim($item['object'] ?? '');
+		$item['target-type']   = trim($item['target-type'] ?? '');
+		$item['target']        = trim($item['target'] ?? '');
+		$item['plink']         = trim($item['plink'] ?? '');
+		$item['allow_cid']     = trim($item['allow_cid'] ?? '');
+		$item['allow_gid']     = trim($item['allow_gid'] ?? '');
+		$item['deny_cid']      = trim($item['deny_cid'] ?? '');
+		$item['deny_gid']      = trim($item['deny_gid'] ?? '');
+		$item['private']       = intval($item['private'] ?? 0);
+		$item['body']          = trim($item['body'] ?? '');
+		$item['tag']           = trim($item['tag'] ?? '');
+		$item['attach']        = trim($item['attach'] ?? '');
+		$item['app']           = trim($item['app'] ?? '');
+		$item['origin']        = intval($item['origin'] ?? 0);
+		$item['postopts']      = trim($item['postopts'] ?? '');
+		$item['resource-id']   = trim($item['resource-id'] ?? '');
+		$item['event-id']      = intval($item['event-id'] ?? 0);
+		$item['inform']        = trim($item['inform'] ?? '');
+		$item['file']          = trim($item['file'] ?? '');
 
 		// When there is no content then we don't post it
 		if ($item['body'].$item['title'] == '') {
@@ -1478,12 +1479,12 @@ class Item extends BaseObject
 			$item['edited'] = DateTimeFormat::utcNow();
 		}
 
-		$item['plink'] = defaults($item, 'plink', System::baseUrl() . '/display/' . urlencode($item['guid']));
+		$item['plink'] = ($item['plink'] ?? '') ?: System::baseUrl() . '/display/' . urlencode($item['guid']);
 
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
 
-		$item['author-id'] = defaults($item, 'author-id', Contact::getIdForURL($item['author-link'], 0, false, $default));
+		$item['author-id'] = ($item['author-id'] ?? 0) ?: Contact::getIdForURL($item['author-link'], 0, false, $default);
 
 		if (Contact::isBlocked($item['author-id'])) {
 			Logger::notice('Author is blocked node-wide', ['author-link' => $item['author-link'], 'item-uri' => $item['uri']]);
@@ -1503,7 +1504,7 @@ class Item extends BaseObject
 		$default = ['url' => $item['owner-link'], 'name' => $item['owner-name'],
 			'photo' => $item['owner-avatar'], 'network' => $item['network']];
 
-		$item['owner-id'] = defaults($item, 'owner-id', Contact::getIdForURL($item['owner-link'], 0, false, $default));
+		$item['owner-id'] = ($item['owner-id'] ?? 0) ?: Contact::getIdForURL($item['owner-link'], 0, false, $default);
 
 		if (Contact::isBlocked($item['owner-id'])) {
 			Logger::notice('Owner is blocked node-wide', ['owner-link' => $item['owner-link'], 'item-uri' => $item['uri']]);
@@ -2452,7 +2453,7 @@ class Item extends BaseObject
 			Contact::unmarkForArchival($contact);
 		}
 
-		$update = (!$arr['private'] && ((defaults($arr, 'author-link', '') === defaults($arr, 'owner-link', '')) || ($arr["parent-uri"] === $arr["uri"])));
+		$update = (!$arr['private'] && ((($arr['author-link'] ?? '') === ($arr['owner-link'] ?? '')) || ($arr["parent-uri"] === $arr["uri"])));
 
 		// Is it a forum? Then we don't care about the rules from above
 		if (!$update && in_array($arr["network"], [Protocol::ACTIVITYPUB, Protocol::DFRN]) && ($arr["parent-uri"] === $arr["uri"])) {
@@ -3028,7 +3029,7 @@ class Item extends BaseObject
 	 */
 	public static function performLike($item_id, $verb)
 	{
-		if (!local_user() && !remote_user()) {
+		if (!Session::isAuthenticated()) {
 			return false;
 		}
 
@@ -3260,10 +3261,10 @@ class Item extends BaseObject
 		}
 	}
 
-	public static function getPermissionsSQLByUserId($owner_id, $remote_verified = false, $groups = null, $remote_cid = null)
+	public static function getPermissionsSQLByUserId($owner_id)
 	{
 		$local_user = local_user();
-		$remote_user = remote_user();
+		$remote_user = Session::getRemoteContactID($owner_id);
 
 		/*
 		 * Construct permissions
@@ -3283,7 +3284,7 @@ class Item extends BaseObject
 			 * If pre-verified, the caller is expected to have already
 			 * done this and passed the groups into this function.
 			 */
-			$set = PermissionSet::get($owner_id, $remote_cid, $groups);
+			$set = PermissionSet::get($owner_id, $remote_user);
 
 			if (!empty($set)) {
 				$sql_set = " OR (`item`.`private` IN (1,2) AND `item`.`wall` AND `item`.`psid` IN (" . implode(',', $set) . "))";
@@ -3333,8 +3334,8 @@ class Item extends BaseObject
 	{
 		$body = $item["body"];
 
-		$rendered_hash = defaults($item, 'rendered-hash', '');
-		$rendered_html = defaults($item, 'rendered-html', '');
+		$rendered_hash = $item['rendered-hash'] ?? '';
+		$rendered_html = $item['rendered-html'] ?? '';
 
 		if ($rendered_hash == ''
 			|| $rendered_html == ""
@@ -3427,7 +3428,7 @@ class Item extends BaseObject
 		}
 
 		// Update the cached values if there is no "zrl=..." on the links.
-		$update = (!local_user() && !remote_user() && ($item["uid"] == 0));
+		$update = (!Session::isAuthenticated() && ($item["uid"] == 0));
 
 		// Or update it if the current viewer is the intented viewer.
 		if (($item["uid"] == local_user()) && ($item["uid"] != 0)) {
@@ -3490,7 +3491,7 @@ class Item extends BaseObject
 				$filesubtype = 'unkn';
 			}
 
-			$title = Strings::escapeHtml(trim(defaults($mtch, 4, $mtch[1])));
+			$title = Strings::escapeHtml(trim(($mtch[4] ?? '') ?: $mtch[1]));
 			$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
@@ -3507,37 +3508,6 @@ class Item extends BaseObject
 			if ($x) {
 				$s = preg_replace('/\<div class\=\"map\"\>/', '$0' . $x, $s);
 			}
-		}
-
-
-		// Look for spoiler.
-		$spoilersearch = '<blockquote class="spoiler">';
-
-		// Remove line breaks before the spoiler.
-		while ((strpos($s, "\n" . $spoilersearch) !== false)) {
-			$s = str_replace("\n" . $spoilersearch, $spoilersearch, $s);
-		}
-		while ((strpos($s, "<br />" . $spoilersearch) !== false)) {
-			$s = str_replace("<br />" . $spoilersearch, $spoilersearch, $s);
-		}
-
-		while ((strpos($s, $spoilersearch) !== false)) {
-			$pos = strpos($s, $spoilersearch);
-			$rnd = Strings::getRandomHex(8);
-			$spoilerreplace = '<br /> <span id="spoiler-wrap-' . $rnd . '" class="spoiler-wrap fakelink" onclick="openClose(\'spoiler-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
-						'<blockquote class="spoiler" id="spoiler-' . $rnd . '" style="display: none;">';
-			$s = substr($s, 0, $pos) . $spoilerreplace . substr($s, $pos + strlen($spoilersearch));
-		}
-
-		// Look for quote with author.
-		$authorsearch = '<blockquote class="author">';
-
-		while ((strpos($s, $authorsearch) !== false)) {
-			$pos = strpos($s, $authorsearch);
-			$rnd = Strings::getRandomHex(8);
-			$authorreplace = '<br /> <span id="author-wrap-' . $rnd . '" class="author-wrap fakelink" onclick="openClose(\'author-' . $rnd . '\');">' . L10n::t('Click to open/close') . '</span>'.
-						'<blockquote class="author" id="author-' . $rnd . '" style="display: block;">';
-			$s = substr($s, 0, $pos) . $authorreplace . substr($s, $pos + strlen($authorsearch));
 		}
 
 		// Replace friendica image url size with theme preference.

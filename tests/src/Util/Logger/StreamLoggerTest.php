@@ -121,7 +121,9 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongDir()
 	{
-		$logger = new StreamLogger('test', '/a/wrong/directory/file.txt', $this->introspection);
+		$this->markTestIncomplete('We need a platform independent way to set directory to readonly');
+
+		$logger = new StreamLogger('test', '/$%/wrong/directory/file.txt', $this->introspection);
 
 		$logger->emergency('not working');
 	}

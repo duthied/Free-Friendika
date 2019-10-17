@@ -137,7 +137,7 @@ class NotificationsManager extends BaseObject
 	 */
 	public function getTabs()
 	{
-		$selected = defaults(self::getApp()->argv, 1, '');
+		$selected = self::getApp()->argv[1] ?? '';
 
 		$tabs = [
 			[
@@ -549,6 +549,7 @@ class NotificationsManager extends BaseObject
 	 *                      which aren't marked as ignored
 	 * @param int  $start   Start the query at this point
 	 * @param int  $limit   Maximum number of query results
+	 * @param int  $id      When set, only the introduction with this id is displayed
 	 *
 	 * @return array with
 	 *    string 'ident' => Notification identifier
@@ -556,14 +557,20 @@ class NotificationsManager extends BaseObject
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function introNotifs($all = false, $start = 0, $limit = 80)
+	public function introNotifs($all = false, $start = 0, $limit = 80, $id = 0)
 	{
 		$ident = 'introductions';
 		$notifs = [];
 		$sql_extra = "";
 
-		if (!$all) {
-			$sql_extra = " AND NOT `ignore` ";
+		if (empty($id)) {
+			if (!$all) {
+				$sql_extra = " AND NOT `ignore` ";
+			}
+
+			$sql_extra .= " AND NOT `intro`.`blocked` ";
+		} else {
+			$sql_extra = sprintf(" AND `intro`.`id` = %d ", intval($id));
 		}
 
 		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
@@ -578,7 +585,7 @@ class NotificationsManager extends BaseObject
 				LEFT JOIN `contact` ON `contact`.`id` = `intro`.`contact-id`
 				LEFT JOIN `gcontact` ON `gcontact`.`nurl` = `contact`.`nurl`
 				LEFT JOIN `fcontact` ON `intro`.`fid` = `fcontact`.`id`
-			WHERE `intro`.`uid` = ? $sql_extra AND `intro`.`blocked` = 0
+			WHERE `intro`.`uid` = ? $sql_extra
 			LIMIT ?, ?",
 			$_SESSION['uid'],
 			$start,

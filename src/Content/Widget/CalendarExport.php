@@ -57,7 +57,7 @@ class CalendarExport
 
 		// $a->data is only available if the profile page is visited. If the visited page is not part
 		// of the profile page it should be the personal /events page. So we can use $a->user.
-		$user = defaults($a->data['user'], 'nickname', $a->user['nickname']);
+		$user = ($a->data['user']['nickname'] ?? '') ?: $a->user['nickname'];
 
 		$tpl = Renderer::getMarkupTemplate("widget/events.tpl");
 		$return = Renderer::replaceMacros($tpl, [

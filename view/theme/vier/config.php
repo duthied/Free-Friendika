@@ -10,6 +10,8 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
+require_once __DIR__ . '/theme.php';
+
 function theme_content(App $a)
 {
 	if (!local_user()) {

@@ -11,6 +11,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
+use Psr\Log\LoggerInterface;
 
 // Get options
 $shortopts = 'sn';
@@ -32,6 +33,7 @@ if (!file_exists("boot.php") && (sizeof($_SERVER["argv"]) != 0)) {
 require dirname(__DIR__) . '/vendor/autoload.php';
 
 $dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['worker']]);
 
 BaseObject::setDependencyInjection($dice);
 $a = BaseObject::getApp();

@@ -61,7 +61,7 @@ class ContactBlock
 
 		if ($total) {
 			// Only show followed for personal accounts, followers for pages
-			if (defaults($profile, 'account-type', User::ACCOUNT_TYPE_PERSON) == User::ACCOUNT_TYPE_PERSON) {
+			if ((($profile['account-type'] ?? '') ?: User::ACCOUNT_TYPE_PERSON) == User::ACCOUNT_TYPE_PERSON) {
 				$rel = [Contact::SHARING, Contact::FRIEND];
 			} else {
 				$rel = [Contact::FOLLOWER, Contact::FRIEND];

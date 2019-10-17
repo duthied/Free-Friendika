@@ -7,7 +7,10 @@ use Friendica\BaseObject;
 use Friendica\Core;
 use Friendica\LegacyModule;
 use Friendica\Module\Home;
-use Friendica\Module\PageNotFound;
+use Friendica\Module\HTTPException\MethodNotAllowed;
+use Friendica\Module\HTTPException\PageNotFound;
+use Friendica\Network\HTTPException\MethodNotAllowedException;
+use Friendica\Network\HTTPException\NotFoundException;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -138,51 +141,49 @@ class Module
 	 *
 	 * @return Module The determined module of this call
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public function determineClass(Arguments $args, Router $router, Core\Config\Configuration $config)
 	{
 		$printNotAllowedAddon = false;
 
+		$module_class = null;
 		/**
 		 * ROUTING
 		 *
 		 * From the request URL, routing consists of obtaining the name of a BaseModule-extending class of which the
 		 * post() and/or content() static methods can be respectively called to produce a data change or an output.
 		 **/
-
-		// First we try explicit routes defined in App\Router
-		$router->collectRoutes();
-
-		$data = $router->getRouteCollector();
-		Core\Hook::callAll('route_collection', $data);
-
-		$module_class = $router->getModuleClass($args->getCommand());
-
-		// Then we try addon-provided modules that we wrap in the LegacyModule class
-		if (!$module_class && Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
-			//Check if module is an app and if public access to apps is allowed or not
-			$privateapps = $config->get('config', 'private_addons', false);
-			if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
-				$printNotAllowedAddon = true;
-			} else {
-				include_once "addon/{$this->module}/{$this->module}.php";
-				if (function_exists($this->module . '_module')) {
-					LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
-					$module_class = LegacyModule::class;
+		try {
+			$module_class = $router->getModuleClass($args->getCommand());
+		} catch (MethodNotAllowedException $e) {
+			$module_class = MethodNotAllowed::class;
+		} catch (NotFoundException $e) {
+			// Then we try addon-provided modules that we wrap in the LegacyModule class
+			if (Core\Addon::isEnabled($this->module) && file_exists("addon/{$this->module}/{$this->module}.php")) {
+				//Check if module is an app and if public access to apps is allowed or not
+				$privateapps = $config->get('config', 'private_addons', false);
+				if ((!local_user()) && Core\Hook::isAddonApp($this->module) && $privateapps) {
+					$printNotAllowedAddon = true;
+				} else {
+					include_once "addon/{$this->module}/{$this->module}.php";
+					if (function_exists($this->module . '_module')) {
+						LegacyModule::setModuleFile("addon/{$this->module}/{$this->module}.php");
+						$module_class = LegacyModule::class;
+					}
 				}
 			}
-		}
 
-		/* Finally, we look for a 'standard' program module in the 'mod' directory
-		 * We emulate a Module class through the LegacyModule class
-		 */
-		if (!$module_class && file_exists("mod/{$this->module}.php")) {
-			LegacyModule::setModuleFile("mod/{$this->module}.php");
-			$module_class = LegacyModule::class;
-		}
+			/* Finally, we look for a 'standard' program module in the 'mod' directory
+			 * We emulate a Module class through the LegacyModule class
+			 */
+			if (!$module_class && file_exists("mod/{$this->module}.php")) {
+				LegacyModule::setModuleFile("mod/{$this->module}.php");
+				$module_class = LegacyModule::class;
+			}
 
-		$module_class = !isset($module_class) ? PageNotFound::class : $module_class;
+			$module_class = $module_class ?: PageNotFound::class;
+		}
 
 		return new Module($this->module, $module_class, $this->isBackend, $printNotAllowedAddon);
 	}
@@ -193,13 +194,12 @@ class Module
 	 * @param Core\L10n\L10n  $l10n         The L10n instance
 	 * @param App             $app          The whole Friendica app (for method arguments)
 	 * @param LoggerInterface $logger       The Friendica logger
-	 * @param string          $currentTheme The chosen theme
 	 * @param array           $server       The $_SERVER variable
 	 * @param array           $post         The $_POST variables
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function run(Core\L10n\L10n $l10n, App $app, LoggerInterface $logger, string $currentTheme, array $server, array $post)
+	public function run(Core\L10n\L10n $l10n, App $app, LoggerInterface $logger, array $server, array $post)
 	{
 		if ($this->printNotAllowedAddon) {
 			info($l10n->t("You must be logged in to use addons. "));
@@ -238,17 +238,6 @@ class Module
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
 		call_user_func([$this->module_class, 'rawContent']);
-
-		// Load current theme info after module has been initialized as theme could have been set in module
-		$theme_info_file = 'view/theme/' . $currentTheme . '/theme.php';
-		if (file_exists($theme_info_file)) {
-			require_once $theme_info_file;
-		}
-
-		if (function_exists(str_replace('-', '_', $currentTheme) . '_init')) {
-			$func = str_replace('-', '_', $currentTheme) . '_init';
-			$func($app);
-		}
 
 		if ($server['REQUEST_METHOD'] === 'POST') {
 			Core\Hook::callAll($this->module . '_mod_post', $post);

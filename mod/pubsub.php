@@ -33,10 +33,10 @@ function pubsub_init(App $a)
 	$contact_id = (($a->argc > 2) ? intval($a->argv[2])       : 0 );
 
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-		$hub_mode      = Strings::escapeTags(trim(defaults($_GET, 'hub_mode', '')));
-		$hub_topic     = Strings::escapeTags(trim(defaults($_GET, 'hub_topic', '')));
-		$hub_challenge = Strings::escapeTags(trim(defaults($_GET, 'hub_challenge', '')));
-		$hub_verify    = Strings::escapeTags(trim(defaults($_GET, 'hub_verify_token', '')));
+		$hub_mode      = Strings::escapeTags(trim($_GET['hub_mode'] ?? ''));
+		$hub_topic     = Strings::escapeTags(trim($_GET['hub_topic'] ?? ''));
+		$hub_challenge = Strings::escapeTags(trim($_GET['hub_challenge'] ?? ''));
+		$hub_verify    = Strings::escapeTags(trim($_GET['hub_verify_token'] ?? ''));
 
 		Logger::log('Subscription from ' . $_SERVER['REMOTE_ADDR'] . ' Mode: ' . $hub_mode . ' Nick: ' . $nick);
 		Logger::log('Data: ' . print_r($_GET,true), Logger::DATA);

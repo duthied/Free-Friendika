@@ -6,6 +6,7 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
 use Friendica\Model\User;
@@ -43,35 +44,21 @@ function wall_attach_post(App $a) {
 	$page_owner_cid   = $r[0]['id'];
 	$community_page   = (($r[0]['page-flags'] == User::PAGE_FLAGS_COMMUNITY) ? true : false);
 
-	if ((local_user()) && (local_user() == $page_owner_uid)) {
+	if (local_user() && (local_user() == $page_owner_uid)) {
 		$can_post = true;
-	} else {
-		if ($community_page && remote_user()) {
-			$contact_id = 0;
+	} elseif ($community_page && !empty(Session::getRemoteContactID($page_owner_uid))) {
+		$contact_id = Session::getRemoteContactID($page_owner_uid);
+		$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
+			intval($contact_id),
+			intval($page_owner_uid)
+		);
 
-			if (is_array($_SESSION['remote'])) {
-				foreach ($_SESSION['remote'] as $v) {
-					if ($v['uid'] == $page_owner_uid) {
-						$contact_id = $v['cid'];
-						break;
-					}
-				}
-			}
-
-			if ($contact_id > 0) {
-				$r = q("SELECT `uid` FROM `contact` WHERE `blocked` = 0 AND `pending` = 0 AND `id` = %d AND `uid` = %d LIMIT 1",
-					intval($contact_id),
-					intval($page_owner_uid)
-				);
-
-				if (DBA::isResult($r)) {
-					$can_post = true;
-				}
-			}
+		if (DBA::isResult($r)) {
+			$can_post = true;
 		}
 	}
 
-	if (! $can_post) {
+	if (!$can_post) {
 		if ($r_json) {
 			echo json_encode(['error' => L10n::t('Permission denied.')]);
 			exit();

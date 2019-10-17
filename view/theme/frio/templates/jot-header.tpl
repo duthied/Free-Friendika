@@ -15,7 +15,7 @@
 			$("#jot-category").show();
 			$("#jot-category").addClass("jot-category-ex");
 			$("#jot-profile-jot-wrapper").show();
-			$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+			$("#profile-jot-text").editor_autocomplete(baseurl + '/search/acl');
 			$("#profile-jot-text").bbco_autocomplete('bbcode');
 			$("a#jot-perms-icon").colorbox({
 				'inline' : true,

@@ -26,4 +26,4 @@ before_script:
  - phpenv config-add .travis/redis.ini
  - phpenv config-add .travis/memcached.ini
 
-after_success: bash <(curl -s https://codecov.io/bash)
+script: vendor/bin/phpunit --configuration tests/phpunit.xml

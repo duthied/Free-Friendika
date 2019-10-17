@@ -4,7 +4,6 @@ namespace Friendica;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 
 /**
  * All modules in Friendica should extend BaseModule, although not all modules
@@ -121,7 +120,7 @@ abstract class BaseModule extends BaseObject
 		$a = \get_app();
 
 		$x = explode('.', $hash);
-		if (time() > (IntVal($x[0]) + $max_livetime)) {
+		if (time() > (intval($x[0]) + $max_livetime)) {
 			return false;
 		}
 

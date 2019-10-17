@@ -106,15 +106,16 @@ class Mode
 	/**
 	 * Checks if the site is called via a backend process
 	 *
+	 * @param bool         $isBackend    True, if the call is from a backend script (daemon, worker, ...)
 	 * @param Module       $module       The pre-loaded module (just name, not class!)
 	 * @param array        $server       The $_SERVER variable
 	 * @param MobileDetect $mobileDetect The mobile detection library
 	 *
 	 * @return Mode returns the determined mode
 	 */
-	public function determineRunMode(Module $module, array $server, MobileDetect $mobileDetect)
+	public function determineRunMode(bool $isBackend, Module $module, array $server, MobileDetect $mobileDetect)
 	{
-		$isBackend = basename(($server['PHP_SELF'] ?? ''), '.php') !== 'index' ||
+		$isBackend = $isBackend ||
 		             $module->isBackend();
 		$isMobile  = $mobileDetect->isMobile();
 		$isTablet  = $mobileDetect->isTablet();

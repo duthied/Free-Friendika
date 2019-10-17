@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file /src/Core/Authentication.php
  */
@@ -10,8 +11,8 @@ use Friendica\BaseObject;
 use Friendica\Network\HTTPException\ForbiddenException;
 
 /**
-* Handle Authentification, Session and Cookies
-*/
+ * Handle Authentification, Session and Cookies
+ */
 class Authentication extends BaseObject
 {
 	/**
@@ -24,9 +25,11 @@ class Authentication extends BaseObject
 	 */
 	public static function getCookieHashForUser($user)
 	{
-		return(hash("sha256", Config::get("system", "site_prvkey") .
-				$user["prvkey"] .
-				$user["password"]));
+		return hash_hmac(
+			"sha256",
+			hash_hmac("sha256", $user["password"], $user["prvkey"]),
+			Config::get("system", "site_prvkey")
+		);
 	}
 
 	/**
@@ -43,9 +46,11 @@ class Authentication extends BaseObject
 		}
 
 		if ($user) {
-			$value = json_encode(["uid" => $user["uid"],
+			$value = json_encode([
+				"uid" => $user["uid"],
 				"hash" => self::getCookieHashForUser($user),
-				"ip" => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0')]);
+				"ip" => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
+			]);
 		} else {
 			$value = "";
 		}
@@ -88,4 +93,3 @@ class Authentication extends BaseObject
 		}
 	}
 }
-
