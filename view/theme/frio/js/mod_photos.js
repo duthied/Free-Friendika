@@ -15,7 +15,23 @@ $(document).ready(function() {
 
 	}).trigger('change');
 
+	// Click event listener for the album edit link/button.
+	$("body").on('click', '#album-edit-link', function() {
+		var modalUrl = $(this).attr("data-modal-url");
 
+		if (typeof modalUrl !== "undefined") {
+			addToModal(modalUrl, 'photo-album-edit-wrapper');
+		}
+	});
+
+	// Click event listener for the album drop link/button.
+	$("body").on('click', '#album-drop-link', function() {
+		var modalUrl = $(this).attr("data-modal-url");
+
+		if (typeof modalUrl !== "undefined") {
+			addToModal(modalUrl);
+		}
+	});
 });
 
 $(window).load(function() {

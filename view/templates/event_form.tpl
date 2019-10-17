@@ -2,7 +2,7 @@
 <h3>{{$title}}</h3>
 
 <p>
-{{$desc}}
+{{$desc nofilter}}
 </p>
 
 <form id="event-edit-form" action="{{$post}}" method="post" >
@@ -12,9 +12,9 @@
 <input type="hidden" name="uri" value="{{$uri}}" />
 <input type="hidden" name="preview" id="event-edit-preview" value="0" />
 
-{{$s_dsel}}
+{{$s_dsel nofilter}}
 
-{{$f_dsel}}
+{{$f_dsel nofilter}}
 
 {{include file="field_checkbox.tpl" field=$nofinish}}
 
@@ -36,10 +36,9 @@
 {{include file="field_checkbox.tpl" field=$share}}
 {{/if}}
 
-{{$acl}}
+{{$acl nofilter}}
 
 <div class="clear"></div>
-<input id="event-edit-preview" type="submit" name="preview" value="{{$preview|escape:'html'}}" onclick="doEventPreview(); return false;" />
-<input id="event-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+<input id="event-edit-preview" type="submit" name="preview" value="{{$preview}}" onclick="doEventPreview(); return false;" />
+<input id="event-submit" type="submit" name="submit" value="{{$submit}}" />
 </form>
-

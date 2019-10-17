@@ -7,22 +7,21 @@
 <link rel="stylesheet" href="view/asset/jgrowl/jquery.jgrowl.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
 <link rel="stylesheet" href="view/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="vendor/pear/text_highlighter/sample.css" type="text/css" media="screen" />
 
-<link rel="stylesheet" type="text/css" href="{{$stylesheet}}" media="all" />
+{{foreach $stylesheets as $stylesheetUrl}}
+<link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
+{{/foreach}}
 
-<!--
-<link rel="shortcut icon" href="images/friendica-32.png" />
-<link rel="apple-touch-icon" href="images/friendica-128.png"/>
--->
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>
 
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <link rel="manifest" href="{{$baseurl}}/manifest" />
 <script>
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 // Prevents links to switch to Safari in a home screen app - see https://gist.github.com/irae/1042167
-(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
+(function(a,b,c){if(c in b&&b[c]){var d,e=a.location,f=/^(a|html)$/i;a.addEventListener("click",function(a){d=a.target;while(!f.test(d.nodeName))d=d.parentNode;"href"in d&&(chref=d.href).replace("{{$baseurl}}/", "").replace(e.href,"").indexOf("#")&&(!/^[a-z\+\.\-]+:/i.test(chref)||chref.indexOf(e.protocol+"//"+e.host)===0)&&(a.preventDefault(),e.href=d.href)},!1)}})(document,window.navigator,"standalone");
+// |license-end
 </script>
 
 <link rel="search"
@@ -42,29 +41,54 @@
 <script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js"></script>
 <script type="text/javascript" src="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
 <script type="text/javascript" src="view/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js" ></script>
+<script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js"></script>
 <script type="text/javascript" src="view/js/acl.js" ></script>
 <script type="text/javascript" src="view/asset/base64/base64.min.js" ></script>
+<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js"></script>
 <script type="text/javascript" src="view/js/main.js" ></script>
 <script>
 
-	var updateInterval = {{$update_interval}};
-	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
+	// Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/
+    jQuery.fn.putCursorAtEnd = function() {
+        return this.each(function() {
+            // Cache references
+            var $el = $(this),
+                el = this;
 
-	{{* Create an object with the data which is needed for infinite scroll.
-	For the relevant js part look at function loadContent() in main.js. *}}
-	{{if $infinite_scroll}}
-	var infinite_scroll = {
-		"pageno"	: {{$infinite_scroll.pageno}},
-		"reload_uri"	: "{{$infinite_scroll.reload_uri}}"
-	}
-	{{/if}}
+            // Only focus if input isn't already
+            if (!$el.is(":focus")) {
+                $el.focus();
+            }
+
+            // If this function exists... (IE 9+)
+            if (el.setSelectionRange) {
+                // Double the length because Opera is inconsistent about whether a carriage return is one character or two.
+                var len = $el.val().length * 2;
+
+                // Timeout seems to be required for Blink
+                setTimeout(function() {
+                    el.setSelectionRange(len, len);
+                }, 1);
+            } else {
+                // As a fallback, replace the contents with itself
+                // Doesn't work in Chrome, but Chrome supports setSelectionRange
+                $el.val($el.val());
+            }
+
+            // Scroll to the bottom, in case we're in a tall textarea
+            // (Necessary for Firefox and Chrome)
+            this.scrollTop = 999999;
+        });
+    };
+
+    var updateInterval = {{$update_interval}};
+	var localUser = {{if $local_user}}{{$local_user}}{{else}}false{{/if}};
 
 	function confirmDelete() { return confirm("{{$delitem}}"); }
 	function commentExpand(id) {
-		$("#comment-edit-text-" + id).value = "";
+		$("#comment-edit-text-" + id).putCursorAtEnd();
 		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
 		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		$("#comment-edit-text-" + id).focus();
 		$("#mod-cmnt-wrap-" + id).show();
 		openMenu("comment-edit-submit-wrapper-" + id);
 		return true;
@@ -121,9 +145,6 @@
 		$("#comment-edit-text-" + id).val(tmpStr + ins);
 		$(obj).val("");
 	}
-
-	window.showMore = "{{$showmore}}";
-	window.showFewer = "{{$showfewer}}";
 
 	function showHideCommentBox(id) {
 		if ($("#comment-edit-form-" + id).is(":visible")) {

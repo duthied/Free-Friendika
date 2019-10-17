@@ -6,7 +6,7 @@ use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Model\Profile;
 
-$uid = Profile::getThemeUid();
+$uid = $_REQUEST['puid'] ?? 0;
 
 $color = false;
 $quattro_align = false;
@@ -25,6 +25,8 @@ if ($color === false) {
 if ($quattro_align === false) {
 	$quattro_align = $site_quattro_align;
 }
+
+$color = \Friendica\Util\Strings::sanitizeFilePathItem($color);
 
 if (file_exists("$THEMEPATH/$color/style.css")) {
 	echo file_get_contents("$THEMEPATH/$color/style.css");

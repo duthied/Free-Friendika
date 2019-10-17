@@ -4,59 +4,45 @@
  */
 namespace Friendica\Core;
 
-use Friendica\Core\Cache;
-use Friendica\Core\Config;
+use Friendica\BaseObject;
+use Friendica\Core\Cache\Cache as CacheClass;
+use Friendica\Core\Cache\ICache;
 
 /**
  * @brief Class for storing data for a short time
  */
-class Cache extends \Friendica\BaseObject
+class Cache extends BaseObject
 {
-	const MONTH        = 2592000;
-	const WEEK         = 604800;
-	const DAY          = 86400;
-	const HOUR         = 3600;
-	const HALF_HOUR    = 1800;
-	const QUARTER_HOUR = 900;
-	const FIVE_MINUTES = 300;
-	const MINUTE       = 60;
+	/** @deprecated Use CacheClass::MONTH */
+	const MONTH        = CacheClass::MONTH;
+	/** @deprecated Use CacheClass::WEEK */
+	const WEEK         = CacheClass::WEEK;
+	/** @deprecated Use CacheClass::DAY */
+	const DAY          = CacheClass::DAY;
+	/** @deprecated Use CacheClass::HOUR */
+	const HOUR         = CacheClass::HOUR;
+	/** @deprecated Use CacheClass::HALF_HOUR */
+	const HALF_HOUR    = CacheClass::HALF_HOUR;
+	/** @deprecated Use CacheClass::QUARTER_HOUR */
+	const QUARTER_HOUR = CacheClass::QUARTER_HOUR;
+	/** @deprecated Use CacheClass::FIVE_MINUTES */
+	const FIVE_MINUTES = CacheClass::FIVE_MINUTES;
+	/** @deprecated Use CacheClass::MINUTE */
+	const MINUTE       = CacheClass::MINUTE;
+	/** @deprecated Use CacheClass::INFINITE */
+	const INFINITE     = CacheClass::INFINITE;
 
 	/**
-	 * @var Cache\ICacheDriver
-	 */
-	static $driver = null;
-
-	public static function init()
-	{
-		switch(Config::get('system', 'cache_driver', 'database')) {
-			case 'memcache':
-				$memcache_host = Config::get('system', 'memcache_host', '127.0.0.1');
-				$memcache_port = Config::get('system', 'memcache_port', 11211);
-
-				self::$driver = new Cache\MemcacheCacheDriver($memcache_host, $memcache_port);
-				break;
-			case 'memcached':
-				$memcached_hosts = Config::get('system', 'memcached_hosts', [['127.0.0.1', 11211]]);
-
-				self::$driver = new Cache\MemcachedCacheDriver($memcached_hosts);
-				break;
-			default:
-				self::$driver = new Cache\DatabaseCacheDriver();
-		}
-	}
-
-	/**
-	 * Returns the current cache driver
+	 * @brief Returns all the cache keys sorted alphabetically
 	 *
-	 * @return Cache\ICacheDriver
+	 * @param string $prefix Prefix of the keys (optional)
+	 *
+	 * @return array Empty if the driver doesn't support this feature
+	 * @throws \Exception
 	 */
-	private static function getDriver()
+	public static function getAllKeys($prefix = null)
 	{
-		if (self::$driver === null) {
-			self::init();
-		}
-
-		return self::$driver;
+		return self::getClass(ICache::class)->getAllKeys($prefix);
 	}
 
 	/**
@@ -65,16 +51,11 @@ class Cache extends \Friendica\BaseObject
 	 * @param string $key The key to the cached data
 	 *
 	 * @return mixed Cached $value or "null" if not found
+	 * @throws \Exception
 	 */
 	public static function get($key)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->get($key);
-
-		self::getApp()->save_timestamp($time, 'cache');
-
-		return $return;
+		return self::getClass(ICache::class)->get($key);
 	}
 
 	/**
@@ -87,16 +68,11 @@ class Cache extends \Friendica\BaseObject
 	 * @param integer $duration The cache lifespan
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
-	public static function set($key, $value, $duration = self::MONTH)
+	public static function set($key, $value, $duration = CacheClass::MONTH)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->set($key, $value, $duration);
-
-		self::getApp()->save_timestamp($time, 'cache_write');
-
-		return $return;
+		return self::getClass(ICache::class)->set($key, $value, $duration);
 	}
 
 	/**
@@ -105,27 +81,23 @@ class Cache extends \Friendica\BaseObject
 	 * @param string $key The key to the cached data
 	 *
 	 * @return bool
+	 * @throws \Exception
 	 */
 	public static function delete($key)
 	{
-		$time = microtime(true);
-
-		$return = self::getDriver()->delete($key);
-
-		self::getApp()->save_timestamp($time, 'cache_write');
-
-		return $return;
+		return self::getClass(ICache::class)->delete($key);
 	}
 
 	/**
 	 * @brief Remove outdated data from the cache
 	 *
-	 * @param integer $max_level The maximum cache level that is to be cleared
+	 * @param boolean $outdated just remove outdated values
 	 *
-	 * @return void
+	 * @return bool
+	 * @throws \Exception
 	 */
-	public static function clear()
+	public static function clear($outdated = true)
 	{
-		return self::getDriver()->clear();
+		return self::getClass(ICache::class)->clear($outdated);
 	}
 }

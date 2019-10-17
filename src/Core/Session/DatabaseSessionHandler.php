@@ -3,19 +3,15 @@
 namespace Friendica\Core\Session;
 
 use Friendica\BaseObject;
+use Friendica\Core\Logger;
 use Friendica\Core\Session;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use SessionHandlerInterface;
-use dba;
-
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/text.php';
 
 /**
  * SessionHandler using database
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterface
 {
@@ -26,16 +22,17 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 
 	public function read($session_id)
 	{
-		if (!x($session_id)) {
+		if (empty($session_id)) {
 			return '';
 		}
 
-		$session = dba::selectFirst('session', ['data'], ['sid' => $session_id]);
-		if (DBM::is_result($session)) {
+		$session = DBA::selectFirst('session', ['data'], ['sid' => $session_id]);
+		if (DBA::isResult($session)) {
 			Session::$exists = true;
 			return $session['data'];
 		}
-		logger("no data for session $session_id", LOGGER_TRACE);
+
+		Logger::notice('no data for session', ['session_id' => $session_id, 'uri' => $_SERVER['REQUEST_URI']]);
 
 		return '';
 	}
@@ -50,6 +47,7 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 	 * @param  string $session_id   Session ID with format: [a-z0-9]{26}
 	 * @param  string $session_data Serialized session data
 	 * @return boolean Returns false if parameters are missing, true otherwise
+	 * @throws \Exception
 	 */
 	public function write($session_id, $session_data)
 	{
@@ -67,10 +65,10 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 		if (Session::$exists) {
 			$fields = ['data' => $session_data, 'expire' => $expire];
 			$condition = ["`sid` = ? AND (`data` != ? OR `expire` != ?)", $session_id, $session_data, $expire];
-			dba::update('session', $fields, $condition);
+			DBA::update('session', $fields, $condition);
 		} else {
 			$fields = ['sid' => $session_id, 'expire' => $default_expire, 'data' => $session_data];
-			dba::insert('session', $fields);
+			DBA::insert('session', $fields);
 		}
 
 		return true;
@@ -83,13 +81,13 @@ class DatabaseSessionHandler extends BaseObject implements SessionHandlerInterfa
 
 	public function destroy($id)
 	{
-		dba::delete('session', ['sid' => $id]);
+		DBA::delete('session', ['sid' => $id]);
 		return true;
 	}
 
 	public function gc($maxlifetime)
 	{
-		dba::delete('session', ["`expire` < ?", time()]);
+		DBA::delete('session', ["`expire` < ?", time()]);
 		return true;
 	}
 }

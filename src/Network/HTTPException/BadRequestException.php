@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class BadRequestException extends HTTPException
 {
-	var $httpcode = 400;
+	protected $code = 400;
 }

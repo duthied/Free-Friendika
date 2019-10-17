@@ -5,15 +5,12 @@
  */
 namespace Friendica\Object;
 
-use Friendica\App;
+use Exception;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
-use Friendica\Model\Photo;
 use Friendica\Util\Network;
-use Exception;
 use Imagick;
 use ImagickPixel;
 
@@ -22,6 +19,7 @@ use ImagickPixel;
  */
 class Image
 {
+	/** @var Imagick|resource */
 	private $image;
 
 	/*
@@ -61,9 +59,10 @@ class Image
 
 	/**
 	 * @brief Constructor
-	 * @param object  $data data
+	 * @param string  $data
 	 * @param boolean $type optional, default null
-	 * @return object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	public function __construct($data, $type = null)
 	{
@@ -124,8 +123,10 @@ class Image
 	}
 
 	/**
-	 * @param object $data data
+	 * @param string $data data
 	 * @return boolean
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private function loadData($data)
 	{
@@ -294,8 +295,6 @@ class Image
 		$width = $this->getWidth();
 		$height = $this->getHeight();
 
-		$dest_width = $dest_height = 0;
-
 		if ((! $width)|| (! $height)) {
 			return false;
 		}
@@ -444,7 +443,7 @@ class Image
 			return;
 		}
 
-		$ort = $exif['IFD0']['Orientation'];
+		$ort = isset($exif['IFD0']['Orientation']) ? $exif['IFD0']['Orientation'] : 1;
 
 		switch ($ort) {
 			case 1: // nothing
@@ -481,7 +480,7 @@ class Image
 				break;
 		}
 
-		//	logger('exif: ' . print_r($exif,true));
+		//	Logger::log('exif: ' . print_r($exif,true));
 		return $exif;
 	}
 
@@ -497,8 +496,6 @@ class Image
 
 		$width = $this->getWidth();
 		$height = $this->getHeight();
-
-		$dest_width = $dest_height = 0;
 
 		if ((!$width)|| (!$height)) {
 			return false;
@@ -641,6 +638,7 @@ class Image
 	/**
 	 * @param string $path file path
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function saveToFilePath($path)
 	{
@@ -650,11 +648,11 @@ class Image
 
 		$string = $this->asString();
 
-		$a = get_app();
+		$a = \get_app();
 
 		$stamp1 = microtime(true);
 		file_put_contents($path, $string);
-		$a->save_timestamp($stamp1, "file");
+		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 	}
 
 	/**
@@ -665,6 +663,7 @@ class Image
 	 * $data = (string) $Image;
 	 *
 	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function __toString() {
 		return $this->asString();
@@ -672,6 +671,7 @@ class Image
 
 	/**
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function asString()
 	{
@@ -685,8 +685,6 @@ class Image
 			$string = $this->image->getImagesBlob();
 			return $string;
 		}
-
-		$quality = false;
 
 		ob_start();
 
@@ -719,20 +717,24 @@ class Image
 	 *
 	 * @param string  $filename Image filename
 	 * @param boolean $fromcurl Check Content-Type header from curl request
+	 * @param string  $header   passed headers to take into account
 	 *
 	 * @return object
+	 * @throws \ImagickException
 	 */
-	public static function guessType($filename, $fromcurl = false)
+	public static function guessType($filename, $fromcurl = false, $header = '')
 	{
-		logger('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), LOGGER_DEBUG);
+		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), Logger::DEBUG);
 		$type = null;
 		if ($fromcurl) {
-			$a = get_app();
 			$headers=[];
-			$h = explode("\n", $a->get_curl_headers());
+			$h = explode("\n", $header);
 			foreach ($h as $l) {
-				list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-				$headers[$k] = $v;
+				$data = array_map("trim", explode(":", trim($l), 2));
+				if (count($data) > 1) {
+					list($k,$v) = $data;
+					$headers[$k] = $v;
+				}
 			}
 			if (array_key_exists('Content-Type', $headers))
 				$type = $headers['Content-Type'];
@@ -759,13 +761,14 @@ class Image
 				}
 			}
 		}
-		logger('Image: guessType: type='.$type, LOGGER_DEBUG);
+		Logger::log('Image: guessType: type='.$type, Logger::DEBUG);
 		return $type;
 	}
 
 	/**
 	 * @param string $url url
 	 * @return object
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getInfoFromURL($url)
 	{
@@ -778,21 +781,30 @@ class Image
 		$data = Cache::get($url);
 
 		if (is_null($data) || !$data || !is_array($data)) {
-			$img_str = Network::fetchUrl($url, true, $redirects, 4);
+			$img_str = Network::fetchUrl($url, true, 4);
+
+			if (!$img_str) {
+				return false;
+			}
+
 			$filesize = strlen($img_str);
 
-			if (function_exists("getimagesizefromstring")) {
-				$data = getimagesizefromstring($img_str);
-			} else {
-				$tempfile = tempnam(get_temppath(), "cache");
+			try {
+				if (function_exists("getimagesizefromstring")) {
+					$data = @getimagesizefromstring($img_str);
+				} else {
+					$tempfile = tempnam(get_temppath(), "cache");
 
-				$a = get_app();
-				$stamp1 = microtime(true);
-				file_put_contents($tempfile, $img_str);
-				$a->save_timestamp($stamp1, "file");
+					$a = \get_app();
+					$stamp1 = microtime(true);
+					file_put_contents($tempfile, $img_str);
+					$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
 
-				$data = getimagesize($tempfile);
-				unlink($tempfile);
+					$data = getimagesize($tempfile);
+					unlink($tempfile);
+				}
+			} catch (Exception $e) {
+				return false;
 			}
 
 			if ($data) {
@@ -813,8 +825,6 @@ class Image
 	 */
 	public static function getScalingDimensions($width, $height, $max)
 	{
-		$dest_width = $dest_height = 0;
-
 		if ((!$width) || (!$height)) {
 			return false;
 		}
@@ -857,169 +867,5 @@ class Image
 			}
 		}
 		return ["width" => $dest_width, "height" => $dest_height];
-	}
-
-	/**
-	 * @brief This function is used by the fromgplus addon
-	 * @param object  $a         App
-	 * @param integer $uid       user id
-	 * @param string  $imagedata optional, default empty
-	 * @param string  $url       optional, default empty
-	 * @return array
-	 */
-	public static function storePhoto(App $a, $uid, $imagedata = "", $url = "")
-	{
-		$r = q(
-			"SELECT `user`.`nickname`, `user`.`page-flags`, `contact`.`id` FROM `user` INNER JOIN `contact` on `user`.`uid` = `contact`.`uid`
-			WHERE `user`.`uid` = %d AND `user`.`blocked` = 0 AND `contact`.`self` = 1 LIMIT 1",
-			intval($uid)
-		);
-
-		if (!DBM::is_result($r)) {
-			logger("Can't detect user data for uid ".$uid, LOGGER_DEBUG);
-			return([]);
-		}
-
-		$page_owner_nick  = $r[0]['nickname'];
-
-		/// @TODO
-		/// $default_cid      = $r[0]['id'];
-		/// $community_page   = (($r[0]['page-flags'] == PAGE_COMMUNITY) ? true : false);
-
-		if ((strlen($imagedata) == 0) && ($url == "")) {
-			logger("No image data and no url provided", LOGGER_DEBUG);
-			return([]);
-		} elseif (strlen($imagedata) == 0) {
-			logger("Uploading picture from ".$url, LOGGER_DEBUG);
-
-			$stamp1 = microtime(true);
-			$imagedata = @file_get_contents($url);
-			$a->save_timestamp($stamp1, "file");
-		}
-
-		$maximagesize = Config::get('system', 'maximagesize');
-
-		if (($maximagesize) && (strlen($imagedata) > $maximagesize)) {
-			logger("Image exceeds size limit of ".$maximagesize, LOGGER_DEBUG);
-			return([]);
-		}
-
-		$tempfile = tempnam(get_temppath(), "cache");
-
-		$stamp1 = microtime(true);
-		file_put_contents($tempfile, $imagedata);
-		$a->save_timestamp($stamp1, "file");
-
-		$data = getimagesize($tempfile);
-
-		if (!isset($data["mime"])) {
-			unlink($tempfile);
-			logger("File is no picture", LOGGER_DEBUG);
-			return([]);
-		}
-
-		$Image = new Image($imagedata, $data["mime"]);
-
-		if (!$Image->isValid()) {
-			unlink($tempfile);
-			logger("Picture is no valid picture", LOGGER_DEBUG);
-			return([]);
-		}
-
-		$Image->orient($tempfile);
-		unlink($tempfile);
-
-		$max_length = Config::get('system', 'max_image_length');
-		if (! $max_length) {
-			$max_length = MAX_IMAGE_LENGTH;
-		}
-
-		if ($max_length > 0) {
-			$Image->scaleDown($max_length);
-		}
-
-		$width = $Image->getWidth();
-		$height = $Image->getHeight();
-
-		$hash = Photo::newResource();
-
-		$smallest = 0;
-
-		// Pictures are always public by now
-		//$defperm = '<'.$default_cid.'>';
-		$defperm = "";
-		$visitor = 0;
-
-		$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 0, 0, $defperm);
-
-		if (!$r) {
-			logger("Picture couldn't be stored", LOGGER_DEBUG);
-			return([]);
-		}
-
-		$image = ["page" => System::baseUrl().'/photos/'.$page_owner_nick.'/image/'.$hash,
-			"full" => System::baseUrl()."/photo/{$hash}-0.".$Image->getExt()];
-
-		if ($width > 800 || $height > 800) {
-			$image["large"] = System::baseUrl()."/photo/{$hash}-0.".$Image->getExt();
-		}
-
-		if ($width > 640 || $height > 640) {
-			$Image->scaleDown(640);
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 1, 0, $defperm);
-			if ($r) {
-				$image["medium"] = System::baseUrl()."/photo/{$hash}-1.".$Image->getExt();
-			}
-		}
-
-		if ($width > 320 || $height > 320) {
-			$Image->scaleDown(320);
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 2, 0, $defperm);
-			if ($r) {
-				$image["small"] = System::baseUrl()."/photo/{$hash}-2.".$Image->getExt();
-			}
-		}
-
-		if ($width > 160 && $height > 160) {
-			$x = 0;
-			$y = 0;
-
-			$min = $Image->getWidth();
-			if ($min > 160) {
-				$x = ($min - 160) / 2;
-			}
-
-			if ($Image->getHeight() < $min) {
-				$min = $Image->getHeight();
-				if ($min > 160) {
-					$y = ($min - 160) / 2;
-				}
-			}
-
-			$min = 160;
-			$Image->crop(160, $x, $y, $min, $min);
-
-			$r = Photo::store($Image, $uid, $visitor, $hash, $tempfile, L10n::t('Wall Photos'), 3, 0, $defperm);
-			if ($r) {
-				$image["thumb"] = System::baseUrl()."/photo/{$hash}-3.".$Image->getExt();
-			}
-		}
-
-		// Set the full image as preview image. This will be overwritten, if the picture is larger than 640.
-		$image["preview"] = $image["full"];
-
-		// Deactivated, since that would result in a cropped preview, if the picture wasn't larger than 320
-		//if (isset($image["thumb"]))
-		//  $image["preview"] = $image["thumb"];
-
-		// Unsure, if this should be activated or deactivated
-		//if (isset($image["small"]))
-		//  $image["preview"] = $image["small"];
-
-		if (isset($image["medium"])) {
-			$image["preview"] = $image["medium"];
-		}
-
-		return($image);
 	}
 }

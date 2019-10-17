@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class ConflictException extends HTTPException
 {
-	var $httpcode = 409;
+	protected $code = 409;
 }

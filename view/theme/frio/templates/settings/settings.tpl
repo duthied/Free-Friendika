@@ -2,7 +2,7 @@
 	{{* include the title template for the settings title *}}
 	{{include file="section_title.tpl" title=$ptitle }}
 
-	{{$nickname_block}}
+	{{$nickname_block nofilter}}
 
 	<form action="settings" id="settings-form" method="post" autocomplete="off" >
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
@@ -29,7 +29,7 @@
 						{{/if}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -57,7 +57,7 @@
 						{{include file="field_checkbox.tpl" field=$allowloc}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -80,27 +80,25 @@
 
 						{{include file="field_input.tpl" field=$maxreq}}
 
-						{{$profile_in_dir}}
+						{{$profile_in_dir nofilter}}
 
-						{{$profile_in_net_dir}}
+						{{$profile_in_net_dir nofilter}}
 
-						{{$hide_friends}}
+						{{$hide_friends nofilter}}
 
-						{{$hide_wall}}
+						{{$hide_wall nofilter}}
 
-						{{$blockwall}}
+						{{$blockwall nofilter}}
 
-						{{$blocktags}}
+						{{$blocktags nofilter}}
 
-						{{$suggestme}}
+						{{$suggestme nofilter}}
 
-						{{$unkmail}}
-
+						{{$unkmail nofilter}}
 
 						{{include file="field_input.tpl" field=$cntunkmail}}
 
 						{{include file="field_input.tpl" field=$expire.days}}
-
 
 						<div id="settings-advanced-expire">
 							<a id="advanced-expire-menu" title="{{$expire.advanced}}" data-toggle="modal" data-target="#aeModal">{{$expire.label}}</a>
@@ -138,7 +136,7 @@
 											<h4 class="modal-title">{{$permissions}}</h4>
 										</div>
 										<div class="modal-body">
-											{{$aclselect}}
+											{{$aclselect nofilter}}
 										</div>
 									</div>
 								</div>
@@ -147,11 +145,10 @@
 						<br/>
 						<div class="clear"></div>
 
-						{{$group_select}}
-
+						{{$group_select nofilter}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -170,15 +167,6 @@
 				<div id="notification-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="notification-settings">
 					<div class="section-content-tools-wrapper">
 						<div id="settings-notifications">
-
-							<div id="settings-activity-desc"><h4>{{$activity_options}}</h4></div>
-
-							<div class="group">
-								{{include file="field_checkbox.tpl" field=$post_newfriend}}
-								{{include file="field_checkbox.tpl" field=$post_joingroup}}
-								{{include file="field_checkbox.tpl" field=$post_profilechange}}
-							</div>
-
 
 							<div id="settings-notify-desc"><h4>{{$lbl_not}}</h4></div>
 
@@ -250,7 +238,7 @@
 						</div>
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -271,10 +259,10 @@
 
 						<div id="settings-pagetype-desc">{{$h_descadvn}}</div>
 
-						{{$pagetype}}
+						{{$pagetype nofilter}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit|escape:'html'}}">{{$submit}}</button>
+							<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>
@@ -297,7 +285,7 @@
 
 						<br/>
 						<div class="form-group pull-right settings-submit-wrapper" >
-							<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$relocate_button|escape:'html'}}">{{$relocate_button|escape:'html'}}</button>
+							<button type="submit" name="resend_relocate" class="btn btn-primary" value="{{$relocate_button}}">{{$relocate_button}}</button>
 						</div>
 						<div class="clear"></div>
 					</div>

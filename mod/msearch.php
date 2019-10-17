@@ -2,47 +2,67 @@
 
 use Friendica\App;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 
-function msearch_post(App $a) {
+function msearch_post(App $a)
+{
+	$search = $_POST['s'] ?? '';
+	$perpage  = intval(($_POST['n'] ?? 0) ?: 80);
+	$page     = intval(($_POST['p'] ?? 0) ?: 1);
+	$startrec = ($page - 1) * $perpage;
 
-	$perpage = (($_POST['n']) ? $_POST['n'] : 80);
-	$page = (($_POST['p']) ? intval($_POST['p'] - 1) : 0);
-	$startrec = (($page+1) * $perpage) - $perpage;
-
-	$search = $_POST['s'];
-	if(! strlen($search))
-		killme();
-
-	$r = q("SELECT COUNT(*) AS `total` FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 AND `user`.`hidewall` = 0 AND MATCH `pub_keywords` AGAINST ('%s') ",
-		dbesc($search)
-	);
-
-	if (DBM::is_result($r))
-		$total = $r[0]['total'];
-
+	$total = 0;
 	$results = [];
 
-	$r = q("SELECT `pub_keywords`, `username`, `nickname`, `user`.`uid` FROM `user` LEFT JOIN `profile` ON `user`.`uid` = `profile`.`uid` WHERE `is-default` = 1 AND `user`.`hidewall` = 0 AND MATCH `pub_keywords` AGAINST ('%s') LIMIT %d , %d ",
-		dbesc($search),
-		intval($startrec),
-		intval($perpage)
-	);
-
-	if (DBM::is_result($r)) {
-		foreach($r as $rr)
-			$results[] = [
-				'name' => $rr['name'],
-				'url' => System::baseUrl() . '/profile/' . $rr['nickname'],
-				'photo' => System::baseUrl() . '/photo/avatar/' . $rr['uid'] . '.jpg',
-				'tags' => str_replace([',','  '],[' ',' '],$rr['pub_keywords'])
-			];
+	if (!strlen($search)) {
+		$output = ['total' => 0, 'items_page' => $perpage, 'page' => $page, 'results' => $results];
+		echo json_encode($output);
+		exit();
 	}
 
-	$output = ['total' => $total, 'items_page' => $perpage, 'page' => $page + 1, 'results' => $results];
+	$total = 0;
+
+	$count_stmt = DBA::p(
+		"SELECT COUNT(*) AS `total`
+			FROM `profile`
+		  	JOIN `user` ON `user`.`uid` = `profile`.`uid`
+			WHERE `is-default` = 1
+			AND `user`.`hidewall` = 0
+		  	AND MATCH(`pub_keywords`) AGAINST (?)",
+		$search
+	);
+	if (DBA::isResult($count_stmt)) {
+		$row = DBA::fetch($count_stmt);
+		$total = $row['total'];
+	}
+
+	DBA::close($count_stmt);
+
+	$search_stmt = DBA::p(
+		"SELECT `pub_keywords`, `username`, `nickname`, `user`.`uid`
+			FROM `user`
+			JOIN `profile` ON `user`.`uid` = `profile`.`uid`
+			WHERE `is-default` = 1
+			AND `user`.`hidewall` = 0
+			AND MATCH(`pub_keywords`) AGAINST (?)
+			LIMIT ?, ?",
+		$search,
+		$startrec,
+		$perpage
+	);
+
+	while($search_result = DBA::fetch($search_stmt)) {
+		$results[] = [
+			'name'  => $search_result['name'],
+			'url'   => System::baseUrl() . '/profile/' . $search_result['nickname'],
+			'photo' => System::baseUrl() . '/photo/avatar/' . $search_result['uid'] . '.jpg',
+			'tags'  => str_replace([',', '  '], [' ', ' '], $search_result['pub_keywords'])
+		];
+	}
+
+	$output = ['total' => $total, 'items_page' => $perpage, 'page' => $page, 'results' => $results];
 
 	echo json_encode($output);
 
-	killme();
-
+	exit();
 }

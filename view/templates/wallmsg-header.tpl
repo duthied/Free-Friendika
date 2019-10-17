@@ -1,5 +1,5 @@
 <script language="javascript" type="text/javascript">
-	$("#prvmail-text").editor_autocomplete(baseurl+"/acl");
+	$("#prvmail-text").editor_autocomplete(baseurl + '/search/acl');
 </script>
 <script>
 

@@ -7,12 +7,14 @@ use Friendica\App;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
 function fsuggest_post(App $a)
 {
-	if (! local_user()) {
+	if (!local_user()) {
 		return;
 	}
 
@@ -21,57 +23,38 @@ function fsuggest_post(App $a)
 	}
 
 	$contact_id = intval($a->argv[1]);
+	if (empty($contact_id)) {
+		return;
+	}
 
-	$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($contact_id),
-		intval(local_user())
-	);
-	if (! DBM::is_result($r)) {
+	// We do query the "uid" as well to ensure that it is our contact
+	if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
 		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}
-	$contact = $r[0];
 
-	$new_contact = intval($_POST['suggest']);
-
-	$hash = random_string();
-
-	$note = escape_tags(trim($_POST['note']));
-
-	if ($new_contact) {
-		$r = q("SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-			intval($new_contact),
-			intval(local_user())
-		);
-		if (DBM::is_result($r)) {
-			$x = q("INSERT INTO `fsuggest` ( `uid`,`cid`,`name`,`url`,`request`,`photo`,`note`,`created`)
-				VALUES ( %d, %d, '%s','%s','%s','%s','%s','%s')",
-				intval(local_user()),
-				intval($contact_id),
-				dbesc($r[0]['name']),
-				dbesc($r[0]['url']),
-				dbesc($r[0]['request']),
-				dbesc($r[0]['photo']),
-				dbesc($hash),
-				dbesc(DateTimeFormat::utcNow())
-			);
-			$r = q("SELECT `id` FROM `fsuggest` WHERE `note` = '%s' AND `uid` = %d LIMIT 1",
-				dbesc($hash),
-				intval(local_user())
-			);
-			if (DBM::is_result($r)) {
-				$fsuggest_id = $r[0]['id'];
-				q("UPDATE `fsuggest` SET `note` = '%s' WHERE `id` = %d AND `uid` = %d",
-					dbesc($note),
-					intval($fsuggest_id),
-					intval(local_user())
-				);
-				Worker::add(PRIORITY_HIGH, 'Notifier', 'suggest', $fsuggest_id);
-			}
-
-			info(L10n::t('Friend suggestion sent.') . EOL);
-		}
+	$suggest_contact_id = intval($_POST['suggest']);
+	if (empty($suggest_contact_id)) {
+		return;
 	}
+
+	// We do query the "uid" as well to ensure that it is our contact
+	$contact = DBA::selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
+	if (!DBA::isResult($contact)) {
+		notice(L10n::t('Suggested contact not found.') . EOL);
+		return;
+	}
+
+	$note = Strings::escapeHtml(trim($_POST['note'] ?? ''));
+
+	$fields = ['uid' => local_user(),'cid' => $contact_id, 'name' => $contact['name'],
+		'url' => $contact['url'], 'request' => $contact['request'],
+		'photo' => $contact['avatar'], 'note' => $note, 'created' => DateTimeFormat::utcNow()];
+	DBA::insert('fsuggest', $fields);
+
+	Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, DBA::lastInsertId());
+
+	info(L10n::t('Friend suggestion sent.') . EOL);
 }
 
 function fsuggest_content(App $a)
@@ -87,16 +70,11 @@ function fsuggest_content(App $a)
 
 	$contact_id = intval($a->argv[1]);
 
-	$r = q(
-		"SELECT * FROM `contact` WHERE `id` = %d AND `uid` = %d LIMIT 1",
-		intval($contact_id),
-		intval(local_user())
-	);
-	if (! DBM::is_result($r)) {
+	$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
+	if (! DBA::isResult($contact)) {
 		notice(L10n::t('Contact not found.') . EOL);
 		return;
 	}
-	$contact = $r[0];
 
 	$o = '<h3>' . L10n::t('Suggest Friends') . '</h3>';
 

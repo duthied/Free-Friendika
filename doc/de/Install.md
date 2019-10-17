@@ -28,17 +28,25 @@ Requirements
 ---
 
 * Apache mit einer aktiverten mod-rewrite-Funktion und dem Eintrag "Options All", so dass du die lokale .htaccess-Datei nutzen kannst
-* PHP  5.6+ (PHP 7 ist aufgrund der Performance empfohlen)
+* PHP  7+ (PHP 7.1+ wird für Performance und offiziellen Support empfohlen)
   * PHP *Kommandozeilen*-Zugang mit register_argc_argv auf "true" gesetzt in der php.ini-Datei
   * Curl, GD, PDO, MySQLi, xml, zip und OpenSSL-Erweiterung
   * Das POSIX Modul muss aktiviert sein ([CentOS, RHEL](http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7http://www.bigsoft.co.uk/blog/index.php/2014/12/08/posix-php-commands-not-working-under-centos-7) haben dies z.B. deaktiviert)
   * etwas in der Art eines Email-Servers oder eines Gateways wie PHP mail()
-* Mysql 5.5.3+ (oder eine äquivalente Alternative: MariaDB, Percona Server etc.)
+* Mysql 5.6+ (oder eine äquivalente Alternative: MariaDB, Percona Server etc.)
 * die Möglichkeit, wiederkehrende Aufgaben mit cron (Linux/Mac) oder "Scheduled Tasks" einzustellen (Windows) [Beachte: andere Optionen sind in Abschnitt 7 dieser Dokumentation zu finden]
 * Installation in einer Top-Level-Domain oder Subdomain (ohne eine Verzeichnis/Pfad-Komponente in der URL) wird bevorzugt. Verzeichnispfade sind für diesen Zweck nicht so günstig und wurden auch nicht ausführlich getestet.
 
 Installation
 ---
+
+### Alternative Wege um Friendica zu Installieren
+
+Diese Anleitung wird dir Schritt-für-Schritt zeigen wie du Friendica auf deinem Server installieren kannst.
+Falls du an automatischen Möglichkeiten interesse hast, wirf doch einen Blick auf
+
+* das [Docker image für Friendica](https://github.com/friendica/docker) oder
+* die [Installation von Friendica auf YunoHost](https://github.com/YunoHost-Apps/friendica_ynh).
 
 ### Friendica
 
@@ -47,22 +55,22 @@ Wenn du die Möglichkeit hierzu hast, empfehlen wir dir "git" zu nutzen, um die 
 Das macht die Aktualisierung wesentlich einfacher.
 Der Linux-Code, mit dem man die Dateien direkt in ein Verzeichnis wie "meinewebseite" kopiert, ist
 
-    git clone https://github.com/friendica/friendica.git mywebsite
+    git clone https://github.com/friendica/friendica.git -b master mywebsite
     cd mywebsite
     bin/composer.phar install
 
 Stelle sicher, dass der Ordner *view/smarty3* existiert and von dem Webserver-Benutzer beschreibbar ist
 
     mkdir view/smarty3
-    chmod 777 view/smarty3
+    chmod 775 view/smarty3
 
-Falls Addons installiert werden sollen: Gehe in den Friendica-Ordner 
+Falls Addons installiert werden sollen: Gehe in den Friendica-Ordner
 
     cd mywebsite
 
 Und die Addon Repository klonst:
 
-    git clone https://github.com/friendica/friendica-addons.git addon
+    git clone https://github.com/friendica/friendica-addons.git -b master addon
 
 Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git pull"-Befehl eintragen
 
@@ -71,7 +79,18 @@ Um das Addon-Verzeichnis aktuell zu halten, solltest du in diesem Pfad ein "git 
 
 Wenn du den Verzeichnispfad auf deinen Webserver kopierst, dann stelle sicher, dass du auch die .htaccess kopierst, da "Punkt"-Dateien oft versteckt sind und normalerweise nicht direkt kopiert werden.
 
-### Erselle eine Datenbank
+Wenn du die Entwickler Version von Friendica verwenden möchtest kannst du auf den develop Branch im git Repository wechseln.
+Dies tust du mit den folgenden Befehlen
+
+    git checkout develop
+    bin/composer.phar install
+    cd addon
+    git checkout develop
+
+Die Entwickler Version kann nach einem fehlerhaften Commit vorübergehend Probleme haben oder gar nicht mehr funktionieren.
+Sollte dir so etwas passieren, lass es uns bitte wissen, damit der Fehler behoben werden kann.
+
+### Erstelle eine Datenbank
 
 Erstelle eine leere Datenbank und notiere alle Zugangsdaten (Adresse der Datenbank, Nutzername, Passwort, Datenbankname).
 
@@ -87,46 +106,105 @@ Starte MySQL dann neu und es sollte klappen.
 
 ### Option A: Der manuelle Installer
 
-Besuche deine Webseite mit deinem Browser und befolge die Anleitung. 
+Besuche deine Webseite mit deinem Browser und befolge die Anleitung.
 Bitte beachte jeden Fehler und korrigiere diese, bevor du fortfährst.
 
 Falls du einen Port für die Datenbankverbindung angeben musst, kannst du diesen in der Host-Eingabe Zeile angeben.
 
 *Wenn* die manuelle Installation aus irgendeinem Grund fehlschlägt, dann prüfe das Folgende:
-* ".htconfig.php" existiert ... wenn nicht, bearbeite die „htconfig.php“ und ändere die Systemeinstellungen. Benenne sie um in „.htconfig.php".
+* "config/local.config.php" existiert ... wenn nicht, bearbeite die „config/local-sample.config.php“ und ändere die Systemeinstellungen. Benenne sie um in „config/local.config.php".
 * die Datenbank beinhaltet Daten. ... wenn nicht, importiere den Inhalt der Datei "database.sql" mit phpmyadmin oder per mysql-Kommandozeile.
 
 Besuche deine Seite an diesem Punkt wieder und registriere deinen persönlichen Account.
 Alle Registrierungsprobleme sollten automatisch behebbar sein.
 Wenn du irgendwelche **kritischen** Fehler zu diesen Zeitpunkt erhalten solltest, deutet das darauf hin, dass die Datenbank nicht korrekt installiert wurde.
-Du kannst bei Bedarf die Datei .htconfig.php verschieben/umbenennen und die Datenbank leeren (als „Dropping“ bezeichnet), so dass du mit einem sauberen System neu starten kannst.
+Du kannst bei Bedarf die Datei config/local.config.php verschieben/umbenennen und die Datenbank leeren (als „Dropping“ bezeichnet), so dass du mit einem sauberen System neu starten kannst.
 
-### Option B: Starte das manuelle Installationsscript
+### Option B: Starte das automatische Installationsscript
 
-Öffne die Datei htconfig.php im Friendica-Hauptordner mit einem Text-Editor.
-Entferne die `die('...');` Zeile und bearbeite die Einstellungen so, das sie zu deinem System passen (MySQL, Sprache, Theme etc.).
-Dann speichere die Datei (jedoch nicht umbenennen).
+Es existieren folgende Varianten zur automatischen Installation von Friendica:
+-	Eine vorgefertigte Konfigurationsdatei erstellen (z.B. `prepared.config.php`)
+-	Verwendung von Umgebungsvariablen (z.B. `MYSQL_HOST`)
+-	Verwendung von Optionen (z.B. `--dbhost <host>`)
 
-Gehe in den Friendica-Hauptordner und führe den Kommandozeilen Befehl aus:
-
-    bin/console autoinstall
-
-Oder falls du alle optionalen Checks ausfürehn lassen möchtest, benutze diese Option:
-
-    bin/console autoinstall -a
-
-*Wenn* die automatisierte Installation aus irgendeinem Grund fehlschlägt, dann prüfe das Folgende:
-* Existiert die `.htconfig.php`? Falls ja, wird die automatisierte Installation nicht gestartet.
-* Sind Einstellungen in der `.htconfig.php` korrekt? Falls nicht, bitte bearbeite diese Datei erneut.
-* Ist die leere MySQL-Datenbank erstellt? Falls nicht, erstelle diese.
+Umgebungsvariablen und Optionen können auch kombiniert werden.
+Dabei ist jedoch darauf zu achten, dass etwaige Optionen immer die zugehörigen Umgebungsvariablen überschreiben.
 
 Für mehr Informationen kannst du diese Option verwenden:
 
     bin/console autoinstall -v
 
+Falls du alle optionalen Checks ausfürehn lassen möchtest, benutze diese Option:
+
+    bin/console autoinstall -a
+
+*Wenn* die automatisierte Installation aus irgendeinem Grund fehlschlägt, dann prüfe das Folgende:
+*	Existiert die `config/local.config.php`? Falls ja, wird die automatisierte Installation nicht gestartet.
+*	Sind Einstellungen in der `config/local.config.php` korrekt? Falls nicht, bitte bearbeite diese Datei erneut.
+*	Ist die leere MySQL-Datenbank erstellt? Falls nicht, erstelle diese.
+
+#### B.1: Konfigurationsdatei
+
+Für diese Variante muss ein Konfigurationsdatei bereits vor der Installation fertig definiert sein (z.B. [local-sample.config.php](config/local-sample.config.php).
+
+Gehe im Anschluss in den Friendica-Hauptordner und führe den Kommandozeilen Befehl aus:
+
+    bin/console autoinstall -f <prepared.config.php>
+
+#### B.2: Umgebungsvariablen
+
+Es existieren Zwei Arten von Umgebungsvariablen in Friendica:
+-	Jene, die auch im normalen Betrieb verwendet werden können (derzeit ausschließlich **Datenbank Einstellungen**)
+-	Jene, die nur während der Installation verwedent werden können (im normalen Betrieb werden sie ignoriert)
+
+Umgebungsvariablen können auch durch adäquate Optionen (z.B. `--dbhost <hostname>`)übersteuert werden.
+
+**Datenbank Einstellungen**
+
+Nur wenn die Option `--savedb` gesetzt ist, werden diese Umgebungsvariablen auch in `config/local.config.php` gespeichert!
+
+-	`MYSQL_HOST` Der Host der MySQL/MariaDB Datenbank
+-	`MYSQL_PORT` Der Port der MySQL/MariaDB Datenbank
+-	`MYSQL_USERNAME` Der Benutzername des MySQL Datenbanklogins (MySql - Variante)
+-	`MYSQL_USER` Der Benutzername des MariaDB Datenbanklogins (MariaDB-Variante)
+-	`MYSQL_PASSWORD` Das Passwort der MySQL/MariaDB Datenbanklogins
+-	`MYSQL_DATABASE` Der Name der MySQL/MariaDB Datenbank
+
+**Friendica Einstellungen**
+
+Diese Umgebungsvariablen können nicht während des normalen Friendica Betriebs verwendet werden.
+Sie werden stattdessen direkt in `config/local.config.php` gespeichert.
+
+-	`FRIENDICA_PHP_PATH` Der Pfad zur PHP-Datei
+-	`FRIENDICA_ADMIN_MAIL` Die Admin E-Mail Adresse dieses Friendica Knotens (wird auch für den Admin-Zugang benötigt)
+-	`FRIENDICA_TZ` Die Zeitzone von Friendica
+-	`FRIENDICA_LANG` Die Sprache von Friendica
+
+Gehe im Anschluss in den Friendica-Hauptordner und führe den Kommandozeilen Befehl aus:
+
+    bin/console autoinstall [--savedb]
+    
+#### B.3: Optionen
+
+Alle Optionen werden in `config/local.config.php` gespeichert und überschreiben etwaige, zugehörige Umgebungsvariablen.
+
+-	`-H|--dbhost <host>` Der Host der MySQL/MariaDB Datenbank (env `MYSQL_HOST`)
+-	`-p|--dbport <port>` Der Port der MySQL/MariaDB Datenbank (env `MYSQL_PORT`)
+-	`-U|--dbuser <username>` Der Benutzername des MySQL/MariaDB Datenbanklogins (env `MYSQL_USER` or `MYSQL_USERNAME`)
+-	`-P|--dbpass <password>` Das Passwort der MySQL/MariaDB Datenbanklogins (env `MYSQL_PASSWORD`)
+-	`-d|--dbdata <database>` Der Name der MySQL/MariaDB Datenbank (env `MYSQL_DATABASE`)
+-	`-b|--phppath <path>` Der Pfad zur PHP-Datei (env `FRIENDICA_PHP_PATH`)
+-	`-A|--admin <mail>` Die Admin E-Mail Adresse dieses Friendica Knotens (env `FRIENDICA_ADMIN_MAIL`)
+-	`-T|--tz <timezone>` Die Zeitzone von Friendica (env `FRIENDICA_TZ`)
+-	`-L|--lang <language>` Die Sprache von Friendica (env `FRIENDICA_LANG`)
+
+Gehe in den Friendica-Hauptordner und führe den Kommandozeilen Befehl aus:
+
+    bin/console autoinstall [options]
+
 ### Einen Worker einrichten
 
-Erstelle einen Cron job oder einen regelmäßigen Task, um den Poller alle 5-10 Minuten im Hintergrund ablaufen zu lassen. 
+Erstelle einen Cron job oder einen regelmäßigen Task, um den Poller alle 5-10 Minuten im Hintergrund ablaufen zu lassen.
 Beispiel:
 
     cd /base/directory; /path/to/php bin/worker.php
@@ -149,5 +227,5 @@ Es werden schlimme Dinge geschehen.
 Sei es nun ein Hardwareversagen oder eine kaputte Datenbank.
 Deshalb solltest du dir, nachdem die Installation deines Friendica Knotens abgeschlossen ist, einen Backup Plan erstellen.
 
-Die wichtigste Datei ist die `.htconfig.php` im Stammverzeichnis deiner Friendica Installation.
+Die wichtigste Datei ist die `config/local.config.php` im Stammverzeichnis deiner Friendica Installation.
 Und da alle Daten in der Datenbank gespeichert werden, solltest du einen nicht all zu alten Dump der Friendica Datenbank zur Hand haben, solltest du deinen Knoten wieder herstellen müssen.

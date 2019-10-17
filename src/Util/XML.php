@@ -5,6 +5,8 @@
 namespace Friendica\Util;
 
 use DOMXPath;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use SimpleXMLElement;
 
 /**
@@ -35,7 +37,7 @@ class XML
 					$root = new SimpleXMLElement("<".$key."/>");
 					self::fromArray($value, $root, $remove_header, $namespaces, false);
 				} else {
-					$root = new SimpleXMLElement("<".$key.">".xmlify($value)."</".$key.">");
+					$root = new SimpleXMLElement("<".$key.">".self::escape($value)."</".$key.">");
 				}
 
 				$dom = dom_import_simplexml($root)->ownerDocument;
@@ -103,7 +105,7 @@ class XML
 			}
 
 			if (!is_array($value)) {
-				$element = $xml->addChild($key, xmlify($value), $namespace);
+				$element = $xml->addChild($key, self::escape($value), $namespace);
 			} elseif (is_array($value)) {
 				$element = $xml->addChild($key, null, $namespace);
 				self::fromArray($value, $element, $remove_header, $namespaces, false);
@@ -122,7 +124,7 @@ class XML
 	public static function copy(&$source, &$target, $elementname)
 	{
 		if (count($source->children()) == 0) {
-			$target->addChild($elementname, xmlify($source));
+			$target->addChild($elementname, self::escape($source));
 		} else {
 			$child = $target->addChild($elementname);
 			foreach ($source->children() as $childfield => $childentry) {
@@ -134,20 +136,20 @@ class XML
 	/**
 	 * @brief Create an XML element
 	 *
-	 * @param object $doc        XML root
-	 * @param string $element    XML element name
-	 * @param string $value      XML value
-	 * @param array  $attributes array containing the attributes
+	 * @param \DOMDocument $doc        XML root
+	 * @param string       $element    XML element name
+	 * @param string       $value      XML value
+	 * @param array        $attributes array containing the attributes
 	 *
-	 * @return object XML element object
+	 * @return \DOMElement XML element object
 	 */
-	public static function createElement($doc, $element, $value = "", $attributes = [])
+	public static function createElement(\DOMDocument $doc, $element, $value = "", $attributes = [])
 	{
-		$element = $doc->createElement($element, xmlify($value));
+		$element = $doc->createElement($element, self::escape($value));
 
 		foreach ($attributes as $key => $value) {
 			$attribute = $doc->createAttribute($key);
-			$attribute->value = xmlify($value);
+			$attribute->value = self::escape($value);
 			$element->appendChild($attribute);
 		}
 		return $element;
@@ -156,14 +158,14 @@ class XML
 	/**
 	 * @brief Create an XML and append it to the parent object
 	 *
-	 * @param object $doc        XML root
+	 * @param \DOMDocument $doc        XML root
 	 * @param object $parent     parent object
 	 * @param string $element    XML element name
 	 * @param string $value      XML value
 	 * @param array  $attributes array containing the attributes
 	 * @return void
 	 */
-	public static function addElement($doc, $parent, $element, $value = "", $attributes = [])
+	public static function addElement(\DOMDocument $doc, $parent, $element, $value = "", $attributes = [])
 	{
 		$element = self::createElement($doc, $element, $value, $attributes);
 		$parent->appendChild($element);
@@ -229,17 +231,18 @@ class XML
 	 * (namespaces, lowercase tags, get_attribute default changed, more...)
 	 *
 	 * Examples: $array =  Xml::toArray(file_get_contents('feed.xml'));
-	 *		$array =  Xml::toArray(file_get_contents('feed.xml', true, 1, 'attribute'));
+	 *        $array =  Xml::toArray(file_get_contents('feed.xml', true, 1, 'attribute'));
 	 *
-	 * @param object  $contents       The XML text
-	 * @param boolean $namespaces     True or false include namespace information
-	 *	                              in the returned array as array elements.
-	 * @param integer $get_attributes 1 or 0. If this is 1 the function will get the attributes as well as the tag values -
-	 *	                              this results in a different array structure in the return value.
-	 * @param string  $priority       Can be 'tag' or 'attribute'. This will change the way the resulting
-	 *	                              array sturcture. For 'tag', the tags are given more importance.
+	 * @param object  $contents         The XML text
+	 * @param boolean $namespaces       True or false include namespace information
+	 *                                  in the returned array as array elements.
+	 * @param integer $get_attributes   1 or 0. If this is 1 the function will get the attributes as well as the tag values -
+	 *                                  this results in a different array structure in the return value.
+	 * @param string  $priority         Can be 'tag' or 'attribute'. This will change the way the resulting
+	 *                                  array sturcture. For 'tag', the tags are given more importance.
 	 *
 	 * @return array The parsed XML in an array form. Use print_r() to see the resulting array structure.
+	 * @throws \Exception
 	 */
 	public static function toArray($contents, $namespaces = true, $get_attributes = 1, $priority = 'attribute')
 	{
@@ -248,7 +251,7 @@ class XML
 		}
 
 		if (!function_exists('xml_parser_create')) {
-			logger('Xml::toArray: parser function missing');
+			Logger::log('Xml::toArray: parser function missing');
 			return [];
 		}
 
@@ -263,7 +266,7 @@ class XML
 		}
 
 		if (! $parser) {
-			logger('Xml::toArray: xml_parser_create: no resource');
+			Logger::log('Xml::toArray: xml_parser_create: no resource');
 			return [];
 		}
 
@@ -275,9 +278,9 @@ class XML
 		@xml_parser_free($parser);
 
 		if (! $xml_values) {
-			logger('Xml::toArray: libxml: parse error: ' . $contents, LOGGER_DATA);
+			Logger::log('Xml::toArray: libxml: parse error: ' . $contents, Logger::DATA);
 			foreach (libxml_get_errors() as $err) {
-				logger('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message, LOGGER_DATA);
+				Logger::log('libxml: parse: ' . $err->code . " at " . $err->line . ":" . $err->column . " : " . $err->message, Logger::DATA);
 			}
 			libxml_clear_errors();
 			return;
@@ -285,9 +288,6 @@ class XML
 
 		//Initializations
 		$xml_array = [];
-		$parents = [];
-		$opened_tags = [];
-		$arr = [];
 
 		$current = &$xml_array; // Reference
 
@@ -403,11 +403,11 @@ class XML
 	/**
 	 * @brief Delete a node in a XML object
 	 *
-	 * @param object $doc  XML document
+	 * @param \DOMDocument $doc  XML document
 	 * @param string $node Node name
 	 * @return void
 	 */
-	public static function deleteNode(&$doc, $node)
+	public static function deleteNode(\DOMDocument $doc, $node)
 	{
 		$xpath = new DOMXPath($doc);
 		$list = $xpath->query("//".$node);
@@ -423,12 +423,86 @@ class XML
 
 		$x = @simplexml_load_string($s);
 		if (!$x) {
-			logger('libxml: parse: error: ' . $s, LOGGER_DATA);
+			Logger::error('Error(s) while parsing XML string.', ['callstack' => System::callstack()]);
 			foreach (libxml_get_errors() as $err) {
-				logger('libxml: parse: ' . $err->code." at ".$err->line.":".$err->column." : ".$err->message, LOGGER_DATA);
+				Logger::info('libxml error', ['code' => $err->code, 'position' => $err->line . ":" . $err->column, 'message' => $err->message]);
 			}
+			Logger::debug('Erroring XML string', ['xml' => $s]);
 			libxml_clear_errors();
 		}
 		return $x;
+	}
+
+	public static function getFirstNodeValue(DOMXPath $xpath, $element, $context = null)
+	{
+		$result = $xpath->evaluate($element, $context);
+		if (!is_object($result)) {
+			return '';
+		}
+
+		$first_item = $result->item(0);
+		if (!is_object($first_item)) {
+			return '';
+		}
+
+		return $first_item->nodeValue;
+	}
+
+	public static function getFirstAttributes(DOMXPath $xpath, $element, $context = null)
+	{
+		$result = $xpath->query($element, $context);
+		if (!is_object($result)) {
+			return false;
+		}
+
+		$first_item = $result->item(0);
+		if (!is_object($first_item)) {
+			return false;
+		}
+
+		return $first_item->attributes;
+	}
+
+	/**
+	 * escape text ($str) for XML transport
+	 *
+	 * @param string $str
+	 * @return string Escaped text.
+	 */
+	public static function escape($str)
+	{
+		$buffer = htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
+		$buffer = trim($buffer);
+
+		return $buffer;
+	}
+
+	/**
+	 * undo an escape
+	 *
+	 * @param string $s xml escaped text
+	 * @return string unescaped text
+	 */
+	public static function unescape($s)
+	{
+		$ret = htmlspecialchars_decode($s, ENT_QUOTES);
+		return $ret;
+	}
+
+	/**
+	 * apply escape() to all values of array $val, recursively
+	 *
+	 * @param array $val
+	 * @return array|string
+	 */
+	public static function arrayEscape($val)
+	{
+		if (is_bool($val)) {
+			return $val ? 'true' : 'false';
+		} elseif (is_array($val)) {
+			return array_map('XML::arrayEscape', $val);
+		}
+
+		return self::escape((string) $val);
 	}
 }

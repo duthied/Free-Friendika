@@ -6,7 +6,7 @@
 	<h3>{{$header}}</h3>
 	*}}
 
-	{{$parent}}
+	{{$parent nofilter}}
 
 	{{* The To: form-group which contains the message recipient *}}
 	<div id="prvmail-to-label" class="form-group">
@@ -15,7 +15,7 @@
 		<input type="text" id="recip" class="form-control" name="messagerecip" value="{{$prefill}}" tabindex="10" {{if $prefill}}disabled{{else}}aria-required="true"{{/if}} />
 		<input type="hidden" id="recip-complete" name="messageto" value="{{$preid}}">
 		{{else}}
-		{{$select}}
+		{{$select nofilter}}
 		{{/if}}
 	</div>
 
@@ -33,38 +33,38 @@
 
 	<ul id="prvmail-text-edit-bb" class="comment-edit-bb comment-icon-list nav nav-pills hidden-xs pull-left">
 				<li>
-					<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" title="{{$edimg|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="img" data-id="input">
+					<button type="button" class="btn-link icon bb-img" style="cursor: pointer;" title="{{$edimg}}" data-role="insert-formatting" data-comment=" " data-bbcode="imgprv" data-id="input">
 						<i class="fa fa-picture-o" aria-hidden="true"></i>
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="input">
+					<button type="button" class="btn-link icon bb-url" style="cursor: pointer;" title="{{$edurl}}" data-role="insert-formatting" data-comment=" " data-bbcode="url" data-id="input">
 						<i class="fa fa-link" aria-hidden="true"></i>
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="input">
+					<button type="button" class="btn-link icon bb-video" style="cursor: pointer;" title="{{$edvideo}}" data-role="insert-formatting" data-comment=" " data-bbcode="video" data-id="input">
 						<i class="fa fa-video-camera" aria-hidden="true"></i>
 					</button>
 				</li>
 
 				<li>
-					<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="input">
+					<button type="button" class="btn-link icon underline" style="cursor: pointer;" title="{{$eduline}}" data-role="insert-formatting" data-comment=" " data-bbcode="u" data-id="input">
 						<i class="fa fa-underline" aria-hidden="true"></i>
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="input">
+					<button type="button" class="btn-link icon italic" style="cursor: pointer;" title="{{$editalic}}" data-role="insert-formatting" data-comment=" " data-bbcode="i" data-id="input">
 						<i class="fa fa-italic" aria-hidden="true"></i>
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="input">
+					<button type="button" class="btn-link icon bold" style="cursor: pointer;"  title="{{$edbold}}" data-role="insert-formatting" data-comment=" " data-bbcode="b" data-id="input">
 						<i class="fa fa-bold" aria-hidden="true"></i>
 					</button>
 				</li>
 				<li>
-					<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote|escape:'html'}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="input">
+					<button type="button" class="btn-link icon quote" style="cursor: pointer;" title="{{$edquote}}" data-role="insert-formatting" data-comment=" " data-bbcode="quote" data-id="input">
 						<i class="fa fa-quote-left" aria-hidden="true"></i>
 					</button>
 				</li>
@@ -74,9 +74,9 @@
 
 	{{* The submit button *}}
 	<div id="prvmail-submit-wrapper">
-		<button type="submit" id="prvmail-submit" name="submit" value="{{$submit|escape:'html'}}" class="btn btn-primary pull-right"  tabindex="13">
+		<button type="submit" id="prvmail-submit" name="submit" value="{{$submit}}" class="btn btn-primary pull-right"  tabindex="13">
 			<i class="fa fa-slideshare fa-fw" aria-hidden="true"></i>
-			{{$submit|escape:'html'}}
+			{{$submit}}
 		</button>
 	</div>
 

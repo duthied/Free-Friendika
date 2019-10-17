@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 
 function theme_content(App $a)
@@ -66,10 +67,9 @@ function clean_form(App $a, &$colorset, $user)
 		$color = Config::get('duepuntozero', 'colorset');
 	}
 
-	$t = get_markup_template("theme_settings.tpl");
-	$o = replace_macros($t, [
+	$t = Renderer::getMarkupTemplate("theme_settings.tpl");
+	$o = Renderer::replaceMacros($t, [
 		'$submit'   => L10n::t('Submit'),
-		'$baseurl'  => System::baseUrl(),
 		'$title'    => L10n::t("Theme settings"),
 		'$colorset' => ['duepuntozero_colorset', L10n::t('Variations'), $color, '', $colorset],
 	]);

@@ -1,11 +1,11 @@
 <div id="contact-edit-wrapper" >
 
 	{{* Insert Tab-Nav *}}
-	{{$tab_str}}
+	{{$tab_str nofilter}}
 
 
 	<div id="contact-edit-nav-wrapper" >
-		<form action="contacts/{{$contact_id}}" method="post" >
+		<form action="contact/{{$contact_id}}" method="post" >
 			<div id="contact-edit-links">
 				<div id="contact-edit-status-wrapper">
 					<span id="contact-edit-contact-status">{{$contact_status}}</span>
@@ -20,8 +20,8 @@
 							<li class="divider"></li>
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.block.title}}" onclick="window.location.href='{{$contact_actions.block.url}}'; return false;">{{$contact_actions.block.label}}</a></li>
 							<li role="menuitem"><a  href="#" title="{{$contact_actions.ignore.title}}" onclick="window.location.href='{{$contact_actions.ignore.url}}'; return false;">{{$contact_actions.ignore.label}}</a></li>
-							<li role="menuitem"><a  href="#" title="{{$contact_actions.archive.title}}" onclick="window.location.href='{{$contact_actions.archive.url}}'; return false;">{{$contact_actions.archive.label}}</a></li>
-							<li role="menuitem"><a  href="{{$contact_actions.delete.url}}" title="{{$contact_actions.delete.title}}" onclick="return confirmDelete();">{{$contact_actions.delete.label}}</a></li>
+							{{if $contact_actions.archive.url}}<li role="menuitem"><a  href="#" title="{{$contact_actions.archive.title}}" onclick="window.location.href='{{$contact_actions.archive.url}}'; return false;">{{$contact_actions.archive.label}}</a></li>{{/if}}
+							{{if $contact_actions.delete.url}}<li role="menuitem"><a  href="{{$contact_actions.delete.url}}" title="{{$contact_actions.delete.title}}" onclick="return confirmDelete();">{{$contact_actions.delete.label}}</a></li> {{/if}}
 						</ul>
 					</div>
 
@@ -32,7 +32,7 @@
 						{{if $poll_enabled}}
 							<li><div id="contact-edit-last-update-text">{{$lastupdtext}} <span id="contact-edit-last-updated">{{$last_update}}</span></div>
 							{{if $poll_interval}}
-								<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval}}
+								<span id="contact-edit-poll-text">{{$updpub}}</span> {{$poll_interval nofilter}}
 							{{/if}}
 							</li>
 						{{/if}}
@@ -44,25 +44,21 @@
 						{{if $ignored}}<li><div id="ignore-message">{{$ignored}}</div></li>{{/if}}
 						{{if $archived}}<li><div id="archive-message">{{$archived}}</div></li>{{/if}}
 					</ul>
-
-					<ul>
-						<!-- <li><a href="network/0?nets=all&cid={{$contact_id}}" id="contact-edit-view-recent">{{$lblrecent}}</a></li> -->
-						{{if $follow}}<li><div id="contact-edit-follow"><a href="{{$follow}}">{{$follow_text}}</a></div></li>{{/if}}
-					</ul>
 				</div> {{* End of contact-edit-status-wrapper *}}
 
 				{{* Some information about the contact from the profile *}}
 				<dl><dt>{{$profileurllabel}}</dt><dd><a target="blank" href="{{$url}}">{{$profileurl}}</a></dd></dl>
-				{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
+				{{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location nofilter}}</dd></dl>{{/if}}
 				{{if $xmpp}}<dl><dt>{{$xmpp_label}}</dt><dd>{{$xmpp}}</dd></dl>{{/if}}
 				{{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-				{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
+				{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
 			</div>{{* End of contact-edit-links *}}
 
 			<div id="contact-edit-links-end"></div>
 
 			<hr />
 
+			{{if $contact_settings_label}}
 			<h4 id="contact-edit-settings-label" class="fakelink" onclick="openClose('contact-edit-settings')">{{$contact_settings_label}}</h4>
 			<div id="contact-edit-settings">
 				<input type="hidden" name="contact_id" value="{{$contact_id}}">
@@ -94,13 +90,13 @@
 					<h4>{{$lbl_vis1}}</h4>
 					<p>{{$lbl_vis2}}</p> 
 					</div>
-					{{$profile_select}}
+					{{$profile_select nofilter}}
 					<div id="contact-edit-profile-select-end"></div>
 				{{/if}}
 			</div>
 
-			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit|escape:'html'}}" />
-
+			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />
+			{{/if}}
 			<div class="contact-edit-submit-end clearfix"></div>
 
 		</form>{{* End of the form *}}

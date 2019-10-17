@@ -6,10 +6,8 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\System;
-use dba;
-
-require_once 'include/dba.php';
-require_once 'include/text.php';
+use Friendica\Database\DBA;
+use Friendica\Util\Strings;
 
 /**
  * Hashtag module.
@@ -21,19 +19,19 @@ class Hashtag extends BaseModule
 	{
 		$result = [];
 
-		$t = escape_tags($_REQUEST['t']);
+		$t = Strings::escapeHtml($_REQUEST['t']);
 		if (empty($t)) {
 			System::jsonExit($result);
 		}
 
-		$taglist = dba::p("SELECT DISTINCT(`term`) FROM `term` WHERE `term` LIKE ? AND `type` = ? ORDER BY `term`",
+		$taglist = DBA::p("SELECT DISTINCT(`term`) FROM `term` WHERE `term` LIKE ? AND `type` = ? ORDER BY `term`",
 			$t . '%',
 			intval(TERM_HASHTAG)
 		);
-		while ($tag = dba::fetch($taglist)) {
+		while ($tag = DBA::fetch($taglist)) {
 			$result[] = ['text' => $tag['term']];
 		}
-		dba::close($taglist);
+		DBA::close($taglist);
 
 		System::jsonExit($result);
 	}

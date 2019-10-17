@@ -36,12 +36,8 @@ namespace Friendica\Util;
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\User;
-use Friendica\Util\Network;
-use dba;
-
-require_once 'include/dba.php';
 
 class ExAuth
 {
@@ -51,7 +47,6 @@ class ExAuth
 	/**
 	 * @brief Create the class
 	 *
-	 * @param boolean $bDebug Debug mode
 	 */
 	public function __construct()
 	{
@@ -67,12 +62,13 @@ class ExAuth
 	 * parameters
 	 *
 	 * @return null
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public function readStdin()
 	{
 		while (!feof(STDIN)) {
 			// Quit if the database connection went down
-			if (!dba::connected()) {
+			if (!DBA::connected()) {
 				$this->writeLog(LOG_ERR, 'the database connection went down');
 				return;
 			}
@@ -123,10 +119,11 @@ class ExAuth
 	 * @brief Check if the given username exists
 	 *
 	 * @param array $aCommand The command array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function isUser(array $aCommand)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// Check if there is a username
 		if (!isset($aCommand[1])) {
@@ -143,9 +140,9 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($a->get_hostname() == $aCommand[2]) {
+		if ($a->getHostName() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal user check for ' . $sUser . '@' . $aCommand[2]);
-			$found = dba::exists('user', ['nickname' => $sUser]);
+			$found = DBA::exists('user', ['nickname' => $sUser]);
 		} else {
 			$found = false;
 		}
@@ -169,11 +166,12 @@ class ExAuth
 	/**
 	 * @brief Check remote user existance via HTTP(S)
 	 *
-	 * @param string $host The hostname
-	 * @param string $user Username
-	 * @param boolean $ssl Should the check be done via SSL?
+	 * @param string  $host The hostname
+	 * @param string  $user Username
+	 * @param boolean $ssl  Should the check be done via SSL?
 	 *
 	 * @return boolean Was the user found?
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function checkUser($host, $user, $ssl)
 	{
@@ -181,17 +179,17 @@ class ExAuth
 
 		$url = ($ssl ? 'https' : 'http') . '://' . $host . '/noscrape/' . $user;
 
-		$data = Network::curl($url);
+		$curlResult = Network::curl($url);
 
-		if (!is_array($data)) {
+		if (!$curlResult->isSuccess()) {
 			return false;
 		}
 
-		if ($data['return_code'] != '200') {
+		if ($curlResult->getReturnCode() != 200) {
 			return false;
 		}
 
-		$json = @json_decode($data['body']);
+		$json = @json_decode($curlResult->getBody());
 		if (!is_object($json)) {
 			return false;
 		}
@@ -203,10 +201,11 @@ class ExAuth
 	 * @brief Authenticate the given user and password
 	 *
 	 * @param array $aCommand The command array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function auth(array $aCommand)
 	{
-		$a = get_app();
+		$a = \get_app();
 
 		// check user authentication
 		if (sizeof($aCommand) != 4) {
@@ -223,13 +222,13 @@ class ExAuth
 		$sUser = str_replace(['%20', '(a)'], [' ', '@'], $aCommand[1]);
 
 		// Does the hostname match? So we try directly
-		if ($a->get_hostname() == $aCommand[2]) {
+		if ($a->getHostName() == $aCommand[2]) {
 			$this->writeLog(LOG_INFO, 'internal auth for ' . $sUser . '@' . $aCommand[2]);
 
-			$aUser = dba::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);
-			if (DBM::is_result($aUser)) {
+			$aUser = DBA::selectFirst('user', ['uid', 'password', 'legacy_password'], ['nickname' => $sUser]);
+			if (DBA::isResult($aUser)) {
 				$uid = $aUser['uid'];
-				$success = User::authenticate($aUser, $aCommand[3]);
+				$success = User::authenticate($aUser, $aCommand[3], true);
 				$Error = $success === false;
 			} else {
 				$this->writeLog(LOG_WARNING, 'user not found: ' . $sUser);
@@ -298,6 +297,7 @@ class ExAuth
 	 * @brief Set the hostname for this process
 	 *
 	 * @param string $host The hostname
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private function setHost($host)
 	{

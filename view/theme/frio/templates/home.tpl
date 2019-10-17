@@ -5,7 +5,7 @@
 	<div class="col-sm-12">
 		<div class="panel panel-default login-panel-content">
 			<div class="panel-body">
-				{{$content}}
+				{{$content nofilter}}
 			</div>
 		</div>
 	</div>
@@ -15,11 +15,11 @@
 		{{if $customhome != false }}
 			{{include file="$customhome"}}
 		{{else}}
-			{{$defaultheader}}
+			{{$defaultheader nofilter}}
 		{{/if}}
 	</div>
 	<div class="col-md-5 col-sm-12 login-form">
-	{{$login}}
+	{{$login nofilter}}
 	</div>
 {{/if}}
 </div>

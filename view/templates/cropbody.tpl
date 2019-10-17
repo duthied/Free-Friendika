@@ -1,6 +1,6 @@
 <h1>{{$title}}</h1>
 <p id="cropimage-desc">
-	{{$desc}}
+	{{$desc nofilter}}
 </p>
 
 <div id="cropimage-wrapper">
@@ -48,7 +48,7 @@
 	<input type="hidden" name="width"  id="width" />
 
 	<div id="crop-image-submit-wrapper" >
-		<input type="submit" name="submit" value="{{$done|escape:'html'}}" />
+		<input type="submit" name="submit" value="{{$done}}" />
 	</div>
 
 </form>

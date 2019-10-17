@@ -1,9 +1,12 @@
 #!/usr/bin/env php
 <?php
 
-include_once dirname(__DIR__) . '/boot.php';
+use Dice\Dice;
+use Psr\Log\LoggerInterface;
 
-$a = new Friendica\App(dirname(__DIR__));
-\Friendica\BaseObject::setApp($a);
+require dirname(__DIR__) . '/vendor/autoload.php';
 
-(new Friendica\Core\Console($argv))->execute();
+$dice = (new Dice())->addRules(include __DIR__ . '/../static/dependencies.config.php');
+$dice = $dice->addRule(LoggerInterface::class,['constructParams' => ['console']]);
+
+(new Friendica\Core\Console($dice, $argv))->execute();

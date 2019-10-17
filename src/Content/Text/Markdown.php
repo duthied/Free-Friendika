@@ -7,14 +7,13 @@
 namespace Friendica\Content\Text;
 
 use Friendica\BaseObject;
+use Friendica\Core\System;
 use Friendica\Model\Contact;
-use Michelf\MarkdownExtra;
-use Friendica\Content\Text\HTML;
 
 /**
  * Friendica-specific usage of Markdown
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Markdown extends BaseObject
 {
@@ -26,15 +25,25 @@ class Markdown extends BaseObject
 	 * @param string $text
 	 * @param bool   $hardwrap
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function convert($text, $hardwrap = true) {
 		$stamp1 = microtime(true);
 
-		$MarkdownParser = new MarkdownExtra();
-		$MarkdownParser->hard_wrap = $hardwrap;
+		$MarkdownParser = new MarkdownParser();
+		$MarkdownParser->code_class_prefix  = 'language-';
+		$MarkdownParser->hard_wrap          = $hardwrap;
+		$MarkdownParser->hashtag_protection = true;
+		$MarkdownParser->url_filter_func    = function ($url) {
+			if (strpos($url, '#') === 0) {
+				$url = ltrim($_SERVER['REQUEST_URI'], '/') . $url;
+			}
+			return  $url;
+		};
+
 		$html = $MarkdownParser->transform($text);
 
-		self::getApp()->save_timestamp($stamp1, "parser");
+		self::getApp()->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
 		return $html;
 	}
@@ -43,23 +52,32 @@ class Markdown extends BaseObject
 	 * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
 	 *
 	 * @param array $match Matching values for the callback
+	 *                     [1] = mention type (@ or !)
+	 *                     [2] = name (optional)
+	 *                     [3] = address
 	 * @return string Replaced mention
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function diasporaMention2BBCodeCallback($match)
 	{
-		if ($match[2] == '') {
+		if ($match[3] == '') {
 			return;
 		}
 
-		$data = Contact::getDetailsByAddr($match[2]);
+		$data = Contact::getDetailsByAddr($match[3]);
 
-		$name = $match[1];
+		if (empty($data)) {
+			return;
+		}
+
+		$name = $match[2];
 
 		if ($name == '') {
 			$name = $data['name'];
 		}
 
-		return '@[url=' . $data['url'] . ']' . $name . '[/url]';
+		return $match[1] . '[url=' . $data['url'] . ']' . $name . '[/url]';
 	}
 
 	/*
@@ -72,26 +90,16 @@ class Markdown extends BaseObject
 	{
 		$s = html_entity_decode($s, ENT_COMPAT, 'UTF-8');
 
-		// Handles single newlines
-		$s = str_replace("\r\n", "\n", $s);
-		$s = str_replace("\n", " \n", $s);
-		$s = str_replace("\r", " \n", $s);
-
-		// Replace lonely stars in lines not starting with it with literal stars
-		$s = preg_replace('/^([^\*]+)\*([^\*]*)$/im', '$1\*$2', $s);
-
 		// The parser cannot handle paragraphs correctly
 		$s = str_replace(['</p>', '<p>', '<p dir="ltr">'], ['<br>', '<br>', '<br>'], $s);
 
-		// Escaping the hash tags
-		$s = preg_replace('/\#([^\s\#])/', '&#35;$1', $s);
+		// Escaping hashtags that could be titles
+		$s = preg_replace('/^\#([^\s\#])/im', '\#$1', $s);
 
 		$s = self::convert($s);
 
-		$regexp = "/@\{(?:([^\}]+?); )?([^\} ]+)\}/";
+		$regexp = "/([@!])\{(?:([^\}]+?); ?)?([^\} ]+)\}/";
 		$s = preg_replace_callback($regexp, ['self', 'diasporaMention2BBCodeCallback'], $s);
-
-		$s = str_replace('&#35;', '#', $s);
 
 		$s = HTML::toBBCode($s);
 

@@ -8,11 +8,11 @@ Auf der Startseite des Admin Panels werden die Informationen zu der Instanz zusa
 Die erste Zahl gibt die Anzahl von Nachrichten an, die nicht zugestellt werden konnten.
 Die Zustellung wird zu einem späteren Zeitpunkt noch einmal versucht.
 Unter dem Punkt "Warteschlange Inspizieren" kannst du einen schnellen Blick auf die zweite Warteschlange werfen.
-Die zweite Zahl steht für die Anzahl der Aufgaben, die die Worker noch vor sich haben. 
-Die Worker arbeiten Hintergrundprozesse ab. 
+Die zweite Zahl steht für die Anzahl der Aufgaben, die die Worker noch vor sich haben.
+Die Worker arbeiten Hintergrundprozesse ab.
 Die Aufgaben der Worker sind priorisiert und werden anhand dieser Prioritäten abgearbeitet.
 
-Desweiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
+Des weiteren findest du eine Übersicht über die Accounts auf dem Friendica Knoten, die unter dem Punkt "Nutzer" moderiert werden können.
 Sowie eine Liste der derzeit aktivierten Addons.
 Diese Liste ist verlinkt, so dass du schnellen Zugriff auf die Informationsseiten der einzelnen Addons hast.
 Abschließend findest du auf der Startseite des Admin Panels die installierte Version von Friendica.
@@ -31,7 +31,7 @@ Da die meisten Konfigurationsoptionen einen Hilfstext im Admin Panel haben, kann
 
 #### Banner/Logo
 
-Hiermit legst du das Banner der Seite fest. Standardmäßig ist das Friendica-Logo und der Name festgelegt. 
+Hiermit legst du das Banner der Seite fest. Standardmäßig ist das Friendica-Logo und der Name festgelegt.
 Du kannst hierfür HTML/CSS nutzen, um den Inhalt zu gestalten und/oder die Position zu ändern, wenn es nicht bereits voreingestellt ist.
 
 #### Systensprache
@@ -47,7 +47,7 @@ Mehr Informationen zum Übersetzungsprozess von Friendica findest du [auf dieser
 
 Hier kann das Theme bestimmt werden, welches standardmäßig zum Anzeigen der Seite verwendet werden soll.
 Nutzer können in ihren Einstellungen andere Themes wählen.
-Derzeit ist das "duepunto zero" Theme das vorausgewählte Theme.
+Derzeit ist das "vier" Theme das vorausgewählte Theme.
 
 Für mobile Geräte kannst du ein spezielles Theme wählen, wenn das Standardtheme ungeeignet für mobile Geräte sein sollte.
 Das `vier` Theme z.B. unterstützt kleine Anzeigen und benötigt kein zusätzliches mobiles Theme.
@@ -63,34 +63,60 @@ Dabei kannst du zwischen den folgenden Optionen wählen:
 * **Bedarf der Zustimmung**: Jeder kann ein Nutzerkonto anlegen. Dieses muss allerdings durch den Admin freigeschaltet werden, bevor es verwendet werden kann.
 * **Geschlossen**: Es können keine weiteren Nutzerkonten angelegt werden.
 
-##### Einladungen 
+##### Einladungen
 
 Zusätzlich zu den oben genannten Möglichkeiten, kann die Registrierung eines neuen Nutzerkontos an eine Einladung durch einen bestehenden Nutzer gekoppelt werden.
-Hierzu muss in der [.htconfig.php](/help/htconfig) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
+Hierzu muss in der [config/local.config.php](/help/Config) Datei die Option `invitation_only` aktiviert und als Registrierungsmethode entweder *Offen* oder *Bedarf der Zustimmung* gewählt werden.
 
 #### Namen auf Vollständigkeit überprüfen
 
-Es kann vorkommen, dass viele Spammer versuchen, sich auf deiner Seite zu registrieren. 
-In Testphasen haben wir festgestellt, dass diese automatischen Registrierungen das Feld "Vollständiger Name" oft nur mit Namen ausfüllen, die kein Leerzeichen beinhalten. 
-Wenn du Leuten erlauben willst, sich nur mit einem Namen anzumelden, dann setze die Einstellung auf "true". 
+Es kann vorkommen, dass viele Spammer versuchen, sich auf deiner Seite zu registrieren.
+In Testphasen haben wir festgestellt, dass diese automatischen Registrierungen das Feld "Vollständiger Name" oft nur mit Namen ausfüllen, die kein Leerzeichen beinhalten.
+Wenn du Leuten erlauben willst, sich nur mit einem Namen anzumelden, dann setze die Einstellung auf "true".
 Die Standardeinstellung ist auf "false" gesetzt.
- 
+
 #### OpenID Unterstützung
 
-Standardmäßig wird OpenID für die Registrierung und für Logins genutzt. 
+Standardmäßig wird OpenID für die Registrierung und für Logins genutzt.
 Wenn du nicht willst, dass OpenID-Strukturen für dein System übernommen werden, dann setze "no_openid" auf "true".
 Standardmäßig ist hier "false" gesetzt.
 
 #### Unterbinde Mehrfachregistrierung
 
-Um mehrfache Seiten zu erstellen, muss sich eine Person mehrfach registrieren können. 
-Deine Seiteneinstellung kann Registrierungen komplett blockieren oder an Bedingungen knüpfen. 
-Standardmäßig können eingeloggte Nutzer weitere Accounts für die Seitenerstellung registrieren. 
-Hier ist weiterhin eine Bestätigung notwendig, wenn "REGISTER_APPROVE" ausgewählt ist. 
-Wenn du die Erstellung weiterer Accounts blockieren willst, dann setze die Einstellung "block_extended_register" auf "true". 
+Um mehrfache Seiten zu erstellen, muss sich eine Person mehrfach registrieren können.
+Deine Seiteneinstellung kann Registrierungen komplett blockieren oder an Bedingungen knüpfen.
+Standardmäßig können eingeloggte Nutzer weitere Accounts für die Seitenerstellung registrieren.
+Hier ist weiterhin eine Bestätigung notwendig, wenn "REGISTER_APPROVE" ausgewählt ist.
+Wenn du die Erstellung weiterer Accounts blockieren willst, dann setze die Einstellung "block_extended_register" auf "true".
 Standardmäßig ist hier "false" gesetzt.
- 
+
 ### Datei hochladen
+
+#### Datenspeicher Backend
+
+Legt das Datenspeicher Backend fest, mit dem Friendica hoch geladene Daten speichert.
+Zwei Speicher Backends sind standardmäßig bei Friendica verfügbar:
+
+- **Database** : Die Daten werden in einer speziellen Tabelle in der Datenbank (`storage`) gespeichert.
+- **Filesystem** : Die Daten werden als Dateien im Dateisystem gespeichert.
+
+Weitere Speicher Backends können als Addons von Drittanbietern verfügbar sein.
+Falls ein solches verwendet wird, sei an dieser Stelle nur auf deren Dokumentation für weitere Informationen verwiesen.
+
+Die Grundeinstellung ist 'Datenbank (legacy)': Dies ist die alte Methode von Friendica Daten direkt in der Datenbank abzulegen.
+
+Bestehende Daten können zum aktuell ausgewählten Backend verschoben werden.
+Hierfür kann der ['storage move'](help/tools) Befehl der Friendica Konsole verwendet werden.
+
+Sollte das ausgewählte Speicher Backand zusätzliche Konfigurationsparameter besitzen, werden nach der Auswahl des Backends hier weitere Felder angezeigt.
+
+##### Dateipfad zum Speicher
+
+Der Basispfad unter dem das Filesystem Datenspeicher Backend die Daten speichern soll.
+
+Um zu verhindern, dass Daten unter Umgehung der Privatsphären-Einstellungen herunter geladen werden, sollte dieser Pfad außerhalb der Verzeichnisstruktur des Webservers liegen.
+
+Die Grundeinstellung ist `storage`, das ist das `storage` Unterverzeichnis innerhalb des Friendica Verzeichnisses.
 
 #### Maximale Bildgröße
 
@@ -100,26 +126,26 @@ Maximale Bild-Dateigröße in Byte. Standardmäßig ist 0 gesetzt, was bedeutet,
 
 #### URL des weltweiten Verzeichnisses
 
-Mit diesem Befehl wird die URL eingestellt, die zum Update des globalen Verzeichnisses genutzt wird. 
-Dieser Befehl ist in der Standardkonfiguration enthalten. 
-Der nicht dokumentierte Teil dieser Einstellung ist, dass das globale Verzeichnis gar nicht verfügbar ist, wenn diese Einstellung nicht gesetzt wird. 
+Mit diesem Befehl wird die URL eingestellt, die zum Update des globalen Verzeichnisses genutzt wird.
+Dieser Befehl ist in der Standardkonfiguration enthalten.
+Der nicht dokumentierte Teil dieser Einstellung ist, dass das globale Verzeichnis gar nicht verfügbar ist, wenn diese Einstellung nicht gesetzt wird.
 Dies erlaubt eine private Kommunikation, die komplett vom globalen Verzeichnis isoliert ist.
 
 #### Erzwinge Veröffentlichung
 
-Standardmäßig können Nutzer selbst auswählen, ob ihr Profil im Seitenverzeichnis erscheint. 
-Diese Einstellung zwingt alle Nutzer dazu, im Verzeichnis zu erscheinen. 
+Standardmäßig können Nutzer selbst auswählen, ob ihr Profil im Seitenverzeichnis erscheint.
+Diese Einstellung zwingt alle Nutzer dazu, im Verzeichnis zu erscheinen.
 Diese Einstellung kann vom Nutzer nicht deaktiviert werden. Die Standardeinstellung steht auf "false".
 
 #### Öffentlichen Zugriff blockieren
 
-Aktiviere diese Einstellung um den öffentlichen Zugriff auf alle Seiten zu sperren, solange man nicht eingeloggt ist. 
-Das blockiert die Ansicht von Profilen, Freunden, Fotos, vom Verzeichnis und den Suchseiten. 
-Ein Nebeneffekt ist, dass Einträge dieser Seite nicht im globalen Verzeichnis erscheinen. 
-Wir empfehlen, speziell diese Einstellung auszuschalten (die Einstellung ist an anderer Stelle auf dieser Seite erklärt). 
-Beachte: das ist speziell für Seiten, die beabsichtigen, von anderen Friendica-Netzwerken abgeschottet zu sein. 
-Unautorisierte Personen haben ebenfalls nicht die Möglichkeit, Freundschaftsanfragen von Seitennutzern zu beantworten. 
-Die Standardeinstellung ist deaktiviert. 
+Aktiviere diese Einstellung um den öffentlichen Zugriff auf alle Seiten zu sperren, solange man nicht eingeloggt ist.
+Das blockiert die Ansicht von Profilen, Freunden, Fotos, vom Verzeichnis und den Suchseiten.
+Ein Nebeneffekt ist, dass Einträge dieser Seite nicht im globalen Verzeichnis erscheinen.
+Wir empfehlen, speziell diese Einstellung auszuschalten (die Einstellung ist an anderer Stelle auf dieser Seite erklärt).
+Beachte: das ist speziell für Seiten, die beabsichtigen, von anderen Friendica-Netzwerken abgeschottet zu sein.
+Unautorisierte Personen haben ebenfalls nicht die Möglichkeit, Freundschaftsanfragen von Seitennutzern zu beantworten.
+Die Standardeinstellung ist deaktiviert.
 Verfügbar in Version 2.2 und höher.
 
 #### Für Besucher verfügbare Gemeinschaftsseiten
@@ -133,16 +159,16 @@ Angemeldete Nutzer des Knotens können grundsätzlich beide Seiten verwenden.
 
 #### Erlaubte Domains für Kontakte
 
-Kommagetrennte Liste von Domains, welche eine Freundschaft mit dieser Seite eingehen dürfen. 
-Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP5.3) Standardmäßig sind alle gültigen Domains erlaubt.
+Kommagetrennte Liste von Domains, welche eine Freundschaft mit dieser Seite eingehen dürfen.
+Wildcards werden akzeptiert Standardmäßig sind alle gültigen Domains erlaubt.
 
 Mit dieser Option kann man einfach geschlossene Netzwerke, z.B. im schulischen Bereich aufbauen, aus denen nicht mit dem Rest des Netzwerks kommuniziert werden soll.
 
 #### Erlaubte Domains für E-Mails
 
-Kommagetrennte Liste von Domains, welche bei der Registrierung als Part der Email-Adresse erlaubt sind. 
-Das grenzt Leute aus, die nicht Teil der Gruppe oder Organisation sind. 
-Wildcards werden akzeptiert (Wildcard-Unterstützung unter Windows benötigt PHP5.3) Standardmäßig sind alle gültigen Email-Adressen erlaubt.
+Kommagetrennte Liste von Domains, welche bei der Registrierung als Part der Email-Adresse erlaubt sind.
+Das grenzt Leute aus, die nicht Teil der Gruppe oder Organisation sind.
+Wildcards werden akzeptiert Standardmäßig sind alle gültigen Email-Adressen erlaubt.
 
 #### Nutzern erlauben das remote_self Flag zu setzen
 
@@ -156,6 +182,14 @@ Außerdem könnte es durch Nutzer als Spam Verteiler missbraucht werden.
 Als Administrator der Friendica-Instanz kannst du diese Einstellungen ansonsten nur direkt in der Datenbank vornehmen.
 Bevor du das tust solltest du sicherstellen, dass du ein Backup der Datenbank hast und genau weißt was die Änderungen an der Datenbank bewirken, die du vornehmen willst.
 
+#### Explizite Inhalte
+
+Wenn Sie einen Knoten mit explizitem, nicht jugendfreien Inhalt betreiben, können Sie dies mit dieser Option ankündigen.
+Ist diese Option aktiviert, wird ein Informationsflag in den veröffentlichten Informationen zu Ihrem Knoten gesetzt.
+(Sollte *Server Informationen veröffentlichen* aktiviert sein.)
+
+Zusätzlich wird auf der Registrierungsseite für neue Benutzer ein Hinweis angezeigt.
+
 ### Erweitert
 
 #### Proxy Einstellungen
@@ -164,23 +198,23 @@ Wenn deine Seite eine Proxy-Einstellung nutzt, musst du diese Einstellungen vorn
 
 #### Netzwerk Wartezeit
 
-Legt fest, wie lange das Netzwerk warten soll, bevor ein Timeout eintritt. 
+Legt fest, wie lange das Netzwerk warten soll, bevor ein Timeout eintritt.
 Der Wert wird in Sekunden angegeben. Standardmäßig ist 60 eingestellt; 0 steht für "unbegrenzt" (nicht empfohlen).
 
 #### UTF-8 Reguläre Ausdrücke
 
-Während der Registrierung werden die Namen daraufhin geprüft, ob sie reguläre UTF-8-Ausdrücke nutzen. 
-Hierfür wird PHP benötigt, um mit einer speziellen Einstellung kompiliert zu werden, die UTF-8-Ausdrücke benutzt. 
+Während der Registrierung werden die Namen daraufhin geprüft, ob sie reguläre UTF-8-Ausdrücke nutzen.
+Hierfür wird PHP benötigt, um mit einer speziellen Einstellung kompiliert zu werden, die UTF-8-Ausdrücke benutzt.
 Wenn du absolut keine Möglichkeit hast, Accounts zu registrieren, setze diesen Wert auf ja.
 
 #### SSL Überprüfen
 
-Standardmäßig erlaubt Friendica SSL-Kommunikation von Seiten, die "selbst unterzeichnete" SSL-Zertifikate nutzen. 
-Um eine weitreichende Kompatibilität mit anderen Netzwerken und Browsern zu gewährleisten, empfehlen wir, selbst unterzeichnete Zertifikate **nicht** zu nutzen. 
-Aber wir halten dich nicht davon ab, solche zu nutzen. SSL verschlüsselt alle Daten zwischen den Webseiten (und für deinen Browser), was dir eine komplett verschlüsselte Kommunikation erlaubt. 
-Auch schützt es deine Login-Daten vor Datendiebstahl. Selbst unterzeichnete Zertifikate können kostenlos erstellt werden. 
-Diese Zertifikate können allerdings Opfer eines sogenannten ["man-in-the-middle"-Angriffs](http://de.wikipedia.org/wiki/Man-in-the-middle-Angriff) werden, und sind daher weniger bevorzugt. 
-Wenn du es wünscht, kannst du eine strikte Zertifikatabfrage einstellen. 
+Standardmäßig erlaubt Friendica SSL-Kommunikation von Seiten, die "selbst unterzeichnete" SSL-Zertifikate nutzen.
+Um eine weitreichende Kompatibilität mit anderen Netzwerken und Browsern zu gewährleisten, empfehlen wir, selbst unterzeichnete Zertifikate **nicht** zu nutzen.
+Aber wir halten dich nicht davon ab, solche zu nutzen. SSL verschlüsselt alle Daten zwischen den Webseiten (und für deinen Browser), was dir eine komplett verschlüsselte Kommunikation erlaubt.
+Auch schützt es deine Login-Daten vor Datendiebstahl. Selbst unterzeichnete Zertifikate können kostenlos erstellt werden.
+Diese Zertifikate können allerdings Opfer eines sogenannten ["man-in-the-middle"-Angriffs](http://de.wikipedia.org/wiki/Man-in-the-middle-Angriff) werden, und sind daher weniger bevorzugt.
+Wenn du es wünscht, kannst du eine strikte Zertifikatabfrage einstellen.
 Das führt dazu, dass du keinerlei Verbindung zu einer selbst unterzeichneten SSL-Seite erstellen kannst
 
 ### Automatisch ein Kontaktverzeichnis erstellen
@@ -305,7 +339,7 @@ Du solltest deshalb einen Dienst zur [log rotation](https://en.wikipedia.org/wik
 **Bekannte Probleme**: Der Dateiname `friendica.log` kann bei speziellen Server Konfigurationen zu Problemen führen (siehe [issue 2209](https://github.com/friendica/friendica/issues/2209)).
 
 Normalerweise werden Fehler- und Warnmeldungen von PHP unterdrückt.
-Wenn du sie aktivieren willst, musst du folgendes in der `.htconfig.php` Datei eintragen um die Meldungen in die Datei `php.out` zu speichern
+Wenn du sie aktivieren willst, musst du folgendes in der `config/local.config.php` Datei eintragen um die Meldungen in die Datei `php.out` zu speichern
 
 	error_reporting(E_ERROR | E_WARNING | E_PARSE );
 	ini_set('error_log','php.out');
@@ -339,10 +373,21 @@ Dies sind die Datenbank Einstellungen, die Administrator Accounts, der PHP Pfad 
 
 Mit den folgenden Einstellungen kannst du die Zugriffsdaten für den Datenbank Server festlegen.
 
-    $db_host = 'your.db.host';
-    $db_user = 'db_username';
-    $db_pass = 'db_password';
-    $db_data = 'database_name';
+	'database' => [
+		'hostname' => 'localhost',
+		'username' => 'mysqlusername',
+		'password' => 'mysqlpassword',
+		'database' => 'mysqldatabasename',
+		'charset' => 'utf8mb4',
+	],
+
+Sollten alle der folgenden Environment-Variablen gesetzt sein, wird Friendica diese anstatt der vorher konfigurierten Werte nutzen.
+
+	MYSQL_HOST
+	MYSQL_PORT
+	MYSQL_USERNAME
+	MYSQL_PASSWORD
+	MYSQL_DATABASE
 
 ## Administratoren
 
@@ -351,14 +396,18 @@ Normalerweise trifft dies auf den ersten Account zu, der nach der Installation a
 Die Liste der E-Mail Adressen kann aber einfach erweitert werden.
 Mit keiner der angegebenen E-Mail Adressen können weitere Accounts registriert werden.
 
-    $a->config['admin_email'] = 'you@example.com, buddy@example.com';
+	'config' => [
+		'admin_email' => 'you@example.com, buddy@example.com',
+	],
 
 ## PHP Pfad
 
 Einige Prozesse von Friendica laufen im Hintergrund.
 Für diese Prozesse muss der Pfad zu der PHP Version gesetzt sein, die verwendet werden soll.
 
-    $a->config['php_path'] = '/pfad/zur/php-version';
+	'config' => [
+		'php_path' => '/usr/bin/php',
+	],
 
 ## Unterverzeichnis Konfiguration
 
@@ -366,9 +415,11 @@ Man kann Friendica in ein Unterverzeichnis des Webservers installieren.
 Wir raten allerdings dringen davon ab, da es die Interoperabilität mit anderen Netzwerken (z.B. Diaspora, GNU Social, Hubzilla) verhindert.
 Mal angenommen, du hast ein Unterverzeichnis tests und willst Friendica in ein weiteres Unterverzeichnis installieren, dann lautet die Konfiguration hierfür:
 
-    $a->path = 'tests/friendica';
+	'system' => [
+		'urlpath' => 'tests/friendica',
+	],
 
 ## Weitere Ausnahmen
 
-Es gibt noch einige experimentelle Einstellungen, die nur in der ``.htconfig.php`` Datei konfiguriert werden können.
-Im [Konfigurationswerte, die nur in der .htconfig.php gesetzt werden können (EN)](help/htconfig) Artikel kannst du mehr darüber erfahren.
+Es gibt noch einige experimentelle Einstellungen, die nur in der ``config/local.config.php`` Datei konfiguriert werden können.
+Im [Konfigurationswerte, die nur in der config/local.config.php gesetzt werden können (EN)](help/Config) Artikel kannst du mehr darüber erfahren.

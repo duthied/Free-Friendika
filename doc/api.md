@@ -379,6 +379,39 @@ Friendica doesn't allow showing the friends of other users.
 
 * media: image data
 
+#### Return values
+
+Object of:
+
+* media_id: a media identifier (integer)
+* media_id_string: a media identifier (string)
+* size: size in byte
+* image.w: image width
+* image.h: image height
+* image.image_type: image mime type
+* image.friendica_preview_url: image preview url
+
+---
+
+### media/metadata/create (POST,PUT; AUTH)
+
+#### Parameters
+
+Parameters are sent as JSON object:
+
+```
+{
+	"media_id":"1234",
+	"alt_text": {
+		"text":"Here comes the description"
+	}
+}
+```
+
+#### Return values
+
+None
+
 ---
 
 ### oauth/request_token (*)
@@ -433,6 +466,7 @@ Friendica doesn't allow showing the friends of other users.
 #### Parameters
 
 * include_entities: "true" shows entities for pictures and links (Default: false)
+* count: how many items should be shown (Default: 20)
 
 ---
 
@@ -635,6 +669,80 @@ Friendica doesn't allow showing the friends of other users.
 
 ---
 
+### Return values for statuses/* api calls
+
+Returned status object is conform to GNU Social/Twitter api.
+
+Friendica adds some addictional fields:
+
+- author: a user object, it's the author of the item. In case of a reshare for legacy reasons the "user" field doesn't show the real author. This field always contains the real author of a post.
+- owner: a user object, it's the owner of the item.
+- private: boolean, true if the item is marked as private
+- activities: map with activities related to the item. Every activity is a list of user objects.
+- comments: comment numbers
+
+This properties are prefixed with "friendica_" in JSON responses and namespaced under "http://friendi.ca/schema/api/1/" in XML responses
+
+JSON:
+
+```json
+[
+	{
+		// ...
+		'friendica_author' : {
+			// user object
+		},
+		'friendica_owner' : {
+			// user object
+		},
+		'friendica_private' : true,
+		'friendica_activities': {
+			'like': [
+				{
+					// user object 
+				},
+				// ...
+			],
+			'dislike': [],
+			'attendyes': [],
+			'attendno': [],
+			'attendmaybe': []
+		},
+		'friendica_comments': 12
+	},
+	// ...
+]
+```
+
+XML:
+
+```xml
+<statuses xmlns="http://api.twitter.com" xmlns:statusnet="http://status.net/schema/api/1/" xmlns:friendica="http://friendi.ca/schema/api/1/" xmlns:georss="http://www.georss.org/georss">
+  <status>
+	<!-- ... -->
+	<friendica:owner><!-- user object --></friendica:owner>
+	<friendica:private>true</friendica:private>
+	<friendica:activities>
+		<friendica:like>
+		<user>
+			<!-- user object -->
+		</user>
+		<!-- ... --->
+		</friendica:like>
+		<friendica:dislike/>
+		<friendica:attendyes/>
+		<friendica:attendno/>
+		<friendica:attendmaybe/>
+	</friendica:activities>	
+	<friendica:comments>21</friendica:comments>
+	</status>
+	<!-- ... -->
+</statuses>
+```
+
+
+---
+
 ### statusnet/config (*)
 
 ---
@@ -676,6 +784,7 @@ Friendica doesn't allow showing followers of other users.
 * count: alias for the rpp parameter
 * since_id: returns statuses with ids greater than the given id
 * max_id: returns statuses with ids lower or equal to the given id
+* exclude_replies: don't show replies (default: false)
 
 #### Unsupported parameters
 
@@ -993,7 +1102,7 @@ possibile scale value are:
 * 1: image with or height at <= 640
 * 2: image with or height at <= 320
 * 3: thumbnail 160x160
-* 4: Profile image at 175x175
+* 4: Profile image at 300x300
 * 5: Profile image at 80x80
 * 6: Profile image at 48x48
 

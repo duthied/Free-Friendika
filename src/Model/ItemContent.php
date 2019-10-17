@@ -9,10 +9,7 @@ namespace Friendica\Model;
 use Friendica\BaseObject;
 use Friendica\Content\Text;
 use Friendica\Core\PConfig;
-
-require_once 'boot.php';
-require_once 'include/items.php';
-require_once 'include/text.php';
+use Friendica\Core\Protocol;
 
 class ItemContent extends BaseObject
 {
@@ -25,9 +22,10 @@ class ItemContent extends BaseObject
 	 * @param int    $htmlmode       This controls the behavior of the BBCode conversion
 	 * @param string $target_network Name of the network where the post should go to.
 	 *
-	 * @see \Friendica\Content\Text\BBCode::getAttachedData
-	 *
 	 * @return array Same array structure than \Friendica\Content\Text\BBCode::getAttachedData
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @see   \Friendica\Content\Text\BBCode::getAttachedData
+	 *
 	 */
 	public static function getPlaintextPost($item, $limit = 0, $includedlinks = false, $htmlmode = 2, $target_network = '')
 	{
@@ -68,14 +66,13 @@ class ItemContent extends BaseObject
 		} else {// Try to guess the correct target network
 			switch ($htmlmode) {
 				case 8:
-					$abstract = Text\BBCode::getAbstract($item['body'], NETWORK_TWITTER);
+					$abstract = Text\BBCode::getAbstract($item['body'], Protocol::TWITTER);
 					break;
+
 				case 7:
-					$abstract = Text\BBCode::getAbstract($item['body'], NETWORK_STATUSNET);
+					$abstract = Text\BBCode::getAbstract($item['body'], Protocol::STATUSNET);
 					break;
-				case 6:
-					$abstract = Text\BBCode::getAbstract($item['body'], NETWORK_APPNET);
-					break;
+
 				default: // We don't know the exact target.
 					// We fetch an abstract since there is a posting limit.
 					if ($limit > 0) {
@@ -93,7 +90,7 @@ class ItemContent extends BaseObject
 			}
 		}
 
-		$html = Text\BBCode::convert($post['text'] . $post['after'], false, $htmlmode);
+		$html = Text\BBCode::convert($post['text'] . ($post['after'] ?? ''), false, $htmlmode);
 		$msg = Text\HTML::toPlaintext($html, 0, true);
 		$msg = trim(html_entity_decode($msg, ENT_QUOTES, 'UTF-8'));
 
@@ -102,7 +99,7 @@ class ItemContent extends BaseObject
 			if ($post['type'] == 'link') {
 				$link = $post['url'];
 			} elseif ($post['type'] == 'text') {
-				$link = $post['url'];
+				$link = $post['url'] ?? '';
 			} elseif ($post['type'] == 'video') {
 				$link = $post['url'];
 			} elseif ($post['type'] == 'photo') {

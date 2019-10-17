@@ -8,5 +8,6 @@
 	{{/if}}
 
 	{{* output the content *}}
-	{{$content}}
+	{{$content nofilter}}
+
 </div>

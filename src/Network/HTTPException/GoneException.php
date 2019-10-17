@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class GoneException extends HTTPException
 {
-	var $httpcode = 410;
+	protected $code = 410;
 }

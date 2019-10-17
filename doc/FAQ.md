@@ -8,6 +8,7 @@ User
 * **[Why do I getting warnings about certificates?](help/FAQ#ssl)**
 * **[How can I upload images, files, links, videos and sound files to posts?](help/FAQ#upload)**
 * **[Is it possible to have different avatars per profile?](help/FAQ#avatars)**
+* **[How can I view Friendica in a certain language?](help/FAQ#language)**
 * **[What is the difference between blocked|ignored|archived|hidden contacts?](help/FAQ#contacts)**
 * **[What happens when an account is removed? Is it truly deleted?](help/FAQ#removed)**
 * **[Can I subscribe to a hashtag?](help/FAQ#hashtag)**
@@ -64,7 +65,7 @@ However, instead of a direct upload you have to use one of the following methods
 
 Friendica uses HTML5 for embedding content.
 Therefore, the supported files are dependent on your browser and operating system.
-Some supported filetypes are WebM, MP4, MP3 and OGG.
+Some supported file types are WebM, MP4, MP3 and OGG.
 See Wikipedia for more of them ([video](http://en.wikipedia.org/wiki/HTML5_video), [audio](http://en.wikipedia.org/wiki/HTML5_audio)).
 
 <a name="avatars"></a>
@@ -74,6 +75,33 @@ Yes.
 On your Edit/Manage Profiles page, you will find a "change profile photo" link.
 Clicking this will take you to a page where you can upload a photograph and select which profile it will be associated with.
 To avoid privacy leakage, we only display the photograph associated with your default profile as the avatar in your posts.
+
+<a name="language"></a>
+### How can I view Friendica in a certain language?
+
+You can do this by adding the `lang` parameter to the url in your url bar.
+The data in the parameter is a [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) code.
+A question mark is required for the separation between url and parameters.
+
+Example:
+
+    https://social.example.com/profile/example 
+
+in German:
+
+    https://social.example.com/profile/example?lang=de.
+
+If the question mark is already in the url you need to do it using a ampersand.
+
+Example:
+
+    https://social.example.com/profile/example?tab=profile
+
+in German:
+
+    https://social.example.com/profile/example?tab=profile&lang=de.
+
+When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>
 ### What is the difference between blocked|ignored|archived|hidden contacts?
@@ -98,16 +126,15 @@ A **hidden contact** will not be displayed in any "friend list" (except to you).
 However a hidden contact will appear normally in conversations and this may expose his/her hidden status to anybody who can see the conversation.
 
 <a name="removed"></a>
-### What happens when an account is removed? Is it truly deleted?
+### What happens when an account is removed?
 
-If you delete your account, we will immediately remove all your content on **your** server.
+If you remove your account, it will be scheduled for permanent deletion in *seven days*. 
+As soon as you activate the deletion process you won't be able to login any more. 
+Only the administrator of your node can halt this process prior to permanent deletion.
 
-Then Friendica issues requests to all your contacts to remove you.
-This will also remove you from the global directory.
-Doing this requires your account and profile still to be "partially" available for up to 24 hours in order to establish contact with all your friends.
-We can block it in several ways so that it appears empty and all profile information erased, but will then wait for 24 hours (or after all of your contacts have been notified) before we can physically remove it.
-
-After that, your account is deleted.
+After the elapsed time of seven days, all your posts, messages, photos, and personal information stored on your node will be deleted. 
+Your node will also issue removal requests to all your contacts; this will also remove your profile from the global directory if you are listed. 
+Your username cannot be reissued for future sign-ups for security reasons.
 
 <a name="hashtag"></a>
 ### Can I follow a hashtag?
@@ -140,11 +167,13 @@ Example: Friendica Support
 <a name="clients"></a>
 ### Are there any clients for friendica I can use?
 
-Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your plattform as long as you can change the API path in its settings.
+Friendica is using a [Twitter/GNU Social compatible API](help/api), which means you can use any Twitter/GNU Social client for your platform as long as you can change the API path in its settings.
 Here is a list of known working clients:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (available in Google Playstore or from a binary repository you can add to [F-Droid](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854))
+  * [Fedilab](https://gitlab.com/tom79/mastalab) (available in F-Droid and Google stores)
+  * [DiCa](https://dica.mixi.cool/)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod
@@ -187,7 +216,7 @@ No, this function is no longer supported as of Friendica 3.3 onwards.
 <a name="sources"></a>
 ### Where can I find the source code of friendica, addons and themes?
 
-You can find the main respository [here](https://github.com/friendica/friendica).
+You can find the main repository [here](https://github.com/friendica/friendica).
 There you will always find the current stable version of friendica.
 
 Addons are listed at [this page](https://github.com/friendica/friendica-addons).
@@ -197,14 +226,14 @@ If you are searching for new themes, you can find them at [Friendica-Themes.com]
 <a name="adminaccount1"></a>
 ### I've changed my email address now the admin panel is gone?
 
-Have a look into your <tt>.htconfig.php</tt> and fix your email address there.
+Have a look into your <tt>config/local.config.php</tt> and fix your email address there.
 
 <a name="adminaccount2"></a>
 ### Can there be more then one admin for a node?
 
 Yes.
 You just have to list more then one email address in the
-<tt>.htconfig.php</tt> file.
+<tt>config/local.config.php</tt> file.
 The listed emails need to be separated by a comma.
 
 <a name="dbupdate">

@@ -4,47 +4,39 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
-use dba;
 
-require_once 'include/dba.php';
-
-Class Cron {
-	public static function execute($parameter = '', $generation = 0) {
-		global $a;
-
-		// Poll contacts with specific parameters
-		if (!empty($parameter)) {
-			self::pollContacts($parameter, $generation);
-			return;
-		}
+class Cron
+{
+	public static function execute()
+	{
+		$a = BaseObject::getApp();
 
 		$last = Config::get('system', 'last_cron');
 
 		$poll_interval = intval(Config::get('system', 'cron_interval'));
-		if (! $poll_interval) {
-			$poll_interval = 10;
-		}
 
 		if ($last) {
 			$next = $last + ($poll_interval * 60);
 			if ($next > time()) {
-				logger('cron intervall not reached');
+				Logger::log('cron intervall not reached');
 				return;
 			}
 		}
 
-		logger('cron: start');
+		Logger::log('cron: start');
 
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
-		Addon::forkHooks($a->queue['priority'], "cron");
-
-		// run queue delivery process in the background
-		Worker::add(PRIORITY_NEGLIGIBLE, "Queue");
+		Hook::fork($a->queue['priority'], "cron");
 
 		// run the process to discover global contacts in the background
 		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
@@ -57,9 +49,6 @@ Class Cron {
 
 		// Call possible post update functions
 		Worker::add(PRIORITY_LOW, "CronJobs", "post_update");
-
-		// update nodeinfo data
-		Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
 		// Clear cache entries
 		Worker::add(PRIORITY_LOW, "CronJobs", "clear_cache");
@@ -74,33 +63,58 @@ Class Cron {
 		$d1 = Config::get('system', 'last_expire_day');
 		$d2 = intval(DateTimeFormat::utcNow('d'));
 
+		// Daily cron calls
 		if ($d2 != intval($d1)) {
 
 			Worker::add(PRIORITY_LOW, "CronJobs", "update_contact_birthdays");
+
+			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
+
+			// update nodeinfo data
+			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
 
-			Config::set('system', 'last_expire_day', $d2);
-
 			Worker::add(PRIORITY_LOW, 'Expire');
 
 			Worker::add(PRIORITY_MEDIUM, 'DBClean');
 
-			Worker::add(PRIORITY_LOW, "CronJobs", "update_photo_albums");
-
-			// Delete all done workerqueue entries
-			dba::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 12 HOUR']);
-
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
+
+			Config::set('system', 'last_expire_day', $d2);
+		}
+
+		// Hourly cron calls
+		if (Config::get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+
+			// Delete all done workerqueue entries
+			DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
+
+			// Optimizing this table only last seconds
+			if (Config::get('system', 'optimize_workerqueue', false)) {
+				DBA::e("OPTIMIZE TABLE `workerqueue`");
+			}
+
+			Config::set('system', 'last_cron_hourly', time());
+		}
+
+		// Ensure to have a .htaccess file.
+		// this is a precaution for systems that update automatically
+		$basepath = $a->getBasePath();
+		if (!file_exists($basepath . '/.htaccess') && is_writable($basepath)) {
+			copy($basepath . '/.htaccess-dist', $basepath . '/.htaccess');
 		}
 
 		// Poll contacts
-		self::pollContacts($parameter, $generation);
+		self::pollContacts();
 
-		logger('cron: end');
+		// Update contact information
+		self::updatePublicContacts();
+
+		Logger::log('cron: end');
 
 		Config::set('system', 'last_cron', time());
 
@@ -108,100 +122,76 @@ Class Cron {
 	}
 
 	/**
+	 * @brief Update public contacts
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function updatePublicContacts() {
+		$count = 0;
+		$last_updated = DateTimeFormat::utc('now - 1 week');
+		$condition = ["`network` IN (?, ?, ?, ?) AND `uid` = ? AND NOT `self` AND `last-update` < ?",
+			Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, 0, $last_updated];
+
+		$total = DBA::count('contact', $condition);
+		$oldest_date = '';
+		$oldest_id = '';
+		$contacts = DBA::select('contact', ['id', 'last-update'], $condition, ['limit' => 100, 'order' => ['last-update']]);
+		while ($contact = DBA::fetch($contacts)) {
+			if (empty($oldest_id)) {
+				$oldest_id = $contact['id'];
+				$oldest_date = $contact['last-update'];
+			}
+			Worker::add(PRIORITY_LOW, "UpdateContact", $contact['id'], 'force');
+			++$count;
+		}
+		Logger::info('Initiated update for public contacts', ['interval' => $count, 'total' => $total, 'id' => $oldest_id, 'oldest' => $oldest_date]);
+		DBA::close($contacts);
+	}
+
+	/**
 	 * @brief Poll contacts for unreceived messages
 	 *
-	 * @todo Currently it seems as if the following parameter aren't used at all ...
-	 *
-	 * @param string $parameter Parameter (force, restart, ...) for the contact polling
-	 * @param integer $generation
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function pollContacts($parameter, $generation) {
-		$manual_id  = 0;
-		$generation = 0;
-		$force      = false;
-		$restart    = false;
-
-		if ($parameter == 'force') {
-			$force = true;
-		}
-		if ($parameter == 'restart') {
-			$restart = true;
-			$generation = intval($generation);
-			if (!$generation) {
-				killme();
-			}
-		}
-
-		if (intval($parameter)) {
-			$manual_id = intval($parameter);
-			$force     = true;
-		}
-
+	private static function pollContacts() {
 		$min_poll_interval = Config::get('system', 'min_poll_interval', 1);
-
-		$sql_extra = (($manual_id) ? " AND `id` = $manual_id " : "");
 
 		Addon::reload();
 
-		$d = DateTimeFormat::utcNow();
-
-		// Only poll from those with suitable relationships,
-		// and which have a polling address and ignore Diaspora since
-		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
-
-		$abandon_days = intval(Config::get('system', 'account_abandon_days'));
-		if ($abandon_days < 1) {
-			$abandon_days = 0;
-		}
-		$abandon_sql = (($abandon_days)
-			? sprintf(" AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL %d DAY ", intval($abandon_days))
-			: ''
-		);
-
-		$contacts = q("SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
+		$sql = "SELECT `contact`.`id`, `contact`.`nick`, `contact`.`name`, `contact`.`network`, `contact`.`archive`,
 					`contact`.`last-update`, `contact`.`priority`, `contact`.`rel`, `contact`.`subhub`
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN ('%s', '%s', '%s', '%s', '%s') $sql_extra
+					AND `contact`.`network` IN (?, ?, ?, ?)
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
-				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed` $abandon_sql",
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_FEED),
-			dbesc(NETWORK_MAIL)
-		);
+					AND `contact`.`rel` != ?
+				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed`";
 
-		if (!DBM::is_result($contacts)) {
+		$parameters = [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Contact::FOLLOWER];
+
+		// Only poll from those with suitable relationships,
+		// and which have a polling address and ignore Diaspora since
+		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
+		$abandon_days = intval(Config::get('system', 'account_abandon_days'));
+		if ($abandon_days < 1) {
+			$abandon_days = 0;
+		}
+
+		if (!empty($abandon_days)) {
+			$sql .= " AND `user`.`login_date` > UTC_TIMESTAMP() - INTERVAL ? DAY";
+			$parameters[] = $abandon_days;
+		}
+
+		$contacts = DBA::p($sql, $parameters);
+
+		if (!DBA::isResult($contacts)) {
 			return;
 		}
 
-		foreach ($contacts as $contact) {
-
-			if ($manual_id) {
-				$contact['last-update'] = NULL_DATE;
-			}
-
+		while ($contact = DBA::fetch($contacts)) {
 			// Friendica and OStatus are checked once a day
-			if (in_array($contact['network'], [NETWORK_DFRN, NETWORK_OSTATUS])) {
-				$contact['priority'] = 2;
-			}
-
-			if ($contact['subhub'] && in_array($contact['network'], [NETWORK_DFRN, NETWORK_OSTATUS])) {
-				/*
-				 * We should be getting everything via a hub. But just to be sure, let's check once a day.
-				 * (You can make this more or less frequent if desired by setting 'pushpoll_frequency' appropriately)
-				 * This also lets us update our subscription to the hub, and add or replace hubs in case it
-				 * changed. We will only update hubs once a day, regardless of 'pushpoll_frequency'.
-				 */
-				$poll_interval = Config::get('system', 'pushpoll_frequency');
-				$contact['priority'] = (!is_null($poll_interval) ? intval($poll_interval) : 3);
-			}
-
-			// Check Diaspora contacts or followers once a week
-			if (($contact["network"] == NETWORK_DIASPORA) || ($contact["rel"] == CONTACT_IS_FOLLOWER)) {
-				$contact['priority'] = 4;
+			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
+				$contact['priority'] = 3;
 			}
 
 			// Check archived contacts once a month
@@ -209,7 +199,7 @@ Class Cron {
 				$contact['priority'] = 5;
 			}
 
-			if (($contact['priority'] >= 0) && !$force) {
+			if ($contact['priority'] >= 0) {
 				$update = false;
 
 				$t = $contact['last-update'];
@@ -245,7 +235,7 @@ Class Cron {
 						break;
 					case 0:
 					default:
-						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + ".$min_poll_interval." minute")) {
+						if (DateTimeFormat::utcNow() > DateTimeFormat::utc($t . " + " . $min_poll_interval . " minute")) {
 							$update = true;
 						}
 						break;
@@ -255,7 +245,7 @@ Class Cron {
 				}
 			}
 
-			if (($contact['network'] == NETWORK_FEED) && ($contact['priority'] <= 3)) {
+			if (($contact['network'] == Protocol::FEED) && ($contact['priority'] <= 3)) {
 				$priority = PRIORITY_MEDIUM;
 			} elseif ($contact['archive']) {
 				$priority = PRIORITY_NEGLIGIBLE;
@@ -263,9 +253,10 @@ Class Cron {
 				$priority = PRIORITY_LOW;
 			}
 
-			logger("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
+			Logger::log("Polling " . $contact["network"] . " " . $contact["id"] . " " . $contact['priority'] . " " . $contact["nick"] . " " . $contact["name"]);
 
-			Worker::add(['priority' => $priority, 'dont_fork' => true], 'OnePoll', (int)$contact['id']);
+			Worker::add(['priority' => $priority, 'dont_fork' => true, 'force_priority' => true], 'OnePoll', (int)$contact['id']);
 		}
+		DBA::close($contacts);
 	}
 }

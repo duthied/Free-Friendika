@@ -8,6 +8,7 @@ Nutzer
 * **[Warum erhalte ich Warnungen über fehlende Zertifikate?](help/FAQ#ssl)**
 * **[Wie kann ich Bilder, Dateien, Links, Video und Audio in Beiträge einfügen?](help/FAQ#upload)**
 * **[Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?](help/FAQ#avatars)**
+* **[Wie kann ich Friendica in einer bestimmten Sprache ansehen?](help/FAQ#language)**
 * **[Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?](help/FAQ#contacts)**
 * **[Was passiert, wenn ein Account gelöscht ist? Ist dieser richtig gelöscht?](help/FAQ#removed)**
 * **[Kann ich einem Hashtag folgen?](help/FAQ#hashtag)**
@@ -85,10 +86,35 @@ Zum Konvertieren von Videos in das lizenfreie Videoformat WebM gibt es unter Win
 ### Ist es möglich, bei mehreren Profilen verschiedene Avatare (Nutzerbilder) zu haben?
 
 Ja.
-Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunächst das gewünschte Profil aus. 
-Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil. 
-Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch. 
+Auf Deiner ["Profile verwalten/editieren"-Seite](../profiles) wählst Du zunächst das gewünschte Profil aus.
+Anschließend siehst Du eine Seite mit allen Infos zu diesem Profil.
+Klicke nun oben auf den Link "Profilbild ändern" und lade im nächsten Fenster ein Bild von Deinem PC hoch.
 Um Deine privaten Daten zu schützen, wird in Beiträgen nur das Bild aus Deinem öffentlichen Profil angezeigt.
+
+<a name="language"></a>
+### Wie kann ich Friendica in einer bestimmten Sprache ansehen?
+
+Die Sprache des Friendica Interfaces kann durch den `lang` Parameter un der URL beeinflusst werden.
+Das Argument des Parameters ist ein  [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes)  Code.
+Zwischen der URL und dem Parameter muss ein Fragezeichen als Trennzeichen verwendet werden.
+
+Ein Beispiel:
+
+     https://social.example.com/profile/example 
+
+auf Deutsch:
+
+     https://social.example.com/profile/example?lang=de.
+
+Wenn das Fragezeichen bereits in der URL verwendet wird, werden die einzelnen URL Parameter mit einem kaufmännischen Und getrennt werden.
+
+Ein Beispiel:
+
+    https://social.example.com/profile/example?tab=profile
+
+auf Deutsch:
+
+    https://social.example.com/profile/example?tab=profile&lang=de.
 
 <a name="contacts"></a>
 ### Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?
@@ -162,7 +188,9 @@ Das bedeutet, dass du jeden Twitter/GNU Social Client verwenden kannst in dem du
 Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell für Friendica entwickelt werden:
 
 * Android
-  * [Friendiqa](https://github.com/lubuwest/friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
+  * [Friendiqa](https://git.friendi.ca/lubuwest/Friendiqa) (Gibt es im Google Playstore oder als [binary Repository](https://freunde.ma-nic.de/display/3e98eba8185a13c5bdbf3d1539646854) für F-Droid)
+  * [Fedilab](https://gitlab.com/tom79/mastalab) (Gibt es im F-Droid und dem Google Play Store)
+  * [DiCa](https://dica.mixi.cool/) (Gibt es bei Google Play)
   * AndStatus
   * Twidere
   * Mustard and Mustard-Mod
@@ -180,7 +208,7 @@ Hier ist eine Liste von Clients bei denen dies möglich ist, bzw. die speziell f
 <a name="help"></a>
 ### Wo finde ich Hilfe?
 
-Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) oder im [deutschen Friendica-Support-Forum](http://toktan.org/profile/wiki) fragen oder Dir das [deutsche Wiki](http://wiki.toktan.org/doku.php) anschauen. 
+Wenn Du Probleme mit Deiner Friendica-Seite hast, dann kannst Du die Community in der [Friendica-Support-Gruppe](https://forum.friendi.ca/profile/helpers) fragen oder Dir das [deutsche Wiki](https://friendica-wiki.de/) anschauen.
 Wenn Du Deinen Account nicht nutzen kannst, kannst Du entweder einen [Testaccount](https://tryfriendica.de) bzw. einen Account auf einer öffentlichen Seite ([Liste](https://dir.friendica.social/servers)) nutzen.
 
 Wenn du dir keinen weiteren Friendica Account einrichten willst, kannst du auch gerne über einen der folgenden alternativen Kanäle Hilfe suchen:
@@ -199,7 +227,7 @@ Admin
 
 Ja, das ist möglich.
 Es ist allerdings nicht möglich, eine Datenbank durch zwei Domains zu nutzen.
-Solange Du Deine .htconfig.php allerdings so einrichtest, dass das System nicht versucht, eine Installation durchzuführen, kannst Du die richtige Config-Datei in include/$hostname/.htconfig.php hinterlegen.
+Solange Du Deine config/local.config.php allerdings so einrichtest, dass das System nicht versucht, eine Installation durchzuführen, kannst Du die richtige Config-Datei in include/$hostname/config/local.config.php hinterlegen.
 Alle Cache-Aspekte und der Zugriffsschutz können pro Instanz konfiguriert werden.
 
 <a name="sources"></a>
@@ -216,13 +244,13 @@ Wenn Du neue Themen suchst, findest Du sie auf [Friendica-Themes.com](http://fri
 <a name="adminaccount1"></a>
 ### Ich habe meine E-Mail Adresse geändern und jetzt ist das Admin Panel verschwunden?
 
-Bitte aktualisiere deine E-Mail Adresse in der <tt>.htconfig.php</tt> Datei.
+Bitte aktualisiere deine E-Mail Adresse in der <tt>config/local.config.php</tt> Datei.
 
 <a name="adminaccount2"></a>
 ### Kann es mehr als einen Admin auf einer Friendica Instanz geben?
 
 Ja.
-Du kannst in der <tt>.htconfig.php</tt> Datei mehrere E-Mail Adressen auflisten.
+Du kannst in der <tt>config/local.config.php</tt> Datei mehrere E-Mail Adressen auflisten.
 Die aufgelisteten Adressen werden mit Kommata von einander getrennt.
 
 <a name="dbupdate">

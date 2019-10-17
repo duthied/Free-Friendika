@@ -69,6 +69,10 @@ table.bbcodes > * > tr > th {
   <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Immagine/foto"></td>
 </tr>
 <tr>
+  <td>[img=https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg]Das Friendica Logo[/img]</td>
+  <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" alt="Das Friendica Logo"></td>
+</tr>
+<tr>
   <td>[img=64x32]https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg[/img]<br>
 <br>Note: provided height is simply discarded.</td>
   <td><img src="https://raw.githubusercontent.com/friendica/friendica/master/images/friendica-32.jpg" style="width: 64px;"></td>
@@ -575,6 +579,9 @@ Als ich die Bilder im Wald aufgenommen habe, hatte ich eine wirklich ungew&ouml;
 F&uuml;r Verbindungen zu Netzwerken, zu denen Friendica den HTML Code postet, wie Tumblr, Wordpress oder Pump.io wird das [abstract] Element nicht verwendet.
 Bei nativen Verbindungen; das hei&szlig;t zu z.B. Friendica, Hubzilla, Diaspora oder GNU Social Kontakten; wird der ungek&uuml;rzte Beitrag &uuml;bertragen.
 Die Instanz des Kontakts k&uuml;mmert sich um die Darstellung.
+
+Wird ein Beitrag über das ActivityPub Protokoll &uuml;bermittelt, wird der Text des Abstracts f&uuml;r das "summary" (Zusammenfassung) Feld verwendet.
+Dieses Feld wird von Mastodon f&uuml;r die Inhaltswarnung (content warning) verwendet.
 
 ## Special
 

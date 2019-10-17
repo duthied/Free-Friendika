@@ -11,7 +11,7 @@
 	{{* The notifications *}}
 	{{if $notif_content}}
 	{{foreach $notif_content as $notification}}
-		{{$notification}}
+		{{$notification nofilter}}
 	{{/foreach}}
 	{{/if}}
 
@@ -21,5 +21,5 @@
 	{{/if}}
 
 	{{* The pager *}}
-	{{$notif_paginate}}
+	{{$notif_paginate nofilter}}
 </div>

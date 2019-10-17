@@ -12,23 +12,24 @@
 use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
-use Friendica\Core\L10n;
 use Friendica\Core\Config;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
-
-require_once "mod/proxy.php";
+use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function vier_init(App $a)
 {
 	$a->theme_events_in_profile = false;
 
-	$a->set_template_engine('smarty3');
+	Renderer::setActiveTemplateEngine('smarty3');
 
-	if ($a->argv[0].$a->argv[1] === "profile".$a->user['nickname'] || $a->argv[0] === "network" && local_user()) {
+	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . $a->user['nickname']) || $a->argv[0] === 'network' && local_user()) {
 		vier_community_info();
 
 		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
@@ -44,29 +45,6 @@ function vier_init(App $a)
 	$a->page['htmlhead'] .= <<< EOT
 <link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
 <script type="text/javascript">
-
-function insertFormatting(BBcode, id) {
-	var tmpStr = $("#comment-edit-text-" + id).val();
-	if (tmpStr == "") {
-		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		openMenu("comment-edit-submit-wrapper-" + id);
-	}
-
-	textarea = document.getElementById("comment-edit-text-" +id);
-	if (document.selection) {
-		textarea.focus();
-		selected = document.selection.createRange();
-		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
-	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
-		var start = textarea.selectionStart;
-		var end = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
-	}
-
-	return true;
-}
-
 function showThread(id) {
 	$("#collapsed-comments-" + id).show()
 	$("#collapsed-comments-" + id + " .collapsed-comments").show()
@@ -103,7 +81,7 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (($a->page['aside'] == "") && in_array($a->argv[0], ["community", "events", "help", "manage", "notifications",
+	if (empty($a->page['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"])) {
 		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}
@@ -128,7 +106,7 @@ function get_vier_config($key, $default = false, $admin = false)
 
 function vier_community_info()
 {
-	$a = get_app();
+	$a = \get_app();
 
 	$show_pages      = get_vier_config("show_pages", 1);
 	$show_profiles   = get_vier_config("show_profiles", 1);
@@ -145,17 +123,16 @@ function vier_community_info()
 	if ($show_profiles) {
 		$r = GContact::suggestionQuery(local_user(), 0, 9);
 
-		$tpl = get_markup_template('ch_directory_item.tpl');
-		if (DBM::is_result($r)) {
+		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
+		if (DBA::isResult($r)) {
 			$aside['$comunity_profiles_title'] = L10n::t('Community Profiles');
 			$aside['$comunity_profiles_items'] = [];
 
 			foreach ($r as $rr) {
-				$entry = replace_macros($tpl, [
+				$entry = Renderer::replaceMacros($tpl, [
 					'$id' => $rr['id'],
-					//'$profile_link' => Profile::zrl($rr['url']),
 					'$profile_link' => 'follow/?url='.urlencode($rr['url']),
-					'$photo' => proxy_url($rr['photo'], false, PROXY_SIZE_MICRO),
+					'$photo' => ProxyUtils::proxifyUrl($rr['photo'], false, ProxyUtils::SIZE_MICRO),
 					'$alt_text' => $rr['name'],
 				]);
 				$aside['$comunity_profiles_items'][] = $entry;
@@ -168,7 +145,7 @@ function vier_community_info()
 		$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
 		$order = " ORDER BY `register_date` DESC ";
 
-		$tpl = get_markup_template('ch_directory_item.tpl');
+		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 
 		$r = q("SELECT `profile`.*, `profile`.`uid` AS `profile_uid`, `user`.`nickname`
 				FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
@@ -177,16 +154,16 @@ function vier_community_info()
 			9
 		);
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$aside['$lastusers_title'] = L10n::t('Last users');
 			$aside['$lastusers_items'] = [];
 
 			foreach ($r as $rr) {
 				$profile_link = 'profile/' . ((strlen($rr['nickname'])) ? $rr['nickname'] : $rr['profile_uid']);
-				$entry = replace_macros($tpl, [
+				$entry = Renderer::replaceMacros($tpl, [
 					'$id' => $rr['id'],
 					'$profile_link' => $profile_link,
-					'$photo' => $a->remove_baseurl($rr['thumb']),
+					'$photo' => $a->removeBaseURL($rr['thumb']),
 					'$alt_text' => $rr['name']]);
 				$aside['$lastusers_items'][] = $entry;
 			}
@@ -214,10 +191,7 @@ function vier_community_info()
 
 	//Community_Pages at right_aside
 	if ($show_pages && local_user()) {
-		$cid = null;
-		if (x($_GET, 'cid') && intval($_GET['cid']) != 0) {
-			$cid = $_GET['cid'];
-		}
+		$cid = $_GET['cid'] ?? null;
 
 		//sort by last updated item
 		$lastitem = true;
@@ -233,21 +207,21 @@ function vier_community_info()
 				$selected = (($cid == $contact['id']) ? ' forum-selected' : '');
 
 				$entry = [
-					'url'          => 'network?f=&cid=' . $contact['id'],
-					'external_url' => 'redir/' . $contact['id'],
+					'url'          => 'network?cid=' . $contact['id'],
+					'external_url' => Contact::magicLink($contact['url']),
 					'name'         => $contact['name'],
 					'cid'          => $contact['id'],
 					'selected'     => $selected,
-					'micro'        => System::removedBaseUrl(proxy_url($contact['micro'], false, PROXY_SIZE_MICRO)),
+					'micro'        => System::removedBaseUrl(ProxyUtils::proxifyUrl($contact['micro'], false, ProxyUtils::SIZE_MICRO)),
 					'id'           => ++$id,
 				];
 				$entries[] = $entry;
 			}
 
 
-			$tpl = get_markup_template('widget_forumlist_right.tpl');
+			$tpl = Renderer::getMarkupTemplate('widget_forumlist_right.tpl');
 
-			$page = replace_macros(
+			$page = Renderer::replaceMacros(
 				$tpl,
 				[
 					'$title'          => L10n::t('Forums'),
@@ -278,19 +252,19 @@ function vier_community_info()
 					$query .= ",";
 				}
 
-				$query .= "'".dbesc(normalise_link(trim($helper)))."'";
+				$query .= "'".DBA::escape(Strings::normaliseLink(trim($helper)))."'";
 			}
 
 			$r = q("SELECT `url`, `name` FROM `gcontact` WHERE `nurl` IN (%s)", $query);
 		}
 
 		foreach ($r as $index => $helper) {
-			$r[$index]["url"] = Profile::zrl($helper["url"]);
+			$r[$index]["url"] = Contact::magicLink($helper["url"]);
 		}
 
 		$r[] = ["url" => "help/Quick-Start-guide", "name" => L10n::t("Quick Start")];
 
-		$tpl = get_markup_template('ch_helpers.tpl');
+		$tpl = Renderer::getMarkupTemplate('ch_helpers.tpl');
 
 		if ($r) {
 			$helpers = [];
@@ -299,7 +273,7 @@ function vier_community_info()
 			$aside['$helpers_items'] = [];
 
 			foreach ($r as $rr) {
-				$entry = replace_macros($tpl, [
+				$entry = Renderer::replaceMacros($tpl, [
 					'$url' => $rr['url'],
 					'$title' => $rr['name'],
 				]);
@@ -316,10 +290,6 @@ function vier_community_info()
 		/// @TODO This whole thing is hard-coded, better rewrite to Intercepting Filter Pattern (future-todo)
 		$r = [];
 
-		if (Addon::isEnabled("appnet")) {
-			$r[] = ["photo" => "images/appnet.png", "name" => "App.net"];
-		}
-
 		if (Addon::isEnabled("buffer")) {
 			$r[] = ["photo" => "images/buffer.png", "name" => "Buffer"];
 		}
@@ -332,20 +302,12 @@ function vier_community_info()
 			$r[] = ["photo" => "images/dreamwidth.png", "name" => "Dreamwidth"];
 		}
 
-		if (Addon::isEnabled("fbpost")) {
-			$r[] = ["photo" => "images/facebook.png", "name" => "Facebook"];
-		}
-
 		if (Addon::isEnabled("ifttt")) {
 			$r[] = ["photo" => "addon/ifttt/ifttt.png", "name" => "IFTTT"];
 		}
 
 		if (Addon::isEnabled("statusnet")) {
 			$r[] = ["photo" => "images/gnusocial.png", "name" => "GNU Social"];
-		}
-
-		if (Addon::isEnabled("gpluspost")) {
-			$r[] = ["photo" => "images/googleplus.png", "name" => "Google+"];
 		}
 
 		/// @TODO old-lost code (and below)?
@@ -381,15 +343,15 @@ function vier_community_info()
 			$r[] = ["photo" => "images/mail.png", "name" => "E-Mail"];
 		}
 
-		$tpl = get_markup_template('ch_connectors.tpl');
+		$tpl = Renderer::getMarkupTemplate('ch_connectors.tpl');
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$con_services = [];
 			$con_services['title'] = ["", L10n::t('Connect Services'), "", ""];
 			$aside['$con_services'] = $con_services;
 
 			foreach ($r as $rr) {
-				$entry = replace_macros($tpl, [
+				$entry = Renderer::replaceMacros($tpl, [
 					'$url' => $url,
 					'$photo' => $rr['photo'],
 					'$alt_text' => $rr['name'],
@@ -401,6 +363,6 @@ function vier_community_info()
 	//end connectable services
 
 	//print right_aside
-	$tpl = get_markup_template('communityhome.tpl');
-	$a->page['right_aside'] = replace_macros($tpl, $aside);
+	$tpl = Renderer::getMarkupTemplate('communityhome.tpl');
+	$a->page['right_aside'] = Renderer::replaceMacros($tpl, $aside);
 }

@@ -33,7 +33,7 @@ If you don't want to translate the UI, or it is already done to your satisfactio
 Are you good at designing things?
 If you have seen Friendica you probably have ideas to improve it, haven't you?
 
-* If you would like to work with us on enhancing the user interface, please join the [UX Watchdogs forum](https://fc.oscp.info/profile/ux-watchdogs)
+* If you would like to work with us on enhancing the user interface, please join the [forum for Friendica development](https://forum.friendi.ca/profile/developers).
 * Make plans for a better Friendica interface design and share them with us.
 * Tell us if you are able to realize your ideas or what kind of help you need.
 	We can't promise we have the right skills in the group but we'll try.
@@ -81,6 +81,7 @@ Here's a few primers if you are new to Friendica or to the PSR-2 coding standard
 * No closing PHP tag
 * No trailing spaces
 * Array declarations use the new square brackets syntax
+* Quoting style is single quotes by default, except for needed string interpolation, SQL query strings by convention and comments that should stay in natural language.
 
 Don't worry, you don't have to know by heart the PSR-2 coding standards to start contributing to Friendica.
 There are a few tools you can use to check or fix your files before you commit.
@@ -111,10 +112,10 @@ If the command-line tools `diff` and `patch` are unavailabe for you, `phpcbf` ca
 ### Code documentation
 
 If you are interested in having the documentation of the Friendica code outside of the code files, you can use [Doxygen](http://doxygen.org) to generate it.
-The configuration file for Doxygen is located in the `util` directory of the project sources.
+The configuration file for Doxygen is located in the base directory of the project sources.
 Run
 
-	$> doxygen util/Doxyfile
+	$> doxygen Doxyfile
 
 to generate the files which will be located in the `doc/html` subdirectory in the Friendica directory.
 You can browse these files with any browser.
@@ -149,7 +150,7 @@ As Friendica is using a [Twitter/GNU Social compatible API](help/api) any of the
 Furthermore there are several client projects, especially for use with Friendica.
 If you are interested in improving those clients, please contact the developers of the clients directly.
 
-* Android / LinageOS: **Friendiqa** [src](https://github.com/LubuWest/Friendiqa) developed by [Marco R](https://freunde.ma-nic.de/profile/marco)
+* Android / LinageOS: **Friendiqa** [src](https://git.friendi.ca/lubuwest/Friendiqa)/[Google Play](https://play.google.com/store/apps/details?id=org.qtproject.friendiqa) developed by [Marco R](https://freunde.ma-nic.de/profile/marco)
 * iOS: *currently no client*
 * SailfishOS: **Friendiy** [src](https://kirgroup.com/projects/fabrixxm/harbour-friendly) - developed by [Fabio](https://kirgroup.com/profile/fabrixxm/?tab=profile)
 * Windows: **Friendica Mobile** for Windows versions [before 8.1](http://windowsphone.com/s?appid=e3257730-c9cf-4935-9620-5261e3505c67) and [Windows 10](https://www.microsoft.com/store/apps/9nblggh0fhmn) - developed by [Gerhard Seeber](http://mozartweg.dyndns.org/friendica/profile/gerhard/?tab=profile)

@@ -10,14 +10,16 @@ if (file_exists("$THEMEPATH/style.css")) {
 	echo file_get_contents("$THEMEPATH/style.css");
 }
 
-$uid = Profile::getThemeUid();
+$uid = $_REQUEST['puid'] ?? 0;
 
 $s_colorset = Config::get('duepuntozero', 'colorset');
 $colorset = PConfig::get($uid, 'duepuntozero', 'colorset');
 
-if (!x($colorset)) {
+if (empty($colorset)) {
 	$colorset = $s_colorset;
 }
+
+$setcss = '';
 
 if ($colorset) {
 	if ($colorset == 'greenzero') {
@@ -27,7 +29,7 @@ if ($colorset) {
 	if ($colorset == 'purplezero') {
 		$setcss = file_get_contents('view/theme/duepuntozero/deriv/purplezero.css');
 	}
-	
+
 	if ($colorset == 'easterbunny') {
 		$setcss = file_get_contents('view/theme/duepuntozero/deriv/easterbunny.css');
 	}

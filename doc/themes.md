@@ -167,6 +167,8 @@ The content of this file should be something like
 
     <?php
     /* meta informations for the theme, see below */
+    use Friendica\App;
+    
     function duepuntozero_lr_init(App $a) {
         $a-> theme_info = array(
             'extends' => 'duepuntozero'.
@@ -179,13 +181,13 @@ Next take the default.php file found in the /view direcotry and exchange the asi
 So the central part of the file now looks like this:
 
     <body>
-        <?php if(x($page,'nav')) echo $page['nav']; ?>
-        <aside><?php if(x($page,'right_aside')) echo $page['right_aside']; ?></aside>
-        <section><?php if(x($page,'content')) echo $page['content']; ?>
+        <?php if(!empty($page['nav'])) echo $page['nav']; ?>
+        <aside><?php if(!empty($page['right_aside'])) echo $page['right_aside']; ?></aside>
+        <section><?php if(!empty($page['content'])) echo $page['content']; ?>
                 <div id="page-footer"></div>
         </section>
-        <right_aside><?php if(x($page,'aside')) echo $page['aside']; ?></right_aside>
-        <footer><?php if(x($page,'footer')) echo $page['footer']; ?></footer>
+        <right_aside><?php if(!empty($page['aside'])) echo $page['aside']; ?></right_aside>
+        <footer><?php if(!empty($page['footer'])) echo $page['footer']; ?></footer>
     </body>
 
 Finally we need a style.css file, inheriting the definitions from the parent theme and containing out changes for the new theme.
@@ -245,6 +247,12 @@ You see the definition of the theme's name, it's version and the initial author 
 These three pieces of information should be listed.
 If the original author is no longer working on the theme, but a maintainer has taken over, the maintainer should be listed as well.
 The information from the theme header will be displayed in the admin panel.
+
+The first thing in file is to import the `App` class from `\Friendica\` namespace.
+
+    use Friendica\App;
+
+This will make our job a little easier, as we don't have to specify the full name every time we need to use the `App` class.
 
 The next crucial part of the theme.php file is a definition of an init function.
 The name of the function is <theme-name>_init.

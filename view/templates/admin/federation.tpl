@@ -6,7 +6,7 @@
 	<p>{{$intro}}</p>
 
 	{{if not $autoactive}}
-	<p class="error-message">{{$hint}}</p>
+	<p class="error-message">{{$hint nofilter}}</p>
 	{{/if}}
 
 	<p>{{$legendtext}}</p>

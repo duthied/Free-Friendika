@@ -6,10 +6,8 @@
 		<input name="category" id="jot-category" type="text" placeholder="{{$placeholdercategory}}" title="{{$placeholdercategory}}" value="{{$category}}" class="jothidden" style="display:none" />
 		{{/if}}
 		<div id="character-counter" class="grey jothidden"></div>
-
-
-
-		<input type="hidden" name="type" value="{{$ptyp}}" />
+		<input type="hidden" name="wall" value="{{$wall}}" />
+		<input type="hidden" name="post_type" value="{{$posttype}}" />
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 		<input type="hidden" name="return" value="{{$return_path}}" />
 		<input type="hidden" name="location" id="jot-location" value="{{$defloc}}" />
@@ -21,7 +19,7 @@
 		<input type="hidden" name="contact_allow[]" value="<{{$notes_cid}}>" />
 		{{/if}}
 
-		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">{{if $content}}{{$content}}{{/if}}</textarea>
+		<textarea rows="5" cols="64" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 
 		<ul id="jot-tools" class="jothidden" style="display:none">
 			<li><a href="#" onclick="return false;" id="wall-image-upload" title="{{$upload}}">{{$shortupload}}</a></a></li>
@@ -34,7 +32,7 @@
 			<li><a id="profile-nolocation" onclick="jotClearLocation();return false;" title="{{$noloc}}">{{$shortnoloc}}</a></li>
 			-->
 			<li><a id="jot-preview-link" onclick="preview_post(); return false;" title="{{$preview}}">{{$preview}}</a></li>
-			{{$jotplugins}}
+			{{$jotplugins nofilter}}
 
 			{{if !$is_edit}}
 			<li class="perms"><a id="jot-perms-icon" href="#profile-jot-acl-wrapper" class="icon s22 {{$lockstate}} {{$bang}}"  title="{{$permset}}" ></a></li>
@@ -48,7 +46,7 @@
 
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
-			{{$acl}}
+			{{$acl nofilter}}
 		</div>
 	</div>
 

@@ -2,7 +2,7 @@
 	{{* {{$langselector}} *}}
 
 	<div id="site-location">{{$sitelocation}}</div>
-	<div id="banner">{{$banner}}</div>
+	<div id="banner">{{$banner nofilter}}</div>
 </header>
 <nav>
 	<ul>
@@ -66,21 +66,22 @@
 					<li id="nav-notifications-mark-all" class="toolbar"><a href="#" onclick="notifyMarkAll(); return false;" title="{{$nav.notifications.mark.3}}"><span class="icon s10 edit"></span></a></a><a href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.all.1}}"><span class="icon s10 plugin"></span></a></li>
 					<li class="empty">{{$emptynotifications}}</li>
 				</ul>
-			</li>		
-		{{/if}}		
-		
+			</li>
+		{{/if}}
+
 		<li id="nav-site-linkmenu" class="nav-menu-icon"><a href="#" rel="#nav-site-menu"><span class="icon s22 gear">Site</span></a>
 			<ul id="nav-site-menu" class="menu-popup">
-				{{if $nav.manage}}<li><a class="{{$nav.manage.2}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a></li>{{/if}}				
+				{{if $nav.delegation}}<li><a class="{{$nav.delegation.2}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}">{{$nav.delegation.1}}</a></li>{{/if}}
 
 				{{if $nav.settings}}<li><a class="{{$nav.settings.2}}" href="{{$nav.settings.0}}" title="{{$nav.settings.3}}">{{$nav.settings.1}}</a></li>{{/if}}
 				{{if $nav.admin}}<li><a accesskey="a" class="{{$nav.admin.2}}" href="{{$nav.admin.0}}" title="{{$nav.admin.3}}" >{{$nav.admin.1}}</a></li>{{/if}}
 
 				{{if $nav.logout}}<li><a class="menu-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}" title="{{$nav.logout.3}}" >{{$nav.logout.1}}</a></li>{{/if}}
 				{{if $nav.login}}<li><a class="{{$nav.login.2}}" href="{{$nav.login.0}}" title="{{$nav.login.3}}" >{{$nav.login.1}}</a><li>{{/if}}
-			</ul>		
+				{{if $nav.tos}}<li><a class="menu-sep {{$nav.tos.2}}" href="{{$nav.tos.0}}" title="{{$nav.tos.3}}">{{$nav.tos.1}}</a></li>{{/if}}
+			</ul>
 		</li>
-		
+
 		{{if $nav.help}} 
 		<li id="nav-help-link" class="nav-menu {{$sel.help}}">
 			<a class="{{$nav.help.2}}" target="friendica-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" >{{$nav.help.1}}</a>
@@ -99,7 +100,7 @@
 				<a class=" {{$nav.apps.2}}" href="#" rel="#nav-apps-menu" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>
 				<ul id="nav-apps-menu" class="menu-popup">
 					{{foreach $apps as $ap}}
-					<li>{{$ap}}</li>
+					<li>{{$ap nofilter}}</li>
 					{{/foreach}}
 				</ul>
 			</li>

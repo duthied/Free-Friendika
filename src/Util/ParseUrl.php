@@ -5,17 +5,13 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Content\OEmbed;
-use Friendica\Core\Addon;
-use Friendica\Object\Image;
-use Friendica\Util\Network;
-use Friendica\Util\XML;
-
-use dba;
-use DOMXPath;
 use DOMDocument;
-
-require_once 'include/dba.php';
+use DOMXPath;
+use Friendica\Content\OEmbed;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
+use Friendica\Database\DBA;
+use Friendica\Object\Image;
 
 /**
  * @brief Class with methods for extracting certain content from an url
@@ -26,10 +22,10 @@ class ParseUrl
 	 * @brief Search for chached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool $no_guessing If true the parse doens't search for
-	 *                          preview pictures
-	 * @param bool $do_oembed   The false option is used by the function fetch_oembed()
-	 *                          to avoid endless loops
+	 * @param bool   $no_guessing If true the parse doens't search for
+	 *                            preview pictures
+	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+	 *                            to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url' => The url of the parsed page
@@ -41,7 +37,8 @@ class ParseUrl
 	 *    array'images' = Array of preview pictures
 	 *    string 'keywords' => The tags which belong to the content
 	 *
-	 * @see ParseUrl::getSiteinfo() for more information about scraping
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @see   ParseUrl::getSiteinfo() for more information about scraping
 	 * embeddable content
 	 */
 	public static function getSiteinfoCached($url, $no_guessing = false, $do_oembed = true)
@@ -50,8 +47,8 @@ class ParseUrl
 			return false;
 		}
 
-		$parsed_url = dba::selectFirst('parsed_url', ['content'],
-			['url' => normalise_link($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
+		$parsed_url = DBA::selectFirst('parsed_url', ['content'],
+			['url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing, 'oembed' => $do_oembed]
 		);
 		if (!empty($parsed_url['content'])) {
 			$data = unserialize($parsed_url['content']);
@@ -60,10 +57,10 @@ class ParseUrl
 
 		$data = self::getSiteinfo($url, $no_guessing, $do_oembed);
 
-		dba::insert(
+		DBA::insert(
 			'parsed_url',
 			[
-				'url' => normalise_link($url), 'guessing' => !$no_guessing,
+				'url' => Strings::normaliseLink($url), 'guessing' => !$no_guessing,
 				'oembed' => $do_oembed, 'content' => serialize($data),
 				'created' => DateTimeFormat::utcNow()
 			],
@@ -72,6 +69,7 @@ class ParseUrl
 
 		return $data;
 	}
+
 	/**
 	 * @brief Parse a page for embeddable content information
 	 *
@@ -83,11 +81,11 @@ class ParseUrl
 	 * \<meta name="description" content="An awesome description"\>
 	 *
 	 * @param string $url         The url of the page which should be scraped
-	 * @param bool $no_guessing If true the parse doens't search for
-	 *                          preview pictures
-	 * @param bool $do_oembed   The false option is used by the function fetch_oembed()
-	 *                          to avoid endless loops
-	 * @param int $count       Internal counter to avoid endless loops
+	 * @param bool   $no_guessing If true the parse doens't search for
+	 *                            preview pictures
+	 * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+	 *                            to avoid endless loops
+	 * @param int    $count       Internal counter to avoid endless loops
 	 *
 	 * @return array which contains needed data for embedding
 	 *    string 'url' => The url of the parsed page
@@ -99,7 +97,8 @@ class ParseUrl
 	 *    array'images' = Array of preview pictures
 	 *    string 'keywords' => The tags which belong to the content
 	 *
-	 * @todo https://developers.google.com/+/plugins/snippet/
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @todo  https://developers.google.com/+/plugins/snippet/
 	 * @verbatim
 	 * <meta itemprop="name" content="Awesome title">
 	 * <meta itemprop="description" content="An awesome description">
@@ -114,20 +113,18 @@ class ParseUrl
 	 */
 	public static function getSiteinfo($url, $no_guessing = false, $do_oembed = true, $count = 1)
 	{
-		$a = get_app();
-
 		$siteinfo = [];
 
 		// Check if the URL does contain a scheme
 		$scheme = parse_url($url, PHP_URL_SCHEME);
 
-		if ($scheme == "") {
-			$url = "http://".trim($url, "/");
+		if ($scheme == '') {
+			$url = 'http://' . trim($url, '/');
 		}
 
 		if ($count > 10) {
-			logger("parseurl_getsiteinfo: Endless loop detected for ".$url, LOGGER_DEBUG);
-			return($siteinfo);
+			Logger::log('Endless loop detected for ' . $url, Logger::DEBUG);
+			return $siteinfo;
 		}
 
 		$url = trim($url, "'");
@@ -135,218 +132,222 @@ class ParseUrl
 
 		$url = Network::stripTrackingQueryParams($url);
 
-		$siteinfo["url"] = $url;
-		$siteinfo["type"] = "link";
+		$siteinfo['url'] = $url;
+		$siteinfo['type'] = 'link';
 
-		$data = Network::curl($url);
-		if (!$data['success']) {
-			return($siteinfo);
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
+			return $siteinfo;
 		}
 
 		// If the file is too large then exit
-		if ($data["info"]["download_content_length"] > 1000000) {
-			return($siteinfo);
+		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
+			return $siteinfo;
 		}
 
 		// If it isn't a HTML file then exit
-		if (($data["info"]["content_type"] != "") && !strstr(strtolower($data["info"]["content_type"]), "html")) {
-			return($siteinfo);
+		if (($curlResult->getContentType() != '') && !strstr(strtolower($curlResult->getContentType()), 'html')) {
+			return $siteinfo;
 		}
 
-		$header = $data["header"];
-		$body = $data["body"];
+		$header = $curlResult->getHeader();
+		$body = $curlResult->getBody();
 
 		if ($do_oembed) {
 			$oembed_data = OEmbed::fetchURL($url);
 
-			if (!in_array($oembed_data->type, ["error", "rich", ""])) {
-				$siteinfo["type"] = $oembed_data->type;
-			}
+			if (!empty($oembed_data->type)) {
+				if (!in_array($oembed_data->type, ['error', 'rich', ''])) {
+					$siteinfo['type'] = $oembed_data->type;
+				}
 
-			if (($oembed_data->type == "link") && ($siteinfo["type"] != "photo")) {
-				if (isset($oembed_data->title)) {
-					$siteinfo["title"] = trim($oembed_data->title);
-				}
-				if (isset($oembed_data->description)) {
-					$siteinfo["text"] = trim($oembed_data->description);
-				}
-				if (isset($oembed_data->thumbnail_url)) {
-					$siteinfo["image"] = $oembed_data->thumbnail_url;
+				// See https://github.com/friendica/friendica/pull/5763#discussion_r217913178
+				if ($siteinfo['type'] != 'photo') {
+					if (isset($oembed_data->title)) {
+						$siteinfo['title'] = trim($oembed_data->title);
+					}
+					if (isset($oembed_data->description)) {
+						$siteinfo['text'] = trim($oembed_data->description);
+					}
+					if (isset($oembed_data->thumbnail_url)) {
+						$siteinfo['image'] = $oembed_data->thumbnail_url;
+					}
 				}
 			}
 		}
 
 		// Fetch the first mentioned charset. Can be in body or header
-		$charset = "";
-		if (preg_match('/charset=(.*?)['."'".'"\s\n]/', $header, $matches)) {
+		$charset = '';
+		if (preg_match('/charset=(.*?)[\'"\s\n]/', $header, $matches)) {
 			$charset = trim(trim(trim(array_pop($matches)), ';,'));
 		}
 
-		if ($charset == "") {
-			$charset = "utf-8";
+		if ($charset && strtoupper($charset) != 'UTF-8') {
+			// See https://github.com/friendica/friendica/issues/5470#issuecomment-418351211
+			$charset = str_ireplace('latin-1', 'latin1', $charset);
+
+			Logger::log('detected charset ' . $charset, Logger::DEBUG);
+			$body = iconv($charset, 'UTF-8//TRANSLIT', $body);
 		}
 
-		if (($charset != "") && (strtoupper($charset) != "UTF-8")) {
-			logger("parseurl_getsiteinfo: detected charset ".$charset, LOGGER_DEBUG);
-			//$body = mb_convert_encoding($body, "UTF-8", $charset);
-			$body = iconv($charset, "UTF-8//TRANSLIT", $body);
-		}
-
-		$body = mb_convert_encoding($body, 'HTML-ENTITIES', "UTF-8");
+		$body = mb_convert_encoding($body, 'HTML-ENTITIES', 'UTF-8');
 
 		$doc = new DOMDocument();
 		@$doc->loadHTML($body);
 
-		XML::deleteNode($doc, "style");
-		XML::deleteNode($doc, "script");
-		XML::deleteNode($doc, "option");
-		XML::deleteNode($doc, "h1");
-		XML::deleteNode($doc, "h2");
-		XML::deleteNode($doc, "h3");
-		XML::deleteNode($doc, "h4");
-		XML::deleteNode($doc, "h5");
-		XML::deleteNode($doc, "h6");
-		XML::deleteNode($doc, "ol");
-		XML::deleteNode($doc, "ul");
+		XML::deleteNode($doc, 'style');
+		XML::deleteNode($doc, 'script');
+		XML::deleteNode($doc, 'option');
+		XML::deleteNode($doc, 'h1');
+		XML::deleteNode($doc, 'h2');
+		XML::deleteNode($doc, 'h3');
+		XML::deleteNode($doc, 'h4');
+		XML::deleteNode($doc, 'h5');
+		XML::deleteNode($doc, 'h6');
+		XML::deleteNode($doc, 'ol');
+		XML::deleteNode($doc, 'ul');
 
 		$xpath = new DOMXPath($doc);
 
-		$list = $xpath->query("//meta[@content]");
+		$list = $xpath->query('//meta[@content]');
 		foreach ($list as $node) {
-			$attr = [];
+			$meta_tag = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attr[$attribute->name] = $attribute->value;
+					$meta_tag[$attribute->name] = $attribute->value;
 				}
 			}
 
-			if (@$attr["http-equiv"] == "refresh") {
-				$path = $attr["content"];
-				$pathinfo = explode(";", $path);
-				$content = "";
+			if (@$meta_tag['http-equiv'] == 'refresh') {
+				$path = $meta_tag['content'];
+				$pathinfo = explode(';', $path);
+				$content = '';
 				foreach ($pathinfo as $value) {
-					if (substr(strtolower($value), 0, 4) == "url=") {
+					if (substr(strtolower($value), 0, 4) == 'url=') {
 						$content = substr($value, 4);
 					}
 				}
-				if ($content != "") {
+				if ($content != '') {
 					$siteinfo = self::getSiteinfo($content, $no_guessing, $do_oembed, ++$count);
-					return($siteinfo);
+					return $siteinfo;
 				}
 			}
 		}
 
-		$list = $xpath->query("//title");
+		$list = $xpath->query('//title');
 		if ($list->length > 0) {
-			$siteinfo["title"] = trim($list->item(0)->nodeValue);
+			$siteinfo['title'] = trim($list->item(0)->nodeValue);
 		}
 
-		//$list = $xpath->query("head/meta[@name]");
-		$list = $xpath->query("//meta[@name]");
+		$list = $xpath->query('//meta[@name]');
 		foreach ($list as $node) {
-			$attr = [];
+			$meta_tag = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attr[$attribute->name] = $attribute->value;
+					$meta_tag[$attribute->name] = $attribute->value;
 				}
 			}
 
-			$attr["content"] = trim(html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8"));
-
-			if ($attr["content"] != "") {
-				switch (strtolower($attr["name"])) {
-					case "fulltitle":
-						$siteinfo["title"] = trim($attr["content"]);
-						break;
-					case "description":
-						$siteinfo["text"] = trim($attr["content"]);
-						break;
-					case "thumbnail":
-						$siteinfo["image"] = $attr["content"];
-						break;
-					case "twitter:image":
-						$siteinfo["image"] = $attr["content"];
-						break;
-					case "twitter:image:src":
-						$siteinfo["image"] = $attr["content"];
-						break;
-					case "twitter:card":
-						if (($siteinfo["type"] == "") || ($attr["content"] == "photo")) {
-							$siteinfo["type"] = $attr["content"];
-						}
-						break;
-					case "twitter:description":
-						$siteinfo["text"] = trim($attr["content"]);
-						break;
-					case "twitter:title":
-						$siteinfo["title"] = trim($attr["content"]);
-						break;
-					case "dc.title":
-						$siteinfo["title"] = trim($attr["content"]);
-						break;
-					case "dc.description":
-						$siteinfo["text"] = trim($attr["content"]);
-						break;
-					case "keywords":
-						$keywords = explode(",", $attr["content"]);
-						break;
-					case "news_keywords":
-						$keywords = explode(",", $attr["content"]);
-						break;
-				}
+			if (empty($meta_tag['content'])) {
+				continue;
 			}
-			if ($siteinfo["type"] == "summary") {
-				$siteinfo["type"] = "link";
+
+			$meta_tag['content'] = trim(html_entity_decode($meta_tag['content'], ENT_QUOTES, 'UTF-8'));
+
+			switch (strtolower($meta_tag['name'])) {
+				case 'fulltitle':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'thumbnail':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:image':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:image:src':
+					$siteinfo['image'] = $meta_tag['content'];
+					break;
+				case 'twitter:card':
+					// Detect photo pages
+					if ($meta_tag['content'] == 'summary_large_image') {
+						$siteinfo['type'] = 'photo';
+					}
+					break;
+				case 'twitter:description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'twitter:title':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'dc.title':
+					$siteinfo['title'] = trim($meta_tag['content']);
+					break;
+				case 'dc.description':
+					$siteinfo['text'] = trim($meta_tag['content']);
+					break;
+				case 'keywords':
+					$keywords = explode(',', $meta_tag['content']);
+					break;
+				case 'news_keywords':
+					$keywords = explode(',', $meta_tag['content']);
+					break;
 			}
 		}
 
 		if (isset($keywords)) {
-			$siteinfo["keywords"] = [];
+			$siteinfo['keywords'] = [];
 			foreach ($keywords as $keyword) {
-				if (!in_array(trim($keyword), $siteinfo["keywords"])) {
-					$siteinfo["keywords"][] = trim($keyword);
+				if (!in_array(trim($keyword), $siteinfo['keywords'])) {
+					$siteinfo['keywords'][] = trim($keyword);
 				}
 			}
 		}
 
-		//$list = $xpath->query("head/meta[@property]");
-		$list = $xpath->query("//meta[@property]");
+		$list = $xpath->query('//meta[@property]');
 		foreach ($list as $node) {
-			$attr = [];
+			$meta_tag = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attr[$attribute->name] = $attribute->value;
+					$meta_tag[$attribute->name] = $attribute->value;
 				}
 			}
 
-			$attr["content"] = trim(html_entity_decode($attr["content"], ENT_QUOTES, "UTF-8"));
+			if (!empty($meta_tag['content'])) {
+				$meta_tag['content'] = trim(html_entity_decode($meta_tag['content'], ENT_QUOTES, 'UTF-8'));
 
-			if ($attr["content"] != "") {
-				switch (strtolower($attr["property"])) {
-					case "og:image":
-						$siteinfo["image"] = $attr["content"];
+				switch (strtolower($meta_tag['property'])) {
+					case 'og:image':
+						$siteinfo['image'] = $meta_tag['content'];
 						break;
-					case "og:title":
-						$siteinfo["title"] = trim($attr["content"]);
+					case 'og:title':
+						$siteinfo['title'] = trim($meta_tag['content']);
 						break;
-					case "og:description":
-						$siteinfo["text"] = trim($attr["content"]);
+					case 'og:description':
+						$siteinfo['text'] = trim($meta_tag['content']);
 						break;
 				}
 			}
 		}
 
-		if ((@$siteinfo["image"] == "") && !$no_guessing) {
-			$list = $xpath->query("//img[@src]");
+		// Prevent to have a photo type without an image
+		if ((empty($siteinfo['image']) || !empty($siteinfo['text'])) && ($siteinfo['type'] == 'photo')) {
+			$siteinfo['type'] = 'link';
+		}
+
+		if (empty($siteinfo['image']) && !$no_guessing) {
+			$list = $xpath->query('//img[@src]');
 			foreach ($list as $node) {
-				$attr = [];
+				$img_tag = [];
 				if ($node->attributes->length) {
 					foreach ($node->attributes as $attribute) {
-						$attr[$attribute->name] = $attribute->value;
+						$img_tag[$attribute->name] = $attribute->value;
 					}
 				}
 
-				$src = self::completeUrl($attr["src"], $url);
+				$src = self::completeUrl($img_tag['src'], $url);
 				$photodata = Image::getInfoFromURL($src);
 
 				if (($photodata) && ($photodata[0] > 150) && ($photodata[1] > 150)) {
@@ -358,70 +359,72 @@ class ParseUrl
 						$photodata[0] = round($photodata[0] * (300 / $photodata[1]));
 						$photodata[1] = 300;
 					}
-					$siteinfo["images"][] = ["src" => $src,
-									"width" => $photodata[0],
-									"height" => $photodata[1]];
+					$siteinfo['images'][] = [
+						'src'    => $src,
+						'width'  => $photodata[0],
+						'height' => $photodata[1]
+					];
 				}
 			}
-		} elseif ($siteinfo["image"] != "") {
-			$src = self::completeUrl($siteinfo["image"], $url);
+		} elseif (!empty($siteinfo['image'])) {
+			$src = self::completeUrl($siteinfo['image'], $url);
 
-			unset($siteinfo["image"]);
+			unset($siteinfo['image']);
 
 			$photodata = Image::getInfoFromURL($src);
 
 			if (($photodata) && ($photodata[0] > 10) && ($photodata[1] > 10)) {
-				$siteinfo["images"][] = ["src" => $src,
-								"width" => $photodata[0],
-								"height" => $photodata[1]];
+				$siteinfo['images'][] = ['src' => $src,
+					'width' => $photodata[0],
+					'height' => $photodata[1]];
 			}
 		}
 
-		if ((@$siteinfo["text"] == "") && (@$siteinfo["title"] != "") && !$no_guessing) {
-			$text = "";
+		if ((@$siteinfo['text'] == '') && (@$siteinfo['title'] != '') && !$no_guessing) {
+			$text = '';
 
-			$list = $xpath->query("//div[@class='article']");
+			$list = $xpath->query('//div[@class="article"]');
 			foreach ($list as $node) {
 				if (strlen($node->nodeValue) > 40) {
-					$text .= " ".trim($node->nodeValue);
+					$text .= ' ' . trim($node->nodeValue);
 				}
 			}
 
-			if ($text == "") {
-				$list = $xpath->query("//div[@class='content']");
+			if ($text == '') {
+				$list = $xpath->query('//div[@class="content"]');
 				foreach ($list as $node) {
 					if (strlen($node->nodeValue) > 40) {
-						$text .= " ".trim($node->nodeValue);
+						$text .= ' ' . trim($node->nodeValue);
 					}
 				}
 			}
 
 			// If none text was found then take the paragraph content
-			if ($text == "") {
-				$list = $xpath->query("//p");
+			if ($text == '') {
+				$list = $xpath->query('//p');
 				foreach ($list as $node) {
 					if (strlen($node->nodeValue) > 40) {
-						$text .= " ".trim($node->nodeValue);
+						$text .= ' ' . trim($node->nodeValue);
 					}
 				}
 			}
 
-			if ($text != "") {
-				$text = trim(str_replace(["\n", "\r"], [" ", " "], $text));
+			if ($text != '') {
+				$text = trim(str_replace(["\n", "\r"], [' ', ' '], $text));
 
-				while (strpos($text, "  ")) {
-					$text = trim(str_replace("  ", " ", $text));
+				while (strpos($text, '  ')) {
+					$text = trim(str_replace('  ', ' ', $text));
 				}
 
-				$siteinfo["text"] = trim(html_entity_decode(substr($text, 0, 350), ENT_QUOTES, "UTF-8").'...');
+				$siteinfo['text'] = trim(html_entity_decode(substr($text, 0, 350), ENT_QUOTES, 'UTF-8') . '...');
 			}
 		}
 
-		logger("parseurl_getsiteinfo: Siteinfo for ".$url." ".print_r($siteinfo, true), LOGGER_DEBUG);
+		Logger::log('Siteinfo for ' . $url . ' ' . print_r($siteinfo, true), Logger::DEBUG);
 
-		Addon::callHooks("getsiteinfo", $siteinfo);
+		Hook::callAll('getsiteinfo', $siteinfo);
 
-		return($siteinfo);
+		return $siteinfo;
 	}
 
 	/**
@@ -483,21 +486,23 @@ class ParseUrl
 
 		$complete = $schemearr["scheme"]."://".$schemearr["host"];
 
-		if (@$schemearr["port"] != "") {
+		if (!empty($schemearr["port"])) {
 			$complete .= ":".$schemearr["port"];
 		}
 
-		if (strpos($urlarr["path"], "/") !== 0) {
-			$complete .= "/";
+		if (!empty($urlarr["path"])) {
+			if (strpos($urlarr["path"], "/") !== 0) {
+				$complete .= "/";
+			}
+
+			$complete .= $urlarr["path"];
 		}
 
-		$complete .= $urlarr["path"];
-
-		if (@$urlarr["query"] != "") {
+		if (!empty($urlarr["query"])) {
 			$complete .= "?".$urlarr["query"];
 		}
 
-		if (@$urlarr["fragment"] != "") {
+		if (!empty($urlarr["fragment"])) {
 			$complete .= "#".$urlarr["fragment"];
 		}
 

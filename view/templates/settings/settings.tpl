@@ -1,6 +1,6 @@
 <h1>{{$ptitle}}</h1>
 
-{{$nickname_block}}
+{{$nickname_block nofilter}}
 
 <form action="settings" id="settings-form" method="post" autocomplete="off" >
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
@@ -16,7 +16,7 @@
 {{/if}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 </div>
 
@@ -33,7 +33,7 @@
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 </div>
 
@@ -45,21 +45,21 @@
 
 {{include file="field_input.tpl" field=$maxreq}}
 
-{{$profile_in_dir}}
+{{$profile_in_dir nofilter}}
 
-{{$profile_in_net_dir}}
+{{$profile_in_net_dir nofilter}}
 
-{{$hide_friends}}
+{{$hide_friends nofilter}}
 
-{{$hide_wall}}
+{{$hide_wall nofilter}}
 
-{{$blockwall}}
+{{$blockwall nofilter}}
 
-{{$blocktags}}
+{{$blocktags nofilter}}
 
-{{$suggestme}}
+{{$suggestme nofilter}}
 
-{{$unkmail}}
+{{$unkmail nofilter}}
 
 
 {{include file="field_input.tpl" field=$cntunkmail}}
@@ -90,7 +90,7 @@
 
 	<div style="display: none;">
 		<div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
-			{{$aclselect}}
+			{{$aclselect nofilter}}
 		</div>
 	</div>
 
@@ -99,11 +99,11 @@
 <br/>
 <div id="settings-default-perms-end"></div>
 
-{{$group_select}}
+{{$group_select nofilter}}
 
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 </div>
 
@@ -113,13 +113,6 @@
 <h3 class="settings-heading"><a href="javascript:;">{{$h_not}}</a></h3>
 <div class="settings-content-block">
 <div id="settings-notifications">
-
-<div id="settings-activity-desc">{{$activity_options}}</div>
-
-{{include file="field_checkbox.tpl" field=$post_newfriend}}
-{{include file="field_checkbox.tpl" field=$post_joingroup}}
-{{include file="field_checkbox.tpl" field=$post_profilechange}}
-
 
 <div id="settings-notify-desc">{{$lbl_not}}</div>
 
@@ -137,13 +130,6 @@
 {{include file="field_checkbox.tpl" field=$email_textonly}}
 {{include file="field_checkbox.tpl" field=$detailed_notif}}
 
-
-<!--
-<div class="field">
- <button onclick="javascript:Notification.requestPermission(function(perm){if(perm === 'granted')alert('{{$desktop_notifications_success_message}}');});return false;">{{$desktop_notifications}}</button>
- <span class="field_help">{{$desktop_notifications_note}}</span>
-</div>
--->
 {{include file="field_yesno.tpl" field=$desktop_notifications}}
 <script>
 (function(){
@@ -194,7 +180,7 @@
 </div>
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 </div>
 
@@ -203,10 +189,10 @@
 <div class="settings-content-block">
 <div id="settings-pagetype-desc">{{$h_descadvn}}</div>
 
-{{$pagetype}}
+{{$pagetype nofilter}}
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="submit" class="settings-submit" value="{{$submit|escape:'html'}}" />
+<input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
 </div>
 </div>
 
@@ -215,7 +201,7 @@
 <div id="settings-pagetype-desc">{{$relocate_text}}</div>
 
 <div class="settings-submit-wrapper" >
-<input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button|escape:'html'}}" />
+<input type="submit" name="resend_relocate" class="settings-submit" value="{{$relocate_button}}" />
 </div>
 </div>
 

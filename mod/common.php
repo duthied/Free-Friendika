@@ -2,16 +2,17 @@
 /**
  * @file include/common.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
+use Friendica\Content\Pager;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
-use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Model\Profile;
-
-require_once 'include/dba.php';
-require_once 'mod/contacts.php';
+use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
+use Friendica\Model;
+use Friendica\Module;
+use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 function common_content(App $a)
 {
@@ -36,40 +37,40 @@ function common_content(App $a)
 	}
 
 	if ($cmd === 'loc' && $cid) {
-		$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['id' => $cid, 'uid' => $uid]);
+		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['id' => $cid, 'uid' => $uid]);
 
-		if (DBM::is_result($contact)) {
+		if (DBA::isResult($contact)) {
 			$a->page['aside'] = "";
-			Profile::load($a, "", 0, Contact::getDetailsByURL($contact["url"]));
+			Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 		}
 	} else {
-		$contact = dba::selectFirst('contact', ['name', 'url', 'photo'], ['self' => true, 'uid' => $uid]);
+		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['self' => true, 'uid' => $uid]);
 
-		if (DBM::is_result($contact)) {
-			$vcard_widget = replace_macros(get_markup_template("vcard-widget.tpl"), [
-				'$name' => htmlentities($contact['name']),
+		if (DBA::isResult($contact)) {
+			$vcard_widget = Renderer::replaceMacros(Renderer::getMarkupTemplate("widget/vcard.tpl"), [
+				'$name'  => $contact['name'],
 				'$photo' => $contact['photo'],
-				'url' => 'contacts/' . $cid
+				'url'    => 'contact/' . $cid
 			]);
 
-			if (!x($a->page, 'aside')) {
+			if (empty($a->page['aside'])) {
 				$a->page['aside'] = '';
 			}
 			$a->page['aside'] .= $vcard_widget;
 		}
 	}
 
-	if (!DBM::is_result($contact)) {
+	if (!DBA::isResult($contact)) {
 		return;
 	}
 
-	if (!$cid && Profile::getMyURL()) {
-		$contact = dba::selectFirst('contact', ['id'], ['nurl' => normalise_link(Profile::getMyURL()), 'uid' => $uid]);
-		if (DBM::is_result($contact)) {
+	if (!$cid && Model\Profile::getMyURL()) {
+		$contact = DBA::selectFirst('contact', ['id'], ['nurl' => Strings::normaliseLink(Model\Profile::getMyURL()), 'uid' => $uid]);
+		if (DBA::isResult($contact)) {
 			$cid = $contact['id'];
 		} else {
-			$gcontact = dba::selectFirst('gcontact', ['id'], ['nurl' => normalise_link(Profile::getMyURL())]);
-			if (DBM::is_result($gcontact)) {
+			$gcontact = DBA::selectFirst('gcontact', ['id'], ['nurl' => Strings::normaliseLink(Model\Profile::getMyURL())]);
+			if (DBA::isResult($gcontact)) {
 				$zcid = $gcontact['id'];
 			}
 		}
@@ -80,51 +81,51 @@ function common_content(App $a)
 	}
 
 	if ($cid) {
-		$t = GContact::countCommonFriends($uid, $cid);
+		$total = Model\GContact::countCommonFriends($uid, $cid);
 	} else {
-		$t = GContact::countCommonFriendsZcid($uid, $zcid);
+		$total = Model\GContact::countCommonFriendsZcid($uid, $zcid);
 	}
 
-	if ($t > 0) {
-		$a->set_pager_total($t);
-	} else {
+	if ($total < 1) {
 		notice(L10n::t('No contacts in common.') . EOL);
 		return $o;
 	}
 
+	$pager = new Pager($a->query_string);
+
 	if ($cid) {
-		$r = GContact::commonFriends($uid, $cid, $a->pager['start'], $a->pager['itemspage']);
+		$common_friends = Model\GContact::commonFriends($uid, $cid, $pager->getStart(), $pager->getItemsPerPage());
 	} else {
-		$r = GContact::commonFriendsZcid($uid, $zcid, $a->pager['start'], $a->pager['itemspage']);
+		$common_friends = Model\GContact::commonFriendsZcid($uid, $zcid, $pager->getStart(), $pager->getItemsPerPage());
 	}
 
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($common_friends)) {
 		return $o;
 	}
 
 	$id = 0;
 
 	$entries = [];
-	foreach ($r as $rr) {
+	foreach ($common_friends as $common_friend) {
 		//get further details of the contact
-		$contact_details = Contact::getDetailsByURL($rr['url'], $uid);
+		$contact_details = Model\Contact::getDetailsByURL($common_friend['url'], $uid);
 
 		// $rr['id'] is needed to use contact_photo_menu()
 		/// @TODO Adding '/" here avoids E_NOTICE on missing constants
-		$rr['id'] = $rr['cid'];
+		$common_friend['id'] = $common_friend['cid'];
 
-		$photo_menu = Contact::photoMenu($rr);
+		$photo_menu = Model\Contact::photoMenu($common_friend);
 
 		$entry = [
-			'url'          => $rr['url'],
-			'itemurl'      => defaults($contact_details, 'addr', $rr['url']),
+			'url'          => Model\Contact::magicLink($common_friend['url']),
+			'itemurl'      => ($contact_details['addr'] ?? '') ?: $common_friend['url'],
 			'name'         => $contact_details['name'],
-			'thumb'        => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
-			'img_hover'    => htmlentities($contact_details['name']),
+			'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
+			'img_hover'    => $contact_details['name'],
 			'details'      => $contact_details['location'],
 			'tags'         => $contact_details['keywords'],
 			'about'        => $contact_details['about'],
-			'account_type' => Contact::getAccountType($contact_details),
+			'account_type' => Model\Contact::getAccountType($contact_details),
 			'network'      => ContactSelector::networkToName($contact_details['network'], $contact_details['url']),
 			'photo_menu'   => $photo_menu,
 			'id'           => ++$id,
@@ -135,18 +136,18 @@ function common_content(App $a)
 	$title = '';
 	$tab_str = '';
 	if ($cmd === 'loc' && $cid && local_user() == $uid) {
-		$tab_str = contacts_tab($a, $cid, 4);
+		$tab_str = Module\Contact::getTabsHTML($a, $contact, 4);
 	} else {
 		$title = L10n::t('Common Friends');
 	}
 
-	$tpl = get_markup_template('viewcontact_template.tpl');
+	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl, [
+	$o .= Renderer::replaceMacros($tpl, [
 		'$title'    => $title,
 		'$tab_str'  => $tab_str,
 		'$contacts' => $entries,
-		'$paginate' => paginate($a),
+		'$paginate' => $pager->renderFull($total),
 	]);
 
 	return $o;

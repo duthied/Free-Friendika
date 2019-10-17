@@ -4,9 +4,12 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
 use ASN_BASE;
 use ASNValue;
+use Friendica\Core\Config;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 
 /**
  * @brief Crypto class
@@ -22,6 +25,9 @@ class Crypto
 	 */
 	public static function rsaSign($data, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			Logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		openssl_sign($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 		return $sig;
 	}
@@ -35,12 +41,15 @@ class Crypto
 	 */
 	public static function rsaVerify($data, $sig, $key, $alg = 'sha256')
 	{
+		if (empty($key)) {
+			Logger::warning('Empty key parameter', ['callstack' => System::callstack()]);
+		}
 		return openssl_verify($data, $sig, $key, (($alg == 'sha1') ? OPENSSL_ALGO_SHA1 : $alg));
 	}
 
 	/**
 	 * @param string $Der     der formatted string
-	 * @param string $Private key type optional, default false
+	 * @param bool   $Private key type optional, default false
 	 * @return string
 	 */
 	private static function DerToPem($Der, $Private = false)
@@ -147,6 +156,7 @@ class Crypto
 	 * @param string $m   modulo reference
 	 * @param object $e   exponent reference
 	 * @return void
+	 * @throws \Exception
 	 */
 	private static function pubRsaToMe($key, &$m, &$e)
 	{
@@ -157,13 +167,14 @@ class Crypto
 
 		$r = ASN_BASE::parseASNString($x);
 
-		$m = base64url_decode($r[0]->asnData[0]->asnData);
-		$e = base64url_decode($r[0]->asnData[1]->asnData);
+		$m = Strings::base64UrlDecode($r[0]->asnData[0]->asnData);
+		$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData);
 	}
 
 	/**
 	 * @param string $key key
 	 * @return string
+	 * @throws \Exception
 	 */
 	public static function rsaToPem($key)
 	{
@@ -174,6 +185,7 @@ class Crypto
 	/**
 	 * @param string $key key
 	 * @return string
+	 * @throws \Exception
 	 */
 	private static function pemToRsa($key)
 	{
@@ -186,6 +198,7 @@ class Crypto
 	 * @param string $m   modulo reference
 	 * @param string $e   exponent reference
 	 * @return void
+	 * @throws \Exception
 	 */
 	public static function pemToMe($key, &$m, &$e)
 	{
@@ -196,8 +209,10 @@ class Crypto
 
 		$r = ASN_BASE::parseASNString($x);
 
-		$m = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
-		$e = base64url_decode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+		if (isset($r[0])) {
+			$m = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[0]->asnData);
+			$e = Strings::base64UrlDecode($r[0]->asnData[1]->asnData[0]->asnData[1]->asnData);
+		}
 	}
 
 	/**
@@ -215,6 +230,7 @@ class Crypto
 	/**
 	 * @param integer $bits number of bits
 	 * @return mixed
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function newKeypair($bits)
 	{
@@ -231,7 +247,7 @@ class Crypto
 		$result = openssl_pkey_new($openssl_options);
 
 		if (empty($result)) {
-			logger('new_keypair: failed');
+			Logger::log('new_keypair: failed');
 			return false;
 		}
 
@@ -245,5 +261,260 @@ class Crypto
 		$response['pubkey'] = $pkey["key"];
 
 		return $response;
+	}
+
+	/**
+	 * Encrypt a string with 'aes-256-cbc' cipher method.
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
+	 * @param string $data
+	 * @param string $key   The key used for encryption.
+	 * @param string $iv    A non-NULL Initialization Vector.
+	 * 
+	 * @return string|boolean Encrypted string or false on failure.
+	 */
+	private static function encryptAES256CBC($data, $key, $iv)
+	{
+		return openssl_encrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
+	}
+
+	/**
+	 * Decrypt a string with 'aes-256-cbc' cipher method.
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
+	 * @param string $data
+	 * @param string $key   The key used for decryption.
+	 * @param string $iv    A non-NULL Initialization Vector.
+	 * 
+	 * @return string|boolean Decrypted string or false on failure.
+	 */
+	private static function decryptAES256CBC($data, $key, $iv)
+	{
+		return openssl_decrypt($data, 'aes-256-cbc', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
+	}
+
+	/**
+	 * Encrypt a string with 'aes-256-ctr' cipher method.
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
+	 * @param string $data
+	 * @param string $key   The key used for encryption.
+	 * @param string $iv    A non-NULL Initialization Vector.
+	 * 
+	 * @return string|boolean Encrypted string or false on failure.
+	 */
+	private static function encryptAES256CTR($data, $key, $iv)
+	{
+		$key = substr($key, 0, 32);
+		$iv = substr($iv, 0, 16);
+		return openssl_encrypt($data, 'aes-256-ctr', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
+	}
+
+	/**
+	 * Decrypt a string with 'aes-256-ctr' cipher method.
+	 * 
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 * 
+	 * @param string $data
+	 * @param string $key   The key used for decryption.
+	 * @param string $iv    A non-NULL Initialization Vector.
+	 * 
+	 * @return string|boolean Decrypted string or false on failure.
+	 */
+	private static function decryptAES256CTR($data, $key, $iv)
+	{
+		$key = substr($key, 0, 32);
+		$iv = substr($iv, 0, 16);
+		return openssl_decrypt($data, 'aes-256-ctr', str_pad($key, 32, "\0"), OPENSSL_RAW_DATA, str_pad($iv, 16, "\0"));
+	}
+
+	/**
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 *
+	 * @param string $data
+	 * @param string $pubkey The public key.
+	 * @param string $alg    The algorithm used for encryption.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function encapsulate($data, $pubkey, $alg = 'aes256cbc')
+	{
+		if ($alg === 'aes256cbc') {
+			return self::encapsulateAes($data, $pubkey);
+		}
+		return self::encapsulateOther($data, $pubkey, $alg);
+	}
+
+	/**
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 *
+	 * @param string $data
+	 * @param string $pubkey The public key.
+	 * @param string $alg    The algorithm used for encryption.
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	private static function encapsulateOther($data, $pubkey, $alg)
+	{
+		if (!$pubkey) {
+			Logger::log('no key. data: '.$data);
+		}
+		$fn = 'encrypt' . strtoupper($alg);
+		if (method_exists(__CLASS__, $fn)) {
+			$result = ['encrypted' => true];
+			$key = random_bytes(256);
+			$iv  = random_bytes(256);
+			$result['data'] = Strings::base64UrlEncode(self::$fn($data, $key, $iv), true);
+
+			// log the offending call so we can track it down
+			if (!openssl_public_encrypt($key, $k, $pubkey)) {
+				$x = debug_backtrace();
+				Logger::log('RSA failed. ' . print_r($x[0], true));
+			}
+
+			$result['alg'] = $alg;
+			$result['key'] = Strings::base64UrlEncode($k, true);
+			openssl_public_encrypt($iv, $i, $pubkey);
+			$result['iv'] = Strings::base64UrlEncode($i, true);
+
+			return $result;
+		} else {
+			$x = ['data' => $data, 'pubkey' => $pubkey, 'alg' => $alg, 'result' => $data];
+			Hook::callAll('other_encapsulate', $x);
+
+			return $x['result'];
+		}
+	}
+
+	/**
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 *
+	 * @param string $data
+	 * @param string $pubkey
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	private static function encapsulateAes($data, $pubkey)
+	{
+		if (!$pubkey) {
+			Logger::log('aes_encapsulate: no key. data: ' . $data);
+		}
+
+		$key = random_bytes(32);
+		$iv  = random_bytes(16);
+		$result = ['encrypted' => true];
+		$result['data'] = Strings::base64UrlEncode(self::encryptAES256CBC($data, $key, $iv), true);
+
+		// log the offending call so we can track it down
+		if (!openssl_public_encrypt($key, $k, $pubkey)) {
+			$x = debug_backtrace();
+			Logger::log('aes_encapsulate: RSA failed. ' . print_r($x[0], true));
+		}
+
+		$result['alg'] = 'aes256cbc';
+		$result['key'] = Strings::base64UrlEncode($k, true);
+		openssl_public_encrypt($iv, $i, $pubkey);
+		$result['iv'] = Strings::base64UrlEncode($i, true);
+
+		return $result;
+	}
+
+	/**
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 *
+	 * @param array $data ['iv' => $iv, 'key' => $key, 'alg' => $alg, 'data' => $data]
+	 * @param string $prvkey The private key used for decryption.
+	 *
+	 * @return string|boolean The decrypted string or false on failure.
+	 * @throws \Exception
+	 */
+	public static function unencapsulate(array $data, $prvkey)
+	{
+		if (!$data) {
+			return;
+		}
+
+		$alg = ((array_key_exists('alg', $data)) ? $data['alg'] : 'aes256cbc');
+		if ($alg === 'aes256cbc') {
+			return self::encapsulateAes($data['data'], $prvkey);
+		}
+		return self::encapsulateOther($data['data'], $prvkey, $alg);
+	}
+
+	/**
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 *
+	 * @param array $data
+	 * @param string $prvkey The private key used for decryption.
+	 * @param string $alg
+	 *
+	 * @return string|boolean The decrypted string or false on failure.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function unencapsulateOther(array $data, $prvkey, $alg)
+	{
+		$fn = 'decrypt' . strtoupper($alg);
+
+		if (method_exists(__CLASS__, $fn)) {
+			openssl_private_decrypt(Strings::base64UrlDecode($data['key']), $k, $prvkey);
+			openssl_private_decrypt(Strings::base64UrlDecode($data['iv']), $i, $prvkey);
+
+			return self::$fn(Strings::base64UrlDecode($data['data']), $k, $i);
+		} else {
+			$x = ['data' => $data, 'prvkey' => $prvkey, 'alg' => $alg, 'result' => $data];
+			Hook::callAll('other_unencapsulate', $x);
+
+			return $x['result'];
+		}
+	}
+
+	/**
+	 *
+	 * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/include/crypto.php
+	 *
+	 * @param array  $data
+	 * @param string $prvkey The private key used for decryption.
+	 *
+	 * @return string|boolean The decrypted string or false on failure.
+	 * @throws \Exception
+	 */
+	private static function unencapsulateAes($data, $prvkey)
+	{
+		openssl_private_decrypt(Strings::base64UrlDecode($data['key']), $k, $prvkey);
+		openssl_private_decrypt(Strings::base64UrlDecode($data['iv']), $i, $prvkey);
+
+		return self::decryptAES256CBC(Strings::base64UrlDecode($data['data']), $k, $i);
+	}
+
+
+	/**
+	 * Creates cryptographic secure random digits
+	 *
+	 * @param string $digits The count of digits
+	 * @return int The random Digits
+	 *
+	 * @throws \Exception In case 'random_int' isn't usable
+	 */
+	public static function randomDigits($digits)
+	{
+		$rn = '';
+
+		// generating cryptographically secure pseudo-random integers
+		for ($i = 0; $i < $digits; $i++) {
+			$rn .= random_int(0, 9);
+		}
+
+		return $rn;
 	}
 }

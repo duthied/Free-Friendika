@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class BadGatewayException extends HTTPException
 {
-	var $httpcode = 502;
+	protected $code = 502;
 }

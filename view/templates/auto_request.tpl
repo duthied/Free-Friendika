@@ -10,10 +10,10 @@
 </ul>
 </p>
 <p>
-{{$invite_desc}}
+{{$invite_desc nofilter}}
 </p>
 <p>
-{{$desc}}
+{{$desc nofilter}}
 </p>
 {{/if}}
 
@@ -30,18 +30,18 @@
 {{if $url}}<dl><dt>{{$url_label}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>{{/if}}
 {{if $location}}<dl><dt>{{$location_label}}</dt><dd>{{$location}}</dd></dl>{{/if}}
 {{if $keywords}}<dl><dt>{{$keywords_label}}</dt><dd>{{$keywords}}</dd></dl>{{/if}}
-{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about}}</dd></dl>{{/if}}
+{{if $about}}<dl><dt>{{$about_label}}</dt><dd>{{$about nofilter}}</dd></dl>{{/if}}
 
 <div id="dfrn-request-url-wrapper" >
 	<label id="dfrn-url-label" for="dfrn-url" >{{$your_address}}</label>
         {{if $myaddr}}
                 {{$myaddr}}
-                <input type="hidden" name="dfrn_url" id="dfrn-url" value="{{$myaddr|escape:'html'}}" />
+                <input type="hidden" name="dfrn_url" id="dfrn-url" value="{{$myaddr}}" />
         {{else}}
-        <input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr|escape:'html'}}" />
+        <input type="text" name="dfrn_url" id="dfrn-url" size="32" value="{{$myaddr}}" />
         {{/if}}
         {{if $url}}
-                <input type="hidden" name="url" id="url" value="{{$url|escape:'html'}}" />
+                <input type="hidden" name="url" id="url" value="{{$url}}" />
         {{/if}}
 	<div id="dfrn-request-url-end"></div>
 </div>
@@ -53,8 +53,8 @@
 
 	<div id="dfrn-request-submit-wrapper">
 		{{if $submit}}
-			<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit|escape:'html'}}" />
+			<input type="submit" name="submit" id="dfrn-request-submit-button" value="{{$submit}}" />
 		{{/if}}
-		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel|escape:'html'}}" />
+		<input type="submit" name="cancel" id="dfrn-request-cancel-button" value="{{$cancel}}" />
 	</div>
 </form>

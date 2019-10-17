@@ -1,12 +1,18 @@
 <div class="generic-page-wrapper">
-	{{$tabs}}
-	{{include file="section_title.tpl" title=$title}}
+	{{$tabs nofilter}}
+	{{include file="section_title.tpl" title=$title pullright=1}}
 
 	{{* The link to create a new event *}}
-	<div id="new-event-link"><button type="button" class="btn-link" onclick="addToModal('{{$new_event.0}}')" >{{$new_event.1}}</button></div>
+	{{if $new_event.0}}
+	<div class="pull-right" id="new-event-link">
+		<button type="button" class="btn-link page-action faded-icon" onclick="addToModal('{{$new_event.0}}')" title="{{$new_event.1}}" data-toggle="tooltip">
+			<i class="fa fa-plus"></i>
+		</button>
+	</div>
+	{{/if}}
 
 	{{* We create our own fullcallendar header (with title & calendar view *}}
-	<div id="fc-header">
+	<div id="fc-header" class="clear">
 		<div id="fc-header-right" class="pull-right">
 			{{* The dropdown to change the callendar view *}}
 			<ul class="nav nav-pills">

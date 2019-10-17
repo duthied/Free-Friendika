@@ -32,8 +32,9 @@ Friendica Documentation and Resources
 * [Installing Connectors (Twitter/GNU Social)](help/Installing-Connectors)
 * [Install an ejabberd server (XMPP chat) with synchronized credentials](help/install-ejabberd)
 * [Using SSL with Friendica](help/SSL)
-* [Config values that can only be set in .htconfig.php](help/htconfig)
+* [Config values that can only be set in config/local.config.php](help/Config)
 * [Improve Performance](help/Improve-Performance)
+* [Administration Tools](help/tools)
 
 **Developer Manual**
 
@@ -46,15 +47,17 @@ Friendica Documentation and Resources
 	* [Addon Development](help/Addons)
 	* [Theme Development](help/themes)
 	* [Smarty 3 Templates](help/smarty3-templates)
+	* [Storage backend addon](help/AddonStorageBackend)
 * How To
 	* [Translate Friendica](help/translations)
 	* [Use Composer](help/Composer)
 	* [Move classes to `src`](help/Developer-How-To-Move-Classes-to-src)
+	* [Run tests](help/Tests)
 * Reference
 	* [Twitter/GNU Social API Functions](help/api)
 	* [Code (Doxygen generated - sets cookies)](doc/html/)
 	* [Protocol Documentation](help/Protocol)
-	* [Database schema documantation](help/database)
+	* [Database schema documentation](help/database)
 	* [Class Autoloading](help/autoloader)
 
 **External Resources**
@@ -71,4 +74,3 @@ Friendica Documentation and Resources
 
 * [Site/Version Info](friendica)
 * [Friendica Credits](credits)
-

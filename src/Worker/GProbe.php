@@ -6,10 +6,13 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Cache;
-use Friendica\Database\DBM;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
+use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
+use Friendica\Util\Strings;
 
 class GProbe {
 	public static function execute($url = '')
@@ -20,19 +23,19 @@ class GProbe {
 
 		$r = q(
 			"SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
-			dbesc(normalise_link($url))
+			DBA::escape(Strings::normaliseLink($url))
 		);
 
-		logger("gprobe start for ".normalise_link($url), LOGGER_DEBUG);
+		Logger::log("gprobe start for ".Strings::normaliseLink($url), Logger::DEBUG);
 
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			// Is it a DDoS attempt?
 			$urlparts = parse_url($url);
 
 			$result = Cache::get("gprobe:".$urlparts["host"]);
 			if (!is_null($result)) {
-				if (in_array($result["network"], [NETWORK_FEED, NETWORK_PHANTOM])) {
-					logger("DDoS attempt detected for ".$urlparts["host"]." by ".$_SERVER["REMOTE_ADDR"].". server data: ".print_r($_SERVER, true), LOGGER_DEBUG);
+				if (in_array($result["network"], [Protocol::FEED, Protocol::PHANTOM])) {
+					Logger::debug("DDoS attempt detected for " . $urlparts["host"] . " by " . ($_SERVER["REMOTE_ADDR"] ?? ''), ['$_SERVER' => $_SERVER]);
 					return;
 				}
 			}
@@ -43,23 +46,23 @@ class GProbe {
 				Cache::set("gprobe:".$urlparts["host"], $arr);
 			}
 
-			if (!in_array($arr["network"], [NETWORK_FEED, NETWORK_PHANTOM])) {
+			if (!in_array($arr["network"], [Protocol::FEED, Protocol::PHANTOM])) {
 				GContact::update($arr);
 			}
 
 			$r = q(
 				"SELECT `id`, `url`, `network` FROM `gcontact` WHERE `nurl` = '%s' ORDER BY `id` LIMIT 1",
-				dbesc(normalise_link($url))
+				DBA::escape(Strings::normaliseLink($url))
 			);
 		}
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			// Check for accessibility and do a poco discovery
-			if (PortableContact::lastUpdated($r[0]['url'], true) && ($r[0]["network"] == NETWORK_DFRN)) {
+			if (GContact::updateFromProbe($r[0]['url'], true) && ($r[0]["network"] == Protocol::DFRN)) {
 				PortableContact::loadWorker(0, 0, $r[0]['id'], str_replace('/profile/', '/poco/', $r[0]['url']));
 			}
 		}
 
-		logger("gprobe end for ".normalise_link($url), LOGGER_DEBUG);
+		Logger::log("gprobe end for ".Strings::normaliseLink($url), Logger::DEBUG);
 		return;
 	}
 }

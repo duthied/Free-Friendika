@@ -12,6 +12,8 @@
 	{{if $nav.register}}<a id="nav-register-link" class="nav-commlink {{$nav.register.2}} {{$sel.register}}" href="{{$nav.register.0}}" title="{{$nav.register.3}}" >{{$nav.register.1}}</a>{{/if}}
 		
 	{{if $nav.help}} <a id="nav-help-link" class="nav-link {{$nav.help.2}}" target="friendica-help" href="{{$nav.help.0}}" title="{{$nav.help.3}}" >{{$nav.help.1}}</a>{{/if}}
+
+	{{if $nav.tos}} <a id="nav-tos-link" class="nav-link {{$nav.tos.2}}" href="{{$nav.tos.0}}" title="{{$nav.tos.3}}" >{{$nav.tos.1}}</a>{{/if}}
 		
 	{{if $nav.apps}}<a id="nav-apps-link" class="nav-link {{$nav.apps.2}}" href="{{$nav.apps.0}}" title="{{$nav.apps.3}}" >{{$nav.apps.1}}</a>{{/if}}
 
@@ -42,7 +44,7 @@
 
 
 
-	{{if $nav.manage}}<a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}} {{$sel.manage}}" href="{{$nav.manage.0}}" title="{{$nav.manage.3}}">{{$nav.manage.1}}</a>{{/if}}
+	{{if $nav.delegation}}<a id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}">{{$nav.delegation.1}}</a>{{/if}}
 
 
 		{{if $nav.notifications}}
@@ -61,7 +63,7 @@
 	{{if $nav.contacts}}<a id="nav-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}" >{{$nav.contacts.1}}</a>{{/if}}
 	</span>
 	<span id="nav-end"></span>
-	<span id="banner">{{$banner}}</span>
+	<span id="banner">{{$banner nofilter}}</span>
 </nav>
 
 <ul id="nav-notifications-template" style="display:none;" rel="template">

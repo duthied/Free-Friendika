@@ -5,20 +5,16 @@
 	<table>
 		<tr>
 			<th>{{$id_header}}</th>
-			<th>{{$to_header}}</th>
-			<th>{{$url_header}}</th>
-			<th>{{$network_header}}</th>
+			<th>{{$param_header}}</th>
 			<th>{{$created_header}}</th>
-			<th>{{$last_header}}</th>
+			<th>{{$prio_header}}</th>
 		</tr>
 		{{foreach $entries as $e}}
 		<tr>
 			<td>{{$e.id}}</td>
-			<td>{{$e.name}}</td>
-			<td><a href="{{$e.nurl}}">{{$e.nurl}}</a></td>
-			<td>{{$e.network}}</td>
+			<td>{{$e.parameter}}</td>
 			<td>{{$e.created}}</td>
-			<td>{{$e.last}}</td>
+			<td>{{$e.priority}}</td>
 		</tr>
 		{{/foreach}}
 	</table>

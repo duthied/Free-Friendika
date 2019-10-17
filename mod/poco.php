@@ -8,30 +8,35 @@ use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
+use Friendica\Util\XML;
 
 function poco_init(App $a) {
 	$system_mode = false;
 
 	if (intval(Config::get('system', 'block_public')) || (Config::get('system', 'block_local_dir'))) {
-		System::httpExit(401);
+		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 
 	if ($a->argc > 1) {
-		$user = notags(trim($a->argv[1]));
+		$nickname = Strings::escapeTags(trim($a->argv[1]));
 	}
-	if (! x($user)) {
+	if (empty($nickname)) {
 		$c = q("SELECT * FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1");
-		if (! DBM::is_result($c)) {
-			System::httpExit(401);
+		if (!DBA::isResult($c)) {
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 		$system_mode = true;
 	}
 
-	$format = (($_GET['format']) ? $_GET['format'] : 'json');
+	$format = ($_GET['format'] ?? '') ?: 'json';
 
 	$justme = false;
 	$global = false;
@@ -41,8 +46,9 @@ function poco_init(App $a) {
 		$ret = PortableContact::serverlist();
 		header('Content-type: application/json');
 		echo json_encode($ret);
-		killme();
+		exit();
 	}
+
 	if ($a->argc > 1 && $a->argv[1] === '@global') {
 		// List of all profiles that this server recently had data from
 		$global = true;
@@ -64,10 +70,10 @@ function poco_init(App $a) {
 	if (! $system_mode && ! $global) {
 		$users = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
 			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
-			dbesc($user)
+			DBA::escape($nickname)
 		);
-		if (! DBM::is_result($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
-			System::httpExit(404);
+		if (! DBA::isResult($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$user = $users[0];
@@ -75,22 +81,22 @@ function poco_init(App $a) {
 
 	if ($justme) {
 		$sql_extra = " AND `contact`.`self` = 1 ";
+	} else {
+		$sql_extra = "";
 	}
-//	else
-//		$sql_extra = " AND `contact`.`self` = 0 ";
 
-	if ($cid) {
+	if (!empty($cid)) {
 		$sql_extra = sprintf(" AND `contact`.`id` = %d ", intval($cid));
 	}
-	if (x($_GET, 'updatedSince')) {
+	if (!empty($_GET['updatedSince'])) {
 		$update_limit = date(DateTimeFormat::MYSQL, strtotime($_GET['updatedSince']));
 	}
 	if ($global) {
 		$contacts = q("SELECT count(*) AS `total` FROM `gcontact` WHERE `updated` >= '%s' AND `updated` >= `last_failure` AND NOT `hide` AND `network` IN ('%s', '%s', '%s')",
-			dbesc($update_limit),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			DBA::escape($update_limit),
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::OSTATUS)
 		);
 	} elseif ($system_mode) {
 		$contacts = q("SELECT count(*) AS `total` FROM `contact` WHERE `self` = 1
@@ -100,36 +106,37 @@ function poco_init(App $a) {
 			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra",
 			intval($user['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_STATUSNET)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::OSTATUS),
+			DBA::escape(Protocol::STATUSNET)
 		);
 	}
-	if (DBM::is_result($contacts)) {
+	if (DBA::isResult($contacts)) {
 		$totalResults = intval($contacts[0]['total']);
 	} else {
 		$totalResults = 0;
 	}
-	$startIndex = intval($_GET['startIndex']);
-	if (! $startIndex) {
+	if (!empty($_GET['startIndex'])) {
+		$startIndex = intval($_GET['startIndex']);
+	} else {
 		$startIndex = 0;
 	}
-	$itemsPerPage = ((x($_GET, 'count') && intval($_GET['count'])) ? intval($_GET['count']) : $totalResults);
+	$itemsPerPage = ((!empty($_GET['count'])) ? intval($_GET['count']) : $totalResults);
 
 	if ($global) {
-		logger("Start global query", LOGGER_DEBUG);
+		Logger::log("Start global query", Logger::DEBUG);
 		$contacts = q("SELECT * FROM `gcontact` WHERE `updated` > '%s' AND NOT `hide` AND `network` IN ('%s', '%s', '%s') AND `updated` > `last_failure`
 			ORDER BY `updated` DESC LIMIT %d, %d",
-			dbesc($update_limit),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
+			DBA::escape($update_limit),
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::OSTATUS),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
 	} elseif ($system_mode) {
-		logger("Start system mode query", LOGGER_DEBUG);
+		Logger::log("Start system mode query", Logger::DEBUG);
 		$contacts = q("SELECT `contact`.*, `profile`.`about` AS `pabout`, `profile`.`locality` AS `plocation`, `profile`.`pub_keywords`,
 				`profile`.`gender` AS `pgender`, `profile`.`address` AS `paddress`, `profile`.`region` AS `pregion`,
 				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
@@ -141,29 +148,29 @@ function poco_init(App $a) {
 			intval($itemsPerPage)
 		);
 	} else {
-		logger("Start query for user " . $user['nickname'], LOGGER_DEBUG);
+		Logger::log("Start query for user " . $user['nickname'], Logger::DEBUG);
 		$contacts = q("SELECT * FROM `contact` WHERE `uid` = %d AND `blocked` = 0 AND `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 			AND (`success_update` >= `failure_update` OR `last-item` >= `failure_update`)
 			AND `network` IN ('%s', '%s', '%s', '%s') $sql_extra LIMIT %d, %d",
 			intval($user['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS),
-			dbesc(NETWORK_STATUSNET),
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::OSTATUS),
+			DBA::escape(Protocol::STATUSNET),
 			intval($startIndex),
 			intval($itemsPerPage)
 		);
 	}
-	logger("Query done", LOGGER_DEBUG);
+	Logger::log("Query done", Logger::DEBUG);
 
 	$ret = [];
-	if (x($_GET, 'sorted')) {
+	if (!empty($_GET['sorted'])) {
 		$ret['sorted'] = false;
 	}
-	if (x($_GET, 'filtered')) {
+	if (!empty($_GET['filtered'])) {
 		$ret['filtered'] = false;
 	}
-	if (x($_GET, 'updatedSince') && ! $global) {
+	if (!empty($_GET['updatedSince']) && ! $global) {
 		$ret['updatedSince'] = false;
 	}
 	$ret['startIndex']   = (int) $startIndex;
@@ -189,7 +196,7 @@ function poco_init(App $a) {
 		'generation' => false
 	];
 
-	if ((! x($_GET, 'fields')) || ($_GET['fields'] === '@all')) {
+	if (empty($_GET['fields']) || ($_GET['fields'] === '@all')) {
 		foreach ($fields_ret as $k => $v) {
 			$fields_ret[$k] = true;
 		}
@@ -201,8 +208,12 @@ function poco_init(App $a) {
 	}
 
 	if (is_array($contacts)) {
-		if (DBM::is_result($contacts)) {
+		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
+				if (!isset($contact['updated'])) {
+					$contact['updated'] = '';
+				}
+
 				if (! isset($contact['generation'])) {
 					if ($global) {
 						$contact['generation'] = 3;
@@ -251,7 +262,7 @@ function poco_init(App $a) {
 				}
 
 				// Non connected persons can only see the keywords of a Diaspora account
-				if ($contact['network'] == NETWORK_DIASPORA) {
+				if ($contact['network'] == Protocol::DIASPORA) {
 					$contact['location'] = "";
 					$about = "";
 					$contact['gender'] = "";
@@ -278,7 +289,7 @@ function poco_init(App $a) {
 				}
 				if ($fields_ret['urls']) {
 					$entry['urls'] = [['value' => $contact['url'], 'type' => 'profile']];
-					if ($contact['addr'] && ($contact['network'] !== NETWORK_MAIL)) {
+					if ($contact['addr'] && ($contact['network'] !== Protocol::MAIL)) {
 						$entry['urls'][] = ['value' => 'acct:' . $contact['addr'], 'type' => 'webfinger'];
 					}
 				}
@@ -308,11 +319,11 @@ function poco_init(App $a) {
 				}
 				if ($fields_ret['network']) {
 					$entry['network'] = $contact['network'];
-					if ($entry['network'] == NETWORK_STATUSNET) {
-						$entry['network'] = NETWORK_OSTATUS;
+					if ($entry['network'] == Protocol::STATUSNET) {
+						$entry['network'] = Protocol::OSTATUS;
 					}
 					if (($entry['network'] == "") && ($contact['self'])) {
-						$entry['network'] = NETWORK_DFRN;
+						$entry['network'] = Protocol::DFRN;
 					}
 				}
 				if ($fields_ret['tags']) {
@@ -360,20 +371,21 @@ function poco_init(App $a) {
 			$ret['entry'][] = [];
 		}
 	} else {
-		System::httpExit(500);
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
-	logger("End of poco", LOGGER_DEBUG);
+
+	Logger::log("End of poco", Logger::DEBUG);
 
 	if ($format === 'xml') {
 		header('Content-type: text/xml');
-		echo replace_macros(get_markup_template('poco_xml.tpl'), array_xmlify(['$response' => $ret]));
-		killme();
+		echo Renderer::replaceMacros(Renderer::getMarkupTemplate('poco_xml.tpl'), XML::arrayEscape(['$response' => $ret]));
+		exit();
 	}
 	if ($format === 'json') {
 		header('Content-type: application/json');
 		echo json_encode($ret);
-		killme();
+		exit();
 	} else {
-		System::httpExit(500);
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 }

@@ -4,6 +4,6 @@
 	</head>
 	<body>
 		<h1>{{$title}}</h1>
-		<p>{{$description}}</p>
+		<p>{{$description nofilter}}</p>
 	</body>
 </html>

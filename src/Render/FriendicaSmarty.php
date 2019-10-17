@@ -5,11 +5,12 @@
 namespace Friendica\Render;
 
 use Smarty;
+use Friendica\Core\Renderer;
 
 /**
  * Friendica extension of the Smarty3 template engine
  *
- * @author Hypolite Petovan <mrpetovan@gmail.com>
+ * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class FriendicaSmarty extends Smarty
 {
@@ -21,13 +22,13 @@ class FriendicaSmarty extends Smarty
 	{
 		parent::__construct();
 
-		$a = get_app();
-		$theme = current_theme();
+		$a = \get_app();
+		$theme = $a->getCurrentTheme();
 
 		// setTemplateDir can be set to an array, which Smarty will parse in order.
 		// The order is thus very important here
 		$template_dirs = ['theme' => "view/theme/$theme/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
-		if (x($a->theme_info, "extends")) {
+		if (!empty($a->theme_info['extends'])) {
 			$template_dirs = $template_dirs + ['extends' => "view/theme/" . $a->theme_info["extends"] . "/" . self::SMARTY3_TEMPLATE_FOLDER . "/"];
 		}
 
@@ -38,8 +39,10 @@ class FriendicaSmarty extends Smarty
 		$this->setConfigDir('view/smarty3/config/');
 		$this->setCacheDir('view/smarty3/cache/');
 
-		$this->left_delimiter = $a->get_template_ldelim('smarty3');
-		$this->right_delimiter = $a->get_template_rdelim('smarty3');
+		$this->left_delimiter = Renderer::getTemplateLeftDelimiter('smarty3');
+		$this->right_delimiter = Renderer::getTemplateRightDelimiter('smarty3');
+
+		$this->escape_html = true;
 
 		// Don't report errors so verbosely
 		$this->error_reporting = E_ALL & ~E_NOTICE;

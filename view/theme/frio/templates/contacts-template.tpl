@@ -3,7 +3,7 @@
 	var dropContact = "{{$contact_drop_confirm}}";
 </script>
 
-{{$tabs}}
+{{$tabs nofilter}}
 
 <div id="contacts" class="generic-page-wrapper">
 
@@ -16,14 +16,10 @@
 	<div id="contacts-search-wrapper">
 		<form id="contacts-search-form" class="navbar-form" role="search" action="{{$cmd}}" method="get" >
 			<div class="row">
-				<div class="col-md-2"></div>
-				<div class="col-md-8 ">
-					<div class="form-group form-group-search">
-						<input type="text" name="search" id="contacts-search" class="search-input form-control form-search" onfocus="this.select();" value="{{$search|escape:'html'}}" placeholder="{{$desc}}"/>
-						<button class="btn btn-default btn-sm form-button-search" type="submit" id="contacts-search-submit">{{$submit}}</button>
-					</div>
+				<div class="form-group form-group-search">
+					<input type="text" name="search" id="contacts-search" class="search-input form-control form-search" onfocus="this.select();" value="{{$search}}" placeholder="{{$desc nofilter}}"/>
+					<button class="btn btn-default btn-sm form-button-search" type="submit" id="contacts-search-submit">{{$submit}}</button>
 				</div>
-				<div class="col-md-2"></div>
 			</div>
 		</form>
 	</div>
@@ -32,10 +28,10 @@
 	<div id="contacts-search-end"></div>
 
 	{{* we need the form container to make batch actions work *}}
-	<form name="batch_actions_submit" action="{{$baseurl}}/contacts/batch/" method="POST">
+	<form name="batch_actions_submit" action="{{$baseurl}}/contact/batch/" method="POST">
 
 		{{* we put here a hidden input element. This is needed to transmit the batch actions with javascript*}}
-		<input type="hidden" class="batch-action no-input fakelist" name="batch_submit" value="{{$l|escape:'html'}}">
+		<input type="hidden" class="batch-action no-input fakelist" name="batch_submit" value="{{$l}}">
 
 		{{* We put the contact batch actions in a dropdown menu *}}
 		<ul class="nav nav-pills preferences">
@@ -65,5 +61,5 @@
 		<div id="contact-edit-end" class="clear"></div>
 	</form>
 
-	{{$paginate}}
+	{{$paginate nofilter}}
 </div>

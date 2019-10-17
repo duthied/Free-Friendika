@@ -6,5 +6,5 @@ use Friendica\Network\HTTPException;
 
 class UnprocessableEntityException extends HTTPException
 {
-	var $httpcode = 422;
+	protected $code = 422;
 }

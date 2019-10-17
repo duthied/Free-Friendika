@@ -1,10 +1,10 @@
 {{include file="section_title.tpl"}}
 
-{{$tab_str}}
+{{$tab_str nofilter}}
 
-<div class="crepair-error-message">{{$warning}}</div><br>
+<div class="crepair-error-message">{{$warning nofilter}}</div><br>
 <div class="crepair-return">
-	{{$info}}<br>
+	{{$info nofilter}}<br>
 	<!-- <a href="{{$returnaddr}}">{{$return}}</a> -->
 </div>
 <br />
@@ -15,7 +15,7 @@
 
 	<div id="contact-update-profile-wrapper">
 	{{if $update_profile}}
-		<span id="contact-update-profile-now" class="button"><a href="contacts/{{$contact_id}}/updateprofile" >{{$udprofilenow}}</a></span>
+		<span id="contact-update-profile-now" class="button"><a href="contact/{{$contact_id}}/updateprofile" >{{$udprofilenow}}</a></span>
 	{{/if}}
 	</div>
 
@@ -26,6 +26,8 @@
 	{{include file="field_input.tpl" field=$attag}}
 
 	{{include file="field_input.tpl" field=$url}}
+
+	{{include file="field_input.tpl" field=$alias}}
 
 	{{include file="field_input.tpl" field=$request}}
 
@@ -43,6 +45,6 @@
 	{{include file="field_select.tpl" field=$remote_self}}
 	{{/if}}
 
-	<input type="submit" name="submit" value="{{$lbl_submit|escape:'html'}}" />
+	<input type="submit" name="submit" value="{{$lbl_submit}}" />
 
 </form>

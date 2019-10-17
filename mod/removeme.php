@@ -2,12 +2,14 @@
 /**
  * @file mod/removeme.php
  */
-use Friendica\App;
-use Friendica\Core\L10n;
-use Friendica\Core\System;
-use Friendica\Model\User;
 
-require_once 'include/enotify.php';
+use Friendica\App;
+use Friendica\Core\Config;
+use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
+use Friendica\Database\DBA;
+use Friendica\Model\User;
+use Friendica\Util\Strings;
 
 function removeme_post(App $a)
 {
@@ -15,15 +17,15 @@ function removeme_post(App $a)
 		return;
 	}
 
-	if (x($_SESSION, 'submanage') && intval($_SESSION['submanage'])) {
+	if (!empty($_SESSION['submanage'])) {
 		return;
 	}
 
-	if ((!x($_POST, 'qxz_password')) || (!strlen(trim($_POST['qxz_password'])))) {
+	if (empty($_POST['qxz_password'])) {
 		return;
 	}
 
-	if ((!x($_POST, 'verify')) || (!strlen(trim($_POST['verify'])))) {
+	if (empty($_POST['verify'])) {
 		return;
 	}
 
@@ -33,25 +35,31 @@ function removeme_post(App $a)
 
 	// send notification to admins so that they can clean um the backups
 	// send email to admins
-	$admin_mail_list = "'" . implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email'])))) . "'";
-	$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
-		$admin_mail_list
-	);
-	foreach ($adminlist as $admin) {
+	$admin_mails = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
+	foreach ($admin_mails as $mail) {
+		$admin = DBA::selectFirst('user', ['uid', 'language', 'email', 'username'], ['email' => $mail]);
+		if (!DBA::isResult($admin)) {
+			continue;
+		}
 		notification([
 			'type'         => SYSTEM_EMAIL,
 			'subject'      => L10n::t('[Friendica System Notify]') . ' ' . L10n::t('User deleted their account'),
 			'preamble'     => L10n::t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
 			'body'         => L10n::t('The user id is %d', local_user()),
 			'to_email'     => $admin['email'],
+			'to_name'      => $admin['username'],
 			'uid'          => $admin['uid'],
 			'language'     => $admin['language'] ? $admin['language'] : 'en',
 			'show_in_notification_page' => false
 		]);
 	}
 
-	if (User::authenticate($a->user, trim($_POST['qxz_password']))) {
+	if (User::getIdFromPasswordAuthentication($a->user, trim($_POST['qxz_password']))) {
 		User::remove($a->user['uid']);
+
+		unset($_SESSION['authenticated']);
+		unset($_SESSION['uid']);
+		$a->internalRedirect();
 		// NOTREACHED
 	}
 }
@@ -59,19 +67,19 @@ function removeme_post(App $a)
 function removeme_content(App $a)
 {
 	if (!local_user()) {
-		goaway(System::baseUrl());
+		$a->internalRedirect();
 	}
 
-	$hash = random_string();
+	$hash = Strings::getRandomHex();
 
 	require_once("mod/settings.php");
 	settings_init($a);
 
 	$_SESSION['remove_account_verify'] = $hash;
 
-	$tpl = get_markup_template('removeme.tpl');
-	$o = replace_macros($tpl, [
-		'$basedir' => System::baseUrl(),
+	$tpl = Renderer::getMarkupTemplate('removeme.tpl');
+	$o = Renderer::replaceMacros($tpl, [
+		'$basedir' => $a->getBaseURL(),
 		'$hash' => $hash,
 		'$title' => L10n::t('Remove My Account'),
 		'$desc' => L10n::t('This will completely remove your account. Once this has been done it is not recoverable.'),

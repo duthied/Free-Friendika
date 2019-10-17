@@ -7,27 +7,36 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\Object\Image;
+use Friendica\Util\Strings;
 
 /**
  * @param App $a
+ * @return string
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function fbrowser_content(App $a)
 {
 	if (!local_user()) {
-		killme();
+		exit();
 	}
 
 	if ($a->argc == 1) {
-		killme();
+		exit();
+	}
+
+	// Needed to match the correct template in a module that uses a different theme than the user/site/default
+	$theme = Strings::sanitizeFilePathItem($_GET['theme'] ?? null);
+	if ($theme && is_file("view/theme/$theme/config.php")) {
+		$a->setCurrentTheme($theme);
 	}
 
 	$template_file = "filebrowser.tpl";
-	$mode = "";
-	if (x($_GET, 'mode')) {
-		$mode  = "?mode=".$_GET['mode'];
-	}
+
+	$o = '';
 
 	switch ($a->argv[1]) {
 		case "image":
@@ -39,8 +48,8 @@ function fbrowser_content(App $a)
 			if ($a->argc==2) {
 				$albums = q("SELECT distinct(`album`) AS `album` FROM `photo` WHERE `uid` = %d AND `album` != '%s' AND `album` != '%s' ",
 					intval(local_user()),
-					dbesc('Contact Photos'),
-					dbesc(L10n::t('Contact Photos'))
+					DBA::escape('Contact Photos'),
+					DBA::escape(L10n::t('Contact Photos'))
 				);
 
 				function _map_folder1($el)
@@ -51,12 +60,11 @@ function fbrowser_content(App $a)
 				$albums = array_map("_map_folder1", $albums);
 			}
 
-			$album = "";
-			if ($a->argc==3) {
+			if ($a->argc == 3) {
 				$album = hex2bin($a->argv[2]);
-				$sql_extra = sprintf("AND `album` = '%s' ", dbesc($album));
+				$sql_extra = sprintf("AND `album` = '%s' ", DBA::escape($album));
 				$sql_extra2 = "";
-				$path[]=[$a->argv[2], $album];
+				$path[] = [$a->argv[2], $album];
 			}
 
 			$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`type`) AS `type`,
@@ -64,20 +72,20 @@ function fbrowser_content(App $a)
 					FROM `photo` WHERE `uid` = %d $sql_extra AND `album` != '%s' AND `album` != '%s'
 					GROUP BY `resource-id` $sql_extra2",
 				intval(local_user()),
-				dbesc('Contact Photos'),
-				dbesc(L10n::t('Contact Photos'))
+				DBA::escape('Contact Photos'),
+				DBA::escape(L10n::t('Contact Photos'))
 			);
 
 			function _map_files1($rr)
 			{
-				$a = get_app();
+				$a = \get_app();
 				$types = Image::supportedTypes();
 				$ext = $types[$rr['type']];
 				$filename_e = $rr['filename'];
 
 				// Take the largest picture that is smaller or equal 640 pixels
 				$p = q("SELECT `scale` FROM `photo` WHERE `resource-id` = '%s' AND `height` <= 640 AND `width` <= 640 ORDER BY `resource-id`, `scale` LIMIT 1",
-					dbesc($rr['resource-id']));
+					DBA::escape($rr['resource-id']));
 				if ($p) {
 					$scale = $p[0]["scale"];
 				} else {
@@ -92,11 +100,10 @@ function fbrowser_content(App $a)
 			}
 			$files = array_map("_map_files1", $r);
 
-			$tpl = get_markup_template($template_file);
+			$tpl = Renderer::getMarkupTemplate($template_file);
 
-			$o =  replace_macros($tpl, [
+			$o =  Renderer::replaceMacros($tpl, [
 				'$type'     => 'image',
-				'$baseurl'  => System::baseUrl(),
 				'$path'     => $path,
 				'$folders'  => $albums,
 				'$files'    => $files,
@@ -114,8 +121,7 @@ function fbrowser_content(App $a)
 
 				function _map_files2($rr)
 				{
-					$a = get_app();
-					list($m1,$m2) = explode("/", $rr['filetype']);
+					list($m1, $m2) = explode("/", $rr['filetype']);
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
 
@@ -124,10 +130,9 @@ function fbrowser_content(App $a)
 				$files = array_map("_map_files2", $files);
 
 
-				$tpl = get_markup_template($template_file);
-				$o = replace_macros($tpl, [
+				$tpl = Renderer::getMarkupTemplate($template_file);
+				$o = Renderer::replaceMacros($tpl, [
 					'$type'     => 'file',
-					'$baseurl'  => System::baseUrl(),
 					'$path'     => [ [ "", L10n::t("Files")] ],
 					'$folders'  => false,
 					'$files'    => $files,
@@ -140,10 +145,10 @@ function fbrowser_content(App $a)
 			break;
 	}
 
-	if (x($_GET, 'mode')) {
+	if (!empty($_GET['mode'])) {
 		return $o;
 	} else {
 		echo $o;
-		killme();
+		exit();
 	}
 }

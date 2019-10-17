@@ -4,7 +4,9 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Core\Logger;
 use Friendica\Content\Text\HTML;
+use Friendica\Model\Item;
 
 /**
  * @brief Email class
@@ -15,7 +17,8 @@ class Email
 	 * @param string $mailbox  The mailbox name
 	 * @param string $username The username
 	 * @param string $password The password
-	 * @return object
+	 * @return resource
+	 * @throws \Exception
 	 */
 	public static function connect($mailbox, $username, $password)
 	{
@@ -25,13 +28,24 @@ class Email
 
 		$mbox = @imap_open($mailbox, $username, $password);
 
+		$errors = imap_errors();
+		if (!empty($errors)) {
+			Logger::log('IMAP Errors occured: ' . json_encode($errors));
+		}
+
+		$alerts = imap_alerts();
+		if (!empty($alerts)) {
+			Logger::log('IMAP Alerts occured: ' . json_encode($alerts));
+		}
+
 		return $mbox;
 	}
 
 	/**
-	 * @param object $mbox       mailbox
-	 * @param string $email_addr email
+	 * @param resource $mbox       mailbox
+	 * @param string   $email_addr email
 	 * @return array
+	 * @throws \Exception
 	 */
 	public static function poll($mbox, $email_addr)
 	{
@@ -43,21 +57,21 @@ class Email
 		if (!$search1) {
 			$search1 = [];
 		} else {
-			logger("Found mails from ".$email_addr, LOGGER_DEBUG);
+			Logger::log("Found mails from ".$email_addr, Logger::DEBUG);
 		}
 
 		$search2 = @imap_search($mbox, 'TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = [];
 		} else {
-			logger("Found mails to ".$email_addr, LOGGER_DEBUG);
+			Logger::log("Found mails to ".$email_addr, Logger::DEBUG);
 		}
 
 		$search3 = @imap_search($mbox, 'CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = [];
 		} else {
-			logger("Found mails cc ".$email_addr, LOGGER_DEBUG);
+			Logger::log("Found mails cc ".$email_addr, Logger::DEBUG);
 		}
 
 		$res = array_unique(array_merge($search1, $search2, $search3));
@@ -78,8 +92,8 @@ class Email
 	}
 
 	/**
-	 * @param object  $mbox mailbox
-	 * @param integer $uid  user id
+	 * @param resource $mbox mailbox
+	 * @param integer  $uid  user id
 	 * @return mixed
 	 */
 	public static function messageMeta($mbox, $uid)
@@ -89,10 +103,11 @@ class Email
 	}
 
 	/**
-	 * @param object  $mbox  mailbox
-	 * @param integer $uid   user id
-	 * @param string  $reply reply
+	 * @param resource $mbox  mailbox
+	 * @param integer  $uid   user id
+	 * @param string   $reply reply
 	 * @return array
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getMessage($mbox, $uid, $reply)
 	{
@@ -104,7 +119,7 @@ class Email
 			return $ret;
 		}
 
-		if (!$struc->parts) {
+		if (empty($struc->parts)) {
 			$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'html');
 			$html = $ret['body'];
 
@@ -151,19 +166,17 @@ class Email
 	// At the moment - only return plain/text.
 	// Later we'll repackage inline images as data url's and make the HTML safe
 	/**
-	 * @param object  $mbox    mailbox
-	 * @param integer $uid     user id
-	 * @param object  $p       parts
-	 * @param integer $partno  part number
-	 * @param string  $subtype sub type
+	 * @param resource $mbox    mailbox
+	 * @param integer  $uid     user id
+	 * @param object   $p       parts
+	 * @param integer  $partno  part number
+	 * @param string   $subtype sub type
 	 * @return string
 	 */
 	private static function messageGetPart($mbox, $uid, $p, $partno, $subtype)
 	{
 		// $partno = '1', '2', '2.1', '2.1.3', etc for multipart, 0 if simple
 		global $htmlmsg,$plainmsg,$charset,$attachments;
-
-		//echo $partno."\n";
 
 		// DECODE DATA
 		$data = ($partno)
@@ -232,9 +245,6 @@ class Email
 			$x = "";
 			foreach ($p->parts as $partno0 => $p2) {
 				$x .=  self::messageGetPart($mbox, $uid, $p2, $partno . '.' . ($partno0+1), $subtype);  // 1.2, 1.2.1, etc.
-				//if ($x) {
-				//	return $x;
-				//}
 			}
 			return $x;
 		}
@@ -298,7 +308,7 @@ class Email
 	}
 
 	/**
-	 * Function send is used by NETWORK_EMAIL and NETWORK_EMAIL2 code
+	 * Function send is used by Protocol::EMAIL and Protocol::EMAIL2 code
 	 * (not to notify the user, but to send items to email contacts)
 	 *
 	 * @param string $addr    address
@@ -308,6 +318,8 @@ class Email
 	 *
 	 * @return void
 	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 * @todo This could be changed to use the Emailer class
 	 */
 	public static function send($addr, $subject, $headers, $item)
@@ -319,7 +331,7 @@ class Email
 
 		$part = uniqid("", true);
 
-		$html    = prepare_body($item);
+		$html    = Item::prepareBody($item);
 
 		$headers .= "Mime-Version: 1.0\n";
 		$headers .= 'Content-Type: multipart/alternative; boundary="=_'.$part.'"'."\n\n";
@@ -340,7 +352,7 @@ class Email
 
 		//$message = '<html><body>' . $html . '</body></html>';
 		//$message = html2plain($html);
-		logger('notifier: email delivery to ' . $addr);
+		Logger::log('notifier: email delivery to ' . $addr);
 		mail($addr, $subject, $body, $headers);
 	}
 
@@ -469,13 +481,11 @@ class Email
 			'[\r\n]\s*-----BEGIN PGP SIGNATURE-----\s*[\r\n].*'.
 			'[\r\n]\s*-----END PGP SIGNATURE-----(.*)/is';
 
-		preg_match($pattern, $message, $result);
+		if (preg_match($pattern, $message, $result)) {
+			$cleaned = trim($result[1].$result[2].$result[3]);
 
-		$cleaned = trim($result[1].$result[2].$result[3]);
-
-		$cleaned = str_replace(["\n- --\n", "\n- -"], ["\n-- \n", "\n-"], $cleaned);
-
-		if ($cleaned == '') {
+			$cleaned = str_replace(["\n- --\n", "\n- -"], ["\n-- \n", "\n-"], $cleaned);
+		} else {
 			$cleaned = $message;
 		}
 
@@ -503,7 +513,7 @@ class Email
 
 		preg_match($pattern, $message, $result);
 
-		if (($result[1] != '') && ($result[2] != '')) {
+		if (!empty($result[1]) && !empty($result[2])) {
 			$cleaned = trim($result[1])."\n";
 			$sig = trim($result[2]);
 		} else {
@@ -534,7 +544,7 @@ class Email
 			}
 
 			$quotelevel = 0;
-			$nextline = trim($arrbody[$i+1]);
+			$nextline = trim($arrbody[$i + 1] ?? '');
 			while ((strlen($nextline)>0) && ((substr($nextline, 0, 1) == '>')
 				|| (substr($nextline, 0, 1) == ' '))) {
 				if (substr($nextline, 0, 1) == '>') {
@@ -544,27 +554,7 @@ class Email
 				$nextline = ltrim(substr($nextline, 1));
 			}
 
-			$firstword = strpos($nextline.' ', ' ');
-
-			$specialchars = ((substr(trim($nextline), 0, 1) == '-') ||
-					(substr(trim($nextline), 0, 1) == '=') ||
-					(substr(trim($nextline), 0, 1) == '*') ||
-					(substr(trim($nextline), 0, 1) == '·') ||
-					(substr(trim($nextline), 0, 4) == '[url') ||
-					(substr(trim($nextline), 0, 5) == '[size') ||
-					(substr(trim($nextline), 0, 7) == 'http://') ||
-					(substr(trim($nextline), 0, 8) == 'https://'));
-
-			if (!$specialchars) {
-				$specialchars = ((substr(rtrim($line), -1) == '-') ||
-						(substr(rtrim($line), -1) == '=') ||
-						(substr(rtrim($line), -1) == '*') ||
-						(substr(rtrim($line), -1) == '·') ||
-						(substr(rtrim($line), -6) == '[/url]') ||
-						(substr(rtrim($line), -7) == '[/size]'));
-			}
-
-			if ($lines[$lineno] != '') {
+			if (!empty($lines[$lineno])) {
 				if (substr($lines[$lineno], -1) != ' ') {
 					$lines[$lineno] .= ' ';
 				}
@@ -574,13 +564,15 @@ class Email
 
 					$line = ltrim(substr($line, 1));
 				}
+			} else {
+				$lines[$lineno] = '';
 			}
 
 			$lines[$lineno] .= $line;
 			if (((substr($line, -1, 1) != ' '))
 				|| ($quotelevel != $currquotelevel)) {
 				$lineno++;
-				}
+			}
 		}
 		return implode("\n", $lines);
 	}
@@ -608,13 +600,11 @@ class Email
 		}
 
 		$quotelevel = 0;
-		$previousquote = 0;
 		$arrbodyquoted = [];
 
 		for ($i = 0; $i < count($arrbody); $i++) {
 			$previousquote = $quotelevel;
 			$quotelevel = $arrlevel[$i];
-			$currline = $arrbody[$i];
 
 			while ($previousquote < $quotelevel) {
 				$quote = "[quote]";

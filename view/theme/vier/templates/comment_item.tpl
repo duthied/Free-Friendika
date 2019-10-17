@@ -10,14 +10,13 @@
 				<input type="hidden" name="parent" value="{{$parent}}" />
 				{{*<!--<input type="hidden" name="return" value="{{$return_path}}" />-->*}}
 				<input type="hidden" name="jsreload" value="{{$jsreload}}" />
-				<input type="hidden" name="preview" id="comment-preview-inp-{{$id}}" value="0" />
 				<input type="hidden" name="post_id_random" value="{{$rand_num}}" />
 
 				<div class="comment-edit-photo" id="comment-edit-photo-{{$id}}">
 					<a class="comment-edit-photo-link" href="{{$mylink}}" title="{{$mytitle}}"><img class="my-comment-photo" src="{{$myphoto}}" alt="{{$mytitle}}" title="{{$mytitle}}" /></a>
 				</div>
 				<div class="comment-edit-photo-end"></div>
-				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});"></textarea>
+				<textarea id="comment-edit-text-{{$id}}" class="comment-edit-text-empty" name="body" placeholder="{{$comment}}" onFocus="commentOpen(this,{{$id}});">{{if $threaded != false}}{{$default}}{{/if}}</textarea>
 				{{if $qcomment}}
 					<select id="qcomment-select-{{$id}}" name="qcomment-{{$id}}" class="qcomment" onchange="qCommentInsert(this,{{$id}});">
 					<option value=""></option>

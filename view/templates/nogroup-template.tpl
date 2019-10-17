@@ -6,7 +6,7 @@
 {{/foreach}}
 <div id="contact-edit-end"></div>
 
-{{$paginate}}
+{{$paginate nofilter}}
 
 
 

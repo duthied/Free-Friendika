@@ -11,7 +11,7 @@
 		{{include file="field_textarea.tpl" field=$message}}
 
 		<div id="invite-submit-wrapper">
-			<input type="submit" name="submit" value="{{$submit|escape:'html'}}" />
+			<input type="submit" name="submit" value="{{$submit}}" />
 		</div>
 
 	</div>

@@ -34,8 +34,9 @@ Friendica - Dokumentation und Ressourcen
 * [Konnektoren (Connectors) installieren (Twitter/GNU Social)](help/Installing-Connectors)
 * [Installation eines ejabberd Servers (XMPP-Chat) mit synchronisierten Anmeldedaten](help/install-ejabberd) (EN)
 * [Betreibe deine Seite mit einem SSL-Zertifikat](help/SSL)
-* [Konfigurationswerte, die nur in der .htconfig.php gesetzt werden können](help/htconfig) (EN)
+* [Konfigurationswerte, die nur in der config/local.config.php gesetzt werden können](help/Config) (EN)
 * [Performance verbessern](help/Improve-Performance)
+* [Administration Werkzeuge](help/tools) (EN)
 
 **Dokumentation für Entwickler**
 
@@ -55,11 +56,12 @@ Friendica - Dokumentation und Ressourcen
 * [Code-Referenz (mit doxygen generiert - setzt Cookies)](doc/html/)
 * [Twitter/GNU Social API Functions](help/api) (EN)
 * [Translation of Friendica](help/translations) (EN)
+* [Run tests](help/Tests) (EN)
 
 **Externe Ressourcen**
 
 * [Haupt-Webseite](https://friendi.ca)
-* [Deutsches Friendica-Wiki](http://wiki.toktan.org/doku.php)
+* [Deutsches Friendica-Wiki](https://friendica-wiki.de)
 * Support Kanäle
   * [Friendica Support Forum](https://forum.friendi.ca/~helpers)
   * [Mailing Listen Archiv](http://mailman.friendi.ca/mailman/listinfo/support-friendi.ca) zum Abonnieren der Liste eine E-Mail an ``support-request(at)friendi.ca?subject=subscribe`` senden
@@ -71,4 +73,3 @@ Friendica - Dokumentation und Ressourcen
 
 * [Seite/Friendica-Version](friendica)
 * [Mitwirkenden bei Friendica](credits)
-

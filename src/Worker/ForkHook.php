@@ -5,12 +5,14 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
 
-Class ForkHook {
-	public static function execute($name, $hook, $data) {
-		global $a;
+Class ForkHook
+{
+	public static function execute($name, $hook, $data)
+	{
+		$a = \Friendica\BaseObject::getApp();
 
-		Addon::callSingleHook($a, $name, $hook, $data);
+		Hook::callSingle($a, $name, $hook, $data);
 	}
 }

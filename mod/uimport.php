@@ -7,43 +7,27 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\UserImport;
+use Friendica\Core\Renderer;
 
 function uimport_post(App $a)
 {
-	switch ($a->config['register_policy']) {
-		case REGISTER_OPEN:
-			$blocked = 0;
-			$verified = 1;
-			break;
-
-		case REGISTER_APPROVE:
-			$blocked = 1;
-			$verified = 0;
-			break;
-
-		default:
-		case REGISTER_CLOSED:
-			if ((!x($_SESSION, 'authenticated') && (!x($_SESSION, 'administrator')))) {
-				notice(L10n::t('Permission denied.') . EOL);
-				return;
-			}
-			$blocked = 1;
-			$verified = 0;
-			break;
+	if ((Config::get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
+		notice(L10n::t('Permission denied.') . EOL);
+		return;
 	}
 
-	if (x($_FILES, 'accountfile')) {
-		/// @TODO Pass $blocked / $verified, send email to admin on REGISTER_APPROVE
+	if (!empty($_FILES['accountfile'])) {
 		UserImport::importAccount($a, $_FILES['accountfile']);
 		return;
 	}
 }
 
-function uimport_content(App $a) {
-
-	if ((!local_user()) && ($a->config['register_policy'] == REGISTER_CLOSED)) {
-		notice("Permission denied." . EOL);
+function uimport_content(App $a)
+{
+	if ((Config::get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
+		notice(L10n::t('User imports on closed servers can only be done by an administrator.') . EOL);
 		return;
 	}
 
@@ -51,22 +35,14 @@ function uimport_content(App $a) {
 	if ($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if ($r && $r[0]['total'] >= $max_dailies) {
-			logger('max daily registrations exceeded.');
+			Logger::log('max daily registrations exceeded.');
 			notice(L10n::t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
 			return;
 		}
 	}
 
-
-	if (x($_SESSION, 'theme')) {
-		unset($_SESSION['theme']);
-	}
-	if (x($_SESSION, 'mobile-theme')) {
-		unset($_SESSION['mobile-theme']);
-	}
-
-	$tpl = get_markup_template("uimport.tpl");
-	return replace_macros($tpl, [
+	$tpl = Renderer::getMarkupTemplate("uimport.tpl");
+	return Renderer::replaceMacros($tpl, [
 		'$regbutt' => L10n::t('Import'),
 		'$import' => [
 			'title' => L10n::t("Move account"),

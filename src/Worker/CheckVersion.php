@@ -8,6 +8,8 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
+use Friendica\Database\DBA;
 use Friendica\Util\Network;
 
 /**
@@ -16,11 +18,11 @@ use Friendica\Util\Network;
  * Checking the upstream version is optional (opt-in) and can be done to either
  * the master or the develop branch in the repository.
  */
-class CheckVersion {
-	public static function execute() {
-		global $a;
-
-		logger('checkversion: start');
+class CheckVersion
+{
+	public static function execute()
+	{
+		Logger::log('checkversion: start');
 
 		$checkurl = Config::get('system', 'check_new_version_url', 'none');
 
@@ -35,15 +37,15 @@ class CheckVersion {
 				// don't check
 				return;
 		}
-		logger("Checking VERSION from: ".$checked_url, LOGGER_DEBUG);
+		Logger::log("Checking VERSION from: ".$checked_url, Logger::DEBUG);
 
 		// fetch the VERSION file
-		$gitversion = dbesc(trim(Network::fetchUrl($checked_url)));
-		logger("Upstream VERSION is: ".$gitversion, LOGGER_DEBUG);
+		$gitversion = DBA::escape(trim(Network::fetchUrl($checked_url)));
+		Logger::log("Upstream VERSION is: ".$gitversion, Logger::DEBUG);
 
 		Config::set('system', 'git_friendica_version', $gitversion);
 
-		logger('checkversion: end');
+		Logger::log('checkversion: end');
 
 		return;
 	}

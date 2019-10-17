@@ -2,17 +2,17 @@
 /**
  * @file src/Database/DBStructure.php
  */
+
 namespace Friendica\Database;
 
+use Exception;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
-use dba;
+use Friendica\Core\Logger;
+use Friendica\Util\DateTimeFormat;
 
-require_once 'boot.php';
-require_once 'include/dba.php';
-require_once 'include/enotify.php';
-require_once 'include/text.php';
+require_once __DIR__ . '/../../include/dba.php';
 
 /**
  * @brief This class contain functions for the database management
@@ -21,162 +21,44 @@ require_once 'include/text.php';
  */
 class DBStructure
 {
+	const UPDATE_NOT_CHECKED = 0; // Database check wasn't executed before
+	const UPDATE_SUCCESSFUL  = 1; // Database check was successful
+	const UPDATE_FAILED      = 2; // Database check failed
+
+	const RENAME_COLUMN      = 0;
+	const RENAME_PRIMARY_KEY = 1;
+
+	/**
+	 * Database structure definition loaded from config/dbstructure.config.php
+	 *
+	 * @var array
+	 */
+	private static $definition = [];
+
 	/*
 	 * Converts all tables from MyISAM to InnoDB
 	 */
-	public static function convertToInnoDB() {
-		$r = q("SELECT `TABLE_NAME` FROM `information_schema`.`tables` WHERE `engine` = 'MyISAM' AND `table_schema` = '%s'",
-			dbesc(dba::database_name()));
-
-		if (!DBM::is_result($r)) {
-			echo L10n::t('There are no tables on MyISAM.')."\n";
-			return;
-		}
-
-		foreach ($r AS $table) {
-			$sql = sprintf("ALTER TABLE `%s` engine=InnoDB;", dbesc($table['TABLE_NAME']));
-			echo $sql."\n";
-
-			$result = dba::e($sql);
-			if (!DBM::is_result($result)) {
-				self::printUpdateError($sql);
-			}
-		}
-	}
-
-	/*
-	 * send the email and do what is needed to do on update fails
-	 *
-	 * @param update_id		(int) number of failed update
-	 * @param error_message	(str) error message
-	 */
-	public static function updateFail($update_id, $error_message) {
-		$a = get_app();
-
-		//send the administrators an e-mail
-		$admin_mail_list = "'".implode("','", array_map(dbesc, explode(",", str_replace(" ", "", $a->config['admin_email']))))."'";
-		$adminlist = q("SELECT uid, language, email FROM user WHERE email IN (%s)",
-			$admin_mail_list
+	public static function convertToInnoDB()
+	{
+		$tables = DBA::selectToArray(
+			['information_schema' => 'tables'],
+			['table_name'],
+			['engine' => 'MyISAM', 'table_schema' => DBA::databaseName()]
 		);
 
-		// No valid result?
-		if (!DBM::is_result($adminlist)) {
-			logger(sprintf('Cannot notify administrators about update_id=%d, error_message=%s', $update_id, $error_message), LOGGER_NORMAL);
-
-			// Don't continue
+		if (!DBA::isResult($tables)) {
+			echo L10n::t('There are no tables on MyISAM.') . "\n";
 			return;
 		}
 
-		// every admin could had different language
-		foreach ($adminlist as $admin) {
-			$lang = (($admin['language'])?$admin['language']:'en');
-			L10n::pushLang($lang);
+		foreach ($tables AS $table) {
+			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['TABLE_NAME']) . " engine=InnoDB;";
+			echo $sql . "\n";
 
-			$preamble = deindent(L10n::t("
-				The friendica developers released update %s recently,
-				but when I tried to install it, something went terribly wrong.
-				This needs to be fixed soon and I can't do it alone. Please contact a
-				friendica developer if you can not help me on your own. My database might be invalid."));
-			$body = L10n::t("The error message is\n[pre]%s[/pre]");
-			$preamble = sprintf($preamble, $update_id);
-			$body = sprintf($body, $error_message);
-
-			notification([
-				'type' => SYSTEM_EMAIL,
-				'to_email' => $admin['email'],
-				'preamble' => $preamble,
-				'body' => $body,
-				'language' => $lang]
-			);
-		}
-
-		//try the logger
-		logger("CRITICAL: Database structure update failed: ".$error_message);
-	}
-
-
-	private static function tableStructure($table) {
-		$structures = q("DESCRIBE `%s`", $table);
-
-		$full_columns = q("SHOW FULL COLUMNS FROM `%s`", $table);
-
-		$indexes = q("SHOW INDEX FROM `%s`", $table);
-
-		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
-
-		if (DBM::is_result($table_status)) {
-			$table_status = $table_status[0];
-		} else {
-			$table_status = [];
-		}
-
-		$fielddata = [];
-		$indexdata = [];
-
-		if (DBM::is_result($indexes)) {
-			foreach ($indexes AS $index) {
-				if ($index['Key_name'] != 'PRIMARY' && $index['Non_unique'] == '0' && !isset($indexdata[$index["Key_name"]])) {
-					$indexdata[$index["Key_name"]] = ['UNIQUE'];
-				}
-
-				$column = $index["Column_name"];
-
-				if ($index["Sub_part"] != "") {
-					$column .= "(".$index["Sub_part"].")";
-				}
-
-				$indexdata[$index["Key_name"]][] = $column;
+			$result = DBA::e($sql);
+			if (!DBA::isResult($result)) {
+				self::printUpdateError($sql);
 			}
-		}
-		if (DBM::is_result($structures)) {
-			foreach ($structures AS $field) {
-				// Replace the default size values so that we don't have to define them
-				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
-				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
-				$field["Type"] = str_replace($search, $replace, $field["Type"]);
-
-				$fielddata[$field["Field"]]["type"] = $field["Type"];
-				if ($field["Null"] == "NO") {
-					$fielddata[$field["Field"]]["not null"] = true;
-				}
-
-				if (isset($field["Default"])) {
-					$fielddata[$field["Field"]]["default"] = $field["Default"];
-				}
-
-				if ($field["Extra"] != "") {
-					$fielddata[$field["Field"]]["extra"] = $field["Extra"];
-				}
-
-				if ($field["Key"] == "PRI") {
-					$fielddata[$field["Field"]]["primary"] = true;
-				}
-			}
-		}
-		if (DBM::is_result($full_columns)) {
-			foreach ($full_columns AS $column) {
-				$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
-				$fielddata[$column["Field"]]["comment"] = $column["Comment"];
-			}
-		}
-
-		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
-	}
-
-	public static function printStructure() {
-		$database = self::definition();
-
-		echo "-- ------------------------------------------\n";
-		echo "-- ".FRIENDICA_PLATFORM." ".FRIENDICA_VERSION." (".FRIENDICA_CODENAME,")\n";
-		echo "-- DB_UPDATE_VERSION ".DB_UPDATE_VERSION."\n";
-		echo "-- ------------------------------------------\n\n\n";
-		foreach ($database AS $name => $structure) {
-			echo "--\n";
-			echo "-- TABLE $name\n";
-			echo "--\n";
-			self::createTable($name, $structure['fields'], true, false, $structure["indexes"]);
-
-			echo "\n";
 		}
 	}
 
@@ -187,32 +69,206 @@ class DBStructure
 	 *
 	 * @return string Error message
 	 */
-	private static function printUpdateError($message) {
+	private static function printUpdateError($message)
+	{
 		echo L10n::t("\nError %d occurred during database update:\n%s\n",
-			dba::errorNo(), dba::errorMessage());
+			DBA::errorNo(), DBA::errorMessage());
 
-		return L10n::t('Errors encountered performing database changes: ').$message.EOL;
+		return L10n::t('Errors encountered performing database changes: ') . $message . EOL;
+	}
+
+	public static function printStructure($basePath)
+	{
+		$database = self::definition($basePath, false);
+
+		echo "-- ------------------------------------------\n";
+		echo "-- " . FRIENDICA_PLATFORM . " " . FRIENDICA_VERSION . " (" . FRIENDICA_CODENAME, ")\n";
+		echo "-- DB_UPDATE_VERSION " . DB_UPDATE_VERSION . "\n";
+		echo "-- ------------------------------------------\n\n\n";
+		foreach ($database AS $name => $structure) {
+			echo "--\n";
+			echo "-- TABLE $name\n";
+			echo "--\n";
+			self::createTable($name, $structure, true, false);
+
+			echo "\n";
+		}
+	}
+
+	/**
+	 * Loads the database structure definition from the config/dbstructure.config.php file.
+	 * On first pass, defines DB_UPDATE_VERSION constant.
+	 *
+	 * @see static/dbstructure.config.php
+	 * @param boolean $with_addons_structure Whether to tack on addons additional tables
+	 * @param string  $basePath              The base path of this application
+	 * @return array
+	 * @throws Exception
+	 */
+	public static function definition($basePath, $with_addons_structure = true)
+	{
+		if (!self::$definition) {
+
+			$filename = $basePath . '/static/dbstructure.config.php';
+
+			if (!is_readable($filename)) {
+				throw new Exception('Missing database structure config file static/dbstructure.config.php');
+			}
+
+			$definition = require $filename;
+
+			if (!$definition) {
+				throw new Exception('Corrupted database structure config file static/dbstructure.config.php');
+			}
+
+			self::$definition = $definition;
+		} else {
+			$definition = self::$definition;
+		}
+
+		if ($with_addons_structure) {
+			Hook::callAll('dbstructure_definition', $definition);
+		}
+
+		return $definition;
+	}
+
+	private static function createTable($name, $structure, $verbose, $action)
+	{
+		$r = true;
+
+		$engine = "";
+		$comment = "";
+		$sql_rows = [];
+		$primary_keys = [];
+		foreach ($structure["fields"] AS $fieldname => $field) {
+			$sql_rows[] = "`" . DBA::escape($fieldname) . "` " . self::FieldCommand($field);
+			if (!empty($field['primary'])) {
+				$primary_keys[] = $fieldname;
+			}
+		}
+
+		if (!empty($structure["indexes"])) {
+			foreach ($structure["indexes"] AS $indexname => $fieldnames) {
+				$sql_index = self::createIndex($indexname, $fieldnames, "");
+				if (!is_null($sql_index)) {
+					$sql_rows[] = $sql_index;
+				}
+			}
+		}
+
+		if (isset($structure["engine"])) {
+			$engine = " ENGINE=" . $structure["engine"];
+		}
+
+		if (isset($structure["comment"])) {
+			$comment = " COMMENT='" . DBA::escape($structure["comment"]) . "'";
+		}
+
+		$sql = implode(",\n\t", $sql_rows);
+
+		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", DBA::escape($name)) . $sql .
+			"\n)" . $engine . " DEFAULT COLLATE utf8mb4_general_ci" . $comment;
+		if ($verbose) {
+			echo $sql . ";\n";
+		}
+
+		if ($action) {
+			$r = DBA::e($sql);
+		}
+
+		return $r;
+	}
+
+	private static function FieldCommand($parameters, $create = true)
+	{
+		$fieldstruct = $parameters["type"];
+
+		if (isset($parameters["Collation"])) {
+			$fieldstruct .= " COLLATE " . $parameters["Collation"];
+		}
+
+		if (isset($parameters["not null"])) {
+			$fieldstruct .= " NOT NULL";
+		}
+
+		if (isset($parameters["default"])) {
+			if (strpos(strtolower($parameters["type"]), "int") !== false) {
+				$fieldstruct .= " DEFAULT " . $parameters["default"];
+			} else {
+				$fieldstruct .= " DEFAULT '" . $parameters["default"] . "'";
+			}
+		}
+		if (isset($parameters["extra"])) {
+			$fieldstruct .= " " . $parameters["extra"];
+		}
+
+		if (isset($parameters["comment"])) {
+			$fieldstruct .= " COMMENT '" . DBA::escape($parameters["comment"]) . "'";
+		}
+
+		/*if (($parameters["primary"] != "") && $create)
+			$fieldstruct .= " PRIMARY KEY";*/
+
+		return ($fieldstruct);
+	}
+
+	private static function createIndex($indexname, $fieldnames, $method = "ADD")
+	{
+		$method = strtoupper(trim($method));
+		if ($method != "" && $method != "ADD") {
+			throw new Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
+		}
+
+		if (in_array($fieldnames[0], ["UNIQUE", "FULLTEXT"])) {
+			$index_type = array_shift($fieldnames);
+			$method .= " " . $index_type;
+		}
+
+		$names = "";
+		foreach ($fieldnames AS $fieldname) {
+			if ($names != "") {
+				$names .= ",";
+			}
+
+			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
+				$names .= "`" . DBA::escape($matches[1]) . "`(" . intval($matches[2]) . ")";
+			} else {
+				$names .= "`" . DBA::escape($fieldname) . "`";
+			}
+		}
+
+		if ($indexname == "PRIMARY") {
+			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
+		}
+
+
+		$sql = sprintf("%s INDEX `%s` (%s)", $method, DBA::escape($indexname), $names);
+		return ($sql);
 	}
 
 	/**
 	 * Updates DB structure and returns eventual errors messages
 	 *
-	 * @param bool  $verbose
-	 * @param bool  $action     Whether to actually apply the update
-	 * @param bool  $install    Is this the initial update during the installation?
-	 * @param array $tables     An array of the database tables
-	 * @param array $definition An array of the definition tables
+	 * @param string $basePath   The base path of this application
+	 * @param bool   $verbose
+	 * @param bool   $action     Whether to actually apply the update
+	 * @param bool   $install    Is this the initial update during the installation?
+	 * @param array  $tables     An array of the database tables
+	 * @param array  $definition An array of the definition tables
 	 * @return string Empty string if the update is successful, error messages otherwise
+	 * @throws Exception
 	 */
-	public static function update($verbose, $action, $install = false, array $tables = null, array $definition = null) {
+	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
+	{
 		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', L10n::t(': Database update', DBM::date().' '.date('e')));
+			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
 
 		$errors = '';
 
-		logger('updating structure', LOGGER_DEBUG);
+		Logger::log('updating structure', Logger::DEBUG);
 
 		// Get the current structure
 		$database = [];
@@ -221,23 +277,23 @@ class DBStructure
 			$tables = q("SHOW TABLES");
 		}
 
-		if (DBM::is_result($tables)) {
+		if (DBA::isResult($tables)) {
 			foreach ($tables AS $table) {
 				$table = current($table);
 
-				logger(sprintf('updating structure for table %s ...', $table), LOGGER_DEBUG);
+				Logger::log(sprintf('updating structure for table %s ...', $table), Logger::DEBUG);
 				$database[$table] = self::tableStructure($table);
 			}
 		}
 
 		// Get the definition
 		if (is_null($definition)) {
-			$definition = self::definition();
+			$definition = self::definition($basePath);
 		}
 
 		// MySQL >= 5.7.4 doesn't support the IGNORE keyword in ALTER TABLE statements
-		if ((version_compare(dba::server_info(), '5.7.4') >= 0) &&
-			!(strpos(dba::server_info(), 'MariaDB') !== false)) {
+		if ((version_compare(DBA::serverInfo(), '5.7.4') >= 0) &&
+			!(strpos(DBA::serverInfo(), 'MariaDB') !== false)) {
 			$ignore = '';
 		} else {
 			$ignore = ' IGNORE';
@@ -251,24 +307,24 @@ class DBStructure
 			$is_unique = false;
 			$temp_name = $name;
 			if (!isset($database[$name])) {
-				$r = self::createTable($name, $structure["fields"], $verbose, $action, $structure['indexes']);
-				if (!DBM::is_result($r)) {
+				$r = self::createTable($name, $structure, $verbose, $action);
+				if (!DBA::isResult($r)) {
 					$errors .= self::printUpdateError($name);
 				}
 				$is_new_table = true;
 			} else {
 				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 					if (isset($database[$name]["indexes"][$indexname])) {
-						$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
+						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
 					} else {
 						$current_index_definition = "__NOT_SET__";
 					}
-					$new_index_definition = implode(",",$fieldnames);
+					$new_index_definition = implode(",", $fieldnames);
 					if ($current_index_definition != $new_index_definition) {
 						if ($fieldnames[0] == "UNIQUE") {
 							$is_unique = true;
 							if ($ignore == "") {
-								$temp_name = "temp-".$name;
+								$temp_name = "temp-" . $name;
 							}
 						}
 					}
@@ -280,29 +336,29 @@ class DBStructure
 				 * and index name doesn't start with "local_"
 				 */
 				foreach ($database[$name]["indexes"] as $indexname => $fieldnames) {
-					$current_index_definition = implode(",",$fieldnames);
+					$current_index_definition = implode(",", $fieldnames);
 					if (isset($structure["indexes"][$indexname])) {
-						$new_index_definition = implode(",",$structure["indexes"][$indexname]);
+						$new_index_definition = implode(",", $structure["indexes"][$indexname]);
 					} else {
 						$new_index_definition = "__NOT_SET__";
 					}
 					if ($current_index_definition != $new_index_definition && substr($indexname, 0, 6) != 'local_') {
-						$sql2=self::dropIndex($indexname);
+						$sql2 = self::dropIndex($indexname);
 						if ($sql3 == "") {
-							$sql3 = "ALTER".$ignore." TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
 				// Compare the field structure field by field
 				foreach ($structure["fields"] AS $fieldname => $parameters) {
 					if (!isset($database[$name]["fields"][$fieldname])) {
-						$sql2=self::addTableField($fieldname, $parameters);
+						$sql2 = self::addTableField($fieldname, $parameters);
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					} else {
 						// Compare the field definition
@@ -322,14 +378,14 @@ class DBStructure
 							$parameters['comment'] = "";
 						}
 
-						$current_field_definition = implode(",", $field_definition);
-						$new_field_definition = implode(",", $parameters);
+						$current_field_definition = DBA::cleanQuery(implode(",", $field_definition));
+						$new_field_definition = DBA::cleanQuery(implode(",", $parameters));
 						if ($current_field_definition != $new_field_definition) {
 							$sql2 = self::modifyTableField($fieldname, $parameters);
 							if ($sql3 == "") {
-								$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 							} else {
-								$sql3 .= ", ".$sql2;
+								$sql3 .= ", " . $sql2;
 							}
 						}
 					}
@@ -344,36 +400,47 @@ class DBStructure
 			if (!$is_new_table) {
 				foreach ($structure["indexes"] AS $indexname => $fieldnames) {
 					if (isset($database[$name]["indexes"][$indexname])) {
-						$current_index_definition = implode(",",$database[$name]["indexes"][$indexname]);
+						$current_index_definition = implode(",", $database[$name]["indexes"][$indexname]);
 					} else {
 						$current_index_definition = "__NOT_SET__";
 					}
-					$new_index_definition = implode(",",$fieldnames);
+					$new_index_definition = implode(",", $fieldnames);
 					if ($current_index_definition != $new_index_definition) {
 						$sql2 = self::createIndex($indexname, $fieldnames);
 
 						// Fetch the "group by" fields for unique indexes
-						if ($fieldnames[0] == "UNIQUE") {
-							$group_by = self::groupBy($indexname, $fieldnames);
-						}
+						$group_by = self::groupBy($fieldnames);
 						if ($sql2 != "") {
 							if ($sql3 == "") {
-								$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+								$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 							} else {
-								$sql3 .= ", ".$sql2;
+								$sql3 .= ", " . $sql2;
 							}
 						}
 					}
 				}
 
 				if (isset($database[$name]["table_status"]["Comment"])) {
-					if ($database[$name]["table_status"]["Comment"] != $structure['comment']) {
-						$sql2 = "COMMENT = '".dbesc($structure['comment'])."'";
+					$structurecomment = $structure["comment"] ?? '';
+					if ($database[$name]["table_status"]["Comment"] != $structurecomment) {
+						$sql2 = "COMMENT = '" . DBA::escape($structurecomment) . "'";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
+						}
+					}
+				}
+
+				if (isset($database[$name]["table_status"]["Engine"]) && isset($structure['engine'])) {
+					if ($database[$name]["table_status"]["Engine"] != $structure['engine']) {
+						$sql2 = "ENGINE = '" . DBA::escape($structure['engine']) . "'";
+
+						if ($sql3 == "") {
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
+						} else {
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
@@ -383,9 +450,9 @@ class DBStructure
 						$sql2 = "DEFAULT COLLATE utf8mb4_general_ci";
 
 						if ($sql3 == "") {
-							$sql3 = "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 = "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
@@ -398,10 +465,10 @@ class DBStructure
 				// Compare the field structure field by field
 				foreach ($structure["fields"] AS $fieldname => $parameters) {
 					// Compare the field definition
-					$field_definition = $database[$name]["fields"][$fieldname];
+					$field_definition = ($database[$name]["fields"][$fieldname] ?? '') ?: ['Collation' => ''];
 
 					// Define the default collation if not given
-					if (!isset($parameters['Collation']) && !is_null($field_definition['Collation'])) {
+					if (!isset($parameters['Collation']) && !empty($field_definition['Collation'])) {
 						$parameters['Collation'] = 'utf8mb4_general_ci';
 					} else {
 						$parameters['Collation'] = null;
@@ -410,9 +477,9 @@ class DBStructure
 					if ($field_definition['Collation'] != $parameters['Collation']) {
 						$sql2 = self::modifyTableField($fieldname, $parameters);
 						if (($sql3 == "") || (substr($sql3, -2, 2) == "; ")) {
-							$sql3 .= "ALTER" . $ignore . " TABLE `".$temp_name."` ".$sql2;
+							$sql3 .= "ALTER" . $ignore . " TABLE `" . $temp_name . "` " . $sql2;
 						} else {
-							$sql3 .= ", ".$sql2;
+							$sql3 .= ", " . $sql2;
 						}
 					}
 				}
@@ -437,68 +504,68 @@ class DBStructure
 						if ($ignore != "") {
 							echo "SET session old_alter_table=1;\n";
 						} else {
-							echo "DROP TABLE IF EXISTS `".$temp_name."`;\n";
-							echo "CREATE TABLE `".$temp_name."` LIKE `".$name."`;\n";
+							echo "DROP TABLE IF EXISTS `" . $temp_name . "`;\n";
+							echo "CREATE TABLE `" . $temp_name . "` LIKE `" . $name . "`;\n";
 						}
 					}
 
-					echo $sql3."\n";
+					echo $sql3 . "\n";
 
 					if ($is_unique && ($temp_name != $name)) {
 						if ($ignore != "") {
 							echo "SET session old_alter_table=0;\n";
 						} else {
-							echo "INSERT INTO `".$temp_name."` SELECT ".dba::any_value_fallback($field_list)." FROM `".$name."`".$group_by.";\n";
-							echo "DROP TABLE `".$name."`;\n";
-							echo "RENAME TABLE `".$temp_name."` TO `".$name."`;\n";
+							echo "INSERT INTO `" . $temp_name . "` SELECT " . DBA::anyValueFallback($field_list) . " FROM `" . $name . "`" . $group_by . ";\n";
+							echo "DROP TABLE `" . $name . "`;\n";
+							echo "RENAME TABLE `" . $temp_name . "` TO `" . $name . "`;\n";
 						}
 					}
 				}
 
 				if ($action) {
 					if (!$install) {
-						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DBM::date().' '.date('e'), $name));
+						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
 					// Ensure index conversion to unique removes duplicates
 					if ($is_unique && ($temp_name != $name)) {
 						if ($ignore != "") {
-							dba::e("SET session old_alter_table=1;");
+							DBA::e("SET session old_alter_table=1;");
 						} else {
-							$r = dba::e("DROP TABLE IF EXISTS `".$temp_name."`;");
-							if (!DBM::is_result($r)) {
+							$r = DBA::e("DROP TABLE IF EXISTS `" . $temp_name . "`;");
+							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
 
-							$r = dba::e("CREATE TABLE `".$temp_name."` LIKE `".$name."`;");
-							if (!DBM::is_result($r)) {
+							$r = DBA::e("CREATE TABLE `" . $temp_name . "` LIKE `" . $name . "`;");
+							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
 						}
 					}
 
-					$r = dba::e($sql3);
-					if (!DBM::is_result($r)) {
+					$r = DBA::e($sql3);
+					if (!DBA::isResult($r)) {
 						$errors .= self::printUpdateError($sql3);
 					}
 					if ($is_unique && ($temp_name != $name)) {
 						if ($ignore != "") {
-							dba::e("SET session old_alter_table=0;");
+							DBA::e("SET session old_alter_table=0;");
 						} else {
-							$r = dba::e("INSERT INTO `".$temp_name."` SELECT ".$field_list." FROM `".$name."`".$group_by.";");
-							if (!DBM::is_result($r)) {
+							$r = DBA::e("INSERT INTO `" . $temp_name . "` SELECT " . $field_list . " FROM `" . $name . "`" . $group_by . ";");
+							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
-							$r = dba::e("DROP TABLE `".$name."`;");
-							if (!DBM::is_result($r)) {
+							$r = DBA::e("DROP TABLE `" . $name . "`;");
+							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
-							$r = dba::e("RENAME TABLE `".$temp_name."` TO `".$name."`;");
-							if (!DBM::is_result($r)) {
+							$r = DBA::e("RENAME TABLE `" . $temp_name . "` TO `" . $name . "`;");
+							if (!DBA::isResult($r)) {
 								$errors .= self::printUpdateError($sql3);
 								return $errors;
 							}
@@ -513,131 +580,114 @@ class DBStructure
 			Config::set('system', 'maintenance_reason', '');
 
 			if ($errors) {
-				Config::set('system', 'dbupdate', DB_UPDATE_FAILED);
+				Config::set('system', 'dbupdate', self::UPDATE_FAILED);
 			} else {
-				Config::set('system', 'dbupdate', DB_UPDATE_SUCCESSFUL);
+				Config::set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
 			}
 		}
 
 		return $errors;
 	}
 
-	private static function FieldCommand($parameters, $create = true) {
-		$fieldstruct = $parameters["type"];
+	private static function tableStructure($table)
+	{
+		$structures = q("DESCRIBE `%s`", $table);
 
-		if (!is_null($parameters["Collation"])) {
-			$fieldstruct .= " COLLATE ".$parameters["Collation"];
+		$full_columns = q("SHOW FULL COLUMNS FROM `%s`", $table);
+
+		$indexes = q("SHOW INDEX FROM `%s`", $table);
+
+		$table_status = q("SHOW TABLE STATUS WHERE `name` = '%s'", $table);
+
+		if (DBA::isResult($table_status)) {
+			$table_status = $table_status[0];
+		} else {
+			$table_status = [];
 		}
 
-		if ($parameters["not null"]) {
-			$fieldstruct .= " NOT NULL";
-		}
+		$fielddata = [];
+		$indexdata = [];
 
-		if (isset($parameters["default"])) {
-			if (strpos(strtolower($parameters["type"]),"int")!==false) {
-				$fieldstruct .= " DEFAULT ".$parameters["default"];
-			} else {
-				$fieldstruct .= " DEFAULT '".$parameters["default"]."'";
+		if (DBA::isResult($indexes)) {
+			foreach ($indexes AS $index) {
+				if ($index["Key_name"] != "PRIMARY" && $index["Non_unique"] == "0" && !isset($indexdata[$index["Key_name"]])) {
+					$indexdata[$index["Key_name"]] = ["UNIQUE"];
+				}
+
+				if ($index["Index_type"] == "FULLTEXT" && !isset($indexdata[$index["Key_name"]])) {
+					$indexdata[$index["Key_name"]] = ["FULLTEXT"];
+				}
+
+				$column = $index["Column_name"];
+
+				if ($index["Sub_part"] != "") {
+					$column .= "(" . $index["Sub_part"] . ")";
+				}
+
+				$indexdata[$index["Key_name"]][] = $column;
 			}
 		}
-		if ($parameters["extra"] != "") {
-			$fieldstruct .= " ".$parameters["extra"];
-		}
+		if (DBA::isResult($structures)) {
+			foreach ($structures AS $field) {
+				// Replace the default size values so that we don't have to define them
+				$search = ['tinyint(1)', 'tinyint(3) unsigned', 'tinyint(4)', 'smallint(5) unsigned', 'smallint(6)', 'mediumint(8) unsigned', 'mediumint(9)', 'bigint(20)', 'int(10) unsigned', 'int(11)'];
+				$replace = ['boolean', 'tinyint unsigned', 'tinyint', 'smallint unsigned', 'smallint', 'mediumint unsigned', 'mediumint', 'bigint', 'int unsigned', 'int'];
+				$field["Type"] = str_replace($search, $replace, $field["Type"]);
 
-		if (!is_null($parameters["comment"])) {
-			$fieldstruct .= " COMMENT '".dbesc($parameters["comment"])."'";
-		}
+				$fielddata[$field["Field"]]["type"] = $field["Type"];
+				if ($field["Null"] == "NO") {
+					$fielddata[$field["Field"]]["not null"] = true;
+				}
 
-		/*if (($parameters["primary"] != "") && $create)
-			$fieldstruct .= " PRIMARY KEY";*/
+				if (isset($field["Default"])) {
+					$fielddata[$field["Field"]]["default"] = $field["Default"];
+				}
 
-		return($fieldstruct);
-	}
+				if ($field["Extra"] != "") {
+					$fielddata[$field["Field"]]["extra"] = $field["Extra"];
+				}
 
-	private static function createTable($name, $fields, $verbose, $action, $indexes=null) {
-		$r = true;
-
-		$sql_rows = [];
-		$primary_keys = [];
-		foreach ($fields AS $fieldname => $field) {
-			$sql_rows[] = "`".dbesc($fieldname)."` ".self::FieldCommand($field);
-			if (x($field,'primary') && $field['primary']!='') {
-				$primary_keys[] = $fieldname;
-			}
-		}
-
-		if (!is_null($indexes)) {
-			foreach ($indexes AS $indexname => $fieldnames) {
-				$sql_index = self::createIndex($indexname, $fieldnames, "");
-				if (!is_null($sql_index)) {
-					$sql_rows[] = $sql_index;
+				if ($field["Key"] == "PRI") {
+					$fielddata[$field["Field"]]["primary"] = true;
 				}
 			}
 		}
-
-		$sql = implode(",\n\t", $sql_rows);
-
-		$sql = sprintf("CREATE TABLE IF NOT EXISTS `%s` (\n\t", dbesc($name)).$sql."\n) DEFAULT COLLATE utf8mb4_general_ci";
-		if ($verbose) {
-			echo $sql.";\n";
-		}
-
-		if ($action) {
-			$r = dba::e($sql);
-		}
-
-		return $r;
-	}
-
-	private static function addTableField($fieldname, $parameters) {
-		$sql = sprintf("ADD `%s` %s", dbesc($fieldname), self::FieldCommand($parameters));
-		return($sql);
-	}
-
-	private static function modifyTableField($fieldname, $parameters) {
-		$sql = sprintf("MODIFY `%s` %s", dbesc($fieldname), self::FieldCommand($parameters, false));
-		return($sql);
-	}
-
-	private static function dropIndex($indexname) {
-		$sql = sprintf("DROP INDEX `%s`", dbesc($indexname));
-		return($sql);
-	}
-
-	private static function createIndex($indexname, $fieldnames, $method = "ADD") {
-		$method = strtoupper(trim($method));
-		if ($method!="" && $method!="ADD") {
-			throw new \Exception("Invalid parameter 'method' in self::createIndex(): '$method'");
-		}
-
-		if ($fieldnames[0] == "UNIQUE") {
-			array_shift($fieldnames);
-			$method .= ' UNIQUE';
-		}
-
-		$names = "";
-		foreach ($fieldnames AS $fieldname) {
-			if ($names != "") {
-				$names .= ",";
-			}
-
-			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`".dbesc($matches[1])."`(".intval($matches[2]).")";
-			} else {
-				$names .= "`".dbesc($fieldname)."`";
+		if (DBA::isResult($full_columns)) {
+			foreach ($full_columns AS $column) {
+				$fielddata[$column["Field"]]["Collation"] = $column["Collation"];
+				$fielddata[$column["Field"]]["comment"] = $column["Comment"];
 			}
 		}
 
-		if ($indexname == "PRIMARY") {
-			return sprintf("%s PRIMARY KEY(%s)", $method, $names);
-		}
-
-
-		$sql = sprintf("%s INDEX `%s` (%s)", $method, dbesc($indexname), $names);
-		return($sql);
+		return ["fields" => $fielddata, "indexes" => $indexdata, "table_status" => $table_status];
 	}
 
-	private static function groupBy($indexname, $fieldnames) {
+	private static function dropIndex($indexname)
+	{
+		$sql = sprintf("DROP INDEX `%s`", DBA::escape($indexname));
+		return ($sql);
+	}
+
+	private static function addTableField($fieldname, $parameters)
+	{
+		$sql = sprintf("ADD `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters));
+		return ($sql);
+	}
+
+	private static function modifyTableField($fieldname, $parameters)
+	{
+		$sql = sprintf("MODIFY `%s` %s", DBA::escape($fieldname), self::FieldCommand($parameters, false));
+		return ($sql);
+	}
+
+	/**
+	 * Constructs a GROUP BY clause from a UNIQUE index definition.
+	 *
+	 * @param array $fieldnames
+	 * @return string
+	 */
+	private static function groupBy(array $fieldnames)
+	{
 		if ($fieldnames[0] != "UNIQUE") {
 			return "";
 		}
@@ -651,9 +701,9 @@ class DBStructure
 			}
 
 			if (preg_match('|(.+)\((\d+)\)|', $fieldname, $matches)) {
-				$names .= "`".dbesc($matches[1])."`";
+				$names .= "`" . DBA::escape($matches[1]) . "`";
 			} else {
-				$names .= "`".dbesc($fieldname)."`";
+				$names .= "`" . DBA::escape($fieldname) . "`";
 			}
 		}
 
@@ -661,1150 +711,148 @@ class DBStructure
 		return $sql;
 	}
 
-	public static function definition() {
-		$database = [];
+	/**
+	 * Renames columns or the primary key of a table
+	 *
+	 * @todo You cannot rename a primary key if "auto increment" is set
+	 *
+	 * @param string $table            Table name
+	 * @param array  $columns          Columns Syntax for Rename: [ $old1 => [ $new1, $type1 ], $old2 => [ $new2, $type2 ], ... ]
+	 *                                 Syntax for Primary Key: [ $col1, $col2, ...]
+	 * @param int    $type             The type of renaming (Default is Column)
+	 *
+	 * @return boolean Was the renaming successful?
+	 * @throws Exception
+	 */
+	public static function rename($table, $columns, $type = self::RENAME_COLUMN)
+	{
+		if (empty($table) || empty($columns)) {
+			return false;
+		}
 
-		$database["addon"] = [
-				"comment" => "registered addons",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"name" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => ""],
-						"version" => ["type" => "varchar(50)", "not null" => "1", "default" => "", "comment" => ""],
-						"installed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"timestamp" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"plugin_admin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"name" => ["UNIQUE", "name"],
-						]
-				];
-		$database["attach"] = [
-				"comment" => "file attachments",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"filetype" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"filesize" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"data" => ["type" => "longblob", "not null" => "1", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
-						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["auth_codes"] = [
-				"comment" => "OAuth usage",
-				"fields" => [
-						"id" => ["type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => ["clients" => "client_id"], "comment" => ""],
-						"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-						"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
-						"scope" => ["type" => "varchar(250)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["cache"] = [
-				"comment" => "Stores temporary data",
-				"fields" => [
-						"k" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => "cache key"],
-						"v" => ["type" => "mediumtext", "comment" => "cached serialized value"],
-						"expires" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of cache expiration"],
-						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "datetime of cache insertion"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["k"],
-						"k_expires" => ["k", "expires"],
-						]
-				];
-		$database["challenge"] = [
-				"comment" => "",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"challenge" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"type" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"last_update" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["clients"] = [
-				"comment" => "OAuth usage",
-				"fields" => [
-						"client_id" => ["type" => "varchar(20)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"pw" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
-						"redirect_uri" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-						"name" => ["type" => "text", "comment" => ""],
-						"icon" => ["type" => "text", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["client_id"],
-						]
-				];
-		$database["config"] = [
-				"comment" => "main configuration storage",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
-						"k" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
-						"v" => ["type" => "mediumtext", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"cat_k" => ["UNIQUE", "cat", "k"],
-						]
-				];
-		$database["contact"] = [
-				"comment" => "contact table",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"remote_self" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"rel" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"about" => ["type" => "text", "comment" => ""],
-						"keywords" => ["type" => "text", "comment" => ""],
-						"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"attag" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
-						"thumb" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
-						"micro" => ["type" => "varchar(255)", "default" => "", "comment" => ""],
-						"site-pubkey" => ["type" => "text", "comment" => ""],
-						"issued-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"dfrn-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pubkey" => ["type" => "text", "comment" => ""],
-						"prvkey" => ["type" => "text", "comment" => ""],
-						"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"request" => ["type" => "varchar(255)", "comment" => ""],
-						"notify" => ["type" => "varchar(255)", "comment" => ""],
-						"poll" => ["type" => "varchar(255)", "comment" => ""],
-						"confirm" => ["type" => "varchar(255)", "comment" => ""],
-						"poco" => ["type" => "varchar(255)", "comment" => ""],
-						"aes_allow" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"ret-aes" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"usehub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"subhub" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"hub-verify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"last-update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"success_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"failure_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"name-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"uri-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"avatar-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"term-date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"last-item" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-						"readonly" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"writable" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"forum" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"prv" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"archive" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pending" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-						"rating" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"reason" => ["type" => "text", "comment" => ""],
-						"closeness" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "99", "comment" => ""],
-						"info" => ["type" => "mediumtext", "comment" => ""],
-						"profile-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"bdyear" => ["type" => "varchar(4)", "not null" => "1", "default" => "", "comment" => ""],
-						"bd" => ["type" => "date", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
-						"notify_new_posts" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"fetch_further_information" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"ffi_keyword_blacklist" => ["type" => "text", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid_name" => ["uid", "name(190)"],
-						"self_uid" => ["self", "uid"],
-						"alias_uid" => ["alias(32)", "uid"],
-						"pending_uid" => ["pending", "uid"],
-						"blocked_uid" => ["blocked", "uid"],
-						"uid_rel_network_poll" => ["uid", "rel", "network", "poll(64)", "archive"],
-						"uid_network_batch" => ["uid", "network", "batch(64)"],
-						"addr_uid" => ["addr(32)", "uid"],
-						"nurl_uid" => ["nurl(32)", "uid"],
-						"nick_uid" => ["nick(32)", "uid"],
-						"dfrn-id" => ["dfrn-id(64)"],
-						"issued-id" => ["issued-id(64)"],
-						]
-				];
-		$database["conv"] = [
-				"comment" => "private messages",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"recips" => ["type" => "text", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"creator" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"subject" => ["type" => "text", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid" => ["uid"],
-						]
-				];
-		$database["conversation"] = [
-				"comment" => "Raw data and structure information for messages",
-				"fields" => [
-						"item-uri" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"reply-to-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"conversation-uri" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"conversation-href" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"protocol" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"source" => ["type" => "mediumtext", "comment" => ""],
-						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["item-uri"],
-						"conversation-uri" => ["conversation-uri"],
-						"received" => ["received"],
-						]
-				];
-		$database["event"] = [
-				"comment" => "Events",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"start" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"finish" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"summary" => ["type" => "text", "comment" => ""],
-						"desc" => ["type" => "text", "comment" => ""],
-						"location" => ["type" => "text", "comment" => ""],
-						"type" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
-						"nofinish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"adjust" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-						"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
-						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid_start" => ["uid", "start"],
-						]
-				];
-		$database["fcontact"] = [
-				"comment" => "Diaspora compatible contacts - used in the Diaspora implementation",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"batch" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"notify" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"poll" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"confirm" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pubkey" => ["type" => "text", "comment" => ""],
-						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"addr" => ["addr(32)"],
-						"url" => ["UNIQUE", "url(190)"],
-						]
-				];
-		$database["fsuggest"] = [
-				"comment" => "friend suggestion stuff",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"request" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"note" => ["type" => "text", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["gcign"] = [
-				"comment" => "contacts ignored by friend suggestions",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid" => ["uid"],
-						"gcid" => ["gcid"],
-						]
-				];
-		$database["gcontact"] = [
-				"comment" => "global contacts",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nick" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"connect" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"updated" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
-						"last_contact" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
-						"last_failure" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
-						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"about" => ["type" => "text", "comment" => ""],
-						"keywords" => ["type" => "text", "comment" => ""],
-						"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"birthday" => ["type" => "varchar(32)", "not null" => "1", "default" => "0001-01-01", "comment" => ""],
-						"community" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"contact-type" => ["type" => "tinyint", "not null" => "1", "default" => "-1", "comment" => ""],
-						"hide" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"nsfw" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-						"addr" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"notify" => ["type" => "varchar(255)", "comment" => ""],
-						"alias" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"generation" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"server_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"nurl" => ["UNIQUE", "nurl(190)"],
-						"name" => ["name(64)"],
-						"nick" => ["nick(32)"],
-						"addr" => ["addr(64)"],
-						"hide_network_updated" => ["hide", "network", "updated"],
-						"updated" => ["updated"],
-						]
-				];
-		$database["glink"] = [
-				"comment" => "'friends of friends' linkages derived from poco",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"gcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-						"zcid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gcontact" => "id"], "comment" => ""],
-						"updated" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"cid_uid_gcid_zcid" => ["UNIQUE", "cid","uid","gcid","zcid"],
-						"gcid" => ["gcid"],
-						]
-				];
-		$database["group"] = [
-				"comment" => "privacy groups, group info",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid" => ["uid"],
-						]
-				];
-		$database["group_member"] = [
-				"comment" => "privacy groups, member info",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["group" => "id"], "comment" => ""],
-						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"contactid" => ["contact-id"],
-						"gid_contactid" => ["UNIQUE", "gid", "contact-id"],
-						]
-				];
-		$database["gserver"] = [
-				"comment" => "Global servers",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nurl" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"version" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"site_name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"info" => ["type" => "text", "comment" => ""],
-						"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
-						"registered-users" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-						"platform" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"relay-subscribe" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Has the server subscribed to the relay system"],
-						"relay-scope" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => "The scope of messages that the server wants to get"],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"last_poco_query" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
-						"last_contact" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
-						"last_failure" => ["type" => "datetime", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"nurl" => ["UNIQUE", "nurl(190)"],
-						]
-				];
-		$database["gserver-tag"] = [
-				"comment" => "Tags that the server has subscribed",
-				"fields" => [
-						"gserver-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["gserver" => "id"], "primary" => "1", "comment" => "The id of the gserver"],
-						"tag" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "primary" => "1", "comment" => "Tag that the server has subscribed"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["gserver-id", "tag"],
-						"tag" => ["tag"],
-						]
-				];
-		$database["hook"] = [
-				"comment" => "addon hook registry",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"hook" => ["type" => "varbinary(100)", "not null" => "1", "default" => "", "comment" => ""],
-						"file" => ["type" => "varbinary(200)", "not null" => "1", "default" => "", "comment" => ""],
-						"function" => ["type" => "varbinary(200)", "not null" => "1", "default" => "", "comment" => ""],
-						"priority" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"hook_file_function" => ["UNIQUE", "hook", "file", "function"],
-						]
-				];
-		$database["intro"] = [
-				"comment" => "",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"fid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["fcontact" => "id"], "comment" => ""],
-						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"knowyou" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"duplex" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"note" => ["type" => "text", "comment" => ""],
-						"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"datetime" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-						"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["item"] = [
-				"comment" => "All posts",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "relation" => ["thread" => "iid"]],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"type" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "comment" => ""],
-						"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"gravity" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"parent" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"extid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"thr-parent" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"commented" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"changed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"owner-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"owner-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"owner-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"author-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"author-link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"author-avatar" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"content-warning" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"body" => ["type" => "mediumtext", "comment" => ""],
-						"app" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
-						"object-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
-						"object" => ["type" => "text", "comment" => ""],
-						"target-type" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
-						"target" => ["type" => "text", "comment" => ""],
-						"postopts" => ["type" => "text", "comment" => ""],
-						"plink" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"resource-id" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"event-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["event" => "id"], "comment" => ""],
-						"tag" => ["type" => "mediumtext", "comment" => ""],
-						"attach" => ["type" => "mediumtext", "comment" => ""],
-						"inform" => ["type" => "mediumtext", "comment" => ""],
-						"file" => ["type" => "mediumtext", "comment" => ""],
-						"location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"coord" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
-						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
-						"private" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"spam" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"bookmark" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-						"rendered-hash" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"rendered-html" => ["type" => "mediumtext", "comment" => ""],
-						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"guid" => ["guid(191)"],
-						"uri" => ["uri(191)"],
-						"parent" => ["parent"],
-						"parent-uri" => ["parent-uri(191)"],
-						"extid" => ["extid(191)"],
-						"uid_id" => ["uid","id"],
-						"uid_contactid_id" => ["uid","contact-id","id"],
-						"uid_created" => ["uid","created"],
-						"uid_commented" => ["uid","commented"],
-						"uid_unseen_contactid" => ["uid","unseen","contact-id"],
-						"uid_network_received" => ["uid","network","received"],
-						"uid_network_commented" => ["uid","network","commented"],
-						"uid_thrparent" => ["uid","thr-parent(190)"],
-						"uid_parenturi" => ["uid","parent-uri(190)"],
-						"uid_contactid_created" => ["uid","contact-id","created"],
-						"authorid_created" => ["author-id","created"],
-						"ownerid" => ["owner-id"],
-						"uid_uri" => ["uid", "uri(190)"],
-						"resource-id" => ["resource-id"],
-						"contactid_allowcid_allowpid_denycid_denygid" => ["contact-id","allow_cid(10)","allow_gid(10)","deny_cid(10)","deny_gid(10)"], //
-						"uid_type_changed" => ["uid","type","changed"],
-						"contactid_verb" => ["contact-id","verb"],
-						"deleted_changed" => ["deleted","changed"],
-						"uid_wall_changed" => ["uid","wall","changed"],
-						"uid_eventid" => ["uid","event-id"],
-						"uid_authorlink" => ["uid","author-link(190)"],
-						"uid_ownerlink" => ["uid","owner-link(190)"],
-						]
-				];
-		$database["locks"] = [
-				"comment" => "",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"name" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
-						"locked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["mail"] = [
-				"comment" => "private messages",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"from-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"from-photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"from-url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"contact-id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "relation" => ["contact" => "id"], "comment" => ""],
-						"convid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["conv" => "id"], "comment" => ""],
-						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"body" => ["type" => "mediumtext", "comment" => ""],
-						"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"reply" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"replied" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"unknown" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"parent-uri" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid_seen" => ["uid", "seen"],
-						"convid" => ["convid"],
-						"uri" => ["uri(64)"],
-						"parent-uri" => ["parent-uri(64)"],
-						"contactid" => ["contact-id(32)"],
-						]
-				];
-		$database["mailacct"] = [
-				"comment" => "Mail account data for fetching mails",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"server" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"port" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"ssltype" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
-						"mailbox" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"user" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pass" => ["type" => "text", "comment" => ""],
-						"reply_to" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"action" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"movetofolder" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"last_check" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["manage"] = [
-				"comment" => "table of accounts that can manage each other",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"mid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid_mid" => ["UNIQUE", "uid","mid"],
-						]
-				];
-		$database["notify"] = [
-				"comment" => "notifications",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"type" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"msg" => ["type" => "mediumtext", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"link" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"parent" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"seen" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"verb" => ["type" => "varchar(100)", "not null" => "1", "default" => "", "comment" => ""],
-						"otype" => ["type" => "varchar(10)", "not null" => "1", "default" => "", "comment" => ""],
-						"name_cache" => ["type" => "tinytext", "comment" => ""],
-						"msg_cache" => ["type" => "mediumtext", "comment" => ""]
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"hash_uid" => ["hash", "uid"],
-						"seen_uid_date" => ["seen", "uid", "date"],
-						"uid_date" => ["uid", "date"],
-						"uid_type_link" => ["uid", "type", "link(190)"],
-						]
-				];
-		$database["notify-threads"] = [
-				"comment" => "",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"notify-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["notify" => "id"], "comment" => ""],
-						"master-parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"parent-item" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"receiver-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["oembed"] = [
-				"comment" => "cache for OEmbed queries",
-				"fields" => [
-						"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"maxwidth" => ["type" => "mediumint unsigned", "not null" => "1", "primary" => "1", "comment" => ""],
-						"content" => ["type" => "mediumtext", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["url", "maxwidth"],
-						"created" => ["created"],
-						]
-				];
-		$database["parsed_url"] = [
-				"comment" => "cache for 'parse_url' queries",
-				"fields" => [
-						"url" => ["type" => "varbinary(255)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"guessing" => ["type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
-						"oembed" => ["type" => "boolean", "not null" => "1", "default" => "0", "primary" => "1", "comment" => ""],
-						"content" => ["type" => "mediumtext", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["url", "guessing", "oembed"],
-						"created" => ["created"],
-						]
-				];
-		$database["participation"] = [
-				"comment" => "Storage for participation messages from Diaspora",
-				"fields" => [
-						"iid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
-						"server" => ["type" => "varchar(60)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"cid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["contact" => "id"], "comment" => ""],
-						"fid" => ["type" => "int unsigned", "not null" => "1", "relation" => ["fcontact" => "id"], "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["iid", "server"]
-						]
-				];
-		$database["pconfig"] = [
-				"comment" => "personal (per user) configuration storage",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cat" => ["type" => "varbinary(50)", "not null" => "1", "default" => "", "comment" => ""],
-						"k" => ["type" => "varbinary(100)", "not null" => "1", "default" => "", "comment" => ""],
-						"v" => ["type" => "mediumtext", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid_cat_k" => ["UNIQUE", "uid", "cat", "k"],
-						]
-				];
-		$database["photo"] = [
-				"comment" => "photo storage",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"guid" => ["type" => "char(16)", "not null" => "1", "default" => "", "comment" => ""],
-						"resource-id" => ["type" => "char(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"title" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"desc" => ["type" => "text", "comment" => ""],
-						"album" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"filename" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"type" => ["type" => "varchar(30)", "not null" => "1", "default" => "image/jpeg"],
-						"height" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"width" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"datasize" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"data" => ["type" => "mediumblob", "not null" => "1", "comment" => ""],
-						"scale" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"profile" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
-						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"contactid" => ["contact-id"],
-						"uid_contactid" => ["uid", "contact-id"],
-						"uid_profile" => ["uid", "profile"],
-						"uid_album_scale_created" => ["uid", "album(32)", "scale", "created"],
-						"uid_album_resource-id_created" => ["uid", "album(32)", "resource-id", "created"],
-						"resource-id" => ["resource-id"],
-						]
-				];
-		$database["poll"] = [
-				"comment" => "Currently unused table for storing poll results",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"q0" => ["type" => "text", "comment" => ""],
-						"q1" => ["type" => "text", "comment" => ""],
-						"q2" => ["type" => "text", "comment" => ""],
-						"q3" => ["type" => "text", "comment" => ""],
-						"q4" => ["type" => "text", "comment" => ""],
-						"q5" => ["type" => "text", "comment" => ""],
-						"q6" => ["type" => "text", "comment" => ""],
-						"q7" => ["type" => "text", "comment" => ""],
-						"q8" => ["type" => "text", "comment" => ""],
-						"q9" => ["type" => "text", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid" => ["uid"],
-						]
-				];
-		$database["poll_result"] = [
-				"comment" => "data for polls - currently unused",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"poll_id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["poll" => "id"]],
-						"choice" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"poll_id" => ["poll_id"],
-						]
-				];
-		$database["process"] = [
-				"comment" => "Currently running system processes",
-				"fields" => [
-						"pid" => ["type" => "int unsigned", "not null" => "1", "primary" => "1", "comment" => ""],
-						"command" => ["type" => "varbinary(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["pid"],
-						"command" => ["command"],
-						]
-				];
-		$database["profile"] = [
-				"comment" => "user profiles data",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"profile-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"is-default" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pdesc" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00", "comment" => ""],
-						"address" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"locality" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"region" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"postal-code" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"country-name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"hometown" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"gender" => ["type" => "varchar(32)", "not null" => "1", "default" => "", "comment" => ""],
-						"marital" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"with" => ["type" => "text", "comment" => ""],
-						"howlong" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"sexual" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"politic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"religion" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pub_keywords" => ["type" => "text", "comment" => ""],
-						"prv_keywords" => ["type" => "text", "comment" => ""],
-						"likes" => ["type" => "text", "comment" => ""],
-						"dislikes" => ["type" => "text", "comment" => ""],
-						"about" => ["type" => "text", "comment" => ""],
-						"summary" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"music" => ["type" => "text", "comment" => ""],
-						"book" => ["type" => "text", "comment" => ""],
-						"tv" => ["type" => "text", "comment" => ""],
-						"film" => ["type" => "text", "comment" => ""],
-						"interest" => ["type" => "text", "comment" => ""],
-						"romance" => ["type" => "text", "comment" => ""],
-						"work" => ["type" => "text", "comment" => ""],
-						"education" => ["type" => "text", "comment" => ""],
-						"contact" => ["type" => "text", "comment" => ""],
-						"homepage" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"xmpp" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"photo" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"thumb" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"publish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"net-publish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid_is-default" => ["uid", "is-default"],
-						]
-				];
-		$database["profile_check"] = [
-				"comment" => "DFRN remote auth use",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"dfrn_id" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"sec" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["push_subscriber"] = [
-				"comment" => "Used for OStatus: Contains feed subscribers",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"callback_url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"topic" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"push" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"last_update" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"secret" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["queue"] = [
-				"comment" => "Queue for messages that couldn't be delivered",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"cid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => "Message receiver"],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => "Receiver's network"],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Unique GUID of the message"],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date, when the message was created"],
-						"last" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Date of last trial"],
-						"next" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Next retrial date"],
-						"retrial" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => "Retrial counter"],
-						"content" => ["type" => "mediumtext", "comment" => ""],
-						"batch" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"last" => ["last"],
-						"next" => ["next"],
-						]
-				];
-		$database["register"] = [
-				"comment" => "registrations requiring admin approval",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"hash" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"language" => ["type" => "varchar(16)", "not null" => "1", "default" => "", "comment" => ""],
-						"note" => ["type" => "text", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["search"] = [
-				"comment" => "",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"uid" => ["uid"],
-						]
-				];
-		$database["session"] = [
-				"comment" => "web session storage",
-				"fields" => [
-						"id" => ["type" => "bigint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"sid" => ["type" => "varbinary(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"data" => ["type" => "text", "comment" => ""],
-						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"sid" => ["sid(64)"],
-						"expire" => ["expire"],
-						]
-				];
-		$database["sign"] = [
-				"comment" => "Diaspora signatures",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"signed_text" => ["type" => "mediumtext", "comment" => ""],
-						"signature" => ["type" => "text", "comment" => ""],
-						"signer" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"iid" => ["UNIQUE", "iid"],
-						]
-				];
-		$database["term"] = [
-				"comment" => "item taxonomy (categories, tags, etc.) table",
-				"fields" => [
-						"tid" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"oid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["item" => "id"], "comment" => ""],
-						"otype" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"term" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"guid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"global" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"aid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["tid"],
-						"oid_otype_type_term" => ["oid","otype","type","term(32)"],
-						"uid_otype_type_term_global_created" => ["uid","otype","type","term(32)","global","created"],
-						"uid_otype_type_url" => ["uid","otype","type","url(64)"],
-						"guid" => ["guid(64)"],
-						]
-				];
-		$database["thread"] = [
-				"comment" => "Thread related data",
-				"fields" => [
-						"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						"contact-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"owner-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"author-id" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "relation" => ["contact" => "id"], "comment" => ""],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"edited" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"commented" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"received" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"changed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"wall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"private" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pubmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"moderated" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"visible" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"spam" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"starred" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"ignored" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"bookmark" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"unseen" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => ""],
-						"deleted" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"origin" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"forum_mode" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"mention" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["iid"],
-						"uid_network_commented" => ["uid","network","commented"],
-						"uid_network_created" => ["uid","network","created"],
-						"uid_contactid_commented" => ["uid","contact-id","commented"],
-						"uid_contactid_created" => ["uid","contact-id","created"],
-						"contactid" => ["contact-id"],
-						"ownerid" => ["owner-id"],
-						"authorid" => ["author-id"],
-						"uid_created" => ["uid","created"],
-						"uid_commented" => ["uid","commented"],
-						"uid_wall_created" => ["uid","wall","created"],
-						"private_wall_origin_commented" => ["private","wall","origin","commented"],
-						]
-				];
-		$database["tokens"] = [
-				"comment" => "OAuth usage",
-				"fields" => [
-						"id" => ["type" => "varchar(40)", "not null" => "1", "primary" => "1", "comment" => ""],
-						"secret" => ["type" => "text", "comment" => ""],
-						"client_id" => ["type" => "varchar(20)", "not null" => "1", "default" => "", "relation" => ["clients" => "client_id"]],
-						"expires" => ["type" => "int", "not null" => "1", "default" => "0", "comment" => ""],
-						"scope" => ["type" => "varchar(200)", "not null" => "1", "default" => "", "comment" => ""],
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "User id"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						]
-				];
-		$database["user"] = [
-				"comment" => "The local users",
-				"fields" => [
-						"uid" => ["type" => "mediumint unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"parent-uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "The parent user that has full control about this user"],
-						"guid" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
-						"username" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"password" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"legacy_password" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Is the password hash double-hashed?"],
-						"nickname" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"email" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"openid" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"timezone" => ["type" => "varchar(128)", "not null" => "1", "default" => "", "comment" => ""],
-						"language" => ["type" => "varchar(32)", "not null" => "1", "default" => "en", "comment" => ""],
-						"register_date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"login_date" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"default-location" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"allow_location" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"theme" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-						"pubkey" => ["type" => "text", "comment" => ""],
-						"prvkey" => ["type" => "text", "comment" => ""],
-						"spubkey" => ["type" => "text", "comment" => ""],
-						"sprvkey" => ["type" => "text", "comment" => ""],
-						"verified" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"blocked" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"blockwall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"hidewall" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"blocktags" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"unkmail" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"cntunkmail" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
-						"notify-flags" => ["type" => "smallint unsigned", "not null" => "1", "default" => "65535", "comment" => ""],
-						"page-flags" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"account-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"prvnets" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"pwdreset" => ["type" => "varchar(255)", "comment" => "Password reset request token"],
-						"pwdreset_time" => ["type" => "datetime", "comment" => "Timestamp of the last password reset request"],
-						"maxreq" => ["type" => "int unsigned", "not null" => "1", "default" => "10", "comment" => ""],
-						"expire" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"account_removed" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"account_expired" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-						"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"expire_notification_sent" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => ""],
-						"def_gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-						"allow_cid" => ["type" => "mediumtext", "comment" => ""],
-						"allow_gid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_cid" => ["type" => "mediumtext", "comment" => ""],
-						"deny_gid" => ["type" => "mediumtext", "comment" => ""],
-						"openidserver" => ["type" => "text", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["uid"],
-						"nickname" => ["nickname(32)"],
-						]
-				];
-		$database["userd"] = [
-				"comment" => "Deleted usernames",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => ""],
-						"username" => ["type" => "varchar(255)", "not null" => "1", "comment" => ""],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"username" => ["username(32)"],
-						]
-				];
-		$database["workerqueue"] = [
-				"comment" => "Background tasks queue entries",
-				"fields" => [
-						"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "Auto incremented worker task id"],
-						"parameter" => ["type" => "mediumblob", "comment" => "Task command"],
-						"priority" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => "Task priority"],
-						"created" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Creation date"],
-						"pid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Process id of the worker"],
-						"executed" => ["type" => "datetime", "not null" => "1", "default" => NULL_DATE, "comment" => "Execution date"],
-						"done" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marked when the task was done, will be deleted later"],
-						],
-				"indexes" => [
-						"PRIMARY" => ["id"],
-						"pid" => ["pid"],
-						"parameter" => ["parameter(64)"],
-						"priority_created" => ["priority", "created"],
-						"executed" => ["executed"],
-						]
-				];
+		if (!is_array($columns)) {
+			return false;
+		}
 
-		\Friendica\Core\Addon::callHooks('dbstructure_definition', $database);
+		$table = DBA::escape($table);
 
-		return $database;
+		$sql = "ALTER TABLE `" . $table . "`";
+		switch ($type) {
+			case self::RENAME_COLUMN:
+				if (!self::existsColumn($table, array_keys($columns))) {
+					return false;
+				}
+				$sql .= implode(',', array_map(
+					function ($to, $from) {
+						return " CHANGE `" . $from . "` `" . $to[0] . "` " . $to[1];
+					},
+					$columns,
+					array_keys($columns)
+				));
+				break;
+			case self::RENAME_PRIMARY_KEY:
+				if (!self::existsColumn($table, $columns)) {
+					return false;
+				}
+				$sql .= " DROP PRIMARY KEY, ADD PRIMARY KEY(`" . implode('`, `', $columns) . "`)";
+				break;
+			default:
+				return false;
+		}
+
+		$sql .= ";";
+
+		$stmt = DBA::p($sql);
+
+		if (is_bool($stmt)) {
+			$retval = $stmt;
+		} else {
+			$retval = true;
+		}
+
+		DBA::close($stmt);
+
+		return $retval;
+	}
+
+	/**
+	 *    Check if the columns of the table exists
+	 *
+	 * @param string $table   Table name
+	 * @param array  $columns Columns to check ( Syntax: [ $col1, $col2, .. ] )
+	 *
+	 * @return boolean Does the table exist?
+	 * @throws Exception
+	 */
+	public static function existsColumn($table, $columns = [])
+	{
+		if (empty($table)) {
+			return false;
+		}
+
+		if (is_null($columns) || empty($columns)) {
+			return self::existsTable($table);
+		}
+
+		$table = DBA::escape($table);
+
+		foreach ($columns AS $column) {
+			$sql = "SHOW COLUMNS FROM `" . $table . "` LIKE '" . $column . "';";
+
+			$stmt = DBA::p($sql);
+
+			if (is_bool($stmt)) {
+				$retval = $stmt;
+			} else {
+				$retval = (DBA::numRows($stmt) > 0);
+			}
+
+			DBA::close($stmt);
+
+			if (!$retval) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 *    Check if a table exists
+	 *
+	 * @param string|array $table Table name
+	 *
+	 * @return boolean Does the table exist?
+	 * @throws Exception
+	 */
+	public static function existsTable($table)
+	{
+		if (empty($table)) {
+			return false;
+		}
+
+		if (is_array($table)) {
+			$condition = ['table_schema' => key($table), 'table_name' => current($table)];
+		} else {
+			$condition = ['table_schema' => DBA::databaseName(), 'table_name' => $table];
+		}
+
+		$result = DBA::exists(['information_schema' => 'tables'], $condition);
+
+		return $result;
+	}
+
+	/**
+	 * Returns the columns of a table
+	 *
+	 * @param string $table Table name
+	 *
+	 * @return array An array of the table columns
+	 * @throws Exception
+	 */
+	public static function getColumns($table)
+	{
+		$stmtColumns = DBA::p("SHOW COLUMNS FROM `" . $table . "`");
+		return DBA::toArray($stmtColumns);
 	}
 }

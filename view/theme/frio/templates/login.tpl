@@ -8,6 +8,10 @@
 		<div id="login_standard">
 			{{include file="field_input.tpl" field=$lname}}
 			{{include file="field_password.tpl" field=$lpassword}}
+			<div id="login-lost-password-link">
+				<a href="lostpass" title="{{$lostpass}}" id="lost-password-link" >{{$lostlink}}</a>
+			</div>
+			<div id="login-end"></div>
 		</div>
 
 		{{if $openid}}
@@ -19,20 +23,25 @@
 		{{include file="field_checkbox.tpl" field=$lremember}}
 
 		<div id="login-submit-wrapper">
-			<a href="lostpass" title="{{$lostpass|escape:'html'}}" id="lost-password-link">{{$lostlink}}</a>
-
 			<div class="pull-right" >
-				{{if $register}}<a href="register" title="{{$register.title|escape:'html'}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>{{/if}}
-				<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login|escape:'html'}}">{{$login|escape:'html'}}</button>
+				<button type="submit" name="submit" id="login-submit-button" class="btn btn-primary" value="{{$login}}">{{$login}}</button>
 			</div>
 		</div>
 
 
 		{{foreach $hiddens as $k=>$v}}
-			<input type="hidden" name="{{$k}}" value="{{$v|escape:'html'}}" />
+			<input type="hidden" name="{{$k}}" value="{{$v}}" />
 		{{/foreach}}
 
+		<div id="login-end"></div>
 	</div>
 </form>
+
+{{if $register}}
+<div id="login-extra-links">
+	<h3 id="login-head" class="sr-only">{{$register.title}}</h3>
+	<a href="register" title="{{$register.title}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>
+</div>
+{{/if}}
 
 <script type="text/javascript"> $(document).ready(function() { $("#id_{{$lname.0}}").focus();} );</script>

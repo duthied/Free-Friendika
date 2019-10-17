@@ -1,4 +1,4 @@
-aside, header, #nav-events-link, #nav-search-box, #nav-admin-link, #activitiy-by-date-tab, #shared-links-tab,
+aside, header, #nav-search-box, #nav-admin-link, #nav-messages-linkmenu,  #activitiy-by-date-tab, #shared-links-tab, #nav-logout-link,
 .wall-item-location {
   display: none;
 }
@@ -60,8 +60,8 @@ nav ul {
   .wall-item-container .wall-item-content .type-link img.attachment-image, .type-link img.attachment-image, .type-video img.attachment-image {
     max-width: 350px;
   }
-  a.desktop-view { display: none; }
-  a.mobile-view { display: initial; }
+  .desktop-view { display: none; }
+  .mobile-view { display: initial; }
   #nav-apps-link { display: none; }
 
   .wall-item-container .wall-item-info { width: auto; }
@@ -91,6 +91,13 @@ nav ul {
     width: 100% !important; height: 110px !important;
   }
 
+  #login-extra-links, #login-form {
+    /* width: 341px; */
+    width: 100%;
+  }
+  #id_remember_label {
+    width: unset;
+  }
 }
 
 @media screen and (max-width: 480px) {
@@ -293,4 +300,6 @@ select:focus {
 .event-start, .event-end { width: auto; }
 .event-start .dtstart, .event-end .dtend { float: none; display: block; }
 
-
+/** prv mail **/
+.mail-conv-detail { margin-left: 0px; width: 100%; }
+#prvmail-submit, #prvmail-text, #prvmail-subject { box-sizing: border-box; width: 100%; }

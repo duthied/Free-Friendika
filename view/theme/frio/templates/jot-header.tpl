@@ -1,5 +1,7 @@
 
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/linkPreview.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/jot.js"></script>
 
 <script type="text/javascript">
 	var editor = false;
@@ -13,7 +15,7 @@
 			$("#jot-category").show();
 			$("#jot-category").addClass("jot-category-ex");
 			$("#jot-profile-jot-wrapper").show();
-			$("#profile-jot-text").editor_autocomplete(baseurl+"/acl");
+			$("#profile-jot-text").editor_autocomplete(baseurl + '/search/acl');
 			$("#profile-jot-text").bbco_autocomplete('bbcode');
 			$("a#jot-perms-icon").colorbox({
 				'inline' : true,
@@ -38,7 +40,8 @@
 </script>
 
 <script type="text/javascript">
-	var ispublic = '{{$ispublic}}';
+	var ispublic = '{{$ispublic nofilter}}';
+	aStr.linkurl = '{{$linkurl}}';
 
 
 	$(document).ready(function() {
@@ -126,18 +129,6 @@
 		}
 	}
 
-	function jotGetLink() {
-		reply = prompt("{{$linkurl}}");
-		if(reply && reply.length) {
-			reply = bin2hex(reply);
-			$('#profile-rotator').show();
-			$.get('parse_url?binurl=' + reply, function(data) {
-				addeditortext(data);
-				$('#profile-rotator').hide();
-			});
-		}
-	}
-
 	function jotVideoURL() {
 		reply = prompt("{{$vidurl}}");
 		if(reply && reply.length) {
@@ -151,7 +142,6 @@
 			addeditortext('[audio]' + reply + '[/audio]');
 		}
 	}
-
 
 	function jotGetLocation() {
 		reply = prompt("{{$whereareu}}", $('#jot-location').val());
@@ -174,26 +164,31 @@
 		$("#jot-popup").show();
 	}
 
-	function linkdropper(event) {
+	function linkDropper(event) {
 		var linkFound = event.dataTransfer.types.contains("text/uri-list");
 		if(linkFound)
 			event.preventDefault();
 	}
 
-	function linkdrop(event) {
+	function linkDrop(event) {
 		var reply = event.dataTransfer.getData("text/uri-list");
+		var noAttachment = '';
 		event.target.textContent = reply;
 		event.preventDefault();
 		if(reply && reply.length) {
 			reply = bin2hex(reply);
 			$('#profile-rotator').show();
-			$.get('parse_url?binurl=' + reply, function(data) {
+			if (currentText.includes("[attachment") && currentText.includes("[/attachment]")) {
+				noAttachment = '&noAttachment=1';
+			}
+			$.get('parse_url?binurl=' + reply + noAttachment, function(data) {
 				if (!editor) $("#profile-jot-text").val("");
 				initEditor(function(){
 					addeditortext(data);
 					$('#profile-rotator').hide();
 				});
 			});
+			autosize.update($("#profile-jot-text"));
 		}
 	}
 
@@ -215,7 +210,6 @@
 	}
 
 	function itemFiler(id) {
-
 		var bordercolor = $("input").css("border-color");
 
 		$.get('filer/', function(data){
@@ -261,9 +255,10 @@
 		var currentText = $("#profile-jot-text").val();
 		//insert the data as new value
 		textfield.value = currentText + data;
+		autosize.update($("#profile-jot-text"));
 	}
 
-	{{$geotag}}
+	{{$geotag nofilter}}
 
 	function jotShow() {
 		var modal = $('#jot-modal').modal();
@@ -278,6 +273,9 @@
 			.find('#jot-modal-content')
 			.append(jotcache)
 			.modal.show;
+
+		// Jot attachment live preview.
+		linkPreview = $('#profile-jot-text').linkPreview();
 	}
 
 	// Activate the jot text section in the jot modal

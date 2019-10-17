@@ -16,60 +16,69 @@
  */
 
 use Friendica\App;
+use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Addon;
+use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Session;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Attach;
 use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
+use Friendica\Model\FileTag;
 use Friendica\Model\Item;
+use Friendica\Model\Photo;
+use Friendica\Model\Term;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
+use Friendica\Util\Security;
+use Friendica\Util\Strings;
+use Friendica\Worker\Delivery;
 
-require_once 'include/enotify.php';
-require_once 'include/text.php';
-require_once 'include/items.php';
+require_once __DIR__ . '/../include/items.php';
 
 function item_post(App $a) {
-	if (!local_user() && !remote_user()) {
-		return;
+	if (!Session::isAuthenticated()) {
+		return 0;
 	}
-
-	require_once 'include/security.php';
 
 	$uid = local_user();
 
-	if (x($_REQUEST, 'dropitems')) {
+	if (!empty($_REQUEST['dropitems'])) {
 		$arr_drop = explode(',', $_REQUEST['dropitems']);
 		drop_items($arr_drop);
 		$json = ['success' => 1];
 		echo json_encode($json);
-		killme();
+		exit();
 	}
 
-	Addon::callHooks('post_local_start', $_REQUEST);
+	Hook::callAll('post_local_start', $_REQUEST);
 
-	logger('postvars ' . print_r($_REQUEST,true), LOGGER_DATA);
+	Logger::log('postvars ' . print_r($_REQUEST, true), Logger::DATA);
 
-	$api_source = defaults($_REQUEST, 'api_source', false);
+	$api_source = $_REQUEST['api_source'] ?? false;
 
-	$message_id = ((x($_REQUEST, 'message_id') && $api_source) ? strip_tags($_REQUEST['message_id']) : '');
+	$message_id = ((!empty($_REQUEST['message_id']) && $api_source) ? strip_tags($_REQUEST['message_id']) : '');
 
-	$return_path = defaults($_REQUEST, 'return', '');
-	$preview = intval(defaults($_REQUEST, 'preview', 0));
+	$return_path = $_REQUEST['return'] ?? '';
+	$preview = intval($_REQUEST['preview'] ?? 0);
 
 	/*
 	 * Check for doubly-submitted posts, and reject duplicates
 	 * Note that we have to ignore previews, otherwise nothing will post
 	 * after it's been previewed
 	 */
-	if (!$preview && x($_REQUEST, 'post_id_random')) {
-		if (x($_SESSION, 'post-random') && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			logger("item post: duplicate post", LOGGER_DEBUG);
+	if (!$preview && !empty($_REQUEST['post_id_random'])) {
+		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
+			Logger::log("item post: duplicate post", Logger::DEBUG);
 			item_post_return(System::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -77,67 +86,69 @@ function item_post(App $a) {
 	}
 
 	// Is this a reply to something?
-	$thr_parent = intval(defaults($_REQUEST, 'parent', 0));
-	$thr_parent_uri = trim(defaults($_REQUEST, 'parent_uri', ''));
+	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
+	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
-	$thr_parent_contact = null;
+	$thread_parent_id = 0;
+	$thread_parent_contact = null;
 
-	$parent = 0;
-	$parent_item = null;
+	$toplevel_item = null;
 	$parent_user = null;
 
 	$parent_contact = null;
 
 	$objecttype = null;
-	$profile_uid = defaults($_REQUEST, 'profile_uid', local_user());
+	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
+	$posttype = ($_REQUEST['post_type'] ?? '') ?: Item::PT_ARTICLE;
 
-	if ($thr_parent || $thr_parent_uri) {
-		if ($thr_parent) {
-			$parent_item = dba::selectFirst('item', [], ['id' => $thr_parent]);
+	if ($toplevel_item_id || $thr_parent_uri) {
+		if ($toplevel_item_id) {
+			$toplevel_item = Item::selectFirst([], ['id' => $toplevel_item_id]);
 		} elseif ($thr_parent_uri) {
-			$parent_item = dba::selectFirst('item', [], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
+			$toplevel_item = Item::selectFirst([], ['uri' => $thr_parent_uri, 'uid' => $profile_uid]);
 		}
 
-		// if this isn't the real parent of the conversation, find it
-		if (DBM::is_result($parent_item)) {
-
+		// if this isn't the top-level parent of the conversation, find it
+		if (DBA::isResult($toplevel_item)) {
 			// The URI and the contact is taken from the direct parent which needn't to be the top parent
-			$thr_parent_uri = $parent_item['uri'];
-			$thr_parent_contact = Contact::getDetailsByURL($parent_item["author-link"]);
+			$thread_parent_id = $toplevel_item['id'];
+			$thr_parent_uri = $toplevel_item['uri'];
+			$thread_parent_contact = Contact::getDetailsByURL($toplevel_item["author-link"]);
 
-			if ($parent_item['id'] != $parent_item['parent']) {
-				$parent_item = dba::selectFirst('item', [], ['id' => $parent_item['parent']]);
+			if ($toplevel_item['id'] != $toplevel_item['parent']) {
+				$toplevel_item = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $toplevel_item['parent']]);
 			}
 		}
 
-		if (!DBM::is_result($parent_item)) {
+		if (!DBA::isResult($toplevel_item)) {
 			notice(L10n::t('Unable to locate original post.') . EOL);
-			if (x($_REQUEST, 'return')) {
-				goaway($return_path);
+			if (!empty($_REQUEST['return'])) {
+				$a->internalRedirect($return_path);
 			}
-			killme();
+			exit();
 		}
 
-		$parent = $parent_item['id'];
-		$parent_user = $parent_item['uid'];
-
-		$parent_contact = Contact::getDetailsByURL($parent_item["author-link"]);
+		$toplevel_item_id = $toplevel_item['id'];
+		$parent_user = $toplevel_item['uid'];
 
 		$objecttype = ACTIVITY_OBJ_COMMENT;
-
-		if (!x($_REQUEST, 'type')) {
-			$_REQUEST['type'] = 'net-comment';
-		}
 	}
 
-	if ($parent) {
-		logger('mod_item: item_post parent=' . $parent);
+	if ($toplevel_item_id) {
+		Logger::info('mod_item: item_post parent=' . $toplevel_item_id);
 	}
 
-	$post_id     = intval(defaults($_REQUEST, 'post_id', 0));
-	$app         = strip_tags(defaults($_REQUEST, 'source', ''));
-	$extid       = strip_tags(defaults($_REQUEST, 'extid', ''));
-	$object      = defaults($_REQUEST, 'object', '');
+	$post_id     = intval($_REQUEST['post_id'] ?? 0);
+	$app         = strip_tags($_REQUEST['source'] ?? '');
+	$extid       = strip_tags($_REQUEST['extid'] ?? '');
+	$object      = $_REQUEST['object'] ?? '';
+
+	// Don't use "defaults" here. It would turn 0 to 1
+	if (!isset($_REQUEST['wall'])) {
+		$wall = 1;
+	} else {
+		$wall = $_REQUEST['wall'];
+	}
 
 	// Ensure that the user id in a thread always stay the same
 	if (!is_null($parent_user) && in_array($parent_user, [local_user(), 0])) {
@@ -146,39 +157,82 @@ function item_post(App $a) {
 
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
-		if (dba::exists('item', ['uri' => $message_id, 'uid' => $profile_uid])) {
-			logger("Message with URI ".$message_id." already exists for user ".$profile_uid, LOGGER_DEBUG);
-			return;
+		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
+			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, Logger::DEBUG);
+			return 0;
 		}
 	}
 
 	// Allow commenting if it is an answer to a public post
-	$allow_comment = local_user() && ($profile_uid == 0) && $parent && in_array($parent_item['network'], [NETWORK_OSTATUS, NETWORK_DIASPORA, NETWORK_DFRN]);
+	$allow_comment = local_user() && ($profile_uid == 0) && $toplevel_item_id && in_array($toplevel_item['network'], Protocol::FEDERATED);
 
 	// Now check that valid personal details have been provided
-	if (!can_write_wall($profile_uid) && !$allow_comment) {
-		notice(L10n::t('Permission denied.') . EOL) ;
-		if (x($_REQUEST, 'return')) {
-			goaway($return_path);
+	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
+		notice(L10n::t('Permission denied.') . EOL);
+
+		if (!empty($_REQUEST['return'])) {
+			$a->internalRedirect($return_path);
 		}
-		killme();
+
+		exit();
 	}
 
-
-	// is this an edited post?
-
+	// Init post instance
 	$orig_post = null;
 
-	if ($post_id) {
-		$orig_post = dba::selectFirst('item', [], ['id' => $post_id]);
+	// is this an edited post?
+	if ($post_id > 0) {
+		$orig_post = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 	}
 
-	$user = dba::selectFirst('user', [], ['uid' => $profile_uid]);
-	if (!DBM::is_result($user) && !$parent) {
-		return;
+	$user = DBA::selectFirst('user', [], ['uid' => $profile_uid]);
+
+	if (!DBA::isResult($user) && !$toplevel_item_id) {
+		return 0;
 	}
 
-	if ($orig_post) {
+	$categories = '';
+	$postopts = '';
+	$emailcc = '';
+	$body = $_REQUEST['body'] ?? '';
+	$has_attachment = $_REQUEST['has_attachment'] ?? 0;
+
+	// If we have a speparate attachment, we need to add it to the body.
+	if (!empty($has_attachment)) {
+		$attachment_type  = $_REQUEST['attachment_type'] ??  '';
+		$attachment_title = $_REQUEST['attachment_title'] ?? '';
+		$attachment_text  = $_REQUEST['attachment_text'] ??  '';
+
+		$attachment_url     = hex2bin($_REQUEST['attachment_url'] ??     '');
+		$attachment_img_src = hex2bin($_REQUEST['attachment_img_src'] ?? '');
+
+		$attachment_img_width  = $_REQUEST['attachment_img_width'] ??  0;
+		$attachment_img_height = $_REQUEST['attachment_img_height'] ?? 0;
+		$attachment = [
+			'type'   => $attachment_type,
+			'title'  => $attachment_title,
+			'text'   => $attachment_text,
+			'url'    => $attachment_url,
+		];
+
+		if (!empty($attachment_img_src)) {
+			$attachment['images'] = [
+				0 => [
+					'src'    => $attachment_img_src,
+					'width'  => $attachment_img_width,
+					'height' => $attachment_img_height
+				]
+			];
+		}
+
+		$att_bbcode = add_page_info_data($attachment);
+		$body .= $att_bbcode;
+	}
+
+	// Convert links with empty descriptions to links without an explicit description
+	$body = preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $body);
+
+	if (!empty($orig_post)) {
 		$str_group_allow   = $orig_post['allow_gid'];
 		$str_contact_allow = $orig_post['allow_cid'];
 		$str_group_deny    = $orig_post['deny_gid'];
@@ -187,11 +241,10 @@ function item_post(App $a) {
 		$coord             = $orig_post['coord'];
 		$verb              = $orig_post['verb'];
 		$objecttype        = $orig_post['object-type'];
-		$emailcc           = $orig_post['emailcc'];
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'];
-		$title             = notags(trim($_REQUEST['title']));
-		$body              = escape_tags(trim($_REQUEST['body']));
+		$title             = Strings::escapeTags(trim($_REQUEST['title']));
+		$body              = Strings::escapeHtml(trim($body));
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
@@ -205,7 +258,6 @@ function item_post(App $a) {
 		 * use the user default permissions - as they won't have
 		 * been supplied via a form.
 		 */
-		/// @TODO use x($_REQUEST, 'foo') here
 		if ($api_source
 			&& !array_key_exists('contact_allow', $_REQUEST)
 			&& !array_key_exists('group_allow', $_REQUEST)
@@ -217,79 +269,78 @@ function item_post(App $a) {
 			$str_contact_deny  = $user['deny_cid'];
 		} else {
 			// use the posted permissions
-			$str_group_allow   = perms2str($_REQUEST['group_allow']);
-			$str_contact_allow = perms2str($_REQUEST['contact_allow']);
-			$str_group_deny    = perms2str($_REQUEST['group_deny']);
-			$str_contact_deny  = perms2str($_REQUEST['contact_deny']);
+			$str_group_allow   = perms2str($_REQUEST['group_allow'] ?? '');
+			$str_contact_allow = perms2str($_REQUEST['contact_allow'] ?? '');
+			$str_group_deny    = perms2str($_REQUEST['group_deny'] ?? '');
+			$str_contact_deny  = perms2str($_REQUEST['contact_deny'] ?? '');
 		}
 
-		$title             = notags(trim($_REQUEST['title']));
-		$location          = notags(trim($_REQUEST['location']));
-		$coord             = notags(trim($_REQUEST['coord']));
-		$verb              = notags(trim($_REQUEST['verb']));
-		$emailcc           = notags(trim($_REQUEST['emailcc']));
-		$body              = escape_tags(trim($_REQUEST['body']));
-		$network           = notags(trim(defaults($_REQUEST, 'network', NETWORK_DFRN)));
-		$guid              = get_guid(32);
+		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
+		$location          = Strings::escapeTags(trim($_REQUEST['location'] ?? ''));
+		$coord             = Strings::escapeTags(trim($_REQUEST['coord']    ?? ''));
+		$verb              = Strings::escapeTags(trim($_REQUEST['verb']     ?? ''));
+		$emailcc           = Strings::escapeTags(trim($_REQUEST['emailcc']  ?? ''));
+		$body              = Strings::escapeHtml(trim($body));
+		$network           = Strings::escapeTags(trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN));
+		$guid              = System::createUUID();
 
-		$postopts = defaults($_REQUEST, 'postopts', '');
+		$postopts = $_REQUEST['postopts'] ?? '';
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
-		if ($user['hidewall']) {
-			$private = 2;
-		}
-
 		// If this is a comment, set the permissions from the parent.
 
-		if ($parent_item) {
-
+		if ($toplevel_item) {
 			// for non native networks use the network of the original post as network of the item
-			if (($parent_item['network'] != NETWORK_DIASPORA)
-				&& ($parent_item['network'] != NETWORK_OSTATUS)
+			if (($toplevel_item['network'] != Protocol::DIASPORA)
+				&& ($toplevel_item['network'] != Protocol::OSTATUS)
 				&& ($network == "")) {
-				$network = $parent_item['network'];
+				$network = $toplevel_item['network'];
 			}
 
-			$str_contact_allow = $parent_item['allow_cid'];
-			$str_group_allow   = $parent_item['allow_gid'];
-			$str_contact_deny  = $parent_item['deny_cid'];
-			$str_group_deny    = $parent_item['deny_gid'];
-			$private           = $parent_item['private'];
+			$str_contact_allow = $toplevel_item['allow_cid'];
+			$str_group_allow   = $toplevel_item['allow_gid'];
+			$str_contact_deny  = $toplevel_item['deny_cid'];
+			$str_group_deny    = $toplevel_item['deny_gid'];
+			$private           = $toplevel_item['private'];
+
+			$wall              = $toplevel_item['wall'];
 		}
 
-		$pubmail_enabled = defaults($_REQUEST, 'pubmail_enable', false) && !$private;
+		$pubmail_enabled = ($_REQUEST['pubmail_enable'] ?? false) && !$private;
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
 			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
-				$pubmail_enabled = dba::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", local_user(), '']);
+				$pubmail_enabled = DBA::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", local_user(), '']);
 			}
 		}
 
 		if (!strlen($body)) {
 			if ($preview) {
-				killme();
+				exit();
 			}
 			info(L10n::t('Empty post discarded.') . EOL);
-			if (x($_REQUEST, 'return')) {
-				goaway($return_path);
+			if (!empty($_REQUEST['return'])) {
+				$a->internalRedirect($return_path);
 			}
-			killme();
+			exit();
 		}
 	}
 
-	if (strlen($categories)) {
+	if (!empty($categories)) {
 		// get the "fileas" tags for this post
-		$filedas = file_tag_file_to_list($categories, 'file');
+		$filedas = FileTag::fileToArray($categories);
 	}
+
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
 	$categories_old = $categories;
-	$categories = file_tag_list_to_file(trim($_REQUEST['category']), 'category');
+	$categories = FileTag::listToFile(trim($_REQUEST['category'] ?? ''), 'category');
 	$categories_new = $categories;
-	if (strlen($filedas)) {
+
+	if (!empty($filedas) && is_array($filedas)) {
 		// append the fileas stuff to the new categories list
-		$categories .= file_tag_list_to_file($filedas, 'file');
+		$categories .= FileTag::arrayToFile($filedas);
 	}
 
 	// get contact info for poster
@@ -300,22 +351,12 @@ function item_post(App $a) {
 
 	if (local_user() && ((local_user() == $profile_uid) || $allow_comment)) {
 		$self = true;
-		$author = dba::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
-	} elseif (remote_user()) {
-		if (x($_SESSION, 'remote') && is_array($_SESSION['remote'])) {
-			foreach ($_SESSION['remote'] as $v) {
-				if ($v['uid'] == $profile_uid) {
-					$contact_id = $v['cid'];
-					break;
-				}
-			}
-		}
-		if ($contact_id) {
-			$author = dba::selectFirst('contact', [], ['id' => $contact_id]);
-		}
+		$author = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
+	} elseif (!empty(Session::getRemoteContactID($profile_uid))) {
+		$author = DBA::selectFirst('contact', [], ['id' => Session::getRemoteContactID($profile_uid)]);
 	}
 
-	if (DBM::is_result($author)) {
+	if (DBA::isResult($author)) {
 		$contact_id = $author['id'];
 	}
 
@@ -323,40 +364,17 @@ function item_post(App $a) {
 	if ($profile_uid == local_user() || $allow_comment) {
 		$contact_record = $author;
 	} else {
-		$contact_record = dba::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]);
-	}
-
-	$post_type = notags(trim($_REQUEST['type']));
-
-	if ($post_type === 'net-comment' && $parent_item !== null) {
-		if ($parent_item['wall'] == 1) {
-			$post_type = 'wall-comment';
-		} else {
-			$post_type = 'remote-comment';
-		}
+		$contact_record = DBA::selectFirst('contact', [], ['uid' => $profile_uid, 'self' => true]);
 	}
 
 	// Look for any tags and linkify them
 	$str_tags = '';
 	$inform   = '';
 
-	$tags = get_tags($body);
+	$tags = BBCode::getTags($body);
 
-	// Add a tag if the parent contact is from OStatus (This will notify them during delivery)
-	if ($parent) {
-		if ($thr_parent_contact['network'] == NETWORK_OSTATUS) {
-			$contact = '@[url=' . $thr_parent_contact['url'] . ']' . $thr_parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $thr_parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
-		}
-
-		if ($parent_contact['network'] == NETWORK_OSTATUS) {
-			$contact = '@[url=' . $parent_contact['url'] . ']' . $parent_contact['nick'] . '[/url]';
-			if (!stripos(implode($tags), '[url=' . $parent_contact['url'] . ']')) {
-				$tags[] = $contact;
-			}
-		}
+	if ($thread_parent_id && !\Friendica\Content\Feature::isEnabled($uid, 'explicit_mentions')) {
+		$tags = item_add_implicit_mentions($tags, $thread_parent_contact, $thread_parent_id);
 	}
 
 	$tagged = [];
@@ -369,7 +387,7 @@ function item_post(App $a) {
 		foreach ($tags as $tag) {
 			$tag_type = substr($tag, 0, 1);
 
-			if ($tag_type == '#') {
+			if ($tag_type == Term::TAG_CHARACTER[Term::HASHTAG]) {
 				continue;
 			}
 
@@ -389,17 +407,17 @@ function item_post(App $a) {
 				continue;
 			}
 
-			$success = handle_tag($a, $body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
+			$success = handle_tag($body, $inform, $str_tags, local_user() ? local_user() : $profile_uid, $tag, $network);
 			if ($success['replaced']) {
 				$tagged[] = $tag;
 			}
 			// When the forum is private or the forum is addressed with a "!" make the post private
-			if (is_array($success['contact']) && ($success['contact']['prv'] || ($tag_type == '!'))) {
+			if (is_array($success['contact']) && (!empty($success['contact']['prv']) || ($tag_type == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]))) {
 				$private_forum = $success['contact']['prv'];
-				$only_to_forum = ($tag_type == '!');
+				$only_to_forum = ($tag_type == Term::TAG_CHARACTER[Term::EXCLUSIVE_MENTION]);
 				$private_id = $success['contact']['id'];
 				$forum_contact = $success['contact'];
-			} elseif (is_array($success['contact']) && $success['contact']['forum'] &&
+			} elseif (is_array($success['contact']) && !empty($success['contact']['forum']) &&
 				($str_contact_allow == '<' . $success['contact']['id'] . '>')) {
 				$private_forum = false;
 				$only_to_forum = true;
@@ -411,7 +429,7 @@ function item_post(App $a) {
 
 	$original_contact_id = $contact_id;
 
-	if (!$parent && count($forum_contact) && ($private_forum || $only_to_forum)) {
+	if (!$toplevel_item_id && count($forum_contact) && ($private_forum || $only_to_forum)) {
 		// we tagged a forum in a top level post. Now we change the post
 		$private = $private_forum;
 
@@ -426,6 +444,7 @@ function item_post(App $a) {
 		$contact_id = $private_id;
 		$contact_record = $forum_contact;
 		$_REQUEST['origin'] = false;
+		$wall = 0;
 	}
 
 	/*
@@ -440,40 +459,9 @@ function item_post(App $a) {
 
 	$match = null;
 
-	/// @todo these lines should be moved to Model/Photo
-	if (!$preview && preg_match_all("/\[img([\=0-9x]*?)\](.*?)\[\/img\]/",$body,$match)) {
-		$images = $match[2];
-		if (count($images)) {
-
-			$objecttype = ACTIVITY_OBJ_IMAGE;
-
-			foreach ($images as $image) {
-				if (!stristr($image, System::baseUrl() . '/photo/')) {
-					continue;
-				}
-				$image_uri = substr($image,strrpos($image,'/') + 1);
-				$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-				if (!strlen($image_uri)) {
-					continue;
-				}
-
-				// Ensure to only modify photos that you own
-				$srch = '<' . intval($original_contact_id) . '>';
-
-				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-						'resource-id' => $image_uri, 'uid' => $profile_uid];
-				if (!dba::exists('photo', $condition)) {
-					continue;
-				}
-
-				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
-						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-				$condition = ['resource-id' => $image_uri, 'uid' => $profile_uid, 'album' => L10n::t('Wall Photos')];
-				dba::update('photo', $fields, $condition);
-			}
-		}
+	if (!$preview && Photo::setPermissionFromBody($body, $profile_uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
+		$objecttype = ACTIVITY_OBJ_IMAGE;
 	}
-
 
 	/*
 	 * Next link in any attachment references we find in the post.
@@ -490,25 +478,25 @@ function item_post(App $a) {
 
 				$condition = ['allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
 						'id' => $attach];
-				if (!dba::exists('attach', $condition)) {
+				if (!Attach::exists($condition)) {
 					continue;
 				}
 
 				$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 						'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
 				$condition = ['id' => $attach];
-				dba::update('attach', $fields, $condition);
+				Attach::update($fields, $condition);
 			}
 		}
 	}
 
 	// embedded bookmark or attachment in post? set bookmark flag
 
-	$bookmark = 0;
 	$data = BBCode::getAttachmentData($body);
-	if (preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"])) {
+	if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"]))
+		&& ($posttype != Item::PT_PERSONAL_NOTE)) {
+		$posttype = Item::PT_PAGE;
 		$objecttype = ACTIVITY_OBJ_BOOKMARK;
-		$bookmark = 1;
 	}
 
 	$body = bb_translate_video($body);
@@ -540,8 +528,8 @@ function item_post(App $a) {
 	if (preg_match_all('/(\[attachment\]([0-9]+)\[\/attachment\])/',$body,$match)) {
 		foreach ($match[2] as $mtch) {
 			$fields = ['id', 'filename', 'filesize', 'filetype'];
-			$attachment = dba::selectFirst('attach', $fields, ['id' => $mtch]);
-			if (DBM::is_result($attachment)) {
+			$attachment = Attach::selectFirst($fields, ['id' => $mtch]);
+			if ($attachment !== false) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
@@ -553,39 +541,35 @@ function item_post(App $a) {
 		}
 	}
 
-	$wall = 0;
-
-	if (($post_type === 'wall' || $post_type === 'wall-comment') && !count($forum_contact)) {
-		$wall = 1;
-	}
-
 	if (!strlen($verb)) {
 		$verb = ACTIVITY_POST;
 	}
 
 	if ($network == "") {
-		$network = NETWORK_DFRN;
+		$network = Protocol::DFRN;
 	}
 
-	$gravity = ($parent ? 6 : 0);
+	$gravity = ($toplevel_item_id ? GRAVITY_COMMENT : GRAVITY_PARENT);
 
 	// even if the post arrived via API we are considering that it
 	// originated on this site by default for determining relayability.
 
-	$origin = intval(defaults($_REQUEST, 'origin', 1));
+	// Don't use "defaults" here. It would turn 0 to 1
+	if (!isset($_REQUEST['origin'])) {
+		$origin = 1;
+	} else {
+		$origin = $_REQUEST['origin'];
+	}
 
-	$notify_type = ($parent ? 'comment-new' : 'wall-new');
-
-	$uri = ($message_id ? $message_id : item_new_uri($a->get_hostname(), $profile_uid, $guid));
+	$uri = ($message_id ? $message_id : Item::newURI($api_source ? $profile_uid : $uid, $guid));
 
 	// Fallback so that we alway have a parent uri
-	if (!$thr_parent_uri || !$parent) {
+	if (!$thr_parent_uri || !$toplevel_item_id) {
 		$thr_parent_uri = $uri;
 	}
 
 	$datarray = [];
 	$datarray['uid']           = $profile_uid;
-	$datarray['type']          = $post_type;
 	$datarray['wall']          = $wall;
 	$datarray['gravity']       = $gravity;
 	$datarray['network']       = $network;
@@ -615,6 +599,7 @@ function item_post(App $a) {
 	$datarray['file']          = $categories;
 	$datarray['inform']        = $inform;
 	$datarray['verb']          = $verb;
+	$datarray['post-type']     = $posttype;
 	$datarray['object-type']   = $objecttype;
 	$datarray['allow_cid']     = $str_contact_allow;
 	$datarray['allow_gid']     = $str_group_allow;
@@ -623,7 +608,6 @@ function item_post(App $a) {
 	$datarray['private']       = $private;
 	$datarray['pubmail']       = $pubmail_enabled;
 	$datarray['attach']        = $attachments;
-	$datarray['bookmark']      = intval($bookmark);
 
 	// This is not a bug. The item store function changes 'parent-uri' to 'thr-parent' and fetches 'parent-uri' new. (We should change this)
 	$datarray['parent-uri']    = $thr_parent_uri;
@@ -638,63 +622,71 @@ function item_post(App $a) {
 	 * 'self' if true indicates the owner is posting on their own wall
 	 * If parent is 0 it is a top-level post.
 	 */
-	$datarray['parent']        = $parent;
+	$datarray['parent']        = $toplevel_item_id;
 	$datarray['self']          = $self;
 
 	// This triggers posts via API and the mirror functions
 	$datarray['api_source'] = $api_source;
 
 	// This field is for storing the raw conversation data
-	$datarray['protocol'] = PROTOCOL_DFRN;
+	$datarray['protocol'] = Conversation::PARCEL_DFRN;
 
-	$r = dba::fetch_first("SELECT `conversation-uri`, `conversation-href` FROM `conversation` WHERE `item-uri` = ?", $datarray['parent-uri']);
-	if (DBM::is_result($r)) {
-		if ($r['conversation-uri'] != '') {
-			$datarray['conversation-uri'] = $r['conversation-uri'];
+	$conversation = DBA::selectFirst('conversation', ['conversation-uri', 'conversation-href'], ['item-uri' => $datarray['parent-uri']]);
+	if (DBA::isResult($conversation)) {
+		if ($conversation['conversation-uri'] != '') {
+			$datarray['conversation-uri'] = $conversation['conversation-uri'];
 		}
-		if ($r['conversation-href'] != '') {
-			$datarray['conversation-href'] = $r['conversation-href'];
+		if ($conversation['conversation-href'] != '') {
+			$datarray['conversation-href'] = $conversation['conversation-href'];
 		}
 	}
 
 	if ($orig_post) {
 		$datarray['edit'] = true;
+	} else {
+		$datarray['edit'] = false;
+	}
+
+	// Check for hashtags in the body and repair or add hashtag links
+	if ($preview || $orig_post) {
+		Item::setHashtags($datarray);
 	}
 
 	// preview mode - prepare the body for display and send it via json
 	if ($preview) {
-		require_once 'include/conversation.php';
 		// We set the datarray ID to -1 because in preview mode the dataray
 		// doesn't have an ID.
 		$datarray["id"] = -1;
-		$o = conversation($a,[array_merge($contact_record,$datarray)],'search', false, true);
-		logger('preview: ' . $o);
+		$datarray["item_id"] = -1;
+		$datarray["author-network"] = Protocol::DFRN;
+
+		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager($a->query_string), 'search', false, true);
+		Logger::log('preview: ' . $o);
 		echo json_encode(['preview' => $o]);
-		killme();
+		exit();
 	}
 
-	Addon::callHooks('post_local',$datarray);
+	Hook::callAll('post_local',$datarray);
 
-	if (x($datarray, 'cancel')) {
-		logger('mod_item: post cancelled by addon.');
+	if (!empty($datarray['cancel'])) {
+		Logger::log('mod_item: post cancelled by addon.');
 		if ($return_path) {
-			goaway($return_path);
+			$a->internalRedirect($return_path);
 		}
 
 		$json = ['cancel' => 1];
-		if (x($_REQUEST, 'jsreload') && strlen($_REQUEST['jsreload'])) {
+		if (!empty($_REQUEST['jsreload'])) {
 			$json['reload'] = System::baseUrl() . '/' . $_REQUEST['jsreload'];
 		}
 
 		echo json_encode($json);
-		killme();
+		exit();
 	}
 
-	if ($orig_post) {
-
+	if ($orig_post)	{
 		// Fill the cache field
 		// This could be done in Item::update as well - but we have to check for the existance of some fields.
-		put_item_in_cache($datarray);
+		Item::putInCache($datarray);
 
 		$fields = [
 			'title' => $datarray['title'],
@@ -710,40 +702,45 @@ function item_post(App $a) {
 		Item::update($fields, ['id' => $post_id]);
 
 		// update filetags in pconfig
-		file_tag_update_pconfig($uid,$categories_old,$categories_new,'category');
+		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
-		if (x($_REQUEST, 'return') && strlen($return_path)) {
-			logger('return: ' . $return_path);
-			goaway($return_path);
+		if (!empty($_REQUEST['return']) && strlen($return_path)) {
+			Logger::log('return: ' . $return_path);
+			$a->internalRedirect($return_path);
 		}
-		killme();
-	} else {
-		$post_id = 0;
+		exit();
 	}
 
 	unset($datarray['edit']);
 	unset($datarray['self']);
 	unset($datarray['api_source']);
 
+	if ($origin) {
+		$signed = Diaspora::createCommentSignature($uid, $datarray);
+		if (!empty($signed)) {
+			$datarray['diaspora_signed_text'] = json_encode($signed);
+		}
+	}
+
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		logger("Item wasn't stored.");
-		goaway($return_path);
+		Logger::log("Item wasn't stored.");
+		$a->internalRedirect($return_path);
 	}
 
-	$datarray = dba::selectFirst('item', [], ['id' => $post_id]);
+	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
-	if (!DBM::is_result($datarray)) {
-		logger("Item with id ".$post_id." couldn't be fetched.");
-		goaway($return_path);
+	if (!DBA::isResult($datarray)) {
+		Logger::log("Item with id ".$post_id." couldn't be fetched.");
+		$a->internalRedirect($return_path);
 	}
 
 	// update filetags in pconfig
-	file_tag_update_pconfig($uid, $categories_old, $categories_new, 'category');
+	FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
 	// These notifications are sent if someone else is commenting other your wall
-	if ($parent) {
+	if ($toplevel_item_id) {
 		if ($contact_record != $author) {
 			notification([
 				'type'         => NOTIFY_COMMENT,
@@ -759,13 +756,10 @@ function item_post(App $a) {
 				'source_photo' => $datarray['author-avatar'],
 				'verb'         => ACTIVITY_POST,
 				'otype'        => 'item',
-				'parent'       => $parent,
-				'parent_uri'   => $parent_item['uri']
+				'parent'       => $toplevel_item_id,
+				'parent_uri'   => $toplevel_item['uri']
 			]);
 		}
-
-		// Store the comment signature information in case we need to relay to Diaspora
-		Diaspora::storeCommentSignature($datarray, $author, ($self ? $user['prvkey'] : false), $post_id);
 	} else {
 		if (($contact_record != $author) && !count($forum_contact)) {
 			notification([
@@ -786,7 +780,7 @@ function item_post(App $a) {
 		}
 	}
 
-	Addon::callHooks('post_local_end', $datarray);
+	Hook::callAll('post_local_end', $datarray);
 
 	if (strlen($emailcc) && $profile_uid == local_user()) {
 		$erecips = explode(',', $emailcc);
@@ -806,7 +800,7 @@ function item_post(App $a) {
 					$subject = Email::encodeHeader('[Friendica]' . ' ' . L10n::t('%s posted an update.', $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
-				$html    = prepare_body($datarray);
+				$html    = Item::prepareBody($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
 				$params =  [
 					'fromName' => $a->user['username'],
@@ -815,7 +809,7 @@ function item_post(App $a) {
 					'replyTo' => $a->user['email'],
 					'messageSubject' => $subject,
 					'htmlVersion' => $message,
-					'textVersion' => Friendica\Content\Text\HTML::toPlaintext($html.$disclaimer)
+					'textVersion' => HTML::toPlaintext($html.$disclaimer)
 				];
 				Emailer::send($params);
 			}
@@ -828,85 +822,99 @@ function item_post(App $a) {
 	// We don't fork a new process since this is done anyway with the following command
 	Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => true], "CreateShadowEntry", $post_id);
 
-	// Call the background process that is delivering the item to the receivers
-	Worker::add(PRIORITY_HIGH, "Notifier", $notify_type, $post_id);
+	// When we are doing some forum posting via ! we have to start the notifier manually.
+	// These kind of posts don't initiate the notifier call in the item class.
+	if ($only_to_forum) {
+		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, $post_id);
+	}
 
-	logger('post_complete');
+	Logger::log('post_complete');
+
+	if ($api_source) {
+		return $post_id;
+	}
 
 	item_post_return(System::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
 
-function item_post_return($baseurl, $api_source, $return_path) {
+function item_post_return($baseurl, $api_source, $return_path)
+{
 	// figure out how to return, depending on from whence we came
+    $a = \get_app();
 
 	if ($api_source) {
 		return;
 	}
 
 	if ($return_path) {
-		goaway($return_path);
+		$a->internalRedirect($return_path);
 	}
 
 	$json = ['success' => 1];
-	if (x($_REQUEST, 'jsreload') && strlen($_REQUEST['jsreload'])) {
+	if (!empty($_REQUEST['jsreload'])) {
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	logger('post_json: ' . print_r($json,true), LOGGER_DEBUG);
+	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
 
 	echo json_encode($json);
-	killme();
+	exit();
 }
 
-
-
-function item_content(App $a) {
-
-	if (!local_user() && !remote_user()) {
+function item_content(App $a)
+{
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 
-	require_once 'include/security.php';
-
 	$o = '';
-	if (($a->argc == 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		if (is_ajax()) {
-			$o = Item::deleteById($a->argv[2]);
+
+	if (($a->argc >= 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
+		if ($a->isAjax()) {
+			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
-			$o = drop_item($a->argv[2]);
+			if (!empty($a->argv[3])) {
+				$o = drop_item($a->argv[2], $a->argv[3]);
+			}
+			else {
+				$o = drop_item($a->argv[2]);
+			}
 		}
-		if (is_ajax()) {
+
+		if ($a->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode([intval($a->argv[2]), intval($o)]);
-			killme();
+			exit();
 		}
 	}
+
 	return $o;
 }
 
 /**
  * This function removes the tag $tag from the text $body and replaces it with
- * the appropiate link.
+ * the appropriate link.
  *
- * @param App $a Application instance @TODO is unused in this function's scope (excluding included files)
- * @param unknown_type $body the text to replace the tag in
- * @param string $inform a comma-seperated string containing everybody to inform
- * @param string $str_tags string to add the tag to
+ * @param App     $a
+ * @param string  $body     the text to replace the tag in
+ * @param string  $inform   a comma-seperated string containing everybody to inform
+ * @param string  $str_tags string to add the tag to
  * @param integer $profile_uid
- * @param string $tag the tag to replace
- * @param string $network The network of the post
+ * @param string  $tag      the tag to replace
+ * @param string  $network  The network of the post
  *
- * @return boolean true if replaced, false if not replaced
+ * @return array|bool ['replaced' => $replaced, 'contact' => $contact];
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
+function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
 {
 	$replaced = false;
 	$r = null;
-	$tag_type = '@';
 
 	//is it a person tag?
-	if ((strpos($tag, '@') === 0) || (strpos($tag, '!') === 0)) {
+	if (Term::isType($tag, Term::MENTION, Term::IMPLICIT_MENTION, Term::EXCLUSIVE_MENTION)) {
 		$tag_type = substr($tag, 0, 1);
 		//is it already replaced?
 		if (strpos($tag, '[url=')) {
@@ -922,12 +930,15 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			$pattern = "/[@!]\[url\=(.*?)\](.*?)\[\/url\]/ism";
 			if (preg_match($pattern, $tag, $matches)) {
 				$data = Contact::getDetailsByURL($matches[1]);
+
 				if ($data["alias"] != "") {
 					$newtag = '@[url=' . $data["alias"] . ']' . $data["nick"] . '[/url]';
+
 					if (!stripos($str_tags, '[url=' . $data["alias"] . ']')) {
 						if (strlen($str_tags)) {
 							$str_tags .= ',';
 						}
+
 						$str_tags .= $newtag;
 					}
 				}
@@ -935,7 +946,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 			return $replaced;
 		}
-		$stat = false;
+
 		//get the person's name
 		$name = substr($tag, 1);
 
@@ -956,41 +967,42 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			$contact = Contact::getDetailsByAddr($name);
 		} else {
 			$contact = false;
-			$fields = ['id', 'url', 'nick', 'name', 'alias', 'network'];
+			$fields = ['id', 'url', 'nick', 'name', 'alias', 'network', 'forum', 'prv'];
 
 			if (strrpos($name, '+')) {
 				// Is it in format @nick+number?
 				$tagcid = intval(substr($name, strrpos($name, '+') + 1));
-				$contact = dba::selectFirst('contact', $fields, ['id' => $tagcid, 'uid' => $profile_uid]);
+				$contact = DBA::selectFirst('contact', $fields, ['id' => $tagcid, 'uid' => $profile_uid]);
 			}
 
 			// select someone by nick or attag in the current network
-			if (!DBM::is_result($contact) && ($network != "")) {
+			if (!DBA::isResult($contact) && ($network != "")) {
 				$condition = ["(`nick` = ? OR `attag` = ?) AND `network` = ? AND `uid` = ?",
 						$name, $name, $network, $profile_uid];
-				$contact = dba::selectFirst('contact', $fields, $condition);
+				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 
 			//select someone by name in the current network
-			if (!DBM::is_result($contact) && ($network != "")) {
+			if (!DBA::isResult($contact) && ($network != "")) {
 				$condition = ['name' => $name, 'network' => $network, 'uid' => $profile_uid];
-				$contact = dba::selectFirst('contact', $fields, $condition);
+				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 
 			// select someone by nick or attag in any network
-			if (!DBM::is_result($contact)) {
+			if (!DBA::isResult($contact)) {
 				$condition = ["(`nick` = ? OR `attag` = ?) AND `uid` = ?", $name, $name, $profile_uid];
-				$contact = dba::selectFirst('contact', $fields, $condition);
+				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 
 			// select someone by name in any network
-			if (!DBM::is_result($contact)) {
+			if (!DBA::isResult($contact)) {
 				$condition = ['name' => $name, 'uid' => $profile_uid];
-				$contact = dba::selectFirst('contact', $fields, $condition);
+				$contact = DBA::selectFirst('contact', $fields, $condition);
 			}
 		}
 
-		if ($contact) {
+		// Check if $contact has been successfully loaded
+		if (DBA::isResult($contact)) {
 			if (strlen($inform) && (isset($contact["notify"]) || isset($contact["id"]))) {
 				$inform .= ',';
 			}
@@ -1003,11 +1015,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 
 			$profile = $contact["url"];
 			$alias   = $contact["alias"];
-			$newname = $contact["nick"];
-			if (($newname == "") || (($contact["network"] != NETWORK_OSTATUS) && ($contact["network"] != NETWORK_TWITTER)
-				&& ($contact["network"] != NETWORK_STATUSNET) && ($contact["network"] != NETWORK_APPNET))) {
-				$newname = $contact["name"];
-			}
+			$newname = ($contact["name"] ?? '') ?: $contact["nick"];
 		}
 
 		//if there is an url for this persons profile
@@ -1029,7 +1037,7 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 			 * Status.Net seems to require the numeric ID URL in a mention if the person isn't
 			 * subscribed to you. But the nickname URL is OK if they are. Grrr. We'll tag both.
 			 */
-			if (strlen($alias)) {
+			if (!empty($alias)) {
 				$newtag = '@[url=' . $alias . ']' . $newname . '[/url]';
 				if (!stripos($str_tags, '[url=' . $alias . ']')) {
 					if (strlen($str_tags)) {
@@ -1042,4 +1050,35 @@ function handle_tag(App $a, &$body, &$inform, &$str_tags, $profile_uid, $tag, $n
 	}
 
 	return ['replaced' => $replaced, 'contact' => $contact];
+}
+
+function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_id)
+{
+	if (Config::get('system', 'disable_implicit_mentions')) {
+		// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
+		if (in_array($thread_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
+			$contact = Term::TAG_CHARACTER[Term::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';
+			if (!stripos(implode($tags), '[url=' . $thread_parent_contact['url'] . ']')) {
+				$tags[] = $contact;
+			}
+		}
+	} else {
+		$implicit_mentions = [
+			$thread_parent_contact['url'] => $thread_parent_contact['nick']
+		];
+
+		$parent_terms = Term::tagArrayFromItemId($thread_parent_id, [Term::MENTION, Term::IMPLICIT_MENTION]);
+
+		foreach ($parent_terms as $parent_term) {
+			$implicit_mentions[$parent_term['url']] = $parent_term['term'];
+		}
+
+		foreach ($implicit_mentions as $url => $label) {
+			if ($url != \Friendica\Model\Profile::getMyURL() && !stripos(implode($tags), '[url=' . $url . ']')) {
+				$tags[] = Term::TAG_CHARACTER[Term::IMPLICIT_MENTION] . '[url=' . $url . ']' . $label . '[/url]';
+			}
+		}
+	}
+
+	return $tags;
 }

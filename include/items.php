@@ -3,13 +3,18 @@
  * @file include/items.php
  */
 
+use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Core\Session;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Feed;
@@ -17,21 +22,27 @@ use Friendica\Protocol\OStatus;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-require_once 'include/text.php';
-require_once 'mod/share.php';
-require_once 'include/enotify.php';
+require_once __DIR__ . '/../mod/share.php';
 
-function add_page_info_data($data, $no_photos = false) {
-	Addon::callHooks('page_info_data', $data);
+function add_page_info_data(array $data, $no_photos = false)
+{
+	Hook::callAll('page_info_data', $data);
+
+	if (empty($data['type'])) {
+		return '';
+	}
 
 	// It maybe is a rich content, but if it does have everything that a link has,
 	// then treat it that way
 	if (($data["type"] == "rich") && is_string($data["title"]) &&
-		is_string($data["text"]) && (sizeof($data["images"]) > 0)) {
+		is_string($data["text"]) && !empty($data["images"])) {
 		$data["type"] = "link";
 	}
+
+	$data["title"] = $data["title"] ?? '';
 
 	if ((($data["type"] != "link") && ($data["type"] != "video") && ($data["type"] != "photo")) || ($data["title"] == $data["url"])) {
 		return "";
@@ -47,23 +58,24 @@ function add_page_info_data($data, $no_photos = false) {
 
 	$text = "[attachment type='".$data["type"]."'";
 
-	if ($data["text"] == "") {
+	if (empty($data["text"])) {
 		$data["text"] = $data["title"];
 	}
 
-	if ($data["text"] == "") {
+	if (empty($data["text"])) {
 		$data["text"] = $data["url"];
 	}
 
-	if ($data["url"] != "") {
+	if (!empty($data["url"])) {
 		$text .= " url='".$data["url"]."'";
 	}
 
-	if ($data["title"] != "") {
+	if (!empty($data["title"])) {
 		$text .= " title='".$data["title"]."'";
 	}
 
-	if (sizeof($data["images"]) > 0) {
+	// Only embedd a picture link when it seems to be a valid picture ("width" is set)
+	if (!empty($data["images"]) && !empty($data["images"][0]["width"])) {
 		$preview = str_replace(["[", "]"], ["&#91;", "&#93;"], htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
@@ -80,26 +92,26 @@ function add_page_info_data($data, $no_photos = false) {
 	$hashtags = "";
 	if (isset($data["keywords"]) && count($data["keywords"])) {
 		$hashtags = "\n";
-		foreach ($data["keywords"] AS $keyword) {
+		foreach ($data["keywords"] as $keyword) {
 			/// @TODO make a positive list of allowed characters
 			$hashtag = str_replace([" ", "+", "/", ".", "#", "'", "’", "`", "(", ")", "„", "“"],
 						["", "", "", "", "", "", "", "", "", "", "", ""], $keyword);
-			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url] ";
+			$hashtags .= "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url] ";
 		}
 	}
 
 	return "\n".$text.$hashtags;
 }
 
-function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklist = "") {
-
+function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklist = "")
+{
 	$data = ParseUrl::getSiteinfoCached($url, true);
 
 	if ($photo != "") {
 		$data["images"][0]["src"] = $photo;
 	}
 
-	logger('fetch page info for ' . $url . ' ' . print_r($data, true), LOGGER_DEBUG);
+	Logger::log('fetch page info for ' . $url . ' ' . print_r($data, true), Logger::DEBUG);
 
 	if (!$keywords && isset($data["keywords"])) {
 		unset($data["keywords"]);
@@ -107,8 +119,10 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 
 	if (($keyword_blacklist != "") && isset($data["keywords"])) {
 		$list = explode(", ", $keyword_blacklist);
-		foreach ($list AS $keyword) {
+
+		foreach ($list as $keyword) {
 			$keyword = trim($keyword);
+
 			$index = array_search($keyword, $data["keywords"]);
 			if ($index !== false) {
 				unset($data["keywords"][$index]);
@@ -119,12 +133,13 @@ function query_page_info($url, $photo = "", $keywords = false, $keyword_blacklis
 	return $data;
 }
 
-function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "") {
+function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blacklist = "")
+{
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
 
 	$tags = "";
 	if (isset($data["keywords"]) && count($data["keywords"])) {
-		foreach ($data["keywords"] AS $keyword) {
+		foreach ($data["keywords"] as $keyword) {
 			$hashtag = str_replace([" ", "+", "/", ".", "#", "'"],
 				["", "", "", "", "", ""], $keyword);
 
@@ -132,24 +147,29 @@ function add_page_keywords($url, $photo = "", $keywords = false, $keyword_blackl
 				$tags .= ", ";
 			}
 
-			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . rawurlencode($hashtag) . "]" . $hashtag . "[/url]";
+			$tags .= "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
 		}
 	}
 
 	return $tags;
 }
 
-function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "") {
+function add_page_info($url, $no_photos = false, $photo = "", $keywords = false, $keyword_blacklist = "")
+{
 	$data = query_page_info($url, $photo, $keywords, $keyword_blacklist);
 
-	$text = add_page_info_data($data, $no_photos);
+	$text = '';
+
+	if (is_array($data)) {
+		$text = add_page_info_data($data, $no_photos);
+	}
 
 	return $text;
 }
 
-function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
-
-	logger('add_page_info_to_body: fetch page info for body ' . $body, LOGGER_DEBUG);
+function add_page_info_to_body($body, $texturl = false, $no_photos = false)
+{
+	Logger::log('add_page_info_to_body: fetch page info for body ' . $body, Logger::DEBUG);
 
 	$URLSearchString = "^\[\]";
 
@@ -185,8 +205,7 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
 			$body = $removedlink;
 		}
 
-		$url = str_replace(['/', '.'], ['\/', '\.'], $matches[1]);
-		$removedlink = preg_replace("/\[url\=" . $url . "\](.*?)\[\/url\]/ism", '', $body);
+		$removedlink = preg_replace("/\[url\=" . preg_quote($matches[1], '/') . "\](.*?)\[\/url\]/ism", '', $body);
 		if (($removedlink == "") || strstr($body, $removedlink)) {
 			$body = $removedlink;
 		}
@@ -226,124 +245,116 @@ function add_page_info_to_body($body, $texturl = false, $no_photos = false) {
  * to get all the feed items into a mostly linear ordering, and might still require
  * recursion.
  *
- * @TODO find proper type-hints
+ * @param       $xml
+ * @param array $importer
+ * @param array $contact
+ * @param       $hub
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function consume_feed($xml, $importer, $contact, &$hub, $datedir = 0, $pass = 0) {
-	if ($contact['network'] === NETWORK_OSTATUS) {
-		if ($pass < 2) {
-			// Test - remove before flight
-			//$tempfile = tempnam(get_temppath(), "ostatus2");
-			//file_put_contents($tempfile, $xml);
-			logger("Consume OStatus messages ", LOGGER_DEBUG);
-			OStatus::import($xml, $importer, $contact, $hub);
-		}
+function consume_feed($xml, array $importer, array $contact, &$hub)
+{
+	if ($contact['network'] === Protocol::OSTATUS) {
+		Logger::log("Consume OStatus messages ", Logger::DEBUG);
+		OStatus::import($xml, $importer, $contact, $hub);
+
 		return;
 	}
 
-	if ($contact['network'] === NETWORK_FEED) {
-		if ($pass < 2) {
-			logger("Consume feeds", LOGGER_DEBUG);
-			Feed::import($xml, $importer, $contact, $hub);
-		}
+	if ($contact['network'] === Protocol::FEED) {
+		Logger::log("Consume feeds", Logger::DEBUG);
+		Feed::import($xml, $importer, $contact, $hub);
+
 		return;
 	}
 
-	if ($contact['network'] === NETWORK_DFRN) {
-		logger("Consume DFRN messages", LOGGER_DEBUG);
-
-		$r = q("SELECT `contact`.*, `contact`.`uid` AS `importer_uid`,
-					`contact`.`pubkey` AS `cpubkey`,
-					`contact`.`prvkey` AS `cprvkey`,
-					`contact`.`thumb` AS `thumb`,
-					`contact`.`url` as `url`,
-					`contact`.`name` as `senderName`,
-					`user`.*
-			FROM `contact`
-			LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
-			WHERE `contact`.`id` = %d AND `user`.`uid` = %d",
-			dbesc($contact["id"]), dbesc($importer["uid"])
-		);
-		if (DBM::is_result($r)) {
-			logger("Now import the DFRN feed");
-			DFRN::import($xml, $r[0], true);
+	if ($contact['network'] === Protocol::DFRN) {
+		Logger::log("Consume DFRN messages", Logger::DEBUG);
+		$dfrn_importer = DFRN::getImporter($contact["id"], $importer["uid"]);
+		if (!empty($dfrn_importer)) {
+			Logger::log("Now import the DFRN feed");
+			DFRN::import($xml, $dfrn_importer, true);
 			return;
 		}
 	}
 }
 
-function subscribe_to_hub($url, $importer, $contact, $hubmode = 'subscribe') {
-
-	$a = get_app();
-
-	if (is_array($importer)) {
-		$r = q("SELECT `nickname` FROM `user` WHERE `uid` = %d LIMIT 1",
-			intval($importer['uid'])
-		);
-	}
-
+function subscribe_to_hub($url, array $importer, array $contact, $hubmode = 'subscribe')
+{
 	/*
 	 * Diaspora has different message-ids in feeds than they do
 	 * through the direct Diaspora protocol. If we try and use
 	 * the feed, we'll get duplicates. So don't.
 	 */
-	if ((!DBM::is_result($r)) || $contact['network'] === NETWORK_DIASPORA) {
+	if ($contact['network'] === Protocol::DIASPORA) {
 		return;
 	}
 
-	$push_url = System::baseUrl() . '/pubsub/' . $r[0]['nickname'] . '/' . $contact['id'];
+	// Without an importer we don't have a user id - so we quit
+	if (empty($importer)) {
+		return;
+	}
+
+	$user = DBA::selectFirst('user', ['nickname'], ['uid' => $importer['uid']]);
+
+	// No user, no nickname, we quit
+	if (!DBA::isResult($user)) {
+		return;
+	}
+
+	$push_url = System::baseUrl() . '/pubsub/' . $user['nickname'] . '/' . $contact['id'];
 
 	// Use a single verify token, even if multiple hubs
-	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : random_string());
+	$verify_token = ((strlen($contact['hub-verify'])) ? $contact['hub-verify'] : Strings::getRandomHex());
 
 	$params= 'hub.mode=' . $hubmode . '&hub.callback=' . urlencode($push_url) . '&hub.topic=' . urlencode($contact['poll']) . '&hub.verify=async&hub.verify_token=' . $verify_token;
 
-	logger('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
+	Logger::log('subscribe_to_hub: ' . $hubmode . ' ' . $contact['name'] . ' to hub ' . $url . ' endpoint: '  . $push_url . ' with verifier ' . $verify_token);
 
 	if (!strlen($contact['hub-verify']) || ($contact['hub-verify'] != $verify_token)) {
-		dba::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
+		DBA::update('contact', ['hub-verify' => $verify_token], ['id' => $contact['id']]);
 	}
 
-	Network::post($url, $params);
+	$postResult = Network::post($url, $params);
 
-	logger('subscribe_to_hub: returns: ' . $a->get_curl_code(), LOGGER_DEBUG);
+	Logger::log('subscribe_to_hub: returns: ' . $postResult->getReturnCode(), Logger::DEBUG);
 
 	return;
 
 }
 
-/// @TODO type-hint is array
-function drop_items($items) {
+function drop_items(array $items)
+{
 	$uid = 0;
 
-	if (!local_user() && !remote_user()) {
+	if (!Session::isAuthenticated()) {
 		return;
 	}
 
-	if (count($items)) {
+	if (!empty($items)) {
 		foreach ($items as $item) {
-			$owner = Item::deleteById($item);
-			if ($owner && !$uid)
+			$owner = Item::deleteForUser(['id' => $item], local_user());
+
+			if ($owner && !$uid) {
 				$uid = $owner;
+			}
 		}
 	}
 }
 
-function drop_item($id) {
-
-	$a = get_app();
+function drop_item($id, $return = '')
+{
+	$a = BaseObject::getApp();
 
 	// locate item to be deleted
 
-	$r = q("SELECT * FROM `item` WHERE `id` = %d LIMIT 1",
-		intval($id)
-	);
+	$fields = ['id', 'uid', 'guid', 'contact-id', 'deleted', 'gravity', 'parent'];
+	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
-	if (!DBM::is_result($r)) {
+	if (!DBA::isResult($item)) {
 		notice(L10n::t('Item not found.') . EOL);
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		$a->internalRedirect('network');
 	}
-
-	$item = $r[0];
 
 	if ($item['deleted']) {
 		return 0;
@@ -352,24 +363,18 @@ function drop_item($id) {
 	$contact_id = 0;
 
 	// check if logged in user is either the author or owner of this item
-
-	if (is_array($_SESSION['remote'])) {
-		foreach ($_SESSION['remote'] as $visitor) {
-			if ($visitor['uid'] == $item['uid'] && $visitor['cid'] == $item['contact-id']) {
-				$contact_id = $visitor['cid'];
-				break;
-			}
-		}
+	if (Session::getRemoteContactID($item['uid']) == $item['contact-id']) {
+		$contact_id = $item['contact-id'];
 	}
 
 	if ((local_user() == $item['uid']) || $contact_id) {
-
 		// Check if we should do HTML-based delete confirmation
-		if ($_REQUEST['confirm']) {
+		if (!empty($_REQUEST['confirm'])) {
 			// <form> can't take arguments in its "action" parameter
 			// so add any arguments as hidden inputs
 			$query = explode_querystring($a->query_string);
 			$inputs = [];
+
 			foreach ($query['args'] as $arg) {
 				if (strpos($arg, 'confirm=') === false) {
 					$arg_parts = explode('=', $arg);
@@ -377,7 +382,7 @@ function drop_item($id) {
 				}
 			}
 
-			return replace_macros(get_markup_template('confirm.tpl'), [
+			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
 				'$message' => L10n::t('Do you really want to delete this item?'),
 				'$extra_inputs' => $inputs,
@@ -388,94 +393,51 @@ function drop_item($id) {
 			]);
 		}
 		// Now check how the user responded to the confirmation query
-		if ($_REQUEST['canceled']) {
-			goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		if (!empty($_REQUEST['canceled'])) {
+			$a->internalRedirect('display/' . $item['guid']);
+		}
+
+		$is_comment = ($item['gravity'] == GRAVITY_COMMENT) ? true : false;
+		$parentitem = null;
+		if (!empty($item['parent'])){
+			$fields = ['guid'];
+			$parentitem = Item::selectFirstForUser(local_user(), $fields, ['id' => $item['parent']]);
 		}
 
 		// delete the item
-		Item::deleteById($item['id']);
+		Item::deleteForUser(['id' => $item['id']], local_user());
 
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
-		//NOTREACHED
+		$return_url = hex2bin($return);
+
+		// removes update_* from return_url to ignore Ajax refresh
+		$return_url = str_replace("update_", "", $return_url);
+
+		// Check if delete a comment
+		if ($is_comment) {
+			// Return to parent guid
+			if (!empty($parentitem)) {
+				$a->internalRedirect('display/' . $parentitem['guid']);
+				//NOTREACHED
+			}
+			// In case something goes wrong
+			else {
+				$a->internalRedirect('network');
+				//NOTREACHED
+			}
+		}
+		else {
+			// if unknown location or deleting top level post called from display
+			if (empty($return_url) || strpos($return_url, 'display') !== false) {
+				$a->internalRedirect('network');
+				//NOTREACHED
+			} else {
+				$a->internalRedirect($return_url);
+				//NOTREACHED
+			}
+		}
 	} else {
 		notice(L10n::t('Permission denied.') . EOL);
-		goaway(System::baseUrl() . '/' . $_SESSION['return_url']);
+		$a->internalRedirect('display/' . $item['guid']);
 		//NOTREACHED
 	}
-}
-
-/* arrange the list in years */
-function list_post_dates($uid, $wall) {
-	$dnow = DateTimeFormat::localNow('Y-m-d');
-
-	$dthen = Item::firstPostDate($uid, $wall);
-	if (!$dthen) {
-		return [];
-	}
-
-	// Set the start and end date to the beginning of the month
-	$dnow = substr($dnow, 0, 8) . '01';
-	$dthen = substr($dthen, 0, 8) . '01';
-
-	$ret = [];
-
-	/*
-	 * Starting with the current month, get the first and last days of every
-	 * month down to and including the month of the first post
-	 */
-	while (substr($dnow, 0, 7) >= substr($dthen, 0, 7)) {
-		$dyear = intval(substr($dnow, 0, 4));
-		$dstart = substr($dnow, 0, 8) . '01';
-		$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
-		$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
-		$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
-		$str = day_translate(DateTimeFormat::utc($dnow, 'F'));
-		if (!$ret[$dyear]) {
-			$ret[$dyear] = [];
-		}
-		$ret[$dyear][] = [$str, $end_month, $start_month];
-		$dnow = DateTimeFormat::utc($dnow . ' -1 month', 'Y-m-d');
-	}
-	return $ret;
-}
-
-function posted_date_widget($url, $uid, $wall) {
-	$o = '';
-
-	if (!Feature::isEnabled($uid, 'archives')) {
-		return $o;
-	}
-
-	// For former Facebook folks that left because of "timeline"
-	/*
-	 * @TODO old-lost code?
-	if ($wall && intval(PConfig::get($uid, 'system', 'no_wall_archive_widget')))
-		return $o;
-	*/
-
-	$visible_years = PConfig::get($uid,'system','archive_visible_years');
-	if (!$visible_years) {
-		$visible_years = 5;
-	}
-
-	$ret = list_post_dates($uid, $wall);
-
-	if (!DBM::is_result($ret)) {
-		return $o;
-	}
-
-	$cutoff_year = intval(DateTimeFormat::localNow('Y')) - $visible_years;
-	$cutoff = ((array_key_exists($cutoff_year, $ret))? true : false);
-
-	$o = replace_macros(get_markup_template('posted_date_widget.tpl'),[
-		'$title' => L10n::t('Archives'),
-		'$size' => $visible_years,
-		'$cutoff_year' => $cutoff_year,
-		'$cutoff' => $cutoff,
-		'$url' => $url,
-		'$dates' => $ret,
-		'$showmore' => L10n::t('show more')
-
-	]);
-	return $o;
 }

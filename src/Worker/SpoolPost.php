@@ -5,10 +5,8 @@
  */
 namespace Friendica\Worker;
 
+use Friendica\Core\Logger;
 use Friendica\Model\Item;
-use Friendica\Core\Config;
-
-require_once("include/items.php");
 
 class SpoolPost {
 	public static function execute() {
@@ -49,7 +47,7 @@ class SpoolPost {
 
 					$result = Item::insert($arr);
 
-					logger("Spool file ".$file." stored: ".$result, LOGGER_DEBUG);
+					Logger::log("Spool file ".$file." stored: ".$result, Logger::DEBUG);
 					unlink($fullfile);
 				}
 				closedir($dh);

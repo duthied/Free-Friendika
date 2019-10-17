@@ -9,7 +9,7 @@
 					{{if $group.cid}}
 						<input type="checkbox"
 							class="{{if $group.selected}}ticked{{else}}unticked {{/if}} action"
-							onclick="contactgroupChangeMember('{{$group.id}}','{{$group.cid}}');return true;"
+							onclick="return contactgroupChangeMember(this, '{{$group.id}}','{{$group.cid}}');"
 							{{if $group.ismember}}checked="checked"{{/if}}
 						/>
 					{{/if}}
@@ -36,7 +36,7 @@
 	<div id="sidebar-edit-groups"><a href="{{$grouppage}}">{{$editgroupstext}}</a></div>
 	{{/if}}
 
-	{{if $ungrouped}}<div id="sidebar-ungrouped"><a href="nogroup">{{$ungrouped}}</a></div>{{/if}}
+	{{if $ungrouped}}<div id="sidebar-ungrouped"><a class="{{if $ungrouped_selected}}group-selected{{/if}}" href="nogroup">{{$ungrouped}}</a></div>{{/if}}
 </div>
 
 

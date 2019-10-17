@@ -3,7 +3,7 @@ host = https://www.transifex.com
 
 [friendica.messagespo]
 file_filter = view/lang/<lang>/messages.po
-source_file = util/messages.po
+source_file = view/lang/C/messages.po
 source_lang = en
 type = PO
 

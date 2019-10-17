@@ -15,9 +15,12 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Core\Session;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
@@ -26,16 +29,15 @@ use Friendica\Module\Login;
 use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
-
-require_once 'include/enotify.php';
+use Friendica\Util\Strings;
 
 function dfrn_request_init(App $a)
 {
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
+		Profile::load($a, $which);
 	}
 
-	Profile::load($a, $which);
 	return;
 }
 
@@ -53,16 +55,19 @@ function dfrn_request_init(App $a)
  * in order to link our friend request with our own server cell.
  * After logging in, we click 'submit' to approve the linkage.
  *
+ * @param App $a
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function dfrn_request_post(App $a)
 {
 	if (($a->argc != 2) || (!count($a->profile))) {
-		logger('Wrong count of argc or profiles: argc=' . $a->argc . ',profile()=' . count($a->profile));
+		Logger::log('Wrong count of argc or profiles: argc=' . $a->argc . ',profile()=' . count($a->profile));
 		return;
 	}
 
-	if (x($_POST, 'cancel')) {
-		goaway(System::baseUrl());
+	if (!empty($_POST['cancel'])) {
+		$a->internalRedirect();
 	}
 
 	/*
@@ -70,25 +75,25 @@ function dfrn_request_post(App $a)
 	 * to confirm the request, and then we've clicked submit (perhaps after logging in).
 	 * That brings us here:
 	 */
-	if ((x($_POST, 'localconfirm')) && ($_POST['localconfirm'] == 1)) {
+	if (!empty($_POST['localconfirm']) && ($_POST['localconfirm'] == 1)) {
 		// Ensure this is a valid request
-		if (local_user() && ($a->user['nickname'] == $a->argv[1]) && (x($_POST, 'dfrn_url'))) {
-			$dfrn_url = notags(trim($_POST['dfrn_url']));
-			$aes_allow = (((x($_POST, 'aes_allow')) && ($_POST['aes_allow'] == 1)) ? 1 : 0);
-			$confirm_key = ((x($_POST, 'confirm_key')) ? $_POST['confirm_key'] : "");
-			$hidden = ((x($_POST, 'hidden-contact')) ? intval($_POST['hidden-contact']) : 0);
+		if (local_user() && ($a->user['nickname'] == $a->argv[1]) && !empty($_POST['dfrn_url'])) {
+			$dfrn_url    = Strings::escapeTags(trim($_POST['dfrn_url']));
+			$aes_allow   = !empty($_POST['aes_allow']);
+			$confirm_key = $_POST['confirm_key'] ?? '';
+			$hidden      = (!empty($_POST['hidden-contact']) ? intval($_POST['hidden-contact']) : 0);
 			$contact_record = null;
-			$blocked = 1;
-			$pending = 1;
+			$blocked     = 1;
+			$pending     = 1;
 
-			if (x($dfrn_url)) {
+			if (!empty($dfrn_url)) {
 				// Lookup the contact based on their URL (which is the only unique thing we have at the moment)
 				$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `nurl` = '%s' AND NOT `self` LIMIT 1",
 					intval(local_user()),
-					dbesc(normalise_link($dfrn_url))
+					DBA::escape(Strings::normaliseLink($dfrn_url))
 				);
 
-				if (DBM::is_result($r)) {
+				if (DBA::isResult($r)) {
 					if (strlen($r[0]['dfrn-id'])) {
 						// We don't need to be here. It has already happened.
 						notice(L10n::t("This introduction has already been accepted.") . EOL);
@@ -112,10 +117,10 @@ function dfrn_request_post(App $a)
 						notice(L10n::t('Profile location is not valid or does not contain profile information.') . EOL);
 						return;
 					} else {
-						if (!x($parms, 'fn')) {
+						if (empty($parms['fn'])) {
 							notice(L10n::t('Warning: profile location has no identifiable owner name.') . EOL);
 						}
-						if (!x($parms, 'photo')) {
+						if (empty($parms['photo'])) {
 							notice(L10n::t('Warning: profile location has no profile photo.') . EOL);
 						}
 						$invalid = Probe::validDfrn($parms);
@@ -130,16 +135,16 @@ function dfrn_request_post(App $a)
 					$photo = $parms["photo"];
 
 					// Escape the entire array
-					DBM::esc_array($parms);
+					DBA::escapeArray($parms);
 
 					// Create a contact record on our site for the other person
 					$r = q("INSERT INTO `contact` ( `uid`, `created`,`url`, `nurl`, `addr`, `name`, `nick`, `photo`, `site-pubkey`,
-						`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
-						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
+						`request`, `confirm`, `notify`, `poll`, `network`, `aes_allow`, `hidden`, `blocked`, `pending`)
+						VALUES ( %d, '%s', '%s', '%s', '%s', '%s' , '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d, %d, %d)",
 						intval(local_user()),
 						DateTimeFormat::utcNow(),
-						dbesc($dfrn_url),
-						dbesc(normalise_link($dfrn_url)),
+						DBA::escape($dfrn_url),
+						DBA::escape(Strings::normaliseLink($dfrn_url)),
 						$parms['addr'],
 						$parms['fn'],
 						$parms['nick'],
@@ -149,8 +154,7 @@ function dfrn_request_post(App $a)
 						$parms['dfrn-confirm'],
 						$parms['dfrn-notify'],
 						$parms['dfrn-poll'],
-						$parms['dfrn-poco'],
-						dbesc(NETWORK_DFRN),
+						DBA::escape(Protocol::DFRN),
 						intval($aes_allow),
 						intval($hidden),
 						intval($blocked),
@@ -164,19 +168,19 @@ function dfrn_request_post(App $a)
 
 				$r = q("SELECT `id`, `network` FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `site-pubkey` = '%s' LIMIT 1",
 					intval(local_user()),
-					dbesc($dfrn_url),
-					$parms['key'] // this was already escaped
+					DBA::escape($dfrn_url),
+					$parms['key'] ?? '' // Potentially missing
 				);
-				if (DBM::is_result($r)) {
+				if (DBA::isResult($r)) {
 					Group::addMember(User::getDefaultGroup(local_user(), $r[0]["network"]), $r[0]['id']);
 
 					if (isset($photo)) {
 						Contact::updateAvatar($photo, local_user(), $r[0]["id"], true);
 					}
 
-					$forwardurl = System::baseUrl() . "/contacts/" . $r[0]['id'];
+					$forward_path = "contact/" . $r[0]['id'];
 				} else {
-					$forwardurl = System::baseUrl() . "/contacts";
+					$forward_path = "contact";
 				}
 
 				// Allow the blocked remote notification to complete
@@ -184,20 +188,19 @@ function dfrn_request_post(App $a)
 					$dfrn_request = $contact_record['request'];
 				}
 
-				if (strlen($dfrn_request) && strlen($confirm_key)) {
-					$s = Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
+				if (!empty($dfrn_request) && strlen($confirm_key)) {
+					Network::fetchUrl($dfrn_request . '?confirm_key=' . $confirm_key);
 				}
 
 				// (ignore reply, nothing we can do it failed)
-				// Old: goaway(Profile::zrl($dfrn_url));
-				goaway($forwardurl);
+				$a->internalRedirect($forward_path);
 				return; // NOTREACHED
 			}
 		}
 
 		// invalid/bogus request
 		notice(L10n::t('Unrecoverable protocol error.') . EOL);
-		goaway(System::baseUrl());
+		$a->internalRedirect();
 		return; // NOTREACHED
 	}
 
@@ -228,7 +231,6 @@ function dfrn_request_post(App $a)
 	}
 
 	$nickname       = $a->profile['nickname'];
-	$notify_flags   = $a->profile['notify-flags'];
 	$uid            = $a->profile['uid'];
 	$maxreq         = intval($a->profile['maxreq']);
 	$contact_record = null;
@@ -237,14 +239,14 @@ function dfrn_request_post(App $a)
 	$blocked = 1;
 	$pending = 1;
 
-	if (x($_POST, 'dfrn_url')) {
+	if (!empty($_POST['dfrn_url'])) {
 		// Block friend request spam
 		if ($maxreq) {
 			$r = q("SELECT * FROM `intro` WHERE `datetime` > '%s' AND `uid` = %d",
-				dbesc(DateTimeFormat::utc('now - 24 hours')),
+				DBA::escape(DateTimeFormat::utc('now - 24 hours')),
 				intval($uid)
 			);
-			if (DBM::is_result($r) && count($r) > $maxreq) {
+			if (DBA::isResult($r) && count($r) > $maxreq) {
 				notice(L10n::t('%s has received too many connection requests today.', $a->profile['name']) . EOL);
 				notice(L10n::t('Spam protection measures have been invoked.') . EOL);
 				notice(L10n::t('Friends are advised to please try again in 24 hours.') . EOL);
@@ -260,20 +262,14 @@ function dfrn_request_post(App $a)
 			WHERE `intro`.`blocked` = 1 AND `contact`.`self` = 0
 			AND `intro`.`datetime` < UTC_TIMESTAMP() - INTERVAL 30 MINUTE "
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r as $rr) {
 				if (!$rr['rel']) {
-					q("DELETE FROM `contact` WHERE `id` = %d AND NOT `self`",
-						intval($rr['cid'])
-					);
+					DBA::delete('contact', ['id' => $rr['cid'], 'self' => false]);
 				}
-				q("DELETE FROM `intro` WHERE `id` = %d",
-					intval($rr['iid'])
-				);
+				DBA::delete('intro', ['id' => $rr['iid']]);
 			}
 		}
-
-		$real_name = x($_POST, 'realname') ? notags(trim($_POST['realname'])) : '';
 
 		$url = trim($_POST['dfrn_url']);
 		if (!strlen($url)) {
@@ -294,28 +290,28 @@ function dfrn_request_post(App $a)
 			// Every time we detect the remote subscription we define this as OStatus.
 			// We do this even if it is not OStatus.
 			// we only need to pass this through another section of the code.
-			if ($network != NETWORK_DIASPORA) {
-				$network = NETWORK_OSTATUS;
+			if ($network != Protocol::DIASPORA) {
+				$network = Protocol::OSTATUS;
 			}
 
 			$url = substr($url, 5);
 		} else {
-			$network = NETWORK_DFRN;
+			$network = Protocol::DFRN;
 		}
 
-		logger('dfrn_request: url: ' . $url . ',network=' . $network, LOGGER_DEBUG);
+		Logger::log('dfrn_request: url: ' . $url . ',network=' . $network, Logger::DEBUG);
 
-		if ($network === NETWORK_DFRN) {
+		if ($network === Protocol::DFRN) {
 			$ret = q("SELECT * FROM `contact` WHERE `uid` = %d AND `url` = '%s' AND `self` = 0 LIMIT 1",
 				intval($uid),
-				dbesc($url)
+				DBA::escape($url)
 			);
 
-			if (DBM::is_result($ret)) {
+			if (DBA::isResult($ret)) {
 				if (strlen($ret[0]['issued-id'])) {
 					notice(L10n::t('You have already introduced yourself here.') . EOL);
 					return;
-				} elseif ($ret[0]['rel'] == CONTACT_IS_FRIEND) {
+				} elseif ($ret[0]['rel'] == Contact::FRIEND) {
 					notice(L10n::t('Apparently you are already friends with %s.', $a->profile['name']) . EOL);
 					return;
 				} else {
@@ -324,32 +320,32 @@ function dfrn_request_post(App $a)
 				}
 			}
 
-			$issued_id = random_string();
+			$issued_id = Strings::getRandomHex();
 
 			if (is_array($contact_record)) {
 				// There is a contact record but no issued-id, so this
 				// is a reciprocal introduction from a known contact
 				$r = q("UPDATE `contact` SET `issued-id` = '%s' WHERE `id` = %d",
-					dbesc($issued_id),
+					DBA::escape($issued_id),
 					intval($contact_record['id'])
 				);
 			} else {
 				$url = Network::isUrlValid($url);
 				if (!$url) {
 					notice(L10n::t('Invalid profile URL.') . EOL);
-					goaway(System::baseUrl() . '/' . $a->cmd);
+					$a->internalRedirect($a->cmd);
 					return; // NOTREACHED
 				}
 
 				if (!Network::isUrlAllowed($url)) {
 					notice(L10n::t('Disallowed profile URL.') . EOL);
-					goaway(System::baseUrl() . '/' . $a->cmd);
+					$a->internalRedirect($a->cmd);
 					return; // NOTREACHED
 				}
 
 				if (Network::isUrlBlocked($url)) {
 					notice(L10n::t('Blocked domain') . EOL);
-					goaway(System::baseUrl() . '/' . $a->cmd);
+					$a->internalRedirect($a->cmd);
 					return; // NOTREACHED
 				}
 
@@ -357,12 +353,12 @@ function dfrn_request_post(App $a)
 
 				if (!count($parms)) {
 					notice(L10n::t('Profile location is not valid or does not contain profile information.') . EOL);
-					goaway(System::baseUrl() . '/' . $a->cmd);
+					$a->internalRedirect($a->cmd);
 				} else {
-					if (!x($parms, 'fn')) {
+					if (empty($parms['fn'])) {
 						notice(L10n::t('Warning: profile location has no identifiable owner name.') . EOL);
 					}
-					if (!x($parms, 'photo')) {
+					if (empty($parms['photo'])) {
 						notice(L10n::t('Warning: profile location has no profile photo.') . EOL);
 					}
 					$invalid = Probe::validDfrn($parms);
@@ -377,14 +373,14 @@ function dfrn_request_post(App $a)
 				$parms['issued-id'] = $issued_id;
 				$photo = $parms["photo"];
 
-				DBM::esc_array($parms);
+				DBA::escapeArray($parms);
 				$r = q("INSERT INTO `contact` ( `uid`, `created`, `url`, `nurl`, `addr`, `name`, `nick`, `issued-id`, `photo`, `site-pubkey`,
-					`request`, `confirm`, `notify`, `poll`, `poco`, `network`, `blocked`, `pending` )
-					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
+					`request`, `confirm`, `notify`, `poll`, `network`, `blocked`, `pending` )
+					VALUES ( %d, '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', %d, %d )",
 					intval($uid),
-					dbesc(DateTimeFormat::utcNow()),
+					DBA::escape(DateTimeFormat::utcNow()),
 					$parms['url'],
-					dbesc(normalise_link($url)),
+					DBA::escape(Strings::normaliseLink($url)),
 					$parms['addr'],
 					$parms['fn'],
 					$parms['nick'],
@@ -395,8 +391,7 @@ function dfrn_request_post(App $a)
 					$parms['dfrn-confirm'],
 					$parms['dfrn-notify'],
 					$parms['dfrn-poll'],
-					$parms['dfrn-poco'],
-					dbesc(NETWORK_DFRN),
+					DBA::escape(Protocol::DFRN),
 					intval($blocked),
 					intval($pending)
 				);
@@ -409,7 +404,7 @@ function dfrn_request_post(App $a)
 						$parms['url'],
 						$parms['issued-id']
 					);
-					if (DBM::is_result($r)) {
+					if (DBA::isResult($r)) {
 						$contact_record = $r[0];
 						Contact::updateAvatar($photo, $uid, $contact_record["id"], true);
 					}
@@ -420,17 +415,17 @@ function dfrn_request_post(App $a)
 				return;
 			}
 
-			$hash = random_string() . (string) time();   // Generate a confirm_key
+			$hash = Strings::getRandomHex() . (string) time();   // Generate a confirm_key
 
 			if (is_array($contact_record)) {
-				$ret = q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
+				q("INSERT INTO `intro` ( `uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
 					VALUES ( %d, %d, 1, %d, '%s', '%s', '%s' )",
 					intval($uid),
 					intval($contact_record['id']),
-					((x($_POST,'knowyou') && ($_POST['knowyou'] == 1)) ? 1 : 0),
-					dbesc(notags(trim($_POST['dfrn-request-message']))),
-					dbesc($hash),
-					dbesc(DateTimeFormat::utcNow())
+					intval(!empty($_POST['knowyou'])),
+					DBA::escape(Strings::escapeTags(trim($_POST['dfrn-request-message'] ?? ''))),
+					DBA::escape($hash),
+					DBA::escape(DateTimeFormat::utcNow())
 				);
 			}
 
@@ -440,39 +435,39 @@ function dfrn_request_post(App $a)
 			}
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
-			$dfrn_url = bin2hex(System::baseUrl() . '/profile/' . $nickname);
+			$dfrn_url = bin2hex($a->getBaseURL() . '/profile/' . $nickname);
 			$aes_allow = ((function_exists('openssl_encrypt')) ? 1 : 0);
 
-			goaway($parms['dfrn-request'] . "?dfrn_url=$dfrn_url"
+			System::externalRedirect($parms['dfrn-request'] . "?dfrn_url=$dfrn_url"
 				. '&dfrn_version=' . DFRN_PROTOCOL_VERSION
 				. '&confirm_key=' . $hash
 				. (($aes_allow) ? "&aes_allow=1" : "")
 			);
 			// NOTREACHED
-			// END $network === NETWORK_DFRN
-		} elseif (($network != NETWORK_PHANTOM) && ($url != "")) {
+			// END $network === Protocol::DFRN
+		} elseif (($network != Protocol::PHANTOM) && ($url != "")) {
 
 			/* Substitute our user's feed URL into $url template
 			 * Send the subscriber home to subscribe
 			 */
 			// Diaspora needs the uri in the format user@domain.tld
 			// Diaspora will support the remote subscription in a future version
-			if ($network == NETWORK_DIASPORA) {
-				$uri = $nickname . '@' . $a->get_hostname();
+			if ($network == Protocol::DIASPORA) {
+				$uri = $nickname . '@' . $a->getHostName();
 
-				if ($a->get_path()) {
-					$uri .= '/' . $a->get_path();
+				if ($a->getURLPath()) {
+					$uri .= '/' . $a->getURLPath();
 				}
 
 				$uri = urlencode($uri);
 			} else {
-				$uri = System::baseUrl() . '/profile/' . $nickname;
+				$uri = 'profile/' . $nickname;
 			}
 
 			$url = str_replace('{uri}', $uri, $url);
-			goaway($url);
+			System::externalRedirect($url);
 			// NOTREACHED
-			// END $network != NETWORK_PHANTOM
+			// END $network != Protocol::PHANTOM
 		} else {
 			notice(L10n::t("Remote subscription can't be done for your network. Please subscribe directly on your system.") . EOL);
 			return;
@@ -482,13 +477,13 @@ function dfrn_request_post(App $a)
 
 function dfrn_request_content(App $a)
 {
-	if (($a->argc != 2) || (!count($a->profile))) {
+	if ($a->argc != 2 || empty($a->profile)) {
 		return "";
 	}
 
 	// "Homecoming". Make sure we're logged in to this site as the correct user. Then offer a confirm button
 	// to send us to the post section to record the introduction.
-	if (x($_GET, 'dfrn_url')) {
+	if (!empty($_GET['dfrn_url'])) {
 		if (!local_user()) {
 			info(L10n::t("Please login to confirm introduction.") . EOL);
 			/* setup the return URL to come back to this page if they use openid */
@@ -502,12 +497,12 @@ function dfrn_request_content(App $a)
 			return Login::form();
 		}
 
-		$dfrn_url = notags(trim(hex2bin($_GET['dfrn_url'])));
-		$aes_allow = x($_GET, 'aes_allow') && $_GET['aes_allow'] == 1 ? 1 : 0;
-		$confirm_key = x($_GET, 'confirm_key') ? $_GET['confirm_key'] : "";
+		$dfrn_url = Strings::escapeTags(trim(hex2bin($_GET['dfrn_url'])));
+		$aes_allow = !empty($_GET['aes_allow']);
+		$confirm_key = $_GET['confirm_key'] ?? '';
 
 		// Checking fastlane for validity
-		if (x($_SESSION, "fastlane") && (normalise_link($_SESSION["fastlane"]) == normalise_link($dfrn_url))) {
+		if (!empty($_SESSION['fastlane']) && (Strings::normaliseLink($_SESSION["fastlane"]) == Strings::normaliseLink($dfrn_url))) {
 			$_POST["dfrn_url"] = $dfrn_url;
 			$_POST["confirm_key"] = $confirm_key;
 			$_POST["localconfirm"] = 1;
@@ -516,16 +511,14 @@ function dfrn_request_content(App $a)
 
 			dfrn_request_post($a);
 
-			killme();
-			return; // NOTREACHED
+			exit();
 		}
 
-		$tpl = get_markup_template("dfrn_req_confirm.tpl");
-		$o = replace_macros($tpl, [
+		$tpl = Renderer::getMarkupTemplate("dfrn_req_confirm.tpl");
+		$o = Renderer::replaceMacros($tpl, [
 			'$dfrn_url' => $dfrn_url,
 			'$aes_allow' => (($aes_allow) ? '<input type="hidden" name="aes_allow" value="1" />' : "" ),
 			'$hidethem' => L10n::t('Hide this contact'),
-			'$hidechecked' => '',
 			'$confirm_key' => $confirm_key,
 			'$welcome' => L10n::t('Welcome home %s.', $a->user['username']),
 			'$please' => L10n::t('Please confirm your introduction/connection request to %s.', $dfrn_url),
@@ -535,15 +528,15 @@ function dfrn_request_content(App $a)
 			'dfrn_rawurl' => $_GET['dfrn_url']
 		]);
 		return $o;
-	} elseif ((x($_GET, 'confirm_key')) && strlen($_GET['confirm_key'])) {
+	} elseif (!empty($_GET['confirm_key'])) {
 		// we are the requestee and it is now safe to send our user their introduction,
 		// We could just unblock it, but first we have to jump through a few hoops to
 		// send an email, or even to find out if we need to send an email.
 		$intro = q("SELECT * FROM `intro` WHERE `hash` = '%s' LIMIT 1",
-			dbesc($_GET['confirm_key'])
+			DBA::escape($_GET['confirm_key'])
 		);
 
-		if (DBM::is_result($intro)) {
+		if (DBA::isResult($intro)) {
 			$r = q("SELECT `contact`.*, `user`.* FROM `contact` LEFT JOIN `user` ON `contact`.`uid` = `user`.`uid`
 				WHERE `contact`.`id` = %d LIMIT 1",
 				intval($intro[0]['contact-id'])
@@ -551,8 +544,8 @@ function dfrn_request_content(App $a)
 
 			$auto_confirm = false;
 
-			if (DBM::is_result($r)) {
-				if ($r[0]['page-flags'] != PAGE_NORMAL && $r[0]['page-flags'] != PAGE_PRVGROUP) {
+			if (DBA::isResult($r)) {
+				if ($r[0]['page-flags'] != User::PAGE_FLAGS_NORMAL && $r[0]['page-flags'] != User::PAGE_FLAGS_PRVGROUP) {
 					$auto_confirm = true;
 				}
 
@@ -580,8 +573,7 @@ function dfrn_request_content(App $a)
 						'node'     => $r[0]['nickname'],
 						'dfrn_id'  => $r[0]['issued-id'],
 						'intro_id' => $intro[0]['id'],
-						'duplex'   => (($r[0]['page-flags'] == PAGE_FREELOVE) ? 1 : 0),
-						'activity' => intval(PConfig::get($r[0]['uid'], 'system', 'post_newfriend'))
+						'duplex'   => (($r[0]['page-flags'] == User::PAGE_FLAGS_FREELOVE) ? 1 : 0),
 					];
 					dfrn_confirm_post($a, $handsfree);
 				}
@@ -592,17 +584,16 @@ function dfrn_request_content(App $a)
 				// If we are auto_confirming, this record will have already been nuked
 				// in dfrn_confirm_post()
 
-				$r = q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
-					dbesc($_GET['confirm_key'])
+				q("UPDATE `intro` SET `blocked` = 0 WHERE `hash` = '%s'",
+					DBA::escape($_GET['confirm_key'])
 				);
 			}
 		}
 
-		killme();
-		return; // NOTREACHED
+		exit();
 	} else {
 		// Normal web request. Display our user's introduction form.
-		if ((Config::get('system', 'block_public')) && (!local_user()) && (!remote_user())) {
+		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
 			if (!Config::get('system', 'local_block')) {
 				notice(L10n::t('Public access denied.') . EOL);
 				return;
@@ -612,12 +603,12 @@ function dfrn_request_content(App $a)
 		// Try to auto-fill the profile address
 		// At first look if an address was provided
 		// Otherwise take the local address
-		if (x($_GET, 'addr') && ($_GET['addr'] != "")) {
+		if (!empty($_GET['addr'])) {
 			$myaddr = hex2bin($_GET['addr']);
-		} elseif (x($_GET, 'address') && ($_GET['address'] != "")) {
+		} elseif (!empty($_GET['address'])) {
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
-			if (strlen($a->path)) {
+			if (strlen($a->getURLPath())) {
 				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
 				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
@@ -633,20 +624,17 @@ function dfrn_request_content(App $a)
 		 * because nobody is going to read the comments and
 		 * it doesn't matter if they know you or not.
 		 */
-		if ($a->profile['page-flags'] == PAGE_NORMAL) {
-			$tpl = get_markup_template('dfrn_request.tpl');
+		if ($a->profile['page-flags'] == User::PAGE_FLAGS_NORMAL) {
+			$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
 		} else {
-			$tpl = get_markup_template('auto_request.tpl');
+			$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 		}
 
 		$page_desc = L10n::t("Please enter your 'Identity Address' from one of the following supported communications networks:");
 
-		$invite_desc = sprintf(
-			L10n::t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica site and join us today</a>.'),
-			get_server() . '/servers'
-		);
+		$invite_desc = L10n::t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica site and join us today</a>.', get_server() . '/servers');
 
-		$o = replace_macros($tpl, [
+		$o = Renderer::replaceMacros($tpl, [
 			'$header' => L10n::t('Friend/Connection Request'),
 			'$desc' => L10n::t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => L10n::t('Please answer the following:'),
@@ -667,6 +655,4 @@ function dfrn_request_content(App $a)
 		]);
 		return $o;
 	}
-
-	return; // Somebody is fishing.
 }

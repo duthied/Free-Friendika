@@ -2,66 +2,45 @@
 /**
  * @file mod/suggest.php
  */
+
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\L10n;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
-use Friendica\Model\Profile;
+use Friendica\Util\Proxy as ProxyUtils;
 
-function suggest_init(App $a) {
+function suggest_init(App $a)
+{
 	if (! local_user()) {
 		return;
 	}
-
-	if (x($_GET,'ignore') && intval($_GET['ignore'])) {
-		// Check if we should do HTML-based delete confirmation
-		if ($_REQUEST['confirm']) {
-			// <form> can't take arguments in its "action" parameter
-			// so add any arguments as hidden inputs
-			$query = explode_querystring($a->query_string);
-			$inputs = [];
-			foreach ($query['args'] as $arg) {
-				if (strpos($arg, 'confirm=') === false) {
-					$arg_parts = explode('=', $arg);
-					$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
-				}
-			}
-
-			$a->page['content'] = replace_macros(get_markup_template('confirm.tpl'), [
-				'$method' => 'get',
-				'$message' => L10n::t('Do you really want to delete this suggestion?'),
-				'$extra_inputs' => $inputs,
-				'$confirm' => L10n::t('Yes'),
-				'$confirm_url' => $query['base'],
-				'$confirm_name' => 'confirmed',
-				'$cancel' => L10n::t('Cancel'),
-			]);
-			$a->error = 1; // Set $a->error so the other module functions don't execute
-			return;
-		}
-		// Now check how the user responded to the confirmation query
-		if (!$_REQUEST['canceled']) {
-			dba::insert('gcign', ['uid' => local_user(), 'gcid' => $_GET['ignore']]);
-		}
-	}
-
 }
 
-function suggest_content(App $a) {
+function suggest_post(App $a)
+{
+	if (!empty($_POST['ignore']) && !empty($_POST['confirm'])) {
+		DBA::insert('gcign', ['uid' => local_user(), 'gcid' => $_POST['ignore']]);
+		notice(L10n::t('Contact suggestion successfully ignored.'));
+	}
 
-	require_once("mod/proxy.php");
+	$a->internalRedirect('suggest');
+}
 
+function suggest_content(App $a)
+{
 	$o = '';
+
 	if (! local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
-	$_SESSION['return_url'] = System::baseUrl() . '/' . $a->cmd;
+	$_SESSION['return_path'] = $a->cmd;
 
 	$a->page['aside'] .= Widget::findPeople();
 	$a->page['aside'] .= Widget::follow();
@@ -69,17 +48,43 @@ function suggest_content(App $a) {
 
 	$r = GContact::suggestionQuery(local_user());
 
-	if (! DBM::is_result($r)) {
+	if (! DBA::isResult($r)) {
 		$o .= L10n::t('No suggestions available. If this is a new site, please try again in 24 hours.');
 		return $o;
 	}
 
-	foreach ($r as $rr) {
 
+	if (!empty($_GET['ignore'])) {
+		// <form> can't take arguments in its "action" parameter
+		// so add any arguments as hidden inputs
+		$query = explode_querystring($a->query_string);
+		$inputs = [];
+		foreach ($query['args'] as $arg) {
+			if (strpos($arg, 'confirm=') === false) {
+				$arg_parts = explode('=', $arg);
+				$inputs[] = ['name' => $arg_parts[0], 'value' => $arg_parts[1]];
+			}
+		}
+
+		return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
+			'$method' => 'post',
+			'$message' => L10n::t('Do you really want to delete this suggestion?'),
+			'$extra_inputs' => $inputs,
+			'$confirm' => L10n::t('Yes'),
+			'$confirm_url' => $query['base'],
+			'$confirm_name' => 'confirm',
+			'$cancel' => L10n::t('Cancel'),
+		]);
+	}
+
+	$id = 0;
+	$entries = [];
+
+	foreach ($r as $rr) {
 		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
 		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = [
-			'profile' => [L10n::t("View Profile"), Profile::zrl($rr["url"])],
+			'profile' => [L10n::t("View Profile"), Contact::magicLink($rr["url"])],
 			'follow' => [L10n::t("Connect/Follow"), $connlnk],
 			'hide' => [L10n::t('Ignore/Hide'), $ignlnk]
 		];
@@ -87,11 +92,11 @@ function suggest_content(App $a) {
 		$contact_details = Contact::getDetailsByURL($rr["url"], local_user(), $rr);
 
 		$entry = [
-			'url' => Profile::zrl($rr['url']),
+			'url' => Contact::magicLink($rr['url']),
 			'itemurl' => (($contact_details['addr'] != "") ? $contact_details['addr'] : $rr['url']),
 			'img_hover' => $rr['url'],
 			'name' => $contact_details['name'],
-			'thumb' => proxy_url($contact_details['thumb'], false, PROXY_SIZE_THUMB),
+			'thumb' => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 			'details'       => $contact_details['location'],
 			'tags'          => $contact_details['keywords'],
 			'about'         => $contact_details['about'],
@@ -108,9 +113,9 @@ function suggest_content(App $a) {
 		$entries[] = $entry;
 	}
 
-	$tpl = get_markup_template('viewcontact_template.tpl');
+	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 
-	$o .= replace_macros($tpl,[
+	$o .= Renderer::replaceMacros($tpl,[
 		'$title' => L10n::t('Friend Suggestions'),
 		'$contacts' => $entries,
 	]);

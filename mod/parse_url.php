@@ -8,125 +8,167 @@
  * information and does format this information to BBCode
  *
  * @see ParseUrl::getSiteinfo() for more information about scraping embeddable content
-*/
+ */
 
 use Friendica\App;
-use Friendica\Core\Addon;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
+use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
+use Friendica\Util\Strings;
 
-require_once("include/items.php");
-
-function parse_url_content(App $a) {
-
+function parse_url_content(App $a)
+{
 	$text = null;
-	$str_tags = "";
+	$str_tags = '';
+	$format = '';
+	$ret= ['success' => false, 'contentType' => ''];
 
 	$br = "\n";
 
-	if (x($_GET,"binurl")) {
-		$url = trim(hex2bin($_GET["binurl"]));
+	if (!empty($_GET['binurl']) && Strings::isHex($_GET['binurl'])) {
+		$url = trim(hex2bin($_GET['binurl']));
+	} elseif (!empty($_GET['url'])) {
+		$url = trim($_GET['url']);
+	// fallback in case no url is valid
 	} else {
-		$url = trim($_GET["url"]);
+		Logger::info('No url given');
+		exit();
 	}
 
-	if ($_GET["title"]) {
-		$title = strip_tags(trim($_GET["title"]));
+	if (!empty($_GET['title'])) {
+		$title = strip_tags(trim($_GET['title']));
 	}
 
-	if ($_GET["description"]) {
-		$text = strip_tags(trim($_GET["description"]));
+	if (!empty($_GET['description'])) {
+		$text = strip_tags(trim($_GET['description']));
 	}
 
-	if ($_GET["tags"]) {
-		$arr_tags = ParseUrl::convertTagsToArray($_GET["tags"]);
+	if (!empty($_GET['tags'])) {
+		$arr_tags = ParseUrl::convertTagsToArray($_GET['tags']);
 		if (count($arr_tags)) {
-			$str_tags = $br . implode(" ", $arr_tags) . $br;
+			$str_tags = $br . implode(' ', $arr_tags) . $br;
 		}
+	}
+
+	if (isset($_GET['format']) && $_GET['format'] == 'json') {
+		$format = 'json';
 	}
 
 	// Add url scheme if it is missing
 	$arrurl = parse_url($url);
-	if (!x($arrurl, "scheme")) {
-		if (x($arrurl, "host")) {
-			$url = "http:".$url;
+	if (empty($arrurl['scheme'])) {
+		if (!empty($arrurl['host'])) {
+			$url = 'http:' . $url;
 		} else {
-			$url = "http://".$url;
+			$url = 'http://' . $url;
 		}
 	}
 
-	logger("prse_url: " . $url);
+	Logger::log($url);
 
 	// Check if the URL is an image, video or audio file. If so format
 	// the URL with the corresponding BBCode media tag
-	$redirects = 0;
 	// Fetch the header of the URL
-	$result = Network::curl($url, false, $redirects, ["novalidate" => true, "nobody" => true]);
-	if($result["success"]) {
+	$curlResponse = Network::curl($url, false, ['novalidate' => true, 'nobody' => true]);
+
+	if ($curlResponse->isSuccess()) {
 		// Convert the header fields into an array
 		$hdrs = [];
-		$h = explode("\n", $result["header"]);
+		$h = explode("\n", $curlResponse->getHeader());
 		foreach ($h as $l) {
-			list($k,$v) = array_map("trim", explode(":", trim($l), 2));
-			$hdrs[$k] = $v;
+			$header = array_map('trim', explode(':', trim($l), 2));
+			if (count($header) == 2) {
+				list($k, $v) = $header;
+				$hdrs[$k] = $v;
+			}
 		}
-		if (array_key_exists("Content-Type", $hdrs)) {
-			$type = $hdrs["Content-Type"];
+		$type = null;
+		$content_type = '';
+		$bbcode = '';
+		if (array_key_exists('Content-Type', $hdrs)) {
+			$type = $hdrs['Content-Type'];
 		}
 		if ($type) {
-			if(stripos($type, "image/") !== false) {
-				echo $br . "[img]" . $url . "[/img]" . $br;
-				killme();
+			if (stripos($type, 'image/') !== false) {
+				$content_type = 'image';
+				$bbcode = $br . '[img]' . $url . '[/img]' . $br;
 			}
-			if (stripos($type, "video/") !== false) {
-				echo $br . "[video]" . $url . "[/video]" . $br;
-				killme();
+			if (stripos($type, 'video/') !== false) {
+				$content_type = 'video';
+				$bbcode = $br . '[video]' . $url . '[/video]' . $br;
 			}
-			if (stripos($type, "audio/") !== false) {
-				echo $br . "[audio]" . $url . "[/audio]" . $br;
-				killme();
+			if (stripos($type, 'audio/') !== false) {
+				$content_type = 'audio';
+				$bbcode = $br . '[audio]' . $url . '[/audio]' . $br;
 			}
+		}
+		if (!empty($content_type)) {
+			if ($format == 'json') {
+				$ret['contentType'] = $content_type;
+				$ret['data'] = ['url' => $url];
+				$ret['success'] = true;
+				System::jsonExit($ret);
+			}
+
+			echo $bbcode;
+			exit();
 		}
 	}
 
-	$template = "[bookmark=%s]%s[/bookmark]%s";
 
-	$arr = ["url" => $url, "text" => ""];
+	$template = '[bookmark=%s]%s[/bookmark]%s';
 
-	Addon::callHooks("parse_link", $arr);
+	$arr = ['url' => $url, 'text' => ''];
 
-	if (strlen($arr["text"])) {
-		echo $arr["text"];
-		killme();
+	Hook::callAll('parse_link', $arr);
+
+	if (strlen($arr['text'])) {
+		echo $arr['text'];
+		exit();
 	}
 
-	// If there is allready some content information submitted we don't
+	// If there is already some content information submitted we don't
 	// need to parse the url for content.
-	if ($url && $title && $text) {
+	if (!empty($url) && !empty($title) && !empty($text)) {
+		$title = str_replace(["\r", "\n"], ['', ''], $title);
 
-		$title = str_replace(["\r","\n"],["",""],$title);
-
-		$text = "[quote]" . trim($text) . "[/quote]" . $br;
+		$text = '[quote]' . trim($text) . '[/quote]' . $br;
 
 		$result = sprintf($template, $url, ($title) ? $title : $url, $text) . $str_tags;
 
-		logger("parse_url (unparsed): returns: " . $result);
+		Logger::log('(unparsed): returns: ' . $result);
 
 		echo $result;
-		killme();
+		exit();
 	}
 
 	// Fetch the information directly from the webpage
 	$siteinfo = ParseUrl::getSiteinfo($url);
 
-	unset($siteinfo["keywords"]);
+	unset($siteinfo['keywords']);
+
+	// Bypass attachment if parse url for a comment
+	if (!empty($_GET['noAttachment'])) {
+		echo $br . '[url=' . $url . ']' . $siteinfo['title'] . '[/url]';
+		exit();
+	}
+
+	if ($format == 'json') {
+		$ret['data'] = $siteinfo;
+		$ret['contentType'] = 'attachment';
+		$ret['success'] = true;
+
+		System::jsonExit($ret);
+	}
 
 	// Format it as BBCode attachment
 	$info = add_page_info_data($siteinfo);
 
 	echo $info;
 
-	killme();
+	exit();
 }
 
 /**
@@ -135,20 +177,21 @@ function parse_url_content(App $a) {
  * Note: We have moved the function to ParseUrl.php. This function is only for
  * legacy support and will be remove in the future
  *
- * @param type $url The url of the page which should be scraped
- * @param type $no_guessing If true the parse doens't search for
- *    preview pictures
- * @param type $do_oembed The false option is used by the function fetch_oembed()
- *    to avoid endless loops
+ * @param string $url         The url of the page which should be scraped
+ * @param bool   $no_guessing If true the parse doens't search for
+ *                            preview pictures
+ * @param bool   $do_oembed   The false option is used by the function fetch_oembed()
+ *                            to avoid endless loops
  *
  * @return array which contains needed data for embedding
  *
- * @see ParseUrl::getSiteinfoCached()
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @see   ParseUrl::getSiteinfoCached()
  *
- * @todo Remove this function after all Addons has been changed to use
- *    ParseUrl::getSiteinfoCached
+ * @deprecated since version 3.6 use ParseUrl::getSiteinfoCached instead
  */
-function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true) {
+function parseurl_getsiteinfo_cached($url, $no_guessing = false, $do_oembed = true)
+{
 	$siteinfo = ParseUrl::getSiteinfoCached($url, $no_guessing, $do_oembed);
 	return $siteinfo;
 }

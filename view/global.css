@@ -1,7 +1,11 @@
 /* General style rules .*/
 .pull-right { float: right }
 
-/* General designing elements */
+details > summary {
+  cursor: pointer;
+}
+
+/* General design elements */
 .btn {
   outline: none;
   -moz-box-shadow: inset 0px 1px 0px 0px #ffffff;
@@ -83,11 +87,19 @@ span.connector {
 
 .wall-item-container .wall-item-content .type-link img.attachment-image,
 .type-link img.attachment-image, .type-video img.attachment-image  {
-  /* max-width: 640px; */
   max-width: 100%;
   max-height: initial;
   float: initial;
   margin-right: 0px;
+}
+
+
+.wall-item-like-expanded,
+.wall-item-dislike-expanded,
+.wall-item-attendyes-expanded,
+.wall-item-attendno-expanded,
+.wall-item-attendmaybe-expanded {
+  margin: 0;
 }
 
 .type-link blockquote, .type-video blockquote {
@@ -207,10 +219,8 @@ blockquote.shared_content {
 }
 
 #newmember-tips {
+  margin-top: -3px;
   font-size: 1.2em;
-  float: right;
-  margin-top: -32px;
-  padding-right: 10px;
 }
 
 /* headers */
@@ -249,15 +259,7 @@ span.oembed, h4 {
   margin: 0px 0px 0px 0px;
 }
 
-code {
-  display: block;
-  background-color: #eee;
-  color: #666;
-  padding: 1em;
-  font-size: 0.85em;
-  font-family: monospace;
-}
-key {
+code, key {
   display: inline;
   background-color: #eee;
   color: #666;
@@ -464,6 +466,22 @@ td.federation-data {
   opacity: 0.3;
 }
 
+/* help widget */
+aside .help-aside-wrapper ul {
+  padding-left: 1em;
+}
+
+aside .help-aside-wrapper h1 {
+  font-size:2em
+}
+
+.md_warning {
+  padding: 1em;
+  border: #ff0000 solid 2px;
+  background-color: #f9a3a3;
+  color: #ffffff;
+}
+
 #forum-widget-collapse:hover {
   opacity: 1.0;
 }
@@ -531,6 +549,7 @@ td.pendingnote > p > span {
 }
 
 /* warning message */
+.crepair-error-message,
 .warning-message {
   padding: 10px;
   margin: 5px;
@@ -591,4 +610,32 @@ img.invalid-src:after { vertical-align: top;}
 }
 .tag-cloud {
   word-wrap: break-word;
+}
+
+#register-explicid-content {
+  font-weight: bold;
+}
+
+span.emoji.mastodon img {
+  height: 1.2em;
+  vertical-align: middle;
+}
+
+/* Exception page */
+
+#exception {
+  overflow: hidden;
+  background-image: url('../images/friendica-404_svg_hare-bottom-light-inside.png');
+  background-position: 50px bottom;
+  background-repeat: no-repeat;
+}
+
+#exception .hare {
+  float: right;
+}
+
+@media screen and (max-width: 600px) {
+  #exception .hare {
+    display: none;
+  }
 }

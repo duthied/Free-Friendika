@@ -1,7 +1,6 @@
-
 {{* The button to open the jot - in This theme we move the button with js to the second nav bar *}}
 <button class="btn btn-sm btn-main pull-right" id="jotOpen" aria-label="{{$new_post}}" title="{{$new_post}}" onclick="jotShow();"><i class="fa fa-pencil-square-o fa-2x"></i></button>
-
+<a class="btn btn-sm btn-main pull-right" id="composeOpen" href="compose/{{$posttype}}{{if $content}}?body={{$content}}{{/if}}" aria-label="{{$new_post}}" title="{{$new_post}}"><i class="fa fa-pencil-square-o fa-2x"></i></a>
 
 <div id="jot-content">
 	<div id="jot-sections">
@@ -70,7 +69,9 @@
 					<div id="profile-jot-banner-end"></div>
 
 					{{* The hidden input fields which submit important values with the post *}}
-					<input type="hidden" name="type" value="{{$ptyp}}" />
+					<input type="hidden" name="jot" value="{{$jot}}" />
+					<input type="hidden" name="wall" value="{{$wall}}" />
+					<input type="hidden" name="post_type" value="{{$posttype}}" />
 					<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 					<input type="hidden" name="return" value="{{$return_path}}" />
 					<input type="hidden" name="location" id="jot-location" value="{{$defloc}}" />
@@ -88,35 +89,45 @@
 
 					{{* The jot text field in which the post text is inserted *}}
 					<div id="jot-text-wrap">
-						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content}}{{/if}}</textarea>
+						<textarea rows="2" cols="64" class="profile-jot-text form-control text-autosize" id="profile-jot-text" name="body" placeholder="{{$share}}" onFocus="jotTextOpenUI(this);" onBlur="jotTextCloseUI(this);" style="min-width:100%; max-width:100%;">{{if $content}}{{$content nofilter}}{{/if}}</textarea>
 					</div>
 
 					<ul id="profile-jot-submit-wrapper" class="jothidden nav nav-pills">
-						<li role="presentation"><button type="button" class="btn-link" id="profile-link"  ondragenter="return linkdropper(event);" ondragover="return linkdropper(event);" ondrop="linkdrop(event);" onclick="jotGetLink();" title="{{$weblink}}"><i class="fa fa-link"></i></button></li>
-						<li role="presentation"><button type="button" class="btn-link" id="profile-video" onclick="jotVideoURL();" title="{{$video}}"><i class="fa fa-film" aria-hidden="true"></i></button></li>
-						<li role="presentation"><button type="button" class="btn-link" id="profile-audio" onclick="jotAudioURL();" title="{{$audio}}"><i class="fa fa-music" aria-hidden="true"></i></button></li>
+						<li role="presentation"><button type="button" class="hidden-xs btn-link icon underline" style="cursor: pointer;" aria-label="{{$eduline}}" title="{{$eduline}}" onclick="insertFormattingToPost('u');"><i class="fa fa-underline"></i></button></li>
+						<li role="presentation"><button type="button" class="hidden-xs btn-link icon italic" style="cursor: pointer;" aria-label="{{$editalic}}" title="{{$editalic}}" onclick="insertFormattingToPost('i');"><i class="fa fa-italic"></i></button></li>
+						<li role="presentation"><button type="button" class="hidden-xs btn-link icon bold" style="cursor: pointer;" aria-label="{{$edbold}}" title="{{$edbold}}" onclick="insertFormattingToPost('b');"><i class="fa fa-bold"></i></button></li>
+						<li role="presentation"><button type="button" class="hidden-xs btn-link icon quote" style="cursor: pointer;" aria-label="{{$edquote}}" title="{{$edquote}}" onclick="insertFormattingToPost('quote');"><i class="fa fa-quote-left"></i></button></li>
+						<li role="presentation"><button type="button" class="btn-link icon" style="cursor: pointer;" aria-label="{{$edurl}}" title="{{$edurl}}" onclick="insertFormattingToPost('url');"><i class="fa fa-link"></i></button></li>
+						<li role="presentation"><button type="button" class="btn-link" id="profile-attach"  ondragenter="return linkDropper(event);" ondragover="return linkDropper(event);" ondrop="linkDrop(event);" onclick="jotGetLink();" title="{{$edattach}}"><i class="fa fa-paperclip"></i></button></li>
 						<li role="presentation"><button type="button" class="btn-link" id="profile-location" onclick="jotGetLocation();" title="{{$setloc}}"><i class="fa fa-map-marker" aria-hidden="true"></i></button></li>
 						<!-- TODO: waiting for a better placement
 						<li><button type="button" class="btn-link" id="profile-nolocation" onclick="jotClearLocation();" title="{{$noloc}}">{{$shortnoloc}}</button></li>
 						-->
 
-						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-slideshare fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
+						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-submit" name="submit" ><i class="fa fa-paper-plane fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
 						<li role="presentation" id="character-counter" class="grey jothidden text-info pull-right"></li>
 						<li role="presentation" id="profile-rotator-wrapper" class="pull-right" style="display: {{$visitor}};" >
 							<img role="presentation" id="profile-rotator" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" />
 						</li>
 						<li role="presentation" id="profile-jot-plugin-wrapper">
-							{{$jotplugins}}
+							{{$jotplugins nofilter}}
 						</li>
 					</ul>
 
 				</div>
 
 				<div id="profile-jot-acl-wrapper" class="minimize" aria-labelledby="jot-perms-lnk" role="tabpanel" aria-hidden="true">
-					{{$acl}}
+					{{$acl nofilter}}
 				</div>
 
 				<div id="jot-preview-content" class="minimize" aria-labelledby="jot-preview-lnk" role="tabpanel" aria-hidden="true"></div>
+
+				<div id="jot-preview-share" class="minimize" aria-labelledby="jot-preview-lnk" role="tabpanel" aria-hidden="true">
+					<ul id="profile-jot-preview-submit-wrapper" class="jothidden nav nav-pills">
+						<li role="presentation" class="pull-right"><button class="btn btn-primary" type="submit" id="profile-jot-peview-submit" name="submit" ><i class="fa fa-paper-plane fa-fw" aria-hidden="true"></i> {{$share}}</button></li>
+					</ul>
+				</div>
+
 			</form>
 
 			<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>

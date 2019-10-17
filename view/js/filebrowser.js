@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
 /**
  * Filebrowser - Friendica Communications Server
  *
@@ -85,7 +86,7 @@ var FileBrowser = {
 
 			var embed = "";
 			if (FileBrowser.type == "image") {
-				embed = "[url="+this.dataset.link+"][img]"+this.dataset.img+"[/img][/url]";
+				embed = "[url="+this.dataset.link+"][img="+this.dataset.img+"][/img][/url]";
 			}
 			if (FileBrowser.type=="file") {
 				// attachment links are "baseurl/attach/id"; we need id
@@ -140,4 +141,4 @@ var FileBrowser = {
 		);
 	}
 };
-
+// @license-end

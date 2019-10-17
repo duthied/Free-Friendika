@@ -9,7 +9,7 @@
 					<img class="contact-photo media-object xl" src="{{$contact.thumb}}" {{$contact.sparkle}} alt="{{$contact.name}}" />
 				</div>
 
-				{{* For very small displays we use a drobdown menu for contact relating actions *}}
+				{{* For very small displays we use a dropdown menu for contact relating actions *}}
 				<button type="button" class="btn btn-link dropdown-toggle visible-xs" id="contact-photo-menu-button-{{$contact.id}}" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					{{* use a smaller picture on very small displays (e.g. mobiles) *}}
 					<div class="contact-photo-image-wrapper visible-xs">
@@ -84,7 +84,7 @@
 			{{* The button to add or remove contacts from a contact group - group edit page *}}
 			{{if $contact.change_member}}
 			<div class="contact-group-actions pull-right nav-pills preferences">
-				<button type="button" class="contact-action-link btn-link" onclick="groupChangeMember({{$contact.change_member.gid}},{{$contact.change_member.cid}},'{{$contact.change_member.sec_token}}'); return true;" data-toggle="tooltip" title="{{$contact.change_member.title}}">
+				<button type="button" class="contact-action-link contact-group-link btn-link" onclick="groupChangeMember({{$contact.change_member.gid}},{{$contact.change_member.cid}},'{{$contact.change_member.sec_token}}'); return true;" data-toggle="tooltip" title="{{$contact.change_member.title}}">
 					{{if $contact.label == "members"}}
 					<i class="fa fa-times-circle" aria-hidden="true"></i>
 					{{elseif $contact.label == "contacts"}}
@@ -188,7 +188,7 @@ We use this part to filter the contacts with jquery.textcomplete *}}
 				{/if}
 				{if $photo_menu.edit}
 				<a class="contact-action-link btn-link" href="{$photo_menu.edit.1}" data-toggle="tooltip" title="{$photo_menu.edit.0}">
-					<i class="fa fa-pencil" aria-hidden="true"></i>
+					<i class="fa fa-user" aria-hidden="true"></i>
 				</a>
 				{/if}
 				{if $photo_menu.drop}

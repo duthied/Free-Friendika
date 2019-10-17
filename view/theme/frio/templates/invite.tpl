@@ -11,7 +11,7 @@
 			{{include file="field_textarea.tpl" field=$message}}
 
 			<div id="invite-submit-wrapper" class="form-group pull-right">
-				<button type="submit" name="submit" class="btn btn-primary">{{$submit|escape:'html'}}</button>
+				<button type="submit" name="submit" class="btn btn-primary">{{$submit}}</button>
 			</div>
 			<div class="clear"></div>
 		</div>

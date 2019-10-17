@@ -1,5 +1,5 @@
 
-{{$live_update}}
+{{$live_update nofilter}}
 
 {{foreach $threads as $thread}}
 <div id="tread-wrapper-{{$thread.id}}" class="tread-wrapper">

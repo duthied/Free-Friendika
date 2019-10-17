@@ -3,6 +3,6 @@
 
 <ul>
 	{{foreach $apps as $ap}}
-	<li>{{$ap}}</li>
+	<li>{{$ap nofilter}}</li>
 	{{/foreach}}
 </ul>

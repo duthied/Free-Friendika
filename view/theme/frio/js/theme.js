@@ -64,9 +64,24 @@ $(document).ready(function(){
 	});
 
 	// add Jot botton to the scecond navbar
-	if( $("section #jotOpen").length ) {
-		$("section #jotOpen").appendTo("#topbar-second > .container > #navbar-button");
-		if( $("#jot-popup").is(":hidden")) $("#topbar-second > .container > #navbar-button #jotOpen").hide();
+	let $jotButton = $("#jotOpen");
+	let $composeButton = $("#composeOpen");
+	if (compose) {
+		$jotButton.hide();
+		if ($composeButton.length) {
+			$composeButton.appendTo("#topbar-second > .container > #navbar-button");
+			if($("#jot-popup").is(":hidden")) {
+				$composeButton.hide();
+			}
+		}
+	} else {
+		$composeButton.hide();
+		if ($jotButton.length) {
+			$jotButton.appendTo("#topbar-second > .container > #navbar-button");
+			if($("#jot-popup").is(":hidden")) {
+				$jotButton.hide();
+			}
+		}
 	}
 
 	// show bulk deletion button at network page if checkbox is checked
@@ -106,7 +121,10 @@ $(document).ready(function(){
 		delay: {
 			show: 500,
 			hide: 100
-		}
+		},
+		sanitizeFn: function (content) {
+			return DOMPurify.sanitize(content)
+		},
 	});
 
 	// initialize the bootstrap-select
@@ -151,7 +169,7 @@ $(document).ready(function(){
 	}
 
 	// move the "Save the search" button to the second navbar
-	$(".search-content-wrapper #search-save-form ").appendTo("#topbar-second > .container > #navbar-button");
+	$(".search-content-wrapper #search-save").appendTo("#topbar-second > .container > #navbar-button");
 
 	// append the vcard-short-info to the second nav after passing the element
 	// with .fn (vcard username). Use scrollspy to get the scroll position.
@@ -282,7 +300,7 @@ $(document).ready(function(){
 	 * We are making an exception for buttons because of a race condition with the
 	 * comment opening button that results in an already closed comment UI.
 	 */
-	$(document).on('click', function(event) {
+	$(document).on('mousedown', function(event) {
 		if (event.target.type === 'button') {
 			return true;
 		}
@@ -372,24 +390,19 @@ function openClose(theID) {
 }
 
 function showHide(theID) {
-	if(document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
-	}
-	else {
-		document.getElementById(theID).style.display = "block"
-	}
-}
+	var elem = document.getElementById(theID);
+	var edit = document.getElementById("comment-edit-submit-wrapper-" + theID.match('[0-9$]+'));
 
-function showHideComments(id) {
-	if( $('#collapsed-comments-' + id).is(':visible')) {
-		$('#collapsed-comments-' + id).slideUp();
-		$('#hide-comments-' + id).html(window.showMore);
-		$('#hide-comments-total-' + id).show();
+	if ($(elem).is(':visible')) {
+		if (!$(edit).is(':visible')) {
+			edit.style.display = "block";
+		}
+		else {
+			elem.style.display = "none";
+		}
 	}
 	else {
-		$('#collapsed-comments-' + id).slideDown();
-		$('#hide-comments-' + id).html(window.showFewer);
-		$('#hide-comments-total-' + id).hide();
+		elem.style.display = "block";
 	}
 }
 
@@ -431,19 +444,14 @@ function justifyPhotos() {
 		margins: 3,
 		border: 0,
 		sizeRangeSuffixes: {
-			'lt100': '-2',
-			'lt240': '-2',
+			'lt48': '-6',
+			'lt80': '-5',
+			'lt300': '-4',
 			'lt320': '-2',
-			'lt500': '',
 			'lt640': '-1',
 			'lt1024': '-0'
 		}
 	}).on('jg.complete', function(e){ justifiedGalleryActive = false; });
-}
-
-function justifyPhotosAjax() {
-	justifiedGalleryActive = true;
-	$('#photo-album-contents').justifiedGallery('norewind').on('jg.complete', function(e){ justifiedGalleryActive = false; });
 }
 
 // Load a js script to the html head.
@@ -470,18 +478,6 @@ function loadScript(url, callback) {
 	head.appendChild(script);
 }
 
-function random_digits(digits) {
-	var rn = "";
-	var rnd = "";
-
-	for(var i = 0; i < digits; i++) {
-		var rn = Math.round(Math.random() * (9));
-		rnd += rn;
-	}
-
-	return rnd;
-}
-
 // Does we need a ? or a & to append values to a url
 function qOrAmp(url) {
 	if(url.search('\\?') < 0) {
@@ -489,77 +485,6 @@ function qOrAmp(url) {
 	} else {
 		return '&';
 	}
-}
-
-function contact_filter(item) {
-	// get the html content from the js template of the contact-wrapper
-	contact_tpl = unescape($(".javascript-template[rel=contact-template]").html());
-
-	var variables = {
-			id:		item.id,
-			name:		item.name,
-			username:	item.username,
-			thumb:		item.thumb,
-			img_hover:	item.img_hover,
-			edit_hover:	item.edit_hover,
-			account_type:	item.account_type,
-			photo_menu:	item.photo_menu,
-			alt_text:	item.alt_text,
-			dir_icon:	item.dir_icon,
-			sparkle:	item.sparkle,
-			itemurl:	item.itemurl,
-			url:		item.url,
-			network:	item.network,
-			tags:		item.tags,
-			details:	item.details,
-	};
-
-	// open a new jSmart instance with the template
-	var tpl = new jSmart (contact_tpl);
-
-	// replace the variable with the values
-	var html = tpl.fetch(variables);
-
-	return html;
-}
-
-function filter_replace(item) {
-
-	return item.name;
-}
-
-(function($) {
-	$.fn.contact_filter = function(backend_url, typ, autosubmit, onselect) {
-		if (typeof typ === 'undefined') {
-			typ = '';
-		}
-
-		if (typeof autosubmit === 'undefined') {
-			autosubmit = false;
-		}
-
-		// Autocomplete contacts
-		contacts = {
-			match: /(^)([^\n]+)$/,
-			index: 2,
-			search: function(term, callback) {contact_search(term, callback, backend_url, typ);},
-			replace: filter_replace,
-			template: contact_filter
-		};
-
-		this.attr('autocomplete','off');
-		var a = this.textcomplete([contacts], {className:'accontacts', appendTo: '#contact-list'});
-
-		a.on('textComplete:select', function(e, value, strategy) {
-			$(".dropdown-menu.textcomplete-dropdown.media-list").show();
-		});
-	};
-})( jQuery );
-
-// current time in milliseconds, to send each request to make sure
-// we 're not getting 304 response
-function timeNow() {
-	return new Date().getTime();
 }
 
 String.prototype.normalizeLink = function () {
@@ -709,7 +634,7 @@ function scrollToItem(elementId) {
 		return;
 	}
 
-	var $el = $(document.getElementById(elementId));
+	var $el = $('#' + elementId +  ' > .media');
 	// Test if the Item exists
 	if (!$el.length) {
 		return;

@@ -1,50 +1,57 @@
 <?php
 
 use Friendica\App;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Item;
 
 function share_init(App $a) {
 	$post_id = (($a->argc > 1) ? intval($a->argv[1]) : 0);
+
 	if (!$post_id || !local_user()) {
-		killme();
+		exit();
 	}
 
-	$r = q("SELECT item.*, contact.network FROM `item`
-		INNER JOIN `contact` ON `item`.`contact-id` = `contact`.`id`
-		WHERE `item`.`id` = %d LIMIT 1",
-		intval($post_id)
-	);
-	if (!DBM::is_result($r) || ($r[0]['private'] == 1)) {
-		killme();
+	$fields = ['private', 'body', 'author-name', 'author-link', 'author-avatar',
+		'guid', 'created', 'plink', 'title'];
+	$item = Item::selectFirst($fields, ['id' => $post_id]);
+
+	if (!DBA::isResult($item) || $item['private'] == 1) {
+		exit();
 	}
-	if (strpos($r[0]['body'], "[/share]") !== false) {
-		$pos = strpos($r[0]['body'], "[share");
-		$o = substr($r[0]['body'], $pos);
+
+	if (strpos($item['body'], "[/share]") !== false) {
+		$pos = strpos($item['body'], "[share");
+		$o = substr($item['body'], $pos);
 	} else {
-		$o = share_header($r[0]['author-name'], $r[0]['author-link'], $r[0]['author-avatar'], $r[0]['guid'], $r[0]['created'], $r[0]['plink']);
+		$o = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
-		if ($r[0]['title'])
-			$o .= '[b]'.$r[0]['title'].'[/b]'."\n";
-		$o .= $r[0]['body'];
-		$o.= "[/share]";
+		if ($item['title']) {
+			$o .= '[h3]'.$item['title'].'[/h3]'."\n";
+		}
+
+		$o .= $item['body'];
+		$o .= "[/share]";
 	}
 
 	echo $o;
-	killme();
+	exit();
 }
 
+/// @TODO Rewrite to handle over whole record array
 function share_header($author, $profile, $avatar, $guid, $posted, $link) {
-	$header = "[share author='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
-		"' profile='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
-		"' avatar='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar);
+	$header = "[share author='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $author).
+		"' profile='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $profile).
+		"' avatar='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $avatar);
 
 	if ($guid) {
-		$header .= "' guid='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
+		$header .= "' guid='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $guid);
 	}
+
 	if ($posted) {
-		$header .= "' posted='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
+		$header .= "' posted='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $posted);
 	}
-	$header .= "' link='".str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
+
+	$header .= "' link='" . str_replace(["'", "[", "]"], ["&#x27;", "&#x5B;", "&#x5D;"], $link)."']";
 
 	return $header;
 }

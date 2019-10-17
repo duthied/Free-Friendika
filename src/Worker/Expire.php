@@ -6,81 +6,90 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Addon;
+use Friendica\BaseObject;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
+use Friendica\Core\Logger;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Item;
-use dba;
 
-require_once 'include/dba.php';
+class Expire
+{
+	public static function execute($param = '', $hook_function = '')
+	{
+		$a = BaseObject::getApp();
 
-class Expire {
-	public static function execute($param = '', $hook_name = '') {
-		global $a;
-
-		require_once 'include/items.php';
-
-		Addon::loadHooks();
+		Hook::loadHooks();
 
 		if ($param == 'delete') {
-			logger('Delete expired items', LOGGER_DEBUG);
+			Logger::log('Delete expired items', Logger::DEBUG);
 			// physically remove anything that has been deleted for more than two months
-			$r = dba::p("SELECT `id` FROM `item` WHERE `deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY");
-			while ($row = dba::fetch($r)) {
-				dba::delete('item', ['id' => $row['id']]);
+			$condition = ["`deleted` AND `changed` < UTC_TIMESTAMP() - INTERVAL 60 DAY"];
+			$rows = DBA::select('item', ['id'],  $condition);
+			while ($row = DBA::fetch($rows)) {
+				DBA::delete('item', ['id' => $row['id']]);
 			}
-			dba::close($r);
+			DBA::close($rows);
 
-			logger('Delete expired items - done', LOGGER_DEBUG);
+			// Normally we shouldn't have orphaned data at all.
+			// If we do have some, then we have to check why.
+			Logger::log('Deleting orphaned item activities - start', Logger::DEBUG);
+			$condition = ["NOT EXISTS (SELECT `iaid` FROM `item` WHERE `item`.`iaid` = `item-activity`.`id`)"];
+			DBA::delete('item-activity', $condition);
+			Logger::log('Orphaned item activities deleted: ' . DBA::affectedRows(), Logger::DEBUG);
+
+			Logger::log('Deleting orphaned item content - start', Logger::DEBUG);
+			$condition = ["NOT EXISTS (SELECT `icid` FROM `item` WHERE `item`.`icid` = `item-content`.`id`)"];
+			DBA::delete('item-content', $condition);
+			Logger::log('Orphaned item content deleted: ' . DBA::affectedRows(), Logger::DEBUG);
 
 			// make this optional as it could have a performance impact on large sites
 			if (intval(Config::get('system', 'optimize_items'))) {
-				dba::e("OPTIMIZE TABLE `item`");
+				DBA::e("OPTIMIZE TABLE `item`");
 			}
+
+			Logger::log('Delete expired items - done', Logger::DEBUG);
 			return;
 		} elseif (intval($param) > 0) {
-			$user = dba::selectFirst('user', ['uid', 'username', 'expire'], ['uid' => $param]);
-			if (DBM::is_result($user)) {
-				logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - interval: '.$user['expire'], LOGGER_DEBUG);
+			$user = DBA::selectFirst('user', ['uid', 'username', 'expire'], ['uid' => $param]);
+			if (DBA::isResult($user)) {
+				Logger::log('Expire items for user '.$user['uid'].' ('.$user['username'].') - interval: '.$user['expire'], Logger::DEBUG);
 				Item::expire($user['uid'], $user['expire']);
-				logger('Expire items for user '.$user['uid'].' ('.$user['username'].') - done ', LOGGER_DEBUG);
+				Logger::log('Expire items for user '.$user['uid'].' ('.$user['username'].') - done ', Logger::DEBUG);
 			}
 			return;
-		} elseif (!empty($hook_name) && ($param == 'hook') && is_array($a->hooks) && array_key_exists("expire", $a->hooks)) {
-			foreach ($a->hooks["expire"] as $hook) {
-				if ($hook[1] == $hook_name) {
-					logger("Calling expire hook '" . $hook[1] . "'", LOGGER_DEBUG);
-					Addon::callSingleHook($a, $hook_name, $hook, $data);
+		} elseif ($param == 'hook' && !empty($hook_function)) {
+			foreach (Hook::getByName('expire') as $hook) {
+				if ($hook[1] == $hook_function) {
+					Logger::log("Calling expire hook '" . $hook[1] . "'", Logger::DEBUG);
+					Hook::callSingle($a, 'expire', $hook, $data);
 				}
 			}
 			return;
 		}
 
-		logger('expire: start');
+		Logger::log('expire: start');
 
 		Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 				'Expire', 'delete');
 
-		$r = dba::p("SELECT `uid`, `username` FROM `user` WHERE `expire` != 0");
-		while ($row = dba::fetch($r)) {
-			logger('Calling expiry for user '.$row['uid'].' ('.$row['username'].')', LOGGER_DEBUG);
+		$r = DBA::p("SELECT `uid`, `username` FROM `user` WHERE `expire` != 0");
+		while ($row = DBA::fetch($r)) {
+			Logger::log('Calling expiry for user '.$row['uid'].' ('.$row['username'].')', Logger::DEBUG);
 			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
 					'Expire', (int)$row['uid']);
 		}
-		dba::close($r);
+		DBA::close($r);
 
-		logger('expire: calling hooks');
-
-		if (is_array($a->hooks) && array_key_exists('expire', $a->hooks)) {
-			foreach ($a->hooks['expire'] as $hook) {
-				logger("Calling expire hook for '" . $hook[1] . "'", LOGGER_DEBUG);
-				Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
-						'Expire', 'hook', $hook[1]);
-			}
+		Logger::log('expire: calling hooks');
+		foreach (Hook::getByName('expire') as $hook) {
+			Logger::log("Calling expire hook for '" . $hook[1] . "'", Logger::DEBUG);
+			Worker::add(['priority' => $a->queue['priority'], 'created' => $a->queue['created'], 'dont_fork' => true],
+					'Expire', 'hook', $hook[1]);
 		}
 
-		logger('expire: end');
+		Logger::log('expire: end');
 
 		return;
 	}

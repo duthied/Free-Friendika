@@ -14,7 +14,7 @@
 	<div id="photos-upload-exist-wrapper">
 		<div id="photos-upload-existing-album-text">{{$existalbumtext}}</div>
 		<select id="photos-upload-album-select" name="album" size="4">
-		{{$albumselect}}
+		{{$albumselect  nofilter}}
 		</select>
 	</div>
 	<div id="photos-upload-exist-end"></div>
@@ -34,16 +34,16 @@
 
 	<div style="display: none;">
 		<div id="photos-upload-permissions-wrapper">
-			{{$aclselect}}
+			{{$aclselect nofilter}}
 		</div>
 	</div>
 
 	<div id="photos-upload-spacer"></div>
 
-	{{$alt_uploader}}
+	{{$alt_uploader nofilter}}
 
-	{{$default_upload_box}}
-	{{$default_upload_submit}}
+	{{$default_upload_box nofilter}}
+	{{$default_upload_submit nofilter}}
 
 	<div class="photos-upload-end" ></div>
 </form>

@@ -40,7 +40,7 @@ You are not required to do this, but the alternative is to log out and log back 
 This could get cumbersome if you manage several different forums/identities. 
 
 You may also appoint a delegate to manage your forum.
-Do this by visiting the [Delegation Setup Page](delegate).
+Do this by visiting the [Delegation Setup Page](settings/delegation).
 This will provide you with a list of contacts on this system under "Potential Delegates".
 Selecting one or more persons will give them access to manage your forum.
 They will be able to edit contacts, profiles, and all content for this account/page.

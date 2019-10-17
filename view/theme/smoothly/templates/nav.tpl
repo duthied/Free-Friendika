@@ -1,6 +1,6 @@
 
 <nav>
-	<span id="banner">{{$banner}}</span>
+	<span id="banner">{{$banner nofilter}}</span>
 
 	<div id="notifications">	
 		{{if $nav.network}}<a id="net-update" class="nav-ajax-update" href="{{$nav.network.0}}" title="{{$nav.network.1}}"></a>{{/if}}
@@ -45,11 +45,12 @@
 			{{if $nav.profiles}}<li><a id="nav-profiles-link" class="nav-commlink nav-sep {{$nav.profiles.2}}" href="{{$nav.profiles.0}}">{{$nav.profiles.1}}</a></li>{{/if}}
 			{{if $nav.settings}}<li><a id="nav-settings-link" class="nav-commlink {{$nav.settings.2}}" href="{{$nav.settings.0}}">{{$nav.settings.1}}</a></li>{{/if}}
 			
-			{{if $nav.manage}}<li><a id="nav-manage-link" class="nav-commlink {{$nav.manage.2}}" href="{{$nav.manage.0}}">{{$nav.manage.1}}</a></li>{{/if}}
+			{{if $nav.delegation}}<li><a id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}}" href="{{$nav.delegation.0}}">{{$nav.delegation.1}}</a></li>{{/if}}
 		
 			{{if $nav.admin}}<li><a id="nav-admin-link" class="nav-commlink {{$nav.admin.2}}" href="{{$nav.admin.0}}">{{$nav.admin.1}}</a></li>{{/if}}
 			
 			{{if $nav.help}}<li><a id="nav-help-link" class="nav-link {{$nav.help.2}}" href="{{$nav.help.0}}">{{$nav.help.1}}</a></li>{{/if}}
+			{{if $nav.tos}}<li><a id="nav-tos-link" class="nav-link {{$nav.tos.2}}" href="{{$nav.tos.0}}">{{$nav.tos.1}}</a></li>{{/if}}
 
 			{{if $nav.login}}<li><a id="nav-login-link" class="nav-link {{$nav.login.2}}" href="{{$nav.login.0}}">{{$nav.login.1}}</a></li> {{/if}}
 			{{if $nav.logout}}<li><a id="nav-logout-link" class="nav-commlink nav-sep {{$nav.logout.2}}" href="{{$nav.logout.0}}">{{$nav.logout.1}}</a></li> {{/if}}

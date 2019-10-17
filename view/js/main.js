@@ -1,3 +1,21 @@
+// @license magnet:?xt=urn:btih:0b31508aeb0634b347b8270c7bee4d411b5d4109&dn=agpl-3.0.txt AGPLv3-or-later
+
+// https://developer.mozilla.org/en-US/docs/Web/API/Element/matches#Polyfill
+if (!Element.prototype.matches) {
+	Element.prototype.matches =
+		Element.prototype.matchesSelector ||
+		Element.prototype.mozMatchesSelector ||
+		Element.prototype.msMatchesSelector ||
+		Element.prototype.oMatchesSelector ||
+		Element.prototype.webkitMatchesSelector ||
+		function(s) {
+			var matches = (this.document || this.ownerDocument).querySelectorAll(s),
+				i = matches.length;
+			while (--i >= 0 && matches.item(i) !== this) {}
+			return i > -1;
+		};
+}
+
 function resizeIframe(obj) {
 	_resizeIframe(obj, 0);
 }
@@ -16,25 +34,30 @@ function _resizeIframe(obj, desth) {
 }
 
 function openClose(theID) {
-	if (document.getElementById(theID).style.display == "block") {
-		document.getElementById(theID).style.display = "none"
-	} else {
-		document.getElementById(theID).style.display = "block"
+	var el = document.getElementById(theID);
+	if (el) {
+		if (window.getComputedStyle(el).display === "none") {
+			openMenu(theID);
+		} else {
+			closeMenu(theID);
+		}
 	}
 }
 
 function openMenu(theID) {
-	var el = document.getElementById(theID)
-
+	var el = document.getElementById(theID);
 	if (el) {
-		el.style.display = "block";
+		if (!el.dataset.display) {
+			el.dataset.display = 'block';
+		}
+		el.style.display = el.dataset.display;
 	}
 }
 
 function closeMenu(theID) {
-	var el = document.getElementById(theID)
-
+	var el = document.getElementById(theID);
 	if (el) {
+		el.dataset.display = window.getComputedStyle(el).display;
 		el.style.display = "none";
 	}
 }
@@ -63,6 +86,8 @@ var last_popup_menu = null;
 var last_popup_button = null;
 var lockLoadContent = false;
 
+const urlRegex = /^(?:https?:\/\/|\s)[a-z0-9-]+(\.[a-z0-9-]+)*(\.[a-z]{2,4})(?:\/+[a-z0-9_.:;-]*)*(?:\?[&%|+a-z0-9_=,.:;-]*)?(?:[&%|+&a-z0-9_=,:;.-]*)(?:[!#\/&%|+a-z0-9_=,:;.-]*)}*$/i;
+
 $(function() {
 	$.ajaxSetup({cache: false});
 
@@ -81,6 +106,11 @@ $(function() {
 			Dialog.doImageBrowser("comment", id);
 			return;
 		}
+
+		if (bbcode == "imgprv") {
+			bbcode = "img";
+		}
+
 		insertFormatting(bbcode, id);
 	});
 
@@ -302,7 +332,14 @@ $(function() {
 		$('#nav-notifications-menu').perfectScrollbar('update');
 	});
 
-	NavUpdate();
+	// Asynchronous calls are deferred until the very end of the page load to ease on slower connections
+	window.addEventListener("load", function(){
+		NavUpdate();
+		if (typeof acl !== 'undefined') {
+			acl.get(0, 100);
+		}
+	});
+
 	// Allow folks to stop the ajax page updates with the pause/break key
 	$(document).keydown(function(event) {
 		if (event.keyCode == '8') {
@@ -369,6 +406,61 @@ $(function() {
 	}
 });
 
+/**
+ * Inserts a BBCode tag in the comment textarea identified by id
+ *
+ * @param {string} BBCode
+ * @param {int} id
+ * @returns {boolean}
+ */
+function insertFormatting(BBCode, id) {
+	let textarea = document.getElementById('comment-edit-text-' + id);
+
+	if (textarea.value === '') {
+		$(textarea)
+			.addClass("comment-edit-text-full")
+			.removeClass("comment-edit-text-empty");
+		closeMenu("comment-fake-form-" + id);
+		openMenu("item-comments-" + id);
+	}
+
+	insertBBCodeInTextarea(BBCode, textarea);
+
+	return true;
+}
+
+/**
+ * Inserts a BBCode tag in the provided textarea element, wrapping the currently selected text.
+ * For URL BBCode, it discriminates between link text and non-link text to determine where to insert the selected text.
+ *
+ * @param {string} BBCode
+ * @param {HTMLTextAreaElement} textarea
+ */
+function insertBBCodeInTextarea(BBCode, textarea) {
+	let selectionStart = textarea.selectionStart;
+	let selectionEnd = textarea.selectionEnd;
+	let selectedText = textarea.value.substring(selectionStart, selectionEnd);
+	let openingTag = '[' + BBCode + ']';
+	let closingTag = '[/' + BBCode + ']';
+	let cursorPosition = selectionStart + openingTag.length + selectedText.length;
+
+	if (BBCode === 'url') {
+		if (urlRegex.test(selectedText)) {
+			openingTag = '[' + BBCode + '=' + selectedText + ']';
+			selectedText = '';
+			cursorPosition = selectionStart + openingTag.length;
+		} else {
+			openingTag = '[' + BBCode + '=]';
+			cursorPosition = selectionStart + openingTag.length - 1;
+		}
+	}
+
+	textarea.value = textarea.value.substring(0, selectionStart) + openingTag + selectedText + closingTag + textarea.value.substring(selectionEnd, textarea.value.length);
+	textarea.setSelectionRange(cursorPosition, cursorPosition);
+	textarea.dispatchEvent(new Event('change'));
+	textarea.focus();
+}
+
 function NavUpdate() {
 	if (!stopped) {
 		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&f=&uid=' + localUser : '');
@@ -378,7 +470,7 @@ function NavUpdate() {
 				$('nav').trigger('nav-update', data.result);
 
 				// start live update
-				['network', 'profile', 'community', 'notes', 'display'].forEach(function (src) {
+				['network', 'profile', 'community', 'notes', 'display', 'contact'].forEach(function (src) {
 					if ($('#live-' + src).length) {
 						liveUpdate(src);
 					}
@@ -393,6 +485,47 @@ function NavUpdate() {
 		});
 	}
 	timer = setTimeout(NavUpdate, updateInterval);
+}
+
+function updateConvItems(data) {
+	// add a new thread
+	$('.toplevel_item',data).each(function() {
+		var ident = $(this).attr('id');
+
+		// Add new top-level item.
+		if ($('#' + ident).length == 0 && profile_page == 1) {
+			$('#' + prev).after($(this));
+
+		// Replace already existing thread.
+		} else {
+			// Find out if the hidden comments are open, so we can keep it that way
+			// if a new comment has been posted
+			var id = $('.hide-comments-total', this).attr('id');
+			if (typeof id != 'undefined') {
+				id = id.split('-')[3];
+				var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
+			}
+
+			$('#' + ident).replaceWith($(this));
+
+			if (typeof id != 'undefined') {
+				if (commentsOpen) {
+					showHideComments(id);
+				}
+			}
+		}
+		prev = ident;
+	});
+
+	$('.like-rotator').hide();
+	if (commentBusy) {
+		commentBusy = false;
+		$('body').css('cursor', 'auto');
+	}
+	/* autocomplete @nicknames */
+	$(".comment-edit-form  textarea").editor_autocomplete(baseurl + '/search/acl');
+	/* autocomplete bbcode */
+	$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 }
 
 function liveUpdate(src) {
@@ -418,6 +551,9 @@ function liveUpdate(src) {
 	if ($(document).scrollTop() == 0) {
 		force_update = true;
 	}
+
+	var orgHeight = $("section").height();
+
 	var udargs = ((netargs.length) ? '/' + netargs : '');
 	var update_url = 'update_' + src + udargs + '&p=' + profile_uid + '&page=' + profile_page + '&force=' + ((force_update) ? 1 : 0) + '&item=' + update_item;
 
@@ -426,49 +562,14 @@ function liveUpdate(src) {
 		force_update = false;
 		update_item = 0;
 
-		// add a new thread
-		$('.toplevel_item',data).each(function() {
-			var ident = $(this).attr('id');
+		$('.wall-item-body', data).imagesLoaded(function() {
+			updateConvItems(data);
 
-			if ($('#' + ident).length == 0 && profile_page == 1) {
-				$('img',this).each(function() {
-					$(this).attr('src',$(this).attr('dst'));
-				});
-				$('#' + prev).after($(this));
-			} else {
-				// Find out if the hidden comments are open, so we can keep it that way
-				// if a new comment has been posted
-				var id = $('.hide-comments-total', this).attr('id');
-				if (typeof id != 'undefined') {
-					id = id.split('-')[3];
-					var commentsOpen = $("#collapsed-comments-" + id).is(":visible");
-				}
+			document.dispatchEvent(new Event('postprocess_liveupdate'));
 
-				$('img',this).each(function() {
-					$(this).attr('src',$(this).attr('dst'));
-				});
-				$('html').height($('html').height());
-				$('#' + ident).replaceWith($(this));
-
-				if (typeof id != 'undefined') {
-					if (commentsOpen) {
-						showHideComments(id);
-					}
-				}
-				$('html').height('auto');
-			}
-			prev = ident;
+			// Update the scroll position.
+			$(window).scrollTop($(window).scrollTop() + $("section").height() - orgHeight);
 		});
-
-		$('.like-rotator').hide();
-		if (commentBusy) {
-			commentBusy = false;
-			$('body').css('cursor', 'auto');
-		}
-		/* autocomplete @nicknames */
-		$(".comment-edit-form  textarea").editor_autocomplete(baseurl+"/acl");
-		/* autocomplete bbcode */
-		$(".comment-edit-form  textarea").bbco_autocomplete('bbcode');
 	});
 }
 
@@ -588,7 +689,6 @@ function post_comment(id) {
 	unpause();
 	commentBusy = true;
 	$('body').css('cursor', 'wait');
-	$("#comment-preview-inp-" + id).val("0");
 	$.post(
 		"item",
 		$("#comment-edit-form-" + id).serialize(),
@@ -617,11 +717,10 @@ function post_comment(id) {
 }
 
 function preview_comment(id) {
-	$("#comment-preview-inp-" + id).val("1");
 	$("#comment-edit-preview-" + id).show();
 	$.post(
 		"item",
-		$("#comment-edit-form-" + id).serialize(),
+		$("#comment-edit-form-" + id).serialize() + '&preview=1',
 		function(data) {
 			if (data.preview) {
 				$("#comment-edit-preview-" + id).html(data.preview);
@@ -634,12 +733,14 @@ function preview_comment(id) {
 }
 
 function showHideComments(id) {
-	if ($("#collapsed-comments-" + id).is(":visible")) {
-		$("#collapsed-comments-" + id).hide();
-		$("#hide-comments-" + id).html(window.showMore);
+	if ($('#collapsed-comments-' + id).is(':visible')) {
+		$('#collapsed-comments-' + id).slideUp();
+		$('#hide-comments-' + id).hide();
+		$('#hide-comments-total-' + id).show();
 	} else {
-		$("#collapsed-comments-" + id).show();
-		$("#hide-comments-" + id).html(window.showFewer);
+		$('#collapsed-comments-' + id).slideDown();
+		$('#hide-comments-' + id).show();
+		$('#hide-comments-total-' + id).hide();
 	}
 }
 
@@ -653,6 +754,7 @@ function preview_post() {
 			if (data.preview) {
 				$("#jot-preview-content").html(data.preview);
 				$("#jot-preview-content" + " a").click(function() {return false;});
+				document.dispatchEvent(new Event('postprocess_liveupdate'));
 			}
 		},
 		"json"
@@ -711,7 +813,7 @@ function loadScrollContent() {
 
 	// get the raw content from the next page and insert this content
 	// right before "#conversation-end"
-	$.get('network?mode=raw' + infinite_scroll.reload_uri + '&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
+	$.get(infinite_scroll.reload_uri + '&mode=raw&last_received=' + received + '&last_commented=' + commented + '&last_created=' + created + '&last_id=' + id + '&page=' + infinite_scroll.pageno, function(data) {
 		$("#scroll-loader").hide();
 		if ($(data).length > 0) {
 			$(data).insertBefore('#conversation-end');
@@ -719,6 +821,8 @@ function loadScrollContent() {
 		} else {
 			$("#scroll-end").fadeIn('normal');
 		}
+
+		document.dispatchEvent(new Event('postprocess_liveupdate'));
 	});
 }
 
@@ -761,11 +865,25 @@ function profChangeMember(gid,cid) {
 	});
 }
 
-function contactgroupChangeMember(gid,cid) {
+function contactgroupChangeMember(checkbox, gid, cid) {
+	let url;
+	// checkbox.checked is the checkbox state after the click
+	if (checkbox.checked) {
+		url = 'group/' + gid + '/add/' + cid;
+	} else {
+		url = 'group/' + gid + '/remove/' + cid;
+	}
 	$('body').css('cursor', 'wait');
-	$.get('contactgroup/' + gid + '/' + cid, function(data) {
-			$('body').css('cursor', 'auto');
+	$.post(url)
+	.error(function () {
+		// Restores previous state in case of error
+		checkbox.checked = !checkbox.checked;
+	})
+	.always(function() {
+		$('body').css('cursor', 'auto');
 	});
+
+	return true;
 }
 
 function checkboxhighlight(box) {
@@ -898,3 +1016,4 @@ var Dialog = {
 		};
 	}
 }
+// @license-end

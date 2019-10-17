@@ -1,6 +1,6 @@
 
 <p id="hide-wall-text">
-{{$desc}}
+{{$desc nofilter}}
 </p>
 
 		<div id="hide-wall-yes-wrapper">

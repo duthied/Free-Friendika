@@ -14,11 +14,11 @@
  */
 namespace Friendica\Content;
 
-use Friendica\App;
-use Friendica\Core\Addon;
 use Friendica\Core\Config;
+use Friendica\Core\Hook;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\Util\Strings;
 
 /**
  * This class contains functions to handle smiles
@@ -55,10 +55,11 @@ class Smilies
 	 * Get an array of all smilies, both internal and from addons.
 	 *
 	 * @return array
-	 *	'texts' => smilie shortcut
-	 *	'icons' => icon in html
+	 *    'texts' => smilie shortcut
+	 *    'icons' => icon in html
 	 *
-	 * @hook smilie ('texts' => smilies texts array, 'icons' => smilies html array)
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @hook  smilie ('texts' => smilies texts array, 'icons' => smilies html array)
 	 */
 	public static function getList()
 	{
@@ -140,13 +141,34 @@ class Smilies
 		];
 
 		$params = ['texts' => $texts, 'icons' => $icons];
-		Addon::callHooks('smilie', $params);
+		Hook::callAll('smilie', $params);
 
 		return $params;
 	}
 
+
 	/**
-	 * @brief Replaces text emoticons with graphical images
+	 * Copied from http://php.net/manual/en/function.str-replace.php#88569
+	 * Modified for camel caps: renamed stro_replace -> strOrigReplace
+	 *
+	 * When using str_replace(...), values that did not exist in the original string (but were put there by previous
+	 * replacements) will be replaced continuously.  This string replacement function is designed to replace the values
+	 * in $search with those in $replace while not factoring in prior replacements.  Note that this function will
+	 * always look for the longest possible match first and then work its way down to individual characters.
+	 *
+	 * @param array $search list of strings or characters that need to be replaced
+	 * @param array $replace list of strings or characters that will replace the corresponding values in $search
+	 * @param string $subject the string on which this operation is being performed
+	 *
+	 * @return string $subject with all substrings in the $search array replaced by the values in the $replace array
+	 */
+	private static function strOrigReplace($search, $replace, $subject)
+	{
+		return strtr($subject, array_combine($search, $replace));
+	}
+
+	/**
+	 * Replaces text emoticons with graphical images
 	 *
 	 * It is expected that this function will be called using HTML text.
 	 * We will escape text between HTML pre and code blocks from being
@@ -156,53 +178,63 @@ class Smilies
 	 * function from being executed by the prepare_text() routine when preparing
 	 * bbcode source for HTML display
 	 *
+	 * @brief Replaces text emoticons with graphical images
 	 * @param string  $s         Text that should be replaced
-	 * @param boolean $sample    optional, default false
 	 * @param boolean $no_images Only replace emoticons without images
 	 *
-	 * @return string HML Output of the Smilie
+	 * @return string HTML Output of the Smilie
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function replace($s, $sample = false, $no_images = false)
+	public static function replace($s, $no_images = false)
+	{
+		$smilies = self::getList();
+
+		$s = self::replaceFromArray($s, $smilies, $no_images);
+
+		return $s;
+	}
+
+	/**
+	 * Replaces emoji shortcodes in a string from a structured array of searches and replaces.
+	 *
+	 * Depends on system.no_smilies config value, skips <pre> and <code> tags.
+	 *
+	 * @param string $text      An HTML string
+	 * @param array  $smilies   An string replacement array with the following structure: ['texts' => [], 'icons' => []]
+	 * @param bool   $no_images Only replace shortcodes without image replacement (e.g. Unicode characters)
+	 * @return string
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function replaceFromArray($text, array $smilies, $no_images = false)
 	{
 		if (intval(Config::get('system', 'no_smilies'))
 			|| (local_user() && intval(PConfig::get(local_user(), 'system', 'no_smilies')))
 		) {
-			return $s;
+			return $text;
 		}
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::encode', $s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::encode', $s);
-
-		$params = self::getList();
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::encode', $text);
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::encode', $text);
 
 		if ($no_images) {
 			$cleaned = ['texts' => [], 'icons' => []];
-			$icons = $params['icons'];
+			$icons = $smilies['icons'];
 			foreach ($icons as $key => $icon) {
 				if (!strstr($icon, '<img ')) {
-					$cleaned['texts'][] = $params['texts'][$key];
-					$cleaned['icons'][] = $params['icons'][$key];
+					$cleaned['texts'][] = $smilies['texts'][$key];
+					$cleaned['icons'][] = $smilies['icons'][$key];
 				}
 			}
-			$params = $cleaned;
+			$smilies = $cleaned;
 		}
 
-		$params['string'] = $s;
+		$text = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $text);
+		$text = self::strOrigReplace($smilies['texts'], $smilies['icons'], $text);
 
-		if ($sample) {
-			$s = '<div class="smiley-sample">';
-			for ($x = 0; $x < count($params['texts']); $x ++) {
-				$s .= '<dl><dt>' . $params['texts'][$x] . '</dt><dd>' . $params['icons'][$x] . '</dd></dl>';
-			}
-		} else {
-			$params['string'] = preg_replace_callback('/&lt;(3+)/', 'self::pregHeart', $params['string']);
-			$s = str_replace($params['texts'], $params['icons'], $params['string']);
-		}
+		$text = preg_replace_callback('/<(code)>(.*?)<\/code>/ism', 'self::decode', $text);
+		$text = preg_replace_callback('/<(pre)>(.*?)<\/pre>/ism', 'self::decode', $text);
 
-		$s = preg_replace_callback('/<pre>(.*?)<\/pre>/ism', 'self::decode', $s);
-		$s = preg_replace_callback('/<code>(.*?)<\/code>/ism', 'self::decode', $s);
-
-		return $s;
+		return $text;
 	}
 
 	/**
@@ -212,17 +244,18 @@ class Smilies
 	 */
 	private static function encode($m)
 	{
-		return(str_replace($m[1], base64url_encode($m[1]), $m[0]));
+		return '<' . $m[1] . '>' . Strings::base64UrlEncode($m[2]) . '</' . $m[1] . '>';
 	}
 
 	/**
 	 * @param string $m string
 	 *
 	 * @return string base64 decoded string
+	 * @throws \Exception
 	 */
 	private static function decode($m)
 	{
-		return(str_replace($m[1], base64url_decode($m[1]), $m[0]));
+		return '<' . $m[1] . '>' . Strings::base64UrlDecode($m[2]) . '</' . $m[1] . '>';
 	}
 
 
@@ -233,17 +266,19 @@ class Smilies
 	 *
 	 * @return string HTML Output
 	 *
-	 * @todo: Rework because it doesn't work correctly
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pregHeart($x)
 	{
 		if (strlen($x[1]) == 1) {
 			return $x[0];
 		}
+
 		$t = '';
 		for ($cnt = 0; $cnt < strlen($x[1]); $cnt ++) {
-			$t .= '<img class="smiley" src="' . System::baseUrl() . '/images/smiley-heart.gif" alt="&lt;3" />';
+			$t .= '❤';
 		}
+
 		$r =  str_replace($x[0], $t, $x[0]);
 		return $r;
 	}

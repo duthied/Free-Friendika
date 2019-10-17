@@ -5,92 +5,65 @@
 
 namespace Friendica\Worker;
 
-use Friendica\App;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Core\Config;
-use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\PushSubscriber;
+use Friendica\Model\GServer;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
-use dba;
 
-require_once 'include/items.php';
-
-class PubSubPublish {
+class PubSubPublish
+{
 	public static function execute($pubsubpublish_id = 0)
 	{
-		global $a;
-
 		if ($pubsubpublish_id == 0) {
-			// We'll push to each subscriber that has push > 0,
-			// i.e. there has been an update (set in notifier.php).
-			$r = q("SELECT `id`, `callback_url` FROM `push_subscriber` WHERE `push` > 0 ORDER BY `last_update` DESC");
-
-			foreach ($r as $rr) {
-				logger("Publish feed to ".$rr["callback_url"], LOGGER_DEBUG);
-				Worker::add(['priority' => PRIORITY_HIGH, 'created' => $a->queue['created'], 'dont_fork' => true],
-						'PubSubPublish', (int)$rr["id"]);
-			}
-		}
-
-		self::publish($pubsubpublish_id);
-
-		return;
-	}
-
-	private static function publish($id) {
-		global $a;
-
-		$r = q("SELECT * FROM `push_subscriber` WHERE `id` = %d", intval($id));
-		if (!DBM::is_result($r)) {
 			return;
 		}
 
-		$rr = $r[0];
+		self::publish($pubsubpublish_id);
+	}
 
-		/// @todo Check server status with PortableContact::checkServer()
+	private static function publish($id)
+	{
+		$subscriber = DBA::selectFirst('push_subscriber', [], ['id' => $id]);
+		if (!DBA::isResult($subscriber)) {
+			return;
+		}
+
+		/// @todo Check server status with GServer::check()
 		// Before this can be done we need a way to safely detect the server url.
 
-		logger("Generate feed of user ".$rr['nickname']." to ".$rr['callback_url']." - last updated ".$rr['last_update'], LOGGER_DEBUG);
+		Logger::log("Generate feed of user " . $subscriber['nickname']. " to " . $subscriber['callback_url']. " - last updated " . $subscriber['last_update'], Logger::DEBUG);
 
-		$last_update = $rr['last_update'];
-		$params = OStatus::feed($rr['nickname'], $last_update);
+		$last_update = $subscriber['last_update'];
+		$params = OStatus::feed($subscriber['nickname'], $last_update);
 
 		if (!$params) {
 			return;
 		}
 
-		$hmac_sig = hash_hmac("sha1", $params, $rr['secret']);
+		$hmac_sig = hash_hmac("sha1", $params, $subscriber['secret']);
 
 		$headers = ["Content-type: application/atom+xml",
 				sprintf("Link: <%s>;rel=hub,<%s>;rel=self",
-					System::baseUrl().'/pubsubhubbub/'.$rr['nickname'],
-					$rr['topic']),
-				"X-Hub-Signature: sha1=".$hmac_sig];
+					System::baseUrl() . '/pubsubhubbub/' . $subscriber['nickname'],
+					$subscriber['topic']),
+				"X-Hub-Signature: sha1=" . $hmac_sig];
 
-		logger('POST '.print_r($headers, true)."\n".$params, LOGGER_DATA);
+		Logger::log('POST ' . print_r($headers, true) . "\n" . $params, Logger::DATA);
 
-		Network::post($rr['callback_url'], $params, $headers);
-		$ret = $a->get_curl_code();
+		$postResult = Network::post($subscriber['callback_url'], $params, $headers);
+		$ret = $postResult->getReturnCode();
 
 		if ($ret >= 200 && $ret <= 299) {
-			logger('successfully pushed to '.$rr['callback_url']);
+			Logger::log('Successfully pushed to ' . $subscriber['callback_url']);
 
-			// set last_update to the "created" date of the last item, and reset push=0
-			$fields = ['push' => 0, 'last_update' => $last_update];
-			dba::update('push_subscriber', $fields, ['id' => $rr['id']]);
-
+			PushSubscriber::reset($subscriber['id'], $last_update);
 		} else {
-			logger('error when pushing to '.$rr['callback_url'].' HTTP: '.$ret);
+			Logger::log('Delivery error when pushing to ' . $subscriber['callback_url'] . ' HTTP: ' . $ret);
 
-			// we use the push variable also as a counter, if we failed we
-			// increment this until some upper limit where we give up
-			$new_push = intval($rr['push']) + 1;
-
-			if ($new_push > 30) // OK, let's give up
-				$new_push = 0;
-
-			dba::update('push_subscriber', ['push' => $new_push], ['id' => $rr['id']]);
+			PushSubscriber::delay($subscriber['id']);
 		}
 	}
 }

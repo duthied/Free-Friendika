@@ -1,3 +1,4 @@
+/* THIS FILE IS GENERATED FROM THE less SOURCE DO NOT EDIT MANUALLY */
 /**
  * Fabio Comuni <http://kirgroup.com/profile/fabrixxm>
  **/
@@ -64,7 +65,7 @@
 .icon.unlock {
   background-image: url("../../../images/icons/22/unlock.png");
 }
-.icon.addon {
+.icon.plugin {
   background-image: url("../../../images/icons/22/plugin.png");
 }
 .icon.type-unkn {
@@ -143,7 +144,7 @@
 .icon.s10.unlock {
   background-image: url("../../../images/icons/10/unlock.png");
 }
-.icon.s10.addon {
+.icon.s10.plugin {
   background-image: url("../../../images/icons/10/plugin.png");
 }
 .icon.s10.type-unkn {
@@ -222,7 +223,7 @@
 .icon.s16.unlock {
   background-image: url("../../../images/icons/16/unlock.png");
 }
-.icon.s16.addon {
+.icon.s16.plugin {
   background-image: url("../../../images/icons/16/plugin.png");
 }
 .icon.s16.type-unkn {
@@ -301,7 +302,7 @@
 .icon.s22.unlock {
   background-image: url("../../../images/icons/22/unlock.png");
 }
-.icon.s22.addon {
+.icon.s22.plugin {
   background-image: url("../../../images/icons/22/plugin.png");
 }
 .icon.s22.type-unkn {
@@ -380,7 +381,7 @@
 .icon.s48.unlock {
   background-image: url("../../../images/icons/48/unlock.png");
 }
-.icon.s48.addon {
+.icon.s48.plugin {
   background-image: url("../../../images/icons/48/plugin.png");
 }
 .icon.s48.type-unkn {
@@ -468,7 +469,7 @@ blockquote {
   margin-left: 1em;
   border-left: 1em solid #e6e6e6;
 }
-code {
+pre code {
   font-family: Courier, monospace;
   white-space: pre;
   display: block;
@@ -2135,7 +2136,7 @@ ul.tabs li .active {
 .identity-match-photo {
   position: relative;
 }
-.identity-match-photo .manage-notify {
+.identity-match-photo .delegation-notify {
   background-color: #19AEFF;
   border-radius: 5px;
   font-size: 10px;
@@ -2478,7 +2479,7 @@ footer {
   clear: both;
 }
 .pager .disabled {
-	display: none;
+  display: none;
 }
 /**
  * ADMIN
@@ -2553,6 +2554,9 @@ footer {
 }
 #adminpage .selectall {
   text-align: right;
+}
+#adminpage .settings-block {
+  border-bottom: 1px solid #cccccc;
 }
 /* edit buttons for comments */
 .icon.dim {

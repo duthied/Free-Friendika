@@ -20,10 +20,10 @@ Templates that are only used by addons shall be placed in the
 
 directory.
 
-To render a template use the function *get_markup_template* to load the template and *replace_macros* to replace the macros/variables in the just loaded template file.
+To render a template use the function *getMarkupTemplate* to load the template and *replaceMacros* to replace the macros/variables in the just loaded template file.
 
-		$tpl = get_markup_template('install_settings.tpl');
-        $o .= replace_macros($tpl, array( ... ));
+		$tpl = Renderer::getMarkupTemplate('install_settings.tpl');
+        $o .= Renderer::replaceMacros($tpl, array( ... ));
 
 the array consists of an association of an identifier and the value for that identifier, i.e.
 
@@ -177,6 +177,7 @@ Field parameter:
 1. Label for the input box,
 2. Current text for the box,
 3. Help text for the input box.
+4. if set to "required" modern browser will check that this input box is filled when submitting the form,
 
 ### field_yesno.tpl
 

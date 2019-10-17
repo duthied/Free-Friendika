@@ -5,84 +5,86 @@
 namespace Friendica\Worker;
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Database\DBM;
+use Friendica\Core\Logger;
+use Friendica\Core\Protocol;
+use Friendica\Core\StorageManager;
+use Friendica\Core\Worker;
+use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
+use Friendica\Model\GServer;
+use Friendica\Model\Nodeinfo;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
-use Friendica\Protocol\PortableContact;
-use dba;
-
-require_once 'include/dba.php';
-require_once 'mod/nodeinfo.php';
+use Friendica\Util\Network;
+use Friendica\Util\Proxy as ProxyUtils;
+use Friendica\Util\Strings;
 
 class CronJobs
 {
 	public static function execute($command = '')
 	{
-		global $a;
-
-		require_once 'mod/nodeinfo.php';
+		$a = BaseObject::getApp();
 
 		// No parameter set? So return
 		if ($command == '') {
 			return;
 		}
 
-		logger("Starting cronjob " . $command, LOGGER_DEBUG);
+		Logger::log("Starting cronjob " . $command, Logger::DEBUG);
 
-		// Call possible post update functions
-		// see src/Database/PostUpdate.php for more details
-		if ($command == 'post_update') {
-			PostUpdate::update();
-			return;
+		switch($command) {
+			case 'post_update':
+				PostUpdate::update();
+				break;
+
+			case 'nodeinfo':
+				Logger::info('cron_start');
+				Nodeinfo::update();
+				// Now trying to register
+				$url = 'http://the-federation.info/register/' . $a->getHostName();
+				Logger::debug('Check registering url', ['url' => $url]);
+				$ret = Network::fetchUrl($url);
+				Logger::debug('Check registering answer', ['answer' => $ret]);
+				Logger::info('cron_end');
+				break;
+
+			case 'expire_and_remove_users':
+				self::expireAndRemoveUsers();
+				break;
+
+			case 'update_contact_birthdays':
+				Contact::updateBirthdays();
+				break;
+
+			case 'update_photo_albums':
+				self::updatePhotoAlbums();
+				break;
+
+			case 'clear_cache':
+				self::clearCache($a);
+				break;
+
+			case 'repair_diaspora':
+				self::repairDiaspora($a);
+				break;
+
+			case 'repair_database':
+				self::repairDatabase();
+				break;
+
+			case 'move_storage':
+				self::moveStorage();
+				break;
+
+			default:
+				Logger::log("Cronjob " . $command . " is unknown.", Logger::DEBUG);
 		}
-
-		// update nodeinfo data
-		if ($command == 'nodeinfo') {
-			nodeinfo_cron();
-			return;
-		}
-
-		// Expire and remove user entries
-		if ($command == 'expire_and_remove_users') {
-			self::expireAndRemoveUsers();
-			return;
-		}
-
-		if ($command == 'update_contact_birthdays') {
-			Contact::updateBirthdays();
-			return;
-		}
-
-		if ($command == 'update_photo_albums') {
-			self::updatePhotoAlbums();
-			return;
-		}
-
-		// Clear cache entries
-		if ($command == 'clear_cache') {
-			self::clearCache($a);
-			return;
-		}
-
-		// Repair missing Diaspora values in contacts
-		if ($command == 'repair_diaspora') {
-			self::repairDiaspora($a);
-			return;
-		}
-
-		// Repair entries in the database
-		if ($command == 'repair_database') {
-			self::repairDatabase();
-			return;
-		}
-
-		logger("Xronjob " . $command . " is unknown.", LOGGER_DEBUG);
 
 		return;
 	}
@@ -93,7 +95,7 @@ class CronJobs
 	private static function updatePhotoAlbums()
 	{
 		$r = q("SELECT `uid` FROM `user` WHERE NOT `account_expired` AND NOT `account_removed`");
-		if (!DBM::is_result($r)) {
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
@@ -108,19 +110,25 @@ class CronJobs
 	private static function expireAndRemoveUsers()
 	{
 		// expire any expired regular accounts. Don't expire forums.
-		$condition = ["NOT `account_expired` AND `account_expires_on` > ? AND `account_expires_on` < UTC_TIMESTAMP() AND `page-flags` = 0", NULL_DATE];
-		dba::update('user', ['account_expired' => true], $condition);
+		$condition = ["NOT `account_expired` AND `account_expires_on` > ? AND `account_expires_on` < UTC_TIMESTAMP() AND `page-flags` = 0", DBA::NULL_DATETIME];
+		DBA::update('user', ['account_expired' => true], $condition);
 
 		// Remove any freshly expired account
-		$users = dba::select('user', ['uid'], ['account_expired' => true, 'account_removed' => false]);
-		while ($user = dba::fetch($users)) {
+		$users = DBA::select('user', ['uid'], ['account_expired' => true, 'account_removed' => false]);
+		while ($user = DBA::fetch($users)) {
 			User::remove($user['uid']);
 		}
 
 		// delete user records for recently removed accounts
-		$users = dba::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP() - INTERVAL 3 DAY"]);
-		while ($user = dba::fetch($users)) {
-			dba::delete('user', ['uid' => $user['uid']]);
+		$users = DBA::select('user', ['uid'], ["`account_removed` AND `account_expires_on` < UTC_TIMESTAMP() "]);
+		while ($user = DBA::fetch($users)) {
+			// Delete the contacts of this user
+			$self = DBA::selectFirst('contact', ['nurl'], ['self' => true, 'uid' => $user['uid']]);
+			if (DBA::isResult($self)) {
+				DBA::delete('contact', ['nurl' => $self['nurl'], 'self' => false]);
+			}
+
+			DBA::delete('user', ['uid' => $user['uid']]);
 		}
 	}
 
@@ -128,6 +136,7 @@ class CronJobs
 	 * @brief Clear cache entries
 	 *
 	 * @param App $a
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function clearCache(App $a)
 	{
@@ -151,28 +160,30 @@ class CronJobs
 		clear_cache();
 
 		// clear cache for photos
-		clear_cache($a->get_basepath(), $a->get_basepath() . "/photo");
+		clear_cache($a->getBasePath(), $a->getBasePath() . "/photo");
 
 		// clear smarty cache
-		clear_cache($a->get_basepath() . "/view/smarty3/compiled", $a->get_basepath() . "/view/smarty3/compiled");
+		clear_cache($a->getBasePath() . "/view/smarty3/compiled", $a->getBasePath() . "/view/smarty3/compiled");
 
 		// clear cache for image proxy
 		if (!Config::get("system", "proxy_disabled")) {
-			clear_cache($a->get_basepath(), $a->get_basepath() . "/proxy");
+			clear_cache($a->getBasePath(), $a->getBasePath() . "/proxy");
 
 			$cachetime = Config::get('system', 'proxy_cache_time');
+
 			if (!$cachetime) {
-				$cachetime = PROXY_DEFAULT_TIME;
+				$cachetime = ProxyUtils::DEFAULT_TIME;
 			}
+
 			$condition = ['`uid` = 0 AND `resource-id` LIKE "pic:%" AND `created` < NOW() - INTERVAL ? SECOND', $cachetime];
-			dba::delete('photo', $condition);
+			Photo::delete($condition);
 		}
 
 		// Delete the cached OEmbed entries that are older than three month
-		dba::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
+		DBA::delete('oembed', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
 		// Delete the cached "parse_url" entries that are older than three month
-		dba::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
+		DBA::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
 		// Maximum table size in megabyte
 		$max_tablesize = intval(Config::get('system', 'optimize_max_tablesize')) * 1000000;
@@ -203,7 +214,7 @@ class CronJobs
 				// Calculate fragmentation
 				$fragmentation = $table["Data_free"] / ($table["Data_length"] + $table["Index_length"]);
 
-				logger("Table " . $table["Name"] . " - Fragmentation level: " . round($fragmentation * 100, 2), LOGGER_DEBUG);
+				Logger::log("Table " . $table["Name"] . " - Fragmentation level: " . round($fragmentation * 100, 2), Logger::DEBUG);
 
 				// Don't optimize tables that needn't to be optimized
 				if ($fragmentation < $fragmentation_level) {
@@ -211,8 +222,8 @@ class CronJobs
 				}
 
 				// So optimize it
-				logger("Optimize Table " . $table["Name"], LOGGER_DEBUG);
-				q("OPTIMIZE TABLE `%s`", dbesc($table["Name"]));
+				Logger::log("Optimize Table " . $table["Name"], Logger::DEBUG);
+				q("OPTIMIZE TABLE `%s`", DBA::escape($table["Name"]));
 			}
 		}
 
@@ -223,6 +234,8 @@ class CronJobs
 	 * @brief Repair missing values in Diaspora contacts
 	 *
 	 * @param App $a
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
 	 */
 	private static function repairDiaspora(App $a)
 	{
@@ -230,29 +243,29 @@ class CronJobs
 
 		$r = q("SELECT `id`, `url` FROM `contact`
 			WHERE `network` = '%s' AND (`batch` = '' OR `notify` = '' OR `poll` = '' OR pubkey = '')
-				ORDER BY RAND() LIMIT 50", dbesc(NETWORK_DIASPORA));
-		if (!DBM::is_result($r)) {
+				ORDER BY RAND() LIMIT 50", DBA::escape(Protocol::DIASPORA));
+		if (!DBA::isResult($r)) {
 			return;
 		}
 
-		foreach ($r AS $contact) {
+		foreach ($r as $contact) {
 			// Quit the loop after 3 minutes
 			if (time() > ($starttime + 180)) {
 				return;
 			}
 
-			if (!PortableContact::reachable($contact["url"])) {
+			if (!GServer::reachable($contact["url"])) {
 				continue;
 			}
 
 			$data = Probe::uri($contact["url"]);
-			if ($data["network"] != NETWORK_DIASPORA) {
+			if ($data["network"] != Protocol::DIASPORA) {
 				continue;
 			}
 
-			logger("Repair contact " . $contact["id"] . " " . $contact["url"], LOGGER_DEBUG);
+			Logger::log("Repair contact " . $contact["id"] . " " . $contact["url"], Logger::DEBUG);
 			q("UPDATE `contact` SET `batch` = '%s', `notify` = '%s', `poll` = '%s', pubkey = '%s' WHERE `id` = %d",
-				dbesc($data["batch"]), dbesc($data["notify"]), dbesc($data["poll"]), dbesc($data["pubkey"]),
+				DBA::escape($data["batch"]), DBA::escape($data["notify"]), DBA::escape($data["poll"]), DBA::escape($data["pubkey"]),
 				intval($contact["id"]));
 		}
 	}
@@ -266,23 +279,19 @@ class CronJobs
 		// Sometimes there seem to be issues where the "self" contact vanishes.
 		// We haven't found the origin of the problem by now.
 		$r = q("SELECT `uid` FROM `user` WHERE NOT EXISTS (SELECT `uid` FROM `contact` WHERE `contact`.`uid` = `user`.`uid` AND `contact`.`self`)");
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r AS $user) {
-				logger('Create missing self contact for user ' . $user['uid']);
+				Logger::log('Create missing self contact for user ' . $user['uid']);
 				Contact::createSelfFromUserId($user['uid']);
 			}
 		}
-
-		// Set the parent if it wasn't set. (Shouldn't happen - but does sometimes)
-		// This call is very "cheap" so we can do it at any time without a problem
-		q("UPDATE `item` INNER JOIN `item` AS `parent` ON `parent`.`uri` = `item`.`parent-uri` AND `parent`.`uid` = `item`.`uid` SET `item`.`parent` = `parent`.`id` WHERE `item`.`parent` = 0");
 
 		// There was an issue where the nick vanishes from the contact table
 		q("UPDATE `contact` INNER JOIN `user` ON `contact`.`uid` = `user`.`uid` SET `nick` = `nickname` WHERE `self` AND `nick`=''");
 
 		// Update the global contacts for local users
 		$r = q("SELECT `uid` FROM `user` WHERE `verified` AND NOT `blocked` AND NOT `account_removed` AND NOT `account_expired`");
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			foreach ($r AS $user) {
 				GContact::updateForUser($user["uid"]);
 			}
@@ -293,5 +302,33 @@ class CronJobs
 		/// - remove sign entries without item
 		/// - remove children when parent got lost
 		/// - set contact-id in item when not present
+
+		// Add intro entries for pending contacts
+		// We don't do this for DFRN entries since such revived contact requests seem to mostly fail.
+		$pending_contacts = DBA::p("SELECT `uid`, `id`, `url`, `network`, `created` FROM `contact`
+			WHERE `pending` AND `rel` IN (?, ?) AND `network` != ?
+				AND NOT EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id`)",
+			0, Contact::FOLLOWER, Protocol::DFRN);
+		while ($contact = DBA::fetch($pending_contacts)) {
+			DBA::insert('intro', ['uid' => $contact['uid'], 'contact-id' => $contact['id'], 'blocked' => false,
+				'hash' => Strings::getRandomHex(), 'datetime' => $contact['created']]);
+		}
+		DBA::close($pending_contacts);
+	}
+
+	/**
+	 * Moves up to 5000 attachments and photos to the current storage system.
+	 * Self-replicates if legacy items have been found and moved.
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function moveStorage()
+	{
+		$current = StorageManager::getBackend();
+		$moved = StorageManager::move($current);
+
+		if ($moved) {
+			Worker::add(PRIORITY_LOW, "CronJobs", "move_storage");
+		}
 	}
 }

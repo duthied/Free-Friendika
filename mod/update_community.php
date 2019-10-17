@@ -19,11 +19,7 @@ function update_community_content(App $a) {
 		$text = '';
 	}
 
-	$pattern = "/<img([^>]*) src=\"([^\"]*)\"/";
-	$replace = "<img\${1} dst=\"\${2}\"";
-	$text = preg_replace($pattern, $replace, $text);
-
-	if (PConfig::get(local_user(), "system", "bandwith_saver")) {
+	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />".L10n::t("[Embedded content - reload page to view]")."<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);
@@ -38,5 +34,5 @@ function update_community_content(App $a) {
 	echo str_replace("\t", "       ", $text);
 	echo "</section>";
 	echo "</body></html>\r\n";
-	killme();
+	exit();
 }

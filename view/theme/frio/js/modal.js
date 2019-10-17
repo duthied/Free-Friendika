@@ -12,7 +12,7 @@ $(document).ready(function(){
 		// with AjaxUpload.
 		$(".fbrowser").remove();
 		// Remove the AjaxUpload element.
-		$("[name=userfile]").parent().remove();
+		$(".ajaxbutton-wrapper").remove();
 	});
 
 	// Clear bs modal on close.
@@ -22,6 +22,10 @@ $(document).ready(function(){
 		$("#jot-content").append(jotcache);
 		// Clear the jotcache.
 		jotcache = '';
+		// Destroy the attachment linkPreviw for Jot.
+		if (typeof linkPreview === 'object') {
+			linkPreview.destroy();
+		}
 	});
 
 	// Add Colorbox for viewing Network page images.
@@ -89,6 +93,21 @@ $(document).ready(function(){
 		input.val(img);
 		
 	});
+
+	// Generic delegated event to open an anchor URL in a modal.
+	// Used in the hovercard.
+	document.getElementsByTagName('body')[0].addEventListener('click', function(e) {
+		var target = e.target;
+		while (target) {
+			if (target.matches && target.matches('a.add-to-modal')) {
+				addToModal(target.href);
+				e.preventDefault();
+				return false;
+			}
+
+			target = target.parentNode || null;
+		}
+	});
 });
 
 // Overwrite Dialog.show from main js to load the filebrowser into a bs modal.
@@ -116,7 +135,7 @@ Dialog.show = function(url, title) {
 Dialog._get_url = function(type, name, id) {
 	var hash = name;
 	if (id !== undefined) hash = hash + "-" + id;
-	return "fbrowser/"+type+"/?mode=none#"+hash;
+	return "fbrowser/"+type+"/?mode=none&theme=frio#"+hash;
 };
 
 // Does load the filebrowser into the jot modal.
@@ -144,7 +163,7 @@ Dialog._load = function(url) {
 	var type = $("#fb-type").attr("value");
 
 	// Try to fetch the hash form the url.
-	var match = url.match(/fbrowser\/[a-z]+\/\?mode=none(.*)/);
+	var match = url.match(/fbrowser\/[a-z]+\/.*(#.*)/);
 	if (match===null) return; //not fbrowser
 	var hash = match[1];
 
@@ -188,13 +207,24 @@ function loadModalTitle() {
 	}
 }
 
-// This function loads html content from a friendica page
-// into a modal.
-function addToModal(url) {
+
+/**
+ * This function loads html content from a friendica page into a modal.
+ * 
+ * @param {string} url The url with html content.
+ * @param {string} id The ID of a html element (can be undefined).
+ * @returns {void}
+ */
+function addToModal(url, id) {
 	var char = qOrAmp(url);
 
 	url = url + char + 'mode=none';
 	var modal = $('#modal').modal();
+
+	// Only search for an element if we have an ID.
+	if (typeof id !== "undefined") {
+		url = url + " div#" + id;
+	}
 
 	modal
 		.find('#modal-body')
@@ -215,7 +245,7 @@ function addToModal(url) {
 		});
 }
 
-// Add a element (by it's id) to a bootstrap modal.
+// Add an element (by its id) to a bootstrap modal.
 function addElmToModal(id) {
 	var elm = $(id).html();
 	var modal = $('#modal').modal();
@@ -247,7 +277,6 @@ function editpost(url) {
 	var modal = $('#jot-modal').modal();
 	url = url + " #jot-sections";
 
-	//var rand_num = random_digits(12);
 	$(".jot-nav .jot-perms-lnk").parent("li").addClass("hidden");
 
 	// For editpost we load the modal html of "jot-sections" of the edit page. So we would have two jot forms in
@@ -281,6 +310,7 @@ function editpost(url) {
 
 				modal.show();
 				$("#jot-popup").show();
+				linkPreview = $('#profile-jot-text').linkPreview();
 			}
 		});
 }
@@ -294,14 +324,6 @@ function jotreset() {
 		$(".jot-nav .jot-perms-lnk").parent("li").removeClass("hidden");
 		$("#profile-jot-form #jot-title-wrap").show();
 		$("#profile-jot-form #jot-category-wrap").show();
-
-		// the following was commented out because it is needed anymore
-		// because we changed the behavior at an other place.
-	//		var rand_num = random_digits(12);
-	//		$('#jot-title, #jot-category, #profile-jot-text').val("");
-	//		$( "#profile-jot-form input[name='type']" ).val("wall");
-	//		$( "#profile-jot-form input[name='post_id']" ).val("");
-	//		$( "#profile-jot-form input[name='post_id_random']" ).val(rand_num);
 
 		// Remove the "edit-jot" class so we can the standard behavior on close.
 		$("#jot-modal.edit-jot").removeClass("edit-jot");
@@ -332,6 +354,8 @@ function toggleJotNav (elm) {
 	// For some some tab panels we need to execute other js functions.
 	if (tabpanel === "jot-preview-content") {
 		preview_post();
+		// Make Share button visivle in preview
+		$('#jot-preview-share').removeClass("minimize").attr("aria-hidden" ,"false");
 	} else if (tabpanel === "jot-fbrowser-wrapper") {
 		$(function() {
 			Dialog.showJot();

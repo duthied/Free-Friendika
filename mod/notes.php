@@ -2,10 +2,13 @@
 /**
  * @file mod/notes.php
  */
+
 use Friendica\App;
 use Friendica\Content\Nav;
+use Friendica\Content\Pager;
 use Friendica\Core\L10n;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Item;
 use Friendica\Model\Profile;
 
 function notes_init(App $a)
@@ -14,48 +17,24 @@ function notes_init(App $a)
 		return;
 	}
 
-	$profile = 0;
-
-	$which = $a->user['nickname'];
-
 	Nav::setSelected('home');
-
-	//Profile::load($a, $which, $profile);
 }
 
 
 function notes_content(App $a, $update = false)
 {
-	if (! local_user()) {
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
 		return;
 	}
 
-	require_once 'include/security.php';
-	require_once 'include/conversation.php';
-	$groups = [];
-
-
-	$o = '';
-
-	$remote_contact = false;
-
-	$contact_id = $_SESSION['cid'];
-	$contact = $a->contact;
-
-	$is_owner = true;
-
-	$o ="";
-	$o .= Profile::getTabs($a, true);
+	$o = Profile::getTabs($a, 'notes', true);
 
 	if (!$update) {
 		$o .= '<h3>' . L10n::t('Personal Notes') . '</h3>';
 
-		$commpage = false;
-		$commvisitor = false;
-
 		$x = [
-			'is_owner' => $is_owner,
+			'is_owner' => true,
 			'allow_location' => (($a->user['allow_location']) ? true : false),
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
@@ -71,67 +50,26 @@ function notes_content(App $a, $update = false)
 		$o .= status_editor($a, $x, $a->contact['id']);
 	}
 
-	// Construct permissions
+	$condition = ['uid' => local_user(), 'post-type' => Item::PT_PERSONAL_NOTE, 'gravity' => GRAVITY_PARENT,
+		'contact-id'=> $a->contact['id']];
 
-	// default permissions - anonymous user
+	$pager = new Pager($a->query_string, 40);
 
-	$sql_extra = " AND `item`.`allow_cid` = '<" . $a->contact['id'] . ">' ";
+	$params = ['order' => ['created' => true],
+		'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
+	$r = Item::selectThreadForUser(local_user(), ['uri'], $condition, $params);
 
-	$r = q("SELECT COUNT(*) AS `total`
-		FROM `item` %s
-		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
-		AND `contact`.`self` AND `item`.`id` = `item`.`parent` AND NOT `item`.`wall`
-		$sql_extra ",
-		item_joins(),
-		item_condition(),
-		intval(local_user())
-	);
+	$count = 0;
 
-	if (DBM::is_result($r)) {
-		$a->set_pager_total($r[0]['total']);
-		$a->set_pager_itemspage(40);
+	if (DBA::isResult($r)) {
+		$notes = Item::inArray($r);
+
+		$count = count($notes);
+
+		$o .= conversation($a, $notes, $pager, 'notes', $update);
 	}
 
-	$r = q("SELECT `item`.`id` AS `item_id` FROM `item` %s
-		WHERE %s AND `item`.`uid` = %d AND `item`.`type` = 'note'
-		AND `item`.`id` = `item`.`parent` AND NOT `item`.`wall`
-		$sql_extra
-		ORDER BY `item`.`created` DESC LIMIT %d ,%d ",
-		item_joins(),
-		item_condition(),
-		intval(local_user()),
-		intval($a->pager['start']),
-		intval($a->pager['itemspage'])
+	$o .= $pager->renderMinimal($count);
 
-	);
-
-	$parents_arr = [];
-	$parents_str = '';
-
-	if (DBM::is_result($r)) {
-		foreach ($r as $rr) {
-			$parents_arr[] = $rr['item_id'];
-		}
-		$parents_str = implode(', ', $parents_arr);
-
-		$r = q("SELECT %s FROM `item` %s
-			WHERE %s AND `item`.`uid` = %d AND `item`.`parent` IN (%s)
-			$sql_extra
-			ORDER BY `parent` DESC, `gravity` ASC, `item`.`id` ASC ",
-			item_fieldlists(),
-			item_joins(),
-			item_condition(),
-			intval(local_user()),
-			dbesc($parents_str)
-		);
-
-		if (DBM::is_result($r)) {
-			$items = conv_sort($r, "`commented`");
-
-			$o .= conversation($a, $items, 'notes', $update);
-		}
-	}
-
-	$o .= paginate($a);
 	return $o;
 }

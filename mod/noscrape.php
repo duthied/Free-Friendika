@@ -2,17 +2,21 @@
 /**
  * @file mod/noscrape.php
  */
+
 use Friendica\App;
+use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 
 function noscrape_init(App $a)
 {
 	if ($a->argc > 1) {
 		$which = $a->argv[1];
 	} else {
-		killme();
+		exit();
 	}
 
 	$profile = 0;
@@ -24,13 +28,19 @@ function noscrape_init(App $a)
 	Profile::load($a, $which, $profile);
 
 	$json_info = [
-		'addr'     => $a->profile['addr'],
-		'nick'     => $which,
-		'guid'     => $a->profile['guid'],
-		'key'      => $a->profile['pubkey'],
-		'homepage' => System::baseUrl()."/profile/{$which}",
-		'comm'     => ($a->profile['account-type'] == ACCOUNT_TYPE_COMMUNITY),
+		'addr'         => $a->profile['addr'],
+		'nick'         => $which,
+		'guid'         => $a->profile['guid'],
+		'key'          => $a->profile['pubkey'],
+		'homepage'     => System::baseUrl()."/profile/{$which}",
+		'comm'         => ($a->profile['account-type'] == User::ACCOUNT_TYPE_COMMUNITY),
+		'account-type' => $a->profile['account-type'],
 	];
+
+	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
+	foreach ($dfrn_pages as $dfrn) {
+		$json_info["dfrn-{$dfrn}"] = System::baseUrl()."/dfrn_{$dfrn}/{$which}";
+	}
 
 	if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
 		header('Content-type: application/json; charset=utf-8');
@@ -39,32 +49,33 @@ function noscrape_init(App $a)
 		exit;
 	}
 
-	$keywords = ((x($a->profile, 'pub_keywords')) ? $a->profile['pub_keywords'] : '');
+	$keywords = $a->profile['pub_keywords'] ?? '';
 	$keywords = str_replace(['#',',',' ',',,'], ['',' ',',',','], $keywords);
 	$keywords = explode(',', $keywords);
 
-	$contactPhoto = dba::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
+	$contactPhoto = DBA::selectFirst('contact', ['photo'], ['self' => true, 'uid' => $a->profile['uid']]);
 
 	$json_info['fn'] = $a->profile['name'];
 	$json_info['photo'] = $contactPhoto["photo"];
 	$json_info['tags'] = $keywords;
+	$json_info['language'] = $a->profile['language'];
 
 	if (is_array($a->profile) && !$a->profile['hide-friends']) {
 		/// @todo What should this value tell us?
 		$r = q("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1",
 			intval($a->profile['uid']));
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$json_info["updated"] =  date("c", strtotime($r[0]['updated']));
 		}
 
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact` WHERE `uid` = %d AND `self` = 0 AND `blocked` = 0 and `pending` = 0 AND `hidden` = 0 AND `archive` = 0
 				AND `network` IN ('%s', '%s', '%s', '')",
 			intval($a->profile['uid']),
-			dbesc(NETWORK_DFRN),
-			dbesc(NETWORK_DIASPORA),
-			dbesc(NETWORK_OSTATUS)
+			DBA::escape(Protocol::DFRN),
+			DBA::escape(Protocol::DIASPORA),
+			DBA::escape(Protocol::OSTATUS)
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$json_info["contacts"] = intval($r[0]['total']);
 		}
 	}
@@ -72,14 +83,14 @@ function noscrape_init(App $a)
 	// We display the last activity (post or login), reduced to year and week number
 	$last_active = 0;
 	$condition = ['uid' => $a->profile['uid'], 'self' => true];
-	$contact = dba::selectFirst('contact', ['last-item'], $condition);
-	if (DBM::is_result($contact)) {
+	$contact = DBA::selectFirst('contact', ['last-item'], $condition);
+	if (DBA::isResult($contact)) {
 		$last_active = strtotime($contact['last-item']);
 	}
 
 	$condition = ['uid' => $a->profile['uid']];
-	$user = dba::selectFirst('user', ['login_date'], $condition);
-	if (DBM::is_result($user)) {
+	$user = DBA::selectFirst('user', ['login_date'], $condition);
+	if (DBA::isResult($user)) {
 		if ($last_active < strtotime($user['login_date'])) {
 			$last_active = strtotime($user['login_date']);
 		}
@@ -92,11 +103,6 @@ function noscrape_init(App $a)
 		if (!empty($a->profile[$field])) {
 			$json_info["$field"] = $a->profile[$field];
 		}
-	}
-
-	$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
-	foreach ($dfrn_pages as $dfrn) {
-		$json_info["dfrn-{$dfrn}"] = System::baseUrl()."/dfrn_{$dfrn}/{$which}";
 	}
 
 	//Output all the JSON!

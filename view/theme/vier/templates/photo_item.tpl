@@ -24,7 +24,7 @@
 		</div>
 		<div class="wall-item-tags">
 			{{foreach $tags as $tag}}
-				<span class='tag'>{{$tag}}</span>
+				<span class='tag'>{{$tag nofilter}}</span>
 			{{/foreach}}
 
 		</div>
@@ -72,7 +72,7 @@
 	</div>
 	<div class="wall-item-bottom">
 		<div class="wall-item-links"></div>
-		<div class="wall-item-like" id="wall-item-like-{{$id}}">{{$like}}</div>
-		<div class="wall-item-dislike" id="wall-item-dislike-{{$id}}">{{$dislike}}</div>
+		<div class="wall-item-like" id="wall-item-like-{{$id}}">{{$like nofilter}}</div>
+		<div class="wall-item-dislike" id="wall-item-dislike-{{$id}}">{{$dislike nofilter}}</div>
 	</div>
 </div>

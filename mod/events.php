@@ -9,19 +9,23 @@ use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\Core\Logger;
+use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Module\Login;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
+use Friendica\Worker\Delivery;
 
-require_once 'include/items.php';
-
-function events_init(App $a) {
-	if (! local_user()) {
+function events_init(App $a)
+{
+	if (!local_user()) {
 		return;
 	}
 
@@ -35,8 +39,6 @@ function events_init(App $a) {
 		$a->page['aside'] = '';
 	}
 
-	$a->data['user'] = $_SESSION['user'];
-
 	$cal_widget = CalendarExport::getHTML();
 
 	$a->page['aside'] .= $cal_widget;
@@ -44,29 +46,30 @@ function events_init(App $a) {
 	return;
 }
 
-function events_post(App $a) {
+function events_post(App $a)
+{
 
-	logger('post: ' . print_r($_REQUEST, true), LOGGER_DATA);
+	Logger::log('post: ' . print_r($_REQUEST, true), Logger::DATA);
 
-	if (! local_user()) {
+	if (!local_user()) {
 		return;
 	}
 
-	$event_id = ((x($_POST, 'event_id')) ? intval($_POST['event_id']) : 0);
-	$cid = ((x($_POST, 'cid')) ? intval($_POST['cid']) : 0);
+	$event_id = !empty($_POST['event_id']) ? intval($_POST['event_id']) : 0;
+	$cid = !empty($_POST['cid']) ? intval($_POST['cid']) : 0;
 	$uid = local_user();
 
-	$start_text  = escape_tags($_REQUEST['start_text']);
-	$finish_text = escape_tags($_REQUEST['finish_text']);
+	$start_text  = Strings::escapeHtml($_REQUEST['start_text'] ?? '');
+	$finish_text = Strings::escapeHtml($_REQUEST['finish_text'] ?? '');
 
-	$adjust   = intval($_POST['adjust']);
-	$nofinish = intval($_POST['nofinish']);
+	$adjust   = intval($_POST['adjust'] ?? 0);
+	$nofinish = intval($_POST['nofinish'] ?? 0);
 
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
 
-	$start  = NULL_DATE;
-	$finish = NULL_DATE;
+	$start  = DBA::NULL_DATETIME;
+	$finish = DBA::NULL_DATETIME;
 
 	if ($start_text) {
 		$start = $start_text;
@@ -78,12 +81,12 @@ function events_post(App $a) {
 
 	if ($adjust) {
 		$start = DateTimeFormat::convert($start, 'UTC', date_default_timezone_get());
-		if (! $nofinish) {
+		if (!$nofinish) {
 			$finish = DateTimeFormat::convert($finish, 'UTC', date_default_timezone_get());
 		}
 	} else {
 		$start = DateTimeFormat::utc($start);
-		if (! $nofinish) {
+		if (!$nofinish) {
 			$finish = DateTimeFormat::utc($finish);
 		}
 	}
@@ -93,38 +96,49 @@ function events_post(App $a) {
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	$summary  = escape_tags(trim($_POST['summary']));
-	$desc     = escape_tags(trim($_POST['desc']));
-	$location = escape_tags(trim($_POST['location']));
+	$summary  = trim($_POST['summary']  ?? '');
+	$desc     = trim($_POST['desc']     ?? '');
+	$location = trim($_POST['location'] ?? '');
 	$type     = 'event';
 
-	$action = ($event_id == '') ? 'new' : "event/" . $event_id;
-	$onerror_url = System::baseUrl() . "/events/" . $action . "?summary=$summary&description=$desc&location=$location&start=$start_text&finish=$finish_text&adjust=$adjust&nofinish=$nofinish";
+	$params = [
+		'summary'     => $summary,
+		'description' => $desc,
+		'location'    => $location,
+		'start'       => $start_text,
+		'finish'      => $finish_text,
+		'adjust'      => $adjust,
+		'nofinish'    => $nofinish,
+	];
+
+	$action = ($event_id == '') ? 'new' : 'event/' . $event_id;
+	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
 		notice(L10n::t('Event can not end before it has started.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event can not end before it has started.');
-			killme();
+			exit();
 		}
-		goaway($onerror_url);
+		$a->internalRedirect($onerror_path);
 	}
 
-	if ((! $summary) || ($start === NULL_DATE)) {
+	if (!$summary || ($start === DBA::NULL_DATETIME)) {
 		notice(L10n::t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
 			echo L10n::t('Event title and start time are required.');
-			killme();
+			exit();
 		}
-		goaway($onerror_url);
+		$a->internalRedirect($onerror_path);
 	}
 
-	$share = ((intval($_POST['share'])) ? intval($_POST['share']) : 0);
+	$share = intval($_POST['share'] ?? 0);
 
 	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval(local_user())
 	);
-	if (count($c)) {
+
+	if (DBA::isResult($c)) {
 		$self = $c[0]['id'];
 	} else {
 		$self = 0;
@@ -132,13 +146,13 @@ function events_post(App $a) {
 
 
 	if ($share) {
-		$str_group_allow   = perms2str($_POST['group_allow']);
-		$str_contact_allow = perms2str($_POST['contact_allow']);
-		$str_group_deny    = perms2str($_POST['group_deny']);
-		$str_contact_deny  = perms2str($_POST['contact_deny']);
+		$str_group_allow   = perms2str($_POST['group_allow']   ?? '');
+		$str_contact_allow = perms2str($_POST['contact_allow'] ?? '');
+		$str_group_deny    = perms2str($_POST['group_deny']    ?? '');
+		$str_contact_deny  = perms2str($_POST['contact_deny']  ?? '');
 
 		// Undo the pseudo-contact of self, since there are real contacts now
-		if (strpos($str_contact_allow, '<' . $self . '>') !== false ) {
+		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {
 			$str_contact_allow = str_replace('<' . $self . '>', '', $str_contact_allow);
 		}
 		// Make sure to set the `private` field as true. This is necessary to
@@ -176,38 +190,38 @@ function events_post(App $a) {
 	if (intval($_REQUEST['preview'])) {
 		$html = Event::getHTML($datarray);
 		echo $html;
-		killme();
+		exit();
 	}
 
 	$item_id = Event::store($datarray);
 
-	if (! $cid) {
-		Worker::add(PRIORITY_HIGH, "Notifier", "event", $item_id);
+	if (!$cid) {
+		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item_id);
 	}
 
-	goaway($_SESSION['return_url']);
+	$a->internalRedirect('events');
 }
 
-function events_content(App $a) {
-
-	if (! local_user()) {
+function events_content(App $a)
+{
+	if (!local_user()) {
 		notice(L10n::t('Permission denied.') . EOL);
-		return;
+		return Login::form();
 	}
 
 	if ($a->argc == 1) {
-		$_SESSION['return_url'] = System::baseUrl() . '/' . $a->cmd;
+		$_SESSION['return_path'] = $a->cmd;
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
-		$r = q("UPDATE `event` SET `ignore` = 1 WHERE `id` = %d AND `uid` = %d",
+		q("UPDATE `event` SET `ignore` = 1 WHERE `id` = %d AND `uid` = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'unignore') && intval($a->argv[2])) {
-		$r = q("UPDATE `event` SET `ignore` = 0 WHERE `id` = %d AND `uid` = %d",
+		q("UPDATE `event` SET `ignore` = 0 WHERE `id` = %d AND `uid` = %d",
 			intval($a->argv[2]),
 			intval(local_user())
 		);
@@ -222,30 +236,24 @@ function events_content(App $a) {
 	// get the translation strings for the callendar
 	$i18n = Event::getStrings();
 
-	$htpl = get_markup_template('event_head.tpl');
-	$a->page['htmlhead'] .= replace_macros($htpl, [
-		'$baseurl' => System::baseUrl(),
+	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
+	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
-	]);
-
-	$etpl = get_markup_template('event_end.tpl');
-	$a->page['end'] .= replace_macros($etpl, [
-		'$baseurl' => System::baseUrl(),
 	]);
 
 	$o = '';
 	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
-		$tabs = Profile::getTabs($a, true);
+		$tabs = Profile::getTabs($a, 'events', true);
 	}
 
 	$mode = 'view';
 	$y = 0;
 	$m = 0;
-	$ignored = ((x($_REQUEST, 'ignored')) ? intval($_REQUEST['ignored']) : 0);
+	$ignored = !empty($_REQUEST['ignored']) ? intval($_REQUEST['ignored']) : 0;
 
 	if ($a->argc > 1) {
 		if ($a->argc > 2 && $a->argv[1] == 'event') {
@@ -273,13 +281,12 @@ function events_content(App $a) {
 
 	// The view mode part is similiar to /mod/cal.php
 	if ($mode == 'view') {
-
 		$thisyear  = DateTimeFormat::localNow('Y');
 		$thismonth = DateTimeFormat::localNow('m');
-		if (! $y) {
+		if (!$y) {
 			$y = intval($thisyear);
 		}
-		if (! $m) {
+		if (!$m) {
 			$m = intval($thismonth);
 		}
 
@@ -293,30 +300,15 @@ function events_content(App $a) {
 			$y = 2100;
 		}
 
-		$nextyear = $y;
-		$nextmonth = $m + 1;
-		if ($nextmonth > 12) {
-			$nextmonth = 1;
-			$nextyear ++;
-		}
-
-		$prevyear = $y;
-		if ($m > 1) {
-			$prevmonth = $m - 1;
-		} else {
-			$prevmonth = 12;
-			$prevyear --;
-		}
-
 		$dim    = Temporal::getDaysInMonth($y, $m);
 		$start  = sprintf('%d-%d-%d %d:%d:%d', $y, $m, 1, 0, 0, 0);
 		$finish = sprintf('%d-%d-%d %d:%d:%d', $y, $m, $dim, 23, 59, 59);
 
 		if ($a->argc > 1 && $a->argv[1] === 'json') {
-			if (x($_GET, 'start')) {
-				$start  = $_GET['start'];
+			if (!empty($_GET['start'])) {
+				$start = $_GET['start'];
 			}
-			if (x($_GET, 'end'))   {
+			if (!empty($_GET['end'])) {
 				$finish = $_GET['end'];
 			}
 		}
@@ -329,7 +321,7 @@ function events_content(App $a) {
 
 		// put the event parametes in an array so we can better transmit them
 		$event_params = [
-			'event_id'      => intval(defaults($_GET, 'id', 0)),
+			'event_id'      => intval($_GET['id'] ?? 0),
 			'start'         => $start,
 			'finish'        => $finish,
 			'adjust_start'  => $adjust_start,
@@ -346,11 +338,11 @@ function events_content(App $a) {
 
 		$links = [];
 
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
-				if (! x($links,$j)) {
+				if (empty($links[$j])) {
 					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
 				}
 			}
@@ -359,34 +351,34 @@ function events_content(App $a) {
 		$events = [];
 
 		// transform the event in a usable array
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$r = Event::sortByDate($r);
 			$events = Event::prepareListForTemplate($r);
 		}
 
-		if ($a->argc > 1 && $a->argv[1] === 'json'){
+		if ($a->argc > 1 && $a->argv[1] === 'json') {
+			header('Content-Type: application/json');
 			echo json_encode($events);
-			killme();
+			exit();
 		}
 
-		if (x($_GET, 'id')) {
-			$tpl = get_markup_template("event.tpl");
+		if (!empty($_GET['id'])) {
+			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
-			$tpl = get_markup_template("events_js.tpl");
+			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 		}
 
 		// Get rid of dashes in key names, Smarty3 can't handle them
 		foreach ($events as $key => $event) {
 			$event_item = [];
 			foreach ($event['item'] as $k => $v) {
-				$k = str_replace('-' ,'_', $k);
+				$k = str_replace('-', '_', $k);
 				$event_item[$k] = $v;
 			}
 			$events[$key]['item'] = $event_item;
 		}
 
-		$o = replace_macros($tpl, [
-			'$baseurl'   => System::baseUrl(),
+		$o = Renderer::replaceMacros($tpl, [
 			'$tabs'      => $tabs,
 			'$title'     => L10n::t('Events'),
 			'$view'      => L10n::t('View'),
@@ -404,9 +396,9 @@ function events_content(App $a) {
 			'$list'  => L10n::t('list'),
 		]);
 
-		if (x($_GET, 'id')) {
+		if (!empty($_GET['id'])) {
 			echo $o;
-			killme();
+			exit();
 		}
 
 		return $o;
@@ -417,70 +409,80 @@ function events_content(App $a) {
 			intval($event_id),
 			intval(local_user())
 		);
-		if (DBM::is_result($r)) {
+		if (DBA::isResult($r)) {
 			$orig_event = $r[0];
 		}
 	}
 
 	// Passed parameters overrides anything found in the DB
 	if (in_array($mode, ['edit', 'new', 'copy'])) {
-		if (!x($orig_event)) {$orig_event = [];}
+		if (empty($orig_event)) {
+			$orig_event = [];
+		}
+
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
-		if (x($_REQUEST, 'nofinish'))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
-		if (x($_REQUEST, 'adjust'))      {$orig_event['adjust']      = $_REQUEST['adjust'];}
-		if (x($_REQUEST, 'summary'))     {$orig_event['summary']     = $_REQUEST['summary'];}
-		if (x($_REQUEST, 'description')) {$orig_event['description'] = $_REQUEST['description'];}
-		if (x($_REQUEST, 'location'))    {$orig_event['location']    = $_REQUEST['location'];}
-		if (x($_REQUEST, 'start'))       {$orig_event['start']       = $_REQUEST['start'];}
-		if (x($_REQUEST, 'finish'))      {$orig_event['finish']      = $_REQUEST['finish'];}
+		if (!empty($_REQUEST['nofinish']))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
+		if (!empty($_REQUEST['adjust']))      {$orig_event['adjust']      = $_REQUEST['adjust'];}
+		if (!empty($_REQUEST['summary']))     {$orig_event['summary']     = $_REQUEST['summary'];}
+		if (!empty($_REQUEST['description'])) {$orig_event['description'] = $_REQUEST['description'];}
+		if (!empty($_REQUEST['location']))    {$orig_event['location']    = $_REQUEST['location'];}
+		if (!empty($_REQUEST['start']))       {$orig_event['start']       = $_REQUEST['start'];}
+		if (!empty($_REQUEST['finish']))      {$orig_event['finish']      = $_REQUEST['finish'];}
 
-		$n_checked = ((x($orig_event) && $orig_event['nofinish']) ? ' checked="checked" ' : '');
-		$a_checked = ((x($orig_event) && $orig_event['adjust'])   ? ' checked="checked" ' : '');
+		$n_checked = (!empty($orig_event['nofinish']) ? ' checked="checked" ' : '');
+		$a_checked = (!empty($orig_event['adjust'])   ? ' checked="checked" ' : '');
 
-		$t_orig = ((x($orig_event)) ? $orig_event['summary']  : '');
-		$d_orig = ((x($orig_event)) ? $orig_event['desc']     : '');
-		$l_orig = ((x($orig_event)) ? $orig_event['location'] : '');
-		$eid    = ((x($orig_event)) ? $orig_event['id']       : 0);
-		$cid    = ((x($orig_event)) ? $orig_event['cid']      : 0);
-		$uri    = ((x($orig_event)) ? $orig_event['uri']      : '');
+		$t_orig = !empty($orig_event) ? $orig_event['summary']  : '';
+		$d_orig = !empty($orig_event) ? $orig_event['desc']     : '';
+		$l_orig = !empty($orig_event) ? $orig_event['location'] : '';
+		$eid = !empty($orig_event) ? $orig_event['id']  : 0;
+		$cid = !empty($orig_event) ? $orig_event['cid'] : 0;
+		$uri = !empty($orig_event) ? $orig_event['uri'] : '';
 
 		$sh_disabled = '';
-		$sh_checked  = '';
+		$sh_checked = '';
 
-		if (x($orig_event)) {
-			$sh_checked = (($orig_event['allow_cid'] === '<' . local_user() . '>' && (! $orig_event['allow_gid']) && (! $orig_event['deny_cid']) && (! $orig_event['deny_gid'])) ? '' : ' checked="checked" ');
+		if (!empty($orig_event)
+			&& ($orig_event['allow_cid'] !== '<' . local_user() . '>'
+			|| $orig_event['allow_gid']
+			|| $orig_event['deny_cid']
+			|| $orig_event['deny_gid']))
+		{
+			$sh_checked = ' checked="checked" ';
 		}
 
 		if ($cid || $mode === 'edit') {
 			$sh_disabled = 'disabled="disabled"';
 		}
 
-		$sdt = ((x($orig_event)) ? $orig_event['start']  : 'now');
-		$fdt = ((x($orig_event)) ? $orig_event['finish'] : 'now');
+		$sdt = !empty($orig_event) ? $orig_event['start']  : 'now';
+		$fdt = !empty($orig_event) ? $orig_event['finish'] : 'now';
 
 		$tz = date_default_timezone_get();
-		if (x($orig_event)) {
-			$tz = (($orig_event['adjust']) ? date_default_timezone_get() : 'UTC');
+		if (!empty($orig_event)) {
+			$tz = ($orig_event['adjust'] ? date_default_timezone_get() : 'UTC');
 		}
 
 		$syear  = DateTimeFormat::convert($sdt, $tz, 'UTC', 'Y');
 		$smonth = DateTimeFormat::convert($sdt, $tz, 'UTC', 'm');
 		$sday   = DateTimeFormat::convert($sdt, $tz, 'UTC', 'd');
 
-		$shour   = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : '00');
-		$sminute = ((x($orig_event)) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : '00');
+		$shour   = !empty($orig_event) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'H') : '00';
+		$sminute = !empty($orig_event) ? DateTimeFormat::convert($sdt, $tz, 'UTC', 'i') : '00';
 
 		$fyear  = DateTimeFormat::convert($fdt, $tz, 'UTC', 'Y');
 		$fmonth = DateTimeFormat::convert($fdt, $tz, 'UTC', 'm');
 		$fday   = DateTimeFormat::convert($fdt, $tz, 'UTC', 'd');
 
-		$fhour   = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00');
-		$fminute = ((x($orig_event)) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00');
+		$fhour   = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00';
+		$fminute = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00';
 
 		$perms = ACL::getDefaultUserPermissions($orig_event);
 
-		if ($mode === 'new' || $mode === 'copy') {
-			$acl = (($cid) ? '' : ACL::getFullSelectorHTML(((x($orig_event)) ? $orig_event : $a->user)));
+		if (!$cid && in_array($mode, ['new', 'copy'])) {
+			$acl = ACL::getFullSelectorHTML($a->user, false, $orig_event);
+		} else {
+			$acl = '';
 		}
 
 		// If we copy an old event, we need to remove the ID and URI
@@ -490,9 +492,9 @@ function events_content(App $a) {
 			$uri = '';
 		}
 
-		$tpl = get_markup_template('event_form.tpl');
+		$tpl = Renderer::getMarkupTemplate('event_form.tpl');
 
-		$o .= replace_macros($tpl,[
+		$o .= Renderer::replaceMacros($tpl, [
 			'$post' => System::baseUrl() . '/events',
 			'$eid'  => $eid,
 			'$cid'  => $cid,
@@ -506,11 +508,31 @@ function events_content(App $a) {
 			'$title' => L10n::t('Event details'),
 			'$desc' => L10n::t('Starting date and Title are required.'),
 			'$s_text' => L10n::t('Event Starts:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
-			'$s_dsel' => Temporal::getDateTimeField(new DateTime(), DateTime::createFromFormat('Y', $syear+5), DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"), L10n::t('Event Starts:'), 'start_text', true, true, '', '', true),
+			'$s_dsel' => Temporal::getDateTimeField(
+				new DateTime(),
+				DateTime::createFromFormat('Y', intval($syear) + 5),
+				DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"),
+				L10n::t('Event Starts:'),
+				'start_text',
+				true,
+				true,
+				'',
+				'',
+				true
+			),
 			'$n_text' => L10n::t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
 			'$f_text' => L10n::t('Event Finishes:'),
-			'$f_dsel' => Temporal::getDateTimeField(new DateTime(), DateTime::createFromFormat('Y', $fyear+5), DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"), L10n::t('Event Finishes:'), 'finish_text', true, true, 'start_text'),
+			'$f_dsel' => Temporal::getDateTimeField(
+				new DateTime(),
+				DateTime::createFromFormat('Y', intval($fyear) + 5),
+				DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"),
+				L10n::t('Event Finishes:'),
+				'finish_text',
+				true,
+				true,
+				'start_text'
+			),
 			'$a_text' => L10n::t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
 			'$d_text' => L10n::t('Description:'),
@@ -531,7 +553,6 @@ function events_content(App $a) {
 			'$basic' => L10n::t('Basic'),
 			'$advanced' => L10n::t('Advanced'),
 			'$permissions' => L10n::t('Permissions'),
-
 		]);
 
 		return $o;
@@ -539,21 +560,19 @@ function events_content(App $a) {
 
 	// Remove an event from the calendar and its related items
 	if ($mode === 'drop' && $event_id) {
-		$del = 0;
-
 		$ev = Event::getListById(local_user(), $event_id);
 
 		// Delete only real events (no birthdays)
-		if (DBM::is_result($ev) && $ev[0]['type'] == 'event') {
-			$del = Item::deleteById($ev[0]['itemid']);
+		if (DBA::isResult($ev) && $ev[0]['type'] == 'event') {
+			Item::deleteForUser(['id' => $ev[0]['itemid']], local_user());
 		}
 
-		if ($del == 0) {
+		if (Item::exists(['id' => $ev[0]['itemid']])) {
 			notice(L10n::t('Failed to remove event') . EOL);
 		} else {
 			info(L10n::t('Event removed') . EOL);
 		}
 
-		goaway(System::baseUrl() . '/events');
+		$a->internalRedirect('events');
 	}
 }

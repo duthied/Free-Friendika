@@ -1,5 +1,3 @@
-
-
 <div id="profile-jot-wrapper" >
 	<div id="profile-jot-banner-wrapper">
 		<div id="profile-jot-desc" >&nbsp;</div>
@@ -8,7 +6,8 @@
 	<div id="profile-jot-banner-end"></div>
 
 	<form id="profile-jot-form" action="{{$action}}" method="post" >
-		<input type="hidden" name="type" value="{{$ptyp}}" />
+		<input type="hidden" name="wall" value="{{$wall}}" />
+		<input type="hidden" name="post_type" value="{{$posttype}}" />
 		<input type="hidden" name="profile_uid" value="{{$profile_uid}}" />
 		<input type="hidden" name="return" value="{{$return_path}}" />
 		<input type="hidden" name="location" id="jot-location" value="{{$defloc}}" />
@@ -25,9 +24,9 @@
 		</div>
 		{{/if}}
 		<div id="jot-text-wrap">
-                	<img id="profile-jot-text-loading" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" /><br>
-                	<textarea rows="5" cols="80" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">
-			{{if $content}}{{$content}}{{/if}}
+			<img id="profile-jot-text-loading" src="images/rotator.gif" alt="{{$wait}}" title="{{$wait}}" style="display: none;" /><br>
+			<textarea rows="5" cols="80" class="profile-jot-text" id="profile-jot-text" name="body" placeholder="{{$share}}">
+			{{if $content}}{{$content nofilter}}{{/if}}
 			</textarea>
 		</div>
 
@@ -62,7 +61,7 @@
 	</div>
 
 	<div id="profile-jot-plugin-wrapper" style="display: none;">
-  	{{$jotplugins}}
+	{{$jotplugins nofilter}}
 	</div>
 	<div id="profile-jot-tools-end"></div>
 
@@ -70,11 +69,11 @@
 
         <div style="display: none;">
             <div id="profile-jot-acl-wrapper" style="width:auto;height:auto;overflow:auto;">
-                {{$acl}}
+                {{$acl nofilter}}
                 <hr style="clear:both"/>
                 <div id="profile-jot-email-label">{{$emailcc}}</div><input type="text" name="emailcc" id="profile-jot-email" title="{{$emtitle}}" />
                 <div id="profile-jot-email-end"></div>
-                {{$jotnets}}
+                {{$jotnets nofilter}}
             </div>
         </div>
 

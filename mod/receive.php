@@ -6,72 +6,76 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
+use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Database\DBM;
+use Friendica\Database\DBA;
 use Friendica\Protocol\Diaspora;
+use Friendica\Util\Network;
 
 /**
- * @param object $a App
+ * @param App $a App
  * @return void
+ * @throws ImagickException
+ * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function receive_post(App $a)
 {
 	$enabled = intval(Config::get('system', 'diaspora_enabled'));
 	if (!$enabled) {
-		logger('mod-diaspora: disabled');
-		System::httpExit(500);
+		Logger::log('mod-diaspora: disabled');
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 
 	if (($a->argc == 2) && ($a->argv[1] === 'public')) {
 		$public = true;
-		$importer = false;
+		$importer = [];
 	} else {
 		$public = false;
 
 		if ($a->argc != 3 || $a->argv[1] !== 'users') {
-			System::httpExit(500);
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 		}
 		$guid = $a->argv[2];
 
-		$importer = dba::selectFirst('user', [], ['guid' => $guid, 'account_expired' => false, 'account_removed' => false]);
-		if (!DBM::is_result($importer)) {
-			System::httpExit(500);
+		$importer = DBA::selectFirst('user', [], ['guid' => $guid, 'account_expired' => false, 'account_removed' => false]);
+		if (!DBA::isResult($importer)) {
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 		}
 	}
 
 	// It is an application/x-www-form-urlencoded
 
-	logger('mod-diaspora: receiving post', LOGGER_DEBUG);
+	Logger::log('mod-diaspora: receiving post', Logger::DEBUG);
 
-	$xml = urldecode($_POST['xml']);
-
-	if (!$xml) {
-		$postdata = file_get_contents("php://input");
+	if (empty($_POST['xml'])) {
+		$postdata = Network::postdata();
 		if ($postdata == '') {
-			System::httpExit(500);
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 		}
 
-		logger('mod-diaspora: message is in the new format', LOGGER_DEBUG);
+		Logger::log('mod-diaspora: message is in the new format', Logger::DEBUG);
 		$msg = Diaspora::decodeRaw($importer, $postdata);
 	} else {
-		logger('mod-diaspora: decode message in the old format', LOGGER_DEBUG);
+		$xml = urldecode($_POST['xml']);
+
+		Logger::log('mod-diaspora: decode message in the old format', Logger::DEBUG);
 		$msg = Diaspora::decode($importer, $xml);
 
 		if ($public && !$msg) {
-			logger('mod-diaspora: decode message in the new format', LOGGER_DEBUG);
+			Logger::log('mod-diaspora: decode message in the new format', Logger::DEBUG);
 			$msg = Diaspora::decodeRaw($importer, $xml);
 		}
 	}
 
-	logger('mod-diaspora: decoded', LOGGER_DEBUG);
+	Logger::log('mod-diaspora: decoded', Logger::DEBUG);
 
-	logger('mod-diaspora: decoded msg: ' . print_r($msg, true), LOGGER_DATA);
+	Logger::log('mod-diaspora: decoded msg: ' . print_r($msg, true), Logger::DATA);
 
 	if (!is_array($msg)) {
-		System::httpExit(500);
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
 	}
 
-	logger('mod-diaspora: dispatching', LOGGER_DEBUG);
+	Logger::log('mod-diaspora: dispatching', Logger::DEBUG);
 
 	$ret = true;
 	if ($public) {
@@ -80,6 +84,9 @@ function receive_post(App $a)
 		$ret = Diaspora::dispatch($importer, $msg);
 	}
 
-	System::httpExit(($ret) ? 200 : 500);
-	// NOTREACHED
+	if ($ret) {
+		throw new \Friendica\Network\HTTPException\OKException();
+	} else {
+		throw new \Friendica\Network\HTTPException\InternalServerErrorException();
+	}
 }

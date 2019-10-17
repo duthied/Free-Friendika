@@ -2,11 +2,12 @@
 /**
  * @file view/theme/vier/style.php
  */
+use Friendica\Core\Logger;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Model\Profile;
 
-$uid = Profile::getThemeUid();
+$uid = $_REQUEST['puid'] ?? 0;
 
 $style = PConfig::get($uid, 'vier', 'style');
 
@@ -21,6 +22,8 @@ if (empty($style)) {
 $stylecss = '';
 $modified = '';
 
+$style = \Friendica\Util\Strings::sanitizeFilePathItem($style);
+
 foreach (['style', $style] as $file) {
 	$stylecssfile = $THEMEPATH . DIRECTORY_SEPARATOR . $file .'.css';
 	if (file_exists($stylecssfile)) {
@@ -30,8 +33,8 @@ foreach (['style', $style] as $file) {
 			$modified = $stylemodified;
 		}
 	} else {
-		//TODO: use LOGGER_ERROR?
-		logger('Error: missing file: "' . $stylecssfile .'" (userid: '. $uid .')');
+		//TODO: use Logger::ERROR?
+		Logger::log('Error: missing file: "' . $stylecssfile .'" (userid: '. $uid .')');
 	}
 }
 $modified = gmdate('r', $modified);

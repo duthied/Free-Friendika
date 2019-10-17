@@ -1,3 +1,4 @@
+// @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&dn=expat.txt Expat
 /**
  * AJAX Upload ( http://valums.com/ajax-upload/ ) 
  * Copyright (c) Andris Valums
@@ -380,7 +381,8 @@
                 'cursor' : 'pointer'
             });            
 
-            var div = document.createElement("div");                        
+            var div = document.createElement("div");
+            div.setAttribute('class', 'ajaxbutton-wrapper');
             addStyles(div, {
                 'display' : 'block',
                 'position' : 'absolute',
@@ -701,3 +703,4 @@
         }
     };
 })(); 
+// @license-end
