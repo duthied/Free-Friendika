@@ -1208,7 +1208,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$new_post' => L10n::t('New Post'),
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
-		'$share'        => defaults($x, 'button', L10n::t('Share')),
+		'$share'        => ($x['button'] ?? '') ?: L10n::t('Share'),
 		'$upload'       => L10n::t('Upload photo'),
 		'$shortupload'  => L10n::t('upload photo'),
 		'$attach'       => L10n::t('Attach file'),
@@ -1225,17 +1225,17 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$shortsetloc'  => L10n::t('set location'),
 		'$noloc'        => L10n::t('Clear browser location'),
 		'$shortnoloc'   => L10n::t('clear location'),
-		'$title'        => defaults($x, 'title', ''),
+		'$title'        => $x['title'] ?? '',
 		'$placeholdertitle' => L10n::t('Set title'),
-		'$category'     => defaults($x, 'category', ''),
+		'$category'     => $x['category'] ?? '',
 		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? L10n::t("Categories \x28comma-separated list\x29") : '',
 		'$wait'         => L10n::t('Please wait'),
 		'$permset'      => L10n::t('Permission settings'),
 		'$shortpermset' => L10n::t('permissions'),
 		'$wall'         => $notes_cid ? 0 : 1,
 		'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
-		'$content'      => defaults($x, 'content', ''),
-		'$post_id'      => defaults($x, 'post_id', ''),
+		'$content'      => $x['content'] ?? '',
+		'$post_id'      => $x['post_id'] ?? '',
 		'$baseurl'      => System::baseUrl(true),
 		'$defloc'       => $x['default_location'],
 		'$visitor'      => $x['visitor'],
@@ -1527,9 +1527,9 @@ function get_responses(array $conv_responses, array $response_verbs, array $item
 	$ret = [];
 	foreach ($response_verbs as $v) {
 		$ret[$v] = [];
-		$ret[$v]['count'] = defaults($conv_responses[$v], $item['uri'], 0);
-		$ret[$v]['list']  = defaults($conv_responses[$v], $item['uri'] . '-l', []);
-		$ret[$v]['self']  = defaults($conv_responses[$v], $item['uri'] . '-self', '0');
+		$ret[$v]['count'] = $conv_responses[$v][$item['uri']] ?? 0;
+		$ret[$v]['list']  = $conv_responses[$v][$item['uri'] . '-l'] ?? [];
+		$ret[$v]['self']  = $conv_responses[$v][$item['uri'] . '-self'] ?? '0';
 		if (count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
 			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'

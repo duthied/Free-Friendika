@@ -322,7 +322,7 @@ function api_call(App $a)
 
 				$stamp =  microtime(true);
 				$return = call_user_func($info['func'], $type);
-				$duration = (float) (microtime(true) - $stamp);
+				$duration = floatval(microtime(true) - $stamp);
 
 				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
 
