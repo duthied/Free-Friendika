@@ -28,7 +28,7 @@
 					{{if $profile.actions.network}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.network.1}}" aria-label="{{$profile.actions.network.0}}" title="{{$profile.actions.network.0}}"><i class="fa fa-cloud" aria-hidden="true"></i></a>{{/if}}
 					{{if $profile.actions.edit}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.edit.1}}" aria-label="{{$profile.actions.edit.0}}" title="{{$profile.actions.edit.0}}"><i class="fa fa-user" aria-hidden="true"></i></a>{{/if}}
 					{{if $profile.actions.follow}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.follow.1}}" aria-label="{{$profile.actions.follow.0}}" title="{{$profile.actions.follow.0}}"><i class="fa fa-user-plus" aria-hidden="true"></i></a>{{/if}}
-                    {{if $profile.actions.unfollow}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.unfollow.1}}" aria-label="{{$profile.actions.unfollow.0}}" title="{{$profile.actions.unfollow.0}}"><i class="fa fa-user-times" aria-hidden="true"></i></a>{{/if}}
+					{{if $profile.actions.unfollow}}<a class="btn btn-labeled btn-primary btn-sm" href="{{$profile.actions.unfollow.1}}" aria-label="{{$profile.actions.unfollow.0}}" title="{{$profile.actions.unfollow.0}}"><i class="fa fa-user-times" aria-hidden="true"></i></a>{{/if}}
 				</div>
 			</div>
 		</div>
