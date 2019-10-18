@@ -1,9 +1,9 @@
 			<!-- Modal  -->
-			<div id="modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+			<div id="modal" class="modal fade" tabindex="-1" role="dialog">
 				<div class="modal-dialog modal-full-screen">
 					<div class="modal-content">
 						<div id="modal-header" class="modal-header">
-							<button id="modal-cloase" type="button" class="close" data-dismiss="modal" aria-hidden="true">
+							<button id="modal-cloase" type="button" class="close" data-dismiss="modal">
 								&times;
 							</button>
 							<h4 id="modal-title" class="modal-title"></h4>
