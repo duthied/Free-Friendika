@@ -38,7 +38,7 @@ class BBCode extends BaseObject
 	 *
 	 * @param string $body Message body
 	 * @return array
-	 *                     'type' -> Message type ("link", "video", "photo")
+	 *                     'type' -> Message type ('link', 'video', 'photo')
 	 *                     'text' -> Text before the shared message
 	 *                     'after' -> Text after the shared message
 	 *                     'image' -> Preview image of the message
@@ -56,19 +56,19 @@ class BBCode extends BaseObject
 
 		if (preg_match_all("(\[class=(.*?)\](.*?)\[\/class\])ism", $body, $attached, PREG_SET_ORDER)) {
 			foreach ($attached as $data) {
-				if (!in_array($data[1], ["type-link", "type-video", "type-photo"])) {
+				if (!in_array($data[1], ['type-link', 'type-video', 'type-photo'])) {
 					continue;
 				}
 
-				$post["type"] = substr($data[1], 5);
+				$post['type'] = substr($data[1], 5);
 
 				$pos = strpos($body, $data[0]);
 				if ($pos > 0) {
-					$post["text"] = trim(substr($body, 0, $pos));
-					$post["after"] = trim(substr($body, $pos + strlen($data[0])));
+					$post['text'] = trim(substr($body, 0, $pos));
+					$post['after'] = trim(substr($body, $pos + strlen($data[0])));
 				} else {
-					$post["text"] = trim(str_replace($data[0], "", $body));
-					$post["after"] = '';
+					$post['text'] = trim(str_replace($data[0], '', $body));
+					$post['after'] = '';
 				}
 
 				$attacheddata = $data[2];
@@ -79,25 +79,25 @@ class BBCode extends BaseObject
 
 					if ($picturedata) {
 						if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1])) {
-							$post["image"] = $matches[1];
+							$post['image'] = $matches[1];
 						} else {
-							$post["preview"] = $matches[1];
+							$post['preview'] = $matches[1];
 						}
 					}
 				}
 
 				if (preg_match("/\[bookmark\=(.*?)\](.*?)\[\/bookmark\]/ism", $attacheddata, $matches)) {
-					$post["url"] = $matches[1];
-					$post["title"] = $matches[2];
+					$post['url'] = $matches[1];
+					$post['title'] = $matches[2];
 				}
-				if (!empty($post["url"]) && (in_array($post["type"], ["link", "video"]))
+				if (!empty($post['url']) && (in_array($post['type'], ['link', 'video']))
 					&& preg_match("/\[url\=(.*?)\](.*?)\[\/url\]/ism", $attacheddata, $matches)) {
-					$post["url"] = $matches[1];
+					$post['url'] = $matches[1];
 				}
 
 				// Search for description
 				if (preg_match("/\[quote\](.*?)\[\/quote\]/ism", $attacheddata, $matches)) {
-					$post["description"] = $matches[1];
+					$post['description'] = $matches[1];
 				}
 			}
 		}
@@ -109,7 +109,7 @@ class BBCode extends BaseObject
 	 *
 	 * @param string $body Message body
 	 * @return array
-	 *                     'type' -> Message type ("link", "video", "photo")
+	 *                     'type' -> Message type ('link', 'video', 'photo')
 	 *                     'text' -> Text before the shared message
 	 *                     'after' -> Text after the shared message
 	 *                     'image' -> Preview image of the message
@@ -136,9 +136,9 @@ class BBCode extends BaseObject
 
 		$attributes = $match[2];
 
-		$data["text"] = trim($match[1]);
+		$data['text'] = trim($match[1]);
 
-		$type = "";
+		$type = '';
 		preg_match("/type='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$type = strtolower($matches[1]);
@@ -149,19 +149,19 @@ class BBCode extends BaseObject
 			$type = strtolower($matches[1]);
 		}
 
-		if ($type == "") {
+		if ($type == '') {
 			return [];
 		}
 
-		if (!in_array($type, ["link", "audio", "photo", "video"])) {
+		if (!in_array($type, ['link', 'audio', 'photo', 'video'])) {
 			return [];
 		}
 
-		if ($type != "") {
-			$data["type"] = $type;
+		if ($type != '') {
+			$data['type'] = $type;
 		}
 
-		$url = "";
+		$url = '';
 		preg_match("/url='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$url = $matches[1];
@@ -172,11 +172,11 @@ class BBCode extends BaseObject
 			$url = $matches[1];
 		}
 
-		if ($url != "") {
-			$data["url"] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+		if ($url != '') {
+			$data['url'] = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
 		}
 
-		$title = "";
+		$title = '';
 		preg_match("/title='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$title = $matches[1];
@@ -187,14 +187,14 @@ class BBCode extends BaseObject
 			$title = $matches[1];
 		}
 
-		if ($title != "") {
+		if ($title != '') {
 			$title = self::convert(html_entity_decode($title, ENT_QUOTES, 'UTF-8'), false, true);
 			$title = html_entity_decode($title, ENT_QUOTES, 'UTF-8');
-			$title = str_replace(["[", "]"], ["&#91;", "&#93;"], $title);
-			$data["title"] = $title;
+			$title = str_replace(['[', ']'], ['&#91;', '&#93;'], $title);
+			$data['title'] = $title;
 		}
 
-		$image = "";
+		$image = '';
 		preg_match("/image='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$image = $matches[1];
@@ -205,11 +205,11 @@ class BBCode extends BaseObject
 			$image = $matches[1];
 		}
 
-		if ($image != "") {
-			$data["image"] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
+		if ($image != '') {
+			$data['image'] = html_entity_decode($image, ENT_QUOTES, 'UTF-8');
 		}
 
-		$preview = "";
+		$preview = '';
 		preg_match("/preview='(.*?)'/ism", $attributes, $matches);
 		if (!empty($matches[1])) {
 			$preview = $matches[1];
@@ -220,13 +220,13 @@ class BBCode extends BaseObject
 			$preview = $matches[1];
 		}
 
-		if ($preview != "") {
-			$data["preview"] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
+		if ($preview != '') {
+			$data['preview'] = html_entity_decode($preview, ENT_QUOTES, 'UTF-8');
 		}
 
-		$data["description"] = trim($match[3]);
+		$data['description'] = trim($match[3]);
 
-		$data["after"] = trim($match[4]);
+		$data['after'] = trim($match[4]);
 
 		return $data;
 	}
@@ -244,7 +244,7 @@ class BBCode extends BaseObject
 		*/
 
 		$has_title = !empty($item['title']);
-		$plink = defaults($item, 'plink', '');
+		$plink = $item['plink'] ?? '';
 		$post = self::getAttachmentData($body);
 
 		// Get all linked images with alternative image description
@@ -268,11 +268,11 @@ class BBCode extends BaseObject
 		}
 
 		// if nothing is found, it maybe having an image.
-		if (!isset($post["type"])) {
+		if (!isset($post['type'])) {
 			// Simplify image codes
 			$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
 			$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
-			$post["text"] = $body;
+			$post['text'] = $body;
 
 			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
@@ -288,75 +288,75 @@ class BBCode extends BaseObject
 					// Workaround:
 					// Sometimes photo posts to the own album are not detected at the start.
 					// So we seem to cannot use the cache for these cases. That's strange.
-					if (($data["type"] != "photo") && strstr($pictures[0][1], "/photos/")) {
+					if (($data['type'] != 'photo') && strstr($pictures[0][1], "/photos/")) {
 						$data = ParseUrl::getSiteinfo($pictures[0][1], true);
 					}
 
-					if ($data["type"] == "photo") {
-						$post["type"] = "photo";
-						if (isset($data["images"][0])) {
-							$post["image"] = $data["images"][0]["src"];
-							$post["url"] = $data["url"];
+					if ($data['type'] == 'photo') {
+						$post['type'] = 'photo';
+						if (isset($data['images'][0])) {
+							$post['image'] = $data['images'][0]['src'];
+							$post['url'] = $data['url'];
 						} else {
-							$post["image"] = $data["url"];
+							$post['image'] = $data['url'];
 						}
 
-						$post["preview"] = $pictures[0][2];
-						$post["text"] = trim(str_replace($pictures[0][0], "", $body));
+						$post['preview'] = $pictures[0][2];
+						$post['text'] = trim(str_replace($pictures[0][0], '', $body));
 					} else {
 						$imgdata = Image::getInfoFromURL($pictures[0][1]);
-						if ($imgdata && substr($imgdata["mime"], 0, 6) == "image/") {
-							$post["type"] = "photo";
-							$post["image"] = $pictures[0][1];
-							$post["preview"] = $pictures[0][2];
-							$post["text"] = trim(str_replace($pictures[0][0], "", $body));
+						if ($imgdata && substr($imgdata['mime'], 0, 6) == 'image/') {
+							$post['type'] = 'photo';
+							$post['image'] = $pictures[0][1];
+							$post['preview'] = $pictures[0][2];
+							$post['text'] = trim(str_replace($pictures[0][0], '', $body));
 						}
 					}
 				} elseif (count($pictures) > 0) {
-					$post["type"] = "link";
-					$post["url"] = $plink;
-					$post["image"] = $pictures[0][2];
-					$post["text"] = $body;
+					$post['type'] = 'link';
+					$post['url'] = $plink;
+					$post['image'] = $pictures[0][2];
+					$post['text'] = $body;
 
 					foreach ($pictures as $picture) {
-						$post["text"] = trim(str_replace($picture[0], "", $post["text"]));
+						$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 					}
 				}
 			} elseif (preg_match_all("(\[img\](.*?)\[\/img\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
-					$post["type"] = "photo";
-					$post["image"] = $pictures[0][1];
-					$post["text"] = str_replace($pictures[0][0], "", $body);
+					$post['type'] = 'photo';
+					$post['image'] = $pictures[0][1];
+					$post['text'] = str_replace($pictures[0][0], '', $body);
 				} elseif (count($pictures) > 0) {
-					$post["type"] = "link";
-					$post["url"] = $plink;
-					$post["image"] = $pictures[0][1];
-					$post["text"] = $body;
+					$post['type'] = 'link';
+					$post['url'] = $plink;
+					$post['image'] = $pictures[0][1];
+					$post['text'] = $body;
 
 					foreach ($pictures as $picture) {
-						$post["text"] = trim(str_replace($picture[0], "", $post["text"]));
+						$post['text'] = trim(str_replace($picture[0], '', $post['text']));
 					}
 				}
 			}
 
 			// Test for the external links
-			preg_match_all("(\[url\](.*?)\[\/url\])ism", $post["text"], $links1, PREG_SET_ORDER);
-			preg_match_all("(\[url\=(.*?)\].*?\[\/url\])ism", $post["text"], $links2, PREG_SET_ORDER);
+			preg_match_all("(\[url\](.*?)\[\/url\])ism", $post['text'], $links1, PREG_SET_ORDER);
+			preg_match_all("(\[url\=(.*?)\].*?\[\/url\])ism", $post['text'], $links2, PREG_SET_ORDER);
 
 			$links = array_merge($links1, $links2);
 
 			// If there is only a single one, then use it.
 			// This should cover link posts via API.
-			if ((count($links) == 1) && !isset($post["preview"]) && !$has_title) {
-				$post["type"] = "link";
-				$post["url"] = $links[0][1];
+			if ((count($links) == 1) && !isset($post['preview']) && !$has_title) {
+				$post['type'] = 'link';
+				$post['url'] = $links[0][1];
 			}
 
 			// Now count the number of external media links
-			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $post["text"], $links1, PREG_SET_ORDER);
-			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $post["text"], $links2, PREG_SET_ORDER);
-			preg_match_all("(\[video\\](.*?)\[\/video\\])ism", $post["text"], $links3, PREG_SET_ORDER);
-			preg_match_all("(\[audio\\](.*?)\[\/audio\\])ism", $post["text"], $links4, PREG_SET_ORDER);
+			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $post['text'], $links1, PREG_SET_ORDER);
+			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $post['text'], $links2, PREG_SET_ORDER);
+			preg_match_all("(\[video\\](.*?)\[\/video\\])ism", $post['text'], $links3, PREG_SET_ORDER);
+			preg_match_all("(\[audio\\](.*?)\[\/audio\\])ism", $post['text'], $links4, PREG_SET_ORDER);
 
 			// Add them to the other external links
 			$links = array_merge($links, $links1, $links2, $links3, $links4);
@@ -364,19 +364,19 @@ class BBCode extends BaseObject
 			// Are there more than one?
 			if (count($links) > 1) {
 				// The post will be the type "text", which means a blog post
-				unset($post["type"]);
-				$post["url"] = $plink;
+				unset($post['type']);
+				$post['url'] = $plink;
 			}
 
-			if (!isset($post["type"])) {
-				$post["type"] = "text";
-				$post["text"] = trim($body);
+			if (!isset($post['type'])) {
+				$post['type'] = "text";
+				$post['text'] = trim($body);
 			}
-		} elseif (isset($post["url"]) && ($post["type"] == "video")) {
-			$data = ParseUrl::getSiteinfoCached($post["url"], true);
+		} elseif (isset($post['url']) && ($post['type'] == 'video')) {
+			$data = ParseUrl::getSiteinfoCached($post['url'], true);
 
-			if (isset($data["images"][0])) {
-				$post["image"] = $data["images"][0]["src"];
+			if (isset($data['images'][0])) {
+				$post['image'] = $data['images'][0]['src'];
 			}
 		}
 
@@ -581,27 +581,27 @@ class BBCode extends BaseObject
 	private static function convertAttachment($return, $simplehtml = false, $tryoembed = true)
 	{
 		$data = self::getAttachmentData($return);
-		if (empty($data) || empty($data["url"])) {
+		if (empty($data) || empty($data['url'])) {
 			return $return;
 		}
 
-		if (isset($data["title"])) {
-			$data["title"] = strip_tags($data["title"]);
-			$data["title"] = str_replace(["http://", "https://"], "", $data["title"]);
+		if (isset($data['title'])) {
+			$data['title'] = strip_tags($data['title']);
+			$data['title'] = str_replace(['http://', 'https://'], '', $data['title']);
 		} else {
-			$data["title"] = null;
+			$data['title'] = null;
 		}
 
-		if (((strpos($data["text"], "[img=") !== false) || (strpos($data["text"], "[img]") !== false) || Config::get('system', 'always_show_preview')) && !empty($data["image"])) {
-			$data["preview"] = $data["image"];
-			$data["image"] = "";
+		if (((strpos($data['text'], "[img=") !== false) || (strpos($data['text'], "[img]") !== false) || Config::get('system', 'always_show_preview')) && !empty($data['image'])) {
+			$data['preview'] = $data['image'];
+			$data['image'] = '';
 		}
 
 		$return = '';
 		if (in_array($simplehtml, [7, 9])) {
-			$return = self::convertUrlForOStatus($data["url"]);
+			$return = self::convertUrlForActivityPub($data['url']);
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
-			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data["url"], $data["title"]);
+			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data['url'], $data['title']);
 		} else {
 			try {
 				if ($tryoembed && OEmbed::isAllowedURL($data['url'])) {
@@ -610,28 +610,28 @@ class BBCode extends BaseObject
 					throw new Exception('OEmbed is disabled for this attachment.');
 				}
 			} catch (Exception $e) {
-				$data["title"] = defaults($data, 'title', $data['url']);
+				$data['title'] = ($data['title'] ?? '') ?: $data['url'];
 
 				if ($simplehtml != 4) {
-					$return = sprintf('<div class="type-%s">', $data["type"]);
+					$return = sprintf('<div class="type-%s">', $data['type']);
 				}
 
 				if (!empty($data['title']) && !empty($data['url'])) {
-					if (!empty($data["image"]) && empty($data["text"]) && ($data["type"] == "photo")) {
-						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
+					if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
+						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
 					} else {
-						if (!empty($data["image"])) {
-							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data["url"], self::proxyUrl($data["image"], $simplehtml), $data["title"]);
-						} elseif (!empty($data["preview"])) {
-							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data["url"], self::proxyUrl($data["preview"], $simplehtml), $data["title"]);
+						if (!empty($data['image'])) {
+							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+						} elseif (!empty($data['preview'])) {
+							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
 						}
 						$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 					}
 				}
 
-				if (!empty($data["description"]) && $data["description"] != $data["title"]) {
+				if (!empty($data['description']) && $data['description'] != $data['title']) {
 					// Sanitize the HTML by converting it to BBCode
-					$bbcode = HTML::toBBCode($data["description"]);
+					$bbcode = HTML::toBBCode($data['description']);
 					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
 				}
 
@@ -645,7 +645,7 @@ class BBCode extends BaseObject
 			}
 		}
 
-		return trim(defaults($data, 'text', '') . ' ' . $return . ' ' . defaults($data, 'after', ''));
+		return trim(($data['text'] ?? '') . ' ' . $return . ' ' . ($data['after'] ?? ''));
 	}
 
 	public static function removeShareInformation($Text, $plaintext = false, $nolink = false)
@@ -655,36 +655,36 @@ class BBCode extends BaseObject
 		if (!$data) {
 			return $Text;
 		} elseif ($nolink) {
-			return $data["text"] . defaults($data, 'after', '');
+			return $data['text'] . ($data['after'] ?? '');
 		}
 
-		$title = htmlentities(defaults($data, 'title', ''), ENT_QUOTES, 'UTF-8', false);
-		$text = htmlentities($data["text"], ENT_QUOTES, 'UTF-8', false);
-		if ($plaintext || (($title != "") && strstr($text, $title))) {
-			$data["title"] = $data["url"];
-		} elseif (($text != "") && strstr($title, $text)) {
-			$data["text"] = $data["title"];
-			$data["title"] = $data["url"];
+		$title = htmlentities($data['title'] ?? '', ENT_QUOTES, 'UTF-8', false);
+		$text = htmlentities($data['text'], ENT_QUOTES, 'UTF-8', false);
+		if ($plaintext || (($title != '') && strstr($text, $title))) {
+			$data['title'] = $data['url'];
+		} elseif (($text != '') && strstr($title, $text)) {
+			$data['text'] = $data['title'];
+			$data['title'] = $data['url'];
 		}
 
-		if (empty($data["text"]) && !empty($data["title"]) && empty($data["url"])) {
-			return $data["title"] . $data["after"];
+		if (empty($data['text']) && !empty($data['title']) && empty($data['url'])) {
+			return $data['title'] . $data['after'];
 		}
 
 		// If the link already is included in the post, don't add it again
-		if (!empty($data["url"]) && strpos($data["text"], $data["url"])) {
-			return $data["text"] . $data["after"];
+		if (!empty($data['url']) && strpos($data['text'], $data['url'])) {
+			return $data['text'] . $data['after'];
 		}
 
-		$text = $data["text"];
+		$text = $data['text'];
 
-		if (!empty($data["url"]) && !empty($data["title"])) {
-			$text .= "\n[url=" . $data["url"] . "]" . $data["title"] . "[/url]";
-		} elseif (!empty($data["url"])) {
-			$text .= "\n[url]" . $data["url"] . "[/url]";
+		if (!empty($data['url']) && !empty($data['title'])) {
+			$text .= "\n[url=" . $data['url'] . ']' . $data['title'] . '[/url]';
+		} elseif (!empty($data['url'])) {
+			$text .= "\n[url]" . $data['url'] . '[/url]';
 		}
 
-		return $text . "\n" . $data["after"];
+		return $text . "\n" . $data['after'];
 	}
 
 	/**
@@ -694,7 +694,7 @@ class BBCode extends BaseObject
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForOStatusCallback($match)
+	private static function convertUrlForActivityPubCallback($match)
 	{
 		$url = $match[1];
 
@@ -707,15 +707,26 @@ class BBCode extends BaseObject
 			return $match[0];
 		}
 
-		return self::convertUrlForOStatus($url);
+		return self::convertUrlForActivityPub($url);
 	}
 
 	/**
-	 * @brief Converts [url] BBCodes in a format that looks fine on OStatus systems.
+	 * @brief Converts [url] BBCodes in a format that looks fine on ActivityPub systems.
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
-	private static function convertUrlForOStatus($url)
+	private static function convertUrlForActivityPub($url)
+	{
+		$html = '<a href="%s" target="_blank">%s</a>';
+		return sprintf($html, $url, self::getStyledURL($url));
+	}
+
+	/**
+	 * Converts an URL in a nicer format (without the scheme and possibly shortened)
+	 * @param string $url URL that is about to be reformatted
+	 * @return string reformatted link
+	 */
+	private static function getStyledURL($url)
 	{
 		$parts = parse_url($url);
 		$scheme = $parts['scheme'] . '://';
@@ -725,9 +736,7 @@ class BBCode extends BaseObject
 			$styled_url = substr($styled_url, 0, 30) . "…";
 		}
 
-		$html = '<a href="%s" target="_blank">%s</a>';
-
-		return sprintf($html, $url, $styled_url);
+		return $styled_url;
 	}
 
 	/*
@@ -932,7 +941,7 @@ class BBCode extends BaseObject
 				$attributes = [];
 				foreach(['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
 					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
-					$attributes[$field] = html_entity_decode(defaults($matches, 2, ''), ENT_QUOTES, 'UTF-8');
+					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}
 
 				// We only call this so that a previously unknown contact can be added.
@@ -951,11 +960,11 @@ class BBCode extends BaseObject
 				Contact::getIdForURL($attributes['profile'], 0, true, $default);
 
 				$author_contact = Contact::getDetailsByURL($attributes['profile']);
-				$author_contact['addr'] = defaults($author_contact, 'addr' , Protocol::getAddrFromProfileUrl($attributes['profile']));
+				$author_contact['addr'] = ($author_contact['addr']  ?? '') ?: Protocol::getAddrFromProfileUrl($attributes['profile']);
 
-				$attributes['author']   = defaults($author_contact, 'name' , $attributes['author']);
-				$attributes['avatar']   = defaults($author_contact, 'micro', $attributes['avatar']);
-				$attributes['profile']  = defaults($author_contact, 'url'  , $attributes['profile']);
+				$attributes['author']   = ($author_contact['name']  ?? '') ?: $attributes['author'];
+				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];
+				$attributes['profile']  = ($author_contact['url']   ?? '') ?: $attributes['profile'];
 
 				if ($attributes['avatar']) {
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
@@ -1073,10 +1082,10 @@ class BBCode extends BaseObject
 
 			$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
-			if (substr($curl_info["content_type"], 0, 6) == "image/") {
-				$text = "[url=" . $match[1] . "]" . $match[1] . "[/url]";
+			if (substr($curl_info['content_type'], 0, 6) == 'image/') {
+				$text = "[url=" . $match[1] . ']' . $match[1] . "[/url]";
 			} else {
-				$text = "[url=" . $match[2] . "]" . $match[2] . "[/url]";
+				$text = "[url=" . $match[2] . ']' . $match[2] . "[/url]";
 
 				// if its not a picture then look if its a page that contains a picture link
 				$body = Network::fetchUrl($match[1]);
@@ -1094,8 +1103,8 @@ class BBCode extends BaseObject
 						}
 					}
 
-					if (strtolower($attr["name"]) == "twitter:image") {
-						$text = "[url=" . $attr["content"] . "]" . $attr["content"] . "[/url]";
+					if (strtolower($attr['name']) == 'twitter:image') {
+						$text = '[url=' . $attr['content'] . ']' . $attr['content'] . '[/url]';
 					}
 				}
 			}
@@ -1107,7 +1116,7 @@ class BBCode extends BaseObject
 
 	private static function expandLinksCallback($match)
 	{
-		if (($match[3] == "") || ($match[2] == $match[3]) || stristr($match[2], $match[3])) {
+		if (($match[3] == '') || ($match[2] == $match[3]) || stristr($match[2], $match[3])) {
 			return ($match[1] . "[url]" . $match[2] . "[/url]");
 		} else {
 			return ($match[1] . $match[3] . " [url]" . $match[2] . "[/url]");
@@ -1122,9 +1131,9 @@ class BBCode extends BaseObject
 		$own_photo_url = preg_quote(Strings::normaliseLink($a->getBaseURL()) . '/photos/');
 		if (preg_match('|' . $own_photo_url . '.*?/image/|', Strings::normaliseLink($match[1]))) {
 			if (!empty($match[3])) {
-				$text = "[img=" . str_replace('-1.', '-0.', $match[2]) . "]" . $match[3] . "[/img]";
+				$text = '[img=' . str_replace('-1.', '-0.', $match[2]) . ']' . $match[3] . '[/img]';
 			} else {
-				$text = "[img]" . str_replace('-1.', '-0.', $match[2]) . "[/img]";
+				$text = '[img]' . str_replace('-1.', '-0.', $match[2]) . '[/img]';
 			}
 			return $text;
 		}
@@ -1148,13 +1157,13 @@ class BBCode extends BaseObject
 		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 		// if its a link to a picture then embed this picture
-		if (substr($curl_info["content_type"], 0, 6) == "image/") {
-			$text = "[img]" . $match[1] . "[/img]";
+		if (substr($curl_info['content_type'], 0, 6) == 'image/') {
+			$text = '[img]' . $match[1] . '[/img]';
 		} else {
 			if (!empty($match[3])) {
-				$text = "[img=" . $match[2] . "]" . $match[3] . "[/img]";
+				$text = '[img=' . $match[2] . ']' . $match[3] . '[/img]';
 			} else {
-				$text = "[img]" . $match[2] . "[/img]";
+				$text = '[img]' . $match[2] . '[/img]';
 			}
 
 			// if its not a picture then look if its a page that contains a picture link
@@ -1172,11 +1181,11 @@ class BBCode extends BaseObject
 					}
 				}
 
-				if (strtolower($attr["name"]) == "twitter:image") {
+				if (strtolower($attr['name']) == "twitter:image") {
 					if (!empty($match[3])) {
-						$text = "[img=" . $attr["content"] . "]" . $match[3] . "[/img]";
+						$text = "[img=" . $attr['content'] . "]" . $match[3] . "[/img]";
 					} else {
-						$text = "[img]" . $attr["content"] . "[/img]";
+						$text = "[img]" . $attr['content'] . "[/img]";
 					}
 				}
 			}
@@ -1232,7 +1241,7 @@ class BBCode extends BaseObject
 		$try_oembed_callback = function ($match)
 		{
 			$url = $match[1];
-			$title = defaults($match, 2, null);
+			$title = $match[2] ?? null;
 
 			try {
 				$return = OEmbed::getHTML($url, $title);
@@ -1333,7 +1342,7 @@ class BBCode extends BaseObject
 		$text = str_replace($search, $replace, $text);
 
 		// removing multiplicated newlines
-		if (Config::get("system", "remove_multiplicated_lines")) {
+		if (Config::get('system', 'remove_multiplicated_lines')) {
 			$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
 					"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n"];
 			$replace = ["\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
@@ -1655,8 +1664,8 @@ class BBCode extends BaseObject
 
 		if (!$for_plaintext) {
 			if (in_array($simple_html, [7, 9])) {
-				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
-				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForOStatusCallback', $text);
+				$text = preg_replace_callback("/\[url\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
+				$text = preg_replace_callback("/\[url\=(.*?)\](.*?)\[\/url\]/ism", 'self::convertUrlForActivityPubCallback', $text);
 			}
 		} else {
 			$text = preg_replace("(\[url\](.*?)\[\/url\])ism", " $1 ", $text);
@@ -1832,7 +1841,7 @@ class BBCode extends BaseObject
 		// Clean up the HTML by loading and saving the HTML with the DOM.
 		// Bad structured html can break a whole page.
 		// For performance reasons do it only with activated item cache or at export.
-		if (!$try_oembed || (get_itemcachepath() != "")) {
+		if (!$try_oembed || (get_itemcachepath() != '')) {
 			$doc = new DOMDocument();
 			$doc->preserveWhiteSpace = false;
 
@@ -1840,10 +1849,10 @@ class BBCode extends BaseObject
 
 			$doctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd">';
 			$encoding = '<?xml encoding="UTF-8">';
-			@$doc->loadHTML($encoding.$doctype."<html><body>".$text."</body></html>");
+			@$doc->loadHTML($encoding . $doctype . '<html><body>' . $text . '</body></html>');
 			$doc->encoding = 'UTF-8';
 			$text = $doc->saveHTML();
-			$text = str_replace(["<html><body>", "</body></html>", $doctype, $encoding], ["", "", "", ""], $text);
+			$text = str_replace(['<html><body>', '</body></html>', $doctype, $encoding], ['', '', '', ''], $text);
 
 			$text = str_replace('<br></li>', '</li>', $text);
 
@@ -1883,9 +1892,9 @@ class BBCode extends BaseObject
 	 * @param string $addon The addon for which the abstract is meant for
 	 * @return string The abstract
 	 */
-	public static function getAbstract($text, $addon = "")
+	public static function getAbstract($text, $addon = '')
 	{
-		$abstract = "";
+		$abstract = '';
 		$abstracts = [];
 		$addon = strtolower($addon);
 
@@ -1899,7 +1908,7 @@ class BBCode extends BaseObject
 			$abstract = $abstracts[$addon];
 		}
 
-		if ($abstract == "" && preg_match("/\[abstract\](.*?)\[\/abstract\]/ism", $text, $result)) {
+		if ($abstract == '' && preg_match("/\[abstract\](.*?)\[\/abstract\]/ism", $text, $result)) {
 			$abstract = $result[1];
 		}
 
@@ -1975,7 +1984,7 @@ class BBCode extends BaseObject
 
 			// Add all tags that maybe were removed
 			if (preg_match_all("/#\[url\=([$url_search_string]*)\](.*?)\[\/url\]/ism", $original_text, $tags)) {
-				$tagline = "";
+				$tagline = '';
 				foreach ($tags[2] as $tag) {
 					$tag = html_entity_decode($tag, ENT_QUOTES, 'UTF-8');
 					if (!strpos(html_entity_decode($text, ENT_QUOTES, 'UTF-8'), '#' . $tag)) {
@@ -1993,7 +2002,7 @@ class BBCode extends BaseObject
 
 		// If a link is followed by a quote then there should be a newline before it
 		// Maybe we should make this newline at every time before a quote.
-		$text = str_replace(["</a><blockquote>"], ["</a><br><blockquote>"], $text);
+		$text = str_replace(['</a><blockquote>'], ['</a><br><blockquote>'], $text);
 
 		$stamp1 = microtime(true);
 

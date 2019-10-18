@@ -28,28 +28,6 @@ Renderer::setActiveTemplateEngine('smarty3');
     }
 $a->page['htmlhead'] .= <<< EOT
 <script>
-function insertFormatting(BBcode, id) {
-	var tmpStr = $("#comment-edit-text-" + id).val();
-	if (tmpStr == "") {
-		$("#comment-edit-text-" + id).addClass("comment-edit-text-full");
-		$("#comment-edit-text-" + id).removeClass("comment-edit-text-empty");
-		openMenu("comment-edit-submit-wrapper-" + id);
-	}
-
-	textarea = document.getElementById("comment-edit-text-" +id);
-	if (document.selection) {
-		textarea.focus();
-		selected = document.selection.createRange();
-		selected.text = "["+BBcode+"]" + selected.text + "[/"+BBcode+"]";
-	} else if (textarea.selectionStart || textarea.selectionStart == "0") {
-		var start = textarea.selectionStart;
-		var end = textarea.selectionEnd;
-		textarea.value = textarea.value.substring(0, start) + "["+BBcode+"]" + textarea.value.substring(start, end) + "[/"+BBcode+"]" + textarea.value.substring(end, textarea.value.length);
-	}
-
-	return true;
-}
-
 function cmtBbOpen(comment, id) {
 	if ($(comment).hasClass('comment-edit-text-full')) {
 		$(".comment-edit-bb-" + id).show();

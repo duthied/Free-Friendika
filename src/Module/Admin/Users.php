@@ -21,11 +21,11 @@ class Users extends BaseAdminModule
 
 		$a = self::getApp();
 
-		$pending     = defaults($_POST, 'pending'          , []);
-		$users       = defaults($_POST, 'user'             , []);
-		$nu_name     = defaults($_POST, 'new_user_name'    , '');
-		$nu_nickname = defaults($_POST, 'new_user_nickname', '');
-		$nu_email    = defaults($_POST, 'new_user_email'   , '');
+		$pending     = $_POST['pending']           ?? [];
+		$users       = $_POST['user']              ?? [];
+		$nu_name     = $_POST['new_user_name']     ?? '';
+		$nu_nickname = $_POST['new_user_nickname'] ?? '';
+		$nu_email    = $_POST['new_user_email']    ?? '';
 		$nu_language = Config::get('system', 'language');
 
 		parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users');

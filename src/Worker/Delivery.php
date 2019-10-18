@@ -250,7 +250,7 @@ class Delivery extends BaseObject
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		Logger::log('Deliver ' . defaults($target_item, 'guid', $target_item['id']) . ' via DFRN to ' . (empty($contact['addr']) ? $contact['url'] : $contact['addr']));
+		Logger::info('Deliver ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' via DFRN to ' . (($contact['addr'] ?? '') ?: $contact['url']));
 
 		if ($cmd == self::MAIL) {
 			$item = $target_item;
@@ -278,7 +278,7 @@ class Delivery extends BaseObject
 			$atom = DFRN::entries($msgitems, $owner);
 		}
 
-		Logger::log('Notifier entry: ' . $contact["url"] . ' ' . defaults($target_item, 'guid', $target_item['id']) . ' entry: ' . $atom, Logger::DATA);
+		Logger::debug('Notifier entry: ' . $contact["url"] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
 
 		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
 
@@ -329,7 +329,7 @@ class Delivery extends BaseObject
 
 			// We never spool failed relay deliveries
 			if ($public_dfrn) {
-				Logger::log('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
+				Logger::info('Relay delivery to ' . $contact["url"] . ' with guid ' . $target_item["guid"] . ' returns ' . $deliver_status);
 
 				if (in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 					if (($deliver_status >= 200) && ($deliver_status <= 299)) {
@@ -359,7 +359,7 @@ class Delivery extends BaseObject
 			$protocol = Model\ItemDeliveryData::LEGACY_DFRN;
 		}
 
-		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => defaults($target_item, 'guid', $target_item['id']), 'return' => $deliver_status]);
+		Logger::info('DFRN Delivery', ['cmd' => $cmd, 'url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id'], 'return' => $deliver_status]);
 
 		if (($deliver_status >= 200) && ($deliver_status <= 299)) {
 			// We successfully delivered a message, the contact is alive
@@ -372,7 +372,7 @@ class Delivery extends BaseObject
 			// The message could not be delivered. We mark the contact as "dead"
 			Model\Contact::markForArchival($contact);
 
-			Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
+			Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 			if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 				Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
 			}
@@ -463,7 +463,7 @@ class Delivery extends BaseObject
 			}
 
 			if (empty($contact['contact-type']) || ($contact['contact-type'] != Model\Contact::TYPE_RELAY)) {
-				Logger::info('Delivery failed: defer message', ['id' => defaults($target_item, 'guid', $target_item['id'])]);
+				Logger::info('Delivery failed: defer message', ['id' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 				// defer message for redelivery
 				if (!Worker::defer() && in_array($cmd, [Delivery::POST, Delivery::POKE])) {
 					Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);

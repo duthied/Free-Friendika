@@ -46,7 +46,7 @@ class Feed extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('feedtest.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$url'    => ['url', L10n::t('Source URL'), defaults($_REQUEST, 'url', ''), ''],
+			'$url'    => ['url', L10n::t('Source URL'), $_REQUEST['url'] ?? '', ''],
 			'$result' => $result
 		]);
 	}

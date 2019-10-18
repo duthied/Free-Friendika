@@ -28,12 +28,12 @@ class Recovery extends BaseModule
 			return;
 		}
 
-		if (defaults($_POST, 'action', null) == 'recover') {
+		if (($_POST['action'] ?? '') == 'recover') {
 			self::checkFormSecurityTokenRedirectOnError('2fa', 'twofactor_recovery');
 
 			$a = self::getApp();
 
-			$recovery_code = defaults($_POST, 'recovery_code', '');
+			$recovery_code = $_POST['recovery_code'] ?? '';
 
 			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
 				RecoveryCode::markUsedForUser(local_user(), $recovery_code);

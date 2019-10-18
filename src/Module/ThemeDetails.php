@@ -17,9 +17,9 @@ class ThemeDetails extends BaseModule
 			$info = Theme::getInfo($theme);
 
 			// Unfortunately there will be no translation for this string
-			$description = defaults($info, 'description', '');
-			$version     = defaults($info, 'version'    , '');
-			$credits     = defaults($info, 'credits'    , '');
+			$description = $info['description'] ?? '';
+			$version     = $info['version']     ?? '';
+			$credits     = $info['credits']     ?? '';
 
 			echo json_encode([
 				'img'     => Theme::getScreenshot($theme),

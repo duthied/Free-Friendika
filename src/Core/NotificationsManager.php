@@ -137,7 +137,7 @@ class NotificationsManager extends BaseObject
 	 */
 	public function getTabs()
 	{
-		$selected = defaults(self::getApp()->argv, 1, '');
+		$selected = self::getApp()->argv[1] ?? '';
 
 		$tabs = [
 			[

@@ -63,9 +63,9 @@ function photos_init(App $a) {
 		$vcard_widget = Renderer::replaceMacros($tpl, [
 			'$name' => $profile['name'],
 			'$photo' => $profile['photo'],
-			'$addr' => defaults($profile, 'addr', ''),
+			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$pdesc' => defaults($profile, 'pdesc', ''),
+			'$pdesc' => $profile['pdesc'] ?? '',
 		]);
 
 		$albums = Photo::getAlbums($a->data['user']['uid']);
@@ -630,10 +630,10 @@ function photos_post(App $a)
 		$visible = 0;
 	}
 
-	$group_allow   = defaults($_REQUEST, 'group_allow'  , []);
-	$contact_allow = defaults($_REQUEST, 'contact_allow', []);
-	$group_deny    = defaults($_REQUEST, 'group_deny'   , []);
-	$contact_deny  = defaults($_REQUEST, 'contact_deny' , []);
+	$group_allow   = $_REQUEST['group_allow']   ?? [];
+	$contact_allow = $_REQUEST['contact_allow'] ?? [];
+	$group_deny    = $_REQUEST['group_deny']    ?? [];
+	$contact_deny  = $_REQUEST['contact_deny']  ?? [];
 
 	$str_group_allow   = perms2str(is_array($group_allow)   ? $group_allow   : explode(',', $group_allow));
 	$str_contact_allow = perms2str(is_array($contact_allow) ? $contact_allow : explode(',', $contact_allow));
@@ -666,7 +666,7 @@ function photos_post(App $a)
 				notice(L10n::t('Image exceeds size limit of %s', ini_get('upload_max_filesize')) . EOL);
 				break;
 			case UPLOAD_ERR_FORM_SIZE:
-				notice(L10n::t('Image exceeds size limit of %s', Strings::formatBytes(defaults($_REQUEST, 'MAX_FILE_SIZE', 0))) . EOL);
+				notice(L10n::t('Image exceeds size limit of %s', Strings::formatBytes($_REQUEST['MAX_FILE_SIZE'] ?? 0)) . EOL);
 				break;
 			case UPLOAD_ERR_PARTIAL:
 				notice(L10n::t('Image upload didn\'t complete, please try again') . EOL);
@@ -1006,7 +1006,7 @@ function photos_content(App $a)
 		$pager = new Pager($a->query_string, 20);
 
 		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
-		$order_field = defaults($_GET, 'order', '');
+		$order_field = $_GET['order'] ?? '';
 		if ($order_field === 'posted') {
 			$order = 'ASC';
 		} else {
@@ -1158,7 +1158,7 @@ function photos_content(App $a)
 		 * By now we hide it if someone wants to.
 		 */
 		if ($cmd === 'view' && !Config::get('system', 'no_count', false)) {
-			$order_field = defaults($_GET, 'order', '');
+			$order_field = $_GET['order'] ?? '';
 
 			if ($order_field === 'posted') {
 				$order = 'ASC';

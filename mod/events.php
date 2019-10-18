@@ -59,11 +59,11 @@ function events_post(App $a)
 	$cid = !empty($_POST['cid']) ? intval($_POST['cid']) : 0;
 	$uid = local_user();
 
-	$start_text  = Strings::escapeHtml(defaults($_REQUEST, 'start_text', ''));
-	$finish_text = Strings::escapeHtml(defaults($_REQUEST, 'finish_text', ''));
+	$start_text  = Strings::escapeHtml($_REQUEST['start_text'] ?? '');
+	$finish_text = Strings::escapeHtml($_REQUEST['finish_text'] ?? '');
 
-	$adjust   = intval(defaults($_POST, 'adjust', 0));
-	$nofinish = intval(defaults($_POST, 'nofinish', 0));
+	$adjust   = intval($_POST['adjust'] ?? 0);
+	$nofinish = intval($_POST['nofinish'] ?? 0);
 
 	// The default setting for the `private` field in event_store() is false, so mirror that
 	$private_event = false;
@@ -96,9 +96,9 @@ function events_post(App $a)
 	// and we'll waste a bunch of time responding to it. Time that
 	// could've been spent doing something else.
 
-	$summary  = trim(defaults($_POST, 'summary' , ''));
-	$desc     = trim(defaults($_POST, 'desc'    , ''));
-	$location = trim(defaults($_POST, 'location', ''));
+	$summary  = trim($_POST['summary']  ?? '');
+	$desc     = trim($_POST['desc']     ?? '');
+	$location = trim($_POST['location'] ?? '');
 	$type     = 'event';
 
 	$params = [
@@ -132,7 +132,7 @@ function events_post(App $a)
 		$a->internalRedirect($onerror_path);
 	}
 
-	$share = intval(defaults($_POST, 'share', 0));
+	$share = intval($_POST['share'] ?? 0);
 
 	$c = q("SELECT `id` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1",
 		intval(local_user())
@@ -146,10 +146,10 @@ function events_post(App $a)
 
 
 	if ($share) {
-		$str_group_allow   = perms2str(defaults($_POST, 'group_allow'  , ''));
-		$str_contact_allow = perms2str(defaults($_POST, 'contact_allow', ''));
-		$str_group_deny    = perms2str(defaults($_POST, 'group_deny'   , ''));
-		$str_contact_deny  = perms2str(defaults($_POST, 'contact_deny' , ''));
+		$str_group_allow   = perms2str($_POST['group_allow']   ?? '');
+		$str_contact_allow = perms2str($_POST['contact_allow'] ?? '');
+		$str_group_deny    = perms2str($_POST['group_deny']    ?? '');
+		$str_contact_deny  = perms2str($_POST['contact_deny']  ?? '');
 
 		// Undo the pseudo-contact of self, since there are real contacts now
 		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {

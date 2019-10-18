@@ -22,17 +22,17 @@ function dfrn_poll_init(App $a)
 {
 	Login::sessionAuth();
 
-	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
-	$type            = defaults($_GET, 'type'           , 'data');
-	$last_update     = defaults($_GET, 'last_update'    , '');
-	$destination_url = defaults($_GET, 'destination_url', '');
-	$challenge       = defaults($_GET, 'challenge'      , '');
-	$sec             = defaults($_GET, 'sec'            , '');
-	$dfrn_version    = (float) defaults($_GET, 'dfrn_version'   , 2.0);
+	$dfrn_id         =  $_GET['dfrn_id']         ?? '';
+	$type            = ($_GET['type']            ?? '') ?: 'data';
+	$last_update     =  $_GET['last_update']     ?? '';
+	$destination_url =  $_GET['destination_url'] ?? '';
+	$challenge       =  $_GET['challenge']       ?? '';
+	$sec             =  $_GET['sec']             ?? '';
+	$dfrn_version    = floatval(($_GET['dfrn_version'] ?? 0.0) ?: 2.0);
 	$quiet			 = !empty($_GET['quiet']);
 
 	// Possibly it is an OStatus compatible server that requests a user feed
-	$user_agent = defaults($_SERVER, 'HTTP_USER_AGENT', '');
+	$user_agent = $_SERVER['HTTP_USER_AGENT'] ?? '';
 	if (($a->argc > 1) && ($dfrn_id == '') && !strstr($user_agent, 'Friendica')) {
 		$nickname = $a->argv[1];
 		header("Content-type: application/atom+xml");
@@ -225,13 +225,13 @@ function dfrn_poll_init(App $a)
 
 function dfrn_poll_post(App $a)
 {
-	$dfrn_id      = defaults($_POST, 'dfrn_id'  , '');
-	$challenge    = defaults($_POST, 'challenge', '');
-	$url          = defaults($_POST, 'url'      , '');
-	$sec          = defaults($_POST, 'sec'      , '');
-	$ptype        = defaults($_POST, 'type'     , '');
-	$perm         = defaults($_POST, 'perm'     , 'r');
-	$dfrn_version = !empty($_POST['dfrn_version']) ? (float) $_POST['dfrn_version'] : 2.0;
+	$dfrn_id      =  $_POST['dfrn_id']   ?? '';
+	$challenge    =  $_POST['challenge'] ?? '';
+	$url          =  $_POST['url']       ?? '';
+	$sec          =  $_POST['sec']       ?? '';
+	$ptype        =  $_POST['type']      ?? '';
+	$perm         = ($_POST['perm']      ?? '') ?: 'r';
+	$dfrn_version = floatval(($_GET['dfrn_version'] ?? 0.0) ?: 2.0);
 
 	if ($ptype === 'profile-check') {
 		if (strlen($challenge) && strlen($sec)) {
@@ -391,12 +391,12 @@ function dfrn_poll_post(App $a)
 
 function dfrn_poll_content(App $a)
 {
-	$dfrn_id         = defaults($_GET, 'dfrn_id'        , '');
-	$type            = defaults($_GET, 'type'           , 'data');
-	$last_update     = defaults($_GET, 'last_update'    , '');
-	$destination_url = defaults($_GET, 'destination_url', '');
-	$sec             = defaults($_GET, 'sec'            , '');
-	$dfrn_version    = !empty($_GET['dfrn_version'])    ? (float) $_GET['dfrn_version'] : 2.0;
+	$dfrn_id         =  $_GET['dfrn_id']         ?? '';
+	$type            = ($_GET['type']            ?? '') ?: 'data';
+	$last_update     =  $_GET['last_update']     ?? '';
+	$destination_url =  $_GET['destination_url'] ?? '';
+	$sec             =  $_GET['sec']             ?? '';
+	$dfrn_version    = floatval(($_GET['dfrn_version'] ?? 0.0) ?: 2.0);
 	$quiet           = !empty($_GET['quiet']);
 
 	$direction = -1;

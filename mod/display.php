@@ -276,8 +276,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	if (isset($item_parent_uri)) {
 		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
 		if (DBA::isResult($parent)) {
-			$a->profile['uid'] = defaults($a->profile, 'uid', $parent['uid']);
-			$a->profile['profile_uid'] = defaults($a->profile, 'profile_uid', $parent['uid']);
+			$a->profile['uid'] = ($a->profile['uid'] ?? 0) ?: $parent['uid'];
+			$a->profile['profile_uid'] = ($a->profile['profile_uid'] ?? 0) ?: $parent['uid'];
 			$is_remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
 			if ($is_remote_contact) {
 				$item_uid = $parent['uid'];

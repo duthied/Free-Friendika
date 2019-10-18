@@ -64,12 +64,12 @@ function item_post(App $a) {
 
 	Logger::log('postvars ' . print_r($_REQUEST, true), Logger::DATA);
 
-	$api_source = defaults($_REQUEST, 'api_source', false);
+	$api_source = $_REQUEST['api_source'] ?? false;
 
 	$message_id = ((!empty($_REQUEST['message_id']) && $api_source) ? strip_tags($_REQUEST['message_id']) : '');
 
-	$return_path = defaults($_REQUEST, 'return', '');
-	$preview = intval(defaults($_REQUEST, 'preview', 0));
+	$return_path = $_REQUEST['return'] ?? '';
+	$preview = intval($_REQUEST['preview'] ?? 0);
 
 	/*
 	 * Check for doubly-submitted posts, and reject duplicates
@@ -86,8 +86,8 @@ function item_post(App $a) {
 	}
 
 	// Is this a reply to something?
-	$toplevel_item_id = intval(defaults($_REQUEST, 'parent', 0));
-	$thr_parent_uri = trim(defaults($_REQUEST, 'parent_uri', ''));
+	$toplevel_item_id = intval($_REQUEST['parent'] ?? 0);
+	$thr_parent_uri = trim($_REQUEST['parent_uri'] ?? '');
 
 	$thread_parent_id = 0;
 	$thread_parent_contact = null;
@@ -98,8 +98,8 @@ function item_post(App $a) {
 	$parent_contact = null;
 
 	$objecttype = null;
-	$profile_uid = defaults($_REQUEST, 'profile_uid', local_user());
-	$posttype = defaults($_REQUEST, 'post_type', Item::PT_ARTICLE);
+	$profile_uid = ($_REQUEST['profile_uid'] ?? 0) ?: local_user();
+	$posttype = ($_REQUEST['post_type'] ?? '') ?: Item::PT_ARTICLE;
 
 	if ($toplevel_item_id || $thr_parent_uri) {
 		if ($toplevel_item_id) {
@@ -138,10 +138,10 @@ function item_post(App $a) {
 		Logger::info('mod_item: item_post parent=' . $toplevel_item_id);
 	}
 
-	$post_id     = intval(defaults($_REQUEST, 'post_id', 0));
-	$app         = strip_tags(defaults($_REQUEST, 'source', ''));
-	$extid       = strip_tags(defaults($_REQUEST, 'extid', ''));
-	$object      = defaults($_REQUEST, 'object', '');
+	$post_id     = intval($_REQUEST['post_id'] ?? 0);
+	$app         = strip_tags($_REQUEST['source'] ?? '');
+	$extid       = strip_tags($_REQUEST['extid'] ?? '');
+	$object      = $_REQUEST['object'] ?? '';
 
 	// Don't use "defaults" here. It would turn 0 to 1
 	if (!isset($_REQUEST['wall'])) {
@@ -194,20 +194,20 @@ function item_post(App $a) {
 	$categories = '';
 	$postopts = '';
 	$emailcc = '';
-	$body = defaults($_REQUEST, 'body', '');
-	$has_attachment = defaults($_REQUEST, 'has_attachment', 0);
+	$body = $_REQUEST['body'] ?? '';
+	$has_attachment = $_REQUEST['has_attachment'] ?? 0;
 
 	// If we have a speparate attachment, we need to add it to the body.
 	if (!empty($has_attachment)) {
-		$attachment_type  = defaults($_REQUEST, 'attachment_type',  '');
-		$attachment_title = defaults($_REQUEST, 'attachment_title', '');
-		$attachment_text  = defaults($_REQUEST, 'attachment_text',  '');
+		$attachment_type  = $_REQUEST['attachment_type'] ??  '';
+		$attachment_title = $_REQUEST['attachment_title'] ?? '';
+		$attachment_text  = $_REQUEST['attachment_text'] ??  '';
 
-		$attachment_url     = hex2bin(defaults($_REQUEST, 'attachment_url',     ''));
-		$attachment_img_src = hex2bin(defaults($_REQUEST, 'attachment_img_src', ''));
+		$attachment_url     = hex2bin($_REQUEST['attachment_url'] ??     '');
+		$attachment_img_src = hex2bin($_REQUEST['attachment_img_src'] ?? '');
 
-		$attachment_img_width  = defaults($_REQUEST, 'attachment_img_width',  0);
-		$attachment_img_height = defaults($_REQUEST, 'attachment_img_height', 0);
+		$attachment_img_width  = $_REQUEST['attachment_img_width'] ??  0;
+		$attachment_img_height = $_REQUEST['attachment_img_height'] ?? 0;
 		$attachment = [
 			'type'   => $attachment_type,
 			'title'  => $attachment_title,
@@ -228,6 +228,9 @@ function item_post(App $a) {
 		$att_bbcode = add_page_info_data($attachment);
 		$body .= $att_bbcode;
 	}
+
+	// Convert links with empty descriptions to links without an explicit description
+	$body = preg_replace('#\[url=([^\]]*?)\]\[/url\]#ism', '[url]$1[/url]', $body);
 
 	if (!empty($orig_post)) {
 		$str_group_allow   = $orig_post['allow_gid'];
@@ -266,22 +269,22 @@ function item_post(App $a) {
 			$str_contact_deny  = $user['deny_cid'];
 		} else {
 			// use the posted permissions
-			$str_group_allow   = perms2str(defaults($_REQUEST, 'group_allow', ''));
-			$str_contact_allow = perms2str(defaults($_REQUEST, 'contact_allow', ''));
-			$str_group_deny    = perms2str(defaults($_REQUEST, 'group_deny', ''));
-			$str_contact_deny  = perms2str(defaults($_REQUEST, 'contact_deny', ''));
+			$str_group_allow   = perms2str($_REQUEST['group_allow'] ?? '');
+			$str_contact_allow = perms2str($_REQUEST['contact_allow'] ?? '');
+			$str_group_deny    = perms2str($_REQUEST['group_deny'] ?? '');
+			$str_contact_deny  = perms2str($_REQUEST['contact_deny'] ?? '');
 		}
 
-		$title             = Strings::escapeTags(trim(defaults($_REQUEST, 'title'   , '')));
-		$location          = Strings::escapeTags(trim(defaults($_REQUEST, 'location', '')));
-		$coord             = Strings::escapeTags(trim(defaults($_REQUEST, 'coord'   , '')));
-		$verb              = Strings::escapeTags(trim(defaults($_REQUEST, 'verb'    , '')));
-		$emailcc           = Strings::escapeTags(trim(defaults($_REQUEST, 'emailcc' , '')));
+		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
+		$location          = Strings::escapeTags(trim($_REQUEST['location'] ?? ''));
+		$coord             = Strings::escapeTags(trim($_REQUEST['coord']    ?? ''));
+		$verb              = Strings::escapeTags(trim($_REQUEST['verb']     ?? ''));
+		$emailcc           = Strings::escapeTags(trim($_REQUEST['emailcc']  ?? ''));
 		$body              = Strings::escapeHtml(trim($body));
-		$network           = Strings::escapeTags(trim(defaults($_REQUEST, 'network' , Protocol::DFRN)));
+		$network           = Strings::escapeTags(trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN));
 		$guid              = System::createUUID();
 
-		$postopts = defaults($_REQUEST, 'postopts', '');
+		$postopts = $_REQUEST['postopts'] ?? '';
 
 		$private = ((strlen($str_group_allow) || strlen($str_contact_allow) || strlen($str_group_deny) || strlen($str_contact_deny)) ? 1 : 0);
 
@@ -304,7 +307,7 @@ function item_post(App $a) {
 			$wall              = $toplevel_item['wall'];
 		}
 
-		$pubmail_enabled = defaults($_REQUEST, 'pubmail_enable', false) && !$private;
+		$pubmail_enabled = ($_REQUEST['pubmail_enable'] ?? false) && !$private;
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
@@ -332,7 +335,7 @@ function item_post(App $a) {
 
 	// save old and new categories, so we can determine what needs to be deleted from pconfig
 	$categories_old = $categories;
-	$categories = FileTag::listToFile(trim(defaults($_REQUEST, 'category', '')), 'category');
+	$categories = FileTag::listToFile(trim($_REQUEST['category'] ?? ''), 'category');
 	$categories_new = $categories;
 
 	if (!empty($filedas) && is_array($filedas)) {
@@ -1012,7 +1015,7 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 
 			$profile = $contact["url"];
 			$alias   = $contact["alias"];
-			$newname = defaults($contact, "name", $contact["nick"]);
+			$newname = ($contact["name"] ?? '') ?: $contact["nick"];
 		}
 
 		//if there is an url for this persons profile

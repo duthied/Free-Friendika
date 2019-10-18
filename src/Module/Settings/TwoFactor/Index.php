@@ -26,12 +26,12 @@ class Index extends BaseSettingsModule
 		self::checkFormSecurityTokenRedirectOnError('settings/2fa', 'settings_2fa');
 
 		try {
-			User::getIdFromPasswordAuthentication(local_user(), defaults($_POST, 'password', ''));
+			User::getIdFromPasswordAuthentication(local_user(), $_POST['password'] ?? '');
 
 			$has_secret = (bool) PConfig::get(local_user(), '2fa', 'secret');
 			$verified = PConfig::get(local_user(), '2fa', 'verified');
 
-			switch (defaults($_POST, 'action', '')) {
+			switch ($_POST['action'] ?? '') {
 				case 'enable':
 					if (!$has_secret && !$verified) {
 						$Google2FA = new Google2FA();

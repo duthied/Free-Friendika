@@ -62,12 +62,12 @@ class Register extends BaseModule
 			}
 		}
 
-		$username   = defaults($_REQUEST, 'username'  , '');
-		$email      = defaults($_REQUEST, 'email'     , '');
-		$openid_url = defaults($_REQUEST, 'openid_url', '');
-		$nickname   = defaults($_REQUEST, 'nickname'  , '');
-		$photo      = defaults($_REQUEST, 'photo'     , '');
-		$invite_id  = defaults($_REQUEST, 'invite_id' , '');
+		$username   = $_REQUEST['username']   ?? '';
+		$email      = $_REQUEST['email']      ?? '';
+		$openid_url = $_REQUEST['openid_url'] ?? '';
+		$nickname   = $_REQUEST['nickname']   ?? '';
+		$photo      = $_REQUEST['photo']      ?? '';
+		$invite_id  = $_REQUEST['invite_id']  ?? '';
 
 		if (Config::get('system', 'no_openid')) {
 			$fillwith = '';
@@ -290,7 +290,7 @@ class Register extends BaseModule
 					'source_photo' => $base_url . '/photo/avatar/' . $user['uid'] . '.jpg',
 					'to_email'     => $admin['email'],
 					'uid'          => $admin['uid'],
-					'language'     => defaults($admin, 'language', 'en'),
+					'language'     => ($admin['language'] ?? '') ?: 'en',
 					'show_in_notification_page' => false
 				]);
 			}

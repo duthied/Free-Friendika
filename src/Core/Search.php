@@ -56,21 +56,20 @@ class Search extends BaseObject
 			}
 
 			// Ensure that we do have a contact entry
-			Contact::getIdForURL(defaults($user_data, 'url', ''));
+			Contact::getIdForURL($user_data['url'] ?? '');
 
-			$contactDetails = Contact::getDetailsByURL(defaults($user_data, 'url', ''), local_user());
-			$itemUrl        = defaults($contactDetails, 'addr', defaults($user_data, 'url', ''));
+			$contactDetails = Contact::getDetailsByURL($user_data['url'] ?? '', local_user());
 
 			$result = new ContactResult(
-				defaults($user_data, 'name', ''),
-				defaults($user_data, 'addr', ''),
-				$itemUrl,
-				defaults($user_data, 'url', ''),
-				defaults($user_data, 'photo', ''),
-				defaults($user_data, 'network', ''),
-				defaults($contactDetails, 'id', 0),
+				$user_data['name'] ?? '',
+				$user_data['addr'] ?? '',
+				($contactDetails['addr'] ?? '') ?: ($user_data['url'] ?? ''),
+				$user_data['url'] ?? '',
+				$user_data['photo'] ?? '',
+				$user_data['network'] ?? '',
+				$contactDetails['id'] ?? 0,
 				0,
-				defaults($user_data, 'tags', '')
+				$user_data['tags'] ?? ''
 			);
 
 			return new ResultList(1, 1, 1, [$result]);
@@ -117,27 +116,28 @@ class Search extends BaseObject
 		$results = json_decode($resultJson, true);
 
 		$resultList = new ResultList(
-			defaults($results, 'page', 1),
-			defaults($results, 'count', 0),
-			defaults($results, 'itemsperpage', 30)
+			($results['page']         ?? 0) ?: 1,
+			 $results['count']        ?? 0,
+			($results['itemsperpage'] ?? 0) ?: 30
 		);
 
-		$profiles = defaults($results, 'profiles', []);
+		$profiles = $results['profiles'] ?? [];
 
 		foreach ($profiles as $profile) {
-			$contactDetails = Contact::getDetailsByURL(defaults($profile, 'profile_url', ''), local_user());
-			$itemUrl        = defaults($contactDetails, 'addr', defaults($profile, 'profile_url', ''));
+			$profile_url = $profile['profile_url'] ?? '';
+			$contactDetails = Contact::getDetailsByURL($profile_url, local_user());
 
 			$result = new ContactResult(
-				defaults($profile, 'name', ''),
-				defaults($profile, 'addr', ''),
-				$itemUrl,
-				defaults($profile, 'profile_url', ''),
-				defaults($profile, 'photo', ''),
+				$profile['name'] ?? '',
+				$profile['addr'] ?? '',
+				($contactDetails['addr'] ?? '') ?: $profile_url,
+				$profile_url,
+				$profile['photo'] ?? '',
 				Protocol::DFRN,
-				defaults($contactDetails, 'cid', 0),
+				$contactDetails['cid'] ?? 0,
 				0,
-				defaults($profile, 'tags', ''));
+				$profile['tags'] ?? ''
+			);
 
 			$resultList->addResult($result);
 		}

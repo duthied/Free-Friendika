@@ -348,7 +348,7 @@ class Probe
 		if (!self::$istimeout) {
 			$ap_profile = ActivityPub::probeProfile($uri);
 
-			if (empty($data) || (!empty($ap_profile) && empty($network) && (defaults($data, 'network', '') != Protocol::DFRN))) {
+			if (empty($data) || (!empty($ap_profile) && empty($network) && (($data['network'] ?? '') == Protocol::DFRN))) {
 				$data = $ap_profile;
 			} elseif (!empty($ap_profile)) {
 				$ap_profile['batch'] = '';
@@ -363,7 +363,7 @@ class Probe
 		}
 
 		if (!empty($data['photo'])) {
-			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink(defaults($data, 'baseurl', '')), Strings::normaliseLink($data['photo']));
+			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl'] ?? ''), Strings::normaliseLink($data['photo']));
 		} else {
 			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
 		}
@@ -424,7 +424,7 @@ class Probe
 		}
 
 		// If the file is too large then exit
-		if (defaults($curlResult->getInfo(), 'download_content_length', 0) > 1000000) {
+		if (($curlResult->getInfo()['download_content_length'] ?? 0) > 1000000) {
 			return false;
 		}
 
@@ -547,7 +547,7 @@ class Probe
 				return [];
 			}
 
-			$path_parts = explode("/", trim(defaults($parts, 'path', ''), "/"));
+			$path_parts = explode("/", trim($parts['path'] ?? '', "/"));
 
 			while (!$lrdd && (sizeof($path_parts) > 1)) {
 				$host .= "/".array_shift($path_parts);
@@ -921,19 +921,19 @@ class Probe
 
 		if (empty($data["addr"]) || empty($data["nick"])) {
 			$probe_data = self::uri($profile_link);
-			$data["addr"] = defaults($data, "addr", $probe_data["addr"]);
-			$data["nick"] = defaults($data, "nick", $probe_data["nick"]);
+			$data["addr"] = ($data["addr"] ?? '') ?: $probe_data["addr"];
+			$data["nick"] = ($data["nick"] ?? '') ?: $probe_data["nick"];
 		}
 
 		$prof_data["addr"]         = $data["addr"];
 		$prof_data["nick"]         = $data["nick"];
-		$prof_data["dfrn-request"] = defaults($data, 'request', null);
-		$prof_data["dfrn-confirm"] = defaults($data, 'confirm', null);
-		$prof_data["dfrn-notify"]  = defaults($data, 'notify' , null);
-		$prof_data["dfrn-poll"]    = defaults($data, 'poll'   , null);
-		$prof_data["photo"]        = defaults($data, 'photo'  , null);
-		$prof_data["fn"]           = defaults($data, 'name'   , null);
-		$prof_data["key"]          = defaults($data, 'pubkey' , null);
+		$prof_data["dfrn-request"] = $data['request'] ?? null;
+		$prof_data["dfrn-confirm"] = $data['confirm'] ?? null;
+		$prof_data["dfrn-notify"]  = $data['notify']  ?? null;
+		$prof_data["dfrn-poll"]    = $data['poll']    ?? null;
+		$prof_data["photo"]        = $data['photo']   ?? null;
+		$prof_data["fn"]           = $data['name']    ?? null;
+		$prof_data["key"]          = $data['pubkey']  ?? null;
 
 		Logger::log("Result for profile ".$profile_link.": ".print_r($prof_data, true), Logger::DEBUG);
 
@@ -959,7 +959,7 @@ class Probe
 				$data["network"] = Protocol::DFRN;
 			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
 				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (defaults($link, "type", "") == "text/html") && !empty($link["href"])) {
+			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
 				$data["url"] = $link["href"];
 			} elseif (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
 				$hcard_url = $link["href"];
@@ -1169,7 +1169,7 @@ class Probe
 				$data["baseurl"] = trim($link["href"], '/');
 			} elseif (($link["rel"] == "http://joindiaspora.com/guid") && !empty($link["href"])) {
 				$data["guid"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (defaults($link, "type", "") == "text/html") && !empty($link["href"])) {
+			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
 				$data["url"] = $link["href"];
 			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
 				$data["poll"] = $link["href"];
@@ -1267,7 +1267,7 @@ class Probe
 			// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 			foreach (array_reverse($webfinger["links"]) as $link) {
 				if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-					&& (defaults($link, "type", "") == "text/html")
+					&& (($link["type"] ?? "") == "text/html")
 					&& ($link["href"] != "")
 				) {
 					$data["url"] = $link["href"];
@@ -1436,7 +1436,7 @@ class Probe
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 		foreach (array_reverse($webfinger["links"]) as $link) {
 			if (($link["rel"] == "http://webfinger.net/rel/profile-page")
-				&& (defaults($link, "type", "") == "text/html")
+				&& (($link["type"] ?? "") == "text/html")
 				&& ($link["href"] != "")
 			) {
 				$data["url"] = $link["href"];

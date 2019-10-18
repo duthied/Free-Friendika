@@ -26,8 +26,8 @@ function hovercard_init(App $a)
 
 function hovercard_content()
 {
-	$profileurl = defaults($_REQUEST, 'profileurl', '');
-	$datatype   = defaults($_REQUEST, 'datatype'  , 'json');
+	$profileurl =  $_REQUEST['profileurl'] ?? '';
+	$datatype   = ($_REQUEST['datatype']   ?? '') ?: 'json';
 
 	// Get out if the system doesn't have public access allowed
 	if (intval(Config::get('system', 'block_public'))) {
@@ -50,7 +50,7 @@ function hovercard_content()
 	if (strpos($profileurl, 'redir/') === 0) {
 		$cid = intval(substr($profileurl, 6));
 		$remote_contact = DBA::selectFirst('contact', ['nurl'], ['id' => $cid]);
-		$profileurl = defaults($remote_contact, 'nurl', '');
+		$profileurl = $remote_contact['nurl'] ?? '';
 	}
 
 	$contact = [];
@@ -97,7 +97,7 @@ function hovercard_content()
 	$profile = [
 		'name'         => $contact['name'],
 		'nick'         => $contact['nick'],
-		'addr'         => defaults($contact, 'addr', $contact['url']),
+		'addr'         => ($contact['addr'] ?? '') ?: $contact['url'],
 		'thumb'        => ProxyUtils::proxifyUrl($contact['thumb'], false, ProxyUtils::SIZE_THUMB),
 		'url'          => Contact::magicLink($contact['url']),
 		'nurl'         => $contact['nurl'], // We additionally store the nurl as identifier

@@ -200,7 +200,7 @@ class Site extends BaseAdminModule
 		/**
 		 * @var $storagebackend \Friendica\Model\Storage\IStorage
 		 */
-		$storagebackend    = Strings::escapeTags(trim(defaults($_POST, 'storagebackend', '')));
+		$storagebackend    = Strings::escapeTags(trim($_POST['storagebackend'] ?? ''));
 
 		// save storage backend form
 		if (!is_null($storagebackend) && $storagebackend != "") {
@@ -216,7 +216,7 @@ class Site extends BaseAdminModule
 							$value = !empty($_POST[$fieldname]);
 							break;
 						default:
-							$value = defaults($_POST, $fieldname, '');
+							$value = $_POST[$fieldname] ?? '';
 					}
 					$storage_opts_data[$name] = $value;
 				}

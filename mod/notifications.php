@@ -78,8 +78,8 @@ function notifications_content(App $a)
 		return Login::form();
 	}
 
-	$page = defaults($_REQUEST, 'page', 1);
-	$show = defaults($_REQUEST, 'show', 0);
+	$page = ($_REQUEST['page'] ?? 0) ?: 1;
+	$show =  $_REQUEST['show'] ?? 0;
 
 	Nav::setSelected('notifications');
 
@@ -158,7 +158,7 @@ function notifications_content(App $a)
 	];
 
 	// Process the data for template creation
-	if (defaults($notifs, 'ident', '') === 'introductions') {
+	if (($notifs['ident'] ?? '') == 'introductions') {
 		$sugg = Renderer::getMarkupTemplate('suggestions.tpl');
 		$tpl = Renderer::getMarkupTemplate('intros.tpl');
 

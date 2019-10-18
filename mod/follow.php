@@ -62,7 +62,7 @@ function follow_content(App $a)
 	$uid = local_user();
 
 	// Issue 4815: Silently removing a prefixing @
-	$url = ltrim(Strings::escapeTags(trim(defaults($_REQUEST, 'url', ''))), '@!');
+	$url = ltrim(Strings::escapeTags(trim($_REQUEST['url'] ?? '')), '@!');
 
 	// Issue 6874: Allow remote following from Peertube
 	if (strpos($url, 'acct:') === 0) {

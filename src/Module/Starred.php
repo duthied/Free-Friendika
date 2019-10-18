@@ -41,7 +41,7 @@ class Starred extends BaseModule
 		Item::update(['starred' => $starred], ['id' => $itemId]);
 
 		// See if we've been passed a return path to redirect to
-		$returnPath = defaults($_REQUEST, 'return', '');
+		$returnPath = $_REQUEST['return'] ?? '';
 		if ($returnPath) {
 			$rand = '_=' . time();
 			if (strpos($returnPath, '?')) {

@@ -45,7 +45,7 @@ function fsuggest_post(App $a)
 		return;
 	}
 
-	$note = Strings::escapeHtml(trim(defaults($_POST, 'note', '')));
+	$note = Strings::escapeHtml(trim($_POST['note'] ?? ''));
 
 	$fields = ['uid' => local_user(),'cid' => $contact_id, 'name' => $contact['name'],
 		'url' => $contact['url'], 'request' => $contact['request'],

@@ -128,7 +128,7 @@ class Session
 			'page_flags'    => $user_record['page-flags'],
 			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
 			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
-			'addr'          => defaults($_SERVER, 'REMOTE_ADDR', '0.0.0.0')
+			'addr'          => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
 		]);
 
 		self::setVisitorsContacts();

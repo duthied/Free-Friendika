@@ -104,7 +104,7 @@ class Network
 
 		$parts2 = [];
 		$parts = parse_url($url);
-		$path_parts = explode('/', defaults($parts, 'path', ''));
+		$path_parts = explode('/', $parts['path'] ?? '');
 		foreach ($path_parts as $part) {
 			if (strlen($part) <> mb_strlen($part)) {
 				$parts2[] = rawurlencode($part);
@@ -285,16 +285,6 @@ class Network
 			curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 		}
 
-		if (defined('LIGHTTPD')) {
-			if (empty($headers)) {
-				$headers = ['Expect:'];
-			} else {
-				if (!in_array('Expect:', $headers)) {
-					array_push($headers, 'Expect:');
-				}
-			}
-		}
-
 		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
@@ -336,6 +326,21 @@ class Network
 		curl_close($ch);
 
 		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
+
+		// Very old versions of Lighttpd don't like the "Expect" header, so we remove it when needed
+		if ($curlResponse->getReturnCode() == 417) {
+			$redirects++;
+
+			if (empty($headers)) {
+				$headers = ['Expect:'];
+			} else {
+				if (!in_array('Expect:', $headers)) {
+					array_push($headers, 'Expect:');
+				}
+			}
+			Logger::info('Server responds with 417, applying workaround', ['url' => $url]);
+			return self::post($url, $params, $headers, $redirects, $timeout);
+		}
 
 		Logger::log('post_url: end ' . $url, Logger::DATA);
 
@@ -380,7 +385,7 @@ class Network
 		/// @TODO Really suppress function outcomes? Why not find them + debug them?
 		$h = @parse_url($url);
 
-		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP) )) {
+		if (!empty($h['host']) && (@dns_get_record($h['host'], DNS_A + DNS_CNAME) || filter_var($h['host'], FILTER_VALIDATE_IP))) {
 			return $url;
 		}
 
@@ -406,7 +411,7 @@ class Network
 		$h = substr($addr, strpos($addr, '@') + 1);
 
 		// Concerning the @ see here: https://stackoverflow.com/questions/36280957/dns-get-record-a-temporary-server-error-occurred
-		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP) )) {
+		if ($h && (@dns_get_record($h, DNS_A + DNS_MX) || filter_var($h, FILTER_VALIDATE_IP))) {
 			return true;
 		}
 		if ($h && @dns_get_record($h, DNS_CNAME + DNS_MX)) {
@@ -801,8 +806,8 @@ class Network
 		$i = 0;
 		$path = "";
 		do {
-			$path1 = defaults($pathparts1, $i, '');
-			$path2 = defaults($pathparts2, $i, '');
+			$path1 = $pathparts1[$i] ?? '';
+			$path2 = $pathparts2[$i] ?? '';
 
 			if ($path1 == $path2) {
 				$path .= $path1."/";

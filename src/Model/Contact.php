@@ -1078,14 +1078,14 @@ class Contact extends BaseObject
 			$profile["micro"] = $profile["thumb"];
 		}
 
-		if ((empty($profile["addr"]) || empty($profile["name"])) && (defaults($profile, "gid", 0) != 0)
+		if ((empty($profile["addr"]) || empty($profile["name"])) && !empty($profile["gid"])
 			&& in_array($profile["network"], Protocol::FEDERATED)
 		) {
 			Worker::add(PRIORITY_LOW, "UpdateGContact", $url);
 		}
 
 		// Show contact details of Diaspora contacts only if connected
-		if ((defaults($profile, "cid", 0) == 0) && (defaults($profile, "network", "") == Protocol::DIASPORA)) {
+		if (empty($profile["cid"]) && ($profile["network"] ?? "") == Protocol::DIASPORA) {
 			$profile["location"] = "";
 			$profile["about"] = "";
 			$profile["gender"] = "";
@@ -1504,25 +1504,25 @@ class Contact extends BaseObject
 				'created'   => DateTimeFormat::utcNow(),
 				'url'       => $data['url'],
 				'nurl'      => Strings::normaliseLink($data['url']),
-				'addr'      => defaults($data, 'addr', ''),
-				'alias'     => defaults($data, 'alias', ''),
-				'notify'    => defaults($data, 'notify', ''),
-				'poll'      => defaults($data, 'poll', ''),
-				'name'      => defaults($data, 'name', ''),
-				'nick'      => defaults($data, 'nick', ''),
-				'photo'     => defaults($data, 'photo', ''),
-				'keywords'  => defaults($data, 'keywords', ''),
-				'location'  => defaults($data, 'location', ''),
-				'about'     => defaults($data, 'about', ''),
+				'addr'      => $data['addr'] ?? '',
+				'alias'     => $data['alias'] ?? '',
+				'notify'    => $data['notify'] ?? '',
+				'poll'      => $data['poll'] ?? '',
+				'name'      => $data['name'] ?? '',
+				'nick'      => $data['nick'] ?? '',
+				'photo'     => $data['photo'] ?? '',
+				'keywords'  => $data['keywords'] ?? '',
+				'location'  => $data['location'] ?? '',
+				'about'     => $data['about'] ?? '',
 				'network'   => $data['network'],
-				'pubkey'    => defaults($data, 'pubkey', ''),
+				'pubkey'    => $data['pubkey'] ?? '',
 				'rel'       => self::SHARING,
-				'priority'  => defaults($data, 'priority', 0),
-				'batch'     => defaults($data, 'batch', ''),
-				'request'   => defaults($data, 'request', ''),
-				'confirm'   => defaults($data, 'confirm', ''),
-				'poco'      => defaults($data, 'poco', ''),
-				'baseurl'   => defaults($data, 'baseurl', ''),
+				'priority'  => $data['priority'] ?? 0,
+				'batch'     => $data['batch'] ?? '',
+				'request'   => $data['request'] ?? '',
+				'confirm'   => $data['confirm'] ?? '',
+				'poco'      => $data['poco'] ?? '',
+				'baseurl'   => $data['baseurl'] ?? '',
 				'name-date' => DateTimeFormat::utcNow(),
 				'uri-date'  => DateTimeFormat::utcNow(),
 				'avatar-date' => DateTimeFormat::utcNow(),
@@ -1589,7 +1589,7 @@ class Contact extends BaseObject
 			$fields = ['addr', 'alias', 'name', 'nick', 'keywords', 'location', 'about', 'baseurl'];
 
 			foreach ($fields as $field) {
-				$updated[$field] = defaults($data, $field, $contact[$field]);
+				$updated[$field] = ($data[$field] ?? '') ?: $contact[$field];
 			}
 
 			if (($updated['addr'] != $contact['addr']) || (!empty($data['alias']) && ($data['alias'] != $contact['alias']))) {
@@ -2469,9 +2469,9 @@ class Contact extends BaseObject
 			return false;
 		}
 
-		$url = defaults($datarray, 'author-link', $pub_contact['url']);
+		$url = ($datarray['author-link'] ?? '') ?: $pub_contact['url'];
 		$name = $pub_contact['name'];
-		$photo = defaults($pub_contact, 'avatar', $pub_contact["photo"]);
+		$photo = ($pub_contact['avatar'] ?? '') ?: $pub_contact["photo"];
 		$nick = $pub_contact['nick'];
 		$network = $pub_contact['network'];
 

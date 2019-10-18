@@ -41,7 +41,7 @@ function hcard_init(App $a)
 	}
 
 	if (!$blocked) {
-		$keywords = defaults($a->profile, 'pub_keywords', '');
+		$keywords = $a->profile['pub_keywords'] ?? '';
 		$keywords = str_replace([',',' ',',,'], [' ',',',','], $keywords);
 		if (strlen($keywords)) {
 			$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\r\n";

@@ -73,7 +73,7 @@ class Install extends BaseModule
 		// so we may not have a css at all. Here we set a static css file for the install procedure pages
 		Renderer::$theme['stylesheet'] = $a->getBaseURL() . '/view/install/style.css';
 
-		self::$currentWizardStep = defaults($_POST, 'pass', self::SYSTEM_CHECK);
+		self::$currentWizardStep = ($_POST['pass'] ?? '') ?: self::SYSTEM_CHECK;
 	}
 
 	public static function post()
@@ -345,8 +345,8 @@ class Install extends BaseModule
 	{
 		$configCache->set($cat, $key,
 			Strings::escapeTags(
-				trim(defaults($post, sprintf('%s-%s', $cat, $key),
-						(!isset($default) ? $configCache->get($cat, $key) : $default))
+				trim(($post[sprintf('%s-%s', $cat, $key)] ?? '') ?:
+						($default ?? $configCache->get($cat, $key))
 				)
 			)
 		);

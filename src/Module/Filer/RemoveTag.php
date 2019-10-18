@@ -23,8 +23,8 @@ class RemoveTag extends BaseModule
 
 		$item_id = (($app->argc > 1) ? intval($app->argv[1]) : 0);
 
-		$term = XML::unescape(trim(defaults($_GET, 'term', '')));
-		$cat = XML::unescape(trim(defaults($_GET, 'cat', '')));
+		$term = XML::unescape(trim($_GET['term'] ?? ''));
+		$cat = XML::unescape(trim($_GET['cat'] ?? ''));
 
 		$category = (($cat) ? true : false);
 

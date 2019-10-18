@@ -544,7 +544,7 @@ class Email
 			}
 
 			$quotelevel = 0;
-			$nextline = trim(defaults($arrbody, $i + 1, ''));
+			$nextline = trim($arrbody[$i + 1] ?? '');
 			while ((strlen($nextline)>0) && ((substr($nextline, 0, 1) == '>')
 				|| (substr($nextline, 0, 1) == ' '))) {
 				if (substr($nextline, 0, 1) == '>') {

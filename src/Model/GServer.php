@@ -814,7 +814,7 @@ class GServer
 
 		if (!empty($data['version'])) {
 			$serverdata['platform'] = 'mastodon';
-			$serverdata['version'] = defaults($data, 'version', '');
+			$serverdata['version'] = $data['version'] ?? '';
 			$serverdata['network'] = Protocol::ACTIVITYPUB;
 		}
 
@@ -1010,7 +1010,7 @@ class GServer
 			$serverdata['info'] = trim($data['info']);
 		}
 
-		$register_policy = defaults($data, 'register_policy', 'REGISTER_CLOSED');
+		$register_policy = ($data['register_policy'] ?? '') ?: 'REGISTER_CLOSED';
 		switch ($register_policy) {
 			case 'REGISTER_OPEN':
 				$serverdata['register_policy'] = Register::OPEN;
@@ -1030,7 +1030,7 @@ class GServer
 				break;
 		}
 
-		$serverdata['platform'] = defaults($data, 'platform', '');
+		$serverdata['platform'] = $data['platform'] ?? '';
 
 		return $serverdata;
 	}
