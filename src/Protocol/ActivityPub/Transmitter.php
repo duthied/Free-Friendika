@@ -6,31 +6,33 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\BaseObject;
 use Friendica\Content\Feature;
-use Friendica\Database\DBA;
+use Friendica\Content\Text\BBCode;
+use Friendica\Content\Text\Plaintext;
+use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Protocol\Activity;
 use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
-use Friendica\Model\Conversation;
-use Friendica\Model\Contact;
+use Friendica\Core\System;
+use Friendica\Database\DBA;
 use Friendica\Model\APContact;
+use Friendica\Model\Contact;
+use Friendica\Model\Conversation;
 use Friendica\Model\Item;
+use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Model\User;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\Plaintext;
-use Friendica\Util\XML;
+use Friendica\Util\HTTPSignature;
+use Friendica\Util\Images;
 use Friendica\Util\JsonLD;
 use Friendica\Util\LDSignature;
-use Friendica\Model\Profile;
-use Friendica\Object\Image;
-use Friendica\Protocol\ActivityPub;
-use Friendica\Core\Cache;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
+use Friendica\Util\XML;
 
 require_once 'include/api.php';
 require_once 'mod/share.php';
@@ -1049,7 +1051,7 @@ class Transmitter
 		// Grab all pictures without alternative descriptions and create attachments out of them
 		if (preg_match_all("/\[img\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures)) {
 			foreach ($pictures[1] as $picture) {
-				$imgdata = Image::getInfoFromURL($picture);
+				$imgdata = Images::getInfoFromURLCached($picture);
 				if ($imgdata) {
 					$attachments[] = ['type' => 'Document',
 						'mediaType' => $imgdata['mime'],
@@ -1062,7 +1064,7 @@ class Transmitter
 		// Grab all pictures with alternative description and create attachments out of them
 		if (preg_match_all("/\[img=([^\[\]]*)\]([^\[\]]*)\[\/img\]/Usi", $body, $pictures, PREG_SET_ORDER)) {
 			foreach ($pictures as $picture) {
-				$imgdata = Image::getInfoFromURL($picture[1]);
+				$imgdata = Images::getInfoFromURLCached($picture[1]);
 				if ($imgdata) {
 					$attachments[] = ['type' => 'Document',
 						'mediaType' => $imgdata['mime'],

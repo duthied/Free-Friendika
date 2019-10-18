@@ -9,16 +9,16 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Core\Session;
-use Friendica\Core\Config;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Object\Image;
+use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
 function wall_upload_post(App $a, $desktopmode = true)
@@ -166,7 +166,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 
 	if ($filetype == "") {
-		$filetype = Image::guessType($filename);
+		$filetype = Images::guessType($filename);
 	}
 
 	// If there is a temp name, then do a manual check

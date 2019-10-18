@@ -29,6 +29,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Map;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -142,7 +143,7 @@ function photos_post(App $a)
 	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), Logger::DATA);
 	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), Logger::DATA);
 
-	$phototypes = Image::supportedTypes();
+	$phototypes = Images::supportedTypes();
 
 	$can_post  = false;
 	$visitor   = 0;
@@ -694,7 +695,7 @@ function photos_post(App $a)
 	}
 
 	if ($type == "") {
-		$type = Image::guessType($filename);
+		$type = Images::guessType($filename);
 	}
 
 	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
@@ -846,7 +847,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$phototypes = Image::supportedTypes();
+	$phototypes = Images::supportedTypes();
 
 	$_SESSION['photo_return'] = $a->cmd;
 

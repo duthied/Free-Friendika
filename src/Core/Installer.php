@@ -9,7 +9,7 @@ use Exception;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
-use Friendica\Object\Image;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -569,7 +569,7 @@ class Installer
 
 		if (class_exists('Imagick')) {
 			$imagick = true;
-			$supported = Image::supportedTypes();
+			$supported = Images::supportedTypes();
 			if (array_key_exists('image/gif', $supported)) {
 				$gif = true;
 			}

@@ -17,8 +17,8 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
-use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -425,7 +425,7 @@ class Photo extends BaseObject
 		}
 
 		if (empty($type)) {
-			$type = Image::guessType($image_url, true);
+			$type = Images::guessType($image_url, true);
 		}
 
 		$Image = new Image($img_str, $type);
@@ -664,7 +664,7 @@ class Photo extends BaseObject
 	public static function stripExtension($name)
 	{
 		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
-		foreach (Image::supportedTypes() as $m => $e) {
+		foreach (Images::supportedTypes() as $m => $e) {
 			$name = str_replace("." . $e, "", $name);
 		}
 		return $name;

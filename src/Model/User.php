@@ -22,6 +22,7 @@ use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
@@ -829,7 +830,7 @@ class User
 			$filename = basename($photo);
 			$img_str = Network::fetchUrl($photo, true);
 			// guess mimetype from headers or filename
-			$type = Image::guessType($photo, true);
+			$type = Images::guessType($photo, true);
 
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {

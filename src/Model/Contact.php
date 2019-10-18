@@ -25,6 +25,7 @@ use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -719,7 +720,7 @@ class Contact extends BaseObject
 			}
 
 			// Creating the path to the avatar, beginning with the file suffix
-			$types = Image::supportedTypes();
+			$types = Images::supportedTypes();
 			if (isset($types[$avatar['type']])) {
 				$file_suffix = $types[$avatar['type']];
 			}

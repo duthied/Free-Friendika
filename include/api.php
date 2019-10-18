@@ -45,6 +45,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -1167,7 +1168,7 @@ function api_statuses_update($type)
 				api_user()
 			);
 			if (DBA::isResult($r)) {
-				$phototypes = Image::supportedTypes();
+				$phototypes = Images::supportedTypes();
 				$ext = $phototypes[$r[0]['type']];
 				$description = $r[0]['desc'] ?? '';
 				$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
@@ -2564,7 +2565,7 @@ function api_get_attachments(&$body)
 	$attachments = [];
 
 	foreach ($images[1] as $image) {
-		$imagedata = Image::getInfoFromURL($image);
+		$imagedata = Images::getInfoFromURLCached($image);
 
 		if ($imagedata) {
 			$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
@@ -2711,7 +2712,7 @@ function api_get_entitities(&$text, $bbcode)
 
 		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
-			$image = Image::getInfoFromURL($url);
+			$image = Images::getInfoFromURLCached($url);
 			if ($image) {
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
@@ -2719,19 +2720,19 @@ function api_get_entitities(&$text, $bbcode)
 					$media_url = ProxyUtils::proxifyUrl($url);
 
 					$sizes = [];
-					$scale = Image::getScalingDimensions($image[0], $image[1], 150);
+					$scale = Images::getScalingDimensions($image[0], $image[1], 150);
 					$sizes["thumb"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 
 					if (($image[0] > 150) || ($image[1] > 150)) {
-						$scale = Image::getScalingDimensions($image[0], $image[1], 340);
+						$scale = Images::getScalingDimensions($image[0], $image[1], 340);
 						$sizes["small"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 					}
 
-					$scale = Image::getScalingDimensions($image[0], $image[1], 600);
+					$scale = Images::getScalingDimensions($image[0], $image[1], 600);
 					$sizes["medium"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 
 					if (($image[0] > 600) || ($image[1] > 600)) {
-						$scale = Image::getScalingDimensions($image[0], $image[1], 1024);
+						$scale = Images::getScalingDimensions($image[0], $image[1], 1024);
 						$sizes["large"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 					}
 				} else {
@@ -4740,7 +4741,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 
 	if ($filetype == "") {
-		$filetype=Image::guessType($filename);
+		$filetype = Images::guessType($filename);
 	}
 	$imagedata = @getimagesize($src);
 	if ($imagedata) {

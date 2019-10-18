@@ -35,6 +35,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -504,7 +505,7 @@ class DFRN
 			$uid
 		);
 		$photos = [];
-		$ext = Image::supportedTypes();
+		$ext = Images::supportedTypes();
 
 		foreach ($rp as $p) {
 			$photos[$p['scale']] = System::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];

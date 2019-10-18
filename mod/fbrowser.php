@@ -10,7 +10,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Object\Image;
+use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
 /**
@@ -79,7 +79,7 @@ function fbrowser_content(App $a)
 			function _map_files1($rr)
 			{
 				$a = \get_app();
-				$types = Image::supportedTypes();
+				$types = Images::supportedTypes();
 				$ext = $types[$rr['type']];
 				$filename_e = $rr['filename'];
 
