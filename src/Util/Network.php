@@ -285,16 +285,6 @@ class Network
 			curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 		}
 
-		if (defined('LIGHTTPD')) {
-			if (empty($headers)) {
-				$headers = ['Expect:'];
-			} else {
-				if (!in_array('Expect:', $headers)) {
-					array_push($headers, 'Expect:');
-				}
-			}
-		}
-
 		if (!empty($headers)) {
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
@@ -336,6 +326,21 @@ class Network
 		curl_close($ch);
 
 		$a->getProfiler()->saveTimestamp($stamp1, 'network', System::callstack());
+
+		// Very old versions of Lighttpd don't like the "Expect" header, so we remove it when needed
+		if ($curlResponse->getReturnCode() == 417) {
+			$redirects++;
+
+			if (empty($headers)) {
+				$headers = ['Expect:'];
+			} else {
+				if (!in_array('Expect:', $headers)) {
+					array_push($headers, 'Expect:');
+				}
+			}
+			Logger::info('Server responds with 417, applying workaround', ['url' => $url]);
+			return self::post($url, $params, $headers, $redirects, $timeout);
+		}
 
 		Logger::log('post_url: end ' . $url, Logger::DATA);
 
