@@ -18,7 +18,6 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\Photo;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
@@ -103,6 +102,27 @@ class User
 	public static function getById($uid, array $fields = [])
 	{
 		return DBA::selectFirst('user', $fields, ['uid' => $uid]);
+	}
+
+	/**
+	 * Returns a user record based on it's GUID
+	 *
+	 * @param string $guid   The guid of the user
+	 * @param array  $fields The fields to retrieve
+	 * @param bool   $active True, if only active records are searched
+	 *
+	 * @return array|boolean User record if it exists, false otherwise
+	 * @throws Exception
+	 */
+	public static function getByGuid(string $guid, array $fields = [], bool $active = true)
+	{
+		if ($active) {
+			$cond = ['guid' => $guid, 'account_expired' => false, 'account_removed' => false];
+		} else {
+			$cond = ['guid' => $guid];
+		}
+
+		return DBA::selectFirst('user', $fields, $cond);
 	}
 
 	/**

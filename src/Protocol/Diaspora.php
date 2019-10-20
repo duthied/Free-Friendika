@@ -413,8 +413,8 @@ class Diaspora
 	/**
 	 * @brief: Decodes incoming Diaspora message in the new format
 	 *
-	 * @param array   $importer Array of the importer user
 	 * @param string  $raw      raw post message
+	 * @param string  $privKey   The private key of the importer
 	 * @param boolean $no_exit  Don't do an http exit on error
 	 *
 	 * @return array
@@ -424,7 +424,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function decodeRaw(array $importer, $raw, $no_exit = false)
+	public static function decodeRaw(string $raw, string $privKey = '', bool $no_exit = false)
 	{
 		$data = json_decode($raw);
 
@@ -434,7 +434,7 @@ class Diaspora
 			$ciphertext = base64_decode($data->encrypted_magic_envelope);
 
 			$outer_key_bundle = '';
-			@openssl_private_decrypt($encrypted_aes_key_bundle, $outer_key_bundle, $importer['prvkey']);
+			@openssl_private_decrypt($encrypted_aes_key_bundle, $outer_key_bundle, $privKey);
 			$j_outer_key_bundle = json_decode($outer_key_bundle);
 
 			if (!is_object($j_outer_key_bundle)) {
@@ -519,8 +519,8 @@ class Diaspora
 	/**
 	 * @brief: Decodes incoming Diaspora message in the deprecated format
 	 *
-	 * @param array  $importer Array of the importer user
 	 * @param string $xml      urldecoded Diaspora salmon
+	 * @param string $privKey  The private key of the importer
 	 *
 	 * @return array
 	 * 'message' -> decoded Diaspora XML message
@@ -529,7 +529,7 @@ class Diaspora
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function decode(array $importer, $xml)
+	public static function decode(string $xml, string $privKey = '')
 	{
 		$public = false;
 		$basedom = XML::parseString($xml);
@@ -548,7 +548,7 @@ class Diaspora
 			$author_link = str_replace('acct:', '', $children->header->author_id);
 		} else {
 			// This happens with posts from a relais
-			if (!$importer) {
+			if (empty($privKey)) {
 				Logger::log("This is no private post in the old format", Logger::DEBUG);
 				return false;
 			}
@@ -559,7 +559,7 @@ class Diaspora
 			$ciphertext = base64_decode($encrypted_header->ciphertext);
 
 			$outer_key_bundle = '';
-			openssl_private_decrypt($encrypted_aes_key_bundle, $outer_key_bundle, $importer['prvkey']);
+			openssl_private_decrypt($encrypted_aes_key_bundle, $outer_key_bundle, $privKey);
 
 			$j_outer_key_bundle = json_decode($outer_key_bundle);
 

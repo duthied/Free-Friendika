@@ -196,6 +196,11 @@ return [
 		'/saved/remove'        => [Module\Search\Saved::class, [R::GET]],
 	],
 
+	'/receive' => [
+		'/public'       => [Module\Diaspora\Receive::class, [R::POST]],
+		'/users/{guid}' => [Module\Diaspora\Receive::class, [R::POST]],
+	],
+
 	'/settings' => [
 		'/2fa' => [
 			'[/]'           => [Module\Settings\TwoFactor\Index::class,       [R::GET, R::POST]],
