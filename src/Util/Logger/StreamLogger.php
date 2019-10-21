@@ -81,6 +81,8 @@ class StreamLogger extends AbstractLogger
 		} else {
 			throw new \InvalidArgumentException(sprintf('The level "%s" is not valid.', $level));
 		}
+
+		$this->checkStream();
 	}
 
 	public function close()

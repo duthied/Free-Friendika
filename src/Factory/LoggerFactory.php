@@ -53,9 +53,6 @@ class LoggerFactory
 	 * @param Profiler      $profiler The profiler of the app
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
-	 *
-	 * @throws \Exception
-	 * @throws InternalServerErrorException
 	 */
 	public function create( Database $database, Configuration $config, Profiler $profiler)
 	{
@@ -84,12 +81,22 @@ class LoggerFactory
 
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
-					static::addStreamHandler($logger, $stream, $loglevel);
+					try {
+						static::addStreamHandler($logger, $stream, $loglevel);
+					} catch (\Throwable $e) {
+						// No Logger ..
+						$logger = new VoidLogger();
+					}
 				}
 				break;
 
 			case 'syslog':
-				$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+				try {
+					$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+				} catch (\Throwable $e) {
+					// No logger ...
+					$logger = new VoidLogger();
+				}
 				break;
 
 			case 'stream':
@@ -97,7 +104,12 @@ class LoggerFactory
 				$stream = $config->get('system', 'logfile');
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
-					$logger = new StreamLogger($this->channel, $stream, $introspection, $loglevel);
+					try {
+						$logger = new StreamLogger($this->channel, $stream, $introspection, $loglevel);
+					} catch (\Throwable $t) {
+						// No logger ...
+						$logger = new VoidLogger();
+					}
 				} else {
 					$logger = new VoidLogger();
 				}
@@ -210,11 +222,10 @@ class LoggerFactory
 			case "3":
 				return LogLevel::INFO;
 			// legacy DATA
-			case "4":
-				return LogLevel::DEBUG;
-			// legacy ALL
 			case "5":
-				return LogLevel::DEBUG;
+			// legacy ALL
+			case "4":
+			return LogLevel::DEBUG;
 			// default if nothing set
 			default:
 				return $level;
@@ -230,7 +241,6 @@ class LoggerFactory
 	 *
 	 * @return void
 	 *
-	 * @throws InternalServerErrorException if the logger is incompatible to the logger factory
 	 * @throws \Exception in case of general failures
 	 */
 	public static function addStreamHandler($logger, $stream, $level = LogLevel::NOTICE)
@@ -249,8 +259,6 @@ class LoggerFactory
 			$fileHandler->setFormatter($formatter);
 
 			$logger->pushHandler($fileHandler);
-		} else {
-			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
 		}
 	}
 
