@@ -126,7 +126,7 @@ class GContact
 			throw new Exception('URL is empty');
 		}
 
-		$gcontact['server_url'] = defaults($gcontact, 'server_url', '');
+		$gcontact['server_url'] = $gcontact['server_url'] ?? '';
 
 		$urlparts = parse_url($gcontact['url']);
 		if (empty($urlparts['scheme'])) {
