@@ -51,7 +51,7 @@ class Receive extends BaseModule
 				break;
 			default:
 				self::$logger->info('Wrong call.');
-				throw new HTTPException\InternalServerErrorException('wrong call.');
+				throw new HTTPException\BadRequestException('wrong call.');
 				break;
 		}
 	}
@@ -134,7 +134,7 @@ class Receive extends BaseModule
 			}
 		}
 
-		self::$logger->info('Diaspora: Post encoded.');
+		self::$logger->info('Diaspora: Post decoded.');
 		self::$logger->debug('Diaspora: Decoded message.', ['msg' => print_r($msg, true)]);
 
 		if (!is_array($msg)) {
