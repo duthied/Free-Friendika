@@ -87,7 +87,7 @@ class Receive extends BaseModule
 
 		$importer = User::getByGuid($guid);
 
-		$msg = self::decodePost(false, $importer['privKey'] ?? '');
+		$msg = self::decodePost(false, $importer['prvkey'] ?? '');
 
 		self::$logger->info('Diaspora: Dispatching.');
 

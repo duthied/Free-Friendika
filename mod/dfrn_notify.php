@@ -214,7 +214,7 @@ function dfrn_dispatch_public($postdata)
 
 function dfrn_dispatch_private($user, $postdata)
 {
-	$msg = Diaspora::decodeRaw($postdata, $user['privKey'] ?? '');
+	$msg = Diaspora::decodeRaw($postdata, $user['prvkey'] ?? '');
 	if (!$msg) {
 		System::xmlExit(4, 'Unable to parse message');
 	}
