@@ -15,8 +15,8 @@ use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
-use Friendica\Util\Strings;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 function dfrn_notify_post(App $a) {
 	Logger::log(__function__, Logger::TRACE);
@@ -184,7 +184,7 @@ function dfrn_notify_post(App $a) {
 
 function dfrn_dispatch_public($postdata)
 {
-	$msg = Diaspora::decodeRaw([], $postdata, true);
+	$msg = Diaspora::decodeRaw($postdata, '', true);
 	if (!$msg) {
 		// We have to fail silently to be able to hand it over to the salmon parser
 		return false;
@@ -214,7 +214,7 @@ function dfrn_dispatch_public($postdata)
 
 function dfrn_dispatch_private($user, $postdata)
 {
-	$msg = Diaspora::decodeRaw($user, $postdata);
+	$msg = Diaspora::decodeRaw($postdata, $user['prvkey'] ?? '');
 	if (!$msg) {
 		System::xmlExit(4, 'Unable to parse message');
 	}
