@@ -54,7 +54,7 @@ class BaseObject
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	protected static function getClass(string $name)
+	public static function getClass(string $name)
 	{
 		if (empty(self::$dice)) {
 			throw new InternalServerErrorException('DICE isn\'t initialized.');

@@ -223,22 +223,6 @@ function return_bytes($size_str) {
 	}
 }
 
-function bb_translate_video($s) {
-
-	$matches = null;
-	$r = preg_match_all("/\[video\](.*?)\[\/video\]/ism",$s,$matches,PREG_SET_ORDER);
-	if ($r) {
-		foreach ($matches as $mtch) {
-			if ((stristr($mtch[1], 'youtube')) || (stristr($mtch[1], 'youtu.be'))) {
-				$s = str_replace($mtch[0], '[youtube]' . $mtch[1] . '[/youtube]', $s);
-			} elseif (stristr($mtch[1], 'vimeo')) {
-				$s = str_replace($mtch[0], '[vimeo]' . $mtch[1] . '[/vimeo]', $s);
-			}
-		}
-	}
-	return $s;
-}
-
 /// @TODO Rewrite this
 function is_a_date_arg($s) {
 	$i = intval($s);

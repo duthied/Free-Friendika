@@ -24,8 +24,8 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
@@ -499,8 +499,9 @@ function item_post(App $a) {
 		$objecttype = ACTIVITY_OBJ_BOOKMARK;
 	}
 
-	$body = bb_translate_video($body);
-
+	/** @var BBCode\Video $bbCodeVideo */
+	$bbCodeVideo = \Friendica\BaseObject::getClass(BBCode\Video::class);
+	$body =  $bbCodeVideo->transform($body);
 
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
