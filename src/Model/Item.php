@@ -3348,7 +3348,7 @@ class Item extends BaseObject
 		) {
 			self::addRedirLinkToImageLinks($item);
 
-			$item["rendered-html"] = prepare_text($item["body"]);
+			$item["rendered-html"] = BBCode::convert($item["body"]);
 			$item["rendered-hash"] = hash("md5", $item["body"]);
 
 			$hook_data = ['item' => $item, 'rendered-html' => $item['rendered-html'], 'rendered-hash' => $item['rendered-hash']];

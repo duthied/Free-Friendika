@@ -18,19 +18,6 @@ function activity_match($haystack,$needle) {
 }
 
 /**
- * @brief Given a text string, convert from bbcode to html and add smilie icons.
- *
- * @param string $text String with bbcode.
- * @return string Formatted HTML
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
- */
-function prepare_text($text)
-{
-	$s = BBCode::convert($text);
-	return trim($s);
-}
-
-/**
  * return array with details for categories and folders for an item
  *
  * @param array $item
