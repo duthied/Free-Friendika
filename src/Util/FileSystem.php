@@ -2,6 +2,9 @@
 
 namespace Friendica\Util;
 
+/**
+ * Util class for filesystem manipulation
+ */
 final class FileSystem
 {
 	/**
@@ -9,6 +12,13 @@ final class FileSystem
 	 */
 	private $errorMessage;
 
+	/**
+	 * Creates a directory based on a file, which gets accessed
+	 *
+	 * @param string $file The file
+	 *
+	 * @return string The directory name (empty if no directory is found, like urls)
+	 */
 	public function createDir(string $file)
 	{
 		$dirname = null;
@@ -39,6 +49,13 @@ final class FileSystem
 		}
 	}
 
+	/**
+	 * Creates a stream based on a URL (could be a local file or a real URL)
+	 *
+	 * @param string $url The file/url
+	 *
+	 * @return false|resource the open stream ressource
+	 */
 	public function createStream(string $url)
 	{
 		$directory = $this->createDir($url);
