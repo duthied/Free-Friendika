@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Protocol;
-use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\Group;
 use Friendica\Util\Strings;
@@ -235,21 +234,6 @@ function bb_translate_video($s) {
 			} elseif (stristr($mtch[1], 'vimeo')) {
 				$s = str_replace($mtch[0], '[vimeo]' . $mtch[1] . '[/vimeo]', $s);
 			}
-		}
-	}
-	return $s;
-}
-
-function undo_post_tagging($s) {
-	$matches = null;
-	$cnt = preg_match_all('/([!#@])\[url=(.*?)\](.*?)\[\/url\]/ism', $s, $matches, PREG_SET_ORDER);
-	if ($cnt) {
-		foreach ($matches as $mtch) {
-			if (in_array($mtch[1], ['!', '@'])) {
-				$contact = Contact::getDetailsByURL($mtch[2]);
-				$mtch[3] = empty($contact['addr']) ? $mtch[2] : $contact['addr'];
-			}
-			$s = str_replace($mtch[0], $mtch[1] . $mtch[3],$s);
 		}
 	}
 	return $s;
