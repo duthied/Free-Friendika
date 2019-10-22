@@ -105,30 +105,6 @@ function qp($s) {
 }
 
 /**
- * @brief Find any non-embedded images in private items and add redir links to them
- *
- * @param App $a
- * @param array &$item The field array of an item row
- */
-function redir_private_images($a, &$item)
-{
-	$matches = [];
-	$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
-	if ($cnt) {
-		foreach ($matches as $mtch) {
-			if (strpos($mtch[1], '/redir') !== false) {
-				continue;
-			}
-
-			if ((local_user() == $item['uid']) && ($item['private'] == 1) && ($item['contact-id'] != $a->contact['id']) && ($item['network'] == Protocol::DFRN)) {
-				$img_url = 'redir/' . $item['contact-id'] . '?url=' . urlencode($mtch[1]);
-				$item['body'] = str_replace($mtch[0], '[img]' . $img_url . '[/img]', $item['body']);
-			}
-		}
-	}
-}
-
-/**
  * @brief Given a text string, convert from bbcode to html and add smilie icons.
  *
  * @param string $text String with bbcode.
