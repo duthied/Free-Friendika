@@ -161,4 +161,40 @@ class ACLFormaterTest extends TestCase
 		$text="<1><><3>";
 		$this->assertEquals(array('1', '3'), $aclFormatter->expand($text));
 	}
+
+	public function dataAclToString()
+	{
+		return [
+			'empty'   => [
+				'input'  => '',
+				'assert' => '',
+			],
+			'string'  => [
+				'input'  => '1,2,3,4',
+				'assert' => '<1><2><3><4>',
+			],
+			'array'   => [
+				'input'  => [1, 2, 3, 4],
+				'assert' => '<1><2><3><4>',
+			],
+			'invalid' => [
+				'input'  => [1, 'a', 3, 4],
+				'assert' => '<1><3><4>',
+			],
+			'invalidString' => [
+				'input'  => 'a,bsd23,4',
+				'assert' => '<4>',
+			],
+		];
+	}
+
+	/**
+	 * @dataProvider dataAclToString
+	 */
+	public function testAclToString($input, string $assert)
+	{
+		$aclFormatter = new ACLFormatter();
+
+		$this->assertEquals($assert, $aclFormatter->aclToString($input));
+	}
 }

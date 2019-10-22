@@ -16,6 +16,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
@@ -37,6 +38,7 @@ use Friendica\Model\Photo;
 use Friendica\Model\Term;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
@@ -269,10 +271,14 @@ function item_post(App $a) {
 			$str_contact_deny  = $user['deny_cid'];
 		} else {
 			// use the posted permissions
-			$str_group_allow   = perms2str($_REQUEST['group_allow'] ?? '');
-			$str_contact_allow = perms2str($_REQUEST['contact_allow'] ?? '');
-			$str_group_deny    = perms2str($_REQUEST['group_deny'] ?? '');
-			$str_contact_deny  = perms2str($_REQUEST['contact_deny'] ?? '');
+
+			/** @var ACLFormatter $aclFormatter */
+			$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+
+			$str_group_allow   = $aclFormatter->aclToString($_REQUEST['group_allow'] ?? '');
+			$str_contact_allow = $aclFormatter->aclToString($_REQUEST['contact_allow'] ?? '');
+			$str_group_deny    = $aclFormatter->aclToString($_REQUEST['group_deny'] ?? '');
+			$str_contact_deny  = $aclFormatter->aclToString($_REQUEST['contact_deny'] ?? '');
 		}
 
 		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
@@ -500,7 +506,7 @@ function item_post(App $a) {
 	}
 
 	/** @var BBCode\Video $bbCodeVideo */
-	$bbCodeVideo = \Friendica\BaseObject::getClass(BBCode\Video::class);
+	$bbCodeVideo = BaseObject::getClass(BBCode\Video::class);
 	$body =  $bbCodeVideo->transform($body);
 
 	// Fold multi-line [code] sequences

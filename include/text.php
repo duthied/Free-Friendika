@@ -5,47 +5,6 @@
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Model\FileTag;
-use Friendica\Model\Group;
-use Friendica\Util\Strings;
-
-/**
- * Wrap ACL elements in angle brackets for storage
- * @param string $item
- */
-function sanitise_acl(&$item) {
-	if (intval($item)) {
-		$item = '<' . intval(Strings::escapeTags(trim($item))) . '>';
-	} elseif (in_array($item, [Group::FOLLOWERS, Group::MUTUALS])) {
-		$item = '<' . $item . '>';
-	} else {
-		unset($item);
-	}
-}
-
-
-/**
- * Convert an ACL array to a storable string
- *
- * Normally ACL permissions will be an array.
- * We'll also allow a comma-separated string.
- *
- * @param string|array $p
- * @return string
- */
-function perms2str($p) {
-	$ret = '';
-	if (is_array($p)) {
-		$tmp = $p;
-	} else {
-		$tmp = explode(',', $p);
-	}
-
-	if (is_array($tmp)) {
-		array_walk($tmp, 'sanitise_acl');
-		$ret = implode('', $tmp);
-	}
-	return $ret;
-}
 
 /**
  * Compare activity uri. Knows about activity namespace.

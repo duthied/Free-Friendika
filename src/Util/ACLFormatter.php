@@ -24,4 +24,44 @@ final class ACLFormatter
 
 		return $matches[1];
 	}
+
+	/**
+	 * Wrap ACL elements in angle brackets for storage
+	 *
+	 * @param string $item The item to sanitise
+	 */
+	private function sanitiseAcl(string &$item) {
+		if (intval($item)) {
+			$item = '<' . intval(Strings::escapeTags(trim($item))) . '>';
+		} elseif (in_array($item, [Group::FOLLOWERS, Group::MUTUALS])) {
+			$item = '<' . $item . '>';
+		} else {
+			$item = '';
+		}
+	}
+
+	/**
+	 * Convert an ACL array to a storable string
+	 *
+	 * Normally ACL permissions will be an array.
+	 * We'll also allow a comma-separated string.
+	 *
+	 * @param string|array $permissions
+	 *
+	 * @return string
+	 */
+	function aclToString($permissions) {
+		$return = '';
+		if (is_array($permissions)) {
+			$item = $permissions;
+		} else {
+			$item = explode(',', $permissions);
+		}
+
+		if (is_array($item)) {
+			array_walk($item, [$this, 'sanitiseAcl']);
+			$return = implode('', $item);
+		}
+		return $return;
+	}
 }
