@@ -14,44 +14,6 @@ use PHPUnit\Framework\TestCase;
 class TextTest extends TestCase
 {
 	/**
-	 * test attribute contains
-	 */
-	public function testAttributeContains1()
-	{
-		$testAttr="class1 notclass2 class3";
-		$this->assertTrue(attribute_contains($testAttr, "class3"));
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
-	 * test attribute contains
-	 */
-	public function testAttributeContains2()
-	{
-		$testAttr="class1 not-class2 class3";
-		$this->assertTrue(attribute_contains($testAttr, "class3"));
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
-	 * test with empty input
-	 */
-	public function testAttributeContainsEmpty()
-	{
-		$testAttr="";
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
-	 * test input with special chars
-	 */
-	public function testAttributeContainsSpecialChars()
-	{
-		$testAttr="--... %\$ä() /(=?}";
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
 	 * test expand_acl, perfect input
 	 */
 	public function testExpandAclNormal()

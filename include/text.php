@@ -65,25 +65,6 @@ function perms2str($p) {
 }
 
 /**
- *  for html,xml parsing - let's say you've got
- *  an attribute foobar="class1 class2 class3"
- *  and you want to find out if it contains 'class3'.
- *  you can't use a normal sub string search because you
- *  might match 'notclass3' and a regex to do the job is
- *  possible but a bit complicated.
- *  pass the attribute string as $attr and the attribute you
- *  are looking for as $s - returns true if found, otherwise false
- *
- * @param string $attr attribute value
- * @param string $s string to search
- * @return boolean True if found, False otherwise
- */
-function attribute_contains($attr, $s) {
-	$a = explode(' ', $attr);
-	return (count($a) && in_array($s,$a));
-}
-
-/**
  * Compare activity uri. Knows about activity namespace.
  *
  * @param string $haystack
