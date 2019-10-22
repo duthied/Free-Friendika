@@ -3,27 +3,10 @@
  * @file include/text.php
  */
 
-use Friendica\App;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Protocol;
 use Friendica\Model\FileTag;
 use Friendica\Model\Group;
 use Friendica\Util\Strings;
-
-/**
- * Turn user/group ACLs stored as angle bracketed text into arrays
- *
- * @param string $s
- * @return array
- */
-function expand_acl($s) {
-	// turn string array of angle-bracketed elements into numeric array
-	// e.g. "<1><2><3>" => array(1,2,3);
-	preg_match_all('/<(' . Group::FOLLOWERS . '|'. Group::MUTUALS . '|[0-9]+)>/', $s, $matches, PREG_PATTERN_ORDER);
-
-	return $matches[1];
-}
-
 
 /**
  * Wrap ACL elements in angle brackets for storage

@@ -24,6 +24,7 @@ use Friendica\Database\DBA;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
@@ -2892,10 +2893,13 @@ class Item extends BaseObject
 	 */
 	public static function enumeratePermissions(array $obj, bool $check_dead = false)
 	{
-		$allow_people = expand_acl($obj['allow_cid']);
-		$allow_groups = Group::expand($obj['uid'], expand_acl($obj['allow_gid']), $check_dead);
-		$deny_people  = expand_acl($obj['deny_cid']);
-		$deny_groups  = Group::expand($obj['uid'], expand_acl($obj['deny_gid']), $check_dead);
+		/** @var ACLFormatter $aclFormater */
+		$aclFormater = self::getClass(ACLFormatter::class);
+
+		$allow_people = $aclFormater->expand($obj['allow_cid']);
+		$allow_groups = Group::expand($obj['uid'], $aclFormater->expand($obj['allow_gid']), $check_dead);
+		$deny_people  = $aclFormater->expand($obj['deny_cid']);
+		$deny_groups  = Group::expand($obj['uid'], $aclFormater->expand($obj['deny_gid']), $check_dead);
 		$recipients   = array_unique(array_merge($allow_people, $allow_groups));
 		$deny         = array_unique(array_merge($deny_people, $deny_groups));
 		$recipients   = array_diff($recipients, $deny);
