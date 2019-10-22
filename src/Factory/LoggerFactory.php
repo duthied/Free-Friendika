@@ -6,6 +6,7 @@ use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\FileSystem;
 use Friendica\Util\Introspection;
 use Friendica\Util\Logger\Monolog\DevelopHandler;
 use Friendica\Util\Logger\Monolog\IntrospectionProcessor;
@@ -51,10 +52,11 @@ class LoggerFactory
 	 * @param Database      $database The Friendica Database instance
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
+	 * @param FileSystem    $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 */
-	public function create( Database $database, Configuration $config, Profiler $profiler)
+	public function create(Database $database, Configuration $config, Profiler $profiler, FileSystem $fileSystem)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new VoidLogger();
@@ -105,7 +107,7 @@ class LoggerFactory
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
 					try {
-						$logger = new StreamLogger($this->channel, $stream, $introspection, $loglevel);
+						$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
 					} catch (\Throwable $t) {
 						// No logger ...
 						$logger = new VoidLogger();
@@ -137,13 +139,14 @@ class LoggerFactory
 	 *
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
+	 * @param FileSystem    $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 *
 	 * @throws InternalServerErrorException
 	 * @throws \Exception
 	 */
-	public static function createDev(Configuration $config, Profiler $profiler)
+	public static function createDev(Configuration $config, Profiler $profiler, FileSystem $fileSystem)
 	{
 		$debugging   = $config->get('system', 'debugging');
 		$stream      = $config->get('system', 'dlogfile');
@@ -183,7 +186,7 @@ class LoggerFactory
 
 			case 'stream':
 			default:
-				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, LogLevel::DEBUG);
+				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, $fileSystem, LogLevel::DEBUG);
 				break;
 		}
 
@@ -225,7 +228,7 @@ class LoggerFactory
 			case "5":
 			// legacy ALL
 			case "4":
-			return LogLevel::DEBUG;
+				return LogLevel::DEBUG;
 			// default if nothing set
 			default:
 				return $level;
