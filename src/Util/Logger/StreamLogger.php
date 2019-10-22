@@ -36,7 +36,6 @@ class StreamLogger extends AbstractLogger
 	 */
 	private $pid;
 
-
 	/**
 	 * @var FileSystem
 	 */
