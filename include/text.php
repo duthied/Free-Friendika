@@ -18,16 +18,6 @@ function activity_match($haystack,$needle) {
 }
 
 /**
- * quick and dirty quoted_printable encoding
- *
- * @param string $s
- * @return string
- */
-function qp($s) {
-	return str_replace("%", "=", rawurlencode($s));
-}
-
-/**
  * @brief Given a text string, convert from bbcode to html and add smilie icons.
  *
  * @param string $text String with bbcode.
