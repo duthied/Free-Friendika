@@ -225,9 +225,9 @@ class LoggerFactory
 			case "3":
 				return LogLevel::INFO;
 			// legacy DATA
-			case "5":
-			// legacy ALL
 			case "4":
+			// legacy ALL
+			case "5":
 				return LogLevel::DEBUG;
 			// default if nothing set
 			default:
