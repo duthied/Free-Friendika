@@ -131,9 +131,12 @@ class Profile extends BaseModule
 
 		$category = $datequery = $datequery2 = '';
 
+		/** @var DateTimeFormat $dtFormat */
+		$dtFormat = self::getClass(DateTimeFormat::class);
+
 		if ($a->argc > 2) {
 			for ($x = 2; $x < $a->argc; $x ++) {
-				if (is_a_date_arg($a->argv[$x])) {
+				if ($dtFormat->isYearMonth($a->argv[$x])) {
 					if ($datequery) {
 						$datequery2 = Strings::escapeHtml($a->argv[$x]);
 					} else {

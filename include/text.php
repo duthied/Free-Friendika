@@ -72,22 +72,3 @@ function get_cats_and_terms($item)
 
 	return [$categories, $folders];
 }
-
-/// @TODO Rewrite this
-function is_a_date_arg($s) {
-	$i = intval($s);
-
-	if ($i > 1900) {
-		$y = date('Y');
-
-		if ($i <= $y + 1 && strpos($s, '-') == 4) {
-			$m = intval(substr($s, 5));
-
-			if ($m > 0 && $m <= 12) {
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
