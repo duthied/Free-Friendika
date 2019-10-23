@@ -2,6 +2,7 @@
 
 namespace Friendica\Test\src\Util\Logger;
 
+use Friendica\Util\FileSystem;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Logger\StreamLogger;
 use org\bovigo\vfs\vfsStream;
@@ -22,11 +23,18 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	private $logfile;
 
+	/**
+	 * @var Filesystem
+	 */
+	private $fileSystem;
+
 	protected function setUp()
 	{
 		parent::setUp();
 
 		$this->setUpVfsDir();
+
+		$this->fileSystem = new Filesystem();
 	}
 
 	/**
@@ -37,7 +45,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 		$this->logfile = vfsStream::newFile('friendica.log')
 			->at($this->root);
 
-		$this->logger = new StreamLogger('test', $this->logfile->url(), $this->introspection, $level);
+		$this->logger = new StreamLogger('test', $this->logfile->url(), $this->introspection, $this->fileSystem, $level);
 
 		return $this->logger;
 	}
@@ -60,7 +68,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 
 		$filehandler = fopen($logfile->url(), 'ab');
 
-		$logger = new StreamLogger('test', $filehandler, $this->introspection);
+		$logger = new StreamLogger('test', $filehandler, $this->introspection, $this->fileSystem);
 		$logger->emergency('working');
 
 		$text = $logfile->getContent();
@@ -76,7 +84,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root);
 
-		$logger = new StreamLogger('test', $logfile->url(), $this->introspection);
+		$logger = new StreamLogger('test', $logfile->url(), $this->introspection, $this->fileSystem);
 		$logger->emergency('working');
 		$logger->close();
 		// close doesn't affect
@@ -94,7 +102,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testNoUrl()
 	{
-		$logger = new StreamLogger('test', '', $this->introspection);
+		$logger = new StreamLogger('test', '', $this->introspection, $this->fileSystem);
 
 		$logger->emergency('not working');
 	}
@@ -109,7 +117,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root)->chmod(0);
 
-		$logger = new StreamLogger('test', $logfile->url(), $this->introspection);
+		$logger = new StreamLogger('test', $logfile->url(), $this->introspection, $this->fileSystem);
 
 		$logger->emergency('not working');
 	}
@@ -123,7 +131,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	{
 		$this->markTestIncomplete('We need a platform independent way to set directory to readonly');
 
-		$logger = new StreamLogger('test', '/$%/wrong/directory/file.txt', $this->introspection);
+		$logger = new StreamLogger('test', '/$%/wrong/directory/file.txt', $this->introspection, $this->fileSystem);
 
 		$logger->emergency('not working');
 	}
@@ -135,7 +143,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongMinimumLevel()
 	{
-		$logger = new StreamLogger('test', 'file.text', $this->introspection, 'NOPE');
+		$logger = new StreamLogger('test', 'file.text', $this->introspection, $this->fileSystem, 'NOPE');
 	}
 
 	/**
@@ -148,7 +156,7 @@ class StreamLoggerTest extends AbstractLoggerTest
 		$logfile = vfsStream::newFile('friendica.log')
 			->at($this->root);
 
-		$logger = new StreamLogger('test', $logfile->url(), $this->introspection);
+		$logger = new StreamLogger('test', $logfile->url(), $this->introspection, $this->fileSystem);
 
 		$logger->log('NOPE', 'a test');
 	}
@@ -160,6 +168,23 @@ class StreamLoggerTest extends AbstractLoggerTest
 	 */
 	public function testWrongFile()
 	{
-		$logger = new StreamLogger('test', null, $this->introspection);
+		$logger = new StreamLogger('test', null, $this->introspection, $this->fileSystem);
+	}
+
+	/**
+	 * Test a relative path
+	 */
+	public function testRealPath()
+	{
+		$this->markTestSkipped('vfsStream isn\'t compatible with chdir, so not testable.');
+
+		$logfile = vfsStream::newFile('friendica.log')
+		                    ->at($this->root);
+
+		chdir($this->root->getChild('logs')->url());
+
+		$logger = new StreamLogger('test', '../friendica.log' , $this->introspection, $this->fileSystem);
+
+		$logger->info('Test');
 	}
 }

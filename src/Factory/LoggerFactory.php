@@ -6,6 +6,7 @@ use Friendica\Core\Config\Configuration;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Util\FileSystem;
 use Friendica\Util\Introspection;
 use Friendica\Util\Logger\Monolog\DevelopHandler;
 use Friendica\Util\Logger\Monolog\IntrospectionProcessor;
@@ -51,13 +52,11 @@ class LoggerFactory
 	 * @param Database      $database The Friendica Database instance
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
+	 * @param FileSystem    $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
-	 *
-	 * @throws \Exception
-	 * @throws InternalServerErrorException
 	 */
-	public function create( Database $database, Configuration $config, Profiler $profiler)
+	public function create(Database $database, Configuration $config, Profiler $profiler, FileSystem $fileSystem)
 	{
 		if (empty($config->get('system', 'debugging', false))) {
 			$logger = new VoidLogger();
@@ -84,12 +83,22 @@ class LoggerFactory
 
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
-					static::addStreamHandler($logger, $stream, $loglevel);
+					try {
+						static::addStreamHandler($logger, $stream, $loglevel);
+					} catch (\Throwable $e) {
+						// No Logger ..
+						$logger = new VoidLogger();
+					}
 				}
 				break;
 
 			case 'syslog':
-				$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+				try {
+					$logger = new SyslogLogger($this->channel, $introspection, $loglevel);
+				} catch (\Throwable $e) {
+					// No logger ...
+					$logger = new VoidLogger();
+				}
 				break;
 
 			case 'stream':
@@ -97,7 +106,12 @@ class LoggerFactory
 				$stream = $config->get('system', 'logfile');
 				// just add a stream in case it's either writable or not file
 				if (!is_file($stream) || is_writable($stream)) {
-					$logger = new StreamLogger($this->channel, $stream, $introspection, $loglevel);
+					try {
+						$logger = new StreamLogger($this->channel, $stream, $introspection, $fileSystem, $loglevel);
+					} catch (\Throwable $t) {
+						// No logger ...
+						$logger = new VoidLogger();
+					}
 				} else {
 					$logger = new VoidLogger();
 				}
@@ -125,13 +139,14 @@ class LoggerFactory
 	 *
 	 * @param Configuration $config   The config
 	 * @param Profiler      $profiler The profiler of the app
+	 * @param FileSystem    $fileSystem FileSystem utils
 	 *
 	 * @return LoggerInterface The PSR-3 compliant logger instance
 	 *
 	 * @throws InternalServerErrorException
 	 * @throws \Exception
 	 */
-	public static function createDev(Configuration $config, Profiler $profiler)
+	public static function createDev(Configuration $config, Profiler $profiler, FileSystem $fileSystem)
 	{
 		$debugging   = $config->get('system', 'debugging');
 		$stream      = $config->get('system', 'dlogfile');
@@ -171,7 +186,7 @@ class LoggerFactory
 
 			case 'stream':
 			default:
-				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, LogLevel::DEBUG);
+				$logger = new StreamLogger(self::DEV_CHANNEL, $stream, $introspection, $fileSystem, LogLevel::DEBUG);
 				break;
 		}
 
@@ -211,7 +226,6 @@ class LoggerFactory
 				return LogLevel::INFO;
 			// legacy DATA
 			case "4":
-				return LogLevel::DEBUG;
 			// legacy ALL
 			case "5":
 				return LogLevel::DEBUG;
@@ -230,7 +244,6 @@ class LoggerFactory
 	 *
 	 * @return void
 	 *
-	 * @throws InternalServerErrorException if the logger is incompatible to the logger factory
 	 * @throws \Exception in case of general failures
 	 */
 	public static function addStreamHandler($logger, $stream, $level = LogLevel::NOTICE)
@@ -249,8 +262,6 @@ class LoggerFactory
 			$fileHandler->setFormatter($formatter);
 
 			$logger->pushHandler($fileHandler);
-		} else {
-			throw new InternalServerErrorException('Logger instance incompatible for MonologFactory');
 		}
 	}
 

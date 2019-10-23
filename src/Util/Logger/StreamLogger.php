@@ -3,6 +3,7 @@
 namespace Friendica\Util\Logger;
 
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\FileSystem;
 use Friendica\Util\Introspection;
 use Psr\Log\LogLevel;
 
@@ -36,10 +37,9 @@ class StreamLogger extends AbstractLogger
 	private $pid;
 
 	/**
-	 * An error message
-	 * @var string
+	 * @var FileSystem
 	 */
-	private $errorMessage;
+	private $fileSystem;
 
 	/**
 	 * Translates LogLevel log levels to integer values
@@ -63,8 +63,10 @@ class StreamLogger extends AbstractLogger
 	 *
 	 * @throws \Exception
 	 */
-	public function __construct($channel, $stream, Introspection $introspection, $level = LogLevel::DEBUG)
+	public function __construct($channel, $stream, Introspection $introspection, FileSystem $fileSystem, $level = LogLevel::DEBUG)
 	{
+		$this->fileSystem = $fileSystem;
+
 		parent::__construct($channel, $introspection);
 
 		if (is_resource($stream)) {
@@ -81,6 +83,8 @@ class StreamLogger extends AbstractLogger
 		} else {
 			throw new \InvalidArgumentException(sprintf('The level "%s" is not valid.', $level));
 		}
+
+		$this->checkStream();
 	}
 
 	public function close()
@@ -155,43 +159,6 @@ class StreamLogger extends AbstractLogger
 			throw new \LogicException('Missing stream URL.');
 		}
 
-		$this->createDir();
-		set_error_handler([$this, 'customErrorHandler']);
-		$this->stream = fopen($this->url, 'ab');
-		restore_error_handler();
-
-		if (!is_resource($this->stream)) {
-			$this->stream = null;
-
-			throw new \UnexpectedValueException(sprintf('The stream or file "%s" could not be opened: ' . $this->errorMessage, $this->url));
-		}
-	}
-
-	private function createDir()
-	{
-		$dirname = null;
-		$pos = strpos($this->url, '://');
-		if (!$pos) {
-			$dirname = dirname($this->url);
-		}
-
-		if (substr($this->url, 0, 7) === 'file://') {
-			$dirname = dirname(substr($this->url, 7));
-		}
-
-		if (isset($dirname) && !is_dir($dirname)) {
-			set_error_handler([$this, 'customErrorHandler']);
-			$status = mkdir($dirname, 0777, true);
-			restore_error_handler();
-
-			if (!$status && !is_dir($dirname)) {
-				throw new \UnexpectedValueException(sprintf('Directory "%s" cannot get created: ' . $this->errorMessage, $dirname));
-			}
-		}
-	}
-
-	private function customErrorHandler($code, $msg)
-	{
-		$this->errorMessage = preg_replace('{^(fopen|mkdir)\(.*?\): }', '', $msg);
+		$this->stream = $this->fileSystem->createStream($this->url);
 	}
 }
