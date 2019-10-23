@@ -9,6 +9,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Protocol\Activity\Namespaces;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
@@ -36,7 +37,7 @@ function salmon_post(App $a, $xml = '') {
 
 	// parse the xml
 
-	$dom = simplexml_load_string($xml,'SimpleXMLElement',0,NAMESPACE_SALMON_ME);
+	$dom = simplexml_load_string($xml,'SimpleXMLElement',0, Namespaces::SALMON_ME);
 
 	$base = null;
 

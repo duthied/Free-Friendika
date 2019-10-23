@@ -32,6 +32,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Activity\Namespaces;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
@@ -465,7 +466,7 @@ class Diaspora
 			}
 		}
 
-		$base = $basedom->children(NAMESPACE_SALMON_ME);
+		$base = $basedom->children(Namespaces::SALMON_ME);
 
 		// Not sure if this cleaning is needed
 		$data = str_replace([" ", "\t", "\r", "\n"], ["", "", "", ""], $base->data);
@@ -577,7 +578,7 @@ class Diaspora
 			$author_link = str_replace('acct:', '', $idom->author_id);
 		}
 
-		$dom = $basedom->children(NAMESPACE_SALMON_ME);
+		$dom = $basedom->children(Namespaces::SALMON_ME);
 
 		// figure out where in the DOM tree our data is hiding
 
@@ -1845,7 +1846,7 @@ class Diaspora
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = self::getUriFromGuid($author, $guid);
 
-		$datarray["verb"] = ACTIVITY_POST;
+		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_COMMENT;
 
 		if ($thr_uri != "") {
@@ -1854,7 +1855,7 @@ class Diaspora
 			$datarray["parent-uri"] = $parent_item["uri"];
 		}
 
-		$datarray["object-type"] = ACTIVITY_OBJ_COMMENT;
+		$datarray["object-type"] = Activity::OBJ_COMMENT;
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
@@ -2062,9 +2063,9 @@ class Diaspora
 		// "positive" = "false" would be a Dislike - wich isn't currently supported by Diaspora
 		// We would accept this anyhow.
 		if ($positive == "true") {
-			$verb = ACTIVITY_LIKE;
+			$verb = Activity::LIKE;
 		} else {
-			$verb = ACTIVITY_DISLIKE;
+			$verb = Activity::DISLIKE;
 		}
 
 		$datarray = [];
@@ -2085,7 +2086,7 @@ class Diaspora
 		$datarray["gravity"] = GRAVITY_ACTIVITY;
 		$datarray["parent-uri"] = $parent_item["uri"];
 
-		$datarray["object-type"] = ACTIVITY_OBJ_NOTE;
+		$datarray["object-type"] = Activity::OBJ_NOTE;
 
 		$datarray["body"] = $verb;
 
@@ -2684,9 +2685,9 @@ class Diaspora
 		$datarray['uri'] = self::getUriFromGuid($author, $datarray['guid']);
 		$datarray['parent-uri'] = $parent['uri'];
 
-		$datarray['verb'] = $datarray['body'] = ACTIVITY2_ANNOUNCE;
+		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
 		$datarray['gravity'] = GRAVITY_ACTIVITY;
-		$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+		$datarray['object-type'] = Activity::OBJ_NOTE;
 
 		$datarray['protocol'] = $item['protocol'];
 
@@ -2757,7 +2758,7 @@ class Diaspora
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
 
-		$datarray["verb"] = ACTIVITY_POST;
+		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
@@ -2962,9 +2963,9 @@ class Diaspora
 					XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}
 
-			$datarray["object-type"] = ACTIVITY_OBJ_IMAGE;
+			$datarray["object-type"] = Activity::OBJ_IMAGE;
 		} else {
-			$datarray["object-type"] = ACTIVITY_OBJ_NOTE;
+			$datarray["object-type"] = Activity::OBJ_NOTE;
 
 			// Add OEmbed and other information to the body
 			if (!self::isRedmatrix($contact["url"])) {
@@ -2994,7 +2995,7 @@ class Diaspora
 		$datarray["guid"] = $guid;
 		$datarray["uri"] = $datarray["parent-uri"] = self::getUriFromGuid($author, $guid);
 
-		$datarray["verb"] = ACTIVITY_POST;
+		$datarray["verb"] = Activity::POST;
 		$datarray["gravity"] = GRAVITY_PARENT;
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
@@ -3780,9 +3781,9 @@ class Diaspora
 
 		$target_type = ($parent["uri"] === $parent["parent-uri"] ? "Post" : "Comment");
 		$positive = null;
-		if ($item['verb'] === ACTIVITY_LIKE) {
+		if ($item['verb'] === Activity::LIKE) {
 			$positive = "true";
-		} elseif ($item['verb'] === ACTIVITY_DISLIKE) {
+		} elseif ($item['verb'] === Activity::DISLIKE) {
 			$positive = "false";
 		}
 
@@ -3811,13 +3812,13 @@ class Diaspora
 		}
 
 		switch ($item['verb']) {
-			case ACTIVITY_ATTEND:
+			case Activity::ATTEND:
 				$attend_answer = 'accepted';
 				break;
-			case ACTIVITY_ATTENDNO:
+			case Activity::ATTENDNO:
 				$attend_answer = 'declined';
 				break;
-			case ACTIVITY_ATTENDMAYBE:
+			case Activity::ATTENDMAYBE:
 				$attend_answer = 'tentative';
 				break;
 			default:
@@ -3913,13 +3914,13 @@ class Diaspora
 	 */
 	public static function sendFollowup(array $item, array $owner, array $contact, $public_batch = false)
 	{
-		if (in_array($item['verb'], [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE])) {
+		if (in_array($item['verb'], [Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE])) {
 			$message = self::constructAttend($item, $owner);
 			$type = "event_participation";
-		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		} elseif (in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
 			$message = self::constructLike($item, $owner);
 			$type = "like";
-		} elseif (!in_array($item["verb"], [ACTIVITY_FOLLOW, ACTIVITY_TAG])) {
+		} elseif (!in_array($item["verb"], [Activity::FOLLOW, Activity::TAG])) {
 			$message = self::constructComment($item, $owner);
 			$type = "comment";
 		}
@@ -3948,7 +3949,7 @@ class Diaspora
 			$message = ["author" => $item['signer'],
 					"target_guid" => $signed_parts[0],
 					"target_type" => $signed_parts[1]];
-		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		} elseif (in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
 			$message = ["author" => $signed_parts[4],
 					"guid" => $signed_parts[1],
 					"parent_guid" => $signed_parts[3],
@@ -3993,7 +3994,7 @@ class Diaspora
 	{
 		if ($item["deleted"]) {
 			return self::sendRetraction($item, $owner, $contact, $public_batch, true);
-		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		} elseif (in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
 			$type = "like";
 		} else {
 			$type = "comment";
@@ -4054,7 +4055,7 @@ class Diaspora
 
 		if ($item['id'] == $item['parent']) {
 			$target_type = "Post";
-		} elseif (in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		} elseif (in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
 			$target_type = "Like";
 		} else {
 			$target_type = "Comment";
@@ -4320,7 +4321,7 @@ class Diaspora
 			return false;
 		}
 
-		if (!in_array($item["verb"], [ACTIVITY_LIKE, ACTIVITY_DISLIKE])) {
+		if (!in_array($item["verb"], [Activity::LIKE, Activity::DISLIKE])) {
 			return false;
 		}
 

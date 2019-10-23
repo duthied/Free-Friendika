@@ -12,6 +12,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
@@ -250,7 +251,7 @@ class NotificationsManager extends BaseObject
 
 				// Transform the different types of notification in an usable array
 				switch ($it['verb']) {
-					case ACTIVITY_LIKE:
+					case Activity::LIKE:
 						$notif = [
 							'label' => 'like',
 							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
@@ -263,7 +264,7 @@ class NotificationsManager extends BaseObject
 						];
 						break;
 
-					case ACTIVITY_DISLIKE:
+					case Activity::DISLIKE:
 						$notif = [
 							'label' => 'dislike',
 							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
@@ -276,7 +277,7 @@ class NotificationsManager extends BaseObject
 						];
 						break;
 
-					case ACTIVITY_ATTEND:
+					case Activity::ATTEND:
 						$notif = [
 							'label' => 'attend',
 							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
@@ -289,7 +290,7 @@ class NotificationsManager extends BaseObject
 						];
 						break;
 
-					case ACTIVITY_ATTENDNO:
+					case Activity::ATTENDNO:
 						$notif = [
 							'label' => 'attendno',
 							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
@@ -302,7 +303,7 @@ class NotificationsManager extends BaseObject
 						];
 						break;
 
-					case ACTIVITY_ATTENDMAYBE:
+					case Activity::ATTENDMAYBE:
 						$notif = [
 							'label' => 'attendmaybe',
 							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
@@ -315,7 +316,7 @@ class NotificationsManager extends BaseObject
 						];
 						break;
 
-					case ACTIVITY_FRIEND:
+					case Activity::FRIEND:
 						if (!isset($it['object'])) {
 							$notif = [
 								'label' => 'friend',

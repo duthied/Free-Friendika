@@ -28,6 +28,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -538,7 +539,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					'source_name'  => ((strlen(stripslashes($combined['name']))) ? stripslashes($combined['name']) : L10n::t('[Name Withheld]')),
 					'source_link'  => $combined['url'],
 					'source_photo' => $combined['photo'],
-					'verb'         => ($mutual?ACTIVITY_FRIEND:ACTIVITY_FOLLOW),
+					'verb'         => ($mutual ? Activity::FRIEND : Activity::FOLLOW),
 					'otype'        => 'intro'
 				]);
 			}

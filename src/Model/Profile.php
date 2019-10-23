@@ -23,6 +23,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -692,7 +693,7 @@ class Profile
 
 			while ($rr = DBA::fetch($s)) {
 				$condition = ['parent-uri' => $rr['uri'], 'uid' => $rr['uid'], 'author-id' => public_contact(),
-					'activity' => [Item::activityToIndex(ACTIVITY_ATTEND), Item::activityToIndex(ACTIVITY_ATTENDMAYBE)],
+					'activity' => [Item::activityToIndex( Activity::ATTEND), Item::activityToIndex(Activity::ATTENDMAYBE)],
 					'visible' => true, 'deleted' => false];
 				if (!Item::exists($condition)) {
 					continue;

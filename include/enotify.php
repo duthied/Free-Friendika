@@ -13,6 +13,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Strings;
@@ -338,7 +339,7 @@ function notification($params)
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 
 		switch ($params['verb']) {
-			case ACTIVITY_FRIEND:
+			case Activity::FRIEND:
 				// someone started to share with user (mostly OStatus)
 				$subject = L10n::t('[Friendica:Notify] A new person is sharing with you');
 
@@ -348,7 +349,7 @@ function notification($params)
 					$sitename
 				);
 				break;
-			case ACTIVITY_FOLLOW:
+			case Activity::FOLLOW:
 				// someone started to follow the user (mostly OStatus)
 				$subject = L10n::t('[Friendica:Notify] You have a new follower');
 
@@ -385,7 +386,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == NOTIFY_CONFIRM) {
-		if ($params['verb'] == ACTIVITY_FRIEND) { // mutual connection
+		if ($params['verb'] == Activity::FRIEND) { // mutual connection
 			$itemlink =  $params['link'];
 			$subject = L10n::t('[Friendica:Notify] Connection accepted');
 
@@ -821,7 +822,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 		if ($send_notification) {
 			$params["type"] = NOTIFY_SHARE;
-			$params["verb"] = ACTIVITY_TAG;
+			$params["verb"] = Activity::TAG;
 		}
 	}
 
@@ -835,7 +836,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	if ($item["mention"] || $tagged || ($defaulttype == NOTIFY_TAGSELF)) {
 		$params["type"] = NOTIFY_TAGSELF;
-		$params["verb"] = ACTIVITY_TAG;
+		$params["verb"] = Activity::TAG;
 	}
 
 	// Is it a post that the user had started?
@@ -844,7 +845,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	if ($thread['mention'] && !$thread['ignored'] && !isset($params["type"])) {
 		$params["type"] = NOTIFY_COMMENT;
-		$params["verb"] = ACTIVITY_POST;
+		$params["verb"] = Activity::POST;
 	}
 
 	// And now we check for participation of one of our contacts in the thread
@@ -852,7 +853,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	if (!$thread['ignored'] && !isset($params["type"]) && Item::exists($condition)) {
 		$params["type"] = NOTIFY_COMMENT;
-		$params["verb"] = ACTIVITY_POST;
+		$params["verb"] = Activity::POST;
 	}
 
 	if (isset($params["type"])) {

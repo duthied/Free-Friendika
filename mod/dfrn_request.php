@@ -27,6 +27,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -561,7 +562,7 @@ function dfrn_request_content(App $a)
 						'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : L10n::t('[Name Withheld]')),
 						'source_link'  => $r[0]['url'],
 						'source_photo' => $r[0]['photo'],
-						'verb'         => ACTIVITY_REQ_FRIEND,
+						'verb'         => Activity::REQ_FRIEND,
 						'otype'        => 'intro'
 					]);
 				}

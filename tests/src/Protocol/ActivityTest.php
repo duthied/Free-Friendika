@@ -16,13 +16,13 @@ class ActivityTest extends MockedTest
 				'assert' => true,
 			],
 			'simple' => [
-				'haystack' => ACTIVITY_OBJ_TAGTERM,
-				'needle' => ACTIVITY_OBJ_TAGTERM,
+				'haystack' => Activity::OBJ_TAGTERM,
+				'needle' => Activity::OBJ_TAGTERM,
 				'assert' => true,
 			],
 			'withNamespace' => [
 				'haystack' => 'tagterm',
-				'needle' => NAMESPACE_ACTIVITY_SCHEMA . ACTIVITY_OBJ_TAGTERM,
+				'needle' => Activity\Namespaces::ACTIVITY_SCHEMA . Activity::OBJ_TAGTERM,
 				'assert' => true,
 			],
 			'invalidSimple' => [
@@ -32,12 +32,12 @@ class ActivityTest extends MockedTest
 			],
 			'invalidWithOutNamespace' => [
 				'haystack' => 'tagterm',
-				'needle' => ACTIVITY_OBJ_TAGTERM,
+				'needle' => Activity::OBJ_TAGTERM,
 				'assert' => false,
 			],
 			'withSubPath' => [
 				'haystack' => 'tagterm',
-				'needle' =>  NAMESPACE_ACTIVITY_SCHEMA . '/bla/' . ACTIVITY_OBJ_TAGTERM,
+				'needle' =>  Activity\Namespaces::ACTIVITY_SCHEMA . '/bla/' . Activity::OBJ_TAGTERM,
 				'assert' => true,
 			],
 		];
@@ -53,5 +53,13 @@ class ActivityTest extends MockedTest
 		$activity = new Activity();
 
 		$this->assertEquals($assert, $activity->match($haystack, $needle));
+	}
+
+	public function testIsHidden()
+	{
+		$activity = new Activity();
+
+		$this->assertTrue($activity->isHidden(Activity::LIKE));
+		$this->assertFalse($activity->isHidden(Activity::OBJ_BOOKMARK));
 	}
 }

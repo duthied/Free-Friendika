@@ -7,6 +7,7 @@ namespace Friendica\Object;
 use Friendica\BaseObject;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Security;
 
 /**
@@ -154,7 +155,7 @@ class Thread extends BaseObject
 			return false;
 		}
 
-		if ($item->getDataValue('verb') === ACTIVITY_LIKE || $item->getDataValue('verb') === ACTIVITY_DISLIKE) {
+		if ($item->getDataValue('verb') === Activity::LIKE || $item->getDataValue('verb') === Activity::DISLIKE) {
 			Logger::log('[WARN] Conversation::addThread : Thread is a (dis)like ('. $item->getId() .').', Logger::DEBUG);
 			return false;
 		}

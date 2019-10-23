@@ -97,7 +97,11 @@ class Item extends BaseObject
 
 	// Never reorder or remove entries from this list. Just add new ones at the end, if needed.
 	// The item-activity table only stores the index and needs this array to know the matching activity.
-	const ACTIVITIES = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW, ACTIVITY2_ANNOUNCE];
+	const ACTIVITIES = [
+		Activity::LIKE, Activity::DISLIKE,
+		Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE,
+		Activity::FOLLOW,
+		Activity::ANNOUNCE];
 
 	private static $legacy_mode = null;
 
@@ -210,9 +214,9 @@ class Item extends BaseObject
 				$row['object'] = '';
 			}
 			if (array_key_exists('object-type', $row)) {
-				$row['object-type'] = ACTIVITY_OBJ_NOTE;
+				$row['object-type'] = Activity::OBJ_NOTE;
 			}
-		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', ACTIVITY_POST, ACTIVITY_SHARE])) {
+		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
 			// Posts don't have an object or target - but having tags or files.
 			// We safe some performance by building tag and file strings only here.
 			// We remove object and target since they aren't used for this type.
@@ -224,7 +228,7 @@ class Item extends BaseObject
 			}
 		}
 
-		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', ACTIVITY_POST, ACTIVITY_SHARE])) {
+		if (!array_key_exists('verb', $row) || in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
 			// Build the tag string out of the term entries
 			if (array_key_exists('tag', $row) && empty($row['tag'])) {
 				$row['tag'] = Term::tagTextFromItemId($row['internal-iid']);
@@ -1153,14 +1157,14 @@ class Item extends BaseObject
 
 	private static function deleteTagsFromItem($item)
 	{
-		if (($item["verb"] != ACTIVITY_TAG) || ($item["object-type"] != ACTIVITY_OBJ_TAGTERM)) {
+		if (($item["verb"] != Activity::TAG) || ($item["object-type"] != Activity::OBJ_TAGTERM)) {
 			return;
 		}
 
 		$xo = XML::parseString($item["object"], false);
 		$xt = XML::parseString($item["target"], false);
 
-		if ($xt->type != ACTIVITY_OBJ_NOTE) {
+		if ($xt->type != Activity::OBJ_NOTE) {
 			return;
 		}
 
@@ -1366,9 +1370,9 @@ class Item extends BaseObject
 			$item['gravity'] = intval($item['gravity']);
 		} elseif ($item['parent-uri'] === $item['uri']) {
 			$item['gravity'] = GRAVITY_PARENT;
-		} elseif ($activity->match($item['verb'], ACTIVITY_POST)) {
+		} elseif ($activity->match($item['verb'], Activity::POST)) {
 			$item['gravity'] = GRAVITY_COMMENT;
-		} elseif ($activity->match($item['verb'], ACTIVITY_FOLLOW)) {
+		} elseif ($activity->match($item['verb'], Activity::FOLLOW)) {
 			$item['gravity'] = GRAVITY_ACTIVITY;
 		} else {
 			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen
@@ -1564,14 +1568,14 @@ class Item extends BaseObject
 			return 0;
 		}
 
-		if ($item['verb'] == ACTIVITY_FOLLOW) {
+		if ($item['verb'] == Activity::FOLLOW) {
 			if (!$item['origin'] && ($item['author-id'] == Contact::getPublicIdByUserId($uid))) {
 				// Our own follow request can be relayed to us. We don't store it to avoid notification chaos.
 				Logger::log("Follow: Don't store not origin follow request from us for " . $item['parent-uri'], Logger::DEBUG);
 				return 0;
 			}
 
-			$condition = ['verb' => ACTIVITY_FOLLOW, 'uid' => $item['uid'],
+			$condition = ['verb' => Activity::FOLLOW, 'uid' => $item['uid'],
 				'parent-uri' => $item['parent-uri'], 'author-id' => $item['author-id']];
 			if (self::exists($condition)) {
 				// It happens that we receive multiple follow requests by the same author - we only store one.
@@ -1678,7 +1682,7 @@ class Item extends BaseObject
 			}
 		}
 
-		if (stristr($item['verb'], ACTIVITY_POKE)) {
+		if (stristr($item['verb'], Activity::POKE)) {
 			$notify_type = Delivery::POKE;
 		}
 
@@ -2691,7 +2695,7 @@ class Item extends BaseObject
 		}
 
 		// Only forward posts
-		if ($datarray["verb"] != ACTIVITY_POST) {
+		if ($datarray["verb"] != Activity::POST) {
 			Logger::log('No post', Logger::DEBUG);
 			return false;
 		}
@@ -3044,23 +3048,23 @@ class Item extends BaseObject
 		switch ($verb) {
 			case 'like':
 			case 'unlike':
-				$activity = ACTIVITY_LIKE;
+				$activity = Activity::LIKE;
 				break;
 			case 'dislike':
 			case 'undislike':
-				$activity = ACTIVITY_DISLIKE;
+				$activity = Activity::DISLIKE;
 				break;
 			case 'attendyes':
 			case 'unattendyes':
-				$activity = ACTIVITY_ATTEND;
+				$activity = Activity::ATTEND;
 				break;
 			case 'attendno':
 			case 'unattendno':
-				$activity = ACTIVITY_ATTENDNO;
+				$activity = Activity::ATTENDNO;
 				break;
 			case 'attendmaybe':
 			case 'unattendmaybe':
-				$activity = ACTIVITY_ATTENDMAYBE;
+				$activity = Activity::ATTENDMAYBE;
 				break;
 			default:
 				Logger::log('like: unknown verb ' . $verb . ' for item ' . $item_id);
@@ -3068,7 +3072,7 @@ class Item extends BaseObject
 		}
 
 		// Enable activity toggling instead of on/off
-		$event_verb_flag = $activity === ACTIVITY_ATTEND || $activity === ACTIVITY_ATTENDNO || $activity === ACTIVITY_ATTENDMAYBE;
+		$event_verb_flag = $activity === Activity::ATTEND || $activity === Activity::ATTENDNO || $activity === Activity::ATTENDMAYBE;
 
 		Logger::log('like: verb ' . $verb . ' item ' . $item_id);
 
@@ -3122,7 +3126,7 @@ class Item extends BaseObject
 		// event participation are essentially radio toggles. If you make a subsequent choice,
 		// we need to eradicate your first choice.
 		if ($event_verb_flag) {
-			$verbs = [ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE];
+			$verbs = [Activity::ATTEND, Activity::ATTENDNO, Activity::ATTENDMAYBE];
 
 			// Translate to the index based activity index
 			$activities = [];
@@ -3152,7 +3156,7 @@ class Item extends BaseObject
 			return true;
 		}
 
-		$objtype = $item['resource-id'] ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE;
+		$objtype = $item['resource-id'] ? Activity::OBJ_IMAGE : Activity::OBJ_NOTE;
 
 		$new_item = [
 			'guid'          => System::createUUID(),
@@ -3318,7 +3322,7 @@ class Item extends BaseObject
 			return L10n::t('event');
 		} elseif (!empty($item['resource-id'])) {
 			return L10n::t('photo');
-		} elseif (!empty($item['verb']) && $item['verb'] !== ACTIVITY_POST) {
+		} elseif (!empty($item['verb']) && $item['verb'] !== Activity::POST) {
 			return L10n::t('activity');
 		} elseif ($item['id'] != $item['parent']) {
 			return L10n::t('comment');
@@ -3432,7 +3436,7 @@ class Item extends BaseObject
 
 		// In order to provide theme developers more possibilities, event items
 		// are treated differently.
-		if ($item['object-type'] === ACTIVITY_OBJ_EVENT && isset($item['event-id'])) {
+		if ($item['object-type'] === Activity::OBJ_EVENT && isset($item['event-id'])) {
 			$ev = Event::getItemHTML($item);
 			return $ev;
 		}

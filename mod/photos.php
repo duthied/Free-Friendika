@@ -25,6 +25,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -566,24 +567,24 @@ function photos_post(App $a)
 					$arr['deny_cid']      = $photo['deny_cid'];
 					$arr['deny_gid']      = $photo['deny_gid'];
 					$arr['visible']       = 1;
-					$arr['verb']          = ACTIVITY_TAG;
+					$arr['verb']          = Activity::TAG;
 					$arr['gravity']       = GRAVITY_PARENT;
-					$arr['object-type']   = ACTIVITY_OBJ_PERSON;
-					$arr['target-type']   = ACTIVITY_OBJ_IMAGE;
+					$arr['object-type']   = Activity::OBJ_PERSON;
+					$arr['target-type']   = Activity::OBJ_IMAGE;
 					$arr['tag']           = $tagged[4];
 					$arr['inform']        = $tagged[2];
 					$arr['origin']        = 1;
 					$arr['body']          = L10n::t('%1$s was tagged in %2$s by %3$s', '[url=' . $tagged[1] . ']' . $tagged[0] . '[/url]', '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . L10n::t('a photo') . '[/url]', '[url=' . $owner_record['url'] . ']' . $owner_record['name'] . '[/url]') ;
 					$arr['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . ']' . '[img]' . System::baseUrl() . "/photo/" . $photo['resource-id'] . '-' . $best . '.' . $ext . '[/img][/url]' . "\n" ;
 
-					$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
+					$arr['object'] = '<object><type>' . Activity::OBJ_PERSON . '</type><title>' . $tagged[0] . '</title><id>' . $tagged[1] . '/' . $tagged[0] . '</id>';
 					$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $tagged[1] . '" />' . "\n");
 					if ($tagged[3]) {
 						$arr['object'] .= XML::escape('<link rel="photo" type="' . $photo['type'] . '" href="' . $tagged[3]['photo'] . '" />' . "\n");
 					}
 					$arr['object'] .= '</link></object>' . "\n";
 
-					$arr['target'] = '<target><type>' . ACTIVITY_OBJ_IMAGE . '</type><title>' . $photo['desc'] . '</title><id>'
+					$arr['target'] = '<target><type>' . Activity::OBJ_IMAGE . '</type><title>' . $photo['desc'] . '</title><id>'
 						. System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '</id>';
 					$arr['target'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo['resource-id'] . '" />' . "\n" . '<link rel="preview" type="' . $photo['type'] . '" href="' . System::baseUrl() . "/photo/" . $photo['resource-id'] . '-' . $best . '.' . $ext . '" />') . '</link></target>';
 
@@ -1444,11 +1445,11 @@ function photos_content(App $a)
 					$template = $tpl;
 					$sparkle = '';
 
-					/** @var \Friendica\Protocol\Activity $activity */
-					$activity = BaseObject::getClass(\Friendica\Protocol\Activity::class);
+					/** @var Activity $activity */
+					$activity = BaseObject::getClass(Activity::class);
 
-					if (($activity->match($item['verb'], ACTIVITY_LIKE) ||
-					     $activity->match($item['verb'], ACTIVITY_DISLIKE)) &&
+					if (($activity->match($item['verb'], Activity::LIKE) ||
+					     $activity->match($item['verb'], Activity::DISLIKE)) &&
 					    ($item['id'] != $item['parent'])) {
 						continue;
 					}

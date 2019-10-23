@@ -240,7 +240,7 @@ class Post extends BaseObject
 
 		$isevent = false;
 		$attend = [];
-		if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+		if ($item['object-type'] === Activity::OBJ_EVENT) {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
@@ -531,8 +531,8 @@ class Post extends BaseObject
 		 */
 		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
 			return false;
-		} elseif ($activity->match($item->getDataValue('verb'), ACTIVITY_LIKE) ||
-		          $activity->match($item->getDataValue('verb'), ACTIVITY_DISLIKE)) {
+		} elseif ($activity->match($item->getDataValue('verb'), Activity::LIKE) ||
+		          $activity->match($item->getDataValue('verb'), Activity::DISLIKE)) {
 			return false;
 		}
 

@@ -34,6 +34,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity\Namespaces;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -382,18 +383,18 @@ class DFRN
 		$type = 'html';
 
 		if ($conversation) {
-			$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
+			$root = $doc->createElementNS(Namespaces::ATOM1, 'feed');
 			$doc->appendChild($root);
 
-			$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);
-			$root->setAttribute("xmlns:at", NAMESPACE_TOMB);
-			$root->setAttribute("xmlns:media", NAMESPACE_MEDIA);
-			$root->setAttribute("xmlns:dfrn", NAMESPACE_DFRN);
-			$root->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
-			$root->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
-			$root->setAttribute("xmlns:poco", NAMESPACE_POCO);
-			$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
-			$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
+			$root->setAttribute("xmlns:thr", Namespaces::THREAD);
+			$root->setAttribute("xmlns:at", Namespaces::TOMB);
+			$root->setAttribute("xmlns:media", Namespaces::MEDIA);
+			$root->setAttribute("xmlns:dfrn", Namespaces::DFRN);
+			$root->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
+			$root->setAttribute("xmlns:georss", Namespaces::GEORSS);
+			$root->setAttribute("xmlns:poco", Namespaces::POCO);
+			$root->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
+			$root->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
 
 			//$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
 
@@ -557,18 +558,18 @@ class DFRN
 			$alternatelink = $owner['url'];
 		}
 
-		$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
+		$root = $doc->createElementNS(Namespaces::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);
-		$root->setAttribute("xmlns:at", NAMESPACE_TOMB);
-		$root->setAttribute("xmlns:media", NAMESPACE_MEDIA);
-		$root->setAttribute("xmlns:dfrn", NAMESPACE_DFRN);
-		$root->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
-		$root->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
-		$root->setAttribute("xmlns:poco", NAMESPACE_POCO);
-		$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
-		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
+		$root->setAttribute("xmlns:thr", Namespaces::THREAD);
+		$root->setAttribute("xmlns:at", Namespaces::TOMB);
+		$root->setAttribute("xmlns:media", Namespaces::MEDIA);
+		$root->setAttribute("xmlns:dfrn", Namespaces::DFRN);
+		$root->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
+		$root->setAttribute("xmlns:georss", Namespaces::GEORSS);
+		$root->setAttribute("xmlns:poco", Namespaces::POCO);
+		$root->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
+		$root->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
 
 		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
 		XML::addElement($doc, $root, "title", $owner["name"]);
@@ -941,18 +942,18 @@ class DFRN
 		if (!$single) {
 			$entry = $doc->createElement("entry");
 		} else {
-			$entry = $doc->createElementNS(NAMESPACE_ATOM1, 'entry');
+			$entry = $doc->createElementNS(Namespaces::ATOM1, 'entry');
 			$doc->appendChild($entry);
 
-			$entry->setAttribute("xmlns:thr", NAMESPACE_THREAD);
-			$entry->setAttribute("xmlns:at", NAMESPACE_TOMB);
-			$entry->setAttribute("xmlns:media", NAMESPACE_MEDIA);
-			$entry->setAttribute("xmlns:dfrn", NAMESPACE_DFRN);
-			$entry->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
-			$entry->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
-			$entry->setAttribute("xmlns:poco", NAMESPACE_POCO);
-			$entry->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
-			$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
+			$entry->setAttribute("xmlns:thr", Namespaces::THREAD);
+			$entry->setAttribute("xmlns:at", Namespaces::TOMB);
+			$entry->setAttribute("xmlns:media", Namespaces::MEDIA);
+			$entry->setAttribute("xmlns:dfrn", Namespaces::DFRN);
+			$entry->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
+			$entry->setAttribute("xmlns:georss", Namespaces::GEORSS);
+			$entry->setAttribute("xmlns:poco", Namespaces::POCO);
+			$entry->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
+			$entry->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
 		}
 
 		if ($item['private']) {
@@ -1079,9 +1080,9 @@ class DFRN
 		if ($item['object-type'] != "") {
 			XML::addElement($doc, $entry, "activity:object-type", $item['object-type']);
 		} elseif ($item['id'] == $item['parent']) {
-			XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+			XML::addElement($doc, $entry, "activity:object-type", Activity::OBJ_NOTE);
 		} else {
-			XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_COMMENT);
+			XML::addElement($doc, $entry, "activity:object-type", Activity::OBJ_COMMENT);
 		}
 
 		$actobj = self::createActivity($doc, "activity:object", $item['object']);
@@ -1124,7 +1125,7 @@ class DFRN
 					"link",
 					"",
 					["rel" => "mentioned",
-							"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+							"ostatus:object-type" => Activity::OBJ_GROUP,
 							"href" => $mention]
 				);
 			} else {
@@ -1134,7 +1135,7 @@ class DFRN
 					"link",
 					"",
 					["rel" => "mentioned",
-							"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
+							"ostatus:object-type" => Activity::OBJ_PERSON,
 							"href" => $mention]
 				);
 			}
@@ -1750,7 +1751,7 @@ class DFRN
 		$obj_doc = new DOMDocument("1.0", "utf-8");
 		$obj_doc->formatOutput = true;
 
-		$obj_element = $obj_doc->createElementNS(NAMESPACE_ATOM1, $element);
+		$obj_element = $obj_doc->createElementNS( Namespaces::ATOM1, $element);
 
 		$activity_type = $xpath->query("activity:object-type/text()", $activity)->item(0)->nodeValue;
 		XML::addElement($obj_doc, $obj_element, "type", $activity_type);
@@ -1907,7 +1908,7 @@ class DFRN
 				'source_name'  => $importer['name'],
 				'source_link'  => $importer['url'],
 				'source_photo' => $importer['photo'],
-				'verb'         => ACTIVITY_REQ_FRIEND,
+				'verb'         => Activity::REQ_FRIEND,
 				'otype'        => 'intro']
 		);
 
@@ -2117,7 +2118,7 @@ class DFRN
 		}
 		$xo = XML::parseString($item["object"], false);
 
-		if (($xo->type == ACTIVITY_OBJ_PERSON) && ($xo->id)) {
+		if (($xo->type == Activity::OBJ_PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
 			$Blink = '';
 			foreach ($xo->link as $l) {
@@ -2186,32 +2187,32 @@ class DFRN
 
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
-			if ($activity->match($item["verb"], ACTIVITY_FOLLOW)) {
+			if ($activity->match($item["verb"], Activity::FOLLOW)) {
 				Logger::log("New follower");
 				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
-			if ($activity->match($item["verb"], ACTIVITY_UNFOLLOW)) {
+			if ($activity->match($item["verb"], Activity::UNFOLLOW)) {
 				Logger::log("Lost follower");
 				Contact::removeFollower($importer, $contact, $item);
 				return false;
 			}
-			if ($activity->match($item["verb"], ACTIVITY_REQ_FRIEND)) {
+			if ($activity->match($item["verb"], Activity::REQ_FRIEND)) {
 				Logger::log("New friend request");
 				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
-			if ($activity->match($item["verb"], ACTIVITY_UNFRIEND)) {
+			if ($activity->match($item["verb"], Activity::UNFRIEND)) {
 				Logger::log("Lost sharer");
 				Contact::removeSharer($importer, $contact, $item);
 				return false;
 			}
 		} else {
-			if (($item["verb"] == ACTIVITY_LIKE)
-				|| ($item["verb"] == ACTIVITY_DISLIKE)
-				|| ($item["verb"] == ACTIVITY_ATTEND)
-				|| ($item["verb"] == ACTIVITY_ATTENDNO)
-				|| ($item["verb"] == ACTIVITY_ATTENDMAYBE)
+			if (($item["verb"] == Activity::LIKE)
+				|| ($item["verb"] == Activity::DISLIKE)
+				|| ($item["verb"] == Activity::ATTEND)
+				|| ($item["verb"] == Activity::ATTENDNO)
+				|| ($item["verb"] == Activity::ATTENDMAYBE)
 			) {
 				$is_like = true;
 				$item["gravity"] = GRAVITY_ACTIVITY;
@@ -2238,11 +2239,11 @@ class DFRN
 				$is_like = false;
 			}
 
-			if (($item["verb"] == ACTIVITY_TAG) && ($item["object-type"] == ACTIVITY_OBJ_TAGTERM)) {
+			if (($item["verb"] == Activity::TAG) && ($item["object-type"] == Activity::OBJ_TAGTERM)) {
 				$xo = XML::parseString($item["object"], false);
 				$xt = XML::parseString($item["target"], false);
 
-				if ($xt->type == ACTIVITY_OBJ_NOTE) {
+				if ($xt->type == Activity::OBJ_NOTE) {
 					$item_tag = Item::selectFirst(['id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
 
 					if (!DBA::isResult($item_tag)) {
@@ -2517,7 +2518,7 @@ class DFRN
 		// Now assign the rest of the values that depend on the type of the message
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			if (!isset($item["object-type"])) {
-				$item["object-type"] = ACTIVITY_OBJ_COMMENT;
+				$item["object-type"] = Activity::OBJ_COMMENT;
 			}
 
 			if ($item["contact-id"] != $owner["contact-id"]) {
@@ -2541,11 +2542,11 @@ class DFRN
 			$item["wall"] = 1;
 		} elseif ($entrytype == DFRN::TOP_LEVEL) {
 			if (!isset($item["object-type"])) {
-				$item["object-type"] = ACTIVITY_OBJ_NOTE;
+				$item["object-type"] = Activity::OBJ_NOTE;
 			}
 
 			// Is it an event?
-			if (($item["object-type"] == ACTIVITY_OBJ_EVENT) && !$owner_unknown) {
+			if (($item["object-type"] == Activity::OBJ_EVENT) && !$owner_unknown) {
 				Logger::log("Item ".$item["uri"]." seems to contain an event.", Logger::DEBUG);
 				$ev = Event::fromBBCode($item["body"]);
 				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {
@@ -2642,7 +2643,7 @@ class DFRN
 				Item::distribute($posted_id);
 			}
 
-			if (stristr($item["verb"], ACTIVITY_POKE)) {
+			if (stristr($item["verb"], Activity::POKE)) {
 				$item['id'] = $posted_id;
 				self::doPoke($item, $importer);
 			}
@@ -2731,16 +2732,16 @@ class DFRN
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace("atom", NAMESPACE_ATOM1);
-		$xpath->registerNamespace("thr", NAMESPACE_THREAD);
-		$xpath->registerNamespace("at", NAMESPACE_TOMB);
-		$xpath->registerNamespace("media", NAMESPACE_MEDIA);
-		$xpath->registerNamespace("dfrn", NAMESPACE_DFRN);
-		$xpath->registerNamespace("activity", NAMESPACE_ACTIVITY);
-		$xpath->registerNamespace("georss", NAMESPACE_GEORSS);
-		$xpath->registerNamespace("poco", NAMESPACE_POCO);
-		$xpath->registerNamespace("ostatus", NAMESPACE_OSTATUS);
-		$xpath->registerNamespace("statusnet", NAMESPACE_STATUSNET);
+		$xpath->registerNamespace("atom", Namespaces::ATOM1);
+		$xpath->registerNamespace("thr", Namespaces::THREAD);
+		$xpath->registerNamespace("at", Namespaces::TOMB);
+		$xpath->registerNamespace("media", Namespaces::MEDIA);
+		$xpath->registerNamespace("dfrn", Namespaces::DFRN);
+		$xpath->registerNamespace("activity", Namespaces::ACTIVITY);
+		$xpath->registerNamespace("georss", Namespaces::GEORSS);
+		$xpath->registerNamespace("poco", Namespaces::POCO);
+		$xpath->registerNamespace("ostatus", Namespaces::OSTATUS);
+		$xpath->registerNamespace("statusnet", Namespaces::STATUSNET);
 
 		$header = [];
 		$header["uid"] = $importer["importer_uid"];
@@ -2865,7 +2866,7 @@ class DFRN
 		if ($item['verb']) {
 			return $item['verb'];
 		}
-		return ACTIVITY_POST;
+		return Activity::POST;
 	}
 
 	private static function tgroupCheck($uid, $item)

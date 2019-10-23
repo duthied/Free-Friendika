@@ -41,6 +41,7 @@ use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -2839,19 +2840,19 @@ function api_format_items_activities($item, $type = "json")
 		// get user data and add it to the array of the activity
 		$user = api_get_user($a, $parent_item['author-id']);
 		switch ($parent_item['verb']) {
-			case ACTIVITY_LIKE:
+			case Activity::LIKE:
 				$activities['like'][] = $user;
 				break;
-			case ACTIVITY_DISLIKE:
+			case Activity::DISLIKE:
 				$activities['dislike'][] = $user;
 				break;
-			case ACTIVITY_ATTEND:
+			case Activity::ATTEND:
 				$activities['attendyes'][] = $user;
 				break;
-			case ACTIVITY_ATTENDNO:
+			case Activity::ATTENDNO:
 				$activities['attendno'][] = $user;
 				break;
-			case ACTIVITY_ATTENDMAYBE:
+			case Activity::ATTENDMAYBE:
 				$activities['attendmaybe'][] = $user;
 				break;
 			default:
@@ -5110,7 +5111,7 @@ function api_get_announce($item)
 	}
 
 	$fields = ['author-id', 'author-name', 'author-link', 'author-avatar'];
-	$activity = Item::activityToIndex(ACTIVITY2_ANNOUNCE);
+	$activity = Item::activityToIndex(Activity::ANNOUNCE);
 	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'activity' => $activity];
 	$announce = Item::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['received' => true]]);
 	if (!DBA::isResult($announce)) {

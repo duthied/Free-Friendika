@@ -14,6 +14,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\PortableContact;
@@ -493,8 +494,8 @@ class OnePoll
 					Logger::log("Mail: Parsing mail ".$msg_uid, Logger::DATA);
 
 					$datarray = [];
-					$datarray['verb'] = ACTIVITY_POST;
-					$datarray['object-type'] = ACTIVITY_OBJ_NOTE;
+					$datarray['verb'] = Activity::POST;
+					$datarray['object-type'] = Activity::OBJ_NOTE;
 					$datarray['network'] = Protocol::MAIL;
 					// $meta = Email::messageMeta($mbox, $msg_uid);
 
