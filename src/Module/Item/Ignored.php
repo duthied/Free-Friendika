@@ -49,13 +49,12 @@ class Ignored extends BaseModule
 			case local_user():
 				$dba->update('thread', ['ignored' => $ignored], ['iid' => $message_id]);
 				break;
-			// Empty or 0 (null will get transformed to 0) => it's a public post
+			// 0 (null will get transformed to 0) => it's a public post
 			case 0:
-			case '':
 				$dba->update('user-item', ['ignored' => $ignored], ['iid' => $message_id, 'uid' => local_user()], true);
 				break;
-			// In case we retrieved a thread which isn't our or a public, it's a forbidden action
-			// but due to security reason (brute force), we print a Bad request exception
+			// Throws a BadRequestException and not a ForbiddenException on purpose
+			// Avoids harvesting existing, but forbidden IIDs (security issue)
 			default:
 				throw new HTTPException\BadRequestException();
 		}
