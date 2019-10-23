@@ -83,7 +83,6 @@
 			"include/dba.php",
 			"include/enotify.php",
 			"include/items.php",
-			"include/text.php",
 			"boot.php"
 		]
 	},

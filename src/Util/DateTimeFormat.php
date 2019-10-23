@@ -148,4 +148,37 @@ class DateTimeFormat
 
 		return $d->format($format);
 	}
+
+	/**
+	 * Checks, if the given string is a date with the pattern YYYY-MM
+	 *
+	 * @param string $dateString The given date
+	 *
+	 * @return boolean True, if the date is a valid pattern
+	 */
+	public function isYearMonth(string $dateString)
+	{
+		// Check format (2019-01, 2019-1, 2019-10)
+		if (!preg_match('/^([12]\d{3}-(1[0-2]|0[1-9]|\d))$/', $dateString)) {
+			return false;
+		}
+
+		$date = DateTime::createFromFormat('Y-m', $dateString);
+
+		if (!$date) {
+			return false;
+		}
+
+		try {
+			$now = new DateTime();
+		} catch (\Throwable $t) {
+			return false;
+		}
+
+		if ($date > $now) {
+			return false;
+		}
+
+		return true;
+	}
 }

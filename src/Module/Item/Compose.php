@@ -16,6 +16,7 @@ use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Network\HTTPException\NotImplementedException;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 
 class Compose extends BaseModule
@@ -58,6 +59,9 @@ class Compose extends BaseModule
 
 		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'hidewall', 'default-location']);
 
+		/** @var ACLFormatter $aclFormatter */
+		$aclFormatter = self::getClass(ACLFormatter::class);
+
 		switch ($posttype) {
 			case Item::PT_PERSONAL_NOTE:
 				$compose_title = L10n::t('Compose new personal note');
@@ -70,8 +74,8 @@ class Compose extends BaseModule
 				$compose_title = L10n::t('Compose new post');
 				$type = 'post';
 				$doesFederate = true;
-				$contact_allow = implode(',', expand_acl($user['allow_cid']));
-				$group_allow = implode(',', expand_acl($user['allow_gid'])) ?: Group::FOLLOWERS;
+				$contact_allow = implode(',', $aclFormatter->expand($user['allow_cid']));
+				$group_allow = implode(',', $aclFormatter->expand($user['allow_gid'])) ?: Group::FOLLOWERS;
 				break;
 		}
 
@@ -82,8 +86,8 @@ class Compose extends BaseModule
 		$wall          = $_REQUEST['wall']          ?? $type == 'post';
 		$contact_allow = $_REQUEST['contact_allow'] ?? $contact_allow;
 		$group_allow   = $_REQUEST['group_allow']   ?? $group_allow;
-		$contact_deny  = $_REQUEST['contact_deny']  ?? implode(',', expand_acl($user['deny_cid']));
-		$group_deny    = $_REQUEST['group_deny']    ?? implode(',', expand_acl($user['deny_gid']));
+		$contact_deny  = $_REQUEST['contact_deny']  ?? implode(',', $aclFormatter->expand($user['deny_cid']));
+		$group_deny    = $_REQUEST['group_deny']    ?? implode(',', $aclFormatter->expand($user['deny_gid']));
 		$visibility    = ($contact_allow . $user['allow_gid'] . $user['deny_cid'] . $user['deny_gid']) ? 'custom' : 'public';
 
 		$acl_contacts = Contact::selectToArray(['id', 'name', 'addr', 'micro'], ['uid' => local_user(), 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);

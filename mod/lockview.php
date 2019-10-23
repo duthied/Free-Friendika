@@ -3,11 +3,13 @@
  * @file mod/lockview.php
  */
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Util\ACLFormatter;
 
 function lockview_content(App $a)
 {
@@ -59,10 +61,13 @@ function lockview_content(App $a)
 		exit();
 	}
 
-	$allowed_users  = expand_acl($item['allow_cid']);
-	$allowed_groups = expand_acl($item['allow_gid']);
-	$deny_users     = expand_acl($item['deny_cid']);
-	$deny_groups    = expand_acl($item['deny_gid']);
+	/** @var ACLFormatter $aclFormatter */
+	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+
+	$allowed_users = $aclFormatter->expand($item['allow_cid']);
+	$allowed_groups = $aclFormatter->expand($item['allow_gid']);
+	$deny_users = $aclFormatter->expand($item['deny_cid']);
+	$deny_groups = $aclFormatter->expand($item['deny_gid']);
 
 	$o = L10n::t('Visible to:') . '<br />';
 	$l = [];

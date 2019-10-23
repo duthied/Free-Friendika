@@ -1,63 +1,25 @@
 <?php
-/**
- * TextTest class.
- */
 
-namespace Friendica\Test;
+namespace Friendica\Test\src\Util;
 
 use Friendica\Model\Group;
+use Friendica\Util\ACLFormatter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Tests for text functions.
+ * @brief ACLFormater utility testing class
  */
-class TextTest extends TestCase
+class ACLFormaterTest extends TestCase
 {
-	/**
-	 * test attribute contains
-	 */
-	public function testAttributeContains1()
-	{
-		$testAttr="class1 notclass2 class3";
-		$this->assertTrue(attribute_contains($testAttr, "class3"));
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
-	 * test attribute contains
-	 */
-	public function testAttributeContains2()
-	{
-		$testAttr="class1 not-class2 class3";
-		$this->assertTrue(attribute_contains($testAttr, "class3"));
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
-	 * test with empty input
-	 */
-	public function testAttributeContainsEmpty()
-	{
-		$testAttr="";
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
-	/**
-	 * test input with special chars
-	 */
-	public function testAttributeContainsSpecialChars()
-	{
-		$testAttr="--... %\$ä() /(=?}";
-		$this->assertFalse(attribute_contains($testAttr, "class2"));
-	}
-
 	/**
 	 * test expand_acl, perfect input
 	 */
 	public function testExpandAclNormal()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text='<1><2><3><' . Group::FOLLOWERS . '><' . Group::MUTUALS . '>';
-		$this->assertEquals(array('1', '2', '3', Group::FOLLOWERS, Group::MUTUALS), expand_acl($text));
+		$this->assertEquals(array('1', '2', '3', Group::FOLLOWERS, Group::MUTUALS), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -65,8 +27,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclBigNumber()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text='<1><' . PHP_INT_MAX . '><15>';
-		$this->assertEquals(array('1', (string)PHP_INT_MAX, '15'), expand_acl($text));
+		$this->assertEquals(array('1', (string)PHP_INT_MAX, '15'), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -76,8 +40,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclString()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="<1><279012><tt>";
-		$this->assertEquals(array('1', '279012'), expand_acl($text));
+		$this->assertEquals(array('1', '279012'), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -87,8 +53,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclSpace()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="<1><279 012><32>";
-		$this->assertEquals(array('1', '32'), expand_acl($text));
+		$this->assertEquals(array('1', '32'), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -96,8 +64,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclEmpty()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="";
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -107,8 +77,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclNoBrackets()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="According to documentation, that's invalid. "; //should be invalid
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -118,8 +90,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclJustOneBracket1()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="<Another invalid string"; //should be invalid
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -129,8 +103,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclJustOneBracket2()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="Another invalid> string"; //should be invalid
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -140,8 +116,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclCloseOnly()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="Another> invalid> string>"; //should be invalid
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -151,8 +129,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclOpenOnly()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="<Another< invalid string<"; //should be invalid
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -162,8 +142,10 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclNoMatching1()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="<Another<> invalid <string>"; //should be invalid
-		$this->assertEquals(array(), expand_acl($text));
+		$this->assertEquals(array(), $aclFormatter->expand($text));
 	}
 
 	/**
@@ -174,18 +156,45 @@ class TextTest extends TestCase
 	 */
 	public function testExpandAclEmptyMatch()
 	{
+		$aclFormatter = new ACLFormatter();
+
 		$text="<1><><3>";
-		$this->assertEquals(array('1', '3'), expand_acl($text));
+		$this->assertEquals(array('1', '3'), $aclFormatter->expand($text));
+	}
+
+	public function dataAclToString()
+	{
+		return [
+			'empty'   => [
+				'input'  => '',
+				'assert' => '',
+			],
+			'string'  => [
+				'input'  => '1,2,3,4',
+				'assert' => '<1><2><3><4>',
+			],
+			'array'   => [
+				'input'  => [1, 2, 3, 4],
+				'assert' => '<1><2><3><4>',
+			],
+			'invalid' => [
+				'input'  => [1, 'a', 3, 4],
+				'assert' => '<1><3><4>',
+			],
+			'invalidString' => [
+				'input'  => 'a,bsd23,4',
+				'assert' => '<4>',
+			],
+		];
 	}
 
 	/**
-	 * test hex2bin and reverse
+	 * @dataProvider dataAclToString
 	 */
-	public function testHex2Bin()
+	public function testAclToString($input, string $assert)
 	{
-		$this->assertEquals(-3, hex2bin(bin2hex(-3)));
-		$this->assertEquals(0, hex2bin(bin2hex(0)));
-		$this->assertEquals(12, hex2bin(bin2hex(12)));
-		$this->assertEquals(PHP_INT_MAX, hex2bin(bin2hex(PHP_INT_MAX)));
+		$aclFormatter = new ACLFormatter();
+
+		$this->assertEquals($assert, $aclFormatter->toString($input));
 	}
 }
