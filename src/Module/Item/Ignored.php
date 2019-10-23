@@ -6,6 +6,7 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\L10n\L10n;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;
@@ -43,10 +44,20 @@ class Ignored extends BaseModule
 		// Numeric values are needed for the json output further below
 		$ignored = !empty($thread['ignored']) ? 0 : 1;
 
-		if (!empty($thread['uid']) && $thread['uid'] != 0) {
-			$dba->update('thread', ['ignored' => $ignored], ['iid' => $message_id]);
-		} else {
-			$dba->update('user-item', ['ignored' => $ignored], ['iid' => $message_id, 'uid' => local_user()], true);
+		switch ($thread['uid'] ?? 0) {
+			// if the thread is from the current user
+			case local_user():
+				$dba->update('thread', ['ignored' => $ignored], ['iid' => $message_id]);
+				break;
+			// Empty or 0 (null will get transformed to 0) => it's a public post
+			case 0:
+			case '':
+				$dba->update('user-item', ['ignored' => $ignored], ['iid' => $message_id, 'uid' => local_user()], true);
+				break;
+			// In case we retrieved a thread which isn't our or a public, it's a forbidden action
+			// but due to security reason (brute force), we print a Bad request exception
+			default:
+				throw new HTTPException\BadRequestException();
 		}
 
 		// See if we've been passed a return path to redirect to
@@ -63,8 +74,6 @@ class Ignored extends BaseModule
 		}
 
 		// the json doesn't really matter, it will either be 0 or 1
-
-		echo json_encode($ignored);
-		exit();
+		System::jsonExit([$ignored]);
 	}
 }
