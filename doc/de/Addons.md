@@ -226,16 +226,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('item_photo_menu', $args);
     Hook::callAll('jot_tool', $jotplugins);
 
-### include/text.php
-
-    Hook::callAll('contact_block_end', $arr);
-    Hook::callAll('poke_verbs', $arr);
-    Hook::callAll('put_item_in_cache', $hook_data);
-    Hook::callAll('prepare_body_init', $item);
-    Hook::callAll('prepare_body_content_filter', $hook_data);
-    Hook::callAll('prepare_body', $hook_data);
-    Hook::callAll('prepare_body_final', $hook_data);
-
 ### include/items.php
 
     Hook::callAll('page_info_data', $data);
@@ -365,6 +355,11 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll('post_remote_end', $posted_item);
     Hook::callAll('tagged', $arr);
     Hook::callAll('post_local_end', $new_item);
+    Hook::callAll('put_item_in_cache', $hook_data);
+    Hook::callAll('prepare_body_init', $item);
+    Hook::callAll('prepare_body_content_filter', $hook_data);
+    Hook::callAll('prepare_body', $hook_data);
+    Hook::callAll('prepare_body_final', $hook_data);
 
 ### src/Model/Contact.php
 
@@ -387,6 +382,10 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Hook::callAll('register_account', $uid);
     Hook::callAll('remove_user', $user);
+    
+### src/Content/ContactBlock.php
+
+    Hook::callAll('contact_block_end', $arr);
 
 ### src/Content/Text/BBCode.php
 
@@ -456,6 +455,18 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
     Hook::callAll($a->module.'_pre_'.$selname, $arr);
     Hook::callAll($a->module.'_post_'.$selname, $o);
     Hook::callAll('jot_networks', $jotnets);
+
+### src/Core/Authentication.php
+
+    Hook::callAll('logged_in', $a->user);
+
+### src/Core/Hook.php
+
+    self::callSingle(self::getApp(), 'hook_fork', $fork_hook, $hookdata);
+
+### src/Core/L10n/L10n.php
+
+    Hook::callAll('poke_verbs', $arr);
 
 ### src/Core/Worker.php
 
