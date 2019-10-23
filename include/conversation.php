@@ -4,6 +4,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Pager;
@@ -24,6 +25,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
@@ -138,12 +140,15 @@ function localize_item(&$item)
 	During the further steps of the database restructuring I would like to address this issue.
 	*/
 
+	/** @var Activity $activity */
+	$activity = BaseObject::getClass(Activity::class);
+
 	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-	if (activity_match($item['verb'], ACTIVITY_LIKE)
-		|| activity_match($item['verb'], ACTIVITY_DISLIKE)
-		|| activity_match($item['verb'], ACTIVITY_ATTEND)
-		|| activity_match($item['verb'], ACTIVITY_ATTENDNO)
-		|| activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
+	if ($activity->match($item['verb'], ACTIVITY_LIKE)
+		|| $activity->match($item['verb'], ACTIVITY_DISLIKE)
+		|| $activity->match($item['verb'], ACTIVITY_ATTEND)
+		|| $activity->match($item['verb'], ACTIVITY_ATTENDNO)
+		|| $activity->match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
 
 		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
@@ -178,22 +183,22 @@ function localize_item(&$item)
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
 		$bodyverb = '';
-		if (activity_match($item['verb'], ACTIVITY_LIKE)) {
+		if ($activity->match($item['verb'], ACTIVITY_LIKE)) {
 			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
-		} elseif (activity_match($item['verb'], ACTIVITY_DISLIKE)) {
+		} elseif ($activity->match($item['verb'], ACTIVITY_DISLIKE)) {
 			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
-		} elseif (activity_match($item['verb'], ACTIVITY_ATTEND)) {
+		} elseif ($activity->match($item['verb'], ACTIVITY_ATTEND)) {
 			$bodyverb = L10n::t('%1$s attends %2$s\'s %3$s');
-		} elseif (activity_match($item['verb'], ACTIVITY_ATTENDNO)) {
+		} elseif ($activity->match($item['verb'], ACTIVITY_ATTENDNO)) {
 			$bodyverb = L10n::t('%1$s doesn\'t attend %2$s\'s %3$s');
-		} elseif (activity_match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
+		} elseif ($activity->match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
 			$bodyverb = L10n::t('%1$s attends maybe %2$s\'s %3$s');
 		}
 
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 	}
 
-	if (activity_match($item['verb'], ACTIVITY_FRIEND)) {
+	if ($activity->match($item['verb'], ACTIVITY_FRIEND)) {
 
 		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
 
@@ -275,7 +280,7 @@ function localize_item(&$item)
 
 	}
 
-	if (activity_match($item['verb'], ACTIVITY_TAG)) {
+	if ($activity->match($item['verb'], ACTIVITY_TAG)) {
 		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
 			'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
@@ -320,7 +325,7 @@ function localize_item(&$item)
 		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 	}
 
-	if (activity_match($item['verb'], ACTIVITY_FAVORITE)) {
+	if ($activity->match($item['verb'], ACTIVITY_FAVORITE)) {
 		if ($item['object-type'] == "") {
 			return;
 		}
@@ -393,19 +398,22 @@ function count_descendants($item) {
 
 function visible_activity($item) {
 
+	/** @var Activity $activity */
+	$activity = BaseObject::getClass(Activity::class);
+
 	/*
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
 	 * in which case we handle them specially
 	 */
 	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW, ACTIVITY2_ANNOUNCE];
 	foreach ($hidden_activities as $act) {
-		if (activity_match($item['verb'], $act)) {
+		if ($activity->match($item['verb'], $act)) {
 			return false;
 		}
 	}
 
 	// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
-	if (activity_match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && empty($item['self']) && $item['uid'] == local_user()) {
+	if ($activity->match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && empty($item['self']) && $item['uid'] == local_user()) {
 		return false;
 	}
 
@@ -1017,7 +1025,10 @@ function builtin_activity_puller($item, &$conv_responses) {
 				return;
 		}
 
-		if (activity_match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
+		/** @var Activity $activity */
+		$activity = BaseObject::getClass(Activity::class);
+
+		if ($activity->match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$url = Contact::magicLinkByContact($author);

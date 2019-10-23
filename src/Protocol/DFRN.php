@@ -12,6 +12,7 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\App;
 use Friendica\App\BaseURL;
+use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
@@ -2180,24 +2181,27 @@ class DFRN
 			// The functions below are partly used by ostatus.php as well - where we have this variable
 			$contact = Contact::selectFirst([], ['id' => $importer['id']]);
 
+			/** @var Activity $activity */
+			$activity = BaseObject::getClass(Activity::class);
+
 			// Big question: Do we need these functions? They were part of the "consume_feed" function.
 			// This function once was responsible for DFRN and OStatus.
-			if (activity_match($item["verb"], ACTIVITY_FOLLOW)) {
+			if ($activity->match($item["verb"], ACTIVITY_FOLLOW)) {
 				Logger::log("New follower");
 				Contact::addRelationship($importer, $contact, $item);
 				return false;
 			}
-			if (activity_match($item["verb"], ACTIVITY_UNFOLLOW)) {
+			if ($activity->match($item["verb"], ACTIVITY_UNFOLLOW)) {
 				Logger::log("Lost follower");
 				Contact::removeFollower($importer, $contact, $item);
 				return false;
 			}
-			if (activity_match($item["verb"], ACTIVITY_REQ_FRIEND)) {
+			if ($activity->match($item["verb"], ACTIVITY_REQ_FRIEND)) {
 				Logger::log("New friend request");
 				Contact::addRelationship($importer, $contact, $item, true);
 				return false;
 			}
-			if (activity_match($item["verb"], ACTIVITY_UNFRIEND)) {
+			if ($activity->match($item["verb"], ACTIVITY_UNFRIEND)) {
 				Logger::log("Lost sharer");
 				Contact::removeSharer($importer, $contact, $item);
 				return false;

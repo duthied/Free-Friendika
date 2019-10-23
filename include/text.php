@@ -3,19 +3,7 @@
  * @file include/text.php
  */
 
-use Friendica\Content\Text\BBCode;
 use Friendica\Model\FileTag;
-
-/**
- * Compare activity uri. Knows about activity namespace.
- *
- * @param string $haystack
- * @param string $needle
- * @return boolean
- */
-function activity_match($haystack,$needle) {
-	return (($haystack === $needle) || ((basename($needle) === $haystack) && strstr($needle, NAMESPACE_ACTIVITY_SCHEMA)));
-}
 
 /**
  * return array with details for categories and folders for an item

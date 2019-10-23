@@ -21,6 +21,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
 use Friendica\Model\User;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -517,12 +518,17 @@ class Post extends BaseObject
 			Logger::log('[WARN] Post::addChild : Item already exists (' . $item->getId() . ').', Logger::DEBUG);
 			return false;
 		}
+
+		/** @var Activity $activity */
+		$activity = self::getClass(Activity::class);
+
 		/*
 		 * Only add what will be displayed
 		 */
 		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
 			return false;
-		} elseif (activity_match($item->getDataValue('verb'), ACTIVITY_LIKE) || activity_match($item->getDataValue('verb'), ACTIVITY_DISLIKE)) {
+		} elseif ($activity->match($item->getDataValue('verb'), ACTIVITY_LIKE) ||
+		          $activity->match($item->getDataValue('verb'), ACTIVITY_DISLIKE)) {
 			return false;
 		}
 

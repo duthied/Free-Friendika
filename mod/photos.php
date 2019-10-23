@@ -1446,7 +1446,12 @@ function photos_content(App $a)
 					$template = $tpl;
 					$sparkle = '';
 
-					if ((activity_match($item['verb'], ACTIVITY_LIKE) || activity_match($item['verb'], ACTIVITY_DISLIKE)) && ($item['id'] != $item['parent'])) {
+					/** @var \Friendica\Protocol\Activity $activity */
+					$activity = BaseObject::getClass(\Friendica\Protocol\Activity::class);
+
+					if (($activity->match($item['verb'], ACTIVITY_LIKE) ||
+					     $activity->match($item['verb'], ACTIVITY_DISLIKE)) &&
+					    ($item['id'] != $item['parent'])) {
 						continue;
 					}
 

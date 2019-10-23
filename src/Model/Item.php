@@ -21,6 +21,7 @@ use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
@@ -1358,13 +1359,16 @@ class Item extends BaseObject
 			$item['parent-uri'] = $item['thr-parent'];
 		}
 
+		/** @var Activity $activity */
+		$activity = self::getClass(Activity::class);
+
 		if (isset($item['gravity'])) {
 			$item['gravity'] = intval($item['gravity']);
 		} elseif ($item['parent-uri'] === $item['uri']) {
 			$item['gravity'] = GRAVITY_PARENT;
-		} elseif (activity_match($item['verb'], ACTIVITY_POST)) {
+		} elseif ($activity->match($item['verb'], ACTIVITY_POST)) {
 			$item['gravity'] = GRAVITY_COMMENT;
-		} elseif (activity_match($item['verb'], ACTIVITY_FOLLOW)) {
+		} elseif ($activity->match($item['verb'], ACTIVITY_FOLLOW)) {
 			$item['gravity'] = GRAVITY_ACTIVITY;
 		} else {
 			$item['gravity'] = GRAVITY_UNKNOWN;   // Should not happen

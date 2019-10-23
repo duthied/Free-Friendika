@@ -1,6 +1,6 @@
 <?php
 
-namespace src\Content\Text\BBCode;
+namespace Friendica\Test\Content\Text\BBCode;
 
 use Friendica\Content\Text\BBCode\Video;
 use Friendica\Test\MockedTest;
