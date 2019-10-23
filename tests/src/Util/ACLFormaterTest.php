@@ -195,6 +195,6 @@ class ACLFormaterTest extends TestCase
 	{
 		$aclFormatter = new ACLFormatter();
 
-		$this->assertEquals($assert, $aclFormatter->aclToString($input));
+		$this->assertEquals($assert, $aclFormatter->toString($input));
 	}
 }

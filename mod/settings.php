@@ -538,10 +538,10 @@ function settings_post(App $a)
 	/** @var ACLFormatter $aclFormatter */
 	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-	$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->aclToString($_POST['group_allow'])   : '';
-	$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->aclToString($_POST['contact_allow']) : '';
-	$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->aclToString($_POST['group_deny'])    : '';
-	$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->aclToString($_POST['contact_deny'])  : '';
+	$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->toString($_POST['group_allow'])   : '';
+	$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->toString($_POST['contact_allow']) : '';
+	$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->toString($_POST['group_deny'])    : '';
+	$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->toString($_POST['contact_deny'])  : '';
 
 	$openidserver = $a->user['openidserver'];
 	//$openid = Strings::normaliseOpenID($openid);

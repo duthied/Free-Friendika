@@ -17,8 +17,8 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Protocol\Activity;
@@ -3350,7 +3350,7 @@ class Item extends BaseObject
 			|| $rendered_hash != hash("md5", $item["body"])
 			|| Config::get("system", "ignore_cache")
 		) {
-			self::addRedirLinkToImageLinks($item);
+			self::addRedirToImageTags($item);
 
 			$item["rendered-html"] = BBCode::convert($item["body"]);
 			$item["rendered-hash"] = hash("md5", $item["body"]);
@@ -3390,7 +3390,7 @@ class Item extends BaseObject
 	 *
 	 * @param array &$item The field array of an item row
 	 */
-	private static function addRedirLinkToImageLinks(array &$item)
+	private static function addRedirToImageTags(array &$item)
 	{
 		$app = self::getApp();
 

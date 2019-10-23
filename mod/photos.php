@@ -15,18 +15,16 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Protocol\DFRN;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
@@ -301,10 +299,10 @@ function photos_post(App $a)
 		/** @var ACLFormatter $aclFormatter */
 		$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-		$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->aclToString($_POST['group_allow'])   : '';
-		$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->aclToString($_POST['contact_allow']) : '';
-		$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->aclToString($_POST['group_deny'])    : '';
-		$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->aclToString($_POST['contact_deny'])  : '';
+		$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->toString($_POST['group_allow'])   : '';
+		$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->toString($_POST['contact_allow']) : '';
+		$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->toString($_POST['group_deny'])    : '';
+		$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->toString($_POST['contact_deny'])  : '';
 
 		$resource_id = $a->argv[3];
 
@@ -643,10 +641,10 @@ function photos_post(App $a)
 	/** @var ACLFormatter $aclFormatter */
 	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-	$str_group_allow   = $aclFormatter->aclToString(is_array($group_allow)   ? $group_allow   : explode(',', $group_allow));
-	$str_contact_allow = $aclFormatter->aclToString(is_array($contact_allow) ? $contact_allow : explode(',', $contact_allow));
-	$str_group_deny    = $aclFormatter->aclToString(is_array($group_deny)    ? $group_deny    : explode(',', $group_deny));
-	$str_contact_deny  = $aclFormatter->aclToString(is_array($contact_deny)  ? $contact_deny  : explode(',', $contact_deny));
+	$str_group_allow   = $aclFormatter->toString(is_array($group_allow)   ? $group_allow   : explode(',', $group_allow));
+	$str_contact_allow = $aclFormatter->toString(is_array($contact_allow) ? $contact_allow : explode(',', $contact_allow));
+	$str_group_deny    = $aclFormatter->toString(is_array($group_deny)    ? $group_deny    : explode(',', $group_deny));
+	$str_contact_deny  = $aclFormatter->toString(is_array($contact_deny)  ? $contact_deny  : explode(',', $contact_deny));
 
 	$ret = ['src' => '', 'filename' => '', 'filesize' => 0, 'type' => ''];
 

@@ -30,7 +30,7 @@ final class ACLFormatter
 	 *
 	 * @param string $item The item to sanitise
 	 */
-	private function sanitiseAcl(string &$item) {
+	private function sanitize(string &$item) {
 		if (intval($item)) {
 			$item = '<' . intval(Strings::escapeTags(trim($item))) . '>';
 		} elseif (in_array($item, [Group::FOLLOWERS, Group::MUTUALS])) {
@@ -50,7 +50,7 @@ final class ACLFormatter
 	 *
 	 * @return string
 	 */
-	function aclToString($permissions) {
+	function toString($permissions) {
 		$return = '';
 		if (is_array($permissions)) {
 			$item = $permissions;
@@ -59,7 +59,7 @@ final class ACLFormatter
 		}
 
 		if (is_array($item)) {
-			array_walk($item, [$this, 'sanitiseAcl']);
+			array_walk($item, [$this, 'sanitize']);
 			$return = implode('', $item);
 		}
 		return $return;

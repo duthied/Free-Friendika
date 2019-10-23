@@ -152,10 +152,10 @@ function events_post(App $a)
 		/** @var ACLFormatter $aclFormatter */
 		$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-		$str_group_allow   = $aclFormatter->aclToString($_POST['group_allow']   ?? '');
-		$str_contact_allow = $aclFormatter->aclToString($_POST['contact_allow'] ?? '');
-		$str_group_deny    = $aclFormatter->aclToString($_POST['group_deny']    ?? '');
-		$str_contact_deny  = $aclFormatter->aclToString($_POST['contact_deny']  ?? '');
+		$str_group_allow   = $aclFormatter->toString($_POST['group_allow'] ?? '');
+		$str_contact_allow = $aclFormatter->toString($_POST['contact_allow'] ?? '');
+		$str_group_deny    = $aclFormatter->toString($_POST['group_deny'] ?? '');
+		$str_contact_deny  = $aclFormatter->toString($_POST['contact_deny'] ?? '');
 
 		// Undo the pseudo-contact of self, since there are real contacts now
 		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {

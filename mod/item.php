@@ -275,10 +275,10 @@ function item_post(App $a) {
 			/** @var ACLFormatter $aclFormatter */
 			$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-			$str_group_allow   = $aclFormatter->aclToString($_REQUEST['group_allow'] ?? '');
-			$str_contact_allow = $aclFormatter->aclToString($_REQUEST['contact_allow'] ?? '');
-			$str_group_deny    = $aclFormatter->aclToString($_REQUEST['group_deny'] ?? '');
-			$str_contact_deny  = $aclFormatter->aclToString($_REQUEST['contact_deny'] ?? '');
+			$str_group_allow   = $aclFormatter->toString($_REQUEST['group_allow'] ?? '');
+			$str_contact_allow = $aclFormatter->toString($_REQUEST['contact_allow'] ?? '');
+			$str_group_deny    = $aclFormatter->toString($_REQUEST['group_deny'] ?? '');
+			$str_contact_deny  = $aclFormatter->toString($_REQUEST['contact_deny'] ?? '');
 		}
 
 		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
