@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
+use Friendica\Content\Item as ContentItem;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
@@ -671,7 +672,10 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				$body = Item::prepareBody($item, true, $preview);
 
-				list($categories, $folders) = get_cats_and_terms($item);
+				/** @var ContentItem $contItem */
+				$contItem = BaseObject::getClass(ContentItem::class);
+
+				list($categories, $folders) = $contItem->determineCategoriesTerms($item);
 
 				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
 					$title = ucfirst($item['content-warning']);

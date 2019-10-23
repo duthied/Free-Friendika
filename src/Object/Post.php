@@ -7,6 +7,7 @@ namespace Friendica\Object;
 use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
+use Friendica\Content\Item as ContentItem;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
@@ -324,7 +325,10 @@ class Post extends BaseObject
 
 		$body = Item::prepareBody($item, true);
 
-		list($categories, $folders) = get_cats_and_terms($item);
+		/** @var ContentItem $contItem */
+		$contItem = self::getClass(ContentItem::class);
+
+		list($categories, $folders) = $contItem->determineCategoriesTerms($item);
 
 		$body_e       = $body;
 		$text_e       = strip_tags($body);
