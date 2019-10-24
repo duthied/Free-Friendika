@@ -132,17 +132,17 @@ return [
 	'/home'               => [Module\Home::class,         [R::GET]],
 	'/help[/{doc:.+}]'    => [Module\Help::class,         [R::GET]],
 	'/inbox[/{nickname}]' => [Module\Inbox::class,        [R::GET, R::POST]],
-
-	'/item'            => [
-		'/ignore/{id}' => [Module\Item\Ignore::class, [R::GET]],
-	],
-
-	'/invite' => [Module\Invite::class, [R::GET, R::POST]],
+	'/invite'             => [Module\Invite::class,       [R::GET, R::POST]],
 
 	'/install'         => [
 		'[/]'                    => [Module\Install::class, [R::GET, R::POST]],
 		'/testrewrite'           => [Module\Install::class, [R::GET]],
 	],
+
+	'/item'            => [
+		'/ignore/{id}' => [Module\Item\Ignore::class, [R::GET]],
+	],
+
 	'/like/{item:\d+}' => [Module\Like::class,            [R::GET]],
 	'/localtime'       => [Module\Debug\Localtime::class, [R::GET, R::POST]],
 	'/login'           => [Module\Login::class,           [R::GET, R::POST]],
