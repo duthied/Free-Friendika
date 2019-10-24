@@ -131,7 +131,7 @@ return [
 	'/hashtag'            => [Module\Hashtag::class,      [R::GET]],
 	'/home'               => [Module\Home::class,         [R::GET]],
 	'/help[/{doc:.+}]'    => [Module\Help::class,         [R::GET]],
-	'/ignored/{id}'       => [Module\Item\Ignored::class, [R::GET]],
+	'/ignored/{id}'       => [Module\Item\Ignore::class, [R::GET]],
 	'/inbox[/{nickname}]' => [Module\Inbox::class,        [R::GET, R::POST]],
 	'/invite'             => [Module\Invite::class,       [R::GET, R::POST]],
 

@@ -14,7 +14,7 @@ use Friendica\Network\HTTPException;
 /**
  * Module for ignoring threads or user items
  */
-class Ignored extends BaseModule
+class Ignore extends BaseModule
 {
 	public static function rawContent()
 	{
