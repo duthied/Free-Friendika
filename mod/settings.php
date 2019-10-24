@@ -426,7 +426,6 @@ function settings_post(App $a)
 	$language         = (!empty($_POST['language'])   ? Strings::escapeTags(trim($_POST['language']))     : '');
 
 	$defloc           = (!empty($_POST['defloc'])     ? Strings::escapeTags(trim($_POST['defloc']))       : '');
-	$openid           = (!empty($_POST['openid_url']) ? Strings::escapeTags(trim($_POST['openid_url']))   : '');
 	$maxreq           = (!empty($_POST['maxreq'])     ? intval($_POST['maxreq'])             : 0);
 	$expire           = (!empty($_POST['expire'])     ? intval($_POST['expire'])             : 0);
 	$def_gid          = (!empty($_POST['group-selection']) ? intval($_POST['group-selection']) : 0);
@@ -437,6 +436,8 @@ function settings_post(App $a)
 	$expire_starred   = (!empty($_POST['expire_starred']) ? intval($_POST['expire_starred']) : 0);
 	$expire_photos    = (!empty($_POST['expire_photos'])? intval($_POST['expire_photos'])	 : 0);
 	$expire_network_only    = (!empty($_POST['expire_network_only'])? intval($_POST['expire_network_only'])	 : 0);
+
+	$delete_openid    = ((!empty($_POST['delete_openid']) && (intval($_POST['delete_openid']) == 1)) ? 1: 0);
 
 	$allow_location   = ((!empty($_POST['allow_location']) && (intval($_POST['allow_location']) == 1)) ? 1: 0);
 	$publish          = ((!empty($_POST['profile_in_directory']) && (intval($_POST['profile_in_directory']) == 1)) ? 1: 0);
@@ -538,21 +539,6 @@ function settings_post(App $a)
 	$str_group_deny    = !empty($_POST['group_deny'])    ? perms2str($_POST['group_deny'])    : '';
 	$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
 
-	$openidserver = $a->user['openidserver'];
-	//$openid = Strings::normaliseOpenID($openid);
-
-	// If openid has changed or if there's an openid but no openidserver, try and discover it.
-	if ($openid != $a->user['openid'] || (strlen($openid) && (!strlen($openidserver)))) {
-		if (Network::isUrlValid($openid)) {
-			Logger::log('updating openidserver');
-			$open_id_obj = new LightOpenID($a->getHostName());
-			$open_id_obj->identity = $openid;
-			$openidserver = $open_id_obj->discover($open_id_obj->identity);
-		} else {
-			$openidserver = '';
-		}
-	}
-
 	PConfig::set(local_user(), 'expire', 'items', $expire_items);
 	PConfig::set(local_user(), 'expire', 'notes', $expire_notes);
 	PConfig::set(local_user(), 'expire', 'starred', $expire_starred);
@@ -576,41 +562,17 @@ function settings_post(App $a)
 		}
 	}
 
+	$fields = ['username' => $username, 'email' => $email, 'timezone' => $timezone,
+		'allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow, 'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
+		'notify-flags' => $notify, 'page-flags' => $notify, 'account-type' => $account_type, 'default-location' => $defloc,
+		'allow_location' => $allow_location, 'maxreq' => $maxreq, 'expire' => $expire, 'def_gid' => $def_gid, 'blockwall' => $blockwall,
+		'hidewall' => $hide_wall, 'blocktags' => $blocktags, 'unkmail' => $unkmail, 'cntunkmail' => $cntunkmail, 'language' => $language];
 
-	$r = q("UPDATE `user` SET `username` = '%s', `email` = '%s',
-				`openid` = '%s', `timezone` = '%s',
-				`allow_cid` = '%s', `allow_gid` = '%s', `deny_cid` = '%s', `deny_gid` = '%s',
-				`notify-flags` = %d, `page-flags` = %d, `account-type` = %d, `default-location` = '%s',
-				`allow_location` = %d, `maxreq` = %d, `expire` = %d, `openidserver` = '%s',
-				`def_gid` = %d, `blockwall` = %d, `hidewall` = %d, `blocktags` = %d,
-				`unkmail` = %d, `cntunkmail` = %d, `language` = '%s'
-			WHERE `uid` = %d",
-			DBA::escape($username),
-			DBA::escape($email),
-			DBA::escape($openid),
-			DBA::escape($timezone),
-			DBA::escape($str_contact_allow),
-			DBA::escape($str_group_allow),
-			DBA::escape($str_contact_deny),
-			DBA::escape($str_group_deny),
-			intval($notify),
-			intval($page_flags),
-			intval($account_type),
-			DBA::escape($defloc),
-			intval($allow_location),
-			intval($maxreq),
-			intval($expire),
-			DBA::escape($openidserver),
-			intval($def_gid),
-			intval($blockwall),
-			intval($hidewall),
-			intval($blocktags),
-			intval($unkmail),
-			intval($cntunkmail),
-			DBA::escape($language),
-			intval(local_user())
-	);
-	if (DBA::isResult($r)) {
+	if ($delete_openid) {
+		$fields['openid'] = '';
+		$fields['openidserver'] = '';
+	}
+	if (DBA::update('user', $fields, ['uid' => local_user()])) {
 		info(L10n::t('Settings updated.') . EOL);
 	}
 
@@ -1075,7 +1037,7 @@ function settings_content(App $a)
 	if ($noid) {
 		$openid_field = false;
 	} else {
-		$openid_field = ['openid_url', L10n::t('OpenID:'), $openid, L10n::t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "", "url"];
+		$openid_field = ['openid_url', L10n::t('OpenID:'), $openid, L10n::t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "readonly", "url"];
 	}
 
 	$opt_tpl = Renderer::getMarkupTemplate("field_yesno.tpl");
@@ -1185,6 +1147,7 @@ function settings_content(App $a)
 		'$password4'=> ['mpassword', L10n::t('Password:'), '', L10n::t('Your current password to confirm the changes')],
 		'$oid_enable' => (!Config::get('system', 'no_openid')),
 		'$openid'	=> $openid_field,
+		'$delete_openid' => ['delete_openid', L10n::t('Delete OpenID URL'), false, ''],
 
 		'$h_basic' 	=> L10n::t('Basic Settings'),
 		'$username' => ['username',  L10n::t('Full Name:'), $username, ''],

@@ -24,7 +24,7 @@ function openid_content(App $a) {
 		$openid = new LightOpenID($a->getHostName());
 
 		if ($openid->validate()) {
-			$authid = $openid->identity;
+			$authid = $openid->data['openid_identity'];
 
 			if (empty($authid)) {
 				Logger::log(L10n::t('OpenID protocol error. No ID returned.') . EOL);
@@ -54,55 +54,22 @@ function openid_content(App $a) {
 			}
 
 			// Successful OpenID login - but we can't match it to an existing account.
-			// New registration?
+			unset($_SESSION['register']);
+			Session::set('openid_attributes', $openid->getAttributes());
+			Session::set('openid_identity', $authid);
+
+			// Detect the server URL
+			$open_id_obj = new LightOpenID($a->getHostName());
+			$open_id_obj->identity = $authid;
+			Session::set('openid_server', $open_id_obj->discover($open_id_obj->identity));
 
 			if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED) {
-				notice(L10n::t('Account not found and OpenID registration is not permitted on this site.') . EOL);
-				$a->internalRedirect();
+				notice(L10n::t('Account not found. Please login to your existing account to add the OpenID to it.') . EOL);
+			} else {
+				notice(L10n::t('Account not found. Please register a new account or login to your existing account to add the OpenID to it.') . EOL);
 			}
 
-			unset($_SESSION['register']);
-			$args = '';
-			$attr = $openid->getAttributes();
-			if (is_array($attr) && count($attr)) {
-				foreach ($attr as $k => $v) {
-					if ($k === 'namePerson/friendly') {
-						$nick = Strings::escapeTags(trim($v));
-					}
-					if ($k === 'namePerson/first') {
-						$first = Strings::escapeTags(trim($v));
-					}
-					if ($k === 'namePerson') {
-						$args .= '&username=' . urlencode(Strings::escapeTags(trim($v)));
-					}
-					if ($k === 'contact/email') {
-						$args .= '&email=' . urlencode(Strings::escapeTags(trim($v)));
-					}
-					if ($k === 'media/image/aspect11') {
-						$photosq = bin2hex(trim($v));
-					}
-					if ($k === 'media/image/default') {
-						$photo = bin2hex(trim($v));
-					}
-				}
-			}
-			if (!empty($nick)) {
-				$args .= '&nickname=' . urlencode($nick);
-			} elseif (!empty($first)) {
-				$args .= '&nickname=' . urlencode($first);
-			}
-
-			if (!empty($photosq)) {
-				$args .= '&photo=' . urlencode($photosq);
-			} elseif (!empty($photo)) {
-				$args .= '&photo=' . urlencode($photo);
-			}
-
-			$args .= '&openid_url=' . urlencode(Strings::escapeTags(trim($authid)));
-
-			$a->internalRedirect('register?' . $args);
-
-			// NOTREACHED
+			$a->internalRedirect('login');
 		}
 	}
 	notice(L10n::t('Login failed.') . EOL);

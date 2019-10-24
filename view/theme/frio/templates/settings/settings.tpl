@@ -26,6 +26,7 @@
 
 						{{if $oid_enable}}
 						{{include file="field_input.tpl" field=$openid}}
+						{{include file="field_checkbox.tpl" field=$delete_openid}}
 						{{/if}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
