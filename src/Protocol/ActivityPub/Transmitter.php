@@ -10,6 +10,7 @@ use Friendica\Database\DBA;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\Protocol\Activity;
 use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
 use Friendica\Model\Conversation;
@@ -761,25 +762,25 @@ class Transmitter
 
 		if ($reshared) {
 			$type = 'Announce';
-		} elseif ($item['verb'] == ACTIVITY_POST) {
+		} elseif ($item['verb'] == Activity::POST) {
 			if ($item['created'] == $item['edited']) {
 				$type = 'Create';
 			} else {
 				$type = 'Update';
 			}
-		} elseif ($item['verb'] == ACTIVITY_LIKE) {
+		} elseif ($item['verb'] == Activity::LIKE) {
 			$type = 'Like';
-		} elseif ($item['verb'] == ACTIVITY_DISLIKE) {
+		} elseif ($item['verb'] == Activity::DISLIKE) {
 			$type = 'Dislike';
-		} elseif ($item['verb'] == ACTIVITY_ATTEND) {
+		} elseif ($item['verb'] == Activity::ATTEND) {
 			$type = 'Accept';
-		} elseif ($item['verb'] == ACTIVITY_ATTENDNO) {
+		} elseif ($item['verb'] == Activity::ATTENDNO) {
 			$type = 'Reject';
-		} elseif ($item['verb'] == ACTIVITY_ATTENDMAYBE) {
+		} elseif ($item['verb'] == Activity::ATTENDMAYBE) {
 			$type = 'TentativeAccept';
-		} elseif ($item['verb'] == ACTIVITY_FOLLOW) {
+		} elseif ($item['verb'] == Activity::FOLLOW) {
 			$type = 'Follow';
-		} elseif ($item['verb'] == ACTIVITY_TAG) {
+		} elseif ($item['verb'] == Activity::TAG) {
 			$type = 'Add';
 		} else {
 			$type = '';
@@ -1571,7 +1572,7 @@ class Transmitter
 			$uid = $first_user['uid'];
 		}
 
-		$condition = ['verb' => ACTIVITY_FOLLOW, 'uid' => 0, 'parent-uri' => $object,
+		$condition = ['verb' => Activity::FOLLOW, 'uid' => 0, 'parent-uri' => $object,
 			'author-id' => Contact::getPublicIdByUserId($uid)];
 		if (Item::exists($condition)) {
 			Logger::log('Follow for ' . $object . ' for user ' . $uid . ' does already exist.', Logger::DEBUG);

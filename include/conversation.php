@@ -27,12 +27,12 @@ use Friendica\Model\Term;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
+use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Util\Temporal;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
-use Friendica\Util\Crypto;
 
 function item_extract_images($body) {
 
@@ -145,11 +145,11 @@ function localize_item(&$item)
 	$activity = BaseObject::getClass(Activity::class);
 
 	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-	if ($activity->match($item['verb'], ACTIVITY_LIKE)
-		|| $activity->match($item['verb'], ACTIVITY_DISLIKE)
-		|| $activity->match($item['verb'], ACTIVITY_ATTEND)
-		|| $activity->match($item['verb'], ACTIVITY_ATTENDNO)
-		|| $activity->match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
+	if ($activity->match($item['verb'], Activity::LIKE)
+		|| $activity->match($item['verb'], Activity::DISLIKE)
+		|| $activity->match($item['verb'], Activity::ATTEND)
+		|| $activity->match($item['verb'], Activity::ATTENDNO)
+		|| $activity->match($item['verb'], Activity::ATTENDMAYBE)) {
 
 		$fields = ['author-link', 'author-name', 'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
@@ -161,9 +161,9 @@ function localize_item(&$item)
 		$objauthor =  '[url=' . $obj['author-link'] . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
-			case ACTIVITY_POST:
+			case Activity::POST:
 				switch ($obj['object-type']) {
-					case ACTIVITY_OBJ_EVENT:
+					case Activity\ObjectType::EVENT:
 						$post_type = L10n::t('event');
 						break;
 					default:
@@ -184,24 +184,24 @@ function localize_item(&$item)
 		$plink = '[url=' . $obj['plink'] . ']' . $post_type . '[/url]';
 
 		$bodyverb = '';
-		if ($activity->match($item['verb'], ACTIVITY_LIKE)) {
+		if ($activity->match($item['verb'], Activity::LIKE)) {
 			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], ACTIVITY_DISLIKE)) {
+		} elseif ($activity->match($item['verb'], Activity::DISLIKE)) {
 			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], ACTIVITY_ATTEND)) {
+		} elseif ($activity->match($item['verb'], Activity::ATTEND)) {
 			$bodyverb = L10n::t('%1$s attends %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], ACTIVITY_ATTENDNO)) {
+		} elseif ($activity->match($item['verb'], Activity::ATTENDNO)) {
 			$bodyverb = L10n::t('%1$s doesn\'t attend %2$s\'s %3$s');
-		} elseif ($activity->match($item['verb'], ACTIVITY_ATTENDMAYBE)) {
+		} elseif ($activity->match($item['verb'], Activity::ATTENDMAYBE)) {
 			$bodyverb = L10n::t('%1$s attends maybe %2$s\'s %3$s');
 		}
 
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
 	}
 
-	if ($activity->match($item['verb'], ACTIVITY_FRIEND)) {
+	if ($activity->match($item['verb'], Activity::FRIEND)) {
 
-		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) return;
+		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) return;
 
 		$Aname = $item['author-name'];
 		$Alink = $item['author-link'];
@@ -231,12 +231,12 @@ function localize_item(&$item)
 		$item['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
 
 	}
-	if (stristr($item['verb'], ACTIVITY_POKE)) {
+	if (stristr($item['verb'], Activity::POKE)) {
 		$verb = urldecode(substr($item['verb'],strpos($item['verb'],'#')+1));
 		if (!$verb) {
 			return;
 		}
-		if ($item['object-type']=="" || $item['object-type']!== ACTIVITY_OBJ_PERSON) {
+		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) {
 			return;
 		}
 
@@ -281,7 +281,7 @@ function localize_item(&$item)
 
 	}
 
-	if ($activity->match($item['verb'], ACTIVITY_TAG)) {
+	if ($activity->match($item['verb'],  Activity::TAG)) {
 		$fields = ['author-id', 'author-link', 'author-name', 'author-network',
 			'verb', 'object-type', 'resource-id', 'body', 'plink'];
 		$obj = Item::selectFirst($fields, ['uri' => $item['parent-uri']]);
@@ -298,9 +298,9 @@ function localize_item(&$item)
 		$objauthor  = '[url=' . Contact::magicLinkByContact($author_arr) . ']' . $obj['author-name'] . '[/url]';
 
 		switch ($obj['verb']) {
-			case ACTIVITY_POST:
+			case Activity::POST:
 				switch ($obj['object-type']) {
-					case ACTIVITY_OBJ_EVENT:
+					case Activity\ObjectType::EVENT:
 						$post_type = L10n::t('event');
 						break;
 					default:
@@ -326,7 +326,7 @@ function localize_item(&$item)
 		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 	}
 
-	if ($activity->match($item['verb'], ACTIVITY_FAVORITE)) {
+	if ($activity->match($item['verb'], Activity::FAVORITE)) {
 		if ($item['object-type'] == "") {
 			return;
 		}
@@ -402,19 +402,15 @@ function visible_activity($item) {
 	/** @var Activity $activity */
 	$activity = BaseObject::getClass(Activity::class);
 
-	/*
-	 * likes (etc.) can apply to other things besides posts. Check if they are post children,
-	 * in which case we handle them specially
-	 */
-	$hidden_activities = [ACTIVITY_LIKE, ACTIVITY_DISLIKE, ACTIVITY_ATTEND, ACTIVITY_ATTENDNO, ACTIVITY_ATTENDMAYBE, ACTIVITY_FOLLOW, ACTIVITY2_ANNOUNCE];
-	foreach ($hidden_activities as $act) {
-		if ($activity->match($item['verb'], $act)) {
-			return false;
-		}
+	if ($activity->isHidden($item['verb'])) {
+		return false;
 	}
 
 	// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
-	if ($activity->match($item['verb'], ACTIVITY_FOLLOW) && $item['object-type'] === ACTIVITY_OBJ_NOTE && empty($item['self']) && $item['uid'] == local_user()) {
+	if ($activity->match($item['verb'], Activity::FOLLOW) &&
+	    $item['object-type'] === Activity\ObjectType::NOTE &&
+	    empty($item['self']) &&
+	    $item['uid'] == local_user()) {
 		return false;
 	}
 
@@ -816,7 +812,7 @@ function conversation_fetch_comments($thread_items) {
 	$received = '';
 
 	while ($row = Item::fetch($thread_items)) {
-		if (($row['verb'] == ACTIVITY2_ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
+		if (($row['verb'] == Activity::ANNOUNCE) && !empty($row['contact-uid']) && ($row['received'] > $received) && ($row['thr-parent'] == $row['parent-uri'])) {
 			$actor = ['link' => $row['author-link'], 'avatar' => $row['author-avatar'], 'name' => $row['author-name']];
 			$received = $row['received'];
 		}
@@ -1008,22 +1004,22 @@ function builtin_activity_puller($item, &$conv_responses) {
 
 		switch ($mode) {
 			case 'like':
-				$verb = ACTIVITY_LIKE;
+				$verb = Activity::LIKE;
 				break;
 			case 'dislike':
-				$verb = ACTIVITY_DISLIKE;
+				$verb = Activity::DISLIKE;
 				break;
 			case 'attendyes':
-				$verb = ACTIVITY_ATTEND;
+				$verb = Activity::ATTEND;
 				break;
 			case 'attendno':
-				$verb = ACTIVITY_ATTENDNO;
+				$verb = Activity::ATTENDNO;
 				break;
 			case 'attendmaybe':
-				$verb = ACTIVITY_ATTENDMAYBE;
+				$verb = Activity::ATTENDMAYBE;
 				break;
 			case 'announce':
-				$verb = ACTIVITY2_ANNOUNCE;
+				$verb = Activity::ANNOUNCE;
 				break;
 			default:
 				return;
@@ -1386,7 +1382,7 @@ function smart_flatten_conversation(array $parent)
 		if (isset($child['children']) && count($child['children'])) {
 			// This helps counting only the regular posts
 			$count_post_closure = function($var) {
-				return $var['verb'] === ACTIVITY_POST;
+				return $var['verb'] === Activity::POST;
 			};
 
 			$child_post_count = count(array_filter($child['children'], $count_post_closure));
@@ -1398,7 +1394,7 @@ function smart_flatten_conversation(array $parent)
 
 				// Searches the post item in the children
 				$j = 0;
-				while($child['children'][$j]['verb'] !== ACTIVITY_POST && $j < count($child['children'])) {
+				while($child['children'][$j]['verb'] !== Activity::POST && $j < count($child['children'])) {
 					$j ++;
 				}
 

@@ -3,6 +3,7 @@
 namespace Friendica\Test\Protocol;
 
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Test\MockedTest;
 
 class ActivityTest extends MockedTest
@@ -16,13 +17,13 @@ class ActivityTest extends MockedTest
 				'assert' => true,
 			],
 			'simple' => [
-				'haystack' => ACTIVITY_OBJ_TAGTERM,
-				'needle' => ACTIVITY_OBJ_TAGTERM,
+				'haystack' => Activity\ObjectType::TAGTERM,
+				'needle' => Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 			'withNamespace' => [
 				'haystack' => 'tagterm',
-				'needle' => NAMESPACE_ACTIVITY_SCHEMA . ACTIVITY_OBJ_TAGTERM,
+				'needle' => ActivityNamespace::ACTIVITY_SCHEMA . Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 			'invalidSimple' => [
@@ -32,12 +33,12 @@ class ActivityTest extends MockedTest
 			],
 			'invalidWithOutNamespace' => [
 				'haystack' => 'tagterm',
-				'needle' => ACTIVITY_OBJ_TAGTERM,
+				'needle' => Activity\ObjectType::TAGTERM,
 				'assert' => false,
 			],
 			'withSubPath' => [
 				'haystack' => 'tagterm',
-				'needle' =>  NAMESPACE_ACTIVITY_SCHEMA . '/bla/' . ACTIVITY_OBJ_TAGTERM,
+				'needle' => ActivityNamespace::ACTIVITY_SCHEMA . '/bla/' . Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 		];
@@ -53,5 +54,13 @@ class ActivityTest extends MockedTest
 		$activity = new Activity();
 
 		$this->assertEquals($assert, $activity->match($haystack, $needle));
+	}
+
+	public function testIsHidden()
+	{
+		$activity = new Activity();
+
+		$this->assertTrue($activity->isHidden(Activity::LIKE));
+		$this->assertFalse($activity->isHidden(Activity\ObjectType::BOOKMARK));
 	}
 }

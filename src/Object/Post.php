@@ -15,8 +15,8 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\Session;
 use Friendica\Core\Renderer;
+use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
@@ -240,7 +240,7 @@ class Post extends BaseObject
 
 		$isevent = false;
 		$attend = [];
-		if ($item['object-type'] === ACTIVITY_OBJ_EVENT) {
+		if ($item['object-type'] === Activity\ObjectType::EVENT) {
 			$response_verbs[] = 'attendyes';
 			$response_verbs[] = 'attendno';
 			$response_verbs[] = 'attendmaybe';
@@ -531,8 +531,8 @@ class Post extends BaseObject
 		 */
 		if ($item->getDataValue('network') === Protocol::MAIL && local_user() != $item->getDataValue('uid')) {
 			return false;
-		} elseif ($activity->match($item->getDataValue('verb'), ACTIVITY_LIKE) ||
-		          $activity->match($item->getDataValue('verb'), ACTIVITY_DISLIKE)) {
+		} elseif ($activity->match($item->getDataValue('verb'), Activity::LIKE) ||
+		          $activity->match($item->getDataValue('verb'), Activity::DISLIKE)) {
 			return false;
 		}
 

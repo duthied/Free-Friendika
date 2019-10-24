@@ -13,6 +13,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Worker\Delivery;
 
@@ -80,7 +81,7 @@ class Mail
 			'source_name' => $msg['from-name'],
 			'source_link' => $msg['from-url'],
 			'source_photo' => $msg['from-photo'],
-			'verb' => ACTIVITY_POST,
+			'verb' => Activity::POST,
 			'otype' => 'mail'
 		];
 

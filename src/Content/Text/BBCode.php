@@ -24,6 +24,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -276,7 +277,7 @@ class BBCode extends BaseObject
 
 			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
-					if (!empty($item['object-type']) && ($item['object-type'] == ACTIVITY_OBJ_IMAGE)) {
+					if (!empty($item['object-type']) && ($item['object-type'] == Activity\ObjectType::IMAGE)) {
 						// Replace the preview picture with the real picture
 						$url = str_replace('-1.', '-0.', $pictures[0][2]);
 						$data = ['url' => $url, 'type' => 'photo'];

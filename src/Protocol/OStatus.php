@@ -10,21 +10,22 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
-use Friendica\Core\Logger;
 use Friendica\Core\Lock;
+use Friendica\Core\Logger;
+use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
-use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -261,14 +262,14 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
-		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
-		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
-		$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
-		$xpath->registerNamespace('media', NAMESPACE_MEDIA);
-		$xpath->registerNamespace('poco', NAMESPACE_POCO);
-		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
-		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('georss', ActivityNamespace::GEORSS);
+		$xpath->registerNamespace('activity', ActivityNamespace::ACTIVITY);
+		$xpath->registerNamespace('media', ActivityNamespace::MEDIA);
+		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ActivityNamespace::STATUSNET);
 
 		$contact = ["id" => 0];
 
@@ -342,14 +343,14 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
-		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
-		$xpath->registerNamespace('georss', NAMESPACE_GEORSS);
-		$xpath->registerNamespace('activity', NAMESPACE_ACTIVITY);
-		$xpath->registerNamespace('media', NAMESPACE_MEDIA);
-		$xpath->registerNamespace('poco', NAMESPACE_POCO);
-		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
-		$xpath->registerNamespace('statusnet', NAMESPACE_STATUSNET);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('georss', ActivityNamespace::GEORSS);
+		$xpath->registerNamespace('activity', ActivityNamespace::ACTIVITY);
+		$xpath->registerNamespace('media', ActivityNamespace::MEDIA);
+		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ActivityNamespace::STATUSNET);
 
 		$hub = "";
 		$hub_items = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0);
@@ -428,12 +429,12 @@ class OStatus
 			$item["verb"] = XML::getFirstNodeValue($xpath, 'activity:verb/text()', $entry);
 
 			// Delete a message
-			if (in_array($item["verb"], ['qvitter-delete-notice', ACTIVITY_DELETE, 'delete'])) {
+			if (in_array($item["verb"], ['qvitter-delete-notice', Activity::DELETE, 'delete'])) {
 				self::deleteNotice($item);
 				continue;
 			}
 
-			if (in_array($item["verb"], [NAMESPACE_OSTATUS."/unfavorite", ACTIVITY_UNFAVORITE])) {
+			if (in_array($item["verb"], [Activity::O_UNFAVOURITE, Activity::UNFAVORITE])) {
 				// Ignore "Unfavorite" message
 				Logger::log("Ignore unfavorite message ".print_r($item, true), Logger::DEBUG);
 				continue;
@@ -447,7 +448,7 @@ class OStatus
 				Logger::log('Processing post with URI '.$item["uri"].' for user '.$importer["uid"].'.', Logger::DEBUG);
 			}
 
-			if ($item["verb"] == ACTIVITY_JOIN) {
+			if ($item["verb"] == Activity::JOIN) {
 				// ignore "Join" messages
 				Logger::log("Ignore join message ".print_r($item, true), Logger::DEBUG);
 				continue;
@@ -459,29 +460,29 @@ class OStatus
 				continue;
 			}
 
-			if ($item["verb"] == ACTIVITY_FOLLOW) {
+			if ($item["verb"] == Activity::FOLLOW) {
 				Contact::addRelationship($importer, $contact, $item);
 				continue;
 			}
 
-			if ($item["verb"] == NAMESPACE_OSTATUS."/unfollow") {
+			if ($item["verb"] == Activity::O_UNFOLLOW) {
 				$dummy = null;
 				Contact::removeFollower($importer, $contact, $item, $dummy);
 				continue;
 			}
 
-			if ($item["verb"] == ACTIVITY_FAVORITE) {
+			if ($item["verb"] == Activity::FAVORITE) {
 				$orig_uri = $xpath->query("activity:object/atom:id", $entry)->item(0)->nodeValue;
 				Logger::log("Favorite ".$orig_uri." ".print_r($item, true));
 
-				$item["verb"] = ACTIVITY_LIKE;
+				$item["verb"] = Activity::LIKE;
 				$item["parent-uri"] = $orig_uri;
 				$item["gravity"] = GRAVITY_ACTIVITY;
-				$item["object-type"] = ACTIVITY_OBJ_NOTE;
+				$item["object-type"] = Activity\ObjectType::NOTE;
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
-			if (!in_array($item["verb"], [ACTIVITY_POST, ACTIVITY_LIKE, ACTIVITY_SHARE])) {
+			if (!in_array($item["verb"], [Activity::POST, Activity::LIKE, Activity::SHARE])) {
 				Logger::log("Unhandled verb ".$item["verb"]." ".print_r($item, true), Logger::DEBUG);
 			}
 
@@ -504,7 +505,7 @@ class OStatus
 					if ($valid) {
 						// Never post a thread when the only interaction by our contact was a like
 						$valid = false;
-						$verbs = [ACTIVITY_POST, ACTIVITY_SHARE];
+						$verbs = [Activity::POST, Activity::SHARE];
 						foreach (self::$itemlist as $item) {
 							if (in_array($item['verb'], $verbs) && Contact::isSharingByURL($item['author-link'], $item['uid'])) {
 								$valid = true;
@@ -592,10 +593,10 @@ class OStatus
 	{
 		$item["body"] = HTML::toBBCode(XML::getFirstNodeValue($xpath, 'atom:content/text()', $entry));
 		$item["object-type"] = XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $entry);
-		if (($item["object-type"] == ACTIVITY_OBJ_BOOKMARK) || ($item["object-type"] == ACTIVITY_OBJ_EVENT)) {
+		if (($item["object-type"] == Activity\ObjectType::BOOKMARK) || ($item["object-type"] == Activity\ObjectType::EVENT)) {
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 			$item["body"] = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry);
-		} elseif ($item["object-type"] == ACTIVITY_OBJ_QUESTION) {
+		} elseif ($item["object-type"] == Activity\ObjectType::QUESTION) {
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 		}
 
@@ -676,7 +677,7 @@ class OStatus
 			}
 		}
 		// Is it a repeated post?
-		if (($repeat_of != "") || ($item["verb"] == ACTIVITY_SHARE)) {
+		if (($repeat_of != "") || ($item["verb"] == Activity::SHARE)) {
 			$link_data = self::processRepeatedItem($xpath, $entry, $item, $importer);
 			if (!empty($link_data['add_body'])) {
 				$add_body .= $link_data['add_body'];
@@ -691,7 +692,7 @@ class OStatus
 		}
 
 		// Mastodon Content Warning
-		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
+		if (($item["verb"] == Activity::POST) && $xpath->evaluate('boolean(atom:summary)', $entry)) {
 			$clear_text = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry);
 			if (!empty($clear_text)) {
 				$item['content-warning'] = HTML::toBBCode($clear_text);
@@ -803,9 +804,9 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
-		$xpath->registerNamespace('thr', NAMESPACE_THREAD);
-		$xpath->registerNamespace('ostatus', NAMESPACE_OSTATUS);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 
@@ -1067,7 +1068,7 @@ class OStatus
 		$item["object-type"] = XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $activityobject);
 
 		// Mastodon Content Warning
-		if (($item["verb"] == ACTIVITY_POST) && $xpath->evaluate('boolean(atom:summary)', $activityobject)) {
+		if (($item["verb"] == Activity::POST) && $xpath->evaluate('boolean(atom:summary)', $activityobject)) {
 			$clear_text = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $activityobject);
 			if (!empty($clear_text)) {
 				$item['content-warning'] = HTML::toBBCode($clear_text);
@@ -1105,8 +1106,8 @@ class OStatus
 				switch ($attribute['rel']) {
 					case "alternate":
 						$item["plink"] = $attribute['href'];
-						if (($item["object-type"] == ACTIVITY_OBJ_QUESTION)
-							|| ($item["object-type"] == ACTIVITY_OBJ_EVENT)
+						if (($item["object-type"] == Activity\ObjectType::QUESTION)
+							|| ($item["object-type"] == Activity\ObjectType::EVENT)
 						) {
 							$item["body"] .= add_page_info($attribute['href']);
 						}
@@ -1135,7 +1136,7 @@ class OStatus
 						}
 						break;
 					case "related":
-						if ($item["object-type"] != ACTIVITY_OBJ_BOOKMARK) {
+						if ($item["object-type"] != Activity\ObjectType::BOOKMARK) {
 							if (!isset($item["parent-uri"])) {
 								$item["parent-uri"] = $attribute['href'];
 							}
@@ -1281,17 +1282,17 @@ class OStatus
 	 */
 	private static function addHeader(DOMDocument $doc, array $owner, $filter, $feed_mode = false)
 	{
-		$root = $doc->createElementNS(NAMESPACE_ATOM1, 'feed');
+		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", NAMESPACE_THREAD);
-		$root->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
-		$root->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
-		$root->setAttribute("xmlns:media", NAMESPACE_MEDIA);
-		$root->setAttribute("xmlns:poco", NAMESPACE_POCO);
-		$root->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
-		$root->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
-		$root->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
+		$root->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
+		$root->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
+		$root->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
+		$root->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
+		$root->setAttribute("xmlns:poco", ActivityNamespace::POCO);
+		$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
+		$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
+		$root->setAttribute("xmlns:mastodon", ActivityNamespace::MASTODON);
 
 		$title = '';
 		$selfUri = '/feed/' . $owner["nick"] . '/';
@@ -1461,9 +1462,9 @@ class OStatus
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
 		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_GROUP);
+			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::GROUP);
 		} else {
-			XML::addElement($doc, $author, "activity:object-type", ACTIVITY_OBJ_PERSON);
+			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::PERSON);
 		}
 		XML::addElement($doc, $author, "uri", $owner["url"]);
 		XML::addElement($doc, $author, "name", $owner["nick"]);
@@ -1544,7 +1545,7 @@ class OStatus
 			return $item['verb'];
 		}
 
-		return ACTIVITY_POST;
+		return Activity::POST;
 	}
 
 	/**
@@ -1556,11 +1557,11 @@ class OStatus
 	 */
 	private static function constructObjecttype(array $item)
 	{
-		if (!empty($item['object-type']) && in_array($item['object-type'], [ACTIVITY_OBJ_NOTE, ACTIVITY_OBJ_COMMENT])) {
+		if (!empty($item['object-type']) && in_array($item['object-type'], [Activity\ObjectType::NOTE, Activity\ObjectType::COMMENT])) {
 			return $item['object-type'];
 		}
 
-		return ACTIVITY_OBJ_NOTE;
+		return Activity\ObjectType::NOTE;
 	}
 
 	/**
@@ -1589,9 +1590,9 @@ class OStatus
 			return $xml;
 		}
 
-		if ($item["verb"] == ACTIVITY_LIKE) {
+		if ($item["verb"] == Activity::LIKE) {
 			return self::likeEntry($doc, $item, $owner, $toplevel);
-		} elseif (in_array($item["verb"], [ACTIVITY_FOLLOW, NAMESPACE_OSTATUS."/unfollow"])) {
+		} elseif (in_array($item["verb"], [Activity::FOLLOW, Activity::O_UNFOLLOW])) {
 			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
 			return self::noteEntry($doc, $item, $owner, $toplevel, $feed_mode);
@@ -1705,11 +1706,11 @@ class OStatus
 
 		$title = $owner["nick"]." repeated a notice by ".$contact["nick"];
 
-		self::entryContent($doc, $entry, $item, $owner, $title, ACTIVITY_SHARE, false);
+		self::entryContent($doc, $entry, $item, $owner, $title, Activity::SHARE, false);
 
 		$as_object = $doc->createElement("activity:object");
 
-		XML::addElement($doc, $as_object, "activity:object-type", NAMESPACE_ACTIVITY_SCHEMA."activity");
+		XML::addElement($doc, $as_object, "activity:object-type", ActivityNamespace::ACTIVITY_SCHEMA . "activity");
 
 		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
@@ -1759,7 +1760,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		$verb = NAMESPACE_ACTIVITY_SCHEMA."favorite";
+		$verb = ActivityNamespace::ACTIVITY_SCHEMA . "favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
 		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);
@@ -1790,7 +1791,7 @@ class OStatus
 	private static function addPersonObject(DOMDocument $doc, array $owner, array $contact)
 	{
 		$object = $doc->createElement("activity:object");
-		XML::addElement($doc, $object, "activity:object-type", ACTIVITY_OBJ_PERSON);
+		XML::addElement($doc, $object, "activity:object-type", Activity\ObjectType::PERSON);
 
 		if ($contact['network'] == Protocol::PHANTOM) {
 			XML::addElement($doc, $object, "id", $contact['url']);
@@ -1858,7 +1859,7 @@ class OStatus
 			$connect_id = 0;
 		}
 
-		if ($item['verb'] == ACTIVITY_FOLLOW) {
+		if ($item['verb'] == Activity::FOLLOW) {
 			$message = L10n::t('%s is now following %s.');
 			$title = L10n::t('following');
 			$action = "subscription";
@@ -1918,7 +1919,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		XML::addElement($doc, $entry, "activity:object-type", ACTIVITY_OBJ_NOTE);
+		XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::NOTE);
 
 		self::entryContent($doc, $entry, $item, $owner, $title, '', true, $feed_mode);
 
@@ -1950,16 +1951,16 @@ class OStatus
 				$entry->appendChild($author);
 			}
 		} else {
-			$entry = $doc->createElementNS(NAMESPACE_ATOM1, "entry");
+			$entry = $doc->createElementNS(ActivityNamespace::ATOM1, "entry");
 
-			$entry->setAttribute("xmlns:thr", NAMESPACE_THREAD);
-			$entry->setAttribute("xmlns:georss", NAMESPACE_GEORSS);
-			$entry->setAttribute("xmlns:activity", NAMESPACE_ACTIVITY);
-			$entry->setAttribute("xmlns:media", NAMESPACE_MEDIA);
-			$entry->setAttribute("xmlns:poco", NAMESPACE_POCO);
-			$entry->setAttribute("xmlns:ostatus", NAMESPACE_OSTATUS);
-			$entry->setAttribute("xmlns:statusnet", NAMESPACE_STATUSNET);
-			$entry->setAttribute("xmlns:mastodon", NAMESPACE_MASTODON);
+			$entry->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
+			$entry->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
+			$entry->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
+			$entry->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
+			$entry->setAttribute("xmlns:poco", ActivityNamespace::POCO);
+			$entry->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
+			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
+			$entry->setAttribute("xmlns:mastodon", ActivityNamespace::MASTODON);
 
 			$author = self::addAuthor($doc, $owner);
 			$entry->appendChild($author);
@@ -2111,14 +2112,14 @@ class OStatus
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
-						"ostatus:object-type" => ACTIVITY_OBJ_GROUP,
+						"ostatus:object-type" => Activity\ObjectType::GROUP,
 						"href" => $mention]
 				);
 			} else {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
-						"ostatus:object-type" => ACTIVITY_OBJ_PERSON,
+						"ostatus:object-type" => Activity\ObjectType::PERSON,
 						"href" => $mention]
 				);
 			}
@@ -2231,7 +2232,7 @@ class OStatus
 
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `object-type` = ? ";
-			$condition[] = ACTIVITY_OBJ_COMMENT;
+			$condition[] = Activity\ObjectType::COMMENT;
 		}
 
 		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {
