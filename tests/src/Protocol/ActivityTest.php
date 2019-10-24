@@ -22,7 +22,7 @@ class ActivityTest extends MockedTest
 			],
 			'withNamespace' => [
 				'haystack' => 'tagterm',
-				'needle' => Activity\ANamespace::ACTIVITY_SCHEMA . Activity\ObjectType::TAGTERM,
+				'needle' => Activity\ActivityNamespace::ACTIVITY_SCHEMA . Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 			'invalidSimple' => [
@@ -37,7 +37,7 @@ class ActivityTest extends MockedTest
 			],
 			'withSubPath' => [
 				'haystack' => 'tagterm',
-				'needle' => Activity\ANamespace::ACTIVITY_SCHEMA . '/bla/' . Activity\ObjectType::TAGTERM,
+				'needle' => Activity\ActivityNamespace::ACTIVITY_SCHEMA . '/bla/' . Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 		];

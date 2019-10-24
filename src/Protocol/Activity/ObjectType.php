@@ -13,14 +13,14 @@ final class ObjectType
 	 * @see http://activitystrea.ms/head/activity-schema.html#bookmark
 	 * @var string
 	 */
-	const BOOKMARK = ANamespace::ACTIVITY_SCHEMA . 'bookmark';
+	const BOOKMARK = ActivityNamespace::ACTIVITY_SCHEMA . 'bookmark';
 	/**
 	 * The "comment" object type represents a textual response to another object.
 	 *
 	 * @see http://activitystrea.ms/head/activity-schema.html#comment
 	 * @var string
 	 */
-	const COMMENT = ANamespace::ACTIVITY_SCHEMA . 'comment';
+	const COMMENT = ActivityNamespace::ACTIVITY_SCHEMA . 'comment';
 	/**
 	 * The "comment" object type represents a textual response to another object.
 	 * (Default type for items)
@@ -28,25 +28,25 @@ final class ObjectType
 	 * @see http://activitystrea.ms/head/activity-schema.html#note
 	 * @var string
 	 */
-	const NOTE = ANamespace::ACTIVITY_SCHEMA . 'note';
+	const NOTE = ActivityNamespace::ACTIVITY_SCHEMA . 'note';
 	/**
 	 * The "person" object type represents a user account.
 	 *
 	 * @see http://activitystrea.ms/head/activity-schema.html#person
 	 * @var string
 	 */
-	const PERSON = ANamespace::ACTIVITY_SCHEMA . 'person';
+	const PERSON = ActivityNamespace::ACTIVITY_SCHEMA . 'person';
 	/**
 	 * The "image" object type represents a graphical image.
 	 *
 	 * @see http://activitystrea.ms/head/activity-schema.html#image
 	 * @var string
 	 */
-	const IMAGE = ANamespace::ACTIVITY_SCHEMA . 'image';
+	const IMAGE = ActivityNamespace::ACTIVITY_SCHEMA . 'image';
 	/**
 	 * @var string
 	 */
-	const PHOTO = ANamespace::ACTIVITY_SCHEMA . 'photo';
+	const PHOTO = ActivityNamespace::ACTIVITY_SCHEMA . 'photo';
 	/**
 	 * The "video" object type represents video content,
 	 * which usually consists of a motion picture track and an audio track.
@@ -54,43 +54,43 @@ final class ObjectType
 	 * @see http://activitystrea.ms/head/activity-schema.html#video
 	 * @var string
 	 */
-	const VIDEO = ANamespace::ACTIVITY_SCHEMA . 'video';
+	const VIDEO = ActivityNamespace::ACTIVITY_SCHEMA . 'video';
 	/**
 	 * @var string
 	 */
-	const PROFILE_PHOTO = ANamespace::ACTIVITY_SCHEMA . 'profile-photo';
+	const PROFILE_PHOTO = ActivityNamespace::ACTIVITY_SCHEMA . 'profile-photo';
 	/**
 	 * @var string
 	 */
-	const ALBUM = ANamespace::ACTIVITY_SCHEMA . 'photo-album';
+	const ALBUM = ActivityNamespace::ACTIVITY_SCHEMA . 'photo-album';
 	/**
 	 * The "event" object type represents an event that occurs in a certain place during a particular interval of time.
 	 *
 	 * @see http://activitystrea.ms/head/activity-schema.html#event
 	 * @var string
 	 */
-	const EVENT = ANamespace::ACTIVITY_SCHEMA . 'event';
+	const EVENT = ActivityNamespace::ACTIVITY_SCHEMA . 'event';
 	/**
 	 * The "group" object type represents a grouping of objects in which member objects can join or leave.
 	 *
 	 * @see http://activitystrea.ms/head/activity-schema.html#group
 	 * @var string
 	 */
-	const GROUP = ANamespace::ACTIVITY_SCHEMA . 'group';
+	const GROUP = ActivityNamespace::ACTIVITY_SCHEMA . 'group';
 
 
 	/**
 	 * @var string
 	 */
-	const HEART = ANamespace::DFRN . '/heart';
+	const HEART = ActivityNamespace::DFRN . '/heart';
 	/**
 	 * @var string
 	 */
-	const TAGTERM = ANamespace::DFRN . '/tagterm';
+	const TAGTERM = ActivityNamespace::DFRN . '/tagterm';
 	/**
 	 * @var string
 	 */
-	const PROFILE = ANamespace::DFRN . '/profile';
+	const PROFILE = ActivityNamespace::DFRN . '/profile';
 
 
 	/**

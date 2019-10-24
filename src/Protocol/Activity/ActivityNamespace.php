@@ -5,7 +5,7 @@ namespace Friendica\Protocol\Activity;
 /**
  * Activity namespaces constants
  */
-final class ANamespace
+final class ActivityNamespace
 {
 	/**
 	 * Zot is a WebMTA which provides a decentralised identity and communications protocol using HTTPS/JSON.

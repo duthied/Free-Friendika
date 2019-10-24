@@ -25,7 +25,7 @@ use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Protocol\Activity\ANamespace;
+use Friendica\Protocol\Activity\ActivityNamespace;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -262,14 +262,14 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', ANamespace::ATOM1);
-		$xpath->registerNamespace('thr', ANamespace::THREAD);
-		$xpath->registerNamespace('georss', ANamespace::GEORSS);
-		$xpath->registerNamespace('activity', ANamespace::ACTIVITY);
-		$xpath->registerNamespace('media', ANamespace::MEDIA);
-		$xpath->registerNamespace('poco', ANamespace::POCO);
-		$xpath->registerNamespace('ostatus', ANamespace::OSTATUS);
-		$xpath->registerNamespace('statusnet', ANamespace::STATUSNET);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('georss', ActivityNamespace::GEORSS);
+		$xpath->registerNamespace('activity', ActivityNamespace::ACTIVITY);
+		$xpath->registerNamespace('media', ActivityNamespace::MEDIA);
+		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ActivityNamespace::STATUSNET);
 
 		$contact = ["id" => 0];
 
@@ -343,14 +343,14 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', ANamespace::ATOM1);
-		$xpath->registerNamespace('thr', ANamespace::THREAD);
-		$xpath->registerNamespace('georss', ANamespace::GEORSS);
-		$xpath->registerNamespace('activity', ANamespace::ACTIVITY);
-		$xpath->registerNamespace('media', ANamespace::MEDIA);
-		$xpath->registerNamespace('poco', ANamespace::POCO);
-		$xpath->registerNamespace('ostatus', ANamespace::OSTATUS);
-		$xpath->registerNamespace('statusnet', ANamespace::STATUSNET);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('georss', ActivityNamespace::GEORSS);
+		$xpath->registerNamespace('activity', ActivityNamespace::ACTIVITY);
+		$xpath->registerNamespace('media', ActivityNamespace::MEDIA);
+		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ActivityNamespace::STATUSNET);
 
 		$hub = "";
 		$hub_items = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0);
@@ -804,9 +804,9 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', ANamespace::ATOM1);
-		$xpath->registerNamespace('thr', ANamespace::THREAD);
-		$xpath->registerNamespace('ostatus', ANamespace::OSTATUS);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
+		$xpath->registerNamespace('thr', ActivityNamespace::THREAD);
+		$xpath->registerNamespace('ostatus', ActivityNamespace::OSTATUS);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 
@@ -1282,17 +1282,17 @@ class OStatus
 	 */
 	private static function addHeader(DOMDocument $doc, array $owner, $filter, $feed_mode = false)
 	{
-		$root = $doc->createElementNS(ANamespace::ATOM1, 'feed');
+		$root = $doc->createElementNS(ActivityNamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", ANamespace::THREAD);
-		$root->setAttribute("xmlns:georss", ANamespace::GEORSS);
-		$root->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
-		$root->setAttribute("xmlns:media", ANamespace::MEDIA);
-		$root->setAttribute("xmlns:poco", ANamespace::POCO);
-		$root->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
-		$root->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
-		$root->setAttribute("xmlns:mastodon", ANamespace::MASTODON);
+		$root->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
+		$root->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
+		$root->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
+		$root->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
+		$root->setAttribute("xmlns:poco", ActivityNamespace::POCO);
+		$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
+		$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
+		$root->setAttribute("xmlns:mastodon", ActivityNamespace::MASTODON);
 
 		$title = '';
 		$selfUri = '/feed/' . $owner["nick"] . '/';
@@ -1710,7 +1710,7 @@ class OStatus
 
 		$as_object = $doc->createElement("activity:object");
 
-		XML::addElement($doc, $as_object, "activity:object-type", ANamespace::ACTIVITY_SCHEMA . "activity");
+		XML::addElement($doc, $as_object, "activity:object-type", ActivityNamespace::ACTIVITY_SCHEMA . "activity");
 
 		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
@@ -1760,7 +1760,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		$verb = Activity\ANamespace::ACTIVITY_SCHEMA . "favorite";
+		$verb = Activity\ActivityNamespace::ACTIVITY_SCHEMA . "favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
 		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);
@@ -1951,16 +1951,16 @@ class OStatus
 				$entry->appendChild($author);
 			}
 		} else {
-			$entry = $doc->createElementNS(ANamespace::ATOM1, "entry");
+			$entry = $doc->createElementNS(ActivityNamespace::ATOM1, "entry");
 
-			$entry->setAttribute("xmlns:thr", ANamespace::THREAD);
-			$entry->setAttribute("xmlns:georss", ANamespace::GEORSS);
-			$entry->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
-			$entry->setAttribute("xmlns:media", ANamespace::MEDIA);
-			$entry->setAttribute("xmlns:poco", ANamespace::POCO);
-			$entry->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
-			$entry->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
-			$entry->setAttribute("xmlns:mastodon", ANamespace::MASTODON);
+			$entry->setAttribute("xmlns:thr", ActivityNamespace::THREAD);
+			$entry->setAttribute("xmlns:georss", ActivityNamespace::GEORSS);
+			$entry->setAttribute("xmlns:activity", ActivityNamespace::ACTIVITY);
+			$entry->setAttribute("xmlns:media", ActivityNamespace::MEDIA);
+			$entry->setAttribute("xmlns:poco", ActivityNamespace::POCO);
+			$entry->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
+			$entry->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
+			$entry->setAttribute("xmlns:mastodon", ActivityNamespace::MASTODON);
 
 			$author = self::addAuthor($doc, $owner);
 			$entry->appendChild($author);

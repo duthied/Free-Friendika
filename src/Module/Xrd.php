@@ -8,7 +8,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
-use Friendica\Protocol\Activity\ANamespace;
+use Friendica\Protocol\Activity\ActivityNamespace;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Strings;
 
@@ -95,11 +95,11 @@ class Xrd extends BaseModule
 			],
 			'links'   => [
 				[
-					'rel'  => ANamespace::DFRN ,
+					'rel'  => ActivityNamespace::DFRN ,
 					'href' => $owner['url'],
 				],
 				[
-					'rel'  => ANamespace::FEED,
+					'rel'  => ActivityNamespace::FEED,
 					'type' => 'application/atom+xml',
 					'href' => $owner['poll'],
 				],
@@ -119,7 +119,7 @@ class Xrd extends BaseModule
 					'href' => $baseURL . '/hcard/' . $owner['nickname'],
 				],
 				[
-					'rel'  => ANamespace::POCO,
+					'rel'  => ActivityNamespace::POCO,
 					'href' => $owner['poco'],
 				],
 				[
