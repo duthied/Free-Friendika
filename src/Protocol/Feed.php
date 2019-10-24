@@ -14,7 +14,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Protocol\Activity\ANamespace;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
@@ -60,13 +60,13 @@ class Feed {
 		$doc = new DOMDocument();
 		@$doc->loadXML(trim($xml));
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', Namespaces::ATOM1);
+		$xpath->registerNamespace('atom', ANamespace::ATOM1);
 		$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
 		$xpath->registerNamespace('content', "http://purl.org/rss/1.0/modules/content/");
 		$xpath->registerNamespace('rdf', "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		$xpath->registerNamespace('rss', "http://purl.org/rss/1.0/");
 		$xpath->registerNamespace('media', "http://search.yahoo.com/mrss/");
-		$xpath->registerNamespace('poco', Namespaces::POCO);
+		$xpath->registerNamespace('poco', ANamespace::POCO);
 
 		$author = [];
 		$entries = null;

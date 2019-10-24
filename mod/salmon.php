@@ -2,19 +2,19 @@
 /**
  * @file mod/salmon.php
  */
+
 use Friendica\App;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Protocol\Activity\ANamespace;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;
-use Friendica\Util\Strings;
 use Friendica\Util\Network;
+use Friendica\Util\Strings;
 
 function salmon_post(App $a, $xml = '') {
 
@@ -37,7 +37,7 @@ function salmon_post(App $a, $xml = '') {
 
 	// parse the xml
 
-	$dom = simplexml_load_string($xml,'SimpleXMLElement',0, Namespaces::SALMON_ME);
+	$dom = simplexml_load_string($xml,'SimpleXMLElement',0, ANamespace::SALMON_ME);
 
 	$base = null;
 

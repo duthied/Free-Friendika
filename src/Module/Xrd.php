@@ -4,12 +4,11 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
-use Friendica\Database\DBA;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
-use Friendica\Model\User;
+use Friendica\Database\DBA;
 use Friendica\Model\Photo;
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Model\User;
+use Friendica\Protocol\Activity\ANamespace;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Strings;
 
@@ -96,11 +95,11 @@ class Xrd extends BaseModule
 			],
 			'links'   => [
 				[
-					'rel'  => Namespaces::DFRN ,
+					'rel'  => ANamespace::DFRN ,
 					'href' => $owner['url'],
 				],
 				[
-					'rel'  => Namespaces::FEED,
+					'rel'  => ANamespace::FEED,
 					'type' => 'application/atom+xml',
 					'href' => $owner['poll'],
 				],
@@ -120,7 +119,7 @@ class Xrd extends BaseModule
 					'href' => $baseURL . '/hcard/' . $owner['nickname'],
 				],
 				[
-					'rel'  => Namespaces::POCO,
+					'rel'  => ANamespace::POCO,
 					'href' => $owner['poco'],
 				],
 				[

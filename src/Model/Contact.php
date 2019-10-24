@@ -12,8 +12,8 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
@@ -23,7 +23,6 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
-use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -829,7 +828,7 @@ class Contact extends BaseObject
 		} elseif (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 			// create an unfollow slap
 			$item = [];
-			$item['verb'] = Activity\Namespaces::OSTATUS . "/unfollow";
+			$item['verb'] = Activity\ANamespace::OSTATUS . "/unfollow";
 			$item['follow'] = $contact["url"];
 			$item['body'] = '';
 			$item['title'] = '';

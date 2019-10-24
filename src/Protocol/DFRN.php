@@ -10,7 +10,6 @@ namespace Friendica\Protocol;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
@@ -21,7 +20,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -34,7 +32,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Protocol\Activity\ANamespace;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -383,18 +381,18 @@ class DFRN
 		$type = 'html';
 
 		if ($conversation) {
-			$root = $doc->createElementNS(Namespaces::ATOM1, 'feed');
+			$root = $doc->createElementNS(ANamespace::ATOM1, 'feed');
 			$doc->appendChild($root);
 
-			$root->setAttribute("xmlns:thr", Namespaces::THREAD);
-			$root->setAttribute("xmlns:at", Namespaces::TOMB);
-			$root->setAttribute("xmlns:media", Namespaces::MEDIA);
-			$root->setAttribute("xmlns:dfrn", Namespaces::DFRN);
-			$root->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
-			$root->setAttribute("xmlns:georss", Namespaces::GEORSS);
-			$root->setAttribute("xmlns:poco", Namespaces::POCO);
-			$root->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
-			$root->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
+			$root->setAttribute("xmlns:thr", ANamespace::THREAD);
+			$root->setAttribute("xmlns:at", ANamespace::TOMB);
+			$root->setAttribute("xmlns:media", ANamespace::MEDIA);
+			$root->setAttribute("xmlns:dfrn", ANamespace::DFRN);
+			$root->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
+			$root->setAttribute("xmlns:georss", ANamespace::GEORSS);
+			$root->setAttribute("xmlns:poco", ANamespace::POCO);
+			$root->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
+			$root->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
 
 			//$root = self::addHeader($doc, $owner, "dfrn:owner", "", false);
 
@@ -558,18 +556,18 @@ class DFRN
 			$alternatelink = $owner['url'];
 		}
 
-		$root = $doc->createElementNS(Namespaces::ATOM1, 'feed');
+		$root = $doc->createElementNS(ANamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", Namespaces::THREAD);
-		$root->setAttribute("xmlns:at", Namespaces::TOMB);
-		$root->setAttribute("xmlns:media", Namespaces::MEDIA);
-		$root->setAttribute("xmlns:dfrn", Namespaces::DFRN);
-		$root->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
-		$root->setAttribute("xmlns:georss", Namespaces::GEORSS);
-		$root->setAttribute("xmlns:poco", Namespaces::POCO);
-		$root->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
-		$root->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
+		$root->setAttribute("xmlns:thr", ANamespace::THREAD);
+		$root->setAttribute("xmlns:at", ANamespace::TOMB);
+		$root->setAttribute("xmlns:media", ANamespace::MEDIA);
+		$root->setAttribute("xmlns:dfrn", ANamespace::DFRN);
+		$root->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
+		$root->setAttribute("xmlns:georss", ANamespace::GEORSS);
+		$root->setAttribute("xmlns:poco", ANamespace::POCO);
+		$root->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
+		$root->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
 
 		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
 		XML::addElement($doc, $root, "title", $owner["name"]);
@@ -942,18 +940,18 @@ class DFRN
 		if (!$single) {
 			$entry = $doc->createElement("entry");
 		} else {
-			$entry = $doc->createElementNS(Namespaces::ATOM1, 'entry');
+			$entry = $doc->createElementNS(ANamespace::ATOM1, 'entry');
 			$doc->appendChild($entry);
 
-			$entry->setAttribute("xmlns:thr", Namespaces::THREAD);
-			$entry->setAttribute("xmlns:at", Namespaces::TOMB);
-			$entry->setAttribute("xmlns:media", Namespaces::MEDIA);
-			$entry->setAttribute("xmlns:dfrn", Namespaces::DFRN);
-			$entry->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
-			$entry->setAttribute("xmlns:georss", Namespaces::GEORSS);
-			$entry->setAttribute("xmlns:poco", Namespaces::POCO);
-			$entry->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
-			$entry->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
+			$entry->setAttribute("xmlns:thr", ANamespace::THREAD);
+			$entry->setAttribute("xmlns:at", ANamespace::TOMB);
+			$entry->setAttribute("xmlns:media", ANamespace::MEDIA);
+			$entry->setAttribute("xmlns:dfrn", ANamespace::DFRN);
+			$entry->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
+			$entry->setAttribute("xmlns:georss", ANamespace::GEORSS);
+			$entry->setAttribute("xmlns:poco", ANamespace::POCO);
+			$entry->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
+			$entry->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
 		}
 
 		if ($item['private']) {
@@ -1751,7 +1749,7 @@ class DFRN
 		$obj_doc = new DOMDocument("1.0", "utf-8");
 		$obj_doc->formatOutput = true;
 
-		$obj_element = $obj_doc->createElementNS( Namespaces::ATOM1, $element);
+		$obj_element = $obj_doc->createElementNS( ANamespace::ATOM1, $element);
 
 		$activity_type = $xpath->query("activity:object-type/text()", $activity)->item(0)->nodeValue;
 		XML::addElement($obj_doc, $obj_element, "type", $activity_type);
@@ -2732,16 +2730,16 @@ class DFRN
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace("atom", Namespaces::ATOM1);
-		$xpath->registerNamespace("thr", Namespaces::THREAD);
-		$xpath->registerNamespace("at", Namespaces::TOMB);
-		$xpath->registerNamespace("media", Namespaces::MEDIA);
-		$xpath->registerNamespace("dfrn", Namespaces::DFRN);
-		$xpath->registerNamespace("activity", Namespaces::ACTIVITY);
-		$xpath->registerNamespace("georss", Namespaces::GEORSS);
-		$xpath->registerNamespace("poco", Namespaces::POCO);
-		$xpath->registerNamespace("ostatus", Namespaces::OSTATUS);
-		$xpath->registerNamespace("statusnet", Namespaces::STATUSNET);
+		$xpath->registerNamespace("atom", ANamespace::ATOM1);
+		$xpath->registerNamespace("thr", ANamespace::THREAD);
+		$xpath->registerNamespace("at", ANamespace::TOMB);
+		$xpath->registerNamespace("media", ANamespace::MEDIA);
+		$xpath->registerNamespace("dfrn", ANamespace::DFRN);
+		$xpath->registerNamespace("activity", ANamespace::ACTIVITY);
+		$xpath->registerNamespace("georss", ANamespace::GEORSS);
+		$xpath->registerNamespace("poco", ANamespace::POCO);
+		$xpath->registerNamespace("ostatus", ANamespace::OSTATUS);
+		$xpath->registerNamespace("statusnet", ANamespace::STATUSNET);
 
 		$header = [];
 		$header["uid"] = $importer["importer_uid"];

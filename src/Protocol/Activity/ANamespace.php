@@ -5,7 +5,7 @@ namespace Friendica\Protocol\Activity;
 /**
  * Activity namespaces constants
  */
-final class Namespaces
+final class ANamespace
 {
 	const ZOT             = 'http://purl.org/zot';
 	const DFRN            = 'http://purl.org/macgirvin/dfrn/1.0';

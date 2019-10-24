@@ -10,22 +10,22 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\L10n;
-use Friendica\Core\Logger;
 use Friendica\Core\Lock;
+use Friendica\Core\Logger;
+use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
-use Friendica\Model\APContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Protocol\Activity\ANamespace;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -262,14 +262,14 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', Namespaces::ATOM1);
-		$xpath->registerNamespace('thr', Namespaces::THREAD);
-		$xpath->registerNamespace('georss', Namespaces::GEORSS);
-		$xpath->registerNamespace('activity', Namespaces::ACTIVITY);
-		$xpath->registerNamespace('media', Namespaces::MEDIA);
-		$xpath->registerNamespace('poco', Namespaces::POCO);
-		$xpath->registerNamespace('ostatus', Namespaces::OSTATUS);
-		$xpath->registerNamespace('statusnet', Namespaces::STATUSNET);
+		$xpath->registerNamespace('atom', ANamespace::ATOM1);
+		$xpath->registerNamespace('thr', ANamespace::THREAD);
+		$xpath->registerNamespace('georss', ANamespace::GEORSS);
+		$xpath->registerNamespace('activity', ANamespace::ACTIVITY);
+		$xpath->registerNamespace('media', ANamespace::MEDIA);
+		$xpath->registerNamespace('poco', ANamespace::POCO);
+		$xpath->registerNamespace('ostatus', ANamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ANamespace::STATUSNET);
 
 		$contact = ["id" => 0];
 
@@ -343,14 +343,14 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', Namespaces::ATOM1);
-		$xpath->registerNamespace('thr', Namespaces::THREAD);
-		$xpath->registerNamespace('georss', Namespaces::GEORSS);
-		$xpath->registerNamespace('activity', Namespaces::ACTIVITY);
-		$xpath->registerNamespace('media', Namespaces::MEDIA);
-		$xpath->registerNamespace('poco', Namespaces::POCO);
-		$xpath->registerNamespace('ostatus', Namespaces::OSTATUS);
-		$xpath->registerNamespace('statusnet', Namespaces::STATUSNET);
+		$xpath->registerNamespace('atom', ANamespace::ATOM1);
+		$xpath->registerNamespace('thr', ANamespace::THREAD);
+		$xpath->registerNamespace('georss', ANamespace::GEORSS);
+		$xpath->registerNamespace('activity', ANamespace::ACTIVITY);
+		$xpath->registerNamespace('media', ANamespace::MEDIA);
+		$xpath->registerNamespace('poco', ANamespace::POCO);
+		$xpath->registerNamespace('ostatus', ANamespace::OSTATUS);
+		$xpath->registerNamespace('statusnet', ANamespace::STATUSNET);
 
 		$hub = "";
 		$hub_items = $xpath->query("/atom:feed/atom:link[@rel='hub']")->item(0);
@@ -434,7 +434,7 @@ class OStatus
 				continue;
 			}
 
-			if (in_array($item["verb"], [Namespaces::OSTATUS . "/unfavorite", Activity::UNFAVORITE])) {
+			if (in_array($item["verb"], [ANamespace::OSTATUS . "/unfavorite", Activity::UNFAVORITE])) {
 				// Ignore "Unfavorite" message
 				Logger::log("Ignore unfavorite message ".print_r($item, true), Logger::DEBUG);
 				continue;
@@ -465,7 +465,7 @@ class OStatus
 				continue;
 			}
 
-			if ($item["verb"] == Namespaces::OSTATUS."/unfollow") {
+			if ($item["verb"] == ANamespace::OSTATUS . "/unfollow") {
 				$dummy = null;
 				Contact::removeFollower($importer, $contact, $item, $dummy);
 				continue;
@@ -804,9 +804,9 @@ class OStatus
 		@$doc->loadXML($xml);
 
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', Namespaces::ATOM1);
-		$xpath->registerNamespace('thr', Namespaces::THREAD);
-		$xpath->registerNamespace('ostatus', Namespaces::OSTATUS);
+		$xpath->registerNamespace('atom', ANamespace::ATOM1);
+		$xpath->registerNamespace('thr', ANamespace::THREAD);
+		$xpath->registerNamespace('ostatus', ANamespace::OSTATUS);
 
 		$entries = $xpath->query('/atom:feed/atom:entry');
 
@@ -1282,17 +1282,17 @@ class OStatus
 	 */
 	private static function addHeader(DOMDocument $doc, array $owner, $filter, $feed_mode = false)
 	{
-		$root = $doc->createElementNS(Namespaces::ATOM1, 'feed');
+		$root = $doc->createElementNS(ANamespace::ATOM1, 'feed');
 		$doc->appendChild($root);
 
-		$root->setAttribute("xmlns:thr", Namespaces::THREAD);
-		$root->setAttribute("xmlns:georss", Namespaces::GEORSS);
-		$root->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
-		$root->setAttribute("xmlns:media", Namespaces::MEDIA);
-		$root->setAttribute("xmlns:poco", Namespaces::POCO);
-		$root->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
-		$root->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
-		$root->setAttribute("xmlns:mastodon", Namespaces::MASTODON);
+		$root->setAttribute("xmlns:thr", ANamespace::THREAD);
+		$root->setAttribute("xmlns:georss", ANamespace::GEORSS);
+		$root->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
+		$root->setAttribute("xmlns:media", ANamespace::MEDIA);
+		$root->setAttribute("xmlns:poco", ANamespace::POCO);
+		$root->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
+		$root->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
+		$root->setAttribute("xmlns:mastodon", ANamespace::MASTODON);
 
 		$title = '';
 		$selfUri = '/feed/' . $owner["nick"] . '/';
@@ -1592,7 +1592,7 @@ class OStatus
 
 		if ($item["verb"] == Activity::LIKE) {
 			return self::likeEntry($doc, $item, $owner, $toplevel);
-		} elseif (in_array($item["verb"], [Activity::FOLLOW, Namespaces::OSTATUS . "/unfollow"])) {
+		} elseif (in_array($item["verb"], [Activity::FOLLOW, ANamespace::OSTATUS . "/unfollow"])) {
 			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
 			return self::noteEntry($doc, $item, $owner, $toplevel, $feed_mode);
@@ -1710,7 +1710,7 @@ class OStatus
 
 		$as_object = $doc->createElement("activity:object");
 
-		XML::addElement($doc, $as_object, "activity:object-type", Namespaces::ACTIVITY_SCHEMA . "activity");
+		XML::addElement($doc, $as_object, "activity:object-type", ANamespace::ACTIVITY_SCHEMA . "activity");
 
 		self::entryContent($doc, $as_object, $repeated_item, $owner, "", "", false);
 
@@ -1760,7 +1760,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		$verb = Activity\Namespaces::ACTIVITY_SCHEMA."favorite";
+		$verb = Activity\ANamespace::ACTIVITY_SCHEMA . "favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
 		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);
@@ -1951,16 +1951,16 @@ class OStatus
 				$entry->appendChild($author);
 			}
 		} else {
-			$entry = $doc->createElementNS(Namespaces::ATOM1, "entry");
+			$entry = $doc->createElementNS(ANamespace::ATOM1, "entry");
 
-			$entry->setAttribute("xmlns:thr", Namespaces::THREAD);
-			$entry->setAttribute("xmlns:georss", Namespaces::GEORSS);
-			$entry->setAttribute("xmlns:activity", Namespaces::ACTIVITY);
-			$entry->setAttribute("xmlns:media", Namespaces::MEDIA);
-			$entry->setAttribute("xmlns:poco", Namespaces::POCO);
-			$entry->setAttribute("xmlns:ostatus", Namespaces::OSTATUS);
-			$entry->setAttribute("xmlns:statusnet", Namespaces::STATUSNET);
-			$entry->setAttribute("xmlns:mastodon", Namespaces::MASTODON);
+			$entry->setAttribute("xmlns:thr", ANamespace::THREAD);
+			$entry->setAttribute("xmlns:georss", ANamespace::GEORSS);
+			$entry->setAttribute("xmlns:activity", ANamespace::ACTIVITY);
+			$entry->setAttribute("xmlns:media", ANamespace::MEDIA);
+			$entry->setAttribute("xmlns:poco", ANamespace::POCO);
+			$entry->setAttribute("xmlns:ostatus", ANamespace::OSTATUS);
+			$entry->setAttribute("xmlns:statusnet", ANamespace::STATUSNET);
+			$entry->setAttribute("xmlns:mastodon", ANamespace::MASTODON);
 
 			$author = self::addAuthor($doc, $owner);
 			$entry->appendChild($author);

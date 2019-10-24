@@ -32,7 +32,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Protocol\Activity\ANamespace;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
@@ -466,7 +466,7 @@ class Diaspora
 			}
 		}
 
-		$base = $basedom->children(Namespaces::SALMON_ME);
+		$base = $basedom->children(ANamespace::SALMON_ME);
 
 		// Not sure if this cleaning is needed
 		$data = str_replace([" ", "\t", "\r", "\n"], ["", "", "", ""], $base->data);
@@ -578,7 +578,7 @@ class Diaspora
 			$author_link = str_replace('acct:', '', $idom->author_id);
 		}
 
-		$dom = $basedom->children(Namespaces::SALMON_ME);
+		$dom = $basedom->children(ANamespace::SALMON_ME);
 
 		// figure out where in the DOM tree our data is hiding
 

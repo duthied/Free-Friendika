@@ -2,51 +2,51 @@
 
 namespace Friendica\Protocol;
 
-use Friendica\Protocol\Activity\Namespaces;
+use Friendica\Protocol\Activity\ANamespace;
 
 /**
- * Base class for the Activity constants and match method
+ * Base class for the Activity constants and particular method
  */
 final class Activity
 {
-	const LIKE         = Namespaces::ACTIVITY_SCHEMA . 'like';
+	const LIKE         = ANamespace::ACTIVITY_SCHEMA . 'like';
 
-	const DISLIKE      = Namespaces::DFRN            . '/dislike';
-	const ATTEND       = Namespaces::ZOT             . '/activity/attendyes';
-	const ATTENDNO     = Namespaces::ZOT             . '/activity/attendno';
-	const ATTENDMAYBE  = Namespaces::ZOT             . '/activity/attendmaybe';
-	const OBJ_HEART    = Namespaces::DFRN            . '/heart';
+	const DISLIKE      = ANamespace::DFRN            . '/dislike';
+	const ATTEND       = ANamespace::ZOT             . '/activity/attendyes';
+	const ATTENDNO     = ANamespace::ZOT             . '/activity/attendno';
+	const ATTENDMAYBE  = ANamespace::ZOT             . '/activity/attendmaybe';
+	const OBJ_HEART    = ANamespace::DFRN            . '/heart';
 
-	const FRIEND       = Namespaces::ACTIVITY_SCHEMA . 'make-friend';
-	const REQ_FRIEND   = Namespaces::ACTIVITY_SCHEMA . 'request-friend';
-	const UNFRIEND     = Namespaces::ACTIVITY_SCHEMA . 'remove-friend';
-	const FOLLOW       = Namespaces::ACTIVITY_SCHEMA . 'follow';
-	const UNFOLLOW     = Namespaces::ACTIVITY_SCHEMA . 'stop-following';
-	const JOIN         = Namespaces::ACTIVITY_SCHEMA . 'join';
-	const POST         = Namespaces::ACTIVITY_SCHEMA . 'post';
-	const UPDATE       = Namespaces::ACTIVITY_SCHEMA . 'update';
-	const TAG          = Namespaces::ACTIVITY_SCHEMA . 'tag';
-	const FAVORITE     = Namespaces::ACTIVITY_SCHEMA . 'favorite';
-	const UNFAVORITE   = Namespaces::ACTIVITY_SCHEMA . 'unfavorite';
-	const SHARE        = Namespaces::ACTIVITY_SCHEMA . 'share';
-	const DELETE       = Namespaces::ACTIVITY_SCHEMA . 'delete';
-	const ANNOUNCE     = Namespaces::ACTIVITY2       . 'Announce';
+	const FRIEND       = ANamespace::ACTIVITY_SCHEMA . 'make-friend';
+	const REQ_FRIEND   = ANamespace::ACTIVITY_SCHEMA . 'request-friend';
+	const UNFRIEND     = ANamespace::ACTIVITY_SCHEMA . 'remove-friend';
+	const FOLLOW       = ANamespace::ACTIVITY_SCHEMA . 'follow';
+	const UNFOLLOW     = ANamespace::ACTIVITY_SCHEMA . 'stop-following';
+	const JOIN         = ANamespace::ACTIVITY_SCHEMA . 'join';
+	const POST         = ANamespace::ACTIVITY_SCHEMA . 'post';
+	const UPDATE       = ANamespace::ACTIVITY_SCHEMA . 'update';
+	const TAG          = ANamespace::ACTIVITY_SCHEMA . 'tag';
+	const FAVORITE     = ANamespace::ACTIVITY_SCHEMA . 'favorite';
+	const UNFAVORITE   = ANamespace::ACTIVITY_SCHEMA . 'unfavorite';
+	const SHARE        = ANamespace::ACTIVITY_SCHEMA . 'share';
+	const DELETE       = ANamespace::ACTIVITY_SCHEMA . 'delete';
+	const ANNOUNCE     = ANamespace::ACTIVITY2       . 'Announce';
 
-	const POKE         = Namespaces::ZOT             . '/activity/poke';
+	const POKE         = ANamespace::ZOT             . '/activity/poke';
 
-	const OBJ_BOOKMARK = Namespaces::ACTIVITY_SCHEMA . 'bookmark';
-	const OBJ_COMMENT  = Namespaces::ACTIVITY_SCHEMA . 'comment';
-	const OBJ_NOTE     = Namespaces::ACTIVITY_SCHEMA . 'note';
-	const OBJ_PERSON   = Namespaces::ACTIVITY_SCHEMA . 'person';
-	const OBJ_IMAGE    = Namespaces::ACTIVITY_SCHEMA . 'image';
-	const OBJ_PHOTO    = Namespaces::ACTIVITY_SCHEMA . 'photo';
-	const OBJ_VIDEO    = Namespaces::ACTIVITY_SCHEMA . 'video';
-	const OBJ_P_PHOTO  = Namespaces::ACTIVITY_SCHEMA . 'profile-photo';
-	const OBJ_ALBUM    = Namespaces::ACTIVITY_SCHEMA . 'photo-album';
-	const OBJ_EVENT    = Namespaces::ACTIVITY_SCHEMA . 'event';
-	const OBJ_GROUP    = Namespaces::ACTIVITY_SCHEMA . 'group';
-	const OBJ_TAGTERM  = Namespaces::DFRN            . '/tagterm';
-	const OBJ_PROFILE  = Namespaces::DFRN            . '/profile';
+	const OBJ_BOOKMARK = ANamespace::ACTIVITY_SCHEMA . 'bookmark';
+	const OBJ_COMMENT  = ANamespace::ACTIVITY_SCHEMA . 'comment';
+	const OBJ_NOTE     = ANamespace::ACTIVITY_SCHEMA . 'note';
+	const OBJ_PERSON   = ANamespace::ACTIVITY_SCHEMA . 'person';
+	const OBJ_IMAGE    = ANamespace::ACTIVITY_SCHEMA . 'image';
+	const OBJ_PHOTO    = ANamespace::ACTIVITY_SCHEMA . 'photo';
+	const OBJ_VIDEO    = ANamespace::ACTIVITY_SCHEMA . 'video';
+	const OBJ_P_PHOTO  = ANamespace::ACTIVITY_SCHEMA . 'profile-photo';
+	const OBJ_ALBUM    = ANamespace::ACTIVITY_SCHEMA . 'photo-album';
+	const OBJ_EVENT    = ANamespace::ACTIVITY_SCHEMA . 'event';
+	const OBJ_GROUP    = ANamespace::ACTIVITY_SCHEMA . 'group';
+	const OBJ_TAGTERM  = ANamespace::DFRN            . '/tagterm';
+	const OBJ_PROFILE  = ANamespace::DFRN            . '/profile';
 
 	const OBJ_QUESTION = 'http://activityschema.org/object/question';
 
@@ -93,6 +93,6 @@ final class Activity
 	{
 		return (($haystack === $needle) ||
 		        ((basename($needle) === $haystack) &&
-		         strstr($needle, Namespaces::ACTIVITY_SCHEMA)));
+		         strstr($needle, ANamespace::ACTIVITY_SCHEMA)));
 	}
 }
