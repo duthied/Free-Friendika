@@ -2,7 +2,7 @@
 
 namespace Friendica\Protocol;
 
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 
 /**
  * Base class for the Activity Verbs

@@ -32,7 +32,7 @@ use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;

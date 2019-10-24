@@ -18,7 +18,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;

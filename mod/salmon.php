@@ -9,7 +9,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Crypto;

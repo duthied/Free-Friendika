@@ -25,7 +25,7 @@ use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -1760,7 +1760,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		$verb = Activity\ActivityNamespace::ACTIVITY_SCHEMA . "favorite";
+		$verb = ActivityNamespace::ACTIVITY_SCHEMA . "favorite";
 		self::entryContent($doc, $entry, $item, $owner, "Favorite", $verb, false);
 
 		$parent = Item::selectFirst([], ['uri' => $item["thr-parent"], 'uid' => $item["uid"]]);

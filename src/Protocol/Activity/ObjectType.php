@@ -2,6 +2,8 @@
 
 namespace Friendica\Protocol\Activity;
 
+use Friendica\Protocol\ActivityNamespace;
+
 /**
  * This class contains the different object types in activities
  */

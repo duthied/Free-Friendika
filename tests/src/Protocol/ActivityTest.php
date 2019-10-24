@@ -3,6 +3,7 @@
 namespace Friendica\Test\Protocol;
 
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Test\MockedTest;
 
 class ActivityTest extends MockedTest
@@ -22,7 +23,7 @@ class ActivityTest extends MockedTest
 			],
 			'withNamespace' => [
 				'haystack' => 'tagterm',
-				'needle' => Activity\ActivityNamespace::ACTIVITY_SCHEMA . Activity\ObjectType::TAGTERM,
+				'needle' => ActivityNamespace::ACTIVITY_SCHEMA . Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 			'invalidSimple' => [
@@ -37,7 +38,7 @@ class ActivityTest extends MockedTest
 			],
 			'withSubPath' => [
 				'haystack' => 'tagterm',
-				'needle' => Activity\ActivityNamespace::ACTIVITY_SCHEMA . '/bla/' . Activity\ObjectType::TAGTERM,
+				'needle' => ActivityNamespace::ACTIVITY_SCHEMA . '/bla/' . Activity\ObjectType::TAGTERM,
 				'assert' => true,
 			],
 		];

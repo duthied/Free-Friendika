@@ -14,7 +14,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 

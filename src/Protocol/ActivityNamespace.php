@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Protocol\Activity;
+namespace Friendica\Protocol;
 
 /**
  * Activity namespaces constants

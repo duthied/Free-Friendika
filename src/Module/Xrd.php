@@ -8,7 +8,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
-use Friendica\Protocol\Activity\ActivityNamespace;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\Strings;
 
