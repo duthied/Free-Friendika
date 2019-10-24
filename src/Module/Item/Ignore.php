@@ -30,7 +30,7 @@ class Ignore extends BaseModule
 		/** @var Database $dba */
 		$dba = self::getClass(Database::class);
 
-		$message_id = intval($args->get(1));
+		$message_id = intval($args->get(2));
 
 		if (empty($message_id) || !is_int($message_id)) {
 			throw new HTTPException\BadRequestException();
