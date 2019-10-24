@@ -1078,9 +1078,9 @@ class DFRN
 		if ($item['object-type'] != "") {
 			XML::addElement($doc, $entry, "activity:object-type", $item['object-type']);
 		} elseif ($item['id'] == $item['parent']) {
-			XML::addElement($doc, $entry, "activity:object-type", Activity::OBJ_NOTE);
+			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::NOTE);
 		} else {
-			XML::addElement($doc, $entry, "activity:object-type", Activity::OBJ_COMMENT);
+			XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::COMMENT);
 		}
 
 		$actobj = self::createActivity($doc, "activity:object", $item['object']);
@@ -1123,7 +1123,7 @@ class DFRN
 					"link",
 					"",
 					["rel" => "mentioned",
-							"ostatus:object-type" => Activity::OBJ_GROUP,
+							"ostatus:object-type" => Activity\ObjectType::GROUP,
 							"href" => $mention]
 				);
 			} else {
@@ -1133,7 +1133,7 @@ class DFRN
 					"link",
 					"",
 					["rel" => "mentioned",
-							"ostatus:object-type" => Activity::OBJ_PERSON,
+							"ostatus:object-type" => Activity\ObjectType::PERSON,
 							"href" => $mention]
 				);
 			}
@@ -2116,7 +2116,7 @@ class DFRN
 		}
 		$xo = XML::parseString($item["object"], false);
 
-		if (($xo->type == Activity::OBJ_PERSON) && ($xo->id)) {
+		if (($xo->type == Activity\ObjectType::PERSON) && ($xo->id)) {
 			// somebody was poked/prodded. Was it me?
 			$Blink = '';
 			foreach ($xo->link as $l) {
@@ -2237,11 +2237,11 @@ class DFRN
 				$is_like = false;
 			}
 
-			if (($item["verb"] == Activity::TAG) && ($item["object-type"] == Activity::OBJ_TAGTERM)) {
+			if (($item["verb"] == Activity::TAG) && ($item["object-type"] == Activity\ObjectType::TAGTERM)) {
 				$xo = XML::parseString($item["object"], false);
 				$xt = XML::parseString($item["target"], false);
 
-				if ($xt->type == Activity::OBJ_NOTE) {
+				if ($xt->type == Activity\ObjectType::NOTE) {
 					$item_tag = Item::selectFirst(['id', 'tag'], ['uri' => $xt->id, 'uid' => $importer["importer_uid"]]);
 
 					if (!DBA::isResult($item_tag)) {
@@ -2516,7 +2516,7 @@ class DFRN
 		// Now assign the rest of the values that depend on the type of the message
 		if (in_array($entrytype, [DFRN::REPLY, DFRN::REPLY_RC])) {
 			if (!isset($item["object-type"])) {
-				$item["object-type"] = Activity::OBJ_COMMENT;
+				$item["object-type"] = Activity\ObjectType::COMMENT;
 			}
 
 			if ($item["contact-id"] != $owner["contact-id"]) {
@@ -2540,11 +2540,11 @@ class DFRN
 			$item["wall"] = 1;
 		} elseif ($entrytype == DFRN::TOP_LEVEL) {
 			if (!isset($item["object-type"])) {
-				$item["object-type"] = Activity::OBJ_NOTE;
+				$item["object-type"] = Activity\ObjectType::NOTE;
 			}
 
 			// Is it an event?
-			if (($item["object-type"] == Activity::OBJ_EVENT) && !$owner_unknown) {
+			if (($item["object-type"] == Activity\ObjectType::EVENT) && !$owner_unknown) {
 				Logger::log("Item ".$item["uri"]." seems to contain an event.", Logger::DEBUG);
 				$ev = Event::fromBBCode($item["body"]);
 				if ((!empty($ev['desc']) || !empty($ev['summary'])) && !empty($ev['start'])) {

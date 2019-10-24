@@ -200,7 +200,7 @@ class Feed {
 		$header["gravity"] = GRAVITY_PARENT;
 		$header["private"] = 2;
 		$header["verb"] = Activity::POST;
-		$header["object-type"] = Activity::OBJ_NOTE;
+		$header["object-type"] = Activity\ObjectType::NOTE;
 
 		$header["contact-id"] = $contact["id"];
 
@@ -421,7 +421,7 @@ class Feed {
 				$item["title"] = "";
 				$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["tag"] = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-				$item["object-type"] = Activity::OBJ_BOOKMARK;
+				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
 			} else {
 				if (!empty($summary)) {

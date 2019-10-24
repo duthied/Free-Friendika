@@ -5,50 +5,157 @@ namespace Friendica\Protocol;
 use Friendica\Protocol\Activity\ANamespace;
 
 /**
- * Base class for the Activity constants and particular method
+ * Base class for the Activity Verbs
  */
 final class Activity
 {
-	const LIKE         = ANamespace::ACTIVITY_SCHEMA . 'like';
+	/**
+	 * Indicates that the actor marked the object as an item of special interest.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const LIKE = ANamespace::ACTIVITY_SCHEMA . 'like';
+	/**
+	 * Dislike a message ("I don't like the post")
+	 *
+	 * @see http://purl.org/macgirvin/dfrn/1.0/dislike
+	 * @var string
+	 */
+	const DISLIKE = ANamespace::DFRN . '/dislike';
 
-	const DISLIKE      = ANamespace::DFRN            . '/dislike';
-	const ATTEND       = ANamespace::ZOT             . '/activity/attendyes';
-	const ATTENDNO     = ANamespace::ZOT             . '/activity/attendno';
-	const ATTENDMAYBE  = ANamespace::ZOT             . '/activity/attendmaybe';
-	const OBJ_HEART    = ANamespace::DFRN            . '/heart';
+	/**
+	 * Attend an event
+	 *
+	 * @see https://github.com/friendica/friendica/wiki/ActivityStreams#activity_attend
+	 * @var string
+	 */
+	const ATTEND      = ANamespace::ZOT . '/activity/attendyes';
+	/**
+	 * Don't attend an event
+	 *
+	 * @see https://github.com/friendica/friendica/wiki/ActivityStreams#activity_attendno
+	 * @var string
+	 */
+	const ATTENDNO    = ANamespace::ZOT . '/activity/attendno';
+	/**
+	 * Attend maybe an event
+	 *
+	 * @see https://github.com/friendica/friendica/wiki/ActivityStreams#activity_attendmaybe
+	 * @var string
+	 */
+	const ATTENDMAYBE = ANamespace::ZOT . '/activity/attendmaybe';
 
-	const FRIEND       = ANamespace::ACTIVITY_SCHEMA . 'make-friend';
-	const REQ_FRIEND   = ANamespace::ACTIVITY_SCHEMA . 'request-friend';
-	const UNFRIEND     = ANamespace::ACTIVITY_SCHEMA . 'remove-friend';
-	const FOLLOW       = ANamespace::ACTIVITY_SCHEMA . 'follow';
-	const UNFOLLOW     = ANamespace::ACTIVITY_SCHEMA . 'stop-following';
-	const JOIN         = ANamespace::ACTIVITY_SCHEMA . 'join';
-	const POST         = ANamespace::ACTIVITY_SCHEMA . 'post';
-	const UPDATE       = ANamespace::ACTIVITY_SCHEMA . 'update';
-	const TAG          = ANamespace::ACTIVITY_SCHEMA . 'tag';
-	const FAVORITE     = ANamespace::ACTIVITY_SCHEMA . 'favorite';
-	const UNFAVORITE   = ANamespace::ACTIVITY_SCHEMA . 'unfavorite';
-	const SHARE        = ANamespace::ACTIVITY_SCHEMA . 'share';
-	const DELETE       = ANamespace::ACTIVITY_SCHEMA . 'delete';
-	const ANNOUNCE     = ANamespace::ACTIVITY2       . 'Announce';
+	/**
+	 * Indicates the creation of a friendship that is reciprocated by the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const FRIEND      = ANamespace::ACTIVITY_SCHEMA . 'make-friend';
+	/**
+	 * Indicates the creation of a friendship that has not yet been reciprocated by the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const REQ_FRIEND = ANamespace::ACTIVITY_SCHEMA . 'request-friend';
+	/**
+	 * Indicates that the actor has removed the object from the collection of friends.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const UNFRIEND   = ANamespace::ACTIVITY_SCHEMA . 'remove-friend';
+	/**
+	 * Indicates that the actor began following the activity of the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const FOLLOW     = ANamespace::ACTIVITY_SCHEMA . 'follow';
+	/**
+	 * Indicates that the actor has stopped following the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const UNFOLLOW   = ANamespace::ACTIVITY_SCHEMA . 'stop-following';
+	/**
+	 * Indicates that the actor has become a member of the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const JOIN       = ANamespace::ACTIVITY_SCHEMA . 'join';
+	/**
+	 * Implementors SHOULD use verbs such as post where the actor is adding new items to a collection or similar.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const POST       = ANamespace::ACTIVITY_SCHEMA . 'post';
+	/**
+	 * The "update" verb indicates that the actor has modified the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const UPDATE     = ANamespace::ACTIVITY_SCHEMA . 'update';
+	/**
+	 * Indicates that the actor has identified the presence of a target inside another object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const TAG        = ANamespace::ACTIVITY_SCHEMA . 'tag';
+	/**
+	 * Indicates that the actor marked the object as an item of special interest.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const FAVORITE   = ANamespace::ACTIVITY_SCHEMA . 'favorite';
+	/**
+	 * Indicates that the actor has removed the object from the collection of favorited items.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const UNFAVORITE = ANamespace::ACTIVITY_SCHEMA . 'unfavorite';
+	/**
+	 * Indicates that the actor has called out the object to readers.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const SHARE      = ANamespace::ACTIVITY_SCHEMA . 'share';
+	/**
+	 * Indicates that the actor has deleted the object.
+	 *
+	 * @see http://activitystrea.ms/head/activity-schema.html#verbs
+	 * @var string
+	 */
+	const DELETE     = ANamespace::ACTIVITY_SCHEMA . 'delete';
+	/**
+	 * Indicates that the actor is calling the target's attention the object.
+	 *
+	 * @see https://www.w3.org/TR/activitystreams-vocabulary/#dfn-announce
+	 * @var string
+	 */
+	const ANNOUNCE   = ANamespace::ACTIVITY2 . 'Announce';
 
-	const POKE         = ANamespace::ZOT             . '/activity/poke';
+	/**
+	 * Pokes an user.
+	 *
+	 * @see https://github.com/friendica/friendica/wiki/ActivityStreams#activity_poke
+	 * @var string
+	 */
+	const POKE       = ANamespace::ZOT . '/activity/poke';
 
-	const OBJ_BOOKMARK = ANamespace::ACTIVITY_SCHEMA . 'bookmark';
-	const OBJ_COMMENT  = ANamespace::ACTIVITY_SCHEMA . 'comment';
-	const OBJ_NOTE     = ANamespace::ACTIVITY_SCHEMA . 'note';
-	const OBJ_PERSON   = ANamespace::ACTIVITY_SCHEMA . 'person';
-	const OBJ_IMAGE    = ANamespace::ACTIVITY_SCHEMA . 'image';
-	const OBJ_PHOTO    = ANamespace::ACTIVITY_SCHEMA . 'photo';
-	const OBJ_VIDEO    = ANamespace::ACTIVITY_SCHEMA . 'video';
-	const OBJ_P_PHOTO  = ANamespace::ACTIVITY_SCHEMA . 'profile-photo';
-	const OBJ_ALBUM    = ANamespace::ACTIVITY_SCHEMA . 'photo-album';
-	const OBJ_EVENT    = ANamespace::ACTIVITY_SCHEMA . 'event';
-	const OBJ_GROUP    = ANamespace::ACTIVITY_SCHEMA . 'group';
-	const OBJ_TAGTERM  = ANamespace::DFRN            . '/tagterm';
-	const OBJ_PROFILE  = ANamespace::DFRN            . '/profile';
 
-	const OBJ_QUESTION = 'http://activityschema.org/object/question';
+	const O_UNFOLLOW    = ANamespace::OSTATUS . '/unfollow';
+	const O_UNFAVOURITE = ANamespace::OSTATUS . '/unfavorite';
 
 	/**
 	 * likes (etc.) can apply to other things besides posts. Check if they are post children,

@@ -2,12 +2,13 @@
 /**
  * @file mod/tagger.php
  */
+
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
@@ -69,7 +70,7 @@ function tagger_content(App $a) {
 	$uri = Item::newURI($owner_uid);
 	$xterm = XML::escape($term);
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
-	$targettype = (($item['resource-id']) ? Activity::OBJ_IMAGE : Activity::OBJ_NOTE );
+	$targettype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );
 	$href = System::baseUrl() . '/display/' . $item['guid'];
 
 	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n");
@@ -88,7 +89,7 @@ function tagger_content(App $a) {
 EOT;
 
 	$tagid = System::baseUrl() . '/search?tag=' . $xterm;
-	$objtype = Activity::OBJ_TAGTERM;
+	$objtype = Activity\ObjectType::TAGTERM;
 
 	$obj = <<< EOT
 	<object>

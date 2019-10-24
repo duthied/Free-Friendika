@@ -828,7 +828,7 @@ class Contact extends BaseObject
 		} elseif (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 			// create an unfollow slap
 			$item = [];
-			$item['verb'] = Activity\ANamespace::OSTATUS . "/unfollow";
+			$item['verb'] = Activity::O_UNFOLLOW;
 			$item['follow'] = $contact["url"];
 			$item['body'] = '';
 			$item['title'] = '';

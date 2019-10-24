@@ -134,7 +134,7 @@ function item_post(App $a) {
 		$toplevel_item_id = $toplevel_item['id'];
 		$parent_user = $toplevel_item['uid'];
 
-		$objecttype = Activity::OBJ_COMMENT;
+		$objecttype = Activity\ObjectType::COMMENT;
 	}
 
 	if ($toplevel_item_id) {
@@ -467,7 +467,7 @@ function item_post(App $a) {
 	$match = null;
 
 	if (!$preview && Photo::setPermissionFromBody($body, $profile_uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
-		$objecttype = Activity::OBJ_IMAGE;
+		$objecttype = Activity\ObjectType::IMAGE;
 	}
 
 	/*
@@ -503,7 +503,7 @@ function item_post(App $a) {
 	if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"]))
 		&& ($posttype != Item::PT_PERSONAL_NOTE)) {
 		$posttype = Item::PT_PAGE;
-		$objecttype =  Activity::OBJ_BOOKMARK;
+		$objecttype =  Activity\ObjectType::BOOKMARK;
 	}
 
 	/** @var BBCode\Video $bbCodeVideo */
@@ -517,15 +517,15 @@ function item_post(App $a) {
 
 	// Setting the object type if not defined before
 	if (!$objecttype) {
-		$objecttype = Activity::OBJ_NOTE; // Default value
+		$objecttype = Activity\ObjectType::NOTE; // Default value
 		$objectdata = BBCode::getAttachedData($body);
 
 		if ($objectdata["type"] == "link") {
-			$objecttype = Activity::OBJ_BOOKMARK;
+			$objecttype = Activity\ObjectType::BOOKMARK;
 		} elseif ($objectdata["type"] == "video") {
-			$objecttype = Activity::OBJ_VIDEO;
+			$objecttype = Activity\ObjectType::VIDEO;
 		} elseif ($objectdata["type"] == "photo") {
-			$objecttype = Activity::OBJ_IMAGE;
+			$objecttype = Activity\ObjectType::IMAGE;
 		}
 
 	}

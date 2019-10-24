@@ -495,7 +495,7 @@ class OnePoll
 
 					$datarray = [];
 					$datarray['verb'] = Activity::POST;
-					$datarray['object-type'] = Activity::OBJ_NOTE;
+					$datarray['object-type'] = Activity\ObjectType::NOTE;
 					$datarray['network'] = Protocol::MAIL;
 					// $meta = Email::messageMeta($mbox, $msg_uid);
 

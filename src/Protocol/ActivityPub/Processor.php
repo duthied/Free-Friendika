@@ -4,20 +4,20 @@
  */
 namespace Friendica\Protocol\ActivityPub;
 
-use Friendica\Database\DBA;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\Logger;
+use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Model\Contact;
+use Friendica\Database\DBA;
 use Friendica\Model\APContact;
-use Friendica\Model\Item;
+use Friendica\Model\Contact;
 use Friendica\Model\Event;
+use Friendica\Model\Item;
+use Friendica\Model\Mail;
 use Friendica\Model\Term;
 use Friendica\Model\User;
-use Friendica\Model\Mail;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
@@ -173,10 +173,10 @@ class Processor
 
 		if ($activity['reply-to-id'] == $activity['id']) {
 			$item['gravity'] = GRAVITY_PARENT;
-			$item['object-type'] = Activity::OBJ_NOTE;
+			$item['object-type'] = Activity\ObjectType::NOTE;
 		} else {
 			$item['gravity'] = GRAVITY_COMMENT;
-			$item['object-type'] = Activity::OBJ_COMMENT;
+			$item['object-type'] = Activity\ObjectType::COMMENT;
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
@@ -255,7 +255,7 @@ class Processor
 		$item['verb'] = $verb;
 		$item['thr-parent'] = $activity['object_id'];
 		$item['gravity'] = GRAVITY_ACTIVITY;
-		$item['object-type'] = Activity::OBJ_NOTE;
+		$item['object-type'] = Activity\ObjectType::NOTE;
 
 		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
 

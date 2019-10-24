@@ -2,6 +2,7 @@
 /**
  * @file mod/subthread.php
  */
+
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -88,7 +89,7 @@ function subthread_content(App $a) {
 	$uri = Item::newURI($owner_uid);
 
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
-	$objtype = (($item['resource-id']) ? Activity::OBJ_IMAGE : Activity::OBJ_NOTE );
+	$objtype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );
 	$link = XML::escape('<link rel="alternate" type="text/html" href="' . System::baseUrl() . '/display/' . $item['guid'] . '" />' . "\n");
 	$body = $item['body'];
 

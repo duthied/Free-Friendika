@@ -27,12 +27,12 @@ use Friendica\Model\Term;
 use Friendica\Object\Post;
 use Friendica\Object\Thread;
 use Friendica\Protocol\Activity;
+use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Util\Temporal;
 use Friendica\Util\Strings;
+use Friendica\Util\Temporal;
 use Friendica\Util\XML;
-use Friendica\Util\Crypto;
 
 function item_extract_images($body) {
 
@@ -163,7 +163,7 @@ function localize_item(&$item)
 		switch ($obj['verb']) {
 			case Activity::POST:
 				switch ($obj['object-type']) {
-					case Activity::OBJ_EVENT:
+					case Activity\ObjectType::EVENT:
 						$post_type = L10n::t('event');
 						break;
 					default:
@@ -201,7 +201,7 @@ function localize_item(&$item)
 
 	if ($activity->match($item['verb'], Activity::FRIEND)) {
 
-		if ($item['object-type']=="" || $item['object-type']!== Activity::OBJ_PERSON) return;
+		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) return;
 
 		$Aname = $item['author-name'];
 		$Alink = $item['author-link'];
@@ -236,7 +236,7 @@ function localize_item(&$item)
 		if (!$verb) {
 			return;
 		}
-		if ($item['object-type']=="" || $item['object-type']!== Activity::OBJ_PERSON) {
+		if ($item['object-type']=="" || $item['object-type']!== Activity\ObjectType::PERSON) {
 			return;
 		}
 
@@ -300,7 +300,7 @@ function localize_item(&$item)
 		switch ($obj['verb']) {
 			case Activity::POST:
 				switch ($obj['object-type']) {
-					case Activity::OBJ_EVENT:
+					case Activity\ObjectType::EVENT:
 						$post_type = L10n::t('event');
 						break;
 					default:
@@ -408,7 +408,7 @@ function visible_activity($item) {
 
 	// @TODO below if() block can be rewritten to a single line: $isVisible = allConditionsHere;
 	if ($activity->match($item['verb'], Activity::FOLLOW) &&
-	    $item['object-type'] === Activity::OBJ_NOTE &&
+	    $item['object-type'] === Activity\ObjectType::NOTE &&
 	    empty($item['self']) &&
 	    $item['uid'] == local_user()) {
 		return false;

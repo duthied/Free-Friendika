@@ -1855,7 +1855,7 @@ class Diaspora
 			$datarray["parent-uri"] = $parent_item["uri"];
 		}
 
-		$datarray["object-type"] = Activity::OBJ_COMMENT;
+		$datarray["object-type"] = Activity\ObjectType::COMMENT;
 
 		$datarray["protocol"] = Conversation::PARCEL_DIASPORA;
 		$datarray["source"] = $xml;
@@ -2086,7 +2086,7 @@ class Diaspora
 		$datarray["gravity"] = GRAVITY_ACTIVITY;
 		$datarray["parent-uri"] = $parent_item["uri"];
 
-		$datarray["object-type"] = Activity::OBJ_NOTE;
+		$datarray["object-type"] = Activity\ObjectType::NOTE;
 
 		$datarray["body"] = $verb;
 
@@ -2687,7 +2687,7 @@ class Diaspora
 
 		$datarray['verb'] = $datarray['body'] = Activity::ANNOUNCE;
 		$datarray['gravity'] = GRAVITY_ACTIVITY;
-		$datarray['object-type'] = Activity::OBJ_NOTE;
+		$datarray['object-type'] = Activity\ObjectType::NOTE;
 
 		$datarray['protocol'] = $item['protocol'];
 
@@ -2963,9 +2963,9 @@ class Diaspora
 					XML::unescape($photo->remote_photo_name)."[/img]\n".$body;
 			}
 
-			$datarray["object-type"] = Activity::OBJ_IMAGE;
+			$datarray["object-type"] = Activity\ObjectType::IMAGE;
 		} else {
-			$datarray["object-type"] = Activity::OBJ_NOTE;
+			$datarray["object-type"] = Activity\ObjectType::NOTE;
 
 			// Add OEmbed and other information to the body
 			if (!self::isRedmatrix($contact["url"])) {

@@ -434,7 +434,7 @@ class OStatus
 				continue;
 			}
 
-			if (in_array($item["verb"], [ANamespace::OSTATUS . "/unfavorite", Activity::UNFAVORITE])) {
+			if (in_array($item["verb"], [Activity::O_UNFAVOURITE, Activity::UNFAVORITE])) {
 				// Ignore "Unfavorite" message
 				Logger::log("Ignore unfavorite message ".print_r($item, true), Logger::DEBUG);
 				continue;
@@ -465,7 +465,7 @@ class OStatus
 				continue;
 			}
 
-			if ($item["verb"] == ANamespace::OSTATUS . "/unfollow") {
+			if ($item["verb"] == Activity::O_UNFOLLOW) {
 				$dummy = null;
 				Contact::removeFollower($importer, $contact, $item, $dummy);
 				continue;
@@ -478,7 +478,7 @@ class OStatus
 				$item["verb"] = Activity::LIKE;
 				$item["parent-uri"] = $orig_uri;
 				$item["gravity"] = GRAVITY_ACTIVITY;
-				$item["object-type"] = Activity::OBJ_NOTE;
+				$item["object-type"] = Activity\ObjectType::NOTE;
 			}
 
 			// http://activitystrea.ms/schema/1.0/rsvp-yes
@@ -593,10 +593,10 @@ class OStatus
 	{
 		$item["body"] = HTML::toBBCode(XML::getFirstNodeValue($xpath, 'atom:content/text()', $entry));
 		$item["object-type"] = XML::getFirstNodeValue($xpath, 'activity:object-type/text()', $entry);
-		if (($item["object-type"] == Activity::OBJ_BOOKMARK) || ($item["object-type"] == Activity::OBJ_EVENT)) {
+		if (($item["object-type"] == Activity\ObjectType::BOOKMARK) || ($item["object-type"] == Activity\ObjectType::EVENT)) {
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 			$item["body"] = XML::getFirstNodeValue($xpath, 'atom:summary/text()', $entry);
-		} elseif ($item["object-type"] == Activity::OBJ_QUESTION) {
+		} elseif ($item["object-type"] == Activity\ObjectType::QUESTION) {
 			$item["title"] = XML::getFirstNodeValue($xpath, 'atom:title/text()', $entry);
 		}
 
@@ -1106,8 +1106,8 @@ class OStatus
 				switch ($attribute['rel']) {
 					case "alternate":
 						$item["plink"] = $attribute['href'];
-						if (($item["object-type"] == Activity::OBJ_QUESTION)
-							|| ($item["object-type"] == Activity::OBJ_EVENT)
+						if (($item["object-type"] == Activity\ObjectType::QUESTION)
+							|| ($item["object-type"] == Activity\ObjectType::EVENT)
 						) {
 							$item["body"] .= add_page_info($attribute['href']);
 						}
@@ -1136,7 +1136,7 @@ class OStatus
 						}
 						break;
 					case "related":
-						if ($item["object-type"] != Activity::OBJ_BOOKMARK) {
+						if ($item["object-type"] != Activity\ObjectType::BOOKMARK) {
 							if (!isset($item["parent-uri"])) {
 								$item["parent-uri"] = $attribute['href'];
 							}
@@ -1462,9 +1462,9 @@ class OStatus
 		$author = $doc->createElement("author");
 		XML::addElement($doc, $author, "id", $owner["url"]);
 		if ($owner['account-type'] == User::ACCOUNT_TYPE_COMMUNITY) {
-			XML::addElement($doc, $author, "activity:object-type", Activity::OBJ_GROUP);
+			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::GROUP);
 		} else {
-			XML::addElement($doc, $author, "activity:object-type", Activity::OBJ_PERSON);
+			XML::addElement($doc, $author, "activity:object-type", Activity\ObjectType::PERSON);
 		}
 		XML::addElement($doc, $author, "uri", $owner["url"]);
 		XML::addElement($doc, $author, "name", $owner["nick"]);
@@ -1557,11 +1557,11 @@ class OStatus
 	 */
 	private static function constructObjecttype(array $item)
 	{
-		if (!empty($item['object-type']) && in_array($item['object-type'], [Activity::OBJ_NOTE, Activity::OBJ_COMMENT])) {
+		if (!empty($item['object-type']) && in_array($item['object-type'], [Activity\ObjectType::NOTE, Activity\ObjectType::COMMENT])) {
 			return $item['object-type'];
 		}
 
-		return Activity::OBJ_NOTE;
+		return Activity\ObjectType::NOTE;
 	}
 
 	/**
@@ -1592,7 +1592,7 @@ class OStatus
 
 		if ($item["verb"] == Activity::LIKE) {
 			return self::likeEntry($doc, $item, $owner, $toplevel);
-		} elseif (in_array($item["verb"], [Activity::FOLLOW, ANamespace::OSTATUS . "/unfollow"])) {
+		} elseif (in_array($item["verb"], [Activity::FOLLOW, Activity::O_UNFOLLOW])) {
 			return self::followEntry($doc, $item, $owner, $toplevel);
 		} else {
 			return self::noteEntry($doc, $item, $owner, $toplevel, $feed_mode);
@@ -1791,7 +1791,7 @@ class OStatus
 	private static function addPersonObject(DOMDocument $doc, array $owner, array $contact)
 	{
 		$object = $doc->createElement("activity:object");
-		XML::addElement($doc, $object, "activity:object-type", Activity::OBJ_PERSON);
+		XML::addElement($doc, $object, "activity:object-type", Activity\ObjectType::PERSON);
 
 		if ($contact['network'] == Protocol::PHANTOM) {
 			XML::addElement($doc, $object, "id", $contact['url']);
@@ -1919,7 +1919,7 @@ class OStatus
 
 		$entry = self::entryHeader($doc, $owner, $item, $toplevel);
 
-		XML::addElement($doc, $entry, "activity:object-type", Activity::OBJ_NOTE);
+		XML::addElement($doc, $entry, "activity:object-type", Activity\ObjectType::NOTE);
 
 		self::entryContent($doc, $entry, $item, $owner, $title, '', true, $feed_mode);
 
@@ -2112,14 +2112,14 @@ class OStatus
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
-						"ostatus:object-type" => Activity::OBJ_GROUP,
+						"ostatus:object-type" => Activity\ObjectType::GROUP,
 						"href" => $mention]
 				);
 			} else {
 				XML::addElement($doc, $entry, "link", "",
 					[
 						"rel" => "mentioned",
-						"ostatus:object-type" => Activity::OBJ_PERSON,
+						"ostatus:object-type" => Activity\ObjectType::PERSON,
 						"href" => $mention]
 				);
 			}
@@ -2232,7 +2232,7 @@ class OStatus
 
 		if ($filter === 'comments') {
 			$condition[0] .= " AND `object-type` = ? ";
-			$condition[] = Activity::OBJ_COMMENT;
+			$condition[] = Activity\ObjectType::COMMENT;
 		}
 
 		if ($owner['account-type'] != User::ACCOUNT_TYPE_COMMUNITY) {

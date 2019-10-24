@@ -118,12 +118,12 @@ function poke_init(App $a)
 	$arr['visible']       = 1;
 	$arr['verb']          = $activity;
 	$arr['private']       = $private;
-	$arr['object-type']   = Activity::OBJ_PERSON;
+	$arr['object-type']   = Activity\ObjectType::PERSON;
 
 	$arr['origin']        = 1;
 	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . L10n::t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
 
-	$arr['object'] = '<object><type>' . Activity::OBJ_PERSON . '</type><title>' . $target['name'] . '</title><id>' . $target['url'] . '</id>';
+	$arr['object'] = '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . $target['name'] . '</title><id>' . $target['url'] . '</id>';
 	$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $target['url'] . '" />' . "\n");
 
 	$arr['object'] .= XML::escape('<link rel="photo" type="image/jpeg" href="' . $target['photo'] . '" />' . "\n");

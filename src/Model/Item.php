@@ -214,7 +214,7 @@ class Item extends BaseObject
 				$row['object'] = '';
 			}
 			if (array_key_exists('object-type', $row)) {
-				$row['object-type'] = Activity::OBJ_NOTE;
+				$row['object-type'] = Activity\ObjectType::NOTE;
 			}
 		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
 			// Posts don't have an object or target - but having tags or files.
@@ -1157,14 +1157,14 @@ class Item extends BaseObject
 
 	private static function deleteTagsFromItem($item)
 	{
-		if (($item["verb"] != Activity::TAG) || ($item["object-type"] != Activity::OBJ_TAGTERM)) {
+		if (($item["verb"] != Activity::TAG) || ($item["object-type"] != Activity\ObjectType::TAGTERM)) {
 			return;
 		}
 
 		$xo = XML::parseString($item["object"], false);
 		$xt = XML::parseString($item["target"], false);
 
-		if ($xt->type != Activity::OBJ_NOTE) {
+		if ($xt->type != Activity\ObjectType::NOTE) {
 			return;
 		}
 
@@ -3156,7 +3156,7 @@ class Item extends BaseObject
 			return true;
 		}
 
-		$objtype = $item['resource-id'] ? Activity::OBJ_IMAGE : Activity::OBJ_NOTE;
+		$objtype = $item['resource-id'] ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE;
 
 		$new_item = [
 			'guid'          => System::createUUID(),
@@ -3436,7 +3436,7 @@ class Item extends BaseObject
 
 		// In order to provide theme developers more possibilities, event items
 		// are treated differently.
-		if ($item['object-type'] === Activity::OBJ_EVENT && isset($item['event-id'])) {
+		if ($item['object-type'] === Activity\ObjectType::EVENT && isset($item['event-id'])) {
 			$ev = Event::getItemHTML($item);
 			return $ev;
 		}
