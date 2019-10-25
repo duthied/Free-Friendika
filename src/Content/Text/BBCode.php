@@ -1552,7 +1552,7 @@ class BBCode extends BaseObject
 			function ($matches) use ($simple_html) {
 				$matches[1] = self::proxyUrl($matches[1], $simple_html);
 				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
-				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
+				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '" title="' . $matches[2] . '">';
 			},
 			$text);
 
