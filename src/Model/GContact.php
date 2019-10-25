@@ -859,7 +859,9 @@ class GContact
 	/**
 	 * Update a global contact via an ActivityPub Outbox
 	 *
-	 * @param string $data Probing result
+	 * @param string $feed
+	 * @param array  $data Probing result
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function updateFromOutbox(string $feed, array $data)
 	{
@@ -872,6 +874,9 @@ class GContact
 			$items = $outbox['orderedItems'];
 		} elseif (!empty($outbox['first']['orderedItems'])) {
 			$items = $outbox['first']['orderedItems'];
+		} elseif (!empty($outbox['first']['href'])) {
+			self::updateFromOutbox($outbox['first']['href'], $data);
+			return;
 		} elseif (!empty($outbox['first'])) {
 			self::updateFromOutbox($outbox['first'], $data);
 			return;
