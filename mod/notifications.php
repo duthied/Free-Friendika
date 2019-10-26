@@ -78,7 +78,7 @@ function notifications_content(App $a)
 	}
 
 	$page = ($_REQUEST['page'] ?? 0) ?: 1;
-	$show =  isset($_REQUEST['show']) ? $_REQUEST['show'] : false;
+	$show = ($_REQUEST['show'] ?? '') === 'all';
 
 	Nav::setSelected('notifications');
 
