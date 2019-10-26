@@ -15,7 +15,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
@@ -26,6 +25,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
+use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -6040,7 +6040,7 @@ function api_friendica_notification($type)
 	if ($a->argc!==3) {
 		throw new BadRequestException("Invalid argument count");
 	}
-	$nm = new NotificationsManager();
+	$nm = new Notify();
 
 	$notes = $nm->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
 
@@ -6084,7 +6084,7 @@ function api_friendica_notification_seen($type)
 
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
-	$nm = new NotificationsManager();
+	$nm = new Notify();
 	$note = $nm->getByID($id);
 	if (is_null($note)) {
 		throw new BadRequestException("Invalid argument");

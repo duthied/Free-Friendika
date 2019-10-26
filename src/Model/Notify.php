@@ -4,14 +4,12 @@
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
-namespace Friendica\Core;
+namespace Friendica\Model;
 
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
-use Friendica\Model\Item;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -22,7 +20,7 @@ use Friendica\Util\XML;
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
-class NotificationsManager extends BaseObject
+final class Notify extends BaseObject
 {
 	/**
 	 * @brief set some extra note properties

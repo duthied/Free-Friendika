@@ -9,14 +9,13 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
 use Friendica\Model\Contact;
+use Friendica\Model\Notify;
 
 function notifications_post(App $a)
 {
@@ -85,7 +84,7 @@ function notifications_content(App $a)
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
 
-	$nm = new NotificationsManager();
+	$nm = new Notify();
 
 	$o = '';
 	// Get the nav tabs for the notification pages

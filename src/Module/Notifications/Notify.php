@@ -4,8 +4,8 @@ namespace Friendica\Module\Notifications;
 
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\System;
+use Friendica\Model\Notify as ModelNotify;
 use Friendica\Network\HTTPException;
 
 /**
@@ -26,7 +26,7 @@ class Notify extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all') {
-			$notificationsManager = new NotificationsManager();
+			$notificationsManager = new ModelNotify();
 			$success              = $notificationsManager->setAllSeen();
 
 			header('Content-type: application/json; charset=utf-8');
@@ -49,7 +49,7 @@ class Notify extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {
-			$notificationsManager = new NotificationsManager();
+			$notificationsManager = new ModelNotify();
 			// @TODO: Replace with parameter from router
 			$note = $notificationsManager->getByID($a->argv[2]);
 			if (!empty($note)) {
