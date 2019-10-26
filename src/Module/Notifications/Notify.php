@@ -3,6 +3,7 @@
 namespace Friendica\Module\Notifications;
 
 use Friendica\BaseModule;
+use Friendica\BaseObject;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Model\Notify as ModelNotify;
@@ -26,7 +27,8 @@ class Notify extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all') {
-			$notificationsManager = new ModelNotify();
+			/** @var ModelNotify $notificationsManager */
+			$notificationsManager = self::getClass(ModelNotify::class);
 			$success              = $notificationsManager->setAllSeen();
 
 			header('Content-type: application/json; charset=utf-8');
@@ -49,7 +51,8 @@ class Notify extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {
-			$notificationsManager = new ModelNotify();
+			/** @var ModelNotify $notificationsManager */
+			$notificationsManager = BaseObject::getClass(ModelNotify::class);
 			// @TODO: Replace with parameter from router
 			$note = $notificationsManager->getByID($a->argv[2]);
 			if (!empty($note)) {

@@ -7,6 +7,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
@@ -1375,7 +1376,7 @@ function api_get_item(array $condition)
  */
 function api_users_show($type)
 {
-	$a = \Friendica\BaseObject::getApp();
+	$a = BaseObject::getApp();
 
 	$user_info = api_get_user($a);
 
@@ -2948,7 +2949,7 @@ function api_format_items_profiles($profile_row)
  */
 function api_format_items($items, $user_info, $filter_user = false, $type = "json")
 {
-	$a = \Friendica\BaseObject::getApp();
+	$a = BaseObject::getApp();
 
 	$ret = [];
 
@@ -2982,7 +2983,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  */
 function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
 {
-	$a = \Friendica\BaseObject::getApp();
+	$a = BaseObject::getApp();
 
 	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
@@ -6040,7 +6041,8 @@ function api_friendica_notification($type)
 	if ($a->argc!==3) {
 		throw new BadRequestException("Invalid argument count");
 	}
-	$nm = new Notify();
+	/** @var Notify $nm */
+	$nm = BaseObject::getClass(Notify::class);
 
 	$notes = $nm->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
 
@@ -6084,7 +6086,8 @@ function api_friendica_notification_seen($type)
 
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
-	$nm = new Notify();
+	/** @var Notify $nm */
+	$nm = BaseObject::getClass(Notify::class);
 	$note = $nm->getByID($id);
 	if (is_null($note)) {
 		throw new BadRequestException("Invalid argument");

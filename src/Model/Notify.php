@@ -1,20 +1,25 @@
 <?php
-/**
- * @file src/Core/NotificationsManager.php
- * @brief Methods for read and write notifications from/to database
- *  or for formatting notifications
- */
+
 namespace Friendica\Model;
 
+use Exception;
+use Friendica\App;
 use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Database\DBA;
+use Friendica\Core\Config\PConfiguration;
+use Friendica\Core\L10n\L10n;
+use Friendica\Core\Protocol;
+use Friendica\Core\System;
+use Friendica\Database\Database;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Temporal;
 use Friendica\Util\XML;
+use ImagickException;
+use Psr\Log\LoggerInterface;
+use Friendica\Network\HTTPException;
 
 /**
  * @brief Methods for read and write notifications from/to database
@@ -22,32 +27,89 @@ use Friendica\Util\XML;
  */
 final class Notify extends BaseObject
 {
+	const NETWORK  = 'network';
+	const SYSTEM   = 'system';
+	const PERSONAL = 'personal';
+	const HOME     = 'home';
+	const INTRO    = 'intro';
+
+	/** @var array Array of URL parameters */
+	const URL_TYPES = [
+		self::NETWORK  => 'network',
+		self::SYSTEM   => 'system',
+		self::HOME     => 'home',
+		self::PERSONAL => 'personal',
+		self::INTRO    => 'intros',
+	];
+
+	/** @var array Array of the allowed notifies and their printable name */
+	const PRINT_TYPES = [
+		self::NETWORK  => 'Network',
+		self::SYSTEM   => 'System',
+		self::HOME     => 'Home',
+		self::PERSONAL => 'Personal',
+		self::INTRO    => 'Introductions',
+	];
+
+	/** @var array The array of access keys for notify pages */
+	const ACCESS_KEYS = [
+		self::NETWORK  => 'w',
+		self::SYSTEM   => 'y',
+		self::HOME     => 'h',
+		self::PERSONAL => 'r',
+		self::INTRO    => 'i',
+	];
+
+	/** @var Database */
+	private $dba;
+	/** @var L10n */
+	private $l10n;
+	/** @var App\Arguments */
+	private $args;
+	/** @var App\BaseURL */
+	private $baseUrl;
+	/** @var PConfiguration */
+	private $pConfig;
+	/** @var LoggerInterface */
+	private $logger;
+
+	public function __construct(Database $dba, L10n $l10n, App\Arguments $args, App\BaseURL $baseUrl,
+	                            PConfiguration $pConfig, LoggerInterface $logger)
+	{
+		$this->dba     = $dba;
+		$this->l10n    = $l10n;
+		$this->args    = $args;
+		$this->baseUrl = $baseUrl;
+		$this->pConfig = $pConfig;
+		$this->logger  = $logger;
+	}
+
 	/**
-	 * @brief set some extra note properties
-	 *
-	 * @param array $notes array of note arrays from db
-	 * @return array Copy of input array with added properties
-	 *
 	 * Set some extra properties to note array from db:
 	 *  - timestamp as int in default TZ
 	 *  - date_rel : relative date string
 	 *  - msg_html: message as html string
 	 *  - msg_plain: message as plain text string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @param array $notes array of note arrays from db
+	 *
+	 * @return array Copy of input array with added properties
+	 *
+	 * @throws Exception
 	 */
-	private function _set_extra(array $notes)
+	private function setExtra(array $notes)
 	{
-		$rets = [];
-		foreach ($notes as $n) {
-			$local_time = DateTimeFormat::local($n['date']);
-			$n['timestamp'] = strtotime($local_time);
-			$n['date_rel'] = Temporal::getRelativeDate($n['date']);
-			$n['msg_html'] = BBCode::convert($n['msg'], false);
-			$n['msg_plain'] = explode("\n", trim(HTML::toPlaintext($n['msg_html'], 0)))[0];
+		$retNotes = [];
+		foreach ($notes as $note) {
+			$local_time        = DateTimeFormat::local($note['date']);
+			$note['timestamp'] = strtotime($local_time);
+			$note['date_rel']  = Temporal::getRelativeDate($note['date']);
+			$note['msg_html']  = BBCode::convert($note['msg'], false);
+			$note['msg_plain'] = explode("\n", trim(HTML::toPlaintext($note['msg_html'], 0)))[0];
 
-			$rets[] = $n;
+			$retNotes[] = $note;
 		}
-		return $rets;
+		return $retNotes;
 	}
 
 	/**
@@ -58,9 +120,9 @@ final class Notify extends BaseObject
 	 * @param string $limit  optional Query limits
 	 *
 	 * @return array|bool of results or false on errors
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
-	public function getAll($filter = [], $order = ['date' => 'DESC'], $limit = "")
+	public function getAll(array $filter = [], array $order = ['date' => 'DESC'], string $limit = "")
 	{
 		$params = [];
 
@@ -72,10 +134,10 @@ final class Notify extends BaseObject
 
 		$dbFilter = array_merge($filter, ['uid' => local_user()]);
 
-		$stmtNotifies = DBA::select('notify', [], $dbFilter, $params);
+		$stmtNotifies = $this->dba->select('notify', [], $dbFilter, $params);
 
-		if (DBA::isResult($stmtNotifies)) {
-			return $this->_set_extra(DBA::toArray($stmtNotifies));
+		if ($this->dba->isResult($stmtNotifies)) {
+			return $this->setExtra($this->dba->toArray($stmtNotifies));
 		}
 
 		return false;
@@ -85,14 +147,15 @@ final class Notify extends BaseObject
 	 * @brief Get one note for local_user() by $id value
 	 *
 	 * @param int $id identity
+	 *
 	 * @return array note values or null if not found
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
-	public function getByID($id)
+	public function getByID(int $id)
 	{
-		$stmtNotify = DBA::selectFirst('notify', [], ['id' => $id, 'uid' => local_user()]);
-		if (DBA::isResult($stmtNotify)) {
-			return $this->_set_extra([$stmtNotify])[0];
+		$stmtNotify = $this->dba->selectFirst('notify', [], ['id' => $id, 'uid' => local_user()]);
+		if ($this->dba->isResult($stmtNotify)) {
+			return $this->setExtra([$stmtNotify])[0];
 		}
 		return null;
 	}
@@ -102,12 +165,13 @@ final class Notify extends BaseObject
 	 *
 	 * @param array $note note array
 	 * @param bool  $seen optional true or false, default true
+	 *
 	 * @return bool true on success, false on errors
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function setSeen($note, $seen = true)
+	public function setSeen(array $note, bool $seen = true)
 	{
-		return DBA::update('notify', ['seen' => $seen], [
+		return $this->dba->update('notify', ['seen' => $seen], [
 			'(`link` = ? OR (`parent` != 0 AND `parent` = ? AND `otype` = ?)) AND `uid` = ?',
 			$note['link'],
 			$note['parent'],
@@ -120,61 +184,36 @@ final class Notify extends BaseObject
 	 * @brief set seen state of all notifications of local_user()
 	 *
 	 * @param bool $seen optional true or false. default true
+	 *
 	 * @return bool true on success, false on error
-	 * @throws \Exception
+	 * @throws Exception
 	 */
-	public function setAllSeen($seen = true)
+	public function setAllSeen(bool $seen = true)
 	{
-		return DBA::update('notify', ['seen' => $seen], ['uid' => local_user()]);
+		return $this->dba->update('notify', ['seen' => $seen], ['uid' => local_user()]);
 	}
 
 	/**
 	 * @brief List of pages for the Notifications TabBar
 	 *
 	 * @return array with with notifications TabBar data
-	 * @throws \Exception
+	 * @throws Exception
 	 */
 	public function getTabs()
 	{
-		$selected = self::getApp()->argv[1] ?? '';
+		$selected = $this->args->get(1, '');
 
-		$tabs = [
-			[
-				'label' => L10n::t('System'),
-				'url'   => 'notifications/system',
-				'sel'   => (($selected == 'system') ? 'active' : ''),
-				'id'    => 'system-tab',
-				'accesskey' => 'y',
-			],
-			[
-				'label' => L10n::t('Network'),
-				'url'   => 'notifications/network',
-				'sel'   => (($selected == 'network') ? 'active' : ''),
-				'id'    => 'network-tab',
-				'accesskey' => 'w',
-			],
-			[
-				'label' => L10n::t('Personal'),
-				'url'   => 'notifications/personal',
-				'sel'   => (($selected == 'personal') ? 'active' : ''),
-				'id'    => 'personal-tab',
-				'accesskey' => 'r',
-			],
-			[
-				'label' => L10n::t('Home'),
-				'url'   => 'notifications/home',
-				'sel'   => (($selected == 'home') ? 'active' : ''),
-				'id'    => 'home-tab',
-				'accesskey' => 'h',
-			],
-			[
-				'label' => L10n::t('Introductions'),
-				'url'   => 'notifications/intros',
-				'sel'   => (($selected == 'intros') ? 'active' : ''),
-				'id'    => 'intro-tab',
-				'accesskey' => 'i',
-			],
-		];
+		$tabs = [];
+
+		foreach (self::URL_TYPES as $type => $url) {
+			$tabs[] = [
+				'label'     => $this->l10n->t(self::PRINT_TYPES[$type]),
+				'url'       => 'notifications/' . $url,
+				'sel'       => (($selected == $url) ? 'active' : ''),
+				'id'        => $type . '-tab',
+				'accesskey' => self::ACCESS_KEYS[$type],
+			];
+		}
 
 		return $tabs;
 	}
@@ -182,8 +221,9 @@ final class Notify extends BaseObject
 	/**
 	 * @brief Format the notification query in an usable array
 	 *
-	 * @param array  $notifs The array from the db query
-	 * @param string $ident  The notifications identifier (e.g. network)
+	 * @param array  $notifies The array from the db query
+	 * @param string $ident    The notifications identifier (e.g. network)
+	 *
 	 * @return array
 	 *                       string 'label' => The type of the notification
 	 *                       string 'link' => URL to the source
@@ -193,174 +233,174 @@ final class Notify extends BaseObject
 	 *                       string 'when' => The date of the notification
 	 *                       string 'ago' => T relative date of the notification
 	 *                       bool 'seen' => Is the notification marked as "seen"
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws Exception
 	 */
-	private function formatNotifs(array $notifs, $ident = "")
+	private function formatNotifies(array $notifies, string $ident = "")
 	{
 		$arr = [];
 
-		if (DBA::isResult($notifs)) {
-			foreach ($notifs as $it) {
+		if ($this->dba->isResult($notifies)) {
+			foreach ($notifies as $notify) {
 				// Because we use different db tables for the notification query
-				// we have sometimes $it['unseen'] and sometimes $it['seen].
-				// So we will have to transform $it['unseen']
-				if (array_key_exists('unseen', $it)) {
-					$it['seen'] = ($it['unseen'] > 0 ? false : true);
+				// we have sometimes $notify['unseen'] and sometimes $notify['seen].
+				// So we will have to transform $notify['unseen']
+				if (array_key_exists('unseen', $notify)) {
+					$notify['seen'] = ($notify['unseen'] > 0 ? false : true);
 				}
 
 				// For feed items we use the user's contact, since the avatar is mostly self choosen.
-				if (!empty($it['network']) && $it['network'] == Protocol::FEED) {
-					$it['author-avatar'] = $it['contact-avatar'];
+				if (!empty($notify['network']) && $notify['network'] == Protocol::FEED) {
+					$notify['author-avatar'] = $notify['contact-avatar'];
 				}
 
 				// Depending on the identifier of the notification we need to use different defaults
 				switch ($ident) {
-					case 'system':
+					case self::SYSTEM:
 						$default_item_label = 'notify';
-						$default_item_link = System::baseUrl(true) . '/notify/view/' . $it['id'];
-						$default_item_image = ProxyUtils::proxifyUrl($it['photo'], false, ProxyUtils::SIZE_MICRO);
-						$default_item_url = $it['url'];
-						$default_item_text = strip_tags(BBCode::convert($it['msg']));
-						$default_item_when = DateTimeFormat::local($it['date'], 'r');
-						$default_item_ago = Temporal::getRelativeDate($it['date']);
+						$default_item_link  = $this->baseUrl->get(true) . '/notify/view/' . $notify['id'];
+						$default_item_image = ProxyUtils::proxifyUrl($notify['photo'], false, ProxyUtils::SIZE_MICRO);
+						$default_item_url   = $notify['url'];
+						$default_item_text  = strip_tags(BBCode::convert($notify['msg']));
+						$default_item_when  = DateTimeFormat::local($notify['date'], 'r');
+						$default_item_ago   = Temporal::getRelativeDate($notify['date']);
 						break;
 
-					case 'home':
+					case self::HOME:
 						$default_item_label = 'comment';
-						$default_item_link = System::baseUrl(true) . '/display/' . $it['parent-guid'];
-						$default_item_image = ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO);
-						$default_item_url = $it['author-link'];
-						$default_item_text = L10n::t("%s commented on %s's post", $it['author-name'], $it['parent-author-name']);
-						$default_item_when = DateTimeFormat::local($it['created'], 'r');
-						$default_item_ago = Temporal::getRelativeDate($it['created']);
+						$default_item_link  = $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'];
+						$default_item_image = ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO);
+						$default_item_url   = $notify['author-link'];
+						$default_item_text  = $this->l10n->t("%s commented on %s's post", $notify['author-name'], $notify['parent-author-name']);
+						$default_item_when  = DateTimeFormat::local($notify['created'], 'r');
+						$default_item_ago   = Temporal::getRelativeDate($notify['created']);
 						break;
 
 					default:
-						$default_item_label = (($it['id'] == $it['parent']) ? 'post' : 'comment');
-						$default_item_link = System::baseUrl(true) . '/display/' . $it['parent-guid'];
-						$default_item_image = ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO);
-						$default_item_url = $it['author-link'];
-						$default_item_text = (($it['id'] == $it['parent'])
-									? L10n::t("%s created a new post", $it['author-name'])
-									: L10n::t("%s commented on %s's post", $it['author-name'], $it['parent-author-name']));
-						$default_item_when = DateTimeFormat::local($it['created'], 'r');
-						$default_item_ago = Temporal::getRelativeDate($it['created']);
+						$default_item_label = (($notify['id'] == $notify['parent']) ? 'post' : 'comment');
+						$default_item_link  = $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'];
+						$default_item_image = ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO);
+						$default_item_url   = $notify['author-link'];
+						$default_item_text  = (($notify['id'] == $notify['parent'])
+							? $this->l10n->t("%s created a new post", $notify['author-name'])
+							: $this->l10n->t("%s commented on %s's post", $notify['author-name'], $notify['parent-author-name']));
+						$default_item_when  = DateTimeFormat::local($notify['created'], 'r');
+						$default_item_ago   = Temporal::getRelativeDate($notify['created']);
 				}
 
 				// Transform the different types of notification in an usable array
-				switch ($it['verb']) {
+				switch ($notify['verb']) {
 					case Activity::LIKE:
-						$notif = [
+						$notify = [
 							'label' => 'like',
-							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url' => $it['author-link'],
-							'text' => L10n::t("%s liked %s's post", $it['author-name'], $it['parent-author-name']),
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+							'url'   => $notify['author-link'],
+							'text'  => $this->l10n->t("%s liked %s's post", $notify['author-name'], $notify['parent-author-name']),
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 						break;
 
 					case Activity::DISLIKE:
-						$notif = [
+						$notify = [
 							'label' => 'dislike',
-							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url' => $it['author-link'],
-							'text' => L10n::t("%s disliked %s's post", $it['author-name'], $it['parent-author-name']),
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+							'url'   => $notify['author-link'],
+							'text'  => $this->l10n->t("%s disliked %s's post", $notify['author-name'], $notify['parent-author-name']),
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 						break;
 
 					case Activity::ATTEND:
-						$notif = [
+						$notify = [
 							'label' => 'attend',
-							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url' => $it['author-link'],
-							'text' => L10n::t("%s is attending %s's event", $it['author-name'], $it['parent-author-name']),
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+							'url'   => $notify['author-link'],
+							'text'  => $this->l10n->t("%s is attending %s's event", $notify['author-name'], $notify['parent-author-name']),
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 						break;
 
 					case Activity::ATTENDNO:
-						$notif = [
+						$notify = [
 							'label' => 'attendno',
-							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url' => $it['author-link'],
-							'text' => L10n::t("%s is not attending %s's event", $it['author-name'], $it['parent-author-name']),
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+							'url'   => $notify['author-link'],
+							'text'  => $this->l10n->t("%s is not attending %s's event", $notify['author-name'], $notify['parent-author-name']),
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 						break;
 
 					case Activity::ATTENDMAYBE:
-						$notif = [
+						$notify = [
 							'label' => 'attendmaybe',
-							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url' => $it['author-link'],
-							'text' => L10n::t("%s may attend %s's event", $it['author-name'], $it['parent-author-name']),
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+							'url'   => $notify['author-link'],
+							'text'  => $this->l10n->t("%s may attend %s's event", $notify['author-name'], $notify['parent-author-name']),
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 						break;
 
 					case Activity::FRIEND:
-						if (!isset($it['object'])) {
-							$notif = [
+						if (!isset($notify['object'])) {
+							$notify = [
 								'label' => 'friend',
-								'link' => $default_item_link,
+								'link'  => $default_item_link,
 								'image' => $default_item_image,
-								'url' => $default_item_url,
-								'text' => $default_item_text,
-								'when' => $default_item_when,
-								'ago' => $default_item_ago,
-								'seen' => $it['seen']
+								'url'   => $default_item_url,
+								'text'  => $default_item_text,
+								'when'  => $default_item_when,
+								'ago'   => $default_item_ago,
+								'seen'  => $notify['seen']
 							];
 							break;
 						}
 						/// @todo Check if this part here is used at all
-						Logger::log('Complete data: ' . json_encode($it) . ' - ' . System::callstack(20), Logger::DEBUG);
+						$this->logger->info('Complete data.', ['notify' => $notify, 'callStack' => System::callstack(20)]);
 
-						$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-						$obj = XML::parseString($xmlhead . $it['object']);
-						$it['fname'] = $obj->title;
+						$xmlHead         = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
+						$obj             = XML::parseString($xmlHead . $notify['object']);
+						$notify['fname'] = $obj->title;
 
-						$notif = [
+						$notify = [
 							'label' => 'friend',
-							'link' => System::baseUrl(true) . '/display/' . $it['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($it['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url' => $it['author-link'],
-							'text' => L10n::t("%s is now friends with %s", $it['author-name'], $it['fname']),
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+							'url'   => $notify['author-link'],
+							'text'  => $this->l10n->t("%s is now friends with %s", $notify['author-name'], $notify['fname']),
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 						break;
 
 					default:
-						$notif = [
+						$notify = [
 							'label' => $default_item_label,
-							'link' => $default_item_link,
+							'link'  => $default_item_link,
 							'image' => $default_item_image,
-							'url' => $default_item_url,
-							'text' => $default_item_text,
-							'when' => $default_item_when,
-							'ago' => $default_item_ago,
-							'seen' => $it['seen']
+							'url'   => $default_item_url,
+							'text'  => $default_item_text,
+							'when'  => $default_item_when,
+							'ago'   => $default_item_ago,
+							'seen'  => $notify['seen']
 						];
 				}
 
-				$arr[] = $notif;
+				$arr[] = $notify;
 			}
 		}
 
@@ -375,15 +415,16 @@ final class Notify extends BaseObject
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
 	 *
-	 * @return array with
+	 * @return array [string, array]
 	 *    string 'ident' => Notification identifier
 	 *    array 'notifications' => Network notifications
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws Exception
 	 */
-	public function networkNotifs($seen = 0, $start = 0, $limit = 80)
+	public function getNetworkNotifies(int $seen = 0, int $start = 0, int $limit = 80)
 	{
-		$ident = 'network';
-		$notifs = [];
+		$ident    = self::NETWORK;
+		$notifies = [];
 
 		$condition = ['wall' => false, 'uid' => local_user()];
 
@@ -397,13 +438,13 @@ final class Notify extends BaseObject
 
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBA::isResult($items)) {
-			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
+		if ($this->dba->isResult($items)) {
+			$notifies = $this->formatNotifies(Item::inArray($items), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifs,
-			'ident' => $ident,
+			'notifications' => $notifies,
+			'ident'         => $ident,
 		];
 
 		return $arr;
@@ -417,38 +458,38 @@ final class Notify extends BaseObject
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
 	 *
-	 * @return array with
+	 * @return array [string, array]
 	 *    string 'ident' => Notification identifier
 	 *    array 'notifications' => System notifications
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws Exception
 	 */
-	public function systemNotifs($seen = 0, $start = 0, $limit = 80)
+	public function getSystemNotifies(int $seen = 0, int $start = 0, int $limit = 80)
 	{
-		$ident = 'system';
-		$notifs = [];
-		$sql_seen = "";
+		$ident    = self::SYSTEM;
+		$notifies = [];
 
 		$filter = ['uid' => local_user()];
 		if ($seen === 0) {
 			$filter['seen'] = false;
 		}
 
-		$params = [];
+		$params          = [];
 		$params['order'] = ['date' => 'DESC'];
 		$params['limit'] = [$start, $limit];
 
-		$stmtNotifies = DBA::select('notify',
+		$stmtNotifies = $this->dba->select('notify',
 			['id', 'url', 'photo', 'msg', 'date', 'seen', 'verb'],
 			$filter,
 			$params);
 
-		if (DBA::isResult($stmtNotifies)) {
-			$notifs = $this->formatNotifs(DBA::toArray($stmtNotifies), $ident);
+		if ($this->dba->isResult($stmtNotifies)) {
+			$notifies = $this->formatNotifies($this->dba->toArray($stmtNotifies), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifs,
-			'ident' => $ident,
+			'notifications' => $notifies,
+			'ident'         => $ident,
 		];
 
 		return $arr;
@@ -462,17 +503,18 @@ final class Notify extends BaseObject
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
 	 *
-	 * @return array with
+	 * @return array [string, array]
 	 *    string 'ident' => Notification identifier
 	 *    array 'notifications' => Personal notifications
-	 * @throws \Exception
+	 *
+	 * @throws Exception
 	 */
-	public function personalNotifs($seen = 0, $start = 0, $limit = 80)
+	public function getPersonalNotifies(int $seen = 0, int $start = 0, int $limit = 80)
 	{
-		$ident = 'personal';
-		$notifs = [];
+		$ident    = self::PERSONAL;
+		$notifies = [];
 
-		$myurl = str_replace('http://', '', self::getApp()->contact['nurl']);
+		$myurl     = str_replace('http://', '', self::getApp()->contact['nurl']);
 		$diasp_url = str_replace('/profile/', '/u/', $myurl);
 
 		$condition = ["NOT `wall` AND `uid` = ? AND (`item`.`author-id` = ? OR `item`.`tag` REGEXP ? OR `item`.`tag` REGEXP ?)",
@@ -488,13 +530,13 @@ final class Notify extends BaseObject
 
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBA::isResult($items)) {
-			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
+		if ($this->dba->isResult($items)) {
+			$notifies = $this->formatNotifies(Item::inArray($items), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifs,
-			'ident' => $ident,
+			'notifications' => $notifies,
+			'ident'         => $ident,
 		];
 
 		return $arr;
@@ -508,17 +550,18 @@ final class Notify extends BaseObject
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
 	 *
-	 * @return array with
+	 * @return array [string, array]
 	 *    string 'ident' => Notification identifier
 	 *    array 'notifications' => Home notifications
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws Exception
 	 */
-	public function homeNotifs($seen = 0, $start = 0, $limit = 80)
+	public function getHomeNotifies($seen = 0, int $start = 0, int $limit = 80)
 	{
-		$ident = 'home';
-		$notifs = [];
+		$ident    = self::HOME;
+		$notifies = [];
 
-		$condition = ['wall' => true, 'uid' => local_user()];
+		$condition = ['wall' => false, 'uid' => local_user()];
 
 		if ($seen === 0) {
 			$condition['unseen'] = true;
@@ -527,15 +570,16 @@ final class Notify extends BaseObject
 		$fields = ['id', 'parent', 'verb', 'author-name', 'unseen', 'author-link', 'author-avatar', 'contact-avatar',
 			'network', 'created', 'object', 'parent-author-name', 'parent-author-link', 'parent-guid'];
 		$params = ['order' => ['received' => true], 'limit' => [$start, $limit]];
+
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
-		if (DBA::isResult($items)) {
-			$notifs = $this->formatNotifs(Item::inArray($items), $ident);
+		if ($this->dba->isResult($items)) {
+			$notifies = $this->formatNotifies(Item::inArray($items), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifs,
-			'ident' => $ident,
+			'notifications' => $notifies,
+			'ident'         => $ident,
 		];
 
 		return $arr;
@@ -550,16 +594,18 @@ final class Notify extends BaseObject
 	 * @param int  $limit   Maximum number of query results
 	 * @param int  $id      When set, only the introduction with this id is displayed
 	 *
-	 * @return array with
+	 * @return array [string, array]
 	 *    string 'ident' => Notification identifier
 	 *    array 'notifications' => Introductions
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 *
+	 * @throws ImagickException
+	 * @throws Exception
 	 */
-	public function introNotifs($all = false, $start = 0, $limit = 80, $id = 0)
+	public function getIntroNotifies($all = false, int $start = 0, int $limit = 80, int $id = 0)
 	{
-		$ident = 'introductions';
-		$notifs = [];
+		/// @todo sanitize wording according to SELF::INTRO
+		$ident     = 'introductions';
+		$notifies  = [];
 		$sql_extra = "";
 
 		if (empty($id)) {
@@ -573,7 +619,7 @@ final class Notify extends BaseObject
 		}
 
 		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
-		$stmtNotifies = DBA::p(
+		$stmtNotifies = $this->dba->p(
 			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
@@ -590,13 +636,13 @@ final class Notify extends BaseObject
 			$start,
 			$limit
 		);
-		if (DBA::isResult($stmtNotifies)) {
-			$notifs = $this->formatIntros(DBA::toArray($stmtNotifies));
+		if ($this->dba->isResult($stmtNotifies)) {
+			$notifies = $this->formatIntros($this->dba->toArray($stmtNotifies));
 		}
 
 		$arr = [
-			'ident' => $ident,
-			'notifications' => $notifs,
+			'ident'         => $ident,
+			'notifications' => $notifies,
 		];
 
 		return $arr;
@@ -606,120 +652,123 @@ final class Notify extends BaseObject
 	 * @brief Format the notification query in an usable array
 	 *
 	 * @param array $intros The array from the db query
+	 *
 	 * @return array with the introductions
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws ImagickException
 	 */
-	private function formatIntros($intros)
+	private function formatIntros(array $intros)
 	{
 		$knowyou = '';
 
-		$arr = [];
+		$formattedIntros = [];
 
-		foreach ($intros as $it) {
+		foreach ($intros as $intro) {
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
 			// Contact suggestions
-			if ($it['fid']) {
-				$return_addr = bin2hex(self::getApp()->user['nickname'] . '@' . self::getApp()->getHostName() . ((self::getApp()->getURLPath()) ? '/' . self::getApp()->getURLPath() : ''));
+			if ($intro['fid']) {
+				$return_addr = bin2hex(self::getApp()->user['nickname'] . '@' .
+				                       $this->baseUrl->getHostName() .
+				                       (($this->baseUrl->getURLPath()) ? '/' . $this->baseUrl->getURLPath() : ''));
 
 				$intro = [
-					'label' => 'friend_suggestion',
-					'notify_type' => L10n::t('Friend Suggestion'),
-					'intro_id' => $it['intro_id'],
-					'madeby' => $it['name'],
-					'madeby_url' => $it['url'],
-					'madeby_zrl' => Contact::magicLink($it['url']),
-					'madeby_addr' => $it['addr'],
-					'contact_id' => $it['contact-id'],
-					'photo' => (!empty($it['fphoto']) ? ProxyUtils::proxifyUrl($it['fphoto'], false, ProxyUtils::SIZE_SMALL) : "images/person-300.jpg"),
-					'name' => $it['fname'],
-					'url' => $it['furl'],
-					'zrl' => Contact::magicLink($it['furl']),
-					'hidden' => $it['hidden'] == 1,
-					'post_newfriend' => (intval(PConfig::get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
-					'knowyou' => $knowyou,
-					'note' => $it['note'],
-					'request' => $it['frequest'] . '?addr=' . $return_addr,
+					'label'          => 'friend_suggestion',
+					'notify_type'    => $this->l10n->t('Friend Suggestion'),
+					'intro_id'       => $intro['intro_id'],
+					'madeby'         => $intro['name'],
+					'madeby_url'     => $intro['url'],
+					'madeby_zrl'     => Contact::magicLink($intro['url']),
+					'madeby_addr'    => $intro['addr'],
+					'contact_id'     => $intro['contact-id'],
+					'photo'          => (!empty($intro['fphoto']) ? ProxyUtils::proxifyUrl($intro['fphoto'], false, ProxyUtils::SIZE_SMALL) : "images/person-300.jpg"),
+					'name'           => $intro['fname'],
+					'url'            => $intro['furl'],
+					'zrl'            => Contact::magicLink($intro['furl']),
+					'hidden'         => $intro['hidden'] == 1,
+					'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
+					'knowyou'        => $knowyou,
+					'note'           => $intro['note'],
+					'request'        => $intro['frequest'] . '?addr=' . $return_addr,
 				];
 
 				// Normal connection requests
 			} else {
-				$it = $this->getMissingIntroData($it);
+				$intro = $this->getMissingIntroData($intro);
 
-				if (empty($it['url'])) {
+				if (empty($intro['url'])) {
 					continue;
 				}
 
 				// Don't show these data until you are connected. Diaspora is doing the same.
-				if ($it['gnetwork'] === Protocol::DIASPORA) {
-					$it['glocation'] = "";
-					$it['gabout'] = "";
-					$it['ggender'] = "";
+				if ($intro['gnetwork'] === Protocol::DIASPORA) {
+					$intro['glocation'] = "";
+					$intro['gabout']    = "";
+					$intro['ggender']   = "";
 				}
 				$intro = [
-					'label' => (($it['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
-					'notify_type' => (($it['network'] !== Protocol::OSTATUS) ? L10n::t('Friend/Connect Request') : L10n::t('New Follower')),
-					'dfrn_id' => $it['issued-id'],
-					'uid' => $_SESSION['uid'],
-					'intro_id' => $it['intro_id'],
-					'contact_id' => $it['contact-id'],
-					'photo' => (!empty($it['photo']) ? ProxyUtils::proxifyUrl($it['photo'], false, ProxyUtils::SIZE_SMALL) : "images/person-300.jpg"),
-					'name' => $it['name'],
-					'location' => BBCode::convert($it['glocation'], false),
-					'about' => BBCode::convert($it['gabout'], false),
-					'keywords' => $it['gkeywords'],
-					'gender' => $it['ggender'],
-					'hidden' => $it['hidden'] == 1,
-					'post_newfriend' => (intval(PConfig::get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
-					'url' => $it['url'],
-					'zrl' => Contact::magicLink($it['url']),
-					'addr' => $it['gaddr'],
-					'network' => $it['gnetwork'],
-					'knowyou' => $it['knowyou'],
-					'note' => $it['note'],
+					'label'          => (($intro['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
+					'notify_type'    => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
+					'dfrn_id'        => $intro['issued-id'],
+					'uid'            => $_SESSION['uid'],
+					'intro_id'       => $intro['intro_id'],
+					'contact_id'     => $intro['contact-id'],
+					'photo'          => (!empty($intro['photo']) ? ProxyUtils::proxifyUrl($intro['photo'], false, ProxyUtils::SIZE_SMALL) : "images/person-300.jpg"),
+					'name'           => $intro['name'],
+					'location'       => BBCode::convert($intro['glocation'], false),
+					'about'          => BBCode::convert($intro['gabout'], false),
+					'keywords'       => $intro['gkeywords'],
+					'gender'         => $intro['ggender'],
+					'hidden'         => $intro['hidden'] == 1,
+					'post_newfriend' => (intval($this->pConfig->get(local_user(), 'system', 'post_newfriend')) ? '1' : 0),
+					'url'            => $intro['url'],
+					'zrl'            => Contact::magicLink($intro['url']),
+					'addr'           => $intro['gaddr'],
+					'network'        => $intro['gnetwork'],
+					'knowyou'        => $intro['knowyou'],
+					'note'           => $intro['note'],
 				];
 			}
 
-			$arr[] = $intro;
+			$formattedIntros[] = $intro;
 		}
 
-		return $arr;
+		return $formattedIntros;
 	}
 
 	/**
 	 * @brief Check for missing contact data and try to fetch the data from
 	 *     from other sources
 	 *
-	 * @param array $arr The input array with the intro data
+	 * @param array $intro The input array with the intro data
 	 *
 	 * @return array The array with the intro data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private function getMissingIntroData($arr)
+	private function getMissingIntroData(array $intro)
 	{
 		// If the network and the addr isn't available from the gcontact
 		// table entry, take the one of the contact table entry
-		if (empty($arr['gnetwork']) && !empty($arr['network'])) {
-			$arr['gnetwork'] = $arr['network'];
+		if (empty($intro['gnetwork']) && !empty($intro['network'])) {
+			$intro['gnetwork'] = $intro['network'];
 		}
-		if (empty($arr['gaddr']) && !empty($arr['addr'])) {
-			$arr['gaddr'] = $arr['addr'];
+		if (empty($intro['gaddr']) && !empty($intro['addr'])) {
+			$intro['gaddr'] = $intro['addr'];
 		}
 
 		// If the network and addr is still not available
 		// get the missing data data from other sources
-		if (empty($arr['gnetwork']) || empty($arr['gaddr'])) {
-			$ret = Contact::getDetailsByURL($arr['url']);
+		if (empty($intro['gnetwork']) || empty($intro['gaddr'])) {
+			$ret = Contact::getDetailsByURL($intro['url']);
 
-			if (empty($arr['gnetwork']) && !empty($ret['network'])) {
-				$arr['gnetwork'] = $ret['network'];
+			if (empty($intro['gnetwork']) && !empty($ret['network'])) {
+				$intro['gnetwork'] = $ret['network'];
 			}
-			if (empty($arr['gaddr']) && !empty($ret['addr'])) {
-				$arr['gaddr'] = $ret['addr'];
+			if (empty($intro['gaddr']) && !empty($ret['addr'])) {
+				$intro['gaddr'] = $ret['addr'];
 			}
 		}
 
-		return $arr;
+		return $intro;
 	}
 }
