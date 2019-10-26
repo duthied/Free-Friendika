@@ -27,6 +27,9 @@ use Friendica\Network\HTTPException;
  */
 final class Notify extends BaseObject
 {
+	/** @var int The default limit of notifies per page */
+	const DEFAULT_PAGE_LIMIT = 80;
+
 	const NETWORK  = 'network';
 	const SYSTEM   = 'system';
 	const PERSONAL = 'personal';
@@ -113,7 +116,7 @@ final class Notify extends BaseObject
 	}
 
 	/**
-	 * @brief Get all notifications for local_user()
+	 * Get all notifications for local_user()
 	 *
 	 * @param array  $filter optional Array "column name"=>value: filter query by columns values
 	 * @param array  $order  optional Array to order by
@@ -144,7 +147,7 @@ final class Notify extends BaseObject
 	}
 
 	/**
-	 * @brief Get one note for local_user() by $id value
+	 * Get one note for local_user() by $id value
 	 *
 	 * @param int $id identity
 	 *
@@ -181,7 +184,7 @@ final class Notify extends BaseObject
 	}
 
 	/**
-	 * @brief set seen state of all notifications of local_user()
+	 * Set seen state of all notifications of local_user()
 	 *
 	 * @param bool $seen optional true or false. default true
 	 *
@@ -219,7 +222,7 @@ final class Notify extends BaseObject
 	}
 
 	/**
-	 * @brief Format the notification query in an usable array
+	 * Format the notification query in an usable array
 	 *
 	 * @param array  $notifies The array from the db query
 	 * @param string $ident    The notifications identifier (e.g. network)
@@ -237,159 +240,126 @@ final class Notify extends BaseObject
 	 */
 	private function formatNotifies(array $notifies, string $ident = "")
 	{
-		$arr = [];
+		$formattedNotifies = [];
 
-		if ($this->dba->isResult($notifies)) {
-			foreach ($notifies as $notify) {
-				// Because we use different db tables for the notification query
-				// we have sometimes $notify['unseen'] and sometimes $notify['seen].
-				// So we will have to transform $notify['unseen']
-				if (array_key_exists('unseen', $notify)) {
-					$notify['seen'] = ($notify['unseen'] > 0 ? false : true);
-				}
+		foreach ($notifies as $notify) {
+			// Because we use different db tables for the notification query
+			// we have sometimes $notify['unseen'] and sometimes $notify['seen].
+			// So we will have to transform $notify['unseen']
+			if (array_key_exists('unseen', $notify)) {
+				$notify['seen'] = ($notify['unseen'] > 0 ? false : true);
+			}
 
-				// For feed items we use the user's contact, since the avatar is mostly self choosen.
-				if (!empty($notify['network']) && $notify['network'] == Protocol::FEED) {
-					$notify['author-avatar'] = $notify['contact-avatar'];
-				}
+			// For feed items we use the user's contact, since the avatar is mostly self choosen.
+			if (!empty($notify['network']) && $notify['network'] == Protocol::FEED) {
+				$notify['author-avatar'] = $notify['contact-avatar'];
+			}
 
-				// Depending on the identifier of the notification we need to use different defaults
-				switch ($ident) {
-					case self::SYSTEM:
-						$default_item_label = 'notify';
-						$default_item_link  = $this->baseUrl->get(true) . '/notify/view/' . $notify['id'];
-						$default_item_image = ProxyUtils::proxifyUrl($notify['photo'], false, ProxyUtils::SIZE_MICRO);
-						$default_item_url   = $notify['url'];
-						$default_item_text  = strip_tags(BBCode::convert($notify['msg']));
-						$default_item_when  = DateTimeFormat::local($notify['date'], 'r');
-						$default_item_ago   = Temporal::getRelativeDate($notify['date']);
-						break;
+			// Depending on the identifier of the notification we need to use different defaults
+			switch ($ident) {
+				case self::SYSTEM:
+					$default_item_label = 'notify';
+					$default_item_link  = $this->baseUrl->get(true) . '/notify/view/' . $notify['id'];
+					$default_item_image = ProxyUtils::proxifyUrl($notify['photo'], false, ProxyUtils::SIZE_MICRO);
+					$default_item_url   = $notify['url'];
+					$default_item_text  = strip_tags(BBCode::convert($notify['msg']));
+					$default_item_when  = DateTimeFormat::local($notify['date'], 'r');
+					$default_item_ago   = Temporal::getRelativeDate($notify['date']);
+					break;
 
-					case self::HOME:
-						$default_item_label = 'comment';
-						$default_item_link  = $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'];
-						$default_item_image = ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO);
-						$default_item_url   = $notify['author-link'];
-						$default_item_text  = $this->l10n->t("%s commented on %s's post", $notify['author-name'], $notify['parent-author-name']);
-						$default_item_when  = DateTimeFormat::local($notify['created'], 'r');
-						$default_item_ago   = Temporal::getRelativeDate($notify['created']);
-						break;
+				case self::HOME:
+					$default_item_label = 'comment';
+					$default_item_link  = $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'];
+					$default_item_image = ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO);
+					$default_item_url   = $notify['author-link'];
+					$default_item_text  = $this->l10n->t("%s commented on %s's post", $notify['author-name'], $notify['parent-author-name']);
+					$default_item_when  = DateTimeFormat::local($notify['created'], 'r');
+					$default_item_ago   = Temporal::getRelativeDate($notify['created']);
+					break;
 
-					default:
-						$default_item_label = (($notify['id'] == $notify['parent']) ? 'post' : 'comment');
-						$default_item_link  = $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'];
-						$default_item_image = ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO);
-						$default_item_url   = $notify['author-link'];
-						$default_item_text  = (($notify['id'] == $notify['parent'])
-							? $this->l10n->t("%s created a new post", $notify['author-name'])
-							: $this->l10n->t("%s commented on %s's post", $notify['author-name'], $notify['parent-author-name']));
-						$default_item_when  = DateTimeFormat::local($notify['created'], 'r');
-						$default_item_ago   = Temporal::getRelativeDate($notify['created']);
-				}
+				default:
+					$default_item_label = (($notify['id'] == $notify['parent']) ? 'post' : 'comment');
+					$default_item_link  = $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'];
+					$default_item_image = ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO);
+					$default_item_url   = $notify['author-link'];
+					$default_item_text  = (($notify['id'] == $notify['parent'])
+						? $this->l10n->t("%s created a new post", $notify['author-name'])
+						: $this->l10n->t("%s commented on %s's post", $notify['author-name'], $notify['parent-author-name']));
+					$default_item_when  = DateTimeFormat::local($notify['created'], 'r');
+					$default_item_ago   = Temporal::getRelativeDate($notify['created']);
+			}
 
-				// Transform the different types of notification in an usable array
-				switch ($notify['verb']) {
-					case Activity::LIKE:
-						$notify = [
-							'label' => 'like',
-							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url'   => $notify['author-link'],
-							'text'  => $this->l10n->t("%s liked %s's post", $notify['author-name'], $notify['parent-author-name']),
-							'when'  => $default_item_when,
-							'ago'   => $default_item_ago,
-							'seen'  => $notify['seen']
-						];
-						break;
+			// Transform the different types of notification in an usable array
+			switch ($notify['verb']) {
+				case Activity::LIKE:
+					$formattedNotify = [
+						'label' => 'like',
+						'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+						'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+						'url'   => $notify['author-link'],
+						'text'  => $this->l10n->t("%s liked %s's post", $notify['author-name'], $notify['parent-author-name']),
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
+					break;
 
-					case Activity::DISLIKE:
-						$notify = [
-							'label' => 'dislike',
-							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url'   => $notify['author-link'],
-							'text'  => $this->l10n->t("%s disliked %s's post", $notify['author-name'], $notify['parent-author-name']),
-							'when'  => $default_item_when,
-							'ago'   => $default_item_ago,
-							'seen'  => $notify['seen']
-						];
-						break;
+				case Activity::DISLIKE:
+					$formattedNotify = [
+						'label' => 'dislike',
+						'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+						'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+						'url'   => $notify['author-link'],
+						'text'  => $this->l10n->t("%s disliked %s's post", $notify['author-name'], $notify['parent-author-name']),
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
+					break;
 
-					case Activity::ATTEND:
-						$notify = [
-							'label' => 'attend',
-							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url'   => $notify['author-link'],
-							'text'  => $this->l10n->t("%s is attending %s's event", $notify['author-name'], $notify['parent-author-name']),
-							'when'  => $default_item_when,
-							'ago'   => $default_item_ago,
-							'seen'  => $notify['seen']
-						];
-						break;
+				case Activity::ATTEND:
+					$formattedNotify = [
+						'label' => 'attend',
+						'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+						'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+						'url'   => $notify['author-link'],
+						'text'  => $this->l10n->t("%s is attending %s's event", $notify['author-name'], $notify['parent-author-name']),
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
+					break;
 
-					case Activity::ATTENDNO:
-						$notify = [
-							'label' => 'attendno',
-							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url'   => $notify['author-link'],
-							'text'  => $this->l10n->t("%s is not attending %s's event", $notify['author-name'], $notify['parent-author-name']),
-							'when'  => $default_item_when,
-							'ago'   => $default_item_ago,
-							'seen'  => $notify['seen']
-						];
-						break;
+				case Activity::ATTENDNO:
+					$formattedNotify = [
+						'label' => 'attendno',
+						'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+						'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+						'url'   => $notify['author-link'],
+						'text'  => $this->l10n->t("%s is not attending %s's event", $notify['author-name'], $notify['parent-author-name']),
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
+					break;
 
-					case Activity::ATTENDMAYBE:
-						$notify = [
-							'label' => 'attendmaybe',
-							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url'   => $notify['author-link'],
-							'text'  => $this->l10n->t("%s may attend %s's event", $notify['author-name'], $notify['parent-author-name']),
-							'when'  => $default_item_when,
-							'ago'   => $default_item_ago,
-							'seen'  => $notify['seen']
-						];
-						break;
+				case Activity::ATTENDMAYBE:
+					$formattedNotify = [
+						'label' => 'attendmaybe',
+						'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+						'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+						'url'   => $notify['author-link'],
+						'text'  => $this->l10n->t("%s may attend %s's event", $notify['author-name'], $notify['parent-author-name']),
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
+					break;
 
-					case Activity::FRIEND:
-						if (!isset($notify['object'])) {
-							$notify = [
-								'label' => 'friend',
-								'link'  => $default_item_link,
-								'image' => $default_item_image,
-								'url'   => $default_item_url,
-								'text'  => $default_item_text,
-								'when'  => $default_item_when,
-								'ago'   => $default_item_ago,
-								'seen'  => $notify['seen']
-							];
-							break;
-						}
-						/// @todo Check if this part here is used at all
-						$this->logger->info('Complete data.', ['notify' => $notify, 'callStack' => System::callstack(20)]);
-
-						$xmlHead         = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
-						$obj             = XML::parseString($xmlHead . $notify['object']);
-						$notify['fname'] = $obj->title;
-
-						$notify = [
+				case Activity::FRIEND:
+					if (!isset($notify['object'])) {
+						$formattedNotify = [
 							'label' => 'friend',
-							'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
-							'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
-							'url'   => $notify['author-link'],
-							'text'  => $this->l10n->t("%s is now friends with %s", $notify['author-name'], $notify['fname']),
-							'when'  => $default_item_when,
-							'ago'   => $default_item_ago,
-							'seen'  => $notify['seen']
-						];
-						break;
-
-					default:
-						$notify = [
-							'label' => $default_item_label,
 							'link'  => $default_item_link,
 							'image' => $default_item_image,
 							'url'   => $default_item_url,
@@ -398,19 +368,50 @@ final class Notify extends BaseObject
 							'ago'   => $default_item_ago,
 							'seen'  => $notify['seen']
 						];
-				}
+						break;
+					}
+					/// @todo Check if this part here is used at all
+					$this->logger->info('Complete data.', ['notify' => $notify, 'callStack' => System::callstack(20)]);
 
-				$arr[] = $notify;
+					$xmlHead         = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
+					$obj             = XML::parseString($xmlHead . $notify['object']);
+					$notify['fname'] = $obj->title;
+
+					$formattedNotify = [
+						'label' => 'friend',
+						'link'  => $this->baseUrl->get(true) . '/display/' . $notify['parent-guid'],
+						'image' => ProxyUtils::proxifyUrl($notify['author-avatar'], false, ProxyUtils::SIZE_MICRO),
+						'url'   => $notify['author-link'],
+						'text'  => $this->l10n->t("%s is now friends with %s", $notify['author-name'], $notify['fname']),
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
+					break;
+
+				default:
+					$formattedNotify = [
+						'label' => $default_item_label,
+						'link'  => $default_item_link,
+						'image' => $default_item_image,
+						'url'   => $default_item_url,
+						'text'  => $default_item_text,
+						'when'  => $default_item_when,
+						'ago'   => $default_item_ago,
+						'seen'  => $notify['seen']
+					];
 			}
+
+			$formattedNotifies[] = $formattedNotify;
 		}
 
-		return $arr;
+		return $formattedNotifies;
 	}
 
 	/**
-	 * @brief Get network notifications
+	 * Get network notifications
 	 *
-	 * @param int|string $seen    If 0 only include notifications into the query
+	 * @param bool $seen    False => only include notifications into the query
 	 *                            which aren't marked as "seen"
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
@@ -421,14 +422,14 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getNetworkNotifies(int $seen = 0, int $start = 0, int $limit = 80)
+	public function getNetworkNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::NETWORK;
 		$notifies = [];
 
 		$condition = ['wall' => false, 'uid' => local_user()];
 
-		if ($seen === 0) {
+		if (!$seen) {
 			$condition['unseen'] = true;
 		}
 
@@ -451,9 +452,9 @@ final class Notify extends BaseObject
 	}
 
 	/**
-	 * @brief Get system notifications
+	 * Get system notifications
 	 *
-	 * @param int|string $seen    If 0 only include notifications into the query
+	 * @param bool $seen    False => only include notifications into the query
 	 *                            which aren't marked as "seen"
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
@@ -464,13 +465,13 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getSystemNotifies(int $seen = 0, int $start = 0, int $limit = 80)
+	public function getSystemNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::SYSTEM;
 		$notifies = [];
 
 		$filter = ['uid' => local_user()];
-		if ($seen === 0) {
+		if (!$seen) {
 			$filter['seen'] = false;
 		}
 
@@ -496,9 +497,9 @@ final class Notify extends BaseObject
 	}
 
 	/**
-	 * @brief Get personal notifications
+	 * Get personal notifications
 	 *
-	 * @param int|string $seen    If 0 only include notifications into the query
+	 * @param bool $seen    False => only include notifications into the query
 	 *                            which aren't marked as "seen"
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
@@ -509,7 +510,7 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getPersonalNotifies(int $seen = 0, int $start = 0, int $limit = 80)
+	public function getPersonalNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::PERSONAL;
 		$notifies = [];
@@ -520,7 +521,7 @@ final class Notify extends BaseObject
 		$condition = ["NOT `wall` AND `uid` = ? AND (`item`.`author-id` = ? OR `item`.`tag` REGEXP ? OR `item`.`tag` REGEXP ?)",
 			local_user(), public_contact(), $myurl . '\\]', $diasp_url . '\\]'];
 
-		if ($seen === 0) {
+		if (!$seen) {
 			$condition[0] .= " AND `unseen`";
 		}
 
@@ -545,7 +546,7 @@ final class Notify extends BaseObject
 	/**
 	 * @brief Get home notifications
 	 *
-	 * @param int|string $seen    If 0 only include notifications into the query
+	 * @param bool $seen    False => only include notifications into the query
 	 *                            which aren't marked as "seen"
 	 * @param int        $start   Start the query at this point
 	 * @param int        $limit   Maximum number of query results
@@ -556,14 +557,14 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getHomeNotifies($seen = 0, int $start = 0, int $limit = 80)
+	public function getHomeNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::HOME;
 		$notifies = [];
 
 		$condition = ['wall' => false, 'uid' => local_user()];
 
-		if ($seen === 0) {
+		if (!$seen) {
 			$condition['unseen'] = true;
 		}
 
@@ -601,7 +602,7 @@ final class Notify extends BaseObject
 	 * @throws ImagickException
 	 * @throws Exception
 	 */
-	public function getIntroNotifies($all = false, int $start = 0, int $limit = 80, int $id = 0)
+	public function getIntroNotifies(bool $all = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT, int $id = 0)
 	{
 		/// @todo sanitize wording according to SELF::INTRO
 		$ident     = 'introductions';
