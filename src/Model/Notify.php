@@ -238,7 +238,7 @@ final class Notify extends BaseObject
 	 *                       bool 'seen' => Is the notification marked as "seen"
 	 * @throws Exception
 	 */
-	private function formatNotifies(array $notifies, string $ident = "")
+	private function formatList(array $notifies, string $ident = "")
 	{
 		$formattedNotifies = [];
 
@@ -422,7 +422,7 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getNetworkNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
+	public function getNetworkList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::NETWORK;
 		$notifies = [];
@@ -440,7 +440,7 @@ final class Notify extends BaseObject
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if ($this->dba->isResult($items)) {
-			$notifies = $this->formatNotifies(Item::inArray($items), $ident);
+			$notifies = $this->formatList(Item::inArray($items), $ident);
 		}
 
 		$arr = [
@@ -465,7 +465,7 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getSystemNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
+	public function getSystemList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::SYSTEM;
 		$notifies = [];
@@ -485,7 +485,7 @@ final class Notify extends BaseObject
 			$params);
 
 		if ($this->dba->isResult($stmtNotifies)) {
-			$notifies = $this->formatNotifies($this->dba->toArray($stmtNotifies), $ident);
+			$notifies = $this->formatList($this->dba->toArray($stmtNotifies), $ident);
 		}
 
 		$arr = [
@@ -510,7 +510,7 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getPersonalNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
+	public function getPersonalList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::PERSONAL;
 		$notifies = [];
@@ -532,7 +532,7 @@ final class Notify extends BaseObject
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if ($this->dba->isResult($items)) {
-			$notifies = $this->formatNotifies(Item::inArray($items), $ident);
+			$notifies = $this->formatList(Item::inArray($items), $ident);
 		}
 
 		$arr = [
@@ -557,7 +557,7 @@ final class Notify extends BaseObject
 	 *
 	 * @throws Exception
 	 */
-	public function getHomeNotifies(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
+	public function getHomeList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::HOME;
 		$notifies = [];
@@ -575,7 +575,7 @@ final class Notify extends BaseObject
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if ($this->dba->isResult($items)) {
-			$notifies = $this->formatNotifies(Item::inArray($items), $ident);
+			$notifies = $this->formatList(Item::inArray($items), $ident);
 		}
 
 		$arr = [
@@ -602,7 +602,7 @@ final class Notify extends BaseObject
 	 * @throws ImagickException
 	 * @throws Exception
 	 */
-	public function getIntroNotifies(bool $all = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT, int $id = 0)
+	public function getIntroList(bool $all = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT, int $id = 0)
 	{
 		/// @todo sanitize wording according to SELF::INTRO
 		$ident     = 'introductions';
@@ -638,7 +638,7 @@ final class Notify extends BaseObject
 			$limit
 		);
 		if ($this->dba->isResult($stmtNotifies)) {
-			$notifies = $this->formatIntros($this->dba->toArray($stmtNotifies));
+			$notifies = $this->formatIntroList($this->dba->toArray($stmtNotifies));
 		}
 
 		$arr = [
@@ -658,7 +658,7 @@ final class Notify extends BaseObject
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws ImagickException
 	 */
-	private function formatIntros(array $intros)
+	private function formatIntroList(array $intros)
 	{
 		$knowyou = '';
 
