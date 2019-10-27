@@ -240,44 +240,20 @@ class Profile
 	 * @return array
 	 * @throws \Exception
 	 */
-	public static function getByNickname($nickname, $uid = 0, $profile_id = 0)
+	public static function getByNickname($nickname, $uid = 0)
 	{
-		if (!empty(Session::getRemoteContactID($uid))) {
-			$contact = DBA::selectFirst('contact', ['profile-id'], ['id' => Session::getRemoteContactID($uid)]);
-			if (DBA::isResult($contact)) {
-				$profile_id = $contact['profile-id'];
-			}
-		}
-
-		$profile = null;
-
-		if ($profile_id) {
-			$profile = DBA::fetchFirst(
-				"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
-					`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
-					`profile`.*,
-					`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
-				FROM `profile`
-				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
-				INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = ? AND `profile`.`id` = ? LIMIT 1",
-				$nickname,
-				intval($profile_id)
-			);
-		}
-		if (!DBA::isResult($profile)) {
-			$profile = DBA::fetchFirst(
-				"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` as `contact_photo`,
-					`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
-					`profile`.*,
-					`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
-				FROM `profile`
-				INNER JOIN `contact` ON `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
-				INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = ? AND `profile`.`is-default` LIMIT 1",
-				$nickname
-			);
-		}
+		$profile = DBA::fetchFirst(
+			"SELECT `contact`.`id` AS `contact_id`, `contact`.`photo` AS `contact_photo`,
+				`contact`.`thumb` AS `contact_thumb`, `contact`.`micro` AS `contact_micro`,
+				`profile`.*,
+				`contact`.`avatar-date` AS picdate, `contact`.`addr`, `contact`.`url`, `user`.*
+			FROM `profile`
+			INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` AND `contact`.`self`
+			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
+			WHERE `user`.`nickname` = ? AND `profile`.`uid` = ? LIMIT 1",
+			$nickname,
+			intval($uid)
+		);
 
 		return $profile;
 	}

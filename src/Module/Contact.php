@@ -100,14 +100,6 @@ class Contact extends BaseModule
 
 		Hook::callAll('contact_edit_post', $_POST);
 
-		$profile_id = intval($_POST['profile-assign'] ?? 0);
-		if ($profile_id) {
-			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
-				notice(DI::l10n()->t('Could not locate selected profile.') . EOL);
-				return;
-			}
-		}
-
 		$hidden = !empty($_POST['hidden']);
 
 		$notify = !empty($_POST['notify']);
@@ -124,7 +116,6 @@ class Contact extends BaseModule
 		$info = Strings::escapeHtml(trim($_POST['info'] ?? ''));
 
 		$r = DBA::update('contact', [
-			'profile-id' => $profile_id,
 			'priority'   => $priority,
 			'info'       => $info,
 			'hidden'     => $hidden,
@@ -553,20 +544,13 @@ class Contact extends BaseModule
 				$poll_interval = ContactSelector::pollInterval($contact['priority'], !$poll_enabled);
 			}
 
-			$profile_select = null;
-			if ($contact['network'] == Protocol::DFRN) {
-				$profile_select = ContactSelector::profileAssign($contact['profile-id'], $contact['network'] !== Protocol::DFRN);
-			}
-
 			// Load contactact related actions like hide, suggest, delete and others
 			$contact_actions = self::getContactActions($contact);
 
 			if ($contact['uid'] != 0) {
-				$lbl_vis1 = DI::l10n()->t('Profile Visibility');
 				$lbl_info1 = DI::l10n()->t('Contact Information / Notes');
 				$contact_settings_label = DI::l10n()->t('Contact Settings');
 			} else {
-				$lbl_vis1 = null;
 				$lbl_info1 = null;
 				$contact_settings_label = null;
 			}
@@ -576,8 +560,6 @@ class Contact extends BaseModule
 				'$header'         => DI::l10n()->t('Contact'),
 				'$tab_str'        => $tab_str,
 				'$submit'         => DI::l10n()->t('Submit'),
-				'$lbl_vis1'       => $lbl_vis1,
-				'$lbl_vis2'       => DI::l10n()->t('Please choose the profile you would like to display to %s when viewing your profile securely.', $contact['name']),
 				'$lbl_info1'      => $lbl_info1,
 				'$lbl_info2'      => DI::l10n()->t('Their personal note'),
 				'$reason'         => trim(Strings::escapeTags($contact['reason'])),
@@ -598,7 +580,6 @@ class Contact extends BaseModule
 				'$updpub'         => DI::l10n()->t('Update public posts'),
 				'$last_update'    => $last_update,
 				'$udnow'          => DI::l10n()->t('Update now'),
-				'$profile_select' => $profile_select,
 				'$contact_id'     => $contact['id'],
 				'$block_text'     => ($contact['blocked'] ? DI::l10n()->t('Unblock') : DI::l10n()->t('Block')),
 				'$ignore_text'    => ($contact['readonly'] ? DI::l10n()->t('Unignore') : DI::l10n()->t('Ignore')),

@@ -84,15 +84,6 @@
 				</div>
 				<div id="contact-info-end"></div>
 				{{/if}}
-
-				{{if $profile_select}}
-					<div id="contact-edit-profile-select-text">
-					<h4>{{$lbl_vis1}}</h4>
-					<p>{{$lbl_vis2}}</p> 
-					</div>
-					{{$profile_select nofilter}}
-					<div id="contact-edit-profile-select-end"></div>
-				{{/if}}
 			</div>
 
 			<input class="contact-edit-submit" type="submit" name="submit" value="{{$submit}}" />
