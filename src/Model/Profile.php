@@ -527,7 +527,7 @@ class Profile
 
 		$p['url'] = Contact::magicLink(($p['url'] ?? '') ?: $profile_url);
 
-		$tpl = Renderer::getMarkupTemplate('profile_vcard.tpl');
+		$tpl = Renderer::getMarkupTemplate('profile/vcard.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
 			'$xmpp' => $xmpp,
@@ -747,8 +747,6 @@ class Profile
 		$uid = intval($a->profile['uid']);
 
 		if ($a->profile['name']) {
-			$tpl = Renderer::getMarkupTemplate('profile_advanced.tpl');
-
 			$profile = [];
 
 			$profile['fullname'] = [DI::l10n()->t('Full Name:'), $a->profile['name']];
@@ -875,6 +873,7 @@ class Profile
 				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $a->profile['id'], DI::l10n()->t('Edit profile'), '', DI::l10n()->t('Edit profile')];
 			}
 
+			$tpl = Renderer::getMarkupTemplate('profile/advanced.tpl');
 			return Renderer::replaceMacros($tpl, [
 				'$title' => DI::l10n()->t('Profile'),
 				'$basic' => DI::l10n()->t('Basic'),
