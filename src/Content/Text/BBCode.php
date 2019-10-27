@@ -1746,7 +1746,7 @@ class BBCode extends BaseObject
 		 * - [url=<anything>]#<term>[/url]
 		 */
 		$text = preg_replace_callback("/(?:#\[url\=.*?\]|\[url\=.*?\]#)(.*?)\[\/url\]/ism", function($matches) {
-				return '#<a href="'
+			return '#<a href="'
 				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
 				. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
 				. XML::escape($matches[1])
