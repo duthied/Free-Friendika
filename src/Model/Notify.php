@@ -562,7 +562,7 @@ final class Notify extends BaseObject
 		$ident    = self::HOME;
 		$notifies = [];
 
-		$condition = ['wall' => false, 'uid' => local_user()];
+		$condition = ['wall' => true, 'uid' => local_user()];
 
 		if (!$seen) {
 			$condition['unseen'] = true;
