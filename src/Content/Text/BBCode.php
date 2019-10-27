@@ -573,17 +573,17 @@ class BBCode extends BaseObject
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
 	 * @brief Processes [attachment] tags
-	 * @param string   $return
+	 * @param string   $text
 	 * @param bool|int $simplehtml
 	 * @param bool     $tryoembed
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function convertAttachment($return, $simplehtml = false, $tryoembed = true)
+	private static function convertAttachment($text, $simplehtml = false, $tryoembed = true)
 	{
-		$data = self::getAttachmentData($return);
+		$data = self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
-			return $return;
+			return $text;
 		}
 
 		if (isset($data['title'])) {
@@ -600,7 +600,10 @@ class BBCode extends BaseObject
 
 		$return = '';
 		if (in_array($simplehtml, [7, 9])) {
-			$return = self::convertUrlForActivityPub($data['url']);
+			// Only add the link when it isn't already part of the body
+			if (substr_count($text, $data['url']) == 1) {
+				$return = self::convertUrlForActivityPub($data['url']);
+			}
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data['url'], $data['title']);
 		} else {
@@ -1748,7 +1751,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback("/(?:#\[url\=.*?\]|\[url\=.*?\]#)(.*?)\[\/url\]/ism", function($matches) {
 			return '#<a href="'
 				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
-				. '" class="tag" title="' . XML::escape($matches[1]) . '">'
+				. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
 				. XML::escape($matches[1])
 				. '</a>';
 		}, $text);
