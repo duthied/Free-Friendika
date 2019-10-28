@@ -414,20 +414,22 @@ class Login extends BaseModule
 			}
 		}
 
+		$arg = [];
+
 		if (!empty($nick)) {
-			$args .= '&nickname=' . urlencode($nick);
+			$arg['nickname'] = $nick;
 		} elseif (!empty($first)) {
-			$args .= '&nickname=' . urlencode($first);
+			$arg['nickname'] = $first;
 		}
 
 		if (!empty($photosq)) {
-			$args .= '&photo=' . urlencode($photosq);
+			$arg['photo'] = $photosq;
 		} elseif (!empty($photo)) {
-			$args .= '&photo=' . urlencode($photo);
+			$arg['photo'] = $photo;
 		}
 
-		$args .= '&openid_url=' . urlencode(Strings::escapeTags(trim(Session::get('openid_identity'))));
+		$arg['openid_url'] = Strings::escapeTags(trim(Session::get('openid_identity')));
 
-		return 'register?' . $args;
+		return 'register?' . http_build_query($arg);
 	}
 }
