@@ -577,6 +577,7 @@ function settings_post(App $a)
 		$fields['openid'] = '';
 		$fields['openidserver'] = '';
 	}
+
 	if (DBA::update('user', $fields, ['uid' => local_user()])) {
 		info(L10n::t('Settings updated.') . EOL);
 	}

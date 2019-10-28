@@ -64,9 +64,9 @@ function openid_content(App $a) {
 			Session::set('openid_server', $open_id_obj->discover($open_id_obj->identity));
 
 			if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED) {
-				notice(L10n::t('Account not found. Please login to your existing account to add the OpenID to it.') . EOL);
+				notice(L10n::t('Account not found. Please login to your existing account to add the OpenID to it.'));
 			} else {
-				notice(L10n::t('Account not found. Please register a new account or login to your existing account to add the OpenID to it.') . EOL);
+				notice(L10n::t('Account not found. Please register a new account or login to your existing account to add the OpenID to it.'));
 			}
 
 			$a->internalRedirect('login');
