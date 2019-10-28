@@ -14,6 +14,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Strings;
@@ -303,7 +304,7 @@ class Event extends BaseObject
 
 			$item = Item::selectFirst(['id'], ['event-id' => $event['id'], 'uid' => $event['uid']]);
 			if (DBA::isResult($item)) {
-				$object = '<object><type>' . XML::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+				$object = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
 				$object .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
 				$object .= '</object>' . "\n";
 
@@ -350,13 +351,13 @@ class Event extends BaseObject
 				$item_arr['deny_gid']      = $event['deny_gid'];
 				$item_arr['private']       = $private;
 				$item_arr['visible']       = 1;
-				$item_arr['verb']          = ACTIVITY_POST;
-				$item_arr['object-type']   = ACTIVITY_OBJ_EVENT;
+				$item_arr['verb']          = Activity::POST;
+				$item_arr['object-type']   = Activity\ObjectType::EVENT;
 				$item_arr['origin']        = $event['cid'] === 0 ? 1 : 0;
 				$item_arr['body']          = self::getBBCode($event);
 				$item_arr['event-id']      = $event['id'];
 
-				$item_arr['object']  = '<object><type>' . XML::escape(ACTIVITY_OBJ_EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
+				$item_arr['object']  = '<object><type>' . XML::escape(Activity\ObjectType::EVENT) . '</type><title></title><id>' . XML::escape($event['uri']) . '</id>';
 				$item_arr['object'] .= '<content>' . XML::escape(self::getBBCode($event)) . '</content>';
 				$item_arr['object'] .= '</object>' . "\n";
 
@@ -911,7 +912,7 @@ class Event extends BaseObject
 		$tpl = Renderer::getMarkupTemplate('event_stream_item.tpl');
 		$return = Renderer::replaceMacros($tpl, [
 			'$id'             => $item['event-id'],
-			'$title'          => prepare_text($item['event-summary']),
+			'$title'          => BBCode::convert($item['event-summary']),
 			'$dtstart_label'  => L10n::t('Starts:'),
 			'$dtstart_title'  => $dtstart_title,
 			'$dtstart_dt'     => $dtstart_dt,
@@ -929,7 +930,7 @@ class Event extends BaseObject
 			'$author_name'    => $item['author-name'],
 			'$author_link'    => $profile_link,
 			'$author_avatar'  => $item['author-avatar'],
-			'$description'    => prepare_text($item['event-desc']),
+			'$description'    => BBCode::convert($item['event-desc']),
 			'$location_label' => L10n::t('Location:'),
 			'$show_map_label' => L10n::t('Show map'),
 			'$hide_map_label' => L10n::t('Hide map'),
@@ -979,7 +980,7 @@ class Event extends BaseObject
 			}
 		}
 
-		$location['name'] = prepare_text($location['name']);
+		$location['name'] = BBCode::convert($location['name']);
 
 		// Construct the map HTML.
 		if (isset($location['address'])) {

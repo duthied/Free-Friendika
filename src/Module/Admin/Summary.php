@@ -14,6 +14,7 @@ use Friendica\Model\Register;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\FileSystem;
 use Friendica\Util\Network;
 
 class Summary extends BaseAdminModule
@@ -76,11 +77,21 @@ class Summary extends BaseAdminModule
 
 		// Check logfile permission
 		if (Config::get('system', 'debugging')) {
-			$stream = Config::get('system', 'logfile');
+			$file = Config::get('system', 'logfile');
 
-			if (is_file($stream) &&
-			    !is_writeable($stream)) {
-				$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+			/** @var FileSystem $fileSystem */
+			$fileSystem = self::getClass(FileSystem::class);
+
+			try {
+				$stream = $fileSystem->createStream($file);
+
+				if (is_file($stream) &&
+				    !is_writeable($stream)) {
+					$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+				}
+
+			} catch (\Throwable $exception) {
+				$warningtext[] = L10n::t('The logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
 
 			$stream = Config::get('system', 'dlogfile');

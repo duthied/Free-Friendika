@@ -12,6 +12,7 @@ use Friendica\Model\APContact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\HTTPSignature;
@@ -400,26 +401,26 @@ class Receiver
 						$announce_object_data['object_id'] = $object_data['object_id'];
 						$announce_object_data['object_type'] = $object_data['object_type'];
 
-						ActivityPub\Processor::createActivity($announce_object_data, ACTIVITY2_ANNOUNCE);
+						ActivityPub\Processor::createActivity($announce_object_data, Activity::ANNOUNCE);
 					}
 				}
 				break;
 
 			case 'as:Like':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, ACTIVITY_LIKE);
+					ActivityPub\Processor::createActivity($object_data, Activity::LIKE);
 				}
 				break;
 
 			case 'as:Dislike':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, ACTIVITY_DISLIKE);
+					ActivityPub\Processor::createActivity($object_data, Activity::DISLIKE);
 				}
 				break;
 
 			case 'as:TentativeAccept':
 				if (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, ACTIVITY_ATTENDMAYBE);
+					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDMAYBE);
 				}
 				break;
 
@@ -444,7 +445,7 @@ class Receiver
 					ActivityPub\Processor::followUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
 					$object_data['reply-to-id'] = $object_data['object_id'];
-					ActivityPub\Processor::createActivity($object_data, ACTIVITY_FOLLOW);
+					ActivityPub\Processor::createActivity($object_data, Activity::FOLLOW);
 				}
 				break;
 
@@ -452,7 +453,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::acceptFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, ACTIVITY_ATTEND);
+					ActivityPub\Processor::createActivity($object_data, Activity::ATTEND);
 				}
 				break;
 
@@ -460,7 +461,7 @@ class Receiver
 				if ($object_data['object_type'] == 'as:Follow') {
 					ActivityPub\Processor::rejectFollowUser($object_data);
 				} elseif (in_array($object_data['object_type'], self::CONTENT_TYPES)) {
-					ActivityPub\Processor::createActivity($object_data, ACTIVITY_ATTENDNO);
+					ActivityPub\Processor::createActivity($object_data, Activity::ATTENDNO);
 				}
 				break;
 

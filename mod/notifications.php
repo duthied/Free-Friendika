@@ -9,14 +9,13 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
 use Friendica\Model\Contact;
+use Friendica\Model\Notify;
 
 function notifications_post(App $a)
 {
@@ -79,13 +78,14 @@ function notifications_content(App $a)
 	}
 
 	$page = ($_REQUEST['page'] ?? 0) ?: 1;
-	$show =  $_REQUEST['show'] ?? 0;
+	$show = ($_REQUEST['show'] ?? '') === 'all';
 
 	Nav::setSelected('notifications');
 
 	$json = (($a->argc > 1 && $a->argv[$a->argc - 1] === 'json') ? true : false);
 
-	$nm = new NotificationsManager();
+	/** @var Notify $nm */
+	$nm = \Friendica\BaseObject::getClass(Notify::class);
 
 	$o = '';
 	// Get the nav tabs for the notification pages
@@ -112,27 +112,27 @@ function notifications_content(App $a)
 
 		$all = (($a->argc > 2) && ($a->argv[2] == 'all'));
 
-		$notifs = $nm->introNotifs($all, $startrec, $perpage, $id);
+		$notifs = $nm->getIntroList($all, $startrec, $perpage, $id);
 
 	// Get the network notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'network')) {
 		$notif_header = L10n::t('Network Notifications');
-		$notifs = $nm->networkNotifs($show, $startrec, $perpage);
+		$notifs = $nm->getNetworkList($show, $startrec, $perpage);
 
 	// Get the system notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'system')) {
 		$notif_header = L10n::t('System Notifications');
-		$notifs = $nm->systemNotifs($show, $startrec, $perpage);
+		$notifs = $nm->getSystemList($show, $startrec, $perpage);
 
 	// Get the personal notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'personal')) {
 		$notif_header = L10n::t('Personal Notifications');
-		$notifs = $nm->personalNotifs($show, $startrec, $perpage);
+		$notifs = $nm->getPersonalList($show, $startrec, $perpage);
 
 	// Get the home notifications
 	} elseif (($a->argc > 1) && ($a->argv[1] == 'home')) {
 		$notif_header = L10n::t('Home Notifications');
-		$notifs = $nm->homeNotifs($show, $startrec, $perpage);
+		$notifs = $nm->getHomeList($show, $startrec, $perpage);
 	// fallback - redirect to main page
 	} else {
 		$a->internalRedirect('notifications');

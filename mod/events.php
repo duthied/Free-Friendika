@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
@@ -18,6 +19,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Login;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
@@ -146,10 +148,14 @@ function events_post(App $a)
 
 
 	if ($share) {
-		$str_group_allow   = perms2str($_POST['group_allow']   ?? '');
-		$str_contact_allow = perms2str($_POST['contact_allow'] ?? '');
-		$str_group_deny    = perms2str($_POST['group_deny']    ?? '');
-		$str_contact_deny  = perms2str($_POST['contact_deny']  ?? '');
+
+		/** @var ACLFormatter $aclFormatter */
+		$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+
+		$str_group_allow   = $aclFormatter->toString($_POST['group_allow'] ?? '');
+		$str_contact_allow = $aclFormatter->toString($_POST['contact_allow'] ?? '');
+		$str_group_deny    = $aclFormatter->toString($_POST['group_deny'] ?? '');
+		$str_contact_deny  = $aclFormatter->toString($_POST['contact_deny'] ?? '');
 
 		// Undo the pseudo-contact of self, since there are real contacts now
 		if (strpos($str_contact_allow, '<' . $self . '>') !== false) {

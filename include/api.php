@@ -7,6 +7,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
@@ -15,7 +16,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\NotificationsManager;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
@@ -26,6 +26,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
+use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -41,6 +42,7 @@ use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Network\HTTPException\TooManyRequestsException;
 use Friendica\Network\HTTPException\UnauthorizedException;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -1374,7 +1376,7 @@ function api_get_item(array $condition)
  */
 function api_users_show($type)
 {
-	$a = \Friendica\BaseObject::getApp();
+	$a = BaseObject::getApp();
 
 	$user_info = api_get_user($a);
 
@@ -2839,19 +2841,19 @@ function api_format_items_activities($item, $type = "json")
 		// get user data and add it to the array of the activity
 		$user = api_get_user($a, $parent_item['author-id']);
 		switch ($parent_item['verb']) {
-			case ACTIVITY_LIKE:
+			case Activity::LIKE:
 				$activities['like'][] = $user;
 				break;
-			case ACTIVITY_DISLIKE:
+			case Activity::DISLIKE:
 				$activities['dislike'][] = $user;
 				break;
-			case ACTIVITY_ATTEND:
+			case Activity::ATTEND:
 				$activities['attendyes'][] = $user;
 				break;
-			case ACTIVITY_ATTENDNO:
+			case Activity::ATTENDNO:
 				$activities['attendno'][] = $user;
 				break;
-			case ACTIVITY_ATTENDMAYBE:
+			case Activity::ATTENDMAYBE:
 				$activities['attendmaybe'][] = $user;
 				break;
 			default:
@@ -2947,7 +2949,7 @@ function api_format_items_profiles($profile_row)
  */
 function api_format_items($items, $user_info, $filter_user = false, $type = "json")
 {
-	$a = \Friendica\BaseObject::getApp();
+	$a = BaseObject::getApp();
 
 	$ret = [];
 
@@ -2981,7 +2983,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  */
 function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
 {
-	$a = \Friendica\BaseObject::getApp();
+	$a = BaseObject::getApp();
 
 	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
@@ -5110,7 +5112,7 @@ function api_get_announce($item)
 	}
 
 	$fields = ['author-id', 'author-name', 'author-link', 'author-avatar'];
-	$activity = Item::activityToIndex(ACTIVITY2_ANNOUNCE);
+	$activity = Item::activityToIndex(Activity::ANNOUNCE);
 	$condition = ['parent-uri' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY, 'uid' => [0, $item['uid']], 'activity' => $activity];
 	$announce = Item::selectFirstForUser($item['uid'], $fields, $condition, ['order' => ['received' => true]]);
 	if (!DBA::isResult($announce)) {
@@ -6039,7 +6041,8 @@ function api_friendica_notification($type)
 	if ($a->argc!==3) {
 		throw new BadRequestException("Invalid argument count");
 	}
-	$nm = new NotificationsManager();
+	/** @var Notify $nm */
+	$nm = BaseObject::getClass(Notify::class);
 
 	$notes = $nm->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
 
@@ -6083,7 +6086,8 @@ function api_friendica_notification_seen($type)
 
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
-	$nm = new NotificationsManager();
+	/** @var Notify $nm */
+	$nm = BaseObject::getClass(Notify::class);
 	$note = $nm->getByID($id);
 	if (is_null($note)) {
 		throw new BadRequestException("Invalid argument");

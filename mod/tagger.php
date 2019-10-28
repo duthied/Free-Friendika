@@ -2,15 +2,17 @@
 /**
  * @file mod/tagger.php
  */
+
 use Friendica\App;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
@@ -68,7 +70,7 @@ function tagger_content(App $a) {
 	$uri = Item::newURI($owner_uid);
 	$xterm = XML::escape($term);
 	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
-	$targettype = (($item['resource-id']) ? ACTIVITY_OBJ_IMAGE : ACTIVITY_OBJ_NOTE );
+	$targettype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );
 	$href = System::baseUrl() . '/display/' . $item['guid'];
 
 	$link = XML::escape('<link rel="alternate" type="text/html" href="'. $href . '" />' . "\n");
@@ -87,7 +89,7 @@ function tagger_content(App $a) {
 EOT;
 
 	$tagid = System::baseUrl() . '/search?tag=' . $xterm;
-	$objtype = ACTIVITY_OBJ_TAGTERM;
+	$objtype = Activity\ObjectType::TAGTERM;
 
 	$obj = <<< EOT
 	<object>
@@ -130,7 +132,7 @@ EOT;
 	$plink = '[url=' . $item['plink'] . ']' . $post_type . '[/url]';
 	$arr['body'] =  sprintf( $bodyverb, $ulink, $alink, $plink, $termlink );
 
-	$arr['verb'] = ACTIVITY_TAG;
+	$arr['verb'] = Activity::TAG;
 	$arr['target-type'] = $targettype;
 	$arr['target'] = $target;
 	$arr['object-type'] = $objtype;

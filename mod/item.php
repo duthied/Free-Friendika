@@ -16,6 +16,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
@@ -24,8 +25,8 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Attach;
@@ -35,8 +36,10 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Term;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
@@ -131,7 +134,7 @@ function item_post(App $a) {
 		$toplevel_item_id = $toplevel_item['id'];
 		$parent_user = $toplevel_item['uid'];
 
-		$objecttype = ACTIVITY_OBJ_COMMENT;
+		$objecttype = Activity\ObjectType::COMMENT;
 	}
 
 	if ($toplevel_item_id) {
@@ -269,10 +272,14 @@ function item_post(App $a) {
 			$str_contact_deny  = $user['deny_cid'];
 		} else {
 			// use the posted permissions
-			$str_group_allow   = perms2str($_REQUEST['group_allow'] ?? '');
-			$str_contact_allow = perms2str($_REQUEST['contact_allow'] ?? '');
-			$str_group_deny    = perms2str($_REQUEST['group_deny'] ?? '');
-			$str_contact_deny  = perms2str($_REQUEST['contact_deny'] ?? '');
+
+			/** @var ACLFormatter $aclFormatter */
+			$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+
+			$str_group_allow   = $aclFormatter->toString($_REQUEST['group_allow'] ?? '');
+			$str_contact_allow = $aclFormatter->toString($_REQUEST['contact_allow'] ?? '');
+			$str_group_deny    = $aclFormatter->toString($_REQUEST['group_deny'] ?? '');
+			$str_contact_deny  = $aclFormatter->toString($_REQUEST['contact_deny'] ?? '');
 		}
 
 		$title             = Strings::escapeTags(trim($_REQUEST['title']    ?? ''));
@@ -460,7 +467,7 @@ function item_post(App $a) {
 	$match = null;
 
 	if (!$preview && Photo::setPermissionFromBody($body, $profile_uid, $original_contact_id, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny)) {
-		$objecttype = ACTIVITY_OBJ_IMAGE;
+		$objecttype = Activity\ObjectType::IMAGE;
 	}
 
 	/*
@@ -496,11 +503,12 @@ function item_post(App $a) {
 	if ((preg_match_all("/\[bookmark\=([^\]]*)\](.*?)\[\/bookmark\]/ism", $body, $match, PREG_SET_ORDER) || isset($data["type"]))
 		&& ($posttype != Item::PT_PERSONAL_NOTE)) {
 		$posttype = Item::PT_PAGE;
-		$objecttype = ACTIVITY_OBJ_BOOKMARK;
+		$objecttype =  Activity\ObjectType::BOOKMARK;
 	}
 
-	$body = bb_translate_video($body);
-
+	/** @var BBCode\Video $bbCodeVideo */
+	$bbCodeVideo = BaseObject::getClass(BBCode\Video::class);
+	$body =  $bbCodeVideo->transform($body);
 
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
@@ -509,15 +517,15 @@ function item_post(App $a) {
 
 	// Setting the object type if not defined before
 	if (!$objecttype) {
-		$objecttype = ACTIVITY_OBJ_NOTE; // Default value
+		$objecttype = Activity\ObjectType::NOTE; // Default value
 		$objectdata = BBCode::getAttachedData($body);
 
 		if ($objectdata["type"] == "link") {
-			$objecttype = ACTIVITY_OBJ_BOOKMARK;
+			$objecttype = Activity\ObjectType::BOOKMARK;
 		} elseif ($objectdata["type"] == "video") {
-			$objecttype = ACTIVITY_OBJ_VIDEO;
+			$objecttype = Activity\ObjectType::VIDEO;
 		} elseif ($objectdata["type"] == "photo") {
-			$objecttype = ACTIVITY_OBJ_IMAGE;
+			$objecttype = Activity\ObjectType::IMAGE;
 		}
 
 	}
@@ -542,7 +550,7 @@ function item_post(App $a) {
 	}
 
 	if (!strlen($verb)) {
-		$verb = ACTIVITY_POST;
+		$verb = Activity::POST;
 	}
 
 	if ($network == "") {
@@ -754,7 +762,7 @@ function item_post(App $a) {
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
-				'verb'         => ACTIVITY_POST,
+				'verb'         => Activity::POST,
 				'otype'        => 'item',
 				'parent'       => $toplevel_item_id,
 				'parent_uri'   => $toplevel_item['uri']
@@ -774,7 +782,7 @@ function item_post(App $a) {
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
-				'verb'         => ACTIVITY_POST,
+				'verb'         => Activity::POST,
 				'otype'        => 'item'
 			]);
 		}

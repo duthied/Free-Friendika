@@ -23,6 +23,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -692,7 +693,7 @@ class Profile
 
 			while ($rr = DBA::fetch($s)) {
 				$condition = ['parent-uri' => $rr['uri'], 'uid' => $rr['uid'], 'author-id' => public_contact(),
-					'activity' => [Item::activityToIndex(ACTIVITY_ATTEND), Item::activityToIndex(ACTIVITY_ATTENDMAYBE)],
+					'activity' => [Item::activityToIndex( Activity::ATTEND), Item::activityToIndex(Activity::ATTENDMAYBE)],
 					'visible' => true, 'deleted' => false];
 				if (!Item::exists($condition)) {
 					continue;
@@ -823,51 +824,51 @@ class Profile
 				$profile['religion'] = [L10n::t('Religion:'), $a->profile['religion']];
 			}
 
-			if ($txt = prepare_text($a->profile['about'])) {
+			if ($txt = BBCode::convert($a->profile['about'])) {
 				$profile['about'] = [L10n::t('About:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['interest'])) {
+			if ($txt = BBCode::convert($a->profile['interest'])) {
 				$profile['interest'] = [L10n::t('Hobbies/Interests:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['likes'])) {
+			if ($txt = BBCode::convert($a->profile['likes'])) {
 				$profile['likes'] = [L10n::t('Likes:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['dislikes'])) {
+			if ($txt = BBCode::convert($a->profile['dislikes'])) {
 				$profile['dislikes'] = [L10n::t('Dislikes:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['contact'])) {
+			if ($txt = BBCode::convert($a->profile['contact'])) {
 				$profile['contact'] = [L10n::t('Contact information and Social Networks:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['music'])) {
+			if ($txt = BBCode::convert($a->profile['music'])) {
 				$profile['music'] = [L10n::t('Musical interests:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['book'])) {
+			if ($txt = BBCode::convert($a->profile['book'])) {
 				$profile['book'] = [L10n::t('Books, literature:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['tv'])) {
+			if ($txt = BBCode::convert($a->profile['tv'])) {
 				$profile['tv'] = [L10n::t('Television:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['film'])) {
+			if ($txt = BBCode::convert($a->profile['film'])) {
 				$profile['film'] = [L10n::t('Film/dance/culture/entertainment:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['romance'])) {
+			if ($txt = BBCode::convert($a->profile['romance'])) {
 				$profile['romance'] = [L10n::t('Love/Romance:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['work'])) {
+			if ($txt = BBCode::convert($a->profile['work'])) {
 				$profile['work'] = [L10n::t('Work/employment:'), $txt];
 			}
 
-			if ($txt = prepare_text($a->profile['education'])) {
+			if ($txt = BBCode::convert($a->profile['education'])) {
 				$profile['education'] = [L10n::t('School/education:'), $txt];
 			}
 

@@ -24,6 +24,7 @@ use Friendica\Model\Event;
 use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -276,7 +277,7 @@ class BBCode extends BaseObject
 
 			if (preg_match_all("(\[url=(.*?)\]\s*\[img\](.*?)\[\/img\]\s*\[\/url\])ism", $body, $pictures, PREG_SET_ORDER)) {
 				if ((count($pictures) == 1) && !$has_title) {
-					if (!empty($item['object-type']) && ($item['object-type'] == ACTIVITY_OBJ_IMAGE)) {
+					if (!empty($item['object-type']) && ($item['object-type'] == Activity\ObjectType::IMAGE)) {
 						// Replace the preview picture with the real picture
 						$url = str_replace('-1.', '-0.', $pictures[0][2]);
 						$data = ['url' => $url, 'type' => 'photo'];
@@ -572,17 +573,17 @@ class BBCode extends BaseObject
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
 	 * @brief Processes [attachment] tags
-	 * @param string   $return
+	 * @param string   $text
 	 * @param bool|int $simplehtml
 	 * @param bool     $tryoembed
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function convertAttachment($return, $simplehtml = false, $tryoembed = true)
+	private static function convertAttachment($text, $simplehtml = false, $tryoembed = true)
 	{
-		$data = self::getAttachmentData($return);
+		$data = self::getAttachmentData($text);
 		if (empty($data) || empty($data['url'])) {
-			return $return;
+			return $text;
 		}
 
 		if (isset($data['title'])) {
@@ -599,7 +600,10 @@ class BBCode extends BaseObject
 
 		$return = '';
 		if (in_array($simplehtml, [7, 9])) {
-			$return = self::convertUrlForActivityPub($data['url']);
+			// Only add the link when it isn't already part of the body
+			if (substr_count($text, $data['url']) == 1) {
+				$return = self::convertUrlForActivityPub($data['url']);
+			}
 		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
 			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data['url'], $data['title']);
 		} else {
@@ -1552,7 +1556,7 @@ class BBCode extends BaseObject
 			function ($matches) use ($simple_html) {
 				$matches[1] = self::proxyUrl($matches[1], $simple_html);
 				$matches[2] = htmlspecialchars($matches[2], ENT_COMPAT);
-				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '">';
+				return '<img src="' . $matches[1] . '" alt="' . $matches[2] . '" title="' . $matches[2] . '">';
 			},
 			$text);
 
@@ -1747,7 +1751,7 @@ class BBCode extends BaseObject
 		$text = preg_replace_callback("/(?:#\[url\=.*?\]|\[url\=.*?\]#)(.*?)\[\/url\]/ism", function($matches) {
 			return '#<a href="'
 				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
-				. '" class="tag" title="' . XML::escape($matches[1]) . '">'
+				. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
 				. XML::escape($matches[1])
 				. '</a>';
 		}, $text);

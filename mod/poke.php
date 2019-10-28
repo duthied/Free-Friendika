@@ -21,6 +21,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
@@ -44,7 +45,7 @@ function poke_init(App $a)
 		return;
 	}
 
-	$activity = ACTIVITY_POKE . '#' . urlencode($verbs[$verb][0]);
+	$activity = Activity::POKE . '#' . urlencode($verbs[$verb][0]);
 
 	$contact_id = intval($_GET['cid']);
 	if (!$contact_id) {
@@ -117,12 +118,12 @@ function poke_init(App $a)
 	$arr['visible']       = 1;
 	$arr['verb']          = $activity;
 	$arr['private']       = $private;
-	$arr['object-type']   = ACTIVITY_OBJ_PERSON;
+	$arr['object-type']   = Activity\ObjectType::PERSON;
 
 	$arr['origin']        = 1;
 	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . L10n::t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
 
-	$arr['object'] = '<object><type>' . ACTIVITY_OBJ_PERSON . '</type><title>' . $target['name'] . '</title><id>' . $target['url'] . '</id>';
+	$arr['object'] = '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . $target['name'] . '</title><id>' . $target['url'] . '</id>';
 	$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $target['url'] . '" />' . "\n");
 
 	$arr['object'] .= XML::escape('<link rel="photo" type="image/jpeg" href="' . $target['photo'] . '" />' . "\n");

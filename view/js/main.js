@@ -629,7 +629,7 @@ function dostar(ident) {
 function doignore(ident) {
 	ident = ident.toString();
 	$('#like-rotator-' + ident).show();
-	$.get('ignored/' + ident, function(data) {
+	$.get('item/ignore/' + ident, function(data) {
 		if (data.match(/1/)) {
 			$('#ignored-' + ident).addClass('ignored');
 			$('#ignored-' + ident).removeClass('unignored');

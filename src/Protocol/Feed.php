@@ -14,6 +14,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
@@ -59,13 +60,13 @@ class Feed {
 		$doc = new DOMDocument();
 		@$doc->loadXML(trim($xml));
 		$xpath = new DOMXPath($doc);
-		$xpath->registerNamespace('atom', NAMESPACE_ATOM1);
+		$xpath->registerNamespace('atom', ActivityNamespace::ATOM1);
 		$xpath->registerNamespace('dc', "http://purl.org/dc/elements/1.1/");
 		$xpath->registerNamespace('content', "http://purl.org/rss/1.0/modules/content/");
 		$xpath->registerNamespace('rdf', "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
 		$xpath->registerNamespace('rss', "http://purl.org/rss/1.0/");
 		$xpath->registerNamespace('media', "http://search.yahoo.com/mrss/");
-		$xpath->registerNamespace('poco', NAMESPACE_POCO);
+		$xpath->registerNamespace('poco', ActivityNamespace::POCO);
 
 		$author = [];
 		$entries = null;
@@ -198,8 +199,8 @@ class Feed {
 		$header["origin"] = 0;
 		$header["gravity"] = GRAVITY_PARENT;
 		$header["private"] = 2;
-		$header["verb"] = ACTIVITY_POST;
-		$header["object-type"] = ACTIVITY_OBJ_NOTE;
+		$header["verb"] = Activity::POST;
+		$header["object-type"] = Activity\ObjectType::NOTE;
 
 		$header["contact-id"] = $contact["id"];
 
@@ -420,7 +421,7 @@ class Feed {
 				$item["title"] = "";
 				$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["tag"] = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
-				$item["object-type"] = ACTIVITY_OBJ_BOOKMARK;
+				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
 			} else {
 				if (!empty($summary)) {

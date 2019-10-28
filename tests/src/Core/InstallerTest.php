@@ -339,9 +339,6 @@ class InstallerTest extends MockedTest
 		// Mocking that we can use CURL
 		$this->setFunctions(['curl_init' => true]);
 
-		// needed because of "normalise_link"
-		require_once __DIR__ . '/../../../include/text.php';
-
 		$install = new Installer();
 
 		$this->assertTrue($install->checkHtAccess('https://test'));

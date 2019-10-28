@@ -5,6 +5,7 @@
 
 use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\BaseObject;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
@@ -25,6 +26,7 @@ use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Module\Login;
 use Friendica\Protocol\Email;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
@@ -534,10 +536,13 @@ function settings_post(App $a)
 		date_default_timezone_set($timezone);
 	}
 
-	$str_group_allow   = !empty($_POST['group_allow'])   ? perms2str($_POST['group_allow'])   : '';
-	$str_contact_allow = !empty($_POST['contact_allow']) ? perms2str($_POST['contact_allow']) : '';
-	$str_group_deny    = !empty($_POST['group_deny'])    ? perms2str($_POST['group_deny'])    : '';
-	$str_contact_deny  = !empty($_POST['contact_deny'])  ? perms2str($_POST['contact_deny'])  : '';
+	/** @var ACLFormatter $aclFormatter */
+	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+
+	$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->toString($_POST['group_allow'])   : '';
+	$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->toString($_POST['contact_allow']) : '';
+	$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->toString($_POST['group_deny'])    : '';
+	$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->toString($_POST['contact_deny'])  : '';
 
 	PConfig::set(local_user(), 'expire', 'items', $expire_items);
 	PConfig::set(local_user(), 'expire', 'notes', $expire_notes);

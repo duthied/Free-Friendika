@@ -5,6 +5,7 @@ namespace Friendica\Module\Diaspora;
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\L10n\L10n;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\Diaspora;
@@ -34,7 +35,8 @@ class Receive extends BaseModule
 		$enabled = $config->get('system', 'diaspora_enabled', false);
 		if (!$enabled) {
 			self::$logger->info('Diaspora disabled.');
-			throw new HTTPException\InternalServerErrorException('Diaspora disabled.');
+			$l10n = self::getClass(L10n::class);
+			throw new HTTPException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
 		/** @var App\Arguments $args */

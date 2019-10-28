@@ -12,17 +12,17 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
+use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
-use Friendica\Protocol\PortableContact;
 use Friendica\Protocol\Salmon;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
@@ -828,7 +828,7 @@ class Contact extends BaseObject
 		} elseif (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 			// create an unfollow slap
 			$item = [];
-			$item['verb'] = NAMESPACE_OSTATUS . "/unfollow";
+			$item['verb'] = Activity::O_UNFOLLOW;
 			$item['follow'] = $contact["url"];
 			$item['body'] = '';
 			$item['title'] = '';
@@ -2366,7 +2366,7 @@ class Contact extends BaseObject
 			if (in_array($protocol, [Protocol::OSTATUS, Protocol::DFRN])) {
 				// create a follow slap
 				$item = [];
-				$item['verb'] = ACTIVITY_FOLLOW;
+				$item['verb'] = Activity::FOLLOW;
 				$item['follow'] = $contact["url"];
 				$item['body'] = '';
 				$item['title'] = '';
@@ -2568,7 +2568,7 @@ class Contact extends BaseObject
 						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : L10n::t('[Name Withheld]')),
 						'source_link'  => $contact_record['url'],
 						'source_photo' => $contact_record['photo'],
-						'verb'         => ($sharing ? ACTIVITY_FRIEND : ACTIVITY_FOLLOW),
+						'verb'         => ($sharing ? Activity::FRIEND : Activity::FOLLOW),
 						'otype'        => 'intro'
 					]);
 				}

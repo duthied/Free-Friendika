@@ -18,11 +18,11 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Profile;
+use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Feed;
 use Friendica\Util\Crypto;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
@@ -200,10 +200,10 @@ class Probe
 		Logger::log('webfingerDfrn: '.$webbie.':'.print_r($links, true), Logger::DATA);
 		if (!empty($links) && is_array($links)) {
 			foreach ($links as $link) {
-				if ($link['@attributes']['rel'] === NAMESPACE_DFRN) {
+				if ($link['@attributes']['rel'] === ActivityNamespace::DFRN) {
 					$profile_link = $link['@attributes']['href'];
 				}
-				if (($link['@attributes']['rel'] === NAMESPACE_OSTATUSSUB) && ($profile_link == "")) {
+				if (($link['@attributes']['rel'] === ActivityNamespace::OSTATUSSUB) && ($profile_link == "")) {
 					$profile_link = 'stat:'.$link['@attributes']['template'];
 				}
 				if ($link['@attributes']['rel'] === 'http://microformats.org/profile/hcard') {
@@ -492,7 +492,7 @@ class Probe
 		$has_key = false;
 
 		foreach ($webfinger['links'] as $link) {
-			if ($link['rel'] == NAMESPACE_OSTATUSSUB) {
+			if ($link['rel'] == ActivityNamespace::OSTATUSSUB) {
 				$is_ostatus = true;
 			}
 			if ($link['rel'] == 'magic-public-key') {
@@ -955,15 +955,15 @@ class Probe
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 		foreach (array_reverse($webfinger["links"]) as $link) {
-			if (($link["rel"] == NAMESPACE_DFRN) && !empty($link["href"])) {
+			if (($link["rel"] == ActivityNamespace::DFRN) && !empty($link["href"])) {
 				$data["network"] = Protocol::DFRN;
-			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
+			} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
 				$data["poll"] = $link["href"];
 			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
 				$data["url"] = $link["href"];
 			} elseif (($link["rel"] == "http://microformats.org/profile/hcard") && !empty($link["href"])) {
 				$hcard_url = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_POCO) && !empty($link["href"])) {
+			} elseif (($link["rel"] == ActivityNamespace::POCO) && !empty($link["href"])) {
 				$data["poco"] = $link["href"];
 			} elseif (($link["rel"] == "http://webfinger.net/rel/avatar") && !empty($link["href"])) {
 				$data["photo"] = $link["href"];
@@ -1171,9 +1171,9 @@ class Probe
 				$data["guid"] = $link["href"];
 			} elseif (($link["rel"] == "http://webfinger.net/rel/profile-page") && (($link["type"] ?? "") == "text/html") && !empty($link["href"])) {
 				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
+			} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
 				$data["poll"] = $link["href"];
-			} elseif (($link["rel"] == NAMESPACE_POCO) && !empty($link["href"])) {
+			} elseif (($link["rel"] == ActivityNamespace::POCO) && !empty($link["href"])) {
 				$data["poco"] = $link["href"];
 			} elseif (($link["rel"] == "salmon") && !empty($link["href"])) {
 				$data["notify"] = $link["href"];
@@ -1273,7 +1273,7 @@ class Probe
 					$data["url"] = $link["href"];
 				} elseif (($link["rel"] == "salmon") && !empty($link["href"])) {
 					$data["notify"] = $link["href"];
-				} elseif (($link["rel"] == NAMESPACE_FEED) && !empty($link["href"])) {
+				} elseif (($link["rel"] == ActivityNamespace::FEED) && !empty($link["href"])) {
 					$data["poll"] = $link["href"];
 				} elseif (($link["rel"] == "magic-public-key") && !empty($link["href"])) {
 					$pubkey = $link["href"];
