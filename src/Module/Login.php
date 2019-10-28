@@ -388,7 +388,7 @@ class Login extends BaseModule
 			return 'register';
 		}
 
-		$args = '';
+		$args = [];
 		$attr = Session::get('openid_attributes') ?? [];
 
 		if (is_array($attr) && count($attr)) {
@@ -400,10 +400,10 @@ class Login extends BaseModule
 					$first = Strings::escapeTags(trim($v));
 				}
 				if ($k === 'namePerson') {
-					$args .= '&username=' . urlencode(Strings::escapeTags(trim($v)));
+					$args['username'] = Strings::escapeTags(trim($v));
 				}
 				if ($k === 'contact/email') {
-					$args .= '&email=' . urlencode(Strings::escapeTags(trim($v)));
+					$args['email'] = Strings::escapeTags(trim($v));
 				}
 				if ($k === 'media/image/aspect11') {
 					$photosq = bin2hex(trim($v));
@@ -414,22 +414,20 @@ class Login extends BaseModule
 			}
 		}
 
-		$arg = [];
-
 		if (!empty($nick)) {
-			$arg['nickname'] = $nick;
+			$args['nickname'] = $nick;
 		} elseif (!empty($first)) {
-			$arg['nickname'] = $first;
+			$args['nickname'] = $first;
 		}
 
 		if (!empty($photosq)) {
-			$arg['photo'] = $photosq;
+			$args['photo'] = $photosq;
 		} elseif (!empty($photo)) {
-			$arg['photo'] = $photo;
+			$args['photo'] = $photo;
 		}
 
-		$arg['openid_url'] = Strings::escapeTags(trim(Session::get('openid_identity')));
+		$args['openid_url'] = Strings::escapeTags(trim(Session::get('openid_identity')));
 
-		return 'register?' . http_build_query($arg);
+		return 'register?' . http_build_query($args);
 	}
 }
