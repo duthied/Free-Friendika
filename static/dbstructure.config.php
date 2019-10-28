@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1323);
+	define('DB_UPDATE_VERSION', 1324);
 }
 
 return [
@@ -123,10 +123,10 @@ return [
 			"data" => ["type" => "longblob", "not null" => "1", "comment" => "file data"],
 			"created" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "creation time"],
 			"edited" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "last edit time"],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"allow_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed contact.id '<19><78>"],
+			"allow_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed groups"],
+			"deny_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied contact.id"],
+			"deny_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied groups"],
 			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
 			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
 		],
@@ -360,10 +360,10 @@ return [
 			"nofinish" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "if event does have no end this is 1"],
 			"adjust" => ["type" => "boolean", "not null" => "1", "default" => "1", "comment" => "adjust to timezone of the recipient (0 or 1)"],
 			"ignore" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "0 or 1"],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"allow_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
+			"allow_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed groups"],
+			"deny_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied contact.id"],
+			"deny_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied groups"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -647,10 +647,10 @@ return [
 			// Could possibly be replaced by the "attach" table?
 			"attach" => ["type" => "mediumtext", "comment" => "JSON structure representing attachments to this item"],
 			// Deprecated fields. Will be removed in upcoming versions
-			"allow_cid" => ["type" => "mediumtext", "comment" => "Deprecated"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Deprecated"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "Deprecated"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Deprecated"],
+			"allow_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Deprecated"],
+			"allow_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Deprecated"],
+			"deny_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Deprecated"],
+			"deny_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Deprecated"],
 			"postopts" => ["type" => "text", "comment" => "Deprecated"],
 			"inform" => ["type" => "mediumtext", "comment" => "Deprecated"],
 			"type" => ["type" => "varchar(20)", "comment" => "Deprecated"],
@@ -982,10 +982,10 @@ return [
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "relation" => ["user" => "uid"], "comment" => "Owner id of this permission set"],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"allow_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
+			"allow_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed groups"],
+			"deny_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied contact.id"],
+			"deny_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied groups"],
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
@@ -1013,10 +1013,10 @@ return [
 			"data" => ["type" => "mediumblob", "not null" => "1", "comment" => ""],
 			"scale" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"profile" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => ""],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of allowed groups"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied contact.id"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "Access Control - list of denied groups"],
+			"allow_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed contact.id '<19><78>'"],
+			"allow_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of allowed groups"],
+			"deny_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied contact.id"],
+			"deny_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "Access Control - list of denied groups"],
 			"backend-class" => ["type" => "tinytext", "comment" => "Storage backend class"],
 			"backend-ref" => ["type" => "text", "comment" => "Storage backend data reference"],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
@@ -1343,10 +1343,10 @@ return [
 			"account_expires_on" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp when account expires and will be deleted"],
 			"expire_notification_sent" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => "timestamp of last warning of account expiration"],
 			"def_gid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => ""],
-			"allow_cid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"allow_gid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"deny_cid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
-			"deny_gid" => ["type" => "mediumtext", "comment" => "default permission for this user"],
+			"allow_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "default permission for this user"],
+			"allow_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "default permission for this user"],
+			"deny_cid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "default permission for this user"],
+			"deny_gid" => ["type" => "mediumtext", "not null" => "1", "default" => "", "comment" => "default permission for this user"],
 			"openidserver" => ["type" => "text", "comment" => ""],
 		],
 		"indexes" => [
