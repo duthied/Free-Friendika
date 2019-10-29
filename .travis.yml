@@ -21,8 +21,6 @@ before_script:
  - mysql -utravis test < database.sql
  - pecl channel-update pecl.php.net
  - pecl config-set preferred_state beta
- - if [[ $TRAVIS_PHP_VERSION != "7.1" ]]; then echo yes | pecl upgrade apcu; fi
- - if [[ $TRAVIS_PHP_VERSION != "7.1" ]]; then phpenv config-add .travis/apcu.ini; fi
  - phpenv config-add .travis/redis.ini
  - phpenv config-add .travis/memcached.ini
 
