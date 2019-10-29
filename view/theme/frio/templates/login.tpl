@@ -40,7 +40,7 @@
 {{if $register}}
 <div id="login-extra-links">
 	<h3 id="login-head" class="sr-only">{{$register.title}}</h3>
-	<a href="register" title="{{$register.title}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>
+	<a href="{{$register.url}}" title="{{$register.title}}" id="register-link" class="btn btn-default">{{$register.desc}}</a>
 </div>
 {{/if}}
 

@@ -43,6 +43,9 @@ class Login extends BaseModule
 
 	public static function post()
 	{
+		$openid_identity = Session::get('openid_identity');
+		$openid_server = Session::get('openid_server');
+
 		$return_path = Session::get('return_path');
 		session_unset();
 		Session::set('return_path', $return_path);
@@ -62,7 +65,9 @@ class Login extends BaseModule
 			self::passwordAuthentication(
 				trim($_POST['username']),
 				trim($_POST['password']),
-				!empty($_POST['remember'])
+				!empty($_POST['remember']),
+				$openid_identity,
+				$openid_server
 			);
 		}
 	}
@@ -91,9 +96,10 @@ class Login extends BaseModule
 		try {
 			$openid = new LightOpenID($a->getHostName());
 			$openid->identity = $openid_url;
-			$_SESSION['openid'] = $openid_url;
-			$_SESSION['remember'] = $remember;
+			Session::set('openid', $openid_url);
+			Session::set('remember', $remember);
 			$openid->returnUrl = $a->getBaseURL(true) . '/openid';
+			$openid->optional = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
 			System::externalRedirect($openid->authUrl());
 		} catch (Exception $e) {
 			notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . L10n::t('The error message was:') . ' ' . $e->getMessage());
@@ -103,12 +109,14 @@ class Login extends BaseModule
 	/**
 	 * Attempts to authenticate using login/password
 	 *
-	 * @param string $username User name
-	 * @param string $password Clear password
-	 * @param bool   $remember Whether to set the session remember flag
+	 * @param string $username        User name
+	 * @param string $password        Clear password
+	 * @param bool   $remember        Whether to set the session remember flag
+	 * @param string $openid_identity OpenID identity
+	 * @param string $openid_server   OpenID URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function passwordAuthentication($username, $password, $remember)
+	private static function passwordAuthentication($username, $password, $remember, $openid_identity, $openid_server)
 	{
 		$record = null;
 
@@ -155,6 +163,10 @@ class Login extends BaseModule
 		// if we haven't failed up this point, log them in.
 		Session::set('remember', $remember);
 		Session::set('last_login_date', DateTimeFormat::utcNow());
+
+		if (!empty($openid_identity) || !empty($openid_server)) {
+			DBA::update('user', ['openid' => $openid_identity, 'openidserver' => $openid_server], ['uid' => $record['uid']]);
+		}
 
 		Session::setAuthenticatedForUser($a, $record, true, true);
 
@@ -286,15 +298,22 @@ class Login extends BaseModule
 	{
 		$a = self::getApp();
 		$o = '';
+
+		$noid = Config::get('system', 'no_openid');
+
+		if ($noid) {
+			Session::remove('openid_identity');
+			Session::remove('openid_attributes');
+		}
+
 		$reg = false;
 		if ($register && intval($a->getConfig()->get('config', 'register_policy')) !== Register::CLOSED) {
 			$reg = [
 				'title' => L10n::t('Create a New Account'),
-				'desc' => L10n::t('Register')
+				'desc' => L10n::t('Register'),
+				'url' => self::getRegisterURL()
 			];
 		}
-
-		$noid = Config::get('system', 'no_openid');
 
 		if (is_null($return_path)) {
 			$return_path = $a->query_string;
@@ -314,6 +333,18 @@ class Login extends BaseModule
 			$_SESSION['return_path'] = $return_path;
 		}
 
+		if (!empty(Session::get('openid_identity'))) {
+			$openid_title = L10n::t('Your OpenID: ');
+			$openid_readonly = true;
+			$identity = Session::get('openid_identity');
+			$username_desc = L10n::t('Please enter your username and password to add the OpenID to your existing account.');
+		} else {
+			$openid_title = L10n::t('Or login using OpenID: ');
+			$openid_readonly = false;
+			$identity = '';
+			$username_desc = '';
+		}
+
 		$o .= Renderer::replaceMacros(
 			$tpl,
 			[
@@ -321,12 +352,12 @@ class Login extends BaseModule
 				'$logout'       => L10n::t('Logout'),
 				'$login'        => L10n::t('Login'),
 
-				'$lname'        => ['username', L10n::t('Nickname or Email: '), '', ''],
+				'$lname'        => ['username', L10n::t('Nickname or Email: '), '', $username_desc],
 				'$lpassword'    => ['password', L10n::t('Password: '), '', ''],
 				'$lremember'    => ['remember', L10n::t('Remember me'), 0,  ''],
 
 				'$openid'       => !$noid,
-				'$lopenid'      => ['openid_url', L10n::t('Or login using OpenID: '), '', ''],
+				'$lopenid'      => ['openid_url', $openid_title, $identity, '', $openid_readonly],
 
 				'$hiddens'      => $hiddens,
 
@@ -346,5 +377,57 @@ class Login extends BaseModule
 		Hook::callAll('login_hook', $o);
 
 		return $o;
+	}
+
+	/**
+	 * Get the URL to the register page and add OpenID parameters to it
+	 */
+	private static function getRegisterURL()
+	{
+		if (empty(Session::get('openid_identity'))) {
+			return 'register';
+		}
+
+		$args = [];
+		$attr = Session::get('openid_attributes', []);
+
+		if (is_array($attr) && count($attr)) {
+			foreach ($attr as $k => $v) {
+				if ($k === 'namePerson/friendly') {
+					$nick = Strings::escapeTags(trim($v));
+				}
+				if ($k === 'namePerson/first') {
+					$first = Strings::escapeTags(trim($v));
+				}
+				if ($k === 'namePerson') {
+					$args['username'] = Strings::escapeTags(trim($v));
+				}
+				if ($k === 'contact/email') {
+					$args['email'] = Strings::escapeTags(trim($v));
+				}
+				if ($k === 'media/image/aspect11') {
+					$photosq = bin2hex(trim($v));
+				}
+				if ($k === 'media/image/default') {
+					$photo = bin2hex(trim($v));
+				}
+			}
+		}
+
+		if (!empty($nick)) {
+			$args['nickname'] = $nick;
+		} elseif (!empty($first)) {
+			$args['nickname'] = $first;
+		}
+
+		if (!empty($photosq)) {
+			$args['photo'] = $photosq;
+		} elseif (!empty($photo)) {
+			$args['photo'] = $photo;
+		}
+
+		$args['openid_url'] = Strings::escapeTags(trim(Session::get('openid_identity')));
+
+		return 'register?' . http_build_query($args);
 	}
 }

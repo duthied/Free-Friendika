@@ -622,6 +622,7 @@ class User
 			}
 		}
 
+		/// @todo Check if this part is really needed. We should have fetched all this data in advance
 		if (empty($username) || empty($email) || empty($nickname)) {
 			if ($openid_url) {
 				if (!Network::isUrlValid($openid_url)) {
