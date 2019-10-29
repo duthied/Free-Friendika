@@ -12,6 +12,9 @@ steps:
     MYSQL_DATABASE: friendica
     MYSQL_HOST: mysql
 
+node:
+  test: db
+
 services:
 - name: mysql
   image: mysql:8.0
@@ -52,6 +55,9 @@ steps:
     MYSQL_DATABASE: friendica
     MYSQL_HOST: mysql
 
+node:
+  test: db
+
 services:
 - name: mysql
   image: mysql:8.0
@@ -91,6 +97,9 @@ steps:
       MYSQL_PASSWORD: friendica
       MYSQL_DATABASE: friendica
       MYSQL_HOST: mysql
+
+node:
+  test: db
 
 services:
 - name: mysql
@@ -137,6 +146,9 @@ steps:
       MYSQL_DATABASE: friendica
       MYSQL_HOST: mariadb
 
+node:
+  test: db
+
 services:
 - name: mariadb
   image: mariadb:10.1
@@ -176,6 +188,9 @@ steps:
       MYSQL_DATABASE: friendica
       MYSQL_HOST: mariadb
 
+node:
+  test: db
+
 services:
 - name: mariadb
   image: mariadb:10.1
@@ -214,6 +229,9 @@ steps:
       MYSQL_PASSWORD: friendica
       MYSQL_DATABASE: friendica
       MYSQL_HOST: mariadb
+
+node:
+  test: db
 
 services:
 - name: mariadb
