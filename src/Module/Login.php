@@ -389,7 +389,7 @@ class Login extends BaseModule
 		}
 
 		$args = [];
-		$attr = Session::get('openid_attributes') ?? [];
+		$attr = Session::get('openid_attributes', []);
 
 		if (is_array($attr) && count($attr)) {
 			foreach ($attr as $k => $v) {
