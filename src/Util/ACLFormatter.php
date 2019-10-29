@@ -36,7 +36,7 @@ final class ACLFormatter
 		} elseif (in_array($item, [Group::FOLLOWERS, Group::MUTUALS])) {
 			$item = '<' . $item . '>';
 		} else {
-			$item = '';
+			unset($item);
 		}
 	}
 
