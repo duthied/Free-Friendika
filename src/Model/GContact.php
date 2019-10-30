@@ -841,7 +841,7 @@ class GContact
 
 		if ($curlResult->isSuccess() && !empty($curlResult->getBody())) {
 			$noscrape = json_decode($curlResult->getBody(), true);
-			if (!empty($noscrape)) {
+			if (!empty($noscrape) && !empty($noscrape['updated'])) {
 				$noscrape['updated'] = DateTimeFormat::utc($noscrape['updated'], DateTimeFormat::MYSQL);
 				$fields = ['last_contact' => DateTimeFormat::utcNow(), 'updated' => $noscrape['updated']];
 				DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
@@ -1130,8 +1130,8 @@ class GContact
 				'birthday' => $userdata['dob'], 'photo' => $userdata['photo'],
 				"notify" => $userdata['notify'], 'url' => $userdata['url'],
 				"hide" => ($userdata['hidewall'] || !$userdata['net-publish']),
-				'nick' => $userdata['nickname'], 'addr' => $addr,
-				"connect" => $addr, "server_url" => System::baseUrl(),
+				'nick' => $userdata['nickname'], 'addr' => $userdata['addr'],
+				"connect" => $userdata['addr'], "server_url" => System::baseUrl(),
 				"generation" => 1, 'network' => Protocol::DFRN];
 
 		self::update($gcontact);
