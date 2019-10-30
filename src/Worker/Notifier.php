@@ -152,6 +152,9 @@ class Notifier
 			$fields = ['network', 'author-id', 'author-link', 'owner-id'];
 			$condition = ['uri' => $target_item["thr-parent"], 'uid' => $target_item["uid"]];
 			$thr_parent = Item::selectFirst($fields, $condition);
+			if (empty($thr_parent)) {
+				$thr_parent = $parent;
+			}
 
 			Logger::log('GUID: ' . $target_item["guid"] . ': Parent is ' . $parent['network'] . '. Thread parent is ' . $thr_parent['network'], Logger::DEBUG);
 

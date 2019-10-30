@@ -190,7 +190,8 @@ class User
 			`user`.`page-flags`,
 			`user`.`account-type`,
 			`user`.`prvnets`,
-			`user`.`account_removed`
+			`user`.`account_removed`,
+			`user`.`hidewall`
 			FROM `contact`
 			INNER JOIN `user`
 				ON `user`.`uid` = `contact`.`uid`
