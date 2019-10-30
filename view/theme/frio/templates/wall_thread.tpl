@@ -159,14 +159,14 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="dropdown pull-left"><!-- Dropdown -->
 			{{if $item.thread_level==1}}
 			<div class="hidden-sm hidden-xs contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card">
-				<a class="userinfo  u-url" id="wall-item-photo-menu-{{$item.id}}" href="{{$item.profile_url}}">
+				<a class="userinfo click-card u-url" id="wall-item-photo-menu-{{$item.id}}" href="{{$item.profile_url}}">
 					<div class="contact-photo-image-wrapper">
 						<img src="{{$item.thumb}}" class="contact-photo media-object {{$item.sparkle}} p-name u-photo" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 					</div>
 				</a>
 			</div>
 			<div class="hidden-lg hidden-md contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-				<a class="userinfo u-url" id="wall-item-photo-menu-xs-{{$item.id}}" href="{{$item.profile_url}}">
+				<a class="userinfo click-card u-url" id="wall-item-photo-menu-xs-{{$item.id}}" href="{{$item.profile_url}}">
 					<div class="contact-photo-image-wrapper">
 						<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}}" id="wall-item-photo-xs-{{$item.id}}" alt="{{$item.name}}" />
 					</div>
@@ -187,7 +187,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{* The avatar picture for comments *}}
 			{{if $item.thread_level!=1}}
 			<div class="contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}} p-author h-card">
-				<a class="userinfo u-url" id="wall-item-photo-menu-{{$item.id}}" href="{{$item.profile_url}}">
+				<a class="userinfo click-card u-url" id="wall-item-photo-menu-{{$item.id}}" href="{{$item.profile_url}}">
 					<div class="contact-photo-image-wrapper">
 						<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}} p-name u-photo" id="wall-item-photo-comment-{{$item.id}}" alt="{{$item.name}}" />
 					</div>
@@ -201,9 +201,21 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header*}}
 		{{if $item.thread_level==1}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-			<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span></a>
-			{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
-			{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small></span>{{/if}}
+			<h4 class="media-heading">
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
+					<span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span>
+				</a>
+			{{if $item.owner_url}}
+				{{$item.via}}
+				<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo hover-card">
+					<span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span>
+				</a>
+			{{/if}}
+			{{if $item.lock}}
+				<span class="navicon lock fakelink" onClick="lockview(event,{{$item.id}});" title="{{$item.lock}}" data-toggle="tooltip">
+					&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
+				</span>
+			{{/if}}
 			</h4>
 
 			<div class="additional-info text-muted">
@@ -232,7 +244,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		{{* contact info header for smartphones *}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-xs hidden-lg hidden-md"><!-- <= For smartphone (responsive) -->
 			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span>{{$item.name}}</span></a>
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
 				<p class="text-muted">
 					<small>
 						<a class="time" href="{{$item.plink.orig}}"><span class="wall-item-ago">{{$item.ago}}</span></a>
@@ -251,7 +263,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		<div class="media-body">{{*this is the media body for comments - this div must be closed at the end of the file *}}
 		<div role="heading " aria-level="{{$item.thread_level}}" class="contact-info-comment">
 			<h5 class="media-heading">
-				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="fakelink">{{$item.name}}</span></a>
+				<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span class="fakelink">{{$item.name}}</span></a>
 				<span class="text-muted">
 					<small>
 						<a class="time" href="{{$item.plink.orig}}" title="{{$item.localtime}}" data-toggle="tooltip">{{$item.ago}}</a>

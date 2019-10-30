@@ -1800,6 +1800,28 @@ aside .panel-body {
     font-size: 14px;
 }
 
+/* Contact avatar click card */
+.userinfo.click-card {
+	position: relative;
+}
+
+.userinfo.click-card > *:hover:after {
+	content: '⌄';
+	color: #bebebe;
+	font-size: 1em;
+	font-weight: bold;
+	background-color: #ffffff;
+	text-align: center;
+	line-height: 40%;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 33%;
+	height: 33%;
+	opacity: .8;
+	border-radius: 0 0 40% 0;
+}
+
 /* The lock symbol popup */
 #panel {
     position: absolute;

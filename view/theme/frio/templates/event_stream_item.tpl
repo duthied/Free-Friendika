@@ -27,7 +27,7 @@
 						{{/if}}
 					</div>
 					<div class="event-card-profile-name profile-entry-name">
-						<a href="{{$author_link}}" class="userinfo">{{$author_name}}</a>
+						<a href="{{$author_link}}" class="userinfo hover-card">{{$author_name}}</a>
 					</div>
 					{{if $location.map}}
 					<div id="event-location-map-{{$id}}" class="event-location-map">{{$location.map nofilter}}</div>

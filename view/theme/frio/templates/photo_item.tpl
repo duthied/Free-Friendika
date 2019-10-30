@@ -21,7 +21,7 @@
 
 	{{* avatar picture *}}
 	<div class="contact-photo-wrapper mframe p-author h-card pull-left">
-		<a class="userinfo u-url" id="wall-item-photo-menu-{{$id}}" href="{{$profile_url}}">
+		<a class="userinfo click-card u-url" id="wall-item-photo-menu-{{$id}}" href="{{$profile_url}}">
 			<div class="contact-photo-image-wrapper">
 				<img src="{{$thumb}}" class="contact-photo-xs media-object p-name u-photo" id="wall-item-photo-{{$id}}" alt="{{$name}}" />
 			</div>
@@ -33,7 +33,7 @@
 		{{* the header with the comment author name *}}
 		<div role="heading " class="contact-info-comment">
 			<h5 class="media-heading">
-				<a href="{{$profile_url}}" title="View {{$name}}'s profile" class="wall-item-name-link userinfo"><span class="btn-link">{{$name}}</span></a>
+				<a href="{{$profile_url}}" title="View {{$name}}'s profile" class="wall-item-name-link userinfo hover-card"><span class="btn-link">{{$name}}</span></a>
 			</h5>
 		</div>
 

@@ -74,14 +74,14 @@
 			{{* The avatar picture and the photo-menu *}}
 			<div class="dropdown pull-left"><!-- Dropdown -->
 				<div class="hidden-sm hidden-xs contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-					<a href="{{$item.profile_url}}" class="userinfo u-url" id="wall-item-photo-menu-{{$item.id}}">
+					<a href="{{$item.profile_url}}" class="userinfo click-card u-url" id="wall-item-photo-menu-{{$item.id}}">
 						<div class="contact-photo-image-wrapper">
 							<img src="{{$item.thumb}}" class="contact-photo media-object {{$item.sparkle}}" id="wall-item-photo-{{$item.id}}" alt="{{$item.name}}" />
 						</div>
 					</a>
 				</div>
 				<div class="hidden-lg hidden-md contact-photo-wrapper mframe{{if $item.owner_url}} wwfrom{{/if}}">
-					<a href="{{$item.profile_url}}" class="userinfo u-url" id="wall-item-photo-menu-xs-{{$item.id}}">
+					<a href="{{$item.profile_url}}" class="userinfo click-card u-url" id="wall-item-photo-menu-xs-{{$item.id}}">
 						<div class="contact-photo-image-wrapper">
 							<img src="{{$item.thumb}}" class="contact-photo-xs media-object {{$item.sparkle}}" id="wall-item-photo-xs-{{$item.id}}" alt="{{$item.name}}" />
 						</div>
@@ -91,10 +91,22 @@
 
 
 			{{* contact info header*}}
-			<div role="heading " class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
-				<h4 class="media-heading"><a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span></a>
-					{{if $item.owner_url}}{{$item.via}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo"><span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a>{{/if}}
-					{{if $item.lock}}<span class="navicon lock fakelink" onClick="lockview(event, {{$item.id}});" title="{{$item.lock}}">&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small></span>{{/if}}
+			<div role="heading" class="contact-info hidden-sm hidden-xs media-body"><!-- <= For computer -->
+				<h4 class="media-heading">
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card">
+						<span class="wall-item-name {{$item.sparkle}}">{{$item.name}}</span>
+					</a>
+				{{if $item.owner_url}}
+					{{$item.via}}
+					<a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link userinfo hover-card">
+						<span class="wall-item-name {{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span>
+					</a>
+				{{/if}}
+				{{if $item.lock}}
+					<span class="navicon lock fakelink" onClick="lockview(event, {{$item.id}});" title="{{$item.lock}}">
+						&nbsp;<small><i class="fa fa-lock" aria-hidden="true"></i></small>
+					</span>
+				{{/if}}
 
 					<div class="additional-info text-muted">
 						<div id="wall-item-ago-{{$item.id}}" class="wall-item-ago">
@@ -114,7 +126,7 @@
 			{{* contact info header for smartphones *}}
 			<div role="heading " class="contact-info-xs hidden-lg hidden-md">
 				<h5 class="media-heading">
-					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo"><span>{{$item.name}}</span></a>
+					<a href="{{$item.profile_url}}" title="{{$item.linktitle}}" class="wall-item-name-link userinfo hover-card"><span>{{$item.name}}</span></a>
 					<p class="text-muted"><small>
 						<span class="wall-item-ago">{{$item.ago}}</span> {{if $item.location}}&nbsp;&mdash;&nbsp;({{$item.location nofilter}}){{/if}}</small>
 					</p>
