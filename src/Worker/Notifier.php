@@ -503,7 +503,7 @@ class Notifier
 			}
 
 			if (self::skipDFRN($contact, $target_item, $parent, $thr_parent, $cmd)) {
-				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => contact['url']]);
+				Logger::info('Contact can be delivered via AP, so skip delivery via legacy DFRN/Diaspora', ['target' => $target_id, 'url' => $contact['url']]);
 				continue;
 			}
 
