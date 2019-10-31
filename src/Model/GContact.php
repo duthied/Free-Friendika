@@ -809,14 +809,11 @@ class GContact
 			return;
 		}
 
-		// When the profile doesn't have got a feed, then we exit here
-		if (empty($data['poll'])) {
-			return;
-		}
-
-		if ($data['network'] == Protocol::ACTIVITYPUB) {
+		if (!empty($data['outbox'])) {
+			self::updateFromOutbox($data['outbox'], $data);
+		} elseif (!empty($data['poll']) && ($data['network'] == Protocol::ACTIVITYPUB)) {
 			self::updateFromOutbox($data['poll'], $data);
-		} else {
+		} elseif (!empty($data['poll'])) {
 			self::updateFromFeed($data);
 		}
 	}
@@ -885,10 +882,17 @@ class GContact
 		}
 
 		$last_updated = '';
-
 		foreach ($items as $activity) {
-			if ($last_updated < $activity['published']) {
-				$last_updated = $activity['published'];
+			if (!empty($activity['published'])) {
+				$published =  DateTimeFormat::utc($activity['published']);
+			} elseif (!empty($activity['object']['published'])) {
+				$published =  DateTimeFormat::utc($activity['object']['published']);
+			} else {
+				continue;
+			}
+
+			if ($last_updated < $published) {
+				$last_updated = $published;
 			}
 		}
 
