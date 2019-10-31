@@ -404,6 +404,7 @@ class Notifier
 					"SELECT
 						`batch`,
 						ANY_VALUE(`id`) AS `id`,
+						ANY_VALUE(`url`) AS `url`,
 						ANY_VALUE(`name`) AS `name`,
 						ANY_VALUE(`network`) AS `network`,
 						ANY_VALUE(`protocol`) AS `protocol`

@@ -176,7 +176,7 @@ class Diaspora
 	 * @return array with the contact
 	 * @throws \Exception
 	 */
-	private static function getRelayContact(string $server_url, array $fields = ['batch', 'id', 'name', 'network', 'protocol', 'archive', 'blocked'])
+	private static function getRelayContact(string $server_url, array $fields = ['batch', 'id', 'url', 'name', 'network', 'protocol', 'archive', 'blocked'])
 	{
 		// Fetch the relay contact
 		$condition = ['uid' => 0, 'nurl' => Strings::normaliseLink($server_url),
@@ -250,7 +250,7 @@ class Diaspora
 	 */
 	public static function participantsForThread($thread, array $contacts)
 	{
-		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`name`, `contact`.`network`, `contact`.`protocol`,
+		$r = DBA::p("SELECT `contact`.`batch`, `contact`.`id`, `contact`.`url`, `contact`.`name`, `contact`.`network`, `contact`.`protocol`,
 				`fcontact`.`batch` AS `fbatch`, `fcontact`.`network` AS `fnetwork` FROM `participation`
 				INNER JOIN `contact` ON `contact`.`id` = `participation`.`cid`
 				INNER JOIN `fcontact` ON `fcontact`.`id` = `participation`.`fid`
