@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Register;
 use Friendica\Module\BaseAdminModule;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\FileSystem;
@@ -85,20 +86,27 @@ class Summary extends BaseAdminModule
 			try {
 				$stream = $fileSystem->createStream($file);
 
-				if (is_file($stream) &&
-				    !is_writeable($stream)) {
-					$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+				if (!isset($stream)) {
+					throw new InternalServerErrorException('Stream is null.');
 				}
 
 			} catch (\Throwable $exception) {
 				$warningtext[] = L10n::t('The logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
 
-			$stream = Config::get('system', 'dlogfile');
+			$file = Config::get('system', 'dlogfile');
 
-			if (is_file($stream) &&
-			    !is_writeable($stream)) {
-				$warningtext[] = L10n::t('The logfile \'%s\' is not writable. No logging possible', $stream);
+			try {
+				if (!empty($file)) {
+					$stream = $fileSystem->createStream($file);
+
+					if (!isset($stream)) {
+						throw new InternalServerErrorException('Stream is null.');
+					}
+				}
+
+			} catch (\Throwable $exception) {
+				$warningtext[] = L10n::t('The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
 		}
 
