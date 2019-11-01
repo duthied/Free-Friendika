@@ -279,10 +279,10 @@ class Notifier
 				/** @var ACLFormatter $aclFormatter */
 				$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-				$allow_people = $aclFormatter->expand($parent['allow_cid'] ?? '');
-				$allow_groups = Group::expand($uid, $aclFormatter->expand($parent['allow_gid'] ?? ''),true);
-				$deny_people  = $aclFormatter->expand($parent['deny_cid'] ?? '');
-				$deny_groups  = Group::expand($uid, $aclFormatter->expand($parent['deny_gid'] ?? ''));
+				$allow_people = $aclFormatter->expand($parent['allow_cid']);
+				$allow_groups = Group::expand($uid, $aclFormatter->expand($parent['allow_gid']),true);
+				$deny_people  = $aclFormatter->expand($parent['deny_cid']);
+				$deny_groups  = Group::expand($uid, $aclFormatter->expand($parent['deny_gid']));
 
 				// if our parent is a public forum (forum_mode == 1), uplink to the origional author causing
 				// a delivery fork. private groups (forum_mode == 2) do not uplink

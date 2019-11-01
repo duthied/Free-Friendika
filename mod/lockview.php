@@ -64,10 +64,10 @@ function lockview_content(App $a)
 	/** @var ACLFormatter $aclFormatter */
 	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
 
-	$allowed_users = $aclFormatter->expand($item['allow_cid'] ?? '');
-	$allowed_groups = $aclFormatter->expand($item['allow_gid'] ?? '');
-	$deny_users = $aclFormatter->expand($item['deny_cid'] ?? '');
-	$deny_groups = $aclFormatter->expand($item['deny_gid'] ?? '');
+	$allowed_users = $aclFormatter->expand($item['allow_cid']);
+	$allowed_groups = $aclFormatter->expand($item['allow_gid']);
+	$deny_users = $aclFormatter->expand($item['deny_cid']);
+	$deny_groups = $aclFormatter->expand($item['deny_gid']);
 
 	$o = L10n::t('Visible to:') . '<br />';
 	$l = [];
