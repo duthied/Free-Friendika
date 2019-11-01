@@ -274,6 +274,8 @@ class Widget
 		foreach (FileTag::fileToArray($saved) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
+		
+		asort($terms);
 
 		return self::filter(
 			'file',
