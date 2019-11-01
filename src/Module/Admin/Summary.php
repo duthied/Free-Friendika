@@ -106,7 +106,7 @@ class Summary extends BaseAdminModule
 				}
 
 			} catch (\Throwable $exception) {
-				$warningtext[] = L10n::t('The developer logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
+				$warningtext[] = L10n::t('The debug logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
 		}
 
