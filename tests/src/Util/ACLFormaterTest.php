@@ -87,10 +87,8 @@ class ACLFormaterTest extends TestCase
 				'input' => '<Another<> invalid <string>', //should be invalid
 				'assert' => [],
 			],
-			/// @todo should there be an exception? Or array(1, 3)
-			//  (This should be array(1,3) - mike)
 			'emptyMatch' => [
-				'input' => '<1><><3>', //should be invalid
+				'input' => '<1><><3>',
 				'assert' => ['1', '3'],
 			],
 		];
