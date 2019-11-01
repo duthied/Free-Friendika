@@ -164,15 +164,14 @@ class ACLFormaterTest extends TestCase
 	}
 
 	/**
-	 * Test expected exception in case of wrong typehint
-	 *
-	 * @expectedException Error
+	 * Test nullable expand (=> no ACL set)
 	 */
 	public function testExpandNull()
 	{
 		$aclFormatter = new ACLFormatter();
 
-		$aclFormatter->expand(null);
+		$this->assertNull($aclFormatter->expand(null));
+		$this->assertNull($aclFormatter->expand());
 	}
 
 	public function dataAclToString()
@@ -197,6 +196,23 @@ class ACLFormaterTest extends TestCase
 			'invalidString' => [
 				'input'  => 'a,bsd23,4',
 				'assert' => '<4>',
+			],
+			/** @see https://github.com/friendica/friendica/pull/7787 */
+			'bug-7778-angle-brackets' => [
+				'input' => ["<40195>"],
+				'assert' => "<40195>",
+			],
+			Group::FOLLOWERS => [
+				'input' => [Group::FOLLOWERS, 1],
+				'assert' => '<' . Group::FOLLOWERS . '><1>',
+			],
+			Group::MUTUALS => [
+				'input' => [Group::MUTUALS, 1],
+				'assert' => '<' . Group::MUTUALS . '><1>',
+			],
+			'wrong-angle-brackets' => [
+				'input' => ["<asd>","<123>"],
+				'assert' => "<123>",
 			],
 		];
 	}
