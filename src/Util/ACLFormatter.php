@@ -14,13 +14,13 @@ final class ACLFormatter
 	 *
 	 * @param string|null $ids A angle-bracketed list of IDs
 	 *
-	 * @return array|null The array based on the IDs (null in case there is no list)
+	 * @return array The array based on the IDs (empty in case there is no list)
 	 */
 	public function expand(string $ids = null)
 	{
-		// In case there is no ID list, return null (=> no ACL set)
+		// In case there is no ID list, return empty array (=> no ACL set)
 		if (!isset($ids)) {
-			return null;
+			return [];
 		}
 
 		// turn string array of angle-bracketed elements into numeric array
