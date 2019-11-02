@@ -86,7 +86,7 @@ function network_init(App $a)
 
 		if ($remember_tab) {
 			// redirect if current selected tab is '/network' and
-			// last selected tab is _not_ '/network?order=comment'.
+			// last selected tab is _not_ '/network?order=activity'.
 			// and this isn't a date query
 
 			$tab_baseurls = [
@@ -98,12 +98,12 @@ function network_init(App $a)
 				'',     //bookmarked
 			];
 			$tab_args = [
-				'order=comment', //all
-				'order=post',    //postord
-				'conv=1',        //conv
-				'',                 //new
-				'star=1',        //starred
-				'bmark=1',       //bookmarked
+				'order=activity', //all
+				'order=post',     //postord
+				'conv=1',         //conv
+				'',               //new
+				'star=1',         //starred
+				'bmark=1',        //bookmarked
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -151,16 +151,16 @@ function network_init(App $a)
  * Return selected tab from query
  *
  * urls -> returns
- *        '/network'                    => $no_active = 'active'
- *        '/network?order=comment'    => $comment_active = 'active'
- *        '/network?order=post'    => $postord_active = 'active'
+ *        '/network'                => $no_active = 'active'
+ *        '/network?order=activity' => $activity_active = 'active'
+ *        '/network?order=post'     => $postord_active = 'active'
  *        '/network?conv=1',        => $conv_active = 'active'
- *        '/network/new',                => $new_active = 'active'
+ *        '/network/new',           => $new_active = 'active'
  *        '/network?star=1',        => $starred_active = 'active'
- *        '/network?bmark=1',        => $bookmarked_active = 'active'
+ *        '/network?bmark=1',       => $bookmarked_active = 'active'
  *
  * @param App $a
- * @return array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
+ * @return array ($no_active, $activity_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
  */
 function network_query_get_sel_tab(App $a)
 {
@@ -194,8 +194,8 @@ function network_query_get_sel_tab(App $a)
 
 	if ($no_active == 'active' && !empty($_GET['order'])) {
 		switch($_GET['order']) {
-			case 'post'    : $postord_active = 'active'; $no_active=''; break;
-			case 'comment' : $all_active     = 'active'; $no_active=''; break;
+			case 'post' :     $postord_active = 'active'; $no_active=''; break;
+			case 'activity' : $all_active     = 'active'; $no_active=''; break;
 		}
 	}
 
@@ -490,7 +490,7 @@ function networkThreadedView(App $a, $update, $parent)
 	$star  = intval($_GET['star']  ?? 0);
 	$bmark = intval($_GET['bmark'] ?? 0);
 	$conv  = intval($_GET['conv']  ?? 0);
-	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'comment');
+	$order = Strings::escapeTags(($_GET['order'] ?? '') ?: 'activity');
 	$nets  =        $_GET['nets']  ?? '';
 
 	$allowedCids = [];
@@ -913,9 +913,9 @@ function network_tabs(App $a)
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
+	list($no_active, $all_active, $post_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
 
-	// if no tabs are selected, defaults to comments
+	// if no tabs are selected, defaults to activitys
 	if ($no_active == 'active') {
 		$all_active = 'active';
 	}
@@ -925,19 +925,19 @@ function network_tabs(App $a)
 	// tabs
 	$tabs = [
 		[
-			'label'	=> L10n::t('Commented Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?order=comment' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
+			'label'	=> L10n::t('Latest Activity'),
+			'url'	=> str_replace('/new', '', $cmd) . '?order=activity' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $all_active,
-			'title'	=> L10n::t('Sort by Comment Date'),
-			'id'	=> 'commented-order-tab',
+			'title'	=> L10n::t('Sort by lastest activity on the posts'),
+			'id'	=> 'activity-order-tab',
 			'accesskey' => 'e',
 		],
 		[
-			'label'	=> L10n::t('Posted Order'),
+			'label'	=> L10n::t('Latest Posts'),
 			'url'	=> str_replace('/new', '', $cmd) . '?order=post' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $postord_active,
-			'title'	=> L10n::t('Sort by Post Date'),
-			'id'	=> 'posted-order-tab',
+			'sel'	=> $post_active,
+			'title'	=> L10n::t("Sort by the posts' receiving date"),
+			'id'	=> 'post-order-tab',
 			'accesskey' => 't',
 		],
 	];
@@ -985,7 +985,7 @@ function network_tabs(App $a)
 	// save selected tab, but only if not in file mode
 	if (empty($_GET['file'])) {
 		PConfig::set(local_user(), 'network.view', 'tab.selected', [
-			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active
+			$all_active, $post_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}
 
