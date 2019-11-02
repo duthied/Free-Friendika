@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Modules/Settings/Uexport.php
+ * @file src/Modules/Settings/UserExport.php
  */
 
 namespace Friendica\Module\Settings;
@@ -19,7 +19,7 @@ use Friendica\Module\BaseSettingsModule;
 /**
  * Module to export user data
  **/
-class Uexport extends BaseSettingsModule
+class UserExport extends BaseSettingsModule
 {
 	/**
 	 * Handle the request to export data.
