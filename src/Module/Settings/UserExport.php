@@ -88,23 +88,22 @@ class UserExport extends BaseSettingsModule
 		$table = $match[1];
 
 		$result = [];
-		$r = q($query);
-		if (DBA::isResult($r)) {
-			foreach ($r as $rr) {
-				$p = [];
-				foreach ($rr as $k => $v) {
-					switch ($dbStructure[$table]['fields'][$k]['type']) {
-						case 'datetime':
-							$p[$k] = $v ?? DBA::NULL_DATETIME;
-							break;
-						default:
-							$p[$k] = $v;
-							break;
-					}
+		$rows = DBA::p($query);
+		while ($row = DBA::fetch($rows)) {
+			$p = [];
+			foreach ($row as $k => $v) {
+				switch ($dbStructure[$table]['fields'][$k]['type']) {
+					case 'datetime':
+						$p[$k] = $v ?? DBA::NULL_DATETIME;
+						break;
+					default:
+						$p[$k] = $v;
+						break;
 				}
-				$result[] = $p;
 			}
+			$result[] = $p;
 		}
+		DBA::close($rows);
 		return $result;
 	}
 
