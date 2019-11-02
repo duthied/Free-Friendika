@@ -983,41 +983,43 @@ class Contact extends BaseObject
 
 		$ssl_url = str_replace('http://', 'https://', $url);
 
+		$nurl = Strings::normaliseLink($url);
+
 		// Fetch contact data from the contact table for the given user
 		$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
-		FROM `contact` WHERE `nurl` = ? AND `uid` = ?", Strings::normaliseLink($url), $uid);
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
+		FROM `contact` WHERE `nurl` = ? AND `uid` = ?", $nurl, $uid);
 		$r = DBA::toArray($s);
 
 		// Fetch contact data from the contact table for the given user, checking with the alias
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
-			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?", Strings::normaliseLink($url), $url, $ssl_url, $uid);
+				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
+			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = ?", $nurl, $url, $ssl_url, $uid);
 			$r = DBA::toArray($s);
 		}
 
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
-			FROM `contact` WHERE `nurl` = ? AND `uid` = 0", Strings::normaliseLink($url));
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
+			FROM `contact` WHERE `nurl` = ? AND `uid` = 0", $nurl);
 			$r = DBA::toArray($s);
 		}
 
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically) - checked with the alias
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
-			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0", Strings::normaliseLink($url), $url, $ssl_url);
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
+			FROM `contact` WHERE `alias` IN (?, ?, ?) AND `uid` = 0", $nurl, $url, $ssl_url);
 			$r = DBA::toArray($s);
 		}
 
 		// Fetch the data from the gcontact table
 		if (!DBA::isResult($r)) {
 			$s = DBA::p("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
-			FROM `gcontact` WHERE `nurl` = ?", Strings::normaliseLink($url));
+			`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, 0 AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
+			FROM `gcontact` WHERE `nurl` = ?", $nurl);
 			$r = DBA::toArray($s);
 		}
 
@@ -1121,7 +1123,7 @@ class Contact extends BaseObject
 
 		// Fetch contact data from the contact table for the given user
 		$r = q("SELECT `id`, `id` AS `cid`, 0 AS `gid`, 0 AS `zid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`
+			`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, `self`, `rel`, `pending`
 			FROM `contact` WHERE `addr` = '%s' AND `uid` = %d AND NOT `deleted`",
 			DBA::escape($addr),
 			intval($uid)
@@ -1129,7 +1131,7 @@ class Contact extends BaseObject
 		// Fetch the data from the contact table with "uid=0" (which is filled automatically)
 		if (!DBA::isResult($r)) {
 			$r = q("SELECT `id`, 0 AS `cid`, `id` AS `zid`, 0 AS `gid`, `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, `xmpp`,
-				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`
+				`keywords`, `gender`, `photo`, `thumb`, `micro`, `forum`, `prv`, (`forum` | `prv`) AS `community`, `contact-type`, `bd` AS `birthday`, 0 AS `self`, `rel`, `pending`
 				FROM `contact` WHERE `addr` = '%s' AND `uid` = 0 AND NOT `deleted`",
 				DBA::escape($addr)
 			);
@@ -1138,7 +1140,7 @@ class Contact extends BaseObject
 		// Fetch the data from the gcontact table
 		if (!DBA::isResult($r)) {
 			$r = q("SELECT 0 AS `id`, 0 AS `cid`, `id` AS `gid`, 0 AS `zid`, 0 AS `uid`, `url`, `nurl`, `alias`, `network`, `name`, `nick`, `addr`, `location`, `about`, '' AS `xmpp`,
-				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`
+				`keywords`, `gender`, `photo`, `photo` AS `thumb`, `photo` AS `micro`, `community` AS `forum`, 0 AS `prv`, `community`, `contact-type`, `birthday`, 0 AS `self`, 2 AS `rel`, 0 AS `pending`
 				FROM `gcontact` WHERE `addr` = '%s'",
 				DBA::escape($addr)
 			);
@@ -1225,28 +1227,40 @@ class Contact extends BaseObject
 			$contact_drop_link = System::baseUrl() . '/contact/' . $contact['id'] . '/drop?confirm=1';
 		}
 
+		$follow_link = '';
+		$unfollow_link = '';
+		if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
+				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']);
+			} elseif(!$contact['pending']) {
+				$follow_link = 'follow?url=' . urlencode($contact['url']);
+			}
+		}
+
 		/**
 		 * Menu array:
 		 * "name" => [ "Label", "link", (bool)Should the link opened in a new tab? ]
 		 */
 		if (empty($contact['uid'])) {
-			$connlnk = 'follow/?url=' . $contact['url'];
 			$menu = [
-				'profile' => [L10n::t('View Profile'),   $profile_link, true],
-				'network' => [L10n::t('Network Posts'),  $posts_link,   false],
-				'edit'    => [L10n::t('View Contact'),   $contact_url,  false],
-				'follow'  => [L10n::t('Connect/Follow'), $connlnk,      true],
+				'profile' => [L10n::t('View Profile')  , $profile_link , true],
+				'network' => [L10n::t('Network Posts') , $posts_link   , false],
+				'edit'    => [L10n::t('View Contact')  , $contact_url  , false],
+				'follow'  => [L10n::t('Connect/Follow'), $follow_link  , true],
+				'unfollow'=> [L10n::t('UnFollow')      , $unfollow_link, true],
 			];
 		} else {
 			$menu = [
-				'status'  => [L10n::t('View Status'),   $status_link,       true],
-				'profile' => [L10n::t('View Profile'),  $profile_link,      true],
-				'photos'  => [L10n::t('View Photos'),   $photos_link,       true],
-				'network' => [L10n::t('Network Posts'), $posts_link,        false],
-				'edit'    => [L10n::t('View Contact'),  $contact_url,       false],
-				'drop'    => [L10n::t('Drop Contact'),  $contact_drop_link, false],
-				'pm'      => [L10n::t('Send PM'),       $pm_url,            false],
-				'poke'    => [L10n::t('Poke'),          $poke_link,         false],
+				'status'  => [L10n::t('View Status')   , $status_link      , true],
+				'profile' => [L10n::t('View Profile')  , $profile_link     , true],
+				'photos'  => [L10n::t('View Photos')   , $photos_link      , true],
+				'network' => [L10n::t('Network Posts') , $posts_link       , false],
+				'edit'    => [L10n::t('View Contact')  , $contact_url      , false],
+				'drop'    => [L10n::t('Drop Contact')  , $contact_drop_link, false],
+				'pm'      => [L10n::t('Send PM')       , $pm_url           , false],
+				'poke'    => [L10n::t('Poke')          , $poke_link        , false],
+				'follow'  => [L10n::t('Connect/Follow'), $follow_link      , true],
+				'unfollow'=> [L10n::t('UnFollow')      , $unfollow_link    , true],
 			];
 
 			if (!empty($contact['pending'])) {
