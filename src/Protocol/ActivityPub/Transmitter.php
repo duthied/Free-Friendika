@@ -15,7 +15,6 @@ use Friendica\Core\System;
 use Friendica\Protocol\Activity;
 use Friendica\Util\HTTPSignature;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
