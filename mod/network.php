@@ -91,7 +91,7 @@ function network_init(App $a)
 
 			$tab_baseurls = [
 				'',     //all
-				'',     //postord
+				'',     //arrivalord
 				'',     //conv
 				'/new', //new
 				'',     //starred
@@ -99,9 +99,9 @@ function network_init(App $a)
 			];
 			$tab_args = [
 				'order=comment', //all
-				'order=post',    //postord
+				'order=arrival', //arrivalord
 				'conv=1',        //conv
-				'',                 //new
+				'',              //new
 				'star=1',        //starred
 				'bmark=1',       //bookmarked
 			];
@@ -153,14 +153,14 @@ function network_init(App $a)
  * urls -> returns
  *        '/network'                    => $no_active = 'active'
  *        '/network?order=comment'    => $comment_active = 'active'
- *        '/network?order=post'    => $postord_active = 'active'
+ *        '/network?order=arrival'    => $arrivalord_active = 'active'
  *        '/network?conv=1',        => $conv_active = 'active'
  *        '/network/new',                => $new_active = 'active'
  *        '/network?star=1',        => $starred_active = 'active'
  *        '/network?bmark=1',        => $bookmarked_active = 'active'
  *
  * @param App $a
- * @return array ($no_active, $comment_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
+ * @return array ($no_active, $comment_active, $arrivalord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
  */
 function network_query_get_sel_tab(App $a)
 {
@@ -170,7 +170,7 @@ function network_query_get_sel_tab(App $a)
 	$bookmarked_active = '';
 	$all_active = '';
 	$conv_active = '';
-	$postord_active = '';
+	$arrivalord_active = '';
 
 	if (($a->argc > 1 && $a->argv[1] === 'new') || ($a->argc > 2 && $a->argv[2] === 'new')) {
 		$new_active = 'active';
@@ -194,12 +194,12 @@ function network_query_get_sel_tab(App $a)
 
 	if ($no_active == 'active' && !empty($_GET['order'])) {
 		switch($_GET['order']) {
-			case 'post'    : $postord_active = 'active'; $no_active=''; break;
+			case 'arrival' : $arrivalord_active = 'active'; $no_active=''; break;
 			case 'comment' : $all_active     = 'active'; $no_active=''; break;
 		}
 	}
 
-	return [$no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active];
+	return [$no_active, $all_active, $arrivalord_active, $conv_active, $new_active, $starred_active, $bookmarked_active];
 }
 
 function network_query_get_sel_group(App $a)
@@ -475,7 +475,7 @@ function networkThreadedView(App $a, $update, $parent)
 					$datequery2 = Strings::escapeHtml($a->argv[$x]);
 				} else {
 					$datequery = Strings::escapeHtml($a->argv[$x]);
-					$_GET['order'] = 'post';
+					$_GET['order'] = 'arrival';
 				}
 			} elseif (intval($a->argv[$x])) {
 				$gid = intval($a->argv[$x]);
@@ -671,14 +671,14 @@ function networkThreadedView(App $a, $update, $parent)
 	}
 
 	// Normal conversation view
-	if ($order === 'post') {
+	if ($order === 'arrival') {
 		$ordering = '`received`';
 		$order_mode = 'received';
 	} else {
 		$ordering = '`commented`';
 		$order_mode = 'commented';
 	}
-
+Logger::info('Arrival order', ['ordering' => $ordering]);
 	$sql_order = "$sql_table.$ordering";
 
 	if (!empty($_GET['offset'])) {
@@ -738,7 +738,7 @@ function networkThreadedView(App $a, $update, $parent)
 			if (Config::get("system", "like_no_comment")) {
 				$sql_extra4 .= " AND `item`.`gravity` IN (" . GRAVITY_PARENT . "," . GRAVITY_COMMENT . ")";
 			}
-			if ($order === 'post') {
+			if ($order === 'arrival') {
 				// Only show toplevel posts when updating posts in this order mode
 				$sql_extra4 .= " AND `item`.`id` = `item`.`parent`";
 			}
@@ -913,7 +913,7 @@ function network_tabs(App $a)
 	// item filter tabs
 	/// @TODO fix this logic, reduce duplication
 	/// $a->page['content'] .= '<div class="tabs-wrapper">';
-	list($no_active, $all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
+	list($no_active, $all_active, $arrival_active, $conv_active, $new_active, $starred_active, $bookmarked_active) = network_query_get_sel_tab($a);
 
 	// if no tabs are selected, defaults to comments
 	if ($no_active == 'active') {
@@ -933,11 +933,11 @@ function network_tabs(App $a)
 			'accesskey' => 'e',
 		],
 		[
-			'label'	=> L10n::t('Posted Order'),
-			'url'	=> str_replace('/new', '', $cmd) . '?order=post' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
-			'sel'	=> $postord_active,
-			'title'	=> L10n::t('Sort by Post Date'),
-			'id'	=> 'posted-order-tab',
+			'label'	=> L10n::t('Arrival Order'),
+			'url'	=> str_replace('/new', '', $cmd) . '?order=arrival' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
+			'sel'	=> $arrival_active,
+			'title'	=> L10n::t('Sort by arrival date'),
+			'id'	=> 'arrival-order-tab',
 			'accesskey' => 't',
 		],
 	];
@@ -985,7 +985,7 @@ function network_tabs(App $a)
 	// save selected tab, but only if not in file mode
 	if (empty($_GET['file'])) {
 		PConfig::set(local_user(), 'network.view', 'tab.selected', [
-			$all_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active
+			$all_active, $arrival_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}
 
