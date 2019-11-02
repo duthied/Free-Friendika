@@ -678,7 +678,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$ordering = '`commented`';
 		$order_mode = 'commented';
 	}
-Logger::info('Arrival order', ['ordering' => $ordering]);
+
 	$sql_order = "$sql_table.$ordering";
 
 	if (!empty($_GET['offset'])) {
