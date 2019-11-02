@@ -99,11 +99,11 @@ function network_init(App $a)
 			];
 			$tab_args = [
 				'order=activity', //all
-				'order=post', //postord
-				'conv=1',        //conv
-				'',              //new
-				'star=1',        //starred
-				'bmark=1',       //bookmarked
+				'order=post',     //postord
+				'conv=1',         //conv
+				'',               //new
+				'star=1',         //starred
+				'bmark=1',        //bookmarked
 			];
 
 			$k = array_search('active', $last_sel_tabs);
@@ -151,13 +151,13 @@ function network_init(App $a)
  * Return selected tab from query
  *
  * urls -> returns
- *        '/network'                    => $no_active = 'active'
- *        '/network?order=activity'    => $activity_active = 'active'
- *        '/network?order=post'    => $postord_active = 'active'
+ *        '/network'                => $no_active = 'active'
+ *        '/network?order=activity' => $activity_active = 'active'
+ *        '/network?order=post'     => $postord_active = 'active'
  *        '/network?conv=1',        => $conv_active = 'active'
- *        '/network/new',                => $new_active = 'active'
+ *        '/network/new',           => $new_active = 'active'
  *        '/network?star=1',        => $starred_active = 'active'
- *        '/network?bmark=1',        => $bookmarked_active = 'active'
+ *        '/network?bmark=1',       => $bookmarked_active = 'active'
  *
  * @param App $a
  * @return array ($no_active, $activity_active, $postord_active, $conv_active, $new_active, $starred_active, $bookmarked_active);
@@ -194,7 +194,7 @@ function network_query_get_sel_tab(App $a)
 
 	if ($no_active == 'active' && !empty($_GET['order'])) {
 		switch($_GET['order']) {
-			case 'post' : $postord_active = 'active'; $no_active=''; break;
+			case 'post' :     $postord_active = 'active'; $no_active=''; break;
 			case 'activity' : $all_active     = 'active'; $no_active=''; break;
 		}
 	}
