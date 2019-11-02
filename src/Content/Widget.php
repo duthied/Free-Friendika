@@ -274,6 +274,10 @@ class Widget
 		foreach (FileTag::fileToArray($saved) as $savedFolderName) {
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
+		
+		usort($terms, function ($a, $b) {
+			return strcmp($a['name'], $b['name']);
+		});
 
 		return self::filter(
 			'file',
