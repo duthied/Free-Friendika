@@ -35,8 +35,6 @@ class Uexport extends BaseSettingsModule
 	{
 		parent::content();
 
-		self::rawContent();
-
 		/**
 		 * options shown on "Export personal data" page
 		 * list of array( 'link url', 'link text', 'help text' )
@@ -47,7 +45,7 @@ class Uexport extends BaseSettingsModule
 		];
 		Hook::callAll('uexport_options', $options);
 
-		$tpl = Renderer::getMarkupTemplate("uexport.tpl");
+		$tpl = Renderer::getMarkupTemplate("settings/userexport.tpl");
 		return Renderer::replaceMacros($tpl, [
 			'$title' => L10n::t('Export personal data'),
 			'$options' => $options
@@ -59,7 +57,8 @@ class Uexport extends BaseSettingsModule
 	 * to the browser which then offers a save / open dialog
 	 * to the user.
 	 **/
-	public static function rawContent() {
+	public static function rawContent()
+	{
 		$args = self::getClass(Arguments::class);
 		if ($args->getArgc() == 3) {
 			// @TODO Replace with router-provided arguments
@@ -81,7 +80,8 @@ class Uexport extends BaseSettingsModule
 			}
 		}
 	}
-	private static function exportMultiRow(string $query) {
+	private static function exportMultiRow(string $query)
+	{
 		$dbStructure = DBStructure::definition(self::getApp()->getBasePath(), false);
 
 		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
@@ -108,7 +108,8 @@ class Uexport extends BaseSettingsModule
 		return $result;
 	}
 
-	private static function exportRow(string $query) {
+	private static function exportRow(string $query)
+	{
 		$dbStructure = DBStructure::definition(self::getApp()->getBasePath(), false);
 
 		preg_match("/\s+from\s+`?([a-z\d_]+)`?/i", $query, $match);
@@ -134,8 +135,8 @@ class Uexport extends BaseSettingsModule
 		return $result;
 	}
 
-	private static function exportAccount(App $a) {
-
+	private static function exportAccount(App $a)
+	{
 		$user = self::exportRow(
 			sprintf("SELECT * FROM `user` WHERE `uid` = %d LIMIT 1", intval(local_user()))
 		);
@@ -190,8 +191,8 @@ class Uexport extends BaseSettingsModule
 	 * @param App $a
 	 * @throws Exception
 	 */
-	private static function exportAll(App $a) {
-
+	private static function exportAll(App $a)
+	{
 		self::exportAccount($a);
 		echo "\n";
 
