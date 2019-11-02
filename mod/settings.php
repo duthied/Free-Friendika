@@ -129,8 +129,8 @@ function settings_init(App $a)
 
 	$tabs[] =	[
 		'label' => L10n::t('Export personal data'),
-		'url' => 'settings/uexport',
-		'selected' => (($a->argc > 1) && ($a->argv[1] === 'uexport')?'active':''),
+		'url' => 'settings/userexport',
+		'selected' => (($a->argc > 1) && ($a->argv[1] === 'userexport')?'active':''),
 		'accesskey' => 'e',
 	];
 
