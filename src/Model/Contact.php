@@ -2298,7 +2298,16 @@ class Contact extends BaseObject
 
 		$hidden = (($protocol === Protocol::MAIL) ? 1 : 0);
 
-		$pending = in_array($protocol, [Protocol::ACTIVITYPUB]);
+		if ($protocol == Protocol::ACTIVITYPUB) {
+			$apcontact = APContact::getByURL($url, false);
+			if (isset($apcontact['manually-approve'])) {
+				$pending = (bool)$apcontact['manually-approve'];
+			} else {
+				$pending = true;
+			}			
+		} else {
+			$pending = false;
+		}
 
 		if (in_array($protocol, [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 			$writeable = 1;
