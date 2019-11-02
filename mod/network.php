@@ -925,10 +925,10 @@ function network_tabs(App $a)
 	// tabs
 	$tabs = [
 		[
-			'label'	=> L10n::t('Latest Activities'),
+			'label'	=> L10n::t('Latest Activity'),
 			'url'	=> str_replace('/new', '', $cmd) . '?order=activity' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $all_active,
-			'title'	=> L10n::t('Sort by activity Date'),
+			'title'	=> L10n::t('Sort by lastest activity on the posts'),
 			'id'	=> 'activity-order-tab',
 			'accesskey' => 'e',
 		],
@@ -936,7 +936,7 @@ function network_tabs(App $a)
 			'label'	=> L10n::t('Latest Posts'),
 			'url'	=> str_replace('/new', '', $cmd) . '?order=post' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
 			'sel'	=> $post_active,
-			'title'	=> L10n::t('Sort by post date'),
+			'title'	=> L10n::t("Sort by the posts' receiving date"),
 			'id'	=> 'post-order-tab',
 			'accesskey' => 't',
 		],
