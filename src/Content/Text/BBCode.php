@@ -25,6 +25,7 @@ use Friendica\Model\Photo;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
+use Friendica\Util\Images;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
 use Friendica\Util\ParseUrl;
@@ -76,7 +77,7 @@ class BBCode extends BaseObject
 
 				if (preg_match("/\[img\](.*?)\[\/img\]/ism", $attacheddata, $matches)) {
 
-					$picturedata = Image::getInfoFromURL($matches[1]);
+					$picturedata = Images::getInfoFromURLCached($matches[1]);
 
 					if ($picturedata) {
 						if (($picturedata[0] >= 500) && ($picturedata[0] >= $picturedata[1])) {
@@ -305,7 +306,7 @@ class BBCode extends BaseObject
 						$post['preview'] = $pictures[0][2];
 						$post['text'] = trim(str_replace($pictures[0][0], '', $body));
 					} else {
-						$imgdata = Image::getInfoFromURL($pictures[0][1]);
+						$imgdata = Images::getInfoFromURLCached($pictures[0][1]);
 						if ($imgdata && substr($imgdata['mime'], 0, 6) == 'image/') {
 							$post['type'] = 'photo';
 							$post['image'] = $pictures[0][1];
@@ -446,7 +447,7 @@ class BBCode extends BaseObject
 				}
 
 				// guess mimetype from headers or filename
-				$type = Image::guessType($mtch[1], true);
+				$type = Images::guessType($mtch[1], true);
 
 				if ($i) {
 					$Image = new Image($i, $type);

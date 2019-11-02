@@ -17,8 +17,8 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
-use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -404,9 +404,9 @@ class Photo extends BaseObject
 			"photo", ["resource-id"], ["uid" => $uid, "contact-id" => $cid, "scale" => 4, "album" => "Contact Photos"]
 		);
 		if (!empty($photo['resource-id'])) {
-			$hash = $photo["resource-id"];
+			$resource_id = $photo["resource-id"];
 		} else {
-			$hash = self::newResource();
+			$resource_id = self::newResource();
 		}
 
 		$photo_failure = false;
@@ -425,14 +425,14 @@ class Photo extends BaseObject
 		}
 
 		if (empty($type)) {
-			$type = Image::guessType($image_url, true);
+			$type = Images::guessType($image_url, true);
 		}
 
 		$Image = new Image($img_str, $type);
 		if ($Image->isValid()) {
 			$Image->scaleToSquare(300);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 4);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 4);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -440,7 +440,7 @@ class Photo extends BaseObject
 
 			$Image->scaleDown(80);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 5);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 5);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -448,7 +448,7 @@ class Photo extends BaseObject
 
 			$Image->scaleDown(48);
 
-			$r = self::store($Image, $uid, $cid, $hash, $filename, "Contact Photos", 6);
+			$r = self::store($Image, $uid, $cid, $resource_id, $filename, "Contact Photos", 6);
 
 			if ($r === false) {
 				$photo_failure = true;
@@ -456,24 +456,24 @@ class Photo extends BaseObject
 
 			$suffix = "?ts=" . time();
 
-			$image_url = System::baseUrl() . "/photo/" . $hash . "-4." . $Image->getExt() . $suffix;
-			$thumb = System::baseUrl() . "/photo/" . $hash . "-5." . $Image->getExt() . $suffix;
-			$micro = System::baseUrl() . "/photo/" . $hash . "-6." . $Image->getExt() . $suffix;
+			$image_url = System::baseUrl() . "/photo/" . $resource_id . "-4." . $Image->getExt() . $suffix;
+			$thumb = System::baseUrl() . "/photo/" . $resource_id . "-5." . $Image->getExt() . $suffix;
+			$micro = System::baseUrl() . "/photo/" . $resource_id . "-6." . $Image->getExt() . $suffix;
 
 			// Remove the cached photo
 			$a = \get_app();
 			$basepath = $a->getBasePath();
 
 			if (is_dir($basepath . "/photo")) {
-				$filename = $basepath . "/photo/" . $hash . "-4." . $Image->getExt();
+				$filename = $basepath . "/photo/" . $resource_id . "-4." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
-				$filename = $basepath . "/photo/" . $hash . "-5." . $Image->getExt();
+				$filename = $basepath . "/photo/" . $resource_id . "-5." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
-				$filename = $basepath . "/photo/" . $hash . "-6." . $Image->getExt();
+				$filename = $basepath . "/photo/" . $resource_id . "-6." . $Image->getExt();
 				if (file_exists($filename)) {
 					unlink($filename);
 				}
@@ -664,7 +664,7 @@ class Photo extends BaseObject
 	public static function stripExtension($name)
 	{
 		$name = str_replace([".jpg", ".png", ".gif"], ["", "", ""], $name);
-		foreach (Image::supportedTypes() as $m => $e) {
+		foreach (Images::supportedTypes() as $m => $e) {
 			$name = str_replace("." . $e, "", $name);
 		}
 		return $name;

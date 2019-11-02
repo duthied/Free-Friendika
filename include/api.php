@@ -45,6 +45,7 @@ use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -1167,7 +1168,7 @@ function api_statuses_update($type)
 				api_user()
 			);
 			if (DBA::isResult($r)) {
-				$phototypes = Image::supportedTypes();
+				$phototypes = Images::supportedTypes();
 				$ext = $phototypes[$r[0]['type']];
 				$description = $r[0]['desc'] ?? '';
 				$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
@@ -2564,7 +2565,7 @@ function api_get_attachments(&$body)
 	$attachments = [];
 
 	foreach ($images[1] as $image) {
-		$imagedata = Image::getInfoFromURL($image);
+		$imagedata = Images::getInfoFromURLCached($image);
 
 		if ($imagedata) {
 			$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
@@ -2711,7 +2712,7 @@ function api_get_entitities(&$text, $bbcode)
 
 		$start = iconv_strpos($text, $url, $offset, "UTF-8");
 		if (!($start === false)) {
-			$image = Image::getInfoFromURL($url);
+			$image = Images::getInfoFromURLCached($url);
 			if ($image) {
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
@@ -2719,19 +2720,19 @@ function api_get_entitities(&$text, $bbcode)
 					$media_url = ProxyUtils::proxifyUrl($url);
 
 					$sizes = [];
-					$scale = Image::getScalingDimensions($image[0], $image[1], 150);
+					$scale = Images::getScalingDimensions($image[0], $image[1], 150);
 					$sizes["thumb"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 
 					if (($image[0] > 150) || ($image[1] > 150)) {
-						$scale = Image::getScalingDimensions($image[0], $image[1], 340);
+						$scale = Images::getScalingDimensions($image[0], $image[1], 340);
 						$sizes["small"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 					}
 
-					$scale = Image::getScalingDimensions($image[0], $image[1], 600);
+					$scale = Images::getScalingDimensions($image[0], $image[1], 600);
 					$sizes["medium"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 
 					if (($image[0] > 600) || ($image[1] > 600)) {
-						$scale = Image::getScalingDimensions($image[0], $image[1], 1024);
+						$scale = Images::getScalingDimensions($image[0], $image[1], 1024);
 						$sizes["large"] = ["w" => $scale["width"], "h" => $scale["height"], "resize" => "fit"];
 					}
 				} else {
@@ -4740,7 +4741,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	}
 
 	if ($filetype == "") {
-		$filetype=Image::guessType($filename);
+		$filetype = Images::guessType($filename);
 	}
 	$imagedata = @getimagesize($src);
 	if ($imagedata) {
@@ -4787,19 +4788,19 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	$height = $Image->getHeight();
 
 	// create a new resource-id if not already provided
-	$hash = ($photo_id == null) ? Photo::newResource() : $photo_id;
+	$resource_id = ($photo_id == null) ? Photo::newResource() : $photo_id;
 
 	if ($mediatype == "photo") {
 		// upload normal image (scales 0, 1, 2)
 		Logger::log("photo upload: starting new photo upload", Logger::DEBUG);
 
-		$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+		$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 0, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 		if (!$r) {
 			Logger::log("photo upload: image upload with scale 0 (original size) failed");
 		}
 		if ($width > 640 || $height > 640) {
 			$Image->scaleDown(640);
-			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 1, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				Logger::log("photo upload: image upload with scale 1 (640x640) failed");
 			}
@@ -4807,7 +4808,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 320 || $height > 320) {
 			$Image->scaleDown(320);
-			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 2, 0, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				Logger::log("photo upload: image upload with scale 2 (320x320) failed");
 			}
@@ -4819,7 +4820,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 300 || $height > 300) {
 			$Image->scaleDown(300);
-			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 4, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				Logger::log("photo upload: profile image upload with scale 4 (300x300) failed");
 			}
@@ -4827,7 +4828,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 80 || $height > 80) {
 			$Image->scaleDown(80);
-			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 5, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				Logger::log("photo upload: profile image upload with scale 5 (80x80) failed");
 			}
@@ -4835,7 +4836,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 
 		if ($width > 48 || $height > 48) {
 			$Image->scaleDown(48);
-			$r = Photo::store($Image, local_user(), $visitor, $hash, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
+			$r = Photo::store($Image, local_user(), $visitor, $resource_id, $filename, $album, 6, $profile, $allow_cid, $allow_gid, $deny_cid, $deny_gid, $desc);
 			if (!$r) {
 				Logger::log("photo upload: profile image upload with scale 6 (48x48) failed");
 			}
@@ -4847,10 +4848,10 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	if (isset($r) && $r) {
 		// create entry in 'item'-table on new uploads to enable users to comment/like/dislike the photo
 		if ($photo_id == null && $mediatype == "photo") {
-			post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility);
+			post_photo_item($resource_id, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $filetype, $visibility);
 		}
 		// on success return image data in json/xml format (like /api/friendica/photo does when no scale is given)
-		return prepare_photo_data($type, false, $hash);
+		return prepare_photo_data($type, false, $resource_id);
 	} else {
 		throw new InternalServerErrorException("image upload failed");
 	}

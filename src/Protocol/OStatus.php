@@ -27,6 +27,7 @@ use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -1389,7 +1390,7 @@ class OStatus
 		switch ($siteinfo["type"]) {
 			case 'photo':
 				if (!empty($siteinfo["image"])) {
-					$imgdata = Image::getInfoFromURL($siteinfo["image"]);
+					$imgdata = Images::getInfoFromURLCached($siteinfo["image"]);
 					if ($imgdata) {
 						$attributes = ["rel" => "enclosure",
 								"href" => $siteinfo["image"],
@@ -1413,7 +1414,7 @@ class OStatus
 		}
 
 		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
-			$imgdata = Image::getInfoFromURL($siteinfo["image"]);
+			$imgdata = Images::getInfoFromURLCached($siteinfo["image"]);
 			if ($imgdata) {
 				$attributes = ["rel" => "enclosure",
 						"href" => $siteinfo["image"],

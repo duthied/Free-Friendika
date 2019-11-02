@@ -11,7 +11,6 @@ use Friendica\Content\OEmbed;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
-use Friendica\Object\Image;
 
 /**
  * @brief Class with methods for extracting certain content from an url
@@ -348,7 +347,7 @@ class ParseUrl
 				}
 
 				$src = self::completeUrl($img_tag['src'], $url);
-				$photodata = Image::getInfoFromURL($src);
+				$photodata = Images::getInfoFromURLCached($src);
 
 				if (($photodata) && ($photodata[0] > 150) && ($photodata[1] > 150)) {
 					if ($photodata[0] > 300) {
@@ -371,7 +370,7 @@ class ParseUrl
 
 			unset($siteinfo['image']);
 
-			$photodata = Image::getInfoFromURL($src);
+			$photodata = Images::getInfoFromURLCached($src);
 
 			if (($photodata) && ($photodata[0] > 10) && ($photodata[1] > 10)) {
 				$siteinfo['images'][] = ['src' => $src,

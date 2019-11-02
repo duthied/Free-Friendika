@@ -22,6 +22,7 @@ use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Object\Image;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
@@ -829,15 +830,15 @@ class User
 			$filename = basename($photo);
 			$img_str = Network::fetchUrl($photo, true);
 			// guess mimetype from headers or filename
-			$type = Image::guessType($photo, true);
+			$type = Images::guessType($photo, true);
 
 			$Image = new Image($img_str, $type);
 			if ($Image->isValid()) {
 				$Image->scaleToSquare(300);
 
-				$hash = Photo::newResource();
+				$resource_id = Photo::newResource();
 
-				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 4);
+				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, L10n::t('Profile Photos'), 4);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -845,7 +846,7 @@ class User
 
 				$Image->scaleDown(80);
 
-				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 5);
+				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, L10n::t('Profile Photos'), 5);
 
 				if ($r === false) {
 					$photo_failure = true;
@@ -853,14 +854,14 @@ class User
 
 				$Image->scaleDown(48);
 
-				$r = Photo::store($Image, $uid, 0, $hash, $filename, L10n::t('Profile Photos'), 6);
+				$r = Photo::store($Image, $uid, 0, $resource_id, $filename, L10n::t('Profile Photos'), 6);
 
 				if ($r === false) {
 					$photo_failure = true;
 				}
 
 				if (!$photo_failure) {
-					Photo::update(['profile' => 1], ['resource-id' => $hash]);
+					Photo::update(['profile' => 1], ['resource-id' => $resource_id]);
 				}
 			}
 		}

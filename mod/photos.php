@@ -29,6 +29,7 @@ use Friendica\Protocol\Activity;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Util\Images;
 use Friendica\Util\Map;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -142,7 +143,7 @@ function photos_post(App $a)
 	Logger::log('mod_photos: REQUEST ' . print_r($_REQUEST, true), Logger::DATA);
 	Logger::log('mod_photos: FILES '   . print_r($_FILES, true), Logger::DATA);
 
-	$phototypes = Image::supportedTypes();
+	$phototypes = Images::supportedTypes();
 
 	$can_post  = false;
 	$visitor   = 0;
@@ -694,7 +695,7 @@ function photos_post(App $a)
 	}
 
 	if ($type == "") {
-		$type = Image::guessType($filename);
+		$type = Images::guessType($filename);
 	}
 
 	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
@@ -748,9 +749,9 @@ function photos_post(App $a)
 
 	$smallest = 0;
 
-	$photo_hash = Photo::newResource();
+	$resource_id = Photo::newResource();
 
-	$r = Photo::store($image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+	$r = Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0 , 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 
 	if (!$r) {
 		Logger::log('mod/photos.php: photos_post(): image store failed', Logger::DEBUG);
@@ -760,13 +761,13 @@ function photos_post(App $a)
 
 	if ($width > 640 || $height > 640) {
 		$image->scaleDown(640);
-		Photo::store($image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 1, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 1;
 	}
 
 	if ($width > 320 || $height > 320) {
 		$image->scaleDown(320);
-		Photo::store($image, $page_owner_uid, $visitor, $photo_hash, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
+		Photo::store($image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, 0, $str_contact_allow, $str_group_allow, $str_contact_deny, $str_group_deny);
 		$smallest = 2;
 	}
 
@@ -790,7 +791,7 @@ function photos_post(App $a)
 	$arr['parent-uri']    = $uri;
 	$arr['type']          = 'photo';
 	$arr['wall']          = 1;
-	$arr['resource-id']   = $photo_hash;
+	$arr['resource-id']   = $resource_id;
 	$arr['contact-id']    = $owner_record['id'];
 	$arr['owner-name']    = $owner_record['name'];
 	$arr['owner-link']    = $owner_record['url'];
@@ -806,8 +807,8 @@ function photos_post(App $a)
 	$arr['visible']       = $visible;
 	$arr['origin']        = 1;
 
-	$arr['body']          = '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $photo_hash . ']'
-				. '[img]' . System::baseUrl() . "/photo/{$photo_hash}-{$smallest}.".$image->getExt() . '[/img]'
+	$arr['body']          = '[url=' . System::baseUrl() . '/photos/' . $owner_record['nickname'] . '/image/' . $resource_id . ']'
+				. '[img]' . System::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$image->getExt() . '[/img]'
 				. '[/url]';
 
 	$item_id = Item::insert($arr);
@@ -846,7 +847,7 @@ function photos_content(App $a)
 		return;
 	}
 
-	$phototypes = Image::supportedTypes();
+	$phototypes = Images::supportedTypes();
 
 	$_SESSION['photo_return'] = $a->cmd;
 

@@ -105,9 +105,9 @@ class Arguments
 		$queryString = '';
 
 		if (!empty($server['QUERY_STRING']) && strpos($server['QUERY_STRING'], 'pagename=') === 0) {
-			$queryString = substr($server['QUERY_STRING'], 9);
+			$queryString = urldecode(substr($server['QUERY_STRING'], 9));
 		} elseif (!empty($server['QUERY_STRING']) && strpos($server['QUERY_STRING'], 'q=') === 0) {
-			$queryString = substr($server['QUERY_STRING'], 2);
+			$queryString = urldecode(substr($server['QUERY_STRING'], 2));
 		}
 
 		// eventually strip ZRL

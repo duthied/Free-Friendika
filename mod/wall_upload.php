@@ -9,16 +9,16 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Core\Session;
-use Friendica\Core\Config;
+use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Object\Image;
+use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
 function wall_upload_post(App $a, $desktopmode = true)
@@ -166,7 +166,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	}
 
 	if ($filetype == "") {
-		$filetype = Image::guessType($filename);
+		$filetype = Images::guessType($filename);
 	}
 
 	// If there is a temp name, then do a manual check
@@ -222,7 +222,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$width = $Image->getWidth();
 	$height = $Image->getHeight();
 
-	$hash = Photo::newResource();
+	$resource_id = Photo::newResource();
 
 	$smallest = 0;
 
@@ -233,7 +233,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	$defperm = '<' . $default_cid . '>';
 
-	$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 0, 0, $defperm);
+	$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 0, 0, $defperm);
 
 	if (!$r) {
 		$msg = L10n::t('Image upload failed.');
@@ -247,7 +247,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($width > 640 || $height > 640) {
 		$Image->scaleDown(640);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 1, 0, $defperm);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 1, 0, $defperm);
 		if ($r) {
 			$smallest = 1;
 		}
@@ -255,7 +255,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 
 	if ($width > 320 || $height > 320) {
 		$Image->scaleDown(320);
-		$r = Photo::store($Image, $page_owner_uid, $visitor, $hash, $filename, $album, 2, 0, $defperm);
+		$r = Photo::store($Image, $page_owner_uid, $visitor, $resource_id, $filename, $album, 2, 0, $defperm);
 		if ($r && ($smallest == 0)) {
 			$smallest = 2;
 		}
@@ -265,7 +265,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$r = q("SELECT `id`, `datasize`, `width`, `height`, `type` FROM `photo`
 			WHERE `resource-id` = '%s'
 			ORDER BY `width` DESC LIMIT 1",
-			$hash
+			$resource_id
 		);
 		if (!$r) {
 			if ($r_json) {
@@ -281,9 +281,9 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$picture["width"]     = $r[0]["width"];
 		$picture["height"]    = $r[0]["height"];
 		$picture["type"]      = $r[0]["type"];
-		$picture["albumpage"] = System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash;
-		$picture["picture"]   = System::baseUrl() . "/photo/{$hash}-0." . $Image->getExt();
-		$picture["preview"]   = System::baseUrl() . "/photo/{$hash}-{$smallest}." . $Image->getExt();
+		$picture["albumpage"] = System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id;
+		$picture["picture"]   = System::baseUrl() . "/photo/{$resource_id}-0." . $Image->getExt();
+		$picture["preview"]   = System::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();
 
 		if ($r_json) {
 			echo json_encode(['picture' => $picture]);
@@ -300,7 +300,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		exit();
 	}
 
-	echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $hash . '][img]' . System::baseUrl() . "/photo/{$hash}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
+	echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . System::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
 	exit();
 	// NOTREACHED
 }

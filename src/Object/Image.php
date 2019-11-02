@@ -6,11 +6,9 @@
 namespace Friendica\Object;
 
 use Exception;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\Logger;
 use Friendica\Core\System;
-use Friendica\Util\Network;
+use Friendica\Util\Images;
 use Imagick;
 use ImagickPixel;
 
@@ -33,31 +31,6 @@ class Image
 	private $types;
 
 	/**
-	 * @brief supported mimetypes and corresponding file extensions
-	 * @return array
-	 */
-	public static function supportedTypes()
-	{
-		if (class_exists('Imagick')) {
-			// Imagick::queryFormats won't help us a lot there...
-			// At least, not yet, other parts of friendica uses this array
-			$t = [
-				'image/jpeg' => 'jpg',
-				'image/png' => 'png',
-				'image/gif' => 'gif'
-			];
-		} else {
-			$t = [];
-			$t['image/jpeg'] ='jpg';
-			if (imagetypes() & IMG_PNG) {
-				$t['image/png'] = 'png';
-			}
-		}
-
-		return $t;
-	}
-
-	/**
 	 * @brief Constructor
 	 * @param string  $data
 	 * @param boolean $type optional, default null
@@ -67,9 +40,9 @@ class Image
 	public function __construct($data, $type = null)
 	{
 		$this->imagick = class_exists('Imagick');
-		$this->types = static::supportedTypes();
+		$this->types = Images::supportedTypes();
 		if (!array_key_exists($type, $this->types)) {
-			$type='image/jpeg';
+			$type = 'image/jpeg';
 		}
 		$this->type = $type;
 
@@ -109,20 +82,6 @@ class Image
 	}
 
 	/**
-	 * @brief Maps Mime types to Imagick formats
-	 * @return array With with image formats (mime type as key)
-	 */
-	public static function getFormatsMap()
-	{
-		$m = [
-			'image/jpeg' => 'JPG',
-			'image/png' => 'PNG',
-			'image/gif' => 'GIF'
-		];
-		return $m;
-	}
-
-	/**
 	 * @param string $data data
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -142,7 +101,7 @@ class Image
 			/*
 			 * Setup the image to the format it will be saved to
 			 */
-			$map = self::getFormatsMap();
+			$map = Images::getFormatsMap();
 			$format = $map[$this->type];
 			$this->image->setFormat($format);
 
@@ -713,108 +672,50 @@ class Image
 	}
 
 	/**
+	 * @brief supported mimetypes and corresponding file extensions
+	 * @return array
+	 * @deprecated in version 2019.12 please use Util\Images::supportedTypes() instead.
+	 */
+	public static function supportedTypes()
+	{
+		return Images::supportedTypes();
+	}
+
+	/**
+	 * @brief Maps Mime types to Imagick formats
+	 * @return array With with image formats (mime type as key)
+	 * @deprecated in version 2019.12 please use Util\Images::getFormatsMap() instead.
+	 */
+	public static function getFormatsMap()
+	{
+		return Images::getFormatsMap();
+	}
+
+	/**
 	 * Guess image mimetype from filename or from Content-Type header
 	 *
 	 * @param string  $filename Image filename
 	 * @param boolean $fromcurl Check Content-Type header from curl request
 	 * @param string  $header   passed headers to take into account
 	 *
-	 * @return object
-	 * @throws \ImagickException
+	 * @return string|null
+	 * @throws Exception
+	 * @deprecated in version 2019.12 please use Util\Images::guessType() instead.
 	 */
 	public static function guessType($filename, $fromcurl = false, $header = '')
 	{
-		Logger::log('Image: guessType: '.$filename . ($fromcurl?' from curl headers':''), Logger::DEBUG);
-		$type = null;
-		if ($fromcurl) {
-			$headers=[];
-			$h = explode("\n", $header);
-			foreach ($h as $l) {
-				$data = array_map("trim", explode(":", trim($l), 2));
-				if (count($data) > 1) {
-					list($k,$v) = $data;
-					$headers[$k] = $v;
-				}
-			}
-			if (array_key_exists('Content-Type', $headers))
-				$type = $headers['Content-Type'];
-		}
-		if (is_null($type)) {
-			// Guessing from extension? Isn't that... dangerous?
-			if (class_exists('Imagick') && file_exists($filename) && is_readable($filename)) {
-				/**
-				 * Well, this not much better,
-				 * but at least it comes from the data inside the image,
-				 * we won't be tricked by a manipulated extension
-				 */
-				$image = new Imagick($filename);
-				$type = $image->getImageMimeType();
-				$image->setInterlaceScheme(Imagick::INTERLACE_PLANE);
-			} else {
-				$ext = pathinfo($filename, PATHINFO_EXTENSION);
-				$types = self::supportedTypes();
-				$type = "image/jpeg";
-				foreach ($types as $m => $e) {
-					if ($ext == $e) {
-						$type = $m;
-					}
-				}
-			}
-		}
-		Logger::log('Image: guessType: type='.$type, Logger::DEBUG);
-		return $type;
+		return Images::guessType($filename, $fromcurl, $header);
 	}
 
 	/**
 	 * @param string $url url
-	 * @return object
+	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @deprecated in version 2019.12 please use Util\Images::getInfoFromURLCached() instead.
 	 */
 	public static function getInfoFromURL($url)
 	{
-		$data = [];
-
-		if (empty($url)) {
-			return $data;
-		}
-
-		$data = Cache::get($url);
-
-		if (is_null($data) || !$data || !is_array($data)) {
-			$img_str = Network::fetchUrl($url, true, 4);
-
-			if (!$img_str) {
-				return false;
-			}
-
-			$filesize = strlen($img_str);
-
-			try {
-				if (function_exists("getimagesizefromstring")) {
-					$data = @getimagesizefromstring($img_str);
-				} else {
-					$tempfile = tempnam(get_temppath(), "cache");
-
-					$a = \get_app();
-					$stamp1 = microtime(true);
-					file_put_contents($tempfile, $img_str);
-					$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
-
-					$data = getimagesize($tempfile);
-					unlink($tempfile);
-				}
-			} catch (Exception $e) {
-				return false;
-			}
-
-			if ($data) {
-				$data["size"] = $filesize;
-			}
-
-			Cache::set($url, $data);
-		}
-
-		return $data;
+		return Images::getInfoFromURLCached($url);
 	}
 
 	/**
@@ -822,50 +723,10 @@ class Image
 	 * @param integer $height height
 	 * @param integer $max    max
 	 * @return array
+	 * @deprecated in version 2019.12 please use Util\Images::getScalingDimensions() instead.
 	 */
 	public static function getScalingDimensions($width, $height, $max)
 	{
-		if ((!$width) || (!$height)) {
-			return false;
-		}
-
-		if ($width > $max && $height > $max) {
-			// very tall image (greater than 16:9)
-			// constrain the width - let the height float.
-
-			if ((($height * 9) / 16) > $width) {
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} elseif ($width > $height) {
-				// else constrain both dimensions
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} else {
-				$dest_width = intval(($width * $max) / $height);
-				$dest_height = $max;
-			}
-		} else {
-			if ($width > $max) {
-				$dest_width = $max;
-				$dest_height = intval(($height * $max) / $width);
-			} else {
-				if ($height > $max) {
-					// very tall image (greater than 16:9)
-					// but width is OK - don't do anything
-
-					if ((($height * 9) / 16) > $width) {
-						$dest_width = $width;
-						$dest_height = $height;
-					} else {
-						$dest_width = intval(($width * $max) / $height);
-						$dest_height = $max;
-					}
-				} else {
-					$dest_width = $width;
-					$dest_height = $height;
-				}
-			}
-		}
-		return ["width" => $dest_width, "height" => $dest_height];
+		return Images::getScalingDimensions($width, $height, $max);
 	}
 }
