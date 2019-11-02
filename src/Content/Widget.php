@@ -275,7 +275,9 @@ class Widget
 			$terms[] = ['ref' => $savedFolderName, 'name' => $savedFolderName];
 		}
 		
-		asort($terms);
+		usort($terms, function ($a, $b) {
+			return strcmp($a['name'], $b['name']);
+		});
 
 		return self::filter(
 			'file',
