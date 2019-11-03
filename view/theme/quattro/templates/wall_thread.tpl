@@ -72,7 +72,7 @@
 				<span class="folder p-category">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 			{{foreach $item.categories as $cat}}
-				<span class="category p-category">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
+				<span class="category p-category"><a href="{{$cat.url}}">{{$cat.name}}</a>{{if $cat.removeurl}} (<a href="{{$cat.removeurl}}" title="{{$remove}}">x</a>) {{/if}} </span>
 			{{/foreach}}
 		{{/if}}
 		</div>

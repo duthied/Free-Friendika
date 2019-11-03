@@ -64,7 +64,7 @@
 			{{/if}}
 			</div>
 			{{if $item.has_cats}}
-			<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category">{{$cat.name}}</span>{{if $cat.removeurl}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>{{/if}} {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
+			<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category"><a href="{{$cat.url}}">{{$cat.name}}</a></span>{{if $cat.removeurl}} <a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>{{/if}} {{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 			</div>
 			{{/if}}
 
