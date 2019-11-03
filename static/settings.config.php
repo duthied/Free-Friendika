@@ -124,6 +124,12 @@ return [
 		// The fully-qualified URL of this Friendica node.
 		// Used by the worker in a non-HTTP execution environment.
 		'url' => '',
+
+		// max_csv_file_size (Integer)
+		// When uploading a CSV with account addresses to follow
+		// in the user settings, this controls the maximum file
+		// size of the upload file.
+		'max_csv_file_size' => 30720,
 	],
 
 	// Used in the admin settings to lock certain features
