@@ -2476,101 +2476,30 @@ class Diaspora
 			return false;
 		}
 
-		$batch = (($ret["batch"]) ? $ret["batch"] : implode("/", array_slice(explode("/", $ret["url"]), 0, 3))."/receive/public");
-
-		q(
-			"INSERT INTO `contact` (`uid`, `network`,`addr`,`created`,`url`,`nurl`,`batch`,`name`,`nick`,`photo`,`pubkey`,`notify`,`poll`,`blocked`,`priority`)
-			VALUES (%d, '%s', '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s',%d,%d)",
-			intval($importer["uid"]),
-			DBA::escape($ret["network"]),
-			DBA::escape($ret["addr"]),
-			DateTimeFormat::utcNow(),
-			DBA::escape($ret["url"]),
-			DBA::escape(Strings::normaliseLink($ret["url"])),
-			DBA::escape($batch),
-			DBA::escape($ret["name"]),
-			DBA::escape($ret["nick"]),
-			DBA::escape($ret["photo"]),
-			DBA::escape($ret["pubkey"]),
-			DBA::escape($ret["notify"]),
-			DBA::escape($ret["poll"]),
-			1,
-			2
-		);
-
-		// find the contact record we just created
-
-		$contact_record = self::contactByHandle($importer["uid"], $author);
-
-		if (!$contact_record) {
-			Logger::log("unable to locate newly created contact record.");
-			return;
+		$cid = Contact::getIdForURL($ret['url'], $uid);
+		if (!empty($cid)) {
+			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
+		} else {
+			$contact = [];
 		}
 
-		Logger::log("Author ".$author." was added as contact number ".$contact_record["id"].".", Logger::DEBUG);
+		$item = ['author-id' => Contact::getIdForURL($ret['url']),
+			'author-link' => $ret['url']];
 
-		Group::addMember(User::getDefaultGroup($importer['uid'], $ret["network"]), $contact_record['id']);
-
-		Contact::updateAvatar($ret["photo"], $importer['uid'], $contact_record["id"], true);
-
-		if (in_array($importer["page-flags"], [User::PAGE_FLAGS_NORMAL, User::PAGE_FLAGS_PRVGROUP])) {
-			Logger::log("Sending intra message for author ".$author.".", Logger::DEBUG);
-
-			$hash = Strings::getRandomHex().(string)time();   // Generate a confirm_key
-
-			q(
-				"INSERT INTO `intro` (`uid`, `contact-id`, `blocked`, `knowyou`, `note`, `hash`, `datetime`)
-				VALUES (%d, %d, %d, %d, '%s', '%s', '%s')",
-				intval($importer["uid"]),
-				intval($contact_record["id"]),
-				0,
-				0,
-				DBA::escape(L10n::t("Sharing notification from Diaspora network")),
-				DBA::escape($hash),
-				DBA::escape(DateTimeFormat::utcNow())
-			);
-		} else {
-			// automatic friend approval
-
-			Logger::log("Does an automatic friend approval for author ".$author.".", Logger::DEBUG);
-
-			Contact::updateAvatar($contact_record["photo"], $importer["uid"], $contact_record["id"]);
-
-			/*
-			 * technically they are sharing with us (Contact::SHARING),
-			 * but if our page-type is Profile::PAGE_COMMUNITY or Profile::PAGE_SOAPBOX
-			 * we are going to change the relationship and make them a follower.
-			 */
-			if (($importer["page-flags"] == User::PAGE_FLAGS_FREELOVE) && $sharing && $following) {
-				$new_relation = Contact::FRIEND;
-			} elseif (($importer["page-flags"] == User::PAGE_FLAGS_FREELOVE) && $sharing) {
-				$new_relation = Contact::SHARING;
-			} else {
-				$new_relation = Contact::FOLLOWER;
+		$result = Contact::addRelationship($importer, $contact, $item, false);
+		if ($result === true) {
+			$contact_record = self::contactByHandle($importer['uid'], $author);
+			if (!$contact_record) {
+				Logger::info('unable to locate newly created contact record.');
+				return;
 			}
 
-			q(
-				"UPDATE `contact` SET `rel` = %d,
-				`name-date` = '%s',
-				`uri-date` = '%s',
-				`blocked` = 0,
-				`pending` = 0,
-				`writable` = 1
-				WHERE `id` = %d
-				",
-				intval($new_relation),
-				DBA::escape(DateTimeFormat::utcNow()),
-				DBA::escape(DateTimeFormat::utcNow()),
-				intval($contact_record["id"])
-			);
-
-			$user = DBA::selectFirst('user', [], ['uid' => $importer["uid"]]);
+			$user = DBA::selectFirst('user', [], ['uid' => $importer['uid']]);
 			if (DBA::isResult($user)) {
-				Logger::log("Sending share message (Relation: ".$new_relation.") to author ".$author." - Contact: ".$contact_record["id"]." - User: ".$importer["uid"], Logger::DEBUG);
 				self::sendShare($user, $contact_record);
 
 				// Send the profile data, maybe it weren't transmitted before
-				self::sendProfile($importer["uid"], [$contact_record]);
+				self::sendProfile($importer['uid'], [$contact_record]);
 			}
 		}
 
