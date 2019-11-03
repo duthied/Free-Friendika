@@ -390,6 +390,33 @@ function settings_post(App $a)
 
 	BaseModule::checkFormSecurityTokenRedirectOnError('/settings', 'settings');
 
+	// Import Contacts from CSV file
+	if (!empty($_POST['importcontact-submit'])) {
+		if (isset($_FILES['importcontact-filename'])) {
+			// was there an error
+			if ($_FILES['importcontact-filename']['error'] > 0) {
+				Logger::notice('Contact CSV file upload error');
+				info(L10n::t('Contact CSV file upload error'));
+			} else {
+				$csvArray = array_map('str_getcsv', file($_FILES['importcontact-filename']['tmp_name']));
+				// import contacts
+				foreach ($csvArray as $csvRow) {
+					// The 1st row may, or may not contain the headers of the table
+					// We expect the 1st field of the row to contain either the URL
+					// or the handle of the account, therefore we check for either
+					// "http" or "@" to be present in the string.
+					// All other fields from the row will be ignored
+					if ((strpos($csvRow[0],'@') !== false) || (strpos($csvRow[0],'http') !== false)) {
+						$arr = Contact::createFromProbe($_SESSION['uid'], $csvRow[0], '', false);
+					}
+				}
+				info(L10n::t('Importing Contacts done'));
+				// delete temp file
+				unlink($filename);
+			}
+		}
+	}
+
 	if (!empty($_POST['resend_relocate'])) {
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
 		info(L10n::t("Relocate message has been send to your contacts"));
@@ -1223,6 +1250,10 @@ function settings_content(App $a)
 		'$h_descadvn' => L10n::t('Change the behaviour of this account for special situations'),
 		'$pagetype' => $pagetype,
 
+		'$importcontact' => L10n::t('Import Contacts'),
+		'$importcontact_text' => L10n::t('Upload a CSV file that contains the handle of your followed accounts in the first column you exported from the old account.'),
+		'$importcontact_button' => L10n::t('Upload File'),
+		'$importcontact_maxsize' => Config::get('system', max_csv_file_size, 30720), 
 		'$relocate' => L10n::t('Relocate'),
 		'$relocate_text' => L10n::t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
 		'$relocate_button' => L10n::t("Resend relocate message to contacts"),

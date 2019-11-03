@@ -23,10 +23,11 @@ class UserExport extends BaseSettingsModule
 {
 	/**
 	 * Handle the request to export data.
-	 * At the moment one can export two different data set
+	 * At the moment one can export three different data set
 	 * 1. The profile data that can be used by uimport to resettle
 	 *    to a different Friendica instance
 	 * 2. The entire data-set, profile plus postings
+	 * 3. A list of contacts as CSV file similar to the export of Mastodon
 	 *
 	 * If there is an action required through the URL / path, react
 	 * accordingly and export the requested data.
@@ -42,6 +43,7 @@ class UserExport extends BaseSettingsModule
 		$options = [
 			['settings/userexport/account', L10n::t('Export account'), L10n::t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
 			['settings/userexport/backup', L10n::t('Export all'), L10n::t("Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
+			['settings/userexport/contact', L10n::t('Export Contacts to CSV'), L10n::t("Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.")],
 		];
 		Hook::callAll('uexport_options', $options);
 
@@ -64,15 +66,23 @@ class UserExport extends BaseSettingsModule
 			// @TODO Replace with router-provided arguments
 			$action = $args->get(2);
 			$user = self::getApp()->user;
-			header("Content-type: application/json");
-			header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
 			switch ($action) {
 				case "backup":
+					header("Content-type: application/json");
+					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
 					self::exportAll(self::getApp());
 					exit();
 					break;
 				case "account":
+					header("Content-type: application/json");
+					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '.' . $action . '"');
 					self::exportAccount(self::getApp());
+					exit();
+					break;
+				case "contact":
+					header("Content-type: application/csv");
+					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv'. '"');
+					self::exportContactsAsCSV();
 					exit();
 					break;
 				default:
@@ -134,6 +144,20 @@ class UserExport extends BaseSettingsModule
 		return $result;
 	}
 
+	/**
+	 * Export a list of the contacts as CSV file as e.g. Mastodon and Pleroma are doing.
+	 **/
+	private static function exportContactsAsCSV()
+	{
+		// write the table header (like Mastodon)
+		echo "Account address, Show boosts\n";
+		// get all the contacts
+		$contacts = DBA::select('contact', ['addr'], ['uid' => $_SESSION['uid'], 'self' => false, 'rel' => [1,3], 'deleted' => false]);
+		while ($contact = DBA::fetch($contacts)) {
+			echo $contact['addr'] . ", true\n";
+		}
+		DBA::close($contacts);
+	}
 	private static function exportAccount(App $a)
 	{
 		$user = self::exportRow(

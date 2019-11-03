@@ -270,6 +270,31 @@
 				</div>
 			</div>
 
+			{{* Import contacts CSV *}}
+			<div class="panel">
+				<div class="section-subtitle-wrapper" role="tab" id="importcontact-settings">
+					<h4>
+						<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#settings" href="#importcontact-settings-collapse" aria-expanded="false" aria-controls="importcontact-settings-collapse">
+							{{$importcontact}}
+						</a>
+					</h4>
+				</div>
+				<div id="importcontact-settings-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="importcontact-settings">
+					<div class="section-content-tools-wrapper">
+
+						<div id="importcontact-relocate-desc">{{$importcontact_text}}</div>
+						<input type="hidden" name="MAX_FILE_SIZE" value="{{$importcontact_maxsize}}" />
+						<input type="file" name="importcontact-filename" />
+
+						<br/>
+						<div class="form-group pull-right settings-submit-wrapper" >
+							<button type="submit" name="importcontact-submit" class="btn btn-primary" value="{{$importcontact_button}}">{{$importcontact_button}}</button>
+						</div>
+						<div class="clear"></div>
+					</div>
+				</div>
+			</div>
+
 			{{* The relocate setting section *}}
 			<div class="panel">
 				<div class="section-subtitle-wrapper" role="tab" id="relocate-settings">

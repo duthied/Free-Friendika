@@ -2,7 +2,7 @@
 
 {{$nickname_block nofilter}}
 
-<form action="settings" id="settings-form" method="post" autocomplete="off" >
+<form action="settings" id="settings-form" method="post" autocomplete="off" enctype="multipart/form-data" >
 <input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
 
 <h3 class="settings-heading"><a href="javascript:;">{{$h_pass}}</a></h3>
@@ -193,6 +193,17 @@
 
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-submit" value="{{$submit}}" />
+</div>
+</div>
+
+<h3 class="settings-heading"><a href="javascript:;">{{$importcontact}}</a></h3>
+<div class="settings-content-block">
+<input type="hidden" name="MAX_FILE_SIZE" value="{{$importcontact_maxsize}}" />
+<div id="settings-pagetype-desc">{{$importcontact_text}}</div>
+<input type="file" name="importcontact-filename" />
+
+<div class="settings-submit-wrapper" >
+<input type="submit" name="importcontact-submit" class="importcontact-submit" value="{{$importcontact_button}}" />
 </div>
 </div>
 

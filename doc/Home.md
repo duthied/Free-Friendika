@@ -21,6 +21,7 @@ Friendica Documentation and Resources
 	* [Chats](help/Chats)
 * Further information
 	* [Move your account](help/Move-Account)
+	* [Export / Import of followed Contacts](help/Export-Import-Contacts)
 	* [Delete your account](help/Remove-Account)
 	* [Frequently asked questions (FAQ)](help/FAQ)
 
