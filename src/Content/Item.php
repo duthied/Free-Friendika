@@ -42,13 +42,12 @@ final class Item
 		$folders = [];
 		$first = true;
 
-		if (!empty($item['author-link'])) {
-			$url = $item['author-link'] . "?category=" . rawurlencode($savedFolderName);
-		} else {
-			$url = '#';
-		}
-
 		foreach (FileTag::fileToArray($item['file'] ?? '', 'category') as $savedFolderName) {
+			if (!empty($item['author-link'])) {
+				$url = $item['author-link'] . "?category=" . rawurlencode($savedFolderName);
+			} else {
+				$url = '#';
+			}
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
