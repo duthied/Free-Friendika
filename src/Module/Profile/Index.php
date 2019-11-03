@@ -46,16 +46,18 @@ class Index extends BaseModule
 	{
 		$a = DI::app();
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
+		ProfileModel::load($a, $parameters['nickname']);
+
+		$remote_contact_id = Session::getRemoteContactID($a->profile['uid']);
+
+		if (DI::config()->get('system', 'block_public') && !local_user() && !$remote_contact_id) {
 			return Login::form();
 		}
 
-		ProfileModel::load($a, $parameters['nickname']);
-
 		DI::page()['htmlhead'] .= "\n";
 
-		$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && DI::config()->get('system', 'block_public');
-		$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
+		$blocked   = !local_user() && !$remote_contact_id && DI::config()->get('system', 'block_public');
+		$userblock = !local_user() && !$remote_contact_id && $a->profile['hidewall'];
 
 		if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 			DI::page()['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
@@ -102,10 +104,9 @@ class Index extends BaseModule
 
 		Nav::setSelected('home');
 
-		$remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
-		$is_owner = local_user() == $a->profile['profile_uid'];
+		$is_owner = local_user() == $a->profile['uid'];
 
-		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
+		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			notice(DI::l10n()->t('Access to this profile has been restricted.'));
 			return '';
 		}
