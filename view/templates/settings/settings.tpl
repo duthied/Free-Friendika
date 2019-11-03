@@ -198,7 +198,7 @@
 
 <h3 class="settings-heading"><a href="javascript:;">{{$importcontact}}</a></h3>
 <div class="settings-content-block">
-<input type="hidden" name="MAX_FILE_SIZE" value="30720" />
+<input type="hidden" name="MAX_FILE_SIZE" value="{{$importcontact_maxsize}}" />
 <div id="settings-pagetype-desc">{{$importcontact_text}}</div>
 <input type="file" name="importcontact-filename" />
 

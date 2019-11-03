@@ -283,7 +283,7 @@
 					<div class="section-content-tools-wrapper">
 
 						<div id="importcontact-relocate-desc">{{$importcontact_text}}</div>
-						<input type="hidden" name="MAX_FILE_SIZE" value="30720" />
+						<input type="hidden" name="MAX_FILE_SIZE" value="{{$importcontact_maxsize}}" />
 						<input type="file" name="importcontact-filename" />
 
 						<br/>
