@@ -261,8 +261,8 @@ class Register extends BaseModule
 
 				$a->internalRedirect('register/');
 			}
-			// Is there text in the tar pid?
-			if (!empty($_POST('registeertarpid'))) {
+			// Is there text in the tar pit?
+			if (!empty($_POST('registertarpit'))) {
 				\notice(L10n::t('You have entered too much information.'));
 				$a->internalRedirect('register/');
 			}
