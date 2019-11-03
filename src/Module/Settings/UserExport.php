@@ -43,7 +43,7 @@ class UserExport extends BaseSettingsModule
 		$options = [
 			['settings/userexport/account', L10n::t('Export account'), L10n::t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
 			['settings/userexport/backup', L10n::t('Export all'), L10n::t("Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
-			['settings/userexport/contactcsv', L10n::t('Export Contacts to CSV'), L10n::t("Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.")],
+			['settings/userexport/contact', L10n::t('Export Contacts to CSV'), L10n::t("Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.")],
 		];
 		Hook::callAll('uexport_options', $options);
 
@@ -79,7 +79,7 @@ class UserExport extends BaseSettingsModule
 					self::exportAccount(self::getApp());
 					exit();
 					break;
-				case "contactcsv":
+				case "contact":
 					header("Content-type: application/csv");
 					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv'. '"');
 					self::exportContactsAsCSV(self::getApp());
