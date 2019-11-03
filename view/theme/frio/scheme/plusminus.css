@@ -106,3 +106,25 @@ aside .widget, .form-control, .panel, .nav-container, .wall-item-content, .e-con
     height: 0px;
 }
 
+/* Contact-page */
+#connect-desc {
+    color: grey;
+}
+
+.search-input.form-control.form-search {
+    background-color: #ebebeb;
+    border-color:lightgrey;
+}
+
+.search-input.form-control.form-search:focus {
+    background-color: white;
+    border-color:grey;
+}
+
+/* Addon-Showmore*/
+.showmore-wrap {
+    background-color:lightgrey;
+    text-decoration: underline;
+    text-decoration-color: black;
+    text-decoration-style: wavy;
+}
