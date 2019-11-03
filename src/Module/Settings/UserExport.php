@@ -146,10 +146,8 @@ class UserExport extends BaseSettingsModule
 
 	/**
 	 * Export a list of the contacts as CSV file as e.g. Mastodon and Pleroma are doing.
-	 *
-	 * @param App $a the app data
 	 **/
-	private static function exportContactsAsCSV(App $a)
+	private static function exportContactsAsCSV()
 	{
 		// write the table header (like Mastodon)
 		echo "Account address, Show boosts\n";
