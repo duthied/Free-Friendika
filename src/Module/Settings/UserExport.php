@@ -82,7 +82,7 @@ class UserExport extends BaseSettingsModule
 				case "contact":
 					header("Content-type: application/csv");
 					header('Content-Disposition: attachment; filename="' . $user['nickname'] . '-contacts.csv'. '"');
-					self::exportContactsAsCSV(self::getApp());
+					self::exportContactsAsCSV();
 					exit();
 					break;
 				default:
