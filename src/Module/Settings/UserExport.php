@@ -154,14 +154,11 @@ class UserExport extends BaseSettingsModule
 		// write the table header (like Mastodon)
 		echo "Account address, Show boosts\n";
 		// get all the contacts
-		$query = sprintf("SELECT addr FROM `contact` WHERE `uid` = %d AND `self` = 0 AND rel IN (1,3) AND NOT `deleted`;", intval($_SESSION['uid']));
-		$contacts = q($query);
-		if (DBA::isResult($contacts)) {
-			foreach ($contacts as $contact) {
-				// export row, set Show boosts to true
-				echo $contact['addr'] . ", true\n";
-			}
+		$contacts = DBA::select('contact', ['addr'], ['uid' => $_SESSION['uid'], 'self' => false, 'rel' => [1,3], 'deleted' => false]);
+		while ($contact = DBA::fetch($contacts)) {
+			echo $contact['addr'] . ", true\n";
 		}
+		DBA::close($contacts);
 	}
 	private static function exportAccount(App $a)
 	{
