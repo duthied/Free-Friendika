@@ -72,7 +72,7 @@
 				</div>
 
 				{{if $item.has_cats}}
-				<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category">{{$cat.name}}</span>
+				<div class="categorytags"><span>{{$item.txt_cats}} {{foreach $item.categories as $cat}}<span class="p-category"><a href="{{$cat.url}}">{{$cat.name}}</a></span>
 				<a href="{{$cat.removeurl}}" title="{{$remove}}">[{{$remove}}]</a>
 				{{if $cat.last}}{{else}}, {{/if}}{{/foreach}}
 				</div>
