@@ -56,7 +56,7 @@
 
 		{{if $permonly}}
 		{{include file="field_textarea.tpl" field=$permonlybox}}
-		<input type="input" id="registertarpid" style="display: none;" value="Don't enter anything here"/>
+		<input type="input" id="registertarpid" style="display: none;" placeholder="Don't enter anything here"/>
 		{{/if}}
 
 		{{$publish nofilter}}
