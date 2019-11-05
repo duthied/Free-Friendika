@@ -18,7 +18,7 @@ use Friendica\Util\DateTimeFormat;
  */
 class FollowConfirm extends BaseModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		$a = self::getApp();
 

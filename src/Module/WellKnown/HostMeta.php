@@ -13,7 +13,7 @@ use Friendica\Util\Crypto;
  */
 class HostMeta extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$app = self::getApp();
 		$config = $app->getConfig();

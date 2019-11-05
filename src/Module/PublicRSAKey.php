@@ -12,7 +12,7 @@ use Friendica\Network\HTTPException\BadRequestException;
  */
 class PublicRSAKey extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$app = self::getApp();
 

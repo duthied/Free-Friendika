@@ -14,7 +14,7 @@ use Friendica\Util\Strings;
  */
 class Maintenance extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$config = self::getApp()->getConfig();
 

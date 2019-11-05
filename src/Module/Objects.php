@@ -15,7 +15,7 @@ use Friendica\Protocol\ActivityPub;
  */
 class Objects extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$a = self::getApp();
 

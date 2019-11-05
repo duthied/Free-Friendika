@@ -11,7 +11,7 @@ use Psr\Log\LogLevel;
 
 class Settings extends BaseAdminModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
 
@@ -37,7 +37,7 @@ class Settings extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/logs');
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

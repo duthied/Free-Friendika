@@ -12,7 +12,7 @@ use Friendica\Network\HTTPException;
  */
 class ItemBody extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(L10n::t('Access denied.'));

@@ -10,7 +10,7 @@ use Friendica\Util\Strings;
 
 class View extends BaseAdminModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

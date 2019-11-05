@@ -15,7 +15,7 @@ use Friendica\Util\Temporal;
 
 class Users extends BaseAdminModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
 
@@ -131,7 +131,7 @@ class Users extends BaseAdminModule
 		$a->internalRedirect('admin/users');
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

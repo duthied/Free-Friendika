@@ -6,7 +6,7 @@ use Friendica\Module\BaseAdminModule;
 
 class PhpInfo extends BaseAdminModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		parent::rawContent($parameters);
 

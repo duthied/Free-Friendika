@@ -47,7 +47,7 @@ class Tos extends BaseModule
 	 * dealings with their own node so a TOS is not necessary.
 	 *
 	 **/
-	public static function init($parameters)
+	public static function init(array $parameters = [])
 	{
 		if (strlen(Config::get('system','singleuser'))) {
 			self::getApp()->internalRedirect('profile/' . Config::get('system','singleuser'));
@@ -66,7 +66,7 @@ class Tos extends BaseModule
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function content($parameters) {
+	public static function content(array $parameters = []) {
 		$tpl = Renderer::getMarkupTemplate('tos.tpl');
 		if (Config::get('system', 'tosdisplay')) {
 			return Renderer::replaceMacros($tpl, [

@@ -23,7 +23,7 @@ use Friendica\Protocol\OStatus;
  */
 class Feed extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$a = self::getApp();
 

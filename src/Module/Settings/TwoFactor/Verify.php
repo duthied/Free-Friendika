@@ -24,7 +24,7 @@ use PragmaRX\Google2FA\Google2FA;
  */
 class Verify extends BaseSettingsModule
 {
-	public static function init($parameters)
+	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -43,7 +43,7 @@ class Verify extends BaseSettingsModule
 		}
 	}
 
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -69,7 +69,7 @@ class Verify extends BaseSettingsModule
 		}
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/verify');

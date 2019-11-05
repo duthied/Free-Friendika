@@ -21,7 +21,7 @@ require_once __DIR__ . '/../../../boot.php';
 
 class Site extends BaseAdminModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
 
@@ -412,7 +412,7 @@ class Site extends BaseAdminModule
 		$a->internalRedirect('admin/site' . $active_panel);
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

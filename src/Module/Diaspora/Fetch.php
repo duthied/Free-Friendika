@@ -17,7 +17,7 @@ use Friendica\Util\Strings;
  */
 class Fetch extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$app = self::getApp();
 

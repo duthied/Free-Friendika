@@ -23,7 +23,7 @@ require_once 'boot.php';
  */
 abstract class BaseAdminModule extends BaseModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		if (!is_site_admin()) {
 			return;
@@ -35,7 +35,7 @@ abstract class BaseAdminModule extends BaseModule
 		}
 	}
 
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		if (!is_site_admin()) {
 			return '';
@@ -48,7 +48,7 @@ abstract class BaseAdminModule extends BaseModule
 		return '';
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$a = self::getApp();
 

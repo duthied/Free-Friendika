@@ -32,7 +32,7 @@ class UserExport extends BaseSettingsModule
 	 * If there is an action required through the URL / path, react
 	 * accordingly and export the requested data.
 	 **/
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 
@@ -59,7 +59,7 @@ class UserExport extends BaseSettingsModule
 	 * to the browser which then offers a save / open dialog
 	 * to the user.
 	 **/
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$args = self::getClass(Arguments::class);
 		if ($args->getArgc() == 3) {

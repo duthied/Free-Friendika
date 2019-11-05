@@ -12,7 +12,7 @@ use Friendica\Util\XML;
  */
 class RemoveTag extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException();

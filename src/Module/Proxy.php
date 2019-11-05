@@ -30,7 +30,7 @@ class Proxy extends BaseModule
 	 * Sets application instance and checks if /proxy/ path is writable.
 	 *
 	 */
-	public static function init($parameters)
+	public static function init(array $parameters = [])
 	{
 		// Set application instance here
 		$a = self::getApp();

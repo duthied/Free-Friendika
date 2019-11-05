@@ -75,7 +75,7 @@ class Contact extends BaseModule
 		$a->internalRedirect('contact');
 	}
 
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		$a = self::getApp();
 
@@ -240,7 +240,7 @@ class Contact extends BaseModule
 		Model\Contact::remove($orig_record['id']);
 	}
 
-	public static function content($update = 0)
+	public static function content(array $parameters = [], $update = 0)
 	{
 		if (!local_user()) {
 			return Login::form($_SERVER['REQUEST_URI']);

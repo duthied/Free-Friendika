@@ -23,7 +23,7 @@ use Friendica\Util\Strings;
 
 class Index extends BaseSearchModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$search = (!empty($_GET['q']) ? Strings::escapeTags(trim(rawurldecode($_GET['q']))) : '');
 

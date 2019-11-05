@@ -13,7 +13,7 @@ use Friendica\Module\BaseAdminModule;
 class Source extends BaseAdminModule
 
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

@@ -12,7 +12,7 @@ use Friendica\Core\Renderer;
  */
 class Home extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$app = self::getApp();
 		$config = $app->getConfig();

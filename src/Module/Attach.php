@@ -20,7 +20,7 @@ class Attach extends BaseModule
 	/**
 	 * @brief Return to user an attached file given the id
 	 */
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$a = self::getApp();
 		if ($a->argc != 2) {

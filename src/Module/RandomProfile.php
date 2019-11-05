@@ -11,7 +11,7 @@ use Friendica\Model\GContact;
  */
 class RandomProfile extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$a = self::getApp();
 

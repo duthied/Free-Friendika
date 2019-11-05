@@ -9,7 +9,7 @@ use Friendica\Module\BaseAdminModule;
 
 class Tos extends BaseAdminModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
 
@@ -32,7 +32,7 @@ class Tos extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/tos');
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

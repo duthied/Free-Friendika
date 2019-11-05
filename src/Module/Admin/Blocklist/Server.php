@@ -10,7 +10,7 @@ use Friendica\Util\Strings;
 
 class Server extends BaseAdminModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
 
@@ -50,7 +50,7 @@ class Server extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/blocklist/server');
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

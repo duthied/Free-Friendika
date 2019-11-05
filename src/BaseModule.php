@@ -22,7 +22,7 @@ abstract class BaseModule extends BaseObject
 	 * Extend this method if you need to do any shared processing before both
 	 * content() or post()
 	 */
-	public static function init($parameters)
+	public static function init(array $parameters = [])
 	{
 	}
 
@@ -32,7 +32,7 @@ abstract class BaseModule extends BaseObject
 	 * Extend this method if the module is supposed to return communication data,
 	 * e.g. from protocol implementations.
 	 */
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 	}
 
@@ -45,7 +45,7 @@ abstract class BaseModule extends BaseObject
 	 *
 	 * @return string
 	 */
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$o = '';
 
@@ -58,7 +58,7 @@ abstract class BaseModule extends BaseObject
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 	}
 
@@ -67,7 +67,7 @@ abstract class BaseModule extends BaseObject
 	 *
 	 * Unknown purpose
 	 */
-	public static function afterpost($parameters)
+	public static function afterpost(array $parameters = [])
 	{
 	}
 

@@ -20,7 +20,7 @@ use Friendica\Util\Network;
 
 class Summary extends BaseAdminModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

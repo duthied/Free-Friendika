@@ -14,7 +14,7 @@ use Friendica\Protocol\ActivityPub;
  */
 class Outbox extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$a = self::getApp();
 

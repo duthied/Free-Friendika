@@ -11,7 +11,7 @@ use Friendica\BaseModule;
  */
 class AccountManagementControlDocument extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$output = [
 			'version' => 1,

@@ -9,7 +9,7 @@ use Friendica\Module\BaseAdminModule;
 
 class Index extends BaseAdminModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

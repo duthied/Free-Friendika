@@ -9,7 +9,7 @@ use Friendica\BaseModule;
  */
 class RobotsTxt extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		$allDisalloweds = [
 			'/settings/',

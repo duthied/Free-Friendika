@@ -10,7 +10,7 @@ use Friendica\Model\Item;
  */
 class Starred extends BaseModule
 {
-	public static function rawContent($parameters)
+	public static function rawContent(array $parameters = [])
 	{
 		if (!local_user()) {
 			exit();

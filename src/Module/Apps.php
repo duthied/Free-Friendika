@@ -13,7 +13,7 @@ use Friendica\Core\Renderer;
  */
 class Apps extends BaseModule
 {
-	public static function init($parameters)
+	public static function init(array $parameters = [])
 	{
 		$privateaddons = Config::get('config', 'private_addons');
 		if ($privateaddons === "1" && !local_user()) {
@@ -21,7 +21,7 @@ class Apps extends BaseModule
 		}
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$apps = Nav::getAppMenu();
 

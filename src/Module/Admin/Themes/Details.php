@@ -11,7 +11,7 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdminModule
 {
-	public static function post($parameters)
+	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
 
@@ -39,7 +39,7 @@ class Details extends BaseAdminModule
 		}
 	}
 
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 

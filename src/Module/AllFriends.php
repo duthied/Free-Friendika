@@ -16,7 +16,7 @@ use Friendica\Util\Proxy as ProxyUtils;
  */
 class AllFriends extends BaseModule
 {
-	public static function content($parameters)
+	public static function content(array $parameters = [])
 	{
 		$app = self::getApp();
 
