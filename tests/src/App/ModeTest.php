@@ -200,7 +200,7 @@ class ModeTest extends MockedTest
 	public function testIsBackendButIndex()
 	{
 		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, true);
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], true);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
@@ -214,7 +214,7 @@ class ModeTest extends MockedTest
 	public function testIsNotBackend()
 	{
 		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(false, $module, $server, $mobileDetect);
@@ -232,7 +232,7 @@ class ModeTest extends MockedTest
 			'HTTP_X_REQUESTED_WITH' => 'xmlhttprequest',
 		];
 
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -246,7 +246,7 @@ class ModeTest extends MockedTest
 	public function testIsNotAjax()
 	{
 		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = new MobileDetect();
 
 		$mode = (new Mode())->determineRunMode(true, $module, $server, $mobileDetect);
@@ -260,7 +260,7 @@ class ModeTest extends MockedTest
 	public function testIsMobileIsTablet()
 	{
 		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = \Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(true);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(true);
@@ -278,7 +278,7 @@ class ModeTest extends MockedTest
 	public function testIsNotMobileIsNotTablet()
 	{
 		$server = [];
-		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, false);
+		$module = new Module(Module::DEFAULT, Module::DEFAULT_CLASS, [], false);
 		$mobileDetect = \Mockery::mock(MobileDetect::class);
 		$mobileDetect->shouldReceive('isMobile')->andReturn(false);
 		$mobileDetect->shouldReceive('isTablet')->andReturn(false);
