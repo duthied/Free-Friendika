@@ -17,7 +17,7 @@ use Friendica\Util\Strings;
  */
 class Oembed extends BaseModule
 {
-	public static function content()
+	public static function content($parameters)
 	{
 		$a = self::getApp();
 

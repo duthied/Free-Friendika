@@ -20,7 +20,7 @@ use Friendica\Util\Strings;
  */
 class Magic extends BaseModule
 {
-	public static function init()
+	public static function init($parameters)
 	{
 		$a = self::getApp();
 		$ret = ['success' => false, 'url' => '', 'message' => ''];

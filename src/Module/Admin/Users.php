@@ -15,9 +15,9 @@ use Friendica\Util\Temporal;
 
 class Users extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		$a = self::getApp();
 
@@ -131,9 +131,9 @@ class Users extends BaseAdminModule
 		$a->internalRedirect('admin/users');
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

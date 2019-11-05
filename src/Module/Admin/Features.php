@@ -10,9 +10,9 @@ use Friendica\Module\BaseAdminModule;
 
 class Features extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		parent::checkFormSecurityTokenRedirectOnError('/admin/features', 'admin_manage_features');
 
@@ -42,9 +42,9 @@ class Features extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/features');
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$arr = [];
 		$features = Feature::get(false);

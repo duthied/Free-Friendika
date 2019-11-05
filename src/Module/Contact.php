@@ -75,7 +75,7 @@ class Contact extends BaseModule
 		$a->internalRedirect('contact');
 	}
 
-	public static function post()
+	public static function post($parameters)
 	{
 		$a = self::getApp();
 

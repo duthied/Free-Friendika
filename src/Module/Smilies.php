@@ -26,7 +26,7 @@ class Smilies extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
 		$smilies = Content\Smilies::getList();
 		$count = count($smilies['texts'] ?? []);

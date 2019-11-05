@@ -32,9 +32,9 @@ class UserExport extends BaseSettingsModule
 	 * If there is an action required through the URL / path, react
 	 * accordingly and export the requested data.
 	 **/
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		/**
 		 * options shown on "Export personal data" page

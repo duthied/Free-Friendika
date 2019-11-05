@@ -13,7 +13,7 @@ use Friendica\Core\System;
  */
 class NodeInfo extends BaseModule
 {
-	public static function init()
+	public static function init($parameters)
 	{
 		$config = self::getApp()->getConfig();
 

@@ -10,9 +10,9 @@ use Friendica\Util\Strings;
 
 class Delete extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		if (empty($_POST['page_deleteitem_submit'])) {
 			return;
@@ -36,9 +36,9 @@ class Delete extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/item/delete');
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$t = Renderer::getMarkupTemplate('admin/item/delete.tpl');
 

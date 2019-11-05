@@ -15,7 +15,7 @@ use Friendica\Model\User;
  */
 class Friendica extends BaseModule
 {
-	public static function content()
+	public static function content($parameters)
 	{
 		$app = self::getApp();
 		$config = $app->getConfig();

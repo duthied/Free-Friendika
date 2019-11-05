@@ -308,7 +308,7 @@ class Page implements ArrayAccess
 			$arr = ['content' => $content];
 			Hook::callAll($moduleClass . '_mod_content', $arr);
 			$content = $arr['content'];
-			$arr     = ['content' => call_user_func([$moduleClass, 'content'])];
+			$arr     = ['content' => call_user_func([$moduleClass, 'content'], [])];
 			Hook::callAll($moduleClass . '_mod_aftercontent', $arr);
 			$content .= $arr['content'];
 		} catch (HTTPException $e) {

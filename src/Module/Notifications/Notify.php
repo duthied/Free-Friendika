@@ -14,7 +14,7 @@ use Friendica\Network\HTTPException;
  */
 class Notify extends BaseModule
 {
-	public static function init()
+	public static function init($parameters)
 	{
 		if (!local_user()) {
 			throw new HTTPException\UnauthorizedException(L10n::t('Permission denied.'));
@@ -45,7 +45,7 @@ class Notify extends BaseModule
 	 * @return string|void
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	public static function content()
+	public static function content($parameters)
 	{
 		$a = self::getApp();
 

@@ -19,7 +19,7 @@ require_once 'boot.php';
 
 class Group extends BaseModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
 		$a = self::getApp();
 
@@ -132,7 +132,7 @@ class Group extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
 		$change = false;
 

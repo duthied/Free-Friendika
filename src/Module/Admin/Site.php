@@ -21,9 +21,9 @@ require_once __DIR__ . '/../../../boot.php';
 
 class Site extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		self::checkFormSecurityTokenRedirectOnError('/admin/site', 'admin_site');
 
@@ -412,9 +412,9 @@ class Site extends BaseAdminModule
 		$a->internalRedirect('admin/site' . $active_panel);
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

@@ -21,13 +21,13 @@ class Receive extends BaseModule
 	/** @var LoggerInterface */
 	private static $logger;
 
-	public static function init()
+	public static function init($parameters)
 	{
 		/** @var LoggerInterface $logger */
 		self::$logger = self::getClass(LoggerInterface::class);
 	}
 
-	public static function post()
+	public static function post($parameters)
 	{
 		/** @var Configuration $config */
 		$config = self::getClass(Configuration::class);

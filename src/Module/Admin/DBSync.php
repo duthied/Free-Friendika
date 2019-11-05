@@ -12,9 +12,9 @@ use Friendica\Module\BaseAdminModule;
 
 class DBSync extends BaseAdminModule
 {
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

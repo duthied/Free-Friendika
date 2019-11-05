@@ -14,7 +14,7 @@ use Friendica\Util\Network;
  */
 class Feed extends BaseModule
 {
-	public static function init()
+	public static function init($parameters)
 	{
 		if (!local_user()) {
 			info(L10n::t('You must be logged in to use this module'));
@@ -22,7 +22,7 @@ class Feed extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
 		$result = [];
 		if (!empty($_REQUEST['url'])) {

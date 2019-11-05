@@ -22,7 +22,7 @@ abstract class BaseModule extends BaseObject
 	 * Extend this method if you need to do any shared processing before both
 	 * content() or post()
 	 */
-	public static function init()
+	public static function init($parameters)
 	{
 	}
 
@@ -34,8 +34,6 @@ abstract class BaseModule extends BaseObject
 	 */
 	public static function rawContent($parameters)
 	{
-		// echo '';
-		// exit;
 	}
 
 	/**
@@ -47,7 +45,7 @@ abstract class BaseModule extends BaseObject
 	 *
 	 * @return string
 	 */
-	public static function content()
+	public static function content($parameters)
 	{
 		$o = '';
 
@@ -60,10 +58,8 @@ abstract class BaseModule extends BaseObject
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	public static function post()
+	public static function post($parameters)
 	{
-		// $a = self::getApp();
-		// $a->internalRedirect('module');
 	}
 
 	/**
@@ -71,9 +67,8 @@ abstract class BaseModule extends BaseObject
 	 *
 	 * Unknown purpose
 	 */
-	public static function afterpost()
+	public static function afterpost($parameters)
 	{
-
 	}
 
 	/*

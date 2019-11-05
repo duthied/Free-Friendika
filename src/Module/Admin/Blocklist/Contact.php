@@ -11,9 +11,9 @@ use Friendica\Model;
 
 class Contact extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		$contact_url  = $_POST['contact_url'] ?? '';
 		$block_reason = $_POST['contact_block_reason'] ?? '';
@@ -41,9 +41,9 @@ class Contact extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/blocklist/contact');
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

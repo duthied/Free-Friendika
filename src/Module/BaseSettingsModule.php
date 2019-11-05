@@ -9,7 +9,7 @@ use Friendica\Core\Renderer;
 
 class BaseSettingsModule extends BaseModule
 {
-	public static function content()
+	public static function content($parameters)
 	{
 		$a = self::getApp();
 

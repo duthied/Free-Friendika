@@ -14,7 +14,7 @@ use Friendica\Util\XML;
  */
 class SaveTag extends BaseModule
 {
-	public static function init()
+	public static function init($parameters)
 	{
 		if (!local_user()) {
 			info(L10n::t('You must be logged in to use this module'));

@@ -4,7 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Model\Item;
-use Friendica\Core\System;
 
 /**
  * Toggle starred items
@@ -28,7 +27,7 @@ class Starred extends BaseModule
 			exit();
 		}
 
-		$starred = !$item['starred'];
+		$starred = !(bool)$item['starred'];
 
 		Item::update(['starred' => $starred], ['id' => $itemId]);
 
@@ -40,6 +39,7 @@ class Starred extends BaseModule
 		}
 
 		// the json doesn't really matter, it will either be 0 or 1
-		System::jsonExit($starred);
+		echo json_encode((int)$starred);
+		exit();
 	}
 }

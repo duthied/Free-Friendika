@@ -21,7 +21,7 @@ use Friendica\Util\Strings;
  */
 class Directory extends BaseModule
 {
-	public static function content()
+	public static function content($parameters)
 	{
 		$app = self::getApp();
 		$config = $app->getConfig();

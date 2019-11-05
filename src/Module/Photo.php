@@ -23,7 +23,7 @@ class Photo extends BaseModule
 	 * Fetch a photo or an avatar, in optional size, check for permissions and
 	 * return the image
 	 */
-	public static function init()
+	public static function init($parameters)
 	{
 		$a = self::getApp();
 		// @TODO: Replace with parameter from router

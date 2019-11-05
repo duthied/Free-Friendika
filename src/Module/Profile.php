@@ -33,7 +33,7 @@ class Profile extends BaseModule
 	public static $which = '';
 	public static $profile = 0;
 
-	public static function init()
+	public static function init($parameters)
 	{
 		$a = self::getApp();
 

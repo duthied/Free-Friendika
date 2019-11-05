@@ -10,9 +10,9 @@ use Friendica\Util\Strings;
 
 class Server extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		if (empty($_POST['page_blocklist_save']) && empty($_POST['page_blocklist_edit'])) {
 			return;
@@ -50,9 +50,9 @@ class Server extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/blocklist/server');
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

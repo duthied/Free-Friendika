@@ -11,9 +11,9 @@ use Psr\Log\LogLevel;
 
 class Settings extends BaseAdminModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
-		parent::post();
+		parent::post($parameters);
 
 		if (!empty($_POST['page_logs'])) {
 			parent::checkFormSecurityTokenRedirectOnError('/admin/logs', 'admin_logs');
@@ -37,9 +37,9 @@ class Settings extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/logs');
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

@@ -8,7 +8,7 @@ use Friendica\Core\System;
 
 class Statistics extends BaseModule
 {
-	public static function init()
+	public static function init($parameters)
 	{
 		$config = self::getApp()->getConfig();
 

@@ -20,7 +20,7 @@ use Friendica\Util\Strings;
  */
 class Delegation extends BaseSettingsModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
 		if (!local_user() || !empty(self::getApp()->user['uid']) && self::getApp()->user['uid'] != local_user()) {
 			throw new HTTPException\ForbiddenException(L10n::t('Permission denied.'));
@@ -46,9 +46,9 @@ class Delegation extends BaseSettingsModule
 		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException(L10n::t('Permission denied.'));

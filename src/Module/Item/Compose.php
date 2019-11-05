@@ -21,7 +21,7 @@ use Friendica\Util\Crypto;
 
 class Compose extends BaseModule
 {
-	public static function post()
+	public static function post($parameters)
 	{
 		if (!empty($_REQUEST['body'])) {
 			$_REQUEST['return'] = 'network';
@@ -32,7 +32,7 @@ class Compose extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content($parameters)
 	{
 		if (!local_user()) {
 			return Login::form('compose', false);

@@ -10,9 +10,9 @@ use Friendica\Module\BaseAdminModule;
 
 class Federation extends BaseAdminModule
 {
-	public static function content()
+	public static function content($parameters)
 	{
-		parent::content();
+		parent::content($parameters);
 
 		// get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
 		// social and statusnet nodes this node is knowing
