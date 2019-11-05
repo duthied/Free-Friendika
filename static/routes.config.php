@@ -179,9 +179,8 @@ return [
 		'/{type}/{customize}/{name}' => [Module\Photo::class, [R::GET]],
 	],
 
-	'/pinned/{item:\d+}' => [Module\Pinned::class,       [R::GET]],
-	'/pretheme'          => [Module\ThemeDetails::class, [R::GET]],
-	'/probe'             => [Module\Debug\Probe::class,  [R::GET]],
+	'/pretheme' => [Module\ThemeDetails::class, [R::GET]],
+	'/probe'    => [Module\Debug\Probe::class,  [R::GET]],
 
 	'/profile' => [
 		'/{nickname}'                                                 => [Module\Profile::class,          [R::GET]],
