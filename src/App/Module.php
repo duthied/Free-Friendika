@@ -64,6 +64,11 @@ class Module
 	private $module_class;
 
 	/**
+	 * @var array The module parameters
+	 */
+	private $module_parameters;
+
+	/**
 	 * @var bool true, if the module is a backend module
 	 */
 	private $isBackend;
@@ -98,10 +103,11 @@ class Module
 		return $this->isBackend;
 	}
 
-	public function __construct(string $module = self::DEFAULT, string $moduleClass = self::DEFAULT_CLASS, bool $isBackend = false, bool $printNotAllowedAddon = false)
+	public function __construct(string $module = self::DEFAULT, string $moduleClass = self::DEFAULT_CLASS, array $moduleParameters = [], bool $isBackend = false, bool $printNotAllowedAddon = false)
 	{
 		$this->module               = $module;
 		$this->module_class         = $moduleClass;
+		$this->module_parameters    = $moduleParameters;
 		$this->isBackend            = $isBackend;
 		$this->printNotAllowedAddon = $printNotAllowedAddon;
 	}
@@ -129,7 +135,7 @@ class Module
 
 		$isBackend = in_array($module, Module::BACKEND_MODULES);;
 
-		return new Module($module, $this->module_class, $isBackend, $this->printNotAllowedAddon);
+		return new Module($module, $this->module_class, [], $isBackend, $this->printNotAllowedAddon);
 	}
 
 	/**
@@ -148,6 +154,7 @@ class Module
 		$printNotAllowedAddon = false;
 
 		$module_class = null;
+		$module_parameters = [];
 		/**
 		 * ROUTING
 		 *
@@ -156,6 +163,7 @@ class Module
 		 **/
 		try {
 			$module_class = $router->getModuleClass($args->getCommand());
+			$module_parameters = $router->getModuleParameters();
 		} catch (MethodNotAllowedException $e) {
 			$module_class = MethodNotAllowed::class;
 		} catch (NotFoundException $e) {
@@ -185,7 +193,7 @@ class Module
 			$module_class = $module_class ?: PageNotFound::class;
 		}
 
-		return new Module($this->module, $module_class, $this->isBackend, $printNotAllowedAddon);
+		return new Module($this->module, $module_class, $module_parameters, $this->isBackend, $printNotAllowedAddon);
 	}
 
 	/**
@@ -233,18 +241,18 @@ class Module
 
 		Core\Hook::callAll($this->module . '_mod_init', $placeholder);
 
-		call_user_func([$this->module_class, 'init']);
+		call_user_func([$this->module_class, 'init'], $this->module_parameters);
 
 		// "rawContent" is especially meant for technical endpoints.
 		// This endpoint doesn't need any theme initialization or other comparable stuff.
-		call_user_func([$this->module_class, 'rawContent']);
+		call_user_func([$this->module_class, 'rawContent'], $this->module_parameters);
 
 		if ($server['REQUEST_METHOD'] === 'POST') {
 			Core\Hook::callAll($this->module . '_mod_post', $post);
-			call_user_func([$this->module_class, 'post']);
+			call_user_func([$this->module_class, 'post'], $this->module_parameters);
 		}
 
 		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
-		call_user_func([$this->module_class, 'afterpost']);
+		call_user_func([$this->module_class, 'afterpost'], $this->module_parameters);
 	}
 }
