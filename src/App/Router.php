@@ -40,6 +40,11 @@ class Router
 	private $httpMethod;
 
 	/**
+	 * @var array Module parameters
+	 */
+	private $parameters = [];
+
+	/**
 	 * @param array $server The $_SERVER variable
 	 * @param RouteCollector|null $routeCollector Optional the loaded Route collector
 	 */
@@ -172,10 +177,12 @@ class Router
 		$dispatcher = new \FastRoute\Dispatcher\GroupCountBased($this->routeCollector->getData());
 
 		$moduleClass = null;
+		$this->parameters = [];
 
 		$routeInfo  = $dispatcher->dispatch($this->httpMethod, $cmd);
 		if ($routeInfo[0] === Dispatcher::FOUND) {
 			$moduleClass = $routeInfo[1];
+			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
 			throw new HTTPException\MethodNotAllowedException(L10n::t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
 		} else {
@@ -183,5 +190,15 @@ class Router
 		}
 
 		return $moduleClass;
+	}
+
+	/**
+	 * Returns the module parameters.
+	 *
+	 * @return array parameters
+	 */
+	public function getModuleParameters()
+	{
+		return $this->parameters;
 	}
 }
