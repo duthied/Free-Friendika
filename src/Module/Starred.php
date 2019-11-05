@@ -13,11 +13,11 @@ class Starred extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 
 		if (empty($parameters['item'])) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
 		$itemId = intval($parameters['item']);
