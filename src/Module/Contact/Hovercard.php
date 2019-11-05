@@ -18,7 +18,7 @@ use Friendica\Util\Proxy;
  */
 class Hovercard extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		$contact_url = $_REQUEST['url'] ?? '';
 

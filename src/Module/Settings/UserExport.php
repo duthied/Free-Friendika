@@ -59,7 +59,7 @@ class UserExport extends BaseSettingsModule
 	 * to the browser which then offers a save / open dialog
 	 * to the user.
 	 **/
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		$args = self::getClass(Arguments::class);
 		if ($args->getArgc() == 3) {

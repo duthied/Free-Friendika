@@ -35,7 +35,7 @@ abstract class BaseAdminModule extends BaseModule
 		}
 	}
 
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		if (!is_site_admin()) {
 			return '';

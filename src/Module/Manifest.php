@@ -7,7 +7,7 @@ use Friendica\Core\Renderer;
 
 class Manifest extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		$app = self::getApp();
 		$config = $app->getConfig();

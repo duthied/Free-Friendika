@@ -32,7 +32,7 @@ abstract class BaseModule extends BaseObject
 	 * Extend this method if the module is supposed to return communication data,
 	 * e.g. from protocol implementations.
 	 */
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		// echo '';
 		// exit;

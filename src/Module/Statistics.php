@@ -17,7 +17,7 @@ class Statistics extends BaseModule
 		}
 	}
 
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		$config = self::getApp()->getConfig();
 		$logger = self::getApp()->getLogger();

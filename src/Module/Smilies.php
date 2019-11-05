@@ -12,7 +12,7 @@ use Friendica\Core\System;
  */
 class Smilies extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		$app = self::getApp();
 

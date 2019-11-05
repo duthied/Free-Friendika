@@ -51,7 +51,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);

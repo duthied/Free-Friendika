@@ -13,7 +13,7 @@ use Friendica\Util\Strings;
  */
 class Like extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		if (!Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();

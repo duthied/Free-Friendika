@@ -10,7 +10,7 @@ use Friendica\Core\Theme;
  */
 class ThemeDetails extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent($parameters)
 	{
 		if (!empty($_REQUEST['theme'])) {
 			$theme = $_REQUEST['theme'];
