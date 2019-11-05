@@ -13,18 +13,18 @@ class Starred extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		if (!local_user()) {
-			exit();
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		if (empty($parameters['item'])) {
-			exit;
-		} else {
-			$itemId = intval($parameters['item']);
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
+
+		$itemId = intval($parameters['item']);
 
 		$item = Item::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $itemId]);
 		if (empty($item)) {
-			exit();
+			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		$starred = !(bool)$item['starred'];
