@@ -2476,7 +2476,7 @@ class Diaspora
 			return false;
 		}
 
-		$cid = Contact::getIdForURL($ret['url'], $uid);
+		$cid = Contact::getIdForURL($ret['url'], $importer['uid']);
 		if (!empty($cid)) {
 			$contact = DBA::selectFirst('contact', [], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
 		} else {
