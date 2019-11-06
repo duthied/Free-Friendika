@@ -33,7 +33,7 @@ class Profile extends BaseModule
 	public static $which = '';
 	public static $profile = 0;
 
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		$a = self::getApp();
 
@@ -51,7 +51,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public static function rawContent()
+	public static function rawContent(array $parameters = [])
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
@@ -75,7 +75,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public static function content($update = 0)
+	public static function content(array $parameters = [], $update = 0)
 	{
 		$a = self::getApp();
 

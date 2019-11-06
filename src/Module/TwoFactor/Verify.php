@@ -18,7 +18,7 @@ class Verify extends BaseModule
 {
 	private static $errors = [];
 
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -45,7 +45,7 @@ class Verify extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			self::getApp()->internalRedirect();

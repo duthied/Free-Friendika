@@ -16,7 +16,7 @@ class OpenSearch extends BaseModule
 	/**
 	 * @throws \Exception
 	 */
-	public static function rawContent()
+	public static function rawContent(array $parameters = [])
 	{
 		header('Content-type: application/opensearchdescription+xml');
 

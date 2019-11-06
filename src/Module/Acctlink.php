@@ -11,7 +11,7 @@ use Friendica\Core\System;
  */
 class Acctlink extends BaseModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		$addr = trim($_GET['addr'] ?? '');
 

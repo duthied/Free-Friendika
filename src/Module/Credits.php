@@ -13,7 +13,7 @@ use Friendica\Core\Renderer;
  */
 class Credits extends BaseModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		/* fill the page with credits */
 		$credits_string = file_get_contents('CREDITS.txt');

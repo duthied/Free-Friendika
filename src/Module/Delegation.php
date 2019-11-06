@@ -17,7 +17,7 @@ use Friendica\Network\HTTPException\ForbiddenException;
  */
 class Delegation extends BaseModule
 {
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -92,7 +92,7 @@ class Delegation extends BaseModule
 		// NOTREACHED
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			throw new ForbiddenException(L10n::t('Permission denied.'));

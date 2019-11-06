@@ -9,7 +9,7 @@ use Friendica\Util\Strings;
 
 class Embed extends BaseAdminModule
 {
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		$a = self::getApp();
 
@@ -23,9 +23,9 @@ class Embed extends BaseAdminModule
 		}
 	}
 
-	public static function post()
+	public static function post(array $parameters = [])
 	{
-		parent::post();
+		parent::post($parameters);
 
 		$a = self::getApp();
 
@@ -53,9 +53,9 @@ class Embed extends BaseAdminModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

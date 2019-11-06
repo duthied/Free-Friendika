@@ -35,24 +35,24 @@ class LegacyModule extends BaseModule
 		require_once $file_path;
 	}
 
-	public static function init()
+	public static function init(array $parameters = [])
 	{
-		self::runModuleFunction('init');
+		self::runModuleFunction('init', $parameters);
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		return self::runModuleFunction('content');
+		return self::runModuleFunction('content', $parameters);
 	}
 
-	public static function post()
+	public static function post(array $parameters = [])
 	{
-		self::runModuleFunction('post');
+		self::runModuleFunction('post', $parameters);
 	}
 
-	public static function afterpost()
+	public static function afterpost(array $parameters = [])
 	{
-		self::runModuleFunction('afterpost');
+		self::runModuleFunction('afterpost', $parameters);
 	}
 
 	/**
@@ -62,7 +62,7 @@ class LegacyModule extends BaseModule
 	 * @return string
 	 * @throws \Exception
 	 */
-	private static function runModuleFunction($function_suffix)
+	private static function runModuleFunction($function_suffix, array $parameters = [])
 	{
 		$function_name = static::$moduleName . '_' . $function_suffix;
 
@@ -70,7 +70,7 @@ class LegacyModule extends BaseModule
 			$a = self::getApp();
 			return $function_name($a);
 		} else {
-			return parent::{$function_suffix}();
+			return parent::{$function_suffix}($parameters);
 		}
 	}
 }

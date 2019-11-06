@@ -10,7 +10,7 @@ use Friendica\Util\Temporal;
 
 class Localtime extends BaseModule
 {
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 
@@ -21,7 +21,7 @@ class Localtime extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		$app = self::getApp();
 

@@ -10,9 +10,9 @@ use Friendica\Util\Strings;
 
 class View extends BaseAdminModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$t = Renderer::getMarkupTemplate('admin/logs/view.tpl');
 		$f = Config::get('system', 'logfile');

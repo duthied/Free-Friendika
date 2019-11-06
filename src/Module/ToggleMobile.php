@@ -9,7 +9,7 @@ use Friendica\BaseModule;
  */
 class ToggleMobile extends BaseModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		$a = self::getApp();
 

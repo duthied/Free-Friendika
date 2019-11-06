@@ -30,7 +30,7 @@ use LightOpenID;
  */
 class Login extends BaseModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		$a = self::getApp();
 
@@ -41,7 +41,7 @@ class Login extends BaseModule
 		return self::form(Session::get('return_path'), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		$openid_identity = Session::get('openid_identity');
 		$openid_server = Session::get('openid_server');

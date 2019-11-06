@@ -13,7 +13,7 @@ use Friendica\Util\Strings;
  */
 class Directory extends BaseSearchModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			notice(L10n::t('Permission denied.'));

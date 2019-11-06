@@ -15,14 +15,14 @@ use Friendica\Model\TwoFactor\RecoveryCode;
  */
 class Recovery extends BaseModule
 {
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
 		}
 	}
 
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -48,7 +48,7 @@ class Recovery extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			self::getApp()->internalRedirect();

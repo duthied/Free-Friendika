@@ -11,9 +11,9 @@ use Friendica\Util\Strings;
 
 class Index extends BaseAdminModule
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 
