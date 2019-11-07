@@ -1541,12 +1541,6 @@ function sort_thr_received_rev(array $a, array $b)
  */
 function sort_thr_commented(array $a, array $b)
 {
-	if ($b['pinned'] && !$a['pinned']) {
-		return 1;
-	} elseif (!$b['pinned'] && $a['pinned']) {
-		return -1;
-	}
-
 	return strcmp($b['commented'], $a['commented']);
 }
 

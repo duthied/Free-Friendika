@@ -143,6 +143,15 @@ class Item extends BaseObject
 		return (bool)$useritem['pinned'];
 	}
 
+	/**
+	 * @brief Select pinned rows from the item table for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
 	public static function selectPinned(int $uid, array $selected = [])
 	{
 		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
