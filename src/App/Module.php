@@ -95,6 +95,14 @@ class Module
 	}
 
 	/**
+	 * @return array The module parameters extracted from the route
+	 */
+	public function getParameters()
+	{
+		return $this->module_parameters;
+	}
+
+	/**
 	 * @return bool True, if the current module is a backend module
 	 * @see Module::BACKEND_MODULES for a list
 	 */
