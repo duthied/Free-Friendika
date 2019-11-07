@@ -177,7 +177,7 @@ class Profile extends BaseModule
 		}
 
 		if (!$update) {
-            $tab = Strings::escapeTags(trim($_GET['tab'] ?? ''));
+			$tab = Strings::escapeTags(trim($_GET['tab'] ?? ''));
 
 			$o .= ProfileModel::getTabs($a, $tab, $is_owner, $a->profile['nickname']);
 
@@ -349,7 +349,13 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'received', $a->profile['profile_uid']);
+		if ($pager->getStart() == 0) {
+			$pinned_items = Item::selectPinned($a->profile['profile_uid'], ['uri']);
+			$pinned = Item::inArray($pinned_items);
+			$items = array_merge($items, $pinned);
+		}
+
+		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'pinned_received', $a->profile['profile_uid']);
 
 		if (!$update) {
 			$o .= $pager->renderMinimal(count($items));

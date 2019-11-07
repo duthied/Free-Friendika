@@ -88,11 +88,16 @@
                                 class="wall-item-name-link"><span
                                 class="wall-item-name{{$item.sparkle}}">{{$item.name}}</span></a>
                                 <span class="wall-item-ago" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></span>
+				<span class="pinned">{{$item.pinned}}</span>
 				 {{if $item.owner_url}}<br/>{{$item.to}} <a href="{{$item.owner_url}}" target="redir" title="{{$item.olinktitle}}" class="wall-item-name-link"><span class="wall-item-name{{$item.osparkle}}" id="wall-item-ownername-{{$item.id}}">{{$item.owner_name}}</span></a> {{$item.vwall}}
 				 {{/if}}
 			</div>
 
 			<div class="wall-item-actions-social">
+			{{if $item.pin}}
+				<a href="#" id="pin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classdo}}"  title="{{$item.pin.do}}">{{$item.pin.do}}</a>
+				<a href="#" id="unpin-{{$item.id}}" onclick="dopin({{$item.id}}); return false;"  class="{{$item.pin.classundo}}"  title="{{$item.pin.undo}}">{{$item.pin.undo}}</a>
+			{{/if}}
 			{{if $item.star}}
 				<a href="#" id="star-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classdo}}"  title="{{$item.star.do}}">{{$item.star.do}}</a>
 				<a href="#" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}}); return false;"  class="{{$item.star.classundo}}"  title="{{$item.star.undo}}">{{$item.star.undo}}</a>

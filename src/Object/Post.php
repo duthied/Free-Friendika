@@ -140,8 +140,11 @@ class Post extends BaseObject
 		$sparkle = '';
 		$buttons = '';
 		$dropping = false;
+		$pinned = '';
+		$pin = false;
 		$star = false;
 		$ignore = false;
+		$ispinned = "unpinned";
 		$isstarred = "unstarred";
 		$indent = '';
 		$shiny = '';
@@ -284,6 +287,23 @@ class Post extends BaseObject
 				}
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
+					if ($origin) {
+						if ($item['pinned']) {
+							$pinned = L10n::t('pinned item');
+						}
+
+						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
+
+						$pin = [
+							'do'        => L10n::t('pin'),
+							'undo'      => L10n::t('unpin'),
+							'toggle'    => L10n::t('toggle pin status'),
+							'classdo'   => $item['pinned'] ? 'hidden' : '',
+							'classundo' => $item['pinned'] ? '' : 'hidden',
+							'pinned'   => L10n::t('pinned'),
+						];
+					}
+
 					$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 					$star = [
@@ -407,6 +427,9 @@ class Post extends BaseObject
 			'owner_name'      => $owner_name_e,
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
+			'ispinned'        => $ispinned,
+			'pin'             => $pin,
+			'pinned'          => $pinned,
 			'isstarred'       => $isstarred,
 			'star'            => $star,
 			'ignore'          => $ignore,
