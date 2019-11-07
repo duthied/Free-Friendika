@@ -349,7 +349,7 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		if ($pager->getStart() == 0) {
+		if ($pager->getStart() == 0 && !empty($a->profile['profile_uid'])) {
 			$pinned_items = Item::selectPinned($a->profile['profile_uid'], ['uri']);
 			$pinned = Item::inArray($pinned_items);
 			$items = array_merge($items, $pinned);
