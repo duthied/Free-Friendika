@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2019.09-rc (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1322
+-- Friendica 2019.12-dev (Dalmatian Bellflower)
+-- DB_UPDATE_VERSION 1324
 -- ------------------------------------------
 
 
@@ -1281,6 +1281,7 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	`ignored` boolean COMMENT 'Ignore this thread if set',
+	`pinned` boolean COMMENT 'The item is pinned on the profile page',
 	 PRIMARY KEY(`uid`,`iid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 

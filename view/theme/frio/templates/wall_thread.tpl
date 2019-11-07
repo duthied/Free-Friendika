@@ -118,6 +118,13 @@ as the value of $top_child_total (this is done at the end of this file)
 					</li>
 					{{/if}}
 
+					{{if $item.pin}}
+					<li role="menuitem">
+						<button type="button" id="pin-{{$item.id}}" onclick="dopin({{$item.id}});" class="btn-link {{$item.pin.classdo}}" title="{{$item.pin.do}}"><i class="fa fa-check-square-o" aria-hidden="true"></i>&nbsp;{{$item.pin.do}}</button>
+						<button type="button" id="unpin-{{$item.id}}" onclick="dopin({{$item.id}});" class="btn-link {{$item.pin.classundo}}" title="{{$item.pin.undo}}"><i class="fa fa-check-square" aria-hidden="true"></i>&nbsp;{{$item.pin.undo}}</button>
+					</li>
+					{{/if}}
+
 					{{if $item.star}}
 					<li role="menuitem">
 						<button type="button" id="star-{{$item.id}}" onclick="dostar({{$item.id}});" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o" aria-hidden="true"></i>&nbsp;{{$item.star.do}}</button>
