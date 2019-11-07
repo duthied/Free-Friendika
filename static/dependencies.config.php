@@ -171,7 +171,7 @@ return [
 			$_SERVER, null
 		],
 		'call' => [
-			['addRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
+			['loadRoutes', [include __DIR__ . '/routes.config.php'], Dice::CHAIN_CALL],
 		],
 	],
 	L10n::class => [

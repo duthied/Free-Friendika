@@ -65,12 +65,21 @@ class Router
 	 *
 	 * @throws HTTPException\InternalServerErrorException In case of invalid configs
 	 */
-	public function addRoutes(array $routes)
+	public function loadRoutes(array $routes)
 	{
 		$routeCollector = (isset($this->routeCollector) ?
 			$this->routeCollector :
 			new RouteCollector(new Std(), new GroupCountBased()));
 
+		$this->addRoutes($routeCollector, $routes);
+
+		$this->routeCollector = $routeCollector;
+
+		return $this;
+	}
+
+	private function addRoutes(RouteCollector $routeCollector, array $routes)
+	{
 		foreach ($routes as $route => $config) {
 			if ($this->isGroup($config)) {
 				$this->addGroup($route, $config, $routeCollector);
@@ -80,10 +89,6 @@ class Router
 				throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
 			}
 		}
-
-		$this->routeCollector = $routeCollector;
-
-		return $this;
 	}
 
 	/**
@@ -96,15 +101,7 @@ class Router
 	private function addGroup(string $groupRoute, array $routes, RouteCollector $routeCollector)
 	{
 		$routeCollector->addGroup($groupRoute, function (RouteCollector $routeCollector) use ($routes) {
-			foreach ($routes as $route => $config) {
-				if ($this->isGroup($config)) {
-					$this->addGroup($route, $config, $routeCollector);
-				} elseif ($this->isRoute($config)) {
-					$routeCollector->addRoute($config[1], $route, $config[0]);
-				}else {
-					throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
-				}
-			}
+			$this->addRoutes($routeCollector, $routes);
 		});
 	}
 
@@ -174,7 +171,7 @@ class Router
 
 		$cmd = '/' . ltrim($cmd, '/');
 
-		$dispatcher = new \FastRoute\Dispatcher\GroupCountBased($this->routeCollector->getData());
+		$dispatcher = new Dispatcher\GroupCountBased($this->routeCollector->getData());
 
 		$moduleClass = null;
 		$this->parameters = [];
