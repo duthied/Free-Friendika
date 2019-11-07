@@ -355,7 +355,7 @@ class Profile extends BaseModule
 			$items = array_merge($items, $pinned);
 		}
 
-		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'received', $a->profile['profile_uid']);
+		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'pinned_received', $a->profile['profile_uid']);
 
 		if (!$update) {
 			$o .= $pager->renderMinimal(count($items));

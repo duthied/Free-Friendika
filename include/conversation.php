@@ -1451,7 +1451,9 @@ function conv_sort(array $item_list, $order)
 		}
 	}
 
-	if (stristr($order, 'received')) {
+	if (stristr($order, 'pinned_received')) {
+		usort($parents, 'sort_thr_pinned_received');
+	} elseif (stristr($order, 'received')) {
 		usort($parents, 'sort_thr_received');
 	} elseif (stristr($order, 'commented')) {
 		usort($parents, 'sort_thr_commented');
@@ -1489,6 +1491,24 @@ function conv_sort(array $item_list, $order)
 }
 
 /**
+ * @brief usort() callback to sort item arrays by pinned and the received key
+ *
+ * @param array $a
+ * @param array $b
+ * @return int
+ */
+function sort_thr_pinned_received(array $a, array $b)
+{
+	if ($b['pinned'] && !$a['pinned']) {
+		return 1;
+	} elseif (!$b['pinned'] && $a['pinned']) {
+		return -1;
+	}
+
+	return strcmp($b['received'], $a['received']);
+}
+
+/**
  * @brief usort() callback to sort item arrays by the received key
  *
  * @param array $a
@@ -1497,12 +1517,6 @@ function conv_sort(array $item_list, $order)
  */
 function sort_thr_received(array $a, array $b)
 {
-	if ($b['pinned'] && !$a['pinned']) {
-		return 1;
-	} elseif (!$b['pinned'] && $a['pinned']) {
-		return -1;
-	}
-
 	return strcmp($b['received'], $a['received']);
 }
 
@@ -1515,12 +1529,6 @@ function sort_thr_received(array $a, array $b)
  */
 function sort_thr_received_rev(array $a, array $b)
 {
-	if ($b['pinned'] && !$a['pinned']) {
-		return -1;
-	} elseif (!$b['pinned'] && $a['pinned']) {
-		return 1;
-	}
-
 	return strcmp($a['received'], $b['received']);
 }
 
