@@ -140,6 +140,7 @@ class Post extends BaseObject
 		$sparkle = '';
 		$buttons = '';
 		$dropping = false;
+		$pinned = '';
 		$pin = false;
 		$star = false;
 		$ignore = false;
@@ -287,6 +288,10 @@ class Post extends BaseObject
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 					if ($origin) {
+						if ($item['pinned']) {
+							$pinned = L10n::t('pinned item');
+						}
+
 						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
 
 						$pin = [
@@ -424,6 +429,7 @@ class Post extends BaseObject
 			'edpost'          => $edpost,
 			'ispinned'        => $ispinned,
 			'pin'             => $pin,
+			'pinned'          => $pinned,
 			'isstarred'       => $isstarred,
 			'star'            => $star,
 			'ignore'          => $ignore,

@@ -54,7 +54,7 @@
 			<span class="wall-item-name{{$item.sparkle}}" id="wall-item-name-{{$item.id}}" >{{$item.name}}</span>
 			</a>
 			<div class="wall-item-ago">&bull;</div>
-			<div class="wall-item-ago" id="wall-item-ago-{{$item.id}}" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time></div>
+			<div class="wall-item-ago" id="wall-item-ago-{{$item.id}}" title="{{$item.localtime}}"><time class="dt-published" datetime="{{$item.localtime}}">{{$item.ago}}</time><span class="pinned">{{$item.pinned}}</span></div>
 		</div>
 
 		<div>

@@ -1388,7 +1388,8 @@ return [
 			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"]
 		],
 		"indexes" => [
-			"PRIMARY" => ["uid", "iid"]
+			"PRIMARY" => ["uid", "iid"],
+			"uid_pinned" => ["uid", "pinned"]
 		]
 	],
 	"worker-ipc" => [

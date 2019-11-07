@@ -1282,7 +1282,8 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	`ignored` boolean COMMENT 'Ignore this thread if set',
 	`pinned` boolean COMMENT 'The item is pinned on the profile page',
-	 PRIMARY KEY(`uid`,`iid`)
+	 PRIMARY KEY(`uid`,`iid`),
+	 INDEX `uid_pinned` (`uid`,`pinned`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 
 --

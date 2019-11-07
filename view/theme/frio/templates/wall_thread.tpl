@@ -236,6 +236,7 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.owner_self}}
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
+						<span class="pinned">{{$item.pinned}}</span>
 					</small>
 				</div>
 

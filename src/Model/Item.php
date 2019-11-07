@@ -116,7 +116,7 @@ class Item extends BaseObject
 
 	/**
 	 * Set the pinned state of an item
-	 * 
+	 *
 	 * @param integer $iid    Item ID
 	 * @param integer $uid    User ID
 	 * @param boolean $pinned Pinned state
@@ -128,10 +128,10 @@ class Item extends BaseObject
 
 	/**
 	 * Get the pinned state
-	 * 
+	 *
 	 * @param integer $iid Item ID
 	 * @param integer $uid User ID
-	 * 
+	 *
 	 * @return boolean pinned state
 	 */
 	public static function getPinned(int $iid, int $uid)
@@ -141,6 +141,22 @@ class Item extends BaseObject
 			return false;
 		}
 		return (bool)$useritem['pinned'];
+	}
+
+	public static function selectPinned(int $uid, array $selected = [])
+	{
+		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
+		if (!DBA::isResult($useritems)) {
+			return $useritems;
+		}
+
+		$pinned = [];
+		while ($useritem = self::fetch($useritems)) {
+			$pinned[] = $useritem['iid'];
+		}
+		DBA::close($useritems);
+
+		return self::selectThreadForUser($uid, $selected, ['iid' => $pinned]);
 	}
 
 	/**

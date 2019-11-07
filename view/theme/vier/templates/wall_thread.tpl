@@ -60,6 +60,7 @@
 				{{if $item.owner_self}}
 					{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 				{{/if}}
+				<span class="pinned">{{$item.pinned}}</span>
 			</span>
 			{{if $item.lock}}<span class="icon s10 lock fakelink" onclick="lockview(event,{{$item.id}});" title="{{$item.lock}}">{{$item.lock}}</span>{{/if}}
 			<span class="wall-item-network" title="{{$item.app}}">
