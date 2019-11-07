@@ -1497,6 +1497,12 @@ function conv_sort(array $item_list, $order)
  */
 function sort_thr_received(array $a, array $b)
 {
+	if ($b['pinned'] && !$a['pinned']) {
+		return 1;
+	} elseif (!$b['pinned'] && $a['pinned']) {
+		return -1;
+	}
+
 	return strcmp($b['received'], $a['received']);
 }
 
@@ -1509,6 +1515,12 @@ function sort_thr_received(array $a, array $b)
  */
 function sort_thr_received_rev(array $a, array $b)
 {
+	if ($b['pinned'] && !$a['pinned']) {
+		return -1;
+	} elseif (!$b['pinned'] && $a['pinned']) {
+		return 1;
+	}
+
 	return strcmp($a['received'], $b['received']);
 }
 
@@ -1521,6 +1533,12 @@ function sort_thr_received_rev(array $a, array $b)
  */
 function sort_thr_commented(array $a, array $b)
 {
+	if ($b['pinned'] && !$a['pinned']) {
+		return 1;
+	} elseif (!$b['pinned'] && $a['pinned']) {
+		return -1;
+	}
+
 	return strcmp($b['commented'], $a['commented']);
 }
 
