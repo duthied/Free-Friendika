@@ -334,7 +334,7 @@ class Index extends BaseSettingsModule
 			'$region' => ['region', DI::l10n()->t('Region/State:'), $profile['region']],
 			'$postal_code' => ['postal_code', DI::l10n()->t('Postal/Zip Code:'), $profile['postal-code']],
 			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $profile['country-name']],
-			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . Temporal::getAgeByTimezone($profile['dob'], $a->user['timezone'], $a->user['timezone']) . ')' : ''),
+			'$age' => ((intval($profile['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($profile['dob'], $a->user['timezone'])) . ')' : ''),
 			'$gender' => DI::l10n()->t(ContactSelector::gender($profile['gender'])),
 			'$marital' => ['selector' => ContactSelector::maritalStatus($profile['marital']), 'value' => DI::l10n()->t($profile['marital'])],
 			'$with' => ['with', DI::l10n()->t('Who: (if applicable)'), strip_tags($profile['with']), DI::l10n()->t('Examples: cathy123, Cathy Williams, cathy@example.com')],

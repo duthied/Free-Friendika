@@ -292,6 +292,14 @@ abstract class DI
 		return self::$dice->create(Repository\PermissionSet::class);
 	}
 
+	/**
+	 * @return Repository\ProfileField
+	 */
+	public static function profileField()
+	{
+		return self::$dice->create(Repository\ProfileField::class);
+	}
+
 	//
 	// "Protocol" namespace instances
 	//
