@@ -148,11 +148,13 @@ class Item extends BaseObject
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
 	 *
 	 * @return boolean|object
 	 * @throws \Exception
 	 */
-	public static function selectPinned(int $uid, array $selected = [])
+	public static function selectPinned(int $uid, array $selected = [], array $condition = [], $params = [])
 	{
 		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
 		if (!DBA::isResult($useritems)) {
@@ -165,7 +167,25 @@ class Item extends BaseObject
 		}
 		DBA::close($useritems);
 
-		return self::selectThreadForUser($uid, $selected, ['iid' => $pinned]);
+		if (empty($pinned)) {
+			return [];
+		}
+
+		if (empty($condition) || !is_array($condition)) {
+			$condition = ['iid' => $pinned];
+		} else {
+			reset($condition);
+			$first_key = key($condition);
+			if (!is_int($first_key)) {
+				$condition['iid'] = $pinned;
+			} else {
+				$values_string = substr(str_repeat("?, ", count($pinned)), 0, -2);
+				$condition[0] = '(' . $condition[0] . ") AND `iid` IN (" . $values_string . ")";
+				$condition = array_merge($condition, $pinned);
+			}
+		}
+
+		return self::selectThreadForUser($uid, $selected, $condition, $params);
 	}
 
 	/**

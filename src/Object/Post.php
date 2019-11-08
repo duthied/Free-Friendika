@@ -193,6 +193,8 @@ class Post extends BaseObject
 			if (DBA::isResult($parent)) {
 				$origin = $parent['origin'];
 			}
+		} elseif ($item['pinned']) {
+			$pinned = L10n::t('pinned item');
 		}
 
 		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
@@ -288,10 +290,6 @@ class Post extends BaseObject
 
 				if ($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) {
 					if ($origin) {
-						if ($item['pinned']) {
-							$pinned = L10n::t('pinned item');
-						}
-
 						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
 
 						$pin = [
