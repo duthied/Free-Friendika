@@ -801,10 +801,12 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 /**
  * Fetch all comments from a query. Additionally set the newest resharer as thread owner.
  *
- * @param $thread_items Database statement with thread posts
+ * @param array   $thread_items Database statement with thread posts
+ * @param boolean $pinned       Is the item pinned?
+ *
  * @return array items with parents and comments
  */
-function conversation_fetch_comments($thread_items) {
+function conversation_fetch_comments($thread_items, $pinned) {
 	$comments = [];
 	$parentlines = [];
 	$lineno = 0;
@@ -820,6 +822,10 @@ function conversation_fetch_comments($thread_items) {
 		if ((($row['gravity'] == GRAVITY_PARENT) && !$row['origin'] && !in_array($row['network'], [Protocol::DIASPORA])) &&
 			(empty($row['contact-uid']) || !in_array($row['network'], Protocol::NATIVE_SUPPORT))) {
 			$parentlines[] = $lineno;
+		}
+
+		if ($row['gravity'] == GRAVITY_PARENT) {
+			$row['pinned'] = $pinned;
 		}
 
 		$comments[] = $row;
@@ -872,7 +878,7 @@ function conversation_add_children(array $parents, $block_authors, $order, $uid)
 
 		$thread_items = Item::selectForUser(local_user(), array_merge(Item::DISPLAY_FIELDLIST, ['contact-uid', 'gravity']), $condition, $params);
 
-		$comments = conversation_fetch_comments($thread_items);
+		$comments = conversation_fetch_comments($thread_items, $parent['pinned'] ?? false);
 
 		if (count($comments) != 0) {
 			$items = array_merge($items, $comments);
