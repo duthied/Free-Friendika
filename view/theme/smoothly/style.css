@@ -3991,6 +3991,15 @@ margin-left: 0px;
 	height: 20px;
 	background-image: url("images/icons.png");
 }
+.pinned {
+	background-image: url("images/star.png");
+	repeat: no-repeat;
+}
+.unpinned {
+	background-image: url("images/premium.png");
+	repeat: no-repeat;
+}
+
 .starred {
 	background-image: url("images/star.png");
 	repeat: no-repeat;
