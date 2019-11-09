@@ -793,7 +793,6 @@ CREATE TABLE IF NOT EXISTS `manage` (
 --
 CREATE TABLE IF NOT EXISTS `notify` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`hash` varchar(64) NOT NULL DEFAULT '' COMMENT '',
 	`type` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -810,7 +809,6 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`name_cache` tinytext COMMENT 'Cached bbcode parsing of name',
 	`msg_cache` mediumtext COMMENT 'Cached bbcode parsing of msg',
 	 PRIMARY KEY(`id`),
-	 INDEX `hash_uid` (`hash`,`uid`),
 	 INDEX `seen_uid_date` (`seen`,`uid`,`date`),
 	 INDEX `uid_date` (`uid`,`date`),
 	 INDEX `uid_type_link` (`uid`,`type`,`link`(190))

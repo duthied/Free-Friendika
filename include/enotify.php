@@ -503,17 +503,9 @@ function notification($params)
 
 	if ($show_in_notification_page) {
 		Logger::log("adding notification entry", Logger::DEBUG);
-		do {
-			$dups = false;
-			$hash = Strings::getRandomHex();
-			if (DBA::exists('notify', ['hash' => $hash])) {
-				$dups = true;
-			}
-		} while ($dups == true);
 
 		/// @TODO One statement is enough
 		$datarray = [];
-		$datarray['hash']  = $hash;
 		$datarray['name']  = $params['source_name'];
 		$datarray['name_cache'] = strip_tags(BBCode::convert($params['source_name']));
 		$datarray['url']   = $params['source_link'];
@@ -536,7 +528,7 @@ function notification($params)
 		}
 
 		// create notification entry in DB
-		$fields = ['hash' => $datarray['hash'], 'name' => $datarray['name'], 'url' => $datarray['url'],
+		$fields = ['name' => $datarray['name'], 'url' => $datarray['url'],
 			'photo' => $datarray['photo'], 'date' => $datarray['date'], 'uid' => $datarray['uid'],
 			'link' => $datarray['link'], 'iid' => $datarray['iid'], 'parent' => $datarray['parent'],
 			'type' => $datarray['type'], 'verb' => $datarray['verb'], 'otype' => $datarray['otype'],
@@ -544,26 +536,6 @@ function notification($params)
 		DBA::insert('notify', $fields);
 
 		$notify_id = DBA::lastInsertId();
-
-		// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
-		// After we've stored everything, look again to see if there are any duplicates and if so remove them
-		$p = q("SELECT `id` FROM `notify` WHERE `type` IN (%d, %d) AND `link` = '%s' AND `uid` = %d ORDER BY `id`",
-			intval(NOTIFY_TAGSELF),
-			intval(NOTIFY_COMMENT),
-			DBA::escape($params['link']),
-			intval($params['uid'])
-		);
-		if ($p && (count($p) > 1)) {
-			for ($d = 1; $d < count($p); $d ++) {
-				DBA::delete('notify', ['id' => $p[$d]['id']]);
-			}
-
-			// only continue on if we stored the first one
-			if ($notify_id != $p[0]['id']) {
-				L10n::popLang();
-				return false;
-			}
-		}
 
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
 		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
