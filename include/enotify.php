@@ -537,26 +537,6 @@ function notification($params)
 
 		$notify_id = DBA::lastInsertId();
 
-		// we seem to have a lot of duplicate comment notifications due to race conditions, mostly from forums
-		// After we've stored everything, look again to see if there are any duplicates and if so remove them
-		$p = q("SELECT `id` FROM `notify` WHERE `type` IN (%d, %d) AND `link` = '%s' AND `uid` = %d ORDER BY `id`",
-			intval(NOTIFY_TAGSELF),
-			intval(NOTIFY_COMMENT),
-			DBA::escape($params['link']),
-			intval($params['uid'])
-		);
-		if ($p && (count($p) > 1)) {
-			for ($d = 1; $d < count($p); $d ++) {
-				DBA::delete('notify', ['id' => $p[$d]['id']]);
-			}
-
-			// only continue on if we stored the first one
-			if ($notify_id != $p[0]['id']) {
-				L10n::popLang();
-				return false;
-			}
-		}
-
 		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
 		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
