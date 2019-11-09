@@ -503,17 +503,9 @@ function notification($params)
 
 	if ($show_in_notification_page) {
 		Logger::log("adding notification entry", Logger::DEBUG);
-		do {
-			$dups = false;
-			$hash = Strings::getRandomHex();
-			if (DBA::exists('notify', ['hash' => $hash])) {
-				$dups = true;
-			}
-		} while ($dups == true);
 
 		/// @TODO One statement is enough
 		$datarray = [];
-		$datarray['hash']  = $hash;
 		$datarray['name']  = $params['source_name'];
 		$datarray['name_cache'] = strip_tags(BBCode::convert($params['source_name']));
 		$datarray['url']   = $params['source_link'];
@@ -536,7 +528,7 @@ function notification($params)
 		}
 
 		// create notification entry in DB
-		$fields = ['hash' => $datarray['hash'], 'name' => $datarray['name'], 'url' => $datarray['url'],
+		$fields = ['name' => $datarray['name'], 'url' => $datarray['url'],
 			'photo' => $datarray['photo'], 'date' => $datarray['date'], 'uid' => $datarray['uid'],
 			'link' => $datarray['link'], 'iid' => $datarray['iid'], 'parent' => $datarray['parent'],
 			'type' => $datarray['type'], 'verb' => $datarray['verb'], 'otype' => $datarray['otype'],
