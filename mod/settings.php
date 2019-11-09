@@ -596,9 +596,9 @@ function settings_post(App $a)
 
 	$fields = ['username' => $username, 'email' => $email, 'timezone' => $timezone,
 		'allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow, 'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
-		'notify-flags' => $notify, 'page-flags' => $notify, 'account-type' => $account_type, 'default-location' => $defloc,
+		'notify-flags' => $notify, 'page-flags' => $page_flags, 'account-type' => $account_type, 'default-location' => $defloc,
 		'allow_location' => $allow_location, 'maxreq' => $maxreq, 'expire' => $expire, 'def_gid' => $def_gid, 'blockwall' => $blockwall,
-		'hidewall' => $hide_wall, 'blocktags' => $blocktags, 'unkmail' => $unkmail, 'cntunkmail' => $cntunkmail, 'language' => $language];
+		'hidewall' => $hidewall, 'blocktags' => $blocktags, 'unkmail' => $unkmail, 'cntunkmail' => $cntunkmail, 'language' => $language];
 
 	if ($delete_openid) {
 		$fields['openid'] = '';
