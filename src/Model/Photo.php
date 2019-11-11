@@ -715,4 +715,25 @@ class Photo extends BaseObject
 
 		return DBA::exists('photo', ['resource-id' => $guid]);
 	}
+
+	/**
+	 * Tests if the link points to a locally stored picture page
+	 *
+	 * @param string $name Page link
+	 * @return boolean
+	 * @throws \Exception
+	 */
+	public static function isLocalLink($name)
+	{
+		$a = \get_app();
+		$base = $a->getBaseURL();
+
+		$guid = str_replace(Strings::normaliseLink($base), '', Strings::normaliseLink($name));
+		$guid = preg_replace("=/photos/.*/image/(.*)=ism", '$1', $guid);
+		if (empty($guid)) {
+			return false;
+		}
+
+		return DBA::exists('photo', ['resource-id' => $guid]);
+	}
 }
