@@ -723,7 +723,7 @@ class Photo extends BaseObject
 	 * @return boolean
 	 * @throws \Exception
 	 */
-	public static function isLocalLink($name)
+	public static function isLocalPage($name)
 	{
 		$a = \get_app();
 		$base = $a->getBaseURL();

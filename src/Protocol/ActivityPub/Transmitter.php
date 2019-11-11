@@ -1115,7 +1115,7 @@ class Transmitter
 			'/\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]/Usi',
 			function ($match) {
 				// We remove the link when it is a link to a local photo page
-				if (Photo::isLocalLink($match[1])) {
+				if (Photo::isLocalPage($match[1])) {
 					return '';
 				}
 				// otherwise we just return the link
