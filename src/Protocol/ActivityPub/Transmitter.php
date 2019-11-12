@@ -19,6 +19,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\Photo;
 use Friendica\Model\Term;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -1097,19 +1098,34 @@ class Transmitter
 	}
 
 	/**
-	 * Remove image elements and replaces them with links to the image
+	 * Remove image elements since they are added as attachment
 	 *
 	 * @param string $body
 	 *
-	 * @return string with replaced elements
+	 * @return string with removed images
 	 */
 	private static function removePictures($body)
 	{
 		// Simplify image codes
 		$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+		$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
 
-		$body = preg_replace("/\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]/Usi", '[url]$1[/url]', $body);
-		$body = preg_replace("/\[img\]([^\[\]]*)\[\/img\]/Usi", '[url]$1[/url]', $body);
+		// Now remove local links
+		$body = preg_replace_callback(
+			'/\[url=([^\[\]]*)\]\[img\](.*)\[\/img\]\[\/url\]/Usi',
+			function ($match) {
+				// We remove the link when it is a link to a local photo page
+				if (Photo::isLocalPage($match[1])) {
+					return '';
+				}
+				// otherwise we just return the link
+				return '[url]' . $match[1] . '[/url]';
+			},
+			$body
+		);
+
+		// Remove all pictures
+		$body = preg_replace("/\[img\]([^\[\]]*)\[\/img\]/Usi", '', $body);
 
 		return $body;
 	}
