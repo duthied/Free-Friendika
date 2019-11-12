@@ -1270,6 +1270,9 @@ class Transmitter
 			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
+		$data['contentMap']['text/html'] = BBCode::convert($item['body'], false);
+		$data['contentMap']['text/markdown'] = BBCode::toMarkdown($item["body"]);
+
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
 
 		if (!empty($item['signed_text']) && ($item['uri'] != $item['thr-parent'])) {
