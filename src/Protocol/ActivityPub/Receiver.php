@@ -5,6 +5,8 @@
 namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Database\DBA;
+use Friendica\Content\Text\HTML;
+use Friendica\Content\Text\Markdown;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
@@ -875,6 +877,52 @@ class Receiver
 	}
 
 	/**
+	 * Fetch the original source or content with the "language" Markdown or HTML
+	 *
+	 * @param array $object
+	 * @param array $object_data
+	 *
+	 * @return array
+	 * @throws \Exception
+	 */
+	private static function getSource($object, $object_data)
+	{
+		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/bbcode');
+		$object_data['source'] = JsonLD::fetchElement($object_data, 'source', '@value');
+		if (!empty($object_data['source'])) {
+			return $object_data;
+		}
+
+		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/markdown');
+		$object_data['source'] = JsonLD::fetchElement($object_data, 'source', '@value');
+		if (!empty($object_data['source'])) {
+			$object_data['source'] = Markdown::toBBCode($object_data['source']);
+			return $object_data;
+		}
+
+		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/html');
+		$object_data['source'] = JsonLD::fetchElement($object_data, 'source', '@value');
+		if (!empty($object_data['source'])) {
+			$object_data['source'] = HTML::toBBCode($object_data['source']);
+			return $object_data;
+		}
+
+		$markdown = JsonLD::fetchElement($object, 'as:content', '@value', '@language', 'text/markdown');
+		if (!empty($markdown)) {
+			$object_data['source'] = Markdown::toBBCode($markdown);
+			return $object_data;
+		}
+
+		$html = JsonLD::fetchElement($object, 'as:content', '@value', '@language', 'text/html');
+		if (!empty($html)) {
+			$object_data['source'] = HTML::toBBCode($markdown);
+			return $object_data;
+		}
+
+		return $object_data;
+	}
+
+	/**
 	 * Fetches data from the object part of an activity
 	 *
 	 * @param array $object
@@ -924,8 +972,7 @@ class Receiver
 		$object_data['name'] = JsonLD::fetchElement($object, 'as:name', '@value');
 		$object_data['summary'] = JsonLD::fetchElement($object, 'as:summary', '@value');
 		$object_data['content'] = JsonLD::fetchElement($object, 'as:content', '@value');
-		$object_data['source'] = JsonLD::fetchElement($object, 'as:source', 'as:content', 'as:mediaType', 'text/bbcode');
-		$object_data['source'] = JsonLD::fetchElement($object_data, 'source', '@value');
+		$object_data = self::getSource($object, $object_data);
 		$object_data['start-time'] = JsonLD::fetchElement($object, 'as:startTime', '@value');
 		$object_data['end-time'] = JsonLD::fetchElement($object, 'as:endTime', '@value');
 		$object_data['location'] = JsonLD::fetchElement($object, 'as:location', 'as:name', '@type', 'as:Place');
