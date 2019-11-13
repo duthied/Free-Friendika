@@ -1270,7 +1270,10 @@ class Transmitter
 			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
-		$data['contentMap']['text/html'] = BBCode::convert($item['body'], false);
+		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+		$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
+
+		$data['contentMap']['text/html'] = BBCode::convert($richbody, false);
 		$data['contentMap']['text/markdown'] = BBCode::toMarkdown($item["body"]);
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
