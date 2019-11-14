@@ -35,7 +35,7 @@ class Register extends BaseModule
 	 *
 	 * @return string
 	 */
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		// logged in users can register others (people/pages/groups)
 		// even with closed registrations, unless specifically prohibited by site policy.
@@ -152,7 +152,7 @@ class Register extends BaseModule
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
 	 */
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		BaseModule::checkFormSecurityTokenRedirectOnError('/register', 'register');
 
@@ -259,6 +259,11 @@ class Register extends BaseModule
 				\notice(L10n::t('You have to leave a request note for the admin.')
 					. L10n::t('Your registration can not be processed.') . EOL);
 
+				$a->internalRedirect('register/');
+			}
+			// Is there text in the tar pit?
+			if (!empty($_POST['registertarpit'])) {
+				\notice(L10n::t('You have entered too much information.'));
 				$a->internalRedirect('register/');
 			}
 

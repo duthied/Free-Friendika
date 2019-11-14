@@ -28,7 +28,7 @@ function update_profile_content(App $a) {
 	 * on the client side and then swap the image back.
 	 */
 
-	$text = Profile::content($profile_uid);
+	$text = Profile::content([], $profile_uid);
 
 	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />".L10n::t("[Embedded content - reload page to view]")."<br />";

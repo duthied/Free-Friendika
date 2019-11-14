@@ -58,7 +58,7 @@ class Item extends BaseObject
 		'author-id', 'author-link', 'author-name', 'author-avatar', 'author-network',
 		'owner-id', 'owner-link', 'owner-name', 'owner-avatar', 'owner-network',
 		'contact-id', 'contact-uid', 'contact-link', 'contact-name', 'contact-avatar',
-		'writable', 'self', 'cid', 'alias',
+		'writable', 'self', 'cid', 'alias', 'pinned',
 		'event-id', 'event-created', 'event-edited', 'event-start', 'event-finish',
 		'event-summary', 'event-desc', 'event-location', 'event-type',
 		'event-nofinish', 'event-adjust', 'event-ignore', 'event-id',
@@ -112,6 +112,80 @@ class Item extends BaseObject
 		}
 
 		return self::$legacy_mode;
+	}
+
+	/**
+	 * Set the pinned state of an item
+	 *
+	 * @param integer $iid    Item ID
+	 * @param integer $uid    User ID
+	 * @param boolean $pinned Pinned state
+	 */
+	public static function setPinned(int $iid, int $uid, bool $pinned)
+	{
+		DBA::update('user-item', ['pinned' => $pinned], ['iid' => $iid, 'uid' => $uid], true);
+	}
+
+	/**
+	 * Get the pinned state
+	 *
+	 * @param integer $iid Item ID
+	 * @param integer $uid User ID
+	 *
+	 * @return boolean pinned state
+	 */
+	public static function getPinned(int $iid, int $uid)
+	{
+		$useritem = DBA::selectFirst('user-item', ['pinned'], ['iid' => $iid, 'uid' => $uid]);
+		if (!DBA::isResult($useritem)) {
+			return false;
+		}
+		return (bool)$useritem['pinned'];
+	}
+
+	/**
+	 * @brief Select pinned rows from the item table for a given user
+	 *
+	 * @param integer $uid       User ID
+	 * @param array   $selected  Array of selected fields, empty for all
+	 * @param array   $condition Array of fields for condition
+	 * @param array   $params    Array of several parameters
+	 *
+	 * @return boolean|object
+	 * @throws \Exception
+	 */
+	public static function selectPinned(int $uid, array $selected = [], array $condition = [], $params = [])
+	{
+		$useritems = DBA::select('user-item', ['iid'], ['uid' => $uid, 'pinned' => true]);
+		if (!DBA::isResult($useritems)) {
+			return $useritems;
+		}
+
+		$pinned = [];
+		while ($useritem = self::fetch($useritems)) {
+			$pinned[] = $useritem['iid'];
+		}
+		DBA::close($useritems);
+
+		if (empty($pinned)) {
+			return [];
+		}
+
+		if (empty($condition) || !is_array($condition)) {
+			$condition = ['iid' => $pinned];
+		} else {
+			reset($condition);
+			$first_key = key($condition);
+			if (!is_int($first_key)) {
+				$condition['iid'] = $pinned;
+			} else {
+				$values_string = substr(str_repeat("?, ", count($pinned)), 0, -2);
+				$condition[0] = '(' . $condition[0] . ") AND `iid` IN (" . $values_string . ")";
+				$condition = array_merge($condition, $pinned);
+			}
+		}
+
+		return self::selectThreadForUser($uid, $selected, $condition, $params);
 	}
 
 	/**
@@ -585,7 +659,7 @@ class Item extends BaseObject
 			'iaid' => 'internal-iaid'];
 
 		if ($usermode) {
-			$fields['user-item'] = ['ignored' => 'internal-user-ignored'];
+			$fields['user-item'] = ['pinned', 'ignored' => 'internal-user-ignored'];
 		}
 
 		$fields['item-activity'] = ['activity', 'activity' => 'internal-activity'];

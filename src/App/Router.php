@@ -40,6 +40,11 @@ class Router
 	private $httpMethod;
 
 	/**
+	 * @var array Module parameters
+	 */
+	private $parameters = [];
+
+	/**
 	 * @param array $server The $_SERVER variable
 	 * @param RouteCollector|null $routeCollector Optional the loaded Route collector
 	 */
@@ -60,12 +65,21 @@ class Router
 	 *
 	 * @throws HTTPException\InternalServerErrorException In case of invalid configs
 	 */
-	public function addRoutes(array $routes)
+	public function loadRoutes(array $routes)
 	{
 		$routeCollector = (isset($this->routeCollector) ?
 			$this->routeCollector :
 			new RouteCollector(new Std(), new GroupCountBased()));
 
+		$this->addRoutes($routeCollector, $routes);
+
+		$this->routeCollector = $routeCollector;
+
+		return $this;
+	}
+
+	private function addRoutes(RouteCollector $routeCollector, array $routes)
+	{
 		foreach ($routes as $route => $config) {
 			if ($this->isGroup($config)) {
 				$this->addGroup($route, $config, $routeCollector);
@@ -75,10 +89,6 @@ class Router
 				throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
 			}
 		}
-
-		$this->routeCollector = $routeCollector;
-
-		return $this;
 	}
 
 	/**
@@ -91,15 +101,7 @@ class Router
 	private function addGroup(string $groupRoute, array $routes, RouteCollector $routeCollector)
 	{
 		$routeCollector->addGroup($groupRoute, function (RouteCollector $routeCollector) use ($routes) {
-			foreach ($routes as $route => $config) {
-				if ($this->isGroup($config)) {
-					$this->addGroup($route, $config, $routeCollector);
-				} elseif ($this->isRoute($config)) {
-					$routeCollector->addRoute($config[1], $route, $config[0]);
-				}else {
-					throw new HTTPException\InternalServerErrorException("Wrong route config for route '" . print_r($route, true) . "'");
-				}
-			}
+			$this->addRoutes($routeCollector, $routes);
 		});
 	}
 
@@ -169,13 +171,15 @@ class Router
 
 		$cmd = '/' . ltrim($cmd, '/');
 
-		$dispatcher = new \FastRoute\Dispatcher\GroupCountBased($this->routeCollector->getData());
+		$dispatcher = new Dispatcher\GroupCountBased($this->routeCollector->getData());
 
 		$moduleClass = null;
+		$this->parameters = [];
 
 		$routeInfo  = $dispatcher->dispatch($this->httpMethod, $cmd);
 		if ($routeInfo[0] === Dispatcher::FOUND) {
 			$moduleClass = $routeInfo[1];
+			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
 			throw new HTTPException\MethodNotAllowedException(L10n::t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
 		} else {
@@ -183,5 +187,15 @@ class Router
 		}
 
 		return $moduleClass;
+	}
+
+	/**
+	 * Returns the module parameters.
+	 *
+	 * @return array parameters
+	 */
+	public function getModuleParameters()
+	{
+		return $this->parameters;
 	}
 }

@@ -6,9 +6,9 @@ use Friendica\BaseModule;
 use Friendica\Model\Item;
 
 /**
- * Toggle starred items
+ * Toggle pinned items
  */
-class Starred extends BaseModule
+class Pinned extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
@@ -22,14 +22,9 @@ class Starred extends BaseModule
 
 		$itemId = intval($parameters['item']);
 
-		$item = Item::selectFirstForUser(local_user(), ['starred'], ['uid' => local_user(), 'id' => $itemId]);
-		if (empty($item)) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
-		}
+		$pinned = !Item::getPinned($itemId, local_user());
 
-		$starred = !(bool)$item['starred'];
-
-		Item::update(['starred' => $starred], ['id' => $itemId]);
+		Item::setPinned($itemId, local_user(), $pinned);
 
 		// See if we've been passed a return path to redirect to
 		$returnPath = $_REQUEST['return'] ?? '';
@@ -39,7 +34,7 @@ class Starred extends BaseModule
 		}
 
 		// the json doesn't really matter, it will either be 0 or 1
-		echo json_encode((int)$starred);
+		echo json_encode((int)$pinned);
 		exit();
 	}
 }

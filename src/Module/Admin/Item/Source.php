@@ -13,9 +13,9 @@ use Friendica\Module\BaseAdminModule;
 class Source extends BaseAdminModule
 
 {
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 

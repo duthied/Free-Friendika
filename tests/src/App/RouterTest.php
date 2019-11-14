@@ -159,7 +159,7 @@ class RouterTest extends TestCase
 	{
 		$router = (new Router([
 			'REQUEST_METHOD' => Router::GET
-		]))->addRoutes($routes);
+		]))->loadRoutes($routes);
 
 		$this->assertEquals(Module\Home::class, $router->getModuleClass('/'));
 		$this->assertEquals(Module\Friendica::class, $router->getModuleClass('/group/route'));
@@ -174,7 +174,7 @@ class RouterTest extends TestCase
 	{
 		$router = (new Router([
 			'REQUEST_METHOD' => Router::POST
-		]))->addRoutes($routes);
+		]))->loadRoutes($routes);
 
 		// Don't find GET
 		$this->assertEquals(Module\NodeInfo::class, $router->getModuleClass('/post/it'));

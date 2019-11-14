@@ -33,7 +33,7 @@ class Profile extends BaseModule
 	public static $which = '';
 	public static $profile = 0;
 
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		$a = self::getApp();
 
@@ -51,7 +51,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public static function rawContent()
+	public static function rawContent(array $parameters = [])
 	{
 		if (ActivityPub::isRequest()) {
 			$user = DBA::selectFirst('user', ['uid'], ['nickname' => self::$which]);
@@ -75,7 +75,7 @@ class Profile extends BaseModule
 		}
 	}
 
-	public static function content($update = 0)
+	public static function content(array $parameters = [], $update = 0)
 	{
 		$a = self::getApp();
 
@@ -177,7 +177,7 @@ class Profile extends BaseModule
 		}
 
 		if (!$update) {
-            $tab = Strings::escapeTags(trim($_GET['tab'] ?? ''));
+			$tab = Strings::escapeTags(trim($_GET['tab'] ?? ''));
 
 			$o .= ProfileModel::getTabs($a, $tab, $is_owner, $a->profile['nickname']);
 
@@ -349,7 +349,13 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'received', $a->profile['profile_uid']);
+		if ($pager->getStart() == 0 && !empty($a->profile['profile_uid'])) {
+			$pinned_items = Item::selectPinned($a->profile['profile_uid'], ['uri', 'pinned'], ['true' . $sql_extra]);
+			$pinned = Item::inArray($pinned_items);
+			$items = array_merge($items, $pinned);
+		}
+
+		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'pinned_received', $a->profile['profile_uid']);
 
 		if (!$update) {
 			$o .= $pager->renderMinimal(count($items));

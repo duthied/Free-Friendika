@@ -20,7 +20,7 @@ class AppSpecific extends BaseSettingsModule
 {
 	private static $appSpecificPassword = null;
 
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -38,7 +38,7 @@ class AppSpecific extends BaseSettingsModule
 		}
 	}
 
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -81,13 +81,13 @@ class AppSpecific extends BaseSettingsModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa/app_specific');
 		}
 
-		parent::content();
+		parent::content($parameters);
 
 		$appSpecificPasswords = AppSpecificPassword::getListForUser(local_user());
 

@@ -27,7 +27,7 @@ use Friendica\Util\Strings;
  */
 class Owa extends BaseModule
 {
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 
 		$ret = [ 'success' => false ];

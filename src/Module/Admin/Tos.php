@@ -9,9 +9,9 @@ use Friendica\Module\BaseAdminModule;
 
 class Tos extends BaseAdminModule
 {
-	public static function post()
+	public static function post(array $parameters = [])
 	{
-		parent::post();
+		parent::post($parameters);
 
 		parent::checkFormSecurityTokenRedirectOnError('/admin/tos', 'admin_tos');
 
@@ -32,9 +32,9 @@ class Tos extends BaseAdminModule
 		self::getApp()->internalRedirect('admin/tos');
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$tos = new \Friendica\Module\Tos();
 		$t = Renderer::getMarkupTemplate('admin/tos.tpl');

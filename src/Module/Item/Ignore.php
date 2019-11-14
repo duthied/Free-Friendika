@@ -16,7 +16,7 @@ use Friendica\Network\HTTPException;
  */
 class Ignore extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent(array $parameters = [])
 	{
 		/** @var L10n $l10n */
 		$l10n = self::getClass(L10n::class);

@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1323);
+	define('DB_UPDATE_VERSION', 1324);
 }
 
 return [
@@ -868,7 +868,6 @@ return [
 		"comment" => "notifications",
 		"fields" => [
 			"id" => ["type" => "int unsigned", "not null" => "1", "extra" => "auto_increment", "primary" => "1", "comment" => "sequential ID"],
-			"hash" => ["type" => "varchar(64)", "not null" => "1", "default" => "", "comment" => ""],
 			"type" => ["type" => "smallint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"url" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -887,7 +886,6 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["id"],
-			"hash_uid" => ["hash", "uid"],
 			"seen_uid_date" => ["seen", "uid", "date"],
 			"uid_date" => ["uid", "date"],
 			"uid_type_link" => ["uid", "type", "link(190)"],
@@ -1384,10 +1382,12 @@ return [
 			"iid" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["item" => "id"], "comment" => "Item id"],
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
 			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
-			"ignored" => ["type" => "boolean", "comment" => "Ignore this thread if set"]
+			"ignored" => ["type" => "boolean", "comment" => "Ignore this thread if set"],
+			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"]
 		],
 		"indexes" => [
-			"PRIMARY" => ["uid", "iid"]
+			"PRIMARY" => ["uid", "iid"],
+			"uid_pinned" => ["uid", "pinned"]
 		]
 	],
 	"worker-ipc" => [

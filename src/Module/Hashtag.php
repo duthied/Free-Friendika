@@ -15,7 +15,7 @@ use Friendica\Util\Strings;
 class Hashtag extends BaseModule
 {
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		$result = [];
 

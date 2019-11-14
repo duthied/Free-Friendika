@@ -1162,6 +1162,10 @@ input#dfrn-url {
 	margin-left: 10px;
 	float: left;
 }
+.pin-item {
+	margin-left: 10px;
+	float: left;
+}
 .star-item {
 	margin-left: 10px;
 	float: left;
@@ -3201,6 +3205,8 @@ aside input[type='text'] {
 .on { background-position: -144px -32px; }
 
 .off { background-position: 0px -48px; }
+.pinned { background-position: -16px -48px; }
+.unpinned { background-position: -32px -48px; }
 .starred { background-position: -16px -48px; }
 .unstarred { background-position: -32px -48px; }
 .tagged { background-position: -48px -48px; }

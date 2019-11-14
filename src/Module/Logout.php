@@ -23,7 +23,7 @@ class Logout extends BaseModule
 	/**
 	 * @brief Process logout requests
 	 */
-	public static function init()
+	public static function init(array $parameters = [])
 	{
 		$visitor_home = null;
 		if (remote_user()) {

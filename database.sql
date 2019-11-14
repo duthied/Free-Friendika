@@ -1,6 +1,6 @@
 -- ------------------------------------------
--- Friendica 2019.09-rc (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1322
+-- Friendica 2019.12-dev (Dalmatian Bellflower)
+-- DB_UPDATE_VERSION 1324
 -- ------------------------------------------
 
 
@@ -793,7 +793,6 @@ CREATE TABLE IF NOT EXISTS `manage` (
 --
 CREATE TABLE IF NOT EXISTS `notify` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
-	`hash` varchar(64) NOT NULL DEFAULT '' COMMENT '',
 	`type` smallint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`url` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -810,7 +809,6 @@ CREATE TABLE IF NOT EXISTS `notify` (
 	`name_cache` tinytext COMMENT 'Cached bbcode parsing of name',
 	`msg_cache` mediumtext COMMENT 'Cached bbcode parsing of msg',
 	 PRIMARY KEY(`id`),
-	 INDEX `hash_uid` (`hash`,`uid`),
 	 INDEX `seen_uid_date` (`seen`,`uid`,`date`),
 	 INDEX `uid_date` (`uid`,`date`),
 	 INDEX `uid_type_link` (`uid`,`type`,`link`(190))
@@ -1281,7 +1279,9 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'User id',
 	`hidden` boolean NOT NULL DEFAULT '0' COMMENT 'Marker to hide an item from the user',
 	`ignored` boolean COMMENT 'Ignore this thread if set',
-	 PRIMARY KEY(`uid`,`iid`)
+	`pinned` boolean COMMENT 'The item is pinned on the profile page',
+	 PRIMARY KEY(`uid`,`iid`),
+	 INDEX `uid_pinned` (`uid`,`pinned`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 
 --

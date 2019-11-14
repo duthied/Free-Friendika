@@ -12,7 +12,7 @@ use Friendica\Core\System;
  */
 class Smilies extends BaseModule
 {
-	public static function rawContent()
+	public static function rawContent(array $parameters = [])
 	{
 		$app = self::getApp();
 
@@ -26,7 +26,7 @@ class Smilies extends BaseModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		$smilies = Content\Smilies::getList();
 		$count = count($smilies['texts'] ?? []);

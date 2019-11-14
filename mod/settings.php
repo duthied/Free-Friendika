@@ -596,9 +596,9 @@ function settings_post(App $a)
 
 	$fields = ['username' => $username, 'email' => $email, 'timezone' => $timezone,
 		'allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow, 'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny,
-		'notify-flags' => $notify, 'page-flags' => $notify, 'account-type' => $account_type, 'default-location' => $defloc,
+		'notify-flags' => $notify, 'page-flags' => $page_flags, 'account-type' => $account_type, 'default-location' => $defloc,
 		'allow_location' => $allow_location, 'maxreq' => $maxreq, 'expire' => $expire, 'def_gid' => $def_gid, 'blockwall' => $blockwall,
-		'hidewall' => $hide_wall, 'blocktags' => $blocktags, 'unkmail' => $unkmail, 'cntunkmail' => $cntunkmail, 'language' => $language];
+		'hidewall' => $hidewall, 'blocktags' => $blocktags, 'unkmail' => $unkmail, 'cntunkmail' => $cntunkmail, 'language' => $language];
 
 	if ($delete_openid) {
 		$fields['openid'] = '';
@@ -1253,7 +1253,7 @@ function settings_content(App $a)
 		'$importcontact' => L10n::t('Import Contacts'),
 		'$importcontact_text' => L10n::t('Upload a CSV file that contains the handle of your followed accounts in the first column you exported from the old account.'),
 		'$importcontact_button' => L10n::t('Upload File'),
-		'$importcontact_maxsize' => Config::get('system', max_csv_file_size, 30720), 
+		'$importcontact_maxsize' => Config::get('system', 'max_csv_file_size', 30720), 
 		'$relocate' => L10n::t('Relocate'),
 		'$relocate_text' => L10n::t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
 		'$relocate_button' => L10n::t("Resend relocate message to contacts"),

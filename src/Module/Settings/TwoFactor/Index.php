@@ -17,7 +17,7 @@ use PragmaRX\Google2FA\Google2FA;
 
 class Index extends BaseSettingsModule
 {
-	public static function post()
+	public static function post(array $parameters = [])
 	{
 		if (!local_user()) {
 			return;
@@ -73,13 +73,13 @@ class Index extends BaseSettingsModule
 		}
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
 			return Login::form('settings/2fa');
 		}
 
-		parent::content();
+		parent::content($parameters);
 
 		$has_secret = (bool) PConfig::get(local_user(), '2fa', 'secret');
 		$verified = PConfig::get(local_user(), '2fa', 'verified');

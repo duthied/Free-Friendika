@@ -1680,7 +1680,7 @@ class BBCode extends BaseObject
 		$text = str_replace(["\r","\n"], ['<br />', '<br />'], $text);
 
 		// Remove all hashtag addresses
-		if ((!$try_oembed || $simple_html) && !in_array($simple_html, [3, 7, 9])) {
+		if ($simple_html && !in_array($simple_html, [3, 7, 9])) {
 			$text = preg_replace("/([#@!])\[url\=(.*?)\](.*?)\[\/url\]/ism", '$1$3', $text);
 		} elseif ($simple_html == 3) {
 			// The ! is converted to @ since Diaspora only understands the @

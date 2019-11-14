@@ -11,9 +11,9 @@ use Friendica\Util\Strings;
 
 class Details extends BaseAdminModule
 {
-	public static function post()
+	public static function post(array $parameters = [])
 	{
-		parent::post();
+		parent::post($parameters);
 
 		$a = self::getApp();
 
@@ -35,9 +35,9 @@ class Details extends BaseAdminModule
 		$a->internalRedirect('admin/addons');
 	}
 
-	public static function content()
+	public static function content(array $parameters = [])
 	{
-		parent::content();
+		parent::content($parameters);
 
 		$a = self::getApp();
 
