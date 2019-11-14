@@ -16,14 +16,12 @@ DOMAIN="*.xip.io"
 EXTRADOMAIN="friendica.local"
 PASSPHRASE="vaprobash"
 SUBJ="
-C=US
-ST=Connecticut
-O=Vaprobash
-localityName=New Haven
-commonName=$DOMAIN
+C=US/
+ST=Connecticut/
+O=Vaprobash/
+localityName=New Haven/
+commonName=$DOMAIN/
 subjectAltName=DNS:$EXTRADOMAIN
-organizationalUnitName=
-emailAddress=
 "
 sudo mkdir -p "$SSL_DIR"
 sudo openssl genrsa -out "$SSL_DIR/xip.io.key" 4096
