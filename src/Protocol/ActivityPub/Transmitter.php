@@ -1294,6 +1294,7 @@ class Transmitter
 		} else {
 			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 			$body = preg_replace_callback($regexp, ['self', 'mentionCallback'], $body);
+
 			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
