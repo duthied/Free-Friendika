@@ -386,6 +386,28 @@ class BBCode extends BaseObject
 	}
 
 	/**
+	 * Remove [attachment] BBCode and replaces it with a regular [url]
+	 *
+	 * @param string $body
+	 *
+	 * @return string with replaced body
+	 */
+	public static function removeAttachment($body)
+	{
+		return preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+			function ($match) {
+				$attach_data = self::getAttachmentData($match[0]);
+				if (empty($attach_data['url'])) {
+					return $match[0];
+				} elseif (empty($attach_data['title'])) {
+					return '[url]' . $attach_data['url'] . '[/url]';
+				} else {
+					return '[url=' . $attach_data['url'] . ']' . $attach_data['title'] . '[/url]';
+				}
+		}, $body);
+	}
+
+	/**
 	 * @brief Converts a BBCode text into plaintext
 	 *
 	 * @param      $text

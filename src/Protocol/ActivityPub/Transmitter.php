@@ -1020,6 +1020,34 @@ class Transmitter
 	{
 		$attachments = [];
 
+		$attach_data = BBCode::getAttachmentData($item['body']);
+		if (!empty($attach_data['url'])) {
+			$attachment = ['type' => 'Page',
+				'mediaType' => 'text/html',
+				'url' => $attach_data['url']];
+
+			if (!empty($attach_data['title'])) {
+				$attachment['name'] = $attach_data['title'];
+			}
+
+			if (!empty($attach_data['description'])) {
+				$attachment['summary'] = $attach_data['description'];
+			}
+
+			if (!empty($attach_data['image'])) {
+				$imgdata = Images::getInfoFromURLCached($attach_data['image']);
+				if ($imgdata) {
+					$attachment['icon'] = ['type' => 'Image',
+						'mediaType' => $imgdata['mime'],
+						'width' => $imgdata[0],
+						'height' => $imgdata[1],
+						'url' => $attach_data['image']];
+				}
+			}
+
+			$attachments[] = $attachment;
+		}
+
 		$arr = explode('[/attach],', $item['attach']);
 		if (count($arr)) {
 			foreach ($arr as $r) {
@@ -1272,6 +1300,7 @@ class Transmitter
 
 		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
 		$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
+		$richbody = BBCode::removeAttachment($richbody);
 
 		$data['contentMap']['text/html'] = BBCode::convert($richbody, false);
 		$data['contentMap']['text/markdown'] = BBCode::toMarkdown($item["body"]);
