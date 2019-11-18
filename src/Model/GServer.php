@@ -1061,7 +1061,7 @@ class GServer
 			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attribute->value = trim($attribute->value);
+					$attribute->value = @trim($attribute->value);
 					if (empty($attribute->value)) {
 						continue;
 					}
@@ -1117,7 +1117,7 @@ class GServer
 			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attribute->value = trim($attribute->value);
+					$attribute->value = @trim($attribute->value);
 					if (empty($attribute->value)) {
 						continue;
 					}
