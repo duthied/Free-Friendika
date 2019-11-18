@@ -15,6 +15,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Item;
 use Friendica\Protocol\ActivityNamespace;
+use Friendica\Util\ParseUrl;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
 
@@ -399,7 +400,7 @@ class Feed {
 
 				// Remove a possible link to the item itself
 				$item["body"] = str_replace($item["plink"], '', $item["body"]);
-				$item["body"] = preg_replace('/\[url\=\](\w+.*?)\[\/url\]/i', '', $item["body"]);
+				$item["body"] = trim(preg_replace('/\[url\=\](\w+.*?)\[\/url\]/i', '', $item["body"]));
 
 				// Replace the content when the title is longer than the body
 				$replace = (strlen($item["title"]) > strlen($item["body"]));
@@ -415,8 +416,21 @@ class Feed {
 				}
 
 				if ($replace) {
-					$item["body"] = $item["title"];
+					$item["body"] = trim($item["title"]);
 				}
+
+			        $data = ParseUrl::getSiteinfoCached($item['plink'], true);
+				if (!empty($data['text']) && !empty($data['title']) && (mb_strlen($item['body']) < mb_strlen($data['text']))) {
+					// When the fetched page info text is longer than the body, we do try to enhance the body
+					if ((strpos($data['title'], $item['body']) === false) && (strpos($data['text'], $item['body']) === false)) {
+						// The body is not part of the fetched page info title or page info text. So we add the text to the body
+						$item['body'] .= "\n\n" . $data['text'];
+					} else {
+						// Else we replace the body with the page info text
+						$item['body'] = $data['text'];
+					}
+				}
+
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
 				$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);

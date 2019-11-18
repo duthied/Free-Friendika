@@ -1020,6 +1020,9 @@ class Transmitter
 	{
 		$attachments = [];
 
+		// Currently deactivated, since it creates side effects on Mastodon and Pleroma.
+		// It will be reactivated, once this cleared.
+		/*
 		$attach_data = BBCode::getAttachmentData($item['body']);
 		if (!empty($attach_data['url'])) {
 			$attachment = ['type' => 'Page',
@@ -1047,7 +1050,7 @@ class Transmitter
 
 			$attachments[] = $attachment;
 		}
-
+		*/
 		$arr = explode('[/attach],', $item['attach']);
 		if (count($arr)) {
 			foreach ($arr as $r) {
