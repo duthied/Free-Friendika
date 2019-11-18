@@ -422,7 +422,7 @@ class Feed {
 			        $data = ParseUrl::getSiteinfoCached($item['plink'], true);
 				if (!empty($data['text']) && !empty($data['title']) && (mb_strlen($item['body']) < mb_strlen($data['text']))) {
 					// When the fetched page info text is longer than the body, we do try to enhance the body
-					if ((strpos($data['title'], $item['body']) === false) && (strpos($data['text'], $item['body']) === false)) {
+					if (!empty($item['body']) && (strpos($data['title'], $item['body']) === false) && (strpos($data['text'], $item['body']) === false)) {
 						// The body is not part of the fetched page info title or page info text. So we add the text to the body
 						$item['body'] .= "\n\n" . $data['text'];
 					} else {
