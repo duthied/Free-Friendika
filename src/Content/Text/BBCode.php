@@ -388,21 +388,22 @@ class BBCode extends BaseObject
 	/**
 	 * Remove [attachment] BBCode and replaces it with a regular [url]
 	 *
-	 * @param string $body
+	 * @param string  $body
+	 * @param boolean $no_link_desc No link description
 	 *
 	 * @return string with replaced body
 	 */
-	public static function removeAttachment($body)
+	public static function removeAttachment($body, $no_link_desc = false)
 	{
 		return preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
-			function ($match) {
+			function ($match) use ($no_link_desc) {
 				$attach_data = self::getAttachmentData($match[0]);
 				if (empty($attach_data['url'])) {
 					return $match[0];
-				} elseif (empty($attach_data['title'])) {
-					return '[url]' . $attach_data['url'] . '[/url]';
+				} elseif (empty($attach_data['title']) || $no_link_desc) {
+					return '[url]' . $attach_data['url'] . "[/url]\n";
 				} else {
-					return '[url=' . $attach_data['url'] . ']' . $attach_data['title'] . '[/url]';
+					return '[url=' . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
 				}
 		}, $body);
 	}
@@ -622,53 +623,44 @@ class BBCode extends BaseObject
 		}
 
 		$return = '';
-		if (in_array($simplehtml, [7, 9])) {
-			// Only add the link when it isn't already part of the body
-			if (substr_count($text, $data['url']) == 1) {
-				$return = self::convertUrlForActivityPub($data['url']);
+		try {
+			if ($tryoembed && OEmbed::isAllowedURL($data['url'])) {
+				$return = OEmbed::getHTML($data['url'], $data['title']);
+			} else {
+				throw new Exception('OEmbed is disabled for this attachment.');
 			}
-		} elseif (($simplehtml != 4) && ($simplehtml != 0)) {
-			$return = sprintf('<a href="%s" target="_blank">%s</a><br>', $data['url'], $data['title']);
-		} else {
-			try {
-				if ($tryoembed && OEmbed::isAllowedURL($data['url'])) {
-					$return = OEmbed::getHTML($data['url'], $data['title']);
+		} catch (Exception $e) {
+			$data['title'] = ($data['title'] ?? '') ?: $data['url'];
+
+			if ($simplehtml != 4) {
+				$return = sprintf('<div class="type-%s">', $data['type']);
+			}
+
+			if (!empty($data['title']) && !empty($data['url'])) {
+				if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
+					$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
 				} else {
-					throw new Exception('OEmbed is disabled for this attachment.');
-				}
-			} catch (Exception $e) {
-				$data['title'] = ($data['title'] ?? '') ?: $data['url'];
-
-				if ($simplehtml != 4) {
-					$return = sprintf('<div class="type-%s">', $data['type']);
-				}
-
-				if (!empty($data['title']) && !empty($data['url'])) {
-					if (!empty($data['image']) && empty($data['text']) && ($data['type'] == 'photo')) {
-						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a>', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
-					} else {
-						if (!empty($data['image'])) {
-							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
-						} elseif (!empty($data['preview'])) {
-							$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
-						}
-						$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
+					if (!empty($data['image'])) {
+						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-image" /></a><br />', $data['url'], self::proxyUrl($data['image'], $simplehtml), $data['title']);
+					} elseif (!empty($data['preview'])) {
+						$return .= sprintf('<a href="%s" target="_blank"><img src="%s" alt="" title="%s" class="attachment-preview" /></a><br />', $data['url'], self::proxyUrl($data['preview'], $simplehtml), $data['title']);
 					}
+					$return .= sprintf('<h4><a href="%s">%s</a></h4>', $data['url'], $data['title']);
 				}
+			}
 
-				if (!empty($data['description']) && $data['description'] != $data['title']) {
-					// Sanitize the HTML by converting it to BBCode
-					$bbcode = HTML::toBBCode($data['description']);
-					$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
-				}
+			if (!empty($data['description']) && $data['description'] != $data['title']) {
+				// Sanitize the HTML by converting it to BBCode
+				$bbcode = HTML::toBBCode($data['description']);
+				$return .= sprintf('<blockquote>%s</blockquote>', trim(self::convert($bbcode)));
+			}
 
-				if (!empty($data['url'])) {
-					$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
-				}
+			if (!empty($data['url'])) {
+				$return .= sprintf('<sup><a href="%s">%s</a></sup>', $data['url'], parse_url($data['url'], PHP_URL_HOST));
+			}
 
-				if ($simplehtml != 4) {
-					$return .= '</div>';
-				}
+			if ($simplehtml != 4) {
+				$return .= '</div>';
 			}
 		}
 
@@ -1244,7 +1236,7 @@ class BBCode extends BaseObject
 	 * - 5: Unused
 	 * - 6: Unused
 	 * - 7: Used for dfrn, OStatus
-	 * - 8: Used for WP backlink text setting
+	 * - 8: Used for Twitter, WP backlink text setting
 	 * - 9: ActivityPub
 	 *
 	 * @param string $text
@@ -1380,8 +1372,15 @@ class BBCode extends BaseObject
 			} while ($oldtext != $text);
 		}
 
+		/// @todo Have a closer look at the different html modes
 		// Handle attached links or videos
-		$text = self::convertAttachment($text, $simple_html, $try_oembed);
+		if (in_array($simple_html, [9])) {
+			$text = self::removeAttachment($text);
+		} elseif (!in_array($simple_html, [0, 4])) {
+			$text = self::removeAttachment($text, true);
+		} else {
+			$text = self::convertAttachment($text, $simple_html, $try_oembed);
+		}
 
 		// leave open the posibility of [map=something]
 		// this is replaced in Item::prepareBody() which has knowledge of the item location
@@ -1771,7 +1770,7 @@ class BBCode extends BaseObject
 		 * - #[url=<anything>]<term>[/url]
 		 * - [url=<anything>]#<term>[/url]
 		 */
-		$text = preg_replace_callback("/(?:#\[url\=.*?\]|\[url\=.*?\]#)(.*?)\[\/url\]/ism", function($matches) {
+		$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function($matches) {
 			return '#<a href="'
 				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
 				. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
