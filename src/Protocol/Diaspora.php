@@ -3584,6 +3584,14 @@ class Diaspora
 			$title = $item["title"];
 			$body = $item["body"];
 
+			// Fetch the title from an attached link - if there is one
+			if (empty($item["title"])) {
+				$page_data = BBCode::getAttachmentData($item['body']);
+				if (!empty($page_data['type']) && !empty($page_data['title']) && ($page_data['type'] == 'link')) {
+					$title = $page_data['title'];
+				}
+			}
+
 			if ($item['author-link'] != $item['owner-link']) {
 				require_once 'mod/share.php';
 				$body = share_header($item['author-name'], $item['author-link'], $item['author-avatar'],
@@ -3595,7 +3603,7 @@ class Diaspora
 
 			// Adding the title
 			if (strlen($title)) {
-				$body = "## ".html_entity_decode($title)."\n\n".$body;
+				$body = "### ".html_entity_decode($title)."\n\n".$body;
 			}
 
 			if ($item["attach"]) {
