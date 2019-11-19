@@ -26,6 +26,8 @@
 
 						{{include file="field_checkbox.tpl" field=$no_intelligent_shortening}}
 
+						{{include file="field_checkbox.tpl" field=$append_title}}
+
 						{{include file="field_checkbox.tpl" field=$ostatus_autofriend}}
 
 						{{$default_group nofilter}}

@@ -3585,7 +3585,7 @@ class Diaspora
 			$body = $item["body"];
 
 			// Fetch the title from an attached link - if there is one
-			if (empty($item["title"])) {
+			if (empty($item["title"]) && PConfig::get($owner['uid'], 'system', 'append_title')) {
 				$page_data = BBCode::getAttachmentData($item['body']);
 				if (!empty($page_data['type']) && !empty($page_data['title']) && ($page_data['type'] == 'link')) {
 					$title = $page_data['title'];
