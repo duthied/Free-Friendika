@@ -653,6 +653,9 @@ class Transmitter
 	public static function ItemArrayFromMail($mail_id)
 	{
 		$mail = DBA::selectFirst('mail', [], ['id' => $mail_id]);
+		if (!DBA::isResult($mail)) {
+			return [];
+		}
 
 		$reply = DBA::selectFirst('mail', ['uri'], ['parent-uri' => $mail['parent-uri'], 'reply' => false]);
 
@@ -1234,6 +1237,10 @@ class Transmitter
 	 */
 	public static function createNote($item)
 	{
+		if (empty($item)) {
+			return [];
+		}
+
 		if ($item['event-type'] == 'event') {
 			$type = 'Event';
 		} elseif (!empty($item['title'])) {
