@@ -1061,12 +1061,12 @@ class GServer
 			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attribute->value = @trim($attribute->value);
-					if (empty($attribute->value)) {
+					$value = trim($attribute->value);
+					if (empty($value)) {
 						continue;
 					}
 
-					$attr[$attribute->name] = $attribute->value;
+					$attr[$attribute->name] = $value;
 				}
 
 				if (empty($attr['name']) || empty($attr['content'])) {
@@ -1117,12 +1117,12 @@ class GServer
 			$attr = [];
 			if ($node->attributes->length) {
 				foreach ($node->attributes as $attribute) {
-					$attribute->value = @trim($attribute->value);
-					if (empty($attribute->value)) {
+					$value = trim($attribute->value);
+					if (empty($value)) {
 						continue;
 					}
 
-					$attr[$attribute->name] = $attribute->value;
+					$attr[$attribute->name] = $value;
 				}
 
 				if (empty($attr['property']) || empty($attr['content'])) {
