@@ -777,6 +777,11 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('atom_feed_end', $atom);
     Hook::callAll('atom_feed_end', $atom);
 
+### src/Protocol/Email.php
+
+    Hook::callAll('email_getmessage', $message);
+    Hook::callAll('email_getmessage_end', $ret);
+
 ### view/js/main.js
 
     document.dispatchEvent(new Event('postprocess_liveupdate'));
