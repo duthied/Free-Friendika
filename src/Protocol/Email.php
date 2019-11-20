@@ -4,6 +4,7 @@
  */
 namespace Friendica\Protocol;
 
+use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Content\Text\HTML;
 use Friendica\Model\Item;
@@ -126,6 +127,10 @@ class Email
 			if (trim($ret['body']) == '') {
 				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
 			} else {
+				$message = ['text' => '', 'html' => $ret['body']];
+				Hook::callAll('email_getmessage', $message);
+				$ret['body'] = $message['html'];
+
 				$ret['body'] = HTML::toBBCode($ret['body']);
 			}
 		} else {
@@ -142,7 +147,13 @@ class Email
 					$html .= $x;
 				}
 			}
-			if (trim($html) != '') {
+
+			$message = ['text' => trim($text), 'html' => trim($html)];
+			Hook::callAll('email_getmessage', $message);
+			$html = $message['html'];
+			$text = $message['text'];
+
+			if (!empty($html)) {
 				$ret['body'] = HTML::toBBCode($html);
 			} else {
 				$ret['body'] = $text;
@@ -160,12 +171,14 @@ class Email
 
 		$ret['body'] = self::unifyAttributionLine($ret['body']);
 
+		Hook::callAll('email_getmessage_end', $ret);
+
 		return $ret;
 	}
 
-	// At the moment - only return plain/text.
-	// Later we'll repackage inline images as data url's and make the HTML safe
 	/**
+	 * fetch the specified message part number with the specified subtype
+	 *
 	 * @param resource $mbox    mailbox
 	 * @param integer  $uid     user id
 	 * @param object   $p       parts

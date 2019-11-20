@@ -495,3 +495,8 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
     Hook::callAll('atom_feed_end', $atom);
     Hook::callAll('atom_feed_end', $atom);
+
+### src/Protocol/Email.php
+
+    Hook::callAll('email_getmessage', $message);
+    Hook::callAll('email_getmessage_end', $ret);
