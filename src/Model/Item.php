@@ -291,12 +291,10 @@ class Item extends BaseObject
 				$row['object-type'] = Activity\ObjectType::NOTE;
 			}
 		} elseif (array_key_exists('verb', $row) && in_array($row['verb'], ['', Activity::POST, Activity::SHARE])) {
-			// Posts don't have an object or target - but having tags or files.
+			// Posts don't have a target - but having tags or files.
 			// We safe some performance by building tag and file strings only here.
-			// We remove object and target since they aren't used for this type.
-			if (array_key_exists('object', $row)) {
-				$row['object'] = '';
-			}
+			// We remove the target since they aren't used for this type.
+			// In mail posts we do store some mail header data in the object.
 			if (array_key_exists('target', $row)) {
 				$row['target'] = '';
 			}

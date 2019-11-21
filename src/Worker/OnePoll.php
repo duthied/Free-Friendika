@@ -539,9 +539,9 @@ class OnePoll
 					}
 
 					// look for a 'references' or an 'in-reply-to' header and try to match with a parent item we have locally.
-					$raw_refs = ((property_exists($meta, 'references')) ? str_replace("\t", '', $meta->references) : '');
+					$raw_refs = (property_exists($meta, 'references') ? str_replace("\t", '', $meta->references) : '');
 					if (!trim($raw_refs)) {
-						$raw_refs = ((property_exists($meta, 'in_reply_to')) ? str_replace("\t", '', $meta->in_reply_to) : '');
+						$raw_refs = (property_exists($meta, 'in_reply_to') ? str_replace("\t", '', $meta->in_reply_to) : '');
 					}
 					$raw_refs = trim($raw_refs);  // Don't allow a blank reference in $refs_arr
 
@@ -601,31 +601,38 @@ class OnePoll
 						Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
 						continue;
 					}
+
 					$datarray['body'] = Strings::escapeHtml($r['body']);
 					$datarray['body'] = BBCode::limitBodySize($datarray['body']);
 
 					Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
 
-					/// @TODO Adding a gravatar for the original author would be cool
+					$headers = imap_headerinfo($mbox, $meta->msgno);
+					$object = [];
 
-					$from = imap_mime_header_decode($meta->from);
-					$fromdecoded = "";
-					foreach ($from as $frompart) {
-						if ($frompart->charset != "default") {
-							$fromdecoded .= iconv($frompart->charset, 'UTF-8//IGNORE', $frompart->text);
-						} else {
-							$fromdecoded .= $frompart->text;
-						}
+					if (!empty($headers->from)) {
+						$object['from'] = $headers->from;
 					}
 
-					$fromarr = imap_rfc822_parse_adrlist($fromdecoded, BaseObject::getApp()->getHostName());
+					if (!empty($headers->to)) {
+						$object['to'] = $headers->to;
+					}
 
-					$frommail = $fromarr[0]->mailbox."@".$fromarr[0]->host;
+					if (!empty($headers->reply_to)) {
+						$object['reply_to'] = $headers->reply_to;
+					}
 
-					if (isset($fromarr[0]->personal)) {
-						$fromname = $fromarr[0]->personal;
-					} else {
-						$fromname = $frommail;
+					if (!empty($headers->sender)) {
+						$object['sender'] = $headers->sender;
+					}
+
+					if (!empty($object)) {
+						$datarray['object'] = json_encode($object);
+					}
+
+					$fromname = $frommail = $headers->from[0]->mailbox . '@' . $headers->from[0]->host;
+					if (!empty($headers->from[0]->personal)) {
+						$fromname = $headers->from[0]->personal;
 					}
 
 					$datarray['author-name'] = $fromname;
