@@ -959,7 +959,7 @@ function api_account_verify_credentials($type)
 	// - Adding last status
 	if (!$skip_status) {
 		$item = api_get_last_status($user_info['pid'], $user_info['uid']);
-		if ($item) {
+		if (!empty($item)) {
 			$user_info['status'] = api_format_item($item, $type);
 		}
 	}
@@ -1318,7 +1318,7 @@ function api_status_show($type, $item_id)
 	$status_info = [];
 
 	$item = api_get_item(['id' => $item_id]);
-	if ($item) {
+	if (!empty($item)) {
 		$status_info = api_format_item($item, $type);
 	}
 
@@ -1382,7 +1382,7 @@ function api_users_show($type)
 	$user_info = api_get_user($a);
 
 	$item = api_get_last_status($user_info['pid'], $user_info['uid']);
-	if ($item) {
+	if (!empty($item)) {
 		$user_info['status'] = api_format_item($item, $type);
 	}
 

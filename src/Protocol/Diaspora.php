@@ -3419,7 +3419,7 @@ class Diaspora
 			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 			$item = Item::selectFirst(['contact-id'], $condition);
 			if (DBA::isResult($item)) {
-				$ret= [];
+				$ret = [];
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
 				$ret["root_guid"] = $guid;
 				return $ret;
@@ -3445,12 +3445,12 @@ class Diaspora
 			$profile = $matches[1];
 		}
 
-		$ret= [];
+		$ret = [];
 
-		if ($profile != "") {
-			if (Contact::getIdForURL($profile)) {
-				$author = Contact::getDetailsByURL($profile);
-				$ret["root_handle"] = $author['addr'];
+		if (!empty($profile) && ($cid = Contact::getIdForURL($profile))) {
+			$contact = DBA::selectFirst('contact', ['addr'], ['id' => $cid]);
+			if (!empty($contact['addr'])) {
+				$ret['root_handle'] = $contact['addr'];
 			}
 		}
 
