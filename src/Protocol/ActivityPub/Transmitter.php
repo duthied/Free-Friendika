@@ -724,7 +724,7 @@ class Transmitter
 		unset($data['bcc']);
 
 		$object['to'] = $data['to'];
-		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => 'test']];
+		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => '']];
 
 		unset($object['cc']);
 		unset($object['bcc']);
