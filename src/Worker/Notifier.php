@@ -51,6 +51,8 @@ class Notifier
 
 		$delivery_contacts_stmt = null;
 		$target_item = [];
+		$parent = [];
+		$thr_parent = [];
 		$items = [];
 		$delivery_queue_count = 0;
 
@@ -594,6 +596,10 @@ class Notifier
 	 */
 	private static function skipDFRN($contact, $item, $parent, $thr_parent, $cmd)
 	{
+		if (empty($parent['network'])) {
+			return false;
+		}
+
 		// Don't skip when the starting post is delivered via Diaspora
 		if ($parent['network'] == Protocol::DIASPORA) {
 			return false;
