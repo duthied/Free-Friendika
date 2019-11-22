@@ -321,7 +321,7 @@ class Email
 	}
 
 	/**
-	 * Function send is used by Protocol::EMAIL and Protocol::EMAIL2 code
+	 * Function send is used by Protocol::EMAIL code
 	 * (not to notify the user, but to send items to email contacts)
 	 *
 	 * @param string $addr    address
