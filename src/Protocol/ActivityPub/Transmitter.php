@@ -498,7 +498,13 @@ class Transmitter
 			}
 		}
 
-		return ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc'])];
+		$receivers = ['to' => array_values($data['to']), 'cc' => array_values($data['cc']), 'bcc' => array_values($data['bcc'])];
+
+		if (!$blindcopy) {
+			unset($receivers['bcc']);
+		}
+
+		return $receivers;
 	}
 
 	/**
@@ -693,18 +699,6 @@ class Transmitter
 		$mail = self::ItemArrayFromMail($mail_id);
 		$object = self::createNote($mail);
 
-		if (!empty($object['cc'])) {
-			$object['to'] = array_merge($object['to'], $object['cc']);
-			unset($object['cc']);
-		}
-
-		if (!empty($object['bcc'])) {
-			$object['to'] = array_merge($object['to'], $object['bcc']);
-			unset($object['bcc']);
-		}
-
-		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => 'test']];
-
 		if (!$object_mode) {
 			$data = ['@context' => ActivityPub::CONTEXT];
 		} else {
@@ -730,6 +724,8 @@ class Transmitter
 		unset($data['bcc']);
 
 		$object['to'] = $data['to'];
+		$object['tag'] = [['type' => 'Mention', 'href' => $object['to'][0], 'name' => '']];
+
 		unset($object['cc']);
 		unset($object['bcc']);
 
