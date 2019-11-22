@@ -3565,8 +3565,7 @@ class Diaspora
 		$myaddr = self::myHandle($owner);
 
 		$public = ($item["private"] ? "false" : "true");
-
-		$created = DateTimeFormat::utc($item["created"], DateTimeFormat::ATOM);
+		$created = DateTimeFormat::utc($item['received'], DateTimeFormat::ATOM);
 		$edited = DateTimeFormat::utc($item["edited"] ?? $item["created"], DateTimeFormat::ATOM);
 
 		// Detect a share element and do a reshare

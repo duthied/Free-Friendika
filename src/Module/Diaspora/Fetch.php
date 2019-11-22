@@ -31,7 +31,7 @@ class Fetch extends BaseModule
 
 		// Fetch the item
 		$fields = [
-			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'app', 'location', 'coord', 'network',
+			'uid', 'title', 'body', 'guid', 'contact-id', 'private', 'created', 'received', 'app', 'location', 'coord', 'network',
 			'event-id', 'resource-id', 'author-link', 'author-avatar', 'author-name', 'plink', 'owner-link', 'attach'
 		];
 		$condition = ['wall' => true, 'private' => false, 'guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
