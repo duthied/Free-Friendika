@@ -494,6 +494,8 @@ class OnePoll
 					Logger::log("Mail: Parsing mail ".$msg_uid, Logger::DATA);
 
 					$datarray = [];
+					$datarray['uid'] = $importer_uid;
+					$datarray['contact-id'] = $contact['id'];
 					$datarray['verb'] = Activity::POST;
 					$datarray['object-type'] = Activity\ObjectType::NOTE;
 					$datarray['network'] = Protocol::MAIL;
@@ -596,18 +598,10 @@ class OnePoll
 						$datarray['parent-uri'] = $datarray['uri'];
 					}
 
-					$r = Email::getMessage($mbox, $msg_uid, $reply);
-					if (!$r) {
-						Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
-						continue;
-					}
-
-					$datarray['body'] = Strings::escapeHtml($r['body']);
-					$datarray['body'] = BBCode::limitBodySize($datarray['body']);
-
-					Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
-
 					$headers = imap_headerinfo($mbox, $meta->msgno);
+					$headers2 = imap_rfc822_parse_headers(imap_fetchheader($mbox, $meta->msgno));
+					Logger::info('Got header', ['header' => $headers2]);
+
 					$object = [];
 
 					if (!empty($headers->from)) {
@@ -643,15 +637,22 @@ class OnePoll
 					$datarray['owner-link'] = "mailto:".$contact['addr'];
 					$datarray['owner-avatar'] = $contact['photo'];
 
-					$datarray['uid'] = $importer_uid;
-					$datarray['contact-id'] = $contact['id'];
 					if ($datarray['parent-uri'] === $datarray['uri']) {
 						$datarray['private'] = 1;
 					}
+
 					if (!PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
 						$datarray['private'] = 1;
 						$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 					}
+
+					$datarray = Email::getMessage($mbox, $msg_uid, $reply, $datarray);
+					if (empty($datarray['body'])) {
+						Logger::log("Mail: can't fetch msg ".$msg_uid." for ".$mailconf['user']);
+						continue;
+					}
+
+					Logger::log("Mail: Importing ".$msg_uid." for ".$mailconf['user']);
 
 					Item::insert($datarray);
 

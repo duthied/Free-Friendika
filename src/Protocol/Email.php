@@ -6,8 +6,10 @@ namespace Friendica\Protocol;
 
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Model\Item;
+use Friendica\Util\Strings;
 
 /**
  * @brief Email class
@@ -110,9 +112,9 @@ class Email
 	 * @return array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getMessage($mbox, $uid, $reply)
+	public static function getMessage($mbox, $uid, $reply, $item)
 	{
-		$ret = [];
+		$ret = $item;
 
 		$struc = (($mbox && $uid) ? @imap_fetchstructure($mbox, $uid, FT_UID) : null);
 
@@ -126,9 +128,13 @@ class Email
 
 			if (trim($ret['body']) == '') {
 				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
+
+				$message = ['text' => $ret['body'], 'html' => ''];
+				Hook::callAll('email_getmessage', $message, $ret);
+				$ret['body'] = $message['text'];
 			} else {
 				$message = ['text' => '', 'html' => $ret['body']];
-				Hook::callAll('email_getmessage', $message);
+				Hook::callAll('email_getmessage', $message, $ret);
 				$ret['body'] = $message['html'];
 
 				$ret['body'] = HTML::toBBCode($ret['body']);
@@ -149,7 +155,7 @@ class Email
 			}
 
 			$message = ['text' => trim($text), 'html' => trim($html)];
-			Hook::callAll('email_getmessage', $message);
+			Hook::callAll('email_getmessage', $message, $ret);
 			$html = $message['html'];
 			$text = $message['text'];
 
@@ -170,6 +176,9 @@ class Email
 		}
 
 		$ret['body'] = self::unifyAttributionLine($ret['body']);
+
+		$ret['body'] = Strings::escapeHtml($ret['body']);
+		$ret['body'] = BBCode::limitBodySize($ret['body']);
 
 		Hook::callAll('email_getmessage_end', $ret);
 
