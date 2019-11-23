@@ -129,12 +129,14 @@ class Email
 			if (trim($ret['body']) == '') {
 				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
 
-				$message = ['text' => $ret['body'], 'html' => ''];
-				Hook::callAll('email_getmessage', $message, $ret);
+				$message = ['text' => $ret['body'], 'html' => '', 'item' => $ret];
+				Hook::callAll('email_getmessage', $message);
+				$ret = $message['item'];
 				$ret['body'] = $message['text'];
 			} else {
-				$message = ['text' => '', 'html' => $ret['body']];
-				Hook::callAll('email_getmessage', $message, $ret);
+				$message = ['text' => '', 'html' => $ret['body'], 'item' => $ret];
+				Hook::callAll('email_getmessage', $message);
+				$ret = $message['item'];
 				$ret['body'] = $message['html'];
 
 				$ret['body'] = HTML::toBBCode($ret['body']);
@@ -154,8 +156,9 @@ class Email
 				}
 			}
 
-			$message = ['text' => trim($text), 'html' => trim($html)];
-			Hook::callAll('email_getmessage', $message, $ret);
+			$message = ['text' => trim($text), 'html' => trim($html), 'item' => $ret];
+			Hook::callAll('email_getmessage', $message);
+			$ret = $message['item'];
 			$html = $message['html'];
 			$text = $message['text'];
 
