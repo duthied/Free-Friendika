@@ -29,6 +29,7 @@ class ItemDeliveryData
 	const LEGACY_DFRN = 3;
 	const DIASPORA = 4;
 	const OSTATUS = 5;
+	const MAIL = 6;
 
 	/**
 	 * Extract delivery data from the provided item fields

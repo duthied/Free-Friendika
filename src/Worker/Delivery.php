@@ -481,7 +481,7 @@ class Delivery extends BaseObject
 	 * @param array  $contact     Contact record of the receiver
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
-	 * @param array  $thr_parent  Item record of the thread parent
+	 * @param array  $thr_parent  Item record of the direct parent in the thread
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -490,7 +490,6 @@ class Delivery extends BaseObject
 		if (Config::get('system','dfrn_only')) {
 			return;
 		}
-		// WARNING: does not currently convert to RFC2047 header encodings, etc.
 
 		$addr = $contact['addr'];
 		if (!strlen($addr)) {
@@ -545,7 +544,7 @@ class Delivery extends BaseObject
 		if ($target_item['uri'] !== $target_item['parent-uri']) {
 			$headers .= 'References: <' . Email::iri2msgid($target_item['parent-uri']) . '>';
 
-			// If Threading is enabled, write down the correct parent
+			// Export more references on deeper nested threads
 			if (($target_item['thr-parent'] != '') && ($target_item['thr-parent'] != $target_item['parent-uri'])) {
 				$headers .= ' <' . Email::iri2msgid($target_item['thr-parent']) . '>';
 			}
@@ -575,7 +574,7 @@ class Delivery extends BaseObject
 
 		Email::send($addr, $subject, $headers, $target_item);
 
-		Model\ItemDeliveryData::incrementQueueFailed($target_item['id']);
+		Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::MAIL);
 
 		Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
 	}
