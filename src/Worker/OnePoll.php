@@ -599,8 +599,6 @@ class OnePoll
 					}
 
 					$headers = imap_headerinfo($mbox, $meta->msgno);
-					$headers2 = imap_rfc822_parse_headers(imap_fetchheader($mbox, $meta->msgno));
-					Logger::info('Got header', ['header' => $headers2]);
 
 					$object = [];
 
