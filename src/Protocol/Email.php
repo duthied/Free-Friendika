@@ -56,21 +56,21 @@ class Email
 			return [];
 		}
 
-		$search1 = @imap_search($mbox, 'FROM "' . $email_addr . '"', SE_UID);
+		$search1 = @imap_search($mbox, 'UNDELETED FROM "' . $email_addr . '"', SE_UID);
 		if (!$search1) {
 			$search1 = [];
 		} else {
 			Logger::log("Found mails from ".$email_addr, Logger::DEBUG);
 		}
 
-		$search2 = @imap_search($mbox, 'TO "' . $email_addr . '"', SE_UID);
+		$search2 = @imap_search($mbox, 'UNDELETED TO "' . $email_addr . '"', SE_UID);
 		if (!$search2) {
 			$search2 = [];
 		} else {
 			Logger::log("Found mails to ".$email_addr, Logger::DEBUG);
 		}
 
-		$search3 = @imap_search($mbox, 'CC "' . $email_addr . '"', SE_UID);
+		$search3 = @imap_search($mbox, 'UNDELETED CC "' . $email_addr . '"', SE_UID);
 		if (!$search3) {
 			$search3 = [];
 		} else {
@@ -119,27 +119,29 @@ class Email
 		$struc = (($mbox && $uid) ? @imap_fetchstructure($mbox, $uid, FT_UID) : null);
 
 		if (!$struc) {
+			Logger::notice("IMAP structure couldn't be fetched", ['uid' => $uid]);
 			return $ret;
 		}
 
 		if (empty($struc->parts)) {
-			$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'html');
-			$html = $ret['body'];
+			$html = trim(self::messageGetPart($mbox, $uid, $struc, 0, 'html'));
 
-			if (trim($ret['body']) == '') {
-				$ret['body'] = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
+			if (!empty($html)) {
+				$message = ['text' => '', 'html' => $html, 'item' => $ret];
+				Hook::callAll('email_getmessage', $message);
+				$ret = $message['item'];
+				if (empty($ret['body'])) {
+					$ret['body'] = HTML::toBBCode($message['html']);
+				}
+			}
 
-				$message = ['text' => $ret['body'], 'html' => '', 'item' => $ret];
+			if (empty($ret['body'])) {
+				$text = self::messageGetPart($mbox, $uid, $struc, 0, 'plain');
+
+				$message = ['text' => $text, 'html' => '', 'item' => $ret];
 				Hook::callAll('email_getmessage', $message);
 				$ret = $message['item'];
 				$ret['body'] = $message['text'];
-			} else {
-				$message = ['text' => '', 'html' => $ret['body'], 'item' => $ret];
-				Hook::callAll('email_getmessage', $message);
-				$ret = $message['item'];
-				$ret['body'] = $message['html'];
-
-				$ret['body'] = HTML::toBBCode($ret['body']);
 			}
 		} else {
 			$text = '';
@@ -159,13 +161,13 @@ class Email
 			$message = ['text' => trim($text), 'html' => trim($html), 'item' => $ret];
 			Hook::callAll('email_getmessage', $message);
 			$ret = $message['item'];
-			$html = $message['html'];
-			$text = $message['text'];
 
-			if (!empty($html)) {
-				$ret['body'] = HTML::toBBCode($html);
-			} else {
-				$ret['body'] = $text;
+			if (empty($ret['body']) && !empty($message['html'])) {
+				$ret['body'] = HTML::toBBCode($message['html']);
+			}
+
+			if (empty($ret['body'])) {
+				$ret['body'] = $message['text'];
 			}
 		}
 
