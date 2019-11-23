@@ -103,7 +103,7 @@ class Delivery extends BaseObject
 			}
 
 			$condition = ['uri' => $target_item['thr-parent'], 'uid' => $target_item['uid']];
-			$thr_parent = Model\Item::selectFirst(['network'], $condition);
+			$thr_parent = Model\Item::selectFirst(['network', 'object'], $condition);
 			if (!DBA::isResult($thr_parent)) {
 				// Shouldn't happen. But when this does, we just take the parent as thread parent.
 				// That's totally okay for what we use this variable here.
@@ -209,7 +209,7 @@ class Delivery extends BaseObject
 				break;
 
 			case Protocol::MAIL:
-				self::deliverMail($cmd, $contact, $owner, $target_item);
+				self::deliverMail($cmd, $contact, $owner, $target_item, $thr_parent);
 				break;
 
 			default:
@@ -481,15 +481,15 @@ class Delivery extends BaseObject
 	 * @param array  $contact     Contact record of the receiver
 	 * @param array  $owner       Owner record of the sender
 	 * @param array  $target_item Item record of the content
+	 * @param array  $thr_parent  Item record of the direct parent in the thread
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function deliverMail($cmd, $contact, $owner, $target_item)
+	private static function deliverMail($cmd, $contact, $owner, $target_item, $thr_parent)
 	{
 		if (Config::get('system','dfrn_only')) {
 			return;
 		}
-		// WARNING: does not currently convert to RFC2047 header encodings, etc.
 
 		$addr = $contact['addr'];
 		if (!strlen($addr)) {
@@ -500,12 +500,23 @@ class Delivery extends BaseObject
 			return;
 		}
 
+		if (!empty($thr_parent['object'])) {
+			$data = json_decode($thr_parent['object'], true);
+			if (!empty($data['reply_to'])) {
+				$addr = $data['reply_to'][0]['mailbox'] . '@' . $data['reply_to'][0]['host'];
+				Logger::info('Use "reply-to" address of the thread parent', ['addr' => $addr]);
+			} elseif (!empty($data['from'])) {
+				$addr = $data['from'][0]['mailbox'] . '@' . $data['from'][0]['host'];
+				Logger::info('Use "from" address of the thread parent', ['addr' => $addr]);
+			}
+		}
+
 		$local_user = DBA::selectFirst('user', [], ['uid' => $owner['uid']]);
 		if (!DBA::isResult($local_user)) {
 			return;
 		}
 
-		Logger::log('Deliver ' . $target_item["guid"] . ' via mail to ' . $contact['addr']);
+		Logger::info('About to deliver via mail', ['guid' => $target_item['guid'], 'to' => $addr]);
 
 		$reply_to = '';
 		$mailacct = DBA::selectFirst('mailacct', ['reply_to'], ['uid' => $owner['uid']]);
@@ -519,10 +530,10 @@ class Delivery extends BaseObject
 
 		if (($contact['rel'] == Model\Contact::FRIEND) && !$contact['blocked']) {
 			if ($reply_to) {
-				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $reply_to.'>' . "\n";
+				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $reply_to . '>' . "\n";
 				$headers .= 'Sender: ' . $local_user['email'] . "\n";
 			} else {
-				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8').' <' . $local_user['email'] . '>' . "\n";
+				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
 			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . self::getApp()->getHostName() . '>' . "\n";
@@ -531,11 +542,11 @@ class Delivery extends BaseObject
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";
 
 		if ($target_item['uri'] !== $target_item['parent-uri']) {
-			$headers .= "References: <" . Email::iri2msgid($target_item["parent-uri"]) . ">";
+			$headers .= 'References: <' . Email::iri2msgid($target_item['parent-uri']) . '>';
 
-			// If Threading is enabled, write down the correct parent
-			if (($target_item["thr-parent"] != "") && ($target_item["thr-parent"] != $target_item["parent-uri"])) {
-				$headers .= " <".Email::iri2msgid($target_item["thr-parent"]).">";
+			// Export more references on deeper nested threads
+			if (($target_item['thr-parent'] != '') && ($target_item['thr-parent'] != $target_item['parent-uri'])) {
+				$headers .= ' <' . Email::iri2msgid($target_item['thr-parent']) . '>';
 			}
 
 			$headers .= "\n";
@@ -562,5 +573,9 @@ class Delivery extends BaseObject
 		}
 
 		Email::send($addr, $subject, $headers, $target_item);
+
+		Model\ItemDeliveryData::incrementQueueDone($target_item['id'], Model\ItemDeliveryData::MAIL);
+
+		Logger::info('Delivered via mail', ['guid' => $target_item['guid'], 'to' => $addr, 'subject' => $subject]);
 	}
 }
