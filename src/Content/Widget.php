@@ -89,6 +89,10 @@ class Widget
 		// Always hide content from these networks
 		$networks = ['face', 'apdn'];
 
+		if (!Addon::isEnabled("discourse")) {
+			$networks[] = Protocol::DISCOURSE;
+		}
+
 		if (!Addon::isEnabled("statusnet")) {
 			$networks[] = Protocol::STATUSNET;
 		}

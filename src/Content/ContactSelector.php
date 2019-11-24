@@ -125,6 +125,7 @@ class ContactSelector
 			Protocol::GPLUS     =>   L10n::t('Google+'),
 			Protocol::PUMPIO    =>   L10n::t('pump.io'),
 			Protocol::TWITTER   =>   L10n::t('Twitter'),
+			Protocol::DISCOURSE =>   L10n::t('Discourse'),
 			Protocol::DIASPORA2 =>   L10n::t('Diaspora Connector'),
 			Protocol::STATUSNET =>   L10n::t('GNU Social Connector'),
 			Protocol::ACTIVITYPUB => L10n::t('ActivityPub'),
@@ -185,6 +186,7 @@ class ContactSelector
 			Protocol::GPLUS     =>   'google-plus',
 			Protocol::PUMPIO    =>   'file-text-o', /// @todo
 			Protocol::TWITTER   =>   'twitter',
+			Protocol::DISCOURSE =>   'dot-circle-o', /// @todo
 			Protocol::DIASPORA2 =>   'diaspora',
 			Protocol::STATUSNET =>   'gnu-social',
 			Protocol::ACTIVITYPUB => 'activitypub',
