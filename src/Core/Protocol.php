@@ -33,6 +33,7 @@ class Protocol
 	const PUMPIO    = 'pump';    // pump.io
 	const STATUSNET = 'stac';    // Statusnet connector
 	const TWITTER   = 'twit';    // Twitter
+	const DISCOURSE = 'dscs';    // Discourse
 
 	// Dead protocols
 	const APPNET    = 'apdn';    // app.net - Dead protocol
