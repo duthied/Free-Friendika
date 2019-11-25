@@ -257,7 +257,7 @@ class Event extends BaseObject
 		$event['deny_cid']  =        $arr['deny_cid']  ?? '';
 		$event['deny_gid']  =        $arr['deny_gid']  ?? '';
 		$event['adjust']    = intval($arr['adjust']    ?? 0);
-		$event['nofinish']  = intval(!empty($arr['nofinish'] || !empty($event['start']) && empty($event['finish'])));
+		$event['nofinish']  = intval($arr['nofinish'] ?? (!empty($event['start']) && empty($event['finish'])));
 
 		$event['created']   = DateTimeFormat::utc(($arr['created'] ?? '') ?: 'now');
 		$event['edited']    = DateTimeFormat::utc(($arr['edited']  ?? '') ?: 'now');
