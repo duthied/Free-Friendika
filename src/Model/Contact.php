@@ -1459,11 +1459,15 @@ class Contact extends BaseObject
 			$contact_id = $contact["id"];
 
 			// Update the contact every 7 days
-			$update_contact = ($contact['updated'] < DateTimeFormat::utc('now -7 days'));
+			if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+				$update_contact = ($contact['updated'] < DateTimeFormat::utc('now -7 days'));
 
-			// We force the update if the avatar is empty
-			if (empty($contact['avatar'])) {
-				$update_contact = true;
+				// We force the update if the avatar is empty
+				if (empty($contact['avatar'])) {
+					$update_contact = true;
+				}
+			} else {
+				$update_contact = false;
 			}
 
 			// Update the contact in the background if needed but it is called by the frontend
