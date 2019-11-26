@@ -627,10 +627,11 @@ class GContact
 			$contact['about'] = $contact['about'] ?? '';
 			$contact['generation'] = $contact['generation'] ?? 0;
 
-			$fields = ['name' => $contact['name'], 'nick' => $contact['nick'], 'addr' => $contact['addr'], 'network' => $contact['network'],
+			$fields = ['name' => $contact['name'], 'nick' => $contact['nick'] ?? '', 'addr' => $contact['addr'] ?? '', 'network' => $contact['network'],
 				'url' => $contact['url'], 'nurl' => Strings::normaliseLink($contact['url']), 'photo' => $contact['photo'],
 				'created' => DateTimeFormat::utcNow(), 'updated' => DateTimeFormat::utcNow(), 'location' => $contact['location'],
 				'about' => $contact['about'], 'hide' => $contact['hide'], 'generation' => $contact['generation']];
+
 			DBA::insert('gcontact', $fields);
 
 			$condition = ['nurl' => Strings::normaliseLink($contact['url'])];
