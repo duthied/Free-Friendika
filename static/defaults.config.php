@@ -189,6 +189,11 @@ return [
 		// For development only. Disables the item cache.
 		'ignore_cache' => false,
 
+		// insecure_imap (Boolean)
+		// If enabled, users are allowed to connect to their IMAP servers unencrypted.
+		// For security reasons this is disabled by default.
+		'insecure_imap' => false,
+
 		// instances_social_key (String)
 		// Key to the API of https://instances.social which retrieves data about mastodon servers.
 		// See https://instances.social/api/token to get an API key.

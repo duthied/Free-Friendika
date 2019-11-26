@@ -829,7 +829,13 @@ function settings_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('settings/connectors.tpl');
 
-		$mail_disabled_message = (($mail_disabled) ? L10n::t('Email access is disabled on this site.') : '');
+		$mail_disabled_message = ($mail_disabled ? L10n::t('Email access is disabled on this site.') : '');
+
+		$ssl_options = ['TLS' => 'TLS', 'SSL' => 'SSL'];
+
+		if (Config::get('system', 'insecure_imap')) {
+			$ssl_options['notls'] = L10n::t('None');
+		}
 
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_connectors"),
@@ -859,7 +865,7 @@ function settings_content(App $a)
 			'$mail_disabled' => $mail_disabled_message,
 			'$mail_server'	=> ['mail_server',	L10n::t('IMAP server name:'), $mail_server, ''],
 			'$mail_port'	=> ['mail_port', 	L10n::t('IMAP port:'), $mail_port, ''],
-			'$mail_ssl'	=> ['mail_ssl',		L10n::t('Security:'), strtoupper($mail_ssl), '', [/*'notls' => L10n::t('None'),*/ 'TLS' => 'TLS', 'SSL' => 'SSL']],
+			'$mail_ssl'	=> ['mail_ssl',		L10n::t('Security:'), strtoupper($mail_ssl), '', $ssl_options],
 			'$mail_user'	=> ['mail_user',	L10n::t('Email login name:'), $mail_user, ''],
 			'$mail_pass'	=> ['mail_pass',	L10n::t('Email password:'), '', ''],
 			'$mail_replyto'	=> ['mail_replyto',	L10n::t('Reply-to address:'), $mail_replyto, 'Optional'],
