@@ -17,7 +17,7 @@ return [
 
 	'/.well-known' => [
 		'/host-meta'      => [Module\WellKnown\HostMeta::class,     [R::GET]],
-		'/nodeinfo[/1.0]' => [Module\NodeInfo::class,               [R::GET]],
+		'/nodeinfo'       => [Module\NodeInfo::class,               [R::GET]],
 		'/webfinger'      => [Module\Xrd::class,                    [R::GET]],
 		'/x-social-relay' => [Module\WellKnown\XSocialRelay::class, [R::GET]],
 	],
@@ -145,17 +145,17 @@ return [
 		'/ignore/{id}' => [Module\Item\Ignore::class, [R::GET]],
 	],
 
-	'/like/{item:\d+}' => [Module\Like::class,            [R::GET]],
-	'/localtime'       => [Module\Debug\Localtime::class, [R::GET, R::POST]],
-	'/login'           => [Module\Login::class,           [R::GET, R::POST]],
-	'/logout'          => [Module\Logout::class,          [R::GET, R::POST]],
-	'/magic'           => [Module\Magic::class,           [R::GET]],
-	'/maintenance'     => [Module\Maintenance::class,     [R::GET]],
-	'/manifest'        => [Module\Manifest::class,        [R::GET]],
-	'/modexp/{nick}'   => [Module\PublicRSAKey::class,    [R::GET]],
-	'/newmember'       => [Module\Welcome::class,         [R::GET]],
-	'/nodeinfo/1.0'    => [Module\NodeInfo::class,        [R::GET]],
-	'/nogroup'         => [Module\Group::class,           [R::GET]],
+	'/like/{item:\d+}'    => [Module\Like::class,            [R::GET]],
+	'/localtime'          => [Module\Debug\Localtime::class, [R::GET, R::POST]],
+	'/login'              => [Module\Login::class,           [R::GET, R::POST]],
+	'/logout'             => [Module\Logout::class,          [R::GET, R::POST]],
+	'/magic'              => [Module\Magic::class,           [R::GET]],
+	'/maintenance'        => [Module\Maintenance::class,     [R::GET]],
+	'/manifest'           => [Module\Manifest::class,        [R::GET]],
+	'/modexp/{nick}'      => [Module\PublicRSAKey::class,    [R::GET]],
+	'/newmember'          => [Module\Welcome::class,         [R::GET]],
+	'/nodeinfo/{version}' => [Module\NodeInfo::class,        [R::GET]],
+	'/nogroup'            => [Module\Group::class,           [R::GET]],
 
 	'/notify'         => [
 		'[/]'            => [Module\Notifications\Notify::class, [R::GET]],
