@@ -829,7 +829,13 @@ function settings_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('settings/connectors.tpl');
 
-		$mail_disabled_message = (($mail_disabled) ? L10n::t('Email access is disabled on this site.') : '');
+		$mail_disabled_message = ($mail_disabled ? L10n::t('Email access is disabled on this site.') : '');
+
+		$ssl_options = ['TLS' => 'TLS', 'SSL' => 'SSL'];
+
+		if (Config::get('system', 'insecure_imap')) {
+			$ssl_options['notls'] = L10n::t('None');
+		}
 
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_connectors"),
@@ -857,15 +863,15 @@ function settings_content(App $a)
 			'$imap_desc' => L10n::t("If you wish to communicate with email contacts using this service \x28optional\x29, please specify how to connect to your mailbox."),
 			'$imap_lastcheck' => ['imap_lastcheck', L10n::t('Last successful email check:'), $mail_chk, ''],
 			'$mail_disabled' => $mail_disabled_message,
-			'$mail_server'	=> ['mail_server',  L10n::t('IMAP server name:'), $mail_server, ''],
-			'$mail_port'	=> ['mail_port', 	 L10n::t('IMAP port:'), $mail_port, ''],
-			'$mail_ssl'		=> ['mail_ssl', 	 L10n::t('Security:'), strtoupper($mail_ssl), '', ['notls'=>L10n::t('None'), 'TLS'=>'TLS', 'SSL'=>'SSL']],
-			'$mail_user'	=> ['mail_user',    L10n::t('Email login name:'), $mail_user, ''],
-			'$mail_pass'	=> ['mail_pass', 	 L10n::t('Email password:'), '', ''],
-			'$mail_replyto'	=> ['mail_replyto', L10n::t('Reply-to address:'), $mail_replyto, 'Optional'],
-			'$mail_pubmail'	=> ['mail_pubmail', L10n::t('Send public posts to all email contacts:'), $mail_pubmail, ''],
-			'$mail_action'	=> ['mail_action',	 L10n::t('Action after import:'), $mail_action, '', [0=>L10n::t('None'), /*1=>L10n::t('Delete'),*/ 2=>L10n::t('Mark as seen'), 3=>L10n::t('Move to folder')]],
-			'$mail_movetofolder'	=> ['mail_movetofolder',	 L10n::t('Move to folder:'), $mail_movetofolder, ''],
+			'$mail_server'	=> ['mail_server',	L10n::t('IMAP server name:'), $mail_server, ''],
+			'$mail_port'	=> ['mail_port', 	L10n::t('IMAP port:'), $mail_port, ''],
+			'$mail_ssl'	=> ['mail_ssl',		L10n::t('Security:'), strtoupper($mail_ssl), '', $ssl_options],
+			'$mail_user'	=> ['mail_user',	L10n::t('Email login name:'), $mail_user, ''],
+			'$mail_pass'	=> ['mail_pass',	L10n::t('Email password:'), '', ''],
+			'$mail_replyto'	=> ['mail_replyto',	L10n::t('Reply-to address:'), $mail_replyto, 'Optional'],
+			'$mail_pubmail'	=> ['mail_pubmail',	L10n::t('Send public posts to all email contacts:'), $mail_pubmail, ''],
+			'$mail_action'	=> ['mail_action',	L10n::t('Action after import:'), $mail_action, '', [0 => L10n::t('None'), 1 => L10n::t('Delete'), 2 => L10n::t('Mark as seen'), 3 => L10n::t('Move to folder')]],
+			'$mail_movetofolder' => ['mail_movetofolder', L10n::t('Move to folder:'), $mail_movetofolder, ''],
 			'$submit' => L10n::t('Save Settings'),
 		]);
 
