@@ -245,6 +245,10 @@ class NodeInfo extends BaseModule
 
 		$nodeinfo['services'] = self::getServices($app);
 
+		if (Addon::isEnabled('twitter')) {
+			$nodeinfo['services']['inbound'][] = 'twitter';
+		}
+
 		$nodeinfo['services']['inbound'][]  = 'atom1.0';
 		$nodeinfo['services']['outbound'][] = 'atom1.0';
 		$nodeinfo['services']['outbound'][] = 'rss2.0';
