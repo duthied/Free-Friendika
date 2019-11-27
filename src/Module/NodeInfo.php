@@ -218,8 +218,6 @@ class NodeInfo extends BaseModule
 	{
 		$config = $app->getConfig();
 
-		$smtp = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
-
 		$nodeinfo = [
 			'version'           => '2.0',
 			'software'          => [
