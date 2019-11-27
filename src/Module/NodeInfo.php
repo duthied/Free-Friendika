@@ -250,8 +250,8 @@ class NodeInfo extends BaseModule
 		}
 
 		$nodeinfo['services']['inbound'][]  = 'atom1.0';
+		$nodeinfo['services']['inbound'][]  = 'rss2.0';
 		$nodeinfo['services']['outbound'][] = 'atom1.0';
-		$nodeinfo['services']['outbound'][] = 'rss2.0';
 
 		$nodeinfo['metadata']['explicitContent'] = $config->get('system', 'explicit_content', false) == true;
 
