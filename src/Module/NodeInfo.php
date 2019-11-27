@@ -89,14 +89,10 @@ class NodeInfo extends BaseModule
 	*/
 	private static function getServices(App $app)
 	{
-		$config = $app->getConfig();
-
 		$services = [
 			'inbound'  => [],
 			'outbound' => [],
 		];
-
-		$smtp = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
 
 		if (Addon::isEnabled('blogger')) {
 			$services['outbound'][] = 'blogger';
@@ -130,9 +126,9 @@ class NodeInfo extends BaseModule
 			$services['inbound'][] = 'pumpio';
 			$services['outbound'][] = 'pumpio';
 		}
-		if ($smtp) {
-			$services['outbound'][] = 'smtp';
-		}
+
+		$services['outbound'][] = 'smtp';
+
 		if (Addon::isEnabled('tumblr')) {
 			$services['outbound'][] = 'tumblr';
 		}
@@ -218,6 +214,8 @@ class NodeInfo extends BaseModule
 	{
 		$config = $app->getConfig();
 
+		$imap = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
+
 		$nodeinfo = [
 			'version'           => '2.0',
 			'software'          => [
@@ -252,6 +250,10 @@ class NodeInfo extends BaseModule
 		$nodeinfo['services']['inbound'][]  = 'atom1.0';
 		$nodeinfo['services']['inbound'][]  = 'rss2.0';
 		$nodeinfo['services']['outbound'][] = 'atom1.0';
+
+		if ($imap) {
+			$nodeinfo['services']['inbound'][] = 'imap';
+		}
 
 		$nodeinfo['metadata']['explicitContent'] = $config->get('system', 'explicit_content', false) == true;
 
