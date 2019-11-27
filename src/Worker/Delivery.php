@@ -500,7 +500,7 @@ class Delivery extends BaseObject
 		if (!in_array($cmd, [self::POST, self::POKE])) {
 			return;
 		}
-Logger::info('Blubb', $target_item);
+
 		if ($target_item['verb'] != Activity::POST) {
 			return;
 		}
