@@ -17,41 +17,13 @@ class NodeInfo extends BaseModule
 	{
 		$app = self::getApp();
 
-		// @TODO: Replace with parameter from router
-		// if the first argument is ".well-known", print the well-known text
-		if (($app->argc > 1) && ($app->argv[0] == '.well-known')) {
-			self::printWellKnown($app);
-		// otherwise print the nodeinfo
-		} elseif ($parameters['version'] == '1.0') {
+		if ($parameters['version'] == '1.0') {
 			self::printNodeInfo1($app);
 		} elseif ($parameters['version'] == '2.0') {
 			self::printNodeInfo2($app);
 		} else {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
-	}
-
-	/**
-	 * Prints the well-known nodeinfo redirect
-	 *
-	 * @param App $app
-	 *
-	 * @throws \Friendica\Network\HTTPException\NotFoundException
-	 */
-	private static function printWellKnown(App $app)
-	{
-		$nodeinfo = [
-			'links' => [
-				['rel'  => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
-				'href' => $app->getBaseURL() . '/nodeinfo/1.0'],
-				['rel'  => 'http://nodeinfo.diaspora.software/ns/schema/2.0',
-				'href' => $app->getBaseURL() . '/nodeinfo/2.0'],
-			]
-		];
-
-		header('Content-type: application/json; charset=utf-8');
-		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		exit;
 	}
 
 	/**
