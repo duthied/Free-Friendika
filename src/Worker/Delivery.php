@@ -15,6 +15,7 @@ use Friendica\Model;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
+use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
@@ -497,6 +498,10 @@ class Delivery extends BaseObject
 		}
 
 		if (!in_array($cmd, [self::POST, self::POKE])) {
+			return;
+		}
+
+		if ($target_item['verb'] != Activity::POST) {
 			return;
 		}
 
