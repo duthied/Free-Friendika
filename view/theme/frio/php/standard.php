@@ -98,7 +98,6 @@ $("nav").bind('nav-update', function(e,data)
 });
 </script>
 <script src="<?=$frio?>/js/theme.js"></script>
-<script src="<?=$frio?>/js/acl.js"></script>
 <script src="<?=$frio?>/frameworks/bootstrap/js/bootstrap.min.js"></script>
 <script src="<?=$frio?>/frameworks/jasny/js/jasny-bootstrap.min.js"></script>
 <script src="<?=$frio?>/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
