@@ -13,6 +13,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Core\Session;
 use Friendica\Util\Network;
+use Friendica\Model\Group;
 
 /**
  * Handle ACL management and display
@@ -249,6 +250,63 @@ class ACL extends BaseObject
 			'deny_cid' => $deny_cid,
 			'deny_gid' => $deny_gid,
 		];
+	}
+
+	/**
+	 * Returns the ACL list of contacts for a given user id
+	 *
+	 * @param int $user_id
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getContactListByUserId(int $user_id)
+	{
+		$acl_contacts = Contact::selectToArray(
+			['id', 'name', 'addr', 'micro'],
+			['uid' => $user_id, 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]
+		);
+		array_walk($acl_contacts, function (&$value) {
+			$value['type'] = 'contact';
+		});
+
+		return $acl_contacts;
+	}
+
+	/**
+	 * Returns the ACL list of groups (including meta-groups) for a given user id
+	 *
+	 * @param int $user_id
+	 * @return array
+	 */
+	public static function getGroupListByUserId(int $user_id)
+	{
+		$acl_groups = [
+			[
+				'id' => Group::FOLLOWERS,
+				'name' => L10n::t('Followers'),
+				'addr' => '',
+				'micro' => 'images/twopeople.png',
+				'type' => 'group',
+			],
+			[
+				'id' => Group::MUTUALS,
+				'name' => L10n::t('Mutuals'),
+				'addr' => '',
+				'micro' => 'images/twopeople.png',
+				'type' => 'group',
+			]
+		];
+		foreach (Group::getByUserId($user_id) as $group) {
+			$acl_groups[] = [
+				'id' => $group['id'],
+				'name' => $group['name'],
+				'addr' => '',
+				'micro' => 'images/twopeople.png',
+				'type' => 'group',
+			];
+		}
+
+		return $acl_groups;
 	}
 
 	/**
