@@ -4,10 +4,13 @@ namespace Friendica\Module\Item;
 
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
+use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\System;
+use Friendica\Core\Theme;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
@@ -45,7 +48,7 @@ class Compose extends BaseModule
 		}
 
 		/// @TODO Retrieve parameter from router
-		$posttype = $a->argv[1] ?? Item::PT_ARTICLE;
+		$posttype = $parameters['type'] ?? Item::PT_ARTICLE;
 		if (!in_array($posttype, [Item::PT_ARTICLE, Item::PT_PERSONAL_NOTE])) {
 			switch ($posttype) {
 				case 'note':
@@ -62,20 +65,37 @@ class Compose extends BaseModule
 		/** @var ACLFormatter $aclFormatter */
 		$aclFormatter = self::getClass(ACLFormatter::class);
 
+		$contact_allow_list = $aclFormatter->expand($user['allow_cid']);
+		$group_allow_list   = $aclFormatter->expand($user['allow_gid']);
+		$contact_deny_list  = $aclFormatter->expand($user['deny_cid']);
+		$group_deny_list    = $aclFormatter->expand($user['deny_gid']);
+
 		switch ($posttype) {
 			case Item::PT_PERSONAL_NOTE:
 				$compose_title = L10n::t('Compose new personal note');
 				$type = 'note';
 				$doesFederate = false;
-				$contact_allow = $a->contact['id'];
-				$group_allow = '';
+				$contact_allow_list = [$a->contact['id']];
+				$group_allow_list = [];
+				$contact_deny_list = [];
+				$group_deny_list = [];
 				break;
 			default:
 				$compose_title = L10n::t('Compose new post');
 				$type = 'post';
 				$doesFederate = true;
-				$contact_allow = implode(',', $aclFormatter->expand($user['allow_cid']));
-				$group_allow = implode(',', $aclFormatter->expand($user['allow_gid'])) ?: Group::FOLLOWERS;
+
+				if ($_REQUEST['contact_allow']
+					. $_REQUEST['group_allow']
+					. $_REQUEST['contact_deny']
+				    . $_REQUEST['group_deny'])
+				{
+					$contact_allow_list = $_REQUEST['contact_allow'] ? explode(',', $_REQUEST['contact_allow']) : [];
+					$group_allow_list   = $_REQUEST['group_allow']   ? explode(',', $_REQUEST['group_allow'])   : [];
+					$contact_deny_list  = $_REQUEST['contact_deny']  ? explode(',', $_REQUEST['contact_deny'])  : [];
+					$group_deny_list    = $_REQUEST['group_deny']    ? explode(',', $_REQUEST['group_deny'])    : [];
+				}
+
 				break;
 		}
 
@@ -84,93 +104,19 @@ class Compose extends BaseModule
 		$body          = $_REQUEST['body']          ?? '';
 		$location      = $_REQUEST['location']      ?? $user['default-location'];
 		$wall          = $_REQUEST['wall']          ?? $type == 'post';
-		$contact_allow = $_REQUEST['contact_allow'] ?? $contact_allow;
-		$group_allow   = $_REQUEST['group_allow']   ?? $group_allow;
-		$contact_deny  = $_REQUEST['contact_deny']  ?? implode(',', $aclFormatter->expand($user['deny_cid']));
-		$group_deny    = $_REQUEST['group_deny']    ?? implode(',', $aclFormatter->expand($user['deny_gid']));
-		$visibility    = ($contact_allow . $user['allow_gid'] . $user['deny_cid'] . $user['deny_gid']) ? 'custom' : 'public';
-
-		$acl_contacts = Contact::selectToArray(['id', 'name', 'addr', 'micro'], ['uid' => local_user(), 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]);
-		array_walk($acl_contacts, function (&$value) {
-			$value['type'] = 'contact';
-		});
-
-		$acl_groups = [
-			[
-				'id' => Group::FOLLOWERS,
-				'name' => L10n::t('Followers'),
-				'addr' => '',
-				'micro' => 'images/twopeople.png',
-				'type' => 'group',
-			],
-			[
-				'id' => Group::MUTUALS,
-				'name' => L10n::t('Mutuals'),
-				'addr' => '',
-				'micro' => 'images/twopeople.png',
-				'type' => 'group',
-			]
-		];
-		foreach (Group::getByUserId(local_user()) as $group) {
-			$acl_groups[] = [
-				'id' => $group['id'],
-				'name' => $group['name'],
-				'addr' => '',
-				'micro' => 'images/twopeople.png',
-				'type' => 'group',
-			];
-		}
-
-		$acl = array_merge($acl_groups, $acl_contacts);
-
-		$jotnets_fields = [];
-		$mail_enabled = false;
-		$pubmail_enabled = false;
-		if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
-			$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
-			if (DBA::isResult($mailacct)) {
-				$mail_enabled = true;
-				$pubmail_enabled = !empty($mailacct['pubmail']);
-			}
-		}
-
-		if (empty($user['hidewall'])) {
-			if ($mail_enabled) {
-				$jotnets_fields[] = [
-					'type' => 'checkbox',
-					'field' => [
-						'pubmail_enable',
-						L10n::t('Post to Email'),
-						$pubmail_enabled
-					]
-				];
-			}
-
-			Hook::callAll('jot_networks', $jotnets_fields);
-		}
 
 		$jotplugins = '';
 		Hook::callAll('jot_tool', $jotplugins);
 
 		// Output
-
-		$a->registerFooterScript('view/js/ajaxupload.js');
-		$a->registerFooterScript('view/js/linkPreview.js');
-		$a->registerFooterScript('view/asset/typeahead.js/dist/typeahead.bundle.js');
-		$a->registerFooterScript('view/theme/frio/frameworks/friendica-tagsinput/friendica-tagsinput.js');
-		$a->registerStylesheet('view/theme/frio/frameworks/friendica-tagsinput/friendica-tagsinput.css');
-		$a->registerStylesheet('view/theme/frio/frameworks/friendica-tagsinput/friendica-tagsinput-typeahead.css');
-
-		$tpl = Renderer::getMarkupTemplate('item/compose-footer.tpl');
-		$a->page['footer'] .= Renderer::replaceMacros($tpl, [
-			'$acl_contacts' => $acl_contacts,
-			'$acl_groups' => $acl_groups,
-			'$acl' => $acl,
-		]);
+		$a->page->registerFooterScript(Theme::getPathForFile('js/ajaxupload.js'));
+		$a->page->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
+		$a->page->registerFooterScript(Theme::getPathForFile('js/compose.js'));
 
 		$tpl = Renderer::getMarkupTemplate('item/compose.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$compose_title'=> $compose_title,
+			'$visibility_title'=> L10n::t('Visibility'),
 			'$id'           => 0,
 			'$posttype'     => $posttype,
 			'$type'         => $type,
@@ -197,25 +143,26 @@ class Compose extends BaseModule
 			'$wait'         => L10n::t('Please wait'),
 			'$placeholdertitle' => L10n::t('Set title'),
 			'$placeholdercategory' => (Feature::isEnabled(local_user(),'categories') ? L10n::t('Categories (comma-separated list)') : ''),
-			'$public_title'  => L10n::t('Public'),
-			'$public_desc'  => L10n::t('This post will be sent to all your followers and can be seen in the community pages and by anyone with its link.'),
-			'$custom_title' => L10n::t('Limited/Private'),
-			'$custom_desc'  => L10n::t('This post will be sent only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'),
-			'$emailcc'      => L10n::t('CC: email addresses'),
+
 			'$title'        => $title,
 			'$category'     => $category,
 			'$body'         => $body,
 			'$location'     => $location,
-			'$visibility'   => $visibility,
-			'$contact_allow'=> $contact_allow,
-			'$group_allow'  => $group_allow,
-			'$contact_deny' => $contact_deny,
-			'$group_deny'   => $group_deny,
+
+			'$contact_allow'=> implode(',', $contact_allow_list),
+			'$group_allow'  => implode(',', $group_allow_list),
+			'$contact_deny' => implode(',', $contact_deny_list),
+			'$group_deny'   => implode(',', $group_deny_list),
+
 			'$jotplugins'   => $jotplugins,
-			'$doesFederate' => $doesFederate,
-			'$jotnets_fields'=> $jotnets_fields,
 			'$sourceapp'    => L10n::t($a->sourcename),
-			'$rand_num'     => Crypto::randomDigits(12)
+			'$rand_num'     => Crypto::randomDigits(12),
+			'$acl_selector'  => ACL::getFullSelectorHTML($a->page, $a->user, $doesFederate, [
+				'allow_cid' => $contact_allow_list,
+				'allow_gid' => $group_allow_list,
+				'deny_cid'  => $contact_deny_list,
+				'deny_gid'  => $group_deny_list,
+			]),
 		]);
 	}
 }
