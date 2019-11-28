@@ -377,7 +377,7 @@ function networkFlatView(App $a, $update = 0)
 			(strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) ||
 			strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
-			'acl' => ACL::getFullSelectorHTML($a->user, true),
+			'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
@@ -554,7 +554,7 @@ function networkThreadedView(App $a, $update, $parent)
 			(strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) ||
 			strlen($a->user['deny_cid']) || strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
-			'acl' => ACL::getFullSelectorHTML($a->user, true, $default_permissions),
+			'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true, $default_permissions),
 			'bang' => (($gid || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

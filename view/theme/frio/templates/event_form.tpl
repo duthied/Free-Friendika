@@ -30,7 +30,7 @@
 	</ul>
 
 	<div id="event-edit-form-wrapper">
-	<form id="event-edit-form" action="{{$post}}" method="post" data-allow_cid="{{$allow_cid}}" data-allow_gid="{{$allow_gid}}" data-deny_cid="{{$deny_cid}}" data-deny_gid="{{$deny_gid}}">
+	<form id="event-edit-form" action="{{$post}}" method="post">
 
 		<input type="hidden" name="event_id" value="{{$eid}}" />
 		<input type="hidden" name="cid" value="{{$cid}}" />

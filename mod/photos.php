@@ -960,7 +960,7 @@ function photos_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
-		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML($a->user));
+		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML($a->page, $a->user));
 
 		$o .= Renderer::replaceMacros($tpl,[
 			'$pagename' => L10n::t('Upload Photos'),
@@ -1332,7 +1332,7 @@ function photos_content(App $a)
 
 			$album_e = $ph[0]['album'];
 			$caption_e = $ph[0]['desc'];
-			$aclselect_e = ACL::getFullSelectorHTML($a->user, false, $ph[0]);
+			$aclselect_e = ACL::getFullSelectorHTML($a->page, $a->user, false, $ph[0]);
 
 			$edit = Renderer::replaceMacros($edit_tpl, [
 				'$id' => $ph[0]['id'],

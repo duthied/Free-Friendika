@@ -344,11 +344,11 @@ function toggleJotNav (elm) {
 
 	// Minimize all tab content wrapper and activate only the selected
 	// tab panel.
-	$('#jot-modal [role=tabpanel]').addClass("minimize").attr("aria-hidden" ,"true");
-	$('#jot-modal #' + tabpanel).removeClass("minimize").attr("aria-hidden" ,"false");
+	$('#profile-jot-form > [role=tabpanel]').addClass("minimize").attr("aria-hidden" ,"true");
+	$('#' + tabpanel).removeClass("minimize").attr("aria-hidden" ,"false");
 
 	// Set the aria-selected states
-	$("#jot-modal .nav-tabs .jot-nav-lnk").attr("aria-selected", "false");
+	$("#jot-modal .modal-header .nav-tabs .jot-nav-lnk").attr("aria-selected", "false");
 	elm.setAttribute("aria-selected", "true");
 
 	// For some some tab panels we need to execute other js functions.

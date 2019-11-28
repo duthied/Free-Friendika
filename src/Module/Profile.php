@@ -208,7 +208,7 @@ class Profile extends BaseModule
 						|| strlen($a->user['deny_cid'])
 						|| strlen($a->user['deny_gid'])
 					) ? 'lock' : 'unlock',
-					'acl' => $is_owner ? ACL::getFullSelectorHTML($a->user, true) : '',
+					'acl' => $is_owner ? ACL::getFullSelectorHTML($a->page, $a->user, true) : '',
 					'bang' => '',
 					'visitor' => $is_owner || $commvisitor ? 'block' : 'none',
 					'profile_uid' => $a->profile['profile_uid'],

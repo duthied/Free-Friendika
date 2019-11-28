@@ -926,7 +926,7 @@ class Contact extends BaseModule
 					'default_location' => $a->user['default-location'],
 					'nickname' => $a->user['nickname'],
 					'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
-					'acl' => ACL::getFullSelectorHTML($a->user, true),
+					'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true),
 					'bang' => '',
 					'visitor' => 'block',
 					'profile_uid' => local_user(),
