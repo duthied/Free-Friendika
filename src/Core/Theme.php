@@ -185,45 +185,33 @@ class Theme
 	/**
 	 * @brief Get the full path to relevant theme files by filename
 	 *
-	 * This function search in the theme directory (and if not present in global theme directory)
-	 * if there is a directory with the file extension and  for a file with the given
-	 * filename.
+	 * This function searches in order in the current theme directory, in the current theme parent directory, and lastly
+	 * in the base view/ folder.
 	 *
 	 * @param string $file Filename
-	 * @param string $root Full root path
 	 * @return string Path to the file or empty string if the file isn't found
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
-	public static function getPathForFile($file, $root = '')
+	public static function getPathForFile($file)
 	{
-		$file = basename($file);
+		$a = BaseObject::getApp();
 
-		// Make sure $root ends with a slash / if it's not blank
-		if ($root !== '' && $root[strlen($root) - 1] !== '/') {
-			$root = $root . '/';
-		}
-		$theme_info = \get_app()->theme_info;
-		if (is_array($theme_info) && array_key_exists('extends', $theme_info)) {
-			$parent = $theme_info['extends'];
-		} else {
-			$parent = 'NOPATH';
-		}
-		$theme = \get_app()->getCurrentTheme();
-		$parent = Strings::sanitizeFilePathItem($parent);
-		$ext = substr($file, strrpos($file, '.') + 1);
+		$theme = $a->getCurrentTheme();
+
+		$parent = Strings::sanitizeFilePathItem($a->theme_info['extends'] ?? $theme);
+
 		$paths = [
-			"{$root}view/theme/$theme/$ext/$file",
-			"{$root}view/theme/$parent/$ext/$file",
-			"{$root}view/$ext/$file",
+			"view/theme/$theme/$file",
+			"view/theme/$parent/$file",
+			"view/$file",
 		];
-		foreach ($paths as $p) {
-			// strpos() is faster than strstr when checking if one string is in another (http://php.net/manual/en/function.strstr.php)
-			if (strpos($p, 'NOPATH') !== false) {
-				continue;
-			} elseif (file_exists($p)) {
-				return $p;
+
+		foreach ($paths as $path) {
+			if (file_exists($path)) {
+				return $path;
 			}
 		}
+
 		return '';
 	}
 

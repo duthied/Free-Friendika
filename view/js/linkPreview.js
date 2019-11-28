@@ -14,40 +14,39 @@
 	$.fn.linkPreview = function (options) {
 		var opts = jQuery.extend({}, $.fn.linkPreview.defaults, options);
 
-		var selector = $(this).selector;
-		selector = selector.substr(1);
+		var id = $(this).attr('id');
 
 		var previewTpl = '\
-			<div id="preview_' + selector + '" class="preview {0}">\
+			<div id="preview_' + id + '" class="preview {0}">\
 				{1}\
-				<input type="hidden" name="has_attachment" id="hasAttachment_' + selector + '" value="{2}" />\
-				<input type="hidden" name="attachment_url" id="attachmentUrl_' + selector + '" value="{3}" />\
-				<input type="hidden" name="attachment_type" id="attachmentType_' + selector + '" value="{4}" />\
+				<input type="hidden" name="has_attachment" id="hasAttachment_' + id + '" value="{2}" />\
+				<input type="hidden" name="attachment_url" id="attachmentUrl_' + id + '" value="{3}" />\
+				<input type="hidden" name="attachment_type" id="attachmentType_' + id + '" value="{4}" />\
 			</div>';
 
 		var attachmentTpl = '\
 			<hr class="previewseparator">\
-			<div id="closePreview_' + selector + '" title="Remove" class="closePreview" >\
+			<div id="closePreview_' + id + '" title="Remove" class="closePreview" >\
 				<button type="button" class="previewActionBtn">×</button>\
 			</div>\
-			<div id="previewImages_' + selector + '" class="previewImages">\
-				<div id="previewImgBtn_' + selector + '" class="previewImgBtn">\
-					<button type="button" id="previewChangeImg_' + selector + '" class="buttonChangeDeactive previewActionBtn" style="display: none">\
+			<div id="previewImages_' + id + '" class="previewImages">\
+				<div id="previewImgBtn_' + id + '" class="previewImgBtn">\
+					<button type="button" id="previewChangeImg_' + id + '" class="buttonChangeDeactive previewActionBtn" style="display: none">\
 						<i class="fa fa-exchange" aria-hidden="true"></i>\
 					</button>\
 				</div>\
-				<div id="previewImage_' + selector + '" class="previewImage">\
+				<div id="previewImage_' + id + '" class="previewImage">\
 				</div>\
-				<input type="hidden" id="photoNumber_' + selector + '" class="photoNumber" value="0" />\
-				<input type="hidden" name="attachment_img_src" id="attachmentImageSrc_' + selector + '" value="" />\
-				<input type="hidden" name="attachment_img_width" id="attachmentImageWidth_' + selector + '" value="0" />\
-				<input type="hidden" name="attachment_img_height" id="attachmentImageHeight_' + selector + '" value="0" />\
+				<input type="hidden" id="photoNumber_' + id + '" class="photoNumber" value="0" />\
+				<input type="hidden" name="attachment_img_src" id="attachmentImageSrc_' + id + '" value="" />\
+				<input type="hidden" name="attachment_img_width" id="attachmentImageWidth_' + id + '" value="0" />\
+				<input type="hidden" name="attachment_img_height" id="attachmentImageHeight_' + id + '" value="0" />\
 			</div>\
-			<div id="previewContent_' + selector + '" class="previewContent">\
-				<h4 id="previewTitle_' + selector + '" class="previewTitle"></h4>\
-				<blockquote id="previewDescription_' + selector + '" class="previewDescription"></blockquote>\
-				<div id="hiddenDescription_' + selector + '" class="hiddenDescription"></div>\
-				<sup id="previewUrl_' + selector + '" class="previewUrl"></sup>\
+			<div id="previewContent_' + id + '" class="previewContent">\
+				<h4 id="previewTitle_' + id + '" class="previewTitle"></h4>\
+				<blockquote id="previewDescription_' + id + '" class="previewDescription"></blockquote>\
+				<div id="hiddenDescription_' + id + '" class="hiddenDescription"></div>\
+				<sup id="previewUrl_' + id + '" class="previewUrl"></sup>\
 			</div>\
 			<div class="clear"></div>\
 			<hr class="previewseparator">';
@@ -72,7 +71,7 @@
 		 * @returns {void}
 		 */
 		var init = function() {
-			$('#' + selector).bind({
+			$('#' + id).bind({
 				paste: function () {
 					setTimeout(function () {
 						crawlText();
@@ -88,7 +87,7 @@
 
 			// Check if we have already attachment bbcode in the textarea
 			// and add it to the attachment preview.
-			var content = $('#' + selector).val();
+			var content = $('#' + id).val();
 			addBBCodeToPreview(content);
 		};
 
@@ -98,7 +97,7 @@
 		 * @returns {void}
 		 */
 		var resetPreview = function() {
-			$('#hasAttachment_' + selector).val(0);
+			$('#hasAttachment_' + id).val(0);
 			photoNumber = 0;
 			images = "";
 		};
@@ -121,7 +120,7 @@
 			// If no text is passed to crawlText() we 
 			// take the previous word before the cursor.
 			if (typeof text === 'undefined') {
-				text = getPrevWord(selector);
+				text = getPrevWord(id);
 			} else {
 				isExtern = true;
 			}
@@ -254,7 +253,7 @@
 				return;
 			}
 
-			$('#photoNumber_' + selector).val(0);
+			$('#photoNumber_' + id).val(0);
 			resetPreview();
 
 			processAttachmentTpl(data, 'type-' + data.type);
@@ -275,7 +274,7 @@
 		 */
 		var processAttachmentTpl = function(data) {
 			// Load and add the template if it isn't allready loaded.
-			if ($('#preview_' + selector).length === 0) {
+			if ($('#preview_' + id).length === 0) {
 				var tpl = previewTpl.format(
 					'type-' + data.type,
 					attachmentTpl,
@@ -283,7 +282,7 @@
 					bin2hex(data.url),
 					data.type
 				);
-				$('#' + selector).after(tpl);
+				$('#' + id).after(tpl);
 			}
 
 			isActive = true;
@@ -303,14 +302,14 @@
 				description = defaultDescription;
 			}
 
-			$('#previewTitle_' + selector).html("\
-				<span id='previewSpanTitle_" + selector + "' class='previewSpanTitle' >" + escapeHTML(data.title) + "</span>\
-				<input type='text' name='attachment_title' value='" + escapeHTML(data.title) + "' id='previewInputTitle_" + selector + "' class='previewInputTitle inputPreview' style='display: none;'/>"
+			$('#previewTitle_' + id).html("\
+				<span id='previewSpanTitle_" + id + "' class='previewSpanTitle' >" + escapeHTML(data.title) + "</span>\
+				<input type='text' name='attachment_title' value='" + escapeHTML(data.title) + "' id='previewInputTitle_" + id + "' class='previewInputTitle inputPreview' style='display: none;'/>"
 			);
 
-			$('#previewDescription_' + selector).html("\
-				<span id='previewSpanDescription_" + selector + "' class='previewSpanDescription' >" + escapeHTML(description) + "</span>\n\
-				<textarea id='previewInputDescription_" + selector + "' name='attachment_text' class='previewInputDescription' style='display: none;' class='inputPreview' >" + escapeHTML(data.text) + "</textarea>"
+			$('#previewDescription_' + id).html("\
+				<span id='previewSpanDescription_" + id + "' class='previewSpanDescription' >" + escapeHTML(description) + "</span>\n\
+				<textarea id='previewInputDescription_" + id + "' name='attachment_text' class='previewInputDescription' style='display: none;' class='inputPreview' >" + escapeHTML(data.text) + "</textarea>"
 			);
 		};
 
@@ -325,7 +324,7 @@
 				var regexpr = "(https?://)([^:^/]*)(:\\d*)?(.*)?";
 				var regResult = url.match(regexpr);
 				var urlHost = regResult[1] + regResult[2];
-				$('#previewUrl_' + selector).html("<a href='" + url + "'>" + urlHost + "</a>");
+				$('#previewUrl_' + id).html("<a href='" + url + "'>" + urlHost + "</a>");
 			}
 		};
 
@@ -340,12 +339,12 @@
 			var imageClass = 'attachment-preview';
 	
 			if (Array.isArray(images)) {
-				$('#previewImages_' + selector).show();
-				$('#attachmentImageSrc_' + selector).val(bin2hex(images[photoNumber].src));
-				$('#attachmentImageWidth_' + selector).val(images[photoNumber].width);
-				$('#attachmentImageHeight_' + selector).val(images[photoNumber].height);
+				$('#previewImages_' + id).show();
+				$('#attachmentImageSrc_' + id).val(bin2hex(images[photoNumber].src));
+				$('#attachmentImageWidth_' + id).val(images[photoNumber].width);
+				$('#attachmentImageHeight_' + id).val(images[photoNumber].height);
 			} else {
-				$('#previewImages_' + selector).hide();
+				$('#previewImages_' + id).hide();
 			}
 
 			images.length = parseInt(images.length);
@@ -359,26 +358,26 @@
 				}
 
 				if (i === 0) {
-					appendImage += "<img id='imagePreview_" + selector + "_" + i + "' src='" + images[i].src + "' class='" + imageClass + "' ></img>";
+					appendImage += "<img id='imagePreview_" + id + "_" + i + "' src='" + images[i].src + "' class='" + imageClass + "' ></img>";
 				} else {
-					appendImage += "<img id='imagePreview_" + selector + "_" + i + "' src='" + images[i].src + "' class='" + imageClass + "' style='display: none;'></img>";
+					appendImage += "<img id='imagePreview_" + id + "_" + i + "' src='" + images[i].src + "' class='" + imageClass + "' style='display: none;'></img>";
 				}
 			}
 
-			$('#previewImage_' + selector).html(appendImage + "<div id='whiteImage' style='color: transparent; display:none;'>...</div>");
+			$('#previewImage_' + id).html(appendImage + "<div id='whiteImage' style='color: transparent; display:none;'>...</div>");
 
 			// More than just one image.
 			if (images.length > 1) {
 				// Enable the the button to change the preview pictures.
-				$('#previewChangeImg_' + selector).show();
+				$('#previewChangeImg_' + id).show();
 
 				if (firstPosted === false) {
 					firstPosted = true;
 
-					$('#previewChangeImg_' + selector).unbind('click').click(function (e) {
+					$('#previewChangeImg_' + id).unbind('click').click(function (e) {
 						e.stopPropagation();
 						if (images.length > 1) {
-							$('#imagePreview_' + selector + '_' + photoNumber).css({
+							$('#imagePreview_' + id + '_' + photoNumber).css({
 								'display': 'none'
 							});
 							photoNumber += 1;
@@ -388,13 +387,13 @@
 								photoNumber = 0;
 							}
 
-							$('#imagePreview_' + selector + '_' + photoNumber).css({
+							$('#imagePreview_' + id + '_' + photoNumber).css({
 								'display': 'block'
 							});
-							$('#photoNumber_' + selector).val(photoNumber);
-							$('#attachmentImageSrc_' + selector).val(bin2hex(images[photoNumber].src));
-							$('#attachmentImageWidth_' + selector).val(images[photoNumber].width);
-							$('#attachmentImageHeight_' + selector).val(images[photoNumber].height);
+							$('#photoNumber_' + id).val(photoNumber);
+							$('#attachmentImageSrc_' + id).val(bin2hex(images[photoNumber].src));
+							$('#attachmentImageWidth_' + id).val(images[photoNumber].width);
+							$('#attachmentImageHeight_' + id).val(images[photoNumber].height);
 						}
 					});
 				}
@@ -407,94 +406,94 @@
 		 * @returns {void}
 		 */
 		var processEventListener = function() {
-			$('#previewSpanTitle_' + selector).unbind('click').click(function (e) {
+			$('#previewSpanTitle_' + id).unbind('click').click(function (e) {
 				e.stopPropagation();
 				if (blockTitle === false) {
 					blockTitle = true;
-					$('#previewSpanTitle_' + selector).hide();
-					$('#previewInputTitle_' + selector).show();
-					$('#previewInputTitle_' + selector).val($('#previewInputTitle_' + selector).val());
-					$('#previewInputTitle_' + selector).focus().select();
+					$('#previewSpanTitle_' + id).hide();
+					$('#previewInputTitle_' + id).show();
+					$('#previewInputTitle_' + id).val($('#previewInputTitle_' + id).val());
+					$('#previewInputTitle_' + id).focus().select();
 				}
 			});
 
-			$('#previewInputTitle_' + selector).blur(function () {
+			$('#previewInputTitle_' + id).blur(function () {
 				blockTitle = false;
-				$('#previewSpanTitle_' + selector).html($('#previewInputTitle_' + selector).val());
-				$('#previewSpanTitle_' + selector).show();
-				$('#previewInputTitle_' + selector).hide();
+				$('#previewSpanTitle_' + id).html($('#previewInputTitle_' + id).val());
+				$('#previewSpanTitle_' + id).show();
+				$('#previewInputTitle_' + id).hide();
 			});
 
-			$('#previewInputTitle_' + selector).keypress(function (e) {
+			$('#previewInputTitle_' + id).keypress(function (e) {
 				if (e.which === 13) {
 					blockTitle = false;
-					$('#previewSpanTitle_' + selector).html($('#previewInputTitle_' + selector).val());
-					$('#previewSpanTitle_' + selector).show();
-					$('#previewInputTitle_' + selector).hide();
+					$('#previewSpanTitle_' + id).html($('#previewInputTitle_' + id).val());
+					$('#previewSpanTitle_' + id).show();
+					$('#previewInputTitle_' + id).hide();
 				}
 			});
 
-			$('#previewSpanDescription_' + selector).unbind('click').click(function (e) {
+			$('#previewSpanDescription_' + id).unbind('click').click(function (e) {
 				e.stopPropagation();
 				if (blockDescription === false) {
 					blockDescription = true;
-					$('#previewSpanDescription_' + selector).hide();
-					$('#previewInputDescription_' + selector).show();
-					$('#previewInputDescription_' + selector).val($('#previewInputDescription_' + selector).val());
-					$('#previewInputDescription_' + selector).focus().select();
+					$('#previewSpanDescription_' + id).hide();
+					$('#previewInputDescription_' + id).show();
+					$('#previewInputDescription_' + id).val($('#previewInputDescription_' + id).val());
+					$('#previewInputDescription_' + id).focus().select();
 				}
 			});
 
-			$('#previewInputDescription_' + selector).blur(function () {
+			$('#previewInputDescription_' + id).blur(function () {
 				blockDescription = false;
-				$('#previewSpanDescription_' + selector).html($('#previewInputDescription_' + selector).val());
-				$('#previewSpanDescription_' + selector).show();
-				$('#previewInputDescription_' + selector).hide();
+				$('#previewSpanDescription_' + id).html($('#previewInputDescription_' + id).val());
+				$('#previewSpanDescription_' + id).show();
+				$('#previewInputDescription_' + id).hide();
 			});
 
-			$('#previewInputDescription_' + selector).keypress(function (e) {
+			$('#previewInputDescription_' + id).keypress(function (e) {
 				if (e.which === 13) {
 					blockDescription = false;
-					$('#previewSpanDescription_' + selector).html($('#previewInputDescription_' + selector).val());
-					$('#previewSpanDescription_' + selector).show();
-					$('#previewInputDescription_' + selector).hide();
+					$('#previewSpanDescription_' + id).html($('#previewInputDescription_' + id).val());
+					$('#previewSpanDescription_' + id).show();
+					$('#previewInputDescription_' + id).hide();
 				}
 			});
 
-			$('#previewSpanTitle_' + selector).mouseover(function () {
-				$('#previewSpanTitle_' + selector).css({
+			$('#previewSpanTitle_' + id).mouseover(function () {
+				$('#previewSpanTitle_' + id).css({
 					"background-color": "#ff9"
 				});
 			});
 
-			$('#previewSpanTitle_' + selector).mouseout(function () {
-				$('#previewSpanTitle_' + selector).css({
+			$('#previewSpanTitle_' + id).mouseout(function () {
+				$('#previewSpanTitle_' + id).css({
 					"background-color": "transparent"
 				});
 			});
 
-			$('#previewSpanDescription_' + selector).mouseover(function () {
-				$('#previewSpanDescription_' + selector).css({
+			$('#previewSpanDescription_' + id).mouseover(function () {
+				$('#previewSpanDescription_' + id).css({
 					"background-color": "#ff9"
 				});
 			});
 
-			$('#previewSpanDescription_' + selector).mouseout(function () {
-				$('#previewSpanDescription_' + selector).css({
+			$('#previewSpanDescription_' + id).mouseout(function () {
+				$('#previewSpanDescription_' + id).css({
 					"background-color": "transparent"
 				});
 			});
 
-			$('#closePreview_' + selector).unbind('click').click(function (e) {
+			$('#closePreview_' + id).unbind('click').click(function (e) {
 				e.stopPropagation();
 				block = false;
 				images = '';
 				isActive = false;
 				firstPosted = false;
-				$('#preview_' + selector).fadeOut("fast", function () {
-					$('#preview_' + selector).remove();
+				$('#preview_' + id).fadeOut("fast", function () {
+					$('#preview_' + id).remove();
 					$('#profile-rotator').hide();
-					$('#' + selector).focus();
+					$('#' + id).focus();
 				});
 
 			});
@@ -628,8 +627,8 @@
 				reAddAttachment(attachmentData);
 				// Remove the attachment bbcode from the textarea.
 				var content = content.replace(/\[attachment[\s\S]*\[\/attachment]/im, '');
-				$('#' + selector).val(content);
-				$('#' + selector).focus();
+				$('#' + id).val(content);
+				$('#' + id).focus();
 			}
 		};
 
@@ -676,16 +675,16 @@
 			}
 
 			if (image !== '') {
-				var appendImage = "<img id='imagePreview_" + selector + "' src='" + image + "' class='" + imageClass + "' ></img>"
-				$('#previewImage_' + selector).html(appendImage);
-				$('#attachmentImageSrc_' + selector).val(bin2hex(image));
+				var appendImage = "<img id='imagePreview_" + id + "' src='" + image + "' class='" + imageClass + "' ></img>"
+				$('#previewImage_' + id).html(appendImage);
+				$('#attachmentImageSrc_' + id).val(bin2hex(image));
 
 				// We need to add the image widht and height when it is 
 				// loaded.
 				$('<img/>' ,{
 					load : function(){
-						$('#attachmentImageWidth_' + selector).val(this.width);
-						$('#attachmentImageHeight_' + selector).val(this.height);
+						$('#attachmentImageWidth_' + id).val(this.width);
+						$('#attachmentImageHeight_' + id).val(this.height);
 					},
 					src  : image
 				});
@@ -751,8 +750,8 @@
 		 * @returns {void}
 		 */
 		var destroy = function() {
-			$('#' + selector).unbind();
-			$('#preview_' + selector).remove();
+			$('#' + id).unbind();
+			$('#preview_' + id).remove();
 			binurl;
 			block = false;
 			blockTitle = false;
@@ -764,7 +763,7 @@
 			firstPosted = false;
 			isActive = false;
 			isCrawling = false;
-			selector = "";
+			id = "";
 		};
 
 		var trim = function(str) {

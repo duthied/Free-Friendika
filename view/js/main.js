@@ -764,11 +764,10 @@ function showHideComments(id) {
 }
 
 function preview_post() {
-	$("#jot-preview").val("1");
 	$("#jot-preview-content").show();
 	$.post(
 		"item",
-		$("#profile-jot-form").serialize(),
+		$("#profile-jot-form").serialize() + '&preview=1',
 		function(data) {
 			if (data.preview) {
 				$("#jot-preview-content").html(data.preview);
@@ -778,7 +777,6 @@ function preview_post() {
 		},
 		"json"
 	);
-	$("#jot-preview").val("0");
 	return true;
 }
 

@@ -6,13 +6,11 @@
 
 namespace Friendica\Core;
 
+use Friendica\App\Page;
 use Friendica\BaseObject;
-use Friendica\Content\Feature;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\GContact;
-use Friendica\Core\Session;
-use Friendica\Util\Network;
+use Friendica\Model\Group;
 
 /**
  * Handle ACL management and display
@@ -252,28 +250,109 @@ class ACL extends BaseObject
 	}
 
 	/**
+	 * Returns the ACL list of contacts for a given user id
+	 *
+	 * @param int $user_id
+	 * @return array
+	 * @throws \Exception
+	 */
+	public static function getContactListByUserId(int $user_id)
+	{
+		$acl_contacts = Contact::selectToArray(
+			['id', 'name', 'addr', 'micro'],
+			['uid' => $user_id, 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]
+		);
+		array_walk($acl_contacts, function (&$value) {
+			$value['type'] = 'contact';
+		});
+
+		return $acl_contacts;
+	}
+
+	/**
+	 * Returns the ACL list of groups (including meta-groups) for a given user id
+	 *
+	 * @param int $user_id
+	 * @return array
+	 */
+	public static function getGroupListByUserId(int $user_id)
+	{
+		$acl_groups = [
+			[
+				'id' => Group::FOLLOWERS,
+				'name' => L10n::t('Followers'),
+				'addr' => '',
+				'micro' => 'images/twopeople.png',
+				'type' => 'group',
+			],
+			[
+				'id' => Group::MUTUALS,
+				'name' => L10n::t('Mutuals'),
+				'addr' => '',
+				'micro' => 'images/twopeople.png',
+				'type' => 'group',
+			]
+		];
+		foreach (Group::getByUserId($user_id) as $group) {
+			$acl_groups[] = [
+				'id' => $group['id'],
+				'name' => $group['name'],
+				'addr' => '',
+				'micro' => 'images/twopeople.png',
+				'type' => 'group',
+			];
+		}
+
+		return $acl_groups;
+	}
+
+	/**
 	 * Return the full jot ACL selector HTML
 	 *
+	 * @param Page  $page
 	 * @param array $user                User array
-	 * @param bool  $show_jotnets
-	 * @param array $default_permissions Static defaults permission array: ['allow_cid' => '', 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '']
+	 * @param bool  $for_federation
+	 * @param array $default_permissions Static defaults permission array:
+	 *                                   [
+	 *                                      'allow_cid' => [],
+	 *                                      'allow_gid' => [],
+	 *                                      'deny_cid' => [],
+	 *                                      'deny_gid' => [],
+	 *                                      'hidewall' => true/false
+	 *                                   ]
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function getFullSelectorHTML(array $user = null, $show_jotnets = false, array $default_permissions = [])
+	public static function getFullSelectorHTML(Page $page, array $user = null, bool $for_federation = false, array $default_permissions = [])
 	{
+		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+		$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
+
 		// Defaults user permissions
 		if (empty($default_permissions)) {
 			$default_permissions = self::getDefaultUserPermissions($user);
 		}
 
+		if (count($default_permissions['allow_cid'])
+			+ count($default_permissions['allow_gid'])
+			+ count($default_permissions['deny_cid'])
+			+ count($default_permissions['deny_gid'])) {
+			$visibility = 'custom';
+		} else {
+			$visibility = 'public';
+			// Default permission display for custom panel
+			$default_permissions['allow_gid'] = [Group::FOLLOWERS];
+		}
+
 		$jotnets_fields = [];
-		if ($show_jotnets) {
+		if ($for_federation) {
 			$mail_enabled = false;
 			$pubmail_enabled = false;
 
 			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
-				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', local_user()]);
+				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', $user['úid']]);
 				if (DBA::isResult($mailacct)) {
 					$mail_enabled = true;
 					$pubmail_enabled = !empty($mailacct['pubmail']);
@@ -296,27 +375,35 @@ class ACL extends BaseObject
 			}
 		}
 
+		$acl_contacts = self::getContactListByUserId($user['uid']);
+
+		$acl_groups = self::getGroupListByUserId($user['uid']);
+
+		$acl_list = array_merge($acl_groups, $acl_contacts);
+
 		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$showall' => L10n::t('Visible to everybody'),
-			'$show' => L10n::t('show'),
-			'$hide' => L10n::t('don\'t show'),
-			'$allowcid' => json_encode(($default_permissions['allow_cid'] ?? '') ?: []), // We need arrays for
-			'$allowgid' => json_encode(($default_permissions['allow_gid'] ?? '') ?: []), // Javascript since we
-			'$denycid'  => json_encode(($default_permissions['deny_cid']  ?? '') ?: []), // call .remove() and
-			'$denygid'  => json_encode(($default_permissions['deny_gid']  ?? '') ?: []), // .push() on these values
-			'$networks' => $show_jotnets,
-			'$emailcc' => L10n::t('CC: email addresses'),
-			'$emtitle' => L10n::t('Example: bob@example.com, mary@example.com'),
-			'$jotnets_enabled' => empty($default_permissions['hidewall']),
+			'$public_title'   => L10n::t('Public'),
+			'$public_desc'    => L10n::t('This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'),
+			'$custom_title'   => L10n::t('Limited/Private'),
+			'$custom_desc'    => L10n::t('This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'),
+			'$allow_label'    => L10n::t('Show to:'),
+			'$deny_label'     => L10n::t('Except to:'),
+			'$emailcc'        => L10n::t('CC: email addresses'),
+			'$emtitle'        => L10n::t('Example: bob@example.com, mary@example.com'),
 			'$jotnets_summary' => L10n::t('Connectors'),
-			'$jotnets_fields' => $jotnets_fields,
 			'$jotnets_disabled_label' => L10n::t('Connectors disabled, since "%s" is enabled.', L10n::t('Hide your profile details from unknown viewers?')),
-			'$aclModalTitle' => L10n::t('Permissions'),
-			'$aclModalDismiss' => L10n::t('Close'),
-			'$features' => [
-				'aclautomention' => !empty($user['uid']) && Feature::isEnabled($user['uid'], 'aclautomention') ? 'true' : 'false'
-			],
+			'$visibility'     => $visibility,
+			'$acl_contacts'   => $acl_contacts,
+			'$acl_groups'     => $acl_groups,
+			'$acl_list'       => $acl_list,
+			'$contact_allow'  => implode(',', $default_permissions['allow_cid']),
+			'$group_allow'    => implode(',', $default_permissions['allow_gid']),
+			'$contact_deny'   => implode(',', $default_permissions['deny_cid']),
+			'$group_deny'     => implode(',', $default_permissions['deny_gid']),
+			'$for_federation' => $for_federation,
+			'$jotnets_fields' => $jotnets_fields,
+			'$user_hidewall'  => $default_permissions['hidewall'],
 		]);
 
 		return $o;

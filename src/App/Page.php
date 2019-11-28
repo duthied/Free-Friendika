@@ -15,6 +15,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Strings;
 
 /**
  * Contains the page specific environment variables for the current Page
@@ -224,15 +225,15 @@ class Page implements ArrayAccess
 		 * being first
 		 */
 		$this->page['htmlhead'] = Renderer::replaceMacros($tpl, [
-				'$local_user'      => local_user(),
-				'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
-				'$delitem'         => $l10n->t('Delete this item?'),
-				'$update_interval' => $interval,
-				'$shortcut_icon'   => $shortcut_icon,
-				'$touch_icon'      => $touch_icon,
-				'$block_public'    => intval($config->get('system', 'block_public')),
-				'$stylesheets'     => $this->stylesheets,
-			]) . $this->page['htmlhead'];
+			'$local_user'      => local_user(),
+			'$generator'       => 'Friendica' . ' ' . FRIENDICA_VERSION,
+			'$delitem'         => $l10n->t('Delete this item?'),
+			'$update_interval' => $interval,
+			'$shortcut_icon'   => $shortcut_icon,
+			'$touch_icon'      => $touch_icon,
+			'$block_public'    => intval($config->get('system', 'block_public')),
+			'$stylesheets'     => array_unique($this->stylesheets),
+		]) . $this->page['htmlhead'];
 	}
 
 	/**
@@ -282,8 +283,8 @@ class Page implements ArrayAccess
 
 		$tpl                  = Renderer::getMarkupTemplate('footer.tpl');
 		$this->page['footer'] = Renderer::replaceMacros($tpl, [
-				'$footerScripts' => $this->footerScripts,
-			]) . $this->page['footer'];
+			'$footerScripts' => array_unique($this->footerScripts),
+		]) . $this->page['footer'];
 	}
 
 	/**
@@ -455,13 +456,13 @@ class Page implements ArrayAccess
 		 * to load another page template than the default one.
 		 * The page templates are located in /view/php/ or in the theme directory.
 		 */
-		if (isset($_GET["mode"])) {
-			$template = Theme::getPathForFile($_GET["mode"] . '.php');
+		if (isset($_GET['mode'])) {
+			$template = Theme::getPathForFile('php/' . Strings::sanitizeFilePathItem($_GET['mode']) . '.php');
 		}
 
 		// If there is no page template use the default page template
 		if (empty($template)) {
-			$template = Theme::getPathForFile("default.php");
+			$template = Theme::getPathForFile('php/default.php');
 		}
 
 		// Theme templates expect $a as an App instance
@@ -470,7 +471,6 @@ class Page implements ArrayAccess
 		// Used as is in view/php/default.php
 		$lang = $l10n->getCurrentLang();
 
-		/// @TODO Looks unsafe (remote-inclusion), is maybe not but Core\Theme::getPathForFile() uses file_exists() but does not escape anything
 		require_once $template;
 	}
 }

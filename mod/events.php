@@ -13,6 +13,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Event;
@@ -384,6 +385,12 @@ function events_content(App $a)
 			$events[$key]['item'] = $event_item;
 		}
 
+		// ACL blocks are loaded in modals in frio
+		$a->page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+		$a->page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		$a->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+		$a->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
+
 		$o = Renderer::replaceMacros($tpl, [
 			'$tabs'      => $tabs,
 			'$title'     => L10n::t('Events'),
@@ -486,7 +493,7 @@ function events_content(App $a)
 		$perms = ACL::getDefaultUserPermissions($orig_event);
 
 		if (!$cid && in_array($mode, ['new', 'copy'])) {
-			$acl = ACL::getFullSelectorHTML($a->user, false, $orig_event);
+			$acl = ACL::getFullSelectorHTML($a->page, $a->user, false, $perms);
 		} else {
 			$acl = '';
 		}
@@ -505,11 +512,6 @@ function events_content(App $a)
 			'$eid'  => $eid,
 			'$cid'  => $cid,
 			'$uri'  => $uri,
-
-			'$allow_cid' => json_encode($perms['allow_cid']),
-			'$allow_gid' => json_encode($perms['allow_gid']),
-			'$deny_cid'  => json_encode($perms['deny_cid']),
-			'$deny_gid'  => json_encode($perms['deny_gid']),
 
 			'$title' => L10n::t('Event details'),
 			'$desc' => L10n::t('Starting date and Title are required.'),
