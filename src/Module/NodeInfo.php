@@ -13,84 +13,131 @@ use Friendica\Core\System;
  */
 class NodeInfo extends BaseModule
 {
-	public static function init(array $parameters = [])
-	{
-		$config = self::getApp()->getConfig();
-
-		if (!$config->get('system', 'nodeinfo')) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
-		}
-	}
-
 	public static function rawContent(array $parameters = [])
 	{
 		$app = self::getApp();
 
-		// @TODO: Replace with parameter from router
-		// if the first argument is ".well-known", print the well-known text
-		if (($app->argc > 1) && ($app->argv[0] == '.well-known')) {
-			self::printWellKnown($app);
-		// otherwise print the nodeinfo
+		if ($parameters['version'] == '1.0') {
+			self::printNodeInfo1($app);
+		} elseif ($parameters['version'] == '2.0') {
+			self::printNodeInfo2($app);
 		} else {
-			self::printNodeInfo($app);
-		}
-	}
-
-	/**
-	 * Prints the well-known nodeinfo redirect
-	 *
-	 * @param App $app
-	 *
-	 * @throws \Friendica\Network\HTTPException\NotFoundException
-	 */
-	private static function printWellKnown(App $app)
-	{
-		$config = $app->getConfig();
-
-		if (!$config->get('system', 'nodeinfo')) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
-
-		$nodeinfo = [
-			'links' => [[
-				'rel'  => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
-				'href' => $app->getBaseURL() . '/nodeinfo/1.0']]
-		];
-
-		header('Content-type: application/json; charset=utf-8');
-		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
-		exit;
 	}
 
 	/**
-	 * Print the nodeinfo
+	 * Return the supported services
 	 *
 	 * @param App $app
-	 */
-	private static function printNodeInfo(App $app)
+	 *
+	 * @return array with supported services
+	*/
+	private static function getUsage(App $app)
 	{
 		$config = $app->getConfig();
 
-		$smtp = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
+		$usage = [];
+
+		if (!empty($config->get('system', 'nodeinfo'))) {
+			$usage['users'] = [
+				'total'          => intval($config->get('nodeinfo', 'total_users')),
+				'activeHalfyear' => intval($config->get('nodeinfo', 'active_users_halfyear')),
+				'activeMonth'    => intval($config->get('nodeinfo', 'active_users_monthly'))
+			];
+			$usage['localPosts'] = intval($config->get('nodeinfo', 'local_posts'));
+			$usage['localComments'] = intval($config->get('nodeinfo', 'local_comments'));
+		}
+
+		return $usage;
+	}
+
+	/**
+	 * Return the supported services
+	 *
+	 * @param App $app
+	 *
+	 * @return array with supported services
+	*/
+	private static function getServices(App $app)
+	{
+		$services = [
+			'inbound'  => [],
+			'outbound' => [],
+		];
+
+		if (Addon::isEnabled('blogger')) {
+			$services['outbound'][] = 'blogger';
+		}
+		if (Addon::isEnabled('dwpost')) {
+			$services['outbound'][] = 'dreamwidth';
+		}
+		if (Addon::isEnabled('statusnet')) {
+			$services['inbound'][] = 'gnusocial';
+			$services['outbound'][] = 'gnusocial';
+		}
+		if (Addon::isEnabled('ijpost')) {
+			$services['outbound'][] = 'insanejournal';
+		}
+		if (Addon::isEnabled('libertree')) {
+			$services['outbound'][] = 'libertree';
+		}
+		if (Addon::isEnabled('buffer')) {
+			$services['outbound'][] = 'linkedin';
+		}
+		if (Addon::isEnabled('ljpost')) {
+			$services['outbound'][] = 'livejournal';
+		}
+		if (Addon::isEnabled('buffer')) {
+			$services['outbound'][] = 'pinterest';
+		}
+		if (Addon::isEnabled('posterous')) {
+			$services['outbound'][] = 'posterous';
+		}
+		if (Addon::isEnabled('pumpio')) {
+			$services['inbound'][] = 'pumpio';
+			$services['outbound'][] = 'pumpio';
+		}
+
+		$services['outbound'][] = 'smtp';
+
+		if (Addon::isEnabled('tumblr')) {
+			$services['outbound'][] = 'tumblr';
+		}
+		if (Addon::isEnabled('twitter') || Addon::isEnabled('buffer')) {
+			$services['outbound'][] = 'twitter';
+		}
+		if (Addon::isEnabled('wppost')) {
+			$services['outbound'][] = 'wordpress';
+		}
+
+		return $services;
+	}
+
+	/**
+	 * Print the nodeinfo version 1
+	 *
+	 * @param App $app
+	 */
+	private static function printNodeInfo1(App $app)
+	{
+		$config = $app->getConfig();
 
 		$nodeinfo = [
-			'version'           => 1.0,
+			'version'           => '1.0',
 			'software'          => [
 				'name'    => 'friendica',
 				'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
 			],
 			'protocols'         => [
 				'inbound'  => [
-					'friendica',
+					'friendica', 'activitypub'
 				],
 				'outbound' => [
-					'friendica',
+					'friendica', 'activitypub'
 				],
 			],
-			'services'          => [
-				'inbound'  => [],
-				'outbound' => [],
-			],
+			'services'          => [],
 			'usage'             => [],
 			'openRegistrations' => intval($config->get('config', 'register_policy')) !== Register::CLOSED,
 			'metadata'          => [
@@ -108,74 +155,79 @@ class NodeInfo extends BaseModule
 			$nodeinfo['protocols']['outbound'][] = 'gnusocial';
 		}
 
-		if (!empty($config->get('system', 'nodeinfo'))) {
+		$nodeinfo['usage'] = self::getUsage($app);
 
-			$nodeinfo['usage']['users'] = [
-				'total'          => intval($config->get('nodeinfo', 'total_users')),
-				'activeHalfyear' => intval($config->get('nodeinfo', 'active_users_halfyear')),
-				'activeMonth'    => intval($config->get('nodeinfo', 'active_users_monthly'))
-			];
-			$nodeinfo['usage']['localPosts'] = intval($config->get('nodeinfo', 'local_posts'));
-			$nodeinfo['usage']['localComments'] = intval($config->get('nodeinfo', 'local_comments'));
+		$nodeinfo['services'] = self::getServices($app);
 
-			if (Addon::isEnabled('blogger')) {
-				$nodeinfo['services']['outbound'][] = 'blogger';
-			}
-			if (Addon::isEnabled('dwpost')) {
-				$nodeinfo['services']['outbound'][] = 'dreamwidth';
-			}
-			if (Addon::isEnabled('statusnet')) {
-				$nodeinfo['services']['inbound'][] = 'gnusocial';
-				$nodeinfo['services']['outbound'][] = 'gnusocial';
-			}
-			if (Addon::isEnabled('ijpost')) {
-				$nodeinfo['services']['outbound'][] = 'insanejournal';
-			}
-			if (Addon::isEnabled('libertree')) {
-				$nodeinfo['services']['outbound'][] = 'libertree';
-			}
-			if (Addon::isEnabled('buffer')) {
-				$nodeinfo['services']['outbound'][] = 'linkedin';
-			}
-			if (Addon::isEnabled('ljpost')) {
-				$nodeinfo['services']['outbound'][] = 'livejournal';
-			}
-			if (Addon::isEnabled('buffer')) {
-				$nodeinfo['services']['outbound'][] = 'pinterest';
-			}
-			if (Addon::isEnabled('posterous')) {
-				$nodeinfo['services']['outbound'][] = 'posterous';
-			}
-			if (Addon::isEnabled('pumpio')) {
-				$nodeinfo['services']['inbound'][] = 'pumpio';
-				$nodeinfo['services']['outbound'][] = 'pumpio';
-			}
+		$nodeinfo['metadata']['protocols'] = $nodeinfo['protocols'];
+		$nodeinfo['metadata']['protocols']['outbound'][] = 'atom1.0';
+		$nodeinfo['metadata']['protocols']['inbound'][] = 'atom1.0';
+		$nodeinfo['metadata']['protocols']['inbound'][] = 'rss2.0';
 
-			if ($smtp) {
-				$nodeinfo['services']['outbound'][] = 'smtp';
-			}
-			if (Addon::isEnabled('tumblr')) {
-				$nodeinfo['services']['outbound'][] = 'tumblr';
-			}
-			if (Addon::isEnabled('twitter') || Addon::isEnabled('buffer')) {
-				$nodeinfo['services']['outbound'][] = 'twitter';
-			}
-			if (Addon::isEnabled('wppost')) {
-				$nodeinfo['services']['outbound'][] = 'wordpress';
-			}
-			$nodeinfo['metadata']['protocols'] = $nodeinfo['protocols'];
-			$nodeinfo['metadata']['protocols']['outbound'][] = 'atom1.0';
-			$nodeinfo['metadata']['protocols']['inbound'][] = 'atom1.0';
-			$nodeinfo['metadata']['protocols']['inbound'][] = 'rss2.0';
+		$nodeinfo['metadata']['services'] = $nodeinfo['services'];
 
-			$nodeinfo['metadata']['services'] = $nodeinfo['services'];
-
-			if (Addon::isEnabled('twitter')) {
-				$nodeinfo['metadata']['services']['inbound'][] = 'twitter';
-			}
-
-			$nodeinfo['metadata']['explicitContent'] = $config->get('system', 'explicit_content', false) == true;
+		if (Addon::isEnabled('twitter')) {
+			$nodeinfo['metadata']['services']['inbound'][] = 'twitter';
 		}
+
+		$nodeinfo['metadata']['explicitContent'] = $config->get('system', 'explicit_content', false) == true;
+
+		header('Content-type: application/json; charset=utf-8');
+		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+		exit;
+	}
+
+	/**
+	 * Print the nodeinfo version 2
+	 *
+	 * @param App $app
+	 */
+	private static function printNodeInfo2(App $app)
+	{
+		$config = $app->getConfig();
+
+		$imap = (function_exists('imap_open') && !$config->get('system', 'imap_disabled') && !$config->get('system', 'dfrn_only'));
+
+		$nodeinfo = [
+			'version'           => '2.0',
+			'software'          => [
+				'name'    => 'friendica',
+				'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
+			],
+			'protocols'         => ['dfrn', 'activitypub'],
+			'services'          => [],
+			'usage'             => [],
+			'openRegistrations' => intval($config->get('config', 'register_policy')) !== Register::CLOSED,
+			'metadata'          => [
+				'nodeName' => $config->get('config', 'sitename'),
+			],
+		];
+
+		if (!empty($config->get('system', 'diaspora_enabled'))) {
+			$nodeinfo['protocols'][] = 'diaspora';
+		}
+
+		if (empty($config->get('system', 'ostatus_disabled'))) {
+			$nodeinfo['protocols'][] = 'ostatus';
+		}
+
+		$nodeinfo['usage'] = self::getUsage($app);
+
+		$nodeinfo['services'] = self::getServices($app);
+
+		if (Addon::isEnabled('twitter')) {
+			$nodeinfo['services']['inbound'][] = 'twitter';
+		}
+
+		$nodeinfo['services']['inbound'][]  = 'atom1.0';
+		$nodeinfo['services']['inbound'][]  = 'rss2.0';
+		$nodeinfo['services']['outbound'][] = 'atom1.0';
+
+		if ($imap) {
+			$nodeinfo['services']['inbound'][] = 'imap';
+		}
+
+		$nodeinfo['metadata']['explicitContent'] = $config->get('system', 'explicit_content', false) == true;
 
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($nodeinfo, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
