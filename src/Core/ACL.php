@@ -333,6 +333,13 @@ class ACL extends BaseObject
 		// Defaults user permissions
 		if (empty($default_permissions)) {
 			$default_permissions = self::getDefaultUserPermissions($user);
+		} else {
+			$default_permissions = [
+				'allow_cid' => $default_permissions['allow_cid'] ?? [],
+				'allow_gid' => $default_permissions['allow_gid'] ?? [],
+				'deny_cid'  => $default_permissions['deny_cid']  ?? [],
+				'deny_gid'  => $default_permissions['deny_gid']  ?? [],
+			];
 		}
 
 		if (count($default_permissions['allow_cid'])
