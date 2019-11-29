@@ -374,9 +374,13 @@ return [
 		// When the global community page is enabled, use this option to display a hint above the stream, that this is a collection of all public top-level postings that arrive on your node.
 		'show_global_community_hint' => false,
 
-		// show_unsupported_addons (Boolean)
-		// Show all addons including the unsupported ones.
-		'show_unsupported_addons' => false,
+		// show_received (Boolean)
+		// Show the receive data along with the post creation date
+		'show_received' => true,
+
+		// show_received_seconds (Integer)
+		// Display the received date when the difference between received and created is higher than this.
+		'show_received_seconds' => 500,
 
 		// show_unsupported_themes (Boolean)
 		// Show all themes including the unsupported ones.
