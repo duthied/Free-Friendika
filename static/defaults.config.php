@@ -382,6 +382,10 @@ return [
 		// Display the received date when the difference between received and created is higher than this.
 		'show_received_seconds' => 500,
 
+		// show_unsupported_addons (Boolean)
+		// Show all addons including the unsupported ones.
+		'show_unsupported_addons' => false,
+
 		// show_unsupported_themes (Boolean)
 		// Show all themes including the unsupported ones.
 		'show_unsupported_themes' => false,
