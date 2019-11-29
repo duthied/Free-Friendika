@@ -30,15 +30,26 @@ class Page implements ArrayAccess
 	/**
 	 * @var array Contains all stylesheets, which should get loaded during page
 	 */
-	private $stylesheets;
+	private $stylesheets = [];
 	/**
 	 * @var array Contains all scripts, which are added to the footer at last
 	 */
-	private $footerScripts;
+	private $footerScripts = [];
 	/**
 	 * @var array The page content, which are showed directly
 	 */
-	private $page;
+	private $page = [
+		'aside'       => '',
+		'bottom'      => '',
+		'content'     => '',
+		'footer'      => '',
+		'htmlhead'    => '',
+		'nav'         => '',
+		'page_title'  => '',
+		'right_aside' => '',
+		'template'    => '',
+		'title'       => '',
+	];
 	/**
 	 * @var string The basepath of the page
 	 */
@@ -50,19 +61,6 @@ class Page implements ArrayAccess
 	public function __construct(string $basepath)
 	{
 		$this->basePath = $basepath;
-
-		$this->page = [
-			'aside'       => '',
-			'bottom'      => '',
-			'content'     => '',
-			'footer'      => '',
-			'htmlhead'    => '',
-			'nav'         => '',
-			'page_title'  => '',
-			'right_aside' => '',
-			'template'    => '',
-			'title'       => ''
-		];
 	}
 
 	/**
