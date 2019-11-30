@@ -1457,82 +1457,6 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
     overflow-y: overlay;
 }
 /* ACL */
-/*#jot-modal-body {
-    height: auto;
-    max-height: calc(100vh - 130px);
-    overflow-y: hidden;
-}*/
-#acl-search {
-    /*margin-top: 20px;*/
-    /*padding: 8px;*/
-    /*border: 1px solid #ccc;*/
-    width: 100%;
-}
-#acl-list {
-    display: block;
-    border: 1px solid #ccc;
-    clear: both;
-    min-height: 62px;
-    margin-top: 20px;
-    padding: 10px 10px 0px 0px;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-    overflow-y: auto;
-}
-#acl-list-content {
-    overflow-y: hidden;
-    height: auto !important;
-}
-.acl-list-item {
-    width: 48%;
-    width: calc(50% - 10px);
-    border: 1px solid #ccc;
-    margin: 0px 0px 10px 10px;
-    padding: 5px;
-    float: left;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-}
-.acl-list-item img {
-    width: 40px;
-    height: 40px;
-    float: left;
-    margin-right: 5px;
-    -webkit-border-radius: 4px;
-    -moz-border-radius: 4px;
-    border-radius: 4px;
-}
-.acl-list-item p {
-    margin: 0px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.acl-list-item.groupshow {
-    background-color: #8DB255
-}
-.acl-list-item.grouphide {
-    background-color: #E68364;
-}
-.acl-button-show, .acl-button-hide {
-    float: right;
-    margin-left: 5px;
-}
-#acl-showall.selected {
-    background-color: #4CAF50;
-    color: #fff;
-}
-.acl-button-show.selected {
-    background-color: #4CAF50;
-    color: #fff;
-}
-.acl-button-hide.selected {
-    background-color: #F44336;
-    color: #fff;
-}
-
 .fa.lock:before {
     font-family: ForkAwesome;
     content: "\f023";
@@ -1540,6 +1464,12 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
 .fa.unlock:before {
     font-family: ForkAwesome;
     content: "\f09c";
+}
+
+#acl-wrapper label.panel-heading {
+	display: block;
+	margin-bottom: 0;
+	cursor: pointer;
 }
 
 /* Filebrowser */

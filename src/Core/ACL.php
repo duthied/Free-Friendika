@@ -410,7 +410,7 @@ class ACL extends BaseObject
 			'$group_deny'     => implode(',', $default_permissions['deny_gid']),
 			'$for_federation' => $for_federation,
 			'$jotnets_fields' => $jotnets_fields,
-			'$user_hidewall'  => $default_permissions['hidewall'],
+			'$user_hidewall'  => $default_permissions['hidewall'] ?? false,
 		]);
 
 		return $o;

@@ -1,12 +1,10 @@
 <div id="acl-wrapper">
 	<div class="panel-group" id="visibility-accordion" role="tablist" aria-multiselectable="true">
 		<div class="panel panel-success">
-			<div class="panel-heading{{if $visibility != 'public'}} collapsed{{/if}}" id="visibility-public-heading" aria-expanded="{{if $visibility == 'public'}}true{{else}}false{{/if}}">
-				<label>
-					<input type="radio" name="visibility" id="visibility-public" value="public" tabindex="14" {{if $visibility == 'public'}}checked{{/if}}>
-					<i class="fa fa-globe"></i> {{$public_title}}
-				</label>
-			</div>
+			<label class="panel-heading{{if $visibility != 'public'}} collapsed{{/if}}" id="visibility-public-heading" aria-expanded="{{if $visibility == 'public'}}true{{else}}false{{/if}}">
+				<input type="radio" name="visibility" id="visibility-public" value="public" tabindex="14" {{if $visibility == 'public'}}checked{{/if}}>
+				<i class="fa fa-globe"></i> {{$public_title}}
+			</label>
 			<fieldset id="visibility-public-panel" class="panel-collapse collapse{{if $visibility == 'public'}} in{{/if}}" role="tabpanel" aria-labelledby="visibility-public-heading" {{if $visibility != 'public'}}disabled{{/if}}>
 				<div class="panel-body">
 					<p>{{$public_desc}}</p>
@@ -41,12 +39,10 @@
 			</fieldset>
 		</div>
 		<div class="panel panel-info">
-			<div class="panel-heading{{if $visibility != 'custom'}} collapsed{{/if}}" id="visibility-custom-heading" aria-expanded="{{if $visibility == 'custom'}}true{{else}}false{{/if}}">
-				<label>
-					<input type="radio" name="visibility" id="visibility-custom" value="custom" tabindex="15" {{if $visibility == 'custom'}}checked{{/if}}>
-					<i class="fa fa-lock"></i> {{$custom_title}}
-				</label>
-			</div>
+			<label class="panel-heading{{if $visibility != 'custom'}} collapsed{{/if}}" id="visibility-custom-heading" aria-expanded="{{if $visibility == 'custom'}}true{{else}}false{{/if}}">
+				<input type="radio" name="visibility" id="visibility-custom" value="custom" tabindex="15" {{if $visibility == 'custom'}}checked{{/if}}>
+				<i class="fa fa-lock"></i> {{$custom_title}}
+			</label>
 			<fieldset id="visibility-custom-panel" class="panel-collapse collapse{{if $visibility == 'custom'}} in{{/if}}" role="tabpanel" aria-labelledby="visibility-custom-heading" {{if $visibility != 'custom'}}disabled{{/if}}>
 				<input type="hidden" name="group_allow" value="{{$group_allow}}"/>
 				<input type="hidden" name="contact_allow" value="{{$contact_allow}}"/>

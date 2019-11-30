@@ -226,24 +226,6 @@ aside.show {
 /* ACL window */
 #profile-jot-acl-wrapper, #profile-jot-acl-wrapper * { box-sizing: border-box; }
 #acl-wrapper { width: 100%; float: none; }
-#acl-search { width: 100%; float: none; padding-right: 0px; margin-bottom: 1em; }
-#acl-showall { width: 100%; height: 48px; margin-bottom: 1em; }
-.acl-list-item { width: auto; float: none; height: auto; overflow: hidden; position: relative;}
-.acl-list-item img { width: 48px; height: 48px; }
-.acl-list-item p { height: auto; font-size: inherit; }
-.acl-list-item a {
-  float: none;
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  height: 48px;
-  padding: 10px 2px 2px 2px;
-  font-size: 12px;
-  width: 20%;
-  text-align: center;
-  background-position: center 5px;
-}
-.acl-list-item a.acl-button-hide { right: 25%; }
 /* flexbox for ACL window */
 #cboxLoadedContent,
 #cboxLoadedContent > div,
@@ -265,12 +247,6 @@ aside.show {
   -moz-flex: 1 100%;
   -ms-flex: 1 100%;
   flex: 1 100%;
-}
-#acl-list {
-  -webkit-flex: 1 1 auto;
-  -moz-flex: 1 1 auto;
-  -ms-flex: 1 1 auto;
-  flex: 1 1 auto;  
 }
 
 /** input elements **/
