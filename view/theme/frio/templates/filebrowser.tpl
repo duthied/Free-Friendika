@@ -1,13 +1,10 @@
 <!--
 	This is the template used by mod/fbrowser.php
 -->
-<div class="fbrowser {{$type}}">
+<div id="filebrowser" class="fbrowser {{$type}}" data-nickname="{{$nickname}}" data-type="{{$type}}">
 	<div class="fbrowser-content">
-		<input id="fb-nickname" type="hidden" name="type" value="{{$nickname}}" />
-		<input id="fb-type" type="hidden" name="type" value="{{$type}}" />
-
 		<div class="error hidden">
-			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</a>
+			<span></span> <button type="button" class="btn btn-link close" aria-label="Close">X</button>
 		</div>
 
 		{{* The breadcrumb navigation *}}

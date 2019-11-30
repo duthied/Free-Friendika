@@ -128,9 +128,9 @@
 					</ul>
 				</div>
 
-			</form>
+				<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
 
-			<div id="jot-fbrowser-wrapper" class="minimize" aria-labelledby="jot-browser-link" role="tabpanel" aria-hidden="true"></div>
+			</form>
 
 			{{if $content}}<script type="text/javascript">initEditor();</script>{{/if}}
 		</div>
