@@ -1466,6 +1466,12 @@ textarea.comment-edit-text:focus + .comment-edit-form .preview {
     content: "\f09c";
 }
 
+#acl-wrapper label.panel-heading {
+	display: block;
+	margin-bottom: 0;
+	cursor: pointer;
+}
+
 /* Filebrowser */
 .fbrowser .breadcrumb {
     margin-bottom: 0px;
