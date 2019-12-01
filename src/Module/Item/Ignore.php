@@ -73,6 +73,6 @@ class Ignore extends BaseModule
 		}
 
 		// the json doesn't really matter, it will either be 0 or 1
-		System::jsonExit([$ignored]);
+		System::jsonExit($ignored);
 	}
 }
