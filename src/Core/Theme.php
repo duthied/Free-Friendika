@@ -31,12 +31,12 @@ class Theme
 			}
 		}
 
-		return $allowed_themes;
+		return array_unique($allowed_themes);
 	}
 
 	public static function setAllowedList(array $allowed_themes)
 	{
-		Config::set('system', 'allowed_themes', implode(',', $allowed_themes));
+		Config::set('system', 'allowed_themes', implode(',', array_unique($allowed_themes)));
 	}
 
 	/**
