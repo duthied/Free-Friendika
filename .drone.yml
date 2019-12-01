@@ -24,7 +24,7 @@ services:
     MYSQL_USER: friendica
     MYSQL_PASSWORD: friendica
     MYSQL_DATABASE: friendica
-  volumes: 
+  volumes:
     - name: cache
       path: /var/lib/mysql
 
@@ -34,12 +34,12 @@ volumes:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: mysql8.0-php7.2
@@ -77,12 +77,12 @@ volumes:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: mysql8.0-php7.3
@@ -120,12 +120,12 @@ volumes:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: mariadb10.1-php7.1
@@ -167,12 +167,12 @@ volumes:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: mariadb10.1-php7.2
@@ -209,12 +209,12 @@ volumes:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: mariadb10.1-php7.3
@@ -249,6 +249,14 @@ volumes:
   - name: cache
     temp: {}
 
+trigger:
+  branch:
+#    - master
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: redis-php7.1
@@ -272,12 +280,12 @@ services:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: redis-php7.2
@@ -296,12 +304,12 @@ services:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: redis-php7.3
@@ -317,6 +325,15 @@ steps:
 services:
 - name: redis
   image: redis
+
+trigger:
+  branch:
+#    - master
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 
 ---
 kind: pipeline
@@ -341,12 +358,12 @@ services:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: memcache-php7.2
@@ -365,12 +382,12 @@ services:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: memcache-php7.3
@@ -386,6 +403,16 @@ steps:
 services:
 - name: memcached
   image: memcached
+
+trigger:
+  branch:
+#    - master
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
+
 
 ---
 kind: pipeline
@@ -410,12 +437,12 @@ services:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: memcached-php7.2
@@ -434,12 +461,12 @@ services:
 
 trigger:
   branch:
-    - master
+#    - master
     - develop
-    - "*-rc"
-  event:
-    - pull_request
-    - push
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
 ---
 kind: pipeline
 name: memcached-php7.3
@@ -455,3 +482,12 @@ steps:
 services:
 - name: memcached
   image: memcached
+
+trigger:
+  branch:
+#    - master
+    - develop
+#    - "*-rc"
+#  event:
+#    - pull_request
+#    - push
