@@ -128,3 +128,13 @@ aside .widget, .form-control, .panel, .nav-container, .wall-item-content, .e-con
     text-decoration-color: black;
     text-decoration-style: wavy;
 }
+
+/* New compose popup */
+.profile-jot-net {
+    background: #dff0d8;
+}
+
+.profile-jot-net summary {
+    color: #3c763d;
+    font-weight: bold;
+}
