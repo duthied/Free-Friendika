@@ -32,10 +32,10 @@ volumes:
 - name: cache
   temp: {}
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -75,10 +75,10 @@ volumes:
   - name: cache
     temp: {}
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -118,10 +118,10 @@ volumes:
   - name: cache
     temp: {}
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -165,10 +165,10 @@ volumes:
   - name: cache
     temp: {}
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -207,10 +207,10 @@ volumes:
   - name: cache
     temp: {}
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -249,10 +249,10 @@ volumes:
   - name: cache
     temp: {}
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -278,10 +278,10 @@ services:
 - name: redis
   image: redis
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -302,10 +302,10 @@ services:
 - name: redis
   image: redis
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -326,10 +326,10 @@ services:
 - name: redis
   image: redis
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -356,10 +356,10 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -380,10 +380,10 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -404,10 +404,10 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -435,10 +435,10 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -459,10 +459,10 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
@@ -483,10 +483,10 @@ services:
 - name: memcached
   image: memcached
 
-#trigger:
-#  branch:
+trigger:
+  branch:
 #    - master
-#    - develop
+    - develop
 #    - "*-rc"
 #  event:
 #    - pull_request
