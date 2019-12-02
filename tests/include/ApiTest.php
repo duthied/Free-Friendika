@@ -3776,16 +3776,6 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
-	 * Test the api_clean_attachments() function.
-	 *
-	 * @return void
-	 */
-	public function testApiCleanAttachments()
-	{
-		$this->markTestIncomplete();
-	}
-
-	/**
 	 * Test the api_best_nickname() function.
 	 *
 	 * @return void

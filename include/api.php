@@ -2498,7 +2498,7 @@ function api_convert_item($item)
 		$statustext = mb_substr($statustext, 0, 1000) . "... \n" . ($item['plink'] ?? '');
 	}
 
-	$statushtml = BBCode::convert(api_clean_attachments($body), false);
+	$statushtml = BBCode::convert(BBCode::removeAttachment($body), false);
 
 	// Workaround for clients with limited HTML parser functionality
 	$search = ["<br>", "<blockquote>", "</blockquote>",
@@ -5409,40 +5409,9 @@ function api_clean_plain_items($text)
 	}
 
 	// Simplify "attachment" element
-	$text = api_clean_attachments($text);
+	$text = BBCode::removeAttachment($text);
 
 	return $text;
-}
-
-/**
- * @brief Removes most sharing information for API text export
- *
- * @param string $body The original body
- *
- * @return string Cleaned body
- * @throws InternalServerErrorException
- */
-function api_clean_attachments($body)
-{
-	$data = BBCode::getAttachmentData($body);
-
-	if (empty($data)) {
-		return $body;
-	}
-	$body = "";
-
-	if (isset($data["text"])) {
-		$body = $data["text"];
-	}
-	if (($body == "") && isset($data["title"])) {
-		$body = $data["title"];
-	}
-	if (isset($data["url"])) {
-		$body .= "\n".$data["url"];
-	}
-	$body .= $data["after"];
-
-	return $body;
 }
 
 /**
