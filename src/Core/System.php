@@ -149,7 +149,7 @@ class System extends BaseObject
 	 * and adds an application/json HTTP header to the output.
 	 * After finishing the process is getting killed.
 	 *
-	 * @param array  $x The input content.
+	 * @param mixed  $x The input content.
 	 * @param string $content_type Type of the input (Default: 'application/json').
 	 */
 	public static function jsonExit($x, $content_type = 'application/json') {
