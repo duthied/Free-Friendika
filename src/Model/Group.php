@@ -328,13 +328,28 @@ class Group extends BaseObject
 		}
 
 		$return = [];
+		$pubmail = false;
+		$networks = Protocol::SUPPORT_PRIVATE;
+
+		$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', $uid]);
+		if (DBA::isResult($mailacct)) {
+			$pubmail = $mailacct['pubmail'];
+		}
+
+		if (!$pubmail) {
+			$networks = array_diff($networks, [Protocol::MAIL]);
+		}
 
 		$key = array_search(self::FOLLOWERS, $group_ids);
 		if ($key !== false) {
 			$followers = Contact::selectToArray(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FOLLOWER, Contact::FRIEND],
-				'network' => Protocol::SUPPORT_PRIVATE,
+				'network' => $networks,
+				'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON],
+				'archive' => false,
+				'pending' => false,
+				'blocked' => false,
 			]);
 
 			foreach ($followers as $follower) {
@@ -349,7 +364,11 @@ class Group extends BaseObject
 			$mutuals = Contact::selectToArray(['id'], [
 				'uid' => $uid,
 				'rel' => [Contact::FRIEND],
-				'network' => Protocol::SUPPORT_PRIVATE,
+				'network' => $networks,
+				'contact-type' => [Contact::TYPE_UNKNOWN, Contact::TYPE_PERSON],
+				'archive' => false,
+				'pending' => false,
+				'blocked' => false,
 			]);
 
 			foreach ($mutuals as $mutual) {
