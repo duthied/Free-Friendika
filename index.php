@@ -22,5 +22,6 @@ $a = \Friendica\BaseObject::getApp();
 $a->runFrontend(
 	$dice->create(\Friendica\App\Module::class),
 	$dice->create(\Friendica\App\Router::class),
-	$dice->create(\Friendica\Core\Config\PConfiguration::class)
+	$dice->create(\Friendica\Core\Config\PConfiguration::class),
+	$dice->create(\Friendica\Core\Authentication::class)
 );

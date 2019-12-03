@@ -35,11 +35,8 @@ class Login extends BaseModule
 
 	public static function post(array $parameters = [])
 	{
-		$openid_identity = Session::get('openid_identity');
-		$openid_server = Session::get('openid_server');
-
 		$return_path = Session::get('return_path');
-		session_unset();
+		Session::clear();
 		Session::set('return_path', $return_path);
 
 		// OpenId Login
@@ -50,16 +47,19 @@ class Login extends BaseModule
 		) {
 			$openid_url = trim(($_POST['openid_url'] ?? '') ?: $_POST['username']);
 
-			Authentication::openIdAuthentication($openid_url, !empty($_POST['remember']));
+			/** @var Authentication $authentication */
+			$authentication = self::getClass(Authentication::class);
+			$authentication->withOpenId($openid_url, !empty($_POST['remember']));
 		}
 
 		if (!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
-			Authentication::passwordAuthentication(
+			/** @var Authentication $authentication */
+			$authentication = self::getClass(Authentication::class);
+			$authentication->withPassword(
+				self::getApp(),
 				trim($_POST['username']),
 				trim($_POST['password']),
-				!empty($_POST['remember']),
-				$openid_identity,
-				$openid_server
+				!empty($_POST['remember'])
 			);
 		}
 	}

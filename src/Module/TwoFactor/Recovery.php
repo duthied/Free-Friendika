@@ -3,6 +3,7 @@
 namespace Friendica\Module\TwoFactor;
 
 use Friendica\BaseModule;
+use Friendica\Core\Authentication;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -41,7 +42,9 @@ class Recovery extends BaseModule
 				notice(L10n::t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				// Resume normal login workflow
-				Session::setAuthenticatedForUser($a, $a->user, true, true);
+				/** @var Authentication $authentication */
+				$authentication = self::getClass(Authentication::class);
+				$authentication->setForUser($a, $a->user, true, true);
 			} else {
 				notice(L10n::t('Invalid code, please retry.'));
 			}

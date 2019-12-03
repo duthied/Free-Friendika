@@ -6,76 +6,212 @@
 
 namespace Friendica\Core;
 
+use Exception;
 use Friendica\App;
-use Friendica\BaseObject;
+use Friendica\Core\Config\Configuration;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
-use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use LightOpenID;
+use Friendica\Core\L10n\L10n;
+use Psr\Log\LoggerInterface;
 
 /**
  * Handle Authentification, Session and Cookies
  */
-class Authentication extends BaseObject
+class Authentication
 {
+	/** @var Configuration */
+	private $config;
+	/** @var App\BaseURL */
+	private $baseUrl;
+	/** @var L10n */
+	private $l10n;
+	/** @var Database */
+	private $dba;
+	/** @var LoggerInterface */
+	private $logger;
+
+	/**
+	 * Authentication constructor.
+	 *
+	 * @param Configuration   $config
+	 * @param App\BaseURL     $baseUrl
+	 * @param L10n            $l10n
+	 * @param Database        $dba
+	 * @param LoggerInterface $logger
+	 */
+	public function __construct(Configuration $config, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger)
+	{
+		$this->config  = $config;
+		$this->baseUrl = $baseUrl;
+		$this->l10n    = $l10n;
+		$this->dba     = $dba;
+		$this->logger  = $logger;
+	}
+
+	/**
+	 * @brief Tries to auth the user from the cookie or session
+	 *
+	 * @param App   $a      The Friendica Application context
+	 * @param array $cookie The $_COOKIE array
+	 *
+	 * @throws HttpException\InternalServerErrorException In case of Friendica internal exceptions
+	 * @throws Exception In case of general exceptions (like SQL Grammar)
+	 */
+	public function withSession(App $a, array $cookie)
+	{
+		// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
+		if (isset($cookie["Friendica"])) {
+			$data = json_decode($cookie["Friendica"]);
+			if (isset($data->uid)) {
+
+				$user = $this->dba->selectFirst(
+					'user',
+					[],
+					[
+						'uid'             => $data->uid,
+						'blocked'         => false,
+						'account_expired' => false,
+						'account_removed' => false,
+						'verified'        => true,
+					]
+				);
+				if (DBA::isResult($user)) {
+					if (!Session::checkCookie($data->hash, $user)) {
+						$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
+						Session::delete();
+						$this->baseUrl->redirect();
+					}
+
+					// Renew the cookie
+					// Expires after 7 days by default,
+					// can be set via system.auth_cookie_lifetime
+					$authcookiedays = $this->config->get('system', 'auth_cookie_lifetime', 7);
+					Session::setCookie($authcookiedays * 24 * 60 * 60, $user);
+
+					// Do the authentification if not done by now
+					if (!Session::get('authenticated')) {
+						$this->setForUser($a, $user);
+
+						if ($this->config->get('system', 'paranoia')) {
+							Session::set('addr', $data->ip);
+						}
+					}
+				}
+			}
+		}
+
+		if (Session::get('authenticated')) {
+			if (Session::get('visitor_id') && !Session::get('uid')) {
+				$contact = $this->dba->selectFirst('contact', [], ['id' => Session::get('visitor_id')]);
+				if ($this->dba->isResult($contact)) {
+					$a->contact = $contact;
+				}
+			}
+
+			if (Session::get('uid')) {
+				// already logged in user returning
+				$check = $this->config->get('system', 'paranoia');
+				// extra paranoia - if the IP changed, log them out
+				if ($check && (Session::get('addr') != $_SERVER['REMOTE_ADDR'])) {
+					$this->logger->notice('Session address changed. Paranoid setting in effect, blocking session. ', [
+							'addr'        => Session::get('addr'),
+							'remote_addr' => $_SERVER['REMOTE_ADDR']]
+					);
+					Session::delete();
+					$this->baseUrl->redirect();
+				}
+
+				$user = $this->dba->selectFirst(
+					'user',
+					[],
+					[
+						'uid'             => Session::get('uid'),
+						'blocked'         => false,
+						'account_expired' => false,
+						'account_removed' => false,
+						'verified'        => true,
+					]
+				);
+				if (!$this->dba->isResult($user)) {
+					Session::delete();
+					$this->baseUrl->redirect();
+				}
+
+				// Make sure to refresh the last login time for the user if the user
+				// stays logged in for a long time, e.g. with "Remember Me"
+				$login_refresh = false;
+				if (!Session::get('last_login_date')) {
+					Session::set('last_login_date', DateTimeFormat::utcNow());
+				}
+				if (strcmp(DateTimeFormat::utc('now - 12 hours'), Session::get('last_login_date')) > 0) {
+					Session::set('last_login_date', DateTimeFormat::utcNow());
+					$login_refresh = true;
+				}
+
+				$this->setForUser($a, $user, false, false, $login_refresh);
+			}
+		}
+	}
+
 	/**
 	 * Attempts to authenticate using OpenId
 	 *
 	 * @param string $openid_url OpenID URL string
 	 * @param bool   $remember   Whether to set the session remember flag
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 *
+	 * @throws HttpException\InternalServerErrorException In case of Friendica internal exceptions
 	 */
-	public static function openIdAuthentication($openid_url, $remember)
+	public function withOpenId(string $openid_url, bool $remember)
 	{
-		$noid = Config::get('system', 'no_openid');
-
-		$a = self::getApp();
+		$noid = $this->config->get('system', 'no_openid');
 
 		// if it's an email address or doesn't resolve to a URL, fail.
 		if ($noid || strpos($openid_url, '@') || !Network::isUrlValid($openid_url)) {
-			notice(L10n::t('Login failed.') . EOL);
-			$a->internalRedirect();
-			// NOTREACHED
+			notice($this->l10n->t('Login failed.') . EOL);
+			$this->baseUrl->redirect();
 		}
 
 		// Otherwise it's probably an openid.
 		try {
-			$openid = new LightOpenID($a->getHostName());
+			$openid           = new LightOpenID($this->baseUrl->getHostname());
 			$openid->identity = $openid_url;
 			Session::set('openid', $openid_url);
 			Session::set('remember', $remember);
-			$openid->returnUrl = $a->getBaseURL(true) . '/openid';
-			$openid->optional = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
+			$openid->returnUrl = $this->baseUrl->get(true) . '/openid';
+			$openid->optional  = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
 			System::externalRedirect($openid->authUrl());
 		} catch (Exception $e) {
-			notice(L10n::t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . L10n::t('The error message was:') . ' ' . $e->getMessage());
+			notice($this->l10n->t('We encountered a problem while logging in with the OpenID you provided. Please check the correct spelling of the ID.') . '<br /><br >' . $this->l10n->t('The error message was:') . ' ' . $e->getMessage());
 		}
 	}
 
 	/**
 	 * Attempts to authenticate using login/password
 	 *
-	 * @param string $username        User name
-	 * @param string $password        Clear password
-	 * @param bool   $remember        Whether to set the session remember flag
-	 * @param string $openid_identity OpenID identity
-	 * @param string $openid_server   OpenID URL
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @param App    $a        The Friendica Application context
+	 * @param string $username User name
+	 * @param string $password Clear password
+	 * @param bool   $remember Whether to set the session remember flag
+	 *
+	 * @throws HttpException\InternalServerErrorException In case of Friendica internal exceptions
+	 * @throws Exception A general Exception (like SQL Grammar exceptions)
 	 */
-	public static function passwordAuthentication($username, $password, $remember, $openid_identity, $openid_server)
+	public function withPassword(App $a, string $username, string $password, bool $remember)
 	{
 		$record = null;
 
 		$addon_auth = [
-			'username' => $username,
-			'password' => $password,
+			'username'      => $username,
+			'password'      => $password,
 			'authenticated' => 0,
-			'user_record' => null
+			'user_record'   => null
 		];
-
-		$a = self::getApp();
 
 		/*
 		 * An addon indicates successful login by setting 'authenticated' to non-zero value and returning a user record
@@ -89,199 +225,159 @@ class Authentication extends BaseObject
 				$record = $addon_auth['user_record'];
 
 				if (empty($record)) {
-					throw new Exception(L10n::t('Login failed.'));
+					throw new Exception($this->l10n->t('Login failed.'));
 				}
 			} else {
-				$record = DBA::selectFirst(
+				$record = $this->dba->selectFirst(
 					'user',
 					[],
 					['uid' => User::getIdFromPasswordAuthentication($username, $password)]
 				);
 			}
 		} catch (Exception $e) {
-			Logger::warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
-			info('Login failed. Please check your credentials.' . EOL);
-			$a->internalRedirect();
+			$this->logger->warning('authenticate: failed login attempt', ['action' => 'login', 'username' => Strings::escapeTags($username), 'ip' => $_SERVER['REMOTE_ADDR']]);
+			info($this->l10n->t('Login failed. Please check your credentials.' . EOL));
+			$this->baseUrl->redirect();
 		}
 
 		if (!$remember) {
-			Authentication::setCookie(0); // 0 means delete on browser exit
+			Session::setCookie(0); // 0 means delete on browser exit
 		}
 
 		// if we haven't failed up this point, log them in.
 		Session::set('remember', $remember);
 		Session::set('last_login_date', DateTimeFormat::utcNow());
 
+		$openid_identity = Session::get('openid_identity');
+		$openid_server   = Session::get('openid_server');
+
 		if (!empty($openid_identity) || !empty($openid_server)) {
-			DBA::update('user', ['openid' => $openid_identity, 'openidserver' => $openid_server], ['uid' => $record['uid']]);
+			$this->dba->update('user', ['openid' => $openid_identity, 'openidserver' => $openid_server], ['uid' => $record['uid']]);
 		}
 
-		Session::setAuthenticatedForUser($a, $record, true, true);
+		$this->setForUser($a, $record, true, true);
 
 		$return_path = Session::get('return_path', '');
 		Session::remove('return_path');
 
-		$a->internalRedirect($return_path);
+		$this->baseUrl->redirect($return_path);
 	}
 
 	/**
-	 * @brief Tries to auth the user from the cookie or session
+	 * @brief Sets the provided user's authenticated session
 	 *
-	 * @todo Should be moved to Friendica\Core\Session when it's created
+	 * @param App   $a           The Friendica application context
+	 * @param array $user_record The current "user" record
+	 * @param bool  $login_initial
+	 * @param bool  $interactive
+	 * @param bool  $login_refresh
+	 *
+	 * @throws HTTPException\InternalServerErrorException In case of Friendica specific exceptions
+	 * @throws Exception In case of general Exceptions (like SQL Grammar exceptions)
 	 */
-	public static function sessionAuth()
+	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $login_refresh = false)
 	{
-		$a = self::getApp();
+		Session::setMultiple([
+			'uid'           => $user_record['uid'],
+			'theme'         => $user_record['theme'],
+			'mobile-theme'  => PConfig::get($user_record['uid'], 'system', 'mobile_theme'),
+			'authenticated' => 1,
+			'page_flags'    => $user_record['page-flags'],
+			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
+			'my_address'    => $user_record['nickname'] . '@' . substr($this->baseUrl->get(), strpos($this->baseUrl->get(), '://') + 3),
+			'addr'          => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
+		]);
 
-		// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
-		if (isset($_COOKIE["Friendica"])) {
-			$data = json_decode($_COOKIE["Friendica"]);
-			if (isset($data->uid)) {
+		Session::setVisitorsContacts();
 
-				$user = DBA::selectFirst(
-					'user',
-					[],
-					[
-						'uid'             => $data->uid,
-						'blocked'         => false,
-						'account_expired' => false,
-						'account_removed' => false,
-						'verified'        => true,
-					]
-				);
-				if (DBA::isResult($user)) {
-					if (!hash_equals(
-						Authentication::getCookieHashForUser($user),
-						$data->hash
-					)) {
-						Logger::log("Hash for user " . $data->uid . " doesn't fit.");
-						Authentication::deleteSession();
-						$a->internalRedirect();
-					}
+		$member_since = strtotime($user_record['register_date']);
+		Session::set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
 
-					// Renew the cookie
-					// Expires after 7 days by default,
-					// can be set via system.auth_cookie_lifetime
-					$authcookiedays = Config::get('system', 'auth_cookie_lifetime', 7);
-					Authentication::setCookie($authcookiedays * 24 * 60 * 60, $user);
+		if (strlen($user_record['timezone'])) {
+			date_default_timezone_set($user_record['timezone']);
+			$a->timezone = $user_record['timezone'];
+		}
 
-					// Do the authentification if not done by now
-					if (!isset($_SESSION) || !isset($_SESSION['authenticated'])) {
-						Session::setAuthenticatedForUser($a, $user);
+		$masterUid = $user_record['uid'];
 
-						if (Config::get('system', 'paranoia')) {
-							$_SESSION['addr'] = $data->ip;
-						}
-					}
-				}
+		if (Session::get('submanage')) {
+			$user = $this->dba->selectFirst('user', ['uid'], ['uid' => Session::get('submanage')]);
+			if ($this->dba->isResult($user)) {
+				$masterUid = $user['uid'];
 			}
 		}
 
-		if (!empty($_SESSION['authenticated'])) {
-			if (!empty($_SESSION['visitor_id']) && empty($_SESSION['uid'])) {
-				$contact = DBA::selectFirst('contact', [], ['id' => $_SESSION['visitor_id']]);
-				if (DBA::isResult($contact)) {
-					self::getApp()->contact = $contact;
-				}
-			}
+		$a->identities = User::identities($masterUid);
 
-			if (!empty($_SESSION['uid'])) {
-				// already logged in user returning
-				$check = Config::get('system', 'paranoia');
-				// extra paranoia - if the IP changed, log them out
-				if ($check && ($_SESSION['addr'] != $_SERVER['REMOTE_ADDR'])) {
-					Logger::log('Session address changed. Paranoid setting in effect, blocking session. ' .
-					            $_SESSION['addr'] . ' != ' . $_SERVER['REMOTE_ADDR']);
-					Authentication::deleteSession();
-					$a->internalRedirect();
-				}
+		if ($login_initial) {
+			$this->logger->info('auth_identities: ' . print_r($a->identities, true));
+		}
 
-				$user = DBA::selectFirst(
-					'user',
-					[],
-					[
-						'uid'             => $_SESSION['uid'],
-						'blocked'         => false,
-						'account_expired' => false,
-						'account_removed' => false,
-						'verified'        => true,
-					]
-				);
-				if (!DBA::isResult($user)) {
-					Authentication::deleteSession();
-					$a->internalRedirect();
-				}
+		if ($login_refresh) {
+			$this->logger->info('auth_identities refresh: ' . print_r($a->identities, true));
+		}
 
-				// Make sure to refresh the last login time for the user if the user
-				// stays logged in for a long time, e.g. with "Remember Me"
-				$login_refresh = false;
-				if (empty($_SESSION['last_login_date'])) {
-					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-				}
-				if (strcmp(DateTimeFormat::utc('now - 12 hours'), $_SESSION['last_login_date']) > 0) {
-					$_SESSION['last_login_date'] = DateTimeFormat::utcNow();
-					$login_refresh = true;
-				}
+		$contact = $this->dba->selectFirst('contact', [], ['uid' => $user_record['uid'], 'self' => true]);
+		if ($this->dba->isResult($contact)) {
+			$a->contact = $contact;
+			$a->cid     = $contact['id'];
+			Session::set('cid', $a->cid);
+		}
 
-				Session::setAuthenticatedForUser($a, $user, false, false, $login_refresh);
+		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
+
+		if ($login_initial || $login_refresh) {
+			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
+
+			// Set the login date for all identities of the user
+			$this->dba->update('user', ['login_date' => DateTimeFormat::utcNow()],
+				['parent-uid' => $masterUid, 'account_removed' => false]);
+		}
+
+		if ($login_initial) {
+			/*
+			 * If the user specified to remember the authentication, then set a cookie
+			 * that expires after one week (the default is when the browser is closed).
+			 * The cookie will be renewed automatically.
+			 * The week ensures that sessions will expire after some inactivity.
+			 */;
+			if (Session::get('remember')) {
+				$a->getLogger()->info('Injecting cookie for remembered user ' . $user_record['nickname']);
+				Session::setCookie(604800, $user_record);
+				Session::remove('remember');
 			}
 		}
-	}
 
-	/**
-	 * @brief Calculate the hash that is needed for the "Friendica" cookie
-	 *
-	 * @param array $user Record from "user" table
-	 *
-	 * @return string Hashed data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function getCookieHashForUser($user)
-	{
-		return hash_hmac(
-			"sha256",
-			hash_hmac("sha256", $user["password"], $user["prvkey"]),
-			Config::get("system", "site_prvkey")
-		);
-	}
+		$this->twoFactorCheck($user_record['uid'], $a);
 
-	/**
-	 * @brief Set the "Friendica" cookie
-	 *
-	 * @param int   $time
-	 * @param array $user Record from "user" table
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static  function setCookie($time, $user = [])
-	{
-		if ($time != 0) {
-			$time = $time + time();
+		if ($interactive) {
+			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
+				info($this->l10n->t('Welcome %s', $user_record['username']));
+				info($this->l10n->t('Please upload a profile photo.'));
+				$this->baseUrl->redirect('profile_photo/new');
+			} else {
+				info($this->l10n->t("Welcome back %s", $user_record['username']));
+			}
 		}
 
-		if ($user) {
-			$value = json_encode([
-				"uid" => $user["uid"],
-				"hash" => self::getCookieHashForUser($user),
-				"ip" => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
-			]);
-		} else {
-			$value = "";
-		}
+		$a->user = $user_record;
 
-		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL), true);
+		if ($login_initial) {
+			Hook::callAll('logged_in', $a->user);
+
+			if ($a->module !== 'home' && Session::exists('return_path')) {
+				$this->baseUrl->redirect(Session::get('return_path'));
+			}
+		}
 	}
 
 	/**
-	 * @brief Kills the "Friendica" cookie and all session data
+	 * @param int $uid The User Identified
+	 * @param App $a   The Friendica Application context
+	 *
+	 * @throws HTTPException\ForbiddenException In case the two factor authentication is forbidden (e.g. for AJAX calls)
 	 */
-	public static function deleteSession()
-	{
-		self::setCookie(-3600); // make sure cookie is deleted on browser close, as a security measure
-		session_unset();
-		session_destroy();
-	}
-
-	public static function twoFactorCheck($uid, App $a)
+	private function twoFactorCheck(int $uid, App $a)
 	{
 		// Check user setting, if 2FA disabled return
 		if (!PConfig::get($uid, '2fa', 'verified')) {
@@ -300,7 +396,7 @@ class Authentication extends BaseObject
 
 		// Case 2: No valid 2FA session: redirect to code verification page
 		if ($a->isAjax()) {
-			throw new ForbiddenException();
+			throw new HTTPException\ForbiddenException();
 		} else {
 			$a->internalRedirect('2fa');
 		}

@@ -10,8 +10,6 @@ use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
-use Friendica\Model\User;
-use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
 /**
@@ -104,115 +102,9 @@ class Session
 	 */
 	public static function clear()
 	{
+		session_unset();
+		session_start();
 		$_SESSION = [];
-	}
-
-	/**
-	 * @brief Sets the provided user's authenticated session
-	 *
-	 * @param App   $a
-	 * @param array $user_record
-	 * @param bool  $login_initial
-	 * @param bool  $interactive
-	 * @param bool  $login_refresh
-	 * @throws \Friendica\Network\HTTPException\ForbiddenException
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function setAuthenticatedForUser(App $a, array $user_record, $login_initial = false, $interactive = false, $login_refresh = false)
-	{
-		self::setMultiple([
-			'uid'           => $user_record['uid'],
-			'theme'         => $user_record['theme'],
-			'mobile-theme'  => PConfig::get($user_record['uid'], 'system', 'mobile_theme'),
-			'authenticated' => 1,
-			'page_flags'    => $user_record['page-flags'],
-			'my_url'        => $a->getBaseURL() . '/profile/' . $user_record['nickname'],
-			'my_address'    => $user_record['nickname'] . '@' . substr($a->getBaseURL(), strpos($a->getBaseURL(), '://') + 3),
-			'addr'          => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
-		]);
-
-		self::setVisitorsContacts();
-
-		$member_since = strtotime($user_record['register_date']);
-		self::set('new_member', time() < ($member_since + ( 60 * 60 * 24 * 14)));
-
-		if (strlen($user_record['timezone'])) {
-			date_default_timezone_set($user_record['timezone']);
-			$a->timezone = $user_record['timezone'];
-		}
-
-		$masterUid = $user_record['uid'];
-
-		if (self::get('submanage')) {
-			$user = DBA::selectFirst('user', ['uid'], ['uid' => self::get('submanage')]);
-			if (DBA::isResult($user)) {
-				$masterUid = $user['uid'];
-			}
-		}
-
-		$a->identities = User::identities($masterUid);
-
-		if ($login_initial) {
-			$a->getLogger()->info('auth_identities: ' . print_r($a->identities, true));
-		}
-
-		if ($login_refresh) {
-			$a->getLogger()->info('auth_identities refresh: ' . print_r($a->identities, true));
-		}
-
-		$contact = DBA::selectFirst('contact', [], ['uid' => $user_record['uid'], 'self' => true]);
-		if (DBA::isResult($contact)) {
-			$a->contact = $contact;
-			$a->cid = $contact['id'];
-			self::set('cid', $a->cid);
-		}
-
-		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
-
-		if ($login_initial || $login_refresh) {
-			DBA::update('user', ['login_date' => DateTimeFormat::utcNow()], ['uid' => $user_record['uid']]);
-
-			// Set the login date for all identities of the user
-			DBA::update('user', ['login_date' => DateTimeFormat::utcNow()],
-				['parent-uid' => $masterUid, 'account_removed' => false]);
-		}
-
-		if ($login_initial) {
-			/*
-			 * If the user specified to remember the authentication, then set a cookie
-			 * that expires after one week (the default is when the browser is closed).
-			 * The cookie will be renewed automatically.
-			 * The week ensures that sessions will expire after some inactivity.
-			 */
-			;
-			if (self::get('remember')) {
-				$a->getLogger()->info('Injecting cookie for remembered user ' . $user_record['nickname']);
-				Authentication::setCookie(604800, $user_record);
-				self::remove('remember');
-			}
-		}
-
-		Authentication::twoFactorCheck($user_record['uid'], $a);
-
-		if ($interactive) {
-			if ($user_record['login_date'] <= DBA::NULL_DATETIME) {
-				info(L10n::t('Welcome %s', $user_record['username']));
-				info(L10n::t('Please upload a profile photo.'));
-				$a->internalRedirect('profile_photo/new');
-			} else {
-				info(L10n::t("Welcome back %s", $user_record['username']));
-			}
-		}
-
-		$a->user = $user_record;
-
-		if ($login_initial) {
-			Hook::callAll('logged_in', $a->user);
-
-			if ($a->module !== 'home' && self::exists('return_path')) {
-				$a->internalRedirect(self::get('return_path'));
-			}
-		}
 	}
 
 	/**
@@ -277,5 +169,76 @@ class Session
 		}
 
 		return $_SESSION['authenticated'];
+	}
+
+	/**
+	 * @brief Calculate the hash that is needed for the "Friendica" cookie
+	 *
+	 * @param array $user Record from "user" table
+	 *
+	 * @return string Hashed data
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function getCookieHashForUser($user)
+	{
+		return hash_hmac(
+			"sha256",
+			hash_hmac("sha256", $user["password"], $user["prvkey"]),
+			Config::get("system", "site_prvkey")
+		);
+	}
+
+	/**
+	 * @brief Set the "Friendica" cookie
+	 *
+	 * @param int   $time
+	 * @param array $user Record from "user" table
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function setCookie($time, $user = [])
+	{
+		if ($time != 0) {
+			$time = $time + time();
+		}
+
+		if ($user) {
+			$value = json_encode([
+				"uid" => $user["uid"],
+				"hash" => self::getCookieHashForUser($user),
+				"ip" => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
+			]);
+		} else {
+			$value = "";
+		}
+
+		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL), true);
+	}
+
+	/**
+	 * @brief Checks if the "Friendica" cookie is set
+	 *
+	 * @param string $hash
+	 * @param array  $user Record from "user" table
+	 *
+	 * @return boolean True, if the cookie is set
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public static function checkCookie(string $hash, array $user)
+	{
+		return hash_equals(
+			self::getCookieHashForUser($user),
+			$hash
+		);
+	}
+
+	/**
+	 * @brief Kills the "Friendica" cookie and all session data
+	 */
+	public static function delete()
+	{
+		self::setCookie(-3600); // make sure cookie is deleted on browser close, as a security measure
+		session_unset();
+		session_destroy();
 	}
 }

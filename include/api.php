@@ -12,6 +12,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
+use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -253,7 +254,9 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	Session::setAuthenticatedForUser($a, $record);
+	/** @var Authentication $authentication */
+	$authentication = BaseObject::getClass(Authentication::class);
+	$authentication->setForUser($a, $record);
 
 	$_SESSION["allow_api"] = true;
 

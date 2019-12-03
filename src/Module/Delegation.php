@@ -3,6 +3,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\Core\Authentication;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
@@ -79,7 +80,9 @@ class Delegation extends BaseModule
 
 		Session::clear();
 
-		Session::setAuthenticatedForUser(self::getApp(), $user, true, true);
+		/** @var Authentication $authentication */
+		$authentication = self::getClass(Authentication::class);
+		$authentication->setForUser(self::getApp(), $user, true, true);
 
 		if ($limited_id) {
 			Session::set('submanage', $original_id);

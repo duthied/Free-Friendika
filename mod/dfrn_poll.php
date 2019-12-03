@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -21,7 +22,9 @@ use Friendica\Util\XML;
 
 function dfrn_poll_init(App $a)
 {
-	Authentication::sessionAuth();
+	/** @var Authentication $authentication */
+	$authentication = BaseObject::getClass(Authentication::class);
+	$authentication->withSession($a, $_COOKIE);
 
 	$dfrn_id         =  $_GET['dfrn_id']         ?? '';
 	$type            = ($_GET['type']            ?? '') ?: 'data';

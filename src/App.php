@@ -13,6 +13,7 @@ use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
 use Friendica\Core\L10n\L10n;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
@@ -641,10 +642,11 @@ class App
 	 * @param App\Module     $module The determined module
 	 * @param App\Router     $router
 	 * @param PConfiguration $pconfig
+	 * @param Authentication $auth The Authentication backend of the node
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, PConfiguration $pconfig)
+	public function runFrontend(App\Module $module, App\Router $router, PConfiguration $pconfig, Authentication $auth)
 	{
 		$moduleName = $module->getName();
 
@@ -718,7 +720,7 @@ class App
 				Model\Profile::openWebAuthInit($token);
 			}
 
-			Authentication::sessionAuth();
+			$auth->withSession($this, $_COOKIE);
 
 			if (empty($_SESSION['authenticated'])) {
 				header('X-Account-Management-Status: none');
