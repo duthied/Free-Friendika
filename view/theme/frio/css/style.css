@@ -2887,7 +2887,7 @@ details.profile-jot-net summary:before {
     padding-right: 5px;
     padding-left: 3px;
 }
-details.profile-jot-net[open] summary:before, .panel .section-subtitle-wrapper a.accordion-toggle:before {
+details.profile-jot-net[open] summary:before {
     padding-right: 5px;
     padding-left: 0px;
 }
