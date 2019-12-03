@@ -796,22 +796,12 @@ class App
 	}
 
 	/**
-	 * Redirects to another module relative to the current Friendica base.
-	 * If you want to redirect to a external URL, use System::externalRedirectTo()
-	 *
-	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
-	 * @param bool   $ssl   if true, base URL will try to get called with https:// (works just for relative paths)
-	 *
-	 * @throws HTTPException\InternalServerErrorException In Case the given URL is not relative to the Friendica node
+	 * @deprecated 2019.12 use BaseUrl::redirect instead
+	 * @see BaseURL::redirect()
 	 */
 	public function internalRedirect($toUrl = '', $ssl = false)
 	{
-		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
-			throw new HTTPException\InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
-		}
-
-		$redirectTo = $this->baseURL->get($ssl) . '/' . ltrim($toUrl, '/');
-		Core\System::externalRedirect($redirectTo);
+		$this->baseURL->redirect($toUrl, $ssl);
 	}
 
 	/**
@@ -827,7 +817,7 @@ class App
 		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			Core\System::externalRedirect($toUrl);
 		} else {
-			$this->internalRedirect($toUrl);
+			$this->baseURL->redirect($toUrl);
 		}
 	}
 }
