@@ -5,6 +5,7 @@
  */
 
 use Friendica\App;
+use Friendica\Core\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -20,7 +21,7 @@ use Friendica\Util\XML;
 
 function dfrn_poll_init(App $a)
 {
-	Login::sessionAuth();
+	Authentication::sessionAuth();
 
 	$dfrn_id         =  $_GET['dfrn_id']         ?? '';
 	$type            = ($_GET['type']            ?? '') ?: 'data';
