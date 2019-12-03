@@ -379,8 +379,9 @@ class Post extends BaseObject
 		$tags = Term::populateTagsFromItem($item);
 
 		$ago = Temporal::getRelativeDate($item['created']);
-		if (Config::get('system', 'show_received') && (abs(strtotime($item['created']) - strtotime($item['received'])) > Config::get('system', 'show_received_seconds'))) {
-			$ago = L10n::t('%s (Received %s)', $ago, Temporal::getRelativeDate($item['received']));
+		$ago_received = Temporal::getRelativeDate($item['received']);
+		if (Config::get('system', 'show_received') && (abs(strtotime($item['created']) - strtotime($item['received'])) > Config::get('system', 'show_received_seconds')) && ($ago != $ago_received)) {
+			$ago = L10n::t('%s (Received %s)', $ago, $ago_received);
 		}
 
 		$tmp_item = [
