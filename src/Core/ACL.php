@@ -333,14 +333,15 @@ class ACL extends BaseObject
 		// Defaults user permissions
 		if (empty($default_permissions)) {
 			$default_permissions = self::getDefaultUserPermissions($user);
-		} else {
-			$default_permissions = [
-				'allow_cid' => $default_permissions['allow_cid'] ?? [],
-				'allow_gid' => $default_permissions['allow_gid'] ?? [],
-				'deny_cid'  => $default_permissions['deny_cid']  ?? [],
-				'deny_gid'  => $default_permissions['deny_gid']  ?? [],
-			];
 		}
+
+		$default_permissions = [
+			'allow_cid' => $default_permissions['allow_cid'] ?? [],
+			'allow_gid' => $default_permissions['allow_gid'] ?? [],
+			'deny_cid'  => $default_permissions['deny_cid']  ?? [],
+			'deny_gid'  => $default_permissions['deny_gid']  ?? [],
+			'hidewall'  => $default_permissions['hidewall']  ?? false,
+		];
 
 		if (count($default_permissions['allow_cid'])
 			+ count($default_permissions['allow_gid'])
@@ -366,7 +367,7 @@ class ACL extends BaseObject
 				}
 			}
 
-			if (empty($default_permissions['hidewall'])) {
+			if ($default_permissions['hidewall']) {
 				if ($mail_enabled) {
 					$jotnets_fields[] = [
 						'type' => 'checkbox',
@@ -410,7 +411,7 @@ class ACL extends BaseObject
 			'$group_deny'     => implode(',', $default_permissions['deny_gid']),
 			'$for_federation' => $for_federation,
 			'$jotnets_fields' => $jotnets_fields,
-			'$user_hidewall'  => $default_permissions['hidewall'] ?? false,
+			'$user_hidewall'  => $default_permissions['hidewall'],
 		]);
 
 		return $o;
