@@ -2874,14 +2874,22 @@ ul li:hover .contact-wrapper .contact-action-link:hover {
 .section-subtitle-wrapper {
     padding: 1px 10px;
 }
-.panel .section-subtitle-wrapper a.accordion-toggle:before {
+details.profile-jot-net[open] summary:before, .panel .section-subtitle-wrapper a.accordion-toggle:before {
     font-family: ForkAwesome;
     content: "\f0d7";
     padding-right: 5px;
 }
-.panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
+details.profile-jot-net summary:before, .panel .section-subtitle-wrapper a.accordion-toggle.collapsed:before {
     font-family: ForkAwesome;
     content: "\f0da";
+}
+details.profile-jot-net summary:before {
+    padding-right: 5px;
+    padding-left: 3px;
+}
+details.profile-jot-net[open] summary:before, .panel .section-subtitle-wrapper a.accordion-toggle:before {
+    padding-right: 5px;
+    padding-left: 0px;
 }
 #settings-nick-wrapper {
     margin-bottom: 20px;
