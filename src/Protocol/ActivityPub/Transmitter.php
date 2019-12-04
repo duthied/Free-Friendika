@@ -931,29 +931,6 @@ class Transmitter
 	}
 
 	/**
-	 * Creates an object array for a given item id
-	 *
-	 * @param integer $item_id
-	 *
-	 * @return array with the object data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
-	 */
-	public static function createObjectFromItemID($item_id)
-	{
-		$item = Item::selectFirst([], ['id' => $item_id, 'parent-network' => Protocol::NATIVE_SUPPORT]);
-
-		if (!DBA::isResult($item)) {
-			return false;
-		}
-
-		$data = ['@context' => ActivityPub::CONTEXT];
-		$data = array_merge($data, self::createNote($item));
-
-		return $data;
-	}
-
-	/**
 	 * Creates a location entry for a given item array
 	 *
 	 * @param array $item
