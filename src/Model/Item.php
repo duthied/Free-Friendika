@@ -3759,4 +3759,71 @@ class Item extends BaseObject
 
 		return 0;
 	}
+
+	/**
+	 * Return share data from an item array (if the item is shared item)
+	 * We are providing the complete Item array, because at some time in the future
+	 * we hopefully will define these values not in the body anymore but in some item fields.
+	 * This function is meant to replace all similar functions in the system.
+	 *
+	 * @param array $item
+	 *
+	 * @return array with share information
+	 */
+	public static function getShareArray($item)
+	{
+		if (!preg_match("/(.*?)\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
+			return [];
+		}
+
+		$attribute_string = $matches[2];
+		$attributes = ['comment' => trim($matches[1]), 'shared' => trim($matches[3])];
+		foreach(['author', 'profile', 'avatar', 'guid', 'posted', 'link'] as $field) {
+				if (preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches)) {
+					$attributes[$field] = trim(html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8'));
+				}
+		}
+		return $attributes;
+	}
+
+	/**
+	 * Fetch item information for shared items from the original items and adds it.
+	 *
+	 * @param array $item
+	 *
+	 * @return array item array with data from the original item
+	 */
+	public static function addShareDataFromOriginal($item)
+	{
+		$shared = self::getShareArray($item);
+		if (empty($shared)) {
+			return $item;
+		}
+
+		// Real reshares always have got a GUID.
+		if (empty($shared['guid'])) {
+			return $item;
+		}
+
+		$uid = $item['uid'] ?? 0;
+
+		// first try to fetch the item via the GUID. This will work for all reshares that had been created on this system
+		$shared_item = self::selectFirst(['title', 'body', 'attach'], ['guid' => $shared['guid'], 'uid' => [0, $uid]]);
+		if (!DBA::isResult($shared_item)) {
+			// Otherwhise try to find (and possibly fetch) the item via the link. This should work for Diaspora and ActivityPub posts
+			$id = self::fetchByLink($shared['link'], $uid);
+			if (empty($id)) {
+				return $item;
+			}
+
+			$shared_item = self::selectFirst(['title', 'body', 'attach'], ['id' => $id]);
+			if (!DBA::isResult($shared_item)) {
+				return $item;
+			}
+		}
+		$item['body'] = preg_replace("/(.*?\[share.*?\]\s?).*?(\s?\[\/share\]\s?)/ism", '$1' . $shared_item['body'] . '$2', $item['body']);
+		unset($shared_item['body']);
+
+		return array_merge($item, $shared_item);
+	}
 }
