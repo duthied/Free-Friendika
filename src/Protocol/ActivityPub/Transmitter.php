@@ -1376,17 +1376,17 @@ class Transmitter
 		if (empty($announce['comment'])) {
 			// Pure announce, without a quote
 			$data['type'] = 'Announce';
-			$data['object'] = $announce['id'];
+			$data['object'] = $announce['object']['uri'];
 			return $data;
 		}
 
 		// Quote
 		$data['type'] = 'Create';
-		$item['body'] = $announce['comment'] . "\n" . $id;
+		$item['body'] = $announce['comment'] . "\n" . $announce['object']['plink'];
 		$data['object'] = self::createNote($item);
 
 		/// @todo Finally descide how to implement this in AP. This is a possible way:
-		$data['object']['attachment'][] = ['type' => $type, 'id' => $id];
+		$data['object']['attachment'][] = self::createNote($announce['object']);
 
 		$data['object']['source']['content'] = $orig_body;
 		return $data;
@@ -1417,7 +1417,7 @@ class Transmitter
 			return [];
 		}
 
-		$reshared_item = Item::selectFirst(['author-link', 'uri', 'network'], ['guid' => $matches[1]]);
+		$reshared_item = Item::selectFirst([], ['guid' => $matches[1]]);
 		if (!DBA::isResult($reshared_item)) {
 			return [];
 		}
@@ -1431,7 +1431,7 @@ class Transmitter
 			return [];
 		}
 
-		return ['id' => $reshared_item['uri'], 'actor' => $profile, 'comment' => trim($comment)];
+		return ['object' => $reshared_item, 'actor' => $profile, 'comment' => trim($comment)];
 	}
 
 	/**
