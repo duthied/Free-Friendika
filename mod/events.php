@@ -490,10 +490,8 @@ function events_content(App $a)
 		$fhour   = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'H') : '00';
 		$fminute = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00';
 
-		$perms = ACL::getDefaultUserPermissions($orig_event);
-
 		if (!$cid && in_array($mode, ['new', 'copy'])) {
-			$acl = ACL::getFullSelectorHTML($a->page, $a->user, false, $perms);
+			$acl = ACL::getFullSelectorHTML($a->page, $a->user, false, ACL::getDefaultUserPermissions($orig_event));
 		} else {
 			$acl = '';
 		}
