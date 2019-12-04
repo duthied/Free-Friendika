@@ -20,7 +20,7 @@
 {{include file="field_checkbox.tpl" field=$noinfo}}
 {{include file="field_checkbox.tpl" field=$infinite_scroll}}
 {{include file="field_checkbox.tpl" field=$bandwidth_saver}}
-{{include file="field_checkbox.tpl" field=$smart_threading}}
+{{include file="field_checkbox.tpl" field=$no_smart_threading}}
 <h2>{{$calendar_title}}</h2>
 {{include file="field_select.tpl" field=$first_day_of_week}}
 
