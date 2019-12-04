@@ -12,6 +12,7 @@ namespace Friendica\Network;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\Util\Strings;
 use OAuthConsumer;
 use OAuthDataStore;
 use OAuthToken;
@@ -26,15 +27,16 @@ class FKOAuthDataStore extends OAuthDataStore
 {
 	/**
 	 * @return string
+	 * @throws \Exception
 	 */
 	private static function genToken()
 	{
-		return Friendica\Util\Strings::getRandomHex(32);
+		return Strings::getRandomHex(32);
 	}
 
 	/**
 	 * @param string $consumer_key key
-	 * @return mixed
+	 * @return OAuthConsumer|null
 	 * @throws \Exception
 	 */
 	public function lookup_consumer($consumer_key)
@@ -52,17 +54,17 @@ class FKOAuthDataStore extends OAuthDataStore
 	}
 
 	/**
-	 * @param string $consumer   consumer
-	 * @param string $token_type type
-	 * @param string $token      token
-	 * @return mixed
+	 * @param OAuthConsumer $consumer
+	 * @param string        $token_type
+	 * @param string        $token_id
+	 * @return OAuthToken|null
 	 * @throws \Exception
 	 */
-	public function lookup_token($consumer, $token_type, $token)
+	public function lookup_token(OAuthConsumer $consumer, $token_type, $token_id)
 	{
-		Logger::log(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token);
+		Logger::log(__function__ . ":" . $consumer . ", " . $token_type . ", " . $token_id);
 
-		$s = DBA::select('tokens', ['id', 'secret', 'scope', 'expires', 'uid'], ['client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token]);
+		$s = DBA::select('tokens', ['id', 'secret', 'scope', 'expires', 'uid'], ['client_id' => $consumer->key, 'scope' => $token_type, 'id' => $token_id]);
 		$r = DBA::toArray($s);
 
 		if (DBA::isResult($r)) {
@@ -77,14 +79,14 @@ class FKOAuthDataStore extends OAuthDataStore
 	}
 
 	/**
-	 * @param string $consumer  consumer
-	 * @param string $token     token
-	 * @param string $nonce     nonce
-	 * @param string $timestamp timestamp
+	 * @param OAuthConsumer $consumer
+	 * @param OAuthToken    $token
+	 * @param string        $nonce
+	 * @param int           $timestamp
 	 * @return mixed
 	 * @throws \Exception
 	 */
-	public function lookup_nonce($consumer, $token, $nonce, $timestamp)
+	public function lookup_nonce(OAuthConsumer $consumer, OAuthToken $token, $nonce, int $timestamp)
 	{
 		$token = DBA::selectFirst('tokens', ['id', 'secret'], ['client_id' => $consumer->key, 'id' => $nonce, 'expires' => $timestamp]);
 		if (DBA::isResult($token)) {
@@ -95,12 +97,12 @@ class FKOAuthDataStore extends OAuthDataStore
 	}
 
 	/**
-	 * @param string $consumer consumer
-	 * @param string $callback optional, default null
-	 * @return mixed
+	 * @param OAuthConsumer $consumer
+	 * @param string        $callback
+	 * @return OAuthToken|null
 	 * @throws \Exception
 	 */
-	public function new_request_token($consumer, $callback = null)
+	public function new_request_token(OAuthConsumer $consumer, $callback = null)
 	{
 		Logger::log(__function__ . ":" . $consumer . ", " . $callback);
 		$key = self::genToken();
@@ -131,13 +133,13 @@ class FKOAuthDataStore extends OAuthDataStore
 	}
 
 	/**
-	 * @param string $token    token
-	 * @param string $consumer consumer
-	 * @param string $verifier optional, defult null
-	 * @return object
-	 * @throws HTTPException\InternalServerErrorException
+	 * @param OAuthToken    $token    token
+	 * @param OAuthConsumer $consumer consumer
+	 * @param string        $verifier optional, defult null
+	 * @return OAuthToken
+	 * @throws \Exception
 	 */
-	public function new_access_token($token, $consumer, $verifier = null)
+	public function new_access_token(OAuthToken $token, OAuthConsumer $consumer, $verifier = null)
 	{
 		Logger::log(__function__ . ":" . $token . ", " . $consumer . ", " . $verifier);
 
