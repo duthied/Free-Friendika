@@ -3821,7 +3821,15 @@ class Item extends BaseObject
 				return $item;
 			}
 		}
-		$item['body'] = preg_replace("/(.*?\[share.*?\]\s?).*?(\s?\[\/share\]\s?)/ism", '$1' . $shared_item['body'] . '$2', $item['body']);
+
+		if (!empty($shared_item['title'])) {
+			$body = '[h3]' . $shared_item['title'] . "[/h3]\n" . $shared_item['body'];
+			unset($shared_item['title']);
+		} else {
+			$body = $shared_item['body'];
+		}
+
+		$item['body'] = preg_replace("/(.*?\[share.*?\]\s?).*?(\s?\[\/share\]\s?)/ism", '$1' . $body . '$2', $item['body']);
 		unset($shared_item['body']);
 
 		return array_merge($item, $shared_item);
