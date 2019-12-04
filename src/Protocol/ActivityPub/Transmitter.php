@@ -383,7 +383,7 @@ class Transmitter
 
 		// Directly mention the original author upon a quoted reshare.
 		// Else just ensure that the original author receives the reshare.
-		$announce = self::getAnnounceObject($item);
+		$announce = self::getAnnounceArray($item);
 		if (!empty($announce['comment'])) {
 			$data['to'][] = $announce['actor']['url'];
 		} elseif (!empty($announce)) {
@@ -768,7 +768,7 @@ class Transmitter
 
 		// Only check for a reshare, if it is a real reshare and no quoted reshare
 		if (strpos($item['body'], "[share") === 0) {
-			$announce = self::getAnnounceObject($item);
+			$announce = self::getAnnounceArray($item);
 			$reshared = !empty($announce);
 		}
 
@@ -993,7 +993,7 @@ class Transmitter
 			}
 		}
 
-		$announce = self::getAnnounceObject($item);
+		$announce = self::getAnnounceArray($item);
 		// Mention the original author upon commented reshares
 		if (!empty($announce['comment'])) {
 			$tags[] = ['type' => 'Mention', 'href' => $announce['actor']['url'], 'name' => '@' . $announce['actor']['addr']];
@@ -1366,7 +1366,7 @@ class Transmitter
 	private static function createAnnounce($item, $data)
 	{
 		$orig_body = $item['body'];
-		$announce = self::getAnnounceObject($item);
+		$announce = self::getAnnounceArray($item);
 		if (empty($announce)) {
 			$data['type'] = 'Create';
 			$data['object'] = self::createNote($item);
@@ -1399,7 +1399,7 @@ class Transmitter
 	 *
 	 * @return array
 	 */
-	public static function getAnnounceObject($item)
+	public static function getAnnounceArray($item)
 	{
 		if (!preg_match("/(.*?)\[share(.*?)\]\s?.*?\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
 			return [];
