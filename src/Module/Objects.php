@@ -42,7 +42,14 @@ class Objects extends BaseModule
 			}
 		}
 
-		$data = ActivityPub\Transmitter::createObjectFromItemID($item['id']);
+		$activity = ActivityPub\Transmitter::createActivityFromItem($item['id'], true);
+		// Only display "Create" activity objects here, no reshares or anything else
+		if (!is_array($activity['object']) || ($activity['type'] != 'Create')) {
+			throw new \Friendica\Network\HTTPException\NotFoundException();
+		}
+
+		$data = ['@context' => ActivityPub::CONTEXT];
+		$data = array_merge($data, $activity['object']);
 
 		header('Content-Type: application/activity+json');
 		echo json_encode($data);
