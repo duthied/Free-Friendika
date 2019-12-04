@@ -1479,7 +1479,7 @@ function conv_sort(array $item_list, $order)
 		$parents[$i]['children'] = sort_item_children($parents[$i]['children']);
 	}
 
-	if (PConfig::get(local_user(), 'system', 'smart_threading', 0)) {
+	if (!PConfig::get(local_user(), 'system', 'no_smart_threading', 0)) {
 		foreach ($parents as $i => $parent) {
 			$parents[$i] = smart_flatten_conversation($parent);
 		}

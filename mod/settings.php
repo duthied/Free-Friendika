@@ -327,17 +327,17 @@ function settings_post(App $a)
 	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/display', 'settings_display');
 
-		$theme             = !empty($_POST['theme'])             ? Strings::escapeTags(trim($_POST['theme']))        : $a->user['theme'];
-		$mobile_theme      = !empty($_POST['mobile_theme'])      ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
-		$nosmile           = !empty($_POST['nosmile'])           ? intval($_POST['nosmile'])            : 0;
-		$first_day_of_week = !empty($_POST['first_day_of_week']) ? intval($_POST['first_day_of_week'])  : 0;
-		$noinfo            = !empty($_POST['noinfo'])            ? intval($_POST['noinfo'])             : 0;
-		$infinite_scroll   = !empty($_POST['infinite_scroll'])   ? intval($_POST['infinite_scroll'])    : 0;
-		$no_auto_update    = !empty($_POST['no_auto_update'])    ? intval($_POST['no_auto_update'])     : 0;
-		$bandwidth_saver   = !empty($_POST['bandwidth_saver'])   ? intval($_POST['bandwidth_saver'])    : 0;
-		$smart_threading   = !empty($_POST['smart_threading'])   ? intval($_POST['smart_threading'])    : 0;
-		$nowarn_insecure   = !empty($_POST['nowarn_insecure'])   ? intval($_POST['nowarn_insecure'])    : 0;
-		$browser_update    = !empty($_POST['browser_update'])    ? intval($_POST['browser_update'])     : 0;
+		$theme              = !empty($_POST['theme'])              ? Strings::escapeTags(trim($_POST['theme']))        : $a->user['theme'];
+		$mobile_theme       = !empty($_POST['mobile_theme'])       ? Strings::escapeTags(trim($_POST['mobile_theme'])) : '';
+		$nosmile            = !empty($_POST['nosmile'])            ? intval($_POST['nosmile'])            : 0;
+		$first_day_of_week  = !empty($_POST['first_day_of_week'])  ? intval($_POST['first_day_of_week'])  : 0;
+		$noinfo             = !empty($_POST['noinfo'])             ? intval($_POST['noinfo'])             : 0;
+		$infinite_scroll    = !empty($_POST['infinite_scroll'])    ? intval($_POST['infinite_scroll'])    : 0;
+		$no_auto_update     = !empty($_POST['no_auto_update'])     ? intval($_POST['no_auto_update'])     : 0;
+		$bandwidth_saver    = !empty($_POST['bandwidth_saver'])    ? intval($_POST['bandwidth_saver'])    : 0;
+		$no_smart_threading = !empty($_POST['no_smart_threading']) ? intval($_POST['no_smart_threading']) : 0;
+		$nowarn_insecure    = !empty($_POST['nowarn_insecure'])    ? intval($_POST['nowarn_insecure'])    : 0;
+		$browser_update     = !empty($_POST['browser_update'])     ? intval($_POST['browser_update'])     : 0;
 		if ($browser_update != -1) {
 			$browser_update = $browser_update * 1000;
 			if ($browser_update < 10000) {
@@ -368,7 +368,7 @@ function settings_post(App $a)
 		PConfig::set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
 		PConfig::set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
 		PConfig::set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
-		PConfig::set(local_user(), 'system', 'smart_threading'         , $smart_threading);
+		PConfig::set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
 
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $a->user['theme']) {
@@ -939,7 +939,7 @@ function settings_content(App $a)
 		$infinite_scroll = PConfig::get(local_user(), 'system', 'infinite_scroll', 0);
 		$no_auto_update = PConfig::get(local_user(), 'system', 'no_auto_update', 0);
 		$bandwidth_saver = PConfig::get(local_user(), 'system', 'bandwidth_saver', 0);
-		$smart_threading = PConfig::get(local_user(), 'system', 'smart_threading', 0);
+		$no_smart_threading = PConfig::get(local_user(), 'system', 'no_smart_threading', 0);
 
 		$theme_config = "";
 		if (($themeconfigfile = get_theme_config_file($theme_selected)) !== null) {
@@ -968,7 +968,7 @@ function settings_content(App $a)
 			'$infinite_scroll'	=> ['infinite_scroll', L10n::t("Infinite scroll"), $infinite_scroll, ''],
 			'$no_auto_update'	=> ['no_auto_update', L10n::t("Automatic updates only at the top of the network page"), $no_auto_update, L10n::t('When disabled, the network page is updated all the time, which could be confusing while reading.')],
 			'$bandwidth_saver' => ['bandwidth_saver', L10n::t('Bandwidth Saver Mode'), $bandwidth_saver, L10n::t('When enabled, embedded content is not displayed on automatic updates, they only show on page reload.')],
-			'$smart_threading' => ['smart_threading', L10n::t('Smart Threading'), $smart_threading, L10n::t('When enabled, suppress extraneous thread indentation while keeping it where it matters. Only works if threading is available and enabled.')],
+			'$no_smart_threading' => ['no_smart_threading', L10n::t('Disable Smart Threading'), $no_smart_threading, L10n::t('Disable the automatic suppression of extraneous thread indentation.')],
 
 			'$d_tset' => L10n::t('General Theme Settings'),
 			'$d_ctset' => L10n::t('Custom Theme Settings'),
