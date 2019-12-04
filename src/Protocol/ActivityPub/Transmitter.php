@@ -1373,36 +1373,22 @@ class Transmitter
 			return $data;
 		}
 
-		// Fetch the original id of the object
-		$activity = ActivityPub::fetchContent($announce['id'], $item['uid']);
-		if (!empty($activity)) {
-			$ldactivity = JsonLD::compact($activity);
-			$id = JsonLD::fetchElement($ldactivity, '@id');
-			$type = str_replace('as:', '', JsonLD::fetchElement($ldactivity, '@type'));
-			if (!empty($id)) {
-				if (empty($announce['comment'])) {
-					// Pure announce, without a quote
-					$data['type'] = 'Announce';
-					$data['object'] = $id;
-					return $data;
-				}
-
-				// Quote
-				$data['type'] = 'Create';
-				$item['body'] = $announce['comment'] . "\n" . $id;
-				$data['object'] = self::createNote($item);
-
-				/// @todo Finally descide how to implement this in AP. This is a possible way:
-				$data['object']['attachment'][] = ['type' => $type, 'id' => $id];
-
-				$data['object']['source']['content'] = $orig_body;
-				return $data;
-			}
+		if (empty($announce['comment'])) {
+			// Pure announce, without a quote
+			$data['type'] = 'Announce';
+			$data['object'] = $announce['id'];
+			return $data;
 		}
 
-		$item['body'] = $orig_body;
+		// Quote
 		$data['type'] = 'Create';
+		$item['body'] = $announce['comment'] . "\n" . $id;
 		$data['object'] = self::createNote($item);
+
+		/// @todo Finally descide how to implement this in AP. This is a possible way:
+		$data['object']['attachment'][] = ['type' => $type, 'id' => $id];
+
+		$data['object']['source']['content'] = $orig_body;
 		return $data;
 	}
 
@@ -1415,19 +1401,37 @@ class Transmitter
 	 */
 	public static function getAnnounceObject($item)
 	{
-		$announce = api_share_as_retweet($item);
-		if (empty($announce['plink'])) {
+		if (!preg_match("/(.*?)\[share(.*?)\]\s?.*?\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
 			return [];
 		}
 
-		/// @ToDo Check if the announced item is an AP object
+		$attributes = $matches[2];
+		$comment = $matches[1];
 
-		$profile = APContact::getByURL($announce['author-link'], false);
+		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
+		if (empty($matches[1])) {
+			preg_match('/guid="(.*?)"/ism', $attributes, $matches);
+		}
+
+		if (empty($matches[1])) {
+			return [];
+		}
+
+		$reshared_item = Item::selectFirst(['author-link', 'uri', 'network'], ['guid' => $matches[1]]);
+		if (!DBA::isResult($reshared_item)) {
+			return [];
+		}
+
+		if (!in_array($reshared_item['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+			return [];
+		}
+
+		$profile = APContact::getByURL($reshared_item['author-link'], false);
 		if (empty($profile)) {
 			return [];
 		}
 
-		return ['id' => $announce['plink'], 'actor' => $profile, 'comment' => trim($announce['share-pre-body'])];
+		return ['id' => $reshared_item['uri'], 'actor' => $profile, 'comment' => trim($comment)];
 	}
 
 	/**
