@@ -89,7 +89,7 @@ Field parameter:
 3. Help text for the input box,
 4. if set to "required" modern browser will check that this input box is filled when submitting the form,
 5. if set to "autofocus" modern browser will put the cursur into this box once the page is loaded,
-6. if set, it will be used for the input type, default is `text` (possible types: https://www.w3schools.com/html/html_form_input_types.asp).
+6. if set, it will be used for the input type, default is `text` (possible types: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input#%3Cinput%3E_types).
 
 ### field_intcheckbox.tpl
 
