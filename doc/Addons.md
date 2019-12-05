@@ -716,7 +716,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 
 ### src/Module/Login.php
 
-    Hook::callAll('authenticate', $addon_auth);
     Hook::callAll('login_hook', $o);
 
 ### src/Module/Logout.php
@@ -740,6 +739,7 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Core/Authentication.php
 
     Hook::callAll('logged_in', $a->user);
+    Hook::callAll('authenticate', $addon_auth);
 
 ### src/Core/Hook.php
 
