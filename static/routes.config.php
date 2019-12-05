@@ -27,6 +27,12 @@ return [
 		'/recovery' => [Module\TwoFactor\Recovery::class, [R::GET, R::POST]],
 	],
 
+	'/api' => [
+		'/v1' => [
+			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class, [R::GET         ]],
+		],
+	],
+
 	'/admin'               => [
 		'[/]' => [Module\Admin\Summary::class, [R::GET]],
 
