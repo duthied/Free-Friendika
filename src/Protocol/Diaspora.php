@@ -2523,7 +2523,7 @@ class Diaspora
 		}
 
 		// Do we already have this item?
-		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+		$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 		$item = Item::selectFirst($fields, $condition);
@@ -2701,9 +2701,15 @@ class Diaspora
 			$original_item["created"],
 			$orig_url
 		);
+
+		if (!empty($original_item['title'])) {
+			$prefix .= '[h3]' . $original_item['title'] . "[/h3]\n";
+		}
+
 		$datarray["body"] = $prefix.$original_item["body"]."[/share]";
 
 		$datarray["tag"] = $original_item["tag"];
+		$datarray["attach"] = $original_item["attach"];
 		$datarray["app"]  = $original_item["app"];
 
 		$datarray["plink"] = self::plink($author, $guid);
