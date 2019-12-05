@@ -1199,37 +1199,12 @@ class OStatus
 	 */
 	private static function getResharedGuid(array $item)
 	{
-		$body = trim($item["body"]);
-
-		// Skip if it isn't a pure repeated messages
-		// Does it start with a share?
-		if (strpos($body, "[share") > 0) {
-			return "";
+		$reshared = Item::getShareArray($item);
+		if (empty($reshared['guid']) || !empty($reshared['comment'])) {
+			return '';
 		}
 
-		// Does it end with a share?
-		if (strlen($body) > (strrpos($body, "[/share]") + 8)) {
-			return "";
-		}
-
-		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
-		// Skip if there is no shared message in there
-		if ($body == $attributes) {
-			return false;
-		}
-
-		$guid = "";
-		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$guid = $matches[1];
-		}
-
-		preg_match('/guid="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$guid = $matches[1];
-		}
-
-		return $guid;
+		return $reshared['guid'];
 	}
 
 	/**

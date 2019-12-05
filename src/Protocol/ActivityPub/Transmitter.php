@@ -1401,23 +1401,12 @@ class Transmitter
 	 */
 	public static function getAnnounceArray($item)
 	{
-		if (!preg_match("/(.*?)\[share(.*?)\]\s?.*?\s?\[\/share\]\s?/ism", $item['body'], $matches)) {
+		$reshared = Item::getShareArray($item);
+		if (empty($reshared['guid'])) {
 			return [];
 		}
 
-		$attributes = $matches[2];
-		$comment = $matches[1];
-
-		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
-		if (empty($matches[1])) {
-			preg_match('/guid="(.*?)"/ism', $attributes, $matches);
-		}
-
-		if (empty($matches[1])) {
-			return [];
-		}
-
-		$reshared_item = Item::selectFirst([], ['guid' => $matches[1]]);
+		$reshared_item = Item::selectFirst([], ['guid' => $reshared['guid']]);
 		if (!DBA::isResult($reshared_item)) {
 			return [];
 		}
@@ -1431,7 +1420,7 @@ class Transmitter
 			return [];
 		}
 
-		return ['object' => $reshared_item, 'actor' => $profile, 'comment' => trim($comment)];
+		return ['object' => $reshared_item, 'actor' => $profile, 'comment' => $reshared['comment']];
 	}
 
 	/**
