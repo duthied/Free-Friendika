@@ -730,6 +730,9 @@ function item_post(App $a) {
 		}
 	}
 
+	// If this was a share, add missing data here
+	$datarray = Item::addShareDataFromOriginal($datarray);
+
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {

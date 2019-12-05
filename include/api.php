@@ -2019,7 +2019,7 @@ function api_statuses_repeat($type)
 
 	Logger::log('API: api_statuses_repeat: '.$id);
 
-	$fields = ['body', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
+	$fields = ['body', 'title', 'attach', 'tag', 'author-name', 'author-link', 'author-avatar', 'guid', 'created', 'plink'];
 	$item = Item::selectFirst($fields, ['id' => $id, 'private' => false]);
 
 	if (DBA::isResult($item) && $item['body'] != "") {
@@ -2029,10 +2029,16 @@ function api_statuses_repeat($type)
 		} else {
 			$post = share_header($item['author-name'], $item['author-link'], $item['author-avatar'], $item['guid'], $item['created'], $item['plink']);
 
+			if (!empty($item['title'])) {
+				$post .= '[h3]' . $item['title'] . "[/h3]\n";
+			}
+
 			$post .= $item['body'];
 			$post .= "[/share]";
 		}
 		$_REQUEST['body'] = $post;
+		$_REQUEST['tag'] = $item['tag'];
+		$_REQUEST['attach'] = $item['attach'];
 		$_REQUEST['profile_uid'] = api_user();
 		$_REQUEST['api_source'] = true;
 
@@ -5150,99 +5156,30 @@ function api_share_as_retweet(&$item)
 		}
 	}
 
-	/// @TODO "$1" should maybe mean '$1' ?
-	$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
-	/*
-	 * Skip if there is no shared message in there
-	 * we already checked this in diaspora::isReshare()
-	 * but better one more than one less...
-	 */
-	if (($body == $attributes) || empty($attributes)) {
+	$reshared = Item::getShareArray($item);
+	if (empty($reshared)) {
 		return false;
 	}
 
-	// build the fake reshared item
 	$reshared_item = $item;
 
-	$author = "";
-	preg_match("/author='(.*?)'/ism", $attributes, $matches);
-	if (!empty($matches[1])) {
-		$author = html_entity_decode($matches[1], ENT_QUOTES, 'UTF-8');
-	}
-
-	preg_match('/author="(.*?)"/ism', $attributes, $matches);
-	if (!empty($matches[1])) {
-		$author = $matches[1];
-	}
-
-	$profile = "";
-	preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-	if (!empty($matches[1])) {
-		$profile = $matches[1];
-	}
-
-	preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-	if (!empty($matches[1])) {
-		$profile = $matches[1];
-	}
-
-	$avatar = "";
-	preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-	if (!empty($matches[1])) {
-		$avatar = $matches[1];
-	}
-
-	preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-	if (!empty($matches[1])) {
-		$avatar = $matches[1];
-	}
-
-	$link = "";
-	preg_match("/link='(.*?)'/ism", $attributes, $matches);
-	if (!empty($matches[1])) {
-		$link = $matches[1];
-	}
-
-	preg_match('/link="(.*?)"/ism', $attributes, $matches);
-	if (!empty($matches[1])) {
-		$link = $matches[1];
-	}
-
-	$posted = "";
-	preg_match("/posted='(.*?)'/ism", $attributes, $matches);
-	if (!empty($matches[1])) {
-		$posted = $matches[1];
-	}
-
-	preg_match('/posted="(.*?)"/ism', $attributes, $matches);
-	if (!empty($matches[1])) {
-		$posted = $matches[1];
-	}
-
-	if (!preg_match("/(.*?)\[share.*?\]\s?(.*?)\s?\[\/share\]\s?(.*?)/ism", $body, $matches)) {
+	if (empty($reshared['shared']) || empty($reshared['profile']) || empty($reshared['author']) || empty($reshared['avatar']) || empty($reshared['posted'])) {
 		return false;
 	}
 
-	$pre_body = trim($matches[1]);
-	if ($pre_body != '') {
-		$item['body'] = $pre_body;
+	if (!empty($reshared['comment'])) {
+		$item['body'] = $reshared['comment'];
 	}
 
-	$shared_body = trim($matches[2]);
-
-	if (($shared_body == "") || ($profile == "") || ($author == "") || ($avatar == "") || ($posted == "")) {
-		return false;
-	}
-
-	$reshared_item["share-pre-body"] = $pre_body;
-	$reshared_item["body"] = $shared_body;
-	$reshared_item["author-id"] = Contact::getIdForURL($profile, 0, true);
-	$reshared_item["author-name"] = $author;
-	$reshared_item["author-link"] = $profile;
-	$reshared_item["author-avatar"] = $avatar;
-	$reshared_item["plink"] = $link;
-	$reshared_item["created"] = $posted;
-	$reshared_item["edited"] = $posted;
+	$reshared_item["share-pre-body"] = $reshared['comment'];
+	$reshared_item["body"] = $reshared['shared'];
+	$reshared_item["author-id"] = Contact::getIdForURL($reshared['profile'], 0, true);
+	$reshared_item["author-name"] = $reshared['author'];
+	$reshared_item["author-link"] = $reshared['profile'];
+	$reshared_item["author-avatar"] = $reshared['avatar'];
+	$reshared_item["plink"] = $reshared['link'] ?? '';
+	$reshared_item["created"] = $reshared['posted'];
+	$reshared_item["edited"] = $reshared['posted'];
 
 	return $reshared_item;
 }

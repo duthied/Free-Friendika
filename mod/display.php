@@ -133,51 +133,20 @@ function display_fetchauthor($a, $item)
 	$profiledata['network'] = $author['network'];
 
 	// Check for a repeated message
-	$skip = false;
-	$body = trim($item["body"]);
+	$shared = Item::getShareArray($item);
+	if (!empty($shared) && empty($shared['comment'])) {
+		if (!empty($shared['author'])) {
+			$profiledata['name'] = $shared['author'];
+		}
 
-	// Skip if it isn't a pure repeated messages
-	// Does it start with a share?
-	if (!$skip && strpos($body, "[share") > 0) {
-		$skip = true;
-	}
-	// Does it end with a share?
-	if (!$skip && (strlen($body) > (strrpos($body, "[/share]") + 8))) {
-		$skip = true;
-	}
-	if (!$skip) {
-		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism","$1",$body);
-		// Skip if there is no shared message in there
-		if ($body == $attributes) {
-			$skip = true;
+		if (!empty($shared['profile'])) {
+			$profiledata['url'] = $shared['profile'];
 		}
-	}
 
-	if (!$skip) {
-		preg_match("/author='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
+		if (!empty($shared['avatar'])) {
+			$profiledata['photo'] = $shared['avatar'];
 		}
-		preg_match('/author="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["name"] = html_entity_decode($matches[1],ENT_QUOTES,'UTF-8');
-		}
-		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["url"] = $matches[1];
-		}
-		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["url"] = $matches[1];
-		}
-		preg_match("/avatar='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["photo"] = $matches[1];
-		}
-		preg_match('/avatar="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profiledata["photo"] = $matches[1];
-		}
+
 		$profiledata["nickname"] = $profiledata["name"];
 		$profiledata["network"] = Protocol::matchByProfileUrl($profiledata["url"]);
 

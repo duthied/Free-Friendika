@@ -2537,6 +2537,9 @@ class DFRN
 			}
 		}
 
+		// Ensure to have the correct share data
+		$item = Item::addShareDataFromOriginal($item);
+
 		if ($entrytype == DFRN::REPLY_RC) {
 			$item["wall"] = 1;
 		} elseif ($entrytype == DFRN::TOP_LEVEL) {

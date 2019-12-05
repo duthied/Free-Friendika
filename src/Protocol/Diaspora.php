@@ -2523,7 +2523,7 @@ class Diaspora
 		}
 
 		// Do we already have this item?
-		$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+		$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 			'author-name', 'author-link', 'author-avatar'];
 		$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 		$item = Item::selectFirst($fields, $condition);
@@ -2701,9 +2701,15 @@ class Diaspora
 			$original_item["created"],
 			$orig_url
 		);
+
+		if (!empty($original_item['title'])) {
+			$prefix .= '[h3]' . $original_item['title'] . "[/h3]\n";
+		}
+
 		$datarray["body"] = $prefix.$original_item["body"]."[/share]";
 
 		$datarray["tag"] = $original_item["tag"];
+		$datarray["attach"] = $original_item["attach"];
 		$datarray["app"]  = $original_item["app"];
 
 		$datarray["plink"] = self::plink($author, $guid);
@@ -3385,69 +3391,37 @@ class Diaspora
 	{
 		$body = trim($body);
 
+		$reshared = Item::getShareArray(['body' => $body]);
+		if (empty($reshared)) {
+			return false;
+		}
+
 		// Skip if it isn't a pure repeated messages
 		// Does it start with a share?
-		if ((strpos($body, "[share") > 0) && $complete) {
+		if (!empty($reshared['comment']) && $complete) {
 			return false;
 		}
 
-		// Does it end with a share?
-		if (strlen($body) > (strrpos($body, "[/share]") + 8)) {
-			return false;
-		}
-
-		$attributes = preg_replace("/\[share(.*?)\]\s?(.*?)\s?\[\/share\]\s?/ism", "$1", $body);
-		// Skip if there is no shared message in there
-		if ($body == $attributes) {
-			return false;
-		}
-
-		// If we don't do the complete check we quit here
-
-		$guid = "";
-		preg_match("/guid='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$guid = $matches[1];
-		}
-
-		preg_match('/guid="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$guid = $matches[1];
-		}
-
-		if (($guid != "") && $complete) {
-			$condition = ['guid' => $guid, 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
+		if (!empty($reshared['guid']) && $complete) {
+			$condition = ['guid' => $reshared['guid'], 'network' => [Protocol::DFRN, Protocol::DIASPORA]];
 			$item = Item::selectFirst(['contact-id'], $condition);
 			if (DBA::isResult($item)) {
 				$ret = [];
 				$ret["root_handle"] = self::handleFromContact($item["contact-id"]);
-				$ret["root_guid"] = $guid;
+				$ret["root_guid"] = $reshared['guid'];
 				return $ret;
 			} elseif ($complete) {
 				// We are resharing something that isn't a DFRN or Diaspora post.
 				// So we have to return "false" on "$complete" to not trigger a reshare.
 				return false;
 			}
-		} elseif (($guid == "") && $complete) {
+		} elseif (empty($reshared['guid']) && $complete) {
 			return false;
-		}
-
-		$ret["root_guid"] = $guid;
-
-		$profile = "";
-		preg_match("/profile='(.*?)'/ism", $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profile = $matches[1];
-		}
-
-		preg_match('/profile="(.*?)"/ism', $attributes, $matches);
-		if (!empty($matches[1])) {
-			$profile = $matches[1];
 		}
 
 		$ret = [];
 
-		if (!empty($profile) && ($cid = Contact::getIdForURL($profile))) {
+		if (!empty($reshared['profile']) && ($cid = Contact::getIdForURL($reshared['profile']))) {
 			$contact = DBA::selectFirst('contact', ['addr'], ['id' => $cid]);
 			if (!empty($contact['addr'])) {
 				$ret['root_handle'] = $contact['addr'];
