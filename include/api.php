@@ -5177,7 +5177,7 @@ function api_share_as_retweet(&$item)
 	$reshared_item["author-name"] = $reshared['author'];
 	$reshared_item["author-link"] = $reshared['profile'];
 	$reshared_item["author-avatar"] = $reshared['avatar'];
-	$reshared_item["plink"] = $reshared['link'];
+	$reshared_item["plink"] = $reshared['link'] ?? '';
 	$reshared_item["created"] = $reshared['posted'];
 	$reshared_item["edited"] = $reshared['posted'];
 
