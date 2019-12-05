@@ -3778,10 +3778,10 @@ class Item extends BaseObject
 
 		$attribute_string = $matches[2];
 		$attributes = ['comment' => trim($matches[1]), 'shared' => trim($matches[3])];
-		foreach(['author', 'profile', 'avatar', 'guid', 'posted', 'link'] as $field) {
-				if (preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches)) {
-					$attributes[$field] = trim(html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8'));
-				}
+		foreach (['author', 'profile', 'avatar', 'guid', 'posted', 'link'] as $field) {
+			if (preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches)) {
+				$attributes[$field] = trim(html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8'));
+			}
 		}
 		return $attributes;
 	}
@@ -3813,6 +3813,7 @@ class Item extends BaseObject
 			// Otherwhise try to find (and possibly fetch) the item via the link. This should work for Diaspora and ActivityPub posts
 			$id = self::fetchByLink($shared['link'], $uid);
 			if (empty($id)) {
+				Logger::info('Original item not found', ['url' => $shared['link'], 'callstack' => System::callstack()]);
 				return $item;
 			}
 
@@ -3820,6 +3821,9 @@ class Item extends BaseObject
 			if (!DBA::isResult($shared_item)) {
 				return $item;
 			}
+			Logger::info('Got shared data from url', ['url' => $shared['link'], 'callstack' => System::callstack()]);
+		} else {
+			Logger::info('Got shared data from guid', ['guid' => $shared['guid'], 'callstack' => System::callstack()]);
 		}
 
 		if (!empty($shared_item['title'])) {
