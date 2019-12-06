@@ -363,7 +363,7 @@ class Transmitter
 			}
 		}
 
-		if (Config::get('debug', 'total_ap_delivery')) {
+		if (self::isAnnounce($item) || Config::get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -1421,6 +1421,23 @@ class Transmitter
 		}
 
 		return ['object' => $reshared_item, 'actor' => $profile, 'comment' => $reshared['comment']];
+	}
+
+	/**
+	 * Checks if the provided item array is an announce
+	 *
+	 * @param array $item
+	 *
+	 * @return boolean
+	 */
+	public static function isAnnounce($item)
+	{
+		$announce = self::getAnnounceArray($item);
+		if (empty($announce)) {
+			return false;
+		}
+
+		return empty($announce['comment']);
 	}
 
 	/**

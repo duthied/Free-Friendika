@@ -251,6 +251,17 @@ class Delivery extends BaseObject
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
+/*
+		if (Diaspora::isReshare($target_item['body'])) {
+			// Transmit Diaspora reshares only via Diaspora
+			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
+			return;
+		}
+
+		if (ActivityPub\Transmitter::::isAnnounce($target_item) && getby) {
+			return;
+		}
+*/
 		Logger::info('Deliver ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' via DFRN to ' . (($contact['addr'] ?? '') ?: $contact['url']));
 
 		if ($cmd == self::MAIL) {
