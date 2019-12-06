@@ -99,7 +99,7 @@ See Also
 
 * [Profiles](help/Profiles)
 
-* [Global Directory](help/Making-Friends#1_1) 
+* [Global Directory](help/Making-Friends#The+Directories) 
 
 * [Groups and Privacy](help/Groups-and-Privacy)
 
