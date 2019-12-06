@@ -367,7 +367,7 @@ class ACL extends BaseObject
 				}
 			}
 
-			if ($default_permissions['hidewall']) {
+			if (!$default_permissions['hidewall']) {
 				if ($mail_enabled) {
 					$jotnets_fields[] = [
 						'type' => 'checkbox',
