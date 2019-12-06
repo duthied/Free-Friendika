@@ -2567,7 +2567,7 @@ class Diaspora
 			}
 
 			if ($stored) {
-				$fields = ['body', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
+				$fields = ['body', 'title', 'attach', 'tag', 'app', 'created', 'object-type', 'uri', 'guid',
 					'author-name', 'author-link', 'author-avatar'];
 				$condition = ['guid' => $guid, 'visible' => true, 'deleted' => false, 'private' => false];
 				$item = Item::selectFirst($fields, $condition);
