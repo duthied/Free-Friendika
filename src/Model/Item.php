@@ -3833,7 +3833,7 @@ class Item extends BaseObject
 			$body = $shared_item['body'];
 		}
 
-		$item['body'] = preg_replace("/(.*?\[share.*?\]\s?).*?(\s?\[\/share\]\s?)/ism", '$1' . $body . '$2', $item['body']);
+		$item['body'] = preg_replace("/\[share ([^\[\]]*)\].*\[\/share\]/ism", '[share $1]' . $body . '[/share]', $item['body']);
 		unset($shared_item['body']);
 
 		return array_merge($item, $shared_item);

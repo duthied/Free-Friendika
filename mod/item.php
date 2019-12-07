@@ -652,6 +652,9 @@ function item_post(App $a) {
 	if ($orig_post) {
 		$datarray['edit'] = true;
 	} else {
+		// If this was a share, add missing data here
+		$datarray = Item::addShareDataFromOriginal($datarray);
+
 		$datarray['edit'] = false;
 	}
 
@@ -729,9 +732,6 @@ function item_post(App $a) {
 			$datarray['diaspora_signed_text'] = json_encode($signed);
 		}
 	}
-
-	// If this was a share, add missing data here
-	$datarray = Item::addShareDataFromOriginal($datarray);
 
 	$post_id = Item::insert($datarray);
 
