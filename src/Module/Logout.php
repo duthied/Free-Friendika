@@ -6,7 +6,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Authentication;
+use Friendica\App\Authentication;
 use Friendica\Core\Cache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;

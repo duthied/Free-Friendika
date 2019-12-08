@@ -8,7 +8,7 @@ use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\App\Page;
-use Friendica\Core\Authentication;
+use Friendica\App\Authentication;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
@@ -720,7 +720,7 @@ class App
 				Model\Profile::openWebAuthInit($token);
 			}
 
-			$auth->withSession($this, $_COOKIE);
+			$auth->withSession($this);
 
 			if (empty($_SESSION['authenticated'])) {
 				header('X-Account-Management-Status: none');

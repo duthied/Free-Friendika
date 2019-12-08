@@ -5,7 +5,7 @@
 
 use Friendica\App;
 use Friendica\BaseObject;
-use Friendica\Core\Authentication;
+use Friendica\App\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;

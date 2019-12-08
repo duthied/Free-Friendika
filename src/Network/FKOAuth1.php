@@ -5,7 +5,7 @@
 namespace Friendica\Network;
 
 use Friendica\BaseObject;
-use Friendica\Core\Authentication;
+use Friendica\App\Authentication;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;

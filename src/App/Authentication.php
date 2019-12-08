@@ -4,11 +4,15 @@
  * @file /src/Core/Authentication.php
  */
 
-namespace Friendica\Core;
+namespace Friendica\App;
 
 use Exception;
 use Friendica\App;
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\Hook;
+use Friendica\Core\PConfig;
+use Friendica\Core\Session;
+use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\User;
@@ -35,6 +39,8 @@ class Authentication
 	private $dba;
 	/** @var LoggerInterface */
 	private $logger;
+	/** @var User\Cookie */
+	private $cookie;
 
 	/**
 	 * Authentication constructor.
@@ -44,63 +50,62 @@ class Authentication
 	 * @param L10n            $l10n
 	 * @param Database        $dba
 	 * @param LoggerInterface $logger
+	 * @param User\Cookie     $cookie
 	 */
-	public function __construct(Configuration $config, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger)
+	public function __construct(Configuration $config, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie)
 	{
 		$this->config  = $config;
 		$this->baseUrl = $baseUrl;
 		$this->l10n    = $l10n;
 		$this->dba     = $dba;
 		$this->logger  = $logger;
+		$this->cookie = $cookie;
 	}
 
 	/**
 	 * @brief Tries to auth the user from the cookie or session
 	 *
 	 * @param App   $a      The Friendica Application context
-	 * @param array $cookie The $_COOKIE array
 	 *
 	 * @throws HttpException\InternalServerErrorException In case of Friendica internal exceptions
 	 * @throws Exception In case of general exceptions (like SQL Grammar)
 	 */
-	public function withSession(App $a, array $cookie)
+	public function withSession(App $a)
 	{
+		$data = $this->cookie->getData();
+
 		// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
-		if (isset($cookie["Friendica"])) {
-			$data = json_decode($cookie["Friendica"]);
-			if (isset($data->uid)) {
+		if (isset($data) && isset($data->uid)) {
 
-				$user = $this->dba->selectFirst(
-					'user',
-					[],
-					[
-						'uid'             => $data->uid,
-						'blocked'         => false,
-						'account_expired' => false,
-						'account_removed' => false,
-						'verified'        => true,
-					]
-				);
-				if (DBA::isResult($user)) {
-					if (!Session::checkCookie($data->hash, $user)) {
-						$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
-						Session::delete();
-						$this->baseUrl->redirect();
-					}
+			$user = $this->dba->selectFirst(
+				'user',
+				[],
+				[
+					'uid'             => $data->uid,
+					'blocked'         => false,
+					'account_expired' => false,
+					'account_removed' => false,
+					'verified'        => true,
+				]
+			);
+			if (DBA::isResult($user)) {
+				if (!$this->cookie->check($data->hash,
+					$user['password'] ?? '',
+					$user['prvKey'] ?? '')) {
+					$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
+					Session::delete();
+					$this->baseUrl->redirect();
+				}
 
-					// Renew the cookie
-					// Expires after 7 days by default,
-					// can be set via system.auth_cookie_lifetime
-					$authcookiedays = $this->config->get('system', 'auth_cookie_lifetime', 7);
-					Session::setCookie($authcookiedays * 24 * 60 * 60, $user);
+				// Renew the cookie
+				$this->cookie->set($user['uid'], $user['password'], $user['prvKey']);
 
-					// Do the authentification if not done by now
-					if (!Session::get('authenticated')) {
-						$this->setForUser($a, $user);
+				// Do the authentification if not done by now
+				if (!Session::get('authenticated')) {
+					$this->setForUser($a, $user);
 
-						if ($this->config->get('system', 'paranoia')) {
-							Session::set('addr', $data->ip);
-						}
+					if ($this->config->get('system', 'paranoia')) {
+						Session::set('addr', $data->ip);
 					}
 				}
 			}
@@ -241,7 +246,7 @@ class Authentication
 		}
 
 		if (!$remember) {
-			Session::setCookie(0); // 0 means delete on browser exit
+			$this->cookie->clear();
 		}
 
 		// if we haven't failed up this point, log them in.
@@ -343,7 +348,7 @@ class Authentication
 			 */;
 			if (Session::get('remember')) {
 				$a->getLogger()->info('Injecting cookie for remembered user ' . $user_record['nickname']);
-				Session::setCookie(604800, $user_record);
+				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvKey']);
 				Session::remove('remember');
 			}
 		}

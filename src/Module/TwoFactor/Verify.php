@@ -3,7 +3,7 @@
 namespace Friendica\Module\TwoFactor;
 
 use Friendica\BaseModule;
-use Friendica\Core\Authentication;
+use Friendica\App\Authentication;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;

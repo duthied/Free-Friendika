@@ -6,10 +6,12 @@
 namespace Friendica\Core;
 
 use Friendica\App;
+use Friendica\BaseObject;
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\User;
 use Friendica\Util\Strings;
 
 /**
@@ -172,72 +174,14 @@ class Session
 	}
 
 	/**
-	 * @brief Calculate the hash that is needed for the "Friendica" cookie
-	 *
-	 * @param array $user Record from "user" table
-	 *
-	 * @return string Hashed data
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	private static function getCookieHashForUser($user)
-	{
-		return hash_hmac(
-			"sha256",
-			hash_hmac("sha256", $user["password"], $user["prvkey"]),
-			Config::get("system", "site_prvkey")
-		);
-	}
-
-	/**
-	 * @brief Set the "Friendica" cookie
-	 *
-	 * @param int   $time
-	 * @param array $user Record from "user" table
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function setCookie($time, $user = [])
-	{
-		if ($time != 0) {
-			$time = $time + time();
-		}
-
-		if ($user) {
-			$value = json_encode([
-				"uid" => $user["uid"],
-				"hash" => self::getCookieHashForUser($user),
-				"ip" => ($_SERVER['REMOTE_ADDR'] ?? '') ?: '0.0.0.0'
-			]);
-		} else {
-			$value = "";
-		}
-
-		setcookie("Friendica", $value, $time, "/", "", (Config::get('system', 'ssl_policy') == App\BaseURL::SSL_POLICY_FULL), true);
-	}
-
-	/**
-	 * @brief Checks if the "Friendica" cookie is set
-	 *
-	 * @param string $hash
-	 * @param array  $user Record from "user" table
-	 *
-	 * @return boolean True, if the cookie is set
-	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function checkCookie(string $hash, array $user)
-	{
-		return hash_equals(
-			self::getCookieHashForUser($user),
-			$hash
-		);
-	}
-
-	/**
 	 * @brief Kills the "Friendica" cookie and all session data
 	 */
 	public static function delete()
 	{
-		self::setCookie(-3600); // make sure cookie is deleted on browser close, as a security measure
+		/** @var User\Cookie $cookie */
+		$cookie = BaseObject::getClass(User\Cookie::class);
+		$cookie->clear();
+		$_SESSION = [];
 		session_unset();
 		session_destroy();
 	}
