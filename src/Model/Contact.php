@@ -1458,15 +1458,26 @@ class Contact extends BaseObject
 		if (DBA::isResult($contact)) {
 			$contact_id = $contact["id"];
 
-			// Update the contact every 7 days
-			if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+			// Update the contact every 7 days (Don't update mail or feed contacts)
+			if (in_array($contact['network'], Protocol::FEDERATED)) {
 				$update_contact = ($contact['updated'] < DateTimeFormat::utc('now -7 days'));
 
 				// We force the update if the avatar is empty
 				if (empty($contact['avatar'])) {
 					$update_contact = true;
 				}
-			} else {
+			} elseif (empty($default) && in_array($contact['network'], [Protocol::MAIL, Protocol::PHANTOM]) && ($uid == 0)) {
+				// Update public mail accounts via their user's accounts
+				$fields = ['network', 'addr', 'name', 'nick', 'avatar', 'photo', 'thumb', 'micro'];
+				$mailcontact = DBA::selectFirst('contact', $fields, ["`addr` = ? AND `network` = ? AND `uid` != 0", $url, Protocol::MAIL]);
+				if (!DBA::isResult($mailcontact)) {
+					$mailcontact = DBA::selectFirst('contact', $fields, ["`nurl` = ? AND `network` = ? AND `uid` != 0", $url, Protocol::MAIL]);
+				}
+
+				if (DBA::isResult($mailcontact)) {
+					DBA::update('contact', $mailcontact, ['id' => $contact_id]);
+				}
+
 				$update_contact = false;
 			}
 
@@ -1743,7 +1754,7 @@ class Contact extends BaseObject
 			$sql = "`item`.`uid` = ?";
 		}
 
-		$contact_field = ($contact["contact-type"] == self::TYPE_COMMUNITY ? 'owner-id' : 'author-id');
+		$contact_field = ((($contact["contact-type"] == self::TYPE_COMMUNITY) || ($contact['network'] == Protocol::MAIL)) ? 'owner-id' : 'author-id');
 
 		if ($thread_mode) {
 			$condition = ["`$contact_field` = ? AND `gravity` = ? AND " . $sql,
