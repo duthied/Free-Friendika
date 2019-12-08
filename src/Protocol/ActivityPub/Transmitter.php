@@ -381,16 +381,16 @@ class Transmitter
 
 		$terms = Term::tagArrayFromItemId($item['id'], [Term::MENTION, Term::IMPLICIT_MENTION]);
 
-		// Directly mention the original author upon a quoted reshare.
-		// Else just ensure that the original author receives the reshare.
-		$announce = self::getAnnounceArray($item);
-		if (!empty($announce['comment'])) {
-			$data['to'][] = $announce['actor']['url'];
-		} elseif (!empty($announce)) {
-			$data['cc'][] = $announce['actor']['url'];
-		}
-
 		if (!$item['private']) {
+			// Directly mention the original author upon a quoted reshare.
+			// Else just ensure that the original author receives the reshare.
+			$announce = self::getAnnounceArray($item);
+			if (!empty($announce['comment'])) {
+				$data['to'][] = $announce['actor']['url'];
+			} elseif (!empty($announce)) {
+				$data['cc'][] = $announce['actor']['url'];
+			}
+
 			$data = array_merge($data, self::fetchPermissionBlockFromConversation($item));
 
 			$data['to'][] = ActivityPub::PUBLIC_COLLECTION;

@@ -130,19 +130,19 @@
 		// Custom visibility tags inputs
 		let acl_groups = new Bloodhound({
 			local: {{$acl_groups|@json_encode nofilter}},
-			identify: function(obj) { return obj.id; },
+			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
 		});
 		let acl_contacts = new Bloodhound({
 			local: {{$acl_contacts|@json_encode nofilter}},
-			identify: function(obj) { return obj.id; },
+			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name', 'addr']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
 		});
 		let acl = new Bloodhound({
 			local: {{$acl_list|@json_encode nofilter}},
-			identify: function(obj) { return obj.id; },
+			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name', 'addr']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
 		});
@@ -163,7 +163,7 @@
 						return 'label label-info';
 				}
 			},
-			itemValue: 'id',
+			itemValue: function (item) { return item.type + '-' + item.id.toString(); },
 			itemText: 'name',
 			itemThumb: 'micro',
 			itemTitle: function(item) {
@@ -191,7 +191,7 @@
 							return 'label label-info';
 					}
 				},
-				itemValue: 'id',
+				itemValue: function (item) { return item.type + '-' + item.id.toString(); },
 				itemText: 'name',
 				itemThumb: 'micro',
 				itemTitle: function(item) {
@@ -209,17 +209,17 @@
 
 		// Import existing ACL into the tags input fields.
 
-		$group_allow_input.val().split(',').forEach(function (val) {
-			$acl_allow_input.tagsinput('add', acl_groups.get(val)[0]);
+		$group_allow_input.val().split(',').forEach(function (group_id) {
+			$acl_allow_input.tagsinput('add', acl_groups.get('group-' + group_id)[0]);
 		});
-		$contact_allow_input.val().split(',').forEach(function (val) {
-			$acl_allow_input.tagsinput('add', acl_contacts.get(val)[0]);
+		$contact_allow_input.val().split(',').forEach(function (contact_id) {
+			$acl_allow_input.tagsinput('add', acl_contacts.get('contact-' + contact_id)[0]);
 		});
-		$group_deny_input.val().split(',').forEach(function (val) {
-			$acl_deny_input.tagsinput('add', acl_groups.get(val)[0]);
+		$group_deny_input.val().split(',').forEach(function (group_id) {
+			$acl_deny_input.tagsinput('add', acl_groups.get('group-' + group_id)[0]);
 		});
-		$contact_deny_input.val().split(',').forEach(function (val) {
-			$acl_deny_input.tagsinput('add', acl_contacts.get(val)[0]);
+		$contact_deny_input.val().split(',').forEach(function (contact_id) {
+			$acl_deny_input.tagsinput('add', acl_contacts.get('contact-' + contact_id)[0]);
 		});
 
 		// Anti-duplicate callback + acl fields value generation

@@ -953,12 +953,11 @@ class BBCode extends BaseObject
 	public static function convertShare($text, callable $callback)
 	{
 		$return = preg_replace_callback(
-			"/(.*?)\[share(.*?)\](.*?)\[\/share\]/ism",
+			"/(.*?)\[share(.*?)\](.*)\[\/share\]/ism",
 			function ($match) use ($callback) {
 				$attribute_string = $match[2];
-
 				$attributes = [];
-				foreach(['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
+				foreach (['author', 'profile', 'avatar', 'link', 'posted'] as $field) {
 					preg_match("/$field=(['\"])(.+?)\\1/ism", $attribute_string, $matches);
 					$attributes[$field] = html_entity_decode($matches[2] ?? '', ENT_QUOTES, 'UTF-8');
 				}

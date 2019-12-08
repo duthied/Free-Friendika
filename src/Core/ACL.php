@@ -258,10 +258,20 @@ class ACL extends BaseObject
 	 */
 	public static function getContactListByUserId(int $user_id)
 	{
-		$acl_contacts = Contact::selectToArray(
-			['id', 'name', 'addr', 'micro'],
-			['uid' => $user_id, 'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]]
+		$fields = ['id', 'name', 'addr', 'micro'];
+		$params = ['order' => ['name']];
+		$acl_contacts = Contact::selectToArray($fields,
+			['uid' => $user_id, 'self' => false, 'blocked' => false, 'archive' => false, 'deleted' => false,
+			'pending' => false, 'rel' => [Contact::FOLLOWER, Contact::FRIEND]], $params
 		);
+
+		$acl_forums = Contact::selectToArray($fields,
+			['uid' => $user_id, 'self' => false, 'blocked' => false, 'archive' => false, 'deleted' => false,
+			'pending' => false, 'contact-type' => Contact::TYPE_COMMUNITY], $params
+		);
+
+		$acl_contacts = array_merge($acl_forums, $acl_contacts);
+
 		array_walk($acl_contacts, function (&$value) {
 			$value['type'] = 'contact';
 		});
@@ -367,7 +377,7 @@ class ACL extends BaseObject
 				}
 			}
 
-			if ($default_permissions['hidewall']) {
+			if (!$default_permissions['hidewall']) {
 				if ($mail_enabled) {
 					$jotnets_fields[] = [
 						'type' => 'checkbox',
