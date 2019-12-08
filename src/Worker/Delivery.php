@@ -16,7 +16,6 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Activity;
-use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
@@ -252,13 +251,6 @@ class Delivery extends BaseObject
 	 */
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
-		// Skip transmitting the announce via DFRN when it had already been done via AP
-		if (ActivityPub\Transmitter::isAnnounce($target_item) && !empty(Model\APContact::getByURL($contact['url'], false))) {
-			Logger::info('Announce had already been transmitted', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
-			Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
-			return;
-		}
-
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
 		if (Diaspora::isReshare($target_item['body']) && !empty(Diaspora::personByHandle(contact['addr'], false))) {
 			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);

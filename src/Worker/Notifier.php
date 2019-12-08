@@ -625,6 +625,11 @@ class Notifier
 			return false;
 		}
 
+		// We deliver reshares via AP whenever possible
+		if (ActivityPub\Transmitter::isAnnounce($item)) {
+			return true;
+		}
+
 		// Skip DFRN when the item will be (forcefully) delivered via AP
 		if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
 			return true;
