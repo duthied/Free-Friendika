@@ -16,6 +16,7 @@ use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
 use Friendica\Protocol\Activity;
+use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
@@ -254,6 +255,7 @@ class Delivery extends BaseObject
 		// Skip transmitting the announce via DFRN when it had already been done via AP
 		if (ActivityPub\Transmitter::isAnnounce($target_item) && !empty(Model\APContact::getByURL($contact['url'], false))) {
 			Logger::info('Announce had already been transmitted', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
+			Model\ItemDeliveryData::incrementQueueDone($target_item['id']);
 			return;
 		}
 
