@@ -1457,6 +1457,7 @@ class Contact extends BaseObject
 
 		if (DBA::isResult($contact)) {
 			$contact_id = $contact["id"];
+			$update_contact = false;
 
 			// Update the contact every 7 days (Don't update mail or feed contacts)
 			if (in_array($contact['network'], Protocol::FEDERATED)) {
@@ -1477,8 +1478,6 @@ class Contact extends BaseObject
 				if (DBA::isResult($mailcontact)) {
 					DBA::update('contact', $mailcontact, ['id' => $contact_id]);
 				}
-
-				$update_contact = false;
 			}
 
 			// Update the contact in the background if needed but it is called by the frontend
