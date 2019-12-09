@@ -143,12 +143,10 @@ class Cookie
 	 * @param string $path     [optional]
 	 * @param string $domain   [optional]
 	 * @param bool   $secure   [optional]
-	 * @param bool   $httponly [optional] <p>
+	 * @param bool   $httponly [optional]
 	 *
 	 * @return bool If output exists prior to calling this function,
 	 *
-	 * @since 4.0
-	 * @since 5.0
 	 */
 	protected function setCookie(string $name, string $value = null, int $expire = null,
 	                             string $path = null, string $domain = null,
