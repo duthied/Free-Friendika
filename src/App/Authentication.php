@@ -75,7 +75,7 @@ class Authentication
 		$data = $this->cookie->getData();
 
 		// When the "Friendica" cookie is set, take the value to authenticate and renew the cookie.
-		if (isset($data) && isset($data->uid)) {
+		if (isset($data->uid)) {
 
 			$user = $this->dba->selectFirst(
 				'user',

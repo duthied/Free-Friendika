@@ -14,6 +14,12 @@ class Cookie
 	const DEFAULT_EXPIRE = 7;
 	/** @var string The name of the Friendica cookie */
 	const NAME = 'Friendica';
+	/** @var string The path of the Friendica cookie */
+	const PATH = '/';
+	/** @var string The domain name of the Friendica cookie */
+	const DOMAIN = '';
+	/** @var bool True, if the cookie should only be accessable through HTTP */
+	const HTTPONLY = true;
 
 	/** @var string The remote address of this node */
 	private $remoteAddr = '0.0.0.0';
@@ -72,7 +78,7 @@ class Cookie
 	public function set(int $uid, string $password, string $privateKey, int $seconds = null)
 	{
 		if (!isset($seconds)) {
-			$seconds = $this->lifetime;
+			$seconds = $this->lifetime + time();
 		} elseif (isset($seconds) && $seconds != 0) {
 			$seconds = $seconds + time();
 		}
@@ -83,8 +89,7 @@ class Cookie
 			'ip'   => $this->remoteAddr,
 		]);
 
-		return $this->setCookie(self::NAME, $value, $seconds,
-			'/', '', $this->sslEnabled, true);
+		return $this->setCookie(self::NAME, $value, $seconds, $this->sslEnabled);
 	}
 
 	/**
@@ -111,8 +116,7 @@ class Cookie
 	public function clear()
 	{
 		// make sure cookie is deleted on browser close, as a security measure
-		return $this->setCookie(self::NAME, '', -3600,
-			'/', '', $this->sslEnabled, true);
+		return $this->setCookie(self::NAME, '', -3600, $this->sslEnabled);
 	}
 
 	/**
@@ -140,18 +144,14 @@ class Cookie
 	 * @param string $name
 	 * @param string $value    [optional]
 	 * @param int    $expire   [optional]
-	 * @param string $path     [optional]
-	 * @param string $domain   [optional]
 	 * @param bool   $secure   [optional]
-	 * @param bool   $httponly [optional]
 	 *
 	 * @return bool If output exists prior to calling this function,
 	 *
 	 */
 	protected function setCookie(string $name, string $value = null, int $expire = null,
-	                             string $path = null, string $domain = null,
-	                             bool $secure = null, bool $httponly = null)
+	                             bool $secure = null)
 	{
-		return setcookie($name, $value, $expire, $path, $domain, $secure, $httponly);
+		return setcookie($name, $value, $expire, self::PATH, self::DOMAIN, $secure, self::HTTPONLY);
 	}
 }
