@@ -670,15 +670,11 @@ class App
 					System::externalRedirect($this->baseURL->get() . '/' . $this->args->getQueryString());
 				}
 
-				Core\Session::init();
 				Core\Hook::callAll('init_1');
 			}
 
 			// Exclude the backend processes from the session management
 			if (!$this->mode->isBackend()) {
-				$stamp1 = microtime(true);
-				session_start();
-				$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
 				$this->l10n->setSessionVariable();
 				$this->l10n->setLangFromSession();
 			} else {

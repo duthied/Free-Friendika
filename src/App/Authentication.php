@@ -41,6 +41,8 @@ class Authentication
 	private $logger;
 	/** @var User\Cookie */
 	private $cookie;
+	/** @var Session\ISession */
+	private $session;
 
 	/**
 	 * Authentication constructor.
@@ -51,8 +53,9 @@ class Authentication
 	 * @param Database        $dba
 	 * @param LoggerInterface $logger
 	 * @param User\Cookie     $cookie
+	 * @param Session\ISession $session
 	 */
-	public function __construct(Configuration $config, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie)
+	public function __construct(Configuration $config, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session)
 	{
 		$this->config  = $config;
 		$this->baseUrl = $baseUrl;
@@ -60,6 +63,7 @@ class Authentication
 		$this->dba     = $dba;
 		$this->logger  = $logger;
 		$this->cookie = $cookie;
+		$this->session = $session;
 	}
 
 	/**
@@ -88,12 +92,12 @@ class Authentication
 					'verified'        => true,
 				]
 			);
-			if (DBA::isResult($user)) {
+			if ($this->dba->isResult($user)) {
 				if (!$this->cookie->check($data->hash,
 					$user['password'] ?? '',
 					$user['prvKey'] ?? '')) {
 					$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
-					Session::delete();
+					$this->session->delete();
 					$this->baseUrl->redirect();
 				}
 
@@ -101,34 +105,34 @@ class Authentication
 				$this->cookie->set($user['uid'], $user['password'], $user['prvKey']);
 
 				// Do the authentification if not done by now
-				if (!Session::get('authenticated')) {
+				if (!$this->session->get('authenticated')) {
 					$this->setForUser($a, $user);
 
 					if ($this->config->get('system', 'paranoia')) {
-						Session::set('addr', $data->ip);
+						$this->session->set('addr', $data->ip);
 					}
 				}
 			}
 		}
 
-		if (Session::get('authenticated')) {
-			if (Session::get('visitor_id') && !Session::get('uid')) {
-				$contact = $this->dba->selectFirst('contact', [], ['id' => Session::get('visitor_id')]);
+		if ($this->session->get('authenticated')) {
+			if ($this->session->get('visitor_id') && !$this->session->get('uid')) {
+				$contact = $this->dba->selectFirst('contact', [], ['id' => $this->session->get('visitor_id')]);
 				if ($this->dba->isResult($contact)) {
 					$a->contact = $contact;
 				}
 			}
 
-			if (Session::get('uid')) {
+			if ($this->session->get('uid')) {
 				// already logged in user returning
 				$check = $this->config->get('system', 'paranoia');
 				// extra paranoia - if the IP changed, log them out
-				if ($check && (Session::get('addr') != $_SERVER['REMOTE_ADDR'])) {
+				if ($check && ($this->session->get('addr') != $_SERVER['REMOTE_ADDR'])) {
 					$this->logger->notice('Session address changed. Paranoid setting in effect, blocking session. ', [
-							'addr'        => Session::get('addr'),
+							'addr'        => $this->session->get('addr'),
 							'remote_addr' => $_SERVER['REMOTE_ADDR']]
 					);
-					Session::delete();
+					$this->session->delete();
 					$this->baseUrl->redirect();
 				}
 
@@ -136,7 +140,7 @@ class Authentication
 					'user',
 					[],
 					[
-						'uid'             => Session::get('uid'),
+						'uid'             => $this->session->get('uid'),
 						'blocked'         => false,
 						'account_expired' => false,
 						'account_removed' => false,
@@ -144,18 +148,18 @@ class Authentication
 					]
 				);
 				if (!$this->dba->isResult($user)) {
-					Session::delete();
+					$this->session->delete();
 					$this->baseUrl->redirect();
 				}
 
 				// Make sure to refresh the last login time for the user if the user
 				// stays logged in for a long time, e.g. with "Remember Me"
 				$login_refresh = false;
-				if (!Session::get('last_login_date')) {
-					Session::set('last_login_date', DateTimeFormat::utcNow());
+				if (!$this->session->get('last_login_date')) {
+					$this->session->set('last_login_date', DateTimeFormat::utcNow());
 				}
-				if (strcmp(DateTimeFormat::utc('now - 12 hours'), Session::get('last_login_date')) > 0) {
-					Session::set('last_login_date', DateTimeFormat::utcNow());
+				if (strcmp(DateTimeFormat::utc('now - 12 hours'), $this->session->get('last_login_date')) > 0) {
+					$this->session->set('last_login_date', DateTimeFormat::utcNow());
 					$login_refresh = true;
 				}
 
@@ -186,8 +190,8 @@ class Authentication
 		try {
 			$openid           = new LightOpenID($this->baseUrl->getHostname());
 			$openid->identity = $openid_url;
-			Session::set('openid', $openid_url);
-			Session::set('remember', $remember);
+			$this->session->set('openid', $openid_url);
+			$this->session->set('remember', $remember);
 			$openid->returnUrl = $this->baseUrl->get(true) . '/openid';
 			$openid->optional  = ['namePerson/friendly', 'contact/email', 'namePerson', 'namePerson/first', 'media/image/aspect11', 'media/image/default'];
 			System::externalRedirect($openid->authUrl());
@@ -250,11 +254,11 @@ class Authentication
 		}
 
 		// if we haven't failed up this point, log them in.
-		Session::set('remember', $remember);
-		Session::set('last_login_date', DateTimeFormat::utcNow());
+		$this->session->set('remember', $remember);
+		$this->session->set('last_login_date', DateTimeFormat::utcNow());
 
-		$openid_identity = Session::get('openid_identity');
-		$openid_server   = Session::get('openid_server');
+		$openid_identity = $this->session->get('openid_identity');
+		$openid_server   = $this->session->get('openid_server');
 
 		if (!empty($openid_identity) || !empty($openid_server)) {
 			$this->dba->update('user', ['openid' => $openid_identity, 'openidserver' => $openid_server], ['uid' => $record['uid']]);
@@ -262,8 +266,8 @@ class Authentication
 
 		$this->setForUser($a, $record, true, true);
 
-		$return_path = Session::get('return_path', '');
-		Session::remove('return_path');
+		$return_path = $this->session->get('return_path', '');
+		$this->session->remove('return_path');
 
 		$this->baseUrl->redirect($return_path);
 	}
@@ -282,7 +286,7 @@ class Authentication
 	 */
 	public function setForUser(App $a, array $user_record, bool $login_initial = false, bool $interactive = false, bool $login_refresh = false)
 	{
-		Session::setMultiple([
+		$this->session->setMultiple([
 			'uid'           => $user_record['uid'],
 			'theme'         => $user_record['theme'],
 			'mobile-theme'  => PConfig::get($user_record['uid'], 'system', 'mobile_theme'),
@@ -296,7 +300,7 @@ class Authentication
 		Session::setVisitorsContacts();
 
 		$member_since = strtotime($user_record['register_date']);
-		Session::set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
+		$this->session->set('new_member', time() < ($member_since + (60 * 60 * 24 * 14)));
 
 		if (strlen($user_record['timezone'])) {
 			date_default_timezone_set($user_record['timezone']);
@@ -305,8 +309,8 @@ class Authentication
 
 		$masterUid = $user_record['uid'];
 
-		if (Session::get('submanage')) {
-			$user = $this->dba->selectFirst('user', ['uid'], ['uid' => Session::get('submanage')]);
+		if ($this->session->get('submanage')) {
+			$user = $this->dba->selectFirst('user', ['uid'], ['uid' => $this->session->get('submanage')]);
 			if ($this->dba->isResult($user)) {
 				$masterUid = $user['uid'];
 			}
@@ -326,7 +330,7 @@ class Authentication
 		if ($this->dba->isResult($contact)) {
 			$a->contact = $contact;
 			$a->cid     = $contact['id'];
-			Session::set('cid', $a->cid);
+			$this->session->set('cid', $a->cid);
 		}
 
 		header('X-Account-Management-Status: active; name="' . $user_record['username'] . '"; id="' . $user_record['nickname'] . '"');
@@ -346,10 +350,10 @@ class Authentication
 			 * The cookie will be renewed automatically.
 			 * The week ensures that sessions will expire after some inactivity.
 			 */;
-			if (Session::get('remember')) {
+			if ($this->session->get('remember')) {
 				$a->getLogger()->info('Injecting cookie for remembered user ' . $user_record['nickname']);
 				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvKey']);
-				Session::remove('remember');
+				$this->session->remove('remember');
 			}
 		}
 
@@ -370,8 +374,8 @@ class Authentication
 		if ($login_initial) {
 			Hook::callAll('logged_in', $a->user);
 
-			if ($a->module !== 'home' && Session::exists('return_path')) {
-				$this->baseUrl->redirect(Session::get('return_path'));
+			if ($a->module !== 'home' && $this->session->exists('return_path')) {
+				$this->baseUrl->redirect($this->session->get('return_path'));
 			}
 		}
 	}
@@ -395,7 +399,7 @@ class Authentication
 		}
 
 		// Case 1: 2FA session present and valid: return
-		if (Session::get('2fa')) {
+		if ($this->session->get('2fa')) {
 			return;
 		}
 

@@ -2,8 +2,10 @@
 
 namespace Friendica\Core\Session;
 
+use Friendica\Core\Config\Configuration;
 use Friendica\Core\Session;
 use Friendica\Database\Database;
+use Friendica\Model\User\Cookie;
 use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
@@ -12,7 +14,7 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class DatabaseSessionHandler implements SessionHandlerInterface
+final class DatabaseSession extends NativeSession implements SessionHandlerInterface
 {
 	/** @var Database */
 	private $dba;
@@ -28,11 +30,15 @@ class DatabaseSessionHandler implements SessionHandlerInterface
 	 * @param LoggerInterface $logger
 	 * @param array           $server
 	 */
-	public function __construct(Database $dba, LoggerInterface $logger, array $server)
+	public function __construct(Configuration $config, Cookie $cookie, Database $dba, LoggerInterface $logger, array $server)
 	{
+		parent::__construct($config, $cookie);
+
 		$this->dba    = $dba;
 		$this->logger = $logger;
 		$this->server = $server;
+
+		session_set_save_handler($this);
 	}
 
 	public function open($save_path, $session_name)
@@ -64,8 +70,9 @@ class DatabaseSessionHandler implements SessionHandlerInterface
 	 * on the case. Uses the Session::expire global for existing session, 5 minutes
 	 * for newly created session.
 	 *
-	 * @param  string $session_id   Session ID with format: [a-z0-9]{26}
-	 * @param  string $session_data Serialized session data
+	 * @param string $session_id   Session ID with format: [a-z0-9]{26}
+	 * @param string $session_data Serialized session data
+	 *
 	 * @return boolean Returns false if parameters are missing, true otherwise
 	 * @throws \Exception
 	 */
@@ -79,11 +86,11 @@ class DatabaseSessionHandler implements SessionHandlerInterface
 			return true;
 		}
 
-		$expire = time() + Session::$expire;
+		$expire         = time() + Session::$expire;
 		$default_expire = time() + 300;
 
 		if (Session::$exists) {
-			$fields = ['data' => $session_data, 'expire' => $expire];
+			$fields    = ['data' => $session_data, 'expire' => $expire];
 			$condition = ["`sid` = ? AND (`data` != ? OR `expire` != ?)", $session_id, $session_data, $expire];
 			$this->dba->update('session', $fields, $condition);
 		} else {

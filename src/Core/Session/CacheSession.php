@@ -3,7 +3,9 @@
 namespace Friendica\Core\Session;
 
 use Friendica\Core\Cache\ICache;
+use Friendica\Core\Config\Configuration;
 use Friendica\Core\Session;
+use Friendica\Model\User\Cookie;
 use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
@@ -12,7 +14,7 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class CacheSessionHandler implements SessionHandlerInterface
+final class CacheSession extends NativeSession implements SessionHandlerInterface
 {
 	/** @var ICache */
 	private $cache;
@@ -21,18 +23,15 @@ class CacheSessionHandler implements SessionHandlerInterface
 	/** @var array The $_SERVER array */
 	private $server;
 
-	/**
-	 * CacheSessionHandler constructor.
-	 *
-	 * @param ICache          $cache
-	 * @param LoggerInterface $logger
-	 * @param array           $server
-	 */
-	public function __construct(ICache $cache, LoggerInterface $logger, array $server)
+	public function __construct(Configuration $config, Cookie $cookie, ICache $cache, LoggerInterface $logger, array $server)
 	{
+		parent::__construct($config, $cookie);
+
 		$this->cache  = $cache;
 		$this->logger = $logger;
 		$this->server = $server;
+
+		session_set_save_handler($this);
 	}
 
 	public function open($save_path, $session_name)
@@ -64,8 +63,9 @@ class CacheSessionHandler implements SessionHandlerInterface
 	 * on the case. Uses the Session::expire for existing session, 5 minutes
 	 * for newly created session.
 	 *
-	 * @param  string $session_id   Session ID with format: [a-z0-9]{26}
-	 * @param  string $session_data Serialized session data
+	 * @param string $session_id   Session ID with format: [a-z0-9]{26}
+	 * @param string $session_data Serialized session data
+	 *
 	 * @return boolean Returns false if parameters are missing, true otherwise
 	 * @throws \Exception
 	 */

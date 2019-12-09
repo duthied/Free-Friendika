@@ -6,6 +6,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n\L10n;
 use Friendica\Core\Lock\ILock;
+use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
 use Friendica\Factory;
 use Friendica\Util;
@@ -177,6 +178,13 @@ return [
 	L10n::class => [
 		'constructParams' => [
 			$_SERVER, $_GET
+		],
+	],
+	ISession::class => [
+		'instanceOf' => Factory\SessionFactory::class,
+		'call' => [
+			['createSession', [$_SERVER], Dice::CHAIN_CALL],
+			['start', [], Dice::CHAIN_CALL],
 		],
 	],
 ];
