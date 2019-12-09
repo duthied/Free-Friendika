@@ -2332,7 +2332,7 @@ class Contact extends BaseObject
 			$apcontact = APContact::getByURL($url, false);
 			if (isset($apcontact['manually-approve'])) {
 				$pending = (bool)$apcontact['manually-approve'];
-			}			
+			}
 		}
 
 		if (in_array($protocol, [Protocol::MAIL, Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {

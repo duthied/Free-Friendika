@@ -41,7 +41,7 @@ class OnePoll
 		}
 
 		if ($force) {
-			Contact::updateFromProbe($contact_id, true);
+			Contact::updateFromProbe($contact_id, '', true);
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
