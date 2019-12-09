@@ -674,11 +674,7 @@ class App
 			}
 
 			// Exclude the backend processes from the session management
-			if (!$this->mode->isBackend()) {
-				$this->l10n->setSessionVariable();
-				$this->l10n->setLangFromSession();
-			} else {
-				$_SESSION = [];
+			if ($this->mode->isBackend()) {
 				Core\Worker::executeIfIdle();
 			}
 
