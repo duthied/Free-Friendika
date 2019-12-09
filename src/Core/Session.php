@@ -7,12 +7,15 @@ namespace Friendica\Core;
 
 use Friendica\App;
 use Friendica\BaseObject;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Session\CacheSessionHandler;
 use Friendica\Core\Session\DatabaseSessionHandler;
+use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 use Friendica\Util\Strings;
+use Psr\Log\LoggerInterface;
 
 /**
  * High-level Session service class
@@ -37,9 +40,17 @@ class Session
 		$session_handler = Config::get('system', 'session_handler', 'database');
 		if ($session_handler != 'native') {
 			if ($session_handler == 'cache' && Config::get('system', 'cache_driver', 'database') != 'database') {
-				$SessionHandler = new CacheSessionHandler();
+				$SessionHandler = new CacheSessionHandler(
+					BaseObject::getClass(ICache::class),
+					BaseObject::getClass(LoggerInterface::class),
+					$_SERVER
+				);
 			} else {
-				$SessionHandler = new DatabaseSessionHandler();
+				$SessionHandler = new DatabaseSessionHandler(
+					BaseObject::getClass(Database::class),
+					BaseObject::getClass(LoggerInterface::class),
+					$_SERVER
+				);
 			}
 
 			session_set_save_handler($SessionHandler);

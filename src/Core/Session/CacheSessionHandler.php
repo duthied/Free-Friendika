@@ -2,10 +2,9 @@
 
 namespace Friendica\Core\Session;
 
-use Friendica\BaseObject;
-use Friendica\Core\Cache;
-use Friendica\Core\Logger;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Session;
+use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
 /**
@@ -13,8 +12,29 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
+class CacheSessionHandler implements SessionHandlerInterface
 {
+	/** @var ICache */
+	private $cache;
+	/** @var LoggerInterface */
+	private $logger;
+	/** @var array The $_SERVER array */
+	private $server;
+
+	/**
+	 * CacheSessionHandler constructor.
+	 *
+	 * @param ICache          $cache
+	 * @param LoggerInterface $logger
+	 * @param array           $server
+	 */
+	public function __construct(ICache $cache, LoggerInterface $logger, array $server)
+	{
+		$this->cache  = $cache;
+		$this->logger = $logger;
+		$this->server = $server;
+	}
+
 	public function open($save_path, $session_name)
 	{
 		return true;
@@ -26,13 +46,13 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			return '';
 		}
 
-		$data = Cache::get('session:' . $session_id);
+		$data = $this->cache->get('session:' . $session_id);
 		if (!empty($data)) {
 			Session::$exists = true;
 			return $data;
 		}
 
-		Logger::notice('no data for session', ['session_id' => $session_id, 'uri' => $_SERVER['REQUEST_URI']]);
+		$this->logger->notice('no data for session', ['session_id' => $session_id, 'uri' => $this->server['REQUEST_URI'] ?? '']);
 
 		return '';
 	}
@@ -59,9 +79,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			return true;
 		}
 
-		$return = Cache::set('session:' . $session_id, $session_data, Session::$expire);
-
-		return $return;
+		return $this->cache->set('session:' . $session_id, $session_data, Session::$expire);
 	}
 
 	public function close()
@@ -71,9 +89,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 
 	public function destroy($id)
 	{
-		$return = Cache::delete('session:' . $id);
-
-		return $return;
+		return $this->cache->delete('session:' . $id);
 	}
 
 	public function gc($maxlifetime)

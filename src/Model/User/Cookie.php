@@ -18,7 +18,7 @@ class Cookie
 	const PATH = '/';
 	/** @var string The domain name of the Friendica cookie */
 	const DOMAIN = '';
-	/** @var bool True, if the cookie should only be accessable through HTTP */
+	/** @var bool True, if the cookie should only be accessible through HTTP */
 	const HTTPONLY = true;
 
 	/** @var string The remote address of this node */
@@ -68,10 +68,10 @@ class Cookie
 	/**
 	 * Set the Friendica cookie for a user
 	 *
-	 * @param int    $uid        The user id
-	 * @param string $password   The user password
-	 * @param string $privateKey The user private key
-	 * @param int|null    $seconds    optional the seconds
+	 * @param int      $uid        The user id
+	 * @param string   $password   The user password
+	 * @param string   $privateKey The user private key
+	 * @param int|null $seconds    optional the seconds
 	 *
 	 * @return bool
 	 */
@@ -142,9 +142,9 @@ class Cookie
 	 * @link  https://php.net/manual/en/function.setcookie.php
 	 *
 	 * @param string $name
-	 * @param string $value    [optional]
-	 * @param int    $expire   [optional]
-	 * @param bool   $secure   [optional]
+	 * @param string $value  [optional]
+	 * @param int    $expire [optional]
+	 * @param bool   $secure [optional]
 	 *
 	 * @return bool If output exists prior to calling this function,
 	 *
