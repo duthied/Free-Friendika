@@ -59,6 +59,10 @@ return [
 		// Only show small preview pictures.
 		'always_show_preview' => false,
 
+		// ap_always_bcc (Boolean)
+		// Adressing receivers via ActivityPub by BCC. Increases privacy, decreases performnce.
+		'ap_always_bcc' => false,
+
 		// archival_days (Integer)
 		// Number of days that we try to deliver content before we archive a contact.
 		'archival_days' => 32,
