@@ -18,6 +18,9 @@ use Friendica\Model\User\Cookie;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Factory for creating a valid Session for this run
+ */
 class SessionFactory
 {
 	/** @var string The plain, PHP internal session management */

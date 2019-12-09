@@ -2,8 +2,9 @@
 
 namespace Friendica\Core\Session;
 
-use Friendica\BaseObject;
-
+/**
+ * Contains all global supported Session methods
+ */
 interface ISession
 {
 	/**

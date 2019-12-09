@@ -3,8 +3,6 @@
 namespace Friendica\Core\Session;
 
 /**
- * Native Session functions for internal Session usage.
- *
  * Usable for backend processes (daemon/worker) and testing
  */
 final class MemorySession implements ISession

@@ -6,6 +6,9 @@ use Friendica\Core\Config\Configuration;
 use Friendica\App;
 use Friendica\Model\User\Cookie;
 
+/**
+ * The native Session class which uses the PHP internal Session function
+ */
 class NativeSession implements ISession
 {
 	/** @var Cookie */
@@ -88,7 +91,5 @@ class NativeSession implements ISession
 	{
 		$this->cookie->clear();
 		$_SESSION = [];
-		session_unset();
-		session_destroy();
 	}
 }
