@@ -363,6 +363,10 @@ class Transmitter
 			}
 		}
 
+		if (Config::get('system', 'ap_always_bcc')) {
+			$always_bcc = true;
+		}
+
 		if (self::isAnnounce($item) || Config::get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
