@@ -2,6 +2,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
+use Friendica\Api\Mastodon\Account;
 use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -35,7 +36,6 @@ class Instance extends Api
 		$return = [
 			'uri' => $app->getBaseURL(),
 			'title' => Config::get('config', 'sitename'),
-			'short_description' => '', // Not supported
 			'description' => Config::get('config', 'info'),
 			'email' => Config::get('config', 'admin_email'),
 			'version' => FRIENDICA_VERSION,
@@ -43,10 +43,15 @@ class Instance extends Api
 			'stats' => [],
 			'thumbnail' => $app->getBaseURL() . (Config::get('system', 'shortcut_icon') ?? 'images/friendica-32.png'),
 			'languages' => [Config::get('system', 'language')],
+			'max_toot_chars' => (int)Config::get('config', 'api_import_size', Config::get('config', 'max_import_size')),
 			'registrations' => ($register_policy != Register::CLOSED),
 			'approval_required' => ($register_policy == Register::APPROVE),
-			'contact_account' => [] // Currently unsupported
+			'contact_account' => []
 		];
+
+		if (!$return['registrations']) {
+			unset($return['approval_required']);
+		}
 
 		if (!empty(Config::get('system', 'nodeinfo'))) {
 			$count = DBA::count('gserver', ["`network` in (?, ?) AND `last_contact` >= `last_failure`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
@@ -57,17 +62,14 @@ class Instance extends Api
 			];
 		}
 
-		/// @ToDo will be done, once that we have an API function for that
-		/*
 		if (!empty(Config::get('config', 'admin_email'))) {
 			$adminList = explode(',', str_replace(' ', '', Config::get('config', 'admin_email')));
 			$administrator = User::getByEmail($adminList[0], ['nickname']);
 			if (!empty($administrator)) {
 				$adminContact = DBA::selectFirst('contact', [], ['nick' => $administrator['nickname'], 'self' => true]);
-				$return['contact_account'] = Api::getAccountArray($adminContact);
+				$return['contact_account'] = Account::createFromContact($adminContact);
 			}
 		}
-		*/
 
 		System::jsonExit($return);
 	}
