@@ -435,7 +435,7 @@ json:
 
 ```json
 	{
-		"id": "photo id"
+		"id": "photo id",
 		"created": "date(YYYY-MM-DD HH:MM:SS)",
 		"edited": "date(YYYY-MM-DD HH:MM:SS)",
 		"title": "photo title",
@@ -447,7 +447,7 @@ json:
 		"width": "number",
 		"profile": "1 if is profile photo",
 		"link": {
-			"<scale>": "url to image"
+			"<scale>": "url to image",
 			...
 		},
 		// if 'scale' is set
@@ -489,11 +489,11 @@ json:
 ```json
 	[
 		{
-			id: "resource_id",
-			album: "album name",
-			filename: "original file name",
-			type: "image mime type",
-			thumb: "url to thumb sized image"
+			"id": "resource_id",
+			"album": "album name",
+			"filename": "original file name",
+			"type": "image mime type",
+			"thumb": "url to thumb sized image"
 		},
 		...
 	]
