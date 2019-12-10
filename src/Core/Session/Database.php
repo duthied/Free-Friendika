@@ -4,7 +4,7 @@ namespace Friendica\Core\Session;
 
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Session;
-use Friendica\Database\Database;
+use Friendica\Database\Database as DBA;
 use Friendica\Model\User\Cookie;
 use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
@@ -16,7 +16,7 @@ use SessionHandlerInterface;
  */
 final class Database extends Native implements SessionHandlerInterface
 {
-	/** @var Database */
+	/** @var DBA */
 	private $dba;
 	/** @var LoggerInterface */
 	private $logger;
@@ -30,7 +30,7 @@ final class Database extends Native implements SessionHandlerInterface
 	 * @param LoggerInterface $logger
 	 * @param array           $server
 	 */
-	public function __construct(Configuration $config, Cookie $cookie, Database $dba, LoggerInterface $logger, array $server)
+	public function __construct(Configuration $config, Cookie $cookie, DBA $dba, LoggerInterface $logger, array $server)
 	{
 		parent::__construct($config, $cookie);
 

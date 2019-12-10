@@ -47,7 +47,7 @@ class SessionFactory
 
 		try {
 			if ($mode->isInstall() || $mode->isBackend()) {
-				$session = new Session\Memory();
+				$session = new Session\Memory($config, $cookie);
 			} else {
 				$session_handler = $config->get('system', 'session_handler', self::DEFAULT);
 

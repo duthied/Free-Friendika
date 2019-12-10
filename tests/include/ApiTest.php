@@ -11,6 +11,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session\ISession;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException;
@@ -110,6 +111,10 @@ class ApiTest extends DatabaseTest
 
 		// User ID that we know is not in the database
 		$this->wrongUserId = 666;
+
+		/** @var ISession $session */
+		$session = BaseObject::getClass(ISession::class);
+		$session->start();
 
 		// Most API require login so we force the session
 		$_SESSION = [
