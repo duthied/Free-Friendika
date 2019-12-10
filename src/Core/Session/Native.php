@@ -9,7 +9,7 @@ use Friendica\Model\User\Cookie;
 /**
  * The native Session class which uses the PHP internal Session function
  */
-class NativeSession implements ISession
+class Native implements ISession
 {
 	/** @var Cookie */
 	protected $cookie;

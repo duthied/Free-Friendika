@@ -5,12 +5,15 @@ namespace Friendica\Core\Session;
 /**
  * Usable for backend processes (daemon/worker) and testing
  */
-final class MemorySession implements ISession
+final class Memory implements ISession
 {
 	private $data = [];
 
 	public function start()
 	{
+		// Backward compatibility until all Session variables are replaced
+		// with the Session class
+		$_SESSION = [];
 		$this->clear();
 		return $this;
 	}

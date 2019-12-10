@@ -14,7 +14,7 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-final class CacheSession extends NativeSession implements SessionHandlerInterface
+final class Cache extends Native implements SessionHandlerInterface
 {
 	/** @var ICache */
 	private $cache;

@@ -14,7 +14,7 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-final class DatabaseSession extends NativeSession implements SessionHandlerInterface
+final class Database extends Native implements SessionHandlerInterface
 {
 	/** @var Database */
 	private $dba;

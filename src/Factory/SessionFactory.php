@@ -6,12 +6,12 @@ use Friendica\App;
 use Friendica\Core\Cache\Cache;
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Config\Configuration;
-use Friendica\Core\Session\CacheSession;
-use Friendica\Core\Session\DatabaseSession;
+use Friendica\Core\Session\Cache;
+use Friendica\Core\Session\Database;
 use Friendica\Core\Session\ISession;
 use Friendica\Core\Session\Memory;
-use Friendica\Core\Session\MemorySession;
-use Friendica\Core\Session\NativeSession;
+use Friendica\Core\Session\Memory;
+use Friendica\Core\Session\Native;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Model\User\Cookie;
@@ -52,24 +52,24 @@ class SessionFactory
 
 		try {
 			if ($mode->isInstall() || $mode->isBackend()) {
-				$session = new MemorySession();
+				$session = new Memory();
 			} else {
 				$session_handler = $config->get('system', 'session_handler', self::DEFAULT);
 
 				switch ($session_handler) {
 					case self::INTERNAL:
-						$session = new NativeSession($config, $cookie);
+						$session = new Native($config, $cookie);
 						break;
 					case self::DATABASE:
 					default:
-						$session = new DatabaseSession($config, $cookie, $dba, $logger, $server);
+						$session = new Database($config, $cookie, $dba, $logger, $server);
 						break;
 					case self::CACHE:
 						// In case we're using the db as cache driver, use the native db session, not the cache
 						if ($config->get('system', 'cache_driver') === Cache::TYPE_DATABASE) {
-							$session = new DatabaseSession($config, $cookie, $dba, $logger, $server);
+							$session = new Database($config, $cookie, $dba, $logger, $server);
 						} else {
-							$session = new CacheSession($config, $cookie, $cache, $logger, $server);
+							$session = new Cache($config, $cookie, $cache, $logger, $server);
 						}
 						break;
 				}
