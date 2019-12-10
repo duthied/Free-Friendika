@@ -11,6 +11,7 @@ use Friendica\BaseObject;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
 use Friendica\Core\Protocol;
+use Friendica\Core\Session;
 use Friendica\Core\Session\ISession;
 use Friendica\Core\System;
 use Friendica\Database\Database;
@@ -60,7 +61,8 @@ class ApiTest extends DatabaseTest
 
 		$this->dice = (new Dice())
 			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
-			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true]);
+			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
+			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true]);
 		BaseObject::setDependencyInjection($this->dice);
 
 		/** @var Database $dba */
