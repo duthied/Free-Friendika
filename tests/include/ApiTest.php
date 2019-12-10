@@ -62,7 +62,7 @@ class ApiTest extends DatabaseTest
 		$this->dice = (new Dice())
 			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
-			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true]);
+			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
 		BaseObject::setDependencyInjection($this->dice);
 
 		/** @var Database $dba */

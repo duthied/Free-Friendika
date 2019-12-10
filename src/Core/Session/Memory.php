@@ -2,6 +2,9 @@
 
 namespace Friendica\Core\Session;
 
+use Friendica\Core\Config\Configuration;
+use Friendica\Model\User\Cookie;
+
 /**
  * Usable for backend processes (daemon/worker) and testing
  *
@@ -9,6 +12,11 @@ namespace Friendica\Core\Session;
  */
 final class Memory extends Native
 {
+	public function __construct(Configuration $config, Cookie $cookie)
+	{
+		$this->cookie = $cookie;
+	}
+
 	public function start()
 	{
 		// Backward compatibility until all Session variables are replaced
