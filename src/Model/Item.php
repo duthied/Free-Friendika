@@ -1083,6 +1083,9 @@ class Item extends BaseObject
 			// "Deleting" global items just means hiding them
 			if ($item['uid'] == 0) {
 				DBA::update('user-item', ['hidden' => true], ['iid' => $item['id'], 'uid' => $uid], true);
+
+				// Delete notifications
+				DBA::delete('notify', ['iid' => $item['id'], 'uid' => $uid]);
 			} elseif ($item['uid'] == $uid) {
 				self::deleteById($item['id'], PRIORITY_HIGH);
 			} else {
@@ -1172,6 +1175,9 @@ class Item extends BaseObject
 
 		// Delete tags that had been attached to other items
 		self::deleteTagsFromItem($item);
+
+		// Delete notifications
+		DBA::delete('notify', ['iid' => $item['id'], 'uid' => $item['uid']]);
 
 		// Set the item to "deleted"
 		$item_fields = ['deleted' => true, 'edited' => DateTimeFormat::utcNow(), 'changed' => DateTimeFormat::utcNow()];
