@@ -65,10 +65,11 @@ class Help extends BaseModule
 			$lastLevel = 1;
 			$idNum = [0, 0, 0, 0, 0, 0, 0];
 			foreach ($lines as &$line) {
-				if (substr($line, 0, 2) == "<h") {
-					$level = substr($line, 2, 1);
-					if ($level != "r") {
-						$level = intval($level);
+				$matches = [];
+				foreach ($lines as &$line) {
+					if (preg_match('#<h([1-6])>([^<]+?)</h\1>#i', $line, $matches)) {
+						$level = $matches[1];
+						$anchor = urlencode($matches[2]);
 						if ($level < $lastLevel) {
 							for ($k = $level; $k < $lastLevel; $k++) {
 								$toc .= "</ul></li>";
@@ -84,10 +85,13 @@ class Help extends BaseModule
 						}
 
 						$idNum[$level] ++;
+
+						$href = $a->getBaseURL() . "/help/{$filename}#{$anchor}";
+						$toc .= "<li><a href=\"{$href}\">" . strip_tags($line) . "</a></li>";
 						$id = implode("_", array_slice($idNum, 1, $level));
-						$href = $a->getBaseURL() . "/help/{$filename}#{$id}";
-						$toc .= "<li><a href='{$href}'>" . strip_tags($line) . "</a></li>";
-						$line = "<a name='{$id}'></a>" . $line;
+						$line = "<a name=\"{$id}\"></a>" . $line;
+						$line = "<a name=\"{$anchor}\"></a>" . $line;
+
 						$lastLevel = $level;
 					}
 				}
