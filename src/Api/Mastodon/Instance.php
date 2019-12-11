@@ -2,8 +2,7 @@
 
 namespace Friendica\Api\Mastodon;
 
-use Friendica\Core\Protocol;
-
+use Friendica\App;
 use Friendica\Api\Mastodon\Account;
 use Friendica\Api\Mastodon\Stats;
 use Friendica\Core\Config;
@@ -48,10 +47,12 @@ class Instance
 	/**
 	 * Creates an instance record
 	 *
+	 * @param App $app
+	 *
 	 * @return Instance
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function get($app) {
+	public static function get(App $app) {
 		$register_policy = intval(Config::get('config', 'register_policy'));
 
 		$instance = new Instance();
