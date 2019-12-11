@@ -7,6 +7,7 @@ use Friendica\App\BaseURL;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
+use Friendica\Model\Introduction;
 use Friendica\Module\Base\Api;
 use Friendica\Network\HTTPException;
 
@@ -22,6 +23,37 @@ class FollowRequests extends Api
 		if (!self::login()) {
 			throw new HTTPException\UnauthorizedException();
 		}
+	}
+
+	public static function post(array $parameters = [])
+	{
+		parent::post($parameters);
+
+		/** @var Introduction $Intro */
+		$Intro = self::getClass(Introduction::class);
+		$Intro->fetch(['id' => $parameters['id'], 'uid' => self::$current_user_id]);
+
+		$contactId = $Intro->{'contact-id'};
+
+		$relationship = new Mastodon\Relationship();
+		$relationship->id = $contactId;
+
+		switch ($parameters['action']) {
+			case 'authorize':
+				$Intro->confirm();
+				$relationship = Mastodon\Relationship::createFromContact(Contact::getById($contactId));
+				break;
+			case 'ignore':
+				$Intro->ignore();
+				break;
+			case 'reject':
+				$Intro->discard();
+				break;
+			default:
+				throw new HTTPException\BadRequestException('Unexpected action parameter, expecting "authorize", "ignore" or "reject"');
+		}
+
+		System::jsonExit($relationship);
 	}
 
 	/**
