@@ -2,7 +2,7 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Api\Mastodon\Account;
+use Friendica\Api\Mastodon;
 use Friendica\App\BaseURL;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -19,7 +19,9 @@ class FollowRequests extends Api
 	{
 		parent::init($parameters);
 
-		self::login();
+		if (!self::login()) {
+			throw new HTTPException\UnauthorizedException();
+		}
 	}
 
 	/**
@@ -34,26 +36,30 @@ class FollowRequests extends Api
 		$limit = intval($_GET['limit'] ?? 40);
 
 		if (isset($since_id) && isset($max_id)) {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending` AND `id` > ? AND `id` < ?', self::$current_user_id, $since_id, $max_id];
+			$condition = ['`uid` = ? AND NOT `ignore` AND `id` > ? AND `id` < ?', self::$current_user_id, $since_id, $max_id];
 		} elseif (isset($since_id)) {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending` AND `id` > ?', self::$current_user_id, $since_id];
+			$condition = ['`uid` = ? AND NOT `ignore` AND `id` > ?', self::$current_user_id, $since_id];
 		} elseif (isset($max_id)) {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending` AND `id` < ?', self::$current_user_id, $max_id];
+			$condition = ['`uid` = ? AND NOT `ignore` AND `id` < ?', self::$current_user_id, $max_id];
 		} else {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending`', self::$current_user_id];
+			$condition = ['`uid` = ? AND NOT `ignore`', self::$current_user_id];
 		}
 
-		$count = DBA::count('contact', $condition);
+		$count = DBA::count('intro', $condition);
 
-		$contacts = Contact::selectToArray(
+		$intros = DBA::selectToArray(
+			'intro',
 			[],
 			$condition,
 			['order' => ['id' => 'DESC'], 'limit' => $limit]
 		);
 
 		$return = [];
-		foreach ($contacts as $contact) {
-			$account = Account::createFromContact($contact);
+		foreach ($intros as $intro) {
+			$account = Mastodon\Account::createFromContact(Contact::getById($intro['contact-id']));
+
+			// Not ideal, the same "account" can have multiple ids depending on the context
+			$account->id = $intro['id'];
 
 			$return[] = $account;
 		}
@@ -68,9 +74,9 @@ class FollowRequests extends Api
 
 		$links = [];
 		if ($count > $limit) {
-			$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $contacts[count($contacts) - 1]['id']]) . '>; rel="next"';
+			$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $intros[count($intros) - 1]['id']]) . '>; rel="next"';
 		}
-		$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $contacts[0]['id']]) . '>; rel="prev"';
+		$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $intros[0]['id']]) . '>; rel="prev"';
 
 		header('Link: ' . implode(', ', $links));
 
