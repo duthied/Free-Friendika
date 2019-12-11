@@ -19,18 +19,17 @@ use Psr\Log\LoggerInterface;
 class SessionFactory
 {
 	/** @var string The plain, PHP internal session management */
-	const INTERNAL = 'native';
+	const HANDLER_NATIVE = 'native';
 	/** @var string Using the database for session management */
-	const DATABASE = 'database';
+	const HANDLER_DATABASE = 'database';
 	/** @var string Using the cache for session management */
-	const CACHE = 'cache';
-	/** @var string A temporary cached session */
-	const MEMORY  = 'memory';
-	/** @var string The default type for Session management in case of no config */
-	const DEFAULT = self::DATABASE;
+	const HANDLER_CACHE = 'cache';
+
+	const HANDLER_DEFAULT = self::HANDLER_DATABASE;
 
 	/**
 	 * @param App\Mode        $mode
+	 * @param App\BaseURL     $baseURL
 	 * @param Configuration   $config
 	 * @param Cookie          $cookie
 	 * @param Database        $dba
@@ -40,34 +39,33 @@ class SessionFactory
 	 *
 	 * @return Session\ISession
 	 */
-	public function createSession(App\Mode $mode, Configuration $config, Cookie $cookie, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
+	public function createSession(App\Mode $mode, App\BaseURL $baseURL, Configuration $config, Cookie $cookie, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
 	{
 		$stamp1  = microtime(true);
 		$session = null;
 
 		try {
 			if ($mode->isInstall() || $mode->isBackend()) {
-				$session = new Session\Memory($config, $cookie);
+				$session = new Session\Memory($cookie);
 			} else {
-				$session_handler = $config->get('system', 'session_handler', self::DEFAULT);
+				$session_handler = $config->get('system', 'session_handler', self::HANDLER_DEFAULT);
+				$handler = null;
 
 				switch ($session_handler) {
-					case self::INTERNAL:
-						$session = new Session\Native($config, $cookie);
+					case self::HANDLER_DATABASE:
+						$handler = new Session\Handler\Database($dba, $logger, $server);
 						break;
-					case self::DATABASE:
-					default:
-						$session = new Session\Database($config, $cookie, $dba, $logger, $server);
-						break;
-					case self::CACHE:
+					case self::HANDLER_CACHE:
 						// In case we're using the db as cache driver, use the native db session, not the cache
 						if ($config->get('system', 'cache_driver') === Cache::TYPE_DATABASE) {
-							$session = new Session\Database($config, $cookie, $dba, $logger, $server);
+							$handler = new Session\Handler\Database($dba, $logger, $server);
 						} else {
-							$session = new Session\Cache($config, $cookie, $cache, $logger, $server);
+							$handler = new Session\Handler\Cache($cache, $logger, $server);
 						}
 						break;
 				}
+
+				$session = new Session\Native($baseURL, $cookie, $handler);
 			}
 		} finally {
 			$profiler->saveTimestamp($stamp1, 'parser', System::callstack());

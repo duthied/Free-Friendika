@@ -29,7 +29,8 @@ interface ISession
 	 * Handle the case where session_start() hasn't been called and the super global isn't available.
 	 *
 	 * @param string $name
-	 * @param mixed $defaults
+	 * @param mixed  $defaults
+	 *
 	 * @return mixed
 	 */
 	public function get(string $name, $defaults = null);
@@ -39,7 +40,7 @@ interface ISession
 	 * Overrides value of existing key.
 	 *
 	 * @param string $name
-	 * @param mixed $value
+	 * @param mixed  $value
 	 */
 	public function set(string $name, $value);
 
@@ -63,9 +64,4 @@ interface ISession
 	 * Clears the current session array
 	 */
 	public function clear();
-
-	/**
-	 * Kills the "Friendica" cookie and all session data
-	 */
-	public function delete();
 }

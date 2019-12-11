@@ -1,11 +1,9 @@
 <?php
 
-namespace Friendica\Core\Session;
+namespace Friendica\Core\Session\Handler;
 
-use Friendica\Core\Config\Configuration;
 use Friendica\Core\Session;
 use Friendica\Database\Database as DBA;
-use Friendica\Model\User\Cookie;
 use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
@@ -14,7 +12,7 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-final class Database extends Native implements SessionHandlerInterface
+final class Database implements SessionHandlerInterface
 {
 	/** @var DBA */
 	private $dba;
@@ -26,19 +24,15 @@ final class Database extends Native implements SessionHandlerInterface
 	/**
 	 * DatabaseSessionHandler constructor.
 	 *
-	 * @param Database        $dba
+	 * @param DBA             $dba
 	 * @param LoggerInterface $logger
 	 * @param array           $server
 	 */
-	public function __construct(Configuration $config, Cookie $cookie, DBA $dba, LoggerInterface $logger, array $server)
+	public function __construct(DBA $dba, LoggerInterface $logger, array $server)
 	{
-		parent::__construct($config, $cookie);
-
 		$this->dba    = $dba;
 		$this->logger = $logger;
 		$this->server = $server;
-
-		session_set_save_handler($this);
 	}
 
 	public function open($save_path, $session_name)

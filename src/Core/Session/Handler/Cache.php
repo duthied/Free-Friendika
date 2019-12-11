@@ -1,11 +1,9 @@
 <?php
 
-namespace Friendica\Core\Session;
+namespace Friendica\Core\Session\Handler;
 
 use Friendica\Core\Cache\ICache;
-use Friendica\Core\Config\Configuration;
 use Friendica\Core\Session;
-use Friendica\Model\User\Cookie;
 use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
@@ -14,7 +12,7 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-final class Cache extends Native implements SessionHandlerInterface
+final class Cache implements SessionHandlerInterface
 {
 	/** @var ICache */
 	private $cache;
@@ -23,15 +21,11 @@ final class Cache extends Native implements SessionHandlerInterface
 	/** @var array The $_SERVER array */
 	private $server;
 
-	public function __construct(Configuration $config, Cookie $cookie, ICache $cache, LoggerInterface $logger, array $server)
+	public function __construct(ICache $cache, LoggerInterface $logger, array $server)
 	{
-		parent::__construct($config, $cookie);
-
 		$this->cache  = $cache;
 		$this->logger = $logger;
 		$this->server = $server;
-
-		session_set_save_handler($this);
 	}
 
 	public function open($save_path, $session_name)

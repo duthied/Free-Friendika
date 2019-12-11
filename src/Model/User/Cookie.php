@@ -32,13 +32,13 @@ class Cookie
 	/** @var array The $_COOKIE array */
 	private $cookie;
 
-	public function __construct(Configuration $config, array $server = [], array $cookie = [])
+	public function __construct(Configuration $config, App\BaseURL $baseURL, array $server = [], array $cookie = [])
 	{
 		if (!empty($server['REMOTE_ADDR'])) {
 			$this->remoteAddr = $server['REMOTE_ADDR'];
 		}
 
-		$this->sslEnabled     = $config->get('system', 'ssl_policy') === App\BaseURL::SSL_POLICY_FULL;
+		$this->sslEnabled     = $baseURL->getSSLPolicy() === App\BaseURL::SSL_POLICY_FULL;
 		$this->sitePrivateKey = $config->get('system', 'site_prvkey');
 
 		$authCookieDays = $config->get('system', 'auth_cookie_lifetime',

@@ -33,7 +33,7 @@ class Logout extends BaseModule
 		}
 
 		Hook::callAll("logging_out");
-		Session::delete();
+		Session::clear();
 
 		if ($visitor_home) {
 			System::externalRedirect($visitor_home);

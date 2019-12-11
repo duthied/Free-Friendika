@@ -59,11 +59,14 @@ class Session extends BaseObject
 	 */
 	public static function getRemoteContactID($uid)
 	{
-		if (empty($_SESSION['remote'][$uid])) {
+		/** @var ISession $session */
+		$session = self::getClass(ISession::class);
+
+		if (empty($session->get('remote')[$uid])) {
 			return false;
 		}
 
-		return $_SESSION['remote'][$uid];
+		return $session->get('remote')[$uid];
 	}
 
 	/**
@@ -74,11 +77,14 @@ class Session extends BaseObject
 	 */
 	public static function getUserIDForVisitorContactID($cid)
 	{
-		if (empty($_SESSION['remote'])) {
+		/** @var ISession $session */
+		$session = self::getClass(ISession::class);
+
+		if (empty($session->get('remote'))) {
 			return false;
 		}
 
-		return array_search($cid, $_SESSION['remote']);
+		return array_search($cid, $session->get('remote'));
 	}
 
 	/**
@@ -88,15 +94,18 @@ class Session extends BaseObject
 	 */
 	public static function setVisitorsContacts()
 	{
-		$_SESSION['remote'] = [];
+		/** @var ISession $session */
+		$session = self::getClass(ISession::class);
 
-		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($_SESSION['my_url']), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
+		$session->set('remote', []);
+
+		$remote_contacts = DBA::select('contact', ['id', 'uid'], ['nurl' => Strings::normaliseLink($session->get('my_url')), 'rel' => [Contact::FOLLOWER, Contact::FRIEND], 'self' => false]);
 		while ($contact = DBA::fetch($remote_contacts)) {
 			if (($contact['uid'] == 0) || Contact::isBlockedByUser($contact['id'], $contact['uid'])) {
 				continue;
 			}
 
-			$_SESSION['remote'][$contact['uid']] = $contact['id'];
+			$session->set('remote', [$contact['uid'] => $contact['id']]);
 		}
 		DBA::close($remote_contacts);
 	}
@@ -108,15 +117,9 @@ class Session extends BaseObject
 	 */
 	public static function isAuthenticated()
 	{
-		if (empty($_SESSION['authenticated'])) {
-			return false;
-		}
+		/** @var ISession $session */
+		$session = self::getClass(ISession::class);
 
-		return $_SESSION['authenticated'];
-	}
-
-	public static function delete()
-	{
-		self::getClass(ISession::class)->delete();
+		return $session->get('authenticated', false);
 	}
 }
