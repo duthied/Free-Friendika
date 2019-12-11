@@ -229,9 +229,7 @@ class APContact extends BaseObject
 				}
 			}
 		}
-/*
-		$apcontact['inbox'] = JsonLD::fetchElement($compacted, 'ldp:inbox', '@id');
-*/
+
 		// To-Do
 
 		// Unhandled
