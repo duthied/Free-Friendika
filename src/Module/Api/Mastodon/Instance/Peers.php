@@ -14,11 +14,6 @@ use Friendica\Util\Network;
  */
 class Peers extends Api
 {
-	public static function init(array $parameters = [])
-	{
-		parent::init($parameters);
-	}
-
 	/**
 	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
