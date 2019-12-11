@@ -16,6 +16,8 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/ap
 ## Implemented endpoints
 
 - [GET /api/v1/follow_requests](https://docs.joinmastodon.org/api/rest/follow-requests/#get-api-v1-follow-requests)
+- [GET /api/v1/instance](https://docs.joinmastodon.org/api/rest/instances)
+- GET /api/v1/instance/peers - undocumented, but implemented by Mastodon and Pleroma
 
 ## Non-implemented endpoints
 
