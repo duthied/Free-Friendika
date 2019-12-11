@@ -2,6 +2,7 @@
 
 namespace Friendica\Testsrc\Model\User;
 
+use Friendica\App\BaseURL;
 use Friendica\Core\Config\Configuration;
 use Friendica\Model\User\Cookie;
 use Friendica\Test\DatabaseTest;
@@ -12,6 +13,8 @@ class CookieTest extends DatabaseTest
 {
 	/** @var MockInterface|Configuration */
 	private $config;
+	/** @var MockInterface|BaseURL */
+	private $baseUrl;
 
 	protected function setUp()
 	{
@@ -20,6 +23,7 @@ class CookieTest extends DatabaseTest
 		parent::setUp();
 
 		$this->config = \Mockery::mock(Configuration::class);
+		$this->baseUrl = \Mockery::mock(BaseURL::class);
 	}
 
 	protected function tearDown()
@@ -32,11 +36,11 @@ class CookieTest extends DatabaseTest
 	 */
 	public function testInstance()
 	{
-		$this->config->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(1)->once();
+		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn('1235')->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn('7')->once();
 
-		$cookie = new Cookie($this->config, []);
+		$cookie = new Cookie($this->config, $this->baseUrl);
 		$this->assertInstanceOf(Cookie::class, $cookie);
 	}
 
@@ -96,11 +100,11 @@ class CookieTest extends DatabaseTest
 	 */
 	public function testGet(array $cookieData, bool $hasValues, $uid, $hash, $ip)
 	{
-		$this->config->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(1)->once();
+		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn('1235')->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn('7')->once();
 
-		$cookie = new Cookie($this->config, [], $cookieData);
+		$cookie = new Cookie($this->config, $this->baseUrl, [], $cookieData);
 		$this->assertInstanceOf(Cookie::class, $cookie);
 
 		$assertData = $cookie->getData();
@@ -164,11 +168,11 @@ class CookieTest extends DatabaseTest
 	 */
 	public function testCheck(string $serverPrivateKey, string $userPrivateKey, string $password, string $assertHash, bool $assertTrue)
 	{
-		$this->config->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(1)->once();
+		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverPrivateKey)->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn('7')->once();
 
-		$cookie = new Cookie($this->config, []);
+		$cookie = new Cookie($this->config, $this->baseUrl);
 		$this->assertInstanceOf(Cookie::class, $cookie);
 
 		$this->assertEquals($assertTrue, $cookie->check($assertHash, $password, $userPrivateKey));
@@ -247,11 +251,11 @@ class CookieTest extends DatabaseTest
 	 */
 	public function testSet($serverKey, $uid, $password, $privateKey, $assertHash, $remoteIp, $serverArray, $lifetime)
 	{
-		$this->config->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(1)->once();
+		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverKey)->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 
-		$cookie = new StaticCookie($this->config, $serverArray);
+		$cookie = new StaticCookie($this->config, $this->baseUrl, $serverArray);
 		$this->assertInstanceOf(Cookie::class, $cookie);
 
 		$cookie->set($uid, $password, $privateKey, $lifetime);
@@ -266,11 +270,11 @@ class CookieTest extends DatabaseTest
 	 */
 	public function testDoubleSet($serverKey, $uid, $password, $privateKey, $assertHash, $remoteIp, $serverArray, $lifetime)
 	{
-		$this->config->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(1)->once();
+		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn($serverKey)->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 
-		$cookie = new StaticCookie($this->config, $serverArray);
+		$cookie = new StaticCookie($this->config, $this->baseUrl, $serverArray);
 		$this->assertInstanceOf(Cookie::class, $cookie);
 
 		// Invalid set, should get overwritten
@@ -290,11 +294,11 @@ class CookieTest extends DatabaseTest
 			Cookie::NAME => 'test'
 		];
 
-		$this->config->shouldReceive('get')->with('system', 'ssl_policy')->andReturn(1)->once();
+		$this->baseUrl->shouldReceive('getSSLPolicy')->andReturn(true)->once();
 		$this->config->shouldReceive('get')->with('system', 'site_prvkey')->andReturn(24)->once();
 		$this->config->shouldReceive('get')->with('system', 'auth_cookie_lifetime', Cookie::DEFAULT_EXPIRE)->andReturn(Cookie::DEFAULT_EXPIRE)->once();
 
-		$cookie = new StaticCookie($this->config, []);
+		$cookie = new StaticCookie($this->config, $this->baseUrl);
 		$this->assertInstanceOf(Cookie::class, $cookie);
 
 		$this->assertEquals('test', StaticCookie::$_COOKIE[Cookie::NAME]);
