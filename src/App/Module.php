@@ -251,10 +251,6 @@ class Module
 
 		call_user_func([$this->module_class, 'init'], $this->module_parameters);
 
-		// "rawContent" is especially meant for technical endpoints.
-		// This endpoint doesn't need any theme initialization or other comparable stuff.
-		call_user_func([$this->module_class, 'rawContent'], $this->module_parameters);
-
 		if ($server['REQUEST_METHOD'] === 'POST') {
 			Core\Hook::callAll($this->module . '_mod_post', $post);
 			call_user_func([$this->module_class, 'post'], $this->module_parameters);
@@ -262,5 +258,9 @@ class Module
 
 		Core\Hook::callAll($this->module . '_mod_afterpost', $placeholder);
 		call_user_func([$this->module_class, 'afterpost'], $this->module_parameters);
+
+		// "rawContent" is especially meant for technical endpoints.
+		// This endpoint doesn't need any theme initialization or other comparable stuff.
+		call_user_func([$this->module_class, 'rawContent'], $this->module_parameters);
 	}
 }
