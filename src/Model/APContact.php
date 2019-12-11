@@ -203,6 +203,35 @@ class APContact extends BaseObject
 			$apcontact['generator'] = JsonLD::fetchElement($compacted['as:generator'], 'as:name', '@value');
 		}
 
+		if (!empty($apcontact['following'])) {
+			$data = ActivityPub::fetchContent($apcontact['following']);
+			if (!empty($data)) {
+				if (!empty($data['totalItems'])) {
+					$apcontact['following_count'] = $data['totalItems'];
+				}
+			}
+		}
+
+		if (!empty($apcontact['followers'])) {
+			$data = ActivityPub::fetchContent($apcontact['followers']);
+			if (!empty($data)) {
+				if (!empty($data['totalItems'])) {
+					$apcontact['followers_count'] = $data['totalItems'];
+				}
+			}
+		}
+
+		if (!empty($apcontact['outbox'])) {
+			$data = ActivityPub::fetchContent($apcontact['outbox']);
+			if (!empty($data)) {
+				if (!empty($data['totalItems'])) {
+					$apcontact['statuses_count'] = $data['totalItems'];
+				}
+			}
+		}
+/*
+		$apcontact['inbox'] = JsonLD::fetchElement($compacted, 'ldp:inbox', '@id');
+*/
 		// To-Do
 
 		// Unhandled
