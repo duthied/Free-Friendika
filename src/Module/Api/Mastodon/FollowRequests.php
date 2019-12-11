@@ -6,6 +6,7 @@ use Friendica\Api\Mastodon;
 use Friendica\App\BaseURL;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Introduction;
 use Friendica\Module\Base\Api;
@@ -88,7 +89,9 @@ class FollowRequests extends Api
 
 		$return = [];
 		foreach ($intros as $intro) {
-			$account = Mastodon\Account::createFromContact(Contact::getById($intro['contact-id']));
+			$contact = Contact::getById($intro['contact-id']);
+			$apcontact = APContact::getByURL($contact['url'], false);
+			$account = Mastodon\Account::createFromContact($contact, $apcontact);
 
 			// Not ideal, the same "account" can have multiple ids depending on the context
 			$account->id = $intro['id'];
