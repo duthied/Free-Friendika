@@ -646,21 +646,25 @@ class Contact extends BaseModule
 			return $arr['output'];
 		}
 
+		$select_uid = $_SESSION['uid'];
+
 		// @TODO: Replace with parameter from router
 		$type = $a->argv[1] ?? '';
 
 		switch ($type) {
 			case 'blocked':
-				$sql_extra = " AND `blocked`";
+				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`blocked`)", intval($_SESSION['uid']));
+				$select_uid = 0;
 				break;
 			case 'hidden':
-				$sql_extra = " AND `hidden` AND NOT `blocked`";
+				$sql_extra = " AND `hidden` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'ignored':
-				$sql_extra = " AND `readonly` AND NOT `blocked`";
+				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`ignored`)", intval($_SESSION['uid']));
+				$select_uid = 0;
 				break;
 			case 'archived':
-				$sql_extra = " AND `archive` AND NOT `blocked`";
+				$sql_extra = " AND `archive` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'pending':
 				$sql_extra = sprintf(" AND `pending` AND NOT `archive` AND ((`rel` = %d)
@@ -762,21 +766,21 @@ class Contact extends BaseModule
 
 		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= Model\Contact::FRIEND)) ? sprintf(" AND `rel` = %d ", intval($sort_type)) : '');
 
+		$sql_extra3 = Widget::unavailableNetworks();
+
 		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 ",
-			intval($_SESSION['uid'])
+			WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 $sql_extra3",
+			intval($select_uid)
 		);
 		if (DBA::isResult($r)) {
 			$total = $r[0]['total'];
 		}
 		$pager = new Pager($a->query_string);
 
-		$sql_extra3 = Widget::unavailableNetworks();
-
 		$contacts = [];
 
 		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
-			intval($_SESSION['uid']),
+			intval($select_uid),
 			$pager->getStart(),
 			$pager->getItemsPerPage()
 		);
