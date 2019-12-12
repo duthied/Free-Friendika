@@ -1507,7 +1507,9 @@ function api_search($type)
 	$a = \get_app();
 	$user_info = api_get_user($a);
 
-	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
+	if (api_user() === false || $user_info === false) {
+		throw new ForbiddenException();
+	}
 
 	if (empty($_REQUEST['q'])) {
 		throw new BadRequestException('q parameter is required.');
@@ -1571,7 +1573,21 @@ function api_search($type)
 		}
 	}
 
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = [];
+
+	if (parse_url($searchTerm, PHP_URL_SCHEME) != '') {
+		$id = Item::fetchByLink($searchTerm, api_user());
+		if (!$id) {
+			// Public post
+			$id = Item::fetchByLink($searchTerm);
+		}
+
+		if (!empty($id)) {
+			$statuses = Item::select([], ['id' => $id]);
+		}
+	}
+
+	$statuses = $statuses ?: Item::selectForUser(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
 
