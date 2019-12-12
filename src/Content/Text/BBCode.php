@@ -354,6 +354,9 @@ class BBCode extends BaseObject
 				$post['url'] = $links[0][1];
 			}
 
+			// Simplify "video" element
+			$post['text'] = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $post['text']);
+
 			// Now count the number of external media links
 			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $post['text'], $links1, PREG_SET_ORDER);
 			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $post['text'], $links2, PREG_SET_ORDER);
@@ -1605,6 +1608,9 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
 		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
+
+		// Simplify "video" element
+		$text = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
 
 		// Try to Oembed
 		if ($try_oembed) {
