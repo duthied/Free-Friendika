@@ -646,21 +646,21 @@ class Contact extends BaseModule
 			return $arr['output'];
 		}
 
-		$select_uid = $_SESSION['uid'];
+		$select_uid = local_user();
 
 		// @TODO: Replace with parameter from router
 		$type = $a->argv[1] ?? '';
 
 		switch ($type) {
 			case 'blocked':
-				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`blocked`)", intval($_SESSION['uid']));
+				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`blocked`)", intval(local_user()));
 				$select_uid = 0;
 				break;
 			case 'hidden':
 				$sql_extra = " AND `hidden` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'ignored':
-				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`ignored`)", intval($_SESSION['uid']));
+				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`ignored`)", intval(local_user()));
 				$select_uid = 0;
 				break;
 			case 'archived':
