@@ -1416,32 +1416,37 @@ function api_users_search($type)
 	$userlist = [];
 
 	if (!empty($_GET['q'])) {
-		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", DBA::escape($_GET["q"]));
+		$contacts = Contact::selectToArray(
+			['id'],
+			[
+				'`uid` = 0 AND (`name` = ? OR `nick` = ? OR `url` = ? OR `addr` = ?)',
+				$_GET['q'],
+				$_GET['q'],
+				$_GET['q'],
+				$_GET['q'],
+			]
+		);
 
-		if (!DBA::isResult($r)) {
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", DBA::escape($_GET["q"]));
-		}
-
-		if (DBA::isResult($r)) {
+		if (DBA::isResult($contacts)) {
 			$k = 0;
-			foreach ($r as $user) {
-				$user_info = api_get_user($a, $user["id"]);
+			foreach ($contacts as $contact) {
+				$user_info = api_get_user($a, $contact['id']);
 
-				if ($type == "xml") {
-					$userlist[$k++.":user"] = $user_info;
+				if ($type == 'xml') {
+					$userlist[$k++ . ':user'] = $user_info;
 				} else {
 					$userlist[] = $user_info;
 				}
 			}
-			$userlist = ["users" => $userlist];
+			$userlist = ['users' => $userlist];
 		} else {
-			throw new BadRequestException("User ".$_GET["q"]." not found.");
+			throw new NotFoundException('User ' . $_GET['q'] . ' not found.');
 		}
 	} else {
-		throw new BadRequestException("No user specified.");
+		throw new BadRequestException('No search term specified.');
 	}
 
-	return api_format_data("users", $type, $userlist);
+	return api_format_data('users', $type, $userlist);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1502,7 +1507,9 @@ function api_search($type)
 	$a = \get_app();
 	$user_info = api_get_user($a);
 
-	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
+	if (api_user() === false || $user_info === false) {
+		throw new ForbiddenException();
+	}
 
 	if (empty($_REQUEST['q'])) {
 		throw new BadRequestException('q parameter is required.');
@@ -1566,7 +1573,21 @@ function api_search($type)
 		}
 	}
 
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = [];
+
+	if (parse_url($searchTerm, PHP_URL_SCHEME) != '') {
+		$id = Item::fetchByLink($searchTerm, api_user());
+		if (!$id) {
+			// Public post
+			$id = Item::fetchByLink($searchTerm);
+		}
+
+		if (!empty($id)) {
+			$statuses = Item::select([], ['id' => $id]);
+		}
+	}
+
+	$statuses = $statuses ?: Item::selectForUser(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
 
