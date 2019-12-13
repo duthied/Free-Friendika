@@ -13,6 +13,7 @@ use Friendica\Core\Config\PConfiguration;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\Database;
+use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
 use Friendica\Test\Util\Database\StaticDatabase;
 use Monolog\Handler\TestHandler;
@@ -2922,8 +2923,8 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiFfIds()
 	{
-		$result = api_ff_ids('json');
-		$this->assertNull($result);
+		$result = api_ff_ids('json', Contact::FOLLOWER);
+		$this->assertEquals(['id' => []], $result);
 	}
 
 	/**
@@ -2945,7 +2946,7 @@ class ApiTest extends DatabaseTest
 	public function testApiFfIdsWithoutAuthenticatedUser()
 	{
 		$_SESSION['authenticated'] = false;
-		api_ff_ids('json');
+		api_ff_ids('json', Contact::FOLLOWER);
 	}
 
 	/**
@@ -2956,7 +2957,7 @@ class ApiTest extends DatabaseTest
 	public function testApiFriendsIds()
 	{
 		$result = api_friends_ids('json');
-		$this->assertNull($result);
+		$this->assertEquals(['id' => []], $result);
 	}
 
 	/**
@@ -2967,7 +2968,7 @@ class ApiTest extends DatabaseTest
 	public function testApiFollowersIds()
 	{
 		$result = api_followers_ids('json');
-		$this->assertNull($result);
+		$this->assertEquals(['id' => []], $result);
 	}
 
 	/**
