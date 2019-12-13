@@ -2504,6 +2504,9 @@ function api_format_messages($item, $recipient, $sender)
 function api_convert_item($item)
 {
 	$body = $item['body'];
+	$entities = api_get_entitities($statustext, $body);
+
+	// Add pictures to the attachment array and remove them from the body
 	$attachments = api_get_attachments($body);
 
 	// Workaround for ostatus messages where the title is identically to the body
@@ -2560,8 +2563,6 @@ function api_convert_item($item)
 		$statushtml .= BBCode::convert($item['plink']);
 	}
 
-	$entities = api_get_entitities($statustext, $body);
-
 	return [
 		"text" => $statustext,
 		"html" => $statushtml,
@@ -2579,15 +2580,17 @@ function api_convert_item($item)
  */
 function api_get_attachments(&$body)
 {
-	$text = $body;
-	$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
-	$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $text);
+	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+	$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
 
 	$URLSearchString = "^\[\]";
-	$ret = preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $text, $images);
-
-	if (!$ret) {
+	if (!preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $body, $images)) {
 		return [];
+	}
+
+	// Remove all embedded pictures, since they are added as attachments
+	foreach ($images[0] as $orig) {
+		$body = str_replace($orig, '', $body);
 	}
 
 	$attachments = [];
@@ -2597,12 +2600,6 @@ function api_get_attachments(&$body)
 
 		if ($imagedata) {
 			$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
-		}
-	}
-
-	if (strstr($_SERVER['HTTP_USER_AGENT'] ?? '', 'AndStatus')) {
-		foreach ($images[0] as $orig) {
-			$body = str_replace($orig, "", $body);
 		}
 	}
 
@@ -2648,7 +2645,6 @@ function api_get_entitities(&$text, $bbcode)
 	$bbcode = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '#$2', $bbcode);
 
 	$bbcode = preg_replace("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $bbcode);
-	//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
 	$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism", '[url=$1]$1[/url]', $bbcode);
 
 	$bbcode = preg_replace(
@@ -2667,12 +2663,10 @@ function api_get_entitities(&$text, $bbcode)
 
 	$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
 
-	//preg_match_all("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $bbcode, $urls1);
 	preg_match_all("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $bbcode, $urls);
 
 	$ordered_urls = [];
 	foreach ($urls[1] as $id => $url) {
-		//$start = strpos($text, $url, $offset);
 		$start = iconv_strpos($text, $url, 0, "UTF-8");
 		if (!($start === false)) {
 			$ordered_urls[$start] = ["url" => $url, "title" => $urls[2][$id]];
@@ -2682,7 +2676,7 @@ function api_get_entitities(&$text, $bbcode)
 	ksort($ordered_urls);
 
 	$offset = 0;
-	//foreach ($urls[1] AS $id=>$url) {
+
 	foreach ($ordered_urls as $url) {
 		if ((substr($url["title"], 0, 7) != "http://") && (substr($url["title"], 0, 8) != "https://")
 			&& !strpos($url["title"], "http://") && !strpos($url["title"], "https://")
@@ -2697,7 +2691,6 @@ function api_get_entitities(&$text, $bbcode)
 			}
 		}
 
-		//$start = strpos($text, $url, $offset);
 		$start = iconv_strpos($text, $url["url"], $offset, "UTF-8");
 		if (!($start === false)) {
 			$entities["urls"][] = ["url" => $url["url"],
@@ -2724,7 +2717,7 @@ function api_get_entitities(&$text, $bbcode)
 			$ordered_images[$start] = ['url' => $image, 'alt' => ''];
 		}
 	}
-	//$entities["media"] = array();
+
 	$offset = 0;
 
 	foreach ($ordered_images as $image) {
@@ -3093,22 +3086,31 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	}
 
 	if (!empty($quoted_item)) {
-		$conv_quoted = api_convert_item($quoted_item);
-		$quoted_status = $status;
+		if ($quoted_item['id'] != $item['id']) {
+			$quoted_status = api_format_item($quoted_item);
+			/// @todo Only remove the attachments that are also contained in the quotes status
+			unset($status['attachments']);
+			unset($status['entities']);
+		} else {
+			$conv_quoted = api_convert_item($quoted_item);
+			$quoted_status = $status;
+			unset($quoted_status['attachments']);
+			unset($quoted_status['entities']);
+			unset($quoted_status['statusnet_conversation_id']);
+			$quoted_status['text'] = $conv_quoted['text'];
+			$quoted_status['statusnet_html'] = $conv_quoted['html'];
+			try {
+				$quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
+			} catch (BadRequestException $e) {
+				// user not found. should be found?
+				/// @todo check if the user should be always found
+				$quoted_status["user"] = [];
+			}
+		}
 		unset($quoted_status['friendica_author']);
 		unset($quoted_status['friendica_owner']);
 		unset($quoted_status['friendica_activities']);
 		unset($quoted_status['friendica_private']);
-		unset($quoted_status['statusnet_conversation_id']);
-		$quoted_status['text'] = $conv_quoted['text'];
-		$quoted_status['statusnet_html'] = $conv_quoted['html'];
-		try {
-			$quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
-		} catch (BadRequestException $e) {
-			// user not found. should be found?
-			/// @todo check if the user should be always found
-			$quoted_status["user"] = [];
-		}
 	}
 
 	if (!empty($retweeted_item)) {
@@ -5201,6 +5203,22 @@ function api_share_as_retweet(&$item)
 	$reshared_item["plink"] = $reshared['link'] ?? '';
 	$reshared_item["created"] = $reshared['posted'];
 	$reshared_item["edited"] = $reshared['posted'];
+
+	// Try to fetch the original item
+	if (!empty($reshared['guid'])) {
+		$condition = ['guid' => $reshared['guid'], 'uid' => [0, $item['uid']]];
+	} elseif (!empty($reshared_item['plink']) && ($original_id = Item::searchByLink($reshared_item['plink']))) {
+		$condition = ['id' => $original_id];
+	} else {
+		$condition = [];
+	}
+
+	if (!empty($condition)) {
+		$original_item = Item::selectFirst([], $condition);
+		if (DBA::isResult($original_item)) {
+			$reshared_item = array_merge($reshared_item, $original_item);
+		}
+	}
 
 	return $reshared_item;
 }
