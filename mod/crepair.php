@@ -134,7 +134,7 @@ function crepair_content(App $a)
 
 	$update_profile = in_array($contact['network'], Protocol::FEDERATED);
 
-	$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
+	$tab_str = Module\Contact::getTabsHTML($a, $contact, 6);
 
 	$tpl = Renderer::getMarkupTemplate('crepair.tpl');
 	$o = Renderer::replaceMacros($tpl, [
