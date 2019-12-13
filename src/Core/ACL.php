@@ -335,6 +335,10 @@ class ACL extends BaseObject
 	 */
 	public static function getFullSelectorHTML(Page $page, array $user = null, bool $for_federation = false, array $default_permissions = [])
 	{
+		if (empty($user['uid'])) {
+			return '';
+		}
+
 		$page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
 		$page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
 		$page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
