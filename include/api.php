@@ -3603,6 +3603,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @param int $rel A contact relationship constant
  * @return array|string|void
  * @throws BadRequestException
  * @throws ForbiddenException
@@ -3611,7 +3612,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  * @throws UnauthorizedException
  * @todo use api_format_data() to return data
  */
-function api_ff_ids($type)
+function api_ff_ids($type, int $rel)
 {
 	if (!api_user()) {
 		throw new ForbiddenException();
@@ -3623,26 +3624,29 @@ function api_ff_ids($type)
 
 	$stringify_ids = $_REQUEST['stringify_ids'] ?? false;
 
-	$r = q(
-		"SELECT `pcontact`.`id` FROM `contact`
-			INNER JOIN `contact` AS `pcontact` ON `contact`.`nurl` = `pcontact`.`nurl` AND `pcontact`.`uid` = 0
-			WHERE `contact`.`uid` = %s AND NOT `contact`.`self`",
-		intval(api_user())
+	$contacts = DBA::p("SELECT `pcontact`.`id`
+		FROM `contact`
+		INNER JOIN `contact` AS `pcontact`
+		    ON `contact`.`nurl` = `pcontact`.`nurl`
+		    AND `pcontact`.`uid` = 0
+		WHERE `contact`.`uid` = ?
+		AND NOT `contact`.`self`
+		AND `contact`.`rel` IN (?, ?)",
+		api_user(),
+		$rel,
+		Contact::FRIEND
 	);
-	if (!DBA::isResult($r)) {
-		return;
-	}
 
 	$ids = [];
-	foreach ($r as $rr) {
+	foreach (DBA::toArray($contacts) as $contact) {
 		if ($stringify_ids) {
-			$ids[] = $rr['id'];
+			$ids[] = $contact['id'];
 		} else {
-			$ids[] = intval($rr['id']);
+			$ids[] = intval($contact['id']);
 		}
 	}
 
-	return api_format_data("ids", $type, ['id' => $ids]);
+	return api_format_data('ids', $type, ['id' => $ids]);
 }
 
 /**
