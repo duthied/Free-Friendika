@@ -2621,7 +2621,7 @@ class Item extends BaseObject
 				"&num;$2", $item["body"]);
 
 		foreach ($tags as $tag) {
-			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=') || $tag[1] == '#') {
+			if ((strpos($tag, '#') !== 0) || strpos($tag, '[url=') || strlen($tag) < 2 || $tag[1] == '#') {
 				continue;
 			}
 
