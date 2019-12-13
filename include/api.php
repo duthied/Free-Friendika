@@ -3657,11 +3657,14 @@ function api_ff_ids($type, int $rel)
  * @return array|string
  * @throws BadRequestException
  * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
  */
 function api_friends_ids($type)
 {
-	return api_ff_ids($type);
+	return api_ff_ids($type, Contact::SHARING);
 }
 
 /**
@@ -3672,11 +3675,14 @@ function api_friends_ids($type)
  * @return array|string
  * @throws BadRequestException
  * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids
  */
 function api_followers_ids($type)
 {
-	return api_ff_ids($type);
+	return api_ff_ids($type, Contact::FOLLOWER);
 }
 
 /// @TODO move to top of file or somewhere better
