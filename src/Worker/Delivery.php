@@ -252,7 +252,7 @@ class Delivery extends BaseObject
 	private static function deliverDFRN($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup)
 	{
 		// Transmit Diaspora reshares via Diaspora if the Friendica contact support Diaspora
-		if (Diaspora::isReshare($target_item['body']) && !empty(Diaspora::personByHandle(contact['addr'], false))) {
+		if (Diaspora::isReshare($target_item['body']) && !empty(Diaspora::personByHandle($contact['addr'], false))) {
 			Logger::info('Reshare will be transmitted via Diaspora', ['url' => $contact['url'], 'guid' => ($target_item['guid'] ?? '') ?: $target_item['id']]);
 			self::deliverDiaspora($cmd, $contact, $owner, $items, $target_item, $public_message, $top_level, $followup);
 			return;
