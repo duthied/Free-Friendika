@@ -3,8 +3,10 @@
 namespace Friendica\App;
 
 use Friendica\Core\Config\Configuration;
+use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
+use Friendica\Network\HTTPException;
 
 /**
  * A class which checks and contains the basic
@@ -413,5 +415,24 @@ class BaseURL
 		} else {
 			return $url;
 		}
+	}
+
+	/**
+	 * Redirects to another module relative to the current Friendica base URL.
+	 * If you want to redirect to a external URL, use System::externalRedirectTo()
+	 *
+	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
+	 * @param bool   $ssl   if true, base URL will try to get called with https:// (works just for relative paths)
+	 *
+	 * @throws HTTPException\InternalServerErrorException In Case the given URL is not relative to the Friendica node
+	 */
+	public function redirect($toUrl = '', $ssl = false)
+	{
+		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
+			throw new HTTPException\InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
+		}
+
+		$redirectTo = $this->get($ssl) . '/' . ltrim($toUrl, '/');
+		System::externalRedirect($redirectTo);
 	}
 }

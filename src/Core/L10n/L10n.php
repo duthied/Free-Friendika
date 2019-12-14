@@ -4,7 +4,7 @@ namespace Friendica\Core\L10n;
 
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Hook;
-use Friendica\Core\Session;
+use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
@@ -53,12 +53,14 @@ class L10n
 	 */
 	private $logger;
 
-	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger, array $server, array $get)
+	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger, ISession $session,  array $server, array $get)
 	{
 		$this->dba    = $dba;
 		$this->logger = $logger;
 
 		$this->loadTranslationTable(L10n::detectLanguage($server, $get, $config->get('system', 'language', 'en')));
+		$this->setSessionVariable($session);
+		$this->setLangFromSession($session);
 	}
 
 	/**
@@ -74,28 +76,28 @@ class L10n
 	/**
 	 * Sets the language session variable
 	 */
-	public function setSessionVariable()
+	private function setSessionVariable(ISession $session)
 	{
-		if (Session::get('authenticated') && !Session::get('language')) {
-			$_SESSION['language'] = $this->lang;
+		if ($session->get('authenticated') && !$session->get('language')) {
+			$session->set('language', $this->lang);
 			// we haven't loaded user data yet, but we need user language
-			if (Session::get('uid')) {
+			if ($session->get('uid')) {
 				$user = $this->dba->selectFirst('user', ['language'], ['uid' => $_SESSION['uid']]);
 				if ($this->dba->isResult($user)) {
-					$_SESSION['language'] = $user['language'];
+					$session->set('language', $user['language']);
 				}
 			}
 		}
 
 		if (isset($_GET['lang'])) {
-			Session::set('language', $_GET['lang']);
+			$session->set('language', $_GET['lang']);
 		}
 	}
 
-	public function setLangFromSession()
+	private function setLangFromSession(ISession $session)
 	{
-		if (Session::get('language') !== $this->lang) {
-			$this->loadTranslationTable(Session::get('language'));
+		if ($session->get('language') !== $this->lang) {
+			$this->loadTranslationTable($session->get('language'));
 		}
 	}
 

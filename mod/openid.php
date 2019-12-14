@@ -4,6 +4,8 @@
  */
 
 use Friendica\App;
+use Friendica\BaseObject;
+use Friendica\App\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -45,7 +47,9 @@ function openid_content(App $a) {
 
 				unset($_SESSION['openid']);
 
-				Session::setAuthenticatedForUser($a, $user, true, true);
+				/** @var Authentication $authentication */
+				$authentication = BaseObject::getClass(Authentication::class);
+				$authentication->setForUser($a, $user, true, true);
 
 				// just in case there was no return url set
 				// and we fell through

@@ -133,6 +133,10 @@ class dependencyCheck extends TestCase
 
 	public function testDevLogger()
 	{
+		/** @var Configuration $config */
+		$config = $this->dice->create(Configuration::class);
+		$config->set('system', 'dlogfile', $this->root->url() . '/friendica.log');
+
 		/** @var LoggerInterface $logger */
 		$logger = $this->dice->create('$devLogger', ['dev']);
 

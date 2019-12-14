@@ -8,10 +8,12 @@ use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\App\Page;
+use Friendica\App\Authentication;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\Config\PConfiguration;
 use Friendica\Core\L10n\L10n;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
@@ -640,10 +642,11 @@ class App
 	 * @param App\Module     $module The determined module
 	 * @param App\Router     $router
 	 * @param PConfiguration $pconfig
+	 * @param Authentication $auth The Authentication backend of the node
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, PConfiguration $pconfig)
+	public function runFrontend(App\Module $module, App\Router $router, PConfiguration $pconfig, Authentication $auth)
 	{
 		$moduleName = $module->getName();
 
@@ -667,19 +670,11 @@ class App
 					System::externalRedirect($this->baseURL->get() . '/' . $this->args->getQueryString());
 				}
 
-				Core\Session::init();
 				Core\Hook::callAll('init_1');
 			}
 
 			// Exclude the backend processes from the session management
-			if (!$this->mode->isBackend()) {
-				$stamp1 = microtime(true);
-				session_start();
-				$this->profiler->saveTimestamp($stamp1, 'parser', Core\System::callstack());
-				$this->l10n->setSessionVariable();
-				$this->l10n->setLangFromSession();
-			} else {
-				$_SESSION = [];
+			if ($this->mode->isBackend()) {
 				Core\Worker::executeIfIdle();
 			}
 
@@ -717,7 +712,7 @@ class App
 				Model\Profile::openWebAuthInit($token);
 			}
 
-			Login::sessionAuth();
+			$auth->withSession($this);
 
 			if (empty($_SESSION['authenticated'])) {
 				header('X-Account-Management-Status: none');
@@ -796,22 +791,12 @@ class App
 	}
 
 	/**
-	 * Redirects to another module relative to the current Friendica base.
-	 * If you want to redirect to a external URL, use System::externalRedirectTo()
-	 *
-	 * @param string $toUrl The destination URL (Default is empty, which is the default page of the Friendica node)
-	 * @param bool   $ssl   if true, base URL will try to get called with https:// (works just for relative paths)
-	 *
-	 * @throws HTTPException\InternalServerErrorException In Case the given URL is not relative to the Friendica node
+	 * @deprecated 2019.12 use BaseUrl::redirect instead
+	 * @see BaseURL::redirect()
 	 */
 	public function internalRedirect($toUrl = '', $ssl = false)
 	{
-		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
-			throw new HTTPException\InternalServerErrorException("'$toUrl is not a relative path, please use System::externalRedirectTo");
-		}
-
-		$redirectTo = $this->baseURL->get($ssl) . '/' . ltrim($toUrl, '/');
-		Core\System::externalRedirect($redirectTo);
+		$this->baseURL->redirect($toUrl, $ssl);
 	}
 
 	/**
@@ -827,7 +812,7 @@ class App
 		if (!empty(parse_url($toUrl, PHP_URL_SCHEME))) {
 			Core\System::externalRedirect($toUrl);
 		} else {
-			$this->internalRedirect($toUrl);
+			$this->baseURL->redirect($toUrl);
 		}
 	}
 }

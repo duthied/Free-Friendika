@@ -6,10 +6,11 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Authentication;
+use Friendica\App\Authentication;
 use Friendica\Core\Cache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
+use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Model\Profile;
 
@@ -32,7 +33,7 @@ class Logout extends BaseModule
 		}
 
 		Hook::callAll("logging_out");
-		Authentication::deleteSession();
+		Session::clear();
 
 		if ($visitor_home) {
 			System::externalRedirect($visitor_home);

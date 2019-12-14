@@ -1,11 +1,10 @@
 <?php
 
-namespace Friendica\Core\Session;
+namespace Friendica\Core\Session\Handler;
 
-use Friendica\BaseObject;
-use Friendica\Core\Cache;
-use Friendica\Core\Logger;
+use Friendica\Core\Cache\ICache;
 use Friendica\Core\Session;
+use Psr\Log\LoggerInterface;
 use SessionHandlerInterface;
 
 /**
@@ -13,8 +12,22 @@ use SessionHandlerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
+final class Cache implements SessionHandlerInterface
 {
+	/** @var ICache */
+	private $cache;
+	/** @var LoggerInterface */
+	private $logger;
+	/** @var array The $_SERVER array */
+	private $server;
+
+	public function __construct(ICache $cache, LoggerInterface $logger, array $server)
+	{
+		$this->cache  = $cache;
+		$this->logger = $logger;
+		$this->server = $server;
+	}
+
 	public function open($save_path, $session_name)
 	{
 		return true;
@@ -26,13 +39,13 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			return '';
 		}
 
-		$data = Cache::get('session:' . $session_id);
+		$data = $this->cache->get('session:' . $session_id);
 		if (!empty($data)) {
 			Session::$exists = true;
 			return $data;
 		}
 
-		Logger::notice('no data for session', ['session_id' => $session_id, 'uri' => $_SERVER['REQUEST_URI']]);
+		$this->logger->notice('no data for session', ['session_id' => $session_id, 'uri' => $this->server['REQUEST_URI'] ?? '']);
 
 		return '';
 	}
@@ -44,8 +57,9 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 	 * on the case. Uses the Session::expire for existing session, 5 minutes
 	 * for newly created session.
 	 *
-	 * @param  string $session_id   Session ID with format: [a-z0-9]{26}
-	 * @param  string $session_data Serialized session data
+	 * @param string $session_id   Session ID with format: [a-z0-9]{26}
+	 * @param string $session_data Serialized session data
+	 *
 	 * @return boolean Returns false if parameters are missing, true otherwise
 	 * @throws \Exception
 	 */
@@ -59,9 +73,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 			return true;
 		}
 
-		$return = Cache::set('session:' . $session_id, $session_data, Session::$expire);
-
-		return $return;
+		return $this->cache->set('session:' . $session_id, $session_data, Session::$expire);
 	}
 
 	public function close()
@@ -71,9 +83,7 @@ class CacheSessionHandler extends BaseObject implements SessionHandlerInterface
 
 	public function destroy($id)
 	{
-		$return = Cache::delete('session:' . $id);
-
-		return $return;
+		return $this->cache->delete('session:' . $id);
 	}
 
 	public function gc($maxlifetime)
