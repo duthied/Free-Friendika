@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1325);
+	define('DB_UPDATE_VERSION', 1326);
 }
 
 return [
@@ -705,6 +705,7 @@ return [
 			"resource-id" => ["resource-id"],
 			"deleted_changed" => ["deleted", "changed"],
 			"uid_wall_changed" => ["uid", "wall", "changed"],
+			"mention_uid_id" => ["mention", "uid", "id"],
 			"uid_eventid" => ["uid", "event-id"],
 			"icid" => ["icid"],
 			"iaid" => ["iaid"],

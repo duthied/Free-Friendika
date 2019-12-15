@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.12-rc (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1325
+-- DB_UPDATE_VERSION 1326
 -- ------------------------------------------
 
 
@@ -637,6 +637,7 @@ CREATE TABLE IF NOT EXISTS `item` (
 	 INDEX `resource-id` (`resource-id`),
 	 INDEX `deleted_changed` (`deleted`,`changed`),
 	 INDEX `uid_wall_changed` (`uid`,`wall`,`changed`),
+	 INDEX `mention_uid_id` (`mention`,`uid`,`id`),
 	 INDEX `uid_eventid` (`uid`,`event-id`),
 	 INDEX `icid` (`icid`),
 	 INDEX `iaid` (`iaid`),
