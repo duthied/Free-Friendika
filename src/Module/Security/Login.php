@@ -7,7 +7,6 @@
 namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
-use Friendica\App\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -49,15 +48,11 @@ class Login extends BaseModule
 		) {
 			$openid_url = trim(($_POST['openid_url'] ?? '') ?: $_POST['username']);
 
-			/** @var Authentication $authentication */
-			$authentication = self::getClass(Authentication::class);
-			$authentication->withOpenId($openid_url, !empty($_POST['remember']));
+			DI::auth()->withOpenId($openid_url, !empty($_POST['remember']));
 		}
 
 		if (!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
-			/** @var Authentication $authentication */
-			$authentication = self::getClass(Authentication::class);
-			$authentication->withPassword(
+			DI::auth()->withPassword(
 				DI::app(),
 				trim($_POST['username']),
 				trim($_POST['password']),
