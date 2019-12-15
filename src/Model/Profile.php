@@ -23,6 +23,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
@@ -1175,7 +1176,7 @@ class Profile
 
 		$a->contact = $arr['visitor'];
 
-		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->getHostName(), $visitor['name']));
+		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
 		Logger::log('OpenWebAuth: auth success from ' . $visitor['addr'], Logger::DEBUG);
 	}

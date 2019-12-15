@@ -2269,7 +2269,7 @@ class Contact
 				if (strlen(DI::baseUrl()->getUrlPath())) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
 				} else {
-					$myaddr = bin2hex($a->user['nickname'] . '@' . $a->getHostName());
+					$myaddr = bin2hex($a->user['nickname'] . '@' . DI::baseUrl()->getHostname());
 				}
 
 				DI::baseUrl()->redirect($ret['request'] . "&addr=$myaddr");
