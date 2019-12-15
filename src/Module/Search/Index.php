@@ -16,6 +16,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
@@ -68,7 +69,7 @@ class Index extends BaseSearchModule
 		}
 
 		if (local_user()) {
-			self::getApp()->page['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
+			DI::app()->page['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
 		}
 
 		Nav::setSelected('search');
@@ -190,7 +191,7 @@ class Index extends BaseSearchModule
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(self::getApp(), $r, $pager, 'search', false, false, 'commented', local_user());
+		$o .= conversation(DI::app(), $r, $pager, 'search', false, false, 'commented', local_user());
 
 		$o .= $pager->renderMinimal(count($r));
 

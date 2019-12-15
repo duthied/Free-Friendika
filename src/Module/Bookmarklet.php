@@ -5,6 +5,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
@@ -19,7 +20,7 @@ class Bookmarklet extends BaseModule
 	{
 		$_GET['mode'] = 'minimal';
 
-		$app = self::getApp();
+		$app = DI::app();
 		$config = $app->getConfig();
 
 		if (!local_user()) {

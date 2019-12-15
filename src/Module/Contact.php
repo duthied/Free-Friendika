@@ -17,6 +17,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -78,7 +79,7 @@ class Contact extends BaseModule
 
 	public static function post(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		if (!local_user()) {
 			return;
@@ -247,7 +248,7 @@ class Contact extends BaseModule
 			return Login::form($_SERVER['REQUEST_URI']);
 		}
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		$nets = $_GET['nets'] ?? '';
 		$rel  = $_GET['rel']  ?? '';
