@@ -17,12 +17,11 @@ use Friendica\DI;
 use Friendica\Module\Security\Login;
 use Friendica\Model\Contact;
 use Friendica\Model\Introduction;
-use Friendica\Model\Notify;
 
 function notifications_post(App $a)
 {
 	if (!local_user()) {
-		$a->internalRedirect();
+		DI::baseUrl()->redirect();
 	}
 
 	$request_id = (($a->argc > 1) ? $a->argv[1] : 0);
@@ -45,7 +44,7 @@ function notifications_post(App $a)
 				break;
 		}
 
-		$a->internalRedirect('notifications/intros');
+		DI::baseUrl()->redirect('notifications/intros');
 	}
 }
 
@@ -113,7 +112,7 @@ function notifications_content(App $a)
 		$notifs = $nm->getHomeList($show, $startrec, $perpage);
 	// fallback - redirect to main page
 	} else {
-		$a->internalRedirect('notifications');
+		DI::baseUrl()->redirect('notifications');
 	}
 
 	// Set the pager

@@ -22,7 +22,6 @@ use Friendica\Model;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\BadRequestException;
 use Friendica\Network\HTTPException\NotFoundException;
-use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
@@ -34,7 +33,7 @@ use Friendica\Util\Strings;
  */
 class Contact extends BaseModule
 {
-	private static function batchActions(App $a)
+	private static function batchActions()
 	{
 		if (empty($_POST['contact_batch']) || !is_array($_POST['contact_batch'])) {
 			return;
@@ -74,7 +73,7 @@ class Contact extends BaseModule
 			info(L10n::tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
-		$a->internalRedirect('contact');
+		DI::baseUrl()->redirect('contact');
 	}
 
 	public static function post(array $parameters = [])
@@ -87,7 +86,7 @@ class Contact extends BaseModule
 
 		// @TODO: Replace with parameter from router
 		if ($a->argv[1] === 'batch') {
-			self::batchActions($a);
+			self::batchActions();
 			return;
 		}
 
@@ -99,7 +98,7 @@ class Contact extends BaseModule
 
 		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false])) {
 			notice(L10n::t('Could not access contact record.') . EOL);
-			$a->internalRedirect('contact');
+			DI::baseUrl()->redirect('contact');
 			return; // NOTREACHED
 		}
 
@@ -280,9 +279,9 @@ class Contact extends BaseModule
 			if ($contact['self']) {
 				// @TODO: Replace with parameter from router
 				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
-					$a->internalRedirect('profile/' . $contact['nick']);
+					DI::baseUrl()->redirect('profile/' . $contact['nick']);
 				} else {
-					$a->internalRedirect('profile/' . $contact['nick'] . '?tab=profile');
+					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '?tab=profile');
 				}
 			}
 
@@ -380,13 +379,13 @@ class Contact extends BaseModule
 
 			if ($cmd === 'update' && ($orig_record['uid'] != 0)) {
 				self::updateContactFromPoll($contact_id);
-				$a->internalRedirect('contact/' . $contact_id);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
 			if ($cmd === 'updateprofile' && ($orig_record['uid'] != 0)) {
 				self::updateContactFromProbe($contact_id);
-				$a->internalRedirect('crepair/' . $contact_id);
+				DI::baseUrl()->redirect('crepair/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -396,7 +395,7 @@ class Contact extends BaseModule
 				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
 				info(($blocked ? L10n::t('Contact has been blocked') : L10n::t('Contact has been unblocked')) . EOL);
 
-				$a->internalRedirect('contact/' . $contact_id);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -406,7 +405,7 @@ class Contact extends BaseModule
 				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
 				info(($ignored ? L10n::t('Contact has been ignored') : L10n::t('Contact has been unignored')) . EOL);
 
-				$a->internalRedirect('contact/' . $contact_id);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -417,7 +416,7 @@ class Contact extends BaseModule
 					info((($archived) ? L10n::t('Contact has been archived') : L10n::t('Contact has been unarchived')) . EOL);
 				}
 
-				$a->internalRedirect('contact/' . $contact_id);
+				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
 			}
 
@@ -451,13 +450,13 @@ class Contact extends BaseModule
 				}
 				// Now check how the user responded to the confirmation query
 				if (!empty($_REQUEST['canceled'])) {
-					$a->internalRedirect('contact');
+					DI::baseUrl()->redirect('contact');
 				}
 
 				self::dropContact($orig_record);
 				info(L10n::t('Contact has been removed.') . EOL);
 
-				$a->internalRedirect('contact');
+				DI::baseUrl()->redirect('contact');
 				// NOTREACHED
 			}
 			if ($cmd === 'posts') {
