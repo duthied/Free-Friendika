@@ -145,6 +145,15 @@
 			identify: function(obj) { return obj.type + '-' + obj.id.toString(); },
 			datumTokenizer: Bloodhound.tokenizers.obj.whitespace(['name', 'addr']),
 			queryTokenizer: Bloodhound.tokenizers.whitespace,
+			sorter: function (itemA, itemB) {
+				if (itemA.name === itemB.name) {
+					return 0;
+				} else if (itemA.name > itemB.name) {
+					return 1;
+				} else {
+					return -1;
+				}
+			},
 		});
 		acl.initialize();
 
