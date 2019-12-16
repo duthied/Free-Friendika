@@ -351,7 +351,7 @@ class Contact extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
 		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => $a->getBaseURL(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
 		$sort_type = 0;
@@ -473,7 +473,7 @@ class Contact extends BaseModule
 			$contact = $a->data['contact'];
 
 			$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
-				'$baseurl' => $a->getBaseURL(true),
+				'$baseurl' => DI::baseUrl()->get(true),
 			]);
 
 			$contact['blocked']  = Model\Contact::isBlockedByUser($contact['id'], local_user());
