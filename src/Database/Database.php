@@ -1377,10 +1377,10 @@ class Database
 	 *
 	 * @brief Retrieve a single record from a table
 	 *
-	 * @param string $table
-	 * @param array  $fields
-	 * @param array  $condition
-	 * @param array  $params
+	 * @param string|array $table
+	 * @param array        $fields
+	 * @param array        $condition
+	 * @param array        $params
 	 *
 	 * @return bool|array
 	 * @throws \Exception
@@ -1412,7 +1412,7 @@ class Database
 	 * @throws \Exception
 	 * @see   self::select
 	 */
-	public function selectToArray(string $table, array $fields = [], array $condition = [], array $params = [])
+	public function selectToArray($table, array $fields = [], array $condition = [], array $params = [])
 	{
 		return $this->toArray($this->select($table, $fields, $condition, $params));
 	}
