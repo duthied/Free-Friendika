@@ -46,7 +46,7 @@ class Home extends BaseModule
 			}
 		}
 
-		$login = Login::form($app->query_string, $config->get('config', 'register_policy') === Register::CLOSED ? 0 : 1);
+		$login = Login::form(DI::args()->getQueryString(), $config->get('config', 'register_policy') === Register::CLOSED ? 0 : 1);
 
 		$content = '';
 		Hook::callAll('home_content', $content);
