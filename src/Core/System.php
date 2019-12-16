@@ -41,7 +41,7 @@ class System extends BaseObject
 	 * @return string The cleaned url
 	 * @throws \Exception
 	 */
-	public static function removedBaseUrl($orig_url)
+	public static function removedBaseUrl(string $orig_url)
 	{
 		return self::getApp()->removeBaseURL($orig_url);
 	}
