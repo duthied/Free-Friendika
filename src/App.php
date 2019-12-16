@@ -383,7 +383,7 @@ class App
 	 * @deprecated 2019.09 - Use BaseURL->remove() instead
 	 * @see        BaseURL::remove()
 	 */
-	public function removeBaseURL($origURL)
+	public function removeBaseURL(string $origURL)
 	{
 		return $this->baseURL->remove($origURL);
 	}
