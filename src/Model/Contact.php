@@ -1230,7 +1230,7 @@ class Contact extends BaseObject
 
 		$follow_link = '';
 		$unfollow_link = '';
-		if (in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
+		if (!$contact['self'] && in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
 			if ($contact['uid'] && in_array($contact['rel'], [self::SHARING, self::FRIEND])) {
 				$unfollow_link = 'unfollow?url=' . urlencode($contact['url']);
 			} elseif(!$contact['pending']) {
