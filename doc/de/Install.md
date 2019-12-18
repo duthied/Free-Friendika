@@ -107,6 +107,7 @@ Starte MySQL dann neu und es sollte klappen.
 ### Option A: Der manuelle Installer
 
 Besuche deine Webseite mit deinem Browser und befolge die Anleitung.
+Bevor du dies tust, kopiere die Datei `.htaccess-dist` nach `.htaccess`, wenn du den Apache Webserver verwendest.
 Bitte beachte jeden Fehler und korrigiere diese, bevor du fortfährst.
 
 Falls du einen Port für die Datenbankverbindung angeben musst, kannst du diesen in der Host-Eingabe Zeile angeben.
