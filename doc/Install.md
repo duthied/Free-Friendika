@@ -112,8 +112,8 @@ Please check the [troubleshooting](#Troubleshooting) section if running on MySQL
 
 ### Option A: Run the installer
 
-Point your web browser to the new site and follow the instructions.
-Please note any error messages and correct these before continuing.
+Before you point your web browser to the new site you need to rename .htaccess-dist to .htaccess for Apache installs.
+Follow the instructions. Please note any error messages and correct these before continuing.
 
 If you need to specify a port for the connection to the database, you can do so in the host name setting for the database.
 
