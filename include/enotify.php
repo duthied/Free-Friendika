@@ -11,6 +11,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Protocol\Activity;
@@ -775,17 +776,18 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 
 	if ($item["parent-uri"] === $item["uri"]) {
 		// Send a notification for every new post?
+		// Either the contact had posted something directly
 		$send_notification = DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true]);
 
+		// Or the contact is a mentioned forum
 		if (!$send_notification) {
 			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
 				intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
 
 			if (DBA::isResult($tags)) {
 				foreach ($tags AS $tag) {
-					$condition = ['nurl' => Strings::normaliseLink($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true];
-					$r = DBA::exists('contact', $condition);
-					if ($r) {
+					$condition = ['nurl' => Strings::normaliseLink($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
+					if (DBA::exists('contact', $condition)) {
 						$send_notification = true;
 					}
 				}
