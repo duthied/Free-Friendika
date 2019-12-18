@@ -16,11 +16,18 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/ap
 ## Implemented endpoints
 
 - [GET /api/v1/follow_requests](https://docs.joinmastodon.org/api/rest/follow-requests/#get-api-v1-follow-requests)
+- [POST /api/v1/follow_requests/:id/authorize](https://docs.joinmastodon.org/api/rest/follow-requests/#post-api-v1-follow-requests-id-authorize)
+    - Returns a [Relationship](https://docs.joinmastodon.org/api/entities/#relationship) object.
+- [POST /api/v1/follow_requests/:id/reject](https://docs.joinmastodon.org/api/rest/follow-requests/#post-api-v1-follow-requests-id-reject)
+    - Returns a [Relationship](https://docs.joinmastodon.org/api/entities/#relationship) object.
+- POST /api/v1/follow_requests/:id/ignore
+    - Friendica-specific, hides the follow request from the list and prevents the remote contact from retrying.
+    - Returns a [Relationship](https://docs.joinmastodon.org/api/entities/#relationship) object.
+    
+
 - [GET /api/v1/instance](https://docs.joinmastodon.org/api/rest/instances)
 - GET /api/v1/instance/peers - undocumented, but implemented by Mastodon and Pleroma
 
+
+
 ## Non-implemented endpoints
-
-- [POST /api/v1/follow_requests/:id/authorize](https://docs.joinmastodon.org/api/rest/follow-requests/#post-api-v1-follow-requests-id-authorize)
-- [POST /api/v1/follow_requests/:id/reject](https://docs.joinmastodon.org/api/rest/follow-requests/#post-api-v1-follow-requests-id-reject)
-

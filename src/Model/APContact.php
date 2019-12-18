@@ -84,7 +84,7 @@ class APContact extends BaseObject
 	public static function getByURL($url, $update = null)
 	{
 		if (empty($url)) {
-			return false;
+			return [];
 		}
 
 		$fetched_contact = false;
@@ -110,7 +110,7 @@ class APContact extends BaseObject
 			}
 
 			if (!is_null($update)) {
-				return DBA::isResult($apcontact) ? $apcontact : false;
+				return DBA::isResult($apcontact) ? $apcontact : [];
 			}
 
 			if (DBA::isResult($apcontact)) {

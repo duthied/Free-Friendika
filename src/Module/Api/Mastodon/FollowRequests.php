@@ -2,11 +2,13 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Api\Mastodon\Account;
+use Friendica\Api\Mastodon;
 use Friendica\App\BaseURL;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\Contact;
+use Friendica\Model\Introduction;
 use Friendica\Module\Base\Api;
 use Friendica\Network\HTTPException;
 
@@ -19,7 +21,40 @@ class FollowRequests extends Api
 	{
 		parent::init($parameters);
 
-		self::login();
+		if (!self::login()) {
+			throw new HTTPException\UnauthorizedException();
+		}
+	}
+
+	public static function post(array $parameters = [])
+	{
+		parent::post($parameters);
+
+		/** @var Introduction $Intro */
+		$Intro = self::getClass(Introduction::class);
+		$Intro->fetch(['id' => $parameters['id'], 'uid' => self::$current_user_id]);
+
+		$contactId = $Intro->{'contact-id'};
+
+		$relationship = new Mastodon\Relationship();
+		$relationship->id = $contactId;
+
+		switch ($parameters['action']) {
+			case 'authorize':
+				$Intro->confirm();
+				$relationship = Mastodon\Relationship::createFromContact(Contact::getById($contactId));
+				break;
+			case 'ignore':
+				$Intro->ignore();
+				break;
+			case 'reject':
+				$Intro->discard();
+				break;
+			default:
+				throw new HTTPException\BadRequestException('Unexpected action parameter, expecting "authorize", "ignore" or "reject"');
+		}
+
+		System::jsonExit($relationship);
 	}
 
 	/**
@@ -34,26 +69,32 @@ class FollowRequests extends Api
 		$limit = intval($_GET['limit'] ?? 40);
 
 		if (isset($since_id) && isset($max_id)) {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending` AND `id` > ? AND `id` < ?', self::$current_user_id, $since_id, $max_id];
+			$condition = ['`uid` = ? AND NOT `ignore` AND `id` > ? AND `id` < ?', self::$current_user_id, $since_id, $max_id];
 		} elseif (isset($since_id)) {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending` AND `id` > ?', self::$current_user_id, $since_id];
+			$condition = ['`uid` = ? AND NOT `ignore` AND `id` > ?', self::$current_user_id, $since_id];
 		} elseif (isset($max_id)) {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending` AND `id` < ?', self::$current_user_id, $max_id];
+			$condition = ['`uid` = ? AND NOT `ignore` AND `id` < ?', self::$current_user_id, $max_id];
 		} else {
-			$condition = ['`uid` = ? AND NOT `self` AND `pending`', self::$current_user_id];
+			$condition = ['`uid` = ? AND NOT `ignore`', self::$current_user_id];
 		}
 
-		$count = DBA::count('contact', $condition);
+		$count = DBA::count('intro', $condition);
 
-		$contacts = Contact::selectToArray(
+		$intros = DBA::selectToArray(
+			'intro',
 			[],
 			$condition,
 			['order' => ['id' => 'DESC'], 'limit' => $limit]
 		);
 
 		$return = [];
-		foreach ($contacts as $contact) {
-			$account = Account::createFromContact($contact);
+		foreach ($intros as $intro) {
+			$contact = Contact::getById($intro['contact-id']);
+			$apcontact = APContact::getByURL($contact['url'], false);
+			$account = Mastodon\Account::createFromContact($contact, $apcontact);
+
+			// Not ideal, the same "account" can have multiple ids depending on the context
+			$account->id = $intro['id'];
 
 			$return[] = $account;
 		}
@@ -68,9 +109,9 @@ class FollowRequests extends Api
 
 		$links = [];
 		if ($count > $limit) {
-			$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $contacts[count($contacts) - 1]['id']]) . '>; rel="next"';
+			$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $intros[count($intros) - 1]['id']]) . '>; rel="next"';
 		}
-		$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $contacts[0]['id']]) . '>; rel="prev"';
+		$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $intros[0]['id']]) . '>; rel="prev"';
 
 		header('Link: ' . implode(', ', $links));
 

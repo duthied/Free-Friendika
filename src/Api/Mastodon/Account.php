@@ -4,6 +4,7 @@ namespace Friendica\Api\Mastodon;
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Util\DateTimeFormat;
 
 /**
@@ -55,31 +56,33 @@ class Account
 	/**
 	 * Creates an account record from a contact record. Expects all contact table fields to be set
 	 *
-	 * @param array $contact
+	 * @param array $contact   Full contact table record
+	 * @param array $apcontact Full apcontact table record
 	 * @return Account
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function createFromContact(array $contact) {
+	public static function createFromContact(array $contact, array $apcontact = [])
+	{
 		$account = new Account();
-		$account->id = $contact['id'];
-		$account->username = $contact['nick'];
-		$account->acct = $contact['nick'];
-		$account->display_name = $contact['name'];
-		$account->locked = $contact['blocked'];
-		$account->created_at = DateTimeFormat::utc($contact['created'], DateTimeFormat::ATOM);
-		// No data is available from contact
-		$account->followers_count = 0;
-		$account->following_count = 0;
-		$account->statuses_count = 0;
-		$account->note = BBCode::convert($contact['about']);
-		$account->url = $contact['url'];
-		$account->avatar = $contact['avatar'];
-		$account->avatar_static = $contact['avatar'];
+		$account->id              = $contact['id'];
+		$account->username        = $contact['nick'];
+		$account->acct            = $contact['nick'];
+		$account->display_name    = $contact['name'];
+		$account->locked          = !empty($apcontact['manually-approve']);
+		$account->created_at      = DateTimeFormat::utc($contact['created'], DateTimeFormat::ATOM);
+		$account->followers_count = $apcontact['followers_count'] ?? 0;
+		$account->following_count = $apcontact['following_count'] ?? 0;
+		$account->statuses_count  = $apcontact['statuses_count'] ?? 0;
+		$account->note            = BBCode::convert($contact['about'], false);
+		$account->url             = $contact['url'];
+		$account->avatar          = $contact['avatar'];
+		$account->avatar_static   = $contact['avatar'];
 		// No header picture in Friendica
-		$account->header = '';
-		$account->header_static = '';
+		$account->header          = '';
+		$account->header_static   = '';
 		// No custom emojis per account in Friendica
-		$account->emojis = [];
+		$account->emojis          = [];
+		$account->bot             = ($contact['contact-type'] == Contact::TYPE_NEWS);
 
 		return $account;
 	}
