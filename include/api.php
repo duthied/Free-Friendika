@@ -2851,9 +2851,10 @@ function api_format_items_activities($item, $type = "json")
 		'attendyes' => [],
 		'attendno' => [],
 		'attendmaybe' => [],
+		'announce' => [],
 	];
 
-	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
+	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY];
 	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
 	while ($parent_item = Item::fetch($ret)) {
@@ -2877,6 +2878,9 @@ function api_format_items_activities($item, $type = "json")
 				break;
 			case Activity::ATTENDMAYBE:
 				$activities['attendmaybe'][] = $user;
+				break;
+			case Activity::ANNOUNCE:
+				$activities['announce'][] = $user;
 				break;
 			default:
 				break;
