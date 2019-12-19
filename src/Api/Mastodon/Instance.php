@@ -7,11 +7,12 @@ use Friendica\Api\Mastodon\Account;
 use Friendica\Api\Mastodon\Stats;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
+use Friendica\Model\APContact;
 use Friendica\Model\User;
 use Friendica\Module\Register;
 
 /**
- * Class Account
+ * Class Instance
  *
  * @see https://docs.joinmastodon.org/api/entities/#instance
  */
@@ -75,7 +76,8 @@ class Instance
 			$administrator = User::getByEmail($adminList[0], ['nickname']);
 			if (!empty($administrator)) {
 				$adminContact = DBA::selectFirst('contact', [], ['nick' => $administrator['nickname'], 'self' => true]);
-				$instance->contact_account = Account::createFromContact($adminContact);
+				$apcontact = APContact::getByURL($adminContact['url'], false);
+				$instance->contact_account = Account::createFromContact($adminContact, $apcontact);
 			}
 		}
 
