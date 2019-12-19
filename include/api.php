@@ -5104,10 +5104,10 @@ function api_friendica_remoteauth()
 
 	$cid = $contact['id'];
 
-	$dfrn_id = $contact['issued-id'] ?? $contact['dfrn-id'];
+	$dfrn_id = $contact['issued-id'] ?: $contact['dfrn-id'];
 
 	if (($contact['network'] !== Protocol::DFRN) || empty($dfrn_id)) {
-		System::externalRedirect($url ?? $c_url);
+		System::externalRedirect($url ?: $c_url);
 	}
 
 	if ($contact['duplex'] && $contact['issued-id']) {
