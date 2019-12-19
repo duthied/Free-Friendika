@@ -1,11 +1,59 @@
-Version 2019.12-dev (unreleased)
+Version 2019.12 (unreleased)
   Friendica Core:
+    Updates to the translations (CS, DE, ET, JA, NL, PL) [translation teams]
+    Updates to the documentation [copiis, MrPetovan, tobiasd]
+    Updates to the themes (all) [annando, hoergen, MrPetovan, tobiasd]
+    General code refactoring and enhancements [annando, MrPetovan, nupplaphil, tobiasd]
     Enhanced the manage functionality [annando]
+    Enhanced the federation with ActivityPub and Diaspora* protocol detection and contact requests [annando]
+    Enhanced federation with pixelfed and peertube [annando]
+    Enhanced how the API handles quoted postings [annando]
+    Enhanced the attachment removal by the API [annando]
+    Enhanced the 2FA field for mobile devices [nupplaphil]
+    Enhanced handling of re-shares [annando]
+    Enhanced the ACL dialog [annando, MrPetovan]
+    Enhanced transmission of postings by email and email handling in general [annando]
+    Enhanced the updating process of contacts [annando]
+    Enhanced the import of RSS/Atom feeds [annando]
+    Enhanced the registration form for require approval setups [tobiasd]
+    Enhanced the follow process for the Diaspora* protocol [annando]
+    Enhanced the display of the saved searched [AlfredSK]
+    Enhanced the display of image titles [annando]
+    Enhanced the handling of OpenID [annando]
+    Enhanced the Vagrant devel VM [tobiasd]
+    Enhanced handling of HTML special entities [nathilia-peirce]
+    Enhanced hashes by using HMAC [nathilia-peirce]
+    Enhancements to the ActivityPub implementation [annando]
+    Fixed a problem with delivery of direct messages over ActivityPub [annando]
     Fixed some problems with the remote auth functionality [annando]
+    Fixed an issue that prevented notifications for deleted postings be deleted themselves [annando]
+    Fixed a problem connecting to forums [annando]
+    Fixed messages in the admin panel [nupplaphil]
+    Fixed a problem when the log-file was not write-able [nupplaphil]
+    Fixed a problem with the caching directory for the password exposure check [MrPetovan]
+    Fixed a bug with detecting the browser language [nupplaphil]
+    Smart threading is now the default, but can be switched off by the user [annando]
+    Clarification: Posted order is now arrival order [annando]
     Added router configuration file [nupplaphil]
     Added drone.io as CI service [nupplaphil]
+    Added the ability to pin postings on account walls [annando]
+    Added various new API endpoints [annando, MrPetovan]
+    Added hooks for the email fetching process [annando]
+    Added support for nodeinfo 2 [annando]
+    Added export and import of followed contact data [tobiasd]
+    Added links to tag and category overview in the footer of postings [tobiasd]
+    Added config switch to use BCC instead of CC for ActivityPub delivery of non-public postings [annando]
 
   Friendica Addons:
+    Update to the translations (CA, DE, ET) [translation teams]
+    buffer
+      marked as unsupported [annando]
+    Discourse
+      New addon to integrate Discourse discussions [annando]
+    gnot
+      UI improvements [tobiasd]
+    js_upload
+      The addon got rewritten to adopt the new ACL [MrPetovan]
     mailstream:
       Support for new img format was added [mexon]
       BB Code is now included as plaintext [mexon]
@@ -13,7 +61,12 @@ Version 2019.12-dev (unreleased)
       ActivityPub "announce" notifications are not included [mexon]
 
   Closed Issues:
-    1071, 7548, 7657, 7681
+     989, 1071, 1188, 1334, 2537, 3229, 3231, 3385, 4112, 4442, 4451,
+    5048, 5568, 5802, 6865, 7190, 7308, 7316, 7418, 7613, 7657, 7659,
+    7664, 7671, 7679, 7681, 7682, 7685, 7688, 7691, 7702, 7707, 7709,
+    7718, 7733, 7740, 7747, 7756, 7766, 7773, 7776, 7778, 7781, 7821,
+    7825, 7834, 7863, 7868, 7880, 7888, 7889, 7902, 7914, 7920, 7946,
+    7953
 
 Version 2019.09 (2019-09-29)
   Friendica Core:
