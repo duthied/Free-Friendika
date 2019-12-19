@@ -5098,14 +5098,17 @@ function api_friendica_remoteauth()
 	// traditional DFRN
 
 	$contact = DBA::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
-
-	if (!DBA::isResult($contact) || ($contact['network'] !== Protocol::DFRN)) {
+	if (!DBA::isResult($contact)) {
 		throw new BadRequestException("Unknown contact");
 	}
 
 	$cid = $contact['id'];
 
 	$dfrn_id = $contact['issued-id'] ?? $contact['dfrn-id'];
+
+	if (($contact['network'] !== Protocol::DFRN) || empty($dfrn_id)) {
+		System::externalRedirect($url ?? $c_url);
+	}
 
 	if ($contact['duplex'] && $contact['issued-id']) {
 		$orig_id = $contact['issued-id'];
