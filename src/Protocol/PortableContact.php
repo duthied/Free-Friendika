@@ -57,7 +57,7 @@ class PortableContact
 	public static function loadWorker($cid, $uid = 0, $zcid = 0, $url = null)
 	{
 		// Call the function "load" via the worker
-		Worker::add(PRIORITY_LOW, "DiscoverPoCo", "load", (int)$cid, (int)$uid, (int)$zcid, $url);
+		Worker::add(PRIORITY_LOW, 'FetchPoCo', (int)$cid, (int)$uid, (int)$zcid, $url);
 	}
 
 	/**

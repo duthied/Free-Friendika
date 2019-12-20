@@ -4,7 +4,6 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -13,10 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Model\Contact;
 use Friendica\Model\GServer;
-use Friendica\Network\Probe;
 use Friendica\Protocol\PortableContact;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 class DiscoverPoCo
@@ -26,9 +22,7 @@ class DiscoverPoCo
 	{
 		/*
 		This function can be called in these ways:
-		- checkcontact: Updates gcontact entries
 		- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
-		- PortableContact::load: Load POCO data from a given POCO address
 		*/
 
 		$search = "";
@@ -50,13 +44,6 @@ class DiscoverPoCo
 				$result .= "failed";
 			}
 			Logger::log($result, Logger::DEBUG);
-		} elseif ($command == "load") {
-			if (!empty($param4)) {
-				$url = $param4;
-			} else {
-				$url = '';
-			}
-			PortableContact::load(intval($param1), intval($param2), intval($param3), $url);
 		} elseif ($command !== "") {
 			Logger::log("Unknown or missing parameter ".$command."\n");
 			return;
