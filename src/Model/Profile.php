@@ -1074,8 +1074,6 @@ class Profile
 
 		Logger::log('Not authenticated. Invoking reverse magic-auth for ' . $my_url, Logger::DEBUG);
 
-		Worker::add(PRIORITY_LOW, 'GProbe', $my_url);
-
 		// Remove the "addr" parameter from the destination. It is later added as separate parameter again.
 		$addr_request = 'addr=' . urlencode($addr);
 		$query = rtrim(str_replace($addr_request, '', $a->query_string), '?&');
