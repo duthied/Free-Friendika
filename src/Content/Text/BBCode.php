@@ -398,15 +398,15 @@ class BBCode extends BaseObject
 	 */
 	public static function removeAttachment($body, $no_link_desc = false)
 	{
-		return preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+		return preg_replace_callback("/\s*\[attachment (.*)\](.*?)\[\/attachment\]\s*/ism",
 			function ($match) use ($no_link_desc) {
 				$attach_data = self::getAttachmentData($match[0]);
 				if (empty($attach_data['url'])) {
 					return $match[0];
 				} elseif (empty($attach_data['title']) || $no_link_desc) {
-					return '[url]' . $attach_data['url'] . "[/url]\n";
+					return "\n[url]" . $attach_data['url'] . "[/url]\n";
 				} else {
-					return '[url=' . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
+					return "\n[url=" . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
 				}
 		}, $body);
 	}
