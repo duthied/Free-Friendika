@@ -28,7 +28,6 @@ class DiscoverPoCo
 		This function can be called in these ways:
 		- checkcontact: Updates gcontact entries
 		- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
-		- update_server: Frequently check the first 250 servers for vitality.
 		- PortableContact::load: Load POCO data from a given POCO address
 		*/
 
@@ -51,8 +50,6 @@ class DiscoverPoCo
 				$result .= "failed";
 			}
 			Logger::log($result, Logger::DEBUG);
-		} elseif ($command == "update_server") {
-			self::updateServer();
 		} elseif ($command == "load") {
 			if (!empty($param4)) {
 				$url = $param4;
@@ -80,32 +77,5 @@ class DiscoverPoCo
 		Logger::log('end '.$search);
 
 		return;
-	}
-
-	/**
-	 * @brief Updates the first 250 servers
-	 *
-	 */
-	private static function updateServer() {
-		$r = q("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
-
-		if (!DBA::isResult($r)) {
-			return;
-		}
-
-		$updated = 0;
-
-		foreach ($r AS $server) {
-			if (!PortableContact::updateNeeded($server["created"], "", $server["last_failure"], $server["last_contact"])) {
-				continue;
-			}
-			Logger::log('Update server status for server '.$server["url"], Logger::DEBUG);
-
-			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $server["url"]);
-
-			if (++$updated > 250) {
-				return;
-			}
-		}
 	}
 }

@@ -73,7 +73,7 @@ class Cron
 			// update nodeinfo data
 			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
-			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
+			Worker::add(PRIORITY_LOW, 'UpdateServers');
 
 			Worker::add(PRIORITY_LOW, 'UpdateSuggestions');
 
