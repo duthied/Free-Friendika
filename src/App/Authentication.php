@@ -95,14 +95,14 @@ class Authentication
 			if ($this->dba->isResult($user)) {
 				if (!$this->cookie->check($data->hash,
 					$user['password'] ?? '',
-					$user['prvKey'] ?? '')) {
+					$user['prvkey'] ?? '')) {
 					$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
 					$this->session->delete();
 					$this->baseUrl->redirect();
 				}
 
 				// Renew the cookie
-				$this->cookie->set($user['uid'], $user['password'], $user['prvKey']);
+				$this->cookie->set($user['uid'], $user['password'], $user['prvkey']);
 
 				// Do the authentification if not done by now
 				if (!$this->session->get('authenticated')) {
@@ -352,7 +352,7 @@ class Authentication
 			 */;
 			if ($this->session->get('remember')) {
 				$a->getLogger()->info('Injecting cookie for remembered user ' . $user_record['nickname']);
-				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvKey']);
+				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvkey']);
 				$this->session->remove('remember');
 			}
 		}
