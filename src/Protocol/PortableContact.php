@@ -488,7 +488,7 @@ class PortableContact
 				}
 
 				Logger::log('Update directory from server ' . $gserver['url'] . ' with ID ' . $gserver['id'], Logger::DEBUG);
-				Worker::add(PRIORITY_LOW, 'DiscoverPoCo', 'update_server_directory', (int) $gserver['id']);
+				Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', (int)$gserver['id']);
 
 				if (!$complete && ( --$no_of_queries == 0)) {
 					break;

@@ -30,7 +30,6 @@ class DiscoverPoCo
 		- suggestions: Discover other servers for their contacts.
 		- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
 		- update_server: Frequently check the first 250 servers for vitality.
-		- update_server_directory: Discover the given server id for their contacts
 		- PortableContact::load: Load POCO data from a given POCO address
 		*/
 
@@ -59,8 +58,6 @@ class DiscoverPoCo
 			Logger::log($result, Logger::DEBUG);
 		} elseif ($command == "update_server") {
 			self::updateServer();
-		} elseif ($command == "update_server_directory") {
-			PortableContact::discoverSingleServer(intval($param1));
 		} elseif ($command == "load") {
 			if (!empty($param4)) {
 				$url = $param4;
