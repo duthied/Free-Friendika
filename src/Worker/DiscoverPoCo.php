@@ -27,7 +27,6 @@ class DiscoverPoCo
 		/*
 		This function can be called in these ways:
 		- checkcontact: Updates gcontact entries
-		- suggestions: Discover other servers for their contacts.
 		- server <poco url>: Searches for the poco server list. "poco url" is base64 encoded.
 		- update_server: Frequently check the first 250 servers for vitality.
 		- PortableContact::load: Load POCO data from a given POCO address
@@ -37,8 +36,6 @@ class DiscoverPoCo
 		$mode = 0;
 		if (($command == "checkcontact") && Config::get('system', 'poco_completion')) {
 			self::discoverUsers();
-		} elseif ($command == "suggestions") {
-			GContact::updateSuggestions();
 		} elseif ($command == "server") {
 			$server_url = $param1;
 			if ($server_url == "") {

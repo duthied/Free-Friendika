@@ -75,7 +75,7 @@ class Cron
 
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
 
-			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
+			Worker::add(PRIORITY_LOW, 'UpdateSuggestions');
 
 			Worker::add(PRIORITY_LOW, 'Expire');
 
