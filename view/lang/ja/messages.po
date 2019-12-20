@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-12-05 23:28+0100\n"
-"PO-Revision-Date: 2019-12-15 01:10+0000\n"
-"Last-Translator: fabrixxm <fabrix.xm@gmail.com>\n"
+"PO-Revision-Date: 2019-12-20 02:40+0000\n"
+"Last-Translator: ozero dien <rgfx0020+misc@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -1335,7 +1335,7 @@ msgstr "編集"
 
 #: src/Object/Post.php:197
 msgid "pinned item"
-msgstr ""
+msgstr "ピン留め項目"
 
 #: src/Object/Post.php:202
 msgid "Delete locally"
@@ -1383,19 +1383,19 @@ msgstr "無視"
 
 #: src/Object/Post.php:296
 msgid "pin"
-msgstr ""
+msgstr "ピン留め"
 
 #: src/Object/Post.php:297
 msgid "unpin"
-msgstr ""
+msgstr "ピン留めを解除"
 
 #: src/Object/Post.php:298
 msgid "toggle pin status"
-msgstr ""
+msgstr "ピン留めを切り替え"
 
 #: src/Object/Post.php:301
 msgid "pinned"
-msgstr ""
+msgstr "ピン留めされました"
 
 #: src/Object/Post.php:308
 msgid "add star"
@@ -1444,7 +1444,7 @@ msgstr "共有"
 #: src/Object/Post.php:384
 #, php-format
 msgid "%s (Received %s)"
-msgstr ""
+msgstr "%s (%s を受け取りました)"
 
 #: src/Object/Post.php:409
 msgid "to"
@@ -1667,7 +1667,7 @@ msgstr "Twitter"
 
 #: src/Content/ContactSelector.php:128
 msgid "Discourse"
-msgstr ""
+msgstr "Discourse"
 
 #: src/Content/ContactSelector.php:129
 msgid "Diaspora Connector"
@@ -3469,7 +3469,7 @@ msgstr "ログインに失敗しました。"
 
 #: src/Core/Authentication.php:239
 msgid "Login failed. Please check your credentials."
-msgstr ""
+msgstr "ログインに失敗しました。認証情報を確かめてください。"
 
 #: src/Core/Authentication.php:355
 #, php-format
@@ -3501,7 +3501,7 @@ msgstr "一般公開"
 msgid ""
 "This content will be shown to all your followers and can be seen in the "
 "community pages and by anyone with its link."
-msgstr ""
+msgstr "このコンテンツはすべてのフォロワーに表示され、コミュニティページやリンクを知っている人なら誰でも見ることができます。"
 
 #: src/Core/ACL.php:396
 msgid "Limited/Private"
@@ -3512,15 +3512,15 @@ msgid ""
 "This content will be shown only to the people in the first box, to the "
 "exception of the people mentioned in the second box. It won't appear "
 "anywhere public."
-msgstr ""
+msgstr "このコンテンツは、最初のボックスに記載されたメンバーから、2番目のボックスに記載されている人を除いた範囲に対して表示されます。 一般公開はされません。"
 
 #: src/Core/ACL.php:398
 msgid "Show to:"
-msgstr ""
+msgstr "限定公開先:"
 
 #: src/Core/ACL.php:399
 msgid "Except to:"
-msgstr ""
+msgstr "この連絡先を除く:"
 
 #: src/Core/ACL.php:400 mod/editpost.php:96
 msgid "CC: email addresses"
@@ -7753,7 +7753,7 @@ msgstr "新しい投稿を作成"
 
 #: src/Module/Item/Compose.php:119
 msgid "Visibility"
-msgstr ""
+msgstr "公開範囲"
 
 #: src/Module/Item/Compose.php:140
 msgid "Clear the location"
@@ -7934,7 +7934,7 @@ msgstr "管理者へリクエストする内容を書く必要があります。
 
 #: src/Module/Register.php:266
 msgid "You have entered too much information."
-msgstr ""
+msgstr "入力件数が多すぎます"
 
 #: src/Module/Register.php:312
 msgid "Your registration is pending approval by the site owner."
@@ -9884,14 +9884,14 @@ msgstr "通常、システムは短縮された投稿に追加するのに最適
 
 #: mod/settings.php:852
 msgid "Attach the link title"
-msgstr ""
+msgstr "リンクの件名を添付します"
 
 #: mod/settings.php:852
 msgid ""
 "When activated, the title of the attached link will be added as a title on "
 "posts to Diaspora. This is mostly helpful with \"remote-self\" contacts that"
 " share feed content."
-msgstr ""
+msgstr "有効にすると、添付されたリンクのタイトルがDiasporaへの投稿のタイトルとして追加されます。 これは主に、フィードコンテンツを共有する「リモート セルフ」コンタクトで役立ちます。"
 
 #: mod/settings.php:853
 msgid "Automatically follow any GNU Social (OStatus) followers/mentioners"
@@ -10066,11 +10066,11 @@ msgstr "有効にすると、埋め込みコンテンツは自動更新では表
 
 #: mod/settings.php:971
 msgid "Disable Smart Threading"
-msgstr ""
+msgstr "スマートスレッドを無効にする"
 
 #: mod/settings.php:971
 msgid "Disable the automatic suppression of extraneous thread indentation."
-msgstr ""
+msgstr "外部スレッドのインデントについて、自動抑制を無効にします。"
 
 #: mod/settings.php:973
 msgid "General Theme Settings"

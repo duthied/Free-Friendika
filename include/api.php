@@ -605,11 +605,6 @@ function api_get_user(App $a, $contact_id = null)
 		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 
 		if (DBA::isResult($contact)) {
-			// If no nick where given, extract it from the address
-			if (($contact['nick'] == "") || ($contact['name'] == $contact['nick'])) {
-				$contact['nick'] = api_get_nick($contact["url"]);
-			}
-
 			$ret = [
 				'id' => $contact["id"],
 				'id_str' => (string) $contact["id"],
@@ -667,11 +662,6 @@ function api_get_user(App $a, $contact_id = null)
 	$countfriends = 0;
 	$countfollowers = 0;
 	$starred = 0;
-
-	// Add a nick if it isn't present there
-	if (($uinfo[0]['nick'] == "") || ($uinfo[0]['name'] == $uinfo[0]['nick'])) {
-		$uinfo[0]['nick'] = api_get_nick($uinfo[0]["url"]);
-	}
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
@@ -5242,91 +5232,6 @@ function api_share_as_retweet(&$item)
 
 /**
  *
- * @param string $profile
- *
- * @return string|false
- * @throws InternalServerErrorException
- * @todo remove trailing junk from profile url
- * @todo pump.io check has to check the website
- */
-function api_get_nick($profile)
-{
-	$nick = "";
-
-	$r = q(
-		"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-		DBA::escape(Strings::normaliseLink($profile))
-	);
-
-	if (DBA::isResult($r)) {
-		$nick = $r[0]["nick"];
-	}
-
-	if (!$nick == "") {
-		$r = q(
-			"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-			DBA::escape(Strings::normaliseLink($profile))
-		);
-
-		if (DBA::isResult($r)) {
-			$nick = $r[0]["nick"];
-		}
-	}
-
-	if (!$nick == "") {
-		$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
-		if ($friendica != $profile) {
-			$nick = $friendica;
-		}
-	}
-
-	if (!$nick == "") {
-		$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2", $profile);
-		if ($diaspora != $profile) {
-			$nick = $diaspora;
-		}
-	}
-
-	if (!$nick == "") {
-		$twitter = preg_replace("=https?://twitter.com/(.*)=ism", "$1", $profile);
-		if ($twitter != $profile) {
-			$nick = $twitter;
-		}
-	}
-
-
-	if (!$nick == "") {
-		$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
-		if ($StatusnetHost != $profile) {
-			$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
-			if ($StatusnetUser != $profile) {
-				$UserData = Network::fetchUrl("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
-				$user = json_decode($UserData);
-				if ($user) {
-					$nick = $user->screen_name;
-				}
-			}
-		}
-	}
-
-	// To-Do: look at the page if its really a pumpio site
-	//if (!$nick == "") {
-	//	$pumpio = preg_replace("=https?://(.*)/(.*)/=ism", "$2", $profile."/");
-	//	if ($pumpio != $profile)
-	//		$nick = $pumpio;
-		//      <div class="media" id="profile-block" data-profile-id="acct:kabniel@microca.st">
-
-	//}
-
-	if ($nick != "") {
-		return $nick;
-	}
-
-	return false;
-}
-
-/**
- *
  * @param array $item
  *
  * @return array
@@ -5356,10 +5261,6 @@ function api_in_reply_to($item)
 		$parent = Item::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
 
 		if (DBA::isResult($parent)) {
-			if ($parent['author-nick'] == "") {
-				$parent['author-nick'] = api_get_nick($parent['author-link']);
-			}
-
 			$in_reply_to['screen_name'] = (($parent['author-nick']) ? $parent['author-nick'] : $parent['author-name']);
 			$in_reply_to['user_id'] = intval($parent['author-id']);
 			$in_reply_to['user_id_str'] = (string) intval($parent['author-id']);
