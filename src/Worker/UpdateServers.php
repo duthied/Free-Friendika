@@ -17,7 +17,7 @@ class UpdateServers
 	 */
 	public static function execute()
 	{
-		$gservers = DBA::select("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
+		$gservers = DBA::p("SELECT `url`, `created`, `last_failure`, `last_contact` FROM `gserver` ORDER BY rand()");
 		if (!DBA::isResult($gservers)) {
 			return;
 		}

@@ -27,7 +27,7 @@ class DiscoverContacts
 
 		$starttime = time();
 
-		$contacts = DBA::select("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url`, `network` FROM `gcontact`
+		$contacts = DBA::p("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url`, `network` FROM `gcontact`
 				WHERE `last_contact` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 					`last_failure` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 					`network` IN (?, ?, ?, ?, '') ORDER BY rand()",
