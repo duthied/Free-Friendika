@@ -42,7 +42,7 @@ class Cron
 		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
 
 		// run the process to update locally stored global contacts in the background
-		Worker::add(PRIORITY_LOW, "DiscoverPoCo", "checkcontact");
+		Worker::add(PRIORITY_LOW, 'DiscoverContacts');
 
 		// Expire and remove user entries
 		Worker::add(PRIORITY_MEDIUM, "CronJobs", "expire_and_remove_users");

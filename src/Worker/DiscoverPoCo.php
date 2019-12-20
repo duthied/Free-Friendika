@@ -34,9 +34,7 @@ class DiscoverPoCo
 
 		$search = "";
 		$mode = 0;
-		if (($command == "checkcontact") && Config::get('system', 'poco_completion')) {
-			self::discoverUsers();
-		} elseif ($command == "server") {
+		if ($command == "server") {
 			$server_url = $param1;
 			if ($server_url == "") {
 				return;
@@ -106,69 +104,6 @@ class DiscoverPoCo
 			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "server", $server["url"]);
 
 			if (++$updated > 250) {
-				return;
-			}
-		}
-	}
-
-	private static function discoverUsers() {
-		Logger::log("Discover users", Logger::DEBUG);
-
-		$starttime = time();
-
-		$users = q("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url`, `network` FROM `gcontact`
-				WHERE `last_contact` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
-					`last_failure` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
-					`network` IN ('%s', '%s', '%s', '%s', '') ORDER BY rand()",
-				DBA::escape(Protocol::DFRN), DBA::escape(Protocol::DIASPORA),
-				DBA::escape(Protocol::OSTATUS), DBA::escape(Protocol::FEED));
-
-		if (!$users) {
-			return;
-		}
-		$checked = 0;
-
-		foreach ($users AS $user) {
-
-			$urlparts = parse_url($user["url"]);
-			if (!isset($urlparts["scheme"])) {
-				DBA::update('gcontact', ['network' => Protocol::PHANTOM],
-					['nurl' => Strings::normaliseLink($user["url"])]);
-				continue;
-			 }
-
-			if (in_array($urlparts["host"], ["twitter.com", "identi.ca"])) {
-				$networks = ["twitter.com" => Protocol::TWITTER, "identi.ca" => Protocol::PUMPIO];
-
-				DBA::update('gcontact', ['network' => $networks[$urlparts["host"]]],
-					['nurl' => Strings::normaliseLink($user["url"])]);
-				continue;
-			}
-
-			$server_url = Contact::getBasepath($user["url"]);
-			$force_update = false;
-
-			if ($user["server_url"] != "") {
-
-				$force_update = (Strings::normaliseLink($user["server_url"]) != Strings::normaliseLink($server_url));
-
-				$server_url = $user["server_url"];
-			}
-
-			if ((($server_url == "") && ($user["network"] == Protocol::FEED)) || $force_update || GServer::check($server_url, $user["network"])) {
-				Logger::log('Check profile '.$user["url"]);
-				Worker::add(PRIORITY_LOW, 'UpdateGContact', $user['url'], 'force');
-
-				if (++$checked > 100) {
-					return;
-				}
-			} else {
-				DBA::update('gcontact', ['last_failure' => DateTimeFormat::utcNow()],
-					['nurl' => Strings::normaliseLink($user["url"])]);
-			}
-
-			// Quit the loop after 3 minutes
-			if (time() > ($starttime + 180)) {
 				return;
 			}
 		}
