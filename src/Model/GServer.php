@@ -26,6 +26,10 @@ use Friendica\Network\Probe;
  */
 class GServer
 {
+	// Directory types
+	const DT_NONE = 0;
+	const DT_POCO = 1;
+	const DT_MASTODON = 2;
 	/**
 	 * Checks if the given server is reachable
 	 *
@@ -51,12 +55,12 @@ class GServer
 
 	/**
 	 * Decides if a server needs to be updated, based upon several date fields
-	 * 
+	 *
 	 * @param date $created      Creation date of that server entry
 	 * @param date $updated      When had the server entry be updated
 	 * @param date $last_failure Last failure when contacting that server
 	 * @param date $last_contact Last time the server had been contacted
-	 * 
+	 *
 	 * @return boolean Does the server record needs an update?
 	 */
 	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
@@ -167,7 +171,23 @@ class GServer
 	 */
 	public static function detect(string $url, string $network = '')
 	{
+		Logger::info('Detect server type', ['server' => $url]);
 		$serverdata = [];
+
+		$original_url = $url;
+
+		// Remove URL content that is not supposed to exist for a server url
+		$urlparts = parse_url($url);
+		unset($urlparts['user']);
+		unset($urlparts['pass']);
+		unset($urlparts['query']);
+		unset($urlparts['fragment']);
+		$url = Network::unparseURL($urlparts);
+
+		// If the URL missmatches, then we mark the old entry as failure
+		if ($url != $original_url) {
+			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($original_url)]);
+		}
 
 		// When a nodeinfo is present, we don't need to dig further
 		$xrd_timeout = Config::get('system', 'xrd_timeout');
@@ -238,7 +258,10 @@ class GServer
 			$serverdata = $nodeinfo;
 		}
 
+		// Detect the directory type
+		$serverdata['directory-type'] = self::DT_NONE;
 		$serverdata = self::checkPoCo($url, $serverdata);
+		$serverdata = self::checkMastodonDirectory($url, $serverdata);
 
 		// We can't detect the network type. Possibly it is some system that we don't know yet
 		if (empty($serverdata['network'])) {
@@ -604,7 +627,7 @@ class GServer
 				$protocols[$protocol] = true;
 			}
 
-			if (!empty($protocols['friendica'])) {
+			if (!empty($protocols['dfrn'])) {
 				$server['network'] = Protocol::DFRN;
 			} elseif (!empty($protocols['activitypub'])) {
 				$server['network'] = Protocol::ACTIVITYPUB;
@@ -795,6 +818,8 @@ class GServer
 	 */
 	private static function checkPoCo(string $url, array $serverdata)
 	{
+		$serverdata['poco'] = '';
+
 		$curlResult = Network::curl($url. '/poco');
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
@@ -808,9 +833,35 @@ class GServer
 		if (!empty($data['totalResults'])) {
 			$registeredUsers = $serverdata['registered-users'] ?? 0;
 			$serverdata['registered-users'] = max($data['totalResults'], $registeredUsers);
+			$serverdata['directory-type'] = self::DT_POCO;
 			$serverdata['poco'] = $url . '/poco';
-		} else {
-			$serverdata['poco'] = '';
+		}
+
+		return $serverdata;
+	}
+
+	/**
+	 * Checks if the given server does have a Mastodon style directory endpoint.
+	 *
+	 * @param string $url        URL of the given server
+	 * @param array  $serverdata array with server data
+	 *
+	 * @return array server data
+	 */
+	public static function checkMastodonDirectory(string $url, array $serverdata)
+	{
+		$curlResult = Network::curl($url. '/api/v1/directory?limit=1');
+		if (!$curlResult->isSuccess()) {
+			return $serverdata;
+		}
+
+		$data = json_decode($curlResult->getBody(), true);
+		if (empty($data)) {
+			return $serverdata;
+		}
+
+		if (count($data) == 1) {
+			$serverdata['directory-type'] = self::DT_MASTODON;
 		}
 
 		return $serverdata;
@@ -1242,13 +1293,13 @@ class GServer
 
 	/**
 	 * Update the user directory of a given gserver record
-	 * 
-	 * @param array $gserver gserver record 
+	 *
+	 * @param array $gserver gserver record
 	 */
 	public static function updateDirectory(array $gserver)
 	{
 		/// @todo Add Mastodon API directory
-		
+
 		if (!empty($gserver['poco'])) {
 			PortableContact::discoverSingleServer($gserver['id']);
 		}

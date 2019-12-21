@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2019.12-rc (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1326
+-- DB_UPDATE_VERSION 1328
 -- ------------------------------------------
 
 
@@ -470,6 +470,7 @@ CREATE TABLE IF NOT EXISTS `gserver` (
 	`info` text COMMENT '',
 	`register_policy` tinyint NOT NULL DEFAULT 0 COMMENT '',
 	`registered-users` int unsigned NOT NULL DEFAULT 0 COMMENT 'Number of registered users',
+	`directory-type` tinyint DEFAULT 0 COMMENT 'Type of directory service (Poco, Mastodon)',
 	`poco` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`noscrape` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`network` char(4) NOT NULL DEFAULT '' COMMENT '',

@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1327);
+	define('DB_UPDATE_VERSION', 1328);
 }
 
 return [
@@ -526,6 +526,7 @@ return [
 			"info" => ["type" => "text", "comment" => ""],
 			"register_policy" => ["type" => "tinyint", "not null" => "1", "default" => "0", "comment" => ""],
 			"registered-users" => ["type" => "int unsigned", "not null" => "1", "default" => "0", "comment" => "Number of registered users"],
+			"directory-type" => ["type" => "tinyint", "default" => "0", "comment" => "Type of directory service (Poco, Mastodon)"],
 			"poco" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"noscrape" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"network" => ["type" => "char(4)", "not null" => "1", "default" => "", "comment" => ""],
