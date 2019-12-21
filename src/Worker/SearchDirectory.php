@@ -26,13 +26,7 @@ class SearchDirectory
 			return;
 		}
 
-		self::discoverDirectory($search);
-		return;
-	}
-
-	private static function discoverDirectory($search)
-	{
-		$data = Cache::get('discoverDirectory' . $search);
+		$data = Cache::get('SearchDirectory:' . $search);
 		if (!is_null($data)) {
 			// Only search for the same item every 24 hours
 			if (time() < $data + (60 * 60 * 24)) {
@@ -86,6 +80,6 @@ class SearchDirectory
 				}
 			}
 		}
-		Cache::set('discoverDirectory' . $search, time(), Cache::DAY);
+		Cache::set('SearchDirectory:' . $search, time(), Cache::DAY);
 	}
 }
