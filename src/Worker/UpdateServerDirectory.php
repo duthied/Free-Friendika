@@ -5,14 +5,13 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Protocol\PortableContact;
+use Friendica\Model\GServer;
 
 class UpdateServerDirectory
 {
-	// Discover the given server id for their contacts
-	public static function execute($gserverid)
+	public static function execute($gserver)
 	{
-		PortableContact::discoverSingleServer($gserverid);
+		GServer::updateDirectory($gserver);
 		return;
 	}
 }

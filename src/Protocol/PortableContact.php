@@ -219,51 +219,6 @@ class PortableContact
 		return(preg_match("=https?://.+/user/\d+=ism", $url, $matches));
 	}
 
-	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
-	{
-		$now = strtotime(DateTimeFormat::utcNow());
-
-		if ($updated > $last_contact) {
-			$contact_time = strtotime($updated);
-		} else {
-			$contact_time = strtotime($last_contact);
-		}
-
-		$failure_time = strtotime($last_failure);
-		$created_time = strtotime($created);
-
-		// If there is no "created" time then use the current time
-		if ($created_time <= 0) {
-			$created_time = $now;
-		}
-
-		// If the last contact was less than 24 hours then don't update
-		if (($now - $contact_time) < (60 * 60 * 24)) {
-			return false;
-		}
-
-		// If the last failure was less than 24 hours then don't update
-		if (($now - $failure_time) < (60 * 60 * 24)) {
-			return false;
-		}
-
-		// If the last contact was less than a week ago and the last failure is older than a week then don't update
-		//if ((($now - $contact_time) < (60 * 60 * 24 * 7)) && ($contact_time > $failure_time))
-		//	return false;
-
-		// If the last contact time was more than a week ago and the contact was created more than a week ago, then only try once a week
-		if ((($now - $contact_time) > (60 * 60 * 24 * 7)) && (($now - $created_time) > (60 * 60 * 24 * 7)) && (($now - $failure_time) < (60 * 60 * 24 * 7))) {
-			return false;
-		}
-
-		// If the last contact time was more than a month ago and the contact was created more than a month ago, then only try once a month
-		if ((($now - $contact_time) > (60 * 60 * 24 * 30)) && (($now - $created_time) > (60 * 60 * 24 * 30)) && (($now - $failure_time) < (60 * 60 * 24 * 30))) {
-			return false;
-		}
-
-		return true;
-	}
-
 	/**
 	 * @brief Returns a list of all known servers
 	 * @return array List of server urls
@@ -470,7 +425,7 @@ class PortableContact
 
 		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
 
-		$gservers = q("SELECT `id`, `url`, `nurl`, `network`
+		$gservers = q("SELECT `id`, `url`, `nurl`, `network`, `poco`
 			FROM `gserver`
 			WHERE `last_contact` >= `last_failure`
 			AND `poco` != ''
@@ -488,7 +443,7 @@ class PortableContact
 				}
 
 				Logger::log('Update directory from server ' . $gserver['url'] . ' with ID ' . $gserver['id'], Logger::DEBUG);
-				Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', (int)$gserver['id']);
+				Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
 
 				if (!$complete && ( --$no_of_queries == 0)) {
 					break;

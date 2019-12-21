@@ -50,6 +50,61 @@ class GServer
 	}
 
 	/**
+	 * Decides if a server needs to be updated, based upon several date fields
+	 * 
+	 * @param date $created      Creation date of that server entry
+	 * @param date $updated      When had the server entry be updated
+	 * @param date $last_failure Last failure when contacting that server
+	 * @param date $last_contact Last time the server had been contacted
+	 * 
+	 * @return boolean Does the server record needs an update?
+	 */
+	public static function updateNeeded($created, $updated, $last_failure, $last_contact)
+	{
+		$now = strtotime(DateTimeFormat::utcNow());
+
+		if ($updated > $last_contact) {
+			$contact_time = strtotime($updated);
+		} else {
+			$contact_time = strtotime($last_contact);
+		}
+
+		$failure_time = strtotime($last_failure);
+		$created_time = strtotime($created);
+
+		// If there is no "created" time then use the current time
+		if ($created_time <= 0) {
+			$created_time = $now;
+		}
+
+		// If the last contact was less than 24 hours then don't update
+		if (($now - $contact_time) < (60 * 60 * 24)) {
+			return false;
+		}
+
+		// If the last failure was less than 24 hours then don't update
+		if (($now - $failure_time) < (60 * 60 * 24)) {
+			return false;
+		}
+
+		// If the last contact was less than a week ago and the last failure is older than a week then don't update
+		//if ((($now - $contact_time) < (60 * 60 * 24 * 7)) && ($contact_time > $failure_time))
+		//	return false;
+
+		// If the last contact time was more than a week ago and the contact was created more than a week ago, then only try once a week
+		if ((($now - $contact_time) > (60 * 60 * 24 * 7)) && (($now - $created_time) > (60 * 60 * 24 * 7)) && (($now - $failure_time) < (60 * 60 * 24 * 7))) {
+			return false;
+		}
+
+		// If the last contact time was more than a month ago and the contact was created more than a month ago, then only try once a month
+		if ((($now - $contact_time) > (60 * 60 * 24 * 30)) && (($now - $created_time) > (60 * 60 * 24 * 30)) && (($now - $failure_time) < (60 * 60 * 24 * 30))) {
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Checks the state of the given server.
 	 *
 	 * @param string  $server_url URL of the given server
@@ -89,7 +144,7 @@ class GServer
 				$last_failure = DBA::NULL_DATETIME;
 			}
 
-			if (!$force && !PortableContact::updateNeeded($gserver['created'], '', $last_failure, $last_contact)) {
+			if (!$force && !self::updateNeeded($gserver['created'], '', $last_failure, $last_contact)) {
 				Logger::info('No update needed', ['server' => $server_url]);
 				return ($last_contact >= $last_failure);
 			}
@@ -1183,5 +1238,19 @@ class GServer
 			$serverdata['version'] = $curlResult->getHeader('x-friendica-version');
 		}
 		return $serverdata;
+	}
+
+	/**
+	 * Update the user directory of a given gserver record
+	 * 
+	 * @param array $gserver gserver record 
+	 */
+	public static function updateDirectory(array $gserver)
+	{
+		/// @todo Add Mastodon API directory
+		
+		if (!empty($gserver['poco'])) {
+			PortableContact::discoverSingleServer($gserver['id']);
+		}
 	}
 }

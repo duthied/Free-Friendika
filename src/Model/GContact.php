@@ -783,7 +783,7 @@ class GContact
 			return;
 		}
 
-		if (!$force && !PortableContact::updateNeeded($gcontact['created'], $gcontact['updated'], $gcontact['last_failure'], $gcontact['last_contact'])) {
+		if (!$force && !GServer::updateNeeded($gcontact['created'], $gcontact['updated'], $gcontact['last_failure'], $gcontact['last_contact'])) {
 			Logger::info("Don't update profile", ['url' => $data['url'], 'updated' => $gcontact['updated']]);
 			return;
 		}

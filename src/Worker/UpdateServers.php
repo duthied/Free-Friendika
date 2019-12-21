@@ -7,7 +7,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Protocol\PortableContact;
+use Friendica\Model\GServer;
 
 class UpdateServers
 {
@@ -25,7 +25,7 @@ class UpdateServers
 		$updated = 0;
 
 		while ($gserver = DBA::fetch($gservers)) {
-			if (!PortableContact::updateNeeded($gserver['created'], '', $gserver['last_failure'], $gserver['last_contact'])) {
+			if (!GServer::updateNeeded($gserver['created'], '', $gserver['last_failure'], $gserver['last_contact'])) {
 				continue;
 			}
 			Logger::info('Update server status', ['server' => $gserver['url']]);
