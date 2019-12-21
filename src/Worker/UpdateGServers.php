@@ -12,8 +12,7 @@ use Friendica\Model\GServer;
 class UpdateGServers
 {
 	/**
-	 * @brief Updates the first 250 servers
-	 *
+	 * Updates the first 250 servers
 	 */
 	public static function execute()
 	{

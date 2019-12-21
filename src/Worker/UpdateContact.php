@@ -13,6 +13,11 @@ use Friendica\Database\DBA;
 
 class UpdateContact
 {
+	/**
+	 * Update contact data via probe
+	 * @param int    $contact_id Contact ID
+	 * @param string $command
+	 */
 	public static function execute($contact_id, $command = '')
 	{
 		$force = ($command == "force");

@@ -10,7 +10,10 @@ use Friendica\Util\Strings;
 
 class UpdateGServer
 {
-	// Searches for the poco server list.
+	/**
+	 * Update the given server
+	 * @param string $server_url Server URL
+	 */
 	public static function execute($server_url)
 	{
 		if (empty($server_url)) {

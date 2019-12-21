@@ -9,7 +9,14 @@ use Friendica\Protocol\PortableContact;
 
 class FetchPoCo
 {
-	// Load POCO data from a given POCO address
+	/**
+	 * Fetch PortableContacts from a given PoCo server address
+	 *
+	 * @param integer $cid  Contact ID
+	 * @param integer $uid  User ID
+	 * @param integer $zcid Global Contact ID
+	 * @param integer $url  PoCo address that should be polled
+	 */
 	public static function execute($cid, $uid, $zcid, $url)
 	{
 		PortableContact::load($cid, $uid, $zcid, $url);

@@ -16,22 +16,24 @@ use Friendica\Util\Strings;
 
 class UpdateGContacts
 {
-	// Updates gcontact entries
+	/**
+	 * Updates global contacts
+	 */
 	public static function execute()
 	{
 		if (!Config::get('system', 'poco_completion')) {
 			return;
 		}
 
-		Logger::info('Discover contacts');
+		Logger::info('Update global contacts');
 
 		$starttime = time();
 
 		$contacts = DBA::p("SELECT `url`, `created`, `updated`, `last_failure`, `last_contact`, `server_url`, `network` FROM `gcontact`
 				WHERE `last_contact` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
 					`last_failure` < UTC_TIMESTAMP - INTERVAL 1 MONTH AND
-					`network` IN (?, ?, ?, ?, '') ORDER BY rand()",
-				Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED);
+					`network` IN (?, ?, ?, ?, ?, '') ORDER BY rand()",
+				Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::DIASPORA, Protocol::OSTATUS, Protocol::FEED);
 
 		$checked = 0;
 

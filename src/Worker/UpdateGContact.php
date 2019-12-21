@@ -12,6 +12,11 @@ use Friendica\Database\DBA;
 
 class UpdateGContact
 {
+	/**
+	 * Update global contact via probe
+	 * @param string $url     Global contact url
+	 * @param string $command
+	 */
 	public static function execute($url, $command = '')
 	{
 		$force = ($command == "force");

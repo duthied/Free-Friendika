@@ -11,6 +11,9 @@ use Friendica\Protocol\PortableContact;
 
 class UpdateServerDirectories
 {
+	/**
+	 * Query global servers for their users
+	 */
 	public static function execute()
 	{
 		if (Config::get('system', 'poco_discovery') == PortableContact::DISABLED) {
