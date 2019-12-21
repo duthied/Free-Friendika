@@ -23,6 +23,6 @@ class CheckServer
 		}
 
 		$ret = GServer::check($server_url);
-		Logger::log('Checking server', ['url' => $server_url, 'result' => $ret]);
+		Logger::info('Checked server', ['url' => $server_url, 'result' => $ret]);
 	}
 }

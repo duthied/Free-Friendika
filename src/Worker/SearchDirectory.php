@@ -64,15 +64,15 @@ class SearchDirectory
 				$server_url = Contact::getBasepath($jj->url);
 				if ($server_url != '') {
 					if (!GServer::check($server_url)) {
-						Logger::log("Friendica server doesn't answer.", ['server' => $server_url]);
+						Logger::info("Friendica server doesn't answer.", ['server' => $server_url]);
 						continue;
 					}
-					Logger::log('Friendica server seems to be okay.', ['server' => $server_url]);
+					Logger::info('Friendica server seems to be okay.', ['server' => $server_url]);
 				}
 
 				$data = Probe::uri($jj->url);
 				if ($data['network'] == Protocol::DFRN) {
-					Logger::log('Add profile to local directory', ['profile' => $jj->url]);
+					Logger::info('Add profile to local directory', ['profile' => $jj->url]);
 
 					if ($jj->tags != '') {
 						$data['keywords'] = $jj->tags;
@@ -82,7 +82,7 @@ class SearchDirectory
 
 					GContact::update($data);
 				} else {
-					Logger::log('Profile is not responding or no Friendica contact', ['profile' => $jj->url, 'network' => $data['network']]);
+					Logger::info('Profile is not responding or no Friendica contact', ['profile' => $jj->url, 'network' => $data['network']]);
 				}
 			}
 		}

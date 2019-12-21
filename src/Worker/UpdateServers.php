@@ -24,7 +24,7 @@ class UpdateServers
 
 		$updated = 0;
 
-		while ($gserver == DBA::fetch($gservers)) {
+		while ($gserver = DBA::fetch($gservers)) {
 			if (!PortableContact::updateNeeded($gserver['created'], '', $gserver['last_failure'], $gserver['last_contact'])) {
 				continue;
 			}
