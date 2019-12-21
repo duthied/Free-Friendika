@@ -126,7 +126,7 @@ class NodeInfo extends BaseModule
 		$nodeinfo = [
 			'version'           => '1.0',
 			'software'          => [
-				'name'    => 'friendica',
+				'name'    => 'Friendica',
 				'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
 			],
 			'protocols'         => [
@@ -191,7 +191,7 @@ class NodeInfo extends BaseModule
 		$nodeinfo = [
 			'version'           => '2.0',
 			'software'          => [
-				'name'    => 'friendica',
+				'name'    => 'Friendica',
 				'version' => FRIENDICA_VERSION . '-' . DB_UPDATE_VERSION,
 			],
 			'protocols'         => ['dfrn', 'activitypub'],

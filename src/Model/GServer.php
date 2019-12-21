@@ -549,7 +549,7 @@ class GServer
 				$protocols[$protocol] = true;
 			}
 
-			if (!empty($protocols['friendica'])) {
+			if (!empty($protocols['dfrn'])) {
 				$server['network'] = Protocol::DFRN;
 			} elseif (!empty($protocols['activitypub'])) {
 				$server['network'] = Protocol::ACTIVITYPUB;
