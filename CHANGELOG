@@ -1,7 +1,7 @@
 Version 2019.12 (unreleased)
   Friendica Core:
     Updates to the translations (CS, DE, ET, JA, NL, PL) [translation teams]
-    Updates to the documentation [copiis, MrPetovan, tobiasd]
+    Updates to the documentation [copiis, MrPetovan, stom79, tobiasd]
     Updates to the themes (all) [annando, hoergen, MrPetovan, tobiasd]
     General code refactoring and enhancements [annando, MrPetovan, nupplaphil, tobiasd]
     Enhanced the manage functionality [annando]
