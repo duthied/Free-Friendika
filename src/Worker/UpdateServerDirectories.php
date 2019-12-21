@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Worker/DiscoverPoCo.php
+ * @file src/Worker/UpdateServerDirectories.php
  */
 namespace Friendica\Worker;
 
@@ -9,7 +9,7 @@ use Friendica\Core\Logger;
 use Friendica\Model\GContact;
 use Friendica\Protocol\PortableContact;
 
-class DiscoverPoCo
+class UpdateServerDirectories
 {
 	public static function execute()
 	{

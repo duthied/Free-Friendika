@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Worker/DiscoverContacts.php
+ * @file src/Worker/UpdateGContacts.php
  */
 namespace Friendica\Worker;
 
@@ -14,7 +14,7 @@ use Friendica\Model\GServer;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 
-class DiscoverContacts
+class UpdateGContacts
 {
 	// Updates gcontact entries
 	public static function execute()

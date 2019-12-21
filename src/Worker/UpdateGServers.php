@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Worker/UpdateServers.php
+ * @file src/Worker/UpdateGServers.php
  */
 namespace Friendica\Worker;
 
@@ -9,7 +9,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\GServer;
 
-class UpdateServers
+class UpdateGServers
 {
 	/**
 	 * @brief Updates the first 250 servers
