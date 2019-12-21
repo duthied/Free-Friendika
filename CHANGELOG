@@ -32,6 +32,7 @@ Version 2019.12 (unreleased)
     Fixed a problem when the log-file was not write-able [nupplaphil]
     Fixed a problem with the caching directory for the password exposure check [MrPetovan]
     Fixed a bug with detecting the browser language [nupplaphil]
+    Fixed a bug with handling > in Markdown [MrPetovan]
     Smart threading is now the default, but can be switched off by the user [annando]
     Clarification: Posted order is now arrival order [annando]
     Added router configuration file [nupplaphil]
@@ -66,7 +67,7 @@ Version 2019.12 (unreleased)
     7664, 7671, 7679, 7681, 7682, 7685, 7688, 7691, 7702, 7707, 7709,
     7718, 7733, 7740, 7747, 7756, 7766, 7773, 7776, 7778, 7781, 7821,
     7825, 7834, 7863, 7868, 7880, 7888, 7889, 7902, 7914, 7920, 7946,
-    7953
+    7953, 7978
 
 Version 2019.09 (2019-09-29)
   Friendica Core:
