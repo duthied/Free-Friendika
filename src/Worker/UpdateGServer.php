@@ -1,6 +1,6 @@
 <?php
 /**
- * @file src/Worker/CheckServer.php
+ * @file src/Worker/UpdateGServer.php
  */
 namespace Friendica\Worker;
 
@@ -8,7 +8,7 @@ use Friendica\Core\Logger;
 use Friendica\Model\GServer;
 use Friendica\Util\Strings;
 
-class CheckServer
+class UpdateGServer
 {
 	// Searches for the poco server list.
 	public static function execute($server_url)
@@ -23,6 +23,6 @@ class CheckServer
 		}
 
 		$ret = GServer::check($server_url);
-		Logger::info('Checked server', ['url' => $server_url, 'result' => $ret]);
+		Logger::info('Updated gserver', ['url' => $server_url, 'result' => $ret]);
 	}
 }

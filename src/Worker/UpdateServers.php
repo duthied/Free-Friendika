@@ -30,7 +30,7 @@ class UpdateServers
 			}
 			Logger::info('Update server status', ['server' => $gserver['url']]);
 
-			Worker::add(PRIORITY_LOW, 'CheckServer', $gserver['url']);
+			Worker::add(PRIORITY_LOW, 'UpdateGServer', $gserver['url']);
 
 			if (++$updated > 250) {
 				return;

@@ -270,7 +270,7 @@ class PortableContact
 
 			if (!DBA::isResult($r)) {
 				Logger::log("Call server check for server ".$server_url, Logger::DEBUG);
-				Worker::add(PRIORITY_LOW, 'CheckServer', $server_url);
+				Worker::add(PRIORITY_LOW, 'UpdateGServer', $server_url);
 			}
 		}
 	}
@@ -295,7 +295,7 @@ class PortableContact
 
 			if (!empty($servers['pods'])) {
 				foreach ($servers['pods'] as $server) {
-					Worker::add(PRIORITY_LOW, 'CheckServer', 'https://' . $server['host']);
+					Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host']);
 				}
 			}
 		}
@@ -314,7 +314,7 @@ class PortableContact
 
 					foreach ($servers['instances'] as $server) {
 						$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
-						Worker::add(PRIORITY_LOW, 'CheckServer', $url);
+						Worker::add(PRIORITY_LOW, 'UpdateGServer', $url);
 					}
 				}
 			}
