@@ -32,7 +32,6 @@ Version 2019.12 (unreleased)
     Fixed a problem when the log-file was not write-able [nupplaphil]
     Fixed a problem with the caching directory for the password exposure check [MrPetovan]
     Fixed a bug with detecting the browser language [nupplaphil]
-    Fixed a bug with handling > in Markdown [MrPetovan]
     Smart threading is now the default, but can be switched off by the user [annando]
     Clarification: Posted order is now arrival order [annando]
     Added router configuration file [nupplaphil]
