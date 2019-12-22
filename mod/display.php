@@ -172,6 +172,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$o = '';
 
+	$item = null;
+
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
@@ -221,7 +223,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		}
 	}
 
-	if (!$item_id) {
+	if (empty($item)) {
 		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
