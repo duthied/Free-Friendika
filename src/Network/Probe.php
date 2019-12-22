@@ -17,6 +17,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
@@ -142,11 +143,7 @@ class Probe
 			return [];
 		}
 
-		$lrdd = [];
-		// The following webfinger path is defined in RFC 7033 https://tools.ietf.org/html/rfc7033
-		// Problem is that Hubzilla currently doesn't provide all data in the JSON webfinger
-		// compared to the XML webfinger. So this is commented out by now.
-		// $lrdd = array("application/jrd+json" => $host_url.'/.well-known/webfinger?resource={uri}');
+		$lrdd = ['application/jrd+json' => $host_url . '/.well-known/webfinger?resource={uri}'];
 
 		foreach ($links["xrd"]["link"] as $value => $link) {
 			if (!empty($link["@attributes"])) {
@@ -644,17 +641,20 @@ class Probe
 		if (in_array($network, ["", Protocol::DFRN])) {
 			$result = self::dfrn($webfinger);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::DIASPORA)) {
-			$result = self::diaspora($webfinger);
+		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::DIASPORA)) {
+			$result = self::diaspora($webfinger, $result);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::OSTATUS)) {
-			$result = self::ostatus($webfinger);
+		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::OSTATUS)) {
+			$result = self::ostatus($webfinger, false, $result);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
-			$result = self::pumpio($webfinger, $addr);
+		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::PUMPIO)) {
+			$result = self::pumpio($webfinger, $addr, $result);
 		}
-		if ((!$result && ($network == "")) || ($network == Protocol::FEED)) {
-			$result = self::feed($uri);
+		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::ZOT)) {
+			$result = self::hubzilla($webfinger, $result);
+		}
+		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::FEED)) {
+			$result = self::feed($uri, true, $result);
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
@@ -684,6 +684,127 @@ class Probe
 			}
 		}
 		return $result;
+	}
+
+	private static function hubzilla($webfinger, $data)
+	{
+		if (strstr($webfinger['properties']['http://purl.org/zot/federation'] ?? '', 'zot')) {
+			$data['network'] = Protocol::ZOT;
+		}
+		if (!empty($webfinger['properties']['http://webfinger.net/ns/name'])) {
+			$data['name'] = $webfinger['properties']['http://webfinger.net/ns/name'];
+		}
+		if (!empty($webfinger['properties']['https://w3id.org/security/v1#publicKeyPem'])) {
+			$data['pubkey'] = $webfinger['properties']['https://w3id.org/security/v1#publicKeyPem'];
+		}
+//print_r($webfinger);
+		$hcard_url = '';
+		$zot_url = '';
+		foreach ($webfinger['links'] as $link) {
+			if (($link['rel'] == 'http://microformats.org/profile/hcard') && !empty($link['href'])) {
+				$hcard_url = $link['href'];
+			} elseif (($link['rel'] == 'http://purl.org/zot/protocol') && !empty($link['href'])) {
+				$zot_url = $link['href'];
+			} elseif (($link["rel"] == "http://purl.org/zot/protocol/6.0") && !empty($link["href"])) {
+				$data["url"] = $link["href"];
+			} elseif (($link["rel"] == "http://webfinger.net/rel/blog") && !empty($link["href"]) && empty($data["url"])) {
+				$data["url"] = $link["href"];
+			}
+		}
+
+		if (empty($zot_url) && !empty($data['addr']) && !empty(self::$baseurl)) {
+			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
+		}
+
+		if (!empty($hcard_url)) {
+			$data = self::pollHcard($hcard_url, $data, false);
+		}
+
+		if (!empty($zot_url)) {
+			$data = self::pollZot($zot_url, $data);
+		}
+
+		return $data;
+	}
+
+	public static function pollZot($url, $data)
+	{
+		$curlResult = Network::curl($url);
+		if ($curlResult->isTimeout()) {
+			return $data;
+		}
+		$content = $curlResult->getBody();
+		if (!$content) {
+			return $data;
+		}
+
+		$json = json_decode($content, true);
+		if (!is_array($json)) {
+			return $data;
+		}
+
+		if (!empty($json['protocols']) && in_array('zot', $json['protocols'])) {
+			$data['network'] = Protocol::ZOT;
+		}
+
+		if (!empty($json['guid'])) {
+			$data['guid'] = $json['guid'];
+		}
+		if (!empty($json['key'])) {
+			$data['pubkey'] = $json['key'];
+		}
+		if (!empty($json['name'])) {
+			$data['name'] = $json['name'];
+		}
+		if (!empty($json['address'])) {
+			$data['addr'] = $json['address'];
+		}
+		if (!empty($json['url'])) {
+			$data['url'] = $json['url'];
+		}
+		if (!empty($json['connections_url'])) {
+			$data['poco'] = $json['connections_url'];
+		}
+		if (isset($json['searchable'])) {
+			$data['hide'] = !$json['searchable'];
+		}
+		if (!empty($json['public_forum'])) {
+			$data['community'] = $json['public_forum'];
+			$data['account-type'] = Contact::PAGE_COMMUNITY;
+		}
+
+		if (!empty($json['profile'])) {
+			$profile = $json['profile'];
+			if (!empty($profile['description'])) {
+				$data['about'] = $profile['description'];
+			}
+			if (!empty($profile['gender'])) {
+				$data['gender'] = $profile['gender'];
+			}
+			if (!empty($profile['keywords'])) {
+				$keywords = implode(', ', $profile['keywords']);
+				if (!empty($keywords)) {
+					$data['keywords'] = $keywords;
+				}
+			}
+
+			$loc = [];
+			if (!empty($profile['region'])) {
+				$loc['region'] = $profile['region'];
+			}
+			if (!empty($profile['country'])) {
+				$loc['country-name'] = $profile['country'];
+			}
+			if (!empty($profile['hometown'])) {
+				$loc['locality'] = $profile['hometown'];
+			}
+			$location = Profile::formatLocation($loc);
+			if (!empty($location)) {
+				$data['location'] = $location;
+			}
+		}
+
+		return $data;
 	}
 
 	/**
@@ -998,7 +1119,7 @@ class Probe
 		}
 
 		if (!isset($data["network"]) || ($hcard_url == "")) {
-			return false;
+			return $data;
 		}
 
 		// Fetch data via noscrape - this is faster
@@ -1156,10 +1277,13 @@ class Probe
 	 * @return array Diaspora data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function diaspora($webfinger)
+	private static function diaspora($webfinger, $data)
 	{
 		$hcard_url = "";
-		$data = [];
+
+		unset($data["guid"]);
+		unset($data["pubkey"]);
+
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 		foreach (array_reverse($webfinger["links"]) as $link) {
@@ -1187,8 +1311,8 @@ class Probe
 			}
 		}
 
-		if (!isset($data["url"]) || ($hcard_url == "")) {
-			return false;
+		if (empty($data["url"]) || empty($hcard_url)) {
+			return $data;
 		}
 
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
@@ -1208,15 +1332,11 @@ class Probe
 		// Fetch further information from the hcard
 		$data = self::pollHcard($hcard_url, $data);
 
-		if (!$data) {
-			return false;
-		}
-
-		if (isset($data["url"])
-			&& isset($data["guid"])
-			&& isset($data["baseurl"])
-			&& isset($data["pubkey"])
-			&& ($hcard_url != "")
+		if (!empty($data["url"])
+			&& !empty($data["guid"])
+			&& !empty($data["baseurl"])
+			&& !empty($data["pubkey"])
+			&& !empty($hcard_url)
 		) {
 			$data["network"] = Protocol::DIASPORA;
 
@@ -1228,8 +1348,6 @@ class Probe
 			// We have to overwrite the detected value for "notify" since Hubzilla doesn't send it
 			$data["notify"] = $data["baseurl"] . "/receive/users/" . $data["guid"];
 			$data["batch"]  = $data["baseurl"] . "/receive/public";
-		} else {
-			return false;
 		}
 
 		return $data;
@@ -1244,10 +1362,8 @@ class Probe
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function ostatus($webfinger, $short = false)
+	private static function ostatus($webfinger, $short = false, $data = [])
 	{
-		$data = [];
-
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
 				if (strstr($alias, "@") && !strstr(Strings::normaliseLink($alias), "http://")) {
@@ -1288,7 +1404,11 @@ class Probe
 						$curlResult = Network::curl($pubkey);
 						if ($curlResult->isTimeout()) {
 							self::$istimeout = true;
-							return false;
+							if ($short) {
+								return false;
+							} else {
+								return $data;
+							}
 						}
 						$pubkey = $curlResult->getBody();
 					}
@@ -1309,8 +1429,10 @@ class Probe
 			&& isset($data["url"])
 		) {
 			$data["network"] = Protocol::OSTATUS;
-		} else {
+		} elseif ($short) {
 			return false;
+		} else {
+			return $data;
 		}
 
 		if ($short) {
@@ -1321,7 +1443,7 @@ class Probe
 		$curlResult = Network::curl($data["poll"]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return $data;
 		}
 		$feed = $curlResult->getBody();
 		$dummy1 = null;
@@ -1329,7 +1451,7 @@ class Probe
 		$dummy2 = null;
 		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
 		if (!$feed_data) {
-			return false;
+			return $data;
 		}
 
 		if (!empty($feed_data["header"]["author-name"])) {
@@ -1429,9 +1551,8 @@ class Probe
 	 * @param       $addr
 	 * @return array pump.io data
 	 */
-	private static function pumpio($webfinger, $addr)
+	private static function pumpio($webfinger, $addr, $data)
 	{
-		$data = [];
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 		foreach (array_reverse($webfinger["links"]) as $link) {
@@ -1458,13 +1579,13 @@ class Probe
 
 			$data["network"] = Protocol::PUMPIO;
 		} else {
-			return false;
+			return $data;
 		}
 
 		$profile_data = self::pumpioProfileData($data["url"]);
 
 		if (!$profile_data) {
-			return false;
+			return $data;
 		}
 
 		$data = array_merge($data, $profile_data);
@@ -1591,12 +1712,12 @@ class Probe
 	 * @return array feed data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function feed($url, $probe = true)
+	private static function feed($url, $probe = true, $data = [])
 	{
 		$curlResult = Network::curl($url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return false;
+			return $data;
 		}
 		$feed = $curlResult->getBody();
 		$dummy1 = $dummy2 = $dummy3 = null;
@@ -1604,13 +1725,13 @@ class Probe
 
 		if (!$feed_data) {
 			if (!$probe) {
-				return false;
+				return $data;
 			}
 
 			$feed_url = self::getFeedLink($url);
 
 			if (!$feed_url) {
-				return false;
+				return $data;
 			}
 
 			return self::feed($feed_url, false);
