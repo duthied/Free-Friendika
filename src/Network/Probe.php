@@ -359,9 +359,9 @@ class Probe
 			$data['url'] = $uri;
 		}
 
-		if (!empty($data['photo'])) {
-			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl'] ?? ''), Strings::normaliseLink($data['photo']));
-		} else {
+		if (!empty($data['photo']) && !empty($data["baseurl"])) {
+			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl']), Strings::normaliseLink($data['photo']));
+		} elseif (empty($data['photo'])) {
 			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
 		}
 
@@ -651,7 +651,7 @@ class Probe
 			$result = self::pumpio($webfinger, $addr, $result);
 		}
 		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::ZOT)) {
-			$result = self::hubzilla($webfinger, $result);
+			$result = self::zot($webfinger, $result);
 		}
 		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::FEED)) {
 			$result = self::feed($uri, true, $result);
@@ -677,7 +677,7 @@ class Probe
 
 		Logger::log($uri." is ".$result["network"], Logger::DEBUG);
 
-		if (empty($result["baseurl"])) {
+		if (empty($result["baseurl"]) && ($result["network"] != Protocol::PHANTOM)) {
 			$pos = strpos($result["url"], $host);
 			if ($pos) {
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
@@ -686,38 +686,26 @@ class Probe
 		return $result;
 	}
 
-	private static function hubzilla($webfinger, $data)
+	/**
+	 * Check for Zot contact
+	 *
+	 * @param array $webfinger Webfinger data
+	 * @param array $data      previously probed data
+	 *
+	 * @return array Zot data
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	private static function zot($webfinger, $data)
 	{
-		if (strstr($webfinger['properties']['http://purl.org/zot/federation'] ?? '', 'zot')) {
-			$data['network'] = Protocol::ZOT;
-		}
-		if (!empty($webfinger['properties']['http://webfinger.net/ns/name'])) {
-			$data['name'] = $webfinger['properties']['http://webfinger.net/ns/name'];
-		}
-		if (!empty($webfinger['properties']['https://w3id.org/security/v1#publicKeyPem'])) {
-			$data['pubkey'] = $webfinger['properties']['https://w3id.org/security/v1#publicKeyPem'];
-		}
-//print_r($webfinger);
-		$hcard_url = '';
 		$zot_url = '';
 		foreach ($webfinger['links'] as $link) {
-			if (($link['rel'] == 'http://microformats.org/profile/hcard') && !empty($link['href'])) {
-				$hcard_url = $link['href'];
-			} elseif (($link['rel'] == 'http://purl.org/zot/protocol') && !empty($link['href'])) {
+			if (($link['rel'] == 'http://purl.org/zot/protocol') && !empty($link['href'])) {
 				$zot_url = $link['href'];
-			} elseif (($link["rel"] == "http://purl.org/zot/protocol/6.0") && !empty($link["href"])) {
-				$data["url"] = $link["href"];
-			} elseif (($link["rel"] == "http://webfinger.net/rel/blog") && !empty($link["href"]) && empty($data["url"])) {
-				$data["url"] = $link["href"];
 			}
 		}
 
 		if (empty($zot_url) && !empty($data['addr']) && !empty(self::$baseurl)) {
 			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
-		}
-
-		if (!empty($hcard_url)) {
-			$data = self::pollHcard($hcard_url, $data, false);
 		}
 
 		if (!empty($zot_url)) {
@@ -745,6 +733,8 @@ class Probe
 
 		if (!empty($json['protocols']) && in_array('zot', $json['protocols'])) {
 			$data['network'] = Protocol::ZOT;
+		} elseif (!isset($json['protocols'])) {
+			$data['network'] = Protocol::ZOT;
 		}
 
 		if (!empty($json['guid'])) {
@@ -755,6 +745,9 @@ class Probe
 		}
 		if (!empty($json['name'])) {
 			$data['name'] = $json['name'];
+		}
+		if (!empty($json['photo']) && empty($data['photo'])) {
+			$data['photo'] = $json['photo'];
 		}
 		if (!empty($json['address'])) {
 			$data['addr'] = $json['address'];
@@ -1273,6 +1266,7 @@ class Probe
 	 * @brief Check for Diaspora contact
 	 *
 	 * @param array $webfinger Webfinger data
+	 * @param array $data      previously probed data
 	 *
 	 * @return array Diaspora data
 	 * @throws HTTPException\InternalServerErrorException
@@ -1358,6 +1352,7 @@ class Probe
 	 *
 	 * @param array $webfinger Webfinger data
 	 * @param bool  $short     Short detection mode
+	 * @param array $data      previously probed data
 	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 * @throws HTTPException\InternalServerErrorException
@@ -1546,9 +1541,9 @@ class Probe
 	/**
 	 * @brief Check for pump.io contact
 	 *
-	 * @param array $webfinger Webfinger data
-	 *
-	 * @param       $addr
+	 * @param array  $webfinger Webfinger data
+	 * @param string $addr
+	 * @param array  $data previously probed data
 	 * @return array pump.io data
 	 */
 	private static function pumpio($webfinger, $addr, $data)
@@ -1708,6 +1703,7 @@ class Probe
 	 *
 	 * @param string  $url   Profile link
 	 * @param boolean $probe Do a probe if the page contains a feed link
+	 * @param array   $data  previously probed data
 	 *
 	 * @return array feed data
 	 * @throws HTTPException\InternalServerErrorException
