@@ -55,7 +55,7 @@ Friendica Documentation and Resources
 	* [Move classes to `src`](help/Developer-How-To-Move-Classes-to-src)
 	* [Run tests](help/Tests)
 * Reference
-	* [Twitter/GNU Social API Functions](help/api)
+	* [API endpoints](help/api)
 	* [Code (Doxygen generated - sets cookies)](doc/html/)
 	* [Protocol Documentation](help/Protocol)
 	* [Database schema documentation](help/database)
