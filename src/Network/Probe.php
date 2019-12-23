@@ -1574,7 +1574,7 @@ class Probe
 				$attr[$attribute->name] = trim($attribute->value);
 			}
 
-			if ($feed_url == "") {
+			if (empty($feed_url) && !empty($attr['href'])) {
 				$feed_url = $attr["href"];
 			}
 		}

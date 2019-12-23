@@ -14,7 +14,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Module\Login;
-use Friendica\Model\Contact;
+use Friendica\Model\Introduction;
 use Friendica\Model\Notify;
 
 function notifications_post(App $a)
@@ -30,43 +30,20 @@ function notifications_post(App $a)
 	}
 
 	if ($request_id) {
-		$intro = DBA::selectFirst('intro', ['id', 'contact-id', 'fid'], ['id' => $request_id, 'uid' => local_user()]);
+		/** @var Introduction $Intro */
+		$Intro = \Friendica\BaseObject::getClass(Introduction::class);
+		$Intro->fetch(['id' => $request_id, 'uid' => local_user()]);
 
-		if (DBA::isResult($intro)) {
-			$intro_id = $intro['id'];
-			$contact_id = $intro['contact-id'];
-		} else {
-			notice(L10n::t('Invalid request identifier.') . EOL);
-			return;
+		switch ($_POST['submit']) {
+			case L10n::t('Discard'):
+				$Intro->discard();
+				break;
+			case L10n::t('Ignore'):
+				$Intro->ignore();
+				break;
 		}
 
-		// If it is a friend suggestion, the contact is not a new friend but an existing friend
-		// that should not be deleted.
-
-		$fid = $intro['fid'];
-
-		if ($_POST['submit'] == L10n::t('Discard')) {
-			DBA::delete('intro', ['id' => $intro_id]);
-			if (!$fid) {
-				// When the contact entry had been created just for that intro, we want to get rid of it now
-				$condition = ['id' => $contact_id, 'uid' => local_user(),
-					'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
-				$contact_pending = DBA::exists('contact', $condition);
-
-				// Remove the "pending" to stop the reappearing in any case
-				DBA::update('contact', ['pending' => false], ['id' => $contact_id]);
-
-				if ($contact_pending) {
-					Contact::remove($contact_id);
-				}
-			}
-			$a->internalRedirect('notifications/intros');
-		}
-
-		if ($_POST['submit'] == L10n::t('Ignore')) {
-			DBA::update('intro', ['ignore' => true], ['id' => $intro_id]);
-			$a->internalRedirect('notifications/intros');
-		}
+		$a->internalRedirect('notifications/intros');
 	}
 }
 

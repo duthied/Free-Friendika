@@ -562,7 +562,7 @@ class OnePoll
 					}
 
 					// Decoding the header
-					$subject = imap_mime_header_decode($meta->subject);
+					$subject = imap_mime_header_decode($meta->subject ?? '');
 					$datarray['title'] = "";
 					foreach ($subject as $subpart) {
 						if ($subpart->charset != "default") {

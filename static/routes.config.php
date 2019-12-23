@@ -30,6 +30,9 @@ return [
 	'/api' => [
 		'/v1' => [
 			'/follow_requests'                   => [Module\Api\Mastodon\FollowRequests::class, [R::GET         ]],
+			'/follow_requests/{id:\d+}/{action}' => [Module\Api\Mastodon\FollowRequests::class, [        R::POST]],
+			'/instance'                          => [Module\Api\Mastodon\Instance::class, [R::GET]],
+			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class, [R::GET]],
 		],
 	],
 

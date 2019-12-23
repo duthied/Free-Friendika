@@ -876,7 +876,11 @@ class GContact
 			self::updateFromOutbox($outbox['first']['href'], $data);
 			return;
 		} elseif (!empty($outbox['first'])) {
-			self::updateFromOutbox($outbox['first'], $data);
+			if (is_string($outbox['first'])) {
+				self::updateFromOutbox($outbox['first'], $data);
+			} else {
+				Logger::warning('Unexpected data', ['outbox' => $outbox]);
+			}
 			return;
 		} else {
 			$items = [];

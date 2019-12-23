@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1324);
+	define('DB_UPDATE_VERSION', 1327);
 }
 
 return [
@@ -102,6 +102,9 @@ return [
 			"pubkey" => ["type" => "text", "comment" => ""],
 			"baseurl" => ["type" => "varchar(255)", "comment" => "baseurl of the ap contact"],
 			"generator" => ["type" => "varchar(255)", "comment" => "Name of the contact's system"],
+			"following_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of following contacts"],
+			"followers_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of followers"],
+			"statuses_count" => ["type" => "int unsigned", "default" => 0, "comment" => "Number of posts"],
 			"updated" => ["type" => "datetime", "not null" => "1", "default" => DBA::NULL_DATETIME, "comment" => ""]
 		],
 		"indexes" => [
@@ -702,6 +705,7 @@ return [
 			"resource-id" => ["resource-id"],
 			"deleted_changed" => ["deleted", "changed"],
 			"uid_wall_changed" => ["uid", "wall", "changed"],
+			"mention_uid_id" => ["mention", "uid", "id"],
 			"uid_eventid" => ["uid", "event-id"],
 			"icid" => ["icid"],
 			"iaid" => ["iaid"],

@@ -84,7 +84,7 @@ class APContact extends BaseObject
 	public static function getByURL($url, $update = null)
 	{
 		if (empty($url)) {
-			return false;
+			return [];
 		}
 
 		$fetched_contact = false;
@@ -110,7 +110,7 @@ class APContact extends BaseObject
 			}
 
 			if (!is_null($update)) {
-				return DBA::isResult($apcontact) ? $apcontact : false;
+				return DBA::isResult($apcontact) ? $apcontact : [];
 			}
 
 			if (DBA::isResult($apcontact)) {
@@ -201,6 +201,33 @@ class APContact extends BaseObject
 		if (!empty($compacted['as:generator'])) {
 			$apcontact['baseurl'] = JsonLD::fetchElement($compacted['as:generator'], 'as:url', '@id');
 			$apcontact['generator'] = JsonLD::fetchElement($compacted['as:generator'], 'as:name', '@value');
+		}
+
+		if (!empty($apcontact['following'])) {
+			$data = ActivityPub::fetchContent($apcontact['following']);
+			if (!empty($data)) {
+				if (!empty($data['totalItems'])) {
+					$apcontact['following_count'] = $data['totalItems'];
+				}
+			}
+		}
+
+		if (!empty($apcontact['followers'])) {
+			$data = ActivityPub::fetchContent($apcontact['followers']);
+			if (!empty($data)) {
+				if (!empty($data['totalItems'])) {
+					$apcontact['followers_count'] = $data['totalItems'];
+				}
+			}
+		}
+
+		if (!empty($apcontact['outbox'])) {
+			$data = ActivityPub::fetchContent($apcontact['outbox']);
+			if (!empty($data)) {
+				if (!empty($data['totalItems'])) {
+					$apcontact['statuses_count'] = $data['totalItems'];
+				}
+			}
 		}
 
 		// To-Do

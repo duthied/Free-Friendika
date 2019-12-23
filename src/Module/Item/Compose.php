@@ -85,15 +85,20 @@ class Compose extends BaseModule
 				$type = 'post';
 				$doesFederate = true;
 
-				if ($_REQUEST['contact_allow']
-					. $_REQUEST['group_allow']
-					. $_REQUEST['contact_deny']
-				    . $_REQUEST['group_deny'])
+				$contact_allow = $_REQUEST['contact_allow'] ?? '';
+				$group_allow = $_REQUEST['group_allow'] ?? '';
+				$contact_deny = $_REQUEST['contact_deny'] ?? '';
+				$group_deny = $_REQUEST['group_deny'] ?? '';
+
+				if ($contact_allow
+					. $group_allow
+					. $contact_deny
+				    . $group_deny)
 				{
-					$contact_allow_list = $_REQUEST['contact_allow'] ? explode(',', $_REQUEST['contact_allow']) : [];
-					$group_allow_list   = $_REQUEST['group_allow']   ? explode(',', $_REQUEST['group_allow'])   : [];
-					$contact_deny_list  = $_REQUEST['contact_deny']  ? explode(',', $_REQUEST['contact_deny'])  : [];
-					$group_deny_list    = $_REQUEST['group_deny']    ? explode(',', $_REQUEST['group_deny'])    : [];
+					$contact_allow_list = $contact_allow ? explode(',', $contact_allow) : [];
+					$group_allow_list   = $group_allow   ? explode(',', $group_allow)   : [];
+					$contact_deny_list  = $contact_deny  ? explode(',', $contact_deny)  : [];
+					$group_deny_list    = $group_deny    ? explode(',', $group_deny)    : [];
 				}
 
 				break;

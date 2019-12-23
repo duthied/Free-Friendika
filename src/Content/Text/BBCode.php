@@ -354,6 +354,9 @@ class BBCode extends BaseObject
 				$post['url'] = $links[0][1];
 			}
 
+			// Simplify "video" element
+			$post['text'] = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $post['text']);
+
 			// Now count the number of external media links
 			preg_match_all("(\[vimeo\](.*?)\[\/vimeo\])ism", $post['text'], $links1, PREG_SET_ORDER);
 			preg_match_all("(\[youtube\\](.*?)\[\/youtube\\])ism", $post['text'], $links2, PREG_SET_ORDER);
@@ -395,15 +398,15 @@ class BBCode extends BaseObject
 	 */
 	public static function removeAttachment($body, $no_link_desc = false)
 	{
-		return preg_replace_callback("/\[attachment (.*)\](.*?)\[\/attachment\]/ism",
+		return preg_replace_callback("/\s*\[attachment (.*)\](.*?)\[\/attachment\]\s*/ism",
 			function ($match) use ($no_link_desc) {
 				$attach_data = self::getAttachmentData($match[0]);
 				if (empty($attach_data['url'])) {
 					return $match[0];
 				} elseif (empty($attach_data['title']) || $no_link_desc) {
-					return '[url]' . $attach_data['url'] . "[/url]\n";
+					return "\n[url]" . $attach_data['url'] . "[/url]\n";
 				} else {
-					return '[url=' . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
+					return "\n[url=" . $attach_data['url'] . ']' . $attach_data['title'] . "[/url]\n";
 				}
 		}, $body);
 	}
@@ -1504,8 +1507,29 @@ class BBCode extends BaseObject
 		$text = str_replace('[hr]', '<hr />', $text);
 
 		if (!$for_plaintext) {
+			$escaped = [];
+
+			// Escaping BBCodes susceptible to contain rogue URL we don'' want the autolinker to catch
+			$text = preg_replace_callback('#\[(url|img|audio|video|youtube|vimeo|share|attachment|iframe|bookmark).+?\[/\1\]#ism',
+				function ($matches) use (&$escaped) {
+					$return = '{escaped-' . count($escaped) . '}';
+					$escaped[] = $matches[0];
+
+					return $return;
+				},
+				$text
+			);
+
 			// Autolinker for isolated URLs
 			$text = preg_replace(Strings::autoLinkRegEx(), '[url]$1[/url]', $text);
+
+			// Restoring escaped blocks
+			$text = preg_replace_callback('/{escaped-([0-9]+)}/iU',
+				function ($matches) use ($escaped) {
+					return $escaped[intval($matches[1])] ?? $matches[0];
+				},
+				$text
+			);
 		}
 
 		// This is actually executed in Item::prepareBody()
@@ -1605,6 +1629,9 @@ class BBCode extends BaseObject
 		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
 		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
 		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
+
+		// Simplify "video" element
+		$text = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
 
 		// Try to Oembed
 		if ($try_oembed) {

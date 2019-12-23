@@ -608,11 +608,6 @@ function api_get_user(App $a, $contact_id = null)
 		$contact = DBA::selectFirst('contact', [], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
 
 		if (DBA::isResult($contact)) {
-			// If no nick where given, extract it from the address
-			if (($contact['nick'] == "") || ($contact['name'] == $contact['nick'])) {
-				$contact['nick'] = api_get_nick($contact["url"]);
-			}
-
 			$ret = [
 				'id' => $contact["id"],
 				'id_str' => (string) $contact["id"],
@@ -670,11 +665,6 @@ function api_get_user(App $a, $contact_id = null)
 	$countfriends = 0;
 	$countfollowers = 0;
 	$starred = 0;
-
-	// Add a nick if it isn't present there
-	if (($uinfo[0]['nick'] == "") || ($uinfo[0]['name'] == $uinfo[0]['nick'])) {
-		$uinfo[0]['nick'] = api_get_nick($uinfo[0]["url"]);
-	}
 
 	$pcontact_id  = Contact::getIdForURL($uinfo[0]['url'], 0, true);
 
@@ -1419,32 +1409,37 @@ function api_users_search($type)
 	$userlist = [];
 
 	if (!empty($_GET['q'])) {
-		$r = q("SELECT id FROM `contact` WHERE `uid` = 0 AND `name` = '%s'", DBA::escape($_GET["q"]));
+		$contacts = Contact::selectToArray(
+			['id'],
+			[
+				'`uid` = 0 AND (`name` = ? OR `nick` = ? OR `url` = ? OR `addr` = ?)',
+				$_GET['q'],
+				$_GET['q'],
+				$_GET['q'],
+				$_GET['q'],
+			]
+		);
 
-		if (!DBA::isResult($r)) {
-			$r = q("SELECT `id` FROM `contact` WHERE `uid` = 0 AND `nick` = '%s'", DBA::escape($_GET["q"]));
-		}
-
-		if (DBA::isResult($r)) {
+		if (DBA::isResult($contacts)) {
 			$k = 0;
-			foreach ($r as $user) {
-				$user_info = api_get_user($a, $user["id"]);
+			foreach ($contacts as $contact) {
+				$user_info = api_get_user($a, $contact['id']);
 
-				if ($type == "xml") {
-					$userlist[$k++.":user"] = $user_info;
+				if ($type == 'xml') {
+					$userlist[$k++ . ':user'] = $user_info;
 				} else {
 					$userlist[] = $user_info;
 				}
 			}
-			$userlist = ["users" => $userlist];
+			$userlist = ['users' => $userlist];
 		} else {
-			throw new BadRequestException("User ".$_GET["q"]." not found.");
+			throw new NotFoundException('User ' . $_GET['q'] . ' not found.');
 		}
 	} else {
-		throw new BadRequestException("No user specified.");
+		throw new BadRequestException('No search term specified.');
 	}
 
-	return api_format_data("users", $type, $userlist);
+	return api_format_data('users', $type, $userlist);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -1505,7 +1500,9 @@ function api_search($type)
 	$a = \get_app();
 	$user_info = api_get_user($a);
 
-	if (api_user() === false || $user_info === false) { throw new ForbiddenException(); }
+	if (api_user() === false || $user_info === false) {
+		throw new ForbiddenException();
+	}
 
 	if (empty($_REQUEST['q'])) {
 		throw new BadRequestException('q parameter is required.');
@@ -1569,7 +1566,21 @@ function api_search($type)
 		}
 	}
 
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = [];
+
+	if (parse_url($searchTerm, PHP_URL_SCHEME) != '') {
+		$id = Item::fetchByLink($searchTerm, api_user());
+		if (!$id) {
+			// Public post
+			$id = Item::fetchByLink($searchTerm);
+		}
+
+		if (!empty($id)) {
+			$statuses = Item::select([], ['id' => $id]);
+		}
+	}
+
+	$statuses = $statuses ?: Item::selectForUser(api_user(), [], $condition, $params);
 
 	$data['status'] = api_format_items(Item::inArray($statuses), $user_info);
 
@@ -2147,8 +2158,8 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `author-id` != ?
-		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `thread`.`uid` = ? AND `thread`.`mention` AND NOT `thread`.`ignored`)",
+	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `author-id` != ? AND `mention`
+		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `thread`.`uid` = ? AND NOT `thread`.`ignored`)",
 		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['pid'], api_user()];
 
 	if ($max_id > 0) {
@@ -2486,6 +2497,9 @@ function api_format_messages($item, $recipient, $sender)
 function api_convert_item($item)
 {
 	$body = $item['body'];
+	$entities = api_get_entitities($statustext, $body);
+
+	// Add pictures to the attachment array and remove them from the body
 	$attachments = api_get_attachments($body);
 
 	// Workaround for ostatus messages where the title is identically to the body
@@ -2542,8 +2556,6 @@ function api_convert_item($item)
 		$statushtml .= BBCode::convert($item['plink']);
 	}
 
-	$entities = api_get_entitities($statustext, $body);
-
 	return [
 		"text" => $statustext,
 		"html" => $statushtml,
@@ -2561,15 +2573,17 @@ function api_convert_item($item)
  */
 function api_get_attachments(&$body)
 {
-	$text = $body;
-	$text = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $text);
-	$text = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $text);
+	$body = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $body);
+	$body = preg_replace("/\[img\=(.*?)\](.*?)\[\/img\]/ism", '[img]$1[/img]', $body);
 
 	$URLSearchString = "^\[\]";
-	$ret = preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $text, $images);
-
-	if (!$ret) {
+	if (!preg_match_all("/\[img\]([$URLSearchString]*)\[\/img\]/ism", $body, $images)) {
 		return [];
+	}
+
+	// Remove all embedded pictures, since they are added as attachments
+	foreach ($images[0] as $orig) {
+		$body = str_replace($orig, '', $body);
 	}
 
 	$attachments = [];
@@ -2579,12 +2593,6 @@ function api_get_attachments(&$body)
 
 		if ($imagedata) {
 			$attachments[] = ["url" => $image, "mimetype" => $imagedata["mime"], "size" => $imagedata["size"]];
-		}
-	}
-
-	if (strstr($_SERVER['HTTP_USER_AGENT'] ?? '', 'AndStatus')) {
-		foreach ($images[0] as $orig) {
-			$body = str_replace($orig, "", $body);
 		}
 	}
 
@@ -2630,7 +2638,6 @@ function api_get_entitities(&$text, $bbcode)
 	$bbcode = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", '#$2', $bbcode);
 
 	$bbcode = preg_replace("/\[bookmark\=([$URLSearchString]*)\](.*?)\[\/bookmark\]/ism", '[url=$1]$2[/url]', $bbcode);
-	//$bbcode = preg_replace("/\[url\](.*?)\[\/url\]/ism",'[url=$1]$1[/url]',$bbcode);
 	$bbcode = preg_replace("/\[video\](.*?)\[\/video\]/ism", '[url=$1]$1[/url]', $bbcode);
 
 	$bbcode = preg_replace(
@@ -2649,12 +2656,10 @@ function api_get_entitities(&$text, $bbcode)
 
 	$bbcode = preg_replace("/\[img\=([0-9]*)x([0-9]*)\](.*?)\[\/img\]/ism", '[img]$3[/img]', $bbcode);
 
-	//preg_match_all("/\[url\]([$URLSearchString]*)\[\/url\]/ism", $bbcode, $urls1);
 	preg_match_all("/\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism", $bbcode, $urls);
 
 	$ordered_urls = [];
 	foreach ($urls[1] as $id => $url) {
-		//$start = strpos($text, $url, $offset);
 		$start = iconv_strpos($text, $url, 0, "UTF-8");
 		if (!($start === false)) {
 			$ordered_urls[$start] = ["url" => $url, "title" => $urls[2][$id]];
@@ -2664,7 +2669,7 @@ function api_get_entitities(&$text, $bbcode)
 	ksort($ordered_urls);
 
 	$offset = 0;
-	//foreach ($urls[1] AS $id=>$url) {
+
 	foreach ($ordered_urls as $url) {
 		if ((substr($url["title"], 0, 7) != "http://") && (substr($url["title"], 0, 8) != "https://")
 			&& !strpos($url["title"], "http://") && !strpos($url["title"], "https://")
@@ -2679,7 +2684,6 @@ function api_get_entitities(&$text, $bbcode)
 			}
 		}
 
-		//$start = strpos($text, $url, $offset);
 		$start = iconv_strpos($text, $url["url"], $offset, "UTF-8");
 		if (!($start === false)) {
 			$entities["urls"][] = ["url" => $url["url"],
@@ -2706,7 +2710,7 @@ function api_get_entitities(&$text, $bbcode)
 			$ordered_images[$start] = ['url' => $image, 'alt' => ''];
 		}
 	}
-	//$entities["media"] = array();
+
 	$offset = 0;
 
 	foreach ($ordered_images as $image) {
@@ -2840,9 +2844,10 @@ function api_format_items_activities($item, $type = "json")
 		'attendyes' => [],
 		'attendno' => [],
 		'attendmaybe' => [],
+		'announce' => [],
 	];
 
-	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri']];
+	$condition = ['uid' => $item['uid'], 'thr-parent' => $item['uri'], 'gravity' => GRAVITY_ACTIVITY];
 	$ret = Item::selectForUser($item['uid'], ['author-id', 'verb'], $condition);
 
 	while ($parent_item = Item::fetch($ret)) {
@@ -2866,6 +2871,9 @@ function api_format_items_activities($item, $type = "json")
 				break;
 			case Activity::ATTENDMAYBE:
 				$activities['attendmaybe'][] = $user;
+				break;
+			case Activity::ANNOUNCE:
+				$activities['announce'][] = $user;
 				break;
 			default:
 				break;
@@ -3075,22 +3083,31 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	}
 
 	if (!empty($quoted_item)) {
-		$conv_quoted = api_convert_item($quoted_item);
-		$quoted_status = $status;
+		if ($quoted_item['id'] != $item['id']) {
+			$quoted_status = api_format_item($quoted_item);
+			/// @todo Only remove the attachments that are also contained in the quotes status
+			unset($status['attachments']);
+			unset($status['entities']);
+		} else {
+			$conv_quoted = api_convert_item($quoted_item);
+			$quoted_status = $status;
+			unset($quoted_status['attachments']);
+			unset($quoted_status['entities']);
+			unset($quoted_status['statusnet_conversation_id']);
+			$quoted_status['text'] = $conv_quoted['text'];
+			$quoted_status['statusnet_html'] = $conv_quoted['html'];
+			try {
+				$quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
+			} catch (BadRequestException $e) {
+				// user not found. should be found?
+				/// @todo check if the user should be always found
+				$quoted_status["user"] = [];
+			}
+		}
 		unset($quoted_status['friendica_author']);
 		unset($quoted_status['friendica_owner']);
 		unset($quoted_status['friendica_activities']);
 		unset($quoted_status['friendica_private']);
-		unset($quoted_status['statusnet_conversation_id']);
-		$quoted_status['text'] = $conv_quoted['text'];
-		$quoted_status['statusnet_html'] = $conv_quoted['html'];
-		try {
-			$quoted_status["user"] = api_get_user($a, $quoted_item["author-id"]);
-		} catch (BadRequestException $e) {
-			// user not found. should be found?
-			/// @todo check if the user should be always found
-			$quoted_status["user"] = [];
-		}
 	}
 
 	if (!empty($retweeted_item)) {
@@ -3606,6 +3623,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  *
  * @param string $type Return type (atom, rss, xml, json)
  *
+ * @param int $rel A contact relationship constant
  * @return array|string|void
  * @throws BadRequestException
  * @throws ForbiddenException
@@ -3614,7 +3632,7 @@ api_register_func('api/statusnet/version', 'api_statusnet_version', false);
  * @throws UnauthorizedException
  * @todo use api_format_data() to return data
  */
-function api_ff_ids($type)
+function api_ff_ids($type, int $rel)
 {
 	if (!api_user()) {
 		throw new ForbiddenException();
@@ -3626,26 +3644,29 @@ function api_ff_ids($type)
 
 	$stringify_ids = $_REQUEST['stringify_ids'] ?? false;
 
-	$r = q(
-		"SELECT `pcontact`.`id` FROM `contact`
-			INNER JOIN `contact` AS `pcontact` ON `contact`.`nurl` = `pcontact`.`nurl` AND `pcontact`.`uid` = 0
-			WHERE `contact`.`uid` = %s AND NOT `contact`.`self`",
-		intval(api_user())
+	$contacts = DBA::p("SELECT `pcontact`.`id`
+		FROM `contact`
+		INNER JOIN `contact` AS `pcontact`
+		    ON `contact`.`nurl` = `pcontact`.`nurl`
+		    AND `pcontact`.`uid` = 0
+		WHERE `contact`.`uid` = ?
+		AND NOT `contact`.`self`
+		AND `contact`.`rel` IN (?, ?)",
+		api_user(),
+		$rel,
+		Contact::FRIEND
 	);
-	if (!DBA::isResult($r)) {
-		return;
-	}
 
 	$ids = [];
-	foreach ($r as $rr) {
+	foreach (DBA::toArray($contacts) as $contact) {
 		if ($stringify_ids) {
-			$ids[] = $rr['id'];
+			$ids[] = $contact['id'];
 		} else {
-			$ids[] = intval($rr['id']);
+			$ids[] = intval($contact['id']);
 		}
 	}
 
-	return api_format_data("ids", $type, ['id' => $ids]);
+	return api_format_data('ids', $type, ['id' => $ids]);
 }
 
 /**
@@ -3656,11 +3677,14 @@ function api_ff_ids($type)
  * @return array|string
  * @throws BadRequestException
  * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-friends-ids
  */
 function api_friends_ids($type)
 {
-	return api_ff_ids($type);
+	return api_ff_ids($type, Contact::SHARING);
 }
 
 /**
@@ -3671,11 +3695,14 @@ function api_friends_ids($type)
  * @return array|string
  * @throws BadRequestException
  * @throws ForbiddenException
+ * @throws ImagickException
+ * @throws InternalServerErrorException
+ * @throws UnauthorizedException
  * @see https://developer.twitter.com/en/docs/accounts-and-users/follow-search-get-users/api-reference/get-followers-ids
  */
 function api_followers_ids($type)
 {
-	return api_ff_ids($type);
+	return api_ff_ids($type, Contact::FOLLOWER);
 }
 
 /// @TODO move to top of file or somewhere better
@@ -5064,14 +5091,17 @@ function api_friendica_remoteauth()
 	// traditional DFRN
 
 	$contact = DBA::selectFirst('contact', [], ['uid' => api_user(), 'nurl' => $c_url]);
-
-	if (!DBA::isResult($contact) || ($contact['network'] !== Protocol::DFRN)) {
+	if (!DBA::isResult($contact)) {
 		throw new BadRequestException("Unknown contact");
 	}
 
 	$cid = $contact['id'];
 
-	$dfrn_id = $contact['issued-id'] ?? $contact['dfrn-id'];
+	$dfrn_id = $contact['issued-id'] ?: $contact['dfrn-id'];
+
+	if (($contact['network'] !== Protocol::DFRN) || empty($dfrn_id)) {
+		System::externalRedirect($url ?: $c_url);
+	}
 
 	if ($contact['duplex'] && $contact['issued-id']) {
 		$orig_id = $contact['issued-id'];
@@ -5184,92 +5214,23 @@ function api_share_as_retweet(&$item)
 	$reshared_item["created"] = $reshared['posted'];
 	$reshared_item["edited"] = $reshared['posted'];
 
+	// Try to fetch the original item
+	if (!empty($reshared['guid'])) {
+		$condition = ['guid' => $reshared['guid'], 'uid' => [0, $item['uid']]];
+	} elseif (!empty($reshared_item['plink']) && ($original_id = Item::searchByLink($reshared_item['plink']))) {
+		$condition = ['id' => $original_id];
+	} else {
+		$condition = [];
+	}
+
+	if (!empty($condition)) {
+		$original_item = Item::selectFirst([], $condition);
+		if (DBA::isResult($original_item)) {
+			$reshared_item = array_merge($reshared_item, $original_item);
+		}
+	}
+
 	return $reshared_item;
-}
-
-/**
- *
- * @param string $profile
- *
- * @return string|false
- * @throws InternalServerErrorException
- * @todo remove trailing junk from profile url
- * @todo pump.io check has to check the website
- */
-function api_get_nick($profile)
-{
-	$nick = "";
-
-	$r = q(
-		"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-		DBA::escape(Strings::normaliseLink($profile))
-	);
-
-	if (DBA::isResult($r)) {
-		$nick = $r[0]["nick"];
-	}
-
-	if (!$nick == "") {
-		$r = q(
-			"SELECT `nick` FROM `contact` WHERE `uid` = 0 AND `nurl` = '%s'",
-			DBA::escape(Strings::normaliseLink($profile))
-		);
-
-		if (DBA::isResult($r)) {
-			$nick = $r[0]["nick"];
-		}
-	}
-
-	if (!$nick == "") {
-		$friendica = preg_replace("=https?://(.*)/profile/(.*)=ism", "$2", $profile);
-		if ($friendica != $profile) {
-			$nick = $friendica;
-		}
-	}
-
-	if (!$nick == "") {
-		$diaspora = preg_replace("=https?://(.*)/u/(.*)=ism", "$2", $profile);
-		if ($diaspora != $profile) {
-			$nick = $diaspora;
-		}
-	}
-
-	if (!$nick == "") {
-		$twitter = preg_replace("=https?://twitter.com/(.*)=ism", "$1", $profile);
-		if ($twitter != $profile) {
-			$nick = $twitter;
-		}
-	}
-
-
-	if (!$nick == "") {
-		$StatusnetHost = preg_replace("=https?://(.*)/user/(.*)=ism", "$1", $profile);
-		if ($StatusnetHost != $profile) {
-			$StatusnetUser = preg_replace("=https?://(.*)/user/(.*)=ism", "$2", $profile);
-			if ($StatusnetUser != $profile) {
-				$UserData = Network::fetchUrl("http://".$StatusnetHost."/api/users/show.json?user_id=".$StatusnetUser);
-				$user = json_decode($UserData);
-				if ($user) {
-					$nick = $user->screen_name;
-				}
-			}
-		}
-	}
-
-	// To-Do: look at the page if its really a pumpio site
-	//if (!$nick == "") {
-	//	$pumpio = preg_replace("=https?://(.*)/(.*)/=ism", "$2", $profile."/");
-	//	if ($pumpio != $profile)
-	//		$nick = $pumpio;
-		//      <div class="media" id="profile-block" data-profile-id="acct:kabniel@microca.st">
-
-	//}
-
-	if ($nick != "") {
-		return $nick;
-	}
-
-	return false;
 }
 
 /**
@@ -5303,10 +5264,6 @@ function api_in_reply_to($item)
 		$parent = Item::selectFirst($fields, ['id' => $in_reply_to['status_id']]);
 
 		if (DBA::isResult($parent)) {
-			if ($parent['author-nick'] == "") {
-				$parent['author-nick'] = api_get_nick($parent['author-link']);
-			}
-
 			$in_reply_to['screen_name'] = (($parent['author-nick']) ? $parent['author-nick'] : $parent['author-name']);
 			$in_reply_to['user_id'] = intval($parent['author-id']);
 			$in_reply_to['user_id_str'] = (string) intval($parent['author-id']);

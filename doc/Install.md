@@ -30,7 +30,7 @@ The account will expire after 7 days, but you can ask the server admin to keep y
 
 ### Requirements
 
-* Apache with mod-rewrite enabled and "Options All" so you can use a local .htaccess file
+* Apache with mod-rewrite enabled and "Options All" so you can use a local `.htaccess` file
 * PHP 7+ (PHP 7.1+ is recommended for performance and official support)
   * PHP *command line* access with register_argc_argv set to true in the php.ini file
   * Curl, GD, PDO, MySQLi, hash, xml, zip and OpenSSL extensions
@@ -63,8 +63,7 @@ If this is nothing for you, you might be interested in
 
 Unpack the Friendica files into the root of your web server document area.
 
-If you copy the directory tree to your webserver, make sure that you also copy 
-`.htaccess-dist` - as "dot" files are often hidden and aren't normally copied.
+If you copy the directory tree to your webserver, make sure that you also copy `.htaccess-dist` - as "dot" files are often hidden and aren't normally copied.
 
 **OR**
 
@@ -112,7 +111,8 @@ Please check the [troubleshooting](#Troubleshooting) section if running on MySQL
 
 ### Option A: Run the installer
 
-Point your web browser to the new site and follow the instructions.
+Before you point your web browser to the new site you need to copy `.htaccess-dist` to `.htaccess` for Apache installs.
+Follow the instructions.
 Please note any error messages and correct these before continuing.
 
 If you need to specify a port for the connection to the database, you can do so in the host name setting for the database.
@@ -328,7 +328,7 @@ If the database resides on the same machine, check that the database server name
 ### 500 Internal Error
 
 This could be the result of one of our Apache directives not being supported by your version of Apache. Examine your apache server logs.
-You might remove the line "Options -Indexes" from the .htaccess file if you are using a Windows server as this has been known to cause problems.
+You might remove the line "Options -Indexes" from the `.htaccess` file if you are using a Windows server as this has been known to cause problems.
 Also check your file permissions. Your website and all contents must generally be world-readable.
 
 It is likely that your web server reported the source of the problem in its error log files.

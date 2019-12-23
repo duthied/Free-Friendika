@@ -93,7 +93,8 @@ function display_init(App $a)
 	}
 
 	if ($item["id"] != $item["parent"]) {
-		$item = Item::selectFirstForUser($item_user, $fields, ['id' => $item["parent"]]);
+		$parent = Item::selectFirstForUser($item_user, $fields, ['id' => $item["parent"]]);
+		$item = $parent ?: $item;
 	}
 
 	$profiledata = display_fetchauthor($a, $item);
@@ -171,6 +172,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 
 	$o = '';
 
+	$item = null;
+
 	if ($update) {
 		$item_id = $_REQUEST['item_id'];
 		$item = Item::selectFirst(['uid', 'parent', 'parent-uri'], ['id' => $item_id]);
@@ -220,7 +223,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		}
 	}
 
-	if (!$item_id) {
+	if (empty($item)) {
 		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
@@ -242,16 +245,20 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$is_remote_contact = false;
 	$item_uid = local_user();
 
-	if (isset($item_parent_uri)) {
+	$parent = null;
+	if (!empty($item_parent_uri)) {
 		$parent = Item::selectFirst(['uid'], ['uri' => $item_parent_uri, 'wall' => true]);
-		if (DBA::isResult($parent)) {
-			$a->profile['uid'] = ($a->profile['uid'] ?? 0) ?: $parent['uid'];
-			$a->profile['profile_uid'] = ($a->profile['profile_uid'] ?? 0) ?: $parent['uid'];
-			$is_remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
-			if ($is_remote_contact) {
-				$item_uid = $parent['uid'];
-			}
+	}
+
+	if (DBA::isResult($parent)) {
+		$a->profile['uid'] = ($a->profile['uid'] ?? 0) ?: $parent['uid'];
+		$a->profile['profile_uid'] = ($a->profile['profile_uid'] ?? 0) ?: $parent['uid'];
+		$is_remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
+		if ($is_remote_contact) {
+			$item_uid = $parent['uid'];
 		}
+	} else {
+		$a->profile = ['uid' => intval($item['uid']), 'profile_uid' => intval($item['uid'])];
 	}
 
 	$page_contact = DBA::selectFirst('contact', [], ['self' => true, 'uid' => $a->profile['uid']]);

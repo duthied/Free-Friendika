@@ -54,6 +54,7 @@ class Api extends BaseModule
 	 *
 	 * @brief Login API user
 	 *
+	 * @return bool Was a user authenticated?
 	 * @throws HTTPException\ForbiddenException
 	 * @throws HTTPException\UnauthorizedException
 	 * @throws HTTPException\InternalServerErrorException
@@ -69,6 +70,8 @@ class Api extends BaseModule
 		api_login(self::getApp());
 
 		self::$current_user_id = api_user();
+
+		return (bool)self::$current_user_id;
 	}
 
 	/**
