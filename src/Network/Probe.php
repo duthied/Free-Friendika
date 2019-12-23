@@ -359,7 +359,7 @@ class Probe
 			$data['url'] = $uri;
 		}
 
-		if (!empty($data['photo']) && !empty($data["baseurl"])) {
+		if (!empty($data['photo']) && !empty($data['baseurl'])) {
 			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl']), Strings::normaliseLink($data['photo']));
 		} elseif (empty($data['photo'])) {
 			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
@@ -641,20 +641,20 @@ class Probe
 		if (in_array($network, ["", Protocol::DFRN])) {
 			$result = self::dfrn($webfinger);
 		}
-		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::DIASPORA)) {
-			$result = self::diaspora($webfinger, $result);
+		if ((!$result && ($network == "")) || ($network == Protocol::DIASPORA)) {
+			$result = self::diaspora($webfinger);
 		}
-		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::OSTATUS)) {
-			$result = self::ostatus($webfinger, false, $result);
+		if ((!$result && ($network == "")) || ($network == Protocol::OSTATUS)) {
+			$result = self::ostatus($webfinger, false);
 		}
-		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::PUMPIO)) {
-			$result = self::pumpio($webfinger, $addr, $result);
+//		if (in_array($network, ['', Protocol::ZOT])) {
+//			$result = self::zot($webfinger, $result);
+//		}
+		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
+			$result = self::pumpio($webfinger, $addr);
 		}
-		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::ZOT)) {
-			$result = self::zot($webfinger, $result);
-		}
-		if ((empty($result['network']) && ($network == "")) || ($network == Protocol::FEED)) {
-			$result = self::feed($uri, true, $result);
+		if ((!$result && ($network == "")) || ($network == Protocol::FEED)) {
+			$result = self::feed($uri, true);
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
@@ -697,6 +697,18 @@ class Probe
 	 */
 	private static function zot($webfinger, $data)
 	{
+		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
+			foreach ($webfinger["aliases"] as $alias) {
+				if (substr($alias, 0, 5) == 'acct:') {
+					$data["addr"] = substr($alias, 5);
+				}
+			}
+		}
+
+		if (!empty($webfinger["subject"]) && (substr($webfinger["subject"], 0, 5) == "acct:")) {
+			$data["addr"] = substr($webfinger["subject"], 5);
+		}
+
 		$zot_url = '';
 		foreach ($webfinger['links'] as $link) {
 			if (($link['rel'] == 'http://purl.org/zot/protocol') && !empty($link['href'])) {
@@ -705,6 +717,10 @@ class Probe
 		}
 
 		if (empty($zot_url) && !empty($data['addr']) && !empty(self::$baseurl)) {
+			$condition = ['nurl' => Strings::normaliseLink(self::$baseurl), 'platform' => ['hubzilla']];
+			if (!DBA::exists('gserver', $condition)) {
+				exit;
+			}
 			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
 		}
 
@@ -730,24 +746,29 @@ class Probe
 		if (!is_array($json)) {
 			return $data;
 		}
-
-		if (!empty($json['protocols']) && in_array('zot', $json['protocols'])) {
-			$data['network'] = Protocol::ZOT;
-		} elseif (!isset($json['protocols'])) {
-			$data['network'] = Protocol::ZOT;
+//print_r($json);
+		if (empty($data['network'])) {
+			if (!empty($json['protocols']) && in_array('zot', $json['protocols'])) {
+				$data['network'] = Protocol::ZOT;
+			} elseif (!isset($json['protocols'])) {
+				$data['network'] = Protocol::ZOT;
+			}
 		}
 
-		if (!empty($json['guid'])) {
+		if (!empty($json['guid']) && empty($data['guid'])) {
 			$data['guid'] = $json['guid'];
 		}
-		if (!empty($json['key'])) {
+		if (!empty($json['key']) && empty($data['pubkey'])) {
 			$data['pubkey'] = $json['key'];
 		}
 		if (!empty($json['name'])) {
 			$data['name'] = $json['name'];
 		}
-		if (!empty($json['photo']) && empty($data['photo'])) {
+		if (!empty($json['photo'])) {
 			$data['photo'] = $json['photo'];
+			if (!empty($json['photo_updated'])) {
+				$data['photo'] .= '?rev=' . urlencode($json['photo_updated']);
+			}
 		}
 		if (!empty($json['address'])) {
 			$data['addr'] = $json['address'];
@@ -1112,7 +1133,7 @@ class Probe
 		}
 
 		if (!isset($data["network"]) || ($hcard_url == "")) {
-			return $data;
+			return false;
 		}
 
 		// Fetch data via noscrape - this is faster
@@ -1266,17 +1287,15 @@ class Probe
 	 * @brief Check for Diaspora contact
 	 *
 	 * @param array $webfinger Webfinger data
-	 * @param array $data      previously probed data
 	 *
 	 * @return array Diaspora data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function diaspora($webfinger, $data)
+	private static function diaspora($webfinger)
 	{
 		$hcard_url = "";
 
-		unset($data["guid"]);
-		unset($data["pubkey"]);
+		$data = [];
 
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
@@ -1352,13 +1371,14 @@ class Probe
 	 *
 	 * @param array $webfinger Webfinger data
 	 * @param bool  $short     Short detection mode
-	 * @param array $data      previously probed data
 	 *
 	 * @return array|bool OStatus data or "false" on error or "true" on short mode
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function ostatus($webfinger, $short = false, $data = [])
+	private static function ostatus($webfinger, $short = false)
 	{
+		$data = [];
+
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
 			foreach ($webfinger["aliases"] as $alias) {
 				if (strstr($alias, "@") && !strstr(Strings::normaliseLink($alias), "http://")) {
@@ -1543,11 +1563,11 @@ class Probe
 	 *
 	 * @param array  $webfinger Webfinger data
 	 * @param string $addr
-	 * @param array  $data previously probed data
 	 * @return array pump.io data
 	 */
-	private static function pumpio($webfinger, $addr, $data)
+	private static function pumpio($webfinger, $addr)
 	{
+		$data = [];
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 		foreach (array_reverse($webfinger["links"]) as $link) {
@@ -1574,13 +1594,13 @@ class Probe
 
 			$data["network"] = Protocol::PUMPIO;
 		} else {
-			return $data;
+			return false;
 		}
 
 		$profile_data = self::pumpioProfileData($data["url"]);
 
 		if (!$profile_data) {
-			return $data;
+			return false;
 		}
 
 		$data = array_merge($data, $profile_data);
@@ -1703,17 +1723,16 @@ class Probe
 	 *
 	 * @param string  $url   Profile link
 	 * @param boolean $probe Do a probe if the page contains a feed link
-	 * @param array   $data  previously probed data
 	 *
 	 * @return array feed data
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function feed($url, $probe = true, $data = [])
+	private static function feed($url, $probe = true)
 	{
 		$curlResult = Network::curl($url);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return $data;
+			return false;
 		}
 		$feed = $curlResult->getBody();
 		$dummy1 = $dummy2 = $dummy3 = null;
@@ -1721,13 +1740,13 @@ class Probe
 
 		if (!$feed_data) {
 			if (!$probe) {
-				return $data;
+				return false;
 			}
 
 			$feed_url = self::getFeedLink($url);
 
 			if (!$feed_url) {
-				return $data;
+				return false;
 			}
 
 			return self::feed($feed_url, false);
