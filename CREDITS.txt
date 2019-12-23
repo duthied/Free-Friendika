@@ -1,5 +1,3 @@
-
-
 23n
 Abinoam P. Marques Jr.
 Abraham Pérez Hernández
@@ -47,6 +45,7 @@ bufalo1973
 Calango Jr
 Carlos Solís
 Carsten Pfeiffer
+Casper
 Cat Gray
 Chris Case
 Christian González
@@ -66,6 +65,7 @@ David Martín Miranda
 David Rabel
 Dean Townsley
 Denis Chenu
+dependabot[bot]
 Devlon Duthie
 Diego Souza
 Domovoy
@@ -115,6 +115,7 @@ Jens Tautenhahn
 jensp
 Jeroen De Meerleer
 jeroenpraat
+Joan Bar
 JOduMonT
 Johannes Schwab
 John Brazil
@@ -123,11 +124,13 @@ Jonny Tischbein
 Josef Moravek
 juanman
 julia.domagalska
+Julio Cova
 Karel
 Karolina
 Keith Fernie
 Klaus Weidenbach
 Koyu Berteon
+kPherox
 Kris
 Lea1995polish
 Leberwurscht
@@ -162,18 +165,20 @@ Michalina
 Mike Macgirvin
 miqrogroove
 mytbk
+nathilia-peirce
 Nicola Spanti
 Olaf Conradi
 Oliver
 Olivier
 Olivier Mehani
 Olivier Migeot
-Ozero Dien
+ozero dien
 Paolo Wave
 Pascal
 Pascal Deklerck
 Pavel Morozov
 PerigGouanvic
+peter
 Peter Liebetrau
 peturisfeld
 Phigger Phigger
@@ -193,6 +198,7 @@ Ralph
 Ratten
 rcmaniac
 rebeka-catalina
+René Wagner
 repat
 Ricardo Pereira
 Rik 4
