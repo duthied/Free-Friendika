@@ -645,7 +645,7 @@ class Probe
 			$result = self::diaspora($webfinger);
 		}
 		if ((!$result && ($network == "")) || ($network == Protocol::OSTATUS)) {
-			$result = self::ostatus($webfinger, false);
+			$result = self::ostatus($webfinger);
 		}
 //		if (in_array($network, ['', Protocol::ZOT])) {
 //			$result = self::zot($webfinger, $result);
@@ -654,7 +654,7 @@ class Probe
 			$result = self::pumpio($webfinger, $addr);
 		}
 		if ((!$result && ($network == "")) || ($network == Protocol::FEED)) {
-			$result = self::feed($uri, true);
+			$result = self::feed($uri);
 		} else {
 			// We overwrite the detected nick with our try if the previois routines hadn't detected it.
 			// Additionally it is overwritten when the nickname doesn't make sense (contains spaces).
@@ -1294,7 +1294,6 @@ class Probe
 	private static function diaspora($webfinger)
 	{
 		$hcard_url = "";
-
 		$data = [];
 
 		// The array is reversed to take into account the order of preference for same-rel links
@@ -1345,6 +1344,10 @@ class Probe
 		// Fetch further information from the hcard
 		$data = self::pollHcard($hcard_url, $data);
 
+		if (!$data) {
+			return false;
+		}
+
 		if (!empty($data["url"])
 			&& !empty($data["guid"])
 			&& !empty($data["baseurl"])
@@ -1361,6 +1364,8 @@ class Probe
 			// We have to overwrite the detected value for "notify" since Hubzilla doesn't send it
 			$data["notify"] = $data["baseurl"] . "/receive/users/" . $data["guid"];
 			$data["batch"]  = $data["baseurl"] . "/receive/public";
+		} else {
+			return false;
 		}
 
 		return $data;
@@ -1419,11 +1424,7 @@ class Probe
 						$curlResult = Network::curl($pubkey);
 						if ($curlResult->isTimeout()) {
 							self::$istimeout = true;
-							if ($short) {
-								return false;
-							} else {
-								return $data;
-							}
+							return false;
 						}
 						$pubkey = $curlResult->getBody();
 					}
@@ -1444,10 +1445,8 @@ class Probe
 			&& isset($data["url"])
 		) {
 			$data["network"] = Protocol::OSTATUS;
-		} elseif ($short) {
-			return false;
 		} else {
-			return $data;
+			return false;
 		}
 
 		if ($short) {
@@ -1458,7 +1457,7 @@ class Probe
 		$curlResult = Network::curl($data["poll"]);
 		if ($curlResult->isTimeout()) {
 			self::$istimeout = true;
-			return $data;
+			return false;
 		}
 		$feed = $curlResult->getBody();
 		$dummy1 = null;
@@ -1466,7 +1465,7 @@ class Probe
 		$dummy2 = null;
 		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
 		if (!$feed_data) {
-			return $data;
+			return false;
 		}
 
 		if (!empty($feed_data["header"]["author-name"])) {
