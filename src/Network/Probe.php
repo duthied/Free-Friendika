@@ -647,9 +647,9 @@ class Probe
 		if ((!$result && ($network == "")) || ($network == Protocol::OSTATUS)) {
 			$result = self::ostatus($webfinger);
 		}
-//		if (in_array($network, ['', Protocol::ZOT])) {
-//			$result = self::zot($webfinger, $result);
-//		}
+		if (in_array($network, ['', Protocol::ZOT])) {
+			$result = self::zot($webfinger, $result);
+		}
 		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
 			$result = self::pumpio($webfinger, $addr);
 		}
@@ -719,7 +719,7 @@ class Probe
 		if (empty($zot_url) && !empty($data['addr']) && !empty(self::$baseurl)) {
 			$condition = ['nurl' => Strings::normaliseLink(self::$baseurl), 'platform' => ['hubzilla']];
 			if (!DBA::exists('gserver', $condition)) {
-				exit;
+				return $data;
 			}
 			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
 		}
@@ -1324,7 +1324,7 @@ class Probe
 		}
 
 		if (empty($data["url"]) || empty($hcard_url)) {
-			return $data;
+			return false;
 		}
 
 		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
