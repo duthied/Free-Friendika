@@ -746,7 +746,7 @@ class Probe
 		if (!is_array($json)) {
 			return $data;
 		}
-//print_r($json);
+
 		if (empty($data['network'])) {
 			if (!empty($json['protocols']) && in_array('zot', $json['protocols'])) {
 				$data['network'] = Protocol::ZOT;
