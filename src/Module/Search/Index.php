@@ -82,6 +82,10 @@ class Index extends BaseSearchModule
 			'$content' => HTML::search($search, 'search-box', false)
 		]);
 
+		if (!$search) {
+			return $o;
+		}
+
 		if (strpos($search, '#') === 0) {
 			$tag = true;
 			$search = substr($search, 1);
@@ -113,10 +117,6 @@ class Index extends BaseSearchModule
 				case 'forums':
 					return self::performContactSearch($search, '!');
 			}
-		}
-
-		if (!$search) {
-			return $o;
 		}
 
 		$tag = $tag || Config::get('system', 'only_tag_search');
