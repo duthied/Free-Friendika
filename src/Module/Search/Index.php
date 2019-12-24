@@ -16,6 +16,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
 use Friendica\Module\BaseSearchModule;
@@ -37,6 +38,9 @@ class Index extends BaseSearchModule
 			$e->httpdesc = L10n::t('Public access denied.');
 			throw $e;
 		}
+
+		/** @var BaseURL $baseURL */
+		$baseURL = self::getClass(BaseURL::class);
 
 		if (Config::get('system', 'permit_crawling') && !Session::isAuthenticated()) {
 			// Default values:
@@ -92,23 +96,13 @@ class Index extends BaseSearchModule
 			$search = substr($search, 1);
 		}
 
+		self::tryRedirectToProfile($baseURL, $search);
+
 		if (strpos($search, '@') === 0 || strpos($search, '!') === 0) {
 			return self::performContactSearch($search);
 		}
 
-		if (parse_url($search, PHP_URL_SCHEME) != '') {
-			/** @var BaseURL $baseURL */
-			$baseURL = self::getClass(BaseURL::class);
-
-			// Post URL search
-			$item_id = Item::fetchByLink($search);
-			if (!empty($item_id)) {
-				$item = Item::selectFirst(['guid'], ['id' => $item_id]);
-				if (DBA::isResult($item)) {
-					$baseURL->redirect('display/' . $item['guid']);
-				}
-			}
-		}
+		self::tryRedirectToPost($baseURL, $search);
 
 		if (!empty($_GET['search-option'])) {
 			switch ($_GET['search-option']) {
@@ -201,5 +195,92 @@ class Index extends BaseSearchModule
 		$o .= $pager->renderMinimal(count($r));
 
 		return $o;
+	}
+
+	/**
+	 * Tries to redirect to a local profile page based on the input.
+	 *
+	 * This method separates logged in and anonymous users. Logged in users can trigger contact probes to import
+	 * non-existing contacts while anonymous users can only trigger a local lookup.
+	 *
+	 * Formats matched:
+	 * - @user@domain
+	 * - user@domain
+	 * - Any fully-formed URL
+	 *
+	 * @param BaseURL $baseURL
+	 * @param string  $search
+	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	private static function tryRedirectToProfile(BaseURL $baseURL, string $search)
+	{
+		$isUrl = parse_url($search, PHP_URL_SCHEME) !== '';
+		$isAddr = preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
+
+		if (!$isUrl && !$isAddr) {
+			return;
+		}
+
+		if ($isAddr) {
+			$search = $matches[1];
+		}
+
+		if (local_user()) {
+			// User-specific contact URL/address search
+			$contact_id = Contact::getIdForURL($search, local_user());
+			if (!$contact_id) {
+				// User-specific contact URL/address search and probe
+				$contact_id = Contact::getIdForURL($search);
+			}
+		} else {
+			// Cheaper local lookup for anonymous users, no probe
+			if ($isAddr) {
+				$contact = Contact::selectFirst(['id' => 'cid'], ['addr' => $search, 'uid' => 0]);
+			} else {
+				$contact = Contact::getDetailsByURL($search, 0, ['cid' => 0]);
+			}
+
+			if (DBA::isResult($contact)) {
+				$contact_id = $contact['cid'];
+			}
+		}
+
+		if (!empty($contact_id)) {
+			$baseURL->redirect('contact/' . $contact_id);
+		}
+	}
+
+	/**
+	 * Fetch/search a post by URL and redirects to its local representation if it was found.
+	 *
+	 * @param BaseURL $baseURL
+	 * @param string  $search
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	private static function tryRedirectToPost(BaseURL $baseURL, string $search)
+	{
+		if (parse_url($search, PHP_URL_SCHEME) == '') {
+			return;
+		}
+
+		if (local_user()) {
+			// Post URL search
+			$item_id = Item::fetchByLink($search, local_user());
+			if (!$item_id) {
+				// If the user-specific search failed, we search and probe a public post
+				$item_id = Item::fetchByLink($search);
+			}
+		} else {
+			// Cheaper local lookup for anonymous users, no probe
+			$item_id = Item::searchByLink($search);
+		}
+
+		if (!empty($item_id)) {
+			$item = Item::selectFirst(['guid'], ['id' => $item_id]);
+			if (DBA::isResult($item)) {
+				$baseURL->redirect('display/' . $item['guid']);
+			}
+		}
 	}
 }
