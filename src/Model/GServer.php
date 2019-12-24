@@ -850,7 +850,7 @@ class GServer
 	 */
 	public static function checkMastodonDirectory(string $url, array $serverdata)
 	{
-		$curlResult = Network::curl($url. '/api/v1/directory?limit=1');
+		$curlResult = Network::curl($url . '/api/v1/directory?limit=1');
 		if (!$curlResult->isSuccess()) {
 			return $serverdata;
 		}
