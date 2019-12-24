@@ -406,11 +406,6 @@ class Contact extends BaseObject
 		}
 
 		DBA::update('user-contact', ['blocked' => $blocked], ['cid' => $cdata['public'], 'uid' => $uid], true);
-
-		if ($blocked) {
-			// Blocked contact can't be in any group
-			self::removeFromGroups($cid);
-		}
 	}
 
 	/**
