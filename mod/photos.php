@@ -1035,14 +1035,10 @@ function photos_content(App $a)
 		if ($cmd === 'drop') {
 			$drop_url = $a->query_string;
 
-			$extra_inputs = [
-				['name' => 'albumname', 'value' => $_POST['albumname']],
-			];
-
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
 				'$message' => L10n::t('Do you really want to delete this photo album and all its photos?'),
-				'$extra_inputs' => $extra_inputs,
+				'$extra_inputs' => [],
 				'$confirm' => L10n::t('Delete Album'),
 				'$confirm_url' => $drop_url,
 				'$confirm_name' => 'dropalbum',
