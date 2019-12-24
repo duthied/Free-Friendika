@@ -17,6 +17,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\ActivityPub;
@@ -142,11 +143,7 @@ class Probe
 			return [];
 		}
 
-		$lrdd = [];
-		// The following webfinger path is defined in RFC 7033 https://tools.ietf.org/html/rfc7033
-		// Problem is that Hubzilla currently doesn't provide all data in the JSON webfinger
-		// compared to the XML webfinger. So this is commented out by now.
-		// $lrdd = array("application/jrd+json" => $host_url.'/.well-known/webfinger?resource={uri}');
+		$lrdd = ['application/jrd+json' => $host_url . '/.well-known/webfinger?resource={uri}'];
 
 		foreach ($links["xrd"]["link"] as $value => $link) {
 			if (!empty($link["@attributes"])) {
@@ -362,9 +359,9 @@ class Probe
 			$data['url'] = $uri;
 		}
 
-		if (!empty($data['photo'])) {
-			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl'] ?? ''), Strings::normaliseLink($data['photo']));
-		} else {
+		if (!empty($data['photo']) && !empty($data['baseurl'])) {
+			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl']), Strings::normaliseLink($data['photo']));
+		} elseif (empty($data['photo'])) {
 			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
 		}
 
@@ -650,6 +647,9 @@ class Probe
 		if ((!$result && ($network == "")) || ($network == Protocol::OSTATUS)) {
 			$result = self::ostatus($webfinger);
 		}
+		if (in_array($network, ['', Protocol::ZOT])) {
+			$result = self::zot($webfinger, $result);
+		}
 		if ((!$result && ($network == "")) || ($network == Protocol::PUMPIO)) {
 			$result = self::pumpio($webfinger, $addr);
 		}
@@ -677,13 +677,148 @@ class Probe
 
 		Logger::log($uri." is ".$result["network"], Logger::DEBUG);
 
-		if (empty($result["baseurl"])) {
+		if (empty($result["baseurl"]) && ($result["network"] != Protocol::PHANTOM)) {
 			$pos = strpos($result["url"], $host);
 			if ($pos) {
 				$result["baseurl"] = substr($result["url"], 0, $pos).$host;
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Check for Zot contact
+	 *
+	 * @param array $webfinger Webfinger data
+	 * @param array $data      previously probed data
+	 *
+	 * @return array Zot data
+	 * @throws HTTPException\InternalServerErrorException
+	 */
+	private static function zot($webfinger, $data)
+	{
+		if (!empty($webfinger["aliases"]) && is_array($webfinger["aliases"])) {
+			foreach ($webfinger["aliases"] as $alias) {
+				if (substr($alias, 0, 5) == 'acct:') {
+					$data["addr"] = substr($alias, 5);
+				}
+			}
+		}
+
+		if (!empty($webfinger["subject"]) && (substr($webfinger["subject"], 0, 5) == "acct:")) {
+			$data["addr"] = substr($webfinger["subject"], 5);
+		}
+
+		$zot_url = '';
+		foreach ($webfinger['links'] as $link) {
+			if (($link['rel'] == 'http://purl.org/zot/protocol') && !empty($link['href'])) {
+				$zot_url = $link['href'];
+			}
+		}
+
+		if (empty($zot_url) && !empty($data['addr']) && !empty(self::$baseurl)) {
+			$condition = ['nurl' => Strings::normaliseLink(self::$baseurl), 'platform' => ['hubzilla']];
+			if (!DBA::exists('gserver', $condition)) {
+				return $data;
+			}
+			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
+		}
+
+		if (!empty($zot_url)) {
+			$data = self::pollZot($zot_url, $data);
+		}
+
+		return $data;
+	}
+
+	public static function pollZot($url, $data)
+	{
+		$curlResult = Network::curl($url);
+		if ($curlResult->isTimeout()) {
+			return $data;
+		}
+		$content = $curlResult->getBody();
+		if (!$content) {
+			return $data;
+		}
+
+		$json = json_decode($content, true);
+		if (!is_array($json)) {
+			return $data;
+		}
+
+		if (empty($data['network'])) {
+			if (!empty($json['protocols']) && in_array('zot', $json['protocols'])) {
+				$data['network'] = Protocol::ZOT;
+			} elseif (!isset($json['protocols'])) {
+				$data['network'] = Protocol::ZOT;
+			}
+		}
+
+		if (!empty($json['guid']) && empty($data['guid'])) {
+			$data['guid'] = $json['guid'];
+		}
+		if (!empty($json['key']) && empty($data['pubkey'])) {
+			$data['pubkey'] = $json['key'];
+		}
+		if (!empty($json['name'])) {
+			$data['name'] = $json['name'];
+		}
+		if (!empty($json['photo'])) {
+			$data['photo'] = $json['photo'];
+			if (!empty($json['photo_updated'])) {
+				$data['photo'] .= '?rev=' . urlencode($json['photo_updated']);
+			}
+		}
+		if (!empty($json['address'])) {
+			$data['addr'] = $json['address'];
+		}
+		if (!empty($json['url'])) {
+			$data['url'] = $json['url'];
+		}
+		if (!empty($json['connections_url'])) {
+			$data['poco'] = $json['connections_url'];
+		}
+		if (isset($json['searchable'])) {
+			$data['hide'] = !$json['searchable'];
+		}
+		if (!empty($json['public_forum'])) {
+			$data['community'] = $json['public_forum'];
+			$data['account-type'] = Contact::PAGE_COMMUNITY;
+		}
+
+		if (!empty($json['profile'])) {
+			$profile = $json['profile'];
+			if (!empty($profile['description'])) {
+				$data['about'] = $profile['description'];
+			}
+			if (!empty($profile['gender'])) {
+				$data['gender'] = $profile['gender'];
+			}
+			if (!empty($profile['keywords'])) {
+				$keywords = implode(', ', $profile['keywords']);
+				if (!empty($keywords)) {
+					$data['keywords'] = $keywords;
+				}
+			}
+
+			$loc = [];
+			if (!empty($profile['region'])) {
+				$loc['region'] = $profile['region'];
+			}
+			if (!empty($profile['country'])) {
+				$loc['country-name'] = $profile['country'];
+			}
+			if (!empty($profile['hometown'])) {
+				$loc['locality'] = $profile['hometown'];
+			}
+			$location = Profile::formatLocation($loc);
+			if (!empty($location)) {
+				$data['location'] = $location;
+			}
+		}
+
+		return $data;
 	}
 
 	/**
@@ -1160,6 +1295,7 @@ class Probe
 	{
 		$hcard_url = "";
 		$data = [];
+
 		// The array is reversed to take into account the order of preference for same-rel links
 		// See: https://tools.ietf.org/html/rfc7033#section-4.4.4
 		foreach (array_reverse($webfinger["links"]) as $link) {
@@ -1187,7 +1323,7 @@ class Probe
 			}
 		}
 
-		if (!isset($data["url"]) || ($hcard_url == "")) {
+		if (empty($data["url"]) || empty($hcard_url)) {
 			return false;
 		}
 
@@ -1212,11 +1348,11 @@ class Probe
 			return false;
 		}
 
-		if (isset($data["url"])
-			&& isset($data["guid"])
-			&& isset($data["baseurl"])
-			&& isset($data["pubkey"])
-			&& ($hcard_url != "")
+		if (!empty($data["url"])
+			&& !empty($data["guid"])
+			&& !empty($data["baseurl"])
+			&& !empty($data["pubkey"])
+			&& !empty($hcard_url)
 		) {
 			$data["network"] = Protocol::DIASPORA;
 
@@ -1424,9 +1560,8 @@ class Probe
 	/**
 	 * @brief Check for pump.io contact
 	 *
-	 * @param array $webfinger Webfinger data
-	 *
-	 * @param       $addr
+	 * @param array  $webfinger Webfinger data
+	 * @param string $addr
 	 * @return array pump.io data
 	 */
 	private static function pumpio($webfinger, $addr)
