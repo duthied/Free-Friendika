@@ -3,6 +3,7 @@
 namespace Friendica\Module\Search;
 
 use Friendica\App\Arguments;
+use Friendica\App\BaseURL;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
@@ -96,11 +97,15 @@ class Index extends BaseSearchModule
 		}
 
 		if (parse_url($search, PHP_URL_SCHEME) != '') {
-			$id = Item::fetchByLink($search);
-			if (!empty($id)) {
-				$item = Item::selectFirst(['guid'], ['id' => $id]);
+			/** @var BaseURL $baseURL */
+			$baseURL = self::getClass(BaseURL::class);
+
+			// Post URL search
+			$item_id = Item::fetchByLink($search);
+			if (!empty($item_id)) {
+				$item = Item::selectFirst(['guid'], ['id' => $item_id]);
 				if (DBA::isResult($item)) {
-					self::getApp()->internalRedirect('display/' . $item['guid']);
+					$baseURL->redirect('display/' . $item['guid']);
 				}
 			}
 		}
