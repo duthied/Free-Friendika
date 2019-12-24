@@ -724,8 +724,18 @@ class Probe
 			$zot_url = self::$baseurl . '/.well-known/zot-info?address=' . $data['addr'];
 		}
 
-		if (!empty($zot_url)) {
-			$data = self::pollZot($zot_url, $data);
+		if (empty($zot_url)) {
+			return $data;
+		}
+
+		$data = self::pollZot($zot_url, $data);
+
+		if (!empty($data['url']) && !empty($webfinger['aliases']) && is_array($webfinger['aliases'])) {
+			foreach ($webfinger['aliases'] as $alias) {
+				if (!strstr($alias, '@') && Strings::normaliseLink($alias) != Strings::normaliseLink($data['url'])) {
+					$data['alias'] = $alias;
+				}
+			}
 		}
 
 		return $data;
