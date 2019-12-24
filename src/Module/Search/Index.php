@@ -88,7 +88,7 @@ class Index extends BaseSearchModule
 		}
 
 		if (strpos($search, '@') === 0 || strpos($search, '!') === 0) {
-			return self::performSearch($search);
+			return self::performContactSearch($search);
 		}
 
 		if (parse_url($search, PHP_URL_SCHEME) != '') {
@@ -109,9 +109,9 @@ class Index extends BaseSearchModule
 					$tag = true;
 					break;
 				case 'contacts':
-					return self::performSearch($search, '@');
+					return self::performContactSearch($search, '@');
 				case 'forums':
-					return self::performSearch($search, '!');
+					return self::performContactSearch($search, '!');
 			}
 		}
 
