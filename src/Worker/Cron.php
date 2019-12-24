@@ -38,11 +38,11 @@ class Cron
 		// Fork the cron jobs in separate parts to avoid problems when one of them is crashing
 		Hook::fork($a->queue['priority'], "cron");
 
-		// run the process to discover global contacts in the background
-		Worker::add(PRIORITY_LOW, "DiscoverPoCo");
+		// run the process to update server directories in the background
+		Worker::add(PRIORITY_LOW, 'UpdateServerDirectories');
 
 		// run the process to update locally stored global contacts in the background
-		Worker::add(PRIORITY_LOW, "DiscoverPoCo", "checkcontact");
+		Worker::add(PRIORITY_LOW, 'UpdateGContacts');
 
 		// Expire and remove user entries
 		Worker::add(PRIORITY_MEDIUM, "CronJobs", "expire_and_remove_users");
@@ -73,9 +73,9 @@ class Cron
 			// update nodeinfo data
 			Worker::add(PRIORITY_LOW, "CronJobs", "nodeinfo");
 
-			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "update_server");
+			Worker::add(PRIORITY_LOW, 'UpdateGServers');
 
-			Worker::add(PRIORITY_LOW, "DiscoverPoCo", "suggestions");
+			Worker::add(PRIORITY_LOW, 'UpdateSuggestions');
 
 			Worker::add(PRIORITY_LOW, 'Expire');
 

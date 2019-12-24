@@ -580,9 +580,6 @@ class GContact
 	public static function getId($contact)
 	{
 		$gcontact_id = 0;
-		$doprobing = false;
-		$last_failure_str = '';
-		$last_contact_str = '';
 
 		if (empty($contact['network'])) {
 			Logger::notice('Empty network', ['url' => $contact['url'], 'callstack' => System::callstack()]);
@@ -613,15 +610,6 @@ class GContact
 		$gcnt = DBA::selectFirst('gcontact', $fields, ['nurl' => Strings::normaliseLink($contact['url'])]);
 		if (DBA::isResult($gcnt)) {
 			$gcontact_id = $gcnt['id'];
-
-			// Update every 90 days
-			if (empty($gcnt['network']) || in_array($gcnt['network'], Protocol::FEDERATED)) {
-				$last_failure_str = $gcnt['last_failure'];
-				$last_failure = strtotime($gcnt['last_failure']);
-				$last_contact_str = $gcnt['last_contact'];
-				$last_contact = strtotime($gcnt['last_contact']);
-				$doprobing = (((time() - $last_contact) > (90 * 86400)) && ((time() - $last_failure) > (90 * 86400)));
-			}
 		} else {
 			$contact['location'] = $contact['location'] ?? '';
 			$contact['about'] = $contact['about'] ?? '';
@@ -638,15 +626,9 @@ class GContact
 			$cnt = DBA::selectFirst('gcontact', ['id', 'network'], $condition, ['order' => ['id']]);
 			if (DBA::isResult($cnt)) {
 				$gcontact_id = $cnt['id'];
-				$doprobing = (empty($cnt['network']) || in_array($cnt['network'], Protocol::FEDERATED));
 			}
 		}
 		DBA::unlock();
-
-		if ($doprobing) {
-			Logger::notice('Probing', ['contact' => $last_contact_str, "failure" => $last_failure_str, "checking" => $contact['url']]);
-			Worker::add(PRIORITY_LOW, 'GProbe', $contact['url']);
-		}
 
 		return $gcontact_id;
 	}
@@ -801,7 +783,7 @@ class GContact
 			return;
 		}
 
-		if (!$force && !PortableContact::updateNeeded($gcontact['created'], $gcontact['updated'], $gcontact['last_failure'], $gcontact['last_contact'])) {
+		if (!$force && !GServer::updateNeeded($gcontact['created'], $gcontact['updated'], $gcontact['last_failure'], $gcontact['last_contact'])) {
 			Logger::info("Don't update profile", ['url' => $data['url'], 'updated' => $gcontact['updated']]);
 			return;
 		}

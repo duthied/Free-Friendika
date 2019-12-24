@@ -242,7 +242,7 @@ class Search extends BaseObject
 		DBA::close($data);
 
 		// Add found profiles from the global directory to the local directory
-		Worker::add(PRIORITY_LOW, 'DiscoverPoCo', "dirsearch", urlencode($search));
+		Worker::add(PRIORITY_LOW, 'SearchDirectory', $search);
 
 		return $resultList;
 	}
