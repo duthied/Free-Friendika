@@ -437,7 +437,7 @@ function events_content(App $a)
 		if (!empty($_REQUEST['nofinish']))    {$orig_event['nofinish']    = $_REQUEST['nofinish'];}
 		if (!empty($_REQUEST['adjust']))      {$orig_event['adjust']      = $_REQUEST['adjust'];}
 		if (!empty($_REQUEST['summary']))     {$orig_event['summary']     = $_REQUEST['summary'];}
-		if (!empty($_REQUEST['description'])) {$orig_event['description'] = $_REQUEST['description'];}
+		if (!empty($_REQUEST['desc']))        {$orig_event['desc']        = $_REQUEST['desc'];}
 		if (!empty($_REQUEST['location']))    {$orig_event['location']    = $_REQUEST['location'];}
 		if (!empty($_REQUEST['start']))       {$orig_event['start']       = $_REQUEST['start'];}
 		if (!empty($_REQUEST['finish']))      {$orig_event['finish']      = $_REQUEST['finish'];}
@@ -445,9 +445,9 @@ function events_content(App $a)
 		$n_checked = (!empty($orig_event['nofinish']) ? ' checked="checked" ' : '');
 		$a_checked = (!empty($orig_event['adjust'])   ? ' checked="checked" ' : '');
 
-		$t_orig = !empty($orig_event) ? $orig_event['summary']  : '';
-		$d_orig = !empty($orig_event) ? $orig_event['desc']     : '';
-		$l_orig = !empty($orig_event) ? $orig_event['location'] : '';
+		$t_orig = $orig_event['summary']  ?? '';
+		$d_orig = $orig_event['desc']     ?? '';
+		$l_orig = $orig_event['location'] ?? '';
 		$eid = !empty($orig_event) ? $orig_event['id']  : 0;
 		$cid = !empty($orig_event) ? $orig_event['cid'] : 0;
 		$uri = !empty($orig_event) ? $orig_event['uri'] : '';

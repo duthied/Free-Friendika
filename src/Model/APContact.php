@@ -192,6 +192,7 @@ class APContact extends BaseObject
 			$apcontact['addr'] = '';
 		}
 
+		$apcontact['pubkey'] = null;
 		if (!empty($compacted['w3id:publicKey'])) {
 			$apcontact['pubkey'] = trim(JsonLD::fetchElement($compacted['w3id:publicKey'], 'w3id:publicKeyPem', '@value'));
 		}

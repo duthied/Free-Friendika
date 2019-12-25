@@ -207,7 +207,7 @@ function profiles_post(App $a) {
 			return;
 		}
 
-		$dob = $_POST['dob'] ? Strings::escapeHtml(trim($_POST['dob'])) : '0000-00-00';
+		$dob = !empty($_POST['dob']) ? Strings::escapeHtml(trim($_POST['dob'])) : '0000-00-00';
 
 		$y = substr($dob, 0, 4);
 		if ((! ctype_digit($y)) || ($y < 1900)) {
@@ -238,17 +238,17 @@ function profiles_post(App $a) {
 			$namechanged = true;
 		}
 
-		$pdesc = Strings::escapeTags(trim($_POST['pdesc']));
-		$gender = Strings::escapeTags(trim($_POST['gender']));
-		$address = Strings::escapeTags(trim($_POST['address']));
-		$locality = Strings::escapeTags(trim($_POST['locality']));
-		$region = Strings::escapeTags(trim($_POST['region']));
-		$postal_code = Strings::escapeTags(trim($_POST['postal_code']));
-		$country_name = Strings::escapeTags(trim($_POST['country_name']));
-		$pub_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['pub_keywords'])));
-		$prv_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['prv_keywords'])));
-		$marital = Strings::escapeTags(trim($_POST['marital']));
-		$howlong = Strings::escapeTags(trim($_POST['howlong']));
+		$pdesc = Strings::escapeTags(trim($_POST['pdesc'] ?? ''));
+		$gender = Strings::escapeTags(trim($_POST['gender'] ?? ''));
+		$address = Strings::escapeTags(trim($_POST['address'] ?? ''));
+		$locality = Strings::escapeTags(trim($_POST['locality'] ?? ''));
+		$region = Strings::escapeTags(trim($_POST['region'] ?? ''));
+		$postal_code = Strings::escapeTags(trim($_POST['postal_code'] ?? ''));
+		$country_name = Strings::escapeTags(trim($_POST['country_name'] ?? ''));
+		$pub_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['pub_keywords'] ?? '')));
+		$prv_keywords = profile_clean_keywords(Strings::escapeTags(trim($_POST['prv_keywords'] ?? '')));
+		$marital = Strings::escapeTags(trim($_POST['marital'] ?? ''));
+		$howlong = Strings::escapeTags(trim($_POST['howlong'] ?? ''));
 
 		$with = (!empty($_POST['with']) ? Strings::escapeTags(trim($_POST['with'])) : '');
 
@@ -338,7 +338,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		PConfig::set(local_user(), 'system', 'detailled_profile', (($_POST['detailed_profile'] == 1) ? 1: 0));
+		PConfig::set(local_user(), 'system', 'detailled_profile', !empty($_POST['detailed_profile']) ? 1: 0);
 
 		$changes = [];
 		if ($is_default) {
