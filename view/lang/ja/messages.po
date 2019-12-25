@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-12-05 23:28+0100\n"
-"PO-Revision-Date: 2019-12-20 02:40+0000\n"
+"PO-Revision-Date: 2019-12-23 07:57+0000\n"
 "Last-Translator: ozero dien <rgfx0020+misc@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -3128,7 +3128,7 @@ msgstr "フォロー解除"
 
 #: src/Model/Contact.php:1260
 msgid "Drop Contact"
-msgstr "コンタクトをドロップ"
+msgstr "コンタクトを削除"
 
 #: src/Model/Contact.php:1270 src/Module/Admin/Users.php:286
 #: mod/notifications.php:198 mod/notifications.php:292
@@ -8802,21 +8802,21 @@ msgstr "接続は双方向ですか？"
 msgid ""
 "Accepting %s as a friend allows %s to subscribe to your posts, and you will "
 "also receive updates from them in your news feed."
-msgstr "受け入れ%s友人などができます%sあなたの記事を購読すると、あなたもあなたのニュースフィードにそれらから更新を受信します。"
+msgstr "%s を友達として受け入れた場合、%s はあなたの投稿を購読できます。また、あなたのニュースフィードに彼らの投稿が表示されます。"
 
 #: mod/notifications.php:222
 #, php-format
 msgid ""
 "Accepting %s as a subscriber allows them to subscribe to your posts, but you"
 " will not receive updates from them in your news feed."
-msgstr "購読者として%sを受け入れると、投稿を購読できますが、ニュースフィードでそれらから更新を受け取ることはできません。"
+msgstr "%sを購読者として受け入れると、彼らはあなたの投稿を購読できますが、あなたのニュースフィードに彼らの投稿は表示されません。"
 
 #: mod/notifications.php:226
 #, php-format
 msgid ""
 "Accepting %s as a sharer allows them to subscribe to your posts, but you "
 "will not receive updates from them in your news feed."
-msgstr "共有者として%sを受け入れると、彼らはあなたの投稿を購読できますが、ニュースフィードでそれらから更新を受け取ることはできません。"
+msgstr "%sを共有者として受け入れると、彼らはあなたの投稿を購読できますが、あなたのニュースフィードに彼らの投稿は表示されません。"
 
 #: mod/notifications.php:237
 msgid "Friend"
@@ -9234,7 +9234,7 @@ msgstr "アルバムを編集"
 
 #: mod/photos.php:1074
 msgid "Drop Album"
-msgstr "ドロップアルバム"
+msgstr "アルバムを削除"
 
 #: mod/photos.php:1079
 msgid "Show Newest First"
