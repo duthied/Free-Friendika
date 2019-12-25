@@ -87,13 +87,9 @@ class Group extends BaseModule
 					throw new \Exception(L10n::t('Unknown group.'), 404);
 				}
 
-				$contact = DBA::selectFirst('contact', ['pending', 'blocked', 'deleted'], ['id' => $contact_id, 'uid' => local_user()]);
+				$contact = DBA::selectFirst('contact', ['deleted'], ['id' => $contact_id, 'uid' => local_user()]);
 				if (!DBA::isResult($contact)) {
 					throw new \Exception(L10n::t('Contact not found.'), 404);
-				}
-
-				if ($contact['pending']) {
-					throw new \Exception(L10n::t('Contact is unavailable.'), 400);
 				}
 
 				if ($contact['deleted']) {
@@ -102,19 +98,17 @@ class Group extends BaseModule
 
 				switch($command) {
 					case 'add':
-						if ($contact['blocked']) {
-							throw new \Exception(L10n::t('Contact is blocked, unable to add it to a group.'), 400);
-						}
-
 						if (!Model\Group::addMember($group_id, $contact_id)) {
 							throw new \Exception(L10n::t('Unable to add the contact to the group.'), 500);
 						}
+
 						$message = L10n::t('Contact successfully added to group.');
 						break;
 					case 'remove':
 						if (!Model\Group::removeMember($group_id, $contact_id)) {
 							throw new \Exception(L10n::t('Unable to remove the contact from the group.'), 500);
 						}
+
 						$message = L10n::t('Contact successfully removed from group.');
 						break;
 					default:
