@@ -79,7 +79,7 @@ class Instance
 			if (!empty($administrator)) {
 				$adminContact = DBA::selectFirst('contact', [], ['nick' => $administrator['nickname'], 'self' => true]);
 				$apcontact = APContact::getByURL($adminContact['url'], false);
-				$instance->contact_account = Account::create($adminContact, $apcontact);
+				$instance->contact_account = Account::create($baseUrl, $adminContact, $apcontact);
 			}
 		}
 

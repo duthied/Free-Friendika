@@ -2,6 +2,7 @@
 
 namespace Friendica\Api\Mastodon;
 
+use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -62,17 +63,21 @@ class Account
 	/**
 	 * Creates an account record from a public contact record. Expects all contact table fields to be set.
 	 *
-	 * @param array $publicContact Full contact table record with uid = 0
-	 * @param array $apcontact     Optional full apcontact table record
+	 * @param BaseURL $baseUrl
+	 * @param array   $publicContact Full contact table record with uid = 0
+	 * @param array   $apcontact     Optional full apcontact table record
 	 * @return Account
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function create(array $publicContact, array $apcontact = [])
+	public static function create(BaseURL $baseUrl, array $publicContact, array $apcontact = [])
 	{
 		$account = new Account();
 		$account->id              = $publicContact['id'];
 		$account->username        = $publicContact['nick'];
-		$account->acct            = $publicContact['addr'];
+		$account->acct            =
+			strpos($publicContact['url'], $baseUrl->get() . '/') === 0 ?
+			$publicContact['nick'] :
+			$publicContact['addr'];
 		$account->display_name    = $publicContact['name'];
 		$account->locked          = !empty($apcontact['manually-approve']);
 		$account->created_at      = DateTimeFormat::utc($publicContact['created'], DateTimeFormat::ATOM);

@@ -26,6 +26,15 @@ class FollowRequests extends Api
 		}
 	}
 
+	/**
+	 * @param array $parameters
+	 * @throws HTTPException\BadRequestException
+	 * @throws HTTPException\ForbiddenException
+	 * @throws HTTPException\NotFoundException
+	 * @throws HTTPException\UnauthorizedException
+	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow
+	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#reject-follow
+	 */
 	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
@@ -58,13 +67,16 @@ class FollowRequests extends Api
 	/**
 	 * @param array $parameters
 	 * @throws HTTPException\InternalServerErrorException
-	 * @see https://docs.joinmastodon.org/api/rest/follow-requests/#get-api-v1-follow-requests
+	 * @throws \ImagickException
+	 * @see https://docs.joinmastodon.org/methods/accounts/follow_requests#pending-follows
 	 */
 	public static function rawContent(array $parameters = [])
 	{
 		$since_id = $_GET['since_id'] ?? null;
 		$max_id = $_GET['max_id'] ?? null;
 		$limit = intval($_GET['limit'] ?? 40);
+
+		$baseUrl = DI::baseUrl();
 
 		if (isset($since_id) && isset($max_id)) {
 			$condition = ['`uid` = ? AND NOT `ignore` AND `id` > ? AND `id` < ?', self::$current_user_id, $since_id, $max_id];
@@ -94,7 +106,7 @@ class FollowRequests extends Api
 
 			$publicContact = Contact::getById($cdata['public']);
 			$apcontact = APContact::getByURL($publicContact['url'], false);
-			$account = Mastodon\Account::create($publicContact, $apcontact);
+			$account = Mastodon\Account::create($baseUrl, $publicContact, $apcontact);
 
 			// Not ideal, the same "account" can have multiple ids depending on the context
 			$account->id = $intro['id'];
@@ -107,13 +119,11 @@ class FollowRequests extends Api
 			$base_query['limit'] = $limit;
 		}
 
-		$BaseURL = DI::baseUrl();
-
 		$links = [];
 		if ($count > $limit) {
-			$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $intros[count($intros) - 1]['id']]) . '>; rel="next"';
+			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $intros[count($intros) - 1]['id']]) . '>; rel="next"';
 		}
-		$links[] = '<' . $BaseURL->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $intros[0]['id']]) . '>; rel="prev"';
+		$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $intros[0]['id']]) . '>; rel="prev"';
 
 		header('Link: ' . implode(', ', $links));
 
