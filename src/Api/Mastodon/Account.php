@@ -10,7 +10,7 @@ use Friendica\Util\DateTimeFormat;
 /**
  * Class Account
  *
- * @see https://docs.joinmastodon.org/api/entities/#account
+ * @see https://docs.joinmastodon.org/entities/account
  */
 class Account
 {
@@ -54,35 +54,37 @@ class Account
 	var $bot = null;
 
 	/**
-	 * Creates an account record from a contact record. Expects all contact table fields to be set
+	 * Creates an account record from a public contact record. Expects all contact table fields to be set.
 	 *
-	 * @param array $contact   Full contact table record
-	 * @param array $apcontact Full apcontact table record
+	 * @param array $publicContact Full contact table record with uid = 0
+	 * @param array $apcontact     Optional full apcontact table record
 	 * @return Account
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function createFromContact(array $contact, array $apcontact = [])
+	public static function createFromContact(array $publicContact, array $apcontact = [])
 	{
 		$account = new Account();
-		$account->id              = $contact['id'];
-		$account->username        = $contact['nick'];
-		$account->acct            = $contact['nick'];
-		$account->display_name    = $contact['name'];
+		$account->id              = $publicContact['id'];
+		$account->username        = $publicContact['nick'];
+		$account->acct            = $publicContact['addr'];
+		$account->display_name    = $publicContact['name'];
 		$account->locked          = !empty($apcontact['manually-approve']);
-		$account->created_at      = DateTimeFormat::utc($contact['created'], DateTimeFormat::ATOM);
+		$account->created_at      = DateTimeFormat::utc($publicContact['created'], DateTimeFormat::ATOM);
 		$account->followers_count = $apcontact['followers_count'] ?? 0;
 		$account->following_count = $apcontact['following_count'] ?? 0;
 		$account->statuses_count  = $apcontact['statuses_count'] ?? 0;
-		$account->note            = BBCode::convert($contact['about'], false);
-		$account->url             = $contact['url'];
-		$account->avatar          = $contact['avatar'];
-		$account->avatar_static   = $contact['avatar'];
+		$account->note            = BBCode::convert($publicContact['about'], false);
+		$account->url             = $publicContact['url'];
+		$account->avatar          = $publicContact['avatar'];
+		$account->avatar_static   = $publicContact['avatar'];
 		// No header picture in Friendica
 		$account->header          = '';
 		$account->header_static   = '';
 		// No custom emojis per account in Friendica
 		$account->emojis          = [];
-		$account->bot             = ($contact['contact-type'] == Contact::TYPE_NEWS);
+		// No metadata fields in Friendica
+		$account->fields          = [];
+		$account->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
 
 		return $account;
 	}
