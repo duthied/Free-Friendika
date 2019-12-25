@@ -61,7 +61,7 @@ class Account
 	 * @return Account
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function createFromContact(array $publicContact, array $apcontact = [])
+	public static function create(array $publicContact, array $apcontact = [])
 	{
 		$account = new Account();
 		$account->id              = $publicContact['id'];
