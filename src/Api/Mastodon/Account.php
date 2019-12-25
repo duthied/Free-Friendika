@@ -52,6 +52,12 @@ class Account
 	var $fields = null;
 	/** @var bool|null */
 	var $bot = null;
+	/** @var bool */
+	var $group;
+	/** @var bool */
+	var $discoverable;
+	/** @var string|null (Datetime) */
+	var $last_status_at = null;
 
 	/**
 	 * Creates an account record from a public contact record. Expects all contact table fields to be set.
@@ -85,6 +91,9 @@ class Account
 		// No metadata fields in Friendica
 		$account->fields          = [];
 		$account->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
+		$account->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
+		$account->discoverable    = !$publicContact['unsearchable'];
+		$account->last_status_at  = !empty($publicContact['last-item']) ? DateTimeFormat::utc($publicContact['last-item'], DateTimeFormat::ATOM) : null;
 
 		return $account;
 	}
