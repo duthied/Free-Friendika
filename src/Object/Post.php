@@ -420,7 +420,7 @@ class Post extends BaseObject
 			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
 			'ago'             => $item['app'] ? L10n::t('%s from %s', $ago, $item['app']) : $ago,
 			'app'             => $item['app'],
-			'created'         => Temporal::getRelativeDate($item['created']),
+			'created'         => $ago,
 			'lock'            => $lock,
 			'location'        => $location_e,
 			'indent'          => $indent,
