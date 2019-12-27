@@ -178,9 +178,10 @@ return [
 		'/h2b'    => [Module\Oembed::class, [R::GET]],
 		'/{hash}' => [Module\Oembed::class, [R::GET]],
 	],
-	'/outbox/{owner}' => [Module\Outbox::class,     [R::GET]],
-	'/owa'            => [Module\Owa::class,        [R::GET]],
-	'/opensearch'     => [Module\OpenSearch::class, [R::GET]],
+	'/outbox/{owner}' => [Module\Outbox::class,          [R::GET]],
+	'/owa'            => [Module\Owa::class,             [R::GET]],
+	'/openid'         => [Module\Security\OpenID::class, [R::GET]],
+	'/opensearch'     => [Module\OpenSearch::class,      [R::GET]],
 
 	'/photo' => [
 		'/{name}'                    => [Module\Photo::class, [R::GET]],
