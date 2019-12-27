@@ -290,19 +290,10 @@ class HTML
 
 		self::tagToBBCode($doc, 'hr', [], "[hr]", "");
 
-		self::tagToBBCode($doc, 'table', [], "", "");
-		self::tagToBBCode($doc, 'tr', [], "\n", "");
-		self::tagToBBCode($doc, 'td', [], "\t", "");
-		//self::node2BBCode($doc, 'table', array(), "[table]", "[/table]");
-		//self::node2BBCode($doc, 'th', array(), "[th]", "[/th]");
-		//self::node2BBCode($doc, 'tr', array(), "[tr]", "[/tr]");
-		//self::node2BBCode($doc, 'td', array(), "[td]", "[/td]");
-		//self::node2BBCode($doc, 'h1', array(), "\n\n[size=xx-large][b]", "[/b][/size]\n");
-		//self::node2BBCode($doc, 'h2', array(), "\n\n[size=x-large][b]", "[/b][/size]\n");
-		//self::node2BBCode($doc, 'h3', array(), "\n\n[size=large][b]", "[/b][/size]\n");
-		//self::node2BBCode($doc, 'h4', array(), "\n\n[size=medium][b]", "[/b][/size]\n");
-		//self::node2BBCode($doc, 'h5', array(), "\n\n[size=small][b]", "[/b][/size]\n");
-		//self::node2BBCode($doc, 'h6', array(), "\n\n[size=x-small][b]", "[/b][/size]\n");
+		self::tagToBBCode($doc, 'table', [], "[table]", "[/table]");
+		self::tagToBBCode($doc, 'th', [], "[th]", "[/th]");
+		self::tagToBBCode($doc, 'tr', [], "[tr]", "[/tr]");
+		self::tagToBBCode($doc, 'td', [], "[td]", "[/td]");
 
 		self::tagToBBCode($doc, 'h1', [], "[h1]", "[/h1]");
 		self::tagToBBCode($doc, 'h2', [], "[h2]", "[/h2]");
