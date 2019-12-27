@@ -102,7 +102,7 @@ class Contacts extends BaseModule
 				'url'          => Contact::magicLink($contact['url']),
 				'sparkle'      => '',
 				'itemurl'      => $contact_details['addr'] ? : $contact['url'],
-				'network'      => ContactSelector::networkToName($contact['network'], $contact['url']),
+				'network'      => ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
 			];
 		}
 

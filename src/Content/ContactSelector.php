@@ -105,12 +105,13 @@ class ContactSelector
 	}
 
 	/**
-	 * @param string $network network
-	 * @param string $profile optional, default empty
+	 * @param string $network  network
+	 * @param string $profile  optional, default empty
+	 * @param string $protocol optional, default empty
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function networkToName($network, $profile = "")
+	public static function networkToName($network, $profile = '', $protocol = '')
 	{
 		$nets = [
 			Protocol::DFRN      =>   L10n::t('DFRN'),
@@ -160,6 +161,10 @@ class ContactSelector
 					}
 				}
 			}
+		}
+
+		if (!empty($protocol) && ($protocol != $network)) {
+			$networkname = L10n::t('%s (via %s)', $networkname, self::networkToName($protocol));
 		}
 
 		return $networkname;

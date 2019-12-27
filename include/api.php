@@ -613,7 +613,7 @@ function api_get_user(App $a, $contact_id = null)
 				'id_str' => (string) $contact["id"],
 				'name' => $contact["name"],
 				'screen_name' => (($contact['nick']) ? $contact['nick'] : $contact['name']),
-				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url']),
+				'location' => ($contact["location"] != "") ? $contact["location"] : ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']),
 				'description' => BBCode::toPlaintext($contact["about"]),
 				'profile_image_url' => $contact["micro"],
 				'profile_image_url_https' => $contact["micro"],
@@ -679,7 +679,7 @@ function api_get_user(App $a, $contact_id = null)
 	} elseif (!empty($uinfo[0]["location"])) {
 		$location = $uinfo[0]["location"];
 	} else {
-		$location = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url']);
+		$location = ContactSelector::networkToName($uinfo[0]['network'], $uinfo[0]['url'], $uinfo[0]['protocol']);
 	}
 
 	$ret = [
@@ -3056,9 +3056,9 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 	}
 
 	if ($status["source"] == 'web') {
-		$status["source"] = ContactSelector::networkToName($item['network'], $item['author-link']);
-	} elseif (ContactSelector::networkToName($item['network'], $item['author-link']) != $status["source"]) {
-		$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['network'], $item['author-link']).')');
+		$status["source"] = ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']);
+	} elseif (ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']) != $status["source"]) {
+		$status["source"] = trim($status["source"].' ('.ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']).')');
 	}
 
 	$retweeted_item = [];

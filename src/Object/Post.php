@@ -452,7 +452,7 @@ class Post extends BaseObject
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
 			'network'         => $item["network"],
-			'network_name'    => ContactSelector::networkToName($item['network'], $item['author-link']),
+			'network_name'    => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
 			'network_icon'    => ContactSelector::networkToIcon($item['network'], $item['author-link']),
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
