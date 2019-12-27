@@ -105,8 +105,9 @@ class FollowRequests extends Api
 			}
 
 			$publicContact = Contact::getById($cdata['public']);
+			$userContact = Contact::getById($cdata['user']);
 			$apcontact = APContact::getByURL($publicContact['url'], false);
-			$account = Mastodon\Account::create($baseUrl, $publicContact, $apcontact);
+			$account = Mastodon\Account::create($baseUrl, $publicContact, $apcontact, $userContact);
 
 			// Not ideal, the same "account" can have multiple ids depending on the context
 			$account->id = $intro['id'];

@@ -66,10 +66,11 @@ class Account
 	 * @param BaseURL $baseUrl
 	 * @param array   $publicContact Full contact table record with uid = 0
 	 * @param array   $apcontact     Optional full apcontact table record
+	 * @param array   $userContact   Optional full contact table record with uid = local_user()
 	 * @return Account
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function create(BaseURL $baseUrl, array $publicContact, array $apcontact = [])
+	public static function create(BaseURL $baseUrl, array $publicContact, array $apcontact = [], array $userContact = [])
 	{
 		$account = new Account();
 		$account->id              = $publicContact['id'];
@@ -86,8 +87,8 @@ class Account
 		$account->statuses_count  = $apcontact['statuses_count'] ?? 0;
 		$account->note            = BBCode::convert($publicContact['about'], false);
 		$account->url             = $publicContact['url'];
-		$account->avatar          = $publicContact['avatar'];
-		$account->avatar_static   = $publicContact['avatar'];
+		$account->avatar          = $userContact['avatar'] ?? $publicContact['avatar'];
+		$account->avatar_static   = $userContact['avatar'] ?? $publicContact['avatar'];
 		// No header picture in Friendica
 		$account->header          = '';
 		$account->header_static   = '';
@@ -98,7 +99,9 @@ class Account
 		$account->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
 		$account->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
 		$account->discoverable    = !$publicContact['unsearchable'];
-		$account->last_status_at  = !empty($publicContact['last-item']) ? DateTimeFormat::utc($publicContact['last-item'], DateTimeFormat::ATOM) : null;
+
+		$last_item = $userContact['last-item'] ?? $publicContact['last-item'];
+		$account->last_status_at  = !empty($last_item) ? DateTimeFormat::utc($last_item, DateTimeFormat::ATOM) : null;
 
 		return $account;
 	}
