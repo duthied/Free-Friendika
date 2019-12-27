@@ -100,8 +100,11 @@ class Account
 		$account->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
 		$account->discoverable    = !$publicContact['unsearchable'];
 
-		$last_item = $userContact['last-item'] ?? $publicContact['last-item'];
-		$account->last_status_at  = !empty($last_item) ? DateTimeFormat::utc($last_item, DateTimeFormat::ATOM) : null;
+		$publicContactLastItem = $publicContact['last-item'] ?: DBA::NULL_DATETIME;
+		$userContactLastItem = $userContact['last-item'] ?? DBA::NULL_DATETIME;
+
+		$lastItem = $userContactLastItem > $publicContactLastItem ? $userContactLastItem : $publicContactLastItem;
+		$account->last_status_at  = $lastItem != DBA::NULL_DATETIME ? DateTimeFormat::utc($lastItem, DateTimeFormat::ATOM) : null;
 
 		return $account;
 	}
