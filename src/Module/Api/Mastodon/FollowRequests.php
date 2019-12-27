@@ -30,9 +30,7 @@ class FollowRequests extends Api
 	{
 		parent::post($parameters);
 
-		/** @var Introduction $Intro */
-		$Intro = self::getClass(Introduction::class);
-		$Intro->fetch(['id' => $parameters['id'], 'uid' => self::$current_user_id]);
+		$Intro = DI::intro()->fetch(['id' => $parameters['id'], 'uid' => self::$current_user_id]);
 
 		$contactId = $Intro->{'contact-id'};
 

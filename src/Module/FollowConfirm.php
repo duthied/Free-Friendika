@@ -23,9 +23,7 @@ class FollowConfirm extends BaseModule
 		$duplex   = intval($_POST['duplex']     ?? 0);
 		$hidden   = intval($_POST['hidden']     ?? 0);
 
-		/** @var Introduction $Intro */
-		$Intro = self::getClass(Introduction::class);
-		$Intro->fetch(['id' => $intro_id, 'uid' => local_user()]);
+		$Intro = DI::intro()->fetch(['id' => $intro_id, 'uid' => local_user()]);
 
 		$cid = $Intro->{'contact-id'};
 
