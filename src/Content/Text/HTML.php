@@ -290,10 +290,10 @@ class HTML
 
 		self::tagToBBCode($doc, 'hr', [], "[hr]", "");
 
-		self::tagToBBCode($doc, 'table', array(), "[table]", "[/table]");
-		self::tagToBBCode($doc, 'th', array(), "[th]", "[/th]");
-		self::tagToBBCode($doc, 'tr', array(), "[tr]", "[/tr]");
-		self::tagToBBCode($doc, 'td', array(), "[td]", "[/td]");
+		self::tagToBBCode($doc, 'table', [], "[table]", "[/table]");
+		self::tagToBBCode($doc, 'th', [], "[th]", "[/th]");
+		self::tagToBBCode($doc, 'tr', [], "[tr]", "[/tr]");
+		self::tagToBBCode($doc, 'td', [], "[td]", "[/td]");
 
 		self::tagToBBCode($doc, 'h1', [], "[h1]", "[/h1]");
 		self::tagToBBCode($doc, 'h2', [], "[h2]", "[/h2]");
