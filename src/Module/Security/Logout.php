@@ -3,7 +3,7 @@
  * @file src/Module/Logout.php
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
 use Friendica\App\Authentication;

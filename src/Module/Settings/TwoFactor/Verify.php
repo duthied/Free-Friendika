@@ -14,7 +14,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Module\BaseSettingsModule;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use PragmaRX\Google2FA\Google2FA;
 
 /**

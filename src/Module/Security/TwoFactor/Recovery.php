@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Module\TwoFactor;
+namespace Friendica\Module\Security\TwoFactor;
 
 use Friendica\BaseModule;
 use Friendica\App\Authentication;

@@ -5,6 +5,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 

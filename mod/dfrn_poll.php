@@ -13,7 +13,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;

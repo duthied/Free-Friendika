@@ -17,7 +17,7 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\User;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\NotImplementedException;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;

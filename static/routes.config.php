@@ -23,8 +23,8 @@ return [
 	],
 
 	'/2fa' => [
-		'[/]'       => [Module\TwoFactor\Verify::class,   [R::GET, R::POST]],
-		'/recovery' => [Module\TwoFactor\Recovery::class, [R::GET, R::POST]],
+		'[/]'       => [Module\Security\TwoFactor\Verify::class,   [R::GET, R::POST]],
+		'/recovery' => [Module\Security\TwoFactor\Recovery::class, [R::GET, R::POST]],
 	],
 
 	'/api' => [
@@ -156,8 +156,8 @@ return [
 
 	'/like/{item:\d+}'    => [Module\Like::class,            [R::GET]],
 	'/localtime'          => [Module\Debug\Localtime::class, [R::GET, R::POST]],
-	'/login'              => [Module\Login::class,           [R::GET, R::POST]],
-	'/logout'             => [Module\Logout::class,          [R::GET, R::POST]],
+	'/login'              => [Module\Security\Login::class,  [R::GET, R::POST]],
+	'/logout'             => [Module\Security\Logout::class, [R::GET, R::POST]],
 	'/magic'              => [Module\Magic::class,           [R::GET]],
 	'/maintenance'        => [Module\Maintenance::class,     [R::GET]],
 	'/manifest'           => [Module\Manifest::class,        [R::GET]],

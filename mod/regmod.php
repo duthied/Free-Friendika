@@ -11,7 +11,7 @@ use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Model\Register;
 use Friendica\Model\User;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 
 function user_allow($hash)
 {

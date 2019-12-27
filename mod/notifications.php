@@ -13,7 +13,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Model\Introduction;
 use Friendica\Model\Notify;
 

@@ -18,7 +18,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
 use Friendica\Model\Profile;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
 use Friendica\Util\ConfigFileLoader;

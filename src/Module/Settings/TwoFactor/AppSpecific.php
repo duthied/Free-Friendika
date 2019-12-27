@@ -9,7 +9,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Module\BaseSettingsModule;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 
 /**
  * // Page 5: 2FA enabled, app-specific password generation
