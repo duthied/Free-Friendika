@@ -31,7 +31,7 @@ class HoverCard extends BaseModule
 			$profile  = $parameters['profile'];
 
 			// Show the profile hovercard
-		} elseif ($args->getArgc() < 2) {
+		} elseif ($args->getArgc() == 2) {
 			$nickname = $parameters['profile'];
 			$profile  = 0;
 
