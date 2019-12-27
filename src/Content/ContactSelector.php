@@ -105,9 +105,9 @@ class ContactSelector
 	}
 
 	/**
-	 * @param string $network  network
+	 * @param string $network  network of the contact
 	 * @param string $profile  optional, default empty
-	 * @param string $protocol optional, default empty
+	 * @param string $protocol (Optional) Protocol that is used for the transmission
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
