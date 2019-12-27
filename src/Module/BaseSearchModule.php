@@ -22,7 +22,7 @@ use Friendica\Util\Strings;
 class BaseSearchModule extends BaseModule
 {
 	/**
-	 * Performs a search with an optional prefix
+	 * Performs a contact search with an optional prefix
 	 *
 	 * @param string $search Search query
 	 * @param string $prefix A optional prefix (e.g. @ or !) for searching
@@ -31,7 +31,7 @@ class BaseSearchModule extends BaseModule
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function performSearch($search, $prefix = '')
+	public static function performContactSearch($search, $prefix = '')
 	{
 		$a      = self::getApp();
 		$config = $a->getConfig();

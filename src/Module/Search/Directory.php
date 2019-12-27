@@ -31,6 +31,6 @@ class Directory extends BaseSearchModule
 		$a->page['aside'] .= Widget::findPeople();
 		$a->page['aside'] .= Widget::follow();
 
-		return self::performSearch($search);
+		return self::performContactSearch($search);
 	}
 }
