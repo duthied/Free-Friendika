@@ -528,7 +528,7 @@ class Contact extends BaseModule
 
 			$poll_enabled = in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 
-			$nettype = L10n::t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url']));
+			$nettype = L10n::t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']));
 
 			// tabs
 			$tab_str = self::getTabsHTML($a, $contact, 3);
@@ -1043,7 +1043,7 @@ class Contact extends BaseModule
 			'sparkle'   => $sparkle,
 			'itemurl'   => ($rr['addr'] ?? '') ?: $rr['url'],
 			'url'       => $url,
-			'network'   => ContactSelector::networkToName($rr['network'], $rr['url']),
+			'network'   => ContactSelector::networkToName($rr['network'], $rr['url'], $rr['protocol']),
 			'nick'      => $rr['nick'],
 		];
 	}
