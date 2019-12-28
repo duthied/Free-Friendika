@@ -20,21 +20,16 @@ class HoverCard extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		/** @var Arguments $args */
-		$args = self::getClass(Arguments::class);
-
 		$a = self::getApp();
 
-		// A logged in user views a profile of a user
-		if ((local_user()) && $args->get(2) === 'view') {
+		if ((local_user()) && ($parameters['action'] ?? '') === 'view') {
+			// A logged in user views a profile of a user
 			$nickname = $a->user['nickname'];
 			$profile  = $parameters['profile'];
-
+		} elseif (empty($parameters['action'])) {
 			// Show the profile hovercard
-		} elseif ($args->getArgc() == 2) {
 			$nickname = $parameters['profile'];
 			$profile  = 0;
-
 		} else {
 			/** @var L10n $l10n */
 			$l10n = self::getClass(L10n::class);

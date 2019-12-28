@@ -139,12 +139,12 @@ return [
 		'/{group:\d+}/add/{contact:\d+}'    => [Module\Group::class, [R::GET, R::POST]],
 		'/{group:\d+}/remove/{contact:\d+}' => [Module\Group::class, [R::GET, R::POST]],
 	],
-	'/hashtag'                  => [Module\Hashtag::class,   [R::GET]],
-	'/help[/{doc:.+}]'          => [Module\Help::class,      [R::GET]],
-	'/home'                     => [Module\Home::class,      [R::GET]],
-	'/hcard/{profile}[/{view}]' => [Module\HoverCard::class, [R::GET]],
-	'/inbox[/{nickname}]'       => [Module\Inbox::class,     [R::GET, R::POST]],
-	'/invite'                   => [Module\Invite::class,    [R::GET, R::POST]],
+	'/hashtag'                    => [Module\Hashtag::class,   [R::GET]],
+	'/help[/{doc:.+}]'            => [Module\Help::class,      [R::GET]],
+	'/home'                       => [Module\Home::class,      [R::GET]],
+	'/hcard/{profile}[/{action}]' => [Module\HoverCard::class, [R::GET]],
+	'/inbox[/{nickname}]'         => [Module\Inbox::class,     [R::GET, R::POST]],
+	'/invite'                     => [Module\Invite::class,    [R::GET, R::POST]],
 
 	'/install'         => [
 		'[/]'                    => [Module\Install::class, [R::GET, R::POST]],
