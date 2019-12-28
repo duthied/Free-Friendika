@@ -119,12 +119,16 @@ class Probe
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
 			$host_url = 'https://'.$host;
+		} elseif ($curlResult->isTimeout()) {
+			Logger::info('Probing timeout', ['url' => $ssl_url], Logger::DEBUG);
+			self::$istimeout = true;
+			return false;
 		}
 
 		if (!is_object($xrd)) {
 			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
 			if ($curlResult->isTimeout()) {
-				Logger::log("Probing timeout for " . $url, Logger::DEBUG);
+				Logger::info('Probing timeout', ['url' => $url], Logger::DEBUG);
 				self::$istimeout = true;
 				return false;
 			}
@@ -1520,8 +1524,13 @@ class Probe
 	 */
 	private static function pumpioProfileData($profile_link)
 	{
+		$curlResult = Network::curl($profile_link);
+		if (!$curlResult->isSuccess()) {
+			return false;
+		}
+
 		$doc = new DOMDocument();
-		if (!@$doc->loadHTMLFile($profile_link)) {
+		if (!@$doc->loadHTML($curlResult->getBody())) {
 			return false;
 		}
 
@@ -1693,9 +1702,13 @@ class Probe
 	 */
 	private static function getFeedLink($url)
 	{
-		$doc = new DOMDocument();
+		$curlResult = Network::curl($url);
+		if (!$curlResult->isSuccess()) {
+			return false;
+		}
 
-		if (!@$doc->loadHTMLFile($url)) {
+		$doc = new DOMDocument();
+		if (!@$doc->loadHTML($curlResult->getBody())) {
 			return false;
 		}
 
