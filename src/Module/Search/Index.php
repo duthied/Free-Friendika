@@ -215,9 +215,10 @@ class Index extends BaseSearchModule
 	 */
 	private static function tryRedirectToProfile(BaseURL $baseURL, string $search)
 	{
-		$isUrl = parse_url($search, PHP_URL_SCHEME) !== '';
-		$isAddr = preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
+		$isUrl = !empty(parse_url($search, PHP_URL_SCHEME));
+		$isAddr = (bool)preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
 
+		Logger::info('Search', ['url' => $isUrl, 'addr' => $isAddr]);
 		if (!$isUrl && !$isAddr) {
 			return;
 		}
@@ -225,7 +226,7 @@ class Index extends BaseSearchModule
 		if ($isAddr) {
 			$search = $matches[1];
 		}
-
+		Logger::info('Search', ['term' => $search]);
 		if (local_user()) {
 			// User-specific contact URL/address search
 			$contact_id = Contact::getIdForURL($search, local_user());
@@ -246,6 +247,7 @@ class Index extends BaseSearchModule
 			}
 		}
 
+		Logger::info('Search', ['cid' => $contact_id]);
 		if (!empty($contact_id)) {
 			$baseURL->redirect('contact/' . $contact_id);
 		}
