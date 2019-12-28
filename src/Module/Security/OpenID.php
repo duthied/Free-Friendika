@@ -18,20 +18,18 @@ use Psr\Log\LoggerInterface;
  */
 class OpenID extends BaseModule
 {
-	public static function init(array $parameters = [])
+	public static function content(array $parameters = [])
 	{
 		/** @var Configuration $config */
 		$config = self::getClass(Configuration::class);
+
 		/** @var BaseURL $baseUrl */
 		$baseUrl = self::getClass(BaseURL::class);
 
 		if ($config->get('system', 'no_openid')) {
 			$baseUrl->redirect();
 		}
-	}
 
-	public static function content(array $parameters = [])
-	{
 		/** @var LoggerInterface $logger */
 		$logger = self::getClass(LoggerInterface::class);
 
@@ -41,9 +39,6 @@ class OpenID extends BaseModule
 		$session = self::getClass(ISession::class);
 
 		if (!empty($_GET['openid_mode']) && !empty($session->get('openid'))) {
-
-			/** @var BaseURL $baseUrl */
-			$baseUrl = self::getClass(BaseURL::class);
 
 			$openid = new LightOpenID($baseUrl->getHostname());
 
@@ -92,8 +87,6 @@ class OpenID extends BaseModule
 				$open_id_obj = new LightOpenID($baseUrl->getHostName());
 				$open_id_obj->identity = $authId;
 				$session->set('openid_server', $open_id_obj->discover($open_id_obj->identity));
-
-				$config = self::getClass(Configuration::class);
 
 				if (intval($config->get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED) {
 					notice($l10n->t('Account not found. Please login to your existing account to add the OpenID to it.'));
