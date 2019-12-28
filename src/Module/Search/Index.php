@@ -215,8 +215,8 @@ class Index extends BaseSearchModule
 	 */
 	private static function tryRedirectToProfile(BaseURL $baseURL, string $search)
 	{
-		$isUrl = parse_url($search, PHP_URL_SCHEME) !== '';
-		$isAddr = preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
+		$isUrl = !empty(parse_url($search, PHP_URL_SCHEME));
+		$isAddr = (bool)preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
 
 		if (!$isUrl && !$isAddr) {
 			return;
