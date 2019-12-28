@@ -1283,9 +1283,9 @@ class BBCode extends BaseObject
 			function ($matches) use (&$codeblocks) {
 				$return = '#codeblock-' . count($codeblocks) . '#';
 				if (strpos($matches[2], "\n") !== false) {
-					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . htmlspecialchars(trim($matches[2], "\n\r"), ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
 				} else {
-					$codeblocks[] = '<code>' . $matches[2] . '</code>';
+					$codeblocks[] = '<code>' . htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8') . '</code>';
 				}
 
 				return $return;
@@ -2052,9 +2052,6 @@ class BBCode extends BaseObject
 			$text = self::convert($text, false, 4);
 		}
 
-		// mask some special HTML chars from conversation to markdown
-		$text = str_replace(['&lt;', '&gt;', '&amp;'], ['&_lt_;', '&_gt_;', '&_amp_;'], $text);
-
 		// If a link is followed by a quote then there should be a newline before it
 		// Maybe we should make this newline at every time before a quote.
 		$text = str_replace(['</a><blockquote>'], ['</a><br><blockquote>'], $text);
@@ -2063,9 +2060,6 @@ class BBCode extends BaseObject
 
 		// Now convert HTML to Markdown
 		$text = HTML::toMarkdown($text);
-
-		// unmask the special chars back to HTML
-		$text = str_replace(['&\_lt\_;', '&\_gt\_;', '&\_amp\_;'], ['&lt;', '&gt;', '&amp;'], $text);
 
 		$a->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
 

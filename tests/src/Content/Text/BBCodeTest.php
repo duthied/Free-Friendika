@@ -203,6 +203,18 @@ class BBCodeTest extends MockedTest
 				'text' => '[audio]http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3[/audio]',
 				'try_oembed' => true,
 			],
+			'bug-7808-code-lt' => [
+				'expectedHtml' => '<code>&lt;</code>',
+				'text' => '[code]<[/code]',
+			],
+			'bug-7808-code-gt' => [
+				'expectedHtml' => '<code>&gt;</code>',
+				'text' => '[code]>[/code]',
+			],
+			'bug-7808-code-amp' => [
+				'expectedHtml' => '<code>&amp;</code>',
+				'text' => '[code]&[/code]',
+			]
 		];
 	}
 
@@ -223,5 +235,40 @@ class BBCodeTest extends MockedTest
 		$actual = BBCode::convert($text, $try_oembed, $simpleHtml, $forPlaintext);
 
 		$this->assertEquals($expectedHtml, $actual);
+	}
+
+	public function dataBBCodesToMarkdown()
+	{
+		return [
+			'bug-7808-gt' => [
+				'expected' => '&gt;`>`',
+				'text' => '>[code]>[/code]',
+			],
+			'bug-7808-lt' => [
+				'expected' => '&lt;`<`',
+				'text' => '<[code]<[/code]',
+			],
+			'bug-7808-amp' => [
+				'expected' => '&amp;`&`',
+				'text' => '&[code]&[/code]',
+			],
+		];
+	}
+
+	/**
+	 * Test convert bbcodes to Markdown
+	 *
+	 * @dataProvider dataBBCodesToMarkdown
+	 *
+	 * @param string $expected     Expected Markdown output
+	 * @param string $text         BBCode text
+	 * @param bool   $for_diaspora
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	public function testToMarkdown($expected, $text, $for_diaspora = false)
+	{
+		$actual = BBCode::toMarkdown($text, $for_diaspora);
+
+		$this->assertEquals($expected, $actual);
 	}
 }
