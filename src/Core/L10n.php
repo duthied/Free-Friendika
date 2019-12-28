@@ -24,30 +24,15 @@ class L10n extends BaseObject
 	}
 
 	/**
-	 * This function should be called before formatting messages in a specific target language
-	 * different from the current user/system language.
+	 * @param string $lang
 	 *
-	 * It saves the current translation strings in a separate variable and loads new translations strings.
+	 * @return L10nClass The new L10n class with the new language
 	 *
-	 * If called repeatedly, it won't save the translation strings again, just load the new ones.
-	 *
-	 * @param string $lang Language code
-	 *
-	 * @throws \Exception
-	 * @see   popLang()
-	 * @brief Stores the current language strings and load a different language.
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function pushLang($lang)
+	public static function withLang(string $lang)
 	{
-		self::getClass(L10nClass::class)->pushLang($lang);
-	}
-
-	/**
-	 * Restores the original user/system language after having used pushLang()
-	 */
-	public static function popLang()
-	{
-		self::getClass(L10nClass::class)->popLang();
+		return self::getClass(L10nClass::class)->withLang($lang);
 	}
 
 	/**
