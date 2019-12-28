@@ -1283,9 +1283,9 @@ class BBCode extends BaseObject
 			function ($matches) use (&$codeblocks) {
 				$return = '#codeblock-' . count($codeblocks) . '#';
 				if (strpos($matches[2], "\n") !== false) {
-					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . trim($matches[2], "\n\r") . '</code></pre>';
+					$codeblocks[] = '<pre><code class="language-' . trim($matches[1]) . '">' . htmlspecialchars(trim($matches[2], "\n\r"), ENT_NOQUOTES, 'UTF-8') . '</code></pre>';
 				} else {
-					$codeblocks[] = '<code>' . $matches[2] . '</code>';
+					$codeblocks[] = '<code>' . htmlspecialchars($matches[2], ENT_NOQUOTES, 'UTF-8') . '</code>';
 				}
 
 				return $return;
