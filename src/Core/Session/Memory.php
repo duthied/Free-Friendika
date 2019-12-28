@@ -2,8 +2,6 @@
 
 namespace Friendica\Core\Session;
 
-use Friendica\Model\User\Cookie;
-
 /**
  * Usable for backend processes (daemon/worker) and testing
  *
@@ -11,10 +9,8 @@ use Friendica\Model\User\Cookie;
  */
 final class Memory extends AbstractSession implements ISession
 {
-	public function __construct(Cookie $cookie)
+	public function __construct()
 	{
-		parent::__construct($cookie);
-
 		// Backward compatibility until all Session variables are replaced
 		// with the Session class
 		$_SESSION = [];

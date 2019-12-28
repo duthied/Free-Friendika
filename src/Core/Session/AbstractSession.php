@@ -3,21 +3,11 @@
 
 namespace Friendica\Core\Session;
 
-use Friendica\Model\User\Cookie;
-
 /**
  * Contains the base methods for $_SESSION interaction
  */
 class AbstractSession
 {
-	/** @var Cookie */
-	protected $cookie;
-
-	public function __construct( Cookie $cookie)
-	{
-		$this->cookie = $cookie;
-	}
-
 	/**
 	 * {@inheritDoc}
 	 */

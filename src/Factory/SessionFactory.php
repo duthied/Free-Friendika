@@ -9,7 +9,6 @@ use Friendica\Core\Config\Configuration;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\Database;
-use Friendica\Model\User\Cookie;
 use Friendica\Util\Profiler;
 use Psr\Log\LoggerInterface;
 
@@ -31,7 +30,6 @@ class SessionFactory
 	 * @param App\Mode        $mode
 	 * @param App\BaseURL     $baseURL
 	 * @param Configuration   $config
-	 * @param Cookie          $cookie
 	 * @param Database        $dba
 	 * @param ICache          $cache
 	 * @param LoggerInterface $logger
@@ -39,14 +37,14 @@ class SessionFactory
 	 *
 	 * @return Session\ISession
 	 */
-	public function createSession(App\Mode $mode, App\BaseURL $baseURL, Configuration $config, Cookie $cookie, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
+	public function createSession(App\Mode $mode, App\BaseURL $baseURL, Configuration $config, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
 	{
 		$stamp1  = microtime(true);
 		$session = null;
 
 		try {
 			if ($mode->isInstall() || $mode->isBackend()) {
-				$session = new Session\Memory($cookie);
+				$session = new Session\Memory();
 			} else {
 				$session_handler = $config->get('system', 'session_handler', self::HANDLER_DEFAULT);
 				$handler = null;
@@ -65,7 +63,7 @@ class SessionFactory
 						break;
 				}
 
-				$session = new Session\Native($baseURL, $cookie, $handler);
+				$session = new Session\Native($baseURL, $handler);
 			}
 		} finally {
 			$profiler->saveTimestamp($stamp1, 'parser', System::callstack());
