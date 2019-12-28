@@ -1514,7 +1514,7 @@ class Contact extends BaseObject
 			$data = array_merge($data, $default);
 		}
 
-		if (empty($data)) {
+		if (empty($data) || ($data['network'] == Protocol::PHANTOM)) {
 			return 0;
 		}
 
