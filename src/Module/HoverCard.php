@@ -2,12 +2,7 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
-use Friendica\App\Page;
 use Friendica\BaseModule;
-use Friendica\Core\Config\Configuration;
-use Friendica\Core\L10n\L10n;
 use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Profile;

@@ -2,17 +2,10 @@
 
 namespace Friendica\Module\Security;
 
-use Friendica\App\Authentication;
-use Friendica\App\BaseURL;
 use Friendica\BaseModule;
-use Friendica\Core\Config\Configuration;
-use Friendica\Core\L10n\L10n;
-use Friendica\Core\Session\ISession;
-use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Util\Strings;
 use LightOpenID;
-use Psr\Log\LoggerInterface;
 
 /**
  * Performs an login with OpenID
