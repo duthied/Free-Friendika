@@ -413,6 +413,11 @@ class L10n
 	 */
 	public function withLang(string $lang)
 	{
+		// Don't create a new instance for same language
+		if ($lang === $this->lang) {
+			return $this;
+		}
+
 		$newL10n = clone $this;
 		$newL10n->loadTranslationTable($lang);
 		return $newL10n;
