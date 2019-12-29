@@ -25,7 +25,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;

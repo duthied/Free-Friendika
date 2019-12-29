@@ -5,7 +5,7 @@ namespace Friendica\Module\Search;
 use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Module\BaseSearchModule;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Util\Strings;
 
 /**

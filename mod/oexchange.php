@@ -6,7 +6,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 

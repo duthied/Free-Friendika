@@ -6,6 +6,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Module\Security\Login;
 
 /**
  * Home module - Landing page of the current node

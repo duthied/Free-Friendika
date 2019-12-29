@@ -9,7 +9,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Model\TwoFactor\RecoveryCode;
 use Friendica\Module\BaseSettingsModule;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 
 /**
  * // Page 3: 2FA enabled but not verified, show recovery codes

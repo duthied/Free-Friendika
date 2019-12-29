@@ -8,7 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 
 require_once __DIR__ . '/../include/api.php';
 

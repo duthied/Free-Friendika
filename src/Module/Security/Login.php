@@ -4,7 +4,7 @@
  * @file src/Module/Login.php
  */
 
-namespace Friendica\Module;
+namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
 use Friendica\App\Authentication;
@@ -13,6 +13,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\Module\Register;
 use Friendica\Util\Strings;
 
 /**

@@ -19,7 +19,7 @@ use Friendica\Database\DBA;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;

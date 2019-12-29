@@ -19,6 +19,7 @@ use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
+use Friendica\Module\Security\Login;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;

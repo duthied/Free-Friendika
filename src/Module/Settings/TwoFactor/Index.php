@@ -12,7 +12,7 @@ use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Model\TwoFactor\RecoveryCode;
 use Friendica\Model\User;
 use Friendica\Module\BaseSettingsModule;
-use Friendica\Module\Login;
+use Friendica\Module\Security\Login;
 use PragmaRX\Google2FA\Google2FA;
 
 class Index extends BaseSettingsModule
