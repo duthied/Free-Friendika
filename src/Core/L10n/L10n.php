@@ -23,12 +23,6 @@ class L10n
 	 * @var string
 	 */
 	private $lang = '';
-	/**
-	 * A language code saved for later after pushLang() has been called.
-	 *
-	 * @var string
-	 */
-	private $langSave = '';
 
 	/**
 	 * An array of translation strings whose key is the neutral english message.
@@ -36,12 +30,6 @@ class L10n
 	 * @var array
 	 */
 	private $strings = [];
-	/**
-	 * An array of translation strings saved for later after pushLang() has been called.
-	 *
-	 * @var array
-	 */
-	private $stringsSave = [];
 
 	/**
 	 * @var Database
@@ -53,7 +41,7 @@ class L10n
 	 */
 	private $logger;
 
-	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger, ISession $session,  array $server, array $get)
+	public function __construct(Configuration $config, Database $dba, LoggerInterface $logger, ISession $session, array $server, array $get)
 	{
 		$this->dba    = $dba;
 		$this->logger = $logger;
@@ -99,50 +87,6 @@ class L10n
 		if ($session->get('language') !== $this->lang) {
 			$this->loadTranslationTable($session->get('language'));
 		}
-	}
-
-	/**
-	 * This function should be called before formatting messages in a specific target language
-	 * different from the current user/system language.
-	 *
-	 * It saves the current translation strings in a separate variable and loads new translations strings.
-	 *
-	 * If called repeatedly, it won't save the translation strings again, just load the new ones.
-	 *
-	 * @param string $lang Language code
-	 *
-	 * @throws \Exception
-	 * @see   popLang()
-	 * @brief Stores the current language strings and load a different language.
-	 */
-	public function pushLang($lang)
-	{
-		if ($lang === $this->lang) {
-			return;
-		}
-
-		if (empty($this->langSave)) {
-			$this->langSave    = $this->lang;
-			$this->stringsSave = $this->strings;
-		}
-
-		$this->loadTranslationTable($lang);
-	}
-
-	/**
-	 * Restores the original user/system language after having used pushLang()
-	 */
-	public function popLang()
-	{
-		if (!isset($this->langSave)) {
-			return;
-		}
-
-		$this->strings = $this->stringsSave;
-		$this->lang    = $this->langSave;
-
-		$this->stringsSave = null;
-		$this->langSave    = null;
 	}
 
 	/**
@@ -457,5 +401,25 @@ class L10n
 		Hook::callAll('poke_verbs', $arr);
 
 		return $arr;
+	}
+
+	/**
+	 * Creates a new L10n instance based on the given langauge
+	 *
+	 * @param string $lang The new language
+	 *
+	 * @return static A new L10n instance
+	 * @throws \Exception
+	 */
+	public function withLang(string $lang)
+	{
+		// Don't create a new instance for same language
+		if ($lang === $this->lang) {
+			return $this;
+		}
+
+		$newL10n = clone $this;
+		$newL10n->loadTranslationTable($lang);
+		return $newL10n;
 	}
 }

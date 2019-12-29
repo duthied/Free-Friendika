@@ -252,26 +252,25 @@ class Update
 			$sent[] = $admin['email'];
 
 			$lang = (($admin['language'])?$admin['language']:'en');
-			L10n::pushLang($lang);
+			$l10n = L10n::withLang($lang);
 
-			$preamble = Strings::deindent(L10n::t("
+			$preamble = Strings::deindent($l10n->t("
 				The friendica developers released update %s recently,
 				but when I tried to install it, something went terribly wrong.
 				This needs to be fixed soon and I can't do it alone. Please contact a
 				friendica developer if you can not help me on your own. My database might be invalid.",
 				$update_id));
-			$body = L10n::t("The error message is\n[pre]%s[/pre]", $error_message);
+			$body = $l10n->t("The error message is\n[pre]%s[/pre]", $error_message);
 
 			notification([
 					'uid'      => $admin['uid'],
 					'type'     => SYSTEM_EMAIL,
 					'to_email' => $admin['email'],
-					'subject'  => l10n::t('[Friendica Notify] Database update'),
+					'subject'  => $l10n->t('[Friendica Notify] Database update'),
 					'preamble' => $preamble,
 					'body'     => $body,
 					'language' => $lang]
 			);
-			L10n::popLang();
 		}
 
 		//try the logger
@@ -295,9 +294,9 @@ class Update
 				$sent[] = $admin['email'];
 
 				$lang = (($admin['language']) ? $admin['language'] : 'en');
-				L10n::pushLang($lang);
+				$l10n = L10n::withLang($lang);
 
-				$preamble = Strings::deindent(L10n::t("
+				$preamble = Strings::deindent($l10n->t("
 					The friendica database was successfully updated from %s to %s.",
 					$from_build, $to_build));
 
@@ -310,7 +309,6 @@ class Update
 						'body' => $preamble,
 						'language' => $lang]
 				);
-				L10n::popLang();
 			}
 		}
 

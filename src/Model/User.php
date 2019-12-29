@@ -916,6 +916,7 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
+	 * @param L10n\L10n   $l10n     The used language
 	 * @param array  $user     User record array
 	 * @param string $sitename
 	 * @param string $siteurl
@@ -923,9 +924,9 @@ class User
 	 * @return NULL|boolean from notification() and email() inherited
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function sendRegisterOpenEmail($user, $sitename, $siteurl, $password)
+	public static function sendRegisterOpenEmail(L10n\L10n $l10n, $user, $sitename, $siteurl, $password)
 	{
-		$preamble = Strings::deindent(L10n::t(
+		$preamble = Strings::deindent($l10n->t(
 			'
 				Dear %1$s,
 				Thank you for registering at %2$s. Your account has been created.
@@ -933,7 +934,7 @@ class User
 			$user['username'],
 			$sitename
 		));
-		$body = Strings::deindent(L10n::t(
+		$body = Strings::deindent($l10n->t(
 			'
 			The login details are as follows:
 

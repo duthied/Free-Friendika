@@ -38,16 +38,15 @@ function user_allow($hash)
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
-	L10n::pushLang($register['language']);
+	$l10n = L10n::withLang($register['language']);
 
 	$res = User::sendRegisterOpenEmail(
+		$l10n,
 		$user,
 		Config::get('config', 'sitename'),
 		$a->getBaseUrl(),
 		($register['password'] ?? '') ?: 'Sent in a previous email'
 	);
-
-	L10n::popLang();
 
 	if ($res) {
 		info(L10n::t('Account approved.') . EOL);

@@ -228,6 +228,7 @@ class Register extends BaseModule
 			// Only send a password mail when the password wasn't manually provided
 			if (empty($_POST['password1']) || empty($_POST['confirm'])) {
 				$res = Model\User::sendRegisterOpenEmail(
+					L10n::withLang($arr['language']),
 					$user,
 					Config::get('config', 'sitename'),
 					$base_url,

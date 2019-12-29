@@ -54,17 +54,17 @@ function notification($params)
 	$params['to_email']     = ($params['to_email']     ?? '') ?: $user['email'];
 
 	// from here on everything is in the recipients language
-	L10n::pushLang($params['language']);
+	$l10n = L10n::withLang($params['language']);
 
-	$banner = L10n::t('Friendica Notification');
+	$banner = $l10n->t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
 	$siteurl = System::baseUrl(true);
-	$thanks = L10n::t('Thank You,');
+	$thanks = $l10n->t('Thank You,');
 	$sitename = Config::get('config', 'sitename');
 	if (Config::get('config', 'admin_name')) {
-		$site_admin = L10n::t('%1$s, %2$s Administrator', Config::get('config', 'admin_name'), $sitename);
+		$site_admin = $l10n->t('%1$s, %2$s Administrator', Config::get('config', 'admin_name'), $sitename);
 	} else {
-		$site_admin = L10n::t('%s Administrator', $sitename);
+		$site_admin = $l10n->t('%s Administrator', $sitename);
 	}
 
 	$sender_name = $sitename;
@@ -133,12 +133,12 @@ function notification($params)
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
 		$params["link"] = $itemlink;
 
-		$subject = L10n::t('[Friendica:Notify] New mail received at %s', $sitename);
+		$subject = $l10n->t('[Friendica:Notify] New mail received at %s', $sitename);
 
-		$preamble = L10n::t('%1$s sent you a new private message at %2$s.', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=' . $itemlink . ']'.L10n::t('a private message').'[/url]');
+		$preamble = $l10n->t('%1$s sent you a new private message at %2$s.', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=' . $itemlink . ']' . $l10n->t('a private message').'[/url]');
 
-		$sitelink = L10n::t('Please visit %s to view and/or reply to your private messages.');
+		$sitelink = $l10n->t('Please visit %s to view and/or reply to your private messages.');
 		$tsitelink = sprintf($sitelink, $siteurl.'/message/'.$params['item']['id']);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'/message/'.$params['item']['id'].'">'.$sitename.'</a>');
 	}
@@ -147,7 +147,6 @@ function notification($params)
 		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id, 'deleted' => false]);
 		if (DBA::isResult($thread) && $thread['ignored']) {
 			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
-			L10n::popLang();
 			return false;
 		}
 
@@ -156,7 +155,6 @@ function notification($params)
 		$condition = ['type' => [NOTIFY_TAGSELF, NOTIFY_COMMENT, NOTIFY_SHARE],
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
-			L10n::popLang();
 			return false;
 		}
 
@@ -171,13 +169,13 @@ function notification($params)
 
 		// "a post"
 		if ($params['type'] == NOTIFY_TAGSELF) {
-			$dest_str = L10n::t('%1$s tagged you on [url=%2$s]a %3$s[/url]',
+			$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]a %3$s[/url]',
 				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
 				$item_post_type
 			);
 		} else {
-			$dest_str = L10n::t('%1$s commented on [url=%2$s]a %3$s[/url]',
+			$dest_str = $l10n->t('%1$s commented on [url=%2$s]a %3$s[/url]',
 				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
 				$item_post_type
@@ -187,14 +185,14 @@ function notification($params)
 		// "George Bull's post"
 		if (DBA::isResult($item)) {
 			if ($params['type'] == NOTIFY_TAGSELF) {
-				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
+				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item['author-name'],
 					$item_post_type
 				);
 			} else {
-				$dest_str = L10n::t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
+				$dest_str = $l10n->t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item['author-name'],
@@ -206,13 +204,13 @@ function notification($params)
 		// "your post"
 		if (DBA::isResult($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
 			if ($params['type'] == NOTIFY_TAGSELF) {
-				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]your %3$s[/url]',
+				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]your %3$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item_post_type
 				);
 			} else {
-				$dest_str = L10n::t('%1$s commented on [url=%2$s]your %3$s[/url]',
+				$dest_str = $l10n->t('%1$s commented on [url=%2$s]your %3$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item_post_type
@@ -223,13 +221,13 @@ function notification($params)
 		// "their post"
 		if (DBA::isResult($item) && $item['author-link'] == $params['source_link']) {
 			if ($params['type'] == NOTIFY_TAGSELF) {
-				$dest_str = L10n::t('%1$s tagged you on [url=%2$s]their %3$s[/url]',
+				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]their %3$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item_post_type
 				);
 			} else {
-				$dest_str = L10n::t('%1$s commented on [url=%2$s]their %3$s[/url]',
+				$dest_str = $l10n->t('%1$s commented on [url=%2$s]their %3$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item_post_type
@@ -242,67 +240,67 @@ function notification($params)
 		// Before this we have the name of the replier on the subject rendering
 		// different subjects for messages on the same thread.
 		if ($params['type'] == NOTIFY_TAGSELF) {
-			$subject = L10n::t('[Friendica:Notify] %s tagged you', $params['source_name']);
+			$subject = $l10n->t('[Friendica:Notify] %s tagged you', $params['source_name']);
 
-			$preamble = L10n::t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
+			$preamble = $l10n->t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
 		} else {
-			$subject = L10n::t('[Friendica:Notify] Comment to conversation #%1$d by %2$s', $parent_id, $params['source_name']);
+			$subject = $l10n->t('[Friendica:Notify] Comment to conversation #%1$d by %2$s', $parent_id, $params['source_name']);
 
-			$preamble = L10n::t('%s commented on an item/conversation you have been following.', $params['source_name']);
+			$preamble = $l10n->t('%s commented on an item/conversation you have been following.', $params['source_name']);
 		}
 
 		$epreamble = $dest_str;
 
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="' . $siteurl . '">' . $sitename . '</a>');
 		$itemlink =  $params['link'];
 	}
 
 	if ($params['type'] == NOTIFY_WALL) {
-		$subject = L10n::t('[Friendica:Notify] %s posted to your profile wall', $params['source_name']);
+		$subject = $l10n->t('[Friendica:Notify] %s posted to your profile wall', $params['source_name']);
 
-		$preamble = L10n::t('%1$s posted to your profile wall at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s posted to [url=%2$s]your wall[/url]',
+		$preamble = $l10n->t('%1$s posted to your profile wall at %2$s', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('%1$s posted to [url=%2$s]your wall[/url]',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 			$params['link']
 		);
 
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
 	}
 
 	if ($params['type'] == NOTIFY_SHARE) {
-		$subject = L10n::t('[Friendica:Notify] %s shared a new post', $params['source_name']);
+		$subject = $l10n->t('[Friendica:Notify] %s shared a new post', $params['source_name']);
 
-		$preamble = L10n::t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s [url=%2$s]shared a post[/url].',
+		$preamble = $l10n->t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('%1$s [url=%2$s]shared a post[/url].',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 			$params['link']
 		);
 
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
 	}
 
 	if ($params['type'] == NOTIFY_POKE) {
-		$subject = L10n::t('[Friendica:Notify] %1$s poked you', $params['source_name']);
+		$subject = $l10n->t('[Friendica:Notify] %1$s poked you', $params['source_name']);
 
-		$preamble = L10n::t('%1$s poked you at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s [url=%2$s]poked you[/url].',
+		$preamble = $l10n->t('%1$s poked you at %2$s', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('%1$s [url=%2$s]poked you[/url].',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 			$params['link']
 		);
 
-		$subject = str_replace('poked', L10n::t($params['activity']), $subject);
-		$preamble = str_replace('poked', L10n::t($params['activity']), $preamble);
-		$epreamble = str_replace('poked', L10n::t($params['activity']), $epreamble);
+		$subject = str_replace('poked', $l10n->t($params['activity']), $subject);
+		$preamble = str_replace('poked', $l10n->t($params['activity']), $preamble);
+		$epreamble = str_replace('poked', $l10n->t($params['activity']), $epreamble);
 
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		$itemlink =  $params['link'];
@@ -310,52 +308,52 @@ function notification($params)
 
 	if ($params['type'] == NOTIFY_TAGSHARE) {
 		$itemlink =  $params['link'];
-		$subject = L10n::t('[Friendica:Notify] %s tagged your post', $params['source_name']);
+		$subject = $l10n->t('[Friendica:Notify] %s tagged your post', $params['source_name']);
 
-		$preamble = L10n::t('%1$s tagged your post at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('%1$s tagged [url=%2$s]your post[/url]',
+		$preamble = $l10n->t('%1$s tagged your post at %2$s', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('%1$s tagged [url=%2$s]your post[/url]',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 			$itemlink
 		);
 
-		$sitelink = L10n::t('Please visit %s to view and/or reply to the conversation.');
+		$sitelink = $l10n->t('Please visit %s to view and/or reply to the conversation.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 	}
 
 	if ($params['type'] == NOTIFY_INTRO) {
 		$itemlink = $params['link'];
-		$subject = L10n::t('[Friendica:Notify] Introduction received');
+		$subject = $l10n->t('[Friendica:Notify] Introduction received');
 
-		$preamble = L10n::t('You\'ve received an introduction from \'%1$s\' at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('You\'ve received [url=%1$s]an introduction[/url] from %2$s.',
+		$preamble = $l10n->t('You\'ve received an introduction from \'%1$s\' at %2$s', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('You\'ve received [url=%1$s]an introduction[/url] from %2$s.',
 			$itemlink,
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 		);
 
-		$body = L10n::t('You may visit their profile at %s', $params['source_link']);
+		$body = $l10n->t('You may visit their profile at %s', $params['source_link']);
 
-		$sitelink = L10n::t('Please visit %s to approve or reject the introduction.');
+		$sitelink = $l10n->t('Please visit %s to approve or reject the introduction.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 
 		switch ($params['verb']) {
 			case Activity::FRIEND:
 				// someone started to share with user (mostly OStatus)
-				$subject = L10n::t('[Friendica:Notify] A new person is sharing with you');
+				$subject = $l10n->t('[Friendica:Notify] A new person is sharing with you');
 
-				$preamble = L10n::t('%1$s is sharing with you at %2$s', $params['source_name'], $sitename);
-				$epreamble = L10n::t('%1$s is sharing with you at %2$s',
+				$preamble = $l10n->t('%1$s is sharing with you at %2$s', $params['source_name'], $sitename);
+				$epreamble = $l10n->t('%1$s is sharing with you at %2$s',
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$sitename
 				);
 				break;
 			case Activity::FOLLOW:
 				// someone started to follow the user (mostly OStatus)
-				$subject = L10n::t('[Friendica:Notify] You have a new follower');
+				$subject = $l10n->t('[Friendica:Notify] You have a new follower');
 
-				$preamble = L10n::t('You have a new follower at %2$s : %1$s', $params['source_name'], $sitename);
-				$epreamble = L10n::t('You have a new follower at %2$s : %1$s',
+				$preamble = $l10n->t('You have a new follower at %2$s : %1$s', $params['source_name'], $sitename);
+				$epreamble = $l10n->t('You have a new follower at %2$s : %1$s',
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]',
 					$sitename
 				);
@@ -368,20 +366,20 @@ function notification($params)
 
 	if ($params['type'] == NOTIFY_SUGGEST) {
 		$itemlink =  $params['link'];
-		$subject = L10n::t('[Friendica:Notify] Friend suggestion received');
+		$subject = $l10n->t('[Friendica:Notify] Friend suggestion received');
 
-		$preamble = L10n::t('You\'ve received a friend suggestion from \'%1$s\' at %2$s', $params['source_name'], $sitename);
-		$epreamble = L10n::t('You\'ve received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s.',
+		$preamble = $l10n->t('You\'ve received a friend suggestion from \'%1$s\' at %2$s', $params['source_name'], $sitename);
+		$epreamble = $l10n->t('You\'ve received [url=%1$s]a friend suggestion[/url] for %2$s from %3$s.',
 			$itemlink,
 			'[url='.$params['item']['url'].']'.$params['item']['name'].'[/url]',
 			'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 		);
 
-		$body = L10n::t('Name:').' '.$params['item']['name']."\n";
-		$body .= L10n::t('Photo:').' '.$params['item']['photo']."\n";
-		$body .= L10n::t('You may visit their profile at %s', $params['item']['url']);
+		$body = $l10n->t('Name:').' '.$params['item']['name']."\n";
+		$body .= $l10n->t('Photo:').' '.$params['item']['photo']."\n";
+		$body .= $l10n->t('You may visit their profile at %s', $params['item']['url']);
 
-		$sitelink = L10n::t('Please visit %s to approve or reject the suggestion.');
+		$sitelink = $l10n->t('Please visit %s to approve or reject the suggestion.');
 		$tsitelink = sprintf($sitelink, $siteurl);
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 	}
@@ -389,34 +387,34 @@ function notification($params)
 	if ($params['type'] == NOTIFY_CONFIRM) {
 		if ($params['verb'] == Activity::FRIEND) { // mutual connection
 			$itemlink =  $params['link'];
-			$subject = L10n::t('[Friendica:Notify] Connection accepted');
+			$subject = $l10n->t('[Friendica:Notify] Connection accepted');
 
-			$preamble = L10n::t('\'%1$s\' has accepted your connection request at %2$s', $params['source_name'], $sitename);
-			$epreamble = L10n::t('%2$s has accepted your [url=%1$s]connection request[/url].',
+			$preamble = $l10n->t('\'%1$s\' has accepted your connection request at %2$s', $params['source_name'], $sitename);
+			$epreamble = $l10n->t('%2$s has accepted your [url=%1$s]connection request[/url].',
 				$itemlink,
 				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 			);
 
-			$body =  L10n::t('You are now mutual friends and may exchange status updates, photos, and email without restriction.');
+			$body =  $l10n->t('You are now mutual friends and may exchange status updates, photos, and email without restriction.');
 
-			$sitelink = L10n::t('Please visit %s if you wish to make any changes to this relationship.');
+			$sitelink = $l10n->t('Please visit %s if you wish to make any changes to this relationship.');
 			$tsitelink = sprintf($sitelink, $siteurl);
 			$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		} else { // ACTIVITY_FOLLOW
 			$itemlink =  $params['link'];
-			$subject = L10n::t('[Friendica:Notify] Connection accepted');
+			$subject = $l10n->t('[Friendica:Notify] Connection accepted');
 
-			$preamble = L10n::t('\'%1$s\' has accepted your connection request at %2$s', $params['source_name'], $sitename);
-			$epreamble = L10n::t('%2$s has accepted your [url=%1$s]connection request[/url].',
+			$preamble = $l10n->t('\'%1$s\' has accepted your connection request at %2$s', $params['source_name'], $sitename);
+			$epreamble = $l10n->t('%2$s has accepted your [url=%1$s]connection request[/url].',
 				$itemlink,
 				'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 			);
 
-			$body =  L10n::t('\'%1$s\' has chosen to accept you a fan, which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.', $params['source_name']);
+			$body =  $l10n->t('\'%1$s\' has chosen to accept you a fan, which restricts some forms of communication - such as private messaging and some profile interactions. If this is a celebrity or community page, these settings were applied automatically.', $params['source_name']);
 			$body .= "\n\n";
-			$body .= L10n::t('\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future.', $params['source_name']);
+			$body .= $l10n->t('\'%1$s\' may choose to extend this into a two-way or more permissive relationship in the future.', $params['source_name']);
 
-			$sitelink = L10n::t('Please visit %s  if you wish to make any changes to this relationship.');
+			$sitelink = $l10n->t('Please visit %s  if you wish to make any changes to this relationship.');
 			$tsitelink = sprintf($sitelink, $siteurl);
 			$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 		}
@@ -426,21 +424,21 @@ function notification($params)
 		switch($params['event']) {
 			case "SYSTEM_REGISTER_REQUEST":
 				$itemlink =  $params['link'];
-				$subject = L10n::t('[Friendica System Notify]') . ' ' . L10n::t('registration request');
+				$subject = $l10n->t('[Friendica System Notify]') . ' ' . $l10n->t('registration request');
 
-				$preamble = L10n::t('You\'ve received a registration request from \'%1$s\' at %2$s', $params['source_name'], $sitename);
-				$epreamble = L10n::t('You\'ve received a [url=%1$s]registration request[/url] from %2$s.',
+				$preamble = $l10n->t('You\'ve received a registration request from \'%1$s\' at %2$s', $params['source_name'], $sitename);
+				$epreamble = $l10n->t('You\'ve received a [url=%1$s]registration request[/url] from %2$s.',
 					$itemlink,
 					'[url='.$params['source_link'].']'.$params['source_name'].'[/url]'
 				);
 
-				$body = L10n::t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
+				$body = $l10n->t("Full Name:	%s\nSite Location:	%s\nLogin Name:	%s (%s)",
 					$params['source_name'],
 					$siteurl, $params['source_mail'],
 					$params['source_nick']
 				);
 
-				$sitelink = L10n::t('Please visit %s to approve or reject the request.');
+				$sitelink = $l10n->t('Please visit %s to approve or reject the request.');
 				$tsitelink = sprintf($sitelink, $params['link']);
 				$hsitelink = sprintf($sitelink, '<a href="'.$params['link'].'">'.$sitename.'</a><br><br>');
 				break;
@@ -524,7 +522,6 @@ function notification($params)
 		Hook::callAll('enotify_store', $datarray);
 
 		if ($datarray['abort']) {
-			L10n::popLang();
 			return false;
 		}
 
@@ -652,7 +649,6 @@ function notification($params)
 			'$content_allowed'	=> $content_allowed,
 		]);
 
-		L10n::popLang();
 		// use the Emailer class to send the message
 		return Emailer::send([
 			'uid' => $params['uid'],
@@ -667,7 +663,6 @@ function notification($params)
 		]);
 	}
 
-	L10n::popLang();
 	return false;
 }
 
