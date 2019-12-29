@@ -115,6 +115,7 @@ class Probe
 		$xrd = null;
 
 		$curlResult = Network::curl($ssl_url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+		$ssl_connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 		if ($curlResult->isSuccess()) {
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
@@ -127,11 +128,16 @@ class Probe
 
 		if (!is_object($xrd)) {
 			$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => 'application/xrd+xml']);
+			$connection_error = ($curlResult->getErrorNumber() == CURLE_COULDNT_CONNECT) || ($curlResult->getReturnCode() == 0);
 			if ($curlResult->isTimeout()) {
 				Logger::info('Probing timeout', ['url' => $url], Logger::DEBUG);
 				self::$istimeout = true;
 				return false;
+			} elseif ($connection_error && $ssl_connection_error) {
+				self::$istimeout = true;
+				return false;
 			}
+
 			$xml = $curlResult->getBody();
 			$xrd = XML::parseString($xml, false);
 			$host_url = 'http://'.$host;
