@@ -52,7 +52,7 @@ class DBStructure
 		}
 
 		foreach ($tables AS $table) {
-			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['TABLE_NAME']) . " engine=InnoDB;";
+			$sql = "ALTER TABLE " . DBA::quoteIdentifier($table['table_name']) . " engine=InnoDB;";
 			echo $sql . "\n";
 
 			$result = DBA::e($sql);
