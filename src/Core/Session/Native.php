@@ -11,10 +11,8 @@ use SessionHandlerInterface;
  */
 final class Native extends AbstractSession implements ISession
 {
-	public function __construct(App\BaseURL $baseURL, Cookie $cookie, SessionHandlerInterface $handler = null)
+	public function __construct(App\BaseURL $baseURL, SessionHandlerInterface $handler = null)
 	{
-		parent::__construct($cookie);
-
 		ini_set('session.gc_probability', 50);
 		ini_set('session.use_only_cookies', 1);
 		ini_set('session.cookie_httponly', (int)Cookie::HTTPONLY);
