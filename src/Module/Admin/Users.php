@@ -7,6 +7,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\BaseAdminModule;
@@ -18,8 +19,6 @@ class Users extends BaseAdminModule
 	public static function post(array $parameters = [])
 	{
 		parent::post($parameters);
-
-		$a = self::getApp();
 
 		$pending     = $_POST['pending']           ?? [];
 		$users       = $_POST['user']              ?? [];
@@ -77,7 +76,7 @@ class Users extends BaseAdminModule
 			Thank you and welcome to %4$s.'));
 
 			$preamble = sprintf($preamble, $user['username'], Config::get('config', 'sitename'));
-			$body = sprintf($body, $a->getBaseURL(), $user['nickname'], $result['password'], Config::get('config', 'sitename'));
+			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], Config::get('config', 'sitename'));
 
 			notification([
 				'type'     => SYSTEM_EMAIL,
@@ -128,14 +127,14 @@ class Users extends BaseAdminModule
 			}
 		}
 
-		$a->internalRedirect('admin/users');
+		DI::baseUrl()->redirect('admin/users');
 	}
 
 	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ($a->argc > 3) {
 			// @TODO: Replace with parameter from router
@@ -144,7 +143,7 @@ class Users extends BaseAdminModule
 			$user = User::getById($uid, ['username', 'blocked']);
 			if (!DBA::isResult($user)) {
 				notice('User not found' . EOL);
-				$a->internalRedirect('admin/users');
+				DI::baseUrl()->redirect('admin/users');
 				return ''; // NOTREACHED
 			}
 
@@ -174,13 +173,13 @@ class Users extends BaseAdminModule
 					break;
 			}
 
-			$a->internalRedirect('admin/users');
+			DI::baseUrl()->redirect('admin/users');
 		}
 
 		/* get pending */
 		$pending = Register::getPending();
 
-		$pager = new Pager($a->query_string, 100);
+		$pager = new Pager(DI::args()->getQueryString(), 100);
 
 		// @TODO Move below block to Model\User::getUsers($start, $count, $order = 'contact.name', $order_direction = '+')
 		$valid_orders = [
@@ -305,7 +304,7 @@ class Users extends BaseAdminModule
 			'$form_security_token' => parent::getFormSecurityToken('admin_users'),
 
 			// values //
-			'$baseurl' => $a->getBaseURL(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 
 			'$pending' => $pending,
 			'deleted' => $deleted,

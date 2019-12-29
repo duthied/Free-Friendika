@@ -3,6 +3,7 @@
 namespace Friendica\Module\Filer;
 
 use Friendica\BaseModule;
+use Friendica\DI;
 use Friendica\Model\FileTag;
 use Friendica\Network\HTTPException;
 use Friendica\Util\XML;
@@ -18,8 +19,8 @@ class RemoveTag extends BaseModule
 			throw new HTTPException\ForbiddenException();
 		}
 
-		$app = self::getApp();
-		$logger = $app->getLogger();
+		$app = DI::app();
+		$logger = DI::logger();
 
 		$item_id = (($app->argc > 1) ? intval($app->argv[1]) : 0);
 
@@ -46,6 +47,6 @@ class RemoveTag extends BaseModule
 			info('Item was not deleted');
 		}
 
-		$app->internalRedirect('network?file=' . rawurlencode($term));
+		DI::baseUrl()->redirect('network?file=' . rawurlencode($term));
 	}
 }

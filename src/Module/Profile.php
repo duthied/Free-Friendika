@@ -14,6 +14,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact as ContactModel;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -36,7 +37,7 @@ class Profile extends BaseModule
 
 	public static function init(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		// @TODO: Replace with parameter from router
 		if ($a->argc < 2) {
@@ -78,7 +79,7 @@ class Profile extends BaseModule
 
 	public static function content(array $parameters = [], $update = 0)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		if (!$update) {
 			ProfileModel::load($a, self::$which, self::$profile);
@@ -119,7 +120,7 @@ class Profile extends BaseModule
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
 			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
-			$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $a->getHostName() . ($a->getURLPath() ? '/' . $a->getURLPath() : ''));
+			$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''));
 			$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\n";
 			header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
@@ -132,12 +133,9 @@ class Profile extends BaseModule
 
 		$category = $datequery = $datequery2 = '';
 
-		/** @var DateTimeFormat $dtFormat */
-		$dtFormat = self::getClass(DateTimeFormat::class);
-
 		if ($a->argc > 2) {
 			for ($x = 2; $x < $a->argc; $x ++) {
-				if ($dtFormat->isYearMonth($a->argv[$x])) {
+				if (DI::dtFormat()->isYearMonth($a->argv[$x])) {
 					if ($datequery) {
 						$datequery2 = Strings::escapeHtml($a->argv[$x]);
 					} else {
@@ -260,7 +258,7 @@ class Profile extends BaseModule
 				return '';
 			}
 
-			$pager = new Pager($a->query_string);
+			$pager = new Pager(DI::args()->getQueryString());
 		} else {
 			$sql_post_table = "";
 
@@ -292,7 +290,7 @@ class Profile extends BaseModule
 
 			//  check if we serve a mobile device and get the user settings
 			//  accordingly
-			if ($a->is_mobile) {
+			if (DI::mode()->isMobile()) {
 				$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 10);
 			} else {
 				$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 20);
@@ -304,7 +302,7 @@ class Profile extends BaseModule
 				$itemspage_network = $a->force_max_items;
 			}
 
-			$pager = new Pager($a->query_string, $itemspage_network);
+			$pager = new Pager(DI::args()->getQueryString(), $itemspage_network);
 
 			$pager_sql = sprintf(" LIMIT %d, %d ", $pager->getStart(), $pager->getItemsPerPage());
 

@@ -4,14 +4,14 @@ namespace Friendica\Model;
 
 use Exception;
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Config\PConfiguration;
+use Friendica\Core\Config\IPConfiguration;
 use Friendica\Core\L10n\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -25,7 +25,7 @@ use Friendica\Network\HTTPException;
  * @brief Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
-final class Notify extends BaseObject
+final class Notify
 {
 	/** @var int The default limit of notifies per page */
 	const DEFAULT_PAGE_LIMIT = 80;
@@ -71,13 +71,13 @@ final class Notify extends BaseObject
 	private $args;
 	/** @var App\BaseURL */
 	private $baseUrl;
-	/** @var PConfiguration */
+	/** @var IPConfiguration */
 	private $pConfig;
 	/** @var LoggerInterface */
 	private $logger;
 
 	public function __construct(Database $dba, L10n $l10n, App\Arguments $args, App\BaseURL $baseUrl,
-	                            PConfiguration $pConfig, LoggerInterface $logger)
+	                            IPConfiguration $pConfig, LoggerInterface $logger)
 	{
 		$this->dba     = $dba;
 		$this->l10n    = $l10n;
@@ -515,7 +515,7 @@ final class Notify extends BaseObject
 		$ident    = self::PERSONAL;
 		$notifies = [];
 
-		$myurl     = str_replace('http://', '', self::getApp()->contact['nurl']);
+		$myurl     = str_replace('http://', '', DI::app()->contact['nurl']);
 		$diasp_url = str_replace('/profile/', '/u/', $myurl);
 
 		$condition = ["NOT `wall` AND `uid` = ? AND (`item`.`author-id` = ? OR `item`.`tag` REGEXP ? OR `item`.`tag` REGEXP ?)",
@@ -669,7 +669,7 @@ final class Notify extends BaseObject
 			// We have to distinguish between these two because they use different data.
 			// Contact suggestions
 			if ($intro['fid']) {
-				$return_addr = bin2hex(self::getApp()->user['nickname'] . '@' .
+				$return_addr = bin2hex(DI::app()->user['nickname'] . '@' .
 				                       $this->baseUrl->getHostName() .
 				                       (($this->baseUrl->getURLPath()) ? '/' . $this->baseUrl->getURLPath() : ''));
 

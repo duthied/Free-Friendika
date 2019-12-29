@@ -6,6 +6,7 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
+use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
 
@@ -15,7 +16,7 @@ class Details extends BaseAdminModule
 	{
 		parent::post($parameters);
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ($a->argc > 2) {
 			// @TODO: Replace with parameter from router
@@ -31,11 +32,11 @@ class Details extends BaseAdminModule
 
 			info(L10n::t('Theme settings updated.'));
 
-			if ($a->isAjax()) {
+			if (DI::mode()->isAjax()) {
 				return;
 			}
 
-			$a->internalRedirect('admin/themes/' . $theme);
+			DI::baseUrl()->redirect('admin/themes/' . $theme);
 		}
 	}
 
@@ -43,7 +44,7 @@ class Details extends BaseAdminModule
 	{
 		parent::content($parameters);
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ($a->argc > 2) {
 			// @TODO: Replace with parameter from router
@@ -75,7 +76,7 @@ class Details extends BaseAdminModule
 					info(L10n::t('Theme %s failed to install.', $theme));
 				}
 
-				$a->internalRedirect('admin/themes/' . $theme);
+				DI::baseUrl()->redirect('admin/themes/' . $theme);
 			}
 
 			$readme = null;
@@ -105,7 +106,7 @@ class Details extends BaseAdminModule
 				'$page' => L10n::t('Themes'),
 				'$toggle' => L10n::t('Toggle'),
 				'$settings' => L10n::t('Settings'),
-				'$baseurl' => $a->getBaseURL(true),
+				'$baseurl' => DI::baseUrl()->get(true),
 				'$addon' => $theme,
 				'$status' => $status,
 				'$action' => $action,
@@ -121,6 +122,6 @@ class Details extends BaseAdminModule
 			]);
 		}
 
-		$a->internalRedirect('admin/themes');
+		DI::baseUrl()->redirect('admin/themes');
 	}
 }

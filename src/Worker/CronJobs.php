@@ -5,7 +5,6 @@
 namespace Friendica\Worker;
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
@@ -14,6 +13,7 @@ use Friendica\Core\StorageManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
@@ -29,7 +29,7 @@ class CronJobs
 {
 	public static function execute($command = '')
 	{
-		$a = BaseObject::getApp();
+		$a = DI::app();
 
 		// No parameter set? So return
 		if ($command == '') {
@@ -47,7 +47,7 @@ class CronJobs
 				Logger::info('cron_start');
 				Nodeinfo::update();
 				// Now trying to register
-				$url = 'http://the-federation.info/register/' . $a->getHostName();
+				$url = 'http://the-federation.info/register/' . DI::baseUrl()->getHostname();
 				Logger::debug('Check registering url', ['url' => $url]);
 				$ret = Network::fetchUrl($url);
 				Logger::debug('Check registering answer', ['answer' => $ret]);

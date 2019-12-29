@@ -4,13 +4,13 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\Diaspora;
@@ -20,7 +20,7 @@ use Friendica\Util\Strings;
 use Friendica\Util\Network;
 use Friendica\Core\Worker;
 
-class Delivery extends BaseObject
+class Delivery
 {
 	const MAIL          = 'mail';
 	const SUGGESTION    = 'suggest';
@@ -140,7 +140,7 @@ class Delivery extends BaseObject
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = self::getApp()->getHostName();
+			$localhost = DI::baseUrl()->getHostname();
 			if (strpos($localhost, ':')) {
 				$localhost = substr($localhost, 0, strpos($localhost, ':'));
 			}
@@ -548,7 +548,7 @@ class Delivery extends BaseObject
 				$headers  = 'From: ' . Email::encodeHeader($local_user['username'],'UTF-8') . ' <' . $local_user['email'] . '>' . "\n";
 			}
 		} else {
-			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . self::getApp()->getHostName() . '>' . "\n";
+			$headers  = 'From: '. Email::encodeHeader($local_user['username'], 'UTF-8') . ' <noreply@' . DI::baseUrl()->getHostname() . '>' . "\n";
 		}
 
 		$headers .= 'Message-Id: <' . Email::iri2msgid($target_item['uri']) . '>' . "\n";

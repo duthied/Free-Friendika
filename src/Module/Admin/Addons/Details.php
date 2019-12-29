@@ -6,6 +6,7 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
 
@@ -15,7 +16,7 @@ class Details extends BaseAdminModule
 	{
 		parent::post($parameters);
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ($a->argc > 2) {
 			// @TODO: Replace with parameter from router
@@ -28,18 +29,18 @@ class Details extends BaseAdminModule
 					$func($a);
 				}
 
-				$a->internalRedirect('admin/addons/' . $addon);
+				DI::baseUrl()->redirect('admin/addons/' . $addon);
 			}
 		}
 
-		$a->internalRedirect('admin/addons');
+		DI::baseUrl()->redirect('admin/addons');
 	}
 
 	public static function content(array $parameters = [])
 	{
 		parent::content($parameters);
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		$addons_admin = Addon::getAdminList();
 
@@ -50,7 +51,7 @@ class Details extends BaseAdminModule
 			if (!is_file("addon/$addon/$addon.php")) {
 				notice(L10n::t('Addon not found.'));
 				Addon::uninstall($addon);
-				$a->internalRedirect('admin/addons');
+				DI::baseUrl()->redirect('admin/addons');
 			}
 
 			if (($_GET['action'] ?? '') == 'toggle') {
@@ -67,7 +68,7 @@ class Details extends BaseAdminModule
 
 				Addon::saveEnabledList();
 
-				$a->internalRedirect('admin/addons/' . $addon);
+				DI::baseUrl()->redirect('admin/addons/' . $addon);
 			}
 
 			// display addon details
@@ -100,7 +101,7 @@ class Details extends BaseAdminModule
 				'$page' => L10n::t('Addons'),
 				'$toggle' => L10n::t('Toggle'),
 				'$settings' => L10n::t('Settings'),
-				'$baseurl' => $a->getBaseURL(true),
+				'$baseurl' => DI::baseUrl()->get(true),
 
 				'$addon' => $addon,
 				'$status' => $status,
@@ -118,6 +119,6 @@ class Details extends BaseAdminModule
 			]);
 		}
 
-		$a->internalRedirect('admin/addons');
+		DI::baseUrl()->redirect('admin/addons');
 	}
 }

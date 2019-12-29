@@ -7,6 +7,7 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -18,7 +19,7 @@ class AllFriends extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		$app = self::getApp();
+		$app = DI::app();
 
 		if (!local_user()) {
 			throw new HTTPException\ForbiddenException();
@@ -48,7 +49,7 @@ class AllFriends extends BaseModule
 
 		$total = Model\GContact::countAllFriends(local_user(), $cid);
 
-		$pager = new Pager($app->query_string);
+		$pager = new Pager(DI::args()->getQueryString());
 
 		$friends = Model\GContact::allFriends(local_user(), $cid, $pager->getStart(), $pager->getItemsPerPage());
 		if (empty($friends)) {
@@ -69,7 +70,7 @@ class AllFriends extends BaseModule
 				$friend['id'] = $friend['cid'];
 				$photoMenu = Model\Contact::photoMenu($friend);
 			} else {
-				$connlnk = $app->getBaseURL() . '/follow/?url=' . $friend['url'];
+				$connlnk = DI::baseUrl()->get() . '/follow/?url=' . $friend['url'];
 				$photoMenu = [
 					'profile' => [L10n::t('View Profile'), Model\Contact::magicLinkbyId($friend['id'], $friend['url'])],
 					'follow'  => [L10n::t('Connect/Follow'), $connlnk]

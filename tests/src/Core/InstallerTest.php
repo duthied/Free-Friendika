@@ -4,10 +4,9 @@
 namespace Friendica\Core;
 
 use Dice\Dice;
-use Friendica\BaseObject;
 use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\DI;
 use Friendica\Network\CurlResult;
-use Friendica\Object\Image;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\Network;
@@ -35,10 +34,10 @@ class InstallerTest extends MockedTest
 		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
 
 		$dice->shouldReceive('create')
-		           ->with(\Friendica\Core\L10n\L10n::class)
+		           ->with(\Friendica\Core\L10n\L10n::class, [])
 		           ->andReturn($this->l10nMock);
 
-		BaseObject::setDependencyInjection($dice);
+		DI::init($dice);
 	}
 
 	private function mockL10nT(string $text, $times = null)
@@ -74,13 +73,15 @@ class InstallerTest extends MockedTest
 
 	private function assertCheckExist($position, $title, $help, $status, $required, $assertionArray)
 	{
-		$this->assertArraySubset([$position => [
+		$subSet = [$position => [
 			'title' => $title,
 			'status' => $status,
 			'required' => $required,
 			'error_msg' => null,
 			'help' => $help]
-		], $assertionArray);
+		];
+
+		$this->assertArraySubset($subSet, $assertionArray, false, "expected subset: " . PHP_EOL . print_r($subSet, true) . PHP_EOL . "current subset: " . print_r($assertionArray, true));
 	}
 
 	/**
@@ -363,7 +364,7 @@ class InstallerTest extends MockedTest
 		$this->assertTrue($install->checkImagick());
 
 		$this->assertCheckExist(1,
-			L10n::t('ImageMagick supports GIF'),
+			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			true,
 			false,
@@ -386,7 +387,7 @@ class InstallerTest extends MockedTest
 		// even there is no supported type, Imagick should return true (because it is not required)
 		$this->assertTrue($install->checkImagick());
 		$this->assertCheckExist(1,
-			L10n::t('ImageMagick supports GIF'),
+			$this->l10nMock->t('ImageMagick supports GIF'),
 			'',
 			false,
 			false,

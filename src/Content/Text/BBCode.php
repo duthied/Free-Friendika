@@ -8,7 +8,6 @@ namespace Friendica\Content\Text;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\BaseObject;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
 use Friendica\Core\Cache;
@@ -19,6 +18,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Photo;
@@ -33,7 +33,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-class BBCode extends BaseObject
+class BBCode
 {
 	/**
 	 * @brief Fetches attachment data that were generated the old way
@@ -1093,7 +1093,7 @@ class BBCode extends BaseObject
 		$text = Cache::get($cache_key);
 
 		if (is_null($text)) {
-			$a = self::getApp();
+			$a = DI::app();
 
 			$stamp1 = microtime(true);
 
@@ -1104,7 +1104,7 @@ class BBCode extends BaseObject
 			@curl_exec($ch);
 			$curl_info = @curl_getinfo($ch);
 
-			$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
+			DI::profiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 			if (substr($curl_info['content_type'], 0, 6) == 'image/') {
 				$text = "[url=" . $match[1] . ']' . $match[1] . "[/url]";
@@ -1149,10 +1149,10 @@ class BBCode extends BaseObject
 
 	private static function cleanPictureLinksCallback($match)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		// When the picture link is the own photo path then we can avoid fetching the link
-		$own_photo_url = preg_quote(Strings::normaliseLink($a->getBaseURL()) . '/photos/');
+		$own_photo_url = preg_quote(Strings::normaliseLink(DI::baseUrl()->get()) . '/photos/');
 		if (preg_match('|' . $own_photo_url . '.*?/image/|', Strings::normaliseLink($match[1]))) {
 			if (!empty($match[3])) {
 				$text = '[img=' . str_replace('-1.', '-0.', $match[2]) . ']' . $match[3] . '[/img]';
@@ -1178,7 +1178,7 @@ class BBCode extends BaseObject
 		@curl_exec($ch);
 		$curl_info = @curl_getinfo($ch);
 
-		$a->getProfiler()->saveTimestamp($stamp1, "network", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "network", System::callstack());
 
 		// if its a link to a picture then embed this picture
 		if (substr($curl_info['content_type'], 0, 6) == 'image/') {
@@ -1253,7 +1253,7 @@ class BBCode extends BaseObject
 	 */
 	public static function convert($text, $try_oembed = true, $simple_html = 0, $for_plaintext = false)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		/*
 		 * preg_match_callback function to replace potential Oembed tags with Oembed content
@@ -2010,7 +2010,7 @@ class BBCode extends BaseObject
 	 */
 	public static function toMarkdown($text, $for_diaspora = true)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$original_text = $text;
 
@@ -2061,7 +2061,7 @@ class BBCode extends BaseObject
 		// Now convert HTML to Markdown
 		$text = HTML::toMarkdown($text);
 
-		$a->getProfiler()->saveTimestamp($stamp1, "parser", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "parser", System::callstack());
 
 		// Libertree has a problem with escaped hashtags.
 		$text = str_replace(['\#'], ['#'], $text);

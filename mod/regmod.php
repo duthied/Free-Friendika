@@ -9,14 +9,13 @@ use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 
 function user_allow($hash)
 {
-	$a = \get_app();
-
 	$register = Register::getByHash($hash);
 	if (!DBA::isResult($register)) {
 		return false;
@@ -44,7 +43,7 @@ function user_allow($hash)
 		$l10n,
 		$user,
 		Config::get('config', 'sitename'),
-		$a->getBaseUrl(),
+		DI::baseUrl()->get(),
 		($register['password'] ?? '') ?: 'Sent in a previous email'
 	);
 
@@ -81,7 +80,7 @@ function regmod_content(App $a)
 {
 	if (!local_user()) {
 		info(L10n::t('Please login.') . EOL);
-		return Login::form($a->query_string, intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
+		return Login::form(DI::args()->getQueryString(), intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
 	}
 
 	if (!is_site_admin() || !empty($_SESSION['submanage'])) {
@@ -98,11 +97,11 @@ function regmod_content(App $a)
 
 	if ($cmd === 'deny') {
 		user_deny($hash);
-		$a->internalRedirect('admin/users/');
+		DI::baseUrl()->redirect('admin/users/');
 	}
 
 	if ($cmd === 'allow') {
 		user_allow($hash);
-		$a->internalRedirect('admin/users/');
+		DI::baseUrl()->redirect('admin/users/');
 	}
 }

@@ -5,7 +5,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
@@ -22,6 +21,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
@@ -52,12 +52,9 @@ function network_init(App $a)
 		$group_id = 0;
 	}
 
-	/** @var DateTimeFormat $dtFormat */
-	$dtFormat = BaseObject::getClass(DateTimeFormat::class);
-
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
-			if ($dtFormat->isYearMonth($a->argv[$x])) {
+			if (DI::dtFormat()->isYearMonth($a->argv[$x])) {
 				$is_a_date_query = true;
 				break;
 			}
@@ -66,7 +63,7 @@ function network_init(App $a)
 
 	// convert query string to array. remove friendica args
 	$query_array = [];
-	parse_str(parse_url($a->query_string, PHP_URL_QUERY), $query_array);
+	parse_str(parse_url(DI::args()->getQueryString(), PHP_URL_QUERY), $query_array);
 
 	// fetch last used network view and redirect if needed
 	if (!$is_a_date_query) {
@@ -131,7 +128,7 @@ function network_init(App $a)
 
 			$redir_url = ($net_queries ? $net_baseurl . '?' . $net_queries : $net_baseurl);
 
-			$a->internalRedirect($redir_url);
+			DI::baseUrl()->redirect($redir_url);
 		}
 	}
 
@@ -143,7 +140,7 @@ function network_init(App $a)
 	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
 	$a->page['aside'] .= Widget::postedByYear('network', local_user(), false);
 	$a->page['aside'] .= Widget::networks('network', $_GET['nets'] ?? '');
-	$a->page['aside'] .= Widget\SavedSearches::getHTML($a->query_string);
+	$a->page['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
 	$a->page['aside'] .= Widget::fileAs('network', $_GET['file'] ?? '');
 }
 
@@ -231,7 +228,7 @@ function networkPager(App $a, Pager $pager, $update)
 
 	//  check if we serve a mobile device and get the user settings
 	//  accordingly
-	if ($a->is_mobile) {
+	if (DI::mode()->isMobile()) {
 		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network');
 		$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
 	} else {
@@ -312,7 +309,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 	}
 
 	/// @TODO Is this really necessary? $a is already available to hooks
-	$arr = ['query' => $a->query_string];
+	$arr = ['query' => DI::args()->getQueryString()];
 	Hook::callAll('network_content_init', $arr);
 
 	$flat_mode = false;
@@ -392,7 +389,7 @@ function networkFlatView(App $a, $update = 0)
 		}
 	}
 
-	$pager = new Pager($a->query_string);
+	$pager = new Pager(DI::args()->getQueryString());
 
 	networkPager($a, $pager, $update);
 
@@ -465,12 +462,9 @@ function networkThreadedView(App $a, $update, $parent)
 
 	$default_permissions = [];
 
-	/** @var DateTimeFormat $dtFormat */
-	$dtFormat = BaseObject::getClass(DateTimeFormat::class);
-
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
-			if ($dtFormat->isYearMonth($a->argv[$x])) {
+			if (DI::dtFormat()->isYearMonth($a->argv[$x])) {
 				if ($datequery) {
 					$datequery2 = Strings::escapeHtml($a->argv[$x]);
 				} else {
@@ -593,7 +587,7 @@ function networkThreadedView(App $a, $update, $parent)
 				exit();
 			}
 			notice(L10n::t('No such group') . EOL);
-			$a->internalRedirect('network/0');
+			DI::baseUrl()->redirect('network/0');
 			// NOTREACHED
 		}
 
@@ -647,7 +641,7 @@ function networkThreadedView(App $a, $update, $parent)
 			}
 		} else {
 			notice(L10n::t('Invalid contact.') . EOL);
-			$a->internalRedirect('network');
+			DI::baseUrl()->redirect('network');
 			// NOTREACHED
 		}
 	}
@@ -687,7 +681,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$sql_range = '';
 	}
 
-	$pager = new Pager($a->query_string);
+	$pager = new Pager(DI::args()->getQueryString());
 
 	$pager_sql = networkPager($a, $pager, $update);
 
@@ -875,7 +869,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$date_offset = $_GET['offset'];
 	}
 
-	$query_string = $a->query_string;
+	$query_string = DI::args()->getQueryString();
 	if ($date_offset && !preg_match('/[?&].offset=/', $query_string)) {
 		$query_string .= '&offset=' . urlencode($date_offset);
 	}
@@ -920,7 +914,7 @@ function network_tabs(App $a)
 		$all_active = 'active';
 	}
 
-	$cmd = $a->cmd;
+	$cmd = DI::args()->getCommand();
 
 	// tabs
 	$tabs = [

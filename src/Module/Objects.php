@@ -7,6 +7,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Protocol\ActivityPub;
 
@@ -17,14 +18,14 @@ class Objects extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		if (empty($a->argv[1])) {
 			throw new \Friendica\Network\HTTPException\NotFoundException();
 		}
 
 		if (!ActivityPub::isRequest()) {
-			$a->internalRedirect(str_replace('objects/', 'display/', $a->query_string));
+			DI::baseUrl()->redirect(str_replace('objects/', 'display/', DI::args()->getQueryString()));
 		}
 
 		/// @todo Add Authentication to enable fetching of non public content

@@ -12,6 +12,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
@@ -75,7 +76,7 @@ function videos_post(App $a)
 	$owner_uid = $a->data['user']['uid'];
 
 	if (local_user() != $owner_uid) {
-		$a->internalRedirect('videos/' . $a->data['user']['nickname']);
+		DI::baseUrl()->redirect('videos/' . $a->data['user']['nickname']);
 	}
 
 	if (($a->argc == 2) && !empty($_POST['delete']) && !empty($_POST['id'])) {
@@ -92,11 +93,11 @@ function videos_post(App $a)
 			], local_user());
 		}
 
-		$a->internalRedirect('videos/' . $a->data['user']['nickname']);
+		DI::baseUrl()->redirect('videos/' . $a->data['user']['nickname']);
 		return; // NOTREACHED
 	}
 
-	$a->internalRedirect('videos/' . $a->data['user']['nickname']);
+	DI::baseUrl()->redirect('videos/' . $a->data['user']['nickname']);
 }
 
 function videos_content(App $a)
@@ -123,7 +124,7 @@ function videos_content(App $a)
 
 	//$phototypes = Photo::supportedTypes();
 
-	$_SESSION['video_return'] = $a->cmd;
+	$_SESSION['video_return'] = DI::args()->getCommand();
 
 	//
 	// Parse arguments
@@ -211,7 +212,7 @@ function videos_content(App $a)
 		$total = count($r);
 	}
 
-	$pager = new Pager($a->query_string, 20);
+	$pager = new Pager(DI::args()->getQueryString(), 20);
 
 	$r = q("SELECT hash, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`created`) AS `created`,
 		ANY_VALUE(`filename`) AS `filename`, ANY_VALUE(`filetype`) as `filetype`

@@ -23,6 +23,7 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Util\DateTimeFormat;
@@ -143,7 +144,7 @@ class Profile
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
 		if (!DBA::isResult($user) && empty($profiledata)) {
-			Logger::log('profile error: ' . $a->query_string, Logger::DEBUG);
+			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
 			return;
 		}
 
@@ -164,7 +165,7 @@ class Profile
 		$pdata = self::getByNickname($nickname, $user['uid'], $profile);
 
 		if (empty($pdata) && empty($profiledata)) {
-			Logger::log('profile error: ' . $a->query_string, Logger::DEBUG);
+			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
 			return;
 		}
 
@@ -336,7 +337,7 @@ class Profile
 		if (isset($profile['url'])) {
 			$profile_url = $profile['url'];
 		} else {
-			$profile_url = $a->getBaseURL() . '/profile/' . $profile['nickname'];
+			$profile_url = DI::baseUrl()->get() . '/profile/' . $profile['nickname'];
 		}
 
 		$follow_link = null;
@@ -570,7 +571,7 @@ class Profile
 		$a = \get_app();
 		$o = '';
 
-		if (!local_user() || $a->is_mobile || $a->is_tablet) {
+		if (!local_user() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
 			return $o;
 		}
 
@@ -667,7 +668,7 @@ class Profile
 		$a = \get_app();
 		$o = '';
 
-		if (!local_user() || $a->is_mobile || $a->is_tablet) {
+		if (!local_user() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
 			return $o;
 		}
 
@@ -1046,7 +1047,7 @@ class Profile
 
 		$addr = $_GET['addr'] ?? $my_url;
 
-		$arr = ['zrl' => $my_url, 'url' => $a->cmd];
+		$arr = ['zrl' => $my_url, 'url' => DI::args()->getCommand()];
 		Hook::callAll('zrl_init', $arr);
 
 		// Try to find the public contact entry of the visitor.
@@ -1076,16 +1077,16 @@ class Profile
 
 		// Remove the "addr" parameter from the destination. It is later added as separate parameter again.
 		$addr_request = 'addr=' . urlencode($addr);
-		$query = rtrim(str_replace($addr_request, '', $a->query_string), '?&');
+		$query = rtrim(str_replace($addr_request, '', DI::args()->getQueryString()), '?&');
 
 		// The other instance needs to know where to redirect.
-		$dest = urlencode($a->getBaseURL() . '/' . $query);
+		$dest = urlencode(DI::baseUrl()->get() . '/' . $query);
 
 		// We need to extract the basebath from the profile url
 		// to redirect the visitors '/magic' module.
 		$basepath = Contact::getBasepath($contact['url']);
 
-		if ($basepath != $a->getBaseURL() && !strstr($dest, '/magic')) {
+		if ($basepath != DI::baseUrl()->get() && !strstr($dest, '/magic')) {
 			$magic_path = $basepath . '/magic' . '?owa=1&dest=' . $dest . '&' . $addr_request;
 
 			// We have to check if the remote server does understand /magic without invoking something
@@ -1163,7 +1164,7 @@ class Profile
 
 		$arr = [
 			'visitor' => $visitor,
-			'url' => $a->query_string
+			'url' => DI::args()->getQueryString()
 		];
 		/**
 		 * @hooks magic_auth_success
@@ -1175,7 +1176,7 @@ class Profile
 
 		$a->contact = $arr['visitor'];
 
-		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', $a->getHostName(), $visitor['name']));
+		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
 		Logger::log('OpenWebAuth: auth success from ' . $visitor['addr'], Logger::DEBUG);
 	}

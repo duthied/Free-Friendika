@@ -18,13 +18,12 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Term;
 use Friendica\Util\BasePath;
@@ -241,12 +240,12 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
  * Useful in functions which require it but don't get it passed to them
  *
  * @deprecated since version 2018.09
- * @see BaseObject::getApp()
+ * @see DI::app()
  * @return App
  */
 function get_app()
 {
-	return BaseObject::getApp();
+	return DI::app();
 }
 
 /**
@@ -483,8 +482,6 @@ function get_server()
 
 function get_temppath()
 {
-	$a = \get_app();
-
 	$temppath = Config::get("system", "temppath");
 
 	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
@@ -501,7 +498,7 @@ function get_temppath()
 		$temppath = BasePath::getRealPath($temppath);
 
 		// To avoid any interferences with other systems we create our own directory
-		$new_temppath = $temppath . "/" . $a->getHostName();
+		$new_temppath = $temppath . "/" . DI::baseUrl()->getHostname();
 		if (!is_dir($new_temppath)) {
 			/// @TODO There is a mkdir()+chmod() upwards, maybe generalize this (+ configurable) into a function/method?
 			mkdir($new_temppath);

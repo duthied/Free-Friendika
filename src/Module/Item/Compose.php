@@ -12,6 +12,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\Group;
@@ -29,7 +30,7 @@ class Compose extends BaseModule
 		if (!empty($_REQUEST['body'])) {
 			$_REQUEST['return'] = 'network';
 			require_once 'mod/item.php';
-			item_post(self::getApp());
+			item_post(DI::app());
 		} else {
 			notice(L10n::t('Please enter a post body.'));
 		}
@@ -41,7 +42,7 @@ class Compose extends BaseModule
 			return Login::form('compose', false);
 		}
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ($a->getCurrentTheme() !== 'frio') {
 			throw new NotImplementedException(L10n::t('This feature is only available with the frio theme.'));
@@ -62,8 +63,7 @@ class Compose extends BaseModule
 
 		$user = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid', 'hidewall', 'default-location']);
 
-		/** @var ACLFormatter $aclFormatter */
-		$aclFormatter = self::getClass(ACLFormatter::class);
+		$aclFormatter = DI::aclFormatter();
 
 		$contact_allow_list = $aclFormatter->expand($user['allow_cid']);
 		$group_allow_list   = $aclFormatter->expand($user['allow_gid']);
@@ -127,9 +127,9 @@ class Compose extends BaseModule
 			'$type'         => $type,
 			'$wall'         => $wall,
 			'$default'      => '',
-			'$mylink'       => $a->removeBaseURL($a->contact['url']),
+			'$mylink'       => DI::baseUrl()->remove($a->contact['url']),
 			'$mytitle'      => L10n::t('This is you'),
-			'$myphoto'      => $a->removeBaseURL($a->contact['thumb']),
+			'$myphoto'      => DI::baseUrl()->remove($a->contact['thumb']),
 			'$submit'       => L10n::t('Submit'),
 			'$edbold'       => L10n::t('Bold'),
 			'$editalic'     => L10n::t('Italic'),

@@ -7,12 +7,10 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\App\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -23,11 +21,11 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
-use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -254,9 +252,7 @@ function api_login(App $a)
 		throw new UnauthorizedException("This API requires login");
 	}
 
-	/** @var Authentication $authentication */
-	$authentication = BaseObject::getClass(Authentication::class);
-	$authentication->setForUser($a, $record);
+	DI::auth()->setForUser($a, $record);
 
 	$_SESSION["allow_api"] = true;
 
@@ -287,30 +283,35 @@ function api_check_method($method)
  * @brief Main API entry point
  *
  * @param App $a App
+ * @param App\Arguments $args The app arguments (optional, will retrieved by the DI-Container in case of missing)
  * @return string|array API call result
  * @throws Exception
  */
-function api_call(App $a)
+function api_call(App $a, App\Arguments $args = null)
 {
 	global $API, $called_api;
 
+	if ($args == null) {
+		$args = DI::args();
+	}
+
 	$type = "json";
-	if (strpos($a->query_string, ".xml") > 0) {
+	if (strpos($args->getQueryString(), ".xml") > 0) {
 		$type = "xml";
 	}
-	if (strpos($a->query_string, ".json") > 0) {
+	if (strpos($args->getQueryString(), ".json") > 0) {
 		$type = "json";
 	}
-	if (strpos($a->query_string, ".rss") > 0) {
+	if (strpos($args->getQueryString(), ".rss") > 0) {
 		$type = "rss";
 	}
-	if (strpos($a->query_string, ".atom") > 0) {
+	if (strpos($args->getQueryString(), ".atom") > 0) {
 		$type = "atom";
 	}
 
 	try {
 		foreach ($API as $p => $info) {
-			if (strpos($a->query_string, $p) === 0) {
+			if (strpos($args->getQueryString(), $p) === 0) {
 				if (!api_check_method($info['method'])) {
 					throw new MethodNotAllowedException();
 				}
@@ -332,7 +333,7 @@ function api_call(App $a)
 
 				Logger::info(API_LOG_PREFIX . 'username {username}', ['module' => 'api', 'action' => 'call', 'username' => $a->user['username'], 'duration' => round($duration, 2)]);
 
-				$a->getProfiler()->saveLog($a->getLogger(), API_LOG_PREFIX . 'performance');
+				DI::profiler()->saveLog(DI::logger(), API_LOG_PREFIX . 'performance');
 
 				if (false === $return) {
 					/*
@@ -369,11 +370,11 @@ function api_call(App $a)
 			}
 		}
 
-		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => $a->query_string]);
+		Logger::warning(API_LOG_PREFIX . 'not implemented', ['module' => 'api', 'action' => 'call', 'query' => DI::args()->getQueryString()]);
 		throw new NotImplementedException();
 	} catch (HTTPException $e) {
 		header("HTTP/1.1 {$e->getCode()} {$e->httpdesc}");
-		return api_error($type, $e);
+		return api_error($type, $e, $args);
 	}
 }
 
@@ -382,18 +383,17 @@ function api_call(App $a)
  *
  * @param string $type Return type (xml, json, rss, as)
  * @param object $e    HTTPException Error object
+ * @param App\Arguments $args The App arguments
  * @return string|array error message formatted as $type
  */
-function api_error($type, $e)
+function api_error($type, $e, App\Arguments $args)
 {
-	$a = \get_app();
-
 	$error = ($e->getMessage() !== "" ? $e->getMessage() : $e->httpdesc);
 	/// @TODO:  https://dev.twitter.com/overview/api/response-codes
 
 	$error = ["error" => $error,
 			"code" => $e->getCode() . " " . $e->httpdesc,
-			"request" => $a->query_string];
+			"request" => $args->getQueryString()];
 
 	$return = api_format_data('status', $type, ['status' => $error]);
 
@@ -438,7 +438,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 	$arr['$user'] = $user_info;
 	$arr['$rss'] = [
 		'alternate'    => $user_info['url'],
-		'self'         => System::baseUrl() . "/" . $a->query_string,
+		'self'         => System::baseUrl() . "/" . DI::args()->getQueryString(),
 		'base'         => System::baseUrl(),
 		'updated'      => api_date(null),
 		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
@@ -1370,7 +1370,7 @@ function api_get_item(array $condition)
  */
 function api_users_show($type)
 {
-	$a = BaseObject::getApp();
+	$a = Friendica\DI::app();
 
 	$user_info = api_get_user($a);
 
@@ -2968,7 +2968,7 @@ function api_format_items_profiles($profile_row)
  */
 function api_format_items($items, $user_info, $filter_user = false, $type = "json")
 {
-	$a = BaseObject::getApp();
+	$a = Friendica\DI::app();
 
 	$ret = [];
 
@@ -3002,7 +3002,7 @@ function api_format_items($items, $user_info, $filter_user = false, $type = "jso
  */
 function api_format_item($item, $type = "json", $status_user = null, $author_user = null, $owner_user = null)
 {
-	$a = BaseObject::getApp();
+	$a = Friendica\DI::app();
 
 	if (empty($status_user) || empty($author_user) || empty($owner_user)) {
 		list($status_user, $author_user, $owner_user) = api_item_get_user($a, $item);
@@ -3567,10 +3567,8 @@ api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
  */
 function api_statusnet_config($type)
 {
-	$a = \get_app();
-
 	$name      = Config::get('config', 'sitename');
-	$server    = $a->getHostName();
+	$server    = DI::baseUrl()->getHostname();
 	$logo      = System::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
 	$closed    = intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
@@ -5909,10 +5907,7 @@ function api_friendica_notification($type)
 	if ($a->argc!==3) {
 		throw new BadRequestException("Invalid argument count");
 	}
-	/** @var Notify $nm */
-	$nm = BaseObject::getClass(Notify::class);
-
-	$notes = $nm->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
+	$notes = DI::notify()->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
 
 	if ($type == "xml") {
 		$xmlnotes = [];
@@ -5954,8 +5949,7 @@ function api_friendica_notification_seen($type)
 
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
-	/** @var Notify $nm */
-	$nm = BaseObject::getClass(Notify::class);
+	$nm = DI::notify();
 	$note = $nm->getByID($id);
 	if (is_null($note)) {
 		throw new BadRequestException("Invalid argument");

@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\BaseObject;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
@@ -20,14 +19,13 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Group;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Protocol\Email;
-use Friendica\Util\ACLFormatter;
-use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 use Friendica\Worker\Delivery;
@@ -175,7 +173,7 @@ function settings_post(App $a)
 
 		$key = $_POST['remove'];
 		DBA::delete('tokens', ['id' => $key, 'uid' => local_user()]);
-		$a->internalRedirect('settings/oauth/', true);
+		DI::baseUrl()->redirect('settings/oauth/', true);
 		return;
 	}
 
@@ -221,7 +219,7 @@ function settings_post(App $a)
 				);
 			}
 		}
-		$a->internalRedirect('settings/oauth/', true);
+		DI::baseUrl()->redirect('settings/oauth/', true);
 		return;
 	}
 
@@ -385,7 +383,7 @@ function settings_post(App $a)
 		}
 
 		Hook::callAll('display_settings_post', $_POST);
-		$a->internalRedirect('settings/display');
+		DI::baseUrl()->redirect('settings/display');
 		return; // NOTREACHED
 	}
 
@@ -421,7 +419,7 @@ function settings_post(App $a)
 	if (!empty($_POST['resend_relocate'])) {
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, local_user());
 		info(L10n::t("Relocate message has been send to your contacts"));
-		$a->internalRedirect('settings');
+		DI::baseUrl()->redirect('settings');
 	}
 
 	Hook::callAll('settings_post', $_POST);
@@ -564,8 +562,7 @@ function settings_post(App $a)
 		date_default_timezone_set($timezone);
 	}
 
-	/** @var ACLFormatter $aclFormatter */
-	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+	$aclFormatter = DI::aclFormatter();
 
 	$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->toString($_POST['group_allow'])   : '';
 	$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->toString($_POST['contact_allow']) : '';
@@ -641,7 +638,7 @@ function settings_post(App $a)
 	// Update the global contact for the user
 	GContact::updateForUser(local_user());
 
-	$a->internalRedirect('settings');
+	DI::baseUrl()->redirect('settings');
 	return; // NOTREACHED
 }
 
@@ -708,7 +705,7 @@ function settings_content(App $a)
 			BaseModule::checkFormSecurityTokenRedirectOnError('/settings/oauth', 'settings_oauth', 't');
 
 			DBA::delete('clients', ['client_id' => $a->argv[3], 'uid' => local_user()]);
-			$a->internalRedirect('settings/oauth/', true);
+			DI::baseUrl()->redirect('settings/oauth/', true);
 			return;
 		}
 
@@ -724,7 +721,7 @@ function settings_content(App $a)
 		$tpl = Renderer::getMarkupTemplate('settings/oauth.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_oauth"),
-			'$baseurl'	=> $a->getBaseURL(true),
+			'$baseurl'	=> DI::baseUrl()->get(true),
 			'$title'	=> L10n::t('Connected Apps'),
 			'$add'		=> L10n::t('Add application'),
 			'$edit'		=> L10n::t('Edit'),
@@ -1130,8 +1127,8 @@ function settings_content(App $a)
 	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 
 	$prof_addr = Renderer::replaceMacros($tpl_addr,[
-		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . $a->getHostName() . $a->getURLPath(), System::baseUrl() . '/profile/' . $nickname),
-		'$basepath' => $a->getHostName()
+		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . DI::baseUrl()->getHostname() . DI::baseUrl()->getUrlPath(), System::baseUrl() . '/profile/' . $nickname),
+		'$basepath' => DI::baseUrl()->getHostname()
 	]);
 
 	$stpl = Renderer::getMarkupTemplate('settings/settings.tpl');
@@ -1155,7 +1152,7 @@ function settings_content(App $a)
 		$private_post = 0;
 	}
 
-	$query_str = $a->query_string;
+	$query_str = DI::args()->getQueryString();
 	if (strpos($query_str, 'public=1') !== false) {
 		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
 	}

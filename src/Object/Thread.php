@@ -4,9 +4,9 @@
  */
 namespace Friendica\Object;
 
-use Friendica\BaseObject;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Security;
 
@@ -15,7 +15,7 @@ use Friendica\Util\Security;
  *
  * We should think about making this a SPL Iterator
  */
-class Thread extends BaseObject
+class Thread
 {
 	private $parents = [];
 	private $mode = null;
@@ -52,7 +52,7 @@ class Thread extends BaseObject
 			return;
 		}
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		switch ($mode) {
 			case 'network':

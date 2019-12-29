@@ -5,6 +5,7 @@ namespace Friendica\Module\Debug;
 use Friendica\BaseModule;
 use Friendica\Core\Installer;
 use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -17,13 +18,13 @@ class Localtime extends BaseModule
 		$bd_format = L10n::t('l F d, Y \@ g:i A');
 
 		if (!empty($_POST['timezone'])) {
-			self::getApp()->data['mod-localtime'] = DateTimeFormat::convert($time, $_POST['timezone'], 'UTC', $bd_format);
+			DI::app()->data['mod-localtime'] = DateTimeFormat::convert($time, $_POST['timezone'], 'UTC', $bd_format);
 		}
 	}
 
 	public static function content(array $parameters = [])
 	{
-		$app = self::getApp();
+		$app = DI::app();
 
 		$time = ($_REQUEST['time'] ?? '') ?: 'now';
 
@@ -39,7 +40,7 @@ class Localtime extends BaseModule
 			$output .= '<p>' . L10n::t('Converted localtime: %s', $app->data['mod-localtime']) . '</p>';
 		}
 
-		$output .= '<form action ="' . $app->getBaseURL() . '/localtime?time=' . $time . '" method="post" >';
+		$output .= '<form action ="' . DI::baseUrl()->get() . '/localtime?time=' . $time . '" method="post" >';
 		$output .= '<p>' . L10n::t('Please select your timezone:') . '</p>';
 		$output .= Temporal::getTimezoneSelect(($_REQUEST['timezone'] ?? '') ?: Installer::DEFAULT_TZ);
 		$output .= '<input type="submit" name="submit" value="' . L10n::t('Submit') . '" /></form>';

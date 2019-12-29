@@ -16,7 +16,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
@@ -29,6 +28,7 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -39,7 +39,6 @@ use Friendica\Model\Term;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\Email;
-use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
 use Friendica\Util\Security;
@@ -126,7 +125,7 @@ function item_post(App $a) {
 		if (!DBA::isResult($toplevel_item)) {
 			notice(L10n::t('Unable to locate original post.') . EOL);
 			if (!empty($_REQUEST['return'])) {
-				$a->internalRedirect($return_path);
+				DI::baseUrl()->redirect($return_path);
 			}
 			exit();
 		}
@@ -174,7 +173,7 @@ function item_post(App $a) {
 		notice(L10n::t('Permission denied.') . EOL);
 
 		if (!empty($_REQUEST['return'])) {
-			$a->internalRedirect($return_path);
+			DI::baseUrl()->redirect($return_path);
 		}
 
 		exit();
@@ -273,8 +272,7 @@ function item_post(App $a) {
 		} else {
 			// use the posted permissions
 
-			/** @var ACLFormatter $aclFormatter */
-			$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+			$aclFormatter = DI::aclFormatter();
 
 			$str_group_allow   = $aclFormatter->toString($_REQUEST['group_allow'] ?? '');
 			$str_contact_allow = $aclFormatter->toString($_REQUEST['contact_allow'] ?? '');
@@ -329,7 +327,7 @@ function item_post(App $a) {
 			}
 			info(L10n::t('Empty post discarded.') . EOL);
 			if (!empty($_REQUEST['return'])) {
-				$a->internalRedirect($return_path);
+				DI::baseUrl()->redirect($return_path);
 			}
 			exit();
 		}
@@ -506,9 +504,7 @@ function item_post(App $a) {
 		$objecttype =  Activity\ObjectType::BOOKMARK;
 	}
 
-	/** @var BBCode\Video $bbCodeVideo */
-	$bbCodeVideo = BaseObject::getClass(BBCode\Video::class);
-	$body =  $bbCodeVideo->transform($body);
+	$body = DI::bbCodeVideo()->transform($body);
 
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
@@ -671,7 +667,7 @@ function item_post(App $a) {
 		$datarray["item_id"] = -1;
 		$datarray["author-network"] = Protocol::DFRN;
 
-		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager($a->query_string), 'search', false, true);
+		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager(DI::args()->getQueryString()), 'search', false, true);
 		Logger::log('preview: ' . $o);
 		echo json_encode(['preview' => $o]);
 		exit();
@@ -682,7 +678,7 @@ function item_post(App $a) {
 	if (!empty($datarray['cancel'])) {
 		Logger::log('mod_item: post cancelled by addon.');
 		if ($return_path) {
-			$a->internalRedirect($return_path);
+			DI::baseUrl()->redirect($return_path);
 		}
 
 		$json = ['cancel' => 1];
@@ -717,7 +713,7 @@ function item_post(App $a) {
 
 		if (!empty($_REQUEST['return']) && strlen($return_path)) {
 			Logger::log('return: ' . $return_path);
-			$a->internalRedirect($return_path);
+			DI::baseUrl()->redirect($return_path);
 		}
 		exit();
 	}
@@ -737,14 +733,14 @@ function item_post(App $a) {
 
 	if (!$post_id) {
 		Logger::log("Item wasn't stored.");
-		$a->internalRedirect($return_path);
+		DI::baseUrl()->redirect($return_path);
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
 		Logger::log("Item with id ".$post_id." couldn't be fetched.");
-		$a->internalRedirect($return_path);
+		DI::baseUrl()->redirect($return_path);
 	}
 
 	// update filetags in pconfig
@@ -859,7 +855,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 	}
 
 	if ($return_path) {
-		$a->internalRedirect($return_path);
+		DI::baseUrl()->redirect($return_path);
 	}
 
 	$json = ['success' => 1];
@@ -882,7 +878,7 @@ function item_content(App $a)
 	$o = '';
 
 	if (($a->argc >= 3) && ($a->argv[1] === 'drop') && intval($a->argv[2])) {
-		if ($a->isAjax()) {
+		if (DI::mode()->isAjax()) {
 			$o = Item::deleteForUser(['id' => $a->argv[2]], local_user());
 		} else {
 			if (!empty($a->argv[3])) {
@@ -893,7 +889,7 @@ function item_content(App $a)
 			}
 		}
 
-		if ($a->isAjax()) {
+		if (DI::mode()->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
 			echo json_encode([intval($a->argv[2]), intval($o)]);
 			exit();

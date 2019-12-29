@@ -2,8 +2,8 @@
 
 namespace Friendica\Module\WellKnown;
 
-use Friendica\App;
 use Friendica\BaseModule;
+use Friendica\DI;
 
 /**
  * Standardized way of exposing metadata about a server running one of the distributed social networks.
@@ -13,26 +13,22 @@ class NodeInfo extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$app = self::getApp();
-
-		self::printWellKnown($app);
+		self::printWellKnown();
 	}
 
 	/**
 	 * Prints the well-known nodeinfo redirect
 	 *
-	 * @param App $app
-	 *
 	 * @throws \Friendica\Network\HTTPException\NotFoundException
 	 */
-	private static function printWellKnown(App $app)
+	private static function printWellKnown()
 	{
 		$nodeinfo = [
 			'links' => [
 				['rel'  => 'http://nodeinfo.diaspora.software/ns/schema/1.0',
-				'href' => $app->getBaseURL() . '/nodeinfo/1.0'],
+				'href' => DI::baseUrl()->get() . '/nodeinfo/1.0'],
 				['rel'  => 'http://nodeinfo.diaspora.software/ns/schema/2.0',
-				'href' => $app->getBaseURL() . '/nodeinfo/2.0'],
+				'href' => DI::baseUrl()->get() . '/nodeinfo/2.0'],
 			]
 		];
 

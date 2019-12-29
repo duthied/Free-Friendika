@@ -6,14 +6,14 @@
 namespace Friendica\Core;
 
 use Exception;
-use Friendica\BaseObject;
+use Friendica\DI;
 use Friendica\Render\FriendicaSmarty;
 use Friendica\Render\ITemplateEngine;
 
 /**
  * @brief This class handles Renderer related functions.
  */
-class Renderer extends BaseObject
+class Renderer
 {
 	/**
 	 * @brief An array of registered template engines ('name'=>'class name')
@@ -61,10 +61,9 @@ class Renderer extends BaseObject
 	public static function replaceMacros($s, array $vars = [])
 	{
 		$stamp1 = microtime(true);
-		$a = self::getApp();
 
 		// pass $baseurl to all templates if it isn't set
-		$vars = array_merge(['$baseurl' => $a->getBaseURL()], $vars);
+		$vars = array_merge(['$baseurl' => DI::baseUrl()->get()], $vars);
 
 		$t = self::getTemplateEngine();
 
@@ -75,7 +74,7 @@ class Renderer extends BaseObject
 			exit();
 		}
 
-		$a->getProfiler()->saveTimestamp($stamp1, "rendering", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "rendering", System::callstack());
 
 		return $output;
 	}
@@ -92,7 +91,7 @@ class Renderer extends BaseObject
 	public static function getMarkupTemplate($s, $root = '')
 	{
 		$stamp1 = microtime(true);
-		$a = self::getApp();
+		$a = DI::app();
 		$t = self::getTemplateEngine();
 
 		try {
@@ -102,7 +101,7 @@ class Renderer extends BaseObject
 			exit();
 		}
 
-		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		return $template;
 	}

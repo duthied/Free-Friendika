@@ -21,6 +21,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Profile;
@@ -68,7 +69,7 @@ function dfrn_request_post(App $a)
 	}
 
 	if (!empty($_POST['cancel'])) {
-		$a->internalRedirect();
+		DI::baseUrl()->redirect();
 	}
 
 	/*
@@ -194,14 +195,14 @@ function dfrn_request_post(App $a)
 				}
 
 				// (ignore reply, nothing we can do it failed)
-				$a->internalRedirect($forward_path);
+				DI::baseUrl()->redirect($forward_path);
 				return; // NOTREACHED
 			}
 		}
 
 		// invalid/bogus request
 		notice(L10n::t('Unrecoverable protocol error.') . EOL);
-		$a->internalRedirect();
+		DI::baseUrl()->redirect();
 		return; // NOTREACHED
 	}
 
@@ -334,19 +335,19 @@ function dfrn_request_post(App $a)
 				$url = Network::isUrlValid($url);
 				if (!$url) {
 					notice(L10n::t('Invalid profile URL.') . EOL);
-					$a->internalRedirect($a->cmd);
+					DI::baseUrl()->redirect(DI::args()->getCommand());
 					return; // NOTREACHED
 				}
 
 				if (!Network::isUrlAllowed($url)) {
 					notice(L10n::t('Disallowed profile URL.') . EOL);
-					$a->internalRedirect($a->cmd);
+					DI::baseUrl()->redirect(DI::args()->getCommand());
 					return; // NOTREACHED
 				}
 
 				if (Network::isUrlBlocked($url)) {
 					notice(L10n::t('Blocked domain') . EOL);
-					$a->internalRedirect($a->cmd);
+					DI::baseUrl()->redirect(DI::args()->getCommand());
 					return; // NOTREACHED
 				}
 
@@ -354,7 +355,7 @@ function dfrn_request_post(App $a)
 
 				if (!count($parms)) {
 					notice(L10n::t('Profile location is not valid or does not contain profile information.') . EOL);
-					$a->internalRedirect($a->cmd);
+					DI::baseUrl()->redirect(DI::args()->getCommand());
 				} else {
 					if (empty($parms['fn'])) {
 						notice(L10n::t('Warning: profile location has no identifiable owner name.') . EOL);
@@ -436,7 +437,7 @@ function dfrn_request_post(App $a)
 			}
 
 			// "Homecoming" - send the requestor back to their site to record the introduction.
-			$dfrn_url = bin2hex($a->getBaseURL() . '/profile/' . $nickname);
+			$dfrn_url = bin2hex(DI::baseUrl()->get() . '/profile/' . $nickname);
 			$aes_allow = ((function_exists('openssl_encrypt')) ? 1 : 0);
 
 			System::externalRedirect($parms['dfrn-request'] . "?dfrn_url=$dfrn_url"
@@ -454,10 +455,10 @@ function dfrn_request_post(App $a)
 			// Diaspora needs the uri in the format user@domain.tld
 			// Diaspora will support the remote subscription in a future version
 			if ($network == Protocol::DIASPORA) {
-				$uri = $nickname . '@' . $a->getHostName();
+				$uri = $nickname . '@' . DI::baseUrl()->getHostname();
 
-				if ($a->getURLPath()) {
-					$uri .= '/' . $a->getURLPath();
+				if (DI::baseUrl()->getUrlPath()) {
+					$uri .= '/' . DI::baseUrl()->getUrlPath();
 				}
 
 				$uri = urlencode($uri);
@@ -609,7 +610,7 @@ function dfrn_request_content(App $a)
 		} elseif (!empty($_GET['address'])) {
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
-			if (strlen($a->getURLPath())) {
+			if (strlen(DI::baseUrl()->getUrlPath())) {
 				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
 				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);

@@ -2,10 +2,10 @@
 
 namespace Friendica\Util;
 
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\DI;
 use Imagick;
 
 /**
@@ -165,7 +165,7 @@ class Images
 
 				$stamp1 = microtime(true);
 				file_put_contents($tempfile, $img_str);
-				BaseObject::getApp()->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
+				DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 				$data = getimagesize($tempfile);
 				unlink($tempfile);

@@ -4,7 +4,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
@@ -18,6 +17,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
@@ -26,7 +26,6 @@ use Friendica\Model\User;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
-use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -174,12 +173,12 @@ function photos_post(App $a)
 
 	if ($a->argc > 3 && $a->argv[2] === 'album') {
 		if (!Strings::isHex($a->argv[3])) {
-			$a->internalRedirect('photos/' . $a->data['user']['nickname'] . '/album');
+			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname'] . '/album');
 		}
 		$album = hex2bin($a->argv[3]);
 
 		if ($album === L10n::t('Profile Photos') || $album === 'Contact Photos' || $album === L10n::t('Contact Photos')) {
-			$a->internalRedirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
 
@@ -190,13 +189,13 @@ function photos_post(App $a)
 
 		if (!DBA::isResult($r)) {
 			notice(L10n::t('Album not found.') . EOL);
-			$a->internalRedirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect($_SESSION['photo_return']);
 			return; // NOTREACHED
 		}
 
 		// Check if the user has responded to a delete confirmation query
 		if (!empty($_REQUEST['canceled'])) {
-			$a->internalRedirect($_SESSION['photo_return']);
+			DI::baseUrl()->redirect($_SESSION['photo_return']);
 		}
 
 		// RENAME photo album
@@ -210,7 +209,7 @@ function photos_post(App $a)
 			// Update the photo albums cache
 			Photo::clearAlbumCache($page_owner_uid);
 
-			$a->internalRedirect('photos/' . $a->user['nickname'] . '/album/' . bin2hex($newalbum));
+			DI::baseUrl()->redirect('photos/' . $a->user['nickname'] . '/album/' . bin2hex($newalbum));
 			return; // NOTREACHED
 		}
 
@@ -253,13 +252,13 @@ function photos_post(App $a)
 			}
 		}
 
-		$a->internalRedirect('photos/' . $a->argv[1]);
+		DI::baseUrl()->redirect('photos/' . $a->argv[1]);
 	}
 
 	if ($a->argc > 3 && $a->argv[2] === 'image') {
 		// Check if the user has responded to a delete confirmation query for a single photo
 		if (!empty($_POST['canceled'])) {
-			$a->internalRedirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
+			DI::baseUrl()->redirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
 		}
 
 		if (!empty($_POST['delete'])) {
@@ -283,10 +282,10 @@ function photos_post(App $a)
 				notice('Successfully deleted the photo.');
 			} else {
 				notice('Failed to delete the photo.');
-				$a->internalRedirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
+				DI::baseUrl()->redirect('photos/' . $a->argv[1] . '/image/' . $a->argv[3]);
 			}
 
-			$a->internalRedirect('photos/' . $a->argv[1]);
+			DI::baseUrl()->redirect('photos/' . $a->argv[1]);
 			return; // NOTREACHED
 		}
 	}
@@ -298,8 +297,7 @@ function photos_post(App $a)
 		$albname     = !empty($_POST['albname'])   ? Strings::escapeTags(trim($_POST['albname']))   : '';
 		$origaname   = !empty($_POST['origaname']) ? Strings::escapeTags(trim($_POST['origaname'])) : '';
 
-		/** @var ACLFormatter $aclFormatter */
-		$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+		$aclFormatter = DI::aclFormatter();
 
 		$str_group_allow   = !empty($_POST['group_allow'])   ? $aclFormatter->toString($_POST['group_allow'])   : '';
 		$str_contact_allow = !empty($_POST['contact_allow']) ? $aclFormatter->toString($_POST['contact_allow']) : '';
@@ -593,7 +591,7 @@ function photos_post(App $a)
 				}
 			}
 		}
-		$a->internalRedirect($_SESSION['photo_return']);
+		DI::baseUrl()->redirect($_SESSION['photo_return']);
 		return; // NOTREACHED
 	}
 
@@ -640,8 +638,7 @@ function photos_post(App $a)
 	$group_deny    = $_REQUEST['group_deny']    ?? [];
 	$contact_deny  = $_REQUEST['contact_deny']  ?? [];
 
-	/** @var ACLFormatter $aclFormatter */
-	$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+	$aclFormatter = DI::aclFormatter();
 
 	$str_group_allow   = $aclFormatter->toString(is_array($group_allow)   ? $group_allow   : explode(',', $group_allow));
 	$str_contact_allow = $aclFormatter->toString(is_array($contact_allow) ? $contact_allow : explode(',', $contact_allow));
@@ -820,7 +817,7 @@ function photos_post(App $a)
 	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
 	// if they do not wish to be redirected
 
-	$a->internalRedirect($_SESSION['photo_return']);
+	DI::baseUrl()->redirect($_SESSION['photo_return']);
 	// NOTREACHED
 }
 
@@ -849,7 +846,7 @@ function photos_content(App $a)
 
 	$phototypes = Images::supportedTypes();
 
-	$_SESSION['photo_return'] = $a->cmd;
+	$_SESSION['photo_return'] = DI::args()->getCommand();
 
 	// Parse arguments
 	$datum = null;
@@ -987,7 +984,7 @@ function photos_content(App $a)
 			// ACL permissions box
 			'$group_perms' => L10n::t('Show to Groups'),
 			'$contact_perms' => L10n::t('Show to Contacts'),
-			'$return_path' => $a->query_string,
+			'$return_path' => DI::args()->getQueryString(),
 		]);
 
 		return $o;
@@ -997,7 +994,7 @@ function photos_content(App $a)
 	if ($datatype === 'album') {
 		// if $datum is not a valid hex, redirect to the default page
 		if (!Strings::isHex($datum)) {
-			$a->internalRedirect('photos/' . $a->data['user']['nickname']. '/album');
+			DI::baseUrl()->redirect('photos/' . $a->data['user']['nickname']. '/album');
 		}
 		$album = hex2bin($datum);
 
@@ -1011,7 +1008,7 @@ function photos_content(App $a)
 			$total = count($r);
 		}
 
-		$pager = new Pager($a->query_string, 20);
+		$pager = new Pager(DI::args()->getQueryString(), 20);
 
 		/// @TODO I have seen this many times, maybe generalize it script-wide and encapsulate it?
 		$order_field = $_GET['order'] ?? '';
@@ -1033,7 +1030,7 @@ function photos_content(App $a)
 		);
 
 		if ($cmd === 'drop') {
-			$drop_url = $a->query_string;
+			$drop_url = DI::args()->getQueryString();
 
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
@@ -1140,7 +1137,7 @@ function photos_content(App $a)
 		}
 
 		if ($cmd === 'drop') {
-			$drop_url = $a->query_string;
+			$drop_url = DI::args()->getQueryString();
 
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'post',
@@ -1287,7 +1284,7 @@ function photos_content(App $a)
 			$condition = ["`parent` = ? AND `parent` != `id`",  $link_item['parent']];
 			$total = DBA::count('item', $condition);
 
-			$pager = new Pager($a->query_string);
+			$pager = new Pager(DI::args()->getQueryString());
 
 			$params = ['order' => ['id'], 'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
 			$result = Item::selectForUser($link_item['uid'], Item::ITEM_FIELDLIST, $condition, $params);
@@ -1351,7 +1348,7 @@ function photos_content(App $a)
 				// ACL permissions box
 				'$group_perms' => L10n::t('Show to Groups'),
 				'$contact_perms' => L10n::t('Show to Contacts'),
-				'$return_path' => $a->query_string,
+				'$return_path' => DI::args()->getQueryString(),
 			]);
 		}
 
@@ -1365,7 +1362,7 @@ function photos_content(App $a)
 		if (!empty($link_item['id']) && !empty($link_item['uri'])) {
 			$cmnt_tpl = Renderer::getMarkupTemplate('comment_item.tpl');
 			$tpl = Renderer::getMarkupTemplate('photo_item.tpl');
-			$return_path = $a->cmd;
+			$return_path = DI::args()->getCommand();
 
 			if ($cmd === 'view' && ($can_post || Security::canWriteToUserWall($owner_uid))) {
 				$like_tpl = Renderer::getMarkupTemplate('like_noshare.tpl');
@@ -1374,7 +1371,7 @@ function photos_content(App $a)
 					'$likethis' => L10n::t("I like this \x28toggle\x29"),
 					'$nolike' => L10n::t("I don't like this \x28toggle\x29"),
 					'$wait' => L10n::t('Please wait'),
-					'$return_path' => $a->query_string,
+					'$return_path' => DI::args()->getQueryString(),
 				]);
 			}
 
@@ -1442,8 +1439,7 @@ function photos_content(App $a)
 					$template = $tpl;
 					$sparkle = '';
 
-					/** @var Activity $activity */
-					$activity = BaseObject::getClass(Activity::class);
+					$activity = DI::activity();
 
 					if (($activity->match($item['verb'], Activity::LIKE) ||
 					     $activity->match($item['verb'], Activity::DISLIKE)) &&
@@ -1553,7 +1549,7 @@ function photos_content(App $a)
 		$total = count($r);
 	}
 
-	$pager = new Pager($a->query_string, 20);
+	$pager = new Pager(DI::args()->getQueryString(), 20);
 
 	$r = q("SELECT `resource-id`, ANY_VALUE(`id`) AS `id`, ANY_VALUE(`filename`) AS `filename`,
 		ANY_VALUE(`type`) AS `type`, ANY_VALUE(`album`) AS `album`, max(`scale`) AS `scale`,

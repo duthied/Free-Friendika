@@ -5,7 +5,6 @@
 namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
-use Friendica\BaseObject;
 use Friendica\Content\Pager;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
@@ -16,8 +15,8 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Network\Probe;
-use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\DFRN;
@@ -32,7 +31,7 @@ use Friendica\Util\Strings;
 /**
  * @brief functions for interacting with a contact
  */
-class Contact extends BaseObject
+class Contact
 {
 	/**
 	 * @deprecated since version 2019.03
@@ -1733,7 +1732,7 @@ class Contact extends BaseObject
 	 */
 	public static function getPostsFromUrl($contact_url, $thread_mode = false, $update = 0)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$cid = self::getIdForURL($contact_url);
 
@@ -1758,7 +1757,7 @@ class Contact extends BaseObject
 				$cid, GRAVITY_PARENT, GRAVITY_COMMENT, local_user()];
 		}
 
-		$pager = new Pager($a->query_string);
+		$pager = new Pager(DI::args()->getQueryString());
 
 		$params = ['order' => ['received' => true],
 			'limit' => [$pager->getStart(), $pager->getItemsPerPage()]];
@@ -2267,13 +2266,13 @@ class Contact extends BaseObject
 
 		if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
 			if ($interactive) {
-				if (strlen($a->getURLPath())) {
+				if (strlen(DI::baseUrl()->getUrlPath())) {
 					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
 				} else {
-					$myaddr = bin2hex($a->user['nickname'] . '@' . $a->getHostName());
+					$myaddr = bin2hex($a->user['nickname'] . '@' . DI::baseUrl()->getHostname());
 				}
 
-				$a->internalRedirect($ret['request'] . "&addr=$myaddr");
+				DI::baseUrl()->redirect($ret['request'] . "&addr=$myaddr");
 
 				// NOTREACHED
 			}

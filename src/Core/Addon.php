@@ -5,14 +5,14 @@
 
 namespace Friendica\Core;
 
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 /**
  * Some functions to handle addons
  */
-class Addon extends BaseObject
+class Addon
 {
 	/**
 	 * The addon sub-directory
@@ -177,7 +177,7 @@ class Addon extends BaseObject
 		@include_once('addon/' . $addon . '/' . $addon . '.php');
 		if (function_exists($addon . '_install')) {
 			$func = $addon . '_install';
-			$func(self::getApp());
+			$func(DI::app());
 
 			$addon_admin = (function_exists($addon . "_addon_admin") ? 1 : 0);
 
@@ -234,11 +234,11 @@ class Addon extends BaseObject
 
 							if (function_exists($addon . '_uninstall')) {
 								$func = $addon . '_uninstall';
-								$func(self::getApp());
+								$func(DI::app());
 							}
 							if (function_exists($addon . '_install')) {
 								$func = $addon . '_install';
-								$func(self::getApp());
+								$func(DI::app());
 							}
 							DBA::update('addon', ['timestamp' => $t], ['id' => $i['id']]);
 						}
@@ -267,7 +267,7 @@ class Addon extends BaseObject
 	 */
 	public static function getInfo($addon)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$addon = Strings::sanitizeFilePathItem($addon);
 
@@ -286,7 +286,7 @@ class Addon extends BaseObject
 
 		$stamp1 = microtime(true);
 		$f = file_get_contents("addon/$addon/$addon.php");
-		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$r = preg_match("|/\*.*\*/|msU", $f, $m);
 

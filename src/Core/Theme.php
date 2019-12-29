@@ -6,7 +6,7 @@
 
 namespace Friendica\Core;
 
-use Friendica\BaseObject;
+use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Util\Strings;
 
@@ -73,10 +73,9 @@ class Theme
 			return $info;
 		}
 
-		$a = \get_app();
 		$stamp1 = microtime(true);
 		$theme_file = file_get_contents("view/theme/$theme/theme.php");
-		$a->getProfiler()->saveTimestamp($stamp1, "file", System::callstack());
+		DI::profiler()->saveTimestamp($stamp1, "file", System::callstack());
 
 		$result = preg_match("|/\*.*\*/|msU", $theme_file, $matches);
 
@@ -194,7 +193,7 @@ class Theme
 	 */
 	public static function getPathForFile($file)
 	{
-		$a = BaseObject::getApp();
+		$a = DI::app();
 
 		$theme = $a->getCurrentTheme();
 
@@ -232,7 +231,7 @@ class Theme
 			return 'view/theme/' . $theme . '/style.css';
 		}
 
-		$a = BaseObject::getApp();
+		$a = DI::app();
 
 		$query_params = [];
 

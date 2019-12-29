@@ -32,10 +32,11 @@ abstract class BaseModel
 	 */
 	private $data = [];
 
-	public function __construct(Database $dba, LoggerInterface $logger)
+	public function __construct(Database $dba, LoggerInterface $logger, $data = [])
 	{
 		$this->dba = $dba;
 		$this->logger = $logger;
+		$this->data = $data;
 	}
 
 	/**
@@ -71,15 +72,13 @@ abstract class BaseModel
 	 */
 	public function fetch(array $condition)
 	{
-		$intro = $this->dba->selectFirst(static::$table_name, [], $condition);
+		$data = $this->dba->selectFirst(static::$table_name, [], $condition);
 
-		if (!$intro) {
+		if (!$data) {
 			throw new HTTPException\NotFoundException(static::class . ' record not found.');
 		}
 
-		$this->data = $intro;
-
-		return $this;
+		return new static($this->dba, $this->logger, $data);
 	}
 
 	/**

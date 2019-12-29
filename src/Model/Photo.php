@@ -6,7 +6,6 @@
  */
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -15,6 +14,7 @@ use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
@@ -28,7 +28,7 @@ require_once "include/dba.php";
 /**
  * Class to handle photo dabatase table
  */
-class Photo extends BaseObject
+class Photo
 {
 	/**
 	 * @brief Select rows from the photo table and returns them as array
@@ -202,7 +202,7 @@ class Photo extends BaseObject
 	 */
 	private static function getFields()
 	{
-		$allfields = DBStructure::definition(self::getApp()->getBasePath(), false);
+		$allfields = DBStructure::definition(DI::app()->getBasePath(), false);
 		$fields = array_keys($allfields["photo"]["fields"]);
 		array_splice($fields, array_search("data", $fields), 1);
 		return $fields;
@@ -679,8 +679,7 @@ class Photo extends BaseObject
 	 */
 	public static function getGUID($name)
 	{
-		$a = \get_app();
-		$base = $a->getBaseURL();
+		$base = DI::baseUrl()->get();
 
 		$guid = str_replace([Strings::normaliseLink($base), '/photo/'], '', Strings::normaliseLink($name));
 
@@ -725,8 +724,7 @@ class Photo extends BaseObject
 	 */
 	public static function isLocalPage($name)
 	{
-		$a = \get_app();
-		$base = $a->getBaseURL();
+		$base = DI::baseUrl()->get();
 
 		$guid = str_replace(Strings::normaliseLink($base), '', Strings::normaliseLink($name));
 		$guid = preg_replace("=/photos/.*/image/(.*)=ism", '$1', $guid);

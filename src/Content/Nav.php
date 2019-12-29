@@ -12,6 +12,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 
@@ -152,7 +153,7 @@ class Nav
 		if (Session::isAuthenticated()) {
 			$nav['logout'] = ['logout', L10n::t('Logout'), '', L10n::t('End this session')];
 		} else {
-			$nav['login'] = ['login', L10n::t('Login'), ($a->module == 'login' ? 'selected' : ''), L10n::t('Sign in')];
+			$nav['login'] = ['login', L10n::t('Login'), (DI::module()->getName() == 'login' ? 'selected' : ''), L10n::t('Sign in')];
 		}
 
 		if (local_user()) {
@@ -167,7 +168,7 @@ class Nav
 			// user info
 			$contact = DBA::selectFirst('contact', ['micro'], ['uid' => $a->user['uid'], 'self' => true]);
 			$userinfo = [
-				'icon' => (DBA::isResult($contact) ? $a->removeBaseURL($contact['micro']) : 'images/person-48.jpg'),
+				'icon' => (DBA::isResult($contact) ? DI::baseUrl()->remove($contact['micro']) : 'images/person-48.jpg'),
 				'name' => $a->user['username'],
 			];
 		}
@@ -178,7 +179,7 @@ class Nav
 			$homelink = Session::get('visitor_home', '');
 		}
 
-		if (($a->module != 'home') && (! (local_user()))) {
+		if ((DI::module()->getName() != 'home') && (! (local_user()))) {
 			$nav['home'] = [$homelink, L10n::t('Home'), '', L10n::t('Home Page')];
 		}
 

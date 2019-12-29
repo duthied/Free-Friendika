@@ -7,12 +7,12 @@
 namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
-use Friendica\App\Authentication;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Util\Strings;
 
@@ -25,10 +25,8 @@ class Login extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		$a = self::getApp();
-
 		if (local_user()) {
-			$a->internalRedirect();
+			DI::baseUrl()->redirect();
 		}
 
 		return self::form(Session::get('return_path'), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
@@ -48,16 +46,12 @@ class Login extends BaseModule
 		) {
 			$openid_url = trim(($_POST['openid_url'] ?? '') ?: $_POST['username']);
 
-			/** @var Authentication $authentication */
-			$authentication = self::getClass(Authentication::class);
-			$authentication->withOpenId($openid_url, !empty($_POST['remember']));
+			DI::auth()->withOpenId($openid_url, !empty($_POST['remember']));
 		}
 
 		if (!empty($_POST['auth-params']) && $_POST['auth-params'] === 'login') {
-			/** @var Authentication $authentication */
-			$authentication = self::getClass(Authentication::class);
-			$authentication->withPassword(
-				self::getApp(),
+			DI::auth()->withPassword(
+				DI::app(),
 				trim($_POST['username']),
 				trim($_POST['password']),
 				!empty($_POST['remember'])
@@ -81,7 +75,7 @@ class Login extends BaseModule
 	 */
 	public static function form($return_path = null, $register = false, $hiddens = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 		$o = '';
 
 		$noid = Config::get('system', 'no_openid');
@@ -92,7 +86,7 @@ class Login extends BaseModule
 		}
 
 		$reg = false;
-		if ($register && intval($a->getConfig()->get('config', 'register_policy')) !== Register::CLOSED) {
+		if ($register && intval(DI::config()->get('config', 'register_policy')) !== Register::CLOSED) {
 			$reg = [
 				'title' => L10n::t('Create a New Account'),
 				'desc' => L10n::t('Register'),
@@ -101,7 +95,7 @@ class Login extends BaseModule
 		}
 
 		if (is_null($return_path)) {
-			$return_path = $a->query_string;
+			$return_path = DI::args()->getQueryString();
 		}
 
 		if (local_user()) {
@@ -110,7 +104,7 @@ class Login extends BaseModule
 			$a->page['htmlhead'] .= Renderer::replaceMacros(
 				Renderer::getMarkupTemplate('login_head.tpl'),
 				[
-					'$baseurl' => $a->getBaseURL(true)
+					'$baseurl' => DI::baseUrl()->get(true)
 				]
 			);
 
@@ -133,7 +127,7 @@ class Login extends BaseModule
 		$o .= Renderer::replaceMacros(
 			$tpl,
 			[
-				'$dest_url'     => self::getApp()->getBaseURL(true) . '/login',
+				'$dest_url'     => DI::baseUrl()->get(true) . '/login',
 				'$logout'       => L10n::t('Logout'),
 				'$login'        => L10n::t('Login'),
 

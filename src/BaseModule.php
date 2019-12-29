@@ -14,7 +14,7 @@ use Friendica\Core\Logger;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-abstract class BaseModule extends BaseObject
+abstract class BaseModule
 {
 	/**
 	 * @brief Initialization method common to both content() and post()
@@ -140,7 +140,7 @@ abstract class BaseModule extends BaseObject
 			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
-			$a->internalRedirect($err_redirect);
+			DI::baseUrl()->redirect($err_redirect);
 		}
 	}
 

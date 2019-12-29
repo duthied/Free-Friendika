@@ -5,7 +5,6 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget\CalendarExport;
 use Friendica\Core\ACL;
@@ -16,9 +15,11 @@ use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Module\Login;
 use Friendica\Module\Security\Login;
 use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
@@ -123,7 +124,7 @@ function events_post(App $a)
 			echo L10n::t('Event can not end before it has started.');
 			exit();
 		}
-		$a->internalRedirect($onerror_path);
+		DI::baseUrl()->redirect($onerror_path);
 	}
 
 	if (!$summary || ($start === DBA::NULL_DATETIME)) {
@@ -132,7 +133,7 @@ function events_post(App $a)
 			echo L10n::t('Event title and start time are required.');
 			exit();
 		}
-		$a->internalRedirect($onerror_path);
+		DI::baseUrl()->redirect($onerror_path);
 	}
 
 	$share = intval($_POST['share'] ?? 0);
@@ -150,8 +151,7 @@ function events_post(App $a)
 
 	if ($share) {
 
-		/** @var ACLFormatter $aclFormatter */
-		$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+		$aclFormatter = DI::aclFormatter();
 
 		$str_group_allow   = $aclFormatter->toString($_POST['group_allow'] ?? '');
 		$str_contact_allow = $aclFormatter->toString($_POST['contact_allow'] ?? '');
@@ -206,7 +206,7 @@ function events_post(App $a)
 		Worker::add(PRIORITY_HIGH, "Notifier", Delivery::POST, $item_id);
 	}
 
-	$a->internalRedirect('events');
+	DI::baseUrl()->redirect('events');
 }
 
 function events_content(App $a)
@@ -217,7 +217,7 @@ function events_content(App $a)
 	}
 
 	if ($a->argc == 1) {
-		$_SESSION['return_path'] = $a->cmd;
+		$_SESSION['return_path'] = DI::args()->getCommand();
 	}
 
 	if (($a->argc > 2) && ($a->argv[1] === 'ignore') && intval($a->argv[2])) {
@@ -350,7 +350,7 @@ function events_content(App $a)
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (empty($links[$j])) {
-					$links[$j] = System::baseUrl() . '/' . $a->cmd . '#link-' . $j;
+					$links[$j] = System::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
 				}
 			}
 		}
@@ -579,6 +579,6 @@ function events_content(App $a)
 			info(L10n::t('Event removed') . EOL);
 		}
 
-		$a->internalRedirect('events');
+		DI::baseUrl()->redirect('events');
 	}
 }

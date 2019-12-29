@@ -16,6 +16,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
@@ -38,9 +39,6 @@ class Index extends BaseSearchModule
 			$e->httpdesc = L10n::t('Public access denied.');
 			throw $e;
 		}
-
-		/** @var BaseURL $baseURL */
-		$baseURL = self::getClass(BaseURL::class);
 
 		if (Config::get('system', 'permit_crawling') && !Session::isAuthenticated()) {
 			// Default values:
@@ -68,7 +66,7 @@ class Index extends BaseSearchModule
 		}
 
 		if (local_user()) {
-			self::getApp()->page['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
+			DI::app()->page['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
 		}
 
 		Nav::setSelected('search');
@@ -96,13 +94,13 @@ class Index extends BaseSearchModule
 			$search = substr($search, 1);
 		}
 
-		self::tryRedirectToProfile($baseURL, $search);
+		self::tryRedirectToProfile($search);
 
 		if (strpos($search, '@') === 0 || strpos($search, '!') === 0) {
 			return self::performContactSearch($search);
 		}
 
-		self::tryRedirectToPost($baseURL, $search);
+		self::tryRedirectToPost($search);
 
 		if (!empty($_GET['search-option'])) {
 			switch ($_GET['search-option']) {
@@ -125,9 +123,7 @@ class Index extends BaseSearchModule
 		// OR your own posts if you are a logged in member
 		// No items will be shown if the member has a blocked profile wall.
 
-		/** @var Arguments $args */
-		$args = self::getClass(Arguments::class);
-		$pager = new Pager($args->getQueryString());
+		$pager = new Pager(DI::args()->getQueryString());
 
 		if ($tag) {
 			Logger::info('Start tag search.', ['q' => $search]);
@@ -190,7 +186,7 @@ class Index extends BaseSearchModule
 
 		Logger::info('Start Conversation.', ['q' => $search]);
 
-		$o .= conversation(self::getApp(), $r, $pager, 'search', false, false, 'commented', local_user());
+		$o .= conversation(DI::app(), $r, $pager, 'search', false, false, 'commented', local_user());
 
 		$o .= $pager->renderMinimal(count($r));
 
@@ -208,12 +204,11 @@ class Index extends BaseSearchModule
 	 * - user@domain
 	 * - Any fully-formed URL
 	 *
-	 * @param BaseURL $baseURL
 	 * @param string  $search
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	private static function tryRedirectToProfile(BaseURL $baseURL, string $search)
+	private static function tryRedirectToProfile(string $search)
 	{
 		$isUrl = !empty(parse_url($search, PHP_URL_SCHEME));
 		$isAddr = (bool)preg_match('/^@?([a-z0-9.-_]+@[a-z0-9.-_:]+)$/i', trim($search), $matches);
@@ -247,18 +242,17 @@ class Index extends BaseSearchModule
 		}
 
 		if (!empty($contact_id)) {
-			$baseURL->redirect('contact/' . $contact_id);
+			DI::baseUrl()->redirect('contact/' . $contact_id);
 		}
 	}
 
 	/**
 	 * Fetch/search a post by URL and redirects to its local representation if it was found.
 	 *
-	 * @param BaseURL $baseURL
 	 * @param string  $search
 	 * @throws HTTPException\InternalServerErrorException
 	 */
-	private static function tryRedirectToPost(BaseURL $baseURL, string $search)
+	private static function tryRedirectToPost(string $search)
 	{
 		if (parse_url($search, PHP_URL_SCHEME) == '') {
 			return;
@@ -279,7 +273,7 @@ class Index extends BaseSearchModule
 		if (!empty($item_id)) {
 			$item = Item::selectFirst(['guid'], ['id' => $item_id]);
 			if (DBA::isResult($item)) {
-				$baseURL->redirect('display/' . $item['guid']);
+				DI::baseUrl()->redirect('display/' . $item['guid']);
 			}
 		}
 	}

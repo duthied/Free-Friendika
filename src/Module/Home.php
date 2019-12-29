@@ -6,6 +6,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\Security\Login;
 
 /**
@@ -15,8 +16,8 @@ class Home extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		$app = self::getApp();
-		$config = $app->getConfig();
+		$app = DI::app();
+		$config = DI::config();
 
 		// currently no returned data is used
 		$ret = [];
@@ -24,11 +25,11 @@ class Home extends BaseModule
 		Hook::callAll('home_init', $ret);
 
 		if (local_user() && ($app->user['nickname'])) {
-			$app->internalRedirect('network');
+			DI::baseUrl()->redirect('network');
 		}
 
 		if (strlen($config->get('system', 'singleuser'))) {
-			$app->internalRedirect('/profile/' . $config->get('system', 'singleuser'));
+			DI::baseUrl()->redirect('/profile/' . $config->get('system', 'singleuser'));
 		}
 
 		$customHome = '';
@@ -41,11 +42,11 @@ class Home extends BaseModule
 			$customHome = $homeFilePath;
 
 			if (file_exists($cssFilePath)) {
-				$app->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' . $app->getBaseURL() . '/home.css' . '" media="all" />';
+				$app->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="' . DI::baseUrl()->get() . '/home.css' . '" media="all" />';
 			}
 		}
 
-		$login = Login::form($app->query_string, $config->get('config', 'register_policy') === Register::CLOSED ? 0 : 1);
+		$login = Login::form(DI::args()->getQueryString(), $config->get('config', 'register_policy') === Register::CLOSED ? 0 : 1);
 
 		$content = '';
 		Hook::callAll('home_content', $content);

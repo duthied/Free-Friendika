@@ -7,14 +7,14 @@ namespace Friendica\Test;
 
 use Dice\Dice;
 use Friendica\App;
-use Friendica\BaseObject;
-use Friendica\Core\Config\Configuration;
-use Friendica\Core\Config\PConfiguration;
+use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IPConfiguration;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Core\Session\ISession;
 use Friendica\Core\System;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
 use Friendica\Test\Util\Database\StaticDatabase;
@@ -47,7 +47,7 @@ class ApiTest extends DatabaseTest
 	/** @var App */
 	protected $app;
 
-	/** @var Configuration */
+	/** @var IConfiguration */
 	protected $config;
 
 	/** @var Dice */
@@ -64,13 +64,13 @@ class ApiTest extends DatabaseTest
 			->addRules(include __DIR__ . '/../../static/dependencies.config.php')
 			->addRule(Database::class, ['instanceOf' => StaticDatabase::class, 'shared' => true])
 			->addRule(ISession::class, ['instanceOf' => Session\Memory::class, 'shared' => true, 'call' => null]);
-		BaseObject::setDependencyInjection($this->dice);
+		DI::init($this->dice);
 
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
 
-		/** @var Configuration $config */
-		$this->config = $this->dice->create(Configuration::class);
+		/** @var IConfiguration $config */
+		$this->config = $this->dice->create(IConfiguration::class);
 
 		$this->config->set('system', 'url', 'http://localhost');
 		$this->config->set('system', 'hostname', 'localhost');
@@ -87,7 +87,7 @@ class ApiTest extends DatabaseTest
 		$this->loadFixture(__DIR__ . '/../datasets/api.fixture.php', $dba);
 
 		/** @var App app */
-		$this->app = BaseObject::getApp();
+		$this->app = DI::app();
 
 		$this->app->argc = 1;
 		$this->app->argv = ['home'];
@@ -115,9 +115,7 @@ class ApiTest extends DatabaseTest
 		// User ID that we know is not in the database
 		$this->wrongUserId = 666;
 
-		/** @var ISession $session */
-		$session = BaseObject::getClass(ISession::class);
-		$session->start();
+		DI::session()->start();
 
 		// Most API require login so we force the session
 		$_SESSION = [
@@ -434,12 +432,14 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path';
 		$_GET['callback']          = 'callback_name';
 
-		$this->app->query_string = 'api_path';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'callback_name(["some_data"])',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -458,7 +458,12 @@ class ApiTest extends DatabaseTest
 				return ['data' => ['some_data']];
 			}
 		];
+
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path';
+
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->config->set('system', 'profiler', true);
 		$this->config->set('rendertime', 'callstack', true);
 		$this->app->callstack = [
@@ -469,10 +474,9 @@ class ApiTest extends DatabaseTest
 			'network'        => ['some_function' => 200]
 		];
 
-		$this->app->query_string = 'api_path';
 		$this->assertEquals(
 			'["some_data"]',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -492,11 +496,13 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path';
 
-		$this->app->query_string = 'api_path';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'{"status":{"error":"Internal Server Error","code":"500 Internal Server Error","request":"api_path"}}',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -530,11 +536,13 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path.json';
 
-		$this->app->query_string = 'api_path.json';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'["some_data"]',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -554,11 +562,13 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path.xml';
 
-		$this->app->query_string = 'api_path.xml';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'some_data',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -578,12 +588,14 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path.rss';
 
-		$this->app->query_string = 'api_path.rss';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -603,12 +615,14 @@ class ApiTest extends DatabaseTest
 			}
 		];
 		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path.atom';
 
-		$this->app->query_string = 'api_path.atom';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'<?xml version="1.0" encoding="UTF-8"?>' . "\n" .
 			'some_data',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -623,10 +637,13 @@ class ApiTest extends DatabaseTest
 		global $API;
 		$API['api_path'] = ['method' => 'method'];
 
-		$this->app->query_string = 'api_path';
+		$_SERVER['QUERY_STRING'] = 'q=api_path';
+
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'{"status":{"error":"Method Not Allowed","code":"405 Method Not Allowed","request":"api_path"}}',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -643,13 +660,15 @@ class ApiTest extends DatabaseTest
 			'method' => 'method',
 			'auth'   => true
 		];
-		$_SERVER['REQUEST_METHOD'] = 'method';
 		$_SESSION['authenticated'] = false;
+		$_SERVER['REQUEST_METHOD'] = 'method';
+		$_SERVER['QUERY_STRING'] = 'q=api_path';
 
-		$this->app->query_string = 'api_path';
+		$args = DI::args()->determine($_SERVER, $_GET);
+
 		$this->assertEquals(
 			'{"status":{"error":"This API requires login","code":"401 Unauthorized","request":"api_path"}}',
-			api_call($this->app)
+			api_call($this->app, $args)
 		);
 	}
 
@@ -663,7 +682,7 @@ class ApiTest extends DatabaseTest
 	{
 		$this->assertEquals(
 			'{"status":{"error":"error_message","code":"200 OK","request":""}}',
-			api_error('json', new HTTPException\OKException('error_message'))
+			api_error('json', new HTTPException\OKException('error_message'), DI::args())
 		);
 	}
 
@@ -684,7 +703,7 @@ class ApiTest extends DatabaseTest
 			'  <code>200 OK</code>' . "\n" .
 			'  <request/>' . "\n" .
 			'</status>' . "\n",
-			api_error('xml', new HTTPException\OKException('error_message'))
+			api_error('xml', new HTTPException\OKException('error_message'), DI::args())
 		);
 	}
 
@@ -705,7 +724,7 @@ class ApiTest extends DatabaseTest
 			'  <code>200 OK</code>' . "\n" .
 			'  <request/>' . "\n" .
 			'</status>' . "\n",
-			api_error('rss', new HTTPException\OKException('error_message'))
+			api_error('rss', new HTTPException\OKException('error_message'), DI::args())
 		);
 	}
 
@@ -726,7 +745,7 @@ class ApiTest extends DatabaseTest
 			'  <code>200 OK</code>' . "\n" .
 			'  <request/>' . "\n" .
 			'</status>' . "\n",
-			api_error('atom', new HTTPException\OKException('error_message'))
+			api_error('atom', new HTTPException\OKException('error_message'), DI::args())
 		);
 	}
 
@@ -808,7 +827,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithFrioSchema()
 	{
-		$pConfig = $this->dice->create(PConfiguration::class);
+		$pConfig = $this->dice->create(IPConfiguration::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', 'red');
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);
@@ -824,7 +843,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithCustomFrioSchema()
 	{
-		$pConfig = $this->dice->create(PConfiguration::class);
+		$pConfig = $this->dice->create(IPConfiguration::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
 		$pConfig->set($this->selfUser['id'], 'frio', 'nav_bg', '#123456');
 		$pConfig->set($this->selfUser['id'], 'frio', 'link_color', '#123456');
@@ -843,7 +862,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiGetUserWithEmptyFrioSchema()
 	{
-		$pConfig = $this->dice->create(PConfiguration::class);
+		$pConfig = $this->dice->create(IPConfiguration::class);
 		$pConfig->set($this->selfUser['id'], 'frio', 'schema', '---');
 		$user = api_get_user($this->app);
 		$this->assertSelfUser($user);

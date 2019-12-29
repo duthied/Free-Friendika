@@ -3,6 +3,7 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
+use Friendica\DI;
 use Friendica\Util\XML;
 
 /**
@@ -15,7 +16,6 @@ class ReallySimpleDiscovery extends BaseModule
 	{
 		header('Content-Type: text/xml');
 
-		$app = self::getApp();
 		$xml = null;
 		echo XML::fromArray([
 			'rsd' => [
@@ -31,7 +31,7 @@ class ReallySimpleDiscovery extends BaseModule
 							'@attributes' => [
 								'name'      => 'Twitter',
 								'preferred' => 'true',
-								'apiLink'   => $app->getBaseURL(),
+								'apiLink'   => DI::baseUrl()->get(),
 								'blogID'    => '',
 							],
 							'settings'    => [

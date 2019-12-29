@@ -8,13 +8,14 @@ namespace Friendica\App;
 
 use Exception;
 use Friendica\App;
-use Friendica\Core\Config\Configuration;
+use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\Hook;
 use Friendica\Core\PConfig;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
@@ -29,8 +30,10 @@ use Psr\Log\LoggerInterface;
  */
 class Authentication
 {
-	/** @var Configuration */
+	/** @var IConfiguration */
 	private $config;
+	/** @var App\Mode */
+	private $mode;
 	/** @var App\BaseURL */
 	private $baseUrl;
 	/** @var L10n */
@@ -47,7 +50,8 @@ class Authentication
 	/**
 	 * Authentication constructor.
 	 *
-	 * @param Configuration   $config
+	 * @param IConfiguration   $config
+	 * @param App\Mode        $mode
 	 * @param App\BaseURL     $baseUrl
 	 * @param L10n            $l10n
 	 * @param Database        $dba
@@ -55,9 +59,10 @@ class Authentication
 	 * @param User\Cookie     $cookie
 	 * @param Session\ISession $session
 	 */
-	public function __construct(Configuration $config, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session)
+	public function __construct(IConfiguration $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session)
 	{
 		$this->config  = $config;
+		$this->mode = $mode;
 		$this->baseUrl = $baseUrl;
 		$this->l10n    = $l10n;
 		$this->dba     = $dba;
@@ -351,7 +356,7 @@ class Authentication
 			 * The week ensures that sessions will expire after some inactivity.
 			 */;
 			if ($this->session->get('remember')) {
-				$a->getLogger()->info('Injecting cookie for remembered user ' . $user_record['nickname']);
+				$this->logger->info('Injecting cookie for remembered user ' . $user_record['nickname']);
 				$this->cookie->set($user_record['uid'], $user_record['password'], $user_record['prvkey']);
 				$this->session->remove('remember');
 			}
@@ -374,7 +379,7 @@ class Authentication
 		if ($login_initial) {
 			Hook::callAll('logged_in', $a->user);
 
-			if ($a->module !== 'home' && $this->session->exists('return_path')) {
+			if (DI::module()->getName() !== 'home' && $this->session->exists('return_path')) {
 				$this->baseUrl->redirect($this->session->get('return_path'));
 			}
 		}
@@ -404,10 +409,10 @@ class Authentication
 		}
 
 		// Case 2: No valid 2FA session: redirect to code verification page
-		if ($a->isAjax()) {
+		if ($this->mode->isAjax()) {
 			throw new HTTPException\ForbiddenException();
 		} else {
-			$a->internalRedirect('2fa');
+			$this->baseUrl->redirect('2fa');
 		}
 	}
 }

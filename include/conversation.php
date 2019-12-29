@@ -4,10 +4,8 @@
  */
 
 use Friendica\App;
-use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Content\Item as ContentItem;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
@@ -20,6 +18,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
@@ -141,8 +140,7 @@ function localize_item(&$item)
 	During the further steps of the database restructuring I would like to address this issue.
 	*/
 
-	/** @var Activity $activity */
-	$activity = BaseObject::getClass(Activity::class);
+	$activity = DI::activity();
 
 	$xmlhead = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 	if ($activity->match($item['verb'], Activity::LIKE)
@@ -399,8 +397,7 @@ function count_descendants($item) {
 
 function visible_activity($item) {
 
-	/** @var Activity $activity */
-	$activity = BaseObject::getClass(Activity::class);
+	$activity = DI::activity();
 
 	if (empty($item['verb']) || $activity->isHidden($item['verb'])) {
 		return false;
@@ -483,7 +480,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 			 */
 			$live_update_div = '<div id="live-network"></div>' . "\r\n"
 				. "<script> var profile_uid = " . $_SESSION['uid']
-				. "; var netargs = '" . substr($a->cmd, 8)
+				. "; var netargs = '" . substr(DI::args()->getCommand(), 8)
 				. '?f='
 				. (!empty($_GET['cid'])    ? '&cid='    . rawurlencode($_GET['cid'])    : '')
 				. (!empty($_GET['search']) ? '&search=' . rawurlencode($_GET['search']) : '')
@@ -543,7 +540,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 		if (!$update) {
 			$live_update_div = '<div id="live-community"></div>' . "\r\n"
-				. "<script> var profile_uid = -1; var netargs = '" . substr($a->cmd, 10)
+				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 10)
 				."/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
 	} elseif ($mode === 'contacts') {
@@ -552,7 +549,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 		if (!$update) {
 			$live_update_div = '<div id="live-contacts"></div>' . "\r\n"
-				. "<script> var profile_uid = -1; var netargs = '" . substr($a->cmd, 9)
+				. "<script> var profile_uid = -1; var netargs = '" . substr(DI::args()->getCommand(), 9)
 				."/?f='; var profile_page = " . $pager->getPage() . "; </script>\r\n";
 		}
 	} elseif ($mode === 'search') {
@@ -562,7 +559,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	$page_dropping = ((local_user() && local_user() == $profile_owner) ? true : false);
 
 	if (!$update) {
-		$_SESSION['return_path'] = $a->query_string;
+		$_SESSION['return_path'] = DI::args()->getQueryString();
 	}
 
 	$cb = ['items' => $items, 'mode' => $mode, 'update' => $update, 'preview' => $preview];
@@ -668,10 +665,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				$body = Item::prepareBody($item, true, $preview);
 
-				/** @var ContentItem $contItem */
-				$contItem = BaseObject::getClass(ContentItem::class);
-
-				list($categories, $folders) = $contItem->determineCategoriesTerms($item);
+				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
 				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
 					$title = ucfirst($item['content-warning']);
@@ -786,7 +780,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 	$o = Renderer::replaceMacros($page_template, [
 		'$baseurl' => System::baseUrl($ssl_state),
-		'$return_path' => $a->query_string,
+		'$return_path' => DI::args()->getQueryString(),
 		'$live_update' => $live_update_div,
 		'$remove' => L10n::t('remove'),
 		'$mode' => $mode,
@@ -1031,10 +1025,7 @@ function builtin_activity_puller($item, &$conv_responses) {
 				return;
 		}
 
-		/** @var Activity $activity */
-		$activity = BaseObject::getClass(Activity::class);
-
-		if (!empty($item['verb']) && $activity->match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
+		if (!empty($item['verb']) && DI::activity()->match($item['verb'], $verb) && ($item['id'] != $item['parent'])) {
 			$author = ['uid' => 0, 'id' => $item['author-id'],
 				'network' => $item['author-network'], 'url' => $item['author-link']];
 			$url = Contact::magicLinkByContact($author);
@@ -1202,7 +1193,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		$private_post = 0;
 	}
 
-	$query_str = $a->query_string;
+	$query_str = DI::args()->getQueryString();
 	if (strpos($query_str, 'public=1') !== false) {
 		$query_str = str_replace(['?public=1', '&public=1'], ['', ''], $query_str);
 	}

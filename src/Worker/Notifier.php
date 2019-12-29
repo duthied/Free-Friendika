@@ -4,13 +4,13 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\BaseObject;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
@@ -41,7 +41,7 @@ class Notifier
 {
 	public static function execute($cmd, $target_id)
 	{
-		$a = BaseObject::getApp();
+		$a = DI::app();
 
 		Logger::info('Invoked', ['cmd' => $cmd, 'target' => $target_id]);
 
@@ -180,7 +180,7 @@ class Notifier
 			// if $parent['wall'] == 1 we will already have the parent message in our array
 			// and we will relay the whole lot.
 
-			$localhost = str_replace('www.','',$a->getHostName());
+			$localhost = str_replace('www.','', DI::baseUrl()->getHostname());
 			if (strpos($localhost,':')) {
 				$localhost = substr($localhost,0,strpos($localhost,':'));
 			}
@@ -278,8 +278,7 @@ class Notifier
 					$public_message = false; // private recipients, not public
 				}
 
-				/** @var ACLFormatter $aclFormatter */
-				$aclFormatter = BaseObject::getClass(ACLFormatter::class);
+				$aclFormatter = DI::aclFormatter();
 
 				$allow_people = $aclFormatter->expand($parent['allow_cid']);
 				$allow_groups = Group::expand($uid, $aclFormatter->expand($parent['allow_gid']),true);

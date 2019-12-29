@@ -10,6 +10,7 @@
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\System;
+use Friendica\DI;
 use Friendica\Model\Profile;
 
 require_once 'view/theme/frio/php/frio_boot.php';
@@ -19,9 +20,9 @@ if (!isset($minimal)) {
 	$minimal = false;
 }
 
-$basepath = $a->getURLPath() ? "/" . $a->getURLPath() . "/" : "/";
+$basepath = DI::baseUrl()->getUrlPath() ? "/" . DI::baseUrl()->getUrlPath() . "/" : "/";
 $frio = "view/theme/frio";
-$view_mode_class = ($a->is_mobile || $a->is_tablet) ? 'mobile-view' : 'desktop-view';
+$view_mode_class = (DI::mode()->isMobile() || DI::mode()->isMobile()) ? 'mobile-view' : 'desktop-view';
 $is_singleuser = Config::get('system', 'singleuser');
 $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
@@ -65,7 +66,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 	</head>
 
-	<body id="top" class="mod-<?php echo $a->module . " " . $is_singleuser_class . " " . $view_mode_class;?>">
+	<body id="top" class="mod-<?php echo DI::module()->getName() . " " . $is_singleuser_class . " " . $view_mode_class;?>">
 		<a href="#content" class="sr-only sr-only-focusable">Skip to main content</a>
 <?php
 	if (!empty($page['nav']) && !$minimal) {

@@ -5,6 +5,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
@@ -19,17 +20,17 @@ class Bookmarklet extends BaseModule
 	{
 		$_GET['mode'] = 'minimal';
 
-		$app = self::getApp();
-		$config = $app->getConfig();
+		$app = DI::app();
+		$config = DI::config();
 
 		if (!local_user()) {
 			$output = '<h2>' . L10n::t('Login') . '</h2>';
-			$output .= Login::form($app->query_string, intval($config->get('config', 'register_policy')) === Register::CLOSED ? false : true);
+			$output .= Login::form(DI::args()->getQueryString(), intval($config->get('config', 'register_policy')) === Register::CLOSED ? false : true);
 			return $output;
 		}
 
 		$referer = Strings::normaliseLink($_SERVER['HTTP_REFERER'] ?? '');
-		$page = Strings::normaliseLink($app->getBaseURL() . "/bookmarklet");
+		$page = Strings::normaliseLink(DI::baseUrl()->get() . "/bookmarklet");
 
 		if (!strstr($referer, $page)) {
 			if (empty($_REQUEST["url"])) {

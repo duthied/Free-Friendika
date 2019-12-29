@@ -8,6 +8,7 @@ use Friendica\Core\L10n\L10n;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;
 
@@ -18,17 +19,14 @@ class Ignore extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		/** @var L10n $l10n */
-		$l10n = self::getClass(L10n::class);
+		$l10n = DI::l10n();
 
 		if (!Session::isAuthenticated()) {
 			throw new HttpException\ForbiddenException($l10n->t('Access denied.'));
 		}
 
-		/** @var App\Arguments $args */
-		$args = self::getClass(App\Arguments::class);
-		/** @var Database $dba */
-		$dba = self::getClass(Database::class);
+		$args = DI::args();
+		$dba = DI::dba();
 
 		$message_id = intval($args->get(2));
 
@@ -69,7 +67,7 @@ class Ignore extends BaseModule
 				$rand = "?$rand";
 			}
 
-			self::getApp()->internalRedirect($return_path . $rand);
+			DI::baseUrl()->redirect($return_path . $rand);
 		}
 
 		// the json doesn't really matter, it will either be 0 or 1

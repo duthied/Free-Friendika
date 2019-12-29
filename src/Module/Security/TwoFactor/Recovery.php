@@ -7,6 +7,7 @@ use Friendica\App\Authentication;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
+use Friendica\DI;
 use Friendica\Model\TwoFactor\RecoveryCode;
 
 /**
@@ -32,7 +33,7 @@ class Recovery extends BaseModule
 		if (($_POST['action'] ?? '') == 'recover') {
 			self::checkFormSecurityTokenRedirectOnError('2fa', 'twofactor_recovery');
 
-			$a = self::getApp();
+			$a = DI::app();
 
 			$recovery_code = $_POST['recovery_code'] ?? '';
 
@@ -41,10 +42,7 @@ class Recovery extends BaseModule
 				Session::set('2fa', true);
 				notice(L10n::t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
-				// Resume normal login workflow
-				/** @var Authentication $authentication */
-				$authentication = self::getClass(Authentication::class);
-				$authentication->setForUser($a, $a->user, true, true);
+				DI::auth()->setForUser($a, $a->user, true, true);
 			} else {
 				notice(L10n::t('Invalid code, please retry.'));
 			}
@@ -54,12 +52,12 @@ class Recovery extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			self::getApp()->internalRedirect();
+			DI::baseUrl()->redirect();
 		}
 
 		// Already authenticated with 2FA token
 		if (Session::get('2fa')) {
-			self::getApp()->internalRedirect();
+			DI::baseUrl()->redirect();
 		}
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('twofactor/recovery.tpl'), [

@@ -4,14 +4,14 @@
  */
 namespace Friendica\Core;
 
-use Friendica\BaseObject;
 use Friendica\Core\L10n\L10n as L10nClass;
+use Friendica\DI;
 
 /**
  * Provide Language, Translation, and Localization functions to the application
  * Localization can be referred to by the numeronym L10N (as in: "L", followed by ten more letters, and then "N").
  */
-class L10n extends BaseObject
+class L10n
 {
 	/**
 	 * Returns the current language code
@@ -20,7 +20,7 @@ class L10n extends BaseObject
 	 */
 	public static function getCurrentLang()
 	{
-		return self::getClass(L10nClass::class)->getCurrentLang();
+		return DI::l10n()->getCurrentLang();
 	}
 
 	/**
@@ -32,7 +32,7 @@ class L10n extends BaseObject
 	 */
 	public static function withLang(string $lang)
 	{
-		return self::getClass(L10nClass::class)->withLang($lang);
+		DI::l10n()->withLang($lang);
 	}
 
 	/**
@@ -54,7 +54,7 @@ class L10n extends BaseObject
 	 */
 	public static function t($s, ...$vars)
 	{
-		return self::getClass(L10nClass::class)->t($s, ...$vars);
+		return DI::l10n()->t($s, ...$vars);
 	}
 
 	/**
@@ -79,7 +79,7 @@ class L10n extends BaseObject
 	 */
 	public static function tt(string $singular, string $plural, int $count)
 	{
-		return self::getClass(L10nClass::class)->tt($singular, $plural, $count);
+		return DI::l10n()->tt($singular, $plural, $count);
 	}
 
 	/**
@@ -107,7 +107,7 @@ class L10n extends BaseObject
 	 */
 	public static function getDay($s)
 	{
-		return self::getClass(L10nClass::class)->getDay($s);
+		return DI::l10n()->getDay($s);
 	}
 
 	/**
@@ -119,7 +119,7 @@ class L10n extends BaseObject
 	 */
 	public static function getDayShort($s)
 	{
-		return self::getClass(L10nClass::class)->getDayShort($s);
+		return DI::l10n()->getDayShort($s);
 	}
 
 	/**
@@ -131,6 +131,6 @@ class L10n extends BaseObject
 	 */
 	public static function getPokeVerbs()
 	{
-		return self::getClass(L10nClass::class)->getPokeVerbs();
+		return DI::l10n()->getPokeVerbs();
 	}
 }

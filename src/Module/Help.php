@@ -6,6 +6,7 @@ use Friendica\BaseModule;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
@@ -21,8 +22,8 @@ class Help extends BaseModule
 		$text = '';
 		$filename = '';
 
-		$a = self::getApp();
-		$config = $a->getConfig();
+		$a = DI::app();
+		$config = DI::config();
 		$lang = $config->get('system', 'language');
 
 		// @TODO: Replace with parameter from router
@@ -35,7 +36,7 @@ class Help extends BaseModule
 					$path .= '/';
 				}
 
-				$path .= $a->getArgumentValue($x);
+				$path .= DI::args()->get($x);
 			}
 			$title = basename($path);
 			$filename = $path;
@@ -86,7 +87,7 @@ class Help extends BaseModule
 
 						$idNum[$level] ++;
 
-						$href = $a->getBaseURL() . "/help/{$filename}#{$anchor}";
+						$href = DI::baseUrl()->get() . "/help/{$filename}#{$anchor}";
 						$toc .= "<li><a href=\"{$href}\">" . strip_tags($line) . "</a></li>";
 						$id = implode("_", array_slice($idNum, 1, $level));
 						$line = "<a name=\"{$id}\"></a>" . $line;

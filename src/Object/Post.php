@@ -4,10 +4,8 @@
  */
 namespace Friendica\Object;
 
-use Friendica\BaseObject;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
-use Friendica\Content\Item as ContentItem;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
@@ -18,6 +16,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
@@ -32,7 +31,7 @@ use Friendica\Util\Temporal;
 /**
  * An item
  */
-class Post extends BaseObject
+class Post
 {
 	private $data = [];
 	private $template = null;
@@ -121,7 +120,7 @@ class Post extends BaseObject
 	 */
 	public function getTemplateData(array $conv_responses, $thread_level = 1)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$item = $this->getData();
 		$edited = false;
@@ -343,10 +342,7 @@ class Post extends BaseObject
 
 		$body = Item::prepareBody($item, true);
 
-		/** @var ContentItem $contItem */
-		$contItem = self::getClass(ContentItem::class);
-
-		list($categories, $folders) = $contItem->determineCategoriesTerms($item);
+		list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
 		$body_e       = $body;
 		$text_e       = strip_tags($body);
@@ -413,7 +409,7 @@ class Post extends BaseObject
 			'profile_url'     => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name'            => $name_e,
-			'thumb'           => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'thumb'           => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'osparkle'        => $osparkle,
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
@@ -427,7 +423,7 @@ class Post extends BaseObject
 			'shiny'           => $shiny,
 			'owner_self'      => $item['author-link'] == Session::get('my_url'),
 			'owner_url'       => $this->getOwnerUrl(),
-			'owner_photo'     => $a->removeBaseURL(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
+			'owner_photo'     => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 			'owner_name'      => $owner_name_e,
 			'plink'           => Item::getPlink($item),
 			'edpost'          => $edpost,
@@ -457,7 +453,7 @@ class Post extends BaseObject
 			'received'        => $item['received'],
 			'commented'       => $item['commented'],
 			'created_date'    => $item['created'],
-			'return'          => ($a->cmd) ? bin2hex($a->cmd) : '',
+			'return'          => (DI::args()->getCommand()) ? bin2hex(DI::args()->getCommand()) : '',
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
 				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future
@@ -550,8 +546,7 @@ class Post extends BaseObject
 			return false;
 		}
 
-		/** @var Activity $activity */
-		$activity = self::getClass(Activity::class);
+		$activity = DI::activity();
 
 		/*
 		 * Only add what will be displayed
@@ -815,7 +810,7 @@ class Post extends BaseObject
 	 */
 	private function getDefaultText()
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		if (!local_user()) {
 			return '';
@@ -862,7 +857,7 @@ class Post extends BaseObject
 	 */
 	private function getCommentBox($indent)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$comment_box = '';
 		$conv = $this->getThread();
@@ -895,7 +890,7 @@ class Post extends BaseObject
 
 			$template = Renderer::getMarkupTemplate($this->getCommentBoxTemplate());
 			$comment_box = Renderer::replaceMacros($template, [
-				'$return_path' => $a->query_string,
+				'$return_path' => DI::args()->getQueryString(),
 				'$threaded'    => $this->isThreaded(),
 				'$jsreload'    => '',
 				'$wall'        => ($conv->getMode() === 'profile'),
@@ -904,9 +899,9 @@ class Post extends BaseObject
 				'$qcomment'    => $qcomment,
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
-				'$mylink'      => $a->removeBaseURL($a->contact['url']),
+				'$mylink'      => DI::baseUrl()->remove($a->contact['url']),
 				'$mytitle'     => L10n::t('This is you'),
-				'$myphoto'     => $a->removeBaseURL($a->contact['thumb']),
+				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb']),
 				'$comment'     => L10n::t('Comment'),
 				'$submit'      => L10n::t('Submit'),
 				'$edbold'      => L10n::t('Bold'),
@@ -945,7 +940,7 @@ class Post extends BaseObject
 	 */
 	protected function checkWallToWall()
 	{
-		$a = self::getApp();
+		$a = DI::app();
 		$conv = $this->getThread();
 		$this->wall_to_wall = false;
 

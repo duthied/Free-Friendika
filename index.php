@@ -15,13 +15,13 @@ require __DIR__ . '/vendor/autoload.php';
 $dice = (new Dice())->addRules(include __DIR__ . '/static/dependencies.config.php');
 $dice = $dice->addRule(Friendica\App\Mode::class, ['call' => [['determineRunMode', [false, $_SERVER], Dice::CHAIN_CALL]]]);
 
-\Friendica\BaseObject::setDependencyInjection($dice);
+\Friendica\DI::init($dice);
 
-$a = \Friendica\BaseObject::getApp();
+$a = \Friendica\DI::app();
 
 $a->runFrontend(
 	$dice->create(\Friendica\App\Module::class),
 	$dice->create(\Friendica\App\Router::class),
-	$dice->create(\Friendica\Core\Config\PConfiguration::class),
+	$dice->create(\Friendica\Core\Config\IPConfiguration::class),
 	$dice->create(\Friendica\App\Authentication::class)
 );

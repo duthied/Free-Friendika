@@ -9,6 +9,7 @@ use Friendica\Content\Pager;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Search\ContactResult;
@@ -33,8 +34,8 @@ class BaseSearchModule extends BaseModule
 	 */
 	public static function performContactSearch($search, $prefix = '')
 	{
-		$a      = self::getApp();
-		$config = $a->getConfig();
+		$a      = DI::app();
+		$config = DI::config();
 
 		$type = Search::TYPE_ALL;
 
@@ -64,8 +65,7 @@ class BaseSearchModule extends BaseModule
 			$header = L10n::t('Forum Search - %s', $search);
 		}
 
-		/** @var Arguments $args */
-		$args = self::getClass(Arguments::class);
+		$args = DI::args();
 		$pager = new Pager($args->getQueryString());
 
 		if ($localSearch && empty($results)) {
@@ -96,8 +96,6 @@ class BaseSearchModule extends BaseModule
 			info(L10n::t('No matches'));
 			return '';
 		}
-
-		$a = self::getApp();
 
 		$id      = 0;
 		$entries = [];
@@ -131,7 +129,7 @@ class BaseSearchModule extends BaseModule
 						$photo_menu = [];
 					}
 				} else {
-					$connLink = $a->getBaseURL() . '/follow/?url=' . $result->getUrl();
+					$connLink = DI::baseUrl()->get() . '/follow/?url=' . $result->getUrl();
 					$connTxt  = L10n::t('Connect');
 
 					$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($result->getUrl())];

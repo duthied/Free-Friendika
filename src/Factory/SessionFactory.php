@@ -5,7 +5,7 @@ namespace Friendica\Factory;
 use Friendica\App;
 use Friendica\Core\Cache\Cache;
 use Friendica\Core\Cache\ICache;
-use Friendica\Core\Config\Configuration;
+use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\Database;
@@ -29,7 +29,8 @@ class SessionFactory
 	/**
 	 * @param App\Mode        $mode
 	 * @param App\BaseURL     $baseURL
-	 * @param Configuration   $config
+	 * @param IConfiguration  $config
+	 * @param Cookie          $cookie
 	 * @param Database        $dba
 	 * @param ICache          $cache
 	 * @param LoggerInterface $logger
@@ -37,7 +38,7 @@ class SessionFactory
 	 *
 	 * @return Session\ISession
 	 */
-	public function createSession(App\Mode $mode, App\BaseURL $baseURL, Configuration $config, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
+	public function createSession(App\Mode $mode, App\BaseURL $baseURL, IConfiguration $config, Database $dba, ICache $cache, LoggerInterface $logger, Profiler $profiler, array $server = [])
 	{
 		$stamp1  = microtime(true);
 		$session = null;

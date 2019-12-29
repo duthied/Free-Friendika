@@ -6,6 +6,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Util\Network;
@@ -30,7 +31,7 @@ function redir_init(App $a) {
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, local_user()]]);
 		if (!DBA::isResult($contact)) {
 			notice(L10n::t('Contact not found.'));
-			$a->internalRedirect();
+			DI::baseUrl()->redirect();
 		}
 
 		$contact_url = $contact['url'];
@@ -59,7 +60,7 @@ function redir_init(App $a) {
 		}
 
 		if (remote_user()) {
-			$host = substr($a->getBaseURL() . ($a->getURLPath() ? '/' . $a->getURLPath() : ''), strpos($a->getBaseURL(), '://') + 3);
+			$host = substr(DI::baseUrl()->getUrlPath() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''), strpos(DI::baseUrl()->getUrlPath(), '://') + 3);
 			$remotehost = substr($contact['addr'], strpos($contact['addr'], '@') + 1);
 
 			// On a local instance we have to check if the local user has already authenticated
@@ -120,7 +121,7 @@ function redir_init(App $a) {
 	}
 
 	notice(L10n::t('Contact not found.'));
-	$a->internalRedirect();
+	DI::baseUrl()->redirect();
 }
 
 function redir_magic($a, $cid, $url)

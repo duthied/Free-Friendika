@@ -2,14 +2,14 @@
 
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
 use Friendica\Core\Addon;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * Model interaction for the nodeinfo
  */
-class Nodeinfo extends BaseObject
+class Nodeinfo
 {
 	/**
 	 * Updates the info about the current node
@@ -18,9 +18,8 @@ class Nodeinfo extends BaseObject
 	 */
 	public static function update()
 	{
-		$app = self::getApp();
-		$config = $app->getConfig();
-		$logger = $app->getLogger();
+		$config = DI::config();
+		$logger = DI::logger();
 
 		// If the addon 'statistics_json' is enabled then disable it and activate nodeinfo.
 		if (Addon::isEnabled('statistics_json')) {

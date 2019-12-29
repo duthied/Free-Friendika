@@ -10,6 +10,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -28,7 +29,7 @@ function suggest_post(App $a)
 		notice(L10n::t('Contact suggestion successfully ignored.'));
 	}
 
-	$a->internalRedirect('suggest');
+	DI::baseUrl()->redirect('suggest');
 }
 
 function suggest_content(App $a)
@@ -40,7 +41,7 @@ function suggest_content(App $a)
 		return;
 	}
 
-	$_SESSION['return_path'] = $a->cmd;
+	$_SESSION['return_path'] = DI::args()->getCommand();
 
 	$a->page['aside'] .= Widget::findPeople();
 	$a->page['aside'] .= Widget::follow();
@@ -57,7 +58,7 @@ function suggest_content(App $a)
 	if (!empty($_GET['ignore'])) {
 		// <form> can't take arguments in its "action" parameter
 		// so add any arguments as hidden inputs
-		$query = explode_querystring($a->query_string);
+		$query = explode_querystring(DI::args()->getQueryString());
 		$inputs = [];
 		foreach ($query['args'] as $arg) {
 			if (strpos($arg, 'confirm=') === false) {

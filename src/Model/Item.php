@@ -6,7 +6,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\BaseObject;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
@@ -21,11 +20,11 @@ use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
-use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
 use Friendica\Util\Network;
@@ -35,7 +34,7 @@ use Friendica\Util\XML;
 use Friendica\Worker\Delivery;
 use Text_LanguageDetect;
 
-class Item extends BaseObject
+class Item
 {
 	// Posting types, inspired by https://www.w3.org/TR/activitystreams-vocabulary/#object-types
 	const PT_ARTICLE = 0;
@@ -1280,7 +1279,7 @@ class Item extends BaseObject
 		if ($notify) {
 			// We have to avoid duplicates. So we create the GUID in form of a hash of the plink or uri.
 			// We add the hash of our own host because our host is the original creator of the post.
-			$prefix_host = \get_app()->getHostName();
+			$prefix_host = DI::baseUrl()->getHostname();
 		} else {
 			$prefix_host = '';
 
@@ -1441,8 +1440,7 @@ class Item extends BaseObject
 			$item['parent-uri'] = $item['thr-parent'];
 		}
 
-		/** @var Activity $activity */
-		$activity = self::getClass(Activity::class);
+		$activity = DI::activity();
 
 		if (isset($item['gravity'])) {
 			$item['gravity'] = intval($item['gravity']);
@@ -2513,7 +2511,7 @@ class Item extends BaseObject
 			$guid = System::createUUID();
 		}
 
-		return self::getApp()->getBaseURL() . '/objects/' . $guid;
+		return DI::baseUrl()->get() . '/objects/' . $guid;
 	}
 
 	/**
@@ -2754,8 +2752,6 @@ class Item extends BaseObject
 
 	public static function isRemoteSelf($contact, &$datarray)
 	{
-		$a = \get_app();
-
 		if (!$contact['remote_self']) {
 			return false;
 		}
@@ -2767,7 +2763,7 @@ class Item extends BaseObject
 		}
 
 		// Prevent to forward already forwarded posts
-		if ($datarray["app"] == $a->getHostName()) {
+		if ($datarray["app"] == DI::baseUrl()->getHostname()) {
 			Logger::log('Already forwarded (second test)', Logger::DEBUG);
 			return false;
 		}
@@ -2979,8 +2975,7 @@ class Item extends BaseObject
 	 */
 	public static function enumeratePermissions(array $obj, bool $check_dead = false)
 	{
-		/** @var ACLFormatter $aclFormater */
-		$aclFormater = self::getClass(ACLFormatter::class);
+		$aclFormater = DI::aclFormatter();
 
 		$allow_people = $aclFormater->expand($obj['allow_cid']);
 		$allow_groups = Group::expand($obj['uid'], $aclFormater->expand($obj['allow_gid']), $check_dead);
@@ -3474,7 +3469,7 @@ class Item extends BaseObject
 	 */
 	private static function addRedirToImageTags(array &$item)
 	{
-		$app = self::getApp();
+		$app = DI::app();
 
 		$matches = [];
 		$cnt = preg_match_all('|\[img\](http[^\[]*?/photo/[a-fA-F0-9]+?(-[0-9]\.[\w]+?)?)\[\/img\]|', $item['body'], $matches, PREG_SET_ORDER);
@@ -3509,7 +3504,7 @@ class Item extends BaseObject
 	 */
 	public static function prepareBody(array &$item, $attach = false, $is_preview = false)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 		Hook::callAll('prepare_body_init', $item);
 
 		// In order to provide theme developers more possibilities, event items
@@ -3647,7 +3642,7 @@ class Item extends BaseObject
 	 */
 	public static function getPlink($item)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ($a->user['nickname'] != "") {
 			$ret = [
@@ -3658,7 +3653,7 @@ class Item extends BaseObject
 			];
 
 			if (!empty($item['plink'])) {
-				$ret["href"] = $a->removeBaseURL($item['plink']);
+				$ret["href"] = DI::baseUrl()->remove($item['plink']);
 				$ret["title"] = L10n::t('link to source');
 			}
 

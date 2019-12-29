@@ -4,8 +4,7 @@
  */
 namespace Friendica\Core;
 
-use Friendica\App\BaseURL;
-use Friendica\BaseObject;
+use Friendica\DI;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\XML;
 
@@ -19,18 +18,17 @@ use Friendica\Util\XML;
 /**
  * @brief System methods
  */
-class System extends BaseObject
+class System
 {
 	/**
 	 * @brief Retrieves the Friendica instance base URL
 	 *
 	 * @param bool $ssl Whether to append http or https under BaseURL::SSL_POLICY_SELFSIGN
 	 * @return string Friendica server base URL
-	 * @throws InternalServerErrorException
 	 */
 	public static function baseUrl($ssl = false)
 	{
-		return self::getClass(BaseURL::class)->get($ssl);
+		return DI::baseUrl()->get($ssl);
 	}
 
 	/**
@@ -43,7 +41,7 @@ class System extends BaseObject
 	 */
 	public static function removedBaseUrl(string $orig_url)
 	{
-		return self::getApp()->removeBaseURL($orig_url);
+		return DI::baseUrl()->remove($orig_url);
 	}
 
 	/**
@@ -184,7 +182,7 @@ class System extends BaseObject
 		if (is_bool($prefix) && !$prefix) {
 			$prefix = '';
 		} elseif (empty($prefix)) {
-			$prefix = hash('crc32', self::getApp()->getHostName());
+			$prefix = hash('crc32', DI::baseUrl()->getHostname());
 		}
 
 		while (strlen($prefix) < ($size - 13)) {

@@ -18,6 +18,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -35,7 +36,7 @@ function vier_init(App $a)
 		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
 	}
 
-	if ($a->is_mobile || $a->is_tablet) {
+	if (DI::mode()->isMobile() || DI::mode()->isMobile()) {
 		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
 		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
 	}
@@ -63,7 +64,7 @@ function cmtBbClose(id) {
 </script>
 EOT;
 
-	if ($a->is_mobile || $a->is_tablet) {
+	if (DI::mode()->isMobile() || DI::mode()->isMobile()) {
 		$a->page['htmlhead'] .= <<< EOT
 <script>
 	$(document).ready(function() {
@@ -163,7 +164,7 @@ function vier_community_info()
 				$entry = Renderer::replaceMacros($tpl, [
 					'$id' => $rr['id'],
 					'$profile_link' => $profile_link,
-					'$photo' => $a->removeBaseURL($rr['thumb']),
+					'$photo' => DI::baseUrl()->remove($rr['thumb']),
 					'$alt_text' => $rr['name']]);
 				$aside['$lastusers_items'][] = $entry;
 			}

@@ -7,8 +7,8 @@
 namespace Friendica\Core;
 
 use Friendica\App\Page;
-use Friendica\BaseObject;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 
@@ -17,7 +17,7 @@ use Friendica\Model\Group;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class ACL extends BaseObject
+class ACL
 {
 	/**
 	 * Returns a select input tag with all the contact of the local user
@@ -35,7 +35,7 @@ class ACL extends BaseObject
 	 */
 	public static function getSuggestContactSelectHTML($selname, $selclass, array $options = [], array $preselected = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$networks = null;
 
@@ -109,7 +109,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Hook::callAll($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll(DI::module()->getName() . '_pre_' . $selname, $arr);
 
 		if (DBA::isResult($contacts)) {
 			foreach ($contacts as $contact) {
@@ -127,7 +127,7 @@ class ACL extends BaseObject
 
 		$o .= '</select>' . PHP_EOL;
 
-		Hook::callAll($a->module . '_post_' . $selname, $o);
+		Hook::callAll(DI::module()->getName() . '_post_' . $selname, $o);
 
 		return $o;
 	}
@@ -145,7 +145,7 @@ class ACL extends BaseObject
 	 */
 	public static function getMessageContactSelectHTML($selname, $selclass, array $preselected = [], $size = 4, $tabindex = null)
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		$o = '';
 
@@ -175,7 +175,7 @@ class ACL extends BaseObject
 		$arr = ['contact' => $contacts, 'entry' => $o];
 
 		// e.g. 'network_pre_contact_deny', 'profile_pre_contact_allow'
-		Hook::callAll($a->module . '_pre_' . $selname, $arr);
+		Hook::callAll(DI::module()->getName() . '_pre_' . $selname, $arr);
 
 		$receiverlist = [];
 
@@ -201,7 +201,7 @@ class ACL extends BaseObject
 			$o .= implode(', ', $receiverlist);
 		}
 
-		Hook::callAll($a->module . '_post_' . $selname, $o);
+		Hook::callAll(DI::module()->getName() . '_post_' . $selname, $o);
 
 		return $o;
 	}

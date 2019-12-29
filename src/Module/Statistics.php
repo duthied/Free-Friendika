@@ -4,23 +4,22 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
-use Friendica\Core\System;
+use Friendica\DI;
+use Friendica\Network\HTTPException\NotFoundException;
 
 class Statistics extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
-		$config = self::getApp()->getConfig();
-
-		if (!$config->get("system", "nodeinfo")) {
-			throw new \Friendica\Network\HTTPException\NotFoundException();
+		if (!DI::config()->get("system", "nodeinfo")) {
+			throw new NotFoundException();
 		}
 	}
 
 	public static function rawContent(array $parameters = [])
 	{
-		$config = self::getApp()->getConfig();
-		$logger = self::getApp()->getLogger();
+		$config = DI::config();
+		$logger = DI::logger();
 
 		$registration_open =
 			intval($config->get('config', 'register_policy')) !== Register::CLOSED

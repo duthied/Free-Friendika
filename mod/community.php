@@ -15,6 +15,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 
@@ -136,7 +137,7 @@ function community_content(App $a, $update = 0)
 	}
 
 	// check if we serve a mobile device and get the user settings accordingly
-	if ($a->is_mobile) {
+	if (DI::mode()->isMobile()) {
 		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
 	} else {
 		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
@@ -148,7 +149,7 @@ function community_content(App $a, $update = 0)
 		$itemspage_network = $a->force_max_items;
 	}
 
-	$pager = new Pager($a->query_string, $itemspage_network);
+	$pager = new Pager(DI::args()->getQueryString(), $itemspage_network);
 
 	$r = community_getitems($pager->getStart(), $pager->getItemsPerPage(), $content, $accounttype);
 

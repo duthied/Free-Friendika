@@ -3,6 +3,7 @@
 namespace Friendica\Module\WellKnown;
 
 use Friendica\BaseModule;
+use Friendica\DI;
 use Friendica\Model\Search;
 
 /**
@@ -13,8 +14,7 @@ class XSocialRelay extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$app = self::getApp();
-		$config = $app->getConfig();
+		$config = DI::config();
 
 		$subscribe = $config->get('system', 'relay_subscribe', false);
 
@@ -49,10 +49,10 @@ class XSocialRelay extends BaseModule
 			'tags'      => $tagList,
 			'protocols' => [
 				'diaspora' => [
-					'receive' => $app->getBaseURL() . '/receive/public'
+					'receive' => DI::baseUrl()->get() . '/receive/public'
 				],
 				'dfrn'     => [
-					'receive' => $app->getBaseURL() . '/dfrn_notify'
+					'receive' => DI::baseUrl()->get() . '/dfrn_notify'
 				]
 			]
 		];

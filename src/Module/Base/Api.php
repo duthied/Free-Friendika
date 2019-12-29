@@ -5,6 +5,7 @@ namespace Friendica\Module\Base;
 use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Network\HTTPException;
 
 require_once __DIR__ . '/../../../include/api.php';
@@ -22,15 +23,15 @@ class Api extends BaseModule
 
 	public static function init(array $parameters = [])
 	{
-		$Arguments = self::getClass(Arguments::class);
+		$arguments = DI::args();
 
-		if (substr($Arguments->getQueryString(), -4) === '.xml') {
+		if (substr($arguments->getQueryString(), -4) === '.xml') {
 			self::$format = 'xml';
 		}
-		if (substr($Arguments->getQueryString(), -4) === '.rss') {
+		if (substr($arguments->getQueryString(), -4) === '.rss') {
 			self::$format = 'rss';
 		}
-		if (substr($Arguments->getQueryString(), -4) === '.atom') {
+		if (substr($arguments->getQueryString(), -4) === '.atom') {
 			self::$format = 'atom';
 		}
 	}
@@ -41,7 +42,7 @@ class Api extends BaseModule
 			throw new HTTPException\UnauthorizedException(L10n::t('Permission denied.'));
 		}
 
-		$a = self::getApp();
+		$a = DI::app();
 
 		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
 			throw new HTTPException\ForbiddenException(L10n::t('Permission denied.'));
@@ -67,7 +68,7 @@ class Api extends BaseModule
 	 */
 	protected static function login()
 	{
-		api_login(self::getApp());
+		api_login(DI::app());
 
 		self::$current_user_id = api_user();
 
@@ -86,7 +87,7 @@ class Api extends BaseModule
 	 */
 	protected static function getUser($contact_id = null)
 	{
-		return api_get_user(self::getApp(), $contact_id);
+		return api_get_user(DI::app(), $contact_id);
 	}
 
 	protected static function format($root_element, $data)
