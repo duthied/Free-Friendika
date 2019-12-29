@@ -9,6 +9,7 @@ use Friendica\BaseModule;
 use Friendica\Core\Config\Configuration;
 use Friendica\Core\L10n\L10n;
 use Friendica\Core\Session;
+use Friendica\DI;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\HTTPException\NotFoundException;
@@ -31,15 +32,12 @@ class HoverCard extends BaseModule
 			$nickname = $parameters['profile'];
 			$profile  = 0;
 		} else {
-			/** @var L10n $l10n */
-			$l10n = self::getClass(L10n::class);
-			throw new NotFoundException($l10n->t('No profile'));
+			throw new NotFoundException(DI::l10n()->t('No profile'));
 		}
 
 		Profile::load($a, $nickname, $profile);
 
-		/** @var Page $page */
-		$page = self::getClass(Page::class);
+		$page = DI::page();
 
 		if (!empty($a->profile['page-flags']) && ($a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY)) {
 			$page['htmlhead'] .= '<meta name="friendica.community" content="true" />';
@@ -52,10 +50,8 @@ class HoverCard extends BaseModule
 			$page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\r\n";
 		}
 
-		/** @var Configuration $config */
-		$config = self::getClass(Configuration::class);
 		// check if blocked
-		if ($config->get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			$keywords = $a->profile['pub_keywords'] ?? '';
 			$keywords = str_replace([',', ' ', ',,'], [' ', ',', ','], $keywords);
 			if (strlen($keywords)) {
@@ -63,8 +59,7 @@ class HoverCard extends BaseModule
 			}
 		}
 
-		/** @var BaseURL $baseUrl */
-		$baseUrl = self::getClass(BaseURL::class);
+		$baseUrl = DI::baseUrl();
 
 		$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . $baseUrl->getHostname() . ($baseUrl->getUrlPath() ? '/' . $baseUrl->getUrlPath() : ''));
 
