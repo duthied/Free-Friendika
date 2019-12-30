@@ -177,7 +177,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		$params['dfrn_id'] = bin2hex($result);
 		$params['public_key'] = $public_key;
 
-		$my_url = System::baseUrl() . '/profile/' . $user['nickname'];
+		$my_url = DI::baseUrl() . '/profile/' . $user['nickname'];
 
 		openssl_public_encrypt($my_url, $params['source_url'], $site_pubkey);
 		$params['source_url'] = bin2hex($params['source_url']);
@@ -469,7 +469,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 		if (DBA::isResult($contact)) {
 			$photo = $contact['photo'];
 		} else {
-			$photo = System::baseUrl() . '/images/person-300.jpg';
+			$photo = DI::baseUrl() . '/images/person-300.jpg';
 		}
 
 		Contact::updateAvatar($photo, $local_uid, $dfrn_record);
@@ -536,7 +536,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 					'to_name'      => $combined['username'],
 					'to_email'     => $combined['email'],
 					'uid'          => $combined['uid'],
-					'link'         => System::baseUrl() . '/contact/' . $dfrn_record,
+					'link'         => DI::baseUrl() . '/contact/' . $dfrn_record,
 					'source_name'  => ((strlen(stripslashes($combined['name']))) ? stripslashes($combined['name']) : L10n::t('[Name Withheld]')),
 					'source_link'  => $combined['url'],
 					'source_photo' => $combined['photo'],

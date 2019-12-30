@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -33,7 +32,7 @@ function user_allow($hash)
 	$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid'], 'is-default' => true]);
 
 	if (DBA::isResult($profile) && $profile['net-publish'] && Config::get('system', 'directory')) {
-		$url = System::baseUrl() . '/profile/' . $user['nickname'];
+		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 

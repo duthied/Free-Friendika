@@ -130,7 +130,7 @@ function api_date($str)
  *
  * @brief Register API endpoint
  *
- * @param string $path   API URL path, relative to System::baseUrl()
+ * @param string $path   API URL path, relative to DI::baseUrl()
  * @param string $func   Function name to call on path request
  * @param bool   $auth   API need logged user
  * @param string $method HTTP method reqiured to call this endpoint.
@@ -438,12 +438,12 @@ function api_rss_extra(App $a, $arr, $user_info)
 	$arr['$user'] = $user_info;
 	$arr['$rss'] = [
 		'alternate'    => $user_info['url'],
-		'self'         => System::baseUrl() . "/" . DI::args()->getQueryString(),
-		'base'         => System::baseUrl(),
+		'self'         => DI::baseUrl() . "/" . DI::args()->getQueryString(),
+		'base'         => DI::baseUrl(),
 		'updated'      => api_date(null),
 		'atom_updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 		'language'     => $user_info['lang'],
-		'logo'         => System::baseUrl() . "/images/friendica-32.png",
+		'logo'         => DI::baseUrl() . "/images/friendica-32.png",
 	];
 
 	return $arr;
@@ -714,7 +714,7 @@ function api_get_user(App $a, $contact_id = null)
 		'statusnet_blocking' => false,
 		'notifications' => false,
 		/// @TODO old way?
-		//'statusnet_profile_url' => System::baseUrl()."/contact/".$uinfo[0]['cid'],
+		//'statusnet_profile_url' => DI::baseUrl()."/contact/".$uinfo[0]['cid'],
 		'statusnet_profile_url' => $uinfo[0]['url'],
 		'uid' => intval($uinfo[0]['uid']),
 		'cid' => intval($uinfo[0]['cid']),
@@ -1164,8 +1164,8 @@ function api_statuses_update($type)
 				$phototypes = Images::supportedTypes();
 				$ext = $phototypes[$r[0]['type']];
 				$description = $r[0]['desc'] ?? '';
-				$_REQUEST['body'] .= "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
-				$_REQUEST['body'] .= '[img=' . System::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . ']' . $description . '[/img][/url]';
+				$_REQUEST['body'] .= "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $r[0]['nickname'] . '/image/' . $r[0]['resource-id'] . ']';
+				$_REQUEST['body'] .= '[img=' . DI::baseUrl() . '/photo/' . $r[0]['resource-id'] . '-' . $r[0]['scale'] . '.' . $ext . ']' . $description . '[/img][/url]';
 			}
 		}
 	}
@@ -2786,7 +2786,7 @@ function api_format_items_embeded_images($item, $text)
 	$text = preg_replace_callback(
 		'|data:image/([^;]+)[^=]+=*|m',
 		function () use ($item) {
-			return System::baseUrl() . '/display/' . $item['guid'];
+			return DI::baseUrl() . '/display/' . $item['guid'];
 		},
 		$text
 	);
@@ -3041,7 +3041,7 @@ function api_format_item($item, $type = "json", $status_user = null, $author_use
 		//'entities' => NULL,
 		'statusnet_html' => $converted["html"],
 		'statusnet_conversation_id' => $item['parent'],
-		'external_url' => System::baseUrl() . "/display/" . $item['guid'],
+		'external_url' => DI::baseUrl() . "/display/" . $item['guid'],
 		'friendica_activities' => api_format_items_activities($item, $type),
 		'friendica_title' => $item['title'],
 		'friendica_html' => BBCode::convert($item['body'], false)
@@ -3569,13 +3569,13 @@ function api_statusnet_config($type)
 {
 	$name      = Config::get('config', 'sitename');
 	$server    = DI::baseUrl()->getHostname();
-	$logo      = System::baseUrl() . '/images/friendica-64.png';
+	$logo      = DI::baseUrl() . '/images/friendica-64.png';
 	$email     = Config::get('config', 'admin_email');
 	$closed    = intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
 	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
 	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
 	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';
-	$sslserver = Config::get('system', 'have_ssl') ? str_replace('http:', 'https:', System::baseUrl()) : '';
+	$sslserver = Config::get('system', 'have_ssl') ? str_replace('http:', 'https:', DI::baseUrl()) : '';
 
 	$config = [
 		'site' => ['name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
@@ -4313,7 +4313,7 @@ function api_fr_photos_list($type)
 			$photo['album'] = $rr['album'];
 			$photo['filename'] = $rr['filename'];
 			$photo['type'] = $rr['type'];
-			$thumb = System::baseUrl() . "/photo/" . $rr['resource-id'] . "-" . $rr['scale'] . "." . $typetoext[$rr['type']];
+			$thumb = DI::baseUrl() . "/photo/" . $rr['resource-id'] . "-" . $rr['scale'] . "." . $typetoext[$rr['type']];
 			$photo['created'] = $rr['created'];
 			$photo['edited'] = $rr['edited'];
 			$photo['desc'] = $rr['desc'];
@@ -4619,15 +4619,15 @@ function api_account_update_profile_image($type)
 		$condition = ["`profile` AND `resource-id` != ? AND `uid` = ?", $data['photo']['id'], api_user()];
 		Photo::update(['profile' => false], $condition);
 	} else {
-		$fields = ['photo' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext,
-			'thumb' => System::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext];
+		$fields = ['photo' => DI::baseUrl() . '/photo/' . $data['photo']['id'] . '-4.' . $fileext,
+			'thumb' => DI::baseUrl() . '/photo/' . $data['photo']['id'] . '-5.' . $fileext];
 		DBA::update('profile', $fields, ['id' => $_REQUEST['profile'], 'uid' => api_user()]);
 	}
 
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	$url = System::baseUrl() . '/profile/' . \get_app()->user['nickname'];
+	$url = DI::baseUrl() . '/profile/' . \get_app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
@@ -4939,8 +4939,8 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
 			];
 
 	// adds link to the thumbnail scale photo
-	$arr['body'] = '[url=' . System::baseUrl() . '/photos/' . $owner_record['nick'] . '/image/' . $hash . ']'
-				. '[img]' . System::baseUrl() . '/photo/' . $hash . '-' . "2" . '.'. $typetoext[$filetype] . '[/img]'
+	$arr['body'] = '[url=' . DI::baseUrl() . '/photos/' . $owner_record['nick'] . '/image/' . $hash . ']'
+				. '[img]' . DI::baseUrl() . '/photo/' . $hash . '-' . "2" . '.'. $typetoext[$filetype] . '[/img]'
 				. '[/url]';
 
 	// do the magic for storing the item in the database and trigger the federation to other contacts
@@ -5008,14 +5008,14 @@ function prepare_photo_data($type, $scale, $photo_id)
 			for ($k = intval($data['photo']['minscale']); $k <= intval($data['photo']['maxscale']); $k++) {
 				$data['photo']['links'][$k . ":link"]["@attributes"] = ["type" => $data['photo']['type'],
 										"scale" => $k,
-										"href" => System::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . "." . $typetoext[$data['photo']['type']]];
+										"href" => DI::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . "." . $typetoext[$data['photo']['type']]];
 			}
 		} else {
 			$data['photo']['link'] = [];
 			// when we have profile images we could have only scales from 4 to 6, but index of array always needs to start with 0
 			$i = 0;
 			for ($k = intval($data['photo']['minscale']); $k <= intval($data['photo']['maxscale']); $k++) {
-				$data['photo']['link'][$i] = System::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . "." . $typetoext[$data['photo']['type']];
+				$data['photo']['link'][$i] = DI::baseUrl() . "/photo/" . $data['photo']['resource-id'] . "-" . $k . "." . $typetoext[$data['photo']['type']];
 				$i++;
 			}
 		}

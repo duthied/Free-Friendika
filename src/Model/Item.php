@@ -1564,7 +1564,7 @@ class Item
 			$item['edited'] = DateTimeFormat::utcNow();
 		}
 
-		$item['plink'] = ($item['plink'] ?? '') ?: System::baseUrl() . '/display/' . urlencode($item['guid']);
+		$item['plink'] = ($item['plink'] ?? '') ?: DI::baseUrl() . '/display/' . urlencode($item['guid']);
 
 		$default = ['url' => $item['author-link'], 'name' => $item['author-name'],
 			'photo' => $item['author-avatar'], 'network' => $item['network']];
@@ -2592,10 +2592,10 @@ class Item
 		// All hashtags should point to the home server if "local_tags" is activated
 		if (Config::get('system', 'local_tags')) {
 			$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-					"#[url=".System::baseUrl()."/search?tag=$2]$2[/url]", $item["body"]);
+					"#[url=".DI::baseUrl()."/search?tag=$2]$2[/url]", $item["body"]);
 
 			$item["tag"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
-					"#[url=".System::baseUrl()."/search?tag=$2]$2[/url]", $item["tag"]);
+					"#[url=".DI::baseUrl()."/search?tag=$2]$2[/url]", $item["tag"]);
 		}
 
 		// mask hashtags inside of url, bookmarks and attachments to avoid urls in urls
@@ -2624,7 +2624,7 @@ class Item
 			}
 
 			$basetag = str_replace('_',' ',substr($tag,1));
-			$newtag = '#[url=' . System::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
+			$newtag = '#[url=' . DI::baseUrl() . '/search?tag=' . $basetag . ']' . $basetag . '[/url]';
 
 			$item["body"] = str_replace($tag, $newtag, $item["body"]);
 
@@ -2676,13 +2676,13 @@ class Item
 			return false;
 		}
 
-		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
+		$link = Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = Strings::normaliseLink(System::baseUrl() . '/u/' . $user['nickname']);
+		$dlink = Strings::normaliseLink(DI::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {
@@ -2852,7 +2852,7 @@ class Item
 		}
 
 		Logger::log('check for photos', Logger::DEBUG);
-		$site = substr(System::baseUrl(), strpos(System::baseUrl(), '://'));
+		$site = substr(DI::baseUrl(), strpos(DI::baseUrl(), '://'));
 
 		$orig_body = $s;
 		$new_body = '';

@@ -60,7 +60,7 @@ class Transmitter
 		$count = DBA::count('contact', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = System::baseUrl() . '/followers/' . $owner['nickname'];
+		$data['id'] = DI::baseUrl() . '/followers/' . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
 		$data['totalItems'] = $count;
 
@@ -71,7 +71,7 @@ class Transmitter
 		}
 
 		if (empty($page)) {
-			$data['first'] = System::baseUrl() . '/followers/' . $owner['nickname'] . '?page=1';
+			$data['first'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=1';
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
@@ -82,10 +82,10 @@ class Transmitter
 			}
 
 			if (!empty($list)) {
-				$data['next'] = System::baseUrl() . '/followers/' . $owner['nickname'] . '?page=' . ($page + 1);
+				$data['next'] = DI::baseUrl() . '/followers/' . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
-			$data['partOf'] = System::baseUrl() . '/followers/' . $owner['nickname'];
+			$data['partOf'] = DI::baseUrl() . '/followers/' . $owner['nickname'];
 
 			$data['orderedItems'] = $list;
 		}
@@ -109,7 +109,7 @@ class Transmitter
 		$count = DBA::count('contact', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = System::baseUrl() . '/following/' . $owner['nickname'];
+		$data['id'] = DI::baseUrl() . '/following/' . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
 		$data['totalItems'] = $count;
 
@@ -120,7 +120,7 @@ class Transmitter
 		}
 
 		if (empty($page)) {
-			$data['first'] = System::baseUrl() . '/following/' . $owner['nickname'] . '?page=1';
+			$data['first'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=1';
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
@@ -131,10 +131,10 @@ class Transmitter
 			}
 
 			if (!empty($list)) {
-				$data['next'] = System::baseUrl() . '/following/' . $owner['nickname'] . '?page=' . ($page + 1);
+				$data['next'] = DI::baseUrl() . '/following/' . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
-			$data['partOf'] = System::baseUrl() . '/following/' . $owner['nickname'];
+			$data['partOf'] = DI::baseUrl() . '/following/' . $owner['nickname'];
 
 			$data['orderedItems'] = $list;
 		}
@@ -162,12 +162,12 @@ class Transmitter
 		$count = DBA::count('item', $condition);
 
 		$data = ['@context' => ActivityPub::CONTEXT];
-		$data['id'] = System::baseUrl() . '/outbox/' . $owner['nickname'];
+		$data['id'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
 		$data['type'] = 'OrderedCollection';
 		$data['totalItems'] = $count;
 
 		if (empty($page)) {
-			$data['first'] = System::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=1';
+			$data['first'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=1';
 		} else {
 			$data['type'] = 'OrderedCollectionPage';
 			$list = [];
@@ -184,10 +184,10 @@ class Transmitter
 			}
 
 			if (!empty($list)) {
-				$data['next'] = System::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=' . ($page + 1);
+				$data['next'] = DI::baseUrl() . '/outbox/' . $owner['nickname'] . '?page=' . ($page + 1);
 			}
 
-			$data['partOf'] = System::baseUrl() . '/outbox/' . $owner['nickname'];
+			$data['partOf'] = DI::baseUrl() . '/outbox/' . $owner['nickname'];
 
 			$data['orderedItems'] = $list;
 		}
@@ -240,10 +240,10 @@ class Transmitter
 		$data['id'] = $contact['url'];
 		$data['diaspora:guid'] = $user['guid'];
 		$data['type'] = ActivityPub::ACCOUNT_TYPES[$user['account-type']];
-		$data['following'] = System::baseUrl() . '/following/' . $user['nickname'];
-		$data['followers'] = System::baseUrl() . '/followers/' . $user['nickname'];
-		$data['inbox'] = System::baseUrl() . '/inbox/' . $user['nickname'];
-		$data['outbox'] = System::baseUrl() . '/outbox/' . $user['nickname'];
+		$data['following'] = DI::baseUrl() . '/following/' . $user['nickname'];
+		$data['followers'] = DI::baseUrl() . '/followers/' . $user['nickname'];
+		$data['inbox'] = DI::baseUrl() . '/inbox/' . $user['nickname'];
+		$data['outbox'] = DI::baseUrl() . '/outbox/' . $user['nickname'];
 		$data['preferredUsername'] = $user['nickname'];
 		$data['name'] = $contact['name'];
 		$data['vcard:hasAddress'] = ['@type' => 'vcard:Home', 'vcard:country-name' => $profile['country-name'],
@@ -254,7 +254,7 @@ class Transmitter
 		$data['publicKey'] = ['id' => $contact['url'] . '#main-key',
 			'owner' => $contact['url'],
 			'publicKeyPem' => $user['pubkey']];
-		$data['endpoints'] = ['sharedInbox' => System::baseUrl() . '/inbox'];
+		$data['endpoints'] = ['sharedInbox' => DI::baseUrl() . '/inbox'];
 		$data['icon'] = ['type' => 'Image',
 			'url' => $contact['photo']];
 
@@ -273,7 +273,7 @@ class Transmitter
 	{
 		return [
 			'@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/profile/' . $username,
+			'id' => DI::baseUrl() . '/profile/' . $username,
 			'type' => 'Tombstone',
 			'published' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
 			'updated' => DateTimeFormat::utcNow(DateTimeFormat::ATOM),
@@ -983,7 +983,7 @@ class Transmitter
 		$terms = Term::tagArrayFromItemId($item['id'], [Term::HASHTAG, Term::MENTION, Term::IMPLICIT_MENTION]);
 		foreach ($terms as $term) {
 			if ($term['type'] == Term::HASHTAG) {
-				$url = System::baseUrl() . '/search?tag=' . urlencode($term['term']);
+				$url = DI::baseUrl() . '/search?tag=' . urlencode($term['term']);
 				$tags[] = ['type' => 'Hashtag', 'href' => $url, 'name' => '#' . $term['term']];
 			} elseif ($term['type'] == Term::MENTION || $term['type'] == Term::IMPLICIT_MENTION) {
 				$contact = Contact::getDetailsByURL($term['url']);
@@ -1460,7 +1460,7 @@ class Transmitter
 
 		$hash = hash('ripemd128', $contact['uid'].'-'.$contact['id'].'-'.$contact['created']);
 		$uuid = substr($hash, 0, 8). '-' . substr($hash, 8, 4) . '-' . substr($hash, 12, 4) . '-' . substr($hash, 16, 4) . '-' . substr($hash, 20, 12);
-		return System::baseUrl() . '/activity/' . $uuid;
+		return DI::baseUrl() . '/activity/' . $uuid;
 	}
 
 	/**
@@ -1480,7 +1480,7 @@ class Transmitter
 		$suggestion = DBA::selectFirst('fsuggest', ['url', 'note', 'created'], ['id' => $suggestion_id]);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Announce',
 			'actor' => $owner['url'],
 			'object' => $suggestion['url'],
@@ -1509,7 +1509,7 @@ class Transmitter
 		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'dfrn:relocate',
 			'actor' => $owner['url'],
 			'object' => $owner['url'],
@@ -1548,7 +1548,7 @@ class Transmitter
 		}
 
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Delete',
 			'actor' => $owner['url'],
 			'object' => $owner['url'],
@@ -1579,7 +1579,7 @@ class Transmitter
 		$profile = APContact::getByURL($owner['url']);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Update',
 			'actor' => $owner['url'],
 			'object' => self::getProfile($uid),
@@ -1616,7 +1616,7 @@ class Transmitter
 		$owner = User::getOwnerDataById($uid);
 
 		if (empty($id)) {
-			$id = System::baseUrl() . '/activity/' . System::createGUID();
+			$id = DI::baseUrl() . '/activity/' . System::createGUID();
 		}
 
 		$data = ['@context' => ActivityPub::CONTEXT,
@@ -1673,7 +1673,7 @@ class Transmitter
 		$owner = User::getOwnerDataById($uid);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Follow',
 			'actor' => $owner['url'],
 			'object' => $object,
@@ -1705,7 +1705,7 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Accept',
 			'actor' => $owner['url'],
 			'object' => [
@@ -1742,7 +1742,7 @@ class Transmitter
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,
-			'id' => System::baseUrl() . '/activity/' . System::createGUID(),
+			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Reject',
 			'actor' => $owner['url'],
 			'object' => [
@@ -1782,7 +1782,7 @@ class Transmitter
 			return;
 		}
 
-		$id = System::baseUrl() . '/activity/' . System::createGUID();
+		$id = DI::baseUrl() . '/activity/' . System::createGUID();
 
 		$owner = User::getOwnerDataById($uid);
 		$data = ['@context' => ActivityPub::CONTEXT,

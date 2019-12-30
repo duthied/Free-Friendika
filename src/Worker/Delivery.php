@@ -8,7 +8,6 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
@@ -292,7 +291,7 @@ class Delivery
 
 		// perform local delivery if we are on the same site
 
-		if (Strings::compareLink($basepath, System::baseUrl())) {
+		if (Strings::compareLink($basepath, DI::baseUrl())) {
 			$condition = ['nurl' => Strings::normaliseLink($contact['url']), 'self' => true];
 			$target_self = DBA::selectFirst('contact', ['uid'], $condition);
 			if (!DBA::isResult($target_self)) {

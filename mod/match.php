@@ -4,12 +4,10 @@
  */
 
 use Friendica\App;
-use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -60,7 +58,7 @@ function match_content(App $a)
 	if (strlen(Config::get('system', 'directory'))) {
 		$host = get_server();
 	} else {
-		$host = System::baseUrl();
+		$host = DI::baseUrl();
 	}
 
 	$msearch_json = Network::post($host . '/msearch', $params)->getBody();
@@ -83,7 +81,7 @@ function match_content(App $a)
 			// Workaround for wrong directory photo URL
 			$profile->photo = str_replace('http:///photo/', get_server() . '/photo/', $profile->photo);
 
-			$connlnk = System::baseUrl() . '/follow/?url=' . $profile->url;
+			$connlnk = DI::baseUrl() . '/follow/?url=' . $profile->url;
 			$photo_menu = [
 				'profile' => [L10n::t("View Profile"), Contact::magicLink($profile->url)],
 				'follow' => [L10n::t("Connect/Follow"), $connlnk]

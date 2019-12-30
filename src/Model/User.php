@@ -217,12 +217,12 @@ class User
 		// Check if the returned data is valid, otherwise fix it. See issue #6122
 
 		// Check for correct url and normalised nurl
-		$url = System::baseUrl() . '/profile/' . $r['nickname'];
+		$url = DI::baseUrl() . '/profile/' . $r['nickname'];
 		$repair = ($r['url'] != $url) || ($r['nurl'] != Strings::normaliseLink($r['url']));
 
 		if (!$repair) {
 			// Check if "addr" is present and correct
-			$addr = $r['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+			$addr = $r['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 			$repair = ($addr != $r['addr']);
 		}
 
@@ -635,7 +635,7 @@ class User
 
 				$openid = new LightOpenID(DI::baseUrl()->getHostname());
 				$openid->identity = $openid_url;
-				$openid->returnUrl = System::baseUrl() . '/openid';
+				$openid->returnUrl = DI::baseUrl() . '/openid';
 				$openid->required = ['namePerson/friendly', 'contact/email', 'namePerson'];
 				$openid->optional = ['namePerson/first', 'media/image/aspect11', 'media/image/default'];
 				try {
@@ -782,8 +782,8 @@ class User
 		$insert_result = DBA::insert('profile', [
 			'uid' => $uid,
 			'name' => $username,
-			'photo' => System::baseUrl() . "/photo/profile/{$uid}.jpg",
-			'thumb' => System::baseUrl() . "/photo/avatar/{$uid}.jpg",
+			'photo' => DI::baseUrl() . "/photo/profile/{$uid}.jpg",
+			'thumb' => DI::baseUrl() . "/photo/avatar/{$uid}.jpg",
 			'publish' => $publish,
 			'is-default' => 1,
 			'net-publish' => $netpublish,

@@ -6,12 +6,10 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Content\Smilies;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -42,11 +40,11 @@ function message_init(App $a)
 		'$tabs' => $tabs,
 		'$new' => $new,
 	]);
-	$base = System::baseUrl();
+	$base = DI::baseUrl();
 
 	$head_tpl = Renderer::getMarkupTemplate('message-head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
-		'$baseurl' => System::baseUrl(true),
+		'$baseurl' => DI::baseUrl()->get(true),
 		'$base' => $base
 	]);
 }
@@ -103,7 +101,7 @@ function message_content(App $a)
 		return Login::form();
 	}
 
-	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
+	$myprofile = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	$tpl = Renderer::getMarkupTemplate('mail_head.tpl');
 	if ($a->argc > 1 && $a->argv[1] == 'new') {
@@ -200,7 +198,7 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')
 		]);
@@ -356,7 +354,7 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')
 		]);
@@ -506,7 +504,7 @@ function render_messages(array $msg, $t)
 	$tpl = Renderer::getMarkupTemplate($t);
 	$rslt = '';
 
-	$myprofile = System::baseUrl() . '/profile/' . $a->user['nickname'];
+	$myprofile = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 
 	foreach ($msg as $rr) {
 		if ($rr['unknown']) {

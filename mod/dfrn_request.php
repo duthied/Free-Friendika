@@ -559,7 +559,7 @@ function dfrn_request_content(App $a)
 						'to_name'      => $r[0]['username'],
 						'to_email'     => $r[0]['email'],
 						'uid'          => $r[0]['uid'],
-						'link'         => System::baseUrl() . '/notifications/intros',
+						'link'         => DI::baseUrl() . '/notifications/intros',
 						'source_name'  => ((strlen(stripslashes($r[0]['name']))) ? stripslashes($r[0]['name']) : L10n::t('[Name Withheld]')),
 						'source_link'  => $r[0]['url'],
 						'source_photo' => $r[0]['photo'],
@@ -611,16 +611,16 @@ function dfrn_request_content(App $a)
 			$myaddr = $_GET['address'];
 		} elseif (local_user()) {
 			if (strlen(DI::baseUrl()->getUrlPath())) {
-				$myaddr = System::baseUrl() . '/profile/' . $a->user['nickname'];
+				$myaddr = DI::baseUrl() . '/profile/' . $a->user['nickname'];
 			} else {
-				$myaddr = $a->user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+				$myaddr = $a->user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 			}
 		} else {
 			// last, try a zrl
 			$myaddr = Profile::getMyURL();
 		}
 
-		$target_addr = $a->profile['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
+		$target_addr = $a->profile['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
 
 		/* The auto_request form only has the profile address
 		 * because nobody is going to read the comments and

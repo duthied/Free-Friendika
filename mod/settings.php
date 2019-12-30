@@ -15,7 +15,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -787,7 +786,7 @@ function settings_content(App $a)
 
 		if (!empty($legacy_contact)) {
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
-			DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
+			DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
 
 		$settings_connectors = '';
@@ -851,7 +850,7 @@ function settings_content(App $a)
 			'$default_group' => Group::displayGroupSelection(local_user(), $default_group, L10n::t("Default group for OStatus contacts")),
 			'$legacy_contact' => ['legacy_contact', L10n::t('Your legacy GNU Social account'), $legacy_contact, L10n::t("If you enter your old GNU Social/Statusnet account name here \x28in the format user@domain.tld\x29, your contacts will be added automatically. The field will be emptied when done.")],
 
-			'$repair_ostatus_url' => System::baseUrl() . '/repair_ostatus',
+			'$repair_ostatus_url' => DI::baseUrl() . '/repair_ostatus',
 			'$repair_ostatus_text' => L10n::t('Repair OStatus subscriptions'),
 
 			'$settings_connectors' => $settings_connectors,
@@ -949,7 +948,7 @@ function settings_content(App $a)
 			'$ptitle' 	=> L10n::t('Display Settings'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("settings_display"),
 			'$submit' 	=> L10n::t('Save Settings'),
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 			'$uid' => local_user(),
 
 			'$theme'	=> ['theme', L10n::t('Display Theme:'), $theme_selected, '', $themes, true],
@@ -1084,7 +1083,7 @@ function settings_content(App $a)
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', System::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
+			'$field' => ['profile_in_directory', L10n::t('Publish your default profile in your local site directory?'), $profile['publish'], L10n::t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', DI::baseUrl().'/directory'), [L10n::t('No'), L10n::t('Yes')]]
 		]);
 	}
 
@@ -1127,7 +1126,7 @@ function settings_content(App $a)
 	$tpl_addr = Renderer::getMarkupTemplate('settings/nick_set.tpl');
 
 	$prof_addr = Renderer::replaceMacros($tpl_addr,[
-		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . DI::baseUrl()->getHostname() . DI::baseUrl()->getUrlPath(), System::baseUrl() . '/profile/' . $nickname),
+		'$desc' => L10n::t("Your Identity Address is <strong>'%s'</strong> or '%s'.", $nickname . '@' . DI::baseUrl()->getHostname() . DI::baseUrl()->getUrlPath(), DI::baseUrl() . '/profile/' . $nickname),
 		'$basepath' => DI::baseUrl()->getHostname()
 	]);
 
@@ -1174,7 +1173,7 @@ function settings_content(App $a)
 		'$ptitle' 	=> L10n::t('Account Settings'),
 
 		'$submit' 	=> L10n::t('Save Settings'),
-		'$baseurl' => System::baseUrl(true),
+		'$baseurl' => DI::baseUrl()->get(true),
 		'$uid' => local_user(),
 		'$form_security_token' => BaseModule::getFormSecurityToken("settings"),
 		'$nickname_block' => $prof_addr,

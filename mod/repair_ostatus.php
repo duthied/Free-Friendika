@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -22,8 +21,6 @@ function repair_ostatus_content(App $a) {
 	$o = "<h2>".L10n::t("Resubscribing to OStatus contacts")."</h2>";
 
 	$uid = local_user();
-
-	$a = \get_app();
 
 	$counter = intval($_REQUEST['counter']);
 
@@ -60,7 +57,7 @@ function repair_ostatus_content(App $a) {
 
 	Contact::createFromProbe($uid, $r[0]["url"], true);
 
-	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
+	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL=' . DI::baseUrl() . '/repair_ostatus?counter='.$counter.'">';
 
 	return $o;
 }

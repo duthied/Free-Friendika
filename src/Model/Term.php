@@ -6,8 +6,8 @@ namespace Friendica\Model;
 
 use Friendica\Core\Cache;
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 /**
@@ -208,7 +208,7 @@ class Term
 	 */
 	public static function insertFromTagFieldByItemId($item_id, $tag_str)
 	{
-		$profile_base = System::baseUrl();
+		$profile_base = DI::baseUrl();
 		$profile_data = parse_url($profile_base);
 		$profile_path = $profile_data['path'] ?? '';
 		$profile_base_friendica = $profile_data['host'] . $profile_path . '/profile/';
@@ -425,7 +425,7 @@ class Term
 			'implicit_mentions' => [],
 		];
 
-		$searchpath = System::baseUrl() . "/search?tag=";
+		$searchpath = DI::baseUrl() . "/search?tag=";
 
 		$taglist = DBA::select(
 			'term',

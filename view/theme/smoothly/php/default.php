@@ -2,7 +2,7 @@
 <html>
 <head>
   <title><?php if(!empty($page['title'])) echo $page['title'] ?></title>
-  <script>var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
+  <script>var baseurl="<?php echo Friendica\DI::baseUrl() ?>";</script>
   <script type="text/javascript">
 	function ScrollToBottom(){
 	window.scrollTo(0,document.body.scrollHeight);

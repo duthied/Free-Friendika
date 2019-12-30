@@ -13,8 +13,8 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Photo;
 use Friendica\Model\User;
 use Friendica\Object\Image;
@@ -281,9 +281,9 @@ function wall_upload_post(App $a, $desktopmode = true)
 		$picture["width"]     = $r[0]["width"];
 		$picture["height"]    = $r[0]["height"];
 		$picture["type"]      = $r[0]["type"];
-		$picture["albumpage"] = System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id;
-		$picture["picture"]   = System::baseUrl() . "/photo/{$resource_id}-0." . $Image->getExt();
-		$picture["preview"]   = System::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();
+		$picture["albumpage"] = DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id;
+		$picture["picture"]   = DI::baseUrl() . "/photo/{$resource_id}-0." . $Image->getExt();
+		$picture["preview"]   = DI::baseUrl() . "/photo/{$resource_id}-{$smallest}." . $Image->getExt();
 
 		if ($r_json) {
 			echo json_encode(['picture' => $picture]);
@@ -300,7 +300,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 		exit();
 	}
 
-	echo  "\n\n" . '[url=' . System::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . System::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
+	echo  "\n\n" . '[url=' . DI::baseUrl() . '/photos/' . $page_owner_nick . '/image/' . $resource_id . '][img]' . DI::baseUrl() . "/photo/{$resource_id}-{$smallest}.".$Image->getExt()."[/img][/url]\n\n";
 	exit();
 	// NOTREACHED
 }

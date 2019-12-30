@@ -7,7 +7,6 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -101,7 +100,7 @@ function unfollow_content(App $a)
 		// NOTREACHED
 	}
 
-	$request = System::baseUrl() . '/unfollow';
+	$request = DI::baseUrl() . '/unfollow';
 	$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 
 	$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);

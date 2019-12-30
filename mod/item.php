@@ -81,7 +81,7 @@ function item_post(App $a) {
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
 			Logger::log("item post: duplicate post", Logger::DEBUG);
-			item_post_return(System::baseUrl(), $api_source, $return_path);
+			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
 		}
@@ -537,7 +537,7 @@ function item_post(App $a) {
 				if (strlen($attachments)) {
 					$attachments .= ',';
 				}
-				$attachments .= '[attach]href="' . System::baseUrl() . '/attach/' . $attachment['id'] .
+				$attachments .= '[attach]href="' . DI::baseUrl() . '/attach/' . $attachment['id'] .
 						'" length="' . $attachment['filesize'] . '" type="' . $attachment['filetype'] .
 						'" title="' . ($attachment['filename'] ? $attachment['filename'] : '') . '"[/attach]';
 			}
@@ -683,7 +683,7 @@ function item_post(App $a) {
 
 		$json = ['cancel' => 1];
 		if (!empty($_REQUEST['jsreload'])) {
-			$json['reload'] = System::baseUrl() . '/' . $_REQUEST['jsreload'];
+			$json['reload'] = DI::baseUrl() . '/' . $_REQUEST['jsreload'];
 		}
 
 		echo json_encode($json);
@@ -757,7 +757,7 @@ function item_post(App $a) {
 				'to_email'     => $user['email'],
 				'uid'          => $user['uid'],
 				'item'         => $datarray,
-				'link'         => System::baseUrl().'/display/'.urlencode($datarray['guid']),
+				'link'         => DI::baseUrl().'/display/'.urlencode($datarray['guid']),
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
@@ -777,7 +777,7 @@ function item_post(App $a) {
 				'to_email'     => $user['email'],
 				'uid'          => $user['uid'],
 				'item'         => $datarray,
-				'link'         => System::baseUrl().'/display/'.urlencode($datarray['guid']),
+				'link'         => DI::baseUrl().'/display/'.urlencode($datarray['guid']),
 				'source_name'  => $datarray['author-name'],
 				'source_link'  => $datarray['author-link'],
 				'source_photo' => $datarray['author-avatar'],
@@ -799,14 +799,14 @@ function item_post(App $a) {
 				}
 				$disclaimer = '<hr />' . L10n::t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
 					. '<br />';
-				$disclaimer .= L10n::t('You may visit them online at %s', System::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
+				$disclaimer .= L10n::t('You may visit them online at %s', DI::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= L10n::t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
 					$subject = Email::encodeHeader('[Friendica]' . ' ' . L10n::t('%s posted an update.', $a->user['username']), 'UTF-8');
 				}
-				$link = '<a href="' . System::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
+				$link = '<a href="' . DI::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = Item::prepareBody($datarray);
 				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
 				$params =  [
@@ -841,7 +841,7 @@ function item_post(App $a) {
 		return $post_id;
 	}
 
-	item_post_return(System::baseUrl(), $api_source, $return_path);
+	item_post_return(DI::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
 

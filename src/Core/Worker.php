@@ -979,7 +979,7 @@ class Worker
 			return;
 		}
 
-		$url = System::baseUrl()."/worker";
+		$url = DI::baseUrl() . '/worker';
 		Network::fetchUrl($url, false, 1);
 	}
 

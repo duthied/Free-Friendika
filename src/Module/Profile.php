@@ -118,19 +118,19 @@ class Profile extends BaseModule
 				$page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 			}
 
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
 			$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''));
-			$page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\n";
-			header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
+			$page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . DI::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\n";
+			header('Link: <' . DI::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
 			$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
 			foreach ($dfrn_pages as $dfrn) {
-				$page['htmlhead'] .= '<link rel="dfrn-' . $dfrn . '" href="' . System::baseUrl() . '/dfrn_' . $dfrn . '/' . self::$which . '" />' . "\n";
+				$page['htmlhead'] .= '<link rel="dfrn-' . $dfrn . '" href="' . DI::baseUrl() . '/dfrn_' . $dfrn . '/' . self::$which . '" />' . "\n";
 			}
-			$page['htmlhead'] .= '<link rel="dfrn-poco" href="' . System::baseUrl() . '/poco/' . self::$which . '" />' . "\n";
+			$page['htmlhead'] .= '<link rel="dfrn-poco" href="' . DI::baseUrl() . '/poco/' . self::$which . '" />' . "\n";
 		}
 
 		$category = $datequery = $datequery2 = '';
@@ -193,8 +193,8 @@ class Profile extends BaseModule
 			$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 			$commvisitor = $commpage && $remote_contact;
 
-			DI::page()['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
-			DI::page()['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
+			DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl()->get(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
+			DI::page()['aside'] .= Widget::categories(DI::baseUrl()->get(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
 			DI::page()['aside'] .= Widget::tagCloud();
 
 			if (Security::canWriteToUserWall($a->profile['profile_uid'])) {

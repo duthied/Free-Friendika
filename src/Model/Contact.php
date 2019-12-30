@@ -303,7 +303,7 @@ class Contact
 	 */
 	public static function isLocal($url)
 	{
-		return Strings::compareLink(self::getBasepath($url, true), System::baseUrl());
+		return Strings::compareLink(self::getBasepath($url, true), DI::baseUrl());
 	}
 
 	/**
@@ -647,19 +647,19 @@ class Contact
 			'self'        => 1,
 			'name'        => $user['username'],
 			'nick'        => $user['nickname'],
-			'photo'       => System::baseUrl() . '/photo/profile/' . $user['uid'] . '.jpg',
-			'thumb'       => System::baseUrl() . '/photo/avatar/'  . $user['uid'] . '.jpg',
-			'micro'       => System::baseUrl() . '/photo/micro/'   . $user['uid'] . '.jpg',
+			'photo'       => DI::baseUrl() . '/photo/profile/' . $user['uid'] . '.jpg',
+			'thumb'       => DI::baseUrl() . '/photo/avatar/'  . $user['uid'] . '.jpg',
+			'micro'       => DI::baseUrl() . '/photo/micro/'   . $user['uid'] . '.jpg',
 			'blocked'     => 0,
 			'pending'     => 0,
-			'url'         => System::baseUrl() . '/profile/' . $user['nickname'],
-			'nurl'        => Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']),
-			'addr'        => $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3),
-			'request'     => System::baseUrl() . '/dfrn_request/' . $user['nickname'],
-			'notify'      => System::baseUrl() . '/dfrn_notify/'  . $user['nickname'],
-			'poll'        => System::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
-			'confirm'     => System::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
-			'poco'        => System::baseUrl() . '/poco/'         . $user['nickname'],
+			'url'         => DI::baseUrl() . '/profile/' . $user['nickname'],
+			'nurl'        => Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']),
+			'addr'        => $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3),
+			'request'     => DI::baseUrl() . '/dfrn_request/' . $user['nickname'],
+			'notify'      => DI::baseUrl() . '/dfrn_notify/'  . $user['nickname'],
+			'poll'        => DI::baseUrl() . '/dfrn_poll/'    . $user['nickname'],
+			'confirm'     => DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'],
+			'poco'        => DI::baseUrl() . '/poco/'         . $user['nickname'],
 			'name-date'   => DateTimeFormat::utcNow(),
 			'uri-date'    => DateTimeFormat::utcNow(),
 			'avatar-date' => DateTimeFormat::utcNow(),
@@ -722,7 +722,7 @@ class Contact
 			// We are adding a timestamp value so that other systems won't use cached content
 			$timestamp = strtotime($fields['avatar-date']);
 
-			$prefix = System::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
+			$prefix = DI::baseUrl() . '/photo/' .$avatar['resource-id'] . '-';
 			$suffix = '.' . $file_suffix . '?ts=' . $timestamp;
 
 			$fields['photo'] = $prefix . '4' . $suffix;
@@ -730,25 +730,25 @@ class Contact
 			$fields['micro'] = $prefix . '6' . $suffix;
 		} else {
 			// We hadn't found a photo entry, so we use the default avatar
-			$fields['photo'] = System::baseUrl() . '/images/person-300.jpg';
-			$fields['thumb'] = System::baseUrl() . '/images/person-80.jpg';
-			$fields['micro'] = System::baseUrl() . '/images/person-48.jpg';
+			$fields['photo'] = DI::baseUrl() . '/images/person-300.jpg';
+			$fields['thumb'] = DI::baseUrl() . '/images/person-80.jpg';
+			$fields['micro'] = DI::baseUrl() . '/images/person-48.jpg';
 		}
 
-		$fields['avatar'] = System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
+		$fields['avatar'] = DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix;
 		$fields['forum'] = $user['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 		$fields['prv'] = $user['page-flags'] == User::PAGE_FLAGS_PRVGROUP;
 		$fields['unsearchable'] = $user['hidewall'] || !$profile['net-publish'];
 
 		// it seems as if ported accounts can have wrong values, so we make sure that now everything is fine.
-		$fields['url'] = System::baseUrl() . '/profile/' . $user['nickname'];
+		$fields['url'] = DI::baseUrl() . '/profile/' . $user['nickname'];
 		$fields['nurl'] = Strings::normaliseLink($fields['url']);
-		$fields['addr'] = $user['nickname'] . '@' . substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3);
-		$fields['request'] = System::baseUrl() . '/dfrn_request/' . $user['nickname'];
-		$fields['notify'] = System::baseUrl() . '/dfrn_notify/' . $user['nickname'];
-		$fields['poll'] = System::baseUrl() . '/dfrn_poll/'. $user['nickname'];
-		$fields['confirm'] = System::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
-		$fields['poco'] = System::baseUrl() . '/poco/' . $user['nickname'];
+		$fields['addr'] = $user['nickname'] . '@' . substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3);
+		$fields['request'] = DI::baseUrl() . '/dfrn_request/' . $user['nickname'];
+		$fields['notify'] = DI::baseUrl() . '/dfrn_notify/' . $user['nickname'];
+		$fields['poll'] = DI::baseUrl() . '/dfrn_poll/'. $user['nickname'];
+		$fields['confirm'] = DI::baseUrl() . '/dfrn_confirm/' . $user['nickname'];
+		$fields['poco'] = DI::baseUrl() . '/poco/' . $user['nickname'];
 
 		$update = false;
 
@@ -769,8 +769,8 @@ class Contact
 			DBA::update('contact', $fields, ['uid' => 0, 'nurl' => $self['nurl']]);
 
 			// Update the profile
-			$fields = ['photo' => System::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
-				'thumb' => System::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
+			$fields = ['photo' => DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
+				'thumb' => DI::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
 			DBA::update('profile', $fields, ['uid' => $uid, 'is-default' => true]);
 		}
 	}
@@ -1191,7 +1191,7 @@ class Contact
 		$sparkle = false;
 		if (($contact['network'] === Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
 			$sparkle = true;
-			$profile_link = System::baseUrl() . '/redir/' . $contact['id'];
+			$profile_link = DI::baseUrl() . '/redir/' . $contact['id'];
 		} else {
 			$profile_link = $contact['url'];
 		}
@@ -1207,19 +1207,19 @@ class Contact
 		}
 
 		if (self::canReceivePrivateMessages($contact) && empty($contact['pending'])) {
-			$pm_url = System::baseUrl() . '/message/new/' . $contact['id'];
+			$pm_url = DI::baseUrl() . '/message/new/' . $contact['id'];
 		}
 
 		if (($contact['network'] == Protocol::DFRN) && !$contact['self'] && empty($contact['pending'])) {
-			$poke_link = System::baseUrl() . '/poke/?c=' . $contact['id'];
+			$poke_link = DI::baseUrl() . '/poke/?c=' . $contact['id'];
 		}
 
-		$contact_url = System::baseUrl() . '/contact/' . $contact['id'];
+		$contact_url = DI::baseUrl() . '/contact/' . $contact['id'];
 
-		$posts_link = System::baseUrl() . '/contact/' . $contact['id'] . '/conversations';
+		$posts_link = DI::baseUrl() . '/contact/' . $contact['id'] . '/conversations';
 
 		if (!$contact['self']) {
-			$contact_drop_link = System::baseUrl() . '/contact/' . $contact['id'] . '/drop?confirm=1';
+			$contact_drop_link = DI::baseUrl() . '/contact/' . $contact['id'] . '/drop?confirm=1';
 		}
 
 		$follow_link = '';
@@ -2268,7 +2268,7 @@ class Contact
 		if (($protocol === Protocol::DFRN) && !DBA::isResult($contact)) {
 			if ($interactive) {
 				if (strlen(DI::baseUrl()->getUrlPath())) {
-					$myaddr = bin2hex(System::baseUrl() . '/profile/' . $a->user['nickname']);
+					$myaddr = bin2hex(DI::baseUrl() . '/profile/' . $a->user['nickname']);
 				} else {
 					$myaddr = bin2hex($a->user['nickname'] . '@' . DI::baseUrl()->getHostname());
 				}
@@ -2594,7 +2594,7 @@ class Contact
 						'to_name'      => $user['username'],
 						'to_email'     => $user['email'],
 						'uid'          => $user['uid'],
-						'link'         => System::baseUrl() . '/notifications/intro',
+						'link'         => DI::baseUrl() . '/notifications/intro',
 						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : L10n::t('[Name Withheld]')),
 						'source_link'  => $contact_record['url'],
 						'source_photo' => $contact_record['photo'],

@@ -15,7 +15,6 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -373,7 +372,7 @@ class Probe
 		if (!empty($data['photo']) && !empty($data['baseurl'])) {
 			$data['baseurl'] = Network::getUrlMatch(Strings::normaliseLink($data['baseurl']), Strings::normaliseLink($data['photo']));
 		} elseif (empty($data['photo'])) {
-			$data['photo'] = System::baseUrl() . '/images/person-300.jpg';
+			$data['photo'] = DI::baseUrl() . '/images/person-300.jpg';
 		}
 
 		if (empty($data['name'])) {

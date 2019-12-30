@@ -9,17 +9,14 @@ use Friendica\Content\Pager;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\Contact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
-use Friendica\Protocol\DFRN;
 use Friendica\Util\Security;
 
 function videos_init(App $a)
@@ -235,13 +232,13 @@ function videos_content(App $a)
 
 			$videos[] = [
 				'id'       => $rr['id'],
-				'link'     => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['hash'],
+				'link'     => DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['hash'],
 				'title'    => L10n::t('View Video'),
-				'src'      => System::baseUrl() . '/attach/' . $rr['id'] . '?attachment=0',
+				'src'      => DI::baseUrl() . '/attach/' . $rr['id'] . '?attachment=0',
 				'alt'      => $alt_e,
 				'mime'     => $rr['filetype'],
 				'album' => [
-					'link'  => System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
+					'link'  => DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
 					'alt'   => L10n::t('View Album'),
 				],
@@ -253,9 +250,9 @@ function videos_content(App $a)
 	$o .= Renderer::replaceMacros($tpl, [
 		'$title'      => L10n::t('Recent Videos'),
 		'$can_post'   => $can_post,
-		'$upload'     => [L10n::t('Upload New Videos'), System::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/upload'],
+		'$upload'     => [L10n::t('Upload New Videos'), DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/upload'],
 		'$videos'     => $videos,
-		'$delete_url' => (($can_post) ? System::baseUrl() . '/videos/' . $a->data['user']['nickname'] : false)
+		'$delete_url' => (($can_post) ? DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] : false)
 	]);
 
 	$o .= $pager->renderFull($total);

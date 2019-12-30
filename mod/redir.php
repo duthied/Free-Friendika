@@ -149,7 +149,7 @@ function redir_magic($a, $cid, $url)
 	$basepath = Contact::getBasepath($contact_url);
 
 	// We don't use magic auth when there is no visitor, we are on the same system or we visit our own stuff
-	if (empty($visitor) || Strings::compareLink($basepath, System::baseUrl()) || Strings::compareLink($contact_url, $visitor)) {
+	if (empty($visitor) || Strings::compareLink($basepath, DI::baseUrl()) || Strings::compareLink($contact_url, $visitor)) {
 		Logger::info('Redirecting without magic', ['target' => $target_url, 'visitor' => $visitor, 'contact' => $contact_url]);
 		System::externalRedirect($target_url);
 	}

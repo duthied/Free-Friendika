@@ -6,12 +6,9 @@
 namespace Friendica\Module\Settings;
 
 use Friendica\App;
-use Friendica\App\Arguments;
-use Friendica\BaseModule;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -196,7 +193,7 @@ class UserExport extends BaseSettingsModule
 		$output = [
 			'version' => FRIENDICA_VERSION,
 			'schema' => DB_UPDATE_VERSION,
-			'baseurl' => System::baseUrl(),
+			'baseurl' => DI::baseUrl(),
 			'user' => $user,
 			'contact' => $contact,
 			'profile' => $profile,

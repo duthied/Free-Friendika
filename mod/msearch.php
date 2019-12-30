@@ -1,8 +1,8 @@
 <?php
 
 use Friendica\App;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 function msearch_post(App $a)
 {
@@ -54,8 +54,8 @@ function msearch_post(App $a)
 	while($search_result = DBA::fetch($search_stmt)) {
 		$results[] = [
 			'name'  => $search_result['name'],
-			'url'   => System::baseUrl() . '/profile/' . $search_result['nickname'],
-			'photo' => System::baseUrl() . '/photo/avatar/' . $search_result['uid'] . '.jpg',
+			'url'   => DI::baseUrl() . '/profile/' . $search_result['nickname'],
+			'photo' => DI::baseUrl() . '/photo/avatar/' . $search_result['uid'] . '.jpg',
 			'tags'  => str_replace([',', '  '], [' ', ' '], $search_result['pub_keywords'])
 		];
 	}

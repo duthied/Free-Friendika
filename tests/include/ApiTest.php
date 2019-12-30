@@ -2418,7 +2418,7 @@ class ApiTest extends DatabaseTest
 	public function testApiFormatItemsEmbededImages()
 	{
 		$this->assertEquals(
-			'text ' . System::baseUrl() . '/display/item_guid',
+			'text ' . DI::baseUrl() . '/display/item_guid',
 			api_format_items_embeded_images(['guid' => 'item_guid'], 'text data:image/foo')
 		);
 	}
@@ -2921,7 +2921,7 @@ class ApiTest extends DatabaseTest
 		$result = api_statusnet_config('json');
 		$this->assertEquals('localhost', $result['config']['site']['server']);
 		$this->assertEquals('default', $result['config']['site']['theme']);
-		$this->assertEquals(System::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
+		$this->assertEquals(DI::baseUrl() . '/images/friendica-64.png', $result['config']['site']['logo']);
 		$this->assertTrue($result['config']['site']['fancy']);
 		$this->assertEquals('en', $result['config']['site']['language']);
 		$this->assertEquals('UTC', $result['config']['site']['timezone']);

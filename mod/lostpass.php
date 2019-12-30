@@ -8,7 +8,6 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -41,7 +40,7 @@ function lostpass_post(App $a)
 	}
 
 	$sitename = Config::get('config', 'sitename');
-	$resetlink = System::baseUrl() . '/lostpass/' . $pwdreset_token;
+	$resetlink = DI::baseUrl() . '/lostpass/' . $pwdreset_token;
 
 	$preamble = Strings::deindent(L10n::t('
 		Dear %1$s,
@@ -65,7 +64,7 @@ function lostpass_post(App $a)
 		The login details are as follows:
 
 		Site Location:	%2$s
-		Login Name:	%3$s', $resetlink, System::baseUrl(), $user['nickname']));
+		Login Name:	%3$s', $resetlink, DI::baseUrl(), $user['nickname']));
 
 	notification([
 		'type'     => SYSTEM_EMAIL,
@@ -138,7 +137,7 @@ function lostpass_generate_password($user)
 			'$lbl2'    => L10n::t('Your password has been reset as requested.'),
 			'$lbl3'    => L10n::t('Your new password is'),
 			'$lbl4'    => L10n::t('Save or copy your new password - and then'),
-			'$lbl5'    => '<a href="' . System::baseUrl() . '">' . L10n::t('click here to login') . '</a>.',
+			'$lbl5'    => '<a href="' . DI::baseUrl() . '">' . L10n::t('click here to login') . '</a>.',
 			'$lbl6'    => L10n::t('Your password may be changed from the <em>Settings</em> page after successful login.'),
 			'$newpass' => $new_password,
 		]);
@@ -160,7 +159,7 @@ function lostpass_generate_password($user)
 			Password:	%3$s
 
 			You may change that password from your account settings page after logging in.
-		', System::baseUrl(), $user['nickname'], $new_password));
+		', DI::baseUrl(), $user['nickname'], $new_password));
 
 		notification([
 			'type'     => SYSTEM_EMAIL,

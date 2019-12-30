@@ -125,7 +125,7 @@ function follow_content(App $a)
 		$request = $ret['request'];
 		$tpl = Renderer::getMarkupTemplate('dfrn_request.tpl');
 	} else {
-		$request = System::baseUrl() . '/follow';
+		$request = DI::baseUrl() . '/follow';
 		$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 	}
 

@@ -8,10 +8,9 @@
  */
 
 use Friendica\App;
-use Friendica\Core\System;
 use Friendica\DI;
 
 function quattro_init(App $a) {
-	DI::page()['htmlhead'] .= '<script src="'.System::baseUrl().'/view/theme/quattro/tinycon.min.js"></script>';
-	DI::page()['htmlhead'] .= '<script src="'.System::baseUrl().'/view/theme/quattro/js/quattro.js"></script>';;
+	DI::page()['htmlhead'] .= '<script src="'.DI::baseUrl().'/view/theme/quattro/tinycon.min.js"></script>';
+	DI::page()['htmlhead'] .= '<script src="'.DI::baseUrl().'/view/theme/quattro/js/quattro.js"></script>';;
 }

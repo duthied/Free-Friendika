@@ -8,7 +8,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -71,7 +70,7 @@ class Delegation extends BaseSettingsModule
 			if (DBA::isResult($user)) {
 				$condition = [
 					'uid' => local_user(),
-					'nurl' => Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname'])
+					'nurl' => Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname'])
 				];
 				if (DBA::exists('contact', $condition)) {
 					DBA::insert('manage', ['uid' => $user_id, 'mid' => local_user()]);
@@ -109,7 +108,7 @@ class Delegation extends BaseSettingsModule
 			['nurl'],
 			[
 				"`self` = 0 AND SUBSTRING_INDEX(`nurl`, '/', 3) = ? AND `uid` = ? AND `network` = ?",
-				Strings::normaliseLink(System::baseUrl()),
+				Strings::normaliseLink(DI::baseUrl()),
 				local_user(),
 				Protocol::DFRN,
 			]
@@ -158,7 +157,7 @@ class Delegation extends BaseSettingsModule
 			'$submit' => L10n::t('Save Settings'),
 			'$header' => L10n::t('Delegate Page Management'),
 			'$delegates_header' => L10n::t('Delegates'),
-			'$base' => System::baseUrl(),
+			'$base' => DI::baseUrl(),
 			'$desc' => L10n::t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
 			'$head_delegates' => L10n::t('Existing Page Delegates'),
 			'$delegates' => $delegates,

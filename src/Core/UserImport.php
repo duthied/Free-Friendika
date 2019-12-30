@@ -123,7 +123,7 @@ class UserImport
 		}
 
 		$oldbaseurl = $account['baseurl'];
-		$newbaseurl = System::baseUrl();
+		$newbaseurl = DI::baseUrl();
 
 		$oldaddr = str_replace('http://', '@', Strings::normaliseLink($oldbaseurl));
 		$newaddr = str_replace('http://', '@', Strings::normaliseLink($newbaseurl));
