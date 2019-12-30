@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Module\Register;
+use Friendica\Network\CurlResult;
 use Friendica\Util\Network;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -448,11 +449,12 @@ class GServer
 	/**
 	 * Detect server type by using the nodeinfo data
 	 *
-	 * @param string $url address of the server
+	 * @param string     $url        address of the server
+	 * @param CurlResult $curlResult
 	 * @return array Server data
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private static function fetchNodeinfo(string $url, $curlResult)
+	private static function fetchNodeinfo(string $url, CurlResult $curlResult)
 	{
 		$nodeinfo = json_decode($curlResult->getBody(), true);
 

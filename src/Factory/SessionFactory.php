@@ -30,7 +30,6 @@ class SessionFactory
 	 * @param App\Mode        $mode
 	 * @param App\BaseURL     $baseURL
 	 * @param IConfiguration  $config
-	 * @param Cookie          $cookie
 	 * @param Database        $dba
 	 * @param ICache          $cache
 	 * @param LoggerInterface $logger
