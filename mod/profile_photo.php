@@ -8,7 +8,6 @@ use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -115,8 +114,8 @@ function profile_photo_post(App $a)
 					);
 				} else {
 					q("update profile set photo = '%s', thumb = '%s' where id = %d and uid = %d",
-						DBA::escape(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
-						DBA::escape(System::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
+						DBA::escape(DI::baseUrl() . '/photo/' . $base_image['resource-id'] . '-4.' . $Image->getExt()),
+						DBA::escape(DI::baseUrl() . '/photo/' . $base_image['resource-id'] . '-5.' . $Image->getExt()),
 						intval($_REQUEST['profile']), intval(local_user())
 					);
 				}
@@ -249,7 +248,7 @@ function profile_photo_content(App $a)
 			'$profiles' => $profiles,
 			'$form_security_token' => BaseModule::getFormSecurityToken("profile_photo"),
 			'$select' => sprintf('%s %s', L10n::t('or'),
-				($newuser) ? '<a href="' . System::baseUrl() . '">' . L10n::t('skip this step') . '</a>' : '<a href="' . System::baseUrl() . '/photos/' . $a->user['nickname'] . '">' . L10n::t('select a photo from your photo albums') . '</a>')
+				($newuser) ? '<a href="' . DI::baseUrl() . '">' . L10n::t('skip this step') . '</a>' : '<a href="' . DI::baseUrl() . '/photos/' . $a->user['nickname'] . '">' . L10n::t('select a photo from your photo albums') . '</a>')
 		]);
 
 		return $o;
@@ -261,7 +260,7 @@ function profile_photo_content(App $a)
 			'$filename'  => $filename,
 			'$profile'   => (isset($_REQUEST['profile']) ? intval($_REQUEST['profile']) : 0),
 			'$resource'  => $imagecrop['hash'] . '-' . $imagecrop['resolution'],
-			'$image_url' => System::baseUrl() . '/photo/' . $filename,
+			'$image_url' => DI::baseUrl() . '/photo/' . $filename,
 			'$title'     => L10n::t('Crop Image'),
 			'$desc'      => L10n::t('Please adjust the image cropping for optimum viewing.'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("profile_photo"),

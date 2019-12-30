@@ -12,8 +12,8 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Network\Probe;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\PortableContact;
@@ -149,7 +149,7 @@ class GContact
 		}
 
 		// The global contacts should contain the original picture, not the cached one
-		if (($gcontact['generation'] != 1) && stristr(Strings::normaliseLink($gcontact['photo']), Strings::normaliseLink(System::baseUrl() . '/photo/'))) {
+		if (($gcontact['generation'] != 1) && stristr(Strings::normaliseLink($gcontact['photo']), Strings::normaliseLink(DI::baseUrl() . '/photo/'))) {
 			$gcontact['photo'] = '';
 		}
 
@@ -503,9 +503,9 @@ class GContact
 		$done = [];
 
 		/// @TODO Check if it is really neccessary to poll the own server
-		PortableContact::loadWorker(0, 0, 0, System::baseUrl() . '/poco');
+		PortableContact::loadWorker(0, 0, 0, DI::baseUrl() . '/poco');
 
-		$done[] = System::baseUrl() . '/poco';
+		$done[] = DI::baseUrl() . '/poco';
 
 		if (strlen(Config::get('system', 'directory'))) {
 			$x = Network::fetchUrl(get_server() . '/pubsites');
@@ -1122,7 +1122,7 @@ class GContact
 				"notify" => $userdata['notify'], 'url' => $userdata['url'],
 				"hide" => ($userdata['hidewall'] || !$userdata['net-publish']),
 				'nick' => $userdata['nickname'], 'addr' => $userdata['addr'],
-				"connect" => $userdata['addr'], "server_url" => System::baseUrl(),
+				"connect" => $userdata['addr'], "server_url" => DI::baseUrl(),
 				"generation" => 1, 'network' => Protocol::DFRN];
 
 		self::update($gcontact);
@@ -1182,7 +1182,7 @@ class GContact
 						'addr' => $user->nickname . '@' . $hostname,
 						'nick' => $user->nickname,
 						"network" => Protocol::OSTATUS,
-						'photo' => System::baseUrl() . '/images/person-300.jpg'];
+						'photo' => DI::baseUrl() . '/images/person-300.jpg'];
 
 				if (isset($user->bio)) {
 					$contact['about'] = $user->bio;

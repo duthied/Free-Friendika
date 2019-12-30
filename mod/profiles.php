@@ -13,7 +13,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -514,7 +513,7 @@ function profiles_content(App $a) {
 		}
 
 		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('profed_head.tpl'), [
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
 		$opt_tpl = Renderer::getMarkupTemplate("profile-hide-friends.tpl");
@@ -588,7 +587,7 @@ function profiles_content(App $a) {
 			'$lbl_ex2' => L10n::t('Example: fishing photography software'),
 
 			'$disabled' => (($is_default) ? 'onclick="return false;" style="color: #BBBBFF;"' : ''),
-			'$baseurl' => System::baseUrl(true),
+			'$baseurl' => DI::baseUrl()->get(true),
 			'$profile_id' => $r[0]['id'],
 			'$profile_name' => ['profile_name', L10n::t('Profile Name:'), $r[0]['profile-name'], L10n::t('Required'), '*'],
 			'$is_default'   => $is_default,

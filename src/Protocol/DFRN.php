@@ -18,7 +18,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -506,7 +505,7 @@ class DFRN
 		$ext = Images::supportedTypes();
 
 		foreach ($rp as $p) {
-			$photos[$p['scale']] = System::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
+			$photos[$p['scale']] = DI::baseUrl().'/photo/'.$p['resource-id'].'-'.$p['scale'].'.'.$ext[$p['type']];
 		}
 
 
@@ -568,7 +567,7 @@ class DFRN
 		$root->setAttribute("xmlns:ostatus", ActivityNamespace::OSTATUS);
 		$root->setAttribute("xmlns:statusnet", ActivityNamespace::STATUSNET);
 
-		XML::addElement($doc, $root, "id", System::baseUrl()."/profile/".$owner["nick"]);
+		XML::addElement($doc, $root, "id", DI::baseUrl()."/profile/".$owner["nick"]);
 		XML::addElement($doc, $root, "title", $owner["name"]);
 
 		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION."-".DB_UPDATE_VERSION];
@@ -585,13 +584,13 @@ class DFRN
 			// DFRN itself doesn't uses this. But maybe someone else wants to subscribe to the public feed.
 			OStatus::hublinks($doc, $root, $owner["nick"]);
 
-			$attributes = ["rel" => "salmon", "href" => System::baseUrl()."/salmon/".$owner["nick"]];
+			$attributes = ["rel" => "salmon", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);
 
-			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => System::baseUrl()."/salmon/".$owner["nick"]];
+			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-replies", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);
 
-			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => System::baseUrl()."/salmon/".$owner["nick"]];
+			$attributes = ["rel" => "http://salmon-protocol.org/ns/salmon-mention", "href" => DI::baseUrl()."/salmon/".$owner["nick"]];
 			XML::addElement($doc, $root, "link", "", $attributes);
 		}
 
@@ -652,7 +651,7 @@ class DFRN
 		}
 
 		XML::addElement($doc, $author, "name", $owner["name"], $attributes);
-		XML::addElement($doc, $author, "uri", System::baseUrl().'/profile/'.$owner["nickname"], $attributes);
+		XML::addElement($doc, $author, "uri", DI::baseUrl().'/profile/'.$owner["nickname"], $attributes);
 		XML::addElement($doc, $author, "dfrn:handle", $owner["addr"], $attributes);
 
 		$attributes = ["rel" => "photo", "type" => "image/jpeg",
@@ -989,7 +988,7 @@ class DFRN
 		}
 
 		// Add conversation data. This is used for OStatus
-		$conversation_href = System::baseUrl()."/display/".$item["parent-guid"];
+		$conversation_href = DI::baseUrl()."/display/".$item["parent-guid"];
 		$conversation_uri = $conversation_href;
 
 		if (isset($parent_item)) {
@@ -1030,7 +1029,7 @@ class DFRN
 			"link",
 			"",
 			["rel" => "alternate", "type" => "text/html",
-				 "href" => System::baseUrl() . "/display/" . $item["guid"]]
+				 "href" => DI::baseUrl() . "/display/" . $item["guid"]]
 		);
 
 		// "comment-allow" is some old fashioned stuff for old Friendica versions.
@@ -1901,7 +1900,7 @@ class DFRN
 				'to_email'     => $importer['email'],
 				'uid'          => $importer['importer_uid'],
 				'item'         => $suggest,
-				'link'         => System::baseUrl().'/notifications/intros',
+				'link'         => DI::baseUrl().'/notifications/intros',
 				'source_name'  => $importer['name'],
 				'source_link'  => $importer['url'],
 				'source_photo' => $importer['photo'],
@@ -2129,7 +2128,7 @@ class DFRN
 				}
 			}
 
-			if ($Blink && Strings::compareLink($Blink, System::baseUrl() . "/profile/" . $importer["nickname"])) {
+			if ($Blink && Strings::compareLink($Blink, DI::baseUrl() . "/profile/" . $importer["nickname"])) {
 				$author = DBA::selectFirst('contact', ['name', 'thumb', 'url'], ['id' => $item['author-id']]);
 
 				$parent = Item::selectFirst(['id'], ['uri' => $item['parent-uri'], 'uid' => $importer["importer_uid"]]);
@@ -2145,7 +2144,7 @@ class DFRN
 					"to_email"     => $importer["email"],
 					"uid"          => $importer["importer_uid"],
 					"item"         => $item,
-					"link"         => System::baseUrl()."/display/".urlencode($item['guid']),
+					"link"         => DI::baseUrl()."/display/".urlencode($item['guid']),
 					"source_name"  => $author["name"],
 					"source_link"  => $author["url"],
 					"source_photo" => $author["thumb"],
@@ -2886,13 +2885,13 @@ class DFRN
 		$community_page = ($user['page-flags'] == User::PAGE_FLAGS_COMMUNITY);
 		$prvgroup = ($user['page-flags'] == User::PAGE_FLAGS_PRVGROUP);
 
-		$link = Strings::normaliseLink(System::baseUrl() . '/profile/' . $user['nickname']);
+		$link = Strings::normaliseLink(DI::baseUrl() . '/profile/' . $user['nickname']);
 
 		/*
 		 * Diaspora uses their own hardwired link URL in @-tags
 		 * instead of the one we supply with webfinger
 		 */
-		$dlink = Strings::normaliseLink(System::baseUrl() . '/u/' . $user['nickname']);
+		$dlink = Strings::normaliseLink(DI::baseUrl() . '/u/' . $user['nickname']);
 
 		$cnt = preg_match_all('/[\@\!]\[url\=(.*?)\](.*?)\[\/url\]/ism', $item['body'], $matches, PREG_SET_ORDER);
 		if ($cnt) {

@@ -16,7 +16,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -86,7 +85,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 	while ($pos !== false && $cnt < 1000) {
 
 		$search = '/\[url\=(.*?)\]\[!#saved_image([0-9]*)#!\]\[\/url\]' . '/is';
-		$replace = '[url=' . System::baseUrl() . '/redir/' . $cid
+		$replace = '[url=' . DI::baseUrl() . '/redir/' . $cid
 				   . '?f=1&url=' . '$1' . '][!#saved_image' . '$2' .'#!][/url]';
 
 		$newbody .= substr($origbody, 0, $pos['start']['open']);
@@ -686,7 +685,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+					'thumb' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'title' => $title,
 					'body' => $body,
 					'tags' => $tags['tags'],
@@ -706,7 +705,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'indent' => '',
 					'owner_name' => $owner_name,
 					'owner_url' => $owner_url,
-					'owner_photo' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
+					'owner_photo' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'plink' => Item::getPlink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,
@@ -779,7 +778,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	}
 
 	$o = Renderer::replaceMacros($page_template, [
-		'$baseurl' => System::baseUrl($ssl_state),
+		'$baseurl' => DI::baseUrl()->get($ssl_state),
 		'$return_path' => DI::args()->getQueryString(),
 		'$live_update' => $live_update_div,
 		'$remove' => L10n::t('remove'),
@@ -1173,7 +1172,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$newpost'   => 'true',
-		'$baseurl'   => System::baseUrl(true),
+		'$baseurl'   => DI::baseUrl()->get(true),
 		'$geotag'    => $geotag,
 		'$nickname'  => $x['nickname'],
 		'$ispublic'  => L10n::t('Visible to <strong>everybody</strong>'),
@@ -1244,7 +1243,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
 		'$content'      => $x['content'] ?? '',
 		'$post_id'      => $x['post_id'] ?? '',
-		'$baseurl'      => System::baseUrl(true),
+		'$baseurl'      => DI::baseUrl()->get(true),
 		'$defloc'       => $x['default_location'],
 		'$visitor'      => $x['visitor'],
 		'$pvisit'       => $notes_cid ? 'none' : $x['visitor'],

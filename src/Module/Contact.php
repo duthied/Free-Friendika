@@ -14,7 +14,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -970,7 +969,7 @@ class Contact extends BaseModule
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
 
 			if (local_user() && in_array($profiledata['network'], Protocol::FEDERATED)) {
-				$profiledata['remoteconnect'] = System::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
+				$profiledata['remoteconnect'] = DI::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
 			}
 
 			Model\Profile::load($a, '', 0, $profiledata, true);

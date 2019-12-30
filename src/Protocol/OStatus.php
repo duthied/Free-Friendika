@@ -15,7 +15,6 @@ use Friendica\Core\Lock;
 use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\APContact;
@@ -25,8 +24,6 @@ use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
-use Friendica\Object\Image;
-use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
@@ -649,7 +646,7 @@ class OStatus
 							$item['tag'] = '';
 						}
 
-						$item['tag'] .= '#[url=' . System::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
+						$item['tag'] .= '#[url=' . DI::baseUrl() . '/search?tag=' . $term . ']' . $term . '[/url]';
 					}
 				}
 			}
@@ -1293,7 +1290,7 @@ class OStatus
 
 		$attributes = ["uri" => "https://friendi.ca", "version" => FRIENDICA_VERSION . "-" . DB_UPDATE_VERSION];
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
-		XML::addElement($doc, $root, "id", System::baseUrl() . "/profile/" . $owner["nick"]);
+		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
 		XML::addElement($doc, $root, "title", $title);
 		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], Config::get('config', 'sitename')));
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
@@ -1306,23 +1303,23 @@ class OStatus
 		XML::addElement($doc, $root, "link", "", $attributes);
 
 		/// @TODO We have to find out what this is
-		/// $attributes = array("href" => System::baseUrl()."/sup",
+		/// $attributes = array("href" => DI::baseUrl()."/sup",
 		///		"rel" => "http://api.friendfeed.com/2008/03#sup",
 		///		"type" => "application/json");
 		/// XML::addElement($doc, $root, "link", "", $attributes);
 
 		self::hublinks($doc, $root, $owner["nick"]);
 
-		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "salmon"];
+		$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "salmon"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies"];
+		$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-replies"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = ["href" => System::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
+		$attributes = ["href" => DI::baseUrl() . "/salmon/" . $owner["nick"], "rel" => "http://salmon-protocol.org/ns/salmon-mention"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
-		$attributes = ["href" => System::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
+		$attributes = ["href" => DI::baseUrl() . $selfUri, "rel" => "self", "type" => "application/atom+xml"];
 		XML::addElement($doc, $root, "link", "", $attributes);
 
 		if ($owner['account-type'] == Contact::TYPE_COMMUNITY) {
@@ -1346,7 +1343,7 @@ class OStatus
 	 */
 	public static function hublinks(DOMDocument $doc, $root, $nick)
 	{
-		$h = System::baseUrl() . '/pubsubhubbub/'.$nick;
+		$h = DI::baseUrl() . '/pubsubhubbub/'.$nick;
 		XML::addElement($doc, $root, "link", "", ["href" => $h, "rel" => "hub"]);
 	}
 
@@ -1492,7 +1489,7 @@ class OStatus
 				$author->appendChild($urls);
 			}
 
-			XML::addElement($doc, $author, "followers", "", ["url" => System::baseUrl() . "/profile/" . $owner["nick"] . "/contacts/followers"]);
+			XML::addElement($doc, $author, "followers", "", ["url" => DI::baseUrl() . "/profile/" . $owner["nick"] . "/contacts/followers"]);
 			XML::addElement($doc, $author, "statusnet:profile_info", "", ["local_id" => $owner["uid"]]);
 
 			if ($profile["publish"]) {
@@ -1980,7 +1977,7 @@ class OStatus
 		XML::addElement($doc, $entry, "content", $body, ["type" => "html"]);
 
 		XML::addElement($doc, $entry, "link", "", ["rel" => "alternate", "type" => "text/html",
-								"href" => System::baseUrl()."/display/".$item["guid"]]
+								"href" => DI::baseUrl()."/display/".$item["guid"]]
 		);
 
 		if (!$feed_mode && $complete && ($item["id"] > 0)) {
@@ -2024,7 +2021,7 @@ class OStatus
 			} else {
 				$mentioned[$parent["author-link"]] = $parent["author-link"];
 				$mentioned[$parent["owner-link"]] = $parent["owner-link"];
-				$parent_plink = System::baseUrl()."/display/".$parent["guid"];
+				$parent_plink = DI::baseUrl()."/display/".$parent["guid"];
 			}
 
 			$attributes = [

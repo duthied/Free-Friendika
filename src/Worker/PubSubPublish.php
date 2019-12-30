@@ -6,10 +6,9 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Logger;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\PushSubscriber;
-use Friendica\Model\GServer;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
 
@@ -47,7 +46,7 @@ class PubSubPublish
 
 		$headers = ["Content-type: application/atom+xml",
 				sprintf("Link: <%s>;rel=hub,<%s>;rel=self",
-					System::baseUrl() . '/pubsubhubbub/' . $subscriber['nickname'],
+					DI::baseUrl() . '/pubsubhubbub/' . $subscriber['nickname'],
 					$subscriber['topic']),
 				"X-Hub-Signature: sha1=" . $hmac_sig];
 

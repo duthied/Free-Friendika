@@ -21,30 +21,6 @@ use Friendica\Util\XML;
 class System
 {
 	/**
-	 * @brief Retrieves the Friendica instance base URL
-	 *
-	 * @param bool $ssl Whether to append http or https under BaseURL::SSL_POLICY_SELFSIGN
-	 * @return string Friendica server base URL
-	 */
-	public static function baseUrl($ssl = false)
-	{
-		return DI::baseUrl()->get($ssl);
-	}
-
-	/**
-	 * @brief Removes the baseurl from an url. This avoids some mixed content problems.
-	 *
-	 * @param string $orig_url The url to be cleaned
-	 *
-	 * @return string The cleaned url
-	 * @throws \Exception
-	 */
-	public static function removedBaseUrl(string $orig_url)
-	{
-		return DI::baseUrl()->remove($orig_url);
-	}
-
-	/**
 	 * @brief Returns a string with a callstack. Can be used for logging.
 	 * @param integer $depth optional, default 4
 	 * @return string

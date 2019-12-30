@@ -125,10 +125,10 @@ class Theme
 		$exts = ['.png', '.jpg'];
 		foreach ($exts as $ext) {
 			if (file_exists('view/theme/' . $theme . '/screenshot' . $ext)) {
-				return System::baseUrl() . '/view/theme/' . $theme . '/screenshot' . $ext;
+				return DI::baseUrl() . '/view/theme/' . $theme . '/screenshot' . $ext;
 			}
 		}
-		return System::baseUrl() . '/images/blank.png';
+		return DI::baseUrl() . '/images/blank.png';
 	}
 
 	public static function uninstall($theme)

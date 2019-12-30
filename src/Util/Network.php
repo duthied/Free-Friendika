@@ -556,7 +556,7 @@ class Network
 		Hook::callAll('avatar_lookup', $avatar);
 
 		if (! $avatar['success']) {
-			$avatar['url'] = System::baseUrl() . '/images/person-300.jpg';
+			$avatar['url'] = DI::baseUrl() . '/images/person-300.jpg';
 		}
 
 		Logger::log('Avatar: ' . $avatar['email'] . ' ' . $avatar['url'], Logger::DEBUG);

@@ -11,7 +11,6 @@ use Friendica\Core\ACL;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -348,7 +347,7 @@ function events_content(App $a)
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (empty($links[$j])) {
-					$links[$j] = System::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
+					$links[$j] = DI::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
 				}
 			}
 		}
@@ -393,9 +392,9 @@ function events_content(App $a)
 			'$tabs'      => $tabs,
 			'$title'     => L10n::t('Events'),
 			'$view'      => L10n::t('View'),
-			'$new_event' => [System::baseUrl() . '/events/new', L10n::t('Create New Event'), '', ''],
-			'$previous'  => [System::baseUrl() . '/events/$prevyear/$prevmonth', L10n::t('Previous'), '', ''],
-			'$next'      => [System::baseUrl() . '/events/$nextyear/$nextmonth', L10n::t('Next'), '', ''],
+			'$new_event' => [DI::baseUrl() . '/events/new', L10n::t('Create New Event'), '', ''],
+			'$previous'  => [DI::baseUrl() . '/events/$prevyear/$prevmonth', L10n::t('Previous'), '', ''],
+			'$next'      => [DI::baseUrl() . '/events/$nextyear/$nextmonth', L10n::t('Next'), '', ''],
 			'$calendar'  => Temporal::getCalendarTable($y, $m, $links, ' eventcal'),
 
 			'$events'    => $events,
@@ -504,7 +503,7 @@ function events_content(App $a)
 		$tpl = Renderer::getMarkupTemplate('event_form.tpl');
 
 		$o .= Renderer::replaceMacros($tpl, [
-			'$post' => System::baseUrl() . '/events',
+			'$post' => DI::baseUrl() . '/events',
 			'$eid'  => $eid,
 			'$cid'  => $cid,
 			'$uri'  => $uri,

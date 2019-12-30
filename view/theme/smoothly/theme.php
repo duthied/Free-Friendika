@@ -12,7 +12,6 @@
 
 use Friendica\App;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\DI;
 
 function smoothly_init(App $a) {
@@ -20,7 +19,7 @@ function smoothly_init(App $a) {
 
 	$cssFile = null;
 	$ssl_state = null;
-	$baseurl = System::baseUrl($ssl_state);
+	$baseurl = DI::baseUrl()->get($ssl_state);
 	DI::page()['htmlhead'] .= <<< EOT
 
 <script>
@@ -87,7 +86,7 @@ if (! function_exists('_js_in_foot')) {
 		/** @purpose insert stuff in bottom of page
 		*/
 		$ssl_state = null;
-		$baseurl = System::baseUrl($ssl_state);
+		$baseurl = DI::baseUrl()->get($ssl_state);
 		$bottom['$baseurl'] = $baseurl;
 		$tpl = Renderer::getMarkupTemplate('bottom.tpl');
 

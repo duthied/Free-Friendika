@@ -13,12 +13,10 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Module\Objects;
@@ -100,8 +98,8 @@ function display_init(App $a)
 
 	$profiledata = display_fetchauthor($a, $item);
 
-	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(System::baseUrl()))) {
-		$nickname = str_replace(Strings::normaliseLink(System::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
+	if (strstr(Strings::normaliseLink($profiledata["url"]), Strings::normaliseLink(DI::baseUrl()))) {
+		$nickname = str_replace(Strings::normaliseLink(DI::baseUrl())."/profile/", "", Strings::normaliseLink($profiledata["url"]));
 
 		if ($nickname != $a->user["nickname"]) {
 			$profile = DBA::fetchFirst("SELECT `profile`.`uid` AS `profile_uid`, `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
@@ -159,7 +157,7 @@ function display_fetchauthor($a, $item)
 	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
 
 	if (!empty($profiledata["photo"])) {
-		$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
+		$profiledata["photo"] = DI::baseUrl()->remove($profiledata["photo"]);
 	}
 
 	return $profiledata;
@@ -232,8 +230,8 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$is_public = Item::exists(['id' => $item_id, 'private' => [0, 2]]);
 	if ($is_public) {
 		// For the atom feed the nickname doesn't matter at all, we only need the item id.
-		$alternate = System::baseUrl().'/display/feed-item/'.$item_id.'.atom';
-		$conversation = System::baseUrl().'/display/feed-item/'.$item_parent.'/conversation.atom';
+		$alternate = DI::baseUrl().'/display/feed-item/'.$item_id.'.atom';
+		$conversation = DI::baseUrl().'/display/feed-item/'.$item_parent.'/conversation.atom';
 	} else {
 		$alternate = '';
 		$conversation = '';
@@ -363,7 +361,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
 	$page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
 	$page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
-	$page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:image" content="'.DI::baseUrl().'/'.$image.'" />'."\n";
 	$page['htmlhead'] .= '<meta name="twitter:url" content="'.$item["plink"].'" />'."\n";
 
 	// Dublin Core
@@ -373,7 +371,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	// Open Graph
 	$page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
 	$page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-	$page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:image" content="'.DI::baseUrl().'/'.$image.'" />'."\n";
 	$page['htmlhead'] .= '<meta property="og:url" content="'.$item["plink"].'" />'."\n";
 	$page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
 	$page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";

@@ -8,7 +8,6 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
@@ -93,9 +92,9 @@ function fbrowser_content(App $a)
 				}
 
 				return [
-					System::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
+					DI::baseUrl() . '/photos/' . $a->user['nickname'] . '/image/' . $rr['resource-id'],
 					$filename_e,
-					System::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
+					DI::baseUrl() . '/photo/' . $rr['resource-id'] . '-' . $scale . '.'. $ext
 				];
 			}
 			$files = array_map("_map_files1", $r);
@@ -125,7 +124,7 @@ function fbrowser_content(App $a)
 					$filetype = ( (file_exists("images/icons/$m1.png"))?$m1:"zip");
 					$filename_e = $rr['filename'];
 
-					return [System::baseUrl() . '/attach/' . $rr['id'], $filename_e, System::baseUrl() . '/images/icons/16/' . $filetype . '.png'];
+					return [DI::baseUrl() . '/attach/' . $rr['id'], $filename_e, DI::baseUrl() . '/images/icons/16/' . $filetype . '.png'];
 				}
 				$files = array_map("_map_files2", $files);
 

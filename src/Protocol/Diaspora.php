@@ -22,17 +22,16 @@ use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\GContact;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\ItemDeliveryData;
 use Friendica\Model\Mail;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Network\Probe;
-use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\Crypto;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Map;
@@ -145,7 +144,7 @@ class Diaspora
 		// Now we are collecting all relay contacts
 		foreach ($serverlist as $server_url) {
 			// We don't send messages to ourselves
-			if (Strings::compareLink($server_url, System::baseUrl())) {
+			if (Strings::compareLink($server_url, DI::baseUrl())) {
 				continue;
 			}
 			$contact = self::getRelayContact($server_url);
@@ -2670,7 +2669,7 @@ class Diaspora
 			return false;
 		}
 
-		$orig_url = System::baseUrl()."/display/".$original_item["guid"];
+		$orig_url = DI::baseUrl()."/display/".$original_item["guid"];
 
 		$datarray = [];
 
@@ -2996,7 +2995,7 @@ class Diaspora
 			$nick = $contact["nick"];
 		}
 
-		return $nick . "@" . substr(System::baseUrl(), strpos(System::baseUrl(), "://") + 3);
+		return $nick . "@" . substr(DI::baseUrl(), strpos(DI::baseUrl(), "://") + 3);
 	}
 
 
@@ -4117,9 +4116,9 @@ class Diaspora
 		$first = $split_name['first'];
 		$last = $split_name['last'];
 
-		$large = System::baseUrl().'/photo/custom/300/'.$profile['uid'].'.jpg';
-		$medium = System::baseUrl().'/photo/custom/100/'.$profile['uid'].'.jpg';
-		$small = System::baseUrl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
+		$large = DI::baseUrl().'/photo/custom/300/'.$profile['uid'].'.jpg';
+		$medium = DI::baseUrl().'/photo/custom/100/'.$profile['uid'].'.jpg';
+		$small = DI::baseUrl().'/photo/custom/50/'  .$profile['uid'].'.jpg';
 		$searchable = (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false');
 
 		$dob = null;

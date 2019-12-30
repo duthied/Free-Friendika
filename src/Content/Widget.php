@@ -10,7 +10,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -23,7 +22,6 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
-use Friendica\Util\XML;
 
 class Widget
 {
@@ -402,7 +400,7 @@ class Widget
 		$tpl = Renderer::getMarkupTemplate('widget/remote_friends_common.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$desc'     => L10n::tt("%d contact in common", "%d contacts in common", $t),
-			'$base'     => System::baseUrl(),
+			'$base'     => DI::baseUrl(),
 			'$uid'      => $profile_uid,
 			'$cid'      => (($cid) ? $cid : '0'),
 			'$linkmore' => (($t > 5) ? 'true' : ''),

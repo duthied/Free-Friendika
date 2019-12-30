@@ -11,11 +11,9 @@ use DOMXPath;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Protocol\ActivityNamespace;
 use Friendica\Util\ParseUrl;
 use Friendica\Util\Network;
 use Friendica\Util\XML;
@@ -353,7 +351,7 @@ class Feed {
 					$tags .= ', ';
 				}
 
-				$taglink = "#[url=" . System::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
+				$taglink = "#[url=" . DI::baseUrl() . "/search?tag=" . $hashtag . "]" . $hashtag . "[/url]";
 				$tags .= $taglink;
 			}
 

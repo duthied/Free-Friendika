@@ -59,7 +59,7 @@ function notification($params)
 
 	$banner = $l10n->t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
-	$siteurl = System::baseUrl(true);
+	$siteurl = DI::baseUrl()->get(true);
 	$thanks = $l10n->t('Thank You,');
 	$sitename = Config::get('config', 'sitename');
 	if (Config::get('config', 'admin_name')) {
@@ -101,7 +101,7 @@ function notification($params)
 	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
 	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
 	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
-	$additional_mail_header .= "List-Archive: <".System::baseUrl()."/notifications/system>\n";
+	$additional_mail_header .= "List-Archive: <".DI::baseUrl()."/notifications/system>\n";
 
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
@@ -536,7 +536,7 @@ function notification($params)
 
 		$notify_id = DBA::lastInsertId();
 
-		$itemlink = System::baseUrl().'/notify/view/'.$notify_id;
+		$itemlink = DI::baseUrl().'/notify/view/'.$notify_id;
 		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
 
@@ -714,7 +714,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$profiles[] = $owner["url"];
 
 	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = System::baseUrl()."/u/".$user["nickname"];
+	$profiles[] = DI::baseUrl()."/u/".$user["nickname"];
 
 	$profiles2 = [];
 
@@ -764,7 +764,7 @@ function check_item_notification($itemid, $uid, $defaulttype = "") {
 	$params["uid"] = $uid;
 	$params["item"] = $item;
 	$params["parent"] = $item["parent"];
-	$params["link"] = System::baseUrl().'/display/'.urlencode($item["guid"]);
+	$params["link"] = DI::baseUrl().'/display/'.urlencode($item["guid"]);
 	$params["otype"] = 'item';
 	$params["source_name"] = $item["author-name"];
 	$params["source_link"] = $item["author-link"];

@@ -20,8 +20,6 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\System;
-use Friendica\Core\Theme;
-use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\Activity;
@@ -396,7 +394,7 @@ class Profile
 		// show edit profile to yourself
 		if (!$is_contact && $local_user_is_self) {
 			if (Feature::isEnabled(local_user(), 'multi_profiles')) {
-				$profile['edit'] = [System::baseUrl() . '/profiles', L10n::t('Profiles'), '', L10n::t('Manage/edit profiles')];
+				$profile['edit'] = [DI::baseUrl() . '/profiles', L10n::t('Profiles'), '', L10n::t('Manage/edit profiles')];
 				$r = q(
 					"SELECT * FROM `profile` WHERE `uid` = %d",
 					local_user()
@@ -422,7 +420,7 @@ class Profile
 					}
 				}
 			} else {
-				$profile['edit'] = [System::baseUrl() . '/profiles/' . $profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
+				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
 				$profile['menu'] = [
 					'chg_photo' => L10n::t('Change profile photo'),
 					'cr_new' => null,
@@ -461,7 +459,7 @@ class Profile
 		if (!empty($profile['guid'])) {
 			$diaspora = [
 				'guid' => $profile['guid'],
-				'podloc' => System::baseUrl(),
+				'podloc' => DI::baseUrl(),
 				'searchable' => (($profile['publish'] && $profile['net-publish']) ? 'true' : 'false'),
 				'nickname' => $profile['nickname'],
 				'fullname' => $profile['name'],
@@ -879,7 +877,7 @@ class Profile
 			}
 
 			if ($a->profile['uid'] == local_user()) {
-				$profile['edit'] = [System::baseUrl() . '/profiles/' . $a->profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
+				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $a->profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
 			}
 
 			return Renderer::replaceMacros($tpl, [
@@ -907,7 +905,7 @@ class Profile
 			$nickname = $a->user['nickname'];
 		}
 
-		$baseProfileUrl = System::baseUrl() . '/profile/' . $nickname;
+		$baseProfileUrl = DI::baseUrl() . '/profile/' . $nickname;
 
 		$tabs = [
 			[
@@ -928,7 +926,7 @@ class Profile
 			],
 			[
 				'label' => L10n::t('Photos'),
-				'url'   => System::baseUrl() . '/photos/' . $nickname,
+				'url'   => DI::baseUrl() . '/photos/' . $nickname,
 				'sel'   => $current == 'photos' ? 'active' : '',
 				'title' => L10n::t('Photo Albums'),
 				'id'    => 'photo-tab',
@@ -936,7 +934,7 @@ class Profile
 			],
 			[
 				'label' => L10n::t('Videos'),
-				'url'   => System::baseUrl() . '/videos/' . $nickname,
+				'url'   => DI::baseUrl() . '/videos/' . $nickname,
 				'sel'   => $current == 'videos' ? 'active' : '',
 				'title' => L10n::t('Videos'),
 				'id'    => 'video-tab',
@@ -948,7 +946,7 @@ class Profile
 		if ($is_owner && $a->theme_events_in_profile) {
 			$tabs[] = [
 				'label' => L10n::t('Events'),
-				'url'   => System::baseUrl() . '/events',
+				'url'   => DI::baseUrl() . '/events',
 				'sel'   => $current == 'events' ? 'active' : '',
 				'title' => L10n::t('Events and Calendar'),
 				'id'    => 'events-tab',
@@ -959,7 +957,7 @@ class Profile
 		} elseif (!$is_owner) {
 			$tabs[] = [
 				'label' => L10n::t('Events'),
-				'url'   => System::baseUrl() . '/cal/' . $nickname,
+				'url'   => DI::baseUrl() . '/cal/' . $nickname,
 				'sel'   => $current == 'cal' ? 'active' : '',
 				'title' => L10n::t('Events and Calendar'),
 				'id'    => 'events-tab',
@@ -970,7 +968,7 @@ class Profile
 		if ($is_owner) {
 			$tabs[] = [
 				'label' => L10n::t('Personal Notes'),
-				'url'   => System::baseUrl() . '/notes',
+				'url'   => DI::baseUrl() . '/notes',
 				'sel'   => $current == 'notes' ? 'active' : '',
 				'title' => L10n::t('Only You Can See This'),
 				'id'    => 'notes-tab',
@@ -981,7 +979,7 @@ class Profile
 		if (!empty($_SESSION['new_member']) && $is_owner) {
 			$tabs[] = [
 				'label' => L10n::t('Tips for New Members'),
-				'url'   => System::baseUrl() . '/newmember',
+				'url'   => DI::baseUrl() . '/newmember',
 				'sel'   => false,
 				'title' => L10n::t('Tips for New Members'),
 				'id'    => 'newmember-tab',

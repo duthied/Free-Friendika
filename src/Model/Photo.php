@@ -456,9 +456,9 @@ class Photo
 
 			$suffix = "?ts=" . time();
 
-			$image_url = System::baseUrl() . "/photo/" . $resource_id . "-4." . $Image->getExt() . $suffix;
-			$thumb = System::baseUrl() . "/photo/" . $resource_id . "-5." . $Image->getExt() . $suffix;
-			$micro = System::baseUrl() . "/photo/" . $resource_id . "-6." . $Image->getExt() . $suffix;
+			$image_url = DI::baseUrl() . "/photo/" . $resource_id . "-4." . $Image->getExt() . $suffix;
+			$thumb = DI::baseUrl() . "/photo/" . $resource_id . "-5." . $Image->getExt() . $suffix;
+			$micro = DI::baseUrl() . "/photo/" . $resource_id . "-6." . $Image->getExt() . $suffix;
 
 			// Remove the cached photo
 			$a = \get_app();
@@ -487,9 +487,9 @@ class Photo
 		}
 
 		if ($photo_failure) {
-			$image_url = System::baseUrl() . "/images/person-300.jpg";
-			$thumb = System::baseUrl() . "/images/person-80.jpg";
-			$micro = System::baseUrl() . "/images/person-48.jpg";
+			$image_url = DI::baseUrl() . "/images/person-300.jpg";
+			$thumb = DI::baseUrl() . "/images/person-80.jpg";
+			$micro = DI::baseUrl() . "/images/person-48.jpg";
 		}
 
 		return [$image_url, $thumb, $micro];
@@ -622,7 +622,7 @@ class Photo
 		}
 
 		foreach ($images as $image) {
-			if (!stristr($image, System::baseUrl() . '/photo/')) {
+			if (!stristr($image, DI::baseUrl() . '/photo/')) {
 				continue;
 			}
 			$image_uri = substr($image,strrpos($image,'/') + 1);

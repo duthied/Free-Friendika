@@ -452,7 +452,7 @@ class BBCode
 			foreach ($matches as $mtch) {
 				Logger::log('scale_external_image: ' . $mtch[1]);
 
-				$hostname = str_replace('www.', '', substr(System::baseUrl(), strpos(System::baseUrl(), '://') + 3));
+				$hostname = str_replace('www.', '', substr(DI::baseUrl(), strpos(DI::baseUrl(), '://') + 3));
 				if (stristr($mtch[1], $hostname)) {
 					continue;
 				}
@@ -1626,9 +1626,9 @@ class BBCode
 		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
 
-		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
-		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
-		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .System::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
+		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
+		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
+		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
 
 		// Simplify "video" element
 		$text = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
@@ -1778,21 +1778,21 @@ class BBCode
 		$text = preg_replace_callback(
 			"&\[url=/?posts/([^\[\]]*)\](.*)\[\/url\]&Usi",
 			function ($match) {
-				return "[url=" . System::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
+				return "[url=" . DI::baseUrl() . "/display/" . $match[1] . "]" . $match[2] . "[/url]";
 			}, $text
 		);
 
 		$text = preg_replace_callback(
 			"&\[url=/people\?q\=(.*)\](.*)\[\/url\]&Usi",
 			function ($match) {
-				return "[url=" . System::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
+				return "[url=" . DI::baseUrl() . "/search?search=%40" . $match[1] . "]" . $match[2] . "[/url]";
 			}, $text
 		);
 
 		// Server independent link to posts and comments
 		// See issue: https://github.com/diaspora/diaspora_federation/issues/75
 		$expression = "=diaspora://.*?/post/([0-9A-Za-z\-_@.:]{15,254}[0-9A-Za-z])=ism";
-		$text = preg_replace($expression, System::baseUrl()."/display/$1", $text);
+		$text = preg_replace($expression, DI::baseUrl()."/display/$1", $text);
 
 		/* Tag conversion
 		 * Supports:
@@ -1801,15 +1801,15 @@ class BBCode
 		 */
 		$text = preg_replace_callback("/(?:#\[url\=[^\[\]]*\]|\[url\=[^\[\]]*\]#)(.*?)\[\/url\]/ism", function($matches) {
 			return '#<a href="'
-				. System::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
+				. DI::baseUrl()	. '/search?tag=' . rawurlencode($matches[1])
 				. '" class="tag" rel="tag" title="' . XML::escape($matches[1]) . '">'
 				. XML::escape($matches[1])
 				. '</a>';
 		}, $text);
 
 		// We need no target="_blank" for local links
-		// convert links start with System::baseUrl() as local link without the target="_blank" attribute
-		$escapedBaseUrl = preg_quote(System::baseUrl(), '/');
+		// convert links start with DI::baseUrl() as local link without the target="_blank" attribute
+		$escapedBaseUrl = preg_quote(DI::baseUrl(), '/');
 		$text = preg_replace("/\[url\](".$escapedBaseUrl.".*?)\[\/url\]/ism", '<a href="$1">$1</a>', $text);
 		$text = preg_replace("/\[url\=(".$escapedBaseUrl.".*?)\](.*?)\[\/url\]/ism", '<a href="$1">$2</a>', $text);
 
@@ -1823,7 +1823,7 @@ class BBCode
 		// we may need to restrict this further if it picks up too many strays
 		// link acct:user@host to a webfinger profile redirector
 
-		$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . System::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
+		$text = preg_replace('/acct:([^@]+)@((?!\-)(?:[a-zA-Z\d\-]{0,62}[a-zA-Z\d]\.){1,126}(?!\d+)[a-zA-Z\d]{1,63})/', '<a href="' . DI::baseUrl() . '/acctlink?addr=$1@$2" target="extlink">acct:$1@$2</a>', $text);
 
 		// Perform MAIL Search
 		$text = preg_replace("/\[mail\](.*?)\[\/mail\]/", '<a href="mailto:$1">$1</a>', $text);

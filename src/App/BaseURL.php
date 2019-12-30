@@ -435,4 +435,12 @@ class BaseURL
 		$redirectTo = $this->get($ssl) . '/' . ltrim($toUrl, '/');
 		System::externalRedirect($redirectTo);
 	}
+
+	/**
+	 * Returns the base url as string
+	 */
+	public function __toString()
+	{
+		return $this->get();
+	}
 }

@@ -6,7 +6,6 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Mail;
@@ -119,7 +118,7 @@ function wallmessage_content(App $a) {
 
 	$tpl = Renderer::getMarkupTemplate('wallmsg-header.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
-		'$baseurl' => System::baseUrl(true),
+		'$baseurl' => DI::baseUrl()->get(true),
 		'$nickname' => $user['nickname'],
 		'$linkurl' => L10n::t('Please enter a link URL:')
 	]);

@@ -8,7 +8,6 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Widget;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -82,8 +81,8 @@ function suggest_content(App $a)
 	$entries = [];
 
 	foreach ($r as $rr) {
-		$connlnk = System::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
-		$ignlnk = System::baseUrl() . '/suggest?ignore=' . $rr['id'];
+		$connlnk = DI::baseUrl() . '/follow/?url=' . (($rr['connect']) ? $rr['connect'] : $rr['url']);
+		$ignlnk = DI::baseUrl() . '/suggest?ignore=' . $rr['id'];
 		$photo_menu = [
 			'profile' => [L10n::t("View Profile"), Contact::magicLink($rr["url"])],
 			'follow' => [L10n::t("Connect/Follow"), $connlnk],

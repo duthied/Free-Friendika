@@ -158,7 +158,7 @@ function poke_content(App $a)
 
 	$head_tpl = Renderer::getMarkupTemplate('poke_head.tpl');
 	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl,[
-		'$baseurl' => System::baseUrl(true),
+		'$baseurl' => DI::baseUrl()->get(true),
 	]);
 
 	$parent = (!empty($_GET['parent']) ? intval($_GET['parent']) : '0');

@@ -2,7 +2,7 @@
 <html itemscope itemtype="http://schema.org/Blog" lang="<?php echo $lang; ?>">
 <head>
   <title><?php if(!empty($page['title'])) echo $page['title'] ?></title>
-  <script>var baseurl="<?php echo Friendica\Core\System::baseUrl() ?>";</script>
+  <script>var baseurl="<?php echo Friendica\DI::baseUrl() ?>";</script>
   <?php if(!empty($page['htmlhead'])) echo $page['htmlhead'] ?>
 </head>
 <body>

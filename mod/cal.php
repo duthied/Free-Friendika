@@ -13,7 +13,6 @@ use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -221,7 +220,7 @@ function cal_content(App $a)
 			foreach ($r as $rr) {
 				$j = $rr['adjust'] ? DateTimeFormat::local($rr['start'], 'j') : DateTimeFormat::utc($rr['start'], 'j');
 				if (empty($links[$j])) {
-					$links[$j] = System::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
+					$links[$j] = DI::baseUrl() . '/' . DI::args()->getCommand() . '#link-' . $j;
 				}
 			}
 		}
@@ -259,8 +258,8 @@ function cal_content(App $a)
 			'$tabs' => $tabs,
 			'$title' => L10n::t('Events'),
 			'$view' => L10n::t('View'),
-			'$previous' => [System::baseUrl() . "/events/$prevyear/$prevmonth", L10n::t('Previous'), '', ''],
-			'$next' => [System::baseUrl() . "/events/$nextyear/$nextmonth", L10n::t('Next'), '', ''],
+			'$previous' => [DI::baseUrl() . "/events/$prevyear/$prevmonth", L10n::t('Previous'), '', ''],
+			'$next' => [DI::baseUrl() . "/events/$nextyear/$nextmonth", L10n::t('Next'), '', ''],
 			'$calendar' => Temporal::getCalendarTable($y, $m, $links, ' eventcal'),
 			'$events' => $events,
 			"today" => L10n::t("today"),
