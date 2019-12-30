@@ -155,7 +155,7 @@ class Profile
 			}
 
 			// Add profile data to sidebar
-			$a->page['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
+			DI::page()['aside'] .= self::sidebar($a, $profiledata, true, $show_connect);
 
 			if (!DBA::isResult($user)) {
 				return;
@@ -189,7 +189,7 @@ class Profile
 		$a->profile['mobile-theme'] = PConfig::get($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = Protocol::DFRN;
 
-		$a->page['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
+		DI::page()['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
 
 		if (!$profiledata && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
 			$a->setCurrentTheme($a->profile['theme']);
@@ -208,7 +208,7 @@ class Profile
 		}
 
 		if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
-			$a->page['aside'] .= Renderer::replaceMacros(
+			DI::page()['aside'] .= Renderer::replaceMacros(
 				Renderer::getMarkupTemplate('profile_edlink.tpl'),
 				[
 					'$editprofile' => L10n::t('Edit profile'),
@@ -225,7 +225,7 @@ class Profile
 		 * But: When this profile was on the same server, then we could display the contacts
 		 */
 		if (!$profiledata) {
-			$a->page['aside'] .= self::sidebar($a, $a->profile, $block, $show_connect);
+			DI::page()['aside'] .= self::sidebar($a, $a->profile, $block, $show_connect);
 		}
 
 		return;

@@ -239,7 +239,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 		$conversation = '';
 	}
 
-	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
+	DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('display-head.tpl'),
 				['$alternate' => $alternate,
 					'$conversation' => $conversation]);
 
@@ -281,7 +281,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 			'default_location' => $a->user['default-location'],
 			'nickname' => $a->user['nickname'],
 			'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
-			'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true),
+			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
@@ -342,39 +342,41 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$title = htmlspecialchars($title, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 	$author_name = htmlspecialchars($author_name, ENT_COMPAT, 'UTF-8', true); // allow double encoding here
 
+	$page = DI::page();
+
 	if (DBA::exists('contact', ['unsearchable' => true, 'id' => [$item['contact-id'], $item['author-id'], $item['owner-id']]])) {
-		$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+		$page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 	}
 
-	$a->page['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
+	DI::page()['htmlhead'] .= '<meta name="author" content="'.$author_name.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="fulltitle" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="description" content="'.$description.'" />'."\n";
 
 	// Schema.org microdata
-	$a->page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="name" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="image" content="'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta itemprop="author" content="'.$author_name.'" />'."\n";
 
 	// Twitter cards
-	$a->page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="twitter:url" content="'.$item["plink"].'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:card" content="summary" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="twitter:url" content="'.$item["plink"].'" />'."\n";
 
 	// Dublin Core
-	$a->page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="DC.title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="DC.description" content="'.$description.'" />'."\n";
 
 	// Open Graph
-	$a->page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:url" content="'.$item["plink"].'" />'."\n";
-	$a->page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
-	$a->page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:type" content="website" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:title" content="'.$title.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:image" content="'.System::baseUrl().'/'.$image.'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:url" content="'.$item["plink"].'" />'."\n";
+	$page['htmlhead'] .= '<meta property="og:description" content="'.$description.'" />'."\n";
+	$page['htmlhead'] .= '<meta name="og:article:author" content="'.$author_name.'" />'."\n";
 	// article:tag
 
 	return $o;

@@ -13,6 +13,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
@@ -49,13 +50,12 @@ class Widget
 	 */
 	public static function findPeople()
 	{
-		$a = \get_app();
 		$global_dir = Config::get('system', 'directory');
 
 		if (Config::get('system', 'invitation_only')) {
 			$x = intval(PConfig::get(local_user(), 'system', 'invites_remaining'));
 			if ($x || is_site_admin()) {
-				$a->page['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
+				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
 					. L10n::tt('%d invitation available', '%d invitations available', $x)
 					. '</div>';
 			}

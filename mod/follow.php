@@ -184,7 +184,7 @@ function follow_content(App $a)
 		'$keywords_label'=> L10n::t('Tags:')
 	]);
 
-	$a->page['aside'] = '';
+	DI::page()['aside'] = '';
 
 	$profiledata = Contact::getDetailsByURL($ret['url']);
 	if ($profiledata) {

@@ -513,7 +513,7 @@ function profiles_content(App $a) {
 			return;
 		}
 
-		$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('profed_head.tpl'), [
+		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('profed_head.tpl'), [
 			'$baseurl' => System::baseUrl(true),
 		]);
 

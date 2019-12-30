@@ -33,17 +33,17 @@ function vier_init(App $a)
 	if (!empty($a->argv[0]) && ($a->argv[0] . ($a->argv[1] ?? '')) === ('profile' . $a->user['nickname']) || $a->argv[0] === 'network' && local_user()) {
 		vier_community_info();
 
-		$a->page['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
+		DI::page()['htmlhead'] .= "<link rel='stylesheet' type='text/css' href='view/theme/vier/wide.css' media='screen and (min-width: 1300px)'/>\n";
 	}
 
 	if (DI::mode()->isMobile() || DI::mode()->isMobile()) {
-		$a->page['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
-		$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
+		DI::page()['htmlhead'] .= '<meta name=viewport content="width=device-width, initial-scale=1">'."\n";
+		DI::page()['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen"/>'."\n";
 	}
 	/// @todo deactivated since it doesn't work with desktop browsers at the moment
-	//$a->page['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
+	//DI::page()['htmlhead'] .= '<link rel="stylesheet" type="text/css" href="view/theme/vier/mobile.css" media="screen and (max-width: 1000px)"/>'."\n";
 
-	$a->page['htmlhead'] .= <<< EOT
+	DI::page()['htmlhead'] .= <<< EOT
 <link rel='stylesheet' type='text/css' href='view/theme/vier/narrow.css' media='screen and (max-width: 1100px)' />
 <script type="text/javascript">
 function showThread(id) {
@@ -65,7 +65,7 @@ function cmtBbClose(id) {
 EOT;
 
 	if (DI::mode()->isMobile() || DI::mode()->isMobile()) {
-		$a->page['htmlhead'] .= <<< EOT
+		DI::page()['htmlhead'] .= <<< EOT
 <script>
 	$(document).ready(function() {
 		$(".mobile-aside-toggle a").click(function(e){
@@ -82,9 +82,9 @@ EOT;
 
 	// Hide the left menu bar
 	/// @TODO maybe move this static array out where it should belong?
-	if (empty($a->page['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
+	if (empty(DI::page()['aside']) && in_array($a->argv[0], ["community", "events", "help", "delegation", "notifications",
 			"probe", "webfinger", "login", "invite", "credits"])) {
-		$a->page['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
+		DI::page()['htmlhead'] .= "<link rel='stylesheet' href='view/theme/vier/hide.css' />";
 	}
 }
 
@@ -365,5 +365,5 @@ function vier_community_info()
 
 	//print right_aside
 	$tpl = Renderer::getMarkupTemplate('communityhome.tpl');
-	$a->page['right_aside'] = Renderer::replaceMacros($tpl, $aside);
+	DI::page()['right_aside'] = Renderer::replaceMacros($tpl, $aside);
 }

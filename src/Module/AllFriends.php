@@ -44,7 +44,7 @@ class AllFriends extends BaseModule
 			throw new HTTPException\BadRequestException(L10n::t('Invalid contact.'));
 		}
 
-		$app->page['aside'] = "";
+		DI::page()['aside'] = "";
 		Model\Profile::load($app, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 
 		$total = Model\GContact::countAllFriends(local_user(), $cid);

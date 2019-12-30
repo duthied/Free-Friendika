@@ -56,7 +56,7 @@ function settings_init(App $a)
 	// These lines provide the javascript needed by the acl selector
 
 	$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$ispublic' => L10n::t('everybody')
 	]);
 
@@ -143,7 +143,7 @@ function settings_init(App $a)
 
 
 	$tabtpl = Renderer::getMarkupTemplate("generic_links_widget.tpl");
-	$a->page['aside'] = Renderer::replaceMacros($tabtpl, [
+	DI::page()['aside'] = Renderer::replaceMacros($tabtpl, [
 		'$title' => L10n::t('Settings'),
 		'$class' => 'settings-widget',
 		'$items' => $tabs,
@@ -787,7 +787,7 @@ function settings_content(App $a)
 
 		if (!empty($legacy_contact)) {
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
-			$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
+			DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl().'/ostatus_subscribe?url=' . urlencode($legacy_contact) . '">';
 		}
 
 		$settings_connectors = '';
@@ -1203,7 +1203,7 @@ function settings_content(App $a)
 		'$permissions' => L10n::t('Default Post Permissions'),
 		'$permdesc' => L10n::t("\x28click to open/close\x29"),
 		'$visibility' => $profile['net-publish'],
-		'$aclselect' => ACL::getFullSelectorHTML($a->page, $a->user),
+		'$aclselect' => ACL::getFullSelectorHTML(DI::page(), $a->user),
 		'$suggestme' => $suggestme,
 		'$blockwall'=> $blockwall, // array('blockwall', L10n::t('Allow friends to post to your profile page:'), !$blockwall, ''),
 		'$blocktags'=> $blocktags, // array('blocktags', L10n::t('Allow friends to tag your posts:'), !$blocktags, ''),

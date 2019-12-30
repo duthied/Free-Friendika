@@ -10,6 +10,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model;
 use Friendica\Module;
 use Friendica\Util\Strings;
@@ -103,8 +104,8 @@ function crepair_content(App $a)
 		return;
 	}
 
-	if (empty($a->page['aside'])) {
-		$a->page['aside'] = '';
+	if (empty(DI::page()['aside'])) {
+		DI::page()['aside'] = '';
 	}
 
 	if (DBA::isResult($contact)) {

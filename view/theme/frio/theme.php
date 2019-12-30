@@ -36,7 +36,7 @@ function frio_init(App $a)
 	// if the device is a mobile device set js is_mobile
 	// variable so the js scripts can use this information
 	if (DI::mode()->isMobile() || DI::mode()->isMobile()) {
-		$a->page['htmlhead'] .= <<< EOT
+		DI::page()['htmlhead'] .= <<< EOT
 			<script type="text/javascript">
 				var is_mobile = 1;
 			</script>
@@ -45,7 +45,7 @@ EOT;
 
 	$enable_compose = \Friendica\Core\PConfig::get(local_user(), 'frio', 'enable_compose');
 	$compose = $enable_compose === '1' || $enable_compose === null && Config::get('frio', 'enable_compose') ? 1 : 0;
-	$a->page['htmlhead'] .= <<< HTML
+	DI::page()['htmlhead'] .= <<< HTML
 		<script type="text/javascript">
 			var compose = $compose;
 		</script>

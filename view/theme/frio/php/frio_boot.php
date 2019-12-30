@@ -8,6 +8,7 @@
  */
 
 use Friendica\App;
+use Friendica\DI;
 
 /**
  * @brief Load page template in dependence of the template mode
@@ -22,7 +23,7 @@ function load_page(App $a)
 		require 'view/theme/frio/none.php';
 	} else {
 		$template = 'view/theme/' . $a->getCurrentTheme() . '/'
-			. (($a->page['template'] ?? '') ?: 'default' ) . '.php';
+			. ((DI::page()['template'] ?? '') ?: 'default' ) . '.php';
 		if (file_exists($template)) {
 			require_once $template;
 		} else {

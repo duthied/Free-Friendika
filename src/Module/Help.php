@@ -41,16 +41,16 @@ class Help extends BaseModule
 			$title = basename($path);
 			$filename = $path;
 			$text = self::loadDocFile('doc/' . $path . '.md', $lang);
-			$a->page['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
+			DI::page()['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
 		}
 
 		$home = self::loadDocFile('doc/Home.md', $lang);
 		if (!$text) {
 			$text = $home;
 			$filename = "Home";
-			$a->page['title'] = L10n::t('Help');
+			DI::page()['title'] = L10n::t('Help');
 		} else {
-			$a->page['aside'] = Markdown::convert($home, false);
+			DI::page()['aside'] = Markdown::convert($home, false);
 		}
 
 		if (!strlen($text)) {
@@ -104,7 +104,7 @@ class Help extends BaseModule
 
 			$html = implode("\n", $lines);
 
-			$a->page['aside'] = '<div class="help-aside-wrapper widget"><div id="toc-wrapper">' . $toc . '</div>' . $a->page['aside'] . '</div>';
+			DI::page()['aside'] = '<div class="help-aside-wrapper widget"><div id="toc-wrapper">' . $toc . '</div>' . DI::page()['aside'] . '</div>';
 		}
 
 		return $html;

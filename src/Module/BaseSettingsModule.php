@@ -15,7 +15,7 @@ class BaseSettingsModule extends BaseModule
 		$a = DI::app();
 
 		$tpl = Renderer::getMarkupTemplate('settings/head.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$ispublic' => L10n::t('everybody')
 		]);
 
@@ -102,7 +102,7 @@ class BaseSettingsModule extends BaseModule
 
 
 		$tabtpl = Renderer::getMarkupTemplate("generic_links_widget.tpl");
-		$a->page['aside'] = Renderer::replaceMacros($tabtpl, [
+		DI::page()['aside'] = Renderer::replaceMacros($tabtpl, [
 			'$title' => L10n::t('Settings'),
 			'$class' => 'settings-widget',
 			'$items' => $tabs,

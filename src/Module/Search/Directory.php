@@ -23,14 +23,12 @@ class Directory extends BaseSearchModule
 
 		$search = Strings::escapeTags(trim(rawurldecode($_REQUEST['search'] ?? '')));
 
-		$a = DI::app();
-
-		if (empty($a->page['aside'])) {
-			$a->page['aside'] = '';
+		if (empty(DI::page()['aside'])) {
+			DI::page()['aside'] = '';
 		}
 
-		$a->page['aside'] .= Widget::findPeople();
-		$a->page['aside'] .= Widget::follow();
+		DI::page()['aside'] .= Widget::findPeople();
+		DI::page()['aside'] .= Widget::follow();
 
 		return self::performContactSearch($search);
 	}

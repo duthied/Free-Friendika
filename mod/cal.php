@@ -67,12 +67,12 @@ function cal_init(App $a)
 
 	$cal_widget = Widget\CalendarExport::getHTML();
 
-	if (empty($a->page['aside'])) {
-		$a->page['aside'] = '';
+	if (empty(DI::page()['aside'])) {
+		DI::page()['aside'] = '';
 	}
 
-	$a->page['aside'] .= $vcard_widget;
-	$a->page['aside'] .= $cal_widget;
+	DI::page()['aside'] .= $vcard_widget;
+	DI::page()['aside'] .= $cal_widget;
 
 	return;
 }
@@ -85,7 +85,7 @@ function cal_content(App $a)
 	$i18n = Event::getStrings();
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$module_url' => '/cal/' . $a->data['user']['nickname'],
 		'$modparams' => 2,
 		'$i18n' => $i18n,

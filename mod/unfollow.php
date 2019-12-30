@@ -142,7 +142,7 @@ function unfollow_content(App $a)
 		'$keywords_label'=> ''
 	]);
 
-	$a->page['aside'] = '';
+	DI::page()['aside'] = '';
 	Profile::load($a, '', 0, Contact::getDetailsByURL($contact['url']));
 
 	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);

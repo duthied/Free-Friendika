@@ -75,7 +75,6 @@ class Login extends BaseModule
 	 */
 	public static function form($return_path = null, $register = false, $hiddens = [])
 	{
-		$a = DI::app();
 		$o = '';
 
 		$noid = Config::get('system', 'no_openid');
@@ -101,7 +100,7 @@ class Login extends BaseModule
 		if (local_user()) {
 			$tpl = Renderer::getMarkupTemplate('logout.tpl');
 		} else {
-			$a->page['htmlhead'] .= Renderer::replaceMacros(
+			DI::page()['htmlhead'] .= Renderer::replaceMacros(
 				Renderer::getMarkupTemplate('login_head.tpl'),
 				[
 					'$baseurl' => DI::baseUrl()->get(true)

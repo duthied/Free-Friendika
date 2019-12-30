@@ -25,8 +25,6 @@ function ostatus_subscribe_content(App $a)
 
 	$uid = local_user();
 
-	$a = \get_app();
-
 	$counter = intval($_REQUEST['counter']);
 
 	if (PConfig::get($uid, 'ostatus', 'legacy_friends') == '') {
@@ -65,7 +63,7 @@ function ostatus_subscribe_content(App $a)
 	$total = sizeof($friends);
 
 	if ($counter >= $total) {
-		$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl() . '/settings/connectors">';
+		DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl() . '/settings/connectors">';
 		PConfig::delete($uid, 'ostatus', 'legacy_friends');
 		PConfig::delete($uid, 'ostatus', 'legacy_contact');
 		$o .= L10n::t('Done');
@@ -94,7 +92,7 @@ function ostatus_subscribe_content(App $a)
 
 	$o .= '<p>' . L10n::t('Keep this window open until done.') . '</p>';
 
-	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl() . '/ostatus_subscribe?counter=' . $counter . '">';
+	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . System::baseUrl() . '/ostatus_subscribe?counter=' . $counter . '">';
 
 	return $o;
 }

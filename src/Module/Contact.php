@@ -252,8 +252,8 @@ class Contact extends BaseModule
 		$nets = $_GET['nets'] ?? '';
 		$rel  = $_GET['rel']  ?? '';
 
-		if (empty($a->page['aside'])) {
-			$a->page['aside'] = '';
+		if (empty(DI::page()['aside'])) {
+			DI::page()['aside'] = '';
 		}
 
 		$contact_id = null;
@@ -347,10 +347,10 @@ class Contact extends BaseModule
 			$groups_widget = null;
 		}
 
-		$a->page['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget . $rel_widget;
+		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget . $rel_widget;
 
 		$tpl = Renderer::getMarkupTemplate('contacts-head.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
@@ -434,7 +434,7 @@ class Contact extends BaseModule
 						}
 					}
 
-					$a->page['aside'] = '';
+					DI::page()['aside'] = '';
 
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
 						'$header' => L10n::t('Drop contact'),
@@ -472,7 +472,7 @@ class Contact extends BaseModule
 		if (!empty($a->data['contact']) && is_array($a->data['contact'])) {
 			$contact = $a->data['contact'];
 
-			$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
+			DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_head.tpl'), [
 				'$baseurl' => DI::baseUrl()->get(true),
 			]);
 

@@ -33,8 +33,8 @@ class Directory extends BaseModule
 		}
 
 		if (local_user()) {
-			$app->page['aside'] .= Widget::findPeople();
-			$app->page['aside'] .= Widget::follow();
+			DI::page()['aside'] .= Widget::findPeople();
+			DI::page()['aside'] .= Widget::follow();
 		}
 
 		$output = '';
