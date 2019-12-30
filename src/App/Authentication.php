@@ -102,7 +102,7 @@ class Authentication
 					$user['password'] ?? '',
 					$user['prvkey'] ?? '')) {
 					$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
-					$this->session->delete();
+					$this->session->clear();
 					$this->baseUrl->redirect();
 				}
 
@@ -137,7 +137,7 @@ class Authentication
 							'addr'        => $this->session->get('addr'),
 							'remote_addr' => $_SERVER['REMOTE_ADDR']]
 					);
-					$this->session->delete();
+					$this->session->clear();
 					$this->baseUrl->redirect();
 				}
 
@@ -153,7 +153,7 @@ class Authentication
 					]
 				);
 				if (!$this->dba->isResult($user)) {
-					$this->session->delete();
+					$this->session->clear();
 					$this->baseUrl->redirect();
 				}
 

@@ -7,6 +7,7 @@ use Friendica\Api\Mastodon\Account;
 use Friendica\Api\Mastodon\Stats;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\User;
 use Friendica\Module\Register;
@@ -53,18 +54,19 @@ class Instance
 	 * @return Instance
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function get(App $app) {
+	public static function get()
+	{
 		$register_policy = intval(Config::get('config', 'register_policy'));
 
 		$instance = new Instance();
-		$instance->uri = $app->getBaseURL();
+		$instance->uri = DI::baseUrl()->get();
 		$instance->title = Config::get('config', 'sitename');
 		$instance->description = Config::get('config', 'info');
 		$instance->email = Config::get('config', 'admin_email');
 		$instance->version = FRIENDICA_VERSION;
 		$instance->urls = []; // Not supported
 		$instance->stats = Stats::get();
-		$instance->thumbnail = $app->getBaseURL() . (Config::get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
+		$instance->thumbnail = DI::baseUrl()->get() . (Config::get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
 		$instance->languages = [Config::get('system', 'language')];
 		$instance->max_toot_chars = (int)Config::get('config', 'api_import_size', Config::get('config', 'max_import_size'));
 		$instance->registrations = ($register_policy != Register::CLOSED);

@@ -178,7 +178,7 @@ function message_content(App $a)
 				DI::baseUrl()->redirect('message');
 			}
 
-			DI::baseUrl()->redirectinternalRedirect('message/' . $conversation['id'] );
+			DI::baseUrl()->redirect('message/' . $conversation['id'] );
 		} else {
 			$r = q("SELECT `parent-uri`,`convid` FROM `mail` WHERE `id` = %d AND `uid` = %d LIMIT 1",
 				intval($a->argv[2]),
