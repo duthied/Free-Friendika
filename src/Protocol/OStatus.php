@@ -1303,7 +1303,7 @@ class OStatus
 		XML::addElement($doc, $root, "link", "", $attributes);
 
 		/// @TODO We have to find out what this is
-		/// $attributes = array("href" => System::baseUrl()."/sup",
+		/// $attributes = array("href" => DI::baseUrl()."/sup",
 		///		"rel" => "http://api.friendfeed.com/2008/03#sup",
 		///		"type" => "application/json");
 		/// XML::addElement($doc, $root, "link", "", $attributes);
