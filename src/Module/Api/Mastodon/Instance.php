@@ -13,7 +13,7 @@ class Instance extends Api
 {
 	/**
 	 * @param array $parameters
-	 * @throws HTTPException\InternalServerErrorException
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function rawContent(array $parameters = [])
 	{
