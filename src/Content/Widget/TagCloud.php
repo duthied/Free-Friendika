@@ -8,8 +8,8 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 
 /**
@@ -38,7 +38,7 @@ class TagCloud
 		$r = self::tagadelic($uid, $count, $owner_id, $flags, $type);
 		if (count($r)) {
 			$contact = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
-			$url = System::removedBaseUrl($contact['url']);
+			$url = DI::baseUrl()->remove($contact['url']);
 
 			$tags = [];
 			foreach ($r as $rr) {

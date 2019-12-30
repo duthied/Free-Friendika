@@ -16,7 +16,6 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
-use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -686,7 +685,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'name' => $profile_name,
 					'sparkle' => $sparkle,
 					'lock' => $lock,
-					'thumb' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
+					'thumb' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['author-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'title' => $title,
 					'body' => $body,
 					'tags' => $tags['tags'],
@@ -706,7 +705,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'indent' => '',
 					'owner_name' => $owner_name,
 					'owner_url' => $owner_url,
-					'owner_photo' => System::removedBaseUrl(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
+					'owner_photo' => DI::baseUrl()->remove(ProxyUtils::proxifyUrl($item['owner-avatar'], false, ProxyUtils::SIZE_THUMB)),
 					'plink' => Item::getPlink($item),
 					'edpost' => false,
 					'isstarred' => $isstarred,

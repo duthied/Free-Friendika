@@ -13,7 +13,6 @@ use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -158,7 +157,7 @@ function display_fetchauthor($a, $item)
 	$profiledata = Contact::getDetailsByURL($profiledata["url"], local_user(), $profiledata);
 
 	if (!empty($profiledata["photo"])) {
-		$profiledata["photo"] = System::removedBaseUrl($profiledata["photo"]);
+		$profiledata["photo"] = DI::baseUrl()->remove($profiledata["photo"]);
 	}
 
 	return $profiledata;

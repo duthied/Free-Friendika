@@ -59,7 +59,7 @@ function notification($params)
 
 	$banner = $l10n->t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
-	$siteurl = DI::baseUrl(true);
+	$siteurl = DI::baseUrl()->get(true);
 	$thanks = $l10n->t('Thank You,');
 	$sitename = Config::get('config', 'sitename');
 	if (Config::get('config', 'admin_name')) {
