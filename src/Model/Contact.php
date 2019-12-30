@@ -1514,6 +1514,7 @@ class Contact
 		}
 
 		if (empty($data) || ($data['network'] == Protocol::PHANTOM)) {
+			Logger::info('No valid network found', ['url' => $url, 'data' => $data, 'callstack' => System::callstack(20)]);
 			return 0;
 		}
 
