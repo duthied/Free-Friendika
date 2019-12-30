@@ -132,7 +132,7 @@ class Register extends BaseModule
 			'$username'     => $username,
 			'$email'        => $email,
 			'$nickname'     => $nickname,
-			'$sitename'     => DI::baseUrl()->getHostname()(),
+			'$sitename'     => DI::baseUrl()->getHostname(),
 			'$importh'      => L10n::t('Import'),
 			'$importt'      => L10n::t('Import your profile to this friendica instance'),
 			'$showtoslink'  => Config::get('system', 'tosdisplay'),

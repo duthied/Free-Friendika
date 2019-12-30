@@ -1847,7 +1847,7 @@ class OStatus
 		}
 
 		$item["uri"] = $item['parent-uri'] = $item['thr-parent']
-				= 'tag:' . DI::baseUrl()->getHostname()().
+				= 'tag:' . DI::baseUrl()->getHostname().
 				','.date('Y-m-d').':'.$action.':'.$owner['uid'].
 				':person:'.$connect_id.':'.$item['created'];
 
