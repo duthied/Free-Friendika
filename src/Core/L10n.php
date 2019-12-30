@@ -32,7 +32,7 @@ class L10n
 	 */
 	public static function withLang(string $lang)
 	{
-		DI::l10n()->withLang($lang);
+		return DI::l10n()->withLang($lang);
 	}
 
 	/**
