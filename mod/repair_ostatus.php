@@ -60,7 +60,7 @@ function repair_ostatus_content(App $a) {
 
 	Contact::createFromProbe($uid, $r[0]["url"], true);
 
-	$a->page['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
+	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="1; URL='.System::baseUrl().'/repair_ostatus?counter='.$counter.'">';
 
 	return $o;
 }

@@ -51,8 +51,6 @@ abstract class BaseAdminModule extends BaseModule
 
 	public static function content(array $parameters = [])
 	{
-		$a = DI::app();
-
 		if (!is_site_admin()) {
 			notice(L10n::t('Please login to continue.'));
 			Session::set('return_path', DI::args()->getQueryString());
@@ -64,7 +62,7 @@ abstract class BaseAdminModule extends BaseModule
 		}
 
 		// Header stuff
-		$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/settings_head.tpl'), []);
+		DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('admin/settings_head.tpl'), []);
 
 		/*
 		 * Side bar links
@@ -109,7 +107,7 @@ abstract class BaseAdminModule extends BaseModule
 		];
 
 		$t = Renderer::getMarkupTemplate('admin/aside.tpl');
-		$a->page['aside'] .= Renderer::replaceMacros($t, [
+		DI::page()['aside'] .= Renderer::replaceMacros($t, [
 			'$admin' => ['addons_admin' => Addon::getAdminList()],
 			'$subpages' => $aside_sub,
 			'$admtxt' => L10n::t('Admin'),

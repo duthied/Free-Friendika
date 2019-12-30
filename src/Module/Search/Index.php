@@ -66,7 +66,7 @@ class Index extends BaseSearchModule
 		}
 
 		if (local_user()) {
-			DI::app()->page['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
+			DI::page()['aside'] .= Widget\SavedSearches::getHTML('search?q=' . urlencode($search), $search);
 		}
 
 		Nav::setSelected('search');

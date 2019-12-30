@@ -46,7 +46,7 @@ class Bookmarklet extends BaseModule
 				'nickname'         => $app->user['nickname'],
 				'lockstate'        => ((is_array($app->user) && ((strlen($app->user['allow_cid'])) || (strlen($app->user['allow_gid'])) || (strlen($app->user['deny_cid'])) || (strlen($app->user['deny_gid'])))) ? 'lock' : 'unlock'),
 				'default_perms'    => ACL::getDefaultUserPermissions($app->user),
-				'acl'              => ACL::getFullSelectorHTML($app->page, $app->user, true),
+				'acl'              => ACL::getFullSelectorHTML(DI::page(), $app->user, true),
 				'bang'             => '',
 				'visitor'          => 'block',
 				'profile_uid'      => local_user(),

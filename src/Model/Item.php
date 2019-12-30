@@ -3576,7 +3576,7 @@ class Item
 			if (strpos($mime, 'video') !== false) {
 				if (!$vhead) {
 					$vhead = true;
-					$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'));
+					DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate('videos_head.tpl'));
 				}
 
 				$url_parts = explode('/', $the_url);

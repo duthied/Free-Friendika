@@ -84,51 +84,53 @@ class Profile extends BaseModule
 		if (!$update) {
 			ProfileModel::load($a, self::$which, self::$profile);
 
-			$a->page['htmlhead'] .= "\n";
+			$page = DI::page();
+
+			$page['htmlhead'] .= "\n";
 
 			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && Config::get('system', 'block_public');
 			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
-				$a->page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
+				$page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
 			}
 
 			if (!empty($a->profile['openidserver'])) {
-				$a->page['htmlhead'] .= '<link rel="openid.server" href="' . $a->profile['openidserver'] . '" />' . "\n";
+				$page['htmlhead'] .= '<link rel="openid.server" href="' . $a->profile['openidserver'] . '" />' . "\n";
 			}
 
 			if (!empty($a->profile['openid'])) {
 				$delegate = strstr($a->profile['openid'], '://') ? $a->profile['openid'] : 'https://' . $a->profile['openid'];
-				$a->page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\n";
+				$page['htmlhead'] .= '<link rel="openid.delegate" href="' . $delegate . '" />' . "\n";
 			}
 
 			// site block
 			if (!$blocked && !$userblock) {
 				$keywords = str_replace(['#', ',', ' ', ',,'], ['', ' ', ',', ','], $a->profile['pub_keywords'] ?? '');
 				if (strlen($keywords)) {
-					$a->page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\n";
+					$page['htmlhead'] .= '<meta name="keywords" content="' . $keywords . '" />' . "\n";
 				}
 			}
 
-			$a->page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\n";
+			$page['htmlhead'] .= '<meta name="dfrn-global-visibility" content="' . ($a->profile['net-publish'] ? 'true' : 'false') . '" />' . "\n";
 
 			if (!$a->profile['net-publish'] || $a->profile['hidewall']) {
-				$a->page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
+				$page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 			}
 
-			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
-			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
-			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
-			$a->page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . System::baseUrl() . '/feed/' . self::$which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
 			$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''));
-			$a->page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\n";
+			$page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . System::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\n";
 			header('Link: <' . System::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
 
 			$dfrn_pages = ['request', 'confirm', 'notify', 'poll'];
 			foreach ($dfrn_pages as $dfrn) {
-				$a->page['htmlhead'] .= '<link rel="dfrn-' . $dfrn . '" href="' . System::baseUrl() . '/dfrn_' . $dfrn . '/' . self::$which . '" />' . "\n";
+				$page['htmlhead'] .= '<link rel="dfrn-' . $dfrn . '" href="' . System::baseUrl() . '/dfrn_' . $dfrn . '/' . self::$which . '" />' . "\n";
 			}
-			$a->page['htmlhead'] .= '<link rel="dfrn-poco" href="' . System::baseUrl() . '/poco/' . self::$which . '" />' . "\n";
+			$page['htmlhead'] .= '<link rel="dfrn-poco" href="' . System::baseUrl() . '/poco/' . self::$which . '" />' . "\n";
 		}
 
 		$category = $datequery = $datequery2 = '';
@@ -191,9 +193,9 @@ class Profile extends BaseModule
 			$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 			$commvisitor = $commpage && $remote_contact;
 
-			$a->page['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
-			$a->page['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
-			$a->page['aside'] .= Widget::tagCloud();
+			DI::page()['aside'] .= Widget::postedByYear(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
+			DI::page()['aside'] .= Widget::categories(System::baseUrl(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
+			DI::page()['aside'] .= Widget::tagCloud();
 
 			if (Security::canWriteToUserWall($a->profile['profile_uid'])) {
 				$x = [
@@ -207,7 +209,7 @@ class Profile extends BaseModule
 						|| strlen($a->user['deny_cid'])
 						|| strlen($a->user['deny_gid'])
 					) ? 'lock' : 'unlock',
-					'acl' => $is_owner ? ACL::getFullSelectorHTML($a->page, $a->user, true) : '',
+					'acl' => $is_owner ? ACL::getFullSelectorHTML(DI::page(), $a->user, true) : '',
 					'bang' => '',
 					'visitor' => $is_owner || $commvisitor ? 'block' : 'none',
 					'profile_uid' => $a->profile['profile_uid'],

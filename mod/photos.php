@@ -116,19 +116,19 @@ function photos_init(App $a) {
 			]);
 		}
 
-		if (empty($a->page['aside'])) {
-			$a->page['aside'] = '';
+		if (empty(DI::page()['aside'])) {
+			DI::page()['aside'] = '';
 		}
 
-		$a->page['aside'] .= $vcard_widget;
+		DI::page()['aside'] .= $vcard_widget;
 
 		if (!empty($photo_albums_widget)) {
-			$a->page['aside'] .= $photo_albums_widget;
+			DI::page()['aside'] .= $photo_albums_widget;
 		}
 
 		$tpl = Renderer::getMarkupTemplate("photos_head.tpl");
 
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl,[
 			'$ispublic' => L10n::t('everybody')
 		]);
 	}
@@ -957,7 +957,7 @@ function photos_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('photos_upload.tpl');
 
-		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML($a->page, $a->user));
+		$aclselect_e = ($visitor ? '' : ACL::getFullSelectorHTML(DI::page(), $a->user));
 
 		$o .= Renderer::replaceMacros($tpl,[
 			'$pagename' => L10n::t('Upload Photos'),
@@ -1198,7 +1198,7 @@ function photos_content(App $a)
 				}
 
 				$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
-				$a->page['htmlhead'] .= Renderer::replaceMacros($tpl,[
+				DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl,[
 					'$prevlink' => $prevlink,
 					'$nextlink' => $nextlink
 				]);
@@ -1325,7 +1325,7 @@ function photos_content(App $a)
 
 			$album_e = $ph[0]['album'];
 			$caption_e = $ph[0]['desc'];
-			$aclselect_e = ACL::getFullSelectorHTML($a->page, $a->user, false, ACL::getDefaultUserPermissions($ph[0]));
+			$aclselect_e = ACL::getFullSelectorHTML(DI::page(), $a->user, false, ACL::getDefaultUserPermissions($ph[0]));
 
 			$edit = Renderer::replaceMacros($edit_tpl, [
 				'$id' => $ph[0]['id'],
@@ -1527,11 +1527,11 @@ function photos_content(App $a)
 			'$paginate' => $paginate,
 		]);
 
-		$a->page['htmlhead'] .= "\n" . '<meta name="twitter:card" content="summary_large_image" />' . "\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:title" content="' . $photo["album"] . '" />' . "\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image" content="' . System::baseUrl() . "/" . $photo["href"] . '" />' . "\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image:width" content="' . $photo["width"] . '" />' . "\n";
-		$a->page['htmlhead'] .= '<meta name="twitter:image:height" content="' . $photo["height"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= "\n" . '<meta name="twitter:card" content="summary_large_image" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:title" content="' . $photo["album"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:image" content="' . System::baseUrl() . "/" . $photo["href"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:image:width" content="' . $photo["width"] . '" />' . "\n";
+		DI::page()['htmlhead'] .= '<meta name="twitter:image:height" content="' . $photo["height"] . '" />' . "\n";
 
 		return $o;
 	}

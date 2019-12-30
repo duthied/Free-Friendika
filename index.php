@@ -23,5 +23,6 @@ $a->runFrontend(
 	$dice->create(\Friendica\App\Module::class),
 	$dice->create(\Friendica\App\Router::class),
 	$dice->create(\Friendica\Core\Config\IPConfiguration::class),
-	$dice->create(\Friendica\App\Authentication::class)
+	$dice->create(\Friendica\App\Authentication::class),
+	$dice->create(\Friendica\App\Page::class)
 );

@@ -40,10 +40,6 @@ use Psr\Log\LoggerInterface;
  */
 class App
 {
-	/**
-	 * @var Page The current page environment
-	 */
-	public $page;
 	public $profile;
 	public $profile_uid;
 	public $user;
@@ -154,7 +150,7 @@ class App
 	 * @param App\Arguments   $args     The Friendica Arguments of the call
 	 * @param Core\Process    $process  The process methods
 	 */
-	public function __construct(Database $database, IConfiguration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, App\Page $page, Core\Process $process)
+	public function __construct(Database $database, IConfiguration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -168,7 +164,6 @@ class App
 
 		$this->argv         = $args->getArgv();
 		$this->argc         = $args->getArgc();
-		$this->page         = $page;
 
 		$this->load();
 	}
@@ -435,10 +430,11 @@ class App
 	 * @param App\Router     $router
 	 * @param IPConfiguration $pconfig
 	 * @param Authentication $auth The Authentication backend of the node
+	 * @param App\Page $page The Friendica page printing container
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IPConfiguration $pconfig, Authentication $auth)
+	public function runFrontend(App\Module $module, App\Router $router, IPConfiguration $pconfig, Authentication $auth, App\Page $page)
 	{
 		$moduleName = $module->getName();
 
@@ -567,7 +563,7 @@ class App
 			}
 
 			// Initialize module that can set the current theme in the init() method, either directly or via App->profile_uid
-			$this->page['page_title'] = $moduleName;
+			$page['page_title'] = $moduleName;
 
 			// determine the module class and save it to the module instance
 			// @todo there's an implicit dependency due SESSION::start(), so it has to be called here (yet)
@@ -579,7 +575,7 @@ class App
 			ModuleHTTPException::rawContent($e);
 		}
 
-		$this->page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->config, $pconfig);
+		$page->run($this, $this->baseURL, $this->mode, $module, $this->l10n, $this->config, $pconfig);
 	}
 
 	/**

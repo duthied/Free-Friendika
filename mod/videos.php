@@ -58,14 +58,14 @@ function videos_init(App $a)
 		]);
 
 		// If not there, create 'aside' empty
-		if (!isset($a->page['aside'])) {
-			$a->page['aside'] = '';
+		if (!isset(DI::page()['aside'])) {
+			DI::page()['aside'] = '';
 		}
 
-		$a->page['aside'] .= $vcard_widget;
+		DI::page()['aside'] .= $vcard_widget;
 
 		$tpl = Renderer::getMarkupTemplate("videos_head.tpl");
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl);
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl);
 	}
 
 	return;

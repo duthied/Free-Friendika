@@ -1171,7 +1171,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$geotag = !empty($x['allow_location']) ? Renderer::replaceMacros(Renderer::getMarkupTemplate('jot_geotag.tpl'), []) : '';
 
 	$tpl = Renderer::getMarkupTemplate('jot-header.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 		'$newpost'   => 'true',
 		'$baseurl'   => System::baseUrl(true),
 		'$geotag'    => $geotag,

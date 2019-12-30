@@ -38,14 +38,14 @@ function message_init(App $a)
 	];
 
 	$tpl = Renderer::getMarkupTemplate('message_side.tpl');
-	$a->page['aside'] = Renderer::replaceMacros($tpl, [
+	DI::page()['aside'] = Renderer::replaceMacros($tpl, [
 		'$tabs' => $tabs,
 		'$new' => $new,
 	]);
 	$base = System::baseUrl();
 
 	$head_tpl = Renderer::getMarkupTemplate('message-head.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl, [
 		'$baseurl' => System::baseUrl(true),
 		'$base' => $base
 	]);
@@ -199,7 +199,7 @@ function message_content(App $a)
 		$o .= $header;
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')
@@ -355,7 +355,7 @@ function message_content(App $a)
 		}
 
 		$tpl = Renderer::getMarkupTemplate('msg-header.tpl');
-		$a->page['htmlhead'] .= Renderer::replaceMacros($tpl, [
+		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => System::baseUrl(true),
 			'$nickname' => $a->user['nickname'],
 			'$linkurl' => L10n::t('Please enter a link URL:')

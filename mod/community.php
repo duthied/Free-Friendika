@@ -127,7 +127,7 @@ function community_content(App $a, $update = 0)
 				'default_location' => $a->user['default-location'],
 				'nickname' => $a->user['nickname'],
 				'lockstate' => (is_array($a->user) && (strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) || strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
-				'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true),
+				'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
 				'bang' => '',
 				'visitor' => 'block',
 				'profile_uid' => local_user(),
@@ -193,12 +193,12 @@ function community_content(App $a, $update = 0)
 		$o .= $pager->renderMinimal(count($r));
 	}
 
-	if (empty($a->page['aside'])) {
-		$a->page['aside'] = '';
+	if (empty(DI::page()['aside'])) {
+		DI::page()['aside'] = '';
 	}
 
 	if (Feature::isEnabled(local_user(), 'trending_tags')) {
-		$a->page['aside'] .= TrendingTags::getHTML($content);
+		DI::page()['aside'] .= TrendingTags::getHTML($content);
 	}
 
 	$t = Renderer::getMarkupTemplate("community.tpl");

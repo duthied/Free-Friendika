@@ -114,9 +114,9 @@ class Compose extends BaseModule
 		Hook::callAll('jot_tool', $jotplugins);
 
 		// Output
-		$a->page->registerFooterScript(Theme::getPathForFile('js/ajaxupload.js'));
-		$a->page->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
-		$a->page->registerFooterScript(Theme::getPathForFile('js/compose.js'));
+		DI::page()->registerFooterScript(Theme::getPathForFile('js/ajaxupload.js'));
+		DI::page()->registerFooterScript(Theme::getPathForFile('js/linkPreview.js'));
+		DI::page()->registerFooterScript(Theme::getPathForFile('js/compose.js'));
 
 		$tpl = Renderer::getMarkupTemplate('item/compose.tpl');
 		return Renderer::replaceMacros($tpl, [
@@ -162,7 +162,7 @@ class Compose extends BaseModule
 			'$jotplugins'   => $jotplugins,
 			'$sourceapp'    => L10n::t($a->sourcename),
 			'$rand_num'     => Crypto::randomDigits(12),
-			'$acl_selector'  => ACL::getFullSelectorHTML($a->page, $a->user, $doesFederate, [
+			'$acl_selector'  => ACL::getFullSelectorHTML(DI::page(), $a->user, $doesFederate, [
 				'allow_cid' => $contact_allow_list,
 				'allow_gid' => $group_allow_list,
 				'deny_cid'  => $contact_deny_list,

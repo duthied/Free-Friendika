@@ -4,6 +4,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 function duepuntozero_init(App $a) {
 
@@ -14,19 +15,19 @@ Renderer::setActiveTemplateEngine('smarty3');
        $colorset = Config::get('duepuntozero', 'colorset');          // user setting have priority, then node settings
     if ($colorset) {
         if ($colorset == 'greenzero')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
+            DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";
         if ($colorset == 'purplezero')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/purplezero.css" type="text/css" media="screen" />'."\n";
+	        DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/purplezero.css" type="text/css" media="screen" />'."\n";
         if ($colorset == 'easterbunny')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/easterbunny.css" type="text/css" media="screen" />'."\n";
+	        DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/easterbunny.css" type="text/css" media="screen" />'."\n";
         if ($colorset == 'darkzero')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/darkzero.css" type="text/css" media="screen" />'."\n";
+	        DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/darkzero.css" type="text/css" media="screen" />'."\n";
         if ($colorset == 'comix')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/comix.css" type="text/css" media="screen" />'."\n";
+	        DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/comix.css" type="text/css" media="screen" />'."\n";
         if ($colorset == 'slackr')
-            $a->page['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/slackr.css" type="text/css" media="screen" />'."\n";
+	        DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/slackr.css" type="text/css" media="screen" />'."\n";
     }
-$a->page['htmlhead'] .= <<< EOT
+DI::page()['htmlhead'] .= <<< EOT
 <script>
 function cmtBbOpen(comment, id) {
 	if ($(comment).hasClass('comment-edit-text-full')) {

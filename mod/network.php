@@ -132,16 +132,16 @@ function network_init(App $a)
 		}
 	}
 
-	if (empty($a->page['aside'])) {
-		$a->page['aside'] = '';
+	if (empty(DI::page()['aside'])) {
+		DI::page()['aside'] = '';
 	}
 
-	$a->page['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
-	$a->page['aside'] .= ForumManager::widget(local_user(), $cid);
-	$a->page['aside'] .= Widget::postedByYear('network', local_user(), false);
-	$a->page['aside'] .= Widget::networks('network', $_GET['nets'] ?? '');
-	$a->page['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
-	$a->page['aside'] .= Widget::fileAs('network', $_GET['file'] ?? '');
+	DI::page()['aside'] .= Group::sidebarWidget('network/0', 'network', 'standard', $group_id);
+	DI::page()['aside'] .= ForumManager::widget(local_user(), $cid);
+	DI::page()['aside'] .= Widget::postedByYear('network', local_user(), false);
+	DI::page()['aside'] .= Widget::networks('network', $_GET['nets'] ?? '');
+	DI::page()['aside'] .= Widget\SavedSearches::getHTML(DI::args()->getQueryString());
+	DI::page()['aside'] .= Widget::fileAs('network', $_GET['file'] ?? '');
 }
 
 /**
@@ -374,7 +374,7 @@ function networkFlatView(App $a, $update = 0)
 			(strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) ||
 			strlen($a->user['deny_cid']) || strlen($a->user['deny_gid'])) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
-			'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true),
+			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true),
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
@@ -548,7 +548,7 @@ function networkThreadedView(App $a, $update, $parent)
 			(strlen($a->user['allow_cid']) || strlen($a->user['allow_gid']) ||
 			strlen($a->user['deny_cid']) || strlen($a->user['deny_gid']))) ? 'lock' : 'unlock'),
 			'default_perms' => ACL::getDefaultUserPermissions($a->user),
-			'acl' => ACL::getFullSelectorHTML($a->page, $a->user, true, $default_permissions),
+			'acl' => ACL::getFullSelectorHTML(DI::page(), $a->user, true, $default_permissions),
 			'bang' => (($gid || $cid || $nets) ? '!' : ''),
 			'visitor' => 'block',
 			'profile_uid' => local_user(),

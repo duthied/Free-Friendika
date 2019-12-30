@@ -167,7 +167,7 @@ function profile_photo_post(App $a)
 	$ph->orient($src);
 	@unlink($src);
 
-	$imagecrop = profile_photo_crop_ui_head($a, $ph);
+	$imagecrop = profile_photo_crop_ui_head($ph);
 	DI::baseUrl()->redirect('profile_photo/use/' . $imagecrop['hash']);
 }
 
@@ -228,7 +228,7 @@ function profile_photo_content(App $a)
 		}
 		$ph = Photo::getImageForPhoto($r[0]);
 		
-		$imagecrop = profile_photo_crop_ui_head($a, $ph);
+		$imagecrop = profile_photo_crop_ui_head($ph);
 		// go ahead as we have jus uploaded a new photo to crop
 	}
 
@@ -271,7 +271,7 @@ function profile_photo_content(App $a)
 	}
 }
 
-function profile_photo_crop_ui_head(App $a, Image $image)
+function profile_photo_crop_ui_head(Image $image)
 {
 	$max_length = Config::get('system', 'max_image_length');
 	if (!$max_length) {
@@ -315,7 +315,7 @@ function profile_photo_crop_ui_head(App $a, Image $image)
 		}
 	}
 
-	$a->page['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate("crophead.tpl"), []);
+	DI::page()['htmlhead'] .= Renderer::replaceMacros(Renderer::getMarkupTemplate("crophead.tpl"), []);
 
 	$imagecrop = [
 		'hash'       => $hash,

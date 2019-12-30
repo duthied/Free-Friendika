@@ -20,6 +20,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Protocol\Activity;
 use Friendica\Util\Strings;
@@ -156,7 +157,7 @@ function poke_content(App $a)
 	$id = $contact['id'];
 
 	$head_tpl = Renderer::getMarkupTemplate('poke_head.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($head_tpl,[
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($head_tpl,[
 		'$baseurl' => System::baseUrl(true),
 	]);
 

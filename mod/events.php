@@ -37,13 +37,13 @@ function events_init(App $a)
 		return;
 	}
 
-	if (empty($a->page['aside'])) {
-		$a->page['aside'] = '';
+	if (empty(DI::page()['aside'])) {
+		DI::page()['aside'] = '';
 	}
 
 	$cal_widget = CalendarExport::getHTML();
 
-	$a->page['aside'] .= $cal_widget;
+	DI::page()['aside'] .= $cal_widget;
 
 	return;
 }
@@ -242,7 +242,7 @@ function events_content(App $a)
 	$i18n = Event::getStrings();
 
 	$htpl = Renderer::getMarkupTemplate('event_head.tpl');
-	$a->page['htmlhead'] .= Renderer::replaceMacros($htpl, [
+	DI::page()['htmlhead'] .= Renderer::replaceMacros($htpl, [
 		'$module_url' => '/events',
 		'$modparams' => 1,
 		'$i18n' => $i18n,
@@ -384,10 +384,10 @@ function events_content(App $a)
 		}
 
 		// ACL blocks are loaded in modals in frio
-		$a->page->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
-		$a->page->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
-		$a->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
-		$a->page->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
+		DI::page()->registerFooterScript(Theme::getPathForFile('asset/typeahead.js/dist/typeahead.bundle.js'));
+		DI::page()->registerFooterScript(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.js'));
+		DI::page()->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput.css'));
+		DI::page()->registerStylesheet(Theme::getPathForFile('js/friendica-tagsinput/friendica-tagsinput-typeahead.css'));
 
 		$o = Renderer::replaceMacros($tpl, [
 			'$tabs'      => $tabs,
@@ -489,7 +489,7 @@ function events_content(App $a)
 		$fminute = !empty($orig_event) ? DateTimeFormat::convert($fdt, $tz, 'UTC', 'i') : '00';
 
 		if (!$cid && in_array($mode, ['new', 'copy'])) {
-			$acl = ACL::getFullSelectorHTML($a->page, $a->user, false, ACL::getDefaultUserPermissions($orig_event));
+			$acl = ACL::getFullSelectorHTML(DI::page(), $a->user, false, ACL::getDefaultUserPermissions($orig_event));
 		} else {
 			$acl = '';
 		}

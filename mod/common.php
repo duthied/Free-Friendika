@@ -41,7 +41,7 @@ function common_content(App $a)
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['id' => $cid, 'uid' => $uid]);
 
 		if (DBA::isResult($contact)) {
-			$a->page['aside'] = "";
+			DI::page()['aside'] = "";
 			Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 		}
 	} else {
@@ -54,10 +54,10 @@ function common_content(App $a)
 				'url'    => 'contact/' . $cid
 			]);
 
-			if (empty($a->page['aside'])) {
-				$a->page['aside'] = '';
+			if (empty(DI::page()['aside'])) {
+				DI::page()['aside'] = '';
 			}
-			$a->page['aside'] .= $vcard_widget;
+			DI::page()['aside'] .= $vcard_widget;
 		}
 	}
 

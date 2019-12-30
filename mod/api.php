@@ -50,7 +50,7 @@ function api_content(App $a)
 		 * api/oauth/authorize interact with the user. return a standard page
 		 */
 
-		$a->page['template'] = "minimal";
+		DI::page()['template'] = "minimal";
 
 		// get consumer/client from request token
 		try {
