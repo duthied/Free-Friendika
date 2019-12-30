@@ -16,7 +16,7 @@ class HoverCard extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
 	{
-		$a = self::getApp();
+		$a = DI::app();
 
 		if ((local_user()) && ($parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user

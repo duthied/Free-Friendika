@@ -17,6 +17,6 @@ class Instance extends Api
 	 */
 	public static function rawContent(array $parameters = [])
 	{
-		System::jsonExit(InstanceEntity::get(self::getApp()));
+		System::jsonExit(InstanceEntity::get());
 	}
 }
