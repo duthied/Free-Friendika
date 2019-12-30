@@ -137,9 +137,9 @@ function redir_magic($a, $cid, $url)
 		// Shouldn't happen under normal conditions
 		notice(L10n::t('Contact not found.'));
 		if (!empty($url)) {
-			$a->redirect($url);
+			System::externalRedirect($url);
 		} else {
-			$a->internalRedirect();
+			DI::baseUrl()->redirect();
 		}
 	} else {
 		$contact_url = $contact['url'];
@@ -151,7 +151,7 @@ function redir_magic($a, $cid, $url)
 	// We don't use magic auth when there is no visitor, we are on the same system or we visit our own stuff
 	if (empty($visitor) || Strings::compareLink($basepath, System::baseUrl()) || Strings::compareLink($contact_url, $visitor)) {
 		Logger::info('Redirecting without magic', ['target' => $target_url, 'visitor' => $visitor, 'contact' => $contact_url]);
-		$a->redirect($target_url);
+		System::externalRedirect($target_url);
 	}
 
 	// Test for magic auth on the target system
@@ -161,7 +161,7 @@ function redir_magic($a, $cid, $url)
 		$target_url .= $separator . 'zrl=' . urlencode($visitor) . '&addr=' . urlencode($contact_url);
 
 		Logger::info('Redirecting with magic', ['target' => $target_url, 'visitor' => $visitor, 'contact' => $contact_url]);
-		$a->redirect($target_url);
+		System::externalRedirect($target_url);
 	} else {
 		Logger::info('No magic for contact', ['contact' => $contact_url]);
 	}
