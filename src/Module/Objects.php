@@ -37,7 +37,7 @@ class Objects extends BaseModule
 			// If no original post could be found, it could possibly be a forum post, there we remove the "origin" field.
 			// @TODO: Replace with parameter from router
 			$item = Item::selectFirst(['id', 'author-link'], ['guid' => $a->argv[1], 'private' => false]);
-			if (!DBA::isResult($item) || !strstr($item['author-link'], DI::baseUrl())) {
+			if (!DBA::isResult($item) || !strstr($item['author-link'], DI::baseUrl()->get())) {
 				throw new \Friendica\Network\HTTPException\NotFoundException();
 			}
 		}
