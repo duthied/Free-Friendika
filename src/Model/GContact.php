@@ -1128,13 +1128,13 @@ class GContact
 		self::update($gcontact);
 	}
 
-		/**
+	/**
 	 * @brief Get the basepath for a given contact link
 	 *
 	 * @param string $url The gcontact link
+	 * @param boolean $dont_update Don't update the contact
 	 *
 	 * @return string basepath
-	 * @return boolean $dont_update Don't update the contact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */

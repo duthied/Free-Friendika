@@ -269,9 +269,9 @@ class Contact
 	 * @brief Get the basepath for a given contact link
 	 *
 	 * @param string $url The contact link
+	 * @param boolean $dont_update Don't update the contact
 	 *
 	 * @return string basepath
-	 * @return boolean $dont_update Don't update the contact
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
