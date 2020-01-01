@@ -7,6 +7,7 @@ namespace Friendica\Worker;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Model\GContact;
+use Friendica\Model\GServer;
 use Friendica\Protocol\PortableContact;
 
 class UpdateServerDirectories
@@ -21,7 +22,7 @@ class UpdateServerDirectories
 		}
 
 		// Query Friendica and Hubzilla servers for their users
-		PortableContact::discover();
+		GServer::discover();
 
 		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
 		if (!Config::get('system', 'ostatus_disabled')) {

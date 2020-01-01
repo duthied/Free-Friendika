@@ -205,10 +205,6 @@ class Search
 		}
 
 		while ($row = DBA::fetch($data)) {
-			if (PortableContact::alternateOStatusUrl($row["nurl"])) {
-				continue;
-			}
-
 			$urlParts = parse_url($row["nurl"]);
 
 			// Ignore results that look strange.

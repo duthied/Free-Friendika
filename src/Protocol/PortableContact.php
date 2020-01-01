@@ -214,11 +214,6 @@ class PortableContact
 		DBA::delete('glink', $condition);
 	}
 
-	public static function alternateOStatusUrl($url)
-	{
-		return(preg_match("=https?://.+/user/\d+=ism", $url, $matches));
-	}
-
 	/**
 	 * @brief Returns a list of all known servers
 	 * @return array List of server urls
@@ -273,69 +268,6 @@ class PortableContact
 				Worker::add(PRIORITY_LOW, 'UpdateGServer', $server_url);
 			}
 		}
-	}
-
-	private static function discoverFederation()
-	{
-		$last = Config::get('poco', 'last_federation_discovery');
-
-		if ($last) {
-			$next = $last + (24 * 60 * 60);
-
-			if ($next > time()) {
-				return;
-			}
-		}
-
-		// Discover Friendica, Hubzilla and Diaspora servers
-		$curlResult = Network::fetchUrl("http://the-federation.info/pods.json");
-
-		if (!empty($curlResult)) {
-			$servers = json_decode($curlResult, true);
-
-			if (!empty($servers['pods'])) {
-				foreach ($servers['pods'] as $server) {
-					Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host']);
-				}
-			}
-		}
-
-		// Disvover Mastodon servers
-		if (!Config::get('system', 'ostatus_disabled')) {
-			$accesstoken = Config::get('system', 'instances_social_key');
-
-			if (!empty($accesstoken)) {
-				$api = 'https://instances.social/api/1.0/instances/list?count=0';
-				$header = ['Authorization: Bearer '.$accesstoken];
-				$curlResult = Network::curl($api, false, ['headers' => $header]);
-
-				if ($curlResult->isSuccess()) {
-					$servers = json_decode($curlResult->getBody(), true);
-
-					foreach ($servers['instances'] as $server) {
-						$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
-						Worker::add(PRIORITY_LOW, 'UpdateGServer', $url);
-					}
-				}
-			}
-		}
-
-		// Currently disabled, since the service isn't available anymore.
-		// It is not removed since I hope that there will be a successor.
-		// Discover GNU Social Servers.
-		//if (!Config::get('system','ostatus_disabled')) {
-		//	$serverdata = "http://gstools.org/api/get_open_instances/";
-
-		//	$curlResult = Network::curl($serverdata);
-		//	if ($curlResult->isSuccess()) {
-		//		$servers = json_decode($result->getBody(), true);
-
-		//		foreach($servers['data'] as $server)
-		//			GServer::check($server['instance_address']);
-		//	}
-		//}
-
-		Config::set('poco', 'last_federation_discovery', time());
 	}
 
 	public static function discoverSingleServer($id)
@@ -407,48 +339,6 @@ class PortableContact
 			DBA::update('gserver', $fields, ['nurl' => $server["nurl"]]);
 
 			return false;
-		}
-	}
-
-	public static function discover($complete = false)
-	{
-		// Update the server list
-		self::discoverFederation();
-
-		$no_of_queries = 5;
-
-		$requery_days = intval(Config::get('system', 'poco_requery_days'));
-
-		if ($requery_days == 0) {
-			$requery_days = 7;
-		}
-
-		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
-
-		$gservers = q("SELECT `id`, `url`, `nurl`, `network`, `poco`
-			FROM `gserver`
-			WHERE `last_contact` >= `last_failure`
-			AND `poco` != ''
-			AND `last_poco_query` < '%s'
-			ORDER BY RAND()", DBA::escape($last_update)
-		);
-
-		if (DBA::isResult($gservers)) {
-			foreach ($gservers as $gserver) {
-				if (!GServer::check($gserver['url'], $gserver['network'])) {
-					// The server is not reachable? Okay, then we will try it later
-					$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
-					DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
-					continue;
-				}
-
-				Logger::log('Update directory from server ' . $gserver['url'] . ' with ID ' . $gserver['id'], Logger::DEBUG);
-				Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
-
-				if (!$complete && ( --$no_of_queries == 0)) {
-					break;
-				}
-			}
 		}
 	}
 
@@ -602,5 +492,4 @@ class PortableContact
 		}
 		return $success;
 	}
-
 }
