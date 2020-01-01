@@ -9,7 +9,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
+use Friendica\Model\GContact;
 use Friendica\Model\GServer;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -53,7 +53,7 @@ class UpdateGContacts
 				continue;
 			}
 
-			$server_url = Contact::getBasepath($contact['url']);
+			$server_url = GContact::getBasepath($contact['url'], true);
 			$force_update = false;
 
 			if (!empty($contact['server_url'])) {

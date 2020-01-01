@@ -44,7 +44,7 @@ class GServer
 	public static function reachable(string $profile, string $server = '', string $network = '', bool $force = false)
 	{
 		if ($server == '') {
-			$server = Contact::getBasepath($profile);
+			$server = GContact::getBasepath($profile);
 		}
 
 		if ($server == '') {
