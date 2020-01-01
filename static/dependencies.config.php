@@ -6,9 +6,11 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n\L10n;
 use Friendica\Core\Lock\ILock;
+use Friendica\Core\Process;
 use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
 use Friendica\Factory;
+use Friendica\Model\User\Cookie;
 use Friendica\Util;
 use Psr\Log\LoggerInterface;
 
@@ -82,7 +84,7 @@ return [
 	],
 	Database::class                 => [
 		'constructParams' => [
-			[DICE::INSTANCE => \Psr\Log\NullLogger::class],
+			[Dice::INSTANCE => \Psr\Log\NullLogger::class],
 			$_SERVER,
 		],
 	],
@@ -162,7 +164,7 @@ return [
 			['determineModule', [], Dice::CHAIN_CALL],
 		],
 	],
-	Friendica\Core\Process::class => [
+	Process::class => [
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
 		],
@@ -187,4 +189,9 @@ return [
 			['start', [], Dice::CHAIN_CALL],
 		],
 	],
+	Cookie::class => [
+		'constructParams' => [
+			$_SERVER, $_COOKIE
+		],
+	]
 ];
