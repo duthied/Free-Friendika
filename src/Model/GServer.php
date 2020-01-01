@@ -1306,4 +1306,98 @@ class GServer
 			PortableContact::discoverSingleServer($gserver['id']);
 		}
 	}
+
+	/**
+	 * Update GServer entries
+	 */
+	public static function discover()
+	{
+		// Update the server list
+		self::discoverFederation();
+
+		$no_of_queries = 5;
+
+		$requery_days = intval(Config::get('system', 'poco_requery_days'));
+
+		if ($requery_days == 0) {
+			$requery_days = 7;
+		}
+
+		$last_update = date('c', time() - (60 * 60 * 24 * $requery_days));
+
+		$gservers = DBA::p("SELECT `id`, `url`, `nurl`, `network`, `poco`
+			FROM `gserver`
+			WHERE `last_contact` >= `last_failure`
+			AND `poco` != ''
+			AND `last_poco_query` < ?
+			ORDER BY RAND()", $last_update
+		);
+
+		while ($gserver = DBA::fetch($gservers)) {
+			if (!GServer::check($gserver['url'], $gserver['network'])) {
+				// The server is not reachable? Okay, then we will try it later
+				$fields = ['last_poco_query' => DateTimeFormat::utcNow()];
+				DBA::update('gserver', $fields, ['nurl' => $gserver['nurl']]);
+				continue;
+			}
+
+			Logger::info('Update directory', ['server' => $gserver['url'], 'id' => $gserver['id']]);
+			Worker::add(PRIORITY_LOW, 'UpdateServerDirectory', $gserver);
+
+			if (--$no_of_queries == 0) {
+				break;
+			}
+		}
+
+		DBA::close($gservers);
+	}
+
+	/**
+	 * Discover federated servers
+	 */
+	private static function discoverFederation()
+	{
+		$last = Config::get('poco', 'last_federation_discovery');
+
+		if ($last) {
+			$next = $last + (24 * 60 * 60);
+
+			if ($next > time()) {
+				return;
+			}
+		}
+
+		// Discover federated servers
+		$curlResult = Network::fetchUrl("http://the-federation.info/pods.json");
+
+		if (!empty($curlResult)) {
+			$servers = json_decode($curlResult, true);
+
+			if (!empty($servers['pods'])) {
+				foreach ($servers['pods'] as $server) {
+					Worker::add(PRIORITY_LOW, 'UpdateGServer', 'https://' . $server['host']);
+				}
+			}
+		}
+
+		// Disvover Mastodon servers
+		$accesstoken = Config::get('system', 'instances_social_key');
+
+		if (!empty($accesstoken)) {
+			$api = 'https://instances.social/api/1.0/instances/list?count=0';
+			$header = ['Authorization: Bearer '.$accesstoken];
+			$curlResult = Network::curl($api, false, ['headers' => $header]);
+
+			if ($curlResult->isSuccess()) {
+				$servers = json_decode($curlResult->getBody(), true);
+
+				foreach ($servers['instances'] as $server) {
+					$url = (is_null($server['https_score']) ? 'http' : 'https') . '://' . $server['name'];
+					Worker::add(PRIORITY_LOW, 'UpdateGServer', $url);
+				}
+			}
+		}
+
+		Config::set('poco', 'last_federation_discovery', time());
+	}
 }
