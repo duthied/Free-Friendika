@@ -216,7 +216,7 @@ class GContact
 
 		if (empty($gcontact['server_url'])) {
 			// We check the server url to be sure that it is a real one
-			$server_url = Contact::getBasepath($gcontact['url']);
+			$server_url = self::getBasepath($gcontact['url']);
 
 			// We are now sure that it is a correct URL. So we use it in the future
 			if ($server_url != '') {
@@ -1126,6 +1126,38 @@ class GContact
 				"generation" => 1, 'network' => Protocol::DFRN];
 
 		self::update($gcontact);
+	}
+
+		/**
+	 * @brief Get the basepath for a given contact link
+	 *
+	 * @param string $url The gcontact link
+	 *
+	 * @return string basepath
+	 * @return boolean $dont_update Don't update the contact
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \ImagickException
+	 */
+	public static function getBasepath($url, $dont_update = false)
+	{
+		$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($url)]);
+		if (!empty($gcontact['server_url'])) {
+			return $gcontact['server_url'];
+		} elseif ($dont_update) {
+			return '';
+		}
+
+		self::updateFromProbe($url, true);
+
+		// Fetch the result
+		$gcontact = DBA::selectFirst('gcontact', ['server_url'], ['nurl' => Strings::normaliseLink($url)]);
+		if (empty($gcontact['server_url'])) {
+			Logger::info('No baseurl for gcontact', ['url' => $url]);
+			return '';
+		}
+
+		Logger::info('Found baseurl for gcontact', ['url' => $url, 'baseurl' => $gcontact['server_url']]);
+		return $gcontact['server_url'];
 	}
 
 	/**

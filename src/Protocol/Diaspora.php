@@ -1133,12 +1133,6 @@ class Diaspora
 	{
 		$cid = Contact::getIdForURL($handle, $uid);
 		if (!$cid) {
-			$handle_parts = explode("@", $handle);
-			$nurl_sql = "%%://" . $handle_parts[1] . "%%/profile/" . $handle_parts[0];
-			$cid = Contact::getIdForURL($nurl_sql, $uid);
-		}
-
-		if (!$cid) {
 			Logger::log("Haven't found a contact for user " . $uid . " and handle " . $handle, Logger::DEBUG);
 			return false;
 		}

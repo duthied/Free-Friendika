@@ -277,21 +277,29 @@ class Contact
 	 */
 	public static function getBasepath($url, $dont_update = false)
 	{
-		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
+		$contact = DBA::selectFirst('contact', ['id', 'baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
+		if (!DBA::isResult($contact)) {
+			return '';
+		}
+
 		if (!empty($contact['baseurl'])) {
 			return $contact['baseurl'];
 		} elseif ($dont_update) {
 			return '';
 		}
 
-		self::updateFromProbeByURL($url, true);
+		// Update the existing contact
+		self::updateFromProbe($contact['id'], '', true);
 
-		$contact = DBA::selectFirst('contact', ['baseurl'], ['uid' => 0, 'nurl' => Strings::normaliseLink($url)]);
-		if (!empty($contact['baseurl'])) {
-			return $contact['baseurl'];
+		// And fetch the result
+		$contact = DBA::selectFirst('contact', ['baseurl'], ['id' => $contact['id']]);
+		if (empty($contact['baseurl'])) {
+			Logger::info('No baseurl for contact', ['url' => $url]);
+			return '';
 		}
 
-		return '';
+		Logger::info('Found baseurl for contact', ['url' => $url, 'baseurl' => $contact['baseurl']]);
+		return $contact['baseurl'];
 	}
 
 	/**

@@ -10,7 +10,6 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\Model\GContact;
-use Friendica\Model\Contact;
 use Friendica\Model\GServer;
 use Friendica\Network\Probe;
 use Friendica\Util\Network;
@@ -55,7 +54,7 @@ class SearchDirectory
 					continue;
 				}
 
-				$server_url = Contact::getBasepath($jj->url);
+				$server_url = GContact::getBasepath($jj->url, true);
 				if ($server_url != '') {
 					if (!GServer::check($server_url)) {
 						Logger::info("Friendica server doesn't answer.", ['server' => $server_url]);
