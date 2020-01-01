@@ -9,6 +9,7 @@ use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
