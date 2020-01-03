@@ -1480,10 +1480,7 @@ class Probe
 			return false;
 		}
 		$feed = $curlResult->getBody();
-		$dummy1 = null;
-		$dummy2 = null;
-		$dummy2 = null;
-		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
+		$feed_data = Feed::import($feed);
 		if (!$feed_data) {
 			return false;
 		}
@@ -1763,8 +1760,7 @@ class Probe
 			return false;
 		}
 		$feed = $curlResult->getBody();
-		$dummy1 = $dummy2 = $dummy3 = null;
-		$feed_data = Feed::import($feed, $dummy1, $dummy2, $dummy3, true);
+		$feed_data = Feed::import($feed);
 
 		if (!$feed_data) {
 			if (!$probe) {
