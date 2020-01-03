@@ -246,7 +246,7 @@ function item_post(App $a) {
 		$app               = $orig_post['app'];
 		$categories        = $orig_post['file'];
 		$title             = Strings::escapeTags(trim($_REQUEST['title']));
-		$body              = Strings::escapeHtml(trim($body));
+		$body              = trim($body);
 		$private           = $orig_post['private'];
 		$pubmail_enabled   = $orig_post['pubmail'];
 		$network           = $orig_post['network'];
@@ -285,7 +285,7 @@ function item_post(App $a) {
 		$coord             = Strings::escapeTags(trim($_REQUEST['coord']    ?? ''));
 		$verb              = Strings::escapeTags(trim($_REQUEST['verb']     ?? ''));
 		$emailcc           = Strings::escapeTags(trim($_REQUEST['emailcc']  ?? ''));
-		$body              = Strings::escapeHtml(trim($body));
+		$body              = trim($body);
 		$network           = Strings::escapeTags(trim(($_REQUEST['network']  ?? '') ?: Protocol::DFRN));
 		$guid              = System::createUUID();
 
@@ -509,7 +509,7 @@ function item_post(App $a) {
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
 
-	$body = BBCode::scaleExternalImages($body, false);
+	$body = BBCode::scaleExternalImages($body);
 
 	// Setting the object type if not defined before
 	if (!$objecttype) {
