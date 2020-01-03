@@ -436,13 +436,8 @@ class BBCode
 		}
 	}
 
-	public static function scaleExternalImages($srctext, $include_link = true, $scale_replace = false)
+	public static function scaleExternalImages($srctext)
 	{
-		// Suppress "view full size"
-		if (intval(Config::get('system', 'no_view_full_size'))) {
-			$include_link = false;
-		}
-
 		// Picture addresses can contain special characters
 		$s = $srctext;
 
@@ -457,17 +452,7 @@ class BBCode
 					continue;
 				}
 
-				// $scale_replace, if passed, is an array of two elements. The
-				// first is the name of the full-size image. The second is the
-				// name of a remote, scaled-down version of the full size image.
-				// This allows Friendica to display the smaller remote image if
-				// one exists, while still linking to the full-size image
-				if ($scale_replace) {
-					$scaled = str_replace($scale_replace[0], $scale_replace[1], $mtch[1]);
-				} else {
-					$scaled = $mtch[1];
-				}
-				$i = Network::fetchUrl($scaled);
+				$i = Network::fetchUrl($mtch[1]);
 				if (!$i) {
 					return $srctext;
 				}
@@ -488,10 +473,8 @@ class BBCode
 							Logger::log('scale_external_images: ' . $orig_width . '->' . $new_width . 'w ' . $orig_height . '->' . $new_height . 'h' . ' match: ' . $mtch[0], Logger::DEBUG);
 							$s = str_replace(
 								$mtch[0],
-								'[img=' . $new_width . 'x' . $new_height. ']' . $scaled . '[/img]'
-								. "\n" . (($include_link)
-									? '[url=' . $mtch[1] . ']' . L10n::t('view full size') . '[/url]' . "\n"
-									: ''),
+								'[img=' . $new_width . 'x' . $new_height. ']' . $mtch[1] . '[/img]'
+								. "\n",
 								$s
 							);
 							Logger::log('scale_external_images: new string: ' . $s, Logger::DEBUG);

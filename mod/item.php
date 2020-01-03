@@ -509,7 +509,7 @@ function item_post(App $a) {
 	// Fold multi-line [code] sequences
 	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
 
-	$body = BBCode::scaleExternalImages($body, false);
+	$body = BBCode::scaleExternalImages($body);
 
 	// Setting the object type if not defined before
 	if (!$objecttype) {
