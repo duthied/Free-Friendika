@@ -444,7 +444,7 @@ class BBCode
 		}
 
 		// Picture addresses can contain special characters
-		$s = htmlspecialchars_decode($srctext);
+		$s = $srctext;
 
 		$matches = null;
 		$c = preg_match_all('/\[img.*?\](.*?)\[\/img\]/ism', $s, $matches, PREG_SET_ORDER);
@@ -501,8 +501,6 @@ class BBCode
 			}
 		}
 
-		// replace the special char encoding
-		$s = htmlspecialchars($s, ENT_NOQUOTES, 'UTF-8');
 		return $s;
 	}
 
