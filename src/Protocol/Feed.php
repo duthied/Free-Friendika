@@ -14,8 +14,8 @@ use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Util\ParseUrl;
 use Friendica\Util\Network;
+use Friendica\Util\ParseUrl;
 use Friendica\Util\XML;
 
 /**
@@ -35,15 +35,16 @@ class Feed {
 	 * @return array In simulation mode it returns the header and the first item
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function import($xml, $importer, &$contact, &$hub, $simulate = false) {
-
+	public static function import($xml, $importer, &$contact, &$hub, $simulate = false)
+	{
 		$a = \get_app();
 
 		if (!$simulate) {
-			Logger::log("Import Atom/RSS feed '".$contact["name"]."' (Contact ".$contact["id"].") for user ".$importer["uid"], Logger::DEBUG);
+			Logger::log("Import Atom/RSS feed '" . $contact["name"] . "' (Contact " . $contact["id"] . ") for user " . $importer["uid"], Logger::DEBUG);
 		} else {
 			Logger::log("Test Atom/RSS feed", Logger::DEBUG);
 		}
+
 		if (empty($xml)) {
 			Logger::log('XML is empty.', Logger::DEBUG);
 			return;
@@ -114,13 +115,16 @@ class Feed {
 			if (empty($author["author-name"])) {
 				$author["author-name"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:subtitle/text()');
 			}
+
 			if (empty($author["author-name"])) {
 				$author["author-name"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:name/text()');
 			}
+
 			$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:displayName/text()');
 			if ($value != "") {
 				$author["author-name"] = $value;
 			}
+
 			if ($simulate) {
 				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:id/text()');
 
@@ -134,14 +138,17 @@ class Feed {
 				if ($value != "") {
 					$author["author-nick"] = $value;
 				}
+
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:address/poco:formatted/text()');
 				if ($value != "") {
 					$author["author-location"] = $value;
 				}
+
 				$value = XML::getFirstNodeValue($xpath, 'atom:author/poco:note/text()');
 				if ($value != "") {
 					$author["author-about"] = $value;
 				}
+
 				$avatar = XML::getFirstAttributes($xpath, "atom:author/atom:link[@rel='avatar']");
 				if (is_object($avatar)) {
 					foreach ($avatar AS $attribute) {
@@ -169,9 +176,11 @@ class Feed {
 			if (empty($author["author-name"])) {
 				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/copyright/text()');
 			}
+
 			if (empty($author["author-name"])) {
 				$author["author-name"] = XML::getFirstNodeValue($xpath, '/rss/channel/description/text()');
 			}
+
 			$author["edited"] = $author["created"] = XML::getFirstNodeValue($xpath, '/rss/channel/pubDate/text()');
 
 			$author["app"] = XML::getFirstNodeValue($xpath, '/rss/channel/generator/text()');
@@ -185,6 +194,7 @@ class Feed {
 			if (empty($author["author-name"])) {
 				$author["author-name"] = $contact["name"];
 			}
+
 			$author["author-avatar"] = $contact["thumb"];
 
 			$author["owner-link"] = $contact["url"];
@@ -211,7 +221,7 @@ class Feed {
 
 		$items = [];
 		// Importing older entries first
-		for($i = $entries->length - 1; $i >= 0;--$i) {
+		for ($i = $entries->length - 1; $i >= 0; --$i) {
 			$entry = $entries->item($i);
 
 			$item = array_merge($header, $author);
@@ -227,9 +237,11 @@ class Feed {
 					}
 				}
 			}
+
 			if (empty($item["plink"])) {
 				$item["plink"] = XML::getFirstNodeValue($xpath, 'link/text()', $entry);
 			}
+
 			if (empty($item["plink"])) {
 				$item["plink"] = XML::getFirstNodeValue($xpath, 'rss:link/text()', $entry);
 			}
@@ -239,6 +251,7 @@ class Feed {
 			if (empty($item["uri"])) {
 				$item["uri"] = XML::getFirstNodeValue($xpath, 'guid/text()', $entry);
 			}
+
 			if (empty($item["uri"])) {
 				$item["uri"] = $item["plink"];
 			}
@@ -254,7 +267,7 @@ class Feed {
 					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
 				$previous = Item::selectFirst(['id'], $condition);
 				if (DBA::isResult($previous)) {
-					Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"]." already existed under id ".$previous["id"], Logger::DEBUG);
+					Logger::log("Item with uri " . $item["uri"] . " for user " . $importer["uid"] . " already existed under id " . $previous["id"], Logger::DEBUG);
 					continue;
 				}
 			}
@@ -275,9 +288,11 @@ class Feed {
 			if (empty($published)) {
 				$published = XML::getFirstNodeValue($xpath, 'pubDate/text()', $entry);
 			}
+
 			if (empty($published)) {
 				$published = XML::getFirstNodeValue($xpath, 'dc:date/text()', $entry);
 			}
+
 			$updated = XML::getFirstNodeValue($xpath, 'atom:updated/text()', $entry);
 
 			if (empty($updated) && !empty($published)) {
@@ -291,20 +306,25 @@ class Feed {
 			if ($published != "") {
 				$item["created"] = $published;
 			}
+
 			if ($updated != "") {
 				$item["edited"] = $updated;
 			}
+
 			$creator = XML::getFirstNodeValue($xpath, 'author/text()', $entry);
 
 			if (empty($creator)) {
 				$creator = XML::getFirstNodeValue($xpath, 'atom:author/atom:name/text()', $entry);
 			}
+
 			if (empty($creator)) {
 				$creator = XML::getFirstNodeValue($xpath, 'dc:creator/text()', $entry);
 			}
+
 			if ($creator != "") {
 				$item["author-name"] = $creator;
 			}
+
 			$creator = XML::getFirstNodeValue($xpath, 'dc:creator/text()', $entry);
 
 			if ($creator != "") {
@@ -332,6 +352,7 @@ class Feed {
 						$type = $attribute->textContent;
 					}
 				}
+
 				if (!empty($item["attach"])) {
 					$item["attach"] .= ',';
 				} else {
@@ -340,7 +361,7 @@ class Feed {
 
 				$attachments[] = ["link" => $href, "type" => $type, "length" => $length];
 
-				$item["attach"] .= '[attach]href="'.$href.'" length="'.$length.'" type="'.$type.'"[/attach]';
+				$item["attach"] .= '[attach]href="' . $href . '" length="' . $length . '" type="' . $type . '"[/attach]';
 			}
 
 			$tags = '';
@@ -418,7 +439,7 @@ class Feed {
 					$item["body"] = trim($item["title"]);
 				}
 
-			        $data = ParseUrl::getSiteinfoCached($item['plink'], true);
+				$data = ParseUrl::getSiteinfoCached($item['plink'], true);
 				if (!empty($data['text']) && !empty($data['title']) && (mb_strlen($item['body']) < mb_strlen($data['text']))) {
 					// When the fetched page info text is longer than the body, we do try to enhance the body
 					if (!empty($item['body']) && (strpos($data['title'], $item['body']) === false) && (strpos($data['text'], $item['body']) === false)) {
@@ -432,7 +453,7 @@ class Feed {
 
 				// We always strip the title since it will be added in the page information
 				$item["title"] = "";
-				$item["body"] = $item["body"].add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
+				$item["body"] = $item["body"] . add_page_info($item["plink"], false, $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["tag"] = add_page_keywords($item["plink"], $preview, ($contact["fetch_further_information"] == 2), $contact["ffi_keyword_blacklist"]);
 				$item["object-type"] = Activity\ObjectType::BOOKMARK;
 				unset($item["attach"]);
@@ -448,16 +469,17 @@ class Feed {
 						// @todo $preview is never set in this case, is it intended? - @MrPetovan 2018-02-13
 						$item["tag"] = add_page_keywords($item["plink"], $preview, true, $contact["ffi_keyword_blacklist"]);
 					}
-					$item["body"] .= "\n".$item['tag'];
+					$item["body"] .= "\n" . $item['tag'];
 				}
+
 				// Add the link to the original feed entry if not present in feed
 				if (($item['plink'] != '') && !strstr($item["body"], $item['plink'])) {
-					$item["body"] .= "[hr][url]".$item['plink']."[/url]";
+					$item["body"] .= "[hr][url]" . $item['plink'] . "[/url]";
 				}
 			}
 
 			if (!$simulate) {
-				Logger::log("Stored feed: ".print_r($item, true), Logger::DEBUG);
+				Logger::log("Stored feed: " . print_r($item, true), Logger::DEBUG);
 
 				$notify = Item::isRemoteSelf($contact, $item);
 
@@ -474,10 +496,11 @@ class Feed {
 
 				$id = Item::insert($item, false, $notify);
 
-				Logger::log("Feed for contact ".$contact["url"]." stored under id ".$id);
+				Logger::log("Feed for contact " . $contact["url"] . " stored under id " . $id);
 			} else {
 				$items[] = $item;
 			}
+			
 			if ($simulate) {
 				break;
 			}
