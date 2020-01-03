@@ -29,25 +29,23 @@ class Feed {
 	 * @param string $xml      The feed data
 	 * @param array  $importer The user record of the importer
 	 * @param array  $contact  The contact record of the feed
-	 * @param string $hub      Unused dummy value for compatibility reasons
-	 * @param bool   $simulate If enabled, no data is imported
 	 *
-	 * @return array In simulation mode it returns the header and the first item
+	 * @return array Returns the header and the first item in dry run mode
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function import($xml, $importer, &$contact, &$hub, $simulate = false)
+	public static function import($xml, array $importer = [], array $contact = [])
 	{
-		$a = \get_app();
+		$dryRun = empty($importer) && empty($contact);
 
-		if (!$simulate) {
-			Logger::log("Import Atom/RSS feed '" . $contact["name"] . "' (Contact " . $contact["id"] . ") for user " . $importer["uid"], Logger::DEBUG);
+		if ($dryRun) {
+			Logger::info("Test Atom/RSS feed");
 		} else {
-			Logger::log("Test Atom/RSS feed", Logger::DEBUG);
+			Logger::info("Import Atom/RSS feed '" . $contact["name"] . "' (Contact " . $contact["id"] . ") for user " . $importer["uid"]);
 		}
 
 		if (empty($xml)) {
-			Logger::log('XML is empty.', Logger::DEBUG);
-			return;
+			Logger::info('XML is empty.');
+			return [];
 		}
 
 		if (!empty($contact['poll'])) {
@@ -125,7 +123,7 @@ class Feed {
 				$author["author-name"] = $value;
 			}
 
-			if ($simulate) {
+			if ($dryRun) {
 				$author["author-id"] = XML::getFirstNodeValue($xpath, '/atom:feed/atom:author/atom:id/text()');
 
 				// See https://tools.ietf.org/html/rfc4287#section-3.2.2
@@ -188,7 +186,7 @@ class Feed {
 			$entries = $xpath->query('/rss/channel/item');
 		}
 
-		if (!$simulate) {
+		if (!$dryRun) {
 			$author["author-link"] = $contact["url"];
 
 			if (empty($author["author-name"])) {
@@ -203,7 +201,7 @@ class Feed {
 		}
 
 		$header = [];
-		$header["uid"] = $importer["uid"];
+		$header["uid"] = $importer["uid"] ?? 0;
 		$header["network"] = Protocol::FEED;
 		$header["wall"] = 0;
 		$header["origin"] = 0;
@@ -212,11 +210,11 @@ class Feed {
 		$header["verb"] = Activity::POST;
 		$header["object-type"] = Activity\ObjectType::NOTE;
 
-		$header["contact-id"] = $contact["id"];
+		$header["contact-id"] = $contact["id"] ?? 0;
 
 		if (!is_object($entries)) {
-			Logger::log("There are no entries in this feed.", Logger::DEBUG);
-			return;
+			Logger::info("There are no entries in this feed.");
+			return [];
 		}
 
 		$items = [];
@@ -262,12 +260,12 @@ class Feed {
 
 			$item["parent-uri"] = $item["uri"];
 
-			if (!$simulate) {
+			if (!$dryRun) {
 				$condition = ["`uid` = ? AND `uri` = ? AND `network` IN (?, ?)",
 					$importer["uid"], $item["uri"], Protocol::FEED, Protocol::DFRN];
 				$previous = Item::selectFirst(['id'], $condition);
 				if (DBA::isResult($previous)) {
-					Logger::log("Item with uri " . $item["uri"] . " for user " . $importer["uid"] . " already existed under id " . $previous["id"], Logger::DEBUG);
+					Logger::info("Item with uri " . $item["uri"] . " for user " . $importer["uid"] . " already existed under id " . $previous["id"]);
 					continue;
 				}
 			}
@@ -478,8 +476,11 @@ class Feed {
 				}
 			}
 
-			if (!$simulate) {
-				Logger::log("Stored feed: " . print_r($item, true), Logger::DEBUG);
+			if ($dryRun) {
+				$items[] = $item;
+				break;
+			} else {
+				Logger::info("Stored feed: " . print_r($item, true));
 
 				$notify = Item::isRemoteSelf($contact, $item);
 
@@ -496,19 +497,11 @@ class Feed {
 
 				$id = Item::insert($item, false, $notify);
 
-				Logger::log("Feed for contact " . $contact["url"] . " stored under id " . $id);
-			} else {
-				$items[] = $item;
-			}
-			
-			if ($simulate) {
-				break;
+				Logger::info("Feed for contact " . $contact["url"] . " stored under id " . $id);
 			}
 		}
 
-		if ($simulate) {
-			return ["header" => $author, "items" => $items];
-		}
+		return ["header" => $author, "items" => $items];
 	}
 
 	private static function titleIsBody($title, $body)

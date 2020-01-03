@@ -29,15 +29,12 @@ class Feed extends BaseModule
 		if (!empty($_REQUEST['url'])) {
 			$url = $_REQUEST['url'];
 
-			$importer = Model\User::getById(local_user());
-
 			$contact_id = Model\Contact::getIdForURL($url, local_user(), true);
 			$contact = Model\Contact::getById($contact_id);
 
 			$xml = Network::fetchUrl($contact['poll']);
 
-			$dummy = null;
-			$import_result = Protocol\Feed::import($xml, $importer, $contact, $dummy, true);
+			$import_result = Protocol\Feed::import($xml);
 
 			$result = [
 				'input' => $xml,
