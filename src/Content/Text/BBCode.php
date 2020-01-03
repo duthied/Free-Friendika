@@ -438,7 +438,6 @@ class BBCode
 
 	public static function scaleExternalImages($srctext)
 	{
-		// Picture addresses can contain special characters
 		$s = $srctext;
 
 		$matches = null;
