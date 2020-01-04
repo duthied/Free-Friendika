@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1328);
+	define('DB_UPDATE_VERSION', 1329);
 }
 
 return [
@@ -1388,7 +1388,8 @@ return [
 			"uid" => ["type" => "mediumint unsigned", "not null" => "1", "default" => "0", "primary" => "1", "relation" => ["user" => "uid"], "comment" => "User id"],
 			"hidden" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Marker to hide an item from the user"],
 			"ignored" => ["type" => "boolean", "comment" => "Ignore this thread if set"],
-			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"]
+			"pinned" => ["type" => "boolean", "comment" => "The item is pinned on the profile page"],
+			"notification-type" => ["type" => "tinyint unsigned", "not null" => "1", "default" => "0", "comment" => ""],
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "iid"],
