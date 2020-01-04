@@ -8,6 +8,7 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
@@ -34,7 +35,7 @@ class SearchDirectory
 			}
 		}
 
-		$x = Network::fetchUrl(get_server() . '/lsearch?p=1&n=500&search=' . urlencode($search));
+		$x = Network::fetchUrl(Search::getGlobalDirectory() . '/lsearch?p=1&n=500&search=' . urlencode($search));
 		$j = json_decode($x);
 
 		if (!empty($j->results)) {

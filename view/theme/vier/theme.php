@@ -16,6 +16,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -183,7 +184,7 @@ function vier_community_info()
 		$nv['random'] = L10n::t('Random Profile');
 		$nv['inv'] = L10n::t('Invite Friends');
 		$nv['directory'] = L10n::t('Global Directory');
-		$nv['global_dir'] = get_server();
+		$nv['global_dir'] = Search::getGlobalDirectory();
 		$nv['local_directory'] = L10n::t('Local Directory');
 
 		$aside['$nv'] = $nv;
