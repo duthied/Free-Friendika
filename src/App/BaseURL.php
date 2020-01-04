@@ -355,7 +355,7 @@ class BaseURL
 		if (!empty($relative_script_path)) {
 			// Module
 			if (!empty($this->server['QUERY_STRING'])) {
-				$this->urlPath = trim(rdirname($relative_script_path, substr_count(trim($this->server['QUERY_STRING'], '/'), '/') + 1), '/');
+				$this->urlPath = trim(dirname($relative_script_path, substr_count(trim($this->server['QUERY_STRING'], '/'), '/') + 1), '/');
 			} else {
 				// Root page
 				$this->urlPath = trim($relative_script_path, '/');

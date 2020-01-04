@@ -683,22 +683,3 @@ function validate_include(&$file)
 	// Simply return flag
 	return $valid;
 }
-
-/**
- * PHP 5 compatible dirname() with count parameter
- *
- * @see http://php.net/manual/en/function.dirname.php#113193
- *
- * @deprecated with PHP 7
- * @param string $path
- * @param int    $levels
- * @return string
- */
-function rdirname($path, $levels = 1)
-{
-	if ($levels > 1) {
-		return dirname(rdirname($path, --$levels));
-	} else {
-		return dirname($path);
-	}
-}
