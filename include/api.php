@@ -930,7 +930,7 @@ function api_format_data($root_element, $type, $data)
  */
 function api_account_verify_credentials($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -998,7 +998,7 @@ function requestdata($k)
  */
 function api_statuses_mediap($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		Logger::log('api_statuses_update: no user');
@@ -1052,7 +1052,7 @@ api_register_func('api/statuses/mediap', 'api_statuses_mediap', true, API_METHOD
  */
 function api_statuses_update($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		Logger::log('api_statuses_update: no user');
@@ -1202,7 +1202,7 @@ api_register_func('api/statuses/update_with_media', 'api_statuses_update', true,
  */
 function api_media_upload()
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		Logger::log('no user');
@@ -1257,7 +1257,7 @@ api_register_func('api/media/upload', 'api_media_upload', true, API_METHOD_POST)
  */
 function api_media_metadata_create($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		Logger::info('no user');
@@ -1404,7 +1404,7 @@ api_register_func('api/externalprofile/show', 'api_users_show');
  */
 function api_users_search($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	$userlist = [];
 
@@ -1466,7 +1466,7 @@ function api_users_lookup($type)
 	if (!empty($_REQUEST['user_id'])) {
 		foreach (explode(',', $_REQUEST['user_id']) as $id) {
 			if (!empty($id)) {
-				$users[] = api_get_user(get_app(), $id);
+				$users[] = api_get_user(DI::app(), $id);
 			}
 		}
 	}
@@ -1497,7 +1497,7 @@ api_register_func('api/users/lookup', 'api_users_lookup', true);
  */
 function api_search($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -1611,7 +1611,7 @@ api_register_func('api/search', 'api_search', true);
  */
 function api_statuses_home_timeline($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -1704,7 +1704,7 @@ api_register_func('api/statuses/friends_timeline', 'api_statuses_home_timeline',
  */
 function api_statuses_public_timeline($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -1789,7 +1789,7 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
  */
 function api_statuses_networkpublic_timeline($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -1850,7 +1850,7 @@ api_register_func('api/statuses/networkpublic_timeline', 'api_statuses_networkpu
  */
 function api_statuses_show($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -1929,7 +1929,7 @@ api_register_func('api/statuses/show', 'api_statuses_show', true);
  */
 function api_conversation_show($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -2011,7 +2011,7 @@ function api_statuses_repeat($type)
 {
 	global $called_api;
 
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -2088,7 +2088,7 @@ api_register_func('api/statuses/retweet', 'api_statuses_repeat', true, API_METHO
  */
 function api_statuses_destroy($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -2135,7 +2135,7 @@ api_register_func('api/statuses/destroy', 'api_statuses_destroy', true, API_METH
  */
 function api_statuses_mentions($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -2204,7 +2204,7 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
  */
 function api_statuses_user_timeline($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -2288,7 +2288,7 @@ api_register_func('api/statuses/user_timeline', 'api_statuses_user_timeline', tr
  */
 function api_favorites_create_destroy($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -2371,7 +2371,7 @@ function api_favorites($type)
 {
 	global $called_api;
 
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -2836,7 +2836,7 @@ function api_contactlink_to_array($txt)
  */
 function api_format_items_activities($item, $type = "json")
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	$activities = [
 		'like' => [],
@@ -3257,7 +3257,7 @@ api_register_func('api/lists/subscriptions', 'api_lists_list', true);
  */
 function api_lists_ownerships($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -3306,7 +3306,7 @@ api_register_func('api/lists/ownerships', 'api_lists_ownerships', true);
  */
 function api_lists_statuses($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	$user_info = api_get_user($a);
 	if (api_user() === false || $user_info === false) {
@@ -3384,7 +3384,7 @@ api_register_func('api/lists/statuses', 'api_lists_statuses', true);
  */
 function api_statuses_f($qtype)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -3636,7 +3636,7 @@ function api_ff_ids($type, int $rel)
 		throw new ForbiddenException();
 	}
 
-	$a = \get_app();
+	$a = DI::app();
 
 	api_get_user($a);
 
@@ -3723,7 +3723,7 @@ api_register_func('api/followers/ids', 'api_followers_ids', true);
  */
 function api_direct_messages_new($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -3815,7 +3815,7 @@ api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, AP
  */
 function api_direct_messages_destroy($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -3983,7 +3983,7 @@ api_register_func('api/friendships/destroy', 'api_friendships_destroy', true, AP
  */
 function api_direct_messages_box($type, $box, $verbose)
 {
-	$a = \get_app();
+	$a = DI::app();
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
@@ -4627,7 +4627,7 @@ function api_account_update_profile_image($type)
 	Contact::updateSelfFromUserID(api_user(), true);
 
 	// Update global directory in background
-	$url = DI::baseUrl() . '/profile/' . \get_app()->user['nickname'];
+	$url = DI::baseUrl() . '/profile/' . DI::app()->user['nickname'];
 	if ($url && strlen(Config::get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
@@ -4668,7 +4668,7 @@ api_register_func('api/account/update_profile_image', 'api_account_update_profil
 function api_account_update_profile($type)
 {
 	$local_user = api_user();
-	$api_user = api_get_user(get_app());
+	$api_user = api_get_user(DI::app());
 
 	if (!empty($_POST['name'])) {
 		DBA::update('profile', ['name' => $_POST['name']], ['uid' => $local_user]);
@@ -4963,7 +4963,7 @@ function post_photo_item($hash, $allow_cid, $deny_cid, $allow_gid, $deny_gid, $f
  */
 function prepare_photo_data($type, $scale, $photo_id)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if ($user_info === false) {
@@ -5391,7 +5391,7 @@ function api_best_nickname(&$contacts)
  */
 function api_friendica_group_show($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5461,7 +5461,7 @@ api_register_func('api/friendica/group_show', 'api_friendica_group_show', true);
  */
 function api_friendica_group_delete($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5528,7 +5528,7 @@ api_register_func('api/friendica/group_delete', 'api_friendica_group_delete', tr
  */
 function api_lists_destroy($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5650,7 +5650,7 @@ function group_create($name, $uid, $users = [])
  */
 function api_friendica_group_create($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5684,7 +5684,7 @@ api_register_func('api/friendica/group_create', 'api_friendica_group_create', tr
  */
 function api_lists_create($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5723,7 +5723,7 @@ api_register_func('api/lists/create', 'api_lists_create', true, API_METHOD_POST)
  */
 function api_friendica_group_update($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5802,7 +5802,7 @@ api_register_func('api/friendica/group_update', 'api_friendica_group_update', tr
  */
 function api_lists_update($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5852,7 +5852,7 @@ api_register_func('api/lists/update', 'api_lists_update', true, API_METHOD_POST)
  */
 function api_friendica_activity($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5899,7 +5899,7 @@ api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activit
  */
 function api_friendica_notification($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -5937,7 +5937,7 @@ function api_friendica_notification($type)
  */
 function api_friendica_notification_seen($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
@@ -5987,7 +5987,7 @@ api_register_func('api/friendica/notification', 'api_friendica_notification', tr
  */
 function api_friendica_direct_messages_setseen($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 	if (api_user() === false) {
 		throw new ForbiddenException();
 	}
@@ -6041,7 +6041,7 @@ api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct
  */
 function api_friendica_direct_messages_search($type, $box = "")
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();
@@ -6109,7 +6109,7 @@ api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_
  */
 function api_friendica_profile_show($type)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (api_user() === false) {
 		throw new ForbiddenException();

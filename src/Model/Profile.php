@@ -568,7 +568,7 @@ class Profile
 
 	public static function getBirthdays()
 	{
-		$a = \get_app();
+		$a = DI::app();
 		$o = '';
 
 		if (!local_user() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
@@ -665,7 +665,7 @@ class Profile
 
 	public static function getEventsReminderHTML()
 	{
-		$a = \get_app();
+		$a = DI::app();
 		$o = '';
 
 		if (!local_user() || DI::mode()->isMobile() || DI::mode()->isMobile()) {
@@ -1106,7 +1106,7 @@ class Profile
 	 */
 	public static function addVisitorCookieForHandle($handle)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		// Try to find the public contact entry of the visitor.
 		$cid = Contact::getIdForURL($handle);
@@ -1144,7 +1144,7 @@ class Profile
 	 */
 	public static function openWebAuthInit($token)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		// Clean old OpenWebAuthToken entries.
 		OpenWebAuthToken::purge('owt', '3 MINUTE');

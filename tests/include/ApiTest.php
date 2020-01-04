@@ -1383,7 +1383,7 @@ class ApiTest extends DatabaseTest
 				'type'     => 'image/png'
 			]
 		];
-		$app       = \get_app();
+		$app       = DI::app();
 		$app->argc = 2;
 
 		$result = api_media_upload();
@@ -3305,7 +3305,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiOauthRequestToken()
 	{
-		$this->markTestIncomplete('killme() kills phpunit as well');
+		$this->markTestIncomplete('exit() kills phpunit as well');
 	}
 
 	/**
@@ -3315,7 +3315,7 @@ class ApiTest extends DatabaseTest
 	 */
 	public function testApiOauthAccessToken()
 	{
-		$this->markTestIncomplete('killme() kills phpunit as well');
+		$this->markTestIncomplete('exit() kills phpunit as well');
 	}
 
 	/**

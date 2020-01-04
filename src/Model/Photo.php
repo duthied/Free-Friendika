@@ -461,7 +461,7 @@ class Photo
 			$micro = DI::baseUrl() . "/photo/" . $resource_id . "-6." . $Image->getExt() . $suffix;
 
 			// Remove the cached photo
-			$a = \get_app();
+			$a = DI::app();
 			$basepath = $a->getBasePath();
 
 			if (is_dir($basepath . "/photo")) {

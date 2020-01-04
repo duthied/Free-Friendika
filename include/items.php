@@ -258,7 +258,7 @@ function consume_feed($xml, array $importer, array $contact, &$hub)
 
 	if ($contact['network'] === Protocol::FEED) {
 		Logger::log("Consume feeds", Logger::DEBUG);
-		Feed::import($xml, $importer, $contact, $hub);
+		Feed::import($xml, $importer, $contact);
 
 		return;
 	}

@@ -48,8 +48,6 @@ class Worker
 	 */
 	public static function processQueue($run_cron = true)
 	{
-		$a = \get_app();
-
 		// Ensure that all "strtotime" operations do run timezone independent
 		date_default_timezone_set('UTC');
 
@@ -372,7 +370,7 @@ class Worker
 	 */
 	private static function execFunction($queue, $funcname, $argv, $method_call)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		$argc = count($argv);
 
@@ -1083,7 +1081,7 @@ class Worker
 
 		$args = ['no_cron' => !$do_cron];
 
-		$a = get_app();
+		$a = DI::app();
 		$process = new Core\Process(DI::logger(), DI::mode(), DI::config(), $a->getBasePath());
 		$process->run($command, $args);
 

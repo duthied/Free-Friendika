@@ -302,7 +302,7 @@ class Widget
 	 */
 	public static function categories($baseurl, $selected = '')
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		$uid = intval($a->profile['profile_uid']);
 
@@ -420,7 +420,7 @@ class Widget
 	 */
 	public static function tagCloud($limit = 50)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		$uid = intval($a->profile['profile_uid']);
 

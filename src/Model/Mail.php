@@ -105,7 +105,7 @@ class Mail
 	 */
 	public static function send($recipient = 0, $body = '', $subject = '', $replyto = '')
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		if (!$recipient) {
 			return -1;

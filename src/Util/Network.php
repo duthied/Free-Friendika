@@ -96,7 +96,7 @@ class Network
 	{
 		$stamp1 = microtime(true);
 
-		$a = \get_app();
+		$a = DI::app();
 
 		if (strlen($url) > 1000) {
 			Logger::log('URL is longer than 1000 characters. Callstack: ' . System::callstack(20), Logger::DEBUG);
@@ -260,7 +260,7 @@ class Network
 			return CurlResult::createErrorCurl($url);
 		}
 
-		$a = \get_app();
+		$a = DI::app();
 		$ch = curl_init($url);
 
 		if (($redirects > 8) || (!$ch)) {
@@ -630,7 +630,7 @@ class Network
 	 */
 	public static function finalUrl(string $url, int $depth = 1, bool $fetchbody = false)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		$url = self::stripTrackingQueryParams($url);
 

@@ -146,7 +146,7 @@ class DFRN
 	 */
 	public static function feed($dfrn_id, $owner_nick, $last_update, $direction = 0, $onlyheader = false)
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		$sitefeed    = ((strlen($owner_nick)) ? false : true); // not yet implemented, need to rewrite huge chunks of following logic
 		$public_feed = (($dfrn_id) ? false : true);

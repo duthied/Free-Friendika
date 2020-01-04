@@ -119,7 +119,7 @@ class Markdown
 		$s = preg_replace('/(\[code\])+(.*?)(\[\/code\])+/ism', '[code]$2[/code]', $s);
 
 		// Don't show link to full picture (until it is fixed)
-		$s = BBCode::scaleExternalImages($s, false);
+		$s = BBCode::scaleExternalImages($s);
 
 		return $s;
 	}

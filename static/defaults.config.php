@@ -297,10 +297,6 @@ return [
 		// Don't show smilies.
 		'no_smilies' => false,
 
-		// no_view_full_size (Boolean)
-		// Don't add the link "View full size" under a resized image.
-		'no_view_full_size' => false,
-
 		// optimize_items (Boolean)
 		// Triggers an SQL command to optimize the item table before expiring items.
 		'optimize_items' => false,

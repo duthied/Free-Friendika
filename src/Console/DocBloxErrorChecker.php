@@ -2,6 +2,8 @@
 
 namespace Friendica\Console;
 
+use Friendica\App;
+
 /**
  * When I installed docblox, I had the experience that it does not generate any output at all.
  * This script may be used to find that kind of problems with the documentation build process.
@@ -28,6 +30,16 @@ class DocBloxErrorChecker extends \Asika\SimpleConsole\Console
 {
 
 	protected $helpOptions = ['h', 'help', '?'];
+
+	/** @var App */
+	private $app;
+
+	public function __construct(App $app, array $argv = null)
+	{
+		parent::__construct($argv);
+
+		$this->app = $app;
+	}
 
 	protected function getHelp()
 	{
@@ -59,7 +71,7 @@ HELP;
 			throw new \RuntimeException('DocBlox isn\'t available.');
 		}
 
-		$dir = \get_app()->getBasePath();
+		$dir = $this->app->getBasePath();
 
 		//stack for dirs to search
 		$dirstack = [];
