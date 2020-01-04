@@ -235,20 +235,6 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
 }
 
 /**
- * @brief Retrieve the App structure
- *
- * Useful in functions which require it but don't get it passed to them
- *
- * @deprecated since version 2018.09
- * @see DI::app()
- * @return App
- */
-function get_app()
-{
-	return DI::app();
-}
-
-/**
  * @brief Used to end the current process, after saving session state.
  * @deprecated
  */
@@ -325,7 +311,7 @@ function notice($s)
 		return;
 	}
 
-	$a = \get_app();
+	$a = DI::app();
 	if (empty($_SESSION['sysmsg'])) {
 		$_SESSION['sysmsg'] = [];
 	}
@@ -343,7 +329,7 @@ function notice($s)
  */
 function info($s)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
 		return;
@@ -406,7 +392,7 @@ function feed_birthday($uid, $tz)
  */
 function is_site_admin()
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	$admin_email = Config::get('config', 'admin_email');
 

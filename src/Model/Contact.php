@@ -2220,7 +2220,7 @@ class Contact
 	{
 		$result = ['cid' => -1, 'success' => false, 'message' => ''];
 
-		$a = \get_app();
+		$a = DI::app();
 
 		// remove ajax junk, e.g. Twitter
 		$url = str_replace('/#!/', '/', $url);

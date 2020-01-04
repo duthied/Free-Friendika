@@ -12,6 +12,7 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Config;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -815,7 +816,7 @@ class HTML
 	 */
 	public static function contactBlock()
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		return ContactBlock::getHTML($a->profile);
 	}

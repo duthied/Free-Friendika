@@ -499,7 +499,7 @@ function get_messages($uid, $start, $limit)
 
 function render_messages(array $msg, $t)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	$tpl = Renderer::getMarkupTemplate($t);
 	$rslt = '';

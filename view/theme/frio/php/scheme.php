@@ -19,11 +19,12 @@
  */
 
 use Friendica\Core\PConfig;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 function get_scheme_info($scheme)
 {
-	$theme = \get_app()->getCurrentTheme();
+	$theme = DI::app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
 	if (empty($scheme)) {
 		$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));

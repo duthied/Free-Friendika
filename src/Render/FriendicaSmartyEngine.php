@@ -5,6 +5,7 @@
 namespace Friendica\Render;
 
 use Friendica\Core\Hook;
+use Friendica\DI;
 
 /**
  * Smarty implementation of the Friendica template engine interface
@@ -32,7 +33,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 			$s = new FriendicaSmarty();
 		}
 
-		$r['$APP'] = \get_app();
+		$r['$APP'] = DI::app();
 
 		// "middleware": inject variables into templates
 		$arr = [
@@ -54,7 +55,7 @@ class FriendicaSmartyEngine implements ITemplateEngine
 
 	public function getTemplateFile($file, $root = '')
 	{
-		$a = \get_app();
+		$a = DI::app();
 		$template = new FriendicaSmarty();
 
 		// Make sure $root ends with a slash /
