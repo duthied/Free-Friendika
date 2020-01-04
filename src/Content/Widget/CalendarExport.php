@@ -9,6 +9,7 @@ namespace Friendica\Content\Widget;
 use Friendica\Content\Feature;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 /**
  * TagCloud widget
@@ -24,7 +25,7 @@ class CalendarExport
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function getHTML() {
-		$a = \get_app();
+		$a = DI::app();
 
 		if (empty($a->data['user'])) {
 			return;

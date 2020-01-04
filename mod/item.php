@@ -848,7 +848,7 @@ function item_post(App $a) {
 function item_post_return($baseurl, $api_source, $return_path)
 {
 	// figure out how to return, depending on from whence we came
-    $a = \get_app();
+    $a = DI::app();
 
 	if ($api_source) {
 		return;

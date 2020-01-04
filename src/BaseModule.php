@@ -88,7 +88,7 @@ abstract class BaseModule
 	 */
 	public static function getFormSecurityToken($typename = '')
 	{
-		$a = \get_app();
+		$a = DI::app();
 
 		$timestamp = time();
 		$sec_hash = hash('whirlpool', $a->user['guid'] . $a->user['prvkey'] . session_id() . $timestamp . $typename);
@@ -116,7 +116,7 @@ abstract class BaseModule
 
 		$max_livetime = 10800; // 3 hours
 
-		$a = \get_app();
+		$a = DI::app();
 
 		$x = explode('.', $hash);
 		if (time() > (intval($x[0]) + $max_livetime)) {
@@ -136,7 +136,7 @@ abstract class BaseModule
 	public static function checkFormSecurityTokenRedirectOnError($err_redirect, $typename = '', $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
-			$a = \get_app();
+			$a = DI::app();
 			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 			notice(self::getFormSecurityStandardErrorMessage());
@@ -147,7 +147,7 @@ abstract class BaseModule
 	public static function checkFormSecurityTokenForbiddenOnError($typename = '', $formname = 'form_security_token')
 	{
 		if (!self::checkFormSecurityToken($typename, $formname)) {
-			$a = \get_app();
+			$a = DI::app();
 			Logger::log('checkFormSecurityToken failed: user ' . $a->user['guid'] . ' - form element ' . $typename);
 			Logger::log('checkFormSecurityToken failed: _REQUEST data: ' . print_r($_REQUEST, true), Logger::DATA);
 

@@ -4,6 +4,7 @@
  */
 namespace Friendica\Render;
 
+use Friendica\DI;
 use Smarty;
 use Friendica\Core\Renderer;
 
@@ -22,7 +23,7 @@ class FriendicaSmarty extends Smarty
 	{
 		parent::__construct();
 
-		$a = \get_app();
+		$a = DI::app();
 		$theme = $a->getCurrentTheme();
 
 		// setTemplateDir can be set to an array, which Smarty will parse in order.

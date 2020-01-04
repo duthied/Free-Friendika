@@ -78,7 +78,7 @@ function fbrowser_content(App $a)
 
 			function _map_files1($rr)
 			{
-				$a = \get_app();
+				$a = DI::app();
 				$types = Images::supportedTypes();
 				$ext = $types[$rr['type']];
 				$filename_e = $rr['filename'];

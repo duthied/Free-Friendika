@@ -33,7 +33,7 @@ function get_theme_config_file($theme)
 {
 	$theme = Strings::sanitizeFilePathItem($theme);
 
-	$a = \get_app();
+	$a = DI::app();
 	$base_theme = $a->theme_info['extends'] ?? '';
 
 	if (file_exists("view/theme/$theme/config.php")) {

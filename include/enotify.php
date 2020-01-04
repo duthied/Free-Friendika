@@ -33,7 +33,7 @@ use Friendica\Util\Strings;
  */
 function notification($params)
 {
-	$a = \get_app();
+	$a = DI::app();
 
 	// Temporary logging for finding the origin
 	if (!isset($params['uid'])) {

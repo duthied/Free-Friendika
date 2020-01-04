@@ -57,7 +57,7 @@ class OEmbed
 	{
 		$embedurl = trim($embedurl, '\'"');
 
-		$a = \get_app();
+		$a = DI::app();
 
 		$cache_key = 'oembed:' . $a->videowidth . ':' . $embedurl;
 
