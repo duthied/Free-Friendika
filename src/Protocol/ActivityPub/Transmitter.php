@@ -1345,7 +1345,7 @@ class Transmitter
 	 *
 	 * @return string language string
 	 */
-	private static function getLanguage($item)
+	private static function getLanguage(array $item)
 	{
 		// Try to fetch the language from the post itself
 		if (!empty($item['language'])) {
