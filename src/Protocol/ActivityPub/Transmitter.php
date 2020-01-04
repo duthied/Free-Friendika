@@ -1304,12 +1304,17 @@ class Transmitter
 			$data['content'] = BBCode::convert($body, false, 9);
 		}
 
-		$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
-		$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
-		$richbody = BBCode::removeAttachment($richbody);
+		// The regular "content" field does contain a minimized HTML. This is done since systems like
+		// Mastodon has got problems with - for example - embedded pictures.
+		// The contentMap does contain the unmodified HTML.
+		$language = self::getLanguage($item);
+		if (!empty($language)) {
+			$regexp = "/[@!]\[url\=([^\[\]]*)\].*?\[\/url\]/ism";
+			$richbody = preg_replace_callback($regexp, ['self', 'mentionCallback'], $item['body']);
+			$richbody = BBCode::removeAttachment($richbody);
 
-		$data['contentMap']['text/html'] = BBCode::convert($richbody, false);
-		$data['contentMap']['text/markdown'] = BBCode::toMarkdown($item["body"]);
+			$data['contentMap'][$language] = BBCode::convert($richbody, false);
+		}
 
 		$data['source'] = ['content' => $item['body'], 'mediaType' => "text/bbcode"];
 
@@ -1331,6 +1336,35 @@ class Transmitter
 		$data = array_merge($data, $permission_block);
 
 		return $data;
+	}
+
+	/**
+	 * Fetches the language from the post, the user or the system.
+	 *
+	 * @param array $item
+	 *
+	 * @return string language string
+	 */
+	private static function getLanguage(array $item)
+	{
+		// Try to fetch the language from the post itself
+		if (!empty($item['language'])) {
+			$languages = array_keys(json_decode($item['language'], true));
+			if (!empty($languages[0])) {
+				return $languages[0];
+			}
+		}
+
+		// Otherwise use the user's language
+		if (!empty($item['uid'])) {
+			$user = DBA::selectFirst('user', ['language'], ['uid' => $item['uid']]);
+			if (!empty($user['language'])) {
+				return $user['language'];
+			}
+		}
+
+		// And finally just use the system language
+		return Config::get('system', 'language');
 	}
 
 	/**
