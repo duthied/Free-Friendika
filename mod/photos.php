@@ -814,7 +814,7 @@ function photos_post(App $a)
 
 	Hook::callAll('photo_post_end', $item_id);
 
-	// addon uploaders should call "killme()" [e.g. exit] within the photo_post_end hook
+	// addon uploaders should call "exit()" within the photo_post_end hook
 	// if they do not wish to be redirected
 
 	DI::baseUrl()->redirect($_SESSION['photo_return']);

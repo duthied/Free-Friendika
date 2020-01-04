@@ -283,7 +283,6 @@ class System
 
 	/// @todo Move the following functions from boot.php
 	/*
-	function killme()
 	function local_user()
 	function public_contact()
 	function remote_user()

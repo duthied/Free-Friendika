@@ -235,15 +235,6 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
 }
 
 /**
- * @brief Used to end the current process, after saving session state.
- * @deprecated
- */
-function killme()
-{
-	exit();
-}
-
-/**
  * @brief Returns the user id of locally logged in user or false.
  *
  * @return int|bool user id or false
