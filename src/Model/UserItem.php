@@ -95,7 +95,7 @@ class UserItem
 			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
 		}
 
-		if (self::checkDirectComment($item, $uid, $contacts)) {
+		if (self::checkDirectComment($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
 		}
 
@@ -250,13 +250,12 @@ class UserItem
 	/**
 	 * Check for a direct comment to a post of the given user
 	 * @param array $item
-	 * @param int   $uid  User ID
 	 * @param array $contacts Array of contact IDs
 	 * @return bool The item is a direct comment to a user comment
 	 */
-	private static function checkDirectComment(array $item, int $uid, array $contacts)
+	private static function checkDirectComment(array $item, array $contacts)
 	{
-		$condition = ['uri' => $item['thr-parent'], 'uid' => [0, $uid], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Item::exists($condition);
 	}
 
