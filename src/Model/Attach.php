@@ -186,13 +186,8 @@ class Attach
 			$filesize = strlen($data);
 		}
 
-		/** @var IStorage $backend_class */
-		$backend_class = StorageManager::getBackend();
-		$backend_ref = '';
-		if ($backend_class !== '') {
-			$backend_ref = $backend_class::put($data);
-			$data = '';
-		}
+		$backend_ref = DI::storage()->put($data);
+		$data = '';
 
 		$hash = System::createGUID(64);
 		$created = DateTimeFormat::utcNow();
@@ -210,7 +205,7 @@ class Attach
 			'allow_gid' => $allow_gid,
 			'deny_cid' => $deny_cid,
 			'deny_gid' => $deny_gid,
-			'backend-class' => $backend_class,
+			'backend-class' => (string)DI::storage(),
 			'backend-ref' => $backend_ref
 		];
 

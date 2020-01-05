@@ -408,3 +408,15 @@ function update_1327()
 	return Update::SUCCESS;
 }
 
+function update_1329()
+{
+	$currStorage = Config::get('storage', 'class', '');
+
+	if (!empty($currStorage)) {
+		$storageName = array_key_first(\Friendica\Core\StorageManager::DEFAULT_BACKENDS, $currStorage);
+		Config::set('storage', 'name', $storageName);
+		Config::delete('storage', 'class');
+	}
+
+	return Update::SUCCESS;
+}

@@ -324,8 +324,8 @@ class CronJobs
 	 */
 	private static function moveStorage()
 	{
-		$current = StorageManager::getBackend();
-		$moved = StorageManager::move($current);
+		$current = DI::storage();
+		$moved = DI::facStorage()->move($current);
 
 		if ($moved) {
 			Worker::add(PRIORITY_LOW, "CronJobs", "move_storage");

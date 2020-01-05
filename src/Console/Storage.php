@@ -13,6 +13,19 @@ class Storage extends \Asika\SimpleConsole\Console
 {
 	protected $helpOptions = ['h', 'help', '?'];
 
+	/** @var StorageManager */
+	private $storageManager;
+
+	/**
+	 * @param StorageManager $storageManager
+	 */
+	public function __construct(StorageManager $storageManager, array $argv = [])
+	{
+		parent::__construct($argv);
+
+		$this->storageManager = $storageManager;
+	}
+
 	protected function getHelp()
 	{
 		$help = <<<HELP
@@ -69,11 +82,11 @@ HELP;
 	protected function doList()
 	{
 		$rowfmt = ' %-3s | %-20s';
-		$current = StorageManager::getBackend();
+		$current = $this->storageManager->getBackend();
 		$this->out(sprintf($rowfmt, 'Sel', 'Name'));
 		$this->out('-----------------------');
 		$isregisterd = false;
-		foreach (StorageManager::listBackends() as $name => $class) {
+		foreach ($this->storageManager->listBackends() as $name => $class) {
 			$issel = ' ';
 			if ($current === $class) {
 				$issel = '*';
@@ -100,14 +113,14 @@ HELP;
 		}
 
 		$name = $this->args[1];
-		$class = StorageManager::getByName($name);
+		$class = $this->storageManager->getByName($name);
 
 		if ($class === '') {
 			$this->out($name . ' is not a registered backend.');
 			return -1;
 		}
 
-		if (!StorageManager::setBackend($class)) {
+		if (!$this->storageManager->setBackend($class)) {
 			$this->out($class . ' is not a valid backend storage class.');
 			return -1;
 		}
@@ -130,11 +143,11 @@ HELP;
 			$tables = [$table];
 		}
 
-		$current = StorageManager::getBackend();
+		$current = $this->storageManager->getBackend();
 		$total = 0;
 
 		do {
-			$moved = StorageManager::move($current, $tables, $this->getOption('n', 5000));
+			$moved = $this->storageManager->move($current, $tables, $this->getOption('n', 5000));
 			if ($moved) {
 				$this->out(date('[Y-m-d H:i:s] ') . sprintf('Moved %d files', $moved));
 			}

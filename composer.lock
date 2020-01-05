@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "34ad225ce21474eb84ce78047d9f2c01",
+    "content-hash": "bf05cd52bc7307f45aff80f1d1fd8214",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -485,6 +485,7 @@
                     "jsonld.php"
                 ]
             },
+            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "BSD-3-Clause"
             ],
@@ -502,11 +503,11 @@
             "description": "A JSON-LD Processor and API implementation in PHP.",
             "homepage": "https://git.friendi.ca/friendica/php-json-ld",
             "keywords": [
-                "JSON",
                 "JSON-LD",
                 "Linked Data",
                 "RDF",
                 "Semantic Web",
+                "json",
                 "jsonld"
             ],
             "time": "2018-10-08T20:41:00+00:00"
@@ -823,16 +824,16 @@
         },
         {
             "name": "level-2/dice",
-            "version": "4.0.1",
+            "version": "dev-master",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Level-2/Dice.git",
-                "reference": "e631f110f0520294fec902814c61cac26566023c"
+                "reference": "2fea2749a625c3adcc29c402218b0dcaed11586f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Level-2/Dice/zipball/e631f110f0520294fec902814c61cac26566023c",
-                "reference": "e631f110f0520294fec902814c61cac26566023c",
+                "url": "https://api.github.com/repos/Level-2/Dice/zipball/2fea2749a625c3adcc29c402218b0dcaed11586f",
+                "reference": "2fea2749a625c3adcc29c402218b0dcaed11586f",
                 "shasum": ""
             },
             "require": {
@@ -865,7 +866,7 @@
                 "di",
                 "ioc"
             ],
-            "time": "2019-05-01T12:55:36+00:00"
+            "time": "2019-10-03T16:08:46+00:00"
         },
         {
             "name": "lightopenid/lightopenid",
@@ -1314,6 +1315,22 @@
             "require": {
                 "npm-asset/ev-emitter": ">=1.0.0,<2.0.0"
             },
+            "require-dev": {
+                "npm-asset/chalk": ">=1.1.1,<2.0.0",
+                "npm-asset/cheerio": ">=0.19.0,<0.20.0",
+                "npm-asset/gulp": ">=3.9.0,<4.0.0",
+                "npm-asset/gulp-jshint": ">=1.11.2,<2.0.0",
+                "npm-asset/gulp-json-lint": ">=0.1.0,<0.2.0",
+                "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
+                "npm-asset/gulp-replace": ">=0.5.4,<0.6.0",
+                "npm-asset/gulp-requirejs-optimize": "dev-github:metafizzy/gulp-requirejs-optimize",
+                "npm-asset/gulp-uglify": ">=1.4.2,<2.0.0",
+                "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
+                "npm-asset/highlight.js": ">=8.9.1,<9.0.0",
+                "npm-asset/marked": ">=0.3.5,<0.4.0",
+                "npm-asset/minimist": ">=1.2.0,<2.0.0",
+                "npm-asset/transfob": ">=1.0.0,<2.0.0"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1358,6 +1375,14 @@
                 "url": "https://registry.npmjs.org/jgrowl/-/jgrowl-1.4.6.tgz",
                 "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
             },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.2",
+                "npm-asset/grunt-contrib-cssmin": "~0.9.0",
+                "npm-asset/grunt-contrib-jshint": "~0.6.3",
+                "npm-asset/grunt-contrib-less": "~0.11.0",
+                "npm-asset/grunt-contrib-uglify": "~0.4.0",
+                "npm-asset/grunt-contrib-watch": "~0.6.1"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1389,6 +1414,32 @@
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
                 "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
+            },
+            "require-dev": {
+                "npm-asset/commitplease": "2.0.0",
+                "npm-asset/core-js": "0.9.17",
+                "npm-asset/grunt": "0.4.5",
+                "npm-asset/grunt-babel": "5.0.1",
+                "npm-asset/grunt-cli": "0.1.13",
+                "npm-asset/grunt-compare-size": "0.4.0",
+                "npm-asset/grunt-contrib-jshint": "0.11.2",
+                "npm-asset/grunt-contrib-uglify": "0.9.2",
+                "npm-asset/grunt-contrib-watch": "0.6.1",
+                "npm-asset/grunt-git-authors": "2.0.1",
+                "npm-asset/grunt-jscs": "2.1.0",
+                "npm-asset/grunt-jsonlint": "1.0.4",
+                "npm-asset/grunt-npmcopy": "0.1.0",
+                "npm-asset/gzip-js": "0.3.2",
+                "npm-asset/jsdom": "5.6.1",
+                "npm-asset/load-grunt-tasks": "1.0.0",
+                "npm-asset/qunit-assert-step": "1.0.3",
+                "npm-asset/qunitjs": "1.17.1",
+                "npm-asset/requirejs": "2.1.17",
+                "npm-asset/sinon": "1.10.3",
+                "npm-asset/sizzle": "2.2.1",
+                "npm-asset/strip-json-comments": "1.0.3",
+                "npm-asset/testswarm": "1.1.0",
+                "npm-asset/win-spawn": "2.0.0"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1536,6 +1587,12 @@
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz",
                 "shasum": "06f0335f16e353a695e7206bf50503cb523a6ee5"
+            },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.1",
+                "npm-asset/grunt-contrib-connect": "~0.5.0",
+                "npm-asset/grunt-contrib-jshint": "~0.7.1",
+                "npm-asset/grunt-contrib-uglify": "~0.2.7"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -3335,8 +3392,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sb@sebastian-bergmann.de"
+                    "email": "sb@sebastian-bergmann.de",
+                    "role": "lead"
                 }
             ],
             "description": "Library that provides collection, processing, and rendering functionality for PHP code coverage information.",
@@ -3603,8 +3660,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "The PHP Unit Testing framework.",
@@ -3777,7 +3834,7 @@
                 }
             ],
             "description": "Provides the functionality to compare PHP values for equality",
-            "homepage": "http://www.github.com/sebastianbergmann/comparator",
+            "homepage": "https://github.com/sebastianbergmann/comparator",
             "keywords": [
                 "comparator",
                 "compare",
@@ -3879,7 +3936,7 @@
                 }
             ],
             "description": "Provides functionality to handle HHVM/PHP environments",
-            "homepage": "http://www.github.com/sebastianbergmann/environment",
+            "homepage": "https://github.com/sebastianbergmann/environment",
             "keywords": [
                 "Xdebug",
                 "environment",
@@ -3947,7 +4004,7 @@
                 }
             ],
             "description": "Provides the functionality to export PHP variables for visualization",
-            "homepage": "http://www.github.com/sebastianbergmann/exporter",
+            "homepage": "https://github.com/sebastianbergmann/exporter",
             "keywords": [
                 "export",
                 "exporter"
@@ -3999,7 +4056,7 @@
                 }
             ],
             "description": "Snapshotting of global state",
-            "homepage": "http://www.github.com/sebastianbergmann/global-state",
+            "homepage": "https://github.com/sebastianbergmann/global-state",
             "keywords": [
                 "global state"
             ],
@@ -4101,7 +4158,7 @@
                 }
             ],
             "description": "Provides functionality to recursively process PHP variables",
-            "homepage": "http://www.github.com/sebastianbergmann/recursion-context",
+            "homepage": "https://github.com/sebastianbergmann/recursion-context",
             "time": "2016-11-19T07:33:16+00:00"
         },
         {
@@ -4360,6 +4417,7 @@
     "aliases": [],
     "minimum-stability": "stable",
     "stability-flags": {
+        "level-2/dice": 20,
         "lightopenid/lightopenid": 20
     },
     "prefer-stable": false,

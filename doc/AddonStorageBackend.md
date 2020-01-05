@@ -182,21 +182,21 @@ The file is `addon/samplestorage/samplestorage.php`
  * Author: Alice <https://alice.social/~alice>
  */
 
-use Friendica\Core\StorageManager;
 use Friendica\Addon\samplestorage\SampleStorageBackend;
+use Friendica\DI;
 
 function samplestorage_install()
 {
 	// on addon install, we register our class with name "Sample Storage".
 	// note: we use `::class` property, which returns full class name as string
 	// this save us the problem of correctly escape backslashes in class name
-	StorageManager::register("Sample Storage", SampleStorageBackend::class);
+	DI::facStorage()->register("Sample Storage", SampleStorageBackend::class);
 }
 
 function samplestorage_unistall()
 {
 	// when the plugin is uninstalled, we unregister the backend.
-	StorageManager::unregister("Sample Storage");
+	DI::facStorage()->unregister("Sample Storage");
 }
 ```
 

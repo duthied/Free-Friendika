@@ -273,18 +273,17 @@ class Photo
 		$data = "";
 		$backend_ref = "";
 
-		/** @var IStorage $backend_class */
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$backend_class = (string)$existing_photo["backend-class"];
+			$storage = DI::facStorage()->getByName((string)$existing_photo["backend-class"]);
 		} else {
-			$backend_class = StorageManager::getBackend();
+			$storage = DI::storage();
 		}
 
-		if ($backend_class === "") {
+		if ($storage === null) {
 			$data = $Image->asString();
 		} else {
-			$backend_ref = $backend_class::put($Image->asString(), $backend_ref);
+			$backend_ref = $storage->put($Image->asString(), $backend_ref);
 		}
 
 
@@ -309,7 +308,7 @@ class Photo
 			"deny_cid" => $deny_cid,
 			"deny_gid" => $deny_gid,
 			"desc" => $desc,
-			"backend-class" => $backend_class,
+			"backend-class" => (string)$storage,
 			"backend-ref" => $backend_ref
 		];
 

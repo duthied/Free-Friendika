@@ -8,8 +8,10 @@ use Friendica\Core\L10n\L10n;
 use Friendica\Core\Lock\ILock;
 use Friendica\Core\Process;
 use Friendica\Core\Session\ISession;
+use Friendica\Core\StorageManager;
 use Friendica\Database\Database;
 use Friendica\Factory;
+use Friendica\Model\Storage\IStorage;
 use Friendica\Model\User\Cookie;
 use Friendica\Util;
 use Psr\Log\LoggerInterface;
@@ -193,5 +195,19 @@ return [
 		'constructParams' => [
 			$_SERVER, $_COOKIE
 		],
-	]
+	],
+	StorageManager::class => [
+		'constructParams' => [
+			[Dice::INSTANCE => Dice::SELF],
+		]
+	],
+	IStorage::class => [
+		// Don't share this class with other creations, because it's possible to switch the backend
+		// and so we wouldn't be possible to update it
+		'shared' => false,
+		'instanceOf' => StorageManager::class,
+		'call' => [
+			['getBackend', [], Dice::CHAIN_CALL],
+		],
+	],
 ];
