@@ -148,10 +148,8 @@ class UserItem
 
 		// Validate and add profile links
 		foreach ($profiles AS $key => $profile) {
-			// Check for invalid profile urls. 13 should be the shortest possible profile length:
-			// http://a.bc/d
-			// Additionally check for invalid urls that would return the normalised value "http:"
-			if ((strlen($profile) < 13) || (Strings::normaliseLink($profile) == 'http:')) {
+			// Check for invalid profile urls (without scheme, host or path) and remove them
+			if (empty(parse_url($profile, PHP_URL_SCHEME)) || empty(parse_url($profile, PHP_URL_HOST)) || empty(parse_url($profile, PHP_URL_PATH))) {
 				unset($profiles[$key]);
 				continue;
 			}
