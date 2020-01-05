@@ -31,7 +31,7 @@ class UserItem
 	 */
 	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id', 'thr-parent', 'author-id'];
+		$fields = ['id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id', 'thr-parent', 'parent-uri', 'author-id'];
 		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -120,7 +120,7 @@ class UserItem
 	 *
 	 * @return array Profiles
 	 */
-	private static function getProfileForUser($uid)
+	private static function getProfileForUser(int $uid)
 	{
 		$notification_data = ['uid' => $uid, 'profiles' => []];
 		Hook::callAll('check_item_notification', $notification_data);
@@ -172,7 +172,7 @@ class UserItem
 	 * @param int   $uid  User ID
 	 * @return bool A contact had shared something
 	 */
-	private static function checkShared($item, $uid)
+	private static function checkShared(array $item, int $uid)
 	{
 		if ($item['gravity'] != GRAVITY_PARENT) {
 			return false;
@@ -198,9 +198,10 @@ class UserItem
 	/**
 	 * Check for an implicit mention (only tag, no body) of the given user
 	 * @param array $item
+	 * @param array $profiles
 	 * @return bool The user is mentioned
 	 */
-	private static function checkImplicitMention($item, $profiles)
+	private static function checkImplicitMention(array $item, array $profiles)
 	{
 		foreach ($profiles AS $profile) {
 			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
@@ -216,9 +217,10 @@ class UserItem
 	/**
 	 * Check for an explicit mention (tag and body) of the given user
 	 * @param array $item
+	 * @param array $profiles
 	 * @return bool The user is mentioned
 	 */
-	private static function checkExplicitMention($item, $profiles)
+	private static function checkExplicitMention(array $item, array $profiles)
 	{
 		foreach ($profiles AS $profile) {
 			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
@@ -234,9 +236,10 @@ class UserItem
 	/**
 	 * Check if the given user had created this thread
 	 * @param array $item
+	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had created this thread
 	 */
-	private static function checkCommentedThread($item, $contacts)
+	private static function checkCommentedThread(array $item, array $contacts)
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
 		return Item::exists($condition);
@@ -246,10 +249,10 @@ class UserItem
 	 * Check for a direct comment to a post of the given user
 	 * @param array $item
 	 * @param int   $uid  User ID
-	 * @param array $contacts Array of contacts
+	 * @param array $contacts Array of contact IDs
 	 * @return bool The item is a direct comment to a user comment
 	 */
-	private static function checkDirectComment($item, $uid, $contacts)
+	private static function checkDirectComment(array $item, int $uid, array $contacts)
 	{
 		$condition = ['uri' => $item['thr-parent'], 'uid' => [0, $uid], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Item::exists($condition);
@@ -258,10 +261,10 @@ class UserItem
 	/**
 	 *  Check if the user had commented in this thread
 	 * @param array $item
-	 * @param array $contacts Array of contacts
+	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had commented in the thread
 	 */
-	private static function checkCommentedParticipation($item, $contacts)
+	private static function checkCommentedParticipation(array $item, array $contacts)
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Item::exists($condition);
@@ -270,10 +273,10 @@ class UserItem
 	/**
 	 * Check if the user had interacted in this thread (Like, Dislike, ...)
 	 * @param array $item
-	 * @param array $contacts Array of contacts
+	 * @param array $contacts Array of contact IDs
 	 * @return bool The user had interacted in the thread
 	 */
-	private static function checkActivityParticipation($item, $contacts)
+	private static function checkActivityParticipation(array $item, array $contacts)
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY];
 		return Item::exists($condition);
