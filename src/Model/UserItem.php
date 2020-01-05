@@ -31,8 +31,7 @@ class UserItem
 	 */
 	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id',
-			'thr-parent', 'parent-uri', 'mention'];
+		$fields = ['id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id', 'thr-parent', 'author-id'];
 		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
 		if (!DBA::isResult($item)) {
 			return;
@@ -56,8 +55,7 @@ class UserItem
 	 */
 	private static function setNotificationForUser(array $item, int $uid)
 	{
-		$fields = ['ignored', 'mention'];
-		$thread = Item::selectFirstThreadForUser($uid, $fields, ['iid' => $item['parent'], 'deleted' => false]);
+		$thread = Item::selectFirstThreadForUser($uid, ['ignored'], ['iid' => $item['parent'], 'deleted' => false]);
 		if ($thread['ignored']) {
 			return;
 		}
@@ -70,14 +68,6 @@ class UserItem
 
 		$profiles = self::getProfileForUser($uid);
 
-		if (self::checkImplicitMention($item, $uid, $profiles)) {
-			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
-		}
-
-		if (self::checkExplicitMention($item, $uid, $profiles)) {
-			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
-		}
-
 		// Fetch all contacts for the given profiles
 		$contacts = [];
 		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
@@ -85,6 +75,19 @@ class UserItem
 			$contacts[] = $contact['id'];
 		}
 		DBA::close($ret);
+
+		// Don't create notifications for user's posts
+		if (in_array($item['author-id'], $contacts)) {
+			return;
+		}
+
+		if (self::checkImplicitMention($item, $uid, $profiles)) {
+			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
+		}
+
+		if (self::checkExplicitMention($item, $uid, $profiles)) {
+			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
+		}
 
 		if (self::checkCommentedThread($item, $uid, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
