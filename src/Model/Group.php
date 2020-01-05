@@ -384,7 +384,7 @@ class Group
 		DBA::close($stmt);
 
 		if ($check_dead) {
-			Contact::pruneUnavailable($return);
+			$return = Contact::pruneUnavailable($return);
 		}
 
 		return $return;

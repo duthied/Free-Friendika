@@ -2682,26 +2682,23 @@ class Contact
 	 * Remove the unavailable contact ids from the provided list
 	 *
 	 * @param array $contact_ids Contact id list
+	 * @return array
 	 * @throws \Exception
 	 */
-	public static function pruneUnavailable(array &$contact_ids)
+	public static function pruneUnavailable(array $contact_ids)
 	{
 		if (empty($contact_ids)) {
-			return;
+			return [];
 		}
 
-		$str = DBA::escape(implode(',', $contact_ids));
+		$contacts = Contact::selectToArray(['id'], [
+			'id'      => $contact_ids,
+			'blocked' => false,
+			'pending' => false,
+			'archive' => false,
+		]);
 
-		$stmt = DBA::p("SELECT `id` FROM `contact` WHERE `id` IN ( " . $str . ") AND `blocked` = 0 AND `pending` = 0 AND `archive` = 0");
-
-		$return = [];
-		while($contact = DBA::fetch($stmt)) {
-			$return[] = $contact['id'];
-		}
-
-		DBA::close($stmt);
-
-		$contact_ids = $return;
+		return array_column($contacts, 'id');
 	}
 
 	/**

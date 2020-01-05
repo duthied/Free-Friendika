@@ -206,11 +206,6 @@ class ACL
 		return $o;
 	}
 
-	private static function fixACL(&$item)
-	{
-		$item = intval(str_replace(['<', '>'], ['', ''], $item));
-	}
-
 	/**
 	 * Return the default permission of the provided user array
 	 *
@@ -220,32 +215,13 @@ class ACL
 	 */
 	public static function getDefaultUserPermissions(array $user = null)
 	{
-		$matches = [];
-
-		$acl_regex = '/<([0-9]+)>/i';
-
-		preg_match_all($acl_regex, $user['allow_cid'] ?? '', $matches);
-		$allow_cid = $matches[1];
-		preg_match_all($acl_regex, $user['allow_gid'] ?? '', $matches);
-		$allow_gid = $matches[1];
-		preg_match_all($acl_regex, $user['deny_cid'] ?? '', $matches);
-		$deny_cid = $matches[1];
-		preg_match_all($acl_regex, $user['deny_gid'] ?? '', $matches);
-		$deny_gid = $matches[1];
-
-		// Reformats the ACL data so that it is accepted by the JS frontend
-		array_walk($allow_cid, 'self::fixACL');
-		array_walk($allow_gid, 'self::fixACL');
-		array_walk($deny_cid, 'self::fixACL');
-		array_walk($deny_gid, 'self::fixACL');
-
-		Contact::pruneUnavailable($allow_cid);
+		$aclFormatter = DI::aclFormatter();
 
 		return [
-			'allow_cid' => $allow_cid,
-			'allow_gid' => $allow_gid,
-			'deny_cid' => $deny_cid,
-			'deny_gid' => $deny_gid,
+			'allow_cid' => Contact::pruneUnavailable($aclFormatter->expand($user['allow_cid'] ?? '')),
+			'allow_gid' => $aclFormatter->expand($user['allow_gid'] ?? ''),
+			'deny_cid'  => $aclFormatter->expand($user['deny_cid']  ?? ''),
+			'deny_gid'  => $aclFormatter->expand($user['deny_gid']  ?? ''),
 		];
 	}
 
