@@ -141,7 +141,7 @@ class UserItem
 		$profiles[] = $owner['url'];
 
 		// Notifications from Diaspora are often with an URL in the Diaspora format
-		$profiles[] = DI::baseUrl().'/u/'.$user['nickname'];
+		$profiles[] = DI::baseUrl() . '/u/' . $user['nickname'];
 
 		$profiles2 = [];
 
@@ -204,7 +204,7 @@ class UserItem
 	private static function checkImplicitMention(array $item, array $profiles)
 	{
 		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
+			if (strpos($item['tag'], '=' . $profile.']') || strpos($item['body'], '=' . $profile . ']')) {
 				if (strpos($item['body'], $profile) === false) {
 					return true;
 				}
@@ -223,7 +223,7 @@ class UserItem
 	private static function checkExplicitMention(array $item, array $profiles)
 	{
 		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
+			if (strpos($item['tag'], '=' . $profile.']') || strpos($item['body'], '=' . $profile . ']')) {
 				if (!(strpos($item['body'], $profile) === false)) {
 					return true;
 				}
