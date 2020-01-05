@@ -33,7 +33,7 @@ use Psr\Log\LoggerInterface;
  * @method static Factory\Mastodon\Relationship mstdnRelationship()
  * @method static Model\User\Cookie cookie()
  * @method static Model\Notify notify()
- * @method static Model\Introduction intro()
+ * @method static Repository\Introduction intro()
  * @method static Protocol\Activity activity()
  * @method static Util\ACLFormatter aclFormatter()
  * @method static Util\DateTimeFormat dtFormat()
@@ -70,7 +70,7 @@ abstract class DI
 		'mstdnRelationship'  => Factory\Mastodon\Relationship::class,
 		'cookie'       => Model\User\Cookie::class,
 		'notify'       => Model\Notify::class,
-		'intro'        => Model\Introduction::class,
+		'intro'        => Repository\Introduction::class,
 		'activity'     => Protocol\Activity::class,
 		'aclFormatter' => Util\ACLFormatter::class,
 		'dtFormat'     => Util\DateTimeFormat::class,
