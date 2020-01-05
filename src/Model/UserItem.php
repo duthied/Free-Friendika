@@ -118,7 +118,7 @@ class UserItem
 	 * Fetch all profiles (contact URL) of a given user
 	 * @param int $uid User ID
 	 *
-	 * @return array Profiles
+	 * @return array Profile links
 	 */
 	private static function getProfileForUser(int $uid)
 	{
@@ -198,7 +198,7 @@ class UserItem
 	/**
 	 * Check for an implicit mention (only tag, no body) of the given user
 	 * @param array $item
-	 * @param array $profiles
+	 * @param array $profiles Profile links
 	 * @return bool The user is mentioned
 	 */
 	private static function checkImplicitMention(array $item, array $profiles)
@@ -217,7 +217,7 @@ class UserItem
 	/**
 	 * Check for an explicit mention (tag and body) of the given user
 	 * @param array $item
-	 * @param array $profiles
+	 * @param array $profiles Profile links
 	 * @return bool The user is mentioned
 	 */
 	private static function checkExplicitMention(array $item, array $profiles)
