@@ -81,19 +81,19 @@ class UserItem
 			return;
 		}
 
-		if (self::checkImplicitMention($item, $uid, $profiles)) {
+		if (self::checkImplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
 		}
 
-		if (self::checkExplicitMention($item, $uid, $profiles)) {
+		if (self::checkExplicitMention($item, $profiles)) {
 			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
 		}
 
-		if (self::checkCommentedThread($item, $uid, $contacts)) {
+		if (self::checkCommentedThread($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
 		}
 
-		if (self::checkDirectComment($item, $uid, $contacts, $thread)) {
+		if (self::checkDirectComment($item, $uid, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
 		}
 
@@ -198,10 +198,9 @@ class UserItem
 	/**
 	 * Check for an implicit mention (only tag, no body) of the given user
 	 * @param array $item
-	 * @param int   $uid  User ID
 	 * @return bool The user is mentioned
 	 */
-	private static function checkImplicitMention($item, $uid, $profiles)
+	private static function checkImplicitMention($item, $profiles)
 	{
 		foreach ($profiles AS $profile) {
 			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
@@ -217,10 +216,9 @@ class UserItem
 	/**
 	 * Check for an explicit mention (tag and body) of the given user
 	 * @param array $item
-	 * @param int   $uid  User ID
 	 * @return bool The user is mentioned
 	 */
-	private static function checkExplicitMention($item, $uid, $profiles)
+	private static function checkExplicitMention($item, $profiles)
 	{
 		foreach ($profiles AS $profile) {
 			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
@@ -236,10 +234,9 @@ class UserItem
 	/**
 	 * Check if the given user had created this thread
 	 * @param array $item
-	 * @param int   $uid  User ID
 	 * @return bool The user had created this thread
 	 */
-	private static function checkCommentedThread($item, $uid, $contacts)
+	private static function checkCommentedThread($item, $contacts)
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
 		return Item::exists($condition);

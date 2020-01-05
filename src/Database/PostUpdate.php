@@ -487,6 +487,8 @@ class PostUpdate
 		}
 
 		while ($item = DBA::fetch($items)) {
+			$id = $item['id'];
+
 			UserItem::setNotification($item['id']);
 
 			++$rows;
