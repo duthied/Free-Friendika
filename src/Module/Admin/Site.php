@@ -585,7 +585,7 @@ class Site extends BaseAdminModule
 			'$banner'           => ['banner', L10n::t('Banner/Logo'), $banner, ''],
 			'$shortcut_icon'    => ['shortcut_icon', L10n::t('Shortcut icon'), Config::get('system', 'shortcut_icon'), L10n::t('Link to an icon that will be used for browsers.')],
 			'$touch_icon'       => ['touch_icon', L10n::t('Touch icon'), Config::get('system', 'touch_icon'), L10n::t('Link to an icon that will be used for tablets and mobiles.')],
-			'$additional_info'  => ['additional_info', L10n::t('Additional Info'), $additional_info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', Search::getGlobalDirectory()],
+			'$additional_info'  => ['additional_info', L10n::t('Additional Info'), $additional_info, L10n::t('For public servers: you can add additional information here that will be listed at %s/servers.', Search::getGlobalDirectory())],
 			'$language'         => ['language', L10n::t('System language'), Config::get('system', 'language'), '', $lang_choices],
 			'$theme'            => ['theme', L10n::t('System theme'), Config::get('system', 'theme'), L10n::t('Default system theme - may be over-ridden by user profiles - <a href="/admin/themes" id="cnftheme">Change default theme settings</a>'), $theme_choices],
 			'$theme_mobile'     => ['theme_mobile', L10n::t('Mobile system theme'), Config::get('system', 'mobile-theme', '---'), L10n::t('Theme for mobile devices'), $theme_choices_mobile],
