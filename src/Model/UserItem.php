@@ -125,37 +125,36 @@ class UserItem
 		$notification_data = ['uid' => $uid, 'profiles' => []];
 		Hook::callAll('check_item_notification', $notification_data);
 
-		$raw_profiles = $notification_data['profiles'];
+		$profiles = $notification_data['profiles'];
 
 		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return [];
 		}
 
-		$owner = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
+		$owner = DBA::selectFirst('contact', ['url', 'alias'], ['self' => true, 'uid' => $uid]);
 		if (!DBA::isResult($owner)) {
 			return [];
 		}
 
 		// This is our regular URL format
-		$raw_profiles[] = $owner['url'];
+		$profiles[] = $owner['url'];
+
+		// Now the alias
+		$profiles[] = $owner['alias'];
 
 		// Notifications from Diaspora are often with an URL in the Diaspora format
-		$raw_profiles[] = DI::baseUrl() . '/u/' . $user['nickname'];
-
-		$profiles = [];
+		$profiles[] = DI::baseUrl() . '/u/' . $user['nickname'];
 
 		// Validate and add profile links
-		foreach ($raw_profiles AS $profile) {
+		foreach ($profiles AS $key => $profile) {
 			// Check for invalid profile urls. 13 should be the shortest possible profile length:
 			// http://a.bc/d
 			// Additionally check for invalid urls that would return the normalised value "http:"
 			if ((strlen($profile) < 13) || (Strings::normaliseLink($profile) == 'http:')) {
+				unset($profiles[$key]);
 				continue;
 			}
-
-			// Add the profile
-			$profiles[] = $profile;
 
 			// Add the normalized form
 			$profile = Strings::normaliseLink($profile);
