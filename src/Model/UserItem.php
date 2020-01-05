@@ -14,6 +14,7 @@ use Friendica\Util\Strings;
 
 class UserItem
 {
+	// Notification types
 	const NOTIF_NONE = 0;
 	const NOTIF_EXPLICIT_TAGGED = 1;
 	const NOTIF_IMPLICIT_TAGGED = 2;
@@ -37,13 +38,22 @@ class UserItem
 			return;
 		}
 
-		if (!empty($item['uid'])) {
-			self::setNotificationForUser($item, $item['uid']);
-			return;
+		// fetch all users in the thread
+		$users = DBA::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
+			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
+			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $iid);
+		while ($user = DBA::fetch($users)) {
+			self::setNotificationForUser($item, $user['uid']);
 		}
-		// Alle user des Threads ermitteln
+		DBA::close($users);
 	}
 
+	/**
+	 * Checks an item for notifications for the given user and sets the "notification-type" field
+	 *
+	 * @param array $item Item array
+	 * @param int   $uid  User ID
+	 */
 	private static function setNotificationForUser(array $item, int $uid)
 	{
 		$fields = ['ignored', 'mention'];
@@ -102,7 +112,7 @@ class UserItem
 	}
 
 	/**
-	 * Fetch all profiles of a given user
+	 * Fetch all profiles (contact URL) of a given user
 	 * @param int $uid User ID
 	 *
 	 * @return array Profiles
@@ -114,8 +124,7 @@ class UserItem
 
 		$profiles = $notification_data['profiles'];
 
-		$fields = ['nickname'];
-		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
+		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
 			return [];
 		}
@@ -155,9 +164,10 @@ class UserItem
 	}
 
 	/**
-	 * Check for a "shared" notification for the given item and user
+	 * Check for a "shared" notification for every new post of contacts from the given user
 	 * @param array $item
 	 * @param int   $uid  User ID
+	 * @return bool A contact had shared something
 	 */
 	private static function checkShared($item, $uid)
 	{
@@ -165,7 +175,6 @@ class UserItem
 			return false;
 		}
 
-		// Send a notification for every new post?
 		// Either the contact had posted something directly
 		if (DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true])) {
 			return true;
@@ -183,11 +192,11 @@ class UserItem
 		return false;
 	}
 
-	// Is the user mentioned in this post?
 	/**
-	 * Check for a "shared" notification for the given item and user
+	 * Check for an implicit mention (only tag, no body) of the given user
 	 * @param array $item
 	 * @param int   $uid  User ID
+	 * @return bool The user is mentioned
 	 */
 	private static function checkImplicitMention($item, $uid, $profiles)
 	{
@@ -203,9 +212,10 @@ class UserItem
 	}
 
 	/**
-	 * Check for a "shared" notification for the given item and user
+	 * Check for an explicit mention (tag and body) of the given user
 	 * @param array $item
 	 * @param int   $uid  User ID
+	 * @return bool The user is mentioned
 	 */
 	private static function checkExplicitMention($item, $uid, $profiles)
 	{
@@ -220,15 +230,14 @@ class UserItem
 		return false;
 	}
 
-	// Is it a post that the user had started?
 	/**
-	 * Check for a "shared" notification for the given item and user
+	 * Check if the given user had created this thread
 	 * @param array $item
 	 * @param int   $uid  User ID
+	 * @return bool The user had created this thread
 	 */
 	private static function checkCommentedThread($item, $uid, $contacts)
 	{
-		// Additional check for connector posts
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
 		return Item::exists($condition);
 	}
@@ -238,10 +247,10 @@ class UserItem
 	 * @param array $item
 	 * @param int   $uid  User ID
 	 * @param array $contacts Array of contacts
+	 * @return bool The item is a direct comment to a user comment
 	 */
 	private static function checkDirectComment($item, $uid, $contacts)
 	{
-		// Additional check for connector posts
 		$condition = ['uri' => $item['thr-parent'], 'uid' => [0, $uid], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Item::exists($condition);
 	}
@@ -250,6 +259,7 @@ class UserItem
 	 *  Check if the user had commented in this thread
 	 * @param array $item
 	 * @param array $contacts Array of contacts
+	 * @return bool The user had commented in the thread
 	 */
 	private static function checkCommentedParticipation($item, $contacts)
 	{
@@ -261,6 +271,7 @@ class UserItem
 	 * Check if the user had interacted in this thread (Like, Dislike, ...)
 	 * @param array $item
 	 * @param array $contacts Array of contacts
+	 * @return bool The user had interacted in the thread
 	 */
 	private static function checkActivityParticipation($item, $contacts)
 	{
