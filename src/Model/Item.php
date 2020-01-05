@@ -656,7 +656,7 @@ class Item
 			'iaid' => 'internal-iaid'];
 
 		if ($usermode) {
-			$fields['user-item'] = ['pinned', 'ignored' => 'internal-user-ignored'];
+			$fields['user-item'] = ['pinned', 'notification-type', 'ignored' => 'internal-user-ignored'];
 		}
 
 		$fields['item-activity'] = ['activity', 'activity' => 'internal-activity'];
