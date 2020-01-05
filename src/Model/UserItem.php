@@ -26,6 +26,8 @@ class UserItem
 
 	/**
 	 * Checks an item for notifications and sets the "notification-type" field
+	 * @ToDo:
+	 * - Check for mentions in posts with "uid=0" where the user hadn't interacted before
 	 *
 	 * @param int $iid Item ID
 	 */
