@@ -125,7 +125,7 @@ class UserItem
 		$notification_data = ['uid' => $uid, 'profiles' => []];
 		Hook::callAll('check_item_notification', $notification_data);
 
-		$profiles = $notification_data['profiles'];
+		$raw_profiles = $notification_data['profiles'];
 
 		$user = DBA::selectFirst('user', ['nickname'], ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
@@ -138,32 +138,41 @@ class UserItem
 		}
 
 		// This is our regular URL format
-		$profiles[] = $owner['url'];
+		$raw_profiles[] = $owner['url'];
 
 		// Notifications from Diaspora are often with an URL in the Diaspora format
-		$profiles[] = DI::baseUrl() . '/u/' . $user['nickname'];
+		$raw_profiles[] = DI::baseUrl() . '/u/' . $user['nickname'];
 
-		$profiles2 = [];
+		$profiles = [];
 
-		foreach ($profiles AS $profile) {
+		// Validate and add profile links
+		foreach ($raw_profiles AS $profile) {
 			// Check for invalid profile urls. 13 should be the shortest possible profile length:
 			// http://a.bc/d
 			// Additionally check for invalid urls that would return the normalised value "http:"
-			if ((strlen($profile) >= 13) && (Strings::normaliseLink($profile) != 'http:')) {
-				if (!in_array($profile, $profiles2))
-					$profiles2[] = $profile;
+			if ((strlen($profile) < 13) || (Strings::normaliseLink($profile) == 'http:')) {
+				continue;
+			}
 
-				$profile = Strings::normaliseLink($profile);
-				if (!in_array($profile, $profiles2))
-					$profiles2[] = $profile;
+			// Add the profile if it wasn't already added
+			if (!in_array($profile, $profiles)) {
+				$profiles[] = $profile;
+			}
 
-				$profile = str_replace('http://', 'https://', $profile);
-				if (!in_array($profile, $profiles2))
-					$profiles2[] = $profile;
+			// Add the normalized form
+			$profile = Strings::normaliseLink($profile);
+			if (!in_array($profile, $profiles)) {
+				$profiles[] = $profile;
+			}
+
+			// Add the SSL form
+			$profile = str_replace('http://', 'https://', $profile);
+			if (!in_array($profile, $profiles)) {
+				$profiles[] = $profile;
 			}
 		}
 
-		return $profiles2;
+		return $profiles;
 	}
 
 	/**
