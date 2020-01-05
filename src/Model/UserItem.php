@@ -154,25 +154,19 @@ class UserItem
 				continue;
 			}
 
-			// Add the profile if it wasn't already added
-			if (!in_array($profile, $profiles)) {
-				$profiles[] = $profile;
-			}
+			// Add the profile
+			$profiles[] = $profile;
 
 			// Add the normalized form
 			$profile = Strings::normaliseLink($profile);
-			if (!in_array($profile, $profiles)) {
-				$profiles[] = $profile;
-			}
+			$profiles[] = $profile;
 
 			// Add the SSL form
 			$profile = str_replace('http://', 'https://', $profile);
-			if (!in_array($profile, $profiles)) {
-				$profiles[] = $profile;
-			}
+			$profiles[] = $profile;
 		}
 
-		return $profiles;
+		return array_unique($profiles);
 	}
 
 	/**
