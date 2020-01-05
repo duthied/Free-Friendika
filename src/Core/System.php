@@ -289,7 +289,6 @@ class System
 	function notice($s)
 	function info($s)
 	function is_site_admin()
-	function get_server()
 	function get_temppath()
 	function get_cachefile($file, $writemode = true)
 	function get_itemcachepath()

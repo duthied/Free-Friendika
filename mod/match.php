@@ -8,6 +8,7 @@ use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -56,7 +57,7 @@ function match_content(App $a)
 	$params['n'] = 100;
 
 	if (strlen(Config::get('system', 'directory'))) {
-		$host = get_server();
+		$host = Search::getGlobalDirectory();
 	} else {
 		$host = DI::baseUrl();
 	}
@@ -79,7 +80,7 @@ function match_content(App $a)
 			}
 
 			// Workaround for wrong directory photo URL
-			$profile->photo = str_replace('http:///photo/', get_server() . '/photo/', $profile->photo);
+			$profile->photo = str_replace('http:///photo/', Search::getGlobalDirectory() . '/photo/', $profile->photo);
 
 			$connlnk = DI::baseUrl() . '/follow/?url=' . $profile->url;
 			$photo_menu = [

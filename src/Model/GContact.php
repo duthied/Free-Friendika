@@ -12,6 +12,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
+use Friendica\Core\Search;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Network\Probe;
@@ -508,7 +509,7 @@ class GContact
 		$done[] = DI::baseUrl() . '/poco';
 
 		if (strlen(Config::get('system', 'directory'))) {
-			$x = Network::fetchUrl(get_server() . '/pubsites');
+			$x = Network::fetchUrl(Search::getGlobalDirectory() . '/pubsites');
 			if (!empty($x)) {
 				$j = json_decode($x);
 				if (!empty($j->entries)) {

@@ -272,7 +272,7 @@ class Search
 			$return = GContact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
-			$curlResult = Network::curl(get_server() . '/search/people?' . $p . '&q=' . urlencode($search), false, ['accept_content' => 'application/json']);
+			$curlResult = Network::curl(self::getGlobalDirectory() . '/search/people?' . $p . '&q=' . urlencode($search), false, ['accept_content' => 'application/json']);
 			if ($curlResult->isSuccess()) {
 				$searchResult = json_decode($curlResult->getBody(), true);
 				if (!empty($searchResult['profiles'])) {
@@ -282,5 +282,15 @@ class Search
 		}
 
 		return $return ?? [];
+	}
+
+	/**
+	 * Returns the global directory name, used in this node
+	 *
+	 * @return string
+	 */
+	public static function getGlobalDirectory()
+	{
+		return Config::get('system', 'directory', self::DEFAULT_DIRECTORY);
 	}
 }

@@ -2,7 +2,6 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\Arguments;
 use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
@@ -15,7 +14,6 @@ use Friendica\Network\HTTPException;
 use Friendica\Object\Search\ContactResult;
 use Friendica\Object\Search\ResultList;
 use Friendica\Util\Proxy as ProxyUtils;
-use Friendica\Util\Strings;
 
 /**
  * Base class for search modules
@@ -136,7 +134,7 @@ class BaseSearchModule extends BaseModule
 					$photo_menu['follow']  = [L10n::t("Connect/Follow"), $connLink];
 				}
 
-				$photo = str_replace("http:///photo/", get_server() . "/photo/", $result->getPhoto());
+				$photo = str_replace("http:///photo/", Search::getGlobalDirectory() . "/photo/", $result->getPhoto());
 
 				$entry     = [
 					'alt_text'     => $alt_text,
