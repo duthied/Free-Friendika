@@ -10,6 +10,7 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\Core\Config;
 use Friendica\Core\Protocol;
+use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Module\Register;
 use Friendica\Network\CurlResult;

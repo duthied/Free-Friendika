@@ -446,17 +446,6 @@ function curPageURL()
 	return $pageURL;
 }
 
-function get_server()
-{
-	$server = Config::get("system", "directory");
-
-	if ($server == "") {
-		$server = "https://dir.friendica.social";
-	}
-
-	return $server;
-}
-
 function get_temppath()
 {
 	$temppath = Config::get("system", "temppath");
