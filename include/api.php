@@ -2170,7 +2170,7 @@ function api_statuses_mentions($type)
 		$since_id];
 
 	if ($max_id > 0) {
-		$condition[0] .= " AND `item`.`id` <= ?";
+		$query .= " AND `item`.`id` <= ?";
 		$condition[] = $max_id;
 	}
 
