@@ -7,8 +7,6 @@ use Friendica\Network\HTTPException;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class BaseModel
- *
  * The Model classes inheriting from this abstract class are meant to represent a single database record.
  * The associated table name has to be provided in the child class, and the table is expected to have a unique `id` field.
  *
@@ -32,11 +30,31 @@ abstract class BaseModel
 	 */
 	private $data = [];
 
-	public function __construct(Database $dba, LoggerInterface $logger, $data = [])
+	/**
+	 * @param Database        $dba
+	 * @param LoggerInterface $logger
+	 * @param array           $data   Table row attributes
+	 */
+	public function __construct(Database $dba, LoggerInterface $logger, array $data = [])
 	{
 		$this->dba = $dba;
 		$this->logger = $logger;
 		$this->data = $data;
+	}
+
+	/**
+	 * Performance-improved model creation in a loop
+	 *
+	 * @param BaseModel $prototype
+	 * @param array     $data
+	 * @return BaseModel
+	 */
+	public static function createFromPrototype(BaseModel $prototype, array $data)
+	{
+		$model = clone $prototype;
+		$model->data = $data;
+
+		return $model;
 	}
 
 	/**
@@ -62,33 +80,16 @@ abstract class BaseModel
 	}
 
 	/**
-	 * Fetches a single model record. The condition array is expected to contain a unique index (primary or otherwise).
-	 *
-	 * Chainable.
-	 *
-	 * @param array $condition
-	 * @return BaseModel
-	 * @throws HTTPException\NotFoundException
+	 * @param string $name
+	 * @param mixed $value
 	 */
-	public function fetch(array $condition)
+	public function __set($name, $value)
 	{
-		$data = $this->dba->selectFirst(static::$table_name, [], $condition);
-
-		if (!$data) {
-			throw new HTTPException\NotFoundException(static::class . ' record not found.');
-		}
-
-		return new static($this->dba, $this->logger, $data);
+		$this->data[$name] = $value;
 	}
 
-	/**
-	 * Deletes the model record from the database.
-	 * Prevents further methods from being called by wiping the internal model data.
-	 */
-	public function delete()
+	public function toArray()
 	{
-		if ($this->dba->delete(static::$table_name, ['id' => $this->id])) {
-			$this->data = [];
-		}
+		return $this->data;
 	}
 }
