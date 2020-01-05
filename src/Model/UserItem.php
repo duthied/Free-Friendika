@@ -13,6 +13,15 @@ use Friendica\Util\Strings;
 
 class UserItem
 {
+	const NOTIF_NONE = 0;
+	const NOTIF_EXPLICIT_TAGGED = 1;
+	const NOTIF_IMPLICIT_TAGGED = 2;
+	const NOTIF_THREAD_COMMENT = 4;
+	const NOTIF_DIRECT_COMMENT = 8;
+	const NOTIF_COMMENT_PARTICIPATION = 16;
+	const NOTIF_ACTIVITY_PARTICIPATION = 32;
+	const NOTIF_SHARED = 128;
+
 	/**
 	 * Checks an item for notifications and sets the "notification-type" field
 	 *
@@ -21,27 +30,66 @@ class UserItem
 	 */
 	public static function setNotification($item, $uid)
 	{
+		// Don't check for own posts
+		if ($item['origin'] || empty($uid)) {
+			return;
+		}
+
+		$fields = ['ignored', 'mention'];
+		$thread = Item::selectFirstThreadForUser($uid, $fields, ['iid' => $item['parent'], 'deleted' => false]);
+		if ($thread['ignored']) {
+			return;
+		}
+
+		$notification_type = self::NOTIF_NONE;
+
 		if (self::checkShared($item, $uid)) {
-			echo "shared\n";
+			$notification_type = $notification_type | self::NOTIF_SHARED;
 		}
 
 		$profiles = self::getProfileForUser($uid);
 
-		if (self::checkTagged($item, $uid, $profiles)) {
-			echo "tagged\n";
+		if (self::checkImplicitMention($item, $uid, $profiles)) {
+			$notification_type = $notification_type | self::NOTIF_IMPLICIT_TAGGED;
 		}
 
-		if (self::checkCommented($item, $uid, $profiles)) {
-			echo "commented\n";
+		if (self::checkExplicitMention($item, $uid, $profiles)) {
+			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
 		}
+
+		$contacts = [];
+		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
+		while ($contact = DBA::fetch($ret)) {
+			$contacts[] = $contact['id'];
+		}
+		DBA::close($ret);
+
+		if (self::checkCommentedThread($item, $uid, $contacts)) {
+			$notification_type = $notification_type | self::NOTIF_THREAD_COMMENT;
+		}
+
+		if (self::checkDirectComment($item, $uid, $contacts, $thread)) {
+			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
+		}
+
+		if (self::checkCommentedParticipation($item, $uid, $contacts)) {
+			$notification_type = $notification_type | self::NOTIF_COMMENT_PARTICIPATION;
+		}
+
+		if (self::checkActivityParticipation($item, $uid, $contacts)) {
+			$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
+		}
+
+		DBA::update('user-item', ['notification-type' => $notification_type], ['iid' => $item['id'], 'uid' => $uid], true);
 	}
 
+	// Fetch all contacts for the given profiles
 	private static function getProfileForUser($uid)
 	{
-		$notification_data = ["uid" => $uid, "profiles" => []];
+		$notification_data = ['uid' => $uid, 'profiles' => []];
 		Hook::callAll('check_item_notification', $notification_data);
 
-		$profiles = $notification_data["profiles"];
+		$profiles = $notification_data['profiles'];
 
 		$fields = ['nickname'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
@@ -55,10 +103,10 @@ class UserItem
 		}
 
 		// This is our regular URL format
-		$profiles[] = $owner["url"];
+		$profiles[] = $owner['url'];
 
 		// Notifications from Diaspora are often with an URL in the Diaspora format
-		$profiles[] = DI::baseUrl()."/u/".$user["nickname"];
+		$profiles[] = DI::baseUrl().'/u/'.$user['nickname'];
 
 		$profiles2 = [];
 
@@ -66,7 +114,7 @@ class UserItem
 			// Check for invalid profile urls. 13 should be the shortest possible profile length:
 			// http://a.bc/d
 			// Additionally check for invalid urls that would return the normalised value "http:"
-			if ((strlen($profile) >= 13) && (Strings::normaliseLink($profile) != "http:")) {
+			if ((strlen($profile) >= 13) && (Strings::normaliseLink($profile) != 'http:')) {
 				if (!in_array($profile, $profiles2))
 					$profiles2[] = $profile;
 
@@ -74,7 +122,7 @@ class UserItem
 				if (!in_array($profile, $profiles2))
 					$profiles2[] = $profile;
 
-				$profile = str_replace("http://", "https://", $profile);
+				$profile = str_replace('http://', 'https://', $profile);
 				if (!in_array($profile, $profiles2))
 					$profiles2[] = $profile;
 			}
@@ -98,7 +146,7 @@ class UserItem
 		// Or the contact is a mentioned forum
 		$tags = DBA::select('term', ['url'], ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => TERM_MENTION, 'uid' => $uid]);
 		while ($tag = DBA::fetch($tags)) {
-			$condition = ['nurl' => Strings::normaliseLink($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
+			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
 			if (DBA::exists('contact', $condition)) {
 				return true;
 			}
@@ -108,40 +156,51 @@ class UserItem
 	}
 
 	// Is the user mentioned in this post?
-	private static function checkTagged($item, $uid, $profiles)
+	private static function checkImplicitMention($item, $uid, $profiles)
 	{
 		foreach ($profiles AS $profile) {
-			if (strpos($item["tag"], "=".$profile."]") || strpos($item["body"], "=".$profile."]"))
+			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']'))
 				return true;
 		}
 
 		return false;
 	}
 
-	// Fetch all contacts for the given profiles
-	private static function checkCommented($item, $uid, $profiles)
+	private static function checkExplicitMention($item, $uid, $profiles)
 	{
-		// Is it a post that the user had started?
-		$fields = ['ignored', 'mention'];
-		$thread = Item::selectFirstThreadForUser($uid, $fields, ['iid' => $item["parent"], 'deleted' => false]);
-		if ($thread['mention'] && !$thread['ignored']) {
-			return true;
-		}
-
-		$contacts = [];
-		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
-		while ($contact = DBA::fetch($ret)) {
-			$contacts[] = $contact['id'];
-		}
-		DBA::close($ret);
-
-		// And now we check for participation of one of our contacts in the thread
-		$condition = ['parent' => $item["parent"], 'author-id' => $contacts, 'deleted' => false];
-
-		if (!$thread['ignored'] && Item::exists($condition)) {
-			return true;
+		foreach ($profiles AS $profile) {
+			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']'))
+				return !(strpos($item['body'], $profile) === false);
 		}
 
 		return false;
+	}
+
+	// Is it a post that the user had started?
+	private static function checkCommentedThread($item, $uid, $contacts)
+	{
+		// Additional check for connector posts
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
+		return Item::exists($condition);
+	}
+
+	private static function checkDirectComment($item, $uid, $contacts)
+	{
+		// Additional check for connector posts
+		$condition = ['uri' => $item['thr-parent'], 'uid' => [0, $uid], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		return Item::exists($condition);
+	}
+
+	// Check for participation of one of our contacts in the thread
+	private static function checkCommentedParticipation($item, $uid, $contacts)
+	{
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		return Item::exists($condition);
+	}
+
+	private static function checkActivityParticipation($item, $uid, $contacts)
+	{
+		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY];
+		return Item::exists($condition);
 	}
 }
