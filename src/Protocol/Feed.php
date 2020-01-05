@@ -460,7 +460,7 @@ class Feed {
 					$item["body"] = '[abstract]' . HTML::toBBCode($summary, $basepath) . "[/abstract]\n" . $item["body"];
 				}
 
-				if ($contact["fetch_further_information"] == 3) {
+				if (!empty($contact["fetch_further_information"]) && ($contact["fetch_further_information"] == 3)) {
 					if (!empty($tags)) {
 						$item["tag"] = $tags;
 					} else {
