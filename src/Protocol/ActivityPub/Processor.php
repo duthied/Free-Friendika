@@ -176,6 +176,9 @@ class Processor
 		} else {
 			$item['gravity'] = GRAVITY_COMMENT;
 			$item['object-type'] = Activity\ObjectType::COMMENT;
+
+			// Ensure that the comment reaches all receivers of the referring post
+			$activity['receiver'] = self::addReceivers($activity);
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
@@ -241,6 +244,35 @@ class Processor
 	}
 
 	/**
+	 * Add users to the receiver list of the given public activity.
+	 * This is used to ensure that the activity will be stored in every thread.
+	 *
+	 * @param array $activity Activity array
+	 * @return array Modified receiver list
+	 */
+	private static function addReceivers(array $activity)
+	{
+		if (!in_array(0, $activity['receiver'])) {
+			// Private activities will not be modified
+			return $activity['receiver'];
+		}
+
+		// Add all owners of the referring item to the receivers
+		$original = $receivers = $activity['receiver'];
+		$items = Item::select(['uid'], ['uri' => $activity['object_id']]);
+		while ($item = DBA::fetch($items)) {
+			$receivers['uid:' . $item['uid']] = $item['uid'];
+		}
+		DBA::close($items);
+
+		if (count($original) != count($receivers)) {
+			Logger::info('Improved data', ['id' => $activity['id'], 'object' => $activity['object_id'], 'original' => $original, 'improved' => $receivers]);
+		}
+
+		return $receivers;
+	}
+
+	/**
 	 * Prepare the item array for an activity
 	 *
 	 * @param array  $activity Activity array
@@ -257,6 +289,8 @@ class Processor
 		$item['object-type'] = Activity\ObjectType::NOTE;
 
 		$item['diaspora_signed_text'] = $activity['diaspora:like'] ?? '';
+
+		$activity['receiver'] = self::addReceivers($activity);
 
 		self::postItem($activity, $item);
 	}
