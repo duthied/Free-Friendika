@@ -26,20 +26,26 @@ class UserItem
 	/**
 	 * Checks an item for notifications and sets the "notification-type" field
 	 *
-	 * @param array $item The message array that is checked for notifications
-	 * @param int   $uid  User ID
+	 * @param int $iid Item ID
 	 */
-	public static function setNotification($iid, $uid)
+	public static function setNotification(int $iid)
 	{
-		$fields = ['id', 'body', 'origin', 'parent', 'gravity', 'tag', 'contact-id',
+		$fields = ['id', 'uid', 'body', 'parent', 'gravity', 'tag', 'contact-id',
 			'thr-parent', 'parent-uri', 'mention'];
-		$item = Item::selectFirst($fields, ['id' => $iid]);
-
-		// Don't check for own posts
-		if ($item['origin'] || empty($uid)) {
+		$item = Item::selectFirst($fields, ['id' => $iid, 'origin' => false]);
+		if (!DBA::isResult($item)) {
 			return;
 		}
 
+		if (!empty($item['uid'])) {
+			self::setNotificationForUser($item, $item['uid']);
+			return;
+		}
+		// Alle user des Threads ermitteln
+	}
+
+	private static function setNotificationForUser(array $item, int $uid)
+	{
 		$fields = ['ignored', 'mention'];
 		$thread = Item::selectFirstThreadForUser($uid, $fields, ['iid' => $item['parent'], 'deleted' => false]);
 		if ($thread['ignored']) {
@@ -62,6 +68,7 @@ class UserItem
 			$notification_type = $notification_type | self::NOTIF_EXPLICIT_TAGGED;
 		}
 
+		// Fetch all contacts for the given profiles
 		$contacts = [];
 		$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
 		while ($contact = DBA::fetch($ret)) {
@@ -77,11 +84,11 @@ class UserItem
 			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
 		}
 
-		if (self::checkCommentedParticipation($item, $uid, $contacts)) {
+		if (self::checkCommentedParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_COMMENT_PARTICIPATION;
 		}
 
-		if (self::checkActivityParticipation($item, $uid, $contacts)) {
+		if (self::checkActivityParticipation($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
 		}
 
@@ -94,7 +101,12 @@ class UserItem
 		DBA::update('user-item', ['notification-type' => $notification_type], ['iid' => $item['id'], 'uid' => $uid], true);
 	}
 
-	// Fetch all contacts for the given profiles
+	/**
+	 * Fetch all profiles of a given user
+	 * @param int $uid User ID
+	 *
+	 * @return array Profiles
+	 */
 	private static function getProfileForUser($uid)
 	{
 		$notification_data = ['uid' => $uid, 'profiles' => []];
@@ -105,12 +117,12 @@ class UserItem
 		$fields = ['nickname'];
 		$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($user)) {
-			return false;
+			return [];
 		}
 
 		$owner = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
 		if (!DBA::isResult($owner)) {
-			return false;
+			return [];
 		}
 
 		// This is our regular URL format
@@ -142,6 +154,11 @@ class UserItem
 		return $profiles2;
 	}
 
+	/**
+	 * Check for a "shared" notification for the given item and user
+	 * @param array $item
+	 * @param int   $uid  User ID
+	 */
 	private static function checkShared($item, $uid)
 	{
 		if ($item['gravity'] != GRAVITY_PARENT) {
@@ -167,27 +184,48 @@ class UserItem
 	}
 
 	// Is the user mentioned in this post?
+	/**
+	 * Check for a "shared" notification for the given item and user
+	 * @param array $item
+	 * @param int   $uid  User ID
+	 */
 	private static function checkImplicitMention($item, $uid, $profiles)
 	{
 		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']'))
-				return true;
+			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
+				if (strpos($item['body'], $profile) === false) {
+					return true;
+				}
+			}
 		}
 
 		return false;
 	}
 
+	/**
+	 * Check for a "shared" notification for the given item and user
+	 * @param array $item
+	 * @param int   $uid  User ID
+	 */
 	private static function checkExplicitMention($item, $uid, $profiles)
 	{
 		foreach ($profiles AS $profile) {
-			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']'))
-				return !(strpos($item['body'], $profile) === false);
+			if (strpos($item['tag'], '='.$profile.']') || strpos($item['body'], '='.$profile.']')) {
+				if (!(strpos($item['body'], $profile) === false)) {
+					return true;
+				}
+			}
 		}
 
 		return false;
 	}
 
 	// Is it a post that the user had started?
+	/**
+	 * Check for a "shared" notification for the given item and user
+	 * @param array $item
+	 * @param int   $uid  User ID
+	 */
 	private static function checkCommentedThread($item, $uid, $contacts)
 	{
 		// Additional check for connector posts
@@ -195,6 +233,12 @@ class UserItem
 		return Item::exists($condition);
 	}
 
+	/**
+	 * Check for a direct comment to a post of the given user
+	 * @param array $item
+	 * @param int   $uid  User ID
+	 * @param array $contacts Array of contacts
+	 */
 	private static function checkDirectComment($item, $uid, $contacts)
 	{
 		// Additional check for connector posts
@@ -202,14 +246,23 @@ class UserItem
 		return Item::exists($condition);
 	}
 
-	// Check for participation of one of our contacts in the thread
-	private static function checkCommentedParticipation($item, $uid, $contacts)
+	/**
+	 *  Check if the user had commented in this thread
+	 * @param array $item
+	 * @param array $contacts Array of contacts
+	 */
+	private static function checkCommentedParticipation($item, $contacts)
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
 		return Item::exists($condition);
 	}
 
-	private static function checkActivityParticipation($item, $uid, $contacts)
+	/**
+	 * Check if the user had interacted in this thread (Like, Dislike, ...)
+	 * @param array $item
+	 * @param array $contacts Array of contacts
+	 */
+	private static function checkActivityParticipation($item, $contacts)
 	{
 		$condition = ['parent' => $item['parent'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_ACTIVITY];
 		return Item::exists($condition);

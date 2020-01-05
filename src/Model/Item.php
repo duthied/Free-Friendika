@@ -2026,7 +2026,7 @@ class Item
 
 		self::updateContact($item);
 
-		UserItem::setNotification($current_post, $item['uid']);
+		UserItem::setNotification($current_post);
 
 		check_user_notification($current_post);
 
