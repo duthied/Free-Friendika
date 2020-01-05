@@ -29,6 +29,7 @@ use Friendica\Model\Mail;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Model\UserItem;
 use Friendica\Network\FKOAuth1;
 use Friendica\Network\HTTPException;
 use Friendica\Network\HTTPException\BadRequestException;
@@ -1519,7 +1520,7 @@ function api_search($type)
 	} elseif (!empty($_REQUEST['count'])) {
 		$count = $_REQUEST['count'];
 	}
-	
+
 	$since_id = $_REQUEST['since_id'] ?? 0;
 	$max_id = $_REQUEST['max_id'] ?? 0;
 	$page = $_REQUEST['page'] ?? 1;
@@ -1555,7 +1556,7 @@ function api_search($type)
 
 		$condition = [implode(' AND ', $preCondition)];
 	} else {
-		$condition = ["`id` > ? 
+		$condition = ["`id` > ?
 			" . ($exclude_replies ? " AND `id` = `parent` " : ' ') . "
 			AND (`uid` = 0 OR (`uid` = ? AND NOT `global`))
 			AND `body` LIKE CONCAT('%',?,'%')",
@@ -2158,17 +2159,34 @@ function api_statuses_mentions($type)
 
 	$start = max(0, ($page - 1) * $count);
 
-	$condition = ["`uid` = ? AND `gravity` IN (?, ?) AND `item`.`id` > ? AND `author-id` != ? AND `mention`
-		AND `item`.`parent` IN (SELECT `iid` FROM `thread` WHERE `thread`.`uid` = ? AND NOT `thread`.`ignored`)",
-		api_user(), GRAVITY_PARENT, GRAVITY_COMMENT, $since_id, $user_info['pid'], api_user()];
+	$query = "SELECT `item`.`id` FROM `user-item`
+		INNER JOIN `item` ON `item`.`id` = `user-item`.`iid` AND `item`.`gravity` IN (?, ?)
+		WHERE (`user-item`.`hidden` IS NULL OR NOT `user-item`.`hidden`) AND
+			`user-item`.`uid` = ? AND `user-item`.`notification-type` & ? != 0
+			AND `user-item`.`iid` > ?";
+	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
+		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
+		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT,
+		$since_id];
 
 	if ($max_id > 0) {
 		$condition[0] .= " AND `item`.`id` <= ?";
 		$condition[] = $max_id;
 	}
 
+	$query .= " ORDER BY `user-item`.`iid` DESC LIMIT ?, ?";
+	$condition[] = $start;
+	$condition[] = $count;
+
+	$useritems = DBA::p($query, $condition);
+	$itemids = [];
+	while ($useritem = DBA::fetch($useritems)) {
+		$itemids[] = $useritem['id'];
+	}
+	DBA::close($useritems);
+
 	$params = ['order' => ['id' => true], 'limit' => [$start, $count]];
-	$statuses = Item::selectForUser(api_user(), [], $condition, $params);
+	$statuses = Item::selectForUser(api_user(), [], ['id' => $itemids], $params);
 
 	$ret = api_format_items(Item::inArray($statuses), $user_info, false, $type);
 
