@@ -1287,7 +1287,8 @@ CREATE TABLE IF NOT EXISTS `user-item` (
 	`pinned` boolean COMMENT 'The item is pinned on the profile page',
 	`notification-type` tinyint unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`uid`,`iid`),
-	 INDEX `uid_pinned` (`uid`,`pinned`)
+	 INDEX `uid_pinned` (`uid`,`pinned`),
+	 INDEX `iid_uid` (`iid`,`uid`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='User specific item data';
 
 --

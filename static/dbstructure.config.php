@@ -1393,7 +1393,8 @@ return [
 		],
 		"indexes" => [
 			"PRIMARY" => ["uid", "iid"],
-			"uid_pinned" => ["uid", "pinned"]
+			"uid_pinned" => ["uid", "pinned"],
+			"iid_uid" => ["iid", "uid"]
 		]
 	],
 	"worker-ipc" => [
