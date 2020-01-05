@@ -2026,6 +2026,8 @@ class Item
 
 		self::updateContact($item);
 
+		UserItem::setNotification($current_post, $item['uid']);
+
 		check_user_notification($current_post);
 
 		if ($notify || ($item['visible'] && ((!empty($parent) && $parent['origin']) || $item['origin']))) {

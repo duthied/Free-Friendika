@@ -6,6 +6,7 @@
 
 namespace Friendica\Model;
 
+use Friendica\Core\Logger;
 use Friendica\Core\Hook;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -28,8 +29,12 @@ class UserItem
 	 * @param array $item The message array that is checked for notifications
 	 * @param int   $uid  User ID
 	 */
-	public static function setNotification($item, $uid)
+	public static function setNotification($iid, $uid)
 	{
+		$fields = ['id', 'body', 'origin', 'parent', 'gravity', 'tag', 'contact-id',
+			'thr-parent', 'parent-uri', 'mention'];
+		$item = Item::selectFirst($fields, ['id' => $iid]);
+
 		// Don't check for own posts
 		if ($item['origin'] || empty($uid)) {
 			return;
@@ -79,6 +84,12 @@ class UserItem
 		if (self::checkActivityParticipation($item, $uid, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_ACTIVITY_PARTICIPATION;
 		}
+
+		if (empty($notification_type)) {
+			return;
+		}
+
+		Logger::info('Set notification', ['iid' => $item['id'], 'uid' => $uid, 'notification-type' => $notification_type]);
 
 		DBA::update('user-item', ['notification-type' => $notification_type], ['iid' => $item['id'], 'uid' => $uid], true);
 	}
@@ -144,7 +155,7 @@ class UserItem
 		}
 
 		// Or the contact is a mentioned forum
-		$tags = DBA::select('term', ['url'], ['otype' => TERM_OBJ_POST, 'oid' => $itemid, 'type' => TERM_MENTION, 'uid' => $uid]);
+		$tags = DBA::select('term', ['url'], ['otype' => TERM_OBJ_POST, 'oid' => $item['id'], 'type' => TERM_MENTION, 'uid' => $uid]);
 		while ($tag = DBA::fetch($tags)) {
 			$condition = ['nurl' => Strings::normaliseLink($tag['url']), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
 			if (DBA::exists('contact', $condition)) {
