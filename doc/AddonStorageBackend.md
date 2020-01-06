@@ -215,6 +215,11 @@ class SampleStorageBackend implements IStorage
 	{
 		return self::NAME;
 	}
+
+	public static function getName()
+	{
+		return self::NAME;
+	}
 }
 ```
 
@@ -239,13 +244,13 @@ function samplestorage_install()
 	// on addon install, we register our class with name "Sample Storage".
 	// note: we use `::class` property, which returns full class name as string
 	// this save us the problem of correctly escape backslashes in class name
-	DI::facStorage()->register("Sample Storage", SampleStorageBackend::class);
+	DI::facStorage()->register(SampleStorageBackend::class);
 }
 
 function samplestorage_unistall()
 {
 	// when the plugin is uninstalled, we unregister the backend.
-	DI::facStorage()->unregister("Sample Storage");
+	DI::facStorage()->unregister(SampleStorageBackend::class);
 }
 ```
 

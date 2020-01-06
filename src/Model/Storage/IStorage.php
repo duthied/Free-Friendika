@@ -96,4 +96,11 @@ interface IStorage
 	 * @return string
 	 */
 	public function __toString();
+
+	/**
+	 * The name of the backend
+	 *
+	 * @return string
+	 */
+	public static function getName();
 }

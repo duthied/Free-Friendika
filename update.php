@@ -418,5 +418,15 @@ function update_1329()
 		Config::delete('storage', 'class');
 	}
 
+	$photos = DBA::select('photos', ['backend-class', 'id'], ['backend-class IS NOT NULL']);
+	foreach ($photos as $photo) {
+		DBA::update('photos', ['backend-class' => $photo['backend-class']::NAME], ['id' => $photo['id']]);
+	}
+
+	$attachs = DBA::select('attach', ['backend-class', 'id'], ['backend-class IS NOT NULL']);
+	foreach ($attachs as $attach) {
+		DBA::update('photos', ['backend-class' => $attach['backend-class']::NAME], ['id' => $attach['id']]);
+	}
+
 	return Update::SUCCESS;
 }

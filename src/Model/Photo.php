@@ -16,6 +16,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -223,7 +224,7 @@ class Photo
 		$values = array_fill(0, count($fields), "");
 
 		$photo = array_combine($fields, $values);
-		$photo["backend-class"] = Storage\SystemResource::class;
+		$photo["backend-class"] = SystemResource::NAME;
 		$photo["backend-ref"] = $filename;
 		$photo["type"] = $mimetype;
 		$photo["cacheable"] = false;
@@ -275,7 +276,7 @@ class Photo
 
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$storage = DI::facStorage()->getByName((string)$existing_photo["backend-class"]);
+			$storage = DI::facStorage()->getByName($existing_photo["backend-class"] ?? '');
 		} else {
 			$storage = DI::storage();
 		}

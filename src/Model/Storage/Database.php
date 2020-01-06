@@ -6,35 +6,32 @@
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\L10n;
+use Friendica\Core\L10n\L10n;
 use Psr\Log\LoggerInterface;
+use Friendica\Database\Database as DBA;
 
 /**
  * @brief Database based storage system
  *
  * This class manage data stored in database table.
  */
-class Database implements IStorage
+class Database extends AbstractStorage
 {
 	const NAME = 'Database';
 
-	/** @var \Friendica\Database\Database */
+	/** @var DBA */
 	private $dba;
-	/** @var LoggerInterface */
-	private $logger;
-	/** @var L10n\L10n */
-	private $l10n;
 
 	/**
-	 * @param \Friendica\Database\Database $dba
-	 * @param LoggerInterface              $logger
-	 * @param L10n\L10n                    $l10n
+	 * @param DBA             $dba
+	 * @param LoggerInterface $logger
+	 * @param L10n            $l10n
 	 */
-	public function __construct(\Friendica\Database\Database $dba, LoggerInterface $logger, L10n\L10n $l10n)
+	public function __construct(DBA $dba, LoggerInterface $logger, L10n $l10n)
 	{
-		$this->dba    = $dba;
-		$this->logger = $logger;
-		$this->l10n   = $l10n;
+		parent::__construct($l10n, $logger);
+
+		$this->dba = $dba;
 	}
 
 	/**
@@ -58,15 +55,15 @@ class Database implements IStorage
 		if ($reference !== '') {
 			$result = $this->dba->update('storage', ['data' => $data], ['id' => $reference]);
 			if ($result === false) {
-				$this->logger->warning('Failed to update data.', ['id' => $reference, 'errorCode' =>  $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
+				$this->logger->warning('Failed to update data.', ['id' => $reference, 'errorCode' => $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
 				throw new StorageException($this->l10n->t('Database storage failed to update %s', $reference));
- 			}
+			}
 
 			return $reference;
 		} else {
 			$result = $this->dba->insert('storage', ['data' => $data]);
 			if ($result === false) {
-				$this->logger->warning('Failed to insert data.', ['errorCode' =>  $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
+				$this->logger->warning('Failed to insert data.', ['errorCode' => $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
 				throw new StorageException($this->l10n->t('Database storage failed to insert data'));
 			}
 
@@ -101,7 +98,7 @@ class Database implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function __toString()
+	public static function getName()
 	{
 		return self::NAME;
 	}

@@ -45,6 +45,7 @@ class StorageManager
 	 * @param Database        $dba
 	 * @param IConfiguration  $config
 	 * @param LoggerInterface $logger
+	 * @param Dice            $dice
 	 */
 	public function __construct(Database $dba, IConfiguration $config, LoggerInterface $logger, Dice $dice)
 	{
@@ -76,27 +77,39 @@ class StorageManager
 	/**
 	 * @brief Return storage backend class by registered name
 	 *
-	 * @param string $name Backend name
+	 * @param string|null $name Backend name
 	 *
 	 * @return Storage\IStorage|null null if no backend registered at $name
 	 */
-	public function getByName(string $name)
+	public function getByName(string $name = null)
 	{
-		if (!$this->isValidBackend($name)) {
+		if (!$this->isValidBackend($name) &&
+		    $name !== Storage\SystemResource::getName()) {
 			return null;
 		}
 
-		return $this->dice->create($this->backends[$name]);
+		/** @var Storage\IStorage $storage */
+		$storage = null;
+
+		// If the storage of the file is a system resource,
+		// create it directly since it isn't listed in the registered backends
+		if ($name === Storage\SystemResource::getName()) {
+			$storage = $this->dice->create(Storage\SystemResource::class);
+		} else {
+			$storage = $this->dice->create($this->backends[$name]);
+		}
+
+		return $storage;
 	}
 
 	/**
 	 * Checks, if the storage is a valid backend
 	 *
-	 * @param string $name The name or class of the backend
+	 * @param string|null $name The name or class of the backend
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
-	public function isValidBackend(string $name)
+	public function isValidBackend(string $name = null)
 	{
 		return array_key_exists($name, $this->backends);
 	}
@@ -108,7 +121,7 @@ class StorageManager
 	 *
 	 * @return boolean True, if the set was successful
 	 */
-	public function setBackend(string $name)
+	public function setBackend(string $name = null)
 	{
 		if (!$this->isValidBackend($name)) {
 			return false;
@@ -135,23 +148,24 @@ class StorageManager
 	/**
 	 * @brief Register a storage backend class
 	 *
-	 * @param string $name  User readable backend name
 	 * @param string $class Backend class name
 	 *
 	 * @return boolean True, if the registration was successful
 	 */
-	public function register(string $name, string $class)
+	public function register(string $class)
 	{
-		if (!is_subclass_of($class, Storage\IStorage::class)) {
-			return false;
-		}
+		if (is_subclass_of($class, Storage\IStorage::class)) {
+			/** @var Storage\IStorage $class */
 
-		$backends        = $this->backends;
-		$backends[$name] = $class;
+			$backends        = $this->backends;
+			$backends[$class::getName()] = $class;
 
-		if ($this->config->set('storage', 'backends', $this->backends)) {
-			$this->backends = $backends;
-			return true;
+			if ($this->config->set('storage', 'backends', $backends)) {
+				$this->backends = $backends;
+				return true;
+			} else {
+				return false;
+			}
 		} else {
 			return false;
 		}
@@ -160,14 +174,26 @@ class StorageManager
 	/**
 	 * @brief Unregister a storage backend class
 	 *
-	 * @param string $name User readable backend name
+	 * @param string $class Backend class name
 	 *
 	 * @return boolean True, if unregistering was successful
 	 */
-	public function unregister(string $name)
+	public function unregister(string $class)
 	{
-		unset($this->backends[$name]);
-		return $this->config->set('storage', 'backends', $this->backends);
+		if (is_subclass_of($class, Storage\IStorage::class)) {
+			/** @var Storage\IStorage $class */
+
+			unset($this->backends[$class::getName()]);
+
+			if ($this->currentBackend instanceof $class) {
+			    $this->config->set('storage', 'name', null);
+				$this->currentBackend = null;
+			}
+
+			return $this->config->set('storage', 'backends', $this->backends);
+		} else {
+			return false;
+		}
 	}
 
 	/**
@@ -196,7 +222,7 @@ class StorageManager
 			$resources = $this->dba->select(
 				$table,
 				['id', 'data', 'backend-class', 'backend-ref'],
-				['`backend-class` IS NULL or `backend-class` != ?', $destination],
+				['`backend-class` IS NULL or `backend-class` != ?', $destination::getName()],
 				['limit' => $limit]
 			);
 

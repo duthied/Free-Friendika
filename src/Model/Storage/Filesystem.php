@@ -21,7 +21,7 @@ use Psr\Log\LoggerInterface;
  * Each new resource gets a value as reference and is saved in a
  * folder tree stucture created from that value.
  */
-class Filesystem implements IStorage
+class Filesystem extends AbstractStorage
 {
 	const NAME = 'Filesystem';
 
@@ -30,10 +30,6 @@ class Filesystem implements IStorage
 
 	/** @var IConfiguration */
 	private $config;
-	/** @var LoggerInterface */
-	private $logger;
-	/** @var L10n */
-	private $l10n;
 
 	/** @var string */
 	private $basePath;
@@ -47,9 +43,9 @@ class Filesystem implements IStorage
 	 */
 	public function __construct(IConfiguration $config, LoggerInterface $logger, L10n $l10n)
 	{
+		parent::__construct($l10n, $logger);
+
 		$this->config = $config;
-		$this->logger = $logger;
-		$this->l10n   = $l10n;
 
 		$path           = $this->config->get('storage', 'filesystem_path', self::DEFAULT_BASE_FOLDER);
 		$this->basePath = rtrim($path, '/');
@@ -185,7 +181,7 @@ class Filesystem implements IStorage
 	/**
 	 * @inheritDoc
 	 */
-	public function __toString()
+	public static function getName()
 	{
 		return self::NAME;
 	}
