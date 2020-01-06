@@ -539,7 +539,7 @@ class OStatus
 							Logger::log("Item with uri ".$item["uri"]." is from a blocked contact.", Logger::DEBUG);
 						} else {
 							// We are having duplicated entries. Hopefully this solves it.
-							if (Lock::acquire('ostatus_process_item_insert')) {
+							if (DI::lock()->acquire('ostatus_process_item_insert')) {
 								$ret = Item::insert($item);
 								Lock::release('ostatus_process_item_insert');
 								Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);

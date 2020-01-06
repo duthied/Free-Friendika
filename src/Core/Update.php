@@ -5,6 +5,7 @@ namespace Friendica\Core;
 use Friendica\App;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 class Update
@@ -95,7 +96,7 @@ class Update
 
 				// Compare the current structure with the defined structure
 				// If the Lock is acquired, never release it automatically to avoid double updates
-				if (Lock::acquire('dbupdate', 120, Cache::INFINITE)) {
+				if (DI::lock()->acquire('dbupdate', 120, Cache::INFINITE)) {
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
 					$retryBuild = Config::get('system', 'build', null, true);
@@ -181,7 +182,7 @@ class Update
 			// If the update fails or times-out completely you may need to
 			// delete the config entry to try again.
 
-			if (Lock::acquire('dbupdate_function', 120,Cache::INFINITE)) {
+			if (DI::lock()->acquire('dbupdate_function', 120,Cache::INFINITE)) {
 
 				// call the specific update
 				$retval = $funcname();

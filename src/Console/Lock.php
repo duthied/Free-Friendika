@@ -156,11 +156,11 @@ HELP;
 			}
 
 			if (!empty($ttl) && !empty($timeout)) {
-				$result = $this->lock->acquireLock($lock, $timeout, $ttl);
+				$result = $this->lock->acquire($lock, $timeout, $ttl);
 			} elseif (!empty($timeout)) {
-				$result = $this->lock->acquireLock($lock, $timeout);
+				$result = $this->lock->acquire($lock, $timeout);
 			} else {
-				$result = $this->lock->acquireLock($lock);
+				$result = $this->lock->acquire($lock);
 			}
 
 			if ($result) {

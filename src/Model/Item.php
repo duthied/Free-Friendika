@@ -2060,7 +2060,7 @@ class Item
 		}
 
 		// To avoid timing problems, we are using locks.
-		$locked = Lock::acquire('item_insert_activity');
+		$locked = DI::lock()->acquire('item_insert_activity');
 		if (!$locked) {
 			Logger::log("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
@@ -2103,7 +2103,7 @@ class Item
 		}
 
 		// To avoid timing problems, we are using locks.
-		$locked = Lock::acquire('item_insert_content');
+		$locked = DI::lock()->acquire('item_insert_content');
 		if (!$locked) {
 			Logger::log("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}

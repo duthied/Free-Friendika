@@ -16,21 +16,6 @@ use Friendica\DI;
 class Lock
 {
 	/**
-	 * @brief Acquires a lock for a given name
-	 *
-	 * @param string  $key     Name of the lock
-	 * @param integer $timeout Seconds until we give up
-	 * @param integer $ttl     The Lock lifespan, must be one of the Cache constants
-	 *
-	 * @return boolean Was the lock successful?
-	 * @throws \Exception
-	 */
-	public static function acquire($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
-	{
-		return DI::lock()->acquireLock($key, $timeout, $ttl);
-	}
-
-	/**
 	 * @brief Releases a lock if it was set by us
 	 *
 	 * @param string $key      Name of the lock

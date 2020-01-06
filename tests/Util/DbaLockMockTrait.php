@@ -22,7 +22,7 @@ trait DbaLockMockTrait
 	 * @param null     $time      The current timestamp
 	 * @param null|int $times     How often the method will get used
 	 *
-	 *@see DatabaseLock::acquireLock()
+	 *@see DatabaseLock::acquire()
 	 *
 	 */
 	public function mockAcquireLock($key, $ttl = Cache::FIVE_MINUTES, $locked = false, $pid = null, $rowExists = true, $time = null, $times = null)
