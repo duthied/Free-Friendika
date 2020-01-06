@@ -32,19 +32,6 @@ class Cache
 	const INFINITE     = CacheClass::INFINITE;
 
 	/**
-	 * @brief Returns all the cache keys sorted alphabetically
-	 *
-	 * @param string $prefix Prefix of the keys (optional)
-	 *
-	 * @return array Empty if the driver doesn't support this feature
-	 * @throws \Exception
-	 */
-	public static function getAllKeys($prefix = null)
-	{
-		return DI::cache()->getAllKeys($prefix);
-	}
-
-	/**
 	 * @brief Fetch cached data according to the key
 	 *
 	 * @param string $key The key to the cached data
