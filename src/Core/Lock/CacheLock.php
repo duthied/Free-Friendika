@@ -66,7 +66,7 @@ class CacheLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseLock($key, $override = false)
+	public function release($key, $override = false)
 	{
 		$cachekey = self::getLockKey($key);
 
@@ -122,7 +122,7 @@ class CacheLock extends Lock
 		$locks = $this->getLocks();
 
 		foreach ($locks as $lock) {
-			if (!$this->releaseLock($lock, $override)) {
+			if (!$this->release($lock, $override)) {
 				$success = false;
 			}
 		}

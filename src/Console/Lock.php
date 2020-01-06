@@ -133,7 +133,7 @@ HELP;
 		if (count($this->args) >= 2) {
 			$lock = $this->getArgument(1);
 
-			if ($this->lock->releaseLock($lock, true)) {
+			if ($this->lock->release($lock, true)) {
 				$this->out(sprintf('Lock \'%s\' released.', $lock));
 			} else {
 				$this->out(sprintf('Couldn\'t release Lock \'%s\'', $lock));

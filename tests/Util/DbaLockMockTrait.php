@@ -103,7 +103,7 @@ trait DbaLockMockTrait
 	 * @param null|int $pid    The PID which was set
 	 * @param null|int $times  How often the method will get used
 	 *
-	 *@see DatabaseLock::releaseLock()
+	 *@see DatabaseLock::release()
 	 *
 	 */
 	public function mockReleaseLock($key, $pid = null, $times = null)

@@ -55,7 +55,7 @@ class SemaphoreLockTest extends LockTest
 		touch($file);
 
 		$this->assertTrue(file_exists($file));
-		$this->assertFalse($this->instance->releaseLock('test', false));
+		$this->assertFalse($this->instance->release('test', false));
 		$this->assertTrue(file_exists($file));
 	}
 
@@ -72,7 +72,7 @@ class SemaphoreLockTest extends LockTest
 		touch($file);
 
 		$this->assertTrue(file_exists($file));
-		$this->assertFalse($this->instance->releaseLock('test', true));
+		$this->assertFalse($this->instance->release('test', true));
 		$this->assertTrue(file_exists($file));
 	}
 
@@ -87,6 +87,6 @@ class SemaphoreLockTest extends LockTest
 		$this->assertTrue(file_exists($file));
 		$this->assertTrue($this->instance->acquire('test'));
 		$this->assertTrue($this->instance->isLocked('test'));
-		$this->assertTrue($this->instance->releaseLock('test'));
+		$this->assertTrue($this->instance->release('test'));
 	}
 }

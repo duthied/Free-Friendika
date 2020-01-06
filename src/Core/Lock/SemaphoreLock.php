@@ -55,7 +55,7 @@ class SemaphoreLock extends Lock
 	 * @param bool $override not necessary parameter for semaphore locks since the lock lives as long as the execution
 	 *                       of the using function
 	 */
-	public function releaseLock($key, $override = false)
+	public function release($key, $override = false)
 	{
 		$success = false;
 

@@ -541,7 +541,7 @@ class OStatus
 							// We are having duplicated entries. Hopefully this solves it.
 							if (DI::lock()->acquire('ostatus_process_item_insert')) {
 								$ret = Item::insert($item);
-								Lock::release('ostatus_process_item_insert');
+								DI::lock()->release('ostatus_process_item_insert');
 								Logger::log("Item with uri ".$item["uri"]." for user ".$importer["uid"].' stored. Return value: '.$ret);
 							} else {
 								$ret = Item::insert($item);

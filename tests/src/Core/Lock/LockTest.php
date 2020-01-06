@@ -63,7 +63,7 @@ abstract class LockTest extends MockedTest
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->acquire('foo', 1));
 		$this->assertTrue($this->instance->isLocked('foo'));
-		$this->instance->releaseLock('foo');
+		$this->instance->release('foo');
 		$this->assertFalse($this->instance->isLocked('foo'));
 	}
 
@@ -99,7 +99,7 @@ abstract class LockTest extends MockedTest
 		$this->assertTrue($this->instance->acquire('bar', 1));
 		$this->assertTrue($this->instance->acquire('nice', 1));
 
-		$this->assertTrue($this->instance->releaseLock('foo'));
+		$this->assertTrue($this->instance->release('foo'));
 
 		$this->assertFalse($this->instance->isLocked('foo'));
 		$this->assertTrue($this->instance->isLocked('bar'));
@@ -119,7 +119,7 @@ abstract class LockTest extends MockedTest
 		$this->assertFalse($this->instance->isLocked('test'));
 		$this->assertTrue($this->instance->acquire('test', 1, 10));
 		$this->assertTrue($this->instance->isLocked('test'));
-		$this->assertTrue($this->instance->releaseLock('test'));
+		$this->assertTrue($this->instance->release('test'));
 		$this->assertFalse($this->instance->isLocked('test'));
 	}
 
@@ -197,6 +197,6 @@ abstract class LockTest extends MockedTest
 	public function testReleaseLockWithoutLock()
 	{
 		$this->assertFalse($this->instance->isLocked('wrongLock'));
-		$this->assertFalse($this->instance->releaseLock('wrongLock'));
+		$this->assertFalse($this->instance->release('wrongLock'));
 	}
 }

@@ -74,7 +74,7 @@ class DatabaseLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function releaseLock($key, $override = false)
+	public function release($key, $override = false)
 	{
 		if ($override) {
 			$where = ['name' => $key];

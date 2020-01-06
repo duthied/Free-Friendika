@@ -74,7 +74,7 @@ class Update
 		// In force mode, we release the dbupdate lock first
 		// Necessary in case of an stuck update
 		if ($override) {
-			Lock::release('dbupdate', true);
+			DI::lock()->release('dbupdate', true);
 		}
 
 		$build = Config::get('system', 'build', null, true);
@@ -102,7 +102,7 @@ class Update
 					$retryBuild = Config::get('system', 'build', null, true);
 					if ($retryBuild !== $build) {
 						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
-						Lock::release('dbupdate');
+						DI::lock()->release('dbupdate');
 						return '';
 					}
 
@@ -111,7 +111,7 @@ class Update
 						$r = self::runUpdateFunction($x, 'pre_update');
 						if (!$r) {
 							Config::set('system', 'update', Update::FAILED);
-							Lock::release('dbupdate');
+							DI::lock()->release('dbupdate');
 							return $r;
 						}
 					}
@@ -127,7 +127,7 @@ class Update
 						}
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
 						Config::set('system', 'update', Update::FAILED);
-						Lock::release('dbupdate');
+						DI::lock()->release('dbupdate');
 						return $retval;
 					} else {
 						Config::set('database', 'last_successful_update', $current);
@@ -140,7 +140,7 @@ class Update
 						$r = self::runUpdateFunction($x, 'update');
 						if (!$r) {
 							Config::set('system', 'update', Update::FAILED);
-							Lock::release('dbupdate');
+							DI::lock()->release('dbupdate');
 							return $r;
 						}
 					}
@@ -151,7 +151,7 @@ class Update
 					}
 
 					Config::set('system', 'update', Update::SUCCESS);
-					Lock::release('dbupdate');
+					DI::lock()->release('dbupdate');
 				}
 			}
 		}
@@ -194,7 +194,7 @@ class Update
 						L10n::t('Update %s failed. See error logs.', $x)
 					);
 					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
-					Lock::release('dbupdate_function');
+					DI::lock()->release('dbupdate_function');
 					return false;
 				} else {
 					Config::set('database', 'last_successful_update_function', $funcname);
@@ -204,7 +204,7 @@ class Update
 						Config::set('system', 'build', $x);
 					}
 
-					Lock::release('dbupdate_function');
+					DI::lock()->release('dbupdate_function');
 					Logger::info('Update function finished.', ['function' => $funcname]);
 					return true;
 				}
