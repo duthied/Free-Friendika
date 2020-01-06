@@ -28,6 +28,7 @@ use Psr\Log\LoggerInterface;
  * @method static Core\Process process()
  * @method static Core\Session\ISession session()
  * @method static Database\Database dba()
+ * @method static Model\User\Cookie cookie()
  * @method static Model\Notify notify()
  * @method static Model\Introduction intro()
  * @method static Protocol\Activity activity()
@@ -61,6 +62,7 @@ abstract class DI
 		'process'      => Core\Process::class,
 		'session'      => Core\Session\ISession::class,
 		'dba'          => Database\Database::class,
+		'cookie'       => Model\User\Cookie::class,
 		'notify'       => Model\Notify::class,
 		'intro'        => Model\Introduction::class,
 		'activity'     => Protocol\Activity::class,

@@ -6,7 +6,6 @@
 namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
-use Friendica\App\Authentication;
 use Friendica\Core\Cache;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -34,6 +33,7 @@ class Logout extends BaseModule
 		}
 
 		Hook::callAll("logging_out");
+		DI::cookie()->clear();
 		Session::clear();
 
 		if ($visitor_home) {
