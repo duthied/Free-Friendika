@@ -5,22 +5,15 @@ namespace Friendica\Module\Item;
 use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Core\ACL;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
 use Friendica\Core\Theme;
-use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
-use Friendica\Model\FileTag;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException\NotImplementedException;
-use Friendica\Util\ACLFormatter;
 use Friendica\Util\Crypto;
 
 class Compose extends BaseModule

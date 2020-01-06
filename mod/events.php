@@ -18,6 +18,7 @@ use Friendica\DI;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -427,7 +428,7 @@ function events_content(App $a)
 	// Passed parameters overrides anything found in the DB
 	if (in_array($mode, ['edit', 'new', 'copy'])) {
 		if (empty($orig_event)) {
-			$orig_event = [];
+			$orig_event = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);;
 		}
 
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
