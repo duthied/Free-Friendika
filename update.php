@@ -416,10 +416,12 @@ function update_1330()
 	// set the name of the storage instead of the classpath as config
 	if (!empty($currStorage)) {
 		/** @var Storage\IStorage $currStorage */
-		if (!Config::set('storage', 'name', $currStorage::getName()) ||
-		    !Config::delete('storage', 'class')) {
+		if (!Config::set('storage', 'name', $currStorage::getName())) {
 			return Update::FAILED;
-		};
+		}
+
+		// try to delete the class since it isn't needed. This won't work with config files
+		Config::delete('storage', 'class');
 	}
 
 	// Update attachments and photos
