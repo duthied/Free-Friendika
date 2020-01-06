@@ -15,6 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
@@ -674,161 +675,70 @@ function notification($params)
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function check_user_notification($itemid) {
-	// fetch all users in the thread
-	$users = DBA::p("SELECT DISTINCT(`contact`.`uid`) FROM `item`
-			INNER JOIN `contact` ON `contact`.`id` = `item`.`contact-id` AND `contact`.`uid` != 0
-			WHERE `parent` IN (SELECT `parent` FROM `item` WHERE `id`=?)", $itemid);
-	while ($user = DBA::fetch($users)) {
-		check_item_notification($itemid, $user['uid']);
+	// fetch all users with notifications
+	$useritems = DBA::select('user-item', ['uid', 'notification-type'], ['iid' => $itemid]);
+	while ($useritem = DBA::fetch($useritems)) {
+		check_item_notification($itemid, $useritem['uid'], $useritem['notification-type']);
 	}
-	DBA::close($users);
+	DBA::close($useritems);
 }
 
 /**
  * @brief Checks for item related notifications and sends them
  *
- * @param int    $itemid      ID of the item for which the check should be done
- * @param int    $uid         User ID
- * @param string $defaulttype (Optional) Forces a notification with this type.
+ * @param int    $itemid            ID of the item for which the check should be done
+ * @param int    $uid               User ID
+ * @param int    $notification_type Notification bits
  * @return bool
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
-function check_item_notification($itemid, $uid, $defaulttype = "") {
-	$notification_data = ["uid" => $uid, "profiles" => []];
-	Hook::callAll('check_item_notification', $notification_data);
-
-	$profiles = $notification_data["profiles"];
-
-	$fields = ['nickname'];
-	$user = DBA::selectFirst('user', $fields, ['uid' => $uid]);
-	if (!DBA::isResult($user)) {
-		return false;
-	}
-
-	$owner = DBA::selectFirst('contact', ['url'], ['self' => true, 'uid' => $uid]);
-	if (!DBA::isResult($owner)) {
-		return false;
-	}
-
-	// This is our regular URL format
-	$profiles[] = $owner["url"];
-
-	// Notifications from Diaspora are often with an URL in the Diaspora format
-	$profiles[] = DI::baseUrl()."/u/".$user["nickname"];
-
-	$profiles2 = [];
-
-	foreach ($profiles AS $profile) {
-		// Check for invalid profile urls. 13 should be the shortest possible profile length:
-		// http://a.bc/d
-		// Additionally check for invalid urls that would return the normalised value "http:"
-		if ((strlen($profile) >= 13) && (Strings::normaliseLink($profile) != "http:")) {
-			if (!in_array($profile, $profiles2))
-				$profiles2[] = $profile;
-
-			$profile = Strings::normaliseLink($profile);
-			if (!in_array($profile, $profiles2))
-				$profiles2[] = $profile;
-
-			$profile = str_replace("http://", "https://", $profile);
-			if (!in_array($profile, $profiles2))
-				$profiles2[] = $profile;
-		}
-	}
-
-	$profiles = $profiles2;
-
-	$ret = DBA::select('contact', ['id'], ['uid' => 0, 'nurl' => $profiles]);
-
-	$contacts = [];
-
-	while ($contact = DBA::fetch($ret)) {
-		$contacts[] = $contact['id'];
-	}
-
-	DBA::close($ret);
-
-	// Only act if it is a "real" post
-	// We need the additional check for the "local_profile" because of mixed situations on connector networks
+function check_item_notification($itemid, $uid, $notification_type) {
 	$fields = ['id', 'mention', 'tag', 'parent', 'title', 'body',
 		'author-link', 'author-name', 'author-avatar', 'author-id',
 		'guid', 'parent-uri', 'uri', 'contact-id', 'network'];
 	$condition = ['id' => $itemid, 'gravity' => [GRAVITY_PARENT, GRAVITY_COMMENT], 'deleted' => false];
 	$item = Item::selectFirstForUser($uid, $fields, $condition);
-	if (!DBA::isResult($item) || in_array($item['author-id'], $contacts)) {
+	if (!DBA::isResult($item)) {
 		return false;
 	}
 
 	// Generate the notification array
 	$params = [];
-	$params["uid"] = $uid;
-	$params["item"] = $item;
-	$params["parent"] = $item["parent"];
-	$params["link"] = DI::baseUrl().'/display/'.urlencode($item["guid"]);
-	$params["otype"] = 'item';
-	$params["source_name"] = $item["author-name"];
-	$params["source_link"] = $item["author-link"];
-	$params["source_photo"] = $item["author-avatar"];
+	$params['uid'] = $uid;
+	$params['item'] = $item;
+	$params['parent'] = $item['parent'];
+	$params['link'] = DI::baseUrl() . '/display/' . urlencode($item['guid']);
+	$params['otype'] = 'item';
+	$params['source_name'] = $item['author-name'];
+	$params['source_link'] = $item['author-link'];
+	$params['source_photo'] = $item['author-avatar'];
 
-	if ($item["parent-uri"] === $item["uri"]) {
-		// Send a notification for every new post?
-		// Either the contact had posted something directly
-		$send_notification = DBA::exists('contact', ['id' => $item['contact-id'], 'notify_new_posts' => true]);
-
-		// Or the contact is a mentioned forum
-		if (!$send_notification) {
-			$tags = q("SELECT `url` FROM `term` WHERE `otype` = %d AND `oid` = %d AND `type` = %d AND `uid` = %d",
-				intval(TERM_OBJ_POST), intval($itemid), intval(TERM_MENTION), intval($uid));
-
-			if (DBA::isResult($tags)) {
-				foreach ($tags AS $tag) {
-					$condition = ['nurl' => Strings::normaliseLink($tag["url"]), 'uid' => $uid, 'notify_new_posts' => true, 'contact-type' => Contact::TYPE_COMMUNITY];
-					if (DBA::exists('contact', $condition)) {
-						$send_notification = true;
-					}
-				}
-			}
-		}
-
-		if ($send_notification) {
-			$params["type"] = NOTIFY_SHARE;
-			$params["verb"] = Activity::TAG;
-		}
+	if ($notification_type & UserItem::NOTIF_SHARED) {
+		$params['type'] = NOTIFY_SHARE;
+		$params['verb'] = Activity::TAG;
+	} elseif ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED) {
+		$params['type'] = NOTIFY_TAGSELF;
+		$params['verb'] = Activity::TAG;
+	} elseif ($notification_type & UserItem::NOTIF_IMPLICIT_TAGGED) {
+		$params['type'] = NOTIFY_TAGSELF;
+		$params['verb'] = Activity::TAG;
+	} elseif ($notification_type & UserItem::NOTIF_THREAD_COMMENT) {
+		$params['type'] = NOTIFY_COMMENT;
+		$params['verb'] = Activity::POST;
+	} elseif ($notification_type & UserItem::NOTIF_DIRECT_COMMENT) {
+		$params['type'] = NOTIFY_COMMENT;
+		$params['verb'] = Activity::POST;
+	} elseif ($notification_type & UserItem::NOTIF_COMMENT_PARTICIPATION) {
+		$params['type'] = NOTIFY_COMMENT;
+		$params['verb'] = Activity::POST;
+	} elseif ($notification_type & UserItem::NOTIF_ACTIVITY_PARTICIPATION) {
+		$params['type'] = NOTIFY_COMMENT;
+		$params['verb'] = Activity::POST;
+	} else {
+		return false;
 	}
 
-	// Is the user mentioned in this post?
-	$tagged = false;
-
-	foreach ($profiles AS $profile) {
-		if (strpos($item["tag"], "=".$profile."]") || strpos($item["body"], "=".$profile."]"))
-			$tagged = true;
-	}
-
-	if ($item["mention"] || $tagged || ($defaulttype == NOTIFY_TAGSELF)) {
-		$params["type"] = NOTIFY_TAGSELF;
-		$params["verb"] = Activity::TAG;
-	}
-
-	// Is it a post that the user had started?
-	$fields = ['ignored', 'mention'];
-	$thread = Item::selectFirstThreadForUser($params['uid'], $fields, ['iid' => $item["parent"], 'deleted' => false]);
-
-	if ($thread['mention'] && !$thread['ignored'] && !isset($params["type"])) {
-		$params["type"] = NOTIFY_COMMENT;
-		$params["verb"] = Activity::POST;
-	}
-
-	// And now we check for participation of one of our contacts in the thread
-	$condition = ['parent' => $item["parent"], 'author-id' => $contacts, 'deleted' => false];
-
-	if (!$thread['ignored'] && !isset($params["type"]) && Item::exists($condition)) {
-		$params["type"] = NOTIFY_COMMENT;
-		$params["verb"] = Activity::POST;
-	}
-
-	if (isset($params["type"])) {
-		notification($params);
-	}
+	notification($params);
 }
 
 /**
