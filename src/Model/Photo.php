@@ -173,26 +173,24 @@ class Photo
 	 */
 	public static function getImageForPhoto(array $photo)
 	{
-		$data = "";
-
-		if ($photo["backend-class"] == "") {
+		if (empty($photo['backend-class'])) {
 			// legacy data storage in "data" column
-			$i = self::selectFirst(["data"], ["id" => $photo["id"]]);
+			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
 				return null;
 			}
-			$data = $i["data"];
+			$data = $i['data'];
 		} else {
-			$backendClass = $photo["backend-class"];
-			$backendRef = $photo["backend-ref"];
-			$data = $backendClass::get($backendRef);
+			$backendClass = DI::facStorage()->getByName($photo['backend-class'] ?? '');
+			$backendRef = $photo['backend-ref'] ?? '';
+			$data = $backendClass->get($backendRef);
 		}
 
-		if ($data === "") {
+		if (empty($data)) {
 			return null;
 		}
 
-		return new Image($data, $photo["type"]);
+		return new Image($data, $photo['type']);
 	}
 
 	/**
@@ -223,11 +221,11 @@ class Photo
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
-		$photo = array_combine($fields, $values);
-		$photo["backend-class"] = SystemResource::NAME;
-		$photo["backend-ref"] = $filename;
-		$photo["type"] = $mimetype;
-		$photo["cacheable"] = false;
+		$photo                  = array_combine($fields, $values);
+		$photo['backend-class'] = SystemResource::NAME;
+		$photo['backend-ref']   = $filename;
+		$photo['type']          = $mimetype;
+		$photo['cacheable']     = false;
 
 		return $photo;
 	}
@@ -340,10 +338,9 @@ class Photo
 		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 		foreach($photos as $photo) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$photo["backend-class"];
-			if ($backend_class !== "") {
-				$backend_class::delete($photo["backend-ref"]);
+			$backend_class = DI::facStorage()->getByName($photo['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($photo["backend-ref"] ?? '');
 			}
 		}
 
@@ -370,10 +367,9 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$photo["backend-class"];
-				if ($backend_class !== "") {
-					$fields["backend-ref"] = $backend_class::put($img->asString(), $photo["backend-ref"]);
+				$backend_class = DI::facStorage()->getByName($photo['backend-class'] ?? '');
+				if ($backend_class !== null) {
+					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {
 					$fields["data"] = $img->asString();
 				}
