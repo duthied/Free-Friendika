@@ -60,17 +60,4 @@ class Cache
 	{
 		return DI::cache()->set($key, $value, $duration);
 	}
-
-	/**
-	 * @brief Delete a value from the cache
-	 *
-	 * @param string $key The key to the cached data
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public static function delete($key)
-	{
-		return DI::cache()->delete($key);
-	}
 }
