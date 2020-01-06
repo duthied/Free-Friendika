@@ -4,7 +4,7 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;

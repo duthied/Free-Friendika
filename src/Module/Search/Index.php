@@ -2,13 +2,10 @@
 
 namespace Friendica\Module\Search;
 
-use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
-use Friendica\Core\Cache;
 use Friendica\Core\Cache\Cache as CacheClass;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
