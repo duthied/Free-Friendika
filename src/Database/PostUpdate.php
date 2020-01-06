@@ -10,6 +10,7 @@ use Friendica\Core\Protocol;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
+use Friendica\Model\UserItem;
 use Friendica\Model\PermissionSet;
 
 /**
@@ -38,6 +39,9 @@ class PostUpdate
 			return false;
 		}
 		if (!self::update1322()) {
+			return false;
+		}
+		if (!self::update1329()) {
 			return false;
 		}
 
@@ -452,5 +456,55 @@ class PostUpdate
 		Logger::info('Done');
 
 		return true;
+	}
+
+	/**
+	 * @brief update user-item data with notifications
+	 *
+	 * @return bool "true" when the job is done
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	private static function update1329()
+	{
+		// Was the script completed?
+		if (Config::get('system', 'post_update_version') >= 1329) {
+			return true;
+		}
+
+		$id = Config::get('system', 'post_update_version_1329_id', 0);
+
+		Logger::info('Start', ['item' => $id]);
+
+		$start_id = $id;
+		$rows = 0;
+		$condition = ["`id` > ?", $id];
+		$params = ['order' => ['id'], 'limit' => 10000];
+		$items = DBA::select('item', ['id'], $condition, $params);
+
+		if (DBA::errorNo() != 0) {
+			Logger::error('Database error', ['no' => DBA::errorNo(), 'message' => DBA::errorMessage()]);
+			return false;
+		}
+
+		while ($item = DBA::fetch($items)) {
+			$id = $item['id'];
+
+			UserItem::setNotification($item['id']);
+
+			++$rows;
+		}
+		DBA::close($items);
+
+		Config::set('system', 'post_update_version_1329_id', $id);
+
+		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
+
+		if ($start_id == $id) {
+			Config::set('system', 'post_update_version', 1329);
+			Logger::info('Done');
+			return true;
+		}
+
+		return false;
 	}
 }
