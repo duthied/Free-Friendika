@@ -6,10 +6,7 @@
 namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
-use Friendica\Core\Cache;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
-use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Profile;
@@ -29,17 +26,17 @@ class Logout extends BaseModule
 		$visitor_home = null;
 		if (remote_user()) {
 			$visitor_home = Profile::getMyURL();
-			Cache::delete('zrlInit:' . $visitor_home);
+			DI::cache()->delete('zrlInit:' . $visitor_home);
 		}
 
 		Hook::callAll("logging_out");
 		DI::cookie()->clear();
-		Session::clear();
+		DI::session()->clear();
 
 		if ($visitor_home) {
 			System::externalRedirect($visitor_home);
 		} else {
-			info(L10n::t('Logged out.'));
+			info(DI::l10n()->t('Logged out.'));
 			DI::baseUrl()->redirect();
 		}
 	}
