@@ -154,7 +154,7 @@ class CronJobs
 		}
 
 		// clear old cache
-		Cache::clear();
+		DI::cache()->clear();
 
 		// clear old item cache files
 		clear_cache();

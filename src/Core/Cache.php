@@ -73,17 +73,4 @@ class Cache
 	{
 		return DI::cache()->delete($key);
 	}
-
-	/**
-	 * @brief Remove outdated data from the cache
-	 *
-	 * @param boolean $outdated just remove outdated values
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public static function clear($outdated = true)
-	{
-		return DI::cache()->clear($outdated);
-	}
 }
