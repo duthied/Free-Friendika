@@ -413,27 +413,20 @@ function update_1330()
 {
 	$currStorage = Config::get('storage', 'class', '');
 
+	// set the name of the storage instead of the classpath as config
 	if (!empty($currStorage)) {
-		$storageName = array_key_first(\Friendica\Core\StorageManager::DEFAULT_BACKENDS, $currStorage);
-		if (!Config::set('storage', 'name', $storageName) ||
+		/** @var Storage\IStorage $currStorage */
+		if (!Config::set('storage', 'name', $currStorage::getName()) ||
 		    !Config::delete('storage', 'class')) {
 			return Update::FAILED;
 		};
 	}
 
-	// Update photos
-	if (!DBA::update('photo', ['backend-class' => Storage\Filesystem::NAME],     ['backend-class' => 'Friendica\Model\Storage\Filesystem']) ||
-	    !DBA::update('photo', ['backend-class' => Storage\Database::NAME],       ['backend-class' => 'Friendica\Model\Storage\Database']) ||
-	    !DBA::update('photo', ['backend-class' => Storage\SystemResource::NAME], ['backend-class' => 'Friendica\Model\Storage\SystemResource'])) {
+	// Update attachments and photos
+	if (!DBA::p("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 22) WHERE `photo`.`backend-class` LIKE 'Friendica\\Model\\Storage\\%'") ||
+	    !DBA::p("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 22) WHERE `attach`.`backend-class` LIKE 'Friendica\\Model\\Storage\\%'")) {
 		return Update::FAILED;
 	};
-
-	// update attachments
-	if (!DBA::update('attach', ['backend-class' => Storage\Filesystem::NAME],     ['backend-class' => 'Friendica\Model\Storage\Filesystem']) ||
-	    !DBA::update('attach', ['backend-class' => Storage\Database::NAME],       ['backend-class' => 'Friendica\Model\Storage\Database']) ||
-	    !DBA::update('attach', ['backend-class' => Storage\SystemResource::NAME], ['backend-class' => 'Friendica\Model\Storage\SystemResource'])) {
-		return Update::FAILED;
-	}
 
 	return Update::SUCCESS;
 }
