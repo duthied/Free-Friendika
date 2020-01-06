@@ -57,7 +57,7 @@ class Term
 	 */
 	public static function getGlobalTrendingHashtags(int $period, $limit = 10)
 	{
-		$tags = Cache::get('global_trending_tags');
+		$tags = DI::cache()->get('global_trending_tags');
 
 		if (!$tags) {
 			$tagsStmt = DBA::p("SELECT t.`term`, COUNT(*) AS `score`
@@ -100,7 +100,7 @@ class Term
 	 */
 	public static function getLocalTrendingHashtags(int $period, $limit = 10)
 	{
-		$tags = Cache::get('local_trending_tags');
+		$tags = DI::cache()->get('local_trending_tags');
 
 		if (!$tags) {
 			$tagsStmt = DBA::p("SELECT t.`term`, COUNT(*) AS `score`

@@ -125,7 +125,7 @@ class Images
 			return $data;
 		}
 
-		$data = Cache::get($url);
+		$data = DI::cache()->get($url);
 
 		if (empty($data) || !is_array($data)) {
 			$data = self::getInfoFromURL($url);

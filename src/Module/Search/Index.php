@@ -53,7 +53,7 @@ class Index extends BaseSearchModule
 				$crawl_permit_period = 10;
 
 			$remote = $_SERVER['REMOTE_ADDR'];
-			$result = Cache::get('remote_search:' . $remote);
+			$result = DI::cache()->get('remote_search:' . $remote);
 			if (!is_null($result)) {
 				$resultdata = json_decode($result);
 				if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {

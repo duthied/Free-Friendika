@@ -256,7 +256,7 @@ function poco_init(App $a) {
 				if (isset($contact['account-type'])) {
 					$contact['contact-type'] = $contact['account-type'];
 				}
-				$about = Cache::get("about:" . $contact['updated'] . ":" . $contact['nurl']);
+				$about = DI::cache()->get("about:" . $contact['updated'] . ":" . $contact['nurl']);
 				if (is_null($about)) {
 					$about = BBCode::convert($contact['about'], false);
 					DI::cache()->set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);

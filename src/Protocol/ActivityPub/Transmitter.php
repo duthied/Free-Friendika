@@ -819,7 +819,7 @@ class Transmitter
 		$cachekey = 'APDelivery:createActivity:' . $item_id;
 
 		if (!$force) {
-			$data = Cache::get($cachekey);
+			$data = DI::cache()->get($cachekey);
 			if (!is_null($data)) {
 				return $data;
 			}

@@ -1070,7 +1070,7 @@ class BBCode
 	private static function removePictureLinksCallback($match)
 	{
 		$cache_key = 'remove:' . $match[1];
-		$text = Cache::get($cache_key);
+		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
 			$a = DI::app();
@@ -1143,7 +1143,7 @@ class BBCode
 		}
 
 		$cache_key = 'clean:' . $match[1];
-		$text = Cache::get($cache_key);
+		$text = DI::cache()->get($cache_key);
 		if (!is_null($text)) {
 			return $text;
 		}

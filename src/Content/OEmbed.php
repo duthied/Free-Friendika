@@ -66,7 +66,7 @@ class OEmbed
 		if (DBA::isResult($oembed_record)) {
 			$json_string = $oembed_record['content'];
 		} else {
-			$json_string = Cache::get($cache_key);
+			$json_string = DI::cache()->get($cache_key);
 		}
 
 		// These media files should now be caught in bbcode.php

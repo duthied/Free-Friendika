@@ -30,17 +30,4 @@ class Cache
 	const MINUTE       = CacheClass::MINUTE;
 	/** @deprecated Use CacheClass::INFINITE */
 	const INFINITE     = CacheClass::INFINITE;
-
-	/**
-	 * @brief Fetch cached data according to the key
-	 *
-	 * @param string $key The key to the cached data
-	 *
-	 * @return mixed Cached $value or "null" if not found
-	 * @throws \Exception
-	 */
-	public static function get($key)
-	{
-		return DI::cache()->get($key);
-	}
 }

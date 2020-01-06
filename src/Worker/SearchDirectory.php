@@ -27,7 +27,7 @@ class SearchDirectory
 			return;
 		}
 
-		$data = Cache::get('SearchDirectory:' . $search);
+		$data = DI::cache()->get('SearchDirectory:' . $search);
 		if (!is_null($data)) {
 			// Only search for the same item every 24 hours
 			if (time() < $data + (60 * 60 * 24)) {

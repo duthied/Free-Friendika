@@ -40,7 +40,7 @@ class JsonLD
 			exit();
 		}
 
-		$result = Cache::get('documentLoader:' . $url);
+		$result = DI::cache()->get('documentLoader:' . $url);
 		if (!is_null($result)) {
 			return $result;
 		}

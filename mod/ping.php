@@ -197,7 +197,7 @@ function ping_init(App $a)
 		}
 
 		$cachekey = "ping_init:".local_user();
-		$ev = Cache::get($cachekey);
+		$ev = DI::cache()->get($cachekey);
 		if (is_null($ev)) {
 			$ev = q(
 				"SELECT type, start, adjust FROM `event`

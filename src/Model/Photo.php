@@ -546,7 +546,7 @@ class Photo
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		$albums = Cache::get($key);
+		$albums = DI::cache()->get($key);
 		if (is_null($albums) || $update) {
 			if (!Config::get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow

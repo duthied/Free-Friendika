@@ -332,7 +332,7 @@ class Probe
 	public static function uri($uri, $network = '', $uid = -1, $cache = true)
 	{
 		if ($cache) {
-			$result = Cache::get('Probe::uri:' . $network . ':' . $uri);
+			$result = DI::cache()->get('Probe::uri:' . $network . ':' . $uri);
 			if (!is_null($result)) {
 				return $result;
 			}

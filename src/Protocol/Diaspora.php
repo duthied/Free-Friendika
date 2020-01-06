@@ -3246,7 +3246,7 @@ class Diaspora
 
 		$cachekey = "diaspora:sendParticipation:".$item['guid'];
 
-		$result = Cache::get($cachekey);
+		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			return;
 		}
@@ -3524,7 +3524,7 @@ class Diaspora
 	{
 		$cachekey = "diaspora:buildStatus:".$item['guid'];
 
-		$result = Cache::get($cachekey);
+		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			return $result;
 		}
@@ -3749,7 +3749,7 @@ class Diaspora
 	{
 		$cachekey = "diaspora:constructComment:".$item['guid'];
 
-		$result = Cache::get($cachekey);
+		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			return $result;
 		}
