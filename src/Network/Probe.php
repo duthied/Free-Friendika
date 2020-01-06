@@ -409,7 +409,7 @@ class Probe
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			Cache::set('Probe::uri:' . $network . ':' . $uri, $data, Cache::DAY);
+			DI::cache()->set('Probe::uri:' . $network . ':' . $uri, $data, Cache::DAY);
 		}
 
 		return $data;

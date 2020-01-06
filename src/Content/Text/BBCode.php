@@ -1112,7 +1112,7 @@ class BBCode
 					}
 				}
 			}
-			Cache::set($cache_key, $text);
+			DI::cache()->set($cache_key, $text);
 		}
 
 		return $text;
@@ -1194,7 +1194,7 @@ class BBCode
 				}
 			}
 		}
-		Cache::set($cache_key, $text);
+		DI::cache()->set($cache_key, $text);
 
 		return $text;
 	}

@@ -130,7 +130,7 @@ class Images
 		if (empty($data) || !is_array($data)) {
 			$data = self::getInfoFromURL($url);
 
-			Cache::set($url, $data);
+			DI::cache()->set($url, $data);
 		}
 
 		return $data;

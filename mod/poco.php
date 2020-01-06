@@ -13,6 +13,7 @@ use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -258,7 +259,7 @@ function poco_init(App $a) {
 				$about = Cache::get("about:" . $contact['updated'] . ":" . $contact['nurl']);
 				if (is_null($about)) {
 					$about = BBCode::convert($contact['about'], false);
-					Cache::set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
+					DI::cache()->set("about:" . $contact['updated'] . ":" . $contact['nurl'], $about);
 				}
 
 				// Non connected persons can only see the keywords of a Diaspora account

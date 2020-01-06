@@ -10,6 +10,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
 use Friendica\Network\Probe;
@@ -80,6 +81,6 @@ class SearchDirectory
 				}
 			}
 		}
-		Cache::set('SearchDirectory:' . $search, time(), Cache::DAY);
+		DI::cache()->set('SearchDirectory:' . $search, time(), Cache::DAY);
 	}
 }

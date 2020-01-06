@@ -84,7 +84,7 @@ class Term
 
 			if (DBA::isResult($tagsStmt)) {
 				$tags = DBA::toArray($tagsStmt);
-				Cache::set('global_trending_tags', $tags, Cache::HOUR);
+				DI::cache()->set('global_trending_tags', $tags, Cache::HOUR);
 			}
 		}
 
@@ -129,7 +129,7 @@ class Term
 
 			if (DBA::isResult($tagsStmt)) {
 				$tags = DBA::toArray($tagsStmt);
-				Cache::set('local_trending_tags', $tags, Cache::HOUR);
+				DI::cache()->set('local_trending_tags', $tags, Cache::HOUR);
 			}
 		}
 

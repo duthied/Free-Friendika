@@ -569,7 +569,7 @@ class Photo
 					DBA::escape(L10n::t("Contact Photos"))
 				);
 			}
-			Cache::set($key, $albums, Cache::DAY);
+			DI::cache()->set($key, $albums, Cache::DAY);
 		}
 		return $albums;
 	}
@@ -582,7 +582,7 @@ class Photo
 	public static function clearAlbumCache($uid)
 	{
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		Cache::set($key, null, Cache::DAY);
+		DI::cache()->set($key, null, Cache::DAY);
 	}
 
 	/**

@@ -59,9 +59,9 @@ class Index extends BaseSearchModule
 				if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
 					throw new HTTPException\TooManyRequestsException(L10n::t('Only one search per minute is permitted for not logged in users.'));
 				}
-				Cache::set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), CacheClass::HOUR);
+				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), CacheClass::HOUR);
 			} else {
-				Cache::set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => 1]), CacheClass::HOUR);
+				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => 1]), CacheClass::HOUR);
 			}
 		}
 

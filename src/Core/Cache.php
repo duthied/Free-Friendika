@@ -43,21 +43,4 @@ class Cache
 	{
 		return DI::cache()->get($key);
 	}
-
-	/**
-	 * @brief Put data in the cache according to the key
-	 *
-	 * The input $value can have multiple formats.
-	 *
-	 * @param string  $key      The key to the cached data
-	 * @param mixed   $value    The value that is about to be stored
-	 * @param integer $duration The cache lifespan
-	 *
-	 * @return bool
-	 * @throws \Exception
-	 */
-	public static function set($key, $value, $duration = CacheClass::MONTH)
-	{
-		return DI::cache()->set($key, $value, $duration);
-	}
 }

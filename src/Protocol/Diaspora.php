@@ -3272,7 +3272,7 @@ class Diaspora
 		Logger::log("Send participation for ".$item["guid"]." by ".$author, Logger::DEBUG);
 
 		// It doesn't matter what we store, we only want to avoid sending repeated notifications for the same item
-		Cache::set($cachekey, $item["guid"], Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $item["guid"], Cache::QUARTER_HOUR);
 
 		return self::buildAndTransmit($owner, $contact, "participation", $message);
 	}
@@ -3628,7 +3628,7 @@ class Diaspora
 
 		$msg = ["type" => $type, "message" => $message];
 
-		Cache::set($cachekey, $msg, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $msg, Cache::QUARTER_HOUR);
 
 		return $msg;
 	}
@@ -3798,7 +3798,7 @@ class Diaspora
 			$comment['thread_parent_guid'] = $thread_parent_item['guid'];
 		}
 
-		Cache::set($cachekey, $comment, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $comment, Cache::QUARTER_HOUR);
 
 		return($comment);
 	}

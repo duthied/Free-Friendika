@@ -125,7 +125,7 @@ class OEmbed
 				$cache_ttl = Cache::FIVE_MINUTES;
 			}
 
-			Cache::set($cache_key, $json_string, $cache_ttl);
+			DI::cache()->set($cache_key, $json_string, $cache_ttl);
 		}
 
 		if ($oembed->type == 'error') {
