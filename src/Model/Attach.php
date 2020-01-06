@@ -6,12 +6,10 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
@@ -261,10 +259,9 @@ class Attach
 			$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$item['backend-class'];
+				$backend_class = DI::facStorage()->getByName($item['backend-class'] ?? '');
 				if ($backend_class !== '') {
-					$fields['backend-ref'] = $backend_class::put($img->asString(), $item['backend-ref']);
+					$fields['backend-ref'] = $backend_class->put($img->asString(), $item['backend-ref'] ?? '');
 				} else {
 					$fields['data'] = $img->asString();
 				}
@@ -294,10 +291,9 @@ class Attach
 		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$item['backend-class'];
-			if ($backend_class !== '') {
-				$backend_class::delete($item['backend-ref']);
+			$backend_class = DI::facStorage()->getByName($item['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($item['backend-ref'] ?? '');
 			}
 		}
 
