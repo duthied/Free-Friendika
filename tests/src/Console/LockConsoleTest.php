@@ -68,7 +68,7 @@ class LockConsoleTest extends ConsoleTest
 	public function testDelLock()
 	{
 		$this->lockMock
-			->shouldReceive('releaseLock')
+			->shouldReceive('release')
 			->with('test', true)
 			->andReturn(true)
 			->once();
@@ -83,7 +83,7 @@ class LockConsoleTest extends ConsoleTest
 	public function testDelUnknownLock()
 	{
 		$this->lockMock
-			->shouldReceive('releaseLock')
+			->shouldReceive('release')
 			->with('test', true)
 			->andReturn(false)
 			->once();
@@ -103,7 +103,7 @@ class LockConsoleTest extends ConsoleTest
 			->andReturn(false)
 			->once();
 		$this->lockMock
-			->shouldReceive('acquireLock')
+			->shouldReceive('acquire')
 			->with('test')
 			->andReturn(true)
 			->once();
@@ -138,7 +138,7 @@ class LockConsoleTest extends ConsoleTest
 			->andReturn(false)
 			->once();
 		$this->lockMock
-			->shouldReceive('acquireLock')
+			->shouldReceive('acquire')
 			->with('test')
 			->andReturn(false)
 			->once();
