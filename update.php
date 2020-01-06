@@ -12,6 +12,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Model\Storage;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Worker\Delivery;
 
@@ -408,24 +409,30 @@ function update_1327()
 	return Update::SUCCESS;
 }
 
-function update_1329()
+function update_1330()
 {
 	$currStorage = Config::get('storage', 'class', '');
 
 	if (!empty($currStorage)) {
 		$storageName = array_key_first(\Friendica\Core\StorageManager::DEFAULT_BACKENDS, $currStorage);
-		Config::set('storage', 'name', $storageName);
-		Config::delete('storage', 'class');
+		if (!Config::set('storage', 'name', $storageName) ||
+		    !Config::delete('storage', 'class')) {
+			return Update::FAILED;
+		};
 	}
 
-	$photos = DBA::select('photos', ['backend-class', 'id'], ['backend-class IS NOT NULL']);
-	foreach ($photos as $photo) {
-		DBA::update('photos', ['backend-class' => $photo['backend-class']::NAME], ['id' => $photo['id']]);
-	}
+	// Update photos
+	if (!DBA::update('photo', ['backend-class' => Storage\Filesystem::NAME],     ['backend-class' => 'Friendica\Model\Storage\Filesystem']) ||
+	    !DBA::update('photo', ['backend-class' => Storage\Database::NAME],       ['backend-class' => 'Friendica\Model\Storage\Database']) ||
+	    !DBA::update('photo', ['backend-class' => Storage\SystemResource::NAME], ['backend-class' => 'Friendica\Model\Storage\SystemResource'])) {
+		return Update::FAILED;
+	};
 
-	$attachs = DBA::select('attach', ['backend-class', 'id'], ['backend-class IS NOT NULL']);
-	foreach ($attachs as $attach) {
-		DBA::update('photos', ['backend-class' => $attach['backend-class']::NAME], ['id' => $attach['id']]);
+	// update attachments
+	if (!DBA::update('attach', ['backend-class' => Storage\Filesystem::NAME],     ['backend-class' => 'Friendica\Model\Storage\Filesystem']) ||
+	    !DBA::update('attach', ['backend-class' => Storage\Database::NAME],       ['backend-class' => 'Friendica\Model\Storage\Database']) ||
+	    !DBA::update('attach', ['backend-class' => Storage\SystemResource::NAME], ['backend-class' => 'Friendica\Model\Storage\SystemResource'])) {
+		return Update::FAILED;
 	}
 
 	return Update::SUCCESS;
