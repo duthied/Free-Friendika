@@ -336,8 +336,6 @@ class HTML
 
 		$message = html_entity_decode($message, ENT_QUOTES, 'UTF-8');
 
-		$message = str_replace(["<"], ["&lt;"], $message);
-
 		// remove quotes if they don't make sense
 		$message = preg_replace('=\[/quote\][\s]*\[quote\]=i', "\n", $message);
 
