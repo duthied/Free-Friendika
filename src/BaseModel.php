@@ -14,8 +14,6 @@ use Psr\Log\LoggerInterface;
  */
 abstract class BaseModel
 {
-	protected static $table_name;
-
 	/** @var Database */
 	protected $dba;
 	/** @var LoggerInterface */

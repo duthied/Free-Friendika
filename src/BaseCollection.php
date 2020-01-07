@@ -2,10 +2,6 @@
 
 namespace Friendica;
 
-use Friendica\Database\Database;
-use Friendica\Database\DBA;
-use Psr\Log\LoggerInterface;
-
 /**
  * The Collection classes inheriting from this abstract class are meant to represent a list of database record.
  * The associated model class has to be provided in the child classes.
