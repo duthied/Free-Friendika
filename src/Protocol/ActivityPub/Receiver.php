@@ -907,18 +907,6 @@ class Receiver
 			return $object_data;
 		}
 
-		$markdown = JsonLD::fetchElement($object, 'as:content', '@value', '@language', 'text/markdown');
-		if (!empty($markdown)) {
-			$object_data['source'] = Markdown::toBBCode($markdown);
-			return $object_data;
-		}
-
-		$html = JsonLD::fetchElement($object, 'as:content', '@value', '@language', 'text/html');
-		if (!empty($html)) {
-			$object_data['source'] = HTML::toBBCode($markdown);
-			return $object_data;
-		}
-
 		return $object_data;
 	}
 
