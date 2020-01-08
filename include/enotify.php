@@ -187,7 +187,7 @@ function notification($params)
 		if ($params['activity']['explicit_tagged']) {
 			$message = '%1$s tagged you on %2$s\'s %3$s %4$s';
 		} elseif ($params['activity']['origin_comment']) {
-			$message = '%1$s answered you on %2$s\'s %3$s %4$s';
+			$message = '%1$s replied to you on %2$s\'s %3$s %4$s';
 		} else {
 			$message = '%1$s commented on %2$s\'s %3$s %4$s';
 		}
@@ -201,7 +201,7 @@ function notification($params)
 			if ($params['activity']['explicit_tagged']) {
 				$message = '%1$s tagged you on your %2$s %3$s';
 			} elseif ($params['activity']['origin_comment']) {
-				$message = '%1$s answered you on your %2$s %3$s';
+				$message = '%1$s replied to you on your %2$s %3$s';
 			} else {
 				$message = '%1$s commented on your %2$s %3$s';
 			}
@@ -212,7 +212,7 @@ function notification($params)
 			if ($params['activity']['explicit_tagged']) {
 				$message = '%1$s tagged you on their %2$s %3$s';
 			} elseif ($params['activity']['origin_comment']) {
-				$message = '%1$s answered you on their %2$s %3$s';
+				$message = '%1$s replied to you on their %2$s %3$s';
 			} else {
 				$message = '%1$s commented on their %2$s %3$s';
 			}
