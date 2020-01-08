@@ -184,10 +184,10 @@ function notification($params)
 		// First go for the general message
 
 		// "George Bull's post"
-		if ($params['activity']['explicit_tagged']) {
-			$message = '%1$s tagged you on %2$s\'s %3$s %4$s';
-		} elseif ($params['activity']['origin_comment']) {
+		if ($params['activity']['origin_comment']) {
 			$message = '%1$s replied to you on %2$s\'s %3$s %4$s';
+		} elseif ($params['activity']['explicit_tagged']) {
+			$message = '%1$s tagged you on %2$s\'s %3$s %4$s';
 		} else {
 			$message = '%1$s commented on %2$s\'s %3$s %4$s';
 		}
@@ -198,10 +198,10 @@ function notification($params)
 
 		// "your post"
 		if ($params['activity']['origin_thread']) {
-			if ($params['activity']['explicit_tagged']) {
-				$message = '%1$s tagged you on your %2$s %3$s';
-			} elseif ($params['activity']['origin_comment']) {
+			if ($params['activity']['origin_comment']) {
 				$message = '%1$s replied to you on your %2$s %3$s';
+			} elseif ($params['activity']['explicit_tagged']) {
+				$message = '%1$s tagged you on your %2$s %3$s';
 			} else {
 				$message = '%1$s commented on your %2$s %3$s';
 			}
@@ -209,10 +209,10 @@ function notification($params)
 			$dest_str = $l10n->t($message, $params['source_name'], $item_post_type, $title);
 		// "their post"
 		} elseif ($item['author-link'] == $params['source_link']) {
-			if ($params['activity']['explicit_tagged']) {
-				$message = '%1$s tagged you on their %2$s %3$s';
-			} elseif ($params['activity']['origin_comment']) {
+			if ($params['activity']['origin_comment']) {
 				$message = '%1$s replied to you on their %2$s %3$s';
+			} elseif ($params['activity']['explicit_tagged']) {
+				$message = '%1$s tagged you on their %2$s %3$s';
 			} else {
 				$message = '%1$s commented on their %2$s %3$s';
 			}
