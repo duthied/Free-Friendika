@@ -2,9 +2,9 @@
 
 namespace Friendica\Core;
 
-use Dice\Dice;
 use Exception;
 use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\L10n\L10n;
 use Friendica\Database\Database;
 use Friendica\Model\Storage;
 use Psr\Log\LoggerInterface;
@@ -29,14 +29,19 @@ class StorageManager
 
 	private $backends = [];
 
+	/**
+	 * @var Storage\IStorage[] A local cache for storage instances
+	 */
+	private $backendInstances = [];
+
 	/** @var Database */
 	private $dba;
 	/** @var IConfiguration */
 	private $config;
 	/** @var LoggerInterface */
 	private $logger;
-	/** @var Dice */
-	private $dice;
+	/** @var L10n */
+	private $l10n;
 
 	/** @var Storage\IStorage */
 	private $currentBackend;
@@ -45,23 +50,19 @@ class StorageManager
 	 * @param Database        $dba
 	 * @param IConfiguration  $config
 	 * @param LoggerInterface $logger
-	 * @param Dice            $dice
+	 * @param L10n            $l10n
 	 */
-	public function __construct(Database $dba, IConfiguration $config, LoggerInterface $logger, Dice $dice)
+	public function __construct(Database $dba, IConfiguration $config, LoggerInterface $logger, L10n $l10n)
 	{
 		$this->dba      = $dba;
 		$this->config   = $config;
 		$this->logger   = $logger;
-		$this->dice     = $dice;
+		$this->l10n     = $l10n;
 		$this->backends = $config->get('storage', 'backends', self::DEFAULT_BACKENDS);
 
 		$currentName = $this->config->get('storage', 'name', '');
 
-		if ($this->isValidBackend($currentName)) {
-			$this->currentBackend = $this->dice->create($this->backends[$currentName]);
-		} else {
-			$this->currentBackend = null;
-		}
+		$this->currentBackend = $this->getByName($currentName);
 	}
 
 	/**
@@ -77,41 +78,65 @@ class StorageManager
 	/**
 	 * @brief Return storage backend class by registered name
 	 *
-	 * @param string|null $name Backend name
+	 * @param string|null $name        Backend name
+	 * @param boolean     $userBackend Just return instances in case it's a user backend (e.g. not SystemResource)
 	 *
 	 * @return Storage\IStorage|null null if no backend registered at $name
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function getByName(string $name = null)
+	public function getByName(string $name = null, $userBackend = true)
 	{
-		if (!$this->isValidBackend($name) &&
-		    $name !== Storage\SystemResource::getName()) {
-			return null;
+		// If there's no cached instance create a new instance
+		if (!isset($this->backendInstances[$name])) {
+			// If the current name isn't a valid backend (or the SystemResource instance) create it
+			if ($this->isValidBackend($name, $userBackend)) {
+				switch ($name) {
+					// Try the filesystem backend
+					case Storage\Filesystem::getName():
+						$this->backendInstances[$name] = new Storage\Filesystem($this->config, $this->logger, $this->l10n);
+						break;
+					// try the database backend
+					case Storage\Database::getName():
+						$this->backendInstances[$name] = new Storage\Database($this->dba, $this->logger, $this->l10n);
+						break;
+					// at least, try if there's an addon for the backend
+					case Storage\SystemResource::getName():
+						$this->backendInstances[$name] =  new Storage\SystemResource();
+						break;
+					default:
+						$data = [
+							'name' => $name,
+							'storage' => null,
+						];
+						Hook::callAll('storage_instance', $data);
+						if (($data['storage'] ?? null) instanceof Storage\IStorage) {
+							$this->backendInstances[$data['name'] ?? $name] = $data['storage'];
+						} else {
+							return null;
+						}
+						break;
+				}
+			} else {
+				return null;
+			}
 		}
 
-		/** @var Storage\IStorage $storage */
-		$storage = null;
-
-		// If the storage of the file is a system resource,
-		// create it directly since it isn't listed in the registered backends
-		if ($name === Storage\SystemResource::getName()) {
-			$storage = $this->dice->create(Storage\SystemResource::class);
-		} else {
-			$storage = $this->dice->create($this->backends[$name]);
-		}
-
-		return $storage;
+		return $this->backendInstances[$name];
 	}
 
 	/**
 	 * Checks, if the storage is a valid backend
 	 *
-	 * @param string|null $name The name or class of the backend
+	 * @param string|null $name        The name or class of the backend
+	 * @param boolean     $userBackend True, if just user backend should get returned (e.g. not SystemResource)
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
-	public function isValidBackend(string $name = null)
+	public function isValidBackend(string $name = null, bool $userBackend = true)
 	{
-		return array_key_exists($name, $this->backends);
+		return array_key_exists($name, $this->backends) ||
+		       (!$userBackend && $name === Storage\SystemResource::getName());
 	}
 
 	/**
@@ -128,7 +153,7 @@ class StorageManager
 		}
 
 		if ($this->config->set('storage', 'name', $name)) {
-			$this->currentBackend = $this->dice->create($this->backends[$name]);
+			$this->currentBackend = $this->getByName($name);
 			return true;
 		} else {
 			return false;
@@ -146,7 +171,9 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Register a storage backend class
+	 * Register a storage backend class
+	 *
+	 * You have to register the hook "storage_instance" as well to make this class work!
 	 *
 	 * @param string $class Backend class name
 	 *

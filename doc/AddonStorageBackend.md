@@ -23,6 +23,7 @@ interface IStorage
 	public function getOptions();
 	public function saveOptions(array $data);
 	public function __toString();
+    public static function getName();
 }
 ```
 
@@ -85,11 +86,16 @@ See doxygen documentation of `IStorage` interface for details about each method.
 
 Each backend must be registered in the system when the plugin is installed, to be aviable.
 
-`DI::facStorage()->register(string $name, string $class)` is used to register the backend class.
-The `$name` must be univocal and will be shown to admin.
+`DI::facStorage()->register(string $class)` is used to register the backend class.
 
 When the plugin is uninstalled, registered backends must be unregistered using
-`DI::facStorage()->unregister(string $name)`.
+`DI::facStorage()->unregister(string $class)`.
+
+You have to register a new hook in your addon, listening on `storage_instance(App $a, array $data)`.
+In case `$data['name']` is your storage class name, you have to instance a new instance of your `Friendica\Model\Storage\IStorage` class.
+Set the instance of your class as `$data['storage']` to pass it back to the backend.
+
+This is necessary because it isn't always clear, if you need further construction arguments.
 
 ## Adding tests
 
@@ -251,6 +257,14 @@ function samplestorage_unistall()
 {
 	// when the plugin is uninstalled, we unregister the backend.
 	DI::facStorage()->unregister(SampleStorageBackend::class);
+}
+
+function samplestorage_storage_instance(\Friendica\App $a, array $data)
+{
+    if ($data['name'] === SampleStorageBackend::getName()) {
+    // instance a new sample storage instance and pass it back to the core for usage
+        $data['storage'] = new SampleStorageBackend(DI::config(), DI::l10n(), DI::cache());
+    }
 }
 ```
 

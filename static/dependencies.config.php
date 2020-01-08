@@ -196,15 +196,7 @@ return [
 			$_SERVER, $_COOKIE
 		],
 	],
-	StorageManager::class => [
-		'constructParams' => [
-			[Dice::INSTANCE => Dice::SELF],
-		]
-	],
 	IStorage::class => [
-		// Don't share this class with other creations, because it's possible to switch the backend
-		// and so we wouldn't be possible to update it
-		'shared' => false,
 		'instanceOf' => StorageManager::class,
 		'call' => [
 			['getBackend', [], Dice::CHAIN_CALL],

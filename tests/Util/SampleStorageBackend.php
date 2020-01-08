@@ -2,9 +2,12 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\App;
+use Friendica\Core\Hook;
 use Friendica\Model\Storage\IStorage;
 
 use Friendica\Core\L10n\L10n;
+use Mockery\MockInterface;
 
 /**
  * A backend storage example class
@@ -91,4 +94,13 @@ class SampleStorageBackend implements IStorage
 	{
 		return self::NAME;
 	}
+
+	/**
+	 * This one is a hack to register this class to the hook
+	 */
+	public static function registerHook()
+	{
+		Hook::register('storage_instance', __DIR__ . '/SampleStorageBackendInstance.php', 'create_instance');
+	}
 }
+
