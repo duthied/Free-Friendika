@@ -216,23 +216,26 @@ function notification($params)
 					$item_post_type
 				);
 			}
-		// "a post"
+		// "George Bull's post"
 		} elseif ($params['activity']['explicit_tagged']) {
-			$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]a %3$s[/url]',
+			$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
 				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
+				$item['author-name'],
 				$item_post_type
 			);
 		} elseif ($params['activity']['origin_comment']) {
-			$dest_str = $l10n->t('%1$s answered you on [url=%2$s]a %3$s[/url]',
+			$dest_str = $l10n->t('%1$s answered on [url=%2$s]%3$s\'s %4$s[/url]',
 				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
+				$item['author-name'],
 				$item_post_type
 			);
 		} else {
-			$dest_str = $l10n->t('%1$s commented on [url=%2$s]a %3$s[/url]',
+			$dest_str = $l10n->t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
 				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 				$itemlink,
+				$item['author-name'],
 				$item_post_type
 			);
 		}
