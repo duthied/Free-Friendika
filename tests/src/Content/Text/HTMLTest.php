@@ -59,8 +59,8 @@ class HTMLTest extends MockedTest
 				'html' => '<audio src="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3" controls="controls"><a href="http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3">http://www.cendrones.fr/colloque2017/jonathanbocquet.mp3</a></audio>',
 			],
 			'bug-8075-html-tags' => [
-				'expectedBBCode' => "<big rant here> I don't understand tests",
-				'html' => "<big rant here> I don't understand tests",
+				'expectedBBCode' => "<rant here> I don't understand tests",
+				'html' => "<rant here> I don't understand tests",
 			],
 		];
 	}
