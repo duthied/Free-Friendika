@@ -967,9 +967,6 @@ class BBCode
 				$attributes['avatar']   = ($author_contact['micro'] ?? '') ?: $attributes['avatar'];
 				$attributes['profile']  = ($author_contact['url']   ?? '') ?: $attributes['profile'];
 
-				// $author_contact['url'] could be empty. So then we fill it with the profile
-				$author_contact['url']  = ($attributes['profile']   ?? '') ?: $author_contact['url'];
-
 				if ($attributes['avatar']) {
 					$attributes['avatar'] = ProxyUtils::proxifyUrl($attributes['avatar'], false, ProxyUtils::SIZE_THUMB);
 				}
