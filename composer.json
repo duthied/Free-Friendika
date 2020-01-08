@@ -32,7 +32,7 @@
 		"ezyang/htmlpurifier": "^4.7",
 		"friendica/json-ld": "^1.0",
 		"league/html-to-markdown": "^4.8",
-		"level-2/dice": "dev-master",
+		"level-2/dice": "^4",
 		"lightopenid/lightopenid": "dev-master",
 		"michelf/php-markdown": "^1.7",
 		"mobiledetect/mobiledetectlib": "^2.8",
