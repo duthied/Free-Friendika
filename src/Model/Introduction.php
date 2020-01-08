@@ -50,7 +50,7 @@ final class Introduction extends BaseModel
 	{
 		$this->logger->info('Confirming follower', ['cid' => $this->{'contact-id'}]);
 
-		$contact = Model\Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
+		$contact = Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
 
 		if (!$contact) {
 			throw new HTTPException\NotFoundException('Contact record not found.');
@@ -71,12 +71,12 @@ final class Introduction extends BaseModel
 
 		if (in_array($protocol, [Protocol::DIASPORA, Protocol::ACTIVITYPUB])) {
 			if ($duplex) {
-				$newRelation = Model\Contact::FRIEND;
+				$newRelation = Contact::FRIEND;
 			} else {
-				$newRelation = Model\Contact::FOLLOWER;
+				$newRelation = Contact::FOLLOWER;
 			}
 
-			if ($newRelation != Model\Contact::FOLLOWER) {
+			if ($newRelation != Contact::FOLLOWER) {
 				$writable = 1;
 			}
 		}
@@ -95,9 +95,9 @@ final class Introduction extends BaseModel
 
 		array_merge($contact, $fields);
 
-		if ($newRelation == Model\Contact::FRIEND) {
+		if ($newRelation == Contact::FRIEND) {
 			if ($protocol == Protocol::DIASPORA) {
-				$ret = Diaspora::sendShare(Model\Contact::getById($contact['uid']), $contact);
+				$ret = Diaspora::sendShare(Contact::getById($contact['uid']), $contact);
 				$this->logger->info('share returns', ['return' => $ret]);
 			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $contact['uid']);
@@ -136,15 +136,15 @@ final class Introduction extends BaseModel
 		if (!$this->fid) {
 			// When the contact entry had been created just for that intro, we want to get rid of it now
 			$condition = ['id' => $this->{'contact-id'}, 'uid' => $this->uid,
-				'self' => false, 'pending' => true, 'rel' => [0, Model\Contact::FOLLOWER]];
+				'self' => false, 'pending' => true, 'rel' => [0, Contact::FOLLOWER]];
 			if ($this->dba->exists('contact', $condition)) {
-				Model\Contact::remove($this->{'contact-id'});
+				Contact::remove($this->{'contact-id'});
 			} else {
 				$this->dba->update('contact', ['pending' => false], ['id' => $this->{'contact-id'}]);
 			}
 		}
 
-		$contact = Model\Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
+		$contact = Contact::selectFirst([], ['id' => $this->{'contact-id'}, 'uid' => $this->uid]);
 
 		if (!$contact) {
 			throw new HTTPException\NotFoundException('Contact record not found.');
