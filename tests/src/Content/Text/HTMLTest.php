@@ -60,7 +60,7 @@ class HTMLTest extends MockedTest
 			],
 			'bug-8075-html-tags' => [
 				'expectedBBCode' => "<big rant here> I don't understand tests",
-				'html' => "&lt;big rant here&rt; I don't understand tests",
+				'html' => "&lt;big rant here&gt; I don't understand tests",
 			],
 		];
 	}
