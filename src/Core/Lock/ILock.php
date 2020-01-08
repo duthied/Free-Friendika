@@ -30,7 +30,7 @@ interface ILock
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquireLock($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES);
+	public function acquire($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES);
 
 	/**
 	 * Releases a lock if it was set by us
@@ -40,7 +40,7 @@ interface ILock
 	 *
 	 * @return boolean Was the unlock successful?
 	 */
-	public function releaseLock($key, $override = false);
+	public function release($key, $override = false);
 
 	/**
 	 * Releases all lock that were set by us

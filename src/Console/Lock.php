@@ -133,7 +133,7 @@ HELP;
 		if (count($this->args) >= 2) {
 			$lock = $this->getArgument(1);
 
-			if ($this->lock->releaseLock($lock, true)) {
+			if ($this->lock->release($lock, true)) {
 				$this->out(sprintf('Lock \'%s\' released.', $lock));
 			} else {
 				$this->out(sprintf('Couldn\'t release Lock \'%s\'', $lock));
@@ -156,11 +156,11 @@ HELP;
 			}
 
 			if (!empty($ttl) && !empty($timeout)) {
-				$result = $this->lock->acquireLock($lock, $timeout, $ttl);
+				$result = $this->lock->acquire($lock, $timeout, $ttl);
 			} elseif (!empty($timeout)) {
-				$result = $this->lock->acquireLock($lock, $timeout);
+				$result = $this->lock->acquire($lock, $timeout);
 			} else {
-				$result = $this->lock->acquireLock($lock);
+				$result = $this->lock->acquire($lock);
 			}
 
 			if ($result) {

@@ -2060,7 +2060,7 @@ class Item
 		}
 
 		// To avoid timing problems, we are using locks.
-		$locked = Lock::acquire('item_insert_activity');
+		$locked = DI::lock()->acquire('item_insert_activity');
 		if (!$locked) {
 			Logger::log("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
@@ -2076,11 +2076,11 @@ class Item
 		} else {
 			// This shouldn't happen.
 			Logger::log('Could not insert activity for URI ' . $item['uri'] . ' - should not happen');
-			Lock::release('item_insert_activity');
+			DI::lock()->release('item_insert_activity');
 			return false;
 		}
 		if ($locked) {
-			Lock::release('item_insert_activity');
+			DI::lock()->release('item_insert_activity');
 		}
 		return true;
 	}
@@ -2103,7 +2103,7 @@ class Item
 		}
 
 		// To avoid timing problems, we are using locks.
-		$locked = Lock::acquire('item_insert_content');
+		$locked = DI::lock()->acquire('item_insert_content');
 		if (!$locked) {
 			Logger::log("Couldn't acquire lock for URI " . $item['uri'] . " - proceeding anyway.");
 		}
@@ -2121,7 +2121,7 @@ class Item
 			Logger::log('Could not insert content for URI ' . $item['uri'] . ' - should not happen');
 		}
 		if ($locked) {
-			Lock::release('item_insert_content');
+			DI::lock()->release('item_insert_content');
 		}
 	}
 

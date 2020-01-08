@@ -115,9 +115,9 @@ class Worker
 				}
 
 				// Trying to fetch new processes - but only once when successful
-				if (!$refetched && Lock::acquire('worker_process', 0)) {
+				if (!$refetched && DI::lock()->acquire('worker_process', 0)) {
 					self::findWorkerProcesses();
-					Lock::release('worker_process');
+					DI::lock()->release('worker_process');
 					self::$state = self::STATE_REFETCH;
 					$refetched = true;
 				} else {
@@ -129,21 +129,21 @@ class Worker
 			if (!self::getWaitingJobForPID()) {
 				self::$state = self::STATE_LONG_LOOP;
 
-				if (Lock::acquire('worker', 0)) {
+				if (DI::lock()->acquire('worker', 0)) {
 				// Count active workers and compare them with a maximum value that depends on the load
 					if (self::tooMuchWorkers()) {
 						Logger::log('Active worker limit reached, quitting.', Logger::DEBUG);
-						Lock::release('worker');
+						DI::lock()->release('worker');
 						return;
 					}
 
 					// Check free memory
 					if (DI::process()->isMinMemoryReached()) {
 						Logger::log('Memory limit reached, quitting.', Logger::DEBUG);
-						Lock::release('worker');
+						DI::lock()->release('worker');
 						return;
 					}
-					Lock::release('worker');
+					DI::lock()->release('worker');
 				}
 			}
 
@@ -933,14 +933,14 @@ class Worker
 		}
 
 		$stamp = (float)microtime(true);
-		if (!Lock::acquire('worker_process')) {
+		if (!DI::lock()->acquire('worker_process')) {
 			return false;
 		}
 		self::$lock_duration += (microtime(true) - $stamp);
 
 		$found = self::findWorkerProcesses();
 
-		Lock::release('worker_process');
+		DI::lock()->release('worker_process');
 
 		if ($found) {
 			$stamp = (float)microtime(true);
@@ -1172,13 +1172,13 @@ class Worker
 		}
 
 		// If there is a lock then we don't have to check for too much worker
-		if (!Lock::acquire('worker', 0)) {
+		if (!DI::lock()->acquire('worker', 0)) {
 			return $added;
 		}
 
 		// If there are already enough workers running, don't fork another one
 		$quit = self::tooMuchWorkers();
-		Lock::release('worker');
+		DI::lock()->release('worker');
 
 		if ($quit) {
 			return $added;

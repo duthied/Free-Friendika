@@ -61,7 +61,7 @@ abstract class Lock implements ILock
 		$return = true;
 
 		foreach ($this->acquiredLocks as $acquiredLock => $hasLock) {
-			if (!$this->releaseLock($acquiredLock, $override)) {
+			if (!$this->release($acquiredLock, $override)) {
 				$return = false;
 			}
 		}

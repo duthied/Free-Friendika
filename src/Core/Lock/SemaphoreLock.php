@@ -36,7 +36,7 @@ class SemaphoreLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquireLock($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES)
+	public function acquire($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES)
 	{
 		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
 		if (!empty(self::$semaphore[$key])) {
@@ -55,7 +55,7 @@ class SemaphoreLock extends Lock
 	 * @param bool $override not necessary parameter for semaphore locks since the lock lives as long as the execution
 	 *                       of the using function
 	 */
-	public function releaseLock($key, $override = false)
+	public function release($key, $override = false)
 	{
 		$success = false;
 
