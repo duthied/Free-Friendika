@@ -28,9 +28,12 @@ use Psr\Log\LoggerInterface;
  * @method static Core\Process process()
  * @method static Core\Session\ISession session()
  * @method static Database\Database dba()
+ * @method static Factory\Mastodon\Account mstdnAccount()
+ * @method static Factory\Mastodon\FollowRequest mstdnFollowRequest()
+ * @method static Factory\Mastodon\Relationship mstdnRelationship()
  * @method static Model\User\Cookie cookie()
  * @method static Model\Notify notify()
- * @method static Model\Introduction intro()
+ * @method static Repository\Introduction intro()
  * @method static Protocol\Activity activity()
  * @method static Util\ACLFormatter aclFormatter()
  * @method static Util\DateTimeFormat dtFormat()
@@ -62,9 +65,12 @@ abstract class DI
 		'process'      => Core\Process::class,
 		'session'      => Core\Session\ISession::class,
 		'dba'          => Database\Database::class,
+		'mstdnAccount' => Factory\Mastodon\Account::class,
+		'mstdnFollowRequest' => Factory\Mastodon\FollowRequest::class,
+		'mstdnRelationship'  => Factory\Mastodon\Relationship::class,
 		'cookie'       => Model\User\Cookie::class,
 		'notify'       => Model\Notify::class,
-		'intro'        => Model\Introduction::class,
+		'intro'        => Repository\Introduction::class,
 		'activity'     => Protocol\Activity::class,
 		'aclFormatter' => Util\ACLFormatter::class,
 		'dtFormat'     => Util\DateTimeFormat::class,
