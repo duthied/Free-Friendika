@@ -154,7 +154,6 @@ function notification($params)
 
 		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
-		/// @todo In the future we should store the notification with the highest "value" and replace notifications
 		$condition = ['type' => [NOTIFY_TAGSELF, NOTIFY_COMMENT, NOTIFY_SHARE],
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
@@ -167,44 +166,47 @@ function notification($params)
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
 		}
 
-		if (empty($item)) {
-			return false;
-		}
-
 		$item_post_type = Item::postType($item);
 		$itemlink = $item['plink'];
 
-		// "their post"
-		if ($item['author-link'] == $params['source_link']) {
-			if ($params['activity']['explicit_tagged']) {
-				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]their %3$s[/url]',
+		// "a post"
+		if ($params['type'] == NOTIFY_TAGSELF) {
+			$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]a %3$s[/url]',
+				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+				$itemlink,
+				$item_post_type
+			);
+		} else {
+			$dest_str = $l10n->t('%1$s commented on [url=%2$s]a %3$s[/url]',
+				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+				$itemlink,
+				$item_post_type
+			);
+		}
+
+		// "George Bull's post"
+		if (DBA::isResult($item)) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
-					$item_post_type
-				);
-			} elseif ($params['activity']['origin_comment']) {
-				$dest_str = $l10n->t('%1$s answered you on [url=%2$s]their %3$s[/url]',
-					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-					$itemlink,
+					$item['author-name'],
 					$item_post_type
 				);
 			} else {
-				$dest_str = $l10n->t('%1$s commented on [url=%2$s]their %3$s[/url]',
+				$dest_str = $l10n->t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
+					$item['author-name'],
 					$item_post_type
 				);
 			}
+		}
+
 		// "your post"
-		} elseif ($params['activity']['origin_thread']) {
-			if ($params['activity']['explicit_tagged']) {
+		if (DBA::isResult($item) && $item['owner-id'] == $item['author-id'] && $item['wall']) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
 				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]your %3$s[/url]',
-					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-					$itemlink,
-					$item_post_type
-				);
-			} elseif ($params['activity']['origin_comment']) {
-				$dest_str = $l10n->t('%1$s answered you on [url=%2$s]your %3$s[/url]',
 					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
 					$itemlink,
 					$item_post_type
@@ -216,35 +218,30 @@ function notification($params)
 					$item_post_type
 				);
 			}
-		// "George Bull's post"
-		} elseif ($params['activity']['explicit_tagged']) {
-			$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]%3$s\'s %4$s[/url]',
-				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-				$itemlink,
-				$item['author-name'],
-				$item_post_type
-			);
-		} elseif ($params['activity']['origin_comment']) {
-			$dest_str = $l10n->t('%1$s answered on [url=%2$s]%3$s\'s %4$s[/url]',
-				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-				$itemlink,
-				$item['author-name'],
-				$item_post_type
-			);
-		} else {
-			$dest_str = $l10n->t('%1$s commented on [url=%2$s]%3$s\'s %4$s[/url]',
-				'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
-				$itemlink,
-				$item['author-name'],
-				$item_post_type
-			);
+		}
+
+		// "their post"
+		if (DBA::isResult($item) && $item['author-link'] == $params['source_link']) {
+			if ($params['type'] == NOTIFY_TAGSELF) {
+				$dest_str = $l10n->t('%1$s tagged you on [url=%2$s]their %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			} else {
+				$dest_str = $l10n->t('%1$s commented on [url=%2$s]their %3$s[/url]',
+					'[url=' . $params['source_link'] . ']' . $params['source_name'] . '[/url]',
+					$itemlink,
+					$item_post_type
+				);
+			}
 		}
 
 		// Some mail software relies on subject field for threading.
 		// So, we cannot have different subjects for notifications of the same thread.
 		// Before this we have the name of the replier on the subject rendering
 		// different subjects for messages on the same thread.
-		if ($params['activity']['explicit_tagged']) {
+		if ($params['type'] == NOTIFY_TAGSELF) {
 			$subject = $l10n->t('[Friendica:Notify] %s tagged you', $params['source_name']);
 
 			$preamble = $l10n->t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
@@ -716,14 +713,6 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	$params['source_link'] = $item['author-link'];
 	$params['source_photo'] = $item['author-avatar'];
 
-	// Set the activity flags
-	$params['activity']['explicit_tagged'] = ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED);
-	$params['activity']['implicit_tagged'] = ($notification_type & UserItem::NOTIF_IMPLICIT_TAGGED);
-	$params['activity']['origin_comment'] = ($notification_type & UserItem::NOTIF_DIRECT_COMMENT);
-	$params['activity']['origin_thread'] = ($notification_type & UserItem::NOTIF_THREAD_COMMENT);
-	$params['activity']['thread_comment'] = ($notification_type & UserItem::NOTIF_COMMENT_PARTICIPATION);
-	$params['activity']['thread_activity'] = ($notification_type & UserItem::NOTIF_ACTIVITY_PARTICIPATION);
-
 	if ($notification_type & UserItem::NOTIF_SHARED) {
 		$params['type'] = NOTIFY_SHARE;
 		$params['verb'] = Activity::TAG;
@@ -731,8 +720,8 @@ function check_item_notification($itemid, $uid, $notification_type) {
 		$params['type'] = NOTIFY_TAGSELF;
 		$params['verb'] = Activity::TAG;
 	} elseif ($notification_type & UserItem::NOTIF_IMPLICIT_TAGGED) {
-		$params['type'] = NOTIFY_COMMENT;
-		$params['verb'] = Activity::POST;
+		$params['type'] = NOTIFY_TAGSELF;
+		$params['verb'] = Activity::TAG;
 	} elseif ($notification_type & UserItem::NOTIF_THREAD_COMMENT) {
 		$params['type'] = NOTIFY_COMMENT;
 		$params['verb'] = Activity::POST;
