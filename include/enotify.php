@@ -704,6 +704,11 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	$params['activity']['thread_comment'] = ($notification_type & UserItem::NOTIF_COMMENT_PARTICIPATION);
 	$params['activity']['thread_activity'] = ($notification_type & UserItem::NOTIF_ACTIVITY_PARTICIPATION);
 
+	// Tagging a user in a direct post (first comment level) means a direct comment
+	if ($params['activity']['explicit_tagged'] && ($notification_type & UserItem::NOTIF_DIRECT_THREAD_COMMENT)) {
+		$params['activity']['origin_comment'] = true;
+	}
+
 	if ($notification_type & UserItem::NOTIF_SHARED) {
 		$params['type'] = NOTIFY_SHARE;
 		$params['verb'] = Activity::POST;
