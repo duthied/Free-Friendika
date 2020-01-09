@@ -5,6 +5,7 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Addon;
 use Friendica\DI;
+use stdClass;
 
 /**
  * Standardized way of exposing metadata about a server running one of the distributed social networks.
@@ -26,22 +27,22 @@ class NodeInfo extends BaseModule
 	/**
 	 * Return the supported services
 	 *
-	 * @return array with supported services
+	 * @return Object with supported services
 	*/
 	private static function getUsage()
 	{
 		$config = DI::config();
 
-		$usage = [];
+		$usage = new stdClass();
 
 		if (!empty($config->get('system', 'nodeinfo'))) {
-			$usage['users'] = [
+			$usage->users = [
 				'total'          => intval($config->get('nodeinfo', 'total_users')),
 				'activeHalfyear' => intval($config->get('nodeinfo', 'active_users_halfyear')),
 				'activeMonth'    => intval($config->get('nodeinfo', 'active_users_monthly'))
 			];
-			$usage['localPosts'] = intval($config->get('nodeinfo', 'local_posts'));
-			$usage['localComments'] = intval($config->get('nodeinfo', 'local_comments'));
+			$usage->localPosts = intval($config->get('nodeinfo', 'local_posts'));
+			$usage->localComments = intval($config->get('nodeinfo', 'local_comments'));
 		}
 
 		return $usage;
