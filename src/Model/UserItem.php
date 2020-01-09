@@ -22,6 +22,7 @@ class UserItem
 	const NOTIF_DIRECT_COMMENT = 8;
 	const NOTIF_COMMENT_PARTICIPATION = 16;
 	const NOTIF_ACTIVITY_PARTICIPATION = 32;
+	const NOTIF_DIRECT_THREAD_COMMENT = 64;
 	const NOTIF_SHARED = 128;
 
 	/**
@@ -97,6 +98,10 @@ class UserItem
 
 		if (self::checkDirectComment($item, $contacts)) {
 			$notification_type = $notification_type | self::NOTIF_DIRECT_COMMENT;
+		}
+
+		if (self::checkDirectCommentedThread($item, $contacts)) {
+			$notification_type = $notification_type | self::NOTIF_DIRECT_THREAD_COMMENT;
 		}
 
 		if (self::checkCommentedParticipation($item, $contacts)) {
@@ -256,6 +261,18 @@ class UserItem
 	private static function checkDirectComment(array $item, array $contacts)
 	{
 		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_COMMENT];
+		return Item::exists($condition);
+	}
+
+	/**
+	 * Check for a direct comment to the starting post of the given user
+	 * @param array $item
+	 * @param array $contacts Array of contact IDs
+	 * @return bool The user had created this thread
+	 */
+	private static function checkDirectCommentedThread(array $item, array $contacts)
+	{
+		$condition = ['uri' => $item['thr-parent'], 'uid' => $item['uid'], 'author-id' => $contacts, 'deleted' => false, 'gravity' => GRAVITY_PARENT];
 		return Item::exists($condition);
 	}
 
