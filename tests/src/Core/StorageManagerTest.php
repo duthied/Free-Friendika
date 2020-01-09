@@ -28,7 +28,6 @@ use Friendica\Test\Util\SampleStorageBackend;
  * @todo Rework Hook:: methods to dynamic to remove the separated process annotation
  *
  * @runTestsInSeparateProcesses
- * @preserveGlobalState disabled
  */
 class StorageManagerTest extends DatabaseTest
 {

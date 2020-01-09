@@ -179,7 +179,7 @@ class Photo
 			}
 			$data = $i['data'];
 		} else {
-			$backendClass = DI::facStorage()->getByName($photo['backend-class'] ?? '');
+			$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
 			$backendRef = $photo['backend-ref'] ?? '';
 			$data = $backendClass->get($backendRef);
 		}
@@ -272,7 +272,7 @@ class Photo
 
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$storage = DI::facStorage()->getByName($existing_photo["backend-class"] ?? '');
+			$storage = DI::storageManager()->getByName($existing_photo["backend-class"] ?? '');
 		} else {
 			$storage = DI::storage();
 		}
@@ -336,7 +336,7 @@ class Photo
 		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 		foreach($photos as $photo) {
-			$backend_class = DI::facStorage()->getByName($photo['backend-class'] ?? '');
+			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
 			if ($backend_class !== null) {
 				$backend_class->delete($photo["backend-ref"] ?? '');
 			}
@@ -365,7 +365,7 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				$backend_class = DI::facStorage()->getByName($photo['backend-class'] ?? '');
+				$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
 				if ($backend_class !== null) {
 					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {

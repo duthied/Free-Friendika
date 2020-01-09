@@ -23,7 +23,7 @@ interface IStorage
 	public function getOptions();
 	public function saveOptions(array $data);
 	public function __toString();
-    public static function getName();
+	public static function getName();
 }
 ```
 
@@ -250,13 +250,13 @@ function samplestorage_install()
 	// on addon install, we register our class with name "Sample Storage".
 	// note: we use `::class` property, which returns full class name as string
 	// this save us the problem of correctly escape backslashes in class name
-	DI::facStorage()->register(SampleStorageBackend::class);
+	DI::storageManager()->register(SampleStorageBackend::class);
 }
 
 function samplestorage_unistall()
 {
 	// when the plugin is uninstalled, we unregister the backend.
-	DI::facStorage()->unregister(SampleStorageBackend::class);
+	DI::storageManager()->unregister(SampleStorageBackend::class);
 }
 
 function samplestorage_storage_instance(\Friendica\App $a, array $data)
