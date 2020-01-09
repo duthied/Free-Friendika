@@ -650,9 +650,9 @@ function scrollToItem(elementId) {
 	// Scroll to the DIV with the ID (GUID)
 	$('html, body').animate({
 		scrollTop: itemPos
-	}, 400, function() {
+	}, 400).promise().done( function() {
 		// Highlight post/commenent with ID  (GUID)
-		$el.animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
+		$el.animate(colWhite, 1).animate(colShiny,200).animate(colWhite, 600);
 	});
 }
 
