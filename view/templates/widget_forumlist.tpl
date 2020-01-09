@@ -1,5 +1,4 @@
 <script>
-
 function showHideForumlist() {
 	if( $("li[id^='forum-widget-entry-extended-']").is(':visible')) {
 		$("li[id^='forum-widget-entry-extended-']").hide();
@@ -12,10 +11,13 @@ function showHideForumlist() {
 	}
 }
 </script>
-
-<div id="forumlist-sidebar" class="widget">
-	<h3 id="forumlist">{{$title}}</h3>
-
+<span id="forumlist-sidebar-inflated" class="widget fakelink" style="display: block;" onclick="openClose('forumlist-sidebar'); openClose('forumlist-sidebar-inflated');">
+	<h3>{{$title}}</h3>
+</span>
+<div id="forumlist-sidebar" class="widget" style="display: none;">
+	<span class="fakelink" onclick="openClose('forumlist-sidebar'); openClose('forumlist-sidebar-inflated');">
+		<h3 id="forumlist">{{$title}}</h3>
+	</span>
 	<ul id="forumlist-sidbar-ul" role="menu">
 		{{foreach $forums as $forum}}
 		{{if $forum.id <= $visible_forums}}
