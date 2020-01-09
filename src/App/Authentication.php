@@ -103,6 +103,7 @@ class Authentication
 					$user['prvkey'] ?? '')) {
 					$this->logger->notice("Hash doesn't fit.", ['user' => $data->uid]);
 					$this->session->clear();
+					$this->cookie->clear();
 					$this->baseUrl->redirect();
 				}
 
