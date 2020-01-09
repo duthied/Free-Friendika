@@ -2166,7 +2166,8 @@ function api_statuses_mentions($type)
 			AND `user-item`.`iid` > ?";
 	$condition = [GRAVITY_PARENT, GRAVITY_COMMENT, api_user(),
 		UserItem::NOTIF_EXPLICIT_TAGGED | UserItem::NOTIF_IMPLICIT_TAGGED |
-		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT,
+		UserItem::NOTIF_THREAD_COMMENT | UserItem::NOTIF_DIRECT_COMMENT |
+		UserItem::NOTIF_DIRECT_THREAD_COMMENT,
 		$since_id];
 
 	if ($max_id > 0) {
