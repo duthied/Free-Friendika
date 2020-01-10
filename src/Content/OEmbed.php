@@ -10,7 +10,7 @@ use DOMNode;
 use DOMText;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -66,7 +66,7 @@ class OEmbed
 		if (DBA::isResult($oembed_record)) {
 			$json_string = $oembed_record['content'];
 		} else {
-			$json_string = Cache::get($cache_key);
+			$json_string = DI::cache()->get($cache_key);
 		}
 
 		// These media files should now be caught in bbcode.php
@@ -125,7 +125,7 @@ class OEmbed
 				$cache_ttl = Cache::FIVE_MINUTES;
 			}
 
-			Cache::set($cache_key, $json_string, $cache_ttl);
+			DI::cache()->set($cache_key, $json_string, $cache_ttl);
 		}
 
 		if ($oembed->type == 'error') {

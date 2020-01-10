@@ -8,7 +8,7 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Lock;
@@ -2185,7 +2185,7 @@ class OStatus
 
 		// Don't cache when the last item was posted less then 15 minutes ago (Cache duration)
 		if ((time() - strtotime($owner['last-item'])) < 15*60) {
-			$result = Cache::get($cachekey);
+			$result = DI::cache()->get($cachekey);
 			if (!$nocache && !is_null($result)) {
 				Logger::log('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created . ' (cached)', Logger::DEBUG);
 				$last_update = $result['last_update'];
@@ -2246,7 +2246,7 @@ class OStatus
 		$feeddata = trim($doc->saveXML());
 
 		$msg = ['feed' => $feeddata, 'last_update' => $last_update];
-		Cache::set($cachekey, $msg, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $msg, Cache::QUARTER_HOUR);
 
 		Logger::log('Feed duration: ' . number_format(microtime(true) - $stamp, 3) . ' - ' . $owner_nick . ' - ' . $filter . ' - ' . $previous_created, Logger::DEBUG);
 

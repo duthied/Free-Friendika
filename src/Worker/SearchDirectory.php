@@ -4,12 +4,13 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
 use Friendica\Network\Probe;
@@ -26,7 +27,7 @@ class SearchDirectory
 			return;
 		}
 
-		$data = Cache::get('SearchDirectory:' . $search);
+		$data = DI::cache()->get('SearchDirectory:' . $search);
 		if (!is_null($data)) {
 			// Only search for the same item every 24 hours
 			if (time() < $data + (60 * 60 * 24)) {
@@ -80,6 +81,6 @@ class SearchDirectory
 				}
 			}
 		}
-		Cache::set('SearchDirectory:' . $search, time(), Cache::DAY);
+		DI::cache()->set('SearchDirectory:' . $search, time(), Cache::DAY);
 	}
 }

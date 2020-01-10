@@ -10,7 +10,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget\ContactBlock;
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -586,7 +586,7 @@ class Profile
 		$bd_short = L10n::t('F d');
 
 		$cachekey = 'get_birthdays:' . local_user();
-		$r = Cache::get($cachekey);
+		$r = DI::cache()->get($cachekey);
 		if (is_null($r)) {
 			$s = DBA::p(
 				"SELECT `event`.*, `event`.`id` AS `eid`, `contact`.* FROM `event`
@@ -608,7 +608,7 @@ class Profile
 			);
 			if (DBA::isResult($s)) {
 				$r = DBA::toArray($s);
-				Cache::set($cachekey, $r, Cache::HOUR);
+				DI::cache()->set($cachekey, $r, Cache::HOUR);
 			}
 		}
 
@@ -1066,11 +1066,11 @@ class Profile
 
 		// Avoid endless loops
 		$cachekey = 'zrlInit:' . $my_url;
-		if (Cache::get($cachekey)) {
+		if (DI::cache()->get($cachekey)) {
 			Logger::log('URL ' . $my_url . ' already tried to authenticate.', Logger::DEBUG);
 			return;
 		} else {
-			Cache::set($cachekey, true, Cache::MINUTE);
+			DI::cache()->set($cachekey, true, Cache::MINUTE);
 		}
 
 		Logger::log('Not authenticated. Invoking reverse magic-auth for ' . $my_url, Logger::DEBUG);

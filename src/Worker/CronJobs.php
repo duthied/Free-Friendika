@@ -5,7 +5,6 @@
 namespace Friendica\Worker;
 
 use Friendica\App;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -154,7 +153,7 @@ class CronJobs
 		}
 
 		// clear old cache
-		Cache::clear();
+		DI::cache()->clear();
 
 		// clear old item cache files
 		clear_cache();

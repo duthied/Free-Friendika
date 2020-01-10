@@ -6,7 +6,7 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -540,7 +540,7 @@ class Photo
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		$albums = Cache::get($key);
+		$albums = DI::cache()->get($key);
 		if (is_null($albums) || $update) {
 			if (!Config::get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow
@@ -563,7 +563,7 @@ class Photo
 					DBA::escape(L10n::t("Contact Photos"))
 				);
 			}
-			Cache::set($key, $albums, Cache::DAY);
+			DI::cache()->set($key, $albums, Cache::DAY);
 		}
 		return $albums;
 	}
@@ -576,7 +576,7 @@ class Photo
 	public static function clearAlbumCache($uid)
 	{
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		Cache::set($key, null, Cache::DAY);
+		DI::cache()->set($key, null, Cache::DAY);
 	}
 
 	/**

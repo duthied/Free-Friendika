@@ -6,7 +6,7 @@
 use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -197,7 +197,7 @@ function ping_init(App $a)
 		}
 
 		$cachekey = "ping_init:".local_user();
-		$ev = Cache::get($cachekey);
+		$ev = DI::cache()->get($cachekey);
 		if (is_null($ev)) {
 			$ev = q(
 				"SELECT type, start, adjust FROM `event`
@@ -208,7 +208,7 @@ function ping_init(App $a)
 				DBA::escape(DateTimeFormat::utcNow())
 			);
 			if (DBA::isResult($ev)) {
-				Cache::set($cachekey, $ev, Cache::HOUR);
+				DI::cache()->set($cachekey, $ev, Cache::HOUR);
 			}
 		}
 

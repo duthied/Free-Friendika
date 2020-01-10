@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\Util;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Lock\DatabaseLock;
 
 trait DbaLockMockTrait

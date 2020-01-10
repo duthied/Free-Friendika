@@ -2,7 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
