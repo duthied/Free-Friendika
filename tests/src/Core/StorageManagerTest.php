@@ -24,11 +24,6 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Friendica\Test\Util\SampleStorageBackend;
 
-/**
- * @todo Rework Hook:: methods to dynamic to remove the separated process annotation
- *
- * @runTestsInSeparateProcesses
- */
 class StorageManagerTest extends DatabaseTest
 {
 	/** @var Database */
