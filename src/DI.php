@@ -27,6 +27,7 @@ use Psr\Log\LoggerInterface;
  * @method static Core\L10n\L10n l10n()
  * @method static Core\Process process()
  * @method static Core\Session\ISession session()
+ * @method static Core\StorageManager storageManager()
  * @method static Database\Database dba()
  * @method static Factory\Mastodon\Account mstdnAccount()
  * @method static Factory\Mastodon\FollowRequest mstdnFollowRequest()
@@ -34,6 +35,7 @@ use Psr\Log\LoggerInterface;
  * @method static Model\User\Cookie cookie()
  * @method static Model\Notify notify()
  * @method static Repository\Introduction intro()
+ * @method static Model\Storage\IStorage storage()
  * @method static Protocol\Activity activity()
  * @method static Util\ACLFormatter aclFormatter()
  * @method static Util\DateTimeFormat dtFormat()
@@ -47,38 +49,40 @@ use Psr\Log\LoggerInterface;
 abstract class DI
 {
 	const CLASS_MAPPING = [
-		'app'          => App::class,
-		'auth'         => App\Authentication::class,
-		'args'         => App\Arguments::class,
-		'baseUrl'      => App\BaseURL::class,
-		'mode'         => App\Mode::class,
-		'module'       => App\Module::class,
-		'page'         => App\Page::class,
-		'router'       => App\Router::class,
-		'contentItem'  => Content\Item::class,
-		'bbCodeVideo'  => Content\Text\BBCode\Video::class,
-		'cache'        => Core\Cache\ICache::class,
-		'config'       => Core\Config\IConfiguration::class,
-		'pConfig'      => Core\Config\IPConfiguration::class,
-		'l10n'         => Core\L10n\L10n::class,
-		'lock'         => Core\Lock\ILock::class,
-		'process'      => Core\Process::class,
-		'session'      => Core\Session\ISession::class,
-		'dba'          => Database\Database::class,
-		'mstdnAccount' => Factory\Mastodon\Account::class,
+		'app'                => App::class,
+		'auth'               => App\Authentication::class,
+		'args'               => App\Arguments::class,
+		'baseUrl'            => App\BaseURL::class,
+		'mode'               => App\Mode::class,
+		'module'             => App\Module::class,
+		'page'               => App\Page::class,
+		'router'             => App\Router::class,
+		'contentItem'        => Content\Item::class,
+		'bbCodeVideo'        => Content\Text\BBCode\Video::class,
+		'cache'              => Core\Cache\ICache::class,
+		'config'             => Core\Config\IConfiguration::class,
+		'pConfig'            => Core\Config\IPConfiguration::class,
+		'l10n'               => Core\L10n\L10n::class,
+		'lock'               => Core\Lock\ILock::class,
+		'process'            => Core\Process::class,
+		'session'            => Core\Session\ISession::class,
+		'storageManager'     => Core\StorageManager::class,
+		'dba'                => Database\Database::class,
+		'mstdnAccount'       => Factory\Mastodon\Account::class,
 		'mstdnFollowRequest' => Factory\Mastodon\FollowRequest::class,
 		'mstdnRelationship'  => Factory\Mastodon\Relationship::class,
-		'cookie'       => Model\User\Cookie::class,
-		'notify'       => Model\Notify::class,
-		'intro'        => Repository\Introduction::class,
-		'activity'     => Protocol\Activity::class,
-		'aclFormatter' => Util\ACLFormatter::class,
-		'dtFormat'     => Util\DateTimeFormat::class,
-		'fs'           => Util\FileSystem::class,
-		'workerLogger' => Util\Logger\WorkerLogger::class,
-		'profiler'     => Util\Profiler::class,
-		'logger'       => LoggerInterface::class,
-		'devLogger'    => '$devLogger',
+		'cookie'             => Model\User\Cookie::class,
+		'notify'             => Model\Notify::class,
+		'storage'            => Model\Storage\IStorage::class,
+		'intro'              => Repository\Introduction::class,
+		'activity'           => Protocol\Activity::class,
+		'aclFormatter'       => Util\ACLFormatter::class,
+		'dtFormat'           => Util\DateTimeFormat::class,
+		'fs'                 => Util\FileSystem::class,
+		'workerLogger'       => Util\Logger\WorkerLogger::class,
+		'profiler'           => Util\Profiler::class,
+		'logger'             => LoggerInterface::class,
+		'devLogger'          => '$devLogger',
 	];
 
 	/** @var Dice */

@@ -16,10 +16,15 @@ use \BadMethodCallException;
  */
 class SystemResource implements IStorage
 {
+	const NAME = 'SystemResource';
+
 	// Valid folders to look for resources
 	const VALID_FOLDERS = ["images"];
 
-	public static function get($filename)
+	/**
+	 * @inheritDoc
+	 */
+	public function get(string $filename)
 	{
 		$folder = dirname($filename);
 		if (!in_array($folder, self::VALID_FOLDERS)) {
@@ -31,25 +36,48 @@ class SystemResource implements IStorage
 		return file_get_contents($filename);
 	}
 
-
-	public static function put($data, $filename = "")
+	/**
+	 * @inheritDoc
+	 */
+	public function put(string $data, string $filename = '')
 	{
 		throw new BadMethodCallException();
 	}
 
-	public static function delete($filename)
+	public function delete(string $filename)
 	{
 		throw new BadMethodCallException();
 	}
 
-	public static function getOptions()
+	/**
+	 * @inheritDoc
+	 */
+	public function getOptions()
 	{
 		return [];
 	}
 
-	public static function saveOptions($data)
+	/**
+	 * @inheritDoc
+	 */
+	public function saveOptions(array $data)
 	{
 		return [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __toString()
+	{
+		return self::NAME;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getName()
+	{
+		return self::NAME;
 	}
 }
-

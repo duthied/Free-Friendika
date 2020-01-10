@@ -10,12 +10,11 @@ use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -172,26 +171,24 @@ class Photo
 	 */
 	public static function getImageForPhoto(array $photo)
 	{
-		$data = "";
-
-		if ($photo["backend-class"] == "") {
+		if (empty($photo['backend-class'])) {
 			// legacy data storage in "data" column
-			$i = self::selectFirst(["data"], ["id" => $photo["id"]]);
+			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
 				return null;
 			}
-			$data = $i["data"];
+			$data = $i['data'];
 		} else {
-			$backendClass = $photo["backend-class"];
-			$backendRef = $photo["backend-ref"];
-			$data = $backendClass::get($backendRef);
+			$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+			$backendRef = $photo['backend-ref'] ?? '';
+			$data = $backendClass->get($backendRef);
 		}
 
-		if ($data === "") {
+		if (empty($data)) {
 			return null;
 		}
 
-		return new Image($data, $photo["type"]);
+		return new Image($data, $photo['type']);
 	}
 
 	/**
@@ -222,11 +219,11 @@ class Photo
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
-		$photo = array_combine($fields, $values);
-		$photo["backend-class"] = Storage\SystemResource::class;
-		$photo["backend-ref"] = $filename;
-		$photo["type"] = $mimetype;
-		$photo["cacheable"] = false;
+		$photo                  = array_combine($fields, $values);
+		$photo['backend-class'] = SystemResource::NAME;
+		$photo['backend-ref']   = $filename;
+		$photo['type']          = $mimetype;
+		$photo['cacheable']     = false;
 
 		return $photo;
 	}
@@ -273,18 +270,17 @@ class Photo
 		$data = "";
 		$backend_ref = "";
 
-		/** @var IStorage $backend_class */
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$backend_class = (string)$existing_photo["backend-class"];
+			$storage = DI::storageManager()->getByName($existing_photo["backend-class"] ?? '');
 		} else {
-			$backend_class = StorageManager::getBackend();
+			$storage = DI::storage();
 		}
 
-		if ($backend_class === "") {
+		if ($storage === null) {
 			$data = $Image->asString();
 		} else {
-			$backend_ref = $backend_class::put($Image->asString(), $backend_ref);
+			$backend_ref = $storage->put($Image->asString(), $backend_ref);
 		}
 
 
@@ -309,7 +305,7 @@ class Photo
 			"deny_cid" => $deny_cid,
 			"deny_gid" => $deny_gid,
 			"desc" => $desc,
-			"backend-class" => $backend_class,
+			"backend-class" => (string)$storage,
 			"backend-ref" => $backend_ref
 		];
 
@@ -340,10 +336,9 @@ class Photo
 		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 		foreach($photos as $photo) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$photo["backend-class"];
-			if ($backend_class !== "") {
-				$backend_class::delete($photo["backend-ref"]);
+			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($photo["backend-ref"] ?? '');
 			}
 		}
 
@@ -370,10 +365,9 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$photo["backend-class"];
-				if ($backend_class !== "") {
-					$fields["backend-ref"] = $backend_class::put($img->asString(), $photo["backend-ref"]);
+				$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+				if ($backend_class !== null) {
+					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {
 					$fields["data"] = $img->asString();
 				}

@@ -6,12 +6,10 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Storage\IStorage;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Mimetype;
@@ -186,13 +184,8 @@ class Attach
 			$filesize = strlen($data);
 		}
 
-		/** @var IStorage $backend_class */
-		$backend_class = StorageManager::getBackend();
-		$backend_ref = '';
-		if ($backend_class !== '') {
-			$backend_ref = $backend_class::put($data);
-			$data = '';
-		}
+		$backend_ref = DI::storage()->put($data);
+		$data = '';
 
 		$hash = System::createGUID(64);
 		$created = DateTimeFormat::utcNow();
@@ -210,7 +203,7 @@ class Attach
 			'allow_gid' => $allow_gid,
 			'deny_cid' => $deny_cid,
 			'deny_gid' => $deny_gid,
-			'backend-class' => $backend_class,
+			'backend-class' => (string)DI::storage(),
 			'backend-ref' => $backend_ref
 		];
 
@@ -266,10 +259,9 @@ class Attach
 			$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 			foreach($items as $item) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$item['backend-class'];
+				$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
 				if ($backend_class !== '') {
-					$fields['backend-ref'] = $backend_class::put($img->asString(), $item['backend-ref']);
+					$fields['backend-ref'] = $backend_class->put($img->asString(), $item['backend-ref'] ?? '');
 				} else {
 					$fields['data'] = $img->asString();
 				}
@@ -299,10 +291,9 @@ class Attach
 		$items = self::selectToArray(['backend-class','backend-ref'], $conditions);
 
 		foreach($items as $item) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$item['backend-class'];
-			if ($backend_class !== '') {
-				$backend_class::delete($item['backend-ref']);
+			$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($item['backend-ref'] ?? '');
 			}
 		}
 

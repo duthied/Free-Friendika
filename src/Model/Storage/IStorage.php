@@ -13,26 +13,32 @@ interface IStorage
 {
 	/**
 	 * @brief Get data from backend
-	 * @param string  $ref  Data reference
+	 *
+	 * @param string $reference Data reference
+	 *
 	 * @return string
-     */
-	public static function get($ref);
+	 */
+	public function get(string $reference);
 
 	/**
 	 * @brief Put data in backend as $ref. If $ref is not defined a new reference is created.
-	 * @param string  $data  Data to save
-	 * @param string  $ref   Data referece. Optional.
-	 * @return string Saved data referece
+	 *
+	 * @param string $data      Data to save
+	 * @param string $reference Data reference. Optional.
+	 *
+	 * @return string Saved data reference
 	 */
-	public static function put($data, $ref = "");
+	public function put(string $data, string $reference = "");
 
 	/**
 	 * @brief Remove data from backend
-	 * @param string  $ref  Data referece
+	 *
+	 * @param string $reference Data reference
+	 *
 	 * @return boolean  True on success
 	 */
-	public static function delete($ref);
-	
+	public function delete(string $reference);
+
 	/**
 	 * @brief Get info about storage options
 	 *
@@ -71,19 +77,30 @@ interface IStorage
 	 *
 	 * See https://github.com/friendica/friendica/wiki/Quick-Template-Guide
 	 */
-	public static function getOptions();
-	
+	public function getOptions();
+
 	/**
 	 * @brief Validate and save options
 	 *
-	 * @param array  $data  Array [optionname => value] to be saved
+	 * @param array $data Array [optionname => value] to be saved
 	 *
 	 * @return array  Validation errors: [optionname => error message]
 	 *
 	 * Return array must be empty if no error.
 	 */
-	public static function saveOptions($data);
-	
+	public function saveOptions(array $data);
+
+	/**
+	 * The name of the backend
+	 *
+	 * @return string
+	 */
+	public function __toString();
+
+	/**
+	 * The name of the backend
+	 *
+	 * @return string
+	 */
+	public static function getName();
 }
-
-

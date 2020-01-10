@@ -8,8 +8,10 @@ use Friendica\Core\L10n\L10n;
 use Friendica\Core\Lock\ILock;
 use Friendica\Core\Process;
 use Friendica\Core\Session\ISession;
+use Friendica\Core\StorageManager;
 use Friendica\Database\Database;
 use Friendica\Factory;
+use Friendica\Model\Storage\IStorage;
 use Friendica\Model\User\Cookie;
 use Friendica\Util;
 use Psr\Log\LoggerInterface;
@@ -193,5 +195,11 @@ return [
 		'constructParams' => [
 			$_SERVER, $_COOKIE
 		],
-	]
+	],
+	IStorage::class => [
+		'instanceOf' => StorageManager::class,
+		'call' => [
+			['getBackend', [], Dice::CHAIN_CALL],
+		],
+	],
 ];
