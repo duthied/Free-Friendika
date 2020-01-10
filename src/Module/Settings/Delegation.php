@@ -102,29 +102,19 @@ class Delegation extends BaseSettingsModule
 
 		// find every contact who might be a candidate for delegation
 		$potentials = [];
+		$nicknames = [];
 
-		$contacts = DBA::selectToArray(
-			'contact',
-			['nurl'],
-			[
-				"`self` = 0 AND SUBSTRING_INDEX(`nurl`, '/', 3) = ? AND `uid` = ? AND `network` = ?",
-				Strings::normaliseLink(DI::baseUrl()),
-				local_user(),
-				Protocol::DFRN,
-			]
-		);
-		if ($contacts) {
-			$nicknames = [];
-			foreach ($contacts as $contact) {
-				$nicknames[] = "'" . DBA::escape(basename($contact['nurl'])) . "'";
-			}
+		$condition = ['baseurl' => DI::baseUrl(), 'self' => false, 'uid' => local_user(), 'blocked' => false];
+		$contacts = DBA::select('contact', ['nick'], $condition);
+		while ($contact = DBA::fetch($contacts)) {
+			$nicknames[] = $contact['nick'];
+		}
 
-			// get user records for all potential page delegates who are not already delegates or managers
-			$potentialDelegateUsers = DBA::selectToArray('user', ['uid', 'username', 'nickname'], ['nickname' => $nicknames]);
-			foreach ($potentialDelegateUsers as $user) {
-				if (!in_array($user['uid'], $uids)) {
-					$potentials[] = $user;
-				}
+		// get user records for all potential page delegates who are not already delegates or managers
+		$potentialDelegateUsers = DBA::selectToArray('user', ['uid', 'username', 'nickname'], ['nickname' => $nicknames]);
+		foreach ($potentialDelegateUsers as $user) {
+			if (!in_array($user['uid'], $uids)) {
+				$potentials[] = $user;
 			}
 		}
 
