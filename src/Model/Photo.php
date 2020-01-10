@@ -641,7 +641,7 @@ class Photo
 		}
 
 		foreach ($images as $image) {
-			$image_rid = ridFromURI($image);
+			$image_rid = self::ridFromURI($image);
 			if (!$image_rid) {
 				continue;
 			}
