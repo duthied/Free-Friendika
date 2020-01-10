@@ -171,7 +171,8 @@ class Photo
 	 */
 	public static function getImageForPhoto(array $photo)
 	{
-		if (empty($photo['backend-class'])) {
+		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+		if ($backendClass === null) {
 			// legacy data storage in "data" column
 			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
@@ -179,7 +180,6 @@ class Photo
 			}
 			$data = $i['data'];
 		} else {
-			$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
 			$backendRef = $photo['backend-ref'] ?? '';
 			$data = $backendClass->get($backendRef);
 		}
