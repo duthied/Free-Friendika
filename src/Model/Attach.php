@@ -144,7 +144,8 @@ class Attach
 	 */
 	public static function getData($item)
 	{
-		if ($item['backend-class'] == '') {
+		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+		if ($backendClass === null) {
 			// legacy data storage in 'data' column
 			$i = self::selectFirst(['data'], ['id' => $item['id']]);
 			if ($i === false) {
@@ -152,9 +153,8 @@ class Attach
 			}
 			return $i['data'];
 		} else {
-			$backendClass = $item['backend-class'];
 			$backendRef = $item['backend-ref'];
-			return $backendClass::get($backendRef);
+			return $backendClass->get($backendRef);
 		}
 	}
 
@@ -260,7 +260,7 @@ class Attach
 
 			foreach($items as $item) {
 				$backend_class = DI::storageManager()->getByName($item['backend-class'] ?? '');
-				if ($backend_class !== '') {
+				if ($backend_class !== null) {
 					$fields['backend-ref'] = $backend_class->put($img->asString(), $item['backend-ref'] ?? '');
 				} else {
 					$fields['data'] = $img->asString();
