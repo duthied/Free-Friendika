@@ -52,12 +52,15 @@ class Nodeinfo
 
 		$logger->debug('user statistics', $userStats);
 
-		$local_posts = DBA::count('thread', ["`wall` AND NOT `deleted` AND `uid` != 0"]);
-		$config->set('nodeinfo', 'local_posts', $local_posts);
-		$logger->debug('thread statistics', ['local_posts' => $local_posts]);
-
-		$local_comments = DBA::count('item', ["`origin` AND `id` != `parent` AND NOT `deleted` AND `uid` != 0"]);
-		$config->set('nodeinfo', 'local_comments', $local_comments);
-		$logger->debug('item statistics', ['local_comments' => $local_comments]);
+		$items = DBA::p("SELECT COUNT(*) AS `total`, `gravity` FROM `item` WHERE `origin` AND NOT `deleted` AND `uid` != 0 AND `gravity` IN (?, ?) GROUP BY `gravity`",
+			GRAVITY_PARENT, GRAVITY_COMMENT);
+		while ($item = DBA::fetch($items)) {
+			if ($item['gravity'] == GRAVITY_PARENT) {
+				$config->set('nodeinfo', 'local_posts', $item['total']);
+			} elseif ($item['gravity'] == GRAVITY_COMMENT) {
+				$config->set('nodeinfo', 'local_comments', $item['total']);
+			}
+		}
+		DBA::close($items);
 	}
 }
