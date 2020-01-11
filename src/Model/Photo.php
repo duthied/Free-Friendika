@@ -602,7 +602,7 @@ class Photo
 	 * @param string $image_uri The URI of the photo
 	 * @return string The rid of the photo, or an empty string if the URI is not local
 	 */
-	public static function ridFromURI($image_uri)
+	public static function ridFromURI(string $image_uri)
 	{
 		if (!stristr($image_uri, DI::baseUrl() . '/photo/')) {
 			return '';
