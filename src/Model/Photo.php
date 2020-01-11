@@ -591,6 +591,25 @@ class Photo
 	}
 
 	/**
+	 * Extracts the rid from a local photo URI
+	 *
+	 * @param string $image_uri The URI of the photo
+	 * @return string The rid of the photo, or an empty string if the URI is not local
+	 */
+	public static function ridFromURI(string $image_uri)
+	{
+		if (!stristr($image_uri, DI::baseUrl() . '/photo/')) {
+			return '';
+		}
+		$image_uri = substr($image_uri, strrpos($image_uri, '/') + 1);
+		$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
+		if (!strlen($image_uri)) {
+			return '';
+		}
+		return $image_uri;
+	}
+
+	/**
 	 * Changes photo permissions that had been embedded in a post
 	 *
 	 * @todo This function currently does have some flaws:
@@ -616,12 +635,8 @@ class Photo
 		}
 
 		foreach ($images as $image) {
-			if (!stristr($image, DI::baseUrl() . '/photo/')) {
-				continue;
-			}
-			$image_uri = substr($image,strrpos($image,'/') + 1);
-			$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-			if (!strlen($image_uri)) {
+			$image_rid = self::ridFromURI($image);
+			if (empty($image_rid)) {
 				continue;
 			}
 
@@ -630,7 +645,7 @@ class Photo
 
 			$condition = [
 				'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-				'resource-id' => $image_uri, 'uid' => $uid
+				'resource-id' => $image_rid, 'uid' => $uid
 			];
 			if (!Photo::exists($condition)) {
 				continue;
@@ -640,7 +655,7 @@ class Photo
 
 			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-			$condition = ['resource-id' => $image_uri, 'uid' => $uid];
+			$condition = ['resource-id' => $image_rid, 'uid' => $uid];
 			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
 			Photo::update($fields, $condition);
 		}

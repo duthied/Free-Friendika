@@ -215,12 +215,10 @@ class Mail
 			$images = $match[1];
 			if (count($images)) {
 				foreach ($images as $image) {
-					if (!stristr($image, DI::baseUrl() . '/photo/')) {
-						continue;
+					$image_rid = Photo::ridFromURI($image);
+					if (!empty($image_rid)) {
+						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => local_user()]);
 					}
-					$image_uri = substr($image, strrpos($image, '/') + 1);
-					$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
-					Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_uri, 'album' => 'Wall Photos', 'uid' => local_user()]);
 				}
 			}
 		}
