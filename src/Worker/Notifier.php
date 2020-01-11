@@ -444,6 +444,11 @@ class Notifier
 
 			if (DBA::isResult($r)) {
 				foreach ($r as $rr) {
+					// Ensure that local contacts are delivered via DFRN
+					if (Contact::isLocal($rr['url'])) {
+						$contact['network'] == Protocol::DFRN;
+					}
+
 					if (!empty($rr['addr']) && ($rr['network'] == Protocol::ACTIVITYPUB) && !DBA::exists('fcontact', ['addr' => $rr['addr']])) {
 						Logger::info('Contact is AP omly', ['target' => $target_id, 'contact' => $rr['url']]);
 						continue;
@@ -489,6 +494,11 @@ class Notifier
 
 		// delivery loop
 		while ($contact = DBA::fetch($delivery_contacts_stmt)) {
+			// Ensure that local contacts are delivered via DFRN
+			if (Contact::isLocal($contact['url'])) {
+				$contact['network'] == Protocol::DFRN;
+			}
+
 			if (!empty($contact['addr']) && ($contact['network'] == Protocol::ACTIVITYPUB) && !DBA::exists('fcontact', ['addr' => $contact['addr']])) {
 				Logger::info('Contact is AP omly', ['target' => $target_id, 'contact' => $contact['url']]);
 				continue;
