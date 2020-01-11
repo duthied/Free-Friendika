@@ -1,5 +1,10 @@
-<div class="widget" id="group-sidebar">
+<span id="group-sidebar-inflated" class="widget fakelink" style="display: none;" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
 	<h3>{{$title}}</h3>
+</span>
+<div class="widget" id="group-sidebar">
+	<span class="fakelink" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
+		<h3>{{$title}}</h3>
+	</span>
 
 	<div id="sidebar-group-list">
 		<ul role="menu" id="sidebar-group-ul">

@@ -1,8 +1,8 @@
-<span id="{{$type}}-sidebar-inflated" class="widget fakelink" style="display: none;" onclick="openClose('{{$type}}-sidebar'); openClose('{{$type}}-sidebar-inflated');">
+<span id="{{$type}}-sidebar-inflated" class="widget fakelink" onclick="openCloseWidget('{{$type}}-sidebar', '{{$type}}-sidebar-inflated');">
 	<h3>{{$title}}</h3>
 </span>
-<div id="{{$type}}-sidebar" class="widget" style="display: block;">
-	<span class="fakelink" onclick="openClose('{{$type}}-sidebar'); openClose('{{$type}}-sidebar-inflated');">
+<div id="{{$type}}-sidebar" class="widget">
+	<span class="fakelink" onclick="openCloseWidget('{{$type}}-sidebar', '{{$type}}-sidebar-inflated');">
 		<h3>{{$title}}</h3>
 	</span>
 	<div id="{{$type}}-desc">{{$desc nofilter}}</div>
@@ -13,3 +13,6 @@
 		{{/foreach}}
 	</ul>
 </div>
+<script>
+initWidget('{{$type}}-sidebar', '{{$type}}-sidebar-inflated');
+</script>
