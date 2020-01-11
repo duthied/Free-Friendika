@@ -84,6 +84,8 @@ class Cron
 			// check upstream version?
 			Worker::add(PRIORITY_LOW, 'CheckVersion');
 
+			self::checkdeletedContacts();
+
 			Config::set('system', 'last_expire_day', $d2);
 		}
 
@@ -119,6 +121,19 @@ class Cron
 		Config::set('system', 'last_cron', time());
 
 		return;
+	}
+
+	/**
+	 * Checks for contacts that are about to be deleted and ensures that they are removed.
+	 * This should be done automatically in the "remove" function. This here is a cleanup job.
+	 */
+	private static function checkdeletedContacts()
+	{
+		$contacts = DBA::select('contact', ['id'], ['deleted' => true]);
+		while ($contact = DBA::fetch($contacts)) {
+			Worker::add(PRIORITY_MEDIUM, 'RemoveContact', $contact['id']);
+		}
+		DBA::close($contacts);
 	}
 
 	/**
