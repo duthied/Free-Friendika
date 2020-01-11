@@ -1,7 +1,7 @@
-<span id="{{$type}}-sidebar-inflated" class="widget fakelink" style="display: block;" onclick="openClose('{{$type}}-sidebar'); openClose('{{$type}}-sidebar-inflated');">
+<span id="{{$type}}-sidebar-inflated" class="widget fakelink" style="display: none;" onclick="openClose('{{$type}}-sidebar'); openClose('{{$type}}-sidebar-inflated');">
 	<h3>{{$title}}</h3>
 </span>
-<div id="{{$type}}-sidebar" class="widget" style="display: none;">
+<div id="{{$type}}-sidebar" class="widget" style="display: block;">
 	<span class="fakelink" onclick="openClose('{{$type}}-sidebar'); openClose('{{$type}}-sidebar-inflated');">
 		<h3>{{$title}}</h3>
 	</span>

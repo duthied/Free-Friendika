@@ -11,10 +11,10 @@ function showHideForumlist() {
 	}
 }
 </script>
-<span id="forumlist-sidebar-inflated" class="widget fakelink" style="display: block;" onclick="openClose('forumlist-sidebar'); openClose('forumlist-sidebar-inflated');">
+<span id="forumlist-sidebar-inflated" class="widget fakelink" style="display: none;" onclick="openClose('forumlist-sidebar'); openClose('forumlist-sidebar-inflated');">
 	<h3>{{$title}}</h3>
 </span>
-<div id="forumlist-sidebar" class="widget" style="display: none;">
+<div id="forumlist-sidebar" class="widget" style="display: block;">
 	<span class="fakelink" onclick="openClose('forumlist-sidebar'); openClose('forumlist-sidebar-inflated');">
 		<h3 id="forumlist">{{$title}}</h3>
 	</span>

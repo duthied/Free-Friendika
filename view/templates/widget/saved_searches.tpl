@@ -1,7 +1,7 @@
-<span id="saved-search-list-inflated" class="widget fakelink" style="display: block;" onclick="openClose('saved-search-list'); openClose('saved-search-list-inflated');">
+<span id="saved-search-list-inflated" class="widget fakelink" style="display: none;" onclick="openClose('saved-search-list'); openClose('saved-search-list-inflated');">
 	<h3>{{$title}}</h3>
 </span>
-<div class="widget" id="saved-search-list" style="display: none;">
+<div class="widget" id="saved-search-list" style="display: block;">
 	<span class="fakelink" onclick="openClose('saved-search-list'); openClose('saved-search-list-inflated');">
 		<h3 id="search">{{$title}}</h3>
 	</span>
