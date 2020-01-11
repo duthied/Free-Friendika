@@ -1,4 +1,4 @@
-<span id="group-sidebar-inflated" class="widget fakelink" style="display: none;" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
+<span id="group-sidebar-inflated" class="widget fakelink" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
 	<h3>{{$title}}</h3>
 </span>
 <div class="widget" id="group-sidebar">
@@ -43,5 +43,6 @@
 
 	{{if $ungrouped}}<div id="sidebar-ungrouped"><a class="{{if $ungrouped_selected}}group-selected{{/if}}" href="nogroup">{{$ungrouped}}</a></div>{{/if}}
 </div>
-
-
+<script>
+initWidget('group-sidebar', 'group-sidebar-inflated');
+</script>
