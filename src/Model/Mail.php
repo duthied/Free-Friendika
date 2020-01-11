@@ -216,7 +216,7 @@ class Mail
 			if (count($images)) {
 				foreach ($images as $image) {
 					$image_rid = Photo::ridFromURI($image);
-					if ($image_rid) {
+					if (!empty($image_rid)) {
 						Photo::update(['allow-cid' => '<' . $recipient . '>'], ['resource-id' => $image_rid, 'album' => 'Wall Photos', 'uid' => local_user()]);
 					}
 				}

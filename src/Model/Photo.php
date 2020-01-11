@@ -605,12 +605,12 @@ class Photo
 	public static function ridFromURI($image_uri)
 	{
 		if (!stristr($image_uri, DI::baseUrl() . '/photo/')) {
-			return;
+			return '';
 		}
 		$image_uri = substr($image_uri, strrpos($image_uri, '/') + 1);
 		$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
 		if (!strlen($image_uri)) {
-			return;
+			return '';
 		}
 		return $image_uri;
 	}
@@ -642,7 +642,7 @@ class Photo
 
 		foreach ($images as $image) {
 			$image_rid = self::ridFromURI($image);
-			if (!$image_rid) {
+			if (empty($image_rid)) {
 				continue;
 			}
 

@@ -1899,7 +1899,7 @@ class Contact
 		foreach ($data as $image_uri) {
 			$image_rid = Photo::ridFromURI($image_uri);
 			if ($image_rid && !Photo::exists(['resource-id' => $image_rid, 'uid' => $uid])) {
-				Logger::info('Regenerating avatar for contact uid ' . $uid . ' cid ' . $cid . ' missing photo ' . $image_rid . ' avatar ' . $contact['avatar']);
+				Logger::info('Regenerating avatar', ['contact uid' => $uid, 'cid' => $cid, 'missing photo' => $image_rid, 'avatar' => $contact['avatar']]);
 				$force = true;
 			}
 		}
