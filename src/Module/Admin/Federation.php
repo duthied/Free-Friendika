@@ -14,14 +14,8 @@ class Federation extends BaseAdminModule
 	{
 		parent::content($parameters);
 
-		// get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
-		// social and statusnet nodes this node is knowing
-		//
-		// We are looking for the following platforms in the DB, "Red" should find
-		// all variants of that platform ID string as the q() function is stripping
-		// off one % two of them are needed in the query
-		// Add more platforms if you like, when one returns 0 known nodes it is not
-		// displayed on the stats page.
+		// get counts on active federation systems this node is knowing
+		// We list the more common systems by name. The rest is counted as "other"
 		$systems = [
 			'Friendica'   => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
 			'diaspora'    => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
@@ -127,10 +121,14 @@ class Federation extends BaseAdminModule
 		]);
 	}
 
-	// early friendica versions have the format x.x.xxxx where xxxx is the
-	// DB version stamp; those should be operated out and versions be
-	// conbined
-	private static function reformaFriendicaVersions($versionCounts)
+	/**
+	 * early friendica versions have the format x.x.xxxx where xxxx is the
+	 * DB version stamp; those should be operated out and versions be combined
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformaFriendicaVersions(array $versionCounts)
 	{
 		$newV = [];
 		$newVv = [];
@@ -156,10 +154,15 @@ class Federation extends BaseAdminModule
 		return $versionCounts;
 	}
 
-	// in the DB the Diaspora versions have the format x.x.x.x-xx the last
-	// part (-xx) should be removed to clean up the versions from the "head
-	// commit" information and combined into a single entry for x.x.x.x
-	private static function reformaDiasporaVersions($versionCounts)
+	/**
+	 * in the DB the Diaspora versions have the format x.x.x.x-xx the last
+	 * part (-xx) should be removed to clean up the versions from the "head
+	 * commit" information and combined into a single entry for x.x.x.x
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformaDiasporaVersions(array $versionCounts)
 	{
 		$newV = [];
 		$newVv = [];
@@ -184,7 +187,13 @@ class Federation extends BaseAdminModule
 		return $versionCounts;
 	}
 
-	private static function reformaPleromaVersions($versionCounts)
+	/**
+	 * Clean up Pleroma version numbers
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformaPleromaVersions(array $versionCounts)
 	{
 		$compacted = [];
 		foreach ($versionCounts as $key => $value) {
@@ -214,8 +223,13 @@ class Federation extends BaseAdminModule
 		return $versionCounts;
 	}
 
-	// Reformat and compact version numbers
-	private static function sortVersion($versionCounts)
+	/**
+	 * Reformat, sort and compact version numbers
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with reformatted version numbers
+	 */
+	private static function sortVersion(array $versionCounts)
 	{
 		//
 		// clean up version numbers
