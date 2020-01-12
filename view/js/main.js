@@ -33,15 +33,6 @@ function _resizeIframe(obj, desth) {
 	setTimeout(_resizeIframe, 100, obj, ch);
 }
 
-function getCookie(name) {
-	var value = "; " + document.cookie;
-	var parts = value.split("; " + name + "=");
-
-	if (parts.length == 2) {
-		return parts.pop().split(";").shift();
-	}
-}
-
 function initWidget(inflated, deflated) {
 	var elInf = document.getElementById(inflated);
 	var elDef = document.getElementById(deflated);
@@ -49,7 +40,7 @@ function initWidget(inflated, deflated) {
 	if (!elInf || !elDef) {
 		return;
 	}
-	if (getCookie(window.location.pathname + ":" + inflated) != "none") {
+	if (localStorage.getItem(window.location.pathname + ":" + inflated) != "none") {
 		elInf.style.display = "block";
 		elDef.style.display = "none";
 	} else {
@@ -69,11 +60,11 @@ function openCloseWidget(inflated, deflated) {
 	if (window.getComputedStyle(elInf).display === "none") {
 		elInf.style.display = "block";
 		elDef.style.display = "none";
-		document.cookie = window.location.pathname + ":" + inflated + "=block";
+		localStorage.setItem(window.location.pathname + ":" + inflated, "block");
 	} else {
 		elInf.style.display = "none";
 		elDef.style.display = "block";
-		document.cookie = window.location.pathname + ":" + inflated + "=none";
+		localStorage.setItem(window.location.pathname + ":" + inflated, "none");
 	}
 }
 
