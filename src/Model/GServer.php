@@ -217,7 +217,7 @@ class GServer
 					$serverdata = self::analyseRootBody($curlResult, $serverdata, $url);
 				}
 
-				if (!$curlResult->isSuccess() || empty($curlResult->getBody())) {
+				if (!$curlResult->isSuccess() || empty($curlResult->getBody()) || self::invalidBody($curlResult->getBody())) {
 					DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
 					return false;
 				}
@@ -1061,6 +1061,7 @@ class GServer
 			$serverdata['platform'] = 'gnusocial';
 			// Remove junk that some GNU Social servers return
 			$serverdata['version'] = str_replace(chr(239) . chr(187) . chr(191), '', $curlResult->getBody());
+			$serverdata['version'] = str_replace(["\r", "\n", "\t"], '', $serverdata['version']);
 			$serverdata['version'] = trim($serverdata['version'], '"');
 			$serverdata['network'] = Protocol::OSTATUS;
 			return $serverdata;
@@ -1070,11 +1071,20 @@ class GServer
 		$curlResult = Network::curl($url . '/api/statusnet/version.json');
 		if ($curlResult->isSuccess() && ($curlResult->getBody() != '{"error":"not implemented"}') &&
 			($curlResult->getBody() != '') && (strlen($curlResult->getBody()) < 30)) {
-			$serverdata['platform'] = 'statusnet';
+
 			// Remove junk that some GNU Social servers return
 			$serverdata['version'] = str_replace(chr(239).chr(187).chr(191), '', $curlResult->getBody());
+			$serverdata['version'] = str_replace(["\r", "\n", "\t"], '', $serverdata['version']);
 			$serverdata['version'] = trim($serverdata['version'], '"');
-			$serverdata['network'] = Protocol::OSTATUS;
+
+			if (!empty($serverdata['version']) && strtolower(substr($serverdata['version'], 0, 7)) == 'pleroma') {
+				$serverdata['platform'] = 'pleroma';
+				$serverdata['version'] = trim(str_ireplace('pleroma', '', $serverdata['version']));
+				$serverdata['network'] = Protocol::ACTIVITYPUB;
+			} else {
+				$serverdata['platform'] = 'statusnet';
+				$serverdata['network'] = Protocol::OSTATUS;
+			}
 		}
 
 		return $serverdata;
@@ -1285,13 +1295,25 @@ class GServer
 			$serverdata['platform'] = 'diaspora';
 			$serverdata['network'] = $network = Protocol::DIASPORA;
 			$serverdata['version'] = $curlResult->getHeader('x-diaspora-version');
-
 		} elseif ($curlResult->inHeader('x-friendica-version')) {
 			$serverdata['platform'] = 'friendica';
 			$serverdata['network'] = $network = Protocol::DFRN;
 			$serverdata['version'] = $curlResult->getHeader('x-friendica-version');
 		}
 		return $serverdata;
+	}
+
+	/**
+	 * Test if the body contains valid content
+	 *
+	 * @param string $body
+	 * @return boolean
+	 */
+	private static function invalidBody(string $body)
+	{
+		// Currently we only test for a HTML element.
+		// Possibly we enhance this in the future.
+		return !strpos($body, '>');
 	}
 
 	/**
