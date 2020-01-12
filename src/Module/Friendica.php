@@ -154,7 +154,7 @@ class Friendica extends BaseModule
 			'register_policy'  => $register_policy,
 			'admin'            => $admin,
 			'site_name'        => $config->get('config', 'sitename'),
-			'platform'         => FRIENDICA_PLATFORM,
+			'platform'         => strtolower(FRIENDICA_PLATFORM),
 			'info'             => $config->get('config', 'info'),
 			'no_scrape_url'    => DI::baseUrl()->get() . '/noscrape',
 		];

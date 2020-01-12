@@ -424,11 +424,11 @@ class GServer
 		}
 
 		if (!empty($data['network'])) {
-			$serverdata['platform'] = $data['network'];
+			$serverdata['platform'] = strtolower($data['network']);
 
-			if ($serverdata['platform'] == 'Diaspora') {
+			if ($serverdata['platform'] == 'diaspora') {
 				$serverdata['network'] = Protocol::DIASPORA;
-			} elseif ($serverdata['platform'] == 'Friendica') {
+			} elseif ($serverdata['platform'] == 'friendica') {
 				$serverdata['network'] = Protocol::DFRN;
 			} elseif ($serverdata['platform'] == 'hubzilla') {
 				$serverdata['network'] = Protocol::ZOT;
@@ -528,7 +528,7 @@ class GServer
 
 		if (is_array($nodeinfo['software'])) {
 			if (!empty($nodeinfo['software']['name'])) {
-				$server['platform'] = $nodeinfo['software']['name'];
+				$server['platform'] = strtolower($nodeinfo['software']['name']);
 			}
 
 			if (!empty($nodeinfo['software']['version'])) {
@@ -605,7 +605,7 @@ class GServer
 
 		if (is_array($nodeinfo['software'])) {
 			if (!empty($nodeinfo['software']['name'])) {
-				$server['platform'] = $nodeinfo['software']['name'];
+				$server['platform'] = strtolower($nodeinfo['software']['name']);
 			}
 
 			if (!empty($nodeinfo['software']['version'])) {
@@ -673,7 +673,7 @@ class GServer
 		}
 
 		if (!empty($data['url'])) {
-			$serverdata['platform'] = $data['platform'];
+			$serverdata['platform'] = strtolower($data['platform']);
 			$serverdata['version'] = $data['version'];
 		}
 
@@ -940,7 +940,7 @@ class GServer
 		}
 
 		if (!empty($serverdata['version']) && preg_match('/.*?\(compatible;\s(.*)\s(.*)\)/ism', $serverdata['version'], $matches)) {
-			$serverdata['platform'] = $matches[1];
+			$serverdata['platform'] = strtolower($matches[1]);
 			$serverdata['version'] = $matches[2];
 		}
 
@@ -977,22 +977,22 @@ class GServer
 		}
 
 		if (!empty($data['site']['platform'])) {
-			$serverdata['platform'] = $data['site']['platform']['PLATFORM_NAME'];
+			$serverdata['platform'] = strtolower($data['site']['platform']['PLATFORM_NAME']);
 			$serverdata['version'] = $data['site']['platform']['STD_VERSION'];
 			$serverdata['network'] = Protocol::ZOT;
 		}
 
 		if (!empty($data['site']['hubzilla'])) {
-			$serverdata['platform'] = $data['site']['hubzilla']['PLATFORM_NAME'];
+			$serverdata['platform'] = strtolower($data['site']['hubzilla']['PLATFORM_NAME']);
 			$serverdata['version'] = $data['site']['hubzilla']['RED_VERSION'];
 			$serverdata['network'] = Protocol::ZOT;
 		}
 
 		if (!empty($data['site']['redmatrix'])) {
 			if (!empty($data['site']['redmatrix']['PLATFORM_NAME'])) {
-				$serverdata['platform'] = $data['site']['redmatrix']['PLATFORM_NAME'];
+				$serverdata['platform'] = strtolower($data['site']['redmatrix']['PLATFORM_NAME']);
 			} elseif (!empty($data['site']['redmatrix']['RED_PLATFORM'])) {
-				$serverdata['platform'] = $data['site']['redmatrix']['RED_PLATFORM'];
+				$serverdata['platform'] = strtolower($data['site']['redmatrix']['RED_PLATFORM']);
 			}
 
 			$serverdata['version'] = $data['site']['redmatrix']['RED_VERSION'];
@@ -1149,7 +1149,7 @@ class GServer
 				break;
 		}
 
-		$serverdata['platform'] = $data['platform'] ?? '';
+		$serverdata['platform'] = strtolower($data['platform'] ?? '');
 
 		return $serverdata;
 	}
@@ -1198,20 +1198,20 @@ class GServer
 			}
 
 			if ($attr['name'] == 'application-name') {
-				$serverdata['platform'] = $attr['content'];
+				$serverdata['platform'] = strtolower($attr['content']);
  				if (in_array($attr['content'], ['Misskey', 'Write.as'])) {
 					$serverdata['network'] = Protocol::ACTIVITYPUB;
 				}
 			}
 
 			if ($attr['name'] == 'generator') {
-				$serverdata['platform'] = $attr['content'];
+				$serverdata['platform'] = strtolower($attr['content']);
 
 				$version_part = explode(' ', $attr['content']);
 
 				if (count($version_part) == 2) {
 					if (in_array($version_part[0], ['WordPress'])) {
-						$serverdata['platform'] = $version_part[0];
+						$serverdata['platform'] = strtolower($version_part[0]);
 						$serverdata['version'] = $version_part[1];
 
 						// We still do need a reliable test if some AP plugin is activated
@@ -1222,7 +1222,7 @@ class GServer
 						}
 					}
 					if (in_array($version_part[0], ['Friendika', 'Friendica'])) {
-						$serverdata['platform'] = $version_part[0];
+						$serverdata['platform'] = strtolower($version_part[0]);
 						$serverdata['version'] = $version_part[1];
 						$serverdata['network'] = Protocol::DFRN;
 					}
@@ -1258,7 +1258,7 @@ class GServer
 			}
 
 			if ($attr['property'] == 'og:platform') {
-				$serverdata['platform'] = $attr['content'];
+				$serverdata['platform'] = strtolower($attr['content']);
 
 				if (in_array($attr['content'], ['PeerTube'])) {
 					$serverdata['network'] = Protocol::ACTIVITYPUB;
@@ -1266,7 +1266,7 @@ class GServer
 			}
 
 			if ($attr['property'] == 'generator') {
-				$serverdata['platform'] = $attr['content'];
+				$serverdata['platform'] = strtolower($attr['content']);
 
 				if (in_array($attr['content'], ['hubzilla'])) {
 					// We later check which compatible protocol modules are loaded.
