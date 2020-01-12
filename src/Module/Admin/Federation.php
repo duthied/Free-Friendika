@@ -17,7 +17,7 @@ class Federation extends BaseAdminModule
 		// get counts on active federation systems this node is knowing
 		// We list the more common systems by name. The rest is counted as "other"
 		$systems = [
-			'Friendica'   => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
+			'friendica'   => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
 			'diaspora'    => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
 			'funkwhale'   => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
 			'gnusocial'   => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
@@ -66,11 +66,11 @@ class Federation extends BaseAdminModule
 			}
 			DBA::close($versions);
 
-			$platform = $gserver['platform'];
+			$platform = $gserver['platform'] = strtolower($gserver['platform']);
 
-			if ($platform == 'Friendika') {
-				$platform = 'Friendica';
-			} elseif (in_array($platform, ['Red Matrix', 'redmatrix', 'red'])) {
+			if ($platform == 'friendika') {
+				$platform = 'friendica';
+			} elseif (in_array($platform, ['red matrix', 'redmatrix', 'red'])) {
 				$platform = 'hubzilla';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';
@@ -96,7 +96,7 @@ class Federation extends BaseAdminModule
 				$gserver['users'] += $counts[$platform][0]['users'] ?? 0;
 			}
 
-			if ($platform == 'Friendica') {
+			if ($platform == 'friendica') {
 				$versionCounts = self::reformaFriendicaVersions($versionCounts);
 			} elseif ($platform == 'pleroma') {
 				$versionCounts = self::reformaPleromaVersions($versionCounts);
