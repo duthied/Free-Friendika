@@ -33,6 +33,41 @@ function _resizeIframe(obj, desth) {
 	setTimeout(_resizeIframe, 100, obj, ch);
 }
 
+function initWidget(inflated, deflated) {
+	var elInf = document.getElementById(inflated);
+	var elDef = document.getElementById(deflated);
+
+	if (!elInf || !elDef) {
+		return;
+	}
+	if (localStorage.getItem(window.location.pathname + ":" + inflated) != "none") {
+		elInf.style.display = "block";
+		elDef.style.display = "none";
+	} else {
+		elInf.style.display = "none";
+		elDef.style.display = "block";
+	}
+}
+
+function openCloseWidget(inflated, deflated) {
+	var elInf = document.getElementById(inflated);
+	var elDef = document.getElementById(deflated);
+
+	if (!elInf || !elDef) {
+		return;
+	}
+
+	if (window.getComputedStyle(elInf).display === "none") {
+		elInf.style.display = "block";
+		elDef.style.display = "none";
+		localStorage.setItem(window.location.pathname + ":" + inflated, "block");
+	} else {
+		elInf.style.display = "none";
+		elDef.style.display = "block";
+		localStorage.setItem(window.location.pathname + ":" + inflated, "none");
+	}
+}
+
 function openClose(theID) {
 	var el = document.getElementById(theID);
 	if (el) {

@@ -2932,10 +2932,13 @@ details.profile-jot-net[open] summary:before {
 .fakelink > h3:before {
     padding-right: 10px;
 }
+.widget.fakelink > h3:before,
 .settings-block.fakelink > h3:before {
     font-family: ForkAwesome;
     content: "\f0da"; /* Right Plain Pointer */
 }
+.widget > .fakelink > h3:before,
+#sidebar-group-header > .fakelink > h3:before,
 .settings-block > .fakelink > h3:before {
     font-family: ForkAwesome;
     content: "\f0d7"; /* Bottom Plain Pointer */

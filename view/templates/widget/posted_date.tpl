@@ -11,8 +11,13 @@ function showHideDates() {
 }
 </script>
 
-<div id="datebrowse-sidebar" class="widget">
+<span id="datebrowse-sidebar-inflated" class="widget fakelink" onclick="openCloseWidget('datebrowse-sidebar', 'datebrowse-sidebar-inflated');">
 	<h3>{{$title}}</h3>
+</span>
+<div id="datebrowse-sidebar" class="widget">
+	<span class="fakelink" onclick="openCloseWidget('datebrowse-sidebar', 'datebrowse-sidebar-inflated');">
+		<h3>{{$title}}</h3>
+	</span>
 	<ul id="posted-date-selector" class="datebrowse-ul">
 		{{foreach $dates as $y => $arr}}
 
@@ -41,3 +46,6 @@ function showHideDates() {
 	</ul>
 	{{/if}}
 </div>
+<script>
+initWidget('datebrowse-sidebar', 'datebrowse-sidebar-inflated');
+</script>

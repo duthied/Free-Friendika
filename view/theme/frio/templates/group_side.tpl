@@ -1,6 +1,11 @@
+<span id="group-sidebar-inflated" class="widget fakelink" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
+        <h3>{{$title}}</h3>
+</span>
 <div class="widget" id="group-sidebar">
 	<div id="sidebar-group-header">
-		<h3>{{$title}}</h3>
+		<span class="fakelink" onclick="openCloseWidget('group-sidebar', 'group-sidebar-inflated');">
+			<h3>{{$title}}</h3>
+		</span>
 		{{if ! $newgroup}}
 		<a class="group-edit-tool pull-right widget-action faded-icon" id="sidebar-edit-group" href="{{$grouppage}}" data-toggle="tooltip" title="{{$editgroupstext}}">
 			<i class="fa fa-pencil" aria-hidden="true"></i>
@@ -49,6 +54,7 @@
 			{{if $ungrouped}}<li class="{{if $ungrouped_selected}}selected{{/if}} sidebar-group-li" id="sidebar-ungrouped"><a href="nogroup">{{$ungrouped}}</a></li>{{/if}}
 		</ul>
 	</div>
-
-
 </div>
+<script>
+initWidget('group-sidebar', 'group-sidebar-inflated');
+</script>
