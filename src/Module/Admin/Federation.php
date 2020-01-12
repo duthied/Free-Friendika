@@ -20,17 +20,15 @@ class Federation extends BaseAdminModule
 			'Friendica'   => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
 			'diaspora'    => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
 			'funkwhale'   => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
-			'gnusocial'   => ['name' => 'GNU Social', 'color' => '#a22430'], // dark red from the logo
-			'hubzilla'    => ['name' => 'Hubzilla', 'color' => '#43488a'], // blue from the logo
+			'gnusocial'   => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
+			'hubzilla'    => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
 			'mastodon'    => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
 			'misskey'     => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'peertube'    => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
 			'pixelfed'    => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
 			'pleroma'     => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
 			'plume'       => ['name' => 'Plume', 'color' => '#7765e3'], // From the homepage
-			'red'         => ['name' => 'Red Matrix', 'color' => '#c50001'], // fire red from the logo
 			'socialhome'  => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
-			'statusnet'   => ['name' => 'StatusNet', 'color' => '#789240'], // the green from the logo (red and blue have already others
 			'wordpress'   => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
 			'writefreely' => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
 			'other'       => ['name' => L10n::t('Other'), 'color' => '#F1007E'], // ActivityPub main color
@@ -59,6 +57,11 @@ class Federation extends BaseAdminModule
 				GROUP BY `version` ORDER BY `version`", $gserver['platform']);
 			while ($version = DBA::fetch($versions)) {
 				$version['version'] = str_replace(["\n", "\r", "\t"], " ", $version['version']);
+
+				if (in_array($gserver['platform'], ['Red Matrix', 'redmatrix', 'red'])) {
+					$version['version'] = 'Red ' . $version['version'];
+				}
+
 				$versionCounts[] = $version;
 			}
 			DBA::close($versions);
@@ -67,10 +70,12 @@ class Federation extends BaseAdminModule
 
 			if ($platform == 'Friendika') {
 				$platform = 'Friendica';
-			} elseif (in_array($platform, ['Red Matrix', 'redmatrix'])) {
-				$platform = 'red';
+			} elseif (in_array($platform, ['Red Matrix', 'redmatrix', 'red'])) {
+				$platform = 'hubzilla';
 			} elseif(stristr($platform, 'pleroma')) {
 				$platform = 'pleroma';
+			} elseif(stristr($platform, 'statusnet')) {
+				$platform = 'gnusocial';
 			} elseif(stristr($platform, 'wordpress')) {
 				$platform = 'wordpress';
 			} elseif (!in_array($platform, $platforms)) {
