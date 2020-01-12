@@ -19,19 +19,19 @@ class Federation extends BaseAdminModule
 		$systems = [
 			'Friendica'   => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
 			'diaspora'    => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
-			'red'         => ['name' => 'Red Matrix', 'color' => '#c50001'], // fire red from the logo
-			'hubzilla'    => ['name' => 'Hubzilla', 'color' => '#43488a'], // blue from the logo
-			'gnusocial'   => ['name' => 'GNU Social', 'color' => '#a22430'], // dark red from the logo
-			'statusnet'   => ['name' => 'StatusNet', 'color' => '#789240'], // the green from the logo (red and blue have already others
-			'mastodon'    => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
-			'pleroma'     => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
-			'socialhome'  => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
-			'wordpress'   => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
-			'misskey'     => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'funkwhale'   => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
-			'plume'       => ['name' => 'Plume', 'color' => '#7765e3'], // From the homepage
-			'pixelfed'    => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
+			'gnusocial'   => ['name' => 'GNU Social', 'color' => '#a22430'], // dark red from the logo
+			'hubzilla'    => ['name' => 'Hubzilla', 'color' => '#43488a'], // blue from the logo
+			'mastodon'    => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
+			'misskey'     => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
 			'peertube'    => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
+			'pixelfed'    => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
+			'pleroma'     => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
+			'plume'       => ['name' => 'Plume', 'color' => '#7765e3'], // From the homepage
+			'red'         => ['name' => 'Red Matrix', 'color' => '#c50001'], // fire red from the logo
+			'socialhome'  => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
+			'statusnet'   => ['name' => 'StatusNet', 'color' => '#789240'], // the green from the logo (red and blue have already others
+			'wordpress'   => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
 			'writefreely' => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
 			'other'       => ['name' => L10n::t('Other'), 'color' => '#F1007E'], // ActivityPub main color
 		];
@@ -39,6 +39,10 @@ class Federation extends BaseAdminModule
 		$platforms = array_keys($systems);
 
 		$counts = [];
+		foreach ($platforms as $platform) {
+			$counts[$platform] = [];
+		}
+
 		$total = 0;
 		$users = 0;
 
