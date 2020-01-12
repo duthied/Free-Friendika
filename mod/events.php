@@ -427,8 +427,16 @@ function events_content(App $a)
 
 	// Passed parameters overrides anything found in the DB
 	if (in_array($mode, ['edit', 'new', 'copy'])) {
+		$share_checked = '';
+		$share_disabled = '';
+
 		if (empty($orig_event)) {
 			$orig_event = User::getById(local_user(), ['allow_cid', 'allow_gid', 'deny_cid', 'deny_gid']);;
+		} elseif ($orig_event['allow_cid'] !== '<' . local_user() . '>'
+			|| $orig_event['allow_gid']
+			|| $orig_event['deny_cid']
+			|| $orig_event['deny_gid']) {
+			$share_checked = ' checked="checked" ';
 		}
 
 		// In case of an error the browser is redirected back here, with these parameters filled in with the previous values
@@ -450,20 +458,8 @@ function events_content(App $a)
 		$cid = !empty($orig_event) ? $orig_event['cid'] : 0;
 		$uri = !empty($orig_event) ? $orig_event['uri'] : '';
 
-		$sh_disabled = '';
-		$sh_checked = '';
-
-		if (!empty($orig_event)
-			&& ($orig_event['allow_cid'] !== '<' . local_user() . '>'
-			|| $orig_event['allow_gid']
-			|| $orig_event['deny_cid']
-			|| $orig_event['deny_gid']))
-		{
-			$sh_checked = ' checked="checked" ';
-		}
-
 		if ($cid || $mode === 'edit') {
-			$sh_disabled = 'disabled="disabled"';
+			$share_disabled = 'disabled="disabled"';
 		}
 
 		$sdt = !empty($orig_event) ? $orig_event['start']  : 'now';
@@ -547,8 +543,8 @@ function events_content(App $a)
 			'$t_orig' => $t_orig,
 			'$summary' => ['summary', L10n::t('Title:'), $t_orig, '', '*'],
 			'$sh_text' => L10n::t('Share this event'),
-			'$share' => ['share', L10n::t('Share this event'), $sh_checked, '', $sh_disabled],
-			'$sh_checked' => $sh_checked,
+			'$share' => ['share', L10n::t('Share this event'), $share_checked, '', $share_disabled],
+			'$sh_checked' => $share_checked,
 			'$nofinish' => ['nofinish', L10n::t('Finish date/time is not known or not relevant'), $n_checked],
 			'$adjust' => ['adjust', L10n::t('Adjust for viewer timezone'), $a_checked],
 			'$preview' => L10n::t('Preview'),
