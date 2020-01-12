@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
  * @property string hash
  * @property string datetime
  * @property bool   blocked
- * @property bool   ignored
+ * @property bool   ignore
  */
 final class Introduction extends BaseModel
 {
@@ -116,7 +116,7 @@ final class Introduction extends BaseModel
 	 */
 	public function ignore()
 	{
-		$this->ignored = true;
+		$this->ignore = true;
 
 		return $this->intro->update($this);
 	}
