@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1329
+-- DB_UPDATE_VERSION 1330
 -- ------------------------------------------
 
 

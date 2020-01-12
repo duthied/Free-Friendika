@@ -197,6 +197,11 @@ class Delivery
 			$contact['network'] = Protocol::DIASPORA;
 		}
 
+		// Ensure that local contacts are delivered locally
+		if (Model\Contact::isLocal($contact['url'])) {
+			$contact['network'] = Protocol::DFRN;
+		}
+
 		Logger::notice('Delivering', ['cmd' => $cmd, 'target' => $target_id, 'followup' => $followup, 'network' => $contact['network']]);
 
 		switch ($contact['network']) {
@@ -287,11 +292,8 @@ class Delivery
 
 		Logger::debug('Notifier entry: ' . $contact["url"] . ' ' . (($target_item['guid'] ?? '') ?: $target_item['id']) . ' entry: ' . $atom);
 
-		$basepath =  implode('/', array_slice(explode('/', $contact['url']), 0, 3));
-
 		// perform local delivery if we are on the same site
-
-		if (Strings::compareLink($basepath, DI::baseUrl())) {
+		if (Model\Contact::isLocal($contact['url'])) {
 			$condition = ['nurl' => Strings::normaliseLink($contact['url']), 'self' => true];
 			$target_self = DBA::selectFirst('contact', ['uid'], $condition);
 			if (!DBA::isResult($target_self)) {

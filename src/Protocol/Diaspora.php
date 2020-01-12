@@ -13,7 +13,7 @@ namespace Friendica\Protocol;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Markdown;
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -3246,7 +3246,7 @@ class Diaspora
 
 		$cachekey = "diaspora:sendParticipation:".$item['guid'];
 
-		$result = Cache::get($cachekey);
+		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			return;
 		}
@@ -3272,7 +3272,7 @@ class Diaspora
 		Logger::log("Send participation for ".$item["guid"]." by ".$author, Logger::DEBUG);
 
 		// It doesn't matter what we store, we only want to avoid sending repeated notifications for the same item
-		Cache::set($cachekey, $item["guid"], Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $item["guid"], Cache::QUARTER_HOUR);
 
 		return self::buildAndTransmit($owner, $contact, "participation", $message);
 	}
@@ -3524,7 +3524,7 @@ class Diaspora
 	{
 		$cachekey = "diaspora:buildStatus:".$item['guid'];
 
-		$result = Cache::get($cachekey);
+		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			return $result;
 		}
@@ -3628,7 +3628,7 @@ class Diaspora
 
 		$msg = ["type" => $type, "message" => $message];
 
-		Cache::set($cachekey, $msg, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $msg, Cache::QUARTER_HOUR);
 
 		return $msg;
 	}
@@ -3749,7 +3749,7 @@ class Diaspora
 	{
 		$cachekey = "diaspora:constructComment:".$item['guid'];
 
-		$result = Cache::get($cachekey);
+		$result = DI::cache()->get($cachekey);
 		if (!is_null($result)) {
 			return $result;
 		}
@@ -3798,7 +3798,7 @@ class Diaspora
 			$comment['thread_parent_guid'] = $thread_parent_item['guid'];
 		}
 
-		Cache::set($cachekey, $comment, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $comment, Cache::QUARTER_HOUR);
 
 		return($comment);
 	}

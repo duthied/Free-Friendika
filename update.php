@@ -12,6 +12,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
+use Friendica\Model\Storage;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Worker\Delivery;
 
@@ -408,3 +409,26 @@ function update_1327()
 	return Update::SUCCESS;
 }
 
+function update_1330()
+{
+	$currStorage = Config::get('storage', 'class', '');
+
+	// set the name of the storage instead of the classpath as config
+	if (!empty($currStorage)) {
+		/** @var Storage\IStorage $currStorage */
+		if (!Config::set('storage', 'name', $currStorage::getName())) {
+			return Update::FAILED;
+		}
+
+		// try to delete the class since it isn't needed. This won't work with config files
+		Config::delete('storage', 'class');
+	}
+
+	// Update attachments and photos
+	if (!DBA::p("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 22) WHERE `photo`.`backend-class` LIKE 'Friendica\\Model\\Storage\\%'") ||
+	    !DBA::p("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 22) WHERE `attach`.`backend-class` LIKE 'Friendica\\Model\\Storage\\%'")) {
+		return Update::FAILED;
+	};
+
+	return Update::SUCCESS;
+}

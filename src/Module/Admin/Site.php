@@ -199,42 +199,37 @@ class Site extends BaseAdminModule
 		$relay_user_tags   = !empty($_POST['relay_user_tags']);
 		$active_panel      = (!empty($_POST['active_panel'])      ? "#" . Strings::escapeTags(trim($_POST['active_panel'])) : '');
 
-		/**
-		 * @var $storagebackend \Friendica\Model\Storage\IStorage
-		 */
 		$storagebackend    = Strings::escapeTags(trim($_POST['storagebackend'] ?? ''));
 
 		// save storage backend form
-		if (!is_null($storagebackend) && $storagebackend != "") {
-			if (StorageManager::setBackend($storagebackend)) {
-				$storage_opts = $storagebackend::getOptions();
-				$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $storagebackend);
-				$storage_opts_data = [];
-				foreach ($storage_opts as $name => $info) {
-					$fieldname = $storage_form_prefix . '_' . $name;
-					switch ($info[0]) { // type
-						case 'checkbox':
-						case 'yesno':
-							$value = !empty($_POST[$fieldname]);
-							break;
-						default:
-							$value = $_POST[$fieldname] ?? '';
-					}
-					$storage_opts_data[$name] = $value;
+		if (DI::storageManager()->setBackend($storagebackend)) {
+			$storage_opts     = DI::storage()->getOptions();
+			$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|', '', $storagebackend);
+			$storage_opts_data   = [];
+			foreach ($storage_opts as $name => $info) {
+				$fieldname = $storage_form_prefix . '_' . $name;
+				switch ($info[0]) { // type
+					case 'checkbox':
+					case 'yesno':
+						$value = !empty($_POST[$fieldname]);
+						break;
+					default:
+						$value = $_POST[$fieldname] ?? '';
 				}
-				unset($name);
-				unset($info);
-
-				$storage_form_errors = $storagebackend::saveOptions($storage_opts_data);
-				if (count($storage_form_errors)) {
-					foreach ($storage_form_errors as $name => $err) {
-						notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
-					}
-					DI::baseUrl()->redirect('admin/site' . $active_panel);
-				}
-			} else {
-				info(L10n::t('Invalid storage backend setting value.'));
+				$storage_opts_data[$name] = $value;
 			}
+			unset($name);
+			unset($info);
+
+			$storage_form_errors = DI::storage()->saveOptions($storage_opts_data);
+			if (count($storage_form_errors)) {
+				foreach ($storage_form_errors as $name => $err) {
+					notice('Storage backend, ' . $storage_opts[$name][1] . ': ' . $err);
+				}
+				DI::baseUrl()->redirect('admin/site' . $active_panel);
+			}
+		} else {
+			info(L10n::t('Invalid storage backend setting value.'));
 		}
 
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
@@ -530,29 +525,25 @@ class Site extends BaseAdminModule
 			$optimize_max_tablesize = -1;
 		}
 
-		$storage_backends = StorageManager::listBackends();
-		/** @var $current_storage_backend \Friendica\Model\Storage\IStorage */
-		$current_storage_backend = StorageManager::getBackend();
-
+		$current_storage_backend = DI::storage();
 		$available_storage_backends = [];
 
 		// show legacy option only if it is the current backend:
 		// once changed can't be selected anymore
-		if ($current_storage_backend == '') {
+		if ($current_storage_backend == null) {
 			$available_storage_backends[''] = L10n::t('Database (legacy)');
 		}
 
-		foreach ($storage_backends as $name => $class) {
-			$available_storage_backends[$class] = $name;
+		foreach (DI::storageManager()->listBackends() as $name => $class) {
+			$available_storage_backends[$name] = $name;
 		}
-		unset($storage_backends);
 
 		// build storage config form,
 		$storage_form_prefix = preg_replace('|[^a-zA-Z0-9]|' ,'', $current_storage_backend);
 
 		$storage_form = [];
 		if (!is_null($current_storage_backend) && $current_storage_backend != '') {
-			foreach ($current_storage_backend::getOptions() as $name => $info) {
+			foreach ($current_storage_backend->getOptions() as $name => $info) {
 				$type = $info[0];
 				$info[0] = $storage_form_prefix . '_' . $name;
 				$info['type'] = $type;

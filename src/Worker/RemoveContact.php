@@ -13,8 +13,7 @@ class RemoveContact {
 	public static function execute($id) {
 
 		// Only delete if the contact is to be deleted
-		$condition = ['network' => Protocol::PHANTOM, 'id' => $id];
-		$contact = DBA::selectFirst('contact', ['uid'], $condition);
+		$contact = DBA::selectFirst('contact', ['uid'], ['deleted' => true]);
 		if (!DBA::isResult($contact)) {
 			return;
 		}

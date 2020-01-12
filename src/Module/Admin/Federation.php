@@ -14,168 +14,103 @@ class Federation extends BaseAdminModule
 	{
 		parent::content($parameters);
 
-		// get counts on active friendica, diaspora, redmatrix, hubzilla, gnu
-		// social and statusnet nodes this node is knowing
-		//
-		// We are looking for the following platforms in the DB, "Red" should find
-		// all variants of that platform ID string as the q() function is stripping
-		// off one % two of them are needed in the query
-		// Add more platforms if you like, when one returns 0 known nodes it is not
-		// displayed on the stats page.
-		$platforms = ['Friendi%%a', 'Diaspora', '%%red%%', 'Hubzilla', 'BlaBlaNet', 'GNU Social', 'StatusNet', 'Mastodon', 'Pleroma', 'socialhome', 'ganggo'];
-		$colors = [
-			'Friendi%%a' => '#ffc018', // orange from the logo
-			'Diaspora'   => '#a1a1a1', // logo is black and white, makes a gray
-			'%%red%%'    => '#c50001', // fire red from the logo
-			'Hubzilla'   => '#43488a', // blue from the logo
-			'BlaBlaNet'  => '#3B5998', // blue from the navbar at blablanet-dot-com
-			'GNU Social' => '#a22430', // dark red from the logo
-			'StatusNet'  => '#789240', // the green from the logo (red and blue have already others
-			'Mastodon'   => '#1a9df9', // blue from the Mastodon logo
-			'Pleroma'    => '#E46F0F', // Orange from the text that is used on Pleroma instances
-			'socialhome' => '#52056b', // lilac from the Django Image used at the Socialhome homepage
-			'ganggo'     => '#69d7e2', // from the favicon
+		// get counts on active federation systems this node is knowing
+		// We list the more common systems by name. The rest is counted as "other"
+		$systems = [
+			'Friendica'   => ['name' => 'Friendica', 'color' => '#ffc018'], // orange from the logo
+			'diaspora'    => ['name' => 'Diaspora', 'color' => '#a1a1a1'], // logo is black and white, makes a gray
+			'funkwhale'   => ['name' => 'Funkwhale', 'color' => '#4082B4'], // From the homepage
+			'gnusocial'   => ['name' => 'GNU Social/Statusnet', 'color' => '#a22430'], // dark red from the logo
+			'hubzilla'    => ['name' => 'Hubzilla/Red Matrix', 'color' => '#43488a'], // blue from the logo
+			'mastodon'    => ['name' => 'Mastodon', 'color' => '#1a9df9'], // blue from the Mastodon logo
+			'misskey'     => ['name' => 'Misskey', 'color' => '#ccfefd'], // Font color of the homepage
+			'peertube'    => ['name' => 'Peertube', 'color' => '#ffad5c'], // One of the logo colors
+			'pixelfed'    => ['name' => 'Pixelfed', 'color' => '#11da47'], // One of the logo colors
+			'pleroma'     => ['name' => 'Pleroma', 'color' => '#E46F0F'], // Orange from the text that is used on Pleroma instances
+			'plume'       => ['name' => 'Plume', 'color' => '#7765e3'], // From the homepage
+			'socialhome'  => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
+			'wordpress'   => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
+			'writefreely' => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
+			'other'       => ['name' => L10n::t('Other'), 'color' => '#F1007E'], // ActivityPub main color
 		];
+
+		$platforms = array_keys($systems);
+
 		$counts = [];
+		foreach ($platforms as $platform) {
+			$counts[$platform] = [];
+		}
+
 		$total = 0;
 		$users = 0;
 
-		foreach ($platforms as $platform) {
-			// get a total count for the platform, the name and version of the
-			// highest version and the protocol tpe
-			$platformCount = DBA::fetchFirst('SELECT
-       			COUNT(*) AS `total`,
-       			SUM(`registered-users`) AS `users`,
-       			ANY_VALUE(`platform`) AS `platform`,
-				ANY_VALUE(`network`) AS `network`,
-       			MAX(`version`) AS `version` FROM `gserver`
-				WHERE `platform` LIKE ?
-			  	AND `last_contact` >= `last_failure`
-				ORDER BY `version` ASC', $platform);
-			$total += $platformCount['total'];
-			$users += $platformCount['users'];
-
-			// what versions for that platform do we know at all?
-			// again only the active nodes
-			$versionCountsStmt = DBA::p('SELECT
-       			COUNT(*) AS `total`,
-       			`version` FROM `gserver`
-				WHERE `last_contact` >= `last_failure`
-				AND `platform` LIKE ?
-				GROUP BY `version`
-				ORDER BY `version`;', $platform);
-			$versionCounts = DBA::toArray($versionCountsStmt);
-
-			//
-			// clean up version numbers
-			//
-			// some platforms do not provide version information, add a unkown there
-			// to the version string for the displayed list.
-			foreach ($versionCounts as $key => $value) {
-				if ($versionCounts[$key]['version'] == '') {
-					$versionCounts[$key] = ['total' => $versionCounts[$key]['total'], 'version' => L10n::t('unknown')];
-				}
-			}
-
-			// Reformat and compact version numbers
-			if ($platform == 'Pleroma') {
-				$compacted = [];
-				foreach ($versionCounts as $key => $value) {
-					$version = $versionCounts[$key]['version'];
-					$parts = explode(' ', trim($version));
-					do {
-						$part = array_pop($parts);
-					} while (!empty($parts) && ((strlen($part) >= 40) || (strlen($part) <= 3)));
-					// only take the x.x.x part of the version, not the "release" after the dash
-					if (!empty($part) && strpos($part, '-')) {
-						$part = explode('-', $part)[0];
-					}
-					if (!empty($part)) {
-						if (empty($compacted[$part])) {
-							$compacted[$part] = $versionCounts[$key]['total'];
-						} else {
-							$compacted[$part] += $versionCounts[$key]['total'];
-						}
-					}
-				}
-
-				$versionCounts = [];
-				foreach ($compacted as $version => $pl_total) {
-					$versionCounts[] = ['version' => $version, 'total' => $pl_total];
-				}
-			}
-
-			// in the DB the Diaspora versions have the format x.x.x.x-xx the last
-			// part (-xx) should be removed to clean up the versions from the "head
-			// commit" information and combined into a single entry for x.x.x.x
-			if ($platform == 'Diaspora') {
-				$newV = [];
-				$newVv = [];
-				foreach ($versionCounts as $vv) {
-					$newVC = $vv['total'];
-					$newVV = $vv['version'];
-					$posDash = strpos($newVV, '-');
-					if ($posDash) {
-						$newVV = substr($newVV, 0, $posDash);
-					}
-					if (isset($newV[$newVV])) {
-						$newV[$newVV] += $newVC;
-					} else {
-						$newV[$newVV] = $newVC;
-					}
-				}
-				foreach ($newV as $key => $value) {
-					array_push($newVv, ['total' => $value, 'version' => $key]);
-				}
-				$versionCounts = $newVv;
-			}
-
-			// early friendica versions have the format x.x.xxxx where xxxx is the
-			// DB version stamp; those should be operated out and versions be
-			// conbined
-			if ($platform == 'Friendi%%a') {
-				$newV = [];
-				$newVv = [];
-				foreach ($versionCounts as $vv) {
-					$newVC = $vv['total'];
-					$newVV = $vv['version'];
-					$lastDot = strrpos($newVV, '.');
-					$len = strlen($newVV) - 1;
-					if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3)) {
-						$newVV = substr($newVV, 0, $lastDot);
-					}
-					if (isset($newV[$newVV])) {
-						$newV[$newVV] += $newVC;
-					} else {
-						$newV[$newVV] = $newVC;
-					}
-				}
-				foreach ($newV as $key => $value) {
-					array_push($newVv, ['total' => $value, 'version' => $key]);
-				}
-				$versionCounts = $newVv;
-			}
-
-			// Assure that the versions are sorted correctly
-			$v2 = [];
-			$versions = [];
-			foreach ($versionCounts as $vv) {
-				$version = trim(strip_tags($vv["version"]));
-				$v2[$version] = $vv;
-				$versions[] = $version;
-			}
-
-			usort($versions, 'version_compare');
+		$gservers = DBA::p("SELECT COUNT(*) AS `total`, SUM(`registered-users`) AS `users`, `platform`,
+			ANY_VALUE(`network`) AS `network`, MAX(`version`) AS `version`
+			FROM `gserver` WHERE `last_contact` >= `last_failure` GROUP BY `platform`");
+		while ($gserver = DBA::fetch($gservers)) {
+			$total += $gserver['total'];
+			$users += $gserver['users'];
 
 			$versionCounts = [];
-			foreach ($versions as $version) {
-				$versionCounts[] = $v2[$version];
+			$versions = DBA::p("SELECT COUNT(*) AS `total`, `version` FROM `gserver`
+				WHERE `last_contact` >= `last_failure` AND `platform` = ?
+				GROUP BY `version` ORDER BY `version`", $gserver['platform']);
+			while ($version = DBA::fetch($versions)) {
+				$version['version'] = str_replace(["\n", "\r", "\t"], " ", $version['version']);
+
+				if (in_array($gserver['platform'], ['Red Matrix', 'redmatrix', 'red'])) {
+					$version['version'] = 'Red ' . $version['version'];
+				}
+
+				$versionCounts[] = $version;
+			}
+			DBA::close($versions);
+
+			$platform = $gserver['platform'];
+
+			if ($platform == 'Friendika') {
+				$platform = 'Friendica';
+			} elseif (in_array($platform, ['Red Matrix', 'redmatrix', 'red'])) {
+				$platform = 'hubzilla';
+			} elseif(stristr($platform, 'pleroma')) {
+				$platform = 'pleroma';
+			} elseif(stristr($platform, 'statusnet')) {
+				$platform = 'gnusocial';
+			} elseif(stristr($platform, 'wordpress')) {
+				$platform = 'wordpress';
+			} elseif (!in_array($platform, $platforms)) {
+				$platform = 'other';
 			}
 
-			// the 3rd array item is needed for the JavaScript graphs as JS does
-			// not like some characters in the names of variables...
-			$counts[$platform] = [$platformCount, $versionCounts, str_replace([' ', '%'], '', $platform), $colors[$platform]];
+			if ($platform != $gserver['platform']) {
+				if ($platform == 'other') {
+					$versionCounts = $counts[$platform][1] ?? [];
+					$versionCounts[] = ['version' => $gserver['platform'] ?: L10n::t('unknown'), 'total' => $gserver['total']];
+					$gserver['version'] = '';
+				} else {
+					$versionCounts = array_merge($versionCounts, $counts[$platform][1] ?? []);
+				}
+
+				$gserver['platform'] = $platform;
+				$gserver['total'] += $counts[$platform][0]['total'] ?? 0;
+				$gserver['users'] += $counts[$platform][0]['users'] ?? 0;
+			}
+
+			if ($platform == 'Friendica') {
+				$versionCounts = self::reformaFriendicaVersions($versionCounts);
+			} elseif ($platform == 'pleroma') {
+				$versionCounts = self::reformaPleromaVersions($versionCounts);
+			} elseif ($platform == 'diaspora') {
+				$versionCounts = self::reformaDiasporaVersions($versionCounts);
+			}
+
+			$versionCounts = self::sortVersion($versionCounts);
+
+			$gserver['platform'] = $systems[$platform]['name'];
+
+			$counts[$platform] = [$gserver, $versionCounts, str_replace([' ', '%'], '', $platform), $systems[$platform]['color']];
 		}
+		DBA::close($gserver);
 
 		// some helpful text
 		$intro = L10n::t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
@@ -193,5 +128,145 @@ class Federation extends BaseAdminModule
 			'$version' => FRIENDICA_VERSION,
 			'$legendtext' => L10n::t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
 		]);
+	}
+
+	/**
+	 * early friendica versions have the format x.x.xxxx where xxxx is the
+	 * DB version stamp; those should be operated out and versions be combined
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformaFriendicaVersions(array $versionCounts)
+	{
+		$newV = [];
+		$newVv = [];
+		foreach ($versionCounts as $vv) {
+			$newVC = $vv['total'];
+			$newVV = $vv['version'];
+			$lastDot = strrpos($newVV, '.');
+			$len = strlen($newVV) - 1;
+			if (($lastDot == $len - 4) && (!strrpos($newVV, '-rc') == $len - 3)) {
+				$newVV = substr($newVV, 0, $lastDot);
+			}
+			if (isset($newV[$newVV])) {
+				$newV[$newVV] += $newVC;
+			} else {
+				$newV[$newVV] = $newVC;
+			}
+		}
+		foreach ($newV as $key => $value) {
+			array_push($newVv, ['total' => $value, 'version' => $key]);
+		}
+		$versionCounts = $newVv;
+
+		return $versionCounts;
+	}
+
+	/**
+	 * in the DB the Diaspora versions have the format x.x.x.x-xx the last
+	 * part (-xx) should be removed to clean up the versions from the "head
+	 * commit" information and combined into a single entry for x.x.x.x
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformaDiasporaVersions(array $versionCounts)
+	{
+		$newV = [];
+		$newVv = [];
+		foreach ($versionCounts as $vv) {
+			$newVC = $vv['total'];
+			$newVV = $vv['version'];
+			$posDash = strpos($newVV, '-');
+			if ($posDash) {
+				$newVV = substr($newVV, 0, $posDash);
+			}
+			if (isset($newV[$newVV])) {
+				$newV[$newVV] += $newVC;
+			} else {
+				$newV[$newVV] = $newVC;
+			}
+		}
+		foreach ($newV as $key => $value) {
+			array_push($newVv, ['total' => $value, 'version' => $key]);
+		}
+		$versionCounts = $newVv;
+
+		return $versionCounts;
+	}
+
+	/**
+	 * Clean up Pleroma version numbers
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with cleaned version numbers
+	 */
+	private static function reformaPleromaVersions(array $versionCounts)
+	{
+		$compacted = [];
+		foreach ($versionCounts as $key => $value) {
+			$version = $versionCounts[$key]['version'];
+			$parts = explode(' ', trim($version));
+			do {
+				$part = array_pop($parts);
+			} while (!empty($parts) && ((strlen($part) >= 40) || (strlen($part) <= 3)));
+			// only take the x.x.x part of the version, not the "release" after the dash
+			if (!empty($part) && strpos($part, '-')) {
+				$part = explode('-', $part)[0];
+			}
+			if (!empty($part)) {
+				if (empty($compacted[$part])) {
+					$compacted[$part] = $versionCounts[$key]['total'];
+				} else {
+					$compacted[$part] += $versionCounts[$key]['total'];
+				}
+			}
+		}
+
+		$versionCounts = [];
+		foreach ($compacted as $version => $pl_total) {
+			$versionCounts[] = ['version' => $version, 'total' => $pl_total];
+		}
+
+		return $versionCounts;
+	}
+
+	/**
+	 * Reformat, sort and compact version numbers
+	 *
+	 * @param array $versionCounts list of version numbers
+	 * @return array with reformatted version numbers
+	 */
+	private static function sortVersion(array $versionCounts)
+	{
+		//
+		// clean up version numbers
+		//
+		// some platforms do not provide version information, add a unkown there
+		// to the version string for the displayed list.
+		foreach ($versionCounts as $key => $value) {
+			if ($versionCounts[$key]['version'] == '') {
+				$versionCounts[$key] = ['total' => $versionCounts[$key]['total'], 'version' => L10n::t('unknown')];
+			}
+		}
+
+		// Assure that the versions are sorted correctly
+		$v2 = [];
+		$versions = [];
+		foreach ($versionCounts as $vv) {
+			$version = trim(strip_tags($vv["version"]));
+			$v2[$version] = $vv;
+			$versions[] = $version;
+		}
+
+		usort($versions, 'version_compare');
+
+		$versionCounts = [];
+		foreach ($versions as $version) {
+			$versionCounts[] = $v2[$version];
+		}
+
+		return $versionCounts;
 	}
 }

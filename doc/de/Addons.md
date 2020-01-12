@@ -424,6 +424,10 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### src/Core/Authentication.php
 
     Hook::callAll('logged_in', $a->user);
+    
+### src/Core/StorageManager
+
+    Hook::callAll('storage_instance', $data);
 
 ### src/Worker/Directory.php
 

@@ -10,7 +10,6 @@ use DOMXPath;
 use Exception;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Core\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -1070,7 +1069,7 @@ class BBCode
 	private static function removePictureLinksCallback($match)
 	{
 		$cache_key = 'remove:' . $match[1];
-		$text = Cache::get($cache_key);
+		$text = DI::cache()->get($cache_key);
 
 		if (is_null($text)) {
 			$a = DI::app();
@@ -1112,7 +1111,7 @@ class BBCode
 					}
 				}
 			}
-			Cache::set($cache_key, $text);
+			DI::cache()->set($cache_key, $text);
 		}
 
 		return $text;
@@ -1143,7 +1142,7 @@ class BBCode
 		}
 
 		$cache_key = 'clean:' . $match[1];
-		$text = Cache::get($cache_key);
+		$text = DI::cache()->get($cache_key);
 		if (!is_null($text)) {
 			return $text;
 		}
@@ -1194,7 +1193,7 @@ class BBCode
 				}
 			}
 		}
-		Cache::set($cache_key, $text);
+		DI::cache()->set($cache_key, $text);
 
 		return $text;
 	}

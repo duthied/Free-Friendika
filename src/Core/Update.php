@@ -7,6 +7,7 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Util\Strings;
+use Friendica\Core\Cache\Cache;
 
 class Update
 {

@@ -706,6 +706,14 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
     Hook::callAll('page_header', DI::page()['nav']);
     Hook::callAll('nav_info', $nav);
 
+### src/Core/Authentication.php
+
+    Hook::callAll('logged_in', $a->user);
+    
+### src/Core/StorageManager
+
+    Hook::callAll('storage_instance', $data);
+
 ### src/Worker/Directory.php
 
     Hook::callAll('globaldir_update', $arr);

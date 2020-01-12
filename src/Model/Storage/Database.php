@@ -6,58 +6,100 @@
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\Logger;
-use Friendica\Core\L10n;
-use Friendica\Database\DBA;
+use Friendica\Core\L10n\L10n;
+use Psr\Log\LoggerInterface;
+use Friendica\Database\Database as DBA;
 
 /**
  * @brief Database based storage system
  *
  * This class manage data stored in database table.
  */
-class Database implements IStorage
+class Database extends AbstractStorage
 {
-	public static function get($ref)
+	const NAME = 'Database';
+
+	/** @var DBA */
+	private $dba;
+
+	/**
+	 * @param DBA             $dba
+	 * @param LoggerInterface $logger
+	 * @param L10n            $l10n
+	 */
+	public function __construct(DBA $dba, LoggerInterface $logger, L10n $l10n)
 	{
-		$r = DBA::selectFirst('storage', ['data'], ['id' => $ref]);
-		if (!DBA::isResult($r)) {
+		parent::__construct($l10n, $logger);
+
+		$this->dba = $dba;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function get(string $reference)
+	{
+		$result = $this->dba->selectFirst('storage', ['data'], ['id' => $reference]);
+		if (!$this->dba->isResult($result)) {
 			return '';
 		}
 
-		return $r['data'];
+		return $result['data'];
 	}
 
-	public static function put($data, $ref = '')
+	/**
+	 * @inheritDoc
+	 */
+	public function put(string $data, string $reference = '')
 	{
-		if ($ref !== '') {
-			$r = DBA::update('storage', ['data' => $data], ['id' => $ref]);
-			if ($r === false) {
-				Logger::log('Failed to update data with id ' . $ref . ': ' . DBA::errorNo() . ' : ' . DBA::errorMessage());
-				throw new StorageException(L10n::t('Database storage failed to update %s', $ref));
- 			}
-			return $ref;
-		} else {
-			$r = DBA::insert('storage', ['data' => $data]);
-			if ($r === false) {
-				Logger::log('Failed to insert data: ' . DBA::errorNo() . ' : ' . DBA::errorMessage());
-				throw new StorageException(L10n::t('Database storage failed to insert data'));
+		if ($reference !== '') {
+			$result = $this->dba->update('storage', ['data' => $data], ['id' => $reference]);
+			if ($result === false) {
+				$this->logger->warning('Failed to update data.', ['id' => $reference, 'errorCode' => $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
+				throw new StorageException($this->l10n->t('Database storage failed to update %s', $reference));
 			}
-			return DBA::lastInsertId();
+
+			return $reference;
+		} else {
+			$result = $this->dba->insert('storage', ['data' => $data]);
+			if ($result === false) {
+				$this->logger->warning('Failed to insert data.', ['errorCode' => $this->dba->errorNo(), 'errorMessage' => $this->dba->errorMessage()]);
+				throw new StorageException($this->l10n->t('Database storage failed to insert data'));
+			}
+
+			return $this->dba->lastInsertId();
 		}
 	}
 
-	public static function delete($ref)
+	/**
+	 * @inheritDoc
+	 */
+	public function delete(string $reference)
 	{
-		return DBA::delete('storage', ['id' => $ref]);
+		return $this->dba->delete('storage', ['id' => $reference]);
 	}
 
-	public static function getOptions()
+	/**
+	 * @inheritDoc
+	 */
+	public function getOptions()
 	{
 		return [];
 	}
 
-	public static function saveOptions($data)
+	/**
+	 * @inheritDoc
+	 */
+	public function saveOptions(array $data)
 	{
 		return [];
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public static function getName()
+	{
+		return self::NAME;
 	}
 }

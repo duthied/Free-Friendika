@@ -2,13 +2,10 @@
 
 namespace Friendica\Module\Search;
 
-use Friendica\App\Arguments;
-use Friendica\App\BaseURL;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
-use Friendica\Core\Cache;
 use Friendica\Core\Cache\Cache as CacheClass;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
@@ -53,15 +50,15 @@ class Index extends BaseSearchModule
 				$crawl_permit_period = 10;
 
 			$remote = $_SERVER['REMOTE_ADDR'];
-			$result = Cache::get('remote_search:' . $remote);
+			$result = DI::cache()->get('remote_search:' . $remote);
 			if (!is_null($result)) {
 				$resultdata = json_decode($result);
 				if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
 					throw new HTTPException\TooManyRequestsException(L10n::t('Only one search per minute is permitted for not logged in users.'));
 				}
-				Cache::set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), CacheClass::HOUR);
+				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), CacheClass::HOUR);
 			} else {
-				Cache::set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => 1]), CacheClass::HOUR);
+				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => 1]), CacheClass::HOUR);
 			}
 		}
 

@@ -7,7 +7,7 @@ namespace Friendica\Protocol\ActivityPub;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -819,7 +819,7 @@ class Transmitter
 		$cachekey = 'APDelivery:createActivity:' . $item_id;
 
 		if (!$force) {
-			$data = Cache::get($cachekey);
+			$data = DI::cache()->get($cachekey);
 			if (!is_null($data)) {
 				return $data;
 			}
@@ -827,7 +827,7 @@ class Transmitter
 
 		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
 
-		Cache::set($cachekey, $data, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $data, Cache::QUARTER_HOUR);
 		return $data;
 	}
 

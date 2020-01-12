@@ -6,16 +6,15 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Cache;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\StorageManager;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Model\Storage\IStorage;
+use Friendica\Model\Storage\SystemResource;
 use Friendica\Object\Image;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Images;
@@ -172,26 +171,24 @@ class Photo
 	 */
 	public static function getImageForPhoto(array $photo)
 	{
-		$data = "";
-
-		if ($photo["backend-class"] == "") {
+		$backendClass = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+		if ($backendClass === null) {
 			// legacy data storage in "data" column
-			$i = self::selectFirst(["data"], ["id" => $photo["id"]]);
+			$i = self::selectFirst(['data'], ['id' => $photo['id']]);
 			if ($i === false) {
 				return null;
 			}
-			$data = $i["data"];
+			$data = $i['data'];
 		} else {
-			$backendClass = $photo["backend-class"];
-			$backendRef = $photo["backend-ref"];
-			$data = $backendClass::get($backendRef);
+			$backendRef = $photo['backend-ref'] ?? '';
+			$data = $backendClass->get($backendRef);
 		}
 
-		if ($data === "") {
+		if (empty($data)) {
 			return null;
 		}
 
-		return new Image($data, $photo["type"]);
+		return new Image($data, $photo['type']);
 	}
 
 	/**
@@ -222,11 +219,11 @@ class Photo
 		$fields = self::getFields();
 		$values = array_fill(0, count($fields), "");
 
-		$photo = array_combine($fields, $values);
-		$photo["backend-class"] = Storage\SystemResource::class;
-		$photo["backend-ref"] = $filename;
-		$photo["type"] = $mimetype;
-		$photo["cacheable"] = false;
+		$photo                  = array_combine($fields, $values);
+		$photo['backend-class'] = SystemResource::NAME;
+		$photo['backend-ref']   = $filename;
+		$photo['type']          = $mimetype;
+		$photo['cacheable']     = false;
 
 		return $photo;
 	}
@@ -273,18 +270,17 @@ class Photo
 		$data = "";
 		$backend_ref = "";
 
-		/** @var IStorage $backend_class */
 		if (DBA::isResult($existing_photo)) {
 			$backend_ref = (string)$existing_photo["backend-ref"];
-			$backend_class = (string)$existing_photo["backend-class"];
+			$storage = DI::storageManager()->getByName($existing_photo["backend-class"] ?? '');
 		} else {
-			$backend_class = StorageManager::getBackend();
+			$storage = DI::storage();
 		}
 
-		if ($backend_class === "") {
+		if ($storage === null) {
 			$data = $Image->asString();
 		} else {
-			$backend_ref = $backend_class::put($Image->asString(), $backend_ref);
+			$backend_ref = $storage->put($Image->asString(), $backend_ref);
 		}
 
 
@@ -309,7 +305,7 @@ class Photo
 			"deny_cid" => $deny_cid,
 			"deny_gid" => $deny_gid,
 			"desc" => $desc,
-			"backend-class" => $backend_class,
+			"backend-class" => (string)$storage,
 			"backend-ref" => $backend_ref
 		];
 
@@ -340,10 +336,9 @@ class Photo
 		$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 		foreach($photos as $photo) {
-			/** @var IStorage $backend_class */
-			$backend_class = (string)$photo["backend-class"];
-			if ($backend_class !== "") {
-				$backend_class::delete($photo["backend-ref"]);
+			$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+			if ($backend_class !== null) {
+				$backend_class->delete($photo["backend-ref"] ?? '');
 			}
 		}
 
@@ -370,10 +365,9 @@ class Photo
 			$photos = self::selectToArray(['backend-class', 'backend-ref'], $conditions);
 
 			foreach($photos as $photo) {
-				/** @var IStorage $backend_class */
-				$backend_class = (string)$photo["backend-class"];
-				if ($backend_class !== "") {
-					$fields["backend-ref"] = $backend_class::put($img->asString(), $photo["backend-ref"]);
+				$backend_class = DI::storageManager()->getByName($photo['backend-class'] ?? '');
+				if ($backend_class !== null) {
+					$fields["backend-ref"] = $backend_class->put($img->asString(), $photo['backend-ref']);
 				} else {
 					$fields["data"] = $img->asString();
 				}
@@ -546,7 +540,7 @@ class Photo
 		$sql_extra = Security::getPermissionsSQLByUserId($uid);
 
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		$albums = Cache::get($key);
+		$albums = DI::cache()->get($key);
 		if (is_null($albums) || $update) {
 			if (!Config::get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow
@@ -569,7 +563,7 @@ class Photo
 					DBA::escape(L10n::t("Contact Photos"))
 				);
 			}
-			Cache::set($key, $albums, Cache::DAY);
+			DI::cache()->set($key, $albums, Cache::DAY);
 		}
 		return $albums;
 	}
@@ -582,7 +576,7 @@ class Photo
 	public static function clearAlbumCache($uid)
 	{
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		Cache::set($key, null, Cache::DAY);
+		DI::cache()->set($key, null, Cache::DAY);
 	}
 
 	/**
@@ -594,6 +588,25 @@ class Photo
 	public static function newResource()
 	{
 		return System::createGUID(32, false);
+	}
+
+	/**
+	 * Extracts the rid from a local photo URI
+	 *
+	 * @param string $image_uri The URI of the photo
+	 * @return string The rid of the photo, or an empty string if the URI is not local
+	 */
+	public static function ridFromURI(string $image_uri)
+	{
+		if (!stristr($image_uri, DI::baseUrl() . '/photo/')) {
+			return '';
+		}
+		$image_uri = substr($image_uri, strrpos($image_uri, '/') + 1);
+		$image_uri = substr($image_uri, 0, strpos($image_uri, '-'));
+		if (!strlen($image_uri)) {
+			return '';
+		}
+		return $image_uri;
 	}
 
 	/**
@@ -622,12 +635,8 @@ class Photo
 		}
 
 		foreach ($images as $image) {
-			if (!stristr($image, DI::baseUrl() . '/photo/')) {
-				continue;
-			}
-			$image_uri = substr($image,strrpos($image,'/') + 1);
-			$image_uri = substr($image_uri,0, strpos($image_uri,'-'));
-			if (!strlen($image_uri)) {
+			$image_rid = self::ridFromURI($image);
+			if (empty($image_rid)) {
 				continue;
 			}
 
@@ -636,7 +645,7 @@ class Photo
 
 			$condition = [
 				'allow_cid' => $srch, 'allow_gid' => '', 'deny_cid' => '', 'deny_gid' => '',
-				'resource-id' => $image_uri, 'uid' => $uid
+				'resource-id' => $image_rid, 'uid' => $uid
 			];
 			if (!Photo::exists($condition)) {
 				continue;
@@ -646,7 +655,7 @@ class Photo
 
 			$fields = ['allow_cid' => $str_contact_allow, 'allow_gid' => $str_group_allow,
 					'deny_cid' => $str_contact_deny, 'deny_gid' => $str_group_deny];
-			$condition = ['resource-id' => $image_uri, 'uid' => $uid];
+			$condition = ['resource-id' => $image_rid, 'uid' => $uid];
 			Logger::info('Set permissions', ['condition' => $condition, 'permissions' => $fields]);
 			Photo::update($fields, $condition);
 		}
