@@ -931,6 +931,11 @@ class GServer
 			$serverdata['site_name'] = $data['title'];
 		}
 
+		if (!empty($data['title']) && empty($serverdata['platform']) && empty($serverdata['network'])) {
+			$serverdata['platform'] = 'mastodon';
+			$serverdata['network'] = Protocol::ACTIVITYPUB;
+		}
+
 		if (!empty($data['description'])) {
 			$serverdata['info'] = trim($data['description']);
 		}
@@ -944,9 +949,14 @@ class GServer
 			$serverdata['version'] = $matches[2];
 		}
 
-		if (!empty($serverdata['version']) && strstr($serverdata['version'], 'Pleroma')) {
+		if (!empty($serverdata['version']) && strstr(strtolower($serverdata['version']), 'pleroma')) {
 			$serverdata['platform'] = 'pleroma';
-			$serverdata['version'] = trim(str_replace('Pleroma', '', $serverdata['version']));
+			$serverdata['version'] = trim(str_ireplace('pleroma', '', $serverdata['version']));
+		}
+
+		if (!empty($serverdata['platform']) && strstr($serverdata['platform'], 'pleroma')) {
+			$serverdata['version'] = trim(str_ireplace('pleroma', '', $serverdata['platform']));
+			$serverdata['platform'] = 'pleroma';
 		}
 
 		return $serverdata;
@@ -1203,10 +1213,8 @@ class GServer
 					$serverdata['network'] = Protocol::ACTIVITYPUB;
 				}
 			}
-
-			if ($attr['name'] == 'generator') {
+			if (($attr['name'] == 'generator') && (empty($serverdata['platform']) || (substr(strtolower($attr['content']), 0, 9) == 'wordpress'))) {
 				$serverdata['platform'] = strtolower($attr['content']);
-
 				$version_part = explode(' ', $attr['content']);
 
 				if (count($version_part) == 2) {
