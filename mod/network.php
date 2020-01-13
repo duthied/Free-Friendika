@@ -952,11 +952,11 @@ function network_tabs(App $a)
 	];
 
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
-		$parameters = [];
 		if (!empty($_GET['cid'])) {
-			$parameters['cid'] = $_GET['cid'];
+			$query = '?' . http_build_query(['cid' => $_GET['cid']]);
+		} else {
+			$query = '';
 		}
-		$query = '?' . http_build_query($parameters);
 
 		$tabs[] = [
 			'label'	=> L10n::t('New'),
