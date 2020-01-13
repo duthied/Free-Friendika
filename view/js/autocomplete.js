@@ -222,7 +222,7 @@ function string2bb(element) {
 			match: /(^|\s)(\#)([^ \n]{2,})$/,
 			index: 3,
 			search: function(term, callback) {
-				$.getJSON(baseurl + '/hashtag/' + '?f=&t=' + term)
+				$.getJSON(baseurl + '/hashtag/' + '?t=' + term)
 				.done(function(data) {
 					callback($.map(data, function(entry) {
 						// .toLowerCase() enables case-insensitive search
@@ -275,7 +275,7 @@ function string2bb(element) {
 		tags = {
 			match: /(^|\s)(\#)([^ \n]{2,})$/,
 			index: 3,
-			search: function(term, callback) { $.getJSON(baseurl + '/hashtag/' + '?f=&t=' + term).done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
+			search: function(term, callback) { $.getJSON(baseurl + '/hashtag/' + '?t=' + term).done(function(data) { callback($.map(data, function(entry) { return entry.text.indexOf(term) === 0 ? entry : null; })); }); },
 			replace: function(item) { return "$1$2" + item.text; },
 			template: tag_format
 		};

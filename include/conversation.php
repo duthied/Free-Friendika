@@ -86,7 +86,7 @@ function item_redir_and_replace_images($body, $images, $cid) {
 
 		$search = '/\[url\=(.*?)\]\[!#saved_image([0-9]*)#!\]\[\/url\]' . '/is';
 		$replace = '[url=' . DI::baseUrl() . '/redir/' . $cid
-				   . '?f=1&url=' . '$1' . '][!#saved_image' . '$2' .'#!][/url]';
+				   . '?url=' . '$1' . '][!#saved_image' . '$2' .'#!][/url]';
 
 		$newbody .= substr($origbody, 0, $pos['start']['open']);
 		$subject = substr($origbody, $pos['start']['open'], $pos['end']['close'] - $pos['start']['open']);
@@ -935,7 +935,7 @@ function item_photo_menu($item) {
 	}
 
 	if ($cid && !$item['self']) {
-		$poke_link = 'poke/?f=&c=' . $cid;
+		$poke_link = 'poke?c=' . $cid;
 		$contact_url = 'contact/' . $cid;
 		$posts_link = 'contact/' . $cid . '/posts';
 

@@ -51,7 +51,7 @@ final class Item
 			$categories[] = [
 				'name' => $savedFolderName,
 				'url' => $url,
-				'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&cat=' . rawurlencode($savedFolderName) : ""),
+				'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?cat=' . rawurlencode($savedFolderName) : ""),
 				'first' => $first,
 				'last' => false
 			];
@@ -67,7 +67,7 @@ final class Item
 				$folders[] = [
 					'name' => $savedFolderName,
 					'url' => "#",
-					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?f=&term=' . rawurlencode($savedFolderName) : ""),
+					'removeurl' => ((local_user() == $item['uid']) ? 'filerm/' . $item['id'] . '?term=' . rawurlencode($savedFolderName) : ""),
 					'first' => $first,
 					'last' => false
 				];

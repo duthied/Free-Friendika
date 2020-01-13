@@ -541,7 +541,7 @@ function dfrn_poll_content(App $a)
 
 			switch ($destination_url) {
 				case 'profile':
-					DI::baseUrl()->redirect('profile/' . $profile . '?f=&tab=profile');
+					DI::baseUrl()->redirect('profile/' . $profile . '?tab=profile');
 					break;
 				case 'photos':
 					DI::baseUrl()->redirect('photos/' . $profile);
@@ -551,7 +551,7 @@ function dfrn_poll_content(App $a)
 					DI::baseUrl()->redirect('profile/' . $profile);
 					break;
 				default:
-					$appendix = (strstr($destination_url, '?') ? '&f=&redir=1' : '?f=&redir=1');
+					$appendix = (strstr($destination_url, '?') ? '&redir=1' : '?redir=1');
 					DI::baseUrl()->redirect($destination_url . $appendix);
 					break;
 			}

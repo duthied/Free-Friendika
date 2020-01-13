@@ -498,7 +498,7 @@ function insertBBCodeInTextarea(BBCode, textarea) {
 
 function NavUpdate() {
 	if (!stopped) {
-		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&f=&uid=' + localUser : '');
+		var pingCmd = 'ping?format=json' + ((localUser != 0) ? '&uid=' + localUser : '');
 		$.get(pingCmd, function(data) {
 			if (data.result) {
 				// send nav-update event
@@ -980,7 +980,7 @@ Array.prototype.remove = function(item) {
 
 function previewTheme(elm) {
 	theme = $(elm).val();
-	$.getJSON('pretheme?f=&theme=' + theme,function(data) {
+	$.getJSON('pretheme?theme=' + theme,function(data) {
 			$('#theme-preview').html('<div id="theme-desc">' + data.desc + '</div><div id="theme-version">' + data.version + '</div><div id="theme-credits">' + data.credits + '</div><a href="' + data.img + '"><img src="' + data.img + '" width="320" height="240" alt="' + theme + '" /></a>');
 	});
 

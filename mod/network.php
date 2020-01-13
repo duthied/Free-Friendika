@@ -86,19 +86,11 @@ function network_init(App $a)
 			// last selected tab is _not_ '/network?order=activity'.
 			// and this isn't a date query
 
-			$tab_baseurls = [
-				'',     //all
-				'',     //postord
-				'',     //conv
-				'/new', //new
-				'',     //starred
-				'',     //bookmarked
-			];
 			$tab_args = [
 				'order=activity', //all
 				'order=post',     //postord
 				'conv=1',         //conv
-				'',               //new
+				'new=1',          //new
 				'star=1',         //starred
 				'bmark=1',        //bookmarked
 			];
@@ -106,8 +98,6 @@ function network_init(App $a)
 			$k = array_search('active', $last_sel_tabs);
 
 			if ($k != 3) {
-				$net_baseurl .= $tab_baseurls[$k];
-
 				// parse out tab queries
 				$dest_qa = [];
 				$dest_qs = $tab_args[$k];
@@ -152,7 +142,7 @@ function network_init(App $a)
  *        '/network?order=activity' => $activity_active = 'active'
  *        '/network?order=post'     => $postord_active = 'active'
  *        '/network?conv=1',        => $conv_active = 'active'
- *        '/network/new',           => $new_active = 'active'
+ *        '/network?new=1',         => $new_active = 'active'
  *        '/network?star=1',        => $starred_active = 'active'
  *        '/network?bmark=1',       => $bookmarked_active = 'active'
  *
@@ -169,7 +159,7 @@ function network_query_get_sel_tab(App $a)
 	$conv_active = '';
 	$postord_active = '';
 
-	if (($a->argc > 1 && $a->argv[1] === 'new') || ($a->argc > 2 && $a->argv[2] === 'new')) {
+	if (!empty($_GET['new'])) {
 		$new_active = 'active';
 	}
 
@@ -312,21 +302,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 	$arr = ['query' => DI::args()->getQueryString()];
 	Hook::callAll('network_content_init', $arr);
 
-	$flat_mode = false;
-
-	if ($a->argc > 1) {
-		for ($x = 1; $x < $a->argc; $x ++) {
-			if ($a->argv[$x] === 'new') {
-				$flat_mode = true;
-			}
-		}
-	}
-
-	if (!empty($_GET['file'])) {
-		$flat_mode = true;
-	}
-
-	if ($flat_mode) {
+	if (!empty($_GET['new']) || !empty($_GET['file'])) {
 		$o = networkFlatView($a, $update);
 	} else {
 		$o = networkThreadedView($a, $update, $parent);
@@ -916,11 +892,16 @@ function network_tabs(App $a)
 
 	$cmd = DI::args()->getCommand();
 
+	$def_param = [];
+	if (!empty($_GET['cid'])) {
+		$def_param['cid'] = $_GET['cid'];
+	}
+
 	// tabs
 	$tabs = [
 		[
 			'label'	=> L10n::t('Latest Activity'),
-			'url'	=> str_replace('/new', '', $cmd) . '?order=activity' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
+			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['order' => 'activity'])),
 			'sel'	=> $all_active,
 			'title'	=> L10n::t('Sort by latest activity'),
 			'id'	=> 'activity-order-tab',
@@ -928,7 +909,7 @@ function network_tabs(App $a)
 		],
 		[
 			'label'	=> L10n::t('Latest Posts'),
-			'url'	=> str_replace('/new', '', $cmd) . '?order=post' . (!empty($_GET['cid']) ? '&cid=' . $_GET['cid'] : ''),
+			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['order' => 'post'])),
 			'sel'	=> $post_active,
 			'title'	=> L10n::t('Sort by post received date'),
 			'id'	=> 'post-order-tab',
@@ -936,14 +917,9 @@ function network_tabs(App $a)
 		],
 	];
 
-	$parameters = ['conv' => true];
-	if (!empty($_GET['cid'])) {
-		$parameters['cid'] = $_GET['cid'];
-	}
-
 	$tabs[] = [
 		'label'	=> L10n::t('Personal'),
-		'url'	=> str_replace('/new', '', $cmd) . '?' . http_build_query($parameters),
+		'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['conv' => true])),
 		'sel'	=> $conv_active,
 		'title'	=> L10n::t('Posts that mention or involve you'),
 		'id'	=> 'personal-tab',
@@ -951,15 +927,9 @@ function network_tabs(App $a)
 	];
 
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
-		if (!empty($_GET['cid'])) {
-			$query = '?' . http_build_query(['cid' => $_GET['cid']]);
-		} else {
-			$query = '';
-		}
-
 		$tabs[] = [
 			'label'	=> L10n::t('New'),
-			'url'	=> 'network/new' . $query,
+			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['new' => true])),
 			'sel'	=> $new_active,
 			'title'	=> L10n::t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
@@ -968,14 +938,9 @@ function network_tabs(App $a)
 	}
 
 	if (Feature::isEnabled(local_user(), 'link_tab')) {
-		$parameters = ['bmark' => true];
-		if (!empty($_GET['cid'])) {
-			$parameters['cid'] = $_GET['cid'];
-		}
-
 		$tabs[] = [
 			'label'	=> L10n::t('Shared Links'),
-			'url'	=> str_replace('/new', '', $cmd) . '?' . http_build_query($parameters),
+			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['bmark' => true])),
 			'sel'	=> $bookmarked_active,
 			'title'	=> L10n::t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
@@ -983,14 +948,9 @@ function network_tabs(App $a)
 		];
 	}
 
-	$parameters = ['tar' => true];
-	if (!empty($_GET['cid'])) {
-		$parameters['cid'] = $_GET['cid'];
-	}
-
 	$tabs[] = [
 		'label'	=> L10n::t('Starred'),
-		'url'	=> str_replace('/new', '', $cmd) . '?' . http_build_query($parameters),
+		'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['star' => true])),
 		'sel'	=> $starred_active,
 		'title'	=> L10n::t('Favourite Posts'),
 		'id'	=> 'starred-posts-tab',
