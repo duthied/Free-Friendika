@@ -1071,7 +1071,7 @@ function photos_content(App $a)
 		if ($order_field === 'posted') {
 			$order =  [L10n::t('Show Newest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album), 'oldest'];
 		} else {
-			$order = [L10n::t('Show Oldest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?f=&order=posted', 'newest'];
+			$order = [L10n::t('Show Oldest First'), 'photos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($album) . '?order=posted', 'newest'];
 		}
 
 		$photos = [];
@@ -1091,7 +1091,7 @@ function photos_content(App $a)
 					'id' => $rr['id'],
 					'twist' => ' ' . ($twist ? 'rotleft' : 'rotright') . rand(2,4),
 					'link' => 'photos/' . $a->data['user']['nickname'] . '/image/' . $rr['resource-id']
-						. ($order_field === 'posted' ? '?f=&order=posted' : ''),
+						. ($order_field === 'posted' ? '?order=posted' : ''),
 					'title' => L10n::t('View Photo'),
 					'src' => 'photo/' . $rr['resource-id'] . '-' . $rr['scale'] . '.' .$ext,
 					'alt' => $imgalt_e,
@@ -1191,10 +1191,10 @@ function photos_content(App $a)
 				}
 
 				if (!is_null($prv)) {
-					$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . ($order_field === 'posted' ? '?f=&order=posted' : '');
+					$prevlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$prv]['resource-id'] . ($order_field === 'posted' ? '?order=posted' : '');
 				}
 				if (!is_null($nxt)) {
-					$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . ($order_field === 'posted' ? '?f=&order=posted' : '');
+					$nextlink = 'photos/' . $a->data['user']['nickname'] . '/image/' . $prvnxt[$nxt]['resource-id'] . ($order_field === 'posted' ? '?order=posted' : '');
 				}
 
 				$tpl = Renderer::getMarkupTemplate('photo_edit_head.tpl');
@@ -1252,7 +1252,7 @@ function photos_content(App $a)
 		$photo = [
 			'href' => 'photo/' . $hires['resource-id'] . '-' . $hires['scale'] . '.' . $phototypes[$hires['type']],
 			'title'=> L10n::t('View Full Size'),
-			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?f=&_u=' . DateTimeFormat::utcNow('ymdhis'),
+			'src'  => 'photo/' . $lores['resource-id'] . '-' . $lores['scale'] . '.' . $phototypes[$lores['type']] . '?_u=' . DateTimeFormat::utcNow('ymdhis'),
 			'height' => $hires['height'],
 			'width' => $hires['width'],
 			'album' => $hires['album'],

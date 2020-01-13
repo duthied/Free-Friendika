@@ -315,7 +315,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (!$update) {
-		$o .= "<script> var netargs = '?f=&item_id=" . $item_id . "'; </script>";
+		$o .= "<script> var netargs = '?item_id=" . $item_id . "'; </script>";
 	}
 
 	$o .= conversation($a, [$item], new Pager(DI::args()->getQueryString()), 'display', $update_uid, false, 'commented', $item_uid);

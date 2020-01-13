@@ -239,7 +239,6 @@ class Nav
 		// The following nav links are only show to logged in users
 		if (local_user()) {
 			$nav['network'] = ['network', L10n::t('Network'), '', L10n::t('Conversations from your friends')];
-			$nav['net_reset'] = ['network/?f=', L10n::t('Network Reset'), '', L10n::t('Load Network page with no filters')];
 
 			$nav['home'] = ['profile/' . $a->user['nickname'], L10n::t('Home'), '', L10n::t('Your posts and conversations')];
 
