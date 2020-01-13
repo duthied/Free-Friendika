@@ -2,6 +2,7 @@ right_aside {
   display: block;
 }
 
+#forumlist-sidebar-frame,
 #forumlist-sidebar {
   display: none;
 }
