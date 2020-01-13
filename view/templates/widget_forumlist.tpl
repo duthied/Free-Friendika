@@ -11,6 +11,7 @@ function showHideForumlist() {
 	}
 }
 </script>
+<span id="forumlist-sidebar-frame">
 <span id="forumlist-sidebar-inflated" class="widget fakelink" onclick="openCloseWidget('forumlist-sidebar', 'forumlist-sidebar-inflated');">
 	<h3>{{$title}}</h3>
 </span>
@@ -46,6 +47,7 @@ function showHideForumlist() {
 		{{/if}}
 	</ul>
 </div>
+</span>
 <script>
 initWidget('forumlist-sidebar', 'forumlist-sidebar-inflated');
 </script>
