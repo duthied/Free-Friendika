@@ -940,11 +940,10 @@ function network_tabs(App $a)
 	if (!empty($_GET['cid'])) {
 		$parameters['cid'] = $_GET['cid'];
 	}
-	$query = '?' . http_build_query($parameters);
 
 	$tabs[] = [
 		'label'	=> L10n::t('Personal'),
-		'url'	=> str_replace('/new', '', $cmd) . $query,
+		'url'	=> str_replace('/new', '', $cmd) . '?' . http_build_query($parameters),
 		'sel'	=> $conv_active,
 		'title'	=> L10n::t('Posts that mention or involve you'),
 		'id'	=> 'personal-tab',
@@ -973,11 +972,10 @@ function network_tabs(App $a)
 		if (!empty($_GET['cid'])) {
 			$parameters['cid'] = $_GET['cid'];
 		}
-		$query = '?' . http_build_query($parameters);
 
 		$tabs[] = [
 			'label'	=> L10n::t('Shared Links'),
-			'url'	=> str_replace('/new', '', $cmd) . $query,
+			'url'	=> str_replace('/new', '', $cmd) . '?' . http_build_query($parameters),
 			'sel'	=> $bookmarked_active,
 			'title'	=> L10n::t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
@@ -989,11 +987,10 @@ function network_tabs(App $a)
 	if (!empty($_GET['cid'])) {
 		$parameters['cid'] = $_GET['cid'];
 	}
-	$query = '?' . http_build_query($parameters);
 
 	$tabs[] = [
 		'label'	=> L10n::t('Starred'),
-		'url'	=> str_replace('/new', '', $cmd) . $query,
+		'url'	=> str_replace('/new', '', $cmd) . '?' . http_build_query($parameters),
 		'sel'	=> $starred_active,
 		'title'	=> L10n::t('Favourite Posts'),
 		'id'	=> 'starred-posts-tab',
