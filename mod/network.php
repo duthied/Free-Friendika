@@ -936,9 +936,15 @@ function network_tabs(App $a)
 		],
 	];
 
+	$parameters = ['conv' => true];
+	if (!empty($_GET['cid'])) {
+		$parameters['cid'] = $_GET['cid'];
+	}
+	$query = '?' . http_build_query($parameters);
+
 	$tabs[] = [
 		'label'	=> L10n::t('Personal'),
-		'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : '/?f=') . '&conv=1',
+		'url'	=> str_replace('/new', '', $cmd) . $query,
 		'sel'	=> $conv_active,
 		'title'	=> L10n::t('Posts that mention or involve you'),
 		'id'	=> 'personal-tab',
@@ -946,9 +952,15 @@ function network_tabs(App $a)
 	];
 
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
+		$parameters = [];
+		if (!empty($_GET['cid'])) {
+			$parameters['cid'] = $_GET['cid'];
+		}
+		$query = '?' . http_build_query($parameters);
+
 		$tabs[] = [
 			'label'	=> L10n::t('New'),
-			'url'	=> 'network/new' . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : ''),
+			'url'	=> 'network/new' . $query,
 			'sel'	=> $new_active,
 			'title'	=> L10n::t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
@@ -957,9 +969,15 @@ function network_tabs(App $a)
 	}
 
 	if (Feature::isEnabled(local_user(), 'link_tab')) {
+		$parameters = ['bmark' => true];
+		if (!empty($_GET['cid'])) {
+			$parameters['cid'] = $_GET['cid'];
+		}
+		$query = '?' . http_build_query($parameters);
+
 		$tabs[] = [
 			'label'	=> L10n::t('Shared Links'),
-			'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : '/?f=') . '&bmark=1',
+			'url'	=> str_replace('/new', '', $cmd) . $query,
 			'sel'	=> $bookmarked_active,
 			'title'	=> L10n::t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
@@ -967,9 +985,15 @@ function network_tabs(App $a)
 		];
 	}
 
+	$parameters = ['tar' => true];
+	if (!empty($_GET['cid'])) {
+		$parameters['cid'] = $_GET['cid'];
+	}
+	$query = '?' . http_build_query($parameters);
+
 	$tabs[] = [
 		'label'	=> L10n::t('Starred'),
-		'url'	=> str_replace('/new', '', $cmd) . (!empty($_GET['cid']) ? '/?cid=' . $_GET['cid'] : '/?f=') . '&star=1',
+		'url'	=> str_replace('/new', '', $cmd) . $query,
 		'sel'	=> $starred_active,
 		'title'	=> L10n::t('Favourite Posts'),
 		'id'	=> 'starred-posts-tab',
