@@ -284,6 +284,14 @@ abstract class DI
 		return self::$dice->create(Repository\Introduction::class);
 	}
 
+	/**
+	 * @return Repository\PermissionSet
+	 */
+	public static function permissionSet()
+	{
+		return self::$dice->create(Repository\PermissionSet::class);
+	}
+
 	//
 	// "Protocol" namespace instances
 	//
