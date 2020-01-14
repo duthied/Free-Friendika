@@ -40,7 +40,7 @@ function initWidget(inflated, deflated) {
 	if (!elInf || !elDef) {
 		return;
 	}
-	if (localStorage.getItem(window.location.pathname + ":" + inflated) != "none") {
+	if (localStorage.getItem(window.location.pathname.split("/")[1] + ":" + inflated) != "none") {
 		elInf.style.display = "block";
 		elDef.style.display = "none";
 	} else {
@@ -60,11 +60,11 @@ function openCloseWidget(inflated, deflated) {
 	if (window.getComputedStyle(elInf).display === "none") {
 		elInf.style.display = "block";
 		elDef.style.display = "none";
-		localStorage.setItem(window.location.pathname + ":" + inflated, "block");
+		localStorage.setItem(window.location.pathname.split("/")[1] + ":" + inflated, "block");
 	} else {
 		elInf.style.display = "none";
 		elDef.style.display = "block";
-		localStorage.setItem(window.location.pathname + ":" + inflated, "none");
+		localStorage.setItem(window.location.pathname.split("/")[1] + ":" + inflated, "none");
 	}
 }
 
