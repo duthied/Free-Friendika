@@ -181,4 +181,25 @@ class DateTimeFormat
 
 		return true;
 	}
+
+	/**
+	 * Checks, if the given string is a date with the pattern YYYY-MM-DD
+	 *
+	 * @param string $dateString The given date
+	 *
+	 * @return boolean True, if the date is a valid pattern
+	 */
+	public function isYearMonthDay(string $dateString)
+	{
+		$date = DateTime::createFromFormat('Y-m-d', $dateString);
+		if (!$date) {
+			return false;
+		}
+
+		if (DateTime::getLastErrors()['error_count'] || DateTime::getLastErrors()['warning_count']) {
+			return false;
+		}
+
+		return true;
+	}
 }

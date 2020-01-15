@@ -54,7 +54,7 @@ function network_init(App $a)
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
-			if (DI::dtFormat()->isYearMonth($a->argv[$x])) {
+			if (DI::dtFormat()->isYearMonthDay($a->argv[$x])) {
 				$is_a_date_query = true;
 				break;
 			}
@@ -440,7 +440,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 	if ($a->argc > 1) {
 		for ($x = 1; $x < $a->argc; $x ++) {
-			if (DI::dtFormat()->isYearMonth($a->argv[$x])) {
+			if (DI::dtFormat()->isYearMonthDay($a->argv[$x])) {
 				if ($datequery) {
 					$datequery2 = Strings::escapeHtml($a->argv[$x]);
 				} else {
