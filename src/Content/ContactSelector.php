@@ -182,7 +182,7 @@ class ContactSelector
 			Protocol::DFRN      =>   'friendica',
 			Protocol::OSTATUS   =>   'gnu-social', // There is no generic OStatus icon
 			Protocol::FEED      =>   'rss',
-			Protocol::MAIL      =>   'file-text-o', /// @todo
+			Protocol::MAIL      =>   'inbox',
 			Protocol::DIASPORA  =>   'diaspora',
 			Protocol::ZOT       =>   'hubzilla',
 			Protocol::LINKEDIN  =>   'linkedin',
