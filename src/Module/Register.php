@@ -121,6 +121,7 @@ class Register extends BaseModule
 			'$openid'       => $openid_url,
 			'$namelabel'    => L10n::t('Your Full Name (e.g. Joe Smith, real or real-looking): '),
 			'$addrlabel'    => L10n::t('Your Email Address: (Initial information will be send there, so this has to be an existing address.)'),
+			'$addrlabel2'   => L10n::t('Please repeat your e-mail address:'),
 			'$ask_password' => $ask_password,
 			'$password1'    => ['password1', L10n::t('New Password:'), '', L10n::t('Leave empty for an auto generated password.')],
 			'$password2'    => ['confirm', L10n::t('Confirm:'), '', ''],
@@ -196,6 +197,24 @@ class Register extends BaseModule
 
 		$arr = $_POST;
 
+		// Is there text in the tar pit?
+		if (!empty($arr['email'])) {
+			Logger::info('Tar pit', $arr);
+			notice(L10n::t('You have entered too much information.'));
+			DI::baseUrl()->redirect('register/');
+		}
+
+
+		// Overwriting the "tar pit" field with the real one
+		$arr['email'] = $arr['field1'];
+
+		if ($arr['email'] != $arr['repeat']) {
+			Logger::info('Mail mismatch', $arr);
+			notice(L10n::t('Please enter the identical mail address in the second field.'));
+			$regdata = ['email' => $arr['email'], 'nickname' => $arr['nickname'], 'username' => $arr['username']];
+			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
+		}
+
 		$arr['blocked'] = $blocked;
 		$arr['verified'] = $verified;
 		$arr['language'] = L10nClass::detectLanguage($_SERVER, $_GET, DI::config()->get('system', 'language'));
@@ -261,11 +280,6 @@ class Register extends BaseModule
 				\notice(L10n::t('You have to leave a request note for the admin.')
 					. L10n::t('Your registration can not be processed.') . EOL);
 
-				DI::baseUrl()->redirect('register/');
-			}
-			// Is there text in the tar pit?
-			if (!empty($_POST['registertarpit'])) {
-				\notice(L10n::t('You have entered too much information.'));
 				DI::baseUrl()->redirect('register/');
 			}
 
