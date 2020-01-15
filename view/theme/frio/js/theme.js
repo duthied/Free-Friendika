@@ -652,7 +652,7 @@ function scrollToItem(elementId) {
 		scrollTop: itemPos
 	}, 400).promise().done( function() {
 		// Highlight post/commenent with ID  (GUID)
-		$el.animate(colWhite, 1).animate(colShiny,200).animate(colWhite, 600);
+		$el.animate(colWhite, 1000).animate(colShiny).animate(colWhite, 600);
 	});
 }
 
