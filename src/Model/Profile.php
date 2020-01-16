@@ -774,9 +774,9 @@ class Profile
 
 			if (!empty($a->profile['dob'])
 				&& $a->profile['dob'] > DBA::NULL_DATE
-				&& $age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'], '')
+				&& $age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'])
 			) {
-				$profile['age'] = [DI::l10n()->t('Age:'), $age];
+				$profile['age'] = [DI::l10n()->t('Age: ') , DI::l10n()->tt('%d year old', '%d years old', $age)];
 			}
 
 			if ($a->profile['marital']) {

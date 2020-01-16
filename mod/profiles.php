@@ -598,7 +598,7 @@ function profiles_content(App $a) {
 			'$region' => ['region', DI::l10n()->t('Region/State:'), $r[0]['region']],
 			'$postal_code' => ['postal_code', DI::l10n()->t('Postal/Zip Code:'), $r[0]['postal-code']],
 			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $r[0]['country-name']],
-			'$age' => ((intval($r[0]['dob'])) ? '(' . DI::l10n()->t('Age: ') . Temporal::getAgeByTimezone($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
+			'$age' => ((intval($r[0]['dob'])) ? '(' . DI::l10n()->t('Age: ') . DI::l10n()->tt('%d year old', '%d years old', Temporal::getAgeByTimezone($r[0]['dob'], $a->user['timezone'])) . ')' : ''),
 			'$gender' => DI::l10n()->t(ContactSelector::gender($r[0]['gender'])),
 			'$marital' => ['selector' => ContactSelector::maritalStatus($r[0]['marital']), 'value' => DI::l10n()->t($r[0]['marital'])],
 			'$with' => ['with', DI::l10n()->t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), DI::l10n()->t('Examples: cathy123, Cathy Williams, cathy@example.com')],
