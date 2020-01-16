@@ -401,6 +401,11 @@ class Probe
 			$data['network'] = Protocol::PHANTOM;
 		}
 
+		// Ensure that local connections always are DFRN
+		if (($network == '') && ($data['network'] != Protocol::PHANTOM) && (self::ownHost($data['baseurl'] ?? '') || self::ownHost($data['url']))) {
+			$data['network'] = Protocol::DFRN;
+		}
+
 		if (!isset($data['hide']) && in_array($data['network'], Protocol::FEDERATED)) {
 			$data['hide'] = self::getHideStatus($data['url']);
 		}

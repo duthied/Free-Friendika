@@ -38,14 +38,18 @@ class OnePoll
 			return;
 		}
 
-		if ($force) {
-			Contact::updateFromProbe($contact_id, '', true);
-		}
+		Contact::updateFromProbe($contact_id, '', $force);
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBA::isResult($contact)) {
 			Logger::log('Contact not found or cannot be used.');
 			return;
+		}
+
+		// Special treatment for wrongly detected local contacts
+		if (!$force && ($contact['network'] != Protocol::DFRN) && Contact::isLocalById($contact_id)) {
+			Contact::updateFromProbe($contact_id, Protocol::DFRN, true);
+			$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		}
 
 		if (($contact['network'] == Protocol::DFRN) && !Contact::isLegacyDFRNContact($contact)) {

@@ -315,6 +315,29 @@ class Contact
 	}
 
 	/**
+	 * Check if the given contact ID is on the same server
+	 *
+	 * @param string $url The contact link
+	 *
+	 * @return boolean Is it the same server?
+	 */
+	public static function isLocalById(int $cid)
+	{
+		$contact = DBA::selectFirst('contact', ['url', 'baseurl'], ['id' => $cid]);
+		if (!DBA::isResult($contact)) {
+			return false;
+		}
+
+		if (empty($contact['baseurl'])) {
+			$baseurl = self::getBasepath($contact['url'], true);
+		} else {
+			$baseurl = $contact['baseurl'];
+		}
+
+		return Strings::compareLink($baseurl, DI::baseUrl());
+	}
+
+	/**
 	 * Returns the public contact id of the given user id
 	 *
 	 * @param  integer $uid User ID
@@ -2126,6 +2149,12 @@ class Contact
 			if ($force) {
 				self::updateContact($id, $uid, $ret['url'], ['last-update' => $updated, 'success_update' => $updated]);
 			}
+
+			// Update the public contact
+			if ($uid != 0) {
+				self::updateFromProbeByURL($ret['url']);
+			}
+
 			return true;
 		}
 

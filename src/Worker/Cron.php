@@ -177,12 +177,12 @@ class Cron
 				FROM `user`
 				STRAIGHT_JOIN `contact`
 				ON `contact`.`uid` = `user`.`uid` AND `contact`.`poll` != ''
-					AND `contact`.`network` IN (?, ?, ?, ?)
+					AND `contact`.`network` IN (?, ?, ?, ?, ?)
 					AND NOT `contact`.`self` AND NOT `contact`.`blocked`
 					AND `contact`.`rel` != ?
 				WHERE NOT `user`.`account_expired` AND NOT `user`.`account_removed`";
 
-		$parameters = [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Contact::FOLLOWER];
+		$parameters = [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL, Contact::FOLLOWER];
 
 		// Only poll from those with suitable relationships,
 		// and which have a polling address and ignore Diaspora since
@@ -207,6 +207,11 @@ class Cron
 			// Friendica and OStatus are checked once a day
 			if (in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS])) {
 				$contact['priority'] = 3;
+			}
+
+			// ActivityPub is checked once a week
+			if ($contact['network'] == Protocol::ACTIVITYPUB) {
+				$contact['priority'] = 4;
 			}
 
 			// Check archived contacts once a month
