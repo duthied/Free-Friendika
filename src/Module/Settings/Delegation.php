@@ -28,7 +28,7 @@ class Delegation extends BaseSettingsModule
 
 		BaseModule::checkFormSecurityTokenRedirectOnError('settings/delegation', 'delegate');
 
-		$parent_uid = $_POST['parent_user'] ?? 0;
+		$parent_uid = (int)$_POST['parent_user'] ?? 0;
 		$parent_password = $_POST['parent_password'] ?? '';
 
 		if ($parent_uid != 0) {
