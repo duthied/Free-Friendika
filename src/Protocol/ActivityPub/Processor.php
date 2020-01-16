@@ -857,13 +857,13 @@ class Processor
 	 */
 	private static function switchContact($cid)
 	{
-		$contact = DBA::selectFirst('contact', ['network'], ['id' => $cid, 'network' => Protocol::NATIVE_SUPPORT]);
-		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN])) {
+		$contact = DBA::selectFirst('contact', ['network', 'url'], ['id' => $cid]);
+		if (!DBA::isResult($contact) || in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN]) || Contact::isLocal($contact['url'])) {
 			return;
 		}
 
-		Logger::log('Change existing contact ' . $cid . ' from ' . $contact['network'] . ' to ActivityPub.');
-		Contact::updateFromProbe($cid, Protocol::ACTIVITYPUB);
+		Logger::info('Change existing contact', ['cid' => $cid, 'previous' => $contact['network']]);
+		Contact::updateFromProbe($cid);
 	}
 
 	/**
