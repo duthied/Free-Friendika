@@ -62,7 +62,8 @@ class StorageManager
 
 		$currentName = $this->config->get('storage', 'name', '');
 
-		$this->currentBackend = $this->getByName($currentName);
+		// you can only use user backends as a "default" backend, so the second parameter is true
+		$this->currentBackend = $this->getByName($currentName, true);
 	}
 
 	/**
@@ -79,13 +80,13 @@ class StorageManager
 	 * @brief Return storage backend class by registered name
 	 *
 	 * @param string|null $name        Backend name
-	 * @param boolean     $userBackend Just return instances in case it's a user backend (e.g. not SystemResource)
+	 * @param boolean     $userBackend True, if just user specific instances should be returrned (e.g. not SystemResource)
 	 *
 	 * @return Storage\IStorage|null null if no backend registered at $name
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function getByName(string $name = null, $userBackend = true)
+	public function getByName(string $name = null, $userBackend = false)
 	{
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
@@ -133,7 +134,7 @@ class StorageManager
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
-	public function isValidBackend(string $name = null, bool $userBackend = true)
+	public function isValidBackend(string $name = null, bool $userBackend = false)
 	{
 		return array_key_exists($name, $this->backends) ||
 		       (!$userBackend && $name === Storage\SystemResource::getName());
@@ -148,12 +149,12 @@ class StorageManager
 	 */
 	public function setBackend(string $name = null)
 	{
-		if (!$this->isValidBackend($name)) {
+		if (!$this->isValidBackend($name, false)) {
 			return false;
 		}
 
 		if ($this->config->set('storage', 'name', $name)) {
-			$this->currentBackend = $this->getByName($name);
+			$this->currentBackend = $this->getByName($name, false);
 			return true;
 		} else {
 			return false;

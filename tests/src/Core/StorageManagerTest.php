@@ -139,7 +139,11 @@ class StorageManagerTest extends DatabaseTest
 	{
 		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
 
-		$this->assertEquals($userBackend, $storageManager->isValidBackend($name));
+		// true in every of the backends
+		$this->assertEquals(!empty($assertName), $storageManager->isValidBackend($name));
+
+		// if userBackend is set to true, filter out e.g. SystemRessource
+		$this->assertEquals($userBackend, $storageManager->isValidBackend($name, true));
 	}
 
 	/**
