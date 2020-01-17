@@ -425,8 +425,8 @@ function update_1330()
 	}
 
 	// Update attachments and photos
-	if (!DBA::p("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 22) WHERE `photo`.`backend-class` LIKE 'Friendica\\Model\\Storage\\%'") ||
-	    !DBA::p("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 22) WHERE `attach`.`backend-class` LIKE 'Friendica\\Model\\Storage\\%'")) {
+	if (!DBA::p("UPDATE `photo` SET `photo`.`backend-class` = SUBSTR(`photo`.`backend-class`, 25) WHERE `photo`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'") ||
+	    !DBA::p("UPDATE `attach` SET `attach`.`backend-class` = SUBSTR(`attach`.`backend-class`, 25) WHERE `attach`.`backend-class` LIKE 'Friendica\\\Model\\\Storage\\\%' ESCAPE '|'")) {
 		return Update::FAILED;
 	};
 
