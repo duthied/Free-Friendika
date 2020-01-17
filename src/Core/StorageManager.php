@@ -62,7 +62,8 @@ class StorageManager
 
 		$currentName = $this->config->get('storage', 'name', '');
 
-		$this->currentBackend = $this->getByName($currentName);
+		// you can only use user backends as a "default" backend, so the second parameter is true
+		$this->currentBackend = $this->getByName($currentName, true);
 	}
 
 	/**
@@ -78,19 +79,22 @@ class StorageManager
 	/**
 	 * @brief Return storage backend class by registered name
 	 *
-	 * @param string|null $name        Backend name
-	 * @param boolean     $userBackend Just return instances in case it's a user backend (e.g. not SystemResource)
+	 * @param string|null $name            Backend name
+	 * @param boolean     $onlyUserBackend True, if just user specific instances should be returrned (e.g. not SystemResource)
 	 *
 	 * @return Storage\IStorage|null null if no backend registered at $name
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function getByName(string $name = null, $userBackend = true)
+	public function getByName(string $name = null, $onlyUserBackend = false)
 	{
+		// @todo 2020.09 Remove this call after 2 releases
+		$name = $this->checkLegacyBackend($name);
+
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
-			if ($this->isValidBackend($name, $userBackend)) {
+			if ($this->isValidBackend($name, $onlyUserBackend)) {
 				switch ($name) {
 					// Try the filesystem backend
 					case Storage\Filesystem::getName():
@@ -102,11 +106,11 @@ class StorageManager
 						break;
 					// at least, try if there's an addon for the backend
 					case Storage\SystemResource::getName():
-						$this->backendInstances[$name] =  new Storage\SystemResource();
+						$this->backendInstances[$name] = new Storage\SystemResource();
 						break;
 					default:
 						$data = [
-							'name' => $name,
+							'name'    => $name,
 							'storage' => null,
 						];
 						Hook::callAll('storage_instance', $data);
@@ -128,15 +132,34 @@ class StorageManager
 	/**
 	 * Checks, if the storage is a valid backend
 	 *
-	 * @param string|null $name        The name or class of the backend
-	 * @param boolean     $userBackend True, if just user backend should get returned (e.g. not SystemResource)
+	 * @param string|null $name            The name or class of the backend
+	 * @param boolean     $onlyUserBackend True, if just user backend should get returned (e.g. not SystemResource)
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
-	public function isValidBackend(string $name = null, bool $userBackend = true)
+	public function isValidBackend(string $name = null, bool $onlyUserBackend = false)
 	{
 		return array_key_exists($name, $this->backends) ||
-		       (!$userBackend && $name === Storage\SystemResource::getName());
+		       (!$onlyUserBackend && $name === Storage\SystemResource::getName());
+	}
+
+	/**
+	 * Check for legacy backend storage class names (= full model class name)
+	 *
+	 * @todo 2020.09 Remove this function after 2 releases, because there shouldn't be any legacy backend classes left
+	 *
+	 * @param string|null $name a potential, legacy storage name ("Friendica\Model\Storage\...")
+	 *
+	 * @return string|null The current storage name
+	 */
+	private function checkLegacyBackend(string $name = null)
+	{
+		if (stristr($name, 'Friendica\Model\Storage\\')) {
+			$this->logger->notice('Using deprecated storage class value', ['name' => $name]);
+			return substr($name, 24);
+		}
+
+		return $name;
 	}
 
 	/**
@@ -148,12 +171,12 @@ class StorageManager
 	 */
 	public function setBackend(string $name = null)
 	{
-		if (!$this->isValidBackend($name)) {
+		if (!$this->isValidBackend($name, false)) {
 			return false;
 		}
 
 		if ($this->config->set('storage', 'name', $name)) {
-			$this->currentBackend = $this->getByName($name);
+			$this->currentBackend = $this->getByName($name, false);
 			return true;
 		} else {
 			return false;
@@ -184,7 +207,7 @@ class StorageManager
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
 
-			$backends        = $this->backends;
+			$backends                    = $this->backends;
 			$backends[$class::getName()] = $class;
 
 			if ($this->config->set('storage', 'backends', $backends)) {
@@ -213,7 +236,7 @@ class StorageManager
 			unset($this->backends[$class::getName()]);
 
 			if ($this->currentBackend instanceof $class) {
-			    $this->config->set('storage', 'name', null);
+				$this->config->set('storage', 'name', null);
 				$this->currentBackend = null;
 			}
 
@@ -239,8 +262,8 @@ class StorageManager
 	 */
 	public function move(Storage\IStorage $destination, array $tables = self::TABLES, int $limit = 5000)
 	{
-		if ($destination === null) {
-			throw new Storage\StorageException('Can\'t move to NULL storage backend');
+		if (!$this->isValidBackend($destination, true)) {
+			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
 		}
 
 		$moved = 0;
