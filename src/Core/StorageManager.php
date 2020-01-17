@@ -79,19 +79,19 @@ class StorageManager
 	/**
 	 * @brief Return storage backend class by registered name
 	 *
-	 * @param string|null $name        Backend name
-	 * @param boolean     $userBackend True, if just user specific instances should be returrned (e.g. not SystemResource)
+	 * @param string|null $name            Backend name
+	 * @param boolean     $onlyUserBackend True, if just user specific instances should be returrned (e.g. not SystemResource)
 	 *
 	 * @return Storage\IStorage|null null if no backend registered at $name
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function getByName(string $name = null, $userBackend = false)
+	public function getByName(string $name = null, $onlyUserBackend = false)
 	{
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
-			if ($this->isValidBackend($name, $userBackend)) {
+			if ($this->isValidBackend($name, $onlyUserBackend)) {
 				switch ($name) {
 					// Try the filesystem backend
 					case Storage\Filesystem::getName():
@@ -103,11 +103,11 @@ class StorageManager
 						break;
 					// at least, try if there's an addon for the backend
 					case Storage\SystemResource::getName():
-						$this->backendInstances[$name] =  new Storage\SystemResource();
+						$this->backendInstances[$name] = new Storage\SystemResource();
 						break;
 					default:
 						$data = [
-							'name' => $name,
+							'name'    => $name,
 							'storage' => null,
 						];
 						Hook::callAll('storage_instance', $data);
@@ -129,15 +129,15 @@ class StorageManager
 	/**
 	 * Checks, if the storage is a valid backend
 	 *
-	 * @param string|null $name        The name or class of the backend
-	 * @param boolean     $userBackend True, if just user backend should get returned (e.g. not SystemResource)
+	 * @param string|null $name            The name or class of the backend
+	 * @param boolean     $onlyUserBackend True, if just user backend should get returned (e.g. not SystemResource)
 	 *
 	 * @return boolean True, if the backend is a valid backend
 	 */
-	public function isValidBackend(string $name = null, bool $userBackend = false)
+	public function isValidBackend(string $name = null, bool $onlyUserBackend = false)
 	{
 		return array_key_exists($name, $this->backends) ||
-		       (!$userBackend && $name === Storage\SystemResource::getName());
+		       (!$onlyUserBackend && $name === Storage\SystemResource::getName());
 	}
 
 	/**
@@ -185,7 +185,7 @@ class StorageManager
 		if (is_subclass_of($class, Storage\IStorage::class)) {
 			/** @var Storage\IStorage $class */
 
-			$backends        = $this->backends;
+			$backends                    = $this->backends;
 			$backends[$class::getName()] = $class;
 
 			if ($this->config->set('storage', 'backends', $backends)) {
@@ -214,7 +214,7 @@ class StorageManager
 			unset($this->backends[$class::getName()]);
 
 			if ($this->currentBackend instanceof $class) {
-			    $this->config->set('storage', 'name', null);
+				$this->config->set('storage', 'name', null);
 				$this->currentBackend = null;
 			}
 
