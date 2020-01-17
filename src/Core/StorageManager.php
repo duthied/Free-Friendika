@@ -88,6 +88,9 @@ class StorageManager
 	 */
 	public function getByName(string $name = null, $onlyUserBackend = false)
 	{
+		// @todo 2020.09 Remove this call after 2 releases
+		$name = $this->checkLegacyBackend($name);
+
 		// If there's no cached instance create a new instance
 		if (!isset($this->backendInstances[$name])) {
 			// If the current name isn't a valid backend (or the SystemResource instance) create it
@@ -138,6 +141,25 @@ class StorageManager
 	{
 		return array_key_exists($name, $this->backends) ||
 		       (!$onlyUserBackend && $name === Storage\SystemResource::getName());
+	}
+
+	/**
+	 * Check for legacy backend storage class names (= full model class name)
+	 *
+	 * @todo 2020.09 Remove this function after 2 releases, because there shouldn't be any legacy backend classes left
+	 *
+	 * @param string|null $name a potential, legacy storage name ("Friendica\Model\Storage\...")
+	 *
+	 * @return string|null The current storage name
+	 */
+	private function checkLegacyBackend(string $name = null)
+	{
+		if (stristr($name, 'Friendica\Model\Storage\\')) {
+			$this->logger->notice('Using deprecated storage class value', ['name' => $name]);
+			return substr($name, 24);
+		}
+
+		return $name;
 	}
 
 	/**

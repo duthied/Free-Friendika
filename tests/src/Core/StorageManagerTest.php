@@ -110,9 +110,41 @@ class StorageManagerTest extends DatabaseTest
 	}
 
 	/**
+	 * Data array for legacy backends
+	 *
+	 * @todo 2020.09 After 2 releases, remove the legacy functionality and these data array with it
+	 *
+	 * @return array
+	 */
+	public function dataLegacyBackends()
+	{
+		return [
+			'legacyDatabase'          => [
+				'name'        => 'Friendica\Model\Storage\Database',
+				'assert'      => Storage\Database::class,
+				'assertName'  => Storage\Database::NAME,
+				'userBackend' => true,
+			],
+			'legacyFilesystem'       => [
+				'name'        => 'Friendica\Model\Storage\Filesystem',
+				'assert'      => Storage\Filesystem::class,
+				'assertName'  => Storage\Filesystem::NAME,
+				'userBackend' => true,
+			],
+			'legacySystemResource'     => [
+				'name'        => 'Friendica\Model\Storage\SystemResource',
+				'assert'      => Storage\SystemResource::class,
+				'assertName'  => Storage\SystemResource::NAME,
+				'userBackend' => false,
+			],
+		];
+	}
+
+	/**
 	 * Test the getByName() method
 	 *
 	 * @dataProvider dataStorages
+	 * @dataProvider dataLegacyBackends
 	 */
 	public function testGetByName($name, $assert, $assertName, $userBackend)
 	{
@@ -123,7 +155,6 @@ class StorageManagerTest extends DatabaseTest
 		if (!empty($assert)) {
 			$this->assertInstanceOf(Storage\IStorage::class, $storage);
 			$this->assertInstanceOf($assert, $storage);
-			$this->assertEquals($name, $storage::getName());
 		} else {
 			$this->assertNull($storage);
 		}
@@ -178,6 +209,7 @@ class StorageManagerTest extends DatabaseTest
 	 * Test the method getBackend() with a pre-configured backend
 	 *
 	 * @dataProvider dataStorages
+	 * @dataProvider dataLegacyBackends
 	 */
 	public function testPresetBackend($name, $assert, $assertName, $userBackend)
 	{
