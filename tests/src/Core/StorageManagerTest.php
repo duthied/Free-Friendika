@@ -270,7 +270,7 @@ class StorageManagerTest extends DatabaseTest
 	 * Test moving data to a WRONG storage
 	 *
 	 * @expectedException \Friendica\Model\Storage\StorageException
-	 * @expectedExceptionMessageRegExp /Can't move to storage backend '.*'/
+	 * @expectedExceptionMessage Can't move to storage backend 'SystemResource'
 	 */
 	public function testMoveStorageWrong()
 	{
