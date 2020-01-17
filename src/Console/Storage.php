@@ -130,7 +130,6 @@ HELP;
 
 	protected function doMove()
 	{
-		$tables = null;
 		if (count($this->args) < 1 || count($this->args) > 2) {
 			throw new CommandArgsException('Invalid arguments');
 		}
@@ -141,6 +140,8 @@ HELP;
 				throw new CommandArgsException('Invalid table');
 			}
 			$tables = [$table];
+		} else {
+			$tables = StorageManager::TABLES;
 		}
 
 		$current = $this->storageManager->getBackend();
