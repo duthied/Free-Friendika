@@ -265,4 +265,17 @@ class StorageManagerTest extends DatabaseTest
 			$this->assertNotEmpty($data);
 		}
 	}
+
+	/**
+	 * Test moving data to a WRONG storage
+	 *
+	 * @expectedException \Friendica\Model\Storage\StorageException
+	 * @expectedExceptionMessageRegExp /Can't move to storage backend '.*'/
+	 */
+	public function testMoveStorageWrong()
+	{
+		$storageManager = new StorageManager($this->dba, $this->config, $this->logger, $this->l10n);
+		$storage = $storageManager->getByName(Storage\SystemResource::getName());
+		$storageManager->move($storage);
+	}
 }

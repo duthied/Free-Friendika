@@ -240,8 +240,8 @@ class StorageManager
 	 */
 	public function move(Storage\IStorage $destination, array $tables = self::TABLES, int $limit = 5000)
 	{
-		if ($destination === null) {
-			throw new Storage\StorageException('Can\'t move to NULL storage backend');
+		if (!$this->isValidBackend($destination, true)) {
+			throw new Storage\StorageException(sprintf("Can't move to storage backend '%s'", $destination::getName()));
 		}
 
 		$moved = 0;
