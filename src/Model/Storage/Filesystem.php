@@ -125,7 +125,10 @@ class Filesystem extends AbstractStorage
 
 		$this->createFoldersForFile($file);
 
-		if (!file_put_contents($file, $data)) {
+		$result = file_put_contents($file, $data);
+
+		// just in case the result is REALLY false, not zero or empty or anything else, throw the exception
+		if ($result === false) {
 			$this->logger->warning('Failed to write data.', ['file' => $file]);
 			throw new StorageException($this->l10n->t('Filesystem storage failed to save data to "%s". Check your write permissions', $file));
 		}
