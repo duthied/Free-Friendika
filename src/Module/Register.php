@@ -43,12 +43,20 @@ class Register extends BaseModule
 		// 'block_extended_register' blocks all registrations, period.
 		$block = Config::get('system', 'block_extended_register');
 
-		if (local_user() && ($block)) {
+		if (local_user() && $block) {
 			notice('Permission denied.' . EOL);
 			return '';
 		}
 
-		if ((!local_user()) && (intval(Config::get('config', 'register_policy')) === self::CLOSED)) {
+		if (local_user()) {
+			$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => local_user()]);
+			if (!empty($user['parent-uid'])) {
+				notice('Only parent users can create additional profiles.');
+				return '';
+			}
+		}
+
+		if (!local_user() && (intval(Config::get('config', 'register_policy')) === self::CLOSED)) {
 			notice('Permission denied.' . EOL);
 			return '';
 		}
@@ -70,7 +78,7 @@ class Register extends BaseModule
 		$photo      = $_REQUEST['photo']      ?? '';
 		$invite_id  = $_REQUEST['invite_id']  ?? '';
 
-		if (Config::get('system', 'no_openid')) {
+		if (local_user() || Config::get('system', 'no_openid')) {
 			$fillwith = '';
 			$fillext  = '';
 			$oidlabel = '';
@@ -94,7 +102,7 @@ class Register extends BaseModule
 			]);
 		}
 
-		$ask_password = ! DBA::count('contact');
+		$ask_password = !DBA::count('contact');
 
 		$tpl = Renderer::getMarkupTemplate('register.tpl');
 
@@ -142,7 +150,10 @@ class Register extends BaseModule
 			'$privstatement'=> $tos->privacy_complete,
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
 			'$explicit_content' => Config::get('system', 'explicit_content', false),
-			'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content')
+			'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content'),
+			'$additional'   => !empty(local_user()),
+			'$parent_password' => ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')]
+
 		]);
 
 		return $o;
@@ -162,6 +173,26 @@ class Register extends BaseModule
 
 		$arr = ['post' => $_POST];
 		Hook::callAll('register_post', $arr);
+
+		$additional_account = false;
+
+		if (!local_user() && !empty($arr['post']['parent_password'])) {
+			notice(L10n::t('Permission denied.') . EOL);
+			return;
+		} elseif (local_user() && !empty($arr['post']['parent_password'])) {
+			try {
+				Model\User::getIdFromPasswordAuthentication(local_user(), $arr['post']['parent_password']);
+			} catch (\Exception $ex) {
+				notice(L10n::t("Password doesn't match"));
+				$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
+				DI::baseUrl()->redirect('register?' . http_build_query($regdata));
+			}
+			$additional_account = true;
+		} elseif (local_user()) {
+			notice(L10n::t('Please enter your password'));
+			$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
+			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
+		}
 
 		$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
 		if ($max_dailies) {
@@ -208,6 +239,20 @@ class Register extends BaseModule
 		// Overwriting the "tar pit" field with the real one
 		$arr['email'] = $arr['field1'];
 
+		if ($additional_account) {
+			$user = DBA::selectFirst('user', ['email'], ['uid' => local_user()]);
+			if (!DBA::isResult($user)) {
+				notice(L10n::t('User not found'));
+				DI::baseUrl()->redirect('register');
+			}
+
+			$blocked = 0;
+			$verified = 1;
+
+			$arr['password1'] = $arr['confirm'] = $arr['parent_password'];
+			$arr['repeat'] = $arr['email'] = $user['email'];
+		}
+
 		if ($arr['email'] != $arr['repeat']) {
 			Logger::info('Mail mismatch', $arr);
 			notice(L10n::t('Please enter the identical mail address in the second field.'));
@@ -233,6 +278,12 @@ class Register extends BaseModule
 		if ($netpublish && intval(Config::get('config', 'register_policy')) !== self::APPROVE) {
 			$url = $base_url . '/profile/' . $user['nickname'];
 			Worker::add(PRIORITY_LOW, 'Directory', $url);
+		}
+
+		if ($additional_account) {
+			DBA::update('user', ['parent-uid' => local_user()], ['uid' => $user['uid']]);
+			info(L10n::t('The additional account was created.'));
+			DI::baseUrl()->redirect('delegation');
 		}
 
 		$using_invites = Config::get('system', 'invitation_only');
