@@ -43,13 +43,21 @@ class Register extends BaseModule
 		// 'block_extended_register' blocks all registrations, period.
 		$block = Config::get('system', 'block_extended_register');
 
-		if (local_user() && ($block)) {
-			notice('Permission denied.' . EOL);
+		if (local_user() && $block) {
+			notice(L10n::t('Permission denied.'));
 			return '';
 		}
 
-		if ((!local_user()) && (intval(Config::get('config', 'register_policy')) === self::CLOSED)) {
-			notice('Permission denied.' . EOL);
+		if (local_user()) {
+			$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => local_user()]);
+			if (!empty($user['parent-uid'])) {
+				notice(L10n::t('Only parent users can create additional accounts.'));
+				return '';
+			}
+		}
+
+		if (!local_user() && (intval(Config::get('config', 'register_policy')) === self::CLOSED)) {
+			notice(L10n::t('Permission denied.'));
 			return '';
 		}
 
@@ -58,7 +66,7 @@ class Register extends BaseModule
 			$count = DBA::count('user', ['`register_date` > UTC_TIMESTAMP - INTERVAL 1 day']);
 			if ($count >= $max_dailies) {
 				Logger::log('max daily registrations exceeded.');
-				notice(L10n::t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.') . EOL);
+				notice(L10n::t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
 				return '';
 			}
 		}
@@ -70,7 +78,7 @@ class Register extends BaseModule
 		$photo      = $_REQUEST['photo']      ?? '';
 		$invite_id  = $_REQUEST['invite_id']  ?? '';
 
-		if (Config::get('system', 'no_openid')) {
+		if (local_user() || Config::get('system', 'no_openid')) {
 			$fillwith = '';
 			$fillext  = '';
 			$oidlabel = '';
@@ -94,7 +102,7 @@ class Register extends BaseModule
 			]);
 		}
 
-		$ask_password = ! DBA::count('contact');
+		$ask_password = !DBA::count('contact');
 
 		$tpl = Renderer::getMarkupTemplate('register.tpl');
 
@@ -142,7 +150,10 @@ class Register extends BaseModule
 			'$privstatement'=> $tos->privacy_complete,
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
 			'$explicit_content' => Config::get('system', 'explicit_content', false),
-			'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content')
+			'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content'),
+			'$additional'   => !empty(local_user()),
+			'$parent_password' => ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')]
+
 		]);
 
 		return $o;
@@ -162,6 +173,26 @@ class Register extends BaseModule
 
 		$arr = ['post' => $_POST];
 		Hook::callAll('register_post', $arr);
+
+		$additional_account = false;
+
+		if (!local_user() && !empty($arr['post']['parent_password'])) {
+			notice(L10n::t('Permission denied.'));
+			return;
+		} elseif (local_user() && !empty($arr['post']['parent_password'])) {
+			try {
+				Model\User::getIdFromPasswordAuthentication(local_user(), $arr['post']['parent_password']);
+			} catch (\Exception $ex) {
+				notice(L10n::t("Password doesn't match."));
+				$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
+				DI::baseUrl()->redirect('register?' . http_build_query($regdata));
+			}
+			$additional_account = true;
+		} elseif (local_user()) {
+			notice(L10n::t('Please enter your password.'));
+			$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
+			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
+		}
 
 		$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
 		if ($max_dailies) {
@@ -185,7 +216,7 @@ class Register extends BaseModule
 			case self::CLOSED:
 			default:
 				if (empty($_SESSION['authenticated']) && empty($_SESSION['administrator'])) {
-					\notice(L10n::t('Permission denied.') . EOL);
+					notice(L10n::t('Permission denied.'));
 					return;
 				}
 				$blocked = 1;
@@ -208,6 +239,20 @@ class Register extends BaseModule
 		// Overwriting the "tar pit" field with the real one
 		$arr['email'] = $arr['field1'];
 
+		if ($additional_account) {
+			$user = DBA::selectFirst('user', ['email'], ['uid' => local_user()]);
+			if (!DBA::isResult($user)) {
+				notice(L10n::t('User not found.'));
+				DI::baseUrl()->redirect('register');
+			}
+
+			$blocked = 0;
+			$verified = 1;
+
+			$arr['password1'] = $arr['confirm'] = $arr['parent_password'];
+			$arr['repeat'] = $arr['email'] = $user['email'];
+		}
+
 		if ($arr['email'] != $arr['repeat']) {
 			Logger::info('Mail mismatch', $arr);
 			notice(L10n::t('Please enter the identical mail address in the second field.'));
@@ -222,7 +267,7 @@ class Register extends BaseModule
 		try {
 			$result = Model\User::create($arr);
 		} catch (\Exception $e) {
-			\notice($e->getMessage());
+			notice($e->getMessage());
 			return;
 		}
 
@@ -233,6 +278,12 @@ class Register extends BaseModule
 		if ($netpublish && intval(Config::get('config', 'register_policy')) !== self::APPROVE) {
 			$url = $base_url . '/profile/' . $user['nickname'];
 			Worker::add(PRIORITY_LOW, 'Directory', $url);
+		}
+
+		if ($additional_account) {
+			DBA::update('user', ['parent-uid' => local_user()], ['uid' => $user['uid']]);
+			info(L10n::t('The additional account was created.'));
+			DI::baseUrl()->redirect('delegation');
 		}
 
 		$using_invites = Config::get('system', 'invitation_only');
@@ -256,29 +307,29 @@ class Register extends BaseModule
 				);
 
 				if ($res) {
-					\info(L10n::t('Registration successful. Please check your email for further instructions.') . EOL);
+					info(L10n::t('Registration successful. Please check your email for further instructions.'));
 					DI::baseUrl()->redirect();
 				} else {
-					\notice(
+					notice(
 						L10n::t('Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.',
 							$user['email'],
 							$result['password'])
 					);
 				}
 			} else {
-				\info(L10n::t('Registration successful.') . EOL);
+				info(L10n::t('Registration successful.'));
 				DI::baseUrl()->redirect();
 			}
 		} elseif (intval(Config::get('config', 'register_policy')) === self::APPROVE) {
 			if (!strlen(Config::get('config', 'admin_email'))) {
-				\notice(L10n::t('Your registration can not be processed.') . EOL);
+				notice(L10n::t('Your registration can not be processed.'));
 				DI::baseUrl()->redirect();
 			}
 
 			// Check if the note to the admin is actually filled out
 			if (empty($_POST['permonlybox'])) {
-				\notice(L10n::t('You have to leave a request note for the admin.')
-					. L10n::t('Your registration can not be processed.') . EOL);
+				notice(L10n::t('You have to leave a request note for the admin.')
+					. L10n::t('Your registration can not be processed.'));
 
 				DI::baseUrl()->redirect('register/');
 			}
@@ -325,7 +376,7 @@ class Register extends BaseModule
 				$result['password']
 			);
 
-			\info(L10n::t('Your registration is pending approval by the site owner.') . EOL);
+			info(L10n::t('Your registration is pending approval by the site owner.'));
 			DI::baseUrl()->redirect();
 		}
 

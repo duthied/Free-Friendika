@@ -140,12 +140,15 @@ class Delegation extends BaseSettingsModule
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/delegation.tpl'), [
 			'$form_security_token' => BaseModule::getFormSecurityToken('delegate'),
+			'$account_header' => L10n::t('Additional Accounts'),
+			'$account_desc' => L10n::t('Register additional accounts that are automatically connected to your existing account so you can manage it from this account.'),
+			'$add_account' => L10n::t('Register an additional account'),
 			'$parent_header' => L10n::t('Parent User'),
 			'$parent_user' => $parent_user,
 			'$parent_password' => $parent_password,
 			'$parent_desc' => L10n::t('Parent users have total control about this account, including the account settings. Please double check whom you give this access.'),
 			'$submit' => L10n::t('Save Settings'),
-			'$header' => L10n::t('Delegate Page Management'),
+			'$header' => L10n::t('Manage Accounts'),
 			'$delegates_header' => L10n::t('Delegates'),
 			'$base' => DI::baseUrl(),
 			'$desc' => L10n::t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
