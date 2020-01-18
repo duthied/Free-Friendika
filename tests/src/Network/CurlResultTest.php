@@ -22,7 +22,7 @@ class CurlResultTest extends TestCase
 
 		$logger = new NullLogger();
 		$dice->shouldReceive('create')
-		           ->with(LoggerInterface::class, [])
+		           ->with(LoggerInterface::class)
 		           ->andReturn($logger);
 
 		DI::init($dice);
