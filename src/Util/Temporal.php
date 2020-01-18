@@ -466,11 +466,11 @@ class Temporal
 			$tddate = intval(DateTimeFormat::localNow('j'));
 		}
 
-		$str_month = L10n::getDay($mtab[$m]);
+		$str_month = DI::l10n()->getDay($mtab[$m]);
 		$o = '<table class="calendar' . $class . '">';
 		$o .= "<caption>$str_month $y</caption><tr>";
 		for ($a = 0; $a < 7; $a ++) {
-			$o .= '<th>' . mb_substr(L10n::getDay($dn[$a]), 0, 3, 'UTF-8') . '</th>';
+			$o .= '<th>' . mb_substr(DI::l10n()->getDay($dn[$a]), 0, 3, 'UTF-8') . '</th>';
 		}
 
 		$o .= '</tr><tr>';

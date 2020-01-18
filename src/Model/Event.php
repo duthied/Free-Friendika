@@ -33,13 +33,13 @@ class Event
 
 		$bd_format = DI::l10n()->t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
 
-		$event_start = L10n::getDay(
+		$event_start = DI::l10n()->getDay(
 			!empty($event['adjust']) ?
 			DateTimeFormat::local($event['start'], $bd_format) : DateTimeFormat::utc($event['start'], $bd_format)
 		);
 
 		if (!empty($event['finish'])) {
-			$event_end = L10n::getDay(
+			$event_end = DI::l10n()->getDay(
 				!empty($event['adjust']) ?
 				DateTimeFormat::local($event['finish'], $bd_format) : DateTimeFormat::utc($event['finish'], $bd_format)
 			);
@@ -571,7 +571,7 @@ class Event
 			$start = $event['adjust'] ? DateTimeFormat::local($event['start'], 'c')  : DateTimeFormat::utc($event['start'], 'c');
 			$j     = $event['adjust'] ? DateTimeFormat::local($event['start'], 'j')  : DateTimeFormat::utc($event['start'], 'j');
 			$day   = $event['adjust'] ? DateTimeFormat::local($event['start'], $fmt) : DateTimeFormat::utc($event['start'], $fmt);
-			$day   = L10n::getDay($day);
+			$day   = DI::l10n()->getDay($day);
 
 			if ($event['nofinish']) {
 				$end = null;
@@ -849,7 +849,7 @@ class Event
 		$tformat       = DI::l10n()->t('g:i A'); // 8:01 AM.
 
 		// Convert the time to different formats.
-		$dtstart_dt = L10n::getDay(
+		$dtstart_dt = DI::l10n()->getDay(
 			$item['event-adjust'] ?
 				DateTimeFormat::local($item['event-start'], $dformat)
 				: DateTimeFormat::utc($item['event-start'], $dformat)
@@ -877,7 +877,7 @@ class Event
 		// If the option 'nofinisch' isn't set, we need to format the finish date/time.
 		if (!$item['event-nofinish']) {
 			$finish = true;
-			$dtend_dt  = L10n::getDay(
+			$dtend_dt  = DI::l10n()->getDay(
 				$item['event-adjust'] ?
 					DateTimeFormat::local($item['event-finish'], $dformat)
 					: DateTimeFormat::utc($item['event-finish'], $dformat)
