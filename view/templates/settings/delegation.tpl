@@ -1,5 +1,11 @@
 <h3>{{$header}}</h3>
 
+{{if !$is_child_user}}
+<h4>{{$account_header}}</h4>
+<div id="add-account-desc" class="add-account-desc">{{$account_desc}}</div>
+<a href='register'>{{$add_account}}</a>
+{{/if}}
+
 {{if $parent_user}}
 <h4>{{$parent_header}}</h4>
 <div id="delegate-parent-desc" class="delegate-parent-desc">{{$parent_desc}}</div>
@@ -11,10 +17,6 @@
 		<div class="submit"><input type="submit" name="delegate" value="{{$submit}}"/></div>
 	</form>
 </div>
-{{else}}
-<h4>{{$account_header}}</h4>
-<div id="add-account-desc" class="add-account-desc">{{$account_desc}}</div>
-<a href='register'>{{$add_account}}</a>
 {{/if}}
 
 <h4>{{$delegates_header}}</h4>
