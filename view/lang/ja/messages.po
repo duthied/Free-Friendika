@@ -4,14 +4,14 @@
 # 
 # Translators:
 # Antron Samurai <rock_spring_fu@yahoo.co.jp>, 2018
-# ozero dien <rgfx0020+misc@gmail.com>, 2019
+# ozero dien <rgfx0020+misc@gmail.com>, 2019-2020
 # ozero dien <rgfx0020+misc@gmail.com>, 2019
 msgid ""
 msgstr ""
 "Project-Id-Version: friendica\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2019-12-05 23:28+0100\n"
-"PO-Revision-Date: 2019-12-23 07:57+0000\n"
+"PO-Revision-Date: 2020-01-16 02:13+0000\n"
 "Last-Translator: ozero dien <rgfx0020+misc@gmail.com>\n"
 "Language-Team: Japanese (http://www.transifex.com/Friendica/friendica/language/ja/)\n"
 "MIME-Version: 1.0\n"
@@ -3012,7 +3012,7 @@ msgid ""
 "\t\t\tLogin Name:\t\t%4$s\n"
 "\t\t\tPassword:\t\t%5$s\n"
 "\t\t"
-msgstr "\\n\t\t\t%1$s さん、\\n\t\t\t\t%2$s で登録していただきありがとうございます。アカウントは管理者による承認待ちです。\\n\\n\t\t\tログインの詳細は次のとおりです。\\n\\n\t\t\tサイトの場所：\t%3$s\\n\t\t\tログイン名：\t\t%4$s\\n\t\t\tパスワード：\t\t%5$s\\n\t\t"
+msgstr "\n\t\t\t%1$s さん、\n\t\t\t\t%2$s に登録していただきありがとうございます。アカウントは管理者による承認待ちです。\n\n\t\t\tログインの詳細は次のとおりです。\n\n\t\t\tサイトの場所：\t%3$s\n\t\t\tログイン名：\t\t%4$s\n\t\t\tパスワード：\t\t%5$s\n\t\t"
 
 #: src/Model/User.php:909
 #, php-format
@@ -4766,7 +4766,7 @@ msgid ""
 "\n"
 "\t\t\tDear %1$s,\n"
 "\t\t\t\tthe administrator of %2$s has set up an account for you."
-msgstr "\n\t\t\tDear %1$s 、\n\t\t\t\t%2$s管理者がアカウントを設定しました。"
+msgstr "\n\t\t\t%1$s さん、\n\t\t\t\t%2$s管理者がアカウントを設定しました。"
 
 #: src/Module/Admin/Users.php:51
 #, php-format
@@ -5386,7 +5386,7 @@ msgstr "メール通知に投稿本文を含めないでください"
 msgid ""
 "Don't include the content of a post/comment/private message/etc. in the "
 "email notifications that are sent out from this site, as a privacy measure."
-msgstr "投稿/コメント/プライベートメッセージ/などの内容を含めないでください。プライバシー対策として、このサイトから送信される電子メール通知で。"
+msgstr "プライバシー対策として、このサイトから送信されるメール通知に投稿/コメント/プライベートメッセージなどのコンテンツを含めないでください。"
 
 #: src/Module/Admin/Site.php:617
 msgid "Disallow public access to addons listed in the apps menu."
@@ -5845,13 +5845,13 @@ msgstr "有効にすると、バックエンドアクセスが実行されたと
 
 #: src/Module/Admin/Site.php:672
 msgid "Subscribe to relay"
-msgstr "リレーを購読する"
+msgstr "リレーのために購読する"
 
 #: src/Module/Admin/Site.php:672
 msgid ""
 "Enables the receiving of public posts from the relay. They will be included "
 "in the search, subscribed tags and on the global community page."
-msgstr "リレーからの一般公開投稿の受信を有効にします。それらは、検索、サブスクライブされたタグ、およびグローバルコミュニティページに含まれます。"
+msgstr "リレーからの一般公開投稿の受信を有効にします。それらは、検索、購読されたタグ、およびグローバルコミュニティページに表示されます。"
 
 #: src/Module/Admin/Site.php:673
 msgid "Relay server"
@@ -8063,7 +8063,7 @@ msgstr "秒"
 #: src/Util/Temporal.php:328
 #, php-format
 msgid "in %1$d %2$s"
-msgstr "場所: %1$d %2$s"
+msgstr "%1$d %2$s 以内に"
 
 #: src/Util/Temporal.php:331
 #, php-format
@@ -8138,7 +8138,7 @@ msgid ""
 "\n"
 "\t\tYour password will not be changed unless we can verify that you\n"
 "\t\tissued this request."
-msgstr "\n\t\tDear %1$s 、\n\t\t\tAアカウントをリセットするため%2$sリクエストが\" %2$s \"で最近受信されました\n\t\tpassword。このリクエストを確認するには、確認リンクを選択してください\n\t\t以下またはウェブブラウザのアドレスバーに貼り付けてください。\n\n\t\tこの変更をリクエストしていない場合は、リンクをたどらないでください\n\t\tこのメールを提供し、無視および/または削除すると、リクエストはまもなく期限切れになります。\n\n\t\tこのリクエストを発行したことを確認できない限り、パスワードは変更されません。"
+msgstr "\n\t\t%1$s さん、\n\t\t\t\"%2$s\" アカウントのパスワードリセットが要求されました。\n\t\tこのリクエストを確認するには、確認リンクをクリックするか、\n\t\tウェブブラウザのアドレスバーに貼り付けてください。\n\n\t\tこの変更をリクエストしていない場合は、リンクをクリックせず、\n\t\tこのメールを無視・削除してください。リセットはキャンセルされます。\n\n\t\tこのリクエストの発行元があなたであると確認できない限り、\n\t\tパスワードは変更されません。"
 
 #: mod/lostpass.php:56
 #, php-format
@@ -8217,7 +8217,7 @@ msgid ""
 "\t\t\tinformation for your records (or change your password immediately to\n"
 "\t\t\tsomething that you will remember).\n"
 "\t\t"
-msgstr "\n\t\t\tDear %1$s 、\n\t\t\t\tパスワードは要求に応じて変更されました。記録のためにこの情報を保持してください（または、パスワードをすぐに覚えているものに変更してください）。\n\t\t"
+msgstr "\n\t\t\t%1$s さん、\n\t\t\t\tパスワードは要求に応じて変更されました。記録のためにこの情報を保管してください（または、パスワードをすぐに覚えているものに変更してください）。\n\t\t"
 
 #: mod/lostpass.php:154
 #, php-format
@@ -8533,7 +8533,7 @@ msgstr "招待文が送信されました。"
 msgid ""
 "Remote subscription can't be done for your network. Please subscribe "
 "directly on your system."
-msgstr "あなたのネットワークでリモートサブスクリプションを行うことはできません。あなたのシステム上で直接購読してください。"
+msgstr "あなたのネットワークではリモート購読ができません。あなたのシステム上で直接購読してください。"
 
 #: mod/dfrn_request.php:489
 msgid "Please login to confirm introduction."
@@ -8802,21 +8802,21 @@ msgstr "接続は双方向ですか？"
 msgid ""
 "Accepting %s as a friend allows %s to subscribe to your posts, and you will "
 "also receive updates from them in your news feed."
-msgstr "%s を友達として受け入れた場合、%s はあなたの投稿を購読できます。また、あなたのニュースフィードに彼らの投稿が表示されます。"
+msgstr "%s を友達として受け入れた場合、%s はあなたの投稿を購読できます。また、あなたのニュースフィードにこのアカウントの投稿が表示されます。"
 
 #: mod/notifications.php:222
 #, php-format
 msgid ""
 "Accepting %s as a subscriber allows them to subscribe to your posts, but you"
 " will not receive updates from them in your news feed."
-msgstr "%sを購読者として受け入れると、彼らはあなたの投稿を購読できますが、あなたのニュースフィードに彼らの投稿は表示されません。"
+msgstr "%sを購読者として受け入れると、このアカウントはあなたの投稿を購読できますが、このアカウントからの投稿はあなたのニュースフィードに表示されません。"
 
 #: mod/notifications.php:226
 #, php-format
 msgid ""
 "Accepting %s as a sharer allows them to subscribe to your posts, but you "
 "will not receive updates from them in your news feed."
-msgstr "%sを共有者として受け入れると、彼らはあなたの投稿を購読できますが、あなたのニュースフィードに彼らの投稿は表示されません。"
+msgstr "%sを共有者として受け入れると、このアカウントはあなたの投稿を購読できますが、あなたのニュースフィードにこのアカウントの投稿は表示されません。"
 
 #: mod/notifications.php:237
 msgid "Friend"
@@ -8828,7 +8828,7 @@ msgstr "共有者"
 
 #: mod/notifications.php:238
 msgid "Subscriber"
-msgstr "加入者"
+msgstr "購読者"
 
 #: mod/notifications.php:303
 msgid "No introductions."
