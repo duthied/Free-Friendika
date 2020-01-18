@@ -255,7 +255,7 @@ class Install extends BaseModule
 
 			case self::SITE_SETTINGS:
 				/* Installed langs */
-				$lang_choices = L10n::getAvailableLanguages();
+				$lang_choices = DI::l10n()->getAvailableLanguages();
 
 				$tpl    = Renderer::getMarkupTemplate('install_settings.tpl');
 				$output .= Renderer::replaceMacros($tpl, [

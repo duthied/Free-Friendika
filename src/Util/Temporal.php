@@ -219,7 +219,7 @@ class Temporal
 		// First day of the week (0 = Sunday)
 		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 
-		$lang = substr(L10n::getCurrentLang(), 0, 2);
+		$lang = substr(DI::l10n()->getCurrentLang(), 0, 2);
 
 		// Check if the detected language is supported by the picker
 		if (!in_array($lang,

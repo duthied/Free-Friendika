@@ -1165,7 +1165,7 @@ function settings_content(App $a)
 	}
 
 	/* Installed langs */
-	$lang_choices = L10n::getAvailableLanguages();
+	$lang_choices = DI::l10n()->getAvailableLanguages();
 
 	/// @TODO Fix indending (or so)
 	$o .= Renderer::replaceMacros($stpl, [

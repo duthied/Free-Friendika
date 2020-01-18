@@ -414,7 +414,7 @@ class Site extends BaseAdminModule
 		parent::content($parameters);
 
 		/* Installed langs */
-		$lang_choices = L10n::getAvailableLanguages();
+		$lang_choices = DI::l10n()->getAvailableLanguages();
 
 		if (strlen(Config::get('system', 'directory_submit_url')) &&
 			!strlen(Config::get('system', 'directory'))) {

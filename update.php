@@ -300,7 +300,7 @@ function update_1298()
 	$keys = ['gender', 'marital', 'sexual'];
 	foreach ($keys as $translateKey) {
 		$allData = DBA::select('profile', ['id', $translateKey]);
-		$allLangs = L10n::getAvailableLanguages();
+		$allLangs = DI::l10n()->getAvailableLanguages();
 		$success = 0;
 		$fail = 0;
 		foreach ($allData as $key => $data) {
