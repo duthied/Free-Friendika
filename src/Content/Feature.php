@@ -8,7 +8,6 @@ namespace Friendica\Content;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\DI;
 
 class Feature

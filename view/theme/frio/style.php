@@ -4,7 +4,6 @@
  */
 
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\DI;
 use Friendica\Util\Strings;
 

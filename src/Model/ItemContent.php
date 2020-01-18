@@ -7,7 +7,6 @@
 namespace Friendica\Model;
 
 use Friendica\Content\Text;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 

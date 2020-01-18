@@ -4,9 +4,7 @@
  */
 use Friendica\Core\Logger;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\DI;
-use Friendica\Model\Profile;
 
 $uid = $_REQUEST['puid'] ?? 0;
 

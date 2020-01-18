@@ -7,7 +7,6 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\DI;
 
 require_once("mod/notes.php");

@@ -3,9 +3,7 @@
  * @file view/theme/duepuntozero/style.php
  */
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\DI;
-use Friendica\Model\Profile;
 
 if (file_exists("$THEMEPATH/style.css")) {
 	echo file_get_contents("$THEMEPATH/style.css");

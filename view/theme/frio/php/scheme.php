@@ -18,7 +18,6 @@
  *    'overwrites' => Variables which overwriting custom settings
  */
 
-use Friendica\Core\PConfig;
 use Friendica\DI;
 use Friendica\Util\Strings;
 

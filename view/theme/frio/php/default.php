@@ -8,8 +8,6 @@
 <?php
 
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
-use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Profile;
 

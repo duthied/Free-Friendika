@@ -2,7 +2,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 

@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\Contact;
