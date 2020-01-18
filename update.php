@@ -135,7 +135,7 @@ function update_1191()
 			$value = $rr['v'];
 
 			if ($key === 'randomise') {
-				PConfig::delete($uid, $family, $key);
+				DI::pConfig()->delete($uid, $family, $key);
 			}
 
 			if ($key === 'show_on_profile') {
@@ -143,7 +143,7 @@ function update_1191()
 					DI::pConfig()->set($uid, feature, forumlist_profile, $value);
 				}
 
-				PConfig::delete($uid, $family, $key);
+				DI::pConfig()->delete($uid, $family, $key);
 			}
 
 			if ($key === 'show_on_network') {
@@ -151,7 +151,7 @@ function update_1191()
 					DI::pConfig()->set($uid, feature, forumlist_widget, $value);
 				}
 
-				PConfig::delete($uid, $family, $key);
+				DI::pConfig()->delete($uid, $family, $key);
 			}
 		}
 	}

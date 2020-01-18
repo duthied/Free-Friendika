@@ -19,17 +19,4 @@ use Friendica\DI;
  */
 class PConfig
 {
-	/**
-	 * @brief Deletes the given key from the users's configuration.
-	 *
-	 * @param int    $uid The user_id
-	 * @param string $cat The category of the configuration value
-	 * @param string $key The configuration key to delete
-	 *
-	 * @return bool
-	 */
-	public static function delete(int $uid, string $cat, string $key)
-	{
-		return DI::pConfig()->delete($uid, $cat, $key);
-	}
 }

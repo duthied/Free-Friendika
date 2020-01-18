@@ -45,8 +45,8 @@ class Index extends BaseSettingsModule
 				case 'disable':
 					if ($has_secret) {
 						RecoveryCode::deleteForUser(local_user());
-						PConfig::delete(local_user(), '2fa', 'secret');
-						PConfig::delete(local_user(), '2fa', 'verified');
+						DI::pConfig()->delete(local_user(), '2fa', 'secret');
+						DI::pConfig()->delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
 
 						notice(L10n::t('Two-factor authentication successfully disabled.'));
