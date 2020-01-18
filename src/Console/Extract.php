@@ -65,8 +65,8 @@ HELP;
 		foreach ($files as $file) {
 			$str = file_get_contents($file);
 
-			$pat = '|L10n::t\(([^\)]*+)[\)]|';
-			$patt = '|L10n::tt\(([^\)]*+)[\)]|';
+			$pat = '|->t\(([^\)]*+)[\)]|';
+			$patt = '|->tt\(([^\)]*+)[\)]|';
 
 			$matches = [];
 			$matchestt = [];
