@@ -40,7 +40,7 @@ function poke_init(App $a)
 
 	$verb = Strings::escapeTags(trim($_GET['verb']));
 
-	$verbs = L10n::getPokeVerbs();
+	$verbs = DI::l10n()->getPokeVerbs();
 
 	if (!array_key_exists($verb, $verbs)) {
 		return;
@@ -164,7 +164,7 @@ function poke_content(App $a)
 	$parent = (!empty($_GET['parent']) ? intval($_GET['parent']) : '0');
 
 
-	$verbs = L10n::getPokeVerbs();
+	$verbs = DI::l10n()->getPokeVerbs();
 
 	$shortlist = [];
 	foreach ($verbs as $k => $v) {
