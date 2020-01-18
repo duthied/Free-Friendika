@@ -15,7 +15,7 @@ class SystemTest extends TestCase
 		$baseUrl = \Mockery::mock(BaseURL::class);
 		$baseUrl->shouldReceive('getHostname')->andReturn('friendica.local')->once();
 		$dice = \Mockery::mock(Dice::class);
-		$dice->shouldReceive('create')->with(BaseURL::class, [])->andReturn($baseUrl);
+		$dice->shouldReceive('create')->with(BaseURL::class)->andReturn($baseUrl);
 
 		DI::init($dice);
 	}
