@@ -856,7 +856,7 @@ class Event
 		);
 		$dtstart_title = DateTimeFormat::utc($item['event-start'], $item['event-adjust'] ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s');
 		// Format: Jan till Dec.
-		$month_short = L10n::getDayShort(
+		$month_short = DI::l10n()->getDayShort(
 			$item['event-adjust'] ?
 				DateTimeFormat::local($item['event-start'], 'M')
 				: DateTimeFormat::utc($item['event-start'], 'M')
@@ -868,7 +868,7 @@ class Event
 		$start_time = $item['event-adjust'] ?
 			DateTimeFormat::local($item['event-start'], $tformat)
 			: DateTimeFormat::utc($item['event-start'], $tformat);
-		$start_short = L10n::getDayShort(
+		$start_short = DI::l10n()->getDayShort(
 			$item['event-adjust'] ?
 				DateTimeFormat::local($item['event-start'], $dformat_short)
 				: DateTimeFormat::utc($item['event-start'], $dformat_short)
@@ -883,7 +883,7 @@ class Event
 					: DateTimeFormat::utc($item['event-finish'], $dformat)
 			);
 			$dtend_title = DateTimeFormat::utc($item['event-finish'], $item['event-adjust'] ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s');
-			$end_short = L10n::getDayShort(
+			$end_short = DI::l10n()->getDayShort(
 				$item['event-adjust'] ?
 					DateTimeFormat::local($item['event-finish'], $dformat_short)
 					: DateTimeFormat::utc($item['event-finish'], $dformat_short)
