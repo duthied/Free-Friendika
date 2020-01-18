@@ -1,21 +1,14 @@
 <?php
 
-namespace Friendica\Core\Lock;
+namespace Friendica\Core;
 
-use Friendica\Core\Cache\Type;
+use Friendica\Core\Lock\ILock;
 
 /**
- * Class AbstractLock
- *
- * @package Friendica\Core\Lock
- *
  * Basic class for Locking with common functions (local acquired locks, releaseAll, ..)
  */
-abstract class Lock implements ILock
+abstract class BaseLock implements ILock
 {
-	const TYPE_DATABASE  = Type::DATABASE;
-	const TYPE_SEMAPHORE = 'semaphore';
-
 	/**
 	 * @var array The local acquired locks
 	 */
