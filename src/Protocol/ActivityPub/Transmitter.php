@@ -7,7 +7,7 @@ namespace Friendica\Protocol\ActivityPub;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -827,7 +827,7 @@ class Transmitter
 
 		$data = ActivityPub\Transmitter::createActivityFromItem($item_id);
 
-		DI::cache()->set($cachekey, $data, Cache::QUARTER_HOUR);
+		DI::cache()->set($cachekey, $data, Duration::QUARTER_HOUR);
 		return $data;
 	}
 

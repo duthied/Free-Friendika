@@ -3,6 +3,7 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
+use Friendica\Core\BaseCache;
 use Friendica\Core\Config\IConfiguration;
 use Memcached;
 use Psr\Log\LoggerInterface;
@@ -12,7 +13,7 @@ use Psr\Log\LoggerInterface;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcachedCache extends Cache implements IMemoryCache
+class MemcachedCache extends BaseCache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -102,7 +103,7 @@ class MemcachedCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 
@@ -145,7 +146,7 @@ class MemcachedCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 		return $this->memcached->add($cachekey, $value, $ttl);
@@ -156,6 +157,6 @@ class MemcachedCache extends Cache implements IMemoryCache
 	 */
 	public function getName()
 	{
-		return self::TYPE_MEMCACHED;
+		return Type::MEMCACHED;
 	}
 }

@@ -6,7 +6,7 @@
 use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -208,7 +208,7 @@ function ping_init(App $a)
 				DBA::escape(DateTimeFormat::utcNow())
 			);
 			if (DBA::isResult($ev)) {
-				DI::cache()->set($cachekey, $ev, Cache::HOUR);
+				DI::cache()->set($cachekey, $ev, Duration::HOUR);
 			}
 		}
 

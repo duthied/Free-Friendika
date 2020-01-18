@@ -6,7 +6,7 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -563,7 +563,7 @@ class Photo
 					DBA::escape(L10n::t("Contact Photos"))
 				);
 			}
-			DI::cache()->set($key, $albums, Cache::DAY);
+			DI::cache()->set($key, $albums, Duration::DAY);
 		}
 		return $albums;
 	}
@@ -576,7 +576,7 @@ class Photo
 	public static function clearAlbumCache($uid)
 	{
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
-		DI::cache()->set($key, null, Cache::DAY);
+		DI::cache()->set($key, null, Duration::DAY);
 	}
 
 	/**

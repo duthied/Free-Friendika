@@ -19,7 +19,7 @@ interface IMemoryCache extends ICache
 	 * @param int    $ttl      The cache lifespan, must be one of the Cache constants
 	 * @return bool
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES);
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES);
 
 	/**
 	 * Compares if the old value is set and sets the new value
@@ -31,7 +31,7 @@ interface IMemoryCache extends ICache
 	 *
 	 * @return bool
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES);
+	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES);
 
 	/**
 	 * Compares if the old value is set and removes it

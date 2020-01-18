@@ -3,6 +3,7 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
+use Friendica\Core\BaseCache;
 use Friendica\Core\Config\IConfiguration;
 use Memcache;
 
@@ -11,7 +12,7 @@ use Memcache;
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class MemcacheCache extends Cache implements IMemoryCache
+class MemcacheCache extends BaseCache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -84,7 +85,7 @@ class MemcacheCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 
@@ -129,7 +130,7 @@ class MemcacheCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 		return $this->memcache->add($cachekey, serialize($value), MEMCACHE_COMPRESSED, $ttl);
@@ -140,6 +141,6 @@ class MemcacheCache extends Cache implements IMemoryCache
 	 */
 	public function getName()
 	{
-		return self::TYPE_MEMCACHE;
+		return Type::MEMCACHE;
 	}
 }

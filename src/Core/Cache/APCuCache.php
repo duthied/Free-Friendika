@@ -3,13 +3,14 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
+use Friendica\Core\BaseCache;
 
 /**
  * APCu Cache.
  *
  * @author Philipp Holzer <admin@philipp.info>
  */
-class APCuCache extends Cache implements IMemoryCache
+class APCuCache extends BaseCache implements IMemoryCache
 {
 	use TraitCompareSet;
 	use TraitCompareDelete;
@@ -76,7 +77,7 @@ class APCuCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 
@@ -129,7 +130,7 @@ class APCuCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 		$cached = serialize($value);
@@ -158,6 +159,6 @@ class APCuCache extends Cache implements IMemoryCache
 	 */
 	public function getName()
 	{
-		return self::TYPE_APCU;
+		return Type::APCU;
 	}
 }

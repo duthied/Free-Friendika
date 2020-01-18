@@ -1,33 +1,14 @@
 <?php
 
-namespace Friendica\Core\Cache;
+namespace Friendica\Core;
+
+use Friendica\Core\Cache\ICache;
 
 /**
  * Abstract class for common used functions
- *
- * Class AbstractCache
- *
- * @package Friendica\Core\Cache
  */
-abstract class Cache implements ICache
+abstract class BaseCache implements ICache
 {
-	const TYPE_APCU      = 'apcu';
-	const TYPE_ARRAY     = 'array';
-	const TYPE_DATABASE  = 'database';
-	const TYPE_MEMCACHE  = 'memcache';
-	const TYPE_MEMCACHED = 'memcached';
-	const TYPE_REDIS     = 'redis';
-
-	const MONTH        = 2592000;
-	const WEEK         = 604800;
-	const DAY          = 86400;
-	const HOUR         = 3600;
-	const HALF_HOUR    = 1800;
-	const QUARTER_HOUR = 900;
-	const FIVE_MINUTES = 300;
-	const MINUTE       = 60;
-	const INFINITE     = 0;
-
 	/**
 	 * @var string The hostname
 	 */

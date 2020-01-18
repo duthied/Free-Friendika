@@ -10,7 +10,7 @@ use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget\ContactBlock;
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -608,7 +608,7 @@ class Profile
 			);
 			if (DBA::isResult($s)) {
 				$r = DBA::toArray($s);
-				DI::cache()->set($cachekey, $r, Cache::HOUR);
+				DI::cache()->set($cachekey, $r, Duration::HOUR);
 			}
 		}
 
@@ -1070,7 +1070,7 @@ class Profile
 			Logger::log('URL ' . $my_url . ' already tried to authenticate.', Logger::DEBUG);
 			return;
 		} else {
-			DI::cache()->set($cachekey, true, Cache::MINUTE);
+			DI::cache()->set($cachekey, true, Duration::MINUTE);
 		}
 
 		Logger::log('Not authenticated. Invoking reverse magic-auth for ' . $my_url, Logger::DEBUG);

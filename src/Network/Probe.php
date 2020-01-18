@@ -11,7 +11,7 @@ namespace Friendica\Network;
 
 use DOMDocument;
 use DomXPath;
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -414,7 +414,7 @@ class Probe
 
 		// Only store into the cache if the value seems to be valid
 		if (!in_array($data['network'], [Protocol::PHANTOM, Protocol::MAIL])) {
-			DI::cache()->set('Probe::uri:' . $network . ':' . $uri, $data, Cache::DAY);
+			DI::cache()->set('Probe::uri:' . $network . ':' . $uri, $data, Duration::DAY);
 		}
 
 		return $data;

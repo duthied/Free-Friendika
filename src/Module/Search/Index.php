@@ -6,7 +6,7 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
-use Friendica\Core\Cache\Cache as CacheClass;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -56,9 +56,9 @@ class Index extends BaseSearchModule
 				if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
 					throw new HTTPException\TooManyRequestsException(L10n::t('Only one search per minute is permitted for not logged in users.'));
 				}
-				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), CacheClass::HOUR);
+				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), Duration::HOUR);
 			} else {
-				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => 1]), CacheClass::HOUR);
+				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => 1]), Duration::HOUR);
 			}
 		}
 

@@ -13,11 +13,11 @@ trait TraitCompareDelete
 {
 	abstract public function get($key);
 
-	abstract public function set($key, $value, $ttl = Cache::FIVE_MINUTES);
+	abstract public function set($key, $value, $ttl = Duration::FIVE_MINUTES);
 
 	abstract public function delete($key);
 
-	abstract public function add($key, $value, $ttl = Cache::FIVE_MINUTES);
+	abstract public function add($key, $value, $ttl = Duration::FIVE_MINUTES);
 
 	/**
 	 * NonNative - Compares if the old value is set and removes it

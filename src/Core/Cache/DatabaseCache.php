@@ -4,13 +4,14 @@ namespace Friendica\Core\Cache;
 
 use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
+use Friendica\Core\BaseCache;
 
 /**
  * Database Cache
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
-class DatabaseCache extends Cache implements ICache
+class DatabaseCache extends BaseCache implements ICache
 {
 	/**
 	 * @var Database
@@ -71,7 +72,7 @@ class DatabaseCache extends Cache implements ICache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($ttl > 0) {
 			$fields = [
@@ -115,6 +116,6 @@ class DatabaseCache extends Cache implements ICache
 	 */
 	public function getName()
 	{
-		return self::TYPE_DATABASE;
+		return Type::DATABASE;
 	}
 }

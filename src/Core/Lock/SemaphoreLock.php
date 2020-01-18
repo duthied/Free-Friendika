@@ -36,7 +36,7 @@ class SemaphoreLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES)
+	public function acquire($key, $timeout = 120, $ttl = Cache\Duration::FIVE_MINUTES)
 	{
 		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
 		if (!empty(self::$semaphore[$key])) {
