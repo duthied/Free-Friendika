@@ -51,7 +51,7 @@ class Register extends BaseModule
 		if (local_user()) {
 			$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => local_user()]);
 			if (!empty($user['parent-uid'])) {
-				notice(L10n::t('Only parent users can create additional profiles.'));
+				notice(L10n::t('Only parent users can create additional accounts.'));
 				return '';
 			}
 		}
