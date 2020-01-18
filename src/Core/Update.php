@@ -253,7 +253,7 @@ class Update
 			$sent[] = $admin['email'];
 
 			$lang = (($admin['language'])?$admin['language']:'en');
-			$l10n = L10n::withLang($lang);
+			$l10n = DI::l10n()->withLang($lang);
 
 			$preamble = Strings::deindent($l10n->t("
 				The friendica developers released update %s recently,
@@ -295,7 +295,7 @@ class Update
 				$sent[] = $admin['email'];
 
 				$lang = (($admin['language']) ? $admin['language'] : 'en');
-				$l10n = L10n::withLang($lang);
+				$l10n = DI::l10n()->withLang($lang);
 
 				$preamble = Strings::deindent($l10n->t("
 					The friendica database was successfully updated from %s to %s.",

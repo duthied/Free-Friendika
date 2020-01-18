@@ -36,7 +36,7 @@ function user_allow($hash)
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
-	$l10n = L10n::withLang($register['language']);
+	$l10n = DI::l10n()->withLang($register['language']);
 
 	$res = User::sendRegisterOpenEmail(
 		$l10n,

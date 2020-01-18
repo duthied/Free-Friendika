@@ -57,7 +57,7 @@ function notification($params)
 	$params['to_email']     = ($params['to_email']     ?? '') ?: $user['email'];
 
 	// from here on everything is in the recipients language
-	$l10n = L10n::withLang($params['language']);
+	$l10n = DI::l10n()->withLang($params['language']);
 
 	$banner = $l10n->t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;
