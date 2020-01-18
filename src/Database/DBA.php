@@ -56,7 +56,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the MySQL server version string
+	 * Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current
 	 * object-oriented mysqli API. Example of returned string: 5.5.46-0+deb8u1
@@ -69,7 +69,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the selected database name
+	 * Returns the selected database name
 	 *
 	 * @return string
 	 * @throws \Exception
@@ -79,19 +79,30 @@ class DBA
 		return DI::dba()->databaseName();
 	}
 
+	/**
+	 * Escape all SQL unsafe data
+	 *
+	 * @param string $str
+	 * @return string escaped string
+	 */
 	public static function escape($str)
 	{
 		return DI::dba()->escape($str);
 	}
 
+	/**
+	 * Checks if the database is connected
+	 *
+	 * @return boolean is the database connected?
+	 */
 	public static function connected()
 	{
 		return DI::dba()->connected();
 	}
 
 	/**
-	 * @brief Replaces ANY_VALUE() function by MIN() function,
-	 *  if the database server does not support ANY_VALUE().
+	 * Replaces ANY_VALUE() function by MIN() function,
+	 * if the database server does not support ANY_VALUE().
 	 *
 	 * Considerations for Standard SQL, or MySQL with ONLY_FULL_GROUP_BY (default since 5.7.5).
 	 * ANY_VALUE() is available from MySQL 5.7.5 https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html
@@ -106,7 +117,7 @@ class DBA
 	}
 
 	/**
-	 * @brief beautifies the query - useful for "SHOW PROCESSLIST"
+	 * beautifies the query - useful for "SHOW PROCESSLIST"
 	 *
 	 * This is safe when we bind the parameters later.
 	 * The parameter values aren't part of the SQL.
@@ -127,7 +138,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Convert parameter array to an universal form
+	 * Convert parameter array to an universal form
 	 * @param array $args Parameter array
 	 * @return array universalized parameter array
 	 */
@@ -144,8 +155,8 @@ class DBA
 	}
 
 	/**
-	 * @brief Executes a prepared statement that returns data
-	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
+	 * Executes a prepared statement that returns data
+	 * Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
 	 *
 	 * Please only use it with complicated queries.
 	 * For all regular queries please use DBA::select or DBA::exists
@@ -162,7 +173,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Executes a prepared statement like UPDATE or INSERT that doesn't return data
+	 * Executes a prepared statement like UPDATE or INSERT that doesn't return data
 	 *
 	 * Please use DBA::delete, DBA::insert, DBA::update, ... instead
 	 *
@@ -178,7 +189,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Check if data exists
+	 * Check if data exists
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition array of fields for condition
@@ -209,7 +220,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the number of affected rows of the last statement
+	 * Returns the number of affected rows of the last statement
 	 *
 	 * @return int Number of rows
 	 */
@@ -219,7 +230,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the number of columns of a statement
+	 * Returns the number of columns of a statement
 	 *
 	 * @param object Statement object
 	 * @return int Number of columns
@@ -229,7 +240,7 @@ class DBA
 		return DI::dba()->columnCount($stmt);
 	}
 	/**
-	 * @brief Returns the number of rows of a statement
+	 * Returns the number of rows of a statement
 	 *
 	 * @param PDOStatement|mysqli_result|mysqli_stmt Statement object
 	 * @return int Number of rows
@@ -240,7 +251,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Fetch a single row
+	 * Fetch a single row
 	 *
 	 * @param mixed $stmt statement object
 	 * @return array current row
@@ -251,7 +262,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Insert a row into a table
+	 * Insert a row into a table
 	 *
 	 * @param string|array $table               Table name or array [schema => table]
 	 * @param array        $param               parameter array
@@ -266,7 +277,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Fetch the id of the last insert command
+	 * Fetch the id of the last insert command
 	 *
 	 * @return integer Last inserted id
 	 */
@@ -276,7 +287,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Locks a table for exclusive write access
+	 * Locks a table for exclusive write access
 	 *
 	 * This function can be extended in the future to accept a table array as well.
 	 *
@@ -291,7 +302,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Unlocks all locked tables
+	 * Unlocks all locked tables
 	 *
 	 * @return boolean was the unlock successful?
 	 * @throws \Exception
@@ -302,7 +313,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Starts a transaction
+	 * Starts a transaction
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
@@ -312,7 +323,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Does a commit
+	 * Does a commit
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
@@ -322,7 +333,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Does a rollback
+	 * Does a rollback
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
@@ -332,7 +343,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Delete a row from a table
+	 * Delete a row from a table
 	 *
 	 * @param string|array $table      Table name
 	 * @param array        $conditions Field condition(s)
@@ -349,8 +360,6 @@ class DBA
 	}
 
 	/**
-	 * @brief Updates rows
-	 *
 	 * Updates rows in the database. When $old_fields is set to an array,
 	 * the system will only do an update if the fields in that array changed.
 	 *
@@ -369,6 +378,7 @@ class DBA
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
+	 * @brief Updates rows
 	 * @param string|array  $table      Table name or array [schema => table]
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values
@@ -385,7 +395,6 @@ class DBA
 	/**
 	 * Retrieve a single record from a table and returns it in an associative array
 	 *
-	 * @brief Retrieve a single record from a table
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields
 	 * @param array        $condition
@@ -400,7 +409,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Select rows from a table and fills an array with the data
+	 * Select rows from a table and fills an array with the data
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields    Array of selected fields, empty for all
@@ -417,7 +426,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Select rows from a table
+	 * Select rows from a table
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields    Array of selected fields, empty for all
@@ -445,7 +454,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Counts the rows from a table satisfying the provided condition
+	 * Counts the rows from a table satisfying the provided condition
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition array of fields for condition
@@ -510,7 +519,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the SQL condition string built from the provided condition array
+	 * Returns the SQL condition string built from the provided condition array
 	 *
 	 * This function operates with two modes.
 	 * - Supplied with a filed/value associative array, it builds simple strict
@@ -620,7 +629,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the SQL parameter string built from the provided parameter array
+	 * Returns the SQL parameter string built from the provided parameter array
 	 *
 	 * @param array $params
 	 * @return string
@@ -660,7 +669,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Fills an array with data from a query
+	 * Fills an array with data from a query
 	 *
 	 * @param object $stmt statement object
 	 * @param bool   $do_close
@@ -672,7 +681,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the error number of the last query
+	 * Returns the error number of the last query
 	 *
 	 * @return string Error number (0 if no error)
 	 */
@@ -682,7 +691,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Returns the error message of the last query
+	 * Returns the error message of the last query
 	 *
 	 * @return string Error message ('' if no error)
 	 */
@@ -692,7 +701,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Closes the current statement
+	 * Closes the current statement
 	 *
 	 * @param object $stmt statement object
 	 * @return boolean was the close successful?
@@ -703,7 +712,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Return a list of database processes
+	 * Return a list of database processes
 	 *
 	 * @return array
 	 *      'list' => List of processes, separated in their different states
@@ -728,7 +737,7 @@ class DBA
 	}
 
 	/**
-	 * @brief Escapes a whole array
+	 * Escapes a whole array
 	 *
 	 * @param mixed   $arr           Array with values to be escaped
 	 * @param boolean $add_quotation add quotation marks for string values
