@@ -15,7 +15,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -728,7 +727,7 @@ function api_get_user(App $a, $contact_id = null)
 	if ($ret['self']) {
 		$theme_info = DBA::selectFirst('user', ['theme'], ['uid' => $ret['uid']]);
 		if ($theme_info['theme'] === 'frio') {
-			$schema = PConfig::get($ret['uid'], 'frio', 'schema');
+			$schema = DI::pConfig()->get($ret['uid'], 'frio', 'schema');
 
 			if ($schema && ($schema != '---')) {
 				if (file_exists('view/theme/frio/schema/'.$schema.'.php')) {
@@ -736,9 +735,9 @@ function api_get_user(App $a, $contact_id = null)
 					require_once $schemefile;
 				}
 			} else {
-				$nav_bg = PConfig::get($ret['uid'], 'frio', 'nav_bg');
-				$link_color = PConfig::get($ret['uid'], 'frio', 'link_color');
-				$bgcolor = PConfig::get($ret['uid'], 'frio', 'background_color');
+				$nav_bg = DI::pConfig()->get($ret['uid'], 'frio', 'nav_bg');
+				$link_color = DI::pConfig()->get($ret['uid'], 'frio', 'link_color');
+				$bgcolor = DI::pConfig()->get($ret['uid'], 'frio', 'background_color');
 			}
 			if (empty($nav_bg)) {
 				$nav_bg = "#708fa0";

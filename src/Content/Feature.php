@@ -8,7 +8,7 @@ namespace Friendica\Content;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
+use Friendica\DI;
 
 class Feature
 {
@@ -25,7 +25,7 @@ class Feature
 		$x = Config::get('feature_lock', $feature, false);
 
 		if ($x === false) {
-			$x = PConfig::get($uid, 'feature', $feature, false);
+			$x = DI::pConfig()->get($uid, 'feature', $feature, false);
 		}
 
 		if ($x === false) {

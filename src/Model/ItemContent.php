@@ -7,8 +7,8 @@
 namespace Friendica\Model;
 
 use Friendica\Content\Text;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
+use Friendica\DI;
 
 class ItemContent
 {
@@ -158,7 +158,7 @@ class ItemContent
 					$post['url'] = $item['plink'];
 				} elseif (strpos($item['body'], '[share') !== false) {
 					$post['url'] = $item['plink'];
-				} elseif (PConfig::get($item['uid'], 'system', 'no_intelligent_shortening')) {
+				} elseif (DI::pConfig()->get($item['uid'], 'system', 'no_intelligent_shortening')) {
 					$post['url'] = $item['plink'];
 				}
 				$msg = Text\Plaintext::shorten($msg, $limit);

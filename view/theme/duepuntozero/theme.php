@@ -2,7 +2,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
@@ -10,7 +9,7 @@ function duepuntozero_init(App $a) {
 
 Renderer::setActiveTemplateEngine('smarty3');
 
-    $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
+    $colorset = DI::pConfig()->get( local_user(), 'duepuntozero','colorset');
     if (!$colorset)
        $colorset = Config::get('duepuntozero', 'colorset');          // user setting have priority, then node settings
     if ($colorset) {

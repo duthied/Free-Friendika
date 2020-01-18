@@ -3,9 +3,8 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\DI;
 
 require_once 'view/theme/frio/php/Image.php';
 
@@ -16,16 +15,16 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		PConfig::set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']           ?? '');
-		PConfig::set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
-		PConfig::set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
-		PConfig::set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']       ?? '');
-		PConfig::set(local_user(), 'frio', 'background_color', $_POST['frio_background_color'] ?? '');
-		PConfig::set(local_user(), 'frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
-		PConfig::set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
-		PConfig::set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
-		PConfig::set(local_user(), 'frio', 'css_modified',     time());
-		PConfig::set(local_user(), 'frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
+		DI::pConfig()->set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']           ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']       ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'background_color', $_POST['frio_background_color'] ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'css_modified',     time());
+		DI::pConfig()->set(local_user(), 'frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
 	}
 }
 
@@ -60,16 +59,16 @@ function theme_content(App $a)
 
 	$node_scheme = Config::get('frio', 'scheme', Config::get('frio', 'scheme'));
 
-	$arr['scheme']           = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema', $node_scheme));
+	$arr['scheme']           = DI::pConfig()->get(local_user(), 'frio', 'scheme', DI::pConfig()->get(local_user(), 'frio', 'schema', $node_scheme));
 	$arr['share_string']     = '';
-	$arr['nav_bg']           = PConfig::get(local_user(), 'frio', 'nav_bg'          , Config::get('frio', 'nav_bg'));
-	$arr['nav_icon_color']   = PConfig::get(local_user(), 'frio', 'nav_icon_color'  , Config::get('frio', 'nav_icon_color'));
-	$arr['link_color']       = PConfig::get(local_user(), 'frio', 'link_color'      , Config::get('frio', 'link_color'));
-	$arr['background_color'] = PConfig::get(local_user(), 'frio', 'background_color', Config::get('frio', 'background_color'));
-	$arr['contentbg_transp'] = PConfig::get(local_user(), 'frio', 'contentbg_transp', Config::get('frio', 'contentbg_transp'));
-	$arr['background_image'] = PConfig::get(local_user(), 'frio', 'background_image', Config::get('frio', 'background_image'));
-	$arr['bg_image_option']  = PConfig::get(local_user(), 'frio', 'bg_image_option' , Config::get('frio', 'bg_image_option'));
-	$arr['enable_compose']   = PConfig::get(local_user(), 'frio', 'enable_compose'  , Config::get('frio', 'enable_compose'));
+	$arr['nav_bg']           = DI::pConfig()->get(local_user(), 'frio', 'nav_bg'          , Config::get('frio', 'nav_bg'));
+	$arr['nav_icon_color']   = DI::pConfig()->get(local_user(), 'frio', 'nav_icon_color'  , Config::get('frio', 'nav_icon_color'));
+	$arr['link_color']       = DI::pConfig()->get(local_user(), 'frio', 'link_color'      , Config::get('frio', 'link_color'));
+	$arr['background_color'] = DI::pConfig()->get(local_user(), 'frio', 'background_color', Config::get('frio', 'background_color'));
+	$arr['contentbg_transp'] = DI::pConfig()->get(local_user(), 'frio', 'contentbg_transp', Config::get('frio', 'contentbg_transp'));
+	$arr['background_image'] = DI::pConfig()->get(local_user(), 'frio', 'background_image', Config::get('frio', 'background_image'));
+	$arr['bg_image_option']  = DI::pConfig()->get(local_user(), 'frio', 'bg_image_option' , Config::get('frio', 'bg_image_option'));
+	$arr['enable_compose']   = DI::pConfig()->get(local_user(), 'frio', 'enable_compose'  , Config::get('frio', 'enable_compose'));
 
 	return frio_form($arr);
 }

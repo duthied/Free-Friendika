@@ -12,7 +12,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Core\Theme;
@@ -233,13 +232,13 @@ function settings_post(App $a)
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
 
 		if (!empty($_POST['general-submit'])) {
-			PConfig::set(local_user(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
-			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
-			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
-			PConfig::set(local_user(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
-			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
-			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
-			PConfig::set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
+			DI::pConfig()->set(local_user(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
+			DI::pConfig()->set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
+			DI::pConfig()->set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
+			DI::pConfig()->set(local_user(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
+			DI::pConfig()->set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
+			DI::pConfig()->set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
+			DI::pConfig()->set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (!empty($_POST['imap-submit'])) {
 			$mail_server       =                 $_POST['mail_server']       ?? '';
 			$mail_port         =                 $_POST['mail_port']         ?? '';
@@ -314,7 +313,7 @@ function settings_post(App $a)
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/features', 'settings_features');
 		foreach ($_POST as $k => $v) {
 			if (strpos($k, 'feature_') === 0) {
-				PConfig::set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
+				DI::pConfig()->set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
 			}
 		}
 		info(L10n::t('Features updated') . EOL);
@@ -352,20 +351,20 @@ function settings_post(App $a)
 		}
 
 		if ($mobile_theme !== '') {
-			PConfig::set(local_user(), 'system', 'mobile_theme', $mobile_theme);
+			DI::pConfig()->set(local_user(), 'system', 'mobile_theme', $mobile_theme);
 		}
 
-		PConfig::set(local_user(), 'system', 'nowarn_insecure'         , $nowarn_insecure);
-		PConfig::set(local_user(), 'system', 'update_interval'         , $browser_update);
-		PConfig::set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
-		PConfig::set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
-		PConfig::set(local_user(), 'system', 'no_smilies'              , $nosmile);
-		PConfig::set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
-		PConfig::set(local_user(), 'system', 'ignore_info'             , $noinfo);
-		PConfig::set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
-		PConfig::set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
-		PConfig::set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
-		PConfig::set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
+		DI::pConfig()->set(local_user(), 'system', 'nowarn_insecure'         , $nowarn_insecure);
+		DI::pConfig()->set(local_user(), 'system', 'update_interval'         , $browser_update);
+		DI::pConfig()->set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
+		DI::pConfig()->set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
+		DI::pConfig()->set(local_user(), 'system', 'no_smilies'              , $nosmile);
+		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
+		DI::pConfig()->set(local_user(), 'system', 'ignore_info'             , $noinfo);
+		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
+		DI::pConfig()->set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
+		DI::pConfig()->set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
+		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
 
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $a->user['theme']) {
@@ -568,16 +567,16 @@ function settings_post(App $a)
 	$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->toString($_POST['group_deny'])    : '';
 	$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->toString($_POST['contact_deny'])  : '';
 
-	PConfig::set(local_user(), 'expire', 'items', $expire_items);
-	PConfig::set(local_user(), 'expire', 'notes', $expire_notes);
-	PConfig::set(local_user(), 'expire', 'starred', $expire_starred);
-	PConfig::set(local_user(), 'expire', 'photos', $expire_photos);
-	PConfig::set(local_user(), 'expire', 'network_only', $expire_network_only);
+	DI::pConfig()->set(local_user(), 'expire', 'items', $expire_items);
+	DI::pConfig()->set(local_user(), 'expire', 'notes', $expire_notes);
+	DI::pConfig()->set(local_user(), 'expire', 'starred', $expire_starred);
+	DI::pConfig()->set(local_user(), 'expire', 'photos', $expire_photos);
+	DI::pConfig()->set(local_user(), 'expire', 'network_only', $expire_network_only);
 
-	PConfig::set(local_user(), 'system', 'suggestme', $suggestme);
+	DI::pConfig()->set(local_user(), 'system', 'suggestme', $suggestme);
 
-	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
-	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
+	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
+	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
 
 	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
 		$hidewall = 1;
@@ -776,13 +775,13 @@ function settings_content(App $a)
 	}
 
 	if (($a->argc > 1) && ($a->argv[1] === 'connectors')) {
-		$accept_only_sharer        = intval(PConfig::get(local_user(), 'system', 'accept_only_sharer'));
-		$disable_cw                = intval(PConfig::get(local_user(), 'system', 'disable_cw'));
-		$no_intelligent_shortening = intval(PConfig::get(local_user(), 'system', 'no_intelligent_shortening'));
-		$attach_link_title         = intval(PConfig::get(local_user(), 'system', 'attach_link_title'));
-		$ostatus_autofriend        = intval(PConfig::get(local_user(), 'system', 'ostatus_autofriend'));
-		$default_group             = PConfig::get(local_user(), 'ostatus', 'default_group');
-		$legacy_contact            = PConfig::get(local_user(), 'ostatus', 'legacy_contact');
+		$accept_only_sharer        = intval(DI::pConfig()->get(local_user(), 'system', 'accept_only_sharer'));
+		$disable_cw                = intval(DI::pConfig()->get(local_user(), 'system', 'disable_cw'));
+		$no_intelligent_shortening = intval(DI::pConfig()->get(local_user(), 'system', 'no_intelligent_shortening'));
+		$attach_link_title         = intval(DI::pConfig()->get(local_user(), 'system', 'attach_link_title'));
+		$ostatus_autofriend        = intval(DI::pConfig()->get(local_user(), 'system', 'ostatus_autofriend'));
+		$default_group             = DI::pConfig()->get(local_user(), 'ostatus', 'default_group');
+		$legacy_contact            = DI::pConfig()->get(local_user(), 'ostatus', 'legacy_contact');
 
 		if (!empty($legacy_contact)) {
 			/// @todo Isn't it supposed to be a $a->internalRedirect() call?
@@ -915,27 +914,27 @@ function settings_content(App $a)
 		$theme_selected        = $a->user['theme'] ?: $default_theme;
 		$mobile_theme_selected = Session::get('mobile-theme', $default_mobile_theme);
 
-		$nowarn_insecure = intval(PConfig::get(local_user(), 'system', 'nowarn_insecure'));
+		$nowarn_insecure = intval(DI::pConfig()->get(local_user(), 'system', 'nowarn_insecure'));
 
-		$browser_update = intval(PConfig::get(local_user(), 'system', 'update_interval'));
+		$browser_update = intval(DI::pConfig()->get(local_user(), 'system', 'update_interval'));
 		if (intval($browser_update) != -1) {
 			$browser_update = (($browser_update == 0) ? 40 : $browser_update / 1000); // default if not set: 40 seconds
 		}
 
-		$itemspage_network = intval(PConfig::get(local_user(), 'system', 'itemspage_network'));
+		$itemspage_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_network'));
 		$itemspage_network = (($itemspage_network > 0 && $itemspage_network < 101) ? $itemspage_network : 40); // default if not set: 40 items
-		$itemspage_mobile_network = intval(PConfig::get(local_user(), 'system', 'itemspage_mobile_network'));
+		$itemspage_mobile_network = intval(DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network'));
 		$itemspage_mobile_network = (($itemspage_mobile_network > 0 && $itemspage_mobile_network < 101) ? $itemspage_mobile_network : 20); // default if not set: 20 items
 
-		$nosmile = PConfig::get(local_user(), 'system', 'no_smilies', 0);
-		$first_day_of_week = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
+		$nosmile = DI::pConfig()->get(local_user(), 'system', 'no_smilies', 0);
+		$first_day_of_week = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 		$weekdays = [0 => L10n::t("Sunday"), 1 => L10n::t("Monday")];
 
-		$noinfo = PConfig::get(local_user(), 'system', 'ignore_info', 0);
-		$infinite_scroll = PConfig::get(local_user(), 'system', 'infinite_scroll', 0);
-		$no_auto_update = PConfig::get(local_user(), 'system', 'no_auto_update', 0);
-		$bandwidth_saver = PConfig::get(local_user(), 'system', 'bandwidth_saver', 0);
-		$no_smart_threading = PConfig::get(local_user(), 'system', 'no_smart_threading', 0);
+		$noinfo = DI::pConfig()->get(local_user(), 'system', 'ignore_info', 0);
+		$infinite_scroll = DI::pConfig()->get(local_user(), 'system', 'infinite_scroll', 0);
+		$no_auto_update = DI::pConfig()->get(local_user(), 'system', 'no_auto_update', 0);
+		$bandwidth_saver = DI::pConfig()->get(local_user(), 'system', 'bandwidth_saver', 0);
+		$no_smart_threading = DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0);
 
 		$theme_config = "";
 		if (($themeconfigfile = get_theme_config_file($theme_selected)) !== null) {
@@ -1000,12 +999,12 @@ function settings_content(App $a)
 	$unkmail    = $a->user['unkmail'];
 	$cntunkmail = $a->user['cntunkmail'];
 
-	$expire_items = PConfig::get(local_user(), 'expire', 'items', true);
-	$expire_notes = PConfig::get(local_user(), 'expire', 'notes', true);
-	$expire_starred = PConfig::get(local_user(), 'expire', 'starred', true);
-	$expire_photos = PConfig::get(local_user(), 'expire', 'photos', false);
-	$expire_network_only = PConfig::get(local_user(), 'expire', 'network_only', false);
-	$suggestme = PConfig::get(local_user(), 'system', 'suggestme', false);
+	$expire_items = DI::pConfig()->get(local_user(), 'expire', 'items', true);
+	$expire_notes = DI::pConfig()->get(local_user(), 'expire', 'notes', true);
+	$expire_starred = DI::pConfig()->get(local_user(), 'expire', 'starred', true);
+	$expire_photos = DI::pConfig()->get(local_user(), 'expire', 'photos', false);
+	$expire_network_only = DI::pConfig()->get(local_user(), 'expire', 'network_only', false);
+	$suggestme = DI::pConfig()->get(local_user(), 'system', 'suggestme', false);
 
 	// nowarn_insecure
 
@@ -1244,11 +1243,11 @@ function settings_content(App $a)
 		'$desktop_notifications' => ['desktop_notifications', L10n::t('Activate desktop notifications') , false, L10n::t('Show desktop popup on new notifications')],
 
 		'$email_textonly' => ['email_textonly', L10n::t('Text-only notification emails'),
-									PConfig::get(local_user(), 'system', 'email_textonly'),
+									DI::pConfig()->get(local_user(), 'system', 'email_textonly'),
 									L10n::t('Send text only notification emails, without the html part')],
 
 		'$detailed_notif' => ['detailed_notif', L10n::t('Show detailled notifications'),
-									PConfig::get(local_user(), 'system', 'detailed_notif'),
+									DI::pConfig()->get(local_user(), 'system', 'detailed_notif'),
 									L10n::t('Per default, notifications are condensed to a single notification per item. When enabled every notification is displayed.')],
 
 		'$h_advn' => L10n::t('Advanced Account/Page Type Settings'),

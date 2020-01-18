@@ -15,7 +15,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -184,12 +183,12 @@ class Profile
 		$a->profile = $pdata;
 		$a->profile_uid = $pdata['profile_uid'];
 
-		$a->profile['mobile-theme'] = PConfig::get($a->profile['profile_uid'], 'system', 'mobile_theme');
+		$a->profile['mobile-theme'] = DI::pConfig()->get($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = Protocol::DFRN;
 
 		DI::page()['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
 
-		if (!$profiledata && !PConfig::get(local_user(), 'system', 'always_my_theme')) {
+		if (!$profiledata && !DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
 			$a->setCurrentTheme($a->profile['theme']);
 			$a->setCurrentMobileTheme($a->profile['mobile-theme']);
 		}
@@ -1218,7 +1217,7 @@ class Profile
 	public static function getThemeUid(App $a)
 	{
 		$uid = !empty($a->profile_uid) ? intval($a->profile_uid) : 0;
-		if (local_user() && (PConfig::get(local_user(), 'system', 'always_my_theme') || !$uid)) {
+		if (local_user() && (DI::pConfig()->get(local_user(), 'system', 'always_my_theme') || !$uid)) {
 			return local_user();
 		}
 

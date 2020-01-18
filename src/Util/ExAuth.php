@@ -35,7 +35,6 @@
 namespace Friendica\Util;
 
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
@@ -234,7 +233,7 @@ class ExAuth
 			}
 			if ($Error) {
 				$this->writeLog(LOG_INFO, 'check against alternate password for ' . $sUser . '@' . $aCommand[2]);
-				$sPassword = PConfig::get($uid, 'xmpp', 'password', null, true);
+				$sPassword = DI::pConfig()->get($uid, 'xmpp', 'password', null, true);
 				$Error = ($aCommand[3] != $sPassword);
 			}
 		} else {

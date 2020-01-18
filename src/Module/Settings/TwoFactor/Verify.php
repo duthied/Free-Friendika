@@ -1,16 +1,12 @@
 <?php
 
-
 namespace Friendica\Module\Settings\TwoFactor;
-
 
 use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Friendica\BaseModule;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -31,8 +27,8 @@ class Verify extends BaseSettingsModule
 			return;
 		}
 
-		$secret = PConfig::get(local_user(), '2fa', 'secret');
-		$verified = PConfig::get(local_user(), '2fa', 'verified');
+		$secret = DI::pConfig()->get(local_user(), '2fa', 'secret');
+		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 		if ($secret && $verified) {
 			DI::baseUrl()->redirect('settings/2fa');
@@ -55,10 +51,10 @@ class Verify extends BaseSettingsModule
 
 			$google2fa = new Google2FA();
 
-			$valid = $google2fa->verifyKey(PConfig::get(local_user(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
+			$valid = $google2fa->verifyKey(DI::pConfig()->get(local_user(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
 
 			if ($valid) {
-				PConfig::set(local_user(), '2fa', 'verified', true);
+				DI::pConfig()->set(local_user(), '2fa', 'verified', true);
 				Session::set('2fa', true);
 
 				notice(L10n::t('Two-factor authentication successfully activated.'));
@@ -80,7 +76,7 @@ class Verify extends BaseSettingsModule
 
 		$company = 'Friendica';
 		$holder = Session::get('my_address');
-		$secret = PConfig::get(local_user(), '2fa', 'secret');
+		$secret = DI::pConfig()->get(local_user(), '2fa', 'secret');
 
 		$otpauthUrl = (new Google2FA())->getQRCodeUrl($company, $holder, $secret);
 

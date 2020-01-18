@@ -4,12 +4,11 @@
  */
 use Friendica\Core\Logger;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
-use Friendica\Model\Profile;
+use Friendica\DI;
 
 $uid = $_REQUEST['puid'] ?? 0;
 
-$style = PConfig::get($uid, 'vier', 'style');
+$style = DI::pConfig()->get($uid, 'vier', 'style');
 
 if (empty($style)) {
 	$style = Config::get('vier', 'style');

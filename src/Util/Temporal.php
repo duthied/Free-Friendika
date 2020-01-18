@@ -9,7 +9,6 @@ namespace Friendica\Util;
 use DateTime;
 use DateTimeZone;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
@@ -218,7 +217,7 @@ class Temporal
 		$required = false)
 	{
 		// First day of the week (0 = Sunday)
-		$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 
 		$lang = substr(L10n::getCurrentLang(), 0, 2);
 

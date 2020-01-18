@@ -9,7 +9,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -379,7 +378,7 @@ class Event
 	public static function getStrings()
 	{
 		// First day of the week (0 = Sunday).
-		$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 
 		$i18n = [
 			"firstDay" => $firstDay,

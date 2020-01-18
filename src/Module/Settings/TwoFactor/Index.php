@@ -1,11 +1,8 @@
 <?php
 
-
 namespace Friendica\Module\Settings\TwoFactor;
 
-
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -29,15 +26,15 @@ class Index extends BaseSettingsModule
 		try {
 			User::getIdFromPasswordAuthentication(local_user(), $_POST['password'] ?? '');
 
-			$has_secret = (bool) PConfig::get(local_user(), '2fa', 'secret');
-			$verified = PConfig::get(local_user(), '2fa', 'verified');
+			$has_secret = (bool) DI::pConfig()->get(local_user(), '2fa', 'secret');
+			$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 			switch ($_POST['action'] ?? '') {
 				case 'enable':
 					if (!$has_secret && !$verified) {
 						$Google2FA = new Google2FA();
 
-						PConfig::set(local_user(), '2fa', 'secret', $Google2FA->generateSecretKey(32));
+						DI::pConfig()->set(local_user(), '2fa', 'secret', $Google2FA->generateSecretKey(32));
 
 						DI::baseUrl()->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}
@@ -45,8 +42,8 @@ class Index extends BaseSettingsModule
 				case 'disable':
 					if ($has_secret) {
 						RecoveryCode::deleteForUser(local_user());
-						PConfig::delete(local_user(), '2fa', 'secret');
-						PConfig::delete(local_user(), '2fa', 'verified');
+						DI::pConfig()->delete(local_user(), '2fa', 'secret');
+						DI::pConfig()->delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
 
 						notice(L10n::t('Two-factor authentication successfully disabled.'));
@@ -82,8 +79,8 @@ class Index extends BaseSettingsModule
 
 		parent::content($parameters);
 
-		$has_secret = (bool) PConfig::get(local_user(), '2fa', 'secret');
-		$verified = PConfig::get(local_user(), '2fa', 'verified');
+		$has_secret = (bool) DI::pConfig()->get(local_user(), '2fa', 'secret');
+		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/index.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('settings_2fa'),

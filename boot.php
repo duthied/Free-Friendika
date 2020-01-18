@@ -17,9 +17,7 @@
  * easily as email does today.
  */
 
-use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -322,7 +320,7 @@ function info($s)
 {
 	$a = DI::app();
 
-	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
+	if (local_user() && DI::pConfig()->get(local_user(), 'system', 'ignore_info')) {
 		return;
 	}
 

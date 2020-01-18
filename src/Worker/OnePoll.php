@@ -6,9 +6,9 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\User;
@@ -641,7 +641,7 @@ class OnePoll
 						$datarray['private'] = 1;
 					}
 
-					if (!PConfig::get($importer_uid, 'system', 'allow_public_email_replies')) {
+					if (!DI::pConfig()->get($importer_uid, 'system', 'allow_public_email_replies')) {
 						$datarray['private'] = 1;
 						$datarray['allow_cid'] = '<' . $contact['id'] . '>';
 					}

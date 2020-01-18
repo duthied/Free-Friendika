@@ -9,8 +9,8 @@ namespace Friendica\App;
 use Exception;
 use Friendica\App;
 use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IPConfiguration;
 use Friendica\Core\Hook;
-use Friendica\Core\PConfig;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\Database;
@@ -46,6 +46,8 @@ class Authentication
 	private $cookie;
 	/** @var Session\ISession */
 	private $session;
+	/** @var IPConfiguration */
+	private $pConfig;
 
 	/**
 	 * Authentication constructor.
@@ -58,17 +60,19 @@ class Authentication
 	 * @param LoggerInterface $logger
 	 * @param User\Cookie     $cookie
 	 * @param Session\ISession $session
+	 * @param IPConfiguration  $pConfig
 	 */
-	public function __construct(IConfiguration $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session)
+	public function __construct(IConfiguration $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session, IPConfiguration $pConfig)
 	{
 		$this->config  = $config;
-		$this->mode = $mode;
+		$this->mode    = $mode;
 		$this->baseUrl = $baseUrl;
 		$this->l10n    = $l10n;
 		$this->dba     = $dba;
 		$this->logger  = $logger;
-		$this->cookie = $cookie;
+		$this->cookie  = $cookie;
 		$this->session = $session;
+		$this->pConfig = $pConfig;
 	}
 
 	/**
@@ -295,7 +299,7 @@ class Authentication
 		$this->session->setMultiple([
 			'uid'           => $user_record['uid'],
 			'theme'         => $user_record['theme'],
-			'mobile-theme'  => PConfig::get($user_record['uid'], 'system', 'mobile_theme'),
+			'mobile-theme'  => $this->pConfig->get($user_record['uid'], 'system', 'mobile_theme'),
 			'authenticated' => 1,
 			'page_flags'    => $user_record['page-flags'],
 			'my_url'        => $this->baseUrl->get() . '/profile/' . $user_record['nickname'],
@@ -395,7 +399,7 @@ class Authentication
 	private function twoFactorCheck(int $uid, App $a)
 	{
 		// Check user setting, if 2FA disabled return
-		if (!PConfig::get($uid, '2fa', 'verified')) {
+		if (!$this->pConfig->get($uid, '2fa', 'verified')) {
 			return;
 		}
 

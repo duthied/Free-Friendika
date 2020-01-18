@@ -2,7 +2,6 @@
 
 namespace Friendica\Module;
 
-use Friendica\App\BaseURL;
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
@@ -10,7 +9,6 @@ use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\L10n\L10n as L10nClass;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -293,7 +291,7 @@ class Register extends BaseModule
 		if (intval(Config::get('config', 'register_policy')) === self::OPEN) {
 			if ($using_invites && $invite_id) {
 				Model\Register::deleteByHash($invite_id);
-				PConfig::set($user['uid'], 'system', 'invites_remaining', $num_invites);
+				DI::pConfig()->set($user['uid'], 'system', 'invites_remaining', $num_invites);
 			}
 
 			// Only send a password mail when the password wasn't manually provided
@@ -339,7 +337,7 @@ class Register extends BaseModule
 			// invite system
 			if ($using_invites && $invite_id) {
 				Model\Register::deleteByHash($invite_id);
-				PConfig::set($user['uid'], 'system', 'invites_remaining', $num_invites);
+				DI::pConfig()->set($user['uid'], 'system', 'invites_remaining', $num_invites);
 			}
 
 			// send email to admins

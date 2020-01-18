@@ -12,7 +12,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -419,7 +418,7 @@ function conv_get_blocklist()
 		return [];
 	}
 
-	$str_blocked = PConfig::get(local_user(), 'system', 'blocked');
+	$str_blocked = DI::pConfig()->get(local_user(), 'system', 'blocked');
 	if (empty($str_blocked)) {
 		return [];
 	}
@@ -666,7 +665,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 
 				list($categories, $folders) = DI::contentItem()->determineCategoriesTerms($item);
 
-				if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
+				if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 					$title = ucfirst($item['content-warning']);
 				} else {
 					$title = $item['title'];
@@ -1469,7 +1468,7 @@ function conv_sort(array $item_list, $order)
 		$parents[$i]['children'] = sort_item_children($parents[$i]['children']);
 	}
 
-	if (!PConfig::get(local_user(), 'system', 'no_smart_threading', 0)) {
+	if (!DI::pConfig()->get(local_user(), 'system', 'no_smart_threading', 0)) {
 		foreach ($parents as $i => $parent) {
 			$parents[$i] = smart_flatten_conversation($parent);
 		}

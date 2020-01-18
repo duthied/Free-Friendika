@@ -6,19 +6,18 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\DI;
 
 function theme_content(App $a) {
 	if (!local_user()) {
 		return;
 	}
 
-	$align = PConfig::get(local_user(), 'quattro', 'align' );
-	$color = PConfig::get(local_user(), 'quattro', 'color' );
-	$tfs = PConfig::get(local_user(),"quattro","tfs");
-	$pfs = PConfig::get(local_user(),"quattro","pfs");
+	$align = DI::pConfig()->get(local_user(), 'quattro', 'align' );
+	$color = DI::pConfig()->get(local_user(), 'quattro', 'color' );
+	$tfs = DI::pConfig()->get(local_user(),"quattro","tfs");
+	$pfs = DI::pConfig()->get(local_user(),"quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }
@@ -29,10 +28,10 @@ function theme_post(App $a) {
 	}
 
 	if (isset($_POST['quattro-settings-submit'])){
-		PConfig::set(local_user(), 'quattro', 'align', $_POST['quattro_align']);
-		PConfig::set(local_user(), 'quattro', 'color', $_POST['quattro_color']);
-		PConfig::set(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
-		PConfig::set(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
+		DI::pConfig()->set(local_user(), 'quattro', 'align', $_POST['quattro_align']);
+		DI::pConfig()->set(local_user(), 'quattro', 'color', $_POST['quattro_color']);
+		DI::pConfig()->set(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
+		DI::pConfig()->set(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 

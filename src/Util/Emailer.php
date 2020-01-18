@@ -7,7 +7,6 @@ namespace Friendica\Util;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Protocol\Email;
 
 /**
@@ -44,7 +43,7 @@ class Emailer
 
 		$email_textonly = false;
 		if (!empty($params['uid'])) {
-			$email_textonly = PConfig::get($params['uid'], "system", "email_textonly");
+			$email_textonly = DI::pConfig()->get($params['uid'], "system", "email_textonly");
 		}
 
 		$fromName = Email::encodeHeader(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');

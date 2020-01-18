@@ -7,7 +7,6 @@ namespace Friendica\Content;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -51,7 +50,7 @@ class Widget
 		$global_dir = Config::get('system', 'directory');
 
 		if (Config::get('system', 'invitation_only')) {
-			$x = intval(PConfig::get(local_user(), 'system', 'invites_remaining'));
+			$x = intval(DI::pConfig()->get(local_user(), 'system', 'invites_remaining'));
 			if ($x || is_site_admin()) {
 				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
 					. L10n::tt('%d invitation available', '%d invitations available', $x)
@@ -267,7 +266,7 @@ class Widget
 			return '';
 		}
 
-		$saved = PConfig::get(local_user(), 'system', 'filetags');
+		$saved = DI::pConfig()->get(local_user(), 'system', 'filetags');
 		if (!strlen($saved)) {
 			return;
 		}
@@ -310,7 +309,7 @@ class Widget
 			return '';
 		}
 
-		$saved = PConfig::get($uid, 'system', 'filetags');
+		$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 		if (!strlen($saved)) {
 			return;
 		}
@@ -455,7 +454,7 @@ class Widget
 			return $o;
 		}
 
-		$visible_years = PConfig::get($uid, 'system', 'archive_visible_years', 5);
+		$visible_years = DI::pConfig()->get($uid, 'system', 'archive_visible_years', 5);
 
 		/* arrange the list in years */
 		$dnow = DateTimeFormat::localNow('Y-m-d');

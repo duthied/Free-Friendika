@@ -3,9 +3,7 @@
 namespace Friendica\Module\Security\TwoFactor;
 
 use Friendica\BaseModule;
-use Friendica\App\Authentication;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -33,7 +31,7 @@ class Verify extends BaseModule
 
 			$code = $_POST['verify_code'] ?? '';
 
-			$valid = (new Google2FA())->verifyKey(PConfig::get(local_user(), '2fa', 'secret'), $code);
+			$valid = (new Google2FA())->verifyKey(DI::pConfig()->get(local_user(), '2fa', 'secret'), $code);
 
 			// The same code can't be used twice even if it's valid
 			if ($valid && Session::get('2fa') !== $code) {

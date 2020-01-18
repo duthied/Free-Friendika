@@ -6,8 +6,8 @@
 namespace Friendica\Model;
 
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * @brief This class handles FileTag related functions
@@ -174,7 +174,7 @@ class FileTag
 			return true;
 		}
 
-		$saved = PConfig::get($uid, 'system', 'filetags');
+		$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 
 		if (strlen($saved)) {
 			if ($type == 'file') {
@@ -222,12 +222,12 @@ class FileTag
 			}
 
 			if ($saved != $filetags_updated) {
-				PConfig::set($uid, 'system', 'filetags', $filetags_updated);
+				DI::pConfig()->set($uid, 'system', 'filetags', $filetags_updated);
 			}
 
 			return true;
 		} elseif (strlen($file_new)) {
-			PConfig::set($uid, 'system', 'filetags', $file_new);
+			DI::pConfig()->set($uid, 'system', 'filetags', $file_new);
 		}
 
 		return true;
@@ -256,10 +256,10 @@ class FileTag
 				Item::update($fields, ['id' => $item_id]);
 			}
 
-			$saved = PConfig::get($uid, 'system', 'filetags');
+			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 
 			if (!strlen($saved) || !stristr($saved, '[' . self::encode($file) . ']')) {
-				PConfig::set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
+				DI::pConfig()->set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
 			}
 
 			info(L10n::t('Item filed'));
@@ -311,8 +311,8 @@ class FileTag
 		);
 
 		if (!DBA::isResult($r)) {
-			$saved = PConfig::get($uid, 'system', 'filetags');
-			PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
+			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
+			DI::pConfig()->set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 		}
 
 		return true;

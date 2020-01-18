@@ -16,7 +16,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -70,7 +69,7 @@ function network_init(App $a)
 		$sel_nets = $_GET['nets'] ?? '';
 		$sel_tabs = network_query_get_sel_tab($a);
 		$sel_groups = network_query_get_sel_group($a);
-		$last_sel_tabs = PConfig::get(local_user(), 'network.view', 'tab.selected');
+		$last_sel_tabs = DI::pConfig()->get(local_user(), 'network.view', 'tab.selected');
 
 		$remember_tab = ($sel_tabs[0] === 'active' && is_array($last_sel_tabs) && $last_sel_tabs[0] !== 'active');
 
@@ -219,10 +218,10 @@ function networkPager(App $a, Pager $pager, $update)
 	//  check if we serve a mobile device and get the user settings
 	//  accordingly
 	if (DI::mode()->isMobile()) {
-		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network');
+		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network');
 		$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 20);
 	} else {
-		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network');
+		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network');
 		$itemspage_network = ((intval($itemspage_network)) ? $itemspage_network : 40);
 	}
 
@@ -282,7 +281,7 @@ function networkConversation(App $a, $items, Pager $pager, $mode, $update, $orde
 	$o = conversation($a, $items, $pager, $mode, $update, false, $ordering, local_user());
 
 	if (!$update) {
-		if (PConfig::get(local_user(), 'system', 'infinite_scroll')) {
+		if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')) {
 			$o .= HTML::scrollLoader();
 		} else {
 			$o .= $pager->renderMinimal(count($items));
@@ -491,7 +490,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$tabs = network_tabs($a);
 		$o .= $tabs;
 
-		if ($gid && ($t = Contact::getOStatusCountByGroupId($gid)) && !PConfig::get(local_user(), 'system', 'nowarn_insecure')) {
+		if ($gid && ($t = Contact::getOStatusCountByGroupId($gid)) && !DI::pConfig()->get(local_user(), 'system', 'nowarn_insecure')) {
 			notice(L10n::tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 				"Warning: This group contains %s members from a network that doesn't allow non public messages.",
 				$t) . EOL);
@@ -612,7 +611,7 @@ function networkThreadedView(App $a, $update, $parent)
 				'id' => 'network',
 			]) . $o;
 
-			if ($contact['network'] === Protocol::OSTATUS && $contact['writable'] && !PConfig::get(local_user(),'system','nowarn_insecure')) {
+			if ($contact['network'] === Protocol::OSTATUS && $contact['writable'] && !DI::pConfig()->get(local_user(),'system','nowarn_insecure')) {
 				notice(L10n::t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 		} else {
@@ -770,7 +769,7 @@ function networkThreadedView(App $a, $update, $parent)
 
 		// When checking for updates we need to fetch from the newest date to the newest date before
 		// Only do this, when the last stored date isn't too long ago (10 times the update interval)
-		$browser_update = PConfig::get(local_user(), 'system', 'update_interval', 40000) / 1000;
+		$browser_update = DI::pConfig()->get(local_user(), 'system', 'update_interval', 40000) / 1000;
 
 		if (($browser_update > 0) && $update && !empty($_SESSION['network_last_date']) &&
 			(($bottom_limit < $_SESSION['network_last_date']) || ($top_limit == $bottom_limit)) &&
@@ -959,7 +958,7 @@ function network_tabs(App $a)
 
 	// save selected tab, but only if not in file mode
 	if (empty($_GET['file'])) {
-		PConfig::set(local_user(), 'network.view', 'tab.selected', [
+		DI::pConfig()->set(local_user(), 'network.view', 'tab.selected', [
 			$all_active, $post_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}
@@ -994,7 +993,7 @@ function network_infinite_scroll_head(App $a, &$htmlhead)
 	 */
 	global $pager;
 
-	if (PConfig::get(local_user(), 'system', 'infinite_scroll')
+	if (DI::pConfig()->get(local_user(), 'system', 'infinite_scroll')
 		&& ($_GET['mode'] ?? '') != 'minimal'
 	) {
 		$tpl = Renderer::getMarkupTemplate('infinite_scroll_head.tpl');

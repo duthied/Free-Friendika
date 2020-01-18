@@ -10,7 +10,6 @@ use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -453,7 +452,7 @@ function ping_get_notifications($uid)
 				&& empty($result[$notification["parent"]])
 			) {
 				// Should we condense the notifications or show them all?
-				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {
+				if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
 					$result[$notification["parent"]] = $notification;

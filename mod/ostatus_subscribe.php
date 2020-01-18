@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -26,17 +25,17 @@ function ostatus_subscribe_content(App $a)
 
 	$counter = intval($_REQUEST['counter']);
 
-	if (PConfig::get($uid, 'ostatus', 'legacy_friends') == '') {
+	if (DI::pConfig()->get($uid, 'ostatus', 'legacy_friends') == '') {
 
 		if ($_REQUEST['url'] == '') {
-			PConfig::delete($uid, 'ostatus', 'legacy_contact');
+			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 			return $o . L10n::t('No contact provided.');
 		}
 
 		$contact = Probe::uri($_REQUEST['url']);
 
 		if (!$contact) {
-			PConfig::delete($uid, 'ostatus', 'legacy_contact');
+			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 			return $o . L10n::t('Couldn\'t fetch information for contact.');
 		}
 
@@ -46,14 +45,14 @@ function ostatus_subscribe_content(App $a)
 		$curlResult = Network::curl($api . 'statuses/friends.json?screen_name=' . $contact['nick']);
 
 		if (!$curlResult->isSuccess()) {
-			PConfig::delete($uid, 'ostatus', 'legacy_contact');
+			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 			return $o . L10n::t('Couldn\'t fetch friends for contact.');
 		}
 
-		PConfig::set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
+		DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
 	}
 
-	$friends = json_decode(PConfig::get($uid, 'ostatus', 'legacy_friends'));
+	$friends = json_decode(DI::pConfig()->get($uid, 'ostatus', 'legacy_friends'));
 
 	if (empty($friends)) {
 		$friends = [];
@@ -63,8 +62,8 @@ function ostatus_subscribe_content(App $a)
 
 	if ($counter >= $total) {
 		DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl() . '/settings/connectors">';
-		PConfig::delete($uid, 'ostatus', 'legacy_friends');
-		PConfig::delete($uid, 'ostatus', 'legacy_contact');
+		DI::pConfig()->delete($uid, 'ostatus', 'legacy_friends');
+		DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
 		$o .= L10n::t('Done');
 		return $o;
 	}

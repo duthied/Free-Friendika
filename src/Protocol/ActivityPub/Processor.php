@@ -8,9 +8,9 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Event;
@@ -462,7 +462,7 @@ class Processor
 				continue;
 			}
 
-			if (PConfig::get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
+			if (DI::pConfig()->get($receiver, 'system', 'accept_only_sharer', false) && ($receiver != 0) && ($item['gravity'] == GRAVITY_PARENT)) {
 				$skip = !Contact::isSharingByURL($activity['author'], $receiver);
 
 				if ($skip && (($activity['type'] == 'as:Announce') || $isForum)) {

@@ -6,7 +6,7 @@
 
 use Friendica\App;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
+use Friendica\DI;
 
 require_once "mod/network.php";
 
@@ -23,13 +23,13 @@ function update_network_content(App $a)
 	echo "<!DOCTYPE html><html><body>\r\n";
 	echo "<section>";
 
-	if (!PConfig::get($profile_uid, "system", "no_auto_update") || ($_GET["force"] == 1)) {
+	if (!DI::pConfig()->get($profile_uid, "system", "no_auto_update") || ($_GET["force"] == 1)) {
 		$text = network_content($a, $profile_uid, $parent);
 	} else {
 		$text = "";
 	}
 
-	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
+	if (DI::pConfig()->get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />" . L10n::t("[Embedded content - reload page to view]") . "<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);

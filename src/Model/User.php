@@ -13,7 +13,6 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -275,7 +274,7 @@ class User
 		$default_group = 0;
 
 		if ($network == Protocol::OSTATUS) {
-			$default_group = PConfig::get($uid, "ostatus", "default_group");
+			$default_group = DI::pConfig()->get($uid, "ostatus", "default_group");
 		}
 
 		if ($default_group != 0) {
@@ -326,7 +325,7 @@ class User
 	{
 		$user = self::getAuthenticationInfo($user_info);
 
-		if ($third_party && PConfig::get($user['uid'], '2fa', 'verified')) {
+		if ($third_party && DI::pConfig()->get($user['uid'], '2fa', 'verified')) {
 			// Third-party apps can't verify two-factor authentication, we use app-specific passwords instead
 			if (AppSpecificPassword::authenticateUser($user['uid'], $password)) {
 				return $user['uid'];

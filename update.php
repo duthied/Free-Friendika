@@ -4,10 +4,10 @@ use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
@@ -134,23 +134,23 @@ function update_1191()
 			$value = $rr['v'];
 
 			if ($key === 'randomise') {
-				PConfig::delete($uid, $family, $key);
+				DI::pConfig()->delete($uid, $family, $key);
 			}
 
 			if ($key === 'show_on_profile') {
 				if ($value) {
-					PConfig::set($uid, feature, forumlist_profile, $value);
+					DI::pConfig()->set($uid, feature, forumlist_profile, $value);
 				}
 
-				PConfig::delete($uid, $family, $key);
+				DI::pConfig()->delete($uid, $family, $key);
 			}
 
 			if ($key === 'show_on_network') {
 				if ($value) {
-					PConfig::set($uid, feature, forumlist_widget, $value);
+					DI::pConfig()->set($uid, feature, forumlist_widget, $value);
 				}
 
-				PConfig::delete($uid, $family, $key);
+				DI::pConfig()->delete($uid, $family, $key);
 			}
 		}
 	}

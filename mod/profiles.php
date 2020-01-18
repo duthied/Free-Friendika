@@ -11,7 +11,6 @@ use Friendica\Content\Nav;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -338,7 +337,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		PConfig::set(local_user(), 'system', 'detailled_profile', !empty($_POST['detailed_profile']) ? 1: 0);
+		DI::pConfig()->set(local_user(), 'system', 'detailled_profile', !empty($_POST['detailed_profile']) ? 1: 0);
 
 		$changes = [];
 		if ($is_default) {
@@ -535,7 +534,7 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					[User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]));
 
-		$detailed_profile = (PConfig::get(local_user(), 'system', 'detailled_profile') AND $personal_account);
+		$detailed_profile = (DI::pConfig()->get(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = Renderer::getMarkupTemplate("profile_edit.tpl");

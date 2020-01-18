@@ -6,9 +6,8 @@
 use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\DI;
 
 require_once __DIR__ . '/theme.php';
 
@@ -22,7 +21,7 @@ function theme_content(App $a)
 		return;
 	}
 
-	$style = PConfig::get(local_user(), 'vier', 'style');
+	$style = DI::pConfig()->get(local_user(), 'vier', 'style');
 
 	if ($style == "") {
 		$style = Config::get('vier', 'style');
@@ -50,13 +49,13 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['vier-settings-submit'])) {
-		PConfig::set(local_user(), 'vier', 'style', $_POST['vier_style']);
-		PConfig::set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
-		PConfig::set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
-		PConfig::set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
-		PConfig::set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
-		PConfig::set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
-		PConfig::set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		DI::pConfig()->set(local_user(), 'vier', 'style', $_POST['vier_style']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_pages', $_POST['vier_show_pages']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_profiles', $_POST['vier_show_profiles']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_helpers', $_POST['vier_show_helpers']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_services', $_POST['vier_show_services']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_friends', $_POST['vier_show_friends']);
+		DI::pConfig()->set(local_user(), 'vier', 'show_lastusers', $_POST['vier_show_lastusers']);
 	}
 }
 

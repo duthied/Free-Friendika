@@ -17,7 +17,6 @@ use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
-use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
@@ -3290,7 +3289,7 @@ class Diaspora
 	 */
 	public static function sendAccountMigration(array $owner, array $contact, $uid)
 	{
-		$old_handle = PConfig::get($uid, 'system', 'previous_addr');
+		$old_handle = DI::pConfig()->get($uid, 'system', 'previous_addr');
 		$profile = self::createProfileData($uid);
 
 		$signed_text = 'AccountMigration:'.$old_handle.':'.$profile['author'];
@@ -3551,7 +3550,7 @@ class Diaspora
 			$body = $item["body"];
 
 			// Fetch the title from an attached link - if there is one
-			if (empty($item["title"]) && PConfig::get($owner['uid'], 'system', 'attach_link_title')) {
+			if (empty($item["title"]) && DI::pConfig()->get($owner['uid'], 'system', 'attach_link_title')) {
 				$page_data = BBCode::getAttachmentData($item['body']);
 				if (!empty($page_data['type']) && !empty($page_data['title']) && ($page_data['type'] == 'link')) {
 					$title = $page_data['title'];

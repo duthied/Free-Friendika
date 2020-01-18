@@ -1,11 +1,8 @@
 <?php
 
-
 namespace Friendica\Module\Settings\TwoFactor;
 
-
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
@@ -27,7 +24,7 @@ class AppSpecific extends BaseSettingsModule
 			return;
 		}
 
-		$verified = PConfig::get(local_user(), '2fa', 'verified');
+		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 		if (!$verified) {
 			DI::baseUrl()->redirect('settings/2fa');

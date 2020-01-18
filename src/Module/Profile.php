@@ -10,19 +10,15 @@ use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact as ContactModel;
-use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
 use Friendica\Protocol\ActivityPub;
-use Friendica\Protocol\DFRN;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
@@ -293,9 +289,9 @@ class Profile extends BaseModule
 			//  check if we serve a mobile device and get the user settings
 			//  accordingly
 			if (DI::mode()->isMobile()) {
-				$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 10);
+				$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network', 10);
 			} else {
-				$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 20);
+				$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network', 20);
 			}
 
 			//  now that we have the user settings, see if the theme forces

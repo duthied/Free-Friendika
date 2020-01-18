@@ -8,7 +8,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\L10n;
-use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -146,7 +145,7 @@ class Group extends BaseModule
 		}
 
 		// Switch to text mode interface if we have more than 'n' contacts or group members
-		$switchtotext = PConfig::get(local_user(), 'system', 'groupedit_image_limit');
+		$switchtotext = DI::pConfig()->get(local_user(), 'system', 'groupedit_image_limit');
 		if (is_null($switchtotext)) {
 			$switchtotext = Config::get('system', 'groupedit_image_limit', 200);
 		}
