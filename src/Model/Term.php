@@ -4,7 +4,7 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -84,7 +84,7 @@ class Term
 
 			if (DBA::isResult($tagsStmt)) {
 				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('global_trending_tags', $tags, Cache::HOUR);
+				DI::cache()->set('global_trending_tags', $tags, Duration::HOUR);
 			}
 		}
 
@@ -129,7 +129,7 @@ class Term
 
 			if (DBA::isResult($tagsStmt)) {
 				$tags = DBA::toArray($tagsStmt);
-				DI::cache()->set('local_trending_tags', $tags, Cache::HOUR);
+				DI::cache()->set('local_trending_tags', $tags, Duration::HOUR);
 			}
 		}
 

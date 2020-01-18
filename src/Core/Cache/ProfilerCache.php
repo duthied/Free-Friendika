@@ -59,7 +59,7 @@ class ProfilerCache implements ICache, IMemoryCache
 	/**
 	 * {@inheritDoc}
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$time = microtime(true);
 
@@ -101,7 +101,7 @@ class ProfilerCache implements ICache, IMemoryCache
 	/**
 	 * {@inheritDoc}
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($this->cache instanceof IMemoryCache) {
 			$time = microtime(true);
@@ -119,7 +119,7 @@ class ProfilerCache implements ICache, IMemoryCache
 	/**
 	 * {@inheritDoc}
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
+	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($this->cache instanceof IMemoryCache) {
 			$time = microtime(true);

@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\Util;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Lock\DatabaseLock;
 
 trait DbaLockMockTrait
@@ -25,7 +25,7 @@ trait DbaLockMockTrait
 	 *@see DatabaseLock::acquire()
 	 *
 	 */
-	public function mockAcquireLock($key, $ttl = Cache::FIVE_MINUTES, $locked = false, $pid = null, $rowExists = true, $time = null, $times = null)
+	public function mockAcquireLock($key, $ttl = Duration::FIVE_MINUTES, $locked = false, $pid = null, $rowExists = true, $time = null, $times = null)
 	{
 		if ($time === null) {
 			$time = time();

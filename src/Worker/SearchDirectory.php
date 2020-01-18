@@ -4,7 +4,7 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -81,6 +81,6 @@ class SearchDirectory
 				}
 			}
 		}
-		DI::cache()->set('SearchDirectory:' . $search, time(), Cache::DAY);
+		DI::cache()->set('SearchDirectory:' . $search, time(), Duration::DAY);
 	}
 }

@@ -4,7 +4,7 @@ namespace Friendica\Console;
 
 use Asika\SimpleConsole\CommandArgsException;
 use Friendica\App;
-use Friendica\Core\Cache\Cache as CacheClass;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Cache\ICache;
 use RuntimeException;
 
@@ -154,7 +154,7 @@ HELP;
 		if (count($this->args) >= 3) {
 			$key      = $this->getArgument(1);
 			$value    = $this->getArgument(2);
-			$duration = intval($this->getArgument(3, CacheClass::FIVE_MINUTES));
+			$duration = intval($this->getArgument(3, Duration::FIVE_MINUTES));
 
 			if (is_array($this->cache->get($key))) {
 				throw new RuntimeException("$key is an array and can't be set using this command.");

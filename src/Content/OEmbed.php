@@ -10,7 +10,7 @@ use DOMNode;
 use DOMText;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
@@ -120,9 +120,9 @@ class OEmbed
 					'content' => $json_string,
 					'created' => DateTimeFormat::utcNow()
 				], true);
-				$cache_ttl = Cache::DAY;
+				$cache_ttl = Duration::DAY;
 			} else {
-				$cache_ttl = Cache::FIVE_MINUTES;
+				$cache_ttl = Duration::FIVE_MINUTES;
 			}
 
 			DI::cache()->set($cache_key, $json_string, $cache_ttl);

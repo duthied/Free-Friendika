@@ -30,7 +30,7 @@ class CacheLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Cache\Cache::FIVE_MINUTES)
+	public function acquire($key, $timeout = 120, $ttl = Cache\Duration::FIVE_MINUTES)
 	{
 		$got_lock = false;
 		$start    = time();

@@ -3,6 +3,7 @@
 namespace Friendica\Core\Cache;
 
 use Exception;
+use Friendica\Core\BaseCache;
 use Friendica\Core\Config\IConfiguration;
 use Redis;
 
@@ -12,7 +13,7 @@ use Redis;
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  * @author Roland Haeder <roland@mxchange.org>
  */
-class RedisCache extends Cache implements IMemoryCache
+class RedisCache extends BaseCache implements IMemoryCache
 {
 	/**
 	 * @var Redis
@@ -96,7 +97,7 @@ class RedisCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 
@@ -140,7 +141,7 @@ class RedisCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 		$cached = serialize($value);
@@ -151,7 +152,7 @@ class RedisCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
+	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
 	{
 		$cachekey = $this->getCacheKey($key);
 
@@ -199,6 +200,6 @@ class RedisCache extends Cache implements IMemoryCache
 	 */
 	public function getName()
 	{
-		return self::TYPE_REDIS;
+		return Type::REDIS;
 	}
 }

@@ -2,6 +2,8 @@
 
 namespace Friendica\Core\Cache;
 
+use Friendica\Core\BaseCache;
+
 /**
  * Implementation of the IMemoryCache mainly for testing purpose
  *
@@ -9,7 +11,7 @@ namespace Friendica\Core\Cache;
  *
  * @package Friendica\Core\Cache
  */
-class ArrayCache extends Cache implements IMemoryCache
+class ArrayCache extends BaseCache implements IMemoryCache
 {
 	use TraitCompareDelete;
 
@@ -38,7 +40,7 @@ class ArrayCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		$this->cachedData[$key] = $value;
 		return true;
@@ -70,7 +72,7 @@ class ArrayCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function add($key, $value, $ttl = Cache::FIVE_MINUTES)
+	public function add($key, $value, $ttl = Duration::FIVE_MINUTES)
 	{
 		if (isset($this->cachedData[$key])) {
 			return false;
@@ -82,7 +84,7 @@ class ArrayCache extends Cache implements IMemoryCache
 	/**
 	 * (@inheritdoc)
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES)
+	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES)
 	{
 		if ($this->get($key) === $oldValue) {
 			return $this->set($key, $newValue);
@@ -96,6 +98,6 @@ class ArrayCache extends Cache implements IMemoryCache
 	 */
 	public function getName()
 	{
-		return self::TYPE_ARRAY;
+		return Type::ARRAY;
 	}
 }

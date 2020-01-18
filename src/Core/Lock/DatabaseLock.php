@@ -2,7 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
 
@@ -35,7 +35,7 @@ class DatabaseLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Cache::FIVE_MINUTES)
+	public function acquire($key, $timeout = 120, $ttl = Duration::FIVE_MINUTES)
 	{
 		$got_lock = false;
 		$start    = time();

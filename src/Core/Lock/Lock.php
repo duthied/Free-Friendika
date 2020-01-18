@@ -2,7 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Type;
 
 /**
  * Class AbstractLock
@@ -13,7 +13,7 @@ use Friendica\Core\Cache\Cache;
  */
 abstract class Lock implements ILock
 {
-	const TYPE_DATABASE  = Cache::TYPE_DATABASE;
+	const TYPE_DATABASE  = Type::DATABASE;
 	const TYPE_SEMAPHORE = 'semaphore';
 
 	/**

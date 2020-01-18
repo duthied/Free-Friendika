@@ -4,7 +4,7 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Cache\Cache;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Logger;
 use Exception;
 use Friendica\DI;
@@ -46,7 +46,7 @@ class JsonLD
 		}
 
 		$data = jsonld_default_document_loader($url);
-		DI::cache()->set('documentLoader:' . $url, $data, Cache::DAY);
+		DI::cache()->set('documentLoader:' . $url, $data, Duration::DAY);
 		return $data;
 	}
 

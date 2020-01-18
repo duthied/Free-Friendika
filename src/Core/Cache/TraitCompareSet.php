@@ -13,11 +13,11 @@ trait TraitCompareSet
 {
 	abstract public function get($key);
 
-	abstract public function set($key, $value, $ttl = Cache::FIVE_MINUTES);
+	abstract public function set($key, $value, $ttl = Duration::FIVE_MINUTES);
 
 	abstract public function delete($key);
 
-	abstract public function add($key, $value, $ttl = Cache::FIVE_MINUTES);
+	abstract public function add($key, $value, $ttl = Duration::FIVE_MINUTES);
 
 	/**
 	 * NonNative - Compares if the old value is set and sets the new value
@@ -29,7 +29,7 @@ trait TraitCompareSet
 	 *
 	 * @return bool
 	 */
-	public function compareSet($key, $oldValue, $newValue, $ttl = Cache::FIVE_MINUTES) {
+	public function compareSet($key, $oldValue, $newValue, $ttl = Duration::FIVE_MINUTES) {
 		if ($this->add($key . "_lock", true)) {
 			if ($this->get($key) === $oldValue) {
 				$this->set($key, $newValue, $ttl);

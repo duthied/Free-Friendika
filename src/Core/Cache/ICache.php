@@ -36,7 +36,7 @@ interface ICache
 	 *
 	 * @return bool
 	 */
-	public function set($key, $value, $ttl = Cache::FIVE_MINUTES);
+	public function set($key, $value, $ttl = Duration::FIVE_MINUTES);
 
 	/**
 	 * Delete a key from the cache

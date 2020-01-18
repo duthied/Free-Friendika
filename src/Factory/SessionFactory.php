@@ -3,8 +3,8 @@
 namespace Friendica\Factory;
 
 use Friendica\App;
-use Friendica\Core\Cache\Cache;
 use Friendica\Core\Cache\ICache;
+use Friendica\Core\Cache\Type;
 use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -55,7 +55,7 @@ class SessionFactory
 						break;
 					case self::HANDLER_CACHE:
 						// In case we're using the db as cache driver, use the native db session, not the cache
-						if ($config->get('system', 'cache_driver') === Cache::TYPE_DATABASE) {
+						if ($config->get('system', 'cache_driver') === Type::DATABASE) {
 							$handler = new Session\Handler\Database($dba, $logger, $server);
 						} else {
 							$handler = new Session\Handler\Cache($cache, $logger, $server);
