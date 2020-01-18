@@ -7,6 +7,7 @@ namespace Friendica\Content;
 use Friendica\Core\Hook;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 

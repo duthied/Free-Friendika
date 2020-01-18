@@ -4,6 +4,7 @@ namespace Friendica\Console;
 
 use Friendica\App;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Util\Strings;
 use RuntimeException;
 
