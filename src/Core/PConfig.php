@@ -20,19 +20,6 @@ use Friendica\DI;
 class PConfig
 {
 	/**
-	 * @brief Loads all configuration values of a user's config family into a cached storage.
-	 *
-	 * @param int    $uid The user_id
-	 * @param string $cat The category of the configuration value
-	 *
-	 * @return void
-	 */
-	public static function load(int $uid, string $cat)
-	{
-		DI::pConfig()->load($uid, $cat);
-	}
-
-	/**
 	 * @brief Get a particular user's config variable given the category name
 	 * ($cat) and a key.
 	 *

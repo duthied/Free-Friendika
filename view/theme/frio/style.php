@@ -5,6 +5,7 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\DI;
 use Friendica\Util\Strings;
 
 require_once 'view/theme/frio/php/PHPColors/Color.php';
@@ -37,7 +38,7 @@ $login_bg_color = $login_bg_color ?: '#ededed';
 // Get the UID of the profile owner.
 $uid = $_REQUEST['puid'] ?? 0;
 if ($uid) {
-	PConfig::load($uid, 'frio');
+	DI::pConfig()->load($uid, 'frio');
 
 	// Only override display settings that have actually been set
 	$scheme           = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema')) ?: $scheme;
