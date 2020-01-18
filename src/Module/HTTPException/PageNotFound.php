@@ -3,7 +3,7 @@
 namespace Friendica\Module\HTTPException;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
+use Friendica\DI;
 use Friendica\Network\HTTPException;
 
 class PageNotFound extends BaseModule

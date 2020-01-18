@@ -6,7 +6,6 @@
 
 namespace Friendica\Content\Widget;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;

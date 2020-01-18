@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\ACL;
-use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;

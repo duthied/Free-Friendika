@@ -4,7 +4,6 @@ namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Content\Text;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Model\Item;
 use Friendica\Util\XML;

@@ -6,10 +6,10 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\UserImport;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 function uimport_post(App $a)
 {

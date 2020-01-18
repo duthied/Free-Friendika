@@ -8,7 +8,6 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Network\HTTPException;
 
 /**

@@ -2,10 +2,7 @@
 
 namespace Friendica\Module\Settings;
 
-use Friendica\App\Arguments;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;

@@ -6,11 +6,11 @@
 namespace Friendica\Model;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * functions for interacting with the group database table

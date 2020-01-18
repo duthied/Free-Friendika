@@ -6,7 +6,6 @@ use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core;
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Network\HTTPException;

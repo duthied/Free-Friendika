@@ -5,7 +5,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
 use Friendica\Content\Text\Markdown;
-use Friendica\Core\L10n;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;

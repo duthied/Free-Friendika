@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Settings\TwoFactor;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;

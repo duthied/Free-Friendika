@@ -6,7 +6,6 @@ use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\DI;

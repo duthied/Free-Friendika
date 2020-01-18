@@ -4,7 +4,6 @@ namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
 use Friendica\Core\Installer;
-use Friendica\Core\L10n;
 use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;

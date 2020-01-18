@@ -2,8 +2,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
-use Friendica\Model\Introduction;
 use Friendica\DI;
 
 /**

@@ -4,11 +4,11 @@
  * contain methods to deal with images
  */
 
+use Friendica\DI;
+
 /**
  * This class contains methods to deal with images
  */
-use Friendica\Core\L10n;
-
 class Image
 {
 	/**

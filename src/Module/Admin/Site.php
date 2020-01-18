@@ -4,10 +4,8 @@ namespace Friendica\Module\Admin;
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
-use Friendica\Core\StorageManager;
 use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;

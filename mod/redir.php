@@ -1,7 +1,6 @@
 <?php
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Core\System;

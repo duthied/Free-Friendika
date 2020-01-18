@@ -5,7 +5,6 @@ namespace Friendica\Module\Search;
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;

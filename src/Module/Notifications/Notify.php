@@ -3,7 +3,6 @@
 namespace Friendica\Module\Notifications;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Network\HTTPException;

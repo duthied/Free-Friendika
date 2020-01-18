@@ -3,7 +3,6 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Util\Strings;
 use RuntimeException;

@@ -9,7 +9,6 @@ use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Session;
 use Friendica\Core\System;
 use Friendica\Database\DBA;

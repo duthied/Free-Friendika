@@ -4,7 +4,6 @@ namespace Friendica\Module\Admin\Addons;
 
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseAdminModule;

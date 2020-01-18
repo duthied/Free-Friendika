@@ -7,7 +7,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
-use Friendica\Core\L10n as L10nClass;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
@@ -260,7 +259,7 @@ class Register extends BaseModule
 
 		$arr['blocked'] = $blocked;
 		$arr['verified'] = $verified;
-		$arr['language'] = L10nClass::detectLanguage($_SERVER, $_GET, DI::config()->get('system', 'language'));
+		$arr['language'] = L10n::detectLanguage($_SERVER, $_GET, DI::config()->get('system', 'language'));
 
 		try {
 			$result = Model\User::create($arr);

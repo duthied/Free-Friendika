@@ -3,7 +3,6 @@
 namespace Friendica\Module\Search;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Util\Strings;

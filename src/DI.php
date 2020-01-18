@@ -3,7 +3,6 @@
 namespace Friendica;
 
 use Dice\Dice;
-use Friendica\Core\L10n;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -158,7 +157,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return L10n
+	 * @return Core\L10n
 	 */
 	public static function l10n()
 	{

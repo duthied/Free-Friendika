@@ -5,13 +5,10 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\DI;
-use Friendica\Model\Item;
-use Friendica\Model\Photo;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;

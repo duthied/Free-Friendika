@@ -3,8 +3,8 @@
 namespace Friendica\Module\Debug;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Network\Probe;
 
 /**

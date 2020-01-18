@@ -6,8 +6,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
-use Friendica\Core\System;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\Photo;

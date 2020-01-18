@@ -7,7 +7,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Session;
 use Friendica\Core\Renderer;
 use Friendica\DI;

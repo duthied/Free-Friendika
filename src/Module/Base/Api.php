@@ -2,9 +2,7 @@
 
 namespace Friendica\Module\Base;
 
-use Friendica\App\Arguments;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 

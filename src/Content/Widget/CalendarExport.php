@@ -7,7 +7,6 @@
 namespace Friendica\Content\Widget;
 
 use Friendica\Content\Feature;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 

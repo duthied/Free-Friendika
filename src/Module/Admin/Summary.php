@@ -4,7 +4,6 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Update;
@@ -16,7 +15,6 @@ use Friendica\Module\BaseAdminModule;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\FileSystem;
 use Friendica\Util\Network;
 
 class Summary extends BaseAdminModule

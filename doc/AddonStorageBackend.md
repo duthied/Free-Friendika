@@ -136,26 +136,26 @@ namespace Friendica\Addon\samplestorage;
 
 use Friendica\Model\Storage\IStorage;
 
-use Friendica\Core\Config;
+use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\L10n;
 
 class SampleStorageBackend implements IStorage
 {
 	const NAME = 'Sample Storage';
 
-	/** @var Config\IConfiguration */
+	/** @var IConfiguration */
 	private $config;
-	/** @var \Friendica\Core\L10n */
+	/** @var L10n */
 	private $l10n;
 
 	/**
 	  * SampleStorageBackend constructor.
-	  * @param Config\IConfiguration $config The configuration of Friendica
+	  * @param IConfiguration $config The configuration of Friendica
 	  *									  
 	  * You can add here every dynamic class as dependency you like and add them to a private field
 	  * Friendica automatically creates these classes and passes them as argument to the constructor									   
 	  */
-	public function __construct(Config\IConfiguration $config, \Friendica\Core\L10n $l10n) 
+	public function __construct(IConfiguration $config, L10n $l10n) 
 	{
 		$this->config = $config;
 		$this->l10n   = $l10n;

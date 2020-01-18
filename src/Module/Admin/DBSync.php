@@ -3,7 +3,6 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Update;
 use Friendica\Database\DBA;

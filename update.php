@@ -2,7 +2,6 @@
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;

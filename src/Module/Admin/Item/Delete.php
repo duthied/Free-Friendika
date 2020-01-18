@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Admin\Item;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;

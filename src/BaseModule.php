@@ -2,7 +2,6 @@
 
 namespace Friendica;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 
 /**

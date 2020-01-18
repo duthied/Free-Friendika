@@ -1,12 +1,10 @@
 <?php
 
-
 namespace Friendica\Module\Special;
 
-use Friendica\Core\L10n;
-use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\DI;
 
 /**
  * This special module displays HTTPException when they are thrown in modules.

@@ -3,8 +3,8 @@
 namespace Friendica\Module\Admin\Logs;
 
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
 use Friendica\Util\Strings;
 
