@@ -33,7 +33,7 @@ class Home extends BaseModule
 		}
 
 		$customHome = '';
-		$defaultHeader = ($config->get('config', 'sitename') ? L10n::t('Welcome to %s', $config->get('config', 'sitename')) : '');
+		$defaultHeader = ($config->get('config', 'sitename') ? DI::l10n()->t('Welcome to %s', $config->get('config', 'sitename')) : '');
 
 		$homeFilePath = $app->getBasePath() . '/home.html';
 		$cssFilePath = $app->getBasePath() . '/home.css';

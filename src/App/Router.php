@@ -181,9 +181,9 @@ class Router
 			$moduleClass = $routeInfo[1];
 			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-			throw new HTTPException\MethodNotAllowedException(L10n::t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+			throw new HTTPException\MethodNotAllowedException(DI::l10n()->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
 		} else {
-			throw new HTTPException\NotFoundException(L10n::t('Page not found.'));
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Page not found.'));
 		}
 
 		return $moduleClass;

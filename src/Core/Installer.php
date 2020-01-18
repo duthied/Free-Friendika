@@ -159,7 +159,7 @@ class Installer
 		$result = file_put_contents($basepath . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'local.config.php', $txt);
 
 		if (!$result) {
-			$this->addCheck(L10n::t('The database configuration file "config/local.config.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.'), false, false, htmlentities($txt, ENT_COMPAT, 'UTF-8'));
+			$this->addCheck(DI::l10n()->t('The database configuration file "config/local.config.php" could not be written. Please use the enclosed text to create a configuration file in your web server root.'), false, false, htmlentities($txt, ENT_COMPAT, 'UTF-8'));
 		}
 
 		return $result;
@@ -178,8 +178,8 @@ class Installer
 		$result = DBStructure::update($basePath, false, true, true);
 
 		if ($result) {
-			$txt = L10n::t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
-			$txt .= L10n::t('Please see the file "INSTALL.txt".');
+			$txt = DI::l10n()->t('You may need to import the file "database.sql" manually using phpmyadmin or mysql.') . EOL;
+			$txt .= DI::l10n()->t('Please see the file "INSTALL.txt".');
 
 			$this->addCheck($txt, false, true, htmlentities($result, ENT_COMPAT, 'UTF-8'));
 
@@ -240,18 +240,18 @@ class Installer
 
 		$help = "";
 		if (!$passed) {
-			$help .= L10n::t('Could not find a command line version of PHP in the web server PATH.') . EOL;
-			$help .= L10n::t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
+			$help .= DI::l10n()->t('Could not find a command line version of PHP in the web server PATH.') . EOL;
+			$help .= DI::l10n()->t("If you don't have a command line version of PHP installed on your server, you will not be able to run the background processing. See <a href='https://github.com/friendica/friendica/blob/master/doc/Install.md#set-up-the-worker'>'Setup the worker'</a>") . EOL;
 			$help .= EOL . EOL;
 			$tpl = Renderer::getMarkupTemplate('field_input.tpl');
 			/// @todo Separate backend Installer class and presentation layer/view
 			$help .= Renderer::replaceMacros($tpl, [
-				'$field' => ['config-php_path', L10n::t('PHP executable path'), $phppath, L10n::t('Enter full path to php executable. You can leave this blank to continue the installation.')],
+				'$field' => ['config-php_path', DI::l10n()->t('PHP executable path'), $phppath, DI::l10n()->t('Enter full path to php executable. You can leave this blank to continue the installation.')],
 			]);
 			$phppath = "";
 		}
 
-		$this->addCheck(L10n::t('Command line PHP') . ($passed ? " (<tt>$phppath</tt>)" : ""), $passed, false, $help);
+		$this->addCheck(DI::l10n()->t('Command line PHP') . ($passed ? " (<tt>$phppath</tt>)" : ""), $passed, false, $help);
 
 		if ($passed) {
 			$cmd = "$phppath -v";
@@ -260,10 +260,10 @@ class Installer
 			list($result) = explode("\n", $result);
 			$help = "";
 			if (!$passed2) {
-				$help .= L10n::t("PHP executable is not the php cli binary \x28could be cgi-fgci version\x29") . EOL;
-				$help .= L10n::t('Found PHP version: ') . "<tt>$result</tt>";
+				$help .= DI::l10n()->t("PHP executable is not the php cli binary \x28could be cgi-fgci version\x29") . EOL;
+				$help .= DI::l10n()->t('Found PHP version: ') . "<tt>$result</tt>";
 			}
-			$this->addCheck(L10n::t('PHP cli binary'), $passed2, true, $help);
+			$this->addCheck(DI::l10n()->t('PHP cli binary'), $passed2, true, $help);
 		} else {
 			// return if it was required
 			return !$required;
@@ -276,13 +276,13 @@ class Installer
 			$passed3 = $result == $str;
 			$help = "";
 			if (!$passed3) {
-				$help .= L10n::t('The command line version of PHP on your system does not have "register_argc_argv" enabled.') . EOL;
-				$help .= L10n::t('This is required for message delivery to work.');
+				$help .= DI::l10n()->t('The command line version of PHP on your system does not have "register_argc_argv" enabled.') . EOL;
+				$help .= DI::l10n()->t('This is required for message delivery to work.');
 			} else {
 				$this->phppath = $phppath;
 			}
 
-			$this->addCheck(L10n::t('PHP register_argc_argv'), $passed3, true, $help);
+			$this->addCheck(DI::l10n()->t('PHP register_argc_argv'), $passed3, true, $help);
 		}
 
 		// passed2 & passed3 are required if first check passed
@@ -314,11 +314,11 @@ class Installer
 
 		// Get private key
 		if (!$res) {
-			$help .= L10n::t('Error: the "openssl_pkey_new" function on this system is not able to generate encryption keys') . EOL;
-			$help .= L10n::t('If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".');
+			$help .= DI::l10n()->t('Error: the "openssl_pkey_new" function on this system is not able to generate encryption keys') . EOL;
+			$help .= DI::l10n()->t('If running under Windows, please see "http://www.php.net/manual/en/openssl.installation.php".');
 			$status = false;
 		}
-		$this->addCheck(L10n::t('Generate encryption keys'), $res, true, $help);
+		$this->addCheck(DI::l10n()->t('Generate encryption keys'), $res, true, $help);
 
 		return $status;
 	}
@@ -370,27 +370,27 @@ class Installer
 		$status = true;
 		if (function_exists('apache_get_modules')) {
 			if (!in_array('mod_rewrite', apache_get_modules())) {
-				$help = L10n::t('Error: Apache webserver mod-rewrite module is required but not installed.');
+				$help = DI::l10n()->t('Error: Apache webserver mod-rewrite module is required but not installed.');
 				$status = false;
 				$returnVal = false;
 			}
 		}
-		$this->addCheck(L10n::t('Apache mod_rewrite module'), $status, true, $help);
+		$this->addCheck(DI::l10n()->t('Apache mod_rewrite module'), $status, true, $help);
 
 		$help = '';
 		$status = true;
 		if (!function_exists('mysqli_connect') && !class_exists('pdo')) {
 			$status = false;
-			$help = L10n::t('Error: PDO or MySQLi PHP module required but not installed.');
+			$help = DI::l10n()->t('Error: PDO or MySQLi PHP module required but not installed.');
 			$returnVal = false;
 		} else {
 			if (!function_exists('mysqli_connect') && class_exists('pdo') && !in_array('mysql', \PDO::getAvailableDrivers())) {
 				$status = false;
-				$help = L10n::t('Error: The MySQL driver for PDO is not installed.');
+				$help = DI::l10n()->t('Error: The MySQL driver for PDO is not installed.');
 				$returnVal = false;
 			}
 		}
-		$this->addCheck(L10n::t('PDO or MySQLi PHP module'), $status, true, $help);
+		$this->addCheck(DI::l10n()->t('PDO or MySQLi PHP module'), $status, true, $help);
 
 		// check for XML DOM Documents being able to be generated
 		$help = '';
@@ -398,64 +398,64 @@ class Installer
 		try {
 			new DOMDocument();
 		} catch (Exception $e) {
-			$help = L10n::t('Error, XML PHP module required but not installed.');
+			$help = DI::l10n()->t('Error, XML PHP module required but not installed.');
 			$status = false;
 			$returnVal = false;
 		}
-		$this->addCheck(L10n::t('XML PHP module'), $status, true, $help);
+		$this->addCheck(DI::l10n()->t('XML PHP module'), $status, true, $help);
 
 		$status = $this->checkFunction('curl_init',
-			L10n::t('libCurl PHP module'),
-			L10n::t('Error: libCURL PHP module required but not installed.'),
+			DI::l10n()->t('libCurl PHP module'),
+			DI::l10n()->t('Error: libCURL PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('imagecreatefromjpeg',
-			L10n::t('GD graphics PHP module'),
-			L10n::t('Error: GD graphics PHP module with JPEG support required but not installed.'),
+			DI::l10n()->t('GD graphics PHP module'),
+			DI::l10n()->t('Error: GD graphics PHP module with JPEG support required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('openssl_public_encrypt',
-			L10n::t('OpenSSL PHP module'),
-			L10n::t('Error: openssl PHP module required but not installed.'),
+			DI::l10n()->t('OpenSSL PHP module'),
+			DI::l10n()->t('Error: openssl PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('mb_strlen',
-			L10n::t('mb_string PHP module'),
-			L10n::t('Error: mb_string PHP module required but not installed.'),
+			DI::l10n()->t('mb_string PHP module'),
+			DI::l10n()->t('Error: mb_string PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('iconv_strlen',
-			L10n::t('iconv PHP module'),
-			L10n::t('Error: iconv PHP module required but not installed.'),
+			DI::l10n()->t('iconv PHP module'),
+			DI::l10n()->t('Error: iconv PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('posix_kill',
-			L10n::t('POSIX PHP module'),
-			L10n::t('Error: POSIX PHP module required but not installed.'),
+			DI::l10n()->t('POSIX PHP module'),
+			DI::l10n()->t('Error: POSIX PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('json_encode',
-			L10n::t('JSON PHP module'),
-			L10n::t('Error: JSON PHP module required but not installed.'),
+			DI::l10n()->t('JSON PHP module'),
+			DI::l10n()->t('Error: JSON PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
 
 		$status = $this->checkFunction('finfo_open',
-			L10n::t('File Information PHP module'),
-			L10n::t('Error: File Information PHP module required but not installed.'),
+			DI::l10n()->t('File Information PHP module'),
+			DI::l10n()->t('Error: File Information PHP module required but not installed.'),
 			true
 		);
 		$returnVal = $returnVal ? $status : false;
@@ -478,13 +478,13 @@ class Installer
 			(!file_exists('config/local.config.php') && !is_writable('.'))) {
 
 			$status = false;
-			$help = L10n::t('The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.') . EOL;
-			$help .= L10n::t('This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.') . EOL;
-			$help .= L10n::t('At the end of this procedure, we will give you a text to save in a file named local.config.php in your Friendica "config" folder.') . EOL;
-			$help .= L10n::t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
+			$help = DI::l10n()->t('The web installer needs to be able to create a file called "local.config.php" in the "config" folder of your web server and it is unable to do so.') . EOL;
+			$help .= DI::l10n()->t('This is most often a permission setting, as the web server may not be able to write files in your folder - even if you can.') . EOL;
+			$help .= DI::l10n()->t('At the end of this procedure, we will give you a text to save in a file named local.config.php in your Friendica "config" folder.') . EOL;
+			$help .= DI::l10n()->t('You can alternatively skip this procedure and perform a manual installation. Please see the file "INSTALL.txt" for instructions.') . EOL;
 		}
 
-		$this->addCheck(L10n::t('config/local.config.php is writable'), $status, false, $help);
+		$this->addCheck(DI::l10n()->t('config/local.config.php is writable'), $status, false, $help);
 
 		// Local INI File is not required
 		return true;
@@ -504,13 +504,13 @@ class Installer
 		if (!is_writable('view/smarty3')) {
 
 			$status = false;
-			$help = L10n::t('Friendica uses the Smarty3 template engine to render its web views. Smarty3 compiles templates to PHP to speed up rendering.') . EOL;
-			$help .= L10n::t('In order to store these compiled templates, the web server needs to have write access to the directory view/smarty3/ under the Friendica top level folder.') . EOL;
-			$help .= L10n::t("Please ensure that the user that your web server runs as \x28e.g. www-data\x29 has write access to this folder.") . EOL;
-			$help .= L10n::t("Note: as a security measure, you should give the web server write access to view/smarty3/ only--not the template files \x28.tpl\x29 that it contains.") . EOL;
+			$help = DI::l10n()->t('Friendica uses the Smarty3 template engine to render its web views. Smarty3 compiles templates to PHP to speed up rendering.') . EOL;
+			$help .= DI::l10n()->t('In order to store these compiled templates, the web server needs to have write access to the directory view/smarty3/ under the Friendica top level folder.') . EOL;
+			$help .= DI::l10n()->t("Please ensure that the user that your web server runs as \x28e.g. www-data\x29 has write access to this folder.") . EOL;
+			$help .= DI::l10n()->t("Note: as a security measure, you should give the web server write access to view/smarty3/ only--not the template files \x28.tpl\x29 that it contains.") . EOL;
 		}
 
-		$this->addCheck(L10n::t('view/smarty3 is writable'), $status, true, $help);
+		$this->addCheck(DI::l10n()->t('view/smarty3 is writable'), $status, true, $help);
 
 		return $status;
 	}
@@ -539,14 +539,14 @@ class Installer
 
 			if ($fetchResult->getReturnCode() != 204) {
 				$status = false;
-				$help = L10n::t('Url rewrite in .htaccess is not working. Make sure you copied .htaccess-dist to .htaccess.');
+				$help = DI::l10n()->t('Url rewrite in .htaccess is not working. Make sure you copied .htaccess-dist to .htaccess.');
 				$error_msg = [];
-				$error_msg['head'] = L10n::t('Error message from Curl when fetching');
+				$error_msg['head'] = DI::l10n()->t('Error message from Curl when fetching');
 				$error_msg['url'] = $fetchResult->getRedirectUrl();
 				$error_msg['msg'] = $fetchResult->getError();
 			}
 
-			$this->addCheck(L10n::t('Url rewrite is working'), $status, true, $help, $error_msg);
+			$this->addCheck(DI::l10n()->t('Url rewrite is working'), $status, true, $help, $error_msg);
 		} else {
 			// cannot check modrewrite if libcurl is not installed
 			/// @TODO Maybe issue warning here?
@@ -575,11 +575,11 @@ class Installer
 			}
 		}
 		if (!$imagick) {
-			$this->addCheck(L10n::t('ImageMagick PHP extension is not installed'), $imagick, false, "");
+			$this->addCheck(DI::l10n()->t('ImageMagick PHP extension is not installed'), $imagick, false, "");
 		} else {
-			$this->addCheck(L10n::t('ImageMagick PHP extension is installed'), $imagick, false, "");
+			$this->addCheck(DI::l10n()->t('ImageMagick PHP extension is installed'), $imagick, false, "");
 			if ($imagick) {
-				$this->addCheck(L10n::t('ImageMagick supports GIF'), $gif, false, "");
+				$this->addCheck(DI::l10n()->t('ImageMagick supports GIF'), $gif, false, "");
 			}
 		}
 
@@ -601,12 +601,12 @@ class Installer
 
 		if ($dba->isConnected()) {
 			if (DBStructure::existsTable('user')) {
-				$this->addCheck(L10n::t('Database already in use.'), false, true, '');
+				$this->addCheck(DI::l10n()->t('Database already in use.'), false, true, '');
 
 				return false;
 			}
 		} else {
-			$this->addCheck(L10n::t('Could not connect to database.'), false, true, '');
+			$this->addCheck(DI::l10n()->t('Could not connect to database.'), false, true, '');
 
 			return false;
 		}

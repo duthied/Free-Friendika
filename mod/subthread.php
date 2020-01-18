@@ -89,7 +89,7 @@ function subthread_content(App $a) {
 
 	$uri = Item::newURI($owner_uid);
 
-	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
+	$post_type = (($item['resource-id']) ? DI::l10n()->t('photo') : DI::l10n()->t('status'));
 	$objtype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );
 	$link = XML::escape('<link rel="alternate" type="text/html" href="' . DI::baseUrl() . '/display/' . $item['guid'] . '" />' . "\n");
 	$body = $item['body'];
@@ -105,7 +105,7 @@ function subthread_content(App $a) {
 		<content>$body</content>
 	</object>
 EOT;
-	$bodyverb = L10n::t('%1$s is following %2$s\'s %3$s');
+	$bodyverb = DI::l10n()->t('%1$s is following %2$s\'s %3$s');
 
 	if (!isset($bodyverb)) {
 		return;

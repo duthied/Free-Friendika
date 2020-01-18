@@ -27,21 +27,21 @@ class Temporal
 	private static function timezoneCompareCallback($a, $b)
 	{
 		if (strstr($a, '/') && strstr($b, '/')) {
-			if (L10n::t($a) == L10n::t($b)) {
+			if (DI::l10n()->t($a) == DI::l10n()->t($b)) {
 				return 0;
 			}
-			return (L10n::t($a) < L10n::t($b)) ? -1 : 1;
+			return (DI::l10n()->t($a) < DI::l10n()->t($b)) ? -1 : 1;
 		}
 
 		if (strstr($a, '/')) {
 			return -1;
 		} elseif (strstr($b, '/')) {
 			return 1;
-		} elseif (L10n::t($a) == L10n::t($b)) {
+		} elseif (DI::l10n()->t($a) == DI::l10n()->t($b)) {
 			return 0;
 		}
 
-		return (L10n::t($a) < L10n::t($b)) ? -1 : 1;
+		return (DI::l10n()->t($a) < DI::l10n()->t($b)) ? -1 : 1;
 	}
 
 	/**
@@ -66,7 +66,7 @@ class Temporal
 						$o .= '</optgroup>';
 					}
 					$continent = $ex[0];
-					$o .= '<optgroup label="' . L10n::t($continent) . '">';
+					$o .= '<optgroup label="' . DI::l10n()->t($continent) . '">';
 				}
 				if (count($ex) > 2) {
 					$city = substr($value, strpos($value, '/') + 1);
@@ -75,13 +75,13 @@ class Temporal
 				}
 			} else {
 				$city = $ex[0];
-				if ($continent != L10n::t('Miscellaneous')) {
+				if ($continent != DI::l10n()->t('Miscellaneous')) {
 					$o .= '</optgroup>';
-					$continent = L10n::t('Miscellaneous');
-					$o .= '<optgroup label="' . L10n::t($continent) . '">';
+					$continent = DI::l10n()->t('Miscellaneous');
+					$o .= '<optgroup label="' . DI::l10n()->t($continent) . '">';
 				}
 			}
-			$city = str_replace('_', ' ', L10n::t($city));
+			$city = str_replace('_', ' ', DI::l10n()->t($city));
 			$selected = (($value == $current) ? " selected=\"selected\" " : "");
 			$o .= "<option value=\"$value\" $selected >$city</option>";
 		}
@@ -142,11 +142,11 @@ class Temporal
 			[
 			'$field' => [
 				'dob',
-				L10n::t('Birthday:'),
+				DI::l10n()->t('Birthday:'),
 				$value,
-				intval($age) > 0 ? L10n::t('Age: ') . $age : "",
+				intval($age) > 0 ? DI::l10n()->t('Age: ') . $age : "",
 				'',
-				'placeholder="' . L10n::t('YYYY-MM-DD or MM-DD') . '"'
+				'placeholder="' . DI::l10n()->t('YYYY-MM-DD or MM-DD') . '"'
 			]
 		]);
 
@@ -293,14 +293,14 @@ class Temporal
 		$abs = strtotime($localtime);
 
 		if (is_null($posted_date) || $posted_date <= DBA::NULL_DATETIME || $abs === false) {
-			return L10n::t('never');
+			return DI::l10n()->t('never');
 		}
 
 		$isfuture = false;
 		$etime = time() - $abs;
 
 		if ($etime < 1 && $etime >= 0) {
-			return L10n::t('less than a second ago');
+			return DI::l10n()->t('less than a second ago');
 		}
 
 		if ($etime < 0){
@@ -308,13 +308,13 @@ class Temporal
 			$isfuture = true;
 		}
 
-		$a = [12 * 30 * 24 * 60 * 60 => [L10n::t('year'), L10n::t('years')],
-			30 * 24 * 60 * 60 => [L10n::t('month'), L10n::t('months')],
-			7 * 24 * 60 * 60 => [L10n::t('week'), L10n::t('weeks')],
-			24 * 60 * 60 => [L10n::t('day'), L10n::t('days')],
-			60 * 60 => [L10n::t('hour'), L10n::t('hours')],
-			60 => [L10n::t('minute'), L10n::t('minutes')],
-			1 => [L10n::t('second'), L10n::t('seconds')]
+		$a = [12 * 30 * 24 * 60 * 60 => [DI::l10n()->t('year'), DI::l10n()->t('years')],
+			30 * 24 * 60 * 60 => [DI::l10n()->t('month'), DI::l10n()->t('months')],
+			7 * 24 * 60 * 60 => [DI::l10n()->t('week'), DI::l10n()->t('weeks')],
+			24 * 60 * 60 => [DI::l10n()->t('day'), DI::l10n()->t('days')],
+			60 * 60 => [DI::l10n()->t('hour'), DI::l10n()->t('hours')],
+			60 => [DI::l10n()->t('minute'), DI::l10n()->t('minutes')],
+			1 => [DI::l10n()->t('second'), DI::l10n()->t('seconds')]
 		];
 
 		foreach ($a as $secs => $str) {
@@ -324,10 +324,10 @@ class Temporal
 				// translators - e.g. 22 hours ago, 1 minute ago
 				if (!$format) {
 					if($isfuture){
-						$format = L10n::t('in %1$d %2$s');
+						$format = DI::l10n()->t('in %1$d %2$s');
 					}
 					else {
-						$format = L10n::t('%1$d %2$s ago');
+						$format = DI::l10n()->t('%1$d %2$s ago');
 					}
 				}
 

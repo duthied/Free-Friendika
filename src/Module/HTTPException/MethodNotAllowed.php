@@ -10,6 +10,6 @@ class MethodNotAllowed extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		throw new HTTPException\MethodNotAllowedException(L10n::t('Method Not Allowed.'));
+		throw new HTTPException\MethodNotAllowedException(DI::l10n()->t('Method Not Allowed.'));
 	}
 }

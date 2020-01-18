@@ -62,9 +62,9 @@ class CalendarExport
 
 		$tpl = Renderer::getMarkupTemplate("widget/events.tpl");
 		$return = Renderer::replaceMacros($tpl, [
-			'$etitle'      => L10n::t("Export"),
-			'$export_ical' => L10n::t("Export calendar as ical"),
-			'$export_csv'  => L10n::t("Export calendar as csv"),
+			'$etitle'      => DI::l10n()->t("Export"),
+			'$export_ical' => DI::l10n()->t("Export calendar as ical"),
+			'$export_csv'  => DI::l10n()->t("Export calendar as csv"),
 			'$user'        => $user
 		]);
 

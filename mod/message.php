@@ -29,7 +29,7 @@ function message_init(App $a)
 	}
 
 	$new = [
-		'label' => L10n::t('New Message'),
+		'label' => DI::l10n()->t('New Message'),
 		'url' => 'message/new',
 		'sel' => $a->argc > 1 && $a->argv[1] == 'new',
 		'accesskey' => 'm',
@@ -52,7 +52,7 @@ function message_init(App $a)
 function message_post(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -66,20 +66,20 @@ function message_post(App $a)
 
 	switch ($ret) {
 		case -1:
-			notice(L10n::t('No recipient selected.') . EOL);
+			notice(DI::l10n()->t('No recipient selected.') . EOL);
 			$norecip = true;
 			break;
 		case -2:
-			notice(L10n::t('Unable to locate contact information.') . EOL);
+			notice(DI::l10n()->t('Unable to locate contact information.') . EOL);
 			break;
 		case -3:
-			notice(L10n::t('Message could not be sent.') . EOL);
+			notice(DI::l10n()->t('Message could not be sent.') . EOL);
 			break;
 		case -4:
-			notice(L10n::t('Message collection failure.') . EOL);
+			notice(DI::l10n()->t('Message collection failure.') . EOL);
 			break;
 		default:
-			info(L10n::t('Message sent.') . EOL);
+			info(DI::l10n()->t('Message sent.') . EOL);
 	}
 
 	// fake it to go back to the input form if no recipient listed
@@ -97,7 +97,7 @@ function message_content(App $a)
 	Nav::setSelected('messages');
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return Login::form();
 	}
 
@@ -106,20 +106,20 @@ function message_content(App $a)
 	$tpl = Renderer::getMarkupTemplate('mail_head.tpl');
 	if ($a->argc > 1 && $a->argv[1] == 'new') {
 		$button = [
-			'label' => L10n::t('Discard'),
+			'label' => DI::l10n()->t('Discard'),
 			'url' => '/message',
 			'sel' => 'close',
 		];
 	} else {
 		$button = [
-			'label' => L10n::t('New Message'),
+			'label' => DI::l10n()->t('New Message'),
 			'url' => '/message/new',
 			'sel' => 'new',
 			'accesskey' => 'm',
 		];
 	}
 	$header = Renderer::replaceMacros($tpl, [
-		'$messages' => L10n::t('Messages'),
+		'$messages' => DI::l10n()->t('Messages'),
 		'$button' => $button,
 	]);
 
@@ -144,12 +144,12 @@ function message_content(App $a)
 			//DI::page()['aside'] = '';
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
-				'$message' => L10n::t('Do you really want to delete this message?'),
+				'$message' => DI::l10n()->t('Do you really want to delete this message?'),
 				'$extra_inputs' => $inputs,
-				'$confirm' => L10n::t('Yes'),
+				'$confirm' => DI::l10n()->t('Yes'),
 				'$confirm_url' => $query['base'],
 				'$confirm_name' => 'confirmed',
-				'$cancel' => L10n::t('Cancel'),
+				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}
 
@@ -162,17 +162,17 @@ function message_content(App $a)
 		if ($cmd === 'drop') {
 			$message = DBA::selectFirst('mail', ['convid'], ['id' => $a->argv[2], 'uid' => local_user()]);
 			if(!DBA::isResult($message)){
-				info(L10n::t('Conversation not found.') . EOL);
+				info(DI::l10n()->t('Conversation not found.') . EOL);
 				DI::baseUrl()->redirect('message');
 			}
 
 			if (DBA::delete('mail', ['id' => $a->argv[2], 'uid' => local_user()])) {
-				info(L10n::t('Message deleted.') . EOL);
+				info(DI::l10n()->t('Message deleted.') . EOL);
 			}
 
 			$conversation = DBA::selectFirst('mail', ['id'], ['convid' => $message['convid'], 'uid' => local_user()]);
 			if(!DBA::isResult($conversation)){
-				info(L10n::t('Conversation removed.') . EOL);
+				info(DI::l10n()->t('Conversation removed.') . EOL);
 				DI::baseUrl()->redirect('message');
 			}
 
@@ -186,7 +186,7 @@ function message_content(App $a)
 				$parent = $r[0]['parent-uri'];
 
 				if (DBA::delete('mail', ['parent-uri' => $parent, 'uid' => local_user()])) {
-					info(L10n::t('Conversation removed.') . EOL);
+					info(DI::l10n()->t('Conversation removed.') . EOL);
 				}
 			}
 			DI::baseUrl()->redirect('message');
@@ -200,7 +200,7 @@ function message_content(App $a)
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
+			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
 		$preselect = isset($a->argv[2]) ? [$a->argv[2]] : [];
@@ -242,22 +242,22 @@ function message_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('prv_message.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
-			'$header'     => L10n::t('Send Private Message'),
-			'$to'         => L10n::t('To:'),
+			'$header'     => DI::l10n()->t('Send Private Message'),
+			'$to'         => DI::l10n()->t('To:'),
 			'$showinputs' => 'true',
 			'$prefill'    => $prefill,
 			'$preid'      => $preid,
-			'$subject'    => L10n::t('Subject:'),
+			'$subject'    => DI::l10n()->t('Subject:'),
 			'$subjtxt'    => $_REQUEST['subject'] ?? '',
 			'$text'       => $_REQUEST['body'] ?? '',
 			'$readonly'   => '',
-			'$yourmessage'=> L10n::t('Your message:'),
+			'$yourmessage'=> DI::l10n()->t('Your message:'),
 			'$select'     => $select,
 			'$parent'     => '',
-			'$upload'     => L10n::t('Upload photo'),
-			'$insert'     => L10n::t('Insert web link'),
-			'$wait'       => L10n::t('Please wait'),
-			'$submit'     => L10n::t('Submit')
+			'$upload'     => DI::l10n()->t('Upload photo'),
+			'$insert'     => DI::l10n()->t('Insert web link'),
+			'$wait'       => DI::l10n()->t('Please wait'),
+			'$submit'     => DI::l10n()->t('Submit')
 		]);
 		return $o;
 	}
@@ -285,7 +285,7 @@ function message_content(App $a)
 		$r = get_messages(local_user(), $pager->getStart(), $pager->getItemsPerPage());
 
 		if (!DBA::isResult($r)) {
-			info(L10n::t('No messages.') . EOL);
+			info(DI::l10n()->t('No messages.') . EOL);
 			return $o;
 		}
 
@@ -348,7 +348,7 @@ function message_content(App $a)
 		}
 
 		if (!DBA::isResult($messages)) {
-			notice(L10n::t('Message not available.') . EOL);
+			notice(DI::l10n()->t('Message not available.') . EOL);
 			return $o;
 		}
 
@@ -356,7 +356,7 @@ function message_content(App $a)
 		DI::page()['htmlhead'] .= Renderer::replaceMacros($tpl, [
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$nickname' => $a->user['nickname'],
-			'$linkurl' => L10n::t('Please enter a link URL:')
+			'$linkurl' => DI::l10n()->t('Please enter a link URL:')
 		]);
 
 		$mails = [];
@@ -402,9 +402,9 @@ function message_content(App $a)
 				'from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
 				'subject' => $subject_e,
 				'body' => $body_e,
-				'delete' => L10n::t('Delete message'),
+				'delete' => DI::l10n()->t('Delete message'),
 				'to_name' => $to_name_e,
-				'date' => DateTimeFormat::local($message['created'], L10n::t('D, d M Y - g:i A')),
+				'date' => DateTimeFormat::local($message['created'], DI::l10n()->t('D, d M Y - g:i A')),
 				'ago' => Temporal::getRelativeDate($message['created']),
 			];
 
@@ -419,26 +419,26 @@ function message_content(App $a)
 			'$thread_id' => $a->argv[1],
 			'$thread_subject' => $message['title'],
 			'$thread_seen' => $seen,
-			'$delete' => L10n::t('Delete conversation'),
+			'$delete' => DI::l10n()->t('Delete conversation'),
 			'$canreply' => (($unknown) ? false : '1'),
-			'$unknown_text' => L10n::t("No secure communications available. You <strong>may</strong> be able to respond from the sender's profile page."),
+			'$unknown_text' => DI::l10n()->t("No secure communications available. You <strong>may</strong> be able to respond from the sender's profile page."),
 			'$mails' => $mails,
 
 			// reply
-			'$header' => L10n::t('Send Reply'),
-			'$to' => L10n::t('To:'),
+			'$header' => DI::l10n()->t('Send Reply'),
+			'$to' => DI::l10n()->t('To:'),
 			'$showinputs' => '',
-			'$subject' => L10n::t('Subject:'),
+			'$subject' => DI::l10n()->t('Subject:'),
 			'$subjtxt' => $message['title'],
 			'$readonly' => ' readonly="readonly" style="background: #BBBBBB;" ',
-			'$yourmessage' => L10n::t('Your message:'),
+			'$yourmessage' => DI::l10n()->t('Your message:'),
 			'$text' => '',
 			'$select' => $select,
 			'$parent' => $parent,
-			'$upload' => L10n::t('Upload photo'),
-			'$insert' => L10n::t('Insert web link'),
-			'$submit' => L10n::t('Submit'),
-			'$wait' => L10n::t('Please wait')
+			'$upload' => DI::l10n()->t('Upload photo'),
+			'$insert' => DI::l10n()->t('Insert web link'),
+			'$submit' => DI::l10n()->t('Submit'),
+			'$wait' => DI::l10n()->t('Please wait')
 		]);
 
 		return $o;
@@ -508,11 +508,11 @@ function render_messages(array $msg, $t)
 
 	foreach ($msg as $rr) {
 		if ($rr['unknown']) {
-			$participants = L10n::t("Unknown sender - %s", $rr['from-name']);
+			$participants = DI::l10n()->t("Unknown sender - %s", $rr['from-name']);
 		} elseif (Strings::compareLink($rr['from-url'], $myprofile)) {
-			$participants = L10n::t("You and %s", $rr['name']);
+			$participants = DI::l10n()->t("You and %s", $rr['name']);
 		} else {
-			$participants = L10n::t("%s and You", $rr['from-name']);
+			$participants = DI::l10n()->t("%s and You", $rr['from-name']);
 		}
 
 		$body_e = $rr['body'];
@@ -533,10 +533,10 @@ function render_messages(array $msg, $t)
 			'$sparkle' => ' sparkle',
 			'$from_photo' => ProxyUtils::proxifyUrl($from_photo, false, ProxyUtils::SIZE_THUMB),
 			'$subject' => $rr['title'],
-			'$delete' => L10n::t('Delete conversation'),
+			'$delete' => DI::l10n()->t('Delete conversation'),
 			'$body' => $body_e,
 			'$to_name' => $to_name_e,
-			'$date' => DateTimeFormat::local($rr['mailcreated'], L10n::t('D, d M Y - g:i A')),
+			'$date' => DateTimeFormat::local($rr['mailcreated'], DI::l10n()->t('D, d M Y - g:i A')),
 			'$ago' => Temporal::getRelativeDate($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
 			'$count' => L10n::tt('%d message', '%d messages', $rr['count']),

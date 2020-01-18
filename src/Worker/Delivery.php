@@ -537,7 +537,7 @@ class Delivery
 			$reply_to = $mailacct['reply_to'];
 		}
 
-		$subject  = ($target_item['title'] ? Email::encodeHeader($target_item['title'], 'UTF-8') : L10n::t("\x28no subject\x29"));
+		$subject  = ($target_item['title'] ? Email::encodeHeader($target_item['title'], 'UTF-8') : DI::l10n()->t("\x28no subject\x29"));
 
 		// only expose our real email address to true friends
 

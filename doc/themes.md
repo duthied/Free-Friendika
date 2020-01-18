@@ -108,17 +108,17 @@ The _post functions handle the processing of the send form, in this case they sa
 To make your own variation appear in the menu, all you need to do is to create a new CSS file in the deriv directoy and include it in the array in the config.php:
 
     $colorset = array(
-        'default'=>L10n::t('default'),
-        'greenzero'=>L10n::t('greenzero'),
-        'purplezero'=>L10n::t('purplezero'),
-        'easterbunny'=>L10n::t('easterbunny'),
-        'darkzero'=>L10n::t('darkzero'),
-        'comix'=>L10n::t('comix'),
-        'slackr'=>L10n::t('slackr'),
+        'default'=>DI::l10n()->t('default'),
+        'greenzero'=>DI::l10n()->t('greenzero'),
+        'purplezero'=>DI::l10n()->t('purplezero'),
+        'easterbunny'=>DI::l10n()->t('easterbunny'),
+        'darkzero'=>DI::l10n()->t('darkzero'),
+        'comix'=>DI::l10n()->t('comix'),
+        'slackr'=>DI::l10n()->t('slackr'),
     );
 
 the 1st part of the line is the name of the CSS file (without the .css) the 2nd part is the common name of the variant.
-Calling the L10n::t() function with the common name makes the string translateable.
+Calling the DI::l10n()->t() function with the common name makes the string translateable.
 The selected 1st part will be saved in the database by the theme_post function.
 
     function theme_post(App $a){

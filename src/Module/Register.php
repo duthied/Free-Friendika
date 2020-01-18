@@ -42,20 +42,20 @@ class Register extends BaseModule
 		$block = Config::get('system', 'block_extended_register');
 
 		if (local_user() && $block) {
-			notice(L10n::t('Permission denied.'));
+			notice(DI::l10n()->t('Permission denied.'));
 			return '';
 		}
 
 		if (local_user()) {
 			$user = DBA::selectFirst('user', ['parent-uid'], ['uid' => local_user()]);
 			if (!empty($user['parent-uid'])) {
-				notice(L10n::t('Only parent users can create additional accounts.'));
+				notice(DI::l10n()->t('Only parent users can create additional accounts.'));
 				return '';
 			}
 		}
 
 		if (!local_user() && (intval(Config::get('config', 'register_policy')) === self::CLOSED)) {
-			notice(L10n::t('Permission denied.'));
+			notice(DI::l10n()->t('Permission denied.'));
 			return '';
 		}
 
@@ -64,7 +64,7 @@ class Register extends BaseModule
 			$count = DBA::count('user', ['`register_date` > UTC_TIMESTAMP - INTERVAL 1 day']);
 			if ($count >= $max_dailies) {
 				Logger::log('max daily registrations exceeded.');
-				notice(L10n::t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
+				notice(DI::l10n()->t('This site has exceeded the number of allowed daily account registrations. Please try again tomorrow.'));
 				return '';
 			}
 		}
@@ -81,9 +81,9 @@ class Register extends BaseModule
 			$fillext  = '';
 			$oidlabel = '';
 		} else {
-			$fillwith = L10n::t('You may (optionally) fill in this form via OpenID by supplying your OpenID and clicking "Register".');
-			$fillext  = L10n::t('If you are not familiar with OpenID, please leave that field blank and fill in the rest of the items.');
-			$oidlabel = L10n::t('Your OpenID (optional): ');
+			$fillwith = DI::l10n()->t('You may (optionally) fill in this form via OpenID by supplying your OpenID and clicking "Register".');
+			$fillext  = DI::l10n()->t('If you are not familiar with OpenID, please leave that field blank and fill in the rest of the items.');
+			$oidlabel = DI::l10n()->t('Your OpenID (optional): ');
 		}
 
 		if (Config::get('system', 'publish_all')) {
@@ -92,11 +92,11 @@ class Register extends BaseModule
 			$publish_tpl = Renderer::getMarkupTemplate('profile_publish.tpl');
 			$profile_publish = Renderer::replaceMacros($publish_tpl, [
 				'$instance'     => 'reg',
-				'$pubdesc'      => L10n::t('Include your profile in member directory?'),
+				'$pubdesc'      => DI::l10n()->t('Include your profile in member directory?'),
 				'$yes_selected' => '',
 				'$no_selected'  => ' checked="checked"',
-				'$str_yes'      => L10n::t('Yes'),
-				'$str_no'       => L10n::t('No'),
+				'$str_yes'      => DI::l10n()->t('Yes'),
+				'$str_no'       => DI::l10n()->t('No'),
 			]);
 		}
 
@@ -115,42 +115,42 @@ class Register extends BaseModule
 		$o = Renderer::replaceMacros($tpl, [
 			'$invitations'  => Config::get('system', 'invitation_only'),
 			'$permonly'     => intval(Config::get('config', 'register_policy')) === self::APPROVE,
-			'$permonlybox'  => ['permonlybox', L10n::t('Note for the admin'), '', L10n::t('Leave a message for the admin, why you want to join this node'), 'required'],
-			'$invite_desc'  => L10n::t('Membership on this site is by invitation only.'),
-			'$invite_label' => L10n::t('Your invitation code: '),
+			'$permonlybox'  => ['permonlybox', DI::l10n()->t('Note for the admin'), '', DI::l10n()->t('Leave a message for the admin, why you want to join this node'), 'required'],
+			'$invite_desc'  => DI::l10n()->t('Membership on this site is by invitation only.'),
+			'$invite_label' => DI::l10n()->t('Your invitation code: '),
 			'$invite_id'    => $invite_id,
-			'$regtitle'     => L10n::t('Registration'),
+			'$regtitle'     => DI::l10n()->t('Registration'),
 			'$registertext' => BBCode::convert(Config::get('config', 'register_text', '')),
 			'$fillwith'     => $fillwith,
 			'$fillext'      => $fillext,
 			'$oidlabel'     => $oidlabel,
 			'$openid'       => $openid_url,
-			'$namelabel'    => L10n::t('Your Full Name (e.g. Joe Smith, real or real-looking): '),
-			'$addrlabel'    => L10n::t('Your Email Address: (Initial information will be send there, so this has to be an existing address.)'),
-			'$addrlabel2'   => L10n::t('Please repeat your e-mail address:'),
+			'$namelabel'    => DI::l10n()->t('Your Full Name (e.g. Joe Smith, real or real-looking): '),
+			'$addrlabel'    => DI::l10n()->t('Your Email Address: (Initial information will be send there, so this has to be an existing address.)'),
+			'$addrlabel2'   => DI::l10n()->t('Please repeat your e-mail address:'),
 			'$ask_password' => $ask_password,
-			'$password1'    => ['password1', L10n::t('New Password:'), '', L10n::t('Leave empty for an auto generated password.')],
-			'$password2'    => ['confirm', L10n::t('Confirm:'), '', ''],
-			'$nickdesc'     => L10n::t('Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be "<strong>nickname@%s</strong>".', DI::baseUrl()->getHostname()),
-			'$nicklabel'    => L10n::t('Choose a nickname: '),
+			'$password1'    => ['password1', DI::l10n()->t('New Password:'), '', DI::l10n()->t('Leave empty for an auto generated password.')],
+			'$password2'    => ['confirm', DI::l10n()->t('Confirm:'), '', ''],
+			'$nickdesc'     => DI::l10n()->t('Choose a profile nickname. This must begin with a text character. Your profile address on this site will then be "<strong>nickname@%s</strong>".', DI::baseUrl()->getHostname()),
+			'$nicklabel'    => DI::l10n()->t('Choose a nickname: '),
 			'$photo'        => $photo,
 			'$publish'      => $profile_publish,
-			'$regbutt'      => L10n::t('Register'),
+			'$regbutt'      => DI::l10n()->t('Register'),
 			'$username'     => $username,
 			'$email'        => $email,
 			'$nickname'     => $nickname,
 			'$sitename'     => DI::baseUrl()->getHostname(),
-			'$importh'      => L10n::t('Import'),
-			'$importt'      => L10n::t('Import your profile to this friendica instance'),
+			'$importh'      => DI::l10n()->t('Import'),
+			'$importt'      => DI::l10n()->t('Import your profile to this friendica instance'),
 			'$showtoslink'  => Config::get('system', 'tosdisplay'),
-			'$tostext'      => L10n::t('Terms of Service'),
+			'$tostext'      => DI::l10n()->t('Terms of Service'),
 			'$showprivstatement' => Config::get('system', 'tosprivstatement'),
 			'$privstatement'=> $tos->privacy_complete,
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
 			'$explicit_content' => Config::get('system', 'explicit_content', false),
-			'$explicit_content_note' => L10n::t('Note: This node explicitly contains adult content'),
+			'$explicit_content_note' => DI::l10n()->t('Note: This node explicitly contains adult content'),
 			'$additional'   => !empty(local_user()),
-			'$parent_password' => ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')]
+			'$parent_password' => ['parent_password', DI::l10n()->t('Parent Password:'), '', DI::l10n()->t('Please enter the password of the parent account to legitimize your request.')]
 
 		]);
 
@@ -175,19 +175,19 @@ class Register extends BaseModule
 		$additional_account = false;
 
 		if (!local_user() && !empty($arr['post']['parent_password'])) {
-			notice(L10n::t('Permission denied.'));
+			notice(DI::l10n()->t('Permission denied.'));
 			return;
 		} elseif (local_user() && !empty($arr['post']['parent_password'])) {
 			try {
 				Model\User::getIdFromPasswordAuthentication(local_user(), $arr['post']['parent_password']);
 			} catch (\Exception $ex) {
-				notice(L10n::t("Password doesn't match."));
+				notice(DI::l10n()->t("Password doesn't match."));
 				$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
 				DI::baseUrl()->redirect('register?' . http_build_query($regdata));
 			}
 			$additional_account = true;
 		} elseif (local_user()) {
-			notice(L10n::t('Please enter your password.'));
+			notice(DI::l10n()->t('Please enter your password.'));
 			$regdata = ['nickname' => $arr['post']['nickname'], 'username' => $arr['post']['username']];
 			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
 		}
@@ -214,7 +214,7 @@ class Register extends BaseModule
 			case self::CLOSED:
 			default:
 				if (empty($_SESSION['authenticated']) && empty($_SESSION['administrator'])) {
-					notice(L10n::t('Permission denied.'));
+					notice(DI::l10n()->t('Permission denied.'));
 					return;
 				}
 				$blocked = 1;
@@ -229,7 +229,7 @@ class Register extends BaseModule
 		// Is there text in the tar pit?
 		if (!empty($arr['email'])) {
 			Logger::info('Tar pit', $arr);
-			notice(L10n::t('You have entered too much information.'));
+			notice(DI::l10n()->t('You have entered too much information.'));
 			DI::baseUrl()->redirect('register/');
 		}
 
@@ -240,7 +240,7 @@ class Register extends BaseModule
 		if ($additional_account) {
 			$user = DBA::selectFirst('user', ['email'], ['uid' => local_user()]);
 			if (!DBA::isResult($user)) {
-				notice(L10n::t('User not found.'));
+				notice(DI::l10n()->t('User not found.'));
 				DI::baseUrl()->redirect('register');
 			}
 
@@ -253,7 +253,7 @@ class Register extends BaseModule
 
 		if ($arr['email'] != $arr['repeat']) {
 			Logger::info('Mail mismatch', $arr);
-			notice(L10n::t('Please enter the identical mail address in the second field.'));
+			notice(DI::l10n()->t('Please enter the identical mail address in the second field.'));
 			$regdata = ['email' => $arr['email'], 'nickname' => $arr['nickname'], 'username' => $arr['username']];
 			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
 		}
@@ -280,7 +280,7 @@ class Register extends BaseModule
 
 		if ($additional_account) {
 			DBA::update('user', ['parent-uid' => local_user()], ['uid' => $user['uid']]);
-			info(L10n::t('The additional account was created.'));
+			info(DI::l10n()->t('The additional account was created.'));
 			DI::baseUrl()->redirect('delegation');
 		}
 
@@ -305,29 +305,29 @@ class Register extends BaseModule
 				);
 
 				if ($res) {
-					info(L10n::t('Registration successful. Please check your email for further instructions.'));
+					info(DI::l10n()->t('Registration successful. Please check your email for further instructions.'));
 					DI::baseUrl()->redirect();
 				} else {
 					notice(
-						L10n::t('Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.',
+						DI::l10n()->t('Failed to send email message. Here your accout details:<br> login: %s<br> password: %s<br><br>You can change your password after login.',
 							$user['email'],
 							$result['password'])
 					);
 				}
 			} else {
-				info(L10n::t('Registration successful.'));
+				info(DI::l10n()->t('Registration successful.'));
 				DI::baseUrl()->redirect();
 			}
 		} elseif (intval(Config::get('config', 'register_policy')) === self::APPROVE) {
 			if (!strlen(Config::get('config', 'admin_email'))) {
-				notice(L10n::t('Your registration can not be processed.'));
+				notice(DI::l10n()->t('Your registration can not be processed.'));
 				DI::baseUrl()->redirect();
 			}
 
 			// Check if the note to the admin is actually filled out
 			if (empty($_POST['permonlybox'])) {
-				notice(L10n::t('You have to leave a request note for the admin.')
-					. L10n::t('Your registration can not be processed.'));
+				notice(DI::l10n()->t('You have to leave a request note for the admin.')
+					. DI::l10n()->t('Your registration can not be processed.'));
 
 				DI::baseUrl()->redirect('register/');
 			}
@@ -374,7 +374,7 @@ class Register extends BaseModule
 				$result['password']
 			);
 
-			info(L10n::t('Your registration is pending approval by the site owner.'));
+			info(DI::l10n()->t('Your registration is pending approval by the site owner.'));
 			DI::baseUrl()->redirect();
 		}
 

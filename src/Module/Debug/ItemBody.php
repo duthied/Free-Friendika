@@ -16,7 +16,7 @@ class ItemBody extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new HTTPException\UnauthorizedException(L10n::t('Access denied.'));
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Access denied.'));
 		}
 
 		$app = DI::app();
@@ -25,7 +25,7 @@ class ItemBody extends BaseModule
 		$itemId = (($app->argc > 1) ? intval($app->argv[1]) : 0);
 
 		if (!$itemId) {
-			throw new HTTPException\NotFoundException(L10n::t('Item not found.'));
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Item not found.'));
 		}
 
 		$item = Item::selectFirst(['body'], ['uid' => local_user(), 'id' => $itemId]);
@@ -38,7 +38,7 @@ class ItemBody extends BaseModule
 				return str_replace("\n", '<br />', $item['body']);
 			}
 		} else {
-			throw new HTTPException\NotFoundException(L10n::t('Item not found.'));
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Item not found.'));
 		}
 	}
 }

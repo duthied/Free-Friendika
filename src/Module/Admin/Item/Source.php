@@ -45,7 +45,7 @@ class Source extends BaseAdminModule
 
 		$tpl = Renderer::getMarkupTemplate('admin/item/source.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$guid'          => ['guid', L10n::t('Item Guid'), $guid, ''],
+			'$guid'          => ['guid', DI::l10n()->t('Item Guid'), $guid, ''],
 			'$source'        => $source,
 			'$item_uri'      => $item_uri,
 			'$item_id'       => $item_id,

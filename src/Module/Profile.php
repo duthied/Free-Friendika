@@ -114,10 +114,10 @@ class Profile extends BaseModule
 				$page['htmlhead'] .= '<meta content="noindex, noarchive" name="robots" />' . "\n";
 			}
 
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/" title="' . L10n::t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/comments" title="' . L10n::t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
-			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/activity" title="' . L10n::t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/dfrn_poll/' . self::$which . '" title="DFRN: ' . DI::l10n()->t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/" title="' . DI::l10n()->t('%s\'s posts', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/comments" title="' . DI::l10n()->t('%s\'s comments', $a->profile['username']) . '"/>' . "\n";
+			$page['htmlhead'] .= '<link rel="alternate" type="application/atom+xml" href="' . DI::baseUrl() . '/feed/' . self::$which . '/activity" title="' . DI::l10n()->t('%s\'s timeline', $a->profile['username']) . '"/>' . "\n";
 			$uri = urlencode('acct:' . $a->profile['nickname'] . '@' . DI::baseUrl()->getHostname() . (DI::baseUrl()->getUrlPath() ? '/' . DI::baseUrl()->getUrlPath() : ''));
 			$page['htmlhead'] .= '<link rel="lrdd" type="application/xrd+xml" href="' . DI::baseUrl() . '/xrd/?uri=' . $uri . '" />' . "\n";
 			header('Link: <' . DI::baseUrl() . '/xrd/?uri=' . $uri . '>; rel="lrdd"; type="application/xrd+xml"', false);
@@ -169,7 +169,7 @@ class Profile extends BaseModule
 		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
-			notice(L10n::t('Access to this profile has been restricted.') . EOL);
+			notice(DI::l10n()->t('Access to this profile has been restricted.') . EOL);
 			return '';
 		}
 

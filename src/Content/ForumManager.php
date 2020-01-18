@@ -127,12 +127,12 @@ class ForumManager
 			$o .= Renderer::replaceMacros(
 				$tpl,
 				[
-					'$title'	=> L10n::t('Forums'),
+					'$title'	=> DI::l10n()->t('Forums'),
 					'$forums'	=> $entries,
-					'$link_desc'	=> L10n::t('External link to forum'),
+					'$link_desc'	=> DI::l10n()->t('External link to forum'),
 					'$total'	=> $total,
 					'$visible_forums' => $visible_forums,
-					'$showmore'	=> L10n::t('show more')]
+					'$showmore'	=> DI::l10n()->t('show more')]
 			);
 		}
 

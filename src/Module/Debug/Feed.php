@@ -18,7 +18,7 @@ class Feed extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
-			info(L10n::t('You must be logged in to use this module'));
+			info(DI::l10n()->t('You must be logged in to use this module'));
 			DI::baseUrl()->redirect();
 		}
 	}
@@ -44,7 +44,7 @@ class Feed extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('feedtest.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$url'    => ['url', L10n::t('Source URL'), $_REQUEST['url'] ?? '', ''],
+			'$url'    => ['url', DI::l10n()->t('Source URL'), $_REQUEST['url'] ?? '', ''],
 			'$result' => $result
 		]);
 	}

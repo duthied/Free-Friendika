@@ -166,7 +166,7 @@ function display_fetchauthor($a, $item)
 function display_content(App $a, $update = false, $update_uid = 0)
 {
 	if (Config::get('system','block_public') && !Session::isAuthenticated()) {
-		throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 	}
 
 	$o = '';
@@ -223,7 +223,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	}
 
 	if (empty($item)) {
-		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
+		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
 	// We are displaying an "alternate" link if that post was public. See issue 2864
@@ -268,7 +268,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$is_owner = (local_user() && (in_array($a->profile['profile_uid'], [local_user(), 0])) ? true : false);
 
 	if (!empty($a->profile['hidewall']) && !$is_owner && !$is_remote_contact) {
-		throw new HTTPException\ForbiddenException(L10n::t('Access to this profile has been restricted.'));
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
 	}
 
 	// We need the editor here to be able to reshare an item.
@@ -304,7 +304,7 @@ function display_content(App $a, $update = false, $update_uid = 0)
 	$item = Item::selectFirstForUser($a->profile['profile_uid'], $fields, $condition);
 
 	if (!DBA::isResult($item)) {
-		throw new HTTPException\NotFoundException(L10n::t('The requested item doesn\'t exist or has been deleted.'));
+		throw new HTTPException\NotFoundException(DI::l10n()->t('The requested item doesn\'t exist or has been deleted.'));
 	}
 
 	$item['uri'] = $item['parent-uri'];
@@ -384,7 +384,7 @@ function displayShowFeed($item_id, $conversation)
 {
 	$xml = DFRN::itemFeed($item_id, $conversation);
 	if ($xml == '') {
-		throw new HTTPException\InternalServerErrorException(L10n::t('The feed for this item is unavailable.'));
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('The feed for this item is unavailable.'));
 	}
 	header("Content-type: application/atom+xml");
 	echo $xml;

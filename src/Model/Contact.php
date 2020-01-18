@@ -1207,7 +1207,7 @@ class Contact
 		if (empty($contact['uid']) || ($contact['uid'] != $uid)) {
 			if ($uid == 0) {
 				$profile_link = self::magicLink($contact['url']);
-				$menu = ['profile' => [L10n::t('View Profile'), $profile_link, true]];
+				$menu = ['profile' => [DI::l10n()->t('View Profile'), $profile_link, true]];
 
 				return $menu;
 			}
@@ -1269,30 +1269,30 @@ class Contact
 		 */
 		if (empty($contact['uid'])) {
 			$menu = [
-				'profile' => [L10n::t('View Profile')  , $profile_link , true],
-				'network' => [L10n::t('Network Posts') , $posts_link   , false],
-				'edit'    => [L10n::t('View Contact')  , $contact_url  , false],
-				'follow'  => [L10n::t('Connect/Follow'), $follow_link  , true],
-				'unfollow'=> [L10n::t('UnFollow')      , $unfollow_link, true],
+				'profile' => [DI::l10n()->t('View Profile')  , $profile_link , true],
+				'network' => [DI::l10n()->t('Network Posts') , $posts_link   , false],
+				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url  , false],
+				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link  , true],
+				'unfollow'=> [DI::l10n()->t('UnFollow')      , $unfollow_link, true],
 			];
 		} else {
 			$menu = [
-				'status'  => [L10n::t('View Status')   , $status_link      , true],
-				'profile' => [L10n::t('View Profile')  , $profile_link     , true],
-				'photos'  => [L10n::t('View Photos')   , $photos_link      , true],
-				'network' => [L10n::t('Network Posts') , $posts_link       , false],
-				'edit'    => [L10n::t('View Contact')  , $contact_url      , false],
-				'drop'    => [L10n::t('Drop Contact')  , $contact_drop_link, false],
-				'pm'      => [L10n::t('Send PM')       , $pm_url           , false],
-				'poke'    => [L10n::t('Poke')          , $poke_link        , false],
-				'follow'  => [L10n::t('Connect/Follow'), $follow_link      , true],
-				'unfollow'=> [L10n::t('UnFollow')      , $unfollow_link    , true],
+				'status'  => [DI::l10n()->t('View Status')   , $status_link      , true],
+				'profile' => [DI::l10n()->t('View Profile')  , $profile_link     , true],
+				'photos'  => [DI::l10n()->t('View Photos')   , $photos_link      , true],
+				'network' => [DI::l10n()->t('Network Posts') , $posts_link       , false],
+				'edit'    => [DI::l10n()->t('View Contact')  , $contact_url      , false],
+				'drop'    => [DI::l10n()->t('Drop Contact')  , $contact_drop_link, false],
+				'pm'      => [DI::l10n()->t('Send PM')       , $pm_url           , false],
+				'poke'    => [DI::l10n()->t('Poke')          , $poke_link        , false],
+				'follow'  => [DI::l10n()->t('Connect/Follow'), $follow_link      , true],
+				'unfollow'=> [DI::l10n()->t('UnFollow')      , $unfollow_link    , true],
 			];
 
 			if (!empty($contact['pending'])) {
 				$intro = DBA::selectFirst('intro', ['id'], ['contact-id' => $contact['id']]);
 				if (DBA::isResult($intro)) {
-					$menu['follow'] = [L10n::t('Approve'), 'notifications/intros/' . $intro['id'], true];
+					$menu['follow'] = [DI::l10n()->t('Approve'), 'notifications/intros/' . $intro['id'], true];
 				}
 			}
 		}
@@ -1851,15 +1851,15 @@ class Contact
 
 		switch ($type) {
 			case self::TYPE_ORGANISATION:
-				$account_type = L10n::t("Organisation");
+				$account_type = DI::l10n()->t("Organisation");
 				break;
 
 			case self::TYPE_NEWS:
-				$account_type = L10n::t('News');
+				$account_type = DI::l10n()->t('News');
 				break;
 
 			case self::TYPE_COMMUNITY:
-				$account_type = L10n::t("Forum");
+				$account_type = DI::l10n()->t("Forum");
 				break;
 
 			default:
@@ -2264,17 +2264,17 @@ class Contact
 		$url = str_replace('/#!/', '/', $url);
 
 		if (!Network::isUrlAllowed($url)) {
-			$result['message'] = L10n::t('Disallowed profile URL.');
+			$result['message'] = DI::l10n()->t('Disallowed profile URL.');
 			return $result;
 		}
 
 		if (Network::isUrlBlocked($url)) {
-			$result['message'] = L10n::t('Blocked domain');
+			$result['message'] = DI::l10n()->t('Blocked domain');
 			return $result;
 		}
 
 		if (!$url) {
-			$result['message'] = L10n::t('Connect URL missing.');
+			$result['message'] = DI::l10n()->t('Connect URL missing.');
 			return $result;
 		}
 
@@ -2283,7 +2283,7 @@ class Contact
 		Hook::callAll('follow', $arr);
 
 		if (empty($arr)) {
-			$result['message'] = L10n::t('The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.');
+			$result['message'] = DI::l10n()->t('The contact could not be added. Please check the relevant network credentials in your Settings -> Social Networks page.');
 			return $result;
 		}
 
@@ -2324,8 +2324,8 @@ class Contact
 				// NOTREACHED
 			}
 		} elseif (Config::get('system', 'dfrn_only') && ($ret['network'] != Protocol::DFRN)) {
-			$result['message'] = L10n::t('This site is not configured to allow communications with other networks.') . EOL;
-			$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
+			$result['message'] = DI::l10n()->t('This site is not configured to allow communications with other networks.') . EOL;
+			$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
 		}
 
@@ -2336,30 +2336,30 @@ class Contact
 
 		// do we have enough information?
 		if (empty($ret['name']) || empty($ret['poll']) || (empty($ret['url']) && empty($ret['addr']))) {
-			$result['message'] .= L10n::t('The profile address specified does not provide adequate information.') . EOL;
+			$result['message'] .= DI::l10n()->t('The profile address specified does not provide adequate information.') . EOL;
 			if (empty($ret['poll'])) {
-				$result['message'] .= L10n::t('No compatible communication protocols or feeds were discovered.') . EOL;
+				$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . EOL;
 			}
 			if (empty($ret['name'])) {
-				$result['message'] .= L10n::t('An author or name was not found.') . EOL;
+				$result['message'] .= DI::l10n()->t('An author or name was not found.') . EOL;
 			}
 			if (empty($ret['url'])) {
-				$result['message'] .= L10n::t('No browser URL could be matched to this address.') . EOL;
+				$result['message'] .= DI::l10n()->t('No browser URL could be matched to this address.') . EOL;
 			}
 			if (strpos($url, '@') !== false) {
-				$result['message'] .= L10n::t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
-				$result['message'] .= L10n::t('Use mailto: in front of address to force email check.') . EOL;
+				$result['message'] .= DI::l10n()->t('Unable to match @-style Identity Address with a known protocol or email contact.') . EOL;
+				$result['message'] .= DI::l10n()->t('Use mailto: in front of address to force email check.') . EOL;
 			}
 			return $result;
 		}
 
 		if ($protocol === Protocol::OSTATUS && Config::get('system', 'ostatus_disabled')) {
-			$result['message'] .= L10n::t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
+			$result['message'] .= DI::l10n()->t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
 			$ret['notify'] = '';
 		}
 
 		if (!$ret['notify']) {
-			$result['message'] .= L10n::t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
+			$result['message'] .= DI::l10n()->t('Limited profile. This person will be unable to receive direct/personal notifications from you.') . EOL;
 		}
 
 		$writeable = ((($protocol === Protocol::OSTATUS) && ($ret['notify'])) ? 1 : 0);
@@ -2420,7 +2420,7 @@ class Contact
 
 		$contact = DBA::selectFirst('contact', [], ['url' => $ret['url'], 'network' => $ret['network'], 'uid' => $uid]);
 		if (!DBA::isResult($contact)) {
-			$result['message'] .= L10n::t('Unable to retrieve contact information.') . EOL;
+			$result['message'] .= DI::l10n()->t('Unable to retrieve contact information.') . EOL;
 			return $result;
 		}
 
@@ -2641,7 +2641,7 @@ class Contact
 						'to_email'     => $user['email'],
 						'uid'          => $user['uid'],
 						'link'         => DI::baseUrl() . '/notifications/intro',
-						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : L10n::t('[Name Withheld]')),
+						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : DI::l10n()->t('[Name Withheld]')),
 						'source_link'  => $contact_record['url'],
 						'source_photo' => $contact_record['photo'],
 						'verb'         => ($sharing ? Activity::FRIEND : Activity::FOLLOW),

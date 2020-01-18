@@ -262,7 +262,7 @@ class FileTag
 				DI::pConfig()->set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
 			}
 
-			info(L10n::t('Item filed'));
+			info(DI::l10n()->t('Item filed'));
 		}
 
 		return true;

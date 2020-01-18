@@ -77,9 +77,9 @@ function crepair_post(App $a)
 	}
 
 	if ($r) {
-		info(L10n::t('Contact settings applied.') . EOL);
+		info(DI::l10n()->t('Contact settings applied.') . EOL);
 	} else {
-		notice(L10n::t('Contact update failed.') . EOL);
+		notice(DI::l10n()->t('Contact update failed.') . EOL);
 	}
 
 	return;
@@ -88,7 +88,7 @@ function crepair_post(App $a)
 function crepair_content(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -100,7 +100,7 @@ function crepair_content(App $a)
 	}
 
 	if (!DBA::isResult($contact)) {
-		notice(L10n::t('Contact not found.') . EOL);
+		notice(DI::l10n()->t('Contact not found.') . EOL);
 		return;
 	}
 
@@ -113,8 +113,8 @@ function crepair_content(App $a)
 		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
 	}
 
-	$warning = L10n::t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
-	$info = L10n::t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
+	$warning = DI::l10n()->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
+	$info = DI::l10n()->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
 
 	$returnaddr = "contact/$cid";
 
@@ -128,9 +128,9 @@ function crepair_content(App $a)
 	}
 
 	if ($contact['network'] == Protocol::FEED) {
-		$remote_self_options = ['0' => L10n::t('No mirroring'), '1' => L10n::t('Mirror as forwarded posting'), '2' => L10n::t('Mirror as my own posting')];
+		$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '1' => DI::l10n()->t('Mirror as forwarded posting'), '2' => DI::l10n()->t('Mirror as my own posting')];
 	} else {
-		$remote_self_options = ['0' => L10n::t('No mirroring'), '2' => L10n::t('Mirror as my own posting')];
+		$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
 	}
 
 	$update_profile = in_array($contact['network'], Protocol::FEDERATED);
@@ -143,30 +143,30 @@ function crepair_content(App $a)
 		'$warning'        => $warning,
 		'$info'           => $info,
 		'$returnaddr'     => $returnaddr,
-		'$return'         => L10n::t('Return to contact editor'),
+		'$return'         => DI::l10n()->t('Return to contact editor'),
 		'$update_profile' => $update_profile,
-		'$udprofilenow'   => L10n::t('Refetch contact data'),
+		'$udprofilenow'   => DI::l10n()->t('Refetch contact data'),
 		'$contact_id'     => $contact['id'],
-		'$lbl_submit'     => L10n::t('Submit'),
-		'$label_remote_self' => L10n::t('Remote Self'),
+		'$lbl_submit'     => DI::l10n()->t('Submit'),
+		'$label_remote_self' => DI::l10n()->t('Remote Self'),
 		'$allow_remote_self' => $allow_remote_self,
 		'$remote_self' => ['remote_self',
-			L10n::t('Mirror postings from this contact'),
+			DI::l10n()->t('Mirror postings from this contact'),
 			$contact['remote_self'],
-			L10n::t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
+			DI::l10n()->t('Mark this contact as remote_self, this will cause friendica to repost new entries from this contact.'),
 			$remote_self_options
 		],
 
-		'$name'		=> ['name', L10n::t('Name') , $contact['name']],
-		'$nick'		=> ['nick', L10n::t('Account Nickname'), $contact['nick']],
-		'$attag'	=> ['attag', L10n::t('@Tagname - overrides Name/Nickname'), $contact['attag']],
-		'$url'		=> ['url', L10n::t('Account URL'), $contact['url']],
-		'$alias'	=> ['alias', L10n::t('Account URL Alias'), $contact['alias']],
-		'$request'	=> ['request', L10n::t('Friend Request URL'), $contact['request']],
-		'confirm'	=> ['confirm', L10n::t('Friend Confirm URL'), $contact['confirm']],
-		'notify'	=> ['notify', L10n::t('Notification Endpoint URL'), $contact['notify']],
-		'poll'		=> ['poll', L10n::t('Poll/Feed URL'), $contact['poll']],
-		'photo'		=> ['photo', L10n::t('New photo from this URL'), ''],
+		'$name'		=> ['name', DI::l10n()->t('Name') , $contact['name']],
+		'$nick'		=> ['nick', DI::l10n()->t('Account Nickname'), $contact['nick']],
+		'$attag'	=> ['attag', DI::l10n()->t('@Tagname - overrides Name/Nickname'), $contact['attag']],
+		'$url'		=> ['url', DI::l10n()->t('Account URL'), $contact['url']],
+		'$alias'	=> ['alias', DI::l10n()->t('Account URL Alias'), $contact['alias']],
+		'$request'	=> ['request', DI::l10n()->t('Friend Request URL'), $contact['request']],
+		'confirm'	=> ['confirm', DI::l10n()->t('Friend Confirm URL'), $contact['confirm']],
+		'notify'	=> ['notify', DI::l10n()->t('Notification Endpoint URL'), $contact['notify']],
+		'poll'		=> ['poll', DI::l10n()->t('Poll/Feed URL'), $contact['poll']],
+		'photo'		=> ['photo', DI::l10n()->t('New photo from this URL'), ''],
 	]);
 
 	return $o;

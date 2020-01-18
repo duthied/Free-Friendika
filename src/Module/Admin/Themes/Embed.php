@@ -44,7 +44,7 @@ class Embed extends BaseAdminModule
 				}
 			}
 
-			info(L10n::t('Theme settings updated.'));
+			info(DI::l10n()->t('Theme settings updated.'));
 
 			if (DI::mode()->isAjax()) {
 				return;
@@ -65,7 +65,7 @@ class Embed extends BaseAdminModule
 			$theme = $a->argv[2];
 			$theme = Strings::sanitizeFilePathItem($theme);
 			if (!is_dir("view/theme/$theme")) {
-				notice(L10n::t('Unknown theme.'));
+				notice(DI::l10n()->t('Unknown theme.'));
 				return '';
 			}
 

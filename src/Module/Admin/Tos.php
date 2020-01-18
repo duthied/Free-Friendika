@@ -28,7 +28,7 @@ class Tos extends BaseAdminModule
 		Config::set('system', 'tosprivstatement', $displayprivstatement);
 		Config::set('system', 'tostext', $tostext);
 
-		info(L10n::t('The Terms of Service settings have been updated.'));
+		info(DI::l10n()->t('The Terms of Service settings have been updated.'));
 
 		DI::baseUrl()->redirect('admin/tos');
 	}
@@ -40,15 +40,15 @@ class Tos extends BaseAdminModule
 		$tos = new \Friendica\Module\Tos();
 		$t = Renderer::getMarkupTemplate('admin/tos.tpl');
 		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Terms of Service'),
-			'$displaytos' => ['displaytos', L10n::t('Display Terms of Service'), Config::get('system', 'tosdisplay'), L10n::t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
-			'$displayprivstatement' => ['displayprivstatement', L10n::t('Display Privacy Statement'), Config::get('system', 'tosprivstatement'), L10n::t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.', 'https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
-			'$preview' => L10n::t('Privacy Statement Preview'),
+			'$title' => DI::l10n()->t('Administration'),
+			'$page' => DI::l10n()->t('Terms of Service'),
+			'$displaytos' => ['displaytos', DI::l10n()->t('Display Terms of Service'), Config::get('system', 'tosdisplay'), DI::l10n()->t('Enable the Terms of Service page. If this is enabled a link to the terms will be added to the registration form and the general information page.')],
+			'$displayprivstatement' => ['displayprivstatement', DI::l10n()->t('Display Privacy Statement'), Config::get('system', 'tosprivstatement'), DI::l10n()->t('Show some informations regarding the needed information to operate the node according e.g. to <a href="%s" target="_blank">EU-GDPR</a>.', 'https://en.wikipedia.org/wiki/General_Data_Protection_Regulation')],
+			'$preview' => DI::l10n()->t('Privacy Statement Preview'),
 			'$privtext' => $tos->privacy_complete,
-			'$tostext' => ['tostext', L10n::t('The Terms of Service'), Config::get('system', 'tostext'), L10n::t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
+			'$tostext' => ['tostext', DI::l10n()->t('The Terms of Service'), Config::get('system', 'tostext'), DI::l10n()->t('Enter the Terms of Service for your node here. You can use BBCode. Headers of sections should be [h2] and below.')],
 			'$form_security_token' => parent::getFormSecurityToken('admin_tos'),
-			'$submit' => L10n::t('Save Settings'),
+			'$submit' => DI::l10n()->t('Save Settings'),
 		]);
 	}
 }

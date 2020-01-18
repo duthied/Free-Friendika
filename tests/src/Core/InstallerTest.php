@@ -46,7 +46,7 @@ class InstallerTest extends MockedTest
 	}
 
 	/**
-	 * Mocking the L10n::t() calls for the function checks
+	 * Mocking the DI::l10n()->t() calls for the function checks
 	 */
 	private function mockFunctionL10TCalls()
 	{

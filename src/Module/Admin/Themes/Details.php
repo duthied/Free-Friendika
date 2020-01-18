@@ -30,7 +30,7 @@ class Details extends BaseAdminModule
 				}
 			}
 
-			info(L10n::t('Theme settings updated.'));
+			info(DI::l10n()->t('Theme settings updated.'));
 
 			if (DI::mode()->isAjax()) {
 				return;
@@ -51,17 +51,17 @@ class Details extends BaseAdminModule
 			$theme = $a->argv[2];
 			$theme = Strings::sanitizeFilePathItem($theme);
 			if (!is_dir("view/theme/$theme")) {
-				notice(L10n::t("Item not found."));
+				notice(DI::l10n()->t("Item not found."));
 				return '';
 			}
 
 			$isEnabled = in_array($theme, Theme::getAllowedList());
 			if ($isEnabled) {
 				$status = "on";
-				$action = L10n::t("Disable");
+				$action = DI::l10n()->t("Disable");
 			} else {
 				$status = "off";
-				$action = L10n::t("Enable");
+				$action = DI::l10n()->t("Enable");
 			}
 
 			if (!empty($_GET['action']) && $_GET['action'] == 'toggle') {
@@ -69,11 +69,11 @@ class Details extends BaseAdminModule
 
 				if ($isEnabled) {
 					Theme::uninstall($theme);
-					info(L10n::t('Theme %s disabled.', $theme));
+					info(DI::l10n()->t('Theme %s disabled.', $theme));
 				} elseif (Theme::install($theme)) {
-					info(L10n::t('Theme %s successfully enabled.', $theme));
+					info(DI::l10n()->t('Theme %s successfully enabled.', $theme));
 				} else {
-					info(L10n::t('Theme %s failed to install.', $theme));
+					info(DI::l10n()->t('Theme %s failed to install.', $theme));
 				}
 
 				DI::baseUrl()->redirect('admin/themes/' . $theme);
@@ -95,17 +95,17 @@ class Details extends BaseAdminModule
 				}
 			}
 
-			$screenshot = [Theme::getScreenshot($theme), L10n::t('Screenshot')];
+			$screenshot = [Theme::getScreenshot($theme), DI::l10n()->t('Screenshot')];
 			if (!stristr($screenshot[0], $theme)) {
 				$screenshot = null;
 			}
 
 			$t = Renderer::getMarkupTemplate('admin/addons/details.tpl');
 			return Renderer::replaceMacros($t, [
-				'$title' => L10n::t('Administration'),
-				'$page' => L10n::t('Themes'),
-				'$toggle' => L10n::t('Toggle'),
-				'$settings' => L10n::t('Settings'),
+				'$title' => DI::l10n()->t('Administration'),
+				'$page' => DI::l10n()->t('Themes'),
+				'$toggle' => DI::l10n()->t('Toggle'),
+				'$settings' => DI::l10n()->t('Settings'),
 				'$baseurl' => DI::baseUrl()->get(true),
 				'$addon' => $theme,
 				'$status' => $status,
@@ -113,8 +113,8 @@ class Details extends BaseAdminModule
 				'$info' => Theme::getInfo($theme),
 				'$function' => 'themes',
 				'$admin_form' => $admin_form,
-				'$str_author' => L10n::t('Author: '),
-				'$str_maintainer' => L10n::t('Maintainer: '),
+				'$str_author' => DI::l10n()->t('Author: '),
+				'$str_maintainer' => DI::l10n()->t('Maintainer: '),
 				'$screenshot' => $screenshot,
 				'$readme' => $readme,
 

@@ -39,17 +39,17 @@ class Index extends BaseAdminModule
 					if ($theme) {
 						$theme = Strings::sanitizeFilePathItem($theme);
 						if (!is_dir("view/theme/$theme")) {
-							notice(L10n::t('Item not found.'));
+							notice(DI::l10n()->t('Item not found.'));
 							return '';
 						}
 
 						if (in_array($theme, Theme::getAllowedList())) {
 							Theme::uninstall($theme);
-							info(L10n::t('Theme %s disabled.', $theme));
+							info(DI::l10n()->t('Theme %s disabled.', $theme));
 						} elseif (Theme::install($theme)) {
-							info(L10n::t('Theme %s successfully enabled.', $theme));
+							info(DI::l10n()->t('Theme %s successfully enabled.', $theme));
 						} else {
-							info(L10n::t('Theme %s failed to install.', $theme));
+							info(DI::l10n()->t('Theme %s failed to install.', $theme));
 						}
 					}
 
@@ -91,17 +91,17 @@ class Index extends BaseAdminModule
 
 		$t = Renderer::getMarkupTemplate('admin/addons/index.tpl');
 		return Renderer::replaceMacros($t, [
-			'$title'               => L10n::t('Administration'),
-			'$page'                => L10n::t('Themes'),
-			'$submit'              => L10n::t('Save Settings'),
-			'$reload'              => L10n::t('Reload active themes'),
+			'$title'               => DI::l10n()->t('Administration'),
+			'$page'                => DI::l10n()->t('Themes'),
+			'$submit'              => DI::l10n()->t('Save Settings'),
+			'$reload'              => DI::l10n()->t('Reload active themes'),
 			'$baseurl'             => DI::baseUrl()->get(true),
 			'$function'            => 'themes',
 			'$addons'              => $addons,
 			'$pcount'              => count($themes),
-			'$noplugshint'         => L10n::t('No themes found on the system. They should be placed in %1$s', '<code>/view/themes</code>'),
-			'$experimental'        => L10n::t('[Experimental]'),
-			'$unsupported'         => L10n::t('[Unsupported]'),
+			'$noplugshint'         => DI::l10n()->t('No themes found on the system. They should be placed in %1$s', '<code>/view/themes</code>'),
+			'$experimental'        => DI::l10n()->t('[Experimental]'),
+			'$unsupported'         => DI::l10n()->t('[Unsupported]'),
 			'$form_security_token' => parent::getFormSecurityToken('admin_themes'),
 		]);
 	}

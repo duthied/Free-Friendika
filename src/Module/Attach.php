@@ -34,19 +34,19 @@ class Attach extends BaseModule
 		// Check for existence
 		$item = MAttach::exists(['id' => $item_id]);
 		if ($item === false) {
-			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('Item was not found.'));
+			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Item was not found.'));
 		}
 
 		// Now we'll fetch the item, if we have enough permisson
 		$item = MAttach::getByIdWithPermission($item_id);
 		if ($item === false) {
-			throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Permission denied.'));
+			throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$data = MAttach::getData($item);
 		if (is_null($data)) {
 			Logger::log('NULL data for attachment with id ' . $item['id']);
-			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('Item was not found.'));
+			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('Item was not found.'));
 		}
 
 		// Use quotes around the filename to prevent a "multiple Content-Disposition"

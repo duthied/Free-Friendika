@@ -41,14 +41,14 @@ class Help extends BaseModule
 			$title = basename($path);
 			$filename = $path;
 			$text = self::loadDocFile('doc/' . $path . '.md', $lang);
-			DI::page()['title'] = L10n::t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
+			DI::page()['title'] = DI::l10n()->t('Help:') . ' ' . str_replace('-', ' ', Strings::escapeTags($title));
 		}
 
 		$home = self::loadDocFile('doc/Home.md', $lang);
 		if (!$text) {
 			$text = $home;
 			$filename = "Home";
-			DI::page()['title'] = L10n::t('Help');
+			DI::page()['title'] = DI::l10n()->t('Help');
 		} else {
 			DI::page()['aside'] = Markdown::convert($home, false);
 		}

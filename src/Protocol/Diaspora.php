@@ -3574,7 +3574,7 @@ class Diaspora
 			if ($item["attach"]) {
 				$cnt = preg_match_all('/href=\"(.*?)\"(.*?)title=\"(.*?)\"/ism', $item["attach"], $matches, PREG_SET_ORDER);
 				if ($cnt) {
-					$body .= "\n".L10n::t("Attachments:")."\n";
+					$body .= "\n".DI::l10n()->t("Attachments:")."\n";
 					foreach ($matches as $mtch) {
 						$body .= "[".$mtch[3]."](".$mtch[1].")\n";
 					}

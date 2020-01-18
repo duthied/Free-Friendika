@@ -33,12 +33,12 @@ function oauth_get_client(OAuthRequest $request)
 function api_post(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
 	if (count($a->user) && !empty($a->user['uid']) && $a->user['uid'] != local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 }
@@ -83,8 +83,8 @@ function api_content(App $a)
 
 			$tpl = Renderer::getMarkupTemplate("oauth_authorize_done.tpl");
 			$o = Renderer::replaceMacros($tpl, [
-				'$title' => L10n::t('Authorize application connection'),
-				'$info' => L10n::t('Return to your app and insert this Securty Code:'),
+				'$title' => DI::l10n()->t('Authorize application connection'),
+				'$info' => DI::l10n()->t('Return to your app and insert this Securty Code:'),
 				'$code' => $verifier,
 			]);
 
@@ -93,7 +93,7 @@ function api_content(App $a)
 
 		if (!local_user()) {
 			/// @TODO We need login form to redirect to this page
-			notice(L10n::t('Please login to continue.') . EOL);
+			notice(DI::l10n()->t('Please login to continue.') . EOL);
 			return Login::form(DI::args()->getQueryString(), false, $request->get_parameters());
 		}
 		//FKOAuth1::loginUser(4);
@@ -105,11 +105,11 @@ function api_content(App $a)
 
 		$tpl = Renderer::getMarkupTemplate('oauth_authorize.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$title' => L10n::t('Authorize application connection'),
+			'$title' => DI::l10n()->t('Authorize application connection'),
 			'$app' => $app,
-			'$authorize' => L10n::t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
-			'$yes' => L10n::t('Yes'),
-			'$no' => L10n::t('No'),
+			'$authorize' => DI::l10n()->t('Do you want to authorize this application to access your posts and contacts, and/or create new posts for you?'),
+			'$yes' => DI::l10n()->t('Yes'),
+			'$no' => DI::l10n()->t('No'),
 		]);
 
 		return $o;

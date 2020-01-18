@@ -104,13 +104,13 @@ class UserImport
 
 		$account = json_decode(file_get_contents($file['tmp_name']), true);
 		if ($account === null) {
-			notice(L10n::t("Error decoding account file"));
+			notice(DI::l10n()->t("Error decoding account file"));
 			return;
 		}
 
 
 		if (empty($account['version'])) {
-			notice(L10n::t("Error! No version data in file! This is not a Friendica account file?"));
+			notice(DI::l10n()->t("Error! No version data in file! This is not a Friendica account file?"));
 			return;
 		}
 
@@ -118,7 +118,7 @@ class UserImport
 		// check if username matches deleted account
 		if (DBA::exists('user', ['nickname' => $account['user']['nickname']])
 			|| DBA::exists('userd', ['username' => $account['user']['nickname']])) {
-			notice(L10n::t("User '%s' already exists on this server!", $account['user']['nickname']));
+			notice(DI::l10n()->t("User '%s' already exists on this server!", $account['user']['nickname']));
 			return;
 		}
 
@@ -154,7 +154,7 @@ class UserImport
 		$r = self::dbImportAssoc('user', $account['user']);
 		if ($r === false) {
 			Logger::log("uimport:insert user : ERROR : " . DBA::errorMessage(), Logger::INFO);
-			notice(L10n::t("User creation error"));
+			notice(DI::l10n()->t("User creation error"));
 			return;
 		}
 		$newuid = self::lastInsertId();
@@ -172,7 +172,7 @@ class UserImport
 			$r = self::dbImportAssoc('profile', $profile);
 			if ($r === false) {
 				Logger::log("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . DBA::errorMessage(), Logger::INFO);
-				info(L10n::t("User profile creation error"));
+				info(DI::l10n()->t("User profile creation error"));
 				DBA::delete('user', ['uid' => $newuid]);
 				return;
 			}
@@ -281,7 +281,7 @@ class UserImport
 		// send relocate messages
 		Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::RELOCATION, $newuid);
 
-		info(L10n::t("Done. You can now login with your username and password"));
+		info(DI::l10n()->t("Done. You can now login with your username and password"));
 		DI::baseUrl()->redirect('login');
 	}
 }

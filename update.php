@@ -215,7 +215,7 @@ function update_1260()
 	Config::set(
 		'system',
 		'maintenance_reason',
-		L10n::t(
+		DI::l10n()->t(
 			'%s: Updating author-id and owner-id in item and thread table. ',
 			DateTimeFormat::utcNow().' '.date('e')
 		)
@@ -270,7 +270,7 @@ function update_1278()
 	Config::set(
 		'system',
 		'maintenance_reason',
-		L10n::t(
+		DI::l10n()->t(
 			'%s: Updating post-type.',
 			DateTimeFormat::utcNow().' '.date('e')
 		)

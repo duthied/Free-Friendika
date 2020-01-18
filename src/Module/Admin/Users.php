@@ -44,10 +44,10 @@ class Users extends BaseAdminModule
 			}
 
 			$user = $result['user'];
-			$preamble = Strings::deindent(L10n::t('
+			$preamble = Strings::deindent(DI::l10n()->t('
 			Dear %1$s,
 				the administrator of %2$s has set up an account for you.'));
-			$body = Strings::deindent(L10n::t('
+			$body = Strings::deindent(DI::l10n()->t('
 			The login details are as follows:
 
 			Site Location:	%1$s
@@ -84,7 +84,7 @@ class Users extends BaseAdminModule
 				'to_name'  => $user['username'],
 				'to_email' => $user['email'],
 				'uid'      => $user['uid'],
-				'subject'  => L10n::t('Registration details for %s', Config::get('config', 'sitename')),
+				'subject'  => DI::l10n()->t('Registration details for %s', Config::get('config', 'sitename')),
 				'preamble' => $preamble,
 				'body'     => $body]);
 		}
@@ -106,7 +106,7 @@ class Users extends BaseAdminModule
 				if (local_user() != $uid) {
 					User::remove($uid);
 				} else {
-					notice(L10n::t('You can\'t remove yourself'));
+					notice(DI::l10n()->t('You can\'t remove yourself'));
 				}
 			}
 
@@ -154,22 +154,22 @@ class Users extends BaseAdminModule
 						// delete user
 						User::remove($uid);
 
-						notice(L10n::t('User "%s" deleted', $user['username']));
+						notice(DI::l10n()->t('User "%s" deleted', $user['username']));
 					} else {
-						notice(L10n::t('You can\'t remove yourself'));
+						notice(DI::l10n()->t('You can\'t remove yourself'));
 					}
 					break;
 				case 'block':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
 					// @TODO Move this to Model\User:block([$uid]);
 					DBA::update('user', ['blocked' => 1], ['uid' => $uid]);
-					notice(L10n::t('User "%s" blocked', $user['username']));
+					notice(DI::l10n()->t('User "%s" blocked', $user['username']));
 					break;
 				case 'unblock':
 					parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users', 't');
 					// @TODO Move this to Model\User:unblock([$uid]);
 					DBA::update('user', ['blocked' => 0], ['uid' => $uid]);
-					notice(L10n::t('User "%s" unblocked', $user['username']));
+					notice(DI::l10n()->t('User "%s" unblocked', $user['username']));
 					break;
 			}
 
@@ -218,18 +218,18 @@ class Users extends BaseAdminModule
 		$adminlist = explode(',', str_replace(' ', '', Config::get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {
 			$page_types = [
-				User::PAGE_FLAGS_NORMAL    => L10n::t('Normal Account Page'),
-				User::PAGE_FLAGS_SOAPBOX   => L10n::t('Soapbox Page'),
-				User::PAGE_FLAGS_COMMUNITY => L10n::t('Public Forum'),
-				User::PAGE_FLAGS_FREELOVE  => L10n::t('Automatic Friend Page'),
-				User::PAGE_FLAGS_PRVGROUP  => L10n::t('Private Forum')
+				User::PAGE_FLAGS_NORMAL    => DI::l10n()->t('Normal Account Page'),
+				User::PAGE_FLAGS_SOAPBOX   => DI::l10n()->t('Soapbox Page'),
+				User::PAGE_FLAGS_COMMUNITY => DI::l10n()->t('Public Forum'),
+				User::PAGE_FLAGS_FREELOVE  => DI::l10n()->t('Automatic Friend Page'),
+				User::PAGE_FLAGS_PRVGROUP  => DI::l10n()->t('Private Forum')
 			];
 			$account_types = [
-				User::ACCOUNT_TYPE_PERSON       => L10n::t('Personal Page'),
-				User::ACCOUNT_TYPE_ORGANISATION => L10n::t('Organisation Page'),
-				User::ACCOUNT_TYPE_NEWS         => L10n::t('News Page'),
-				User::ACCOUNT_TYPE_COMMUNITY    => L10n::t('Community Forum'),
-				User::ACCOUNT_TYPE_RELAY        => L10n::t('Relay'),
+				User::ACCOUNT_TYPE_PERSON       => DI::l10n()->t('Personal Page'),
+				User::ACCOUNT_TYPE_ORGANISATION => DI::l10n()->t('Organisation Page'),
+				User::ACCOUNT_TYPE_NEWS         => DI::l10n()->t('News Page'),
+				User::ACCOUNT_TYPE_COMMUNITY    => DI::l10n()->t('Community Forum'),
+				User::ACCOUNT_TYPE_RELAY        => DI::l10n()->t('Relay'),
 			];
 
 			$e['page_flags_raw'] = $e['page-flags'];
@@ -268,38 +268,38 @@ class Users extends BaseAdminModule
 			}
 		}
 
-		$th_users = array_map(null, [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Type')], $valid_orders);
+		$th_users = array_map(null, [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last item'), DI::l10n()->t('Type')], $valid_orders);
 
 		$t = Renderer::getMarkupTemplate('admin/users.tpl');
 		$o = Renderer::replaceMacros($t, [
 			// strings //
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Users'),
-			'$submit' => L10n::t('Add User'),
-			'$select_all' => L10n::t('select all'),
-			'$h_pending' => L10n::t('User registrations waiting for confirm'),
-			'$h_deleted' => L10n::t('User waiting for permanent deletion'),
-			'$th_pending' => [L10n::t('Request date'), L10n::t('Name'), L10n::t('Email')],
-			'$no_pending' => L10n::t('No registrations.'),
-			'$pendingnotetext' => L10n::t('Note from the user'),
-			'$approve' => L10n::t('Approve'),
-			'$deny' => L10n::t('Deny'),
-			'$delete' => L10n::t('Delete'),
-			'$block' => L10n::t('Block'),
-			'$blocked' => L10n::t('User blocked'),
-			'$unblock' => L10n::t('Unblock'),
-			'$siteadmin' => L10n::t('Site admin'),
-			'$accountexpired' => L10n::t('Account expired'),
+			'$title' => DI::l10n()->t('Administration'),
+			'$page' => DI::l10n()->t('Users'),
+			'$submit' => DI::l10n()->t('Add User'),
+			'$select_all' => DI::l10n()->t('select all'),
+			'$h_pending' => DI::l10n()->t('User registrations waiting for confirm'),
+			'$h_deleted' => DI::l10n()->t('User waiting for permanent deletion'),
+			'$th_pending' => [DI::l10n()->t('Request date'), DI::l10n()->t('Name'), DI::l10n()->t('Email')],
+			'$no_pending' => DI::l10n()->t('No registrations.'),
+			'$pendingnotetext' => DI::l10n()->t('Note from the user'),
+			'$approve' => DI::l10n()->t('Approve'),
+			'$deny' => DI::l10n()->t('Deny'),
+			'$delete' => DI::l10n()->t('Delete'),
+			'$block' => DI::l10n()->t('Block'),
+			'$blocked' => DI::l10n()->t('User blocked'),
+			'$unblock' => DI::l10n()->t('Unblock'),
+			'$siteadmin' => DI::l10n()->t('Site admin'),
+			'$accountexpired' => DI::l10n()->t('Account expired'),
 
-			'$h_users' => L10n::t('Users'),
-			'$h_newuser' => L10n::t('New User'),
-			'$th_deleted' => [L10n::t('Name'), L10n::t('Email'), L10n::t('Register date'), L10n::t('Last login'), L10n::t('Last item'), L10n::t('Permanent deletion')],
+			'$h_users' => DI::l10n()->t('Users'),
+			'$h_newuser' => DI::l10n()->t('New User'),
+			'$th_deleted' => [DI::l10n()->t('Name'), DI::l10n()->t('Email'), DI::l10n()->t('Register date'), DI::l10n()->t('Last login'), DI::l10n()->t('Last item'), DI::l10n()->t('Permanent deletion')],
 			'$th_users' => $th_users,
 			'$order_users' => $order,
 			'$order_direction_users' => $order_direction,
 
-			'$confirm_delete_multi' => L10n::t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
-			'$confirm_delete' => L10n::t('The user {0} will be deleted!\n\nEverything this user has posted on this site will be permanently deleted!\n\nAre you sure?'),
+			'$confirm_delete_multi' => DI::l10n()->t('Selected users will be deleted!\n\nEverything these users had posted on this site will be permanently deleted!\n\nAre you sure?'),
+			'$confirm_delete' => DI::l10n()->t('The user {0} will be deleted!\n\nEverything this user has posted on this site will be permanently deleted!\n\nAre you sure?'),
 
 			'$form_security_token' => parent::getFormSecurityToken('admin_users'),
 
@@ -309,9 +309,9 @@ class Users extends BaseAdminModule
 			'$pending' => $pending,
 			'deleted' => $deleted,
 			'$users' => $users,
-			'$newusername' => ['new_user_name', L10n::t('Name'), '', L10n::t('Name of the new user.')],
-			'$newusernickname' => ['new_user_nickname', L10n::t('Nickname'), '', L10n::t('Nickname of the new user.')],
-			'$newuseremail' => ['new_user_email', L10n::t('Email'), '', L10n::t('Email address of the new user.'), '', '', 'email'],
+			'$newusername' => ['new_user_name', DI::l10n()->t('Name'), '', DI::l10n()->t('Name of the new user.')],
+			'$newusernickname' => ['new_user_nickname', DI::l10n()->t('Nickname'), '', DI::l10n()->t('Nickname of the new user.')],
+			'$newuseremail' => ['new_user_email', DI::l10n()->t('Email'), '', DI::l10n()->t('Email address of the new user.'), '', '', 'email'],
 		]);
 
 		$o .= $pager->renderFull(DBA::count('user'));

@@ -25,14 +25,14 @@ function notes_init(App $a)
 function notes_content(App $a, $update = false)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
 	$o = Profile::getTabs($a, 'notes', true);
 
 	if (!$update) {
-		$o .= '<h3>' . L10n::t('Personal Notes') . '</h3>';
+		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';
 
 		$x = [
 			'is_owner' => true,
@@ -44,7 +44,7 @@ function notes_content(App $a, $update = false)
 			'bang' => '',
 			'visitor' => 'block',
 			'profile_uid' => local_user(),
-			'button' => L10n::t('Save'),
+			'button' => DI::l10n()->t('Save'),
 			'acl_data' => '',
 		];
 

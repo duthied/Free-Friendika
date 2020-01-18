@@ -13,12 +13,12 @@ use Friendica\Model\Contact;
 function repair_ostatus_content(App $a) {
 
 	if (! local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		DI::baseUrl()->redirect('ostatus_repair');
 		// NOTREACHED
 	}
 
-	$o = "<h2>".L10n::t("Resubscribing to OStatus contacts")."</h2>";
+	$o = "<h2>".DI::l10n()->t("Resubscribing to OStatus contacts")."</h2>";
 
 	$uid = local_user();
 
@@ -32,7 +32,7 @@ function repair_ostatus_content(App $a) {
 		intval(Contact::SHARING));
 
 	if (!DBA::isResult($r)) {
-		return ($o . L10n::t("Error"));
+		return ($o . DI::l10n()->t("Error"));
 	}
 
 	$total = $r[0]["total"];
@@ -47,13 +47,13 @@ function repair_ostatus_content(App $a) {
 		intval(Contact::SHARING), $counter++);
 
 	if (!DBA::isResult($r)) {
-		$o .= L10n::t("Done");
+		$o .= DI::l10n()->t("Done");
 		return $o;
 	}
 
 	$o .= "<p>".$counter."/".$total.": ".$r[0]["url"]."</p>";
 
-	$o .= "<p>".L10n::t("Keep this window open until done.")."</p>";
+	$o .= "<p>".DI::l10n()->t("Keep this window open until done.")."</p>";
 
 	Contact::createFromProbe($uid, $r[0]["url"], true);
 

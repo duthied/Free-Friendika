@@ -117,18 +117,18 @@ function events_post(App $a)
 	$onerror_path = 'events/' . $action . '?' . http_build_query($params, null, null, PHP_QUERY_RFC3986);
 
 	if (strcmp($finish, $start) < 0 && !$nofinish) {
-		notice(L10n::t('Event can not end before it has started.') . EOL);
+		notice(DI::l10n()->t('Event can not end before it has started.') . EOL);
 		if (intval($_REQUEST['preview'])) {
-			echo L10n::t('Event can not end before it has started.');
+			echo DI::l10n()->t('Event can not end before it has started.');
 			exit();
 		}
 		DI::baseUrl()->redirect($onerror_path);
 	}
 
 	if (!$summary || ($start === DBA::NULL_DATETIME)) {
-		notice(L10n::t('Event title and start time are required.') . EOL);
+		notice(DI::l10n()->t('Event title and start time are required.') . EOL);
 		if (intval($_REQUEST['preview'])) {
-			echo L10n::t('Event title and start time are required.');
+			echo DI::l10n()->t('Event title and start time are required.');
 			exit();
 		}
 		DI::baseUrl()->redirect($onerror_path);
@@ -210,7 +210,7 @@ function events_post(App $a)
 function events_content(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return Login::form();
 	}
 
@@ -391,20 +391,20 @@ function events_content(App $a)
 
 		$o = Renderer::replaceMacros($tpl, [
 			'$tabs'      => $tabs,
-			'$title'     => L10n::t('Events'),
-			'$view'      => L10n::t('View'),
-			'$new_event' => [DI::baseUrl() . '/events/new', L10n::t('Create New Event'), '', ''],
-			'$previous'  => [DI::baseUrl() . '/events/$prevyear/$prevmonth', L10n::t('Previous'), '', ''],
-			'$next'      => [DI::baseUrl() . '/events/$nextyear/$nextmonth', L10n::t('Next'), '', ''],
+			'$title'     => DI::l10n()->t('Events'),
+			'$view'      => DI::l10n()->t('View'),
+			'$new_event' => [DI::baseUrl() . '/events/new', DI::l10n()->t('Create New Event'), '', ''],
+			'$previous'  => [DI::baseUrl() . '/events/$prevyear/$prevmonth', DI::l10n()->t('Previous'), '', ''],
+			'$next'      => [DI::baseUrl() . '/events/$nextyear/$nextmonth', DI::l10n()->t('Next'), '', ''],
 			'$calendar'  => Temporal::getCalendarTable($y, $m, $links, ' eventcal'),
 
 			'$events'    => $events,
 
-			'$today' => L10n::t('today'),
-			'$month' => L10n::t('month'),
-			'$week'  => L10n::t('week'),
-			'$day'   => L10n::t('day'),
-			'$list'  => L10n::t('list'),
+			'$today' => DI::l10n()->t('today'),
+			'$month' => DI::l10n()->t('month'),
+			'$week'  => DI::l10n()->t('week'),
+			'$day'   => DI::l10n()->t('day'),
+			'$list'  => DI::l10n()->t('list'),
 		]);
 
 		if (!empty($_GET['id'])) {
@@ -505,14 +505,14 @@ function events_content(App $a)
 			'$cid'  => $cid,
 			'$uri'  => $uri,
 
-			'$title' => L10n::t('Event details'),
-			'$desc' => L10n::t('Starting date and Title are required.'),
-			'$s_text' => L10n::t('Event Starts:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
+			'$title' => DI::l10n()->t('Event details'),
+			'$desc' => DI::l10n()->t('Starting date and Title are required.'),
+			'$s_text' => DI::l10n()->t('Event Starts:') . ' <span class="required" title="' . DI::l10n()->t('Required') . '">*</span>',
 			'$s_dsel' => Temporal::getDateTimeField(
 				new DateTime(),
 				DateTime::createFromFormat('Y', intval($syear) + 5),
 				DateTime::createFromFormat('Y-m-d H:i', "$syear-$smonth-$sday $shour:$sminute"),
-				L10n::t('Event Starts:'),
+				DI::l10n()->t('Event Starts:'),
 				'start_text',
 				true,
 				true,
@@ -520,39 +520,39 @@ function events_content(App $a)
 				'',
 				true
 			),
-			'$n_text' => L10n::t('Finish date/time is not known or not relevant'),
+			'$n_text' => DI::l10n()->t('Finish date/time is not known or not relevant'),
 			'$n_checked' => $n_checked,
-			'$f_text' => L10n::t('Event Finishes:'),
+			'$f_text' => DI::l10n()->t('Event Finishes:'),
 			'$f_dsel' => Temporal::getDateTimeField(
 				new DateTime(),
 				DateTime::createFromFormat('Y', intval($fyear) + 5),
 				DateTime::createFromFormat('Y-m-d H:i', "$fyear-$fmonth-$fday $fhour:$fminute"),
-				L10n::t('Event Finishes:'),
+				DI::l10n()->t('Event Finishes:'),
 				'finish_text',
 				true,
 				true,
 				'start_text'
 			),
-			'$a_text' => L10n::t('Adjust for viewer timezone'),
+			'$a_text' => DI::l10n()->t('Adjust for viewer timezone'),
 			'$a_checked' => $a_checked,
-			'$d_text' => L10n::t('Description:'),
+			'$d_text' => DI::l10n()->t('Description:'),
 			'$d_orig' => $d_orig,
-			'$l_text' => L10n::t('Location:'),
+			'$l_text' => DI::l10n()->t('Location:'),
 			'$l_orig' => $l_orig,
-			'$t_text' => L10n::t('Title:') . ' <span class="required" title="' . L10n::t('Required') . '">*</span>',
+			'$t_text' => DI::l10n()->t('Title:') . ' <span class="required" title="' . DI::l10n()->t('Required') . '">*</span>',
 			'$t_orig' => $t_orig,
-			'$summary' => ['summary', L10n::t('Title:'), $t_orig, '', '*'],
-			'$sh_text' => L10n::t('Share this event'),
-			'$share' => ['share', L10n::t('Share this event'), $share_checked, '', $share_disabled],
+			'$summary' => ['summary', DI::l10n()->t('Title:'), $t_orig, '', '*'],
+			'$sh_text' => DI::l10n()->t('Share this event'),
+			'$share' => ['share', DI::l10n()->t('Share this event'), $share_checked, '', $share_disabled],
 			'$sh_checked' => $share_checked,
-			'$nofinish' => ['nofinish', L10n::t('Finish date/time is not known or not relevant'), $n_checked],
-			'$adjust' => ['adjust', L10n::t('Adjust for viewer timezone'), $a_checked],
-			'$preview' => L10n::t('Preview'),
+			'$nofinish' => ['nofinish', DI::l10n()->t('Finish date/time is not known or not relevant'), $n_checked],
+			'$adjust' => ['adjust', DI::l10n()->t('Adjust for viewer timezone'), $a_checked],
+			'$preview' => DI::l10n()->t('Preview'),
 			'$acl' => $acl,
-			'$submit' => L10n::t('Submit'),
-			'$basic' => L10n::t('Basic'),
-			'$advanced' => L10n::t('Advanced'),
-			'$permissions' => L10n::t('Permissions'),
+			'$submit' => DI::l10n()->t('Submit'),
+			'$basic' => DI::l10n()->t('Basic'),
+			'$advanced' => DI::l10n()->t('Advanced'),
+			'$permissions' => DI::l10n()->t('Permissions'),
 		]);
 
 		return $o;
@@ -568,9 +568,9 @@ function events_content(App $a)
 		}
 
 		if (Item::exists(['id' => $ev[0]['itemid']])) {
-			notice(L10n::t('Failed to remove event') . EOL);
+			notice(DI::l10n()->t('Failed to remove event') . EOL);
 		} else {
-			info(L10n::t('Event removed') . EOL);
+			info(DI::l10n()->t('Event removed') . EOL);
 		}
 
 		DI::baseUrl()->redirect('events');

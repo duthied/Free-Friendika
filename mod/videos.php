@@ -110,12 +110,12 @@ function videos_content(App $a)
 
 
 	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
-		notice(L10n::t('Public access denied.') . EOL);
+		notice(DI::l10n()->t('Public access denied.') . EOL);
 		return;
 	}
 
 	if (empty($a->data['user'])) {
-		notice(L10n::t('No videos selected') . EOL );
+		notice(DI::l10n()->t('No videos selected') . EOL );
 		return;
 	}
 
@@ -163,7 +163,7 @@ function videos_content(App $a)
 	}
 
 	if ($a->data['user']['hidewall'] && (local_user() != $owner_uid) && !$remote_contact) {
-		notice(L10n::t('Access to this item is restricted.') . EOL);
+		notice(DI::l10n()->t('Access to this item is restricted.') . EOL);
 		return;
 	}
 
@@ -233,14 +233,14 @@ function videos_content(App $a)
 			$videos[] = [
 				'id'       => $rr['id'],
 				'link'     => DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/video/' . $rr['hash'],
-				'title'    => L10n::t('View Video'),
+				'title'    => DI::l10n()->t('View Video'),
 				'src'      => DI::baseUrl() . '/attach/' . $rr['id'] . '?attachment=0',
 				'alt'      => $alt_e,
 				'mime'     => $rr['filetype'],
 				'album' => [
 					'link'  => DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/album/' . bin2hex($rr['album']),
 					'name'  => $name_e,
-					'alt'   => L10n::t('View Album'),
+					'alt'   => DI::l10n()->t('View Album'),
 				],
 			];
 		}
@@ -248,9 +248,9 @@ function videos_content(App $a)
 
 	$tpl = Renderer::getMarkupTemplate('videos_recent.tpl');
 	$o .= Renderer::replaceMacros($tpl, [
-		'$title'      => L10n::t('Recent Videos'),
+		'$title'      => DI::l10n()->t('Recent Videos'),
 		'$can_post'   => $can_post,
-		'$upload'     => [L10n::t('Upload New Videos'), DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/upload'],
+		'$upload'     => [DI::l10n()->t('Upload New Videos'), DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] . '/upload'],
 		'$videos'     => $videos,
 		'$delete_url' => (($can_post) ? DI::baseUrl() . '/videos/' . $a->data['user']['nickname'] : false)
 	]);

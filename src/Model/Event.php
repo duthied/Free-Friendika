@@ -31,7 +31,7 @@ class Event
 			return '';
 		}
 
-		$bd_format = L10n::t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
+		$bd_format = DI::l10n()->t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8 AM.
 
 		$event_start = L10n::getDay(
 			!empty($event['adjust']) ?
@@ -58,14 +58,14 @@ class Event
 				$o .= "<div>" . BBCode::convert(Strings::escapeHtml($event['desc']), false, $simple) . "</div>";
 			}
 
-			$o .= "<h4>" . L10n::t('Starts:') . "</h4><p>" . $event_start . "</p>";
+			$o .= "<h4>" . DI::l10n()->t('Starts:') . "</h4><p>" . $event_start . "</p>";
 
 			if (!$event['nofinish']) {
-				$o .= "<h4>" . L10n::t('Finishes:') . "</h4><p>" . $event_end . "</p>";
+				$o .= "<h4>" . DI::l10n()->t('Finishes:') . "</h4><p>" . $event_end . "</p>";
 			}
 
 			if (!empty($event['location'])) {
-				$o .= "<h4>" . L10n::t('Location:') . "</h4><p>" . BBCode::convert(Strings::escapeHtml($event['location']), false, $simple) . "</p>";
+				$o .= "<h4>" . DI::l10n()->t('Location:') . "</h4><p>" . BBCode::convert(Strings::escapeHtml($event['location']), false, $simple) . "</p>";
 			}
 
 			return $o;
@@ -75,13 +75,13 @@ class Event
 
 		$o .= '<div class="summary event-summary">' . BBCode::convert(Strings::escapeHtml($event['summary']), false, $simple) . '</div>' . "\r\n";
 
-		$o .= '<div class="event-start"><span class="event-label">' . L10n::t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
+		$o .= '<div class="event-start"><span class="event-label">' . DI::l10n()->t('Starts:') . '</span>&nbsp;<span class="dtstart" title="'
 			. DateTimeFormat::utc($event['start'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
 			. '" >' . $event_start
 			. '</span></div>' . "\r\n";
 
 		if (!$event['nofinish']) {
-			$o .= '<div class="event-end" ><span class="event-label">' . L10n::t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
+			$o .= '<div class="event-end" ><span class="event-label">' . DI::l10n()->t('Finishes:') . '</span>&nbsp;<span class="dtend" title="'
 				. DateTimeFormat::utc($event['finish'], (!empty($event['adjust']) ? DateTimeFormat::ATOM : 'Y-m-d\TH:i:s'))
 				. '" >' . $event_end
 				. '</span></div>' . "\r\n";
@@ -92,7 +92,7 @@ class Event
 		}
 
 		if (!empty($event['location'])) {
-			$o .= '<div class="event-location"><span class="event-label">' . L10n::t('Location:') . '</span>&nbsp;<span class="location">'
+			$o .= '<div class="event-location"><span class="event-label">' . DI::l10n()->t('Location:') . '</span>&nbsp;<span class="location">'
 				. BBCode::convert(Strings::escapeHtml($event['location']), false, $simple)
 				. '</span></div>' . "\r\n";
 
@@ -382,59 +382,59 @@ class Event
 
 		$i18n = [
 			"firstDay" => $firstDay,
-			"allday"   => L10n::t("all-day"),
+			"allday"   => DI::l10n()->t("all-day"),
 
-			"Sun" => L10n::t("Sun"),
-			"Mon" => L10n::t("Mon"),
-			"Tue" => L10n::t("Tue"),
-			"Wed" => L10n::t("Wed"),
-			"Thu" => L10n::t("Thu"),
-			"Fri" => L10n::t("Fri"),
-			"Sat" => L10n::t("Sat"),
+			"Sun" => DI::l10n()->t("Sun"),
+			"Mon" => DI::l10n()->t("Mon"),
+			"Tue" => DI::l10n()->t("Tue"),
+			"Wed" => DI::l10n()->t("Wed"),
+			"Thu" => DI::l10n()->t("Thu"),
+			"Fri" => DI::l10n()->t("Fri"),
+			"Sat" => DI::l10n()->t("Sat"),
 
-			"Sunday"    => L10n::t("Sunday"),
-			"Monday"    => L10n::t("Monday"),
-			"Tuesday"   => L10n::t("Tuesday"),
-			"Wednesday" => L10n::t("Wednesday"),
-			"Thursday"  => L10n::t("Thursday"),
-			"Friday"    => L10n::t("Friday"),
-			"Saturday"  => L10n::t("Saturday"),
+			"Sunday"    => DI::l10n()->t("Sunday"),
+			"Monday"    => DI::l10n()->t("Monday"),
+			"Tuesday"   => DI::l10n()->t("Tuesday"),
+			"Wednesday" => DI::l10n()->t("Wednesday"),
+			"Thursday"  => DI::l10n()->t("Thursday"),
+			"Friday"    => DI::l10n()->t("Friday"),
+			"Saturday"  => DI::l10n()->t("Saturday"),
 
-			"Jan" => L10n::t("Jan"),
-			"Feb" => L10n::t("Feb"),
-			"Mar" => L10n::t("Mar"),
-			"Apr" => L10n::t("Apr"),
-			"May" => L10n::t("May"),
-			"Jun" => L10n::t("Jun"),
-			"Jul" => L10n::t("Jul"),
-			"Aug" => L10n::t("Aug"),
-			"Sep" => L10n::t("Sept"),
-			"Oct" => L10n::t("Oct"),
-			"Nov" => L10n::t("Nov"),
-			"Dec" => L10n::t("Dec"),
+			"Jan" => DI::l10n()->t("Jan"),
+			"Feb" => DI::l10n()->t("Feb"),
+			"Mar" => DI::l10n()->t("Mar"),
+			"Apr" => DI::l10n()->t("Apr"),
+			"May" => DI::l10n()->t("May"),
+			"Jun" => DI::l10n()->t("Jun"),
+			"Jul" => DI::l10n()->t("Jul"),
+			"Aug" => DI::l10n()->t("Aug"),
+			"Sep" => DI::l10n()->t("Sept"),
+			"Oct" => DI::l10n()->t("Oct"),
+			"Nov" => DI::l10n()->t("Nov"),
+			"Dec" => DI::l10n()->t("Dec"),
 
-			"January"   => L10n::t("January"),
-			"February"  => L10n::t("February"),
-			"March"     => L10n::t("March"),
-			"April"     => L10n::t("April"),
-			"June"      => L10n::t("June"),
-			"July"      => L10n::t("July"),
-			"August"    => L10n::t("August"),
-			"September" => L10n::t("September"),
-			"October"   => L10n::t("October"),
-			"November"  => L10n::t("November"),
-			"December"  => L10n::t("December"),
+			"January"   => DI::l10n()->t("January"),
+			"February"  => DI::l10n()->t("February"),
+			"March"     => DI::l10n()->t("March"),
+			"April"     => DI::l10n()->t("April"),
+			"June"      => DI::l10n()->t("June"),
+			"July"      => DI::l10n()->t("July"),
+			"August"    => DI::l10n()->t("August"),
+			"September" => DI::l10n()->t("September"),
+			"October"   => DI::l10n()->t("October"),
+			"November"  => DI::l10n()->t("November"),
+			"December"  => DI::l10n()->t("December"),
 
-			"today" => L10n::t("today"),
-			"month" => L10n::t("month"),
-			"week"  => L10n::t("week"),
-			"day"   => L10n::t("day"),
+			"today" => DI::l10n()->t("today"),
+			"month" => DI::l10n()->t("month"),
+			"week"  => DI::l10n()->t("week"),
+			"day"   => DI::l10n()->t("day"),
 
-			"noevent" => L10n::t("No events to display"),
+			"noevent" => DI::l10n()->t("No events to display"),
 
-			"dtstart_label"  => L10n::t("Starts:"),
-			"dtend_label"    => L10n::t("Finishes:"),
-			"location_label" => L10n::t("Location:")
+			"dtstart_label"  => DI::l10n()->t("Starts:"),
+			"dtend_label"    => DI::l10n()->t("Finishes:"),
+			"location_label" => DI::l10n()->t("Location:")
 		];
 
 		return $i18n;
@@ -558,7 +558,7 @@ class Event
 		$event_list = [];
 
 		$last_date = '';
-		$fmt = L10n::t('l, F j');
+		$fmt = DI::l10n()->t('l, F j');
 		foreach ($event_result as $event) {
 			$item = Item::selectFirst(['plink', 'author-name', 'author-avatar', 'author-link'], ['id' => $event['itemid']]);
 			if (!DBA::isResult($item)) {
@@ -589,9 +589,9 @@ class Event
 			$copy = null;
 			$drop = null;
 			if (local_user() && local_user() == $event['uid'] && $event['type'] == 'event') {
-				$edit = !$event['cid'] ? [DI::baseUrl() . '/events/event/' . $event['id'], L10n::t('Edit event')     , '', ''] : null;
-				$copy = !$event['cid'] ? [DI::baseUrl() . '/events/copy/' . $event['id'] , L10n::t('Duplicate event'), '', ''] : null;
-				$drop =                  [DI::baseUrl() . '/events/drop/' . $event['id'] , L10n::t('Delete event')   , '', ''];
+				$edit = !$event['cid'] ? [DI::baseUrl() . '/events/event/' . $event['id'], DI::l10n()->t('Edit event')     , '', ''] : null;
+				$copy = !$event['cid'] ? [DI::baseUrl() . '/events/copy/' . $event['id'] , DI::l10n()->t('Duplicate event'), '', ''] : null;
+				$drop =                  [DI::baseUrl() . '/events/drop/' . $event['id'] , DI::l10n()->t('Delete event')   , '', ''];
 			}
 
 			$title = BBCode::convert(Strings::escapeHtml($event['summary']));
@@ -623,7 +623,7 @@ class Event
 				'is_first' => $is_first,
 				'item'     => $event,
 				'html'     => $html,
-				'plink'    => [$event['plink'], L10n::t('link to source'), '', ''],
+				'plink'    => [$event['plink'], DI::l10n()->t('link to source'), '', ''],
 			];
 		}
 
@@ -844,9 +844,9 @@ class Event
 		$finish    = false;
 
 		// Set the different time formats.
-		$dformat       = L10n::t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM.
-		$dformat_short = L10n::t('D g:i A'); // Fri 8:01 AM.
-		$tformat       = L10n::t('g:i A'); // 8:01 AM.
+		$dformat       = DI::l10n()->t('l F d, Y \@ g:i A'); // Friday January 18, 2011 @ 8:01 AM.
+		$dformat_short = DI::l10n()->t('D g:i A'); // Fri 8:01 AM.
+		$tformat       = DI::l10n()->t('g:i A'); // 8:01 AM.
 
 		// Convert the time to different formats.
 		$dtstart_dt = L10n::getDay(
@@ -912,11 +912,11 @@ class Event
 		$return = Renderer::replaceMacros($tpl, [
 			'$id'             => $item['event-id'],
 			'$title'          => BBCode::convert($item['event-summary']),
-			'$dtstart_label'  => L10n::t('Starts:'),
+			'$dtstart_label'  => DI::l10n()->t('Starts:'),
 			'$dtstart_title'  => $dtstart_title,
 			'$dtstart_dt'     => $dtstart_dt,
 			'$finish'         => $finish,
-			'$dtend_label'    => L10n::t('Finishes:'),
+			'$dtend_label'    => DI::l10n()->t('Finishes:'),
 			'$dtend_title'    => $dtend_title,
 			'$dtend_dt'       => $dtend_dt,
 			'$month_short'    => $month_short,
@@ -930,10 +930,10 @@ class Event
 			'$author_link'    => $profile_link,
 			'$author_avatar'  => $item['author-avatar'],
 			'$description'    => BBCode::convert($item['event-desc']),
-			'$location_label' => L10n::t('Location:'),
-			'$show_map_label' => L10n::t('Show map'),
-			'$hide_map_label' => L10n::t('Hide map'),
-			'$map_btn_label'  => L10n::t('Show map'),
+			'$location_label' => DI::l10n()->t('Location:'),
+			'$show_map_label' => DI::l10n()->t('Show map'),
+			'$hide_map_label' => DI::l10n()->t('Hide map'),
+			'$map_btn_label'  => DI::l10n()->t('Show map'),
 			'$location'       => $location
 		]);
 
@@ -1024,8 +1024,8 @@ class Event
 			'cid'     => $contact['id'],
 			'start'   => DateTimeFormat::utc($birthday),
 			'finish'  => DateTimeFormat::utc($birthday . ' + 1 day '),
-			'summary' => L10n::t('%s\'s birthday', $contact['name']),
-			'desc'    => L10n::t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]'),
+			'summary' => DI::l10n()->t('%s\'s birthday', $contact['name']),
+			'desc'    => DI::l10n()->t('Happy Birthday %s', ' [url=' . $contact['url'] . ']' . $contact['name'] . '[/url]'),
 			'type'    => 'birthday',
 			'adjust'  => 0
 		];

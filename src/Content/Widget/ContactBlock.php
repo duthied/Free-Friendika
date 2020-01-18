@@ -55,7 +55,7 @@ class ContactBlock
 			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 
-		$contacts_title = L10n::t('No contacts');
+		$contacts_title = DI::l10n()->t('No contacts');
 
 		$micropro = [];
 
@@ -106,7 +106,7 @@ class ContactBlock
 		$o = Renderer::replaceMacros($tpl, [
 			'$contacts' => $contacts_title,
 			'$nickname' => $profile['nickname'],
-			'$viewcontacts' => L10n::t('View Contacts'),
+			'$viewcontacts' => DI::l10n()->t('View Contacts'),
 			'$micropro' => $micropro,
 		]);
 

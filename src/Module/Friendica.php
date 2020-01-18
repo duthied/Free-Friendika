@@ -37,27 +37,27 @@ class Friendica extends BaseModule
 				}
 			}
 			$addon = [
-				'title' => L10n::t('Installed addons/apps:'),
+				'title' => DI::l10n()->t('Installed addons/apps:'),
 				'list'  => $sortedAddonList,
 			];
 		} else {
 			$addon = [
-				'title' => L10n::t('No installed addons/apps'),
+				'title' => DI::l10n()->t('No installed addons/apps'),
 			];
 		}
 
 		$tos = ($config->get('system', 'tosdisplay')) ?
-			L10n::t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', DI::baseUrl()->get()) :
+			DI::l10n()->t('Read about the <a href="%1$s/tos">Terms of Service</a> of this node.', DI::baseUrl()->get()) :
 			'';
 
 		$blockList = $config->get('system', 'blocklist');
 
 		if (!empty($blockList)) {
 			$blocked = [
-				'title'  => L10n::t('On this server the following remote servers are blocked.'),
+				'title'  => DI::l10n()->t('On this server the following remote servers are blocked.'),
 				'header' => [
-					L10n::t('Blocked domain'),
-					L10n::t('Reason for the block'),
+					DI::l10n()->t('Blocked domain'),
+					DI::l10n()->t('Reason for the block'),
 				],
 				'list'   => $blockList,
 			];
@@ -72,14 +72,14 @@ class Friendica extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('friendica.tpl');
 
 		return Renderer::replaceMacros($tpl, [
-			'about'     => L10n::t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
+			'about'     => DI::l10n()->t('This is Friendica, version %s that is running at the web location %s. The database version is %s, the post update version is %s.',
 				'<strong>' . FRIENDICA_VERSION . '</strong>',
 				DI::baseUrl()->get(),
 				'<strong>' . DB_UPDATE_VERSION . '</strong>',
 				'<strong>' . $config->get('system', 'post_update_version') . '</strong>'),
-			'friendica' => L10n::t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
-			'bugs'      => L10n::t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . L10n::t('the bugtracker at github') . '</a>',
-			'info'      => L10n::t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),
+			'friendica' => DI::l10n()->t('Please visit <a href="https://friendi.ca">Friendi.ca</a> to learn more about the Friendica project.'),
+			'bugs'      => DI::l10n()->t('Bug reports and issues: please visit') . ' ' . '<a href="https://github.com/friendica/friendica/issues?state=open">' . DI::l10n()->t('the bugtracker at github') . '</a>',
+			'info'      => DI::l10n()->t('Suggestions, praise, etc. - please email "info" at "friendi - dot - ca'),
 
 			'visible_addons' => $addon,
 			'tos'            => $tos,

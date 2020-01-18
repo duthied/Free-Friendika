@@ -150,12 +150,12 @@ class Pager
 			'class' => 'pager',
 			'prev'  => [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
-				'text'  => L10n::t('newer'),
+				'text'  => DI::l10n()->t('newer'),
 				'class' => 'previous' . ($this->getPage() == 1 ? ' disabled' : '')
 			],
 			'next'  => [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
-				'text'  => L10n::t('older'),
+				'text'  => DI::l10n()->t('older'),
 				'class' =>  'next' . ($displayedItemCount < $this->getItemsPerPage() ? ' disabled' : '')
 			]
 		];
@@ -195,12 +195,12 @@ class Pager
 		if ($totalItemCount > $this->getItemsPerPage()) {
 			$data['first'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=1'),
-				'text'  => L10n::t('first'),
+				'text'  => DI::l10n()->t('first'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 			$data['prev'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() - 1)),
-				'text'  => L10n::t('prev'),
+				'text'  => DI::l10n()->t('prev'),
 				'class' => $this->getPage() == 1 ? 'disabled' : ''
 			];
 
@@ -255,12 +255,12 @@ class Pager
 
 			$data['next'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . ($this->getPage() + 1)),
-				'text'  => L10n::t('next'),
+				'text'  => DI::l10n()->t('next'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 			$data['last'] = [
 				'url'   => Strings::ensureQueryParameter($this->baseQueryString . '&page=' . $lastpage),
-				'text'  => L10n::t('last'),
+				'text'  => DI::l10n()->t('last'),
 				'class' => $this->getPage() == $lastpage ? 'disabled' : ''
 			];
 		}

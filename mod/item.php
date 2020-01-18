@@ -123,7 +123,7 @@ function item_post(App $a) {
 		}
 
 		if (!DBA::isResult($toplevel_item)) {
-			notice(L10n::t('Unable to locate original post.') . EOL);
+			notice(DI::l10n()->t('Unable to locate original post.') . EOL);
 			if (!empty($_REQUEST['return'])) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -170,7 +170,7 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 
 		if (!empty($_REQUEST['return'])) {
 			DI::baseUrl()->redirect($return_path);
@@ -325,7 +325,7 @@ function item_post(App $a) {
 			if ($preview) {
 				exit();
 			}
-			info(L10n::t('Empty post discarded.') . EOL);
+			info(DI::l10n()->t('Empty post discarded.') . EOL);
 			if (!empty($_REQUEST['return'])) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -797,14 +797,14 @@ function item_post(App $a) {
 				if (!strlen($addr)) {
 					continue;
 				}
-				$disclaimer = '<hr />' . L10n::t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
+				$disclaimer = '<hr />' . DI::l10n()->t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
 					. '<br />';
-				$disclaimer .= L10n::t('You may visit them online at %s', DI::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
-				$disclaimer .= L10n::t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
+				$disclaimer .= DI::l10n()->t('You may visit them online at %s', DI::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
+				$disclaimer .= DI::l10n()->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 				if (!$datarray['title']=='') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
-					$subject = Email::encodeHeader('[Friendica]' . ' ' . L10n::t('%s posted an update.', $a->user['username']), 'UTF-8');
+					$subject = Email::encodeHeader('[Friendica]' . ' ' . DI::l10n()->t('%s posted an update.', $a->user['username']), 'UTF-8');
 				}
 				$link = '<a href="' . DI::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = Item::prepareBody($datarray);

@@ -122,7 +122,7 @@ function poke_init(App $a)
 	$arr['object-type']   = Activity\ObjectType::PERSON;
 
 	$arr['origin']        = 1;
-	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . L10n::t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
+	$arr['body']          = '[url=' . $poster['url'] . ']' . $poster['name'] . '[/url]' . ' ' . DI::l10n()->t($verbs[$verb][0]) . ' ' . '[url=' . $target['url'] . ']' . $target['name'] . '[/url]';
 
 	$arr['object'] = '<object><type>' . Activity\ObjectType::PERSON . '</type><title>' . $target['name'] . '</title><id>' . $target['url'] . '</id>';
 	$arr['object'] .= '<link>' . XML::escape('<link rel="alternate" type="text/html" href="' . $target['url'] . '" />' . "\n");
@@ -140,7 +140,7 @@ function poke_init(App $a)
 function poke_content(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -176,14 +176,14 @@ function poke_content(App $a)
 	$tpl = Renderer::getMarkupTemplate('poke_content.tpl');
 
 	$o = Renderer::replaceMacros($tpl,[
-		'$title' => L10n::t('Poke/Prod'),
-		'$desc' => L10n::t('poke, prod or do other things to somebody'),
-		'$clabel' => L10n::t('Recipient'),
-		'$choice' => L10n::t('Choose what you wish to do to recipient'),
+		'$title' => DI::l10n()->t('Poke/Prod'),
+		'$desc' => DI::l10n()->t('poke, prod or do other things to somebody'),
+		'$clabel' => DI::l10n()->t('Recipient'),
+		'$choice' => DI::l10n()->t('Choose what you wish to do to recipient'),
 		'$verbs' => $shortlist,
 		'$parent' => $parent,
-		'$prv_desc' => L10n::t('Make this post private'),
-		'$submit' => L10n::t('Submit'),
+		'$prv_desc' => DI::l10n()->t('Make this post private'),
+		'$submit' => DI::l10n()->t('Submit'),
 		'$name' => $name,
 		'$id' => $id
 	]);

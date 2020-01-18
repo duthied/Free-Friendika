@@ -33,7 +33,7 @@ class Delete extends BaseAdminModule
 			Item::delete(['guid' => $guid]);
 		}
 
-		info(L10n::t('Item marked for deletion.') . EOL);
+		info(DI::l10n()->t('Item marked for deletion.') . EOL);
 		DI::baseUrl()->redirect('admin/item/delete');
 	}
 
@@ -44,12 +44,12 @@ class Delete extends BaseAdminModule
 		$t = Renderer::getMarkupTemplate('admin/item/delete.tpl');
 
 		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Delete Item'),
-			'$submit' => L10n::t('Delete this Item'),
-			'$intro1' => L10n::t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
-			'$intro2' => L10n::t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
-			'$deleteitemguid' => ['deleteitemguid', L10n::t("GUID"), '', L10n::t("The GUID of the item you want to delete."), 'required', 'autofocus'],
+			'$title' => DI::l10n()->t('Administration'),
+			'$page' => DI::l10n()->t('Delete Item'),
+			'$submit' => DI::l10n()->t('Delete this Item'),
+			'$intro1' => DI::l10n()->t('On this page you can delete an item from your node. If the item is a top level posting, the entire thread will be deleted.'),
+			'$intro2' => DI::l10n()->t('You need to know the GUID of the item. You can find it e.g. by looking at the display URL. The last part of http://example.com/display/123456 is the GUID, here 123456.'),
+			'$deleteitemguid' => ['deleteitemguid', DI::l10n()->t("GUID"), '', DI::l10n()->t("The GUID of the item you want to delete."), 'required', 'autofocus'],
 			'$form_security_token' => parent::getFormSecurityToken("admin_deleteitem")
 		]);
 	}

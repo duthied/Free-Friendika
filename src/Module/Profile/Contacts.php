@@ -22,7 +22,7 @@ class Contacts extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
-			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('User not found.'));
+			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
 		$a = DI::app();
@@ -35,7 +35,7 @@ class Contacts extends BaseModule
 
 		$user = DBA::selectFirst('user', [], ['nickname' => $nickname, 'blocked' => false]);
 		if (!DBA::isResult($user)) {
-			throw new \Friendica\Network\HTTPException\NotFoundException(L10n::t('User not found.'));
+			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 
 		$a->profile_uid  = $user['uid'];
@@ -48,7 +48,7 @@ class Contacts extends BaseModule
 		$o = Profile::getTabs($a, 'contacts', $is_owner, $nickname);
 
 		if (!count($a->profile) || $a->profile['hide-friends']) {
-			notice(L10n::t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.') . EOL);
 			return $o;
 		}
 
@@ -76,7 +76,7 @@ class Contacts extends BaseModule
 		$contacts_stmt = DBA::select('contact', [], $condition, $params);
 
 		if (!DBA::isResult($contacts_stmt)) {
-			info(L10n::t('No contacts.') . EOL);
+			info(DI::l10n()->t('No contacts.') . EOL);
 			return $o;
 		}
 
@@ -91,7 +91,7 @@ class Contacts extends BaseModule
 
 			$contacts[] = [
 				'id'           => $contact['id'],
-				'img_hover'    => L10n::t('Visit %s\'s profile [%s]', $contact_details['name'], $contact['url']),
+				'img_hover'    => DI::l10n()->t('Visit %s\'s profile [%s]', $contact_details['name'], $contact['url']),
 				'photo_menu'   => Contact::photoMenu($contact),
 				'thumb'        => ProxyUtils::proxifyUrl($contact_details['thumb'], false, ProxyUtils::SIZE_THUMB),
 				'name'         => substr($contact_details['name'], 0, 20),
@@ -123,10 +123,10 @@ class Contacts extends BaseModule
 			'$nickname' => $nickname,
 			'$type'     => $type,
 
-			'$all_label' => L10n::t('All contacts'),
-			'$followers_label' => L10n::t('Followers'),
-			'$following_label' => L10n::t('Following'),
-			'$mutuals_label' => L10n::t('Mutual friends'),
+			'$all_label' => DI::l10n()->t('All contacts'),
+			'$followers_label' => DI::l10n()->t('Followers'),
+			'$following_label' => DI::l10n()->t('Following'),
+			'$mutuals_label' => DI::l10n()->t('Mutual friends'),
 
 			'$contacts' => $contacts,
 			'$paginate' => $pager->renderFull($total),

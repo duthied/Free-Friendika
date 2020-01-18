@@ -39,7 +39,7 @@ function profiles_init(App $a) {
 			intval(local_user())
 		);
 		if (! DBA::isResult($r)) {
-			notice(L10n::t('Profile not found.') . EOL);
+			notice(DI::l10n()->t('Profile not found.') . EOL);
 			DI::baseUrl()->redirect('profiles');
 			return; // NOTREACHED
 		}
@@ -58,7 +58,7 @@ function profiles_init(App $a) {
 			intval(local_user())
 		);
 		if (DBA::isResult($r)) {
-			info(L10n::t('Profile deleted.').EOL);
+			info(DI::l10n()->t('Profile deleted.').EOL);
 		}
 
 		DI::baseUrl()->redirect('profiles');
@@ -74,7 +74,7 @@ function profiles_init(App $a) {
 
 		$num_profiles = (DBA::isResult($r0) ? count($r0) : 0);
 
-		$name = L10n::t('Profile-') . ($num_profiles + 1);
+		$name = DI::l10n()->t('Profile-') . ($num_profiles + 1);
 
 		$r1 = q("SELECT `name`, `photo`, `thumb` FROM `profile` WHERE `uid` = %d AND `is-default` = 1 LIMIT 1",
 			intval(local_user()));
@@ -93,7 +93,7 @@ function profiles_init(App $a) {
 			DBA::escape($name)
 		);
 
-		info(L10n::t('New profile created.') . EOL);
+		info(DI::l10n()->t('New profile created.') . EOL);
 		if (DBA::isResult($r3) && count($r3) == 1) {
 			DI::baseUrl()->redirect('profiles/' . $r3[0]['id']);
 		}
@@ -110,13 +110,13 @@ function profiles_init(App $a) {
 
 		$num_profiles = (DBA::isResult($r0) ? count($r0) : 0);
 
-		$name = L10n::t('Profile-') . ($num_profiles + 1);
+		$name = DI::l10n()->t('Profile-') . ($num_profiles + 1);
 		$r1 = q("SELECT * FROM `profile` WHERE `uid` = %d AND `id` = %d LIMIT 1",
 			intval(local_user()),
 			intval($a->argv[2])
 		);
 		if(! DBA::isResult($r1)) {
-			notice(L10n::t('Profile unavailable to clone.') . EOL);
+			notice(DI::l10n()->t('Profile unavailable to clone.') . EOL);
 			exit();
 		}
 		unset($r1[0]['id']);
@@ -131,7 +131,7 @@ function profiles_init(App $a) {
 			intval(local_user()),
 			DBA::escape($name)
 		);
-		info(L10n::t('New profile created.') . EOL);
+		info(DI::l10n()->t('New profile created.') . EOL);
 		if ((DBA::isResult($r3)) && (count($r3) == 1)) {
 			DI::baseUrl()->redirect('profiles/'.$r3[0]['id']);
 		}
@@ -148,7 +148,7 @@ function profiles_init(App $a) {
 			intval(local_user())
 		);
 		if (! DBA::isResult($r)) {
-			notice(L10n::t('Profile not found.') . EOL);
+			notice(DI::l10n()->t('Profile not found.') . EOL);
 			exit();
 		}
 
@@ -178,7 +178,7 @@ function profile_clean_keywords($keywords)
 function profiles_post(App $a) {
 
 	if (! local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -192,7 +192,7 @@ function profiles_post(App $a) {
 			intval(local_user())
 		);
 		if (! DBA::isResult($orig)) {
-			notice(L10n::t('Profile not found.') . EOL);
+			notice(DI::l10n()->t('Profile not found.') . EOL);
 			return;
 		}
 
@@ -202,7 +202,7 @@ function profiles_post(App $a) {
 
 		$profile_name = Strings::escapeTags(trim($_POST['profile_name']));
 		if (! strlen($profile_name)) {
-			notice(L10n::t('Profile Name is required.') . EOL);
+			notice(DI::l10n()->t('Profile Name is required.') . EOL);
 			return;
 		}
 
@@ -342,50 +342,50 @@ function profiles_post(App $a) {
 		$changes = [];
 		if ($is_default) {
 			if ($marital != $orig[0]['marital']) {
-				$changes[] = '[color=#ff0000]&hearts;[/color] ' . L10n::t('Marital Status');
+				$changes[] = '[color=#ff0000]&hearts;[/color] ' . DI::l10n()->t('Marital Status');
 			}
 			if ($withchanged) {
-				$changes[] = '[color=#ff0000]&hearts;[/color] ' . L10n::t('Romantic Partner');
+				$changes[] = '[color=#ff0000]&hearts;[/color] ' . DI::l10n()->t('Romantic Partner');
 			}
 			if ($likes != $orig[0]['likes']) {
-				$changes[] = L10n::t('Likes');
+				$changes[] = DI::l10n()->t('Likes');
 			}
 			if ($dislikes != $orig[0]['dislikes']) {
-				$changes[] = L10n::t('Dislikes');
+				$changes[] = DI::l10n()->t('Dislikes');
 			}
 			if ($work != $orig[0]['work']) {
-				$changes[] = L10n::t('Work/Employment');
+				$changes[] = DI::l10n()->t('Work/Employment');
 			}
 			if ($religion != $orig[0]['religion']) {
-				$changes[] = L10n::t('Religion');
+				$changes[] = DI::l10n()->t('Religion');
 			}
 			if ($politic != $orig[0]['politic']) {
-				$changes[] = L10n::t('Political Views');
+				$changes[] = DI::l10n()->t('Political Views');
 			}
 			if ($gender != $orig[0]['gender']) {
-				$changes[] = L10n::t('Gender');
+				$changes[] = DI::l10n()->t('Gender');
 			}
 			if ($sexual != $orig[0]['sexual']) {
-				$changes[] = L10n::t('Sexual Preference');
+				$changes[] = DI::l10n()->t('Sexual Preference');
 			}
 			if ($xmpp != $orig[0]['xmpp']) {
-				$changes[] = L10n::t('XMPP');
+				$changes[] = DI::l10n()->t('XMPP');
 			}
 			if ($homepage != $orig[0]['homepage']) {
-				$changes[] = L10n::t('Homepage');
+				$changes[] = DI::l10n()->t('Homepage');
 			}
 			if ($interest != $orig[0]['interest']) {
-				$changes[] = L10n::t('Interests');
+				$changes[] = DI::l10n()->t('Interests');
 			}
 			if ($address != $orig[0]['address']) {
-				$changes[] = L10n::t('Address');
+				$changes[] = DI::l10n()->t('Address');
 				// New address not sent in notifications, potential privacy issues
 				// in case this leaks to unintended recipients. Yes, it's in the public
 				// profile but that doesn't mean we have to broadcast it to everybody.
 			}
 			if ($locality != $orig[0]['locality'] || $region != $orig[0]['region']
 				|| $country_name != $orig[0]['country-name']) {
- 				$changes[] = L10n::t('Location');
+ 				$changes[] = DI::l10n()->t('Location');
 			}
 		}
 
@@ -465,7 +465,7 @@ function profiles_post(App $a) {
 
 		/// @TODO decide to use DBA::isResult() here and check $r
 		if ($r) {
-			info(L10n::t('Profile updated.') . EOL);
+			info(DI::l10n()->t('Profile updated.') . EOL);
 		}
 
 		if ($is_default) {
@@ -495,7 +495,7 @@ function profiles_post(App $a) {
 function profiles_content(App $a) {
 
 	if (! local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return Login::form();
 	}
 
@@ -507,7 +507,7 @@ function profiles_content(App $a) {
 			intval(local_user())
 		);
 		if (! DBA::isResult($r)) {
-			notice(L10n::t('Profile not found.') . EOL);
+			notice(DI::l10n()->t('Profile not found.') . EOL);
 			return;
 		}
 
@@ -519,14 +519,14 @@ function profiles_content(App $a) {
 		$hide_friends = Renderer::replaceMacros($opt_tpl,[
 			'$yesno' => [
 				'hide-friends', //Name
-				L10n::t('Hide contacts and friends:'), //Label
+				DI::l10n()->t('Hide contacts and friends:'), //Label
 				!!$r[0]['hide-friends'], //Value
 				'', //Help string
-				[L10n::t('No'), L10n::t('Yes')] //Off - On strings
+				[DI::l10n()->t('No'), DI::l10n()->t('Yes')] //Off - On strings
 			],
-			'$desc' => L10n::t('Hide your contact/friend list from viewers of this profile?'),
-			'$yes_str' => L10n::t('Yes'),
-			'$no_str' => L10n::t('No'),
+			'$desc' => DI::l10n()->t('Hide your contact/friend list from viewers of this profile?'),
+			'$yes_str' => DI::l10n()->t('Yes'),
+			'$no_str' => DI::l10n()->t('No'),
 			'$yes_selected' => (($r[0]['hide-friends']) ? " checked=\"checked\" " : ""),
 			'$no_selected' => (($r[0]['hide-friends'] == 0) ? " checked=\"checked\" " : "")
 		]);
@@ -544,10 +544,10 @@ function profiles_content(App $a) {
 
 			'$details' => [
 				'detailed_profile', //Name
-				L10n::t('Show more profile fields:'), //Label
+				DI::l10n()->t('Show more profile fields:'), //Label
 				$detailed_profile, //Value
 				'', //Help string
-				[L10n::t('No'), L10n::t('Yes')] //Off - On strings
+				[DI::l10n()->t('No'), DI::l10n()->t('Yes')] //Off - On strings
 			],
 
 			'$multi_profiles'		=> Feature::isEnabled(local_user(), 'multi_profiles'),
@@ -556,75 +556,75 @@ function profiles_content(App $a) {
 			'$profile_clone_link'		=> ((Feature::isEnabled(local_user(), 'multi_profiles')) ? 'profiles/clone/' . $r[0]['id'] . '?t=' . BaseModule::getFormSecurityToken("profile_clone") : ""),
 			'$profile_drop_link'		=> 'profiles/drop/' . $r[0]['id'] . '?t=' . BaseModule::getFormSecurityToken("profile_drop"),
 
-			'$profile_action' => L10n::t('Profile Actions'),
-			'$banner'	=> L10n::t('Edit Profile Details'),
-			'$submit'	=> L10n::t('Submit'),
-			'$profpic'	=> L10n::t('Change Profile Photo'),
+			'$profile_action' => DI::l10n()->t('Profile Actions'),
+			'$banner'	=> DI::l10n()->t('Edit Profile Details'),
+			'$submit'	=> DI::l10n()->t('Submit'),
+			'$profpic'	=> DI::l10n()->t('Change Profile Photo'),
 			'$profpiclink'	=> '/photos/' . $a->user['nickname'],
-			'$viewprof'	=> L10n::t('View this profile'),
-			'$viewallprof'	=> L10n::t('View all profiles'),
-			'$editvis' 	=> L10n::t('Edit visibility'),
-			'$cr_prof'	=> L10n::t('Create a new profile using these settings'),
-			'$cl_prof'	=> L10n::t('Clone this profile'),
-			'$del_prof'	=> L10n::t('Delete this profile'),
+			'$viewprof'	=> DI::l10n()->t('View this profile'),
+			'$viewallprof'	=> DI::l10n()->t('View all profiles'),
+			'$editvis' 	=> DI::l10n()->t('Edit visibility'),
+			'$cr_prof'	=> DI::l10n()->t('Create a new profile using these settings'),
+			'$cl_prof'	=> DI::l10n()->t('Clone this profile'),
+			'$del_prof'	=> DI::l10n()->t('Delete this profile'),
 
-			'$lbl_basic_section' => L10n::t('Basic information'),
-			'$lbl_picture_section' => L10n::t('Profile picture'),
-			'$lbl_location_section' => L10n::t('Location'),
-			'$lbl_preferences_section' => L10n::t('Preferences'),
-			'$lbl_status_section' => L10n::t('Status information'),
-			'$lbl_about_section' => L10n::t('Additional information'),
-			'$lbl_interests_section' => L10n::t('Interests'),
-			'$lbl_personal_section' => L10n::t('Personal'),
-			'$lbl_relation_section' => L10n::t('Relation'),
-			'$lbl_miscellaneous_section' => L10n::t('Miscellaneous'),
+			'$lbl_basic_section' => DI::l10n()->t('Basic information'),
+			'$lbl_picture_section' => DI::l10n()->t('Profile picture'),
+			'$lbl_location_section' => DI::l10n()->t('Location'),
+			'$lbl_preferences_section' => DI::l10n()->t('Preferences'),
+			'$lbl_status_section' => DI::l10n()->t('Status information'),
+			'$lbl_about_section' => DI::l10n()->t('Additional information'),
+			'$lbl_interests_section' => DI::l10n()->t('Interests'),
+			'$lbl_personal_section' => DI::l10n()->t('Personal'),
+			'$lbl_relation_section' => DI::l10n()->t('Relation'),
+			'$lbl_miscellaneous_section' => DI::l10n()->t('Miscellaneous'),
 
-			'$lbl_profile_photo' => L10n::t('Upload Profile Photo'),
-			'$lbl_gender' => L10n::t('Your Gender:'),
-			'$lbl_marital' => L10n::t('<span class="heart">&hearts;</span> Marital Status:'),
-			'$lbl_sexual' => L10n::t('Sexual Preference:'),
-			'$lbl_ex2' => L10n::t('Example: fishing photography software'),
+			'$lbl_profile_photo' => DI::l10n()->t('Upload Profile Photo'),
+			'$lbl_gender' => DI::l10n()->t('Your Gender:'),
+			'$lbl_marital' => DI::l10n()->t('<span class="heart">&hearts;</span> Marital Status:'),
+			'$lbl_sexual' => DI::l10n()->t('Sexual Preference:'),
+			'$lbl_ex2' => DI::l10n()->t('Example: fishing photography software'),
 
 			'$disabled' => (($is_default) ? 'onclick="return false;" style="color: #BBBBFF;"' : ''),
 			'$baseurl' => DI::baseUrl()->get(true),
 			'$profile_id' => $r[0]['id'],
-			'$profile_name' => ['profile_name', L10n::t('Profile Name:'), $r[0]['profile-name'], L10n::t('Required'), '*'],
+			'$profile_name' => ['profile_name', DI::l10n()->t('Profile Name:'), $r[0]['profile-name'], DI::l10n()->t('Required'), '*'],
 			'$is_default'   => $is_default,
-			'$default' => (($is_default) ? '<p id="profile-edit-default-desc">' . L10n::t('This is your <strong>public</strong> profile.<br />It <strong>may</strong> be visible to anybody using the internet.') . '</p>' : ""),
-			'$name' => ['name', L10n::t('Your Full Name:'), $r[0]['name']],
-			'$pdesc' => ['pdesc', L10n::t('Title/Description:'), $r[0]['pdesc']],
+			'$default' => (($is_default) ? '<p id="profile-edit-default-desc">' . DI::l10n()->t('This is your <strong>public</strong> profile.<br />It <strong>may</strong> be visible to anybody using the internet.') . '</p>' : ""),
+			'$name' => ['name', DI::l10n()->t('Your Full Name:'), $r[0]['name']],
+			'$pdesc' => ['pdesc', DI::l10n()->t('Title/Description:'), $r[0]['pdesc']],
 			'$dob' => Temporal::getDateofBirthField($r[0]['dob'], $a->user['timezone']),
 			'$hide_friends' => $hide_friends,
-			'$address' => ['address', L10n::t('Street Address:'), $r[0]['address']],
-			'$locality' => ['locality', L10n::t('Locality/City:'), $r[0]['locality']],
-			'$region' => ['region', L10n::t('Region/State:'), $r[0]['region']],
-			'$postal_code' => ['postal_code', L10n::t('Postal/Zip Code:'), $r[0]['postal-code']],
-			'$country_name' => ['country_name', L10n::t('Country:'), $r[0]['country-name']],
-			'$age' => ((intval($r[0]['dob'])) ? '(' . L10n::t('Age: ') . Temporal::getAgeByTimezone($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
-			'$gender' => L10n::t(ContactSelector::gender($r[0]['gender'])),
-			'$marital' => ['selector' => ContactSelector::maritalStatus($r[0]['marital']), 'value' => L10n::t($r[0]['marital'])],
-			'$with' => ['with', L10n::t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), L10n::t('Examples: cathy123, Cathy Williams, cathy@example.com')],
-			'$howlong' => ['howlong', L10n::t('Since [date]:'), ($r[0]['howlong'] <= DBA::NULL_DATETIME ? '' : DateTimeFormat::local($r[0]['howlong']))],
-			'$sexual' => ['selector' => ContactSelector::sexualPreference($r[0]['sexual']), 'value' => L10n::t($r[0]['sexual'])],
-			'$about' => ['about', L10n::t('Tell us about yourself...'), $r[0]['about']],
-			'$xmpp' => ['xmpp', L10n::t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], L10n::t("The XMPP address will be propagated to your contacts so that they can follow you.")],
-			'$homepage' => ['homepage', L10n::t('Homepage URL:'), $r[0]['homepage']],
-			'$hometown' => ['hometown', L10n::t('Hometown:'), $r[0]['hometown']],
-			'$politic' => ['politic', L10n::t('Political Views:'), $r[0]['politic']],
-			'$religion' => ['religion', L10n::t('Religious Views:'), $r[0]['religion']],
-			'$pub_keywords' => ['pub_keywords', L10n::t('Public Keywords:'), $r[0]['pub_keywords'], L10n::t("\x28Used for suggesting potential friends, can be seen by others\x29")],
-			'$prv_keywords' => ['prv_keywords', L10n::t('Private Keywords:'), $r[0]['prv_keywords'], L10n::t("\x28Used for searching profiles, never shown to others\x29")],
-			'$likes' => ['likes', L10n::t('Likes:'), $r[0]['likes']],
-			'$dislikes' => ['dislikes', L10n::t('Dislikes:'), $r[0]['dislikes']],
-			'$music' => ['music', L10n::t('Musical interests'), $r[0]['music']],
-			'$book' => ['book', L10n::t('Books, literature'), $r[0]['book']],
-			'$tv' => ['tv', L10n::t('Television'), $r[0]['tv']],
-			'$film' => ['film', L10n::t('Film/dance/culture/entertainment'), $r[0]['film']],
-			'$interest' => ['interest', L10n::t('Hobbies/Interests'), $r[0]['interest']],
-			'$romance' => ['romance', L10n::t('Love/romance'), $r[0]['romance']],
-			'$work' => ['work', L10n::t('Work/employment'), $r[0]['work']],
-			'$education' => ['education', L10n::t('School/education'), $r[0]['education']],
-			'$contact' => ['contact', L10n::t('Contact information and Social Networks'), $r[0]['contact']],
+			'$address' => ['address', DI::l10n()->t('Street Address:'), $r[0]['address']],
+			'$locality' => ['locality', DI::l10n()->t('Locality/City:'), $r[0]['locality']],
+			'$region' => ['region', DI::l10n()->t('Region/State:'), $r[0]['region']],
+			'$postal_code' => ['postal_code', DI::l10n()->t('Postal/Zip Code:'), $r[0]['postal-code']],
+			'$country_name' => ['country_name', DI::l10n()->t('Country:'), $r[0]['country-name']],
+			'$age' => ((intval($r[0]['dob'])) ? '(' . DI::l10n()->t('Age: ') . Temporal::getAgeByTimezone($r[0]['dob'],$a->user['timezone'],$a->user['timezone']) . ')' : ''),
+			'$gender' => DI::l10n()->t(ContactSelector::gender($r[0]['gender'])),
+			'$marital' => ['selector' => ContactSelector::maritalStatus($r[0]['marital']), 'value' => DI::l10n()->t($r[0]['marital'])],
+			'$with' => ['with', DI::l10n()->t("Who: \x28if applicable\x29"), strip_tags($r[0]['with']), DI::l10n()->t('Examples: cathy123, Cathy Williams, cathy@example.com')],
+			'$howlong' => ['howlong', DI::l10n()->t('Since [date]:'), ($r[0]['howlong'] <= DBA::NULL_DATETIME ? '' : DateTimeFormat::local($r[0]['howlong']))],
+			'$sexual' => ['selector' => ContactSelector::sexualPreference($r[0]['sexual']), 'value' => DI::l10n()->t($r[0]['sexual'])],
+			'$about' => ['about', DI::l10n()->t('Tell us about yourself...'), $r[0]['about']],
+			'$xmpp' => ['xmpp', DI::l10n()->t("XMPP \x28Jabber\x29 address:"), $r[0]['xmpp'], DI::l10n()->t("The XMPP address will be propagated to your contacts so that they can follow you.")],
+			'$homepage' => ['homepage', DI::l10n()->t('Homepage URL:'), $r[0]['homepage']],
+			'$hometown' => ['hometown', DI::l10n()->t('Hometown:'), $r[0]['hometown']],
+			'$politic' => ['politic', DI::l10n()->t('Political Views:'), $r[0]['politic']],
+			'$religion' => ['religion', DI::l10n()->t('Religious Views:'), $r[0]['religion']],
+			'$pub_keywords' => ['pub_keywords', DI::l10n()->t('Public Keywords:'), $r[0]['pub_keywords'], DI::l10n()->t("\x28Used for suggesting potential friends, can be seen by others\x29")],
+			'$prv_keywords' => ['prv_keywords', DI::l10n()->t('Private Keywords:'), $r[0]['prv_keywords'], DI::l10n()->t("\x28Used for searching profiles, never shown to others\x29")],
+			'$likes' => ['likes', DI::l10n()->t('Likes:'), $r[0]['likes']],
+			'$dislikes' => ['dislikes', DI::l10n()->t('Dislikes:'), $r[0]['dislikes']],
+			'$music' => ['music', DI::l10n()->t('Musical interests'), $r[0]['music']],
+			'$book' => ['book', DI::l10n()->t('Books, literature'), $r[0]['book']],
+			'$tv' => ['tv', DI::l10n()->t('Television'), $r[0]['tv']],
+			'$film' => ['film', DI::l10n()->t('Film/dance/culture/entertainment'), $r[0]['film']],
+			'$interest' => ['interest', DI::l10n()->t('Hobbies/Interests'), $r[0]['interest']],
+			'$romance' => ['romance', DI::l10n()->t('Love/romance'), $r[0]['romance']],
+			'$work' => ['work', DI::l10n()->t('Work/employment'), $r[0]['work']],
+			'$education' => ['education', DI::l10n()->t('School/education'), $r[0]['education']],
+			'$contact' => ['contact', DI::l10n()->t('Contact information and Social Networks'), $r[0]['contact']],
 		]);
 
 		$arr = ['profile' => $r[0], 'entry' => $o];
@@ -655,18 +655,18 @@ function profiles_content(App $a) {
 				$profiles .= Renderer::replaceMacros($tpl, [
 					'$photo'        => DI::baseUrl()->remove($rr['thumb']),
 					'$id'           => $rr['id'],
-					'$alt'          => L10n::t('Profile Image'),
+					'$alt'          => DI::l10n()->t('Profile Image'),
 					'$profile_name' => $rr['profile-name'],
-					'$visible'      => (($rr['is-default']) ? '<strong>' . L10n::t('visible to everybody') . '</strong>'
-						: '<a href="'.'profperm/'.$rr['id'].'" />' . L10n::t('Edit visibility') . '</a>')
+					'$visible'      => (($rr['is-default']) ? '<strong>' . DI::l10n()->t('visible to everybody') . '</strong>'
+						: '<a href="'.'profperm/'.$rr['id'].'" />' . DI::l10n()->t('Edit visibility') . '</a>')
 				]);
 			}
 
 			$tpl_header = Renderer::getMarkupTemplate('profile_listing_header.tpl');
 			$o .= Renderer::replaceMacros($tpl_header,[
-				'$header'      => L10n::t('Edit/Manage Profiles'),
-				'$chg_photo'   => L10n::t('Change profile photo'),
-				'$cr_new'      => L10n::t('Create New Profile'),
+				'$header'      => DI::l10n()->t('Edit/Manage Profiles'),
+				'$chg_photo'   => DI::l10n()->t('Change profile photo'),
+				'$cr_new'      => DI::l10n()->t('Create New Profile'),
 				'$cr_new_link' => 'profiles/new?t=' . BaseModule::getFormSecurityToken("profile_new"),
 				'$profiles'    => $profiles
 			]);

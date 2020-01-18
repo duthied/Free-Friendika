@@ -112,7 +112,7 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = L10n::t('[no subject]');
+			$subject = DI::l10n()->t('[no subject]');
 		}
 
 		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
@@ -247,7 +247,7 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = L10n::t('[no subject]');
+			$subject = DI::l10n()->t('[no subject]');
 		}
 
 		$guid = System::createUUID();

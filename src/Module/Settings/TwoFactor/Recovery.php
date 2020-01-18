@@ -29,7 +29,7 @@ class Recovery extends BaseSettingsModule
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice(L10n::t('Please enter your password to access this page.'));
+			notice(DI::l10n()->t('Please enter your password to access this page.'));
 			DI::baseUrl()->redirect('settings/2fa');
 		}
 	}
@@ -45,7 +45,7 @@ class Recovery extends BaseSettingsModule
 
 			if ($_POST['action'] == 'regenerate') {
 				RecoveryCode::regenerateForUser(local_user());
-				notice(L10n::t('New recovery codes successfully generated.'));
+				notice(DI::l10n()->t('New recovery codes successfully generated.'));
 				DI::baseUrl()->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 			}
 		}
@@ -71,14 +71,14 @@ class Recovery extends BaseSettingsModule
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_recovery'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'              => L10n::t('Two-factor recovery codes'),
-			'$help_label'         => L10n::t('Help'),
-			'$message'            => L10n::t('<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'),
+			'$title'              => DI::l10n()->t('Two-factor recovery codes'),
+			'$help_label'         => DI::l10n()->t('Help'),
+			'$message'            => DI::l10n()->t('<p>Recovery codes can be used to access your account in the event you lose access to your device and cannot receive two-factor authentication codes.</p><p><strong>Put these in a safe spot!</strong> If you lose your device and don’t have the recovery codes you will lose access to your account.</p>'),
 			'$recovery_codes'     => $recoveryCodes,
-			'$regenerate_message' => L10n::t('When you generate new recovery codes, you must copy the new codes. Your old codes won’t work anymore.'),
-			'$regenerate_label'   => L10n::t('Generate new recovery codes'),
+			'$regenerate_message' => DI::l10n()->t('When you generate new recovery codes, you must copy the new codes. Your old codes won’t work anymore.'),
+			'$regenerate_label'   => DI::l10n()->t('Generate new recovery codes'),
 			'$verified'           => $verified,
-			'$verify_label'       => L10n::t('Next: Verification'),
+			'$verify_label'       => DI::l10n()->t('Next: Verification'),
 		]);
 	}
 }

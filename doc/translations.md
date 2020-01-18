@@ -73,8 +73,8 @@ Then run `bin/console po2php view/lang/<language>/messages.po` to update the rel
 
 ### Basic usage
 
-- `Friendica\Core\L10n::t('Label')` => `Label`
-- `Friendica\Core\L10n::t('Label %s', 'test')` => `Label test`
+- `Friendica\Core\DI::l10n()->t('Label')` => `Label`
+- `Friendica\Core\DI::l10n()->t('Label %s', 'test')` => `Label test`
 
 ### Plural
 

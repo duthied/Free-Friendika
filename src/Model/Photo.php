@@ -551,7 +551,7 @@ class Photo
 					GROUP BY `album` ORDER BY `created` DESC",
 					intval($uid),
 					DBA::escape("Contact Photos"),
-					DBA::escape(L10n::t("Contact Photos"))
+					DBA::escape(DI::l10n()->t("Contact Photos"))
 				);
 			} else {
 				// This query doesn't do the count and is much faster
@@ -560,7 +560,7 @@ class Photo
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 					intval($uid),
 					DBA::escape("Contact Photos"),
-					DBA::escape(L10n::t("Contact Photos"))
+					DBA::escape(DI::l10n()->t("Contact Photos"))
 				);
 			}
 			DI::cache()->set($key, $albums, Duration::DAY);

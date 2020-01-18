@@ -16,7 +16,7 @@ class Notify extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new HTTPException\UnauthorizedException(L10n::t('Permission denied.'));
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 

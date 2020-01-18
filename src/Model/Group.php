@@ -73,7 +73,7 @@ class Group
 				$group = DBA::selectFirst('group', ['deleted'], ['id' => $gid]);
 				if (DBA::isResult($group) && $group['deleted']) {
 					DBA::update('group', ['deleted' => 0], ['id' => $gid]);
-					notice(L10n::t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.') . EOL);
+					notice(DI::l10n()->t('A deleted group with this name was revived. Existing item permissions <strong>may</strong> apply to this group and any future members. If this is not what you intended, please create another group with a different name.') . EOL);
 				}
 				return true;
 			}
@@ -422,7 +422,7 @@ class Group
 		Logger::info('Got groups', $display_groups);
 
 		if ($label == '') {
-			$label = L10n::t('Default privacy group for new contacts');
+			$label = DI::l10n()->t('Default privacy group for new contacts');
 		}
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('group_selection.tpl'), [
@@ -454,7 +454,7 @@ class Group
 
 		$display_groups = [
 			[
-				'text' => L10n::t('Everybody'),
+				'text' => DI::l10n()->t('Everybody'),
 				'id' => 0,
 				'selected' => (($group_id === 'everyone') ? 'group-selected' : ''),
 				'href' => $every,
@@ -473,7 +473,7 @@ class Group
 			if ($editmode == 'full') {
 				$groupedit = [
 					'href' => 'group/' . $group['id'],
-					'title' => L10n::t('edit'),
+					'title' => DI::l10n()->t('edit'),
 				];
 			} else {
 				$groupedit = null;
@@ -498,17 +498,17 @@ class Group
 
 		$tpl = Renderer::getMarkupTemplate('group_side.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$add' => L10n::t('add'),
-			'$title' => L10n::t('Groups'),
+			'$add' => DI::l10n()->t('add'),
+			'$title' => DI::l10n()->t('Groups'),
 			'$groups' => $display_groups,
 			'newgroup' => $editmode == 'extended' || $editmode == 'full' ? 1 : '',
 			'grouppage' => 'group/',
-			'$edittext' => L10n::t('Edit group'),
-			'$ungrouped' => $every === 'contact' ? L10n::t('Contacts not in any group') : '',
+			'$edittext' => DI::l10n()->t('Edit group'),
+			'$ungrouped' => $every === 'contact' ? DI::l10n()->t('Contacts not in any group') : '',
 			'$ungrouped_selected' => (($group_id === 'none') ? 'group-selected' : ''),
-			'$createtext' => L10n::t('Create a new group'),
-			'$creategroup' => L10n::t('Group Name: '),
-			'$editgroupstext' => L10n::t('Edit groups'),
+			'$createtext' => DI::l10n()->t('Create a new group'),
+			'$creategroup' => DI::l10n()->t('Group Name: '),
+			'$editgroupstext' => DI::l10n()->t('Edit groups'),
 			'$form_security_token' => BaseModule::getFormSecurityToken('group_edit'),
 		]);
 

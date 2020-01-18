@@ -31,7 +31,7 @@ class AppSpecific extends BaseSettingsModule
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice(L10n::t('Please enter your password to access this page.'));
+			notice(DI::l10n()->t('Please enter your password to access this page.'));
 			DI::baseUrl()->redirect('settings/2fa');
 		}
 	}
@@ -49,20 +49,20 @@ class AppSpecific extends BaseSettingsModule
 				case 'generate':
 					$description = $_POST['description'] ?? '';
 					if (empty($description)) {
-						notice(L10n::t('App-specific password generation failed: The description is empty.'));
+						notice(DI::l10n()->t('App-specific password generation failed: The description is empty.'));
 						DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					} elseif (AppSpecificPassword::checkDuplicateForUser(local_user(), $description)) {
-						notice(L10n::t('App-specific password generation failed: This description already exists.'));
+						notice(DI::l10n()->t('App-specific password generation failed: This description already exists.'));
 						DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					} else {
 						self::$appSpecificPassword = AppSpecificPassword::generateForUser(local_user(), $_POST['description'] ?? '');
-						notice(L10n::t('New app-specific password generated.'));
+						notice(DI::l10n()->t('New app-specific password generated.'));
 					}
 
 					break;
 				case 'revoke_all' :
 					AppSpecificPassword::deleteAllForUser(local_user());
-					notice(L10n::t('App-specific passwords successfully revoked.'));
+					notice(DI::l10n()->t('App-specific passwords successfully revoked.'));
 					DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					break;
 			}
@@ -72,7 +72,7 @@ class AppSpecific extends BaseSettingsModule
 			self::checkFormSecurityTokenRedirectOnError('settings/2fa/app_specific', 'settings_2fa_app_specific');
 
 			if (AppSpecificPassword::deleteForUser(local_user(), $_POST['revoke_id'])) {
-				notice(L10n::t('App-specific password successfully revoked.'));
+				notice(DI::l10n()->t('App-specific password successfully revoked.'));
 			}
 
 			DI::baseUrl()->redirect('settings/2fa/app_specific?t=' . self::getFormSecurityToken('settings_2fa_password'));
@@ -93,22 +93,22 @@ class AppSpecific extends BaseSettingsModule
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_app_specific'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'                  => L10n::t('Two-factor app-specific passwords'),
-			'$help_label'             => L10n::t('Help'),
-			'$message'                => L10n::t('<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'),
-			'$generated_message'      => L10n::t('Make sure to copy your new app-specific password now. You won’t be able to see it again!'),
+			'$title'                  => DI::l10n()->t('Two-factor app-specific passwords'),
+			'$help_label'             => DI::l10n()->t('Help'),
+			'$message'                => DI::l10n()->t('<p>App-specific passwords are randomly generated passwords used instead your regular password to authenticate your account on third-party applications that don\'t support two-factor authentication.</p>'),
+			'$generated_message'      => DI::l10n()->t('Make sure to copy your new app-specific password now. You won’t be able to see it again!'),
 			'$generated_app_specific_password' => self::$appSpecificPassword,
 
-			'$description_label'      => L10n::t('Description'),
-			'$last_used_label'        => L10n::t('Last Used'),
-			'$revoke_label'           => L10n::t('Revoke'),
-			'$revoke_all_label'       => L10n::t('Revoke All'),
+			'$description_label'      => DI::l10n()->t('Description'),
+			'$last_used_label'        => DI::l10n()->t('Last Used'),
+			'$revoke_label'           => DI::l10n()->t('Revoke'),
+			'$revoke_all_label'       => DI::l10n()->t('Revoke All'),
 
 			'$app_specific_passwords' => $appSpecificPasswords,
-			'$generate_message'       => L10n::t('When you generate a new app-specific password, you must use it right away, it will be shown to you once after you generate it.'),
-			'$generate_title'         => L10n::t('Generate new app-specific password'),
-			'$description_placeholder_label' => L10n::t('Friendiqa on my Fairphone 2...'),
-			'$generate_label' => L10n::t('Generate'),
+			'$generate_message'       => DI::l10n()->t('When you generate a new app-specific password, you must use it right away, it will be shown to you once after you generate it.'),
+			'$generate_title'         => DI::l10n()->t('Generate new app-specific password'),
+			'$description_placeholder_label' => DI::l10n()->t('Friendiqa on my Fairphone 2...'),
+			'$generate_label' => DI::l10n()->t('Generate'),
 		]);
 	}
 }

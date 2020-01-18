@@ -17,7 +17,7 @@ class Directory extends BaseSearchModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			notice(L10n::t('Permission denied.'));
+			notice(DI::l10n()->t('Permission denied.'));
 			return Login::form();
 		}
 

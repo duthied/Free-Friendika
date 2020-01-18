@@ -191,7 +191,7 @@ class Update
 					//send the administrator an e-mail
 					self::updateFailed(
 						$x,
-						L10n::t('Update %s failed. See error logs.', $x)
+						DI::l10n()->t('Update %s failed. See error logs.', $x)
 					);
 					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
 					DI::lock()->release('dbupdate_function');
@@ -305,7 +305,7 @@ class Update
 						'uid' => $admin['uid'],
 						'type' => SYSTEM_EMAIL,
 						'to_email' => $admin['email'],
-						'subject'  => l10n::t('[Friendica Notify] Database update'),
+						'subject'  => DI::l10n()->t('[Friendica Notify] Database update'),
 						'preamble' => $preamble,
 						'body' => $preamble,
 						'language' => $lang]

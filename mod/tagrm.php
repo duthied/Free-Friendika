@@ -18,7 +18,7 @@ function tagrm_post(App $a)
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
-	if (!empty($_POST['submit']) && ($_POST['submit'] === L10n::t('Cancel'))) {
+	if (!empty($_POST['submit']) && ($_POST['submit'] === DI::l10n()->t('Cancel'))) {
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
@@ -29,7 +29,7 @@ function tagrm_post(App $a)
 
 	$item_id = $_POST['item'] ?? 0;
 	update_tags($item_id, $tags);
-	info(L10n::t('Tag(s) removed') . EOL);
+	info(DI::l10n()->t('Tag(s) removed') . EOL);
 
 	DI::baseUrl()->redirect($_SESSION['photo_return']);
 	// NOTREACHED
@@ -99,9 +99,9 @@ function tagrm_content(App $a)
 		DI::baseUrl()->redirect($_SESSION['photo_return']);
 	}
 
-	$o .= '<h3>' . L10n::t('Remove Item Tag') . '</h3>';
+	$o .= '<h3>' . DI::l10n()->t('Remove Item Tag') . '</h3>';
 
-	$o .= '<p id="tag-remove-desc">' . L10n::t('Select a tag to remove: ') . '</p>';
+	$o .= '<p id="tag-remove-desc">' . DI::l10n()->t('Select a tag to remove: ') . '</p>';
 
 	$o .= '<form id="tagrm" action="tagrm" method="post" >';
 	$o .= '<input type="hidden" name="item" value="' . $item_id . '" />';
@@ -112,8 +112,8 @@ function tagrm_content(App $a)
 	}
 
 	$o .= '</ul>';
-	$o .= '<input id="tagrm-submit" type="submit" name="submit" value="' . L10n::t('Remove') .'" />';
-	$o .= '<input id="tagrm-cancel" type="submit" name="submit" value="' . L10n::t('Cancel') .'" />';
+	$o .= '<input id="tagrm-submit" type="submit" name="submit" value="' . DI::l10n()->t('Remove') .'" />';
+	$o .= '<input id="tagrm-cancel" type="submit" name="submit" value="' . DI::l10n()->t('Cancel') .'" />';
 	$o .= '</form>';
 
 	return $o;

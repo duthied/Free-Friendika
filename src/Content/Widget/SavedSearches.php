@@ -26,7 +26,7 @@ class SavedSearches
 					'id'          => $saved_search['id'],
 					'term'        => $saved_search['term'],
 					'encodedterm' => urlencode($saved_search['term']),
-					'delete'      => L10n::t('Remove term'),
+					'delete'      => DI::l10n()->t('Remove term'),
 					'selected'    => $search == $saved_search['term'],
 				];
 			}
@@ -34,7 +34,7 @@ class SavedSearches
 			$tpl = Renderer::getMarkupTemplate('widget/saved_searches.tpl');
 
 			$o = Renderer::replaceMacros($tpl, [
-				'$title'      => L10n::t('Saved Searches'),
+				'$title'      => DI::l10n()->t('Saved Searches'),
 				'$add'        => '',
 				'$searchbox'  => '',
 				'$saved'      => $saved,

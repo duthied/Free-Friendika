@@ -15,8 +15,8 @@ class WebFinger extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			$e           = new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Only logged in users are permitted to perform a probing.'));
-			$e->httpdesc = L10n::t('Public access denied.');
+			$e           = new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a probing.'));
+			$e->httpdesc = DI::l10n()->t('Public access denied.');
 			throw $e;
 		}
 

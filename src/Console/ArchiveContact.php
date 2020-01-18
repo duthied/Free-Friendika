@@ -83,7 +83,7 @@ HELP;
 
 		$nurl = Strings::normaliseLink($this->getArgument(0));
 		if (!$this->dba->exists('contact', ['nurl' => $nurl, 'archive' => false])) {
-			throw new RuntimeException(L10n::t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
+			throw new RuntimeException(DI::l10n()->t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
 		}
 		if ($this->dba->update('contact', ['archive' => true], ['nurl' => $nurl])) {
 			$this->out($this->l10n->t('The contact entries have been archived'));

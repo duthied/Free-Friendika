@@ -19,11 +19,11 @@ class View extends BaseAdminModule
 		$data = '';
 
 		if (!file_exists($f)) {
-			$data = L10n::t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
+			$data = DI::l10n()->t('Error trying to open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s exist and is readable.', $f);
 		} else {
 			$fp = fopen($f, 'r');
 			if (!$fp) {
-				$data = L10n::t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
+				$data = DI::l10n()->t('Couldn\'t open <strong>%1$s</strong> log file.\r\n<br/>Check to see if file %1$s is readable.', $f);
 			} else {
 				$fstat = fstat($fp);
 				$size = $fstat['size'];
@@ -43,8 +43,8 @@ class View extends BaseAdminModule
 			}
 		}
 		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('View Logs'),
+			'$title' => DI::l10n()->t('Administration'),
+			'$page' => DI::l10n()->t('View Logs'),
 			'$data' => $data,
 			'$logname' => Config::get('system', 'logfile')
 		]);

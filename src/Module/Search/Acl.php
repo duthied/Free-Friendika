@@ -34,7 +34,7 @@ class Acl extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new HTTPException\UnauthorizedException(L10n::t('You must be logged in to use this module.'));
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('You must be logged in to use this module.'));
 		}
 
 		$type = $_REQUEST['type'] ?? self::TYPE_MENTION_CONTACT_GROUP;

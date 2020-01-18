@@ -43,9 +43,9 @@ class L10n
 	 * string interpolation (sprintf) with additional optional arguments.
 	 *
 	 * Usages:
-	 * - L10n::t('This is an example')
-	 * - L10n::t('URL %s returned no result', $url)
-	 * - L10n::t('Current version: %s, new version: %s', $current_version, $new_version)
+	 * - DI::l10n()->t('This is an example')
+	 * - DI::l10n()->t('URL %s returned no result', $url)
+	 * - DI::l10n()->t('Current version: %s, new version: %s', $current_version, $new_version)
 	 *
 	 * @param string $s
 	 * @param array  $vars Variables to interpolate in the translation string

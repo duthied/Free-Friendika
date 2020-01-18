@@ -17,7 +17,7 @@ class SaveTag extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
-			info(L10n::t('You must be logged in to use this module'));
+			info(DI::l10n()->t('You must be logged in to use this module'));
 			DI::baseUrl()->redirect();
 		}
 	}
@@ -36,7 +36,7 @@ class SaveTag extends BaseModule
 		if ($item_id && strlen($term)) {
 			// file item
 			Model\FileTag::saveFile(local_user(), $item_id, $term);
-			info(L10n::t('Filetag %s saved to item', $term));
+			info(DI::l10n()->t('Filetag %s saved to item', $term));
 		}
 
 		// return filer dialog
@@ -45,8 +45,8 @@ class SaveTag extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate("filer_dialog.tpl");
 		echo Renderer::replaceMacros($tpl, [
-			'$field' => ['term', L10n::t("Save to Folder:"), '', '', $filetags, L10n::t('- select -')],
-			'$submit' => L10n::t('Save'),
+			'$field' => ['term', DI::l10n()->t("Save to Folder:"), '', '', $filetags, DI::l10n()->t('- select -')],
+			'$submit' => DI::l10n()->t('Save'),
 		]);
 
 		exit;

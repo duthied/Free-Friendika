@@ -18,7 +18,7 @@ use Friendica\Util\Strings;
 function follow_post(App $a)
 {
 	if (!local_user()) {
-		throw new \Friendica\Network\HTTPException\ForbiddenException(L10n::t('Access denied.'));
+		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
 	if (isset($_REQUEST['cancel'])) {
@@ -44,7 +44,7 @@ function follow_post(App $a)
 		DI::baseUrl()->redirect('contact/' . $result['cid']);
 	}
 
-	info(L10n::t('The contact could not be added.'));
+	info(DI::l10n()->t('The contact could not be added.'));
 
 	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED
@@ -55,7 +55,7 @@ function follow_content(App $a)
 	$return_path = 'contact';
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.'));
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($return_path);
 		// NOTREACHED
 	}
@@ -74,7 +74,7 @@ function follow_content(App $a)
 		DI::baseUrl()->redirect($return_path);
 	}
 
-	$submit = L10n::t('Submit Request');
+	$submit = DI::l10n()->t('Submit Request');
 
 	// Don't try to add a pending contact
 	$r = q("SELECT `pending` FROM `contact` WHERE `uid` = %d AND ((`rel` != %d) OR (`network` = '%s')) AND
@@ -85,7 +85,7 @@ function follow_content(App $a)
 
 	if ($r) {
 		if ($r[0]['pending']) {
-			notice(L10n::t('You already added this contact.'));
+			notice(DI::l10n()->t('You already added this contact.'));
 			$submit = '';
 			//$a->internalRedirect($_SESSION['return_path']);
 			// NOTREACHED
@@ -97,21 +97,21 @@ function follow_content(App $a)
 	$protocol = Contact::getProtocol($ret['url'], $ret['network']);
 
 	if (($protocol == Protocol::DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
-		notice(L10n::t("Diaspora support isn't enabled. Contact can't be added."));
+		notice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
 	}
 
 	if (($protocol == Protocol::OSTATUS) && Config::get('system', 'ostatus_disabled')) {
-		notice(L10n::t("OStatus support is disabled. Contact can't be added."));
+		notice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
 	}
 
 	if ($protocol == Protocol::PHANTOM) {
-		notice(L10n::t("The network type couldn't be detected. Contact can't be added."));
+		notice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
@@ -132,7 +132,7 @@ function follow_content(App $a)
 	$r = q("SELECT `url` FROM `contact` WHERE `uid` = %d AND `self` LIMIT 1", intval($uid));
 
 	if (!$r) {
-		notice(L10n::t('Permission denied.'));
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($return_path);
 		// NOTREACHED
 	}
@@ -158,30 +158,30 @@ function follow_content(App $a)
 	}
 
 	$o = Renderer::replaceMacros($tpl, [
-		'$header'        => L10n::t('Connect/Follow'),
+		'$header'        => DI::l10n()->t('Connect/Follow'),
 		'$desc'          => '',
-		'$pls_answer'    => L10n::t('Please answer the following:'),
-		'$does_know_you' => ['knowyou', L10n::t('Does %s know you?', $ret['name']), false, '', [L10n::t('No'), L10n::t('Yes')]],
-		'$add_note'      => L10n::t('Add a personal note:'),
+		'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
+		'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $ret['name']), false, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$add_note'      => DI::l10n()->t('Add a personal note:'),
 		'$page_desc'     => '',
 		'$friendica'     => '',
 		'$statusnet'     => '',
 		'$diaspora'      => '',
 		'$diasnote'      => '',
-		'$your_address'  => L10n::t('Your Identity Address:'),
+		'$your_address'  => DI::l10n()->t('Your Identity Address:'),
 		'$invite_desc'   => '',
 		'$emailnet'      => '',
 		'$submit'        => $submit,
-		'$cancel'        => L10n::t('Cancel'),
+		'$cancel'        => DI::l10n()->t('Cancel'),
 		'$nickname'      => '',
 		'$name'          => $ret['name'],
 		'$url'           => $ret['url'],
 		'$zrl'           => Profile::zrl($ret['url']),
-		'$url_label'     => L10n::t('Profile URL'),
+		'$url_label'     => DI::l10n()->t('Profile URL'),
 		'$myaddr'        => $myaddr,
 		'$request'       => $request,
 		'$keywords'      => $r[0]['keywords'],
-		'$keywords_label'=> L10n::t('Tags:')
+		'$keywords_label'=> DI::l10n()->t('Tags:')
 	]);
 
 	DI::page()['aside'] = '';
@@ -193,7 +193,7 @@ function follow_content(App $a)
 
 	if ($gcontact_id <> 0) {
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'),
-			['$title' => L10n::t('Status Messages and Posts')]
+			['$title' => DI::l10n()->t('Status Messages and Posts')]
 		);
 
 		// Show last public posts

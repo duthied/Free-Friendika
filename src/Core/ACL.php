@@ -266,14 +266,14 @@ class ACL
 		$acl_groups = [
 			[
 				'id' => Group::FOLLOWERS,
-				'name' => L10n::t('Followers'),
+				'name' => DI::l10n()->t('Followers'),
 				'addr' => '',
 				'micro' => 'images/twopeople.png',
 				'type' => 'group',
 			],
 			[
 				'id' => Group::MUTUALS,
-				'name' => L10n::t('Mutuals'),
+				'name' => DI::l10n()->t('Mutuals'),
 				'addr' => '',
 				'micro' => 'images/twopeople.png',
 				'type' => 'group',
@@ -363,7 +363,7 @@ class ACL
 						'type' => 'checkbox',
 						'field' => [
 							'pubmail_enable',
-							L10n::t('Post to Email'),
+							DI::l10n()->t('Post to Email'),
 							$pubmail_enabled
 						]
 					];
@@ -381,16 +381,16 @@ class ACL
 
 		$tpl = Renderer::getMarkupTemplate('acl_selector.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$public_title'   => L10n::t('Public'),
-			'$public_desc'    => L10n::t('This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'),
-			'$custom_title'   => L10n::t('Limited/Private'),
-			'$custom_desc'    => L10n::t('This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'),
-			'$allow_label'    => L10n::t('Show to:'),
-			'$deny_label'     => L10n::t('Except to:'),
-			'$emailcc'        => L10n::t('CC: email addresses'),
-			'$emtitle'        => L10n::t('Example: bob@example.com, mary@example.com'),
-			'$jotnets_summary' => L10n::t('Connectors'),
-			'$jotnets_disabled_label' => L10n::t('Connectors disabled, since "%s" is enabled.', L10n::t('Hide your profile details from unknown viewers?')),
+			'$public_title'   => DI::l10n()->t('Public'),
+			'$public_desc'    => DI::l10n()->t('This content will be shown to all your followers and can be seen in the community pages and by anyone with its link.'),
+			'$custom_title'   => DI::l10n()->t('Limited/Private'),
+			'$custom_desc'    => DI::l10n()->t('This content will be shown only to the people in the first box, to the exception of the people mentioned in the second box. It won\'t appear anywhere public.'),
+			'$allow_label'    => DI::l10n()->t('Show to:'),
+			'$deny_label'     => DI::l10n()->t('Except to:'),
+			'$emailcc'        => DI::l10n()->t('CC: email addresses'),
+			'$emtitle'        => DI::l10n()->t('Example: bob@example.com, mary@example.com'),
+			'$jotnets_summary' => DI::l10n()->t('Connectors'),
+			'$jotnets_disabled_label' => DI::l10n()->t('Connectors disabled, since "%s" is enabled.', DI::l10n()->t('Hide your profile details from unknown viewers?')),
 			'$visibility'     => $visibility,
 			'$acl_contacts'   => $acl_contacts,
 			'$acl_groups'     => $acl_groups,

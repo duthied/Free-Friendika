@@ -51,13 +51,13 @@ function theme_admin_post(App $a)
 function clean_form(App $a, &$colorset, $user)
 {
 	$colorset = [
-		'default'     => L10n::t('default'),
-		'greenzero'   => L10n::t('greenzero'),
-		'purplezero'  => L10n::t('purplezero'),
-		'easterbunny' => L10n::t('easterbunny'),
-		'darkzero'    => L10n::t('darkzero'),
-		'comix'       => L10n::t('comix'),
-		'slackr'      => L10n::t('slackr'),
+		'default'     => DI::l10n()->t('default'),
+		'greenzero'   => DI::l10n()->t('greenzero'),
+		'purplezero'  => DI::l10n()->t('purplezero'),
+		'easterbunny' => DI::l10n()->t('easterbunny'),
+		'darkzero'    => DI::l10n()->t('darkzero'),
+		'comix'       => DI::l10n()->t('comix'),
+		'slackr'      => DI::l10n()->t('slackr'),
 	];
 
 	if ($user) {
@@ -68,9 +68,9 @@ function clean_form(App $a, &$colorset, $user)
 
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl");
 	$o = Renderer::replaceMacros($t, [
-		'$submit'   => L10n::t('Submit'),
-		'$title'    => L10n::t("Theme settings"),
-		'$colorset' => ['duepuntozero_colorset', L10n::t('Variations'), $color, '', $colorset],
+		'$submit'   => DI::l10n()->t('Submit'),
+		'$title'    => DI::l10n()->t("Theme settings"),
+		'$colorset' => ['duepuntozero_colorset', DI::l10n()->t('Variations'), $color, '', $colorset],
 	]);
 
 	return $o;

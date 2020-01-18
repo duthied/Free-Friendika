@@ -50,7 +50,7 @@ class BaseSearchModule extends BaseModule
 		if (strpos($search, '@') === 0) {
 			$search  = substr($search, 1);
 			$type    = Search::TYPE_PEOPLE;
-			$header  = L10n::t('People Search - %s', $search);
+			$header  = DI::l10n()->t('People Search - %s', $search);
 
 			if (strrpos($search, '@') > 0) {
 				$results = Search::getContactsFromProbe($search);
@@ -60,7 +60,7 @@ class BaseSearchModule extends BaseModule
 		if (strpos($search, '!') === 0) {
 			$search = substr($search, 1);
 			$type   = Search::TYPE_FORUM;
-			$header = L10n::t('Forum Search - %s', $search);
+			$header = DI::l10n()->t('Forum Search - %s', $search);
 		}
 
 		$args = DI::args();
@@ -91,7 +91,7 @@ class BaseSearchModule extends BaseModule
 	protected static function printResult(ResultList $results, Pager $pager, $header = '')
 	{
 		if ($results->getTotal() == 0) {
-			info(L10n::t('No matches'));
+			info(DI::l10n()->t('No matches'));
 			return '';
 		}
 
@@ -128,10 +128,10 @@ class BaseSearchModule extends BaseModule
 					}
 				} else {
 					$connLink = DI::baseUrl()->get() . '/follow/?url=' . $result->getUrl();
-					$connTxt  = L10n::t('Connect');
+					$connTxt  = DI::l10n()->t('Connect');
 
-					$photo_menu['profile'] = [L10n::t("View Profile"), Model\Contact::magicLink($result->getUrl())];
-					$photo_menu['follow']  = [L10n::t("Connect/Follow"), $connLink];
+					$photo_menu['profile'] = [DI::l10n()->t("View Profile"), Model\Contact::magicLink($result->getUrl())];
+					$photo_menu['follow']  = [DI::l10n()->t("Connect/Follow"), $connLink];
 				}
 
 				$photo = str_replace("http:///photo/", Search::getGlobalDirectory() . "/photo/", $result->getPhoto());

@@ -14,12 +14,12 @@ use Friendica\Util\Network;
 function ostatus_subscribe_content(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		DI::baseUrl()->redirect('ostatus_subscribe');
 		// NOTREACHED
 	}
 
-	$o = '<h2>' . L10n::t('Subscribing to OStatus contacts') . '</h2>';
+	$o = '<h2>' . DI::l10n()->t('Subscribing to OStatus contacts') . '</h2>';
 
 	$uid = local_user();
 
@@ -29,14 +29,14 @@ function ostatus_subscribe_content(App $a)
 
 		if ($_REQUEST['url'] == '') {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
-			return $o . L10n::t('No contact provided.');
+			return $o . DI::l10n()->t('No contact provided.');
 		}
 
 		$contact = Probe::uri($_REQUEST['url']);
 
 		if (!$contact) {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
-			return $o . L10n::t('Couldn\'t fetch information for contact.');
+			return $o . DI::l10n()->t('Couldn\'t fetch information for contact.');
 		}
 
 		$api = $contact['baseurl'] . '/api/';
@@ -46,7 +46,7 @@ function ostatus_subscribe_content(App $a)
 
 		if (!$curlResult->isSuccess()) {
 			DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
-			return $o . L10n::t('Couldn\'t fetch friends for contact.');
+			return $o . DI::l10n()->t('Couldn\'t fetch friends for contact.');
 		}
 
 		DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
@@ -64,7 +64,7 @@ function ostatus_subscribe_content(App $a)
 		DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl() . '/settings/connectors">';
 		DI::pConfig()->delete($uid, 'ostatus', 'legacy_friends');
 		DI::pConfig()->delete($uid, 'ostatus', 'legacy_contact');
-		$o .= L10n::t('Done');
+		$o .= DI::l10n()->t('Done');
 		return $o;
 	}
 
@@ -78,17 +78,17 @@ function ostatus_subscribe_content(App $a)
 	if ($probed['network'] == Protocol::OSTATUS) {
 		$result = Contact::createFromProbe($uid, $url, true, Protocol::OSTATUS);
 		if ($result['success']) {
-			$o .= ' - ' . L10n::t('success');
+			$o .= ' - ' . DI::l10n()->t('success');
 		} else {
-			$o .= ' - ' . L10n::t('failed');
+			$o .= ' - ' . DI::l10n()->t('failed');
 		}
 	} else {
-		$o .= ' - ' . L10n::t('ignored');
+		$o .= ' - ' . DI::l10n()->t('ignored');
 	}
 
 	$o .= '</p>';
 
-	$o .= '<p>' . L10n::t('Keep this window open until done.') . '</p>';
+	$o .= '<p>' . DI::l10n()->t('Keep this window open until done.') . '</p>';
 
 	DI::page()['htmlhead'] = '<meta http-equiv="refresh" content="0; URL=' . DI::baseUrl() . '/ostatus_subscribe?counter=' . $counter . '">';
 

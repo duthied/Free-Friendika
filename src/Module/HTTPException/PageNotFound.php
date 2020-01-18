@@ -10,6 +10,6 @@ class PageNotFound extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		throw new HTTPException\NotFoundException(L10n::t('Page not found.'));
+		throw new HTTPException\NotFoundException(DI::l10n()->t('Page not found.'));
 	}
 }

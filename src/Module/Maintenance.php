@@ -25,7 +25,7 @@ class Maintenance extends BaseModule
 		}
 
 		$exception = new HTTPException\ServiceUnavailableException($reason);
-		$exception->httpdesc = L10n::t('System down for maintenance');
+		$exception->httpdesc = DI::l10n()->t('System down for maintenance');
 		throw $exception;
 	}
 }
