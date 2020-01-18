@@ -2,6 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
+use Friendica\Core\BaseLock;
 use Friendica\Core\Cache\Duration;
 use Friendica\Database\Database;
 use Friendica\Util\DateTimeFormat;
@@ -9,7 +10,7 @@ use Friendica\Util\DateTimeFormat;
 /**
  * Locking driver that stores the locks in the database
  */
-class DatabaseLock extends Lock
+class DatabaseLock extends BaseLock
 {
 	/**
 	 * The current ID of the process
@@ -131,7 +132,7 @@ class DatabaseLock extends Lock
 	 */
 	public function getName()
 	{
-		return self::TYPE_DATABASE;
+		return Type::DATABASE;
 	}
 
 	/**

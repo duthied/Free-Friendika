@@ -2,7 +2,7 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache;
+use Friendica\Core\Cache\Duration;
 
 /**
  * Lock Interface
@@ -30,7 +30,7 @@ interface ILock
 	 *
 	 * @return boolean Was the lock successful?
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Cache\Duration::FIVE_MINUTES);
+	public function acquire($key, $timeout = 120, $ttl = Duration::FIVE_MINUTES);
 
 	/**
 	 * Releases a lock if it was set by us

@@ -2,9 +2,10 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache;
+use Friendica\Core\BaseLock;
+use Friendica\Core\Cache\Duration;
 
-class SemaphoreLock extends Lock
+class SemaphoreLock extends BaseLock
 {
 	private static $semaphore = [];
 
@@ -36,7 +37,7 @@ class SemaphoreLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Cache\Duration::FIVE_MINUTES)
+	public function acquire($key, $timeout = 120, $ttl = Duration::FIVE_MINUTES)
 	{
 		self::$semaphore[$key] = sem_get(self::semaphoreKey($key));
 		if (!empty(self::$semaphore[$key])) {
@@ -85,7 +86,7 @@ class SemaphoreLock extends Lock
 	 */
 	public function getName()
 	{
-		return self::TYPE_SEMAPHORE;
+		return Type::SEMAPHORE;
 	}
 
 	/**

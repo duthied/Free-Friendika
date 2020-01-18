@@ -2,10 +2,11 @@
 
 namespace Friendica\Core\Lock;
 
-use Friendica\Core\Cache;
+use Friendica\Core\BaseLock;
+use Friendica\Core\Cache\Duration;
 use Friendica\Core\Cache\IMemoryCache;
 
-class CacheLock extends Lock
+class CacheLock extends BaseLock
 {
 	/**
 	 * @var string The static prefix of all locks inside the cache
@@ -30,7 +31,7 @@ class CacheLock extends Lock
 	/**
 	 * (@inheritdoc)
 	 */
-	public function acquire($key, $timeout = 120, $ttl = Cache\Duration::FIVE_MINUTES)
+	public function acquire($key, $timeout = 120, $ttl = Duration::FIVE_MINUTES)
 	{
 		$got_lock = false;
 		$start    = time();
