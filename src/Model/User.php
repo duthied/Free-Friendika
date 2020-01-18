@@ -667,11 +667,11 @@ class User
 		}
 
 		if (mb_strlen($username) < $username_min_length) {
-			throw new Exception(L10n::tt('Username should be at least %s character.', 'Username should be at least %s characters.', $username_min_length));
+			throw new Exception(DI::l10n()->tt('Username should be at least %s character.', 'Username should be at least %s characters.', $username_min_length));
 		}
 
 		if (mb_strlen($username) > $username_max_length) {
-			throw new Exception(L10n::tt('Username should be at most %s character.', 'Username should be at most %s characters.', $username_max_length));
+			throw new Exception(DI::l10n()->tt('Username should be at most %s character.', 'Username should be at most %s characters.', $username_max_length));
 		}
 
 		// So now we are just looking for a space in the full name.

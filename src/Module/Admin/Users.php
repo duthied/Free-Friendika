@@ -92,13 +92,13 @@ class Users extends BaseAdminModule
 		if (!empty($_POST['page_users_block'])) {
 			// @TODO Move this to Model\User:block($users);
 			DBA::update('user', ['blocked' => 1], ['uid' => $users]);
-			notice(L10n::tt('%s user blocked', '%s users blocked', count($users)));
+			notice(DI::l10n()->tt('%s user blocked', '%s users blocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_unblock'])) {
 			// @TODO Move this to Model\User:unblock($users);
 			DBA::update('user', ['blocked' => 0], ['uid' => $users]);
-			notice(L10n::tt('%s user unblocked', '%s users unblocked', count($users)));
+			notice(DI::l10n()->tt('%s user unblocked', '%s users unblocked', count($users)));
 		}
 
 		if (!empty($_POST['page_users_delete'])) {
@@ -110,7 +110,7 @@ class Users extends BaseAdminModule
 				}
 			}
 
-			notice(L10n::tt('%s user deleted', '%s users deleted', count($users)));
+			notice(DI::l10n()->tt('%s user deleted', '%s users deleted', count($users)));
 		}
 
 		if (!empty($_POST['page_users_approve'])) {

@@ -491,7 +491,7 @@ function networkThreadedView(App $a, $update, $parent)
 		$o .= $tabs;
 
 		if ($gid && ($t = Contact::getOStatusCountByGroupId($gid)) && !DI::pConfig()->get(local_user(), 'system', 'nowarn_insecure')) {
-			notice(L10n::tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+			notice(DI::l10n()->tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 				"Warning: This group contains %s members from a network that doesn't allow non public messages.",
 				$t) . EOL);
 			notice(DI::l10n()->t("Messages in this group won't be send to these receivers.").EOL);

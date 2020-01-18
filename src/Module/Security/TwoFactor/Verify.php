@@ -61,7 +61,7 @@ class Verify extends BaseModule
 
 			'$title'            => DI::l10n()->t('Two-factor authentication'),
 			'$message'          => DI::l10n()->t('<p>Open the two-factor authentication app on your device to get an authentication code and verify your identity.</p>'),
-			'$errors_label'     => L10n::tt('Error', 'Errors', count(self::$errors)),
+			'$errors_label'     => DI::l10n()->tt('Error', 'Errors', count(self::$errors)),
 			'$errors'           => self::$errors,
 			'$recovery_message' => DI::l10n()->t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
 			'$verify_code'      => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"', 'tel'],

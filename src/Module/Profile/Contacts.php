@@ -110,11 +110,11 @@ class Contacts extends BaseModule
 		DBA::close($contacts_stmt);
 
 		switch ($type) {
-			case 'followers':    $title = L10n::tt('Follower (%s)', 'Followers (%s)', $total); break;
-			case 'following':    $title = L10n::tt('Following (%s)', 'Following (%s)', $total); break;
-			case 'mutuals':      $title = L10n::tt('Mutual friend (%s)', 'Mutual friends (%s)', $total); break;
+			case 'followers':    $title = DI::l10n()->tt('Follower (%s)', 'Followers (%s)', $total); break;
+			case 'following':    $title = DI::l10n()->tt('Following (%s)', 'Following (%s)', $total); break;
+			case 'mutuals':      $title = DI::l10n()->tt('Mutual friend (%s)', 'Mutual friends (%s)', $total); break;
 
-			case 'all': default: $title = L10n::tt('Contact (%s)', 'Contacts (%s)', $total); break;
+			case 'all': default: $title = DI::l10n()->tt('Contact (%s)', 'Contacts (%s)', $total); break;
 		}
 
 		$tpl = Renderer::getMarkupTemplate('profile/contacts.tpl');

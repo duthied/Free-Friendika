@@ -78,9 +78,9 @@ Then run `bin/console po2php view/lang/<language>/messages.po` to update the rel
 
 ### Plural
 
-- `Friendica\Core\L10n::tt('Label', 'Labels', 1)` => `Label`
-- `Friendica\Core\L10n::tt('Label', 'Labels', 3)` => `Labels`
-- `Friendica\Core\L10n::tt('%d Label', '%d Labels', 1)` => `1 Label`
-- `Friendica\Core\L10n::tt('%d Label', '%d Labels', 3)` => `3 Labels`
-- `Friendica\Core\L10n::tt('%d Label', 'Labels %2%s %3%s', 1, 'test', 'test2')` => `Label test test2`
-- `Friendica\Core\L10n::tt('%d Label', 'Labels %2%s %3%s', 3, 'test', 'test2')` => `Labels test test2`
+- `Friendica\Core\DI::l10n()->tt('Label', 'Labels', 1)` => `Label`
+- `Friendica\Core\DI::l10n()->tt('Label', 'Labels', 3)` => `Labels`
+- `Friendica\Core\DI::l10n()->tt('%d Label', '%d Labels', 1)` => `1 Label`
+- `Friendica\Core\DI::l10n()->tt('%d Label', '%d Labels', 3)` => `3 Labels`
+- `Friendica\Core\DI::l10n()->tt('%d Label', 'Labels %2%s %3%s', 1, 'test', 'test2')` => `Label test test2`
+- `Friendica\Core\DI::l10n()->tt('%d Label', 'Labels %2%s %3%s', 3, 'test', 'test2')` => `Labels test test2`

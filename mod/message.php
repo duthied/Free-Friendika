@@ -539,7 +539,7 @@ function render_messages(array $msg, $t)
 			'$date' => DateTimeFormat::local($rr['mailcreated'], DI::l10n()->t('D, d M Y - g:i A')),
 			'$ago' => Temporal::getRelativeDate($rr['mailcreated']),
 			'$seen' => $rr['mailseen'],
-			'$count' => L10n::tt('%d message', '%d messages', $rr['count']),
+			'$count' => DI::l10n()->tt('%d message', '%d messages', $rr['count']),
 		]);
 	}
 

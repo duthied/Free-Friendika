@@ -480,7 +480,7 @@ class Post
 			// Collapse
 			if (($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
-				$result['children'][0]['num_comments'] = L10n::tt('%d comment', '%d comments', $total_children);
+				$result['children'][0]['num_comments'] = DI::l10n()->tt('%d comment', '%d comments', $total_children);
 				$result['children'][0]['show_text'] = DI::l10n()->t('Show more');
 				$result['children'][0]['hide_text'] = DI::l10n()->t('Show fewer');
 				if ($thread_level > 1) {
@@ -493,7 +493,7 @@ class Post
 
 		if ($this->isToplevel()) {
 			$result['total_comments_num'] = "$total_children";
-			$result['total_comments_text'] = L10n::tt('comment', 'comments', $total_children);
+			$result['total_comments_text'] = DI::l10n()->tt('comment', 'comments', $total_children);
 		}
 
 		$result['private'] = $item['private'];

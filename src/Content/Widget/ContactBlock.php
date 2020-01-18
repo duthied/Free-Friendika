@@ -87,7 +87,7 @@ class ContactBlock
 				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'network'], ['id' => $contact_ids]);
 
 				if (DBA::isResult($contacts_stmt)) {
-					$contacts_title = L10n::tt('%d Contact', '%d Contacts', $total);
+					$contacts_title = DI::l10n()->tt('%d Contact', '%d Contacts', $total);
 					$micropro = [];
 
 					while ($contact = DBA::fetch($contacts_stmt)) {

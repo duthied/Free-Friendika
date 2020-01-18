@@ -254,8 +254,8 @@ class L10n
 	 * is performed using the count as parameter.
 	 *
 	 * Usages:
-	 * - L10n::tt('Like', 'Likes', $count)
-	 * - L10n::tt("%s user deleted", "%s users deleted", count($users))
+	 * - DI::l10n()->tt('Like', 'Likes', $count)
+	 * - DI::l10n()->tt("%s user deleted", "%s users deleted", count($users))
 	 *
 	 * @param string $singular
 	 * @param string $plural

@@ -216,7 +216,7 @@ class UserImport
 			}
 		}
 		if ($errorcount > 0) {
-			notice(L10n::tt("%d contact not imported", "%d contacts not imported", $errorcount));
+			notice(DI::l10n()->tt("%d contact not imported", "%d contacts not imported", $errorcount));
 		}
 
 		foreach ($account['group'] as &$group) {

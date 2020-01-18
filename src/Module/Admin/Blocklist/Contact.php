@@ -36,7 +36,7 @@ class Contact extends BaseAdminModule
 			foreach ($contacts as $uid) {
 				Model\Contact::unblock($uid);
 			}
-			notice(L10n::tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
+			notice(DI::l10n()->tt('%s contact unblocked', '%s contacts unblocked', count($contacts)));
 		}
 
 		DI::baseUrl()->redirect('admin/blocklist/contact');
@@ -77,7 +77,7 @@ class Contact extends BaseAdminModule
 			'$baseurl'    => DI::baseUrl()->get(true),
 
 			'$contacts'   => $contacts,
-			'$total_contacts' => L10n::tt('%s total blocked contact', '%s total blocked contacts', $total),
+			'$total_contacts' => DI::l10n()->tt('%s total blocked contact', '%s total blocked contacts', $total),
 			'$paginate'   => $pager->renderFull($total),
 			'$contacturl' => ['contact_url', DI::l10n()->t('Profile URL'), '', DI::l10n()->t('URL of the remote contact to block.')],
 			'$contact_block_reason' => ['contact_block_reason', DI::l10n()->t('Block Reason')],

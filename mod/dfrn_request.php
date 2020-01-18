@@ -128,7 +128,7 @@ function dfrn_request_post(App $a)
 						}
 						$invalid = Probe::validDfrn($parms);
 						if ($invalid) {
-							notice(L10n::tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid) . EOL);
+							notice(DI::l10n()->tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid) . EOL);
 							return;
 						}
 					}
@@ -366,7 +366,7 @@ function dfrn_request_post(App $a)
 					}
 					$invalid = Probe::validDfrn($parms);
 					if ($invalid) {
-						notice(L10n::tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid) . EOL);
+						notice(DI::l10n()->tt("%d required parameter was not found at the given location", "%d required parameters were not found at the given location", $invalid) . EOL);
 
 						return;
 					}

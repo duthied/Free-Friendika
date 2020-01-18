@@ -1581,19 +1581,19 @@ function get_response_button_text($v, $count)
 	$return = '';
 	switch ($v) {
 		case 'like':
-			$return = L10n::tt('Like', 'Likes', $count);
+			$return = DI::l10n()->tt('Like', 'Likes', $count);
 			break;
 		case 'dislike':
-			$return = L10n::tt('Dislike', 'Dislikes', $count);
+			$return = DI::l10n()->tt('Dislike', 'Dislikes', $count);
 			break;
 		case 'attendyes':
-			$return = L10n::tt('Attending', 'Attending', $count);
+			$return = DI::l10n()->tt('Attending', 'Attending', $count);
 			break;
 		case 'attendno':
-			$return = L10n::tt('Not Attending', 'Not Attending', $count);
+			$return = DI::l10n()->tt('Not Attending', 'Not Attending', $count);
 			break;
 		case 'attendmaybe':
-			$return = L10n::tt('Undecided', 'Undecided', $count);
+			$return = DI::l10n()->tt('Undecided', 'Undecided', $count);
 			break;
 	}
 

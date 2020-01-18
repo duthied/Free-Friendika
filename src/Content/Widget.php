@@ -53,7 +53,7 @@ class Widget
 			$x = intval(DI::pConfig()->get(local_user(), 'system', 'invites_remaining'));
 			if ($x || is_site_admin()) {
 				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
-					. L10n::tt('%d invitation available', '%d invitations available', $x)
+					. DI::l10n()->tt('%d invitation available', '%d invitations available', $x)
 					. '</div>';
 			}
 		}
@@ -398,7 +398,7 @@ class Widget
 
 		$tpl = Renderer::getMarkupTemplate('widget/remote_friends_common.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$desc'     => L10n::tt("%d contact in common", "%d contacts in common", $t),
+			'$desc'     => DI::l10n()->tt("%d contact in common", "%d contacts in common", $t),
 			'$base'     => DI::baseUrl(),
 			'$uid'      => $profile_uid,
 			'$cid'      => (($cid) ? $cid : '0'),

@@ -67,7 +67,7 @@ class Contact extends BaseModule
 			}
 		}
 		if ($count_actions > 0) {
-			info(L10n::tt('%d contact edited.', '%d contacts edited.', $count_actions));
+			info(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
 		DI::baseUrl()->redirect('contact');

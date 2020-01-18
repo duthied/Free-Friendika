@@ -1107,7 +1107,7 @@ function api_statuses_update($type)
 			if ($posts_day > $throttle_day) {
 				Logger::log('Daily posting limit reached for user '.api_user(), Logger::DEBUG);
 				// die(api_error($type, DI::l10n()->t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
-				throw new TooManyRequestsException(L10n::tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
+				throw new TooManyRequestsException(DI::l10n()->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 			}
 		}
 
@@ -1121,7 +1121,7 @@ function api_statuses_update($type)
 			if ($posts_week > $throttle_week) {
 				Logger::log('Weekly posting limit reached for user '.api_user(), Logger::DEBUG);
 				// die(api_error($type, DI::l10n()->t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
-				throw new TooManyRequestsException(L10n::tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
+				throw new TooManyRequestsException(DI::l10n()->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
 			}
 		}
 
