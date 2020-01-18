@@ -158,7 +158,7 @@ abstract class DI
 
 	public static function l10n()
 	{
-		return self::$dice->create(Core\L10n\L10n::class);
+		return self::$dice->create(Core\L10n::class);
 	}
 
 	/**

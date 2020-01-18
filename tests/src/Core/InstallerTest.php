@@ -17,7 +17,7 @@ class InstallerTest extends MockedTest
 	use VFSTrait;
 
 	/**
-	 * @var \Friendica\Core\L10n\L10n|MockInterface
+	 * @var \Friendica\Core\L10n|MockInterface
 	 */
 	private $l10nMock;
 
@@ -27,14 +27,14 @@ class InstallerTest extends MockedTest
 
 		$this->setUpVfsDir();
 
-		$this->l10nMock = \Mockery::mock(\Friendica\Core\L10n\L10n::class);
+		$this->l10nMock = \Mockery::mock(\Friendica\Core\L10n::class);
 
 		/** @var Dice|MockInterface $dice */
 		$dice = \Mockery::mock(Dice::class)->makePartial();
 		$dice = $dice->addRules(include __DIR__ . '/../../../static/dependencies.config.php');
 
 		$dice->shouldReceive('create')
-		           ->with(\Friendica\Core\L10n\L10n::class)
+		           ->with(\Friendica\Core\L10n::class)
 		           ->andReturn($this->l10nMock);
 
 		DI::init($dice);

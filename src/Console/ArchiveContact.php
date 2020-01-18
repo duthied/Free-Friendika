@@ -30,7 +30,7 @@ class ArchiveContact extends \Asika\SimpleConsole\Console
 	 */
 	private $dba;
 	/**
-	 * @var L10n\L10n
+	 * @var \Friendica\Core\L10n
 	 */
 	private $l10n;
 
@@ -51,7 +51,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, Database $dba, L10n\L10n $l10n, array $argv = null)
+	public function __construct(App\Mode $appMode, Database $dba, \Friendica\Core\L10n $l10n, array $argv = null)
 	{
 		parent::__construct($argv);
 

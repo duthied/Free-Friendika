@@ -3,7 +3,7 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Model\User;
 use RuntimeException;

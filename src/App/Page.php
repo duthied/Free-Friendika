@@ -10,7 +10,7 @@ use Friendica\Content\Nav;
 use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\Config\IPConfiguration;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;

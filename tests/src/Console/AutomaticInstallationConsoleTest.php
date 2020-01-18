@@ -7,7 +7,7 @@ use Friendica\App;
 use Friendica\Console\AutomaticInstallation;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Installer;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Database\Database;
 use Friendica\DI;

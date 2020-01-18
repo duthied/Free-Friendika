@@ -26,7 +26,7 @@ class GlobalCommunityBlock extends \Asika\SimpleConsole\Console
 	 */
 	private $appMode;
 	/**
-	 * @var L10n\L10n
+	 * @var \Friendica\Core\L10n
 	 */
 	private $l10n;
 

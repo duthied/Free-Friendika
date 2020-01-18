@@ -4,7 +4,7 @@ namespace Friendica\Test\src\Content\Text;
 
 use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\AppMockTrait;
 use Friendica\Test\Util\VFSTrait;

@@ -145,7 +145,7 @@ class SampleStorageBackend implements IStorage
 
 	/** @var Config\IConfiguration */
 	private $config;
-	/** @var L10n\L10n */
+	/** @var \Friendica\Core\L10n */
 	private $l10n;
 
 	/**
@@ -155,7 +155,7 @@ class SampleStorageBackend implements IStorage
 	  * You can add here every dynamic class as dependency you like and add them to a private field
 	  * Friendica automatically creates these classes and passes them as argument to the constructor									   
 	  */
-	public function __construct(Config\IConfiguration $config, L10n\L10n $l10n) 
+	public function __construct(Config\IConfiguration $config, \Friendica\Core\L10n $l10n) 
 	{
 		$this->config = $config;
 		$this->l10n   = $l10n;

@@ -11,7 +11,7 @@ use Friendica\App\Authentication;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\Config\IPConfiguration;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;

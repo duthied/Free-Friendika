@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Model\Storage;
 
 use Friendica\Core\Config\IConfiguration;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Model\Storage\Filesystem;
 use Friendica\Model\Storage\IStorage;
 use Friendica\Test\Util\VFSTrait;

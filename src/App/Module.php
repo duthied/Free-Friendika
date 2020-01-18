@@ -207,15 +207,15 @@ class Module
 	/**
 	 * Run the determined module class and calls all hooks applied to
 	 *
-	 * @param Core\L10n\L10n  $l10n         The L10n instance
-	 * @param App\BaseURL     $baseUrl      The Friendica Base URL
-	 * @param LoggerInterface $logger       The Friendica logger
-	 * @param array           $server       The $_SERVER variable
-	 * @param array           $post         The $_POST variables
+	 * @param \Friendica\Core\L10n $l10n    The L10n instance
+	 * @param App\BaseURL          $baseUrl The Friendica Base URL
+	 * @param LoggerInterface      $logger  The Friendica logger
+	 * @param array                $server  The $_SERVER variable
+	 * @param array                $post    The $_POST variables
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function run(Core\L10n\L10n $l10n, App\BaseURL $baseUrl, LoggerInterface $logger, array $server, array $post)
+	public function run(Core\L10n $l10n, App\BaseURL $baseUrl, LoggerInterface $logger, array $server, array $post)
 	{
 		if ($this->printNotAllowedAddon) {
 			info($l10n->t("You must be logged in to use addons. "));

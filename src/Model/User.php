@@ -915,15 +915,16 @@ class User
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *
-	 * @param L10n\L10n   $l10n     The used language
-	 * @param array  $user     User record array
-	 * @param string $sitename
-	 * @param string $siteurl
-	 * @param string $password Plaintext password
+	 * @param \Friendica\Core\L10n $l10n     The used language
+	 * @param array                $user     User record array
+	 * @param string               $sitename
+	 * @param string               $siteurl
+	 * @param string               $password Plaintext password
+	 *
 	 * @return NULL|boolean from notification() and email() inherited
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function sendRegisterOpenEmail(L10n\L10n $l10n, $user, $sitename, $siteurl, $password)
+	public static function sendRegisterOpenEmail(\Friendica\Core\L10n $l10n, $user, $sitename, $siteurl, $password)
 	{
 		$preamble = Strings::deindent($l10n->t(
 			'

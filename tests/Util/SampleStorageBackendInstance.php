@@ -3,7 +3,7 @@
 // contains a test-hook call for creating a storage instance
 
 use Friendica\App;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Test\Util\SampleStorageBackend;
 use Mockery\MockInterface;
 
