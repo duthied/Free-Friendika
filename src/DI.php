@@ -3,6 +3,7 @@
 namespace Friendica;
 
 use Dice\Dice;
+use Friendica\Core\L10n;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -156,6 +157,9 @@ abstract class DI
 		return self::$dice->create(Core\Lock\ILock::class);
 	}
 
+	/**
+	 * @return L10n
+	 */
 	public static function l10n()
 	{
 		return self::$dice->create(Core\L10n::class);

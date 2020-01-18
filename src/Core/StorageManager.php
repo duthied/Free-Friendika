@@ -4,7 +4,6 @@ namespace Friendica\Core;
 
 use Exception;
 use Friendica\Core\Config\IConfiguration;
-use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Model\Storage;
 use Psr\Log\LoggerInterface;
