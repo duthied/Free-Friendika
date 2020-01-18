@@ -959,7 +959,7 @@ function network_tabs(App $a)
 
 	// save selected tab, but only if not in file mode
 	if (empty($_GET['file'])) {
-		PConfig::set(local_user(), 'network.view', 'tab.selected', [
+		DI::pConfig()->set(local_user(), 'network.view', 'tab.selected', [
 			$all_active, $post_active, $conv_active, $new_active, $starred_active, $bookmarked_active
 		]);
 	}

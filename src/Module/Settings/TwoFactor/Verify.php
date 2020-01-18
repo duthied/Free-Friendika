@@ -58,7 +58,7 @@ class Verify extends BaseSettingsModule
 			$valid = $google2fa->verifyKey(DI::pConfig()->get(local_user(), '2fa', 'secret'), $_POST['verify_code'] ?? '');
 
 			if ($valid) {
-				PConfig::set(local_user(), '2fa', 'verified', true);
+				DI::pConfig()->set(local_user(), '2fa', 'verified', true);
 				Session::set('2fa', true);
 
 				notice(L10n::t('Two-factor authentication successfully activated.'));

@@ -8,6 +8,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
@@ -139,7 +140,7 @@ function update_1191()
 
 			if ($key === 'show_on_profile') {
 				if ($value) {
-					PConfig::set($uid, feature, forumlist_profile, $value);
+					DI::pConfig()->set($uid, feature, forumlist_profile, $value);
 				}
 
 				PConfig::delete($uid, $family, $key);
@@ -147,7 +148,7 @@ function update_1191()
 
 			if ($key === 'show_on_network') {
 				if ($value) {
-					PConfig::set($uid, feature, forumlist_widget, $value);
+					DI::pConfig()->set($uid, feature, forumlist_widget, $value);
 				}
 
 				PConfig::delete($uid, $family, $key);

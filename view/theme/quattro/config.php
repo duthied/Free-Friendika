@@ -30,10 +30,10 @@ function theme_post(App $a) {
 	}
 
 	if (isset($_POST['quattro-settings-submit'])){
-		PConfig::set(local_user(), 'quattro', 'align', $_POST['quattro_align']);
-		PConfig::set(local_user(), 'quattro', 'color', $_POST['quattro_color']);
-		PConfig::set(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
-		PConfig::set(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
+		DI::pConfig()->set(local_user(), 'quattro', 'align', $_POST['quattro_align']);
+		DI::pConfig()->set(local_user(), 'quattro', 'color', $_POST['quattro_color']);
+		DI::pConfig()->set(local_user(), 'quattro', 'tfs', $_POST['quattro_tfs']);
+		DI::pConfig()->set(local_user(), 'quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 

@@ -50,7 +50,7 @@ function ostatus_subscribe_content(App $a)
 			return $o . L10n::t('Couldn\'t fetch friends for contact.');
 		}
 
-		PConfig::set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
+		DI::pConfig()->set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
 	}
 
 	$friends = json_decode(DI::pConfig()->get($uid, 'ostatus', 'legacy_friends'));

@@ -29,7 +29,7 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['duepuntozero-settings-submit'])) {
-		PConfig::set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+		DI::pConfig()->set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
 	}
 }
 

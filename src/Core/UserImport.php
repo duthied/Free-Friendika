@@ -159,7 +159,7 @@ class UserImport
 		}
 		$newuid = self::lastInsertId();
 
-		PConfig::set($newuid, 'system', 'previous_addr', $old_handle);
+		DI::pConfig()->set($newuid, 'system', 'previous_addr', $old_handle);
 
 		foreach ($account['profile'] as &$profile) {
 			foreach ($profile as $k => &$v) {

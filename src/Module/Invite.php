@@ -69,7 +69,7 @@ class Invite extends BaseModule
 				if (!is_site_admin()) {
 					$invites_remaining--;
 					if ($invites_remaining >= 0) {
-						PConfig::set(local_user(), 'system', 'invites_remaining', $invites_remaining);
+						DI::pConfig()->set(local_user(), 'system', 'invites_remaining', $invites_remaining);
 					} else {
 						return;
 					}
@@ -92,7 +92,7 @@ class Invite extends BaseModule
 			if ($res) {
 				$total++;
 				$current_invites++;
-				PConfig::set(local_user(), 'system', 'sent_invites', $current_invites);
+				DI::pConfig()->set(local_user(), 'system', 'sent_invites', $current_invites);
 				if ($current_invites > $max_invites) {
 					notice(L10n::t('Invitation limit exceeded. Please contact your site administrator.') . EOL);
 					return;

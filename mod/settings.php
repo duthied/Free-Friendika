@@ -233,13 +233,13 @@ function settings_post(App $a)
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/connectors', 'settings_connectors');
 
 		if (!empty($_POST['general-submit'])) {
-			PConfig::set(local_user(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
-			PConfig::set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
-			PConfig::set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
-			PConfig::set(local_user(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
-			PConfig::set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
-			PConfig::set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
-			PConfig::set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
+			DI::pConfig()->set(local_user(), 'system', 'accept_only_sharer', intval($_POST['accept_only_sharer']));
+			DI::pConfig()->set(local_user(), 'system', 'disable_cw', intval($_POST['disable_cw']));
+			DI::pConfig()->set(local_user(), 'system', 'no_intelligent_shortening', intval($_POST['no_intelligent_shortening']));
+			DI::pConfig()->set(local_user(), 'system', 'attach_link_title', intval($_POST['attach_link_title']));
+			DI::pConfig()->set(local_user(), 'system', 'ostatus_autofriend', intval($_POST['snautofollow']));
+			DI::pConfig()->set(local_user(), 'ostatus', 'default_group', $_POST['group-selection']);
+			DI::pConfig()->set(local_user(), 'ostatus', 'legacy_contact', $_POST['legacy_contact']);
 		} elseif (!empty($_POST['imap-submit'])) {
 			$mail_server       =                 $_POST['mail_server']       ?? '';
 			$mail_port         =                 $_POST['mail_port']         ?? '';
@@ -314,7 +314,7 @@ function settings_post(App $a)
 		BaseModule::checkFormSecurityTokenRedirectOnError('/settings/features', 'settings_features');
 		foreach ($_POST as $k => $v) {
 			if (strpos($k, 'feature_') === 0) {
-				PConfig::set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
+				DI::pConfig()->set(local_user(), 'feature', substr($k, 8), ((intval($v)) ? 1 : 0));
 			}
 		}
 		info(L10n::t('Features updated') . EOL);
@@ -352,20 +352,20 @@ function settings_post(App $a)
 		}
 
 		if ($mobile_theme !== '') {
-			PConfig::set(local_user(), 'system', 'mobile_theme', $mobile_theme);
+			DI::pConfig()->set(local_user(), 'system', 'mobile_theme', $mobile_theme);
 		}
 
-		PConfig::set(local_user(), 'system', 'nowarn_insecure'         , $nowarn_insecure);
-		PConfig::set(local_user(), 'system', 'update_interval'         , $browser_update);
-		PConfig::set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
-		PConfig::set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
-		PConfig::set(local_user(), 'system', 'no_smilies'              , $nosmile);
-		PConfig::set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
-		PConfig::set(local_user(), 'system', 'ignore_info'             , $noinfo);
-		PConfig::set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
-		PConfig::set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
-		PConfig::set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
-		PConfig::set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
+		DI::pConfig()->set(local_user(), 'system', 'nowarn_insecure'         , $nowarn_insecure);
+		DI::pConfig()->set(local_user(), 'system', 'update_interval'         , $browser_update);
+		DI::pConfig()->set(local_user(), 'system', 'itemspage_network'       , $itemspage_network);
+		DI::pConfig()->set(local_user(), 'system', 'itemspage_mobile_network', $itemspage_mobile_network);
+		DI::pConfig()->set(local_user(), 'system', 'no_smilies'              , $nosmile);
+		DI::pConfig()->set(local_user(), 'system', 'first_day_of_week'       , $first_day_of_week);
+		DI::pConfig()->set(local_user(), 'system', 'ignore_info'             , $noinfo);
+		DI::pConfig()->set(local_user(), 'system', 'infinite_scroll'         , $infinite_scroll);
+		DI::pConfig()->set(local_user(), 'system', 'no_auto_update'          , $no_auto_update);
+		DI::pConfig()->set(local_user(), 'system', 'bandwidth_saver'         , $bandwidth_saver);
+		DI::pConfig()->set(local_user(), 'system', 'no_smart_threading'      , $no_smart_threading);
 
 		if (in_array($theme, Theme::getAllowedList())) {
 			if ($theme == $a->user['theme']) {
@@ -568,16 +568,16 @@ function settings_post(App $a)
 	$str_group_deny    = !empty($_POST['group_deny'])    ? $aclFormatter->toString($_POST['group_deny'])    : '';
 	$str_contact_deny  = !empty($_POST['contact_deny'])  ? $aclFormatter->toString($_POST['contact_deny'])  : '';
 
-	PConfig::set(local_user(), 'expire', 'items', $expire_items);
-	PConfig::set(local_user(), 'expire', 'notes', $expire_notes);
-	PConfig::set(local_user(), 'expire', 'starred', $expire_starred);
-	PConfig::set(local_user(), 'expire', 'photos', $expire_photos);
-	PConfig::set(local_user(), 'expire', 'network_only', $expire_network_only);
+	DI::pConfig()->set(local_user(), 'expire', 'items', $expire_items);
+	DI::pConfig()->set(local_user(), 'expire', 'notes', $expire_notes);
+	DI::pConfig()->set(local_user(), 'expire', 'starred', $expire_starred);
+	DI::pConfig()->set(local_user(), 'expire', 'photos', $expire_photos);
+	DI::pConfig()->set(local_user(), 'expire', 'network_only', $expire_network_only);
 
-	PConfig::set(local_user(), 'system', 'suggestme', $suggestme);
+	DI::pConfig()->set(local_user(), 'system', 'suggestme', $suggestme);
 
-	PConfig::set(local_user(), 'system', 'email_textonly', $email_textonly);
-	PConfig::set(local_user(), 'system', 'detailed_notif', $detailed_notif);
+	DI::pConfig()->set(local_user(), 'system', 'email_textonly', $email_textonly);
+	DI::pConfig()->set(local_user(), 'system', 'detailed_notif', $detailed_notif);
 
 	if ($page_flags == User::PAGE_FLAGS_PRVGROUP) {
 		$hidewall = 1;

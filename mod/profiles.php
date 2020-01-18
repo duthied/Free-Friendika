@@ -338,7 +338,7 @@ function profiles_post(App $a) {
 
 		$hide_friends = (($_POST['hide-friends'] == 1) ? 1: 0);
 
-		PConfig::set(local_user(), 'system', 'detailled_profile', !empty($_POST['detailed_profile']) ? 1: 0);
+		DI::pConfig()->set(local_user(), 'system', 'detailled_profile', !empty($_POST['detailed_profile']) ? 1: 0);
 
 		$changes = [];
 		if ($is_default) {

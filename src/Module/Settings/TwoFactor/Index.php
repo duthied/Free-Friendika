@@ -37,7 +37,7 @@ class Index extends BaseSettingsModule
 					if (!$has_secret && !$verified) {
 						$Google2FA = new Google2FA();
 
-						PConfig::set(local_user(), '2fa', 'secret', $Google2FA->generateSecretKey(32));
+						DI::pConfig()->set(local_user(), '2fa', 'secret', $Google2FA->generateSecretKey(32));
 
 						DI::baseUrl()->redirect('settings/2fa/recovery?t=' . self::getFormSecurityToken('settings_2fa_password'));
 					}

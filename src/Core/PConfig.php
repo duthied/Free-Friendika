@@ -20,21 +20,6 @@ use Friendica\DI;
 class PConfig
 {
 	/**
-	 * @brief Sets a configuration value for a user
-	 *
-	 * @param int    $uid    The user_id
-	 * @param string $cat    The category of the configuration value
-	 * @param string $key    The configuration key to set
-	 * @param mixed  $value  The value to store
-	 *
-	 * @return bool Operation success
-	 */
-	public static function set(int $uid, string $cat, string $key, $value)
-	{
-		return DI::pConfig()->set($uid, $cat, $key, $value);
-	}
-
-	/**
 	 * @brief Deletes the given key from the users's configuration.
 	 *
 	 * @param int    $uid The user_id

@@ -223,12 +223,12 @@ class FileTag
 			}
 
 			if ($saved != $filetags_updated) {
-				PConfig::set($uid, 'system', 'filetags', $filetags_updated);
+				DI::pConfig()->set($uid, 'system', 'filetags', $filetags_updated);
 			}
 
 			return true;
 		} elseif (strlen($file_new)) {
-			PConfig::set($uid, 'system', 'filetags', $file_new);
+			DI::pConfig()->set($uid, 'system', 'filetags', $file_new);
 		}
 
 		return true;
@@ -260,7 +260,7 @@ class FileTag
 			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 
 			if (!strlen($saved) || !stristr($saved, '[' . self::encode($file) . ']')) {
-				PConfig::set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
+				DI::pConfig()->set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
 			}
 
 			info(L10n::t('Item filed'));
@@ -313,7 +313,7 @@ class FileTag
 
 		if (!DBA::isResult($r)) {
 			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
-			PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
+			DI::pConfig()->set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 		}
 
 		return true;

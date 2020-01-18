@@ -129,7 +129,7 @@ The selected 1st part will be saved in the database by the theme_post function.
         // if the one specific submit button was pressed then proceed
         if (isset($_POST['duepuntozero-settings-submit'])){
             // and save the selection key into the personal config of the user
-            PConfig::set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+            DI::pConfig()->set(local_user(), 'duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
         }
     }
 

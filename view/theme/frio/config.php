@@ -17,16 +17,16 @@ function theme_post(App $a)
 	}
 
 	if (isset($_POST['frio-settings-submit'])) {
-		PConfig::set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']           ?? '');
-		PConfig::set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
-		PConfig::set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
-		PConfig::set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']       ?? '');
-		PConfig::set(local_user(), 'frio', 'background_color', $_POST['frio_background_color'] ?? '');
-		PConfig::set(local_user(), 'frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
-		PConfig::set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
-		PConfig::set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
-		PConfig::set(local_user(), 'frio', 'css_modified',     time());
-		PConfig::set(local_user(), 'frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
+		DI::pConfig()->set(local_user(), 'frio', 'scheme',           $_POST['frio_scheme']           ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'nav_bg',           $_POST['frio_nav_bg']           ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'nav_icon_color',   $_POST['frio_nav_icon_color']   ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'link_color',       $_POST['frio_link_color']       ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'background_color', $_POST['frio_background_color'] ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'contentbg_transp', $_POST['frio_contentbg_transp'] ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'background_image', $_POST['frio_background_image'] ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'bg_image_option',  $_POST['frio_bg_image_option']  ?? '');
+		DI::pConfig()->set(local_user(), 'frio', 'css_modified',     time());
+		DI::pConfig()->set(local_user(), 'frio', 'enable_compose',   $_POST['frio_enable_compose']   ?? 0);
 	}
 }
 
