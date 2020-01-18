@@ -9,6 +9,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Profile;
 
 function profperm_init(App $a)
@@ -41,7 +42,7 @@ function profperm_content(App $a) {
 
 	// Switch to text mod interface if we have more than 'n' contacts or group members
 
-	$switchtotext = PConfig::get(local_user(),'system','groupedit_image_limit');
+	$switchtotext = DI::pConfig()->get(local_user(),'system','groupedit_image_limit');
 	if (is_null($switchtotext)) {
 		$switchtotext = Config::get('system','groupedit_image_limit', 400);
 	}

@@ -9,6 +9,7 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\DI;
 
 require_once __DIR__ . '/theme.php';
 
@@ -22,7 +23,7 @@ function theme_content(App $a)
 		return;
 	}
 
-	$style = PConfig::get(local_user(), 'vier', 'style');
+	$style = DI::pConfig()->get(local_user(), 'vier', 'style');
 
 	if ($style == "") {
 		$style = Config::get('vier', 'style');

@@ -453,7 +453,7 @@ function ping_get_notifications($uid)
 				&& empty($result[$notification["parent"]])
 			) {
 				// Should we condense the notifications or show them all?
-				if (PConfig::get(local_user(), 'system', 'detailed_notif')) {
+				if (DI::pConfig()->get(local_user(), 'system', 'detailed_notif')) {
 					$result[$notification["id"]] = $notification;
 				} else {
 					$result[$notification["parent"]] = $notification;

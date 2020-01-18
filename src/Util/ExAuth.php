@@ -234,7 +234,7 @@ class ExAuth
 			}
 			if ($Error) {
 				$this->writeLog(LOG_INFO, 'check against alternate password for ' . $sUser . '@' . $aCommand[2]);
-				$sPassword = PConfig::get($uid, 'xmpp', 'password', null, true);
+				$sPassword = DI::pConfig()->get($uid, 'xmpp', 'password', null, true);
 				$Error = ($aCommand[3] != $sPassword);
 			}
 		} else {

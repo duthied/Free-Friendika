@@ -27,7 +27,7 @@ function get_scheme_info($scheme)
 	$theme = DI::app()->getCurrentTheme();
 	$themepath = 'view/theme/' . $theme . '/';
 	if (empty($scheme)) {
-		$scheme = PConfig::get(local_user(), 'frio', 'scheme', PConfig::get(local_user(), 'frio', 'schema'));
+		$scheme = DI::pConfig()->get(local_user(), 'frio', 'scheme', DI::pConfig()->get(local_user(), 'frio', 'schema'));
 	}
 
 	$scheme = Strings::sanitizeFilePathItem($scheme);

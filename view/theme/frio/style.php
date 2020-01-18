@@ -41,15 +41,15 @@ if ($uid) {
 	DI::pConfig()->load($uid, 'frio');
 
 	// Only override display settings that have actually been set
-	$scheme           = PConfig::get($uid, 'frio', 'scheme', PConfig::get($uid, 'frio', 'schema')) ?: $scheme;
-	$nav_bg           = PConfig::get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
-	$nav_icon_color   = PConfig::get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
-	$link_color       = PConfig::get($uid, 'frio', 'link_color')       ?: $link_color;
-	$background_color = PConfig::get($uid, 'frio', 'background_color') ?: $background_color;
-	$contentbg_transp = PConfig::get($uid, 'frio', 'contentbg_transp') ?: $contentbg_transp;
-	$background_image = PConfig::get($uid, 'frio', 'background_image') ?: $background_image;
-	$bg_image_option  = PConfig::get($uid, 'frio', 'bg_image_option')  ?: $bg_image_option;
-	$modified         = PConfig::get($uid, 'frio', 'css_modified')     ?: $modified;
+	$scheme           = DI::pConfig()->get($uid, 'frio', 'scheme', DI::pConfig()->get($uid, 'frio', 'schema')) ?: $scheme;
+	$nav_bg           = DI::pConfig()->get($uid, 'frio', 'nav_bg')           ?: $nav_bg;
+	$nav_icon_color   = DI::pConfig()->get($uid, 'frio', 'nav_icon_color')   ?: $nav_icon_color;
+	$link_color       = DI::pConfig()->get($uid, 'frio', 'link_color')       ?: $link_color;
+	$background_color = DI::pConfig()->get($uid, 'frio', 'background_color') ?: $background_color;
+	$contentbg_transp = DI::pConfig()->get($uid, 'frio', 'contentbg_transp') ?: $contentbg_transp;
+	$background_image = DI::pConfig()->get($uid, 'frio', 'background_image') ?: $background_image;
+	$bg_image_option  = DI::pConfig()->get($uid, 'frio', 'bg_image_option')  ?: $bg_image_option;
+	$modified         = DI::pConfig()->get($uid, 'frio', 'css_modified')     ?: $modified;
 }
 
 // Now load the scheme.  If a value is changed above, we'll keep the settings

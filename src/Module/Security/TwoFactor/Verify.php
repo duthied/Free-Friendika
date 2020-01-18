@@ -33,7 +33,7 @@ class Verify extends BaseModule
 
 			$code = $_POST['verify_code'] ?? '';
 
-			$valid = (new Google2FA())->verifyKey(PConfig::get(local_user(), '2fa', 'secret'), $code);
+			$valid = (new Google2FA())->verifyKey(DI::pConfig()->get(local_user(), '2fa', 'secret'), $code);
 
 			// The same code can't be used twice even if it's valid
 			if ($valid && Session::get('2fa') !== $code) {

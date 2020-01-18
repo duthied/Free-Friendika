@@ -26,7 +26,7 @@ function ostatus_subscribe_content(App $a)
 
 	$counter = intval($_REQUEST['counter']);
 
-	if (PConfig::get($uid, 'ostatus', 'legacy_friends') == '') {
+	if (DI::pConfig()->get($uid, 'ostatus', 'legacy_friends') == '') {
 
 		if ($_REQUEST['url'] == '') {
 			PConfig::delete($uid, 'ostatus', 'legacy_contact');
@@ -53,7 +53,7 @@ function ostatus_subscribe_content(App $a)
 		PConfig::set($uid, 'ostatus', 'legacy_friends', $curlResult->getBody());
 	}
 
-	$friends = json_decode(PConfig::get($uid, 'ostatus', 'legacy_friends'));
+	$friends = json_decode(DI::pConfig()->get($uid, 'ostatus', 'legacy_friends'));
 
 	if (empty($friends)) {
 		$friends = [];

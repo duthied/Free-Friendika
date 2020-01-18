@@ -4,6 +4,7 @@
  */
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\DI;
 use Friendica\Model\Profile;
 
 $uid = $_REQUEST['puid'] ?? 0;
@@ -14,8 +15,8 @@ $site_color = Config::get("quattro", "color", "dark");
 $site_quattro_align = Config::get("quattro", "align", false);
 
 if ($uid) {
-	$color = PConfig::get($uid, "quattro", "color", false);
-	$quattro_align = PConfig::get($uid, 'quattro', 'align', false);
+	$color = DI::pConfig()->get($uid, "quattro", "color", false);
+	$quattro_align = DI::pConfig()->get($uid, 'quattro', 'align', false);
 }
 
 if ($color === false) {
@@ -51,8 +52,8 @@ $site_textarea_font_size = Config::get("quattro", "tfs", "20");
 $site_post_font_size = Config::get("quattro", "pfs", "12");
 
 if ($uid) {
-	$textarea_font_size = PConfig::get($uid, "quattro", "tfs", false);
-	$post_font_size = PConfig::get($uid, "quattro", "pfs", false);
+	$textarea_font_size = DI::pConfig()->get($uid, "quattro", "tfs", false);
+	$post_font_size = DI::pConfig()->get($uid, "quattro", "pfs", false);
 }
 
 if ($textarea_font_size === false) {

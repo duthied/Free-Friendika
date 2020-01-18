@@ -348,7 +348,7 @@ class Post
 		$text_e       = strip_tags($body);
 		$name_e       = $profile_name;
 
-		if (!empty($item['content-warning']) && PConfig::get(local_user(), 'system', 'disable_cw', false)) {
+		if (!empty($item['content-warning']) && DI::pConfig()->get(local_user(), 'system', 'disable_cw', false)) {
 			$title_e = ucfirst($item['content-warning']);
 		} else {
 			$title_e = $item['title'];
@@ -874,7 +874,7 @@ class Post
 			 * This should be better if done by a hook
 			 */
 			if (Addon::isEnabled('qcomment')) {
-				$qc = ((local_user()) ? PConfig::get(local_user(), 'qcomment', 'words') : null);
+				$qc = ((local_user()) ? DI::pConfig()->get(local_user(), 'qcomment', 'words') : null);
 				$qcomment = (($qc) ? explode("\n", $qc) : null);
 			}
 

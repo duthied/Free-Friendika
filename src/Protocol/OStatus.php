@@ -494,7 +494,7 @@ class OStatus
 
 					if (!$valid) {
 						// If not, then it depends on this setting
-						$valid = ((self::$itemlist[0]['uid'] == 0) || !PConfig::get(self::$itemlist[0]['uid'], 'system', 'accept_only_sharer', false));
+						$valid = ((self::$itemlist[0]['uid'] == 0) || !DI::pConfig()->get(self::$itemlist[0]['uid'], 'system', 'accept_only_sharer', false));
 						if ($valid) {
 							Logger::log("Item with uri ".self::$itemlist[0]['uri']." will be imported due to the system settings.", Logger::DEBUG);
 						}

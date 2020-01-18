@@ -7,7 +7,6 @@ namespace Friendica;
 use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
-use Friendica\App\Page;
 use Friendica\App\Authentication;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Core\Config\IConfiguration;
@@ -119,6 +118,11 @@ class App
 	private $process;
 
 	/**
+	 * @var IPConfiguration
+	 */
+	private $pConfig;
+
+	/**
 	 * Returns the current config cache of this node
 	 *
 	 * @return ConfigCache
@@ -149,8 +153,9 @@ class App
 	 * @param L10n            $l10n     The translator instance
 	 * @param App\Arguments   $args     The Friendica Arguments of the call
 	 * @param Core\Process    $process  The process methods
+	 * @param IPConfiguration $pConfig  Personal configuration
 	 */
-	public function __construct(Database $database, IConfiguration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process)
+	public function __construct(Database $database, IConfiguration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IPConfiguration $pConfig)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -161,6 +166,7 @@ class App
 		$this->l10n     = $l10n;
 		$this->args     = $args;
 		$this->process  = $process;
+		$this->pConfig  = $pConfig;
 
 		$this->argv         = $args->getArgv();
 		$this->argc         = $args->getArgc();
@@ -336,7 +342,7 @@ class App
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
 			$user = $this->database->selectFirst('user', ['theme'], ['uid' => $this->profile_uid]);
-			if ($this->database->isResult($user) && !Core\PConfig::get(local_user(), 'system', 'always_my_theme')) {
+			if ($this->database->isResult($user) && !$this->pConfig->get(local_user(), 'system', 'always_my_theme')) {
 				$page_theme = $user['theme'];
 			}
 		}
@@ -368,8 +374,8 @@ class App
 		if ($this->profile_uid && ($this->profile_uid != local_user())) {
 			// Allow folks to override user themes and always use their own on their own site.
 			// This works only if the user is on the same server
-			if (!Core\PConfig::get(local_user(), 'system', 'always_my_theme')) {
-				$page_mobile_theme = Core\PConfig::get($this->profile_uid, 'system', 'mobile-theme');
+			if (!$this->pConfig->get(local_user(), 'system', 'always_my_theme')) {
+				$page_mobile_theme = $this->pConfig->get($this->profile_uid, 'system', 'mobile-theme');
 			}
 		}
 

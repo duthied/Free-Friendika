@@ -25,7 +25,7 @@ class Recovery extends BaseSettingsModule
 			return;
 		}
 
-		$secret = PConfig::get(local_user(), '2fa', 'secret');
+		$secret = DI::pConfig()->get(local_user(), '2fa', 'secret');
 
 		if (!$secret) {
 			DI::baseUrl()->redirect('settings/2fa');
@@ -68,7 +68,7 @@ class Recovery extends BaseSettingsModule
 
 		$recoveryCodes = RecoveryCode::getListForUser(local_user());
 
-		$verified = PConfig::get(local_user(), '2fa', 'verified');
+		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 		
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/recovery.tpl'), [
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_recovery'),

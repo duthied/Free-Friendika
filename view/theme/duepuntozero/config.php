@@ -8,7 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
-use Friendica\Core\System;
+use Friendica\DI;
 
 function theme_content(App $a)
 {
@@ -16,7 +16,7 @@ function theme_content(App $a)
 		return;
 	}
 
-	$colorset = PConfig::get(local_user(), 'duepuntozero', 'colorset');
+	$colorset = DI::pConfig()->get(local_user(), 'duepuntozero', 'colorset');
 	$user = true;
 
 	return clean_form($a, $colorset, $user);
@@ -62,7 +62,7 @@ function clean_form(App $a, &$colorset, $user)
 	];
 
 	if ($user) {
-		$color = PConfig::get(local_user(), 'duepuntozero', 'colorset');
+		$color = DI::pConfig()->get(local_user(), 'duepuntozero', 'colorset');
 	} else {
 		$color = Config::get('duepuntozero', 'colorset');
 	}

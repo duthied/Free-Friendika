@@ -8,6 +8,7 @@
 use Friendica\App;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
+use Friendica\DI;
 
 require_once("mod/notes.php");
 
@@ -32,7 +33,7 @@ function update_notes_content(App $a) {
 
 	$text = notes_content($a, $profile_uid);
 
-	if (PConfig::get(local_user(), "system", "bandwidth_saver")) {
+	if (DI::pConfig()->get(local_user(), "system", "bandwidth_saver")) {
 		$replace = "<br />".L10n::t("[Embedded content - reload page to view]")."<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);

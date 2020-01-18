@@ -379,7 +379,7 @@ class Event
 	public static function getStrings()
 	{
 		// First day of the week (0 = Sunday).
-		$firstDay = PConfig::get(local_user(), 'system', 'first_day_of_week', 0);
+		$firstDay = DI::pConfig()->get(local_user(), 'system', 'first_day_of_week', 0);
 
 		$i18n = [
 			"firstDay" => $firstDay,

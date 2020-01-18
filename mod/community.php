@@ -138,9 +138,9 @@ function community_content(App $a, $update = 0)
 
 	// check if we serve a mobile device and get the user settings accordingly
 	if (DI::mode()->isMobile()) {
-		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_mobile_network', 20);
+		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_mobile_network', 20);
 	} else {
-		$itemspage_network = PConfig::get(local_user(), 'system', 'itemspage_network', 40);
+		$itemspage_network = DI::pConfig()->get(local_user(), 'system', 'itemspage_network', 40);
 	}
 
 	// now that we have the user settings, see if the theme forces

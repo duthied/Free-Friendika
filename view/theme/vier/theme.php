@@ -91,7 +91,7 @@ EOT;
 function get_vier_config($key, $default = false, $admin = false)
 {
 	if (local_user() && !$admin) {
-		$result = PConfig::get(local_user(), "vier", $key);
+		$result = DI::pConfig()->get(local_user(), "vier", $key);
 		if (!is_null($result)) {
 			return $result;
 		}

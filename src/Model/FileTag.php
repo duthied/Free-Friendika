@@ -8,6 +8,7 @@ namespace Friendica\Model;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * @brief This class handles FileTag related functions
@@ -174,7 +175,7 @@ class FileTag
 			return true;
 		}
 
-		$saved = PConfig::get($uid, 'system', 'filetags');
+		$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 
 		if (strlen($saved)) {
 			if ($type == 'file') {
@@ -256,7 +257,7 @@ class FileTag
 				Item::update($fields, ['id' => $item_id]);
 			}
 
-			$saved = PConfig::get($uid, 'system', 'filetags');
+			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 
 			if (!strlen($saved) || !stristr($saved, '[' . self::encode($file) . ']')) {
 				PConfig::set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
@@ -311,7 +312,7 @@ class FileTag
 		);
 
 		if (!DBA::isResult($r)) {
-			$saved = PConfig::get($uid, 'system', 'filetags');
+			$saved = DI::pConfig()->get($uid, 'system', 'filetags');
 			PConfig::set($uid, 'system', 'filetags', str_replace($pattern, '', $saved));
 		}
 

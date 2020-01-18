@@ -33,7 +33,7 @@ class Invite extends BaseModule
 			$max_invites = 50;
 		}
 
-		$current_invites = intval(PConfig::get(local_user(), 'system', 'sent_invites'));
+		$current_invites = intval(DI::pConfig()->get(local_user(), 'system', 'sent_invites'));
 		if ($current_invites > $max_invites) {
 			throw new HTTPException\ForbiddenException(L10n::t('Total invitation limit exceeded.'));
 		}
@@ -48,7 +48,7 @@ class Invite extends BaseModule
 
 		if ($config->get('system', 'invitation_only')) {
 			$invitation_only = true;
-			$invites_remaining = PConfig::get(local_user(), 'system', 'invites_remaining');
+			$invites_remaining = DI::pConfig()->get(local_user(), 'system', 'invites_remaining');
 			if ((!$invites_remaining) && (!is_site_admin())) {
 				throw new HTTPException\ForbiddenException();
 			}
@@ -118,7 +118,7 @@ class Invite extends BaseModule
 
 		if ($config->get('system', 'invitation_only')) {
 			$inviteOnly = true;
-			$x = PConfig::get(local_user(), 'system', 'invites_remaining');
+			$x = DI::pConfig()->get(local_user(), 'system', 'invites_remaining');
 			if ((!$x) && (!is_site_admin())) {
 				throw new HTTPException\ForbiddenException(L10n::t('You have no more invitations available'));
 			}

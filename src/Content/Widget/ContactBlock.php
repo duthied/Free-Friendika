@@ -13,6 +13,7 @@ use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\User;
 
@@ -34,7 +35,7 @@ class ContactBlock
 	{
 		$o = '';
 
-		$shown = PConfig::get($profile['uid'], 'system', 'display_friend_count', 24);
+		$shown = DI::pConfig()->get($profile['uid'], 'system', 'display_friend_count', 24);
 		if ($shown == 0) {
 			return $o;
 		}

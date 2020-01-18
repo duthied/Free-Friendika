@@ -27,7 +27,7 @@ class AppSpecific extends BaseSettingsModule
 			return;
 		}
 
-		$verified = PConfig::get(local_user(), '2fa', 'verified');
+		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 		if (!$verified) {
 			DI::baseUrl()->redirect('settings/2fa');

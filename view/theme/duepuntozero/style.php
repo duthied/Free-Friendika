@@ -4,6 +4,7 @@
  */
 use Friendica\Core\Config;
 use Friendica\Core\PConfig;
+use Friendica\DI;
 use Friendica\Model\Profile;
 
 if (file_exists("$THEMEPATH/style.css")) {
@@ -13,7 +14,7 @@ if (file_exists("$THEMEPATH/style.css")) {
 $uid = $_REQUEST['puid'] ?? 0;
 
 $s_colorset = Config::get('duepuntozero', 'colorset');
-$colorset = PConfig::get($uid, 'duepuntozero', 'colorset');
+$colorset = DI::pConfig()->get($uid, 'duepuntozero', 'colorset');
 
 if (empty($colorset)) {
 	$colorset = $s_colorset;

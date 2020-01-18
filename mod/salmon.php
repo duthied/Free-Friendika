@@ -8,6 +8,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\PConfig;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Protocol\ActivityNamespace;
 use Friendica\Protocol\OStatus;
@@ -158,7 +159,7 @@ function salmon_post(App $a, $xml = '') {
 	if (!DBA::isResult($r)) {
 		Logger::log('Author ' . $author_link . ' unknown to user ' . $importer['uid'] . '.');
 
-		if (PConfig::get($importer['uid'], 'system', 'ostatus_autofriend')) {
+		if (DI::pConfig()->get($importer['uid'], 'system', 'ostatus_autofriend')) {
 			$result = Contact::createFromProbe($importer['uid'], $author_link);
 
 			if ($result['success']) {

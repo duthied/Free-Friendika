@@ -535,7 +535,7 @@ function profiles_content(App $a) {
 		$personal_account = !(in_array($a->user["page-flags"],
 					[User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]));
 
-		$detailed_profile = (PConfig::get(local_user(), 'system', 'detailled_profile') AND $personal_account);
+		$detailed_profile = (DI::pConfig()->get(local_user(), 'system', 'detailled_profile') AND $personal_account);
 
 		$is_default = (($r[0]['is-default']) ? 1 : 0);
 		$tpl = Renderer::getMarkupTemplate("profile_edit.tpl");

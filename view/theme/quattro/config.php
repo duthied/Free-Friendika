@@ -9,16 +9,17 @@ use Friendica\Core\L10n;
 use Friendica\Core\PConfig;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
+use Friendica\DI;
 
 function theme_content(App $a) {
 	if (!local_user()) {
 		return;
 	}
 
-	$align = PConfig::get(local_user(), 'quattro', 'align' );
-	$color = PConfig::get(local_user(), 'quattro', 'color' );
-	$tfs = PConfig::get(local_user(),"quattro","tfs");
-	$pfs = PConfig::get(local_user(),"quattro","pfs");
+	$align = DI::pConfig()->get(local_user(), 'quattro', 'align' );
+	$color = DI::pConfig()->get(local_user(), 'quattro', 'color' );
+	$tfs = DI::pConfig()->get(local_user(),"quattro","tfs");
+	$pfs = DI::pConfig()->get(local_user(),"quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }

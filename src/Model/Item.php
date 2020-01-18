@@ -3026,7 +3026,7 @@ class Item
 		 * $expire_network_only = save your own wall posts
 		 * and just expire conversations started by others
 		 */
-		$expire_network_only = PConfig::get($uid, 'expire', 'network_only', false);
+		$expire_network_only = DI::pConfig()->get($uid, 'expire', 'network_only', false);
 
 		if ($expire_network_only) {
 			$condition[0] .= " AND NOT `wall`";
@@ -3046,16 +3046,16 @@ class Item
 			return;
 		}
 
-		$expire_items = PConfig::get($uid, 'expire', 'items', true);
+		$expire_items = DI::pConfig()->get($uid, 'expire', 'items', true);
 
 		// Forcing expiring of items - but not notes and marked items
 		if ($force) {
 			$expire_items = true;
 		}
 
-		$expire_notes = PConfig::get($uid, 'expire', 'notes', true);
-		$expire_starred = PConfig::get($uid, 'expire', 'starred', true);
-		$expire_photos = PConfig::get($uid, 'expire', 'photos', false);
+		$expire_notes = DI::pConfig()->get($uid, 'expire', 'notes', true);
+		$expire_starred = DI::pConfig()->get($uid, 'expire', 'starred', true);
+		$expire_photos = DI::pConfig()->get($uid, 'expire', 'photos', false);
 
 		$expired = 0;
 
@@ -3525,7 +3525,7 @@ class Item
 		// Compile eventual content filter reasons
 		$filter_reasons = [];
 		if (!$is_preview && public_contact() != $item['author-id']) {
-			if (!empty($item['content-warning']) && (!local_user() || !PConfig::get(local_user(), 'system', 'disable_cw', false))) {
+			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
 				$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
 			}
 

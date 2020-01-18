@@ -137,7 +137,7 @@ Now that this information is set in the database, what should friendica do with 
 For this, have a look at the theme.php file of the *duepunto zero*.
 There you'll find somethink alike
 
-        $colorset = PConfig::get( local_user(), 'duepuntozero','colorset');
+        $colorset = DI::pConfig()->get( local_user(), 'duepuntozero','colorset');
         if (!$colorset)
             $colorset = Config::get('duepuntozero', 'colorset');
         if ($colorset) {

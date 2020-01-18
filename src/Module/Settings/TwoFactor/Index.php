@@ -29,8 +29,8 @@ class Index extends BaseSettingsModule
 		try {
 			User::getIdFromPasswordAuthentication(local_user(), $_POST['password'] ?? '');
 
-			$has_secret = (bool) PConfig::get(local_user(), '2fa', 'secret');
-			$verified = PConfig::get(local_user(), '2fa', 'verified');
+			$has_secret = (bool) DI::pConfig()->get(local_user(), '2fa', 'secret');
+			$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 			switch ($_POST['action'] ?? '') {
 				case 'enable':
@@ -82,8 +82,8 @@ class Index extends BaseSettingsModule
 
 		parent::content($parameters);
 
-		$has_secret = (bool) PConfig::get(local_user(), '2fa', 'secret');
-		$verified = PConfig::get(local_user(), '2fa', 'verified');
+		$has_secret = (bool) DI::pConfig()->get(local_user(), '2fa', 'secret');
+		$verified = DI::pConfig()->get(local_user(), '2fa', 'verified');
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/index.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('settings_2fa'),

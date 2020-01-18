@@ -322,7 +322,7 @@ function info($s)
 {
 	$a = DI::app();
 
-	if (local_user() && PConfig::get(local_user(), 'system', 'ignore_info')) {
+	if (local_user() && DI::pConfig()->get(local_user(), 'system', 'ignore_info')) {
 		return;
 	}
 
