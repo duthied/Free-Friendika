@@ -138,6 +138,8 @@ class Delegation extends BaseSettingsModule
 			$parent_password = ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')];
 		}
 
+		$is_child_user = !empty($user['parent-uid']);
+
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/delegation.tpl'), [
 			'$form_security_token' => BaseModule::getFormSecurityToken('delegate'),
 			'$account_header' => L10n::t('Additional Accounts'),
@@ -147,6 +149,7 @@ class Delegation extends BaseSettingsModule
 			'$parent_user' => $parent_user,
 			'$parent_password' => $parent_password,
 			'$parent_desc' => L10n::t('Parent users have total control about this account, including the account settings. Please double check whom you give this access.'),
+			'$is_child_user' => $is_child_user,
 			'$submit' => L10n::t('Save Settings'),
 			'$header' => L10n::t('Manage Accounts'),
 			'$delegates_header' => L10n::t('Delegates'),
