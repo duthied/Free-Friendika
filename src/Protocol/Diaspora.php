@@ -409,7 +409,7 @@ class Diaspora
 	}
 
 	/**
-	 * @brief: Decodes incoming Diaspora message in the new format
+	 * Decodes incoming Diaspora message in the new format
 	 *
 	 * @param string  $raw      raw post message
 	 * @param string  $privKey   The private key of the importer
@@ -515,7 +515,7 @@ class Diaspora
 	}
 
 	/**
-	 * @brief: Decodes incoming Diaspora message in the deprecated format
+	 * Decodes incoming Diaspora message in the deprecated format
 	 *
 	 * @param string $xml      urldecoded Diaspora salmon
 	 * @param string $privKey  The private key of the importer

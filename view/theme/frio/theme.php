@@ -281,7 +281,7 @@ function frio_remote_nav($a, &$nav)
 }
 
 /**
- * @brief: Search for contacts
+ * Search for contacts
  *
  * This function search for a users contacts. The code is copied from contact search
  * in /src/Module/Contact.php. With this function the contacts will permitted to acl_lookup()
