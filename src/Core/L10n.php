@@ -115,13 +115,13 @@ class L10n
 		$addons = $this->dba->select('addon', ['name'], ['installed' => true]);
 		while ($p = $this->dba->fetch($addons)) {
 			$name = Strings::sanitizeFilePathItem($p['name']);
-			if (file_exists("addon/$name/lang/$lang/strings.php")) {
-				include __DIR__ . "/../../../addon/$name/lang/$lang/strings.php";
+			if (file_exists(__DIR__ . "/../../addon/$name/lang/$lang/strings.php")) {
+				include __DIR__ . "/../../addon/$name/lang/$lang/strings.php";
 			}
 		}
 
-		if (file_exists(__DIR__ . "/../../../view/lang/$lang/strings.php")) {
-			include __DIR__ . "/../../../view/lang/$lang/strings.php";
+		if (file_exists(__DIR__ . "/../../view/lang/$lang/strings.php")) {
+			include __DIR__ . "/../../view/lang/$lang/strings.php";
 		}
 
 		$this->lang    = $lang;
@@ -191,8 +191,8 @@ class L10n
 			while (count($lang_code)) {
 				// try to mix them so we can get double-code parts too
 				$match_lang = strtolower(join('-', $lang_code));
-				if (file_exists(__DIR__ . "/../../../view/lang/$match_lang") &&
-				    is_dir(__DIR__ . "/../../../view/lang/$match_lang")) {
+				if (file_exists(__DIR__ . "/../../view/lang/$match_lang") &&
+				    is_dir(__DIR__ . "/../../view/lang/$match_lang")) {
 					if ($lang_quality > $current_q) {
 						$current_lang = $match_lang;
 						$current_q    = $lang_quality;
