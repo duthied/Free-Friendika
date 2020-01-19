@@ -3,7 +3,6 @@
  * @file mod/profperm.php
  */
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\DBA;

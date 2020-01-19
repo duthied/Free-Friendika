@@ -5,7 +5,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\UserImport;
 use Friendica\Core\Renderer;

@@ -7,7 +7,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Core\System;

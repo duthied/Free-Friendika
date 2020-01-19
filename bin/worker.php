@@ -7,7 +7,6 @@
 
 use Dice\Dice;
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\DI;

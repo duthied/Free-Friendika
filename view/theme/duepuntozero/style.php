@@ -2,7 +2,6 @@
 /**
  * @file view/theme/duepuntozero/style.php
  */
-use Friendica\Core\Config;
 use Friendica\DI;
 
 if (file_exists("$THEMEPATH/style.css")) {

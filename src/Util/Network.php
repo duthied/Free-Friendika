@@ -6,7 +6,6 @@ namespace Friendica\Util;
 
 use DOMDocument;
 use DomXPath;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;

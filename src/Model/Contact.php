@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
 use Friendica\Content\Pager;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;

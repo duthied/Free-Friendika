@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Admin\Themes;
 
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\DI;

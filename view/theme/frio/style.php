@@ -3,7 +3,6 @@
  * @file view/theme/frio/style.php
  */
 
-use Friendica\Core\Config;
 use Friendica\DI;
 use Friendica\Util\Strings;
 

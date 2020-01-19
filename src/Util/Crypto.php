@@ -6,7 +6,6 @@ namespace Friendica\Util;
 
 use ASN_BASE;
 use ASNValue;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;

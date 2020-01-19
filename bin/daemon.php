@@ -8,7 +8,6 @@
  */
 
 use Dice\Dice;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;

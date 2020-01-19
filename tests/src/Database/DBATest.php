@@ -2,7 +2,6 @@
 namespace Friendica\Test\src\Database;
 
 use Dice\Dice;
-use Friendica\Core\Config;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
 use Friendica\DI;

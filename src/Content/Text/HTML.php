@@ -9,7 +9,6 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Contact;

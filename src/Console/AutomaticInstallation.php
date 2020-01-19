@@ -5,7 +5,8 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\Console;
 use Friendica\App;
 use Friendica\App\BaseURL;
-use Friendica\Core\Config;
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Installer;
 use Friendica\Core\Theme;
 use Friendica\Database\Database;
@@ -15,23 +16,13 @@ use RuntimeException;
 
 class AutomaticInstallation extends Console
 {
-	/**
-	 * @var App\Mode
-	 */
+	/** @var App\Mode */
 	private $appMode;
-	/**
-	 * @var \Friendica\Core\Config\Cache
-	 */
+	/** @var Cache */
 	private $configCache;
-
-	/**
-	 * @var Config\IConfig
-	 */
+	/** @var IConfig */
 	private $config;
-
-	/**
-	 * @var Database
-	 */
+	/** @var Database */
 	private $dba;
 
 	protected function getHelp()
@@ -89,14 +80,14 @@ Examples
 HELP;
 	}
 
-	public function __construct(App\Mode $appMode, Config\Cache $configCache, Config\IConfig $config, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, Cache $configCache, IConfig $config, Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
-		$this->appMode = $appMode;
-		$this->configCache  =$configCache;
-		$this->config = $config;
-		$this->dba = $dba;
+		$this->appMode     = $appMode;
+		$this->configCache = $configCache;
+		$this->config      = $config;
+		$this->dba         = $dba;
 	}
 
 	protected function doExecute()
@@ -106,9 +97,9 @@ HELP;
 
 		$installer = new Installer();
 
-		$configCache = $this->configCache;
+		$configCache  = $this->configCache;
 		$basePathConf = $configCache->get('system', 'basepath');
-		$basepath = new BasePath($basePathConf);
+		$basepath     = new BasePath($basePathConf);
 		$installer->setUpCache($configCache, $basepath->getPath());
 
 		$this->out(" Complete!\n\n");
@@ -241,18 +232,18 @@ HELP;
 	}
 
 	/**
-	 * @param Installer                    $installer   The Installer instance
-	 * @param \Friendica\Core\Config\Cache $configCache The config cache
+	 * @param Installer $installer   The Installer instance
+	 * @param Cache     $configCache The config cache
 	 *
 	 * @return bool true if checks were successfully, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function runBasicChecks(Installer $installer, Config\Cache $configCache)
+	private function runBasicChecks(Installer $installer, Cache $configCache)
 	{
 		$checked = true;
 
 		$installer->resetChecks();
-		if (!$installer->checkFunctions())		{
+		if (!$installer->checkFunctions()) {
 			$checked = false;
 		}
 		if (!$installer->checkImagick()) {
@@ -281,11 +272,12 @@ HELP;
 
 	/**
 	 * @param array $results
+	 *
 	 * @return string
 	 */
 	private function extractErrors($results)
 	{
-		$errorMessage = '';
+		$errorMessage      = '';
 		$allChecksRequired = $this->getOption('a') !== null;
 
 		foreach ($results as $result) {

@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;

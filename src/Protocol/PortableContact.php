@@ -9,26 +9,18 @@
 
 namespace Friendica\Protocol;
 
-use DOMDocument;
-use DOMXPath;
 use Exception;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
-use Friendica\Model\Profile;
-use Friendica\Module\Register;
-use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
-use Friendica\Util\XML;
 
 class PortableContact
 {

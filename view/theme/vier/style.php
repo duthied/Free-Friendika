@@ -3,7 +3,6 @@
  * @file view/theme/vier/style.php
  */
 use Friendica\Core\Logger;
-use Friendica\Core\Config;
 use Friendica\DI;
 
 $uid = $_REQUEST['puid'] ?? 0;

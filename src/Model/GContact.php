@@ -8,7 +8,6 @@ namespace Friendica\Model;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;

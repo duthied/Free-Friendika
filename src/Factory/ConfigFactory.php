@@ -2,6 +2,7 @@
 
 namespace Friendica\Factory;
 
+use Exception;
 use Friendica\Core\Config;
 use Friendica\Core\Config\Cache;
 use Friendica\Model\Config\Config as ConfigModel;
@@ -14,6 +15,8 @@ class ConfigFactory
 	 * @param ConfigFileLoader $loader The Config Cache loader (INI/config/.htconfig)
 	 *
 	 * @return Cache
+	 *
+	 * @throws Exception
 	 */
 	public function createCache(ConfigFileLoader $loader)
 	{

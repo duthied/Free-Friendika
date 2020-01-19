@@ -4,7 +4,6 @@
  * Module for running the worker as frontend process
  */
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;

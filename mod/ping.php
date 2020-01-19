@@ -7,7 +7,6 @@ use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Database\DBA;
 use Friendica\DI;

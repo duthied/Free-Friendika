@@ -9,7 +9,6 @@
 
 namespace Friendica\Network;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;

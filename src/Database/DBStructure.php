@@ -6,7 +6,6 @@
 namespace Friendica\Database;
 
 use Exception;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;

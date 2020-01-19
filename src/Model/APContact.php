@@ -8,7 +8,6 @@ namespace Friendica\Model;
 
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
-use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Protocol\ActivityPub;

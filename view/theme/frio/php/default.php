@@ -7,7 +7,6 @@
 <!DOCTYPE html >
 <?php
 
-use Friendica\Core\Config;
 use Friendica\DI;
 use Friendica\Model\Profile;
 

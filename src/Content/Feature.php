@@ -5,7 +5,6 @@
  */
 namespace Friendica\Content;
 
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\DI;
 

@@ -17,7 +17,6 @@
  * easily as email does today.
  */
 
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;

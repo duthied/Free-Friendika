@@ -34,7 +34,6 @@
 
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;

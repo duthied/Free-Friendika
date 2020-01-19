@@ -7,7 +7,6 @@
 namespace Friendica\Module\Security;
 
 use Friendica\BaseModule;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;

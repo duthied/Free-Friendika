@@ -3,7 +3,7 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Update;
@@ -110,7 +110,7 @@ class Summary extends BaseAdminModule
 
 		// check legacy basepath settings
 		$configLoader = new ConfigFileLoader($a->getBasePath());
-		$configCache = new Config\Cache();
+		$configCache = new Cache();
 		$configLoader->setupCache($configCache);
 		$confBasepath = $configCache->get('system', 'basepath');
 		$currBasepath = DI::config()->get('system', 'basepath');

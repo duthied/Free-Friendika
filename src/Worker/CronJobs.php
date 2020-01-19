@@ -5,10 +5,8 @@
 namespace Friendica\Worker;
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\StorageManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;

@@ -10,7 +10,6 @@
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;

@@ -2,7 +2,6 @@
 
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
 use Friendica\DI;
 
 /**

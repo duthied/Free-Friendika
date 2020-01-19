@@ -3,7 +3,6 @@
  * @file mod/follow.php
  */
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\DI;

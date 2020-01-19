@@ -4,7 +4,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;

@@ -6,7 +6,6 @@
 namespace Friendica\Object;
 
 use Exception;
-use Friendica\Core\Config;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Util\Images;

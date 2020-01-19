@@ -4,7 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 

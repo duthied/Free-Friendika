@@ -6,7 +6,6 @@
 namespace Friendica\Util;
 
 use Friendica\Database\DBA;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\DI;
 use Friendica\Model\User;

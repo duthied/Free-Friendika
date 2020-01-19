@@ -11,7 +11,6 @@ use DOMText;
 use DOMXPath;
 use Exception;
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;

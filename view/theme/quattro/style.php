@@ -2,7 +2,6 @@
 /**
  * @file view/theme/quattro/style.php
  */
-use Friendica\Core\Config;
 use Friendica\DI;
 
 $uid = $_REQUEST['puid'] ?? 0;

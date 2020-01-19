@@ -10,7 +10,6 @@ use DOMXPath;
 use Exception;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
