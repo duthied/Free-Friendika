@@ -510,7 +510,7 @@ class HTML
 
 		$newlines[] = $line;
 
-		return implode($newlines, "\n");
+		return implode("\n", $newlines);
 	}
 
 	private static function quoteLevel($message, $wraplength = 75)
@@ -546,7 +546,7 @@ class HTML
 			}
 		}
 
-		return implode($newlines, "\n");
+		return implode("\n", $newlines);
 	}
 
 	private static function collectURLs($message)
