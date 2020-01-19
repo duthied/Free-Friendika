@@ -63,13 +63,15 @@ abstract class BaseRepository extends BaseFactory
 	 * Chainable.
 	 *
 	 * @param array $condition
-	 * @param array $params
+	 * @param array $order An optional array with order information
+	 * @param int|array $limit Optional limit information
+	 *
 	 * @return BaseCollection
 	 * @throws \Exception
 	 */
-	public function select(array $condition = [], array $params = [])
+	public function select(array $condition = [], array $order = [], $limit = null)
 	{
-		$models = $this->selectModels($condition, $params);
+		$models = $this->selectModels($condition, $order, $limit);
 
 		return new static::$collection_class($models);
 	}
@@ -81,14 +83,15 @@ abstract class BaseRepository extends BaseFactory
 	 * Chainable.
 	 *
 	 * @param array $condition
-	 * @param array $params
+	 * @param array $order
 	 * @param int?  $max_id
 	 * @param int?  $since_id
 	 * @param int   $limit
+	 *
 	 * @return BaseCollection
 	 * @throws \Exception
 	 */
-	public function selectByBoundaries(array $condition = [], array $params = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
+	public function selectByBoundaries(array $condition = [], array $order = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
 	{
 		$condition = DBA::collapseCondition($condition);
 
@@ -104,9 +107,7 @@ abstract class BaseRepository extends BaseFactory
 			$boundCondition[] = $since_id;
 		}
 
-		$params['limit'] = $limit;
-
-		$models = $this->selectModels($boundCondition, $params);
+		$models = $this->selectModels($boundCondition, $order, $limit);
 
 		$totalCount = DBA::count(static::$table_name, $condition);
 
@@ -175,12 +176,24 @@ abstract class BaseRepository extends BaseFactory
 
 	/**
 	 * @param array $condition Query condition
-	 * @param array $params    Additional query parameters
+	 * @param array $order An optional array with order information
+	 * @param int|array $limit Optional limit information
+	 *
 	 * @return BaseModel[]
 	 * @throws \Exception
 	 */
-	protected function selectModels(array $condition, array $params = [])
+	protected function selectModels(array $condition, array $order = [], $limit = null)
 	{
+		$params = [];
+
+		if (!empty($order)) {
+			$params['order'] = $order;
+		}
+
+		if (!empty($limit)) {
+			$params['limit'] = $limit;
+		}
+
 		$result = $this->dba->select(static::$table_name, [], $condition, $params);
 
 		/** @var BaseModel $prototype */
