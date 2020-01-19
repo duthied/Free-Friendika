@@ -1,10 +1,11 @@
 <?php
 
-namespace Friendica\Test\src\Core\Config;
+namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\JitPConfig;
+use Friendica\Test\src\Core\PConfig\PConfigTest;
 
-class JitPConfigurationTest extends PConfigurationTest
+class JitPConfigTest extends PConfigTest
 {
 	public function getInstance()
 	{

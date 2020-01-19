@@ -9,7 +9,7 @@ use Friendica\Test\MockedTest;
 use Mockery\MockInterface;
 use Mockery;
 
-abstract class ConfigurationTest extends MockedTest
+abstract class ConfigTest extends MockedTest
 {
 	/** @var ConfigModel|MockInterface */
 	protected $configModel;

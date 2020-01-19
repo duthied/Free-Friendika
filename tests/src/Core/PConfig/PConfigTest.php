@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Test\src\Core\Config;
+namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\Cache;
 use Friendica\Core\BasePConfig;
@@ -9,7 +9,7 @@ use Friendica\Test\MockedTest;
 use Mockery;
 use Mockery\MockInterface;
 
-abstract class PConfigurationTest extends MockedTest
+abstract class PConfigTest extends MockedTest
 {
 	/** @var PConfigModel|MockInterface */
 	protected $configModel;

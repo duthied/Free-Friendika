@@ -3,16 +3,29 @@
 namespace Friendica\Test\src\App;
 
 use Friendica\App\Router;
+use Friendica\Core\L10n;
 use Friendica\Module;
 use Friendica\Network\HTTPException\MethodNotAllowedException;
 use Friendica\Network\HTTPException\NotFoundException;
+use Mockery\MockInterface;
 use PHPUnit\Framework\TestCase;
 
 class RouterTest extends TestCase
 {
+	/** @var L10n|MockInterface */
+	private $l10n;
+
+	protected function setUp()
+	{
+		parent::setUp();
+
+		$this->l10n = \Mockery::mock(L10n::class);
+		$this->l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
+	}
+
 	public function testGetModuleClass()
 	{
-		$router = new Router(['REQUEST_METHOD' => Router::GET]);
+		$router = new Router(['REQUEST_METHOD' => Router::GET], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::GET], '/', 'IndexModuleClassName');
@@ -36,7 +49,7 @@ class RouterTest extends TestCase
 
 	public function testPostModuleClass()
 	{
-		$router = new Router(['REQUEST_METHOD' => Router::POST]);
+		$router = new Router(['REQUEST_METHOD' => Router::POST], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::POST], '/', 'IndexModuleClassName');
@@ -62,7 +75,7 @@ class RouterTest extends TestCase
 	{
 		$this->expectException(NotFoundException::class);
 
-		$router = new Router(['REQUEST_METHOD' => Router::GET]);
+		$router = new Router(['REQUEST_METHOD' => Router::GET], $this->l10n);
 
 		$router->getModuleClass('/unsupported');
 	}
@@ -71,7 +84,7 @@ class RouterTest extends TestCase
 	{
 		$this->expectException(NotFoundException::class);
 
-		$router = new Router(['REQUEST_METHOD' => Router::GET]);
+		$router = new Router(['REQUEST_METHOD' => Router::GET], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::GET], '/test', 'TestModuleClassName');
@@ -83,7 +96,7 @@ class RouterTest extends TestCase
 	{
 		$this->expectException(NotFoundException::class);
 
-		$router = new Router(['REQUEST_METHOD' => Router::GET]);
+		$router = new Router(['REQUEST_METHOD' => Router::GET], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::GET], '/optional[/option]', 'OptionalModuleClassName');
@@ -95,7 +108,7 @@ class RouterTest extends TestCase
 	{
 		$this->expectException(NotFoundException::class);
 
-		$router = new Router(['REQUEST_METHOD' => Router::GET]);
+		$router = new Router(['REQUEST_METHOD' => Router::GET], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::GET], '/variable/{var}', 'VariableModuleClassName');
@@ -107,7 +120,7 @@ class RouterTest extends TestCase
 	{
 		$this->expectException(MethodNotAllowedException::class);
 
-		$router = new Router(['REQUEST_METHOD' => Router::POST]);
+		$router = new Router(['REQUEST_METHOD' => Router::POST], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::GET], '/test', 'TestModuleClassName');
@@ -119,7 +132,7 @@ class RouterTest extends TestCase
 	{
 		$this->expectException(MethodNotAllowedException::class);
 
-		$router = new Router(['REQUEST_METHOD' => Router::GET]);
+		$router = new Router(['REQUEST_METHOD' => Router::GET], $this->l10n);
 
 		$routeCollector = $router->getRouteCollector();
 		$routeCollector->addRoute([Router::POST], '/test', 'TestModuleClassName');
@@ -159,7 +172,7 @@ class RouterTest extends TestCase
 	{
 		$router = (new Router([
 			'REQUEST_METHOD' => Router::GET
-		]))->loadRoutes($routes);
+		], $this->l10n))->loadRoutes($routes);
 
 		$this->assertEquals(Module\Home::class, $router->getModuleClass('/'));
 		$this->assertEquals(Module\Friendica::class, $router->getModuleClass('/group/route'));
@@ -174,7 +187,7 @@ class RouterTest extends TestCase
 	{
 		$router = (new Router([
 			'REQUEST_METHOD' => Router::POST
-		]))->loadRoutes($routes);
+		], $this->l10n))->loadRoutes($routes);
 
 		// Don't find GET
 		$this->assertEquals(Module\NodeInfo::class, $router->getModuleClass('/post/it'));

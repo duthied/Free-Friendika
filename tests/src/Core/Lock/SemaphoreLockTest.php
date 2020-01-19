@@ -24,7 +24,7 @@ class SemaphoreLockTest extends LockTest
 		$configMock = \Mockery::mock(JitConfig::class);
 		$configMock
 			->shouldReceive('get')
-			->with('system', 'temppath', NULL, false)
+			->with('system', 'temppath')
 			->andReturn('/tmp/');
 		$dice->shouldReceive('create')->with(IConfig::class)->andReturn($configMock);
 

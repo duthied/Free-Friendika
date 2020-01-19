@@ -1,11 +1,11 @@
 <?php
 
-namespace Friendica\Test\src\Core\Config\Cache;
+namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\Cache;
 use Friendica\Test\MockedTest;
 
-class PConfigCacheTest extends MockedTest
+class CacheTest extends MockedTest
 {
 	public function dataTests()
 	{

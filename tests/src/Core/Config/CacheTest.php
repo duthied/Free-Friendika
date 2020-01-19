@@ -1,12 +1,12 @@
 <?php
 
-namespace Friendica\Test\src\Core\Config\Cache;
+namespace Friendica\Test\src\Core\Config;
 
 use Friendica\Core\Config\Cache;
 use Friendica\Test\MockedTest;
 use ParagonIE\HiddenString\HiddenString;
 
-class ConfigCacheTest extends MockedTest
+class CacheTest extends MockedTest
 {
 	public function dataTests()
 	{

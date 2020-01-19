@@ -1,10 +1,11 @@
 <?php
 
-namespace Friendica\Test\src\Core\Config;
+namespace Friendica\Test\src\Core\PConfig;
 
 use Friendica\Core\PConfig\PreloadPConfig;
+use Friendica\Test\src\Core\PConfig\PConfigTest;
 
-class PreloadPConfigurationTest extends PConfigurationTest
+class PreloadPConfigTest extends PConfigTest
 {
 	public function getInstance()
 	{

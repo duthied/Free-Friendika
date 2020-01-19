@@ -2,13 +2,13 @@
 
 namespace Friendica\Test\src\Core\Config;
 
-use Friendica\Core\Config\PreloadConfig;
+use Friendica\Core\Config\JitConfig;
 
-class PreloadConfigurationTest extends ConfigurationTest
+class JitConfigTest extends ConfigTest
 {
 	public function getInstance()
 	{
-		return new PreloadConfig($this->configCache, $this->configModel);
+		return new JitConfig($this->configCache, $this->configModel);
 	}
 
 	/**
@@ -17,7 +17,8 @@ class PreloadConfigurationTest extends ConfigurationTest
 	public function testSetUp(array $data)
 	{
 		$this->configModel->shouldReceive('load')
-		                  ->andReturn($data)
+		                  ->with('config')
+		                  ->andReturn(['config' => $data['config']])
 		                  ->once();
 
 		parent::testSetUp($data);
@@ -30,18 +31,21 @@ class PreloadConfigurationTest extends ConfigurationTest
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
-		                  ->once();
+		                  ->times(count($load) + 1);
 
 		$this->configModel->shouldReceive('load')
-		                  ->andReturn($data)
+		                  ->with('config')
+		                  ->andReturn(['config' => $data['config']])
 		                  ->once();
 
-		parent::testLoad($data, $possibleCats, $load);
-
-		// Assert that every category is loaded everytime
-		foreach ($data as $cat => $values) {
-			$this->assertConfig($cat, $values);
+		foreach ($load as $loadCat) {
+			$this->configModel->shouldReceive('load')
+			                  ->with($loadCat)
+			                  ->andReturn([$loadCat => $data[$loadCat]])
+			                  ->once();
 		}
+
+		parent::testLoad($data, $possibleCats, $load);
 	}
 
 	/**
@@ -51,17 +55,33 @@ class PreloadConfigurationTest extends ConfigurationTest
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
-		                  ->once();
+		                  ->times(count($data1) + count($data2) + 1);
 
 		$this->configModel->shouldReceive('load')
-		                  ->andReturn($data1)
+		                  ->with('config')
+		                  ->andReturn(['config' => $data1['config']])
 		                  ->once();
+
+		foreach ($data1 as $cat => $data) {
+			$this->configModel->shouldReceive('load')
+			                  ->with($cat)
+			                  ->andReturn([$cat => $data])
+			                  ->once();
+		}
+
+
+		foreach ($data2 as $cat => $data) {
+			$this->configModel->shouldReceive('load')
+			                  ->with($cat)
+			                  ->andReturn([$cat => $data])
+			                  ->once();
+		}
 
 		parent::testCacheLoadDouble($data1, $data2, $expect);
 
-		// Assert that every category is loaded everytime and is NOT overwritten
-		foreach ($data1 as $cat => $values) {
-			$this->assertConfig($cat, $values);
+		// Assert the expected categories
+		foreach ($data2 as $cat => $data) {
+			$this->assertConfig($cat, $expect[$cat]);
 		}
 	}
 
@@ -72,9 +92,9 @@ class PreloadConfigurationTest extends ConfigurationTest
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
-		                  ->times(2);
+		                  ->times(3);
 
-		$this->configModel->shouldReceive('load')->andReturn(['config' => []])->once();
+		$this->configModel->shouldReceive('load')->with('config')->andReturn(['config' => []])->once();
 
 		parent::testSetGetWithDB($data);
 	}
@@ -86,28 +106,40 @@ class PreloadConfigurationTest extends ConfigurationTest
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
-		                  ->times(2);
+		                  ->times(4);
 
 		// constructor loading
 		$this->configModel->shouldReceive('load')
+		                  ->with('config')
 		                  ->andReturn(['config' => []])
 		                  ->once();
 
-		// mocking one get
+		// mocking one get without result
+		$this->configModel->shouldReceive('get')
+		                  ->with('test', 'it')
+		                  ->andReturn(null)
+		                  ->once();
+
+		// mocking the data get
 		$this->configModel->shouldReceive('get')
 		                  ->with('test', 'it')
 		                  ->andReturn($data)
 		                  ->once();
 
+		// mocking second get
+		$this->configModel->shouldReceive('get')
+		                  ->with('test', 'not')
+		                  ->andReturn(null)
+		                  ->once();
+
 		parent::testGetWithRefresh($data);
 	}
-
 
 	public function testGetWrongWithoutDB()
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(false)
-		                  ->times(2);
+		                  ->times(4);
 
 		parent::testGetWrongWithoutDB();
 	}
@@ -119,7 +151,7 @@ class PreloadConfigurationTest extends ConfigurationTest
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(false)
-		                  ->times(2);
+		                  ->times(4);
 
 		parent::testDeleteWithoutDB($data);
 	}
@@ -128,11 +160,18 @@ class PreloadConfigurationTest extends ConfigurationTest
 	{
 		$this->configModel->shouldReceive('isConnected')
 		                  ->andReturn(true)
-		                  ->times(5);
+		                  ->times(6);
 
 		// constructor loading
 		$this->configModel->shouldReceive('load')
+		                  ->with('config')
 		                  ->andReturn(['config' => []])
+		                  ->once();
+
+		// mocking one get without result
+		$this->configModel->shouldReceive('get')
+		                  ->with('test', 'it')
+		                  ->andReturn(null)
 		                  ->once();
 
 		parent::testDeleteWithDB();

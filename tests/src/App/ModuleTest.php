@@ -4,6 +4,7 @@ namespace Friendica\Test\src\App;
 
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
+use Friendica\Core\L10n;
 use Friendica\LegacyModule;
 use Friendica\Module\HTTPException\PageNotFound;
 use Friendica\Module\WellKnown\HostMeta;
@@ -152,7 +153,10 @@ class ModuleTest extends DatabaseTest
 		$config = \Mockery::mock(IConfig::class);
 		$config->shouldReceive('get')->with('config', 'private_addons', false)->andReturn($privAdd)->atMost()->once();
 
-		$router = (new App\Router([]))->loadRoutes(include __DIR__ . '/../../../static/routes.config.php');
+		$l10n = \Mockery::mock(L10n::class);
+		$l10n->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
+
+		$router = (new App\Router([], $l10n))->loadRoutes(include __DIR__ . '/../../../static/routes.config.php');
 
 		$module = (new App\Module($name))->determineClass(new App\Arguments('', $command), $router, $config);
 
