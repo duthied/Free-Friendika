@@ -38,12 +38,15 @@ class OnePoll
 			return;
 		}
 
-		Contact::updateFromProbe($contact_id, '', $force);
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id]);
 		if (!DBA::isResult($contact)) {
 			Logger::log('Contact not found or cannot be used.');
 			return;
+		}
+
+		if (($contact['network'] != Protocol::MAIL) || $force) {
+			Contact::updateFromProbe($contact_id, '', $force);
 		}
 
 		// Special treatment for wrongly detected local contacts
