@@ -2235,6 +2235,7 @@ class Contact
 
 	/**
 	 * Takes a $uid and a url/handle and adds a new contact
+	 *
 	 * Currently if the contact is DFRN, interactive needs to be true, to redirect to the
 	 * dfrn_request page.
 	 *
