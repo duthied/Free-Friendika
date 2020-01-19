@@ -10,6 +10,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
 use Friendica\Core\Config;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
 use Friendica\Util\JsonLD;

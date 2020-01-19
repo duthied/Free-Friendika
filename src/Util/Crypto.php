@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\DI;
 
 /**
  * Crypto class

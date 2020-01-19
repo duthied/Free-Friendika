@@ -8,6 +8,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 function worker_init()

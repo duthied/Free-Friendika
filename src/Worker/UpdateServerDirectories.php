@@ -6,6 +6,7 @@ namespace Friendica\Worker;
 
 use Friendica\Core\Config;
 use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
 use Friendica\Protocol\PortableContact;

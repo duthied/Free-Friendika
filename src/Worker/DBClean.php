@@ -10,6 +10,7 @@ use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 class DBClean {
 	public static function execute($stage = 0) {

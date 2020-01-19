@@ -6,6 +6,7 @@ use Friendica\Api\BaseEntity;
 use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * Class Stats
