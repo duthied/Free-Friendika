@@ -86,7 +86,7 @@ class Cron
 
 			self::checkdeletedContacts();
 
-			Config::set('system', 'last_expire_day', $d2);
+			DI::config()->set('system', 'last_expire_day', $d2);
 		}
 
 		// Hourly cron calls
@@ -100,7 +100,7 @@ class Cron
 				DBA::e("OPTIMIZE TABLE `workerqueue`");
 			}
 
-			Config::set('system', 'last_cron_hourly', time());
+			DI::config()->set('system', 'last_cron_hourly', time());
 		}
 
 		// Ensure to have a .htaccess file.
@@ -118,7 +118,7 @@ class Cron
 
 		Logger::log('cron: end');
 
-		Config::set('system', 'last_cron', time());
+		DI::config()->set('system', 'last_cron', time());
 
 		return;
 	}

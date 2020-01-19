@@ -93,7 +93,7 @@ class Site extends BaseAdminModule
 			update_table($a, "gcontact", ['connect', 'addr'], $old_host, $new_host);
 
 			// update config
-			Config::set('system', 'url', $new_url);
+			DI::config()->set('system', 'url', $new_url);
 			DI::baseUrl()->saveByURL($new_url);
 
 			// send relocate
@@ -232,7 +232,7 @@ class Site extends BaseAdminModule
 
 		// Has the directory url changed? If yes, then resubmit the existing profiles there
 		if ($global_directory != DI::config()->get('system', 'directory') && ($global_directory != '')) {
-			Config::set('system', 'directory', $global_directory);
+			DI::config()->set('system', 'directory', $global_directory);
 			Worker::add(PRIORITY_LOW, 'Directory');
 		}
 
@@ -278,129 +278,129 @@ class Site extends BaseAdminModule
 				);
 			}
 		}
-		Config::set('system', 'ssl_policy'            , $ssl_policy);
-		Config::set('system', 'maxloadavg'            , $maxloadavg);
-		Config::set('system', 'maxloadavg_frontend'   , $maxloadavg_frontend);
-		Config::set('system', 'min_memory'            , $min_memory);
-		Config::set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
-		Config::set('system', 'optimize_fragmentation', $optimize_fragmentation);
-		Config::set('system', 'poco_completion'       , $poco_completion);
-		Config::set('system', 'poco_requery_days'     , $poco_requery_days);
-		Config::set('system', 'poco_discovery'        , $poco_discovery);
-		Config::set('system', 'poco_discovery_since'  , $poco_discovery_since);
-		Config::set('system', 'poco_local_search'     , $poco_local_search);
-		Config::set('system', 'nodeinfo'              , $nodeinfo);
-		Config::set('config', 'sitename'              , $sitename);
-		Config::set('config', 'sender_email'          , $sender_email);
-		Config::set('system', 'suppress_tags'         , $suppress_tags);
-		Config::set('system', 'shortcut_icon'         , $shortcut_icon);
-		Config::set('system', 'touch_icon'            , $touch_icon);
+		DI::config()->set('system', 'ssl_policy'            , $ssl_policy);
+		DI::config()->set('system', 'maxloadavg'            , $maxloadavg);
+		DI::config()->set('system', 'maxloadavg_frontend'   , $maxloadavg_frontend);
+		DI::config()->set('system', 'min_memory'            , $min_memory);
+		DI::config()->set('system', 'optimize_max_tablesize', $optimize_max_tablesize);
+		DI::config()->set('system', 'optimize_fragmentation', $optimize_fragmentation);
+		DI::config()->set('system', 'poco_completion'       , $poco_completion);
+		DI::config()->set('system', 'poco_requery_days'     , $poco_requery_days);
+		DI::config()->set('system', 'poco_discovery'        , $poco_discovery);
+		DI::config()->set('system', 'poco_discovery_since'  , $poco_discovery_since);
+		DI::config()->set('system', 'poco_local_search'     , $poco_local_search);
+		DI::config()->set('system', 'nodeinfo'              , $nodeinfo);
+		DI::config()->set('config', 'sitename'              , $sitename);
+		DI::config()->set('config', 'sender_email'          , $sender_email);
+		DI::config()->set('system', 'suppress_tags'         , $suppress_tags);
+		DI::config()->set('system', 'shortcut_icon'         , $shortcut_icon);
+		DI::config()->set('system', 'touch_icon'            , $touch_icon);
 
 		if ($banner == "") {
 			Config::delete('system', 'banner');
 		} else {
-			Config::set('system', 'banner', $banner);
+			DI::config()->set('system', 'banner', $banner);
 		}
 
 		if (empty($additional_info)) {
 			Config::delete('config', 'info');
 		} else {
-			Config::set('config', 'info', $additional_info);
+			DI::config()->set('config', 'info', $additional_info);
 		}
-		Config::set('system', 'language', $language);
-		Config::set('system', 'theme', $theme);
+		DI::config()->set('system', 'language', $language);
+		DI::config()->set('system', 'theme', $theme);
 		Theme::install($theme);
 
 		if ($theme_mobile == '---') {
 			Config::delete('system', 'mobile-theme');
 		} else {
-			Config::set('system', 'mobile-theme', $theme_mobile);
+			DI::config()->set('system', 'mobile-theme', $theme_mobile);
 		}
 		if ($singleuser == '---') {
 			Config::delete('system', 'singleuser');
 		} else {
-			Config::set('system', 'singleuser', $singleuser);
+			DI::config()->set('system', 'singleuser', $singleuser);
 		}
-		Config::set('system', 'maximagesize'           , $maximagesize);
-		Config::set('system', 'max_image_length'       , $maximagelength);
-		Config::set('system', 'jpeg_quality'           , $jpegimagequality);
+		DI::config()->set('system', 'maximagesize'           , $maximagesize);
+		DI::config()->set('system', 'max_image_length'       , $maximagelength);
+		DI::config()->set('system', 'jpeg_quality'           , $jpegimagequality);
 
-		Config::set('config', 'register_policy'        , $register_policy);
-		Config::set('system', 'max_daily_registrations', $daily_registrations);
-		Config::set('system', 'account_abandon_days'   , $abandon_days);
-		Config::set('config', 'register_text'          , $register_text);
-		Config::set('system', 'allowed_sites'          , $allowed_sites);
-		Config::set('system', 'allowed_email'          , $allowed_email);
-		Config::set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
-		Config::set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
-		Config::set('system', 'allowed_oembed'         , $allowed_oembed);
-		Config::set('system', 'block_public'           , $block_public);
-		Config::set('system', 'publish_all'            , $force_publish);
-		Config::set('system', 'newuser_private'        , $newuser_private);
-		Config::set('system', 'enotify_no_content'     , $enotify_no_content);
-		Config::set('system', 'disable_embedded'       , $disable_embedded);
-		Config::set('system', 'allow_users_remote_self', $allow_users_remote_self);
-		Config::set('system', 'explicit_content'       , $explicit_content);
-		Config::set('system', 'check_new_version_url'  , $check_new_version_url);
+		DI::config()->set('config', 'register_policy'        , $register_policy);
+		DI::config()->set('system', 'max_daily_registrations', $daily_registrations);
+		DI::config()->set('system', 'account_abandon_days'   , $abandon_days);
+		DI::config()->set('config', 'register_text'          , $register_text);
+		DI::config()->set('system', 'allowed_sites'          , $allowed_sites);
+		DI::config()->set('system', 'allowed_email'          , $allowed_email);
+		DI::config()->set('system', 'forbidden_nicknames'    , $forbidden_nicknames);
+		DI::config()->set('system', 'no_oembed_rich_content' , $no_oembed_rich_content);
+		DI::config()->set('system', 'allowed_oembed'         , $allowed_oembed);
+		DI::config()->set('system', 'block_public'           , $block_public);
+		DI::config()->set('system', 'publish_all'            , $force_publish);
+		DI::config()->set('system', 'newuser_private'        , $newuser_private);
+		DI::config()->set('system', 'enotify_no_content'     , $enotify_no_content);
+		DI::config()->set('system', 'disable_embedded'       , $disable_embedded);
+		DI::config()->set('system', 'allow_users_remote_self', $allow_users_remote_self);
+		DI::config()->set('system', 'explicit_content'       , $explicit_content);
+		DI::config()->set('system', 'check_new_version_url'  , $check_new_version_url);
 
-		Config::set('system', 'block_extended_register', $no_multi_reg);
-		Config::set('system', 'no_openid'              , $no_openid);
-		Config::set('system', 'no_regfullname'         , $no_regfullname);
-		Config::set('system', 'community_page_style'   , $community_page_style);
-		Config::set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
-		Config::set('system', 'verifyssl'              , $verifyssl);
-		Config::set('system', 'proxyuser'              , $proxyuser);
-		Config::set('system', 'proxy'                  , $proxy);
-		Config::set('system', 'curl_timeout'           , $timeout);
-		Config::set('system', 'dfrn_only'              , $dfrn_only);
-		Config::set('system', 'ostatus_disabled'       , $ostatus_disabled);
-		Config::set('system', 'diaspora_enabled'       , $diaspora_enabled);
+		DI::config()->set('system', 'block_extended_register', $no_multi_reg);
+		DI::config()->set('system', 'no_openid'              , $no_openid);
+		DI::config()->set('system', 'no_regfullname'         , $no_regfullname);
+		DI::config()->set('system', 'community_page_style'   , $community_page_style);
+		DI::config()->set('system', 'max_author_posts_community_page', $max_author_posts_community_page);
+		DI::config()->set('system', 'verifyssl'              , $verifyssl);
+		DI::config()->set('system', 'proxyuser'              , $proxyuser);
+		DI::config()->set('system', 'proxy'                  , $proxy);
+		DI::config()->set('system', 'curl_timeout'           , $timeout);
+		DI::config()->set('system', 'dfrn_only'              , $dfrn_only);
+		DI::config()->set('system', 'ostatus_disabled'       , $ostatus_disabled);
+		DI::config()->set('system', 'diaspora_enabled'       , $diaspora_enabled);
 
-		Config::set('config', 'private_addons'         , $private_addons);
+		DI::config()->set('config', 'private_addons'         , $private_addons);
 
-		Config::set('system', 'force_ssl'              , $force_ssl);
-		Config::set('system', 'hide_help'              , $hide_help);
+		DI::config()->set('system', 'force_ssl'              , $force_ssl);
+		DI::config()->set('system', 'hide_help'              , $hide_help);
 
-		Config::set('system', 'dbclean'                , $dbclean);
-		Config::set('system', 'dbclean-expire-days'    , $dbclean_expire_days);
-		Config::set('system', 'dbclean_expire_conversation', $dbclean_expire_conv);
+		DI::config()->set('system', 'dbclean'                , $dbclean);
+		DI::config()->set('system', 'dbclean-expire-days'    , $dbclean_expire_days);
+		DI::config()->set('system', 'dbclean_expire_conversation', $dbclean_expire_conv);
 
 		if ($dbclean_unclaimed == 0) {
 			$dbclean_unclaimed = $dbclean_expire_days;
 		}
 
-		Config::set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
+		DI::config()->set('system', 'dbclean-expire-unclaimed', $dbclean_unclaimed);
 
 		if ($itemcache != '') {
 			$itemcache = BasePath::getRealPath($itemcache);
 		}
 
-		Config::set('system', 'itemcache', $itemcache);
-		Config::set('system', 'itemcache_duration', $itemcache_duration);
-		Config::set('system', 'max_comments', $max_comments);
+		DI::config()->set('system', 'itemcache', $itemcache);
+		DI::config()->set('system', 'itemcache_duration', $itemcache_duration);
+		DI::config()->set('system', 'max_comments', $max_comments);
 
 		if ($temppath != '') {
 			$temppath = BasePath::getRealPath($temppath);
 		}
 
-		Config::set('system', 'temppath', $temppath);
+		DI::config()->set('system', 'temppath', $temppath);
 
-		Config::set('system', 'proxy_disabled'   , $proxy_disabled);
-		Config::set('system', 'only_tag_search'  , $only_tag_search);
+		DI::config()->set('system', 'proxy_disabled'   , $proxy_disabled);
+		DI::config()->set('system', 'only_tag_search'  , $only_tag_search);
 
-		Config::set('system', 'worker_queues'    , $worker_queues);
-		Config::set('system', 'worker_dont_fork' , $worker_dont_fork);
-		Config::set('system', 'worker_fastlane'  , $worker_fastlane);
-		Config::set('system', 'frontend_worker'  , $worker_frontend);
+		DI::config()->set('system', 'worker_queues'    , $worker_queues);
+		DI::config()->set('system', 'worker_dont_fork' , $worker_dont_fork);
+		DI::config()->set('system', 'worker_fastlane'  , $worker_fastlane);
+		DI::config()->set('system', 'frontend_worker'  , $worker_frontend);
 
-		Config::set('system', 'relay_directly'   , $relay_directly);
-		Config::set('system', 'relay_server'     , $relay_server);
-		Config::set('system', 'relay_subscribe'  , $relay_subscribe);
-		Config::set('system', 'relay_scope'      , $relay_scope);
-		Config::set('system', 'relay_server_tags', $relay_server_tags);
-		Config::set('system', 'relay_user_tags'  , $relay_user_tags);
+		DI::config()->set('system', 'relay_directly'   , $relay_directly);
+		DI::config()->set('system', 'relay_server'     , $relay_server);
+		DI::config()->set('system', 'relay_subscribe'  , $relay_subscribe);
+		DI::config()->set('system', 'relay_scope'      , $relay_scope);
+		DI::config()->set('system', 'relay_server_tags', $relay_server_tags);
+		DI::config()->set('system', 'relay_user_tags'  , $relay_user_tags);
 
-		Config::set('system', 'rino_encrypt'     , $rino);
+		DI::config()->set('system', 'rino_encrypt'     , $rino);
 
 		info(DI::l10n()->t('Site settings updated.') . EOL);
 
@@ -416,7 +416,7 @@ class Site extends BaseAdminModule
 
 		if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
 			!strlen(DI::config()->get('system', 'directory'))) {
-			Config::set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
+			DI::config()->set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
 			Config::delete('system', 'directory_submit_url');
 		}
 

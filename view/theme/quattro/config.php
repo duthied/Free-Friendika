@@ -45,10 +45,10 @@ function theme_admin(App $a) {
 
 function theme_admin_post(App $a) {
 	if (isset($_POST['quattro-settings-submit'])){
-		Config::set('quattro', 'align', $_POST['quattro_align']);
-		Config::set('quattro', 'color', $_POST['quattro_color']);
-		Config::set('quattro', 'tfs', $_POST['quattro_tfs']);
-		Config::set('quattro', 'pfs', $_POST['quattro_pfs']);
+		DI::config()->set('quattro', 'align', $_POST['quattro_align']);
+		DI::config()->set('quattro', 'color', $_POST['quattro_color']);
+		DI::config()->set('quattro', 'tfs', $_POST['quattro_tfs']);
+		DI::config()->set('quattro', 'pfs', $_POST['quattro_pfs']);
 	}
 }
 

@@ -65,7 +65,7 @@ class Worker
 		// Kill stale processes every 5 minutes
 		$last_cleanup = DI::config()->get('system', 'worker_last_cleaned', 0);
 		if (time() > ($last_cleanup + 300)) {
-			Config::set('system', 'worker_last_cleaned', time());
+			DI::config()->set('system', 'worker_last_cleaned', time());
 			self::killStaleWorkers();
 		}
 
@@ -297,7 +297,7 @@ class Worker
 			$stamp = (float)microtime(true);
 			$condition = ["`id` = ? AND `next_try` < ?", $queue['id'], DateTimeFormat::utcNow()];
 			if (DBA::update('workerqueue', ['done' => true], $condition)) {
-				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
+				DI::config()->set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 			self::$db_duration_write += (microtime(true) - $stamp);
@@ -343,7 +343,7 @@ class Worker
 
 			$stamp = (float)microtime(true);
 			if (DBA::update('workerqueue', ['done' => true], ['id' => $queue["id"]])) {
-				Config::set('system', 'last_worker_execution', DateTimeFormat::utcNow());
+				DI::config()->set('system', 'last_worker_execution', DateTimeFormat::utcNow());
 			}
 			self::$db_duration = (microtime(true) - $stamp);
 			self::$db_duration_write += (microtime(true) - $stamp);
@@ -1004,7 +1004,7 @@ class Worker
 				return;
 			}
 
-			Config::set("system", "worker_started", time());
+			DI::config()->set("system", "worker_started", time());
 
 			// Do we have enough running workers? Then we quit here.
 			if (self::tooMuchWorkers()) {

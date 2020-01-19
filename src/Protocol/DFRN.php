@@ -492,8 +492,8 @@ class DFRN
 		$pubkey = DI::config()->get('system', 'site_pubkey');
 		if (! $pubkey) {
 			$res = Crypto::newKeypair(1024);
-			Config::set('system', 'site_prvkey', $res['prvkey']);
-			Config::set('system', 'site_pubkey', $res['pubkey']);
+			DI::config()->set('system', 'site_prvkey', $res['prvkey']);
+			DI::config()->set('system', 'site_pubkey', $res['pubkey']);
 		}
 
 		$rp = q(

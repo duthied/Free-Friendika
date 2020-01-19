@@ -29,10 +29,10 @@ class Features extends BaseAdminModule
 				} else {
 					$val = 0;
 				}
-				Config::set('feature', $feature, $val);
+				DI::config()->set('feature', $feature, $val);
 
 				if (!empty($_POST[$featurelock])) {
-					Config::set('feature_lock', $feature, $val);
+					DI::config()->set('feature_lock', $feature, $val);
 				} else {
 					Config::delete('feature_lock', $feature);
 				}

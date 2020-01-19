@@ -98,7 +98,7 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." old global item entries from item table without user copy. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-1', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-1', $last_id);
 		} elseif ($stage == 2) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-2', 0);
 
@@ -120,10 +120,10 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." items without parents. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-2', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-2', $last_id);
 
 			if ($count < $limit) {
-				Config::set('system', 'finished-dbclean-2', true);
+				DI::config()->set('system', 'finished-dbclean-2', true);
 			}
 		} elseif ($stage == 3) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-3', 0);
@@ -146,10 +146,10 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." orphaned data from thread table. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-3', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-3', $last_id);
 
 			if ($count < $limit) {
-				Config::set('system', 'finished-dbclean-3', true);
+				DI::config()->set('system', 'finished-dbclean-3', true);
 			}
 		} elseif ($stage == 4) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-4', 0);
@@ -172,10 +172,10 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." orphaned data from notify table. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-4', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-4', $last_id);
 
 			if ($count < $limit) {
-				Config::set('system', 'finished-dbclean-4', true);
+				DI::config()->set('system', 'finished-dbclean-4', true);
 			}
 		} elseif ($stage == 5) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-5', 0);
@@ -198,10 +198,10 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." orphaned data from notify-threads table. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-5', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-5', $last_id);
 
 			if ($count < $limit) {
-				Config::set('system', 'finished-dbclean-5', true);
+				DI::config()->set('system', 'finished-dbclean-5', true);
 			}
 		} elseif ($stage == 6) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-6', 0);
@@ -224,10 +224,10 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." orphaned data from sign table. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-6', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-6', $last_id);
 
 			if ($count < $limit) {
-				Config::set('system', 'finished-dbclean-6', true);
+				DI::config()->set('system', 'finished-dbclean-6', true);
 			}
 		} elseif ($stage == 7) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-7', 0);
@@ -250,10 +250,10 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." orphaned data from term table. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-7', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-7', $last_id);
 
 			if ($count < $limit) {
-				Config::set('system', 'finished-dbclean-7', true);
+				DI::config()->set('system', 'finished-dbclean-7', true);
 			}
 		} elseif ($stage == 8) {
 			if ($days <= 0) {
@@ -289,7 +289,7 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." expired threads. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-8', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-8', $last_id);
 		} elseif ($stage == 9) {
 			if ($days <= 0) {
 				return;
@@ -317,7 +317,7 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." old global item entries from expired threads. Last ID: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-9', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-9', $last_id);
 		} elseif ($stage == 10) {
 			$last_id = DI::config()->get('system', 'dbclean-last-id-10', 0);
 			$days = intval(DI::config()->get('system', 'dbclean_expire_conversation', 90));
@@ -340,7 +340,7 @@ class DBClean {
 			DBA::close($r);
 			Logger::log("Done deleting ".$count." conversations. Last created: ".$last_id);
 
-			Config::set('system', 'dbclean-last-id-10', $last_id);
+			DI::config()->set('system', 'dbclean-last-id-10', $last_id);
 		}
 	}
 }

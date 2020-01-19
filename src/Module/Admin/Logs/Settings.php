@@ -28,9 +28,9 @@ class Settings extends BaseAdminModule
 				return;
 			}
 
-			Config::set('system', 'logfile', $logfile);
-			Config::set('system', 'debugging', $debugging);
-			Config::set('system', 'loglevel', $loglevel);
+			DI::config()->set('system', 'logfile', $logfile);
+			DI::config()->set('system', 'debugging', $debugging);
+			DI::config()->set('system', 'loglevel', $loglevel);
 		}
 
 		info(DI::l10n()->t("Log settings updated."));

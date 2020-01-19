@@ -348,7 +348,7 @@ class Addon
 	 */
 	public static function saveEnabledList()
 	{
-		return Config::set('system', 'addon', implode(',', self::$addons));
+		return DI::config()->set('system', 'addon', implode(',', self::$addons));
 	}
 
 	/**

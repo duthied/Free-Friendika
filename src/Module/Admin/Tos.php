@@ -23,9 +23,9 @@ class Tos extends BaseAdminModule
 		$displayprivstatement = !empty($_POST['displayprivstatement']);
 		$tostext = (!empty($_POST['tostext']) ? strip_tags(trim($_POST['tostext'])) : '');
 
-		Config::set('system', 'tosdisplay', $displaytos);
-		Config::set('system', 'tosprivstatement', $displayprivstatement);
-		Config::set('system', 'tostext', $tostext);
+		DI::config()->set('system', 'tosdisplay', $displaytos);
+		DI::config()->set('system', 'tosprivstatement', $displayprivstatement);
+		DI::config()->set('system', 'tostext', $tostext);
 
 		info(DI::l10n()->t('The Terms of Service settings have been updated.'));
 

@@ -260,8 +260,8 @@ class DBStructure
 	public static function update($basePath, $verbose, $action, $install = false, array $tables = null, array $definition = null)
 	{
 		if ($action && !$install) {
-			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
+			DI::config()->set('system', 'maintenance', 1);
+			DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
 
 		$errors = '';
@@ -522,7 +522,7 @@ class DBStructure
 
 				if ($action) {
 					if (!$install) {
-						Config::set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
+						DI::config()->set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
 					// Ensure index conversion to unique removes duplicates
@@ -574,13 +574,13 @@ class DBStructure
 		}
 
 		if ($action && !$install) {
-			Config::set('system', 'maintenance', 0);
-			Config::set('system', 'maintenance_reason', '');
+			DI::config()->set('system', 'maintenance', 0);
+			DI::config()->set('system', 'maintenance_reason', '');
 
 			if ($errors) {
-				Config::set('system', 'dbupdate', self::UPDATE_FAILED);
+				DI::config()->set('system', 'dbupdate', self::UPDATE_FAILED);
 			} else {
-				Config::set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
+				DI::config()->set('system', 'dbupdate', self::UPDATE_SUCCESSFUL);
 			}
 		}
 

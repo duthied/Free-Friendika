@@ -42,7 +42,7 @@ function theme_admin(App $a)
 function theme_admin_post(App $a)
 {
 	if (isset($_POST['duepuntozero-settings-submit'])) {
-		Config::set('duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
+		DI::config()->set('duepuntozero', 'colorset', $_POST['duepuntozero_colorset']);
 	}
 }
 

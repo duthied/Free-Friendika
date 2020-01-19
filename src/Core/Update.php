@@ -36,7 +36,7 @@ class Update
 		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {
-			Config::set('system', 'build', DB_UPDATE_VERSION - 1);
+			DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
 			$build = DB_UPDATE_VERSION - 1;
 		}
 
@@ -81,7 +81,7 @@ class Update
 
 		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
 			$build = DB_UPDATE_VERSION - 1;
-			Config::set('system', 'build', $build);
+			DI::config()->set('system', 'build', $build);
 		}
 
 		if ($build != DB_UPDATE_VERSION || $force) {
@@ -110,7 +110,7 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'pre_update');
 						if (!$r) {
-							Config::set('system', 'update', Update::FAILED);
+							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
 						}
@@ -126,12 +126,12 @@ class Update
 							);
 						}
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
-						Config::set('system', 'update', Update::FAILED);
+						DI::config()->set('system', 'update', Update::FAILED);
 						DI::lock()->release('dbupdate');
 						return $retval;
 					} else {
-						Config::set('database', 'last_successful_update', $current);
-						Config::set('database', 'last_successful_update_time', time());
+						DI::config()->set('database', 'last_successful_update', $current);
+						DI::config()->set('database', 'last_successful_update_time', time());
 						Logger::info('Update finished.', ['from' => $stored, 'to' => $current]);
 					}
 
@@ -139,7 +139,7 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'update');
 						if (!$r) {
-							Config::set('system', 'update', Update::FAILED);
+							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
 						}
@@ -150,7 +150,7 @@ class Update
 						self::updateSuccessfull($stored, $current);
 					}
 
-					Config::set('system', 'update', Update::SUCCESS);
+					DI::config()->set('system', 'update', Update::SUCCESS);
 					DI::lock()->release('dbupdate');
 				}
 			}
@@ -197,11 +197,11 @@ class Update
 					DI::lock()->release('dbupdate_function');
 					return false;
 				} else {
-					Config::set('database', 'last_successful_update_function', $funcname);
-					Config::set('database', 'last_successful_update_function_time', time());
+					DI::config()->set('database', 'last_successful_update_function', $funcname);
+					DI::config()->set('database', 'last_successful_update_function_time', time());
 
 					if ($prefix == 'update') {
-						Config::set('system', 'build', $x);
+						DI::config()->set('system', 'build', $x);
 					}
 
 					DI::lock()->release('dbupdate_function');
@@ -212,11 +212,11 @@ class Update
 		} else {
 			Logger::info('Update function skipped.', ['function' => $funcname]);
 
-			Config::set('database', 'last_successful_update_function', $funcname);
-			Config::set('database', 'last_successful_update_function_time', time());
+			DI::config()->set('database', 'last_successful_update_function', $funcname);
+			DI::config()->set('database', 'last_successful_update_function_time', time());
 
 			if ($prefix == 'update') {
-				Config::set('system', 'build', $x);
+				DI::config()->set('system', 'build', $x);
 			}
 
 			return true;

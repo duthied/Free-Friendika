@@ -27,7 +27,7 @@ class Server extends BaseAdminModule
 				'domain' => Strings::escapeTags(trim($_POST['newentry_domain'])),
 				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
 			];
-			Config::set('system', 'blocklist', $blocklist);
+			DI::config()->set('system', 'blocklist', $blocklist);
 			info(DI::l10n()->t('Server domain pattern added to blocklist.') . EOL);
 		} else {
 			// Edit the entries from blocklist
@@ -43,7 +43,7 @@ class Server extends BaseAdminModule
 					];
 				}
 			}
-			Config::set('system', 'blocklist', $blocklist);
+			DI::config()->set('system', 'blocklist', $blocklist);
 			info(DI::l10n()->t('Site blocklist updated.') . EOL);
 		}
 

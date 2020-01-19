@@ -36,7 +36,7 @@ class Theme
 
 	public static function setAllowedList(array $allowed_themes)
 	{
-		Config::set('system', 'allowed_themes', implode(',', array_unique($allowed_themes)));
+		DI::config()->set('system', 'allowed_themes', implode(',', array_unique($allowed_themes)));
 	}
 
 	/**

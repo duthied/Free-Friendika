@@ -68,7 +68,7 @@ function api_content(App $a)
 			$consumer = new OAuthConsumer($app['client_id'], $app['pw'], $app['redirect_uri']);
 
 			$verifier = md5($app['secret'] . local_user());
-			Config::set("oauth", $verifier, local_user());
+			DI::config()->set("oauth", $verifier, local_user());
 
 			if ($consumer->callback_url != null) {
 				$params = $request->get_parameters();

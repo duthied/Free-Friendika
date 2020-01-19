@@ -65,7 +65,7 @@ function update_1178()
 function update_1179()
 {
 	if (DI::config()->get('system', 'no_community_page')) {
-		Config::set('system', 'community_page_style', CP_NO_COMMUNITY_PAGE);
+		DI::config()->set('system', 'community_page_style', CP_NO_COMMUNITY_PAGE);
 	}
 
 	// Update the central item storage with uid=0
@@ -88,7 +88,7 @@ function update_1189()
 
 	if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
 		!strlen(DI::config()->get('system', 'directory'))) {
-		Config::set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
+		DI::config()->set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
 		Config::delete('system', 'directory_submit_url');
 	}
 
@@ -97,7 +97,7 @@ function update_1189()
 
 function update_1191()
 {
-	Config::set('system', 'maintenance', 1);
+	DI::config()->set('system', 'maintenance', 1);
 
 	if (Addon::isEnabled('forumlist')) {
 		$addon = 'forumlist';
@@ -114,7 +114,7 @@ function update_1191()
 				// since Addon::uninstall() don't work here
 				q("DELETE FROM `addon` WHERE `name` = 'forumlist' ");
 				q("DELETE FROM `hook` WHERE `file` = 'addon/forumlist/forumlist.php' ");
-				Config::set('system', 'addon', implode(", ", $addons_arr));
+				DI::config()->set('system', 'addon', implode(", ", $addons_arr));
 			}
 		}
 	}
@@ -154,7 +154,7 @@ function update_1191()
 		}
 	}
 
-	Config::set('system', 'maintenance', 0);
+	DI::config()->set('system', 'maintenance', 0);
 
 	return Update::SUCCESS;
 }
@@ -193,7 +193,7 @@ function update_1245()
 		return Update::SUCCESS;
 	}
 
-	Config::set('system', 'rino_encrypt', 1);
+	DI::config()->set('system', 'rino_encrypt', 1);
 
 	return Update::SUCCESS;
 }
@@ -210,8 +210,8 @@ WHERE `hook` LIKE 'plugin_%'");
 
 function update_1260()
 {
-	Config::set('system', 'maintenance', 1);
-	Config::set(
+	DI::config()->set('system', 'maintenance', 1);
+	DI::config()->set(
 		'system',
 		'maintenance_reason',
 		DI::l10n()->t(
@@ -252,7 +252,7 @@ function update_1260()
 	DBA::e("UPDATE `thread` INNER JOIN `item` ON `thread`.`iid` = `item`.`id`
 		SET `thread`.`author-id` = `item`.`author-id` WHERE `thread`.`author-id` = 0");
 
-	Config::set('system', 'maintenance', 0);
+	DI::config()->set('system', 'maintenance', 0);
 	return Update::SUCCESS;
 }
 
@@ -265,8 +265,8 @@ function update_1261()
 
 function update_1278()
 {
-	Config::set('system', 'maintenance', 1);
-	Config::set(
+	DI::config()->set('system', 'maintenance', 1);
+	DI::config()->set(
 		'system',
 		'maintenance_reason',
 		DI::l10n()->t(
@@ -278,7 +278,7 @@ function update_1278()
 	Item::update(['post-type' => Item::PT_PAGE], ['bookmark' => true]);
 	Item::update(['post-type' => Item::PT_PERSONAL_NOTE], ['type' => 'note']);
 
-	Config::set('system', 'maintenance', 0);
+	DI::config()->set('system', 'maintenance', 0);
 
 	return Update::SUCCESS;
 }
@@ -415,7 +415,7 @@ function update_1330()
 	// set the name of the storage instead of the classpath as config
 	if (!empty($currStorage)) {
 		/** @var Storage\IStorage $currStorage */
-		if (!Config::set('storage', 'name', $currStorage::getName())) {
+		if (!DI::config()->set('storage', 'name', $currStorage::getName())) {
 			return Update::FAILED;
 		}
 

@@ -226,7 +226,7 @@ class CronJobs
 			}
 		}
 
-		Config::set('system', 'cache_last_cleared', time());
+		DI::config()->set('system', 'cache_last_cleared', time());
 	}
 
 	/**

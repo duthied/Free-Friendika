@@ -90,14 +90,14 @@ function theme_admin(App $a) {
 
 function theme_admin_post(App $a) {
 	if (isset($_POST['vier-settings-submit'])){
-		Config::set('vier', 'style', $_POST['vier_style']);
-		Config::set('vier', 'show_pages', $_POST['vier_show_pages']);
-		Config::set('vier', 'show_profiles', $_POST['vier_show_profiles']);
-		Config::set('vier', 'show_helpers', $_POST['vier_show_helpers']);
-		Config::set('vier', 'show_services', $_POST['vier_show_services']);
-		Config::set('vier', 'show_friends', $_POST['vier_show_friends']);
-		Config::set('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
-		Config::set('vier', 'helperlist', $_POST['vier_helperlist']);
+		DI::config()->set('vier', 'style', $_POST['vier_style']);
+		DI::config()->set('vier', 'show_pages', $_POST['vier_show_pages']);
+		DI::config()->set('vier', 'show_profiles', $_POST['vier_show_profiles']);
+		DI::config()->set('vier', 'show_helpers', $_POST['vier_show_helpers']);
+		DI::config()->set('vier', 'show_services', $_POST['vier_show_services']);
+		DI::config()->set('vier', 'show_friends', $_POST['vier_show_friends']);
+		DI::config()->set('vier', 'show_lastusers', $_POST['vier_show_lastusers']);
+		DI::config()->set('vier', 'helperlist', $_POST['vier_helperlist']);
 	}
 }
 

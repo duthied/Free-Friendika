@@ -1429,6 +1429,6 @@ class GServer
 			}
 		}
 
-		Config::set('poco', 'last_federation_discovery', time());
+		DI::config()->set('poco', 'last_federation_discovery', time());
 	}
 }

@@ -470,7 +470,7 @@ function get_temppath()
 
 		if (System::isDirectoryUsable($new_temppath)) {
 			// The new path is usable, we are happy
-			Config::set("system", "temppath", $new_temppath);
+			DI::config()->set("system", "temppath", $new_temppath);
 			return $new_temppath;
 		} else {
 			// We can't create a subdirectory, strange.
@@ -563,7 +563,7 @@ function get_itemcachepath()
 		}
 
 		if (System::isDirectoryUsable($itemcache)) {
-			Config::set("system", "itemcache", $itemcache);
+			DI::config()->set("system", "itemcache", $itemcache);
 			return $itemcache;
 		}
 	}
@@ -595,7 +595,7 @@ function get_spoolpath()
 
 		if (System::isDirectoryUsable($spoolpath)) {
 			// The new path is usable, we are happy
-			Config::set("system", "spoolpath", $spoolpath);
+			DI::config()->set("system", "spoolpath", $spoolpath);
 			return $spoolpath;
 		} else {
 			// We can't create a subdirectory, strange.
