@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Protocol/Feed.php
- * @brief Imports RSS/RDF/Atom feeds
+ * Imports RSS/RDF/Atom feeds
  *
  */
 namespace Friendica\Protocol;
@@ -19,12 +19,12 @@ use Friendica\Util\ParseUrl;
 use Friendica\Util\XML;
 
 /**
- * @brief This class contain functions to import feeds
+ * This class contain functions to import feeds
  *
  */
 class Feed {
 	/**
-	 * @brief Read a RSS/RDF/Atom feed and create an item entry for it
+	 * Read a RSS/RDF/Atom feed and create an item entry for it
 	 *
 	 * @param string $xml      The feed data
 	 * @param array  $importer The user record of the importer

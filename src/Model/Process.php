@@ -8,7 +8,7 @@ use Friendica\Database\DBA;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * @brief functions for interacting with a process
+ * functions for interacting with a process
  */
 class Process
 {

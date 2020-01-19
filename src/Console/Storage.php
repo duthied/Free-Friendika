@@ -6,7 +6,7 @@ use Asika\SimpleConsole\CommandArgsException;
 use Friendica\Core\StorageManager;
 
 /**
- * @brief tool to manage storage backend and stored data from CLI
+ * tool to manage storage backend and stored data from CLI
  *
  */
 class Storage extends \Asika\SimpleConsole\Console

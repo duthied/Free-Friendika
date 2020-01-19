@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Object/Image.php
- * @brief This file contains the Image class for image processing
+ * This file contains the Image class for image processing
  */
 namespace Friendica\Object;
 
@@ -32,7 +32,7 @@ class Image
 	private $types;
 
 	/**
-	 * @brief Constructor
+	 * Constructor
 	 * @param string  $data
 	 * @param boolean $type optional, default null
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -57,7 +57,8 @@ class Image
 	}
 
 	/**
-	 * @brief Destructor
+	 * Destructor
+	 *
 	 * @return void
 	 */
 	public function __destruct()
@@ -501,7 +502,7 @@ class Image
 	}
 
 	/**
-	 * @brief Scale image to target dimensions
+	 * Scale image to target dimensions
 	 *
 	 * @param int $dest_width
 	 * @param int $dest_height
@@ -614,7 +615,7 @@ class Image
 	}
 
 	/**
-	 * @brief Magic method allowing string casting of an Image object
+	 * Magic method allowing string casting of an Image object
 	 *
 	 * Ex: $data = $Image->asString();
 	 * can be replaced by
@@ -671,7 +672,8 @@ class Image
 	}
 
 	/**
-	 * @brief supported mimetypes and corresponding file extensions
+	 * supported mimetypes and corresponding file extensions
+	 *
 	 * @return array
 	 * @deprecated in version 2019.12 please use Util\Images::supportedTypes() instead.
 	 */
@@ -681,7 +683,8 @@ class Image
 	}
 
 	/**
-	 * @brief Maps Mime types to Imagick formats
+	 * Maps Mime types to Imagick formats
+	 *
 	 * @return array With with image formats (mime type as key)
 	 * @deprecated in version 2019.12 please use Util\Images::getFormatsMap() instead.
 	 */

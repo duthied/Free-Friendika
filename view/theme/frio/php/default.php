@@ -1,7 +1,7 @@
 <?php
 /**
  * @file view/theme/frio/php/modes/default.php
- * @brief The default site template
+ * The default site template
  */
 ?>
 <!DOCTYPE html >

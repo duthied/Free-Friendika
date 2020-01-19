@@ -32,7 +32,7 @@ use Friendica\Util\Temporal;
 class Profile
 {
 	/**
-	 * @brief Returns default profile for a given user id
+	 * Returns default profile for a given user id
 	 *
 	 * @param integer User ID
 	 *
@@ -46,7 +46,7 @@ class Profile
 	}
 
 	/**
-	 * @brief Returns default profile for a given user ID and ID
+	 * Returns default profile for a given user ID and ID
 	 *
 	 * @param int $uid The contact ID
 	 * @param int $id The contact owner ID
@@ -61,7 +61,7 @@ class Profile
 	}
 
 	/**
-	 * @brief Returns profile data for the contact owner
+	 * Returns profile data for the contact owner
 	 *
 	 * @param int $uid The User ID
 	 * @param array $fields The fields to retrieve
@@ -75,7 +75,7 @@ class Profile
 	}
 
 	/**
-	 * @brief Returns a formatted location string from the given profile array
+	 * Returns a formatted location string from the given profile array
 	 *
 	 * @param array $profile Profile array (Generated from the "profile" table)
 	 *
@@ -109,7 +109,6 @@ class Profile
 	}
 
 	/**
-	 *
 	 * Loads a profile into the page sidebar.
 	 *
 	 * The function requires a writeable copy of the main App structure, and the nickname
@@ -127,7 +126,6 @@ class Profile
 	 *      the theme is chosen before the _init() function of a theme is run, which will usually
 	 *      load a lot of theme-specific content
 	 *
-	 * @brief Loads a profile into the page sidebar.
 	 * @param App     $a
 	 * @param string  $nickname     string
 	 * @param int     $profile      int
@@ -238,7 +236,6 @@ class Profile
 	 *
 	 * Includes all available profile data
 	 *
-	 * @brief Get all profile data of a local user
 	 * @param string $nickname   nick
 	 * @param int    $uid        uid
 	 * @param int    $profile_id ID of the profile
@@ -293,7 +290,6 @@ class Profile
 	 * It is very difficult to templatise the HTML completely
 	 * because of all the conditional logic.
 	 *
-	 * @brief Formats a profile for display in the sidebar.
 	 * @param array   $profile
 	 * @param int     $block
 	 * @param boolean $show_connect Show connect link
@@ -1208,7 +1204,6 @@ class Profile
 	 * system pconfig, which means they don't want to see anybody else's theme
 	 * settings except their own while on this site.
 	 *
-	 * @brief Get the user ID of the page owner
 	 * @return int user ID
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

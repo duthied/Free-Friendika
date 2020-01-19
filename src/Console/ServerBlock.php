@@ -8,7 +8,7 @@ use Console_Table;
 use Friendica\Core\Config\IConfiguration;
 
 /**
- * @brief Manage blocked servers
+ * Manage blocked servers
  *
  * With this tool, you can list the current blocked servers
  * or you can add / remove a blocked server from the list

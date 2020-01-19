@@ -17,7 +17,7 @@ use Friendica\Core\Logger;
 abstract class BaseModule
 {
 	/**
-	 * @brief Initialization method common to both content() and post()
+	 * Initialization method common to both content() and post()
 	 *
 	 * Extend this method if you need to do any shared processing before both
 	 * content() or post()
@@ -27,7 +27,7 @@ abstract class BaseModule
 	}
 
 	/**
-	 * @brief Module GET method to display raw content from technical endpoints
+	 * Module GET method to display raw content from technical endpoints
 	 *
 	 * Extend this method if the module is supposed to return communication data,
 	 * e.g. from protocol implementations.
@@ -39,7 +39,7 @@ abstract class BaseModule
 	}
 
 	/**
-	 * @brief Module GET method to display any content
+	 * Module GET method to display any content
 	 *
 	 * Extend this method if the module is supposed to return any display
 	 * through a GET request. It can be an HTML page through templating or a
@@ -55,7 +55,7 @@ abstract class BaseModule
 	}
 
 	/**
-	 * @brief Module POST method to process submitted data
+	 * Module POST method to process submitted data
 	 *
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content
@@ -67,7 +67,7 @@ abstract class BaseModule
 	}
 
 	/**
-	 * @brief Called after post()
+	 * Called after post()
 	 *
 	 * Unknown purpose
 	 */

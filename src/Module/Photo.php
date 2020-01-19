@@ -14,12 +14,12 @@ use Friendica\Model\Photo as MPhoto;
 use Friendica\Object\Image;
 
 /**
- * @brief Photo Module
+ * Photo Module
  */
 class Photo extends BaseModule
 {
 	/**
-	 * @brief Module initializer
+	 * Module initializer
 	 *
 	 * Fetch a photo or an avatar, in optional size, check for permissions and
 	 * return the image

@@ -20,7 +20,7 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
- * @brief functions for interacting with the event database table
+ * functions for interacting with the event database table
  */
 class Event
 {
@@ -110,7 +110,7 @@ class Event
 	}
 
 	/**
-	 * @brief Convert an array with event data to bbcode.
+	 * Convert an array with event data to bbcode.
 	 *
 	 * @param array $event Array which contains the event data.
 	 * @return string The event as a bbcode formatted string.
@@ -147,7 +147,7 @@ class Event
 	}
 
 	/**
-	 * @brief Extract bbcode formatted event data from a string.
+	 * Extract bbcode formatted event data from a string.
 	 *
 	 * @params: string $s The string which should be parsed for event data.
 	 * @param $text
@@ -211,7 +211,7 @@ class Event
 	}
 
 	/**
-	 * @brief Delete an event from the event table.
+	 * Delete an event from the event table.
 	 *
 	 * Note: This function does only delete the event from the event table not its
 	 * related entry in the item table.
@@ -231,7 +231,7 @@ class Event
 	}
 
 	/**
-	 * @brief Store the event.
+	 * Store the event.
 	 *
 	 * Store the event in the event table and create an event item in the item table.
 	 *
@@ -370,7 +370,7 @@ class Event
 	}
 
 	/**
-	 * @brief Create an array with translation strings used for events.
+	 * Create an array with translation strings used for events.
 	 *
 	 * @return array Array with translations strings.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -441,7 +441,7 @@ class Event
 	}
 
 	/**
-	 * @brief Removes duplicated birthday events.
+	 * Removes duplicated birthday events.
 	 *
 	 * @param array $dates Array of possibly duplicated events.
 	 * @return array Cleaned events.
@@ -463,7 +463,7 @@ class Event
 	}
 
 	/**
-	 * @brief Get an event by its event ID.
+	 * Get an event by its event ID.
 	 *
 	 * @param int    $owner_uid The User ID of the owner of the event
 	 * @param int    $event_id  The ID of the event in the event table
@@ -496,7 +496,7 @@ class Event
 	}
 
 	/**
-	 * @brief Get all events in a specific time frame.
+	 * Get all events in a specific time frame.
 	 *
 	 * @param int    $owner_uid    The User ID of the owner of the events.
 	 * @param array  $event_params An associative array with
@@ -546,7 +546,7 @@ class Event
 	}
 
 	/**
-	 * @brief Convert an array query results in an array which could be used by the events template.
+	 * Convert an array query results in an array which could be used by the events template.
 	 *
 	 * @param array $event_result Event query array.
 	 * @return array Event array for the template.
@@ -631,7 +631,7 @@ class Event
 	}
 
 	/**
-	 * @brief Format event to export format (ical/csv).
+	 * Format event to export format (ical/csv).
 	 *
 	 * @param array  $events Query result for events.
 	 * @param string $format The output format (ical/csv).
@@ -738,7 +738,7 @@ class Event
 	}
 
 	/**
-	 * @brief Get all events for a user ID.
+	 * Get all events for a user ID.
 	 *
 	 *    The query for events is done permission sensitive.
 	 *    If the user is the owner of the calendar they
@@ -832,7 +832,7 @@ class Event
 	}
 
 	/**
-	 * @brief Format an item array with event data to HTML.
+	 * Format an item array with event data to HTML.
 	 *
 	 * @param array $item Array with item and event data.
 	 * @return string HTML output.
@@ -941,7 +941,7 @@ class Event
 	}
 
 	/**
-	 * @brief Format a string with map bbcode to an array with location data.
+	 * Format a string with map bbcode to an array with location data.
 	 *
 	 * Note: The string must only contain location data. A string with no bbcode will be
 	 * handled as location name.
@@ -992,7 +992,7 @@ class Event
 	}
 
 	/**
-	 * @brief Add new birthday event for this person
+	 * Add new birthday event for this person
 	 *
 	 * @param array  $contact  Contact array, expects: id, uid, url, name
 	 * @param string $birthday Birthday of the contact

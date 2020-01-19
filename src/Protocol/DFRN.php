@@ -1,7 +1,7 @@
 <?php
 /**
  * @file include/dfrn.php
- * @brief The implementation of the dfrn protocol
+ * The implementation of the dfrn protocol
  *
  * @see https://github.com/friendica/friendica/wiki/Protocol and
  * https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
@@ -40,7 +40,7 @@ use HTMLPurifier;
 use HTMLPurifier_Config;
 
 /**
- * @brief This class contain functions to create and send DFRN XML files
+ * This class contain functions to create and send DFRN XML files
  */
 class DFRN
 {
@@ -50,7 +50,7 @@ class DFRN
 	const REPLY_RC = 2;	// Reply that will be relayed
 
 	/**
-	 * @brief Generates an array of contact and user for DFRN imports
+	 * Generates an array of contact and user for DFRN imports
 	 *
 	 * This array contains not only the receiver but also the sender of the message.
 	 *
@@ -91,7 +91,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Generates the atom entries for delivery.php
+	 * Generates the atom entries for delivery.php
 	 *
 	 * This function is used whenever content is transmitted via DFRN.
 	 *
@@ -130,7 +130,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Generate an atom feed for the given user
+	 * Generate an atom feed for the given user
 	 *
 	 * This function is called when another server is pulling data from the user feed.
 	 *
@@ -340,7 +340,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Generate an atom entry for a given item id
+	 * Generate an atom entry for a given item id
 	 *
 	 * @param int     $item_id      The item id
 	 * @param boolean $conversation Show the conversation. If false show the single post.
@@ -409,7 +409,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Create XML text for DFRN mails
+	 * Create XML text for DFRN mails
 	 *
 	 * @param array $item  message elements
 	 * @param array $owner Owner record
@@ -446,7 +446,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Create XML text for DFRN friend suggestions
+	 * Create XML text for DFRN friend suggestions
 	 *
 	 * @param array $item  suggestion elements
 	 * @param array $owner Owner record
@@ -476,7 +476,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Create XML text for DFRN relocations
+	 * Create XML text for DFRN relocations
 	 *
 	 * @param array $owner Owner record
 	 * @param int   $uid   User ID
@@ -535,7 +535,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Adds the header elements for the DFRN protocol
+	 * Adds the header elements for the DFRN protocol
 	 *
 	 * @param DOMDocument $doc           XML document
 	 * @param array       $owner         Owner record
@@ -613,7 +613,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Adds the author element in the header for the DFRN protocol
+	 * Adds the author element in the header for the DFRN protocol
 	 *
 	 * @param DOMDocument $doc           XML document
 	 * @param array       $owner         Owner record
@@ -758,7 +758,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Adds the author elements in the "entry" elements of the DFRN protocol
+	 * Adds the author elements in the "entry" elements of the DFRN protocol
 	 *
 	 * @param DOMDocument $doc         XML document
 	 * @param string $element     Element name for the author
@@ -803,7 +803,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Adds the activity elements
+	 * Adds the activity elements
 	 *
 	 * @param DOMDocument $doc      XML document
 	 * @param string      $element  Element name for the activity
@@ -870,7 +870,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Adds the elements for attachments
+	 * Adds the elements for attachments
 	 *
 	 * @param object $doc  XML document
 	 * @param object $root XML root
@@ -906,7 +906,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Adds the "entry" elements for the DFRN protocol
+	 * Adds the "entry" elements for the DFRN protocol
 	 *
 	 * @param DOMDocument $doc     XML document
 	 * @param string      $type    "text" or "html"
@@ -1143,7 +1143,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief encrypts data via AES
+	 * encrypts data via AES
 	 *
 	 * @param string $data The data that is to be encrypted
 	 * @param string $key  The AES key
@@ -1156,7 +1156,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief decrypts data via AES
+	 * decrypts data via AES
 	 *
 	 * @param string $encrypted The encrypted data
 	 * @param string $key       The AES key
@@ -1169,7 +1169,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Delivers the atom content to the contacts
+	 * Delivers the atom content to the contacts
 	 *
 	 * @param array  $owner    Owner record
 	 * @param array  $contact  Contact record of the receiver
@@ -1405,7 +1405,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Transmits atom content to the contacts via the Diaspora transport layer
+	 * Transmits atom content to the contacts via the Diaspora transport layer
 	 *
 	 * @param array  $owner   Owner record
 	 * @param array  $contact Contact record of the receiver
@@ -1495,7 +1495,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Fetch the author data from head or entry items
+	 * Fetch the author data from head or entry items
 	 *
 	 * @param object $xpath     XPath object
 	 * @param object $context   In which context should the data be searched
@@ -1729,7 +1729,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Transforms activity objects into an XML string
+	 * Transforms activity objects into an XML string
 	 *
 	 * @param object $xpath    XPath object
 	 * @param object $activity Activity object
@@ -1784,7 +1784,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Processes the mail elements
+	 * Processes the mail elements
 	 *
 	 * @param object $xpath    XPath object
 	 * @param object $mail     mail elements
@@ -1813,7 +1813,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Processes the suggestion elements
+	 * Processes the suggestion elements
 	 *
 	 * @param object $xpath      XPath object
 	 * @param object $suggestion suggestion elements
@@ -1912,7 +1912,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Processes the relocation elements
+	 * Processes the relocation elements
 	 *
 	 * @param object $xpath      XPath object
 	 * @param object $relocation relocation elements
@@ -1997,7 +1997,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Updates an item
+	 * Updates an item
 	 *
 	 * @param array $current   the current item record
 	 * @param array $item      the new item record
@@ -2030,7 +2030,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Detects the entry type of the item
+	 * Detects the entry type of the item
 	 *
 	 * @param array $importer Record of the importer user mixed with contact of the content
 	 * @param array $item     the new item record
@@ -2098,7 +2098,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Send a "poke"
+	 * Send a "poke"
 	 *
 	 * @param array $item      The new item record
 	 * @param array $importer  Record of the importer user mixed with contact of the content
@@ -2158,7 +2158,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Processes several actions, depending on the verb
+	 * Processes several actions, depending on the verb
 	 *
 	 * @param int   $entrytype Is it a toplevel entry, a comment or a relayed comment?
 	 * @param array $importer  Record of the importer user mixed with contact of the content
@@ -2260,7 +2260,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Processes the link elements
+	 * Processes the link elements
 	 *
 	 * @param object $links link elements
 	 * @param array  $item  the item record
@@ -2304,7 +2304,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Processes the entry elements which contain the items and comments
+	 * Processes the entry elements which contain the items and comments
 	 *
 	 * @param array  $header   Array of the header elements that always stay the same
 	 * @param object $xpath    XPath object
@@ -2649,7 +2649,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Deletes items
+	 * Deletes items
 	 *
 	 * @param object $xpath    XPath object
 	 * @param object $deletion deletion elements
@@ -2710,7 +2710,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Imports a DFRN message
+	 * Imports a DFRN message
 	 *
 	 * @param string $xml          The DFRN message
 	 * @param array  $importer     Record of the importer user mixed with contact of the content
@@ -2853,7 +2853,7 @@ class DFRN
 	}
 
 	/**
-	 * @brief Returns the activity verb
+	 * Returns the activity verb
 	 *
 	 * @param array $item Item array
 	 *

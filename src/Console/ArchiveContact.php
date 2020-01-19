@@ -9,7 +9,7 @@ use Friendica\Util\Strings;
 use RuntimeException;
 
 /**
- * @brief tool to archive a contact on the server
+ * tool to archive a contact on the server
  *
  * With this tool you can archive a contact when you know that it isn't existing anymore.
  * Normally this does happen automatically after a few days.

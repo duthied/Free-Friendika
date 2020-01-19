@@ -9,7 +9,7 @@ use Friendica\Database\DBStructure;
 use RuntimeException;
 
 /**
- * @brief Performs database updates from the command line
+ * Performs database updates from the command line
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */

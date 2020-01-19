@@ -37,7 +37,7 @@ require_once 'include/api.php';
 require_once 'mod/share.php';
 
 /**
- * @brief ActivityPub Transmitter Protocol class
+ * ActivityPub Transmitter Protocol class
  *
  * To-Do:
  * - Undo Announce
@@ -1107,7 +1107,7 @@ class Transmitter
 	}
 
 	/**
-	 * @brief Callback function to replace a Friendica style mention in a mention that is used on AP
+	 * Callback function to replace a Friendica style mention in a mention that is used on AP
 	 *
 	 * @param array $match Matching values for the callback
 	 * @return string Replaced mention

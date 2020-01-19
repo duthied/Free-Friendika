@@ -23,7 +23,7 @@ use Friendica\Util\LDSignature;
 use Friendica\Util\Strings;
 
 /**
- * @brief ActivityPub Receiver Protocol class
+ * ActivityPub Receiver Protocol class
  *
  * To-Do:
  * - Undo Announce

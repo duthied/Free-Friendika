@@ -36,7 +36,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Return the localized version of the provided string with optional string interpolation
+	 * Return the localized version of the provided string with optional string interpolation
 	 *
 	 * This function takes a english string as parameter, and if a localized version
 	 * exists for the current language, substitutes it before performing an eventual
@@ -58,7 +58,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Return the localized version of a singular/plural string with optional string interpolation
+	 * Return the localized version of a singular/plural string with optional string interpolation
 	 *
 	 * This function takes two english strings as parameters, singular and plural, as
 	 * well as a count. If a localized version exists for the current language, they
@@ -83,7 +83,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Return installed languages codes as associative array
+	 * Return installed languages codes as associative array
 	 *
 	 * Scans the view/lang directory for the existence of "strings.php" files, and
 	 * returns an alphabetical list of their folder names (@-char language codes).
@@ -99,7 +99,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Translate days and months names.
+	 * Translate days and months names.
 	 *
 	 * @param string $s String with day or month name.
 	 *
@@ -111,7 +111,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Translate short days and months names.
+	 * Translate short days and months names.
 	 *
 	 * @param string $s String with short day or month name.
 	 *

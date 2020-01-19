@@ -1,18 +1,18 @@
 <?php
 /**
  * @file src/Model/Storage/IStorage.php
- * @brief Storage backend system
+ * Storage backend system
  */
 
 namespace Friendica\Model\Storage;
 
 /**
- * @brief Interface for storage backends
+ * Interface for storage backends
  */
 interface IStorage
 {
 	/**
-	 * @brief Get data from backend
+	 * Get data from backend
 	 *
 	 * @param string $reference Data reference
 	 *
@@ -21,7 +21,7 @@ interface IStorage
 	public function get(string $reference);
 
 	/**
-	 * @brief Put data in backend as $ref. If $ref is not defined a new reference is created.
+	 * Put data in backend as $ref. If $ref is not defined a new reference is created.
 	 *
 	 * @param string $data      Data to save
 	 * @param string $reference Data reference. Optional.
@@ -31,7 +31,7 @@ interface IStorage
 	public function put(string $data, string $reference = "");
 
 	/**
-	 * @brief Remove data from backend
+	 * Remove data from backend
 	 *
 	 * @param string $reference Data reference
 	 *
@@ -40,7 +40,7 @@ interface IStorage
 	public function delete(string $reference);
 
 	/**
-	 * @brief Get info about storage options
+	 * Get info about storage options
 	 *
 	 * @return array
 	 *
@@ -80,7 +80,7 @@ interface IStorage
 	public function getOptions();
 
 	/**
-	 * @brief Validate and save options
+	 * Validate and save options
 	 *
 	 * @param array $data Array [optionname => value] to be saved
 	 *

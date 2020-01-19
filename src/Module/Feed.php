@@ -18,8 +18,6 @@ use Friendica\Protocol\OStatus;
  *
  * The nocache GET parameter is provided mainly for debug purposes, requires auth
  *
- * @brief Provides public Atom feeds
- *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */
 class Feed extends BaseModule

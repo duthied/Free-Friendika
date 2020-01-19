@@ -27,8 +27,6 @@ use Friendica\Util\Strings;
 
 /**
  *  Manages and show Contacts and their content
- *
- *  @brief manages contacts
  */
 class Contact extends BaseModule
 {
@@ -837,7 +835,7 @@ class Contact extends BaseModule
 	}
 
 	/**
-	 * @brief List of pages for the Contact TabBar
+	 * List of pages for the Contact TabBar
 	 *
 	 * Available Pages are 'Status', 'Profile', 'Contacts' and 'Common Friends'
 	 *
@@ -1049,7 +1047,7 @@ class Contact extends BaseModule
 	}
 
 	/**
-	 * @brief Gives a array with actions which can performed to a given contact
+	 * Gives a array with actions which can performed to a given contact
 	 *
 	 * This includes actions like e.g. 'block', 'hide', 'archive', 'delete' and others
 	 *

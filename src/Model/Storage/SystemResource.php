@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Model/Storage/SystemStorage.php
- * @brief Storage backend system
+ * Storage backend system
  */
 
 namespace Friendica\Model\Storage;
@@ -9,7 +9,7 @@ namespace Friendica\Model\Storage;
 use \BadMethodCallException;
 
 /**
- * @brief System resource storage class
+ * System resource storage class
  *
  * This class is used to load system resources, like images.
  * Is not intended to be selectable by admins as default storage class.

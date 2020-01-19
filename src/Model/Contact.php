@@ -29,7 +29,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
- * @brief functions for interacting with a contact
+ * functions for interacting with a contact
  */
 class Contact
 {
@@ -174,7 +174,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Tests if the given contact is a follower
+	 * Tests if the given contact is a follower
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
@@ -199,7 +199,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Tests if the given contact url is a follower
+	 * Tests if the given contact url is a follower
 	 *
 	 * @param string $url Contact URL
 	 * @param int    $uid User ID
@@ -220,7 +220,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Tests if the given user follow the given contact
+	 * Tests if the given user follow the given contact
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
@@ -245,7 +245,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Tests if the given user follow the given contact url
+	 * Tests if the given user follow the given contact url
 	 *
 	 * @param string $url Contact URL
 	 * @param int    $uid User ID
@@ -266,7 +266,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Get the basepath for a given contact link
+	 * Get the basepath for a given contact link
 	 *
 	 * @param string $url The contact link
 	 * @param boolean $dont_update Don't update the contact
@@ -355,7 +355,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns the contact id for the user and the public contact id for a given contact id
+	 * Returns the contact id for the user and the public contact id for a given contact id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
@@ -417,7 +417,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Block contact id for user id
+	 * Block contact id for user id
 	 *
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
@@ -439,7 +439,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns "block" state for contact id and user id
+	 * Returns "block" state for contact id and user id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
@@ -480,7 +480,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Ignore contact id for user id
+	 * Ignore contact id for user id
 	 *
 	 * @param int     $cid     Either public contact id or user's contact id
 	 * @param int     $uid     User ID
@@ -502,7 +502,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns "ignore" state for contact id and user id
+	 * Returns "ignore" state for contact id and user id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
@@ -543,7 +543,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Set "collapsed" for contact id and user id
+	 * Set "collapsed" for contact id and user id
 	 *
 	 * @param int     $cid       Either public contact id or user's contact id
 	 * @param int     $uid       User ID
@@ -561,7 +561,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns "collapsed" state for contact id and user id
+	 * Returns "collapsed" state for contact id and user id
 	 *
 	 * @param int $cid Either public contact id or user's contact id
 	 * @param int $uid User ID
@@ -590,7 +590,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns a list of contacts belonging in a group
+	 * Returns a list of contacts belonging in a group
 	 *
 	 * @param int $gid
 	 * @return array
@@ -625,7 +625,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns the count of OStatus contacts in a group
+	 * Returns the count of OStatus contacts in a group
 	 *
 	 * @param int $gid
 	 * @return int
@@ -807,7 +807,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Marks a contact for removal
+	 * Marks a contact for removal
 	 *
 	 * @param int $id contact id
 	 * @return null
@@ -829,7 +829,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Sends an unfriend message. Does not remove the contact
+	 * Sends an unfriend message. Does not remove the contact
 	 *
 	 * @param array   $user     User unfriending
 	 * @param array   $contact  Contact unfriended
@@ -878,7 +878,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Marks a contact for archival after a communication issue delay
+	 * Marks a contact for archival after a communication issue delay
 	 *
 	 * Contact has refused to recognise us as a friend. We will start a countdown.
 	 * If they still don't recognise us in 32 days, the relationship is over,
@@ -936,7 +936,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Cancels the archival countdown
+	 * Cancels the archival countdown
 	 *
 	 * @see   Contact::markForArchival()
 	 *
@@ -979,7 +979,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Get contact data for a given profile link
+	 * Get contact data for a given profile link
 	 *
 	 * The function looks at several places (contact table and gcontact table) for the contact
 	 * It caches its result for the same script execution to prevent duplicate calls
@@ -1126,7 +1126,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Get contact data for a given address
+	 * Get contact data for a given address
 	 *
 	 * The function looks at several places (contact table and gcontact table) for the contact
 	 *
@@ -1184,7 +1184,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns the data array for the photo menu of a given contact
+	 * Returns the data array for the photo menu of a given contact
 	 *
 	 * @param array $contact contact
 	 * @param int   $uid     optional, default 0
@@ -1313,7 +1313,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns ungrouped contact count or list for user
+	 * Returns ungrouped contact count or list for user
 	 *
 	 * Returns either the total number of ungrouped contacts for the given user
 	 * id or a paginated list of ungrouped contacts.
@@ -1424,7 +1424,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Fetch the contact id for a given URL and user
+	 * Fetch the contact id for a given URL and user
 	 *
 	 * First lookup in the contact table to find a record matching either `url`, `nurl`,
 	 * `addr` or `alias`.
@@ -1662,7 +1662,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Checks if the contact is archived
+	 * Checks if the contact is archived
 	 *
 	 * @param int $cid contact id
 	 *
@@ -1706,7 +1706,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Checks if the contact is blocked
+	 * Checks if the contact is blocked
 	 *
 	 * @param int $cid contact id
 	 *
@@ -1732,7 +1732,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Checks if the contact is hidden
+	 * Checks if the contact is hidden
 	 *
 	 * @param int $cid contact id
 	 *
@@ -1753,7 +1753,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns posts from a given contact url
+	 * Returns posts from a given contact url
 	 *
 	 * @param string $contact_url Contact URL
 	 *
@@ -1816,7 +1816,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns the account type name
+	 * Returns the account type name
 	 *
 	 * The function can be called with either the user or the contact array
 	 *
@@ -1871,7 +1871,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Blocks a contact
+	 * Blocks a contact
 	 *
 	 * @param int $cid
 	 * @return bool
@@ -1885,7 +1885,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Unblocks a contact
+	 * Unblocks a contact
 	 *
 	 * @param int $cid
 	 * @return bool
@@ -1899,7 +1899,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Updates the avatar links in a contact only if needed
+	 * Updates the avatar links in a contact only if needed
 	 *
 	 * @param string $avatar Link to avatar picture
 	 * @param int    $uid    User id of contact owner
@@ -1949,8 +1949,8 @@ class Contact
 		return $data;
 	}
 
-        /**
-	 * @brief Helper function for "updateFromProbe". Updates personal and public contact
+	/**
+	 * Helper function for "updateFromProbe". Updates personal and public contact
 	 *
 	 * @param integer $id      contact id
 	 * @param integer $uid     user id
@@ -2008,8 +2008,8 @@ class Contact
 		DBA::update('contact', $fields, $condition);
 	}
 
-        /**
-	 * @brief Remove duplicated contacts
+	/**
+	 * Remove duplicated contacts
 	 *
 	 * @param string  $nurl  Normalised contact url
 	 * @param integer $uid   User id
@@ -2235,6 +2235,7 @@ class Contact
 
 	/**
 	 * Takes a $uid and a url/handle and adds a new contact
+	 *
 	 * Currently if the contact is DFRN, interactive needs to be true, to redirect to the
 	 * dfrn_request page.
 	 *
@@ -2244,7 +2245,7 @@ class Contact
 	 * $return['success'] boolean true if successful
 	 * $return['message'] error text if success is false.
 	 *
-	 * @brief Takes a $uid and a url/handle and adds a new contact
+	 * Takes a $uid and a url/handle and adds a new contact
 	 * @param int    $uid
 	 * @param string $url
 	 * @param bool   $interactive
@@ -2474,7 +2475,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Updated contact's SSL policy
+	 * Updated contact's SSL policy
 	 *
 	 * @param array  $contact    Contact array
 	 * @param string $new_policy New policy, valid: self,full
@@ -2677,7 +2678,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Create a birthday event.
+	 * Create a birthday event.
 	 *
 	 * Update the year and the birthday.
 	 */
@@ -2739,7 +2740,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns a magic link to authenticate remote visitors
+	 * Returns a magic link to authenticate remote visitors
 	 *
 	 * @todo  check if the return is either a fully qualified URL or a relative path to Friendica basedir
 	 *
@@ -2768,7 +2769,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns a magic link to authenticate remote visitors
+	 * Returns a magic link to authenticate remote visitors
 	 *
 	 * @param integer $cid The contact id of the target contact profile
 	 * @param string  $url An url that we will be redirected to after the authentication
@@ -2785,7 +2786,7 @@ class Contact
 	}
 
 	/**
-	 * @brief Returns a magic link to authenticate remote visitors
+	 * Returns a magic link to authenticate remote visitors
 	 *
 	 * @param array  $contact The contact array with "uid", "network" and "url"
 	 * @param string $url     An url that we will be redirected to after the authentication

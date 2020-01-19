@@ -226,7 +226,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the MySQL server version string
+	 * Returns the MySQL server version string
 	 *
 	 * This function discriminate between the deprecated mysql API and the current
 	 * object-oriented mysqli API. Example of returned string: 5.5.46-0+deb8u1
@@ -249,7 +249,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the selected database name
+	 * Returns the selected database name
 	 *
 	 * @return string
 	 * @throws \Exception
@@ -262,7 +262,7 @@ class Database
 	}
 
 	/**
-	 * @brief Analyze a database query and log this if some conditions are met.
+	 * Analyze a database query and log this if some conditions are met.
 	 *
 	 * @param string $query The database query that will be analyzed
 	 *
@@ -378,8 +378,8 @@ class Database
 	}
 
 	/**
-	 * @brief Replaces ANY_VALUE() function by MIN() function,
-	 *  if the database server does not support ANY_VALUE().
+	 * Replaces ANY_VALUE() function by MIN() function,
+	 * if the database server does not support ANY_VALUE().
 	 *
 	 * Considerations for Standard SQL, or MySQL with ONLY_FULL_GROUP_BY (default since 5.7.5).
 	 * ANY_VALUE() is available from MySQL 5.7.5 https://dev.mysql.com/doc/refman/5.7/en/miscellaneous-functions.html
@@ -400,7 +400,7 @@ class Database
 	}
 
 	/**
-	 * @brief Replaces the ? placeholders with the parameters in the $args array
+	 * Replaces the ? placeholders with the parameters in the $args array
 	 *
 	 * @param string $sql  SQL query
 	 * @param array  $args The parameters that are to replace the ? placeholders
@@ -427,7 +427,8 @@ class Database
 	}
 
 	/**
-	 * @brief Executes a prepared statement that returns data
+	 * Executes a prepared statement that returns data
+	 *
 	 * @usage Example: $r = p("SELECT * FROM `item` WHERE `guid` = ?", $guid);
 	 *
 	 * Please only use it with complicated queries.
@@ -667,7 +668,7 @@ class Database
 	}
 
 	/**
-	 * @brief Executes a prepared statement like UPDATE or INSERT that doesn't return data
+	 * Executes a prepared statement like UPDATE or INSERT that doesn't return data
 	 *
 	 * Please use DBA::delete, DBA::insert, DBA::update, ... instead
 	 *
@@ -733,7 +734,7 @@ class Database
 	}
 
 	/**
-	 * @brief Check if data exists
+	 * Check if data exists
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition array of fields for condition
@@ -777,7 +778,7 @@ class Database
 	 *
 	 * Please use DBA::selectFirst or DBA::exists whenever this is possible.
 	 *
-	 * @brief Fetches the first row
+	 * Fetches the first row
 	 *
 	 * @param string $sql SQL statement
 	 *
@@ -802,7 +803,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the number of affected rows of the last statement
+	 * Returns the number of affected rows of the last statement
 	 *
 	 * @return int Number of rows
 	 */
@@ -812,7 +813,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the number of columns of a statement
+	 * Returns the number of columns of a statement
 	 *
 	 * @param object Statement object
 	 *
@@ -833,7 +834,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the number of rows of a statement
+	 * Returns the number of rows of a statement
 	 *
 	 * @param PDOStatement|mysqli_result|mysqli_stmt Statement object
 	 *
@@ -854,7 +855,7 @@ class Database
 	}
 
 	/**
-	 * @brief Fetch a single row
+	 * Fetch a single row
 	 *
 	 * @param mixed $stmt statement object
 	 *
@@ -914,7 +915,7 @@ class Database
 	}
 
 	/**
-	 * @brief Insert a row into a table
+	 * Insert a row into a table
 	 *
 	 * @param string|array $table               Table name or array [schema => table]
 	 * @param array        $param               parameter array
@@ -951,7 +952,7 @@ class Database
 	}
 
 	/**
-	 * @brief Fetch the id of the last insert command
+	 * Fetch the id of the last insert command
 	 *
 	 * @return integer Last inserted id
 	 */
@@ -969,7 +970,7 @@ class Database
 	}
 
 	/**
-	 * @brief Locks a table for exclusive write access
+	 * Locks a table for exclusive write access
 	 *
 	 * This function can be extended in the future to accept a table array as well.
 	 *
@@ -1007,7 +1008,7 @@ class Database
 	}
 
 	/**
-	 * @brief Unlocks all locked tables
+	 * Unlocks all locked tables
 	 *
 	 * @return boolean was the unlock successful?
 	 * @throws \Exception
@@ -1035,7 +1036,7 @@ class Database
 	}
 
 	/**
-	 * @brief Starts a transaction
+	 * Starts a transaction
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
@@ -1081,7 +1082,7 @@ class Database
 	}
 
 	/**
-	 * @brief Does a commit
+	 * Does a commit
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
@@ -1095,7 +1096,7 @@ class Database
 	}
 
 	/**
-	 * @brief Does a rollback
+	 * Does a rollback
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */
@@ -1121,7 +1122,7 @@ class Database
 	}
 
 	/**
-	 * @brief Build the array with the table relations
+	 * Build the array with the table relations
 	 *
 	 * The array is build from the database definitions in DBStructure.php
 	 *
@@ -1143,7 +1144,7 @@ class Database
 	}
 
 	/**
-	 * @brief Delete a row from a table
+	 * Delete a row from a table
 	 *
 	 * Note: this methods does NOT accept schema => table arrays because of the complex relation stuff.
 	 *
@@ -1292,7 +1293,7 @@ class Database
 	}
 
 	/**
-	 * @brief Updates rows
+	 * Updates rows
 	 *
 	 * Updates rows in the database. When $old_fields is set to an array,
 	 * the system will only do an update if the fields in that array changed.
@@ -1374,8 +1375,6 @@ class Database
 	/**
 	 * Retrieve a single record from a table and returns it in an associative array
 	 *
-	 * @brief Retrieve a single record from a table
-	 *
 	 * @param string|array $table
 	 * @param array        $fields
 	 * @param array        $condition
@@ -1400,7 +1399,7 @@ class Database
 	}
 
 	/**
-	 * @brief Select rows from a table and fills an array with the data
+	 * Select rows from a table and fills an array with the data
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields    Array of selected fields, empty for all
@@ -1417,7 +1416,7 @@ class Database
 	}
 
 	/**
-	 * @brief Select rows from a table
+	 * Select rows from a table
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $fields    Array of selected fields, empty for all
@@ -1465,7 +1464,7 @@ class Database
 	}
 
 	/**
-	 * @brief Counts the rows from a table satisfying the provided condition
+	 * Counts the rows from a table satisfying the provided condition
 	 *
 	 * @param string|array $table     Table name or array [schema => table]
 	 * @param array        $condition Array of fields for condition
@@ -1509,7 +1508,7 @@ class Database
 	}
 
 	/**
-	 * @brief Fills an array with data from a query
+	 * Fills an array with data from a query
 	 *
 	 * @param object $stmt statement object
 	 * @param bool   $do_close
@@ -1535,7 +1534,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the error number of the last query
+	 * Returns the error number of the last query
 	 *
 	 * @return string Error number (0 if no error)
 	 */
@@ -1545,7 +1544,7 @@ class Database
 	}
 
 	/**
-	 * @brief Returns the error message of the last query
+	 * Returns the error message of the last query
 	 *
 	 * @return string Error message ('' if no error)
 	 */
@@ -1555,7 +1554,7 @@ class Database
 	}
 
 	/**
-	 * @brief Closes the current statement
+	 * Closes the current statement
 	 *
 	 * @param object $stmt statement object
 	 *
@@ -1596,7 +1595,7 @@ class Database
 	}
 
 	/**
-	 * @brief Return a list of database processes
+	 * Return a list of database processes
 	 *
 	 * @return array
 	 *      'list' => List of processes, separated in their different states
@@ -1652,7 +1651,7 @@ class Database
 	}
 
 	/**
-	 * @brief Callback function for "esc_array"
+	 * Callback function for "esc_array"
 	 *
 	 * @param mixed   $value         Array value
 	 * @param string  $key           Array key
@@ -1681,7 +1680,7 @@ class Database
 	}
 
 	/**
-	 * @brief Escapes a whole array
+	 * Escapes a whole array
 	 *
 	 * @param mixed   $arr           Array with values to be escaped
 	 * @param boolean $add_quotation add quotation marks for string values

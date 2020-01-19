@@ -245,7 +245,6 @@ class Search
 	/**
 	 * Searching for global contacts for autocompletion
 	 *
-	 * @brief Searching for global contacts for autocompletion
 	 * @param string $search Name or part of a name or nick
 	 * @param string $mode   Search mode (e.g. "community")
 	 * @param int    $page   Page number (starts at 1)

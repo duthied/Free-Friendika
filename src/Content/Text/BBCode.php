@@ -35,7 +35,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	/**
-	 * @brief Fetches attachment data that were generated the old way
+	 * Fetches attachment data that were generated the old way
 	 *
 	 * @param string $body Message body
 	 * @return array
@@ -106,7 +106,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Fetches attachment data that were generated with the "attachment" element
+	 * Fetches attachment data that were generated with the "attachment" element
 	 *
 	 * @param string $body Message body
 	 * @return array
@@ -411,7 +411,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts a BBCode text into plaintext
+	 * Converts a BBCode text into plaintext
 	 *
 	 * @param      $text
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
@@ -486,10 +486,11 @@ class BBCode
 	}
 
 	/**
+	 * Truncates imported message body string length to max_import_size
+	 *
 	 * The purpose of this function is to apply system message length limits to
 	 * imported messages without including any embedded photos in the length
 	 *
-	 * @brief Truncates imported message body string length to max_import_size
 	 * @param string $body
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -578,7 +579,6 @@ class BBCode
 	 *
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
-	 * @brief Processes [attachment] tags
 	 * @param string   $text
 	 * @param bool|int $simplehtml
 	 * @param bool     $tryoembed
@@ -691,7 +691,6 @@ class BBCode
 	/**
 	 * Converts [url] BBCodes in a format that looks fine on Mastodon. (callback function)
 	 *
-	 * @brief Converts [url] BBCodes in a format that looks fine on Mastodon. (callback function)
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
@@ -712,7 +711,8 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts [url] BBCodes in a format that looks fine on ActivityPub systems.
+	 * Converts [url] BBCodes in a format that looks fine on ActivityPub systems.
+	 *
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
@@ -724,6 +724,7 @@ class BBCode
 
 	/**
 	 * Converts an URL in a nicer format (without the scheme and possibly shortened)
+	 *
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link
 	 */
@@ -1206,7 +1207,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts a BBCode message to HTML message
+	 * Converts a BBCode message to HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
 	 * extended to work with Mistpark/Friendica - Mike Macgirvin
@@ -1906,7 +1907,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Strips the "abstract" tag from the provided text
+	 * Strips the "abstract" tag from the provided text
 	 *
 	 * @param string $text The text with BBCode
 	 * @return string The same text - but without "abstract" element
@@ -1920,7 +1921,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Returns the value of the "abstract" element
+	 * Returns the value of the "abstract" element
 	 *
 	 * @param string $text The text that maybe contains the element
 	 * @param string $addon The addon for which the abstract is meant for
@@ -1950,7 +1951,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
+	 * Callback function to replace a Friendica style mention in a mention for Diaspora
 	 *
 	 * @param array $match Matching values for the callback
 	 *                     [1] = Mention type (! or @)
@@ -1977,7 +1978,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts a BBCode text into Markdown
+	 * Converts a BBCode text into Markdown
 	 *
 	 * This function converts a BBCode item body to be sent to Markdown-enabled
 	 * systems like Diaspora and Libertree
@@ -2064,76 +2065,79 @@ class BBCode
 	}
 
 	/**
-     * @brief Pull out all #hashtags and @person tags from $string.
-     *
-     * We also get @person@domain.com - which would make
-     * the regex quite complicated as tags can also
-     * end a sentence. So we'll run through our results
-     * and strip the period from any tags which end with one.
-     * Returns array of tags found, or empty array.
-     *
-     * @param string $string Post content
-     * 
-     * @return array List of tag and person names
-     */
-    public static function getTags($string)
-    {
-        $ret = [];
+	 * Pull out all #hashtags and @person tags from $string.
+	 *
+	 * We also get @person@domain.com - which would make
+	 * the regex quite complicated as tags can also
+	 * end a sentence. So we'll run through our results
+	 * and strip the period from any tags which end with one.
+	 * Returns array of tags found, or empty array.
+	 *
+	 * @param string $string Post content
+	 *
+	 * @return array List of tag and person names
+	 */
+	public static function getTags($string)
+	{
+		$ret = [];
 
-        // Convert hashtag links to hashtags
-        $string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
+		// Convert hashtag links to hashtags
+		$string = preg_replace('/#\[url\=([^\[\]]*)\](.*?)\[\/url\]/ism', '#$2', $string);
 
-        // ignore anything in a code block
-        $string = preg_replace('/\[code.*?\].*?\[\/code\]/sm', '', $string);
+		// ignore anything in a code block
+		$string = preg_replace('/\[code.*?\].*?\[\/code\]/sm', '', $string);
 
-        // Force line feeds at bbtags
-        $string = str_replace(['[', ']'], ["\n[", "]\n"], $string);
+		// Force line feeds at bbtags
+		$string = str_replace(['[', ']'], ["\n[", "]\n"], $string);
 
-        // ignore anything in a bbtag
-        $string = preg_replace('/\[(.*?)\]/sm', '', $string);
+		// ignore anything in a bbtag
+		$string = preg_replace('/\[(.*?)\]/sm', '', $string);
 
-        // Match full names against @tags including the space between first and last
-        // We will look these up afterward to see if they are full names or not recognisable.
+		// Match full names against @tags including the space between first and last
+		// We will look these up afterward to see if they are full names or not recognisable.
 
-        if (preg_match_all('/(@[^ \x0D\x0A,:?]+ [^ \x0D\x0A@,:?]+)([ \x0D\x0A@,:?]|$)/', $string, $matches)) {
-            foreach ($matches[1] as $match) {
-                if (strstr($match, ']')) {
-                    // we might be inside a bbcode color tag - leave it alone
-                    continue;
-                }
+		if (preg_match_all('/(@[^ \x0D\x0A,:?]+ [^ \x0D\x0A@,:?]+)([ \x0D\x0A@,:?]|$)/', $string, $matches)) {
+			foreach ($matches[1] as $match) {
+				if (strstr($match, ']')) {
+					// we might be inside a bbcode color tag - leave it alone
+					continue;
+				}
 
-                if (substr($match, -1, 1) === '.') {
-                    $ret[] = substr($match, 0, -1);
-                } else {
-                    $ret[] = $match;
-                }
-            }
-        }
+				if (substr($match, -1, 1) === '.') {
+					$ret[] = substr($match, 0, -1);
+				} else {
+					$ret[] = $match;
+				}
+			}
+		}
 
-        // Otherwise pull out single word tags. These can be @nickname, @first_last
-        // and #hash tags.
+		// Otherwise pull out single word tags. These can be @nickname, @first_last
+		// and #hash tags.
 
-        if (preg_match_all('/([!#@][^\^ \x0D\x0A,;:?]+)([ \x0D\x0A,;:?]|$)/', $string, $matches)) {
-            foreach ($matches[1] as $match) {
-                if (strstr($match, ']')) {
-                    // we might be inside a bbcode color tag - leave it alone
-                    continue;
-                }
-                if (substr($match, -1, 1) === '.') {
-                    $match = substr($match,0,-1);
-                }
-                // ignore strictly numeric tags like #1
-                if ((strpos($match, '#') === 0) && ctype_digit(substr($match, 1))) {
-                    continue;
-                }
-                // try not to catch url fragments
-                if (strpos($string, $match) && preg_match('/[a-zA-z0-9\/]/', substr($string, strpos($string, $match) - 1, 1))) {
-                    continue;
-                }
-                $ret[] = $match;
-            }
-        }
+		if (preg_match_all('/([!#@][^\^ \x0D\x0A,;:?]+)([ \x0D\x0A,;:?]|$)/', $string, $matches)) {
+			foreach ($matches[1] as $match) {
+				if (strstr($match, ']')) {
+					// we might be inside a bbcode color tag - leave it alone
+					continue;
+				}
 
-        return $ret;
-    }
+				if (substr($match, -1, 1) === '.') {
+					$match = substr($match,0,-1);
+				}
+
+				// ignore strictly numeric tags like #1
+				if ((strpos($match, '#') === 0) && ctype_digit(substr($match, 1))) {
+					continue;
+				}
+
+				// try not to catch url fragments
+				if (strpos($string, $match) && preg_match('/[a-zA-z0-9\/]/', substr($string, strpos($string, $match) - 1, 1))) {
+					continue;
+				}
+				$ret[] = $match;
+			}
+		}
+
+		return $ret;
+	}
 }

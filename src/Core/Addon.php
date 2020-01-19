@@ -83,7 +83,7 @@ class Addon
 
 
 	/**
-	 * @brief Synchronize addons:
+	 * Synchronize addons:
 	 *
 	 * system.addon contains a comma-separated list of names
 	 * of addons which are used on this system.
@@ -130,7 +130,7 @@ class Addon
 	}
 
 	/**
-	 * @brief uninstalls an addon.
+	 * uninstalls an addon.
 	 *
 	 * @param string $addon name of the addon
 	 * @return void
@@ -157,7 +157,7 @@ class Addon
 	}
 
 	/**
-	 * @brief installs an addon.
+	 * installs an addon.
 	 *
 	 * @param string $addon name of the addon
 	 * @return bool
@@ -249,7 +249,7 @@ class Addon
 	}
 
 	/**
-	 * @brief Parse addon comment in search of addon infos.
+	 * Parse addon comment in search of addon infos.
 	 *
 	 * like
 	 * \code

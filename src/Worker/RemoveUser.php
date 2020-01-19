@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/RemoveUser.php
- * @brief Removes orphaned data from deleted users
+ * Removes orphaned data from deleted users
  */
 namespace Friendica\Worker;
 

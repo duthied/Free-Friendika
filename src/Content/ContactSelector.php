@@ -12,7 +12,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
- * @brief ContactSelector class
+ * ContactSelector class
  */
 class ContactSelector
 {

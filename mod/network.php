@@ -200,7 +200,7 @@ function network_query_get_sel_group(App $a)
 }
 
 /**
- * @brief Sets the pager data and returns SQL
+ * Sets the pager data and returns SQL
  *
  * @param App     $a      The global App
  * @param Pager   $pager
@@ -237,7 +237,7 @@ function networkPager(App $a, Pager $pager, $update)
 }
 
 /**
- * @brief Sets items as seen
+ * Sets items as seen
  *
  * @param array $condition The array with the SQL condition
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -256,7 +256,7 @@ function networkSetSeen($condition)
 }
 
 /**
- * @brief Create the conversation HTML
+ * Create the conversation HTML
  *
  * @param App     $a      The global App
  * @param array   $items  Items of the conversation
@@ -315,7 +315,7 @@ function network_content(App $a, $update = 0, $parent = 0)
 }
 
 /**
- * @brief Get the network content in flat view
+ * Get the network content in flat view
  *
  * @param App     $a      The global App
  * @param integer $update Used for the automatic reloading
@@ -401,7 +401,7 @@ function networkFlatView(App $a, $update = 0)
 }
 
 /**
- * @brief Get the network content in threaded view
+ * Get the network content in threaded view
  *
  * @param  App     $a      The global App
  * @param  integer $update Used for the automatic reloading
@@ -871,7 +871,7 @@ function networkThreadedView(App $a, $update, $parent)
 }
 
 /**
- * @brief Get the network tabs menu
+ * Get the network tabs menu
  *
  * @param App $a The global App
  * @return string Html of the networktab

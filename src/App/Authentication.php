@@ -76,7 +76,7 @@ class Authentication
 	}
 
 	/**
-	 * @brief Tries to auth the user from the cookie or session
+	 * Tries to auth the user from the cookie or session
 	 *
 	 * @param App   $a      The Friendica Application context
 	 *
@@ -283,7 +283,7 @@ class Authentication
 	}
 
 	/**
-	 * @brief Sets the provided user's authenticated session
+	 * Sets the provided user's authenticated session
 	 *
 	 * @param App   $a           The Friendica application context
 	 * @param array $user_record The current "user" record

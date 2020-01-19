@@ -37,7 +37,7 @@ class PortableContact
 	const USERS_GCONTACTS_FALLBACK = 3;
 
 	/**
-	 * @brief Fetch POCO data
+	 * Fetch POCO data
 	 *
 	 * @param integer $cid  Contact ID
 	 * @param integer $uid  User ID
@@ -61,7 +61,7 @@ class PortableContact
 	}
 
 	/**
-	 * @brief Fetch POCO data from the worker
+	 * Fetch POCO data from the worker
 	 *
 	 * @param integer $cid  Contact ID
 	 * @param integer $uid  User ID
@@ -215,7 +215,7 @@ class PortableContact
 	}
 
 	/**
-	 * @brief Returns a list of all known servers
+	 * Returns a list of all known servers
 	 * @return array List of server urls
 	 * @throws Exception
 	 */
@@ -239,7 +239,7 @@ class PortableContact
 	}
 
 	/**
-	 * @brief Fetch server list from remote servers and adds them when they are new.
+	 * Fetch server list from remote servers and adds them when they are new.
 	 *
 	 * @param string $poco URL to the POCO endpoint
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

@@ -1,6 +1,6 @@
 
 /**
- * @brief Javascript for the notifications module
+ * Javascript for the notifications module
  */
 
 // Catch the intro ID from the URL

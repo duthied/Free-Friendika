@@ -137,11 +137,12 @@ class HTML
 	}
 
 	/**
+	 * Converter for HTML to BBCode
+	 *
 	 * Made by: ike@piratenpartei.de
 	 * Originally made for the syncom project: http://wiki.piratenpartei.de/Syncom
 	 *                    https://github.com/annando/Syncom
 	 *
-	 * @brief Converter for HTML to BBCode
 	 * @param string $message
 	 * @param string $basepath
 	 * @return string
@@ -411,7 +412,7 @@ class HTML
 	}
 
 	/**
-	 * @brief Sub function to complete incomplete URL
+	 * Sub function to complete incomplete URL
 	 *
 	 * @param array  $matches  Result of preg_replace_callback
 	 * @param string $basepath Basepath that is used to complete the URL
@@ -438,7 +439,7 @@ class HTML
 	}
 
 	/**
-	 * @brief Complete incomplete URLs in BBCode
+	 * Complete incomplete URLs in BBCode
 	 *
 	 * @param string $body     Body with URLs
 	 * @param string $basepath Base path that is used to complete the URL
@@ -710,7 +711,7 @@ class HTML
 	}
 
 	/**
-	 * @brief Convert video HTML to BBCode tags
+	 * Convert video HTML to BBCode tags
 	 *
 	 * @param string $s
 	 * @return string
@@ -820,7 +821,7 @@ class HTML
 	}
 
 	/**
-	 * @brief Format contacts as picture links or as text links
+	 * Format contacts as picture links or as text links
 	 *
 	 * @param array   $contact  Array with contacts which contains an array with
 	 *                          int 'id' => The ID of the contact

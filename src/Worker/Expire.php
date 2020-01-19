@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/Expire.php
- * @brief Expires old item entries
+ * Expires old item entries
  */
 
 namespace Friendica\Worker;

@@ -137,7 +137,8 @@ class Cron
 	}
 
 	/**
-	 * @brief Update public contacts
+	 * Update public contacts
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function updatePublicContacts() {
@@ -163,7 +164,7 @@ class Cron
 	}
 
 	/**
-	 * @brief Poll contacts for unreceived messages
+	 * Poll contacts for unreceived messages
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */

@@ -12,7 +12,7 @@ use Friendica\Util\DateTimeFormat;
 class PushSubscriber
 {
 	/**
-	 * @brief Send subscription notifications for the given user
+	 * Send subscription notifications for the given user
 	 *
 	 * @param integer $uid User ID
 	 * @param int     $default_priority
@@ -27,7 +27,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief start workers to transmit the feed data
+	 * start workers to transmit the feed data
 	 *
 	 * @param int $default_priority
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -54,7 +54,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief Renew the feed subscription
+	 * Renew the feed subscription
 	 *
 	 * @param integer $uid          User ID
 	 * @param string  $nick         Priority for push workers
@@ -98,7 +98,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief Delay the push subscriber
+	 * Delay the push subscriber
 	 *
 	 * @param integer $id Subscriber ID
 	 * @throws \Exception
@@ -136,7 +136,7 @@ class PushSubscriber
 	}
 
 	/**
-	 * @brief Reset the push subscriber
+	 * Reset the push subscriber
 	 *
 	 * @param integer $id          Subscriber ID
 	 * @param string  $last_update Date of last transmitted item

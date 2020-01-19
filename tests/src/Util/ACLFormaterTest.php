@@ -8,7 +8,7 @@ use Friendica\Util\ACLFormatter;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @brief ACLFormater utility testing class
+ * ACLFormater utility testing class
  */
 class ACLFormaterTest extends TestCase
 {

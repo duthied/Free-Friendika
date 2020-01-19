@@ -11,17 +11,18 @@ use Friendica\Util\XML;
 /**
  * @file include/Core/System.php
  *
- * @brief Contains the class with system relevant stuff
+ * Contains the class with system relevant stuff
  */
 
 
 /**
- * @brief System methods
+ * System methods
  */
 class System
 {
 	/**
-	 * @brief Returns a string with a callstack. Can be used for logging.
+	 * Returns a string with a callstack. Can be used for logging.
+	 *
 	 * @param integer $depth optional, default 4
 	 * @return string
 	 */
@@ -93,7 +94,7 @@ class System
 	}
 
 	/**
-	 * @brief Send HTTP status header and exit.
+	 * Send HTTP status header and exit.
 	 *
 	 * @param integer $val     HTTP status result value
 	 * @param string  $message Error message. Optional.
@@ -117,7 +118,7 @@ class System
 	}
 
 	/**
-	 * @brief Encodes content to json.
+	 * Encodes content to json.
 	 *
 	 * This function encodes an array to json format
 	 * and adds an application/json HTTP header to the output.
@@ -227,7 +228,7 @@ class System
 	}
 
 	/**
-	 * @brief Returns the system user that is executing the script
+	 * Returns the system user that is executing the script
 	 *
 	 * This mostly returns something like "www-data".
 	 *
@@ -244,7 +245,7 @@ class System
 	}
 
 	/**
-	 * @brief Checks if a given directory is usable for the system
+	 * Checks if a given directory is usable for the system
 	 *
 	 * @param      $directory
 	 * @param bool $check_writable

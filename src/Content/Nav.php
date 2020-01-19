@@ -119,7 +119,6 @@ class Nav
 	/**
 	 * Prepares a list of navigation links
 	 *
-	 * @brief Prepares a list of navigation links
 	 * @param  App   $a
 	 * @return array Navigation links
 	 *    string 'sitelocation' => The webbie (username@site.com)

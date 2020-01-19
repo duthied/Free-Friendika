@@ -19,7 +19,7 @@ use Friendica\Model\Profile;
 class Logout extends BaseModule
 {
 	/**
-	 * @brief Process logout requests
+	 * Process logout requests
 	 */
 	public static function init(array $parameters = [])
 	{

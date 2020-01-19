@@ -8,7 +8,7 @@ use Friendica\Model\Contact;
 use RuntimeException;
 
 /**
- * @brief tool to silence accounts on the global community page
+ * tool to silence accounts on the global community page
  *
  * With this tool, you can silence an account on the global community page.
  * Postings from silenced accounts will not be displayed on the community

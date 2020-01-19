@@ -1,7 +1,7 @@
 <?php
 /**
  * @file mod/notifications.php
- * @brief The notifications module
+ * The notifications module
  */
 
 use Friendica\App;

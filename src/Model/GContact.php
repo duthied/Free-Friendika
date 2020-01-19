@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Model/GlobalContact.php
- * @brief This file includes the GlobalContact class with directory related functions
+ * This file includes the GlobalContact class with directory related functions
  */
 namespace Friendica\Model;
 
@@ -23,12 +23,12 @@ use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
- * @brief This class handles GlobalContact related functions
+ * This class handles GlobalContact related functions
  */
 class GContact
 {
 	/**
-	 * @brief Search global contact table by nick or name
+	 * Search global contact table by nick or name
 	 *
 	 * @param string $search Name or nick
 	 * @param string $mode   Search mode (e.g. "community")
@@ -88,7 +88,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Link the gcontact entry with user, contact and global contact
+	 * Link the gcontact entry with user, contact and global contact
 	 *
 	 * @param integer $gcid Global contact ID
 	 * @param integer $uid  User ID
@@ -108,7 +108,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Sanitize the given gcontact data
+	 * Sanitize the given gcontact data
 	 *
 	 * Generation:
 	 *  0: No definition
@@ -537,7 +537,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Removes unwanted parts from a contact url
+	 * Removes unwanted parts from a contact url
 	 *
 	 * @param string $url Contact url
 	 *
@@ -570,7 +570,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Fetch the gcontact id, add an entry if not existed
+	 * Fetch the gcontact id, add an entry if not existed
 	 *
 	 * @param array $contact contact array
 	 *
@@ -635,7 +635,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Updates the gcontact table from a given array
+	 * Updates the gcontact table from a given array
 	 *
 	 * @param array $contact contact array
 	 *
@@ -947,7 +947,7 @@ class GContact
 		DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 	}
 	/**
-	 * @brief Updates the gcontact entry from a given public contact id
+	 * Updates the gcontact entry from a given public contact id
 	 *
 	 * @param integer $cid contact id
 	 * @return void
@@ -960,7 +960,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Updates the gcontact entry from a given public contact url
+	 * Updates the gcontact entry from a given public contact url
 	 *
 	 * @param string $url contact url
 	 * @return integer gcontact id
@@ -973,7 +973,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Helper function for updateFromPublicContactID and updateFromPublicContactURL
+	 * Helper function for updateFromPublicContactID and updateFromPublicContactURL
 	 *
 	 * @param array $condition contact condition
 	 * @return integer gcontact id
@@ -1058,7 +1058,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Updates the gcontact entry from probe
+	 * Updates the gcontact entry from probe
 	 *
 	 * @param string  $url   profile link
 	 * @param boolean $force Optional forcing of network probing (otherwise we use the cached data)
@@ -1090,7 +1090,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Update the gcontact entry for a given user id
+	 * Update the gcontact entry for a given user id
 	 *
 	 * @param int $uid User ID
 	 * @return bool
@@ -1130,7 +1130,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Get the basepath for a given contact link
+	 * Get the basepath for a given contact link
 	 *
 	 * @param string $url The gcontact link
 	 * @param boolean $dont_update Don't update the contact
@@ -1162,7 +1162,7 @@ class GContact
 	}
 
 	/**
-	 * @brief Fetches users of given GNU Social server
+	 * Fetches users of given GNU Social server
 	 *
 	 * If the "Statistics" addon is enabled (See http://gstools.org/ for details) we query user data with this.
 	 *
@@ -1227,7 +1227,8 @@ class GContact
 	}
 
 	/**
-	 * @brief Asking GNU Social server on a regular base for their user data
+	 * Asking GNU Social server on a regular base for their user data
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException

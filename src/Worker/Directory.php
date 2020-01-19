@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/Directory.php
- * @brief Sends updated profile data to the directory
+ * Sends updated profile data to the directory
  */
 
 namespace Friendica\Worker;

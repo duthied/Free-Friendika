@@ -11,7 +11,7 @@ use Friendica\Database\DBA;
 class ItemURI
 {
 	/**
-	 * @brief Insert an item-uri record and return its id
+	 * Insert an item-uri record and return its id
 	 *
 	 * @param array $fields Item-uri fields
 	 *
@@ -38,7 +38,7 @@ class ItemURI
 	}
 
 	/**
-	 * @brief Searched for an id of a given uri. Adds it, if not existing yet.
+	 * Searched for an id of a given uri. Adds it, if not existing yet.
 	 *
 	 * @param string $uri
 	 *

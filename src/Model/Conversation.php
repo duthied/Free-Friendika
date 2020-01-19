@@ -31,7 +31,7 @@ class Conversation
 	}
 
 	/**
-	 * @brief Store the conversation data
+	 * Store the conversation data
 	 *
 	 * @param array $arr Item array with conversation data
 	 * @return array Item array with removed conversation data

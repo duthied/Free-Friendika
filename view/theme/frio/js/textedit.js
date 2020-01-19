@@ -1,5 +1,5 @@
 /*
- * @brief The file contains functions for text editing and commenting
+ * The file contains functions for text editing and commenting
  */
 
 // Lifted from https://css-tricks.com/snippets/jquery/move-cursor-to-end-of-textarea-or-input/

@@ -21,7 +21,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 use Friendica\Util\XML;
 
 /**
- * @brief Outputs the counts and the lists of various notifications
+ * Outputs the counts and the lists of various notifications
  *
  * The output format can be controlled via the GET parameter 'format'. It can be
  * - xml (deprecated legacy default)
@@ -382,7 +382,7 @@ function ping_init(App $a)
 }
 
 /**
- * @brief Retrieves the notifications array for the given user ID
+ * Retrieves the notifications array for the given user ID
  *
  * @param int $uid User id
  * @return array Associative array of notifications
@@ -465,7 +465,7 @@ function ping_get_notifications($uid)
 }
 
 /**
- * @brief Backward-compatible XML formatting for ping.php output
+ * Backward-compatible XML formatting for ping.php output
  * @deprecated
  *
  * @param array $data            The initial ping data array

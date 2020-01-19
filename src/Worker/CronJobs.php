@@ -89,7 +89,7 @@ class CronJobs
 	}
 
 	/**
-	 * @brief Update the cached values for the number of photo albums per user
+	 * Update the cached values for the number of photo albums per user
 	 */
 	private static function updatePhotoAlbums()
 	{
@@ -104,7 +104,7 @@ class CronJobs
 	}
 
 	/**
-	 * @brief Expire and remove user entries
+	 * Expire and remove user entries
 	 */
 	private static function expireAndRemoveUsers()
 	{
@@ -132,7 +132,7 @@ class CronJobs
 	}
 
 	/**
-	 * @brief Clear cache entries
+	 * Clear cache entries
 	 *
 	 * @param App $a
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -230,7 +230,7 @@ class CronJobs
 	}
 
 	/**
-	 * @brief Repair missing values in Diaspora contacts
+	 * Repair missing values in Diaspora contacts
 	 *
 	 * @param App $a
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -270,7 +270,7 @@ class CronJobs
 	}
 
 	/**
-	 * @brief Do some repairs in database entries
+	 * Do some repairs in database entries
 	 *
 	 */
 	private static function repairDatabase()

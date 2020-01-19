@@ -6,12 +6,12 @@
 namespace Friendica\Util;
 
 /**
- * @brief Array utility class
+ * Array utility class
  */
 class Arrays
 {
 	/**
-	 * @brief Private constructor
+	 * Private constructor
 	 */
 	private function __construct () {
 		// Utitlities don't have instances

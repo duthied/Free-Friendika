@@ -6,7 +6,7 @@ use Friendica\Core\Config;
 use Friendica\DI;
 
 /**
- * @brief Proxy utilities class
+ * Proxy utilities class
  */
 class Proxy
 {
@@ -39,14 +39,14 @@ class Proxy
 	];
 
 	/**
-	 * @brief Private constructor
+	 * Private constructor
 	 */
 	private function __construct () {
 		// No instances from utilities classes
 	}
 
 	/**
-	 * @brief Transform a remote URL into a local one.
+	 * Transform a remote URL into a local one.
 	 *
 	 * This function only performs the URL replacement on http URL and if the
 	 * provided URL isn't local, "the isn't deactivated" (sic) and if the config
@@ -128,7 +128,7 @@ class Proxy
 	}
 
 	/**
-	 * @brief "Proxifies" HTML code's image tags
+	 * "Proxifies" HTML code's image tags
 	 *
 	 * "Proxifies", means replaces image URLs in given HTML code with those from
 	 * proxy storage directory.
@@ -146,7 +146,7 @@ class Proxy
 	}
 
 	/**
-	 * @brief Checks if the URL is a local URL.
+	 * Checks if the URL is a local URL.
 	 *
 	 * @param string $url
 	 * @return boolean
@@ -170,7 +170,7 @@ class Proxy
 	}
 
 	/**
-	 * @brief Return the array of query string parameters from a URL
+	 * Return the array of query string parameters from a URL
 	 *
 	 * @param string $url URL to parse
 	 * @return array Associative array of query string parameters
@@ -186,7 +186,7 @@ class Proxy
 	}
 
 	/**
-	 * @brief Call-back method to replace the UR
+	 * Call-back method to replace the UR
 	 *
 	 * @param array $matches Matches from preg_replace_callback()
 	 * @return string Proxified HTML image tag

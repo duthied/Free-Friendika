@@ -1,6 +1,6 @@
 /**
  * @file view/theme/frio/js/mod_events.js
- * @brief Initialization of the fullCalendar and format the output.
+ * Initialization of the fullCalendar and format the output.
  */
 
 $(document).ready(function() {

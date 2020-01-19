@@ -1,9 +1,10 @@
 <?php
 /**
  * @file mod/cal.php
- * @brief The calendar module
- * 	This calendar is for profile visitors and contains only the events
- * 	of the profile owner
+ * The calendar module
+ *
+ * This calendar is for profile visitors and contains only the events
+ * of the profile owner
  */
 
 use Friendica\App;

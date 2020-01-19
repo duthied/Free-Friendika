@@ -8,7 +8,7 @@ use Friendica\Core\Config\IConfiguration;
 use RuntimeException;
 
 /**
- * @brief tool to access the system config from the CLI
+ * tool to access the system config from the CLI
  *
  * With this script you can access the system configuration of your node from
  * the CLI. You can do both, reading current values stored in the database and

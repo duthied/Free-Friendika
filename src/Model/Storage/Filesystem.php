@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Model/Storage/Filesystem.php
- * @brief Storage backend system
+ * Storage backend system
  */
 
 namespace Friendica\Model\Storage;
@@ -12,7 +12,7 @@ use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 
 /**
- * @brief Filesystem based storage backend
+ * Filesystem based storage backend
  *
  * This class manage data on filesystem.
  * Base folder for storage is set in storage.filesystem_path.
@@ -52,7 +52,7 @@ class Filesystem extends AbstractStorage
 	}
 
 	/**
-	 * @brief Split data ref and return file path
+	 * Split data ref and return file path
 	 *
 	 * @param string $reference Data reference
 	 *
@@ -69,7 +69,7 @@ class Filesystem extends AbstractStorage
 
 
 	/**
-	 * @brief Create dirctory tree to store file, with .htaccess and index.html files
+	 * Create dirctory tree to store file, with .htaccess and index.html files
 	 *
 	 * @param string $file Path and filename
 	 *

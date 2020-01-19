@@ -240,7 +240,7 @@ class Delivery
 	}
 
 	/**
-	 * @brief Deliver content via DFRN
+	 * Deliver content via DFRN
 	 *
 	 * @param string  $cmd            Command
 	 * @param array   $contact        Contact record of the receiver
@@ -389,7 +389,7 @@ class Delivery
 	}
 
 	/**
-	 * @brief Deliver content via Diaspora
+	 * Deliver content via Diaspora
 	 *
 	 * @param string  $cmd            Command
 	 * @param array   $contact        Contact record of the receiver
@@ -484,7 +484,7 @@ class Delivery
 	}
 
 	/**
-	 * @brief Deliver content via mail
+	 * Deliver content via mail
 	 *
 	 * @param string $cmd         Command
 	 * @param array  $contact     Contact record of the receiver

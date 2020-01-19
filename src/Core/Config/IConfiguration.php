@@ -9,7 +9,7 @@ interface IConfiguration
 {
 
 	/**
-	 * @brief Loads all configuration values of family into a cached storage.
+	 * Loads all configuration values of family into a cached storage.
 	 *
 	 * All configuration values of the system are stored in the cache ( @see ConfigCache )
 	 *
@@ -20,7 +20,7 @@ interface IConfiguration
 	function load(string $cat = 'config');
 
 	/**
-	 * @brief Get a particular user's config variable given the category name
+	 * Get a particular user's config variable given the category name
 	 * ($cat) and a $key.
 	 *
 	 * Get a particular config value from the given category ($cat)
@@ -37,7 +37,7 @@ interface IConfiguration
 	function get(string $cat, string $key, $default_value = null, bool $refresh = false);
 
 	/**
-	 * @brief Sets a configuration value for system config
+	 * Sets a configuration value for system config
 	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)
 	 *
@@ -52,7 +52,7 @@ interface IConfiguration
 	function set(string $cat, string $key, $value);
 
 	/**
-	 * @brief Deletes the given key from the system configuration.
+	 * Deletes the given key from the system configuration.
 	 *
 	 * Removes the configured value from the stored cache in $this->configCache
 	 * (@see ConfigCache) and removes it from the database (@see IConfigAdapter).

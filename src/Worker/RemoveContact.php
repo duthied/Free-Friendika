@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/RemoveContact.php
- * @brief Removes orphaned data from deleted contacts
+ * Removes orphaned data from deleted contacts
  */
 namespace Friendica\Worker;
 

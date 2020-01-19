@@ -837,7 +837,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
 }
 
 /**
- * @brief Add comments to top level entries that had been fetched before
+ * Add comments to top level entries that had been fetched before
  *
  * The system will fetch the comments for the local user whenever possible.
  * This behaviour is currently needed to allow commenting on Friendica posts.
@@ -987,7 +987,8 @@ function item_photo_menu($item) {
 }
 
 /**
- * @brief Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
+ * Checks item to see if it is one of the builtin activities (like/dislike, event attendance, consensus items, etc.)
+ *
  * Increments the count of each matching activity and adds a link to the author as needed.
  *
  * @param array  $item
@@ -1281,8 +1282,6 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 /**
  * Plucks the children of the given parent from a given item list.
  *
- * @brief Plucks all the children in the given item list of the given parent
- *
  * @param array $item_list
  * @param array $parent
  * @param bool  $recursive
@@ -1315,7 +1314,7 @@ function get_item_children(array &$item_list, array $parent, $recursive = true)
 }
 
 /**
- * @brief Recursively sorts a tree-like item array
+ * Recursively sorts a tree-like item array
  *
  * @param array $items
  * @return array
@@ -1333,7 +1332,7 @@ function sort_item_children(array $items)
 }
 
 /**
- * @brief Recursively add all children items at the top level of a list
+ * Recursively add all children items at the top level of a list
  *
  * @param array $children List of items to append
  * @param array $item_list
@@ -1349,6 +1348,8 @@ function add_children_to_list(array $children, array &$item_list)
 }
 
 /**
+ * Selectively flattens a tree-like item structure to prevent threading stairs
+ *
  * This recursive function takes the item tree structure created by conv_sort() and
  * flatten the extraneous depth levels when people reply sequentially, removing the
  * stairs effect in threaded conversations limiting the available content width.
@@ -1358,8 +1359,6 @@ function add_children_to_list(array $children, array &$item_list)
  *
  * This process is rendered somewhat more complicated because items can be either
  * replies or likes, and these don't factor at all in the reply count/last reply.
- *
- * @brief Selectively flattens a tree-like item structure to prevent threading stairs
  *
  * @param array $parent A tree-like array of items
  * @return array
@@ -1407,11 +1406,10 @@ function smart_flatten_conversation(array $parent)
 
 
 /**
- * Expands a flat list of items into corresponding tree-like conversation structures,
+ * Expands a flat list of items into corresponding tree-like conversation structures.
+ *
  * sort the top-level posts either on "received" or "commented", and finally
  * append all the items at the top level (???)
- *
- * @brief Expands a flat item list into a conversation array for display
  *
  * @param array  $item_list A list of items belonging to one or more conversations
  * @param string $order     Either on "received" or "commented"
@@ -1486,7 +1484,7 @@ function conv_sort(array $item_list, $order)
 }
 
 /**
- * @brief usort() callback to sort item arrays by pinned and the received key
+ * usort() callback to sort item arrays by pinned and the received key
  *
  * @param array $a
  * @param array $b
@@ -1504,7 +1502,7 @@ function sort_thr_pinned_received(array $a, array $b)
 }
 
 /**
- * @brief usort() callback to sort item arrays by the received key
+ * usort() callback to sort item arrays by the received key
  *
  * @param array $a
  * @param array $b
@@ -1516,7 +1514,7 @@ function sort_thr_received(array $a, array $b)
 }
 
 /**
- * @brief usort() callback to reverse sort item arrays by the received key
+ * usort() callback to reverse sort item arrays by the received key
  *
  * @param array $a
  * @param array $b
@@ -1528,7 +1526,7 @@ function sort_thr_received_rev(array $a, array $b)
 }
 
 /**
- * @brief usort() callback to sort item arrays by the commented key
+ * usort() callback to sort item arrays by the commented key
  *
  * @param array $a
  * @param array $b

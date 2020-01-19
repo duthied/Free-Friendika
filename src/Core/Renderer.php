@@ -11,22 +11,22 @@ use Friendica\Render\FriendicaSmarty;
 use Friendica\Render\ITemplateEngine;
 
 /**
- * @brief This class handles Renderer related functions.
+ * This class handles Renderer related functions.
  */
 class Renderer
 {
 	/**
-	 * @brief An array of registered template engines ('name'=>'class name')
+	 * An array of registered template engines ('name'=>'class name')
 	 */
 	public static $template_engines = [];
 
 	/**
-	 * @brief An array of instanced template engines ('name'=>'instance')
+	 * An array of instanced template engines ('name'=>'instance')
 	 */
 	public static $template_engine_instance = [];
 
 	/**
-	 * @brief An array for all theme-controllable parameters
+	 * An array for all theme-controllable parameters
 	 *
 	 * Mostly unimplemented yet. Only options 'template_engine' and
 	 * beyond are used.
@@ -50,7 +50,7 @@ class Renderer
 	];
 
 	/**
-	 * @brief This is our template processor
+	 * This is our template processor
 	 *
 	 * @param string|FriendicaSmarty $s    The string requiring macro substitution or an instance of FriendicaSmarty
 	 * @param array                  $vars Key value pairs (search => replace)
@@ -80,7 +80,7 @@ class Renderer
 	}
 
 	/**
-	 * @brief Load a given template $s
+	 * Load a given template $s
 	 *
 	 * @param string $s    Template to load.
 	 * @param string $root Optional.
@@ -107,7 +107,7 @@ class Renderer
 	}
 
 	/**
-	 * @brief Register template engine class
+	 * Register template engine class
 	 *
 	 * @param string $class
 	 */
@@ -126,7 +126,7 @@ class Renderer
 	}
 
 	/**
-	 * @brief Return template engine instance.
+	 * Return template engine instance.
 	 *
 	 * If $name is not defined, return engine defined by theme,
 	 * or default
@@ -153,7 +153,7 @@ class Renderer
 	}
 
 	/**
-	 * @brief Returns the active template engine.
+	 * Returns the active template engine.
 	 *
 	 * @return string the active template engine
 	 */

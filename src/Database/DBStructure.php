@@ -15,8 +15,6 @@ use Friendica\Util\DateTimeFormat;
 require_once __DIR__ . '/../../include/dba.php';
 
 /**
- * @brief This class contain functions for the database management
- *
  * This class contains functions that doesn't need to know if pdo, mysqli or whatever is used.
  */
 class DBStructure
@@ -35,7 +33,7 @@ class DBStructure
 	 */
 	private static $definition = [];
 
-	/*
+	/**
 	 * Converts all tables from MyISAM to InnoDB
 	 */
 	public static function convertToInnoDB()
@@ -63,7 +61,7 @@ class DBStructure
 	}
 
 	/**
-	 * @brief Print out database error messages
+	 * Print out database error messages
 	 *
 	 * @param string $message Message to be added to the error message
 	 *

@@ -2,7 +2,7 @@
 
 /**
  * @file mod/dfrn_request.php
- * @brief Module: dfrn_request
+ * Module: dfrn_request
  *
  * Purpose: Handles communication associated with the issuance of
  * friend requests.

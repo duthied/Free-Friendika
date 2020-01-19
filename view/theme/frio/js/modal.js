@@ -1,5 +1,5 @@
 /**
- * @brief Contains functions for bootstrap modal handling.
+ * Contains functions for bootstrap modal handling.
  */
 $(document).ready(function(){
 	// Clear bs modal on close.
@@ -175,7 +175,7 @@ Dialog._load = function(url) {
 };
 
 /**
- * @brief Add first element with the class "heading" as modal title
+ * Add first element with the class "heading" as modal title
  * 
  * Note: this should be really done in the template
  * and is the solution where we havent done it until this

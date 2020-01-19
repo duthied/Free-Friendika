@@ -57,7 +57,7 @@ class StaticDatabase extends Database
 	}
 
 	/**
-	 * @brief Does a commit
+	 * Does a commit
 	 *
 	 * @return boolean Was the command executed successfully?
 	 */

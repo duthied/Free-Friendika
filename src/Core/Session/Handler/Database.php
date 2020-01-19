@@ -58,7 +58,7 @@ final class Database implements SessionHandlerInterface
 	}
 
 	/**
-	 * @brief Standard PHP session write callback
+	 * Standard PHP session write callback
 	 *
 	 * This callback updates the DB-stored session data and/or the expiration depending
 	 * on the case. Uses the Session::expire global for existing session, 5 minutes

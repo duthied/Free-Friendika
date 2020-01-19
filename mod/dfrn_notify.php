@@ -2,7 +2,7 @@
 
 /**
  * @file mod/dfrn_notify.php
- * @brief The dfrn notify endpoint
+ * The dfrn notify endpoint
  * @see PDF with dfrn specs: https://github.com/friendica/friendica/blob/master/spec/dfrn2.pdf
  */
 

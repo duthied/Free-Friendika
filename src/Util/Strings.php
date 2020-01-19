@@ -10,12 +10,12 @@ use Friendica\Content\ContactSelector;
 use Friendica\Core\Logger;
 
 /**
- * @brief This class handles string functions
+ * This class handles string functions
  */
 class Strings
 {
 	/**
-	 * @brief Generates a pseudo-random string of hexadecimal characters
+	 * Generates a pseudo-random string of hexadecimal characters
 	 *
 	 * @param int $size
 	 * @return string
@@ -45,7 +45,7 @@ class Strings
 	}
 
 	/**
-	 * @brief This is our primary input filter.
+	 * This is our primary input filter.
 	 *
 	 * Use this on any text input where angle chars are not valid or permitted
 	 * They will be replaced with safer brackets. This may be filtered further
@@ -60,7 +60,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Use this on "body" or "content" input where angle chars shouldn't be removed,
+	 * Use this on "body" or "content" input where angle chars shouldn't be removed,
 	 * and allow them to be safely displayed.
 	 * @param string $string
 	 *
@@ -72,7 +72,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Generate a string that's random, but usually pronounceable. Used to generate initial passwords
+	 * Generate a string that's random, but usually pronounceable. Used to generate initial passwords
 	 *
 	 * @param int $len	length
 	 *
@@ -179,7 +179,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Remove indentation from a text
+	 * Remove indentation from a text
 	 *
 	 * @param string $text	String to be transformed.
 	 * @param string $chr	Optional. Indentation tag. Default tab (\t).
@@ -209,7 +209,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Get byte size returned in a Data Measurement (KB, MB, GB)
+	 * Get byte size returned in a Data Measurement (KB, MB, GB)
 	 *
 	 * @param int $bytes	The number of bytes to be measured
 	 * @param int $precision	Optional. Default 2.
@@ -228,7 +228,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Protect percent characters in sprintf calls
+	 * Protect percent characters in sprintf calls
 	 *
 	 * @param string $s String to transform.
 	 *
@@ -240,7 +240,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Base64 Encode URL and translate +/ to -_ Optionally strip padding.
+	 * Base64 Encode URL and translate +/ to -_ Optionally strip padding.
 	 *
 	 * @param string $s					URL to encode
 	 * @param boolean $strip_padding	Optional. Default false
@@ -259,7 +259,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Decode Base64 Encoded URL and translate -_ to +/
+	 * Decode Base64 Encoded URL and translate -_ to +/
 	 * @param string $s URL to decode
 	 *
 	 * @return string	Decoded URL
@@ -292,7 +292,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Normalize url
+	 * Normalize url
 	 *
 	 * @param string $url	URL to be normalized.
 	 *
@@ -305,7 +305,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Normalize OpenID identity
+	 * Normalize OpenID identity
 	 *
 	 * @param string $s OpenID Identity
 	 *
@@ -317,7 +317,7 @@ class Strings
 	}
 
 	/**
-	 * @brief Compare two URLs to see if they are the same, but ignore
+	 * Compare two URLs to see if they are the same, but ignore
 	 * slight but hopefully insignificant differences such as if one
 	 * is https and the other isn't, or if one is www.something and
 	 * the other isn't - and also ignore case differences.

@@ -11,7 +11,7 @@ use Friendica\DI;
 use Friendica\Protocol\Email;
 
 /**
- * @brief class to handle emailing
+ * class to handle emailing
  */
 class Emailer
 {

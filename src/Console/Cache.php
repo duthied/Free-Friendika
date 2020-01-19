@@ -9,7 +9,7 @@ use Friendica\Core\Cache\ICache;
 use RuntimeException;
 
 /**
- * @brief tool to access the cache from the CLI
+ * tool to access the cache from the CLI
  *
  * With this script you can access the cache of your node from the CLI.
  * You can read current values stored in the cache and set new values

@@ -6,7 +6,7 @@ use Friendica\Core\Logger;
 use Friendica\Model\APContact;
 
 /**
- * @brief Implements JSON-LD signatures
+ * Implements JSON-LD signatures
  *
  * Ported from Osada: https://framagit.org/macgirvin/osada
  */

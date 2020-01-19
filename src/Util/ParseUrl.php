@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Util/ParseUrl.php
- * @brief Get informations about a given URL
+ * Get informations about a given URL
  */
 namespace Friendica\Util;
 
@@ -13,7 +13,7 @@ use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 
 /**
- * @brief Class with methods for extracting certain content from an url
+ * Class with methods for extracting certain content from an url
  */
 class ParseUrl
 {
@@ -28,7 +28,7 @@ class ParseUrl
 	const MIN_DESC_COUNT = 100;
 
 	/**
-	 * @brief Search for chached embeddable data of an url otherwise fetch it
+	 * Search for chached embeddable data of an url otherwise fetch it
 	 *
 	 * @param string $url         The url of the page which should be scraped
 	 * @param bool   $no_guessing If true the parse doens't search for
@@ -80,7 +80,7 @@ class ParseUrl
 	}
 
 	/**
-	 * @brief Parse a page for embeddable content information
+	 * Parse a page for embeddable content information
 	 *
 	 * This method parses to url for meta data which can be used to embed
 	 * the content. If available it prioritizes Open Graph meta tags.
@@ -376,7 +376,7 @@ class ParseUrl
 	}
 
 	/**
-	 * @brief Convert tags from CSV to an array
+	 * Convert tags from CSV to an array
 	 *
 	 * @param string $string Tags
 	 * @return array with formatted Hashtags
@@ -393,9 +393,9 @@ class ParseUrl
 	}
 
 	/**
-	 * @brief Add a hasht sign to a string
+	 * Add a hasht sign to a string
 	 *
-	 *  This method is used as callback function
+	 * This method is used as callback function
 	 *
 	 * @param string $tag The pure tag name
 	 * @param int    $k   Counter for internal use
@@ -407,7 +407,7 @@ class ParseUrl
 	}
 
 	/**
-	 * @brief Add a scheme to an url
+	 * Add a scheme to an url
 	 *
 	 * The src attribute of some html elements (e.g. images)
 	 * can miss the scheme so we need to add the correct

@@ -14,7 +14,7 @@ class Update
 	const FAILED  = 1;
 
 	/**
-	 * @brief Function to check if the Database structure needs an update.
+	 * Function to check if the Database structure needs an update.
 	 *
 	 * @param string   $basePath   The base path of this application
 	 * @param boolean  $via_worker Is the check run via the worker?

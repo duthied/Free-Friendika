@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/DBClean.php
- * @brief The script is called from time to time to clean the database entries and remove orphaned data.
+ * The script is called from time to time to clean the database entries and remove orphaned data.
  */
 
 namespace Friendica\Worker;
@@ -26,7 +26,7 @@ class DBClean {
 	}
 
 	/**
-	 * @brief Fork the different DBClean processes
+	 * Fork the different DBClean processes
 	 */
 	private static function forkCleanProcess() {
 		// Get the expire days for step 8 and 9
@@ -42,7 +42,8 @@ class DBClean {
 	}
 
 	/**
-	 * @brief Remove orphaned database entries
+	 * Remove orphaned database entries
+	 *
 	 * @param integer $stage What should be deleted?
 	 *
 	 * Values for $stage:
