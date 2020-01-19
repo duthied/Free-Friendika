@@ -1228,6 +1228,7 @@ class GContact
 
 	/**
 	 * Asking GNU Social server on a regular base for their user data
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException

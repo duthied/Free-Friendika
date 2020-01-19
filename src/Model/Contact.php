@@ -1949,7 +1949,7 @@ class Contact
 		return $data;
 	}
 
-    /**
+	/**
 	 * Helper function for "updateFromProbe". Updates personal and public contact
 	 *
 	 * @param integer $id      contact id
@@ -2008,7 +2008,7 @@ class Contact
 		DBA::update('contact', $fields, $condition);
 	}
 
-    /**
+	/**
 	 * Remove duplicated contacts
 	 *
 	 * @param string  $nurl  Normalised contact url
