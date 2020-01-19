@@ -390,6 +390,26 @@ class Processor
 	}
 
 	/**
+	 * Generate a GUID out of an URL
+	 *
+	 * @param string $url message URL
+	 * @return string with GUID
+	 */
+	private static function getGUIDByURL(string $url)
+	{
+		$parsed = parse_url($url);
+
+		$host_hash = hash('crc32', $parsed['host']);
+
+		unset($parsed["scheme"]);
+		unset($parsed["host"]);
+
+		$path = implode("/", $parsed);
+
+		return $host_hash . '-'. hash('fnv164', $path) . '-'. hash('joaat', $path);
+	}
+
+	/**
 	 * Creates an item post
 	 *
 	 * @param array $activity Activity data
@@ -431,7 +451,7 @@ class Processor
 
 		$item['created'] = DateTimeFormat::utc($activity['published']);
 		$item['edited'] = DateTimeFormat::utc($activity['updated']);
-		$item['guid'] = $activity['diaspora:guid'];
+		$item['guid'] = $activity['diaspora:guid'] ?: self::getGUIDByURL($item['uri']);
 
 		$item = self::processContent($activity, $item);
 		if (empty($item)) {
