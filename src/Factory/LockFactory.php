@@ -4,7 +4,7 @@ namespace Friendica\Factory;
 
 use Friendica\Core\Cache\IMemoryCache;
 use Friendica\Core\Cache\Type;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\Lock;
 use Friendica\Database\Database;
 use Psr\Log\LoggerInterface;
@@ -24,7 +24,7 @@ class LockFactory
 	const DEFAULT_DRIVER = 'default';
 
 	/**
-	 * @var IConfiguration The configuration to read parameters out of the config
+	 * @var IConfig The configuration to read parameters out of the config
 	 */
 	private $config;
 
@@ -43,7 +43,7 @@ class LockFactory
 	 */
 	private $logger;
 
-	public function __construct(CacheFactory $cacheFactory, IConfiguration $config, Database $dba, LoggerInterface $logger)
+	public function __construct(CacheFactory $cacheFactory, IConfig $config, Database $dba, LoggerInterface $logger)
 	{
 		$this->cacheFactory = $cacheFactory;
 		$this->config       = $config;

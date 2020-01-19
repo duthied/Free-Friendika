@@ -27,14 +27,14 @@ class ConfigFactory
 	 * @param Cache\ConfigCache $configCache The config cache of this adapter
 	 * @param ConfigModel       $configModel The configuration model
 	 *
-	 * @return Config\IConfiguration
+	 * @return Config\IConfig
 	 */
 	public function createConfig(Cache\ConfigCache $configCache, ConfigModel $configModel)
 	{
 		if ($configCache->get('system', 'config_adapter') === 'preload') {
-			$configuration = new Config\PreloadConfiguration($configCache, $configModel);
+			$configuration = new Config\PreloadConfig($configCache, $configModel);
 		} else {
-			$configuration = new Config\JitConfiguration($configCache, $configModel);
+			$configuration = new Config\JitConfig($configCache, $configModel);
 		}
 
 

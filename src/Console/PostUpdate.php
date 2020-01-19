@@ -3,7 +3,7 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Update;
 
@@ -24,7 +24,7 @@ class PostUpdate extends \Asika\SimpleConsole\Console
 	 */
 	private $appMode;
 	/**
-	 * @var IConfiguration
+	 * @var IConfig
 	 */
 	private $config;
 	/**
@@ -46,7 +46,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, IConfiguration $config, L10n $l10n, array $argv = null)
+	public function __construct(App\Mode $appMode, IConfig $config, L10n $l10n, array $argv = null)
 	{
 		parent::__construct($argv);
 

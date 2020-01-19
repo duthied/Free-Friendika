@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Core\Config;
 
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Model\Config\Config as ConfigModel;
 use Friendica\Test\MockedTest;
 use Mockery\MockInterface;
@@ -17,7 +17,7 @@ abstract class ConfigurationTest extends MockedTest
 	/** @var ConfigCache */
 	protected $configCache;
 
-	/** @var IConfiguration */
+	/** @var IConfig */
 	protected $testedConfig;
 
 	/**
@@ -46,7 +46,7 @@ abstract class ConfigurationTest extends MockedTest
 	}
 
 	/**
-	 * @return IConfiguration
+	 * @return IConfig
 	 */
 	public abstract function getInstance();
 

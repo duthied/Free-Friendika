@@ -5,7 +5,7 @@ namespace Friendica\Core\Config;
 /**
  * Interface for accessing system wide configurations
  */
-interface IConfiguration
+interface IConfig
 {
 
 	/**

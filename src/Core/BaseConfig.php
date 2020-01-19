@@ -1,7 +1,9 @@
 <?php
 
-namespace Friendica\Core\Config;
+namespace Friendica\Core;
 
+use Friendica\Core\Config\Cache;
+use Friendica\Core\Config\IConfig;
 use Friendica\Model;
 
 /**
@@ -10,7 +12,7 @@ use Friendica\Model;
  * - The Config-Files    (loaded into the FileCache @see Cache\ConfigCache)
  * - The Config-DB-Table (per Config-DB-model @see Model\Config\Config)
  */
-abstract class Configuration implements IConfiguration
+abstract class BaseConfig implements IConfig
 {
 	/**
 	 * @var Cache\ConfigCache

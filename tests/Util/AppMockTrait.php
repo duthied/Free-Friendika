@@ -22,7 +22,7 @@ trait AppMockTrait
 	protected $app;
 
 	/**
-	 * @var MockInterface|Config\IConfiguration The mocked Config Cache
+	 * @var MockInterface|Config\IConfig The mocked Config Cache
 	 */
 	protected $configMock;
 
@@ -64,9 +64,9 @@ trait AppMockTrait
 		// Disable the adapter
 		$configModel->shouldReceive('isConnected')->andReturn(false);
 
-		$config = new Config\JitConfiguration($this->configMock, $configModel);
+		$config = new Config\JitConfig($this->configMock, $configModel);
 		$this->dice->shouldReceive('create')
-		           ->with(Config\IConfiguration::class)
+		           ->with(Config\IConfig::class)
 		           ->andReturn($config);
 
 		// Mocking App and most used functions

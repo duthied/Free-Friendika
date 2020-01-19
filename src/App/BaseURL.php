@@ -2,7 +2,7 @@
 
 namespace Friendica\App;
 
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\System;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
@@ -37,7 +37,7 @@ class BaseURL
 	/**
 	 * The Friendica Config
 	 *
-	 * @var IConfiguration
+	 * @var IConfig
 	 */
 	private $config;
 
@@ -253,10 +253,10 @@ class BaseURL
 	}
 
 	/**
-	 * @param IConfiguration $config The Friendica IConfiguration
-	 * @param array         $server The $_SERVER array
+	 * @param IConfig $config The Friendica IConfiguration
+	 * @param array   $server The $_SERVER array
 	 */
-	public function __construct(IConfiguration $config, array $server)
+	public function __construct(IConfig $config, array $server)
 	{
 		$this->config = $config;
 		$this->server = $server;

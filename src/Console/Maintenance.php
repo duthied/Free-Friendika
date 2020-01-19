@@ -3,7 +3,7 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 
 /**
  * Sets maintenance mode for this node
@@ -19,7 +19,7 @@ class Maintenance extends \Asika\SimpleConsole\Console
 	 */
 	private $appMode;
 	/**
-	 * @var IConfiguration
+	 * @var IConfig
 	 */
 	private $config;
 
@@ -52,7 +52,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, IConfiguration $config, $argv = null)
+	public function __construct(App\Mode $appMode, IConfig $config, $argv = null)
 	{
 		parent::__construct($argv);
 

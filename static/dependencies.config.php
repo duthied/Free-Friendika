@@ -72,13 +72,13 @@ return [
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],
-	Config\IConfiguration::class     => [
+	Config\IConfig::class           => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
 			['createConfig', [], Dice::CHAIN_CALL],
 		],
 	],
-	Config\IPConfiguration::class    => [
+	Config\IPConfiguration::class   => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
 			['createPConfig', [], Dice::CHAIN_CALL],

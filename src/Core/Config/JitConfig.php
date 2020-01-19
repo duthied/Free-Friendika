@@ -2,18 +2,22 @@
 
 namespace Friendica\Core\Config;
 
+use Friendica\Core\BaseConfig;
 use Friendica\Model;
 
 /**
- * This class implements the preload configuration, which will cache
- * all config values per call in a cache.
+ * This class implements the Just-In-Time configuration, which will cache
+ * config values in a cache, once they are retrieved.
  *
- * Minimizes the number of database queries to retrieve configuration values at the cost of memory.
+ * Default Configuration type.
+ * Provides the best performance for pages loading few configuration variables.
  */
-class PreloadConfiguration extends Configuration
+class JitConfig extends BaseConfig
 {
-	/** @var bool */
-	private $config_loaded;
+	/**
+	 * @var array Array of already loaded db values (even if there was no value)
+	 */
+	private $db_loaded;
 
 	/**
 	 * @param Cache\ConfigCache   $configCache The configuration cache (based on the config-files)
@@ -22,7 +26,7 @@ class PreloadConfiguration extends Configuration
 	public function __construct(Cache\ConfigCache $configCache, Model\Config\Config $configModel)
 	{
 		parent::__construct($configCache, $configModel);
-		$this->config_loaded = false;
+		$this->db_loaded = [];
 
 		$this->load();
 	}
@@ -30,23 +34,21 @@ class PreloadConfiguration extends Configuration
 	/**
 	 * {@inheritDoc}
 	 *
-	 * This loads all config values everytime load is called
-	 *
 	 */
 	public function load(string $cat = 'config')
 	{
-		// Don't load the whole configuration twice
-		if ($this->config_loaded) {
-			return;
-		}
-
 		// If not connected, do nothing
 		if (!$this->configModel->isConnected()) {
 			return;
 		}
 
-		$config              = $this->configModel->load();
-		$this->config_loaded = true;
+		$config = $this->configModel->load($cat);
+
+		if (!empty($config[$cat])) {
+			foreach ($config[$cat] as $key => $value) {
+				$this->db_loaded[$cat][$key] = true;
+			}
+		}
 
 		// load the whole category out of the DB into the cache
 		$this->configCache->load($config, true);
@@ -57,13 +59,19 @@ class PreloadConfiguration extends Configuration
 	 */
 	public function get(string $cat, string $key, $default_value = null, bool $refresh = false)
 	{
-		if ($refresh) {
-			if ($this->configModel->isConnected()) {
-				$config = $this->configModel->get($cat, $key);
-				if (isset($config)) {
-					$this->configCache->set($cat, $key, $config);
-				}
+		// if the value isn't loaded or refresh is needed, load it to the cache
+		if ($this->configModel->isConnected() &&
+		    (empty($this->db_loaded[$cat][$key]) ||
+		     $refresh)) {
+
+			$dbvalue = $this->configModel->get($cat, $key);
+
+			if (isset($dbvalue)) {
+				$this->configCache->set($cat, $key, $dbvalue);
+				unset($dbvalue);
 			}
+
+			$this->db_loaded[$cat][$key] = true;
 		}
 
 		// use the config cache for return
@@ -77,10 +85,6 @@ class PreloadConfiguration extends Configuration
 	 */
 	public function set(string $cat, string $key, $value)
 	{
-		if (!$this->config_loaded) {
-			$this->load();
-		}
-
 		// set the cache first
 		$cached = $this->configCache->set($cat, $key, $value);
 
@@ -91,6 +95,8 @@ class PreloadConfiguration extends Configuration
 
 		$stored = $this->configModel->set($cat, $key, $value);
 
+		$this->db_loaded[$cat][$key] = $stored;
+
 		return $cached && $stored;
 	}
 
@@ -99,11 +105,11 @@ class PreloadConfiguration extends Configuration
 	 */
 	public function delete(string $cat, string $key)
 	{
-		if ($this->config_loaded) {
-			$this->load();
-		}
-
 		$cacheRemoved = $this->configCache->delete($cat, $key);
+
+		if (isset($this->db_loaded[$cat][$key])) {
+			unset($this->db_loaded[$cat][$key]);
+		}
 
 		if (!$this->configModel->isConnected()) {
 			return $cacheRemoved;

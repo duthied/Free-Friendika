@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Util;
 
 use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Test\MockedTest;
 use Friendica\Util\Profiler;
 use Mockery\MockInterface;
@@ -235,7 +235,7 @@ class ProfilerTest extends MockedTest
 
 		$profiler->saveTimestamp(time(), 'network', 'test1');
 
-		$config = \Mockery::mock(IConfiguration::class);
+		$config = \Mockery::mock(IConfig::class);
 		$config->shouldReceive('get')
 		            ->with('system', 'profiler')
 		            ->andReturn(false)

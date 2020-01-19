@@ -3,8 +3,8 @@
 namespace Friendica\Test\src\Core;
 
 use Dice\Dice;
-use Friendica\Core\Config\IConfiguration;
-use Friendica\Core\Config\PreloadConfiguration;
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\Config\PreloadConfig;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Session\ISession;
@@ -28,7 +28,7 @@ class StorageManagerTest extends DatabaseTest
 {
 	/** @var Database */
 	private $dba;
-	/** @var IConfiguration */
+	/** @var IConfig */
 	private $config;
 	/** @var LoggerInterface */
 	private $logger;
@@ -56,7 +56,7 @@ class StorageManagerTest extends DatabaseTest
 		$this->dba = new StaticDatabase($configCache, $profiler, $this->logger);
 
 		$configModel  = new Config($this->dba);
-		$this->config = new PreloadConfiguration($configCache, $configModel);
+		$this->config = new PreloadConfig($configCache, $configModel);
 
 		$this->l10n = \Mockery::mock(L10n::class);
 	}

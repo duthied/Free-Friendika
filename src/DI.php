@@ -133,11 +133,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Core\Config\IConfiguration
+	 * @return Core\Config\IConfig
 	 */
 	public static function config()
 	{
-		return self::$dice->create(Core\Config\IConfiguration::class);
+		return self::$dice->create(Core\Config\IConfig::class);
 	}
 
 	/**

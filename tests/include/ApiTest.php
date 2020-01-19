@@ -7,7 +7,7 @@ namespace Friendica\Test;
 
 use Dice\Dice;
 use Friendica\App;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\Config\IPConfiguration;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
@@ -47,7 +47,7 @@ class ApiTest extends DatabaseTest
 	/** @var App */
 	protected $app;
 
-	/** @var IConfiguration */
+	/** @var IConfig */
 	protected $config;
 
 	/** @var Dice */
@@ -69,8 +69,8 @@ class ApiTest extends DatabaseTest
 		/** @var Database $dba */
 		$dba = $this->dice->create(Database::class);
 
-		/** @var IConfiguration $config */
-		$this->config = $this->dice->create(IConfiguration::class);
+		/** @var IConfig $config */
+		$this->config = $this->dice->create(IConfig::class);
 
 		$this->config->set('system', 'url', 'http://localhost');
 		$this->config->set('system', 'hostname', 'localhost');

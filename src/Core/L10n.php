@@ -2,7 +2,7 @@
 
 namespace Friendica\Core;
 
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\Session\ISession;
 use Friendica\Database\Database;
 use Friendica\Util\Strings;
@@ -40,7 +40,7 @@ class L10n
 	 */
 	private $logger;
 
-	public function __construct(IConfiguration $config, Database $dba, LoggerInterface $logger, ISession $session, array $server, array $get)
+	public function __construct(IConfig $config, Database $dba, LoggerInterface $logger, ISession $session, array $server, array $get)
 	{
 		$this->dba    = $dba;
 		$this->logger = $logger;
