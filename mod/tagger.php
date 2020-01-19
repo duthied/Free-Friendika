@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -70,7 +69,7 @@ function tagger_content(App $a) {
 
 	$uri = Item::newURI($owner_uid);
 	$xterm = XML::escape($term);
-	$post_type = (($item['resource-id']) ? L10n::t('photo') : L10n::t('status'));
+	$post_type = (($item['resource-id']) ? DI::l10n()->t('photo') : DI::l10n()->t('status'));
 	$targettype = (($item['resource-id']) ? Activity\ObjectType::IMAGE : Activity\ObjectType::NOTE );
 	$href = DI::baseUrl() . '/display/' . $item['guid'];
 
@@ -103,7 +102,7 @@ EOT;
 	</object>
 EOT;
 
-	$bodyverb = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s');
+	$bodyverb = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s');
 
 	if (!isset($bodyverb)) {
 		return;

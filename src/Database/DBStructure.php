@@ -8,8 +8,8 @@ namespace Friendica\Database;
 use Exception;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 require_once __DIR__ . '/../../include/dba.php';
@@ -45,7 +45,7 @@ class DBStructure
 		);
 
 		if (!DBA::isResult($tables)) {
-			echo L10n::t('There are no tables on MyISAM.') . "\n";
+			echo DI::l10n()->t('There are no tables on MyISAM.') . "\n";
 			return;
 		}
 
@@ -69,10 +69,10 @@ class DBStructure
 	 */
 	private static function printUpdateError($message)
 	{
-		echo L10n::t("\nError %d occurred during database update:\n%s\n",
+		echo DI::l10n()->t("\nError %d occurred during database update:\n%s\n",
 			DBA::errorNo(), DBA::errorMessage());
 
-		return L10n::t('Errors encountered performing database changes: ') . $message . EOL;
+		return DI::l10n()->t('Errors encountered performing database changes: ') . $message . EOL;
 	}
 
 	public static function printStructure($basePath)
@@ -261,7 +261,7 @@ class DBStructure
 	{
 		if ($action && !$install) {
 			Config::set('system', 'maintenance', 1);
-			Config::set('system', 'maintenance_reason', L10n::t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
+			Config::set('system', 'maintenance_reason', DI::l10n()->t('%s: Database update', DateTimeFormat::utcNow() . ' ' . date('e')));
 		}
 
 		$errors = '';
@@ -522,7 +522,7 @@ class DBStructure
 
 				if ($action) {
 					if (!$install) {
-						Config::set('system', 'maintenance_reason', L10n::t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
+						Config::set('system', 'maintenance_reason', DI::l10n()->t('%s: updating %s table.', DateTimeFormat::utcNow() . ' ' . date('e'), $name));
 					}
 
 					// Ensure index conversion to unique removes duplicates

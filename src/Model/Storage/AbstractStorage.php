@@ -2,7 +2,7 @@
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Psr\Log\LoggerInterface;
 
 /**

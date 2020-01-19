@@ -10,7 +10,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -160,20 +159,20 @@ function localize_item(&$item)
 			case Activity::POST:
 				switch ($obj['object-type']) {
 					case Activity\ObjectType::EVENT:
-						$post_type = L10n::t('event');
+						$post_type = DI::l10n()->t('event');
 						break;
 					default:
-						$post_type = L10n::t('status');
+						$post_type = DI::l10n()->t('status');
 				}
 				break;
 			default:
 				if ($obj['resource-id']) {
-					$post_type = L10n::t('photo');
+					$post_type = DI::l10n()->t('photo');
 					$m = [];
 					preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 					$rr['plink'] = $m[1];
 				} else {
-					$post_type = L10n::t('status');
+					$post_type = DI::l10n()->t('status');
 				}
 		}
 
@@ -181,15 +180,15 @@ function localize_item(&$item)
 
 		$bodyverb = '';
 		if ($activity->match($item['verb'], Activity::LIKE)) {
-			$bodyverb = L10n::t('%1$s likes %2$s\'s %3$s');
+			$bodyverb = DI::l10n()->t('%1$s likes %2$s\'s %3$s');
 		} elseif ($activity->match($item['verb'], Activity::DISLIKE)) {
-			$bodyverb = L10n::t('%1$s doesn\'t like %2$s\'s %3$s');
+			$bodyverb = DI::l10n()->t('%1$s doesn\'t like %2$s\'s %3$s');
 		} elseif ($activity->match($item['verb'], Activity::ATTEND)) {
-			$bodyverb = L10n::t('%1$s attends %2$s\'s %3$s');
+			$bodyverb = DI::l10n()->t('%1$s attends %2$s\'s %3$s');
 		} elseif ($activity->match($item['verb'], Activity::ATTENDNO)) {
-			$bodyverb = L10n::t('%1$s doesn\'t attend %2$s\'s %3$s');
+			$bodyverb = DI::l10n()->t('%1$s doesn\'t attend %2$s\'s %3$s');
 		} elseif ($activity->match($item['verb'], Activity::ATTENDMAYBE)) {
-			$bodyverb = L10n::t('%1$s attends maybe %2$s\'s %3$s');
+			$bodyverb = DI::l10n()->t('%1$s attends maybe %2$s\'s %3$s');
 		}
 
 		$item['body'] = sprintf($bodyverb, $author, $objauthor, $plink);
@@ -224,7 +223,7 @@ function localize_item(&$item)
 			$Bphoto = '[url=' . Contact::magicLink($Blink) . '][img]' . $Bphoto . '[/img][/url]';
 		}
 
-		$item['body'] = L10n::t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
+		$item['body'] = DI::l10n()->t('%1$s is now friends with %2$s', $A, $B)."\n\n\n".$Bphoto;
 
 	}
 	if (stristr($item['verb'], Activity::POKE)) {
@@ -265,11 +264,11 @@ function localize_item(&$item)
 		 * we can't have a translation string with three positions but no distinguishable text
 		 * So here is the translate string.
 		 */
-		$txt = L10n::t('%1$s poked %2$s');
+		$txt = DI::l10n()->t('%1$s poked %2$s');
 
 		// now translate the verb
 		$poked_t = trim(sprintf($txt, "", ""));
-		$txt = str_replace($poked_t, L10n::t($verb), $txt);
+		$txt = str_replace($poked_t, DI::l10n()->t($verb), $txt);
 
 		// then do the sprintf on the translation string
 
@@ -297,19 +296,19 @@ function localize_item(&$item)
 			case Activity::POST:
 				switch ($obj['object-type']) {
 					case Activity\ObjectType::EVENT:
-						$post_type = L10n::t('event');
+						$post_type = DI::l10n()->t('event');
 						break;
 					default:
-						$post_type = L10n::t('status');
+						$post_type = DI::l10n()->t('status');
 				}
 				break;
 			default:
 				if ($obj['resource-id']) {
-					$post_type = L10n::t('photo');
+					$post_type = DI::l10n()->t('photo');
 					$m=[]; preg_match("/\[url=([^]]*)\]/", $obj['body'], $m);
 					$rr['plink'] = $m[1];
 				} else {
-					$post_type = L10n::t('status');
+					$post_type = DI::l10n()->t('status');
 				}
 				// Let's break everthing ... ;-)
 				break;
@@ -319,7 +318,7 @@ function localize_item(&$item)
 		$parsedobj = XML::parseString($xmlhead.$item['object']);
 
 		$tag = sprintf('#[url=%s]%s[/url]', $parsedobj->id, $parsedobj->content);
-		$item['body'] = L10n::t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
+		$item['body'] = DI::l10n()->t('%1$s tagged %2$s\'s %3$s with %4$s', $author, $objauthor, $plink, $tag);
 	}
 
 	if ($activity->match($item['verb'], Activity::FAVORITE)) {
@@ -341,8 +340,8 @@ function localize_item(&$item)
 				$Blink = $target['author-link'];
 				$A = '[url=' . Contact::magicLink($Alink) . ']' . $Aname . '[/url]';
 				$B = '[url=' . Contact::magicLink($Blink) . ']' . $Bname . '[/url]';
-				$P = '[url=' . $target['plink'] . ']' . L10n::t('post/item') . '[/url]';
-				$item['body'] = L10n::t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
+				$P = '[url=' . $target['plink'] . ']' . DI::l10n()->t('post/item') . '[/url]';
+				$item['body'] = DI::l10n()->t('%1$s marked %2$s\'s %3$s as favorite', $A, $B, $P)."\n";
 			}
 		}
 	}
@@ -566,12 +565,12 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 	$items = $cb['items'];
 
 	$conv_responses = [
-		'like' => ['title' => L10n::t('Likes','title')],
-		'dislike' => ['title' => L10n::t('Dislikes','title')],
-		'attendyes' => ['title' => L10n::t('Attending','title')],
-		'attendno' => ['title' => L10n::t('Not attending','title')],
-		'attendmaybe' => ['title' => L10n::t('Might attend','title')],
-		'announce' => ['title' => L10n::t('Reshares','title')]
+		'like' => ['title' => DI::l10n()->t('Likes','title')],
+		'dislike' => ['title' => DI::l10n()->t('Dislikes','title')],
+		'attendyes' => ['title' => DI::l10n()->t('Attending','title')],
+		'attendno' => ['title' => DI::l10n()->t('Not attending','title')],
+		'attendmaybe' => ['title' => DI::l10n()->t('Might attend','title')],
+		'announce' => ['title' => DI::l10n()->t('Reshares','title')]
 	];
 
 	// array with html for each thread (parent+comments)
@@ -651,8 +650,8 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 				$drop = [
 					'dropping' => $dropping,
 					'pagedrop' => $page_dropping,
-					'select' => L10n::t('Select'),
-					'delete' => L10n::t('Delete'),
+					'select' => DI::l10n()->t('Select'),
+					'delete' => DI::l10n()->t('Delete'),
 				];
 
 				$star = false;
@@ -678,7 +677,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'network' => $item['network'],
 					'network_name' => ContactSelector::networkToName($item['author-network'], $item['author-link'], $item['network']),
 					'network_icon' => ContactSelector::networkToIcon($item['network'], $item['author-link']),
-					'linktitle' => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
+					'linktitle' => DI::l10n()->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
 					'profile_url' => $profile_link,
 					'item_photo_menu' => item_photo_menu($item),
 					'name' => $profile_name,
@@ -691,15 +690,15 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'hashtags' => $tags['hashtags'],
 					'mentions' => $tags['mentions'],
 					'implicit_mentions' => $tags['implicit_mentions'],
-					'txt_cats' => L10n::t('Categories:'),
-					'txt_folders' => L10n::t('Filed under:'),
+					'txt_cats' => DI::l10n()->t('Categories:'),
+					'txt_folders' => DI::l10n()->t('Filed under:'),
 					'has_cats' => ((count($categories)) ? 'true' : ''),
 					'has_folders' => ((count($folders)) ? 'true' : ''),
 					'categories' => $categories,
 					'folders' => $folders,
 					'text' => strip_tags($body),
 					'localtime' => DateTimeFormat::local($item['created'], 'r'),
-					'ago' => (($item['app']) ? L10n::t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
+					'ago' => (($item['app']) ? DI::l10n()->t('%s from %s', Temporal::getRelativeDate($item['created']),$item['app']) : Temporal::getRelativeDate($item['created'])),
 					'location' => $location,
 					'indent' => '',
 					'owner_name' => $owner_name,
@@ -714,9 +713,9 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 					'like' => '',
 					'dislike' => '',
 					'comment' => '',
-					'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> L10n::t('View in context')]),
+					'conv' => (($preview) ? '' : ['href'=> 'display/'.$item['guid'], 'title'=> DI::l10n()->t('View in context')]),
 					'previewing' => $previewing,
-					'wait' => L10n::t('Please wait'),
+					'wait' => DI::l10n()->t('Please wait'),
 					'thread_level' => 1,
 				];
 
@@ -780,11 +779,11 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 		'$baseurl' => DI::baseUrl()->get($ssl_state),
 		'$return_path' => DI::args()->getQueryString(),
 		'$live_update' => $live_update_div,
-		'$remove' => L10n::t('remove'),
+		'$remove' => DI::l10n()->t('remove'),
 		'$mode' => $mode,
 		'$user' => $a->user,
 		'$threads' => $threads,
-		'$dropping' => ($page_dropping ? L10n::t('Delete Selected Items') : False),
+		'$dropping' => ($page_dropping ? DI::l10n()->t('Delete Selected Items') : False),
 	]);
 
 	return $o;
@@ -945,27 +944,27 @@ function item_photo_menu($item) {
 
 	if (local_user()) {
 		$menu = [
-			L10n::t('Follow Thread') => $sub_link,
-			L10n::t('View Status') => $status_link,
-			L10n::t('View Profile') => $profile_link,
-			L10n::t('View Photos') => $photos_link,
-			L10n::t('Network Posts') => $posts_link,
-			L10n::t('View Contact') => $contact_url,
-			L10n::t('Send PM') => $pm_url,
-			L10n::t('Block') => $block_link,
-			L10n::t('Ignore') => $ignore_link
+			DI::l10n()->t('Follow Thread') => $sub_link,
+			DI::l10n()->t('View Status') => $status_link,
+			DI::l10n()->t('View Profile') => $profile_link,
+			DI::l10n()->t('View Photos') => $photos_link,
+			DI::l10n()->t('Network Posts') => $posts_link,
+			DI::l10n()->t('View Contact') => $contact_url,
+			DI::l10n()->t('Send PM') => $pm_url,
+			DI::l10n()->t('Block') => $block_link,
+			DI::l10n()->t('Ignore') => $ignore_link
 		];
 
 		if ($network == Protocol::DFRN) {
-			$menu[L10n::t("Poke")] = $poke_link;
+			$menu[DI::l10n()->t("Poke")] = $poke_link;
 		}
 
 		if ((($cid == 0) || ($rel == Contact::FOLLOWER)) &&
 			in_array($item['network'], Protocol::FEDERATED)) {
-			$menu[L10n::t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
+			$menu[DI::l10n()->t('Connect/Follow')] = 'follow?url=' . urlencode($item['author-link']);
 		}
 	} else {
-		$menu = [L10n::t('View Profile') => $item['author-link']];
+		$menu = [DI::l10n()->t('View Profile') => $item['author-link']];
 	}
 
 	$args = ['item' => $item, 'menu' => $menu];
@@ -1088,22 +1087,22 @@ function format_like($cnt, array $arr, $type, $id) {
 		// list which show all likers
 		switch ($type) {
 			case 'like' :
-				$phrase = L10n::t('%s likes this.', $likers);
+				$phrase = DI::l10n()->t('%s likes this.', $likers);
 				break;
 			case 'dislike' :
-				$phrase = L10n::t('%s doesn\'t like this.', $likers);
+				$phrase = DI::l10n()->t('%s doesn\'t like this.', $likers);
 				break;
 			case 'attendyes' :
-				$phrase = L10n::t('%s attends.', $likers);
+				$phrase = DI::l10n()->t('%s attends.', $likers);
 				break;
 			case 'attendno' :
-				$phrase = L10n::t('%s doesn\'t attend.', $likers);
+				$phrase = DI::l10n()->t('%s doesn\'t attend.', $likers);
 				break;
 			case 'attendmaybe' :
-				$phrase = L10n::t('%s attends maybe.', $likers);
+				$phrase = DI::l10n()->t('%s attends maybe.', $likers);
 				break;
 			case 'announce' :
-				$phrase = L10n::t('%s reshared this.', $likers);
+				$phrase = DI::l10n()->t('%s reshared this.', $likers);
 				break;
 		}
 	}
@@ -1111,13 +1110,13 @@ function format_like($cnt, array $arr, $type, $id) {
 	if ($cnt > 1) {
 		$total = count($arr);
 		if ($total < MAX_LIKERS) {
-			$last = L10n::t('and') . ' ' . $arr[count($arr)-1];
+			$last = DI::l10n()->t('and') . ' ' . $arr[count($arr)-1];
 			$arr2 = array_slice($arr, 0, -1);
 			$likers = implode(', ', $arr2) . ' ' . $last;
 		} else  {
 			$arr = array_slice($arr, 0, MAX_LIKERS - 1);
 			$likers = implode(', ', $arr);
-			$likers .= L10n::t('and %d other people', $total - MAX_LIKERS);
+			$likers .= DI::l10n()->t('and %d other people', $total - MAX_LIKERS);
 		}
 
 		$spanatts = "class=\"fakelink\" onclick=\"openClose('{$type}list-$id');\"";
@@ -1125,28 +1124,28 @@ function format_like($cnt, array $arr, $type, $id) {
 		$explikers = '';
 		switch ($type) {
 			case 'like':
-				$phrase = L10n::t('<span  %1$s>%2$d people</span> like this', $spanatts, $cnt);
-				$explikers = L10n::t('%s like this.', $likers);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> like this', $spanatts, $cnt);
+				$explikers = DI::l10n()->t('%s like this.', $likers);
 				break;
 			case 'dislike':
-				$phrase = L10n::t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $cnt);
-				$explikers = L10n::t('%s don\'t like this.', $likers);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> don\'t like this', $spanatts, $cnt);
+				$explikers = DI::l10n()->t('%s don\'t like this.', $likers);
 				break;
 			case 'attendyes':
-				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend', $spanatts, $cnt);
-				$explikers = L10n::t('%s attend.', $likers);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> attend', $spanatts, $cnt);
+				$explikers = DI::l10n()->t('%s attend.', $likers);
 				break;
 			case 'attendno':
-				$phrase = L10n::t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $cnt);
-				$explikers = L10n::t('%s don\'t attend.', $likers);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> don\'t attend', $spanatts, $cnt);
+				$explikers = DI::l10n()->t('%s don\'t attend.', $likers);
 				break;
 			case 'attendmaybe':
-				$phrase = L10n::t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
-				$explikers = L10n::t('%s attend maybe.', $likers);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> attend maybe', $spanatts, $cnt);
+				$explikers = DI::l10n()->t('%s attend maybe.', $likers);
 				break;
 			case 'announce':
-				$phrase = L10n::t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $cnt);
-				$explikers = L10n::t('%s reshared this.', $likers);
+				$phrase = DI::l10n()->t('<span  %1$s>%2$d people</span> reshared this', $spanatts, $cnt);
+				$explikers = DI::l10n()->t('%s reshared this.', $likers);
 				break;
 		}
 
@@ -1175,12 +1174,12 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$baseurl'   => DI::baseUrl()->get(true),
 		'$geotag'    => $geotag,
 		'$nickname'  => $x['nickname'],
-		'$ispublic'  => L10n::t('Visible to <strong>everybody</strong>'),
-		'$linkurl'   => L10n::t('Please enter a image/video/audio/webpage URL:'),
-		'$term'      => L10n::t('Tag term:'),
-		'$fileas'    => L10n::t('Save to Folder:'),
-		'$whereareu' => L10n::t('Where are you right now?'),
-		'$delitems'  => L10n::t("Delete item\x28s\x29?")
+		'$ispublic'  => DI::l10n()->t('Visible to <strong>everybody</strong>'),
+		'$linkurl'   => DI::l10n()->t('Please enter a image/video/audio/webpage URL:'),
+		'$term'      => DI::l10n()->t('Tag term:'),
+		'$fileas'    => DI::l10n()->t('Save to Folder:'),
+		'$whereareu' => DI::l10n()->t('Where are you right now?'),
+		'$delitems'  => DI::l10n()->t("Delete item\x28s\x29?")
 	]);
 
 	$jotplugins = '';
@@ -1212,33 +1211,33 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 	$tpl = Renderer::getMarkupTemplate("jot.tpl");
 
 	$o .= Renderer::replaceMacros($tpl,[
-		'$new_post' => L10n::t('New Post'),
+		'$new_post' => DI::l10n()->t('New Post'),
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
-		'$share'        => ($x['button'] ?? '') ?: L10n::t('Share'),
-		'$upload'       => L10n::t('Upload photo'),
-		'$shortupload'  => L10n::t('upload photo'),
-		'$attach'       => L10n::t('Attach file'),
-		'$shortattach'  => L10n::t('attach file'),
-		'$edbold'       => L10n::t('Bold'),
-		'$editalic'     => L10n::t('Italic'),
-		'$eduline'      => L10n::t('Underline'),
-		'$edquote'      => L10n::t('Quote'),
-		'$edcode'       => L10n::t('Code'),
-		'$edimg'        => L10n::t('Image'),
-		'$edurl'        => L10n::t('Link'),
-		'$edattach'     => L10n::t('Link or Media'),
-		'$setloc'       => L10n::t('Set your location'),
-		'$shortsetloc'  => L10n::t('set location'),
-		'$noloc'        => L10n::t('Clear browser location'),
-		'$shortnoloc'   => L10n::t('clear location'),
+		'$share'        => ($x['button'] ?? '') ?: DI::l10n()->t('Share'),
+		'$upload'       => DI::l10n()->t('Upload photo'),
+		'$shortupload'  => DI::l10n()->t('upload photo'),
+		'$attach'       => DI::l10n()->t('Attach file'),
+		'$shortattach'  => DI::l10n()->t('attach file'),
+		'$edbold'       => DI::l10n()->t('Bold'),
+		'$editalic'     => DI::l10n()->t('Italic'),
+		'$eduline'      => DI::l10n()->t('Underline'),
+		'$edquote'      => DI::l10n()->t('Quote'),
+		'$edcode'       => DI::l10n()->t('Code'),
+		'$edimg'        => DI::l10n()->t('Image'),
+		'$edurl'        => DI::l10n()->t('Link'),
+		'$edattach'     => DI::l10n()->t('Link or Media'),
+		'$setloc'       => DI::l10n()->t('Set your location'),
+		'$shortsetloc'  => DI::l10n()->t('set location'),
+		'$noloc'        => DI::l10n()->t('Clear browser location'),
+		'$shortnoloc'   => DI::l10n()->t('clear location'),
 		'$title'        => $x['title'] ?? '',
-		'$placeholdertitle' => L10n::t('Set title'),
+		'$placeholdertitle' => DI::l10n()->t('Set title'),
 		'$category'     => $x['category'] ?? '',
-		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? L10n::t("Categories \x28comma-separated list\x29") : '',
-		'$wait'         => L10n::t('Please wait'),
-		'$permset'      => L10n::t('Permission settings'),
-		'$shortpermset' => L10n::t('permissions'),
+		'$placeholdercategory' => Feature::isEnabled(local_user(), 'categories') ? DI::l10n()->t("Categories \x28comma-separated list\x29") : '',
+		'$wait'         => DI::l10n()->t('Please wait'),
+		'$permset'      => DI::l10n()->t('Permission settings'),
+		'$shortpermset' => DI::l10n()->t('permissions'),
 		'$wall'         => $notes_cid ? 0 : 1,
 		'$posttype'     => $notes_cid ? Item::PT_PERSONAL_NOTE : Item::PT_ARTICLE,
 		'$content'      => $x['content'] ?? '',
@@ -1247,28 +1246,28 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$defloc'       => $x['default_location'],
 		'$visitor'      => $x['visitor'],
 		'$pvisit'       => $notes_cid ? 'none' : $x['visitor'],
-		'$public'       => L10n::t('Public post'),
+		'$public'       => DI::l10n()->t('Public post'),
 		'$lockstate'    => $x['lockstate'],
 		'$bang'         => $x['bang'],
 		'$profile_uid'  => $x['profile_uid'],
-		'$preview'      => L10n::t('Preview'),
+		'$preview'      => DI::l10n()->t('Preview'),
 		'$jotplugins'   => $jotplugins,
 		'$notes_cid'    => $notes_cid,
-		'$sourceapp'    => L10n::t($a->sourcename),
-		'$cancel'       => L10n::t('Cancel'),
+		'$sourceapp'    => DI::l10n()->t($a->sourcename),
+		'$cancel'       => DI::l10n()->t('Cancel'),
 		'$rand_num'     => Crypto::randomDigits(12),
 
 		// ACL permissions box
 		'$acl'           => $x['acl'],
-		'$group_perms'   => L10n::t('Post to Groups'),
-		'$contact_perms' => L10n::t('Post to Contacts'),
-		'$private'       => L10n::t('Private post'),
+		'$group_perms'   => DI::l10n()->t('Post to Groups'),
+		'$contact_perms' => DI::l10n()->t('Post to Contacts'),
+		'$private'       => DI::l10n()->t('Private post'),
 		'$is_private'    => $private_post,
 		'$public_link'   => $public_post_link,
 
 		//jot nav tab (used in some themes)
-		'$message' => L10n::t('Message'),
-		'$browser' => L10n::t('Browser'),
+		'$message' => DI::l10n()->t('Message'),
+		'$browser' => DI::l10n()->t('Browser'),
 	]);
 
 
@@ -1557,7 +1556,7 @@ function get_responses(array $conv_responses, array $response_verbs, array $item
 		if (count($ret[$v]['list']) > MAX_LIKERS) {
 			$ret[$v]['list_part'] = array_slice($ret[$v]['list'], 0, MAX_LIKERS);
 			array_push($ret[$v]['list_part'], '<a href="#" data-toggle="modal" data-target="#' . $v . 'Modal-'
-				. (($ob) ? $ob->getId() : $item['id']) . '"><b>' . L10n::t('View all') . '</b></a>');
+				. (($ob) ? $ob->getId() : $item['id']) . '"><b>' . DI::l10n()->t('View all') . '</b></a>');
 		} else {
 			$ret[$v]['list_part'] = '';
 		}
@@ -1581,19 +1580,19 @@ function get_response_button_text($v, $count)
 	$return = '';
 	switch ($v) {
 		case 'like':
-			$return = L10n::tt('Like', 'Likes', $count);
+			$return = DI::l10n()->tt('Like', 'Likes', $count);
 			break;
 		case 'dislike':
-			$return = L10n::tt('Dislike', 'Dislikes', $count);
+			$return = DI::l10n()->tt('Dislike', 'Dislikes', $count);
 			break;
 		case 'attendyes':
-			$return = L10n::tt('Attending', 'Attending', $count);
+			$return = DI::l10n()->tt('Attending', 'Attending', $count);
 			break;
 		case 'attendno':
-			$return = L10n::tt('Not Attending', 'Not Attending', $count);
+			$return = DI::l10n()->tt('Not Attending', 'Not Attending', $count);
 			break;
 		case 'attendmaybe':
-			$return = L10n::tt('Undecided', 'Undecided', $count);
+			$return = DI::l10n()->tt('Undecided', 'Undecided', $count);
 			break;
 	}
 

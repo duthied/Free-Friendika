@@ -14,7 +14,6 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -34,7 +33,7 @@ use Friendica\Util\Strings;
 function network_init(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -491,10 +490,10 @@ function networkThreadedView(App $a, $update, $parent)
 		$o .= $tabs;
 
 		if ($gid && ($t = Contact::getOStatusCountByGroupId($gid)) && !DI::pConfig()->get(local_user(), 'system', 'nowarn_insecure')) {
-			notice(L10n::tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
+			notice(DI::l10n()->tt("Warning: This group contains %s member from a network that doesn't allow non public messages.",
 				"Warning: This group contains %s members from a network that doesn't allow non public messages.",
 				$t) . EOL);
-			notice(L10n::t("Messages in this group won't be send to these receivers.").EOL);
+			notice(DI::l10n()->t("Messages in this group won't be send to these receivers.").EOL);
 		}
 
 		Nav::setSelected('network');
@@ -561,7 +560,7 @@ function networkThreadedView(App $a, $update, $parent)
 			if ($update) {
 				exit();
 			}
-			notice(L10n::t('No such group') . EOL);
+			notice(DI::l10n()->t('No such group') . EOL);
 			DI::baseUrl()->redirect('network/0');
 			// NOTREACHED
 		}
@@ -582,11 +581,11 @@ function networkThreadedView(App $a, $update, $parent)
 			$sql_extra3 .= " OR (`thread`.`contact-id` = '$contact_str_self' AND `temp1`.`allow_gid` LIKE '" . Strings::protectSprintf('%<' . intval($gid) . '>%') . "' AND `temp1`.`private`))";
 		} else {
 			$sql_extra3 .= " AND false ";
-			info(L10n::t('Group is empty'));
+			info(DI::l10n()->t('Group is empty'));
 		}
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [
-			'$title' => L10n::t('Group: %s', $group['name'])
+			'$title' => DI::l10n()->t('Group: %s', $group['name'])
 		]) . $o;
 	} elseif ($cid) {
 		$fields = ['id', 'name', 'network', 'writable', 'nurl',
@@ -612,10 +611,10 @@ function networkThreadedView(App $a, $update, $parent)
 			]) . $o;
 
 			if ($contact['network'] === Protocol::OSTATUS && $contact['writable'] && !DI::pConfig()->get(local_user(),'system','nowarn_insecure')) {
-				notice(L10n::t('Private messages to this person are at risk of public disclosure.') . EOL);
+				notice(DI::l10n()->t('Private messages to this person are at risk of public disclosure.') . EOL);
 			}
 		} else {
-			notice(L10n::t('Invalid contact.') . EOL);
+			notice(DI::l10n()->t('Invalid contact.') . EOL);
 			DI::baseUrl()->redirect('network');
 			// NOTREACHED
 		}
@@ -899,38 +898,38 @@ function network_tabs(App $a)
 	// tabs
 	$tabs = [
 		[
-			'label'	=> L10n::t('Latest Activity'),
+			'label'	=> DI::l10n()->t('Latest Activity'),
 			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['order' => 'activity'])),
 			'sel'	=> $all_active,
-			'title'	=> L10n::t('Sort by latest activity'),
+			'title'	=> DI::l10n()->t('Sort by latest activity'),
 			'id'	=> 'activity-order-tab',
 			'accesskey' => 'e',
 		],
 		[
-			'label'	=> L10n::t('Latest Posts'),
+			'label'	=> DI::l10n()->t('Latest Posts'),
 			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['order' => 'post'])),
 			'sel'	=> $post_active,
-			'title'	=> L10n::t('Sort by post received date'),
+			'title'	=> DI::l10n()->t('Sort by post received date'),
 			'id'	=> 'post-order-tab',
 			'accesskey' => 't',
 		],
 	];
 
 	$tabs[] = [
-		'label'	=> L10n::t('Personal'),
+		'label'	=> DI::l10n()->t('Personal'),
 		'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['conv' => true])),
 		'sel'	=> $conv_active,
-		'title'	=> L10n::t('Posts that mention or involve you'),
+		'title'	=> DI::l10n()->t('Posts that mention or involve you'),
 		'id'	=> 'personal-tab',
 		'accesskey' => 'r',
 	];
 
 	if (Feature::isEnabled(local_user(), 'new_tab')) {
 		$tabs[] = [
-			'label'	=> L10n::t('New'),
+			'label'	=> DI::l10n()->t('New'),
 			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['new' => true])),
 			'sel'	=> $new_active,
-			'title'	=> L10n::t('Activity Stream - by date'),
+			'title'	=> DI::l10n()->t('Activity Stream - by date'),
 			'id'	=> 'activitiy-by-date-tab',
 			'accesskey' => 'w',
 		];
@@ -938,20 +937,20 @@ function network_tabs(App $a)
 
 	if (Feature::isEnabled(local_user(), 'link_tab')) {
 		$tabs[] = [
-			'label'	=> L10n::t('Shared Links'),
+			'label'	=> DI::l10n()->t('Shared Links'),
 			'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['bmark' => true])),
 			'sel'	=> $bookmarked_active,
-			'title'	=> L10n::t('Interesting Links'),
+			'title'	=> DI::l10n()->t('Interesting Links'),
 			'id'	=> 'shared-links-tab',
 			'accesskey' => 'b',
 		];
 	}
 
 	$tabs[] = [
-		'label'	=> L10n::t('Starred'),
+		'label'	=> DI::l10n()->t('Starred'),
 		'url'	=> $cmd . '?' . http_build_query(array_merge($def_param, ['star' => true])),
 		'sel'	=> $starred_active,
-		'title'	=> L10n::t('Favourite Posts'),
+		'title'	=> DI::l10n()->t('Favourite Posts'),
 		'id'	=> 'starred-posts-tab',
 		'accesskey' => 'm',
 	];

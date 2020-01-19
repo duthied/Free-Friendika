@@ -2,10 +2,7 @@
 
 namespace Friendica\Module\Settings;
 
-use Friendica\App\Arguments;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
-use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -23,7 +20,7 @@ class Delegation extends BaseSettingsModule
 	public static function post(array $parameters = [])
 	{
 		if (!local_user() || !empty(DI::app()->user['uid']) && DI::app()->user['uid'] != local_user()) {
-			throw new HTTPException\ForbiddenException(L10n::t('Permission denied.'));
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		BaseModule::checkFormSecurityTokenRedirectOnError('settings/delegation', 'delegate');
@@ -34,13 +31,13 @@ class Delegation extends BaseSettingsModule
 		if ($parent_uid != 0) {
 			try {
 				User::getIdFromPasswordAuthentication($parent_uid, $parent_password);
-				info(L10n::t('Delegation successfully granted.'));
+				info(DI::l10n()->t('Delegation successfully granted.'));
 			} catch (\Exception $ex) {
-				notice(L10n::t('Parent user not found, unavailable or password doesn\'t match.'));
+				notice(DI::l10n()->t('Parent user not found, unavailable or password doesn\'t match.'));
 				return;
 			}
 		} else {
-			info(L10n::t('Delegation successfully revoked.'));
+			info(DI::l10n()->t('Delegation successfully revoked.'));
 		}
 
 		DBA::update('user', ['parent-uid' => $parent_uid], ['uid' => local_user()]);
@@ -51,7 +48,7 @@ class Delegation extends BaseSettingsModule
 		parent::content($parameters);
 
 		if (!local_user()) {
-			throw new HTTPException\ForbiddenException(L10n::t('Permission denied.'));
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$args = DI::args();
@@ -62,7 +59,7 @@ class Delegation extends BaseSettingsModule
 
 		if ($action === 'add' && $user_id) {
 			if (Session::get('submanage')) {
-				notice(L10n::t('Delegated administrators can view but not change delegation permissions.'));
+				notice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 
@@ -76,7 +73,7 @@ class Delegation extends BaseSettingsModule
 					DBA::insert('manage', ['uid' => $user_id, 'mid' => local_user()]);
 				}
 			} else {
-				notice(L10n::t('Delegate user not found.'));
+				notice(DI::l10n()->t('Delegate user not found.'));
 			}
 
 			DI::baseUrl()->redirect('settings/delegation');
@@ -84,7 +81,7 @@ class Delegation extends BaseSettingsModule
 
 		if ($action === 'remove' && $user_id) {
 			if (Session::get('submanage')) {
-				notice(L10n::t('Delegated administrators can view but not change delegation permissions.'));
+				notice(DI::l10n()->t('Delegated administrators can view but not change delegation permissions.'));
 				DI::baseUrl()->redirect('settings/delegation');
 			}
 
@@ -123,7 +120,7 @@ class Delegation extends BaseSettingsModule
 		$user = User::getById(local_user(), ['parent-uid', 'email']);
 		if (DBA::isResult($user) && !DBA::exists('user', ['parent-uid' => local_user()])) {
 			$parent_uid = $user['parent-uid'];
-			$parents = [0 => L10n::t('No parent user')];
+			$parents = [0 => DI::l10n()->t('No parent user')];
 
 			$fields = ['uid', 'username', 'nickname'];
 			$condition = ['email' => $user['email'], 'verified' => true, 'blocked' => false, 'parent-uid' => 0];
@@ -135,33 +132,33 @@ class Delegation extends BaseSettingsModule
 			}
 
 			$parent_user = ['parent_user', '', $parent_uid, '', $parents];
-			$parent_password = ['parent_password', L10n::t('Parent Password:'), '', L10n::t('Please enter the password of the parent account to legitimize your request.')];
+			$parent_password = ['parent_password', DI::l10n()->t('Parent Password:'), '', DI::l10n()->t('Please enter the password of the parent account to legitimize your request.')];
 		}
 
 		$is_child_user = !empty($user['parent-uid']);
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/delegation.tpl'), [
 			'$form_security_token' => BaseModule::getFormSecurityToken('delegate'),
-			'$account_header' => L10n::t('Additional Accounts'),
-			'$account_desc' => L10n::t('Register additional accounts that are automatically connected to your existing account so you can manage it from this account.'),
-			'$add_account' => L10n::t('Register an additional account'),
-			'$parent_header' => L10n::t('Parent User'),
+			'$account_header' => DI::l10n()->t('Additional Accounts'),
+			'$account_desc' => DI::l10n()->t('Register additional accounts that are automatically connected to your existing account so you can manage it from this account.'),
+			'$add_account' => DI::l10n()->t('Register an additional account'),
+			'$parent_header' => DI::l10n()->t('Parent User'),
 			'$parent_user' => $parent_user,
 			'$parent_password' => $parent_password,
-			'$parent_desc' => L10n::t('Parent users have total control about this account, including the account settings. Please double check whom you give this access.'),
+			'$parent_desc' => DI::l10n()->t('Parent users have total control about this account, including the account settings. Please double check whom you give this access.'),
 			'$is_child_user' => $is_child_user,
-			'$submit' => L10n::t('Save Settings'),
-			'$header' => L10n::t('Manage Accounts'),
-			'$delegates_header' => L10n::t('Delegates'),
+			'$submit' => DI::l10n()->t('Save Settings'),
+			'$header' => DI::l10n()->t('Manage Accounts'),
+			'$delegates_header' => DI::l10n()->t('Delegates'),
 			'$base' => DI::baseUrl(),
-			'$desc' => L10n::t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
-			'$head_delegates' => L10n::t('Existing Page Delegates'),
+			'$desc' => DI::l10n()->t('Delegates are able to manage all aspects of this account/page except for basic account settings. Please do not delegate your personal account to anybody that you do not trust completely.'),
+			'$head_delegates' => DI::l10n()->t('Existing Page Delegates'),
 			'$delegates' => $delegates,
-			'$head_potentials' => L10n::t('Potential Delegates'),
+			'$head_potentials' => DI::l10n()->t('Potential Delegates'),
 			'$potentials' => $potentials,
-			'$remove' => L10n::t('Remove'),
-			'$add' => L10n::t('Add'),
-			'$none' => L10n::t('No entries.')
+			'$remove' => DI::l10n()->t('Remove'),
+			'$add' => DI::l10n()->t('Add'),
+			'$none' => DI::l10n()->t('No entries.')
 		]);
 
 		return $o;

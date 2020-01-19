@@ -6,12 +6,10 @@
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\ItemContent;
@@ -20,7 +18,6 @@ use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
-use Friendica\Util\Strings;
 
 /**
  * Creates a notification entry and possibly sends a mail
@@ -57,7 +54,7 @@ function notification($params)
 	$params['to_email']     = ($params['to_email']     ?? '') ?: $user['email'];
 
 	// from here on everything is in the recipients language
-	$l10n = L10n::withLang($params['language']);
+	$l10n = DI::l10n()->withLang($params['language']);
 
 	$banner = $l10n->t('Friendica Notification');
 	$product = FRIENDICA_PLATFORM;

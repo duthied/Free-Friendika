@@ -12,7 +12,6 @@ use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -244,12 +243,12 @@ function frio_remote_nav($a, &$nav)
 		$r[0]['name'] = $a->user['username'];
 	} elseif (!local_user() && remote_user()) {
 		$r = q("SELECT `name`, `nick`, `micro` AS `photo` FROM `contact` WHERE `id` = %d", intval(remote_user()));
-		$nav['remote'] = L10n::t('Guest');
+		$nav['remote'] = DI::l10n()->t('Guest');
 	} elseif (Model\Profile::getMyURL()) {
 		$r = q("SELECT `name`, `nick`, `photo` FROM `gcontact`
 				WHERE `addr` = '%s' AND `network` = 'dfrn'",
 			DBA::escape($webbie));
-		$nav['remote'] = L10n::t('Visitor');
+		$nav['remote'] = DI::l10n()->t('Visitor');
 	} else {
 		$r = false;
 	}
@@ -265,18 +264,18 @@ function frio_remote_nav($a, &$nav)
 
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
 		// user menu
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], L10n::t('Status'), '', L10n::t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', L10n::t('Profile'), '', L10n::t('Your profile page')];
-		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], L10n::t('Photos'), '', L10n::t('Your photos')];
-		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], L10n::t('Videos'), '', L10n::t('Your videos')];
-		$nav['usermenu'][] = [$server_url . '/events/', L10n::t('Events'), '', L10n::t('Your events')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
+		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
+		$nav['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];
 
 		// navbar links
-		$nav['network'] = [$server_url . '/network', L10n::t('Network'), '', L10n::t('Conversations from your friends')];
-		$nav['events'] = [$server_url . '/events', L10n::t('Events'), '', L10n::t('Events and Calendar')];
-		$nav['messages'] = [$server_url . '/message', L10n::t('Messages'), '', L10n::t('Private mail')];
-		$nav['settings'] = [$server_url . '/settings', L10n::t('Settings'), '', L10n::t('Account settings')];
-		$nav['contacts'] = [$server_url . '/contact', L10n::t('Contacts'), '', L10n::t('Manage/edit friends and contacts')];
+		$nav['network'] = [$server_url . '/network', DI::l10n()->t('Network'), '', DI::l10n()->t('Conversations from your friends')];
+		$nav['events'] = [$server_url . '/events', DI::l10n()->t('Events'), '', DI::l10n()->t('Events and Calendar')];
+		$nav['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
+		$nav['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
+		$nav['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
 		$nav['sitename'] = Config::get('config', 'sitename');
 	}
 }
@@ -361,7 +360,7 @@ function frio_display_item(App $a, &$arr)
 	{
 		$subthread = [
 			'menu'   => 'follow_thread',
-			'title'  => L10n::t('Follow Thread'),
+			'title'  => DI::l10n()->t('Follow Thread'),
 			'action' => 'dosubthread(' . $arr['item']['id'] . '); return false;',
 			'href'   => '#'
 		];

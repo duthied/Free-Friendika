@@ -8,7 +8,6 @@ namespace Friendica\Content\Widget;
 
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -55,7 +54,7 @@ class ContactBlock
 			'network' => [Protocol::DFRN, Protocol::ACTIVITYPUB, Protocol::OSTATUS, Protocol::DIASPORA, Protocol::FEED],
 		]);
 
-		$contacts_title = L10n::t('No contacts');
+		$contacts_title = DI::l10n()->t('No contacts');
 
 		$micropro = [];
 
@@ -87,7 +86,7 @@ class ContactBlock
 				$contacts_stmt = DBA::select('contact', ['id', 'uid', 'addr', 'url', 'name', 'thumb', 'network'], ['id' => $contact_ids]);
 
 				if (DBA::isResult($contacts_stmt)) {
-					$contacts_title = L10n::tt('%d Contact', '%d Contacts', $total);
+					$contacts_title = DI::l10n()->tt('%d Contact', '%d Contacts', $total);
 					$micropro = [];
 
 					while ($contact = DBA::fetch($contacts_stmt)) {
@@ -106,7 +105,7 @@ class ContactBlock
 		$o = Renderer::replaceMacros($tpl, [
 			'$contacts' => $contacts_title,
 			'$nickname' => $profile['nickname'],
-			'$viewcontacts' => L10n::t('View Contacts'),
+			'$viewcontacts' => DI::l10n()->t('View Contacts'),
 			'$micropro' => $micropro,
 		]);
 

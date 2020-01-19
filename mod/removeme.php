@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -44,9 +43,9 @@ function removeme_post(App $a)
 		}
 		notification([
 			'type'         => SYSTEM_EMAIL,
-			'subject'      => L10n::t('[Friendica System Notify]') . ' ' . L10n::t('User deleted their account'),
-			'preamble'     => L10n::t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
-			'body'         => L10n::t('The user id is %d', local_user()),
+			'subject'      => DI::l10n()->t('[Friendica System Notify]') . ' ' . DI::l10n()->t('User deleted their account'),
+			'preamble'     => DI::l10n()->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
+			'body'         => DI::l10n()->t('The user id is %d', local_user()),
 			'to_email'     => $admin['email'],
 			'to_name'      => $admin['username'],
 			'uid'          => $admin['uid'],
@@ -82,10 +81,10 @@ function removeme_content(App $a)
 	$o = Renderer::replaceMacros($tpl, [
 		'$basedir' => DI::baseUrl()->get(),
 		'$hash' => $hash,
-		'$title' => L10n::t('Remove My Account'),
-		'$desc' => L10n::t('This will completely remove your account. Once this has been done it is not recoverable.'),
-		'$passwd' => L10n::t('Please enter your password for verification:'),
-		'$submit' => L10n::t('Remove My Account')
+		'$title' => DI::l10n()->t('Remove My Account'),
+		'$desc' => DI::l10n()->t('This will completely remove your account. Once this has been done it is not recoverable.'),
+		'$passwd' => DI::l10n()->t('Please enter your password for verification:'),
+		'$submit' => DI::l10n()->t('Remove My Account')
 	]);
 
 	return $o;

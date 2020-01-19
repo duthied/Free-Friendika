@@ -6,13 +6,11 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\Security\Login;
 use Friendica\Protocol\DFRN;
 use Friendica\Protocol\OStatus;
 use Friendica\Util\Network;
@@ -121,7 +119,7 @@ function dfrn_poll_init(App $a)
 					Session::setVisitorsContacts();
 
 					if (!$quiet) {
-						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
+						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
 
 					// Visitors get 1 day session.
@@ -524,7 +522,7 @@ function dfrn_poll_content(App $a)
 					Session::setVisitorsContacts();
 
 					if (!$quiet) {
-						info(L10n::t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
+						info(DI::l10n()->t('%1$s welcomes %2$s', $r[0]['username'], $r[0]['name']) . EOL);
 					}
 
 					// Visitors get 1 day session.

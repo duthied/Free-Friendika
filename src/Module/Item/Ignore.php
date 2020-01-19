@@ -2,12 +2,9 @@
 
 namespace Friendica\Module\Item;
 
-use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Core\L10n\L10n;
 use Friendica\Core\Session;
 use Friendica\Core\System;
-use Friendica\Database\Database;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;

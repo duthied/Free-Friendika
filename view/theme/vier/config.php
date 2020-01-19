@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
@@ -74,7 +73,7 @@ function theme_admin(App $a) {
 
 	$t = Renderer::getMarkupTemplate("theme_admin_settings.tpl");
 	$o = Renderer::replaceMacros($t, [
-		'$helperlist' => ['vier_helperlist', L10n::t('Comma separated list of helper forums'), $helperlist, '', ''],
+		'$helperlist' => ['vier_helperlist', DI::l10n()->t('Comma separated list of helper forums'), $helperlist, '', ''],
 		]);
 
 	$show_pages = get_vier_config('show_pages', true, true);
@@ -114,19 +113,19 @@ function vier_form(App $a, $style, $show_pages, $show_profiles, $show_helpers, $
 		"shadow"=>"Shadow"
 	];
 
-	$show_or_not = ['0' => L10n::t("don't show"), '1' => L10n::t("show"),];
+	$show_or_not = ['0' => DI::l10n()->t("don't show"), '1' => DI::l10n()->t("show"),];
 
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl");
 	$o = Renderer::replaceMacros($t, [
-		'$submit' => L10n::t('Submit'),
-		'$title' => L10n::t("Theme settings"),
-		'$style' => ['vier_style', L10n::t('Set style'), $style, '', $styles],
-		'$show_pages' => ['vier_show_pages', L10n::t('Community Pages'), $show_pages, '', $show_or_not],
-		'$show_profiles' => ['vier_show_profiles', L10n::t('Community Profiles'), $show_profiles, '', $show_or_not],
-		'$show_helpers' => ['vier_show_helpers', L10n::t('Help or @NewHere ?'), $show_helpers, '', $show_or_not],
-		'$show_services' => ['vier_show_services', L10n::t('Connect Services'), $show_services, '', $show_or_not],
-		'$show_friends' => ['vier_show_friends', L10n::t('Find Friends'), $show_friends, '', $show_or_not],
-		'$show_lastusers' => ['vier_show_lastusers', L10n::t('Last users'), $show_lastusers, '', $show_or_not]
+		'$submit' => DI::l10n()->t('Submit'),
+		'$title' => DI::l10n()->t("Theme settings"),
+		'$style' => ['vier_style', DI::l10n()->t('Set style'), $style, '', $styles],
+		'$show_pages' => ['vier_show_pages', DI::l10n()->t('Community Pages'), $show_pages, '', $show_or_not],
+		'$show_profiles' => ['vier_show_profiles', DI::l10n()->t('Community Profiles'), $show_profiles, '', $show_or_not],
+		'$show_helpers' => ['vier_show_helpers', DI::l10n()->t('Help or @NewHere ?'), $show_helpers, '', $show_or_not],
+		'$show_services' => ['vier_show_services', DI::l10n()->t('Connect Services'), $show_services, '', $show_or_not],
+		'$show_friends' => ['vier_show_friends', DI::l10n()->t('Find Friends'), $show_friends, '', $show_or_not],
+		'$show_lastusers' => ['vier_show_lastusers', DI::l10n()->t('Last users'), $show_lastusers, '', $show_or_not]
 	]);
 	return $o;
 }

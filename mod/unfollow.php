@@ -4,7 +4,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -19,7 +18,7 @@ function unfollow_post(App $a)
 	$base_return_path = 'contact';
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.'));
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
 	}
@@ -33,7 +32,7 @@ function unfollow_post(App $a)
 	$contact = DBA::selectFirst('contact', [], $condition);
 
 	if (!DBA::isResult($contact)) {
-		notice(L10n::t("You aren't following this contact."));
+		notice(DI::l10n()->t("You aren't following this contact."));
 		DI::baseUrl()->redirect($base_return_path);
 		// NOTREACHED
 	}
@@ -43,7 +42,7 @@ function unfollow_post(App $a)
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		notice(L10n::t('Unfollowing is currently not supported by your network.'));
+		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
 		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
@@ -64,7 +63,7 @@ function unfollow_post(App $a)
 		$return_path = $base_return_path . '/' . $contact['id'];
 	}
 
-	info(L10n::t('Contact unfollowed'));
+	info(DI::l10n()->t('Contact unfollowed'));
 	DI::baseUrl()->redirect($return_path);
 	// NOTREACHED
 }
@@ -74,7 +73,7 @@ function unfollow_content(App $a)
 	$base_return_path = 'contact';
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.'));
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect('login');
 		// NOTREACHED
 	}
@@ -89,13 +88,13 @@ function unfollow_content(App $a)
 	$contact = DBA::selectFirst('contact', ['url', 'network', 'addr', 'name'], $condition);
 
 	if (!DBA::isResult($contact)) {
-		notice(L10n::t("You aren't following this contact."));
+		notice(DI::l10n()->t("You aren't following this contact."));
 		DI::baseUrl()->redirect($base_return_path);
 		// NOTREACHED
 	}
 
 	if (!in_array($contact['network'], Protocol::NATIVE_SUPPORT)) {
-		notice(L10n::t('Unfollowing is currently not supported by your network.'));
+		notice(DI::l10n()->t('Unfollowing is currently not supported by your network.'));
 		DI::baseUrl()->redirect($base_return_path . '/' . $contact['id']);
 		// NOTREACHED
 	}
@@ -106,7 +105,7 @@ function unfollow_content(App $a)
 	$self = DBA::selectFirst('contact', ['url'], ['uid' => $uid, 'self' => true]);
 
 	if (!DBA::isResult($self)) {
-		notice(L10n::t('Permission denied.'));
+		notice(DI::l10n()->t('Permission denied.'));
 		DI::baseUrl()->redirect($base_return_path);
 		// NOTREACHED
 	}
@@ -115,7 +114,7 @@ function unfollow_content(App $a)
 	$_SESSION['fastlane'] = $contact['url'];
 
 	$o = Renderer::replaceMacros($tpl, [
-		'$header'        => L10n::t('Disconnect/Unfollow'),
+		'$header'        => DI::l10n()->t('Disconnect/Unfollow'),
 		'$desc'          => '',
 		'$pls_answer'    => '',
 		'$does_know_you' => '',
@@ -125,16 +124,16 @@ function unfollow_content(App $a)
 		'$statusnet'     => '',
 		'$diaspora'      => '',
 		'$diasnote'      => '',
-		'$your_address'  => L10n::t('Your Identity Address:'),
+		'$your_address'  => DI::l10n()->t('Your Identity Address:'),
 		'$invite_desc'   => '',
 		'$emailnet'      => '',
-		'$submit'        => L10n::t('Submit Request'),
-		'$cancel'        => L10n::t('Cancel'),
+		'$submit'        => DI::l10n()->t('Submit Request'),
+		'$cancel'        => DI::l10n()->t('Cancel'),
 		'$nickname'      => '',
 		'$name'          => $contact['name'],
 		'$url'           => $contact['url'],
 		'$zrl'           => Contact::magicLink($contact['url']),
-		'$url_label'     => L10n::t('Profile URL'),
+		'$url_label'     => DI::l10n()->t('Profile URL'),
 		'$myaddr'        => $self['url'],
 		'$request'       => $request,
 		'$keywords'      => '',
@@ -144,7 +143,7 @@ function unfollow_content(App $a)
 	DI::page()['aside'] = '';
 	Profile::load($a, '', 0, Contact::getDetailsByURL($contact['url']));
 
-	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => L10n::t('Status Messages and Posts')]);
+	$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), ['$title' => DI::l10n()->t('Status Messages and Posts')]);
 
 	// Show last public posts
 	$o .= Contact::getPostsFromUrl($contact['url']);

@@ -8,7 +8,6 @@ namespace Friendica\Model;
 
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -551,7 +550,7 @@ class Photo
 					GROUP BY `album` ORDER BY `created` DESC",
 					intval($uid),
 					DBA::escape("Contact Photos"),
-					DBA::escape(L10n::t("Contact Photos"))
+					DBA::escape(DI::l10n()->t("Contact Photos"))
 				);
 			} else {
 				// This query doesn't do the count and is much faster
@@ -560,7 +559,7 @@ class Photo
 					WHERE `uid` = %d  AND `album` != '%s' AND `album` != '%s' $sql_extra",
 					intval($uid),
 					DBA::escape("Contact Photos"),
-					DBA::escape(L10n::t("Contact Photos"))
+					DBA::escape(DI::l10n()->t("Contact Photos"))
 				);
 			}
 			DI::cache()->set($key, $albums, Duration::DAY);

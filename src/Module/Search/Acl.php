@@ -5,11 +5,11 @@ namespace Friendica\Module\Search;
 use Friendica\BaseModule;
 use Friendica\Content\Widget;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;
@@ -34,7 +34,7 @@ class Acl extends BaseModule
 	public static function rawContent(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new HTTPException\UnauthorizedException(L10n::t('You must be logged in to use this module.'));
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('You must be logged in to use this module.'));
 		}
 
 		$type = $_REQUEST['type'] ?? self::TYPE_MENTION_CONTACT_GROUP;

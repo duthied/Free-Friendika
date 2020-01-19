@@ -4,7 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -96,7 +95,7 @@ class Delegation extends BaseModule
 	public static function content(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new ForbiddenException(L10n::t('Permission denied.'));
+			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$identities = DI::app()->identities;
@@ -125,11 +124,11 @@ class Delegation extends BaseModule
 		}
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('delegation.tpl'), [
-			'$title'      => L10n::t('Manage Identities and/or Pages'),
-			'$desc'       => L10n::t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
-			'$choose'     => L10n::t('Select an identity to manage: '),
+			'$title'      => DI::l10n()->t('Manage Identities and/or Pages'),
+			'$desc'       => DI::l10n()->t('Toggle between different identities or community/group pages which share your account details or which you have been granted "manage" permissions'),
+			'$choose'     => DI::l10n()->t('Select an identity to manage: '),
 			'$identities' => $identities,
-			'$submit'     => L10n::t('Submit'),
+			'$submit'     => DI::l10n()->t('Submit'),
 		]);
 
 		return $o;

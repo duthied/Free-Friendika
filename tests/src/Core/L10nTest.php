@@ -1,8 +1,8 @@
 <?php
 
-namespace src\Core\L10n;
+namespace Friendica\Test\src\Core\L10n;
 
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Test\MockedTest;
 
 class L10nTest extends MockedTest

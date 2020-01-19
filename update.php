@@ -2,7 +2,6 @@
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
@@ -215,7 +214,7 @@ function update_1260()
 	Config::set(
 		'system',
 		'maintenance_reason',
-		L10n::t(
+		DI::l10n()->t(
 			'%s: Updating author-id and owner-id in item and thread table. ',
 			DateTimeFormat::utcNow().' '.date('e')
 		)
@@ -270,7 +269,7 @@ function update_1278()
 	Config::set(
 		'system',
 		'maintenance_reason',
-		L10n::t(
+		DI::l10n()->t(
 			'%s: Updating post-type.',
 			DateTimeFormat::utcNow().' '.date('e')
 		)
@@ -300,7 +299,7 @@ function update_1298()
 	$keys = ['gender', 'marital', 'sexual'];
 	foreach ($keys as $translateKey) {
 		$allData = DBA::select('profile', ['id', $translateKey]);
-		$allLangs = L10n::getAvailableLanguages();
+		$allLangs = DI::l10n()->getAvailableLanguages();
 		$success = 0;
 		$fail = 0;
 		foreach ($allData as $key => $data) {

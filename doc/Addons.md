@@ -181,6 +181,8 @@ Put your tpl files in the *templates/* subfolder of your addon.
 In your code, like in the function addon_name_content(), load the template file and execute it passing needed values:
 
 ```php
+use Friendica\Core\Renderer;
+
 # load template file. first argument is the template name,
 # second is the addon path relative to friendica top folder
 $tpl = Renderer::getMarkupTemplate('mytemplate.tpl', __DIR__);

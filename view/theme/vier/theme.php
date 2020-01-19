@@ -13,7 +13,6 @@ use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
@@ -125,7 +124,7 @@ function vier_community_info()
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 		if (DBA::isResult($r)) {
-			$aside['$comunity_profiles_title'] = L10n::t('Community Profiles');
+			$aside['$comunity_profiles_title'] = DI::l10n()->t('Community Profiles');
 			$aside['$comunity_profiles_items'] = [];
 
 			foreach ($r as $rr) {
@@ -155,7 +154,7 @@ function vier_community_info()
 		);
 
 		if (DBA::isResult($r)) {
-			$aside['$lastusers_title'] = L10n::t('Last users');
+			$aside['$lastusers_title'] = DI::l10n()->t('Last users');
 			$aside['$lastusers_items'] = [];
 
 			foreach ($r as $rr) {
@@ -173,18 +172,18 @@ function vier_community_info()
 	//right_aside FIND FRIENDS
 	if ($show_friends && local_user()) {
 		$nv = [];
-		$nv['findpeople'] = L10n::t('Find People');
-		$nv['desc'] = L10n::t('Enter name or interest');
-		$nv['label'] = L10n::t('Connect/Follow');
-		$nv['hint'] = L10n::t('Examples: Robert Morgenstein, Fishing');
-		$nv['findthem'] = L10n::t('Find');
-		$nv['suggest'] = L10n::t('Friend Suggestions');
-		$nv['similar'] = L10n::t('Similar Interests');
-		$nv['random'] = L10n::t('Random Profile');
-		$nv['inv'] = L10n::t('Invite Friends');
-		$nv['directory'] = L10n::t('Global Directory');
+		$nv['findpeople'] = DI::l10n()->t('Find People');
+		$nv['desc'] = DI::l10n()->t('Enter name or interest');
+		$nv['label'] = DI::l10n()->t('Connect/Follow');
+		$nv['hint'] = DI::l10n()->t('Examples: Robert Morgenstein, Fishing');
+		$nv['findthem'] = DI::l10n()->t('Find');
+		$nv['suggest'] = DI::l10n()->t('Friend Suggestions');
+		$nv['similar'] = DI::l10n()->t('Similar Interests');
+		$nv['random'] = DI::l10n()->t('Random Profile');
+		$nv['inv'] = DI::l10n()->t('Invite Friends');
+		$nv['directory'] = DI::l10n()->t('Global Directory');
 		$nv['global_dir'] = Search::getGlobalDirectory();
-		$nv['local_directory'] = L10n::t('Local Directory');
+		$nv['local_directory'] = DI::l10n()->t('Local Directory');
 
 		$aside['$nv'] = $nv;
 	}
@@ -224,12 +223,12 @@ function vier_community_info()
 			$page = Renderer::replaceMacros(
 				$tpl,
 				[
-					'$title'          => L10n::t('Forums'),
+					'$title'          => DI::l10n()->t('Forums'),
 					'$forums'         => $entries,
-					'$link_desc'      => L10n::t('External link to forum'),
+					'$link_desc'      => DI::l10n()->t('External link to forum'),
 					'$total'          => $total,
 					'$visible_forums' => $visible_forums,
-					'$showmore'       => L10n::t('show more')]
+					'$showmore'       => DI::l10n()->t('show more')]
 			);
 
 			$aside['$page'] = $page;
@@ -262,13 +261,13 @@ function vier_community_info()
 			$r[$index]["url"] = Contact::magicLink($helper["url"]);
 		}
 
-		$r[] = ["url" => "help/Quick-Start-guide", "name" => L10n::t("Quick Start")];
+		$r[] = ["url" => "help/Quick-Start-guide", "name" => DI::l10n()->t("Quick Start")];
 
 		$tpl = Renderer::getMarkupTemplate('ch_helpers.tpl');
 
 		if ($r) {
 			$helpers = [];
-			$helpers['title'] = ["", L10n::t('Help'), "", ""];
+			$helpers['title'] = ["", DI::l10n()->t('Help'), "", ""];
 
 			$aside['$helpers_items'] = [];
 
@@ -347,7 +346,7 @@ function vier_community_info()
 
 		if (DBA::isResult($r)) {
 			$con_services = [];
-			$con_services['title'] = ["", L10n::t('Connect Services'), "", ""];
+			$con_services['title'] = ["", DI::l10n()->t('Connect Services'), "", ""];
 			$aside['$con_services'] = $con_services;
 
 			foreach ($r as $rr) {

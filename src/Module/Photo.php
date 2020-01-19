@@ -6,12 +6,10 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Photo as MPhoto;
-use Friendica\Object\Image;
 
 /**
  * Photo Module
@@ -85,7 +83,7 @@ class Photo extends BaseModule
 
 		if (is_null($img) || !$img->isValid()) {
 			Logger::log("Invalid photo with id {$photo["id"]}.");
-			throw new \Friendica\Network\HTTPException\InternalServerErrorException(L10n::t('Invalid photo with id %s.', $photo["id"]));
+			throw new \Friendica\Network\HTTPException\InternalServerErrorException(DI::l10n()->t('Invalid photo with id %s.', $photo["id"]));
 		}
 
 		// if customsize is set and image is not a gif, resize it

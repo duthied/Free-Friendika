@@ -3,9 +3,9 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
 
 class Federation extends BaseAdminModule
@@ -31,7 +31,7 @@ class Federation extends BaseAdminModule
 			'socialhome'  => ['name' => 'SocialHome', 'color' => '#52056b'], // lilac from the Django Image used at the Socialhome homepage
 			'wordpress'   => ['name' => 'WordPress', 'color' => '#016087'], // Background color of the homepage
 			'writefreely' => ['name' => 'WriteFreely', 'color' => '#292929'], // Font color of the homepage
-			'other'       => ['name' => L10n::t('Other'), 'color' => '#F1007E'], // ActivityPub main color
+			'other'       => ['name' => DI::l10n()->t('Other'), 'color' => '#F1007E'], // ActivityPub main color
 		];
 
 		$platforms = array_keys($systems);
@@ -85,7 +85,7 @@ class Federation extends BaseAdminModule
 			if ($platform != $gserver['platform']) {
 				if ($platform == 'other') {
 					$versionCounts = $counts[$platform][1] ?? [];
-					$versionCounts[] = ['version' => $gserver['platform'] ?: L10n::t('unknown'), 'total' => $gserver['total']];
+					$versionCounts[] = ['version' => $gserver['platform'] ?: DI::l10n()->t('unknown'), 'total' => $gserver['total']];
 					$gserver['version'] = '';
 				} else {
 					$versionCounts = array_merge($versionCounts, $counts[$platform][1] ?? []);
@@ -113,20 +113,20 @@ class Federation extends BaseAdminModule
 		DBA::close($gserver);
 
 		// some helpful text
-		$intro = L10n::t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
-		$hint = L10n::t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
+		$intro = DI::l10n()->t('This page offers you some numbers to the known part of the federated social network your Friendica node is part of. These numbers are not complete but only reflect the part of the network your node is aware of.');
+		$hint = DI::l10n()->t('The <em>Auto Discovered Contact Directory</em> feature is not enabled, it will improve the data displayed here.');
 
 		// load the template, replace the macros and return the page content
 		$t = Renderer::getMarkupTemplate('admin/federation.tpl');
 		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
-			'$page' => L10n::t('Federation Statistics'),
+			'$title' => DI::l10n()->t('Administration'),
+			'$page' => DI::l10n()->t('Federation Statistics'),
 			'$intro' => $intro,
 			'$hint' => $hint,
 			'$autoactive' => Config::get('system', 'poco_completion'),
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
-			'$legendtext' => L10n::t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
+			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),
 		]);
 	}
 
@@ -247,7 +247,7 @@ class Federation extends BaseAdminModule
 		// to the version string for the displayed list.
 		foreach ($versionCounts as $key => $value) {
 			if ($versionCounts[$key]['version'] == '') {
-				$versionCounts[$key] = ['total' => $versionCounts[$key]['total'], 'version' => L10n::t('unknown')];
+				$versionCounts[$key] = ['total' => $versionCounts[$key]['total'], 'version' => DI::l10n()->t('unknown')];
 			}
 		}
 

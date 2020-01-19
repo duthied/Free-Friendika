@@ -7,7 +7,7 @@
 namespace Friendica\Model\Storage;
 
 use Friendica\Core\Config\IConfiguration;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
 

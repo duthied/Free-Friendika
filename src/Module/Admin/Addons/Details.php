@@ -4,7 +4,6 @@ namespace Friendica\Module\Admin\Addons;
 
 use Friendica\Content\Text\Markdown;
 use Friendica\Core\Addon;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
@@ -49,7 +48,7 @@ class Details extends BaseAdminModule
 			$addon = $a->argv[2];
 			$addon = Strings::sanitizeFilePathItem($addon);
 			if (!is_file("addon/$addon/$addon.php")) {
-				notice(L10n::t('Addon not found.'));
+				notice(DI::l10n()->t('Addon not found.'));
 				Addon::uninstall($addon);
 				DI::baseUrl()->redirect('admin/addons');
 			}
@@ -60,10 +59,10 @@ class Details extends BaseAdminModule
 				// Toggle addon status
 				if (Addon::isEnabled($addon)) {
 					Addon::uninstall($addon);
-					info(L10n::t('Addon %s disabled.', $addon));
+					info(DI::l10n()->t('Addon %s disabled.', $addon));
 				} else {
 					Addon::install($addon);
-					info(L10n::t('Addon %s enabled.', $addon));
+					info(DI::l10n()->t('Addon %s enabled.', $addon));
 				}
 
 				Addon::saveEnabledList();
@@ -74,10 +73,10 @@ class Details extends BaseAdminModule
 			// display addon details
 			if (Addon::isEnabled($addon)) {
 				$status = 'on';
-				$action = L10n::t('Disable');
+				$action = DI::l10n()->t('Disable');
 			} else {
 				$status = 'off';
-				$action = L10n::t('Enable');
+				$action = DI::l10n()->t('Enable');
 			}
 
 			$readme = null;
@@ -97,18 +96,18 @@ class Details extends BaseAdminModule
 			$t = Renderer::getMarkupTemplate('admin/addons/details.tpl');
 
 			return Renderer::replaceMacros($t, [
-				'$title' => L10n::t('Administration'),
-				'$page' => L10n::t('Addons'),
-				'$toggle' => L10n::t('Toggle'),
-				'$settings' => L10n::t('Settings'),
+				'$title' => DI::l10n()->t('Administration'),
+				'$page' => DI::l10n()->t('Addons'),
+				'$toggle' => DI::l10n()->t('Toggle'),
+				'$settings' => DI::l10n()->t('Settings'),
 				'$baseurl' => DI::baseUrl()->get(true),
 
 				'$addon' => $addon,
 				'$status' => $status,
 				'$action' => $action,
 				'$info' => Addon::getInfo($addon),
-				'$str_author' => L10n::t('Author: '),
-				'$str_maintainer' => L10n::t('Maintainer: '),
+				'$str_author' => DI::l10n()->t('Author: '),
+				'$str_maintainer' => DI::l10n()->t('Maintainer: '),
 
 				'$admin_form' => $admin_form,
 				'$function' => 'addons',

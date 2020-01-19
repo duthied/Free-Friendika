@@ -2,9 +2,7 @@
 
 namespace Friendica\Module\Base;
 
-use Friendica\App\Arguments;
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
@@ -39,13 +37,13 @@ class Api extends BaseModule
 	public static function post(array $parameters = [])
 	{
 		if (!api_user()) {
-			throw new HTTPException\UnauthorizedException(L10n::t('Permission denied.'));
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
 
 		$a = DI::app();
 
 		if (!empty($a->user['uid']) && $a->user['uid'] != api_user()) {
-			throw new HTTPException\ForbiddenException(L10n::t('Permission denied.'));
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 

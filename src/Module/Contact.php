@@ -11,7 +11,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
@@ -67,7 +66,7 @@ class Contact extends BaseModule
 			}
 		}
 		if ($count_actions > 0) {
-			info(L10n::tt('%d contact edited.', '%d contacts edited.', $count_actions));
+			info(DI::l10n()->tt('%d contact edited.', '%d contacts edited.', $count_actions));
 		}
 
 		DI::baseUrl()->redirect('contact');
@@ -94,7 +93,7 @@ class Contact extends BaseModule
 		}
 
 		if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false])) {
-			notice(L10n::t('Could not access contact record.') . EOL);
+			notice(DI::l10n()->t('Could not access contact record.') . EOL);
 			DI::baseUrl()->redirect('contact');
 			return; // NOTREACHED
 		}
@@ -104,7 +103,7 @@ class Contact extends BaseModule
 		$profile_id = intval($_POST['profile-assign'] ?? 0);
 		if ($profile_id) {
 			if (!DBA::exists('profile', ['id' => $profile_id, 'uid' => local_user()])) {
-				notice(L10n::t('Could not locate selected profile.') . EOL);
+				notice(DI::l10n()->t('Could not locate selected profile.') . EOL);
 				return;
 			}
 		}
@@ -136,9 +135,9 @@ class Contact extends BaseModule
 		);
 
 		if (DBA::isResult($r)) {
-			info(L10n::t('Contact updated.') . EOL);
+			info(DI::l10n()->t('Contact updated.') . EOL);
 		} else {
-			notice(L10n::t('Failed to update contact record.') . EOL);
+			notice(DI::l10n()->t('Failed to update contact record.') . EOL);
 		}
 
 		$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user(), 'deleted' => false]);
@@ -311,13 +310,13 @@ class Contact extends BaseModule
 				'$url'          => Model\Contact::magicLinkByContact($contact, $contact['url']),
 				'$addr'         => $contact['addr'] ?? '',
 				'$network_link' => $network_link,
-				'$network'      => L10n::t('Network:'),
+				'$network'      => DI::l10n()->t('Network:'),
 				'$account_type' => Model\Contact::getAccountType($contact),
-				'$follow'       => L10n::t('Follow'),
+				'$follow'       => DI::l10n()->t('Follow'),
 				'$follow_link'   => $follow_link,
-				'$unfollow'     => L10n::t('Unfollow'),
+				'$unfollow'     => DI::l10n()->t('Unfollow'),
 				'$unfollow_link' => $unfollow_link,
-				'$wallmessage'  => L10n::t('Message'),
+				'$wallmessage'  => DI::l10n()->t('Message'),
 				'$wallmessage_link' => $wallmessage_link,
 			]);
 
@@ -356,7 +355,7 @@ class Contact extends BaseModule
 		Nav::setSelected('contact');
 
 		if (!local_user()) {
-			notice(L10n::t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.') . EOL);
 			return Login::form();
 		}
 
@@ -371,7 +370,7 @@ class Contact extends BaseModule
 
 			$orig_record = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => [0, local_user()], 'self' => false, 'deleted' => false]);
 			if (!DBA::isResult($orig_record)) {
-				throw new NotFoundException(L10n::t('Contact not found'));
+				throw new NotFoundException(DI::l10n()->t('Contact not found'));
 			}
 
 			if ($cmd === 'update' && ($orig_record['uid'] != 0)) {
@@ -390,7 +389,7 @@ class Contact extends BaseModule
 				self::blockContact($contact_id);
 
 				$blocked = Model\Contact::isBlockedByUser($contact_id, local_user());
-				info(($blocked ? L10n::t('Contact has been blocked') : L10n::t('Contact has been unblocked')) . EOL);
+				info(($blocked ? DI::l10n()->t('Contact has been blocked') : DI::l10n()->t('Contact has been unblocked')) . EOL);
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -400,7 +399,7 @@ class Contact extends BaseModule
 				self::ignoreContact($contact_id);
 
 				$ignored = Model\Contact::isIgnoredByUser($contact_id, local_user());
-				info(($ignored ? L10n::t('Contact has been ignored') : L10n::t('Contact has been unignored')) . EOL);
+				info(($ignored ? DI::l10n()->t('Contact has been ignored') : DI::l10n()->t('Contact has been unignored')) . EOL);
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
 				// NOTREACHED
@@ -410,7 +409,7 @@ class Contact extends BaseModule
 				$r = self::archiveContact($contact_id, $orig_record);
 				if ($r) {
 					$archived = (($orig_record['archive']) ? 0 : 1);
-					info((($archived) ? L10n::t('Contact has been archived') : L10n::t('Contact has been unarchived')) . EOL);
+					info((($archived) ? DI::l10n()->t('Contact has been archived') : DI::l10n()->t('Contact has been unarchived')) . EOL);
 				}
 
 				DI::baseUrl()->redirect('contact/' . $contact_id);
@@ -434,15 +433,15 @@ class Contact extends BaseModule
 					DI::page()['aside'] = '';
 
 					return Renderer::replaceMacros(Renderer::getMarkupTemplate('contact_drop_confirm.tpl'), [
-						'$header' => L10n::t('Drop contact'),
+						'$header' => DI::l10n()->t('Drop contact'),
 						'$contact' => self::getContactTemplateVars($orig_record),
 						'$method' => 'get',
-						'$message' => L10n::t('Do you really want to delete this contact?'),
+						'$message' => DI::l10n()->t('Do you really want to delete this contact?'),
 						'$extra_inputs' => $inputs,
-						'$confirm' => L10n::t('Yes'),
+						'$confirm' => DI::l10n()->t('Yes'),
 						'$confirm_url' => $query['base'],
 						'$confirm_name' => 'confirmed',
-						'$cancel' => L10n::t('Cancel'),
+						'$cancel' => DI::l10n()->t('Cancel'),
 					]);
 				}
 				// Now check how the user responded to the confirmation query
@@ -451,7 +450,7 @@ class Contact extends BaseModule
 				}
 
 				self::dropContact($orig_record);
-				info(L10n::t('Contact has been removed.') . EOL);
+				info(DI::l10n()->t('Contact has been removed.') . EOL);
 
 				DI::baseUrl()->redirect('contact');
 				// NOTREACHED
@@ -481,17 +480,17 @@ class Contact extends BaseModule
 			switch ($contact['rel']) {
 				case Model\Contact::FRIEND:
 					$dir_icon = 'images/lrarrow.gif';
-					$relation_text = L10n::t('You are mutual friends with %s');
+					$relation_text = DI::l10n()->t('You are mutual friends with %s');
 					break;
 
 				case Model\Contact::FOLLOWER;
 					$dir_icon = 'images/larrow.gif';
-					$relation_text = L10n::t('You are sharing with %s');
+					$relation_text = DI::l10n()->t('You are sharing with %s');
 					break;
 
 				case Model\Contact::SHARING;
 					$dir_icon = 'images/rarrow.gif';
-					$relation_text = L10n::t('%s is sharing with you');
+					$relation_text = DI::l10n()->t('%s is sharing with you');
 					break;
 
 				default:
@@ -515,36 +514,36 @@ class Contact extends BaseModule
 				$sparkle = '';
 			}
 
-			$insecure = L10n::t('Private communications are not available for this contact.');
+			$insecure = DI::l10n()->t('Private communications are not available for this contact.');
 
-			$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME) ? L10n::t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
+			$last_update = (($contact['last-update'] <= DBA::NULL_DATETIME) ? DI::l10n()->t('Never') : DateTimeFormat::local($contact['last-update'], 'D, j M Y, g:i A'));
 
 			if ($contact['last-update'] > DBA::NULL_DATETIME) {
-				$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? L10n::t('(Update was successful)') : L10n::t('(Update was not successful)'));
+				$last_update .= ' ' . (($contact['last-update'] <= $contact['success_update']) ? DI::l10n()->t('(Update was successful)') : DI::l10n()->t('(Update was not successful)'));
 			}
-			$lblsuggest = (($contact['network'] === Protocol::DFRN) ? L10n::t('Suggest friends') : '');
+			$lblsuggest = (($contact['network'] === Protocol::DFRN) ? DI::l10n()->t('Suggest friends') : '');
 
 			$poll_enabled = in_array($contact['network'], [Protocol::DFRN, Protocol::OSTATUS, Protocol::FEED, Protocol::MAIL]);
 
-			$nettype = L10n::t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']));
+			$nettype = DI::l10n()->t('Network type: %s', ContactSelector::networkToName($contact['network'], $contact['url'], $contact['protocol']));
 
 			// tabs
 			$tab_str = self::getTabsHTML($a, $contact, 3);
 
-			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? L10n::t('Communications lost with this contact!') : '');
+			$lost_contact = (($contact['archive'] && $contact['term-date'] > DBA::NULL_DATETIME && $contact['term-date'] < DateTimeFormat::utcNow()) ? DI::l10n()->t('Communications lost with this contact!') : '');
 
 			$fetch_further_information = null;
 			if ($contact['network'] == Protocol::FEED) {
 				$fetch_further_information = [
 					'fetch_further_information',
-					L10n::t('Fetch further information for feeds'),
+					DI::l10n()->t('Fetch further information for feeds'),
 					$contact['fetch_further_information'],
-					L10n::t('Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn\'t contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags.'),
+					DI::l10n()->t('Fetch information like preview pictures, title and teaser from the feed item. You can activate this if the feed doesn\'t contain much text. Keywords are taken from the meta header in the feed item and are posted as hash tags.'),
 					[
-						'0' => L10n::t('Disabled'),
-						'1' => L10n::t('Fetch information'),
-						'3' => L10n::t('Fetch keywords'),
-						'2' => L10n::t('Fetch information and keywords')
+						'0' => DI::l10n()->t('Disabled'),
+						'1' => DI::l10n()->t('Fetch information'),
+						'3' => DI::l10n()->t('Fetch keywords'),
+						'2' => DI::l10n()->t('Fetch information and keywords')
 					]
 				];
 			}
@@ -563,9 +562,9 @@ class Contact extends BaseModule
 			$contact_actions = self::getContactActions($contact);
 
 			if ($contact['uid'] != 0) {
-				$lbl_vis1 = L10n::t('Profile Visibility');
-				$lbl_info1 = L10n::t('Contact Information / Notes');
-				$contact_settings_label = L10n::t('Contact Settings');
+				$lbl_vis1 = DI::l10n()->t('Profile Visibility');
+				$lbl_info1 = DI::l10n()->t('Contact Information / Notes');
+				$contact_settings_label = DI::l10n()->t('Contact Settings');
 			} else {
 				$lbl_vis1 = null;
 				$lbl_info1 = null;
@@ -574,67 +573,67 @@ class Contact extends BaseModule
 
 			$tpl = Renderer::getMarkupTemplate('contact_edit.tpl');
 			$o .= Renderer::replaceMacros($tpl, [
-				'$header'         => L10n::t('Contact'),
+				'$header'         => DI::l10n()->t('Contact'),
 				'$tab_str'        => $tab_str,
-				'$submit'         => L10n::t('Submit'),
+				'$submit'         => DI::l10n()->t('Submit'),
 				'$lbl_vis1'       => $lbl_vis1,
-				'$lbl_vis2'       => L10n::t('Please choose the profile you would like to display to %s when viewing your profile securely.', $contact['name']),
+				'$lbl_vis2'       => DI::l10n()->t('Please choose the profile you would like to display to %s when viewing your profile securely.', $contact['name']),
 				'$lbl_info1'      => $lbl_info1,
-				'$lbl_info2'      => L10n::t('Their personal note'),
+				'$lbl_info2'      => DI::l10n()->t('Their personal note'),
 				'$reason'         => trim(Strings::escapeTags($contact['reason'])),
-				'$infedit'        => L10n::t('Edit contact notes'),
+				'$infedit'        => DI::l10n()->t('Edit contact notes'),
 				'$common_link'    => 'common/loc/' . local_user() . '/' . $contact['id'],
 				'$relation_text'  => $relation_text,
-				'$visit'          => L10n::t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
-				'$blockunblock'   => L10n::t('Block/Unblock contact'),
-				'$ignorecont'     => L10n::t('Ignore contact'),
-				'$lblcrepair'     => L10n::t('Repair URL settings'),
-				'$lblrecent'      => L10n::t('View conversations'),
+				'$visit'          => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
+				'$blockunblock'   => DI::l10n()->t('Block/Unblock contact'),
+				'$ignorecont'     => DI::l10n()->t('Ignore contact'),
+				'$lblcrepair'     => DI::l10n()->t('Repair URL settings'),
+				'$lblrecent'      => DI::l10n()->t('View conversations'),
 				'$lblsuggest'     => $lblsuggest,
 				'$nettype'        => $nettype,
 				'$poll_interval'  => $poll_interval,
 				'$poll_enabled'   => $poll_enabled,
-				'$lastupdtext'    => L10n::t('Last update:'),
+				'$lastupdtext'    => DI::l10n()->t('Last update:'),
 				'$lost_contact'   => $lost_contact,
-				'$updpub'         => L10n::t('Update public posts'),
+				'$updpub'         => DI::l10n()->t('Update public posts'),
 				'$last_update'    => $last_update,
-				'$udnow'          => L10n::t('Update now'),
+				'$udnow'          => DI::l10n()->t('Update now'),
 				'$profile_select' => $profile_select,
 				'$contact_id'     => $contact['id'],
-				'$block_text'     => ($contact['blocked'] ? L10n::t('Unblock') : L10n::t('Block')),
-				'$ignore_text'    => ($contact['readonly'] ? L10n::t('Unignore') : L10n::t('Ignore')),
+				'$block_text'     => ($contact['blocked'] ? DI::l10n()->t('Unblock') : DI::l10n()->t('Block')),
+				'$ignore_text'    => ($contact['readonly'] ? DI::l10n()->t('Unignore') : DI::l10n()->t('Ignore')),
 				'$insecure'       => (in_array($contact['network'], [Protocol::ACTIVITYPUB, Protocol::DFRN, Protocol::MAIL, Protocol::DIASPORA]) ? '' : $insecure),
 				'$info'           => $contact['info'],
 				'$cinfo'          => ['info', '', $contact['info'], ''],
-				'$blocked'        => ($contact['blocked'] ? L10n::t('Currently blocked') : ''),
-				'$ignored'        => ($contact['readonly'] ? L10n::t('Currently ignored') : ''),
-				'$archived'       => ($contact['archive'] ? L10n::t('Currently archived') : ''),
-				'$pending'        => ($contact['pending'] ? L10n::t('Awaiting connection acknowledge') : ''),
-				'$hidden'         => ['hidden', L10n::t('Hide this contact from others'), ($contact['hidden'] == 1), L10n::t('Replies/likes to your public posts <strong>may</strong> still be visible')],
-				'$notify'         => ['notify', L10n::t('Notification for new posts'), ($contact['notify_new_posts'] == 1), L10n::t('Send a notification of every new post of this contact')],
+				'$blocked'        => ($contact['blocked'] ? DI::l10n()->t('Currently blocked') : ''),
+				'$ignored'        => ($contact['readonly'] ? DI::l10n()->t('Currently ignored') : ''),
+				'$archived'       => ($contact['archive'] ? DI::l10n()->t('Currently archived') : ''),
+				'$pending'        => ($contact['pending'] ? DI::l10n()->t('Awaiting connection acknowledge') : ''),
+				'$hidden'         => ['hidden', DI::l10n()->t('Hide this contact from others'), ($contact['hidden'] == 1), DI::l10n()->t('Replies/likes to your public posts <strong>may</strong> still be visible')],
+				'$notify'         => ['notify', DI::l10n()->t('Notification for new posts'), ($contact['notify_new_posts'] == 1), DI::l10n()->t('Send a notification of every new post of this contact')],
 				'$fetch_further_information' => $fetch_further_information,
-				'$ffi_keyword_blacklist' => ['ffi_keyword_blacklist', L10n::t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], L10n::t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
+				'$ffi_keyword_blacklist' => ['ffi_keyword_blacklist', DI::l10n()->t('Blacklisted keywords'), $contact['ffi_keyword_blacklist'], DI::l10n()->t('Comma separated list of keywords that should not be converted to hashtags, when "Fetch information and keywords" is selected')],
 				'$photo'          => $contact['photo'],
 				'$name'           => $contact['name'],
 				'$dir_icon'       => $dir_icon,
 				'$sparkle'        => $sparkle,
 				'$url'            => $url,
-				'$profileurllabel'=> L10n::t('Profile URL'),
+				'$profileurllabel'=> DI::l10n()->t('Profile URL'),
 				'$profileurl'     => $contact['url'],
 				'$account_type'   => Model\Contact::getAccountType($contact),
 				'$location'       => BBCode::convert($contact['location']),
-				'$location_label' => L10n::t('Location:'),
+				'$location_label' => DI::l10n()->t('Location:'),
 				'$xmpp'           => BBCode::convert($contact['xmpp']),
-				'$xmpp_label'     => L10n::t('XMPP:'),
+				'$xmpp_label'     => DI::l10n()->t('XMPP:'),
 				'$about'          => BBCode::convert($contact['about'], false),
-				'$about_label'    => L10n::t('About:'),
+				'$about_label'    => DI::l10n()->t('About:'),
 				'$keywords'       => $contact['keywords'],
-				'$keywords_label' => L10n::t('Tags:'),
-				'$contact_action_button' => L10n::t('Actions'),
+				'$keywords_label' => DI::l10n()->t('Tags:'),
+				'$contact_action_button' => DI::l10n()->t('Actions'),
 				'$contact_actions'=> $contact_actions,
-				'$contact_status' => L10n::t('Status'),
+				'$contact_status' => DI::l10n()->t('Status'),
 				'$contact_settings_label' => $contact_settings_label,
-				'$contact_profile_label' => L10n::t('Profile'),
+				'$contact_profile_label' => DI::l10n()->t('Profile'),
 			]);
 
 			$arr = ['contact' => $contact, 'output' => $o];
@@ -680,58 +679,58 @@ class Contact extends BaseModule
 
 		$tabs = [
 			[
-				'label' => L10n::t('All Contacts'),
+				'label' => DI::l10n()->t('All Contacts'),
 				'url'   => 'contact',
 				'sel'   => !$type ? 'active' : '',
-				'title' => L10n::t('Show all contacts'),
+				'title' => DI::l10n()->t('Show all contacts'),
 				'id'    => 'showall-tab',
 				'accesskey' => 'l',
 			],
 			[
-				'label' => L10n::t('Pending'),
+				'label' => DI::l10n()->t('Pending'),
 				'url'   => 'contact/pending',
 				'sel'   => $type == 'pending' ? 'active' : '',
-				'title' => L10n::t('Only show pending contacts'),
+				'title' => DI::l10n()->t('Only show pending contacts'),
 				'id'    => 'showpending-tab',
 				'accesskey' => 'p',
 			],
 			[
-				'label' => L10n::t('Blocked'),
+				'label' => DI::l10n()->t('Blocked'),
 				'url'   => 'contact/blocked',
 				'sel'   => $type == 'blocked' ? 'active' : '',
-				'title' => L10n::t('Only show blocked contacts'),
+				'title' => DI::l10n()->t('Only show blocked contacts'),
 				'id'    => 'showblocked-tab',
 				'accesskey' => 'b',
 			],
 			[
-				'label' => L10n::t('Ignored'),
+				'label' => DI::l10n()->t('Ignored'),
 				'url'   => 'contact/ignored',
 				'sel'   => $type == 'ignored' ? 'active' : '',
-				'title' => L10n::t('Only show ignored contacts'),
+				'title' => DI::l10n()->t('Only show ignored contacts'),
 				'id'    => 'showignored-tab',
 				'accesskey' => 'i',
 			],
 			[
-				'label' => L10n::t('Archived'),
+				'label' => DI::l10n()->t('Archived'),
 				'url'   => 'contact/archived',
 				'sel'   => $type == 'archived' ? 'active' : '',
-				'title' => L10n::t('Only show archived contacts'),
+				'title' => DI::l10n()->t('Only show archived contacts'),
 				'id'    => 'showarchived-tab',
 				'accesskey' => 'y',
 			],
 			[
-				'label' => L10n::t('Hidden'),
+				'label' => DI::l10n()->t('Hidden'),
 				'url'   => 'contact/hidden',
 				'sel'   => $type == 'hidden' ? 'active' : '',
-				'title' => L10n::t('Only show hidden contacts'),
+				'title' => DI::l10n()->t('Only show hidden contacts'),
 				'id'    => 'showhidden-tab',
 				'accesskey' => 'h',
 			],
 			[
-				'label' => L10n::t('Groups'),
+				'label' => DI::l10n()->t('Groups'),
 				'url'   => 'group',
 				'sel'   => '',
-				'title' => L10n::t('Organize your contact groups'),
+				'title' => DI::l10n()->t('Organize your contact groups'),
 				'id'    => 'contactgroups-tab',
 				'accesskey' => 'e',
 			],
@@ -791,18 +790,18 @@ class Contact extends BaseModule
 		}
 
 		switch ($rel) {
-			case 'followers': $header = L10n::t('Followers'); break;
-			case 'following': $header = L10n::t('Following'); break;
-			case 'mutuals':   $header = L10n::t('Mutual friends'); break;
-			default:          $header = L10n::t('Contacts');
+			case 'followers': $header = DI::l10n()->t('Followers'); break;
+			case 'following': $header = DI::l10n()->t('Following'); break;
+			case 'mutuals':   $header = DI::l10n()->t('Mutual friends'); break;
+			default:          $header = DI::l10n()->t('Contacts');
 		}
 
 		switch ($type) {
-			case 'pending':	 $header .= ' - ' . L10n::t('Pending'); break;
-			case 'blocked':	 $header .= ' - ' . L10n::t('Blocked'); break;
-			case 'hidden':   $header .= ' - ' . L10n::t('Hidden'); break;
-			case 'ignored':  $header .= ' - ' . L10n::t('Ignored'); break;
-			case 'archived': $header .= ' - ' . L10n::t('Archived'); break;
+			case 'pending':	 $header .= ' - ' . DI::l10n()->t('Pending'); break;
+			case 'blocked':	 $header .= ' - ' . DI::l10n()->t('Blocked'); break;
+			case 'hidden':   $header .= ' - ' . DI::l10n()->t('Hidden'); break;
+			case 'ignored':  $header .= ' - ' . DI::l10n()->t('Ignored'); break;
+			case 'archived': $header .= ' - ' . DI::l10n()->t('Archived'); break;
 		}
 
 		$header .= $nets ? ' - ' . ContactSelector::networkToName($nets) : '';
@@ -813,21 +812,21 @@ class Contact extends BaseModule
 			'$tabs'       => $t,
 			'$total'      => $total,
 			'$search'     => $search_hdr,
-			'$desc'       => L10n::t('Search your contacts'),
-			'$finding'    => $searching ? L10n::t('Results for: %s', $search) : '',
-			'$submit'     => L10n::t('Find'),
+			'$desc'       => DI::l10n()->t('Search your contacts'),
+			'$finding'    => $searching ? DI::l10n()->t('Results for: %s', $search) : '',
+			'$submit'     => DI::l10n()->t('Find'),
 			'$cmd'        => DI::args()->getCommand(),
 			'$contacts'   => $contacts,
-			'$contact_drop_confirm' => L10n::t('Do you really want to delete this contact?'),
+			'$contact_drop_confirm' => DI::l10n()->t('Do you really want to delete this contact?'),
 			'multiselect' => 1,
 			'$batch_actions' => [
-				'contacts_batch_update'  => L10n::t('Update'),
-				'contacts_batch_block'   => L10n::t('Block') . '/' . L10n::t('Unblock'),
-				'contacts_batch_ignore'  => L10n::t('Ignore') . '/' . L10n::t('Unignore'),
-				'contacts_batch_archive' => L10n::t('Archive') . '/' . L10n::t('Unarchive'),
-				'contacts_batch_drop'    => L10n::t('Delete'),
+				'contacts_batch_update'  => DI::l10n()->t('Update'),
+				'contacts_batch_block'   => DI::l10n()->t('Block') . '/' . DI::l10n()->t('Unblock'),
+				'contacts_batch_ignore'  => DI::l10n()->t('Ignore') . '/' . DI::l10n()->t('Unignore'),
+				'contacts_batch_archive' => DI::l10n()->t('Archive') . '/' . DI::l10n()->t('Unarchive'),
+				'contacts_batch_drop'    => DI::l10n()->t('Delete'),
 			],
-			'$h_batch_actions' => L10n::t('Batch Actions'),
+			'$h_batch_actions' => DI::l10n()->t('Batch Actions'),
 			'$paginate'   => $pager->renderFull($total),
 		]);
 
@@ -851,26 +850,26 @@ class Contact extends BaseModule
 		// tabs
 		$tabs = [
 			[
-				'label' => L10n::t('Status'),
+				'label' => DI::l10n()->t('Status'),
 				'url'   => "contact/" . $contact['id'] . "/conversations",
 				'sel'   => (($active_tab == 1) ? 'active' : ''),
-				'title' => L10n::t('Conversations started by this contact'),
+				'title' => DI::l10n()->t('Conversations started by this contact'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],
 			[
-				'label' => L10n::t('Posts and Comments'),
+				'label' => DI::l10n()->t('Posts and Comments'),
 				'url'   => "contact/" . $contact['id'] . "/posts",
 				'sel'   => (($active_tab == 2) ? 'active' : ''),
-				'title' => L10n::t('Status Messages and Posts'),
+				'title' => DI::l10n()->t('Status Messages and Posts'),
 				'id'    => 'posts-tab',
 				'accesskey' => 'p',
 			],
 			[
-				'label' => L10n::t('Profile'),
+				'label' => DI::l10n()->t('Profile'),
 				'url'   => "contact/" . $contact['id'],
 				'sel'   => (($active_tab == 3) ? 'active' : ''),
-				'title' => L10n::t('Profile Details'),
+				'title' => DI::l10n()->t('Profile Details'),
 				'id'    => 'profile-tab',
 				'accesskey' => 'o',
 			]
@@ -879,10 +878,10 @@ class Contact extends BaseModule
 		// Show this tab only if there is visible friend list
 		$x = Model\GContact::countAllFriends(local_user(), $contact['id']);
 		if ($x) {
-			$tabs[] = ['label' => L10n::t('Contacts'),
+			$tabs[] = ['label' => DI::l10n()->t('Contacts'),
 				'url'   => "allfriends/" . $contact['id'],
 				'sel'   => (($active_tab == 4) ? 'active' : ''),
-				'title' => L10n::t('View all contacts'),
+				'title' => DI::l10n()->t('View all contacts'),
 				'id'    => 'allfriends-tab',
 				'accesskey' => 't'];
 		}
@@ -890,20 +889,20 @@ class Contact extends BaseModule
 		// Show this tab only if there is visible common friend list
 		$common = Model\GContact::countCommonFriends(local_user(), $contact['id']);
 		if ($common) {
-			$tabs[] = ['label' => L10n::t('Common Friends'),
+			$tabs[] = ['label' => DI::l10n()->t('Common Friends'),
 				'url'   => "common/loc/" . local_user() . "/" . $contact['id'],
 				'sel'   => (($active_tab == 5) ? 'active' : ''),
-				'title' => L10n::t('View all common friends'),
+				'title' => DI::l10n()->t('View all common friends'),
 				'id'    => 'common-loc-tab',
 				'accesskey' => 'd'
 			];
 		}
 
 		if (!empty($contact['uid'])) {
-			$tabs[] = ['label' => L10n::t('Advanced'),
+			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
 				'url'   => 'crepair/' . $contact['id'],
 				'sel'   => (($active_tab == 6) ? 'active' : ''),
-				'title' => L10n::t('Advanced Contact Settings'),
+				'title' => DI::l10n()->t('Advanced Contact Settings'),
 				'id'    => 'advanced-tab',
 				'accesskey' => 'r'
 			];
@@ -986,17 +985,17 @@ class Contact extends BaseModule
 			switch ($rr['rel']) {
 				case Model\Contact::FRIEND:
 					$dir_icon = 'images/lrarrow.gif';
-					$alt_text = L10n::t('Mutual Friendship');
+					$alt_text = DI::l10n()->t('Mutual Friendship');
 					break;
 
 				case Model\Contact::FOLLOWER;
 					$dir_icon = 'images/larrow.gif';
-					$alt_text = L10n::t('is a fan of yours');
+					$alt_text = DI::l10n()->t('is a fan of yours');
 					break;
 
 				case Model\Contact::SHARING;
 					$dir_icon = 'images/rarrow.gif';
-					$alt_text = L10n::t('you are a fan of');
+					$alt_text = DI::l10n()->t('you are a fan of');
 					break;
 
 				default:
@@ -1014,22 +1013,22 @@ class Contact extends BaseModule
 
 		if ($rr['pending']) {
 			if (in_array($rr['rel'], [Model\Contact::FRIEND, Model\Contact::SHARING])) {
-				$alt_text = L10n::t('Pending outgoing contact request');
+				$alt_text = DI::l10n()->t('Pending outgoing contact request');
 			} else {
-				$alt_text = L10n::t('Pending incoming contact request');
+				$alt_text = DI::l10n()->t('Pending incoming contact request');
 			}
 		}
 
 		if ($rr['self']) {
 			$dir_icon = 'images/larrow.gif';
-			$alt_text = L10n::t('This is you');
+			$alt_text = DI::l10n()->t('This is you');
 			$url = $rr['url'];
 			$sparkle = '';
 		}
 
 		return [
-			'img_hover' => L10n::t('Visit %s\'s profile [%s]', $rr['name'], $rr['url']),
-			'edit_hover'=> L10n::t('Edit contact'),
+			'img_hover' => DI::l10n()->t('Visit %s\'s profile [%s]', $rr['name'], $rr['url']),
+			'edit_hover'=> DI::l10n()->t('Edit contact'),
 			'photo_menu'=> Model\Contact::photoMenu($rr),
 			'id'        => $rr['id'],
 			'alt_text'  => $alt_text,
@@ -1062,7 +1061,7 @@ class Contact extends BaseModule
 		// Provide friend suggestion only for Friendica contacts
 		if ($contact['network'] === Protocol::DFRN) {
 			$contact_actions['suggest'] = [
-				'label' => L10n::t('Suggest friends'),
+				'label' => DI::l10n()->t('Suggest friends'),
 				'url'   => 'fsuggest/' . $contact['id'],
 				'title' => '',
 				'sel'   => '',
@@ -1072,7 +1071,7 @@ class Contact extends BaseModule
 
 		if ($poll_enabled) {
 			$contact_actions['update'] = [
-				'label' => L10n::t('Update now'),
+				'label' => DI::l10n()->t('Update now'),
 				'url'   => 'contact/' . $contact['id'] . '/update',
 				'title' => '',
 				'sel'   => '',
@@ -1081,34 +1080,34 @@ class Contact extends BaseModule
 		}
 
 		$contact_actions['block'] = [
-			'label' => (intval($contact['blocked']) ? L10n::t('Unblock') : L10n::t('Block')),
+			'label' => (intval($contact['blocked']) ? DI::l10n()->t('Unblock') : DI::l10n()->t('Block')),
 			'url'   => 'contact/' . $contact['id'] . '/block',
-			'title' => L10n::t('Toggle Blocked status'),
+			'title' => DI::l10n()->t('Toggle Blocked status'),
 			'sel'   => (intval($contact['blocked']) ? 'active' : ''),
 			'id'    => 'toggle-block',
 		];
 
 		$contact_actions['ignore'] = [
-			'label' => (intval($contact['readonly']) ? L10n::t('Unignore') : L10n::t('Ignore')),
+			'label' => (intval($contact['readonly']) ? DI::l10n()->t('Unignore') : DI::l10n()->t('Ignore')),
 			'url'   => 'contact/' . $contact['id'] . '/ignore',
-			'title' => L10n::t('Toggle Ignored status'),
+			'title' => DI::l10n()->t('Toggle Ignored status'),
 			'sel'   => (intval($contact['readonly']) ? 'active' : ''),
 			'id'    => 'toggle-ignore',
 		];
 
 		if ($contact['uid'] != 0) {
 			$contact_actions['archive'] = [
-				'label' => (intval($contact['archive']) ? L10n::t('Unarchive') : L10n::t('Archive')),
+				'label' => (intval($contact['archive']) ? DI::l10n()->t('Unarchive') : DI::l10n()->t('Archive')),
 				'url'   => 'contact/' . $contact['id'] . '/archive',
-				'title' => L10n::t('Toggle Archive status'),
+				'title' => DI::l10n()->t('Toggle Archive status'),
 				'sel'   => (intval($contact['archive']) ? 'active' : ''),
 				'id'    => 'toggle-archive',
 			];
 
 			$contact_actions['delete'] = [
-				'label' => L10n::t('Delete'),
+				'label' => DI::l10n()->t('Delete'),
 				'url'   => 'contact/' . $contact['id'] . '/drop',
-				'title' => L10n::t('Delete contact'),
+				'title' => DI::l10n()->t('Delete contact'),
 				'sel'   => '',
 				'id'    => 'delete',
 			];

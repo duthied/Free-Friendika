@@ -4,7 +4,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache;
 use Friendica\Core\Config;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Core\Lock\ILock;
 use Friendica\Core\Process;
 use Friendica\Core\Session\ISession;

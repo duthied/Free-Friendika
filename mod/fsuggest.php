@@ -5,9 +5,9 @@
 
 use Friendica\App;
 use Friendica\Core\ACL;
-use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
@@ -29,7 +29,7 @@ function fsuggest_post(App $a)
 
 	// We do query the "uid" as well to ensure that it is our contact
 	if (!DBA::exists('contact', ['id' => $contact_id, 'uid' => local_user()])) {
-		notice(L10n::t('Contact not found.') . EOL);
+		notice(DI::l10n()->t('Contact not found.') . EOL);
 		return;
 	}
 
@@ -41,7 +41,7 @@ function fsuggest_post(App $a)
 	// We do query the "uid" as well to ensure that it is our contact
 	$contact = DBA::selectFirst('contact', ['name', 'url', 'request', 'avatar'], ['id' => $suggest_contact_id, 'uid' => local_user()]);
 	if (!DBA::isResult($contact)) {
-		notice(L10n::t('Suggested contact not found.') . EOL);
+		notice(DI::l10n()->t('Suggested contact not found.') . EOL);
 		return;
 	}
 
@@ -54,13 +54,13 @@ function fsuggest_post(App $a)
 
 	Worker::add(PRIORITY_HIGH, 'Notifier', Delivery::SUGGESTION, DBA::lastInsertId());
 
-	info(L10n::t('Friend suggestion sent.') . EOL);
+	info(DI::l10n()->t('Friend suggestion sent.') . EOL);
 }
 
 function fsuggest_content(App $a)
 {
 	if (! local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -72,13 +72,13 @@ function fsuggest_content(App $a)
 
 	$contact = DBA::selectFirst('contact', [], ['id' => $contact_id, 'uid' => local_user()]);
 	if (! DBA::isResult($contact)) {
-		notice(L10n::t('Contact not found.') . EOL);
+		notice(DI::l10n()->t('Contact not found.') . EOL);
 		return;
 	}
 
-	$o = '<h3>' . L10n::t('Suggest Friends') . '</h3>';
+	$o = '<h3>' . DI::l10n()->t('Suggest Friends') . '</h3>';
 
-	$o .= '<div id="fsuggest-desc" >' . L10n::t('Suggest a friend for %s', $contact['name']) . '</div>';
+	$o .= '<div id="fsuggest-desc" >' . DI::l10n()->t('Suggest a friend for %s', $contact['name']) . '</div>';
 
 	$o .= '<form id="fsuggest-form" action="fsuggest/' . $contact_id . '" method="post" >';
 
@@ -89,7 +89,7 @@ function fsuggest_content(App $a)
 	);
 
 
-	$o .= '<div id="fsuggest-submit-wrapper"><input id="fsuggest-submit" type="submit" name="submit" value="' . L10n::t('Submit') . '" /></div>';
+	$o .= '<div id="fsuggest-submit-wrapper"><input id="fsuggest-submit" type="submit" name="submit" value="' . DI::l10n()->t('Submit') . '" /></div>';
 	$o .= '</form>';
 
 	return $o;

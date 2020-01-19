@@ -5,7 +5,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\DI;
 
 require_once "mod/display.php";
@@ -21,7 +20,7 @@ function update_display_content(App $a)
 	$text = display_content($a, true, $profile_uid);
 
 	if (DI::pConfig()->get(local_user(), "system", "bandwidth_saver")) {
-		$replace = "<br />" . L10n::t("[Embedded content - reload page to view]") . "<br />";
+		$replace = "<br />" . DI::l10n()->t("[Embedded content - reload page to view]") . "<br />";
 		$pattern = "/<\s*audio[^>]*>(.*?)<\s*\/\s*audio>/i";
 		$text = preg_replace($pattern, $replace, $text);
 		$pattern = "/<\s*video[^>]*>(.*?)<\s*\/\s*video>/i";

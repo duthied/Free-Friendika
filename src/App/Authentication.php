@@ -22,7 +22,7 @@ use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 use LightOpenID;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Psr\Log\LoggerInterface;
 
 /**

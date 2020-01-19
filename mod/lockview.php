@@ -4,7 +4,6 @@
  */
 use Friendica\App;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Group;
@@ -45,7 +44,7 @@ function lockview_content(App $a)
 	Hook::callAll('lockview_content', $item);
 
 	if ($item['uid'] != local_user()) {
-		echo L10n::t('Remote privacy information not available.') . '<br />';
+		echo DI::l10n()->t('Remote privacy information not available.') . '<br />';
 		exit();
 	}
 
@@ -56,7 +55,7 @@ function lockview_content(App $a)
 		&& empty($item['deny_cid'])
 		&& empty($item['deny_gid']))
 	{
-		echo L10n::t('Remote privacy information not available.') . '<br />';
+		echo DI::l10n()->t('Remote privacy information not available.') . '<br />';
 		exit();
 	}
 
@@ -67,19 +66,19 @@ function lockview_content(App $a)
 	$deny_users = $aclFormatter->expand($item['deny_cid']);
 	$deny_groups = $aclFormatter->expand($item['deny_gid']);
 
-	$o = L10n::t('Visible to:') . '<br />';
+	$o = DI::l10n()->t('Visible to:') . '<br />';
 	$l = [];
 
 	if (count($allowed_groups)) {
 		$key = array_search(Group::FOLLOWERS, $allowed_groups);
 		if ($key !== false) {
-			$l[] = '<b>' . L10n::t('Followers') . '</b>';
+			$l[] = '<b>' . DI::l10n()->t('Followers') . '</b>';
 			unset($allowed_groups[$key]);
 		}
 
 		$key = array_search(Group::MUTUALS, $allowed_groups);
 		if ($key !== false) {
-			$l[] = '<b>' . L10n::t('Mutuals') . '</b>';
+			$l[] = '<b>' . DI::l10n()->t('Mutuals') . '</b>';
 			unset($allowed_groups[$key]);
 		}
 
@@ -108,13 +107,13 @@ function lockview_content(App $a)
 	if (count($deny_groups)) {
 		$key = array_search(Group::FOLLOWERS, $deny_groups);
 		if ($key !== false) {
-			$l[] = '<b><strike>' . L10n::t('Followers') . '</strike></b>';
+			$l[] = '<b><strike>' . DI::l10n()->t('Followers') . '</strike></b>';
 			unset($deny_groups[$key]);
 		}
 
 		$key = array_search(Group::MUTUALS, $deny_groups);
 		if ($key !== false) {
-			$l[] = '<b><strike>' . L10n::t('Mutuals') . '</strike></b>';
+			$l[] = '<b><strike>' . DI::l10n()->t('Mutuals') . '</strike></b>';
 			unset($deny_groups[$key]);
 		}
 

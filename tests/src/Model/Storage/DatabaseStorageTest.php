@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Model\Storage;
 
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Factory\ConfigFactory;
 use Friendica\Model\Storage\Database;
 use Friendica\Model\Storage\IStorage;

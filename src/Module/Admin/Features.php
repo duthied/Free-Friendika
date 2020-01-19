@@ -4,7 +4,6 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Content\Feature;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
@@ -56,8 +55,8 @@ class Features extends BaseAdminModule
 			foreach (array_slice($fdata, 1) as $f) {
 				$set = Config::get('feature', $f[0], $f[3]);
 				$arr[$fname][1][] = [
-					['feature_' . $f[0], $f[1], $set, $f[2], [L10n::t('Off'), L10n::t('On')]],
-					['featurelock_' . $f[0], L10n::t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', [L10n::t('Off'), L10n::t('On')]]
+					['feature_' . $f[0], $f[1], $set, $f[2], [DI::l10n()->t('Off'), DI::l10n()->t('On')]],
+					['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', [DI::l10n()->t('Off'), DI::l10n()->t('On')]]
 				];
 			}
 		}
@@ -65,9 +64,9 @@ class Features extends BaseAdminModule
 		$tpl = Renderer::getMarkupTemplate('admin/features.tpl');
 		$o = Renderer::replaceMacros($tpl, [
 			'$form_security_token' => parent::getFormSecurityToken("admin_manage_features"),
-			'$title' => L10n::t('Manage Additional Features'),
+			'$title' => DI::l10n()->t('Manage Additional Features'),
 			'$features' => $arr,
-			'$submit' => L10n::t('Save Settings'),
+			'$submit' => DI::l10n()->t('Save Settings'),
 		]);
 
 		return $o;

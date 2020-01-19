@@ -1,7 +1,6 @@
 <?php
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -30,7 +29,7 @@ function redir_init(App $a) {
 		$fields = ['id', 'uid', 'nurl', 'url', 'addr', 'name', 'network', 'poll', 'issued-id', 'dfrn-id', 'duplex', 'pending'];
 		$contact = DBA::selectFirst('contact', $fields, ['id' => $cid, 'uid' => [0, local_user()]]);
 		if (!DBA::isResult($contact)) {
-			notice(L10n::t('Contact not found.'));
+			notice(DI::l10n()->t('Contact not found.'));
 			DI::baseUrl()->redirect();
 		}
 
@@ -120,7 +119,7 @@ function redir_init(App $a) {
 		$a->redirect($url);
 	}
 
-	notice(L10n::t('Contact not found.'));
+	notice(DI::l10n()->t('Contact not found.'));
 	DI::baseUrl()->redirect();
 }
 
@@ -135,7 +134,7 @@ function redir_magic($a, $cid, $url)
 	if (!DBA::isResult($contact)) {
 		Logger::info('Contact not found', ['id' => $cid]);
 		// Shouldn't happen under normal conditions
-		notice(L10n::t('Contact not found.'));
+		notice(DI::l10n()->t('Contact not found.'));
 		if (!empty($url)) {
 			System::externalRedirect($url);
 		} else {

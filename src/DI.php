@@ -156,9 +156,12 @@ abstract class DI
 		return self::$dice->create(Core\Lock\ILock::class);
 	}
 
+	/**
+	 * @return Core\L10n
+	 */
 	public static function l10n()
 	{
-		return self::$dice->create(Core\L10n\L10n::class);
+		return self::$dice->create(Core\L10n::class);
 	}
 
 	/**

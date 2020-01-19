@@ -9,7 +9,6 @@ use Friendica\Content\Feature;
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -130,7 +129,7 @@ class Post
 		// only if the difference is more than 1 second.
 		if (strtotime($item['edited']) - strtotime($item['created']) > 1) {
 			$edited = [
-				'label'    => L10n::t('This entry was edited'),
+				'label'    => DI::l10n()->t('This entry was edited'),
 				'date'     => DateTimeFormat::local($item['edited'], 'r'),
 				'relative' => Temporal::getRelativeDate($item['edited'])
 			];
@@ -153,7 +152,7 @@ class Post
 
 		$lock = ((($item['private'] == 1) || (($item['uid'] == local_user()) && (strlen($item['allow_cid']) || strlen($item['allow_gid'])
 			|| strlen($item['deny_cid']) || strlen($item['deny_gid']))))
-			? L10n::t('Private Message')
+			? DI::l10n()->t('Private Message')
 			: false);
 
 		$shareable = in_array($conv->getProfileOwner(), [0, local_user()]) && $item['private'] != 1;
@@ -163,9 +162,9 @@ class Post
 		if (local_user()) {
 			if (Strings::compareLink($a->contact['url'], $item['author-link'])) {
 				if ($item["event-id"] != 0) {
-					$edpost = ["events/event/" . $item['event-id'], L10n::t("Edit")];
+					$edpost = ["events/event/" . $item['event-id'], DI::l10n()->t("Edit")];
 				} else {
-					$edpost = ["editpost/" . $item['id'], L10n::t("Edit")];
+					$edpost = ["editpost/" . $item['id'], DI::l10n()->t("Edit")];
 				}
 			}
 			$dropping = in_array($item['uid'], [0, local_user()]);
@@ -192,21 +191,21 @@ class Post
 				$origin = $parent['origin'];
 			}
 		} elseif ($item['pinned']) {
-			$pinned = L10n::t('pinned item');
+			$pinned = DI::l10n()->t('pinned item');
 		}
 
 		if ($origin && ($item['id'] != $item['parent']) && ($item['network'] == Protocol::ACTIVITYPUB)) {
 			// ActivityPub doesn't allow removal of remote comments
-			$delete = L10n::t('Delete locally');
+			$delete = DI::l10n()->t('Delete locally');
 		} else {
 			// Showing the one or the other text, depending upon if we can only hide it or really delete it.
-			$delete = $origin ? L10n::t('Delete globally') : L10n::t('Remove locally');
+			$delete = $origin ? DI::l10n()->t('Delete globally') : DI::l10n()->t('Remove locally');
 		}
 
 		$drop = [
 			'dropping' => $dropping,
 			'pagedrop' => $item['pagedrop'],
-			'select'   => L10n::t('Select'),
+			'select'   => DI::l10n()->t('Select'),
 			'delete'   => $delete,
 		];
 
@@ -214,7 +213,7 @@ class Post
 			$drop = false;
 		}
 
-		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? L10n::t("save to folder") : false);
+		$filer = (($conv->getProfileOwner() == local_user() && ($item['uid'] != 0)) ? DI::l10n()->t("save to folder") : false);
 
 		$profile_name = $item['author-name'];
 		if (!empty($item['author-link']) && empty($item['author-name'])) {
@@ -249,7 +248,7 @@ class Post
 			$response_verbs[] = 'attendmaybe';
 			if ($conv->isWritable()) {
 				$isevent = true;
-				$attend = [L10n::t('I will attend'), L10n::t('I will not attend'), L10n::t('I might attend')];
+				$attend = [DI::l10n()->t('I will attend'), DI::l10n()->t('I will not attend'), DI::l10n()->t('I might attend')];
 			}
 		}
 
@@ -277,12 +276,12 @@ class Post
 				$thread = Item::selectFirstThreadForUser(local_user(), ['ignored'], ['iid' => $item['id']]);
 				if (DBA::isResult($thread)) {
 					$ignore = [
-						'do'        => L10n::t("ignore thread"),
-						'undo'      => L10n::t("unignore thread"),
-						'toggle'    => L10n::t("toggle ignore status"),
+						'do'        => DI::l10n()->t("ignore thread"),
+						'undo'      => DI::l10n()->t("unignore thread"),
+						'toggle'    => DI::l10n()->t("toggle ignore status"),
 						'classdo'   => $thread['ignored'] ? "hidden" : "",
 						'classundo' => $thread['ignored'] ? "" : "hidden",
-						'ignored'   => L10n::t('ignored'),
+						'ignored'   => DI::l10n()->t('ignored'),
 					];
 				}
 
@@ -291,28 +290,28 @@ class Post
 						$ispinned = ($item['pinned'] ? 'pinned' : 'unpinned');
 
 						$pin = [
-							'do'        => L10n::t('pin'),
-							'undo'      => L10n::t('unpin'),
-							'toggle'    => L10n::t('toggle pin status'),
+							'do'        => DI::l10n()->t('pin'),
+							'undo'      => DI::l10n()->t('unpin'),
+							'toggle'    => DI::l10n()->t('toggle pin status'),
 							'classdo'   => $item['pinned'] ? 'hidden' : '',
 							'classundo' => $item['pinned'] ? '' : 'hidden',
-							'pinned'   => L10n::t('pinned'),
+							'pinned'   => DI::l10n()->t('pinned'),
 						];
 					}
 
 					$isstarred = (($item['starred']) ? "starred" : "unstarred");
 
 					$star = [
-						'do'        => L10n::t("add star"),
-						'undo'      => L10n::t("remove star"),
-						'toggle'    => L10n::t("toggle star status"),
+						'do'        => DI::l10n()->t("add star"),
+						'undo'      => DI::l10n()->t("remove star"),
+						'toggle'    => DI::l10n()->t("toggle star status"),
 						'classdo'   => $item['starred'] ? "hidden" : "",
 						'classundo' => $item['starred'] ? "" : "hidden",
-						'starred'   => L10n::t('starred'),
+						'starred'   => DI::l10n()->t('starred'),
 					];
 
 					$tagger = [
-						'add'   => L10n::t("add tag"),
+						'add'   => DI::l10n()->t("add tag"),
 						'class' => "",
 					];
 				}
@@ -323,11 +322,11 @@ class Post
 
 		if ($conv->isWritable()) {
 			$buttons = [
-				'like'    => [L10n::t("I like this \x28toggle\x29"), L10n::t("like")],
-				'dislike' => [L10n::t("I don't like this \x28toggle\x29"), L10n::t("dislike")],
+				'like'    => [DI::l10n()->t("I like this \x28toggle\x29"), DI::l10n()->t("like")],
+				'dislike' => [DI::l10n()->t("I don't like this \x28toggle\x29"), DI::l10n()->t("dislike")],
 			];
 			if ($shareable) {
-				$buttons['share'] = [L10n::t('Share this'), L10n::t('share')];
+				$buttons['share'] = [DI::l10n()->t('Share this'), DI::l10n()->t('share')];
 			}
 		}
 
@@ -376,7 +375,7 @@ class Post
 		$ago = Temporal::getRelativeDate($item['created']);
 		$ago_received = Temporal::getRelativeDate($item['received']);
 		if (Config::get('system', 'show_received') && (abs(strtotime($item['created']) - strtotime($item['received'])) > Config::get('system', 'show_received_seconds')) && ($ago != $ago_received)) {
-			$ago = L10n::t('%s (Received %s)', $ago, $ago_received);
+			$ago = DI::l10n()->t('%s (Received %s)', $ago, $ago_received);
 		}
 
 		$tmp_item = [
@@ -387,8 +386,8 @@ class Post
 			'hashtags'        => $tags['hashtags'],
 			'mentions'        => $tags['mentions'],
 			'implicit_mentions' => $tags['implicit_mentions'],
-			'txt_cats'        => L10n::t('Categories:'),
-			'txt_folders'     => L10n::t('Filed under:'),
+			'txt_cats'        => DI::l10n()->t('Categories:'),
+			'txt_folders'     => DI::l10n()->t('Filed under:'),
 			'has_cats'        => ((count($categories)) ? 'true' : ''),
 			'has_folders'     => ((count($folders)) ? 'true' : ''),
 			'categories'      => $categories,
@@ -399,12 +398,12 @@ class Post
 			'guid'            => urlencode($item['guid']),
 			'isevent'         => $isevent,
 			'attend'          => $attend,
-			'linktitle'       => L10n::t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
-			'olinktitle'      => L10n::t('View %s\'s profile @ %s', $this->getOwnerName(), $item['owner-link']),
-			'to'              => L10n::t('to'),
-			'via'             => L10n::t('via'),
-			'wall'            => L10n::t('Wall-to-Wall'),
-			'vwall'           => L10n::t('via Wall-To-Wall:'),
+			'linktitle'       => DI::l10n()->t('View %s\'s profile @ %s', $profile_name, $item['author-link']),
+			'olinktitle'      => DI::l10n()->t('View %s\'s profile @ %s', $this->getOwnerName(), $item['owner-link']),
+			'to'              => DI::l10n()->t('to'),
+			'via'             => DI::l10n()->t('via'),
+			'wall'            => DI::l10n()->t('Wall-to-Wall'),
+			'vwall'           => DI::l10n()->t('via Wall-To-Wall:'),
 			'profile_url'     => $profile_link,
 			'item_photo_menu' => item_photo_menu($item),
 			'name'            => $name_e,
@@ -413,7 +412,7 @@ class Post
 			'sparkle'         => $sparkle,
 			'title'           => $title_e,
 			'localtime'       => DateTimeFormat::local($item['created'], 'r'),
-			'ago'             => $item['app'] ? L10n::t('%s from %s', $ago, $item['app']) : $ago,
+			'ago'             => $item['app'] ? DI::l10n()->t('%s from %s', $ago, $item['app']) : $ago,
 			'app'             => $item['app'],
 			'created'         => $ago,
 			'lock'            => $lock,
@@ -439,11 +438,11 @@ class Post
 			'like'            => $responses['like']['output'],
 			'dislike'         => $responses['dislike']['output'],
 			'responses'       => $responses,
-			'switchcomment'   => L10n::t('Comment'),
-			'reply_label'     => L10n::t('Reply to %s', $name_e),
+			'switchcomment'   => DI::l10n()->t('Comment'),
+			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
 			'comment'         => $comment,
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
-			'wait'            => L10n::t('Please wait'),
+			'wait'            => DI::l10n()->t('Please wait'),
 			'thread_level'    => $thread_level,
 			'edited'          => $edited,
 			'network'         => $item["network"],
@@ -456,11 +455,11 @@ class Post
 			'delivery'        => [
 				'queue_count'       => $item['delivery_queue_count'],
 				'queue_done'        => $item['delivery_queue_done'] + $item['delivery_queue_failed'], /// @todo Possibly display it separately in the future
-				'notifier_pending'  => L10n::t('Notifier task is pending'),
-				'delivery_pending'  => L10n::t('Delivery to remote servers is pending'),
-				'delivery_underway' => L10n::t('Delivery to remote servers is underway'),
-				'delivery_almost'   => L10n::t('Delivery to remote servers is mostly done'),
-				'delivery_done'     => L10n::t('Delivery to remote servers is done'),
+				'notifier_pending'  => DI::l10n()->t('Notifier task is pending'),
+				'delivery_pending'  => DI::l10n()->t('Delivery to remote servers is pending'),
+				'delivery_underway' => DI::l10n()->t('Delivery to remote servers is underway'),
+				'delivery_almost'   => DI::l10n()->t('Delivery to remote servers is mostly done'),
+				'delivery_done'     => DI::l10n()->t('Delivery to remote servers is done'),
 			],
 		];
 
@@ -480,9 +479,9 @@ class Post
 			// Collapse
 			if (($nb_children > 2) || ($thread_level > 1)) {
 				$result['children'][0]['comment_firstcollapsed'] = true;
-				$result['children'][0]['num_comments'] = L10n::tt('%d comment', '%d comments', $total_children);
-				$result['children'][0]['show_text'] = L10n::t('Show more');
-				$result['children'][0]['hide_text'] = L10n::t('Show fewer');
+				$result['children'][0]['num_comments'] = DI::l10n()->tt('%d comment', '%d comments', $total_children);
+				$result['children'][0]['show_text'] = DI::l10n()->t('Show more');
+				$result['children'][0]['hide_text'] = DI::l10n()->t('Show fewer');
 				if ($thread_level > 1) {
 					$result['children'][$nb_children - 1]['comment_lastcollapsed'] = true;
 				} else {
@@ -493,7 +492,7 @@ class Post
 
 		if ($this->isToplevel()) {
 			$result['total_comments_num'] = "$total_children";
-			$result['total_comments_text'] = L10n::tt('comment', 'comments', $total_children);
+			$result['total_comments_text'] = DI::l10n()->tt('comment', 'comments', $total_children);
 		}
 
 		$result['private'] = $item['private'];
@@ -899,22 +898,22 @@ class Post
 				'$default'     => $default_text,
 				'$profile_uid' => $uid,
 				'$mylink'      => DI::baseUrl()->remove($a->contact['url']),
-				'$mytitle'     => L10n::t('This is you'),
+				'$mytitle'     => DI::l10n()->t('This is you'),
 				'$myphoto'     => DI::baseUrl()->remove($a->contact['thumb']),
-				'$comment'     => L10n::t('Comment'),
-				'$submit'      => L10n::t('Submit'),
-				'$edbold'      => L10n::t('Bold'),
-				'$editalic'    => L10n::t('Italic'),
-				'$eduline'     => L10n::t('Underline'),
-				'$edquote'     => L10n::t('Quote'),
-				'$edcode'      => L10n::t('Code'),
-				'$edimg'       => L10n::t('Image'),
-				'$edurl'       => L10n::t('Link'),
-				'$edattach'    => L10n::t('Link or Media'),
-				'$prompttext'  => L10n::t('Please enter a image/video/audio/webpage URL:'),
-				'$preview'     => L10n::t('Preview'),
+				'$comment'     => DI::l10n()->t('Comment'),
+				'$submit'      => DI::l10n()->t('Submit'),
+				'$edbold'      => DI::l10n()->t('Bold'),
+				'$editalic'    => DI::l10n()->t('Italic'),
+				'$eduline'     => DI::l10n()->t('Underline'),
+				'$edquote'     => DI::l10n()->t('Quote'),
+				'$edcode'      => DI::l10n()->t('Code'),
+				'$edimg'       => DI::l10n()->t('Image'),
+				'$edurl'       => DI::l10n()->t('Link'),
+				'$edattach'    => DI::l10n()->t('Link or Media'),
+				'$prompttext'  => DI::l10n()->t('Please enter a image/video/audio/webpage URL:'),
+				'$preview'     => DI::l10n()->t('Preview'),
 				'$indent'      => $indent,
-				'$sourceapp'   => L10n::t($a->sourcename),
+				'$sourceapp'   => DI::l10n()->t($a->sourcename),
 				'$ww'          => $conv->getMode() === 'network' ? $ww : '',
 				'$rand_num'    => Crypto::randomDigits(12)
 			]);

@@ -9,7 +9,6 @@ use DOMDocument;
 use DOMXPath;
 use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\DI;
@@ -799,8 +798,8 @@ class HTML
 	{
 		$tpl = Renderer::getMarkupTemplate("scroll_loader.tpl");
 		return Renderer::replaceMacros($tpl, [
-			'wait' => L10n::t('Loading more entries...'),
-			'end' => L10n::t('The end')
+			'wait' => DI::l10n()->t('Loading more entries...'),
+			'end' => DI::l10n()->t('The end')
 		]);
 	}
 
@@ -893,28 +892,28 @@ class HTML
 		if (strpos($s, '#') === 0) {
 			$mode = 'tag';
 		}
-		$save_label = $mode === 'text' ? L10n::t('Save') : L10n::t('Follow');
+		$save_label = $mode === 'text' ? DI::l10n()->t('Save') : DI::l10n()->t('Follow');
 
 		$values = [
 			'$s'            => $s,
 			'$q'            => urlencode($s),
 			'$id'           => $id,
-			'$search_label' => L10n::t('Search'),
+			'$search_label' => DI::l10n()->t('Search'),
 			'$save_label'   => $save_label,
-			'$search_hint'  => L10n::t('@name, !forum, #tags, content'),
+			'$search_hint'  => DI::l10n()->t('@name, !forum, #tags, content'),
 			'$mode'         => $mode,
 			'$return_url'   => urlencode('search?q=' . urlencode($s)),
 		];
 
 		if (!$aside) {
 			$values['$search_options'] = [
-				'fulltext' => L10n::t('Full Text'),
-				'tags'     => L10n::t('Tags'),
-				'contacts' => L10n::t('Contacts')
+				'fulltext' => DI::l10n()->t('Full Text'),
+				'tags'     => DI::l10n()->t('Tags'),
+				'contacts' => DI::l10n()->t('Contacts')
 			];
 
 			if (Config::get('system', 'poco_local_search')) {
-				$values['$searchoption']['forums'] = L10n::t('Forums');
+				$values['$searchoption']['forums'] = DI::l10n()->t('Forums');
 			}
 		}
 
@@ -951,7 +950,7 @@ class HTML
 			$html = Renderer::replaceMacros($tpl, [
 				'$reasons'   => $reasons,
 				'$rnd'       => Strings::getRandomHex(8),
-				'$openclose' => L10n::t('Click to open/close'),
+				'$openclose' => DI::l10n()->t('Click to open/close'),
 				'$html'      => $html
 			]);
 		}

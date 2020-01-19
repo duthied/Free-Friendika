@@ -5,9 +5,9 @@
 namespace Friendica\Content;
 
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
@@ -55,12 +55,12 @@ class ContactSelector
 		$o .= "<select id=\"contact-poll-interval\" name=\"poll\" $dis />" . "\r\n";
 
 		$rep = [
-			0 => L10n::t('Frequently'),
-			1 => L10n::t('Hourly'),
-			2 => L10n::t('Twice daily'),
-			3 => L10n::t('Daily'),
-			4 => L10n::t('Weekly'),
-			5 => L10n::t('Monthly')
+			0 => DI::l10n()->t('Frequently'),
+			1 => DI::l10n()->t('Hourly'),
+			2 => DI::l10n()->t('Twice daily'),
+			3 => DI::l10n()->t('Daily'),
+			4 => DI::l10n()->t('Weekly'),
+			5 => DI::l10n()->t('Monthly')
 		];
 
 		foreach ($rep as $k => $v) {
@@ -114,23 +114,23 @@ class ContactSelector
 	public static function networkToName($network, $profile = '', $protocol = '')
 	{
 		$nets = [
-			Protocol::DFRN      =>   L10n::t('DFRN'),
-			Protocol::OSTATUS   =>   L10n::t('OStatus'),
-			Protocol::FEED      =>   L10n::t('RSS/Atom'),
-			Protocol::MAIL      =>   L10n::t('Email'),
-			Protocol::DIASPORA  =>   L10n::t('Diaspora'),
-			Protocol::ZOT       =>   L10n::t('Zot!'),
-			Protocol::LINKEDIN  =>   L10n::t('LinkedIn'),
-			Protocol::XMPP      =>   L10n::t('XMPP/IM'),
-			Protocol::MYSPACE   =>   L10n::t('MySpace'),
-			Protocol::GPLUS     =>   L10n::t('Google+'),
-			Protocol::PUMPIO    =>   L10n::t('pump.io'),
-			Protocol::TWITTER   =>   L10n::t('Twitter'),
-			Protocol::DISCOURSE =>   L10n::t('Discourse'),
-			Protocol::DIASPORA2 =>   L10n::t('Diaspora Connector'),
-			Protocol::STATUSNET =>   L10n::t('GNU Social Connector'),
-			Protocol::ACTIVITYPUB => L10n::t('ActivityPub'),
-			Protocol::PNUT      =>   L10n::t('pnut'),
+			Protocol::DFRN      =>   DI::l10n()->t('DFRN'),
+			Protocol::OSTATUS   =>   DI::l10n()->t('OStatus'),
+			Protocol::FEED      =>   DI::l10n()->t('RSS/Atom'),
+			Protocol::MAIL      =>   DI::l10n()->t('Email'),
+			Protocol::DIASPORA  =>   DI::l10n()->t('Diaspora'),
+			Protocol::ZOT       =>   DI::l10n()->t('Zot!'),
+			Protocol::LINKEDIN  =>   DI::l10n()->t('LinkedIn'),
+			Protocol::XMPP      =>   DI::l10n()->t('XMPP/IM'),
+			Protocol::MYSPACE   =>   DI::l10n()->t('MySpace'),
+			Protocol::GPLUS     =>   DI::l10n()->t('Google+'),
+			Protocol::PUMPIO    =>   DI::l10n()->t('pump.io'),
+			Protocol::TWITTER   =>   DI::l10n()->t('Twitter'),
+			Protocol::DISCOURSE =>   DI::l10n()->t('Discourse'),
+			Protocol::DIASPORA2 =>   DI::l10n()->t('Diaspora Connector'),
+			Protocol::STATUSNET =>   DI::l10n()->t('GNU Social Connector'),
+			Protocol::ACTIVITYPUB => DI::l10n()->t('ActivityPub'),
+			Protocol::PNUT      =>   DI::l10n()->t('pnut'),
 		];
 
 		Hook::callAll('network_to_name', $nets);
@@ -164,7 +164,7 @@ class ContactSelector
 		}
 
 		if (!empty($protocol) && ($protocol != $network)) {
-			$networkname = L10n::t('%s (via %s)', $networkname, self::networkToName($protocol));
+			$networkname = DI::l10n()->t('%s (via %s)', $networkname, self::networkToName($protocol));
 		}
 
 		return $networkname;
@@ -233,21 +233,21 @@ class ContactSelector
 	{
 		$o = '';
 		$select = [
-			''                 => L10n::t('No answer'),
-			'Male'             => L10n::t('Male'),
-			'Female'           => L10n::t('Female'),
-			'Currently Male'   => L10n::t('Currently Male'),
-			'Currently Female' => L10n::t('Currently Female'),
-			'Mostly Male'      => L10n::t('Mostly Male'),
-			'Mostly Female'    => L10n::t('Mostly Female'),
-			'Transgender'      => L10n::t('Transgender'),
-			'Intersex'         => L10n::t('Intersex'),
-			'Transsexual'      => L10n::t('Transsexual'),
-			'Hermaphrodite'    => L10n::t('Hermaphrodite'),
-			'Neuter'           => L10n::t('Neuter'),
-			'Non-specific'     => L10n::t('Non-specific'),
-			'Other'            => L10n::t('Other'),
-			'Undecided'        => L10n::t('Undecided'),
+			''                 => DI::l10n()->t('No answer'),
+			'Male'             => DI::l10n()->t('Male'),
+			'Female'           => DI::l10n()->t('Female'),
+			'Currently Male'   => DI::l10n()->t('Currently Male'),
+			'Currently Female' => DI::l10n()->t('Currently Female'),
+			'Mostly Male'      => DI::l10n()->t('Mostly Male'),
+			'Mostly Female'    => DI::l10n()->t('Mostly Female'),
+			'Transgender'      => DI::l10n()->t('Transgender'),
+			'Intersex'         => DI::l10n()->t('Intersex'),
+			'Transsexual'      => DI::l10n()->t('Transsexual'),
+			'Hermaphrodite'    => DI::l10n()->t('Hermaphrodite'),
+			'Neuter'           => DI::l10n()->t('Neuter'),
+			'Non-specific'     => DI::l10n()->t('Non-specific'),
+			'Other'            => DI::l10n()->t('Other'),
+			'Undecided'        => DI::l10n()->t('Undecided'),
 		];
 
 		Hook::callAll('gender_selector', $select);
@@ -273,20 +273,20 @@ class ContactSelector
 	{
 		$o = '';
 		$select = [
-			''              => L10n::t('No answer'),
-			'Males'         => L10n::t('Males'),
-			'Females'       => L10n::t('Females'),
-			'Gay'           => L10n::t('Gay'),
-			'Lesbian'       => L10n::t('Lesbian'),
-			'No Preference' => L10n::t('No Preference'),
-			'Bisexual'      => L10n::t('Bisexual'),
-			'Autosexual'    => L10n::t('Autosexual'),
-			'Abstinent'     => L10n::t('Abstinent'),
-			'Virgin'        => L10n::t('Virgin'),
-			'Deviant'       => L10n::t('Deviant'),
-			'Fetish'        => L10n::t('Fetish'),
-			'Oodles'        => L10n::t('Oodles'),
-			'Nonsexual'     => L10n::t('Nonsexual'),
+			''              => DI::l10n()->t('No answer'),
+			'Males'         => DI::l10n()->t('Males'),
+			'Females'       => DI::l10n()->t('Females'),
+			'Gay'           => DI::l10n()->t('Gay'),
+			'Lesbian'       => DI::l10n()->t('Lesbian'),
+			'No Preference' => DI::l10n()->t('No Preference'),
+			'Bisexual'      => DI::l10n()->t('Bisexual'),
+			'Autosexual'    => DI::l10n()->t('Autosexual'),
+			'Abstinent'     => DI::l10n()->t('Abstinent'),
+			'Virgin'        => DI::l10n()->t('Virgin'),
+			'Deviant'       => DI::l10n()->t('Deviant'),
+			'Fetish'        => DI::l10n()->t('Fetish'),
+			'Oodles'        => DI::l10n()->t('Oodles'),
+			'Nonsexual'     => DI::l10n()->t('Nonsexual'),
 		];
 
 		Hook::callAll('sexpref_selector', $select);
@@ -311,37 +311,37 @@ class ContactSelector
 	{
 		$o = '';
 		$select = [
-			''                     => L10n::t('No answer'),
-			'Single'               => L10n::t('Single'),
-			'Lonely'               => L10n::t('Lonely'),
-			'In a relation'        => L10n::t('In a relation'),
-			'Has crush'            => L10n::t('Has crush'),
-			'Infatuated'           => L10n::t('Infatuated'),
-			'Dating'               => L10n::t('Dating'),
-			'Unfaithful'           => L10n::t('Unfaithful'),
-			'Sex Addict'           => L10n::t('Sex Addict'),
-			'Friends'              => L10n::t('Friends'),
-			'Friends/Benefits'     => L10n::t('Friends/Benefits'),
-			'Casual'               => L10n::t('Casual'),
-			'Engaged'              => L10n::t('Engaged'),
-			'Married'              => L10n::t('Married'),
-			'Imaginarily married'  => L10n::t('Imaginarily married'),
-			'Partners'             => L10n::t('Partners'),
-			'Cohabiting'           => L10n::t('Cohabiting'),
-			'Common law'           => L10n::t('Common law'),
-			'Happy'                => L10n::t('Happy'),
-			'Not looking'          => L10n::t('Not looking'),
-			'Swinger'              => L10n::t('Swinger'),
-			'Betrayed'             => L10n::t('Betrayed'),
-			'Separated'            => L10n::t('Separated'),
-			'Unstable'             => L10n::t('Unstable'),
-			'Divorced'             => L10n::t('Divorced'),
-			'Imaginarily divorced' => L10n::t('Imaginarily divorced'),
-			'Widowed'              => L10n::t('Widowed'),
-			'Uncertain'            => L10n::t('Uncertain'),
-			'It\'s complicated'    => L10n::t('It\'s complicated'),
-			'Don\'t care'          => L10n::t('Don\'t care'),
-			'Ask me'               => L10n::t('Ask me'),
+			''                     => DI::l10n()->t('No answer'),
+			'Single'               => DI::l10n()->t('Single'),
+			'Lonely'               => DI::l10n()->t('Lonely'),
+			'In a relation'        => DI::l10n()->t('In a relation'),
+			'Has crush'            => DI::l10n()->t('Has crush'),
+			'Infatuated'           => DI::l10n()->t('Infatuated'),
+			'Dating'               => DI::l10n()->t('Dating'),
+			'Unfaithful'           => DI::l10n()->t('Unfaithful'),
+			'Sex Addict'           => DI::l10n()->t('Sex Addict'),
+			'Friends'              => DI::l10n()->t('Friends'),
+			'Friends/Benefits'     => DI::l10n()->t('Friends/Benefits'),
+			'Casual'               => DI::l10n()->t('Casual'),
+			'Engaged'              => DI::l10n()->t('Engaged'),
+			'Married'              => DI::l10n()->t('Married'),
+			'Imaginarily married'  => DI::l10n()->t('Imaginarily married'),
+			'Partners'             => DI::l10n()->t('Partners'),
+			'Cohabiting'           => DI::l10n()->t('Cohabiting'),
+			'Common law'           => DI::l10n()->t('Common law'),
+			'Happy'                => DI::l10n()->t('Happy'),
+			'Not looking'          => DI::l10n()->t('Not looking'),
+			'Swinger'              => DI::l10n()->t('Swinger'),
+			'Betrayed'             => DI::l10n()->t('Betrayed'),
+			'Separated'            => DI::l10n()->t('Separated'),
+			'Unstable'             => DI::l10n()->t('Unstable'),
+			'Divorced'             => DI::l10n()->t('Divorced'),
+			'Imaginarily divorced' => DI::l10n()->t('Imaginarily divorced'),
+			'Widowed'              => DI::l10n()->t('Widowed'),
+			'Uncertain'            => DI::l10n()->t('Uncertain'),
+			'It\'s complicated'    => DI::l10n()->t('It\'s complicated'),
+			'Don\'t care'          => DI::l10n()->t('Don\'t care'),
+			'Ask me'               => DI::l10n()->t('Ask me'),
 		];
 
 		Hook::callAll('marital_selector', $select);

@@ -3,8 +3,8 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 /**
  * Show a credits page for all the developers who helped with the project
@@ -22,8 +22,8 @@ class Credits extends BaseModule
 
 		$tpl = Renderer::getMarkupTemplate('credits.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$title'  => L10n::t('Credits'),
-			'$thanks' => L10n::t('Friendica is a community project, that would not be possible without the help of many people. Here is a list of those who have contributed to the code or the translation of Friendica. Thank you all!'),
+			'$title'  => DI::l10n()->t('Credits'),
+			'$thanks' => DI::l10n()->t('Friendica is a community project, that would not be possible without the help of many people. Here is a list of those who have contributed to the code or the translation of Friendica. Thank you all!'),
 			'$names'  => $names,
 		]);
 	}

@@ -6,7 +6,7 @@ use Dice\Dice;
 use Friendica\Core\Config\IConfiguration;
 use Friendica\Core\Config\PreloadConfiguration;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n\L10n;
+use Friendica\Core\L10n;
 use Friendica\Core\Session\ISession;
 use Friendica\Core\StorageManager;
 use Friendica\Database\Database;

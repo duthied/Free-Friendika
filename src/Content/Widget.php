@@ -6,7 +6,6 @@ namespace Friendica\Content;
 
 use Friendica\Core\Addon;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -34,11 +33,11 @@ class Widget
 	public static function follow($value = "")
 	{
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/follow.tpl'), array(
-			'$connect' => L10n::t('Add New Contact'),
-			'$desc' => L10n::t('Enter address or web location'),
-			'$hint' => L10n::t('Example: bob@example.com, http://example.com/barbara'),
+			'$connect' => DI::l10n()->t('Add New Contact'),
+			'$desc' => DI::l10n()->t('Enter address or web location'),
+			'$hint' => DI::l10n()->t('Example: bob@example.com, http://example.com/barbara'),
 			'$value' => $value,
-			'$follow' => L10n::t('Connect')
+			'$follow' => DI::l10n()->t('Connect')
 		));
 	}
 
@@ -53,24 +52,24 @@ class Widget
 			$x = intval(DI::pConfig()->get(local_user(), 'system', 'invites_remaining'));
 			if ($x || is_site_admin()) {
 				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
-					. L10n::tt('%d invitation available', '%d invitations available', $x)
+					. DI::l10n()->tt('%d invitation available', '%d invitations available', $x)
 					. '</div>';
 			}
 		}
 
 		$nv = [];
-		$nv['findpeople'] = L10n::t('Find People');
-		$nv['desc'] = L10n::t('Enter name or interest');
-		$nv['label'] = L10n::t('Connect/Follow');
-		$nv['hint'] = L10n::t('Examples: Robert Morgenstein, Fishing');
-		$nv['findthem'] = L10n::t('Find');
-		$nv['suggest'] = L10n::t('Friend Suggestions');
-		$nv['similar'] = L10n::t('Similar Interests');
-		$nv['random'] = L10n::t('Random Profile');
-		$nv['inv'] = L10n::t('Invite Friends');
-		$nv['directory'] = L10n::t('Global Directory');
+		$nv['findpeople'] = DI::l10n()->t('Find People');
+		$nv['desc'] = DI::l10n()->t('Enter name or interest');
+		$nv['label'] = DI::l10n()->t('Connect/Follow');
+		$nv['hint'] = DI::l10n()->t('Examples: Robert Morgenstein, Fishing');
+		$nv['findthem'] = DI::l10n()->t('Find');
+		$nv['suggest'] = DI::l10n()->t('Friend Suggestions');
+		$nv['similar'] = DI::l10n()->t('Similar Interests');
+		$nv['random'] = DI::l10n()->t('Random Profile');
+		$nv['inv'] = DI::l10n()->t('Invite Friends');
+		$nv['directory'] = DI::l10n()->t('Global Directory');
 		$nv['global_dir'] = $global_dir;
-		$nv['local_directory'] = L10n::t('Local Directory');
+		$nv['local_directory'] = DI::l10n()->t('Local Directory');
 
 		$aside = [];
 		$aside['$nv'] = $nv;
@@ -191,16 +190,16 @@ class Widget
 		}
 
 		$options = [
-			['ref' => 'followers', 'name' => L10n::t('Followers')],
-			['ref' => 'following', 'name' => L10n::t('Following')],
-			['ref' => 'mutuals', 'name' => L10n::t('Mutual friends')],
+			['ref' => 'followers', 'name' => DI::l10n()->t('Followers')],
+			['ref' => 'following', 'name' => DI::l10n()->t('Following')],
+			['ref' => 'mutuals', 'name' => DI::l10n()->t('Mutual friends')],
 		];
 
 		return self::filter(
 			'rel',
-			L10n::t('Relationships'),
+			DI::l10n()->t('Relationships'),
 			'',
-			L10n::t('All Contacts'),
+			DI::l10n()->t('All Contacts'),
 			$baseurl,
 			$options,
 			$selected
@@ -243,9 +242,9 @@ class Widget
 
 		return self::filter(
 			'nets',
-			L10n::t('Protocols'),
+			DI::l10n()->t('Protocols'),
 			'',
-			L10n::t('All Protocols'),
+			DI::l10n()->t('All Protocols'),
 			$baseurl,
 			$nets,
 			$selected
@@ -282,9 +281,9 @@ class Widget
 
 		return self::filter(
 			'file',
-			L10n::t('Saved Folders'),
+			DI::l10n()->t('Saved Folders'),
 			'',
-			L10n::t('Everything'),
+			DI::l10n()->t('Everything'),
 			$baseurl,
 			$terms,
 			$selected
@@ -321,9 +320,9 @@ class Widget
 
 		return self::filter(
 			'category',
-			L10n::t('Categories'),
+			DI::l10n()->t('Categories'),
 			'',
-			L10n::t('Everything'),
+			DI::l10n()->t('Everything'),
 			$baseurl,
 			$terms,
 			$selected
@@ -398,12 +397,12 @@ class Widget
 
 		$tpl = Renderer::getMarkupTemplate('widget/remote_friends_common.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$desc'     => L10n::tt("%d contact in common", "%d contacts in common", $t),
+			'$desc'     => DI::l10n()->tt("%d contact in common", "%d contacts in common", $t),
 			'$base'     => DI::baseUrl(),
 			'$uid'      => $profile_uid,
 			'$cid'      => (($cid) ? $cid : '0'),
 			'$linkmore' => (($t > 5) ? 'true' : ''),
-			'$more'     => L10n::t('show more'),
+			'$more'     => DI::l10n()->t('show more'),
 			'$items'    => $entries
 		]);
 	}
@@ -476,7 +475,7 @@ class Widget
 				$dend = substr($dnow, 0, 8) . Temporal::getDaysInMonth(intval($dnow), intval(substr($dnow, 5)));
 				$start_month = DateTimeFormat::utc($dstart, 'Y-m-d');
 				$end_month = DateTimeFormat::utc($dend, 'Y-m-d');
-				$str = L10n::getDay(DateTimeFormat::utc($dnow, 'F'));
+				$str = DI::l10n()->getDay(DateTimeFormat::utc($dnow, 'F'));
 
 				if (empty($ret[$dyear])) {
 					$ret[$dyear] = [];
@@ -496,13 +495,13 @@ class Widget
 		$cutoff = array_key_exists($cutoff_year, $ret);
 
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('widget/posted_date.tpl'),[
-			'$title' => L10n::t('Archives'),
+			'$title' => DI::l10n()->t('Archives'),
 			'$size' => $visible_years,
 			'$cutoff_year' => $cutoff_year,
 			'$cutoff' => $cutoff,
 			'$url' => $url,
 			'$dates' => $ret,
-			'$showmore' => L10n::t('show more')
+			'$showmore' => DI::l10n()->t('show more')
 		]);
 
 		return $o;

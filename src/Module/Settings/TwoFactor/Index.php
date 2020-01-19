@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Settings\TwoFactor;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -46,7 +45,7 @@ class Index extends BaseSettingsModule
 						DI::pConfig()->delete(local_user(), '2fa', 'verified');
 						Session::remove('2fa');
 
-						notice(L10n::t('Two-factor authentication successfully disabled.'));
+						notice(DI::l10n()->t('Two-factor authentication successfully disabled.'));
 						DI::baseUrl()->redirect('settings/2fa');
 					}
 					break;
@@ -67,7 +66,7 @@ class Index extends BaseSettingsModule
 					break;
 			}
 		} catch (\Exception $e) {
-			notice(L10n::t('Wrong Password'));
+			notice(DI::l10n()->t('Wrong Password'));
 		}
 	}
 
@@ -84,35 +83,35 @@ class Index extends BaseSettingsModule
 
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/twofactor/index.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('settings_2fa'),
-			'$title'               => L10n::t('Two-factor authentication'),
-			'$help_label'          => L10n::t('Help'),
-			'$status_title'        => L10n::t('Status'),
-			'$message'             => L10n::t('<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'),
+			'$title'               => DI::l10n()->t('Two-factor authentication'),
+			'$help_label'          => DI::l10n()->t('Help'),
+			'$status_title'        => DI::l10n()->t('Status'),
+			'$message'             => DI::l10n()->t('<p>Use an application on a mobile device to get two-factor authentication codes when prompted on login.</p>'),
 			'$has_secret'          => $has_secret,
 			'$verified'            => $verified,
 
-			'$auth_app_label'         => L10n::t('Authenticator app'),
-			'$app_status'             => $has_secret ? $verified ? L10n::t('Configured') : L10n::t('Not Configured') : L10n::t('Disabled'),
-			'$not_configured_message' => L10n::t('<p>You haven\'t finished configuring your authenticator app.</p>'),
-			'$configured_message'     => L10n::t('<p>Your authenticator app is correctly configured.</p>'),
+			'$auth_app_label'         => DI::l10n()->t('Authenticator app'),
+			'$app_status'             => $has_secret ? $verified ? DI::l10n()->t('Configured') : DI::l10n()->t('Not Configured') : DI::l10n()->t('Disabled'),
+			'$not_configured_message' => DI::l10n()->t('<p>You haven\'t finished configuring your authenticator app.</p>'),
+			'$configured_message'     => DI::l10n()->t('<p>Your authenticator app is correctly configured.</p>'),
 
-			'$recovery_codes_title'     => L10n::t('Recovery codes'),
-			'$recovery_codes_remaining' => L10n::t('Remaining valid codes'),
+			'$recovery_codes_title'     => DI::l10n()->t('Recovery codes'),
+			'$recovery_codes_remaining' => DI::l10n()->t('Remaining valid codes'),
 			'$recovery_codes_count'     => RecoveryCode::countValidForUser(local_user()),
-			'$recovery_codes_message'   => L10n::t('<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'),
+			'$recovery_codes_message'   => DI::l10n()->t('<p>These one-use codes can replace an authenticator app code in case you have lost access to it.</p>'),
 
-			'$app_specific_passwords_title'     => L10n::t('App-specific passwords'),
-			'$app_specific_passwords_remaining' => L10n::t('Generated app-specific passwords'),
+			'$app_specific_passwords_title'     => DI::l10n()->t('App-specific passwords'),
+			'$app_specific_passwords_remaining' => DI::l10n()->t('Generated app-specific passwords'),
 			'$app_specific_passwords_count'     => AppSpecificPassword::countForUser(local_user()),
-			'$app_specific_passwords_message'   => L10n::t('<p>These randomly generated passwords allow you to authenticate on apps not supporting two-factor authentication.</p>'),
+			'$app_specific_passwords_message'   => DI::l10n()->t('<p>These randomly generated passwords allow you to authenticate on apps not supporting two-factor authentication.</p>'),
 
-			'$action_title'         => L10n::t('Actions'),
-			'$password'             => ['password', L10n::t('Current password:'), '', L10n::t('You need to provide your current password to change two-factor authentication settings.'), 'required', 'autofocus'],
-			'$enable_label'         => L10n::t('Enable two-factor authentication'),
-			'$disable_label'        => L10n::t('Disable two-factor authentication'),
-			'$recovery_codes_label' => L10n::t('Show recovery codes'),
-			'$app_specific_passwords_label' => L10n::t('Manage app-specific passwords'),
-			'$configure_label'      => L10n::t('Finish app configuration'),
+			'$action_title'         => DI::l10n()->t('Actions'),
+			'$password'             => ['password', DI::l10n()->t('Current password:'), '', DI::l10n()->t('You need to provide your current password to change two-factor authentication settings.'), 'required', 'autofocus'],
+			'$enable_label'         => DI::l10n()->t('Enable two-factor authentication'),
+			'$disable_label'        => DI::l10n()->t('Disable two-factor authentication'),
+			'$recovery_codes_label' => DI::l10n()->t('Show recovery codes'),
+			'$app_specific_passwords_label' => DI::l10n()->t('Manage app-specific passwords'),
+			'$configure_label'      => DI::l10n()->t('Finish app configuration'),
 		]);
 	}
 }

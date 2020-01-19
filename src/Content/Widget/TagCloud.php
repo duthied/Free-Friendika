@@ -6,7 +6,6 @@
 
 namespace Friendica\Content\Widget;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -50,7 +49,7 @@ class TagCloud
 
 			$tpl = Renderer::getMarkupTemplate('widget/tagcloud.tpl');
 			$o = Renderer::replaceMacros($tpl, [
-				'$title' => L10n::t('Tags'),
+				'$title' => DI::l10n()->t('Tags'),
 				'$tags' => $tags
 			]);
 		}

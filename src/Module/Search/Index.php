@@ -8,7 +8,6 @@ use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -28,12 +27,12 @@ class Index extends BaseSearchModule
 		$search = (!empty($_GET['q']) ? Strings::escapeTags(trim(rawurldecode($_GET['q']))) : '');
 
 		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
-			throw new HTTPException\ForbiddenException(L10n::t('Public access denied.'));
+			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 		}
 
 		if (Config::get('system', 'local_search') && !Session::isAuthenticated()) {
-			$e = new HTTPException\ForbiddenException(L10n::t('Only logged in users are permitted to perform a search.'));
-			$e->httpdesc = L10n::t('Public access denied.');
+			$e = new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a search.'));
+			$e->httpdesc = DI::l10n()->t('Public access denied.');
 			throw $e;
 		}
 
@@ -54,7 +53,7 @@ class Index extends BaseSearchModule
 			if (!is_null($result)) {
 				$resultdata = json_decode($result);
 				if (($resultdata->time > (time() - $crawl_permit_period)) && ($resultdata->accesses > $free_crawls)) {
-					throw new HTTPException\TooManyRequestsException(L10n::t('Only one search per minute is permitted for not logged in users.'));
+					throw new HTTPException\TooManyRequestsException(DI::l10n()->t('Only one search per minute is permitted for not logged in users.'));
 				}
 				DI::cache()->set('remote_search:' . $remote, json_encode(['time' => time(), 'accesses' => $resultdata->accesses + 1]), Duration::HOUR);
 			} else {
@@ -77,7 +76,7 @@ class Index extends BaseSearchModule
 		// contruct a wrapper for the search header
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('content_wrapper.tpl'), [
 			'name' => 'search-header',
-			'$title' => L10n::t('Search'),
+			'$title' => DI::l10n()->t('Search'),
 			'$title_size' => 3,
 			'$content' => HTML::search($search, 'search-box', false)
 		]);
@@ -167,14 +166,14 @@ class Index extends BaseSearchModule
 		}
 
 		if (!DBA::isResult($r)) {
-			info(L10n::t('No results.'));
+			info(DI::l10n()->t('No results.'));
 			return $o;
 		}
 
 		if ($tag) {
-			$title = L10n::t('Items tagged with: %s', $search);
+			$title = DI::l10n()->t('Items tagged with: %s', $search);
 		} else {
-			$title = L10n::t('Results for: %s', $search);
+			$title = DI::l10n()->t('Results for: %s', $search);
 		}
 
 		$o .= Renderer::replaceMacros(Renderer::getMarkupTemplate('section_title.tpl'), [

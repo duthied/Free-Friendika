@@ -10,7 +10,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -1270,14 +1269,14 @@ class OStatus
 		$selfUri = '/feed/' . $owner["nick"] . '/';
 		switch ($filter) {
 			case 'activity':
-				$title = L10n::t('%s\'s timeline', $owner['name']);
+				$title = DI::l10n()->t('%s\'s timeline', $owner['name']);
 				$selfUri .= $filter;
 				break;
 			case 'posts':
-				$title = L10n::t('%s\'s posts', $owner['name']);
+				$title = DI::l10n()->t('%s\'s posts', $owner['name']);
 				break;
 			case 'comments':
-				$title = L10n::t('%s\'s comments', $owner['name']);
+				$title = DI::l10n()->t('%s\'s comments', $owner['name']);
 				$selfUri .= $filter;
 				break;
 		}
@@ -1832,12 +1831,12 @@ class OStatus
 		}
 
 		if ($item['verb'] == Activity::FOLLOW) {
-			$message = L10n::t('%s is now following %s.');
-			$title = L10n::t('following');
+			$message = DI::l10n()->t('%s is now following %s.');
+			$title = DI::l10n()->t('following');
 			$action = "subscription";
 		} else {
-			$message = L10n::t('%s stopped following %s.');
-			$title = L10n::t('stopped following');
+			$message = DI::l10n()->t('%s stopped following %s.');
+			$title = DI::l10n()->t('stopped following');
 			$action = "unfollow";
 		}
 

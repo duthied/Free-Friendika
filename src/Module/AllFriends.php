@@ -5,7 +5,6 @@ namespace Friendica\Module;
 use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
@@ -33,7 +32,7 @@ class AllFriends extends BaseModule
 		}
 
 		if (!$cid) {
-			throw new HTTPException\BadRequestException(L10n::t('Invalid contact.'));
+			throw new HTTPException\BadRequestException(DI::l10n()->t('Invalid contact.'));
 		}
 
 		$uid = $app->user['uid'];
@@ -41,7 +40,7 @@ class AllFriends extends BaseModule
 		$contact = Model\Contact::getContactForUser($cid, local_user(), ['name', 'url', 'photo', 'uid', 'id']);
 
 		if (empty($contact)) {
-			throw new HTTPException\BadRequestException(L10n::t('Invalid contact.'));
+			throw new HTTPException\BadRequestException(DI::l10n()->t('Invalid contact.'));
 		}
 
 		DI::page()['aside'] = "";
@@ -53,7 +52,7 @@ class AllFriends extends BaseModule
 
 		$friends = Model\GContact::allFriends(local_user(), $cid, $pager->getStart(), $pager->getItemsPerPage());
 		if (empty($friends)) {
-			return L10n::t('No friends to display.');
+			return DI::l10n()->t('No friends to display.');
 		}
 
 		$id = 0;
@@ -72,8 +71,8 @@ class AllFriends extends BaseModule
 			} else {
 				$connlnk = DI::baseUrl()->get() . '/follow/?url=' . $friend['url'];
 				$photoMenu = [
-					'profile' => [L10n::t('View Profile'), Model\Contact::magicLinkbyId($friend['id'], $friend['url'])],
-					'follow'  => [L10n::t('Connect/Follow'), $connlnk]
+					'profile' => [DI::l10n()->t('View Profile'), Model\Contact::magicLinkbyId($friend['id'], $friend['url'])],
+					'follow'  => [DI::l10n()->t('Connect/Follow'), $connlnk]
 				];
 			}
 
@@ -89,7 +88,7 @@ class AllFriends extends BaseModule
 				'account_type' => Model\Contact::getAccountType($contactDetails),
 				'network'      => ContactSelector::networkToName($contactDetails['network'], $contactDetails['url']),
 				'photoMenu'    => $photoMenu,
-				'conntxt'      => L10n::t('Connect'),
+				'conntxt'      => DI::l10n()->t('Connect'),
 				'connlnk'      => $connlnk,
 				'id'           => ++$id,
 			];

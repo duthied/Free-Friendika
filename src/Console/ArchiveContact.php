@@ -3,8 +3,8 @@
 namespace Friendica\Console;
 
 use Friendica\App;
-use Friendica\Core\L10n;
 use Friendica\Database\Database;
+use Friendica\DI;
 use Friendica\Util\Strings;
 use RuntimeException;
 
@@ -30,7 +30,7 @@ class ArchiveContact extends \Asika\SimpleConsole\Console
 	 */
 	private $dba;
 	/**
-	 * @var L10n\L10n
+	 * @var \Friendica\Core\L10n
 	 */
 	private $l10n;
 
@@ -51,7 +51,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(App\Mode $appMode, Database $dba, L10n\L10n $l10n, array $argv = null)
+	public function __construct(App\Mode $appMode, Database $dba, \Friendica\Core\L10n $l10n, array $argv = null)
 	{
 		parent::__construct($argv);
 
@@ -83,7 +83,7 @@ HELP;
 
 		$nurl = Strings::normaliseLink($this->getArgument(0));
 		if (!$this->dba->exists('contact', ['nurl' => $nurl, 'archive' => false])) {
-			throw new RuntimeException(L10n::t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
+			throw new RuntimeException(DI::l10n()->t('Could not find any unarchived contact entry for this URL (%s)', $nurl));
 		}
 		if ($this->dba->update('contact', ['archive' => true], ['nurl' => $nurl])) {
 			$this->out($this->l10n->t('The contact entries have been archived'));

@@ -4,7 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\Security\Login;
@@ -33,7 +32,7 @@ class Home extends BaseModule
 		}
 
 		$customHome = '';
-		$defaultHeader = ($config->get('config', 'sitename') ? L10n::t('Welcome to %s', $config->get('config', 'sitename')) : '');
+		$defaultHeader = ($config->get('config', 'sitename') ? DI::l10n()->t('Welcome to %s', $config->get('config', 'sitename')) : '');
 
 		$homeFilePath = $app->getBasePath() . '/home.html';
 		$cssFilePath = $app->getBasePath() . '/home.css';

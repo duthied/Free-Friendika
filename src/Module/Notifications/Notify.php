@@ -3,7 +3,6 @@
 namespace Friendica\Module\Notifications;
 
 use Friendica\BaseModule;
-use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
@@ -16,7 +15,7 @@ class Notify extends BaseModule
 	public static function init(array $parameters = [])
 	{
 		if (!local_user()) {
-			throw new HTTPException\UnauthorizedException(L10n::t('Permission denied.'));
+			throw new HTTPException\UnauthorizedException(DI::l10n()->t('Permission denied.'));
 		}
 	}
 

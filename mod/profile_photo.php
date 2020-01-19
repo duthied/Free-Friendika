@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -29,7 +28,7 @@ function profile_photo_init(App $a)
 function profile_photo_post(App $a)
 {
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -55,7 +54,7 @@ function profile_photo_post(App $a)
 		// phase 2 - we have finished cropping
 
 		if ($a->argc != 2) {
-			notice(L10n::t('Image uploaded but image cropping failed.') . EOL);
+			notice(DI::l10n()->t('Image uploaded but image cropping failed.') . EOL);
 			return;
 		}
 
@@ -82,28 +81,28 @@ function profile_photo_post(App $a)
 				$Image->crop(300, $srcX, $srcY, $srcW, $srcH);
 
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'], $base_image['filename'],
-						L10n::t('Profile Photos'), 4, $is_default_profile);
+						DI::l10n()->t('Profile Photos'), 4, $is_default_profile);
 
 				if ($r === false) {
-					notice(L10n::t('Image size reduction [%s] failed.', "300") . EOL);
+					notice(DI::l10n()->t('Image size reduction [%s] failed.', "300") . EOL);
 				}
 
 				$Image->scaleDown(80);
 
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'], $base_image['filename'],
-						L10n::t('Profile Photos'), 5, $is_default_profile);
+						DI::l10n()->t('Profile Photos'), 5, $is_default_profile);
 
 				if ($r === false) {
-					notice(L10n::t('Image size reduction [%s] failed.', "80") . EOL);
+					notice(DI::l10n()->t('Image size reduction [%s] failed.', "80") . EOL);
 				}
 
 				$Image->scaleDown(48);
 
 				$r = Photo::store($Image, local_user(), 0, $base_image['resource-id'], $base_image['filename'],
-						L10n::t('Profile Photos'), 6, $is_default_profile);
+						DI::l10n()->t('Profile Photos'), 6, $is_default_profile);
 
 				if ($r === false) {
-					notice(L10n::t('Image size reduction [%s] failed.', "48") . EOL);
+					notice(DI::l10n()->t('Image size reduction [%s] failed.', "48") . EOL);
 				}
 
 				// If setting for the default profile, unset the profile photo flag from any other photos I own
@@ -122,7 +121,7 @@ function profile_photo_post(App $a)
 
 				Contact::updateSelfFromUserID(local_user(), true);
 
-				info(L10n::t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
+				info(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
 				if ($path && strlen(Config::get('system', 'directory'))) {
 					Worker::add(PRIORITY_LOW, "Directory", DI::baseUrl()->get() . '/' . $path);
@@ -130,7 +129,7 @@ function profile_photo_post(App $a)
 
 				Worker::add(PRIORITY_LOW, 'ProfileUpdate', local_user());
 			} else {
-				notice(L10n::t('Unable to process image') . EOL);
+				notice(DI::l10n()->t('Unable to process image') . EOL);
 			}
 		}
 
@@ -149,7 +148,7 @@ function profile_photo_post(App $a)
 	$maximagesize = Config::get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
-		notice(L10n::t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
+		notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
 		@unlink($src);
 		return;
 	}
@@ -158,7 +157,7 @@ function profile_photo_post(App $a)
 	$ph = new Image($imagedata, $filetype);
 
 	if (!$ph->isValid()) {
-		notice(L10n::t('Unable to process image.') . EOL);
+		notice(DI::l10n()->t('Unable to process image.') . EOL);
 		@unlink($src);
 		return;
 	}
@@ -174,7 +173,7 @@ function profile_photo_content(App $a)
 {
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -194,7 +193,7 @@ function profile_photo_content(App $a)
 
 		$r = Photo::selectToArray([], ["resource-id" => $resource_id, "uid" => local_user()], ["order" => ["scale" => false]]);
 		if (!DBA::isResult($r)) {
-			notice(L10n::t('Permission denied.') . EOL);
+			notice(DI::l10n()->t('Permission denied.') . EOL);
 			return;
 		}
 
@@ -207,7 +206,7 @@ function profile_photo_content(App $a)
 
 		// set an already uloaded photo as profile photo
 		// if photo is in 'Profile Photos', change it in db
-		if (($r[0]['album'] == L10n::t('Profile Photos')) && ($havescale)) {
+		if (($r[0]['album'] == DI::l10n()->t('Profile Photos')) && ($havescale)) {
 			q("UPDATE `photo` SET `profile`=0 WHERE `profile`=1 AND `uid`=%d", intval(local_user()));
 
 			q("UPDATE `photo` SET `profile`=1 WHERE `uid` = %d AND `resource-id` = '%s'", intval(local_user()),
@@ -241,14 +240,14 @@ function profile_photo_content(App $a)
 		$o = Renderer::replaceMacros($tpl,
 			[
 			'$user' => $a->user['nickname'],
-			'$lbl_upfile' => L10n::t('Upload File:'),
-			'$lbl_profiles' => L10n::t('Select a profile:'),
-			'$title' => L10n::t('Upload Profile Photo'),
-			'$submit' => L10n::t('Upload'),
+			'$lbl_upfile' => DI::l10n()->t('Upload File:'),
+			'$lbl_profiles' => DI::l10n()->t('Select a profile:'),
+			'$title' => DI::l10n()->t('Upload Profile Photo'),
+			'$submit' => DI::l10n()->t('Upload'),
 			'$profiles' => $profiles,
 			'$form_security_token' => BaseModule::getFormSecurityToken("profile_photo"),
-			'$select' => sprintf('%s %s', L10n::t('or'),
-				($newuser) ? '<a href="' . DI::baseUrl() . '">' . L10n::t('skip this step') . '</a>' : '<a href="' . DI::baseUrl() . '/photos/' . $a->user['nickname'] . '">' . L10n::t('select a photo from your photo albums') . '</a>')
+			'$select' => sprintf('%s %s', DI::l10n()->t('or'),
+				($newuser) ? '<a href="' . DI::baseUrl() . '">' . DI::l10n()->t('skip this step') . '</a>' : '<a href="' . DI::baseUrl() . '/photos/' . $a->user['nickname'] . '">' . DI::l10n()->t('select a photo from your photo albums') . '</a>')
 		]);
 
 		return $o;
@@ -261,10 +260,10 @@ function profile_photo_content(App $a)
 			'$profile'   => (isset($_REQUEST['profile']) ? intval($_REQUEST['profile']) : 0),
 			'$resource'  => $imagecrop['hash'] . '-' . $imagecrop['resolution'],
 			'$image_url' => DI::baseUrl() . '/photo/' . $filename,
-			'$title'     => L10n::t('Crop Image'),
-			'$desc'      => L10n::t('Please adjust the image cropping for optimum viewing.'),
+			'$title'     => DI::l10n()->t('Crop Image'),
+			'$desc'      => DI::l10n()->t('Please adjust the image cropping for optimum viewing.'),
 			'$form_security_token' => BaseModule::getFormSecurityToken("profile_photo"),
-			'$done'      => L10n::t('Done Editing')
+			'$done'      => DI::l10n()->t('Done Editing')
 		]);
 		return $o;
 	}
@@ -295,20 +294,20 @@ function profile_photo_crop_ui_head(Image $image)
 	$smallest = 0;
 	$filename = '';
 
-	$r = Photo::store($image, local_user(), 0, $hash, $filename, L10n::t('Profile Photos'), 0);
+	$r = Photo::store($image, local_user(), 0, $hash, $filename, DI::l10n()->t('Profile Photos'), 0);
 
 	if ($r) {
-		info(L10n::t('Image uploaded successfully.') . EOL);
+		info(DI::l10n()->t('Image uploaded successfully.') . EOL);
 	} else {
-		notice(L10n::t('Image upload failed.') . EOL);
+		notice(DI::l10n()->t('Image upload failed.') . EOL);
 	}
 
 	if ($width > 640 || $height > 640) {
 		$image->scaleDown(640);
-		$r = Photo::store($image, local_user(), 0, $hash, $filename, L10n::t('Profile Photos'), 1);
+		$r = Photo::store($image, local_user(), 0, $hash, $filename, DI::l10n()->t('Profile Photos'), 1);
 
 		if ($r === false) {
-			notice(L10n::t('Image size reduction [%s] failed.', "640") . EOL);
+			notice(DI::l10n()->t('Image size reduction [%s] failed.', "640") . EOL);
 		} else {
 			$smallest = 1;
 		}

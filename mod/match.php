@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Content\Widget;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
@@ -46,7 +45,7 @@ function match_content(App $a)
 		return '';
 	}
 	if (!$profile['pub_keywords'] && (!$profile['prv_keywords'])) {
-		notice(L10n::t('No keywords to match. Please add keywords to your default profile.') . EOL);
+		notice(DI::l10n()->t('No keywords to match. Please add keywords to your default profile.') . EOL);
 		return '';
 	}
 
@@ -84,8 +83,8 @@ function match_content(App $a)
 
 			$connlnk = DI::baseUrl() . '/follow/?url=' . $profile->url;
 			$photo_menu = [
-				'profile' => [L10n::t("View Profile"), Contact::magicLink($profile->url)],
-				'follow' => [L10n::t("Connect/Follow"), $connlnk]
+				'profile' => [DI::l10n()->t("View Profile"), Contact::magicLink($profile->url)],
+				'follow' => [DI::l10n()->t("Connect/Follow"), $connlnk]
 			];
 
 			$contact_details = Contact::getDetailsByURL($profile->url, 0);
@@ -99,7 +98,7 @@ function match_content(App $a)
 				'about'        => $contact_details['about'] ?? '',
 				'account_type' => Contact::getAccountType($contact_details),
 				'thumb'        => ProxyUtils::proxifyUrl($profile->photo, false, ProxyUtils::SIZE_THUMB),
-				'conntxt'      => L10n::t('Connect'),
+				'conntxt'      => DI::l10n()->t('Connect'),
 				'connlnk'      => $connlnk,
 				'img_hover'    => $profile->tags,
 				'photo_menu'   => $photo_menu,
@@ -112,12 +111,12 @@ function match_content(App $a)
 			'class' => 'pager',
 			'first' => [
 				'url'   => 'match',
-				'text'  => L10n::t('first'),
+				'text'  => DI::l10n()->t('first'),
 				'class' => 'previous' . ($start == 0 ? 'disabled' : '')
 			],
 			'next'  => [
 				'url'   => 'match?start=' . $i,
-				'text'  => L10n::t('next'),
+				'text'  => DI::l10n()->t('next'),
 				'class' =>  'next' . ($i >= $msearch->total ? ' disabled' : '')
 			]
 		];
@@ -127,12 +126,12 @@ function match_content(App $a)
 	}
 
 	if (empty($entries)) {
-		info(L10n::t('No matches') . EOL);
+		info(DI::l10n()->t('No matches') . EOL);
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');
 	$o = Renderer::replaceMacros($tpl, [
-		'$title'    => L10n::t('Profile Match'),
+		'$title'    => DI::l10n()->t('Profile Match'),
 		'$contacts' => $entries,
 		'$paginate' => $paginate
 	]);

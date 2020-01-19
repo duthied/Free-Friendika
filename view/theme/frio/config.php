@@ -2,7 +2,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
@@ -107,7 +106,7 @@ function frio_form($arr)
 	}
 
 	$scheme_choices = [];
-	$scheme_choices['---'] = L10n::t('Custom');
+	$scheme_choices['---'] = DI::l10n()->t('Custom');
 	$files = glob('view/theme/frio/scheme/*.php');
 	if ($files) {
 		foreach ($files as $file) {
@@ -119,31 +118,31 @@ function frio_form($arr)
 		}
 	}
 
-	$background_image_help = '<strong>' . L10n::t('Note') . ': </strong>' . L10n::t('Check image permissions if all users are allowed to see the image');
+	$background_image_help = '<strong>' . DI::l10n()->t('Note') . ': </strong>' . DI::l10n()->t('Check image permissions if all users are allowed to see the image');
 
 	$t = Renderer::getMarkupTemplate('theme_settings.tpl');
 	$ctx = [
-		'$submit'           => L10n::t('Submit'),
-		'$title'            => L10n::t('Theme settings'),
-		'$scheme'           => ['frio_scheme', L10n::t('Select color scheme'), $arr['scheme'], '', $scheme_choices],
-		'$share_string'     => ['frio_share_string', L10n::t('Copy or paste schemestring'), $arr['share_string'], L10n::t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
-		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', L10n::t('Navigation bar background color'), $arr['nav_bg'], '', false],
-		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', L10n::t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
-		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', L10n::t('Link color'), $arr['link_color'], '', false],
-		'$background_color' => array_key_exists('background_color', $disable) ? '' : ['frio_background_color', L10n::t('Set the background color'), $arr['background_color'], '', false],
-		'$contentbg_transp' => array_key_exists('contentbg_transp', $disable) ? '' : ['frio_contentbg_transp', L10n::t('Content background opacity'), ($arr['contentbg_transp'] ?? 0) ?: 100, ''],
-		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', L10n::t('Set the background image'), $arr['background_image'], $background_image_help, false],
-		'$bg_image_options_title' => L10n::t('Background image style'),
+		'$submit'           => DI::l10n()->t('Submit'),
+		'$title'            => DI::l10n()->t('Theme settings'),
+		'$scheme'           => ['frio_scheme', DI::l10n()->t('Select color scheme'), $arr['scheme'], '', $scheme_choices],
+		'$share_string'     => ['frio_share_string', DI::l10n()->t('Copy or paste schemestring'), $arr['share_string'], DI::l10n()->t('You can copy this string to share your theme with others. Pasting here applies the schemestring'), false, false],
+		'$nav_bg'           => array_key_exists('nav_bg', $disable) ? '' : ['frio_nav_bg', DI::l10n()->t('Navigation bar background color'), $arr['nav_bg'], '', false],
+		'$nav_icon_color'   => array_key_exists('nav_icon_color', $disable) ? '' : ['frio_nav_icon_color', DI::l10n()->t('Navigation bar icon color '), $arr['nav_icon_color'], '', false],
+		'$link_color'       => array_key_exists('link_color', $disable) ? '' : ['frio_link_color', DI::l10n()->t('Link color'), $arr['link_color'], '', false],
+		'$background_color' => array_key_exists('background_color', $disable) ? '' : ['frio_background_color', DI::l10n()->t('Set the background color'), $arr['background_color'], '', false],
+		'$contentbg_transp' => array_key_exists('contentbg_transp', $disable) ? '' : ['frio_contentbg_transp', DI::l10n()->t('Content background opacity'), ($arr['contentbg_transp'] ?? 0) ?: 100, ''],
+		'$background_image' => array_key_exists('background_image', $disable) ? '' : ['frio_background_image', DI::l10n()->t('Set the background image'), $arr['background_image'], $background_image_help, false],
+		'$bg_image_options_title' => DI::l10n()->t('Background image style'),
 		'$bg_image_options' => Image::get_options($arr),
-		'$enable_compose'   => ['frio_enable_compose', L10n::t('Enable Compose page'), $arr['enable_compose'], L10n::t('This replaces the jot modal window for writing new posts with a link to <a href="compose">the new Compose page</a>.')],
+		'$enable_compose'   => ['frio_enable_compose', DI::l10n()->t('Enable Compose page'), $arr['enable_compose'], DI::l10n()->t('This replaces the jot modal window for writing new posts with a link to <a href="compose">the new Compose page</a>.')],
 	];
 
 	if (array_key_exists('login_bg_image', $arr) && !array_key_exists('login_bg_image', $disable)) {
-		$ctx['$login_bg_image'] = ['frio_login_bg_image', L10n::t('Login page background image'), $arr['login_bg_image'], $background_image_help, false];
+		$ctx['$login_bg_image'] = ['frio_login_bg_image', DI::l10n()->t('Login page background image'), $arr['login_bg_image'], $background_image_help, false];
 	}
 
 	if (array_key_exists('login_bg_color', $arr) && !array_key_exists('login_bg_color', $disable)) {
-		$ctx['$login_bg_color'] = ['frio_login_bg_color', L10n::t('Login page background color'), $arr['login_bg_color'], L10n::t('Leave background image and color empty for theme defaults'), false];
+		$ctx['$login_bg_color'] = ['frio_login_bg_color', DI::l10n()->t('Login page background color'), $arr['login_bg_color'], DI::l10n()->t('Leave background image and color empty for theme defaults'), false];
 	}
 
 	$o = Renderer::replaceMacros($t, $ctx);

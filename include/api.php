@@ -13,7 +13,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Session;
@@ -1106,8 +1105,8 @@ function api_statuses_update($type)
 
 			if ($posts_day > $throttle_day) {
 				Logger::log('Daily posting limit reached for user '.api_user(), Logger::DEBUG);
-				// die(api_error($type, L10n::t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
-				throw new TooManyRequestsException(L10n::tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
+				// die(api_error($type, DI::l10n()->t("Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
+				throw new TooManyRequestsException(DI::l10n()->tt("Daily posting limit of %d post reached. The post was rejected.", "Daily posting limit of %d posts reached. The post was rejected.", $throttle_day));
 			}
 		}
 
@@ -1120,8 +1119,8 @@ function api_statuses_update($type)
 
 			if ($posts_week > $throttle_week) {
 				Logger::log('Weekly posting limit reached for user '.api_user(), Logger::DEBUG);
-				// die(api_error($type, L10n::t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
-				throw new TooManyRequestsException(L10n::tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
+				// die(api_error($type, DI::l10n()->t("Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week)));
+				throw new TooManyRequestsException(DI::l10n()->tt("Weekly posting limit of %d post reached. The post was rejected.", "Weekly posting limit of %d posts reached. The post was rejected.", $throttle_week));
 			}
 		}
 
@@ -1134,8 +1133,8 @@ function api_statuses_update($type)
 
 			if ($posts_month > $throttle_month) {
 				Logger::log('Monthly posting limit reached for user '.api_user(), Logger::DEBUG);
-				// die(api_error($type, L10n::t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
-				throw new TooManyRequestsException(L10n::t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
+				// die(api_error($type, DI::l10n()->t("Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
+				throw new TooManyRequestsException(DI::l10n()->t("Monthly posting limit of %d post reached. The post was rejected.", "Monthly posting limit of %d posts reached. The post was rejected.", $throttle_month));
 			}
 		}
 	}
@@ -4598,7 +4597,7 @@ function api_account_update_profile_image($type)
 		$media = $_FILES['media'];
 	}
 	// save new profile image
-	$data = save_media_to_database("profileimage", $media, $type, L10n::t('Profile Photos'), "", "", "", "", "", $is_default_profile);
+	$data = save_media_to_database("profileimage", $media, $type, DI::l10n()->t('Profile Photos'), "", "", "", "", "", $is_default_profile);
 
 	// get filetype
 	if (is_array($media['type'])) {

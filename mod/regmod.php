@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -36,7 +35,7 @@ function user_allow($hash)
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
-	$l10n = L10n::withLang($register['language']);
+	$l10n = DI::l10n()->withLang($register['language']);
 
 	$res = User::sendRegisterOpenEmail(
 		$l10n,
@@ -47,7 +46,7 @@ function user_allow($hash)
 	);
 
 	if ($res) {
-		info(L10n::t('Account approved.') . EOL);
+		info(DI::l10n()->t('Account approved.') . EOL);
 		return true;
 	}
 }
@@ -71,19 +70,19 @@ function user_deny($hash)
 
 	Register::deleteByHash($register['hash']);
 
-	notice(L10n::t('Registration revoked for %s', $user['username']) . EOL);
+	notice(DI::l10n()->t('Registration revoked for %s', $user['username']) . EOL);
 	return true;
 }
 
 function regmod_content(App $a)
 {
 	if (!local_user()) {
-		info(L10n::t('Please login.') . EOL);
+		info(DI::l10n()->t('Please login.') . EOL);
 		return Login::form(DI::args()->getQueryString(), intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
 	}
 
 	if (!is_site_admin() || !empty($_SESSION['submanage'])) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return '';
 	}
 

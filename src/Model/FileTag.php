@@ -5,7 +5,6 @@
 
 namespace Friendica\Model;
 
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\DI;
 
@@ -262,7 +261,7 @@ class FileTag
 				DI::pConfig()->set($uid, 'system', 'filetags', $saved . '[' . self::encode($file) . ']');
 			}
 
-			info(L10n::t('Item filed'));
+			info(DI::l10n()->t('Item filed'));
 		}
 
 		return true;

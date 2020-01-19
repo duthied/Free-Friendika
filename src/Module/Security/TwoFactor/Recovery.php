@@ -3,8 +3,6 @@
 namespace Friendica\Module\Security\TwoFactor;
 
 use Friendica\BaseModule;
-use Friendica\App\Authentication;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -40,11 +38,11 @@ class Recovery extends BaseModule
 			if (RecoveryCode::existsForUser(local_user(), $recovery_code)) {
 				RecoveryCode::markUsedForUser(local_user(), $recovery_code);
 				Session::set('2fa', true);
-				notice(L10n::t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
+				notice(DI::l10n()->t('Remaining recovery codes: %d', RecoveryCode::countValidForUser(local_user())));
 
 				DI::auth()->setForUser($a, $a->user, true, true);
 			} else {
-				notice(L10n::t('Invalid code, please retry.'));
+				notice(DI::l10n()->t('Invalid code, please retry.'));
 			}
 		}
 	}
@@ -63,11 +61,11 @@ class Recovery extends BaseModule
 		return Renderer::replaceMacros(Renderer::getMarkupTemplate('twofactor/recovery.tpl'), [
 			'$form_security_token' => self::getFormSecurityToken('twofactor_recovery'),
 
-			'$title'            => L10n::t('Two-factor recovery'),
-			'$message'          => L10n::t('<p>You can enter one of your one-time recovery codes in case you lost access to your mobile device.</p>'),
-			'$recovery_message' => L10n::t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
-			'$recovery_code'    => ['recovery_code', L10n::t('Please enter a recovery code'), '', '', '', 'placeholder="000000-000000"'],
-			'$recovery_label'   => L10n::t('Submit recovery code and complete login'),
+			'$title'            => DI::l10n()->t('Two-factor recovery'),
+			'$message'          => DI::l10n()->t('<p>You can enter one of your one-time recovery codes in case you lost access to your mobile device.</p>'),
+			'$recovery_message' => DI::l10n()->t('Don’t have your phone? <a href="%s">Enter a two-factor recovery code</a>', '2fa/recovery'),
+			'$recovery_code'    => ['recovery_code', DI::l10n()->t('Please enter a recovery code'), '', '', '', 'placeholder="000000-000000"'],
+			'$recovery_label'   => DI::l10n()->t('Submit recovery code and complete login'),
 		]);
 	}
 }

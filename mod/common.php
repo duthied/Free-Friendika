@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Pager;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -25,7 +24,7 @@ function common_content(App $a)
 	$zcid = 0;
 
 	if (!local_user()) {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
 
@@ -88,7 +87,7 @@ function common_content(App $a)
 	}
 
 	if ($total < 1) {
-		notice(L10n::t('No contacts in common.') . EOL);
+		notice(DI::l10n()->t('No contacts in common.') . EOL);
 		return $o;
 	}
 
@@ -139,7 +138,7 @@ function common_content(App $a)
 	if ($cmd === 'loc' && $cid && local_user() == $uid) {
 		$tab_str = Module\Contact::getTabsHTML($a, $contact, 5);
 	} else {
-		$title = L10n::t('Common Friends');
+		$title = DI::l10n()->t('Common Friends');
 	}
 
 	$tpl = Renderer::getMarkupTemplate('viewcontact_template.tpl');

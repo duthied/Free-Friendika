@@ -2,8 +2,8 @@
 
 namespace Friendica\Content\Widget;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model\Term;
 
 /**
@@ -29,8 +29,8 @@ class TrendingTags
 
 		$tpl = Renderer::getMarkupTemplate('widget/trending_tags.tpl');
 		$o = Renderer::replaceMacros($tpl, [
-			'$title' => L10n::tt('Trending Tags (last %d hour)', 'Trending Tags (last %d hours)', $period),
-			'$more' => L10n::t('More Trending Tags'),
+			'$title' => DI::l10n()->tt('Trending Tags (last %d hour)', 'Trending Tags (last %d hours)', $period),
+			'$more' => DI::l10n()->t('More Trending Tags'),
 			'$tags' => $tags,
 		]);
 

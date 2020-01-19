@@ -2,6 +2,8 @@
 
 namespace Friendica\Test\Util;
 
+use Friendica\Core\Cache\Duration;
+
 trait DbaCacheMockTrait
 {
 	/**
@@ -30,7 +32,7 @@ trait DbaCacheMockTrait
 		$this->mockIsResult(['v' => $value], isset($return), $times);
 	}
 
-	protected function mockSet($key, $value, $ttl = Cache::FIVE_MINUTES, $time = null, $return = true, $times = null)
+	protected function mockSet($key, $value, $ttl = Duration::FIVE_MINUTES, $time = null, $return = true, $times = null)
 	{
 		if ($time === null) {
 			$time = time();

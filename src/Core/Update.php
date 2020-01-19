@@ -191,7 +191,7 @@ class Update
 					//send the administrator an e-mail
 					self::updateFailed(
 						$x,
-						L10n::t('Update %s failed. See error logs.', $x)
+						DI::l10n()->t('Update %s failed. See error logs.', $x)
 					);
 					Logger::error('Update function ERROR.', ['function' => $funcname, 'retval' => $retval]);
 					DI::lock()->release('dbupdate_function');
@@ -253,7 +253,7 @@ class Update
 			$sent[] = $admin['email'];
 
 			$lang = (($admin['language'])?$admin['language']:'en');
-			$l10n = L10n::withLang($lang);
+			$l10n = DI::l10n()->withLang($lang);
 
 			$preamble = Strings::deindent($l10n->t("
 				The friendica developers released update %s recently,
@@ -295,7 +295,7 @@ class Update
 				$sent[] = $admin['email'];
 
 				$lang = (($admin['language']) ? $admin['language'] : 'en');
-				$l10n = L10n::withLang($lang);
+				$l10n = DI::l10n()->withLang($lang);
 
 				$preamble = Strings::deindent($l10n->t("
 					The friendica database was successfully updated from %s to %s.",
@@ -305,7 +305,7 @@ class Update
 						'uid' => $admin['uid'],
 						'type' => SYSTEM_EMAIL,
 						'to_email' => $admin['email'],
-						'subject'  => l10n::t('[Friendica Notify] Database update'),
+						'subject'  => DI::l10n()->t('[Friendica Notify] Database update'),
 						'preamble' => $preamble,
 						'body' => $preamble,
 						'language' => $lang]

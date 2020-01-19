@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Admin;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -32,12 +31,12 @@ class Queue extends BaseAdminModule
 		// get jobs from the workerqueue table
 		if ($deferred) {
 			$condition = ["NOT `done` AND `retrial` > ?", 0];
-			$sub_title = L10n::t('Inspect Deferred Worker Queue');
-			$info = L10n::t("This page lists the deferred worker jobs. This are jobs that couldn't be executed at the first time.");
+			$sub_title = DI::l10n()->t('Inspect Deferred Worker Queue');
+			$info = DI::l10n()->t("This page lists the deferred worker jobs. This are jobs that couldn't be executed at the first time.");
 		} else {
 			$condition = ["NOT `done` AND `retrial` = ?", 0];
-			$sub_title = L10n::t('Inspect Worker Queue');
-			$info = L10n::t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
+			$sub_title = DI::l10n()->t('Inspect Worker Queue');
+			$info = DI::l10n()->t('This page lists the currently queued worker jobs. These jobs are handled by the worker cronjob you\'ve set up during install.');
 		}
 
 		// @TODO Move to Model\WorkerQueue::getEntries()
@@ -54,13 +53,13 @@ class Queue extends BaseAdminModule
 
 		$t = Renderer::getMarkupTemplate('admin/queue.tpl');
 		return Renderer::replaceMacros($t, [
-			'$title' => L10n::t('Administration'),
+			'$title' => DI::l10n()->t('Administration'),
 			'$page' => $sub_title,
 			'$count' => count($r),
-			'$id_header' => L10n::t('ID'),
-			'$param_header' => L10n::t('Job Parameters'),
-			'$created_header' => L10n::t('Created'),
-			'$prio_header' => L10n::t('Priority'),
+			'$id_header' => DI::l10n()->t('ID'),
+			'$param_header' => DI::l10n()->t('Job Parameters'),
+			'$created_header' => DI::l10n()->t('Created'),
+			'$prio_header' => DI::l10n()->t('Priority'),
 			'$info' => $info,
 			'$entries' => $r,
 		]);

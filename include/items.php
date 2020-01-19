@@ -5,7 +5,6 @@
 
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -347,7 +346,7 @@ function drop_item($id, $return = '')
 	$item = Item::selectFirstForUser(local_user(), $fields, ['id' => $id]);
 
 	if (!DBA::isResult($item)) {
-		notice(L10n::t('Item not found.') . EOL);
+		notice(DI::l10n()->t('Item not found.') . EOL);
 		DI::baseUrl()->redirect('network');
 	}
 
@@ -379,12 +378,12 @@ function drop_item($id, $return = '')
 
 			return Renderer::replaceMacros(Renderer::getMarkupTemplate('confirm.tpl'), [
 				'$method' => 'get',
-				'$message' => L10n::t('Do you really want to delete this item?'),
+				'$message' => DI::l10n()->t('Do you really want to delete this item?'),
 				'$extra_inputs' => $inputs,
-				'$confirm' => L10n::t('Yes'),
+				'$confirm' => DI::l10n()->t('Yes'),
 				'$confirm_url' => $query['base'],
 				'$confirm_name' => 'confirmed',
-				'$cancel' => L10n::t('Cancel'),
+				'$cancel' => DI::l10n()->t('Cancel'),
 			]);
 		}
 		// Now check how the user responded to the confirmation query
@@ -431,7 +430,7 @@ function drop_item($id, $return = '')
 			}
 		}
 	} else {
-		notice(L10n::t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.') . EOL);
 		DI::baseUrl()->redirect('display/' . $item['guid']);
 		//NOTREACHED
 	}

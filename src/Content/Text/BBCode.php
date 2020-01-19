@@ -12,7 +12,6 @@ use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -907,7 +906,7 @@ class BBCode
 			// it loops over the array starting from the first element and going sequentially
 			// to the last element
 			$newbody = str_replace('[$#saved_image' . $cnt . '#$]',
-				'<img src="' . self::proxyUrl($image) . '" alt="' . L10n::t('Image/photo') . '" />', $newbody);
+				'<img src="' . self::proxyUrl($image) . '" alt="' . DI::l10n()->t('Image/photo') . '" />', $newbody);
 			$cnt++;
 		}
 
@@ -1024,7 +1023,7 @@ class BBCode
 				break;
 			case 4:
 				$headline = '<p><b>' . html_entity_decode('&#x2672; ', ENT_QUOTES, 'UTF-8');
-				$headline .= L10n::t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
+				$headline .= DI::l10n()->t('<a href="%1$s" target="_blank">%2$s</a> %3$s', $attributes['link'], $mention, $attributes['posted']);
 				$headline .= ':</b></p>' . "\n";
 
 				$text = ($is_quote_share? '<hr />' : '') . $headline . '<blockquote class="shared_content">' . trim($content) . '</blockquote>' . "\n";
@@ -1521,7 +1520,7 @@ class BBCode
 		$text = preg_replace("/\[font=(.*?)\](.*?)\[\/font\]/sm", "<span style=\"font-family: $1;\">$2</span>", $text);
 
 		// Declare the format for [spoiler] layout
-		$SpoilerLayout = '<details class="spoiler"><summary>' . L10n::t('Click to open/close') . '</summary>$1</details>';
+		$SpoilerLayout = '<details class="spoiler"><summary>' . DI::l10n()->t('Click to open/close') . '</summary>$1</details>';
 
 		// Check for [spoiler] text
 		// handle nested quotes
@@ -1552,7 +1551,7 @@ class BBCode
 
 		// Check for [quote=Author] text
 
-		$t_wrote = L10n::t('$1 wrote:');
+		$t_wrote = DI::l10n()->t('$1 wrote:');
 
 		// handle nested quotes
 		$endlessloop = 0;
@@ -1603,12 +1602,12 @@ class BBCode
 			$text
 		);
 
-		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
-		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . L10n::t('Image/photo') . '" />', $text);
+		$text = preg_replace("/\[img\](.*?)\[\/img\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
+		$text = preg_replace("/\[zmg\](.*?)\[\/zmg\]/ism", '<img src="$1" alt="' . DI::l10n()->t('Image/photo') . '" />', $text);
 
-		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . L10n::t('Encrypted content') . '" /><br />', $text);
-		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $text);
-		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . L10n::t('Encrypted content') . '" title="' . '$1' . ' ' . L10n::t('Encrypted content') . '" /><br />', $Text);
+		$text = preg_replace("/\[crypt\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . DI::l10n()->t('Encrypted content') . '" /><br />', $text);
+		$text = preg_replace("/\[crypt(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br />', $text);
+		//$Text = preg_replace("/\[crypt=(.*?)\](.*?)\[\/crypt\]/ism", '<br/><img src="' .DI::baseUrl() . '/images/lock_icon.gif" alt="' . DI::l10n()->t('Encrypted content') . '" title="' . '$1' . ' ' . DI::l10n()->t('Encrypted content') . '" /><br />', $Text);
 
 		// Simplify "video" element
 		$text = preg_replace('(\[video.*?\ssrc\s?=\s?([^\s\]]+).*?\].*?\[/video\])ism', '[video]$1[/video]', $text);
@@ -1832,7 +1831,7 @@ class BBCode
 		array_walk($allowed_src_protocols, function(&$value) { $value = preg_quote($value, '#');});
 
 		$text = preg_replace('#<([^>]*?)(src)="(?!' . implode('|', $allowed_src_protocols) . ')(.*?)"(.*?)>#ism',
-					 '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . L10n::t('Invalid source protocol') . '">', $text);
+					 '<$1$2=""$4 data-original-src="$3" class="invalid-src" title="' . DI::l10n()->t('Invalid source protocol') . '">', $text);
 
 		// sanitize href attributes (only whitelisted protocols URLs)
 		// default value for backward compatibility
@@ -1847,7 +1846,7 @@ class BBCode
 		array_walk($allowed_link_protocols, function(&$value) { $value = preg_quote($value, '#');});
 
 		$regex = '#<([^>]*?)(href)="(?!' . implode('|', $allowed_link_protocols) . ')(.*?)"(.*?)>#ism';
-		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . L10n::t('Invalid link protocol') . '">', $text);
+		$text = preg_replace($regex, '<$1$2="javascript:void(0)"$4 data-original-href="$3" class="invalid-href" title="' . DI::l10n()->t('Invalid link protocol') . '">', $text);
 
 		// Shared content
 		$text = self::convertShare(

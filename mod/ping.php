@@ -9,7 +9,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
@@ -268,7 +267,7 @@ function ping_init(App $a)
 					'photo'   => $intro['photo'],
 					'date'    => $intro['datetime'],
 					'seen'    => false,
-					'message' => L10n::t('{0} wants to be your friend'),
+					'message' => DI::l10n()->t('{0} wants to be your friend'),
 				];
 				$notifs[] = $notif;
 			}
@@ -284,7 +283,7 @@ function ping_init(App $a)
 					'photo'   => $reg['micro'],
 					'date'    => $reg['created'],
 					'seen'    => false,
-					'message' => L10n::t('{0} requested registration'),
+					'message' => DI::l10n()->t('{0} requested registration'),
 				];
 				$notifs[] = $notif;
 			}

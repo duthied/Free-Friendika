@@ -9,7 +9,6 @@ namespace Friendica\Module\Security;
 use Friendica\BaseModule;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -87,8 +86,8 @@ class Login extends BaseModule
 		$reg = false;
 		if ($register && intval(DI::config()->get('config', 'register_policy')) !== Register::CLOSED) {
 			$reg = [
-				'title' => L10n::t('Create a New Account'),
-				'desc' => L10n::t('Register'),
+				'title' => DI::l10n()->t('Create a New Account'),
+				'desc' => DI::l10n()->t('Register'),
 				'url' => self::getRegisterURL()
 			];
 		}
@@ -112,12 +111,12 @@ class Login extends BaseModule
 		}
 
 		if (!empty(Session::get('openid_identity'))) {
-			$openid_title = L10n::t('Your OpenID: ');
+			$openid_title = DI::l10n()->t('Your OpenID: ');
 			$openid_readonly = true;
 			$identity = Session::get('openid_identity');
-			$username_desc = L10n::t('Please enter your username and password to add the OpenID to your existing account.');
+			$username_desc = DI::l10n()->t('Please enter your username and password to add the OpenID to your existing account.');
 		} else {
-			$openid_title = L10n::t('Or login using OpenID: ');
+			$openid_title = DI::l10n()->t('Or login using OpenID: ');
 			$openid_readonly = false;
 			$identity = '';
 			$username_desc = '';
@@ -127,12 +126,12 @@ class Login extends BaseModule
 			$tpl,
 			[
 				'$dest_url'     => DI::baseUrl()->get(true) . '/login',
-				'$logout'       => L10n::t('Logout'),
-				'$login'        => L10n::t('Login'),
+				'$logout'       => DI::l10n()->t('Logout'),
+				'$login'        => DI::l10n()->t('Login'),
 
-				'$lname'        => ['username', L10n::t('Nickname or Email: '), '', $username_desc],
-				'$lpassword'    => ['password', L10n::t('Password: '), '', ''],
-				'$lremember'    => ['remember', L10n::t('Remember me'), 0,  ''],
+				'$lname'        => ['username', DI::l10n()->t('Nickname or Email: '), '', $username_desc],
+				'$lpassword'    => ['password', DI::l10n()->t('Password: '), '', ''],
+				'$lremember'    => ['remember', DI::l10n()->t('Remember me'), 0,  ''],
 
 				'$openid'       => !$noid,
 				'$lopenid'      => ['openid_url', $openid_title, $identity, '', $openid_readonly],
@@ -141,14 +140,14 @@ class Login extends BaseModule
 
 				'$register'     => $reg,
 
-				'$lostpass'     => L10n::t('Forgot your password?'),
-				'$lostlink'     => L10n::t('Password Reset'),
+				'$lostpass'     => DI::l10n()->t('Forgot your password?'),
+				'$lostlink'     => DI::l10n()->t('Password Reset'),
 
-				'$tostitle'     => L10n::t('Website Terms of Service'),
-				'$toslink'      => L10n::t('terms of service'),
+				'$tostitle'     => DI::l10n()->t('Website Terms of Service'),
+				'$toslink'      => DI::l10n()->t('terms of service'),
 
-				'$privacytitle' => L10n::t('Website Privacy Policy'),
-				'$privacylink'  => L10n::t('privacy policy'),
+				'$privacytitle' => DI::l10n()->t('Website Privacy Policy'),
+				'$privacylink'  => DI::l10n()->t('privacy policy'),
 			]
 		);
 

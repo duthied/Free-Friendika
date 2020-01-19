@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\Core\Config;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
@@ -70,12 +69,12 @@ function quattro_form(App $a, $align, $color, $tfs, $pfs) {
 
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl" );
 	$o = Renderer::replaceMacros($t, [
-		'$submit'  => L10n::t('Submit'),
-		'$title'   => L10n::t("Theme settings"),
-		'$align'   => ['quattro_align', L10n::t('Alignment'), $align, '', ['left' => L10n::t('Left'), 'center' => L10n::t('Center')]],
-		'$color'   => ['quattro_color', L10n::t('Color scheme'), $color, '', $colors],
-		'$pfs'     => ['quattro_pfs', L10n::t('Posts font size'), $pfs],
-		'$tfs'     => ['quattro_tfs', L10n::t('Textareas font size'), $tfs],
+		'$submit'  => DI::l10n()->t('Submit'),
+		'$title'   => DI::l10n()->t("Theme settings"),
+		'$align'   => ['quattro_align', DI::l10n()->t('Alignment'), $align, '', ['left' => DI::l10n()->t('Left'), 'center' => DI::l10n()->t('Center')]],
+		'$color'   => ['quattro_color', DI::l10n()->t('Color scheme'), $color, '', $colors],
+		'$pfs'     => ['quattro_pfs', DI::l10n()->t('Posts font size'), $pfs],
+		'$tfs'     => ['quattro_tfs', DI::l10n()->t('Textareas font size'), $tfs],
 	]);
 	return $o;
 }

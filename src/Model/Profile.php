@@ -13,7 +13,6 @@ use Friendica\Content\Widget\ContactBlock;
 use Friendica\Core\Cache\Duration;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -206,7 +205,7 @@ class Profile
 			DI::page()['aside'] .= Renderer::replaceMacros(
 				Renderer::getMarkupTemplate('profile_edlink.tpl'),
 				[
-					'$editprofile' => L10n::t('Edit profile'),
+					'$editprofile' => DI::l10n()->t('Edit profile'),
 					'$profid' => $a->profile['id']
 				]
 			);
@@ -391,15 +390,15 @@ class Profile
 		// show edit profile to yourself
 		if (!$is_contact && $local_user_is_self) {
 			if (Feature::isEnabled(local_user(), 'multi_profiles')) {
-				$profile['edit'] = [DI::baseUrl() . '/profiles', L10n::t('Profiles'), '', L10n::t('Manage/edit profiles')];
+				$profile['edit'] = [DI::baseUrl() . '/profiles', DI::l10n()->t('Profiles'), '', DI::l10n()->t('Manage/edit profiles')];
 				$r = q(
 					"SELECT * FROM `profile` WHERE `uid` = %d",
 					local_user()
 				);
 
 				$profile['menu'] = [
-					'chg_photo' => L10n::t('Change profile photo'),
-					'cr_new' => L10n::t('Create New Profile'),
+					'chg_photo' => DI::l10n()->t('Change profile photo'),
+					'cr_new' => DI::l10n()->t('Create New Profile'),
 					'entries' => [],
 				];
 
@@ -408,18 +407,18 @@ class Profile
 						$profile['menu']['entries'][] = [
 							'photo' => $rr['thumb'],
 							'id' => $rr['id'],
-							'alt' => L10n::t('Profile Image'),
+							'alt' => DI::l10n()->t('Profile Image'),
 							'profile_name' => $rr['profile-name'],
 							'isdefault' => $rr['is-default'],
-							'visibile_to_everybody' => L10n::t('visible to everybody'),
-							'edit_visibility' => L10n::t('Edit visibility'),
+							'visibile_to_everybody' => DI::l10n()->t('visible to everybody'),
+							'edit_visibility' => DI::l10n()->t('Edit visibility'),
 						];
 					}
 				}
 			} else {
-				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
+				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $profile['id'], DI::l10n()->t('Edit profile'), '', DI::l10n()->t('Edit profile')];
 				$profile['menu'] = [
-					'chg_photo' => L10n::t('Change profile photo'),
+					'chg_photo' => DI::l10n()->t('Change profile photo'),
 					'cr_new' => null,
 					'entries' => [],
 				];
@@ -436,14 +435,14 @@ class Profile
 			|| !empty($profile['postal-code'])
 			|| !empty($profile['country-name'])
 		) {
-			$location = L10n::t('Location:');
+			$location = DI::l10n()->t('Location:');
 		}
 
-		$gender   = !empty($profile['gender'])   ? L10n::t('Gender:')   : false;
-		$marital  = !empty($profile['marital'])  ? L10n::t('Status:')   : false;
-		$homepage = !empty($profile['homepage']) ? L10n::t('Homepage:') : false;
-		$about    = !empty($profile['about'])    ? L10n::t('About:')    : false;
-		$xmpp     = !empty($profile['xmpp'])     ? L10n::t('XMPP:')     : false;
+		$gender   = !empty($profile['gender'])   ? DI::l10n()->t('Gender:')   : false;
+		$marital  = !empty($profile['marital'])  ? DI::l10n()->t('Status:')   : false;
+		$homepage = !empty($profile['homepage']) ? DI::l10n()->t('Homepage:') : false;
+		$about    = !empty($profile['about'])    ? DI::l10n()->t('About:')    : false;
+		$xmpp     = !empty($profile['xmpp'])     ? DI::l10n()->t('XMPP:')     : false;
 
 		if ((!empty($profile['hidewall']) || $block) && !Session::isAuthenticated()) {
 			$location = $gender = $marital = $homepage = $about = false;
@@ -516,11 +515,11 @@ class Profile
 		}
 
 		if (isset($p['gender'])) {
-			$p['gender'] = L10n::t($p['gender']);
+			$p['gender'] = DI::l10n()->t($p['gender']);
 		}
 
 		if (isset($p['marital'])) {
-			$p['marital'] = L10n::t($p['marital']);
+			$p['marital'] = DI::l10n()->t($p['marital']);
 		}
 
 		if (isset($p['photo'])) {
@@ -533,13 +532,13 @@ class Profile
 		$o .= Renderer::replaceMacros($tpl, [
 			'$profile' => $p,
 			'$xmpp' => $xmpp,
-			'$follow' => L10n::t('Follow'),
+			'$follow' => DI::l10n()->t('Follow'),
 			'$follow_link' => $follow_link,
-			'$unfollow' => L10n::t('Unfollow'),
+			'$unfollow' => DI::l10n()->t('Unfollow'),
 			'$unfollow_link' => $unfollow_link,
-			'$subscribe_feed' => L10n::t('Atom feed'),
+			'$subscribe_feed' => DI::l10n()->t('Atom feed'),
 			'$subscribe_feed_link' => $subscribe_feed_link,
-			'$wallmessage' => L10n::t('Message'),
+			'$wallmessage' => DI::l10n()->t('Message'),
 			'$wallmessage_link' => $wallmessage_link,
 			'$account_type' => $account_type,
 			'$location' => $location,
@@ -547,7 +546,7 @@ class Profile
 			'$marital' => $marital,
 			'$homepage' => $homepage,
 			'$about' => $about,
-			'$network' => L10n::t('Network:'),
+			'$network' => DI::l10n()->t('Network:'),
 			'$contacts' => $contact_count,
 			'$updated' => $updated,
 			'$diaspora' => $diaspora,
@@ -577,8 +576,8 @@ class Profile
 		* 			return $o;
 		*/
 
-		$bd_format = L10n::t('g A l F d'); // 8 AM Friday January 18
-		$bd_short = L10n::t('F d');
+		$bd_format = DI::l10n()->t('g A l F d'); // 8 AM Friday January 18
+		$bd_short = DI::l10n()->t('F d');
 
 		$cachekey = 'get_birthdays:' . local_user();
 		$r = DI::cache()->get($cachekey);
@@ -640,7 +639,7 @@ class Profile
 
 					$rr['link'] = Contact::magicLink($rr['url']);
 					$rr['title'] = $rr['name'];
-					$rr['date'] = L10n::getDay(DateTimeFormat::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . L10n::t('[today]') : '');
+					$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $a->timezone, 'UTC', $rr['adjust'] ? $bd_format : $bd_short)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 					$rr['startime'] = null;
 					$rr['today'] = $today;
 				}
@@ -650,8 +649,8 @@ class Profile
 		return Renderer::replaceMacros($tpl, [
 			'$classtoday' => $classtoday,
 			'$count' => $total,
-			'$event_reminders' => L10n::t('Birthday Reminders'),
-			'$event_title' => L10n::t('Birthdays this week:'),
+			'$event_reminders' => DI::l10n()->t('Birthday Reminders'),
+			'$event_title' => DI::l10n()->t('Birthdays this week:'),
 			'$events' => $r,
 			'$lbr' => '{', // raw brackets mess up if/endif macro processing
 			'$rbr' => '}'
@@ -674,7 +673,7 @@ class Profile
 		* 			return $o;
 		*/
 
-		$bd_format = L10n::t('g A l F d'); // 8 AM Friday January 18
+		$bd_format = DI::l10n()->t('g A l F d'); // 8 AM Friday January 18
 		$classtoday = '';
 
 		$condition = ["`uid` = ? AND `type` != 'birthday' AND `start` < ? AND `start` >= ?",
@@ -712,7 +711,7 @@ class Profile
 
 				$description = substr(strip_tags(BBCode::convert($rr['desc'])), 0, 32) . '... ';
 				if (!$description) {
-					$description = L10n::t('[No description]');
+					$description = DI::l10n()->t('[No description]');
 				}
 
 				$strt = DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC');
@@ -725,7 +724,7 @@ class Profile
 
 				$rr['title'] = $title;
 				$rr['description'] = $description;
-				$rr['date'] = L10n::getDay(DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . L10n::t('[today]') : '');
+				$rr['date'] = DI::l10n()->getDay(DateTimeFormat::convert($rr['start'], $rr['adjust'] ? $a->timezone : 'UTC', 'UTC', $bd_format)) . (($today) ? ' ' . DI::l10n()->t('[today]') : '');
 				$rr['startime'] = $strt;
 				$rr['today'] = $today;
 
@@ -738,8 +737,8 @@ class Profile
 		return Renderer::replaceMacros($tpl, [
 			'$classtoday' => $classtoday,
 			'$count' => count($r),
-			'$event_reminders' => L10n::t('Event Reminders'),
-			'$event_title' => L10n::t('Upcoming events the next 7 days:'),
+			'$event_reminders' => DI::l10n()->t('Event Reminders'),
+			'$event_title' => DI::l10n()->t('Upcoming events the next 7 days:'),
 			'$events' => $r,
 		]);
 	}
@@ -753,38 +752,38 @@ class Profile
 
 			$profile = [];
 
-			$profile['fullname'] = [L10n::t('Full Name:'), $a->profile['name']];
+			$profile['fullname'] = [DI::l10n()->t('Full Name:'), $a->profile['name']];
 
 			if (Feature::isEnabled($uid, 'profile_membersince')) {
-				$profile['membersince'] = [L10n::t('Member since:'), DateTimeFormat::local($a->profile['register_date'])];
+				$profile['membersince'] = [DI::l10n()->t('Member since:'), DateTimeFormat::local($a->profile['register_date'])];
 			}
 
 			if ($a->profile['gender']) {
-				$profile['gender'] = [L10n::t('Gender:'), L10n::t($a->profile['gender'])];
+				$profile['gender'] = [DI::l10n()->t('Gender:'), DI::l10n()->t($a->profile['gender'])];
 			}
 
 			if (!empty($a->profile['dob']) && $a->profile['dob'] > DBA::NULL_DATE) {
-				$year_bd_format = L10n::t('j F, Y');
-				$short_bd_format = L10n::t('j F');
+				$year_bd_format = DI::l10n()->t('j F, Y');
+				$short_bd_format = DI::l10n()->t('j F');
 
-				$val = L10n::getDay(
+				$val = DI::l10n()->getDay(
 					intval($a->profile['dob']) ?
 						DateTimeFormat::utc($a->profile['dob'] . ' 00:00 +00:00', $year_bd_format)
 						: DateTimeFormat::utc('2001-' . substr($a->profile['dob'], 5) . ' 00:00 +00:00', $short_bd_format)
 				);
 
-				$profile['birthday'] = [L10n::t('Birthday:'), $val];
+				$profile['birthday'] = [DI::l10n()->t('Birthday:'), $val];
 			}
 
 			if (!empty($a->profile['dob'])
 				&& $a->profile['dob'] > DBA::NULL_DATE
 				&& $age = Temporal::getAgeByTimezone($a->profile['dob'], $a->profile['timezone'], '')
 			) {
-				$profile['age'] = [L10n::t('Age:'), $age];
+				$profile['age'] = [DI::l10n()->t('Age:'), $age];
 			}
 
 			if ($a->profile['marital']) {
-				$profile['marital'] = [L10n::t('Status:'), L10n::t($a->profile['marital'])];
+				$profile['marital'] = [DI::l10n()->t('Status:'), DI::l10n()->t($a->profile['marital'])];
 			}
 
 			/// @TODO Maybe use x() here, plus below?
@@ -793,94 +792,94 @@ class Profile
 			}
 
 			if (strlen($a->profile['howlong']) && $a->profile['howlong'] > DBA::NULL_DATETIME) {
-				$profile['howlong'] = Temporal::getRelativeDate($a->profile['howlong'], L10n::t('for %1$d %2$s'));
+				$profile['howlong'] = Temporal::getRelativeDate($a->profile['howlong'], DI::l10n()->t('for %1$d %2$s'));
 			}
 
 			if ($a->profile['sexual']) {
-				$profile['sexual'] = [L10n::t('Sexual Preference:'), L10n::t($a->profile['sexual'])];
+				$profile['sexual'] = [DI::l10n()->t('Sexual Preference:'), DI::l10n()->t($a->profile['sexual'])];
 			}
 
 			if ($a->profile['homepage']) {
-				$profile['homepage'] = [L10n::t('Homepage:'), HTML::toLink($a->profile['homepage'])];
+				$profile['homepage'] = [DI::l10n()->t('Homepage:'), HTML::toLink($a->profile['homepage'])];
 			}
 
 			if ($a->profile['hometown']) {
-				$profile['hometown'] = [L10n::t('Hometown:'), HTML::toLink($a->profile['hometown'])];
+				$profile['hometown'] = [DI::l10n()->t('Hometown:'), HTML::toLink($a->profile['hometown'])];
 			}
 
 			if ($a->profile['pub_keywords']) {
-				$profile['pub_keywords'] = [L10n::t('Tags:'), $a->profile['pub_keywords']];
+				$profile['pub_keywords'] = [DI::l10n()->t('Tags:'), $a->profile['pub_keywords']];
 			}
 
 			if ($a->profile['politic']) {
-				$profile['politic'] = [L10n::t('Political Views:'), $a->profile['politic']];
+				$profile['politic'] = [DI::l10n()->t('Political Views:'), $a->profile['politic']];
 			}
 
 			if ($a->profile['religion']) {
-				$profile['religion'] = [L10n::t('Religion:'), $a->profile['religion']];
+				$profile['religion'] = [DI::l10n()->t('Religion:'), $a->profile['religion']];
 			}
 
 			if ($txt = BBCode::convert($a->profile['about'])) {
-				$profile['about'] = [L10n::t('About:'), $txt];
+				$profile['about'] = [DI::l10n()->t('About:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['interest'])) {
-				$profile['interest'] = [L10n::t('Hobbies/Interests:'), $txt];
+				$profile['interest'] = [DI::l10n()->t('Hobbies/Interests:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['likes'])) {
-				$profile['likes'] = [L10n::t('Likes:'), $txt];
+				$profile['likes'] = [DI::l10n()->t('Likes:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['dislikes'])) {
-				$profile['dislikes'] = [L10n::t('Dislikes:'), $txt];
+				$profile['dislikes'] = [DI::l10n()->t('Dislikes:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['contact'])) {
-				$profile['contact'] = [L10n::t('Contact information and Social Networks:'), $txt];
+				$profile['contact'] = [DI::l10n()->t('Contact information and Social Networks:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['music'])) {
-				$profile['music'] = [L10n::t('Musical interests:'), $txt];
+				$profile['music'] = [DI::l10n()->t('Musical interests:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['book'])) {
-				$profile['book'] = [L10n::t('Books, literature:'), $txt];
+				$profile['book'] = [DI::l10n()->t('Books, literature:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['tv'])) {
-				$profile['tv'] = [L10n::t('Television:'), $txt];
+				$profile['tv'] = [DI::l10n()->t('Television:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['film'])) {
-				$profile['film'] = [L10n::t('Film/dance/culture/entertainment:'), $txt];
+				$profile['film'] = [DI::l10n()->t('Film/dance/culture/entertainment:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['romance'])) {
-				$profile['romance'] = [L10n::t('Love/Romance:'), $txt];
+				$profile['romance'] = [DI::l10n()->t('Love/Romance:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['work'])) {
-				$profile['work'] = [L10n::t('Work/employment:'), $txt];
+				$profile['work'] = [DI::l10n()->t('Work/employment:'), $txt];
 			}
 
 			if ($txt = BBCode::convert($a->profile['education'])) {
-				$profile['education'] = [L10n::t('School/education:'), $txt];
+				$profile['education'] = [DI::l10n()->t('School/education:'), $txt];
 			}
 
 			//show subcribed forum if it is enabled in the usersettings
 			if (Feature::isEnabled($uid, 'forumlist_profile')) {
-				$profile['forumlist'] = [L10n::t('Forums:'), ForumManager::profileAdvanced($uid)];
+				$profile['forumlist'] = [DI::l10n()->t('Forums:'), ForumManager::profileAdvanced($uid)];
 			}
 
 			if ($a->profile['uid'] == local_user()) {
-				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $a->profile['id'], L10n::t('Edit profile'), '', L10n::t('Edit profile')];
+				$profile['edit'] = [DI::baseUrl() . '/profiles/' . $a->profile['id'], DI::l10n()->t('Edit profile'), '', DI::l10n()->t('Edit profile')];
 			}
 
 			return Renderer::replaceMacros($tpl, [
-				'$title' => L10n::t('Profile'),
-				'$basic' => L10n::t('Basic'),
-				'$advanced' => L10n::t('Advanced'),
+				'$title' => DI::l10n()->t('Profile'),
+				'$basic' => DI::l10n()->t('Basic'),
+				'$advanced' => DI::l10n()->t('Advanced'),
 				'$profile' => $profile
 			]);
 		}
@@ -906,34 +905,34 @@ class Profile
 
 		$tabs = [
 			[
-				'label' => L10n::t('Status'),
+				'label' => DI::l10n()->t('Status'),
 				'url'   => $baseProfileUrl,
 				'sel'   => !$current ? 'active' : '',
-				'title' => L10n::t('Status Messages and Posts'),
+				'title' => DI::l10n()->t('Status Messages and Posts'),
 				'id'    => 'status-tab',
 				'accesskey' => 'm',
 			],
 			[
-				'label' => L10n::t('Profile'),
+				'label' => DI::l10n()->t('Profile'),
 				'url'   => $baseProfileUrl . '/?tab=profile',
 				'sel'   => $current == 'profile' ? 'active' : '',
-				'title' => L10n::t('Profile Details'),
+				'title' => DI::l10n()->t('Profile Details'),
 				'id'    => 'profile-tab',
 				'accesskey' => 'r',
 			],
 			[
-				'label' => L10n::t('Photos'),
+				'label' => DI::l10n()->t('Photos'),
 				'url'   => DI::baseUrl() . '/photos/' . $nickname,
 				'sel'   => $current == 'photos' ? 'active' : '',
-				'title' => L10n::t('Photo Albums'),
+				'title' => DI::l10n()->t('Photo Albums'),
 				'id'    => 'photo-tab',
 				'accesskey' => 'h',
 			],
 			[
-				'label' => L10n::t('Videos'),
+				'label' => DI::l10n()->t('Videos'),
 				'url'   => DI::baseUrl() . '/videos/' . $nickname,
 				'sel'   => $current == 'videos' ? 'active' : '',
-				'title' => L10n::t('Videos'),
+				'title' => DI::l10n()->t('Videos'),
 				'id'    => 'video-tab',
 				'accesskey' => 'v',
 			],
@@ -942,10 +941,10 @@ class Profile
 		// the calendar link for the full featured events calendar
 		if ($is_owner && $a->theme_events_in_profile) {
 			$tabs[] = [
-				'label' => L10n::t('Events'),
+				'label' => DI::l10n()->t('Events'),
 				'url'   => DI::baseUrl() . '/events',
 				'sel'   => $current == 'events' ? 'active' : '',
-				'title' => L10n::t('Events and Calendar'),
+				'title' => DI::l10n()->t('Events and Calendar'),
 				'id'    => 'events-tab',
 				'accesskey' => 'e',
 			];
@@ -953,10 +952,10 @@ class Profile
 			// with the public events of the calendar owner
 		} elseif (!$is_owner) {
 			$tabs[] = [
-				'label' => L10n::t('Events'),
+				'label' => DI::l10n()->t('Events'),
 				'url'   => DI::baseUrl() . '/cal/' . $nickname,
 				'sel'   => $current == 'cal' ? 'active' : '',
-				'title' => L10n::t('Events and Calendar'),
+				'title' => DI::l10n()->t('Events and Calendar'),
 				'id'    => 'events-tab',
 				'accesskey' => 'e',
 			];
@@ -964,10 +963,10 @@ class Profile
 
 		if ($is_owner) {
 			$tabs[] = [
-				'label' => L10n::t('Personal Notes'),
+				'label' => DI::l10n()->t('Personal Notes'),
 				'url'   => DI::baseUrl() . '/notes',
 				'sel'   => $current == 'notes' ? 'active' : '',
-				'title' => L10n::t('Only You Can See This'),
+				'title' => DI::l10n()->t('Only You Can See This'),
 				'id'    => 'notes-tab',
 				'accesskey' => 't',
 			];
@@ -975,20 +974,20 @@ class Profile
 
 		if (!empty($_SESSION['new_member']) && $is_owner) {
 			$tabs[] = [
-				'label' => L10n::t('Tips for New Members'),
+				'label' => DI::l10n()->t('Tips for New Members'),
 				'url'   => DI::baseUrl() . '/newmember',
 				'sel'   => false,
-				'title' => L10n::t('Tips for New Members'),
+				'title' => DI::l10n()->t('Tips for New Members'),
 				'id'    => 'newmember-tab',
 			];
 		}
 
 		if ($is_owner || empty($a->profile['hide-friends'])) {
 			$tabs[] = [
-				'label' => L10n::t('Contacts'),
+				'label' => DI::l10n()->t('Contacts'),
 				'url'   => $baseProfileUrl . '/contacts',
 				'sel'   => $current == 'contacts' ? 'active' : '',
-				'title' => L10n::t('Contacts'),
+				'title' => DI::l10n()->t('Contacts'),
 				'id'    => 'viewcontacts-tab',
 				'accesskey' => 'k',
 			];
@@ -1171,7 +1170,7 @@ class Profile
 
 		$a->contact = $arr['visitor'];
 
-		info(L10n::t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
+		info(DI::l10n()->t('OpenWebAuth: %1$s welcomes %2$s', DI::baseUrl()->getHostname(), $visitor['name']));
 
 		Logger::log('OpenWebAuth: auth success from ' . $visitor['addr'], Logger::DEBUG);
 	}

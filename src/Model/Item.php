@@ -10,7 +10,6 @@ use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -3388,16 +3387,16 @@ class Item
 	public static function postType($item)
 	{
 		if (!empty($item['event-id'])) {
-			return L10n::t('event');
+			return DI::l10n()->t('event');
 		} elseif (!empty($item['resource-id'])) {
-			return L10n::t('photo');
+			return DI::l10n()->t('photo');
 		} elseif (!empty($item['verb']) && $item['verb'] !== Activity::POST) {
-			return L10n::t('activity');
+			return DI::l10n()->t('activity');
 		} elseif ($item['id'] != $item['parent']) {
-			return L10n::t('comment');
+			return DI::l10n()->t('comment');
 		}
 
-		return L10n::t('post');
+		return DI::l10n()->t('post');
 	}
 
 	/**
@@ -3520,7 +3519,7 @@ class Item
 		$filter_reasons = [];
 		if (!$is_preview && public_contact() != $item['author-id']) {
 			if (!empty($item['content-warning']) && (!local_user() || !DI::pConfig()->get(local_user(), 'system', 'disable_cw', false))) {
-				$filter_reasons[] = L10n::t('Content warning: %s', $item['content-warning']);
+				$filter_reasons[] = DI::l10n()->t('Content warning: %s', $item['content-warning']);
 			}
 
 			$hook_data = [
@@ -3580,7 +3579,7 @@ class Item
 				$as .= Renderer::replaceMacros(Renderer::getMarkupTemplate('video_top.tpl'), [
 					'$video' => [
 						'id'     => $id,
-						'title'  => L10n::t('View Video'),
+						'title'  => DI::l10n()->t('View Video'),
 						'src'    => $the_url,
 						'mime'   => $mime,
 					],
@@ -3597,7 +3596,7 @@ class Item
 			}
 
 			$title = Strings::escapeHtml(trim(($mtch[4] ?? '') ?: $mtch[1]));
-			$title .= ' ' . $mtch[2] . ' ' . L10n::t('bytes');
+			$title .= ' ' . $mtch[2] . ' ' . DI::l10n()->t('bytes');
 
 			$icon = '<div class="attachtype icon s22 type-' . $filetype . ' subtype-' . $filesubtype . '"></div>';
 			$as .= '<a href="' . strip_tags($the_url) . '" title="' . $title . '" class="attachlink" target="_blank" >' . $icon . '</a>';
@@ -3644,20 +3643,20 @@ class Item
 			$ret = [
 				'href' => "display/" . $item['guid'],
 				'orig' => "display/" . $item['guid'],
-				'title' => L10n::t('View on separate page'),
-				'orig_title' => L10n::t('view on separate page'),
+				'title' => DI::l10n()->t('View on separate page'),
+				'orig_title' => DI::l10n()->t('view on separate page'),
 			];
 
 			if (!empty($item['plink'])) {
 				$ret["href"] = DI::baseUrl()->remove($item['plink']);
-				$ret["title"] = L10n::t('link to source');
+				$ret["title"] = DI::l10n()->t('link to source');
 			}
 
 		} elseif (!empty($item['plink']) && ($item['private'] != 1)) {
 			$ret = [
 				'href' => $item['plink'],
 				'orig' => $item['plink'],
-				'title' => L10n::t('link to source'),
+				'title' => DI::l10n()->t('link to source'),
 			];
 		} else {
 			$ret = [];

@@ -5,13 +5,10 @@
  */
 namespace Friendica\Model;
 
-use Friendica\Core\L10n;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\DI;
-use Friendica\Model\Item;
-use Friendica\Model\Photo;
 use Friendica\Database\DBA;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
@@ -112,7 +109,7 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = L10n::t('[no subject]');
+			$subject = DI::l10n()->t('[no subject]');
 		}
 
 		$me = DBA::selectFirst('contact', [], ['uid' => local_user(), 'self' => true]);
@@ -247,7 +244,7 @@ class Mail
 		}
 
 		if (!strlen($subject)) {
-			$subject = L10n::t('[no subject]');
+			$subject = DI::l10n()->t('[no subject]');
 		}
 
 		$guid = System::createUUID();

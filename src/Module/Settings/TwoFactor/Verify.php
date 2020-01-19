@@ -6,7 +6,6 @@ use BaconQrCode\Renderer\Image\SvgImageBackEnd;
 use BaconQrCode\Renderer\ImageRenderer;
 use BaconQrCode\Renderer\RendererStyle\RendererStyle;
 use BaconQrCode\Writer;
-use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
@@ -35,7 +34,7 @@ class Verify extends BaseSettingsModule
 		}
 
 		if (!self::checkFormSecurityToken('settings_2fa_password', 't')) {
-			notice(L10n::t('Please enter your password to access this page.'));
+			notice(DI::l10n()->t('Please enter your password to access this page.'));
 			DI::baseUrl()->redirect('settings/2fa');
 		}
 	}
@@ -57,11 +56,11 @@ class Verify extends BaseSettingsModule
 				DI::pConfig()->set(local_user(), '2fa', 'verified', true);
 				Session::set('2fa', true);
 
-				notice(L10n::t('Two-factor authentication successfully activated.'));
+				notice(DI::l10n()->t('Two-factor authentication successfully activated.'));
 
 				DI::baseUrl()->redirect('settings/2fa');
 			} else {
-				notice(L10n::t('Invalid code, please retry.'));
+				notice(DI::l10n()->t('Invalid code, please retry.'));
 			}
 		}
 	}
@@ -90,7 +89,7 @@ class Verify extends BaseSettingsModule
 
 		$shortOtpauthUrl = explode('?', $otpauthUrl)[0];
 
-		$manual_message = L10n::t('<p>Or you can submit the authentication settings manually:</p>
+		$manual_message = DI::l10n()->t('<p>Or you can submit the authentication settings manually:</p>
 <dl>
 	<dt>Issuer</dt>
 	<dd>%s</dd>
@@ -110,18 +109,18 @@ class Verify extends BaseSettingsModule
 			'$form_security_token'     => self::getFormSecurityToken('settings_2fa_verify'),
 			'$password_security_token' => self::getFormSecurityToken('settings_2fa_password'),
 
-			'$title'              => L10n::t('Two-factor code verification'),
-			'$help_label'         => L10n::t('Help'),
-			'$message'            => L10n::t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
+			'$title'              => DI::l10n()->t('Two-factor code verification'),
+			'$help_label'         => DI::l10n()->t('Help'),
+			'$message'            => DI::l10n()->t('<p>Please scan this QR Code with your authenticator app and submit the provided code.</p>'),
 			'$qrcode_image'       => $qrcode_image,
-			'$qrcode_url_message' => L10n::t('<p>Or you can open the following URL in your mobile devicde:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
+			'$qrcode_url_message' => DI::l10n()->t('<p>Or you can open the following URL in your mobile devicde:</p><p><a href="%s">%s</a></p>', $otpauthUrl, $shortOtpauthUrl),
 			'$manual_message'     => $manual_message,
 			'$company'            => $company,
 			'$holder'             => $holder,
 			'$secret'             => $secret,
 
-			'$verify_code'  => ['verify_code', L10n::t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
-			'$verify_label' => L10n::t('Verify code and enable two-factor authentication'),
+			'$verify_code'  => ['verify_code', DI::l10n()->t('Please enter a code from your authentication app'), '', '', 'required', 'autofocus placeholder="000000"'],
+			'$verify_label' => DI::l10n()->t('Verify code and enable two-factor authentication'),
 		]);
 	}
 }
