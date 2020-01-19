@@ -110,7 +110,7 @@ class ASNValue
     function SetIntBuffer($Value)
     {
         if (strlen($Value) > 1) {
-            $firstByte = ord($Value{0});
+            $firstByte = ord($Value[0]);
             if ($firstByte & 0x80) { //first bit set
                 $Value = chr(0x00) . $Value;
             }
@@ -122,7 +122,7 @@ class ASNValue
     function GetIntBuffer()    
     {        
         $result = $this->Value;
-        if (ord($result{0}) == 0x00) {
+        if (ord($result[0]) == 0x00) {
             $result = substr($result, 1);
         }
         
