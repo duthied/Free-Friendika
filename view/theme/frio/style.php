@@ -14,7 +14,7 @@ $schemecss = '';
 $schemecssfile = false;
 $scheme_modified = 0;
 
-Config::load('frio');
+DI::config()->load('frio');
 
 // Default to hard-coded values for empty settings
 $scheme           = Config::get('frio', 'scheme', Config::get('frio', 'schema'));

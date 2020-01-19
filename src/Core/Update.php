@@ -90,7 +90,7 @@ class Update
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
 			if ($stored < $current || $force) {
-				Config::load('database');
+				DI::config()->load('database');
 
 				Logger::info('Update starting.', ['from' => $stored, 'to' => $current]);
 

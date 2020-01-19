@@ -44,7 +44,7 @@ if (DI::mode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
 }
 
-Config::load();
+DI::config()->load();
 
 if (empty(Config::get('system', 'pidfile'))) {
 	die(<<<TXT

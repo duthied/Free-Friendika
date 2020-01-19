@@ -20,18 +20,6 @@ use Friendica\DI;
 class Config
 {
 	/**
-	 * Loads all configuration values of family into a cached storage.
-	 *
-	 * @param string $cat The category of the configuration value
-	 *
-	 * @return void
-	 */
-	public static function load($cat = "config")
-	{
-		DI::config()->load($cat);
-	}
-
-	/**
 	 * Get a particular user's config variable given the category name ($family) and a key.
 	 *
 	 * @param string  $cat        The category of the configuration value
