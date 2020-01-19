@@ -36,33 +36,6 @@ final class Notify
 	const HOME     = 'home';
 	const INTRO    = 'intro';
 
-	/** @var array Array of URL parameters */
-	const URL_TYPES = [
-		self::NETWORK  => 'network',
-		self::SYSTEM   => 'system',
-		self::HOME     => 'home',
-		self::PERSONAL => 'personal',
-		self::INTRO    => 'intros',
-	];
-
-	/** @var array Array of the allowed notifies and their printable name */
-	const PRINT_TYPES = [
-		self::NETWORK  => 'Network',
-		self::SYSTEM   => 'System',
-		self::HOME     => 'Home',
-		self::PERSONAL => 'Personal',
-		self::INTRO    => 'Introductions',
-	];
-
-	/** @var array The array of access keys for notify pages */
-	const ACCESS_KEYS = [
-		self::NETWORK  => 'w',
-		self::SYSTEM   => 'y',
-		self::HOME     => 'h',
-		self::PERSONAL => 'r',
-		self::INTRO    => 'i',
-	];
-
 	/** @var Database */
 	private $dba;
 	/** @var L10n */
@@ -194,31 +167,6 @@ final class Notify
 	public function setAllSeen(bool $seen = true)
 	{
 		return $this->dba->update('notify', ['seen' => $seen], ['uid' => local_user()]);
-	}
-
-	/**
-	 * List of pages for the Notifications TabBar
-	 *
-	 * @return array with with notifications TabBar data
-	 * @throws Exception
-	 */
-	public function getTabs()
-	{
-		$selected = $this->args->get(1, '');
-
-		$tabs = [];
-
-		foreach (self::URL_TYPES as $type => $url) {
-			$tabs[] = [
-				'label'     => $this->l10n->t(self::PRINT_TYPES[$type]),
-				'url'       => 'notifications/' . $url,
-				'sel'       => (($selected == $url) ? 'active' : ''),
-				'id'        => $type . '-tab',
-				'accesskey' => self::ACCESS_KEYS[$type],
-			];
-		}
-
-		return $tabs;
 	}
 
 	/**
