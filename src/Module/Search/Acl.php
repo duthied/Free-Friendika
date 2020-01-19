@@ -9,6 +9,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Network\HTTPException;

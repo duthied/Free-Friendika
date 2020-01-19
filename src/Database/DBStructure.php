@@ -9,6 +9,7 @@ use Exception;
 use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 
 require_once __DIR__ . '/../../include/dba.php';

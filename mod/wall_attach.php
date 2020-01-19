@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Core\Config;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Attach;
 use Friendica\Model\User;
 use Friendica\Util\Strings;

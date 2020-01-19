@@ -47,8 +47,10 @@ The code will be something like:
 // mod/network.php
 <?php
 
+use Friendica\App;
+
 function network_content(App $a) {
-	$itemsmanager = new Friendica\ItemsManager();
+	$itemsmanager = new \Friendica\ItemsManager();
 	$items = $itemsmanager->getAll();
 
 	// pass $items to template
@@ -116,6 +118,8 @@ If your code is in same namespace as the class you need, you don't need to prepe
 <?php
 
 namespace Friendica;
+
+use Friendica\Protocol\DFRN;
 
 // this is the same content of current include/delivery.php,
 // but has been declared to be in "Friendica" namespace

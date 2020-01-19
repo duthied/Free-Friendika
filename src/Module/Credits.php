@@ -4,6 +4,7 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 
 /**
  * Show a credits page for all the developers who helped with the project

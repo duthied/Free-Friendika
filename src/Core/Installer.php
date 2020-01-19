@@ -9,6 +9,7 @@ use Exception;
 use Friendica\Core\Config\Cache\ConfigCache;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
+use Friendica\DI;
 use Friendica\Util\Images;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;

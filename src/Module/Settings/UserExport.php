@@ -209,7 +209,7 @@ class UserExport extends BaseSettingsModule
 	 * echoes account data and items as separated json, one per line
 	 *
 	 * @param App $a
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	private static function exportAll(App $a)
 	{

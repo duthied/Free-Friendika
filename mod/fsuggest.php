@@ -7,6 +7,7 @@ use Friendica\App;
 use Friendica\Core\ACL;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;

@@ -5,6 +5,7 @@ namespace Friendica\Module\Debug;
 use Friendica\BaseModule;
 use Friendica\Content\Text;
 use Friendica\Core\Renderer;
+use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Util\XML;
 

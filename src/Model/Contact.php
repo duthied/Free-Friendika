@@ -342,7 +342,7 @@ class Contact
 	 * @param  integer $uid User ID
 	 *
 	 * @return integer|boolean Public contact id for given user id
-	 * @throws Exception
+	 * @throws \Exception
 	 */
 	public static function getPublicIdByUserId($uid)
 	{
