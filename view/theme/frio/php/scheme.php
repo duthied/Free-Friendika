@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @brief: Get info header of the scheme
+ * Get info header of the scheme
  *
  * This function parses the header of the schemename.php file for informations like
  * Author, Description and Overwrites. Most of the code comes from the Addon::getInfo()

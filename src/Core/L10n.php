@@ -131,7 +131,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Returns the preferred language from the HTTP_ACCEPT_LANGUAGE header
+	 * Returns the preferred language from the HTTP_ACCEPT_LANGUAGE header
 	 *
 	 * @param string $sysLang The default fallback language
 	 * @param array  $server  The $_SERVER array

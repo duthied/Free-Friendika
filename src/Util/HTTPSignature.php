@@ -111,8 +111,6 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param array   $head
 	 * @param string  $prvkey
 	 * @param string  $keyid (optional, default 'Key')
@@ -145,8 +143,6 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param array  $head
 	 * @param string $prvkey
 	 * @param string $alg (optional) default 'sha256'
@@ -178,8 +174,6 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param string $header
 	 * @return array associate array with
 	 *   - \e string \b keyID
@@ -224,8 +218,6 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief
-	 *
 	 * @param string $header
 	 * @param string $prvkey (optional), if not set use site private key
 	 *

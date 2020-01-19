@@ -18,7 +18,7 @@ class Arrays
 	}
 
 	/**
-	 * @briefs Implodes recursively a multi-dimensional array where a normal implode() will fail.
+	 * Implodes recursively a multi-dimensional array where a normal implode() will fail.
 	 *
 	 * @param array  $array Array to implode
 	 * @param string $glue  Glue for imploded elements
