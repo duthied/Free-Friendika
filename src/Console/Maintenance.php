@@ -6,7 +6,7 @@ use Friendica\App;
 use Friendica\Core\Config\IConfiguration;
 
 /**
- * @brief Sets maintenance mode for this node
+ * Sets maintenance mode for this node
  *
  * @author Hypolite Petovan <hypolite@mrpetovan.com>
  */

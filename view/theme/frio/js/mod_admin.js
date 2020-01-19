@@ -1,5 +1,5 @@
 /**
- * @brief Javascript for the admin module
+ * Javascript for the admin module
  */
 $(function() {
 	$('body').on('click', '.selectall', function() {

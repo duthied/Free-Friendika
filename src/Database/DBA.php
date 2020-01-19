@@ -207,7 +207,6 @@ class DBA
 	 *
 	 * Please use DBA::selectFirst or DBA::exists whenever this is possible.
 	 *
-	 * @brief Fetches the first row
 	 * @param string $sql SQL statement
 	 * @return array first row of query
 	 * @throws \Exception
@@ -360,7 +359,9 @@ class DBA
 	}
 
 	/**
-	 * Updates rows in the database. When $old_fields is set to an array,
+	 * Updates rows in the database.
+	 *
+	 * When $old_fields is set to an array,
 	 * the system will only do an update if the fields in that array changed.
 	 *
 	 * Attention:
@@ -378,7 +379,6 @@ class DBA
 	 * Only set $old_fields to a boolean value when you are sure that you will update a single row.
 	 * When you set $old_fields to "true" then $fields must contain all relevant fields!
 	 *
-	 * @brief Updates rows
 	 * @param string|array  $table      Table name or array [schema => table]
 	 * @param array         $fields     contains the fields that are updated
 	 * @param array         $condition  condition array with the key values

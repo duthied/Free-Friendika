@@ -11,7 +11,7 @@ use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 
 /**
- * @brief Admin Inspect Queue Page
+ * Admin Inspect Queue Page
  *
  * Generates a page for the admin to have a look into the current queue of
  * worker jobs. Shown are the parameters for the job and its priority.

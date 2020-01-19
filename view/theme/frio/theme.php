@@ -77,7 +77,7 @@ function frio_uninstall()
 }
 
 /**
- * @brief Replace friendica photo links hook
+ * Replace friendica photo links hook
  *
  *  This function does replace the links to photos
  *  of other friendica users. Original the photos are
@@ -115,7 +115,7 @@ function frio_item_photo_links(App $a, &$body_info)
 }
 
 /**
- * @brief Replace links of the item_photo_menu hook
+ * Replace links of the item_photo_menu hook
  *
  *  This function replaces the original poke and the message links
  *  to call the addToModal javascript function so this pages can
@@ -135,7 +135,7 @@ function frio_item_photo_menu(App $a, &$arr)
 }
 
 /**
- * @brief Replace links of the contact_photo_menu
+ * Replace links of the contact_photo_menu
  *
  *  This function replaces the original poke and the message links
  *  to call the addToModal javascript function so this pages can
@@ -191,7 +191,7 @@ function frio_contact_photo_menu(App $a, &$args)
 }
 
 /**
- * @brief Construct remote nav menu
+ * Construct remote nav menu
  *
  *  It creates a remote baseurl form $_SESSION for remote users and friendica
  *  visitors. This url will be added to some of the nav links. With this behaviour
@@ -340,7 +340,7 @@ function frio_acl_lookup(App $a, &$results)
 }
 
 /**
- * @brief Manipulate the data of the item
+ * Manipulate the data of the item
  *
  * At the moment we use this function to add some own stuff to the item menu
  *

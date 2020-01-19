@@ -105,7 +105,7 @@ HELP;
 	}
 
 	/**
-	 * @brief Adds a doxygen header
+	 * Adds a doxygen header
 	 *
 	 * @param string $line The current line of the document
 	 *
@@ -118,7 +118,7 @@ HELP;
 		$space = substr($line, 0, $length);
 
 		$block = $space . "/**\n" .
-			$space . " * @brief \n" .
+			$space . " * \n" .
 			$space . " *\n"; /**/
 
 

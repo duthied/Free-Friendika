@@ -22,7 +22,6 @@ class Network
 	 * Set the cookiejar argument to a string (e.g. "/tmp/friendica-cookies.txt")
 	 * to preserve cookies from one request to the next.
 	 *
-	 * @brief Curl wrapper
 	 * @param string  $url            URL to fetch
 	 * @param bool    $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
@@ -47,7 +46,6 @@ class Network
 	 * Inner workings and parameters are the same as @ref fetchUrl but returns an array with
 	 * all the information collected during the fetch.
 	 *
-	 * @brief Curl wrapper with array of return values.
 	 * @param string  $url            URL to fetch
 	 * @param bool    $binary         default false
 	 *                                TRUE if asked to return binary results (file download)
@@ -74,7 +72,7 @@ class Network
 	}
 
 	/**
-	 * @brief fetches an URL.
+	 * fetches an URL.
 	 *
 	 * @param string  $url       URL to fetch
 	 * @param bool    $binary    default false
@@ -240,7 +238,7 @@ class Network
 	}
 
 	/**
-	 * @brief Send POST request to $url
+	 * Send POST request to $url
 	 *
 	 * @param string  $url       URL to post
 	 * @param mixed   $params    array of POST variables
@@ -359,7 +357,7 @@ class Network
 	}
 
 	/**
-	 * @brief Check URL to see if it's real
+	 * Check URL to see if it's real
 	 *
 	 * Take a URL from the wild, prepend http:// if necessary
 	 * and check DNS to see if it's real (or check if is a valid IP address)
@@ -394,7 +392,7 @@ class Network
 	}
 
 	/**
-	 * @brief Checks that email is an actual resolvable internet address
+	 * Checks that email is an actual resolvable internet address
 	 *
 	 * @param string $addr The email address
 	 * @return boolean True if it's a valid email address, false if it's not
@@ -422,7 +420,7 @@ class Network
 	}
 
 	/**
-	 * @brief Check if URL is allowed
+	 * Check if URL is allowed
 	 *
 	 * Check $url against our list of allowed sites,
 	 * wildcards allowed. If allowed_sites is unset return true;
@@ -497,7 +495,7 @@ class Network
 	}
 
 	/**
-	 * @brief Check if email address is allowed to register here.
+	 * Check if email address is allowed to register here.
 	 *
 	 * Compare against our list (wildcards allowed).
 	 *
@@ -526,7 +524,6 @@ class Network
 	/**
 	 * Checks for the existence of a domain in a domain list
 	 *
-	 * @brief Checks for the existence of a domain in a domain list
 	 * @param string $domain
 	 * @param array  $domain_list
 	 * @return boolean
@@ -564,7 +561,7 @@ class Network
 	}
 
 	/**
-	 * @brief Remove Google Analytics and other tracking platforms params from URL
+	 * Remove Google Analytics and other tracking platforms params from URL
 	 *
 	 * @param string $url Any user-submitted URL that may contain tracking params
 	 * @return string The same URL stripped of tracking parameters
@@ -613,7 +610,7 @@ class Network
 	}
 
 	/**
-	 * @brief Returns the original URL of the provided URL
+	 * Returns the original URL of the provided URL
 	 *
 	 * This function strips tracking query params and follows redirections, either
 	 * through HTTP code or meta refresh tags. Stops after 10 redirections.
@@ -733,7 +730,7 @@ class Network
 	}
 
 	/**
-	 * @brief Find the matching part between two url
+	 * Find the matching part between two url
 	 *
 	 * @param string $url1
 	 * @param string $url2
@@ -821,7 +818,7 @@ class Network
 	}
 
 	/**
-	 * @brief Glue url parts together
+	 * Glue url parts together
 	 *
 	 * @param array $parsed URL parts
 	 *

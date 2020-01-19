@@ -10,7 +10,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 
 /**
- * @brief This class handles FileTag related functions
+ * This class handles FileTag related functions
  *
  * post categories and "save to file" use the same item.file table for storage.
  * We will differentiate the different uses by wrapping categories in angle brackets
@@ -20,7 +20,7 @@ use Friendica\DI;
 class FileTag
 {
 	/**
-	 * @brief URL encode <, >, left and right brackets
+	 * URL encode <, >, left and right brackets
 	 *
 	 * @param string $s String to be URL encoded.
 	 *
@@ -32,7 +32,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief URL decode <, >, left and right brackets
+	 * URL decode <, >, left and right brackets
 	 *
 	 * @param string $s The URL encoded string to be decoded
 	 *
@@ -44,7 +44,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief Query files for tag
+	 * Query files for tag
 	 *
 	 * @param string $table The table to be queired.
 	 * @param string $s     The search term
@@ -124,7 +124,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief      Get file tags from list
+	 * Get file tags from list
 	 *
 	 * ex. given music,video return <music><video> or [music][video]
 	 * @param string $list A comma delimited list of tags.
@@ -141,7 +141,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief      Get list from file tags
+	 * Get list from file tags
 	 *
 	 * ex. given <music><video>[friends], return music,video or friends
 	 * @param string $file File tags
@@ -156,7 +156,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief Update file tags in PConfig
+	 * Update file tags in PConfig
 	 *
 	 * @param int    $uid      Unique Identity.
 	 * @param string $file_old Categories previously associated with an item
@@ -234,7 +234,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief Add tag to file
+	 * Add tag to file
 	 *
 	 * @param int    $uid     Unique identity.
 	 * @param int    $item_id Item identity.
@@ -269,7 +269,7 @@ class FileTag
 	}
 
 	/**
-	 * @brief Remove tag from file
+	 * Remove tag from file
 	 *
 	 * @param int     $uid     Unique identity.
 	 * @param int     $item_id Item identity.

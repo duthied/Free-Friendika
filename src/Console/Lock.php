@@ -8,7 +8,7 @@ use Friendica\Core\Lock\ILock;
 use RuntimeException;
 
 /**
- * @brief tool to access the locks from the CLI
+ * tool to access the locks from the CLI
  *
  * With this script you can access the locks of your node from the CLI.
  * You can read current locks and set/remove locks.

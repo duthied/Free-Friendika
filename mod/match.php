@@ -17,7 +17,7 @@ use Friendica\Util\Network;
 use Friendica\Util\Proxy as ProxyUtils;
 
 /**
- * @brief Controller for /match.
+ * Controller for /match.
  *
  * It takes keywords from your profile and queries the directory server for
  * matching keywords from other profiles.

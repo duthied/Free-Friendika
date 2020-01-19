@@ -2,7 +2,7 @@
 <?php
 /**
  * @file bin/worker.php
- * @brief Starts the background processing
+ * Starts the background processing
  */
 
 use Dice\Dice;

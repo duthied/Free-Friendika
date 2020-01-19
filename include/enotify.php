@@ -23,7 +23,7 @@ use Friendica\Util\Emailer;
 use Friendica\Util\Strings;
 
 /**
- * @brief Creates a notification entry and possibly sends a mail
+ * Creates a notification entry and possibly sends a mail
  *
  * @param array $params Array with the elements:
  *                      uid, item, parent, type, otype, verb, event,
@@ -652,7 +652,7 @@ function notification($params)
 }
 
 /**
- * @brief Checks for users who should be notified
+ * Checks for users who should be notified
  *
  * @param int $itemid ID of the item for which the check should be done
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -667,7 +667,7 @@ function check_user_notification($itemid) {
 }
 
 /**
- * @brief Checks for item related notifications and sends them
+ * Checks for item related notifications and sends them
  *
  * @param int    $itemid            ID of the item for which the check should be done
  * @param int    $uid               User ID
@@ -738,7 +738,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 }
 
 /**
- * @brief Formats a notification message with the notification author
+ * Formats a notification message with the notification author
  *
  * Replace the name with {0} but ensure to make that only once. The {0} is used
  * later and prints the name in bold.

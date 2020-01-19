@@ -21,7 +21,7 @@ define('REQUEST_TOKEN_DURATION', 300);
 define('ACCESS_TOKEN_DURATION', 31536000);
 
 /**
- * @brief OAuthDataStore class
+ * OAuthDataStore class
  */
 class FKOAuthDataStore extends OAuthDataStore
 {

@@ -2,7 +2,7 @@
 
 /**
  * @file mod/parse_url.php
- * @brief The parse_url module
+ * The parse_url module
  *
  * This module does parse an url for embeddable content (audio, video, image files or link)
  * information and does format this information to BBCode
@@ -172,7 +172,7 @@ function parse_url_content(App $a)
 }
 
 /**
- * @brief Legacy function to call ParseUrl::getSiteinfoCached
+ * Legacy function to call ParseUrl::getSiteinfoCached
  *
  * Note: We have moved the function to ParseUrl.php. This function is only for
  * legacy support and will be remove in the future

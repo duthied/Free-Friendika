@@ -124,7 +124,7 @@ class Pager
 	}
 
 	/**
-	 * @brief Minimal pager (newer/older)
+	 * Minimal pager (newer/older)
 	 *
 	 * This mode is intended for reverse chronological pages and presents only two links, newer (previous) and older (next).
 	 * The itemCount is the number of displayed items. If no items are displayed, the older button is disabled.
@@ -165,7 +165,7 @@ class Pager
 	}
 
 	/**
-	 * @brief Full pager (first / prev / 1 / 2 / ... / 14 / 15 / next / last)
+	 * Full pager (first / prev / 1 / 2 / ... / 14 / 15 / next / last)
 	 *
 	 * This mode presents page numbers as well as first, previous, next and last links.
 	 * The itemCount is the total number of items including those not displayed.

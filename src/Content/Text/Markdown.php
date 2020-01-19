@@ -21,7 +21,6 @@ class Markdown
 	 * Converts a Markdown string into HTML. The hardwrap parameter maximizes
 	 * compatibility with Diaspora in spite of the Markdown standard.
 	 *
-	 * @brief Converts a Markdown string into HTML
 	 * @param string $text
 	 * @param bool   $hardwrap
 	 * @return string
@@ -49,7 +48,7 @@ class Markdown
 	}
 
 	/**
-	 * @brief Callback function to replace a Diaspora style mention in a mention for Friendica
+	 * Callback function to replace a Diaspora style mention in a mention for Friendica
 	 *
 	 * @param array $match Matching values for the callback
 	 *                     [1] = mention type (@ or !)

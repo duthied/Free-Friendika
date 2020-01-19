@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Content/Feature.php
- * @brief Features management
+ * Features management
  */
 namespace Friendica\Content;
 
@@ -13,7 +13,7 @@ use Friendica\DI;
 class Feature
 {
 	/**
-	 * @brief check if feature is enabled
+	 * check if feature is enabled
 	 *
 	 * @param integer $uid     user id
 	 * @param string  $feature feature
@@ -42,7 +42,7 @@ class Feature
 	}
 
 	/**
-	 * @brief check if feature is enabled or disabled by default
+	 * check if feature is enabled or disabled by default
 	 *
 	 * @param string $feature feature
 	 * @return boolean
@@ -62,7 +62,7 @@ class Feature
 	}
 
 	/**
-	 * @brief Get a list of all available features
+	 * Get a list of all available features
 	 *
 	 * The array includes the setting group, the setting name,
 	 * explainations for the setting and if it's enabled or disabled

@@ -3,7 +3,7 @@
 /**
  * @file src/Worker/CheckVersion.php
  *
- * @brief save Friendica upstream version to the DB
+ * save Friendica upstream version to the DB
  **/
 namespace Friendica\Worker;
 
@@ -13,7 +13,7 @@ use Friendica\Database\DBA;
 use Friendica\Util\Network;
 
 /**
- * @brief check the git repository VERSION file and save the version to the DB
+ * check the git repository VERSION file and save the version to the DB
  *
  * Checking the upstream version is optional (opt-in) and can be done to either
  * the master or the develop branch in the repository.

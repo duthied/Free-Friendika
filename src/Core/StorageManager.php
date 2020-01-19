@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 
 
 /**
- * @brief Manage storage backends
+ * Manage storage backends
  *
  * Core code uses this class to get and set current storage backend class.
  * Addons use this class to register and unregister additional backends.
@@ -67,7 +67,7 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Return current storage backend class
+	 * Return current storage backend class
 	 *
 	 * @return Storage\IStorage|null
 	 */
@@ -77,7 +77,7 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Return storage backend class by registered name
+	 * Return storage backend class by registered name
 	 *
 	 * @param string|null $name            Backend name
 	 * @param boolean     $onlyUserBackend True, if just user specific instances should be returrned (e.g. not SystemResource)
@@ -163,7 +163,7 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Set current storage backend class
+	 * Set current storage backend class
 	 *
 	 * @param string $name Backend class name
 	 *
@@ -184,7 +184,7 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Get registered backends
+	 * Get registered backends
 	 *
 	 * @return array
 	 */
@@ -222,7 +222,7 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Unregister a storage backend class
+	 * Unregister a storage backend class
 	 *
 	 * @param string $class Backend class name
 	 *
@@ -247,7 +247,7 @@ class StorageManager
 	}
 
 	/**
-	 * @brief Move up to 5000 resources to storage $dest
+	 * Move up to 5000 resources to storage $dest
 	 *
 	 * Copy existing data to destination storage and delete from source.
 	 * This method cannot move to legacy in-table `data` field.

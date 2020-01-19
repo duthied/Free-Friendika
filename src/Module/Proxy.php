@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Module/Proxy.php
- * @brief Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
+ * Based upon "Privacy Image Cache" by Tobias Hößl <https://github.com/CatoTH/>
  */
 namespace Friendica\Module;
 
@@ -16,7 +16,7 @@ use Friendica\Util\HTTPSignature;
 use Friendica\Util\Proxy as ProxyUtils;
 
 /**
- * @brief Module Proxy
+ * Module Proxy
  *
  * urls:
  * /proxy/[sub1/[sub2/]]<base64url image url>[.ext][:size]
@@ -26,7 +26,7 @@ class Proxy extends BaseModule
 {
 
 	/**
-	 * @brief Initializer method for this class.
+	 * Initializer method for this class.
 	 *
 	 * Sets application instance and checks if /proxy/ path is writable.
 	 *
@@ -144,7 +144,7 @@ class Proxy extends BaseModule
 
 
 	/**
-	 * @brief Build info about requested image to be proxied
+	 * Build info about requested image to be proxied
 	 *
 	 * @return array
 	 *    [
@@ -224,7 +224,7 @@ class Proxy extends BaseModule
 
 
 	/**
-	 * @brief setup ./proxy folder for direct cache
+	 * setup ./proxy folder for direct cache
 	 *
 	 * @return bool  False if direct cache can't be used.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -249,7 +249,7 @@ class Proxy extends BaseModule
 
 
 	/**
-	 * @brief Try to reply with image in cachefile
+	 * Try to reply with image in cachefile
 	 *
 	 * @param array $request Array from getRequestInfo
 	 *
@@ -271,7 +271,7 @@ class Proxy extends BaseModule
 	}
 
 	/**
-	 * @brief Try to reply with image in database
+	 * Try to reply with image in database
 	 *
 	 * @param array $request Array from getRequestInfo
 	 *
@@ -301,7 +301,7 @@ class Proxy extends BaseModule
 	}
 
 	/**
-	 * @brief Output the image with cache headers
+	 * Output the image with cache headers
 	 *
 	 * @param Image $img
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

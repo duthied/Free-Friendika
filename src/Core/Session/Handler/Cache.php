@@ -51,7 +51,7 @@ final class Cache implements SessionHandlerInterface
 	}
 
 	/**
-	 * @brief Standard PHP session write callback
+	 * Standard PHP session write callback
 	 *
 	 * This callback updates the stored session data and/or the expiration depending
 	 * on the case. Uses the Session::expire for existing session, 5 minutes

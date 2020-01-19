@@ -5,12 +5,12 @@
 namespace Friendica\Util;
 
 /**
- * @brief Pidfile class
+ * Pidfile class
  */
 class PidFile
 {
 	/**
-	 * @brief Read the pid from a given pid file
+	 * Read the pid from a given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -25,7 +25,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Is there a running process with the given pid file
+	 * Is there a running process with the given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -49,7 +49,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Kills a process from a given pid file
+	 * Kills a process from a given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -74,7 +74,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Creates a pid file
+	 * Creates a pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *
@@ -96,7 +96,7 @@ class PidFile
 	}
 
 	/**
-	 * @brief Deletes a given pid file
+	 * Deletes a given pid file
 	 *
 	 * @param string $file Filename of pid file
 	 *

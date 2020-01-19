@@ -132,7 +132,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Returns the preferred language from the HTTP_ACCEPT_LANGUAGE header
+	 * Returns the preferred language from the HTTP_ACCEPT_LANGUAGE header
 	 *
 	 * @param string $sysLang The default fallback language
 	 * @param array  $server  The $_SERVER array
@@ -210,7 +210,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Return the localized version of the provided string with optional string interpolation
+	 * Return the localized version of the provided string with optional string interpolation
 	 *
 	 * This function takes a english string as parameter, and if a localized version
 	 * exists for the current language, substitutes it before performing an eventual
@@ -245,7 +245,7 @@ class L10n
 	}
 
 	/**
-	 * @brief Return the localized version of a singular/plural string with optional string interpolation
+	 * Return the localized version of a singular/plural string with optional string interpolation
 	 *
 	 * This function takes two english strings as parameters, singular and plural, as
 	 * well as a count. If a localized version exists for the current language, they

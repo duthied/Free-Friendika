@@ -141,7 +141,7 @@ class Item
 	}
 
 	/**
-	 * @brief Select pinned rows from the item table for a given user
+	 * Select pinned rows from the item table for a given user
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
@@ -186,7 +186,7 @@ class Item
 	}
 
 	/**
-	 * @brief returns an activity index from an activity string
+	 * returns an activity index from an activity string
 	 *
 	 * @param string $activity activity string
 	 * @return integer Activity index
@@ -203,7 +203,7 @@ class Item
 	}
 
 	/**
-	 * @brief returns an activity string from an activity index
+	 * returns an activity string from an activity index
 	 *
 	 * @param integer $index activity index
 	 * @return string Activity string
@@ -218,7 +218,7 @@ class Item
 	}
 
 	/**
-	 * @brief Fetch a single item row
+	 * Fetch a single item row
 	 *
 	 * @param mixed $stmt statement object
 	 * @return array current row
@@ -330,7 +330,7 @@ class Item
 	}
 
 	/**
-	 * @brief Fills an array with data from an item query
+	 * Fills an array with data from an item query
 	 *
 	 * @param object $stmt statement object
 	 * @param bool   $do_close
@@ -352,7 +352,7 @@ class Item
 	}
 
 	/**
-	 * @brief Check if item data exists
+	 * Check if item data exists
 	 *
 	 * @param array $condition array of fields for condition
 	 *
@@ -376,7 +376,6 @@ class Item
 	/**
 	 * Retrieve a single record from the item table for a given user and returns it in an associative array
 	 *
-	 * @brief Retrieve a single record from a table
 	 * @param integer $uid User ID
 	 * @param array   $selected
 	 * @param array   $condition
@@ -397,7 +396,7 @@ class Item
 	}
 
 	/**
-	 * @brief Select rows from the item table for a given user
+	 * Select rows from the item table for a given user
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected  Array of selected fields, empty for all
@@ -421,7 +420,6 @@ class Item
 	/**
 	 * Retrieve a single record from the item table and returns it in an associative array
 	 *
-	 * @brief Retrieve a single record from a table
 	 * @param array $fields
 	 * @param array $condition
 	 * @param array $params
@@ -445,7 +443,7 @@ class Item
 	}
 
 	/**
-	 * @brief Select rows from the item table and returns them as an array
+	 * Select rows from the item table and returns them as an array
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
@@ -472,7 +470,7 @@ class Item
 	}
 
 	/**
-	 * @brief Select rows from the item table
+	 * Select rows from the item table
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
@@ -513,7 +511,7 @@ class Item
 	}
 
 	/**
-	 * @brief Select rows from the starting post in the item table
+	 * Select rows from the starting post in the item table
 	 *
 	 * @param integer $uid       User ID
 	 * @param array   $selected
@@ -537,7 +535,6 @@ class Item
 	/**
 	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
 	 *
-	 * @brief Retrieve a single record from a table
 	 * @param integer $uid User ID
 	 * @param array   $selected
 	 * @param array   $condition
@@ -560,7 +557,6 @@ class Item
 	/**
 	 * Retrieve a single record from the starting post in the item table and returns it in an associative array
 	 *
-	 * @brief Retrieve a single record from a table
 	 * @param array $fields
 	 * @param array $condition
 	 * @param array $params
@@ -583,7 +579,7 @@ class Item
 	}
 
 	/**
-	 * @brief Select rows from the starting post in the item table
+	 * Select rows from the starting post in the item table
 	 *
 	 * @param array $selected  Array of selected fields, empty for all
 	 * @param array $condition Array of fields for condition
@@ -634,7 +630,7 @@ class Item
 	}
 
 	/**
-	 * @brief Returns a list of fields that are associated with the item table
+	 * Returns a list of fields that are associated with the item table
 	 *
 	 * @param $usermode
 	 * @return array field list
@@ -694,7 +690,7 @@ class Item
 	}
 
 	/**
-	 * @brief Returns SQL condition for the "select" functions
+	 * Returns SQL condition for the "select" functions
 	 *
 	 * @param boolean $thread_mode Called for the items (false) or for the threads (true)
 	 *
@@ -717,7 +713,7 @@ class Item
 	}
 
 	/**
-	 * @brief Returns all needed "JOIN" commands for the "select" functions
+	 * Returns all needed "JOIN" commands for the "select" functions
 	 *
 	 * @param integer $uid          User ID
 	 * @param string  $sql_commands The parts of the built SQL commands in the "select" functions
@@ -809,7 +805,7 @@ class Item
 	}
 
 	/**
-	 * @brief Add the field list for the "select" functions
+	 * Add the field list for the "select" functions
 	 *
 	 * @param array $fields The field definition array
 	 * @param array $selected The array with the selected fields from the "select" functions
@@ -858,7 +854,7 @@ class Item
 	}
 
 	/**
-	 * @brief add table definition to fields in an SQL query
+	 * add table definition to fields in an SQL query
 	 *
 	 * @param string $query SQL query
 	 * @param array $fields The field definition array
@@ -884,7 +880,7 @@ class Item
 	}
 
 	/**
-	 * @brief Update existing item entries
+	 * Update existing item entries
 	 *
 	 * @param array $fields    The fields that are to be changed
 	 * @param array $condition The condition for finding the item entries
@@ -1047,7 +1043,7 @@ class Item
 	}
 
 	/**
-	 * @brief Delete an item and notify others about it - if it was ours
+	 * Delete an item and notify others about it - if it was ours
 	 *
 	 * @param array   $condition The condition for finding the item entries
 	 * @param integer $priority  Priority for the notification
@@ -1063,7 +1059,7 @@ class Item
 	}
 
 	/**
-	 * @brief Delete an item for an user and notify others about it - if it was ours
+	 * Delete an item for an user and notify others about it - if it was ours
 	 *
 	 * @param array   $condition The condition for finding the item entries
 	 * @param integer $uid       User who wants to delete this item
@@ -1093,7 +1089,7 @@ class Item
 	}
 
 	/**
-	 * @brief Delete an item and notify others about it - if it was ours
+	 * Delete an item and notify others about it - if it was ours
 	 *
 	 * @param integer $item_id  Item ID that should be delete
 	 * @param integer $priority Priority for the notification
@@ -2036,7 +2032,7 @@ class Item
 	}
 
 	/**
-	 * @brief Insert a new item content entry
+	 * Insert a new item content entry
 	 *
 	 * @param array $item The item fields that are to be inserted
 	 * @return bool
@@ -2084,7 +2080,7 @@ class Item
 	}
 
 	/**
-	 * @brief Insert a new item content entry
+	 * Insert a new item content entry
 	 *
 	 * @param array $item The item fields that are to be inserted
 	 * @throws \Exception
@@ -2124,7 +2120,7 @@ class Item
 	}
 
 	/**
-	 * @brief Update existing item content entries
+	 * Update existing item content entries
 	 *
 	 * @param array $item      The item fields that are to be changed
 	 * @param array $condition The condition for finding the item content entries
@@ -2152,7 +2148,7 @@ class Item
 	}
 
 	/**
-	 * @brief Update existing item content entries
+	 * Update existing item content entries
 	 *
 	 * @param array $item      The item fields that are to be changed
 	 * @param array $condition The condition for finding the item content entries
@@ -2180,7 +2176,7 @@ class Item
 	}
 
 	/**
-	 * @brief Distributes public items to the receivers
+	 * Distributes public items to the receivers
 	 *
 	 * @param integer $itemid      Item ID that should be added
 	 * @param string  $signed_text Original text (for Diaspora signatures), JSON encoded.
@@ -2276,7 +2272,7 @@ class Item
 	}
 
 	/**
-	 * @brief Store public items for the receivers
+	 * Store public items for the receivers
 	 *
 	 * @param integer $itemid Item ID that should be added
 	 * @param array   $item   The item entry that will be stored
@@ -2322,7 +2318,7 @@ class Item
 	}
 
 	/**
-	 * @brief Add a shadow entry for a given item id that is a thread starter
+	 * Add a shadow entry for a given item id that is a thread starter
 	 *
 	 * We store every public item entry additionally with the user id "0".
 	 * This is used for the community page and for the search.
@@ -2386,7 +2382,7 @@ class Item
 	}
 
 	/**
-	 * @brief Add a shadow entry for a given item id that is a comment
+	 * Add a shadow entry for a given item id that is a comment
 	 *
 	 * This function does the same like the function above - but for comments
 	 *
@@ -2469,7 +2465,7 @@ class Item
 	}
 
 	/**
-	 * @brief Creates an unique guid out of a given uri
+	 * Creates an unique guid out of a given uri
 	 *
 	 * @param string $uri uri of an item entry
 	 * @param string $host hostname for the GUID prefix
@@ -2515,7 +2511,7 @@ class Item
 	}
 
 	/**
-	 * @brief Set "success_update" and "last-item" to the date of the last time we heard from this contact
+	 * Set "success_update" and "last-item" to the date of the last time we heard from this contact
 	 *
 	 * This can be used to filter for inactive contacts.
 	 * Only do this for public postings to avoid privacy problems, since poco data is public.
@@ -3096,7 +3092,7 @@ class Item
 	}
 
 	/**
-	 * @brief add/remove activity to an item
+	 * add/remove activity to an item
 	 *
 	 * Toggle activities as like,dislike,attend of an item
 	 *
@@ -3463,7 +3459,7 @@ class Item
 	}
 
 	/**
-	 * @brief Find any non-embedded images in private items and add redir links to them
+	 * Find any non-embedded images in private items and add redir links to them
 	 *
 	 * @param array &$item The field array of an item row
 	 */
@@ -3488,7 +3484,7 @@ class Item
 	}
 
 	/**
-	 * @brief Given an item array, convert the body element from bbcode to html and add smilie icons.
+	 * Given an item array, convert the body element from bbcode to html and add smilie icons.
 	 * If attach is true, also add icons for item attachments.
 	 *
 	 * @param array   $item

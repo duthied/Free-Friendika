@@ -1,7 +1,7 @@
 <?php
 /**
  * @file mod/events.php
- * @brief The events module
+ * The events module
  */
 
 use Friendica\App;

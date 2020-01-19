@@ -45,7 +45,7 @@ class OEmbed
 	}
 
 	/**
-	 * @brief Get data from an URL to embed its content.
+	 * Get data from an URL to embed its content.
 	 *
 	 * @param string $embedurl     The URL from which the data should be fetched.
 	 * @param bool   $no_rich_type If set to true rich type content won't be fetched.
@@ -297,7 +297,6 @@ class OEmbed
 	/**
 	 * Determines if rich content OEmbed is allowed for the provided URL
 	 *
-	 * @brief Determines if rich content OEmbed is allowed for the provided URL
 	 * @param string $url
 	 * @return boolean
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -345,7 +344,7 @@ class OEmbed
 	}
 
 	/**
-	 * @brief Generates the iframe HTML for an oembed attachment.
+	 * Generates the iframe HTML for an oembed attachment.
 	 *
 	 * Width and height are given by the remote, and are regularly too small for
 	 * the generated iframe.
@@ -378,10 +377,10 @@ class OEmbed
 	}
 
 	/**
+	 * Generates attribute search XPath string
+	 *
 	 * Generates an XPath query to select elements whose provided attribute contains
 	 * the provided value in a space-separated list.
-	 *
-	 * @brief Generates attribute search XPath string
 	 *
 	 * @param string $attr Name of the attribute to seach
 	 * @param string $value Value to search in a space-separated list
@@ -395,8 +394,6 @@ class OEmbed
 
 	/**
 	 * Returns the inner XML string of a provided DOMNode
-	 *
-	 * @brief Returns the inner XML string of a provided DOMNode
 	 *
 	 * @param DOMNode $node
 	 * @return string

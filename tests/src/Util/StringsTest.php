@@ -8,7 +8,7 @@ use Friendica\Util\Strings;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @brief Strings utility test class
+ * Strings utility test class
  */
 class StringsTest extends TestCase
 {

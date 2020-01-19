@@ -9,7 +9,7 @@ use Friendica\Model\User;
 use RuntimeException;
 
 /**
- * @brief tool to set a new password for a user
+ * tool to set a new password for a user
  *
  * With this tool, you can set a new password for a user
  *

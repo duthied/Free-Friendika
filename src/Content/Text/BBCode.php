@@ -35,7 +35,7 @@ use Friendica\Util\XML;
 class BBCode
 {
 	/**
-	 * @brief Fetches attachment data that were generated the old way
+	 * Fetches attachment data that were generated the old way
 	 *
 	 * @param string $body Message body
 	 * @return array
@@ -106,7 +106,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Fetches attachment data that were generated with the "attachment" element
+	 * Fetches attachment data that were generated with the "attachment" element
 	 *
 	 * @param string $body Message body
 	 * @return array
@@ -411,7 +411,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts a BBCode text into plaintext
+	 * Converts a BBCode text into plaintext
 	 *
 	 * @param      $text
 	 * @param bool $keep_urls Whether to keep URLs in the resulting plaintext
@@ -486,10 +486,11 @@ class BBCode
 	}
 
 	/**
+	 * Truncates imported message body string length to max_import_size
+	 * 
 	 * The purpose of this function is to apply system message length limits to
 	 * imported messages without including any embedded photos in the length
 	 *
-	 * @brief Truncates imported message body string length to max_import_size
 	 * @param string $body
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -578,7 +579,6 @@ class BBCode
 	 *
 	 * Note: Can produce a [bookmark] tag in the returned string
 	 *
-	 * @brief Processes [attachment] tags
 	 * @param string   $text
 	 * @param bool|int $simplehtml
 	 * @param bool     $tryoembed
@@ -691,7 +691,6 @@ class BBCode
 	/**
 	 * Converts [url] BBCodes in a format that looks fine on Mastodon. (callback function)
 	 *
-	 * @brief Converts [url] BBCodes in a format that looks fine on Mastodon. (callback function)
 	 * @param array $match Array with the matching values
 	 * @return string reformatted link including HTML codes
 	 */
@@ -712,7 +711,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts [url] BBCodes in a format that looks fine on ActivityPub systems.
+	 * Converts [url] BBCodes in a format that looks fine on ActivityPub systems.
 	 * @param string $url URL that is about to be reformatted
 	 * @return string reformatted link including HTML codes
 	 */
@@ -1206,7 +1205,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts a BBCode message to HTML message
+	 * Converts a BBCode message to HTML message
 	 *
 	 * BBcode 2 HTML was written by WAY2WEB.net
 	 * extended to work with Mistpark/Friendica - Mike Macgirvin
@@ -1906,7 +1905,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Strips the "abstract" tag from the provided text
+	 * Strips the "abstract" tag from the provided text
 	 *
 	 * @param string $text The text with BBCode
 	 * @return string The same text - but without "abstract" element
@@ -1920,7 +1919,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Returns the value of the "abstract" element
+	 * Returns the value of the "abstract" element
 	 *
 	 * @param string $text The text that maybe contains the element
 	 * @param string $addon The addon for which the abstract is meant for
@@ -1950,7 +1949,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Callback function to replace a Friendica style mention in a mention for Diaspora
+	 * Callback function to replace a Friendica style mention in a mention for Diaspora
 	 *
 	 * @param array $match Matching values for the callback
 	 *                     [1] = Mention type (! or @)
@@ -1977,7 +1976,7 @@ class BBCode
 	}
 
 	/**
-	 * @brief Converts a BBCode text into Markdown
+	 * Converts a BBCode text into Markdown
 	 *
 	 * This function converts a BBCode item body to be sent to Markdown-enabled
 	 * systems like Diaspora and Libertree
@@ -2064,7 +2063,7 @@ class BBCode
 	}
 
 	/**
-     * @brief Pull out all #hashtags and @person tags from $string.
+     * Pull out all #hashtags and @person tags from $string.
      *
      * We also get @person@domain.com - which would make
      * the regex quite complicated as tags can also

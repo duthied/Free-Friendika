@@ -22,7 +22,6 @@ class TagCloud
 	/**
 	 * Construct a tag/term cloud block for an user.
 	 *
-	 * @brief Construct a tag/term cloud block for an user.
 	 * @param int    $uid      The user ID.
 	 * @param int    $count    Max number of displayed tags/terms.
 	 * @param int    $owner_id The contact ID of the owner of the tagged items.
@@ -62,8 +61,6 @@ class TagCloud
 	 * Get alphabetical sorted array of used tags/terms of an user including
 	 * a weighting by frequency of use.
 	 *
-	 * @brief Get alphabetical sorted array of used tags/terms of an user including
-	 * a weighting by frequency of use.
 	 * @param int    $uid      The user ID.
 	 * @param int    $count    Max number of displayed tags/terms.
 	 * @param int    $owner_id The contact id of the owner of the tagged items.
@@ -112,7 +109,6 @@ class TagCloud
 	/**
 	 * Calculate weighting of tags according to the frequency of use.
 	 *
-	 * @brief Calculate weighting of tags according to the frequency of use.
 	 * @param array $arr Array of tags/terms with tag/term name and total count of use.
 	 * @return array     Alphabetical sorted array of used tags/terms of an user.
 	 */
@@ -149,7 +145,6 @@ class TagCloud
 	/**
 	 * Compare function to sort tags/terms alphabetically.
 	 *
-	 * @brief Compare function to sort tags/terms alphabetically.
 	 * @param string $a
 	 * @param string $b
 	 *

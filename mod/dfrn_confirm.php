@@ -1,7 +1,8 @@
 <?php
 /**
  * @file mod/dfrn_confirm.php
- * @brief Module: dfrn_confirm
+ * Module: dfrn_confirm
+ *
  * Purpose: Friendship acceptance for DFRN contacts
  *
  * There are two possible entry points and three scenarios.

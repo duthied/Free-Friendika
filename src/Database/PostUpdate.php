@@ -19,7 +19,7 @@ use Friendica\Model\PermissionSet;
 class PostUpdate
 {
 	/**
-	 * @brief Calls the post update functions
+	 * Calls the post update functions
 	 */
 	public static function update()
 	{
@@ -49,7 +49,7 @@ class PostUpdate
 	}
 
 	/**
-	 * @brief Updates the "global" field in the item table
+	 * Updates the "global" field in the item table
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -118,7 +118,7 @@ class PostUpdate
 	}
 
 	/**
-	 * @brief update the "last-item" field in the "self" contact
+	 * update the "last-item" field in the "self" contact
 	 *
 	 * This field avoids cost intensive calls in the admin panel and in "nodeinfo"
 	 *
@@ -153,7 +153,7 @@ class PostUpdate
 	}
 
 	/**
-	 * @brief update the item related tables
+	 * update the item related tables
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -305,7 +305,7 @@ class PostUpdate
 	}
 
 	/**
-	 * @brief update item-uri data. Prerequisite for the next item structure update.
+	 * update item-uri data. Prerequisite for the next item structure update.
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -459,7 +459,7 @@ class PostUpdate
 	}
 
 	/**
-	 * @brief update user-item data with notifications
+	 * update user-item data with notifications
 	 *
 	 * @return bool "true" when the job is done
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

@@ -33,7 +33,7 @@ require_once 'mod/share.php';
 require_once 'include/api.php';
 
 /**
- * @brief This class contain functions for the OStatus protocol
+ * This class contain functions for the OStatus protocol
  */
 class OStatus
 {
@@ -41,7 +41,7 @@ class OStatus
 	private static $conv_list = [];
 
 	/**
-	 * @brief Fetches author data
+	 * Fetches author data
 	 *
 	 * @param DOMXPath $xpath     The xpath object
 	 * @param object   $context   The xml context of the author details
@@ -240,7 +240,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Fetches author data from a given XML string
+	 * Fetches author data from a given XML string
 	 *
 	 * @param string $xml      The XML
 	 * @param array  $importer user record of the importing user
@@ -277,7 +277,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Read attributes from element
+	 * Read attributes from element
 	 *
 	 * @param object $element Element object
 	 *
@@ -295,7 +295,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Imports an XML string containing OStatus elements
+	 * Imports an XML string containing OStatus elements
 	 *
 	 * @param string $xml      The XML
 	 * @param array  $importer user record of the importing user
@@ -311,7 +311,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Internal feed processing
+	 * Internal feed processing
 	 *
 	 * @param string  $xml        The XML
 	 * @param array   $importer   user record of the importing user
@@ -576,7 +576,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Processes the XML for a post
+	 * Processes the XML for a post
 	 *
 	 * @param DOMXPath $xpath    The xpath object
 	 * @param object   $entry    The xml entry that is processed
@@ -725,7 +725,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Fetch the conversation for posts
+	 * Fetch the conversation for posts
 	 *
 	 * @param string $conversation     The link to the conversation
 	 * @param string $conversation_uri The conversation in "uri" format
@@ -787,7 +787,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Store a feed in several conversation entries
+	 * Store a feed in several conversation entries
 	 *
 	 * @param string $xml              The feed
 	 * @param string $conversation     conversation
@@ -868,7 +868,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Fetch the own post so that it can be stored later
+	 * Fetch the own post so that it can be stored later
 	 *
 	 * We want to store the original data for later processing.
 	 * This function is meant for cases where we process a feed with multiple entries.
@@ -907,7 +907,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Fetch related posts and processes them
+	 * Fetch related posts and processes them
 	 *
 	 * @param string $related     The link to the related item
 	 * @param string $related_uri The related item in "uri" format
@@ -1016,7 +1016,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Processes the XML for a repeated post
+	 * Processes the XML for a repeated post
 	 *
 	 * @param DOMXPath $xpath    The xpath object
 	 * @param object   $entry    The xml entry that is processed
@@ -1085,7 +1085,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Processes links in the XML
+	 * Processes links in the XML
 	 *
 	 * @param object $links The xml data that contain links
 	 * @param array  $item  The item array
@@ -1155,7 +1155,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Create an url out of an uri
+	 * Create an url out of an uri
 	 *
 	 * @param string $href URI in the format "parameter1:parameter1:..."
 	 *
@@ -1187,7 +1187,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Checks if the current post is a reshare
+	 * Checks if the current post is a reshare
 	 *
 	 * @param array $item The item array of thw post
 	 *
@@ -1204,7 +1204,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Cleans the body of a post if it contains picture links
+	 * Cleans the body of a post if it contains picture links
 	 *
 	 * @param string $body The body
 	 *
@@ -1242,7 +1242,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds the header elements to the XML document
+	 * Adds the header elements to the XML document
 	 *
 	 * @param DOMDocument $doc       XML document
 	 * @param array       $owner     Contact data of the poster
@@ -1331,7 +1331,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Add the link to the push hubs to the XML document
+	 * Add the link to the push hubs to the XML document
 	 *
 	 * @param DOMDocument $doc  XML document
 	 * @param object      $root XML root element where the hub links are added
@@ -1346,7 +1346,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds attachment data to the XML document
+	 * Adds attachment data to the XML document
 	 *
 	 * @param DOMDocument $doc  XML document
 	 * @param object      $root XML root element where the hub links are added
@@ -1419,7 +1419,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds the author element to the XML document
+	 * Adds the author element to the XML document
 	 *
 	 * @param DOMDocument $doc          XML document
 	 * @param array       $owner        Contact data of the poster
@@ -1505,7 +1505,7 @@ class OStatus
 	 */
 
 	/**
-	 * @brief Returns the given activity if present - otherwise returns the "post" activity
+	 * Returns the given activity if present - otherwise returns the "post" activity
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 *
@@ -1521,7 +1521,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Returns the given object type if present - otherwise returns the "note" object type
+	 * Returns the given object type if present - otherwise returns the "note" object type
 	 *
 	 * @param array $item Data of the item that is to be posted
 	 *
@@ -1537,7 +1537,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds an entry element to the XML document
+	 * Adds an entry element to the XML document
 	 *
 	 * @param DOMDocument $doc       XML document
 	 * @param array       $item      Data of the item that is to be posted
@@ -1572,7 +1572,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds a source entry to the XML document
+	 * Adds a source entry to the XML document
 	 *
 	 * @param DOMDocument $doc     XML document
 	 * @param array       $contact Array of the contact that is added
@@ -1594,7 +1594,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Fetches contact data from the contact or the gcontact table
+	 * Fetches contact data from the contact or the gcontact table
 	 *
 	 * @param string $url   URL of the contact
 	 * @param array  $owner Contact data of the poster
@@ -1647,7 +1647,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds an entry element with reshared content
+	 * Adds an entry element with reshared content
 	 *
 	 * @param DOMDocument $doc           XML document
 	 * @param array       $item          Data of the item that is to be posted
@@ -1713,7 +1713,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds an entry element with a "like"
+	 * Adds an entry element with a "like"
 	 *
 	 * @param DOMDocument $doc      XML document
 	 * @param array       $item     Data of the item that is to be posted
@@ -1752,7 +1752,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds the person object element to the XML document
+	 * Adds the person object element to the XML document
 	 *
 	 * @param DOMDocument $doc     XML document
 	 * @param array       $owner   Contact data of the poster
@@ -1797,7 +1797,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds a follow/unfollow entry element
+	 * Adds a follow/unfollow entry element
 	 *
 	 * @param DOMDocument $doc      XML document
 	 * @param array       $item     Data of the follow/unfollow message
@@ -1861,7 +1861,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds a regular entry element
+	 * Adds a regular entry element
 	 *
 	 * @param DOMDocument $doc       XML document
 	 * @param array       $item      Data of the item that is to be posted
@@ -1901,7 +1901,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds a header element to the XML document
+	 * Adds a header element to the XML document
 	 *
 	 * @param DOMDocument $doc      XML document
 	 * @param array       $owner    Contact data of the poster
@@ -1942,7 +1942,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds elements to the XML document
+	 * Adds elements to the XML document
 	 *
 	 * @param DOMDocument $doc       XML document
 	 * @param \DOMElement $entry     Entry element where the content is added
@@ -1991,7 +1991,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Adds the elements at the foot of an entry to the XML document
+	 * Adds the elements at the foot of an entry to the XML document
 	 *
 	 * @param DOMDocument $doc       XML document
 	 * @param object      $entry     The entry element where the elements are added
@@ -2155,8 +2155,6 @@ class OStatus
 	 * Updates the provided last_update parameter if the result comes from the
 	 * cache or it is empty
 	 *
-	 * @brief Creates the XML feed for a given nickname
-	 *
 	 * @param string  $owner_nick  Nickname of the feed owner
 	 * @param string  $last_update Date of the last update
 	 * @param integer $max_items   Number of maximum items to fetch
@@ -2252,7 +2250,7 @@ class OStatus
 	}
 
 	/**
-	 * @brief Creates the XML for a salmon message
+	 * Creates the XML for a salmon message
 	 *
 	 * @param array $item  Data of the item that is to be posted
 	 * @param array $owner Contact data of the poster

@@ -13,7 +13,7 @@ use Friendica\DI;
 class ItemContent
 {
 	/**
-	 * @brief Convert a message into plaintext for connectors to other networks
+	 * Convert a message into plaintext for connectors to other networks
 	 *
 	 * @param array  $item           The message array that is about to be posted
 	 * @param int    $limit          The maximum number of characters when posting to that network

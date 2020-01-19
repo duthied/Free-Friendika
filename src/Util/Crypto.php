@@ -12,7 +12,7 @@ use Friendica\Core\Logger;
 use Friendica\Core\System;
 
 /**
- * @brief Crypto class
+ * Crypto class
  */
 class Crypto
 {

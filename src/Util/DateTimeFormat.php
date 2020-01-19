@@ -12,7 +12,7 @@ use DateTimeZone;
 use Exception;
 
 /**
- * @brief Temporal class
+ * Temporal class
  */
 class DateTimeFormat
 {
@@ -84,7 +84,7 @@ class DateTimeFormat
 	}
 
 	/**
-	 * @brief General purpose date parse/convert/format function.
+	 * General purpose date parse/convert/format function.
 	 *
 	 * @param string $s       Some parseable date/time string
 	 * @param string $tz_to   Destination timezone

@@ -13,12 +13,12 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
 /**
- * @brief Temporal class
+ * Temporal class
  */
 class Temporal
 {
 	/**
-	 * @brief Two-level sort for timezones.
+	 * Two-level sort for timezones.
 	 *
 	 * @param string $a
 	 * @param string $b
@@ -45,7 +45,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Emit a timezone selector grouped (primarily) by continent
+	 * Emit a timezone selector grouped (primarily) by continent
 	 *
 	 * @param string $current Timezone
 	 * @return string Parsed HTML output
@@ -90,7 +90,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Generating a Timezone selector
+	 * Generating a Timezone selector
 	 *
 	 * Return a select using 'field_select_raw' template, with timezones
 	 * grouped (primarily) by continent
@@ -118,7 +118,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Wrapper for date selector, tailored for use in birthday fields.
+	 * Wrapper for date selector, tailored for use in birthday fields.
 	 *
 	 * @param string $dob Date of Birth
 	 * @param string $timezone
@@ -154,7 +154,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a date selector
+	 * Returns a date selector
 	 *
 	 * @param DateTime $min     Minimum date
 	 * @param DateTime $max     Maximum date
@@ -170,7 +170,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a time selector
+	 * Returns a time selector
 	 *
 	 * @param string $h  Already selected hour
 	 * @param string $m  Already selected minute
@@ -185,7 +185,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a datetime selector.
+	 * Returns a datetime selector.
 	 *
 	 * @param DateTime $minDate     Minimum date
 	 * @param DateTime $maxDate     Maximum date
@@ -273,7 +273,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns a relative date string.
+	 * Returns a relative date string.
 	 *
 	 * Implements "3 seconds ago" etc.
 	 * Based on $posted_date, (UTC).
@@ -337,7 +337,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns timezone correct age in years.
+	 * Returns timezone correct age in years.
 	 *
 	 * Returns the age in years, given a date of birth, the timezone of the person
 	 * whose date of birth is provided, and the timezone of the person viewing the
@@ -384,7 +384,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Get days of a month in a given year.
+	 * Get days of a month in a given year.
 	 *
 	 * Returns number of days in the month of the given year.
 	 * $m = 1 is 'January' to match human usage.
@@ -400,7 +400,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Returns the first day in month for a given month, year.
+	 * Returns the first day in month for a given month, year.
 	 *
 	 * Months start at 1.
 	 *
@@ -418,7 +418,7 @@ class Temporal
 	}
 
 	/**
-	 * @brief Output a calendar for the given month, year.
+	 * Output a calendar for the given month, year.
 	 *
 	 * If $links are provided (array), e.g. $links[12] => 'http://mylink' ,
 	 * date 12 will be linked appropriately. Today's date is also noted by

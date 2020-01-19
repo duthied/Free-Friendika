@@ -14,7 +14,7 @@ use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
 /**
- * @brief UserImport class
+ * UserImport class
  */
 class UserImport
 {
@@ -84,7 +84,7 @@ class UserImport
 	}
 
 	/**
-	 * @brief Import account file exported from mod/uexport
+	 * Import account file exported from mod/uexport
 	 *
 	 * @param array $file array from $_FILES
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

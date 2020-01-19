@@ -34,7 +34,7 @@ define('DFRN_PROTOCOL_VERSION',  '2.23');
 define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 
 /**
- * @brief Constant with a HTML line break.
+ * Constant with a HTML line break.
  *
  * Contains a HTML line break (br) element and a real carriage return with line
  * feed for the source.
@@ -43,7 +43,7 @@ define('NEW_UPDATE_ROUTINE_VERSION', 1170);
 define('EOL',                    "<br />\r\n");
 
 /**
- * @brief Image storage quality.
+ * Image storage quality.
  *
  * Lower numbers save space at cost of image detail.
  * For ease of upgrade, please do not change here. Set system.jpegquality = n in config/local.config.php,
@@ -233,7 +233,7 @@ if (!defined('CURLE_OPERATION_TIMEDOUT')) {
 }
 
 /**
- * @brief Returns the user id of locally logged in user or false.
+ * Returns the user id of locally logged in user or false.
  *
  * @return int|bool user id or false
  */
@@ -246,7 +246,7 @@ function local_user()
 }
 
 /**
- * @brief Returns the public contact id of logged in user or false.
+ * Returns the public contact id of logged in user or false.
  *
  * @return int|bool public contact id or false
  */
@@ -270,7 +270,7 @@ function public_contact()
 }
 
 /**
- * @brief Returns contact id of authenticated site visitor or false
+ * Returns contact id of authenticated site visitor or false
  *
  * @return int|bool visitor_id or false
  */
@@ -288,7 +288,7 @@ function remote_user()
 }
 
 /**
- * @brief Show an error message to user.
+ * Show an error message to user.
  *
  * This function save text in session, to be shown to the user at next page load
  *
@@ -310,7 +310,7 @@ function notice($s)
 }
 
 /**
- * @brief Show an info message to user.
+ * Show an info message to user.
  *
  * This function save text in session, to be shown to the user at next page load
  *
@@ -375,7 +375,7 @@ function feed_birthday($uid, $tz)
 }
 
 /**
- * @brief Check if current user has admin role.
+ * Check if current user has admin role.
  *
  * @return bool true if user is an admin
  */
@@ -571,7 +571,7 @@ function get_itemcachepath()
 }
 
 /**
- * @brief Returns the path where spool files are stored
+ * Returns the path where spool files are stored
  *
  * @return string Spool path
  */

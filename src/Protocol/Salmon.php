@@ -12,7 +12,8 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
- * @brief Salmon Protocol class
+ * Salmon Protocol class
+ *
  * The Salmon Protocol is a message exchange protocol running over HTTP designed to decentralize commentary
  * and annotations made against newsfeed articles such as blog posts.
  */

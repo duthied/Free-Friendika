@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Content/ForumManager.php
- * @brief ForumManager class with its methods related to forum functionality
+ * ForumManager class with its methods related to forum functionality
  */
 namespace Friendica\Content;
 
@@ -15,12 +15,12 @@ use Friendica\Model\Contact;
 use Friendica\Util\Proxy as ProxyUtils;
 
 /**
- * @brief This class handles methods related to the forum functionality
+ * This class handles methods related to the forum functionality
  */
 class ForumManager
 {
 	/**
-	 * @brief Function to list all forums a user is connected with
+	 * Function to list all forums a user is connected with
 	 *
 	 * @param int     $uid         of the profile owner
 	 * @param boolean $lastitem    Sort by lastitem
@@ -80,7 +80,7 @@ class ForumManager
 
 
 	/**
-	 * @brief Forumlist widget
+	 * Forumlist widget
 	 *
 	 * Sidebar widget to show subcribed friendica forums. If activated
 	 * in the settings, it appears at the notwork page sidebar
@@ -140,7 +140,7 @@ class ForumManager
 	}
 
 	/**
-	 * @brief Format forumlist as contact block
+	 * Format forumlist as contact block
 	 *
 	 * This function is used to show the forumlist in
 	 * the advanced profile.
@@ -184,7 +184,7 @@ class ForumManager
 	}
 
 	/**
-	 * @brief count unread forum items
+	 * count unread forum items
 	 *
 	 * Count unread items of connected forums and private groups
 	 *

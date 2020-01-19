@@ -7,7 +7,7 @@ namespace Friendica\Model;
 use Friendica\Database\DBA;
 
 /**
- * @brief functions for interacting with the permission set of an object (item, photo, event, ...)
+ * functions for interacting with the permission set of an object (item, photo, event, ...)
  */
 class PermissionSet
 {
@@ -62,7 +62,7 @@ class PermissionSet
 	}
 
 	/**
-	 * @brief Returns a permission set for a given contact
+	 * Returns a permission set for a given contact
 	 *
 	 * @param integer $uid        User id whom the items belong
 	 * @param integer $contact_id Contact id of the visitor

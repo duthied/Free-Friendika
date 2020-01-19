@@ -12,7 +12,8 @@ use Friendica\Model\User;
 use Friendica\Util\HTTPSignature;
 
 /**
- * @brief ActivityPub Protocol class
+ * ActivityPub Protocol class
+ *
  * The ActivityPub Protocol is a message exchange protocol defined by the W3C.
  * https://www.w3.org/TR/activitypub/
  * https://www.w3.org/TR/activitystreams-core/

@@ -3,7 +3,7 @@
 /**
  * @file view/theme/frio/php/frio_boot.php
  *
- * @brief This file contains functions for page construction
+ * This file contains functions for page construction
  *
  */
 
@@ -11,7 +11,7 @@ use Friendica\App;
 use Friendica\DI;
 
 /**
- * @brief Load page template in dependence of the template mode
+ * Load page template in dependence of the template mode
  *
  * @todo Check if this is really needed.
  */
@@ -33,7 +33,7 @@ function load_page(App $a)
 }
 
 /**
- * @brief Check if page is a modal page
+ * Check if page is a modal page
  *
  * This function checks if $_REQUEST['pagename'] is
  * a defined in a $modalpages
@@ -54,7 +54,7 @@ function is_modal() {
 }
 
 /**
- * @brief Array with modalpages
+ * Array with modalpages
  *
  * The array contains the page names of the pages
  * which should displayed as modals
@@ -74,7 +74,7 @@ function get_modalpage_list() {
 }
 
 /**
- * @brief Array with standard pages
+ * Array with standard pages
  *
  * The array contains the page names of the pages
  * which should displayed as standard-page
@@ -91,7 +91,7 @@ function get_standard_page_list() {
 }
 
 /**
- * @brief Check if page is standard page
+ * Check if page is standard page
  *
  * This function checks if $_REQUEST['pagename'] is
  * a defined $standardpages
@@ -112,7 +112,7 @@ function is_standard_page($pagetitle) {
 	return $is_standard_page;
 }
 /**
- * @brief Get the typ of the page
+ * Get the typ of the page
  *
  * @param type $pagetitle
  * @return string

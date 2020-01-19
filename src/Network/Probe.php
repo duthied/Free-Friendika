@@ -6,7 +6,7 @@ namespace Friendica\Network;
 
 /**
  * @file src/Network/Probe.php
- * @brief Functions for probing URL
+ * Functions for probing URL
  */
 
 use DOMDocument;
@@ -29,7 +29,7 @@ use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
 /**
- * @brief This class contain functions for probing URL
+ * This class contain functions for probing URL
  *
  */
 class Probe
@@ -38,7 +38,7 @@ class Probe
 	private static $istimeout;
 
 	/**
-	 * @brief Rearrange the array so that it always has the same order
+	 * Rearrange the array so that it always has the same order
 	 *
 	 * @param array $data Unordered data
 	 *
@@ -68,7 +68,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check if the hostname belongs to the own server
+	 * Check if the hostname belongs to the own server
 	 *
 	 * @param string $host The hostname that is to be checked
 	 *
@@ -91,7 +91,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Probes for webfinger path via "host-meta"
+	 * Probes for webfinger path via "host-meta"
 	 *
 	 * We have to check if the servers in the future still will offer this.
 	 * It seems as if it was dropped from the standard.
@@ -179,7 +179,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Perform Webfinger lookup and return DFRN data
+	 * Perform Webfinger lookup and return DFRN data
 	 *
 	 * Given an email style address, perform webfinger lookup and
 	 * return the resulting DFRN profile URL, or if no DFRN profile URL
@@ -222,7 +222,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check an URI for LRDD data
+	 * Check an URI for LRDD data
 	 *
 	 * this is a replacement for the "lrdd" function.
 	 * It isn't used in this class and has some redundancies in the code.
@@ -318,7 +318,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Fetch information (protocol endpoints and user information) about a given uri
+	 * Fetch information (protocol endpoints and user information) about a given uri
 	 *
 	 * @param string  $uri     Address that should be probed
 	 * @param string  $network Test for this specific network
@@ -485,7 +485,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Checks if a profile url should be OStatus but only provides partial information
+	 * Checks if a profile url should be OStatus but only provides partial information
 	 *
 	 * @param array  $webfinger Webfinger data
 	 * @param string $lrdd      Path template for webfinger request
@@ -529,7 +529,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Fetch information (protocol endpoints and user information) about a given uri
+	 * Fetch information (protocol endpoints and user information) about a given uri
 	 *
 	 * This function is only called by the "uri" function that adds caching and rearranging of data.
 	 *
@@ -847,7 +847,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Perform a webfinger request.
+	 * Perform a webfinger request.
 	 *
 	 * For details see RFC 7033: <https://tools.ietf.org/html/rfc7033>
 	 *
@@ -917,7 +917,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Poll the Friendica specific noscrape page.
+	 * Poll the Friendica specific noscrape page.
 	 *
 	 * "noscrape" is a faster alternative to fetch the data from the hcard.
 	 * This functionality was originally created for the directory.
@@ -1021,7 +1021,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for valid DFRN data
+	 * Check for valid DFRN data
 	 *
 	 * @param array $data DFRN data
 	 *
@@ -1049,7 +1049,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Fetch data from a DFRN profile page and via "noscrape"
+	 * Fetch data from a DFRN profile page and via "noscrape"
 	 *
 	 * @param string $profile_link Link to the profile page
 	 *
@@ -1101,7 +1101,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for DFRN contact
+	 * Check for DFRN contact
 	 *
 	 * @param array $webfinger Webfinger data
 	 *
@@ -1181,7 +1181,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Poll the hcard page (Diaspora and Friendica specific)
+	 * Poll the hcard page (Diaspora and Friendica specific)
 	 *
 	 * @param string  $hcard_url Link to the hcard page
 	 * @param array   $data      The already fetched data
@@ -1309,7 +1309,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for Diaspora contact
+	 * Check for Diaspora contact
 	 *
 	 * @param array $webfinger Webfinger data
 	 *
@@ -1397,7 +1397,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for OStatus contact
+	 * Check for OStatus contact
 	 *
 	 * @param array $webfinger Webfinger data
 	 * @param bool  $short     Short detection mode
@@ -1524,7 +1524,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Fetch data from a pump.io profile page
+	 * Fetch data from a pump.io profile page
 	 *
 	 * @param string $profile_link Link to the profile page
 	 *
@@ -1585,7 +1585,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for pump.io contact
+	 * Check for pump.io contact
 	 *
 	 * @param array  $webfinger Webfinger data
 	 * @param string $addr
@@ -1642,7 +1642,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for twitter contact
+	 * Check for twitter contact
 	 *
 	 * @param string $uri
 	 *
@@ -1702,7 +1702,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check page for feed link
+	 * Check page for feed link
 	 *
 	 * @param string $url Page link
 	 *
@@ -1749,7 +1749,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for feed contact
+	 * Check for feed contact
 	 *
 	 * @param string  $url   Profile link
 	 * @param boolean $probe Do a probe if the page contains a feed link
@@ -1812,7 +1812,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Check for mail contact
+	 * Check for mail contact
 	 *
 	 * @param string  $uri Profile link
 	 * @param integer $uid User ID
@@ -1900,7 +1900,7 @@ class Probe
 	}
 
 	/**
-	 * @brief Mix two paths together to possibly fix missing parts
+	 * Mix two paths together to possibly fix missing parts
 	 *
 	 * @param string $avatar Path to the avatar
 	 * @param string $base   Another path that is hopefully complete

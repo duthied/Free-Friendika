@@ -45,7 +45,7 @@ class Hook
 	}
 
 	/**
-	 * @brief Adds a new hook to the hooks array.
+	 * Adds a new hook to the hooks array.
 	 *
 	 * This function is meant to be called by modules on each page load as it works after loadHooks has been called.
 	 *
@@ -62,7 +62,7 @@ class Hook
 	}
 
 	/**
-	 * @brief Registers a hook.
+	 * Registers a hook.
 	 *
 	 * This function is meant to be called once when an addon is enabled for example as it doesn't add to the current hooks.
 	 *
@@ -127,7 +127,7 @@ class Hook
 	}
 
 	/**
-	 * @brief Forks a hook.
+	 * Forks a hook.
 	 *
 	 * Use this function when you want to fork a hook via the worker.
 	 *
@@ -162,7 +162,7 @@ class Hook
 	}
 
 	/**
-	 * @brief Calls a hook.
+	 * Calls a hook.
 	 *
 	 * Use this function when you want to be able to allow a hook to manipulate
 	 * the provided data.
@@ -181,7 +181,7 @@ class Hook
 	}
 
 	/**
-	 * @brief Calls a single hook.
+	 * Calls a single hook.
 	 *
 	 * @param App             $a
 	 * @param string          $name of the hook to call

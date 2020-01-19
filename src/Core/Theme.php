@@ -40,7 +40,7 @@ class Theme
 	}
 
 	/**
-	 * @brief Parse theme comment in search of theme infos.
+	 * Parse theme comment in search of theme infos.
 	 *
 	 * like
 	 * \code
@@ -110,7 +110,7 @@ class Theme
 	}
 
 	/**
-	 * @brief Returns the theme's screenshot.
+	 * Returns the theme's screenshot.
 	 *
 	 * The screenshot is expected as view/theme/$theme/screenshot.[png|jpg].
 	 *
@@ -182,7 +182,7 @@ class Theme
 	}
 
 	/**
-	 * @brief Get the full path to relevant theme files by filename
+	 * Get the full path to relevant theme files by filename
 	 *
 	 * This function searches in order in the current theme directory, in the current theme parent directory, and lastly
 	 * in the base view/ folder.
@@ -215,7 +215,7 @@ class Theme
 	}
 
 	/**
-	 * @brief Return relative path to theme stylesheet file
+	 * Return relative path to theme stylesheet file
 	 *
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *

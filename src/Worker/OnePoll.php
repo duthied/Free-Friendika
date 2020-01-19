@@ -216,7 +216,7 @@ class OnePoll
 	}
 
 	/**
-	 * @brief Updates a personal contact entry and the public contact entry
+	 * Updates a personal contact entry and the public contact entry
 	 *
 	 * @param array $contact The personal contact entry
 	 * @param array $fields  The fields that are updated
@@ -229,7 +229,7 @@ class OnePoll
 	}
 
 	/**
-	 * @brief Poll DFRN contacts
+	 * Poll DFRN contacts
 	 *
 	 * @param  array  $contact The personal contact entry
 	 * @param  string $updated The updated date
@@ -383,7 +383,7 @@ class OnePoll
 	}
 
 	/**
-	 * @brief Poll Feed/OStatus contacts
+	 * Poll Feed/OStatus contacts
 	 *
 	 * @param  array  $contact The personal contact entry
 	 * @param  string $protocol The used protocol of the contact
@@ -433,7 +433,7 @@ class OnePoll
 	}
 
 	/**
-	 * @brief Poll Mail contacts
+	 * Poll Mail contacts
 	 *
 	 * @param  array   $contact      The personal contact entry
 	 * @param  integer $importer_uid The UID of the importer

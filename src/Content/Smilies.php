@@ -2,7 +2,7 @@
 
 /**
  * @file src/Content/Smilies.php
- * @brief This file contains the Smilies class which contains functions to handle smiles
+ * This file contains the Smilies class which contains functions to handle smiles
  *
  * @todo Use the shortcodes from here:
  * https://github.com/iamcal/emoji-data/blob/master/emoji_pretty.json?raw=true
@@ -26,7 +26,7 @@ use Friendica\Util\Strings;
 class Smilies
 {
 	/**
-	 * @brief Replaces/adds the emoticon list
+	 * Replaces/adds the emoticon list
 	 *
 	 * This function should be used whenever emoticons are added
 	 *
@@ -49,7 +49,7 @@ class Smilies
 	}
 
 	/**
-	 * @brief Function to list all smilies
+	 * Function to list all smilies
 	 *
 	 * Get an array of all smilies, both internal and from addons.
 	 *
@@ -179,7 +179,6 @@ class Smilies
 	 * function from being executed by the prepare_text() routine when preparing
 	 * bbcode source for HTML display
 	 *
-	 * @brief Replaces text emoticons with graphical images
 	 * @param string  $s         Text that should be replaced
 	 * @param boolean $no_images Only replace emoticons without images
 	 *
@@ -261,7 +260,7 @@ class Smilies
 
 
 	/**
-	 * @brief expand <3333 to the correct number of hearts
+	 * expand <3333 to the correct number of hearts
 	 *
 	 * @param string $x string
 	 *

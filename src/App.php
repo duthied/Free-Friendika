@@ -28,7 +28,7 @@ use Psr\Log\LoggerInterface;
  *
  * class: App
  *
- * @brief Our main application structure for the life of this page.
+ * Our main application structure for the life of this page.
  *
  * Primarily deals with the URL that got us here
  * and tries to make some sense of it, and
@@ -393,8 +393,6 @@ class App
 	}
 
 	/**
-	 * @brief Return full URL to theme which is currently in effect.
-	 *
 	 * Provide a sane default if nothing is chosen or the specified theme does not exist.
 	 *
 	 * @return string

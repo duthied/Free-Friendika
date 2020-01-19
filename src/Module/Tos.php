@@ -24,7 +24,7 @@ class Tos extends BaseModule
 	public $privacy_complete;
 
 	/**
-	 * @brief constructor for the module, initializing the text variables
+	 * constructor for the module, initializing the text variables
 	 *
 	 * To make the text variables available outside of the module, they need to
 	 * be properties of the class, however cannot be set directly as the property
@@ -41,7 +41,7 @@ class Tos extends BaseModule
 	}
 
 	/**
-	 * @brief initialize the TOS module.
+	 * initialize the TOS module.
 	 *
 	 * If this is a single user instance, we expect the user to know their
 	 * dealings with their own node so a TOS is not necessary.
@@ -55,7 +55,7 @@ class Tos extends BaseModule
 	}
 
 	/**
-	 * @brief generate the content of the /tos page
+	 * generate the content of the /tos page
 	 *
 	 * The content of the /tos page is generated from two parts.
 	 * (1) a free form part the admin of the node can set in the admin panel

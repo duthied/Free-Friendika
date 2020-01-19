@@ -24,7 +24,7 @@ class BasePath
 	}
 
 	/**
-	 * @brief Returns the base filesystem path of the App
+	 * Returns the base filesystem path of the App
 	 *
 	 * It first checks for the internal variable, then for DOCUMENT_ROOT and
 	 * finally for PWD
@@ -56,7 +56,7 @@ class BasePath
 	}
 
 	/**
-	 * @brief Returns a normalized file path
+	 * Returns a normalized file path
 	 *
 	 * This is a wrapper for the "realpath" function.
 	 * That function cannot detect the real path when some folders aren't readable.

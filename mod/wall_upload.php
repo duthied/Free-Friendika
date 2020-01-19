@@ -1,7 +1,7 @@
 <?php
 /**
  * @file mod/wall_upload.php
- * @brief Module for uploading a picture to the profile wall
+ * Module for uploading a picture to the profile wall
  *
  * By default the picture will be stored in the photo album with the name Wall Photos.
  * You can specify a different album by adding an optional query string "album="

@@ -26,7 +26,7 @@ class Register extends BaseModule
 	const OPEN    = 2;
 
 	/**
-	 * @brief Module GET method to display any content
+	 * Module GET method to display any content
 	 *
 	 * Extend this method if the module is supposed to return any display
 	 * through a GET request. It can be an HTML page through templating or a
@@ -158,7 +158,7 @@ class Register extends BaseModule
 	}
 
 	/**
-	 * @brief Module POST method to process submitted data
+	 * Module POST method to process submitted data
 	 *
 	 * Extend this method if the module is supposed to process POST requests.
 	 * Doesn't display any content

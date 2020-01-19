@@ -10,7 +10,7 @@ use Friendica\Core\Logger;
 use Friendica\Protocol\Email;
 
 /**
- * @brief class to handle emailing
+ * class to handle emailing
  */
 class Emailer
 {

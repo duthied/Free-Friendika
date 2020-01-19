@@ -10,7 +10,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\LogLevel;
 
 /**
- * @brief Logger functions
+ * Logger functions
  */
 class Logger
 {
@@ -231,8 +231,8 @@ class Logger
 		self::getWorker()->debug($message, $context);
 	}
 
-	    /**
-	 * @brief Logs the given message at the given log level
+	/**
+	 * Logs the given message at the given log level
 	 *
 	 * @param string $msg
 	 * @param string $level
@@ -246,7 +246,8 @@ class Logger
 	}
 
 	/**
-	 * @brief An alternative logger for development.
+	 * An alternative logger for development.
+	 *
 	 * Works largely as log() but allows developers
 	 * to isolate particular elements they are targetting
 	 * personally without background noise

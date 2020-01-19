@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/SpoolPost.php
- * @brief Posts items that wer spooled because they couldn't be posted.
+ * Posts items that where spooled because they couldn't be posted.
  */
 namespace Friendica\Worker;
 

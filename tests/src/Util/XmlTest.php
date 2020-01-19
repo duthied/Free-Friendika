@@ -8,7 +8,7 @@ use Friendica\Util\XML;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @brief XML utility test class
+ * XML utility test class
  */
 class XmlTest extends TestCase
 {

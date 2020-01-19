@@ -12,12 +12,12 @@ use OAuthSignatureMethod_HMAC_SHA1;
 use OAuthSignatureMethod_PLAINTEXT;
 
 /**
- * @brief OAuth protocol
+ * OAuth protocol
  */
 class FKOAuth1 extends OAuthServer
 {
 	/**
-	 * @brief Constructor
+	 * Constructor
 	 */
 	public function __construct()
 	{

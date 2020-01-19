@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
 use Friendica\Network\HTTPException;
 
 /**
- * @brief Methods for read and write notifications from/to database
+ * Methods for read and write notifications from/to database
  *  or for formatting notifications
  */
 final class Notify
@@ -164,7 +164,7 @@ final class Notify
 	}
 
 	/**
-	 * @brief set seen state of $note of local_user()
+	 * set seen state of $note of local_user()
 	 *
 	 * @param array $note note array
 	 * @param bool  $seen optional true or false, default true
@@ -197,7 +197,7 @@ final class Notify
 	}
 
 	/**
-	 * @brief List of pages for the Notifications TabBar
+	 * List of pages for the Notifications TabBar
 	 *
 	 * @return array with with notifications TabBar data
 	 * @throws Exception
@@ -544,7 +544,7 @@ final class Notify
 	}
 
 	/**
-	 * @brief Get home notifications
+	 * Get home notifications
 	 *
 	 * @param bool $seen    False => only include notifications into the query
 	 *                            which aren't marked as "seen"
@@ -587,7 +587,7 @@ final class Notify
 	}
 
 	/**
-	 * @brief Get introductions
+	 * Get introductions
 	 *
 	 * @param bool $all     If false only include introductions into the query
 	 *                      which aren't marked as ignored
@@ -650,7 +650,7 @@ final class Notify
 	}
 
 	/**
-	 * @brief Format the notification query in an usable array
+	 * Format the notification query in an usable array
 	 *
 	 * @param array $intros The array from the db query
 	 *
@@ -738,8 +738,8 @@ final class Notify
 	}
 
 	/**
-	 * @brief Check for missing contact data and try to fetch the data from
-	 *     from other sources
+	 * Check for missing contact data and try to fetch the data from
+	 * from other sources
 	 *
 	 * @param array $intro The input array with the intro data
 	 *

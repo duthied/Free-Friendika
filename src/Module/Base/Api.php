@@ -51,9 +51,8 @@ class Api extends BaseModule
 
 	/**
 	 * Log in user via OAuth1 or Simple HTTP Auth.
-	 * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
 	 *
-	 * @brief Login API user
+	 * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
 	 *
 	 * @return bool Was a user authenticated?
 	 * @throws HTTPException\ForbiddenException
@@ -76,7 +75,7 @@ class Api extends BaseModule
 	}
 
 	/**
-	 * @brief Get user info array.
+	 * Get user info array.
 	 *
 	 * @param int|string $contact_id Contact ID or URL
 	 * @return array|bool

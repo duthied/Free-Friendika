@@ -13,7 +13,7 @@ use Friendica\Util\HTTPSignature;
 class APDelivery
 {
 	/**
-	 * @brief Delivers ActivityPub messages
+	 * Delivers ActivityPub messages
 	 *
 	 * @param string  $cmd
 	 * @param integer $target_id

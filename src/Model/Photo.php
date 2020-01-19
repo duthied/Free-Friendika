@@ -2,7 +2,7 @@
 
 /**
  * @file src/Model/Photo.php
- * @brief This file contains the Photo class for database interface
+ * This file contains the Photo class for database interface
  */
 namespace Friendica\Model;
 
@@ -30,7 +30,7 @@ require_once "include/dba.php";
 class Photo
 {
 	/**
-	 * @brief Select rows from the photo table and returns them as array
+	 * Select rows from the photo table and returns them as array
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -51,7 +51,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Retrieve a single record from the photo table
+	 * Retrieve a single record from the photo table
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -72,7 +72,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Get photos for user id
+	 * Get photos for user id
 	 *
 	 * @param integer $uid        User id
 	 * @param string  $resourceid Rescource ID of the photo
@@ -93,7 +93,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Get a photo for user id
+	 * Get a photo for user id
 	 *
 	 * @param integer $uid        User id
 	 * @param string  $resourceid Rescource ID of the photo
@@ -116,7 +116,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Get a single photo given resource id and scale
+	 * Get a single photo given resource id and scale
 	 *
 	 * This method checks for permissions. Returns associative array
 	 * on success, "no sign" image info, if user has no permission,
@@ -147,7 +147,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Check if photo with given conditions exists
+	 * Check if photo with given conditions exists
 	 *
 	 * @param array $conditions Array of extra conditions
 	 *
@@ -161,7 +161,7 @@ class Photo
 
 
 	/**
-	 * @brief Get Image object for given row id. null if row id does not exist
+	 * Get Image object for given row id. null if row id does not exist
 	 *
 	 * @param array $photo Photo data. Needs at least 'id', 'type', 'backend-class', 'backend-ref'
 	 *
@@ -192,7 +192,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Return a list of fields that are associated with the photo table
+	 * Return a list of fields that are associated with the photo table
 	 *
 	 * @return array field list
 	 * @throws \Exception
@@ -206,7 +206,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Construct a photo array for a system resource image
+	 * Construct a photo array for a system resource image
 	 *
 	 * @param string $filename Image file name relative to code root
 	 * @param string $mimetype Image mime type. Defaults to "image/jpeg"
@@ -230,7 +230,7 @@ class Photo
 
 
 	/**
-	 * @brief store photo metadata in db and binary in default backend
+	 * store photo metadata in db and binary in default backend
 	 *
 	 * @param Image   $Image     Image object with data
 	 * @param integer $uid       User ID
@@ -320,7 +320,7 @@ class Photo
 
 
 	/**
-	 * @brief Delete info from table and data from storage
+	 * Delete info from table and data from storage
 	 *
 	 * @param array $conditions Field condition(s)
 	 * @param array $options    Options array, Optional
@@ -346,7 +346,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Update a photo
+	 * Update a photo
 	 *
 	 * @param array         $fields     Contains the fields that are updated
 	 * @param array         $conditions Condition array with the key values
@@ -525,7 +525,7 @@ class Photo
 	}
 
 	/**
-	 * @brief Fetch the photo albums that are available for a viewer
+	 * Fetch the photo albums that are available for a viewer
 	 *
 	 * The query in this function is cost intensive, so it is cached.
 	 *

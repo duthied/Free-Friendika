@@ -60,7 +60,7 @@ class Login extends BaseModule
 	}
 
 	/**
-	 * @brief Wrapper for adding a login box.
+	 * Wrapper for adding a login box.
 	 *
 	 * @param string $return_path  The path relative to the base the user should be sent
 	 *                             back to after login completes

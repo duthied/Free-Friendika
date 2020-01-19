@@ -1,7 +1,7 @@
 <?php
 /**
  * @file mod/uimport.php
- * @brief View for user import
+ * View for user import
  */
 
 use Friendica\App;

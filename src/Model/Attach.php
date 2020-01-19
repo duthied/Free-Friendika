@@ -2,7 +2,7 @@
 
 /**
  * @file src/Model/Attach.php
- * @brief This file contains the Attach class for database interface
+ * This file contains the Attach class for database interface
  */
 namespace Friendica\Model;
 
@@ -22,7 +22,7 @@ class Attach
 {
 
 	/**
-	 * @brief Return a list of fields that are associated with the attach table
+	 * Return a list of fields that are associated with the attach table
 	 *
 	 * @return array field list
 	 * @throws \Exception
@@ -36,7 +36,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Select rows from the attach table and return them as array
+	 * Select rows from the attach table and return them as array
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -57,7 +57,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Retrieve a single record from the attach table
+	 * Retrieve a single record from the attach table
 	 *
 	 * @param array $fields     Array of selected fields, empty for all
 	 * @param array $conditions Array of fields for conditions
@@ -78,7 +78,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Check if attachment with given conditions exists
+	 * Check if attachment with given conditions exists
 	 *
 	 * @param array $conditions Array of extra conditions
 	 *
@@ -91,7 +91,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Retrive a single record given the ID
+	 * Retrive a single record given the ID
 	 *
 	 * @param int $id Row id of the record
 	 *
@@ -106,7 +106,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Retrive a single record given the ID
+	 * Retrive a single record given the ID
 	 *
 	 * @param int $id Row id of the record
 	 *
@@ -135,7 +135,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Get file data for given row id. null if row id does not exist
+	 * Get file data for given row id. null if row id does not exist
 	 *
 	 * @param array $item Attachment data. Needs at least 'id', 'backend-class', 'backend-ref'
 	 *
@@ -159,7 +159,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Store new file metadata in db and binary in default backend
+	 * Store new file metadata in db and binary in default backend
 	 *
 	 * @param string  $data      Binary data
 	 * @param integer $uid       User ID
@@ -215,7 +215,7 @@ class Attach
 	}
 
 	/**
-	 * @brief Store new file metadata in db and binary in default backend from existing file
+	 * Store new file metadata in db and binary in default backend from existing file
 	 *
 	 * @param        $src
 	 * @param        $uid
@@ -240,7 +240,7 @@ class Attach
 
 
 	/**
-	 * @brief Update an attached file
+	 * Update an attached file
 	 *
 	 * @param array         $fields     Contains the fields that are updated
 	 * @param array         $conditions Condition array with the key values
@@ -275,7 +275,7 @@ class Attach
 
 
 	/**
-	 * @brief Delete info from table and data from storage
+	 * Delete info from table and data from storage
 	 *
 	 * @param array $conditions Field condition(s)
 	 * @param array $options    Options array, Optional

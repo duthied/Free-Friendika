@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Model/Storage/Filesystem.php
- * @brief Storage backend system
+ * Storage backend system
  */
 
 namespace Friendica\Model\Storage;
@@ -11,7 +11,7 @@ use Psr\Log\LoggerInterface;
 use Friendica\Database\Database as DBA;
 
 /**
- * @brief Database based storage system
+ * Database based storage system
  *
  * This class manage data stored in database table.
  */

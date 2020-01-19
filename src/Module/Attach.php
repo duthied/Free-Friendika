@@ -14,12 +14,12 @@ use Friendica\DI;
 use Friendica\Model\Attach as MAttach;
 
 /**
- * @brief Attach Module
+ * Attach Module
  */
 class Attach extends BaseModule
 {
 	/**
-	 * @brief Return to user an attached file given the id
+	 * Return to user an attached file given the id
 	 */
 	public static function rawContent(array $parameters = [])
 	{

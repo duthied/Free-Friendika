@@ -19,7 +19,7 @@ use Friendica\DI;
 class CalendarExport
 {
 	/**
-	 * @brief Get the events widget.
+	 * Get the events widget.
 	 *
 	 * @return string Formated HTML of the calendar widget.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

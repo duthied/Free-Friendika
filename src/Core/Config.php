@@ -4,14 +4,14 @@
  *
  * @file include/Core/Config.php
  *
- * @brief Contains the class with methods for system configuration
+ * Contains the class with methods for system configuration
  */
 namespace Friendica\Core;
 
 use Friendica\DI;
 
 /**
- * @brief Arbitrary system configuration storage
+ * Arbitrary system configuration storage
  *
  * Note:
  * If we ever would decide to return exactly the variable type as entered,
@@ -20,7 +20,7 @@ use Friendica\DI;
 class Config
 {
 	/**
-	 * @brief Loads all configuration values of family into a cached storage.
+	 * Loads all configuration values of family into a cached storage.
 	 *
 	 * @param string $cat The category of the configuration value
 	 *
@@ -32,8 +32,7 @@ class Config
 	}
 
 	/**
-	 * @brief Get a particular user's config variable given the category name
-	 * ($family) and a key.
+	 * Get a particular user's config variable given the category name ($family) and a key.
 	 *
 	 * @param string  $cat        The category of the configuration value
 	 * @param string  $key           The configuration key to query
@@ -48,8 +47,6 @@ class Config
 	}
 
 	/**
-	 * @brief Sets a configuration value for system config
-	 *
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!
@@ -66,7 +63,7 @@ class Config
 	}
 
 	/**
-	 * @brief Deletes the given key from the system configuration.
+	 * Deletes the given key from the system configuration.
 	 *
 	 * @param string $cat The category of the configuration value
 	 * @param string $key    The configuration key to delete

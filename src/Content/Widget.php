@@ -411,7 +411,6 @@ class Widget
 	/**
 	 * Insert a tag cloud widget for the present profile.
 	 *
-	 * @brief Insert a tag cloud widget for the present profile.
 	 * @param int $limit Max number of displayed tags.
 	 * @return string HTML formatted output.
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException

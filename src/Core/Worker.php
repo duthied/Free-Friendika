@@ -14,11 +14,11 @@ use Friendica\Util\Network;
 /**
  * @file src/Core/Worker.php
  *
- * @brief Contains the class for the worker background job processing
+ * Contains the class for the worker background job processing
  */
 
 /**
- * @brief Worker methods
+ * Worker methods
  */
 class Worker
 {
@@ -40,7 +40,7 @@ class Worker
 	private static $state;
 
 	/**
-	 * @brief Processes the tasks that are in the workerqueue table
+	 * Processes the tasks that are in the workerqueue table
 	 *
 	 * @param boolean $run_cron Should the cron processes be executed?
 	 * @return void
@@ -163,7 +163,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Check if non executed tasks do exist in the worker queue
+	 * Check if non executed tasks do exist in the worker queue
 	 *
 	 * @return boolean Returns "true" if tasks are existing
 	 * @throws \Exception
@@ -177,7 +177,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the number of deferred entries in the worker queue
+	 * Returns the number of deferred entries in the worker queue
 	 *
 	 * @return integer Number of deferred entries in the worker queue
 	 * @throws \Exception
@@ -192,7 +192,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the number of non executed entries in the worker queue
+	 * Returns the number of non executed entries in the worker queue
 	 *
 	 * @return integer Number of non executed entries in the worker queue
 	 * @throws \Exception
@@ -207,7 +207,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the highest priority in the worker queue that isn't executed
+	 * Returns the highest priority in the worker queue that isn't executed
 	 *
 	 * @return integer Number of active worker processes
 	 * @throws \Exception
@@ -226,7 +226,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns if a process with the given priority is running
+	 * Returns if a process with the given priority is running
 	 *
 	 * @param integer $priority The priority that should be checked
 	 *
@@ -240,7 +240,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Execute a worker entry
+	 * Execute a worker entry
 	 *
 	 * @param array $queue Workerqueue entry
 	 *
@@ -359,7 +359,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Execute a function from the queue
+	 * Execute a function from the queue
 	 *
 	 * @param array   $queue       Workerqueue entry
 	 * @param string  $funcname    name of the function
@@ -450,7 +450,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Checks if the number of database connections has reached a critical limit.
+	 * Checks if the number of database connections has reached a critical limit.
 	 *
 	 * @return bool Are more than 3/4 of the maximum connections used?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -533,7 +533,7 @@ class Worker
 	}
 
 	/**
-	 * @brief fix the queue entry if the worker process died
+	 * fix the queue entry if the worker process died
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -605,7 +605,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Checks if the number of active workers exceeds the given limits
+	 * Checks if the number of active workers exceeds the given limits
 	 *
 	 * @return bool Are there too much workers running?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -735,7 +735,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the number of active worker processes
+	 * Returns the number of active worker processes
 	 *
 	 * @return integer Number of active worker processes
 	 * @throws \Exception
@@ -749,7 +749,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns waiting jobs for the current process id
+	 * Returns waiting jobs for the current process id
 	 *
 	 * @return array waiting workerqueue jobs
 	 * @throws \Exception
@@ -768,7 +768,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the next jobs that should be executed
+	 * Returns the next jobs that should be executed
 	 *
 	 * @return array array with next jobs
 	 * @throws \Exception
@@ -803,7 +803,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the priority of the next workerqueue job
+	 * Returns the priority of the next workerqueue job
 	 *
 	 * @return string priority
 	 * @throws \Exception
@@ -876,7 +876,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Find and claim the next worker process for us
+	 * Find and claim the next worker process for us
 	 *
 	 * @return boolean Have we found something?
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -919,7 +919,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Returns the next worker process
+	 * Returns the next worker process
 	 *
 	 * @return string SQL statement
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -952,7 +952,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Removes a workerqueue entry from the current process
+	 * Removes a workerqueue entry from the current process
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -967,7 +967,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Call the front end worker
+	 * Call the front end worker
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -982,7 +982,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Call the front end worker if there aren't any active
+	 * Call the front end worker if there aren't any active
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -1033,7 +1033,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Removes long running worker processes
+	 * Removes long running worker processes
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -1051,7 +1051,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Runs the cron processes
+	 * Runs the cron processes
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -1070,7 +1070,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Spawns a new worker
+	 * Spawns a new worker
 	 * @param bool $do_cron
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1092,7 +1092,7 @@ class Worker
 	}
 
 	/**
-	 * @brief Adds tasks to the worker queue
+	 * Adds tasks to the worker queue
 	 *
 	 * @param (integer|array) priority or parameter array, strings are deprecated and are ignored
 	 *
@@ -1272,8 +1272,6 @@ class Worker
 
 	/**
 	 * Log active processes into the "process" table
-	 *
-	 * @brief Log active processes into the "process" table
 	 */
 	public static function startProcess()
 	{
@@ -1289,7 +1287,6 @@ class Worker
 	/**
 	 * Remove the active process from the "process" table
 	 *
-	 * @brief Remove the active process from the "process" table
 	 * @return bool
 	 * @throws \Exception
 	 */
@@ -1301,7 +1298,6 @@ class Worker
 	/**
 	 * Set the flag if some job is waiting
 	 *
-	 * @brief Set the flag if some job is waiting
 	 * @param boolean $jobs Is there a waiting job?
 	 * @throws \Exception
 	 */
@@ -1316,7 +1312,6 @@ class Worker
 	/**
 	 * Checks if some worker job waits to be executed
 	 *
-	 * @brief Checks if some worker job waits to be executed
 	 * @return bool
 	 * @throws \Exception
 	 */

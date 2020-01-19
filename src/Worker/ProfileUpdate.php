@@ -1,7 +1,7 @@
 <?php
 /**
  * @file src/Worker/ProfileUpdate.php
- * @brief Send updated profile data to Diaspora and ActivityPub
+ * Send updated profile data to Diaspora and ActivityPub
  */
 
 namespace Friendica\Worker;

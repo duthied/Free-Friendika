@@ -10,12 +10,12 @@ use Friendica\Core\System;
 use SimpleXMLElement;
 
 /**
- * @brief This class contain methods to work with XML data
+ * This class contain methods to work with XML data
  */
 class XML
 {
 	/**
-	 * @brief Creates an XML structure out of a given array
+	 * Creates an XML structure out of a given array
 	 *
 	 * @param array  $array         The array of the XML structure that will be generated
 	 * @param object $xml           The createdXML will be returned by reference
@@ -114,7 +114,7 @@ class XML
 	}
 
 	/**
-	 * @brief Copies an XML object
+	 * Copies an XML object
 	 *
 	 * @param object $source      The XML source
 	 * @param object $target      The XML target
@@ -134,7 +134,7 @@ class XML
 	}
 
 	/**
-	 * @brief Create an XML element
+	 * Create an XML element
 	 *
 	 * @param \DOMDocument $doc        XML root
 	 * @param string       $element    XML element name
@@ -156,7 +156,7 @@ class XML
 	}
 
 	/**
-	 * @brief Create an XML and append it to the parent object
+	 * Create an XML and append it to the parent object
 	 *
 	 * @param \DOMDocument $doc        XML root
 	 * @param object $parent     parent object
@@ -172,7 +172,7 @@ class XML
 	}
 
 	/**
-	 * @brief Convert an XML document to a normalised, case-corrected array
+	 * Convert an XML document to a normalised, case-corrected array
 	 *   used by webfinger
 	 *
 	 * @param object  $xml_element     The XML document
@@ -223,7 +223,7 @@ class XML
 	}
 
 	/**
-	 * @brief Convert the given XML text to an array in the XML structure.
+	 * Convert the given XML text to an array in the XML structure.
 	 *
 	 * Xml::toArray() will convert the given XML text to an array in the XML structure.
 	 * Link: http://www.bin-co.com/php/scripts/xml2array/
@@ -401,7 +401,7 @@ class XML
 	}
 
 	/**
-	 * @brief Delete a node in a XML object
+	 * Delete a node in a XML object
 	 *
 	 * @param \DOMDocument $doc  XML document
 	 * @param string $node Node name

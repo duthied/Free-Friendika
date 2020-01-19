@@ -7,7 +7,7 @@ use Friendica\Core\L10n;
 use Friendica\Model\Contact;
 
 /**
- * @brief tool to block an account from the node
+ * tool to block an account from the node
  *
  * With this tool, you can block an account in such a way, that no postings
  * or comments this account writes are accepted to the node.

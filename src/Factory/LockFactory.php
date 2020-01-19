@@ -87,7 +87,7 @@ class LockFactory
 	}
 
 	/**
-	 * @brief This method tries to find the best - local - locking method for Friendica
+	 * This method tries to find the best - local - locking method for Friendica
 	 *
 	 * The following sequence will be tried:
 	 * 1. Semaphore Locking

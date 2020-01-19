@@ -13,7 +13,7 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 
 /**
- * @brief functions for interacting with the group database table
+ * functions for interacting with the group database table
  */
 class Group
 {
@@ -50,7 +50,7 @@ class Group
 	}
 
 	/**
-	 * @brief Create a new contact group
+	 * Create a new contact group
 	 *
 	 * Note: If we found a deleted group with the same name, we restore it
 	 *
@@ -101,7 +101,7 @@ class Group
 	}
 
 	/**
-	 * @brief Get a list of group ids a contact belongs to
+	 * Get a list of group ids a contact belongs to
 	 *
 	 * @param int $cid
 	 * @return array
@@ -121,7 +121,7 @@ class Group
 	}
 
 	/**
-	 * @brief count unread group items
+	 * count unread group items
 	 *
 	 * Count unread items of each groups of the local user
 	 *
@@ -152,7 +152,7 @@ class Group
 	}
 
 	/**
-	 * @brief Get the group id for a user/name couple
+	 * Get the group id for a user/name couple
 	 *
 	 * Returns false if no group has been found.
 	 *
@@ -176,7 +176,7 @@ class Group
 	}
 
 	/**
-	 * @brief Mark a group as deleted
+	 * Mark a group as deleted
 	 *
 	 * @param int $gid
 	 * @return boolean
@@ -226,7 +226,7 @@ class Group
 	}
 
 	/**
-	 * @brief      Mark a group as deleted based on its name
+	 * Mark a group as deleted based on its name
 	 *
 	 * @param int    $uid
 	 * @param string $name
@@ -248,7 +248,7 @@ class Group
 	}
 
 	/**
-	 * @brief Adds a contact to a group
+	 * Adds a contact to a group
 	 *
 	 * @param int $gid
 	 * @param int $cid
@@ -273,7 +273,7 @@ class Group
 	}
 
 	/**
-	 * @brief Removes a contact from a group
+	 * Removes a contact from a group
 	 *
 	 * @param int $gid
 	 * @param int $cid
@@ -292,7 +292,7 @@ class Group
 	}
 
 	/**
-	 * @brief      Removes a contact from a group based on its name
+	 * Removes a contact from a group based on its name
 	 *
 	 * @param int    $uid
 	 * @param string $name
@@ -312,7 +312,7 @@ class Group
 	}
 
 	/**
-	 * @brief Returns the combined list of contact ids from a group id list
+	 * Returns the combined list of contact ids from a group id list
 	 *
 	 * @param int     $uid
 	 * @param array   $group_ids
@@ -391,7 +391,7 @@ class Group
 	}
 
 	/**
-	 * @brief Returns a templated group selection list
+	 * Returns a templated group selection list
 	 *
 	 * @param int    $uid
 	 * @param int    $gid   An optional pre-selected group
@@ -433,7 +433,7 @@ class Group
 	}
 
 	/**
-	 * @brief Create group sidebar widget
+	 * Create group sidebar widget
 	 *
 	 * @param string $every
 	 * @param string $each

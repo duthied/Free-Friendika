@@ -65,11 +65,11 @@ $API = [];
 $called_api = [];
 
 /**
+ * Auth API user
+ *
  * It is not sufficient to use local_user() to check whether someone is allowed to use the API,
  * because this will open CSRF holes (just embed an image with src=friendicasite.com/api/statuses/update?status=CSRF
  * into a page, and visitors will post something without noticing it).
- *
- * @brief Auth API user
  */
 function api_user()
 {
@@ -81,12 +81,12 @@ function api_user()
 }
 
 /**
+ * Get source name from API client
+ *
  * Clients can send 'source' parameter to be show in post metadata
  * as "sent via <source>".
  * Some clients doesn't send a source param, we support ones we know
  * (only Twidere, atm)
- *
- * @brief Get source name from API client
  *
  * @return string
  *        Client source name, default to "api" if unset/unknown
@@ -113,7 +113,7 @@ function api_source()
 }
 
 /**
- * @brief Format date for API
+ * Format date for API
  *
  * @param string $str Source date, as UTC
  * @return string Date in UTC formatted as "D M d H:i:s +0000 Y"
@@ -127,8 +127,6 @@ function api_date($str)
 
 /**
  * Register a function to be the endpoint for defined API path.
- *
- * @brief Register API endpoint
  *
  * @param string $path   API URL path, relative to DI::baseUrl()
  * @param string $func   Function name to call on path request
@@ -160,8 +158,6 @@ function api_register_func($path, $func, $auth = false, $method = API_METHOD_ANY
 /**
  * Log in user via OAuth1 or Simple HTTP Auth.
  * Simple Auth allow username in form of <pre>user@server</pre>, ignoring server part
- *
- * @brief Login API user
  *
  * @param App $a App
  * @throws ForbiddenException
@@ -260,11 +256,11 @@ function api_login(App $a)
 }
 
 /**
+ * Check HTTP method of called API
+ *
  * API endpoints can define which HTTP method to accept when called.
  * This function check the current HTTP method agains endpoint
  * registered method.
- *
- * @brief Check HTTP method of called API
  *
  * @param string $method Required methods, uppercase, separated by comma
  * @return bool
@@ -278,9 +274,9 @@ function api_check_method($method)
 }
 
 /**
- * Authenticate user, call registered API function, set HTTP headers
+ * Main API entry point
  *
- * @brief Main API entry point
+ * Authenticate user, call registered API function, set HTTP headers
  *
  * @param App $a App
  * @param App\Arguments $args The app arguments (optional, will retrieved by the DI-Container in case of missing)
@@ -379,7 +375,7 @@ function api_call(App $a, App\Arguments $args = null)
 }
 
 /**
- * @brief Format API error string
+ * Format API error string
  *
  * @param string $type Return type (xml, json, rss, as)
  * @param object $e    HTTPException Error object
@@ -417,7 +413,7 @@ function api_error($type, $e, App\Arguments $args)
 }
 
 /**
- * @brief Set values for RSS template
+ * Set values for RSS template
  *
  * @param App   $a
  * @param array $arr       Array to be passed to template
@@ -451,7 +447,7 @@ function api_rss_extra(App $a, $arr, $user_info)
 
 
 /**
- * @brief Unique contact to contact url.
+ * Unique contact to contact url.
  *
  * @param int $id Contact id
  * @return bool|string
@@ -470,7 +466,7 @@ function api_unique_id_to_nurl($id)
 }
 
 /**
- * @brief Get user info array.
+ * Get user info array.
  *
  * @param App        $a          App
  * @param int|string $contact_id Contact ID or URL
@@ -759,7 +755,7 @@ function api_get_user(App $a, $contact_id = null)
 }
 
 /**
- * @brief return api-formatted array for item's author and owner
+ * return api-formatted array for item's author and owner
  *
  * @param App   $a    App
  * @param array $item item from db
@@ -787,7 +783,7 @@ function api_item_get_user(App $a, $item)
 }
 
 /**
- * @brief walks recursively through an array with the possibility to change value and key
+ * walks recursively through an array with the possibility to change value and key
  *
  * @param array    $array    The array to walk through
  * @param callable $callback The callback function
@@ -815,7 +811,7 @@ function api_walk_recursive(array &$array, callable $callback)
 }
 
 /**
- * @brief Callback function to transform the array in an array that can be transformed in a XML file
+ * Callback function to transform the array in an array that can be transformed in a XML file
  *
  * @param mixed  $item Array item value
  * @param string $key  Array key
@@ -841,7 +837,7 @@ function api_reformat_xml(&$item, &$key)
 }
 
 /**
- * @brief Creates the XML from a JSON style array
+ * Creates the XML from a JSON style array
  *
  * @param array  $data         JSON style array
  * @param string $root_element Name of the root element
@@ -886,7 +882,7 @@ function api_create_xml(array $data, $root_element)
 }
 
 /**
- * @brief Formats the data according to the data type
+ * Formats the data according to the data type
  *
  * @param string $root_element Name of the root element
  * @param string $type         Return type (atom, rss, xml, json)
@@ -1777,8 +1773,6 @@ api_register_func('api/statuses/public_timeline', 'api_statuses_public_timeline'
 /**
  * Returns the most recent statuses posted by users this node knows about.
  *
- * @brief Returns the list of public federated posts this node knows about
- *
  * @param string $type Return format: json, xml, atom, rss
  * @return array|string
  * @throws BadRequestException
@@ -2208,8 +2202,6 @@ api_register_func('api/statuses/replies', 'api_statuses_mentions', true);
 
 /**
  * Returns the most recent statuses posted by the user.
- *
- * @brief Returns a user's public timeline
  *
  * @param string $type Either "json" or "xml"
  * @return string|array
@@ -2812,7 +2804,7 @@ function api_format_items_embeded_images($item, $text)
 }
 
 /**
- * @brief return <a href='url'>name</a> as array
+ * return <a href='url'>name</a> as array
  *
  * @param string $txt text
  * @return array
@@ -2839,7 +2831,7 @@ function api_contactlink_to_array($txt)
 
 
 /**
- * @brief return likes, dislikes and attend status for item
+ * return likes, dislikes and attend status for item
  *
  * @param array  $item array
  * @param string $type Return type (atom, rss, xml, json)
@@ -2919,7 +2911,7 @@ function api_format_items_activities($item, $type = "json")
 
 
 /**
- * @brief return data from profiles
+ * return data from profiles
  *
  * @param array $profile_row array containing data from db table 'profile'
  * @return array
@@ -2972,7 +2964,7 @@ function api_format_items_profiles($profile_row)
 }
 
 /**
- * @brief format items to be returned by api
+ * format items to be returned by api
  *
  * @param array  $items       array of items
  * @param array  $user_info
@@ -3387,10 +3379,10 @@ function api_lists_statuses($type)
 api_register_func('api/lists/statuses', 'api_lists_statuses', true);
 
 /**
+ * Returns either the friends of the follower list
+ *
  * Considers friends and followers lists to be private and won't return
  * anything if any user_id parameter is passed.
- *
- * @brief Returns either the friends of the follower list
  *
  * @param string $qtype Either "friends" or "followers"
  * @return boolean|array
@@ -3478,9 +3470,7 @@ function api_statuses_f($qtype)
 
 
 /**
- * Returns the user's friends.
- *
- * @brief      Returns the list of friends of the provided user
+ * Returns the list of friends of the provided user
  *
  * @deprecated By Twitter API in favor of friends/list
  *
@@ -3499,9 +3489,7 @@ function api_statuses_friends($type)
 }
 
 /**
- * Returns the user's followers.
- *
- * @brief      Returns the list of followers of the provided user
+ * Returns the list of followers of the provided user
  *
  * @deprecated By Twitter API in favor of friends/list
  *
@@ -3818,9 +3806,7 @@ function api_direct_messages_new($type)
 api_register_func('api/direct_messages/new', 'api_direct_messages_new', true, API_METHOD_POST);
 
 /**
- * Destroys a direct message.
- *
- * @brief delete a direct_message from mail table through api
+ * delete a direct_message from mail table through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -3905,8 +3891,6 @@ api_register_func('api/direct_messages/destroy', 'api_direct_messages_destroy', 
 
 /**
  * Unfollow Contact
- *
- * @brief unfollow contact
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4203,7 +4187,7 @@ api_register_func('api/oauth/access_token', 'api_oauth_access_token', false);
 
 
 /**
- * @brief delete a complete photoalbum with all containing photos from database through api
+ * delete a complete photoalbum with all containing photos from database through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4258,7 +4242,7 @@ function api_fr_photoalbum_delete($type)
 }
 
 /**
- * @brief update the name of the album for all photos of an album
+ * update the name of the album for all photos of an album
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4300,7 +4284,7 @@ function api_fr_photoalbum_update($type)
 
 
 /**
- * @brief list all photos of the authenticated user
+ * list all photos of the authenticated user
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4348,7 +4332,7 @@ function api_fr_photos_list($type)
 }
 
 /**
- * @brief upload a new photo or change an existing photo
+ * upload a new photo or change an existing photo
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4487,7 +4471,7 @@ function api_fr_photo_create_update($type)
 }
 
 /**
- * @brief delete a single photo from the database through api
+ * delete a single photo from the database through api
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4540,7 +4524,7 @@ function api_fr_photo_delete($type)
 
 
 /**
- * @brief returns the details of a specified photo id, if scale is given, returns the photo data in base 64
+ * returns the details of a specified photo id, if scale is given, returns the photo data in base 64
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -4569,9 +4553,7 @@ function api_fr_photo_detail($type)
 
 
 /**
- * Updates the user’s profile image.
- *
- * @brief updates the profile image for the user (either a specified profile or the default profile)
+ * updates the profile image for the user (either a specified profile or the default profile)
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  *
@@ -5180,7 +5162,7 @@ function api_get_announce($item)
 }
 
 /**
- * @brief Return the item shared, if the item contains only the [share] tag
+ * Return the item shared, if the item contains only the [share] tag
  *
  * @param array $item Sharer item
  * @return array|false Shared item or false if not a reshare
@@ -5907,7 +5889,7 @@ api_register_func('api/friendica/activity/unattendno', 'api_friendica_activity',
 api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activity', true, API_METHOD_POST);
 
 /**
- * @brief Returns notifications
+ * Returns notifications
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -5941,9 +5923,9 @@ function api_friendica_notification($type)
 }
 
 /**
- * POST request with 'id' param as notification id
+ * Set notification as seen and returns associated item (if possible)
  *
- * @brief Set notification as seen and returns associated item (if possible)
+ * POST request with 'id' param as notification id
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -5993,7 +5975,7 @@ api_register_func('api/friendica/notification/seen', 'api_friendica_notification
 api_register_func('api/friendica/notification', 'api_friendica_notification', true, API_METHOD_GET);
 
 /**
- * @brief update a direct_message to seen state
+ * update a direct_message to seen state
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array (success result=ok, error result=error with error message)
@@ -6044,7 +6026,7 @@ function api_friendica_direct_messages_setseen($type)
 api_register_func('api/friendica/direct_messages_setseen', 'api_friendica_direct_messages_setseen', true);
 
 /**
- * @brief search for direct_messages containing a searchstring through api
+ * search for direct_messages containing a searchstring through api
  *
  * @param string $type      Known types are 'atom', 'rss', 'xml' and 'json'
  * @param string $box
@@ -6115,7 +6097,7 @@ function api_friendica_direct_messages_search($type, $box = "")
 api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
 
 /**
- * @brief return data of all the profiles a user has to the client
+ * return data of all the profiles a user has to the client
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
  * @return string|array
@@ -6221,9 +6203,9 @@ function api_saved_searches_list($type)
 api_register_func('api/saved_searches/list', 'api_saved_searches_list', true);
 
 /*
- * Bind comment numbers(friendica_comments: Int) on each statuses page of *_timeline / favorites / search
+ * Number of comments
  *
- * @brief Number of comments
+ * Bind comment numbers(friendica_comments: Int) on each statuses page of *_timeline / favorites / search
  *
  * @param object $data [Status, Status]
  *

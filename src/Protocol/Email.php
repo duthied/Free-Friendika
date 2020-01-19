@@ -12,7 +12,7 @@ use Friendica\Model\Item;
 use Friendica\Util\Strings;
 
 /**
- * @brief Email class
+ * Email class
  */
 class Email
 {

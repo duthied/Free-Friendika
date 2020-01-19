@@ -14,7 +14,7 @@ use Friendica\Util\HTTPSignature;
 use Friendica\Util\Strings;
 
 /**
- * @brief OpenWebAuth verifier and token generator
+ * OpenWebAuth verifier and token generator
  *
  * See https://macgirvin.com/wiki/mike/OpenWebAuth/Home
  * Requests to this endpoint should be signed using HTTP Signatures

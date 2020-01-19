@@ -2,7 +2,7 @@
 
 /**
  * @file src/Model/User.php
- * @brief This file includes the User class with user related database functions
+ * This file includes the User class with user related database functions
  */
 
 namespace Friendica\Model;
@@ -29,7 +29,7 @@ use Friendica\Worker\Delivery;
 use LightOpenID;
 
 /**
- * @brief This class handles User related functions
+ * This class handles User related functions
  */
 class User
 {
@@ -138,7 +138,7 @@ class User
 	}
 
 	/**
-	 * @brief Returns the user id of a given profile URL
+	 * Returns the user id of a given profile URL
 	 *
 	 * @param string $url
 	 *
@@ -171,7 +171,7 @@ class User
 	}
 
 	/**
-	 * @brief Get owner data by user id
+	 * Get owner data by user id
 	 *
 	 * @param int $uid
 	 * @param boolean $check_valid Test if data is invalid and correct it
@@ -243,7 +243,7 @@ class User
 	}
 
 	/**
-	 * @brief Get owner data by nick name
+	 * Get owner data by nick name
 	 *
 	 * @param int $nick
 	 * @return boolean|array
@@ -261,7 +261,7 @@ class User
 	}
 
 	/**
-	 * @brief Returns the default group for a given user and network
+	 * Returns the default group for a given user and network
 	 *
 	 * @param int $uid User id
 	 * @param string $network network name
@@ -294,7 +294,6 @@ class User
 	/**
 	 * Authenticate a user with a clear text password
 	 *
-	 * @brief      Authenticate a user with a clear text password
 	 * @param mixed  $user_info
 	 * @param string $password
 	 * @param bool   $third_party
@@ -312,9 +311,10 @@ class User
 	}
 
 	/**
+	 * Authenticate a user with a clear text password
+	 *
 	 * Returns the user id associated with a successful password authentication
 	 *
-	 * @brief Authenticate a user with a clear text password
 	 * @param mixed  $user_info
 	 * @param string $password
 	 * @param bool   $third_party
@@ -536,7 +536,7 @@ class User
 	}
 
 	/**
-	 * @brief Checks if a nickname is in the list of the forbidden nicknames
+	 * Checks if a nickname is in the list of the forbidden nicknames
 	 *
 	 * Check if a nickname is forbidden from registration on the node by the
 	 * admin. Forbidden nicknames (e.g. role namess) can be configured in the
@@ -567,7 +567,7 @@ class User
 	}
 
 	/**
-	 * @brief Catch-all user creation function
+	 * Catch-all user creation function
 	 *
 	 * Creates a user from the provided data array, either form fields or OpenID.
 	 * Required: { username, nickname, email } or { openid_url }
@@ -872,7 +872,7 @@ class User
 	}
 
 	/**
-	 * @brief Sends pending registration confirmation email
+	 * Sends pending registration confirmation email
 	 *
 	 * @param array  $user     User record array
 	 * @param string $sitename
@@ -911,7 +911,7 @@ class User
 	}
 
 	/**
-	 * @brief Sends registration confirmation
+	 * Sends registration confirmation
 	 *
 	 * It's here as a function because the mail is sent from different parts
 	 *

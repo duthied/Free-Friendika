@@ -45,7 +45,7 @@ class ExAuth
 	private $host;
 
 	/**
-	 * @brief Create the class
+	 * Create the class
 	 *
 	 */
 	public function __construct()
@@ -58,7 +58,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Standard input reading function, executes the auth with the provided
+	 * Standard input reading function, executes the auth with the provided
 	 * parameters
 	 *
 	 * @return null
@@ -116,7 +116,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Check if the given username exists
+	 * Check if the given username exists
 	 *
 	 * @param array $aCommand The command array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -162,7 +162,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Check remote user existance via HTTP(S)
+	 * Check remote user existance via HTTP(S)
 	 *
 	 * @param string  $host The hostname
 	 * @param string  $user Username
@@ -196,7 +196,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Authenticate the given user and password
+	 * Authenticate the given user and password
 	 *
 	 * @param array $aCommand The command array
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -255,7 +255,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Check remote credentials via HTTP(S)
+	 * Check remote credentials via HTTP(S)
 	 *
 	 * @param string $host The hostname
 	 * @param string $user Username
@@ -290,7 +290,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief Set the hostname for this process
+	 * Set the hostname for this process
 	 *
 	 * @param string $host The hostname
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -329,7 +329,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief write data to the syslog
+	 * write data to the syslog
 	 *
 	 * @param integer $loglevel The syslog loglevel
 	 * @param string $sMessage The syslog message
@@ -343,7 +343,7 @@ class ExAuth
 	}
 
 	/**
-	 * @brief destroy the class, close the syslog connection.
+	 * destroy the class, close the syslog connection.
 	 */
 	public function __destruct()
 	{

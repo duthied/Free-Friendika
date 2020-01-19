@@ -10,12 +10,12 @@ use Exception;
 use Friendica\DI;
 
 /**
- * @brief This class contain methods to work with JsonLD data
+ * This class contain methods to work with JsonLD data
  */
 class JsonLD
 {
 	/**
-	 * @brief Loader for LD-JSON validation
+	 * Loader for LD-JSON validation
 	 *
 	 * @param $url
 	 *
@@ -51,7 +51,7 @@ class JsonLD
 	}
 
 	/**
-	 * @brief Normalises a given JSON array
+	 * Normalises a given JSON array
 	 *
 	 * @param array $json
 	 *
@@ -85,7 +85,7 @@ class JsonLD
 	}
 
 	/**
-	 * @brief Compacts a given JSON array
+	 * Compacts a given JSON array
 	 *
 	 * @param array $json
 	 *
@@ -146,7 +146,7 @@ class JsonLD
 	}
 
 	/**
-	 * @brief Fetches an element array from a JSON array
+	 * Fetches an element array from a JSON array
 	 *
 	 * @param $array
 	 * @param $element
@@ -185,7 +185,7 @@ class JsonLD
 	}
 
 	/**
-	 * @brief Fetches an element from a JSON array
+	 * Fetches an element from a JSON array
 	 *
 	 * @param $array
 	 * @param $element

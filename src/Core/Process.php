@@ -46,7 +46,7 @@ final class Process
 	}
 
 	/**
-	 * @brief Checks if the maximum number of database processes is reached
+	 * Checks if the maximum number of database processes is reached
 	 *
 	 * @return bool Is the limit reached?
 	 */
@@ -86,7 +86,7 @@ final class Process
 	}
 
 	/**
-	 * @brief Checks if the minimal memory is reached
+	 * Checks if the minimal memory is reached
 	 *
 	 * @return bool Is the memory limit reached?
 	 */
@@ -130,7 +130,7 @@ final class Process
 	}
 
 	/**
-	 * @brief Checks if the maximum load is reached
+	 * Checks if the maximum load is reached
 	 *
 	 * @return bool Is the load reached?
 	 */

@@ -1,18 +1,18 @@
 <?php
 /**
  * @file view/theme/frio/php/Image.php
- * @brief contain methods to deal with images
+ * contain methods to deal with images
  */
 
 /**
- * @brief This class contains methods to deal with images
+ * This class contains methods to deal with images
  */
 use Friendica\Core\L10n;
 
 class Image
 {
 	/**
-	 * @brief Give all available options for the background image
+	 * Give all available options for the background image
 	 *
 	 * @param array $arr Array with the present user settings
 	 *

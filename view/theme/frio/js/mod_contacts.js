@@ -20,7 +20,7 @@ $(document).ready(function() {
 });
 
 /**
- * @brief This function submits the form with the batch action values.
+ * This function submits the form with the batch action values.
  *
  * @param {string} name The name of the batch action.
  * @param {string} value If it isn't empty the action will be posted.

@@ -12,7 +12,7 @@ use Friendica\Model\User;
 use Friendica\Model\APContact;
 
 /**
- * @brief Implements HTTP Signatures per draft-cavage-http-signatures-07.
+ * Implements HTTP Signatures per draft-cavage-http-signatures-07.
  *
  * Ported from Hubzilla: https://framagit.org/hubzilla/core/blob/master/Zotlabs/Web/HTTPSig.php
  *
@@ -26,7 +26,7 @@ class HTTPSignature
 {
 	// See draft-cavage-http-signatures-08
 	/**
-	 * @brief Verifies a magic request
+	 * Verifies a magic request
 	 *
 	 * @param $key
 	 *
@@ -274,7 +274,7 @@ class HTTPSignature
 	 */
 
 	/**
-	 * @brief Transmit given data to a target for a user
+	 * Transmit given data to a target for a user
 	 *
 	 * @param array   $data   Data that is about to be send
 	 * @param string  $target The URL of the inbox
@@ -323,7 +323,7 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief Set the delivery status for a given inbox
+	 * Set the delivery status for a given inbox
 	 *
 	 * @param string  $url     The URL of the inbox
 	 * @param boolean $success Transmission status
@@ -378,7 +378,7 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief Fetches JSON data for a user
+	 * Fetches JSON data for a user
 	 *
 	 * @param string  $request request url
 	 * @param integer $uid     User id of the requester
@@ -408,7 +408,7 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief Fetches raw data for a user
+	 * Fetches raw data for a user
 	 *
 	 * @param string  $request request url
 	 * @param integer $uid     User id of the requester
@@ -464,7 +464,7 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief Gets a signer from a given HTTP request
+	 * Gets a signer from a given HTTP request
 	 *
 	 * @param $content
 	 * @param $http_headers
@@ -596,7 +596,7 @@ class HTTPSignature
 	}
 
 	/**
-	 * @brief fetches a key for a given id and actor
+	 * fetches a key for a given id and actor
 	 *
 	 * @param $id
 	 * @param $actor

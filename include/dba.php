@@ -3,7 +3,7 @@
 use Friendica\Database\DBA;
 
 /**
- * @brief execute SQL query with printf style args - deprecated
+ * execute SQL query with printf style args - deprecated
  *
  * Please use the DBA:: functions instead:
  * DBA::select, DBA::exists, DBA::insert
