@@ -43,6 +43,7 @@ class DBClean {
 
 	/**
 	 * Remove orphaned database entries
+	 *
 	 * @param integer $stage What should be deleted?
 	 *
 	 * Values for $stage:

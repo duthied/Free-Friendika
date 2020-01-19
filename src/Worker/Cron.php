@@ -138,6 +138,7 @@ class Cron
 
 	/**
 	 * Update public contacts
+	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function updatePublicContacts() {

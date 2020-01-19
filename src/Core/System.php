@@ -22,6 +22,7 @@ class System
 {
 	/**
 	 * Returns a string with a callstack. Can be used for logging.
+	 *
 	 * @param integer $depth optional, default 4
 	 * @return string
 	 */

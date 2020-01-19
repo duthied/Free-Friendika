@@ -58,6 +58,7 @@ class Image
 
 	/**
 	 * Destructor
+	 *
 	 * @return void
 	 */
 	public function __destruct()
@@ -672,6 +673,7 @@ class Image
 
 	/**
 	 * supported mimetypes and corresponding file extensions
+	 *
 	 * @return array
 	 * @deprecated in version 2019.12 please use Util\Images::supportedTypes() instead.
 	 */
@@ -682,6 +684,7 @@ class Image
 
 	/**
 	 * Maps Mime types to Imagick formats
+	 *
 	 * @return array With with image formats (mime type as key)
 	 * @deprecated in version 2019.12 please use Util\Images::getFormatsMap() instead.
 	 */

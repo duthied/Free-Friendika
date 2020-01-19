@@ -534,6 +534,7 @@ class Worker
 
 	/**
 	 * fix the queue entry if the worker process died
+	 *
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -953,6 +954,7 @@ class Worker
 
 	/**
 	 * Removes a workerqueue entry from the current process
+	 *
 	 * @return void
 	 * @throws \Exception
 	 */
@@ -968,6 +970,7 @@ class Worker
 
 	/**
 	 * Call the front end worker
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -983,6 +986,7 @@ class Worker
 
 	/**
 	 * Call the front end worker if there aren't any active
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -1034,6 +1038,7 @@ class Worker
 
 	/**
 	 * Removes long running worker processes
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -1052,6 +1057,7 @@ class Worker
 
 	/**
 	 * Runs the cron processes
+	 *
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
@@ -1071,6 +1077,7 @@ class Worker
 
 	/**
 	 * Spawns a new worker
+	 *
 	 * @param bool $do_cron
 	 * @return void
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
@@ -1224,6 +1231,7 @@ class Worker
 
 	/**
 	 * Defers the current worker entry
+	 *
 	 * @return boolean had the entry been deferred?
 	 */
 	public static function defer()
