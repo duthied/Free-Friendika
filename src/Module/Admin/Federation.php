@@ -123,7 +123,7 @@ class Federation extends BaseAdminModule
 			'$page' => DI::l10n()->t('Federation Statistics'),
 			'$intro' => $intro,
 			'$hint' => $hint,
-			'$autoactive' => Config::get('system', 'poco_completion'),
+			'$autoactive' => DI::config()->get('system', 'poco_completion'),
 			'$counts' => $counts,
 			'$version' => FRIENDICA_VERSION,
 			'$legendtext' => DI::l10n()->t('Currently this node is aware of %d nodes with %d registered users from the following platforms:', $total, $users),

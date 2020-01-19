@@ -15,7 +15,7 @@ class View extends BaseAdminModule
 		parent::content($parameters);
 
 		$t = Renderer::getMarkupTemplate('admin/logs/view.tpl');
-		$f = Config::get('system', 'logfile');
+		$f = DI::config()->get('system', 'logfile');
 		$data = '';
 
 		if (!file_exists($f)) {
@@ -46,7 +46,7 @@ class View extends BaseAdminModule
 			'$title' => DI::l10n()->t('Administration'),
 			'$page' => DI::l10n()->t('View Logs'),
 			'$data' => $data,
-			'$logname' => Config::get('system', 'logfile')
+			'$logname' => DI::config()->get('system', 'logfile')
 		]);
 	}
 }

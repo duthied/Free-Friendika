@@ -105,7 +105,7 @@ class Nav
 		self::$app_menu = [];
 
 		//Don't populate apps_menu if apps are private
-		$privateapps = Config::get('config', 'private_addons', false);
+		$privateapps = DI::config()->get('config', 'private_addons', false);
 		if (local_user() || !$privateapps) {
 			$arr = ['app_menu' => self::$app_menu];
 
@@ -180,13 +180,13 @@ class Nav
 			$nav['home'] = [$homelink, DI::l10n()->t('Home'), '', DI::l10n()->t('Home Page')];
 		}
 
-		if (intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
+		if (intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::OPEN && !Session::isAuthenticated()) {
 			$nav['register'] = ['register', DI::l10n()->t('Register'), '', DI::l10n()->t('Create an account')];
 		}
 
 		$help_url = 'help';
 
-		if (!Config::get('system', 'hide_help')) {
+		if (!DI::config()->get('system', 'hide_help')) {
 			$nav['help'] = [$help_url, DI::l10n()->t('Help'), '', DI::l10n()->t('Help and documentation')];
 		}
 
@@ -194,7 +194,7 @@ class Nav
 			$nav['apps'] = ['apps', DI::l10n()->t('Apps'), '', DI::l10n()->t('Addon applications, utilities, games')];
 		}
 
-		if (local_user() || !Config::get('system', 'local_search')) {
+		if (local_user() || !DI::config()->get('system', 'local_search')) {
 			$nav['search'] = ['search', DI::l10n()->t('Search'), '', DI::l10n()->t('Search site content')];
 
 			$nav['searchoption'] = [
@@ -203,22 +203,22 @@ class Nav
 				DI::l10n()->t('Contacts')
 			];
 
-			if (Config::get('system', 'poco_local_search')) {
+			if (DI::config()->get('system', 'poco_local_search')) {
 				$nav['searchoption'][] = DI::l10n()->t('Forums');
 			}
 		}
 
 		$gdirpath = 'directory';
 
-		if (strlen(Config::get('system', 'singleuser'))) {
-			$gdir = Config::get('system', 'directory');
+		if (strlen(DI::config()->get('system', 'singleuser'))) {
+			$gdir = DI::config()->get('system', 'directory');
 			if (strlen($gdir)) {
 				$gdirpath = Profile::zrl($gdir, true);
 			}
 		}
 
-		if ((local_user() || Config::get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) &&
-			!(Config::get('system', 'community_page_style') == CP_NO_INTERNAL_COMMUNITY)) {
+		if ((local_user() || DI::config()->get('system', 'community_page_style') != CP_NO_COMMUNITY_PAGE) &&
+			!(DI::config()->get('system', 'community_page_style') == CP_NO_INTERNAL_COMMUNITY)) {
 			$nav['community'] = ['community', DI::l10n()->t('Community'), '', DI::l10n()->t('Conversations on this and other servers')];
 		}
 
@@ -230,7 +230,7 @@ class Nav
 
 		$nav['about'] = ['friendica', DI::l10n()->t('Information'), '', DI::l10n()->t('Information about this friendica instance')];
 
-		if (Config::get('system', 'tosdisplay')) {
+		if (DI::config()->get('system', 'tosdisplay')) {
 			$nav['tos'] = ['tos', DI::l10n()->t('Terms of Service'), '', DI::l10n()->t('Terms of Service of this Friendica instance')];
 		}
 
@@ -274,7 +274,7 @@ class Nav
 		$nav['navigation'] = ['navigation/', DI::l10n()->t('Navigation'), '', DI::l10n()->t('Site map')];
 
 		// Provide a banner/logo/whatever
-		$banner = Config::get('system', 'banner');
+		$banner = DI::config()->get('system', 'banner');
 		if (is_null($banner)) {
 			$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 		}

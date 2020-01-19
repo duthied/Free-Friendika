@@ -80,7 +80,7 @@ class Proxy
 		}
 
 		// Is the proxy disabled?
-		if (Config::get('system', 'proxy_disabled')) {
+		if (DI::config()->get('system', 'proxy_disabled')) {
 			return $url;
 		}
 

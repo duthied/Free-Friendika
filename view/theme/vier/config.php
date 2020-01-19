@@ -23,7 +23,7 @@ function theme_content(App $a)
 	$style = DI::pConfig()->get(local_user(), 'vier', 'style');
 
 	if ($style == "") {
-		$style = Config::get('vier', 'style');
+		$style = DI::config()->get('vier', 'style');
 	}
 
 	if ($style == "") {
@@ -64,9 +64,9 @@ function theme_admin(App $a) {
 	if (!function_exists('get_vier_config'))
 		return;
 
-	$style = Config::get('vier', 'style');
+	$style = DI::config()->get('vier', 'style');
 
-	$helperlist = Config::get('vier', 'helperlist');
+	$helperlist = DI::config()->get('vier', 'helperlist');
 
 	if ($helperlist == "")
 		$helperlist = "https://forum.friendi.ca/profile/helpers";

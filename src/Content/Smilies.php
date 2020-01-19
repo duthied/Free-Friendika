@@ -207,7 +207,7 @@ class Smilies
 	 */
 	public static function replaceFromArray($text, array $smilies, $no_images = false)
 	{
-		if (intval(Config::get('system', 'no_smilies'))
+		if (intval(DI::config()->get('system', 'no_smilies'))
 			|| (local_user() && intval(DI::pConfig()->get(local_user(), 'system', 'no_smilies')))
 		) {
 			return $text;

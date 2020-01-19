@@ -84,7 +84,7 @@ class OnePoll
 		}
 
 		// Don't poll if polling is deactivated (But we poll feeds and mails anyway)
-		if (!in_array($protocol, [Protocol::FEED, Protocol::MAIL]) && Config::get('system', 'disable_polling')) {
+		if (!in_array($protocol, [Protocol::FEED, Protocol::MAIL]) && DI::config()->get('system', 'disable_polling')) {
 			Logger::log('Polling is disabled');
 
 			// set the last-update so we don't keep polling
@@ -115,7 +115,7 @@ class OnePoll
 		$xml = false;
 
 		if ($contact['subhub']) {
-			$poll_interval = Config::get('system', 'pushpoll_frequency', 3);
+			$poll_interval = DI::config()->get('system', 'pushpoll_frequency', 3);
 			$contact['priority'] = intval($poll_interval);
 			$hub_update = false;
 
@@ -444,7 +444,7 @@ class OnePoll
 	{
 		Logger::log("Mail: Fetching for ".$contact['addr'], Logger::DEBUG);
 
-		$mail_disabled = ((function_exists('imap_open') && !Config::get('system', 'imap_disabled')) ? 0 : 1);
+		$mail_disabled = ((function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) ? 0 : 1);
 		if ($mail_disabled) {
 			// set the last-update so we don't keep polling
 			self::updateContact($contact, ['last-update' => $updated]);

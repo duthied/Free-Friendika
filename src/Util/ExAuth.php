@@ -50,7 +50,7 @@ class ExAuth
 	 */
 	public function __construct()
 	{
-		$this->bDebug = (int) Config::get('jabber', 'debug');
+		$this->bDebug = (int) DI::config()->get('jabber', 'debug');
 
 		openlog('auth_ejabberd', LOG_PID, LOG_USER);
 
@@ -305,7 +305,7 @@ class ExAuth
 
 		$this->host = $host;
 
-		$lockpath = Config::get('jabber', 'lockpath');
+		$lockpath = DI::config()->get('jabber', 'lockpath');
 		if (is_null($lockpath)) {
 			$this->writeLog(LOG_INFO, 'No lockpath defined.');
 			return;

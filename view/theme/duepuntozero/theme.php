@@ -11,7 +11,7 @@ Renderer::setActiveTemplateEngine('smarty3');
 
     $colorset = DI::pConfig()->get( local_user(), 'duepuntozero','colorset');
     if (!$colorset)
-       $colorset = Config::get('duepuntozero', 'colorset');          // user setting have priority, then node settings
+       $colorset = DI::config()->get('duepuntozero', 'colorset');          // user setting have priority, then node settings
     if ($colorset) {
         if ($colorset == 'greenzero')
             DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";

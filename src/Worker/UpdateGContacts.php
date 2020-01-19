@@ -21,7 +21,7 @@ class UpdateGContacts
 	 */
 	public static function execute()
 	{
-		if (!Config::get('system', 'poco_completion')) {
+		if (!DI::config()->get('system', 'poco_completion')) {
 			return;
 		}
 

@@ -52,27 +52,27 @@ class Instance extends BaseEntity
 	 */
 	public static function get()
 	{
-		$register_policy = intval(Config::get('config', 'register_policy'));
+		$register_policy = intval(DI::config()->get('config', 'register_policy'));
 
 		$baseUrl = DI::baseUrl();
 
 		$instance = new Instance();
 		$instance->uri = $baseUrl->get();
-		$instance->title = Config::get('config', 'sitename');
-		$instance->description = Config::get('config', 'info');
-		$instance->email = Config::get('config', 'admin_email');
+		$instance->title = DI::config()->get('config', 'sitename');
+		$instance->description = DI::config()->get('config', 'info');
+		$instance->email = DI::config()->get('config', 'admin_email');
 		$instance->version = FRIENDICA_VERSION;
 		$instance->urls = []; // Not supported
 		$instance->stats = Stats::get();
-		$instance->thumbnail = $baseUrl->get() . (Config::get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
-		$instance->languages = [Config::get('system', 'language')];
-		$instance->max_toot_chars = (int)Config::get('config', 'api_import_size', Config::get('config', 'max_import_size'));
+		$instance->thumbnail = $baseUrl->get() . (DI::config()->get('system', 'shortcut_icon') ?? 'images/friendica-32.png');
+		$instance->languages = [DI::config()->get('system', 'language')];
+		$instance->max_toot_chars = (int)DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size'));
 		$instance->registrations = ($register_policy != Register::CLOSED);
 		$instance->approval_required = ($register_policy == Register::APPROVE);
 		$instance->contact_account = [];
 
-		if (!empty(Config::get('config', 'admin_email'))) {
-			$adminList = explode(',', str_replace(' ', '', Config::get('config', 'admin_email')));
+		if (!empty(DI::config()->get('config', 'admin_email'))) {
+			$adminList = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 			$administrator = User::getByEmail($adminList[0], ['nickname']);
 			if (!empty($administrator)) {
 				$adminContact = DBA::selectFirst('contact', ['id'], ['nick' => $administrator['nickname'], 'self' => true]);

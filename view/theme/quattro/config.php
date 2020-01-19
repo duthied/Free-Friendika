@@ -35,10 +35,10 @@ function theme_post(App $a) {
 }
 
 function theme_admin(App $a) {
-	$align = Config::get('quattro', 'align' );
-	$color = Config::get('quattro', 'color' );
-	$tfs = Config::get("quattro","tfs");
-	$pfs = Config::get("quattro","pfs");
+	$align = DI::config()->get('quattro', 'align' );
+	$color = DI::config()->get('quattro', 'color' );
+	$tfs = DI::config()->get("quattro","tfs");
+	$pfs = DI::config()->get("quattro","pfs");
 
 	return quattro_form($a,$align, $color, $tfs, $pfs);
 }

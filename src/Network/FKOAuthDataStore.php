@@ -151,7 +151,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$ret = null;
 
 		// get user for this verifier
-		$uverifier = Config::get("oauth", $verifier);
+		$uverifier = DI::config()->get("oauth", $verifier);
 		Logger::log(__function__ . ":" . $verifier . "," . $uverifier);
 
 		if (is_null($verifier) || ($uverifier !== false)) {

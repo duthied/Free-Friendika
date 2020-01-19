@@ -91,7 +91,7 @@ class Diaspora
 		$serverlist = [];
 
 		// Fetching relay servers
-		$serverdata = Config::get("system", "relay_server");
+		$serverdata = DI::config()->get("system", "relay_server");
 
 		if (!empty($serverdata)) {
 			$servers = explode(",", $serverdata);
@@ -100,7 +100,7 @@ class Diaspora
 			}
 		}
 
-		if (Config::get("system", "relay_directly", false)) {
+		if (DI::config()->get("system", "relay_directly", false)) {
 			// We distribute our stuff based on the parent to ensure that the thread will be complete
 			$parent = Item::selectFirst(['parent'], ['id' => $item_id]);
 			if (!DBA::isResult($parent)) {
@@ -668,7 +668,7 @@ class Diaspora
 	 */
 	public static function dispatchPublic($msg)
 	{
-		$enabled = intval(Config::get("system", "diaspora_enabled"));
+		$enabled = intval(DI::config()->get("system", "diaspora_enabled"));
 		if (!$enabled) {
 			Logger::log("diaspora is disabled");
 			return false;
@@ -3133,7 +3133,7 @@ class Diaspora
 	 */
 	private static function transmit(array $owner, array $contact, $envelope, $public_batch, $guid = "")
 	{
-		$enabled = intval(Config::get("system", "diaspora_enabled"));
+		$enabled = intval(DI::config()->get("system", "diaspora_enabled"));
 		if (!$enabled) {
 			return 200;
 		}
@@ -3160,7 +3160,7 @@ class Diaspora
 
 		Logger::log("transmit: ".$logid."-".$guid." ".$dest_url);
 
-		if (!intval(Config::get("system", "diaspora_test"))) {
+		if (!intval(DI::config()->get("system", "diaspora_test"))) {
 			$content_type = (($public_batch) ? "application/magic-envelope+xml" : "application/json");
 
 			$postResult = Network::post($dest_url."/", $envelope, ["Content-Type: ".$content_type]);
@@ -3772,7 +3772,7 @@ class Diaspora
 		if (
 			$item['author-id'] != $thread_parent_item['author-id']
 			&& (empty($item['uid']) || !Feature::isEnabled($item['uid'], 'explicit_mentions'))
-			&& !Config::get('system', 'disable_implicit_mentions')
+			&& !DI::config()->get('system', 'disable_implicit_mentions')
 		) {
 			$body = self::prependParentAuthorMention($body, $thread_parent_item['author-link']);
 		}

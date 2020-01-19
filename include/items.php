@@ -73,7 +73,7 @@ function add_page_info_data(array $data, $no_photos = false)
 		$preview = str_replace(["[", "]"], ["&#91;", "&#93;"], htmlentities($data["images"][0]["src"], ENT_QUOTES, 'UTF-8', false));
 		// if the preview picture is larger than 500 pixels then show it in a larger mode
 		// But only, if the picture isn't higher than large (To prevent huge posts)
-		if (!Config::get('system', 'always_show_preview') && ($data["images"][0]["width"] >= 500)
+		if (!DI::config()->get('system', 'always_show_preview') && ($data["images"][0]["width"] >= 500)
 			&& ($data["images"][0]["width"] >= $data["images"][0]["height"])) {
 			$text .= " image='".$preview."'";
 		} else {

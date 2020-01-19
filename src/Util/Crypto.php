@@ -240,7 +240,7 @@ class Crypto
 			'encrypt_key'      => false
 		];
 
-		$conf = Config::get('system', 'openssl_conf_file');
+		$conf = DI::config()->get('system', 'openssl_conf_file');
 		if ($conf) {
 			$openssl_options['config'] = $conf;
 		}

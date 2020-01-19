@@ -33,7 +33,7 @@ function theme_post(App $a)
 
 function theme_admin(App $a)
 {
-	$colorset = Config::get('duepuntozero', 'colorset');
+	$colorset = DI::config()->get('duepuntozero', 'colorset');
 	$user = false;
 
 	return clean_form($a, $colorset, $user);
@@ -62,7 +62,7 @@ function clean_form(App $a, &$colorset, $user)
 	if ($user) {
 		$color = DI::pConfig()->get(local_user(), 'duepuntozero', 'colorset');
 	} else {
-		$color = Config::get('duepuntozero', 'colorset');
+		$color = DI::config()->get('duepuntozero', 'colorset');
 	}
 
 	$t = Renderer::getMarkupTemplate("theme_settings.tpl");

@@ -115,7 +115,7 @@ class Image
 			 */
 			switch ($this->getType()) {
 				case "image/png":
-					$quality = Config::get('system', 'png_quality');
+					$quality = DI::config()->get('system', 'png_quality');
 					if ((! $quality) || ($quality > 9)) {
 						$quality = PNG_QUALITY;
 					}
@@ -131,7 +131,7 @@ class Image
 					$this->image->setCompressionQuality($quality);
 					break;
 				case "image/jpeg":
-					$quality = Config::get('system', 'jpeg_quality');
+					$quality = DI::config()->get('system', 'jpeg_quality');
 					if ((! $quality) || ($quality > 100)) {
 						$quality = JPEG_QUALITY;
 					}
@@ -652,14 +652,14 @@ class Image
 
 		switch ($this->getType()) {
 			case "image/png":
-				$quality = Config::get('system', 'png_quality');
+				$quality = DI::config()->get('system', 'png_quality');
 				if ((!$quality) || ($quality > 9)) {
 					$quality = PNG_QUALITY;
 				}
 				imagepng($this->image, null, $quality);
 				break;
 			case "image/jpeg":
-				$quality = Config::get('system', 'jpeg_quality');
+				$quality = DI::config()->get('system', 'jpeg_quality');
 				if ((!$quality) || ($quality > 100)) {
 					$quality = JPEG_QUALITY;
 				}

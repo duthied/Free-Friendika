@@ -20,21 +20,6 @@ use Friendica\DI;
 class Config
 {
 	/**
-	 * Get a particular user's config variable given the category name ($family) and a key.
-	 *
-	 * @param string  $cat        The category of the configuration value
-	 * @param string  $key           The configuration key to query
-	 * @param mixed   $default_value optional, The value to return if key is not set (default: null)
-	 * @param boolean $refresh       optional, If true the config is loaded from the db and not from the cache (default: false)
-	 *
-	 * @return mixed Stored value or null if it does not exist
-	 */
-	public static function get($cat, $key, $default_value = null, $refresh = false)
-	{
-		return DI::config()->get($cat, $key, $default_value, $refresh);
-	}
-
-	/**
 	 * Stores a config value ($value) in the category ($cat) under the key ($key)
 	 *
 	 * Note: Please do not store booleans - convert to 0/1 integer values!

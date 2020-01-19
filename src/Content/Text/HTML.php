@@ -912,7 +912,7 @@ class HTML
 				'contacts' => DI::l10n()->t('Contacts')
 			];
 
-			if (Config::get('system', 'poco_local_search')) {
+			if (DI::config()->get('system', 'poco_local_search')) {
 				$values['$searchoption']['forums'] = DI::l10n()->t('Forums');
 			}
 		}

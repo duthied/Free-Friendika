@@ -128,7 +128,7 @@ function dfrn_notify_post(App $a) {
 		System::xmlExit(0, 'relationship dissolved');
 	}
 
-	$rino = Config::get('system', 'rino_encrypt');
+	$rino = DI::config()->get('system', 'rino_encrypt');
 	$rino = intval($rino);
 
 	if (strlen($key)) {
@@ -343,7 +343,7 @@ function dfrn_notify_content(App $a) {
 		$encrypted_id = bin2hex($encrypted_id);
 
 
-		$rino = Config::get('system', 'rino_encrypt');
+		$rino = DI::config()->get('system', 'rino_encrypt');
 		$rino = intval($rino);
 
 		Logger::log("Local rino version: ". $rino, Logger::DATA);

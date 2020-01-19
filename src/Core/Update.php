@@ -29,11 +29,11 @@ class Update
 		}
 
 		// Don't check the status if the last update was failed
-		if (Config::get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
+		if (DI::config()->get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
 			return;
 		}
 
-		$build = Config::get('system', 'build');
+		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {
 			Config::set('system', 'build', DB_UPDATE_VERSION - 1);
@@ -77,7 +77,7 @@ class Update
 			DI::lock()->release('dbupdate', true);
 		}
 
-		$build = Config::get('system', 'build', null, true);
+		$build = DI::config()->get('system', 'build', null, true);
 
 		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
 			$build = DB_UPDATE_VERSION - 1;
@@ -99,7 +99,7 @@ class Update
 				if (DI::lock()->acquire('dbupdate', 120, Cache\Duration::INFINITE)) {
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
-					$retryBuild = Config::get('system', 'build', null, true);
+					$retryBuild = DI::config()->get('system', 'build', null, true);
 					if ($retryBuild !== $build) {
 						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
 						DI::lock()->release('dbupdate');
@@ -232,7 +232,7 @@ class Update
 	 */
 	private static function updateFailed($update_id, $error_message) {
 		//send the administrators an e-mail
-		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$condition = ['email' => explode(",", str_replace(" ", "", DI::config()->get('config', 'admin_email'))), 'parent-uid' => 0];
 		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		// No valid result?
@@ -281,7 +281,7 @@ class Update
 	private static function updateSuccessfull($from_build, $to_build)
 	{
 		//send the administrators an e-mail
-		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$condition = ['email' => explode(",", str_replace(" ", "", DI::config()->get('config', 'admin_email'))), 'parent-uid' => 0];
 		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		if (DBA::isResult($adminlist)) {

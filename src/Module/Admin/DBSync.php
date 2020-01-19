@@ -25,7 +25,7 @@ class DBSync extends BaseAdminModule
 			$update = intval($a->argv[3]);
 			if ($update) {
 				Config::set('database', 'update_' . $update, 'success');
-				$curr = Config::get('system', 'build');
+				$curr = DI::config()->get('system', 'build');
 				if (intval($curr) == $update) {
 					Config::set('system', 'build', intval($curr) + 1);
 				}

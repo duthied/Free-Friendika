@@ -21,7 +21,7 @@ if (!isset($minimal)) {
 $basepath = DI::baseUrl()->getUrlPath() ? "/" . DI::baseUrl()->getUrlPath() . "/" : "/";
 $frio = "view/theme/frio";
 $view_mode_class = (DI::mode()->isMobile() || DI::mode()->isMobile()) ? 'mobile-view' : 'desktop-view';
-$is_singleuser = Config::get('system', 'singleuser');
+$is_singleuser = DI::config()->get('system', 'singleuser');
 $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 ?>
 <html>
@@ -53,7 +53,7 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 		}
 
 		if (empty($nav_bg)) {
-			$nav_bg = Config::get('frio', 'nav_bg');
+			$nav_bg = DI::config()->get('frio', 'nav_bg');
 		}
 
 		if (empty($nav_bg) || !is_string($nav_bg)) {
@@ -70,10 +70,10 @@ $is_singleuser_class = $is_singleuser ? "is-singleuser" : "is-not-singleuser";
 	if (!empty($page['nav']) && !$minimal) {
 		echo str_replace(
 			"~config.sitename~",
-			Config::get('config', 'sitename'),
+			DI::config()->get('config', 'sitename'),
 			str_replace(
 				"~system.banner~",
-				Config::get('system', 'banner'),
+				DI::config()->get('system', 'banner'),
 				$page['nav']
 			)
 		);

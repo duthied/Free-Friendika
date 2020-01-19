@@ -20,7 +20,7 @@ class Contacts extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 

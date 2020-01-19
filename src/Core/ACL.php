@@ -349,7 +349,7 @@ class ACL
 			$mail_enabled = false;
 			$pubmail_enabled = false;
 
-			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
+			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
 				$mailacct = DBA::selectFirst('mailacct', ['pubmail'], ['`uid` = ? AND `server` != ""', $user['uid']]);
 				if (DBA::isResult($mailacct)) {
 					$mail_enabled = true;

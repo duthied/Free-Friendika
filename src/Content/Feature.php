@@ -21,14 +21,14 @@ class Feature
 	 */
 	public static function isEnabled(int $uid, $feature)
 	{
-		$x = Config::get('feature_lock', $feature, false);
+		$x = DI::config()->get('feature_lock', $feature, false);
 
 		if ($x === false) {
 			$x = DI::pConfig()->get($uid, 'feature', $feature, false);
 		}
 
 		if ($x === false) {
-			$x = Config::get('feature', $feature, false);
+			$x = DI::config()->get('feature', $feature, false);
 		}
 
 		if ($x === false) {
@@ -80,45 +80,45 @@ class Feature
 			'general' => [
 				DI::l10n()->t('General Features'),
 				//array('expire',         DI::l10n()->t('Content Expiration'),		DI::l10n()->t('Remove old posts/comments after a period of time')),
-				['multi_profiles',  DI::l10n()->t('Multiple Profiles'),      DI::l10n()->t('Ability to create multiple profiles'), false, Config::get('feature_lock', 'multi_profiles', false)],
-				['photo_location',  DI::l10n()->t('Photo Location'),         DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, Config::get('feature_lock', 'photo_location', false)],
-				['export_calendar', DI::l10n()->t('Export Public Calendar'), DI::l10n()->t('Ability for visitors to download the public calendar'), false, Config::get('feature_lock', 'export_calendar', false)],
-				['trending_tags',   DI::l10n()->t('Trending Tags'),          DI::l10n()->t('Show a community page widget with a list of the most popular tags in recent public posts.'), false, Config::get('feature_lock', 'trending_tags', false)],
+				['multi_profiles',  DI::l10n()->t('Multiple Profiles'),      DI::l10n()->t('Ability to create multiple profiles'), false, DI::config()->get('feature_lock', 'multi_profiles', false)],
+				['photo_location',  DI::l10n()->t('Photo Location'),         DI::l10n()->t("Photo metadata is normally stripped. This extracts the location \x28if present\x29 prior to stripping metadata and links it to a map."), false, DI::config()->get('feature_lock', 'photo_location', false)],
+				['export_calendar', DI::l10n()->t('Export Public Calendar'), DI::l10n()->t('Ability for visitors to download the public calendar'), false, DI::config()->get('feature_lock', 'export_calendar', false)],
+				['trending_tags',   DI::l10n()->t('Trending Tags'),          DI::l10n()->t('Show a community page widget with a list of the most popular tags in recent public posts.'), false, DI::config()->get('feature_lock', 'trending_tags', false)],
 			],
 
 			// Post composition
 			'composition' => [
 				DI::l10n()->t('Post Composition Features'),
-				['aclautomention', DI::l10n()->t('Auto-mention Forums'), DI::l10n()->t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, Config::get('feature_lock', 'aclautomention', false)],
-				['explicit_mentions', DI::l10n()->t('Explicit Mentions'), DI::l10n()->t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, Config::get('feature_lock', 'explicit_mentions', false)],
+				['aclautomention', DI::l10n()->t('Auto-mention Forums'), DI::l10n()->t('Add/remove mention when a forum page is selected/deselected in ACL window.'), false, DI::config()->get('feature_lock', 'aclautomention', false)],
+				['explicit_mentions', DI::l10n()->t('Explicit Mentions'), DI::l10n()->t('Add explicit mentions to comment box for manual control over who gets mentioned in replies.'), false, DI::config()->get('feature_lock', 'explicit_mentions', false)],
 			],
 
 			// Network sidebar widgets
 			'widgets' => [
 				DI::l10n()->t('Network Sidebar'),
-				['archives',         DI::l10n()->t('Archives'), DI::l10n()->t('Ability to select posts by date ranges'), false, Config::get('feature_lock', 'archives', false)],
-				['networks',         DI::l10n()->t('Protocol Filter'), DI::l10n()->t('Enable widget to display Network posts only from selected protocols'), false, Config::get('feature_lock', 'networks', false)],
+				['archives',         DI::l10n()->t('Archives'), DI::l10n()->t('Ability to select posts by date ranges'), false, DI::config()->get('feature_lock', 'archives', false)],
+				['networks',         DI::l10n()->t('Protocol Filter'), DI::l10n()->t('Enable widget to display Network posts only from selected protocols'), false, DI::config()->get('feature_lock', 'networks', false)],
 			],
 
 			// Network tabs
 			'net_tabs' => [
 				DI::l10n()->t('Network Tabs'),
-				['new_tab',      DI::l10n()->t('Network New Tab'),          DI::l10n()->t("Enable tab to display only new Network posts \x28from the last 12 hours\x29"), false, Config::get('feature_lock', 'new_tab', false)],
-				['link_tab',     DI::l10n()->t('Network Shared Links Tab'), DI::l10n()->t('Enable tab to display only Network posts with links in them'), false, Config::get('feature_lock', 'link_tab', false)],
+				['new_tab',      DI::l10n()->t('Network New Tab'),          DI::l10n()->t("Enable tab to display only new Network posts \x28from the last 12 hours\x29"), false, DI::config()->get('feature_lock', 'new_tab', false)],
+				['link_tab',     DI::l10n()->t('Network Shared Links Tab'), DI::l10n()->t('Enable tab to display only Network posts with links in them'), false, DI::config()->get('feature_lock', 'link_tab', false)],
 			],
 
 			// Item tools
 			'tools' => [
 				DI::l10n()->t('Post/Comment Tools'),
-				['categories',   DI::l10n()->t('Post Categories'),         DI::l10n()->t('Add categories to your posts'), false, Config::get('feature_lock', 'categories', false)],
+				['categories',   DI::l10n()->t('Post Categories'),         DI::l10n()->t('Add categories to your posts'), false, DI::config()->get('feature_lock', 'categories', false)],
 			],
 
 			// Advanced Profile Settings
 			'advanced_profile' => [
 				DI::l10n()->t('Advanced Profile Settings'),
-				['forumlist_profile',   DI::l10n()->t('List Forums'),             DI::l10n()->t('Show visitors public community forums at the Advanced Profile Page'), false, Config::get('feature_lock', 'forumlist_profile', false)],
-				['tagadelic',           DI::l10n()->t('Tag Cloud'),               DI::l10n()->t('Provide a personal tag cloud on your profile page'), false, Config::get('feature_lock', 'tagadelic', false)],
-				['profile_membersince', DI::l10n()->t('Display Membership Date'), DI::l10n()->t('Display membership date in profile'), false, Config::get('feature_lock', 'profile_membersince', false)],
+				['forumlist_profile',   DI::l10n()->t('List Forums'),             DI::l10n()->t('Show visitors public community forums at the Advanced Profile Page'), false, DI::config()->get('feature_lock', 'forumlist_profile', false)],
+				['tagadelic',           DI::l10n()->t('Tag Cloud'),               DI::l10n()->t('Provide a personal tag cloud on your profile page'), false, DI::config()->get('feature_lock', 'tagadelic', false)],
+				['profile_membersince', DI::l10n()->t('Display Membership Date'), DI::l10n()->t('Display membership date in profile'), false, DI::config()->get('feature_lock', 'profile_membersince', false)],
 			],
 		];
 

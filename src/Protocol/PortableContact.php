@@ -295,8 +295,8 @@ class PortableContact
 				self::discoverServer($data, 2);
 			}
 
-			if (Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS) {
-				$timeframe = Config::get('system', 'poco_discovery_since');
+			if (DI::config()->get('system', 'poco_discovery') >= self::USERS_GCONTACTS) {
+				$timeframe = DI::config()->get('system', 'poco_discovery_since');
 
 				if ($timeframe == 0) {
 					$timeframe = 30;
@@ -320,7 +320,7 @@ class PortableContact
 					}
 				}
 
-				if (!$success && !empty($data) && Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
+				if (!$success && !empty($data) && DI::config()->get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
 					Logger::info("Fetch contacts from users of the server " . $server["nurl"]);
 					self::discoverServerUsers($data, $server);
 				}

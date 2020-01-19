@@ -489,7 +489,7 @@ class DFRN
 	{
 
 		/* get site pubkey. this could be a new installation with no site keys*/
-		$pubkey = Config::get('system', 'site_pubkey');
+		$pubkey = DI::config()->get('system', 'site_pubkey');
 		if (! $pubkey) {
 			$res = Crypto::newKeypair(1024);
 			Config::set('system', 'site_prvkey', $res['prvkey']);
@@ -527,7 +527,7 @@ class DFRN
 		XML::addElement($doc, $relocate, "dfrn:confirm", $owner['confirm']);
 		XML::addElement($doc, $relocate, "dfrn:notify", $owner['notify']);
 		XML::addElement($doc, $relocate, "dfrn:poll", $owner['poll']);
-		XML::addElement($doc, $relocate, "dfrn:sitepubkey", Config::get('system', 'site_pubkey'));
+		XML::addElement($doc, $relocate, "dfrn:sitepubkey", DI::config()->get('system', 'site_pubkey'));
 
 		$root->appendChild($relocate);
 
@@ -1192,12 +1192,12 @@ class DFRN
 			$idtosend = '1:' . $orig_id;
 		}
 
-		$rino = Config::get('system', 'rino_encrypt');
+		$rino = DI::config()->get('system', 'rino_encrypt');
 		$rino = intval($rino);
 
 		Logger::log("Local rino version: ". $rino, Logger::DEBUG);
 
-		$ssl_val = intval(Config::get('system', 'ssl_policy'));
+		$ssl_val = intval(DI::config()->get('system', 'ssl_policy'));
 
 		switch ($ssl_val) {
 			case BaseURL::SSL_POLICY_FULL:

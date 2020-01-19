@@ -30,7 +30,7 @@ class Inbox extends BaseModule
 			throw new \Friendica\Network\HTTPException\BadRequestException();
 		}
 
-		if (Config::get('debug', 'ap_inbox_log')) {
+		if (DI::config()->get('debug', 'ap_inbox_log')) {
 			if (HTTPSignature::getSigner($postdata, $_SERVER)) {
 				$filename = 'signed-activitypub';
 			} else {

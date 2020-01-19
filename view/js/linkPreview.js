@@ -352,7 +352,7 @@
 
 			for (i = 0; i < images.length; i++) {
 				// For small preview images we use a smaller attachment format.
-				///@todo here we need to add a check for !Config::get('system', 'always_show_preview').
+				///@todo here we need to add a check for !DI::config()->get('system', 'always_show_preview').
 				if (images[i].width >= 500 && images[i].width >= images[i].height) {
 						imageClass = 'attachment-image';
 				}

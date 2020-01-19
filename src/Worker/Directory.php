@@ -17,7 +17,7 @@ class Directory
 {
 	public static function execute($url = '')
 	{
-		$dir = Config::get('system', 'directory');
+		$dir = DI::config()->get('system', 'directory');
 
 		if (!strlen($dir)) {
 			return;

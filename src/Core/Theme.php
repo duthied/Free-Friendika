@@ -19,7 +19,7 @@ class Theme
 {
 	public static function getAllowedList()
 	{
-		$allowed_themes_str = Config::get('system', 'allowed_themes');
+		$allowed_themes_str = DI::config()->get('system', 'allowed_themes');
 		$allowed_themes_raw = explode(',', str_replace(' ', '', $allowed_themes_str));
 		$allowed_themes = [];
 		if (count($allowed_themes_raw)) {

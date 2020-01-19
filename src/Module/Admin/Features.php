@@ -53,7 +53,7 @@ class Features extends BaseAdminModule
 			$arr[$fname] = [];
 			$arr[$fname][0] = $fdata[0];
 			foreach (array_slice($fdata, 1) as $f) {
-				$set = Config::get('feature', $f[0], $f[3]);
+				$set = DI::config()->get('feature', $f[0], $f[3]);
 				$arr[$fname][1][] = [
 					['feature_' . $f[0], $f[1], $set, $f[2], [DI::l10n()->t('Off'), DI::l10n()->t('On')]],
 					['featurelock_' . $f[0], DI::l10n()->t('Lock feature %s', $f[1]), (($f[4] !== false) ? "1" : ''), '', [DI::l10n()->t('Off'), DI::l10n()->t('On')]]

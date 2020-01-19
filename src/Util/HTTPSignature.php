@@ -241,7 +241,7 @@ class HTTPSignature
 		$iv = $key = $alg = $data = null;
 
 		if (!$prvkey) {
-			$prvkey = Config::get('system', 'prvkey');
+			$prvkey = DI::config()->get('system', 'prvkey');
 		}
 
 		$matches = [];

@@ -22,7 +22,7 @@ class Server extends BaseAdminModule
 
 		if (!empty($_POST['page_blocklist_save'])) {
 			//  Add new item to blocklist
-			$blocklist = Config::get('system', 'blocklist');
+			$blocklist = DI::config()->get('system', 'blocklist');
 			$blocklist[] = [
 				'domain' => Strings::escapeTags(trim($_POST['newentry_domain'])),
 				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
@@ -54,7 +54,7 @@ class Server extends BaseAdminModule
 	{
 		parent::content($parameters);
 
-		$blocklist = Config::get('system', 'blocklist');
+		$blocklist = DI::config()->get('system', 'blocklist');
 		$blocklistform = [];
 		if (is_array($blocklist)) {
 			foreach ($blocklist as $id => $b) {

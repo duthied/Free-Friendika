@@ -13,7 +13,7 @@ use Friendica\DI;
 
 function uimport_post(App $a)
 {
-	if ((Config::get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
+	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
 		notice(DI::l10n()->t('Permission denied.') . EOL);
 		return;
 	}
@@ -26,12 +26,12 @@ function uimport_post(App $a)
 
 function uimport_content(App $a)
 {
-	if ((Config::get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
+	if ((DI::config()->get('config', 'register_policy') != \Friendica\Module\Register::OPEN) && !is_site_admin()) {
 		notice(DI::l10n()->t('User imports on closed servers can only be done by an administrator.') . EOL);
 		return;
 	}
 
-	$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
+	$max_dailies = intval(DI::config()->get('system', 'max_daily_registrations'));
 	if ($max_dailies) {
 		$r = q("select count(*) as total from user where register_date > UTC_TIMESTAMP - INTERVAL 1 day");
 		if ($r && $r[0]['total'] >= $max_dailies) {

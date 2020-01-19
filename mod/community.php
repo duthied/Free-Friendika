@@ -21,12 +21,12 @@ function community_content(App $a, $update = 0)
 {
 	$o = '';
 
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(DI::l10n()->t('Public access denied.') . EOL);
 		return;
 	}
 
-	$page_style = Config::get('system', 'community_page_style');
+	$page_style = DI::config()->get('system', 'community_page_style');
 
 	if ($page_style == CP_NO_INTERNAL_COMMUNITY) {
 		notice(DI::l10n()->t('Access denied.') . EOL);
@@ -55,7 +55,7 @@ function community_content(App $a, $update = 0)
 	if ($a->argc > 1) {
 		$content = $a->argv[1];
 	} else {
-		if (!empty(Config::get('system', 'singleuser'))) {
+		if (!empty(DI::config()->get('system', 'singleuser'))) {
 			// On single user systems only the global page does make sense
 			$content = 'global';
 		} else {
@@ -90,7 +90,7 @@ function community_content(App $a, $update = 0)
 	if (!$update) {
 		$tabs = [];
 
-		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(Config::get('system', 'singleuser'))) {
+		if ((local_user() || in_array($page_style, [CP_USERS_AND_GLOBAL, CP_USERS_ON_SERVER])) && empty(DI::config()->get('system', 'singleuser'))) {
 			$tabs[] = [
 				'label' => DI::l10n()->t('Local Community'),
 				'url' => 'community/local',
@@ -156,7 +156,7 @@ function community_content(App $a, $update = 0)
 		return $o;
 	}
 
-	$maxpostperauthor = (int) Config::get('system', 'max_author_posts_community_page');
+	$maxpostperauthor = (int) DI::config()->get('system', 'max_author_posts_community_page');
 
 	if (($maxpostperauthor != 0) && ($content == 'local')) {
 		$count = 1;
@@ -203,7 +203,7 @@ function community_content(App $a, $update = 0)
 	return Renderer::replaceMacros($t, [
 		'$content' => $o,
 		'$header' => '',
-		'$show_global_community_hint' => ($content == 'global') && Config::get('system', 'show_global_community_hint'),
+		'$show_global_community_hint' => ($content == 'global') && DI::config()->get('system', 'show_global_community_hint'),
 		'$global_community_hint' => DI::l10n()->t("This community stream shows all public posts received by this node. They may not reflect the opinions of this node’s users.")
 	]);
 }

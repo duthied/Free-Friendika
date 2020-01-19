@@ -850,7 +850,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation_add_children(array $parents, $block_authors, $order, $uid) {
-	$max_comments = Config::get('system', 'max_comments', 100);
+	$max_comments = DI::config()->get('system', 'max_comments', 100);
 
 	$params = ['order' => ['uid', 'commented' => true]];
 

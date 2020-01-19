@@ -20,7 +20,7 @@ use Friendica\Util\XML;
 function poco_init(App $a) {
 	$system_mode = false;
 
-	if (intval(Config::get('system', 'block_public')) || (Config::get('system', 'block_local_dir'))) {
+	if (intval(DI::config()->get('system', 'block_public')) || (DI::config()->get('system', 'block_local_dir'))) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 

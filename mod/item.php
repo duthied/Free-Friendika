@@ -315,7 +315,7 @@ function item_post(App $a) {
 
 		// if using the API, we won't see pubmail_enable - figure out if it should be set
 		if ($api_source && $profile_uid && $profile_uid == local_user() && !$private) {
-			if (function_exists('imap_open') && !Config::get('system', 'imap_disabled')) {
+			if (function_exists('imap_open') && !DI::config()->get('system', 'imap_disabled')) {
 				$pubmail_enabled = DBA::exists('mailacct', ["`uid` = ? AND `server` != ? AND `pubmail`", local_user(), '']);
 			}
 		}
@@ -1060,7 +1060,7 @@ function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network =
 
 function item_add_implicit_mentions(array $tags, array $thread_parent_contact, $thread_parent_id)
 {
-	if (Config::get('system', 'disable_implicit_mentions')) {
+	if (DI::config()->get('system', 'disable_implicit_mentions')) {
 		// Add a tag if the parent contact is from ActivityPub or OStatus (This will notify them)
 		if (in_array($thread_parent_contact['network'], [Protocol::OSTATUS, Protocol::ACTIVITYPUB])) {
 			$contact = Term::TAG_CHARACTER[Term::MENTION] . '[url=' . $thread_parent_contact['url'] . ']' . $thread_parent_contact['nick'] . '[/url]';

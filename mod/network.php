@@ -357,7 +357,7 @@ function networkFlatView(App $a, $update = 0)
 
 		$o .= status_editor($a, $x);
 
-		if (!Config::get('theme', 'hide_eventlist')) {
+		if (!DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= Profile::getBirthdays();
 			$o .= Profile::getEventsReminderHTML();
 		}
@@ -620,7 +620,7 @@ function networkThreadedView(App $a, $update, $parent)
 		}
 	}
 
-	if (!$gid && !$cid && !$update && !Config::get('theme', 'hide_eventlist')) {
+	if (!$gid && !$cid && !$update && !DI::config()->get('theme', 'hide_eventlist')) {
 		$o .= Profile::getBirthdays();
 		$o .= Profile::getEventsReminderHTML();
 	}
@@ -703,7 +703,7 @@ function networkThreadedView(App $a, $update, $parent)
 		} else {
 			// Load all unseen items
 			$sql_extra4 = "`item`.`unseen`";
-			if (Config::get("system", "like_no_comment")) {
+			if (DI::config()->get("system", "like_no_comment")) {
 				$sql_extra4 .= " AND `item`.`gravity` IN (" . GRAVITY_PARENT . "," . GRAVITY_COMMENT . ")";
 			}
 			if ($order === 'post') {

@@ -46,7 +46,7 @@ if (DI::mode()->isInstall()) {
 
 DI::config()->load();
 
-if (empty(Config::get('system', 'pidfile'))) {
+if (empty(DI::config()->get('system', 'pidfile'))) {
 	die(<<<TXT
 Please set system.pidfile in config/local.config.php. For example:
     
@@ -57,7 +57,7 @@ TXT
     );
 }
 
-$pidfile = Config::get('system', 'pidfile');
+$pidfile = DI::config()->get('system', 'pidfile');
 
 if (in_array("start", $_SERVER["argv"])) {
 	$mode = "start";
@@ -158,7 +158,7 @@ Config::set('system', 'worker_daemon_mode', true);
 // Just to be sure that this script really runs endlessly
 set_time_limit(0);
 
-$wait_interval = intval(Config::get('system', 'cron_interval', 5)) * 60;
+$wait_interval = intval(DI::config()->get('system', 'cron_interval', 5)) * 60;
 
 $do_cron = true;
 $last_cron = 0;

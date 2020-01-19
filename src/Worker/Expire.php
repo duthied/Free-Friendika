@@ -45,7 +45,7 @@ class Expire
 			Logger::log('Orphaned item content deleted: ' . DBA::affectedRows(), Logger::DEBUG);
 
 			// make this optional as it could have a performance impact on large sites
-			if (intval(Config::get('system', 'optimize_items'))) {
+			if (intval(DI::config()->get('system', 'optimize_items'))) {
 				DBA::e("OPTIMIZE TABLE `item`");
 			}
 

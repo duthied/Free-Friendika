@@ -49,7 +49,7 @@ function dfrn_poll_init(App $a)
 	$hidewall = false;
 
 	if (($dfrn_id === '') && empty($_POST['dfrn_id'])) {
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\ForbiddenException();
 		}
 

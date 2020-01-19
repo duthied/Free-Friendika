@@ -60,9 +60,9 @@ function notification($params)
 	$product = FRIENDICA_PLATFORM;
 	$siteurl = DI::baseUrl()->get(true);
 	$thanks = $l10n->t('Thank You,');
-	$sitename = Config::get('config', 'sitename');
-	if (Config::get('config', 'admin_name')) {
-		$site_admin = $l10n->t('%1$s, %2$s Administrator', Config::get('config', 'admin_name'), $sitename);
+	$sitename = DI::config()->get('config', 'sitename');
+	if (DI::config()->get('config', 'admin_name')) {
+		$site_admin = $l10n->t('%1$s, %2$s Administrator', DI::config()->get('config', 'admin_name'), $sitename);
 	} else {
 		$site_admin = $l10n->t('%s Administrator', $sitename);
 	}
@@ -587,7 +587,7 @@ function notification($params)
 
 		// check whether sending post content in email notifications is allowed
 		// always true for SYSTEM_EMAIL
-		$content_allowed = ((!Config::get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
+		$content_allowed = ((!DI::config()->get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
 		$tpl = Renderer::getMarkupTemplate('email_notify_html.tpl');

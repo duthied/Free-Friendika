@@ -9,8 +9,8 @@ $uid = $_REQUEST['puid'] ?? 0;
 
 $color = false;
 $quattro_align = false;
-$site_color = Config::get("quattro", "color", "dark");
-$site_quattro_align = Config::get("quattro", "align", false);
+$site_color = DI::config()->get("quattro", "color", "dark");
+$site_quattro_align = DI::config()->get("quattro", "align", false);
 
 if ($uid) {
 	$color = DI::pConfig()->get($uid, "quattro", "color", false);
@@ -46,8 +46,8 @@ if ($quattro_align == "center") {
 $textarea_font_size = false;
 $post_font_size = false;
 
-$site_textarea_font_size = Config::get("quattro", "tfs", "20");
-$site_post_font_size = Config::get("quattro", "pfs", "12");
+$site_textarea_font_size = DI::config()->get("quattro", "tfs", "20");
+$site_post_font_size = DI::config()->get("quattro", "pfs", "12");
 
 if ($uid) {
 	$textarea_font_size = DI::pConfig()->get($uid, "quattro", "tfs", false);

@@ -15,7 +15,7 @@ class Apps extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
-		$privateaddons = Config::get('config', 'private_addons');
+		$privateaddons = DI::config()->get('config', 'private_addons');
 		if ($privateaddons === "1" && !local_user()) {
 			DI::baseUrl()->redirect();
 		}

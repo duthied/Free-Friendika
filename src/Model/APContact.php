@@ -33,7 +33,7 @@ class APContact
 			return false;
 		}
 
-		$xrd_timeout = Config::get('system', 'xrd_timeout');
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 
 		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 

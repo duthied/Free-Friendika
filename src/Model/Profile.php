@@ -183,7 +183,7 @@ class Profile
 		$a->profile['mobile-theme'] = DI::pConfig()->get($a->profile['profile_uid'], 'system', 'mobile_theme');
 		$a->profile['network'] = Protocol::DFRN;
 
-		DI::page()['title'] = $a->profile['name'] . ' @ ' . Config::get('config', 'sitename');
+		DI::page()['title'] = $a->profile['name'] . ' @ ' . DI::config()->get('config', 'sitename');
 
 		if (!$profiledata && !DI::pConfig()->get(local_user(), 'system', 'always_my_theme')) {
 			$a->setCurrentTheme($a->profile['theme']);
@@ -211,7 +211,7 @@ class Profile
 			);
 		}
 
-		$block = ((Config::get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
+		$block = ((DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
 
 		/**
 		 * @todo
@@ -1231,7 +1231,7 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
+		$publish = (DI::config()->get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
 		$total = 0;
 
 		if (!empty($search)) {

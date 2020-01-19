@@ -77,7 +77,7 @@ class Index extends BaseAdminModule
 				$is_supported = 1 - (intval(file_exists($file . '/unsupported')));
 				$is_allowed = intval(in_array($theme, $allowed_themes));
 
-				if ($is_allowed || $is_supported || Config::get('system', 'show_unsupported_themes')) {
+				if ($is_allowed || $is_supported || DI::config()->get('system', 'show_unsupported_themes')) {
 					$themes[] = ['name' => $theme, 'experimental' => $is_experimental, 'supported' => $is_supported, 'allowed' => $is_allowed];
 				}
 			}

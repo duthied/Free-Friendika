@@ -117,7 +117,7 @@ function crepair_content(App $a)
 
 	$returnaddr = "contact/$cid";
 
-	$allow_remote_self = Config::get('system', 'allow_users_remote_self');
+	$allow_remote_self = DI::config()->get('system', 'allow_users_remote_self');
 
 	// Disable remote self for everything except feeds.
 	// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter

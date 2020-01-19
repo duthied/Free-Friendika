@@ -13,7 +13,7 @@ use Friendica\Util\DateTimeFormat;
 function worker_init()
 {
 
-	if (!Config::get("system", "frontend_worker")) {
+	if (!DI::config()->get("system", "frontend_worker")) {
 		return;
 	}
 
@@ -31,7 +31,7 @@ function worker_init()
 
 	$workers = q("SELECT COUNT(*) AS `processes` FROM `process` WHERE `command` = 'worker.php'");
 
-	if ($workers[0]["processes"] > Config::get("system", "worker_queues", 4)) {
+	if ($workers[0]["processes"] > DI::config()->get("system", "worker_queues", 4)) {
 		return;
 	}
 

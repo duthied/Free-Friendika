@@ -55,7 +55,7 @@ function match_content(App $a)
 	$params['s'] = $tags;
 	$params['n'] = 100;
 
-	if (strlen(Config::get('system', 'directory'))) {
+	if (strlen(DI::config()->get('system', 'directory'))) {
 		$host = Search::getGlobalDirectory();
 	} else {
 		$host = DI::baseUrl();

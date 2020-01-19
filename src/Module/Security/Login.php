@@ -28,7 +28,7 @@ class Login extends BaseModule
 			DI::baseUrl()->redirect();
 		}
 
-		return self::form(Session::get('return_path'), intval(Config::get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
+		return self::form(Session::get('return_path'), intval(DI::config()->get('config', 'register_policy')) !== \Friendica\Module\Register::CLOSED);
 	}
 
 	public static function post(array $parameters = [])
@@ -76,7 +76,7 @@ class Login extends BaseModule
 	{
 		$o = '';
 
-		$noid = Config::get('system', 'no_openid');
+		$noid = DI::config()->get('system', 'no_openid');
 
 		if ($noid) {
 			Session::remove('openid_identity');

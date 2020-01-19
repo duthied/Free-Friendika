@@ -139,7 +139,7 @@ There you'll find somethink alike
 
         $colorset = DI::pConfig()->get( local_user(), 'duepuntozero','colorset');
         if (!$colorset)
-            $colorset = Config::get('duepuntozero', 'colorset');
+            $colorset = DI::config()->get('duepuntozero', 'colorset');
         if ($colorset) {
             if ($colorset == 'greenzero')
                 DI::page()['htmlhead'] .= '<link rel="stylesheet" href="view/theme/duepuntozero/deriv/greenzero.css" type="text/css" media="screen" />'."\n";

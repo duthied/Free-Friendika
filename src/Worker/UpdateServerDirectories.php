@@ -17,7 +17,7 @@ class UpdateServerDirectories
 	 */
 	public static function execute()
 	{
-		if (Config::get('system', 'poco_discovery') == PortableContact::DISABLED) {
+		if (DI::config()->get('system', 'poco_discovery') == PortableContact::DISABLED) {
 			return;
 		}
 
@@ -25,7 +25,7 @@ class UpdateServerDirectories
 		GServer::discover();
 
 		// Query GNU Social servers for their users ("statistics" addon has to be enabled on the GS server)
-		if (!Config::get('system', 'ostatus_disabled')) {
+		if (!DI::config()->get('system', 'ostatus_disabled')) {
 			GContact::discoverGsUsers();
 		}
 	}

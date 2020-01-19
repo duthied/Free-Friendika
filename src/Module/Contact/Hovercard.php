@@ -23,7 +23,7 @@ class Hovercard extends BaseModule
 		$contact_url = $_REQUEST['url'] ?? '';
 
 		// Get out if the system doesn't have public access allowed
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 

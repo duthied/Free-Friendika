@@ -151,7 +151,7 @@ class Network
 		@curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 		@curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
-		$range = intval(Config::get('system', 'curl_range_bytes', 0));
+		$range = intval(DI::config()->get('system', 'curl_range_bytes', 0));
 
 		if ($range > 0) {
 			@curl_setopt($ch, CURLOPT_RANGE, '0-' . $range);
@@ -173,33 +173,33 @@ class Network
 		if (!empty($opts['timeout'])) {
 			@curl_setopt($ch, CURLOPT_TIMEOUT, $opts['timeout']);
 		} else {
-			$curl_time = Config::get('system', 'curl_timeout', 60);
+			$curl_time = DI::config()->get('system', 'curl_timeout', 60);
 			@curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 		}
 
 		// by default we will allow self-signed certs
 		// but you can override this
 
-		$check_cert = Config::get('system', 'verifyssl');
+		$check_cert = DI::config()->get('system', 'verifyssl');
 		@curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
 
 		if ($check_cert) {
 			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 		}
 
-		$proxy = Config::get('system', 'proxy');
+		$proxy = DI::config()->get('system', 'proxy');
 
 		if (strlen($proxy)) {
 			@curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 			@curl_setopt($ch, CURLOPT_PROXY, $proxy);
-			$proxyuser = @Config::get('system', 'proxyuser');
+			$proxyuser = @DI::config()->get('system', 'proxyuser');
 
 			if (strlen($proxyuser)) {
 				@curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
 			}
 		}
 
-		if (Config::get('system', 'ipv4_resolve', false)) {
+		if (DI::config()->get('system', 'ipv4_resolve', false)) {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
 
@@ -273,14 +273,14 @@ class Network
 		curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 		curl_setopt($ch, CURLOPT_USERAGENT, $a->getUserAgent());
 
-		if (Config::get('system', 'ipv4_resolve', false)) {
+		if (DI::config()->get('system', 'ipv4_resolve', false)) {
 			curl_setopt($ch, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_V4);
 		}
 
 		if (intval($timeout)) {
 			curl_setopt($ch, CURLOPT_TIMEOUT, $timeout);
 		} else {
-			$curl_time = Config::get('system', 'curl_timeout', 60);
+			$curl_time = DI::config()->get('system', 'curl_timeout', 60);
 			curl_setopt($ch, CURLOPT_TIMEOUT, intval($curl_time));
 		}
 
@@ -288,19 +288,19 @@ class Network
 			curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 		}
 
-		$check_cert = Config::get('system', 'verifyssl');
+		$check_cert = DI::config()->get('system', 'verifyssl');
 		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, (($check_cert) ? true : false));
 
 		if ($check_cert) {
 			@curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);
 		}
 
-		$proxy = Config::get('system', 'proxy');
+		$proxy = DI::config()->get('system', 'proxy');
 
 		if (strlen($proxy)) {
 			curl_setopt($ch, CURLOPT_HTTPPROXYTUNNEL, 1);
 			curl_setopt($ch, CURLOPT_PROXY, $proxy);
-			$proxyuser = Config::get('system', 'proxyuser');
+			$proxyuser = DI::config()->get('system', 'proxyuser');
 			if (strlen($proxyuser)) {
 				curl_setopt($ch, CURLOPT_PROXYUSERPWD, $proxyuser);
 			}
@@ -368,7 +368,7 @@ class Network
 	 */
 	public static function isUrlValid(string $url)
 	{
-		if (Config::get('system', 'disable_url_validation')) {
+		if (DI::config()->get('system', 'disable_url_validation')) {
 			return $url;
 		}
 
@@ -399,7 +399,7 @@ class Network
 	 */
 	public static function isEmailDomainValid(string $addr)
 	{
-		if (Config::get('system', 'disable_email_validation')) {
+		if (DI::config()->get('system', 'disable_email_validation')) {
 			return true;
 		}
 
@@ -436,7 +436,7 @@ class Network
 			return false;
 		}
 
-		$str_allowed = Config::get('system', 'allowed_sites');
+		$str_allowed = DI::config()->get('system', 'allowed_sites');
 		if (! $str_allowed) {
 			return true;
 		}
@@ -480,7 +480,7 @@ class Network
 			return false;
 		}
 
-		$domain_blocklist = Config::get('system', 'blocklist', []);
+		$domain_blocklist = DI::config()->get('system', 'blocklist', []);
 		if (!$domain_blocklist) {
 			return false;
 		}
@@ -511,7 +511,7 @@ class Network
 			return false;
 		}
 
-		$str_allowed = Config::get('system', 'allowed_email', '');
+		$str_allowed = DI::config()->get('system', 'allowed_email', '');
 		if (empty($str_allowed)) {
 			return true;
 		}

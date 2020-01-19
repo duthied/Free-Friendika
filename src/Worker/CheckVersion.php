@@ -24,7 +24,7 @@ class CheckVersion
 	{
 		Logger::log('checkversion: start');
 
-		$checkurl = Config::get('system', 'check_new_version_url', 'none');
+		$checkurl = DI::config()->get('system', 'check_new_version_url', 'none');
 
 		switch ($checkurl) {
 			case 'master':

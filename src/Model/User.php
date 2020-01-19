@@ -501,7 +501,7 @@ class User
 			throw new Exception(DI::l10n()->t('Empty passwords are not allowed.'));
 		}
 
-		if (!Config::get('system', 'disable_password_exposed', false) && self::isPasswordExposed($password)) {
+		if (!DI::config()->get('system', 'disable_password_exposed', false) && self::isPasswordExposed($password)) {
 			throw new Exception(DI::l10n()->t('The new password has been exposed in a public data dump, please choose another.'));
 		}
 
@@ -547,7 +547,7 @@ class User
 	 */
 	public static function isNicknameBlocked($nickname)
 	{
-		$forbidden_nicknames = Config::get('system', 'forbidden_nicknames', '');
+		$forbidden_nicknames = DI::config()->get('system', 'forbidden_nicknames', '');
 
 		// if the config variable is empty return false
 		if (empty($forbidden_nicknames)) {
@@ -588,7 +588,7 @@ class User
 	{
 		$return = ['user' => null, 'password' => ''];
 
-		$using_invites = Config::get('system', 'invitation_only');
+		$using_invites = DI::config()->get('system', 'invitation_only');
 
 		$invite_id  = !empty($data['invite_id'])  ? Strings::escapeTags(trim($data['invite_id']))  : '';
 		$username   = !empty($data['username'])   ? Strings::escapeTags(trim($data['username']))   : '';
@@ -604,7 +604,7 @@ class User
 		$language   = !empty($data['language'])   ? Strings::escapeTags(trim($data['language']))   : 'en';
 
 		$publish = !empty($data['profile_publish_reg']);
-		$netpublish = $publish && Config::get('system', 'directory');
+		$netpublish = $publish && DI::config()->get('system', 'directory');
 
 		if ($password1 != $confirm) {
 			throw new Exception(DI::l10n()->t('Passwords do not match. Password unchanged.'));
@@ -655,8 +655,8 @@ class User
 		// collapse multiple spaces in name
 		$username = preg_replace('/ +/', ' ', $username);
 
-		$username_min_length = max(1, min(64, intval(Config::get('system', 'username_min_length', 3))));
-		$username_max_length = max(1, min(64, intval(Config::get('system', 'username_max_length', 48))));
+		$username_min_length = max(1, min(64, intval(DI::config()->get('system', 'username_min_length', 3))));
+		$username_max_length = max(1, min(64, intval(DI::config()->get('system', 'username_max_length', 48))));
 
 		if ($username_min_length > $username_max_length) {
 			Logger::log(DI::l10n()->t('system.username_min_length (%s) and system.username_max_length (%s) are excluding each other, swapping values.', $username_min_length, $username_max_length), Logger::WARNING);
@@ -674,7 +674,7 @@ class User
 		}
 
 		// So now we are just looking for a space in the full name.
-		$loose_reg = Config::get('system', 'no_regfullname');
+		$loose_reg = DI::config()->get('system', 'no_regfullname');
 		if (!$loose_reg) {
 			$username = mb_convert_case($username, MB_CASE_TITLE, 'UTF-8');
 			if (strpos($username, ' ') === false) {
@@ -693,14 +693,14 @@ class User
 			throw new Exception(DI::l10n()->t('The nickname was blocked from registration by the nodes admin.'));
 		}
 
-		if (Config::get('system', 'block_extended_register', false) && DBA::exists('user', ['email' => $email])) {
+		if (DI::config()->get('system', 'block_extended_register', false) && DBA::exists('user', ['email' => $email])) {
 			throw new Exception(DI::l10n()->t('Cannot use that email.'));
 		}
 
 		// Disallow somebody creating an account using openid that uses the admin email address,
 		// since openid bypasses email verification. We'll allow it if there is not yet an admin account.
-		if (Config::get('config', 'admin_email') && strlen($openid_url)) {
-			$adminlist = explode(',', str_replace(' ', '', strtolower(Config::get('config', 'admin_email'))));
+		if (DI::config()->get('config', 'admin_email') && strlen($openid_url)) {
+			$adminlist = explode(',', str_replace(' ', '', strtolower(DI::config()->get('config', 'admin_email'))));
 			if (in_array(strtolower($email), $adminlist)) {
 				throw new Exception(DI::l10n()->t('Cannot use that email.'));
 			}
@@ -810,7 +810,7 @@ class User
 		}
 
 		$fields = ['def_gid' => $def_gid];
-		if (Config::get('system', 'newuser_private') && $def_gid) {
+		if (DI::config()->get('system', 'newuser_private') && $def_gid) {
 			$fields['allow_gid'] = '<' . $def_gid . '>';
 		}
 

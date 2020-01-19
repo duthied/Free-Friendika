@@ -383,7 +383,7 @@ function is_site_admin()
 {
 	$a = DI::app();
 
-	$admin_email = Config::get('config', 'admin_email');
+	$admin_email = DI::config()->get('config', 'admin_email');
 
 	$adminlist = explode(',', str_replace(' ', '', $admin_email));
 
@@ -446,7 +446,7 @@ function curPageURL()
 
 function get_temppath()
 {
-	$temppath = Config::get("system", "temppath");
+	$temppath = DI::config()->get("system", "temppath");
 
 	if (($temppath != "") && System::isDirectoryUsable($temppath)) {
 		// We have a temp path and it is usable
@@ -520,7 +520,7 @@ function clear_cache($basepath = "", $path = "")
 		return;
 	}
 
-	$cachetime = (int) Config::get('system', 'itemcache_duration');
+	$cachetime = (int) DI::config()->get('system', 'itemcache_duration');
 	if ($cachetime == 0) {
 		$cachetime = 86400;
 	}
@@ -544,12 +544,12 @@ function clear_cache($basepath = "", $path = "")
 function get_itemcachepath()
 {
 	// Checking, if the cache is deactivated
-	$cachetime = (int) Config::get('system', 'itemcache_duration');
+	$cachetime = (int) DI::config()->get('system', 'itemcache_duration');
 	if ($cachetime < 0) {
 		return "";
 	}
 
-	$itemcache = Config::get('system', 'itemcache');
+	$itemcache = DI::config()->get('system', 'itemcache');
 	if (($itemcache != "") && System::isDirectoryUsable($itemcache)) {
 		return BasePath::getRealPath($itemcache);
 	}
@@ -577,7 +577,7 @@ function get_itemcachepath()
  */
 function get_spoolpath()
 {
-	$spoolpath = Config::get('system', 'spoolpath');
+	$spoolpath = DI::config()->get('system', 'spoolpath');
 	if (($spoolpath != "") && System::isDirectoryUsable($spoolpath)) {
 		// We have a spool path and it is usable
 		return $spoolpath;

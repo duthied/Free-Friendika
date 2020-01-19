@@ -1289,7 +1289,7 @@ class OStatus
 		XML::addElement($doc, $root, "generator", FRIENDICA_PLATFORM, $attributes);
 		XML::addElement($doc, $root, "id", DI::baseUrl() . "/profile/" . $owner["nick"]);
 		XML::addElement($doc, $root, "title", $title);
-		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], Config::get('config', 'sitename')));
+		XML::addElement($doc, $root, "subtitle", sprintf("Updates from %s on %s", $owner["name"], DI::config()->get('config', 'sitename')));
 		XML::addElement($doc, $root, "logo", $owner["photo"]);
 		XML::addElement($doc, $root, "updated", DateTimeFormat::utcNow(DateTimeFormat::ATOM));
 
@@ -1383,7 +1383,7 @@ class OStatus
 				break;
 		}
 
-		if (!Config::get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
+		if (!DI::config()->get('system', 'ostatus_not_attach_preview') && ($siteinfo["type"] != "photo") && isset($siteinfo["image"])) {
 			$imgdata = Images::getInfoFromURLCached($siteinfo["image"]);
 			if ($imgdata) {
 				$attributes = ["rel" => "enclosure",
@@ -2226,7 +2226,7 @@ class OStatus
 		$root = self::addHeader($doc, $owner, $filter, $feed_mode);
 
 		foreach ($items as $item) {
-			if (Config::get('system', 'ostatus_debug')) {
+			if (DI::config()->get('system', 'ostatus_debug')) {
 				$item['body'] .= '🍼';
 			}
 
@@ -2263,7 +2263,7 @@ class OStatus
 		$doc = new DOMDocument('1.0', 'utf-8');
 		$doc->formatOutput = true;
 
-		if (Config::get('system', 'ostatus_debug')) {
+		if (DI::config()->get('system', 'ostatus_debug')) {
 			$item['body'] .= '🐟';
 		}
 

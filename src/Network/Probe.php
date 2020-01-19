@@ -109,7 +109,7 @@ class Probe
 		$ssl_url = "https://".$host."/.well-known/host-meta";
 		$url = "http://".$host."/.well-known/host-meta";
 
-		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
 		Logger::log("Probing for ".$host, Logger::DEBUG);
 		$xrd = null;
@@ -859,7 +859,7 @@ class Probe
 	 */
 	private static function webfinger($url, $type)
 	{
-		$xrd_timeout = Config::get('system', 'xrd_timeout', 20);
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout', 20);
 
 		$curlResult = Network::curl($url, false, ['timeout' => $xrd_timeout, 'accept_content' => $type]);
 		if ($curlResult->isTimeout()) {

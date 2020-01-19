@@ -22,7 +22,7 @@ class SearchDirectory
 	// <search pattern>: Searches for "search pattern" in the directory.
 	public static function execute($search)
 	{
-		if (!Config::get('system', 'poco_local_search')) {
+		if (!DI::config()->get('system', 'poco_local_search')) {
 			Logger::info('Local search is not enabled');
 			return;
 		}

@@ -64,7 +64,7 @@ function update_1178()
 
 function update_1179()
 {
-	if (Config::get('system', 'no_community_page')) {
+	if (DI::config()->get('system', 'no_community_page')) {
 		Config::set('system', 'community_page_style', CP_NO_COMMUNITY_PAGE);
 	}
 
@@ -86,9 +86,9 @@ function update_1181()
 function update_1189()
 {
 
-	if (strlen(Config::get('system', 'directory_submit_url')) &&
-		!strlen(Config::get('system', 'directory'))) {
-		Config::set('system', 'directory', dirname(Config::get('system', 'directory_submit_url')));
+	if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
+		!strlen(DI::config()->get('system', 'directory'))) {
+		Config::set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
 		Config::delete('system', 'directory_submit_url');
 	}
 
@@ -101,7 +101,7 @@ function update_1191()
 
 	if (Addon::isEnabled('forumlist')) {
 		$addon = 'forumlist';
-		$addons = Config::get('system', 'addon');
+		$addons = DI::config()->get('system', 'addon');
 		$addons_arr = [];
 
 		if ($addons) {
@@ -187,7 +187,7 @@ function update_1244()
 
 function update_1245()
 {
-	$rino = Config::get('system', 'rino_encrypt');
+	$rino = DI::config()->get('system', 'rino_encrypt');
 
 	if (!$rino) {
 		return Update::SUCCESS;
@@ -410,7 +410,7 @@ function update_1327()
 
 function update_1330()
 {
-	$currStorage = Config::get('storage', 'class', '');
+	$currStorage = DI::config()->get('storage', 'class', '');
 
 	// set the name of the storage instead of the classpath as config
 	if (!empty($currStorage)) {

@@ -36,7 +36,7 @@ use Friendica\Util\XML;
 
 function photos_init(App $a) {
 
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -696,7 +696,7 @@ function photos_post(App $a)
 
 	Logger::log('photos: upload: received file: ' . $filename . ' as ' . $src . ' ('. $type . ') ' . $filesize . ' bytes', Logger::DEBUG);
 
-	$maximagesize = Config::get('system', 'maximagesize');
+	$maximagesize = DI::config()->get('system', 'maximagesize');
 
 	if ($maximagesize && ($filesize > $maximagesize)) {
 		notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
@@ -732,7 +732,7 @@ function photos_post(App $a)
 	$exif = $image->orient($src);
 	@unlink($src);
 
-	$max_length = Config::get('system', 'max_image_length');
+	$max_length = DI::config()->get('system', 'max_image_length');
 	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
@@ -833,7 +833,7 @@ function photos_content(App $a)
 	// photos/name/image/xxxxx/edit
 	// photos/name/image/xxxxx/drop
 
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(DI::l10n()->t('Public access denied.') . EOL);
 		return;
 	}
@@ -1157,7 +1157,7 @@ function photos_content(App $a)
 		 * The query leads to a really intense used index.
 		 * By now we hide it if someone wants to.
 		 */
-		if ($cmd === 'view' && !Config::get('system', 'no_count', false)) {
+		if ($cmd === 'view' && !DI::config()->get('system', 'no_count', false)) {
 			$order_field = $_GET['order'] ?? '';
 
 			if ($order_field === 'posted') {

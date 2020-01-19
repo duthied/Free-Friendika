@@ -17,17 +17,17 @@ $scheme_modified = 0;
 DI::config()->load('frio');
 
 // Default to hard-coded values for empty settings
-$scheme           = Config::get('frio', 'scheme', Config::get('frio', 'schema'));
-$nav_bg           = Config::get('frio', 'nav_bg')           ?: '#708fa0';
-$nav_icon_color   = Config::get('frio', 'nav_icon_color')   ?: '#ffffff';
-$link_color       = Config::get('frio', 'link_color')       ?: '#6fdbe8';
-$background_color = Config::get('frio', 'background_color') ?: '#ededed';
-$contentbg_transp = Config::get('frio', 'contentbg_transp') ?: '';
-$background_image = Config::get('frio', 'background_image') ?: 'img/none.png';
-$bg_image_option  = Config::get('frio', 'bg_image_option')  ?: '';
-$login_bg_image   = Config::get('frio', 'login_bg_image')   ?: '';
-$login_bg_color   = Config::get('frio', 'login_bg_color')   ?: '';
-$modified         = Config::get('frio', 'css_modified')     ?: time();
+$scheme           = DI::config()->get('frio', 'scheme', DI::config()->get('frio', 'schema'));
+$nav_bg           = DI::config()->get('frio', 'nav_bg')           ?: '#708fa0';
+$nav_icon_color   = DI::config()->get('frio', 'nav_icon_color')   ?: '#ffffff';
+$link_color       = DI::config()->get('frio', 'link_color')       ?: '#6fdbe8';
+$background_color = DI::config()->get('frio', 'background_color') ?: '#ededed';
+$contentbg_transp = DI::config()->get('frio', 'contentbg_transp') ?: '';
+$background_image = DI::config()->get('frio', 'background_image') ?: 'img/none.png';
+$bg_image_option  = DI::config()->get('frio', 'bg_image_option')  ?: '';
+$login_bg_image   = DI::config()->get('frio', 'login_bg_image')   ?: '';
+$login_bg_color   = DI::config()->get('frio', 'login_bg_color')   ?: '';
+$modified         = DI::config()->get('frio', 'css_modified')     ?: time();
 
 if (!$login_bg_image && !$login_bg_color) {
 	$login_bg_image = 'img/login_bg.jpg';
