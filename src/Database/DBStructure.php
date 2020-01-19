@@ -33,7 +33,7 @@ class DBStructure
 	 */
 	private static $definition = [];
 
-	/*
+	/**
 	 * Converts all tables from MyISAM to InnoDB
 	 */
 	public static function convertToInnoDB()
