@@ -141,11 +141,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Core\Config\IPConfiguration
+	 * @return \Friendica\Core\PConfig\IPConfig
 	 */
 	public static function pConfig()
 	{
-		return self::$dice->create(Core\Config\IPConfiguration::class);
+		return self::$dice->create(Core\PConfig\IPConfig::class);
 	}
 
 	/**

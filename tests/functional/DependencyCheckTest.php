@@ -6,7 +6,7 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Cache\IMemoryCache;
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Lock\ILock;
 use Friendica\Database\Database;
@@ -59,7 +59,7 @@ class dependencyCheck extends TestCase
 
 		$this->assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
 
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 		$configFileLoader->setupCache($configCache);
 
 		$this->assertNotEmpty($configCache->getAll());
@@ -77,7 +77,7 @@ class dependencyCheck extends TestCase
 
 		$this->assertInstanceOf(Profiler::class, $profiler);
 
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'system' => [
 				'profiler' => true,
 			],

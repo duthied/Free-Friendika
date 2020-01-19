@@ -48,43 +48,43 @@ return [
 			$_SERVER
 		]
 	],
-	Util\BasePath::class            => [
+	Util\BasePath::class         => [
 		'constructParams' => [
 			dirname(__FILE__, 2),
 			$_SERVER
 		]
 	],
-	Util\ConfigFileLoader::class    => [
+	Util\ConfigFileLoader::class => [
 		'shared'          => true,
 		'constructParams' => [
 			[Dice::INSTANCE => '$basepath'],
 		],
 	],
-	Config\Cache\ConfigCache::class => [
+	Config\Cache::class          => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
 			['createCache', [], Dice::CHAIN_CALL],
 		],
 	],
-	App\Mode::class                 => [
+	App\Mode::class              => [
 		'call' => [
 			['determineRunMode', [true, $_SERVER], Dice::CHAIN_CALL],
 			['determine', [], Dice::CHAIN_CALL],
 		],
 	],
-	Config\IConfig::class           => [
+	Config\IConfig::class                   => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
 			['createConfig', [], Dice::CHAIN_CALL],
 		],
 	],
-	Config\IPConfiguration::class   => [
+	\Friendica\Core\PConfig\IPConfig::class => [
 		'instanceOf' => Factory\ConfigFactory::class,
 		'call'       => [
 			['createPConfig', [], Dice::CHAIN_CALL],
 		]
 	],
-	Database::class                 => [
+	Database::class                         => [
 		'constructParams' => [
 			[Dice::INSTANCE => \Psr\Log\NullLogger::class],
 			$_SERVER,

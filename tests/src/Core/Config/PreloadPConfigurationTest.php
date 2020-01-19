@@ -2,13 +2,13 @@
 
 namespace Friendica\Test\src\Core\Config;
 
-use Friendica\Core\Config\PreloadPConfiguration;
+use Friendica\Core\PConfig\PreloadPConfig;
 
 class PreloadPConfigurationTest extends PConfigurationTest
 {
 	public function getInstance()
 	{
-		return new PreloadPConfiguration($this->configCache, $this->configModel);
+		return new PreloadPConfig($this->configCache, $this->configModel);
 	}
 
 	/**

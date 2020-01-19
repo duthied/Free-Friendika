@@ -1,13 +1,13 @@
 <?php
 
-namespace Friendica\Core\Config\Cache;
+namespace Friendica\Core\PConfig;
 
 use ParagonIE\HiddenString\HiddenString;
 
 /**
  * The Friendica config cache for users
  */
-class PConfigCache
+class Cache
 {
 	/**
 	 * @var array

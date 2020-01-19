@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Core\Config\Cache;
 
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\Test\MockedTest;
 use ParagonIE\HiddenString\HiddenString;
 
@@ -29,7 +29,7 @@ class ConfigCacheTest extends MockedTest
 		];
 	}
 
-	private function assertConfigValues($data, ConfigCache $configCache)
+	private function assertConfigValues($data, Cache $configCache)
 	{
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
@@ -44,7 +44,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testLoadConfigArray($data)
 	{
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 		$configCache->load($data);
 
 		$this->assertConfigValues($data, $configCache);
@@ -63,7 +63,7 @@ class ConfigCacheTest extends MockedTest
 			]
 		];
 
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 		$configCache->load($data);
 		$configCache->load($override);
 
@@ -81,7 +81,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testLoadConfigArrayWrong()
 	{
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		// empty dataset
 		$configCache->load([]);
@@ -102,7 +102,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testGetAll($data)
 	{
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 		$configCache->load($data);
 
 		$all = $configCache->getAll();
@@ -117,7 +117,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testSetGet($data)
 	{
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
@@ -133,7 +133,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testGetEmpty()
 	{
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$this->assertNull($configCache->get('something', 'value'));
 	}
@@ -143,7 +143,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testGetCat()
 	{
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'system' => [
 				'key1' => 'value1',
 				'key2' => 'value2',
@@ -171,7 +171,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testDelete($data)
 	{
-		$configCache = new ConfigCache($data);
+		$configCache = new Cache($data);
 
 		foreach ($data as $cat => $values) {
 			foreach ($values as $key => $value) {
@@ -188,7 +188,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testKeyDiffWithResult($data)
 	{
-		$configCache = new ConfigCache($data);
+		$configCache = new Cache($data);
 
 		$diffConfig = [
 			'fakeCat' => [
@@ -205,7 +205,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testKeyDiffWithoutResult($data)
 	{
-		$configCache = new ConfigCache($data);
+		$configCache = new Cache($data);
 
 		$diffConfig = $configCache->getAll();
 
@@ -217,7 +217,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testPasswordHide()
 	{
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => 'supersecure',
 				'username' => 'notsecured',
@@ -234,7 +234,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testPasswordShow()
 	{
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => 'supersecure',
 				'username' => 'notsecured',
@@ -251,7 +251,7 @@ class ConfigCacheTest extends MockedTest
 	 */
 	public function testEmptyPassword()
 	{
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => '',
 				'username' => '',
@@ -265,7 +265,7 @@ class ConfigCacheTest extends MockedTest
 
 	public function testWrongTypePassword()
 	{
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => new \stdClass(),
 				'username' => '',
@@ -275,7 +275,7 @@ class ConfigCacheTest extends MockedTest
 		$this->assertNotEmpty($configCache->get('database', 'password'));
 		$this->assertEmpty($configCache->get('database', 'username'));
 
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'database' => [
 				'password' => 23,
 				'username' => '',

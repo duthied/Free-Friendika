@@ -20,7 +20,7 @@ class AutomaticInstallation extends Console
 	 */
 	private $appMode;
 	/**
-	 * @var Config\Cache\ConfigCache
+	 * @var \Friendica\Core\Config\Cache
 	 */
 	private $configCache;
 
@@ -89,7 +89,7 @@ Examples
 HELP;
 	}
 
-	public function __construct(App\Mode $appMode, Config\Cache\ConfigCache $configCache, Config\IConfig $config, Database $dba, array $argv = null)
+	public function __construct(App\Mode $appMode, Config\Cache $configCache, Config\IConfig $config, Database $dba, array $argv = null)
 	{
 		parent::__construct($argv);
 
@@ -241,13 +241,13 @@ HELP;
 	}
 
 	/**
-	 * @param Installer                 $installer   The Installer instance
-	 * @param Config\Cache\ConfigCache $configCache The config cache
+	 * @param Installer                    $installer   The Installer instance
+	 * @param \Friendica\Core\Config\Cache $configCache The config cache
 	 *
 	 * @return bool true if checks were successfully, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	private function runBasicChecks(Installer $installer, Config\Cache\ConfigCache $configCache)
+	private function runBasicChecks(Installer $installer, Config\Cache $configCache)
 	{
 		$checked = true;
 

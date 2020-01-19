@@ -4,7 +4,7 @@
 namespace Friendica\Core;
 
 use Dice\Dice;
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\DI;
 use Friendica\Network\CurlResult;
 use Friendica\Test\MockedTest;
@@ -419,7 +419,7 @@ class InstallerTest extends MockedTest
 		$this->l10nMock->shouldReceive('t')->andReturnUsing(function ($args) { return $args; });
 
 		$install = new Installer();
-		$configCache = \Mockery::mock(ConfigCache::class);
+		$configCache = \Mockery::mock(Cache::class);
 		$configCache->shouldReceive('set')->with('config', 'php_path', \Mockery::any())->once();
 		$configCache->shouldReceive('set')->with('system', 'basepath', '/test/')->once();
 

@@ -17,10 +17,10 @@ class PreloadConfig extends BaseConfig
 	private $config_loaded;
 
 	/**
-	 * @param Cache\ConfigCache   $configCache The configuration cache (based on the config-files)
+	 * @param Cache               $configCache The configuration cache (based on the config-files)
 	 * @param Model\Config\Config $configModel The configuration model
 	 */
-	public function __construct(Cache\ConfigCache $configCache, Model\Config\Config $configModel)
+	public function __construct(Cache $configCache, Model\Config\Config $configModel)
 	{
 		parent::__construct($configCache, $configModel);
 		$this->config_loaded = false;

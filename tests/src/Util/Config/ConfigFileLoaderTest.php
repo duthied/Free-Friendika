@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Util\Config;
 
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\Test\MockedTest;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\ConfigFileLoader;
@@ -27,7 +27,7 @@ class ConfigFileLoaderTest extends MockedTest
 		$this->delConfigFile('local.config.php');
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -48,7 +48,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->setContent('<?php return true;');
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 	}
@@ -72,7 +72,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -104,7 +104,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -135,7 +135,7 @@ class ConfigFileLoaderTest extends MockedTest
 			->setContent(file_get_contents($file));
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -216,7 +216,7 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->setContent(file_get_contents($fileDir . 'B.config.php'));
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -245,7 +245,7 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 
@@ -274,7 +274,7 @@ class ConfigFileLoaderTest extends MockedTest
 		         ->setContent(file_get_contents($fileDir . 'B.ini.php'));
 
 		$configFileLoader = new ConfigFileLoader($this->root->url());
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 
 		$configFileLoader->setupCache($configCache);
 

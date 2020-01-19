@@ -110,7 +110,7 @@ class Summary extends BaseAdminModule
 
 		// check legacy basepath settings
 		$configLoader = new ConfigFileLoader($a->getBasePath());
-		$configCache = new Config\Cache\ConfigCache();
+		$configCache = new Config\Cache();
 		$configLoader->setupCache($configCache);
 		$confBasepath = $configCache->get('system', 'basepath');
 		$currBasepath = DI::config()->get('system', 'basepath');

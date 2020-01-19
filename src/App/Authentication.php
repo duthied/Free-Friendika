@@ -9,7 +9,7 @@ namespace Friendica\App;
 use Exception;
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
-use Friendica\Core\Config\IPConfiguration;
+use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -46,7 +46,7 @@ class Authentication
 	private $cookie;
 	/** @var Session\ISession */
 	private $session;
-	/** @var IPConfiguration */
+	/** @var IPConfig */
 	private $pConfig;
 
 	/**
@@ -60,9 +60,9 @@ class Authentication
 	 * @param LoggerInterface  $logger
 	 * @param User\Cookie      $cookie
 	 * @param Session\ISession $session
-	 * @param IPConfiguration  $pConfig
+	 * @param IPConfig         $pConfig
 	 */
-	public function __construct(IConfig $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session, IPConfiguration $pConfig)
+	public function __construct(IConfig $config, App\Mode $mode, App\BaseURL $baseUrl, L10n $l10n, Database $dba, LoggerInterface $logger, User\Cookie $cookie, Session\ISession $session, IPConfig $pConfig)
 	{
 		$this->config  = $config;
 		$this->mode    = $mode;

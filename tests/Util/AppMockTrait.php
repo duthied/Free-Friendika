@@ -52,9 +52,9 @@ trait AppMockTrait
 		$this->dice = \Mockery::mock(Dice::class)->makePartial();
 		$this->dice = $this->dice->addRules(include __DIR__ . '/../../static/dependencies.config.php');
 
-		$this->configMock = \Mockery::mock(Config\Cache\ConfigCache::class);
+		$this->configMock = \Mockery::mock(Config\Cache::class);
 		$this->dice->shouldReceive('create')
-		           ->with(Config\Cache\ConfigCache::class)
+		           ->with(Config\Cache::class)
 		           ->andReturn($this->configMock);
 		$this->mode = \Mockery::mock(App\Mode::class);
 		$this->dice->shouldReceive('create')
