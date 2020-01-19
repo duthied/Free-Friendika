@@ -177,7 +177,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		DBA::delete('tokens', ['id' => $token->key]);
 
 		if (!is_null($ret) && !is_null($uverifier)) {
-			Config::delete("oauth", $verifier);
+			DI::config()->delete("oauth", $verifier);
 		}
 
 		return $ret;

@@ -89,7 +89,7 @@ function update_1189()
 	if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
 		!strlen(DI::config()->get('system', 'directory'))) {
 		DI::config()->set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
-		Config::delete('system', 'directory_submit_url');
+		DI::config()->delete('system', 'directory_submit_url');
 	}
 
 	return Update::SUCCESS;
@@ -420,7 +420,7 @@ function update_1330()
 		}
 
 		// try to delete the class since it isn't needed. This won't work with config files
-		Config::delete('storage', 'class');
+		DI::config()->delete('storage', 'class');
 	}
 
 	// Update attachments and photos

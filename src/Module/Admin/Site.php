@@ -297,13 +297,13 @@ class Site extends BaseAdminModule
 		DI::config()->set('system', 'touch_icon'            , $touch_icon);
 
 		if ($banner == "") {
-			Config::delete('system', 'banner');
+			DI::config()->delete('system', 'banner');
 		} else {
 			DI::config()->set('system', 'banner', $banner);
 		}
 
 		if (empty($additional_info)) {
-			Config::delete('config', 'info');
+			DI::config()->delete('config', 'info');
 		} else {
 			DI::config()->set('config', 'info', $additional_info);
 		}
@@ -312,12 +312,12 @@ class Site extends BaseAdminModule
 		Theme::install($theme);
 
 		if ($theme_mobile == '---') {
-			Config::delete('system', 'mobile-theme');
+			DI::config()->delete('system', 'mobile-theme');
 		} else {
 			DI::config()->set('system', 'mobile-theme', $theme_mobile);
 		}
 		if ($singleuser == '---') {
-			Config::delete('system', 'singleuser');
+			DI::config()->delete('system', 'singleuser');
 		} else {
 			DI::config()->set('system', 'singleuser', $singleuser);
 		}
@@ -417,7 +417,7 @@ class Site extends BaseAdminModule
 		if (strlen(DI::config()->get('system', 'directory_submit_url')) &&
 			!strlen(DI::config()->get('system', 'directory'))) {
 			DI::config()->set('system', 'directory', dirname(DI::config()->get('system', 'directory_submit_url')));
-			Config::delete('system', 'directory_submit_url');
+			DI::config()->delete('system', 'directory_submit_url');
 		}
 
 		/* Installed themes */

@@ -19,16 +19,4 @@ use Friendica\DI;
  */
 class Config
 {
-	/**
-	 * Deletes the given key from the system configuration.
-	 *
-	 * @param string $cat The category of the configuration value
-	 * @param string $key    The configuration key to delete
-	 *
-	 * @return bool
-	 */
-	public static function delete($cat, $key)
-	{
-		return DI::config()->delete($cat, $key);
-	}
 }
