@@ -6,6 +6,7 @@ use Friendica\BaseModel;
 use Friendica\BaseRepository;
 use Friendica\Collection;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model;
 use Friendica\Util\DateTimeFormat;
@@ -216,5 +217,80 @@ class ProfileField extends BaseRepository
 		});
 
 		return $profileFields;
+	}
+
+	/**
+	 * Migrates a legacy profile to the new slimmer profile with extra custom fields.
+	 * Multi profiles are converted to ACl-protected custom fields and deleted.
+	 *
+	 * @param array $profile Profile table row
+	 * @throws \Exception
+	 */
+	public function migrateFromProfile(array $profile)
+	{
+		// Already processed, aborting
+		if ($profile['is-default'] === null) {
+			return;
+		}
+
+		if (!$profile['is-default']) {
+			$contacts = Model\Contact::selectToArray(['id'], ['uid' => $profile['uid'], 'profile-id' => $profile['id']]);
+			if (!count($contacts)) {
+				// No contact visibility selected defaults to user-only permission
+				$contacts = Model\Contact::selectToArray(['id'], ['uid' => $profile['uid'], 'self' => true]);
+			}
+
+			$allow_cid = DI::aclFormatter()->toString(array_column($contacts, 'id'));
+		}
+
+		$psid = DI::permissionSet()->getIdFromACL($profile['uid'], $allow_cid ?? '');
+
+		$order = 1;
+
+		$custom_fields = [
+			'hometown'  => DI::l10n()->t('Hometown:'),
+			'gender'    => DI::l10n()->t('Gender:'),
+			'marital'   => DI::l10n()->t('Marital Status:'),
+			'with'      => DI::l10n()->t('With:'),
+			'howlong'   => DI::l10n()->t('Since:'),
+			'sexual'    => DI::l10n()->t('Sexual Preference:'),
+			'politic'   => DI::l10n()->t('Political Views:'),
+			'religion'  => DI::l10n()->t('Religious Views:'),
+			'likes'     => DI::l10n()->t('Likes:'),
+			'dislikes'  => DI::l10n()->t('Dislikes:'),
+			'about'     => DI::l10n()->t('About:'),
+			'summary'   => DI::l10n()->t('Summary'),
+			'music'     => DI::l10n()->t('Musical interests'),
+			'book'      => DI::l10n()->t('Books, literature'),
+			'tv'        => DI::l10n()->t('Television'),
+			'film'      => DI::l10n()->t('Film/dance/culture/entertainment'),
+			'interest'  => DI::l10n()->t('Hobbies/Interests'),
+			'romance'   => DI::l10n()->t('Love/romance'),
+			'work'      => DI::l10n()->t('Work/employment'),
+			'education' => DI::l10n()->t('School/education'),
+			'contact'   => DI::l10n()->t('Contact information and Social Networks'),
+		];
+
+		foreach ($custom_fields as $field => $label) {
+			if (!empty($profile[$field]) && $profile[$field] > DBA::NULL_DATE && $profile[$field] > DBA::NULL_DATETIME) {
+				DI::profileField()->insert([
+					'uid' => $profile['uid'],
+					'psid' => $psid,
+					'order' => $order++,
+					'label' => trim($label, ':'),
+					'value' => $profile[$field],
+				]);
+			}
+
+			$profile[$field] = null;
+		}
+
+		if ($profile['is-default']) {
+			$profile['profile-name'] = null;
+			$profile['is-default'] = null;
+			DI::dba()->update('profile', $profile, ['id' => $profile['id']]);
+		} elseif (!empty($profile['id'])) {
+			DI::dba()->delete('profile', ['id' => $profile['id']]);
+		}
 	}
 }
