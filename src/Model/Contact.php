@@ -6,7 +6,6 @@ namespace Friendica\Model;
 
 use Friendica\App\BaseURL;
 use Friendica\Content\Pager;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -919,7 +918,7 @@ class Contact
 			 */
 
 			/// @todo Check for contact vitality via probing
-			$archival_days = Config::get('system', 'archival_days', 32);
+			$archival_days = DI::config()->get('system', 'archival_days', 32);
 
 			$expiry = $contact['term-date'] . ' + ' . $archival_days . ' days ';
 			if (DateTimeFormat::utcNow() > DateTimeFormat::utc($expiry)) {
@@ -2322,7 +2321,7 @@ class Contact
 
 				// NOTREACHED
 			}
-		} elseif (Config::get('system', 'dfrn_only') && ($ret['network'] != Protocol::DFRN)) {
+		} elseif (DI::config()->get('system', 'dfrn_only') && ($ret['network'] != Protocol::DFRN)) {
 			$result['message'] = DI::l10n()->t('This site is not configured to allow communications with other networks.') . EOL;
 			$result['message'] .= DI::l10n()->t('No compatible communication protocols or feeds were discovered.') . EOL;
 			return $result;
@@ -2352,7 +2351,7 @@ class Contact
 			return $result;
 		}
 
-		if ($protocol === Protocol::OSTATUS && Config::get('system', 'ostatus_disabled')) {
+		if ($protocol === Protocol::OSTATUS && DI::config()->get('system', 'ostatus_disabled')) {
 			$result['message'] .= DI::l10n()->t('The profile address specified belongs to a network which has been disabled on this site.') . EOL;
 			$ret['notify'] = '';
 		}

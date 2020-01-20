@@ -5,7 +5,6 @@
 namespace Friendica\Content;
 
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -46,9 +45,9 @@ class Widget
 	 */
 	public static function findPeople()
 	{
-		$global_dir = Config::get('system', 'directory');
+		$global_dir = DI::config()->get('system', 'directory');
 
-		if (Config::get('system', 'invitation_only')) {
+		if (DI::config()->get('system', 'invitation_only')) {
 			$x = intval(DI::pConfig()->get(local_user(), 'system', 'invites_remaining'));
 			if ($x || is_site_admin()) {
 				DI::page()['aside'] .= '<div class="side-link widget" id="side-invite-remain">'
@@ -101,11 +100,11 @@ class Widget
 			$networks[] = Protocol::TWITTER;
 		}
 
-		if (Config::get("system", "ostatus_disabled")) {
+		if (DI::config()->get("system", "ostatus_disabled")) {
 			$networks[] = Protocol::OSTATUS;
 		}
 
-		if (!Config::get("system", "diaspora_enabled")) {
+		if (!DI::config()->get("system", "diaspora_enabled")) {
 			$networks[] = Protocol::DIASPORA;
 		}
 

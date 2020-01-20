@@ -5,7 +5,6 @@
 
 use Friendica\App;
 use Friendica\BaseModule;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -123,7 +122,7 @@ function profile_photo_post(App $a)
 
 				info(DI::l10n()->t('Shift-reload the page or clear browser cache if the new photo does not display immediately.') . EOL);
 				// Update global directory in background
-				if ($path && strlen(Config::get('system', 'directory'))) {
+				if ($path && strlen(DI::config()->get('system', 'directory'))) {
 					Worker::add(PRIORITY_LOW, "Directory", DI::baseUrl()->get() . '/' . $path);
 				}
 
@@ -145,7 +144,7 @@ function profile_photo_post(App $a)
 		$filetype = Image::guessType($filename);
 	}
 
-	$maximagesize = Config::get('system', 'maximagesize');
+	$maximagesize = DI::config()->get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
 		notice(DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize)) . EOL);
@@ -217,7 +216,7 @@ function profile_photo_content(App $a)
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if ($url && strlen(Config::get('system', 'directory'))) {
+			if ($url && strlen(DI::config()->get('system', 'directory'))) {
 				Worker::add(PRIORITY_LOW, "Directory", $url);
 			}
 
@@ -271,7 +270,7 @@ function profile_photo_content(App $a)
 
 function profile_photo_crop_ui_head(Image $image)
 {
-	$max_length = Config::get('system', 'max_image_length');
+	$max_length = DI::config()->get('system', 'max_image_length');
 	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}

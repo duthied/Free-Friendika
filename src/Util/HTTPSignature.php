@@ -6,8 +6,8 @@
 namespace Friendica\Util;
 
 use Friendica\Database\DBA;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
+use Friendica\DI;
 use Friendica\Model\User;
 use Friendica\Model\APContact;
 
@@ -233,7 +233,7 @@ class HTTPSignature
 		$iv = $key = $alg = $data = null;
 
 		if (!$prvkey) {
-			$prvkey = Config::get('system', 'prvkey');
+			$prvkey = DI::config()->get('system', 'prvkey');
 		}
 
 		$matches = [];

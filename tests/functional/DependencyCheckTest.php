@@ -6,8 +6,8 @@ use Dice\Dice;
 use Friendica\App;
 use Friendica\Core\Cache\ICache;
 use Friendica\Core\Cache\IMemoryCache;
-use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\Cache;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\Lock\ILock;
 use Friendica\Database\Database;
 use Friendica\Test\Util\VFSTrait;
@@ -59,7 +59,7 @@ class dependencyCheck extends TestCase
 
 		$this->assertInstanceOf(ConfigFileLoader::class, $configFileLoader);
 
-		$configCache = new ConfigCache();
+		$configCache = new Cache();
 		$configFileLoader->setupCache($configCache);
 
 		$this->assertNotEmpty($configCache->getAll());
@@ -77,7 +77,7 @@ class dependencyCheck extends TestCase
 
 		$this->assertInstanceOf(Profiler::class, $profiler);
 
-		$configCache = new ConfigCache([
+		$configCache = new Cache([
 			'system' => [
 				'profiler' => true,
 			],
@@ -115,10 +115,10 @@ class dependencyCheck extends TestCase
 
 	public function testConfiguration()
 	{
-		/** @var IConfiguration $config */
-		$config = $this->dice->create(IConfiguration::class);
+		/** @var IConfig $config */
+		$config = $this->dice->create(IConfig::class);
 
-		$this->assertInstanceOf(IConfiguration::class, $config);
+		$this->assertInstanceOf(IConfig::class, $config);
 
 		$this->assertNotEmpty($config->get('database', 'username'));
 	}
@@ -133,8 +133,8 @@ class dependencyCheck extends TestCase
 
 	public function testDevLogger()
 	{
-		/** @var IConfiguration $config */
-		$config = $this->dice->create(IConfiguration::class);
+		/** @var IConfig $config */
+		$config = $this->dice->create(IConfig::class);
 		$config->set('system', 'dlogfile', $this->root->url() . '/friendica.log');
 
 		/** @var LoggerInterface $logger */

@@ -11,7 +11,6 @@ use Friendica\App;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Content\Widget;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -25,7 +24,7 @@ use Friendica\Util\Temporal;
 
 function cal_init(App $a)
 {
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException(DI::l10n()->t('Access denied.'));
 	}
 
@@ -237,7 +236,7 @@ function cal_content(App $a)
 		if (!empty($_GET['id'])) {
 			$tpl = Renderer::getMarkupTemplate("event.tpl");
 		} else {
-//			if (Config::get('experimentals','new_calendar')==1){
+//			if (DI::config()->get('experimentals','new_calendar')==1){
 			$tpl = Renderer::getMarkupTemplate("events_js.tpl");
 //			} else {
 //				$tpl = Renderer::getMarkupTemplate("events.tpl");

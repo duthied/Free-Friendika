@@ -6,7 +6,6 @@ use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -20,7 +19,7 @@ class Contacts extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new \Friendica\Network\HTTPException\NotFoundException(DI::l10n()->t('User not found.'));
 		}
 

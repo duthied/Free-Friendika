@@ -4,7 +4,6 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -24,7 +23,6 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Protocol\Diaspora;
 use Friendica\Protocol\OStatus;
 use Friendica\Protocol\Salmon;
-use Friendica\Util\ACLFormatter;
 
 require_once 'include/items.php';
 
@@ -318,7 +316,7 @@ class Notifier
 				// If this is a public message and pubmail is set on the parent, include all your email contacts
 				if (
 					function_exists('imap_open')
-					&& !Config::get('system','imap_disabled')
+					&& !DI::config()->get('system','imap_disabled')
 					&& $public_message
 					&& intval($target_item['pubmail'])
 				) {
@@ -551,7 +549,7 @@ class Notifier
 		$url_recipients = array_filter($url_recipients);
 		// send salmon slaps to mentioned remote tags (@foo@example.com) in OStatus posts
 		// They are especially used for notifications to OStatus users that don't follow us.
-		if (!Config::get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
+		if (!DI::config()->get('system', 'dfrn_only') && count($url_recipients) && ($public_message || $push_notify) && !empty($target_item)) {
 			$slap = OStatus::salmon($target_item, $owner);
 			foreach ($url_recipients as $url) {
 				Logger::log('Salmon delivery of item ' . $target_id . ' to ' . $url);
@@ -640,7 +638,7 @@ class Notifier
 		}
 
 		// Skip DFRN when the item will be (forcefully) delivered via AP
-		if (Config::get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
+		if (DI::config()->get('debug', 'total_ap_delivery') && ($contact['network'] == Protocol::DFRN) && !empty(APContact::getByURL($contact['url'], false))) {
 			return true;
 		}
 

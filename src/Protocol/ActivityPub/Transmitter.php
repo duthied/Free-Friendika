@@ -8,7 +8,6 @@ use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -363,11 +362,11 @@ class Transmitter
 			}
 		}
 
-		if (Config::get('system', 'ap_always_bcc')) {
+		if (DI::config()->get('system', 'ap_always_bcc')) {
 			$always_bcc = true;
 		}
 
-		if (self::isAnnounce($item) || Config::get('debug', 'total_ap_delivery')) {
+		if (self::isAnnounce($item) || DI::config()->get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -548,7 +547,7 @@ class Transmitter
 	{
 		$inboxes = [];
 
-		if (Config::get('debug', 'total_ap_delivery')) {
+		if (DI::config()->get('debug', 'total_ap_delivery')) {
 			// Will be activated in a later step
 			$networks = Protocol::FEDERATED;
 		} else {
@@ -1364,7 +1363,7 @@ class Transmitter
 		}
 
 		// And finally just use the system language
-		return Config::get('system', 'language');
+		return DI::config()->get('system', 'language');
 	}
 
 	/**
@@ -1689,7 +1688,7 @@ class Transmitter
 
 		if (empty($uid)) {
 			// Fetch the list of administrators
-			$admin_mail = explode(',', str_replace(' ', '', Config::get('config', 'admin_email')));
+			$admin_mail = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 
 			// We need to use some user as a sender. It doesn't care who it will send. We will use an administrator account.
 			$condition = ['verified' => true, 'blocked' => false, 'account_removed' => false, 'account_expired' => false, 'email' => $admin_mail];
@@ -1837,7 +1836,7 @@ class Transmitter
 
 	private static function prependMentions($body, array $permission_block)
 	{
-		if (Config::get('system', 'disable_implicit_mentions')) {
+		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;
 		}
 

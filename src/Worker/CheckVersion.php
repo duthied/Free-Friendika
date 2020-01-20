@@ -7,9 +7,9 @@
  **/
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Network;
 
 /**
@@ -24,7 +24,7 @@ class CheckVersion
 	{
 		Logger::log('checkversion: start');
 
-		$checkurl = Config::get('system', 'check_new_version_url', 'none');
+		$checkurl = DI::config()->get('system', 'check_new_version_url', 'none');
 
 		switch ($checkurl) {
 			case 'master':
@@ -43,7 +43,7 @@ class CheckVersion
 		$gitversion = DBA::escape(trim(Network::fetchUrl($checked_url)));
 		Logger::log("Upstream VERSION is: ".$gitversion, Logger::DEBUG);
 
-		Config::set('system', 'git_friendica_version', $gitversion);
+		DI::config()->set('system', 'git_friendica_version', $gitversion);
 
 		Logger::log('checkversion: end');
 

@@ -4,7 +4,6 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -414,7 +413,7 @@ class Delivery
 
 		Logger::notice('Deliver via Diaspora', ['target' => $target_item['id'], 'guid' => $target_item['guid'], 'to' => $loc]);
 
-		if (Config::get('system', 'dfrn_only') || !Config::get('system', 'diaspora_enabled')) {
+		if (DI::config()->get('system', 'dfrn_only') || !DI::config()->get('system', 'diaspora_enabled')) {
 			return;
 		}
 
@@ -495,7 +494,7 @@ class Delivery
 	 */
 	private static function deliverMail($cmd, $contact, $owner, $target_item, $thr_parent)
 	{
-		if (Config::get('system','dfrn_only')) {
+		if (DI::config()->get('system','dfrn_only')) {
 			return;
 		}
 

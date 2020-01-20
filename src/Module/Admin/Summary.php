@@ -3,7 +3,7 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Update;
@@ -33,26 +33,26 @@ class Summary extends BaseAdminModule
 
 		// Check if github.com/friendica/master/VERSION is higher then
 		// the local version of Friendica. Check is opt-in, source may be master or devel branch
-		if (Config::get('system', 'check_new_version_url', 'none') != 'none') {
-			$gitversion = Config::get('system', 'git_friendica_version');
+		if (DI::config()->get('system', 'check_new_version_url', 'none') != 'none') {
+			$gitversion = DI::config()->get('system', 'git_friendica_version');
 			if (version_compare(FRIENDICA_VERSION, $gitversion) < 0) {
 				$warningtext[] = DI::l10n()->t('There is a new version of Friendica available for download. Your current version is %1$s, upstream version is %2$s', FRIENDICA_VERSION, $gitversion);
 			}
 		}
 
-		if (Config::get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
+		if (DI::config()->get('system', 'dbupdate', DBStructure::UPDATE_NOT_CHECKED) == DBStructure::UPDATE_NOT_CHECKED) {
 			DBStructure::update($a->getBasePath(), false, true);
 		}
 
-		if (Config::get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {
+		if (DI::config()->get('system', 'dbupdate') == DBStructure::UPDATE_FAILED) {
 			$warningtext[] = DI::l10n()->t('The database update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear.');
 		}
 
-		if (Config::get('system', 'update') == Update::FAILED) {
+		if (DI::config()->get('system', 'update') == Update::FAILED) {
 			$warningtext[] = DI::l10n()->t('The last update failed. Please run "php bin/console.php dbstructure update" from the command line and have a look at the errors that might appear. (Some of the errors are possibly inside the logfile.)');
 		}
 
-		$last_worker_call = Config::get('system', 'last_worker_execution', false);
+		$last_worker_call = DI::config()->get('system', 'last_worker_execution', false);
 		if (!$last_worker_call) {
 			$warningtext[] = DI::l10n()->t('The worker was never executed. Please check your database structure!');
 		} elseif ((strtotime(DateTimeFormat::utcNow()) - strtotime($last_worker_call)) > 60 * 60) {
@@ -76,8 +76,8 @@ class Summary extends BaseAdminModule
 		}
 
 		// Check logfile permission
-		if (Config::get('system', 'debugging')) {
-			$file = Config::get('system', 'logfile');
+		if (DI::config()->get('system', 'debugging')) {
+			$file = DI::config()->get('system', 'logfile');
 
 			$fileSystem = DI::fs();
 
@@ -92,7 +92,7 @@ class Summary extends BaseAdminModule
 				$warningtext[] = DI::l10n()->t('The logfile \'%s\' is not usable. No logging possible (error: \'%s\')', $file, $exception->getMessage());
 			}
 
-			$file = Config::get('system', 'dlogfile');
+			$file = DI::config()->get('system', 'dlogfile');
 
 			try {
 				if (!empty($file)) {
@@ -110,12 +110,12 @@ class Summary extends BaseAdminModule
 
 		// check legacy basepath settings
 		$configLoader = new ConfigFileLoader($a->getBasePath());
-		$configCache = new Config\Cache\ConfigCache();
+		$configCache = new Cache();
 		$configLoader->setupCache($configCache);
 		$confBasepath = $configCache->get('system', 'basepath');
 		$currBasepath = DI::config()->get('system', 'basepath');
 		if ($confBasepath !== $currBasepath || !is_dir($currBasepath)) {
-			if (is_dir($confBasepath) && Config::set('system', 'basepath', $confBasepath)) {
+			if (is_dir($confBasepath) && DI::config()->set('system', 'basepath', $confBasepath)) {
 				DI::logger()->info('Friendica\'s system.basepath was updated successfully.', [
 					'from' => $currBasepath,
 					'to'   => $confBasepath,
@@ -196,7 +196,7 @@ class Summary extends BaseAdminModule
 			'$version' => [DI::l10n()->t('Version'), FRIENDICA_VERSION],
 			'$platform' => FRIENDICA_PLATFORM,
 			'$codename' => FRIENDICA_CODENAME,
-			'$build' => Config::get('system', 'build'),
+			'$build' => DI::config()->get('system', 'build'),
 			'$addons' => [DI::l10n()->t('Active addons'), Addon::getEnabledList()],
 			'$serversettings' => $server_settings,
 			'$warningtext' => $warningtext

@@ -4,11 +4,11 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
 use Friendica\Util\DateTimeFormat;
@@ -21,7 +21,7 @@ class UpdateGContacts
 	 */
 	public static function execute()
 	{
-		if (!Config::get('system', 'poco_completion')) {
+		if (!DI::config()->get('system', 'poco_completion')) {
 			return;
 		}
 

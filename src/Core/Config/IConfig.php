@@ -5,15 +5,13 @@ namespace Friendica\Core\Config;
 /**
  * Interface for accessing system wide configurations
  */
-interface IConfiguration
+interface IConfig
 {
 
 	/**
 	 * Loads all configuration values of family into a cached storage.
 	 *
-	 * All configuration values of the system are stored in the cache ( @see ConfigCache )
-	 *
-	 * @param string $cat The category of the configuration value
+	 * All configuration values of the system are stored in the cache ( @param string $cat The category of the configuration value
 	 *
 	 * @return void
 	 */
@@ -67,7 +65,7 @@ interface IConfiguration
 	/**
 	 * Returns the Config Cache
 	 *
-	 * @return Cache\ConfigCache
+	 * @return Cache
 	 */
 	function getCache();
 }

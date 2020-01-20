@@ -11,7 +11,6 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -1096,7 +1095,7 @@ function api_statuses_update($type)
 
 	if (!$parent) {
 		// Check for throttling (maximum posts per day, week and month)
-		$throttle_day = Config::get('system', 'throttle_limit_day');
+		$throttle_day = DI::config()->get('system', 'throttle_limit_day');
 		if ($throttle_day > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60);
 
@@ -1110,7 +1109,7 @@ function api_statuses_update($type)
 			}
 		}
 
-		$throttle_week = Config::get('system', 'throttle_limit_week');
+		$throttle_week = DI::config()->get('system', 'throttle_limit_week');
 		if ($throttle_week > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*7);
 
@@ -1124,7 +1123,7 @@ function api_statuses_update($type)
 			}
 		}
 
-		$throttle_month = Config::get('system', 'throttle_limit_month');
+		$throttle_month = DI::config()->get('system', 'throttle_limit_month');
 		if ($throttle_month > 0) {
 			$datefrom = date(DateTimeFormat::MYSQL, time() - 24*60*60*30);
 
@@ -2739,7 +2738,7 @@ function api_get_entitities(&$text, $bbcode)
 			if ($image) {
 				// If image cache is activated, then use the following sizes:
 				// thumb  (150), small (340), medium (600) and large (1024)
-				if (!Config::get("system", "proxy_disabled")) {
+				if (!DI::config()->get("system", "proxy_disabled")) {
 					$media_url = ProxyUtils::proxifyUrl($url);
 
 					$sizes = [];
@@ -3572,15 +3571,15 @@ api_register_func('api/friendships/incoming', 'api_friendships_incoming', true);
  */
 function api_statusnet_config($type)
 {
-	$name      = Config::get('config', 'sitename');
+	$name      = DI::config()->get('config', 'sitename');
 	$server    = DI::baseUrl()->getHostname();
 	$logo      = DI::baseUrl() . '/images/friendica-64.png';
-	$email     = Config::get('config', 'admin_email');
-	$closed    = intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
-	$private   = Config::get('system', 'block_public') ? 'true' : 'false';
-	$textlimit = (string) Config::get('config', 'api_import_size', Config::get('config', 'max_import_size', 200000));
-	$ssl       = Config::get('system', 'have_ssl') ? 'true' : 'false';
-	$sslserver = Config::get('system', 'have_ssl') ? str_replace('http:', 'https:', DI::baseUrl()) : '';
+	$email     = DI::config()->get('config', 'admin_email');
+	$closed    = intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 'true' : 'false';
+	$private   = DI::config()->get('system', 'block_public') ? 'true' : 'false';
+	$textlimit = (string) DI::config()->get('config', 'api_import_size', DI::config()->get('config', 'max_import_size', 200000));
+	$ssl       = DI::config()->get('system', 'have_ssl') ? 'true' : 'false';
+	$sslserver = DI::config()->get('system', 'have_ssl') ? str_replace('http:', 'https:', DI::baseUrl()) : '';
 
 	$config = [
 		'site' => ['name' => $name,'server' => $server, 'theme' => 'default', 'path' => '',
@@ -4627,7 +4626,7 @@ function api_account_update_profile_image($type)
 
 	// Update global directory in background
 	$url = DI::baseUrl() . '/profile/' . DI::app()->user['nickname'];
-	if ($url && strlen(Config::get('system', 'directory'))) {
+	if ($url && strlen(DI::config()->get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
 
@@ -4684,7 +4683,7 @@ function api_account_update_profile($type)
 
 	Worker::add(PRIORITY_LOW, 'ProfileUpdate', $local_user);
 	// Update global directory in background
-	if ($api_user['url'] && strlen(Config::get('system', 'directory'))) {
+	if ($api_user['url'] && strlen(DI::config()->get('system', 'directory'))) {
 		Worker::add(PRIORITY_LOW, "Directory", $api_user['url']);
 	}
 
@@ -4792,7 +4791,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 		throw new InternalServerErrorException("image size exceeds PHP config settings, file was rejected by server");
 	}
 	// check against max upload size within Friendica instance
-	$maximagesize = Config::get('system', 'maximagesize');
+	$maximagesize = DI::config()->get('system', 'maximagesize');
 	if ($maximagesize && ($filesize > $maximagesize)) {
 		$formattedBytes = Strings::formatBytes($maximagesize);
 		throw new InternalServerErrorException("image size exceeds Friendica config setting (uploaded size: $formattedBytes)");
@@ -4810,7 +4809,7 @@ function save_media_to_database($mediatype, $media, $type, $album, $allow_cid, $
 	@unlink($src);
 
 	// check max length of images on server
-	$max_length = Config::get('system', 'max_image_length');
+	$max_length = DI::config()->get('system', 'max_image_length');
 	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}
@@ -6119,7 +6118,7 @@ function api_friendica_profile_show($type)
 
 	// retrieve general information about profiles for user
 	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');
-	$directory = Config::get('system', 'directory');
+	$directory = DI::config()->get('system', 'directory');
 
 	// get data of the specified profile id or all profiles of the user if not specified
 	if ($profile_id != 0) {

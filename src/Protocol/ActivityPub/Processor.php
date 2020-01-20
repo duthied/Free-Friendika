@@ -6,7 +6,6 @@ namespace Friendica\Protocol\ActivityPub;
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
@@ -897,7 +896,7 @@ class Processor
 	 */
 	private static function getImplicitMentionList(array $parent)
 	{
-		if (Config::get('system', 'disable_implicit_mentions')) {
+		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return [];
 		}
 
@@ -939,7 +938,7 @@ class Processor
 	 */
 	private static function removeImplicitMentionsFromBody($body, array $potential_mentions)
 	{
-		if (Config::get('system', 'disable_implicit_mentions')) {
+		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $body;
 		}
 
@@ -962,7 +961,7 @@ class Processor
 
 	private static function convertImplicitMentionsInTags($activity_tags, array $potential_mentions)
 	{
-		if (Config::get('system', 'disable_implicit_mentions')) {
+		if (DI::config()->get('system', 'disable_implicit_mentions')) {
 			return $activity_tags;
 		}
 

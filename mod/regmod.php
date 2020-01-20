@@ -4,7 +4,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -30,7 +29,7 @@ function user_allow($hash)
 
 	$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid'], 'is-default' => true]);
 
-	if (DBA::isResult($profile) && $profile['net-publish'] && Config::get('system', 'directory')) {
+	if (DBA::isResult($profile) && $profile['net-publish'] && DI::config()->get('system', 'directory')) {
 		$url = DI::baseUrl() . '/profile/' . $user['nickname'];
 		Worker::add(PRIORITY_LOW, "Directory", $url);
 	}
@@ -40,7 +39,7 @@ function user_allow($hash)
 	$res = User::sendRegisterOpenEmail(
 		$l10n,
 		$user,
-		Config::get('config', 'sitename'),
+		DI::config()->get('config', 'sitename'),
 		DI::baseUrl()->get(),
 		($register['password'] ?? '') ?: 'Sent in a previous email'
 	);
@@ -78,7 +77,7 @@ function regmod_content(App $a)
 {
 	if (!local_user()) {
 		info(DI::l10n()->t('Please login.') . EOL);
-		return Login::form(DI::args()->getQueryString(), intval(Config::get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
+		return Login::form(DI::args()->getQueryString(), intval(DI::config()->get('config', 'register_policy')) === \Friendica\Module\Register::CLOSED ? 0 : 1);
 	}
 
 	if (!is_site_admin() || !empty($_SESSION['submanage'])) {

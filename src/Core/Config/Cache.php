@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Core\Config\Cache;
+namespace Friendica\Core\Config;
 
 use ParagonIE\HiddenString\HiddenString;
 
@@ -9,7 +9,7 @@ use ParagonIE\HiddenString\HiddenString;
  * Initial, all *.config.php files are loaded into this cache with the
  * ConfigFileLoader ( @see ConfigFileLoader )
  */
-class ConfigCache
+class Cache
 {
 	/**
 	 * @var array

@@ -5,7 +5,6 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Search;
@@ -22,7 +21,7 @@ class SearchDirectory
 	// <search pattern>: Searches for "search pattern" in the directory.
 	public static function execute($search)
 	{
-		if (!Config::get('system', 'poco_local_search')) {
+		if (!DI::config()->get('system', 'poco_local_search')) {
 			Logger::info('Local search is not enabled');
 			return;
 		}

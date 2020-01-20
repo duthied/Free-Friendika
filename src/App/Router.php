@@ -8,7 +8,7 @@ use FastRoute\Dispatcher;
 use FastRoute\RouteCollector;
 use FastRoute\RouteParser\Std;
 use Friendica\Core\Hook;
-use Friendica\DI;
+use Friendica\Core\L10n;
 use Friendica\Network\HTTPException;
 
 /**
@@ -44,12 +44,18 @@ class Router
 	 */
 	private $parameters = [];
 
+	/** @var L10n */
+	private $l10n;
+
 	/**
 	 * @param array $server The $_SERVER variable
+	 * @param L10n  $l10n
 	 * @param RouteCollector|null $routeCollector Optional the loaded Route collector
 	 */
-	public function __construct(array $server, RouteCollector $routeCollector = null)
+	public function __construct(array $server, L10n $l10n, RouteCollector $routeCollector = null)
 	{
+		$this->l10n = $l10n;
+
 		$httpMethod = $server['REQUEST_METHOD'] ?? self::GET;
 		$this->httpMethod = in_array($httpMethod, self::ALLOWED_METHODS) ? $httpMethod : self::GET;
 
@@ -181,9 +187,9 @@ class Router
 			$moduleClass = $routeInfo[1];
 			$this->parameters = $routeInfo[2];
 		} elseif ($routeInfo[0] === Dispatcher::METHOD_NOT_ALLOWED) {
-			throw new HTTPException\MethodNotAllowedException(DI::l10n()->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
+			throw new HTTPException\MethodNotAllowedException($this->l10n->t('Method not allowed for this module. Allowed method(s): %s', implode(', ', $routeInfo[1])));
 		} else {
-			throw new HTTPException\NotFoundException(DI::l10n()->t('Page not found.'));
+			throw new HTTPException\NotFoundException($this->l10n->t('Page not found.'));
 		}
 
 		return $moduleClass;

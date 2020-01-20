@@ -8,9 +8,9 @@ use Exception;
 use Friendica\App\Arguments;
 use Friendica\App\BaseURL;
 use Friendica\App\Authentication;
-use Friendica\Core\Config\Cache\ConfigCache;
-use Friendica\Core\Config\IConfiguration;
-use Friendica\Core\Config\IPConfiguration;
+use Friendica\Core\Config\Cache;
+use Friendica\Core\Config\IConfig;
+use Friendica\Core\PConfig\IPConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\System;
 use Friendica\Core\Theme;
@@ -83,7 +83,7 @@ class App
 	private $currentMobileTheme;
 
 	/**
-	 * @var IConfiguration The config
+	 * @var IConfig The config
 	 */
 	private $config;
 
@@ -118,14 +118,14 @@ class App
 	private $process;
 
 	/**
-	 * @var IPConfiguration
+	 * @var IPConfig
 	 */
 	private $pConfig;
 
 	/**
 	 * Returns the current config cache of this node
 	 *
-	 * @return ConfigCache
+	 * @return Cache
 	 */
 	public function getConfigCache()
 	{
@@ -145,7 +145,7 @@ class App
 
 	/**
 	 * @param Database        $database The Friendica Database
-	 * @param IConfiguration   $config   The Configuration
+	 * @param IConfig         $config   The Configuration
 	 * @param App\Mode        $mode     The mode of this Friendica app
 	 * @param BaseURL         $baseURL  The full base URL of this Friendica app
 	 * @param LoggerInterface $logger   The current app logger
@@ -153,9 +153,9 @@ class App
 	 * @param L10n            $l10n     The translator instance
 	 * @param App\Arguments   $args     The Friendica Arguments of the call
 	 * @param Core\Process    $process  The process methods
-	 * @param IPConfiguration $pConfig  Personal configuration
+	 * @param IPConfig        $pConfig  Personal configuration
 	 */
-	public function __construct(Database $database, IConfiguration $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IPConfiguration $pConfig)
+	public function __construct(Database $database, IConfig $config, App\Mode $mode, BaseURL $baseURL, LoggerInterface $logger, Profiler $profiler, L10n $l10n, Arguments $args, Core\Process $process, IPConfig $pConfig)
 	{
 		$this->database = $database;
 		$this->config   = $config;
@@ -432,13 +432,14 @@ class App
 	 *
 	 * @param App\Module     $module The determined module
 	 * @param App\Router     $router
-	 * @param IPConfiguration $pconfig
+	 * @param IPConfig       $pconfig
 	 * @param Authentication $auth The Authentication backend of the node
-	 * @param App\Page $page The Friendica page printing container
+	 * @param App\Page       $page The Friendica page printing container
+	 *
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public function runFrontend(App\Module $module, App\Router $router, IPConfiguration $pconfig, Authentication $auth, App\Page $page)
+	public function runFrontend(App\Module $module, App\Router $router, IPConfig $pconfig, Authentication $auth, App\Page $page)
 	{
 		$moduleName = $module->getName();
 

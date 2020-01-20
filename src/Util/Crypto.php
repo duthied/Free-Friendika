@@ -6,10 +6,10 @@ namespace Friendica\Util;
 
 use ASN_BASE;
 use ASNValue;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
+use Friendica\DI;
 
 /**
  * Crypto class
@@ -240,7 +240,7 @@ class Crypto
 			'encrypt_key'      => false
 		];
 
-		$conf = Config::get('system', 'openssl_conf_file');
+		$conf = DI::config()->get('system', 'openssl_conf_file');
 		if ($conf) {
 			$openssl_options['config'] = $conf;
 		}

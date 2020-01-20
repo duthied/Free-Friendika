@@ -3,9 +3,9 @@
 namespace Friendica\Api\Entity\Mastodon;
 
 use Friendica\Api\BaseEntity;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Database\DBA;
+use Friendica\DI;
 
 /**
  * Class Stats
@@ -29,9 +29,9 @@ class Stats extends BaseEntity
 	 */
 	public static function get() {
 		$stats = new Stats();
-		if (!empty(Config::get('system', 'nodeinfo'))) {
-			$stats->user_count = intval(Config::get('nodeinfo', 'total_users'));
-			$stats->status_count = Config::get('nodeinfo', 'local_posts') + Config::get('nodeinfo', 'local_comments');
+		if (!empty(DI::config()->get('system', 'nodeinfo'))) {
+			$stats->user_count = intval(DI::config()->get('nodeinfo', 'total_users'));
+			$stats->status_count = DI::config()->get('nodeinfo', 'local_posts') + DI::config()->get('nodeinfo', 'local_comments');
 			$stats->domain_count = DBA::count('gserver', ["`network` in (?, ?) AND `last_contact` >= `last_failure`", Protocol::DFRN, Protocol::ACTIVITYPUB]);
 		}
 		return $stats;

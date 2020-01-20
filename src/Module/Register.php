@@ -4,7 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -38,7 +37,7 @@ class Register extends BaseModule
 		// logged in users can register others (people/pages/groups)
 		// even with closed registrations, unless specifically prohibited by site policy.
 		// 'block_extended_register' blocks all registrations, period.
-		$block = Config::get('system', 'block_extended_register');
+		$block = DI::config()->get('system', 'block_extended_register');
 
 		if (local_user() && $block) {
 			notice(DI::l10n()->t('Permission denied.'));
@@ -53,12 +52,12 @@ class Register extends BaseModule
 			}
 		}
 
-		if (!local_user() && (intval(Config::get('config', 'register_policy')) === self::CLOSED)) {
+		if (!local_user() && (intval(DI::config()->get('config', 'register_policy')) === self::CLOSED)) {
 			notice(DI::l10n()->t('Permission denied.'));
 			return '';
 		}
 
-		$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
+		$max_dailies = intval(DI::config()->get('system', 'max_daily_registrations'));
 		if ($max_dailies) {
 			$count = DBA::count('user', ['`register_date` > UTC_TIMESTAMP - INTERVAL 1 day']);
 			if ($count >= $max_dailies) {
@@ -75,7 +74,7 @@ class Register extends BaseModule
 		$photo      = $_REQUEST['photo']      ?? '';
 		$invite_id  = $_REQUEST['invite_id']  ?? '';
 
-		if (local_user() || Config::get('system', 'no_openid')) {
+		if (local_user() || DI::config()->get('system', 'no_openid')) {
 			$fillwith = '';
 			$fillext  = '';
 			$oidlabel = '';
@@ -85,7 +84,7 @@ class Register extends BaseModule
 			$oidlabel = DI::l10n()->t('Your OpenID (optional): ');
 		}
 
-		if (Config::get('system', 'publish_all')) {
+		if (DI::config()->get('system', 'publish_all')) {
 			$profile_publish = '<input type="hidden" name="profile_publish_reg" value="1" />';
 		} else {
 			$publish_tpl = Renderer::getMarkupTemplate('profile_publish.tpl');
@@ -112,14 +111,14 @@ class Register extends BaseModule
 		$tos = new Tos();
 
 		$o = Renderer::replaceMacros($tpl, [
-			'$invitations'  => Config::get('system', 'invitation_only'),
-			'$permonly'     => intval(Config::get('config', 'register_policy')) === self::APPROVE,
+			'$invitations'  => DI::config()->get('system', 'invitation_only'),
+			'$permonly'     => intval(DI::config()->get('config', 'register_policy')) === self::APPROVE,
 			'$permonlybox'  => ['permonlybox', DI::l10n()->t('Note for the admin'), '', DI::l10n()->t('Leave a message for the admin, why you want to join this node'), 'required'],
 			'$invite_desc'  => DI::l10n()->t('Membership on this site is by invitation only.'),
 			'$invite_label' => DI::l10n()->t('Your invitation code: '),
 			'$invite_id'    => $invite_id,
 			'$regtitle'     => DI::l10n()->t('Registration'),
-			'$registertext' => BBCode::convert(Config::get('config', 'register_text', '')),
+			'$registertext' => BBCode::convert(DI::config()->get('config', 'register_text', '')),
 			'$fillwith'     => $fillwith,
 			'$fillext'      => $fillext,
 			'$oidlabel'     => $oidlabel,
@@ -141,12 +140,12 @@ class Register extends BaseModule
 			'$sitename'     => DI::baseUrl()->getHostname(),
 			'$importh'      => DI::l10n()->t('Import'),
 			'$importt'      => DI::l10n()->t('Import your profile to this friendica instance'),
-			'$showtoslink'  => Config::get('system', 'tosdisplay'),
+			'$showtoslink'  => DI::config()->get('system', 'tosdisplay'),
 			'$tostext'      => DI::l10n()->t('Terms of Service'),
-			'$showprivstatement' => Config::get('system', 'tosprivstatement'),
+			'$showprivstatement' => DI::config()->get('system', 'tosprivstatement'),
 			'$privstatement'=> $tos->privacy_complete,
 			'$form_security_token' => BaseModule::getFormSecurityToken('register'),
-			'$explicit_content' => Config::get('system', 'explicit_content', false),
+			'$explicit_content' => DI::config()->get('system', 'explicit_content', false),
 			'$explicit_content_note' => DI::l10n()->t('Note: This node explicitly contains adult content'),
 			'$additional'   => !empty(local_user()),
 			'$parent_password' => ['parent_password', DI::l10n()->t('Parent Password:'), '', DI::l10n()->t('Please enter the password of the parent account to legitimize your request.')]
@@ -191,7 +190,7 @@ class Register extends BaseModule
 			DI::baseUrl()->redirect('register?' . http_build_query($regdata));
 		}
 
-		$max_dailies = intval(Config::get('system', 'max_daily_registrations'));
+		$max_dailies = intval(DI::config()->get('system', 'max_daily_registrations'));
 		if ($max_dailies) {
 			$count = DBA::count('user', ['`register_date` > UTC_TIMESTAMP - INTERVAL 1 day']);
 			if ($count >= $max_dailies) {
@@ -199,7 +198,7 @@ class Register extends BaseModule
 			}
 		}
 
-		switch (Config::get('config', 'register_policy')) {
+		switch (DI::config()->get('config', 'register_policy')) {
 			case self::OPEN:
 				$blocked = 0;
 				$verified = 1;
@@ -272,7 +271,7 @@ class Register extends BaseModule
 
 		$base_url = DI::baseUrl()->get();
 
-		if ($netpublish && intval(Config::get('config', 'register_policy')) !== self::APPROVE) {
+		if ($netpublish && intval(DI::config()->get('config', 'register_policy')) !== self::APPROVE) {
 			$url = $base_url . '/profile/' . $user['nickname'];
 			Worker::add(PRIORITY_LOW, 'Directory', $url);
 		}
@@ -283,11 +282,11 @@ class Register extends BaseModule
 			DI::baseUrl()->redirect('delegation');
 		}
 
-		$using_invites = Config::get('system', 'invitation_only');
-		$num_invites   = Config::get('system', 'number_invites');
+		$using_invites = DI::config()->get('system', 'invitation_only');
+		$num_invites   = DI::config()->get('system', 'number_invites');
 		$invite_id = (!empty($_POST['invite_id']) ? Strings::escapeTags(trim($_POST['invite_id'])) : '');
 
-		if (intval(Config::get('config', 'register_policy')) === self::OPEN) {
+		if (intval(DI::config()->get('config', 'register_policy')) === self::OPEN) {
 			if ($using_invites && $invite_id) {
 				Model\Register::deleteByHash($invite_id);
 				DI::pConfig()->set($user['uid'], 'system', 'invites_remaining', $num_invites);
@@ -298,7 +297,7 @@ class Register extends BaseModule
 				$res = Model\User::sendRegisterOpenEmail(
 					DI::l10n()->withLang($arr['language']),
 					$user,
-					Config::get('config', 'sitename'),
+					DI::config()->get('config', 'sitename'),
 					$base_url,
 					$result['password']
 				);
@@ -317,8 +316,8 @@ class Register extends BaseModule
 				info(DI::l10n()->t('Registration successful.'));
 				DI::baseUrl()->redirect();
 			}
-		} elseif (intval(Config::get('config', 'register_policy')) === self::APPROVE) {
-			if (!strlen(Config::get('config', 'admin_email'))) {
+		} elseif (intval(DI::config()->get('config', 'register_policy')) === self::APPROVE) {
+			if (!strlen(DI::config()->get('config', 'admin_email'))) {
 				notice(DI::l10n()->t('Your registration can not be processed.'));
 				DI::baseUrl()->redirect();
 			}
@@ -331,7 +330,7 @@ class Register extends BaseModule
 				DI::baseUrl()->redirect('register/');
 			}
 
-			Model\Register::createForApproval($user['uid'], Config::get('system', 'language'), $_POST['permonlybox']);
+			Model\Register::createForApproval($user['uid'], DI::config()->get('system', 'language'), $_POST['permonlybox']);
 
 			// invite system
 			if ($using_invites && $invite_id) {
@@ -343,7 +342,7 @@ class Register extends BaseModule
 			$admins_stmt = DBA::select(
 				'user',
 				['uid', 'language', 'email'],
-				['email' => explode(',', str_replace(' ', '', Config::get('config', 'admin_email')))]
+				['email' => explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')))]
 			);
 
 			// send notification to admins
@@ -368,7 +367,7 @@ class Register extends BaseModule
 			// send notification to the user, that the registration is pending
 			Model\User::sendRegisterPendingEmail(
 				$user,
-				Config::get('config', 'sitename'),
+				DI::config()->get('config', 'sitename'),
 				$base_url,
 				$result['password']
 			);

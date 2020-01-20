@@ -2,7 +2,6 @@
 
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
 use Friendica\DI;
 
 /**
@@ -80,7 +79,7 @@ class Proxy
 		}
 
 		// Is the proxy disabled?
-		if (Config::get('system', 'proxy_disabled')) {
+		if (DI::config()->get('system', 'proxy_disabled')) {
 			return $url;
 		}
 

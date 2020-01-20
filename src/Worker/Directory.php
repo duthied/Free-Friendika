@@ -6,18 +6,18 @@
 
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Network;
 
 class Directory
 {
 	public static function execute($url = '')
 	{
-		$dir = Config::get('system', 'directory');
+		$dir = DI::config()->get('system', 'directory');
 
 		if (!strlen($dir)) {
 			return;

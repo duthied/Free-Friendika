@@ -8,7 +8,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\ACL;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -30,7 +29,7 @@ function display_init(App $a)
 		Objects::rawContent();
 	}
 
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -164,7 +163,7 @@ function display_fetchauthor($a, $item)
 
 function display_content(App $a, $update = false, $update_uid = 0)
 {
-	if (Config::get('system','block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system','block_public') && !Session::isAuthenticated()) {
 		throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 	}
 

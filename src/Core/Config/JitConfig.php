@@ -2,6 +2,7 @@
 
 namespace Friendica\Core\Config;
 
+use Friendica\Core\BaseConfig;
 use Friendica\Model;
 
 /**
@@ -11,7 +12,7 @@ use Friendica\Model;
  * Default Configuration type.
  * Provides the best performance for pages loading few configuration variables.
  */
-class JitConfiguration extends Configuration
+class JitConfig extends BaseConfig
 {
 	/**
 	 * @var array Array of already loaded db values (even if there was no value)
@@ -19,10 +20,10 @@ class JitConfiguration extends Configuration
 	private $db_loaded;
 
 	/**
-	 * @param Cache\ConfigCache   $configCache The configuration cache (based on the config-files)
+	 * @param Cache               $configCache The configuration cache (based on the config-files)
 	 * @param Model\Config\Config $configModel The configuration model
 	 */
-	public function __construct(Cache\ConfigCache $configCache, Model\Config\Config $configModel)
+	public function __construct(Cache $configCache, Model\Config\Config $configModel)
 	{
 		parent::__construct($configCache, $configModel);
 		$this->db_loaded = [];

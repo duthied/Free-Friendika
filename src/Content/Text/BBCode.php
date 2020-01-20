@@ -10,7 +10,6 @@ use DOMXPath;
 use Exception;
 use Friendica\Content\OEmbed;
 use Friendica\Content\Smilies;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -496,7 +495,7 @@ class BBCode
 	 */
 	public static function limitBodySize($body)
 	{
-		$maxlen = Config::get('config', 'max_import_size', 0);
+		$maxlen = DI::config()->get('config', 'max_import_size', 0);
 
 		// If the length of the body, including the embedded images, is smaller
 		// than the maximum, then don't waste time looking for the images
@@ -598,7 +597,7 @@ class BBCode
 			$data['title'] = null;
 		}
 
-		if (((strpos($data['text'], "[img=") !== false) || (strpos($data['text'], "[img]") !== false) || Config::get('system', 'always_show_preview')) && !empty($data['image'])) {
+		if (((strpos($data['text'], "[img=") !== false) || (strpos($data['text'], "[img]") !== false) || DI::config()->get('system', 'always_show_preview')) && !empty($data['image'])) {
 			$data['preview'] = $data['image'];
 			$data['image'] = '';
 		}
@@ -1345,7 +1344,7 @@ class BBCode
 		$text = str_replace($search, $replace, $text);
 
 		// removing multiplicated newlines
-		if (Config::get('system', 'remove_multiplicated_lines')) {
+		if (DI::config()->get('system', 'remove_multiplicated_lines')) {
 			$search = ["\n\n\n", "\n ", " \n", "[/quote]\n\n", "\n[/quote]", "[/li]\n", "\n[li]", "\n[ul]", "[/ul]\n", "\n\n[share ", "[/attachment]\n",
 					"\n[h1]", "[/h1]\n", "\n[h2]", "[/h2]\n", "\n[h3]", "[/h3]\n", "\n[h4]", "[/h4]\n", "\n[h5]", "[/h5]\n", "\n[h6]", "[/h6]\n"];
 			$replace = ["\n\n", "\n", "\n", "[/quote]\n", "[/quote]", "[/li]", "[li]", "[ul]", "[/ul]", "\n[share ", "[/attachment]",
@@ -1835,7 +1834,7 @@ class BBCode
 
 		// sanitize href attributes (only whitelisted protocols URLs)
 		// default value for backward compatibility
-		$allowed_link_protocols = Config::get('system', 'allowed_link_protocols', []);
+		$allowed_link_protocols = DI::config()->get('system', 'allowed_link_protocols', []);
 
 		// Always allowed protocol even if config isn't set or not including it
 		$allowed_link_protocols[] = '//';

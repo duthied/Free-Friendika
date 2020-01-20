@@ -8,7 +8,6 @@ namespace Friendica\Model;
 use DOMDocument;
 use DOMXPath;
 use Exception;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -43,13 +42,13 @@ class GContact
 		}
 
 		// check supported networks
-		if (Config::get('system', 'diaspora_enabled')) {
+		if (DI::config()->get('system', 'diaspora_enabled')) {
 			$diaspora = Protocol::DIASPORA;
 		} else {
 			$diaspora = Protocol::DFRN;
 		}
 
-		if (!Config::get('system', 'ostatus_disabled')) {
+		if (!DI::config()->get('system', 'ostatus_disabled')) {
 			$ostatus = Protocol::OSTATUS;
 		} else {
 			$ostatus = Protocol::DFRN;
@@ -424,11 +423,11 @@ class GContact
 
 		$network = [Protocol::DFRN, Protocol::ACTIVITYPUB];
 
-		if (Config::get('system', 'diaspora_enabled')) {
+		if (DI::config()->get('system', 'diaspora_enabled')) {
 			$network[] = Protocol::DIASPORA;
 		}
 
-		if (!Config::get('system', 'ostatus_disabled')) {
+		if (!DI::config()->get('system', 'ostatus_disabled')) {
 			$network[] = Protocol::OSTATUS;
 		}
 
@@ -508,7 +507,7 @@ class GContact
 
 		$done[] = DI::baseUrl() . '/poco';
 
-		if (strlen(Config::get('system', 'directory'))) {
+		if (strlen(DI::config()->get('system', 'directory'))) {
 			$x = Network::fetchUrl(Search::getGlobalDirectory() . '/pubsites');
 			if (!empty($x)) {
 				$j = json_decode($x);
@@ -1235,7 +1234,7 @@ class GContact
 	 */
 	public static function discoverGsUsers()
 	{
-		$requery_days = intval(Config::get('system', 'poco_requery_days'));
+		$requery_days = intval(DI::config()->get('system', 'poco_requery_days'));
 
 		$last_update = date("c", time() - (60 * 60 * 24 * $requery_days));
 

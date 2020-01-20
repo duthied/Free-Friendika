@@ -2,13 +2,13 @@
 
 namespace Friendica\Test\src\Core\Config;
 
-use Friendica\Core\Config\JitConfiguration;
+use Friendica\Core\Config\JitConfig;
 
-class JitConfigurationTest extends ConfigurationTest
+class JitConfigTest extends ConfigTest
 {
 	public function getInstance()
 	{
-		return new JitConfiguration($this->configCache, $this->configModel);
+		return new JitConfig($this->configCache, $this->configModel);
 	}
 
 	/**

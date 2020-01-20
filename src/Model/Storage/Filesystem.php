@@ -6,7 +6,7 @@
 
 namespace Friendica\Model\Storage;
 
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Util\Strings;
 use Psr\Log\LoggerInterface;
@@ -28,7 +28,7 @@ class Filesystem extends AbstractStorage
 	// Default base folder
 	const DEFAULT_BASE_FOLDER = 'storage';
 
-	/** @var IConfiguration */
+	/** @var IConfig */
 	private $config;
 
 	/** @var string */
@@ -37,11 +37,11 @@ class Filesystem extends AbstractStorage
 	/**
 	 * Filesystem constructor.
 	 *
-	 * @param IConfiguration  $config
+	 * @param IConfig         $config
 	 * @param LoggerInterface $logger
 	 * @param L10n            $l10n
 	 */
-	public function __construct(IConfiguration $config, LoggerInterface $logger, L10n $l10n)
+	public function __construct(IConfig $config, LoggerInterface $logger, L10n $l10n)
 	{
 		parent::__construct($l10n, $logger);
 

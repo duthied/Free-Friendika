@@ -3,7 +3,7 @@
 namespace Friendica\Core;
 
 use Exception;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Database\Database;
 use Friendica\Model\Storage;
 use Psr\Log\LoggerInterface;
@@ -35,7 +35,7 @@ class StorageManager
 
 	/** @var Database */
 	private $dba;
-	/** @var IConfiguration */
+	/** @var IConfig */
 	private $config;
 	/** @var LoggerInterface */
 	private $logger;
@@ -47,11 +47,11 @@ class StorageManager
 
 	/**
 	 * @param Database        $dba
-	 * @param IConfiguration  $config
+	 * @param IConfig         $config
 	 * @param LoggerInterface $logger
 	 * @param L10n            $l10n
 	 */
-	public function __construct(Database $dba, IConfiguration $config, LoggerInterface $logger, L10n $l10n)
+	public function __construct(Database $dba, IConfig $config, LoggerInterface $logger, L10n $l10n)
 	{
 		$this->dba      = $dba;
 		$this->config   = $config;

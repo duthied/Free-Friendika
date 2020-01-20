@@ -6,7 +6,6 @@
 namespace Friendica\Module;
 
 use Friendica\BaseModule;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -146,7 +145,7 @@ class Group extends BaseModule
 		// Switch to text mode interface if we have more than 'n' contacts or group members
 		$switchtotext = DI::pConfig()->get(local_user(), 'system', 'groupedit_image_limit');
 		if (is_null($switchtotext)) {
-			$switchtotext = Config::get('system', 'groupedit_image_limit', 200);
+			$switchtotext = DI::config()->get('system', 'groupedit_image_limit', 200);
 		}
 
 		$tpl = Renderer::getMarkupTemplate('group_edit.tpl');

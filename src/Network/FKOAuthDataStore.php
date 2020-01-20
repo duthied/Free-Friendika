@@ -9,9 +9,9 @@
 
 namespace Friendica\Network;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Util\Strings;
 use OAuthConsumer;
 use OAuthDataStore;
@@ -151,7 +151,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		$ret = null;
 
 		// get user for this verifier
-		$uverifier = Config::get("oauth", $verifier);
+		$uverifier = DI::config()->get("oauth", $verifier);
 		Logger::log(__function__ . ":" . $verifier . "," . $uverifier);
 
 		if (is_null($verifier) || ($uverifier !== false)) {
@@ -177,7 +177,7 @@ class FKOAuthDataStore extends OAuthDataStore
 		DBA::delete('tokens', ['id' => $token->key]);
 
 		if (!is_null($ret) && !is_null($uverifier)) {
-			Config::delete("oauth", $verifier);
+			DI::config()->delete("oauth", $verifier);
 		}
 
 		return $ret;

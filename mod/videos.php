@@ -6,7 +6,6 @@
 use Friendica\App;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -20,7 +19,7 @@ use Friendica\Util\Security;
 
 function videos_init(App $a)
 {
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		return;
 	}
 
@@ -108,7 +107,7 @@ function videos_content(App $a)
 	// videos/name/video/xxxxx/edit
 
 
-	if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+	if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 		notice(DI::l10n()->t('Public access denied.') . EOL);
 		return;
 	}

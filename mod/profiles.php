@@ -8,7 +8,6 @@ use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Core\Worker;
@@ -479,7 +478,7 @@ function profiles_post(App $a) {
 
 			// Update global directory in background
 			$url = $_SESSION['my_url'];
-			if ($url && strlen(Config::get('system', 'directory'))) {
+			if ($url && strlen(DI::config()->get('system', 'directory'))) {
 				Worker::add(PRIORITY_LOW, "Directory", $url);
 			}
 

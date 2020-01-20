@@ -3,7 +3,6 @@
  * @file view/theme/vier/style.php
  */
 use Friendica\Core\Logger;
-use Friendica\Core\Config;
 use Friendica\DI;
 
 $uid = $_REQUEST['puid'] ?? 0;
@@ -11,7 +10,7 @@ $uid = $_REQUEST['puid'] ?? 0;
 $style = DI::pConfig()->get($uid, 'vier', 'style');
 
 if (empty($style)) {
-	$style = Config::get('vier', 'style');
+	$style = DI::config()->get('vier', 'style');
 }
 
 if (empty($style)) {

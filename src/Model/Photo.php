@@ -7,7 +7,6 @@
 namespace Friendica\Model;
 
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
@@ -541,7 +540,7 @@ class Photo
 		$key = "photo_albums:".$uid.":".local_user().":".remote_user();
 		$albums = DI::cache()->get($key);
 		if (is_null($albums) || $update) {
-			if (!Config::get("system", "no_count", false)) {
+			if (!DI::config()->get("system", "no_count", false)) {
 				/// @todo This query needs to be renewed. It is really slow
 				// At this time we just store the data in the cache
 				$albums = q("SELECT COUNT(DISTINCT `resource-id`) AS `total`, `album`, ANY_VALUE(`created`) AS `created`

@@ -8,7 +8,6 @@ use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\Nav;
 use Friendica\Core\ACL;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -250,9 +249,9 @@ function settings_post(App $a)
 			$mail_pubmail      =                 $_POST['mail_pubmail']      ?? '';
 
 			if (
-				!Config::get('system', 'dfrn_only')
+				!DI::config()->get('system', 'dfrn_only')
 				&& function_exists('imap_open')
-				&& !Config::get('system', 'imap_disabled')
+				&& !DI::config()->get('system', 'imap_disabled')
 			) {
 				$failed = false;
 				$r = q("SELECT * FROM `mailacct` WHERE `uid` = %d LIMIT 1",
@@ -541,8 +540,8 @@ function settings_post(App $a)
 			$err .= DI::l10n()->t('Invalid email.');
 		}
 		//  ensure new email is not the admin mail
-		if (Config::get('config', 'admin_email')) {
-			$adminlist = explode(",", str_replace(" ", "", strtolower(Config::get('config', 'admin_email'))));
+		if (DI::config()->get('config', 'admin_email')) {
+			$adminlist = explode(",", str_replace(" ", "", strtolower(DI::config()->get('config', 'admin_email'))));
 			if (in_array(strtolower($email), $adminlist)) {
 				$err .= DI::l10n()->t('Cannot change to that email.');
 				$email = $a->user['email'];
@@ -625,7 +624,7 @@ function settings_post(App $a)
 	if (($old_visibility != $net_publish) || ($page_flags != $old_page_flags)) {
 		// Update global directory in background
 		$url = $_SESSION['my_url'];
-		if ($url && strlen(Config::get('system', 'directory'))) {
+		if ($url && strlen(DI::config()->get('system', 'directory'))) {
 			Worker::add(PRIORITY_LOW, "Directory", $url);
 		}
 	}
@@ -791,15 +790,15 @@ function settings_content(App $a)
 		Hook::callAll('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
-			$diasp_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('Diaspora'), ((Config::get('system', 'diaspora_enabled')) ? DI::l10n()->t('enabled') : DI::l10n()->t('disabled')));
-			$ostat_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t("GNU Social \x28OStatus\x29"), ((Config::get('system', 'ostatus_disabled')) ? DI::l10n()->t('disabled') : DI::l10n()->t('enabled')));
+			$diasp_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('Diaspora'), ((DI::config()->get('system', 'diaspora_enabled')) ? DI::l10n()->t('enabled') : DI::l10n()->t('disabled')));
+			$ostat_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t("GNU Social \x28OStatus\x29"), ((DI::config()->get('system', 'ostatus_disabled')) ? DI::l10n()->t('disabled') : DI::l10n()->t('enabled')));
 		} else {
 			$diasp_enabled = "";
 			$ostat_enabled = "";
 		}
 
-		$mail_disabled = ((function_exists('imap_open') && (!Config::get('system', 'imap_disabled'))) ? 0 : 1);
-		if (Config::get('system', 'dfrn_only')) {
+		$mail_disabled = ((function_exists('imap_open') && (!DI::config()->get('system', 'imap_disabled'))) ? 0 : 1);
+		if (DI::config()->get('system', 'dfrn_only')) {
 			$mail_disabled = 1;
 		}
 		if (!$mail_disabled) {
@@ -827,7 +826,7 @@ function settings_content(App $a)
 
 		$ssl_options = ['TLS' => 'TLS', 'SSL' => 'SSL'];
 
-		if (Config::get('system', 'insecure_imap')) {
+		if (DI::config()->get('system', 'insecure_imap')) {
 			$ssl_options['notls'] = DI::l10n()->t('None');
 		}
 
@@ -877,11 +876,11 @@ function settings_content(App $a)
 	 * DISPLAY SETTINGS
 	 */
 	if (($a->argc > 1) && ($a->argv[1] === 'display')) {
-		$default_theme = Config::get('system', 'theme');
+		$default_theme = DI::config()->get('system', 'theme');
 		if (!$default_theme) {
 			$default_theme = 'default';
 		}
-		$default_mobile_theme = Config::get('system', 'mobile-theme');
+		$default_mobile_theme = DI::config()->get('system', 'mobile-theme');
 		if (!$default_mobile_theme) {
 			$default_mobile_theme = 'none';
 		}
@@ -894,7 +893,7 @@ function settings_content(App $a)
 			$is_experimental = file_exists('view/theme/' . $theme . '/experimental');
 			$is_unsupported  = file_exists('view/theme/' . $theme . '/unsupported');
 			$is_mobile       = file_exists('view/theme/' . $theme . '/mobile');
-			if (!$is_experimental || ($is_experimental && (Config::get('experimentals', 'exp_themes')==1 || is_null(Config::get('experimentals', 'exp_themes'))))) {
+			if (!$is_experimental || ($is_experimental && (DI::config()->get('experimentals', 'exp_themes')==1 || is_null(DI::config()->get('experimentals', 'exp_themes'))))) {
 				$theme_name = ucfirst($theme);
 				if ($is_unsupported) {
 					$theme_name = DI::l10n()->t('%s - (Unsupported)', $theme_name);
@@ -1068,7 +1067,7 @@ function settings_content(App $a)
 
 	]);
 
-	$noid = Config::get('system', 'no_openid');
+	$noid = DI::config()->get('system', 'no_openid');
 
 	if ($noid) {
 		$openid_field = false;
@@ -1077,7 +1076,7 @@ function settings_content(App $a)
 	}
 
 	$opt_tpl = Renderer::getMarkupTemplate("field_yesno.tpl");
-	if (Config::get('system', 'publish_all')) {
+	if (DI::config()->get('system', 'publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = Renderer::replaceMacros($opt_tpl, [
@@ -1085,9 +1084,9 @@ function settings_content(App $a)
 		]);
 	}
 
-	if (strlen(Config::get('system', 'directory'))) {
+	if (strlen(DI::config()->get('system', 'directory'))) {
 		$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', DI::l10n()->t('Publish your default profile in the global social directory?'), $profile['net-publish'], DI::l10n()->t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', Config::get('system', 'directory'), Config::get('system', 'directory'))	. " " . DI::l10n()->t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting."), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]]
+			'$field' => ['profile_in_netdirectory', DI::l10n()->t('Publish your default profile in the global social directory?'), $profile['net-publish'], DI::l10n()->t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'))	. " " . DI::l10n()->t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting."), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]]
 		]);
 	} else {
 		$profile_in_net_dir = '';
@@ -1181,7 +1180,7 @@ function settings_content(App $a)
 		'$password2'=> ['confirm', DI::l10n()->t('Confirm:'), '', DI::l10n()->t('Leave password fields blank unless changing')],
 		'$password3'=> ['opassword', DI::l10n()->t('Current Password:'), '', DI::l10n()->t('Your current password to confirm the changes')],
 		'$password4'=> ['mpassword', DI::l10n()->t('Password:'), '', DI::l10n()->t('Your current password to confirm the changes')],
-		'$oid_enable' => (!Config::get('system', 'no_openid')),
+		'$oid_enable' => (!DI::config()->get('system', 'no_openid')),
 		'$openid'	=> $openid_field,
 		'$delete_openid' => ['delete_openid', DI::l10n()->t('Delete OpenID URL'), false, ''],
 
@@ -1256,7 +1255,7 @@ function settings_content(App $a)
 		'$importcontact' => DI::l10n()->t('Import Contacts'),
 		'$importcontact_text' => DI::l10n()->t('Upload a CSV file that contains the handle of your followed accounts in the first column you exported from the old account.'),
 		'$importcontact_button' => DI::l10n()->t('Upload File'),
-		'$importcontact_maxsize' => Config::get('system', 'max_csv_file_size', 30720), 
+		'$importcontact_maxsize' => DI::config()->get('system', 'max_csv_file_size', 30720), 
 		'$relocate' => DI::l10n()->t('Relocate'),
 		'$relocate_text' => DI::l10n()->t("If you have moved this profile from another server, and some of your contacts don't receive your updates, try pushing this button."),
 		'$relocate_button' => DI::l10n()->t("Resend relocate message to contacts"),

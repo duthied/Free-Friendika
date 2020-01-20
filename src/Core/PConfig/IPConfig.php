@@ -1,11 +1,11 @@
 <?php
 
-namespace Friendica\Core\Config;
+namespace Friendica\Core\PConfig;
 
 /**
  * Interface for accessing user specific configurations
  */
-interface IPConfiguration
+interface IPConfig
 {
 
 	/**
@@ -17,7 +17,7 @@ interface IPConfiguration
 	 * @param string $cat The category of the configuration value
 	 *
 	 * @return void
-	 * @see PConfigCache
+	 * @see Cache
 	 *
 	 */
 	function load(int $uid, string $cat = 'config');
@@ -76,7 +76,7 @@ interface IPConfiguration
 	/**
 	 * Returns the Config Cache
 	 *
-	 * @return Cache\PConfigCache
+	 * @return Cache
 	 */
 	function getCache();
 }

@@ -6,7 +6,6 @@
 
 use Friendica\App;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -20,7 +19,7 @@ use Friendica\Util\XML;
 function poco_init(App $a) {
 	$system_mode = false;
 
-	if (intval(Config::get('system', 'block_public')) || (Config::get('system', 'block_local_dir'))) {
+	if (intval(DI::config()->get('system', 'block_public')) || (DI::config()->get('system', 'block_local_dir'))) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 

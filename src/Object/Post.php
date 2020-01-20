@@ -7,7 +7,6 @@ namespace Friendica\Object;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -374,14 +373,14 @@ class Post
 
 		$ago = Temporal::getRelativeDate($item['created']);
 		$ago_received = Temporal::getRelativeDate($item['received']);
-		if (Config::get('system', 'show_received') && (abs(strtotime($item['created']) - strtotime($item['received'])) > Config::get('system', 'show_received_seconds')) && ($ago != $ago_received)) {
+		if (DI::config()->get('system', 'show_received') && (abs(strtotime($item['created']) - strtotime($item['received'])) > DI::config()->get('system', 'show_received_seconds')) && ($ago != $ago_received)) {
 			$ago = DI::l10n()->t('%s (Received %s)', $ago, $ago_received);
 		}
 
 		$tmp_item = [
 			'template'        => $this->getTemplate(),
 			'type'            => implode("", array_slice(explode("/", $item['verb']), -1)),
-			'suppress_tags'   => Config::get('system', 'suppress_tags'),
+			'suppress_tags'   => DI::config()->get('system', 'suppress_tags'),
 			'tags'            => $tags['tags'],
 			'hashtags'        => $tags['hashtags'],
 			'mentions'        => $tags['mentions'],

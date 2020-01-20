@@ -11,7 +11,6 @@ use DOMText;
 use DOMXPath;
 use Exception;
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
@@ -248,7 +247,7 @@ class OEmbed
 
 	public static function BBCode2HTML($text)
 	{
-		$stopoembed = Config::get("system", "no_oembed");
+		$stopoembed = DI::config()->get("system", "no_oembed");
 		if ($stopoembed == true) {
 			return preg_replace("/\[embed\](.+?)\[\/embed\]/is", "<!-- oembed $1 --><i>" . DI::l10n()->t('Embedding disabled') . " : $1</i><!-- /oembed $1 -->", $text);
 		}
@@ -302,7 +301,7 @@ class OEmbed
 	 */
 	public static function isAllowedURL($url)
 	{
-		if (!Config::get('system', 'no_oembed_rich_content')) {
+		if (!DI::config()->get('system', 'no_oembed_rich_content')) {
 			return true;
 		}
 
@@ -311,7 +310,7 @@ class OEmbed
 			return false;
 		}
 
-		$str_allowed = Config::get('system', 'allowed_oembed', '');
+		$str_allowed = DI::config()->get('system', 'allowed_oembed', '');
 		if (empty($str_allowed)) {
 			return false;
 		}

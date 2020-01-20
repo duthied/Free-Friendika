@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Admin\Blocklist;
 
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseAdminModule;
@@ -22,12 +21,12 @@ class Server extends BaseAdminModule
 
 		if (!empty($_POST['page_blocklist_save'])) {
 			//  Add new item to blocklist
-			$blocklist = Config::get('system', 'blocklist');
+			$blocklist = DI::config()->get('system', 'blocklist');
 			$blocklist[] = [
 				'domain' => Strings::escapeTags(trim($_POST['newentry_domain'])),
 				'reason' => Strings::escapeTags(trim($_POST['newentry_reason']))
 			];
-			Config::set('system', 'blocklist', $blocklist);
+			DI::config()->set('system', 'blocklist', $blocklist);
 			info(DI::l10n()->t('Server domain pattern added to blocklist.') . EOL);
 		} else {
 			// Edit the entries from blocklist
@@ -43,7 +42,7 @@ class Server extends BaseAdminModule
 					];
 				}
 			}
-			Config::set('system', 'blocklist', $blocklist);
+			DI::config()->set('system', 'blocklist', $blocklist);
 			info(DI::l10n()->t('Site blocklist updated.') . EOL);
 		}
 
@@ -54,7 +53,7 @@ class Server extends BaseAdminModule
 	{
 		parent::content($parameters);
 
-		$blocklist = Config::get('system', 'blocklist');
+		$blocklist = DI::config()->get('system', 'blocklist');
 		$blocklistform = [];
 		if (is_array($blocklist)) {
 			foreach ($blocklist as $id => $b) {

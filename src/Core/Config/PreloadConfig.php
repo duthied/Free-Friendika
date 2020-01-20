@@ -2,6 +2,7 @@
 
 namespace Friendica\Core\Config;
 
+use Friendica\Core\BaseConfig;
 use Friendica\Model;
 
 /**
@@ -10,16 +11,16 @@ use Friendica\Model;
  *
  * Minimizes the number of database queries to retrieve configuration values at the cost of memory.
  */
-class PreloadConfiguration extends Configuration
+class PreloadConfig extends BaseConfig
 {
 	/** @var bool */
 	private $config_loaded;
 
 	/**
-	 * @param Cache\ConfigCache   $configCache The configuration cache (based on the config-files)
+	 * @param Cache               $configCache The configuration cache (based on the config-files)
 	 * @param Model\Config\Config $configModel The configuration model
 	 */
-	public function __construct(Cache\ConfigCache $configCache, Model\Config\Config $configModel)
+	public function __construct(Cache $configCache, Model\Config\Config $configModel)
 	{
 		parent::__construct($configCache, $configModel);
 		$this->config_loaded = false;

@@ -253,7 +253,7 @@ class Search
 	 */
 	public static function searchGlobalContact($search, $mode, int $page = 1)
 	{
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			return [];
 		}
 
@@ -267,7 +267,7 @@ class Search
 		}
 
 		// check if searching in the local global contact table is enabled
-		if (Config::get('system', 'poco_local_search')) {
+		if (DI::config()->get('system', 'poco_local_search')) {
 			$return = GContact::searchByName($search, $mode);
 		} else {
 			$p = $page > 1 ? 'p=' . $page : '';
@@ -290,6 +290,6 @@ class Search
 	 */
 	public static function getGlobalDirectory()
 	{
-		return Config::get('system', 'directory', self::DEFAULT_DIRECTORY);
+		return DI::config()->get('system', 'directory', self::DEFAULT_DIRECTORY);
 	}
 }

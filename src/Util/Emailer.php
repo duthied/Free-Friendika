@@ -4,7 +4,6 @@
  */
 namespace Friendica\Util;
 
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\DI;
@@ -81,7 +80,7 @@ class Emailer
 		$multipartMessageBody .=
 			"--" . $mimeBoundary . "--\n";					// message ending
 
-		if (Config::get("system", "sendmail_params", true)) {
+		if (DI::config()->get("system", "sendmail_params", true)) {
 			$sendmail_params = '-f ' . $params['fromEmail'];
 		} else {
 			$sendmail_params = null;

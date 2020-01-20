@@ -6,7 +6,7 @@ namespace Friendica\Core;
 
 use DOMDocument;
 use Exception;
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
@@ -129,12 +129,12 @@ class Installer
 	 * - Creates `config/local.config.php`
 	 * - Installs Database Structure
 	 *
-	 * @param ConfigCache $configCache The config cache with all config relevant information
+	 * @param Cache $configCache The config cache with all config relevant information
 	 *
 	 * @return bool true if the config was created, otherwise false
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function createConfig(ConfigCache $configCache)
+	public function createConfig(Cache $configCache)
 	{
 		$basepath = $configCache->get('system', 'basepath');
 
@@ -618,12 +618,12 @@ class Installer
 	/**
 	 * Setup the default cache for a new installation
 	 *
-	 * @param ConfigCache $configCache The configuration cache
-	 * @param string       $basePath    The determined basepath
+	 * @param Cache  $configCache The configuration cache
+	 * @param string $basePath    The determined basepath
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function setUpCache(ConfigCache $configCache, $basePath)
+	public function setUpCache(Cache $configCache, $basePath)
 	{
 		$configCache->set('config', 'php_path'  , $this->getPHPPath());
 		$configCache->set('system', 'basepath'  , $basePath);

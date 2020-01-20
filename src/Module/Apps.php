@@ -4,7 +4,6 @@ namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\Content\Nav;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
@@ -15,7 +14,7 @@ class Apps extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
-		$privateaddons = Config::get('config', 'private_addons');
+		$privateaddons = DI::config()->get('config', 'private_addons');
 		if ($privateaddons === "1" && !local_user()) {
 			DI::baseUrl()->redirect();
 		}

@@ -5,7 +5,6 @@
  */
 namespace Friendica\Worker;
 
-use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\DI;
 
@@ -14,7 +13,7 @@ class DBUpdate
 	public static function execute()
 	{
 		// Just in case the last update wasn't failed
-		if (Config::get('system', 'update', Update::SUCCESS, true) != Update::FAILED) {
+		if (DI::config()->get('system', 'update', Update::SUCCESS, true) != Update::FAILED) {
 			Update::run(DI::app()->getBasePath());
 		}
 	}

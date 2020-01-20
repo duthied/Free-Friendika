@@ -29,14 +29,14 @@ class Update
 		}
 
 		// Don't check the status if the last update was failed
-		if (Config::get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
+		if (DI::config()->get('system', 'update', Update::SUCCESS, true) == Update::FAILED) {
 			return;
 		}
 
-		$build = Config::get('system', 'build');
+		$build = DI::config()->get('system', 'build');
 
 		if (empty($build)) {
-			Config::set('system', 'build', DB_UPDATE_VERSION - 1);
+			DI::config()->set('system', 'build', DB_UPDATE_VERSION - 1);
 			$build = DB_UPDATE_VERSION - 1;
 		}
 
@@ -77,11 +77,11 @@ class Update
 			DI::lock()->release('dbupdate', true);
 		}
 
-		$build = Config::get('system', 'build', null, true);
+		$build = DI::config()->get('system', 'build', null, true);
 
 		if (empty($build) || ($build > DB_UPDATE_VERSION)) {
 			$build = DB_UPDATE_VERSION - 1;
-			Config::set('system', 'build', $build);
+			DI::config()->set('system', 'build', $build);
 		}
 
 		if ($build != DB_UPDATE_VERSION || $force) {
@@ -90,7 +90,7 @@ class Update
 			$stored = intval($build);
 			$current = intval(DB_UPDATE_VERSION);
 			if ($stored < $current || $force) {
-				Config::load('database');
+				DI::config()->load('database');
 
 				Logger::info('Update starting.', ['from' => $stored, 'to' => $current]);
 
@@ -99,7 +99,7 @@ class Update
 				if (DI::lock()->acquire('dbupdate', 120, Cache\Duration::INFINITE)) {
 
 					// Checks if the build changed during Lock acquiring (so no double update occurs)
-					$retryBuild = Config::get('system', 'build', null, true);
+					$retryBuild = DI::config()->get('system', 'build', null, true);
 					if ($retryBuild !== $build) {
 						Logger::info('Update already done.', ['from' => $stored, 'to' => $current]);
 						DI::lock()->release('dbupdate');
@@ -110,7 +110,7 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'pre_update');
 						if (!$r) {
-							Config::set('system', 'update', Update::FAILED);
+							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
 						}
@@ -126,12 +126,12 @@ class Update
 							);
 						}
 						Logger::error('Update ERROR.', ['from' => $stored, 'to' => $current, 'retval' => $retval]);
-						Config::set('system', 'update', Update::FAILED);
+						DI::config()->set('system', 'update', Update::FAILED);
 						DI::lock()->release('dbupdate');
 						return $retval;
 					} else {
-						Config::set('database', 'last_successful_update', $current);
-						Config::set('database', 'last_successful_update_time', time());
+						DI::config()->set('database', 'last_successful_update', $current);
+						DI::config()->set('database', 'last_successful_update_time', time());
 						Logger::info('Update finished.', ['from' => $stored, 'to' => $current]);
 					}
 
@@ -139,7 +139,7 @@ class Update
 					for ($x = $stored + 1; $x <= $current; $x++) {
 						$r = self::runUpdateFunction($x, 'update');
 						if (!$r) {
-							Config::set('system', 'update', Update::FAILED);
+							DI::config()->set('system', 'update', Update::FAILED);
 							DI::lock()->release('dbupdate');
 							return $r;
 						}
@@ -150,7 +150,7 @@ class Update
 						self::updateSuccessfull($stored, $current);
 					}
 
-					Config::set('system', 'update', Update::SUCCESS);
+					DI::config()->set('system', 'update', Update::SUCCESS);
 					DI::lock()->release('dbupdate');
 				}
 			}
@@ -197,11 +197,11 @@ class Update
 					DI::lock()->release('dbupdate_function');
 					return false;
 				} else {
-					Config::set('database', 'last_successful_update_function', $funcname);
-					Config::set('database', 'last_successful_update_function_time', time());
+					DI::config()->set('database', 'last_successful_update_function', $funcname);
+					DI::config()->set('database', 'last_successful_update_function_time', time());
 
 					if ($prefix == 'update') {
-						Config::set('system', 'build', $x);
+						DI::config()->set('system', 'build', $x);
 					}
 
 					DI::lock()->release('dbupdate_function');
@@ -212,11 +212,11 @@ class Update
 		} else {
 			Logger::info('Update function skipped.', ['function' => $funcname]);
 
-			Config::set('database', 'last_successful_update_function', $funcname);
-			Config::set('database', 'last_successful_update_function_time', time());
+			DI::config()->set('database', 'last_successful_update_function', $funcname);
+			DI::config()->set('database', 'last_successful_update_function_time', time());
 
 			if ($prefix == 'update') {
-				Config::set('system', 'build', $x);
+				DI::config()->set('system', 'build', $x);
 			}
 
 			return true;
@@ -232,7 +232,7 @@ class Update
 	 */
 	private static function updateFailed($update_id, $error_message) {
 		//send the administrators an e-mail
-		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$condition = ['email' => explode(",", str_replace(" ", "", DI::config()->get('config', 'admin_email'))), 'parent-uid' => 0];
 		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		// No valid result?
@@ -281,7 +281,7 @@ class Update
 	private static function updateSuccessfull($from_build, $to_build)
 	{
 		//send the administrators an e-mail
-		$condition = ['email' => explode(",", str_replace(" ", "", Config::get('config', 'admin_email'))), 'parent-uid' => 0];
+		$condition = ['email' => explode(",", str_replace(" ", "", DI::config()->get('config', 'admin_email'))), 'parent-uid' => 0];
 		$adminlist = DBA::select('user', ['uid', 'language', 'email'], $condition, ['order' => ['uid']]);
 
 		if (DBA::isResult($adminlist)) {

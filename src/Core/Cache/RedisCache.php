@@ -4,7 +4,7 @@ namespace Friendica\Core\Cache;
 
 use Exception;
 use Friendica\Core\BaseCache;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Redis;
 
 /**
@@ -23,7 +23,7 @@ class RedisCache extends BaseCache implements IMemoryCache
 	/**
 	 * @throws Exception
 	 */
-	public function __construct(string $hostname, IConfiguration $config)
+	public function __construct(string $hostname, IConfig $config)
 	{
 		if (!class_exists('Redis', false)) {
 			throw new Exception('Redis class isn\'t available');

@@ -3,7 +3,6 @@
  * @file mod/profperm.php
  */
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Content\Text\HTML;
 use Friendica\Database\DBA;
@@ -42,7 +41,7 @@ function profperm_content(App $a) {
 
 	$switchtotext = DI::pConfig()->get(local_user(),'system','groupedit_image_limit');
 	if (is_null($switchtotext)) {
-		$switchtotext = Config::get('system','groupedit_image_limit', 400);
+		$switchtotext = DI::config()->get('system','groupedit_image_limit', 400);
 	}
 
 	if (($a->argc > 2) && intval($a->argv[1]) && intval($a->argv[2])) {

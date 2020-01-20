@@ -5,7 +5,7 @@ namespace Friendica\Console;
 use Asika\SimpleConsole\CommandArgsException;
 use Asika\SimpleConsole\Console;
 use Console_Table;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 
 /**
  * Manage blocked servers
@@ -20,7 +20,7 @@ class ServerBlock extends Console
 	protected $helpOptions = ['h', 'help', '?'];
 
 	/**
-	 * @var IConfiguration
+	 * @var IConfig
 	 */
 	private $config;
 
@@ -49,7 +49,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(IConfiguration $config, $argv = null)
+	public function __construct(IConfig $config, $argv = null)
 	{
 		parent::__construct($argv);
 
@@ -77,9 +77,9 @@ HELP;
 	/**
 	 * Prints the whole list of blocked domains including the reason
 	 *
-	 * @param IConfiguration $config
+	 * @param IConfig $config
 	 */
-	private function printBlockedServers(IConfiguration $config)
+	private function printBlockedServers(IConfig $config)
 	{
 		$table = new Console_Table();
 		$table->setHeaders(['Domain', 'Reason']);
@@ -93,11 +93,11 @@ HELP;
 	/**
 	 * Adds a server to the blocked list
 	 *
-	 * @param IConfiguration $config
+	 * @param IConfig $config
 	 *
 	 * @return int The return code (0 = success, 1 = failed)
 	 */
-	private function addBlockedServer(IConfiguration $config)
+	private function addBlockedServer(IConfig $config)
 	{
 		if (count($this->args) < 2 || count($this->args) > 3) {
 			throw new CommandArgsException('Add needs a domain and optional a reason.');
@@ -145,11 +145,11 @@ HELP;
 	/**
 	 * Removes a server from the blocked list
 	 *
-	 * @param IConfiguration $config
+	 * @param IConfig $config
 	 *
 	 * @return int The return code (0 = success, 1 = failed)
 	 */
-	private function removeBlockedServer(IConfiguration $config)
+	private function removeBlockedServer(IConfig $config)
 	{
 		if (count($this->args) !== 2) {
 			throw new CommandArgsException('Remove needs a second parameter.');

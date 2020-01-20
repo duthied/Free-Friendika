@@ -7,7 +7,6 @@
 
 use Dice\Dice;
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Update;
 use Friendica\Core\Worker;
 use Friendica\DI;
@@ -46,7 +45,7 @@ if (!DI::mode()->has(App\Mode::MAINTENANCEDISABLED)) {
 	return;
 }
 
-DI::baseUrl()->saveByURL(Config::get('system', 'url'));
+DI::baseUrl()->saveByURL(DI::config()->get('system', 'url'));
 
 $spawn = array_key_exists('s', $options) || array_key_exists('spawn', $options);
 

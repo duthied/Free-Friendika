@@ -19,7 +19,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
@@ -229,7 +228,7 @@ function dfrn_confirm_post(App $a, $handsfree = null)
 			return;
 		}
 
-		if (strlen($leading_junk) && Config::get('system', 'debugging')) {
+		if (strlen($leading_junk) && DI::config()->get('system', 'debugging')) {
 			// This might be more common. Mixed error text and some XML.
 			// If we're configured for debugging, show the text. Proceed in either case.
 			notice(DI::l10n()->t('Unexpected response from remote site: ') . EOL . $leading_junk . EOL);

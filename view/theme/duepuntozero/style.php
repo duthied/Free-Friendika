@@ -2,7 +2,6 @@
 /**
  * @file view/theme/duepuntozero/style.php
  */
-use Friendica\Core\Config;
 use Friendica\DI;
 
 if (file_exists("$THEMEPATH/style.css")) {
@@ -11,7 +10,7 @@ if (file_exists("$THEMEPATH/style.css")) {
 
 $uid = $_REQUEST['puid'] ?? 0;
 
-$s_colorset = Config::get('duepuntozero', 'colorset');
+$s_colorset = DI::config()->get('duepuntozero', 'colorset');
 $colorset = DI::pConfig()->get($uid, 'duepuntozero', 'colorset');
 
 if (empty($colorset)) {

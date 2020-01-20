@@ -3,7 +3,6 @@
  * @file mod/follow.php
  */
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
 use Friendica\DI;
@@ -94,14 +93,14 @@ function follow_content(App $a)
 
 	$protocol = Contact::getProtocol($ret['url'], $ret['network']);
 
-	if (($protocol == Protocol::DIASPORA) && !Config::get('system', 'diaspora_enabled')) {
+	if (($protocol == Protocol::DIASPORA) && !DI::config()->get('system', 'diaspora_enabled')) {
 		notice(DI::l10n()->t("Diaspora support isn't enabled. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
 		// NOTREACHED
 	}
 
-	if (($protocol == Protocol::OSTATUS) && Config::get('system', 'ostatus_disabled')) {
+	if (($protocol == Protocol::OSTATUS) && DI::config()->get('system', 'ostatus_disabled')) {
 		notice(DI::l10n()->t("OStatus support is disabled. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);

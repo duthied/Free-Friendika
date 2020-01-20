@@ -4,7 +4,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -35,7 +34,7 @@ function removeme_post(App $a)
 
 	// send notification to admins so that they can clean um the backups
 	// send email to admins
-	$admin_mails = explode(",", str_replace(" ", "", Config::get('config', 'admin_email')));
+	$admin_mails = explode(",", str_replace(" ", "", DI::config()->get('config', 'admin_email')));
 	foreach ($admin_mails as $mail) {
 		$admin = DBA::selectFirst('user', ['uid', 'language', 'email', 'username'], ['email' => $mail]);
 		if (!DBA::isResult($admin)) {

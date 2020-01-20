@@ -13,7 +13,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Renderer;
@@ -595,8 +594,8 @@ function dfrn_request_content(App $a)
 		exit();
 	} else {
 		// Normal web request. Display our user's introduction form.
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
-			if (!Config::get('system', 'local_block')) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
+			if (!DI::config()->get('system', 'local_block')) {
 				notice(DI::l10n()->t('Public access denied.') . EOL);
 				return;
 			}

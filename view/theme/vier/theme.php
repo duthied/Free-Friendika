@@ -12,7 +12,6 @@
 use Friendica\App;
 use Friendica\Content\ForumManager;
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Search;
 use Friendica\Database\DBA;
@@ -95,7 +94,7 @@ function get_vier_config($key, $default = false, $admin = false)
 		}
 	}
 
-	$result = Config::get("vier", $key);
+	$result = DI::config()->get("vier", $key);
 	if (!is_null($result)) {
 		return $result;
 	}
@@ -141,7 +140,7 @@ function vier_community_info()
 
 	// last 9 users
 	if ($show_lastusers) {
-		$publish = (Config::get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
+		$publish = (DI::config()->get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
 		$order = " ORDER BY `register_date` DESC ";
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
@@ -240,7 +239,7 @@ function vier_community_info()
 	if ($show_helpers) {
 		$r = [];
 
-		$helperlist = Config::get("vier", "helperlist");
+		$helperlist = DI::config()->get("vier", "helperlist");
 
 		$helpers = explode(",", $helperlist);
 
@@ -338,7 +337,7 @@ function vier_community_info()
 			$r[] = ["photo" => "images/wordpress.png", "name" => "Wordpress"];
 		}
 
-		if (function_exists("imap_open") && !Config::get("system", "imap_disabled") && !Config::get("system", "dfrn_only")) {
+		if (function_exists("imap_open") && !DI::config()->get("system", "imap_disabled") && !DI::config()->get("system", "dfrn_only")) {
 			$r[] = ["photo" => "images/mail.png", "name" => "E-Mail"];
 		}
 

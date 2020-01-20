@@ -8,8 +8,8 @@ namespace Friendica\Model;
 
 use Friendica\Content\Text\HTML;
 use Friendica\Core\Logger;
-use Friendica\Core\Config;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\Network;
 use Friendica\Util\JsonLD;
@@ -33,7 +33,7 @@ class APContact
 			return false;
 		}
 
-		$xrd_timeout = Config::get('system', 'xrd_timeout');
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 
 		$webfinger = 'https://' . $addr_parts[1] . '/.well-known/webfinger?resource=acct:' . urlencode($addr);
 

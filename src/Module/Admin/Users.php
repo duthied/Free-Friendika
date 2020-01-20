@@ -3,7 +3,6 @@
 namespace Friendica\Module\Admin;
 
 use Friendica\Content\Pager;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -24,7 +23,7 @@ class Users extends BaseAdminModule
 		$nu_name     = $_POST['new_user_name']     ?? '';
 		$nu_nickname = $_POST['new_user_nickname'] ?? '';
 		$nu_email    = $_POST['new_user_email']    ?? '';
-		$nu_language = Config::get('system', 'language');
+		$nu_language = DI::config()->get('system', 'language');
 
 		parent::checkFormSecurityTokenRedirectOnError('/admin/users', 'admin_users');
 
@@ -74,8 +73,8 @@ class Users extends BaseAdminModule
 
 			Thank you and welcome to %4$s.'));
 
-			$preamble = sprintf($preamble, $user['username'], Config::get('config', 'sitename'));
-			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], Config::get('config', 'sitename'));
+			$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
+			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
 
 			notification([
 				'type'     => SYSTEM_EMAIL,
@@ -83,7 +82,7 @@ class Users extends BaseAdminModule
 				'to_name'  => $user['username'],
 				'to_email' => $user['email'],
 				'uid'      => $user['uid'],
-				'subject'  => DI::l10n()->t('Registration details for %s', Config::get('config', 'sitename')),
+				'subject'  => DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')),
 				'preamble' => $preamble,
 				'body'     => $body]);
 		}
@@ -214,7 +213,7 @@ class Users extends BaseAdminModule
 		);
 		$users = DBA::toArray($usersStmt);
 
-		$adminlist = explode(',', str_replace(' ', '', Config::get('config', 'admin_email')));
+		$adminlist = explode(',', str_replace(' ', '', DI::config()->get('config', 'admin_email')));
 		$_setup_users = function ($e) use ($adminlist) {
 			$page_types = [
 				User::PAGE_FLAGS_NORMAL    => DI::l10n()->t('Normal Account Page'),

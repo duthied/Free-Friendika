@@ -9,7 +9,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
@@ -179,7 +178,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	Logger::log("File upload src: " . $src . " - filename: " . $filename .
 		" - size: " . $filesize . " - type: " . $filetype, Logger::DEBUG);
 
-	$maximagesize = Config::get('system', 'maximagesize');
+	$maximagesize = DI::config()->get('system', 'maximagesize');
 
 	if (($maximagesize) && ($filesize > $maximagesize)) {
 		$msg = DI::l10n()->t('Image exceeds size limit of %s', Strings::formatBytes($maximagesize));
@@ -209,7 +208,7 @@ function wall_upload_post(App $a, $desktopmode = true)
 	$Image->orient($src);
 	@unlink($src);
 
-	$max_length = Config::get('system', 'max_image_length');
+	$max_length = DI::config()->get('system', 'max_image_length');
 	if (!$max_length) {
 		$max_length = MAX_IMAGE_LENGTH;
 	}

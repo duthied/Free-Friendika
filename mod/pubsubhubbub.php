@@ -1,7 +1,6 @@
 <?php
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -16,7 +15,7 @@ function post_var($name) {
 function pubsubhubbub_init(App $a) {
 	// PuSH subscription must be considered "public" so just block it
 	// if public access isn't enabled.
-	if (Config::get('system', 'block_public')) {
+	if (DI::config()->get('system', 'block_public')) {
 		throw new \Friendica\Network\HTTPException\ForbiddenException();
 	}
 

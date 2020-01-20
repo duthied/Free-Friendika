@@ -4,9 +4,9 @@
  */
 namespace Friendica\Database;
 
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
@@ -57,24 +57,24 @@ class PostUpdate
 	private static function update1194()
 	{
 		// Was the script completed?
-		if (Config::get("system", "post_update_version") >= 1194) {
+		if (DI::config()->get("system", "post_update_version") >= 1194) {
 			return true;
 		}
 
 		Logger::log("Start", Logger::DEBUG);
 
-		$end_id = Config::get("system", "post_update_1194_end");
+		$end_id = DI::config()->get("system", "post_update_1194_end");
 		if (!$end_id) {
 			$r = q("SELECT `id` FROM `item` WHERE `uid` != 0 ORDER BY `id` DESC LIMIT 1");
 			if ($r) {
-				Config::set("system", "post_update_1194_end", $r[0]["id"]);
-				$end_id = Config::get("system", "post_update_1194_end");
+				DI::config()->set("system", "post_update_1194_end", $r[0]["id"]);
+				$end_id = DI::config()->get("system", "post_update_1194_end");
 			}
 		}
 
 		Logger::log("End ID: ".$end_id, Logger::DEBUG);
 
-		$start_id = Config::get("system", "post_update_1194_start");
+		$start_id = DI::config()->get("system", "post_update_1194_start");
 
 		$query1 = "SELECT `item`.`id` FROM `item` ";
 
@@ -90,12 +90,12 @@ class PostUpdate
 			intval($start_id), intval($end_id),
 			DBA::escape(Protocol::DFRN), DBA::escape(Protocol::DIASPORA), DBA::escape(Protocol::OSTATUS));
 		if (!$r) {
-			Config::set("system", "post_update_version", 1194);
+			DI::config()->set("system", "post_update_version", 1194);
 			Logger::log("Update is done", Logger::DEBUG);
 			return true;
 		} else {
-			Config::set("system", "post_update_1194_start", $r[0]["id"]);
-			$start_id = Config::get("system", "post_update_1194_start");
+			DI::config()->set("system", "post_update_1194_start", $r[0]["id"]);
+			$start_id = DI::config()->get("system", "post_update_1194_start");
 		}
 
 		Logger::log("Start ID: ".$start_id, Logger::DEBUG);
@@ -128,7 +128,7 @@ class PostUpdate
 	private static function update1206()
 	{
 		// Was the script completed?
-		if (Config::get("system", "post_update_version") >= 1206) {
+		if (DI::config()->get("system", "post_update_version") >= 1206) {
 			return true;
 		}
 
@@ -147,7 +147,7 @@ class PostUpdate
 			}
 		}
 
-		Config::set("system", "post_update_version", 1206);
+		DI::config()->set("system", "post_update_version", 1206);
 		Logger::log("Done", Logger::DEBUG);
 		return true;
 	}
@@ -162,11 +162,11 @@ class PostUpdate
 	private static function update1279()
 	{
 		// Was the script completed?
-		if (Config::get("system", "post_update_version") >= 1279) {
+		if (DI::config()->get("system", "post_update_version") >= 1279) {
 			return true;
 		}
 
-		$id = Config::get("system", "post_update_version_1279_id", 0);
+		$id = DI::config()->get("system", "post_update_version_1279_id", 0);
 
 		Logger::log("Start from item " . $id, Logger::DEBUG);
 
@@ -235,7 +235,7 @@ class PostUpdate
 		}
 		DBA::close($items);
 
-		Config::set("system", "post_update_version_1279_id", $id);
+		DI::config()->set("system", "post_update_version_1279_id", $id);
 
 		Logger::log("Processed rows: " . $rows . " - last processed item:  " . $id, Logger::DEBUG);
 
@@ -254,7 +254,7 @@ class PostUpdate
 				DBA::update('item', $fields, $condition);
 			}
 
-			Config::set("system", "post_update_version", 1279);
+			DI::config()->set("system", "post_update_version", 1279);
 			Logger::log("Done", Logger::DEBUG);
 			return true;
 		}
@@ -313,11 +313,11 @@ class PostUpdate
 	private static function update1281()
 	{
 		// Was the script completed?
-		if (Config::get("system", "post_update_version") >= 1281) {
+		if (DI::config()->get("system", "post_update_version") >= 1281) {
 			return true;
 		}
 
-		$id = Config::get("system", "post_update_version_1281_id", 0);
+		$id = DI::config()->get("system", "post_update_version_1281_id", 0);
 
 		Logger::log("Start from item " . $id, Logger::DEBUG);
 
@@ -369,7 +369,7 @@ class PostUpdate
 		}
 		DBA::close($items);
 
-		Config::set("system", "post_update_version_1281_id", $id);
+		DI::config()->set("system", "post_update_version_1281_id", $id);
 
 		Logger::log("Processed rows: " . $rows . " - last processed item:  " . $id, Logger::DEBUG);
 
@@ -380,7 +380,7 @@ class PostUpdate
 			Logger::log("Updating item-uri in item-content", Logger::DEBUG);
 			DBA::e("UPDATE `item-content` INNER JOIN `item-uri` ON `item-uri`.`uri` = `item-content`.`uri` SET `item-content`.`uri-id` = `item-uri`.`id` WHERE `item-content`.`uri-id` IS NULL");
 
-			Config::set("system", "post_update_version", 1281);
+			DI::config()->set("system", "post_update_version", 1281);
 			Logger::log("Done", Logger::DEBUG);
 			return true;
 		}
@@ -397,7 +397,7 @@ class PostUpdate
 	private static function update1297()
 	{
 		// Was the script completed?
-		if (Config::get('system', 'post_update_version') >= 1297) {
+		if (DI::config()->get('system', 'post_update_version') >= 1297) {
 			return true;
 		}
 
@@ -417,7 +417,7 @@ class PostUpdate
 
 		Logger::info('Processed rows: ' . DBA::affectedRows());
 
-		Config::set('system', 'post_update_version', 1297);
+		DI::config()->set('system', 'post_update_version', 1297);
 
 		Logger::info('Done');
 
@@ -432,7 +432,7 @@ class PostUpdate
 	private static function update1322()
 	{
 		// Was the script completed?
-		if (Config::get('system', 'post_update_version') >= 1322) {
+		if (DI::config()->get('system', 'post_update_version') >= 1322) {
 			return true;
 		}
 
@@ -451,7 +451,7 @@ class PostUpdate
 		}
 
 		DBA::close($contact);
-		Config::set('system', 'post_update_version', 1322);
+		DI::config()->set('system', 'post_update_version', 1322);
 
 		Logger::info('Done');
 
@@ -467,11 +467,11 @@ class PostUpdate
 	private static function update1329()
 	{
 		// Was the script completed?
-		if (Config::get('system', 'post_update_version') >= 1329) {
+		if (DI::config()->get('system', 'post_update_version') >= 1329) {
 			return true;
 		}
 
-		$id = Config::get('system', 'post_update_version_1329_id', 0);
+		$id = DI::config()->get('system', 'post_update_version_1329_id', 0);
 
 		Logger::info('Start', ['item' => $id]);
 
@@ -495,12 +495,12 @@ class PostUpdate
 		}
 		DBA::close($items);
 
-		Config::set('system', 'post_update_version_1329_id', $id);
+		DI::config()->set('system', 'post_update_version_1329_id', $id);
 
 		Logger::info('Processed', ['rows' => $rows, 'last' => $id]);
 
 		if ($start_id == $id) {
-			Config::set('system', 'post_update_version', 1329);
+			DI::config()->set('system', 'post_update_version', 1329);
 			Logger::info('Done');
 			return true;
 		}

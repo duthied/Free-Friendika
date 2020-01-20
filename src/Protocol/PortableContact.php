@@ -9,25 +9,18 @@
 
 namespace Friendica\Protocol;
 
-use DOMDocument;
-use DOMXPath;
 use Exception;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
-use Friendica\Model\Contact;
+use Friendica\DI;
 use Friendica\Model\GContact;
 use Friendica\Model\GServer;
-use Friendica\Model\Profile;
-use Friendica\Module\Register;
-use Friendica\Network\Probe;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 use Friendica\Util\Strings;
-use Friendica\Util\XML;
 
 class PortableContact
 {
@@ -295,8 +288,8 @@ class PortableContact
 				self::discoverServer($data, 2);
 			}
 
-			if (Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS) {
-				$timeframe = Config::get('system', 'poco_discovery_since');
+			if (DI::config()->get('system', 'poco_discovery') >= self::USERS_GCONTACTS) {
+				$timeframe = DI::config()->get('system', 'poco_discovery_since');
 
 				if ($timeframe == 0) {
 					$timeframe = 30;
@@ -320,7 +313,7 @@ class PortableContact
 					}
 				}
 
-				if (!$success && !empty($data) && Config::get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
+				if (!$success && !empty($data) && DI::config()->get('system', 'poco_discovery') >= self::USERS_GCONTACTS_FALLBACK) {
 					Logger::info("Fetch contacts from users of the server " . $server["nurl"]);
 					self::discoverServerUsers($data, $server);
 				}

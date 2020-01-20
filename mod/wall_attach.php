@@ -4,7 +4,6 @@
  */
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
@@ -78,7 +77,7 @@ function wall_attach_post(App $a) {
 	$filename = basename($_FILES['userfile']['name']);
 	$filesize = intval($_FILES['userfile']['size']);
 
-	$maxfilesize = Config::get('system','maxfilesize');
+	$maxfilesize = DI::config()->get('system','maxfilesize');
 
 	/* Found html code written in text field of form,
 	 * when trying to upload a file with filesize

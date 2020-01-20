@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Console;
 
 use Friendica\Console\ServerBlock;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 
 class ServerBlockConsoleTest extends ConsoleTest
 {
@@ -22,7 +22,7 @@ class ServerBlockConsoleTest extends ConsoleTest
 	{
 		parent::setUp();
 
-		$this->configMock = \Mockery::mock(IConfiguration::class);
+		$this->configMock = \Mockery::mock(IConfig::class);
 	}
 
 	/**

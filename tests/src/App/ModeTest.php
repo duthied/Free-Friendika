@@ -29,7 +29,7 @@ class ModeTest extends MockedTest
 	private $databaseMock;
 
 	/**
-	 * @var Config\Cache\ConfigCache|MockInterface
+	 * @var \Friendica\Core\Config\Cache|MockInterface
 	 */
 	private $configCacheMock;
 
@@ -41,7 +41,7 @@ class ModeTest extends MockedTest
 
 		$this->basePathMock = \Mockery::mock(BasePath::class);
 		$this->databaseMock = \Mockery::mock(Database::class);
-		$this->configCacheMock = \Mockery::mock(Config\Cache\ConfigCache::class);
+		$this->configCacheMock = \Mockery::mock(Config\Cache::class);
 	}
 
 	public function testItEmpty()

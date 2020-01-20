@@ -2,7 +2,7 @@
 
 namespace Friendica\Console;
 
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Update;
 use Friendica\Database\Database;
 use Friendica\Database\DBStructure;
@@ -22,7 +22,7 @@ class DatabaseStructure extends \Asika\SimpleConsole\Console
 	 */
 	private $dba;
 	/**
-	 * @var ConfigCache
+	 * @var Cache
 	 */
 	private $configCache;
 
@@ -48,7 +48,7 @@ HELP;
 		return $help;
 	}
 
-	public function __construct(Database $dba, ConfigCache $configCache, $argv = null)
+	public function __construct(Database $dba, Cache $configCache, $argv = null)
 	{
 		parent::__construct($argv);
 

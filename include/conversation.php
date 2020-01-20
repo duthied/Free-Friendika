@@ -8,7 +8,6 @@ use Friendica\Content\ContactSelector;
 use Friendica\Content\Feature;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -850,7 +849,7 @@ function conversation_fetch_comments($thread_items, $pinned) {
  * @throws \Friendica\Network\HTTPException\InternalServerErrorException
  */
 function conversation_add_children(array $parents, $block_authors, $order, $uid) {
-	$max_comments = Config::get('system', 'max_comments', 100);
+	$max_comments = DI::config()->get('system', 'max_comments', 100);
 
 	$params = ['order' => ['uid', 'commented' => true]];
 

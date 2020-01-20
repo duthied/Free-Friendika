@@ -5,7 +5,6 @@
 namespace Friendica\Worker;
 
 use Friendica\Core\Addon;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -21,9 +20,9 @@ class Cron
 	{
 		$a = DI::app();
 
-		$last = Config::get('system', 'last_cron');
+		$last = DI::config()->get('system', 'last_cron');
 
-		$poll_interval = intval(Config::get('system', 'cron_interval'));
+		$poll_interval = intval(DI::config()->get('system', 'cron_interval'));
 
 		if ($last) {
 			$next = $last + ($poll_interval * 60);
@@ -60,7 +59,7 @@ class Cron
 		Worker::add(PRIORITY_LOW, "CronJobs", "repair_database");
 
 		// once daily run birthday_updates and then expire in background
-		$d1 = Config::get('system', 'last_expire_day');
+		$d1 = DI::config()->get('system', 'last_expire_day');
 		$d2 = intval(DateTimeFormat::utcNow('d'));
 
 		// Daily cron calls
@@ -86,21 +85,21 @@ class Cron
 
 			self::checkdeletedContacts();
 
-			Config::set('system', 'last_expire_day', $d2);
+			DI::config()->set('system', 'last_expire_day', $d2);
 		}
 
 		// Hourly cron calls
-		if (Config::get('system', 'last_cron_hourly', 0) + 3600 < time()) {
+		if (DI::config()->get('system', 'last_cron_hourly', 0) + 3600 < time()) {
 
 			// Delete all done workerqueue entries
 			DBA::delete('workerqueue', ['`done` AND `executed` < UTC_TIMESTAMP() - INTERVAL 1 HOUR']);
 
 			// Optimizing this table only last seconds
-			if (Config::get('system', 'optimize_workerqueue', false)) {
+			if (DI::config()->get('system', 'optimize_workerqueue', false)) {
 				DBA::e("OPTIMIZE TABLE `workerqueue`");
 			}
 
-			Config::set('system', 'last_cron_hourly', time());
+			DI::config()->set('system', 'last_cron_hourly', time());
 		}
 
 		// Ensure to have a .htaccess file.
@@ -118,7 +117,7 @@ class Cron
 
 		Logger::log('cron: end');
 
-		Config::set('system', 'last_cron', time());
+		DI::config()->set('system', 'last_cron', time());
 
 		return;
 	}
@@ -169,7 +168,7 @@ class Cron
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	private static function pollContacts() {
-		$min_poll_interval = Config::get('system', 'min_poll_interval', 1);
+		$min_poll_interval = DI::config()->get('system', 'min_poll_interval', 1);
 
 		Addon::reload();
 
@@ -188,7 +187,7 @@ class Cron
 		// Only poll from those with suitable relationships,
 		// and which have a polling address and ignore Diaspora since
 		// we are unable to match those posts with a Diaspora GUID and prevent duplicates.
-		$abandon_days = intval(Config::get('system', 'account_abandon_days'));
+		$abandon_days = intval(DI::config()->get('system', 'account_abandon_days'));
 		if ($abandon_days < 1) {
 			$abandon_days = 0;
 		}

@@ -10,7 +10,6 @@
 use Friendica\App;
 use Friendica\Content\Text\Plaintext;
 use Friendica\Content\Widget;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
@@ -43,7 +42,7 @@ EOT;
 	}
 
 	$enable_compose = DI::pConfig()->get(local_user(), 'frio', 'enable_compose');
-	$compose = $enable_compose === '1' || $enable_compose === null && Config::get('frio', 'enable_compose') ? 1 : 0;
+	$compose = $enable_compose === '1' || $enable_compose === null && DI::config()->get('frio', 'enable_compose') ? 1 : 0;
 	DI::page()['htmlhead'] .= <<< HTML
 		<script type="text/javascript">
 			var compose = $compose;
@@ -276,7 +275,7 @@ function frio_remote_nav($a, &$nav)
 		$nav['messages'] = [$server_url . '/message', DI::l10n()->t('Messages'), '', DI::l10n()->t('Private mail')];
 		$nav['settings'] = [$server_url . '/settings', DI::l10n()->t('Settings'), '', DI::l10n()->t('Account settings')];
 		$nav['contacts'] = [$server_url . '/contact', DI::l10n()->t('Contacts'), '', DI::l10n()->t('Manage/edit friends and contacts')];
-		$nav['sitename'] = Config::get('config', 'sitename');
+		$nav['sitename'] = DI::config()->get('config', 'sitename');
 	}
 }
 

@@ -3,7 +3,7 @@
 namespace Friendica\Model\User;
 
 use Friendica\App;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 
 /**
  * Interacting with the Friendica Cookie of a user
@@ -32,7 +32,7 @@ class Cookie
 	/** @var array The $_COOKIE array */
 	private $cookie;
 
-	public function __construct(IConfiguration $config, App\BaseURL $baseURL, array $server = [], array $cookie = [])
+	public function __construct(IConfig $config, App\BaseURL $baseURL, array $server = [], array $cookie = [])
 	{
 		if (!empty($server['REMOTE_ADDR'])) {
 			$this->remoteAddr = $server['REMOTE_ADDR'];

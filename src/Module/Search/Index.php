@@ -7,7 +7,6 @@ use Friendica\Content\Pager;
 use Friendica\Content\Text\HTML;
 use Friendica\Content\Widget;
 use Friendica\Core\Cache\Duration;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
@@ -26,25 +25,25 @@ class Index extends BaseSearchModule
 	{
 		$search = (!empty($_GET['q']) ? Strings::escapeTags(trim(rawurldecode($_GET['q']))) : '');
 
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Public access denied.'));
 		}
 
-		if (Config::get('system', 'local_search') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'local_search') && !Session::isAuthenticated()) {
 			$e = new HTTPException\ForbiddenException(DI::l10n()->t('Only logged in users are permitted to perform a search.'));
 			$e->httpdesc = DI::l10n()->t('Public access denied.');
 			throw $e;
 		}
 
-		if (Config::get('system', 'permit_crawling') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'permit_crawling') && !Session::isAuthenticated()) {
 			// Default values:
 			// 10 requests are "free", after the 11th only a call per minute is allowed
 
-			$free_crawls = intval(Config::get('system', 'free_crawls'));
+			$free_crawls = intval(DI::config()->get('system', 'free_crawls'));
 			if ($free_crawls == 0)
 				$free_crawls = 10;
 
-			$crawl_permit_period = intval(Config::get('system', 'crawl_permit_period'));
+			$crawl_permit_period = intval(DI::config()->get('system', 'crawl_permit_period'));
 			if ($crawl_permit_period == 0)
 				$crawl_permit_period = 10;
 
@@ -112,7 +111,7 @@ class Index extends BaseSearchModule
 			}
 		}
 
-		$tag = $tag || Config::get('system', 'only_tag_search');
+		$tag = $tag || DI::config()->get('system', 'only_tag_search');
 
 		// Here is the way permissions work in the search module...
 		// Only public posts can be shown

@@ -45,7 +45,7 @@ class Addon
 					list($tmp, $addon) = array_map('trim', explode('/', $file));
 					$info = self::getInfo($addon);
 
-					if (Config::get('system', 'show_unsupported_addons')
+					if (DI::config()->get('system', 'show_unsupported_addons')
 						|| strtolower($info['status']) != 'unsupported'
 						|| self::isEnabled($addon)
 					) {
@@ -103,7 +103,7 @@ class Addon
 			$installed_addons = DBA::toArray($r);
 		}
 
-		$addons = Config::get('system', 'addon');
+		$addons = DI::config()->get('system', 'addon');
 		$addons_arr = [];
 
 		if ($addons) {
@@ -210,7 +210,7 @@ class Addon
 	 */
 	public static function reload()
 	{
-		$addons = Config::get('system', 'addon');
+		$addons = DI::config()->get('system', 'addon');
 		if (strlen($addons)) {
 			$r = DBA::select('addon', [], ['installed' => 1]);
 			if (DBA::isResult($r)) {
@@ -348,7 +348,7 @@ class Addon
 	 */
 	public static function saveEnabledList()
 	{
-		return Config::set('system', 'addon', implode(',', self::$addons));
+		return DI::config()->set('system', 'addon', implode(',', self::$addons));
 	}
 
 	/**

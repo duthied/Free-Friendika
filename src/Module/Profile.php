@@ -7,7 +7,6 @@ use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
 use Friendica\Core\ACL;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Session;
 use Friendica\Core\System;
@@ -83,7 +82,7 @@ class Profile extends BaseModule
 
 			$page['htmlhead'] .= "\n";
 
-			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && Config::get('system', 'block_public');
+			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && DI::config()->get('system', 'block_public');
 			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
@@ -150,7 +149,7 @@ class Profile extends BaseModule
 
 		$hashtags = $_GET['tag'] ?? '';
 
-		if (Config::get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
+		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
 			return Login::form();
 		}
 
@@ -331,7 +330,7 @@ class Profile extends BaseModule
 		$last_updated_array[$last_updated_key] = time();
 		Session::set('last_updated', $last_updated_array);
 
-		if ($is_owner && !$update && !Config::get('theme', 'hide_eventlist')) {
+		if ($is_owner && !$update && !DI::config()->get('theme', 'hide_eventlist')) {
 			$o .= ProfileModel::getBirthdays();
 			$o .= ProfileModel::getEventsReminderHTML();
 		}

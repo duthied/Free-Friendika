@@ -2,7 +2,7 @@
 
 namespace Friendica\Test\src\Model\Storage;
 
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Model\Storage\Filesystem;
 use Friendica\Model\Storage\IStorage;
@@ -17,7 +17,7 @@ class FilesystemStorageTest extends StorageTest
 {
 	use VFSTrait;
 
-	/** @var MockInterface|IConfiguration */
+	/** @var MockInterface|IConfig */
 	protected $config;
 
 	protected function setUp()
@@ -37,7 +37,7 @@ class FilesystemStorageTest extends StorageTest
 
 		/** @var MockInterface|L10n $l10n */
 		$l10n = \Mockery::mock(L10n::class)->makePartial();
-		$this->config = \Mockery::mock(IConfiguration::class);
+		$this->config = \Mockery::mock(IConfig::class);
 		$this->config->shouldReceive('get')
 		             ->with('storage', 'filesystem_path', Filesystem::DEFAULT_BASE_FOLDER)
 		             ->andReturn($this->root->getChild('storage')->url());

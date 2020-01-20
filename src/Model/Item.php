@@ -8,7 +8,6 @@ namespace Friendica\Model;
 
 use Friendica\Content\Text\BBCode;
 use Friendica\Content\Text\HTML;
-use Friendica\Core\Config;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -104,7 +103,7 @@ class Item
 	public static function isLegacyMode()
 	{
 		if (is_null(self::$legacy_mode)) {
-			self::$legacy_mode = (Config::get("system", "post_update_version") < 1279);
+			self::$legacy_mode = (DI::config()->get("system", "post_update_version") < 1279);
 		}
 
 		return self::$legacy_mode;
@@ -1451,7 +1450,7 @@ class Item
 		$uid = intval($item['uid']);
 
 		// check for create date and expire time
-		$expire_interval = Config::get('system', 'dbclean-expire-days', 0);
+		$expire_interval = DI::config()->get('system', 'dbclean-expire-days', 0);
 
 		$user = DBA::selectFirst('user', ['expire'], ['uid' => $uid]);
 		if (DBA::isResult($user) && ($user['expire'] > 0) && (($user['expire'] < $expire_interval) || ($expire_interval == 0))) {
@@ -1879,7 +1878,7 @@ class Item
 		unset($item['owner-name']);
 		unset($item['owner-avatar']);
 
-		$like_no_comment = Config::get('system', 'like_no_comment');
+		$like_no_comment = DI::config()->get('system', 'like_no_comment');
 
 		DBA::transaction();
 		$ret = DBA::insert('item', $item);
@@ -2585,7 +2584,7 @@ class Item
 		$URLSearchString = "^\[\]";
 
 		// All hashtags should point to the home server if "local_tags" is activated
-		if (Config::get('system', 'local_tags')) {
+		if (DI::config()->get('system', 'local_tags')) {
 			$item["body"] = preg_replace("/#\[url\=([$URLSearchString]*)\](.*?)\[\/url\]/ism",
 					"#[url=".DI::baseUrl()."/search?tag=$2]$2[/url]", $item["body"]);
 
@@ -2842,7 +2841,7 @@ class Item
 	 */
 	public static function fixPrivatePhotos($s, $uid, $item = null, $cid = 0)
 	{
-		if (Config::get('system', 'disable_embedded')) {
+		if (DI::config()->get('system', 'disable_embedded')) {
 			return $s;
 		}
 
@@ -3420,7 +3419,7 @@ class Item
 		if ($rendered_hash == ''
 			|| $rendered_html == ""
 			|| $rendered_hash != hash("md5", $item["body"])
-			|| Config::get("system", "ignore_cache")
+			|| DI::config()->get("system", "ignore_cache")
 		) {
 			self::addRedirToImageTags($item);
 
@@ -3439,7 +3438,7 @@ class Item
 			}
 
 			// Only compare the HTML when we forcefully ignore the cache
-			if (Config::get("system", "ignore_cache") && ($rendered_html != $item["rendered-html"])) {
+			if (DI::config()->get("system", "ignore_cache") && ($rendered_html != $item["rendered-html"])) {
 				$update = true;
 			}
 

@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Admin;
 
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Update;
 use Friendica\Database\DBA;
@@ -24,10 +23,10 @@ class DBSync extends BaseAdminModule
 			// @TODO: Replace with parameter from router
 			$update = intval($a->argv[3]);
 			if ($update) {
-				Config::set('database', 'update_' . $update, 'success');
-				$curr = Config::get('system', 'build');
+				DI::config()->set('database', 'update_' . $update, 'success');
+				$curr = DI::config()->get('system', 'build');
 				if (intval($curr) == $update) {
-					Config::set('system', 'build', intval($curr) + 1);
+					DI::config()->set('system', 'build', intval($curr) + 1);
 				}
 				info(DI::l10n()->t('Update has been marked successful') . EOL);
 			}
@@ -40,8 +39,8 @@ class DBSync extends BaseAdminModule
 				$retval = DBStructure::update($a->getBasePath(), false, true);
 				if ($retval === '') {
 					$o .= DI::l10n()->t("Database structure update %s was successfully applied.", DB_UPDATE_VERSION) . "<br />";
-					Config::set('database', 'last_successful_update', DB_UPDATE_VERSION);
-					Config::set('database', 'last_successful_update_time', time());
+					DI::config()->set('database', 'last_successful_update', DB_UPDATE_VERSION);
+					DI::config()->set('database', 'last_successful_update_time', time());
 				} else {
 					$o .= DI::l10n()->t("Executing of database structure update %s failed with error: %s", DB_UPDATE_VERSION, $retval) . "<br />";
 				}
@@ -63,13 +62,13 @@ class DBSync extends BaseAdminModule
 						$o .= DI::l10n()->t("Executing %s failed with error: %s", $func, $retval);
 					} elseif ($retval === Update::SUCCESS) {
 						$o .= DI::l10n()->t('Update %s was successfully applied.', $func);
-						Config::set('database', $func, 'success');
+						DI::config()->set('database', $func, 'success');
 					} else {
 						$o .= DI::l10n()->t('Update %s did not return a status. Unknown if it succeeded.', $func);
 					}
 				} else {
 					$o .= DI::l10n()->t('There was no additional update function %s that needed to be called.', $func) . "<br />";
-					Config::set('database', $func, 'success');
+					DI::config()->set('database', $func, 'success');
 				}
 
 				return $o;

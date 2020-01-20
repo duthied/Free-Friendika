@@ -5,7 +5,7 @@ namespace Friendica\Test\src\Console;
 use Dice\Dice;
 use Friendica\App;
 use Friendica\Console\AutomaticInstallation;
-use Friendica\Core\Config\Cache\ConfigCache;
+use Friendica\Core\Config\Cache;
 use Friendica\Core\Installer;
 use Friendica\Core\L10n;
 use Friendica\Core\Logger;
@@ -37,7 +37,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 	private $assertFileDb;
 
 	/**
-	 * @var ConfigCache The configuration cache to check after each test
+	 * @var Cache The configuration cache to check after each test
 	 */
 	private $configCache;
 
@@ -79,7 +79,7 @@ class AutomaticInstallationConsoleTest extends ConsoleTest
 
 		DI::init($this->dice);
 
-		$this->configCache = new ConfigCache();
+		$this->configCache = new Cache();
 		$this->configCache->set('system', 'basepath', $this->root->url());
 		$this->configCache->set('config', 'php_path', trim(shell_exec('which php')));
 		$this->configCache->set('system', 'theme', 'smarty3');

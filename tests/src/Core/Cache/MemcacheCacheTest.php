@@ -3,7 +3,7 @@
 namespace Friendica\Test\src\Core\Cache;
 
 use Friendica\Core\Cache\MemcacheCache;
-use Friendica\Core\Config\IConfiguration;
+use Friendica\Core\Config\IConfig;
 
 /**
  * @requires extension memcache
@@ -13,7 +13,7 @@ class MemcacheCacheTest extends MemoryCacheTest
 {
 	protected function getInstance()
 	{
-		$configMock = \Mockery::mock(IConfiguration::class);
+		$configMock = \Mockery::mock(IConfig::class);
 
 		$host = $_SERVER['MEMCACHE_HOST'] ?? 'localhost';
 

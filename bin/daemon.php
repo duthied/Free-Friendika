@@ -8,7 +8,6 @@
  */
 
 use Dice\Dice;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
@@ -44,9 +43,9 @@ if (DI::mode()->isInstall()) {
 	die("Friendica isn't properly installed yet.\n");
 }
 
-Config::load();
+DI::config()->load();
 
-if (empty(Config::get('system', 'pidfile'))) {
+if (empty(DI::config()->get('system', 'pidfile'))) {
 	die(<<<TXT
 Please set system.pidfile in config/local.config.php. For example:
     
@@ -57,7 +56,7 @@ TXT
     );
 }
 
-$pidfile = Config::get('system', 'pidfile');
+$pidfile = DI::config()->get('system', 'pidfile');
 
 if (in_array("start", $_SERVER["argv"])) {
 	$mode = "start";
@@ -88,7 +87,7 @@ if (is_readable($pidfile)) {
 }
 
 if (empty($pid) && in_array($mode, ["stop", "status"])) {
-	Config::set('system', 'worker_daemon_mode', false);
+	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Pidfile wasn't found. Is the daemon running?\n");
 }
 
@@ -99,7 +98,7 @@ if ($mode == "status") {
 
 	unlink($pidfile);
 
-	Config::set('system', 'worker_daemon_mode', false);
+	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Daemon process $pid isn't running.\n");
 }
 
@@ -110,7 +109,7 @@ if ($mode == "stop") {
 
 	Logger::notice("Worker daemon process was killed", ["pid" => $pid]);
 
-	Config::set('system', 'worker_daemon_mode', false);
+	DI::config()->set('system', 'worker_daemon_mode', false);
 	die("Worker daemon process $pid was killed.\n");
 }
 
@@ -153,12 +152,12 @@ if (!$foreground) {
 	DBA::reconnect();
 }
 
-Config::set('system', 'worker_daemon_mode', true);
+DI::config()->set('system', 'worker_daemon_mode', true);
 
 // Just to be sure that this script really runs endlessly
 set_time_limit(0);
 
-$wait_interval = intval(Config::get('system', 'cron_interval', 5)) * 60;
+$wait_interval = intval(DI::config()->get('system', 'cron_interval', 5)) * 60;
 
 $do_cron = true;
 $last_cron = 0;

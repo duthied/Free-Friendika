@@ -5,10 +5,8 @@
 namespace Friendica\Worker;
 
 use Friendica\App;
-use Friendica\Core\Config;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
-use Friendica\Core\StorageManager;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\Database\PostUpdate;
@@ -139,7 +137,7 @@ class CronJobs
 	 */
 	private static function clearCache(App $a)
 	{
-		$last = Config::get('system', 'cache_last_cleared');
+		$last = DI::config()->get('system', 'cache_last_cleared');
 
 		if ($last) {
 			$next = $last + (3600); // Once per hour
@@ -165,10 +163,10 @@ class CronJobs
 		clear_cache($a->getBasePath() . "/view/smarty3/compiled", $a->getBasePath() . "/view/smarty3/compiled");
 
 		// clear cache for image proxy
-		if (!Config::get("system", "proxy_disabled")) {
+		if (!DI::config()->get("system", "proxy_disabled")) {
 			clear_cache($a->getBasePath(), $a->getBasePath() . "/proxy");
 
-			$cachetime = Config::get('system', 'proxy_cache_time');
+			$cachetime = DI::config()->get('system', 'proxy_cache_time');
 
 			if (!$cachetime) {
 				$cachetime = ProxyUtils::DEFAULT_TIME;
@@ -185,13 +183,13 @@ class CronJobs
 		DBA::delete('parsed_url', ["`created` < NOW() - INTERVAL 3 MONTH"]);
 
 		// Maximum table size in megabyte
-		$max_tablesize = intval(Config::get('system', 'optimize_max_tablesize')) * 1000000;
+		$max_tablesize = intval(DI::config()->get('system', 'optimize_max_tablesize')) * 1000000;
 		if ($max_tablesize == 0) {
 			$max_tablesize = 100 * 1000000; // Default are 100 MB
 		}
 		if ($max_tablesize > 0) {
 			// Minimum fragmentation level in percent
-			$fragmentation_level = intval(Config::get('system', 'optimize_fragmentation')) / 100;
+			$fragmentation_level = intval(DI::config()->get('system', 'optimize_fragmentation')) / 100;
 			if ($fragmentation_level == 0) {
 				$fragmentation_level = 0.3; // Default value is 30%
 			}
@@ -226,7 +224,7 @@ class CronJobs
 			}
 		}
 
-		Config::set('system', 'cache_last_cleared', time());
+		DI::config()->set('system', 'cache_last_cleared', time());
 	}
 
 	/**

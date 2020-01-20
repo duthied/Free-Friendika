@@ -3,10 +3,10 @@
 namespace Friendica\Module\Contact;
 
 use Friendica\BaseModule;
-use Friendica\Core\Config;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\GContact;
 use Friendica\Network\HTTPException;
@@ -23,7 +23,7 @@ class Hovercard extends BaseModule
 		$contact_url = $_REQUEST['url'] ?? '';
 
 		// Get out if the system doesn't have public access allowed
-		if (Config::get('system', 'block_public') && !Session::isAuthenticated()) {
+		if (DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) {
 			throw new HTTPException\ForbiddenException();
 		}
 

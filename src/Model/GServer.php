@@ -8,10 +8,10 @@ namespace Friendica\Model;
 
 use DOMDocument;
 use DOMXPath;
-use Friendica\Core\Config;
 use Friendica\Core\Protocol;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
+use Friendica\DI;
 use Friendica\Module\Register;
 use Friendica\Network\CurlResult;
 use Friendica\Util\Network;
@@ -192,7 +192,7 @@ class GServer
 		}
 
 		// When a nodeinfo is present, we don't need to dig further
-		$xrd_timeout = Config::get('system', 'xrd_timeout');
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 		$curlResult = Network::curl($url . '/.well-known/nodeinfo', false, ['timeout' => $xrd_timeout]);
 		if ($curlResult->isTimeout()) {
 			DBA::update('gserver', ['last_failure' => DateTimeFormat::utcNow()], ['nurl' => Strings::normaliseLink($url)]);
@@ -726,7 +726,7 @@ class GServer
 	 */
 	private static function validHostMeta(string $url)
 	{
-		$xrd_timeout = Config::get('system', 'xrd_timeout');
+		$xrd_timeout = DI::config()->get('system', 'xrd_timeout');
 		$curlResult = Network::curl($url . '/.well-known/host-meta', false, ['timeout' => $xrd_timeout]);
 		if (!$curlResult->isSuccess()) {
 			return false;
@@ -1348,7 +1348,7 @@ class GServer
 
 		$no_of_queries = 5;
 
-		$requery_days = intval(Config::get('system', 'poco_requery_days'));
+		$requery_days = intval(DI::config()->get('system', 'poco_requery_days'));
 
 		if ($requery_days == 0) {
 			$requery_days = 7;
@@ -1388,7 +1388,7 @@ class GServer
 	 */
 	private static function discoverFederation()
 	{
-		$last = Config::get('poco', 'last_federation_discovery');
+		$last = DI::config()->get('poco', 'last_federation_discovery');
 
 		if ($last) {
 			$next = $last + (24 * 60 * 60);
@@ -1412,7 +1412,7 @@ class GServer
 		}
 
 		// Disvover Mastodon servers
-		$accesstoken = Config::get('system', 'instances_social_key');
+		$accesstoken = DI::config()->get('system', 'instances_social_key');
 
 		if (!empty($accesstoken)) {
 			$api = 'https://instances.social/api/1.0/instances/list?count=0';
@@ -1429,6 +1429,6 @@ class GServer
 			}
 		}
 
-		Config::set('poco', 'last_federation_discovery', time());
+		DI::config()->set('poco', 'last_federation_discovery', time());
 	}
 }
