@@ -82,8 +82,8 @@ class Profile extends BaseModule
 
 			$page['htmlhead'] .= "\n";
 
-			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && DI::config()->get('system', 'block_public');
-			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['profile_uid']) && $a->profile['hidewall'];
+			$blocked   = !local_user() && !Session::getRemoteContactID($a->profile['uid']) && DI::config()->get('system', 'block_public');
+			$userblock = !local_user() && !Session::getRemoteContactID($a->profile['uid']) && $a->profile['hidewall'];
 
 			if (!empty($a->profile['page-flags']) && $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY) {
 				$page['htmlhead'] .= '<meta name="friendica.community" content="true" />' . "\n";
@@ -149,7 +149,7 @@ class Profile extends BaseModule
 
 		$hashtags = $_GET['tag'] ?? '';
 
-		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['profile_uid'])) {
+		if (DI::config()->get('system', 'block_public') && !local_user() && !Session::getRemoteContactID($a->profile['uid'])) {
 			return Login::form();
 		}
 
@@ -157,14 +157,14 @@ class Profile extends BaseModule
 
 		if ($update) {
 			// Ensure we've got a profile owner if updating.
-			$a->profile['profile_uid'] = $update;
-		} elseif ($a->profile['profile_uid'] == local_user()) {
+			$a->profile['uid'] = $update;
+		} elseif ($a->profile['uid'] == local_user()) {
 			Nav::setSelected('home');
 		}
 
-		$remote_contact = Session::getRemoteContactID($a->profile['profile_uid']);
-		$is_owner = local_user() == $a->profile['profile_uid'];
-		$last_updated_key = "profile:" . $a->profile['profile_uid'] . ":" . local_user() . ":" . $remote_contact;
+		$remote_contact = Session::getRemoteContactID($a->profile['uid']);
+		$is_owner = local_user() == $a->profile['uid'];
+		$last_updated_key = "profile:" . $a->profile['uid'] . ":" . local_user() . ":" . $remote_contact;
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact) {
 			notice(DI::l10n()->t('Access to this profile has been restricted.') . EOL);
@@ -182,16 +182,16 @@ class Profile extends BaseModule
 				return $o;
 			}
 
-			$o .= Widget::commonFriendsVisitor($a->profile['profile_uid']);
+			$o .= Widget::commonFriendsVisitor($a->profile['uid']);
 
 			$commpage = $a->profile['page-flags'] == User::PAGE_FLAGS_COMMUNITY;
 			$commvisitor = $commpage && $remote_contact;
 
-			DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl()->get(true) . '/profile/' . $a->profile['nickname'], $a->profile['profile_uid'] ?? 0, true);
+			DI::page()['aside'] .= Widget::postedByYear(DI::baseUrl()->get(true) . '/profile/' . $a->profile['nickname'], $a->profile['uid'] ?? 0, true);
 			DI::page()['aside'] .= Widget::categories(DI::baseUrl()->get(true) . '/profile/' . $a->profile['nickname'], XML::escape($category));
 			DI::page()['aside'] .= Widget::tagCloud();
 
-			if (Security::canWriteToUserWall($a->profile['profile_uid'])) {
+			if (Security::canWriteToUserWall($a->profile['uid'])) {
 				$x = [
 					'is_owner' => $is_owner,
 					'allow_location' => ($is_owner || $commvisitor) && $a->profile['allow_location'],
@@ -206,7 +206,7 @@ class Profile extends BaseModule
 					'acl' => $is_owner ? ACL::getFullSelectorHTML(DI::page(), $a->user, true) : '',
 					'bang' => '',
 					'visitor' => $is_owner || $commvisitor ? 'block' : 'none',
-					'profile_uid' => $a->profile['profile_uid'],
+					'profile_uid' => $a->profile['uid'],
 				];
 
 				$o .= status_editor($a, $x);
@@ -214,7 +214,7 @@ class Profile extends BaseModule
 		}
 
 		// Get permissions SQL - if $remote_contact is true, our remote user has been pre-verified and we already have fetched his/her groups
-		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['profile_uid']);
+		$sql_extra = Item::getPermissionsSQLByUserId($a->profile['uid']);
 		$sql_extra2 = '';
 
 		$last_updated_array = Session::get('last_updated', []);
@@ -246,7 +246,7 @@ class Profile extends BaseModule
 					$sql_extra4
 					$sql_extra
 				ORDER BY `item`.`received` DESC",
-				$a->profile['profile_uid'],
+				$a->profile['uid'],
 				GRAVITY_ACTIVITY
 			);
 
@@ -260,12 +260,12 @@ class Profile extends BaseModule
 
 			if (!empty($category)) {
 				$sql_post_table = sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-					DBA::escape(Strings::protectSprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['profile_uid']));
+					DBA::escape(Strings::protectSprintf($category)), intval(TERM_OBJ_POST), intval(TERM_CATEGORY), intval($a->profile['uid']));
 			}
 
 			if (!empty($hashtags)) {
 				$sql_post_table .= sprintf("INNER JOIN (SELECT `oid` FROM `term` WHERE `term` = '%s' AND `otype` = %d AND `type` = %d AND `uid` = %d ORDER BY `tid` DESC) AS `term` ON `item`.`id` = `term`.`oid` ",
-					DBA::escape(Strings::protectSprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['profile_uid']));
+					DBA::escape(Strings::protectSprintf($hashtags)), intval(TERM_OBJ_POST), intval(TERM_HASHTAG), intval($a->profile['uid']));
 			}
 
 			if (!empty($datequery)) {
@@ -277,7 +277,7 @@ class Profile extends BaseModule
 
 			// Does the profile page belong to a forum?
 			// If not then we can improve the performance with an additional condition
-			$condition = ['uid' => $a->profile['profile_uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
+			$condition = ['uid' => $a->profile['uid'], 'page-flags' => [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]];
 			if (!DBA::exists('user', $condition)) {
 				$sql_extra3 = sprintf(" AND `thread`.`contact-id` = %d ", intval(intval($a->profile['contact_id'])));
 			} else {
@@ -321,7 +321,7 @@ class Profile extends BaseModule
 					$sql_extra2
 				ORDER BY `thread`.`received` DESC
 				$pager_sql",
-				$a->profile['profile_uid']
+				$a->profile['uid']
 			);
 		}
 
@@ -344,13 +344,13 @@ class Profile extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		if ($pager->getStart() == 0 && !empty($a->profile['profile_uid'])) {
-			$pinned_items = Item::selectPinned($a->profile['profile_uid'], ['uri', 'pinned'], ['true' . $sql_extra]);
+		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
+			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned'], ['true' . $sql_extra]);
 			$pinned = Item::inArray($pinned_items);
 			$items = array_merge($items, $pinned);
 		}
 
-		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'pinned_received', $a->profile['profile_uid']);
+		$o .= conversation($a, $items, $pager, 'profile', $update, false, 'pinned_received', $a->profile['uid']);
 
 		if (!$update) {
 			$o .= $pager->renderMinimal(count($items));

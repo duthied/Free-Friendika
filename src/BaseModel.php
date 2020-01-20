@@ -29,6 +29,13 @@ abstract class BaseModel
 	private $data = [];
 
 	/**
+	 * Used to limit/avoid updates if no data was changed.
+	 *
+	 * @var array
+	 */
+    private $originalData = [];
+
+	/**
 	 * @param Database        $dba
 	 * @param LoggerInterface $logger
 	 * @param array           $data   Table row attributes
@@ -38,6 +45,12 @@ abstract class BaseModel
 		$this->dba = $dba;
 		$this->logger = $logger;
 		$this->data = $data;
+		$this->originalData = $data;
+	}
+
+	public function getOriginalData()
+	{
+		return $this->originalData;
 	}
 
 	/**
@@ -51,8 +64,21 @@ abstract class BaseModel
 	{
 		$model = clone $prototype;
 		$model->data = $data;
+		$model->originalData = $data;
 
 		return $model;
+	}
+
+	/**
+	 * Magic isset method. Returns true if the field exists, either in the data prperty array or in any of the local properties.
+	 * Used by array_column() on an array of objects.
+	 *
+	 * @param $name
+	 * @return bool
+	 */
+	public function __isset($name)
+	{
+		return in_array($name, array_merge(array_keys($this->data), array_keys(get_object_vars($this))));
 	}
 
 	/**
@@ -66,9 +92,7 @@ abstract class BaseModel
 	 */
 	public function __get($name)
 	{
-		if (empty($this->data['id'])) {
-			throw new HTTPException\InternalServerErrorException(static::class . ' record uninitialized');
-		}
+		$this->checkValid();
 
 		if (!array_key_exists($name, $this->data)) {
 			throw new HTTPException\InternalServerErrorException('Field ' . $name . ' not found in ' . static::class);
@@ -89,5 +113,12 @@ abstract class BaseModel
 	public function toArray()
 	{
 		return $this->data;
+	}
+
+	protected function checkValid()
+	{
+		if (empty($this->data['id'])) {
+			throw new HTTPException\InternalServerErrorException(static::class . ' record uninitialized');
+		}
 	}
 }

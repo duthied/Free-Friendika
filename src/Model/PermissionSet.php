@@ -2,63 +2,38 @@
 /**
  * @file src/Model/PermissionSet.php
  */
+
 namespace Friendica\Model;
 
-use Friendica\Database\DBA;
+use Friendica\BaseModel;
+use Friendica\DI;
 
 /**
  * functions for interacting with the permission set of an object (item, photo, event, ...)
  */
-class PermissionSet
+class PermissionSet extends BaseModel
 {
 	/**
 	 * Fetch the id of a given permission set. Generate a new one when needed
 	 *
-	 * @param array $postarray The array from an item, picture or event post
+	 * @param int         $uid
+	 * @param string|null $allow_cid Allowed contact IDs    - empty = everyone
+	 * @param string|null $allow_gid Allowed group IDs      - empty = everyone
+	 * @param string|null $deny_cid  Disallowed contact IDs - empty = no one
+	 * @param string|null $deny_gid  Disallowed group IDs   - empty = no one
 	 * @return int id
 	 * @throws \Exception
+	 * @deprecated since 2020.03, use Repository\PermissionSet instead
+	 * @see \Friendica\Repository\PermissionSet->getIdFromACL
 	 */
-	public static function fetchIDForPost(&$postarray)
-	{
-		$condition = ['uid' => $postarray['uid'],
-			'allow_cid' => self::sortPermissions($postarray['allow_cid'] ?? ''),
-			'allow_gid' => self::sortPermissions($postarray['allow_gid'] ?? ''),
-			'deny_cid'  => self::sortPermissions($postarray['deny_cid']  ?? ''),
-			'deny_gid'  => self::sortPermissions($postarray['deny_gid']  ?? '')];
-
-		$set = DBA::selectFirst('permissionset', ['id'], $condition);
-
-		if (!DBA::isResult($set)) {
-			DBA::insert('permissionset', $condition, true);
-
-			$set = DBA::selectFirst('permissionset', ['id'], $condition);
-		}
-
-		$postarray['allow_cid'] = null;
-		$postarray['allow_gid'] = null;
-		$postarray['deny_cid'] = null;
-		$postarray['deny_gid'] = null;
-
-		return $set['id'];
-	}
-
-	private static function sortPermissions($permissionlist)
-	{
-		$cleaned_list = trim($permissionlist, '<>');
-
-		if (empty($cleaned_list)) {
-			return $permissionlist;
-		}
-
-		$elements = explode('><', $cleaned_list);
-
-		if (count($elements) <= 1) {
-			return $permissionlist;
-		}
-
-		asort($elements);
-
-		return '<' . implode('><', $elements) . '>';
+	public static function getIdFromACL(
+		int $uid,
+		string $allow_cid = null,
+		string $allow_gid = null,
+		string $deny_cid = null,
+		string $deny_gid = null
+	) {
+		return DI::permissionSet()->getIdFromACL($uid, $allow_cid, $allow_gid, $deny_cid, $deny_gid);
 	}
 
 	/**
@@ -69,36 +44,13 @@ class PermissionSet
 	 *
 	 * @return array of permission set ids.
 	 * @throws \Exception
+	 * @deprecated since 2020.03, use Repository\PermissionSet instead
+	 * @see \Friendica\Repository\PermissionSet->selectByContactId
 	 */
-	static public function get($uid, $contact_id)
+	public static function get($uid, $contact_id)
 	{
-		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
-			$groups = Group::getIdsByContactId($contact_id);
-		}
+		$permissionSets = DI::permissionSet()->selectByContactId($contact_id, $uid);
 
-		if (empty($groups) || !is_array($groups)) {
-			return [];
-		}
-
-		$group_str = '<<>>'; // should be impossible to match
-
-		foreach ($groups as $g) {
-			$group_str .= '|<' . intval($g) . '>';
-		}
-
-		$contact_str = '<' . $contact_id . '>';
-
-		$condition = ["`uid` = ? AND (NOT (`deny_cid` REGEXP ? OR deny_gid REGEXP ?)
-			AND (allow_cid REGEXP ? OR allow_gid REGEXP ? OR (allow_cid = '' AND allow_gid = '')))",
-			$uid, $contact_str, $group_str, $contact_str, $group_str];
-
-		$ret = DBA::select('permissionset', ['id'], $condition);
-		$set = [];
-		while ($permission = DBA::fetch($ret)) {
-			$set[] = $permission['id'];
-		}
-		DBA::close($ret);
-
-		return $set;
+		return $permissionSets->column('id');
 	}
 }

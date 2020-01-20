@@ -10,11 +10,14 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\ItemURI;
-use Friendica\Model\UserItem;
 use Friendica\Model\PermissionSet;
+use Friendica\Model\UserItem;
 
 /**
- * Post update functions
+ * These database-intensive post update routines are meant to be executed in the background by the cronjob.
+ *
+ * If there is a need for a intensive migration after a database structure change, update this file
+ * by adding a new method at the end with the number of the new DB_UPDATE_VERSION.
  */
 class PostUpdate
 {
@@ -204,13 +207,19 @@ class PostUpdate
 			}
 
 			if (empty($item['psid'])) {
-				$item['psid'] = PermissionSet::fetchIDForPost($item);
-			} else {
-				$item['allow_cid'] = null;
-				$item['allow_gid'] = null;
-				$item['deny_cid'] = null;
-				$item['deny_gid'] = null;
+				$item['psid'] = PermissionSet::getIdFromACL(
+					$item['uid'],
+					$item['allow_cid'],
+					$item['allow_gid'],
+					$item['deny_cid'],
+					$item['deny_gid']
+				);
 			}
+
+			$item['allow_cid'] = null;
+			$item['allow_gid'] = null;
+			$item['deny_cid'] = null;
+			$item['deny_gid'] = null;
 
 			if ($item['post-type'] == 0) {
 				if (!empty($item['type']) && ($item['type'] == 'note')) {
