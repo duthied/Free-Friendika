@@ -3759,8 +3759,8 @@ class Item
 			return $item_id;
 		}
 
-		if (ActivityPub\Processor::fetchMissingActivity($uri)) {
-			$item_id = self::searchByLink($uri, $uid);
+		if ($fetched_uri = ActivityPub\Processor::fetchMissingActivity($uri)) {
+			$item_id = self::searchByLink($fetched_uri, $uid);
 		} else {
 			$item_id = Diaspora::fetchByURL($uri);
 		}

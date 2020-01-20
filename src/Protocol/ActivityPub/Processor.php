@@ -591,7 +591,7 @@ class Processor
 	 *
 	 * @param string $url message URL
 	 * @param array $child activity array with the child of this message
-	 * @return boolean success
+	 * @return string fetched message URL
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
 	public static function fetchMissingActivity($url, $child = [])
@@ -605,12 +605,12 @@ class Processor
 		$object = ActivityPub::fetchContent($url, $uid);
 		if (empty($object)) {
 			Logger::log('Activity ' . $url . ' was not fetchable, aborting.');
-			return false;
+			return '';
 		}
 
 		if (empty($object['id'])) {
 			Logger::log('Activity ' . $url . ' has got not id, aborting. ' . json_encode($object));
-			return false;
+			return '';
 		}
 
 		if (!empty($child['author'])) {
@@ -648,9 +648,9 @@ class Processor
 		$ldactivity['thread-completion'] = true;
 
 		ActivityPub\Receiver::processActivity($ldactivity);
-		Logger::log('Activity ' . $url . ' had been fetched and processed.');
+		Logger::notice('Activity had been fetched and processed.', ['url' => $url, 'object' => $activity['id']]);
 
-		return true;
+		return $activity['id'];
 	}
 
 	/**
