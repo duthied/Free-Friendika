@@ -1297,21 +1297,21 @@ aside #group-sidebar li .group-edit-tool:first-child {
 }
 
 /* contact block widget */
-#contact-block .contact-block-content {
+.contact-block-content {
     clear: both;
     overflow: auto;
     height: auto;
 }
-#contact-block .contact-block-div {
+.contact-block-div {
     float: left;
     margin: 0px 5px 5px 0px;
 /*    height: 90px;
     width: 90px;*/
 }
-#contact-block contact-block-link {
+.contact-block-link {
 
 }
-#contact-block .contact-block-img {
+.contact-block-img {
     height: 75px;
     width: 75px;
     border-radius: 4px;
