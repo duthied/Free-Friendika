@@ -131,7 +131,7 @@ class Delegation extends BaseSettingsModule
 				}
 			}
 
-			$parent_user = ['parent_user', '', $parent_uid, '', $parents];
+			$parent_user = ['parent_user', DI::l10n()->t('Parent User'), $parent_uid, '', $parents];
 			$parent_password = ['parent_password', DI::l10n()->t('Parent Password:'), '', DI::l10n()->t('Please enter the password of the parent account to legitimize your request.')];
 		}
 
@@ -140,7 +140,7 @@ class Delegation extends BaseSettingsModule
 		$o = Renderer::replaceMacros(Renderer::getMarkupTemplate('settings/delegation.tpl'), [
 			'$form_security_token' => BaseModule::getFormSecurityToken('delegate'),
 			'$account_header' => DI::l10n()->t('Additional Accounts'),
-			'$account_desc' => DI::l10n()->t('Register additional accounts that are automatically connected to your existing account so you can manage it from this account.'),
+			'$account_desc' => DI::l10n()->t('Register additional accounts that are automatically connected to your existing account so you can manage them from this account.'),
 			'$add_account' => DI::l10n()->t('Register an additional account'),
 			'$parent_header' => DI::l10n()->t('Parent User'),
 			'$parent_user' => $parent_user,

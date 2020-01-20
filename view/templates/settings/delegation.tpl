@@ -1,14 +1,15 @@
-<h3>{{$header}}</h3>
+<div id="delegation" class="generic-page-wrapper">
+<h1>{{$header}}</h1>
 
 {{if !$is_child_user}}
-<h4>{{$account_header}}</h4>
-<div id="add-account-desc" class="add-account-desc">{{$account_desc}}</div>
-<a href='register'>{{$add_account}}</a>
+<h2>{{$account_header}}</h2>
+<div id="add-account-desc" class="add-account-desc"><p>{{$account_desc}}</p></div>
+<p><a href='register'>{{$add_account}}</a></p>
 {{/if}}
 
 {{if $parent_user}}
-<h4>{{$parent_header}}</h4>
-<div id="delegate-parent-desc" class="delegate-parent-desc">{{$parent_desc}}</div>
+<h2>{{$parent_header}}</h2>
+<div id="delegate-parent-desc" class="delegate-parent-desc"><p>{{$parent_desc}}</p></div>
 <div id="delegate-parent" class="delegate-parent">
 	<form action="settings/delegation" method="post">
 		<input type='hidden' name='form_security_token' value='{{$form_security_token}}'>
@@ -19,12 +20,11 @@
 </div>
 {{/if}}
 
-<h4>{{$delegates_header}}</h4>
+<h2>{{$delegates_header}}</h2>
 
-<div id="delegate-desc" class="delegate-desc">{{$desc nofilter}}</div>
+<div id="delegate-desc" class="delegate-desc"><p>{{$desc nofilter}}</p></div>
 
-<h4>{{$head_delegates}}</h4>
-
+<h3>{{$head_delegates}}</h3>
 {{if $delegates}}
     {{foreach $delegates as $x}}
 <div class="contact-block-div">
@@ -35,11 +35,10 @@
     {{/foreach}}
 <div class="clear"></div>
 {{else}}
-    {{$none}}
+    <p>{{$none}}</p>
 {{/if}}
-<hr/>
 
-<h4>{{$head_potentials}}</h4>
+<h3>{{$head_potentials}}</h3>
 {{if $potentials}}
     {{foreach $potentials as $x}}
 <div class="contact-block-div">
@@ -50,5 +49,6 @@
     {{/foreach}}
 <div class="clear"></div>
 {{else}}
-    {{$none}}
+    <p>{{$none}}</p>
 {{/if}}
+</div>
