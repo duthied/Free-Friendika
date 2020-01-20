@@ -99,7 +99,6 @@ class Index extends BaseSettingsModule
 
 		parent::content();
 
-		/** @var Arguments $args */
 		$args = DI::args();
 
 		$newuser = $args->get($args->getArgc() - 1) === 'new';
