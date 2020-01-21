@@ -89,7 +89,7 @@ function notifications_content(App $a)
 
 	$o = '';
 	// Get the nav tabs for the notification pages
-	$tabs = getTabs($this->args->get(1, ''));
+	$tabs = getTabs(DI::args()->get(1, ''));
 	$notif_content = [];
 	$notif_nocontent = '';
 
@@ -363,7 +363,7 @@ function getTabs(string $selected = '')
 
 	foreach (URL_TYPES as $type => $url) {
 		$tabs[] = [
-			'label'     => $this->l10n->t(PRINT_TYPES[$type]),
+			'label'     => DI::l10n()->t(PRINT_TYPES[$type]),
 			'url'       => 'notifications/' . $url,
 			'sel'       => (($selected == $url) ? 'active' : ''),
 			'id'        => $type . '-tab',
