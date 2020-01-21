@@ -10,6 +10,12 @@ use Friendica\DI;
 
 /**
  * functions for interacting with the permission set of an object (item, photo, event, ...)
+ *
+ * @property int uid
+ * @property string allow_cid
+ * @property string allow_gid
+ * @property string deny_cid
+ * @property string deny_gid
  */
 class PermissionSet extends BaseModel
 {
