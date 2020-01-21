@@ -902,7 +902,7 @@ class GContact
 		$curlResult = Network::curl($data['poll']);
 		if (!$curlResult->isSuccess()) {
 			$fields = ['last_failure' => DateTimeFormat::utcNow()];
-			DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($profile)]);
+			DBA::update('gcontact', $fields, ['nurl' => Strings::normaliseLink($data['url'])]);
 
 			Logger::info("Profile wasn't reachable (no feed)", ['url' => $data['url']]);
 			return;
