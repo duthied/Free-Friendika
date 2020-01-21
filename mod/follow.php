@@ -8,6 +8,7 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Model\Item;
 use Friendica\Network\Probe;
 use Friendica\Database\DBA;
 use Friendica\Util\Strings;
@@ -33,6 +34,9 @@ function follow_post(App $a)
 	$result = Contact::createFromProbe($uid, $url, true);
 
 	if ($result['success'] == false) {
+		// Possibly it is a remote item and not an account
+		follow_remote_item($url);
+
 		if ($result['message']) {
 			notice($result['message']);
 		}
@@ -108,6 +112,9 @@ function follow_content(App $a)
 	}
 
 	if ($protocol == Protocol::PHANTOM) {
+		// Possibly it is a remote item and not an account
+		follow_remote_item($url);
+
 		notice(DI::l10n()->t("The network type couldn't be detected. Contact can't be added."));
 		$submit = '';
 		//$a->internalRedirect($_SESSION['return_path']);
@@ -198,4 +205,20 @@ function follow_content(App $a)
 	}
 
 	return $o;
+}
+
+function follow_remote_item($url)
+{
+	$item_id = Item::fetchByLink($url, local_user());
+	if (!$item_id) {
+		// If the user-specific search failed, we search and probe a public post
+		$item_id = Item::fetchByLink($url);
+	}
+
+	if (!empty($item_id)) {
+		$item = Item::selectFirst(['guid'], ['id' => $item_id]);
+		if (DBA::isResult($item)) {
+			DI::baseUrl()->redirect('display/' . $item['guid']);
+		}
+	}
 }
