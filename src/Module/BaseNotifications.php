@@ -46,12 +46,12 @@ abstract class BaseNotifications extends BaseModule
 	];
 
 	/** @var int The default count of items per page */
-	const PER_PAGE = 20;
+	const ITEMS_PER_PAGE = 20;
 
 	/** @var boolean True, if ALL entries should get shown */
-	protected static $show;
+	protected static $showAll;
 	/** @var int The determined start item of the current page */
-	protected static $start;
+	protected static $firstItemNum;
 
 	/**
 	 * Collects all notifies from the backend
@@ -69,8 +69,8 @@ abstract class BaseNotifications extends BaseModule
 
 		$page = ($_REQUEST['page'] ?? 0) ?: 1;
 
-		self::$start = ($page * self::PER_PAGE) - self::PER_PAGE;
-		self::$show  = ($_REQUEST['show'] ?? '') === 'all';
+		self::$firstItemNum = ($page * self::ITEMS_PER_PAGE) - self::ITEMS_PER_PAGE;
+		self::$showAll      = ($_REQUEST['show'] ?? '') === 'all';
 	}
 
 	public static function post(array $parameters = [])
@@ -125,7 +125,7 @@ abstract class BaseNotifications extends BaseModule
 		$tabs = self::getTabs();
 
 		// Set the pager
-		$pager = new Pager(DI::args()->getQueryString(), self::PER_PAGE);
+		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [

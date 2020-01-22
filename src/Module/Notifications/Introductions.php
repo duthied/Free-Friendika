@@ -23,7 +23,7 @@ class Introductions extends BaseNotifications
 		$id  = (int)DI::args()->get(2, 0);
 		$all = DI::args()->get(2) == 'all';
 
-		$notifs = DI::notify()->getIntroList($all, self::$start, self::PER_PAGE, $id);
+		$notifs = DI::notify()->getIntroList($all, self::$firstItemNum, self::ITEMS_PER_PAGE, $id);
 
 		return [
 			'header' => DI::l10n()->t('Notifications'),

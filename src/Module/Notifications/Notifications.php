@@ -29,29 +29,29 @@ class Notifications extends BaseNotifications
 		// Get the network notifications
 		if ((DI::args()->get(1) == 'network')) {
 			$notif_header = DI::l10n()->t('Network Notifications');
-			$notifs       = $nm->getNetworkList(self::$show, self::$start, self::PER_PAGE);
+			$notifs       = $nm->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 
 			// Get the system notifications
 		} elseif ((DI::args()->get(1) == 'system')) {
 			$notif_header = DI::l10n()->t('System Notifications');
-			$notifs       = $nm->getSystemList(self::$show, self::$start, self::PER_PAGE);
+			$notifs       = $nm->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 
 			// Get the personal notifications
 		} elseif ((DI::args()->get(1) == 'personal')) {
 			$notif_header = DI::l10n()->t('Personal Notifications');
-			$notifs       = $nm->getPersonalList(self::$show, self::$start, self::PER_PAGE);
+			$notifs       = $nm->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 
 			// Get the home notifications
 		} elseif ((DI::args()->get(1) == 'home')) {
 			$notif_header = DI::l10n()->t('Home Notifications');
-			$notifs       = $nm->getHomeList(self::$show, self::$start, self::PER_PAGE);
+			$notifs       = $nm->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 			// fallback - redirect to main page
 		} else {
 			DI::baseUrl()->redirect('notifications');
 		}
 
 		// Set the pager
-		$pager = new Pager(DI::args()->getQueryString(), self::PER_PAGE);
+		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		// Add additional informations (needed for json output)
 		$notifs['items_page'] = $pager->getItemsPerPage();
@@ -109,8 +109,8 @@ class Notifications extends BaseNotifications
 		}
 
 		$notif_show_lnk = [
-			'href' => (self::$show ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all'),
-			'text' => (self::$show ? DI::l10n()->t('Show unread') : DI::l10n()->t('Show all')),
+			'href' => (self::$showAll ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all'),
+			'text' => (self::$showAll ? DI::l10n()->t('Show unread') : DI::l10n()->t('Show all')),
 		];
 
 		return self::printContent($notif_header, $notif_content, $notif_nocontent, $notif_show_lnk);
