@@ -167,6 +167,15 @@ return [
 	'/nodeinfo/{version}' => [Module\NodeInfo::class,        [R::GET]],
 	'/nogroup'            => [Module\Group::class,           [R::GET]],
 
+	'/notifications' => [
+		'/network[/json]'    => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/system[/json]'     => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/personal[/json]'   => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/home[/json]'       => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/intros[/json]'     => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
+		'/intros/all[/json]' => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
+	],
+
 	'/notify'         => [
 		'[/]'            => [Module\Notifications\Notify::class, [R::GET]],
 		'/view/{id:\d+}' => [Module\Notifications\Notify::class, [R::GET]],
