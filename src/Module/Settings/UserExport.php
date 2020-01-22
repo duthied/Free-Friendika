@@ -39,7 +39,7 @@ class UserExport extends BaseSettingsModule
 		 */
 		$options = [
 			['settings/userexport/account', DI::l10n()->t('Export account'), DI::l10n()->t('Export your account info and contacts. Use this to make a backup of your account and/or to move it to another server.')],
-			['settings/userexport/backup', DI::l10n()->t('Export all'), DI::l10n()->t("Export your accout info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
+			['settings/userexport/backup', DI::l10n()->t('Export all'), DI::l10n()->t("Export your account info, contacts and all your items as json. Could be a very big file, and could take a lot of time. Use this to make a full backup of your account \x28photos are not exported\x29")],
 			['settings/userexport/contact', DI::l10n()->t('Export Contacts to CSV'), DI::l10n()->t("Export the list of the accounts you are following as CSV file. Compatible to e.g. Mastodon.")],
 		];
 		Hook::callAll('uexport_options', $options);
