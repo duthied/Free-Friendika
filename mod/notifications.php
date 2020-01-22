@@ -13,7 +13,35 @@ use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Notify;
 use Friendica\Module\Security\Login;
+
+/** @var array Array of URL parameters */
+const URL_TYPES = [
+	Notify::NETWORK  => 'network',
+	Notify::SYSTEM   => 'system',
+	Notify::HOME     => 'home',
+	Notify::PERSONAL => 'personal',
+	Notify::INTRO    => 'intros',
+];
+
+/** @var array Array of the allowed notifies and their printable name */
+const PRINT_TYPES = [
+	Notify::NETWORK  => 'Network',
+	Notify::SYSTEM   => 'System',
+	Notify::HOME     => 'Home',
+	Notify::PERSONAL => 'Personal',
+	Notify::INTRO    => 'Introductions',
+];
+
+/** @var array The array of access keys for notify pages */
+const ACCESS_KEYS = [
+	Notify::NETWORK  => 'w',
+	Notify::SYSTEM   => 'y',
+	Notify::HOME     => 'h',
+	Notify::PERSONAL => 'r',
+	Notify::INTRO    => 'i',
+];
 
 function notifications_post(App $a)
 {
@@ -61,7 +89,7 @@ function notifications_content(App $a)
 
 	$o = '';
 	// Get the nav tabs for the notification pages
-	$tabs = $nm->getTabs();
+	$tabs = getTabs(DI::args()->get(1, ''));
 	$notif_content = [];
 	$notif_nocontent = '';
 
@@ -319,4 +347,29 @@ function notifications_content(App $a)
 	]);
 
 	return $o;
+}
+
+/**
+ * List of pages for the Notifications TabBar
+ *
+ * @param string $selected The selected notification tab
+ *
+ * @return array with with notifications TabBar data
+ * @throws Exception
+ */
+function getTabs(string $selected = '')
+{
+	$tabs = [];
+
+	foreach (URL_TYPES as $type => $url) {
+		$tabs[] = [
+			'label'     => DI::l10n()->t(PRINT_TYPES[$type]),
+			'url'       => 'notifications/' . $url,
+			'sel'       => (($selected == $url) ? 'active' : ''),
+			'id'        => $type . '-tab',
+			'accesskey' => ACCESS_KEYS[$type],
+		];
+	}
+
+	return $tabs;
 }

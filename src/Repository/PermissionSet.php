@@ -2,15 +2,14 @@
 
 namespace Friendica\Repository;
 
-use Friendica\BaseModel;
 use Friendica\BaseRepository;
 use Friendica\Collection;
-use Friendica\Core\L10n;
-use Friendica\Database\DBA;
-use Friendica\DI;
+use Friendica\Database\Database;
 use Friendica\Model;
 use Friendica\Model\Group;
 use Friendica\Network\HTTPException;
+use Friendica\Util\ACLFormatter;
+use Psr\Log\LoggerInterface;
 
 class PermissionSet extends BaseRepository
 {
@@ -19,6 +18,16 @@ class PermissionSet extends BaseRepository
 	protected static $model_class = Model\PermissionSet::class;
 
 	protected static $collection_class = Collection\PermissionSets::class;
+
+	/** @var ACLFormatter */
+	private $aclFormatter;
+
+	public function __construct(Database $dba, LoggerInterface $logger, ACLFormatter $aclFormatter)
+	{
+		parent::__construct($dba, $logger);
+
+		$this->aclFormatter = $aclFormatter;
+	}
 
 	/**
 	 * @param array $data
@@ -93,12 +102,10 @@ class PermissionSet extends BaseRepository
 		string $deny_cid = null,
 		string $deny_gid = null
 	) {
-		$ACLFormatter = DI::aclFormatter();
-
-		$allow_cid = $ACLFormatter->sanitize($allow_cid);
-		$allow_gid = $ACLFormatter->sanitize($allow_gid);
-		$deny_cid = $ACLFormatter->sanitize($deny_cid);
-		$deny_gid = $ACLFormatter->sanitize($deny_gid);
+		$allow_cid = $this->aclFormatter->sanitize($allow_cid);
+		$allow_gid = $this->aclFormatter->sanitize($allow_gid);
+		$deny_cid = $this->aclFormatter->sanitize($deny_cid);
+		$deny_gid = $this->aclFormatter->sanitize($deny_gid);
 
 		// Public permission
 		if (!$allow_cid && !$allow_gid && !$deny_cid && !$deny_gid) {
@@ -134,7 +141,7 @@ class PermissionSet extends BaseRepository
 	public function selectByContactId($contact_id, $uid)
 	{
 		$groups = [];
-		if (DBA::exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
+		if ($this->dba->exists('contact', ['id' => $contact_id, 'uid' => $uid, 'blocked' => false])) {
 			$groups = Group::getIdsByContactId($contact_id);
 		}
 
