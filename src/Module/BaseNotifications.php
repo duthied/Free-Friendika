@@ -127,7 +127,7 @@ abstract class BaseNotifications extends BaseModule
 		// Set the pager
 		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
-		$notif_tpl = Renderer::getMarkupTemplate('notifications.tpl');
+		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [
 			'$notif_header'    => $notif_header ?? DI::l10n()->t('Notifications'),
 			'$tabs'            => $tabs,

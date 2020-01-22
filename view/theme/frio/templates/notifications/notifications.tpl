@@ -1,5 +1,5 @@
-<script type="text/javascript" src="view/theme/frio/frameworks/jquery-color/jquery.color.js"></script>
-<script type="text/javascript" src="view/theme/frio/js/mod_notifications.js"></script>
+<script type="text/javascript" src="../../frameworks/jquery-color/jquery.color.js"></script>
+<script type="text/javascript" src="../../js/mod_notifications.js"></script>
 
 <div class="generic-page-wrapper">
 	{{include file="section_title.tpl" title=$notif_header}}

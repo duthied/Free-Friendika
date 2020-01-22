@@ -44,8 +44,8 @@ class Introductions extends BaseNotifications
 		$notifs       = $notif_result['notifs'] ?? [];
 		$notif_header = $notif_result['header'] ?? '';
 
-		$sugg = Renderer::getMarkupTemplate('suggestions.tpl');
-		$tpl  = Renderer::getMarkupTemplate('intros.tpl');
+		$sugg = Renderer::getMarkupTemplate('notifications/suggestions.tpl');
+		$tpl  = Renderer::getMarkupTemplate('notifications/intros.tpl');
 
 		// The link to switch between ignored and normal connection requests
 		$notif_show_lnk = [
@@ -111,7 +111,7 @@ class Introductions extends BaseNotifications
 						$helptext3 = DI::l10n()->t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notif['name']);
 					}
 
-					$dfrn_tpl  = Renderer::getMarkupTemplate('netfriend.tpl');
+					$dfrn_tpl  = Renderer::getMarkupTemplate('notifications/netfriend.tpl');
 					$dfrn_text = Renderer::replaceMacros($dfrn_tpl, [
 						'$intro_id'        => $notif['intro_id'],
 						'$friend_selected' => $friend_selected,
