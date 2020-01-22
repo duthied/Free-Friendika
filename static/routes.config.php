@@ -174,6 +174,7 @@ return [
 		'/home[/json]'       => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
 		'/intros[/json]'     => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
 		'/intros/all[/json]' => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
+		'/intros/{contact:\d+}[/json]' => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
 	],
 
 	'/notify'         => [
