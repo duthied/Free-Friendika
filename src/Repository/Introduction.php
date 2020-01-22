@@ -35,28 +35,26 @@ class Introduction extends BaseRepository
 
 	/**
 	 * @param array $condition
-	 * @param array $order An optional array with order information
-	 * @param int|array $limit Optional limit information
-	 *
+	 * @param array $params
 	 * @return Collection\Introductions
 	 * @throws \Exception
 	 */
-	public function select(array $condition = [], array $order = [], $limit = null)
+	public function select(array $condition = [], array $params = [])
 	{
-		return parent::select($condition, $order, $limit);
+		return parent::select($condition, $params);
 	}
 
 	/**
 	 * @param array $condition
-	 * @param array $order
+	 * @param array $params
 	 * @param int|null $max_id
 	 * @param int|null $since_id
-	 * @param int|array $limit
+	 * @param int $limit
 	 * @return Collection\Introductions
 	 * @throws \Exception
 	 */
-	public function selectByBoundaries(array $condition = [], array $order = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
+	public function selectByBoundaries(array $condition = [], array $params = [], int $max_id = null, int $since_id = null, int $limit = self::LIMIT)
 	{
-		return parent::selectByBoundaries($condition, $order, $max_id, $since_id, $limit);
+		return parent::selectByBoundaries($condition, $params, $max_id, $since_id, $limit);
 	}
 }
