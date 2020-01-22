@@ -10,6 +10,9 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Module\BaseNotifications;
 
+/**
+ * Prints notifications about introduction
+ */
 class Introductions extends BaseNotifications
 {
 	/**

@@ -11,6 +11,11 @@ use Friendica\DI;
 use Friendica\Model\Notify;
 use Friendica\Network\HTTPException\ForbiddenException;
 
+/**
+ * Base Module for each tab of the notification display
+ *
+ * General possibility to print it as JSON as well
+ */
 abstract class BaseNotifications extends BaseModule
 {
 	/** @var array Array of URL parameters */
@@ -40,9 +45,12 @@ abstract class BaseNotifications extends BaseModule
 		Notify::INTRO    => 'i',
 	];
 
+	/** @var int The default count of items per page */
 	const PER_PAGE = 20;
 
+	/** @var boolean True, if ALL entries should get shown */
 	protected static $show;
+	/** @var int The determined start item of the current page */
 	protected static $start;
 
 	/**
@@ -62,7 +70,7 @@ abstract class BaseNotifications extends BaseModule
 		$page = ($_REQUEST['page'] ?? 0) ?: 1;
 
 		self::$start = ($page * self::PER_PAGE) - self::PER_PAGE;
-		self::$show = ($_REQUEST['show'] ?? '') === 'all';
+		self::$show  = ($_REQUEST['show'] ?? '') === 'all';
 	}
 
 	public static function post(array $parameters = [])
@@ -99,7 +107,19 @@ abstract class BaseNotifications extends BaseModule
 		System::jsonExit(static::getNotifies()['notifs'] ?? []);
 	}
 
-	public static function printContent(string $notif_header, array $notif_content, string $notif_nocontent, array $notif_show_lnk)
+	/**
+	 * Shows the printable result of notifications for a specific tab
+	 *
+	 * @param string $notif_header    The notification header
+	 * @param array  $notif_content   The array with the notifications
+	 * @param string $notif_nocontent The string in case there are no notifications
+	 * @param array  $notif_show_lnk  The possible links at the top
+	 *
+	 * @return string The rendered output
+	 *
+	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 */
+	protected static function printContent(string $notif_header, array $notif_content, string $notif_nocontent, array $notif_show_lnk)
 	{
 		// Get the nav tabs for the notification pages
 		$tabs = self::getTabs();

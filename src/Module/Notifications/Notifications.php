@@ -8,6 +8,13 @@ use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseNotifications;
 
+/**
+ * Prints all notification types except introduction:
+ * - Network
+ * - System
+ * - Personal
+ * - Home
+ */
 class Notifications extends BaseNotifications
 {
 	/**
