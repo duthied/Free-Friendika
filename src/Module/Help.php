@@ -66,34 +66,32 @@ class Help extends BaseModule
 			$idNum = [0, 0, 0, 0, 0, 0, 0];
 			foreach ($lines as &$line) {
 				$matches = [];
-				foreach ($lines as &$line) {
-					if (preg_match('#<h([1-6])>([^<]+?)</h\1>#i', $line, $matches)) {
-						$level = $matches[1];
-						$anchor = urlencode($matches[2]);
-						if ($level < $lastLevel) {
-							for ($k = $level; $k < $lastLevel; $k++) {
-								$toc .= "</ul></li>";
-							}
-
-							for ($k = $level + 1; $k < count($idNum); $k++) {
-								$idNum[$k] = 0;
-							}
+				if (preg_match('#<h([1-6])>([^<]+?)</h\1>#i', $line, $matches)) {
+					$level = $matches[1];
+					$anchor = urlencode($matches[2]);
+					if ($level < $lastLevel) {
+						for ($k = $level; $k < $lastLevel; $k++) {
+							$toc .= "</ul></li>";
 						}
 
-						if ($level > $lastLevel) {
-							$toc .= "<li><ul>";
+						for ($k = $level + 1; $k < count($idNum); $k++) {
+							$idNum[$k] = 0;
 						}
-
-						$idNum[$level] ++;
-
-						$href = DI::baseUrl()->get() . "/help/{$filename}#{$anchor}";
-						$toc .= "<li><a href=\"{$href}\">" . strip_tags($line) . "</a></li>";
-						$id = implode("_", array_slice($idNum, 1, $level));
-						$line = "<a name=\"{$id}\"></a>" . $line;
-						$line = "<a name=\"{$anchor}\"></a>" . $line;
-
-						$lastLevel = $level;
 					}
+
+					if ($level > $lastLevel) {
+						$toc .= "<li><ul>";
+					}
+
+					$idNum[$level] ++;
+
+					$href = DI::baseUrl()->get() . "/help/{$filename}#{$anchor}";
+					$toc .= "<li><a href=\"{$href}\">" . strip_tags($line) . "</a></li>";
+					$id = implode("_", array_slice($idNum, 1, $level));
+					$line = "<a name=\"{$id}\"></a>" . $line;
+					$line = "<a name=\"{$anchor}\"></a>" . $line;
+
+					$lastLevel = $level;
 				}
 			}
 
