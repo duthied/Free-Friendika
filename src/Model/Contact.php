@@ -723,7 +723,7 @@ class Contact
 
 		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
 			'country-name', 'gender', 'pub_keywords', 'xmpp', 'net-publish'];
-		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($profile)) {
 			return;
 		}
@@ -800,7 +800,7 @@ class Contact
 			// Update the profile
 			$fields = ['photo' => DI::baseUrl() . '/photo/profile/' .$uid . '.' . $file_suffix,
 				'thumb' => DI::baseUrl() . '/photo/avatar/' . $uid .'.' . $file_suffix];
-			DBA::update('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+			DBA::update('profile', $fields, ['uid' => $uid]);
 		}
 	}
 

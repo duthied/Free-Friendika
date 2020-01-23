@@ -27,7 +27,7 @@ function user_allow($hash)
 
 	DBA::update('user', ['blocked' => false, 'verified' => true], ['uid' => $register['uid']]);
 
-	$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid'], 'is-default' => true]);
+	$profile = DBA::selectFirst('profile', ['net-publish'], ['uid' => $register['uid']]);
 
 	if (DBA::isResult($profile) && $profile['net-publish'] && DI::config()->get('system', 'directory')) {
 		$url = DI::baseUrl() . '/profile/' . $user['nickname'];

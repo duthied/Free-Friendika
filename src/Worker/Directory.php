@@ -46,7 +46,7 @@ class Directory
 		$r = q("SELECT `url` FROM `contact`
 			INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 			INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-				WHERE `contact`.`self` AND `profile`.`net-publish` AND `profile`.`is-default` AND
+				WHERE `contact`.`self` AND `profile`.`net-publish` AND
 					NOT `user`.`account_expired` AND `user`.`verified`");
 
 		if (DBA::isResult($r)) {

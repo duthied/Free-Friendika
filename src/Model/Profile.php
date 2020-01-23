@@ -35,8 +35,7 @@ class Profile
 	 */
 	public static function getByUID($uid)
 	{
-		$profile = DBA::selectFirst('profile', [], ['uid' => $uid, 'is-default' => true]);
-		return $profile;
+		return DBA::selectFirst('profile', [], ['uid' => $uid]);
 	}
 
 	/**
@@ -151,7 +150,7 @@ class Profile
 			}
 		}
 
-		$profile = self::getByNickname($nickname, $user['uid'], $profile_id);
+		$profile = self::getByNickname($nickname, $user['uid']);
 
 		if (empty($profile) && empty($profiledata)) {
 			Logger::log('profile error: ' . DI::args()->getQueryString(), Logger::DEBUG);
@@ -159,17 +158,7 @@ class Profile
 		}
 
 		if (empty($profile)) {
-			$profile = ['uid' => 0, 'is-default' => false,'name' => $nickname];
-		}
-
-		// fetch user tags if this isn't the default profile
-
-		if (!$profile['is-default']) {
-			$condition = ['uid' => $profile['uid'], 'is-default' => true];
-			$profile_id = DBA::selectFirst('profile', ['pub_keywords'], $condition);
-			if (DBA::isResult($profile_id)) {
-				$profile['pub_keywords'] = $profile_id['pub_keywords'];
-			}
+			$profile = ['uid' => 0, 'name' => $nickname];
 		}
 
 		$a->profile = $profile;
@@ -1031,7 +1020,7 @@ class Profile
 	 */
 	public static function searchProfiles($start = 0, $count = 100, $search = null)
 	{
-		$publish = (DI::config()->get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
+		$publish = (DI::config()->get('system', 'publish_all') ? '' : "`publish` = 1");
 		$total = 0;
 
 		if (!empty($search)) {
@@ -1039,7 +1028,7 @@ class Profile
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
+				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
 				AND ((`profile`.`name` LIKE ?) OR
 				(`user`.`nickname` LIKE ?) OR
 				(`profile`.`pdesc` LIKE ?) OR
@@ -1061,7 +1050,7 @@ class Profile
 			$cnt = DBA::fetchFirst("SELECT COUNT(*) AS `total`
 				FROM `profile`
 				LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");
+				WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed`");
 		}
 
 		if (DBA::isResult($cnt)) {
@@ -1081,7 +1070,7 @@ class Profile
 			FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
+			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
 			AND ((`profile`.`name` LIKE ?) OR
 				(`user`.`nickname` LIKE ?) OR
 				(`profile`.`pdesc` LIKE ?) OR
@@ -1108,7 +1097,7 @@ class Profile
 			FROM `profile`
 			LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
 			LEFT JOIN `contact` ON `contact`.`uid` = `user`.`uid`
-			WHERE `is-default` $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
+			WHERE $publish AND NOT `user`.`blocked` AND NOT `user`.`account_removed` AND `contact`.`self`
 			$order LIMIT ?,?",
 					$start, $count
 				);

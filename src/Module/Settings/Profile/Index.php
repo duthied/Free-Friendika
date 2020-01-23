@@ -115,10 +115,7 @@ class Index extends BaseSettingsModule
 				'prv_keywords' => $prv_keywords,
 				'hide-friends' => $hide_friends,
 			],
-			[
-				'uid' => local_user(),
-				'is-default' => true,
-			]
+			['uid' => local_user()]
 		);
 
 		if ($result) {

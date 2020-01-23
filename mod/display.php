@@ -102,7 +102,7 @@ function display_init(App $a)
 		if ($nickname != $a->user["nickname"]) {
 			$profile = DBA::fetchFirst("SELECT `profile`.* , `contact`.`avatar-date` AS picdate, `user`.* FROM `profile`
 				INNER JOIN `contact` on `contact`.`uid` = `profile`.`uid` INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
-				WHERE `user`.`nickname` = ? AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+				WHERE `user`.`nickname` = ? AND `contact`.`self` LIMIT 1",
 				$nickname
 			);
 			if (DBA::isResult($profile)) {

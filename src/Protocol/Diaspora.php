@@ -4092,7 +4092,7 @@ class Diaspora
 			FROM `profile`
 			INNER JOIN `user` ON `profile`.`uid` = `user`.`uid`
 			INNER JOIN `contact` ON `profile`.`uid` = `contact`.`uid`
-			WHERE `user`.`uid` = %d AND `profile`.`is-default` AND `contact`.`self` LIMIT 1",
+			WHERE `user`.`uid` = %d AND `contact`.`self` LIMIT 1",
 			intval($uid)
 		);
 
