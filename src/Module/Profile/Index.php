@@ -25,8 +25,6 @@ use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
-require_once 'boot.php';
-
 class Index extends BaseModule
 {
 	public static function rawContent(array $parameters = [])
@@ -71,7 +69,6 @@ class Index extends BaseModule
 
 		$is_owner = local_user() == $a->profile_uid;
 
-		$o = '';
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			throw new HTTPException\ForbiddenException(DI::l10n()->t('Access to this profile has been restricted.'));
 		}

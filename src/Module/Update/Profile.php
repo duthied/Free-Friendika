@@ -12,8 +12,6 @@ use Friendica\Model\Profile as ProfileModel;
 use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Util\DateTimeFormat;
 
-require_once 'boot.php';
-
 class Profile extends BaseModule
 {
 	public static function rawContent(array $parameters = [])

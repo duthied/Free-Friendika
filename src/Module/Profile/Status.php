@@ -19,8 +19,6 @@ use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-require_once 'boot.php';
-
 class Status extends BaseModule
 {
 	public static function content(array $parameters = [])

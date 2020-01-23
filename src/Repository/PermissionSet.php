@@ -13,6 +13,7 @@ use Psr\Log\LoggerInterface;
 
 class PermissionSet extends BaseRepository
 {
+	/** @var int Virtual permission set id for public permission */
 	const PUBLIC = 0;
 
 	protected static $table_name = 'permissionset';
