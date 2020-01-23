@@ -82,7 +82,7 @@ class Widget
 	public static function unavailableNetworks()
 	{
 		// Always hide content from these networks
-		$networks = ['face', 'apdn'];
+		$networks = [Protocol::PHANTOM, Protocol::FACEBOOK, Protocol::APPNET];
 
 		if (!Addon::isEnabled("discourse")) {
 			$networks[] = Protocol::DISCOURSE;
@@ -175,7 +175,7 @@ class Widget
 	}
 
 	/**
-	 * Return networks widget
+	 * Return contact relationship widget
 	 *
 	 * @param string $baseurl  baseurl
 	 * @param string $selected optional, default empty

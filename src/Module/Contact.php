@@ -245,8 +245,10 @@ class Contact extends BaseModule
 
 		$a = DI::app();
 
-		$nets = $_GET['nets'] ?? '';
-		$rel  = $_GET['rel']  ?? '';
+		$search = Strings::escapeTags(trim($_GET['search'] ?? ''));
+		$nets   = Strings::escapeTags(trim($_GET['nets']   ?? ''));
+		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
+		$group  = Strings::escapeTags(trim($_GET['group']  ?? ''));
 
 		if (empty(DI::page()['aside'])) {
 			DI::page()['aside'] = '';
@@ -350,7 +352,6 @@ class Contact extends BaseModule
 			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
-		$sort_type = 0;
 		$o = '';
 		Nav::setSelected('contact');
 
@@ -643,39 +644,111 @@ class Contact extends BaseModule
 			return $arr['output'];
 		}
 
-		$select_uid = local_user();
+		$sql_values = [local_user()];
 
 		// @TODO: Replace with parameter from router
 		$type = $a->argv[1] ?? '';
 
 		switch ($type) {
 			case 'blocked':
-				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`blocked`)", intval(local_user()));
-				$select_uid = 0;
+				$sql_extra = " AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = ? and `user-contact`.`blocked`)";
+				// This makes the query look for contact.uid = 0
+				array_unshift($sql_values, 0);
 				break;
 			case 'hidden':
 				$sql_extra = " AND `hidden` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'ignored':
-				$sql_extra = sprintf(" AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = %d and `user-contact`.`ignored`)", intval(local_user()));
-				$select_uid = 0;
+				$sql_extra = " AND EXISTS(SELECT `id` from `user-contact` WHERE `contact`.`id` = `user-contact`.`cid` and `user-contact`.`uid` = ? and `user-contact`.`ignored`)";
+				// This makes the query look for contact.uid = 0
+				array_unshift($sql_values, 0);
 				break;
 			case 'archived':
 				$sql_extra = " AND `archive` AND NOT `blocked` AND NOT `pending`";
 				break;
 			case 'pending':
-				$sql_extra = sprintf(" AND `pending` AND NOT `archive` AND ((`rel` = %d)
-					OR EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND NOT `ignore`))", Model\Contact::SHARING);
+				$sql_extra = " AND `pending` AND NOT `archive` AND ((`rel` = ?)
+					OR EXISTS (SELECT `id` FROM `intro` WHERE `contact-id` = `contact`.`id` AND NOT `ignore`))";
+				$sql_values[] = Model\Contact::SHARING;
 				break;
 			default:
 				$sql_extra = " AND NOT `archive` AND NOT `blocked` AND NOT `pending`";
+				break;
 		}
 
-		$sql_extra .= sprintf(" AND `network` != '%s' ", Protocol::PHANTOM);
+		$searching = false;
+		$search_hdr = null;
+		if ($search) {
+			$searching = true;
+			$search_hdr = $search;
+			$search_txt = preg_quote($search);
+			$sql_extra .= " AND (name REGEXP ? OR url REGEXP ? OR nick REGEXP ?)";
+			$sql_values[] = $search_txt;
+			$sql_values[] = $search_txt;
+			$sql_values[] = $search_txt;
+		}
 
-		$search = Strings::escapeTags(trim($_GET['search'] ?? ''));
-		$nets   = Strings::escapeTags(trim($_GET['nets']   ?? ''));
-		$rel    = Strings::escapeTags(trim($_GET['rel']    ?? ''));
+		if ($nets) {
+			$sql_extra .= " AND network = ? ";
+			$sql_values[] = $nets;
+		}
+
+		switch ($rel) {
+			case 'followers':
+				$sql_extra .= " AND `rel` IN (?, ?)";
+				$sql_values[] = Model\Contact::FOLLOWER;
+				$sql_values[] = Model\Contact::FRIEND;
+				break;
+			case 'following':
+				$sql_extra .= " AND `rel` IN (?, ?)";
+				$sql_values[] = Model\Contact::SHARING;
+				$sql_values[] = Model\Contact::FRIEND;
+				break;
+			case 'mutuals':
+				$sql_extra .= " AND `rel` = ?";
+				$sql_values[] = Model\Contact::FRIEND;
+				break;
+		}
+
+		$sql_extra .= Widget::unavailableNetworks();
+
+		$total = 0;
+		$stmt = DBA::p("SELECT COUNT(*) AS `total`
+			FROM `contact`
+			WHERE `uid` = ?
+			AND `self` = 0
+			AND NOT `deleted`
+			$sql_extra",
+			$sql_values
+		);
+		if (DBA::isResult($stmt)) {
+			$total = DBA::fetch($stmt)['total'];
+		}
+		DBA::close($stmt);
+
+		$pager = new Pager(DI::args()->getQueryString());
+
+		$sql_values[] = $pager->getStart();
+		$sql_values[] = $pager->getItemsPerPage();
+
+		$contacts = [];
+
+		$stmt = DBA::p("SELECT *
+			FROM `contact`
+			WHERE `uid` = ?
+			AND `self` = 0
+			AND NOT `deleted`
+			$sql_extra
+			ORDER BY `name` ASC
+			LIMIT ?, ?",
+			$sql_values
+		);
+		while ($contact = DBA::fetch($stmt)) {
+			$contact['blocked'] = Model\Contact::isBlockedByUser($contact['id'], local_user());
+			$contact['readonly'] = Model\Contact::isIgnoredByUser($contact['id'], local_user());
+			$contacts[] = self::getContactTemplateVars($contact);
+		}
+		DBA::close($stmt);
 
 		$tabs = [
 			[
@@ -736,58 +809,8 @@ class Contact extends BaseModule
 			],
 		];
 
-		$tab_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
-		$t = Renderer::replaceMacros($tab_tpl, ['$tabs' => $tabs]);
-
-		$total = 0;
-		$searching = false;
-		$search_hdr = null;
-		if ($search) {
-			$searching = true;
-			$search_hdr = $search;
-			$search_txt = DBA::escape(Strings::protectSprintf(preg_quote($search)));
-			$sql_extra .= " AND (name REGEXP '$search_txt' OR url REGEXP '$search_txt'  OR nick REGEXP '$search_txt') ";
-		}
-
-		if ($nets) {
-			$sql_extra .= sprintf(" AND network = '%s' ", DBA::escape($nets));
-		}
-
-		switch ($rel) {
-			case 'followers': $sql_extra .= " AND `rel` IN (1, 3)"; break;
-			case 'following': $sql_extra .= " AND `rel` IN (2, 3)"; break;
-			case 'mutuals': $sql_extra .= " AND `rel` = 3"; break;
-		}
-
-		$sql_extra .=  " AND NOT `deleted` ";
-
-		$sql_extra2 = ((($sort_type > 0) && ($sort_type <= Model\Contact::FRIEND)) ? sprintf(" AND `rel` = %d ", intval($sort_type)) : '');
-
-		$sql_extra3 = Widget::unavailableNetworks();
-
-		$r = q("SELECT COUNT(*) AS `total` FROM `contact`
-			WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 $sql_extra3",
-			intval($select_uid)
-		);
-		if (DBA::isResult($r)) {
-			$total = $r[0]['total'];
-		}
-		$pager = new Pager(DI::args()->getQueryString());
-
-		$contacts = [];
-
-		$r = q("SELECT * FROM `contact` WHERE `uid` = %d AND `self` = 0 $sql_extra $sql_extra2 $sql_extra3 ORDER BY `name` ASC LIMIT %d , %d ",
-			intval($select_uid),
-			$pager->getStart(),
-			$pager->getItemsPerPage()
-		);
-		if (DBA::isResult($r)) {
-			foreach ($r as $rr) {
-				$rr['blocked'] = Model\Contact::isBlockedByUser($rr['id'], local_user());
-				$rr['readonly'] = Model\Contact::isIgnoredByUser($rr['id'], local_user());
-				$contacts[] = self::getContactTemplateVars($rr);
-			}
-		}
+		$tabs_tpl = Renderer::getMarkupTemplate('common_tabs.tpl');
+		$tabs_html = Renderer::replaceMacros($tabs_tpl, ['$tabs' => $tabs]);
 
 		switch ($rel) {
 			case 'followers': $header = DI::l10n()->t('Followers'); break;
@@ -809,7 +832,7 @@ class Contact extends BaseModule
 		$tpl = Renderer::getMarkupTemplate('contacts-template.tpl');
 		$o .= Renderer::replaceMacros($tpl, [
 			'$header'     => $header,
-			'$tabs'       => $t,
+			'$tabs'       => $tabs_html,
 			'$total'      => $total,
 			'$search'     => $search_hdr,
 			'$desc'       => DI::l10n()->t('Search your contacts'),
