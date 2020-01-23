@@ -13,6 +13,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\FileTag;
 use Friendica\Model\GContact;
+use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Util\DateTimeFormat;
@@ -172,6 +173,38 @@ class Widget
 			'$options'   => $options,
 			'$base'      => $baseUrl,
 		]);
+	}
+
+	/**
+	 * Return group membership widget
+	 *
+	 * @param string $baseurl
+	 * @param string $selected
+	 * @return string
+	 * @throws \Exception
+	 */
+	public static function groups($baseurl, $selected = '')
+	{
+		if (!local_user()) {
+			return '';
+		}
+
+		$options = array_map(function ($group) {
+			return [
+				'ref'  => $group['id'],
+				'name' => $group['name']
+			];
+		}, Group::getByUserId(local_user()));
+
+		return self::filter(
+			'group',
+			DI::l10n()->t('Groups'),
+			'',
+			DI::l10n()->t('Everyone'),
+			$baseurl,
+			$options,
+			$selected
+		);
 	}
 
 	/**

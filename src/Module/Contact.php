@@ -326,6 +326,12 @@ class Contact extends BaseModule
 			$follow_widget = '';
 			$networks_widget = '';
 			$rel_widget = '';
+
+			if ($contact['uid'] != 0) {
+				$groups_widget = Model\Group::sidebarWidget('contact', 'group', 'full', 'everyone', $contact_id);
+			} else {
+				$groups_widget = '';
+			}
 		} else {
 			$vcard_widget = '';
 			$findpeople_widget = Widget::findPeople();
@@ -337,12 +343,7 @@ class Contact extends BaseModule
 
 			$networks_widget = Widget::networks($_SERVER['REQUEST_URI'], $nets);
 			$rel_widget = Widget::contactRels($_SERVER['REQUEST_URI'], $rel);
-		}
-
-		if ($contact['uid'] != 0) {
-			$groups_widget = Model\Group::sidebarWidget('contact', 'group', 'full', 'everyone', $contact_id);
-		} else {
-			$groups_widget = null;
+			$groups_widget = Widget::groups($_SERVER['REQUEST_URI'], $group);
 		}
 
 		DI::page()['aside'] .= $vcard_widget . $findpeople_widget . $follow_widget . $groups_widget . $networks_widget . $rel_widget;
@@ -708,6 +709,11 @@ class Contact extends BaseModule
 				$sql_extra .= " AND `rel` = ?";
 				$sql_values[] = Model\Contact::FRIEND;
 				break;
+		}
+
+		if ($group) {
+			$sql_extra = " AND EXISTS(SELECT `id` FROM `group_member` WHERE `gid` = ? AND `contact`.`id` = `contact-id`)";
+			$sql_values[] = $group;
 		}
 
 		$sql_extra .= Widget::unavailableNetworks();
