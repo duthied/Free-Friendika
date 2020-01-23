@@ -13,6 +13,8 @@ use Psr\Log\LoggerInterface;
 
 class PermissionSet extends BaseRepository
 {
+	const PUBLIC = 0;
+
 	protected static $table_name = 'permissionset';
 
 	protected static $model_class = Model\PermissionSet::class;
@@ -47,7 +49,7 @@ class PermissionSet extends BaseRepository
 	{
 		if (isset($condition['id']) && !$condition['id']) {
 			return $this->create([
-				'id' => 0,
+				'id' => self::PUBLIC,
 				'uid' => $condition['uid'] ?? 0,
 				'allow_cid' => '',
 				'allow_gid' => '',
@@ -109,7 +111,7 @@ class PermissionSet extends BaseRepository
 
 		// Public permission
 		if (!$allow_cid && !$allow_gid && !$deny_cid && !$deny_gid) {
-			return 0;
+			return self::PUBLIC;
 		}
 
 		$condition = [
