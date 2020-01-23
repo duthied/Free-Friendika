@@ -9,7 +9,7 @@ use BaconQrCode\Writer;
 use Friendica\Core\Renderer;
 use Friendica\Core\Session;
 use Friendica\DI;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use PragmaRX\Google2FA\Google2FA;
 
@@ -18,7 +18,7 @@ use PragmaRX\Google2FA\Google2FA;
  *
  * @package Friendica\Module\TwoFactor\Settings
  */
-class Verify extends BaseSettingsModule
+class Verify extends BaseSettings
 {
 	public static function init(array $parameters = [])
 	{

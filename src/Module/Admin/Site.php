@@ -9,7 +9,7 @@ use Friendica\Core\Theme;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\BasePath;
@@ -18,7 +18,7 @@ use Friendica\Worker\Delivery;
 
 require_once __DIR__ . '/../../../boot.php';
 
-class Site extends BaseAdminModule
+class Site extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

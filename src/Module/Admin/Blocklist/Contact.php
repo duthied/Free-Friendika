@@ -6,10 +6,10 @@ use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Model;
 
-class Contact extends BaseAdminModule
+class Contact extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

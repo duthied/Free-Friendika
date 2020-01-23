@@ -5,12 +5,12 @@ namespace Friendica\Module\Admin\Item;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
 /**
  * @author Hypolite Petovan <mrpetovan@gmail.com>
  */
-class Source extends BaseAdminModule
+class Source extends BaseAdmin
 
 {
 	public static function content(array $parameters = [])

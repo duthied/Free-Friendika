@@ -17,7 +17,7 @@ use Friendica\Util\Proxy as ProxyUtils;
 /**
  * Base class for search modules
  */
-class BaseSearchModule extends BaseModule
+class BaseSearch extends BaseModule
 {
 	/**
 	 * Performs a contact search with an optional prefix

@@ -4,10 +4,10 @@ namespace Friendica\Module\Admin\Themes;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
-class Embed extends BaseAdminModule
+class Embed extends BaseAdmin
 {
 	public static function init(array $parameters = [])
 	{

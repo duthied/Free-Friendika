@@ -5,9 +5,9 @@ namespace Friendica\Module\Admin;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
-class Federation extends BaseAdminModule
+class Federation extends BaseAdmin
 {
 	public static function content(array $parameters = [])
 	{

@@ -11,12 +11,12 @@ use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 
 /**
  * Module to export user data
  **/
-class UserExport extends BaseSettingsModule
+class UserExport extends BaseSettings
 {
 	/**
 	 * Handle the request to export data.

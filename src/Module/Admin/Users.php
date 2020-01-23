@@ -8,11 +8,11 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Register;
 use Friendica\Model\User;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-class Users extends BaseAdminModule
+class Users extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

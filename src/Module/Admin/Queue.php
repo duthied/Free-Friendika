@@ -5,7 +5,7 @@ namespace Friendica\Module\Admin;
 use Friendica\Core\Renderer;
 use Friendica\Database\DBA;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Arrays;
 use Friendica\Util\DateTimeFormat;
 
@@ -17,7 +17,7 @@ use Friendica\Util\DateTimeFormat;
  *
  * @return string
  */
-class Queue extends BaseAdminModule
+class Queue extends BaseAdmin
 {
 	public static function content(array $parameters = [])
 	{

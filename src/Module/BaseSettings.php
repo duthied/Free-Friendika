@@ -7,7 +7,7 @@ use Friendica\Content\Feature;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 
-class BaseSettingsModule extends BaseModule
+class BaseSettings extends BaseModule
 {
 	public static function content(array $parameters = [])
 	{

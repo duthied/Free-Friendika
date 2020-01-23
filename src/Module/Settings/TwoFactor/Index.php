@@ -8,11 +8,11 @@ use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
 use Friendica\Model\TwoFactor\RecoveryCode;
 use Friendica\Model\User;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use PragmaRX\Google2FA\Google2FA;
 
-class Index extends BaseSettingsModule
+class Index extends BaseSettings
 {
 	public static function post(array $parameters = [])
 	{

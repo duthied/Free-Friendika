@@ -4,10 +4,10 @@ namespace Friendica\Module\Admin\Blocklist;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
-class Server extends BaseAdminModule
+class Server extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

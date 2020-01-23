@@ -21,7 +21,7 @@ require_once 'boot.php';
  *
  * @package Friendica\Module
  */
-abstract class BaseAdminModule extends BaseModule
+abstract class BaseAdmin extends BaseModule
 {
 	public static function post(array $parameters = [])
 	{

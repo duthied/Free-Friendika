@@ -15,11 +15,11 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Term;
-use Friendica\Module\BaseSearchModule;
+use Friendica\Module\BaseSearch;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
-class Index extends BaseSearchModule
+class Index extends BaseSearch
 {
 	public static function content(array $parameters = [])
 	{

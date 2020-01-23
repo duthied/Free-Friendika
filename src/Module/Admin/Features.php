@@ -5,9 +5,9 @@ namespace Friendica\Module\Admin;
 use Friendica\Content\Feature;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
-class Features extends BaseAdminModule
+class Features extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{
