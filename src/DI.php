@@ -237,6 +237,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Field
+	 */
+	public static function mstdnField()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Field::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\FollowRequest
 	 */
 	public static function mstdnFollowRequest()

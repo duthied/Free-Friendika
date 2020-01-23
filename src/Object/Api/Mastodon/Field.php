@@ -7,7 +7,7 @@ use Friendica\BaseEntity;
 /**
  * Class Field
  *
- * @see https://docs.joinmastodon.org/api/entities/#field
+ * @see https://docs.joinmastodon.org/entities/field/
  */
 class Field extends BaseEntity
 {
@@ -17,4 +17,12 @@ class Field extends BaseEntity
 	protected $value;
 	/** @var string (Datetime)*/
 	protected $verified_at;
+
+	public function __construct(string $name, string $value)
+	{
+		$this->name = $name;
+		$this->value = $value;
+		// Link verification unsupported
+		$this->verified_at = null;
+	}
 }
