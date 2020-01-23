@@ -87,20 +87,53 @@ class BaseApi extends BaseModule
 		return api_get_user(DI::app(), $contact_id);
 	}
 
-	protected static function format($root_element, $data)
+	/**
+	 * Formats the data according to the data type
+	 *
+	 * @param string $root_element
+	 * @param array $data An array with a single element containing the returned result
+	 * @return false|string
+	 */
+	protected static function format(string $root_element, array $data)
 	{
+		$return = api_format_data($root_element, self::$format, $data);
+
 		switch (self::$format) {
-			case "atom":
-			case "rss":
 			case "xml":
-				$ret = api_create_xml($data, $root_element);
+				header("Content-Type: text/xml");
 				break;
 			case "json":
-			default:
-				$ret = $data;
+				header("Content-Type: application/json");
+				if (!empty($return)) {
+					$json = json_encode(end($return));
+					if (!empty($_GET['callback'])) {
+						$json = $_GET['callback'] . "(" . $json . ")";
+					}
+					$return = $json;
+				}
+				break;
+			case "rss":
+				header("Content-Type: application/rss+xml");
+				$return  = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
+				break;
+			case "atom":
+				header("Content-Type: application/atom+xml");
+				$return = '<?xml version="1.0" encoding="UTF-8"?>' . "\n" . $return;
 				break;
 		}
+		
+		return $return;
+	}
 
-		return $ret;
+	/**
+	 * Creates the XML from a JSON style array
+	 *
+	 * @param $data
+	 * @param $root_element
+	 * @return string
+	 */
+	protected static function createXml($data, $root_element)
+	{
+		return api_create_xml($data, $root_element);
 	}
 }

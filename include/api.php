@@ -2906,60 +2906,6 @@ function api_format_items_activities($item, $type = "json")
 	return $activities;
 }
 
-
-/**
- * return data from profiles
- *
- * @param array $profile_row array containing data from db table 'profile'
- * @return array
- * @throws InternalServerErrorException
- */
-function api_format_items_profiles($profile_row)
-{
-	$profile = [
-		'profile_id'       => $profile_row['id'],
-		'profile_name'     => $profile_row['profile-name'],
-		'is_default'       => $profile_row['is-default'] ? true : false,
-		'hide_friends'     => $profile_row['hide-friends'] ? true : false,
-		'profile_photo'    => $profile_row['photo'],
-		'profile_thumb'    => $profile_row['thumb'],
-		'publish'          => $profile_row['publish'] ? true : false,
-		'net_publish'      => $profile_row['net-publish'] ? true : false,
-		'description'      => $profile_row['pdesc'],
-		'date_of_birth'    => $profile_row['dob'],
-		'address'          => $profile_row['address'],
-		'city'             => $profile_row['locality'],
-		'region'           => $profile_row['region'],
-		'postal_code'      => $profile_row['postal-code'],
-		'country'          => $profile_row['country-name'],
-		'hometown'         => $profile_row['hometown'],
-		'gender'           => $profile_row['gender'],
-		'marital'          => $profile_row['marital'],
-		'marital_with'     => $profile_row['with'],
-		'marital_since'    => $profile_row['howlong'],
-		'sexual'           => $profile_row['sexual'],
-		'politic'          => $profile_row['politic'],
-		'religion'         => $profile_row['religion'],
-		'public_keywords'  => $profile_row['pub_keywords'],
-		'private_keywords' => $profile_row['prv_keywords'],
-		'likes'            => BBCode::convert(api_clean_plain_items($profile_row['likes'])    , false, 2),
-		'dislikes'         => BBCode::convert(api_clean_plain_items($profile_row['dislikes']) , false, 2),
-		'about'            => BBCode::convert(api_clean_plain_items($profile_row['about'])    , false, 2),
-		'music'            => BBCode::convert(api_clean_plain_items($profile_row['music'])    , false, 2),
-		'book'             => BBCode::convert(api_clean_plain_items($profile_row['book'])     , false, 2),
-		'tv'               => BBCode::convert(api_clean_plain_items($profile_row['tv'])       , false, 2),
-		'film'             => BBCode::convert(api_clean_plain_items($profile_row['film'])     , false, 2),
-		'interest'         => BBCode::convert(api_clean_plain_items($profile_row['interest']) , false, 2),
-		'romance'          => BBCode::convert(api_clean_plain_items($profile_row['romance'])  , false, 2),
-		'work'             => BBCode::convert(api_clean_plain_items($profile_row['work'])     , false, 2),
-		'education'        => BBCode::convert(api_clean_plain_items($profile_row['education']), false, 2),
-		'social_networks'  => BBCode::convert(api_clean_plain_items($profile_row['contact'])  , false, 2),
-		'homepage'         => $profile_row['homepage'],
-		'users'            => null
-	];
-	return $profile;
-}
-
 /**
  * format items to be returned by api
  *
@@ -6101,78 +6047,6 @@ function api_friendica_direct_messages_search($type, $box = "")
 
 /// @TODO move to top of file or somewhere better
 api_register_func('api/friendica/direct_messages_search', 'api_friendica_direct_messages_search', true);
-
-/**
- * return data of all the profiles a user has to the client
- *
- * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
- * @return string|array
- * @throws BadRequestException
- * @throws ForbiddenException
- * @throws ImagickException
- * @throws InternalServerErrorException
- * @throws UnauthorizedException
- */
-function api_friendica_profile_show($type)
-{
-	$a = DI::app();
-
-	if (api_user() === false) {
-		throw new ForbiddenException();
-	}
-
-	// input params
-	$profile_id = $_REQUEST['profile_id'] ?? 0;
-
-	// retrieve general information about profiles for user
-	$multi_profiles = Feature::isEnabled(api_user(), 'multi_profiles');
-	$directory = DI::config()->get('system', 'directory');
-
-	// get data of the specified profile id or all profiles of the user if not specified
-	if ($profile_id != 0) {
-		$r = Profile::getById(api_user(), $profile_id);
-		// error message if specified gid is not in database
-		if (!DBA::isResult($r)) {
-			throw new BadRequestException("profile_id not available");
-		}
-	} else {
-		$r = Profile::getListByUser(api_user());
-	}
-	// loop through all returned profiles and retrieve data and users
-	$k = 0;
-	$profiles = [];
-	if (DBA::isResult($r)) {
-		foreach ($r as $rr) {
-			$profile = api_format_items_profiles($rr);
-
-			// select all users from contact table, loop and prepare standard return for user data
-			$users = [];
-			$nurls = Contact::selectToArray(['id', 'nurl'], ['uid' => api_user(), 'profile-id' => $rr['id']]);
-			foreach ($nurls as $nurl) {
-				$user = api_get_user($a, $nurl['nurl']);
-				($type == "xml") ? $users[$k++ . ":user"] = $user : $users[] = $user;
-			}
-			$profile['users'] = $users;
-
-			// add prepared profile data to array for final return
-			if ($type == "xml") {
-				$profiles[$k++ . ":profile"] = $profile;
-			} else {
-				$profiles[] = $profile;
-			}
-		}
-	}
-
-	// return settings, authenticated user and profiles data
-	$self = DBA::selectFirst('contact', ['nurl'], ['uid' => api_user(), 'self' => true]);
-
-	$result = ['multi_profiles' => $multi_profiles ? true : false,
-					'global_dir' => $directory,
-					'friendica_owner' => api_get_user($a, $self['nurl']),
-					'profiles' => $profiles];
-	return api_format_data("friendica_profiles", $type, ['$result' => $result]);
-}
-api_register_func('api/friendica/profile/show', 'api_friendica_profile_show', true, API_METHOD_GET);
 
 /**
  * Returns a list of saved searches.
