@@ -5,10 +5,11 @@ namespace Friendica\Repository;
 use Friendica\BaseModel;
 use Friendica\BaseRepository;
 use Friendica\Collection;
+use Friendica\Core\L10n;
 use Friendica\Database\Database;
 use Friendica\Database\DBA;
-use Friendica\DI;
 use Friendica\Model;
+use Friendica\Util\ACLFormatter;
 use Friendica\Util\DateTimeFormat;
 use Psr\Log\LoggerInterface;
 
@@ -22,12 +23,18 @@ class ProfileField extends BaseRepository
 
 	/** @var PermissionSet */
 	private $permissionSet;
+	/** @var ACLFormatter */
+	private $aclFormatter;
+	/** @var L10n */
+	private $l10n;
 
-	public function __construct(Database $dba, LoggerInterface $logger, PermissionSet $permissionSet)
+	public function __construct(Database $dba, LoggerInterface $logger, PermissionSet $permissionSet, ACLFormatter $aclFormatter, L10n $l10n)
 	{
 		parent::__construct($dba, $logger);
 
 		$this->permissionSet = $permissionSet;
+		$this->aclFormatter = $aclFormatter;
+		$this->l10n = $l10n;
 	}
 
 	/**
@@ -145,8 +152,6 @@ class ProfileField extends BaseRepository
 	 */
 	public function updateCollectionFromForm(int $uid, Collection\ProfileFields $profileFields, array $profileFieldInputs, array $profileFieldOrder)
 	{
-		$aclFormatter = DI::aclFormatter();
-
 		// Returns an associative array of id => order values
 		$profileFieldOrder = array_flip($profileFieldOrder);
 
@@ -154,10 +159,10 @@ class ProfileField extends BaseRepository
 		if (!empty($profileFieldInputs['new']['label'])) {
 			$psid = $this->permissionSet->getIdFromACL(
 				$uid,
-				$aclFormatter->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
-				$aclFormatter->toString($profileFieldInputs['new']['group_allow'] ?? ''),
-				$aclFormatter->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
-				$aclFormatter->toString($profileFieldInputs['new']['group_deny'] ?? '')
+				$this->aclFormatter->toString($profileFieldInputs['new']['contact_allow'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInputs['new']['group_allow'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInputs['new']['contact_deny'] ?? ''),
+				$this->aclFormatter->toString($profileFieldInputs['new']['group_deny'] ?? '')
 			);
 
 			$newProfileField = $this->insert([
@@ -194,14 +199,14 @@ class ProfileField extends BaseRepository
 		$profileFieldOrder = array_flip(array_keys($profileFieldOrder));
 
 		// Update existing profile fields from form values
-		$profileFields = $profileFields->map(function (Model\ProfileField $profileField) use ($uid, $aclFormatter, &$profileFieldInputs, &$profileFieldOrder) {
+		$profileFields = $profileFields->map(function (Model\ProfileField $profileField) use ($uid, &$profileFieldInputs, &$profileFieldOrder) {
 			if (isset($profileFieldInputs[$profileField->id]) && isset($profileFieldOrder[$profileField->id])) {
 				$psid = $this->permissionSet->getIdFromACL(
 					$uid,
-					$aclFormatter->toString($profileFieldInputs[$profileField->id]['contact_allow'] ?? ''),
-					$aclFormatter->toString($profileFieldInputs[$profileField->id]['group_allow'] ?? ''),
-					$aclFormatter->toString($profileFieldInputs[$profileField->id]['contact_deny'] ?? ''),
-					$aclFormatter->toString($profileFieldInputs[$profileField->id]['group_deny'] ?? '')
+					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['contact_allow'] ?? ''),
+					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['group_allow'] ?? ''),
+					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['contact_deny'] ?? ''),
+					$this->aclFormatter->toString($profileFieldInputs[$profileField->id]['group_deny'] ?? '')
 				);
 
 				$profileField->psid  = $psid;
@@ -240,40 +245,40 @@ class ProfileField extends BaseRepository
 				$contacts = Model\Contact::selectToArray(['id'], ['uid' => $profile['uid'], 'self' => true]);
 			}
 
-			$allow_cid = DI::aclFormatter()->toString(array_column($contacts, 'id'));
+			$allow_cid = $this->aclFormatter->toString(array_column($contacts, 'id'));
 		}
 
-		$psid = DI::permissionSet()->getIdFromACL($profile['uid'], $allow_cid ?? '');
+		$psid = $this->permissionSet->getIdFromACL($profile['uid'], $allow_cid ?? '');
 
 		$order = 1;
 
 		$custom_fields = [
-			'hometown'  => DI::l10n()->t('Hometown:'),
-			'gender'    => DI::l10n()->t('Gender:'),
-			'marital'   => DI::l10n()->t('Marital Status:'),
-			'with'      => DI::l10n()->t('With:'),
-			'howlong'   => DI::l10n()->t('Since:'),
-			'sexual'    => DI::l10n()->t('Sexual Preference:'),
-			'politic'   => DI::l10n()->t('Political Views:'),
-			'religion'  => DI::l10n()->t('Religious Views:'),
-			'likes'     => DI::l10n()->t('Likes:'),
-			'dislikes'  => DI::l10n()->t('Dislikes:'),
-			'about'     => DI::l10n()->t('About:'),
-			'summary'   => DI::l10n()->t('Summary'),
-			'music'     => DI::l10n()->t('Musical interests'),
-			'book'      => DI::l10n()->t('Books, literature'),
-			'tv'        => DI::l10n()->t('Television'),
-			'film'      => DI::l10n()->t('Film/dance/culture/entertainment'),
-			'interest'  => DI::l10n()->t('Hobbies/Interests'),
-			'romance'   => DI::l10n()->t('Love/romance'),
-			'work'      => DI::l10n()->t('Work/employment'),
-			'education' => DI::l10n()->t('School/education'),
-			'contact'   => DI::l10n()->t('Contact information and Social Networks'),
+			'hometown'  => $this->l10n->t('Hometown:'),
+			'gender'    => $this->l10n->t('Gender:'),
+			'marital'   => $this->l10n->t('Marital Status:'),
+			'with'      => $this->l10n->t('With:'),
+			'howlong'   => $this->l10n->t('Since:'),
+			'sexual'    => $this->l10n->t('Sexual Preference:'),
+			'politic'   => $this->l10n->t('Political Views:'),
+			'religion'  => $this->l10n->t('Religious Views:'),
+			'likes'     => $this->l10n->t('Likes:'),
+			'dislikes'  => $this->l10n->t('Dislikes:'),
+			'about'     => $this->l10n->t('About:'),
+			'summary'   => $this->l10n->t('Summary'),
+			'music'     => $this->l10n->t('Musical interests'),
+			'book'      => $this->l10n->t('Books, literature'),
+			'tv'        => $this->l10n->t('Television'),
+			'film'      => $this->l10n->t('Film/dance/culture/entertainment'),
+			'interest'  => $this->l10n->t('Hobbies/Interests'),
+			'romance'   => $this->l10n->t('Love/romance'),
+			'work'      => $this->l10n->t('Work/employment'),
+			'education' => $this->l10n->t('School/education'),
+			'contact'   => $this->l10n->t('Contact information and Social Networks'),
 		];
 
 		foreach ($custom_fields as $field => $label) {
 			if (!empty($profile[$field]) && $profile[$field] > DBA::NULL_DATE && $profile[$field] > DBA::NULL_DATETIME) {
-				DI::profileField()->insert([
+				$this->insert([
 					'uid' => $profile['uid'],
 					'psid' => $psid,
 					'order' => $order++,
@@ -288,9 +293,9 @@ class ProfileField extends BaseRepository
 		if ($profile['is-default']) {
 			$profile['profile-name'] = null;
 			$profile['is-default'] = null;
-			DI::dba()->update('profile', $profile, ['id' => $profile['id']]);
+			$this->dba->update('profile', $profile, ['id' => $profile['id']]);
 		} elseif (!empty($profile['id'])) {
-			DI::dba()->delete('profile', ['id' => $profile['id']]);
+			$this->dba->delete('profile', ['id' => $profile['id']]);
 		}
 	}
 }
