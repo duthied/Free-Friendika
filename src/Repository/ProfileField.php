@@ -231,7 +231,7 @@ class ProfileField extends BaseRepository
 	 * @param array $profile Profile table row
 	 * @throws \Exception
 	 */
-	public function migrateFromProfile(array $profile)
+	public function migrateFromLegacyProfile(array $profile)
 	{
 		// Already processed, aborting
 		if ($profile['is-default'] === null) {

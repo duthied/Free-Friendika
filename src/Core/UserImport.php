@@ -263,7 +263,7 @@ class UserImport
 				$profile['id'] = DBA::lastInsertId();
 			}
 
-			DI::profileField()->migrateFromProfile($profile);
+			DI::profileField()->migrateFromLegacyProfile($profile);
 		}
 
 		///@TODO Replace with permissionset import
