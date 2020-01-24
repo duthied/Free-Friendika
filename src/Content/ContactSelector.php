@@ -17,33 +17,6 @@ use Friendica\Util\Strings;
 class ContactSelector
 {
 	/**
-	 * @param string $current     current
-	 * @param string $foreign_net network
-	 * @return string
-	 * @throws \Exception
-	 */
-	public static function profileAssign($current, $foreign_net)
-	{
-		$o = '';
-
-		$disabled = (($foreign_net) ? ' disabled="true" ' : '');
-
-		$o .= "<select id=\"contact-profile-selector\" class=\"form-control\" $disabled name=\"profile-assign\" >\r\n";
-
-		$s = DBA::select('profile', ['id', 'profile-name', 'is-default'], ['uid' => $_SESSION['uid']]);
-		$r = DBA::toArray($s);
-
-		if (DBA::isResult($r)) {
-			foreach ($r as $rr) {
-				$selected = (($rr['id'] == $current || ($current == 0 && $rr['is-default'] == 1)) ? " selected=\"selected\" " : "");
-				$o .= "<option value=\"{$rr['id']}\" $selected >{$rr['profile-name']}</option>\r\n";
-			}
-		}
-		$o .= "</select>\r\n";
-		return $o;
-	}
-
-	/**
 	 * @param string  $current  current
 	 * @param boolean $disabled optional, default false
 	 * @return object

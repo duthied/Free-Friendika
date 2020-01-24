@@ -67,7 +67,7 @@ function poco_init(App $a) {
 
 	if (! $system_mode && ! $global) {
 		$users = q("SELECT `user`.*,`profile`.`hide-friends` from user left join profile on `user`.`uid` = `profile`.`uid`
-			where `user`.`nickname` = '%s' and `profile`.`is-default` = 1 limit 1",
+			where `user`.`nickname` = '%s' limit 1",
 			DBA::escape($nickname)
 		);
 		if (! DBA::isResult($users) || $users[0]['hidewall'] || $users[0]['hide-friends']) {
@@ -140,7 +140,7 @@ function poco_init(App $a) {
 				`profile`.`postal-code` AS `ppostalcode`, `profile`.`country-name` AS `pcountry`, `user`.`account-type`
 			FROM `contact` INNER JOIN `profile` ON `profile`.`uid` = `contact`.`uid`
 				INNER JOIN `user` ON `user`.`uid` = `contact`.`uid`
-			WHERE `self` = 1 AND `profile`.`is-default`
+			WHERE `self` = 1
 			AND `contact`.`uid` IN (SELECT `uid` FROM `pconfig` WHERE `cat` = 'system' AND `k` = 'suggestme' AND `v` = 1) LIMIT %d, %d",
 			intval($startIndex),
 			intval($itemsPerPage)

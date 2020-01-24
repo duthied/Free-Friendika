@@ -140,14 +140,14 @@ function vier_community_info()
 
 	// last 9 users
 	if ($show_lastusers) {
-		$publish = (DI::config()->get('system', 'publish_all') ? '' : " AND `publish` = 1 ");
+		$publish = (DI::config()->get('system', 'publish_all') ? '' : "`publish` = 1");
 		$order = " ORDER BY `register_date` DESC ";
 
 		$tpl = Renderer::getMarkupTemplate('ch_directory_item.tpl');
 
 		$r = q("SELECT `profile`.*, `user`.`nickname`
 				FROM `profile` LEFT JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `is-default` = 1 $publish AND `user`.`blocked` = 0 $order LIMIT %d , %d ",
+				WHERE $publish AND `user`.`blocked` = 0 $order LIMIT %d , %d ",
 			0,
 			9
 		);

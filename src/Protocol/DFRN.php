@@ -687,7 +687,7 @@ class DFRN
 				`profile`.`pub_keywords`, `profile`.`xmpp`, `profile`.`dob`
 			FROM `profile`
 				INNER JOIN `user` ON `user`.`uid` = `profile`.`uid`
-				WHERE `profile`.`is-default` AND NOT `user`.`hidewall` AND `user`.`uid` = %d",
+				WHERE NOT `user`.`hidewall` AND `user`.`uid` = %d",
 			intval($owner['uid'])
 		);
 		if (DBA::isResult($r)) {

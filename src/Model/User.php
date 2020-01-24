@@ -782,9 +782,7 @@ class User
 			'photo' => DI::baseUrl() . "/photo/profile/{$uid}.jpg",
 			'thumb' => DI::baseUrl() . "/photo/avatar/{$uid}.jpg",
 			'publish' => $publish,
-			'is-default' => 1,
 			'net-publish' => $netpublish,
-			'profile-name' => DI::l10n()->t('default')
 		]);
 		if (!$insert_result) {
 			DBA::delete('user', ['uid' => $uid]);
@@ -1113,7 +1111,7 @@ class User
 
 		$userStmt = DBA::p("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
 			FROM `user`
-			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid` AND `profile`.`is-default`
+			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
 			WHERE (`profile`.`publish` OR `profile`.`net-publish`) AND `user`.`verified`
 				AND NOT `user`.`blocked` AND NOT `user`.`account_removed`

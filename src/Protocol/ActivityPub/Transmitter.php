@@ -224,7 +224,7 @@ class Transmitter
 		}
 
 		$fields = ['locality', 'region', 'country-name'];
-		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid, 'is-default' => true]);
+		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($profile)) {
 			return [];
 		}

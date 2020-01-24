@@ -73,9 +73,9 @@ function settings_init(App $a)
 	];
 
 	$tabs[] =	[
-		'label'	=> DI::l10n()->t('Profiles'),
-		'url' 	=> 'profiles',
-		'selected'	=> (($a->argc == 1) && ($a->argv[0] === 'profiles')?'active':''),
+		'label'	=> DI::l10n()->t('Profile'),
+		'url' 	=> 'settings/profile',
+		'selected'	=> (($a->argc > 1) && ($a->argv[1] === 'profile')?'active':''),
 		'accesskey' => 'p',
 	];
 
@@ -611,7 +611,7 @@ function settings_post(App $a)
 		`name` = '%s',
 		`net-publish` = %d,
 		`hide-friends` = %d
-		WHERE `is-default` = 1 AND `uid` = %d",
+		WHERE `uid` = %d",
 		intval($publish),
 		DBA::escape($username),
 		intval($net_publish),
@@ -978,7 +978,7 @@ function settings_content(App $a)
 	 * ACCOUNT SETTINGS
 	 */
 
-	$profile = DBA::selectFirst('profile', [], ['is-default' => true, 'uid' => local_user()]);
+	$profile = DBA::selectFirst('profile', [], ['uid' => local_user()]);
 	if (!DBA::isResult($profile)) {
 		notice(DI::l10n()->t('Unable to find your profile. Please contact your admin.') . EOL);
 		return;

@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1330
+-- DB_UPDATE_VERSION 1332
 -- ------------------------------------------
 
 
@@ -233,7 +233,7 @@ CREATE TABLE IF NOT EXISTS `contact` (
 	`reason` text COMMENT '',
 	`closeness` tinyint unsigned NOT NULL DEFAULT 99 COMMENT '',
 	`info` mediumtext COMMENT '',
-	`profile-id` int unsigned NOT NULL DEFAULT 0 COMMENT '',
+	`profile-id` int unsigned COMMENT 'Deprecated',
 	`bdyear` varchar(4) NOT NULL DEFAULT '' COMMENT '',
 	`bd` date NOT NULL DEFAULT '0001-01-01' COMMENT '',
 	`notify_new_posts` boolean NOT NULL DEFAULT '0' COMMENT '',
@@ -995,8 +995,8 @@ CREATE TABLE IF NOT EXISTS `process` (
 CREATE TABLE IF NOT EXISTS `profile` (
 	`id` int unsigned NOT NULL auto_increment COMMENT 'sequential ID',
 	`uid` mediumint unsigned NOT NULL DEFAULT 0 COMMENT 'Owner User id',
-	`profile-name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name of the profile',
-	`is-default` boolean NOT NULL DEFAULT '0' COMMENT 'Mark this profile as default profile',
+	`profile-name` varchar(255) COMMENT 'Deprecated',
+	`is-default` boolean COMMENT 'Deprecated',
 	`hide-friends` boolean NOT NULL DEFAULT '0' COMMENT 'Hide friend list from viewers of this profile',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`pdesc` varchar(255) NOT NULL DEFAULT '' COMMENT 'Title or description',
@@ -1006,29 +1006,29 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`region` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`postal-code` varchar(32) NOT NULL DEFAULT '' COMMENT '',
 	`country-name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`hometown` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`gender` varchar(32) NOT NULL DEFAULT '' COMMENT '',
-	`marital` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`with` text COMMENT '',
-	`howlong` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
-	`sexual` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`politic` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`religion` varchar(255) NOT NULL DEFAULT '' COMMENT '',
+	`hometown` varchar(255) COMMENT 'Deprecated',
+	`gender` varchar(32) COMMENT 'Deprecated',
+	`marital` varchar(255) COMMENT 'Deprecated',
+	`with` text COMMENT 'Deprecated',
+	`howlong` datetime COMMENT 'Deprecated',
+	`sexual` varchar(255) COMMENT 'Deprecated',
+	`politic` varchar(255) COMMENT 'Deprecated',
+	`religion` varchar(255) COMMENT 'Deprecated',
 	`pub_keywords` text COMMENT '',
 	`prv_keywords` text COMMENT '',
-	`likes` text COMMENT '',
-	`dislikes` text COMMENT '',
-	`about` text COMMENT '',
-	`summary` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`music` text COMMENT '',
-	`book` text COMMENT '',
-	`tv` text COMMENT '',
-	`film` text COMMENT '',
-	`interest` text COMMENT '',
-	`romance` text COMMENT '',
-	`work` text COMMENT '',
-	`education` text COMMENT '',
-	`contact` text COMMENT '',
+	`likes` text COMMENT 'Deprecated',
+	`dislikes` text COMMENT 'Deprecated',
+	`about` text COMMENT 'Deprecated',
+	`summary` varchar(255) COMMENT 'Deprecated',
+	`music` text COMMENT 'Deprecated',
+	`book` text COMMENT 'Deprecated',
+	`tv` text COMMENT 'Deprecated',
+	`film` text COMMENT 'Deprecated',
+	`interest` text COMMENT 'Deprecated',
+	`romance` text COMMENT 'Deprecated',
+	`work` text COMMENT 'Deprecated',
+	`education` text COMMENT 'Deprecated',
+	`contact` text COMMENT 'Deprecated',
 	`homepage` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`xmpp` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`photo` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1052,6 +1052,25 @@ CREATE TABLE IF NOT EXISTS `profile_check` (
 	`expire` int unsigned NOT NULL DEFAULT 0 COMMENT '',
 	 PRIMARY KEY(`id`)
 ) DEFAULT COLLATE utf8mb4_general_ci COMMENT='DFRN remote auth use';
+
+--
+-- TABLE profile_field
+--
+CREATE TABLE IF NOT EXISTS `profile_field` (
+    `id` int(10) unsigned NOT NULL AUTO_INCREMENT COMMENT 'sequential ID',
+    `uid` mediumint(8) unsigned NOT NULL DEFAULT 0 COMMENT 'Owner user id',
+    `psid` int(10) unsigned DEFAULT NULL COMMENT 'ID of the permission set of this profile field - 0 = public',
+    `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'Name of the field',
+    `value` text COMMENT 'Value of the field',
+    `order` mediumint(8) unsigned NOT NULL DEFAULT 1 COMMENT 'Field ordering per user',
+    `label` varchar(255) NOT NULL DEFAULT '' COMMENT 'Label of the field',
+    `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+    `edited` datetime NOT NULL DEFAULT '0001-01-01 00:00:00' COMMENT '',
+    PRIMARY KEY (`id`),
+    KEY `uid` (`uid`),
+    KEY `psid` (`psid`),
+    KEY `order` (`order`)
+) DEFAULT COLLATE utf8mb4_general_ci COMMENT='Custom profile fields';
 
 --
 -- TABLE push_subscriber

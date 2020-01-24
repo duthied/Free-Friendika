@@ -172,35 +172,6 @@
 						</div>
 					</div>
 					{{/if}}
-					{{if $lbl_vis1}}
-					<div class="panel">
-						<div class="section-subtitle-wrapper" role="tab" id="contact-edit-profile-select">
-							<h4>
-								<a class="accordion-toggle collapsed" data-toggle="collapse" data-parent="#contact-edit-tools" href="#contact-edit-profile-select-collapse" aria-expanded="false" aria-controls="contact-edit-profile-select-collapse">
-									{{$lbl_vis1}}
-								</a>
-							</h4>
-						</div>
-						<div id="contact-edit-profile-select-collapse" class="panel-collapse collapse" role="tabpanel" aria-labelledby="contact-edit-profile-select">
-							<div class="section-content-tools-wrapper">
-								{{if $profile_select}}
-									<div id="contact-edit-profile-select-text">
-										<p>{{$lbl_vis2}}</p>
-									</div>
-									<div class="form-group">
-									{{$profile_select nofilter}}
-									</div>
-									<div class="clear"></div>
-								{{/if}}
-
-								<div class="form-group pull-right settings-submit-wrapper" >
-									<button type="submit" name="submit" class="btn btn-primary" value="{{$submit}}">{{$submit}}</button>
-								</div>
-								<div class="clear"></div>
-							</div>
-						</div>
-					</div>
-					{{/if}}
 				</div>
 
 			</form>{{* End of the form *}}

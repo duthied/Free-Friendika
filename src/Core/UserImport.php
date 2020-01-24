@@ -8,8 +8,10 @@ use Friendica\App;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
+use Friendica\Model\Contact;
 use Friendica\Model\Photo;
 use Friendica\Object\Image;
+use Friendica\Repository\PermissionSet;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -161,23 +163,6 @@ class UserImport
 
 		DI::pConfig()->set($newuid, 'system', 'previous_addr', $old_handle);
 
-		foreach ($account['profile'] as &$profile) {
-			foreach ($profile as $k => &$v) {
-				$v = str_replace([$oldbaseurl, $oldaddr], [$newbaseurl, $newaddr], $v);
-				foreach (["profile", "avatar"] as $k) {
-					$v = str_replace($oldbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
-				}
-			}
-			$profile['uid'] = $newuid;
-			$r = self::dbImportAssoc('profile', $profile);
-			if ($r === false) {
-				Logger::log("uimport:insert profile " . $profile['profile-name'] . " : ERROR : " . DBA::errorMessage(), Logger::INFO);
-				info(DI::l10n()->t("User profile creation error"));
-				DBA::delete('user', ['uid' => $newuid]);
-				return;
-			}
-		}
-
 		$errorcount = 0;
 		foreach ($account['contact'] as &$contact) {
 			if ($contact['uid'] == $olduid && $contact['self'] == '1') {
@@ -250,6 +235,50 @@ class UserImport
 				if ($r === false) {
 					Logger::log("uimport:insert group member " . $group_member['id'] . " : ERROR : " . DBA::errorMessage(), Logger::INFO);
 				}
+			}
+		}
+
+		foreach ($account['profile'] as &$profile) {
+			unset($profile['id']);
+			$profile['uid'] = $newuid;
+
+			foreach ($profile as $k => &$v) {
+				$v = str_replace([$oldbaseurl, $oldaddr], [$newbaseurl, $newaddr], $v);
+				foreach (["profile", "avatar"] as $k) {
+					$v = str_replace($oldbaseurl . "/photo/" . $k . "/" . $olduid . ".jpg", $newbaseurl . "/photo/" . $k . "/" . $newuid . ".jpg", $v);
+				}
+			}
+
+			if (count($account['profile']) === 1 || $profile['is-default']) {
+				$r = self::dbImportAssoc('profile', $profile);
+
+				if ($r === false) {
+					Logger::log("uimport:insert profile: ERROR : " . DBA::errorMessage(), Logger::INFO);
+					info(DI::l10n()->t("User profile creation error"));
+					DBA::delete('user', ['uid' => $newuid]);
+					DBA::delete('profile_field', ['uid' => $newuid]);
+					return;
+				}
+
+				$profile['id'] = DBA::lastInsertId();
+			}
+
+			DI::profileField()->migrateFromLegacyProfile($profile);
+		}
+
+		///@TODO Replace with permissionset import
+		$self_contact = Contact::selectFirst(['id'], ['uid' => $newuid, 'self' => true]);
+		$allow_cid = DI::aclFormatter()->toString($self_contact['id']);
+		$self_psid = DI::permissionSet()->getIdFromACL($newuid, $allow_cid);
+
+		foreach ($account['profile_fields'] ?? [] as $profile_field) {
+			$profile_field['uid'] = $newuid;
+
+			///@TODO Replace with permissionset import
+			$profile_field['psid'] = $profile_field['psid'] ? $self_psid : PermissionSet::PUBLIC;
+
+			if (self::dbImportAssoc('profile_field', $profile_field) === false) {
+				Logger::info("uimport:insert profile field " . $profile_field['id'] . " : ERROR : " . DBA::errorMessage());
 			}
 		}
 

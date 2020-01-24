@@ -167,7 +167,11 @@ class UserExport extends BaseSettingsModule
 
 
 		$profile = self::exportMultiRow(
-			sprintf("SELECT * FROM `profile` WHERE `uid` = %d ", intval(local_user()))
+			sprintf("SELECT *, 'default' AS `profile_name`, 1 AS `is-default` FROM `profile` WHERE `uid` = %d ", intval(local_user()))
+		);
+
+		$profile_fields = self::exportMultiRow(
+			sprintf("SELECT * FROM `profile_field` WHERE `uid` = %d ", intval(local_user()))
 		);
 
 		$photo = self::exportMultiRow(
@@ -196,6 +200,7 @@ class UserExport extends BaseSettingsModule
 			'user' => $user,
 			'contact' => $contact,
 			'profile' => $profile,
+			'profile_fields' => $profile_fields,
 			'photo' => $photo,
 			'pconfig' => $pconfig,
 			'group' => $group,

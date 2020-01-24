@@ -430,3 +430,18 @@ function update_1330()
 
 	return Update::SUCCESS;
 }
+
+function update_1332()
+{
+	$condition = ["`is-default` IS NOT NULL"];
+	$profiles = DBA::select('profile', [], $condition);
+
+	while ($profile = DBA::fetch($profiles)) {
+		DI::profileField()->migrateFromLegacyProfile($profile);
+	}
+	DBA::close($profiles);
+
+	DBA::update('contact', ['profile-id' => null], ['`profile-id` IS NOT NULL']);
+
+	return Update::SUCCESS;
+}

@@ -355,7 +355,7 @@ function feed_birthday($uid, $tz)
 		$tz = 'UTC';
 	}
 
-	$profile = DBA::selectFirst('profile', ['dob'], ['is-default' => true, 'uid' => $uid]);
+	$profile = DBA::selectFirst('profile', ['dob'], ['uid' => $uid]);
 	if (DBA::isResult($profile)) {
 		$tmp_dob = substr($profile['dob'], 5);
 		if (intval($tmp_dob)) {
