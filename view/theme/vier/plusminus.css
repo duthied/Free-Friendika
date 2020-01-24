@@ -60,7 +60,7 @@ nav a:hover,
   font: bold 11px/16px Arial;
 }
 
-nav .nav-notify {
+nav .nav-notification {
   background-color: #CB4437;
   top: -3px;
   right: -4px;
@@ -69,7 +69,7 @@ nav .nav-notify {
   border-radius: 10px;
 }
 
-nav .nav-menu-icon .nav-notify {
+nav .nav-menu-icon .nav-notification {
   top: 0px;
 }
 

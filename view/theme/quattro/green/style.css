@@ -627,7 +627,7 @@ nav .nav-menu-icon img {
   width: 22px;
   height: 22px;
 }
-nav .nav-menu-icon .nav-notify {
+nav .nav-menu-icon .nav-notification {
   top: 3px;
 }
 nav .nav-menu {
@@ -641,7 +641,7 @@ nav .nav-menu {
 nav .nav-menu.selected {
   border-bottom: 3px solid #9eabb0;
 }
-nav .nav-notify {
+nav .nav-notification {
   display: none;
   position: absolute;
   background-color: #dc0000;
@@ -655,7 +655,7 @@ nav .nav-notify {
   min-width: 15px;
   text-align: right;
 }
-nav .nav-notify.show {
+nav .nav-notification.show {
   display: block;
 }
 nav #nav-help-link,

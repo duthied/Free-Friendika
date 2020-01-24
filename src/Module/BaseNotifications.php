@@ -110,16 +110,16 @@ abstract class BaseNotifications extends BaseModule
 	/**
 	 * Shows the printable result of notifications for a specific tab
 	 *
-	 * @param string $header    The notification header
-	 * @param array  $content   The array with the notifications
-	 * @param string $noContent The string in case there are no notifications
-	 * @param array  $showLink  The possible links at the top
+	 * @param string $header        The notification header
+	 * @param array  $notifications The array with the notifications
+	 * @param string $noContent     The string in case there are no notifications
+	 * @param array  $showLink      The possible links at the top
 	 *
 	 * @return string The rendered output
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	protected static function printContent(string $header, array $content, string $noContent, array $showLink)
+	protected static function printContent(string $header, array $notifications, string $noContent, array $showLink)
 	{
 		// Get the nav tabs for the notification pages
 		$tabs = self::getTabs();
@@ -129,12 +129,12 @@ abstract class BaseNotifications extends BaseModule
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [
-			'$notif_header'    => $header ?? DI::l10n()->t('Notifications'),
-			'$tabs'            => $tabs,
-			'$notif_content'   => $content,
-			'$notif_nocontent' => $noContent,
-			'$notif_show_lnk'  => $showLink,
-			'$notif_paginate'  => $pager->renderMinimal(count($content))
+			'$header'        => $header ?? DI::l10n()->t('Notifications'),
+			'$tabs'          => $tabs,
+			'$notifications' => $notifications,
+			'$noContent'     => $noContent,
+			'$showLink'      => $showLink,
+			'$paginate'      => $pager->renderMinimal(count($notifications))
 		]);
 	}
 

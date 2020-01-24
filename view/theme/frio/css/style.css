@@ -512,7 +512,7 @@ nav.navbar .nav>li>a:focus{
     text-decoration: none;
     text-align: left
 }
-#topbar-first .topbar-nav .nav-segment .nav-notify {
+#topbar-first .topbar-nav .nav-segment .nav-notification {
     position: absolute;
     top: 4px;
     right: -2px;
@@ -640,7 +640,7 @@ nav.navbar a, nav.navbar .btn-link {
     font-size: 12px;
 }
 
-#topbar-first #nav-notifications-menu li.notify-unseen {
+#topbar-first #nav-notifications-menu li.notification-unseen {
     border-left: 3px solid #f3fcfd;
     background-color: #f3fcfd;
 }
@@ -682,7 +682,7 @@ nav.navbar a, nav.navbar .btn-link {
 #topbar-first .account .user-title span {
     color: $nav_icon_color;
 }
-#topbar-first .account #main-menu .nav-notify {
+#topbar-first .account #main-menu .nav-notification {
     position: absolute;
     top: 4px;
     right: -2px;

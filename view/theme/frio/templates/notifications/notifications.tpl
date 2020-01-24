@@ -2,29 +2,29 @@
 <script type="text/javascript" src="../../js/mod_notifications.js"></script>
 
 <div class="generic-page-wrapper">
-	{{include file="section_title.tpl" title=$notif_header}}
+	{{include file="section_title.tpl" title=$header}}
 
 	{{if $tabs }}{{include file="common_tabs.tpl"}}{{/if}}
 
 	<div class="notif-network-wrapper">
 		{{* The "show ignored" link *}}
-		{{if $notif_show_lnk}}<a href="{{$notif_show_lnk.href}}" id="notifications-show-hide-link">{{$notif_show_lnk.text}}</a>{{/if}}
+		{{if $showLink}}<a href="{{$showLink.href}}" id="notifications-show-hide-link">{{$showLink.text}}</a>{{/if}}
 
 		{{* The notifications *}}
-		{{if $notif_content}}
+		{{if $notifications}}
 		<ul class="notif-network-list media-list">
-		{{foreach $notif_content as $notification}}
+		{{foreach $notifications as $notification}}
 			<li>{{$notification nofilter}}</li>
 		{{/foreach}}
 		</ul>
 		{{/if}}
 
 		{{* If no notifications messages available *}}
-		{{if $notif_nocontent}}
-		<div class="notif_nocontent">{{$notif_nocontent}}</div>
+		{{if $noContent}}
+		<div class="notification_nocontent">{{$noContent}}</div>
 		{{/if}}
 	</div>
 
 	{{* The pager *}}
-	{{$notif_paginate nofilter}}
+	{{$paginate nofilter}}
 </div>

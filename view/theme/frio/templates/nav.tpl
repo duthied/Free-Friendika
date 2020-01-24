@@ -40,11 +40,11 @@
 				<ul class="nav navbar-nav navbar-left" role="menubar">
 					<li id="nav-communication" class="nav-segment" role="presentation">
 						{{if $nav.network}}
-						<a accesskey="n" role="menuitem" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notify"></span></a>
+						<a accesskey="n" role="menuitem" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
 						{{/if}}
 
 						{{if $nav.home}}
-						<a accesskey="p" role="menuitem" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notify"></span></a>
+						<a accesskey="p" role="menuitem" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notification"></span></a>
 						{{/if}}
 
 						{{if $nav.community}}
@@ -54,7 +54,7 @@
 
 					<li id="nav-personal" class="nav-segment hidden-xs" role="presentation">
 						{{if $nav.messages}}
-						<a role="menuitem" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notify"></span></a>
+						<a role="menuitem" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notification"></span></a>
 						{{/if}}
 
 						{{if $nav.events}}
@@ -63,7 +63,7 @@
 
 						{{if $nav.contacts}}
 						<a role="menuitem" id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg" aria-hidden="true"></i></a>
-						<span id="intro-update" class="nav-intro-badge badge nav-notify" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" aria-label="{{$nav.introductions.3}}" title="{{$nav.introductions.3}}"></span>
+						<span id="intro-update" class="nav-intro-badge badge nav-notification" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" aria-label="{{$nav.introductions.3}}" title="{{$nav.introductions.3}}"></span>
 						{{/if}}
 					</li>
 
@@ -73,7 +73,7 @@
 							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
 								<i class="fa fa-bell fa-lg" aria-hidden="true"></i>
 								<span role="menuitem" class="sr-only">{{$nav.notifications.1}}</span>
-								<span id="notify-update" class="nav-notify-badge badge nav-notify dropdown" data-toggle="dropdown"></span>
+								<span id="notification-update" class="nav-notification-badge badge nav-notification dropdown" data-toggle="dropdown"></span>
 							</a>
 
 							{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
@@ -143,11 +143,11 @@
 							<li role="presentation"><a role="menuitem" href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.1}}"><i class="fa fa-bell fa-fw" aria-hidden="true"></i> {{$nav.notifications.1}}</a></li>
 							{{/if}}
 							{{if $nav.messages}}
-							<li role="presentation"><a role="menuitem" class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw" aria-hidden="true"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notify"></span></a></li>
+							<li role="presentation"><a role="menuitem" class="nav-commlink {{$nav.messages.2}} {{$sel.messages}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" ><i class="fa fa-envelope fa-fw" aria-hidden="true"></i> {{$nav.messages.1}} <span id="mail-update-li" class="nav-mail-badge badge nav-notification"></span></a></li>
 							{{/if}}
 							<li role="presentation" class="divider"></li>
 							{{if $nav.contacts}}
-							<li role="presentation"><a role="menuitem" id="nav-menu-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i> {{$nav.contacts.1}}</a><span id="intro-update-li" class="nav-intro-badge badge nav-notify"></span></li>
+							<li role="presentation"><a role="menuitem" id="nav-menu-contacts-link" class="nav-link {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" title="{{$nav.contacts.3}}"><i class="fa fa-users fa-fw" aria-hidden="true"></i> {{$nav.contacts.1}}</a><span id="intro-update-li" class="nav-intro-badge badge nav-notification"></span></li>
 							{{/if}}
 							{{if $nav.delegation}}
 							<li role="presentation"><a role="menuitem" id="nav-delegation-link" class="nav-commlink {{$nav.delegation.2}} {{$sel.delegation}}" href="{{$nav.delegation.0}}" title="{{$nav.delegation.3}}"><i class="fa fa-flag fa-fw" aria-hidden="true"></i> {{$nav.delegation.1}}</a></li>

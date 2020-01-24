@@ -114,7 +114,7 @@
 <div class="settings-content-block">
 <div id="settings-notifications">
 
-<div id="settings-notify-desc">{{$lbl_not}}</div>
+<div id="settings-notification-desc">{{$lbl_not}}</div>
 
 <div class="group">
 {{include file="field_intcheckbox.tpl" field=$notify1}}

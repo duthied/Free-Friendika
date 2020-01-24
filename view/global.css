@@ -274,7 +274,7 @@ code, key {
 }
 
 /* notifications unseen */
-.notify-unseen { background-color: #cceeFF; }
+.notification-unseen { background-color: #cceeFF; }
 
 /* autocomplete popup */
 ul.acpopup {

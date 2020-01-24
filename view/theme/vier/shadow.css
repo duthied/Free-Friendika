@@ -17,7 +17,7 @@ nav a:hover,
   color: #fff;
 }
 
-nav .nav-notify {
+nav .nav-notification {
   background-color: #F80;
   top: 0px;
   right: -5px;
@@ -25,7 +25,7 @@ nav .nav-notify {
   border-radius: 5px 5px 5px 5px;
 }
 
-nav .nav-menu-icon .nav-notify {
+nav .nav-menu-icon .nav-notification {
   top: 0px;
 }
 

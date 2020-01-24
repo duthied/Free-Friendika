@@ -687,8 +687,8 @@ nav .nav-menu img {
 	margin-right: 4px;
 }
 
-nav .nav-menu > a > .nav-notify,
-nav .nav-menu-icon > a > .nav-notify {
+nav .nav-menu > a > .nav-notification,
+nav .nav-menu-icon > a > .nav-notification {
 	position: absolute;
 	top: 3px;
 	right: -5px;
@@ -741,7 +741,7 @@ nav .nav-menu:hover {
 	margin-right: -20px;
 }
 
-nav .nav-notify {
+nav .nav-notification {
 	display: none;
 	background-color: #F80;
 	-moz-border-radius: 5px 5px 5px 5px;
@@ -753,7 +753,7 @@ nav .nav-notify {
 	text-align: center;
 	color: white;
 }
-nav .nav-notify.show {
+nav .nav-notification.show {
 	display: inline-block;
 }
 
@@ -845,9 +845,9 @@ nav #nav-user-linkmenu {
 	padding: 5px 10px; */
 }
 
-.notify-unseen {background-color: #FFF; }
+.notification-unseen {background-color: #FFF; }
 
-.notify-seen {
+.notification-seen {
 	background: none repeat scroll 0 0 #EEE;
 }
 

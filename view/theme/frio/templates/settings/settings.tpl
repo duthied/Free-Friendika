@@ -169,7 +169,7 @@
 					<div class="section-content-tools-wrapper">
 						<div id="settings-notifications">
 
-							<div id="settings-notify-desc"><h4>{{$lbl_not}}</h4></div>
+							<div id="settings-notification-desc"><h4>{{$lbl_not}}</h4></div>
 
 							<div class="group">
 								{{include file="field_intcheckbox.tpl" field=$notify1}}

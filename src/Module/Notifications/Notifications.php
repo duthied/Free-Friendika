@@ -80,15 +80,15 @@ class Notifications extends BaseNotifications
 			// notification and apply the correct template according to the notificationtype (label).
 			foreach ($notifications['notifications'] as $notification) {
 				$notification_templates = [
-					'like'        => 'notifications/likes_item.tpl',
-					'dislike'     => 'notifications/dislikes_item.tpl',
-					'attend'      => 'notifications/attend_item.tpl',
-					'attendno'    => 'notifications/attend_item.tpl',
-					'attendmaybe' => 'notifications/attend_item.tpl',
-					'friend'      => 'notifications/friends_item.tpl',
-					'comment'     => 'notifications/comments_item.tpl',
-					'post'        => 'notifications/posts_item.tpl',
-					'notification'      => 'notifications/notification.tpl',
+					'like'         => 'notifications/likes_item.tpl',
+					'dislike'      => 'notifications/dislikes_item.tpl',
+					'attend'       => 'notifications/attend_item.tpl',
+					'attendno'     => 'notifications/attend_item.tpl',
+					'attendmaybe'  => 'notifications/attend_item.tpl',
+					'friend'       => 'notifications/friends_item.tpl',
+					'comment'      => 'notifications/comments_item.tpl',
+					'post'         => 'notifications/posts_item.tpl',
+					'notification' => 'notifications/notification.tpl',
 				];
 
 				$notificationTemplate = Renderer::getMarkupTemplate($notification_templates[$notification['label']]);

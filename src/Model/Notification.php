@@ -372,7 +372,7 @@ final class Notification
 	 */
 	public function getNetworkList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
-		$ident    = self::NETWORK;
+		$ident         = self::NETWORK;
 		$notifications = [];
 
 		$condition = ['wall' => false, 'uid' => local_user()];
@@ -415,7 +415,7 @@ final class Notification
 	 */
 	public function getSystemList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
-		$ident    = self::SYSTEM;
+		$ident         = self::SYSTEM;
 		$notifications = [];
 
 		$filter = ['uid' => local_user()];
@@ -460,7 +460,7 @@ final class Notification
 	 */
 	public function getPersonalList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
-		$ident    = self::PERSONAL;
+		$ident         = self::PERSONAL;
 		$notifications = [];
 
 		$myurl     = str_replace('http://', '', DI::app()->contact['nurl']);
@@ -507,7 +507,7 @@ final class Notification
 	 */
 	public function getHomeList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
-		$ident    = self::HOME;
+		$ident         = self::HOME;
 		$notifications = [];
 
 		$condition = ['wall' => true, 'uid' => local_user()];
@@ -553,9 +553,9 @@ final class Notification
 	public function getIntroList(bool $all = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT, int $id = 0)
 	{
 		/// @todo sanitize wording according to SELF::INTRO
-		$ident     = 'introductions';
-		$notifications  = [];
-		$sql_extra = "";
+		$ident         = 'introductions';
+		$notifications = [];
+		$sql_extra     = "";
 
 		if (empty($id)) {
 			if (!$all) {
@@ -623,7 +623,7 @@ final class Notification
 
 				$intro = [
 					'label'          => 'friend_suggestion',
-					'str_type'    => $this->l10n->t('Friend Suggestion'),
+					'str_type'       => $this->l10n->t('Friend Suggestion'),
 					'intro_id'       => $intro['intro_id'],
 					'madeby'         => $intro['name'],
 					'madeby_url'     => $intro['url'],
@@ -657,7 +657,7 @@ final class Notification
 				}
 				$intro = [
 					'label'          => (($intro['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
-					'str_type'    => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
+					'str_type'       => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
 					'dfrn_id'        => $intro['issued-id'],
 					'uid'            => $_SESSION['uid'],
 					'intro_id'       => $intro['intro_id'],

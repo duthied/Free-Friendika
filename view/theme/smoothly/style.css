@@ -616,7 +616,7 @@ ul#user-menu-popup li a.nav-sep {
 	padding-left: 11px;
 }
 
-#notify-update {
+#notification-update {
 	background-position: 0px -168px;
 }
 
@@ -4211,7 +4211,7 @@ a.active {
 	margin-right: -20px;
 }
 
-.nav-notify {
+.nav-notification {
 	display: none;
 	position: absolute;
 	font-size: 10px;
@@ -4221,7 +4221,7 @@ a.active {
 	min-width: 15px;
 	text-align: right;
 }
-.nav-notify.show {
+.nav-notification.show {
 	display: block;
 }
 #nav-notifications-menu {
@@ -4353,11 +4353,11 @@ a.active {
 	filter: alpha(opacity=100);
 }
 
-.notify-seen {
+.notification-seen {
 	background: #000000;
 }
 
-.notify-seen a {
+.notification-seen a {
 	color: #efefef !important;
 }
 
@@ -4604,7 +4604,7 @@ div #datebrowse-sidebar.widget {
 }
 
 #settings-activity-desc,
-#settings-notify-desc {
+#settings-notification-desc {
 	margin: 10px 10px 10px 0;
 	font-weight: bold;
 }
