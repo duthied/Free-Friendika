@@ -63,8 +63,8 @@ class Introductions extends BaseNotifications
 				case 'friend_suggestion':
 					$notificationContent[] = Renderer::replaceMacros($notificationSuggestions, [
 						'$type'           => $notification['label'],
-						'$str_notifytype' => DI::l10n()->t('Notification type:'),
-						'$notify_type'    => $notification['notify_type'],
+						'str_notification_type' => DI::l10n()->t('Notification type:'),
+						'str_type'    => $notification['str_type'],
 						'$intro_id'       => $notification['intro_id'],
 						'$lbl_madeby'     => DI::l10n()->t('Suggested by:'),
 						'$madeby'         => $notification['madeby'],
@@ -148,8 +148,8 @@ class Introductions extends BaseNotifications
 					$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
 						'$type'           => $notification['label'],
 						'$header'         => $header,
-						'$str_notifytype' => DI::l10n()->t('Notification type:'),
-						'$notify_type'    => $notification['notify_type'],
+						'str_notification_type' => DI::l10n()->t('Notification type:'),
+						'str_type'    => $notification['notifytype'],
 						'$dfrn_text'      => $dfrn_text,
 						'$dfrn_id'        => $notification['dfrn_id'],
 						'$uid'            => $notification['uid'],

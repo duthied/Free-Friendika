@@ -623,7 +623,7 @@ final class Notification
 
 				$intro = [
 					'label'          => 'friend_suggestion',
-					'notify_type'    => $this->l10n->t('Friend Suggestion'),
+					'str_type'    => $this->l10n->t('Friend Suggestion'),
 					'intro_id'       => $intro['intro_id'],
 					'madeby'         => $intro['name'],
 					'madeby_url'     => $intro['url'],
@@ -657,7 +657,7 @@ final class Notification
 				}
 				$intro = [
 					'label'          => (($intro['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
-					'notify_type'    => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
+					'str_type'    => (($intro['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
 					'dfrn_id'        => $intro['issued-id'],
 					'uid'            => $_SESSION['uid'],
 					'intro_id'       => $intro['intro_id'],
