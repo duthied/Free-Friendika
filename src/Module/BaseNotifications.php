@@ -27,7 +27,7 @@ abstract class BaseNotifications extends BaseModule
 		Notification::INTRO    => 'intros',
 	];
 
-	/** @var array Array of the allowed notifies and their printable name */
+	/** @var array Array of the allowed notifications and their printable name */
 	const PRINT_TYPES = [
 		Notification::NETWORK  => 'Network',
 		Notification::SYSTEM   => 'System',

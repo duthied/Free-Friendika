@@ -27,7 +27,7 @@ use Friendica\Network\HTTPException;
  */
 final class Notification
 {
-	/** @var int The default limit of notifies per page */
+	/** @var int The default limit of notifications per page */
 	const DEFAULT_PAGE_LIMIT = 80;
 
 	const NETWORK  = 'network';
@@ -110,10 +110,10 @@ final class Notification
 
 		$dbFilter = array_merge($filter, ['uid' => local_user()]);
 
-		$stmtNotifies = $this->dba->select('notify', [], $dbFilter, $params);
+		$stmtNotifications = $this->dba->select('notify', [], $dbFilter, $params);
 
-		if ($this->dba->isResult($stmtNotifies)) {
-			return $this->setExtra($this->dba->toArray($stmtNotifies));
+		if ($this->dba->isResult($stmtNotifications)) {
+			return $this->setExtra($this->dba->toArray($stmtNotifications));
 		}
 
 		return false;
@@ -188,7 +188,7 @@ final class Notification
 	 */
 	private function formatList(array $notifications, string $ident = "")
 	{
-		$formattedNotifies = [];
+		$formattedNotifications = [];
 
 		foreach ($notifications as $notification) {
 			// Because we use different db tables for the notification query
@@ -350,10 +350,10 @@ final class Notification
 					];
 			}
 
-			$formattedNotifies[] = $formattedNotify;
+			$formattedNotifications[] = $formattedNotify;
 		}
 
-		return $formattedNotifies;
+		return $formattedNotifications;
 	}
 
 	/**
@@ -373,7 +373,7 @@ final class Notification
 	public function getNetworkList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::NETWORK;
-		$notifies = [];
+		$notifications = [];
 
 		$condition = ['wall' => false, 'uid' => local_user()];
 
@@ -388,11 +388,11 @@ final class Notification
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if ($this->dba->isResult($items)) {
-			$notifies = $this->formatList(Item::inArray($items), $ident);
+			$notifications = $this->formatList(Item::inArray($items), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifies,
+			'notifications' => $notifications,
 			'ident'         => $ident,
 		];
 
@@ -416,7 +416,7 @@ final class Notification
 	public function getSystemList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::SYSTEM;
-		$notifies = [];
+		$notifications = [];
 
 		$filter = ['uid' => local_user()];
 		if (!$seen) {
@@ -427,17 +427,17 @@ final class Notification
 		$params['order'] = ['date' => 'DESC'];
 		$params['limit'] = [$start, $limit];
 
-		$stmtNotifies = $this->dba->select('notify',
+		$stmtNotifications = $this->dba->select('notify',
 			['id', 'url', 'photo', 'msg', 'date', 'seen', 'verb'],
 			$filter,
 			$params);
 
-		if ($this->dba->isResult($stmtNotifies)) {
-			$notifies = $this->formatList($this->dba->toArray($stmtNotifies), $ident);
+		if ($this->dba->isResult($stmtNotifications)) {
+			$notifications = $this->formatList($this->dba->toArray($stmtNotifications), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifies,
+			'notifications' => $notifications,
 			'ident'         => $ident,
 		];
 
@@ -461,7 +461,7 @@ final class Notification
 	public function getPersonalList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::PERSONAL;
-		$notifies = [];
+		$notifications = [];
 
 		$myurl     = str_replace('http://', '', DI::app()->contact['nurl']);
 		$diasp_url = str_replace('/profile/', '/u/', $myurl);
@@ -480,11 +480,11 @@ final class Notification
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if ($this->dba->isResult($items)) {
-			$notifies = $this->formatList(Item::inArray($items), $ident);
+			$notifications = $this->formatList(Item::inArray($items), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifies,
+			'notifications' => $notifications,
 			'ident'         => $ident,
 		];
 
@@ -508,7 +508,7 @@ final class Notification
 	public function getHomeList(bool $seen = false, int $start = 0, int $limit = self::DEFAULT_PAGE_LIMIT)
 	{
 		$ident    = self::HOME;
-		$notifies = [];
+		$notifications = [];
 
 		$condition = ['wall' => true, 'uid' => local_user()];
 
@@ -523,11 +523,11 @@ final class Notification
 		$items = Item::selectForUser(local_user(), $fields, $condition, $params);
 
 		if ($this->dba->isResult($items)) {
-			$notifies = $this->formatList(Item::inArray($items), $ident);
+			$notifications = $this->formatList(Item::inArray($items), $ident);
 		}
 
 		$arr = [
-			'notifications' => $notifies,
+			'notifications' => $notifications,
 			'ident'         => $ident,
 		];
 
@@ -554,7 +554,7 @@ final class Notification
 	{
 		/// @todo sanitize wording according to SELF::INTRO
 		$ident     = 'introductions';
-		$notifies  = [];
+		$notifications  = [];
 		$sql_extra = "";
 
 		if (empty($id)) {
@@ -568,7 +568,7 @@ final class Notification
 		}
 
 		/// @todo Fetch contact details by "Contact::getDetailsByUrl" instead of queries to contact, fcontact and gcontact
-		$stmtNotifies = $this->dba->p(
+		$stmtNotifications = $this->dba->p(
 			"SELECT `intro`.`id` AS `intro_id`, `intro`.*, `contact`.*,
 				`fcontact`.`name` AS `fname`, `fcontact`.`url` AS `furl`, `fcontact`.`addr` AS `faddr`,
 				`fcontact`.`photo` AS `fphoto`, `fcontact`.`request` AS `frequest`,
@@ -585,13 +585,13 @@ final class Notification
 			$start,
 			$limit
 		);
-		if ($this->dba->isResult($stmtNotifies)) {
-			$notifies = $this->formatIntroList($this->dba->toArray($stmtNotifies));
+		if ($this->dba->isResult($stmtNotifications)) {
+			$notifications = $this->formatIntroList($this->dba->toArray($stmtNotifications));
 		}
 
 		$arr = [
 			'ident'         => $ident,
-			'notifications' => $notifies,
+			'notifications' => $notifications,
 		];
 
 		return $arr;
