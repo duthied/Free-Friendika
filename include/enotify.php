@@ -516,7 +516,7 @@ function notification($params)
 
 		$notify_id = DBA::lastInsertId();
 
-		$itemlink = DI::baseUrl().'/notify/view/'.$notify_id;
+		$itemlink = DI::baseUrl().'/notification/view/'.$notify_id;
 		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
 		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
 

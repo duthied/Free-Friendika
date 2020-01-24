@@ -20,31 +20,31 @@ class Notifications extends BaseNotifications
 	/**
 	 * {@inheritDoc}
 	 */
-	public static function getNotifies()
+	public static function getNotifications()
 	{
-		$nm = DI::notify();
+		$nm = DI::notification();
 
-		$notif_header = '';
+		$notificationHeader = '';
 
 		// Get the network notifications
 		if ((DI::args()->get(1) == 'network')) {
-			$notif_header = DI::l10n()->t('Network Notifications');
-			$notifs       = $nm->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notificationHeader = DI::l10n()->t('Network Notifications');
+			$notifications      = $nm->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 
 			// Get the system notifications
 		} elseif ((DI::args()->get(1) == 'system')) {
-			$notif_header = DI::l10n()->t('System Notifications');
-			$notifs       = $nm->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notificationHeader = DI::l10n()->t('System Notifications');
+			$notifications      = $nm->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 
 			// Get the personal notifications
 		} elseif ((DI::args()->get(1) == 'personal')) {
-			$notif_header = DI::l10n()->t('Personal Notifications');
-			$notifs       = $nm->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notificationHeader = DI::l10n()->t('Personal Notifications');
+			$notifications      = $nm->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 
 			// Get the home notifications
 		} elseif ((DI::args()->get(1) == 'home')) {
-			$notif_header = DI::l10n()->t('Home Notifications');
-			$notifs       = $nm->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notificationHeader = DI::l10n()->t('Home Notifications');
+			$notifications      = $nm->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
 			// fallback - redirect to main page
 		} else {
 			DI::baseUrl()->redirect('notifications');
@@ -54,12 +54,12 @@ class Notifications extends BaseNotifications
 		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
 
 		// Add additional informations (needed for json output)
-		$notifs['items_page'] = $pager->getItemsPerPage();
-		$notifs['page']       = $pager->getPage();
+		$notifications['items_page'] = $pager->getItemsPerPage();
+		$notifications['page']       = $pager->getPage();
 
 		return [
-			'header' => $notif_header,
-			'notifs' => $notifs,
+			'header'        => $notificationHeader,
+			'notifications' => $notifications,
 		];
 	}
 
@@ -67,18 +67,18 @@ class Notifications extends BaseNotifications
 	{
 		Nav::setSelected('notifications');
 
-		$notif_content   = [];
-		$notif_nocontent = '';
+		$notificationContent   = [];
+		$notificationNoContent = '';
 
-		$notif_result = self::getNotifies();
-		$notifs       = $notif_result['notifs'] ?? [];
-		$notif_header = $notif_result['header'] ?? '';
+		$notificationResult = self::getNotifications();
+		$notifications      = $notificationResult['notifications'] ?? [];
+		$notificationHeader = $notificationResult['header'] ?? '';
 
 
-		if (!empty($notifs['notifications'])) {
+		if (!empty($notifications['notifications'])) {
 			// Loop trough ever notification This creates an array with the output html for each
 			// notification and apply the correct template according to the notificationtype (label).
-			foreach ($notifs['notifications'] as $notif) {
+			foreach ($notifications['notifications'] as $notification) {
 				$notification_templates = [
 					'like'        => 'notifications/likes_item.tpl',
 					'dislike'     => 'notifications/dislikes_item.tpl',
@@ -88,31 +88,31 @@ class Notifications extends BaseNotifications
 					'friend'      => 'notifications/friends_item.tpl',
 					'comment'     => 'notifications/comments_item.tpl',
 					'post'        => 'notifications/posts_item.tpl',
-					'notify'      => 'notifications/notify.tpl',
+					'notification'      => 'notifications/notification.tpl',
 				];
 
-				$tpl_notif = Renderer::getMarkupTemplate($notification_templates[$notif['label']]);
+				$notificationTemplate = Renderer::getMarkupTemplate($notification_templates[$notification['label']]);
 
-				$notif_content[] = Renderer::replaceMacros($tpl_notif, [
-					'$item_label' => $notif['label'],
-					'$item_link'  => $notif['link'],
-					'$item_image' => $notif['image'],
-					'$item_url'   => $notif['url'],
-					'$item_text'  => $notif['text'],
-					'$item_when'  => $notif['when'],
-					'$item_ago'   => $notif['ago'],
-					'$item_seen'  => $notif['seen'],
+				$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
+					'$item_label' => $notification['label'],
+					'$item_link'  => $notification['link'],
+					'$item_image' => $notification['image'],
+					'$item_url'   => $notification['url'],
+					'$item_text'  => $notification['text'],
+					'$item_when'  => $notification['when'],
+					'$item_ago'   => $notification['ago'],
+					'$item_seen'  => $notification['seen'],
 				]);
 			}
 		} else {
-			$notif_nocontent = DI::l10n()->t('No more %s notifications.', $notifs['ident']);
+			$notificationNoContent = DI::l10n()->t('No more %s notifications.', $notifications['ident']);
 		}
 
-		$notif_show_lnk = [
-			'href' => (self::$showAll ? 'notifications/' . $notifs['ident'] : 'notifications/' . $notifs['ident'] . '?show=all'),
+		$notificationShowLink = [
+			'href' => (self::$showAll ? 'notifications/' . $notifications['ident'] : 'notifications/' . $notifications['ident'] . '?show=all'),
 			'text' => (self::$showAll ? DI::l10n()->t('Show unread') : DI::l10n()->t('Show all')),
 		];
 
-		return self::printContent($notif_header, $notif_content, $notif_nocontent, $notif_show_lnk);
+		return self::printContent($notificationHeader, $notificationContent, $notificationNoContent, $notificationShowLink);
 	}
 }

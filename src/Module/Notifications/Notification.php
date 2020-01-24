@@ -8,9 +8,9 @@ use Friendica\DI;
 use Friendica\Network\HTTPException;
 
 /**
- * Interacting with the /notify command
+ * Interacting with the /notification command
  */
-class Notify extends BaseModule
+class Notification extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
@@ -21,11 +21,9 @@ class Notify extends BaseModule
 
 	public static function rawContent(array $parameters = [])
 	{
-		$a = DI::app();
-
 		// @TODO: Replace with parameter from router
-		if ($a->argc > 2 && $a->argv[1] === 'mark' && $a->argv[2] === 'all') {
-			$success              = DI::notify()->setAllSeen();
+		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
+			$success = DI::notification()->setAllSeen();
 
 			header('Content-type: application/json; charset=utf-8');
 			echo json_encode([
@@ -36,22 +34,20 @@ class Notify extends BaseModule
 	}
 
 	/**
-	 * Redirect to the notifications main page or to the url for the chosen notify
+	 * Redirect to the notifications main page or to the url for the chosen notifications
 	 *
 	 * @return string|void
 	 * @throws HTTPException\InternalServerErrorException
 	 */
 	public static function content(array $parameters = [])
 	{
-		$a = DI::app();
-
 		// @TODO: Replace with parameter from router
-		if ($a->argc > 2 && $a->argv[1] === 'view' && intval($a->argv[2])) {
-			$notificationsManager = DI::notify();
+		if (DI::args()->getArgc() > 2 && DI::args()->get(1) === 'view' && intval(DI::args()->get(2))) {
+			$notificationManager = DI::notification();
 			// @TODO: Replace with parameter from router
-			$note = $notificationsManager->getByID($a->argv[2]);
+			$note = $notificationManager->getByID(DI::args()->get(2));
 			if (!empty($note)) {
-				$notificationsManager->setSeen($note);
+				$notificationManager->setSeen($note);
 				if (!empty($note['link'])) {
 					System::externalRedirect($note['link']);
 				}

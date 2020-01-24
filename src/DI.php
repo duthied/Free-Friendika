@@ -257,11 +257,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Model\Notify
+	 * @return Model\Notification
 	 */
-	public static function notify()
+	public static function notification()
 	{
-		return self::$dice->create(Model\Notify::class);
+		return self::$dice->create(Model\Notification::class);
 	}
 
 	/**

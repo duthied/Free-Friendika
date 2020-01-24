@@ -8,7 +8,7 @@ use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Notify;
+use Friendica\Model\Notification;
 use Friendica\Network\HTTPException\ForbiddenException;
 
 /**
@@ -20,29 +20,29 @@ abstract class BaseNotifications extends BaseModule
 {
 	/** @var array Array of URL parameters */
 	const URL_TYPES = [
-		Notify::NETWORK  => 'network',
-		Notify::SYSTEM   => 'system',
-		Notify::HOME     => 'home',
-		Notify::PERSONAL => 'personal',
-		Notify::INTRO    => 'intros',
+		Notification::NETWORK  => 'network',
+		Notification::SYSTEM   => 'system',
+		Notification::HOME     => 'home',
+		Notification::PERSONAL => 'personal',
+		Notification::INTRO    => 'intros',
 	];
 
 	/** @var array Array of the allowed notifies and their printable name */
 	const PRINT_TYPES = [
-		Notify::NETWORK  => 'Network',
-		Notify::SYSTEM   => 'System',
-		Notify::HOME     => 'Home',
-		Notify::PERSONAL => 'Personal',
-		Notify::INTRO    => 'Introductions',
+		Notification::NETWORK  => 'Network',
+		Notification::SYSTEM   => 'System',
+		Notification::HOME     => 'Home',
+		Notification::PERSONAL => 'Personal',
+		Notification::INTRO    => 'Introductions',
 	];
 
-	/** @var array The array of access keys for notify pages */
+	/** @var array The array of access keys for notification pages */
 	const ACCESS_KEYS = [
-		Notify::NETWORK  => 'w',
-		Notify::SYSTEM   => 'y',
-		Notify::HOME     => 'h',
-		Notify::PERSONAL => 'r',
-		Notify::INTRO    => 'i',
+		Notification::NETWORK  => 'w',
+		Notification::SYSTEM   => 'y',
+		Notification::HOME     => 'h',
+		Notification::PERSONAL => 'r',
+		Notification::INTRO    => 'i',
 	];
 
 	/** @var int The default count of items per page */
@@ -54,12 +54,12 @@ abstract class BaseNotifications extends BaseModule
 	protected static $firstItemNum;
 
 	/**
-	 * Collects all notifies from the backend
+	 * Collects all notifications from the backend
 	 *
 	 * @return array The determined notification array
-	 *               ['header', 'notifs']
+	 *               ['header', 'notifications']
 	 */
-	abstract public static function getNotifies();
+	abstract public static function getNotifications();
 
 	public static function init(array $parameters = [])
 	{
@@ -104,22 +104,22 @@ abstract class BaseNotifications extends BaseModule
 			return;
 		}
 
-		System::jsonExit(static::getNotifies()['notifs'] ?? []);
+		System::jsonExit(static::getNotifications()['notifs'] ?? []);
 	}
 
 	/**
 	 * Shows the printable result of notifications for a specific tab
 	 *
-	 * @param string $notif_header    The notification header
-	 * @param array  $notif_content   The array with the notifications
-	 * @param string $notif_nocontent The string in case there are no notifications
-	 * @param array  $notif_show_lnk  The possible links at the top
+	 * @param string $header    The notification header
+	 * @param array  $content   The array with the notifications
+	 * @param string $noContent The string in case there are no notifications
+	 * @param array  $showLink  The possible links at the top
 	 *
 	 * @return string The rendered output
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	protected static function printContent(string $notif_header, array $notif_content, string $notif_nocontent, array $notif_show_lnk)
+	protected static function printContent(string $header, array $content, string $noContent, array $showLink)
 	{
 		// Get the nav tabs for the notification pages
 		$tabs = self::getTabs();
@@ -129,12 +129,12 @@ abstract class BaseNotifications extends BaseModule
 
 		$notif_tpl = Renderer::getMarkupTemplate('notifications/notifications.tpl');
 		return Renderer::replaceMacros($notif_tpl, [
-			'$notif_header'    => $notif_header ?? DI::l10n()->t('Notifications'),
+			'$notif_header'    => $header ?? DI::l10n()->t('Notifications'),
 			'$tabs'            => $tabs,
-			'$notif_content'   => $notif_content,
-			'$notif_nocontent' => $notif_nocontent,
-			'$notif_show_lnk'  => $notif_show_lnk,
-			'$notif_paginate'  => $pager->renderMinimal(count($notif_content))
+			'$notif_content'   => $content,
+			'$notif_nocontent' => $noContent,
+			'$notif_show_lnk'  => $showLink,
+			'$notif_paginate'  => $pager->renderMinimal(count($content))
 		]);
 	}
 

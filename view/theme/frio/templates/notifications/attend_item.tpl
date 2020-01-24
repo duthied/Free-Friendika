@@ -1,2 +1,2 @@
 
-{{include file="notifications/notify.tpl"}}
+{{include file="notifications/notification.tpl"}}

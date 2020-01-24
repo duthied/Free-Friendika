@@ -177,10 +177,10 @@ return [
 		'/intros/{contact:\d+}[/json]' => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
 	],
 
-	'/notify'         => [
-		'[/]'            => [Module\Notifications\Notify::class, [R::GET]],
-		'/view/{id:\d+}' => [Module\Notifications\Notify::class, [R::GET]],
-		'/mark/all'      => [Module\Notifications\Notify::class, [R::GET]],
+	'/notification'         => [
+		'[/]'            => [Module\Notifications\Notification::class, [R::GET]],
+		'/view/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET]],
+		'/mark/all'      => [Module\Notifications\Notification::class, [R::GET]],
 	],
 	'/objects/{guid}' => [Module\Objects::class, [R::GET]],
 

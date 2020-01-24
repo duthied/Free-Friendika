@@ -949,7 +949,7 @@ function checkboxhighlight(box) {
 }
 
 function notifyMarkAll() {
-	$.get('notify/mark/all', function(data) {
+	$.get('notification/mark/all', function(data) {
 		if (timer) {
 			clearTimeout(timer);
 		}
