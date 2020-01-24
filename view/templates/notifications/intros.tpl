@@ -2,7 +2,7 @@
 
 <div class="intro-wrapper" id="intro-{{$contact_id}}" >
 
-<p class="intro-desc">{{$str_notifytype}} {{$notify_type}}</p>
+<p class="intro-desc">{{$str_notification_type}} {{$str_type}}</p>
 <img id="photo-{{$contact_id}}" class="intro-photo" src="{{$photo}}" width="175" height=175" title="{{$fullname}}" alt="{{$fullname}}" />
 <dl><dt>{{$lbl_url}}</dt><dd><a target="blank" href="{{$zrl}}">{{$url}}</a></dd></dl>
 {{if $location}}<dl><dt>{{$lbl_location}}</dt><dd>{{$location}}</dd></dl>{{/if}}

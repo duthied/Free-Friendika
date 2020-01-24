@@ -8,10 +8,10 @@
 <!--		{{if $nav.notifications}}<a id="intro-update" class="nav-ajax-update" href="{{$nav.notifications.0}}" title="{{$nav.notifications.1}}"></a>{{/if}} -->
 		{{if $nav.introductions}}<a id="intro-update" class="nav-ajax-update" href="{{$nav.introductions.0}}" title="{{$nav.introductions.1}}"></a>{{/if}}
 		{{if $nav.messages}}<a id="mail-update" class="nav-ajax-update" href="{{$nav.messages.0}}" title="{{$nav.messages.1}}"></a>{{/if}}
-		{{if $nav.notifications}}<a rel="#nav-notifications-menu" id="notify-update" class="nav-ajax-update" href="{{$nav.notifications.0}}"  title="{{$nav.notifications.1}}"></a>{{/if}}
+		{{if $nav.notifications}}<a rel="#nav-notifications-menu" id="notification-update" class="nav-ajax-update" href="{{$nav.notifications.0}}"  title="{{$nav.notifications.1}}"></a>{{/if}}
 
 		<ul id="nav-notifications-menu" class="menu-popup">
-			<li id="nav-notifications-mark-all"><a href="#" onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.3}}</a></li>
+			<li id="nav-notifications-mark-all"><a href="#" onclick="notificationMarkAll(); return false;">{{$nav.notifications.mark.3}}</a></li>
 			<li id="nav-notifications-see-all"><a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a></li>
 			<li class="empty">{{$emptynotifications}}</li>
 		</ul>
@@ -38,7 +38,7 @@
 			<li><a id="nav-directory-link" class="nav-link {{$nav.directory.2}}" href="{{$nav.directory.0}}">{{$nav.directory.1}}</a></li>
 			{{if $nav.apps}}<li><a id="nav-apps-link" class="nav-link {{$nav.apps.2}}" href="{{$nav.apps.0}}">{{$nav.apps.1}}</a></li>{{/if}}
 			
-			{{if $nav.notifications}}<li><a id="nav-notify-link" class="nav-commlink nav-sep {{$nav.notifications.2}}" href="{{$nav.notifications.0}}">{{$nav.notifications.1}}</a></li>{{/if}}
+			{{if $nav.notifications}}<li><a id="nav-notification-link" class="nav-commlink nav-sep {{$nav.notifications.2}}" href="{{$nav.notifications.0}}">{{$nav.notifications.1}}</a></li>{{/if}}
 			{{if $nav.messages}}<li><a id="nav-messages-link" class="nav-commlink {{$nav.messages.2}}" href="{{$nav.messages.0}}">{{$nav.messages.1}}</a></li>{{/if}}
 			{{if $nav.contacts}}<li><a id="nav-contacts-link" class="nav-commlink {{$nav.contacts.2}}" href="{{$nav.contacts.0}}">{{$nav.contacts.1}}</a></li>{{/if}}
 		

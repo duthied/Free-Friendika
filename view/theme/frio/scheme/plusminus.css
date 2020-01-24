@@ -25,7 +25,7 @@ aside .widget, .form-control, .panel, .nav-container, .wall-item-content, .e-con
     font-family: ".SFNSText-Regular","San Francisco","Roboto","Segoe UI","Helvetica Neue","Lucida Grande",Helvetica,Arial,sans-serif;
 }
 
-#topbar-first #nav-notifications-menu li.notify-unseen {
+#topbar-first #nav-notifications-menu li.notification-unseen {
     border-left: 3px solid #f3fcfd;
     background-color: antiquewhite;
 }

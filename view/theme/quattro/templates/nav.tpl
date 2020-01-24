@@ -29,14 +29,14 @@
 		{{if $nav.network}}
 			<li id="nav-network-link" class="nav-menu {{$sel.network}}">
 				<a accesskey="n" class="{{$nav.network.2}}" href="{{$nav.network.0}}" title="{{$nav.network.3}}" >{{$nav.network.1}}</a>
-				<span id="net-update" class="nav-notify"></span>
+				<span id="net-update" class="nav-notification"></span>
 			</li>
 		{{/if}}
 
 		{{if $nav.home}}
 			<li id="nav-home-link" class="nav-menu {{$sel.home}}">
 				<a accesskey="p" class="{{$nav.home.2}}" href="{{$nav.home.0}}" title="{{$nav.home.3}}" >{{$nav.home.1}}</a>
-				<span id="home-update" class="nav-notify"></span>
+				<span id="home-update" class="nav-notification"></span>
 			</li>
 		{{/if}}
 
@@ -45,7 +45,7 @@
 				<a class="{{$nav.introductions.2}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >
 				    <span class="icon s22 intro">{{$nav.introductions.1}}</a>
 				</a>
-				<span id="intro-update" class="nav-notify"></span>
+				<span id="intro-update" class="nav-notification"></span>
 			</li>
 		{{/if}}
 
@@ -54,16 +54,16 @@
 				<a class="{{$nav.messages.2}}" href="{{$nav.messages.0}}" title="{{$nav.messages.3}}" >
 				    <span class="icon s22 mail">{{$nav.messages.1}}</a>
 				</a>
-				<span id="mail-update" class="nav-notify"></span>
+				<span id="mail-update" class="nav-notification"></span>
 			</li>
 		{{/if}}
 
 		{{if $nav.notifications}}
 			<li  id="nav-notifications-linkmenu" class="nav-menu-icon"><a accesskey="f" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}"><span class="icon s22 notify">{{$nav.notifications.1}}</span></a>
-				<span id="notify-update" class="nav-notify"></span>
+				<span id="notification-update" class="nav-notification"></span>
 				<ul id="nav-notifications-menu" class="menu-popup">
 					<!-- TODO: better icons! -->
-					<li id="nav-notifications-mark-all" class="toolbar"><a href="#" onclick="notifyMarkAll(); return false;" title="{{$nav.notifications.mark.3}}"><span class="icon s10 edit"></span></a></a><a href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.all.1}}"><span class="icon s10 plugin"></span></a></li>
+					<li id="nav-notifications-mark-all" class="toolbar"><a href="#" onclick="notificationMarkAll(); return false;" title="{{$nav.notifications.mark.3}}"><span class="icon s10 edit"></span></a></a><a href="{{$nav.notifications.all.0}}" title="{{$nav.notifications.all.1}}"><span class="icon s10 plugin"></span></a></li>
 					<li class="empty">{{$emptynotifications}}</li>
 				</ul>
 			</li>

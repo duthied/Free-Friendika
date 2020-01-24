@@ -34,7 +34,7 @@
 	<a accesskey="c" id="nav-community-link" class="nav-commlink {{$nav.community.2}} {{$sel.community}}" href="{{$nav.community.0}}" title="{{$nav.community.3}}" >{{$nav.community.1}}</a>
 	{{/if}}
 	{{if $nav.introductions}}
-	<a id="nav-notify-link" class="nav-commlink {{$nav.introductions.2}} {{$sel.introductions}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a>
+	<a id="nav-notification-link" class="nav-commlink {{$nav.introductions.2}} {{$sel.introductions}}" href="{{$nav.introductions.0}}" title="{{$nav.introductions.3}}" >{{$nav.introductions.1}}</a>
 	<span id="intro-update" class="nav-ajax-left"></span>
 	{{/if}}
 	{{if $nav.messages}}
@@ -48,10 +48,10 @@
 
 		{{if $nav.notifications}}
 			<a accesskey="f" id="nav-notifications-linkmenu" class="nav-commlink" href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" title="{{$nav.notifications.1}}">{{$nav.notifications.1}}</a>
-				<span id="notify-update" class="nav-ajax-left"></span>
+				<span id="notification-update" class="nav-ajax-left"></span>
 				<ul id="nav-notifications-menu" class="menu-popup">
 					<li id="nav-notifications-see-all"><a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a></li>
-					<li id="nav-notifications-mark-all"><a href="#" onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.3}}</a></li>
+					<li id="nav-notifications-mark-all"><a href="#" onclick="notificationMarkAll(); return false;">{{$nav.notifications.mark.3}}</a></li>
 					<li class="empty">{{$emptynotifications}}</li>
 				</ul>
 		{{/if}}		

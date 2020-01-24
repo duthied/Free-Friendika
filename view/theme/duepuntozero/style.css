@@ -784,7 +784,7 @@ input#dfrn-url {
 #settings-notifications label {
 	margin-left: 20px;
 }
-#settings-notify-desc, #settings-activity-desc {
+#settings-notification-desc, #settings-activity-desc {
 	font-weight: bold;
 	margin-bottom: 15px;
 }
@@ -2781,7 +2781,7 @@ aside input[type='text'] {
 #crepair-url-label,
 #crepair-request-label,
 #crepair-confirm-label,
-#crepair-notify-label,
+#crepair-notification-label,
 #crepair-photo-label,
 #crepair-poll-label {
 	float: left;
@@ -3316,7 +3316,7 @@ div.jGrowl div.info {
   margin-right: -20px;
 }
 
-.nav-notify {
+.nav-notification {
 	display: none;
 	position: absolute;
 	font-size: 10px;
@@ -3326,7 +3326,7 @@ div.jGrowl div.info {
 	min-width: 15px;
 	text-align: right;
 }
-.nav-notify.show {
+.nav-notification.show {
 	display: block;
 }
 #nav-notifications-menu {
@@ -3372,7 +3372,7 @@ div.jGrowl div.info {
 	padding: 7px 7px 0px 0px;
 }
 
-.notify-seen {
+.notification-seen {
 	background: #DDDDDD;
 }
 

@@ -167,10 +167,20 @@ return [
 	'/nodeinfo/{version}' => [Module\NodeInfo::class,        [R::GET]],
 	'/nogroup'            => [Module\Group::class,           [R::GET]],
 
-	'/notify'         => [
-		'[/]'            => [Module\Notifications\Notify::class, [R::GET]],
-		'/view/{id:\d+}' => [Module\Notifications\Notify::class, [R::GET]],
-		'/mark/all'      => [Module\Notifications\Notify::class, [R::GET]],
+	'/notifications' => [
+		'/network[/json]'    => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/system[/json]'     => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/personal[/json]'   => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/home[/json]'       => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
+		'/intros[/json]'     => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
+		'/intros/all[/json]' => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
+		'/intros/{contact:\d+}[/json]' => [Module\Notifications\Introductions::class, [R::GET, R::POST]],
+	],
+
+	'/notification'         => [
+		'[/]'            => [Module\Notifications\Notification::class, [R::GET]],
+		'/view/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET]],
+		'/mark/all'      => [Module\Notifications\Notification::class, [R::GET]],
 	],
 	'/objects/{guid}' => [Module\Objects::class, [R::GET]],
 

@@ -299,19 +299,19 @@ $(function() {
 			var notification_id = 0;
 
 			// Insert notifs into the notifications-menu
-			$(data.notifications).each(function(key, notif) {
-				var text = notif.message.format('<span class="contactname">' + notif.name + '</span>');
-				var contact = ('<a href="' + notif.url + '"><span class="contactname">' + notif.name + '</span></a>');
-				var seenclass = (notif.seen == 1) ? "notify-seen" : "notify-unseen";
+			$(data.notifications).each(function(key, notification) {
+				var text = notification.message.format('<span class="contactname">' + notification.name + '</span>');
+				var contact = ('<a href="' + notification.url + '"><span class="contactname">' + notification.name + '</span></a>');
+				var seenclass = (notification.seen == 1) ? "notification-seen" : "notification-unseen";
 				var html = notifications_tpl.format(
-					notif.href,                     // {0}  // link to the source
-					notif.photo,                    // {1}  // photo of the contact
+					notification.href,                     // {0}  // link to the source
+					notification.photo,                    // {1}  // photo of the contact
 					text,                           // {2}  // preformatted text (autor + text)
-					notif.date,                     // {3}  // date of notification (time ago)
+					notification.date,                     // {3}  // date of notification (time ago)
 					seenclass,                      // {4}  // visited status of the notification
-					new Date(notif.timestamp*1000), // {5}  // date of notification
-					notif.url,                      // {6}  // profile url of the contact
-					notif.message.format(contact),  // {7}  // preformatted html (text including author profile url)
+					new Date(notification.timestamp*1000), // {5}  // date of notification
+					notification.url,                      // {6}  // profile url of the contact
+					notification.message.format(contact),  // {7}  // preformatted html (text including author profile url)
 					''                              // {8}  // Deprecated
 				);
 				nnm.append(html);
@@ -948,8 +948,8 @@ function checkboxhighlight(box) {
 	}
 }
 
-function notifyMarkAll() {
-	$.get('notify/mark/all', function(data) {
+function notificationMarkAll() {
+	$.get('notification/mark/all', function(data) {
 		if (timer) {
 			clearTimeout(timer);
 		}

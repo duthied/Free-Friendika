@@ -19,7 +19,7 @@
 			</form>
 		</div>
 		<div class='intro-enty-name'><h4 class="media-heading"><a href="{{$zrl}}">{{$fullname}}</a></h4></div>
-		<div class="intro-desc"><span class="intro-desc-label">{{$str_notifytype}}</span>&nbsp;{{$notify_type}}</div>
+		<div class="intro-desc"><span class="intro-desc-label">{{$str_notification_type}}</span>&nbsp;{{$str_type}}</div>
 		{{* if the contact was suggestested by another contact, the contact who made the suggestion is displayed*}}
 		{{if $madeby}}<div class="intro-madeby"><span class="intro-madeby-label">{{$lbl_madeby}}</span>&nbsp;<a href="{{$madeby_zrl}}">{{$madeby}}</a></div>{{/if}}
 
