@@ -69,7 +69,7 @@
 					<span id="notification-update" class="nav-notification"></span>
 				</a>
 				<ul id="nav-notifications-menu" class="menu-popup">
-					<li role="menuitem" id="nav-notifications-mark-all"><a onclick="notifyMarkAll(); return false;">{{$nav.notifications.mark.1}}</a></li>
+					<li role="menuitem" id="nav-notifications-mark-all"><a onclick="notificationMarkAll(); return false;">{{$nav.notifications.mark.1}}</a></li>
 					<li role="menuitem" id="nav-notifications-see-all"><a href="{{$nav.notifications.all.0}}">{{$nav.notifications.all.1}}</a></li>
 					<li role="menuitem" class="empty">{{$emptynotifications}}</li>
 				</ul>

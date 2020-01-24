@@ -240,7 +240,7 @@ final class Notification
 			// Transform the different types of notification in an usable array
 			switch ($notification['verb']) {
 				case Activity::LIKE:
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => 'like',
 						'link'  => $this->baseUrl->get(true) . '/display/' . $notification['parent-guid'],
 						'image' => ProxyUtils::proxifyUrl($notification['author-avatar'], false, ProxyUtils::SIZE_MICRO),
@@ -253,7 +253,7 @@ final class Notification
 					break;
 
 				case Activity::DISLIKE:
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => 'dislike',
 						'link'  => $this->baseUrl->get(true) . '/display/' . $notification['parent-guid'],
 						'image' => ProxyUtils::proxifyUrl($notification['author-avatar'], false, ProxyUtils::SIZE_MICRO),
@@ -266,7 +266,7 @@ final class Notification
 					break;
 
 				case Activity::ATTEND:
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => 'attend',
 						'link'  => $this->baseUrl->get(true) . '/display/' . $notification['parent-guid'],
 						'image' => ProxyUtils::proxifyUrl($notification['author-avatar'], false, ProxyUtils::SIZE_MICRO),
@@ -279,7 +279,7 @@ final class Notification
 					break;
 
 				case Activity::ATTENDNO:
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => 'attendno',
 						'link'  => $this->baseUrl->get(true) . '/display/' . $notification['parent-guid'],
 						'image' => ProxyUtils::proxifyUrl($notification['author-avatar'], false, ProxyUtils::SIZE_MICRO),
@@ -292,7 +292,7 @@ final class Notification
 					break;
 
 				case Activity::ATTENDMAYBE:
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => 'attendmaybe',
 						'link'  => $this->baseUrl->get(true) . '/display/' . $notification['parent-guid'],
 						'image' => ProxyUtils::proxifyUrl($notification['author-avatar'], false, ProxyUtils::SIZE_MICRO),
@@ -306,7 +306,7 @@ final class Notification
 
 				case Activity::FRIEND:
 					if (!isset($notification['object'])) {
-						$formattedNotify = [
+						$formattedNotification = [
 							'label' => 'friend',
 							'link'  => $default_item_link,
 							'image' => $default_item_image,
@@ -325,7 +325,7 @@ final class Notification
 					$obj                   = XML::parseString($xmlHead . $notification['object']);
 					$notification['fname'] = $obj->title;
 
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => 'friend',
 						'link'  => $this->baseUrl->get(true) . '/display/' . $notification['parent-guid'],
 						'image' => ProxyUtils::proxifyUrl($notification['author-avatar'], false, ProxyUtils::SIZE_MICRO),
@@ -338,7 +338,7 @@ final class Notification
 					break;
 
 				default:
-					$formattedNotify = [
+					$formattedNotification = [
 						'label' => $default_item_label,
 						'link'  => $default_item_link,
 						'image' => $default_item_image,
@@ -350,7 +350,7 @@ final class Notification
 					];
 			}
 
-			$formattedNotifications[] = $formattedNotify;
+			$formattedNotifications[] = $formattedNotification;
 		}
 
 		return $formattedNotifications;

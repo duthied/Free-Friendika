@@ -948,7 +948,7 @@ function checkboxhighlight(box) {
 	}
 }
 
-function notifyMarkAll() {
+function notificationMarkAll() {
 	$.get('notification/mark/all', function(data) {
 		if (timer) {
 			clearTimeout(timer);

@@ -84,7 +84,7 @@
 									<div class="arrow"></div>
 									{{$nav.notifications.1}}
 									<div class="dropdown-header-link">
-										<button role="menuitem" type="button" class="btn-link" onclick="notifyMarkAll();" data-toggle="tooltip" aria-label="{{$nav.notifications.mark.3}}" title="{{$nav.notifications.mark.3}}">{{$nav.notifications.mark.1}}</button>
+										<button role="menuitem" type="button" class="btn-link" onclick="notificationMarkAll();" data-toggle="tooltip" aria-label="{{$nav.notifications.mark.3}}" title="{{$nav.notifications.mark.3}}">{{$nav.notifications.mark.1}}</button>
 									</div>
 
 								</li>
