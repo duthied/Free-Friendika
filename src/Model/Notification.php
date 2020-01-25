@@ -14,7 +14,10 @@ use Psr\Log\LoggerInterface;
 
 /**
  * Model for an entry in the notify table
- * - Including additional calculated properties
+ * - Including additional, calculated properties
+ *
+ * Is used either for frontend interactions or for API-based interaction
+ * @see https://github.com/friendica/friendica/blob/develop/doc/API-Entities.md#notification
  *
  * @property string  hash
  * @property integer type

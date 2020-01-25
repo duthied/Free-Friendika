@@ -2,6 +2,9 @@
 
 namespace Friendica\Object\Notification;
 
+/**
+ * A view-only object for printing item notifications to the frontend
+ */
 class Notification implements \JsonSerializable
 {
 	const SYSTEM   = 'system';

@@ -2,6 +2,9 @@
 
 namespace Friendica\Object\Notification;
 
+/**
+ * A view-only object for printing introduction notifications to the frontend
+ */
 class Introduction implements \JsonSerializable
 {
 	/** @var string */
