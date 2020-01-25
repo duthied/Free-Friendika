@@ -5909,16 +5909,21 @@ function api_friendica_notification($type)
 	$notifications = DI::notification()->select([], ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50]);
 
 	if ($type == "xml") {
-		$xmlnotes = [];
+		$xmlnotes = false;
 		if (!empty($notifications)) {
 			foreach ($notifications as $notification) {
 				$xmlnotes[] = ["@attributes" => $notification->toArray()];
 			}
 		}
 
-		$notifications = $xmlnotes;
+		$result = $xmlnotes;
+	} elseif (count($notifications) > 0) {
+		$result = $notifications->getArrayCopy();
+	} else {
+		$result = false;
 	}
-	return api_format_data("notes", $type, ['note' => $notifications->getArrayCopy()]);
+
+	return api_format_data("notes", $type, ['note' => $result]);
 }
 
 /**

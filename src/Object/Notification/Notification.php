@@ -94,18 +94,16 @@ class Notification implements \JsonSerializable
 		return $this->seen;
 	}
 
-	public function __construct(string $label = '', string $link = '', string $image = '',
-	                            string $url = '', string $text = '',
-	                            string $when = '', string $ago = '', bool $seen = false)
+	public function __construct(array $data)
 	{
-		$this->label = $label;
-		$this->link  = $link;
-		$this->image = $image;
-		$this->url   = $url;
-		$this->text  = $text;
-		$this->when  = $when;
-		$this->ago   = $ago;
-		$this->seen  = $seen;
+		$this->label = $data['label'] ?? '';
+		$this->link  = $data['link'] ?? '';
+		$this->image = $data['image'] ?? '';
+		$this->url   = $data['url'] ?? '';
+		$this->text  = $data['text'] ?? '';
+		$this->when  = $data['when'] ?? '';
+		$this->ago   = $data['ago'] ?? '';
+		$this->seen  = $data['seen'] ?? false;
 	}
 
 	/**

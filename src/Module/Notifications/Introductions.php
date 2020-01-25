@@ -25,7 +25,7 @@ class Introductions extends BaseNotifications
 		$all = DI::args()->get(2) == 'all';
 
 		$notifications = [
-			'ident'        => 'introductions',
+			'ident'         => 'introductions',
 			'notifications' => DI::factNotIntro()->getIntroList($all, self::$firstItemNum, self::ITEMS_PER_PAGE, $id),
 		];
 
@@ -64,32 +64,32 @@ class Introductions extends BaseNotifications
 
 			// There are two kind of introduction. Contacts suggested by other contacts and normal connection requests.
 			// We have to distinguish between these two because they use different data.
-			switch ($notification['label']) {
+			switch ($notification->getLabel()) {
 				case 'friend_suggestion':
 					$notificationContent[] = Renderer::replaceMacros($notificationSuggestions, [
-						'$type'                 => $notification->getLabel(),
-						'str_notification_type' => DI::l10n()->t('Notification type:'),
-						'str_type'              => $notification->getType(),
-						'$intro_id'             => $notification->getIntroId(),
-						'$lbl_madeby'           => DI::l10n()->t('Suggested by:'),
-						'$madeby'               => $notification->getMadeBy(),
-						'$madeby_url'           => $notification->getMadeByUrl(),
-						'$madeby_zrl'           => $notification->getMadeByZrl(),
-						'$madeby_addr'          => $notification->getMadeByAddr(),
-						'$contact_id'           => $notification->getContactId(),
-						'$photo'                => $notification->getPhoto(),
-						'$fullname'             => $notification->getName(),
-						'$url'                  => $notification->getUrl(),
-						'$zrl'                  => $notification->getZrl(),
-						'$lbl_url'              => DI::l10n()->t('Profile URL'),
-						'$addr'                 => $notification->getAddr(),
-						'$hidden'               => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
-						'$knowyou'              => $notification->getKnowYou(),
-						'$approve'              => DI::l10n()->t('Approve'),
-						'$note'                 => $notification->getNote(),
-						'$request'              => $notification->getRequest(),
-						'$ignore'               => DI::l10n()->t('Ignore'),
-						'$discard'              => DI::l10n()->t('Discard'),
+						'$type'                  => $notification->getLabel(),
+						'$str_notification_type' => DI::l10n()->t('Notification type:'),
+						'$str_type'              => $notification->getType(),
+						'$intro_id'              => $notification->getIntroId(),
+						'$lbl_madeby'            => DI::l10n()->t('Suggested by:'),
+						'$madeby'                => $notification->getMadeBy(),
+						'$madeby_url'            => $notification->getMadeByUrl(),
+						'$madeby_zrl'            => $notification->getMadeByZrl(),
+						'$madeby_addr'           => $notification->getMadeByAddr(),
+						'$contact_id'            => $notification->getContactId(),
+						'$photo'                 => $notification->getPhoto(),
+						'$fullname'              => $notification->getName(),
+						'$url'                   => $notification->getUrl(),
+						'$zrl'                   => $notification->getZrl(),
+						'$lbl_url'               => DI::l10n()->t('Profile URL'),
+						'$addr'                  => $notification->getAddr(),
+						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
+						'$knowyou'               => $notification->getKnowYou(),
+						'$approve'               => DI::l10n()->t('Approve'),
+						'$note'                  => $notification->getNote(),
+						'$request'               => $notification->getRequest(),
+						'$ignore'                => DI::l10n()->t('Ignore'),
+						'$discard'               => DI::l10n()->t('Discard'),
 					]);
 					break;
 
@@ -108,12 +108,12 @@ class Introductions extends BaseNotifications
 						$lbl_knowyou = DI::l10n()->t('Claims to be known to you: ');
 						$knowyou     = ($notification->getKnowYou() ? DI::l10n()->t('yes') : DI::l10n()->t('no'));
 						$helptext    = DI::l10n()->t('Shall your connection be bidirectional or not?');
-						$helptext2   = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification['name'], $notification['name']);
-						$helptext3   = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification['name']);
+						$helptext2   = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
+						$helptext3   = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
 					} elseif ($notification->getNetwork() === Protocol::DIASPORA) {
 						$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
-						$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification['name'], $notification['name']);
-						$helptext3 = DI::l10n()->t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification['name']);
+						$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
+						$helptext3 = DI::l10n()->t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
 					}
 
 					$dfrn_tpl  = Renderer::getMarkupTemplate('notifications/netfriend.tpl');
@@ -136,10 +136,10 @@ class Introductions extends BaseNotifications
 						$action = 'dfrn_confirm';
 					}
 
-					$header = $notification['name'];
+					$header = $notification->getName();
 
-					if ($notification['addr'] != '') {
-						$header .= ' <' . $notification['addr'] . '>';
+					if ($notification->getAddr() != '') {
+						$header .= ' <' . $notification->getAddr() . '>';
 					}
 
 					$header .= ' (' . ContactSelector::networkToName($notification->getNetwork(), $notification->getUrl()) . ')';
@@ -151,39 +151,39 @@ class Introductions extends BaseNotifications
 					}
 
 					$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
-						'$type'                 => $notification->getLabel(),
-						'$header'               => $header,
-						'str_notification_type' => DI::l10n()->t('Notification type:'),
-						'str_type'              => $notification->getType(),
-						'$dfrn_text'            => $dfrn_text,
-						'$dfrn_id'              => $notification->getDfrnId(),
-						'$uid'                  => $notification->getUid(),
-						'$intro_id'             => $notification->getIntroId(),
-						'$contact_id'           => $notification->getContactId(),
-						'$photo'                => $notification->getPhoto(),
-						'$fullname'             => $notification->getName(),
-						'$location'             => $notification->getLocation(),
-						'$lbl_location'         => DI::l10n()->t('Location:'),
-						'$about'                => $notification->getAbout(),
-						'$lbl_about'            => DI::l10n()->t('About:'),
-						'$keywords'             => $notification->getKeywords(),
-						'$lbl_keywords'         => DI::l10n()->t('Tags:'),
-						'$gender'               => $notification->getGender(),
-						'$lbl_gender'           => DI::l10n()->t('Gender:'),
-						'$hidden'               => ['hidden', DI::l10n()->t('Hide this contact from others'), ($notification['hidden'] == 1), ''],
-						'$url'                  => $notification->getUrl(),
-						'$zrl'                  => $notification->getZrl(),
-						'$lbl_url'              => DI::l10n()->t('Profile URL'),
-						'$addr'                 => $notification->getAddr(),
-						'$lbl_knowyou'          => $lbl_knowyou,
-						'$lbl_network'          => DI::l10n()->t('Network:'),
-						'$network'              => ContactSelector::networkToName($notification->getNetwork(), $notification->getUrl()),
-						'$knowyou'              => $knowyou,
-						'$approve'              => DI::l10n()->t('Approve'),
-						'$note'                 => $notification->getNote(),
-						'$ignore'               => DI::l10n()->t('Ignore'),
-						'$discard'              => $discard,
-						'$action'               => $action,
+						'$type'                  => $notification->getLabel(),
+						'$header'                => $header,
+						'$str_notification_type' => DI::l10n()->t('Notification type:'),
+						'$str_type'              => $notification->getType(),
+						'$dfrn_text'             => $dfrn_text,
+						'$dfrn_id'               => $notification->getDfrnId(),
+						'$uid'                   => $notification->getUid(),
+						'$intro_id'              => $notification->getIntroId(),
+						'$contact_id'            => $notification->getContactId(),
+						'$photo'                 => $notification->getPhoto(),
+						'$fullname'              => $notification->getName(),
+						'$location'              => $notification->getLocation(),
+						'$lbl_location'          => DI::l10n()->t('Location:'),
+						'$about'                 => $notification->getAbout(),
+						'$lbl_about'             => DI::l10n()->t('About:'),
+						'$keywords'              => $notification->getKeywords(),
+						'$lbl_keywords'          => DI::l10n()->t('Tags:'),
+						'$gender'                => $notification->getGender(),
+						'$lbl_gender'            => DI::l10n()->t('Gender:'),
+						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
+						'$url'                   => $notification->getUrl(),
+						'$zrl'                   => $notification->getZrl(),
+						'$lbl_url'               => DI::l10n()->t('Profile URL'),
+						'$addr'                  => $notification->getAddr(),
+						'$lbl_knowyou'           => $lbl_knowyou,
+						'$lbl_network'           => DI::l10n()->t('Network:'),
+						'$network'               => ContactSelector::networkToName($notification->getNetwork(), $notification->getUrl()),
+						'$knowyou'               => $knowyou,
+						'$approve'               => DI::l10n()->t('Approve'),
+						'$note'                  => $notification->getNote(),
+						'$ignore'                => DI::l10n()->t('Ignore'),
+						'$discard'               => $discard,
+						'$action'                => $action,
 					]);
 					break;
 			}

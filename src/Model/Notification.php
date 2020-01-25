@@ -46,8 +46,6 @@ class Notification extends BaseModel
 {
 	/** @var \Friendica\Repository\Notification */
 	private $repo;
-	/** @var $this */
-	private $parentInst;
 
 	public function __construct(Database $dba, LoggerInterface $logger, \Friendica\Repository\Notification $repo, array $data = [])
 	{
@@ -116,28 +114,6 @@ class Notification extends BaseModel
 			$this->msg_cache = self::formatMessage($this->name_cache, strip_tags(BBCode::convert($this->msg)));
 		} catch (InternalServerErrorException $e) {
 		}
-	}
-
-	public function __get($name)
-	{
-		$this->checkValid();
-
-		$return = null;
-
-		switch ($name) {
-			case 'parent':
-				if (!empty($this->parent)) {
-					$this->parentInst = $this->parentInst ?? $this->repo->getByID($this->parent);
-
-					$return = $this->parentInst;
-				}
-				break;
-			default:
-				$return = parent::__get($name);
-				break;
-		}
-
-		return $return;
 	}
 
 	public function __set($name, $value)

@@ -23,6 +23,14 @@ use Friendica\Util\Temporal;
 use Friendica\Util\XML;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Factory for creating notification objects based on items
+ * Currently, there are the following types of item based notifications:
+ * - network
+ * - system
+ * - home
+ * - personal
+ */
 class NotificationFactory extends BaseFactory
 {
 	/** @var Database */
@@ -93,97 +101,89 @@ class NotificationFactory extends BaseFactory
 		// Transform the different types of notification in an usable array
 		switch ($item['verb'] ?? '') {
 			case Activity::LIKE:
-				return new \Friendica\Object\Notification\Notification(
-					'like',
-					$this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
-					$item['author-link'],
-					$this->l10n->t("%s liked %s's post", $item['author-name'], $item['parent-author-name']),
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification([
+					'label' => 'like',
+					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
+					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'url'   => $item['author-link'],
+					'text'  => $this->l10n->t("%s liked %s's post", $item['author-name'], $item['parent-author-name']),
+					'when'  => $item['when'],
+					'ago'   => $item['ago'],
+					'seen'  => $item['seen']]);
 
 			case Activity::DISLIKE:
-				return new \Friendica\Object\Notification\Notification(
-					'dislike',
-					$this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
-					$item['author-link'],
-					$this->l10n->t("%s disliked %s's post", $item['author-name'], $item['parent-author-name']),
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification([
+					'label' => 'dislike',
+					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
+					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'url'   => $item['author-link'],
+					'text'  => $this->l10n->t("%s disliked %s's post", $item['author-name'], $item['parent-author-name']),
+					'when'  => $item['when'],
+					'ago'   => $item['ago'],
+					'seen'  => $item['seen']]);
 
 			case Activity::ATTEND:
-				return new \Friendica\Object\Notification\Notification(
-					'attend',
-					$this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
-					$item['author-link'],
-					$this->l10n->t("%s is attending %s's event", $item['author-name'], $item['parent-author-name']),
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification([
+					'label' => 'attend',
+					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
+					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'url'   => $item['author-link'],
+					'text'  => $this->l10n->t("%s is attending %s's event", $item['author-name'], $item['parent-author-name']),
+					'when'  => $item['when'],
+					'ago'   => $item['ago'],
+					'seen'  => $item['seen']]);
 
 			case Activity::ATTENDNO:
-				return new \Friendica\Object\Notification\Notification(
-					'attendno',
-					$this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
-					$item['author-link'],
-					$this->l10n->t("%s is not attending %s's event", $item['author-name'], $item['parent-author-name']),
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification([
+					'label' => 'attendno',
+					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
+					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'url'   => $item['author-link'],
+					'text'  => $this->l10n->t("%s is not attending %s's event", $item['author-name'], $item['parent-author-name']),
+					'when'  => $item['when'],
+					'ago'   => $item['ago'],
+					'seen'  => $item['seen']]);
 
 			case Activity::ATTENDMAYBE:
-				return new \Friendica\Object\Notification\Notification(
-					'attendmaybe',
-					$this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
-					$item['author-link'],
-					$this->l10n->t("%s may attending %s's event", $item['author-name'], $item['parent-author-name']),
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification([
+					'label' => 'attendmaybe',
+					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
+					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'url'   => $item['author-link'],
+					'text'  => $this->l10n->t("%s may attending %s's event", $item['author-name'], $item['parent-author-name']),
+					'when'  => $item['when'],
+					'ago'   => $item['ago'],
+					'seen'  => $item['seen']]);
 
 			case Activity::FRIEND:
 				if (!isset($item['object'])) {
-					return new \Friendica\Object\Notification\Notification(
-						'friend',
-						$item['link'],
-						$item['image'],
-						$item['url'],
-						$item['text'],
-						$item['when'] ?? '',
-						$item['ago'] ?? '',
-						$item['seen'] ?? false);
+					return new \Friendica\Object\Notification\Notification([
+						'label' => 'friend',
+						'link'  => $item['link'],
+						'image' => $item['image'],
+						'url'   => $item['url'],
+						'text'  => $item['text'],
+						'when'  => $item['when'],
+						'ago'   => $item['ago'],
+						'seen'  => $item['seen']]);
 				}
 
 				$xmlHead       = "<" . "?xml version='1.0' encoding='UTF-8' ?" . ">";
 				$obj           = XML::parseString($xmlHead . $item['object']);
 				$item['fname'] = $obj->title;
 
-				return new \Friendica\Object\Notification\Notification(
-					'friend',
-					$this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
-					Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
-					$item['author-link'],
-					$this->l10n->t("%s is now friends with %s", $item['author-name'], $item['fname']),
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification([
+					'label' => 'friend',
+					'link'  => $this->baseUrl->get(true) . '/display/' . $item['parent-guid'],
+					'image' => Proxy::proxifyUrl($item['author-avatar'], false, Proxy::SIZE_MICRO),
+					'url'   => $item['author-link'],
+					'text'  => $this->l10n->t("%s is now friends with %s", $item['author-name'], $item['fname']),
+					'when'  => $item['when'],
+					'ago'   => $item['ago'],
+					'seen'  => $item['seen']]);
 
 			default:
-				return new \Friendica\Object\Notification\Notification(
-					$item['label'],
-					$item['link'],
-					$item['image'],
-					$item['url'],
-					$item['text'],
-					$item['when'] ?? '',
-					$item['ago'] ?? '',
-					$item['seen'] ?? false);
+				return new \Friendica\Object\Notification\Notification($item);
 				break;
 		}
 	}
@@ -215,15 +215,15 @@ class NotificationFactory extends BaseFactory
 			$notifications = $this->notification->select($conditions, $params);
 
 			foreach ($notifications as $notification) {
-				$formattedNotifications[] = new \Friendica\Object\Notification\Notification(
-					'notification',
-					$this->baseUrl->get(true) . '/notification/view/' . $notification->id,
-					Proxy::proxifyUrl($notification->photo, false, Proxy::SIZE_MICRO),
-					$notification->url,
-					strip_tags(BBCode::convert($notification->msg)),
-					DateTimeFormat::local($notification->date, 'r'),
-					Temporal::getRelativeDate($notification->date),
-					$notification->seen);
+				$formattedNotifications[] = new \Friendica\Object\Notification\Notification([
+					'label' => 'notification',
+					'link'  => $this->baseUrl->get(true) . '/notification/view/' . $notification->id,
+					'image' => Proxy::proxifyUrl($notification->photo, false, Proxy::SIZE_MICRO),
+					'url'   => $notification->url,
+					'text'  => strip_tags(BBCode::convert($notification->msg)),
+					'when'  => DateTimeFormat::local($notification->date, 'r'),
+					'ago'   => Temporal::getRelativeDate($notification->date),
+					'seen'  => $notification->seen]);
 			}
 		} catch (Exception $e) {
 			$this->logger->warning('Select failed.', ['conditions' => $conditions, 'exception' => $e]);

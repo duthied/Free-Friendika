@@ -19,6 +19,12 @@ use Friendica\Object\Notification\Introduction;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
 
+/**
+ * Factory for creating notification objects based on introductions
+ * Currently, there are two main types of introduction based notifications:
+ * - Friend suggestion
+ * - Friend/Follower request
+ */
 class IntroductionFactory extends BaseFactory
 {
 	/** @var Database */
