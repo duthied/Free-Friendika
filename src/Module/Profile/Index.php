@@ -148,7 +148,6 @@ class Index extends BaseModule
 			$basic_fields += self::buildField('homepage', DI::l10n()->t('Homepage:'), HTML::toLink($a->profile['homepage']));
 		}
 
-		$o .= Profile::getTabs($a, 'profile', $is_owner, $a->profile['nickname']);
 		if (
 			$a->profile['address']
 			|| $a->profile['locality']
