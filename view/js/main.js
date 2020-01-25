@@ -245,7 +245,7 @@ $(function() {
 			window.location.href=window.location.href
 		}
 
-		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notify'].forEach(function(type) {
+		['net', 'home', 'intro', 'mail', 'events', 'birthdays', 'notification'].forEach(function(type) {
 			var number = data[type];
 			if (number == 0) {
 				number = '';
@@ -349,7 +349,7 @@ $(function() {
 			});
 		}
 
-		var notif = data['notify'];
+		var notif = data['notification'];
 		if (notif > 0) {
 			$("#nav-notifications-linkmenu").addClass("on");
 		} else {
