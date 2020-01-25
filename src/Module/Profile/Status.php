@@ -42,8 +42,8 @@ class Status extends BaseModule
 
 		$dtFormat = DI::dtFormat();
 
-		if ($args->getArgc() > 2) {
-			for ($x = 2; $x < $args->getArgc(); $x++) {
+		if ($args->getArgc() > 3) {
+			for ($x = 3; $x < $args->getArgc(); $x++) {
 				if ($dtFormat->isYearMonth($args->get($x))) {
 					if ($datequery) {
 						$datequery2 = Strings::escapeHtml($args->get($x));
