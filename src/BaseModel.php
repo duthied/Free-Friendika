@@ -53,6 +53,11 @@ abstract class BaseModel
 		return $this->originalData;
 	}
 
+	public function resetOriginalData()
+	{
+		$this->originalData = $this->data;
+	}
+
 	/**
 	 * Performance-improved model creation in a loop
 	 *

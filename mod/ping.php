@@ -433,7 +433,7 @@ function ping_get_notifications($uid)
 				$notification["message"] = $notification["msg_cache"];
 			} else {
 				$notification["name"] = strip_tags(BBCode::convert($notification["name"]));
-				$notification["message"] = format_notification_message($notification["name"], strip_tags(BBCode::convert($notification["msg"])));
+				$notification["message"] = Friendica\Model\Notification::formatMessage($notification["name"], strip_tags(BBCode::convert($notification["msg"])));
 
 				q(
 					"UPDATE `notify` SET `name_cache` = '%s', `msg_cache` = '%s' WHERE `id` = %d",

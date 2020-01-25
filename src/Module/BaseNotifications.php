@@ -8,8 +8,8 @@ use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Notification;
 use Friendica\Network\HTTPException\ForbiddenException;
+use Friendica\Object\Notification\Notification;
 
 /**
  * Base Module for each tab of the notification display
@@ -47,6 +47,8 @@ abstract class BaseNotifications extends BaseModule
 
 	/** @var int The default count of items per page */
 	const ITEMS_PER_PAGE = 20;
+	/** @var int The default limit of notifications per page */
+	const DEFAULT_PAGE_LIMIT = 80;
 
 	/** @var boolean True, if ALL entries should get shown */
 	protected static $showAll;
@@ -104,7 +106,17 @@ abstract class BaseNotifications extends BaseModule
 			return;
 		}
 
-		System::jsonExit(static::getNotifications()['notifs'] ?? []);
+		// Set the pager
+		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
+
+		// Add additional informations (needed for json output)
+		$notifications = [
+			'notifications' => static::getNotifications(),
+			'items_page'    => $pager->getItemsPerPage(),
+			'page'          => $pager->getPage(),
+		];
+
+		System::jsonExit($notifications);
 	}
 
 	/**
