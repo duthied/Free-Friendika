@@ -41,7 +41,7 @@ use Friendica\Util\XML;
  *            "birthdays-today": 0,
  *            "groups": [ ],
  *            "forums": [ ],
- *            "notify": 0,
+ *            "notification": 0,
  *            "notifications": [ ],
  *            "sysmsgs": {
  *                "notice": [ ],
@@ -351,7 +351,7 @@ function ping_init(App $a)
 	if ($format == 'json') {
 		$data['groups'] = $groups_unseen;
 		$data['forums'] = $forums_unseen;
-		$data['notify'] = $sysnotify_count + $intro_count + $register_count;
+		$data['notification'] = $sysnotify_count + $intro_count + $register_count;
 		$data['notifications'] = $notifications;
 		$data['sysmsgs'] = [
 			'notice' => $sysmsgs,
