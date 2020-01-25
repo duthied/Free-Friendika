@@ -816,7 +816,7 @@ function item_post(App $a) {
 					'htmlVersion' => $message,
 					'textVersion' => HTML::toPlaintext($html.$disclaimer)
 				];
-				Emailer::send($params);
+				DI::emailer()->send($params);
 			}
 		}
 	}

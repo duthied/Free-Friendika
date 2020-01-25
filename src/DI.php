@@ -363,4 +363,12 @@ abstract class DI
 	{
 		return self::$dice->create(Util\Profiler::class);
 	}
+
+	/**
+	 * @return Util\Emailer
+	 */
+	public static function emailer()
+	{
+		return self::$dice->create(Util\Emailer::class);
+	}
 }

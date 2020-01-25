@@ -31,7 +31,7 @@ class Emailer
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function send(array $params)
+	public function send(array $params)
 	{
 		$params['sent'] = false;
 
