@@ -42,17 +42,17 @@ use Psr\Log\LoggerInterface;
  * @property-read string  $msg_html
  * @property-read string  $msg_plain
  */
-class Notification extends BaseModel
+class Notify extends BaseModel
 {
 	const OTYPE_ITEM   = 'item';
 	const OTYPE_INTRO  = 'intro';
 	const OTYPE_MAIL   = 'mail';
 	const OTYPE_PERSON = 'person';
 
-	/** @var \Friendica\Repository\Notification */
+	/** @var \Friendica\Repository\Notify */
 	private $repo;
 
-	public function __construct(Database $dba, LoggerInterface $logger, \Friendica\Repository\Notification $repo, array $data = [])
+	public function __construct(Database $dba, LoggerInterface $logger, \Friendica\Repository\Notify $repo, array $data = [])
 	{
 		parent::__construct($dba, $logger, $data);
 

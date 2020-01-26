@@ -31,7 +31,7 @@ class Notifications extends BaseNotifications
 			$notificationHeader = DI::l10n()->t('Network Notifications');
 			$notifications      = [
 				'ident'        => Notification::NETWORK,
-				'notifications' => DI::factNotification()->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => DI::notification()->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
 			];
 
 			// Get the system notifications
@@ -39,7 +39,7 @@ class Notifications extends BaseNotifications
 			$notificationHeader = DI::l10n()->t('System Notifications');
 			$notifications      = [
 				'ident'        => Notification::SYSTEM,
-				'notifications' => DI::factNotification()->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => DI::notification()->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
 			];
 
 			// Get the personal notifications
@@ -47,7 +47,7 @@ class Notifications extends BaseNotifications
 			$notificationHeader = DI::l10n()->t('Personal Notifications');
 			$notifications      = [
 				'ident'        => Notification::PERSONAL,
-				'notifications' => DI::factNotification()->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => DI::notification()->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
 			];
 
 			// Get the home notifications
@@ -55,7 +55,7 @@ class Notifications extends BaseNotifications
 			$notificationHeader = DI::l10n()->t('Home Notifications');
 			$notifications      = [
 				'ident'        => Notification::HOME,
-				'notifications' => DI::factNotification()->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+				'notifications' => DI::notification()->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
 			];
 			// fallback - redirect to main page
 		} else {

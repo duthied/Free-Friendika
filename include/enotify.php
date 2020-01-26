@@ -12,7 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\ItemContent;
-use Friendica\Model\Notification;
+use Friendica\Model\Notify;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
@@ -161,7 +161,7 @@ function notification($params)
 
 		// if it's a post figure out who's post it is.
 		$item = null;
-		if ($params['otype'] === Notification::OTYPE_ITEM && $parent_id) {
+		if ($params['otype'] === Notify::OTYPE_ITEM && $parent_id) {
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
 		}
 
@@ -483,7 +483,7 @@ function notification($params)
 	$notify_id = 0;
 
 	if ($show_in_notification_page) {
-		$notification = DI::notification()->insert([
+		$notification = DI::notify()->insert([
 			'name'   => $params['source_name'],
 			'url'    => $params['source_link'],
 			'photo'  => $params['source_photo'],
@@ -498,7 +498,7 @@ function notification($params)
 		$notification->link = DI::baseUrl() . '/notification/view/' . $notification->id;
 		$notification->msg  = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
 
-		DI::notification()->update($notification);
+		DI::notify()->update($notification);
 
 		$itemlink  = $notification->link;
 		$notify_id = $notification->id;

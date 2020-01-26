@@ -245,19 +245,19 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Factory\Notification\NotificationFactory
+	 * @return \Friendica\Factory\Notification\Notification
 	 */
-	public static function factNotification()
+	public static function notification()
 	{
-		return self::$dice->create(Factory\Notification\NotificationFactory::class);
+		return self::$dice->create(Factory\Notification\Notification::class);
 	}
 
 	/**
-	 * @return \Friendica\Factory\Notification\IntroductionFactory
+	 * @return \Friendica\Factory\Notification\Introduction
 	 */
-	public static function factNotIntro()
+	public static function notificationIntro()
 	{
-		return self::$dice->create(Factory\Notification\IntroductionFactory::class);
+		return self::$dice->create(Factory\Notification\Introduction::class);
 	}
 
 	//
@@ -273,11 +273,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Repository\Notification
+	 * @return Repository\Notify
 	 */
-	public static function notification()
+	public static function notify()
 	{
-		return self::$dice->create(Repository\Notification::class);
+		return self::$dice->create(Repository\Notify::class);
 	}
 
 	/**

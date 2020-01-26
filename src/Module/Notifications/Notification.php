@@ -24,7 +24,7 @@ class Notification extends BaseModule
 		// @TODO: Replace with parameter from router
 		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
 			try {
-				$success = DI::notification()->setAllSeen();
+				$success = DI::notify()->setAllSeen();
 			}catch (\Exception $e) {
 				$success = false;
 			}
@@ -48,7 +48,7 @@ class Notification extends BaseModule
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() > 2 && DI::args()->get(1) === 'view' && intval(DI::args()->get(2))) {
 			try {
-				$notification = DI::notification()->getByID(DI::args()->get(2));
+				$notification = DI::notify()->getByID(DI::args()->get(2));
 				$notification->setSeen();
 
 				if (!empty($notification->link)) {

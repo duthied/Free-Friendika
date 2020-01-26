@@ -10,28 +10,28 @@ use Friendica\Collection;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
 
-class Notification extends BaseRepository
+class Notify extends BaseRepository
 {
 	protected static $table_name = 'notify';
 
-	protected static $model_class = Model\Notification::class;
+	protected static $model_class = Model\Notify::class;
 
-	protected static $collection_class = Collection\Notifications::class;
+	protected static $collection_class = Collection\Notifies::class;
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return Model\Notification
+	 * @return Model\Notify
 	 */
 	protected function create(array $data)
 	{
-		return new Model\Notification($this->dba, $this->logger, $this, $data);
+		return new Model\Notify($this->dba, $this->logger, $this, $data);
 	}
 
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return Collection\Notifications
+	 * @return Collection\Notifies
 	 */
 	public function select(array $condition = [], array $params = [])
 	{
@@ -45,7 +45,7 @@ class Notification extends BaseRepository
 	/**
 	 * {@inheritDoc}
 	 *
-	 * @return Model\Notification
+	 * @return Model\Notify
 	 * @throws NotFoundException
 	 */
 	public function getByID(int $id)
@@ -67,7 +67,7 @@ class Notification extends BaseRepository
 	/**
 	 * @param array $fields
 	 *
-	 * @return Model\Notification
+	 * @return Model\Notify
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws Exception

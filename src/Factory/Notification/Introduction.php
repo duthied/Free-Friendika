@@ -15,7 +15,7 @@ use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseNotifications;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Object\Notification\Introduction;
+use Friendica\Object;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
 
@@ -25,7 +25,7 @@ use Psr\Log\LoggerInterface;
  * - Friend suggestion
  * - Friend/Follower request
  */
-class IntroductionFactory extends BaseFactory
+class Introduction extends BaseFactory
 {
 	/** @var Database */
 	private $dba;
@@ -61,7 +61,7 @@ class IntroductionFactory extends BaseFactory
 	 * @param int  $limit   Maximum number of query results
 	 * @param int  $id      When set, only the introduction with this id is displayed
 	 *
-	 * @return Introduction[]
+	 * @return Object\Notification\Introduction[]
 	 */
 	public function getList(bool $all = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT, int $id = 0)
 	{

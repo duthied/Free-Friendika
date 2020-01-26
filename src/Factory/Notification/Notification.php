@@ -16,7 +16,7 @@ use Friendica\Model\Item;
 use Friendica\Module\BaseNotifications;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Protocol\Activity;
-use Friendica\Repository\Notification;
+use Friendica\Repository;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy;
 use Friendica\Util\Temporal;
@@ -31,11 +31,11 @@ use Psr\Log\LoggerInterface;
  * - home
  * - personal
  */
-class NotificationFactory extends BaseFactory
+class Notification extends BaseFactory
 {
 	/** @var Database */
 	private $dba;
-	/** @var Notification */
+	/** @var Repository\Notify */
 	private $notification;
 	/** @var BaseURL */
 	private $baseUrl;
@@ -44,7 +44,7 @@ class NotificationFactory extends BaseFactory
 	/** @var string */
 	private $nurl;
 
-	public function __construct(LoggerInterface $logger, Database $dba, Notification $notification, BaseURL $baseUrl, L10n $l10n, App $app, IPConfig $pConfig, ISession $session)
+	public function __construct(LoggerInterface $logger, Database $dba, Repository\Notify $notification, BaseURL $baseUrl, L10n $l10n, App $app, IPConfig $pConfig, ISession $session)
 	{
 		parent::__construct($logger);
 

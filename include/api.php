@@ -23,7 +23,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
-use Friendica\Model\Notification;
+use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -5907,7 +5907,7 @@ function api_friendica_notification($type)
 		throw new BadRequestException("Invalid argument count");
 	}
 
-	$notifications = DI::notification()->select(['uid' => api_user()], ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50]);
+	$notifications = DI::notify()->select(['uid' => api_user()], ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50]);
 
 	if ($type == "xml") {
 		$xmlnotes = false;
@@ -5955,10 +5955,10 @@ function api_friendica_notification_seen($type)
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
 	try {
-		$notification = DI::notification()->getByID($id);
+		$notification = DI::notify()->getByID($id);
 		$notification->setSeen();
 
-		if ($notification->otype === Notification::OTYPE_ITEM) {
+		if ($notification->otype === Notify::OTYPE_ITEM) {
 			$item = Item::selectFirstForUser(api_user(), [], ['id' => $notification->iid, 'uid' => api_user()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
