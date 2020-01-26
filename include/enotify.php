@@ -512,19 +512,19 @@ function notification($params)
 		Logger::log('sending notification email');
 
 		if (isset($params['parent']) && (intval($params['parent']) != 0)) {
-			$id_for_parent = $params['parent']."@".$hostname;
+			$id_for_parent = $params['parent'] . "@" . $hostname;
 
 			// Is this the first email notification for this parent item and user?
 			if (!DBA::exists('notify-threads', ['master-parent-item' => $params['parent'], 'receiver-uid' => $params['uid']])) {
-				Logger::log("notify_id:".intval($notify_id).", parent: ".intval($params['parent'])."uid: ".intval($params['uid']), Logger::DEBUG);
+				Logger::log("notify_id:" . intval($notify_id) . ", parent: " . intval($params['parent']) . "uid: " . intval($params['uid']), Logger::DEBUG);
 
-				$fields = ['notify-id' => $notify_id, 'master-parent-item' => $params['parent'],
-					'receiver-uid' => $params['uid'], 'parent-item' => 0];
+				$fields = ['notify-id'    => $notify_id, 'master-parent-item' => $params['parent'],
+				           'receiver-uid' => $params['uid'], 'parent-item' => 0];
 				DBA::insert('notify-threads', $fields);
 
 				$additional_mail_header .= "Message-ID: <${id_for_parent}>\n";
-				$log_msg = "include/enotify: No previous notification found for this parent:\n".
-						"  parent: ${params['parent']}\n"."  uid   : ${params['uid']}\n";
+				$log_msg                = "include/enotify: No previous notification found for this parent:\n" .
+				                          "  parent: ${params['parent']}\n" . "  uid   : ${params['uid']}\n";
 				Logger::log($log_msg, Logger::DEBUG);
 			} else {
 				// If not, just "follow" the thread.
@@ -536,30 +536,30 @@ function notification($params)
 		$textversion = BBCode::toPlaintext($body);
 		$htmlversion = BBCode::convert($body);
 
-		$datarray = [];
-		$datarray['banner'] = $banner;
-		$datarray['product'] = $product;
-		$datarray['preamble'] = $preamble;
-		$datarray['sitename'] = $sitename;
-		$datarray['siteurl'] = $siteurl;
-		$datarray['type'] = $params['type'];
-		$datarray['parent'] = $parent_id;
-		$datarray['source_name'] = $params['source_name'] ?? '';
-		$datarray['source_link'] = $params['source_link'] ?? '';
+		$datarray                 = [];
+		$datarray['banner']       = $banner;
+		$datarray['product']      = $product;
+		$datarray['preamble']     = $preamble;
+		$datarray['sitename']     = $sitename;
+		$datarray['siteurl']      = $siteurl;
+		$datarray['type']         = $params['type'];
+		$datarray['parent']       = $parent_id;
+		$datarray['source_name']  = $params['source_name'] ?? '';
+		$datarray['source_link']  = $params['source_link'] ?? '';
 		$datarray['source_photo'] = $params['source_photo'] ?? '';
-		$datarray['uid'] = $params['uid'];
-		$datarray['username'] = $params['to_name'] ?? '';
-		$datarray['hsitelink'] = $hsitelink;
-		$datarray['tsitelink'] = $tsitelink;
-		$datarray['hitemlink'] = '<a href="'.$itemlink.'">'.$itemlink.'</a>';
-		$datarray['titemlink'] = $itemlink;
-		$datarray['thanks'] = $thanks;
-		$datarray['site_admin'] = $site_admin;
-		$datarray['title'] = stripslashes($title);
-		$datarray['htmlversion'] = $htmlversion;
-		$datarray['textversion'] = $textversion;
-		$datarray['subject'] = $subject;
-		$datarray['headers'] = $additional_mail_header;
+		$datarray['uid']          = $params['uid'];
+		$datarray['username']     = $params['to_name'] ?? '';
+		$datarray['hsitelink']    = $hsitelink;
+		$datarray['tsitelink']    = $tsitelink;
+		$datarray['hitemlink']    = '<a href="' . $itemlink . '">' . $itemlink . '</a>';
+		$datarray['titemlink']    = $itemlink;
+		$datarray['thanks']       = $thanks;
+		$datarray['site_admin']   = $site_admin;
+		$datarray['title']        = stripslashes($title);
+		$datarray['htmlversion']  = $htmlversion;
+		$datarray['textversion']  = $textversion;
+		$datarray['subject']      = $subject;
+		$datarray['headers']      = $additional_mail_header;
 
 		Hook::callAll('enotify_mail', $datarray);
 
@@ -568,59 +568,52 @@ function notification($params)
 		$content_allowed = ((!DI::config()->get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
-		$tpl = Renderer::getMarkupTemplate('email_notify_html.tpl');
+		$tpl             = Renderer::getMarkupTemplate('email_notify_html.tpl');
 		$email_html_body = Renderer::replaceMacros($tpl, [
-			'$banner'       => $datarray['banner'],
-			'$product'      => $datarray['product'],
-			'$preamble'     => str_replace("\n", "<br>\n", $datarray['preamble']),
-			'$sitename'     => $datarray['sitename'],
-			'$siteurl'      => $datarray['siteurl'],
-			'$source_name'  => $datarray['source_name'],
-			'$source_link'  => $datarray['source_link'],
-			'$source_photo' => $datarray['source_photo'],
-			'$username'     => $datarray['username'],
-			'$hsitelink'    => $datarray['hsitelink'],
-			'$hitemlink'    => $datarray['hitemlink'],
-			'$thanks'       => $datarray['thanks'],
-			'$site_admin'   => $datarray['site_admin'],
-			'$title'	=> $datarray['title'],
-			'$htmlversion'	=> $datarray['htmlversion'],
-			'$content_allowed'	=> $content_allowed,
+			'$banner'          => $datarray['banner'],
+			'$product'         => $datarray['product'],
+			'$preamble'        => str_replace("\n", "<br>\n", $datarray['preamble']),
+			'$sitename'        => $datarray['sitename'],
+			'$siteurl'         => $datarray['siteurl'],
+			'$source_name'     => $datarray['source_name'],
+			'$source_link'     => $datarray['source_link'],
+			'$source_photo'    => $datarray['source_photo'],
+			'$username'        => $datarray['username'],
+			'$hsitelink'       => $datarray['hsitelink'],
+			'$hitemlink'       => $datarray['hitemlink'],
+			'$thanks'          => $datarray['thanks'],
+			'$site_admin'      => $datarray['site_admin'],
+			'$title'           => $datarray['title'],
+			'$htmlversion'     => $datarray['htmlversion'],
+			'$content_allowed' => $content_allowed,
 		]);
 
 		// load the template for private message notifications
-		$tpl = Renderer::getMarkupTemplate('email_notify_text.tpl');
+		$tpl             = Renderer::getMarkupTemplate('email_notify_text.tpl');
 		$email_text_body = Renderer::replaceMacros($tpl, [
-			'$banner'       => $datarray['banner'],
-			'$product'      => $datarray['product'],
-			'$preamble'     => $datarray['preamble'],
-			'$sitename'     => $datarray['sitename'],
-			'$siteurl'      => $datarray['siteurl'],
-			'$source_name'  => $datarray['source_name'],
-			'$source_link'  => $datarray['source_link'],
-			'$source_photo' => $datarray['source_photo'],
-			'$username'     => $datarray['username'],
-			'$tsitelink'    => $datarray['tsitelink'],
-			'$titemlink'    => $datarray['titemlink'],
-			'$thanks'       => $datarray['thanks'],
-			'$site_admin'   => $datarray['site_admin'],
-			'$title'	=> $datarray['title'],
-			'$textversion'	=> $datarray['textversion'],
-			'$content_allowed'	=> $content_allowed,
+			'$banner'          => $datarray['banner'],
+			'$product'         => $datarray['product'],
+			'$preamble'        => $datarray['preamble'],
+			'$sitename'        => $datarray['sitename'],
+			'$siteurl'         => $datarray['siteurl'],
+			'$source_name'     => $datarray['source_name'],
+			'$source_link'     => $datarray['source_link'],
+			'$source_photo'    => $datarray['source_photo'],
+			'$username'        => $datarray['username'],
+			'$tsitelink'       => $datarray['tsitelink'],
+			'$titemlink'       => $datarray['titemlink'],
+			'$thanks'          => $datarray['thanks'],
+			'$site_admin'      => $datarray['site_admin'],
+			'$title'           => $datarray['title'],
+			'$textversion'     => $datarray['textversion'],
+			'$content_allowed' => $content_allowed,
 		]);
 
 		// use the Emailer class to send the message
-		return DI::emailer()->send([
-			'uid' => $params['uid'],
-			'fromName' => $sender_name,
-			'fromEmail' => $sender_email,
-			'replyTo' => $sender_email,
-			'toEmail' => $params['to_email'],
-			'messageSubject' => $datarray['subject'],
-			'htmlVersion' => $email_html_body,
-			'textVersion' => $email_text_body,
-			'additionalMailHeader' => $datarray['headers']
-		]);
+		return DI::emailer()->send($sender_name, $sender_email, $sender_email, $params['to_email'],
+			$datarray['subject'], $email_html_body, $email_text_body,
+			$datarray['headers'], $params['uid']
+		);
 	}
 
 	return false;

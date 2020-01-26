@@ -31,7 +31,9 @@ class Emailer
 	 * @return bool
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function send(array $params)
+	public function send(string $fromName, string $fromEmail, string $replyTo, string $toEmail,
+	                     string $subject, string $msgHtml, string $msgText,
+	                     string $additionalMailHeader = '', int $uid = null)
 	{
 		$params['sent'] = false;
 
@@ -42,12 +44,12 @@ class Emailer
 		}
 
 		$email_textonly = false;
-		if (!empty($params['uid'])) {
-			$email_textonly = DI::pConfig()->get($params['uid'], "system", "email_textonly");
+		if (!empty($uid)) {
+			$email_textonly = DI::pConfig()->get($uid, "system", "email_textonly");
 		}
 
-		$fromName = Email::encodeHeader(html_entity_decode($params['fromName'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$messageSubject = Email::encodeHeader(html_entity_decode($params['messageSubject'], ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$fromName = Email::encodeHeader(html_entity_decode($fromName, ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$messageSubject = Email::encodeHeader(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
 		// generate a mime boundary
 		$mimeBoundary   =rand(0, 9)."-"
@@ -56,21 +58,21 @@ class Emailer
 				.rand(10000, 99999);
 
 		// generate a multipart/alternative message header
-		$messageHeader = ($params['additionalMailHeader'] ?? '') .
-						"From: $fromName <{$params['fromEmail']}>\n" .
-						"Reply-To: $fromName <{$params['replyTo']}>\n" .
+		$messageHeader = $additionalMailHeader .
+						"From: $fromName <{$fromEmail}>\n" .
+						"Reply-To: $fromName <{$replyTo}>\n" .
 						"MIME-Version: 1.0\n" .
 						"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
-		$textBody	=	chunk_split(base64_encode($params['textVersion']));
-		$htmlBody	=	chunk_split(base64_encode($params['htmlVersion']));
+		$textBody	=	chunk_split(base64_encode($msgText));
+		$htmlBody	=	chunk_split(base64_encode($msgHtml));
 		$multipartMessageBody =	"--" . $mimeBoundary . "\n" .					// plain text section
 								"Content-Type: text/plain; charset=UTF-8\n" .
 								"Content-Transfer-Encoding: base64\n\n" .
 								$textBody . "\n";
 
-		if (!$email_textonly && !is_null($params['htmlVersion'])) {
+		if (!$email_textonly && !is_null($msgHtml)) {
 			$multipartMessageBody .=
 				"--" . $mimeBoundary . "\n" .				// text/html section
 				"Content-Type: text/html; charset=UTF-8\n" .
@@ -81,14 +83,14 @@ class Emailer
 			"--" . $mimeBoundary . "--\n";					// message ending
 
 		if (DI::config()->get("system", "sendmail_params", true)) {
-			$sendmail_params = '-f ' . $params['fromEmail'];
+			$sendmail_params = '-f ' . $fromEmail;
 		} else {
 			$sendmail_params = null;
 		}
 
 		// send the message
 		$hookdata = [
-			'to' => $params['toEmail'],
+			'to' => $toEmail,
 			'subject' => $messageSubject,
 			'body' => $multipartMessageBody,
 			'headers' => $messageHeader,
@@ -109,7 +111,7 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		Logger::log("header " . 'To: ' . $params['toEmail'] . "\n" . $messageHeader, Logger::DEBUG);
+		Logger::log("header " . 'To: ' . $toEmail . "\n" . $messageHeader, Logger::DEBUG);
 		Logger::log("return value " . (($res)?"true":"false"), Logger::DEBUG);
 		return $res;
 	}

@@ -796,27 +796,20 @@ function item_post(App $a) {
 					continue;
 				}
 				$disclaimer = '<hr />' . DI::l10n()->t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
-					. '<br />';
+				              . '<br />';
 				$disclaimer .= DI::l10n()->t('You may visit them online at %s', DI::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
 				$disclaimer .= DI::l10n()->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
-				if (!$datarray['title']=='') {
+				if (!$datarray['title'] == '') {
 					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
 				} else {
 					$subject = Email::encodeHeader('[Friendica]' . ' ' . DI::l10n()->t('%s posted an update.', $a->user['username']), 'UTF-8');
 				}
-				$link = '<a href="' . DI::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
+				$link    = '<a href="' . DI::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 				$html    = Item::prepareBody($datarray);
-				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
-				$params =  [
-					'fromName' => $a->user['username'],
-					'fromEmail' => $a->user['email'],
-					'toEmail' => $addr,
-					'replyTo' => $a->user['email'],
-					'messageSubject' => $subject,
-					'htmlVersion' => $message,
-					'textVersion' => HTML::toPlaintext($html.$disclaimer)
-				];
-				DI::emailer()->send($params);
+				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';;
+				DI::emailer()->send($a->user['username'], $a->user['email'], $a->user['email'], $addr,
+					$subject, $message, HTML::toPlaintext($html . $disclaimer)
+				);
 			}
 		}
 	}
