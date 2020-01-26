@@ -63,7 +63,7 @@ class IntroductionFactory extends BaseFactory
 	 *
 	 * @return Introduction[]
 	 */
-	public function getIntroList(bool $all = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT, int $id = 0)
+	public function getList(bool $all = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT, int $id = 0)
 	{
 		$sql_extra     = "";
 
@@ -128,7 +128,7 @@ class IntroductionFactory extends BaseFactory
 
 					// Normal connection requests
 				} else {
-					$notification = $this->getMissingIntroData($notification);
+					$notification = $this->getMissingData($notification);
 
 					if (empty($notification['url'])) {
 						continue;
@@ -182,7 +182,7 @@ class IntroductionFactory extends BaseFactory
 	 *
 	 * @throws InternalServerErrorException
 	 */
-	private function getMissingIntroData(array $intro)
+	private function getMissingData(array $intro)
 	{
 		// If the network and the addr isn't available from the gcontact
 		// table entry, take the one of the contact table entry

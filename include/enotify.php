@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\ItemContent;
+use Friendica\Model\Notification;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
@@ -160,7 +161,7 @@ function notification($params)
 
 		// if it's a post figure out who's post it is.
 		$item = null;
-		if ($params['otype'] === 'item' && $parent_id) {
+		if ($params['otype'] === Notification::OTYPE_ITEM && $parent_id) {
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
 		}
 

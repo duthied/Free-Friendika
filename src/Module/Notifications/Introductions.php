@@ -26,7 +26,7 @@ class Introductions extends BaseNotifications
 
 		$notifications = [
 			'ident'         => 'introductions',
-			'notifications' => DI::factNotIntro()->getIntroList($all, self::$firstItemNum, self::ITEMS_PER_PAGE, $id),
+			'notifications' => DI::factNotIntro()->getList($all, self::$firstItemNum, self::ITEMS_PER_PAGE, $id),
 		];
 
 		return [
