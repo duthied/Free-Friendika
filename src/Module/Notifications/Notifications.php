@@ -3,10 +3,10 @@
 namespace Friendica\Module\Notifications;
 
 use Friendica\Content\Nav;
-use Friendica\Content\Pager;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Module\BaseNotifications;
+use Friendica\Object\Notification\Notification;
 
 /**
  * Prints all notification types except introduction:
@@ -22,40 +22,45 @@ class Notifications extends BaseNotifications
 	 */
 	public static function getNotifications()
 	{
-		$nm = DI::notification();
-
 		$notificationHeader = '';
+		/** @var Notification[] $notifications */
+		$notifications = [];
 
 		// Get the network notifications
 		if ((DI::args()->get(1) == 'network')) {
 			$notificationHeader = DI::l10n()->t('Network Notifications');
-			$notifications      = $nm->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notifications      = [
+				'ident'        => Notification::NETWORK,
+				'notifications' => DI::notification()->getNetworkList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+			];
 
 			// Get the system notifications
 		} elseif ((DI::args()->get(1) == 'system')) {
 			$notificationHeader = DI::l10n()->t('System Notifications');
-			$notifications      = $nm->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notifications      = [
+				'ident'        => Notification::SYSTEM,
+				'notifications' => DI::notification()->getSystemList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+			];
 
 			// Get the personal notifications
 		} elseif ((DI::args()->get(1) == 'personal')) {
 			$notificationHeader = DI::l10n()->t('Personal Notifications');
-			$notifications      = $nm->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notifications      = [
+				'ident'        => Notification::PERSONAL,
+				'notifications' => DI::notification()->getPersonalList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+			];
 
 			// Get the home notifications
 		} elseif ((DI::args()->get(1) == 'home')) {
 			$notificationHeader = DI::l10n()->t('Home Notifications');
-			$notifications      = $nm->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE);
+			$notifications      = [
+				'ident'        => Notification::HOME,
+				'notifications' => DI::notification()->getHomeList(self::$showAll, self::$firstItemNum, self::ITEMS_PER_PAGE),
+			];
 			// fallback - redirect to main page
 		} else {
 			DI::baseUrl()->redirect('notifications');
 		}
-
-		// Set the pager
-		$pager = new Pager(DI::args()->getQueryString(), self::ITEMS_PER_PAGE);
-
-		// Add additional informations (needed for json output)
-		$notifications['items_page'] = $pager->getItemsPerPage();
-		$notifications['page']       = $pager->getPage();
 
 		return [
 			'header'        => $notificationHeader,
@@ -78,6 +83,7 @@ class Notifications extends BaseNotifications
 		if (!empty($notifications['notifications'])) {
 			// Loop trough ever notification This creates an array with the output html for each
 			// notification and apply the correct template according to the notificationtype (label).
+			/** @var Notification $notification */
 			foreach ($notifications['notifications'] as $notification) {
 				$notification_templates = [
 					'like'         => 'notifications/likes_item.tpl',
@@ -91,17 +97,17 @@ class Notifications extends BaseNotifications
 					'notification' => 'notifications/notification.tpl',
 				];
 
-				$notificationTemplate = Renderer::getMarkupTemplate($notification_templates[$notification['label']]);
+				$notificationTemplate = Renderer::getMarkupTemplate($notification_templates[$notification->getLabel()]);
 
 				$notificationContent[] = Renderer::replaceMacros($notificationTemplate, [
-					'$item_label' => $notification['label'],
-					'$item_link'  => $notification['link'],
-					'$item_image' => $notification['image'],
-					'$item_url'   => $notification['url'],
-					'$item_text'  => $notification['text'],
-					'$item_when'  => $notification['when'],
-					'$item_ago'   => $notification['ago'],
-					'$item_seen'  => $notification['seen'],
+					'$item_label' => $notification->getLabel(),
+					'$item_link'  => $notification->getLink(),
+					'$item_image' => $notification->getImage(),
+					'$item_url'   => $notification->getUrl(),
+					'$item_text'  => $notification->getText(),
+					'$item_when'  => $notification->getWhen(),
+					'$item_ago'   => $notification->getAgo(),
+					'$item_seen'  => $notification->isSeen(),
 				]);
 			}
 		} else {

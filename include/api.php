@@ -23,6 +23,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
+use Friendica\Model\Notify;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -5905,19 +5906,25 @@ function api_friendica_notification($type)
 	if ($a->argc!==3) {
 		throw new BadRequestException("Invalid argument count");
 	}
-	$notes = DI::notification()->getAll([], ['seen' => 'ASC', 'date' => 'DESC'], 50);
+
+	$notifications = DI::notify()->select(['uid' => api_user()], ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50]);
 
 	if ($type == "xml") {
-		$xmlnotes = [];
-		if (!empty($notes)) {
-			foreach ($notes as $note) {
-				$xmlnotes[] = ["@attributes" => $note];
+		$xmlnotes = false;
+		if (!empty($notifications)) {
+			foreach ($notifications as $notification) {
+				$xmlnotes[] = ["@attributes" => $notification->toArray()];
 			}
 		}
 
-		$notes = $xmlnotes;
+		$result = $xmlnotes;
+	} elseif (count($notifications) > 0) {
+		$result = $notifications->getArrayCopy();
+	} else {
+		$result = false;
 	}
-	return api_format_data("notes", $type, ['note' => $notes]);
+
+	return api_format_data("notes", $type, ['note' => $result]);
 }
 
 /**
@@ -5935,37 +5942,36 @@ function api_friendica_notification($type)
  */
 function api_friendica_notification_seen($type)
 {
-	$a = DI::app();
+	$a         = DI::app();
 	$user_info = api_get_user($a);
 
 	if (api_user() === false || $user_info === false) {
 		throw new ForbiddenException();
 	}
-	if ($a->argc!==4) {
+	if ($a->argc !== 4) {
 		throw new BadRequestException("Invalid argument count");
 	}
 
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
-	$nm = DI::notification();
-	$note = $nm->getByID($id);
-	if (is_null($note)) {
-		throw new BadRequestException("Invalid argument");
-	}
+	try {
+		$notification = DI::notify()->getByID($id);
+		$notification->setSeen();
 
-	$nm->setSeen($note);
-	if ($note['otype']=='item') {
-		// would be really better with an ItemsManager and $im->getByID() :-P
-		$item = Item::selectFirstForUser(api_user(), [], ['id' => $note['iid'], 'uid' => api_user()]);
-		if (DBA::isResult($item)) {
-			// we found the item, return it to the user
-			$ret = api_format_items([$item], $user_info, false, $type);
-			$data = ['status' => $ret];
-			return api_format_data("status", $type, $data);
+		if ($notification->otype === Notify::OTYPE_ITEM) {
+			$item = Item::selectFirstForUser(api_user(), [], ['id' => $notification->iid, 'uid' => api_user()]);
+			if (DBA::isResult($item)) {
+				// we found the item, return it to the user
+				$ret  = api_format_items([$item], $user_info, false, $type);
+				$data = ['status' => $ret];
+				return api_format_data("status", $type, $data);
+			}
+			// the item can't be found, but we set the notification as seen, so we count this as a success
 		}
-		// the item can't be found, but we set the note as seen, so we count this as a success
+		return api_format_data('result', $type, ['result' => "success"]);
+	} catch (NotFoundException $e) {
+		throw new BadRequestException('Invalid argument');
 	}
-	return api_format_data('result', $type, ['result' => "success"]);
 }
 
 /// @TODO move to top of file or somewhere better

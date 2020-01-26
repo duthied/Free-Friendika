@@ -12,6 +12,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\ItemContent;
+use Friendica\Model\Notify;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
 use Friendica\Protocol\Activity;
@@ -160,7 +161,7 @@ function notification($params)
 
 		// if it's a post figure out who's post it is.
 		$item = null;
-		if ($params['otype'] === 'item' && $parent_id) {
+		if ($params['otype'] === Notify::OTYPE_ITEM && $parent_id) {
 			$item = Item::selectFirstForUser($params['uid'], Item::ITEM_FIELDLIST, ['id' => $parent_id, 'deleted' => false]);
 		}
 
@@ -482,47 +483,25 @@ function notification($params)
 	$notify_id = 0;
 
 	if ($show_in_notification_page) {
-		Logger::log("adding notification entry", Logger::DEBUG);
+		$notification = DI::notify()->insert([
+			'name'   => $params['source_name'],
+			'url'    => $params['source_link'],
+			'photo'  => $params['source_photo'],
+			'uid'    => $params['uid'],
+			'iid'    => $item_id,
+			'parent' => $parent_id,
+			'type'   => $params['type'],
+			'verb'   => $params['verb'],
+			'otype'  => $params['otype'],
+		]);
 
-		/// @TODO One statement is enough
-		$datarray = [];
-		$datarray['name']  = $params['source_name'];
-		$datarray['name_cache'] = strip_tags(BBCode::convert($params['source_name']));
-		$datarray['url']   = $params['source_link'];
-		$datarray['photo'] = $params['source_photo'];
-		$datarray['date']  = DateTimeFormat::utcNow();
-		$datarray['uid']   = $params['uid'];
-		$datarray['link']  = $itemlink;
-		$datarray['iid']   = $item_id;
-		$datarray['parent'] = $parent_id;
-		$datarray['type']  = $params['type'];
-		$datarray['verb']  = $params['verb'];
-		$datarray['otype'] = $params['otype'];
-		$datarray['abort'] = false;
+		$notification->link = DI::baseUrl() . '/notification/view/' . $notification->id;
+		$notification->msg  = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
 
-		Hook::callAll('enotify_store', $datarray);
+		DI::notify()->update($notification);
 
-		if ($datarray['abort']) {
-			return false;
-		}
-
-		// create notification entry in DB
-		$fields = ['name' => $datarray['name'], 'url' => $datarray['url'],
-			'photo' => $datarray['photo'], 'date' => $datarray['date'], 'uid' => $datarray['uid'],
-			'link' => $datarray['link'], 'iid' => $datarray['iid'], 'parent' => $datarray['parent'],
-			'type' => $datarray['type'], 'verb' => $datarray['verb'], 'otype' => $datarray['otype'],
-			'name_cache' => $datarray["name_cache"]];
-		DBA::insert('notify', $fields);
-
-		$notify_id = DBA::lastInsertId();
-
-		$itemlink = DI::baseUrl().'/notification/view/'.$notify_id;
-		$msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $itemlink]);
-		$msg_cache = format_notification_message($datarray['name_cache'], strip_tags(BBCode::convert($msg)));
-
-		$fields = ['msg' => $msg, 'msg_cache' => $msg_cache];
-		$condition = ['id' => $notify_id, 'uid' => $params['uid']];
-		DBA::update('notify', $fields, $condition);
+		$itemlink  = $notification->link;
+		$notify_id = $notification->id;
 	}
 
 	// send email notification if notification preferences permit
@@ -731,28 +710,4 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	}
 
 	notification($params);
-}
-
-/**
- * Formats a notification message with the notification author
- *
- * Replace the name with {0} but ensure to make that only once. The {0} is used
- * later and prints the name in bold.
- *
- * @param string $name
- * @param string $message
- * @return string Formatted message
- */
-function format_notification_message($name, $message) {
-	if ($name != '') {
-		$pos = strpos($message, $name);
-	} else {
-		$pos = false;
-	}
-
-	if ($pos !== false) {
-		$message = substr_replace($message, '{0}', $pos, strlen($name));
-	}
-
-	return $message;
 }

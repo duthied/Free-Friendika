@@ -122,7 +122,12 @@ abstract class BaseRepository extends BaseFactory
 	 */
 	public function update(BaseModel $model)
 	{
-		return $this->dba->update(static::$table_name, $model->toArray(), ['id' => $model->id], $model->getOriginalData());
+		if ($this->dba->update(static::$table_name, $model->toArray(), ['id' => $model->id], $model->getOriginalData())) {
+			$model->resetOriginalData();
+			return true;
+		}
+
+		return false;
 	}
 
 	/**

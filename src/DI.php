@@ -244,6 +244,22 @@ abstract class DI
 		return self::$dice->create(Factory\Mastodon\Relationship::class);
 	}
 
+	/**
+	 * @return \Friendica\Factory\Notification\Notification
+	 */
+	public static function notification()
+	{
+		return self::$dice->create(Factory\Notification\Notification::class);
+	}
+
+	/**
+	 * @return \Friendica\Factory\Notification\Introduction
+	 */
+	public static function notificationIntro()
+	{
+		return self::$dice->create(Factory\Notification\Introduction::class);
+	}
+
 	//
 	// "Model" namespace instances
 	//
@@ -257,11 +273,11 @@ abstract class DI
 	}
 
 	/**
-	 * @return Model\Notification
+	 * @return Repository\Notify
 	 */
-	public static function notification()
+	public static function notify()
 	{
-		return self::$dice->create(Model\Notification::class);
+		return self::$dice->create(Repository\Notify::class);
 	}
 
 	/**

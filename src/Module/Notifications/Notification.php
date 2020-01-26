@@ -23,7 +23,11 @@ class Notification extends BaseModule
 	{
 		// @TODO: Replace with parameter from router
 		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
-			$success = DI::notification()->setAllSeen();
+			try {
+				$success = DI::notify()->setAllSeen();
+			}catch (\Exception $e) {
+				$success = false;
+			}
 
 			header('Content-type: application/json; charset=utf-8');
 			echo json_encode([
@@ -43,14 +47,16 @@ class Notification extends BaseModule
 	{
 		// @TODO: Replace with parameter from router
 		if (DI::args()->getArgc() > 2 && DI::args()->get(1) === 'view' && intval(DI::args()->get(2))) {
-			$notificationManager = DI::notification();
-			// @TODO: Replace with parameter from router
-			$note = $notificationManager->getByID(DI::args()->get(2));
-			if (!empty($note)) {
-				$notificationManager->setSeen($note);
-				if (!empty($note['link'])) {
-					System::externalRedirect($note['link']);
+			try {
+				$notification = DI::notify()->getByID(DI::args()->get(2));
+				$notification->setSeen();
+
+				if (!empty($notification->link)) {
+					System::externalRedirect($notification->link);
 				}
+
+			} catch (HTTPException\NotFoundException $e) {
+				info(DI::l10n()->t('Invalid notification.'));
 			}
 
 			DI::baseUrl()->redirect();
