@@ -18,7 +18,6 @@
 use Friendica\App;
 use Friendica\Content\Pager;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Core\Hook;
 use Friendica\Core\Logger;
 use Friendica\Core\Protocol;
@@ -34,11 +33,10 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Term;
+use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
-use Friendica\Protocol\Email;
 use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Emailer;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
@@ -788,35 +786,15 @@ function item_post(App $a) {
 	Hook::callAll('post_local_end', $datarray);
 
 	if (strlen($emailcc) && $profile_uid == local_user()) {
-		$erecips = explode(',', $emailcc);
-		if (count($erecips)) {
-			foreach ($erecips as $recip) {
-				$addr = trim($recip);
-				if (!strlen($addr)) {
+		$recipients = explode(',', $emailcc);
+		if (count($recipients)) {
+			foreach ($recipients as $recipient) {
+				$address = trim($recipient);
+				if (!strlen($address)) {
 					continue;
 				}
-				$disclaimer = '<hr />' . DI::l10n()->t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
-					. '<br />';
-				$disclaimer .= DI::l10n()->t('You may visit them online at %s', DI::baseUrl() . '/profile/' . $a->user['nickname']) . EOL;
-				$disclaimer .= DI::l10n()->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
-				if (!$datarray['title']=='') {
-					$subject = Email::encodeHeader($datarray['title'], 'UTF-8');
-				} else {
-					$subject = Email::encodeHeader('[Friendica]' . ' ' . DI::l10n()->t('%s posted an update.', $a->user['username']), 'UTF-8');
-				}
-				$link = '<a href="' . DI::baseUrl() . '/profile/' . $a->user['nickname'] . '"><img src="' . $author['thumb'] . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
-				$html    = Item::prepareBody($datarray);
-				$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';
-				$params =  [
-					'fromName' => $a->user['username'],
-					'fromEmail' => $a->user['email'],
-					'toEmail' => $addr,
-					'replyTo' => $a->user['email'],
-					'messageSubject' => $subject,
-					'htmlVersion' => $message,
-					'textVersion' => HTML::toPlaintext($html.$disclaimer)
-				];
-				Emailer::send($params);
+				DI::emailer()->send(new ItemCCEMail(DI::app(), DI::l10n(), DI::baseUrl(),
+					$datarray, $address, $author['thumb'] ?? ''));
 			}
 		}
 	}
