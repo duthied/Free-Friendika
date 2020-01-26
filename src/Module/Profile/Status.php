@@ -206,7 +206,13 @@ class Status extends BaseProfile
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', false, false, 'received', $a->profile['uid']);
+		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
+			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned']);
+			$pinned = Item::inArray($pinned_items);
+			$items = array_merge($items, $pinned);
+		}
+
+		$o .= conversation($a, $items, $pager, 'profile', false, false, 'pinned_received', $a->profile['uid']);
 
 		$o .= $pager->renderMinimal(count($items));
 
