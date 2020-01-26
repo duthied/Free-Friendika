@@ -33,14 +33,14 @@ class Email implements IEmail
 	/** @var int|null */
 	private $toUid = null;
 
-	public function __construct(string $fromName, string $fromEmail, string $replyTo, string $toEmail,
+	public function __construct(string $fromName, string $fromAddress, string $replyTo, string $toAddress,
 	                            string $subject, string $msgHtml, string $msgText,
 	                            string $additionalMailHeader = '', int $toUid = null)
 	{
 		$this->fromName             = $fromName;
-		$this->fromAddress          = $fromEmail;
+		$this->fromAddress          = $fromAddress;
 		$this->replyTo              = $replyTo;
-		$this->toAddress            = $toEmail;
+		$this->toAddress            = $toAddress;
 		$this->subject              = $subject;
 		$this->msgHtml              = $msgHtml;
 		$this->msgText              = $msgText;

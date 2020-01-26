@@ -59,7 +59,7 @@ class Emailer
 		}
 
 		$fromName       = Email::encodeHeader(html_entity_decode($email->getFromName(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$fromEmail      = $email->getFromAddress();
+		$fromAddress      = $email->getFromAddress();
 		$replyTo        = $email->getReplyTo();
 		$messageSubject = Email::encodeHeader(html_entity_decode($email->getSubject(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
@@ -71,7 +71,7 @@ class Emailer
 
 		// generate a multipart/alternative message header
 		$messageHeader = $email->getAdditionalMailHeader() .
-		                 "From: $fromName <{$fromEmail}>\n" .
+		                 "From: $fromName <{$fromAddress}>\n" .
 		                 "Reply-To: $fromName <{$replyTo}>\n" .
 		                 "MIME-Version: 1.0\n" .
 		                 "Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
@@ -95,7 +95,7 @@ class Emailer
 			"--" . $mimeBoundary . "--\n";                    // message ending
 
 		if ($this->config->get('system', 'sendmail_params', true)) {
-			$sendmail_params = '-f ' . $fromEmail;
+			$sendmail_params = '-f ' . $fromAddress;
 		} else {
 			$sendmail_params = null;
 		}

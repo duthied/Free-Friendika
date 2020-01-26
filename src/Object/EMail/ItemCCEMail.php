@@ -14,7 +14,7 @@ use Friendica\Object\Email;
  */
 class ItemCCEMail extends Email
 {
-	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, array $item, string $toEmail, string $authorThumb)
+	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, array $item, string $toAddress, string $authorThumb)
 	{
 		$disclaimer = '<hr />' . $l10n->t('This message was sent to you by %s, a member of the Friendica social network.', $a->user['username'])
 		              . '<br />';
@@ -29,7 +29,7 @@ class ItemCCEMail extends Email
 		$html    = Item::prepareBody($item);
 		$message = '<html><body>' . $link . $html . $disclaimer . '</body></html>';;
 
-		parent::__construct($a->user['username'], $a->user['email'], $a->user['email'], $toEmail,
+		parent::__construct($a->user['username'], $a->user['email'], $a->user['email'], $toAddress,
 			$subject, $message, HTML::toPlaintext($html . $disclaimer));
 	}
 }
