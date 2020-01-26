@@ -311,9 +311,7 @@ function api_call(App $a, App\Arguments $args = null)
 				}
 
 				$called_api = explode("/", $p);
-				//unset($_SERVER['PHP_AUTH_USER']);
 
-				/// @TODO should be "true ==[=] $info['auth']", if you miss only one = character, you assign a variable (only with ==). Let's make all this even.
 				if (!empty($info['auth']) && api_user() === false) {
 					api_login($a);
 				}
@@ -5027,6 +5025,9 @@ function prepare_photo_data($type, $scale, $photo_id)
 	// retrieve item element for getting activities (like, dislike etc.) related to photo
 	$condition = ['uid' => local_user(), 'resource-id' => $photo_id, 'type' => 'photo'];
 	$item = Item::selectFirstForUser(local_user(), ['id'], $condition);
+	if (!DBA::isResult($item)) {
+		throw new NotFoundException('Photo-related item not found.');
+	}
 
 	$data['photo']['friendica_activities'] = api_format_items_activities($item, $type);
 
