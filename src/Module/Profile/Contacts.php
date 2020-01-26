@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Profile;
 
-use Friendica\BaseModule;
 use Friendica\Content\ContactSelector;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
@@ -13,9 +12,10 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Profile;
+use Friendica\Module\BaseProfile;
 use Friendica\Util\Proxy as ProxyUtils;
 
-class Contacts extends BaseModule
+class Contacts extends BaseProfile
 {
 	public static function content(array $parameters = [])
 	{
@@ -42,8 +42,7 @@ class Contacts extends BaseModule
 
 		$is_owner = $a->profile['uid'] == local_user();
 
-		// tabs
-		$o = Profile::getTabs($a, 'contacts', $is_owner, $nickname);
+		$o = self::getTabsHTML($a, 'contacts', $is_owner, $nickname);
 
 		if (!count($a->profile) || $a->profile['hide-friends']) {
 			notice(DI::l10n()->t('Permission denied.') . EOL);

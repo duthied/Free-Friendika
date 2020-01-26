@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Profile;
 
-use Friendica\BaseModule;
 use Friendica\Content\Nav;
 use Friendica\Content\Pager;
 use Friendica\Content\Widget;
@@ -13,13 +12,14 @@ use Friendica\DI;
 use Friendica\Model\Item;
 use Friendica\Model\Profile as ProfileModel;
 use Friendica\Model\User;
+use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Security;
 use Friendica\Util\Strings;
 use Friendica\Util\XML;
 
-class Status extends BaseModule
+class Status extends BaseProfile
 {
 	public static function content(array $parameters = [])
 	{
@@ -81,7 +81,7 @@ class Status extends BaseModule
 			return '';
 		}
 
-		$o .= ProfileModel::getTabs($a, 'status', $is_owner, $a->profile['nickname']);
+		$o .= self::getTabsHTML($a, 'status', $is_owner, $a->profile['nickname']);
 
 		$o .= Widget::commonFriendsVisitor($a->profile['uid']);
 
@@ -206,7 +206,13 @@ class Status extends BaseModule
 
 		$items = DBA::toArray($items_stmt);
 
-		$o .= conversation($a, $items, $pager, 'profile', false, false, 'received', $a->profile['uid']);
+		if ($pager->getStart() == 0 && !empty($a->profile['uid'])) {
+			$pinned_items = Item::selectPinned($a->profile['uid'], ['uri', 'pinned']);
+			$pinned = Item::inArray($pinned_items);
+			$items = array_merge($items, $pinned);
+		}
+
+		$o .= conversation($a, $items, $pager, 'profile', false, false, 'pinned_received', $a->profile['uid']);
 
 		$o .= $pager->renderMinimal(count($items));
 

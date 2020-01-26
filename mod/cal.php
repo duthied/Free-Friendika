@@ -19,6 +19,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
+use Friendica\Module\BaseProfile;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
@@ -121,7 +122,7 @@ function cal_content(App $a)
 	$sql_extra = " AND `event`.`cid` = 0 " . $sql_perms;
 
 	// get the tab navigation bar
-	$tabs = Profile::getTabs($a, 'cal', false, $a->data['user']['nickname']);
+	$tabs = BaseProfile::getTabsHTML($a, 'cal', false, $a->data['user']['nickname']);
 
 	// The view mode part is similiar to /mod/events.php
 	if ($mode == 'view') {

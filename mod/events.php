@@ -16,8 +16,8 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Event;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
@@ -251,7 +251,7 @@ function events_content(App $a)
 	$tabs = '';
 	// tabs
 	if ($a->theme_events_in_profile) {
-		$tabs = Profile::getTabs($a, 'events', true);
+		$tabs = BaseProfile::getTabsHTML($a, 'events', true);
 	}
 
 	$mode = 'view';

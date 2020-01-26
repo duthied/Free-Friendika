@@ -21,6 +21,7 @@ use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\BaseProfile;
 use Friendica\Network\Probe;
 use Friendica\Object\Image;
 use Friendica\Protocol\Activity;
@@ -914,7 +915,7 @@ function photos_content(App $a)
 
 	// tabs
 	$is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= Profile::getTabs($a, 'photos', $is_owner, $a->data['user']['nickname']);
+	$o .= BaseProfile::getTabsHTML($a, 'photos', $is_owner, $a->data['user']['nickname']);
 
 	// Display upload form
 	if ($datatype === 'upload') {

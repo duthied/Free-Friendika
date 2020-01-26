@@ -791,7 +791,7 @@ function conversation(App $a, array $items, Pager $pager, $mode, $update, $previ
 /**
  * Fetch all comments from a query. Additionally set the newest resharer as thread owner.
  *
- * @param array   $thread_items Database statement with thread posts
+ * @param mixed   $thread_items Database statement with thread posts
  * @param boolean $pinned       Is the item pinned?
  *
  * @return array items with parents and comments
