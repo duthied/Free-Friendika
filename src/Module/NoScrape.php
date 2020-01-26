@@ -22,12 +22,17 @@ class NoScrape extends BaseModule
 	{
 		$a = DI::app();
 
-		$which = DI::args()->get(1);
-
-		$profile = 0;
-		if ((local_user()) && (DI::args()->get(2) === 'view')) {
+		if (isset($parameters['nick'])) {
+			// Get infos about a specific nick (public)
+			$which = $parameters['nick'];
+			$profile = 0;
+		} elseif (local_user() && isset($parameters['profile']) && DI::args()->get(2) == 'view') {
+			// view infos about a known profile (needs a login)
 			$which   = $a->user['nickname'];
-			$profile = DI::args()->get(1);
+			$profile = $parameters['profile'];
+		} else {
+			System::jsonError(404, 'Invalid request');
+			exit();
 		}
 
 		Profile::load($a, $which, $profile);
