@@ -15,7 +15,7 @@ use Friendica\Database\Database;
 use Friendica\Model\Contact;
 use Friendica\Module\BaseNotifications;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Object;
+use Friendica\Object\Notification;
 use Friendica\Util\Proxy;
 use Psr\Log\LoggerInterface;
 
@@ -61,7 +61,7 @@ class Introduction extends BaseFactory
 	 * @param int  $limit   Maximum number of query results
 	 * @param int  $id      When set, only the introduction with this id is displayed
 	 *
-	 * @return Object\Notification\Introduction[]
+	 * @return Notification\Introduction[]
 	 */
 	public function getList(bool $all = false, int $start = 0, int $limit = BaseNotifications::DEFAULT_PAGE_LIMIT, int $id = 0)
 	{
@@ -108,7 +108,7 @@ class Introduction extends BaseFactory
 					                       $this->baseUrl->getHostName() .
 					                       (($this->baseUrl->getURLPath()) ? '/' . $this->baseUrl->getURLPath() : ''));
 
-					$formattedNotifications[] = new Introduction([
+					$formattedNotifications[] = new Notification\Introduction([
 						'label'          => 'friend_suggestion',
 						'str_type'       => $this->l10n->t('Friend Suggestion'),
 						'intro_id'       => $notification['intro_id'],
@@ -141,7 +141,7 @@ class Introduction extends BaseFactory
 						$notification['ggender']   = "";
 					}
 
-					$formattedNotifications[] = new Introduction([
+					$formattedNotifications[] = new Notification\Introduction([
 						'label'          => (($notification['network'] !== Protocol::OSTATUS) ? 'friend_request' : 'follower'),
 						'str_type'       => (($notification['network'] !== Protocol::OSTATUS) ? $this->l10n->t('Friend/Connect Request') : $this->l10n->t('New Follower')),
 						'dfrn_id'        => $notification['issued-id'],
