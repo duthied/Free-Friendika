@@ -31,7 +31,7 @@ class BaseProfile extends BaseModule
 		$tabs = [
 			[
 				'label' => DI::l10n()->t('Profile'),
-				'url'   => $baseProfileUrl,
+				'url'   => $baseProfileUrl . '/profile',
 				'sel'   => $current == 'profile' ? 'active' : '',
 				'title' => DI::l10n()->t('Profile Details'),
 				'id'    => 'profile-tab',
