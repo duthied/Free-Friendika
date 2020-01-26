@@ -91,9 +91,9 @@ class EMail implements IEmail
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getMessage(bool $text = false)
+	public function getMessage(bool $plain = false)
 	{
-		if ($text) {
+		if ($plain) {
 			return $this->msgText;
 		} else {
 			return $this->msgHtml;

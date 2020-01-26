@@ -56,11 +56,11 @@ interface IEmail
 	/**
 	 * Gets the message body of this email (either html or plaintext)
 	 *
-	 * @param boolean $text True, if returned as plaintext
+	 * @param boolean $plain True, if returned as plaintext
 	 *
 	 * @return string
 	 */
-	function getMessage(bool $text = false);
+	function getMessage(bool $plain = false);
 
 	/**
 	 * Gets any additional mail header

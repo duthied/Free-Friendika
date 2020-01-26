@@ -77,8 +77,8 @@ class Emailer
 		                 "Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
-		$textBody             = chunk_split(base64_encode($email->getMessage()));
-		$htmlBody             = chunk_split(base64_encode($email->getMessage(true)));
+		$textBody             = chunk_split(base64_encode($email->getMessage(true)));
+		$htmlBody             = chunk_split(base64_encode($email->getMessage()));
 		$multipartMessageBody = "--" . $mimeBoundary . "\n" .                    // plain text section
 		                        "Content-Type: text/plain; charset=UTF-8\n" .
 		                        "Content-Transfer-Encoding: base64\n\n" .
