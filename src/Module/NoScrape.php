@@ -31,7 +31,7 @@ class NoScrape extends BaseModule
 			$which   = $a->user['nickname'];
 			$profile = $parameters['profile'];
 		} else {
-			System::jsonError(404, 'Invalid request');
+			System::jsonError(403, 'Authentication required');
 			exit();
 		}
 
