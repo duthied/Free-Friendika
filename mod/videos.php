@@ -15,6 +15,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Item;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
+use Friendica\Module\BaseProfile;
 use Friendica\Util\Security;
 
 function videos_init(App $a)
@@ -171,7 +172,7 @@ function videos_content(App $a)
 
 	// tabs
 	$_is_owner = (local_user() && (local_user() == $owner_uid));
-	$o .= Profile::getTabs($a, 'videos', $_is_owner, $a->data['user']['nickname']);
+	$o .= BaseProfile::getTabsHTML($a, 'videos', $_is_owner, $a->data['user']['nickname']);
 
 	//
 	// dispatch request

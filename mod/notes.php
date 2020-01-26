@@ -9,7 +9,7 @@ use Friendica\Content\Pager;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Model\Profile;
+use Friendica\Module\BaseProfile;
 
 function notes_init(App $a)
 {
@@ -28,7 +28,7 @@ function notes_content(App $a, $update = false)
 		return;
 	}
 
-	$o = Profile::getTabs($a, 'notes', true);
+	$o = BaseProfile::getTabsHTML($a, 'notes', true);
 
 	if (!$update) {
 		$o .= '<h3>' . DI::l10n()->t('Personal Notes') . '</h3>';

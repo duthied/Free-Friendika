@@ -2,7 +2,6 @@
 
 namespace Friendica\Module\Profile;
 
-use Friendica\BaseModule;
 use Friendica\Content\Feature;
 use Friendica\Content\ForumManager;
 use Friendica\Content\Nav;
@@ -19,13 +18,14 @@ use Friendica\Model\Contact;
 use Friendica\Model\Profile;
 use Friendica\Model\Term;
 use Friendica\Model\User;
+use Friendica\Module\BaseProfile;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Protocol\ActivityPub;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 
-class Index extends BaseModule
+class Index extends BaseProfile
 {
 	public static function rawContent(array $parameters = [])
 	{
@@ -82,7 +82,7 @@ class Index extends BaseModule
 		Nav::setSelected('home');
 
 		$is_owner = local_user() == $a->profile['uid'];
-		$o = Profile::getTabs($a, 'profile', $is_owner, $a->profile['nickname']);
+		$o = self::getTabsHTML($a, 'profile', $is_owner, $a->profile['nickname']);
 
 		if (!empty($a->profile['hidewall']) && !$is_owner && !$remote_contact_id) {
 			notice(DI::l10n()->t('Access to this profile has been restricted.'));
