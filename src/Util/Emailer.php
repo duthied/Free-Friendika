@@ -4,36 +4,46 @@
  */
 namespace Friendica\Util;
 
+use Friendica\App;
+use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
-use Friendica\Core\Logger;
-use Friendica\DI;
+use Friendica\Core\PConfig\IPConfig;
+use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
+use Psr\Log\LoggerInterface;
 
 /**
  * class to handle emailing
  */
 class Emailer
 {
+	/** @var IConfig */
+	private $config;
+	/** @var IPConfig */
+	private $pConfig;
+	/** @var LoggerInterface */
+	private $logger;
+	/** @var App\BaseURL */
+	private $baseUrl;
+
+	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger)
+	{
+		$this->config      = $config;
+		$this->pConfig     = $pConfig;
+		$this->logger      = $logger;
+		$this->baseUrl     = $baseURL;
+	}
+
 	/**
 	 * Send a multipart/alternative message with Text and HTML versions
 	 *
-	 * @param array $params parameters
-	 *                      fromName             name of the sender
-	 *                      fromEmail            email of the sender
-	 *                      replyTo              address to direct responses
-	 *                      toEmail              destination email address
-	 *                      messageSubject       subject of the message
-	 *                      htmlVersion          html version of the message
-	 *                      textVersion          text only version of the message
-	 *                      additionalMailHeader additions to the SMTP mail header
-	 *                      optional             uid user id of the destination user
+	 * @param IEmail $email The email to send
 	 *
 	 * @return bool
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 */
-	public function send(string $fromName, string $fromEmail, string $replyTo, string $toEmail,
-	                     string $subject, string $msgHtml, string $msgText,
-	                     string $additionalMailHeader = '', int $uid = null)
+	public function send(IEmail $email)
 	{
 		$params['sent'] = false;
 
@@ -44,45 +54,47 @@ class Emailer
 		}
 
 		$email_textonly = false;
-		if (!empty($uid)) {
-			$email_textonly = DI::pConfig()->get($uid, "system", "email_textonly");
+		if (!empty($email->getRecipientUid())) {
+			$email_textonly = $this->pConfig->get($email->getRecipientUid(), 'system', 'email_textonly');
 		}
 
-		$fromName = Email::encodeHeader(html_entity_decode($fromName, ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$messageSubject = Email::encodeHeader(html_entity_decode($subject, ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$fromName       = Email::encodeHeader(html_entity_decode($email->getFromName(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
+		$fromEmail      = $email->getFromEmail();
+		$replyTo        = $email->getReplyTo();
+		$messageSubject = Email::encodeHeader(html_entity_decode($email->getSubject(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
 		// generate a mime boundary
-		$mimeBoundary   =rand(0, 9)."-"
-				.rand(100000000, 999999999)."-"
-				.rand(100000000, 999999999)."=:"
-				.rand(10000, 99999);
+		$mimeBoundary = rand(0, 9) . '-'
+		                . rand(100000000, 999999999) . '-'
+		                . rand(100000000, 999999999) . '=:'
+		                . rand(10000, 99999);
 
 		// generate a multipart/alternative message header
-		$messageHeader = $additionalMailHeader .
-						"From: $fromName <{$fromEmail}>\n" .
-						"Reply-To: $fromName <{$replyTo}>\n" .
-						"MIME-Version: 1.0\n" .
-						"Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
+		$messageHeader = $email->getAdditionalMailHeader() .
+		                 "From: $fromName <{$fromEmail}>\n" .
+		                 "Reply-To: $fromName <{$replyTo}>\n" .
+		                 "MIME-Version: 1.0\n" .
+		                 "Content-Type: multipart/alternative; boundary=\"{$mimeBoundary}\"";
 
 		// assemble the final multipart message body with the text and html types included
-		$textBody	=	chunk_split(base64_encode($msgText));
-		$htmlBody	=	chunk_split(base64_encode($msgHtml));
-		$multipartMessageBody =	"--" . $mimeBoundary . "\n" .					// plain text section
-								"Content-Type: text/plain; charset=UTF-8\n" .
-								"Content-Transfer-Encoding: base64\n\n" .
-								$textBody . "\n";
+		$textBody             = chunk_split(base64_encode($email->getMessage()));
+		$htmlBody             = chunk_split(base64_encode($email->getMessage(true)));
+		$multipartMessageBody = "--" . $mimeBoundary . "\n" .                    // plain text section
+		                        "Content-Type: text/plain; charset=UTF-8\n" .
+		                        "Content-Transfer-Encoding: base64\n\n" .
+		                        $textBody . "\n";
 
-		if (!$email_textonly && !is_null($msgHtml)) {
+		if (!$email_textonly && !is_null($email->getMessage())) {
 			$multipartMessageBody .=
-				"--" . $mimeBoundary . "\n" .				// text/html section
+				"--" . $mimeBoundary . "\n" .                // text/html section
 				"Content-Type: text/html; charset=UTF-8\n" .
 				"Content-Transfer-Encoding: base64\n\n" .
 				$htmlBody . "\n";
 		}
 		$multipartMessageBody .=
-			"--" . $mimeBoundary . "--\n";					// message ending
+			"--" . $mimeBoundary . "--\n";                    // message ending
 
-		if (DI::config()->get("system", "sendmail_params", true)) {
+		if ($this->config->get('system', 'sendmail_params', true)) {
 			$sendmail_params = '-f ' . $fromEmail;
 		} else {
 			$sendmail_params = null;
@@ -90,15 +102,15 @@ class Emailer
 
 		// send the message
 		$hookdata = [
-			'to' => $toEmail,
-			'subject' => $messageSubject,
-			'body' => $multipartMessageBody,
-			'headers' => $messageHeader,
+			'to'         => $email->getToEmail(),
+			'subject'    => $messageSubject,
+			'body'       => $multipartMessageBody,
+			'headers'    => $messageHeader,
 			'parameters' => $sendmail_params,
-			'sent' => false,
+			'sent'       => false,
 		];
 
-		Hook::callAll("emailer_send", $hookdata);
+		Hook::callAll('emailer_send', $hookdata);
 
 		if ($hookdata['sent']) {
 			return true;
@@ -111,8 +123,8 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		Logger::log("header " . 'To: ' . $toEmail . "\n" . $messageHeader, Logger::DEBUG);
-		Logger::log("return value " . (($res)?"true":"false"), Logger::DEBUG);
+		$this->logger->debug('header ' . 'To: ' . $email->getToEmail() . '\n' . $messageHeader);
+		$this->logger->debug('return value ' . (($res) ? 'true' : 'false'));
 		return $res;
 	}
 }

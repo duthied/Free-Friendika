@@ -15,6 +15,7 @@ use Friendica\Model\ItemContent;
 use Friendica\Model\Notify;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
+use Friendica\Object\EMail;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Emailer;
@@ -609,11 +610,12 @@ function notification($params)
 			'$content_allowed' => $content_allowed,
 		]);
 
-		// use the Emailer class to send the message
-		return DI::emailer()->send($sender_name, $sender_email, $sender_email, $params['to_email'],
+		$email = new EMail($sender_name, $sender_email, $sender_email, $params['to_email'],
 			$datarray['subject'], $email_html_body, $email_text_body,
-			$datarray['headers'], $params['uid']
-		);
+			$datarray['headers'], $params['uid']);
+
+		// use the Emailer class to send the message
+		return DI::emailer()->send($email);
 	}
 
 	return false;
