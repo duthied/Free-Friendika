@@ -59,7 +59,7 @@ class Emailer
 		}
 
 		$fromName       = Email::encodeHeader(html_entity_decode($email->getFromName(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
-		$fromEmail      = $email->getFromEmail();
+		$fromEmail      = $email->getFromAddress();
 		$replyTo        = $email->getReplyTo();
 		$messageSubject = Email::encodeHeader(html_entity_decode($email->getSubject(), ENT_QUOTES, 'UTF-8'), 'UTF-8');
 
@@ -102,7 +102,7 @@ class Emailer
 
 		// send the message
 		$hookdata = [
-			'to'         => $email->getToEmail(),
+			'to'         => $email->getToAddress(),
 			'subject'    => $messageSubject,
 			'body'       => $multipartMessageBody,
 			'headers'    => $messageHeader,
@@ -123,7 +123,7 @@ class Emailer
 			$hookdata['headers'],
 			$hookdata['parameters']
 		);
-		$this->logger->debug('header ' . 'To: ' . $email->getToEmail() . '\n' . $messageHeader);
+		$this->logger->debug('header ' . 'To: ' . $email->getToAddress() . '\n' . $messageHeader);
 		$this->logger->debug('return value ' . (($res) ? 'true' : 'false'));
 		return $res;
 	}

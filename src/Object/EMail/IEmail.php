@@ -23,7 +23,7 @@ interface IEmail
 	 *
 	 * @return string
 	 */
-	function getFromEmail();
+	function getFromAddress();
 
 	/**
 	 * Gets the UID of the sender of this email
@@ -44,7 +44,7 @@ interface IEmail
 	 *
 	 * @return string
 	 */
-	function getToEmail();
+	function getToAddress();
 
 	/**
 	 * Gets the subject of this email

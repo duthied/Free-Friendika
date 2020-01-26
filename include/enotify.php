@@ -15,10 +15,8 @@ use Friendica\Model\ItemContent;
 use Friendica\Model\Notify;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
-use Friendica\Object\EMail;
+use Friendica\Object\Email;
 use Friendica\Protocol\Activity;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Emailer;
 
 /**
  * Creates a notification entry and possibly sends a mail
@@ -610,7 +608,7 @@ function notification($params)
 			'$content_allowed' => $content_allowed,
 		]);
 
-		$email = new EMail($sender_name, $sender_email, $sender_email, $params['to_email'],
+		$email = new Email($sender_name, $sender_email, $sender_email, $params['to_email'],
 			$datarray['subject'], $email_html_body, $email_text_body,
 			$datarray['headers'], $params['uid']);
 

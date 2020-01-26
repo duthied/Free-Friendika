@@ -7,12 +7,12 @@ use Friendica\App\BaseURL;
 use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Model\Item;
-use Friendica\Object\EMail;
+use Friendica\Object\Email;
 
 /**
  * Class for creating CC emails based on a received item
  */
-class ItemCCEMail extends EMail
+class ItemCCEMail extends Email
 {
 	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, array $item, string $toEmail, string $authorThumb)
 	{
@@ -21,7 +21,7 @@ class ItemCCEMail extends EMail
 		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->user['nickname']) . EOL;
 		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 		if (!$item['title'] == '') {
-			$subject = EMail::encodeHeader($item['title'], 'UTF-8');
+			$subject = Email::encodeHeader($item['title'], 'UTF-8');
 		} else {
 			$subject = Email::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $a->user['username']), 'UTF-8');
 		}

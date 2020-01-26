@@ -7,19 +7,19 @@ use Friendica\Object\EMail\IEmail;
 /**
  * The default implementation of the IEmail interface
  *
- * Provides the possibility to reuse the email instance with new recipients (@see EMail::withRecipient())
+ * Provides the possibility to reuse the email instance with new recipients (@see Email::withRecipient())
  */
-class EMail implements IEmail
+class Email implements IEmail
 {
 	/** @var string */
 	private $fromName;
 	/** @var string */
-	private $fromEmail;
+	private $fromAddress;
 	/** @var string */
 	private $replyTo;
 
 	/** @var string */
-	private $toEmail;
+	private $toAddress;
 
 	/** @var string */
 	private $subject;
@@ -38,9 +38,9 @@ class EMail implements IEmail
 	                            string $additionalMailHeader = '', int $toUid = null)
 	{
 		$this->fromName             = $fromName;
-		$this->fromEmail            = $fromEmail;
+		$this->fromAddress          = $fromEmail;
 		$this->replyTo              = $replyTo;
-		$this->toEmail              = $toEmail;
+		$this->toAddress            = $toEmail;
 		$this->subject              = $subject;
 		$this->msgHtml              = $msgHtml;
 		$this->msgText              = $msgText;
@@ -59,9 +59,9 @@ class EMail implements IEmail
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getFromEmail()
+	public function getFromAddress()
 	{
-		return $this->fromEmail;
+		return $this->fromAddress;
 	}
 
 	/**
@@ -75,9 +75,9 @@ class EMail implements IEmail
 	/**
 	 * {@inheritDoc}
 	 */
-	public function getToEmail()
+	public function getToAddress()
 	{
-		return $this->toEmail;
+		return $this->toAddress;
 	}
 
 	/**
@@ -126,9 +126,9 @@ class EMail implements IEmail
 	 */
 	public function withRecipient(string $email, int $uid = null)
 	{
-		$newEmail          = clone $this;
-		$newEmail->toEmail = $email;
-		$newEmail->toUid   = $uid;
+		$newEmail            = clone $this;
+		$newEmail->toAddress = $email;
+		$newEmail->toUid     = $uid;
 
 		return $newEmail;
 	}
