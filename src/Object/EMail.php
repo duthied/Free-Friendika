@@ -122,7 +122,7 @@ class EMail implements IEmail
 	 * @param string $email The email of the recipient
 	 * @param int    $uid   The (optional) UID of the recipient for further infos
 	 *
-	 * @return EMail
+	 * @return static
 	 */
 	public function withRecipient(string $email, int $uid = null)
 	{
