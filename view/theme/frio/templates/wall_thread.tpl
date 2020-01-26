@@ -236,7 +236,11 @@ as the value of $top_child_total (this is done at the end of this file)
 						{{if $item.owner_self}}
 							{{include file="sub/delivery_count.tpl" delivery=$item.delivery}}
 						{{/if}}
-						<span class="pinned">{{$item.pinned}}</span>
+						{{if $item.pinned}}
+							&bull; <i class="fa fa-thumb-tack" aria-hidden="true" title="{{$item.pinned}}"></i>
+							<span class="sr-only">{{$item.pinned}}</span>
+						{{/if}}
+
 					</small>
 				</div>
 
