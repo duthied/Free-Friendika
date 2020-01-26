@@ -167,6 +167,11 @@ return [
 	'/nodeinfo/{version}' => [Module\NodeInfo::class,        [R::GET]],
 	'/nogroup'            => [Module\Group::class,           [R::GET]],
 
+	'/noscrape' => [
+		'/{nick}'         => [Module\NoScrape::class, [R::GET]],
+		'/{profile}/view' => [Module\NoScrape::class, [R::GET]],
+	],
+
 	'/notifications' => [
 		'/network[/json]'    => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
 		'/system[/json]'     => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
