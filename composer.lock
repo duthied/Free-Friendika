@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "6659cc3edcbdb9d706019810788d8dc3",
+    "content-hash": "1c842fcbaa6de13e4c4f843a4596d7c0",
     "packages": [
         {
             "name": "asika/simple-console",
@@ -1357,6 +1357,22 @@
             "require": {
                 "npm-asset/ev-emitter": ">=1.0.0,<2.0.0"
             },
+            "require-dev": {
+                "npm-asset/chalk": ">=1.1.1,<2.0.0",
+                "npm-asset/cheerio": ">=0.19.0,<0.20.0",
+                "npm-asset/gulp": ">=3.9.0,<4.0.0",
+                "npm-asset/gulp-jshint": ">=1.11.2,<2.0.0",
+                "npm-asset/gulp-json-lint": ">=0.1.0,<0.2.0",
+                "npm-asset/gulp-rename": ">=1.2.2,<2.0.0",
+                "npm-asset/gulp-replace": ">=0.5.4,<0.6.0",
+                "npm-asset/gulp-requirejs-optimize": "dev-github:metafizzy/gulp-requirejs-optimize",
+                "npm-asset/gulp-uglify": ">=1.4.2,<2.0.0",
+                "npm-asset/gulp-util": ">=3.0.7,<4.0.0",
+                "npm-asset/highlight.js": ">=8.9.1,<9.0.0",
+                "npm-asset/marked": ">=0.3.5,<0.4.0",
+                "npm-asset/minimist": ">=1.2.0,<2.0.0",
+                "npm-asset/transfob": ">=1.0.0,<2.0.0"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1401,6 +1417,14 @@
                 "url": "https://registry.npmjs.org/jgrowl/-/jgrowl-1.4.6.tgz",
                 "shasum": "2736e332aaee73ccf0a14a5f0066391a0a13f4a3"
             },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.2",
+                "npm-asset/grunt-contrib-cssmin": "~0.9.0",
+                "npm-asset/grunt-contrib-jshint": "~0.6.3",
+                "npm-asset/grunt-contrib-less": "~0.11.0",
+                "npm-asset/grunt-contrib-uglify": "~0.4.0",
+                "npm-asset/grunt-contrib-watch": "~0.6.1"
+            },
             "type": "npm-asset-library",
             "extra": {
                 "npm-asset-bugs": {
@@ -1432,6 +1456,32 @@
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery/-/jquery-2.2.4.tgz",
                 "shasum": "2c89d6889b5eac522a7eea32c14521559c6cbf02"
+            },
+            "require-dev": {
+                "npm-asset/commitplease": "2.0.0",
+                "npm-asset/core-js": "0.9.17",
+                "npm-asset/grunt": "0.4.5",
+                "npm-asset/grunt-babel": "5.0.1",
+                "npm-asset/grunt-cli": "0.1.13",
+                "npm-asset/grunt-compare-size": "0.4.0",
+                "npm-asset/grunt-contrib-jshint": "0.11.2",
+                "npm-asset/grunt-contrib-uglify": "0.9.2",
+                "npm-asset/grunt-contrib-watch": "0.6.1",
+                "npm-asset/grunt-git-authors": "2.0.1",
+                "npm-asset/grunt-jscs": "2.1.0",
+                "npm-asset/grunt-jsonlint": "1.0.4",
+                "npm-asset/grunt-npmcopy": "0.1.0",
+                "npm-asset/gzip-js": "0.3.2",
+                "npm-asset/jsdom": "5.6.1",
+                "npm-asset/load-grunt-tasks": "1.0.0",
+                "npm-asset/qunit-assert-step": "1.0.3",
+                "npm-asset/qunitjs": "1.17.1",
+                "npm-asset/requirejs": "2.1.17",
+                "npm-asset/sinon": "1.10.3",
+                "npm-asset/sizzle": "2.2.1",
+                "npm-asset/strip-json-comments": "1.0.3",
+                "npm-asset/testswarm": "1.1.0",
+                "npm-asset/win-spawn": "2.0.0"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -1579,6 +1629,12 @@
                 "type": "tar",
                 "url": "https://registry.npmjs.org/jquery-mousewheel/-/jquery-mousewheel-3.1.13.tgz",
                 "shasum": "06f0335f16e353a695e7206bf50503cb523a6ee5"
+            },
+            "require-dev": {
+                "npm-asset/grunt": "~0.4.1",
+                "npm-asset/grunt-contrib-connect": "~0.5.0",
+                "npm-asset/grunt-contrib-jshint": "~0.7.1",
+                "npm-asset/grunt-contrib-uglify": "~0.2.7"
             },
             "type": "npm-asset-library",
             "extra": {
@@ -3378,8 +3434,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sb@sebastian-bergmann.de"
+                    "email": "sb@sebastian-bergmann.de",
+                    "role": "lead"
                 }
             ],
             "description": "Library that provides collection, processing, and rendering functionality for PHP code coverage information.",
@@ -3646,8 +3702,8 @@
             "authors": [
                 {
                     "name": "Sebastian Bergmann",
-                    "role": "lead",
-                    "email": "sebastian@phpunit.de"
+                    "email": "sebastian@phpunit.de",
+                    "role": "lead"
                 }
             ],
             "description": "The PHP Unit Testing framework.",
