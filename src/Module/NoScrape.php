@@ -70,7 +70,7 @@ class NoScrape extends BaseModule
 
 		if (!($a->profile['hide-friends'] ?? false)) {
 			/// @todo What should this value tell us?
-			$result = DBA::p("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = %d LIMIT 1", $a->profile['uid']);
+			$result = DBA::p("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = ? LIMIT 1", intval($a->profile['uid']));
 			if (DBA::isResult($result)) {
 				$json_info["updated"] = date("c", strtotime($result[0]['updated']));
 			}
