@@ -6,6 +6,7 @@ use Exception;
 use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Collection\Api\Notifications as ApiNotifications;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
@@ -15,6 +16,7 @@ use Friendica\Database\Database;
 use Friendica\Model\Item;
 use Friendica\Module\BaseNotifications;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Friendica\Object\Api\Friendica\Notification as ApiNotification;
 use Friendica\Protocol\Activity;
 use Friendica\Repository;
 use Friendica\Util\DateTimeFormat;
@@ -351,5 +353,27 @@ class Notification extends BaseFactory
 		}
 
 		return $formattedNotifications;
+	}
+
+	/**
+	 * @param int   $uid    The user id of the API call
+	 * @param array $params Additional parameters
+	 *
+	 * @return ApiNotifications
+	 *
+	 * @throws Exception
+	 */
+	public function getApiList(int $uid, array $params = ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50])
+	{
+		$notifies = $this->notification->select(['uid' => $uid], $params);
+
+		/** @var ApiNotification[] $notifications */
+		$notifications = [];
+
+		foreach ($notifies as $notify) {
+			$notifications[] = new ApiNotification($notify);
+		}
+
+		return new ApiNotifications($notifications);
 	}
 }

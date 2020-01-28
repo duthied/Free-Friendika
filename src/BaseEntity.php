@@ -11,7 +11,22 @@ namespace Friendica;
  */
 abstract class BaseEntity implements \JsonSerializable
 {
+	/**
+	 * Returns the current entity as an json array
+	 *
+	 * @return array
+	 */
 	public function jsonSerialize()
+	{
+		return $this->toArray();
+	}
+
+	/**
+	 * Returns the current entity as an array
+	 *
+	 * @return array
+	 */
+	public function toArray()
 	{
 		return get_object_vars($this);
 	}

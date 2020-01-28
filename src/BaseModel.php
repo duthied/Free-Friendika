@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
  *
  * @property int id
  */
-abstract class BaseModel
+abstract class BaseModel extends BaseEntity
 {
 	/** @var Database */
 	protected $dba;
@@ -48,23 +48,9 @@ abstract class BaseModel
 		$this->originalData = $data;
 	}
 
-	/**
-	 * Maps a data array (original/current) to a known field list of the chosen model
-	 *
-	 * This is useful to filter out additional attributes, which aren't part of the db-table (like readonly cached fields)
-	 *
-	 * @param array $data The data array to map to db-fields
-	 *
-	 * @return array the mapped data array
-	 */
-	protected function mapFields(array $data)
-	{
-		return $data;
-	}
-
 	public function getOriginalData()
 	{
-		return $this->mapFields($this->originalData);
+		return $this->originalData;
 	}
 
 	public function resetOriginalData()
@@ -129,16 +115,9 @@ abstract class BaseModel
 		$this->data[$name] = $value;
 	}
 
-	/**
-	 * Returns the values of the current model as an array
-	 *
-	 * @param bool $dbOnly True, if just the db-relevant fields should be returned
-	 *
-	 * @return array The values of the current model
-	 */
-	public function toArray(bool $dbOnly = false)
+	public function toArray()
 	{
-		return $dbOnly ? $this->mapFields($this->data) : $this->data;
+		return $this->data;
 	}
 
 	protected function checkValid()

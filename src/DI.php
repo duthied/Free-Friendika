@@ -281,14 +281,6 @@ abstract class DI
 	}
 
 	/**
-	 * @return Repository\Notify
-	 */
-	public static function notify()
-	{
-		return self::$dice->create(Repository\Notify::class);
-	}
-
-	/**
 	 * @return Model\Storage\IStorage
 	 */
 	public static function storage()
@@ -322,6 +314,14 @@ abstract class DI
 	public static function profileField()
 	{
 		return self::$dice->create(Repository\ProfileField::class);
+	}
+
+	/**
+	 * @return Repository\Notify
+	 */
+	public static function notify()
+	{
+		return self::$dice->create(Repository\Notify::class);
 	}
 
 	//

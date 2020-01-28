@@ -5,19 +5,12 @@ namespace Friendica\Model;
 use Exception;
 use Friendica\BaseModel;
 use Friendica\Content\Text\BBCode;
-use Friendica\Content\Text\HTML;
 use Friendica\Database\Database;
 use Friendica\Network\HTTPException\InternalServerErrorException;
-use Friendica\Util\DateTimeFormat;
-use Friendica\Util\Temporal;
 use Psr\Log\LoggerInterface;
 
 /**
  * Model for an entry in the notify table
- * - Including additional, calculated properties
- *
- * Is used either for frontend interactions or for API-based interaction
- * @see https://github.com/friendica/friendica/blob/develop/doc/API-Entities.md#notification
  *
  * @property string  hash
  * @property integer type
@@ -36,11 +29,6 @@ use Psr\Log\LoggerInterface;
  *
  * @property-read string name_cache Full name of the contact subject
  * @property-read string msg_cache  Plaintext version of the notification text with a placeholder (`{0}`) for the subject contact's name.
- *
- * @property-read integer timestamp  Unix timestamp
- * @property-read string  dateRel  	 Time since the note was posted, eg "1 hour ago"
- * @property-read string  $msg_html
- * @property-read string  $msg_plain
  */
 class Notify extends BaseModel
 {
@@ -59,8 +47,7 @@ class Notify extends BaseModel
 		$this->repo = $repo;
 
 		$this->setNameCache();
-		$this->setTimestamp();
-		$this->setMsg();
+		$this->setMsgCache();
 	}
 
 	/**
@@ -82,40 +69,22 @@ class Notify extends BaseModel
 	}
 
 	/**
-	 * Set some extra properties to the notification from db:
-	 *  - timestamp as int in default TZ
-	 *  - date_rel : relative date string
-	 */
-	private function setTimestamp()
-	{
-		try {
-			$this->timestamp = strtotime(DateTimeFormat::local($this->date));
-		} catch (Exception $e) {
-		}
-		$this->dateRel = Temporal::getRelativeDate($this->date);
-	}
-
-	/**
 	 * Sets the pre-formatted name (caching)
-	 *
-	 * @throws InternalServerErrorException
 	 */
 	private function setNameCache()
 	{
-		$this->name_cache = strip_tags(BBCode::convert($this->source_name ?? ''));
+		try {
+			$this->name_cache = strip_tags(BBCode::convert($this->source_name ?? ''));
+		} catch (InternalServerErrorException $e) {
+		}
 	}
 
 	/**
-	 * Set some extra properties to the notification from db:
-	 *  - msg_html: message as html string
-	 *  - msg_plain: message as plain text string
-	 *  - msg_cache: The pre-formatted message (caching)
+	 * Sets the pre-formatted msg (caching)
 	 */
-	private function setMsg()
+	private function setMsgCache()
 	{
 		try {
-			$this->msg_html  = BBCode::convert($this->msg, false);
-			$this->msg_plain = explode("\n", trim(HTML::toPlaintext($this->msg_html, 0)))[0];
 			$this->msg_cache = self::formatMessage($this->name_cache, strip_tags(BBCode::convert($this->msg)));
 		} catch (InternalServerErrorException $e) {
 		}
@@ -125,12 +94,8 @@ class Notify extends BaseModel
 	{
 		parent::__set($name, $value);
 
-		if ($name == 'date') {
-			$this->setTimestamp();
-		}
-
 		if ($name == 'msg') {
-			$this->setMsg();
+			$this->setMsgCache();
 		}
 
 		if ($name == 'source_name') {
@@ -162,30 +127,5 @@ class Notify extends BaseModel
 		}
 
 		return $message;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	protected function mapFields(array $data)
-	{
-		return [
-			'hash'       => $data['hash'] ?? '',
-			'type'       => $data['type'] ?? 0,
-			'name'       => $data['name'] ?? '',
-			'url'        => $data['url'] ?? '',
-			'photo'      => $data['photo'] ?? '',
-			'date'       => $data['date'] ?? DateTimeFormat::utcNow(),
-			'msg'        => $data['msg'] ?? '',
-			'uid'        => $data['uid'] ?? 0,
-			'link'       => $data['link'] ?? '',
-			'iid'        => $data['iid'] ?? 0,
-			'parent'     => $data['parent'] ?? 0,
-			'seen'       => $data['seen'] ?? false,
-			'verb'       => $data['verb'] ?? '',
-			'otype'      => $data['otype'] ?? '',
-			'name_cache' => $data['name_cache'] ?? null,
-			'msg_cache'  => $data['msg_cache'] ?? null,
-		];
 	}
 }
