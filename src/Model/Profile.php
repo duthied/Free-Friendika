@@ -121,13 +121,12 @@ class Profile
 	 *
 	 * @param App     $a
 	 * @param string  $nickname     string
-	 * @param int     $profile_id   int
 	 * @param array   $profiledata  array
 	 * @param boolean $show_connect Show connect link
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function load(App $a, $nickname, $profile_id = 0, array $profiledata = [], $show_connect = true)
+	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 

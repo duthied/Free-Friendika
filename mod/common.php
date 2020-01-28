@@ -41,7 +41,7 @@ function common_content(App $a)
 
 		if (DBA::isResult($contact)) {
 			DI::page()['aside'] = "";
-			Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
+			Model\Profile::load($a, "", Model\Contact::getDetailsByURL($contact["url"]));
 		}
 	} else {
 		$contact = DBA::selectFirst('contact', ['name', 'url', 'photo', 'uid', 'id'], ['self' => true, 'uid' => $uid]);

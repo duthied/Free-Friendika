@@ -21,16 +21,14 @@ class HoverCard extends BaseModule
 		if ((local_user()) && ($parameters['action'] ?? '') === 'view') {
 			// A logged in user views a profile of a user
 			$nickname = $a->user['nickname'];
-			$profile  = $parameters['profile'];
 		} elseif (empty($parameters['action'])) {
 			// Show the profile hovercard
 			$nickname = $parameters['profile'];
-			$profile  = 0;
 		} else {
 			throw new NotFoundException(DI::l10n()->t('No profile'));
 		}
 
-		Profile::load($a, $nickname, $profile);
+		Profile::load($a, $nickname);
 
 		$page = DI::page();
 

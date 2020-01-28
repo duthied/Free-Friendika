@@ -192,7 +192,7 @@ function follow_content(App $a)
 
 	$profiledata = Contact::getDetailsByURL($ret['url']);
 	if ($profiledata) {
-		Profile::load($a, '', 0, $profiledata, false);
+		Profile::load($a, '', $profiledata, false);
 	}
 
 	if ($gcontact_id <> 0) {
