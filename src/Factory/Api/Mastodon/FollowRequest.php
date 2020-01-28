@@ -1,13 +1,13 @@
 <?php
 
-namespace Friendica\Factory\Mastodon;
+namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
+use Friendica\BaseFactory;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Introduction;
 use Friendica\Network\HTTPException;
-use Friendica\BaseFactory;
 use Psr\Log\LoggerInterface;
 
 class FollowRequest extends BaseFactory
@@ -24,7 +24,7 @@ class FollowRequest extends BaseFactory
 
 	/**
 	 * @param Introduction $introduction
-	 * @return \Friendica\Api\Entity\Mastodon\FollowRequest
+	 * @return \Friendica\Object\Api\Mastodon\FollowRequest
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -42,6 +42,6 @@ class FollowRequest extends BaseFactory
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Api\Entity\Mastodon\FollowRequest($this->baseUrl, $introduction->id, $publicContact, $apcontact, $userContact);
+		return new \Friendica\Object\Api\Mastodon\FollowRequest($this->baseUrl, $introduction->id, $publicContact, $apcontact, $userContact);
 	}
 }

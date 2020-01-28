@@ -1,14 +1,14 @@
 <?php
 
-namespace Friendica\Module\Base;
+namespace Friendica\Module;
 
 use Friendica\BaseModule;
 use Friendica\DI;
 use Friendica\Network\HTTPException;
 
-require_once __DIR__ . '/../../../include/api.php';
+require_once __DIR__ . '/../../include/api.php';
 
-class Api extends BaseModule
+class BaseApi extends BaseModule
 {
 	/**
 	 * @var string json|xml|rss|atom

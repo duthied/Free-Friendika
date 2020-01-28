@@ -1,8 +1,8 @@
 <?php
 
-namespace Friendica\Api\Entity\Mastodon;
+namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\Api\BaseEntity;
+use Friendica\BaseEntity;
 use Friendica\Model\Contact;
 use Friendica\Util\Network;
 

@@ -15,6 +15,10 @@ These endpoints use the [Mastodon API entities](https://docs.joinmastodon.org/en
 
 ## Implemented endpoints
 
+- [`GET /api/v1/custom_emojis`](https://docs.joinmastodon.org/methods/instance/custom_emojis/)
+    - Doesn't return unicode emojis since they aren't using an image URL
+
+
 - [`GET /api/v1/follow_requests`](https://docs.joinmastodon.org/methods/accounts/follow_requests#pending-follows)
     - Returned IDs are specific to follow requests
 - [`POST /api/v1/follow_requests/:id/authorize`](https://docs.joinmastodon.org/methods/accounts/follow_requests#accept-follow)

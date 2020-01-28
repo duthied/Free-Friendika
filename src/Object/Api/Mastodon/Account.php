@@ -1,9 +1,9 @@
 <?php
 
-namespace Friendica\Api\Entity\Mastodon;
+namespace Friendica\Object\Api\Mastodon;
 
-use Friendica\Api\BaseEntity;
 use Friendica\App\BaseURL;
+use Friendica\BaseEntity;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;

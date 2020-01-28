@@ -5,14 +5,14 @@ namespace Friendica\Module\Api\Mastodon\Instance;
 use Friendica\Core\Protocol;
 use Friendica\Core\System;
 use Friendica\Database\DBA;
-use Friendica\Module\Base\Api;
+use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Network;
 
 /**
  * Undocumented API endpoint that is implemented by both Mastodon and Pleroma
  */
-class Peers extends Api
+class Peers extends BaseApi
 {
 	/**
 	 * @param array $parameters

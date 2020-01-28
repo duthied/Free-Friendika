@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Api;
+namespace Friendica;
 
 /**
  * The API entity classes are meant as data transfer objects. As such, their member should be protected.
