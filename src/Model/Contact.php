@@ -1230,9 +1230,9 @@ class Contact
 		}
 
 		if ($sparkle) {
-			$status_link = $profile_link . '?tab=status';
+			$status_link = $profile_link . '/status';
 			$photos_link = str_replace('/profile/', '/photos/', $profile_link);
-			$profile_link = $profile_link . '?tab=profile';
+			$profile_link = $profile_link . '/profile';
 		}
 
 		if (self::canReceivePrivateMessages($contact) && empty($contact['pending'])) {

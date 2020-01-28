@@ -91,16 +91,6 @@ in German:
 
     https://social.example.com/profile/example?lang=de.
 
-If the question mark is already in the url you need to do it using a ampersand.
-
-Example:
-
-    https://social.example.com/profile/example?tab=profile
-
-in German:
-
-    https://social.example.com/profile/example?tab=profile&lang=de.
-
 When a certain language is forced, the language remains until session is closed.
 
 <a name="contacts"></a>

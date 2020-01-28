@@ -538,7 +538,7 @@ function dfrn_poll_content(App $a)
 
 			switch ($destination_url) {
 				case 'profile':
-					DI::baseUrl()->redirect('profile/' . $profile . '?tab=profile');
+					DI::baseUrl()->redirect('profile/' . $profile . '/profile');
 					break;
 				case 'photos':
 					DI::baseUrl()->redirect('photos/' . $profile);
