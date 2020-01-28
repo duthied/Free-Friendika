@@ -155,7 +155,7 @@ class Nav
 		if (local_user()) {
 			// user menu
 			$nav['usermenu'][] = ['profile/' . $a->user['nickname'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-			$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '?tab=profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+			$nav['usermenu'][] = ['profile/' . $a->user['nickname'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
 			$nav['usermenu'][] = ['photos/' . $a->user['nickname'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
 			$nav['usermenu'][] = ['videos/' . $a->user['nickname'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
 			$nav['usermenu'][] = ['events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];

@@ -919,9 +919,9 @@ function item_photo_menu($item) {
 	}
 
 	if ($sparkle) {
-		$status_link = $profile_link . '?tab=status';
+		$status_link = $profile_link . '/status';
 		$photos_link = str_replace('/profile/', '/photos/', $profile_link);
-		$profile_link = $profile_link . '?=profile';
+		$profile_link = $profile_link . '/profile';
 	}
 
 	if (!empty($pcid)) {

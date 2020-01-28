@@ -264,7 +264,7 @@ function frio_remote_nav($a, &$nav)
 	if (!local_user() && !empty($server_url) && !is_null($remoteUser)) {
 		// user menu
 		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'], DI::l10n()->t('Status'), '', DI::l10n()->t('Your posts and conversations')];
-		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '?tab=profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
+		$nav['usermenu'][] = [$server_url . '/profile/' . $remoteUser['nick'] . '/profile', DI::l10n()->t('Profile'), '', DI::l10n()->t('Your profile page')];
 		$nav['usermenu'][] = [$server_url . '/photos/' . $remoteUser['nick'], DI::l10n()->t('Photos'), '', DI::l10n()->t('Your photos')];
 		$nav['usermenu'][] = [$server_url . '/videos/' . $remoteUser['nick'], DI::l10n()->t('Videos'), '', DI::l10n()->t('Your videos')];
 		$nav['usermenu'][] = [$server_url . '/events/', DI::l10n()->t('Events'), '', DI::l10n()->t('Your events')];

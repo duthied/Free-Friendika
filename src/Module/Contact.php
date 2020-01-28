@@ -270,7 +270,7 @@ class Contact extends BaseModule
 				if (($a->argc == 3) && intval($a->argv[1]) && in_array($a->argv[2], ['posts', 'conversations'])) {
 					DI::baseUrl()->redirect('profile/' . $contact['nick']);
 				} else {
-					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '?tab=profile');
+					DI::baseUrl()->redirect('profile/' . $contact['nick'] . '/profile');
 				}
 			}
 

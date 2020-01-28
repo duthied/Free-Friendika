@@ -106,16 +106,6 @@ auf Deutsch:
 
      https://social.example.com/profile/example?lang=de.
 
-Wenn das Fragezeichen bereits in der URL verwendet wird, werden die einzelnen URL Parameter mit einem kaufmännischen Und getrennt werden.
-
-Ein Beispiel:
-
-    https://social.example.com/profile/example?tab=profile
-
-auf Deutsch:
-
-    https://social.example.com/profile/example?tab=profile&lang=de.
-
 <a name="contacts"></a>
 ### Was ist der Unterschied zwischen blockierten|ignorierten|archivierten|versteckten Kontakten?
 
