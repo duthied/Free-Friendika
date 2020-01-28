@@ -115,13 +115,6 @@
 
 		{{if $updated}}<div class="updated" style="display:none;">{{$updated}}</div>{{/if}}
 
-		{{if $marital}}
-		<div class="marital detail">
-			<span class="marital-label icon"><i class="fa fa-heart"></i></span>
-			<span class="marital-text icon">{{$profile.marital}}</span>
-		</div>
-		{{/if}}
-
 		{{if $homepage}}
 		<div class="homepage detail">
 			<span class="homepage-label icon"><i class="fa fa-external-link-square"></i></span>

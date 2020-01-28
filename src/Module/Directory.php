@@ -137,10 +137,7 @@ class Directory extends BaseModule
 			$location = '';
 		}
 
-		$gender =   (!empty($profile['gender'])   ? DI::l10n()->t('Gender:')   : false);
-		$marital =  (!empty($profile['marital'])  ? DI::l10n()->t('Status:')   : false);
 		$homepage = (!empty($profile['homepage']) ? DI::l10n()->t('Homepage:') : false);
-		$about =    (!empty($profile['about'])    ? DI::l10n()->t('About:')    : false);
 
 		$location_e = $location;
 
@@ -160,11 +157,8 @@ class Directory extends BaseModule
 			'profile'      => $profile,
 			'location'     => $location_e,
 			'tags'         => $contact['pub_keywords'],
-			'gender'       => $gender,
 			'pdesc'        => $pdesc,
-			'marital'      => $marital,
 			'homepage'     => $homepage,
-			'about'        => $about,
 			'photo_menu'   => $photo_menu,
 
 		];

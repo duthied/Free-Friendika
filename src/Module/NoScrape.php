@@ -25,17 +25,15 @@ class NoScrape extends BaseModule
 		if (isset($parameters['nick'])) {
 			// Get infos about a specific nick (public)
 			$which = $parameters['nick'];
-			$profile = 0;
 		} elseif (local_user() && isset($parameters['profile']) && DI::args()->get(2) == 'view') {
 			// view infos about a known profile (needs a login)
 			$which   = $a->user['nickname'];
-			$profile = $parameters['profile'];
 		} else {
 			System::jsonError(403, 'Authentication required');
 			exit();
 		}
 
-		Profile::load($a, $which, $profile);
+		Profile::load($a, $nickname);
 
 		$json_info = [
 			'addr'         => $a->profile['addr'],
@@ -114,7 +112,7 @@ class NoScrape extends BaseModule
 		$json_info['last-activity'] = date('o-W', $last_active);
 
 		//These are optional fields.
-		$profile_fields = ['pdesc', 'locality', 'region', 'postal-code', 'country-name', 'gender', 'marital', 'about'];
+		$profile_fields = ['pdesc', 'locality', 'region', 'postal-code', 'country-name'];
 		foreach ($profile_fields as $field) {
 			if (!empty($a->profile[$field])) {
 				$json_info["$field"] = $a->profile[$field];

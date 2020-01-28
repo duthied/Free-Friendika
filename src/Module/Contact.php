@@ -957,7 +957,7 @@ class Contact extends BaseModule
 
 			$profiledata = Model\Contact::getDetailsByURL($contact['url']);
 
-			Model\Profile::load($a, '', 0, $profiledata, true);
+			Model\Profile::load($a, '', $profiledata, true);
 			$o .= Model\Contact::getPostsFromUrl($contact['url'], true, $update);
 		}
 
@@ -979,7 +979,7 @@ class Contact extends BaseModule
 				$profiledata['remoteconnect'] = DI::baseUrl() . '/follow?url=' . urlencode($profiledata['url']);
 			}
 
-			Model\Profile::load($a, '', 0, $profiledata, true);
+			Model\Profile::load($a, '', $profiledata, true);
 			$o .= Model\Contact::getPostsFromUrl($contact['url']);
 		}
 

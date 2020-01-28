@@ -833,9 +833,6 @@ class Probe
 			if (!empty($profile['country'])) {
 				$loc['country-name'] = $profile['country'];
 			}
-			if (!empty($profile['hometown'])) {
-				$loc['locality'] = $profile['hometown'];
-			}
 			$location = Profile::formatLocation($loc);
 			if (!empty($location)) {
 				$data['location'] = $location;

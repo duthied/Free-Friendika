@@ -121,13 +121,12 @@ class Profile
 	 *
 	 * @param App     $a
 	 * @param string  $nickname     string
-	 * @param int     $profile_id   int
 	 * @param array   $profiledata  array
 	 * @param boolean $show_connect Show connect link
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
-	public static function load(App $a, $nickname, $profile_id = 0, array $profiledata = [], $show_connect = true)
+	public static function load(App $a, $nickname, array $profiledata = [], $show_connect = true)
 	{
 		$user = DBA::selectFirst('user', ['uid'], ['nickname' => $nickname, 'account_removed' => false]);
 
@@ -371,7 +370,6 @@ class Profile
 		}
 
 		$gender   = !empty($profile['gender'])   ? DI::l10n()->t('Gender:')   : false;
-		$marital  = !empty($profile['marital'])  ? DI::l10n()->t('Status:')   : false;
 		$homepage = !empty($profile['homepage']) ? DI::l10n()->t('Homepage:') : false;
 		$about    = !empty($profile['about'])    ? DI::l10n()->t('About:')    : false;
 		$xmpp     = !empty($profile['xmpp'])     ? DI::l10n()->t('XMPP:')     : false;
@@ -450,10 +448,6 @@ class Profile
 			$p['gender'] = DI::l10n()->t($p['gender']);
 		}
 
-		if (isset($p['marital'])) {
-			$p['marital'] = DI::l10n()->t($p['marital']);
-		}
-
 		if (isset($p['photo'])) {
 			$p['photo'] = ProxyUtils::proxifyUrl($p['photo'], false, ProxyUtils::SIZE_SMALL);
 		}
@@ -475,7 +469,6 @@ class Profile
 			'$account_type' => $account_type,
 			'$location' => $location,
 			'$gender' => $gender,
-			'$marital' => $marital,
 			'$homepage' => $homepage,
 			'$about' => $about,
 			'$network' => DI::l10n()->t('Network:'),
@@ -920,13 +913,6 @@ class Profile
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`gender` LIKE ?) OR
-				(`profile`.`marital` LIKE ?) OR
-				(`profile`.`sexual` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`romance` LIKE ?) OR
-				(`profile`.`work` LIKE ?) OR
-				(`profile`.`education` LIKE ?) OR
 				(`profile`.`pub_keywords` LIKE ?) OR
 				(`profile`.`prv_keywords` LIKE ?))",
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
@@ -962,13 +948,6 @@ class Profile
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`gender` LIKE ?) OR
-				(`profile`.`marital` LIKE ?) OR
-				(`profile`.`sexual` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`romance` LIKE ?) OR
-				(`profile`.`work` LIKE ?) OR
-				(`profile`.`education` LIKE ?) OR
 				(`profile`.`pub_keywords` LIKE ?) OR
 				(`profile`.`prv_keywords` LIKE ?))
 			$order LIMIT ?,?",

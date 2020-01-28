@@ -2046,30 +2046,12 @@ pre code {
 /* = Profile = */
 /* =========== */
 
-.advanced-profile-content {
-	margin-top: 5px;
-	margin-bottom: 10px;
-	margin-left: 30px;
-	width: 60%;
-}
-
-.advanced-profile-label {
-	margin-top: 10px;
-	margin-bottom: 0px;
-	padding-bottom: 5px;
-	font-size: 18px;
-}
-
 div[id$="wrapper"] {
 	height: 100%;
 }
 
 div[id$="wrapper"] br {
 	clear: left;
-}
-
-#advanced-profile-with {
-	margin-left: 20px;
 }
 
 #profile-listing-desc,
@@ -4524,7 +4506,6 @@ hr.line-dots {
 .location,
 .location-label,
 .gender-label,
-.marital-label,
 .homepage-label,
 .network-label {
 	float: left;
@@ -4534,8 +4515,6 @@ hr.line-dots {
 }
 
 .adr,
-.x-gender,
-.marital-text,
 .homepage-url,
 .x-network {
 	float: left;

@@ -114,7 +114,7 @@ function display_init(App $a)
 		}
 	}
 
-	Profile::load($a, $nick, 0, $profiledata);
+	Profile::load($a, $nick, $profiledata);
 }
 
 function display_fetchauthor($a, $item)

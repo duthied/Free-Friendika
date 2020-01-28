@@ -108,7 +108,7 @@ function crepair_content(App $a)
 
 	if (DBA::isResult($contact)) {
 		$a->data['contact'] = $contact;
-		Model\Profile::load($a, "", 0, Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load($a, "", Model\Contact::getDetailsByURL($contact["url"]));
 	}
 
 	$warning = DI::l10n()->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');

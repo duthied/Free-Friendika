@@ -408,9 +408,6 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 ### src/Content/ContactSelector.php
 
     Hook::callAll('network_to_name', $nets);
-    Hook::callAll('gender_selector', $select);
-    Hook::callAll('sexpref_selector', $select);
-    Hook::callAll('marital_selector', $select);
 
 ### src/Content/OEmbed.php
 

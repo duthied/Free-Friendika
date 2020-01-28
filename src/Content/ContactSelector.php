@@ -19,7 +19,7 @@ class ContactSelector
 	/**
 	 * @param string  $current  current
 	 * @param boolean $disabled optional, default false
-	 * @return object
+	 * @return string
 	 */
 	public static function pollInterval($current, $disabled = false)
 	{
@@ -47,7 +47,7 @@ class ContactSelector
 	/**
 	 * @param string $profile Profile URL
 	 * @return string Server URL
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	private static function getServerURLForProfile($profile)
 	{
@@ -147,7 +147,7 @@ class ContactSelector
 	 * @param string $network network
 	 * @param string $profile optional, default empty
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function networkToIcon($network, $profile = "")
 	{
@@ -194,139 +194,5 @@ class ContactSelector
 		}
 
 		return $network_icon;
-	}
-
-	/**
-	 * @param string $current optional, default empty
-	 * @param string $suffix  optionsl, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function gender($current = "", $suffix = "")
-	{
-		$o = '';
-		$select = [
-			''                 => DI::l10n()->t('No answer'),
-			'Male'             => DI::l10n()->t('Male'),
-			'Female'           => DI::l10n()->t('Female'),
-			'Currently Male'   => DI::l10n()->t('Currently Male'),
-			'Currently Female' => DI::l10n()->t('Currently Female'),
-			'Mostly Male'      => DI::l10n()->t('Mostly Male'),
-			'Mostly Female'    => DI::l10n()->t('Mostly Female'),
-			'Transgender'      => DI::l10n()->t('Transgender'),
-			'Intersex'         => DI::l10n()->t('Intersex'),
-			'Transsexual'      => DI::l10n()->t('Transsexual'),
-			'Hermaphrodite'    => DI::l10n()->t('Hermaphrodite'),
-			'Neuter'           => DI::l10n()->t('Neuter'),
-			'Non-specific'     => DI::l10n()->t('Non-specific'),
-			'Other'            => DI::l10n()->t('Other'),
-			'Undecided'        => DI::l10n()->t('Undecided'),
-		];
-
-		Hook::callAll('gender_selector', $select);
-
-		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
-	}
-
-	/**
-	 * @param string $current optional, default empty
-	 * @param string $suffix  optionsl, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function sexualPreference($current = "", $suffix = "")
-	{
-		$o = '';
-		$select = [
-			''              => DI::l10n()->t('No answer'),
-			'Males'         => DI::l10n()->t('Males'),
-			'Females'       => DI::l10n()->t('Females'),
-			'Gay'           => DI::l10n()->t('Gay'),
-			'Lesbian'       => DI::l10n()->t('Lesbian'),
-			'No Preference' => DI::l10n()->t('No Preference'),
-			'Bisexual'      => DI::l10n()->t('Bisexual'),
-			'Autosexual'    => DI::l10n()->t('Autosexual'),
-			'Abstinent'     => DI::l10n()->t('Abstinent'),
-			'Virgin'        => DI::l10n()->t('Virgin'),
-			'Deviant'       => DI::l10n()->t('Deviant'),
-			'Fetish'        => DI::l10n()->t('Fetish'),
-			'Oodles'        => DI::l10n()->t('Oodles'),
-			'Nonsexual'     => DI::l10n()->t('Nonsexual'),
-		];
-
-		Hook::callAll('sexpref_selector', $select);
-
-		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
-	}
-
-	/**
-	 * @param string $current optional, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function maritalStatus($current = "")
-	{
-		$o = '';
-		$select = [
-			''                     => DI::l10n()->t('No answer'),
-			'Single'               => DI::l10n()->t('Single'),
-			'Lonely'               => DI::l10n()->t('Lonely'),
-			'In a relation'        => DI::l10n()->t('In a relation'),
-			'Has crush'            => DI::l10n()->t('Has crush'),
-			'Infatuated'           => DI::l10n()->t('Infatuated'),
-			'Dating'               => DI::l10n()->t('Dating'),
-			'Unfaithful'           => DI::l10n()->t('Unfaithful'),
-			'Sex Addict'           => DI::l10n()->t('Sex Addict'),
-			'Friends'              => DI::l10n()->t('Friends'),
-			'Friends/Benefits'     => DI::l10n()->t('Friends/Benefits'),
-			'Casual'               => DI::l10n()->t('Casual'),
-			'Engaged'              => DI::l10n()->t('Engaged'),
-			'Married'              => DI::l10n()->t('Married'),
-			'Imaginarily married'  => DI::l10n()->t('Imaginarily married'),
-			'Partners'             => DI::l10n()->t('Partners'),
-			'Cohabiting'           => DI::l10n()->t('Cohabiting'),
-			'Common law'           => DI::l10n()->t('Common law'),
-			'Happy'                => DI::l10n()->t('Happy'),
-			'Not looking'          => DI::l10n()->t('Not looking'),
-			'Swinger'              => DI::l10n()->t('Swinger'),
-			'Betrayed'             => DI::l10n()->t('Betrayed'),
-			'Separated'            => DI::l10n()->t('Separated'),
-			'Unstable'             => DI::l10n()->t('Unstable'),
-			'Divorced'             => DI::l10n()->t('Divorced'),
-			'Imaginarily divorced' => DI::l10n()->t('Imaginarily divorced'),
-			'Widowed'              => DI::l10n()->t('Widowed'),
-			'Uncertain'            => DI::l10n()->t('Uncertain'),
-			'It\'s complicated'    => DI::l10n()->t('It\'s complicated'),
-			'Don\'t care'          => DI::l10n()->t('Don\'t care'),
-			'Ask me'               => DI::l10n()->t('Ask me'),
-		];
-
-		Hook::callAll('marital_selector', $select);
-
-		$o .= '<select name="marital" id="marital-select" size="1" >';
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
 	}
 }

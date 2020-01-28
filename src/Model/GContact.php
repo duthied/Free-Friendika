@@ -1117,7 +1117,7 @@ class GContact
 		);
 
 		$gcontact = ['name' => $userdata['name'], 'location' => $location, 'about' => $userdata['about'],
-				'gender' => $userdata['gender'], 'keywords' => $userdata['pub_keywords'],
+				'gender' => '', 'keywords' => $userdata['pub_keywords'],
 				'birthday' => $userdata['dob'], 'photo' => $userdata['photo'],
 				"notify" => $userdata['notify'], 'url' => $userdata['url'],
 				"hide" => ($userdata['hidewall'] || !$userdata['net-publish']),

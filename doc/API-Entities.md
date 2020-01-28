@@ -1182,54 +1182,6 @@ Mutually exclusive with <code>link</code>.
 </tr>
 
 <tr>
-<td><code>hometown</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>gender</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>marital</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>marital_with</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>marital_since</code></td>
-<td>String (Date)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>sexual</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>politic</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>religion</code></td>
-<td>String</td>
-<td></td>
-</tr>
-
-<tr>
 <td><code>public_keywords</code></td>
 <td>String</td>
 <td>Comma-separated list of words meant to be displayed as hashtags.</td>
@@ -1242,87 +1194,9 @@ Mutually exclusive with <code>link</code>.
 </tr>
 
 <tr>
-<td><code>likes</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>dislikes</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>about</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>music</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>book</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>tv</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>film</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>interest</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>romance</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>work</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>education</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
-<td><code>social_networks</code></td>
-<td>String (Plaintext)</td>
-<td></td>
-</tr>
-
-<tr>
 <td><code>homepage</code></td>
 <td>String (URL)</td>
 <td></td>
-</tr>
-
-<tr>
-<td><code>users</code></td>
-<td>List of <a href="help/API-Entities#Contact">Contacts</a></td>
-<td>If populated, only these contacts have access to the profile.</td>
 </tr>
 
 </tbody>
