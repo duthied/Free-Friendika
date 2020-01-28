@@ -23,7 +23,7 @@ class Notification extends BaseModule
 	{
 		$request_id = $parameters['id'] ?? false;
 
-		if (DI::args()->get(1) == 'action' && $request_id) {
+		if ($request_id) {
 			$intro = DI::intro()->selectFirst(['id' => $request_id, 'uid' => local_user()]);
 
 			switch ($_POST['submit']) {
@@ -65,10 +65,11 @@ class Notification extends BaseModule
 	 */
 	public static function content(array $parameters = [])
 	{
-		// @TODO: Replace with parameter from router
-		if (DI::args()->getArgc() > 2 && DI::args()->get(1) === 'view' && intval(DI::args()->get(2))) {
+		$request_id = $parameters['id'] ?? false;
+
+		if ($request_id) {
 			try {
-				$notification = DI::notify()->getByID(DI::args()->get(2));
+				$notification = DI::notify()->getByID($request_id);
 				$notification->setSeen();
 
 				if (!empty($notification->link)) {
@@ -86,3 +87,4 @@ class Notification extends BaseModule
 		DI::baseUrl()->redirect('notifications/system');
 	}
 }
+

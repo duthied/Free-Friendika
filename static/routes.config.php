@@ -184,10 +184,9 @@ return [
 	],
 
 	'/notification'         => [
-		'[/]'               => [Module\Notifications\Notification::class, [R::GET]],
-		'/view/{id:\d+}'    => [Module\Notifications\Notification::class, [R::GET]],
-		'/mark/all'         => [Module\Notifications\Notification::class, [R::GET]],
-		'/action/{id:\d+}'  => [Module\Notifications\Notification::class, [        R::POST]],
+		'[/]'       => [Module\Notifications\Notification::class, [R::GET]],
+		'/mark/all' => [Module\Notifications\Notification::class, [R::GET]],
+		'/{id:\d+}' => [Module\Notifications\Notification::class, [R::GET, R::POST]],
 	],
 	'/objects/{guid}' => [Module\Objects::class, [R::GET]],
 

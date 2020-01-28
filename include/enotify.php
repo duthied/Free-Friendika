@@ -500,7 +500,7 @@ function notification($params)
 
 		DI::notify()->update($notification);
 
-		$itemlink  = DI::baseUrl() . '/notification/view/' . $notification->id;
+		$itemlink  = DI::baseUrl() . '/notification/' . $notification->id;
 		$notify_id = $notification->id;
 	}
 
