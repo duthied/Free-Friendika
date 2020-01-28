@@ -4,6 +4,7 @@ namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseFactory;
+use Friendica\Collection\Api\Mastodon\Emojis;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
@@ -11,36 +12,34 @@ use Psr\Log\LoggerInterface;
 
 class Emoji extends BaseFactory
 {
-	/** @var BaseURL */
-	protected $baseUrl;
-
-	public function __construct(LoggerInterface $logger, BaseURL $baseURL)
+	public function create(string $shortcode, string $url)
 	{
-		parent::__construct($logger);
-
-		$this->baseUrl = $baseURL;
+		return new \Friendica\Object\Api\Mastodon\Emoji($shortcode, $url);
 	}
 
 	/**
-	 * @param int $contactId
-	 * @param int $uid        User Id
-	 * @return \Friendica\Api\Entity\Mastodon\Account
-	 * @throws HTTPException\InternalServerErrorException
-	 * @throws \ImagickException
+	 * @param array $smilies
+	 * @return Emojis
 	 */
-	public function createFromContactId(int $contactId, $uid = 0)
+	public function createCollectionFromSmilies(array $smilies)
 	{
-		$cdata = Contact::getPublicAndUserContacID($contactId, $uid);
-		if (!empty($cdata)) {
-			$publicContact = Contact::getById($cdata['public']);
-			$userContact = Contact::getById($cdata['user']);
-		} else {
-			$publicContact = Contact::getById($contactId);
-			$userContact = [];
+		$prototype = null;
+
+		$emojis = [];
+
+		foreach ($smilies['texts'] as $key => $shortcode) {
+			if (preg_match('/src="(.+?)"/', $smilies['icons'][$key], $matches)) {
+				$url = $matches[1];
+
+				if ($prototype === null) {
+					$prototype = $this->create($shortcode, $url);
+					$emojis[] = $prototype;
+				} else {
+					$emojis[] = \Friendica\Object\Api\Mastodon\Emoji::createFromPrototype($prototype, $shortcode, $url);
+				}
+			};
 		}
 
-		$apcontact = APContact::getByURL($publicContact['url'], false);
-
-		return new \Friendica\Api\Entity\Mastodon\Account($this->baseUrl, $publicContact, $apcontact, $userContact);
+		return new Emojis($emojis);
 	}
 }

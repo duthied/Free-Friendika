@@ -229,6 +229,14 @@ abstract class DI
 	}
 
 	/**
+	 * @return Factory\Api\Mastodon\Emoji
+	 */
+	public static function mstdnEmoji()
+	{
+		return self::$dice->create(Factory\Api\Mastodon\Emoji::class);
+	}
+
+	/**
 	 * @return Factory\Api\Mastodon\FollowRequest
 	 */
 	public static function mstdnFollowRequest()
