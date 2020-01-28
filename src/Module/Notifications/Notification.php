@@ -19,6 +19,26 @@ class Notification extends BaseModule
 		}
 	}
 
+	public static function post(array $parameters = [])
+	{
+		$request_id = $parameters['id'] ?? false;
+
+		if (DI::args()->get(1) == 'action' && $request_id) {
+			$intro = DI::intro()->selectFirst(['id' => $request_id, 'uid' => local_user()]);
+
+			switch ($_POST['submit']) {
+				case DI::l10n()->t('Discard'):
+					$intro->discard();
+					break;
+				case DI::l10n()->t('Ignore'):
+					$intro->ignore();
+					break;
+			}
+
+			DI::baseUrl()->redirect('notifications/intros');
+		}
+	}
+
 	public static function rawContent(array $parameters = [])
 	{
 		// @TODO: Replace with parameter from router
