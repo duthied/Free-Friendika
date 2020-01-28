@@ -483,24 +483,24 @@ function notification($params)
 
 	if ($show_in_notification_page) {
 		$notification = DI::notify()->insert([
-			'name'   => $params['source_name'],
+			'name'       => $params['source_name'],
 			'name_cache' => strip_tags(BBCode::convert($params['source_name'])),
-			'url'    => $params['source_link'],
-			'photo'  => $params['source_photo'],
-			'uid'    => $params['uid'],
-			'iid'    => $item_id,
-			'parent' => $parent_id,
-			'type'   => $params['type'],
-			'verb'   => $params['verb'],
-			'otype'  => $params['otype'],
+			'url'        => $params['source_link'],
+			'photo'      => $params['source_photo'],
+			'link'       => $itemlink,
+			'uid'        => $params['uid'],
+			'iid'        => $item_id,
+			'parent'     => $parent_id,
+			'type'       => $params['type'],
+			'verb'       => $params['verb'],
+			'otype'      => $params['otype'],
 		]);
 
-		$notification->link = DI::baseUrl() . '/notification/view/' . $notification->id;
-		$notification->msg  = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
+		$notification->msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
 
 		DI::notify()->update($notification);
 
-		$itemlink  = $notification->link;
+		$itemlink  = DI::baseUrl() . '/notification/view/' . $notification->id;
 		$notify_id = $notification->id;
 	}
 
