@@ -33,7 +33,7 @@ class NoScrape extends BaseModule
 			exit();
 		}
 
-		Profile::load($a, $nickname);
+		Profile::load($a, $which);
 
 		$json_info = [
 			'addr'         => $a->profile['addr'],
