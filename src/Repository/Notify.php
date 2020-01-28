@@ -37,8 +37,6 @@ class Notify extends BaseRepository
 	{
 		$params['order'] = $params['order'] ?? ['date' => 'DESC'];
 
-		$condition = array_merge($condition, ['uid' => local_user()]);
-
 		return parent::select($condition, $params);
 	}
 
