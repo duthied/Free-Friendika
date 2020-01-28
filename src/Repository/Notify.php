@@ -37,8 +37,6 @@ class Notify extends BaseRepository
 	{
 		$params['order'] = $params['order'] ?? ['date' => 'DESC'];
 
-		$condition = array_merge($condition, ['uid' => local_user()]);
-
 		return parent::select($condition, $params);
 	}
 
@@ -67,7 +65,7 @@ class Notify extends BaseRepository
 	/**
 	 * @param array $fields
 	 *
-	 * @return Model\Notify
+	 * @return Model\Notify|false
 	 *
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 * @throws Exception
@@ -75,13 +73,12 @@ class Notify extends BaseRepository
 	public function insert(array $fields)
 	{
 		$fields['date']  = DateTimeFormat::utcNow();
-		$fields['abort'] = false;
 
 		Hook::callAll('enotify_store', $fields);
 
-		if ($fields['abort']) {
-			$this->logger->debug('Abort adding notification entry', ['fields' => $fields]);
-			return null;
+		if (empty($fields)) {
+			$this->logger->debug('Abort adding notification entry');
+			return false;
 		}
 
 		$this->logger->debug('adding notification entry', ['fields' => $fields]);

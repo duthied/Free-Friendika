@@ -14,6 +14,7 @@ use Friendica\Core\Session;
 use Friendica\Core\Session\ISession;
 use Friendica\Core\System;
 use Friendica\Database\Database;
+use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
@@ -3916,14 +3917,15 @@ class ApiTest extends DatabaseTest
 	}
 
 	/**
-	 * Test the api_friendica_notification() function with an argument count.
+	 * Test the api_friendica_notification() function with empty result
 	 *
 	 * @return void
 	 */
-	public function testApiFriendicaNotificationWithArgumentCount()
+	public function testApiFriendicaNotificationWithEmptyResult()
 	{
 		$this->app->argv = ['api', 'friendica', 'notification'];
 		$this->app->argc = count($this->app->argv);
+		$_SESSION['uid'] = 41;
 		$result          = api_friendica_notification('json');
 		$this->assertEquals(['note' => false], $result);
 	}
@@ -3938,7 +3940,26 @@ class ApiTest extends DatabaseTest
 		$this->app->argv = ['api', 'friendica', 'notification'];
 		$this->app->argc = count($this->app->argv);
 		$result          = api_friendica_notification('xml');
-		$this->assertXml($result, 'notes');
+		$assertXml=<<<XML
+<?xml version="1.0"?>
+<notes>
+  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" link="http://localhost/notification/1" iid="4" parent="0" seen="0" verb="" otype="item" name_cache="" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="4 weeks ago" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
+</notes>
+XML;
+		$this->assertXmlStringEqualsXmlString($assertXml, $result);
+	}
+
+	/**
+	 * Test the api_friendica_notification() function with an JSON result.
+	 *
+	 * @return void
+	 */
+	public function testApiFriendicaNotificationWithJsonResult()
+	{
+		$this->app->argv = ['api', 'friendica', 'notification'];
+		$this->app->argc = count($this->app->argv);
+		$result          = json_encode(api_friendica_notification('json'));
+		$this->assertJson($result);
 	}
 
 	/**

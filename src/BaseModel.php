@@ -12,7 +12,7 @@ use Psr\Log\LoggerInterface;
  *
  * @property int id
  */
-abstract class BaseModel
+abstract class BaseModel extends BaseEntity
 {
 	/** @var Database */
 	protected $dba;

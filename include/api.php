@@ -5892,10 +5892,11 @@ api_register_func('api/friendica/activity/unattendmaybe', 'api_friendica_activit
  * Returns notifications
  *
  * @param string $type Known types are 'atom', 'rss', 'xml' and 'json'
+ *
  * @return string|array
- * @throws BadRequestException
  * @throws ForbiddenException
- * @throws InternalServerErrorException
+ * @throws BadRequestException
+ * @throws Exception
  */
 function api_friendica_notification($type)
 {
@@ -5908,7 +5909,7 @@ function api_friendica_notification($type)
 		throw new BadRequestException("Invalid argument count");
 	}
 
-	$notifications = DI::notify()->select(['uid' => api_user()], ['order' => ['seen' => 'ASC', 'date' => 'DESC'], 'limit' => 50]);
+	$notifications = DI::notification()->getApiList(local_user());
 
 	if ($type == "xml") {
 		$xmlnotes = false;

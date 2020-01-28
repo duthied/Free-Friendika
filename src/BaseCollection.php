@@ -17,14 +17,14 @@ abstract class BaseCollection extends \ArrayIterator
 	protected $totalCount = 0;
 
 	/**
-	 * @param BaseModel[] $models
-	 * @param int|null    $totalCount
+	 * @param BaseEntity[] $entities
+	 * @param int|null     $totalCount
 	 */
-	public function __construct(array $models = [], int $totalCount = null)
+	public function __construct(array $entities = [], int $totalCount = null)
 	{
-		parent::__construct($models);
+		parent::__construct($entities);
 
-		$this->totalCount = $totalCount ?? count($models);
+		$this->totalCount = $totalCount ?? count($entities);
 	}
 
 	/**

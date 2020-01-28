@@ -189,6 +189,25 @@ return [
 			'origin'      => 1,
 		],
 	],
+	'notify' => [
+		[
+			'id' => 1,
+			'type' => 8,
+			'name' => 'Reply to',
+			'url' => 'http://localhost/display/1',
+			'photo' => 'http://localhost/',
+			'date' => '2020-01-01 12:12:02',
+			'msg' => 'A test reply from an item',
+			'uid' => 42,
+			'link' => 'http://localhost/notification/1',
+			'iid' => 4,
+			'seen' => 0,
+			'verb' => '',
+			'otype' => 'item',
+			'name_cache' => 'Reply to',
+			'msg_cache' => 'A test reply from an item',
+		],
+	],
 	'thread'  => [
 		[
 			'iid'        => 1,
