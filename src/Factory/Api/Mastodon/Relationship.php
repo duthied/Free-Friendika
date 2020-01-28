@@ -1,6 +1,6 @@
 <?php
 
-namespace Friendica\Factory\Mastodon;
+namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\Object\Api\Mastodon\Relationship as RelationshipEntity;
 use Friendica\BaseFactory;

@@ -1,13 +1,13 @@
 <?php
 
-namespace Friendica\Factory\Mastodon;
+namespace Friendica\Factory\Api\Mastodon;
 
 use Friendica\App\BaseURL;
+use Friendica\BaseFactory;
 use Friendica\Model\APContact;
 use Friendica\Model\Contact;
 use Friendica\Model\Introduction;
 use Friendica\Network\HTTPException;
-use Friendica\BaseFactory;
 use Psr\Log\LoggerInterface;
 
 class FollowRequest extends BaseFactory

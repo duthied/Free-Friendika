@@ -141,7 +141,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Core\PConfig\IPConfig
+	 * @return Core\PConfig\IPConfig
 	 */
 	public static function pConfig()
 	{
@@ -221,31 +221,31 @@ abstract class DI
 	//
 
 	/**
-	 * @return Factory\Mastodon\Account
+	 * @return Factory\Api\Mastodon\Account
 	 */
 	public static function mstdnAccount()
 	{
-		return self::$dice->create(Factory\Mastodon\Account::class);
+		return self::$dice->create(Factory\Api\Mastodon\Account::class);
 	}
 
 	/**
-	 * @return Factory\Mastodon\FollowRequest
+	 * @return Factory\Api\Mastodon\FollowRequest
 	 */
 	public static function mstdnFollowRequest()
 	{
-		return self::$dice->create(Factory\Mastodon\FollowRequest::class);
+		return self::$dice->create(Factory\Api\Mastodon\FollowRequest::class);
 	}
 
 	/**
-	 * @return Factory\Mastodon\Relationship
+	 * @return Factory\Api\Mastodon\Relationship
 	 */
 	public static function mstdnRelationship()
 	{
-		return self::$dice->create(Factory\Mastodon\Relationship::class);
+		return self::$dice->create(Factory\Api\Mastodon\Relationship::class);
 	}
 
 	/**
-	 * @return \Friendica\Factory\Notification\Notification
+	 * @return Factory\Notification\Notification
 	 */
 	public static function notification()
 	{
@@ -253,7 +253,7 @@ abstract class DI
 	}
 
 	/**
-	 * @return \Friendica\Factory\Notification\Introduction
+	 * @return Factory\Notification\Introduction
 	 */
 	public static function notificationIntro()
 	{
