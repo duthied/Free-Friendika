@@ -64,7 +64,7 @@
 				<option>temp</option>
 			</select>
 		</div>
-		<div id="profile-edit-hometown-end"></div>
+		<div id="profile-edit-region-end"></div>
 		<div class="profile-edit-submit-wrapper">
 			<input type="submit" name="submit" class="profile-edit-submit-button" value="{{$submit}}"/>
 		</div>

@@ -19,7 +19,7 @@ class ContactSelector
 	/**
 	 * @param string  $current  current
 	 * @param boolean $disabled optional, default false
-	 * @return object
+	 * @return string
 	 */
 	public static function pollInterval($current, $disabled = false)
 	{
@@ -47,7 +47,7 @@ class ContactSelector
 	/**
 	 * @param string $profile Profile URL
 	 * @return string Server URL
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	private static function getServerURLForProfile($profile)
 	{
@@ -147,7 +147,7 @@ class ContactSelector
 	 * @param string $network network
 	 * @param string $profile optional, default empty
 	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws \Exception
 	 */
 	public static function networkToIcon($network, $profile = "")
 	{
@@ -194,44 +194,5 @@ class ContactSelector
 		}
 
 		return $network_icon;
-	}
-
-	/**
-	 * @param string $current optional, default empty
-	 * @param string $suffix  optionsl, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
-	public static function sexualPreference($current = "", $suffix = "")
-	{
-		$o = '';
-		$select = [
-			''              => DI::l10n()->t('No answer'),
-			'Males'         => DI::l10n()->t('Males'),
-			'Females'       => DI::l10n()->t('Females'),
-			'Gay'           => DI::l10n()->t('Gay'),
-			'Lesbian'       => DI::l10n()->t('Lesbian'),
-			'No Preference' => DI::l10n()->t('No Preference'),
-			'Bisexual'      => DI::l10n()->t('Bisexual'),
-			'Autosexual'    => DI::l10n()->t('Autosexual'),
-			'Abstinent'     => DI::l10n()->t('Abstinent'),
-			'Virgin'        => DI::l10n()->t('Virgin'),
-			'Deviant'       => DI::l10n()->t('Deviant'),
-			'Fetish'        => DI::l10n()->t('Fetish'),
-			'Oodles'        => DI::l10n()->t('Oodles'),
-			'Nonsexual'     => DI::l10n()->t('Nonsexual'),
-		];
-
-		Hook::callAll('sexpref_selector', $select);
-
-		$o .= "<select name=\"sexual$suffix\" id=\"sexual-select$suffix\" size=\"1\" >";
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
 	}
 }

@@ -913,11 +913,6 @@ class Profile
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`sexual` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`romance` LIKE ?) OR
-				(`profile`.`work` LIKE ?) OR
-				(`profile`.`education` LIKE ?) OR
 				(`profile`.`pub_keywords` LIKE ?) OR
 				(`profile`.`prv_keywords` LIKE ?))",
 				$searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm, $searchTerm,
@@ -953,11 +948,6 @@ class Profile
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`sexual` LIKE ?) OR
-				(`profile`.`about` LIKE ?) OR
-				(`profile`.`romance` LIKE ?) OR
-				(`profile`.`work` LIKE ?) OR
-				(`profile`.`education` LIKE ?) OR
 				(`profile`.`pub_keywords` LIKE ?) OR
 				(`profile`.`prv_keywords` LIKE ?))
 			$order LIMIT ?,?",

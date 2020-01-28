@@ -733,21 +733,15 @@ input#dfrn-url {
 #profile-edit-profile-name-label,
 #profile-edit-name-label,
 #profile-edit-pdesc-label,
-#profile-edit-gender-label,
 #profile-edit-dob-label,
 #profile-edit-address-label,
 #profile-edit-locality-label,
 #profile-edit-region-label,
 #profile-edit-postal-code-label,
 #profile-edit-country-name-label,
-#profile-edit-marital-label,
-#profile-edit-sexual-label,
-#profile-edit-politic-label,
-#profile-edit-religion-label,
 #profile-edit-pubkeywords-label,
 #profile-edit-prvkeywords-label,
-#profile-edit-homepage-label,
-#profile-edit-hometown-label {
+#profile-edit-homepage-label {
 	float: left;
 	width: 175px;
 }
@@ -755,17 +749,12 @@ input#dfrn-url {
 #profile-edit-profile-name,
 #profile-edit-name,
 #profile-edit-pdesc,
-#gender-select,
 #profile-edit-dob,
 #profile-edit-address,
 #profile-edit-locality,
 #profile-edit-region,
 #profile-edit-postal-code,
 #profile-edit-country-name,
-#marital-select,
-#sexual-select,
-#profile-edit-politic,
-#profile-edit-religion,
 #profile-edit-pubkeywords,
 #profile-edit-prvkeywords,
 #profile-in-dir-yes,
@@ -842,7 +831,7 @@ input#dfrn-url {
 }
 
 
-#profile-edit-homepage, #profile-edit-hometown {
+#profile-edit-homepage {
 	float: left;
 	margin-bottom: 35px;
 }
@@ -865,24 +854,17 @@ input#dfrn-url {
     margin-bottom: 20px
 }
 
-#profile-edit-profile-name-end,
 #profile-edit-name-end,
 #profile-edit-pdesc-end,
-#profile-edit-gender-end,
 #profile-edit-dob-end,
 #profile-edit-address-end,
 #profile-edit-locality-end,
 #profile-edit-region-end,
 #profile-edit-postal-code-end,
 #profile-edit-country-name-end,
-#profile-edit-marital-end,
-#profile-edit-sexual-end,
-#profile-edit-politic-end,
-#profile-edit-religion-end,
 #profile-edit-pubkeywords-end,
 #profile-edit-prvkeywords-end,
 #profile-edit-homepage-end,
-#profile-edit-hometown-end,
 #profile-in-dir-break,
 #profile-in-dir-end,
 #profile-in-netdir-break,
@@ -908,10 +890,6 @@ input#dfrn-url {
 	margin-bottom: 8px;
 }
 
-
-#gender-select, #marital-select, #sexual-select {
-	width: 220px;
-}
 
 #profile-edit-profile-name-wrapper .required {
 	color: #FF0000;
@@ -1588,113 +1566,6 @@ blockquote.shared_content {
   padding: 4px;
 }
 
-
-#advanced-profile-name-wrapper,
-#advanced-profile-gender-wrapper,
-#advanced-profile-dob-wrapper,
-#advanced-profile-age-wrapper,
-#advanced-profile-marital-wrapper,
-#advanced-profile-sexual-wrapper,
-#advanced-profile-homepage-wrapper,
-#advanced-profile-politic-wrapper,
-#advanced-profile-religion-wrapper,
-#advanced-profile-about-wrapper,
-#advanced-profile-interest-wrapper,
-#advanced-profile-contact-wrapper,
-#advanced-profile-music-wrapper,
-#advanced-profile-book-wrapper,
-#advanced-profile-tv-wrapper,
-#advanced-profile-film-wrapper,
-#advanced-profile-romance-wrapper,
-#advanced-profile-work-wrapper,
-#advanced-profile-education-wrapper {
-	margin-top: 20px;
-}
-
-#advanced-profile-name-text,
-#advanced-profile-gender-text,
-#advanced-profile-dob-text,
-#advanced-profile-age-text,
-#advanced-profile-marital-text,
-#advanced-profile-sexual-text,
-#advanced-profile-homepage-text,
-#advanced-profile-politic-text,
-#advanced-profile-religion-text,
-#advanced-profile-about-text,
-#advanced-profile-interest-text,
-#advanced-profile-contact-text,
-#advanced-profile-music-text,
-#advanced-profile-book-text,
-#advanced-profile-tv-text,
-#advanced-profile-film-text,
-#advanced-profile-romance-text,
-#advanced-profile-work-text,
-#advanced-profile-education-text {
-	width: 300px;
-	float: left;
-}
-
-#advanced-profile-name-end,
-#advanced-profile-gender-end,
-#advanced-profile-dob-end,
-#advanced-profile-age-end,
-#advanced-profile-marital-end,
-#advanced-profile-sexual-end,
-#advanced-profile-homepage-end,
-#advanced-profile-politic-end,
-#advanced-profile-religion-end {
-	height: 10px;
-}
-
-#advanced-profile-about-end,
-#advanced-profile-interest-end,
-#advanced-profile-contact-end,
-#advanced-profile-music-end,
-#advanced-profile-book-end,
-#advanced-profile-tv-end,
-#advanced-profile-film-end,
-#advanced-profile-romance-end,
-#advanced-profile-work-end,
-#advanced-profile-education-end {
-
-
-}
-
-#advanced-profile-name,
-#advanced-profile-gender,
-#advanced-profile-dob,
-#advanced-profile-age,
-#advanced-profile-marital,
-#advanced-profile-sexual,
-#advanced-profile-homepage,
-#advanced-profile-politic,
-#advanced-profile-religion {
-	float: left;
-
-}
-
-
-#advanced-profile-about,
-#advanced-profile-interest,
-#advanced-profile-contact,
-#advanced-profile-music,
-#advanced-profile-book,
-#advanced-profile-tv,
-#advanced-profile-film,
-#advanced-profile-romance,
-#advanced-profile-work,
-#advanced-profile-education {
-	margin-top: 10px;
-	margin-left: 50px;
-	margin-right: 20px;
-	padding: 10px;
-	border: 1px solid #CCCCCC;
-}
-
-#advanced-profile-with {
-	float: left;
-	margin-left: 15px;
-}
 
 #contact-edit-wrapper {
 	margin-top: 10px;
@@ -2446,14 +2317,14 @@ aside input[type='text'] {
 	margin-bottom: 25px;
 }
 
-.location-label, .gender-label, .marital-label, .homepage-label, .network-label {
+.location-label, .gender-label, .homepage-label, .network-label {
 	float: left;
 	text-align: right;
 	display: block;
 	width: 65px;
 }
 
-.adr, .x-gender, .marital-text, .homepage-url, .x-network {
+.adr, .homepage-url, .x-network {
 	float: left;
 	display: block;
 	margin-left: 8px;

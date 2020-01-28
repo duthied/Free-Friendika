@@ -138,7 +138,6 @@ class Directory extends BaseModule
 		}
 
 		$homepage = (!empty($profile['homepage']) ? DI::l10n()->t('Homepage:') : false);
-		$about =    (!empty($profile['about'])    ? DI::l10n()->t('About:')    : false);
 
 		$location_e = $location;
 
@@ -160,7 +159,6 @@ class Directory extends BaseModule
 			'tags'         => $contact['pub_keywords'],
 			'pdesc'        => $pdesc,
 			'homepage'     => $homepage,
-			'about'        => $about,
 			'photo_menu'   => $photo_menu,
 
 		];
