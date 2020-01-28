@@ -79,7 +79,7 @@ class Notify extends BaseRepository
 		Hook::callAll('enotify_store', $fields);
 
 		if (empty($fields)) {
-			$this->logger->debug('Abort adding notification entry', ['fields' => $fields]);
+			$this->logger->debug('Abort adding notification entry');
 			return false;
 		}
 
