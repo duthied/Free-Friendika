@@ -129,9 +129,16 @@ abstract class BaseModel
 		$this->data[$name] = $value;
 	}
 
-	public function toArray()
+	/**
+	 * Returns the values of the current model as an array
+	 *
+	 * @param bool $dbOnly True, if just the db-relevant fields should be returned
+	 *
+	 * @return array The values of the current model
+	 */
+	public function toArray(bool $dbOnly = false)
 	{
-		return $this->mapFields($this->data);
+		return $dbOnly ? $this->mapFields($this->data) : $this->data;
 	}
 
 	protected function checkValid()
