@@ -483,17 +483,17 @@ function notification($params)
 
 	if ($show_in_notification_page) {
 		$notification = DI::notify()->insert([
-			'name'       => $params['source_name'],
-			'name_cache' => strip_tags(BBCode::convert($params['source_name'])),
-			'url'        => $params['source_link'],
-			'photo'      => $params['source_photo'],
-			'link'       => $itemlink,
-			'uid'        => $params['uid'],
-			'iid'        => $item_id,
-			'parent'     => $parent_id,
-			'type'       => $params['type'],
-			'verb'       => $params['verb'],
-			'otype'      => $params['otype'],
+			'name'       => $params['source_name'] ?? '',
+			'name_cache' => strip_tags(BBCode::convert($params['source_name'] ?? '')),
+			'url'        => $params['source_link'] ?? '',
+			'photo'      => $params['source_photo'] ?? '',
+			'link'       => $itemlink ?? '',
+			'uid'        => $params['uid'] ?? 0,
+			'iid'        => $item_id ?? 0,
+			'parent'     => $parent_id ?? 0,
+			'type'       => $params['type'] ?? '',
+			'verb'       => $params['verb'] ?? '',
+			'otype'      => $params['otype'] ?? '',
 		]);
 
 		$notification->msg = Renderer::replaceMacros($epreamble, ['$itemlink' => $notification->link]);
