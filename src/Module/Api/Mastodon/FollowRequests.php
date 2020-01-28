@@ -2,18 +2,15 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Object\Api\Mastodon;
-use Friendica\Object\Api\Mastodon\Relationship;
 use Friendica\Core\System;
 use Friendica\DI;
-use Friendica\Model\Contact;
-use Friendica\Module\Base\Api;
+use Friendica\Module\BaseApi;
 use Friendica\Network\HTTPException;
 
 /**
  * @see https://docs.joinmastodon.org/methods/accounts/follow_requests
  */
-class FollowRequests extends Api
+class FollowRequests extends BaseApi
 {
 	public static function init(array $parameters = [])
 	{
