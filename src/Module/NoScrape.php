@@ -69,11 +69,20 @@ class NoScrape extends BaseModule
 		$json_info['language'] = $a->profile['language'];
 
 		if (!($a->profile['hide-friends'] ?? false)) {
-			/// @todo What should this value tell us?
-			$result = DBA::p("SELECT `gcontact`.`updated` FROM `contact` INNER JOIN `gcontact` WHERE `gcontact`.`nurl` = `contact`.`nurl` AND `self` AND `uid` = ? LIMIT 1", intval($a->profile['uid']));
-			if (DBA::isResult($result)) {
-				$json_info["updated"] = date("c", strtotime($result[0]['updated']));
+			$stmt = DBA::p(
+				"SELECT `gcontact`.`updated`
+				FROM `contact`
+				INNER JOIN `gcontact`
+				WHERE `gcontact`.`nurl` = `contact`.`nurl`
+				  AND `self`
+				  AND `uid` = ?
+				LIMIT 1",
+				intval($a->profile['uid'])
+			);
+			if ($gcontact = DBA::fetch($stmt)) {
+				$json_info["updated"] = date("c", strtotime($gcontact['updated']));
 			}
+			DBA::close($stmt);
 
 			$json_info['contacts'] = DBA::count('contact',
 				[
