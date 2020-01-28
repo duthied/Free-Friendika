@@ -262,7 +262,7 @@ class Introduction implements \JsonSerializable
 	{
 		$this->label         = $data['label'] ?? '';
 		$this->type          = $data['str_type'] ?? '';
-		$this->intro_id      = $data['$intro_id'] ?? -1;
+		$this->intro_id      = $data['intro_id'] ?? -1;
 		$this->madeBy        = $data['madeBy'] ?? '';
 		$this->madeByUrl     = $data['madeByUrl'] ?? '';
 		$this->madeByZrl     = $data['madeByZrl'] ?? '';
