@@ -1,9 +1,8 @@
 <?php
 
-namespace Friendica\Api\Entity\Mastodon;
+namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\App\BaseURL;
-use Friendica\Model\Introduction;
 
 /**
  * Virtual entity to separate Accounts from Follow Requests.

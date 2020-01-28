@@ -2,7 +2,7 @@
 
 namespace Friendica\Factory\Mastodon;
 
-use Friendica\Api\Entity\Mastodon\Relationship as RelationshipEntity;
+use Friendica\Object\Api\Mastodon\Relationship as RelationshipEntity;
 use Friendica\BaseFactory;
 use Friendica\Model\Contact;
 

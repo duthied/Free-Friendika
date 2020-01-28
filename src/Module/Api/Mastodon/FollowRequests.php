@@ -2,8 +2,8 @@
 
 namespace Friendica\Module\Api\Mastodon;
 
-use Friendica\Api\Entity\Mastodon;
-use Friendica\Api\Entity\Mastodon\Relationship;
+use Friendica\Object\Api\Mastodon;
+use Friendica\Object\Api\Mastodon\Relationship;
 use Friendica\Core\System;
 use Friendica\DI;
 use Friendica\Model\Contact;

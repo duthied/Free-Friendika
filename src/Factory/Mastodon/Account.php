@@ -24,7 +24,7 @@ class Account extends BaseFactory
 	/**
 	 * @param int $contactId
 	 * @param int $uid        User Id
-	 * @return \Friendica\Api\Entity\Mastodon\Account
+	 * @return \Friendica\Object\Api\Mastodon\Account
 	 * @throws HTTPException\InternalServerErrorException
 	 * @throws \ImagickException
 	 */
@@ -41,6 +41,6 @@ class Account extends BaseFactory
 
 		$apcontact = APContact::getByURL($publicContact['url'], false);
 
-		return new \Friendica\Api\Entity\Mastodon\Account($this->baseUrl, $publicContact, $apcontact, $userContact);
+		return new \Friendica\Object\Api\Mastodon\Account($this->baseUrl, $publicContact, $apcontact, $userContact);
 	}
 }
