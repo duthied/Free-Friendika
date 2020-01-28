@@ -84,6 +84,8 @@ class Notify extends BaseRepository
 			return null;
 		}
 
+		unset($fields['abort']);
+
 		$this->logger->debug('adding notification entry', ['fields' => $fields]);
 
 		return parent::insert($fields);

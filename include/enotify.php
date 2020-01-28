@@ -484,6 +484,7 @@ function notification($params)
 	if ($show_in_notification_page) {
 		$notification = DI::notify()->insert([
 			'name'   => $params['source_name'],
+			'name_cache' => strip_tags(BBCode::convert($params['source_name'])),
 			'url'    => $params['source_link'],
 			'photo'  => $params['source_photo'],
 			'uid'    => $params['uid'],

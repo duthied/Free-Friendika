@@ -163,4 +163,29 @@ class Notify extends BaseModel
 
 		return $message;
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	protected function mapFields(array $data)
+	{
+		return [
+			'hash'       => $data['hash'] ?? '',
+			'type'       => $data['type'] ?? 0,
+			'name'       => $data['name'] ?? '',
+			'url'        => $data['url'] ?? '',
+			'photo'      => $data['photo'] ?? '',
+			'date'       => $data['date'] ?? DateTimeFormat::utcNow(),
+			'msg'        => $data['msg'] ?? '',
+			'uid'        => $data['uid'] ?? 0,
+			'link'       => $data['link'] ?? '',
+			'iid'        => $data['iid'] ?? 0,
+			'parent'     => $data['parent'] ?? 0,
+			'seen'       => $data['seen'] ?? false,
+			'verb'       => $data['verb'] ?? '',
+			'otype'      => $data['otype'] ?? '',
+			'name_cache' => $data['name_cache'] ?? null,
+			'msg_cache'  => $data['msg_cache'] ?? null,
+		];
+	}
 }
