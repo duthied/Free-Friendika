@@ -919,7 +919,6 @@ class Profile
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`gender` LIKE ?) OR
 				(`profile`.`marital` LIKE ?) OR
 				(`profile`.`sexual` LIKE ?) OR
 				(`profile`.`about` LIKE ?) OR
@@ -961,7 +960,6 @@ class Profile
 				(`profile`.`locality` LIKE ?) OR
 				(`profile`.`region` LIKE ?) OR
 				(`profile`.`country-name` LIKE ?) OR
-				(`profile`.`gender` LIKE ?) OR
 				(`profile`.`marital` LIKE ?) OR
 				(`profile`.`sexual` LIKE ?) OR
 				(`profile`.`about` LIKE ?) OR

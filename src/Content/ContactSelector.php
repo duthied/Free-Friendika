@@ -202,46 +202,6 @@ class ContactSelector
 	 * @return string
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public static function gender($current = "", $suffix = "")
-	{
-		$o = '';
-		$select = [
-			''                 => DI::l10n()->t('No answer'),
-			'Male'             => DI::l10n()->t('Male'),
-			'Female'           => DI::l10n()->t('Female'),
-			'Currently Male'   => DI::l10n()->t('Currently Male'),
-			'Currently Female' => DI::l10n()->t('Currently Female'),
-			'Mostly Male'      => DI::l10n()->t('Mostly Male'),
-			'Mostly Female'    => DI::l10n()->t('Mostly Female'),
-			'Transgender'      => DI::l10n()->t('Transgender'),
-			'Intersex'         => DI::l10n()->t('Intersex'),
-			'Transsexual'      => DI::l10n()->t('Transsexual'),
-			'Hermaphrodite'    => DI::l10n()->t('Hermaphrodite'),
-			'Neuter'           => DI::l10n()->t('Neuter'),
-			'Non-specific'     => DI::l10n()->t('Non-specific'),
-			'Other'            => DI::l10n()->t('Other'),
-			'Undecided'        => DI::l10n()->t('Undecided'),
-		];
-
-		Hook::callAll('gender_selector', $select);
-
-		$o .= "<select name=\"gender$suffix\" id=\"gender-select$suffix\" size=\"1\" >";
-		foreach ($select as $neutral => $selection) {
-			if ($selection !== 'NOTRANSLATION') {
-				$selected = (($neutral == $current) ? ' selected="selected" ' : '');
-				$o .= "<option value=\"$neutral\" $selected >$selection</option>";
-			}
-		}
-		$o .= '</select>';
-		return $o;
-	}
-
-	/**
-	 * @param string $current optional, default empty
-	 * @param string $suffix  optionsl, default empty
-	 * @return string
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
-	 */
 	public static function sexualPreference($current = "", $suffix = "")
 	{
 		$o = '';

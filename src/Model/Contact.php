@@ -722,7 +722,7 @@ class Contact
 		}
 
 		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
-			'country-name', 'gender', 'pub_keywords', 'xmpp', 'net-publish'];
+			'country-name', 'pub_keywords', 'xmpp', 'net-publish'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($profile)) {
 			return;
@@ -733,7 +733,7 @@ class Contact
 		$fields = ['name' => $profile['name'], 'nick' => $user['nickname'],
 			'avatar-date' => $self['avatar-date'], 'location' => Profile::formatLocation($profile),
 			'about' => $profile['about'], 'keywords' => $profile['pub_keywords'],
-			'gender' => $profile['gender'], 'contact-type' => $user['account-type'],
+			'gender' => '', 'contact-type' => $user['account-type'],
 			'xmpp' => $profile['xmpp']];
 
 		$avatar = Photo::selectFirst(['resource-id', 'type'], ['uid' => $uid, 'profile' => true]);

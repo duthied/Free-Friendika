@@ -695,9 +695,6 @@ Here is a complete list of all hook callbacks with file locations (as of 24-Sep-
 ### src/Content/ContactSelector.php
 
     Hook::callAll('network_to_name', $nets);
-    Hook::callAll('gender_selector', $select);
-    Hook::callAll('sexpref_selector', $select);
-    Hook::callAll('marital_selector', $select);
 
 ### src/Content/OEmbed.php
 
