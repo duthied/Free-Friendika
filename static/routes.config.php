@@ -174,6 +174,7 @@ return [
 	],
 
 	'/notifications' => [
+		'/{id}'              => [Module\Notifications\Notifications::class, [        R::POST]],
 		'/network[/json]'    => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
 		'/system[/json]'     => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
 		'/personal[/json]'   => [Module\Notifications\Notifications::class, [R::GET, R::POST]],
