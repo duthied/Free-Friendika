@@ -46,14 +46,11 @@ class Notification extends BaseModule
 			try {
 				$success = DI::notify()->setAllSeen();
 			}catch (\Exception $e) {
+				DI::logger()->warning('set all seen failed.', ['exception' => $e]);
 				$success = false;
 			}
 
-			header('Content-type: application/json; charset=utf-8');
-			echo json_encode([
-				'result' => ($success) ? 'success' : 'fail',
-			]);
-			exit();
+			System::jsonExit(['result' => (($success) ? 'success' : 'fail')]);
 		}
 	}
 
@@ -83,7 +80,6 @@ class Notification extends BaseModule
 			DI::baseUrl()->redirect();
 		}
 
-		// @TODO: Replace with parameter from router
 		DI::baseUrl()->redirect('notifications/system');
 	}
 }
