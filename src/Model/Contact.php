@@ -2638,7 +2638,7 @@ class Contact
 						'to_name'      => $user['username'],
 						'to_email'     => $user['email'],
 						'uid'          => $user['uid'],
-						'link'         => DI::baseUrl() . '/notifications/intro',
+						'link'         => DI::baseUrl() . '/notifications/intros',
 						'source_name'  => ((strlen(stripslashes($contact_record['name']))) ? stripslashes($contact_record['name']) : DI::l10n()->t('[Name Withheld]')),
 						'source_link'  => $contact_record['url'],
 						'source_photo' => $contact_record['photo'],
