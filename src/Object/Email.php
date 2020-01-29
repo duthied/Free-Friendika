@@ -132,4 +132,25 @@ class Email implements IEmail
 
 		return $newEmail;
 	}
+
+	/**
+	 * Creates a new Email instance based on a given prototype
+	 *
+	 * @param static $prototype The base prototype
+	 * @param array  $data      The delta-data (key must be an existing property)
+	 *
+	 * @return static The new email instance
+	 */
+	public static function createFromPrototype(Email $prototype, array $data = [])
+	{
+		$newMail = clone $prototype;
+
+		foreach ($data as $key => $value) {
+			if (property_exists($newMail, $key)) {
+				$newMail->{$key} = $value;
+			}
+		}
+
+		return $newMail;
+	}
 }

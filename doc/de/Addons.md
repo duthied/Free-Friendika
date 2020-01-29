@@ -475,7 +475,7 @@ Eine komplette Liste aller Hook-Callbacks mit den zugehörigen Dateien (am 01-Ap
 
 ### src/Util/Emailer.php
 
-    Hook::callAll('emailer_send_prepare', $params);
+    Hook::callAll('emailer_send_prepare', $email);
     Hook::callAll("emailer_send", $hookdata);
 
 ### src/Util/Map.php
