@@ -24,7 +24,7 @@ use Psr\Log\LoggerInterface;
  * @property bool   blocked
  * @property bool   ignore
  */
-final class Introduction extends BaseModel
+class Introduction extends BaseModel
 {
 	/** @var Repository\Introduction */
 	protected $intro;
