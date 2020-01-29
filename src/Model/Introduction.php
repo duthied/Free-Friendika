@@ -24,7 +24,7 @@ use Psr\Log\LoggerInterface;
  * @property bool   blocked
  * @property bool   ignore
  */
-final class Introduction extends BaseModel
+class Introduction extends BaseModel
 {
 	/** @var Repository\Introduction */
 	protected $intro;
@@ -97,7 +97,7 @@ final class Introduction extends BaseModel
 
 		if ($newRelation == Contact::FRIEND) {
 			if ($protocol == Protocol::DIASPORA) {
-				$ret = Diaspora::sendShare(Contact::getById($contact['uid']), $contact);
+				$ret = Diaspora::sendShare(User::getById($contact['uid']), $contact);
 				$this->logger->info('share returns', ['return' => $ret]);
 			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $contact['uid']);
