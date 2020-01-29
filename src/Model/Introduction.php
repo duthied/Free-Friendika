@@ -97,7 +97,7 @@ final class Introduction extends BaseModel
 
 		if ($newRelation == Contact::FRIEND) {
 			if ($protocol == Protocol::DIASPORA) {
-				$ret = Diaspora::sendShare(Contact::getById($contact['uid']), $contact);
+				$ret = Diaspora::sendShare(User::getById($contact['uid']), $contact);
 				$this->logger->info('share returns', ['return' => $ret]);
 			} elseif ($protocol == Protocol::ACTIVITYPUB) {
 				ActivityPub\Transmitter::sendActivity('Follow', $contact['url'], $contact['uid']);
