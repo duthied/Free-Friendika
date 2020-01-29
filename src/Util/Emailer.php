@@ -45,11 +45,9 @@ class Emailer
 	 */
 	public function send(IEmail $email)
 	{
-		$params['sent'] = false;
+		Hook::callAll('emailer_send_prepare', $email);
 
-		Hook::callAll('emailer_send_prepare', $params);
-
-		if ($params['sent']) {
+		if (empty($email)) {
 			return true;
 		}
 
