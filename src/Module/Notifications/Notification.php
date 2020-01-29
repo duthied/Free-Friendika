@@ -19,6 +19,26 @@ class Notification extends BaseModule
 		}
 	}
 
+	public static function post(array $parameters = [])
+	{
+		$request_id = $parameters['id'] ?? false;
+
+		if ($request_id) {
+			$intro = DI::intro()->selectFirst(['id' => $request_id, 'uid' => local_user()]);
+
+			switch ($_POST['submit']) {
+				case DI::l10n()->t('Discard'):
+					$intro->discard();
+					break;
+				case DI::l10n()->t('Ignore'):
+					$intro->ignore();
+					break;
+			}
+
+			DI::baseUrl()->redirect('notifications/intros');
+		}
+	}
+
 	public static function rawContent(array $parameters = [])
 	{
 		// @TODO: Replace with parameter from router
@@ -26,14 +46,11 @@ class Notification extends BaseModule
 			try {
 				$success = DI::notify()->setAllSeen();
 			}catch (\Exception $e) {
+				DI::logger()->warning('set all seen failed.', ['exception' => $e]);
 				$success = false;
 			}
 
-			header('Content-type: application/json; charset=utf-8');
-			echo json_encode([
-				'result' => ($success) ? 'success' : 'fail',
-			]);
-			exit();
+			System::jsonExit(['result' => (($success) ? 'success' : 'fail')]);
 		}
 	}
 
@@ -45,10 +62,11 @@ class Notification extends BaseModule
 	 */
 	public static function content(array $parameters = [])
 	{
-		// @TODO: Replace with parameter from router
-		if (DI::args()->getArgc() > 2 && DI::args()->get(1) === 'view' && intval(DI::args()->get(2))) {
+		$request_id = $parameters['id'] ?? false;
+
+		if ($request_id) {
 			try {
-				$notification = DI::notify()->getByID(DI::args()->get(2));
+				$notification = DI::notify()->getByID($request_id);
 				$notification->setSeen();
 
 				if (!empty($notification->link)) {
@@ -62,7 +80,7 @@ class Notification extends BaseModule
 			DI::baseUrl()->redirect();
 		}
 
-		// @TODO: Replace with parameter from router
 		DI::baseUrl()->redirect('notifications/system');
 	}
 }
+

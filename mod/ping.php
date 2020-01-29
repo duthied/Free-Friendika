@@ -443,7 +443,7 @@ function ping_get_notifications($uid)
 				);
 			}
 
-			$notification["href"] = DI::baseUrl() . "/notification/view/" . $notification["id"];
+			$notification["href"] = DI::baseUrl() . "/notification/" . $notification["id"];
 
 			if ($notification["visible"]
 				&& !$notification["deleted"]

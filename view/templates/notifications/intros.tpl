@@ -12,7 +12,7 @@
 <div class="intro-knowyou">{{$lbl_knowyou}} {{$knowyou}}</div>
 <div class="intro-note" id="intro-note-{{$contact_id}}">{{$note}}</div>
 <div class="intro-wrapper-end" id="intro-wrapper-end-{{$contact_id}}"></div>
-<form class="intro-form" action="notifications/{{$intro_id}}" method="post">
+<form class="intro-form" action="notification/{{$intro_id}}" method="post">
 <input class="intro-submit-ignore" type="submit" name="submit" value="{{$ignore}}" />
 {{if $discard}}<input class="intro-submit-discard" type="submit" name="submit" value="{{$discard}}" />{{/if}}
 </form>

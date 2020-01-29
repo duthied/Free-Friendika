@@ -219,7 +219,7 @@ class Notification extends BaseFactory
 			foreach ($notifications as $notification) {
 				$formattedNotifications[] = new \Friendica\Object\Notification\Notification([
 					'label' => 'notification',
-					'link'  => $this->baseUrl->get(true) . '/notification/view/' . $notification->id,
+					'link'  => $this->baseUrl->get(true) . '/notification/' . $notification->id,
 					'image' => Proxy::proxifyUrl($notification->photo, false, Proxy::SIZE_MICRO),
 					'url'   => $notification->url,
 					'text'  => strip_tags(BBCode::convert($notification->msg)),

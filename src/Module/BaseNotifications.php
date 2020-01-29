@@ -75,30 +75,6 @@ abstract class BaseNotifications extends BaseModule
 		self::$showAll      = ($_REQUEST['show'] ?? '') === 'all';
 	}
 
-	public static function post(array $parameters = [])
-	{
-		$request_id = DI::args()->get(1);
-
-		if ($request_id === 'all') {
-			return;
-		}
-
-		if ($request_id) {
-			$intro = DI::intro()->selectFirst(['id' => $request_id, 'uid' => local_user()]);
-
-			switch ($_POST['submit']) {
-				case DI::l10n()->t('Discard'):
-					$intro->discard();
-					break;
-				case DI::l10n()->t('Ignore'):
-					$intro->ignore();
-					break;
-			}
-
-			DI::baseUrl()->redirect('notifications/intros');
-		}
-	}
-
 	public static function rawContent(array $parameters = [])
 	{
 		// If the last argument of the query is NOT json, return

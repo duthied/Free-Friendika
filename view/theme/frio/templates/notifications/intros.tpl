@@ -13,7 +13,7 @@
 		<div class="intro-actions pull-right nav-pills preferences">
 			<button class="btn-link intro-action-link" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}');" aria-label="{{$approve}}" title="{{$approve}}" data-toggle="tooltip"><i class="fa fa-check" aria-hidden="true"></i></button>
 
-			<form class="intro-form" action="notifications/{{$intro_id}}" method="post">
+			<form class="intro-form" action="notification/{{$intro_id}}" method="post">
 				<button class="btn-link intro-submit-ignore intro-action-link" type="submit" name="submit" value="{{$ignore}}" aria-label="{{$ignore}}" title="{{$ignore}}" data-toggle="tooltip"><i class="fa fa-ban" aria-hidden="true"></i></button>
 				{{if $discard}}<button class="btn-link intro-submit-discard intro-action-link" type="submit" name="submit" value="{{$discard}}" aria-label="{{$discard}}" title="{{$discard}}" data-toggle="tooltip"><i class="fa fa-trash-o" aria-hidden="true"></i></button>{{/if}}
 			</form>
@@ -73,7 +73,7 @@
 	{{* On mobile touch devices we use buttons for approve, ingnore && discard to have a better UX *}}
 	{{if $APP->is_mobile}}
 	<div class="intro-action-buttons">
-		<form class="intro-form pull-left" action="notifications/{{$intro_id}}" method="post">
+		<form class="intro-form pull-left" action="notification/{{$intro_id}}" method="post">
 			<button class="btn btn-small btn-default intro-submit-ignore" type="submit" name="submit" value="{{$ignore}}">{{$ignore}}</button>
 			{{if $discard}}<button class="btn btn-small btn-default intro-submit-discard" type="submit" name="submit" value="{{$discard}}">{{$discard}}</button>&nbsp;{{/if}}
 		</form>
