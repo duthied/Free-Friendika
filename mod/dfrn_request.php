@@ -62,8 +62,8 @@ function dfrn_request_init(App $a)
  */
 function dfrn_request_post(App $a)
 {
-	if (($a->argc != 2) || (!count($a->profile))) {
-		Logger::log('Wrong count of argc or profiles: argc=' . $a->argc . ',profile()=' . count($a->profile));
+	if ($a->argc != 2 || empty($a->profile)) {
+		Logger::log('Wrong count of argc or profiles: argc=' . $a->argc . ', profile()=' . count($a->profile ?? []));
 		return;
 	}
 
@@ -226,7 +226,7 @@ function dfrn_request_post(App $a)
 	 * in $a->argv[1] and we should have their complete info in $a->profile.
 	 *
 	 */
-	if (!(is_array($a->profile) && count($a->profile))) {
+	if (empty($a->profile['uid'])) {
 		notice(DI::l10n()->t('Profile unavailable.') . EOL);
 		return;
 	}
