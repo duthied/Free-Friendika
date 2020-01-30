@@ -67,11 +67,53 @@
 			jotTextOpenUI(document.getElementById("profile-jot-text"));
 			jotActive();
 			addeditortext(embedcode);
-		});
-		$('body').on('fbrowser.file.main', function(e, filename, embedcode, id) {
+		})
+		.on('fbrowser.file.main', function(e, filename, embedcode, id) {
 			jotTextOpenUI(document.getElementById("profile-jot-text"));
 			jotActive();
 			addeditortext(embedcode);
+		})
+		// Asynchronous jot submission
+		.on('submit', '#profile-jot-form', function (e) {
+			e.preventDefault();
+
+			// Disable jot submit buttons during processing
+			let $share = $('#profile-jot-submit').button('loading');
+			let $sharePreview = $('#profile-jot-preview-submit').button('loading');
+
+			let formData = new FormData(e.target);
+			// This cancels the automatic redirection after item submission
+			formData.delete('return');
+
+			$.ajax({
+				url: 'item',
+				data: formData,
+				processData: false,
+				contentType: false,
+				type: 'POST',
+			})
+			.then(function () {
+				// Reset to form for jot reuse in the same page
+				e.target.reset();
+				$('#jot-modal').modal('hide');
+			})
+			.always(function() {
+				// Reset the post_id_random to avoid duplicate post errors
+				let new_post_id_random = Math.floor(Math.random() * (Number.MAX_SAFE_INTEGER - (Number.MAX_SAFE_INTEGER / 10))) + Number.MAX_SAFE_INTEGER / 10;
+				$('#profile-jot-form [name=post_id_random]').val(new_post_id_random);
+
+				// Reset jot submit button state
+				$share.button('reset');
+				$sharePreview.button('reset');
+
+				// Force the display update of the edited post/comment
+				if (formData.get('post_id')) {
+					force_update = true;
+					update_item = formData.get('post_id');
+				}
+
+				NavUpdate();
+			})
 		});
 
 		$('#wall-image-upload').on('click', function(){

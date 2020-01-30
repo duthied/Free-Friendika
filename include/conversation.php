@@ -1214,6 +1214,7 @@ function status_editor(App $a, $x, $notes_cid = 0, $popup = false)
 		'$return_path'  => $query_str,
 		'$action'       => 'item',
 		'$share'        => ($x['button'] ?? '') ?: DI::l10n()->t('Share'),
+		'$loading'      => DI::l10n()->t('Loading...'),
 		'$upload'       => DI::l10n()->t('Upload photo'),
 		'$shortupload'  => DI::l10n()->t('upload photo'),
 		'$attach'       => DI::l10n()->t('Attach file'),

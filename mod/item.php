@@ -33,6 +33,7 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Term;
+use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
@@ -45,7 +46,7 @@ require_once __DIR__ . '/../include/items.php';
 
 function item_post(App $a) {
 	if (!Session::isAuthenticated()) {
-		return 0;
+		throw new HTTPException\ForbiddenException();
 	}
 
 	$uid = local_user();
@@ -54,13 +55,12 @@ function item_post(App $a) {
 		$arr_drop = explode(',', $_REQUEST['dropitems']);
 		drop_items($arr_drop);
 		$json = ['success' => 1];
-		echo json_encode($json);
-		exit();
+		System::jsonExit($json);
 	}
 
 	Hook::callAll('post_local_start', $_REQUEST);
 
-	Logger::log('postvars ' . print_r($_REQUEST, true), Logger::DATA);
+	Logger::debug('postvars', ['_REQUEST' => $_REQUEST]);
 
 	$api_source = $_REQUEST['api_source'] ?? false;
 
@@ -76,7 +76,7 @@ function item_post(App $a) {
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			Logger::log("item post: duplicate post", Logger::DEBUG);
+			Logger::info('item post: duplicate post');
 			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -119,11 +119,11 @@ function item_post(App $a) {
 		}
 
 		if (!DBA::isResult($toplevel_item)) {
-			notice(DI::l10n()->t('Unable to locate original post.') . EOL);
-			if (!empty($_REQUEST['return'])) {
+			notice(DI::l10n()->t('Unable to locate original post.'));
+			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
-			exit();
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
 		}
 
 		$toplevel_item_id = $toplevel_item['id'];
@@ -133,7 +133,7 @@ function item_post(App $a) {
 	}
 
 	if ($toplevel_item_id) {
-		Logger::info('mod_item: item_post parent=' . $toplevel_item_id);
+		Logger::info('mod_item: item_post', ['parent' => $toplevel_item_id]);
 	}
 
 	$post_id     = intval($_REQUEST['post_id'] ?? 0);
@@ -156,7 +156,7 @@ function item_post(App $a) {
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
 		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
-			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, Logger::DEBUG);
+			Logger::info('Message already exists for user', ['uri' => $message_id, 'uid' => $profile_uid]);
 			return 0;
 		}
 	}
@@ -166,13 +166,12 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
-
-		if (!empty($_REQUEST['return'])) {
+		notice(DI::l10n()->t('Permission denied.'));
+		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
 
-		exit();
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 	}
 
 	// Init post instance
@@ -319,13 +318,15 @@ function item_post(App $a) {
 
 		if (!strlen($body)) {
 			if ($preview) {
-				exit();
+				System::jsonExit(['preview' => '']);
 			}
-			info(DI::l10n()->t('Empty post discarded.') . EOL);
-			if (!empty($_REQUEST['return'])) {
+
+			info(DI::l10n()->t('Empty post discarded.'));
+			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
-			exit();
+
+			throw new HTTPException\BadRequestException(DI::l10n()->t('Empty post discarded.'));
 		}
 	}
 
@@ -502,9 +503,6 @@ function item_post(App $a) {
 
 	$body = DI::bbCodeVideo()->transform($body);
 
-	// Fold multi-line [code] sequences
-	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
-
 	$body = BBCode::scaleExternalImages($body);
 
 	// Setting the object type if not defined before
@@ -664,15 +662,14 @@ function item_post(App $a) {
 		$datarray["author-network"] = Protocol::DFRN;
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager(DI::args()->getQueryString()), 'search', false, true);
-		Logger::log('preview: ' . $o);
-		echo json_encode(['preview' => $o]);
-		exit();
+
+		System::jsonExit(['preview' => $o]);
 	}
 
 	Hook::callAll('post_local',$datarray);
 
 	if (!empty($datarray['cancel'])) {
-		Logger::log('mod_item: post cancelled by addon.');
+		Logger::info('mod_item: post cancelled by addon.');
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -682,8 +679,7 @@ function item_post(App $a) {
 			$json['reload'] = DI::baseUrl() . '/' . $_REQUEST['jsreload'];
 		}
 
-		echo json_encode($json);
-		exit();
+		System::jsonExit($json);
 	}
 
 	if ($orig_post)	{
@@ -707,11 +703,12 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
-		if (!empty($_REQUEST['return']) && strlen($return_path)) {
-			Logger::log('return: ' . $return_path);
+		info(DI::l10n()->t('Post updated.'));
+		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
-		exit();
+
+		throw new HTTPException\OKException(DI::l10n()->t('Post updated.'));
 	}
 
 	unset($datarray['edit']);
@@ -728,15 +725,23 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		Logger::log("Item wasn't stored.");
-		DI::baseUrl()->redirect($return_path);
+		info(DI::l10n()->t('Item wasn\'t stored.'));
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
+
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored.'));
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
-		Logger::log("Item with id ".$post_id." couldn't be fetched.");
-		DI::baseUrl()->redirect($return_path);
+		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
+
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
 
 	// update filetags in pconfig
@@ -811,21 +816,19 @@ function item_post(App $a) {
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, $post_id);
 	}
 
-	Logger::log('post_complete');
+	Logger::info('post_complete');
 
 	if ($api_source) {
 		return $post_id;
 	}
 
+	info(DI::l10n()->t('Post published.'));
 	item_post_return(DI::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
 
 function item_post_return($baseurl, $api_source, $return_path)
 {
-	// figure out how to return, depending on from whence we came
-    $a = DI::app();
-
 	if ($api_source) {
 		return;
 	}
@@ -839,10 +842,9 @@ function item_post_return($baseurl, $api_source, $return_path)
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
+	Logger::info('post_json', ['json' => $json]);
 
-	echo json_encode($json);
-	exit();
+	System::jsonExit($json);
 }
 
 function item_content(App $a)
@@ -867,8 +869,7 @@ function item_content(App $a)
 
 		if (DI::mode()->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
-			echo json_encode([intval($a->argv[2]), intval($o)]);
-			exit();
+			System::jsonExit([intval($a->argv[2]), intval($o)]);
 		}
 	}
 
@@ -889,7 +890,7 @@ function item_content(App $a)
  *
  * @return array|bool ['replaced' => $replaced, 'contact' => $contact];
  * @throws ImagickException
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @throws HTTPException\InternalServerErrorException
  */
 function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
 {

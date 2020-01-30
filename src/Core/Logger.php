@@ -16,26 +16,32 @@ class Logger
 {
 	/**
 	 * @see Logger::error()
+	 * @deprecated since 2019.01
 	 */
 	const WARNING = LogLevel::ERROR;
 	/**
 	 * @see Logger::warning()
+	 * @deprecated since 2019.01
 	 */
 	const INFO = LogLevel::WARNING;
 	/**
 	 * @see Logger::notice()
+	 * @deprecated since 2019.01
 	 */
 	const TRACE = LogLevel::NOTICE;
 	/**
 	 * @see Logger::info()
+	 * @deprecated since 2019.01
 	 */
 	const DEBUG = LogLevel::INFO;
 	/**
 	 * @see Logger::debug()
+	 * @deprecated since 2019.01
 	 */
 	const DATA = LogLevel::DEBUG;
 	/**
 	 * @see Logger::debug()
+	 * @deprecated since 2019.01
 	 */
 	const ALL = LogLevel::DEBUG;
 
