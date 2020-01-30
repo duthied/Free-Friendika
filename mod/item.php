@@ -59,7 +59,7 @@ function item_post(App $a) {
 
 	Hook::callAll('post_local_start', $_REQUEST);
 
-	Logger::log('postvars ' . print_r($_REQUEST, true), Logger::DATA);
+	Logger::debug('postvars', ['_REQUEST' => $_REQUEST]);
 
 	$api_source = $_REQUEST['api_source'] ?? false;
 
@@ -75,7 +75,7 @@ function item_post(App $a) {
 	 */
 	if (!$preview && !empty($_REQUEST['post_id_random'])) {
 		if (!empty($_SESSION['post-random']) && $_SESSION['post-random'] == $_REQUEST['post_id_random']) {
-			Logger::log("item post: duplicate post", Logger::DEBUG);
+			Logger::info('item post: duplicate post');
 			item_post_return(DI::baseUrl(), $api_source, $return_path);
 		} else {
 			$_SESSION['post-random'] = $_REQUEST['post_id_random'];
@@ -132,7 +132,7 @@ function item_post(App $a) {
 	}
 
 	if ($toplevel_item_id) {
-		Logger::info('mod_item: item_post parent=' . $toplevel_item_id);
+		Logger::info('mod_item: item_post', ['parent' => $toplevel_item_id]);
 	}
 
 	$post_id     = intval($_REQUEST['post_id'] ?? 0);
@@ -155,7 +155,7 @@ function item_post(App $a) {
 	// Check for multiple posts with the same message id (when the post was created via API)
 	if (($message_id != '') && ($profile_uid != 0)) {
 		if (Item::exists(['uri' => $message_id, 'uid' => $profile_uid])) {
-			Logger::log("Message with URI ".$message_id." already exists for user ".$profile_uid, Logger::DEBUG);
+			Logger::info('Message already exists for user', ['uri' => $message_id, 'uid' => $profile_uid]);
 			return 0;
 		}
 	}
@@ -662,7 +662,6 @@ function item_post(App $a) {
 		$datarray["author-network"] = Protocol::DFRN;
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager(DI::args()->getQueryString()), 'search', false, true);
-		Logger::log('preview: ' . $o);
 
 		System::jsonExit(['preview' => $o]);
 	}
@@ -670,7 +669,7 @@ function item_post(App $a) {
 	Hook::callAll('post_local',$datarray);
 
 	if (!empty($datarray['cancel'])) {
-		Logger::log('mod_item: post cancelled by addon.');
+		Logger::info('mod_item: post cancelled by addon.');
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -724,7 +723,7 @@ function item_post(App $a) {
 	$post_id = Item::insert($datarray);
 
 	if (!$post_id) {
-		Logger::log("Item wasn't stored.");
+		info(DI::l10n()->t('Item wasn\'t stored.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -733,7 +732,7 @@ function item_post(App $a) {
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
-		Logger::log("Item with id ".$post_id." couldn't be fetched.");
+		Logger::error('Item couldn\'t be fetched.', ['post_id' => $post_id]);
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -811,7 +810,7 @@ function item_post(App $a) {
 		Worker::add(['priority' => PRIORITY_HIGH, 'dont_fork' => false], "Notifier", Delivery::POST, $post_id);
 	}
 
-	Logger::log('post_complete');
+	Logger::info('post_complete');
 
 	if ($api_source) {
 		return $post_id;
@@ -839,7 +838,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 		$json['reload'] = $baseurl . '/' . $_REQUEST['jsreload'];
 	}
 
-	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
+	Logger::info('post_json', ['json' => $json]);
 
 	System::jsonExit($json);
 }
