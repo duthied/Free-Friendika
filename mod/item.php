@@ -33,6 +33,7 @@ use Friendica\Model\FileTag;
 use Friendica\Model\Item;
 use Friendica\Model\Photo;
 use Friendica\Model\Term;
+use Friendica\Network\HTTPException;
 use Friendica\Object\EMail\ItemCCEMail;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\Diaspora;
@@ -45,7 +46,7 @@ require_once __DIR__ . '/../include/items.php';
 
 function item_post(App $a) {
 	if (!Session::isAuthenticated()) {
-		return 0;
+		throw new HTTPException\ForbiddenException();
 	}
 
 	$uid = local_user();
@@ -122,7 +123,7 @@ function item_post(App $a) {
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
-			exit();
+			throw new HTTPException\NotFoundException(DI::l10n()->t('Unable to locate original post.'));
 		}
 
 		$toplevel_item_id = $toplevel_item['id'];
@@ -170,7 +171,7 @@ function item_post(App $a) {
 			DI::baseUrl()->redirect($return_path);
 		}
 
-		exit();
+		throw new HTTPException\ForbiddenException(DI::l10n()->t('Permission denied.'));
 	}
 
 	// Init post instance
@@ -323,7 +324,8 @@ function item_post(App $a) {
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
-			exit();
+
+			throw new HTTPException\BadRequestException(DI::l10n()->t('Empty post discarded.'));
 		}
 	}
 
@@ -706,7 +708,8 @@ function item_post(App $a) {
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
-		exit();
+
+		throw new HTTPException\OKException(DI::l10n()->t('Post updated.'));
 	}
 
 	unset($datarray['edit']);
@@ -727,6 +730,8 @@ function item_post(App $a) {
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
+
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item wasn\'t stored.'));
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
@@ -736,6 +741,8 @@ function item_post(App $a) {
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
+
+		throw new HTTPException\InternalServerErrorException(DI::l10n()->t('Item couldn\'t be fetched.'));
 	}
 
 	// update filetags in pconfig
@@ -886,7 +893,7 @@ function item_content(App $a)
  *
  * @return array|bool ['replaced' => $replaced, 'contact' => $contact];
  * @throws ImagickException
- * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+ * @throws HTTPException\InternalServerErrorException
  */
 function handle_tag(&$body, &$inform, &$str_tags, $profile_uid, $tag, $network = "")
 {
