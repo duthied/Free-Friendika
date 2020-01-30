@@ -119,7 +119,7 @@ function item_post(App $a) {
 
 		if (!DBA::isResult($toplevel_item)) {
 			notice(DI::l10n()->t('Unable to locate original post.') . EOL);
-			if (!empty($_REQUEST['return'])) {
+			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
 			exit();
@@ -166,8 +166,7 @@ function item_post(App $a) {
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
 		notice(DI::l10n()->t('Permission denied.') . EOL);
-
-		if (!empty($_REQUEST['return'])) {
+		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
 
@@ -321,7 +320,7 @@ function item_post(App $a) {
 				System::jsonExit(['preview' => '']);
 			}
 			info(DI::l10n()->t('Empty post discarded.') . EOL);
-			if (!empty($_REQUEST['return'])) {
+			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
 			exit();
@@ -705,8 +704,7 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
-		if (!empty($_REQUEST['return']) && strlen($return_path)) {
-			Logger::log('return: ' . $return_path);
+		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
 		exit();
@@ -727,14 +725,18 @@ function item_post(App $a) {
 
 	if (!$post_id) {
 		Logger::log("Item wasn't stored.");
-		DI::baseUrl()->redirect($return_path);
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
 	}
 
 	$datarray = Item::selectFirst(Item::ITEM_FIELDLIST, ['id' => $post_id]);
 
 	if (!DBA::isResult($datarray)) {
 		Logger::log("Item with id ".$post_id." couldn't be fetched.");
-		DI::baseUrl()->redirect($return_path);
+		if ($return_path) {
+			DI::baseUrl()->redirect($return_path);
+		}
 	}
 
 	// update filetags in pconfig
