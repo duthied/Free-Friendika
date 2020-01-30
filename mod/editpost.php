@@ -70,6 +70,7 @@ function editpost_content(App $a)
 		'$return_path' => '/display/' . $item['guid'],
 		'$action' => 'item',
 		'$share' => DI::l10n()->t('Save'),
+		'$loading' => DI::l10n()->t('Loading...'),
 		'$upload' => DI::l10n()->t('Upload photo'),
 		'$shortupload' => DI::l10n()->t('upload photo'),
 		'$attach' => DI::l10n()->t('Attach file'),
