@@ -54,8 +54,7 @@ function item_post(App $a) {
 		$arr_drop = explode(',', $_REQUEST['dropitems']);
 		drop_items($arr_drop);
 		$json = ['success' => 1];
-		echo json_encode($json);
-		exit();
+		System::jsonExit($json);
 	}
 
 	Hook::callAll('post_local_start', $_REQUEST);
@@ -319,7 +318,7 @@ function item_post(App $a) {
 
 		if (!strlen($body)) {
 			if ($preview) {
-				exit();
+				System::jsonExit(['preview' => '']);
 			}
 			info(DI::l10n()->t('Empty post discarded.') . EOL);
 			if (!empty($_REQUEST['return'])) {
@@ -665,8 +664,8 @@ function item_post(App $a) {
 
 		$o = conversation($a, [array_merge($contact_record, $datarray)], new Pager(DI::args()->getQueryString()), 'search', false, true);
 		Logger::log('preview: ' . $o);
-		echo json_encode(['preview' => $o]);
-		exit();
+
+		System::jsonExit(['preview' => $o]);
 	}
 
 	Hook::callAll('post_local',$datarray);
@@ -682,8 +681,7 @@ function item_post(App $a) {
 			$json['reload'] = DI::baseUrl() . '/' . $_REQUEST['jsreload'];
 		}
 
-		echo json_encode($json);
-		exit();
+		System::jsonExit($json);
 	}
 
 	if ($orig_post)	{
@@ -841,8 +839,7 @@ function item_post_return($baseurl, $api_source, $return_path)
 
 	Logger::log('post_json: ' . print_r($json, true), Logger::DEBUG);
 
-	echo json_encode($json);
-	exit();
+	System::jsonExit($json);
 }
 
 function item_content(App $a)
@@ -867,8 +864,7 @@ function item_content(App $a)
 
 		if (DI::mode()->isAjax()) {
 			// ajax return: [<item id>, 0 (no perm) | <owner id>]
-			echo json_encode([intval($a->argv[2]), intval($o)]);
-			exit();
+			System::jsonExit([intval($a->argv[2]), intval($o)]);
 		}
 	}
 
