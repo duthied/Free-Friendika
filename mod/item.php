@@ -703,6 +703,7 @@ function item_post(App $a) {
 		// update filetags in pconfig
 		FileTag::updatePconfig($uid, $categories_old, $categories_new, 'category');
 
+		info(DI::l10n()->t('Post updated.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -821,6 +822,7 @@ function item_post(App $a) {
 		return $post_id;
 	}
 
+	info(DI::l10n()->t('Post published.'));
 	item_post_return(DI::baseUrl(), $api_source, $return_path);
 	// NOTREACHED
 }
