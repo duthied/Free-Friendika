@@ -119,7 +119,7 @@ function item_post(App $a) {
 		}
 
 		if (!DBA::isResult($toplevel_item)) {
-			notice(DI::l10n()->t('Unable to locate original post.') . EOL);
+			notice(DI::l10n()->t('Unable to locate original post.'));
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -166,7 +166,7 @@ function item_post(App $a) {
 
 	// Now check that valid personal details have been provided
 	if (!Security::canWriteToUserWall($profile_uid) && !$allow_comment) {
-		notice(DI::l10n()->t('Permission denied.') . EOL);
+		notice(DI::l10n()->t('Permission denied.'));
 		if ($return_path) {
 			DI::baseUrl()->redirect($return_path);
 		}
@@ -320,7 +320,8 @@ function item_post(App $a) {
 			if ($preview) {
 				System::jsonExit(['preview' => '']);
 			}
-			info(DI::l10n()->t('Empty post discarded.') . EOL);
+
+			info(DI::l10n()->t('Empty post discarded.'));
 			if ($return_path) {
 				DI::baseUrl()->redirect($return_path);
 			}
@@ -501,9 +502,6 @@ function item_post(App $a) {
 	}
 
 	$body = DI::bbCodeVideo()->transform($body);
-
-	// Fold multi-line [code] sequences
-	$body = preg_replace('/\[\/code\]\s*\[code\]/ism', "\n", $body);
 
 	$body = BBCode::scaleExternalImages($body);
 
@@ -829,9 +827,6 @@ function item_post(App $a) {
 
 function item_post_return($baseurl, $api_source, $return_path)
 {
-	// figure out how to return, depending on from whence we came
-    $a = DI::app();
-
 	if ($api_source) {
 		return;
 	}
