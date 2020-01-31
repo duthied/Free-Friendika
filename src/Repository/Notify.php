@@ -7,6 +7,7 @@ use Friendica\BaseRepository;
 use Friendica\Core\Hook;
 use Friendica\Model;
 use Friendica\Collection;
+use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Network\HTTPException\NotFoundException;
 use Friendica\Util\DateTimeFormat;
 
@@ -52,14 +53,28 @@ class Notify extends BaseRepository
 	}
 
 	/**
-	 * {@inheritDoc}
+	 * Set seen state of notifications of the local_user()
+	 *
+	 * @param bool         $seen   optional true or false. default true
+	 * @param Model\Notify $notify optional a notify, which should be set seen (including his parents)
 	 *
 	 * @return bool true on success, false on error
+	 *
 	 * @throws Exception
 	 */
-	public function setAllSeen(bool $seen = true)
+	public function setSeen(bool $seen = true, Model\Notify $notify = null)
 	{
-		return $this->dba->update('notify', ['seen' => $seen], ['uid' => local_user()]);
+		if (empty($notify)) {
+			$conditions = ['uid' => local_user()];
+		} else {
+			$conditions = ['(`link` = ? OR (`parent` != 0 AND `parent` = ? AND `otype` = ?)) AND `uid` = ?',
+				$notify->link,
+				$notify->parent,
+				$notify->otype,
+				local_user()];
+		}
+
+		return $this->dba->update('notify', ['seen' => $seen], $conditions);
 	}
 
 	/**
@@ -67,12 +82,12 @@ class Notify extends BaseRepository
 	 *
 	 * @return Model\Notify|false
 	 *
-	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
+	 * @throws InternalServerErrorException
 	 * @throws Exception
 	 */
 	public function insert(array $fields)
 	{
-		$fields['date']  = DateTimeFormat::utcNow();
+		$fields['date'] = DateTimeFormat::utcNow();
 
 		Hook::callAll('enotify_store', $fields);
 

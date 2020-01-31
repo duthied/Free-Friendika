@@ -2,7 +2,6 @@
 
 namespace Friendica\Model;
 
-use Exception;
 use Friendica\BaseModel;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\Database;
@@ -48,24 +47,6 @@ class Notify extends BaseModel
 
 		$this->setNameCache();
 		$this->setMsgCache();
-	}
-
-	/**
-	 * Set the notification as seen
-	 *
-	 * @param bool $seen true, if seen
-	 *
-	 * @return bool True, if the seen state could be saved
-	 */
-	public function setSeen(bool $seen = true)
-	{
-		$this->seen = $seen;
-		try {
-			return $this->repo->update($this);
-		} catch (Exception $e) {
-			$this->logger->warning('Update failed.', ['$this' => $this, 'exception' => $e]);
-			return false;
-		}
 	}
 
 	/**
