@@ -1510,14 +1510,14 @@ class Transmitter
 	{
 		$owner = User::getOwnerDataById($uid);
 
-		$suggestion = DBA::selectFirst('fsuggest', ['url', 'note', 'created'], ['id' => $suggestion_id]);
+		$suggestion = DI::fsuggest()->getById($suggestion_id);
 
 		$data = ['@context' => ActivityPub::CONTEXT,
 			'id' => DI::baseUrl() . '/activity/' . System::createGUID(),
 			'type' => 'Announce',
 			'actor' => $owner['url'],
-			'object' => $suggestion['url'],
-			'content' => $suggestion['note'],
+			'object' => $suggestion->url,
+			'content' => $suggestion->note,
 			'instrument' => self::getService(),
 			'to' => [ActivityPub::PUBLIC_COLLECTION],
 			'cc' => []];
