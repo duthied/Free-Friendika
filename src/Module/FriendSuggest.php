@@ -21,7 +21,7 @@ class FriendSuggest extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
-		if (! local_user()) {
+		if (!local_user()) {
 			throw new ForbiddenException(DI::l10n()->t('Permission denied.'));
 		}
 	}
@@ -50,13 +50,13 @@ class FriendSuggest extends BaseModule
 		$note = Strings::escapeHtml(trim($_POST['note'] ?? ''));
 
 		$suggest = DI::fsuggest()->insert([
-			'uid' => local_user(),
-			'cid' => $cid,
-			'name' => $contact['name'],
-			'url' => $contact['url'],
+			'uid'     => local_user(),
+			'cid'     => $cid,
+			'name'    => $contact['name'],
+			'url'     => $contact['url'],
 			'request' => $contact['request'],
-			'photo' => $contact['avatar'],
-			'note' => $note,
+			'photo'   => $contact['avatar'],
+			'note'    => $note,
 			'created' => DateTimeFormat::utcNow()
 		]);
 
@@ -75,8 +75,8 @@ class FriendSuggest extends BaseModule
 			DI::baseUrl()->redirect();
 		}
 
-		$stmtContacts = ContactModel::select(['id', 'name'], [
-			'`uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != "" AND `id` != ? AND `networks` = ?',
+		$contacts = ContactModel::selectToArray(['id', 'name'], [
+			'`uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != "" AND `id` != ? AND `network` = ?',
 			local_user(),
 			$cid,
 			Protocol::DFRN,
@@ -84,14 +84,14 @@ class FriendSuggest extends BaseModule
 
 		$formattedContacts = [];
 
-		while ($contact = DI::dba()->fetch($stmtContacts)) {
+		foreach ($contacts as $contact) {
 			$formattedContacts[$contact['id']] = $contact['name'];
 		}
 
 		$tpl = Renderer::getMarkupTemplate('fsuggest.tpl');
 		return Renderer::replaceMacros($tpl, [
-			'$contact_id' => $cid,
-			'$fsuggest_title' => DI::l10n()->t('Suggest Friends'),
+			'$contact_id'      => $cid,
+			'$fsuggest_title'  => DI::l10n()->t('Suggest Friends'),
 			'$fsuggest_select' => [
 				'suggest',
 				DI::l10n()->t('Suggest a friend for %s', $contact['name']),
@@ -99,7 +99,7 @@ class FriendSuggest extends BaseModule
 				'',
 				$formattedContacts,
 			],
-			'$submit' => DI::l10n()->t('Submit'),
+			'$submit'          => DI::l10n()->t('Submit'),
 		]);
 	}
 }
