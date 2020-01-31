@@ -19,6 +19,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Network\HTTPException;
 use Friendica\Test\Util\Database\StaticDatabase;
+use Friendica\Util\Temporal;
 use Monolog\Handler\TestHandler;
 
 require_once __DIR__ . '/../../include/api.php';
@@ -3940,10 +3941,11 @@ class ApiTest extends DatabaseTest
 		$this->app->argv = ['api', 'friendica', 'notification'];
 		$this->app->argc = count($this->app->argv);
 		$result          = api_friendica_notification('xml');
+		$dateRel = Temporal::getRelativeDate('2020-01-01 12:12:02');
 		$assertXml=<<<XML
 <?xml version="1.0"?>
 <notes>
-  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" link="http://localhost/notification/1" iid="4" parent="0" seen="0" verb="" otype="item" name_cache="" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="4 weeks ago" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
+  <note id="1" hash="" type="8" name="Reply to" url="http://localhost/display/1" photo="http://localhost/" date="2020-01-01 12:12:02" msg="A test reply from an item" uid="42" link="http://localhost/notification/1" iid="4" parent="0" seen="0" verb="" otype="item" name_cache="" msg_cache="A test reply from an item" timestamp="1577880722" date_rel="{$dateRel}" msg_html="A test reply from an item" msg_plain="A test reply from an item"/>
 </notes>
 XML;
 		$this->assertXmlStringEqualsXmlString($assertXml, $result);
