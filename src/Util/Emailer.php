@@ -45,7 +45,11 @@ class Emailer
 	 */
 	public function send(IEmail $email)
 	{
+		$this->logger->warning('start', ['email' => $email]);
+
 		Hook::callAll('emailer_send_prepare', $email);
+
+		$this->logger->warning('end', ['email' => $email]);
 
 		if (empty($email)) {
 			return true;
