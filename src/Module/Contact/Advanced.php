@@ -14,9 +14,9 @@ use Friendica\Network\HTTPException\ForbiddenException;
 use Friendica\Util\Strings;
 
 /**
- * GUI for repairing contact details
+ * GUI for advanced contact details manipulation
  */
-class Repair extends BaseModule
+class Advanced extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
@@ -27,7 +27,7 @@ class Repair extends BaseModule
 
 	public static function post(array $parameters = [])
 	{
-		$cid = $parameters['contact'];
+		$cid = $parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
@@ -82,9 +82,7 @@ class Repair extends BaseModule
 
 	public static function content(array $parameters = [])
 	{
-		$cid = $parameters['contact'];
-
-		$cid = $parameters['contact'];
+		$cid = $parameters['id'];
 
 		$contact = Model\Contact::selectFirst([], ['id' => $cid, 'uid' => local_user()]);
 		if (empty($contact)) {
@@ -124,7 +122,7 @@ class Repair extends BaseModule
 
 		$tab_str = Contact::getTabsHTML($a, $contact, 6);
 
-		$tpl = Renderer::getMarkupTemplate('crepair.tpl');
+		$tpl = Renderer::getMarkupTemplate('contact/advanced.tpl');
 		return Renderer::replaceMacros($tpl, [
 			'$tab_str'           => $tab_str,
 			'$warning'           => $warning,

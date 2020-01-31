@@ -87,6 +87,7 @@ return [
 		'[/]'                     => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}[/]'            => [Module\Contact::class,           [R::GET, R::POST]],
 		'/{id:\d+}/archive'       => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/advanced'      => [Module\Contact\Advanced::class,  [R::GET, R::POST]],
 		'/{id:\d+}/block'         => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/conversations' => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/drop'          => [Module\Contact::class,           [R::GET]],
@@ -104,7 +105,6 @@ return [
 	],
 
 	'/credits'               => [Module\Credits::class,        [R::GET]],
-	'/crepair/{contact:\d+}' => [Module\Contact\Repair::class, [R::GET, R::POST]],
 
 	'/delegation'=> [Module\Delegation::class,       [R::GET, R::POST]],
 	'/dirfind'   => [Module\Search\Directory::class, [R::GET]],
