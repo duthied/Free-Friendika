@@ -44,8 +44,8 @@ class Notification extends BaseModule
 		// @TODO: Replace with parameter from router
 		if (DI::args()->get(1) === 'mark' && DI::args()->get(2) === 'all') {
 			try {
-				$success = DI::notify()->setAllSeen();
-			}catch (\Exception $e) {
+				$success = DI::notify()->setSeen();
+			} catch (\Exception $e) {
 				DI::logger()->warning('set all seen failed.', ['exception' => $e]);
 				$success = false;
 			}
@@ -66,11 +66,11 @@ class Notification extends BaseModule
 
 		if ($request_id) {
 			try {
-				$notification = DI::notify()->getByID($request_id);
-				$notification->setSeen();
+				$notify = DI::notify()->getByID($request_id);
+				DI::notify()->setSeen(true, $notify);
 
-				if (!empty($notification->link)) {
-					System::externalRedirect($notification->link);
+				if (!empty($notify->link)) {
+					System::externalRedirect($notify->link);
 				}
 
 			} catch (HTTPException\NotFoundException $e) {
@@ -83,4 +83,3 @@ class Notification extends BaseModule
 		DI::baseUrl()->redirect('notifications/system');
 	}
 }
-

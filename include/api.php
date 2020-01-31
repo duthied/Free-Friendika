@@ -5957,11 +5957,11 @@ function api_friendica_notification_seen($type)
 	$id = (!empty($_REQUEST['id']) ? intval($_REQUEST['id']) : 0);
 
 	try {
-		$notification = DI::notify()->getByID($id);
-		$notification->setSeen();
+		$notify = DI::notify()->getByID($id);
+		DI::notify()->setSeen(true, $notify);
 
-		if ($notification->otype === Notify::OTYPE_ITEM) {
-			$item = Item::selectFirstForUser(api_user(), [], ['id' => $notification->iid, 'uid' => api_user()]);
+		if ($notify->otype === Notify::OTYPE_ITEM) {
+			$item = Item::selectFirstForUser(api_user(), [], ['id' => $notify->iid, 'uid' => api_user()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user
 				$ret  = api_format_items([$item], $user_info, false, $type);
@@ -5973,6 +5973,8 @@ function api_friendica_notification_seen($type)
 		return api_format_data('result', $type, ['result' => "success"]);
 	} catch (NotFoundException $e) {
 		throw new BadRequestException('Invalid argument');
+	} catch (Exception $e) {
+		throw new InternalServerErrorException('Internal Server exception');
 	}
 }
 
