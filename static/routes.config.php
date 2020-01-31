@@ -128,7 +128,8 @@ return [
 	'/followers/{owner}' => [Module\Followers::class,       [R::GET]],
 	'/following/{owner}' => [Module\Following::class,       [R::GET]],
 	'/friendica[/json]'  => [Module\Friendica::class,       [R::GET]],
-	'/fsuggest/{contact}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],
+
+	'/fsuggest/{contact:\d+}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],
 
 	'/group'              => [
 		'[/]'                        => [Module\Group::class, [R::GET, R::POST]],
