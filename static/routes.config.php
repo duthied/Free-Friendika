@@ -268,4 +268,5 @@ return [
 	'/viewsrc/{item:\d+}'            => [Module\Debug\ItemBody::class,        [R::GET]],
 	'/webfinger'                     => [Module\Debug\WebFinger::class,       [R::GET]],
 	'/xrd'                           => [Module\Xrd::class,                   [R::GET]],
+	'/worker'                        => [Module\Worker::class,                [R::GET]],
 ];
