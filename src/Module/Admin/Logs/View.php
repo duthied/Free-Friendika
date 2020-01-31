@@ -4,10 +4,10 @@ namespace Friendica\Module\Admin\Logs;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
-class View extends BaseAdminModule
+class View extends BaseAdmin
 {
 	public static function content(array $parameters = [])
 	{

@@ -8,13 +8,13 @@ use Friendica\Core\Session;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Photo;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 use Friendica\Network\HTTPException;
 use Friendica\Object\Image;
 use Friendica\Util\Images;
 use Friendica\Util\Strings;
 
-class Index extends BaseSettingsModule
+class Index extends BaseSettings
 {
 	public static function post(array $parameters = [])
 	{

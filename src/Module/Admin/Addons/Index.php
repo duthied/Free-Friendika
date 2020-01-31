@@ -5,9 +5,9 @@ namespace Friendica\Module\Admin\Addons;
 use Friendica\Core\Addon;
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
-class Index extends BaseAdminModule
+class Index extends BaseAdmin
 {
 	public static function content(array $parameters = [])
 	{

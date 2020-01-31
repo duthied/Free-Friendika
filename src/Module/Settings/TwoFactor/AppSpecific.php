@@ -5,7 +5,7 @@ namespace Friendica\Module\Settings\TwoFactor;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\TwoFactor\AppSpecificPassword;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 
 /**
@@ -13,7 +13,7 @@ use Friendica\Module\Security\Login;
  *
  * @package Friendica\Module\TwoFactor
  */
-class AppSpecific extends BaseSettingsModule
+class AppSpecific extends BaseSettings
 {
 	private static $appSpecificPassword = null;
 

@@ -4,6 +4,7 @@ namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\App\BaseURL;
 use Friendica\BaseEntity;
+use Friendica\Collection\Api\Mastodon\Fields;
 use Friendica\Content\Text\BBCode;
 use Friendica\Database\DBA;
 use Friendica\Model\Contact;
@@ -70,7 +71,7 @@ class Account extends BaseEntity
 	 * @param array   $userContact   Optional full contact table record with uid != 0
 	 * @throws \Friendica\Network\HTTPException\InternalServerErrorException
 	 */
-	public function __construct(BaseURL $baseUrl, array $publicContact, array $apcontact = [], array $userContact = [])
+	public function __construct(BaseURL $baseUrl, array $publicContact, Fields $fields, array $apcontact = [], array $userContact = [])
 	{
 		$this->id              = $publicContact['id'];
 		$this->username        = $publicContact['nick'];
@@ -94,7 +95,7 @@ class Account extends BaseEntity
 		// No custom emojis per account in Friendica
 		$this->emojis          = [];
 		// No metadata fields in Friendica
-		$this->fields          = [];
+		$this->fields          = $fields->getArrayCopy();
 		$this->bot             = ($publicContact['contact-type'] == Contact::TYPE_NEWS);
 		$this->group           = ($publicContact['contact-type'] == Contact::TYPE_COMMUNITY);
 		$this->discoverable    = !$publicContact['unsearchable'];

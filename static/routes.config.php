@@ -35,6 +35,9 @@ return [
 			'/instance'                          => [Module\Api\Mastodon\Instance::class,       [R::GET         ]],
 			'/instance/peers'                    => [Module\Api\Mastodon\Instance\Peers::class, [R::GET         ]],
 		],
+		'/friendica' => [
+			'/profile/show'                      => [Module\Api\Friendica\Profile\Show::class , [R::GET         ]],
+		],
 	],
 
 	'/admin'               => [

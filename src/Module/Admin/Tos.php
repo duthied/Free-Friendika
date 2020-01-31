@@ -4,9 +4,9 @@ namespace Friendica\Module\Admin;
 
 use Friendica\Core\Renderer;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
-class Tos extends BaseAdminModule
+class Tos extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

@@ -16,14 +16,14 @@ use Friendica\Model\GContact;
 use Friendica\Model\Profile;
 use Friendica\Model\ProfileField;
 use Friendica\Model\User;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 use Friendica\Module\Security\Login;
 use Friendica\Network\HTTPException;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Strings;
 use Friendica\Util\Temporal;
 
-class Index extends BaseSettingsModule
+class Index extends BaseSettings
 {
 	public static function post(array $parameters = [])
 	{

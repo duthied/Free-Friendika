@@ -3,6 +3,7 @@
 namespace Friendica\Object\Api\Mastodon;
 
 use Friendica\App\BaseURL;
+use Friendica\Collection\Api\Mastodon\Fields;
 
 /**
  * Virtual entity to separate Accounts from Follow Requests.
@@ -24,7 +25,7 @@ class FollowRequest extends Account
 	 */
 	public function __construct(BaseURL $baseUrl, int $introduction_id, array $publicContact, array $apcontact = [], array $userContact = [])
 	{
-		parent::__construct($baseUrl, $publicContact, $apcontact, $userContact);
+		parent::__construct($baseUrl, $publicContact, new Fields(), $apcontact, $userContact);
 
 		$this->id = $introduction_id;
 	}

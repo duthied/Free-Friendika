@@ -7,9 +7,9 @@ use Friendica\Core\Update;
 use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
-class DBSync extends BaseAdminModule
+class DBSync extends BaseAdmin
 {
 	public static function content(array $parameters = [])
 	{

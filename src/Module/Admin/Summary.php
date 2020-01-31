@@ -11,13 +11,13 @@ use Friendica\Database\DBA;
 use Friendica\Database\DBStructure;
 use Friendica\DI;
 use Friendica\Model\Register;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Util\ConfigFileLoader;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Network;
 
-class Summary extends BaseAdminModule
+class Summary extends BaseAdmin
 {
 	public static function content(array $parameters = [])
 	{

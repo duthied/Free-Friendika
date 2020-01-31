@@ -645,11 +645,7 @@ On error:
 
 ### GET api/friendica/profile/show
 
-Returns the [Profile](help/API-Entities#Profile) data of all profiles or a single profile of the authenticated user.
-
-#### Parameters
-
-* `profile_id` (optional): id of the profile to be returned. If omitted all profiles are returned by default.
+Returns the [Profile](help/API-Entities#Profile) data of the authenticated user.
 
 #### Return values
 
@@ -664,6 +660,23 @@ HTTP 403 Forbidden: when no authentication was provided
 HTTP 400 Bad Request: if given profile_id is not in the database or is not assigned to the authenticated user
 
 General description of profile data in API returns:
+- hide_friends: true if friends are hidden
+- profile_photo
+- profile_thumb
+- publish: true if published on the server's local directory
+- net_publish: true if published to global_dir
+- fullname
+- date_of_birth
+- description
+- xmpp
+- homepage
+- address
+- locality
+- region
+- postal_code
+- country
+- pub_keywords
+- custom_fields: list of public custom fields
 
 ---
 

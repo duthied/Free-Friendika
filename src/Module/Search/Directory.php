@@ -4,14 +4,14 @@ namespace Friendica\Module\Search;
 
 use Friendica\Content\Widget;
 use Friendica\DI;
-use Friendica\Module\BaseSearchModule;
+use Friendica\Module\BaseSearch;
 use Friendica\Module\Security\Login;
 use Friendica\Util\Strings;
 
 /**
  * Directory search module
  */
-class Directory extends BaseSearchModule
+class Directory extends BaseSearch
 {
 	public static function content(array $parameters = [])
 	{

@@ -5,10 +5,10 @@ namespace Friendica\Module\Admin\Item;
 use Friendica\Core\Renderer;
 use Friendica\DI;
 use Friendica\Model\Item;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
-class Delete extends BaseAdminModule
+class Delete extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

@@ -6,10 +6,10 @@ use Friendica\Content\Text\Markdown;
 use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\DI;
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 use Friendica\Util\Strings;
 
-class Details extends BaseAdminModule
+class Details extends BaseAdmin
 {
 	public static function post(array $parameters = [])
 	{

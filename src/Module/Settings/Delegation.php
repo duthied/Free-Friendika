@@ -8,14 +8,14 @@ use Friendica\Core\Session;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\User;
-use Friendica\Module\BaseSettingsModule;
+use Friendica\Module\BaseSettings;
 use Friendica\Network\HTTPException;
 use Friendica\Util\Strings;
 
 /**
  * Account delegation settings module
  */
-class Delegation extends BaseSettingsModule
+class Delegation extends BaseSettings
 {
 	public static function post(array $parameters = [])
 	{

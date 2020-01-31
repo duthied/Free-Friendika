@@ -2,9 +2,9 @@
 
 namespace Friendica\Module\Admin;
 
-use Friendica\Module\BaseAdminModule;
+use Friendica\Module\BaseAdmin;
 
-class PhpInfo extends BaseAdminModule
+class PhpInfo extends BaseAdmin
 {
 	public static function rawContent(array $parameters = [])
 	{
