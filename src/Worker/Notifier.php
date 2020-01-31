@@ -70,12 +70,9 @@ class Notifier
 					'APDelivery', $cmd, $target_id, $inbox, $uid);
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
-			$suggest = DBA::selectFirst('fsuggest', ['uid', 'cid'], ['id' => $target_id]);
-			if (!DBA::isResult($suggest)) {
-				return;
-			}
-			$uid = $suggest['uid'];
-			$recipients[] = $suggest['cid'];
+			$suggest = DI::fsuggest()->getById($target_id);
+			$uid = $suggest->uid;
+			$recipients[] = $suggest->cid;
 		} elseif ($cmd == Delivery::REMOVAL) {
 			return self::notifySelfRemoval($target_id, $a->queue['priority'], $a->queue['created']);
 		} elseif ($cmd == Delivery::RELOCATION) {

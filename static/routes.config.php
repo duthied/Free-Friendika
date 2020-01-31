@@ -132,6 +132,8 @@ return [
 	'/following/{owner}' => [Module\Following::class,       [R::GET]],
 	'/friendica[/json]'  => [Module\Friendica::class,       [R::GET]],
 
+	'/fsuggest/{contact:\d+}' => [Module\FriendSuggest::class,  [R::GET, R::POST]],
+
 	'/group'              => [
 		'[/]'                        => [Module\Group::class, [R::GET, R::POST]],
 		'/{group:\d+}'               => [Module\Group::class, [R::GET, R::POST]],

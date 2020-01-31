@@ -301,6 +301,14 @@ abstract class DI
 	//
 
 	/**
+	 * @return Repository\FSuggest;
+	 */
+	public static function fsuggest()
+	{
+		return self::$dice->create(Repository\FSuggest::class);
+	}
+
+	/**
 	 * @return Repository\Introduction
 	 */
 	public static function intro()
