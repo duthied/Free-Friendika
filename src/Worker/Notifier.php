@@ -71,9 +71,6 @@ class Notifier
 			}
 		} elseif ($cmd == Delivery::SUGGESTION) {
 			$suggest = DI::fsuggest()->getById($target_id);
-			if (empty($suggest)) {
-				return;
-			}
 			$uid = $suggest->uid;
 			$recipients[] = $suggest->cid;
 		} elseif ($cmd == Delivery::REMOVAL) {

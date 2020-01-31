@@ -76,7 +76,15 @@ class FriendSuggest extends BaseModule
 		}
 
 		$contacts = ContactModel::selectToArray(['id', 'name'], [
-			'`uid` = ? AND NOT `self` AND NOT `blocked` AND NOT `pending` AND NOT `archive` AND NOT `deleted` AND `notify` != "" AND `id` != ? AND `network` = ?',
+			'`uid` = ? 
+			AND `id` != ? 
+			AND `network` = ? 
+			AND NOT `self` 
+			AND NOT `blocked` 
+			AND NOT `pending` 
+			AND NOT `archive` 
+			AND NOT `deleted` 
+			AND `notify` != ""',
 			local_user(),
 			$cid,
 			Protocol::DFRN,

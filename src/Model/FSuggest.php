@@ -5,7 +5,7 @@ namespace Friendica\Model;
 use Friendica\BaseModel;
 
 /**
- * Model for interacting with a friend suggest
+ * Model for interacting with a friend suggestion
  *
  * @property int uid
  * @property int cid
