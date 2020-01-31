@@ -3,13 +3,14 @@
 namespace Friendica\Object\EMail;
 
 use Friendica\Util\Emailer;
+use JsonSerializable;
 
 /**
  * Interface for a single mail, which can be send through Emailer::send()
  *
  * @see Emailer::send()
  */
-interface IEmail
+interface IEmail extends JsonSerializable
 {
 	/**
 	 * Gets the senders name for this email
@@ -68,4 +69,27 @@ interface IEmail
 	 * @return string
 	 */
 	function getAdditionalMailHeader();
+
+	/**
+	 * Returns the current email with a new recipient
+	 *
+	 * @param string $address The email of the recipient
+	 * @param int    $uid   The (optional) UID of the recipient for further infos
+	 *
+	 * @return static
+	 */
+	function withRecipient(string $address, int $uid);
+
+	/**
+	 * @param string $plaintext a new plaintext message for this email
+	 * @param string $html      a new html message for this email (optional)
+	 *
+	 * @return static
+	 */
+	function withMessage(string $plaintext, string $html = null);
+
+	/**
+	 * @return string
+	 */
+	function __toString();
 }

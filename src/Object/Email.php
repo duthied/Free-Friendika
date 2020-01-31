@@ -23,7 +23,7 @@ class Email implements IEmail
 
 	/** @var string */
 	private $subject;
-	/** @var string */
+	/** @var string|null */
 	private $msgHtml;
 	/** @var string */
 	private $msgText;
@@ -117,40 +117,52 @@ class Email implements IEmail
 	}
 
 	/**
-	 * Returns the current email with a new recipient
-	 *
-	 * @param string $email The email of the recipient
-	 * @param int    $uid   The (optional) UID of the recipient for further infos
-	 *
-	 * @return static
+	 * {@inheritDoc}
 	 */
-	public function withRecipient(string $email, int $uid = null)
+	public function withRecipient(string $address, int $uid = null)
 	{
 		$newEmail            = clone $this;
-		$newEmail->toAddress = $email;
+		$newEmail->toAddress = $address;
 		$newEmail->toUid     = $uid;
 
 		return $newEmail;
 	}
 
 	/**
-	 * Creates a new Email instance based on a given prototype
-	 *
-	 * @param static $prototype The base prototype
-	 * @param array  $data      The delta-data (key must be an existing property)
-	 *
-	 * @return static The new email instance
+	 * {@inheritDoc}
 	 */
-	public static function createFromPrototype(Email $prototype, array $data = [])
+	public function withMessage(string $plaintext, string $html = null)
 	{
-		$newMail = clone $prototype;
-
-		foreach ($data as $key => $value) {
-			if (property_exists($newMail, $key)) {
-				$newMail->{$key} = $value;
-			}
-		}
+		$newMail          = clone $this;
+		$newMail->msgText = $plaintext;
+		$newMail->msgHtml = $html;
 
 		return $newMail;
+	}
+
+	/**
+	 * Returns the properties of the email as an array
+	 *
+	 * @return array
+	 */
+	private function toArray()
+	{
+		return get_object_vars($this);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function __toString()
+	{
+		return json_encode($this->toArray());
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function jsonSerialize()
+	{
+		return $this->toArray();
 	}
 }
