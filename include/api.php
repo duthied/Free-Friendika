@@ -5972,9 +5972,9 @@ function api_friendica_notification_seen($type)
 		}
 		return api_format_data('result', $type, ['result' => "success"]);
 	} catch (NotFoundException $e) {
-		throw new BadRequestException('Invalid argument');
+		throw new BadRequestException('Invalid argument', $e);
 	} catch (Exception $e) {
-		throw new InternalServerErrorException('Internal Server exception');
+		throw new InternalServerErrorException('Internal Server exception', $e);
 	}
 }
 
