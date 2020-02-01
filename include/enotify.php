@@ -72,7 +72,7 @@ function notification($params)
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
 
-	$sender_email = $a->getSenderEmailAddress();
+	$sender_email = DI::emailer()->getSiteEmailAddress();
 
 	$user = DBA::selectFirst('user', ['nickname', 'page-flags'],
 		['uid' => $params['uid']]);

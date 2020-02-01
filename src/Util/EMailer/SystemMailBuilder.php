@@ -26,11 +26,9 @@ class SystemMailBuilder extends MailBuilder
 	/** @var string */
 	protected $siteAdmin;
 
-	public function __construct(App $a, L10n $l10n, BaseURL $baseUrl, IConfig $config)
+	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, string $siteEmailAddress, string $siteName)
 	{
 		parent::__construct($l10n, $baseUrl, $config);
-
-		$siteName = $this->config->get('config', 'sitename');
 
 		if ($this->config->get('config', 'admin_name')) {
 			$this->siteAdmin = $l10n->t('%1$s, %2$s Administrator', $this->config->get('config', 'admin_name'), $siteName);
@@ -38,7 +36,8 @@ class SystemMailBuilder extends MailBuilder
 			$this->siteAdmin = $l10n->t('%s Administrator', $siteName);
 		}
 
-		$this->senderAddress = $a->getSenderEmailAddress();
+		// Set the system wide site address/name as sender (default for system mails)
+		$this->withSender($siteEmailAddress, $siteName);
 	}
 
 	/**
@@ -108,16 +107,5 @@ class SystemMailBuilder extends MailBuilder
 			'$site_admin'  => $this->siteAdmin,
 			'$textversion' => $textVersion,
 		]);
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	public function build(bool $raw = false)
-	{
-		// for system emails, always use the sitename/site address as the sender
-		$this->withSender($this->config->get('config', 'sitename'), $this->senderAddress);
-
-		return parent::build($raw);
 	}
 }

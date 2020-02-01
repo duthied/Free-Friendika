@@ -29,25 +29,62 @@ class Emailer
 	/** @var App\BaseURL */
 	private $baseUrl;
 
+	/** @var string */
+	private $siteEmailAddress;
+	/** @var string */
+	private $siteEmailName;
+
 	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger)
 	{
 		$this->config      = $config;
 		$this->pConfig     = $pConfig;
 		$this->logger      = $logger;
 		$this->baseUrl     = $baseURL;
+
+		$this->siteEmailAddress = $this->config->get('config', 'sender_email');
+		if (empty($sysEmailAddress)) {
+			$hostname = $this->baseUrl->getHostname();
+			if (strpos($hostname, ':')) {
+				$hostname = substr($hostname, 0, strpos($hostname, ':'));
+			}
+
+			$this->siteEmailAddress = 'noreply@' . $hostname;
+		}
+
+		$this->siteEmailName = $this->config->get('config', 'sitename', 'Friendica Social Network');
+	}
+
+	/**
+	 * Gets the site's default sender email address
+	 *
+	 * @return string
+	 */
+	public function getSiteEmailAddress()
+	{
+		return $this->siteEmailAddress;
+	}
+
+	/**
+	 * Gets the site's default sender name
+	 *
+	 * @return string
+	 */
+	public function getSiteEmailName()
+	{
+		return $this->siteEmailName;
 	}
 
 	/**
 	 * Creates a new system email
 	 *
-	 * @param App $a The Friendica app
 	 * @param L10n $l10n The chosen language for the new email
 	 *
 	 * @return SystemMailBuilder
 	 */
-	public function newSystemMail(App $a, L10n $l10n)
+	public function newSystemMail(L10n $l10n)
 	{
-		return new SystemMailBuilder($a, $l10n, $this->baseUrl, $this->config);
+		return new SystemMailBuilder($l10n, $this->baseUrl, $this->config,
+			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 
 	/**
