@@ -44,7 +44,7 @@ class Status extends BaseProfile
 
 		if ($args->getArgc() > 3) {
 			for ($x = 3; $x < $args->getArgc(); $x++) {
-				if ($dtFormat->isYearMonth($args->get($x))) {
+				if ($dtFormat->isYearMonthDay($args->get($x))) {
 					if ($datequery) {
 						$datequery2 = Strings::escapeHtml($args->get($x));
 					} else {
