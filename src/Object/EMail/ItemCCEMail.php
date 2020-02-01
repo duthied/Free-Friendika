@@ -8,6 +8,7 @@ use Friendica\Content\Text\HTML;
 use Friendica\Core\L10n;
 use Friendica\Model\Item;
 use Friendica\Object\Email;
+use Friendica\Protocol\Email as EmailProtocol;
 
 /**
  * Class for creating CC emails based on a received item
@@ -21,9 +22,9 @@ class ItemCCEMail extends Email
 		$disclaimer .= $l10n->t('You may visit them online at %s', $baseUrl . '/profile/' . $a->user['nickname']) . EOL;
 		$disclaimer .= $l10n->t('Please contact the sender by replying to this post if you do not wish to receive these messages.') . EOL;
 		if (!$item['title'] == '') {
-			$subject = Email::encodeHeader($item['title'], 'UTF-8');
+			$subject = EmailProtocol::encodeHeader($item['title'], 'UTF-8');
 		} else {
-			$subject = Email::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $a->user['username']), 'UTF-8');
+			$subject = EmailProtocol::encodeHeader('[Friendica]' . ' ' . $l10n->t('%s posted an update.', $a->user['username']), 'UTF-8');
 		}
 		$link    = '<a href="' . $baseUrl . '/profile/' . $a->user['nickname'] . '"><img src="' . $authorThumb . '" alt="' . $a->user['username'] . '" /></a><br /><br />';
 		$html    = Item::prepareBody($item);
