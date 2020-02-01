@@ -142,7 +142,7 @@ abstract class MailBuilder
 		    !empty($this->recipientUid)) {
 			$user = User::getById($this->recipientUid, ['email']);
 
-			if (!empty($user)) {
+			if (!empty($user['email'])) {
 				$this->recipientAddress = $user['email'];
 			}
 		}
