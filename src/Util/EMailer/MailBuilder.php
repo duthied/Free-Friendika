@@ -162,7 +162,7 @@ abstract class MailBuilder
 
 		if (!$raw) {
 			// load the template for private message notifications
-			$tpl     = Renderer::getMarkupTemplate('email/notify/html.tpl');
+			$tpl     = Renderer::getMarkupTemplate('email/html.tpl');
 			$msgHtml = Renderer::replaceMacros($tpl, [
 				'$banner'      => $this->l10n->t('Friendica Notification'),
 				'$product'     => FRIENDICA_PLATFORM,
