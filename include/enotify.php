@@ -548,7 +548,6 @@ function notification($params)
 		$datarray['source_link']  = $params['source_link'] ?? '';
 		$datarray['source_photo'] = $params['source_photo'] ?? '';
 		$datarray['uid']          = $params['uid'];
-		$datarray['username']     = $params['to_name'] ?? '';
 		$datarray['hsitelink']    = $hsitelink;
 		$datarray['tsitelink']    = $tsitelink;
 		$datarray['hitemlink']    = '<a href="' . $itemlink . '">' . $itemlink . '</a>';
@@ -568,7 +567,7 @@ function notification($params)
 		$content_allowed = ((!DI::config()->get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
 
 		// load the template for private message notifications
-		$tpl             = Renderer::getMarkupTemplate('email_notify_html.tpl');
+		$tpl             = Renderer::getMarkupTemplate('email/notify_html.tpl');
 		$email_html_body = Renderer::replaceMacros($tpl, [
 			'$banner'          => $datarray['banner'],
 			'$product'         => $datarray['product'],
@@ -578,7 +577,6 @@ function notification($params)
 			'$source_name'     => $datarray['source_name'],
 			'$source_link'     => $datarray['source_link'],
 			'$source_photo'    => $datarray['source_photo'],
-			'$username'        => $datarray['username'],
 			'$hsitelink'       => $datarray['hsitelink'],
 			'$hitemlink'       => $datarray['hitemlink'],
 			'$thanks'          => $datarray['thanks'],
@@ -589,17 +587,9 @@ function notification($params)
 		]);
 
 		// load the template for private message notifications
-		$tpl             = Renderer::getMarkupTemplate('email_notify_text.tpl');
+		$tpl             = Renderer::getMarkupTemplate('email/notify_text.tpl');
 		$email_text_body = Renderer::replaceMacros($tpl, [
-			'$banner'          => $datarray['banner'],
-			'$product'         => $datarray['product'],
 			'$preamble'        => $datarray['preamble'],
-			'$sitename'        => $datarray['sitename'],
-			'$siteurl'         => $datarray['siteurl'],
-			'$source_name'     => $datarray['source_name'],
-			'$source_link'     => $datarray['source_link'],
-			'$source_photo'    => $datarray['source_photo'],
-			'$username'        => $datarray['username'],
 			'$tsitelink'       => $datarray['tsitelink'],
 			'$titemlink'       => $datarray['titemlink'],
 			'$thanks'          => $datarray['thanks'],
