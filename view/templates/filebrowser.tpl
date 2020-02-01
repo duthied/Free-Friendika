@@ -1,8 +1,8 @@
 <!--
 	This is the template used by mod/fbrowser.php
 -->
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
-<script type="text/javascript" src="{{$baseurl}}/view/js/filebrowser.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/filebrowser.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <script>
 	$(function() {
 		FileBrowser.init("{{$nickname}}", "{{$type}}");

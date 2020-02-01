@@ -1,7 +1,7 @@
 <script language="javascript" type="text/javascript">
 	$("#prvmail-text").editor_autocomplete(baseurl + '/search/acl');
 </script>
-<script type="text/javascript" src="view/js/ajaxupload.js" ></script>
+<script type="text/javascript" src="view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 <script>
 	$(document).ready(function() {
 		var uploader = new window.AjaxUpload(

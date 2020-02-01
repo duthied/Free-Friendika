@@ -870,4 +870,27 @@ class Network
 
 		return $url;
 	}
+
+	/**
+	 * Adds query string parameters to the provided URI. Replace the value of existing keys.
+	 *
+	 * @param string $path
+	 * @param array  $additionalParams Associative array of parameters
+	 * @return string
+	 */
+	public static function appendQueryParam(string $path, array $additionalParams)
+	{
+		$parsed = parse_url($path);
+
+		$params = [];
+		if (!empty($parsed['query'])) {
+			parse_str($parsed['query'], $params);
+		}
+
+		$params = array_merge($params, $additionalParams);
+
+		$parsed['query'] = http_build_query($params);
+
+		return self::unparseURL($parsed);
+	}
 }

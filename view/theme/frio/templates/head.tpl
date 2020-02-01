@@ -7,31 +7,31 @@
 <meta name="viewport" content="initial-scale=1.0">
 
 {{* All needed css files - Note: css must be inserted before js files *}}
-<link rel="stylesheet" href="view/global.css" type="text/css" media="all" />
-<link rel="stylesheet" href="view/asset/jquery-colorbox/example5/colorbox.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="view/asset/jgrowl/jquery.jgrowl.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css" type="text/css" media="screen" />
-<link rel="stylesheet" href="view/asset/perfect-scrollbar/css/perfect-scrollbar.min.css" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/global.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="all" />
+<link rel="stylesheet" href="view/asset/jquery-colorbox/example5/colorbox.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/jgrowl/jquery.jgrowl.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
+<link rel="stylesheet" href="view/asset/perfect-scrollbar/css/perfect-scrollbar.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen" />
 
-<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap-theme.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/asset/fork-awesome/css/fork-awesome.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/jasny/css/jasny-bootstrap.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-select/css/bootstrap-select.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/justifiedGallery/justifiedGallery.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-toggle/css/bootstrap-toggle.min.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap/css/bootstrap-theme.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/asset/fork-awesome/css/fork-awesome.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/jasny/css/jasny-bootstrap.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-select/css/bootstrap-select.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/awesome-bootstrap-checkbox/awesome-bootstrap-checkbox.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/justifiedGallery/justifiedGallery.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-colorpicker/css/bootstrap-colorpicker.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/frameworks/bootstrap-toggle/css/bootstrap-toggle.min.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/font/open_sans/open-sans.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 
 {{foreach $stylesheets as $stylesheetUrl}}
 <link rel="stylesheet" href="{{$stylesheetUrl}}" type="text/css" media="screen" />
 {{/foreach}}
 
 {{* own css files *}}
-<link rel="stylesheet" href="view/theme/frio/css/hovercard.css" type="text/css" media="screen"/>
-<link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/css/hovercard.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
+<link rel="stylesheet" href="view/theme/frio/css/font-awesome.custom.css?v={{$smarty.const.FRIENDICA_VERSION}}" type="text/css" media="screen"/>
 
 <link rel="shortcut icon" href="{{$shortcut_icon}}" />
 <link rel="apple-touch-icon" href="{{$touch_icon}}"/>
@@ -51,40 +51,40 @@
 
 {{* The js files we use *}}
 <!--[if IE]>
-<script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+<script type="text/javascript" src="https://html5shiv.googlecode.com/svn/trunk/html5.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 <![endif]-->
-<script type="text/javascript" src="view/js/modernizr.js"></script>
-<script type="text/javascript" src="view/asset/jquery/dist/jquery.min.js"></script>
-<script type="text/javascript" src="view/js/jquery.textinputs.js"></script>
-<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js"></script>
-<script type="text/javascript" src="view/js/autocomplete.js"></script>
-<script type="text/javascript" src="view/asset/jquery-colorbox/jquery.colorbox-min.js"></script>
-<script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js"></script>
-<script type="text/javascript" src="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js"></script>
-<script type="text/javascript" src="view/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js"></script>
-<script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js"></script>
-<script type="text/javascript" src="view/asset/base64/base64.min.js"></script>
-<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js"></script>
-<script type="text/javascript" src="view/js/main.js"></script>
+<script type="text/javascript" src="view/js/modernizr.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/jquery/dist/jquery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/js/jquery.textinputs.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/js/jquery-textcomplete/jquery.textcomplete.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/js/autocomplete.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/jquery-colorbox/jquery.colorbox-min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/jgrowl/jquery.jgrowl.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/jquery-datetimepicker/build/jquery.datetimepicker.full.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/perfect-scrollbar/js/perfect-scrollbar.jquery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/imagesloaded/imagesloaded.pkgd.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/base64/base64.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/asset/dompurify/dist/purify.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/js/main.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
-<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/jasny/js/jasny-bootstrap.custom.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-select/js/bootstrap-select.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/justifiedGallery/jquery.justifiedGallery.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/flexMenu/flexmenu.custom.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/jquery-scrollspy/jquery-scrollspy.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/autosize/autosize.min.js"></script>
-<script type="text/javascript" src="view/theme/frio/frameworks/sticky-kit/jquery.sticky-kit.min.js"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap/js/bootstrap.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/jasny/js/jasny-bootstrap.custom.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-select/js/bootstrap-select.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/ekko-lightbox/ekko-lightbox.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/justifiedGallery/jquery.justifiedGallery.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/bootstrap-colorpicker/js/bootstrap-colorpicker.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/flexMenu/flexmenu.custom.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/jquery-scrollspy/jquery-scrollspy.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/autosize/autosize.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/frameworks/sticky-kit/jquery.sticky-kit.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 {{* own js files *}}
-<script type="text/javascript" src="view/theme/frio/js/theme.js"></script>
-<script type="text/javascript" src="view/theme/frio/js/modal.js"></script>
+<script type="text/javascript" src="view/theme/frio/js/theme.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="view/theme/frio/js/modal.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 {{if ! $block_public}}
-<script type="text/javascript" src="view/theme/frio/js/hovercard.js"></script>
+<script type="text/javascript" src="view/theme/frio/js/hovercard.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 {{/if}}
-<script type="text/javascript" src="view/theme/frio/js/textedit.js"></script>
+<script type="text/javascript" src="view/theme/frio/js/textedit.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 {{* Include the strings which are needed for some js functions (e.g. translation)
 They are loaded into the html <head> so that js functions can use them *}}

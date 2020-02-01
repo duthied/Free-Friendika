@@ -48,7 +48,7 @@ function enableOnUser(){
 
 </script>
 
-<script type="text/javascript" src="view/js/ajaxupload.js" >
+<script type="text/javascript" src="view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" >
 </script>
 
 <script>

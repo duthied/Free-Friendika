@@ -1,5 +1,5 @@
-<script type="text/javascript" src="view/theme/frio/frameworks/jquery-color/jquery.color.js"></script>
-{{if $mode == display}}<script type="text/javascript" src="view/theme/frio/js/mod_display.js"></script>{{/if}}
+<script type="text/javascript" src="view/theme/frio/frameworks/jquery-color/jquery.color.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+{{if $mode == display}}<script type="text/javascript" src="view/theme/frio/js/mod_display.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>{{/if}}
 
 {{$live_update nofilter}}
 
