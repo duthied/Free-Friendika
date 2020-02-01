@@ -2,14 +2,14 @@
 
 {{$tab_str nofilter}}
 
-<div class="crepair-error-message">{{$warning nofilter}}</div><br>
-<div class="crepair-return">
+<div class="contact-advanced-error-message">{{$warning nofilter}}</div><br>
+<div class="contact-advanced-return">
 	{{$info nofilter}}<br>
 	<!-- <a href="{{$returnaddr}}">{{$return}}</a> -->
 </div>
 <br />
 
-<form id="crepair-form" action="crepair/{{$contact_id}}" method="post" >
+<form id="contact-advanced-form" action="contact/{{$contact_id}}/advanced" method="post" >
 
 	<!-- <h4>{{$contact_name}}</h4> -->
 

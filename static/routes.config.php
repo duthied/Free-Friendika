@@ -90,6 +90,7 @@ return [
 		'[/]'                     => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}[/]'            => [Module\Contact::class,           [R::GET, R::POST]],
 		'/{id:\d+}/archive'       => [Module\Contact::class,           [R::GET]],
+		'/{id:\d+}/advanced'      => [Module\Contact\Advanced::class,  [R::GET, R::POST]],
 		'/{id:\d+}/block'         => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/conversations' => [Module\Contact::class,           [R::GET]],
 		'/{id:\d+}/drop'          => [Module\Contact::class,           [R::GET]],
@@ -106,7 +107,8 @@ return [
 		'/hovercard'              => [Module\Contact\Hovercard::class, [R::GET]],
 	],
 
-	'/credits'   => [Module\Credits::class,          [R::GET]],
+	'/credits'               => [Module\Credits::class,        [R::GET]],
+
 	'/delegation'=> [Module\Delegation::class,       [R::GET, R::POST]],
 	'/dirfind'   => [Module\Search\Directory::class, [R::GET]],
 	'/directory' => [Module\Directory::class,        [R::GET]],
