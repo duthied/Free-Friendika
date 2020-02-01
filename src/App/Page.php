@@ -15,6 +15,7 @@ use Friendica\Core\Renderer;
 use Friendica\Core\Theme;
 use Friendica\Module\Special\HTTPException as ModuleHTTPException;
 use Friendica\Network\HTTPException;
+use Friendica\Util\Network;
 use Friendica\Util\Strings;
 
 /**
@@ -151,6 +152,8 @@ class Page implements ArrayAccess
 	 */
 	public function registerStylesheet($path)
 	{
+		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
+
 		if (mb_strpos($path, $this->basePath . DIRECTORY_SEPARATOR) === 0) {
 			$path = mb_substr($path, mb_strlen($this->basePath . DIRECTORY_SEPARATOR));
 		}
@@ -334,6 +337,8 @@ class Page implements ArrayAccess
 	 */
 	public function registerFooterScript($path)
 	{
+		$path = Network::appendQueryParam($path, ['v' => FRIENDICA_VERSION]);
+
 		$url = str_replace($this->basePath . DIRECTORY_SEPARATOR, '', $path);
 
 		$this->footerScripts[] = trim($url, '/');
