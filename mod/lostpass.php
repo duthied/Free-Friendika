@@ -68,7 +68,7 @@ function lostpass_post(App $a)
 	           ->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
 	           ->withMessage(DI::l10n()->t('Password reset requested at %s', $sitename), $preamble, $body)
 	           ->forUser($user['uid'] ?? 0)
-	           ->withRecipient($user['to_email'])
+	           ->withRecipient($user['email'])
 	           ->build();
 
 	DI::emailer()->send($email);
@@ -160,7 +160,7 @@ function lostpass_generate_password($user)
 		           ->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
 		           ->withMessage(DI::l10n()->t('Your password has been changed at %s', $sitename), $preamble, $body)
 		           ->forUser($user['uid'] ?? 0)
-		           ->withRecipient($user['to_email'])
+		           ->withRecipient($user['email'])
 		           ->build();
 		DI::emailer()->send($email);
 	}
