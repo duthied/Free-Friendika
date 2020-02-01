@@ -89,28 +89,18 @@ class Advanced extends BaseModule
 			throw new BadRequestException(DI::l10n()->t('Contact not found.'));
 		}
 
-		if (empty(DI::page()['aside'])) {
-			DI::page()['aside'] = '';
-		}
-
-		$a = DI::app();
-
-		$a->data['contact'] = $contact;
-		Model\Profile::load($a, "", Model\Contact::getDetailsByURL($contact["url"]));
+		Model\Profile::load(DI::app(), "", Model\Contact::getDetailsByURL($contact["url"]));
 
 		$warning = DI::l10n()->t('<strong>WARNING: This is highly advanced</strong> and if you enter incorrect information your communications with this contact may stop working.');
 		$info    = DI::l10n()->t('Please use your browser \'Back\' button <strong>now</strong> if you are uncertain what to do on this page.');
 
 		$returnaddr = "contact/$cid";
 
-		$allow_remote_self = DI::config()->get('system', 'allow_users_remote_self');
-
 		// Disable remote self for everything except feeds.
 		// There is an issue when you repeat an item from maybe twitter and you got comments from friendica and twitter
 		// Problem is, you couldn't reply to both networks.
-		if (!in_array($contact['network'], [Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])) {
-			$allow_remote_self = false;
-		}
+		$allow_remote_self = in_array($contact['network'], [Protocol::FEED, Protocol::DFRN, Protocol::DIASPORA, Protocol::TWITTER])
+		                     && DI::config()->get('system', 'allow_users_remote_self');
 
 		if ($contact['network'] == Protocol::FEED) {
 			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '1' => DI::l10n()->t('Mirror as forwarded posting'), '2' => DI::l10n()->t('Mirror as my own posting')];
@@ -118,9 +108,7 @@ class Advanced extends BaseModule
 			$remote_self_options = ['0' => DI::l10n()->t('No mirroring'), '2' => DI::l10n()->t('Mirror as my own posting')];
 		}
 
-		$update_profile = in_array($contact['network'], Protocol::FEDERATED);
-
-		$tab_str = Contact::getTabsHTML($a, $contact, 6);
+		$tab_str = Contact::getTabsHTML(DI::app(), $contact, 6);
 
 		$tpl = Renderer::getMarkupTemplate('contact/advanced.tpl');
 		return Renderer::replaceMacros($tpl, [
@@ -129,7 +117,7 @@ class Advanced extends BaseModule
 			'$info'              => $info,
 			'$returnaddr'        => $returnaddr,
 			'$return'            => DI::l10n()->t('Return to contact editor'),
-			'$update_profile'    => $update_profile,
+			'$update_profile'    => in_array($contact['network'], Protocol::FEDERATED),
 			'$udprofilenow'      => DI::l10n()->t('Refetch contact data'),
 			'$contact_id'        => $contact['id'],
 			'$lbl_submit'        => DI::l10n()->t('Submit'),
