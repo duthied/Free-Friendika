@@ -2,6 +2,7 @@
 
 namespace Friendica\Object\EMail;
 
+use Friendica\Core\L10n;
 use Friendica\Util\Emailer;
 use JsonSerializable;
 

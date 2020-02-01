@@ -40,17 +40,16 @@ function removeme_post(App $a)
 		if (!DBA::isResult($admin)) {
 			continue;
 		}
-		notification([
-			'type'         => SYSTEM_EMAIL,
-			'subject'      => DI::l10n()->t('[Friendica System Notify]') . ' ' . DI::l10n()->t('User deleted their account'),
-			'preamble'     => DI::l10n()->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
-			'body'         => DI::l10n()->t('The user id is %d', local_user()),
-			'to_email'     => $admin['email'],
-			'to_name'      => $admin['username'],
-			'uid'          => $admin['uid'],
-			'language'     => $admin['language'] ? $admin['language'] : 'en',
-			'show_in_notification_page' => false
-		]);
+
+		$email = DI::emailer()
+		           ->newSystemMail((!empty($admin['language'])) ? DI::l10n()->withLang($admin['language']) : DI::l10n()->withLang('en'))
+		           ->withMessage(DI::l10n()->t('[Friendica System Notify]') . ' ' . DI::l10n()->t('User deleted their account'),
+			           DI::l10n()->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
+			           DI::l10n()->t('The user id is %d', local_user()))
+		           ->forUser($admin['uid'] ?? 0)
+		           ->withRecipient($admin['email'])
+		           ->build();
+		DI::emailer()->send($email);
 	}
 
 	if (User::getIdFromPasswordAuthentication($a->user, trim($_POST['qxz_password']))) {

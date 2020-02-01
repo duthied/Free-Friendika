@@ -897,13 +897,13 @@ class User
 			$password
 		));
 
-		return notification([
-			'type'     => SYSTEM_EMAIL,
-			'uid'      => $user['uid'],
-			'to_email' => $user['email'],
-			'subject'  => DI::l10n()->t('Registration at %s', $sitename),
-			'body'     => $body
-		]);
+		$email = DI::emailer()
+		           ->newSystemMail(DI::l10n())
+		           ->withMessage(DI::l10n()->t('Registration at %s', $sitename), $body)
+		           ->forUser($user['uid'] ?? 0)
+		           ->withRecipient($user['email'])
+		           ->build();
+		return DI::emailer()->send($email);
 	}
 
 	/**
@@ -965,15 +965,13 @@ class User
 			$password
 		));
 
-		return notification([
-			'uid'      => $user['uid'],
-			'language' => $user['language'],
-			'type'     => SYSTEM_EMAIL,
-			'to_email' => $user['email'],
-			'subject'  => DI::l10n()->t('Registration details for %s', $sitename),
-			'preamble' => $preamble,
-			'body'     => $body
-		]);
+		$email = DI::emailer()
+		           ->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
+		           ->withMessage(DI::l10n()->t('Registration details for %s', $sitename), $preamble, $body)
+		           ->forUser($user['uid'] ?? 0)
+		           ->withRecipient($user['email'])
+		           ->build();
+		return DI::emailer()->send($email);
 	}
 
 	/**

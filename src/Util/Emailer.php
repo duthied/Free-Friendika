@@ -7,10 +7,12 @@ namespace Friendica\Util;
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
+use Friendica\Util\EMailer\SystemMailBuilder;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -33,6 +35,18 @@ class Emailer
 		$this->pConfig     = $pConfig;
 		$this->logger      = $logger;
 		$this->baseUrl     = $baseURL;
+	}
+
+	/**
+	 * Creates a new system email
+	 *
+	 * @param L10n $l10n The chosen language for the new email
+	 *
+	 * @return SystemMailBuilder
+	 */
+	public function newSystemMail(L10n $l10n)
+	{
+		return new SystemMailBuilder($l10n, $this->baseUrl, $this->config);
 	}
 
 	/**
