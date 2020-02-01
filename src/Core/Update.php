@@ -264,7 +264,7 @@ class Update
 			$body     = $l10n->t("The error message is\n[pre]%s[/pre]", $error_message);
 
 			$email = DI::emailer()
-			           ->newSystemMail(DI::app(), $l10n)
+			           ->newSystemMail($l10n)
 			           ->withMessage($l10n->t('[Friendica Notify] Database update'), $preamble, $body)
 			           ->forUser($admin['uid'] ?? 0)
 			           ->withRecipient($admin['email'])
@@ -300,7 +300,7 @@ class Update
 					$from_build, $to_build));
 
 				$email = DI::emailer()
-				           ->newSystemMail(DI::app(), $l10n)
+				           ->newSystemMail($l10n)
 				           ->withMessage($l10n->t('[Friendica Notify] Database update'), $preamble)
 				           ->forUser($admin['uid'] ?? 0)
 				           ->withRecipient($admin['email'])

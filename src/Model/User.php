@@ -898,7 +898,7 @@ class User
 		));
 
 		$email = DI::emailer()
-		           ->newSystemMail(DI::app(), DI::l10n())
+		           ->newSystemMail(DI::l10n())
 		           ->withMessage(DI::l10n()->t('Registration at %s', $sitename), $body)
 		           ->forUser($user['uid'] ?? 0)
 		           ->withRecipient($user['email'])
@@ -966,7 +966,7 @@ class User
 		));
 
 		$email = DI::emailer()
-		           ->newSystemMail(DI::app(), $l10n)
+		           ->newSystemMail($l10n)
 		           ->withMessage(DI::l10n()->t('Registration details for %s', $sitename), $preamble, $body)
 		           ->forUser($user['uid'] ?? 0)
 		           ->withRecipient($user['email'])
