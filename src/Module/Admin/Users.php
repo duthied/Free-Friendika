@@ -77,7 +77,7 @@ class Users extends BaseAdmin
 			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
 
 			$email = DI::emailer()
-			           ->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
+			           ->newSystemMail(DI::app(), (!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
 			           ->withMessage(DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')), $preamble, $body)
 			           ->forUser($user['uid'] ?? 0)
 			           ->withRecipient($user['email'])

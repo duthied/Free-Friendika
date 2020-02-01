@@ -138,11 +138,7 @@ abstract class MailBuilder
 	 */
 	public function build(bool $raw = false)
 	{
-		if (empty($this->recipientAddress)) {
-			throw new InternalServerErrorException('Recipient address is missing.');
-		}
-
-		if ((empty($this->senderName) || empty($this->senderAddress)) &&
+		if ((empty($this->recipientAddress)) &&
 		    !empty($this->recipientUid)) {
 			$user = User::getById($this->recipientUid, ['username', 'email']);
 

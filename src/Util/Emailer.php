@@ -40,13 +40,14 @@ class Emailer
 	/**
 	 * Creates a new system email
 	 *
+	 * @param App $a The Friendica app
 	 * @param L10n $l10n The chosen language for the new email
 	 *
 	 * @return SystemMailBuilder
 	 */
-	public function newSystemMail(L10n $l10n)
+	public function newSystemMail(App $a, L10n $l10n)
 	{
-		return new SystemMailBuilder($l10n, $this->baseUrl, $this->config);
+		return new SystemMailBuilder($a, $l10n, $this->baseUrl, $this->config);
 	}
 
 	/**
