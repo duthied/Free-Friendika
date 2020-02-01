@@ -3,7 +3,7 @@
     add or remove contacts to the contact group.
 *}}
 
-<script type="text/javascript" src="view/theme/frio/js/mod_group.js"></script>
+<script type="text/javascript" src="view/theme/frio/js/mod_group.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 <div class="generic-page-wrapper">
 	{{if $editable == 1}}

@@ -1,5 +1,5 @@
 
-<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/event_edit.js"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/theme/frio/js/event_edit.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 <div id="event-form-wrapper">
 	<h3 class="heading">{{$title}}</h3>

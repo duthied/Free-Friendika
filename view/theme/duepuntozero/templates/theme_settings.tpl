@@ -1,4 +1,4 @@
-<script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js"></script>
+<script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
 
 {{include file="field_select.tpl" field=$colorset}} 
 

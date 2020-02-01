@@ -1,5 +1,5 @@
-<script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js"></script>
-<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js" ></script>
+<script src="{{$baseurl}}/view/theme/quattro/jquery.tools.min.js?v={{$smarty.const.FRIENDICA_VERSION}}"></script>
+<script type="text/javascript" src="{{$baseurl}}/view/js/ajaxupload.js?v={{$smarty.const.FRIENDICA_VERSION}}" ></script>
 
 {{include file="field_select.tpl" field=$scheme}}
 
