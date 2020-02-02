@@ -74,8 +74,7 @@ function notification($params)
 
 	$sender_email = DI::emailer()->getSiteEmailAddress();
 
-	$user = DBA::selectFirst('user', ['nickname', 'page-flags'],
-		['uid' => $params['uid']]);
+	$user = User::getById($params['uid'], ['nickname', 'page-flags']);
 
 	// There is no need to create notifications for forum accounts
 	if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {

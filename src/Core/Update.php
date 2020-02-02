@@ -252,7 +252,7 @@ class Update
 			}
 			$sent[] = $admin['email'];
 
-			$lang = (($admin['language']) ? $admin['language'] : 'en');
+			$lang = $admin['language'] ?? 'en';
 			$l10n = DI::l10n()->withLang($lang);
 
 			$preamble = Strings::deindent($l10n->t("
