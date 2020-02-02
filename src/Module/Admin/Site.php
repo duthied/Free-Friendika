@@ -13,6 +13,7 @@ use Friendica\Module\BaseAdmin;
 use Friendica\Module\Register;
 use Friendica\Protocol\PortableContact;
 use Friendica\Util\BasePath;
+use Friendica\Util\EMailer\MailBuilder;
 use Friendica\Util\Strings;
 use Friendica\Worker\Delivery;
 
@@ -110,6 +111,7 @@ class Site extends BaseAdmin
 		$sitename         = (!empty($_POST['sitename'])         ? Strings::escapeTags(trim($_POST['sitename']))      : '');
 		$sender_email     = (!empty($_POST['sender_email'])     ? Strings::escapeTags(trim($_POST['sender_email']))  : '');
 		$banner           = (!empty($_POST['banner'])           ? trim($_POST['banner'])                             : false);
+		$email_banner     = (!empty($_POST['email_banner'])     ? trim($_POST['email_banner'])                       : false);
 		$shortcut_icon    = (!empty($_POST['shortcut_icon'])    ? Strings::escapeTags(trim($_POST['shortcut_icon'])) : '');
 		$touch_icon       = (!empty($_POST['touch_icon'])       ? Strings::escapeTags(trim($_POST['touch_icon']))    : '');
 		$additional_info  = (!empty($_POST['additional_info'])  ? trim($_POST['additional_info'])                    : '');
@@ -301,6 +303,12 @@ class Site extends BaseAdmin
 			DI::config()->set('system', 'banner', $banner);
 		}
 
+		if (empty($email_banner)) {
+			DI::config()->delete('system', 'email_banner');
+		} else {
+			DI::config()->set('system', 'email_banner', $email_banner);
+		}
+
 		if (empty($additional_info)) {
 			DI::config()->delete('config', 'info');
 		} else {
@@ -489,6 +497,12 @@ class Site extends BaseAdmin
 			$banner = '<a href="https://friendi.ca"><img id="logo-img" src="images/friendica-32.png" alt="logo" /></a><span id="logo-text"><a href="https://friendi.ca">Friendica</a></span>';
 		}
 
+		$email_banner = DI::config()->get('system', 'email_banner');
+
+		if ($email_banner == false) {
+			$email_banner = MailBuilder::DEFAULT_EMAIL_BANNER;
+		}
+
 		$additional_info = DI::config()->get('config', 'info');
 
 		// Automatically create temporary paths
@@ -571,6 +585,7 @@ class Site extends BaseAdmin
 			'$sitename'         => ['sitename', DI::l10n()->t('Site name'), DI::config()->get('config', 'sitename'), ''],
 			'$sender_email'     => ['sender_email', DI::l10n()->t('Sender Email'), DI::config()->get('config', 'sender_email'), DI::l10n()->t('The email address your server shall use to send notification emails from.'), '', '', 'email'],
 			'$banner'           => ['banner', DI::l10n()->t('Banner/Logo'), $banner, ''],
+			'$email_banner'     => ['email_banner', DI::l10n()->t('Email Banner/Logo'), $email_banner, ''],
 			'$shortcut_icon'    => ['shortcut_icon', DI::l10n()->t('Shortcut icon'), DI::config()->get('system', 'shortcut_icon'), DI::l10n()->t('Link to an icon that will be used for browsers.')],
 			'$touch_icon'       => ['touch_icon', DI::l10n()->t('Touch icon'), DI::config()->get('system', 'touch_icon'), DI::l10n()->t('Link to an icon that will be used for tablets and mobiles.')],
 			'$additional_info'  => ['additional_info', DI::l10n()->t('Additional Info'), $additional_info, DI::l10n()->t('For public servers: you can add additional information here that will be listed at %s/servers.', Search::getGlobalDirectory())],

@@ -17,6 +17,9 @@ use Friendica\Object\EMail\IEmail;
  */
 abstract class MailBuilder
 {
+	/** @var string The default email banner in case nothing else is defined */
+	const DEFAULT_EMAIL_BANNER = 'images/friendica-32.png';
+
 	/** @var L10n */
 	protected $l10n;
 	/** @var IConfig */
@@ -163,11 +166,12 @@ abstract class MailBuilder
 			// load the template for private message notifications
 			$tpl     = Renderer::getMarkupTemplate('email/html.tpl');
 			$msgHtml = Renderer::replaceMacros($tpl, [
-				'$banner'      => $this->l10n->t('Friendica Notification'),
+				'$title'       => $this->l10n->t('Friendica Notification'),
 				'$product'     => FRIENDICA_PLATFORM,
 				'$htmlversion' => $msgHtml,
 				'$sitename'    => $this->config->get('config', 'sitename'),
-				'$siteurl'     => $this->baseUrl->get(true),
+				'$banner'      => $this->config->get('system', 'email_banner',
+					$this->baseUrl->get(true) . DIRECTORY_SEPARATOR . self::DEFAULT_EMAIL_BANNER),
 			]);
 		}
 
