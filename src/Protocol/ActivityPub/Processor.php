@@ -181,7 +181,7 @@ class Processor
 		}
 
 		if (empty($activity['directmessage']) && ($activity['id'] != $activity['reply-to-id']) && !Item::exists(['uri' => $activity['reply-to-id']])) {
-			Logger::log('Parent ' . $activity['reply-to-id'] . ' not found. Try to refetch it.');
+			Logger::notice('Parent not found. Try to refetch it.', ['parent' => $activity['reply-to-id']]);
 			self::fetchMissingActivity($activity['reply-to-id'], $activity);
 		}
 

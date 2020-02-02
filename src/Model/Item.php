@@ -3745,6 +3745,36 @@ class Item
 	}
 
 	/**
+	 * Return the URI for a link to the post 
+	 * 
+	 * @param string $uri URI or link to post
+	 *
+	 * @return string URI
+	 */
+	public static function getURIByLink(string $uri)
+	{
+		$ssl_uri = str_replace('http://', 'https://', $uri);
+		$uris = [$uri, $ssl_uri, Strings::normaliseLink($uri)];
+
+		$item = DBA::selectFirst('item', ['uri'], ['uri' => $uris]);
+		if (DBA::isResult($item)) {
+			return $item['uri'];
+		}
+
+		$itemcontent = DBA::selectFirst('item-content', ['uri-id'], ['plink' => $uris]);
+		if (!DBA::isResult($itemcontent)) {
+			return '';
+		}
+
+		$itemuri = DBA::selectFirst('item-uri', ['uri'], ['id' => $itemcontent['uri-id']]);
+		if (DBA::isResult($itemuri)) {
+			return $itemuri['uri'];
+		}
+
+		return '';
+	}
+
+	/**
 	 * Fetches item for given URI or plink
 	 *
 	 * @param string $uri
