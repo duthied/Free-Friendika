@@ -486,13 +486,13 @@ aside .help-aside-wrapper h1 {
   opacity: 1.0;
 }
 
-.crepair-label {
+.contact-advanced-label {
   margin-top: 10px;
   float: left;
   width: 250px;
 }
 
-.crepair-input {
+.contact-advanced-input {
   margin-top: 10px;
   float: left;
   width: 200px;
@@ -549,7 +549,7 @@ td.pendingnote > p > span {
 }
 
 /* warning message */
-.crepair-error-message,
+.contact-advanced-error-message,
 .warning-message {
   padding: 10px;
   margin: 5px;

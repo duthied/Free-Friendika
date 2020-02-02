@@ -374,7 +374,7 @@ class Contact extends BaseModule
 
 			if ($cmd === 'updateprofile' && ($orig_record['uid'] != 0)) {
 				self::updateContactFromProbe($contact_id);
-				DI::baseUrl()->redirect('crepair/' . $contact_id);
+				DI::baseUrl()->redirect('contact/' . $contact_id . '/advanced/');
 				// NOTREACHED
 			}
 
@@ -571,7 +571,6 @@ class Contact extends BaseModule
 				'$visit'          => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
 				'$blockunblock'   => DI::l10n()->t('Block/Unblock contact'),
 				'$ignorecont'     => DI::l10n()->t('Ignore contact'),
-				'$lblcrepair'     => DI::l10n()->t('Repair URL settings'),
 				'$lblrecent'      => DI::l10n()->t('View conversations'),
 				'$lblsuggest'     => $lblsuggest,
 				'$nettype'        => $nettype,
@@ -910,7 +909,7 @@ class Contact extends BaseModule
 
 		if (!empty($contact['uid'])) {
 			$tabs[] = ['label' => DI::l10n()->t('Advanced'),
-				'url'   => 'crepair/' . $contact['id'],
+				'url'   => 'contact/' . $contact['id'] . '/advanced/',
 				'sel'   => (($active_tab == 6) ? 'active' : ''),
 				'title' => DI::l10n()->t('Advanced Contact Settings'),
 				'id'    => 'advanced-tab',

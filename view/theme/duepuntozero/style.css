@@ -2650,29 +2650,29 @@ aside input[type='text'] {
 	margin-top: 15px;
 }
 
-#crepair-name-label,
-#crepair-nick-label,
-#crepair-attag-label,
-#crepair-url-label,
-#crepair-request-label,
-#crepair-confirm-label,
-#crepair-notification-label,
-#crepair-photo-label,
-#crepair-poll-label {
+#contact-advanced-name-label,
+#contact-advanced-nick-label,
+#contact-advanced-attag-label,
+#contact-advanced-url-label,
+#contact-advanced-request-label,
+#contact-advanced-confirm-label,
+#contact-advanced-notification-label,
+#contact-advanced-photo-label,
+#contact-advanced-poll-label {
 	float: left;
 	width: 200px;
 	margin-bottom: 15px;
 }
 
-#crepair-name,
-#crepair-nick,
-#crepair-attag,
-#crepair-url,
-#crepair-request,
-#crepair-confirm,
-#crepair-notify,
-#crepair-photo,
-#crepair-poll {
+#contact-advanced-name,
+#contact-advanced-nick,
+#contact-advanced-attag,
+#contact-advanced-url,
+#contact-advanced-request,
+#contact-advanced-confirm,
+#contact-advanced-notify,
+#contact-advanced-photo,
+#contact-advanced-poll {
 	float: left;
 	width: 300px;
 }
