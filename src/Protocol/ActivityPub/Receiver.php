@@ -503,6 +503,10 @@ class Receiver
 		// When it is an answer, we inherite the receivers from the parent
 		$replyto = JsonLD::fetchElement($activity, 'as:inReplyTo', '@id');
 		if (!empty($replyto)) {
+			// Fix possibly wrong item URI (could be an answer to a plink uri)
+			$fixedReplyTo = Item::getURIByLink($replyto);
+			$replyto = $fixedReplyTo ?: $replyto;
+
 			$parents = Item::select(['uid'], ['uri' => $replyto]);
 			while ($parent = Item::fetch($parents)) {
 				$receivers['uid:' . $parent['uid']] = $parent['uid'];
@@ -723,6 +727,15 @@ class Receiver
 		$object_data['service'] = JsonLD::fetchElement($activity, 'as:instrument', 'as:name', '@type', 'as:Service');
 		$object_data['service'] = JsonLD::fetchElement($object_data, 'service', '@value');
 
+		if (!empty($object_data['object_id'])) {
+			// Some systems (e.g. GNU Social) don't reply to the "id" field but the "uri" field.
+			$objectId = Item::getURIByLink($object_data['object_id']);
+			if (!empty($objectId) && ($object_data['object_id'] != $objectId)) {
+				Logger::notice('Fix wrong object-id', ['received' => $object_data['object_id'], 'correct' => $objectId]);
+				$object_data['object_id'] = $objectId;
+			}
+		}
+
 		return $object_data;
 	}
 
@@ -932,6 +945,13 @@ class Receiver
 		// An empty "id" field is translated to "./" by the compactor, so we have to check for this content
 		if (empty($object_data['reply-to-id']) || ($object_data['reply-to-id'] == './')) {
 			$object_data['reply-to-id'] = $object_data['id'];
+		} else {
+			// Some systems (e.g. GNU Social) don't reply to the "id" field but the "uri" field.
+			$replyToId = Item::getURIByLink($object_data['reply-to-id']);
+			if (!empty($replyToId) && ($object_data['reply-to-id'] != $replyToId)) {
+				Logger::notice('Fix wrong reply-to', ['received' => $object_data['reply-to-id'], 'correct' => $replyToId]);
+				$object_data['reply-to-id'] = $replyToId;
+			}
 		}
 
 		$object_data['published'] = JsonLD::fetchElement($object, 'as:published', '@value');
