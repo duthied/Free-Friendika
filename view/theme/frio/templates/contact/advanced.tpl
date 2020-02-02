@@ -11,7 +11,7 @@
 	</div>
 	<br />
 
-	<form id="crepair-form" action="crepair/{{$contact_id}}" method="post" >
+	<form id="crepair-form" action="contact/{{$contact_id}}/advanced" method="post" >
 
 		<!-- <h4>{{$contact_name}}</h4> -->
 
