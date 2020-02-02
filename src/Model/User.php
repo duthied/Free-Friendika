@@ -898,11 +898,11 @@ class User
 		));
 
 		$email = DI::emailer()
-		           ->newSystemMail(DI::l10n())
-		           ->withMessage(DI::l10n()->t('Registration at %s', $sitename), $body)
-		           ->forUser($user['uid'] ?? 0)
-		           ->withRecipient($user['email'])
-		           ->build();
+			->newSystemMail(DI::l10n())
+			->withMessage(DI::l10n()->t('Registration at %s', $sitename), $body)
+			->forUser($user['uid'] ?? 0)
+			->withRecipient($user['email'])
+			->build();
 		return DI::emailer()->send($email);
 	}
 
@@ -966,11 +966,11 @@ class User
 		));
 
 		$email = DI::emailer()
-		           ->newSystemMail($l10n)
-		           ->withMessage(DI::l10n()->t('Registration details for %s', $sitename), $preamble, $body)
-		           ->forUser($user['uid'] ?? 0)
-		           ->withRecipient($user['email'])
-		           ->build();
+			->newSystemMail($l10n)
+			->withMessage(DI::l10n()->t('Registration details for %s', $sitename), $preamble, $body)
+			->forUser($user['uid'] ?? 0)
+			->withRecipient($user['email'])
+			->build();
 		return DI::emailer()->send($email);
 	}
 

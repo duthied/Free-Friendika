@@ -65,11 +65,11 @@ function lostpass_post(App $a)
 		Login Name:	%3$s', $resetlink, DI::baseUrl(), $user['nickname']));
 
 	$email = DI::emailer()
-	           ->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
-	           ->withMessage(DI::l10n()->t('Password reset requested at %s', $sitename), $preamble, $body)
-	           ->forUser($user['uid'] ?? 0)
-	           ->withRecipient($user['email'])
-	           ->build();
+		->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
+		->withMessage(DI::l10n()->t('Password reset requested at %s', $sitename), $preamble, $body)
+		->forUser($user['uid'] ?? 0)
+		->withRecipient($user['email'])
+		->build();
 
 	DI::emailer()->send($email);
 	DI::baseUrl()->redirect();
