@@ -140,6 +140,20 @@ abstract class MailBuilder
 	}
 
 	/**
+	 * Adds new headers to the default headers
+	 *
+	 * @param string $headers New headers
+	 *
+	 * @return static
+	 */
+	public function addHeaders(string $headers)
+	{
+		$this->headers .= $headers;
+
+		return $this;
+	}
+
+	/**
 	 * Build a email based on the given attributes
 	 *
 	 * @param bool $raw True, if the email shouldn't get extended by the default email-template

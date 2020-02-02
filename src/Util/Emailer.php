@@ -9,9 +9,11 @@ use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
+use Friendica\Model\Notify;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
+use Friendica\Util\EMailer\NotifyMailBuilder;
 use Friendica\Util\EMailer\SystemMailBuilder;
 use Psr\Log\LoggerInterface;
 
@@ -86,6 +88,21 @@ class Emailer
 	public function newSystemMail()
 	{
 		return new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, $this->logger,
+			$this->getSiteEmailAddress(), $this->getSiteEmailName());
+	}
+
+	/**
+	 * Creates a new mail for notifications
+	 *
+	 * @see Notify
+	 *
+	 * @param L10n $l10n The chosen language for the new email
+	 *
+	 * @return NotifyMailBuilder
+	 */
+	public function newNotifyMail(L10n $l10n)
+	{
+		return new NotifyMailBuilder($l10n, $this->baseUrl, $this->config,
 			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 
