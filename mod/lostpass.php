@@ -157,11 +157,11 @@ function lostpass_generate_password($user)
 		', DI::baseUrl(), $user['nickname'], $new_password));
 
 		$email = DI::emailer()
-		           ->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
-		           ->withMessage(DI::l10n()->t('Your password has been changed at %s', $sitename), $preamble, $body)
-		           ->forUser($user['uid'] ?? 0)
-		           ->withRecipient($user['email'])
-		           ->build();
+			->newSystemMail((!empty($user['language'])) ? DI::l10n()->withLang($user['language']) : DI::l10n())
+			->withMessage(DI::l10n()->t('Your password has been changed at %s', $sitename), $preamble, $body)
+			->forUser($user['uid'] ?? 0)
+			->withRecipient($user['email'])
+			->build();
 		DI::emailer()->send($email);
 	}
 
