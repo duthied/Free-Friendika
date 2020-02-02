@@ -571,7 +571,6 @@ class Contact extends BaseModule
 				'$visit'          => DI::l10n()->t('Visit %s\'s profile [%s]', $contact['name'], $contact['url']),
 				'$blockunblock'   => DI::l10n()->t('Block/Unblock contact'),
 				'$ignorecont'     => DI::l10n()->t('Ignore contact'),
-				'$lblcrepair'     => DI::l10n()->t('Repair URL settings'),
 				'$lblrecent'      => DI::l10n()->t('View conversations'),
 				'$lblsuggest'     => $lblsuggest,
 				'$nettype'        => $nettype,
