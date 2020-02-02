@@ -106,7 +106,10 @@ class FollowRequests extends BaseApi
 		if ($introductions->getTotalCount() > $limit) {
 			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['max_id' => $introductions[count($introductions) - 1]->id]) . '>; rel="next"';
 		}
-		$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $introductions[0]->id]) . '>; rel="prev"';
+
+		if (count($introductions)) {
+			$links[] = '<' . $baseUrl->get() . '/api/v1/follow_requests?' . http_build_query($base_query + ['since_id' => $introductions[0]->id]) . '>; rel="prev"';
+		}
 
 		header('Link: ' . implode(', ', $links));
 
