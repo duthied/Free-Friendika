@@ -1113,7 +1113,7 @@ class User
 			FROM `user`
 			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-			WHERE (`profile`.`publish` OR `profile`.`net-publish`) AND `user`.`verified`
+			WHERE `user`.`verified` AND `user`.`login_date` > '0001-01-01' AND NOT `user`.`account-type` = 3
 				AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
 				AND NOT `user`.`account_expired`");
 
