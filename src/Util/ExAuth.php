@@ -73,6 +73,11 @@ class ExAuth
 			}
 
 			$iHeader = fgets(STDIN, 3);
+			if (empty($iHeader)) {
+				$this->writeLog(LOG_ERR, 'empty stdin');
+				return;
+			}
+
 			$aLength = unpack('n', $iHeader);
 			$iLength = $aLength['1'];
 
