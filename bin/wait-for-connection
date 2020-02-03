@@ -1,11 +1,14 @@
 #!/usr/bin/php
-#
-# This script tries to connect to a database for a given interval
-# Useful in case of installation e.g. to wait for the database to not generate unnecessary errors
-#
-# Usage: php bin/wait-for-connection {HOST} {PORT} [{TIMEOUT}]
 
 <?php
+
+/*
+ * This script tries to connect to a database for a given interval
+ * Useful in case of installation e.g. to wait for the database to not generate unnecessary errors
+ *
+ * Usage: php bin/wait-for-connection {HOST} {PORT} [{TIMEOUT}]
+ */
+
 $timeout = 60;
 switch ($argc) {
 	case 4:
