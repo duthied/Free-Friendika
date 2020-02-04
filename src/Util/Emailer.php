@@ -100,7 +100,7 @@ class Emailer
 	 */
 	public function newNotifyMail()
 	{
-		return new NotifyMailBuilder($this->l10n, $this->baseUrl, $this->config,
+		return new NotifyMailBuilder($this->l10n, $this->baseUrl, $this->config, $this->logger,
 			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 
