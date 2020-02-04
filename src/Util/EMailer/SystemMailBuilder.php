@@ -27,7 +27,7 @@ class SystemMailBuilder extends MailBuilder
 	protected $siteAdmin;
 
 	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, LoggerInterface $logger,
-	                            string$siteEmailAddress, string	$siteName)
+	                            string $siteEmailAddress, string $siteName)
 	{
 		parent::__construct($l10n, $baseUrl, $config, $logger);
 

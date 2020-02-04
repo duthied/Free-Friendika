@@ -50,7 +50,7 @@ abstract class MailBuilder
 		$this->l10n    = $l10n;
 		$this->baseUrl = $baseUrl;
 		$this->config  = $config;
-		$this->logger = $logger;
+		$this->logger  = $logger;
 
 		$hostname = $baseUrl->getHostname();
 		if (strpos($hostname, ':')) {
@@ -90,10 +90,10 @@ abstract class MailBuilder
 	/**
 	 * Adds the User ID to the email in case the mail sending needs additional properties of this user
 	 *
-	 * @todo Once the user array is replaced with a user entity, replace this array parameter as well
 	 * @param array $user The user entity/array, for which the email should be sent
 	 *
 	 * @return static
+	 * @todo Once the user array is replaced with a user entity, replace this array parameter as well
 	 */
 	public function forUser(array $user)
 	{
