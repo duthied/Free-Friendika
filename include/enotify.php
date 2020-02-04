@@ -212,7 +212,7 @@ function notification($params)
 		$itemlink =  $params['link'];
 	}
 
-	if ($params['type'] == NOTIFY_WALL) {
+	if ($params['type'] == Notify\Type::WALL) {
 		$subject = $l10n->t('[Friendica:Notify] %s posted to your profile wall', $params['source_name']);
 
 		$preamble = $l10n->t('%1$s posted to your profile wall at %2$s', $params['source_name'], $sitename);
