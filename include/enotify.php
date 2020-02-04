@@ -505,7 +505,10 @@ function notification($params)
 			->newNotifyMail()
 			->addHeaders($datarray['headers'])
 			->withRecipient($params['to_email'])
-			->forUser($datarray['uid'])
+			->forUser([
+				'uid' => $datarray['uid'],
+				'language' => $params['language'],
+			])
 			->withNotification($datarray['subject'], $datarray['preamble'], $datarray['title'], $datarray['body'])
 			->withSiteLink($datarray['tsitelink'], $datarray['hsitelink'])
 			->withItemLink($datarray['itemlink']);
