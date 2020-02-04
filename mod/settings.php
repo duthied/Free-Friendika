@@ -1230,8 +1230,8 @@ function settings_content(App $a)
 
 		'$h_not' 	=> DI::l10n()->t('Notification Settings'),
 		'$lbl_not' 	=> DI::l10n()->t('Send a notification email when:'),
-		'$notify1'	=> ['notify1', DI::l10n()->t('You receive an introduction'), ($notify & Type::INTRO), NOTIFY_INTRO, ''],
-		'$notify2'	=> ['notify2', DI::l10n()->t('Your introductions are confirmed'), ($notify & NOTIFY_CONFIRM), NOTIFY_CONFIRM, ''],
+		'$notify1'	=> ['notify1', DI::l10n()->t('You receive an introduction'), ($notify & Type::INTRO), Type::INTRO, ''],
+		'$notify2'	=> ['notify2', DI::l10n()->t('Your introductions are confirmed'), ($notify & Type::CONFIRM), NOTIFY_CONFIRM, ''],
 		'$notify3'	=> ['notify3', DI::l10n()->t('Someone writes on your profile wall'), ($notify & NOTIFY_WALL), NOTIFY_WALL, ''],
 		'$notify4'	=> ['notify4', DI::l10n()->t('Someone writes a followup comment'), ($notify & NOTIFY_COMMENT), NOTIFY_COMMENT, ''],
 		'$notify5'	=> ['notify5', DI::l10n()->t('You receive a private message'), ($notify & NOTIFY_MAIL), NOTIFY_MAIL, ''],

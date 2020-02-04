@@ -339,7 +339,7 @@ function notification($params)
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 	}
 
-	if ($params['type'] == NOTIFY_CONFIRM) {
+	if ($params['type'] == Notify\Type::CONFIRM) {
 		if ($params['verb'] == Activity::FRIEND) { // mutual connection
 			$itemlink =  $params['link'];
 			$subject = $l10n->t('[Friendica:Notify] Connection accepted');
