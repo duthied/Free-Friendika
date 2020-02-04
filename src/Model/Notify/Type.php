@@ -19,4 +19,10 @@ class Type
 	const MAIL = 16;
 	/** @var int Notification about a friend suggestion */
 	const SUGGEST = 32;
+	/** @var int Unknown Notification
+	 * @deprecated
+	 */
+	const PROFILE = 64;
+	/** @var int Notification about being tagged in a post */
+	const TAG_SELF = 128;
 }
