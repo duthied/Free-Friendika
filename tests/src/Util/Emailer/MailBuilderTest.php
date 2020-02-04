@@ -88,7 +88,7 @@ class MailBuilderTest extends MockedTest
 			->withMessage('Subject', 'Html', 'text')
 			->withRecipient('recipient@friendica.local')
 			->withSender('Sender', 'sender@friendica.local', 'no-reply@friendica.local')
-			->forUser(100)
+			->forUser(['uid' => 100])
 			->build(true);
 
 		$this->assertEmail($testEmail, [

@@ -28,18 +28,22 @@ class Emailer
 	private $logger;
 	/** @var App\BaseURL */
 	private $baseUrl;
+	/** @var L10n */
+	private $l10n;
 
 	/** @var string */
 	private $siteEmailAddress;
 	/** @var string */
 	private $siteEmailName;
 
-	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger)
+	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger,
+	                            L10n $defaultLang)
 	{
 		$this->config      = $config;
 		$this->pConfig     = $pConfig;
 		$this->logger      = $logger;
 		$this->baseUrl     = $baseURL;
+		$this->l10n        = $defaultLang;
 
 		$this->siteEmailAddress = $this->config->get('config', 'sender_email');
 		if (empty($sysEmailAddress)) {
@@ -77,13 +81,11 @@ class Emailer
 	/**
 	 * Creates a new system email
 	 *
-	 * @param L10n $l10n The chosen language for the new email
-	 *
 	 * @return SystemMailBuilder
 	 */
-	public function newSystemMail(L10n $l10n)
+	public function newSystemMail()
 	{
-		return new SystemMailBuilder($l10n, $this->baseUrl, $this->config,
+		return new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config,
 			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 

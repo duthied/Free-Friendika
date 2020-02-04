@@ -86,13 +86,18 @@ abstract class MailBuilder
 	/**
 	 * Adds the User ID to the email in case the mail sending needs additional properties of this user
 	 *
-	 * @param int $uid The User ID
+	 * @todo Once the user array is replaced with a user entity, replace this array parameter as well
+	 * @param array $user The user entity/array, for which the email should be sent
 	 *
 	 * @return static
 	 */
-	public function forUser(int $uid)
+	public function forUser(array $user)
 	{
-		$this->recipientUid = $uid;
+		$this->recipientUid = $user['uid'] ?? 0;
+		try {
+			$this->l10n = $user['language'] ? $this->l10n->withLang($user['language']) : $this->l10n;
+		} catch (Exception $e) {
+		}
 
 		return $this;
 	}

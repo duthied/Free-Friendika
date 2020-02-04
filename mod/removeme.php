@@ -42,12 +42,12 @@ function removeme_post(App $a)
 		}
 
 		$email = DI::emailer()
-			->newSystemMail((!empty($admin['language'])) ? DI::l10n()->withLang($admin['language']) : DI::l10n()->withLang('en'))
+			->newSystemMail()
 			->withMessage(
 				DI::l10n()->t('[Friendica System Notify]') . ' ' . DI::l10n()->t('User deleted their account'),
 				DI::l10n()->t('On your Friendica node an user deleted their account. Please ensure that their data is removed from the backups.'),
 				DI::l10n()->t('The user id is %d', local_user()))
-			->forUser($admin['uid'] ?? 0)
+			->forUser($admin)
 			->withRecipient($admin['email'])
 			->build();
 		DI::emailer()->send($email);
