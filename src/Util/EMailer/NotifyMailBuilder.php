@@ -13,8 +13,18 @@ use Friendica\Network\HTTPException\InternalServerErrorException;
 /**
  * Builder for notification emails (notification, source, links, ...)
  */
-class NotifyMailBuilder extends SystemMailBuilder
+class NotifyMailBuilder extends MailBuilder
 {
+	/** @var string */
+	protected $subject;
+	/** @var string */
+	protected $preamble;
+	/** @var string */
+	protected $body;
+
+	/** @var string */
+	protected $siteAdmin;
+
 	/** @var bool */
 	private $contentAllowed = true;
 	/** @var string */
@@ -42,7 +52,16 @@ class NotifyMailBuilder extends SystemMailBuilder
 
 	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, string $siteEmailAddress, string $siteName)
 	{
-		parent::__construct($l10n, $baseUrl, $config, $siteEmailAddress, $siteName);
+		parent::__construct($l10n, $baseUrl, $config);
+
+		if ($this->config->get('config', 'admin_name')) {
+			$this->siteAdmin = $l10n->t('%1$s, %2$s Administrator', $this->config->get('config', 'admin_name'), $siteName);
+		} else {
+			$this->siteAdmin = $l10n->t('%s Administrator', $siteName);
+		}
+
+		// Set the system wide site address/name as sender (default for system mails)
+		$this->withSender($siteName, $siteEmailAddress, $siteEmailAddress);
 
 		// check whether sending post content in email notifications is allowed
 		$this->contentAllowed = $this->config->get('system', 'enotify_no_content');
@@ -60,9 +79,16 @@ class NotifyMailBuilder extends SystemMailBuilder
 	 */
 	public function withNotification(string $subject, string $preamble, string $title, string $body = null)
 	{
-		$this->title = stripslashes($title);
+		if (!isset($body)) {
+			$body = $preamble;
+		}
 
-		return $this->withMessage($subject, $preamble, $body);
+		$this->title = stripslashes($title);
+		$this->subject  = $subject;
+		$this->preamble = $preamble;
+		$this->body     = $body;
+
+		return $this;
 	}
 
 	/**

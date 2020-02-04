@@ -96,13 +96,11 @@ class Emailer
 	 *
 	 * @see Notify
 	 *
-	 * @param L10n $l10n The chosen language for the new email
-	 *
 	 * @return NotifyMailBuilder
 	 */
-	public function newNotifyMail(L10n $l10n)
+	public function newNotifyMail()
 	{
-		return new NotifyMailBuilder($l10n, $this->baseUrl, $this->config,
+		return new NotifyMailBuilder($this->l10n, $this->baseUrl, $this->config,
 			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 

@@ -502,7 +502,7 @@ function notification($params)
 		Hook::callAll('enotify_mail', $datarray);
 
 		$builder = DI::emailer()
-			->newNotifyMail($l10n)
+			->newNotifyMail()
 			->addHeaders($datarray['headers'])
 			->withRecipient($params['to_email'])
 			->forUser($datarray['uid'])
