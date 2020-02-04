@@ -9,7 +9,6 @@ use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
 use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
-use Friendica\Model\Notify;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
@@ -93,8 +92,6 @@ class Emailer
 
 	/**
 	 * Creates a new mail for notifications
-	 *
-	 * @see Notify
 	 *
 	 * @return NotifyMailBuilder
 	 */
