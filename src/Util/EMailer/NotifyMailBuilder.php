@@ -27,7 +27,7 @@ class NotifyMailBuilder extends MailBuilder
 	protected $siteAdmin;
 
 	/** @var bool */
-	private $contentAllowed = true;
+	private $contentAllowed = false;
 	/** @var string */
 	private $title = '';
 	/** @var array Details to print a photo:
@@ -65,7 +65,7 @@ class NotifyMailBuilder extends MailBuilder
 		$this->withSender($siteName, $siteEmailAddress, $siteEmailAddress);
 
 		// check whether sending post content in email notifications is allowed
-		$this->contentAllowed = $this->config->get('system', 'enotify_no_content');
+		$this->contentAllowed = !$this->config->get('system', 'enotify_no_content', false);
 	}
 
 	/**
