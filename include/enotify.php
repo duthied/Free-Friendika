@@ -276,7 +276,7 @@ function notification($params)
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'">'.$sitename.'</a>');
 	}
 
-	if ($params['type'] == NOTIFY_INTRO) {
+	if ($params['type'] == Notify\Type::INTRO) {
 		$itemlink = $params['link'];
 		$subject = $l10n->t('[Friendica:Notify] Introduction received');
 

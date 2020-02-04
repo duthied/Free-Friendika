@@ -140,7 +140,6 @@ define('MAX_LIKERS',    75);
  * Email notification options
  * @{
  */
-define('NOTIFY_INTRO',        1);
 define('NOTIFY_CONFIRM',      2);
 define('NOTIFY_WALL',         4);
 define('NOTIFY_COMMENT',      8);

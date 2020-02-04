@@ -23,6 +23,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
+use Friendica\Model\Notify\Type;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
 use Friendica\Module\Security\Login;
@@ -552,7 +553,7 @@ function dfrn_request_content(App $a)
 
 				if (!$auto_confirm) {
 					notification([
-						'type'         => NOTIFY_INTRO,
+						'type'         => Type::INTRO,
 						'notify_flags' => $r[0]['notify-flags'],
 						'language'     => $r[0]['language'],
 						'to_name'      => $r[0]['username'],

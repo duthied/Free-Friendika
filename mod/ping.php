@@ -13,6 +13,7 @@ use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Group;
 use Friendica\Model\Item;
+use Friendica\Model\Notify\Type;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Temporal;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -403,7 +404,7 @@ function ping_get_notifications($uid)
 			AND NOT (`notify`.`type` IN (%d, %d))
 			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT %d, 50",
 			intval($uid),
-			intval(NOTIFY_INTRO),
+			intval(Type::INTRO),
 			intval(NOTIFY_MAIL),
 			intval($offset)
 		);
