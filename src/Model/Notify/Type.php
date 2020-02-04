@@ -13,4 +13,6 @@ class Type
 	const CONFIRM = 2;
 	/** @var int Notification about a post on your wall */
 	const WALL = 4;
+	/** @var int Notification about a followup comment */
+	const COMMENT = 8;
 }

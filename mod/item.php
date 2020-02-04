@@ -752,7 +752,7 @@ function item_post(App $a) {
 	if ($toplevel_item_id) {
 		if ($contact_record != $author) {
 			notification([
-				'type'         => NOTIFY_COMMENT,
+				'type'         => Type::COMMENT,
 				'notify_flags' => $user['notify-flags'],
 				'language'     => $user['language'],
 				'to_name'      => $user['username'],

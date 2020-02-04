@@ -116,7 +116,7 @@ function notification($params)
 		$hsitelink = sprintf($sitelink, '<a href="'.$siteurl.'/message/'.$params['item']['id'].'">'.$sitename.'</a>');
 	}
 
-	if ($params['type'] == NOTIFY_COMMENT || $params['type'] == NOTIFY_TAGSELF) {
+	if ($params['type'] == Notify\Type::COMMENT || $params['type'] == NOTIFY_TAGSELF) {
 		$thread = Item::selectFirstThreadForUser($params['uid'], ['ignored'], ['iid' => $parent_id, 'deleted' => false]);
 		if (DBA::isResult($thread) && $thread['ignored']) {
 			Logger::log('Thread ' . $parent_id . ' will be ignored', Logger::DEBUG);
@@ -126,7 +126,7 @@ function notification($params)
 		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
 		/// @todo In the future we should store the notification with the highest "value" and replace notifications
-		$condition = ['type' => [NOTIFY_TAGSELF, NOTIFY_COMMENT, NOTIFY_SHARE],
+		$condition = ['type' => [NOTIFY_TAGSELF, Notify\Type::COMMENT, NOTIFY_SHARE],
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
 			return false;
@@ -595,19 +595,19 @@ function check_item_notification($itemid, $uid, $notification_type) {
 		$params['type'] = NOTIFY_TAGSELF;
 		$params['verb'] = Activity::TAG;
 	} elseif ($notification_type & UserItem::NOTIF_IMPLICIT_TAGGED) {
-		$params['type'] = NOTIFY_COMMENT;
+		$params['type'] = Notify\Type::COMMENT;
 		$params['verb'] = Activity::POST;
 	} elseif ($notification_type & UserItem::NOTIF_THREAD_COMMENT) {
-		$params['type'] = NOTIFY_COMMENT;
+		$params['type'] = Notify\Type::COMMENT;
 		$params['verb'] = Activity::POST;
 	} elseif ($notification_type & UserItem::NOTIF_DIRECT_COMMENT) {
-		$params['type'] = NOTIFY_COMMENT;
+		$params['type'] = Notify\Type::COMMENT;
 		$params['verb'] = Activity::POST;
 	} elseif ($notification_type & UserItem::NOTIF_COMMENT_PARTICIPATION) {
-		$params['type'] = NOTIFY_COMMENT;
+		$params['type'] = Notify\Type::COMMENT;
 		$params['verb'] = Activity::POST;
 	} elseif ($notification_type & UserItem::NOTIF_ACTIVITY_PARTICIPATION) {
-		$params['type'] = NOTIFY_COMMENT;
+		$params['type'] = Notify\Type::COMMENT;
 		$params['verb'] = Activity::POST;
 	} else {
 		return false;

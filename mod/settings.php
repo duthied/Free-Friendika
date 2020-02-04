@@ -1233,7 +1233,7 @@ function settings_content(App $a)
 		'$notify1'	=> ['notify1', DI::l10n()->t('You receive an introduction'), ($notify & Type::INTRO), Type::INTRO, ''],
 		'$notify2'	=> ['notify2', DI::l10n()->t('Your introductions are confirmed'), ($notify & Type::CONFIRM), Type::CONFIRM, ''],
 		'$notify3'	=> ['notify3', DI::l10n()->t('Someone writes on your profile wall'), ($notify & Type::WALL), Type::WALL, ''],
-		'$notify4'	=> ['notify4', DI::l10n()->t('Someone writes a followup comment'), ($notify & NOTIFY_COMMENT), NOTIFY_COMMENT, ''],
+		'$notify4'	=> ['notify4', DI::l10n()->t('Someone writes a followup comment'), ($notify & Type::COMMENT), Type::COMMENT, ''],
 		'$notify5'	=> ['notify5', DI::l10n()->t('You receive a private message'), ($notify & NOTIFY_MAIL), NOTIFY_MAIL, ''],
 		'$notify6'  => ['notify6', DI::l10n()->t('You receive a friend suggestion'), ($notify & NOTIFY_SUGGEST), NOTIFY_SUGGEST, ''],
 		'$notify7'  => ['notify7', DI::l10n()->t('You are tagged in a post'), ($notify & NOTIFY_TAGSELF), NOTIFY_TAGSELF, ''],
