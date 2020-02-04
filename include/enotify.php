@@ -126,7 +126,7 @@ function notification($params)
 		// Check to see if there was already a tag notify or comment notify for this post.
 		// If so don't create a second notification
 		/// @todo In the future we should store the notification with the highest "value" and replace notifications
-		$condition = ['type' => [Notify\Type::TAG_SELF, Notify\Type::COMMENT, NOTIFY_SHARE],
+		$condition = ['type' => [Notify\Type::TAG_SELF, Notify\Type::COMMENT, Notify\Type::SHARE],
 			'link' => $params['link'], 'uid' => $params['uid']];
 		if (DBA::exists('notify', $condition)) {
 			return false;
@@ -227,7 +227,7 @@ function notification($params)
 		$itemlink =  $params['link'];
 	}
 
-	if ($params['type'] == NOTIFY_SHARE) {
+	if ($params['type'] == Notify\Type::SHARE) {
 		$subject = $l10n->t('[Friendica:Notify] %s shared a new post', $params['source_name']);
 
 		$preamble = $l10n->t('%1$s shared a new post at %2$s', $params['source_name'], $sitename);
@@ -589,7 +589,7 @@ function check_item_notification($itemid, $uid, $notification_type) {
 	}
 
 	if ($notification_type & UserItem::NOTIF_SHARED) {
-		$params['type'] = NOTIFY_SHARE;
+		$params['type'] = Notify\Type::SHARE;
 		$params['verb'] = Activity::POST;
 	} elseif ($notification_type & UserItem::NOTIF_EXPLICIT_TAGGED) {
 		$params['type'] = Notify\Type::TAG_SELF;
