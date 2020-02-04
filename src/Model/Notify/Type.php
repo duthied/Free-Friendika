@@ -25,4 +25,8 @@ class Type
 	const PROFILE = 64;
 	/** @var int Notification about being tagged in a post */
 	const TAG_SELF = 128;
+	/** @var int Notification about being tagged
+	 * @deprecated
+	 */
+	const TAG_SHARE = 256;
 }

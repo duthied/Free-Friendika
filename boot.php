@@ -140,7 +140,6 @@ define('MAX_LIKERS',    75);
  * Email notification options
  * @{
  */
-define('NOTIFY_TAGSHARE',   256);
 define('NOTIFY_POKE',       512);
 define('NOTIFY_SHARE',     1024);
 

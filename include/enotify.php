@@ -261,7 +261,7 @@ function notification($params)
 		$itemlink =  $params['link'];
 	}
 
-	if ($params['type'] == NOTIFY_TAGSHARE) {
+	if ($params['type'] == Notify\Type::TAG_SHARE) {
 		$itemlink =  $params['link'];
 		$subject = $l10n->t('[Friendica:Notify] %s tagged your post', $params['source_name']);
 
