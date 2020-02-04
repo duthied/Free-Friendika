@@ -17,4 +17,6 @@ class Type
 	const COMMENT = 8;
 	/** @var int Notification about a private message */
 	const MAIL = 16;
+	/** @var int Notification about a friend suggestion */
+	const SUGGEST = 32;
 }

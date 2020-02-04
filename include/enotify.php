@@ -319,7 +319,7 @@ function notification($params)
 		}
 	}
 
-	if ($params['type'] == NOTIFY_SUGGEST) {
+	if ($params['type'] == Notify\Type::SUGGEST) {
 		$itemlink =  $params['link'];
 		$subject = $l10n->t('[Friendica:Notify] Friend suggestion received');
 
