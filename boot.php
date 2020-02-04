@@ -152,8 +152,6 @@ define('NOTIFY_TAGSHARE',   256);
 define('NOTIFY_POKE',       512);
 define('NOTIFY_SHARE',     1024);
 
-define('SYSTEM_EMAIL',    16384);
-
 define('NOTIFY_SYSTEM',   32768);
 /* @}*/
 

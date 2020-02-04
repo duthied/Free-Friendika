@@ -243,27 +243,6 @@ class App
 	}
 
 	/**
-	 * Generates the site's default sender email address
-	 *
-	 * @return string
-	 * @throws HTTPException\InternalServerErrorException
-	 */
-	public function getSenderEmailAddress()
-	{
-		$sender_email = $this->config->get('config', 'sender_email');
-		if (empty($sender_email)) {
-			$hostname = $this->baseURL->getHostname();
-			if (strpos($hostname, ':')) {
-				$hostname = substr($hostname, 0, strpos($hostname, ':'));
-			}
-
-			$sender_email = 'noreply@' . $hostname;
-		}
-
-		return $sender_email;
-	}
-
-	/**
 	 * Returns the current theme name. May be overriden by the mobile theme name.
 	 *
 	 * @return string

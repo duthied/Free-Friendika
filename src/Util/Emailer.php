@@ -7,10 +7,12 @@ namespace Friendica\Util;
 use Friendica\App;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\Hook;
+use Friendica\Core\L10n;
 use Friendica\Core\PConfig\IPConfig;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\EMail\IEmail;
 use Friendica\Protocol\Email;
+use Friendica\Util\EMailer\SystemMailBuilder;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -26,13 +28,65 @@ class Emailer
 	private $logger;
 	/** @var App\BaseURL */
 	private $baseUrl;
+	/** @var L10n */
+	private $l10n;
 
-	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger)
+	/** @var string */
+	private $siteEmailAddress;
+	/** @var string */
+	private $siteEmailName;
+
+	public function __construct(IConfig $config, IPConfig $pConfig, App\BaseURL $baseURL, LoggerInterface $logger,
+	                            L10n $defaultLang)
 	{
 		$this->config      = $config;
 		$this->pConfig     = $pConfig;
 		$this->logger      = $logger;
 		$this->baseUrl     = $baseURL;
+		$this->l10n        = $defaultLang;
+
+		$this->siteEmailAddress = $this->config->get('config', 'sender_email');
+		if (empty($sysEmailAddress)) {
+			$hostname = $this->baseUrl->getHostname();
+			if (strpos($hostname, ':')) {
+				$hostname = substr($hostname, 0, strpos($hostname, ':'));
+			}
+
+			$this->siteEmailAddress = 'noreply@' . $hostname;
+		}
+
+		$this->siteEmailName = $this->config->get('config', 'sitename', 'Friendica Social Network');
+	}
+
+	/**
+	 * Gets the site's default sender email address
+	 *
+	 * @return string
+	 */
+	public function getSiteEmailAddress()
+	{
+		return $this->siteEmailAddress;
+	}
+
+	/**
+	 * Gets the site's default sender name
+	 *
+	 * @return string
+	 */
+	public function getSiteEmailName()
+	{
+		return $this->siteEmailName;
+	}
+
+	/**
+	 * Creates a new system email
+	 *
+	 * @return SystemMailBuilder
+	 */
+	public function newSystemMail()
+	{
+		return new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, $this->logger,
+			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 
 	/**

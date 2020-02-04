@@ -64,17 +64,14 @@ function lostpass_post(App $a)
 		Site Location:	%2$s
 		Login Name:	%3$s', $resetlink, DI::baseUrl(), $user['nickname']));
 
-	notification([
-		'type'     => SYSTEM_EMAIL,
-		'language' => $user['language'],
-		'to_name'  => $user['username'],
-		'to_email' => $user['email'],
-		'uid'      => $user['uid'],
-		'subject'  => DI::l10n()->t('Password reset requested at %s', $sitename),
-		'preamble' => $preamble,
-		'body'     => $body
-	]);
+	$email = DI::emailer()
+		->newSystemMail()
+		->withMessage(DI::l10n()->t('Password reset requested at %s', $sitename), $preamble, $body)
+		->forUser($user)
+		->withRecipient($user['email'])
+		->build();
 
+	DI::emailer()->send($email);
 	DI::baseUrl()->redirect();
 }
 
@@ -159,16 +156,13 @@ function lostpass_generate_password($user)
 			You may change that password from your account settings page after logging in.
 		', DI::baseUrl(), $user['nickname'], $new_password));
 
-		notification([
-			'type'     => SYSTEM_EMAIL,
-			'language' => $user['language'],
-			'to_name'  => $user['username'],
-			'to_email' => $user['email'],
-			'uid'      => $user['uid'],
-			'subject'  => DI::l10n()->t('Your password has been changed at %s', $sitename),
-			'preamble' => $preamble,
-			'body'     => $body
-		]);
+		$email = DI::emailer()
+			->newSystemMail()
+			->withMessage(DI::l10n()->t('Your password has been changed at %s', $sitename), $preamble, $body)
+			->forUser($user)
+			->withRecipient($user['email'])
+			->build();
+		DI::emailer()->send($email);
 	}
 
 	return $o;

@@ -72,20 +72,15 @@ function notification($params)
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
 
-	$sender_email = $a->getSenderEmailAddress();
+	$sender_email = DI::emailer()->getSiteEmailAddress();
 
-	if ($params['type'] != SYSTEM_EMAIL) {
-		$user = DBA::selectFirst('user', ['nickname', 'page-flags'],
-			['uid' => $params['uid']]);
+	$user = User::getById($params['uid'], ['nickname', 'page-flags']);
 
-		// There is no need to create notifications for forum accounts
-		if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
-			return false;
-		}
-		$nickname = $user["nickname"];
-	} else {
-		$nickname = '';
+	// There is no need to create notifications for forum accounts
+	if (!DBA::isResult($user) || in_array($user["page-flags"], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP])) {
+		return false;
 	}
+	$nickname = $user["nickname"];
 
 	// with $params['show_in_notification_page'] == false, the notification isn't inserted into
 	// the database, and an email is sent if applicable.
@@ -428,30 +423,6 @@ function notification($params)
 		}
 	}
 
-	if ($params['type'] == SYSTEM_EMAIL) {
-		// not part of the notifications.
-		// it just send a mail to the user.
-		// It will be used by the system to send emails to users (like
-		// password reset, invitations and so) using one look (but without
-		// add a notification to the user, with could be inexistent)
-		if (!isset($params['subject'])) {
-			Logger::warning('subject isn\'t set.', ['type' => $params['type']]);
-		}
-		$subject = $params['subject'] ?? '';
-
-		if (!isset($params['preamble'])) {
-			Logger::warning('preamble isn\'t set.', ['type' => $params['type'], 'subject' => $subject]);
-		}
-		$preamble = $params['preamble'] ?? '';
-
-		if (!isset($params['body'])) {
-			Logger::warning('body isn\'t set.', ['type' => $params['type'], 'subject' => $subject, 'preamble' => $preamble]);
-		}
-		$body = $params['body'] ?? '';
-
-		$show_in_notification_page = false;
-	}
-
 	$subject .= " (".$nickname."@".$hostname.")";
 
 	$h = [
@@ -506,8 +477,7 @@ function notification($params)
 
 	// send email notification if notification preferences permit
 	if ((intval($params['notify_flags']) & intval($params['type']))
-		|| $params['type'] == NOTIFY_SYSTEM
-		|| $params['type'] == SYSTEM_EMAIL) {
+		|| $params['type'] == NOTIFY_SYSTEM) {
 
 		Logger::log('sending notification email');
 
@@ -548,7 +518,6 @@ function notification($params)
 		$datarray['source_link']  = $params['source_link'] ?? '';
 		$datarray['source_photo'] = $params['source_photo'] ?? '';
 		$datarray['uid']          = $params['uid'];
-		$datarray['username']     = $params['to_name'] ?? '';
 		$datarray['hsitelink']    = $hsitelink;
 		$datarray['tsitelink']    = $tsitelink;
 		$datarray['hitemlink']    = '<a href="' . $itemlink . '">' . $itemlink . '</a>';
@@ -564,11 +533,10 @@ function notification($params)
 		Hook::callAll('enotify_mail', $datarray);
 
 		// check whether sending post content in email notifications is allowed
-		// always true for SYSTEM_EMAIL
-		$content_allowed = ((!DI::config()->get('system', 'enotify_no_content')) || ($params['type'] == SYSTEM_EMAIL));
+		$content_allowed = (!DI::config()->get('system', 'enotify_no_content'));
 
 		// load the template for private message notifications
-		$tpl             = Renderer::getMarkupTemplate('email_notify_html.tpl');
+		$tpl             = Renderer::getMarkupTemplate('email/notify/html.tpl');
 		$email_html_body = Renderer::replaceMacros($tpl, [
 			'$banner'          => $datarray['banner'],
 			'$product'         => $datarray['product'],
@@ -578,7 +546,6 @@ function notification($params)
 			'$source_name'     => $datarray['source_name'],
 			'$source_link'     => $datarray['source_link'],
 			'$source_photo'    => $datarray['source_photo'],
-			'$username'        => $datarray['username'],
 			'$hsitelink'       => $datarray['hsitelink'],
 			'$hitemlink'       => $datarray['hitemlink'],
 			'$thanks'          => $datarray['thanks'],
@@ -589,17 +556,9 @@ function notification($params)
 		]);
 
 		// load the template for private message notifications
-		$tpl             = Renderer::getMarkupTemplate('email_notify_text.tpl');
+		$tpl             = Renderer::getMarkupTemplate('email/notify/text.tpl');
 		$email_text_body = Renderer::replaceMacros($tpl, [
-			'$banner'          => $datarray['banner'],
-			'$product'         => $datarray['product'],
 			'$preamble'        => $datarray['preamble'],
-			'$sitename'        => $datarray['sitename'],
-			'$siteurl'         => $datarray['siteurl'],
-			'$source_name'     => $datarray['source_name'],
-			'$source_link'     => $datarray['source_link'],
-			'$source_photo'    => $datarray['source_photo'],
-			'$username'        => $datarray['username'],
 			'$tsitelink'       => $datarray['tsitelink'],
 			'$titemlink'       => $datarray['titemlink'],
 			'$thanks'          => $datarray['thanks'],

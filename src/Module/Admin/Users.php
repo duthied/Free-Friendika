@@ -76,15 +76,13 @@ class Users extends BaseAdmin
 			$preamble = sprintf($preamble, $user['username'], DI::config()->get('config', 'sitename'));
 			$body = sprintf($body, DI::baseUrl()->get(), $user['nickname'], $result['password'], DI::config()->get('config', 'sitename'));
 
-			notification([
-				'type'     => SYSTEM_EMAIL,
-				'language' => $user['language'],
-				'to_name'  => $user['username'],
-				'to_email' => $user['email'],
-				'uid'      => $user['uid'],
-				'subject'  => DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')),
-				'preamble' => $preamble,
-				'body'     => $body]);
+			$email = DI::emailer()
+				->newSystemMail()
+				->withMessage(DI::l10n()->t('Registration details for %s', DI::config()->get('config', 'sitename')), $preamble, $body)
+				->forUser($user)
+				->withRecipient($user['email'])
+				->build();
+			return DI::emailer()->send($email);
 		}
 
 		if (!empty($_POST['page_users_block'])) {

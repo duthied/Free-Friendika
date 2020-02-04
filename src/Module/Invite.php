@@ -77,7 +77,7 @@ class Invite extends BaseModule
 			}
 
 			$additional_headers = 'From: ' . $app->user['email'] . "\n"
-				. 'Sender: ' . $app->getSenderEmailAddress() . "\n"
+				. 'Sender: ' . DI::emailer()->getSiteEmailAddress() . "\n"
 				. 'Content-type: text/plain; charset=UTF-8' . "\n"
 				. 'Content-transfer-encoding: 8bit';
 
