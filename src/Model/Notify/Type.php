@@ -29,4 +29,6 @@ class Type
 	 * @deprecated
 	 */
 	const TAG_SHARE = 256;
+	/** @var int Notification about getting poked/prodded/etc. */
+	const POKE = 512;
 }

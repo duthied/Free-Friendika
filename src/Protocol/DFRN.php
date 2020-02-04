@@ -2137,7 +2137,7 @@ class DFRN
 				// send a notification
 				notification(
 					[
-					"type"         => NOTIFY_POKE,
+					"type"         => Type::POKE,
 					"notify_flags" => $importer["notify-flags"],
 					"language"     => $importer["language"],
 					"to_name"      => $importer["username"],

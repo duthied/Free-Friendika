@@ -242,7 +242,7 @@ function notification($params)
 		$itemlink =  $params['link'];
 	}
 
-	if ($params['type'] == NOTIFY_POKE) {
+	if ($params['type'] == Notify\Type::POKE) {
 		$subject = $l10n->t('[Friendica:Notify] %1$s poked you', $params['source_name']);
 
 		$preamble = $l10n->t('%1$s poked you at %2$s', $params['source_name'], $sitename);

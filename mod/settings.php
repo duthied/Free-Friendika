@@ -1237,7 +1237,7 @@ function settings_content(App $a)
 		'$notify5'	=> ['notify5', DI::l10n()->t('You receive a private message'), ($notify & Type::MAIL), Type::MAIL, ''],
 		'$notify6'  => ['notify6', DI::l10n()->t('You receive a friend suggestion'), ($notify & Type::SUGGEST), Type::SUGGEST, ''],
 		'$notify7'  => ['notify7', DI::l10n()->t('You are tagged in a post'), ($notify & Type::TAG_SELF), Type::TAG_SELF, ''],
-		'$notify8'  => ['notify8', DI::l10n()->t('You are poked/prodded/etc. in a post'), ($notify & NOTIFY_POKE), NOTIFY_POKE, ''],
+		'$notify8'  => ['notify8', DI::l10n()->t('You are poked/prodded/etc. in a post'), ($notify & Type::POKE), Type::POKE, ''],
 
 		'$desktop_notifications' => ['desktop_notifications', DI::l10n()->t('Activate desktop notifications') , false, DI::l10n()->t('Show desktop popup on new notifications')],
 
