@@ -15,4 +15,6 @@ class Type
 	const WALL = 4;
 	/** @var int Notification about a followup comment */
 	const COMMENT = 8;
+	/** @var int Notification about a private message */
+	const MAIL = 16;
 }

@@ -405,7 +405,7 @@ function ping_get_notifications($uid)
 			AND $seensql `notify`.`seen` ORDER BY `notify`.`date` $order LIMIT %d, 50",
 			intval($uid),
 			intval(Type::INTRO),
-			intval(NOTIFY_MAIL),
+			intval(Type::MAIL),
 			intval($offset)
 		);
 

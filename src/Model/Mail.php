@@ -10,6 +10,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\DI;
 use Friendica\Database\DBA;
+use Friendica\Model\Notify\Type;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Util\DateTimeFormat;
@@ -68,7 +69,7 @@ class Mail
 
 		// send notifications.
 		$notif_params = [
-			'type' => NOTIFY_MAIL,
+			'type' => Type::MAIL,
 			'notify_flags' => $user['notify-flags'],
 			'language' => $user['language'],
 			'to_name' => $user['username'],

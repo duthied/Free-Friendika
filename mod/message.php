@@ -13,6 +13,7 @@ use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
 use Friendica\Model\Mail;
+use Friendica\Model\Notify\Type;
 use Friendica\Module\Security\Login;
 use Friendica\Util\DateTimeFormat;
 use Friendica\Util\Proxy as ProxyUtils;
@@ -338,10 +339,10 @@ function message_content(App $a)
 
 			if ($message['convid']) {
 				// Clear Diaspora private message notifications
-				DBA::update('notify', ['seen' => 1], ['type' => NOTIFY_MAIL, 'parent' => $message['convid'], 'uid' => local_user()]);
+				DBA::update('notify', ['seen' => 1], ['type' => Type::MAIL, 'parent' => $message['convid'], 'uid' => local_user()]);
 			}
 			// Clear DFRN private message notifications
-			DBA::update('notify', ['seen' => 1], ['type' => NOTIFY_MAIL, 'parent' => $message['parent-uri'], 'uid' => local_user()]);
+			DBA::update('notify', ['seen' => 1], ['type' => Type::MAIL, 'parent' => $message['parent-uri'], 'uid' => local_user()]);
 		} else {
 			$messages = false;
 		}

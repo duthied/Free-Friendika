@@ -102,7 +102,7 @@ function notification($params)
 	$hsitelink = '';
 	$itemlink  = '';
 
-	if ($params['type'] == NOTIFY_MAIL) {
+	if ($params['type'] == Notify\Type::MAIL) {
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
 		$params["link"] = $itemlink;
 
