@@ -5,12 +5,11 @@ namespace Friendica\Test\src\Util\Emailer;
 use Friendica\App\BaseURL;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
-use Friendica\Object\EMail\IEmail;
 use Friendica\Test\MockedTest;
-use Friendica\Test\Util\SampleMailBuilder;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\EMailer\MailBuilder;
 use Friendica\Util\EMailer\SystemMailBuilder;
+use Psr\Log\NullLogger;
 
 class SystemMailBuilderTest extends MockedTest
 {
@@ -50,7 +49,7 @@ class SystemMailBuilderTest extends MockedTest
 	 */
 	public function testBuilderInstance()
 	{
-		$builder = new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, 'moreply@friendica.local', 'FriendicaSite');
+		$builder = new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger(), 'moreply@friendica.local', 'FriendicaSite');
 
 		$this->assertInstanceOf(MailBuilder::class, $builder);
 		$this->assertInstanceOf(SystemMailBuilder::class, $builder);

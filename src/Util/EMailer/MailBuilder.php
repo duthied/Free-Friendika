@@ -11,6 +11,7 @@ use Friendica\Model\User;
 use Friendica\Network\HTTPException\InternalServerErrorException;
 use Friendica\Object\Email;
 use Friendica\Object\EMail\IEmail;
+use Psr\Log\LoggerInterface;
 
 /**
  * A base class for building new emails
@@ -26,6 +27,8 @@ abstract class MailBuilder
 	protected $config;
 	/** @var BaseURL */
 	protected $baseUrl;
+	/** @var LoggerInterface */
+	protected $logger;
 
 	/** @var string */
 	protected $headers;
@@ -42,11 +45,12 @@ abstract class MailBuilder
 	/** @var int */
 	protected $recipientUid = null;
 
-	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config)
+	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, LoggerInterface $logger)
 	{
 		$this->l10n    = $l10n;
 		$this->baseUrl = $baseUrl;
 		$this->config  = $config;
+		$this->logger = $logger;
 
 		$hostname = $baseUrl->getHostname();
 		if (strpos($hostname, ':')) {
@@ -97,6 +101,7 @@ abstract class MailBuilder
 		try {
 			$this->l10n = $user['language'] ? $this->l10n->withLang($user['language']) : $this->l10n;
 		} catch (Exception $e) {
+			$this->logger->warning('cannot use language.', ['user' => $user, 'exception' => $e]);
 		}
 
 		return $this;

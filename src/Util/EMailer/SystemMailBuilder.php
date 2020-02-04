@@ -3,13 +3,13 @@
 namespace Friendica\Util\EMailer;
 
 use Exception;
-use Friendica\App;
 use Friendica\App\BaseURL;
 use Friendica\Content\Text\BBCode;
 use Friendica\Core\Config\IConfig;
 use Friendica\Core\L10n;
 use Friendica\Core\Renderer;
 use Friendica\Network\HTTPException\InternalServerErrorException;
+use Psr\Log\LoggerInterface;
 
 /**
  * Builder for system-wide emails without any dependency to concrete entities (like items, activities, ..)
@@ -26,9 +26,10 @@ class SystemMailBuilder extends MailBuilder
 	/** @var string */
 	protected $siteAdmin;
 
-	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, string $siteEmailAddress, string $siteName)
+	public function __construct(L10n $l10n, BaseURL $baseUrl, IConfig $config, LoggerInterface $logger,
+	                            string$siteEmailAddress, string	$siteName)
 	{
-		parent::__construct($l10n, $baseUrl, $config);
+		parent::__construct($l10n, $baseUrl, $config, $logger);
 
 		if ($this->config->get('config', 'admin_name')) {
 			$this->siteAdmin = $l10n->t('%1$s, %2$s Administrator', $this->config->get('config', 'admin_name'), $siteName);

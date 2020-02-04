@@ -85,7 +85,7 @@ class Emailer
 	 */
 	public function newSystemMail()
 	{
-		return new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config,
+		return new SystemMailBuilder($this->l10n, $this->baseUrl, $this->config, $this->logger,
 			$this->getSiteEmailAddress(), $this->getSiteEmailName());
 	}
 

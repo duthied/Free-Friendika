@@ -10,6 +10,7 @@ use Friendica\Test\MockedTest;
 use Friendica\Test\Util\SampleMailBuilder;
 use Friendica\Test\Util\VFSTrait;
 use Friendica\Util\EMailer\MailBuilder;
+use Psr\Log\NullLogger;
 
 /**
  * This class tests the "MailBuilder" (@see MailBuilder )
@@ -62,7 +63,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderInstance()
 	{
-		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config);
+		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$this->assertInstanceOf(MailBuilder::class, $builder);
 	}
@@ -82,7 +83,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithRawEmail()
 	{
-		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config);
+		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$testEmail = $builder
 			->withMessage('Subject', 'Html', 'text')
@@ -112,7 +113,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithEmptyMail()
 	{
-		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config);
+		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$builder->build(true);
 	}
@@ -125,7 +126,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithEmptySender()
 	{
-		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config);
+		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$builder
 			->withRecipient('test@friendica.local')
@@ -137,7 +138,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithoutMessage()
 	{
-		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config);
+		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$testEmail = $builder
 			->withRecipient('recipient@friendica.local')
@@ -158,7 +159,7 @@ class MailBuilderTest extends MockedTest
 	 */
 	public function testBuilderWithJustPreamble()
 	{
-		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config);
+		$builder = new SampleMailBuilder($this->l10n, $this->baseUrl, $this->config, new NullLogger());
 
 		$testEmail = $builder
 			->withRecipient('recipient@friendica.local')
