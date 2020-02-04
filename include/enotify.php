@@ -375,7 +375,7 @@ function notification($params)
 		}
 	}
 
-	if ($params['type'] == NOTIFY_SYSTEM) {
+	if ($params['type'] == Notify\Type::SYSTEM) {
 		switch($params['event']) {
 			case "SYSTEM_REGISTER_REQUEST":
 				$itemlink =  $params['link'];
@@ -456,7 +456,7 @@ function notification($params)
 
 	// send email notification if notification preferences permit
 	if ((intval($params['notify_flags']) & intval($params['type']))
-		|| $params['type'] == NOTIFY_SYSTEM) {
+		|| $params['type'] == Notify\Type::SYSTEM) {
 
 		Logger::log('sending notification email');
 

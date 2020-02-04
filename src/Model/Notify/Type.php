@@ -8,7 +8,7 @@ namespace Friendica\Model\Notify;
 class Type
 {
 	/** @var int Notification about a introduction */
-	const INTRO  = 1;
+	const INTRO = 1;
 	/** @var int Notification about a confirmed introduction */
 	const CONFIRM = 2;
 	/** @var int Notification about a post on your wall */
@@ -33,4 +33,7 @@ class Type
 	const POKE = 512;
 	/** @var int Notification about either a contact had posted something directly or the contact is a mentioned forum */
 	const SHARE = 1024;
+
+	/** @var int Global System notifications */
+	const SYSTEM = 32768;
 }

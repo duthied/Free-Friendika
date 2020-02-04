@@ -134,17 +134,6 @@ $netgroup_ids = [
  */
 define('MAX_LIKERS',    75);
 
-/**
- * @name Notify
- *
- * Email notification options
- * @{
- */
-
-define('NOTIFY_SYSTEM',   32768);
-/* @}*/
-
-
 /** @deprecated since 2019.03, use Term::UNKNOWN instead */
 define('TERM_UNKNOWN',   Term::UNKNOWN);
 /** @deprecated since 2019.03, use Term::HASHTAG instead */
