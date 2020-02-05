@@ -160,23 +160,6 @@ $(function() {
 		$(textarea).trigger('change');
 	});
 
-	/* setup onoff widgets */
-	$(".onoff input").each(function() {
-		val = $(this).val();
-		id = $(this).attr("id");
-		$("#"+id+"_onoff ." + (val == 0 ? "on":"off")).addClass("hidden");
-	});
-
-	$(".onoff > a").click(function(event) {
-		event.preventDefault();
-		var input = $(this).siblings("input");
-		var val = 1-input.val();
-		var id = input.attr("id");
-		$("#"+id+"_onoff ." + (val == 0 ? "on":"off")).addClass("hidden");
-		$("#"+id+"_onoff ." + (val == 1 ? "on":"off")).removeClass("hidden");
-		input.val(val);
-	});
-
 	/* popup menus */
 	function close_last_popup_menu() {
 		if (last_popup_menu) {
