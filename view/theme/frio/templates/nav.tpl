@@ -70,24 +70,16 @@
 					{{if $nav.contacts}}
 					<li class="nav-segment hidden-xs">
 						<a accesskey="k" id="nav-contacts-link" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}"class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}"><i class="fa fa-users fa-lg"></i></a>
-<!--						<span id="intro-update" aria-hidden="true" class="nav-intro-badge badge nav-notification" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" title="{{$nav.introductions.3}}"></span>
--->
 					</li>
 					{{/if}}
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
-
 						<li id="nav-notification" class="nav-segment dropdown" role="presentation">
-<!--
-							<a href="{{$nav.notifications.0}}" class="dropdown-toggle" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
--->
 							<button id="dropdownMenu1" class="btn-link dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
 								<span id="notification-update" class="nav-notification-badge badge nav-notification dropdown" data-toggle="dropdown"></span>
 								<i class="fa fa-bell fa-lg" aria-label="{{$nav.notifications.1}}"></i>
-						</button>
-<!--							</a>
--->
+							</button>
 							{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
 							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1">
 <!--							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
