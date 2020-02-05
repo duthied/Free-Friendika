@@ -73,6 +73,7 @@ class Nav
 			'$userinfo'     => $nav_info['userinfo'],
 			'$sel'          => self::$selected,
 			'$apps'         => self::getAppMenu(),
+			'$home'         => DI::l10n()->t('Go back'),
 			'$clear_notifs' => DI::l10n()->t('Clear notifications'),
 			'$search_hint'  => DI::l10n()->t('@name, !forum, #tags, content')
 		]);

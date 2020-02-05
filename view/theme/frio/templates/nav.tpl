@@ -7,12 +7,12 @@
 	<div id="banner" class="hidden-sm hidden-xs">
 		{{* show on remote/visitor connections an other logo which symols that fact*}}
 		{{if $nav.remote}}
-		<a href="{{$baseurl}}"><div id="remote-logo-img"></div></a>
+		<a href="{{$baseurl}}"><div id="remote-logo-img" aria-label="{{$home}}"></div></a>
 		{{else}}
 		{{* #logo-img is the the placeholder to insert a mask (friendica logo) into this div
 		For Firefox we have to call the paths of the mask (look at the bottom of this file).
 		Because for FF we need relative paths we apply them with js after the page is loaded (look at theme.js *}}
-		<a href="{{$baseurl}}"><div id="logo-img"></div></a>
+		<a href="{{$baseurl}}"><div id="logo-img" aria-label="{{$home}}"></div></a>
 		{{/if}}
 	</div>
 </header>
@@ -38,46 +38,60 @@
 
 				{{* Left section of the NavBar with navigation shortcuts/icons *}}
 				<ul class="nav navbar-nav navbar-left" role="menubar">
-					<li id="nav-communication" class="nav-segment">
-						{{if $nav.network}}
+					{{if $nav.network}}
+					<li class="nav-segment">
 						<a accesskey="n" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
-						{{/if}}
-
-						{{if $nav.home}}
+					</li>
+					{{/if}}
+					{{if $nav.home}}
+					<li class="nav-segment">
 						<a accesskey="p" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notification"></span></a>
-						{{/if}}
+					</li>
+					{{/if}}
 
-						{{if $nav.community}}
+					{{if $nav.community}}
+					<li class="nav-segment">
 						<a accesskey="c" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
-						{{/if}}
 					</li>
+					{{/if}}
 
-					<li id="nav-personal" class="nav-segment hidden-xs">
-						{{if $nav.messages}}
+					{{if $nav.messages}}
+					<li class="nav-segment hidden-xs">
 						<a accesskey="m" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notification"></span></a>
-						{{/if}}
-
-						{{if $nav.events}}
-						<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
-						{{/if}}
-
-						{{if $nav.contacts}}
-						<a accesskey="k" id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg" aria-hidden="true"></i></a>
-						<span id="intro-update" class="nav-intro-badge badge nav-notification" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" aria-label="{{$nav.introductions.3}}" title="{{$nav.introductions.3}}"></span>
-						{{/if}}
 					</li>
+					{{/if}}
+
+					{{if $nav.events}}
+					<li class="nav-segment hidden-xs">
+						<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+					</li>
+					{{/if}}
+
+					{{if $nav.contacts}}
+					<li class="nav-segment hidden-xs">
+						<a accesskey="k" id="nav-contacts-link" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}"class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}"><i class="fa fa-users fa-lg"></i></a>
+<!--						<span id="intro-update" aria-hidden="true" class="nav-intro-badge badge nav-notification" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" title="{{$nav.introductions.3}}"></span>
+-->
+					</li>
+					{{/if}}
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
+
 						<li id="nav-notification" class="nav-segment dropdown" role="presentation">
+<!--
 							<a href="{{$nav.notifications.0}}" class="dropdown-toggle" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
-								<i class="fa fa-bell fa-lg" aria-hidden="true"></i>
+-->
+							<button id="dropdownMenu1" class="btn-link dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
 								<span id="notification-update" class="nav-notification-badge badge nav-notification dropdown" data-toggle="dropdown"></span>
-							</a>
-
+								<i class="fa fa-bell fa-lg" aria-label="{{$nav.notifications.1}}"></i>
+						</button>
+<!--							</a>
+-->
 							{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
-							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
-
+							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1">
+<!--							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
+-->
 								{{* the following list entry must have the id "nav-notificaionts-mark-all". Without it this isn't visable. ....strange behavior :-/ *}}
 								<li role="presentation" id="nav-notifications-mark-all" class="dropdown-header">
 									<div class="arrow"></div>
@@ -284,7 +298,7 @@
 <ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template">
 	<li class="{4} notif-entry">
 		<div class="notif-entry-wrapper media">
-			<div class="notif-photo-wrapper media-object pull-left" aria-hidden="true"><a href="{6}" class="userinfo click-card"><img data-src="{1}"></a></div>
+			<div class="notif-photo-wrapper media-object pull-left" aria-hidden="true"><a href="{6}" class="userinfo click-card" tabIndex="-1"><img data-src="{1}"></a></div>
 			<a href="{0}" class="notif-desc-wrapper media-body">
 				{2}
 				<div><time class="notif-when time" data-toggle="tooltip" title="{5}">{3}</time></div>
