@@ -21,7 +21,7 @@
 <form class="intro-approve-form" action="{{$action}}" method="post">
 {{include file="field_checkbox.tpl" field=$hidden}}
 <div role="radiogroup" aria-labelledby="connection_type">
-	<div id="connection_type">{{$lbl_connection_type}}</div>
+	<label id="connection_type">{{$lbl_connection_type}}</label>
 	{{include file="field_radio.tpl" field=$friend}}
 	{{include file="field_radio.tpl" field=$follower}}
 </div>
