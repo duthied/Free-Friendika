@@ -98,6 +98,9 @@ class Introductions extends BaseNotifications
 					if ($notification->getNetwork() === Protocol::DFRN) {
 						$lbl_knowyou = DI::l10n()->t('Claims to be known to you: ');
 						$knowyou     = ($notification->getKnowYou() ? DI::l10n()->t('yes') : DI::l10n()->t('no'));
+					} else {
+						$lbl_knowyou = '';
+						$knowyou = '';
 					}
 
 					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
