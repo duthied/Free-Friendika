@@ -454,6 +454,8 @@ nav.navbar {
 #topbar-first .nav>li>a:hover,
 #topbar-first .nav>li>a:focus,
 #topbar-first .nav>.open>a,
+#dropdownMenu1:hover,
+#dropdownMenu1:focus,
 nav.navbar .nav>li>a:hover,
 nav.navbar .nav>li>a:focus{
     background-color: $nav_icon_hover_color;
@@ -860,6 +862,9 @@ nav.navbar a, nav.navbar .btn-link {
 }
 
 /* Dropdown Menus */
+#dropdownMenu1 {
+    padding: 15px 15px;
+}
 .nav > li > .btn-link {
     position: relative;
     display: block;
