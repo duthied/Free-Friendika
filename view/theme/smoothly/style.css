@@ -3919,37 +3919,6 @@ margin-left: 0px;
 	color: #666666;
 }
 
-.field .onoff {
-	float: left;
-	width: 80px;
-}
-.field .onoff a {
-	display: block;
-	border: 1px solid #c1c1c1;
-	background-image: url("../../../images/onoff.jpg");
-	background-repeat: no-repeat;
-	padding: 4px 2px 2px 2px;
-	height: 16px;
-	text-decoration: none;
-}
-.field .onoff .off {
-	border-color: #c1c1c1;
-	padding-left: 40px;
-	background-position: left center;
-	background-color: #cccccc;
-	color: #666666;
-	text-align: right;
-}
-
-.field .onoff .on {
-	border-color: #c1c1c1;
-	padding-right: 40px;
-	background-position: right center;
-	background-color: #1873a2;
-	color: #FFFFFF;
-	text-align: left;
-}
-
 .field .radio .field_help {
 	margin-left: 0px;
 }
@@ -4651,10 +4620,6 @@ div #datebrowse-sidebar.widget {
 #page-settings-label{
 	width: auto !important;
 	margin-bottom: 5px !important;
-}
-
-.onoff {
-	margin-right: 10px;
 }
 
 .settings-heading {

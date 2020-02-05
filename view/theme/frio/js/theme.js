@@ -230,24 +230,6 @@ $(document).ready(function(){
 		toggleDropdownText(this);
 	});
 
-	/* setup onoff widgets */
-	// Add the correct class to the switcher according to the input
-	// value (On/Off)
-	$(".toggle input").each(function(){
-		// Get the value of the input element
-		val = $(this).val();
-		id = $(this).attr("id");
-
-		// The css classes for "on" and "off"
-		onstyle = "btn-primary";
-		offstyle = "btn-default off";
-
-		// Add the correct class in dependence of input value (On/Off)
-		toggleclass = (val == 0 ? offstyle : onstyle);
-		$("#"+id+"_onoff").addClass(toggleclass);
-
-	});
-
 	// Change the css class while clicking on the switcher elements
 	$(".toggle label, .toggle .toggle-handle").click(function(event){
 		event.preventDefault();

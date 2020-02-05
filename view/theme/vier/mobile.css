@@ -266,9 +266,7 @@ select:focus {
 .field, .field > * {  box-sizing: border-box; }
 .field label { width: 100%; float: none; display: block; }
 .field input, .field textarea, .field select { max-width: 100%; width: 100%; }
-.field.yesno .onoff,
 .field.checkbox input { width: auto; float: right; }
-.field.yesno label,
 .field.checkbox label { width: 70%; float: left; }
 .field .field_help { margin: 0; }
 

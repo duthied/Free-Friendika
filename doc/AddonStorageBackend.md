@@ -52,7 +52,7 @@ The info array for each option is defined as:
 		'type',
 
 define the field used in form, and the type of data.
-one of 'checkbox', 'combobox', 'custom', 'datetime', 'input', 'intcheckbox', 'password', 'radio', 'richtext', 'select', 'select_raw', 'textarea', 'yesno'
+one of 'checkbox', 'combobox', 'custom', 'datetime', 'input', 'intcheckbox', 'password', 'radio', 'richtext', 'select', 'select_raw', 'textarea'
 
 		'label',
 

@@ -1075,7 +1075,7 @@ function settings_content(App $a)
 		$openid_field = ['openid_url', DI::l10n()->t('OpenID:'), $openid, DI::l10n()->t("\x28Optional\x29 Allow this OpenID to login to this account."), "", "readonly", "url"];
 	}
 
-	$opt_tpl = Renderer::getMarkupTemplate("field_yesno.tpl");
+	$opt_tpl = Renderer::getMarkupTemplate("field_checkbox.tpl");
 	if (DI::config()->get('system', 'publish_all')) {
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {

@@ -312,15 +312,6 @@ a.btn:hover {
     border: 1px solid transparent;
     border-color: #ccc;
 }
-.field.yesno:hover .toggle {
-    border-color: $link_hover_color;
-    transition: all 0.25s ease-in-out;
-}
-.field.yesno:hover .toggle-handle {
-    background-color: #fff;
-    transition: all 0.25s ease-in-out;
-}
-
 .form-control-sm, .input-group-sm>.form-control, .input-group-sm>.input-group-addon, .input-group-sm>.input-group-btn>.btn {
     padding: .275rem .75rem;
     /*font-size: .875rem;*/
