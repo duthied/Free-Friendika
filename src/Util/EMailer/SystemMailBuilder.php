@@ -38,9 +38,7 @@ class SystemMailBuilder extends MailBuilder
 		}
 
 		// Set the system wide site address/name as sender (default for system mails)
-		$this->senderName    = $siteName;
-		$this->senderAddress = $siteEmailAddress;
-		$this->senderNoReply = $siteEmailAddress;
+		$this->withSender($siteName, $siteEmailAddress, $siteEmailAddress);
 	}
 
 	/**

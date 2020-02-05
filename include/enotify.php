@@ -15,7 +15,6 @@ use Friendica\Model\ItemContent;
 use Friendica\Model\Notify;
 use Friendica\Model\User;
 use Friendica\Model\UserItem;
-use Friendica\Object\Email;
 use Friendica\Protocol\Activity;
 
 /**
@@ -31,8 +30,6 @@ use Friendica\Protocol\Activity;
  */
 function notification($params)
 {
-	$a = DI::app();
-
 	// Temporary logging for finding the origin
 	if (!isset($params['uid'])) {
 		Logger::notice('Missing parameters "uid".', ['params' => $params, 'callstack' => System::callstack()]);
@@ -55,24 +52,13 @@ function notification($params)
 	// from here on everything is in the recipients language
 	$l10n = DI::l10n()->withLang($params['language']);
 
-	$banner = $l10n->t('Friendica Notification');
-	$product = FRIENDICA_PLATFORM;
 	$siteurl = DI::baseUrl()->get(true);
-	$thanks = $l10n->t('Thank You,');
 	$sitename = DI::config()->get('config', 'sitename');
-	if (DI::config()->get('config', 'admin_name')) {
-		$site_admin = $l10n->t('%1$s, %2$s Administrator', DI::config()->get('config', 'admin_name'), $sitename);
-	} else {
-		$site_admin = $l10n->t('%s Administrator', $sitename);
-	}
 
-	$sender_name = $sitename;
 	$hostname = DI::baseUrl()->getHostname();
 	if (strpos($hostname, ':')) {
 		$hostname = substr($hostname, 0, strpos($hostname, ':'));
 	}
-
-	$sender_email = DI::emailer()->getSiteEmailAddress();
 
 	$user = User::getById($params['uid'], ['nickname', 'page-flags']);
 
@@ -87,14 +73,7 @@ function notification($params)
 	// default, if not specified: true
 	$show_in_notification_page = isset($params['show_in_notification_page']) ? $params['show_in_notification_page'] : true;
 
-	$additional_mail_header = "";
-	$additional_mail_header .= "Precedence: list\n";
-	$additional_mail_header .= "X-Friendica-Host: ".$hostname."\n";
-	$additional_mail_header .= "X-Friendica-Account: <".$nickname."@".$hostname.">\n";
-	$additional_mail_header .= "X-Friendica-Platform: ".FRIENDICA_PLATFORM."\n";
-	$additional_mail_header .= "X-Friendica-Version: ".FRIENDICA_VERSION."\n";
-	$additional_mail_header .= "List-ID: <notification.".$hostname.">\n";
-	$additional_mail_header .= "List-Archive: <".DI::baseUrl()."/notifications/system>\n";
+	$additional_mail_header = "X-Friendica-Account: <".$nickname."@".$hostname.">\n";
 
 	if (array_key_exists('item', $params)) {
 		$title = $params['item']['title'];
@@ -503,74 +482,46 @@ function notification($params)
 			}
 		}
 
-		$textversion = BBCode::toPlaintext($body);
-		$htmlversion = BBCode::convert($body);
-
-		$datarray                 = [];
-		$datarray['banner']       = $banner;
-		$datarray['product']      = $product;
-		$datarray['preamble']     = $preamble;
-		$datarray['sitename']     = $sitename;
-		$datarray['siteurl']      = $siteurl;
-		$datarray['type']         = $params['type'];
-		$datarray['parent']       = $parent_id;
-		$datarray['source_name']  = $params['source_name'] ?? '';
-		$datarray['source_link']  = $params['source_link'] ?? '';
-		$datarray['source_photo'] = $params['source_photo'] ?? '';
-		$datarray['uid']          = $params['uid'];
-		$datarray['hsitelink']    = $hsitelink;
-		$datarray['tsitelink']    = $tsitelink;
-		$datarray['hitemlink']    = '<a href="' . $itemlink . '">' . $itemlink . '</a>';
-		$datarray['titemlink']    = $itemlink;
-		$datarray['thanks']       = $thanks;
-		$datarray['site_admin']   = $site_admin;
-		$datarray['title']        = stripslashes($title);
-		$datarray['htmlversion']  = $htmlversion;
-		$datarray['textversion']  = $textversion;
-		$datarray['subject']      = $subject;
-		$datarray['headers']      = $additional_mail_header;
+		$datarray = [
+			'preamble'     => $preamble,
+			'type'         => $params['type'],
+			'parent'       => $parent_id,
+			'source_name'  => $params['source_name'] ?? null,
+			'source_link'  => $params['source_link'] ?? null,
+			'source_photo' => $params['source_photo'] ?? null,
+			'uid'          => $params['uid'],
+			'hsitelink'    => $hsitelink,
+			'tsitelink'    => $tsitelink,
+			'itemlink'     => $itemlink,
+			'title'        => $title,
+			'body'         => $body,
+			'subject'      => $subject,
+			'headers'      => $additional_mail_header,
+		];
 
 		Hook::callAll('enotify_mail', $datarray);
 
-		// check whether sending post content in email notifications is allowed
-		$content_allowed = (!DI::config()->get('system', 'enotify_no_content'));
+		$builder = DI::emailer()
+			->newNotifyMail()
+			->addHeaders($datarray['headers'])
+			->withRecipient($params['to_email'])
+			->forUser([
+				'uid' => $datarray['uid'],
+				'language' => $params['language'],
+			])
+			->withNotification($datarray['subject'], $datarray['preamble'], $datarray['title'], $datarray['body'])
+			->withSiteLink($datarray['tsitelink'], $datarray['hsitelink'])
+			->withItemLink($datarray['itemlink']);
 
-		// load the template for private message notifications
-		$tpl             = Renderer::getMarkupTemplate('email/notify/html.tpl');
-		$email_html_body = Renderer::replaceMacros($tpl, [
-			'$banner'          => $datarray['banner'],
-			'$product'         => $datarray['product'],
-			'$preamble'        => str_replace("\n", "<br>\n", $datarray['preamble']),
-			'$sitename'        => $datarray['sitename'],
-			'$siteurl'         => $datarray['siteurl'],
-			'$source_name'     => $datarray['source_name'],
-			'$source_link'     => $datarray['source_link'],
-			'$source_photo'    => $datarray['source_photo'],
-			'$hsitelink'       => $datarray['hsitelink'],
-			'$hitemlink'       => $datarray['hitemlink'],
-			'$thanks'          => $datarray['thanks'],
-			'$site_admin'      => $datarray['site_admin'],
-			'$title'           => $datarray['title'],
-			'$htmlversion'     => $datarray['htmlversion'],
-			'$content_allowed' => $content_allowed,
-		]);
+		// If a photo is present, add it to the email
+		if (!empty($datarray['source_photo'])) {
+			$builder->withPhoto(
+				$datarray['source_photo'],
+				$datarray['source_link'] ?? $sitelink,
+				$datarray['source_name'] ?? $sitename);
+		}
 
-		// load the template for private message notifications
-		$tpl             = Renderer::getMarkupTemplate('email/notify/text.tpl');
-		$email_text_body = Renderer::replaceMacros($tpl, [
-			'$preamble'        => $datarray['preamble'],
-			'$tsitelink'       => $datarray['tsitelink'],
-			'$titemlink'       => $datarray['titemlink'],
-			'$thanks'          => $datarray['thanks'],
-			'$site_admin'      => $datarray['site_admin'],
-			'$title'           => $datarray['title'],
-			'$textversion'     => $datarray['textversion'],
-			'$content_allowed' => $content_allowed,
-		]);
-
-		$email = new Email($sender_name, $sender_email, $sender_email, $params['to_email'],
-			$datarray['subject'], $email_html_body, $email_text_body,
-			$datarray['headers'], $params['uid']);
+		$email = $builder->build();
 
 		// use the Emailer class to send the message
 		return DI::emailer()->send($email);
