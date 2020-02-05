@@ -31,10 +31,6 @@ use Psr\Log\LoggerInterface;
  */
 class Notify extends BaseModel
 {
-	const OTYPE_ITEM   = 'item';
-	const OTYPE_INTRO  = 'intro';
-	const OTYPE_MAIL   = 'mail';
-	const OTYPE_PERSON = 'person';
 
 	/** @var \Friendica\Repository\Notify */
 	private $repo;

@@ -5906,7 +5906,7 @@ function api_friendica_notification_seen($type)
 		$notify = DI::notify()->getByID($id);
 		DI::notify()->setSeen(true, $notify);
 
-		if ($notify->otype === Notify::OTYPE_ITEM) {
+		if ($notify->otype === Notify\ObjectType::ITEM) {
 			$item = Item::selectFirstForUser(api_user(), [], ['id' => $notify->iid, 'uid' => api_user()]);
 			if (DBA::isResult($item)) {
 				// we found the item, return it to the user

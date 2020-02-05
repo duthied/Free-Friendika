@@ -14,6 +14,7 @@ use Friendica\Core\System;
 use Friendica\Core\Worker;
 use Friendica\Database\DBA;
 use Friendica\DI;
+use Friendica\Model\Notify\Type;
 use Friendica\Network\Probe;
 use Friendica\Protocol\Activity;
 use Friendica\Protocol\ActivityPub;
@@ -2628,11 +2629,11 @@ class Contact
 
 				Group::addMember(User::getDefaultGroup($importer['uid'], $contact_record["network"]), $contact_record['id']);
 
-				if (($user['notify-flags'] & NOTIFY_INTRO) &&
+				if (($user['notify-flags'] & Type::INTRO) &&
 					in_array($user['page-flags'], [User::PAGE_FLAGS_NORMAL])) {
 
 					notification([
-						'type'         => NOTIFY_INTRO,
+						'type'         => Type::INTRO,
 						'notify_flags' => $user['notify-flags'],
 						'language'     => $user['language'],
 						'to_name'      => $user['username'],

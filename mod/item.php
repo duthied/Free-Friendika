@@ -31,6 +31,7 @@ use Friendica\Model\Contact;
 use Friendica\Model\Conversation;
 use Friendica\Model\FileTag;
 use Friendica\Model\Item;
+use Friendica\Model\Notify\Type;
 use Friendica\Model\Photo;
 use Friendica\Model\Term;
 use Friendica\Network\HTTPException;
@@ -751,7 +752,7 @@ function item_post(App $a) {
 	if ($toplevel_item_id) {
 		if ($contact_record != $author) {
 			notification([
-				'type'         => NOTIFY_COMMENT,
+				'type'         => Type::COMMENT,
 				'notify_flags' => $user['notify-flags'],
 				'language'     => $user['language'],
 				'to_name'      => $user['username'],
@@ -771,7 +772,7 @@ function item_post(App $a) {
 	} else {
 		if (($contact_record != $author) && !count($forum_contact)) {
 			notification([
-				'type'         => NOTIFY_WALL,
+				'type'         => Type::WALL,
 				'notify_flags' => $user['notify-flags'],
 				'language'     => $user['language'],
 				'to_name'      => $user['username'],

@@ -25,6 +25,7 @@ use Friendica\Model\Event;
 use Friendica\Model\GContact;
 use Friendica\Model\Item;
 use Friendica\Model\Mail;
+use Friendica\Model\Notify\Type;
 use Friendica\Model\PermissionSet;
 use Friendica\Model\Profile;
 use Friendica\Model\User;
@@ -1892,7 +1893,7 @@ class DFRN
 
 		notification(
 			[
-				'type'         => NOTIFY_SUGGEST,
+				'type'         => Type::SUGGEST,
 				'notify_flags' => $importer['notify-flags'],
 				'language'     => $importer['language'],
 				'to_name'      => $importer['username'],
@@ -2136,7 +2137,7 @@ class DFRN
 				// send a notification
 				notification(
 					[
-					"type"         => NOTIFY_POKE,
+					"type"         => Type::POKE,
 					"notify_flags" => $importer["notify-flags"],
 					"language"     => $importer["language"],
 					"to_name"      => $importer["username"],
