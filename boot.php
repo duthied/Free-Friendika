@@ -22,6 +22,7 @@ use Friendica\Core\System;
 use Friendica\Database\DBA;
 use Friendica\DI;
 use Friendica\Model\Contact;
+use Friendica\Model\Notify;
 use Friendica\Model\Term;
 use Friendica\Util\BasePath;
 use Friendica\Util\DateTimeFormat;
@@ -141,30 +142,30 @@ define('MAX_LIKERS',    75);
  * @{
  */
 /** @deprecated since 2020.03, use Notify\Type::INTRO instead */
-define('NOTIFY_INTRO',        1);
+define('NOTIFY_INTRO',        Notify\Type::INTRO);
 /** @deprecated since 2020.03, use Notify\Type::CONFIRM instead */
-define('NOTIFY_CONFIRM',      2);
+define('NOTIFY_CONFIRM',      Notify\Type::CONFIRM);
 /** @deprecated since 2020.03, use Notify\Type::WALL instead */
-define('NOTIFY_WALL',         4);
+define('NOTIFY_WALL',         Notify\Type::WALL);
 /** @deprecated since 2020.03, use Notify\Type::COMMENT instead */
-define('NOTIFY_COMMENT',      8);
+define('NOTIFY_COMMENT',      Notify\Type::COMMENT);
 /** @deprecated since 2020.03, use Notify\Type::MAIL instead */
-define('NOTIFY_MAIL',        16);
+define('NOTIFY_MAIL',        Notify\Type::MAIL);
 /** @deprecated since 2020.03, use Notify\Type::SUGGEST instead */
-define('NOTIFY_SUGGEST',     32);
+define('NOTIFY_SUGGEST',     Notify\Type::SUGGEST);
 /** @deprecated since 2020.03, use Notify\Type::PROFILE instead */
-define('NOTIFY_PROFILE',     64);
+define('NOTIFY_PROFILE',     Notify\Type::PROFILE);
 /** @deprecated since 2020.03, use Notify\Type::TAG_SELF instead */
-define('NOTIFY_TAGSELF',    128);
+define('NOTIFY_TAGSELF',     Notify\Type::TAG_SELF);
 /** @deprecated since 2020.03, use Notify\Type::TAG_SHARE instead */
-define('NOTIFY_TAGSHARE',   256);
+define('NOTIFY_TAGSHARE',    Notify\Type::TAG_SHARE);
 /** @deprecated since 2020.03, use Notify\Type::POKE instead */
-define('NOTIFY_POKE',       512);
+define('NOTIFY_POKE',        Notify\Type::POKE);
 /** @deprecated since 2020.03, use Notify\Type::SHARE instead */
-define('NOTIFY_SHARE',     1024);
+define('NOTIFY_SHARE',       Notify\Type::SHARE);
 
 /** @deprecated since 2020.12, use Notify\Type::SYSTEM instead */
-define('NOTIFY_SYSTEM',   32768);
+define('NOTIFY_SYSTEM',      Notify\Type::SYSTEM);
 /* @}*/
 
 
