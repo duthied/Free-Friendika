@@ -113,10 +113,10 @@
 											<h4 class="modal-title">{{$expire.advanced}}</h4>
 										</div>
 										<div class="modal-body">
-											{{include file="field_yesno.tpl" field=$expire.items}}
-											{{include file="field_yesno.tpl" field=$expire.notes}}
-											{{include file="field_yesno.tpl" field=$expire.starred}}
-											{{include file="field_yesno.tpl" field=$expire.network_only}}
+											{{include file="field_checkbox.tpl" field=$expire.items}}
+											{{include file="field_checkbox.tpl" field=$expire.notes}}
+											{{include file="field_checkbox.tpl" field=$expire.starred}}
+											{{include file="field_checkbox.tpl" field=$expire.network_only}}
 										</div>
 									</div>
 								</div>
@@ -192,7 +192,7 @@
 							</div>
 							*}}
 
-							{{include file="field_yesno.tpl" field=$desktop_notifications}}
+							{{include file="field_checkbox.tpl" field=$desktop_notifications}}
 							<script type="text/javascript">
 								(function(){
 									var elm = $("#id_{{$desktop_notifications.0}}_onoff");

@@ -52,7 +52,7 @@
 
 <div id="dfrn-request-info-wrapper" >
 
-{{include file="field_yesno.tpl" field=$does_know_you}}
+{{include file="field_checkbox.tpl" field=$does_know_you}}
 <!--
 <p id="doiknowyou">
 {{$does_know}}

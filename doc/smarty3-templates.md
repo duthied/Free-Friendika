@@ -178,14 +178,3 @@ Field parameter:
 2. Current text for the box,
 3. Help text for the input box.
 4. if set to "required" modern browser will check that this input box is filled when submitting the form,
-
-### field_yesno.tpl
-
-A button that has two states *yes* or *no*.
-Field parameter:
-
-0. Name of the input field,
-1. Label for the button,
-2. Current value,
-3. Help text for the button
-4. if set to an array of two values, these two will be used, otherwise "off" and "on".

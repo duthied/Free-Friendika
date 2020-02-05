@@ -72,10 +72,10 @@
 	<div style="display: none;">
 		<div id="advanced-expire-popup" style="width:auto;height:auto;overflow:auto;">
 			<h3>{{$expire.advanced}}</h3>
-			{{include file="field_yesno.tpl" field=$expire.items}}
-			{{include file="field_yesno.tpl" field=$expire.notes}}
-			{{include file="field_yesno.tpl" field=$expire.starred}}
-			{{include file="field_yesno.tpl" field=$expire.network_only}}
+			{{include file="field_checkbox.tpl" field=$expire.items}}
+			{{include file="field_checkbox.tpl" field=$expire.notes}}
+			{{include file="field_checkbox.tpl" field=$expire.starred}}
+			{{include file="field_checkbox.tpl" field=$expire.network_only}}
 		</div>
 	</div>
 
@@ -130,7 +130,7 @@
 {{include file="field_checkbox.tpl" field=$email_textonly}}
 {{include file="field_checkbox.tpl" field=$detailed_notif}}
 
-{{include file="field_yesno.tpl" field=$desktop_notifications}}
+{{include file="field_checkbox.tpl" field=$desktop_notifications}}
 <script>
 (function(){
     var elm = $("#id_{{$desktop_notifications.0}}_onoff");

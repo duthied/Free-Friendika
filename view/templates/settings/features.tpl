@@ -10,7 +10,7 @@
 <div class="settings-content-block">
 
 {{foreach $f.1 as $fcat}}
-	{{include file="field_yesno.tpl" field=$fcat}}
+	{{include file="field_checkbox.tpl" field=$fcat}}
 {{/foreach}}
 <div class="settings-submit-wrapper" >
 <input type="submit" name="submit" class="settings-features-submit" value="{{$submit}}" />

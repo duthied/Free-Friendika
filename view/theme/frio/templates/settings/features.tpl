@@ -19,7 +19,7 @@
 				<div id="{{$g}}-settings-content" class="panel-collapse collapse" role="tabpanel" aria-labelledby="{{$g}}-settings-title">
 					<div class="section-content-tools-wrapper">
 						{{foreach $f.1 as $fcat}}
-							{{include file="field_yesno.tpl" field=$fcat}}
+							{{include file="field_checkbox.tpl" field=$fcat}}
 						{{/foreach}}
 
 						<div class="form-group pull-right settings-submit-wrapper" >
