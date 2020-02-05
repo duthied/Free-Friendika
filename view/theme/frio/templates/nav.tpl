@@ -38,41 +38,40 @@
 
 				{{* Left section of the NavBar with navigation shortcuts/icons *}}
 				<ul class="nav navbar-nav navbar-left" role="menubar">
-					<li id="nav-communication" class="nav-segment" role="presentation">
+					<li id="nav-communication" class="nav-segment">
 						{{if $nav.network}}
-						<a accesskey="n" role="menuitem" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
+						<a accesskey="n" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
 						{{/if}}
 
 						{{if $nav.home}}
-						<a accesskey="p" role="menuitem" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notification"></span></a>
+						<a accesskey="p" class="nav-menu {{$sel.home}}" href="{{$nav.home.0}}" data-toggle="tooltip" aria-label="{{$nav.home.3}}" title="{{$nav.home.3}}"><i class="fa fa-lg fa-home" aria-hidden="true"></i><span id="home-update" class="nav-home-badge badge nav-notification"></span></a>
 						{{/if}}
 
 						{{if $nav.community}}
-						<a accesskey="c" role="menuitem" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
+						<a accesskey="c" class="nav-menu {{$sel.community}}" href="{{$nav.community.0}}" data-toggle="tooltip" aria-label="{{$nav.community.3}}" title="{{$nav.community.3}}"><i class="fa fa-lg fa-bullseye" aria-hidden="true"></i></a>
 						{{/if}}
 					</li>
 
-					<li id="nav-personal" class="nav-segment hidden-xs" role="presentation">
+					<li id="nav-personal" class="nav-segment hidden-xs">
 						{{if $nav.messages}}
-						<a role="menuitem" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notification"></span></a>
+						<a accesskey="m" id="nav-messages-link" href="{{$nav.messages.0}}" data-toggle="tooltip" aria-label="{{$nav.messages.1}}" title="{{$nav.messages.1}}" class="nav-menu {{$sel.messages}}"><i class="fa fa-envelope fa-lg" aria-hidden="true"></i><span id="mail-update" class="nav-mail-badge badge nav-notification"></span></a>
 						{{/if}}
 
 						{{if $nav.events}}
-						<a accesskey="e" role="menuitem" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
+						<a accesskey="e" id="nav-events-link" href="{{$nav.events.0}}" data-toggle="tooltip" aria-label="{{$nav.events.1}}" title="{{$nav.events.1}}" class="nav-menu"><i class="fa fa-lg fa-calendar"></i></a>
 						{{/if}}
 
 						{{if $nav.contacts}}
-						<a role="menuitem" id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg" aria-hidden="true"></i></a>
+						<a accesskey="k" id="nav-contacts-link" class="nav-menu {{$sel.contacts}} {{$nav.contacts.2}}" href="{{$nav.contacts.0}}" data-toggle="tooltip" aria-label="{{$nav.contacts.1}}" title="{{$nav.contacts.1}}" ><i class="fa fa-users fa-lg" aria-hidden="true"></i></a>
 						<span id="intro-update" class="nav-intro-badge badge nav-notification" onclick="window.location.href = '{{$nav.introductions.0}}' " data-toggle="tooltip" aria-label="{{$nav.introductions.3}}" title="{{$nav.introductions.3}}"></span>
 						{{/if}}
 					</li>
 
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
-						<li id="nav-notification" class="nav-segment" role="presentation">
-							<a href="{{$nav.notifications.0}}" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
+						<li id="nav-notification" class="nav-segment dropdown" role="presentation">
+							<a href="{{$nav.notifications.0}}" class="dropdown-toggle" rel="#nav-notifications-menu" data-toggle="tooltip" aria-label="{{$nav.notifications.1}}" title="{{$nav.notifications.1}}" role="button" id="dropdownMenu1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
 								<i class="fa fa-bell fa-lg" aria-hidden="true"></i>
-								<span role="menuitem" class="sr-only">{{$nav.notifications.1}}</span>
 								<span id="notification-update" class="nav-notification-badge badge nav-notification dropdown" data-toggle="dropdown"></span>
 							</a>
 
@@ -94,7 +93,7 @@
 								</li>
 							</ul>
 						</li>
-						{{/if}}
+					{{/if}}
 
 				</ul>
 			</div>
@@ -120,7 +119,7 @@
 					{{if $nav.userinfo}}
 					<li id="nav-user-linkmenu" class="dropdown account nav-menu hidden-xs">
 						<button accesskey="u" id="main-menu" class="btn-link dropdown-toggle nav-avatar" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-user-menu">
-							<div class="user-title pull-left hidden-xs hidden-sm hidden-md">
+							<div aria-hidden="true" class="user-title pull-left hidden-xs hidden-sm hidden-md">
 								<strong>{{$nav.userinfo.name}}</strong><br>
 								{{if $nav.remote}}<span class="trunctate">{{$nav.remote}}</span>{{/if}}
 							</div>
@@ -285,7 +284,7 @@
 <ul id="nav-notifications-template" class="media-list" style="display:none;" rel="template">
 	<li class="{4} notif-entry">
 		<div class="notif-entry-wrapper media">
-			<div class="notif-photo-wrapper media-object pull-left"><a href="{6}" class="userinfo click-card"><img data-src="{1}"></a></div>
+			<div class="notif-photo-wrapper media-object pull-left" aria-hidden="true"><a href="{6}" class="userinfo click-card"><img data-src="{1}"></a></div>
 			<a href="{0}" class="notif-desc-wrapper media-body">
 				{2}
 				<div><time class="notif-when time" data-toggle="tooltip" title="{5}">{3}</time></div>

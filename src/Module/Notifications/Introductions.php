@@ -95,38 +95,17 @@ class Introductions extends BaseNotifications
 
 				// Normal connection requests
 				default:
-					$friend_selected = (($notification->getNetwork() !== Protocol::OSTATUS) ? ' checked="checked" ' : ' disabled ');
-					$fan_selected    = (($notification->getNetwork() === Protocol::OSTATUS) ? ' checked="checked" disabled ' : '');
-
-					$lbl_knowyou = '';
-					$knowyou     = '';
-					$helptext    = '';
-					$helptext2   = '';
-					$helptext3   = '';
-
 					if ($notification->getNetwork() === Protocol::DFRN) {
 						$lbl_knowyou = DI::l10n()->t('Claims to be known to you: ');
 						$knowyou     = ($notification->getKnowYou() ? DI::l10n()->t('yes') : DI::l10n()->t('no'));
-						$helptext    = DI::l10n()->t('Shall your connection be bidirectional or not?');
-						$helptext2   = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
-						$helptext3   = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
-					} elseif ($notification->getNetwork() === Protocol::DIASPORA) {
-						$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
-						$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
-						$helptext3 = DI::l10n()->t('Accepting %s as a sharer allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
 					}
 
-					$dfrn_tpl  = Renderer::getMarkupTemplate('notifications/netfriend.tpl');
-					$dfrn_text = Renderer::replaceMacros($dfrn_tpl, [
-						'$intro_id'        => $notification->getIntroId(),
-						'$friend_selected' => $friend_selected,
-						'$fan_selected'    => $fan_selected,
-						'$approve_as1'     => $helptext,
-						'$approve_as2'     => $helptext2,
-						'$approve_as3'     => $helptext3,
-						'$as_friend'       => DI::l10n()->t('Friend'),
-						'$as_fan'          => (($notification->getNetwork() == Protocol::DIASPORA) ? DI::l10n()->t('Sharer') : DI::l10n()->t('Subscriber')),
-					]);
+					$helptext  = DI::l10n()->t('Shall your connection be bidirectional or not?');
+					$helptext2 = DI::l10n()->t('Accepting %s as a friend allows %s to subscribe to your posts, and you will also receive updates from them in your news feed.', $notification->getName(), $notification->getName());
+					$helptext3 = DI::l10n()->t('Accepting %s as a subscriber allows them to subscribe to your posts, but you will not receive updates from them in your news feed.', $notification->getName());
+
+					$friend = ['duplex', DI::l10n()->t('Friend'), '1', $helptext2, true];
+					$follower = ['duplex', DI::l10n()->t('Subscriber'), '0', $helptext3, false];
 
 					$contact = DBA::selectFirst('contact', ['network', 'protocol'], ['id' => $notification->getContactId()]);
 
@@ -155,7 +134,6 @@ class Introductions extends BaseNotifications
 						'$header'                => $header,
 						'$str_notification_type' => DI::l10n()->t('Notification type:'),
 						'$str_type'              => $notification->getType(),
-						'$dfrn_text'             => $dfrn_text,
 						'$dfrn_id'               => $notification->getDfrnId(),
 						'$uid'                   => $notification->getUid(),
 						'$intro_id'              => $notification->getIntroId(),
@@ -171,6 +149,9 @@ class Introductions extends BaseNotifications
 						'$gender'                => $notification->getGender(),
 						'$lbl_gender'            => DI::l10n()->t('Gender:'),
 						'$hidden'                => ['hidden', DI::l10n()->t('Hide this contact from others'), $notification->isHidden(), ''],
+						'$lbl_connection_type'   => $helptext,
+						'$friend'                => $friend,
+						'$follower'              => $follower,
 						'$url'                   => $notification->getUrl(),
 						'$zrl'                   => $notification->getZrl(),
 						'$lbl_url'               => DI::l10n()->t('Profile URL'),

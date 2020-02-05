@@ -9,15 +9,6 @@
 	</div>
 
 	<div class="media-body">
-		{{* The intro actions like approve, ignore, discard intro*}}
-		<div class="intro-actions pull-right nav-pills preferences">
-			<button class="btn-link intro-action-link" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}');" aria-label="{{$approve}}" title="{{$approve}}" data-toggle="tooltip"><i class="fa fa-check" aria-hidden="true"></i></button>
-
-			<form class="intro-form" action="notification/{{$intro_id}}" method="post">
-				<button class="btn-link intro-submit-ignore intro-action-link" type="submit" name="submit" value="{{$ignore}}" aria-label="{{$ignore}}" title="{{$ignore}}" data-toggle="tooltip"><i class="fa fa-ban" aria-hidden="true"></i></button>
-				{{if $discard}}<button class="btn-link intro-submit-discard intro-action-link" type="submit" name="submit" value="{{$discard}}" aria-label="{{$discard}}" title="{{$discard}}" data-toggle="tooltip"><i class="fa fa-trash-o" aria-hidden="true"></i></button>{{/if}}
-			</form>
-		</div>
 		<div class='intro-enty-name'><h4 class="media-heading"><a href="{{$zrl}}">{{$fullname}}</a></h4></div>
 		<div class="intro-desc"><span class="intro-desc-label">{{$str_notification_type}}</span>&nbsp;{{$str_type}}</div>
 		{{* if the contact was suggestested by another contact, the contact who made the suggestion is displayed*}}
@@ -47,6 +38,16 @@
 			<div class="intro-note intro-note-{{$intro_id}}">{{$note}}</div>
 		</div>
 
+		{{* The intro actions like approve, ignore, discard intro*}}
+		<div class="intro-actions pull-right nav-pills preferences">
+			<button class="btn-link intro-action-link" onclick="addElmToModal('#intro-approve-wrapper-{{$intro_id}}');" aria-label="{{$approve}}" title="{{$approve}}" data-toggle="tooltip"><i class="fa fa-check" aria-hidden="true"></i></button>
+
+			<form class="intro-form" action="notification/{{$intro_id}}" method="post">
+				<button class="btn-link intro-submit-ignore intro-action-link" type="submit" name="submit" value="{{$ignore}}" aria-label="{{$ignore}}" title="{{$ignore}}" data-toggle="tooltip"><i class="fa fa-ban" aria-hidden="true"></i></button>
+				{{if $discard}}<button class="btn-link intro-submit-discard intro-action-link" type="submit" name="submit" value="{{$discard}}" aria-label="{{$discard}}" title="{{$discard}}" data-toggle="tooltip"><i class="fa fa-trash-o" aria-hidden="true"></i></button>{{/if}}
+			</form>
+		</div>
+
 		{{* This sections contains special settings for contact approval. We hide it by default and load this section in
 		a bootstrap modal in the case of approval *}}
 		<div id="intro-approve-wrapper-{{$intro_id}}" style="display: none;">
@@ -54,14 +55,17 @@
 			<h3 class="heading">{{$fullname}}{{if $addr}}&nbsp;({{$addr}}){{/if}}</h3>
 			<form class="intro-approve-form" {{if $request}}action="{{$request}}" method="get"{{else}}action="{{$action}}" method="post"{{/if}}>
 				{{include file="field_checkbox.tpl" field=$hidden}}
+				<div role="radiogroup" aria-labelledby="connection_type">
+					<label id="connection_type">{{$lbl_connection_type}}</label>
+					{{include file="field_radio.tpl" field=$friend}}
+					{{include file="field_radio.tpl" field=$follower}}
+				</div>
+
 				{{if $type != "friend_suggestion"}}
 				<input type="hidden" name="dfrn_id" value="{{$dfrn_id}}" >
 				<input type="hidden" name="intro_id" value="{{$intro_id}}" >
 				<input type="hidden" name="contact_id" value="{{$contact_id}}" >
 				{{/if}}
-
-				{{$dfrn_text nofilter}}
-
 				<div class="pull-right">
 					<button class="btn btn-primary intro-submit-approve" type="submit" name="submit" value="{{$approve}}">{{$approve}}</button>
 				</div>
