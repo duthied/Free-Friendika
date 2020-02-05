@@ -134,6 +134,40 @@ $netgroup_ids = [
  */
 define('MAX_LIKERS',    75);
 
+/**
+ * @name Notify
+ *
+ * Email notification options
+ * @{
+ */
+/** @deprecated since 2020.12, use Notify\Type::INTRO instead */
+define('NOTIFY_INTRO',        1);
+/** @deprecated since 2020.12, use Notify\Type::CONFIRM instead */
+define('NOTIFY_CONFIRM',      2);
+/** @deprecated since 2020.12, use Notify\Type::WALL instead */
+define('NOTIFY_WALL',         4);
+/** @deprecated since 2020.12, use Notify\Type::COMMENT instead */
+define('NOTIFY_COMMENT',      8);
+/** @deprecated since 2020.12, use Notify\Type::MAIL instead */
+define('NOTIFY_MAIL',        16);
+/** @deprecated since 2020.12, use Notify\Type::SUGGEST instead */
+define('NOTIFY_SUGGEST',     32);
+/** @deprecated since 2020.12, use Notify\Type::PROFILE instead */
+define('NOTIFY_PROFILE',     64);
+/** @deprecated since 2020.12, use Notify\Type::TAG_SELF instead */
+define('NOTIFY_TAGSELF',    128);
+/** @deprecated since 2020.12, use Notify\Type::TAG_SHARE instead */
+define('NOTIFY_TAGSHARE',   256);
+/** @deprecated since 2020.12, use Notify\Type::POKE instead */
+define('NOTIFY_POKE',       512);
+/** @deprecated since 2020.12, use Notify\Type::SHARE instead */
+define('NOTIFY_SHARE',     1024);
+
+/** @deprecated since 2020.12, use Notify\Type::SYSTEM instead */
+define('NOTIFY_SYSTEM',   32768);
+/* @}*/
+
+
 /** @deprecated since 2019.03, use Term::UNKNOWN instead */
 define('TERM_UNKNOWN',   Term::UNKNOWN);
 /** @deprecated since 2019.03, use Term::HASHTAG instead */
