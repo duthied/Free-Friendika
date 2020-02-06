@@ -215,7 +215,7 @@ class Index extends BaseSettings
 
 		$opt_tpl = Renderer::getMarkupTemplate('settings/profile/hide-friends.tpl');
 		$hide_friends = Renderer::replaceMacros($opt_tpl, [
-			'$yesno' => [
+			'$hide_friends' => [
 				'hide-friends', //Name
 				DI::l10n()->t('Hide contacts and friends:'), //Label
 				!!$profile['hide-friends'], //Value
