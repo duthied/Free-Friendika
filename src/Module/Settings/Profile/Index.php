@@ -219,8 +219,6 @@ class Index extends BaseSettings
 				'hide-friends', //Name
 				DI::l10n()->t('Hide contacts and friends:'), //Label
 				!!$profile['hide-friends'], //Value
-				'', //Help string
-				[DI::l10n()->t('No'), DI::l10n()->t('Yes')] //Off - On strings
 			],
 			'$desc' => DI::l10n()->t('Hide your contact/friend list from viewers of this profile?'),
 			'$yes_str' => DI::l10n()->t('Yes'),

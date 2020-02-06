@@ -640,7 +640,7 @@ function dfrn_request_content(App $a)
 			'$header' => DI::l10n()->t('Friend/Connection Request'),
 			'$desc' => DI::l10n()->t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
 			'$pls_answer' => DI::l10n()->t('Please answer the following:'),
-			'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $a->profile['name']), false, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+			'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $a->profile['name'])],
 			'$add_note' => DI::l10n()->t('Add a personal note:'),
 			'$page_desc' => $page_desc,
 			'$friendica' => DI::l10n()->t('Friendica'),
