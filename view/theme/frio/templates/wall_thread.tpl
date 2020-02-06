@@ -81,87 +81,6 @@ as the value of $top_child_total (this is done at the end of this file)
 <span class="id" style="display: none;">{{$item.id}}</span>
 {{/if}}
 	<div class="media {{$item.shiny}}">
-		{{* Put addional actions in a top-right dropdown menu *}}
-
-		<ul class="nav nav-pills preferences">
-			{{if $item.network_icon != ""}}
-                        <li><span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span></li>
-			{{else}}
-			<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
-			{{/if}}
-			{{if $item.plink || $item.drop.dropping || $item.edpost || $item.ignore || $item.tagger || $item.star || $item.filer || $item.subthread}}
-			<li class="dropdown">
-				<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuTools-{{$item.id}}" aria-haspopup="true" aria-expanded="false"><i class="fa fa-angle-down" aria-hidden="true"></i></button>
-
-				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuTools-{{$item.id}}">
-					{{if $item.plink}}	{{*link to the original source of the item *}}
-					<li role="menuitem">
-						<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink u-url"><i class="fa fa-external-link" aria-hidden="true"></i> {{$item.plink.title}}</a>
-					</li>
-					{{/if}}
-
-					{{if $item.edpost}} {{* edit the posting *}}
-					<li role="menuitem">
-						<button type="button" onclick="editpost('{{$item.edpost.0}}?mode=none');" title="{{$item.edpost.1}}" class="btn-link navicon pencil"><i class="fa fa-pencil" aria-hidden="true"></i> {{$item.edpost.1}}</button>
-					</li>
-					{{/if}}
-
-					{{if $item.tagger}} {{* tag the post *}}
-					<li role="menuitem">
-						<button type="button" id="tagger-{{$item.id}}" onclick="itemTag({{$item.id}});" class="btn-link {{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag" aria-hidden="true"></i> {{$item.tagger.add}}</button>
-					</li>
-					{{/if}}
-
-					{{if $item.filer}}
-					<li role="menuitem">
-						<button type="button" id="filer-{{$item.id}}" onclick="itemFiler({{$item.id}});" class="btn-link filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder" aria-hidden="true"></i>&nbsp;{{$item.filer}}</button>
-					</li>
-					{{/if}}
-
-					{{if $item.pin}}
-					<li role="menuitem">
-						<button type="button" id="pin-{{$item.id}}" onclick="dopin({{$item.id}});" class="btn-link {{$item.pin.classdo}}" title="{{$item.pin.do}}"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;{{$item.pin.do}}</button>
-						<button type="button" id="unpin-{{$item.id}}" onclick="dopin({{$item.id}});" class="btn-link {{$item.pin.classundo}}" title="{{$item.pin.undo}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i>&nbsp;{{$item.pin.undo}}</button>
-					</li>
-					{{/if}}
-
-					{{if $item.star}}
-					<li role="menuitem">
-						<button type="button" id="star-{{$item.id}}" onclick="dostar({{$item.id}});" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o" aria-hidden="true"></i>&nbsp;{{$item.star.do}}</button>
-						<button type="button" id="unstar-{{$item.id}}" onclick="dostar({{$item.id}});" class="btn-link {{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star" aria-hidden="true"></i>&nbsp;{{$item.star.undo}}</button>
-					</li>
-					{{/if}}
-
-					{{if $item.subthread}}
-					<li role="menuitem">
-						<button type="button" id="subthread-{{$item.id}}" onclick="{{$item.subthread.action}}" class="btn-link" title="{{$item.subthread.title}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.subthread.title}}</button>
-					</li>
-					{{/if}}
-
-					{{if $item.ignore || $item.drop.dropping}}
-					<li role="separator" class="divider"></li>
-					{{/if}}
-
-					{{if $item.ignore}}
-						<li role="menuitem">
-							<button type="button" id="ignore-{{$item.id}}" onclick="doignore({{$item.id}});" class="btn-link {{$item.ignore.classdo}}" title="{{$item.ignore.do}}"><i class="fa fa-eye-slash" aria-hidden="true"></i> {{$item.ignore.do}}</button>
-						</li>
-						<li role="menuitem">
-							<button type="button" id="unignore-{{$item.id}}" onclick="doignore({{$item.id}});" class="btn-link {{$item.ignore.classundo}}"  title="{{$item.ignore.undo}}"><i class="fa fa-eye" aria-hidden="true"></i> {{$item.ignore.undo}}</button>
-						</li>
-					{{/if}}
-
-					{{if $item.drop.dropping}}
-					<li role="menuitem">
-						<button type="button" class="btn-link navicon delete" onclick="dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</button>
-					</li>
-					{{/if}}
-				</ul>
-			</li>
-			{{/if}}
-		</ul>
-
-
 		{{* The avatar picture and the photo-menu *}}
 		<div class="dropdown pull-left"><!-- Dropdown -->
 			{{if $item.thread_level==1}}
@@ -289,6 +208,14 @@ as the value of $top_child_total (this is done at the end of this file)
 		</div>
 		{{/if}}
 
+		<ul class="nav nav-pills preferences">
+			{{if $item.network_icon != ""}}
+                        <li><span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span></li>
+			{{else}}
+			<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
+			{{/if}}
+		</ul>
+
 		<div class="clearfix"></div>
 
 		{{* Insert Line to seperate item header and item content visually *}}
@@ -333,7 +260,7 @@ as the value of $top_child_total (this is done at the end of this file)
 		<!-- ./TODO -->
 
 		<!-- <hr /> -->
-		<p class="wall-item-actions">
+		<div class="wall-item-actions">
 			{{* Action buttons to interact with the item (like: like, dislike, share and so on *}}
 			<span class="wall-item-actions-left">
 				<!--comment this out to try something different {{if $item.threaded}}{{if $item.comment}}
@@ -350,14 +277,14 @@ as the value of $top_child_total (this is done at the end of this file)
 					<button type="button" class="btn-link button-likes{{if $item.responses.like.self}} active" aria-pressed="true{{/if}}" id="like-{{$item.id}}" title="{{$item.vote.like.0}}" onclick="doLikeAction({{$item.id}},'like');" data-toggle="button"><i class="fa fa-thumbs-up" aria-hidden="true"></i>&nbsp;{{$item.vote.like.1}}</button>
 					{{/if}}
 					{{if $item.vote.like AND $item.vote.dislike}}
-					<span role="presentation" class="separator">•</span>
+					<span role="presentation" class="separator"></span>
 					{{/if}}
 					{{if $item.vote.dislike}}
 					<button type="button" class="btn-link button-likes{{if $item.responses.dislike.self}} active" aria-pressed="true{{/if}}" id="dislike-{{$item.id}}" title="{{$item.vote.dislike.0}}" onclick="doLikeAction({{$item.id}},'dislike');" data-toggle="button"><i class="fa fa-thumbs-down" aria-hidden="true"></i>&nbsp;{{$item.vote.dislike.1}}</button>
 					{{/if}}
 
 					{{if ($item.vote.like OR $item.vote.dislike) AND $item.comment}}
-					<span role="presentation" class="separator">•</span>
+					<span role="presentation" class="separator"></span>
 					{{/if}}
 				{{/if}}
 
@@ -370,10 +297,82 @@ as the value of $top_child_total (this is done at the end of this file)
 				{{if $item.vote}}
 					{{if $item.vote.share}}
 						{{if $item.vote.like OR $item.vote.dislike OR $item.comment}}
-					<span role="presentation" class="separator">•</span>
+					<span role="presentation" class="separator"></span>
 						{{/if}}
 					<button type="button" class="btn-link button-votes" id="share-{{$item.id}}" title="{{$item.vote.share.0}}" onclick="jotShare({{$item.id}});"><i class="fa fa-retweet" aria-hidden="true"></i>&nbsp;{{$item.vote.share.1}}</button>
 					{{/if}}
+				{{/if}}
+
+				{{* Put additional actions in a dropdown menu *}}
+				{{if $item.plink || $item.drop.dropping || $item.edpost || $item.ignore || $item.tagger || $item.star || $item.filer || $item.subthread}}
+				<span role="presentation" class="separator"></span>
+				<span class="btn-group dropup">
+				<button type="button" class="btn-link dropdown-toggle" data-toggle="dropdown" id="dropdownMenuOptions-{{$item.id}}" aria-haspopup="true" aria-expanded="false" title="{{$item.menu}}"><i class="fa fa-ellipsis-h" aria-hidden="true"></i>&nbsp;{{$item.menu}}</button>
+				<ul class="dropdown-menu pull-right" role="menu" aria-labelledby="dropdownMenuOptions-{{$item.id}}">
+					{{if $item.plink}}	{{*link to the original source of the item *}}
+					<li role="menuitem">
+						<a title="{{$item.plink.title}}" href="{{$item.plink.href}}" class="navicon plink u-url"><i class="fa fa-external-link" aria-hidden="true"></i> {{$item.plink.title}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.edpost}} {{* edit the posting *}}
+					<li role="menuitem">
+						<a href="javascript:editpost('{{$item.edpost.0}}?mode=none');" title="{{$item.edpost.1}}" class="btn-link navicon pencil"><i class="fa fa-pencil" aria-hidden="true"></i> {{$item.edpost.1}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.tagger}} {{* tag the post *}}
+					<li role="menuitem">
+						<a id="tagger-{{$item.id}}" href="javascript:itemTag({{$item.id}});" class="btn-link {{$item.tagger.class}}" title="{{$item.tagger.add}}"><i class="fa fa-tag" aria-hidden="true"></i> {{$item.tagger.add}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.filer}}
+					<li role="menuitem">
+						<a id="filer-{{$item.id}}" href="javascript:itemFiler({{$item.id}});" class="btn-link filer-item filer-icon" title="{{$item.filer}}"><i class="fa fa-folder" aria-hidden="true"></i>&nbsp;{{$item.filer}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.pin}}
+					<li role="menuitem">
+						<a id="pin-{{$item.id}}" href="javascript:dopin({{$item.id}});" class="btn-link {{$item.pin.classdo}}" title="{{$item.pin.do}}"><i class="fa fa-circle-o" aria-hidden="true"></i>&nbsp;{{$item.pin.do}}</a>
+						<a id="unpin-{{$item.id}}" href="javascript:dopin({{$item.id}});" class="btn-link {{$item.pin.classundo}}" title="{{$item.pin.undo}}"><i class="fa fa-dot-circle-o" aria-hidden="true"></i>&nbsp;{{$item.pin.undo}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.star}}
+					<li role="menuitem">
+						<a id="star-{{$item.id}}" href="javascript:dostar({{$item.id}});" class="btn-link {{$item.star.classdo}}" title="{{$item.star.do}}"><i class="fa fa-star-o" aria-hidden="true"></i>&nbsp;{{$item.star.do}}</a>
+						<a id="unstar-{{$item.id}}" href="javascript:dostar({{$item.id}});" class="btn-link {{$item.star.classundo}}" title="{{$item.star.undo}}"><i class="fa fa-star" aria-hidden="true"></i>&nbsp;{{$item.star.undo}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.subthread}}
+					<li role="menuitem">
+						<a id="subthread-{{$item.id}}" href="javascript:{{$item.subthread.action}}" class="btn-link" title="{{$item.subthread.title}}"><i class="fa fa-plus" aria-hidden="true"></i>&nbsp;{{$item.subthread.title}}</a>
+					</li>
+					{{/if}}
+
+					{{if $item.ignore || $item.drop.dropping}}
+					<li role="separator" class="divider"></li>
+					{{/if}}
+
+					{{if $item.ignore}}
+						<li role="menuitem">
+							<a id="ignore-{{$item.id}}" href="javascript:doignore({{$item.id}});" class="btn-link {{$item.ignore.classdo}}" title="{{$item.ignore.do}}"><i class="fa fa-eye-slash" aria-hidden="true"></i> {{$item.ignore.do}}</a>
+						</li>
+						<li role="menuitem">
+							<a id="unignore-{{$item.id}}" href="javascript:doignore({{$item.id}});" class="btn-link {{$item.ignore.classundo}}"  title="{{$item.ignore.undo}}"><i class="fa fa-eye" aria-hidden="true"></i> {{$item.ignore.undo}}</a>
+						</li>
+					{{/if}}
+
+					{{if $item.drop.dropping}}
+					<li role="menuitem">
+						<a class="btn-link navicon delete" href="javascript:dropItem('item/drop/{{$item.id}}/{{$item.return}}', 'item-{{$item.guid}}');" title="{{$item.drop.delete}}"><i class="fa fa-trash" aria-hidden="true"></i> {{$item.drop.delete}}</a>
+					</li>
+					{{/if}}
+				</ul>
+				</span>
 				{{/if}}
 				<img id="like-rotator-{{$item.id}}" class="like-rotator" src="images/rotator.gif" alt="{{$item.wait}}" title="{{$item.wait}}" style="display: none;" />
 			</span>
@@ -395,7 +394,7 @@ as the value of $top_child_total (this is done at the end of this file)
 			{{/if}}
 				</span>
 			</span>
-		</p><!--./wall-item-actions-->
+		</div><!--./wall-item-actions-->
 
 		<div class="wall-item-links"></div>
 

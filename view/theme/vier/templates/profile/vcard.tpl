@@ -6,10 +6,6 @@
 			<div class="action">
 				<a class="icon s16 edit ttright" href="{{$profile.edit.0}}" title="{{$profile.edit.3}}"><span>{{$profile.edit.1}}</span></a>
 			</div>
-		{{else}}
-			{{if $profile.menu}}
-				<div class="profile-edit-side-div"><a class="profile-edit-side-link icon edit" title="{{$editprofile}}" href="profiles" ></a></div>
-			{{/if}}
 		{{/if}}
 	</div>
 

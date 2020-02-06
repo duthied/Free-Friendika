@@ -440,6 +440,7 @@ class Post
 			'switchcomment'   => DI::l10n()->t('Comment'),
 			'reply_label'     => DI::l10n()->t('Reply to %s', $name_e),
 			'comment'         => $comment,
+			'menu'            => DI::l10n()->t('More'),
 			'previewing'      => $conv->isPreview() ? ' preview ' : '',
 			'wait'            => DI::l10n()->t('Please wait'),
 			'thread_level'    => $thread_level,

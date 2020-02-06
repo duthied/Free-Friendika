@@ -1950,7 +1950,7 @@ code > .hl-main {
 .wall-item-container:hover .wall-item-links,
 .wall-item-container:hover .wall-item-actions,
 .wall-item-container:hover .body-attach > a {
-    opacity: 0.6;
+    opacity: 1;
     -webkit-transition: all 0.25s ease-in-out;
     -moz-transition: all 0.25s ease-in-out;
     -o-transition: all 0.25s ease-in-out;
