@@ -406,9 +406,10 @@ function settings_post(App $a)
 						Worker::add(PRIORITY_LOW, 'AddContact', $_SESSION['uid'], $csvRow[0]);
 					}
 				}
+
 				info(DI::l10n()->t('Importing Contacts done'));
 				// delete temp file
-				unlink($filename);
+				unlink($_FILES['importcontact-filename']['tmp_name']);
 			}
 		}
 	}
