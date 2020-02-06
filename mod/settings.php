@@ -403,7 +403,7 @@ function settings_post(App $a)
 					// "http" or "@" to be present in the string.
 					// All other fields from the row will be ignored
 					if ((strpos($csvRow[0],'@') !== false) || (strpos($csvRow[0],'http') !== false)) {
-						$arr = Contact::createFromProbe($_SESSION['uid'], $csvRow[0], '', false);
+						Worker::add(PRIORITY_LOW, 'AddContact', $_SESSION['uid'], $csvRow[0]);
 					}
 				}
 				info(DI::l10n()->t('Importing Contacts done'));
