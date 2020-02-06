@@ -63,7 +63,7 @@ interface IStorage
 	 *      'type',      // define the field used in form, and the type of data.
 	 *                   // one of 'checkbox', 'combobox', 'custom', 'datetime',
 	 *                   // 'input', 'intcheckbox', 'password', 'radio', 'richtext'
-	 *                   // 'select', 'select_raw', 'textarea', 'yesno'
+	 *                   // 'select', 'select_raw', 'textarea'
 	 *
 	 *      'label',     // Translatable label of the field
 	 *      'value',     // Current value
@@ -72,7 +72,6 @@ interface IStorage
 	 *                   // select: array [ value => label ] of choices
 	 *                   // intcheckbox: value of input element
 	 *                   // select_raw: prebuild html string of < option > tags
-	 *                   // yesno: array [ 'label no', 'label yes']
 	 *    ]
 	 *
 	 * See https://github.com/friendica/friendica/wiki/Quick-Template-Guide
