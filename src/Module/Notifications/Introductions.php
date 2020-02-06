@@ -97,7 +97,7 @@ class Introductions extends BaseNotifications
 				default:
 					if ($notification->getNetwork() === Protocol::DFRN) {
 						$lbl_knowyou = DI::l10n()->t('Claims to be known to you: ');
-						$knowyou     = ($notification->getKnowYou() ? DI::l10n()->t('yes') : DI::l10n()->t('no'));
+						$knowyou     = ($notification->getKnowYou() ? DI::l10n()->t('Yes') : DI::l10n()->t('No'));
 					} else {
 						$lbl_knowyou = '';
 						$knowyou = '';

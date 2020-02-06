@@ -556,6 +556,13 @@ class Site extends BaseAdmin
 		if (!is_null($current_storage_backend) && $current_storage_backend != '') {
 			foreach ($current_storage_backend->getOptions() as $name => $info) {
 				$type = $info[0];
+				// Backward compatibilty with yesno field description
+				if ($type == 'yesno') {
+					$type = 'checkbox';
+					// Remove translated labels Yes No from field info
+					unset($info[4]);
+				}
+
 				$info[0] = $storage_form_prefix . '_' . $name;
 				$info['type'] = $type;
 				$info['field'] = 'field_' . $type . '.tpl';

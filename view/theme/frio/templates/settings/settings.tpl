@@ -195,44 +195,33 @@
 							{{include file="field_checkbox.tpl" field=$desktop_notifications}}
 							<script type="text/javascript">
 								(function(){
-									var elm = $("#id_{{$desktop_notifications.0}}_onoff");
-									var ckbox = $("#id_{{$desktop_notifications.0}}");
+									let $notificationField = $("#div_id_{{$desktop_notifications.0}}");
+									let $notificationCheckbox = $("#id_{{$desktop_notifications.0}}");
 
 									if (getNotificationPermission() === 'granted') {
-										ckbox.val(1);
-										elm.find(".off").addClass("hidden");
-										elm.find(".on").removeClass("hidden");
+										$notificationCheckbox.prop('checked', true);
 									}
 									if (getNotificationPermission() === null) {
-										elm.parent(".field.yesno").hide();
+										$notificationField.hide();
 									}
 
-									$("#id_{{$desktop_notifications.0}}_onoff").on("click", function(e){
-
+									$notificationCheckbox.on('change', function(e){
 										if (Notification.permission === 'granted') {
-											localStorage.setItem('notification-permissions', ckbox.val()==1 ? 'granted' : 'denied');
+											localStorage.setItem('notification-permissions', $notificationCheckbox.prop('checked') ? 'granted' : 'denied');
 										} else if (Notification.permission === 'denied') {
 											localStorage.setItem('notification-permissions', 'denied');
 
-											ckbox.val(0);
-											elm.find(".on").addClass("hidden");
-											elm.find(".off").removeClass("hidden");
-
+											$notificationCheckbox.prop('checked', false);
 										} else if (Notification.permission === 'default') {
 											Notification.requestPermission(function(choice) {
 												if (choice === 'granted') {
-													localStorage.setItem('notification-permissions', ckbox.val()==1 ? 'granted' : 'denied');
-
+													localStorage.setItem('notification-permissions', $notificationCheckbox.prop('checked') ? 'granted' : 'denied');
 												} else {
 													localStorage.setItem('notification-permissions', 'denied');
-													ckbox.val(0);
-													elm.find(".on").addClass("hidden");
-													elm.find(".off").removeClass("hidden");
+													$notificationCheckbox.prop('checked', false);
 												}
 											});
 										}
-
-										//console.log(getNotificationPermission());
 									})
 								})();
 							</script>

@@ -1081,40 +1081,40 @@ function settings_content(App $a)
 		$profile_in_dir = '<input type="hidden" name="profile_in_directory" value="1" />';
 	} else {
 		$profile_in_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_directory', DI::l10n()->t('Publish your default profile in your local site directory?'), $profile['publish'], DI::l10n()->t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', DI::baseUrl().'/directory'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]]
+			'$field' => ['profile_in_directory', DI::l10n()->t('Publish your default profile in your local site directory?'), $profile['publish'], DI::l10n()->t('Your profile will be published in this node\'s <a href="%s">local directory</a>. Your profile details may be publicly visible depending on the system settings.', DI::baseUrl().'/directory')]
 		]);
 	}
 
 	if (strlen(DI::config()->get('system', 'directory'))) {
 		$profile_in_net_dir = Renderer::replaceMacros($opt_tpl, [
-			'$field' => ['profile_in_netdirectory', DI::l10n()->t('Publish your default profile in the global social directory?'), $profile['net-publish'], DI::l10n()->t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'))	. " " . DI::l10n()->t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting."), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]]
+			'$field' => ['profile_in_netdirectory', DI::l10n()->t('Publish your default profile in the global social directory?'), $profile['net-publish'], DI::l10n()->t('Your profile will be published in the global friendica directories (e.g. <a href="%s">%s</a>). Your profile will be visible in public.', DI::config()->get('system', 'directory'), DI::config()->get('system', 'directory'))	. " " . DI::l10n()->t("This setting also determines whether Friendica will inform search engines that your profile should be indexed or not. Third-party search engines may or may not respect this setting.")]
 		]);
 	} else {
 		$profile_in_net_dir = '';
 	}
 
 	$hide_friends = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], DI::l10n()->t('Your contact list won\'t be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$field' => ['hide-friends', DI::l10n()->t('Hide your contact/friend list from viewers of your default profile?'), $profile['hide-friends'], DI::l10n()->t('Your contact list won\'t be shown in your default profile page. You can decide to show your contact list separately for each additional profile you create')],
 	]);
 
 	$hide_wall = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$field' => ['hidewall', DI::l10n()->t('Hide your profile details from anonymous viewers?'), $a->user['hidewall'], DI::l10n()->t('Anonymous visitors will only see your profile picture, your display name and the nickname you are using on your profile page. Your public posts and replies will still be accessible by other means.')],
 	]);
 
 	$blockwall = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$field' => ['blockwall', DI::l10n()->t('Allow friends to post to your profile page?'), (intval($a->user['blockwall']) ? '0' : '1'), DI::l10n()->t('Your contacts may write posts on your profile wall. These posts will be distributed to your contacts')],
 	]);
 
 	$blocktags = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$field' => ['blocktags', DI::l10n()->t('Allow friends to tag your posts?'), (intval($a->user['blocktags']) ? '0' : '1'), DI::l10n()->t('Your contacts can add additional tags to your posts.')],
 	]);
 
 	$suggestme = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['suggestme', DI::l10n()->t('Allow us to suggest you as a potential friend to new members?'), $suggestme, DI::l10n()->t('If you like, Friendica may suggest new members to add you as a contact.'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$field' => ['suggestme', DI::l10n()->t('Allow us to suggest you as a potential friend to new members?'), $suggestme, DI::l10n()->t('If you like, Friendica may suggest new members to add you as a contact.')],
 	]);
 
 	$unkmail = Renderer::replaceMacros($opt_tpl, [
-		'$field' => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.'), [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$field' => ['unkmail', DI::l10n()->t('Permit unknown people to send you private mail?'), $unkmail, DI::l10n()->t('Friendica network users may send you private messages even if they are not in your contact list.')],
 	]);
 
 	if (!$profile['publish'] && !$profile['net-publish']) {
@@ -1134,11 +1134,11 @@ function settings_content(App $a)
 		'days' => ['expire',  DI::l10n()->t("Automatically expire posts after this many days:"), $expire, DI::l10n()->t('If empty, posts will not expire. Expired posts will be deleted')],
 		'advanced' => DI::l10n()->t('Advanced expiration settings'),
 		'label' => DI::l10n()->t('Advanced Expiration'),
-		'items' => ['expire_items',  DI::l10n()->t("Expire posts:"), $expire_items, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
-		'notes' => ['expire_notes',  DI::l10n()->t("Expire personal notes:"), $expire_notes, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
-		'starred' => ['expire_starred',  DI::l10n()->t("Expire starred posts:"), $expire_starred, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
-		'photos' => ['expire_photos',  DI::l10n()->t("Expire photos:"), $expire_photos, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
-		'network_only' => ['expire_network_only',  DI::l10n()->t("Only expire posts by others:"), $expire_network_only, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'items' => ['expire_items',  DI::l10n()->t("Expire posts:"), $expire_items],
+		'notes' => ['expire_notes',  DI::l10n()->t("Expire personal notes:"), $expire_notes],
+		'starred' => ['expire_starred',  DI::l10n()->t("Expire starred posts:"), $expire_starred],
+		'photos' => ['expire_photos',  DI::l10n()->t("Expire photos:"), $expire_photos],
+		'network_only' => ['expire_network_only',  DI::l10n()->t("Only expire posts by others:"), $expire_network_only],
 	];
 
 	$group_select = Group::displayGroupSelection(local_user(), $a->user['def_gid']);

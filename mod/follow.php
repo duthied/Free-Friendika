@@ -165,7 +165,7 @@ function follow_content(App $a)
 		'$header'        => DI::l10n()->t('Connect/Follow'),
 		'$desc'          => '',
 		'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
-		'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $ret['name']), false, '', [DI::l10n()->t('No'), DI::l10n()->t('Yes')]],
+		'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $ret['name'])],
 		'$add_note'      => DI::l10n()->t('Add a personal note:'),
 		'$page_desc'     => '',
 		'$friendica'     => '',

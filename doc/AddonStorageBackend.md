@@ -73,7 +73,6 @@ Optional. Depends on which 'type' this option is:
 - 'select': array `[ value => label ]` of choices
 - 'intcheckbox': value of input element
 - 'select_raw': prebuild html string of `<option >` tags
-- 'yesno': array `[ 'label no', 'label yes']`
 
 Each label should be translatable
 
