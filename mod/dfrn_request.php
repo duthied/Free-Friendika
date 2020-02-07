@@ -455,15 +455,9 @@ function dfrn_request_post(App $a)
 			// Diaspora needs the uri in the format user@domain.tld
 			// Diaspora will support the remote subscription in a future version
 			if ($network == Protocol::DIASPORA) {
-				$uri = $nickname . '@' . DI::baseUrl()->getHostname();
-
-				if (DI::baseUrl()->getUrlPath()) {
-					$uri .= '/' . DI::baseUrl()->getUrlPath();
-				}
-
-				$uri = urlencode($uri);
+				$uri = urlencode($a->profile['addr']);
 			} else {
-				$uri = 'profile/' . $nickname;
+				$uri = urlencode($a->profile['url']);
 			}
 
 			$url = str_replace('{uri}', $uri, $url);
