@@ -184,16 +184,6 @@ class Profile
 			require_once $theme_info_file;
 		}
 
-		if (local_user() && local_user() == $a->profile['uid'] && $profiledata) {
-			DI::page()['aside'] .= Renderer::replaceMacros(
-				Renderer::getMarkupTemplate('settings/profile/link.tpl'),
-				[
-					'$editprofile' => DI::l10n()->t('Edit profile'),
-					'$profid' => $a->profile['id']
-				]
-			);
-		}
-
 		$block = ((DI::config()->get('system', 'block_public') && !Session::isAuthenticated()) ? true : false);
 
 		/**
