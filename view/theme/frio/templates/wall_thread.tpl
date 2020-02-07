@@ -210,7 +210,7 @@ as the value of $top_child_total (this is done at the end of this file)
 
 		<ul class="nav nav-pills preferences">
 			{{if $item.network_icon != ""}}
-                        <li><span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span></li>
+			<li><span class="wall-item-network"><i class="fa fa-{{$item.network_icon}}" title="{{$item.network_name}}" aria-hidden="true"></i></span></li>
 			{{else}}
 			<li><span class="wall-item-network" title="{{$item.app}}">{{$item.network_name}}</span></li>
 			{{/if}}
