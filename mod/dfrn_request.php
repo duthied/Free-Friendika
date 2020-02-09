@@ -639,7 +639,7 @@ function dfrn_request_content(App $a)
 			'$name'          => $a->profile['name'],
 			'$myaddr'        => $myaddr,
 
-			'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows me', $a->profile['name'])],
+			'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows you', $a->profile['name'])],
 			'$addnote_field' => ['dfrn-request-message', DI::l10n()->t('Add a personal note:')],
 		]);
 		return $o;
