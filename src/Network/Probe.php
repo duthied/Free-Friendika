@@ -232,6 +232,28 @@ class Probe
 	}
 
 	/**
+	 * Get the link for the remote follow page for a given profile link
+	 *
+	 * @param sting $profile
+	 * @return string Remote follow page link
+	 */
+	public static function getRemoteFollowLink(string $profile)
+	{
+		$follow_link = '';
+
+		$links = self::lrdd($profile);
+
+		if (!empty($links) && is_array($links)) {
+			foreach ($links as $link) {
+				if ($link['@attributes']['rel'] === ActivityNamespace::OSTATUSSUB) {
+					$follow_link = $link['@attributes']['template'];
+				}
+			}
+		}
+		return $follow_link;
+	}
+
+	/**
 	 * Check an URI for LRDD data
 	 *
 	 * this is a replacement for the "lrdd" function.
