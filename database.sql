@@ -1,6 +1,6 @@
 -- ------------------------------------------
 -- Friendica 2020.03-dev (Dalmatian Bellflower)
--- DB_UPDATE_VERSION 1332
+-- DB_UPDATE_VERSION 1333
 -- ------------------------------------------
 
 
@@ -999,7 +999,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`is-default` boolean COMMENT 'Deprecated',
 	`hide-friends` boolean NOT NULL DEFAULT '0' COMMENT 'Hide friend list from viewers of this profile',
 	`name` varchar(255) NOT NULL DEFAULT '' COMMENT '',
-	`pdesc` varchar(255) NOT NULL DEFAULT '' COMMENT 'Title or description',
+	`pdesc` varchar(255) COMMENT 'Deprecated',
 	`dob` varchar(32) NOT NULL DEFAULT '0000-00-00' COMMENT 'Day of birth',
 	`address` varchar(255) NOT NULL DEFAULT '' COMMENT '',
 	`locality` varchar(255) NOT NULL DEFAULT '' COMMENT '',
@@ -1018,7 +1018,7 @@ CREATE TABLE IF NOT EXISTS `profile` (
 	`prv_keywords` text COMMENT '',
 	`likes` text COMMENT 'Deprecated',
 	`dislikes` text COMMENT 'Deprecated',
-	`about` text COMMENT 'Deprecated',
+	`about` text COMMENT 'Profile description',
 	`summary` varchar(255) COMMENT 'Deprecated',
 	`music` text COMMENT 'Deprecated',
 	`book` text COMMENT 'Deprecated',

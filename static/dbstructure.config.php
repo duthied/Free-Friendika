@@ -34,7 +34,7 @@
 use Friendica\Database\DBA;
 
 if (!defined('DB_UPDATE_VERSION')) {
-	define('DB_UPDATE_VERSION', 1332);
+	define('DB_UPDATE_VERSION', 1333);
 }
 
 return [
@@ -1088,7 +1088,7 @@ return [
 			"is-default" => ["type" => "boolean", "comment" => "Deprecated"],
 			"hide-friends" => ["type" => "boolean", "not null" => "1", "default" => "0", "comment" => "Hide friend list from viewers of this profile"],
 			"name" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
-			"pdesc" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => "Title or description"],
+			"pdesc" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"dob" => ["type" => "varchar(32)", "not null" => "1", "default" => "0000-00-00", "comment" => "Day of birth"],
 			"address" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
 			"locality" => ["type" => "varchar(255)", "not null" => "1", "default" => "", "comment" => ""],
@@ -1107,7 +1107,7 @@ return [
 			"prv_keywords" => ["type" => "text", "comment" => ""],
 			"likes" => ["type" => "text", "comment" => "Deprecated"],
 			"dislikes" => ["type" => "text", "comment" => "Deprecated"],
-			"about" => ["type" => "text", "comment" => "Deprecated"],
+			"about" => ["type" => "text", "comment" => "Profile description"],
 			"summary" => ["type" => "varchar(255)", "comment" => "Deprecated"],
 			"music" => ["type" => "text", "comment" => "Deprecated"],
 			"book" => ["type" => "text", "comment" => "Deprecated"],
