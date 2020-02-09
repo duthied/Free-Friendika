@@ -313,7 +313,7 @@ class Profile
 		if (!$local_user_is_self && $show_connect) {
 			if (!$visitor_is_authenticated) {
 				if (!empty($profile['nickname'])) {
-					$follow_link = 'dfrn_request/' . $profile['nickname'];
+					$follow_link = 'remote_follow/' . $profile['nickname'];
 				}
 			} elseif ($profile_is_native) {
 				if ($visitor_is_following) {

@@ -261,6 +261,7 @@ return [
 
 	'/randprof'                      => [Module\RandomProfile::class,         [R::GET]],
 	'/register'                      => [Module\Register::class,              [R::GET, R::POST]],
+	'/remote_follow/{profile}'       => [Module\RemoteFollow::class,          [R::GET, R::POST]],
 	'/robots.txt'                    => [Module\RobotsTxt::class,             [R::GET]],
 	'/rsd.xml'                       => [Module\ReallySimpleDiscovery::class, [R::GET]],
 	'/smilies[/json]'                => [Module\Smilies::class,               [R::GET]],
