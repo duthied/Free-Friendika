@@ -40,16 +40,16 @@ class Index extends BaseSettings
 
 		Hook::callAll('profile_post', $_POST);
 
-		$dob = Strings::escapeHtml(trim($_POST['dob'] ?? '0000-00-00'));
+		$dob = trim($_POST['dob'] ?? '');
 
-		$y = substr($dob, 0, 4);
-		if ((!ctype_digit($y)) || ($y < 1900)) {
-			$ignore_year = true;
-		} else {
-			$ignore_year = false;
-		}
+		if ($dob && !in_array($dob, ['0000-00-00', DBA::NULL_DATE])) {
+			$y = substr($dob, 0, 4);
+			if ((!ctype_digit($y)) || ($y < 1900)) {
+				$ignore_year = true;
+			} else {
+				$ignore_year = false;
+			}
 
-		if (!in_array($dob, ['0000-00-00', DBA::NULL_DATE])) {
 			if (strpos($dob, '0000-') === 0 || strpos($dob, '0001-') === 0) {
 				$ignore_year = true;
 				$dob = substr($dob, 5);
