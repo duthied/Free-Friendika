@@ -1,11 +1,22 @@
 <?php
 /**
- * @file src/Protocol/diaspora.php
- * The implementation of the diaspora protocol
+ * @copyright Copyright (C) 2020, Friendica
  *
- * The new protocol is described here: http://diaspora.github.io/diaspora_federation/index.html
- * This implementation here interprets the old and the new protocol and sends the new one.
- * In the future we will remove most stuff from "validPosting" and interpret only the new protocol.
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 namespace Friendica\Protocol;
@@ -40,7 +51,6 @@ use SimpleXMLElement;
 
 /**
  * This class contain functions to create and send Diaspora XML files
- *
  */
 class Diaspora
 {

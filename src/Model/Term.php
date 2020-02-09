@@ -1,7 +1,24 @@
 <?php
 /**
- * @file src/Model/Term.php
+ * @copyright Copyright (C) 2020, Friendica
+ *
+ * @license GNU AGPL version 3 or any later version
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
+
 namespace Friendica\Model;
 
 use Friendica\Core\Cache\Duration;
@@ -16,8 +33,6 @@ use Friendica\Util\Strings;
  * This Model class handles term table interactions.
  * This tables stores relevant terms related to posts, photos and searches, like hashtags, mentions and
  * user-applied categories.
- *
- * @package Friendica\Model
  */
 class Term
 {

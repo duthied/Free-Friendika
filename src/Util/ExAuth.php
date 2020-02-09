@@ -1,6 +1,6 @@
 <?php
 
-/*
+/**
  * ejabberd extauth script for the integration with friendica
  *
  * Originally written for joomla by Dalibor Karlovic <dado@krizevci.info>
