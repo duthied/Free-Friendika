@@ -37,7 +37,7 @@
 				</button>
 
 				{{* Left section of the NavBar with navigation shortcuts/icons *}}
-				<ul class="nav navbar-nav navbar-left" role="menubar">
+				<ul class="nav navbar-left" role="menubar">
 					{{if $nav.network}}
 					<li class="nav-segment">
 						<a accesskey="n" class="nav-menu {{$sel.network}}" href="{{$nav.network.0}}" data-toggle="tooltip" aria-label="{{$nav.network.3}}" title="{{$nav.network.3}}"><i class="fa fa-lg fa-th" aria-hidden="true"></i><span id="net-update" class="nav-network-badge badge nav-notification"></span></a>
@@ -76,14 +76,12 @@
 					{{* The notifications dropdown *}}
 					{{if $nav.notifications}}
 						<li id="nav-notification" class="nav-segment dropdown" role="presentation">
-							<button id="dropdownMenu1" class="btn-link dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
+							<button id="nav-notifications-menu-btn" class="btn-link dropdown-toggle" data-toggle="dropdown" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-notifications-menu">
 								<span id="notification-update" class="nav-notification-badge badge nav-notification dropdown" data-toggle="dropdown"></span>
 								<i class="fa fa-bell fa-lg" aria-label="{{$nav.notifications.1}}"></i>
 							</button>
 							{{* The notifications dropdown menu. There are two parts of menu. The second is at the bottom of this file. It is loaded via js. Look at nav-notifications-template *}}
-							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1">
-<!--							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="dropdownMenu1" style="display: none;">
--->
+							<ul id="nav-notifications-menu" class="dropdown-menu menu-popup" role="menu" aria-labelledby="nav-notifications-menu-btn">
 								{{* the following list entry must have the id "nav-notificaionts-mark-all". Without it this isn't visable. ....strange behavior :-/ *}}
 								<li role="presentation" id="nav-notifications-mark-all" class="dropdown-header">
 									<div class="arrow"></div>

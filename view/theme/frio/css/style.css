@@ -410,14 +410,20 @@ header #banner #logo-img,
     float: left
 }
 @media (min-width: 992px) {
-.topbar ul.nav>li>a {
-    padding-top: 15px;
-    padding-bottom: 15px;
-    line-height: 20px
-}
+	.topbar ul.nav > li > a,
+	.topbar ul.nav > li > button
+	{
+		padding-top: 15px;
+		padding-bottom: 15px;
+		line-height: 20px
+	}
 }
 @media (max-width: 991px) {
-    .topbar ul.nav>li>a { padding-left: 10px; padding-right: 10px; };
+    .topbar ul.nav > li > a,
+    .topbar ul.nav > li > button
+	{
+		padding: 15px 10px;
+	}
 }
 .topbar .dropdown-footer {
     margin: 10px
@@ -451,13 +457,24 @@ nav.navbar {
     z-index: 1030;
     color: $nav_icon_color;
 }
-#topbar-first .nav>li>a:hover,
-#topbar-first .nav>li>a:focus,
-#topbar-first .nav>.open>a,
-#dropdownMenu1:hover,
-#dropdownMenu1:focus,
-nav.navbar .nav>li>a:hover,
-nav.navbar .nav>li>a:focus{
+#topbar-first .nav > li > a,
+#topbar-first .nav > li > button,
+nav.navbar .nav > li > a,
+nav.navbar .nav > li > button
+{
+	color: $nav_icon_color;
+}
+#topbar-first .nav > li > a:hover,
+#topbar-first .nav > li > a:focus,
+#topbar-first .nav > li > button:hover,
+#topbar-first .nav > li > button:focus,
+#topbar-first .nav > .open > a,
+#topbar-first .nav > .open > button,
+nav.navbar .nav > li > a:hover,
+nav.navbar .nav > li > a:focus
+nav.navbar .nav > li > button:hover,
+nav.navbar .nav > li > button:focus
+{
     background-color: $nav_icon_hover_color;
 }
 #topbar-first .nav>.account {
@@ -487,7 +504,6 @@ nav.navbar .nav>li>a:focus{
     z-index: 3
 }
 #topbar-first .topbar-nav {
-    /*position: absolute;*/
     left: 0;
     right: 0;
     text-align: center;
@@ -497,13 +513,11 @@ nav.navbar .nav>li>a:focus{
     position: relative;
     text-align: left
 }
-#topbar-first .topbar-nav .nav-segment>a {
-/*    padding: 5px 10px;
-    margin: 10px 2px;*/
+#topbar-first .topbar-nav .nav-segment > a
+{
     display: inline-block;
-/*    border-radius: 2px;*/
     text-decoration: none;
-    text-align: left
+    text-align: left;
 }
 #topbar-first .topbar-nav .nav-segment .nav-notification {
     position: absolute;
@@ -589,10 +603,6 @@ nav.navbar .nav>li>a:focus{
 }
 #topbar-first .dropdown-footer {
     margin: 10px 10px 5px
-}
-#topbar-first a, #topbar-first .btn-link,
-nav.navbar a, nav.navbar .btn-link {
-    color: $nav_icon_color;
 }
 #topbar-first .caret {
     border-top-color: #bebebe
@@ -862,22 +872,12 @@ nav.navbar a, nav.navbar .btn-link {
 }
 
 /* Dropdown Menus */
-#dropdownMenu1 {
-    padding: 15px 15px;
-}
 .nav > li > .btn-link {
     position: relative;
     display: block;
     padding: 10px 15px;
 }
-.nav > li > .btn-link:focus,
-.nav > li > .btn-link:hover {
-    text-decoration: none;
-    background-color: #eee;
-}
-.nav .open > .btn-link,
-.nav .open > .btn-link:focus,
-.nav .open > .btn-link:hover {
+.nav .open > .btn-link {
     background-color: #eee;
     border-color: #337ab7;
 }
