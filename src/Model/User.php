@@ -1123,11 +1123,14 @@ class User
 
 		$userStmt = DBA::p("SELECT `user`.`uid`, `user`.`login_date`, `contact`.`last-item`
 			FROM `user`
-			INNER JOIN `profile` ON `profile`.`uid` = `user`.`uid`
 			INNER JOIN `contact` ON `contact`.`uid` = `user`.`uid` AND `contact`.`self`
-			WHERE (`profile`.`publish` OR `profile`.`net-publish`) AND `user`.`verified`
-				AND NOT `user`.`blocked` AND NOT `user`.`account_removed`
-				AND NOT `user`.`account_expired`");
+			WHERE `user`.`verified`
+				AND `user`.`login_date` > ?
+				AND NOT `user`.`blocked`
+				AND NOT `user`.`account_removed`
+				AND NOT `user`.`account_expired`",
+				DBA::NULL_DATETIME
+		);
 
 		if (!DBA::isResult($userStmt)) {
 			return $statistics;
