@@ -109,7 +109,7 @@ function notification($params)
 		$itemlink = $siteurl.'/message/'.$params['item']['id'];
 		$params["link"] = $itemlink;
 
-		$subject = $l10n->t( '%s New mail received at %s', $subjectPrefix, $sitename);
+		$subject = $l10n->t('%s New mail received at %s', $subjectPrefix, $sitename);
 
 		$preamble = $l10n->t('%1$s sent you a new private message at %2$s.', $params['source_name'], $sitename);
 		$epreamble = $l10n->t('%1$s sent you %2$s.', '[url='.$params['source_link'].']'.$params['source_name'].'[/url]', '[url=' . $itemlink . ']' . $l10n->t('a private message').'[/url]');
@@ -202,7 +202,7 @@ function notification($params)
 
 			$preamble = $l10n->t('%1$s tagged you at %2$s', $params['source_name'], $sitename);
 		} else {
-			$subject = $l10n->t('%s Comment to conversation #%1$d by %2$s', $subjectPrefix, $parent_id, $params['source_name']);
+			$subject = $l10n->t('%1$s Comment to conversation #%2$d by %3$s', $subjectPrefix, $parent_id, $params['source_name']);
 
 			$preamble = $l10n->t('%s commented on an item/conversation you have been following.', $params['source_name']);
 		}
@@ -246,7 +246,7 @@ function notification($params)
 	}
 
 	if ($params['type'] == Notify\Type::POKE) {
-		$subject = $l10n->t('%s %1$s poked you', $subjectPrefix, $params['source_name']);
+		$subject = $l10n->t('%1$s %2$s poked you', $subjectPrefix, $params['source_name']);
 
 		$preamble = $l10n->t('%1$s poked you at %2$s', $params['source_name'], $sitename);
 		$epreamble = $l10n->t('%1$s [url=%2$s]poked you[/url].',
