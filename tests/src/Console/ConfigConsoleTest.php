@@ -33,6 +33,8 @@ class ConfigConsoleTest extends ConsoleTest
 	 * @var App\Mode|MockInterface $appMode
 	 */
 	private $appMode;
+	/** @var IConfig|\Mockery\LegacyMockInterface|MockInterface */
+	private $configMock;
 
 	protected function setUp()
 	{
