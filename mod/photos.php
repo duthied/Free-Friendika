@@ -65,7 +65,7 @@ function photos_init(App $a) {
 			'$photo' => $profile['photo'],
 			'$addr' => $profile['addr'] ?? '',
 			'$account_type' => $account_type,
-			'$pdesc' => $profile['pdesc'] ?? '',
+			'$about' => $profile['about'] ?? '',
 		]);
 
 		$albums = Photo::getAlbums($a->data['user']['uid']);

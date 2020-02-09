@@ -20,11 +20,11 @@
 			<input type="text" size="32" name="name" id="profile-edit-name" value="{{$name.2}}"/>
 		</div>
 		<div id="profile-edit-name-end"></div>
-		<div id="profile-edit-pdesc-wrapper">
-			<label id="profile-edit-pdesc-label" for="profile-edit-pdesc">{{$pdesc.1}} </label>
-			<input type="text" size="32" name="pdesc" id="profile-edit-pdesc" value="{{$pdesc.1}}"/>
+		<div id="profile-edit-about-wrapper">
+			<label id="profile-edit-about-label" for="profile-edit-about">{{$about.1}} </label>
+			<input type="text" size="32" name="about" id="profile-edit-about" value="{{$about.1}}"/>
 		</div>
-		<div id="profile-edit-pdesc-end"></div>
+		<div id="profile-edit-about-end"></div>
 		<div id="profile-edit-dob-wrapper">
 			{{$dob nofilter}}
 		</div>

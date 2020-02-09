@@ -136,8 +136,8 @@ class Profile extends BaseProfile
 			}
 		}
 
-		if ($a->profile['pdesc']) {
-			$basic_fields += self::buildField('pdesc', DI::l10n()->t('Description:'), HTML::toLink($a->profile['pdesc']));
+		if ($a->profile['about']) {
+			$basic_fields += self::buildField('about', DI::l10n()->t('Description:'), BBCode::convert($a->profile['about']));
 		}
 
 		if ($a->profile['xmpp']) {

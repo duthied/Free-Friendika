@@ -722,7 +722,7 @@ class Contact
 			return;
 		}
 
-		$fields = ['name', 'photo', 'thumb', 'pdesc' => 'about', 'address', 'locality', 'region',
+		$fields = ['name', 'photo', 'thumb', 'about', 'address', 'locality', 'region',
 			'country-name', 'pub_keywords', 'xmpp', 'net-publish'];
 		$profile = DBA::selectFirst('profile', $fields, ['uid' => $uid]);
 		if (!DBA::isResult($profile)) {

@@ -77,7 +77,7 @@ class Show extends BaseApi
 			'profile_thumb'    => $profile_row['thumb'],
 			'publish'          => $profile_row['publish'] ? true : false,
 			'net_publish'      => $profile_row['net-publish'] ? true : false,
-			'description'      => $profile_row['pdesc'],
+			'description'      => $profile_row['about'],
 			'date_of_birth'    => $profile_row['dob'],
 			'address'          => $profile_row['address'],
 			'city'             => $profile_row['locality'],

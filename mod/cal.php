@@ -59,9 +59,9 @@ function cal_init(App $a)
 	$vcard_widget = Renderer::replaceMacros($tpl, [
 		'$name' => $profile['name'],
 		'$photo' => $profile['photo'],
-		'$addr' => (($profile['addr'] != "") ? $profile['addr'] : ""),
+		'$addr' => $profile['addr'] ?: '',
 		'$account_type' => $account_type,
-		'$pdesc' => (($profile['pdesc'] != "") ? $profile['pdesc'] : ""),
+		'$about' => $profile['about'] ?: '',
 	]);
 
 	$cal_widget = Widget\CalendarExport::getHTML();

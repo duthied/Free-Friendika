@@ -105,7 +105,7 @@ class Directory extends BaseModule
 
 		$profile_link = $contact['profile_url'];
 
-		$pdesc = (($contact['pdesc']) ? $contact['pdesc'] . '<br />' : '');
+		$about = (($contact['about']) ? $contact['about'] . '<br />' : '');
 
 		$details = '';
 		if (strlen($contact['locality'])) {
@@ -157,7 +157,7 @@ class Directory extends BaseModule
 			'profile'      => $profile,
 			'location'     => $location_e,
 			'tags'         => $contact['pub_keywords'],
-			'pdesc'        => $pdesc,
+			'about'        => $about,
 			'homepage'     => $homepage,
 			'photo_menu'   => $photo_menu,
 

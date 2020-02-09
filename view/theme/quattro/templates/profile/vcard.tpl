@@ -17,7 +17,7 @@
 
 	{{if $profile.addr}}<div class="p-addr">{{$profile.addr}}</div>{{/if}}
 
-	{{if $pdesc}}<div class="title">{{$profile.pdesc}}</div>{{/if}}
+	{{if $about}}<div class="title">{{$profile.about}}</div>{{/if}}
 	<div id="profile-photo-wrapper"><img class="photo u-photo" width="175" height="175" src="{{$profile.photo}}?rev={{$profile.picdate}}" alt="{{$profile.name}}" /></div>
 
 	{{if $account_type}}<div class="account-type">{{$account_type}}</div>{{/if}}

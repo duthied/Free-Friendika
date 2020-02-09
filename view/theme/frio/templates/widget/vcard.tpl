@@ -30,7 +30,7 @@
 
 			{{if $account_type}}<div class="account-type">({{$account_type}})</div>{{/if}}
 
-			{{if $pdesc}}<div class="title">{{$pdesc}}</div>{{/if}}
+			{{if $about}}<div class="title">{{$about}}</div>{{/if}}
 
 			{{if $network_link}}<dl class="network"><dt class="network-label">{{$network}}</dt><dd class="x-network">{{$network_link nofilter}}</dd></dl>{{/if}}
 		</div>
