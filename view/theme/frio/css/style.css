@@ -417,7 +417,11 @@ header #banner #logo-img,
 }
 }
 @media (max-width: 991px) {
-    .topbar ul.nav>li>a { padding-left: 10px; padding-right: 10px; };
+    .topbar ul.nav > li > a,
+    .topbar ul.nav > li > button
+	{
+		padding: 15px 10px;
+	}
 }
 .topbar .dropdown-footer {
     margin: 10px
@@ -862,9 +866,6 @@ nav.navbar a, nav.navbar .btn-link {
 }
 
 /* Dropdown Menus */
-#dropdownMenu1 {
-    padding: 15px 15px;
-}
 .nav > li > .btn-link {
     position: relative;
     display: block;
