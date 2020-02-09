@@ -24,7 +24,7 @@ namespace Friendica\Util;
 /**
  * Util class for filesystem manipulation
  */
-final class FileSystem
+class FileSystem
 {
 	/**
 	 * @var string a error message
