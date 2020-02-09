@@ -1,3 +1,5 @@
+# Drone.io test YML-File, currently disabled
+# See https://github.com/friendica/friendica/pull/7643 for further infos
 kind: pipeline
 name: mysql8.0-php7.1
 
