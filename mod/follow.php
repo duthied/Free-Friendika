@@ -177,7 +177,7 @@ function follow_content(App $a)
 		'$myaddr'        => $myaddr,
 		'$keywords'      => $r[0]['keywords'],
 
-		'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $ret['name'])],
+		'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows you', $ret['name'])],
 		'$addnote_field' => ['dfrn-request-message', DI::l10n()->t('Add a personal note:')],
 	]);
 
