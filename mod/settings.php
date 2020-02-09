@@ -406,9 +406,10 @@ function settings_post(App $a)
 						Worker::add(PRIORITY_LOW, 'AddContact', $_SESSION['uid'], $csvRow[0]);
 					}
 				}
+
 				info(DI::l10n()->t('Importing Contacts done'));
 				// delete temp file
-				unlink($filename);
+				unlink($_FILES['importcontact-filename']['tmp_name']);
 			}
 		}
 	}
@@ -791,8 +792,8 @@ function settings_content(App $a)
 		Hook::callAll('connector_settings', $settings_connectors);
 
 		if (is_site_admin()) {
-			$diasp_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('Diaspora'), ((DI::config()->get('system', 'diaspora_enabled')) ? DI::l10n()->t('enabled') : DI::l10n()->t('disabled')));
-			$ostat_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t("GNU Social \x28OStatus\x29"), ((DI::config()->get('system', 'ostatus_disabled')) ? DI::l10n()->t('disabled') : DI::l10n()->t('enabled')));
+			$diasp_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('Diaspora (Socialhome, Hubzilla)'), ((DI::config()->get('system', 'diaspora_enabled')) ? DI::l10n()->t('enabled') : DI::l10n()->t('disabled')));
+			$ostat_enabled = DI::l10n()->t('Built-in support for %s connectivity is %s', DI::l10n()->t('OStatus (GNU Social)'), ((DI::config()->get('system', 'ostatus_disabled')) ? DI::l10n()->t('disabled') : DI::l10n()->t('enabled')));
 		} else {
 			$diasp_enabled = "";
 			$ostat_enabled = "";

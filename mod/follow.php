@@ -163,29 +163,22 @@ function follow_content(App $a)
 
 	$o = Renderer::replaceMacros($tpl, [
 		'$header'        => DI::l10n()->t('Connect/Follow'),
-		'$desc'          => '',
 		'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
-		'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $ret['name'])],
-		'$add_note'      => DI::l10n()->t('Add a personal note:'),
-		'$page_desc'     => '',
-		'$friendica'     => '',
-		'$statusnet'     => '',
-		'$diaspora'      => '',
-		'$diasnote'      => '',
 		'$your_address'  => DI::l10n()->t('Your Identity Address:'),
-		'$invite_desc'   => '',
-		'$emailnet'      => '',
+		'$url_label'     => DI::l10n()->t('Profile URL'),
+		'$keywords_label'=> DI::l10n()->t('Tags:'),
 		'$submit'        => $submit,
 		'$cancel'        => DI::l10n()->t('Cancel'),
-		'$nickname'      => '',
+
+		'$request'       => $request,
 		'$name'          => $ret['name'],
 		'$url'           => $ret['url'],
 		'$zrl'           => Profile::zrl($ret['url']),
-		'$url_label'     => DI::l10n()->t('Profile URL'),
 		'$myaddr'        => $myaddr,
-		'$request'       => $request,
 		'$keywords'      => $r[0]['keywords'],
-		'$keywords_label'=> DI::l10n()->t('Tags:')
+
+		'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $ret['name'])],
+		'$addnote_field' => ['dfrn-request-message', DI::l10n()->t('Add a personal note:')],
 	]);
 
 	DI::page()['aside'] = '';

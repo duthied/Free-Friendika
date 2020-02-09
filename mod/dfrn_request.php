@@ -626,28 +626,21 @@ function dfrn_request_content(App $a)
 			$tpl = Renderer::getMarkupTemplate('auto_request.tpl');
 		}
 
-		$page_desc = DI::l10n()->t("Please enter your 'Identity Address' from one of the following supported communications networks:");
-
-		$invite_desc = DI::l10n()->t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica site and join us today</a>.', Search::getGlobalDirectory() . '/servers');
-
 		$o = Renderer::replaceMacros($tpl, [
-			'$header' => DI::l10n()->t('Friend/Connection Request'),
-			'$desc' => DI::l10n()->t('Examples: jojo@demo.friendica.com, http://demo.friendica.com/profile/jojo, testuser@gnusocial.de'),
-			'$pls_answer' => DI::l10n()->t('Please answer the following:'),
-			'$does_know_you' => ['knowyou', DI::l10n()->t('Does %s know you?', $a->profile['name'])],
-			'$add_note' => DI::l10n()->t('Add a personal note:'),
-			'$page_desc' => $page_desc,
-			'$friendica' => DI::l10n()->t('Friendica'),
-			'$statusnet' => DI::l10n()->t("GNU Social \x28Pleroma, Mastodon\x29"),
-			'$diaspora' => DI::l10n()->t("Diaspora \x28Socialhome, Hubzilla\x29"),
-			'$diasnote' => DI::l10n()->t(' - please do not use this form.  Instead, enter %s into your Diaspora search bar.', $target_addr),
-			'$your_address' => DI::l10n()->t('Your Identity Address:'),
-			'$invite_desc' => $invite_desc,
-			'$submit' => DI::l10n()->t('Submit Request'),
-			'$cancel' => DI::l10n()->t('Cancel'),
-			'$nickname' => $a->argv[1],
-			'$name' => $a->profile['name'],
-			'$myaddr' => $myaddr
+			'$header'        => DI::l10n()->t('Friend/Connection Request'),
+			'$page_desc'     => DI::l10n()->t('Enter your Webfinger address (user@domain.tld) or profile URL here. If this isn\'t supported by your system (for example it doesn\'t work with Diaspora), you have to subscribe to <strong>%s</strong> directly on your system', $target_addr),
+			'$invite_desc'   => DI::l10n()->t('If you are not yet a member of the free social web, <a href="%s">follow this link to find a public Friendica node and join us today</a>.', Search::getGlobalDirectory() . '/servers'),
+			'$your_address'  => DI::l10n()->t('Your Webfinger address or profile URL:'),
+			'$pls_answer'    => DI::l10n()->t('Please answer the following:'),
+			'$submit'        => DI::l10n()->t('Submit Request'),
+			'$cancel'        => DI::l10n()->t('Cancel'),
+
+			'$request'       => 'dfrn_request/' . $a->argv[1],
+			'$name'          => $a->profile['name'],
+			'$myaddr'        => $myaddr,
+
+			'$does_know_you' => ['knowyou', DI::l10n()->t('%s knows me', $a->profile['name'])],
+			'$addnote_field' => ['dfrn-request-message', DI::l10n()->t('Add a personal note:')],
 		]);
 		return $o;
 	}
