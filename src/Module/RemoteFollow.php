@@ -19,10 +19,6 @@ class RemoteFollow extends BaseModule
 {
 	public static function init(array $parameters = [])
 	{
-		if (empty($parameters['profile'])) {
-			return;
-		}
-
 		Profile::load(DI::app(), $parameters['profile']);
 	}
 
@@ -30,18 +26,18 @@ class RemoteFollow extends BaseModule
 	{
 		$a = DI::app();
 
-		if (empty($parameters['profile']) || !empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
+		if (!empty($_POST['cancel']) || empty($_POST['dfrn_url'])) {
 			DI::baseUrl()->redirect();
 		}
 	
 		if (empty($a->profile['uid'])) {
-			notice(DI::l10n()->t('Profile unavailable.') . EOL);
+			notice(DI::l10n()->t('Profile unavailable.'));
 			return;
 		}
 		
 		$url = trim($_POST['dfrn_url']);
 		if (!strlen($url)) {
-			notice(DI::l10n()->t("Invalid locator") . EOL);
+			notice(DI::l10n()->t("Invalid locator"));
 			return;
 		}
 
@@ -79,7 +75,7 @@ class RemoteFollow extends BaseModule
 	{
 		$a = DI::app();
 
-		if (empty($parameters['profile']) || empty($a->profile)) {
+		if (empty($a->profile)) {
 			return '';
 		}
 	
@@ -98,7 +94,7 @@ class RemoteFollow extends BaseModule
 
 			'$request'       => 'remote_follow/' . $parameters['profile'],
 			'$name'          => $a->profile['name'],
-			'$myaddr'        => '', //Profile::getMyURL(),
+			'$myaddr'        => Profile::getMyURL(),
 		]);
 		return $o;
 	}
