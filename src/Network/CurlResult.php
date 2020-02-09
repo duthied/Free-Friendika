@@ -1,3 +1,4 @@
+<?php
 /**
  * @copyright Copyright (C) 2020, Friendica
  *
@@ -16,7 +17,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- */ Friendica\Network;
+ */
+
+namespace Friendica\Network;
 
 use Friendica\Core\Logger;
 use Friendica\Network\HTTPException\InternalServerErrorException;
