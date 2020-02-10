@@ -104,8 +104,6 @@ class Index extends BaseSettings
 			$homepage = 'http://' . $homepage;
 		}
 
-		$hide_friends = intval(!empty($_POST['hide-friends']));
-
 		$profileFields = DI::profileField()->selectByUserId(local_user());
 
 		$profileFields = DI::profileField()->updateCollectionFromForm(
@@ -132,7 +130,6 @@ class Index extends BaseSettings
 				'homepage'     => $homepage,
 				'pub_keywords' => $pub_keywords,
 				'prv_keywords' => $prv_keywords,
-				'hide-friends' => $hide_friends,
 			],
 			['uid' => local_user()]
 		);
@@ -232,20 +229,6 @@ class Index extends BaseSettings
 			'$baseurl' => DI::baseUrl()->get(true),
 		]);
 
-		$opt_tpl = Renderer::getMarkupTemplate('settings/profile/hide-friends.tpl');
-		$hide_friends = Renderer::replaceMacros($opt_tpl, [
-			'$hide_friends' => [
-				'hide-friends', //Name
-				DI::l10n()->t('Hide contacts and friends:'), //Label
-				!!$profile['hide-friends'], //Value
-			],
-			'$desc' => DI::l10n()->t('Hide your contact/friend list from viewers of this profile?'),
-			'$yes_str' => DI::l10n()->t('Yes'),
-			'$no_str' => DI::l10n()->t('No'),
-			'$yes_selected' => (($profile['hide-friends']) ? ' checked="checked"' : ''),
-			'$no_selected' => (($profile['hide-friends'] == 0) ? ' checked="checked"' : '')
-		]);
-
 		$personal_account = !in_array($a->user['page-flags'], [User::PAGE_FLAGS_COMMUNITY, User::PAGE_FLAGS_PRVGROUP]);
 
 		$tpl = Renderer::getMarkupTemplate('settings/profile/index.tpl');
@@ -275,7 +258,6 @@ class Index extends BaseSettings
 			'$name' => ['name', DI::l10n()->t('Display name:'), $profile['name']],
 			'$about' => ['about', DI::l10n()->t('Description:'), $profile['about']],
 			'$dob' => Temporal::getDateofBirthField($profile['dob'], $a->user['timezone']),
-			'$hide_friends' => $hide_friends,
 			'$address' => ['address', DI::l10n()->t('Street Address:'), $profile['address']],
 			'$locality' => ['locality', DI::l10n()->t('Locality/City:'), $profile['locality']],
 			'$region' => ['region', DI::l10n()->t('Region/State:'), $profile['region']],
