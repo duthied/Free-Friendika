@@ -3,11 +3,21 @@ var jotcache = ''; //The jot cache. We use it as cache to restore old/original j
 
 $(document).ready(function(){
 	//fade in/out based on scrollTop value
+	var scrollStart;
+
 	$(window).scroll(function () {
-		if ($(this).scrollTop() > 1000) {
-			$("#back-to-top").fadeIn();
-		} else {
+		let currentScroll = $(this).scrollTop();
+
+		// Top of the page or going down = hide the button
+		if (!scrollStart || !currentScroll || currentScroll > scrollStart) {
 			$("#back-to-top").fadeOut();
+			scrollStart = currentScroll;
+		}
+
+		// Going up enough = show the button
+		if (scrollStart - currentScroll > 100) {
+			$("#back-to-top").fadeIn();
+			scrollStart = currentScroll;
 		}
 	});
 
